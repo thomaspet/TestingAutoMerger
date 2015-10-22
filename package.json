@@ -3,7 +3,9 @@
   "version": "0.0.1",
   "scripts": {
     "tsc": "tsc -p src -w",
-    "start": "live-server --open=src"
+    "start": "live-server --open=src",
+    "clean": "rimraf src/**/*.js src/**/*.js.map",
+    "test": "karma start karma.conf.js"
   },
   "dependencies": {
     "angular2": "2.0.0-alpha.44",
