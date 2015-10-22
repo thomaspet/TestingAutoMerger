@@ -194,3 +194,10 @@ FakesAssemblies/
 
 # Visual Studio 6 workspace options file
 *.opt
+
+typings
+src/**/*.js
+src/**/*.map
+node_modules
+jspm_packages
+bower_components
