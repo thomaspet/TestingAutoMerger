@@ -1,9 +1,8 @@
-import {Component, AfterViewInit,ElementRef} from 'angular2/angular2';
+import {Directive, AfterViewInit,ElementRef} from 'angular2/angular2';
 
-@Component({
-	selector:'autocomplete',
+@Directive({
+	selector:'[autocomplete]',
 	properties:['ngControl','formControl'],
-	template:'<input type="text" />',
 	host: {'ng-control':'ngControl'}
 })
 export class Autocomplete implements AfterViewInit {
@@ -16,7 +15,7 @@ export class Autocomplete implements AfterViewInit {
 	
 	afterViewInit() {
 		var component = this;
-		var elem:any = $(this.element.nativeElement.children[0]);
+		var elem:any = $(this.element.nativeElement);
 		elem.kendoAutoComplete({
 			dataTextField:'name',
 			dataValueField:'id',

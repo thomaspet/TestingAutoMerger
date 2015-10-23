@@ -42,7 +42,7 @@
       </p>
       <p>
         <label for="comments">Autocomplete</label>
-        <autocomplete ng-control="autocomplete" [form-control]="f"></autocomplete>
+        <input type="text" autocomplete ng-control="autocomplete" [form-control]="f"></autocomplete>
         </textarea>
       </p>
       <button type="submit" [disabled]="!f.form.valid">Submit</button>
