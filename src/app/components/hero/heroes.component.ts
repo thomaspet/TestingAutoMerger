@@ -3,12 +3,12 @@ import {Router} from 'angular2/router';
 import {HeroService} from './hero.service';
 import {HeroDetailComponent} from './hero-detail.component';
 import {Hero} from './hero';
-import {Routes} from './route.config';
+import {Routes} from '../../route.config';
 
 @Component({
   selector: 'my-heroes',
-  templateUrl: 'app/heroes.component.html',
-  styleUrls: ['app/heroes.component.css'],
+  templateUrl: 'app/components/hero/heroes.component.html',
+  styleUrls: ['app/components/hero/heroes.component.css'],
   directives: [CORE_DIRECTIVES, FORM_DIRECTIVES, HeroDetailComponent]
 })
 export class HeroesComponent implements OnInit {
