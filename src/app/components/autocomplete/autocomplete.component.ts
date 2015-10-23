@@ -16,7 +16,8 @@ export class Autocomplete implements AfterViewInit {
 	
 	afterViewInit() {
 		var component = this;
-		$(this.element.nativeElement.children[0]).kendoAutoComplete({
+		var elem:any = $(this.element.nativeElement.children[0]);
+		elem.kendoAutoComplete({
 			dataTextField:'name',
 			dataValueField:'id',
 			template: '<span>#: data.id # - #: data.name #</span>',
