@@ -1,11 +1,12 @@
 import {HeroesComponent} from './components/hero/heroes.component';
 import {HeroDetailComponent} from './components/hero/hero-detail.component';
 import {DashboardComponent} from './components/dashboard/dashboard.component';
+import {ModelDrivenForms} from './components/modelDrivenForms/modelDrivenForms.component';
 
 export var Routes = {
 	dashboard: {
 		path: '/',
-    as: 'Dashboard',
+    	as: 'Dashboard',
 		component: DashboardComponent
 	},
 	heroes: {
@@ -17,6 +18,11 @@ export var Routes = {
 		path: '/detail/:id',
 		as: 'Detail',
 		component: HeroDetailComponent
+	},
+	modelDrivenForms: {
+		path:'/model-driven-forms',
+		as: 'ModelDrivenForms',
+		component: ModelDrivenForms
 	}
 };
 
