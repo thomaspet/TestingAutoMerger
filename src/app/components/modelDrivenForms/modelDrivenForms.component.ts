@@ -14,8 +14,11 @@ import {
 
 import {RegExpWrapper, print, isPresent} from 'angular2/src/core/facade/lang';
 
+import {Autocomplete} from '../autocomplete/autocomplete.component';
+
 /**
  * Custom validator.
+ * FORM BUILDER DOESN'T SUPPOR ASYNC VALIDATOR BUT IT WILL.
  */
 function creditCardValidator(c): {[key: string]: boolean} {
   if (isPresent(c.value) && RegExpWrapper.test(/^\d{16}$/g, c.value)) {
@@ -25,7 +28,10 @@ function creditCardValidator(c): {[key: string]: boolean} {
   }
 }
 
-@Component({selector: 'show-error', inputs: ['controlPath: control', 'errorTypes: errors']})
+@Component({
+  selector: 'show-error', 
+  inputs: ['controlPath: control', 'errorTypes: errors']
+})
 @View({
   template: `
     <span *ng-if="errorMessage !== null">{{errorMessage}}</span>
@@ -52,62 +58,20 @@ class ShowError {
   }
 
   _errorMessage(code: string): string {
-    var config = {'required': 'is required', 'invalidCreditCard': 'is invalid credit card number'};
+    var config = {
+      'required': 'is required', 
+      'invalidCreditCard': 'is invalid credit card number',
+      'invalidAsyncCreditCard': 'is invalid credit card number (async)'
+    };
     return config[code];
   }
 }
 
-
 @Component({selector: 'model-driven-forms', viewProviders: [FormBuilder]})
 @View({
   styles: ['.ng-touched.ng-invalid { border-color: red; }'],
-  template: `
-    <h1>Checkout Form (Model Driven)</h1>
-    <form (ng-submit)="onSubmit()" [ng-form-model]="form" #f="form">
-      <p>
-        <label for="firstName">First Name</label>
-        <input type="text" id="firstName" ng-control="firstName">
-        <show-error control="firstName" [errors]="['required']"></show-error>
-      </p>
-      <p>
-        <label for="middleName">Middle Name</label>
-        <input type="text" id="middleName" ng-control="middleName">
-      </p>
-      <p>
-        <label for="lastName">Last Name</label>
-        <input type="text" id="lastName" ng-control="lastName">
-        <show-error control="lastName" [errors]="['required']"></show-error>
-      </p>
-      <p>
-        <label for="country">Country</label>
-        <select id="country" ng-control="country">
-          <option *ng-for="#c of countries" [value]="c">{{c}}</option>
-        </select>
-      </p>
-      <p>
-        <label for="creditCard">Credit Card</label>
-        <input type="text" id="creditCard" ng-control="creditCard">
-        <show-error control="creditCard" [errors]="['required', 'invalidCreditCard']"></show-error>
-      </p>
-      <p>
-        <label for="amount">Amount</label>
-        <input type="number" id="amount" ng-control="amount">
-        <show-error control="amount" [errors]="['required']"></show-error>
-      </p>
-      <p>
-        <label for="email">Email</label>
-        <input type="email" id="email" ng-control="email">
-        <show-error control="email" [errors]="['required']"></show-error>
-      </p>
-      <p>
-        <label for="comments">Comments</label>
-        <textarea id="comments" ng-control="comments">
-        </textarea>
-      </p>
-      <button type="submit" [disabled]="!f.form.valid">Submit</button>
-    </form>
-  `,
-  directives: [FORM_DIRECTIVES, NgFor, ShowError]
+  templateUrl: 'app/components/modelDrivenForms/modelDrivenForms.component.html',
+  directives: [FORM_DIRECTIVES, NgFor, ShowError, Autocomplete]
 })
 export class ModelDrivenForms {
   form;
@@ -122,7 +86,8 @@ export class ModelDrivenForms {
       "creditCard": ["", Validators.compose([Validators.required, creditCardValidator])],
       "amount": [0, Validators.required],
       "email": ["", Validators.required],
-      "comments": [""]
+      "comments": [""],
+      "autocomplete": [""]
     });
   }
 

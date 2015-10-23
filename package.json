@@ -9,6 +9,7 @@
   },
   "dependencies": {
     "angular2": "2.0.0-alpha.44",
+    "jquery": "^2.1.4",
     "systemjs": "0.19.2"
   },
   "devDependencies": {
