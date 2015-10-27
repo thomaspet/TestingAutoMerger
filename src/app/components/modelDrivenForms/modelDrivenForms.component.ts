@@ -28,6 +28,15 @@ function creditCardValidator(c): {[key: string]: boolean} {
   }
 }
 
+var emailRegex = /\S+@\S+\.\S+/;
+function emailValidator(c): {[key: string]: boolean} {
+  if (isPresent(c.value) && RegExpWrapper.test(emailRegex, c.value)) {
+    return null;
+  } else {
+    return {"invalidEmail": true};
+  }
+}
+
 @Component({
   selector: 'show-error', 
   inputs: ['controlPath: control', 'errorTypes: errors']
@@ -61,7 +70,7 @@ class ShowError {
     var config = {
       'required': 'is required', 
       'invalidCreditCard': 'is invalid credit card number',
-      'invalidAsyncCreditCard': 'is invalid credit card number (async)'
+      'invalidEmail': 'is invalid email'
     };
     return config[code];
   }
@@ -85,7 +94,7 @@ export class ModelDrivenForms {
       "country": ["Canada", Validators.required],
       "creditCard": ["", Validators.compose([Validators.required, creditCardValidator])],
       "amount": [0, Validators.required],
-      "email": ["", Validators.required],
+      "email": ["", Validators.compose([Validators.required,emailValidator])],
       "comments": [""],
       "autocomplete": [""]
     });

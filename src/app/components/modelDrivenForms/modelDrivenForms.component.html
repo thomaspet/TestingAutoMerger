@@ -33,7 +33,7 @@
     <p>
         <label for="email">Email</label>
         <input type="email" id="email" ng-control="email">
-        <show-error control="email" [errors]="['required']"></show-error>
+        <show-error control="email" [errors]="['required','invalidEmail']"></show-error>
     </p>
     <p>
         <label for="comments">Comments</label>
