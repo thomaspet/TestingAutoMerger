@@ -20,7 +20,7 @@ import {Autocomplete} from '../autocomplete/autocomplete.component';
  * Custom validator.
  * FORM BUILDER DOESN'T SUPPOR ASYNC VALIDATOR BUT IT WILL.
  */
-function creditCardValidator(c): {[key: string]: boolean} {
+export function creditCardValidator(c): {[key: string]: boolean} {
   if (isPresent(c.value) && RegExpWrapper.test(/^\d{16}$/g, c.value)) {
     return null;
   } else {
@@ -29,7 +29,7 @@ function creditCardValidator(c): {[key: string]: boolean} {
 }
 
 var emailRegex = /\S+@\S+\.\S+/;
-function emailValidator(c): {[key: string]: boolean} {
+export function emailValidator(c): {[key: string]: boolean} {
   if (isPresent(c.value) && RegExpWrapper.test(emailRegex, c.value)) {
     return null;
   } else {
@@ -47,7 +47,7 @@ function emailValidator(c): {[key: string]: boolean} {
   `,
   directives: [NgIf]
 })
-class ShowError {
+export class ShowError {
   formDir;
   controlPath: string;
   errorTypes: string[];
