@@ -1,49 +1,48 @@
 <h1>Checkout Form (Model Driven)</h1>
-<form (ng-submit)="onSubmit()" [ng-form-model]="form" #f="form">
-    <p>
+<form (ng-submit)="onSubmit()" [ng-form-model]="form" #f="form" class="col-lg-4">
+    <p  class="form-group">
         <label for="firstName">First Name</label>
-        <input type="text" id="firstName" ng-control="firstName">
+        <input type="text" id="firstName" ng-control="firstName" class="form-control">
         <show-error control="firstName" [errors]="['required']"></show-error>
     </p>
-    <p>
+    <p class="form-group">
         <label for="middleName">Middle Name</label>
-        <input type="text" id="middleName" ng-control="middleName">
+        <input type="text" id="middleName" ng-control="middleName" class="form-control">
     </p>
-    <p>
+    <p class="form-group">
         <label for="lastName">Last Name</label>
-        <input type="text" id="lastName" ng-control="lastName">
+        <input type="text" id="lastName" ng-control="lastName" class="form-control">
         <show-error control="lastName" [errors]="['required']"></show-error>
     </p>
-    <p>
+    <p class="form-group">
         <label for="country">Country</label>
-        <select id="country" ng-control="country">
+        <select id="country" ng-control="country" class="form-control">
             <option *ng-for="#c of countries" [value]="c">{{c}}</option>
         </select>
     </p>
-    <p>
+    <p class="form-group">
         <label for="creditCard">Credit Card</label>
-        <input type="text" id="creditCard" ng-control="creditCard">
+        <input type="text" id="creditCard" ng-control="creditCard" class="form-control">
         <show-error control="creditCard" [errors]="['required', 'invalidCreditCard']"></show-error>
     </p>
-    <p>
+    <p class="form-group">
         <label for="amount">Amount</label>
-        <input type="number" id="amount" ng-control="amount">
+        <input type="number" id="amount" ng-control="amount" class="form-control">
         <show-error control="amount" [errors]="['required']"></show-error>
     </p>
-    <p>
+    <p class="form-group">
         <label for="email">Email</label>
-        <input type="email" id="email" ng-control="email">
+        <input type="email" id="email" ng-control="email" class="form-control">
         <show-error control="email" [errors]="['required','invalidEmail']"></show-error>
     </p>
-    <p>
+    <p class="form-group">
         <label for="comments">Comments</label>
-        <textarea id="comments" ng-control="comments">
+        <textarea id="comments" ng-control="comments" class="form-control">
         </textarea>
     </p>
-    <p>
+    <p class="form-group">
         <label for="comments">Autocomplete</label>
-        <input type="text" autocomplete ng-control="autocomplete" [form-control]="f"></autocomplete>
-        </textarea>
+        <input type="text" autocomplete ng-control="autocomplete" [form-control]="f" class="form-control">
     </p>
     <button type="submit" [disabled]="!f.form.valid">Submit</button>
 </form>

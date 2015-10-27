@@ -43,7 +43,7 @@ function emailValidator(c): {[key: string]: boolean} {
 })
 @View({
   template: `
-    <span *ng-if="errorMessage !== null">{{errorMessage}}</span>
+    <small *ng-if="errorMessage !== null">{{errorMessage}}</small>
   `,
   directives: [NgIf]
 })
