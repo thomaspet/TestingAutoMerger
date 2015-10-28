@@ -4,6 +4,7 @@ import {DashboardComponent} from './components/dashboard/dashboard.component';
 import {ModelDrivenForms} from './components/modelDrivenForms/modelDrivenForms.component';
 import {OrderGrid} from './components/order/order.component';
 import {OrderDetail} from './components/order/orderDetail.component';
+import {HelloWorld} from './components/helloworld';
 
 export var Routes = {
 	dashboard: {
@@ -35,6 +36,11 @@ export var Routes = {
 		path:'/model-driven-forms',
 		as: 'ModelDrivenForms',
 		component: ModelDrivenForms
+	},
+	helloworld: {
+		path:'/helloworld',
+		as: 'HelloWorld',
+		component:HelloWorld
 	}
 };
 

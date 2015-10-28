@@ -10,6 +10,7 @@ import {Routes, APP_ROUTES} from './route.config';
     <a [router-link]="['/' + routes.heroes.as]" class="router-link">Heroes</a>
     <a [router-link]="['/' + routes.modelDrivenForms.as]" class="router-link">FormTest</a>
     <a [router-link]="['/' + routes.order.as]" class="router-link">Orders</a>
+    <a [router-link]="['/' + routes.helloworld.as]" class="router-link">HelloWorld</a>
     <router-outlet></router-outlet>
   `,
   styles: [`
