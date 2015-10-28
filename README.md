@@ -2,6 +2,17 @@
 # FrontendNg2
 Uni Economy Angular2 version
 
+# Resources
+ - http://angular.io
+ - http://github.com/angular/angular
+ - https://github.com/timjacobi/angular2-education
+ - https://github.com/angular-class/awesome-angular2
+ - Ng-book
+ - Gitter
+ - Stackoverflow
+ - Youtube
+ - http://www.telerik.com/forums
+
 
 # Getting Started
 
