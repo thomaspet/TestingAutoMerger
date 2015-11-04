@@ -1,42 +1,26 @@
-import {Directive, AfterViewInit, ElementRef, Input} from 'angular2/angular2';
+import {Directive, AfterViewInit, ElementRef, Input, Control} from 'angular2/angular2';
 
-// export interface DropdownConfig {
-// 	// TODO: Use kendo types when we get typings file into project
-// 	dataSource: any;
-// 	dataTextField?: string; // value to display in the dropdown list (from datasource)
-// 	dataValueField?: string; // value to store in the model (from datasource)
-// 	filter?: string; // contains - startswith - endswith
-// 	
-// 	enable?: boolean; // enabled/disabled state
-// 	height?: number; // height of dropdown in pixels (200 default)
-// 	ignoreCase?: boolean; // default true
-// 	minLength?: number; // number of characters that must be typed before search starts (1 default)
-// 	optionLabel?: string; // placeholder for when no item is selected
-// 	
-// }
+export interface DropdownConfig {
+	control: Control;
+	kOptions: kendo.ui.DropDownListOptions;
+}
 
 @Directive({
-	selector: '[dropdown]',
-	properties: ['ngControl','formControl'],
-	host: {'ng-control':'ngControl'}
+	selector: '[dropdown]'
 })
 export class Dropdown implements AfterViewInit {
-	@Input() config: any; // http://docs.telerik.com/kendo-ui/api/javascript/ui/dropdownlist
-	
-	formControl;
-	ngControl;
+	@Input() config: DropdownConfig;
 	
 	constructor(public element: ElementRef) { }
 	
 	afterViewInit() {
-		this.config.select = function(event) {
-			let control = component.formControl.form.controls[component.ngControl];
-			let dataItem = this.dataItem(event.item.index());
-			control.updateValue(dataItem.id); 
+		var vm = this;
+		var dropdownElement: any = $(this.element.nativeElement);
+		
+		this.config.kOptions.change = function(event) {			
+			vm.config.control.updateValue(this.value());
 		}
 		
-		var component = this;
-		var elem:any = $(this.element.nativeElement);
-		elem.kendoDropDownList(this.config);
+		dropdownElement.kendoDropDownList(this.config.kOptions);
 	}
 }
