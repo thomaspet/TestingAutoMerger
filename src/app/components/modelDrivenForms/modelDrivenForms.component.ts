@@ -15,6 +15,7 @@ import {
 import {RegExpWrapper, print, isPresent} from 'angular2/src/core/facade/lang';
 
 import {Autocomplete} from '../autocomplete/autocomplete.component';
+import {Datepicker, DatepickerConfig} from '../datepicker/datepicker';
 
 /**
  * Custom validator.
@@ -80,11 +81,13 @@ export class ShowError {
 @View({
   styles: ['.ng-touched.ng-invalid { border-color: red; }'],
   templateUrl: 'app/components/modelDrivenForms/modelDrivenForms.component.html',
-  directives: [FORM_DIRECTIVES, NgFor, ShowError, Autocomplete]
+  directives: [FORM_DIRECTIVES, NgFor, ShowError, Autocomplete, Datepicker]
 })
 export class ModelDrivenForms {
   form;
   countries = ['US', 'Canada'];
+  
+  datepickerConfig: DatepickerConfig;
 
   constructor(fb: FormBuilder) {
     this.form = fb.group({
@@ -96,8 +99,14 @@ export class ModelDrivenForms {
       "amount": [0, Validators.required],
       "email": ["", Validators.compose([Validators.required,emailValidator])],
       "comments": [""],
-      "autocomplete": [""]
+      "autocomplete": [""],
+      "date": ["2015-11-04T23:00:00.000Z"],
     });
+    
+    this.datepickerConfig = {
+      control: this.form.controls.date,
+      kOptions: {}
+    }
   }
 
   onSubmit(): void {
