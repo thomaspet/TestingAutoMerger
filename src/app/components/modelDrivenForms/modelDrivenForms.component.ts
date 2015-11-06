@@ -15,6 +15,7 @@ import {
 import {RegExpWrapper, print, isPresent} from 'angular2/src/core/facade/lang';
 
 import {Autocomplete} from '../autocomplete/autocomplete.component';
+import {MultiSelect, MultiSelectConfig} from '../multiselect/multiselect';
 
 /**
  * Custom validator.
@@ -80,11 +81,13 @@ export class ShowError {
 @View({
   styles: ['.ng-touched.ng-invalid { border-color: red; }'],
   templateUrl: 'app/components/modelDrivenForms/modelDrivenForms.component.html',
-  directives: [FORM_DIRECTIVES, NgFor, ShowError, Autocomplete]
+  directives: [FORM_DIRECTIVES, NgFor, ShowError, Autocomplete, MultiSelect]
 })
 export class ModelDrivenForms {
   form;
   countries = ['US', 'Canada'];
+  
+  multiSelectConfig: MultiSelectConfig;
 
   constructor(fb: FormBuilder) {
     this.form = fb.group({
@@ -96,8 +99,26 @@ export class ModelDrivenForms {
       "amount": [0, Validators.required],
       "email": ["", Validators.compose([Validators.required,emailValidator])],
       "comments": [""],
-      "autocomplete": [""]
+      "autocomplete": [""],
+      "multiSelect": [[1, 4]]
     });
+    
+    this.multiSelectConfig = {
+      control: this.form.controls.multiSelect,
+      kOptions:  {
+        delay: 50,
+        dataTextField: 'name',
+        dataValueField: 'id',
+        dataSource: new kendo.data.DataSource(<kendo.data.DataSourceOptions> {
+          data: [
+            { id: "1", name: 'Felleskomponent' },
+            { id: "2", name: 'Regnskap' },
+            { id: "3", name: 'Faktura' },
+            { id: "4", name: 'Lønn' },
+          ]
+        }),
+      }
+    }
   }
 
   onSubmit(): void {
