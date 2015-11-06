@@ -15,6 +15,7 @@ import {
 import {RegExpWrapper, print, isPresent} from 'angular2/src/core/facade/lang';
 
 import {Autocomplete} from '../autocomplete/autocomplete.component';
+import {MaskedInput, MaskedInputConfig} from '../maskedInput/maskedInput'
 
 /**
  * Custom validator.
@@ -80,11 +81,13 @@ export class ShowError {
 @View({
   styles: ['.ng-touched.ng-invalid { border-color: red; }'],
   templateUrl: 'app/components/modelDrivenForms/modelDrivenForms.component.html',
-  directives: [FORM_DIRECTIVES, NgFor, ShowError, Autocomplete]
+  directives: [FORM_DIRECTIVES, NgFor, ShowError, Autocomplete, MaskedInput]
 })
 export class ModelDrivenForms {
   form;
   countries = ['US', 'Canada'];
+
+  maskedInputConfig: MaskedInputConfig;
 
   constructor(fb: FormBuilder) {
     this.form = fb.group({
@@ -96,8 +99,17 @@ export class ModelDrivenForms {
       "amount": [0, Validators.required],
       "email": ["", Validators.compose([Validators.required,emailValidator])],
       "comments": [""],
-      "autocomplete": [""]
+      "autocomplete": [""],
+      "creditCardMasked": ["33302341651"]
     });
+    
+    this.maskedInputConfig = {
+      control: this.form.controls.creditCardMasked,
+      kOptions: {
+        mask: "0000 00 00000",
+        promptChar: " "
+      }
+    }
   }
 
   onSubmit(): void {
