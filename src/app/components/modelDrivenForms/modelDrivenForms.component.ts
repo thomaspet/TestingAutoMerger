@@ -15,6 +15,7 @@ import {
 import {RegExpWrapper, print, isPresent} from 'angular2/src/core/facade/lang';
 
 import {Autocomplete} from '../autocomplete/autocomplete.component';
+import {NumericInput, NumericInputConfig} from '../numeric/numericInput';
 
 /**
  * Custom validator.
@@ -80,11 +81,13 @@ export class ShowError {
 @View({
   styles: ['.ng-touched.ng-invalid { border-color: red; }'],
   templateUrl: 'app/components/modelDrivenForms/modelDrivenForms.component.html',
-  directives: [FORM_DIRECTIVES, NgFor, ShowError, Autocomplete]
+  directives: [FORM_DIRECTIVES, NgFor, ShowError, Autocomplete, NumericInput]
 })
 export class ModelDrivenForms {
   form;
   countries = ['US', 'Canada'];
+  
+  numericInputConfig: NumericInputConfig;
 
   constructor(fb: FormBuilder) {
     this.form = fb.group({
@@ -96,8 +99,19 @@ export class ModelDrivenForms {
       "amount": [0, Validators.required],
       "email": ["", Validators.compose([Validators.required,emailValidator])],
       "comments": [""],
-      "autocomplete": [""]
+      "autocomplete": [""],
+      "number": [50]
     });
+    
+    this.numericInputConfig = {
+      control: this.form.controls.number,
+      kOptions: {
+        format: '#', // http://docs.telerik.com/kendo-ui/framework/globalization/numberformatting
+        min: 0,
+        max: 100,
+        step: 10
+      }
+    }
   }
 
   onSubmit(): void {
