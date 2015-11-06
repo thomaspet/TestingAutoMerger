@@ -36,6 +36,8 @@ export class Datepicker implements AfterViewInit {
 		options.change = function(event) {
 			var date = this.value();
 			
+			if (date === null || date === undefined) return;
+			
 			control.updateValue(date.toISOString());
 			this.value(date);
 		}
