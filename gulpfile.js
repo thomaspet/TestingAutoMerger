@@ -50,6 +50,12 @@ var config = {
             js: 'vendor.js',
             css: 'vendor.css'
         }
+    },
+    test: {
+        files: {
+            ts:'./src/test/**/*.ts'
+        },
+        dest: './dist/test/'
     }
 };
 
@@ -102,16 +108,6 @@ gulp.task('build.dist.app',function(done){
    runSequence('build.dist.app.typescript','build.dist.app.html','build.dist.app.css',done);
 });
 
-gulp.task('build.dist',function (done){
-    runSequence(
-        'build.dist.vendor.js',
-        'build.dist.vendor.css',
-        'build.dist.app',
-        'build.dist.copy.from.src.index.template',
-        'build.dist.fill.index.template',
-        done);
-});
-
 gulp.task('build.dist.copy.from.src.index.template', function() {
     return gulp.src(config.src.index)
         .pipe(plugins.rename('index.html'))
@@ -125,15 +121,23 @@ gulp.task('build.dist.fill.index.template',function(){
         .pipe(gulp.dest(config.dist.folder));
 });
 
+gulp.task('build.dist',function (done){
+    runSequence(
+        'build.dist.vendor.js',
+        'build.dist.vendor.css',
+        'build.dist.app',
+        'build.dist.copy.from.src.index.template',
+        'build.dist.fill.index.template',
+        done);
+});
+
 gulp.task('watch',function(){
     gulp.watch(config.src.app.ts,['build.dist.app.typescript'])
     gulp.watch(config.src.app.html,['build.dist.app.html'])
     return gulp.watch(config.src.app.css,['build.dist.app.css']);
 
 });
-gulp.task('build.watch.and.serve',function(done){
-    runSequence('clean','build.dist','serve', 'watch','livereload',done);
-});
+
 gulp.task('serve',function(){
     return connect.server({
         livereload:true,
@@ -141,8 +145,25 @@ gulp.task('serve',function(){
         port: 3000
     });
 });
+
 gulp.task('livereload',function(){
     return gulp.src(config.dist.appFiles)
         .pipe(plugins.watch(config.dist.appFiles))
-        .pipe(connect.reload());
+        .pipe(connect.reload())
+});
+
+gulp.task('build.watch.and.serve',function(done){
+    runSequence('clean','build.dist','serve', 'watch', 'livereload', done);
+});
+
+/******************/
+/*    TESTING     */
+/******************/
+gulp.task('test.typescript',function(){
+    return gulp.src(config.test.files.ts)
+        .pipe(plugins.plumber())
+        .pipe(plugins.sourcemaps.init())
+        .pipe(plugins.typescript(config.typescript))
+        .pipe(plugins.sourcemaps.write())
+        .pipe(gulp.dest(config.test.dest))
 });

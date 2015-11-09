@@ -2,10 +2,9 @@
   "name": "angular2-unieconomy-frontend",
   "version": "0.0.1",
   "scripts": {
-    "serve": "gulp build.watch.and.serve",
-    "start": "live-server --open=dist",
+    "start": "opn http://localhost:3000 & gulp build.watch.and.serve",
     "clean": "rimraf dist",
-    "test": "karma start karma.conf.js"
+    "test": "gulp clean & gulp build.dist & gulp test.typescript & karma start karma.conf.js"
   },
   "dependencies": {
     "angular2": "2.0.0-alpha.44",
@@ -35,6 +34,8 @@
     "karma-jasmine": "^0.3.6",
     "karma-phantomjs-launcher": "^0.2.1",
     "live-server": "^0.8.2",
+    "opn": "^3.0.3",
+    "opn-cli": "^1.0.0",
     "phantomjs": "^1.9.18",
     "rimraf": "^2.4.3",
     "run-sequence": "^1.1.4",
