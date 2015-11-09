@@ -45,6 +45,7 @@ var config = {
         index: './dist/index.html',
         folder: './dist',
         app: './dist/app',
+        appFiles: ['./dist/app/**/*.js','./dist/app/**/*.css','./dist/app/**/*.html'],
         vendor: {
             js: 'vendor.js',
             css: 'vendor.css'
@@ -127,10 +128,11 @@ gulp.task('build.dist.fill.index.template',function(){
 gulp.task('watch',function(){
     gulp.watch(config.src.app.ts,['build.dist.app.typescript'])
     gulp.watch(config.src.app.html,['build.dist.app.html'])
-    gulp.watch(config.src.app.css,['build.dist.app.css']);
+    return gulp.watch(config.src.app.css,['build.dist.app.css']);
+
 });
 gulp.task('build.watch.and.serve',function(done){
-    runSequence('clean','build.dist','serve','livereload','watch',done);
+    runSequence('clean','build.dist','serve', 'watch','livereload',done);
 });
 gulp.task('serve',function(){
     return connect.server({
@@ -140,7 +142,7 @@ gulp.task('serve',function(){
     });
 });
 gulp.task('livereload',function(){
-    return gulp.src([config.src.app.ts,config.src.app.html,config.src.app.ts])
-        .pipe(plugins.watch([config.src.app.ts,config.src.app.html,config.src.app.ts]))
+    return gulp.src(config.dist.appFiles)
+        .pipe(plugins.watch(config.dist.appFiles))
         .pipe(connect.reload());
 });
