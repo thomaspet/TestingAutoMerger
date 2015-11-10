@@ -18,9 +18,9 @@ var config = {
     },
     src: {
         app: {
-            ts: './src/app/**/*.ts',
-            html: './src/app/**/*.html',
-            css: './src/app/**/*.css'
+            ts: './src/!(test)/**/*.ts',
+            html: './src/!(test)/**/*.html',
+            css: './src/!(test)/**/*.css'
         },
         index: './src/index.template.html',
         vendor: {
@@ -44,8 +44,7 @@ var config = {
     dist: {
         index: './dist/index.html',
         folder: './dist',
-        app: './dist/app',
-        appFiles: ['./dist/app/**/*.js','./dist/app/**/*.css','./dist/app/**/*.html'],
+        appFiles: ['./dist/!(test)/**/*.js','./dist/!(test)/**/*.css','./dist/!(test)/**/*.html'],
         vendor: {
             js: 'vendor.js',
             css: 'vendor.css'
@@ -89,19 +88,19 @@ gulp.task('build.dist.app.typescript', function() {
         .pipe(plugins.sourcemaps.init())
         .pipe(plugins.typescript(config.typescript))
         .pipe(plugins.sourcemaps.write())
-        .pipe(gulp.dest(config.dist.app))
+        .pipe(gulp.dest(config.dist.folder))
 });
 
 gulp.task('build.dist.app.html', function() {
     return gulp.src(config.src.app.html)
         .pipe(plugins.plumber())
-        .pipe(gulp.dest(config.dist.app))
+        .pipe(gulp.dest(config.dist.folder))
 });
 
 gulp.task('build.dist.app.css', function() {
     return gulp.src(config.src.app.css)
         .pipe(plugins.plumber())
-        .pipe(gulp.dest(config.dist.app))
+        .pipe(gulp.dest(config.dist.folder))
 });
 
 gulp.task('build.dist.app',function(done){

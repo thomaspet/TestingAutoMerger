@@ -13,8 +13,10 @@ module.exports = function(config) {
             //{pattern: 'src/test/matchers.js', included: true, watched: true},
 
             // paths loaded via module imports
+            {pattern: 'dist/framework/**/*.js', included: false, watched: true},
             {pattern: 'dist/app/**/*.js', included: false, watched: true},
             {pattern: 'dist/test/**/*.js', included: false, watched: true},
+
             // paths loaded via Angular's component compiler
             // (these paths need to be rewritten, see proxies section)
             {pattern: 'dist/app/**/!(index)*.html', included: true, watched: true},
@@ -27,7 +29,8 @@ module.exports = function(config) {
         // proxied base paths
         proxies: {
             // required for component assests fetched by Angular's compiler
-            "/app/": "/base/dist/app/"
+            "/app/": "/base/dist/app/",
+            "/framework/": "/base/dist/framework/"
         },
 
         reporters: ['progress'],

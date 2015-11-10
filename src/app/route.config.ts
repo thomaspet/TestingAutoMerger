@@ -1,46 +1,61 @@
-import {HeroesComponent} from './components/hero/heroes.component';
-import {HeroDetailComponent} from './components/hero/hero-detail.component';
-import {DashboardComponent} from './components/dashboard/dashboard.component';
-import {ModelDrivenForms} from './components/modelDrivenForms/modelDrivenForms.component';
-import {OrderGrid} from './components/order/order.component';
-import {OrderDetail} from './components/order/orderDetail.component';
-import {HelloWorld} from './components/helloworld';
+import {componentProxyFactory} from '../framework/core/component_proxy';
 
 export var Routes = {
 	dashboard: {
 		path: '/',
     	as: 'Dashboard',
-		component: DashboardComponent
+		component: componentProxyFactory({
+			path: './app/components/hero/heroes.component',
+			provide: m => m.HeroesComponent
+		}),
 	},
 	heroes: {
 		path: '/heroes',
 		as: 'Heroes',
-		component: HeroesComponent
+		component: componentProxyFactory({
+			path: './app/components/dashboard/dashboard.component',
+			provide: m => m.DashboardComponent
+		}),
 	},
 	detail: {
 		path: '/detail/:id',
 		as: 'Detail',
-		component: HeroDetailComponent
+		component: componentProxyFactory({
+				path: './app/components/hero/hero-detail.component',
+				provide: m => m.HeroDetailComponent
+		}),
 	},
 	order: {
 		path:'/orders',
 		as: 'Orders',
-		component: OrderGrid
+		component: componentProxyFactory({
+			path: './app/components/order/order.component',
+			provide: m => m.OrderGrid
+		})
 	},
 	orderDetail: {
 		path:'/orders/:id',
 		as: 'OrderDetail',
-		component: OrderDetail
+		component: componentProxyFactory({
+			path: './app/components/order/orderDetail.component',
+			provide: m => m.OrderDetail
+		})
 	},
 	modelDrivenForms: {
 		path:'/model-driven-forms',
 		as: 'ModelDrivenForms',
-		component: ModelDrivenForms
+		component: componentProxyFactory({
+			path: './app/components/modelDrivenForms/modelDrivenForms.component',
+			provide: m => m.ModelDrivenForms
+		})
 	},
 	helloworld: {
 		path:'/helloworld',
 		as: 'HelloWorld',
-		component:HelloWorld
+		component:componentProxyFactory({
+			path: './app/components/helloworld',
+			provide: m => m.HelloWorld
+		})
 	}
 };
 

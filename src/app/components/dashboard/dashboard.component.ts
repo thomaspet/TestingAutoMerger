@@ -6,8 +6,8 @@ import {Routes} from '../../route.config';
 
 @Component({
   selector: 'my-dashboard',
-	templateUrl: 'app/components/dashboard/dashboard.component.html',
-	styleUrls: ['app/components/dashboard/dashboard.component.css'],
+  templateUrl: 'app/components/dashboard/dashboard.component.html',
+  styleUrls: ['app/components/dashboard/dashboard.component.css'],
   directives: [CORE_DIRECTIVES]
 })
 export class DashboardComponent implements OnInit {

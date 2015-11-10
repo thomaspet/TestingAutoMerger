@@ -8,7 +8,6 @@ jasmine.DEFAULT_TIMEOUT_INTERVAL = 1000;
 // // we will call `__karma__.start()` later, once all the specs are loaded.
 __karma__.loaded = function() {};
 
-
 System.config({
     packages: {
         'base/dist/app': {
@@ -19,8 +18,12 @@ System.config({
             reduce(function createPathRecords(pathsMapping, appPath) {
                 // creates local module name mapping to global path with karma's fingerprint in path, e.g.:
                 // './hero.service': '/base/src/app/hero.service.js?f4523daf879cfb7310ef6242682ccf10b2041b3e'
-                var moduleName = appPath.replace(/^\/base\/dist\/app\//, './').replace(/\.js$/, '');
-                pathsMapping[moduleName] = appPath + '?' + window.__karma__.files[appPath]
+                var moduleName = appPath
+                    .replace(/^\/base\/dist\/app\//, './')
+                    .replace(/^\/base\/dist\/framework\//, './')
+                    .replace(/\.js$/, '');
+                console.log(moduleName);
+                pathsMapping[moduleName] = appPath + '?' + window.__karma__.files[appPath];
                 return pathsMapping;
             }, {})
 
@@ -34,7 +37,6 @@ System.import('angular2/src/core/dom/browser_adapter').then(function(browser_ada
         return Promise.all(
             Object.keys(window.__karma__.files) // All files served by Karma.
                 .filter(onlySpecFiles)
-                // .map(filePath2moduleName)        // Normalize paths to module names.
                 .map(function(moduleName) {
                     // loads all spec files via their global module names (e.g. 'base/src/app/hero.service.spec')
                     return System.import(moduleName);
@@ -55,7 +57,10 @@ function filePath2moduleName(filePath) {
 
 
 function onlyAppFiles(filePath) {
-    return /^\/base\/dist\/app\/.*\.js$/.test(filePath)
+    var isApp = /^\/base\/dist\/app\/.*\.js$/.test(filePath);
+    var isFramework = /^\/base\/dist\/framework\/.*\.js$/.test(filePath);
+
+    return isApp || isFramework;
 }
 
 
