@@ -47,7 +47,22 @@
     <p class="form-group">
         <label for="multiSelect">MultiSelect</label>
         <select multiselect ng-control="multiSelect" [config]="multiSelectConfig" class="form-control"></select>
+	</p>
+	<p>
+        <label for="projectDropdown">Project</label>
+        <input dropdown id="projectDropdown" class="form-control" 
+            ng-control="project"
+            [config]="dropdownConfig" >
+    </p>
+    <p class="form-group">
+        <label for="projectCombo">Project</label>
+        <input combobox id="projectCombo" class="form-control" 
+            ng-control="projectCombo"
+            [config]="comboboxConfig" >
     </p>
     
     <button class="btn btn-primary" type="submit" [disabled]="!f.form.valid">Submit</button>
+    
 </form>
+
+Combo value: {{form.controls.projectCombo.value}}
