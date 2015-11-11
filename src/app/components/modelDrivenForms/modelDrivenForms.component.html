@@ -44,5 +44,20 @@
         <label for="comments">Autocomplete</label>
         <input type="text" autocomplete ng-control="autocomplete" [form-control]="f" class="form-control">
     </p>
+    <p class="form-group">
+        <label for="projectDropdown">Project</label>
+        <input dropdown id="projectDropdown" class="form-control" 
+            ng-control="project"
+            [config]="dropdownConfig" >
+    </p>
+    <p class="form-group">
+        <label for="projectCombo">Project</label>
+        <input combobox id="projectCombo" class="form-control" 
+            ng-control="projectCombo"
+            [config]="comboboxConfig" >
+    </p>
     <button class="btn btn-primary" type="submit" [disabled]="!f.form.valid">Submit</button>
+    
 </form>
+
+Combo value: {{form.controls.projectCombo.value}}
