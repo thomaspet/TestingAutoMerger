@@ -1,4 +1,4 @@
-import {componentProxyFactory} from '../framework/core/component_proxy';
+import {componentProxyFactory} from './framework/core/component_proxy';
 
 export var Routes = {
 	dashboard: {
