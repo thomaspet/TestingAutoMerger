@@ -1,3 +1,4 @@
+/// <reference path="../../../../kendo/typescript/kendo.all.d.ts" />
 import {Directive, AfterViewInit, ElementRef, Input, Control} from 'angular2/angular2';
 
 export interface MultiSelectConfig {

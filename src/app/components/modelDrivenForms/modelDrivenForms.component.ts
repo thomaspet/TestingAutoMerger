@@ -107,7 +107,7 @@ export class ModelDrivenForms {
       "email": ["", Validators.compose([Validators.required,emailValidator])],
       "comments": [""],
       "autocomplete": [""],
-      "multiSelect": [[1, 4]]
+      "multiSelect": [[1, 4]],
       "project" : [""],
       "projectCombo": [""],
     });
