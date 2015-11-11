@@ -24,7 +24,7 @@ export class Autocomplete implements AfterViewInit {
 				{id:"1",name:"Jorge"},
 				{id:"2",name:"Frank"}
 			],
-			select:function(event) {
+			select:function(event:any) {
 				let control = component.formControl.form.controls[component.ngControl];
 				let dataItem = this.dataItem(event.item.index());
 				control.updateValue(dataItem.id); 
