@@ -45,6 +45,10 @@
         <input type="text" autocomplete ng-control="autocomplete" [form-control]="f" class="form-control">
     </p>
     <p class="form-group">
+        <label for="multiSelect">MultiSelect</label>
+        <select multiselect ng-control="multiSelect" [config]="multiSelectConfig" class="form-control"></select>
+	</p>
+	<p>
         <label for="projectDropdown">Project</label>
         <input dropdown id="projectDropdown" class="form-control" 
             ng-control="project"
@@ -56,6 +60,7 @@
             ng-control="projectCombo"
             [config]="comboboxConfig" >
     </p>
+    
     <button class="btn btn-primary" type="submit" [disabled]="!f.form.valid">Submit</button>
     
 </form>
