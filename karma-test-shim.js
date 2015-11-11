@@ -22,7 +22,6 @@ System.config({
                     .replace(/^\/base\/dist\/app\//, './')
                     .replace(/^\/base\/dist\/framework\//, './')
                     .replace(/\.js$/, '');
-                console.log(moduleName);
                 pathsMapping[moduleName] = appPath + '?' + window.__karma__.files[appPath];
                 return pathsMapping;
             }, {})
