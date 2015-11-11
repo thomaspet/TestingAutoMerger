@@ -15,9 +15,9 @@ export class Combobox implements AfterViewInit {
 	
 	afterViewInit() {
 		var control = this.config.control;
-		var dataValueField = this.config.kOptions.dataValueField;
+		var options = this.config.kOptions;
 		
-		this.config.kOptions.change = function(event: kendo.ui.ComboBoxSelectEvent) {
+		options.change = function(event: kendo.ui.ComboBoxSelectEvent) {
 			var dataItem = event.sender.dataItem();
 			
 			// If input does not match any item in datasource: Reset fields and return.
@@ -27,10 +27,10 @@ export class Combobox implements AfterViewInit {
 				return;
 			}
 			
-			control.updateValue(dataItem[dataValueField]);
+			control.updateValue(dataItem[options.dataValueField]);
 		}
 		
 		var comboboxElement: any = $(this.element.nativeElement);
-		comboboxElement.kendoComboBox(this.config.kOptions);
+		comboboxElement.kendoComboBox(options);
 	}
 }
