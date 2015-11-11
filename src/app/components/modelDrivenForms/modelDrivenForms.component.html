@@ -47,9 +47,27 @@
     <p class="form-group">
         <label for="creditCardMasked">Credit card (masked input)</label>
         <input masked [config]="maskedInputConfig" id="creditCardMasked" ng-control="creditCardMasked">
+	</p>
+	<p>
+        <label for="multiSelect">MultiSelect</label>
+        <select multiselect ng-control="multiSelect" [config]="multiSelectConfig" class="form-control"></select>
+	</p>
+	<p>
+        <label for="projectDropdown">Project</label>
+        <input dropdown id="projectDropdown" class="form-control" 
+            ng-control="project"
+            [config]="dropdownConfig" >
+    </p>
+    <p class="form-group">
+        <label for="projectCombo">Project</label>
+        <input combobox id="projectCombo" class="form-control" 
+            ng-control="projectCombo"
+            [config]="comboboxConfig" >
     </p>
     
     <button class="btn btn-primary" type="submit" [disabled]="!f.form.valid">Submit</button>
+    
 </form>
 
 Credit card (masked) value: {{form.controls.creditCardMasked.value}}
+Combo value: {{form.controls.projectCombo.value}}

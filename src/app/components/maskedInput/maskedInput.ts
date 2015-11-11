@@ -21,7 +21,7 @@ export class MaskedInput {
 			var val = this.value();
 			
 			control.updateValue(this.raw());
-			this.value(val); // to avoid mask disappearing in input field (due to the raw string stored in control)
+			this.value(val); // to avoid mask disappearing in input field (due to control storing the raw string)
 		}
 		
 		var element: any = $(this.element.nativeElement);
