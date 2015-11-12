@@ -15,8 +15,8 @@ import {
 
 import {RouteParams} from 'angular2/router';
 import {Http, HTTP_PROVIDERS} from 'angular2/http';
-import {RegExpWrapper, print, isPresent} from 'angular2/src/core/facade/lang';
-
+import {RegExpWrapper, print, isPresent} from 'angular2/src/facade/lang';
+import {JsonPipe} from 'angular2/angular2';
 
 @Component({
   selector: 'model-driven-forms', 
@@ -26,7 +26,7 @@ import {RegExpWrapper, print, isPresent} from 'angular2/src/core/facade/lang';
   styles: ['.ng-touched.ng-invalid { border-color: red; }'],
   templateUrl: 'app/components/order/orderDetail.component.html',
   directives: [FORM_DIRECTIVES, NgFor],
-  
+  pipes: [JsonPipe]
 })
 export class OrderDetail {
   form;
