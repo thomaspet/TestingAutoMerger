@@ -7,10 +7,10 @@ export class OrderSvc {
 
     }
     getOrder(id:string|number) {
-            return this.http.get('http://devapi.unieconomy.no/api/biz/orders/'+id,{
-                    headers: <any>{
-                        "Client":"client1"
-                    }
-                }).map((res:any) => res.json())
+        return this.http.get('http://devapi.unieconomy.no/api/biz/orders/'+id,{
+            headers: <any>{
+                "Client":"client1"
+            }
+        }).map((res:any) => res.json())
     }
 }

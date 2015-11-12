@@ -5,4 +5,4 @@ import {HeroService} from './components/hero/hero.service';
 import {AppComponent} from './app.component';
 import {OrderSvc} from './components/order/orderSvc';
 
-bootstrap(AppComponent, [ROUTER_PROVIDERS, HTTP_PROVIDERS, HeroService, OrderSvc]);
+bootstrap(AppComponent, [ROUTER_PROVIDERS, HTTP_PROVIDERS, [HeroService, OrderSvc]]);
