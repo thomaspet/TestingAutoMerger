@@ -95,7 +95,6 @@ export class ModelDrivenForms {
   multiSelectConfig: MultiSelectConfig;
   dropdownConfig: DropdownConfig;
   comboboxConfig: ComboboxConfig;
-
   maskedInputConfig: MaskedInputConfig;
 
   constructor(fb: FormBuilder) {
@@ -110,21 +109,15 @@ export class ModelDrivenForms {
       "email": ["", Validators.compose([Validators.required,emailValidator])],
       "comments": [""],
       "autocomplete": [""],
-      "creditCardMasked": ["33302341651"]
+      "creditCardMasked": ["33302341651"],
       "multiSelect": [[1, 4]],
       "project" : [""],
       "projectCombo": [""],
     });
     
-    this.maskedInputConfig = {
-      control: this.form.controls.creditCardMasked,
-      kOptions: {
-        mask: "0000 00 00000",
-        promptChar: " "
-	}
     this.multiSelectConfig = {
       control: this.form.controls.multiSelect,
-      kOptions:  {
+      kOptions: {
         delay: 50,
         dataTextField: 'name',
         dataValueField: 'id',
@@ -138,6 +131,7 @@ export class ModelDrivenForms {
         }),
       }
     }
+    
     this.dropdownConfig = {
       control: this.form.controls.project,
       kOptions:  {
@@ -169,10 +163,17 @@ export class ModelDrivenForms {
             { id: "4", name: 'Lønn' },
           ]
         }),
-        template: '<span>#: data.id # - #: data.name #</span>'  
+        template: '<span>#: data.id # - #: data.name #</span>'
       }
     }
     
+    this.maskedInputConfig = {
+      control: this.form.controls.creditCardMasked,
+      kOptions: {
+        mask: "0000 00 00000",
+        promptChar: ' '
+      }
+    }
   }
 
   onSubmit(): void {
