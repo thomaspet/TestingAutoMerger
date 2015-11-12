@@ -17,6 +17,7 @@ import {RouteParams} from 'angular2/router';
 import {Http, HTTP_PROVIDERS} from 'angular2/http';
 import {RegExpWrapper, print, isPresent} from 'angular2/src/facade/lang';
 import {JsonPipe} from 'angular2/angular2';
+import {OrderSvc} from "./orderSvc";
 
 @Component({
   selector: 'model-driven-forms', 
@@ -32,20 +33,9 @@ export class OrderDetail {
   form;
   order;
 
-  constructor(@Inject(Http) http:Http, public params:RouteParams) {
+  constructor(public orderSvc:OrderSvc, public params:RouteParams) {
     var id = params.get('id');
-    if (id) {
-      http.get('http://devapi.unieconomy.no/api/biz/orders/'+id,{
-        headers: <any>{
-          "Client":"client1"
-        }
-      })
-      // Call map on the response observable to get the parsed people object
-      .map((res:any) => res.json())
-      // Subscribe to the observable to get the parsed people object and attach it to the
-      // component
-      .subscribe(response => this.order = response);
-    }
+    this.orderSvc.getOrder(id).subscribe(response => this.order = response);
   }
 
   onSubmit(): void {
