@@ -17,6 +17,7 @@ import {
 import {RegExpWrapper, print, isPresent} from 'angular2/src/facade/lang';
 
 import {Autocomplete} from '../autocomplete/autocomplete.component';
+import {NumericInput, NumericInputConfig} from '../numeric/numericInput';
 import {MaskedInput, MaskedInputConfig} from '../maskedInput/maskedInput';
 import {MultiSelect, MultiSelectConfig} from '../multiselect/multiselect';
 import {Dropdown, DropdownConfig} from '../dropdown/dropdown';
@@ -86,12 +87,13 @@ export class ShowError {
 @View({
   styles: ['.ng-touched.ng-invalid { border-color: red; }'],
   templateUrl: 'app/components/modelDrivenForms/modelDrivenForms.component.html',
-  directives: [FORM_DIRECTIVES, NgFor, ShowError, Autocomplete, Dropdown, Combobox, MultiSelect, MaskedInput]
+  directives: [FORM_DIRECTIVES, NgFor, ShowError, Autocomplete, Dropdown, Combobox, MultiSelect, MaskedInput, NumericInput]
 })
 export class ModelDrivenForms {
   form;
   countries = ['US', 'Canada'];
   
+  numericInputConfig: NumericInputConfig;
   multiSelectConfig: MultiSelectConfig;
   dropdownConfig: DropdownConfig;
   comboboxConfig: ComboboxConfig;
@@ -109,12 +111,22 @@ export class ModelDrivenForms {
       "email": ["", Validators.compose([Validators.required,emailValidator])],
       "comments": [""],
       "autocomplete": [""],
+      "number": [50],
       "creditCardMasked": ["33302341651"],
       "multiSelect": [[1, 4]],
       "project" : [""],
       "projectCombo": [""],
     });
     
+    this.numericInputConfig = {
+      control: this.form.controls.number,
+      kOptions: {
+        format: '#', // http://docs.telerik.com/kendo-ui/framework/globalization/numberformatting
+        min: 0,
+        max: 100,
+        step: 10
+      }
+    }
     this.multiSelectConfig = {
       control: this.form.controls.multiSelect,
       kOptions: {

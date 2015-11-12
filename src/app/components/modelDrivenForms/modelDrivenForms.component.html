@@ -45,6 +45,10 @@
         <input type="text" autocomplete ng-control="autocomplete" [form-control]="f" class="form-control">
     </p>
     <p class="form-group">
+        <label for="numericInput">Number</label>
+        <input id="numericInput" numeric ng-control="number" [config]="numericInputConfig">
+	</p>
+	<p>
         <label for="creditCardMasked">Credit card (masked input)</label>
         <input masked [config]="maskedInputConfig" id="creditCardMasked" ng-control="creditCardMasked">
 	</p>
@@ -69,5 +73,6 @@
     
 </form>
 
+Number value: {{form.controls.number.value}}
 Credit card (masked) value: {{form.controls.creditCardMasked.value}}
 Combo value: {{form.controls.projectCombo.value}}
