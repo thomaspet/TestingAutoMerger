@@ -14,7 +14,7 @@ import {
   Host
 } from 'angular2/core';
 
-import {RegExpWrapper, print, isPresent} from 'angular2/src/core/facade/lang';
+import {RegExpWrapper, print, isPresent} from 'angular2/src/facade/lang';
 
 import {Autocomplete} from '../autocomplete/autocomplete.component';
 import {MaskedInput, MaskedInputConfig} from '../maskedInput/maskedInput';

@@ -1,6 +1,5 @@
-import {Component,Input,OnInit} from "angular2/angular2";
+import {Component,Input,OnInit,Directive, AfterViewInit,ElementRef} from "angular2/angular2";
 import {Router} from 'angular2/router';
-import {Directive, AfterViewInit,ElementRef} from 'angular2/angular2';
 import {Routes} from '../../route.config';
 
 @Directive({
@@ -48,7 +47,7 @@ export class OrderGrid {
 			],
 			change: function (ev) {
 				var item = <any>ev.sender.dataItem(this.select());
-				router.navigate([`/${Routes.orderDetail.as}`, { id: item.ID }])
+				router.navigate([`/${Routes.orderDetail.name}`, { id: item.ID }])
 			}
 		};
 		this.kOptions.dataSource = {

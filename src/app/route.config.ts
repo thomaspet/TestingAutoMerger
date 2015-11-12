@@ -1,62 +1,63 @@
 import {componentProxyFactory} from './framework/core/component_proxy';
+import {Route} from 'angular2/router';
 
 export var Routes = {
-	dashboard: {
+	dashboard: new Route({
 		path: '/',
-    	as: 'Dashboard',
+    	name: 'Dashboard',
 		component: componentProxyFactory({
 			path: './app/components/hero/heroes.component',
 			provide: m => m.HeroesComponent
 		}),
-	},
-	heroes: {
+	}),
+	heroes: new Route({
 		path: '/heroes',
-		as: 'Heroes',
+        name: 'Heroes',
 		component: componentProxyFactory({
 			path: './app/components/dashboard/dashboard.component',
 			provide: m => m.DashboardComponent
 		}),
-	},
-	detail: {
+	}),
+	detail: new Route({
 		path: '/detail/:id',
-		as: 'Detail',
+        name: 'Detail',
 		component: componentProxyFactory({
 				path: './app/components/hero/hero-detail.component',
 				provide: m => m.HeroDetailComponent
 		}),
-	},
-	order: {
+	}),
+	order: new Route({
 		path:'/orders',
-		as: 'Orders',
+        name: 'Orders',
 		component: componentProxyFactory({
 			path: './app/components/order/order.component',
 			provide: m => m.OrderGrid
 		})
-	},
-	orderDetail: {
+	}),
+	orderDetail: new Route({
 		path:'/orders/:id',
-		as: 'OrderDetail',
+        name: 'OrderDetail',
 		component: componentProxyFactory({
 			path: './app/components/order/orderDetail.component',
 			provide: m => m.OrderDetail
 		})
-	},
-	modelDrivenForms: {
+	}),
+	modelDrivenForms: new Route({
 		path:'/model-driven-forms',
-		as: 'ModelDrivenForms',
+        name: 'ModelDrivenForms',
 		component: componentProxyFactory({
 			path: './app/components/modelDrivenForms/modelDrivenForms.component',
 			provide: m => m.ModelDrivenForms
 		})
-	},
-	helloworld: {
+	}),
+	helloworld: new Route({
 		path:'/helloworld',
-		as: 'HelloWorld',
+        name: 'HelloWorld',
 		component:componentProxyFactory({
 			path: './app/components/helloworld',
 			provide: m => m.HelloWorld
 		})
-	}
+	})
 };
 
 export const APP_ROUTES = Object.keys(Routes).map(r => Routes[r]);
