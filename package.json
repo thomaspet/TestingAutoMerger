@@ -1,19 +1,31 @@
 {
-  "name": "angular2-tour-of-heroes",
+  "name": "angular2-unieconomy-frontend",
   "version": "0.0.1",
   "scripts": {
-    "tsc": "tsc -p src -w",
-    "start": "live-server --open=src",
-    "clean": "rimraf src/**/*.js src/**/*.js.map",
-    "test": "karma start karma.conf.js"
+    "start": "opn http://localhost:3000 & gulp build.watch.and.serve",
+    "clean": "rimraf dist",
+    "test": "gulp clean & gulp build.dist & gulp test.typescript & karma start karma.conf.js"
   },
   "dependencies": {
-    "angular2": "2.0.0-alpha.44",
+    "angular2": "2.0.0-alpha.46",
     "bootstrap": "^3.3.5",
     "jquery": "^2.1.4",
     "systemjs": "0.19.2"
   },
   "devDependencies": {
+    "gulp": "^3.9.0",
+    "gulp-concat": "^2.6.0",
+    "gulp-connect": "^2.2.0",
+    "gulp-inject": "^3.0.0",
+    "gulp-live-server": "0.0.29",
+    "gulp-load-plugins": "^1.1.0",
+    "gulp-plumber": "^1.0.1",
+    "gulp-rename": "^1.2.2",
+    "gulp-run": "^1.6.11",
+    "gulp-sourcemaps": "^1.6.0",
+    "gulp-template": "^3.0.0",
+    "gulp-typescript": "^2.9.2",
+    "gulp-watch": "^4.3.5",
     "jasmine": "^2.3.2",
     "jasmine-core": "^2.3.4",
     "karma": "^0.13.15",
@@ -21,8 +33,12 @@
     "karma-cli": "^0.1.1",
     "karma-jasmine": "^0.3.6",
     "karma-phantomjs-launcher": "^0.2.1",
-    "live-server": "^0.8.1",
+    "live-server": "^0.8.2",
+    "opn": "^3.0.3",
+    "opn-cli": "^1.0.0",
     "phantomjs": "^1.9.18",
+    "rimraf": "^2.4.3",
+    "run-sequence": "^1.1.4",
     "typescript": "^1.6.2"
   }
 }

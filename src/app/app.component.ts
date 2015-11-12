@@ -7,11 +7,11 @@ import {Routes, APP_ROUTES} from './route.config';
   selector: 'my-app',
   template: `
     <h1>{{title}}</h1>
-    <a [router-link]="['/' + routes.dashboard.as]" class="router-link">Dashboard</a>
-    <a [router-link]="['/' + routes.heroes.as]" class="router-link">Heroes</a>
-    <a [router-link]="['/' + routes.modelDrivenForms.as]" class="router-link">FormTest</a>
-    <a [router-link]="['/' + routes.order.as]" class="router-link">Orders</a>
-    <a [router-link]="['/' + routes.helloworld.as]" class="router-link">HelloWorld</a>
+    <a [router-link]="[routes.dashboard.name]" class="router-link">Dashboard</a>
+    <a [router-link]="[routes.heroes.name]" class="router-link">Heroes</a>
+    <a [router-link]="[routes.modelDrivenForms.name]" class="router-link">FormTest</a>
+    <a [router-link]="[routes.order.name]" class="router-link">Orders</a>
+    <a [router-link]="[routes.helloworld.name]" class="router-link">HelloWorld</a>
     <router-outlet></router-outlet>
   `,
   styles: [`
