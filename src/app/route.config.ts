@@ -1,4 +1,4 @@
-import {componentProxyFactory} from './framework/core/component_proxy';
+import {componentProxyFactory} from '../framework/core/component_proxy';
 import {Route} from 'angular2/router';
 
 export var Routes = {
