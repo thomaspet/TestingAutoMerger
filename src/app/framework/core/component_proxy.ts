@@ -1,3 +1,5 @@
+/// <reference path="../../../../typings/systemjs/systemjs.d.ts" />
+
 import {Component, View, DynamicComponentLoader, Injector, bind, Type, ElementRef} from 'angular2/angular2';
 
 export class ComponentProvider {
