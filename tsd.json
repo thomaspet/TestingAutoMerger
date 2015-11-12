@@ -16,6 +16,9 @@
     },
     "rx/rx-lite.d.ts": {
       "commit": "708609e0764daeb5eb64104af7aca50c520c4e6e"
+    },
+    "angular2/angular2.d.ts": {
+      "commit": "708609e0764daeb5eb64104af7aca50c520c4e6e"
     }
   }
 }

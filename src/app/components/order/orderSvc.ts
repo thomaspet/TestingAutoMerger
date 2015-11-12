@@ -11,6 +11,6 @@ export class OrderSvc {
             headers: <any>{
                 "Client":"client1"
             }
-        }).map((res:any) => res.json())
+        }).map((res:any) => res.json());
     }
 }
