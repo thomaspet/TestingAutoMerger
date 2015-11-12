@@ -17,6 +17,7 @@ import {
 import {RegExpWrapper, print, isPresent} from 'angular2/src/core/facade/lang';
 
 import {Autocomplete} from '../autocomplete/autocomplete.component';
+import {MaskedInput, MaskedInputConfig} from '../maskedInput/maskedInput';
 import {MultiSelect, MultiSelectConfig} from '../multiselect/multiselect';
 import {Dropdown, DropdownConfig} from '../dropdown/dropdown';
 import {Combobox, ComboboxConfig} from '../combobox/combobox';
@@ -85,7 +86,7 @@ export class ShowError {
 @View({
   styles: ['.ng-touched.ng-invalid { border-color: red; }'],
   templateUrl: 'app/components/modelDrivenForms/modelDrivenForms.component.html',
-  directives: [FORM_DIRECTIVES, NgFor, ShowError, Autocomplete, Dropdown, Combobox, MultiSelect]
+  directives: [FORM_DIRECTIVES, NgFor, ShowError, Autocomplete, Dropdown, Combobox, MultiSelect, MaskedInput]
 })
 export class ModelDrivenForms {
   form;
@@ -94,6 +95,7 @@ export class ModelDrivenForms {
   multiSelectConfig: MultiSelectConfig;
   dropdownConfig: DropdownConfig;
   comboboxConfig: ComboboxConfig;
+  maskedInputConfig: MaskedInputConfig;
 
   constructor(fb: FormBuilder) {
     
@@ -107,6 +109,7 @@ export class ModelDrivenForms {
       "email": ["", Validators.compose([Validators.required,emailValidator])],
       "comments": [""],
       "autocomplete": [""],
+      "creditCardMasked": ["33302341651"],
       "multiSelect": [[1, 4]],
       "project" : [""],
       "projectCombo": [""],
@@ -114,7 +117,7 @@ export class ModelDrivenForms {
     
     this.multiSelectConfig = {
       control: this.form.controls.multiSelect,
-      kOptions:  {
+      kOptions: {
         delay: 50,
         dataTextField: 'name',
         dataValueField: 'id',
@@ -128,6 +131,7 @@ export class ModelDrivenForms {
         }),
       }
     }
+    
     this.dropdownConfig = {
       control: this.form.controls.project,
       kOptions:  {
@@ -159,10 +163,17 @@ export class ModelDrivenForms {
             { id: "4", name: 'Lønn' },
           ]
         }),
-        template: '<span>#: data.id # - #: data.name #</span>'  
+        template: '<span>#: data.id # - #: data.name #</span>'
       }
     }
     
+    this.maskedInputConfig = {
+      control: this.form.controls.creditCardMasked,
+      kOptions: {
+        mask: "0000 00 00000",
+        promptChar: ' '
+      }
+    }
   }
 
   onSubmit(): void {
