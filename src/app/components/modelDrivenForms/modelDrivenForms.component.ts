@@ -17,6 +17,7 @@ import {
 import {RegExpWrapper, print, isPresent} from 'angular2/src/facade/lang';
 
 import {Autocomplete} from '../autocomplete/autocomplete.component';
+import {Datepicker, DatepickerConfig} from '../datepicker/datepicker';
 import {NumericInput, NumericInputConfig} from '../numeric/numericInput';
 import {MaskedInput, MaskedInputConfig} from '../maskedInput/maskedInput';
 import {MultiSelect, MultiSelectConfig} from '../multiselect/multiselect';
@@ -87,12 +88,13 @@ export class ShowError {
 @View({
   styles: ['.ng-touched.ng-invalid { border-color: red; }'],
   templateUrl: 'app/components/modelDrivenForms/modelDrivenForms.component.html',
-  directives: [FORM_DIRECTIVES, NgFor, ShowError, Autocomplete, Dropdown, Combobox, MultiSelect, MaskedInput, NumericInput]
+  directives: [FORM_DIRECTIVES, NgFor, ShowError, Autocomplete, Dropdown, Combobox, MultiSelect, MaskedInput, NumericInput, Datepicker]
 })
 export class ModelDrivenForms {
   form;
   countries = ['US', 'Canada'];
   
+  datepickerConfig: DatepickerConfig;
   numericInputConfig: NumericInputConfig;
   multiSelectConfig: MultiSelectConfig;
   dropdownConfig: DropdownConfig;
@@ -111,6 +113,7 @@ export class ModelDrivenForms {
       "email": ["", Validators.compose([Validators.required,emailValidator])],
       "comments": [""],
       "autocomplete": [""],
+      "date": ["2015-11-04T23:00:00.000Z"],
       "number": [50],
       "creditCardMasked": ["33302341651"],
       "multiSelect": [[1, 4]],
@@ -118,6 +121,11 @@ export class ModelDrivenForms {
       "projectCombo": [""],
     });
     
+    this.datepickerConfig = {
+      control: this.form.controls.date,
+      kOptions: {}
+	}
+
     this.numericInputConfig = {
       control: this.form.controls.number,
       kOptions: {
