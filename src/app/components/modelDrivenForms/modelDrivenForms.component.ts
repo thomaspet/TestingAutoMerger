@@ -1,3 +1,5 @@
+/// <reference path="../../../../kendo/typescript/kendo.all.d.ts" />
+
 import {
   FORM_DIRECTIVES,
   NgControl,
@@ -12,10 +14,15 @@ import {
   Host
 } from 'angular2/core';
 
-import {RegExpWrapper, print, isPresent} from 'angular2/src/core/facade/lang';
+import {RegExpWrapper, print, isPresent} from 'angular2/src/facade/lang';
 
 import {Autocomplete} from '../autocomplete/autocomplete.component';
 import {Datepicker, DatepickerConfig} from '../datepicker/datepicker';
+import {NumericInput, NumericInputConfig} from '../numeric/numericInput';
+import {MaskedInput, MaskedInputConfig} from '../maskedInput/maskedInput';
+import {MultiSelect, MultiSelectConfig} from '../multiselect/multiselect';
+import {Dropdown, DropdownConfig} from '../dropdown/dropdown';
+import {Combobox, ComboboxConfig} from '../combobox/combobox';
 
 /**
  * Custom validator.
@@ -81,15 +88,21 @@ export class ShowError {
 @View({
   styles: ['.ng-touched.ng-invalid { border-color: red; }'],
   templateUrl: 'app/components/modelDrivenForms/modelDrivenForms.component.html',
-  directives: [FORM_DIRECTIVES, NgFor, ShowError, Autocomplete, Datepicker]
+  directives: [FORM_DIRECTIVES, NgFor, ShowError, Autocomplete, Dropdown, Combobox, MultiSelect, MaskedInput, NumericInput, Datepicker]
 })
 export class ModelDrivenForms {
   form;
   countries = ['US', 'Canada'];
   
   datepickerConfig: DatepickerConfig;
+  numericInputConfig: NumericInputConfig;
+  multiSelectConfig: MultiSelectConfig;
+  dropdownConfig: DropdownConfig;
+  comboboxConfig: ComboboxConfig;
+  maskedInputConfig: MaskedInputConfig;
 
   constructor(fb: FormBuilder) {
+    
     this.form = fb.group({
       "firstName": ["", Validators.required],
       "middleName": [""],
@@ -101,11 +114,85 @@ export class ModelDrivenForms {
       "comments": [""],
       "autocomplete": [""],
       "date": ["2015-11-04T23:00:00.000Z"],
+      "number": [50],
+      "creditCardMasked": ["33302341651"],
+      "multiSelect": [[1, 4]],
+      "project" : [""],
+      "projectCombo": [""],
     });
     
     this.datepickerConfig = {
       control: this.form.controls.date,
       kOptions: {}
+	}
+
+    this.numericInputConfig = {
+      control: this.form.controls.number,
+      kOptions: {
+        format: '#', // http://docs.telerik.com/kendo-ui/framework/globalization/numberformatting
+        min: 0,
+        max: 100,
+        step: 10
+      }
+    }
+    this.multiSelectConfig = {
+      control: this.form.controls.multiSelect,
+      kOptions: {
+        delay: 50,
+        dataTextField: 'name',
+        dataValueField: 'id',
+        dataSource: new kendo.data.DataSource(<kendo.data.DataSourceOptions> {
+          data: [
+            { id: "1", name: 'Felleskomponent' },
+            { id: "2", name: 'Regnskap' },
+            { id: "3", name: 'Faktura' },
+            { id: "4", name: 'Lønn' },
+          ]
+        }),
+      }
+    }
+    
+    this.dropdownConfig = {
+      control: this.form.controls.project,
+      kOptions:  {
+        dataTextField: 'name',
+        dataValueField: 'id',
+        dataSource: new kendo.data.DataSource(<kendo.data.DataSourceOptions> {
+          data: [
+            { id: "1", name: 'Felleskomponent' },
+            { id: "2", name: 'Regnskap' },
+            { id: "3", name: 'Faktura' },
+            { id: "4", name: 'Lønn' },
+          ]
+        }),
+        template: '<span>#: data.id # - #: data.name #</span>'  
+      }
+    }
+    
+    this.comboboxConfig = {
+      control: this.form.controls.projectCombo,
+      kOptions:  {
+        delay: 50,
+        dataTextField: 'name',
+        dataValueField: 'id',
+        dataSource: new kendo.data.DataSource(<kendo.data.DataSourceOptions> {
+          data: [
+            { id: "1", name: 'Felleskomponent' },
+            { id: "2", name: 'Regnskap' },
+            { id: "3", name: 'Faktura' },
+            { id: "4", name: 'Lønn' },
+          ]
+        }),
+        template: '<span>#: data.id # - #: data.name #</span>'
+      }
+    }
+    
+    this.maskedInputConfig = {
+      control: this.form.controls.creditCardMasked,
+      kOptions: {
+        mask: "0000 00 00000",
+        promptChar: ' '
+      }
     }
   }
 
