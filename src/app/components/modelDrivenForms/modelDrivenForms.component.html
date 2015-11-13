@@ -44,6 +44,12 @@
         <label for="comments">Autocomplete</label>
         <input type="text" autocomplete ng-control="autocomplete" [form-control]="f" class="form-control">
     </p>
+    
+    <p class="form-group">
+        <label for="date">Date</label>
+        <input id="date" class="form-control" datepicker ng-control="date" [config]="datepickerConfig">
+    </p>
+    
     <p class="form-group">
         <label for="numericInput">Number</label>
         <input id="numericInput" numeric ng-control="number" [config]="numericInputConfig">
