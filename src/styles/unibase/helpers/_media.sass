@@ -1,0 +1,47 @@
+/// Media Query Mixin
+///
+/// @param {string} $sizeclass One of the $unigrid-size keys, the string "retina", or pixel value.
+/// @param {string} $kind One of the media query types, for example "min-width"
+///
+/// @author Jørgen Arnor G. Lom <jorgen@unimicro.no>
+///
+/// @example sass - Usage
+///   @include media(medium, min-width)
+///     body
+///       background: red
+///
+
+@mixin media($sizeclass, $kind:false)
+
+  @if map-has-key($unigrid-sizes, $sizeclass)
+
+    // Set the size to the unigrid-size, if one is passed.
+    $size: #{map-get($unigrid-sizes, $sizeclass)}px
+
+    // If no kind is set, we assume that we want JUST the size class specified
+    @if $kind==false and $sizeclass!="small"
+      @media only screen and (min-width: $size) and (max-width: #{map-get-next($unigrid-sizes, $sizeclass, "9999")}px)
+        @content
+
+    @else
+      // If we don't have a $kind, assume max-width
+      @if $kind==false
+        $kind:max-width
+
+      @media only screen and (#{$kind}: $size)
+        @content
+
+  @else if $sizeclass=="retina"
+    @media (min-device-pixel-ratio: 2), (min-resolution: 192dpi)
+      @content
+
+  @else
+    // If we don't get a proper size class, assume pixel value
+    $size: $sizeclass
+
+    // If we don't get a kind, assume max-width
+    @if $kind==false
+      $kind:max-width
+
+    @media only screen and (#{$kind}: $size)
+      @content

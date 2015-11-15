@@ -1,0 +1,16 @@
+ol, ul
+  padding: 0
+  & &
+    padding: 0 2rem 0
+
+ol
+  counter-reset: section
+  list-style-type: none
+
+  & li::before
+    counter-increment: section
+    content: counters(section,".") "\2002"
+    font-weight: 400
+
+ul
+  list-style-position: inside

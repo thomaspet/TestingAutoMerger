@@ -1,0 +1,2180 @@
+<!doctype html>
+<html lang="nb">
+
+<head>
+
+    <!-- PAGE DEFINITIONS
+     ------------------------------------------------------------------------->
+    <meta charset="utf-8">
+    <meta http-equiv="x-ua-compatible" content="chrome=1,ie=edge">
+    <meta name="robots" content="noindex,nofollow">
+    <!--[if (gt IE 9)|!(IE)]><!-->
+    <base href="#"/>
+    <!--<![endif]-->
+    <title>UniUI Kitchen Sink</title>
+
+
+    <!-- CONTENT DEFINITIONS
+     ------------------------------------------------------------------------->
+    <meta name="application-name" content="UniUI">
+    <meta name="keywords" content="UI, Design, Library, Frontend, UniMicro, V4">
+    <meta name="description" content="Frontend komponentbibliotek for Uni Micro AS">
+    <meta name="language" content="nb">
+    <meta name="revised" content="Tuesday; August 11, 2015">
+    <meta name="copyright" content="Uni Micro AS">
+    <meta name="owner" content="Uni Micro AS">
+    <meta name="author" content="Jørgen Arnor Gårdsø Lom <jorgen@unimicro.no>">
+    <meta name="designer" content="Jørgen Arnor Gårdsø Lom <jorgen@unimicro.no>">
+
+
+    <!-- METADATA
+     ------------------------------------------------------------------------->
+    <link rel="logo" type="image/svg" href="">
+    <link rel="shortlink" href="">
+    <link rel="me" type="text/html" href="http://unimicro.no">
+
+
+    <!-- APPLE PLATFORM TAGS
+     ------------------------------------------------------------------------->
+    <meta name="viewport" content="user-scalable=no, width=device-width"/>
+    <meta name="apple-mobile-web-app-title" content="">
+    <meta name="apple-mobile-web-app-capable" content="yes"/>
+    <meta name="apple-touch-fullscreen" content="yes"/>
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="format-detection" content="telephone=no">
+
+
+    <!-- SYNDICATION AND NOTIFICATIONS
+     ------------------------------------------------------------------------->
+    <link rel="alternate" type="application/rss+xml" title="RSS" href="">
+    <link rel="alternate" type="application/atom+xml" title="Atom 0.3" href="">
+    <meta name="msapplication-notification"
+          content="frequency=30;
+                   polling-uri=.xml;
+                   polling-uri2=.xml;
+                   polling-uri3=.xml">
+
+
+    <!-- APPLICATION ICONS AND STARTUP SCREENS
+     ------------------------------------------------------------------------->
+    <link rel="manifest" href="manifest.json">
+    <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico">
+    <link rel="icon" type="image/png" href="/assets/icons/icon16x16.png" sizes="16x16">
+    <link rel="icon" type="image/png" href="/assets/icons/icon32x32.png" sizes="32x32">
+    <link rel="icon" type="image/png" href="/assets/icons/icon96x96.png" sizes="96x96">
+    <link rel="icon" type="image/png" href="/assets/icons/icon96x96.png" sizes="196x196">
+    <link rel="icon" type="image/png" href="/assets/icons/icon96x96.png" sizes="228x228">
+
+    <!-- APPLE SPECIFIC-ish
+     ------------------------------------------------------------------------->
+    <link rel="apple-touch-startup-image" href="">
+    <link rel="apple-touch-icon" sizes="57x57" href="/apple-touch-icon-precomposed-57.png">
+    <link rel="apple-touch-icon" sizes="114x114" href="/apple-touch-icon-precomposed-114.png">
+    <link rel="apple-touch-icon" sizes="72x72" href="/apple-touch-icon-precomposed-72.png">
+    <link rel="apple-touch-icon" sizes="144x144" href="/apple-touch-icon-precomposed-144.png">
+    <link rel="apple-touch-icon" sizes="60x60" href="/apple-touch-icon-precomposed-60.png">
+    <link rel="apple-touch-icon" sizes="120x120" href="/apple-touch-icon-precomposed-120.png">
+    <link rel="apple-touch-icon" sizes="76x76" href="/apple-touch-icon-precomposed-76.png">
+    <link rel="apple-touch-icon" sizes="152x152" href="/apple-touch-icon-precomposed-152.png">
+
+    <!-- MICROSOFT SPECIFIC
+     ------------------------------------------------------------------------->
+    <meta name="msapplication-TileColor" content="#1492d5">
+    <meta name="msapplication-TileImage" content="/assets/icons/icon144x144.png">
+    <meta name="msapplication-config" content="browserconfig.xml"/>
+
+
+    <!-- EXTERNAL PROFILES
+     ------------------------------------------------------------------------->
+    <link rel='profile' title='Microformats' href='http://microformats.org/profile/specs/'>
+
+
+    <!-- STYLESHEETS
+     ------------------------------------------------------------------------->
+    <link rel="stylesheet" href="main.css">
+
+</head>
+<body class="kitchensink">
+
+
+
+<main>
+
+
+    <section id="grids">
+        <h2>Grids</h2>
+
+        <div class="one">1</div>
+        <div class="one">2</div>
+        <div class="one">3</div>
+        <div class="one">4</div>
+        <div class="one">5</div>
+        <div class="one">6</div>
+        <div class="one">7</div>
+        <div class="one">8</div>
+        <div class="one">9</div>
+        <div class="one">10</div>
+        <div class="one">11</div>
+        <div class="one">12</div>
+        <div class="one">13</div>
+        <div class="one">14</div>
+        <div class="one">15</div>
+        <div class="one">16</div>
+
+        <div class="example col1">1</div>
+        <div class="example col2">2</div>
+        <div class="example col3">3</div>
+        <div class="example col4">4</div>
+        <div class="example col5">5</div>
+        <div class="example col6">6</div>
+        <div class="example col7">7</div>
+        <div class="example col8">8</div>
+        <div class="example col9">9</div>
+        <div class="example col10">10</div>
+        <div class="example col11">11</div>
+        <div class="example col12">12</div>
+        <div class="example col13">13</div>
+        <div class="example col14">14</div>
+        <div class="example col15">15</div>
+        <div class="example col16">16</div>
+
+    </section>
+    <section id="buttons">
+        <h2>Buttons</h2>
+
+        <h3>Primary buttons</h3>
+        <button>Default</button>
+        <button class="c2a">Call to action</button>
+        <button class="good">Good</button>
+        <button class="warning">Warning</button>
+        <button class="bad">Bad</button>
+
+        <h3>Primary buttons (Disabled)</h3>
+        <button disabled>Default</button>
+        <button disabled class="c2a">Call to action</button>
+        <button disabled class="good">Good</button>
+        <button disabled class="warning">Warning</button>
+        <button disabled class="bad">Bad</button>
+
+        <h3>Primary buttons (Working)</h3>
+        <button aria-busy="true">Default</button>
+        <button aria-busy="true" class="c2a">Call to action</button>
+        <button aria-busy="true" class="good">Good</button>
+        <button aria-busy="true" class="warning">Warning</button>
+        <button aria-busy="true" class="bad">Bad</button>
+
+        <h3>Primary buttons (Small)</h3>
+        <button class="small">Default</button>
+        <button class="small c2a">Call to action</button>
+        <button class="small good">Good</button>
+        <button class="small warning">Warning</button>
+        <button class="small bad">Bad</button>
+
+        <h3>Primary buttons (Small, disabled)</h3>
+        <button disabled class="small">Default</button>
+        <button disabled class="small c2a">Call to action</button>
+        <button disabled class="small good">Good</button>
+        <button disabled class="small warning">Warning</button>
+        <button disabled class="small bad">Bad</button>
+
+        <h3>Primary buttons (Small, working)</h3>
+        <button aria-busy="true" class="small">Default</button>
+        <button aria-busy="true" class="small c2a">Call to action</button>
+        <button aria-busy="true" class="small good">Good</button>
+        <button aria-busy="true" class="small warning">Warning</button>
+        <button aria-busy="true" class="small bad">Bad</button>
+
+        <h3>Secondary buttons</h3>
+        <button class="secondary">Default</button>
+        <button class="secondary c2a">Call to action</button>
+        <button class="secondary good">Good</button>
+        <button class="secondary warning">Warning</button>
+        <button class="secondary bad">Bad</button>
+
+        <h3>Secondary buttons (Disabled)</h3>
+        <button disabled class="secondary">Default</button>
+        <button disabled class="secondary c2a">Call to action</button>
+        <button disabled class="secondary good">Good</button>
+        <button disabled class="secondary warning">Warning</button>
+        <button disabled class="secondary bad">Bad</button>
+
+        <h3>Secondary buttons (Working)</h3>
+        <button aria-busy="true" class="secondary">Default</button>
+        <button aria-busy="true" class="secondary c2a">Call to action</button>
+        <button aria-busy="true" class="secondary good">Good</button>
+        <button aria-busy="true" class="secondary warning">Warning</button>
+        <button aria-busy="true" class="secondary bad">Bad</button>
+
+        <h3>Secondary buttons (Small)</h3>
+        <button class="secondary small">Default</button>
+        <button class="secondary small c2a">Call to action</button>
+        <button class="secondary small good">Good</button>
+        <button class="secondary small warning">Warning</button>
+        <button class="secondary small bad">Bad</button>
+
+        <h3>Secondary buttons (Small, disabled)</h3>
+        <button disabled class="secondary small">Default</button>
+        <button disabled class="secondary small c2a">Call to action</button>
+        <button disabled class="secondary small good">Good</button>
+        <button disabled class="secondary small warning">Warning</button>
+        <button disabled class="secondary small bad">Bad</button>
+
+        <h3>Secondary buttons (Small, working)</h3>
+        <button aria-busy="true" class="secondary small">Default</button>
+        <button aria-busy="true" class="secondary small c2a">Call to action</button>
+        <button aria-busy="true" class="secondary small good">Good</button>
+        <button aria-busy="true" class="secondary small warning">Warning</button>
+        <button aria-busy="true" class="secondary small bad">Bad</button>
+
+    </section>
+    <section id="forms">
+        <h2>Forms</h2>
+
+        <fieldset>
+            <legend>Checkboxes with labels only</legend>
+
+            <input type="checkbox" id="check1"/> <label for="check1">                               Checkbox                    </label>
+            <input type="checkbox" id="check2"/> <label for="check2" class="success">               Success Checkbox            </label>
+            <input type="checkbox" id="check3"/> <label for="check3" class="warning">               Warning Checkbox            </label>
+            <input type="checkbox" id="check4"/> <label for="check4" class="error">                 Error Checkbox              </label>
+
+            <br/>
+
+            <input type="checkbox" id="disabled1" disabled/><label for="disabled1">                 Disabled checkbox           </label>
+            <input type="checkbox" id="disabled2" disabled/><label for="disabled2" class="success"> Success disabled checkbox   </label>
+            <input type="checkbox" id="disabled3" disabled/><label for="disabled3" class="warning"> Warning disabled checkbox   </label>
+            <input type="checkbox" id="disabled4" disabled/><label for="disabled4" class="error">   Error disabled checkbox     </label>
+
+            <br/>
+
+            <input type="checkbox" required id="required1"/><label for="required1">                 Required checkbox           </label>
+            <input type="checkbox" required id="required2"/><label for="required2" class="success"> Success required checkbox   </label>
+            <input type="checkbox" required id="required3"/><label for="required3" class="warning"> Warning required checkbox   </label>
+            <input type="checkbox" required id="required4"/><label for="required4" class="error">   Error required checkbox     </label>
+
+            <br/>
+
+            <input type="checkbox" aria-busy="true" id="busy1"/><label for="busy1">                 Working checkbox            </label>
+            <input type="checkbox" aria-busy="true" id="busy2"/><label for="busy2" class="success"> Success working checkbox    </label>
+            <input type="checkbox" aria-busy="true" id="busy3"/><label for="busy3" class="warning"> Warning working checkbox    </label>
+            <input type="checkbox" aria-busy="true" id="busy4"/><label for="busy4" class="error">   Error working checkbox      </label>
+
+        </fieldset>
+
+        <fieldset>
+            <legend>Checkboxes with captions</legend>
+
+            <input type="checkbox" id="captionedcheck1"/> <label for="captionedcheck1">                               Checkbox                   <small>With a short note</small> </label>
+            <input type="checkbox" id="captionedcheck2"/> <label for="captionedcheck2" class="success">               Success Checkbox           <small>With a short note</small> </label>
+            <input type="checkbox" id="captionedcheck3"/> <label for="captionedcheck3" class="warning">               Warning Checkbox           <small>With a short note</small> </label>
+            <input type="checkbox" id="captionedcheck4"/> <label for="captionedcheck4" class="error">                 Error Checkbox             <small>With a short note</small> </label>
+
+            <br/>
+
+            <input type="checkbox" id="captioneddisabled1" disabled/><label for="captioneddisabled1">                 Disabled checkbox          <small>With a short note</small> </label>
+            <input type="checkbox" id="captioneddisabled2" disabled/><label for="captioneddisabled2" class="success"> Success disabled checkbox  <small>With a short note</small> </label>
+            <input type="checkbox" id="captioneddisabled3" disabled/><label for="captioneddisabled3" class="warning"> Warning disabled checkbox  <small>With a short note</small> </label>
+            <input type="checkbox" id="captioneddisabled4" disabled/><label for="captioneddisabled4" class="error">   Error disabled checkbox    <small>With a short note</small> </label>
+
+            <br/>
+
+            <input type="checkbox" required id="captionedrequired1"/><label for="captionedrequired1">                 Required checkbox          <small>With a short note</small> </label>
+            <input type="checkbox" required id="captionedrequired2"/><label for="captionedrequired2" class="success"> Success required checkbox  <small>With a short note</small> </label>
+            <input type="checkbox" required id="captionedrequired3"/><label for="captionedrequired3" class="warning"> Warning required checkbox  <small>With a short note</small> </label>
+            <input type="checkbox" required id="captionedrequired4"/><label for="captionedrequired4" class="error">   Error required checkbox    <small>With a short note</small> </label>
+
+            <br/>
+
+            <input type="checkbox" aria-busy="true" id="captionedbusy1"/><label for="captionedbusy1">                 Working checkbox           <small>With a short note</small> </label>
+            <input type="checkbox" aria-busy="true" id="captionedbusy2"/><label for="captionedbusy2" class="success"> Success working checkbox   <small>With a short note</small> </label>
+            <input type="checkbox" aria-busy="true" id="captionedbusy3"/><label for="captionedbusy3" class="warning"> Warning working checkbox   <small>With a short note</small> </label>
+            <input type="checkbox" aria-busy="true" id="captionedbusy4"/><label for="captionedbusy4" class="error">   Error working checkbox     <small>With a short note</small> </label>
+
+        </fieldset>
+
+        <fieldset>
+            <legend>Small checkboxes with labels only</legend>
+            <input type="checkbox" id="smallcheck1"/> <label for="smallcheck1" class="small">                       Small checkbox                    </label>
+            <input type="checkbox" id="smallcheck2"/> <label for="smallcheck2" class="small success">               Success small checkbox            </label>
+            <input type="checkbox" id="smallcheck3"/> <label for="smallcheck3" class="small warning">               Warning small checkbox            </label>
+            <input type="checkbox" id="smallcheck4"/> <label for="smallcheck4" class="small error">                 Error small checkbox              </label>
+
+            <br/>
+
+            <input type="checkbox" id="smalldisabled1" disabled/><label for="smalldisabled1" class="small">         Disabled small checkbox           </label>
+            <input type="checkbox" id="smalldisabled2" disabled/><label for="smalldisabled2" class="small success"> Success disabled small checkbox   </label>
+            <input type="checkbox" id="smalldisabled3" disabled/><label for="smalldisabled3" class="small warning"> Warning disabled small checkbox   </label>
+            <input type="checkbox" id="smalldisabled4" disabled/><label for="smalldisabled4" class="small error">   Error disabled small checkbox     </label>
+
+            <br/>
+
+            <input type="checkbox" required id="smallrequired1"/><label for="smallrequired1" class="small">         Required small checkbox           </label>
+            <input type="checkbox" required id="smallrequired2"/><label for="smallrequired2" class="small success"> Success required small checkbox   </label>
+            <input type="checkbox" required id="smallrequired3"/><label for="smallrequired3" class="small warning"> Warning required small checkbox   </label>
+            <input type="checkbox" required id="smallrequired4"/><label for="smallrequired4" class="small error">   Error required small checkbox     </label>
+
+            <br/>
+
+            <input type="checkbox" aria-busy="true" id="smallbusy1"/><label for="smallbusy1" class="small">         Working small checkbox            </label>
+            <input type="checkbox" aria-busy="true" id="smallbusy2"/><label for="smallbusy2" class="small success"> Success working small checkbox    </label>
+            <input type="checkbox" aria-busy="true" id="smallbusy3"/><label for="smallbusy3" class="small warning"> Warning working small checkbox    </label>
+            <input type="checkbox" aria-busy="true" id="smallbusy4"/><label for="smallbusy4" class="small error">   Error working small checkbox      </label>
+        </fieldset>
+
+        <fieldset>
+            <legend>Small checkboxes with captions</legend>
+
+            <input type="checkbox" id="smcapcheck1"/> <label for="smcapcheck1" class="small">                       Small Checkbox                   <small>With a short note</small> </label>
+            <input type="checkbox" id="smcapcheck2"/> <label for="smcapcheck2" class="small success">               Small Success Checkbox           <small>With a short note</small> </label>
+            <input type="checkbox" id="smcapcheck3"/> <label for="smcapcheck3" class="small warning">               Small Warning Checkbox           <small>With a short note</small> </label>
+            <input type="checkbox" id="smcapcheck4"/> <label for="smcapcheck4" class="small error">                 Small Error Checkbox             <small>With a short note</small> </label>
+
+            <br/>
+
+            <input type="checkbox" id="smcapabled1" disabled/><label for="smcapabled1" class="small">         Small Disabled checkbox          <small>With a short note</small> </label>
+            <input type="checkbox" id="smcapabled2" disabled/><label for="smcapabled2" class="small success"> Small Success disabled checkbox  <small>With a short note</small> </label>
+            <input type="checkbox" id="smcapabled3" disabled/><label for="smcapabled3" class="small warning"> Small Warning disabled checkbox  <small>With a short note</small> </label>
+            <input type="checkbox" id="smcapabled4" disabled/><label for="smcapabled4" class="small error">   Small Error disabled checkbox    <small>With a short note</small> </label>
+
+            <br/>
+
+            <input type="checkbox" required id="smcapuired1"/><label for="smcapuired1" class="small">         Small Required checkbox          <small>With a short note</small> </label>
+            <input type="checkbox" required id="smcapuired2"/><label for="smcapuired2" class="small success"> Small Success required checkbox  <small>With a short note</small> </label>
+            <input type="checkbox" required id="smcapuired3"/><label for="smcapuired3" class="small warning"> Small Warning required checkbox  <small>With a short note</small> </label>
+            <input type="checkbox" required id="smcapuired4"/><label for="smcapuired4" class="small error">   Small Error required checkbox    <small>With a short note</small> </label>
+
+            <br/>
+
+            <input type="checkbox" aria-busy="true" id="smcapdbusy1"/><label for="smcapdbusy1" class="small">         Small Working checkbox           <small>With a short note</small> </label>
+            <input type="checkbox" aria-busy="true" id="smcapdbusy2"/><label for="smcapdbusy2" class="small success"> Small Success working checkbox   <small>With a short note</small> </label>
+            <input type="checkbox" aria-busy="true" id="smcapdbusy3"/><label for="smcapdbusy3" class="small warning"> Small Warning working checkbox   <small>With a short note</small> </label>
+            <input type="checkbox" aria-busy="true" id="smcapdbusy4"/><label for="smcapdbusy4" class="small error">   Small Error working checkbox     <small>With a short note</small> </label>
+        </fieldset>
+
+        <fieldset>
+            <legend>Radio buttons</legend>
+            <input type="radio" name="uniradio1" id="radio1"/> <label for="radio1">                               Radio button                 </label>
+            <input type="radio" name="uniradio1" id="radio2"/> <label for="radio2" class="success">               Success radio button         </label>
+            <input type="radio" name="uniradio1" id="radio3"/> <label for="radio3" class="warning">               Warning radio button         </label>
+            <input type="radio" name="uniradio1" id="radio4"/> <label for="radio4" class="error">                 Error radio button           </label>
+
+            <br/>
+
+            <input type="radio" name="uniradio2" id="disabledradio1" disabled/><label for="disabledradio1">                 Disabled radio           </label>
+            <input type="radio" name="uniradio2" id="disabledradio2" disabled/><label for="disabledradio2" class="success"> Success disabled radio   </label>
+            <input type="radio" name="uniradio2" id="disabledradio3" disabled/><label for="disabledradio3" class="warning"> Warning disabled radio   </label>
+            <input type="radio" name="uniradio2" id="disabledradio4" disabled/><label for="disabledradio4" class="error">   Error disabled radio     </label>
+
+            <br/>
+
+            <input type="radio" required name="uniradio3" id="requiredradio1"/><label for="requiredradio1">                 Required radio           </label>
+            <input type="radio" required name="uniradio3" id="requiredradio2"/><label for="requiredradio2" class="success"> Success required radio   </label>
+            <input type="radio" required name="uniradio3" id="requiredradio3"/><label for="requiredradio3" class="warning"> Warning required radio   </label>
+            <input type="radio" required name="uniradio3" id="requiredradio4"/><label for="requiredradio4" class="error">   Error required radio     </label>
+
+            <br/>
+
+            <input type="radio" aria-busy="true" name="uniradio4" id="busyradio1"/><label for="busyradio1">                 Working radio            </label>
+            <input type="radio" aria-busy="true" name="uniradio4" id="busyradio2"/><label for="busyradio2" class="success"> Success working radio    </label>
+            <input type="radio" aria-busy="true" name="uniradio4" id="busyradio3"/><label for="busyradio3" class="warning"> Warning working radio    </label>
+            <input type="radio" aria-busy="true" name="uniradio4" id="busyradio4"/><label for="busyradio4" class="error">   Error working radio      </label>
+        </fieldset>
+
+        <fieldset>
+            <legend>Small radio buttons</legend>
+            <input type="radio" name="uniradio5" id="smradio1"/> <label for="smradio1" class="small">                       Small Radio button                 </label>
+            <input type="radio" name="uniradio5" id="smradio2"/> <label for="smradio2" class="small success">               Small Success radio button         </label>
+            <input type="radio" name="uniradio5" id="smradio3"/> <label for="smradio3" class="small warning">               Small Warning radio button         </label>
+            <input type="radio" name="uniradio5" id="smradio4"/> <label for="smradio4" class="small error">                 Small Error radio button           </label>
+
+            <br/>
+
+            <input type="radio" name="uniradio6" id="smdisabledradio1" disabled/><label for="smdisabledradio1" class="small">         Small Disabled radio           </label>
+            <input type="radio" name="uniradio6" id="smdisabledradio2" disabled/><label for="smdisabledradio2" class="small success"> Small Success disabled radio   </label>
+            <input type="radio" name="uniradio6" id="smdisabledradio3" disabled/><label for="smdisabledradio3" class="small warning"> Small Warning disabled radio   </label>
+            <input type="radio" name="uniradio6" id="smdisabledradio4" disabled/><label for="smdisabledradio4" class="small error">   Small Error disabled radio     </label>
+
+            <br/>
+
+            <input type="radio" required name="uniradio7" id="smrequiredradio1"/><label for="smrequiredradio1" class="small">         Small Required radio           </label>
+            <input type="radio" required name="uniradio7" id="smrequiredradio2"/><label for="smrequiredradio2" class="small success"> Small Success required radio   </label>
+            <input type="radio" required name="uniradio7" id="smrequiredradio3"/><label for="smrequiredradio3" class="small warning"> Small Warning required radio   </label>
+            <input type="radio" required name="uniradio7" id="smrequiredradio4"/><label for="smrequiredradio4" class="small error">   Small Error required radio     </label>
+
+            <br/>
+
+            <input type="radio" aria-busy="true" name="uniradio8" id="smbusyradio1"/><label for="smbusyradio1" class="small">         Small Working radio            </label>
+            <input type="radio" aria-busy="true" name="uniradio8" id="smbusyradio2"/><label for="smbusyradio2" class="small success"> Small Success working radio    </label>
+            <input type="radio" aria-busy="true" name="uniradio8" id="smbusyradio3"/><label for="smbusyradio3" class="small warning"> Small Warning working radio    </label>
+            <input type="radio" aria-busy="true" name="uniradio8" id="smbusyradio4"/><label for="smbusyradio4" class="small error">   Small Error working radio      </label>
+        </fieldset>
+
+        <fieldset>
+            <legend>Toggle buttons</legend>
+            <input type="checkbox" id="toggle1"/> <label for="toggle1" class="toggle">                Toggle                    </label>
+            <input type="checkbox" id="toggle2"/> <label for="toggle2" class="toggle success">               Success toggle            </label>
+            <input type="checkbox" id="toggle3"/> <label for="toggle3" class="toggle warning">               Warning toggle            </label>
+            <input type="checkbox" id="toggle4"/> <label for="toggle4" class="toggle error">                 Error toggle              </label>
+
+            <br/>
+
+            <input type="checkbox" id="disabledtoggle1" disabled/><label for="disabledtoggle1" class="toggle">         Disabled toggle           </label>
+            <input type="checkbox" id="disabledtoggle2" disabled/><label for="disabledtoggle2" class="toggle success"> Success disabled toggle   </label>
+            <input type="checkbox" id="disabledtoggle3" disabled/><label for="disabledtoggle3" class="toggle warning"> Warning disabled toggle   </label>
+            <input type="checkbox" id="disabledtoggle4" disabled/><label for="disabledtoggle4" class="toggle error">   Error disabled toggle     </label>
+
+            <br/>
+
+            <input type="checkbox" required id="requiredtoggle1"/><label for="requiredtoggle1" class="toggle">         Required toggle           </label>
+            <input type="checkbox" required id="requiredtoggle2"/><label for="requiredtoggle2" class="toggle success"> Success required toggle   </label>
+            <input type="checkbox" required id="requiredtoggle3"/><label for="requiredtoggle3" class="toggle warning"> Warning required toggle   </label>
+            <input type="checkbox" required id="requiredtoggle4"/><label for="requiredtoggle4" class="toggle error">   Error required toggle     </label>
+
+            <br/>
+
+            <input type="checkbox" aria-busy="true" id="busytoggle1"/><label for="busytoggle1" class="toggle">         Working toggle            </label>
+            <input type="checkbox" aria-busy="true" id="busytoggle2"/><label for="busytoggle2" class="toggle success"> Success working toggle    </label>
+            <input type="checkbox" aria-busy="true" id="busytoggle3"/><label for="busytoggle3" class="toggle warning"> Warning working toggle    </label>
+            <input type="checkbox" aria-busy="true" id="busytoggle4"/><label for="busytoggle4" class="toggle error">   Error working toggle      </label>
+        </fieldset>
+
+        <fieldset>
+            <legend>Small toggle buttons</legend>
+            <input type="checkbox" id="smtoggle1"/> <label for="smtoggle1" class="small toggle">         Small Toggle                    </label>
+            <input type="checkbox" id="smtoggle2"/> <label for="smtoggle2" class="small toggle success">        Small Success toggle            </label>
+            <input type="checkbox" id="smtoggle3"/> <label for="smtoggle3" class="small toggle warning">        Small Warning toggle            </label>
+            <input type="checkbox" id="smtoggle4"/> <label for="smtoggle4" class="small toggle error">          Small Error toggle              </label>
+
+            <br/>
+
+            <input type="checkbox" id="smdisabledtoggle1" disabled/><label for="smdisabledtoggle1" class="small toggle">         Small Disabled toggle           </label>
+            <input type="checkbox" id="smdisabledtoggle2" disabled/><label for="smdisabledtoggle2" class="small toggle success"> Small Success disabled toggle   </label>
+            <input type="checkbox" id="smdisabledtoggle3" disabled/><label for="smdisabledtoggle3" class="small toggle warning"> Small Warning disabled toggle   </label>
+            <input type="checkbox" id="smdisabledtoggle4" disabled/><label for="smdisabledtoggle4" class="small toggle error">   Small Error disabled toggle     </label>
+
+            <br/>
+
+            <input type="checkbox" required id="smrequiredtoggle1"/><label for="smrequiredtoggle1" class="small toggle">         Small Required toggle           </label>
+            <input type="checkbox" required id="smrequiredtoggle2"/><label for="smrequiredtoggle2" class="small toggle success"> Small Success required toggle   </label>
+            <input type="checkbox" required id="smrequiredtoggle3"/><label for="smrequiredtoggle3" class="small toggle warning"> Small Warning required toggle   </label>
+            <input type="checkbox" required id="smrequiredtoggle4"/><label for="smrequiredtoggle4" class="small toggle error">   Small Error required toggle     </label>
+
+            <br/>
+
+            <input type="checkbox" aria-busy="true" id="smbusytoggle1"/><label for="smbusytoggle1" class="small toggle">         Small Working toggle            </label>
+            <input type="checkbox" aria-busy="true" id="smbusytoggle2"/><label for="smbusytoggle2" class="small toggle success"> Small Success working toggle    </label>
+            <input type="checkbox" aria-busy="true" id="smbusytoggle3"/><label for="smbusytoggle3" class="small toggle warning"> Small Warning working toggle    </label>
+            <input type="checkbox" aria-busy="true" id="smbusytoggle4"/><label for="smbusytoggle4" class="small toggle error">   Small Error working toggle      </label>
+        </fieldset>
+
+        <fieldset>
+            <legend>Text inputs</legend>
+
+            <label> Text input
+                <input type="text" placeholder="Placeholder text" pattern="[A-Za-z-0-9]+\s[A-Za-z-'0-9]+"/>
+                <small>Descriptive text</small>
+            </label>
+            <label> Text input with success
+                <input type="text" class="success" placeholder="Placeholder text"/>
+                <small>Descriptive text</small>
+            </label>
+            <label> Text input with warning
+                <input type="text" class="warning" placeholder="Placeholder text"/>
+                <small>Descriptive text</small>
+            </label>
+            <label> Text input with error
+                <input type="text" class="error" placeholder="Placeholder text"/>
+                <small>Descriptive text</small>
+            </label>
+
+            <br/>
+
+            <label> Disabled text input
+                <input type="text" disabled placeholder="Disabled text input"/>
+            </label>
+            <label> Disabled text input with success
+                <input type="text" disabled class="success" placeholder="Disabled text input with success"/>
+            </label>
+            <label> Disabled text input with warning
+                <input type="text" disabled class="warning" placeholder="Disabled text input with warning"/>
+            </label>
+            <label> Disabled text input with error
+                <input type="text" disabled class="error" placeholder="Disabled text input with error"/>
+            </label>
+
+            <br/>
+
+            <label> Required text input
+                <input type="text" required placeholder="Required text input"/>
+            </label>
+            <label> Required text input with success
+                <input type="text" required class="success" placeholder="Required text input with success"/>
+            </label>
+            <label> Required text input with warning
+                <input type="text" required class="warning" placeholder="Required text input with warning"/>
+            </label>
+            <label> Required text input with error
+                <input type="text" required class="error" placeholder="Required text input with error"/>
+            </label>
+
+            <br/>
+
+            <label> Working text input
+                <input type="text" aria-busy="true" placeholder="Working text input"/>
+            </label>
+            <label> Working text input with success
+                <input type="text" aria-busy="true" class="success" placeholder="Working text input with success"/>
+            </label>
+            <label> Working text input with warning
+                <input type="text" aria-busy="true" class="warning" placeholder="Working text input with warning"/>
+            </label>
+            <label> Working text input with error
+                <input type="text" aria-busy="true" class="error" placeholder="Working text input with error"/>
+            </label>
+        </fieldset>
+
+        <fieldset>
+            <legend>Small text inputs</legend>
+
+            <label> Small text input
+                <input type="text" class="small" placeholder="Small text input"/>
+            </label>
+            <label> Small text input with success
+                <input type="text" class="small success" placeholder="Small text input with success"/>
+            </label>
+            <label> Small text input with warning
+                <input type="text" class="small warning" placeholder="Small text input with warning"/>
+            </label>
+            <label> Small text input with error
+                <input type="text" class="small error" placeholder="Small text input with error"/>
+            </label>
+
+            <br/>
+
+            <label> Disabled small text input
+                <input type="text" disabled class="small" placeholder="Disabled small text input"/>
+            </label>
+            <label> Disabled small text input with success
+                <input type="text" disabled class="small success" placeholder="Disabled small text input with success"/>
+            </label>
+            <label> Disabled small text input with warning
+                <input type="text" disabled class="small warning" placeholder="Disabled small text input with warning"/>
+            </label>
+            <label> Disabled small text input with error
+                <input type="text" disabled class="small error" placeholder="Disabled small text input with error"/>
+            </label>
+
+            <br/>
+
+            <label> Required small text input
+                <input type="text" required class="small" placeholder="Required small text input"/>
+            </label>
+            <label> Required small text input with success
+                <input type="text" required class="small success" placeholder="Required small text input with success"/>
+            </label>
+            <label> Required small text input with warning
+                <input type="text" required class="small warning" placeholder="Required small text input with warning"/>
+            </label>
+            <label> Required small text input with error
+                <input type="text" required class="small error" placeholder="Required small text input with error"/>
+            </label>
+
+            <br/>
+
+            <label> Working small text input
+                <input type="text" aria-busy="true" class="small" placeholder="Working small text input"/>
+            </label>
+            <label> Working small text input with success
+                <input type="text" aria-busy="true" class="small success" placeholder="Working small text input with success"/>
+            </label>
+            <label> Working small text input with warning
+                <input type="text" aria-busy="true" class="small warning" placeholder="Working small text input with warning"/>
+            </label>
+            <label> Working small text input with error
+                <input type="text" aria-busy="true" class="small error" placeholder="Working small text input with error"/>
+            </label>
+        </fieldset>
+
+        <fieldset>
+            <legend>Email inputs</legend>
+
+            <label> Email input
+                <input type="email" placeholder="Email input"/>
+            </label>
+            <label> Email input with success
+                <input type="email" class="success" placeholder="Email input with success"/>
+            </label>
+            <label> Email input with warning
+                <input type="email" class="warning" placeholder="Email input with warning"/>
+            </label>
+            <label> Email input with error
+                <input type="email" class="error" placeholder="Email input with error"/>
+            </label>
+
+            <br/>
+
+            <label> Disabled email input
+                <input type="email" disabled placeholder="Disabled email input"/>
+            </label>
+            <label> Disabled email input with success
+                <input type="email" disabled class="success" placeholder="Disabled email input with success"/>
+            </label>
+            <label> Disabled email input with warning
+                <input type="email" disabled class="warning" placeholder="Disabled email input with warning"/>
+            </label>
+            <label> Disabled email input with error
+                <input type="email" disabled class="error" placeholder="Disabled email input with error"/>
+            </label>
+
+            <br/>
+
+            <label> Required email input
+                <input type="email" required placeholder="Required email input"/>
+            </label>
+            <label> Required email input with success
+                <input type="email" required class="success" placeholder="Required email input with success"/>
+            </label>
+            <label> Required email input with warning
+                <input type="email" required class="warning" placeholder="Required email input with warning"/>
+            </label>
+            <label> Required email input with error
+                <input type="email" required class="error" placeholder="Required email input with error"/>
+            </label>
+
+            <br/>
+
+            <label> Working email input
+                <input type="email" aria-busy="true" placeholder="Working email input"/>
+            </label>
+            <label> Working email input with success
+                <input type="email" aria-busy="true" class="success" placeholder="Working email input with success"/>
+            </label>
+            <label> Working email input with warning
+                <input type="email" aria-busy="true" class="warning" placeholder="Working email input with warning"/>
+            </label>
+            <label> Working email input with error
+                <input type="email" aria-busy="true" class="error" placeholder="Working email input with error"/>
+            </label>
+        </fieldset>
+
+        <fieldset>
+            <legend>Small email inputs</legend>
+
+            <label> Small email input
+                <input type="email" class="small" placeholder="Small email input"/>
+            </label>
+            <label> Small email input with success
+                <input type="email" class="small success" placeholder="Small email input with success"/>
+            </label>
+            <label> Small email input with warning
+                <input type="email" class="small warning" placeholder="Small email input with warning"/>
+            </label>
+            <label> Small email input with error
+                <input type="email" class="small error" placeholder="Small email input with error"/>
+            </label>
+
+            <br/>
+
+            <label> Disabled small email input
+                <input type="email" disabled class="small" placeholder="Disabled small email input"/>
+            </label>
+            <label> Disabled small email input with success
+                <input type="email" disabled class="small success" placeholder="Disabled small email input with success"/>
+            </label>
+            <label> Disabled small email input with warning
+                <input type="email" disabled class="small warning" placeholder="Disabled small email input with warning"/>
+            </label>
+            <label> Disabled small email input with error
+                <input type="email" disabled class="small error" placeholder="Disabled small email input with error"/>
+            </label>
+
+            <br/>
+
+            <label> Required small email input
+                <input type="email" required class="small" placeholder="Required small email input"/>
+            </label>
+            <label> Required small email input with success
+                <input type="email" required class="small success" placeholder="Required small email input with success"/>
+            </label>
+            <label> Required small email input with warning
+                <input type="email" required class="small warning" placeholder="Required small email input with warning"/>
+            </label>
+            <label> Required small email input with error
+                <input type="email" required class="small error" placeholder="Required small email input with error"/>
+            </label>
+
+            <br/>
+
+            <label> Working small email input
+                <input type="email" aria-busy="true" class="small" placeholder="Working small email input"/>
+            </label>
+            <label> Working small email input with success
+                <input type="email" aria-busy="true" class="small success" placeholder="Working small email input with success"/>
+            </label>
+            <label> Working small email input with warning
+                <input type="email" aria-busy="true" class="small warning" placeholder="Working small email input with warning"/>
+            </label>
+            <label> Working small email input with error
+                <input type="email" aria-busy="true" class="small error" placeholder="Working small email input with error"/>
+            </label>
+        </fieldset>
+
+        <fieldset>
+            <legend>Password inputs</legend>
+
+            <label> Password input
+                <input type="password" placeholder="Password input"/>
+            </label>
+            <label> Password input with success
+                <input type="password" class="success" placeholder="Password input with success"/>
+            </label>
+            <label> Password input with warning
+                <input type="password" class="warning" placeholder="Password input with warning"/>
+            </label>
+            <label> Password input with error
+                <input type="password" class="error" placeholder="Password input with error"/>
+            </label>
+
+            <br/>
+
+            <label> Disabled password input
+                <input type="password" disabled placeholder="Disabled password input"/>
+            </label>
+            <label> Disabled password input with success
+                <input type="password" disabled class="success" placeholder="Disabled password input with success"/>
+            </label>
+            <label> Disabled password input with warning
+                <input type="password" disabled class="warning" placeholder="Disabled password input with warning"/>
+            </label>
+            <label> Disabled password input with error
+                <input type="password" disabled class="error" placeholder="Disabled password input with error"/>
+            </label>
+
+            <br/>
+
+            <label> Required password input
+                <input type="password" required placeholder="Required password input"/>
+            </label>
+            <label> Required password input with success
+                <input type="password" required class="success" placeholder="Required password input with success"/>
+            </label>
+            <label> Required password input with warning
+                <input type="password" required class="warning" placeholder="Required password input with warning"/>
+            </label>
+            <label> Required password input with error
+                <input type="password" required class="error" placeholder="Required password input with error"/>
+            </label>
+
+            <br/>
+
+            <label> Working passsword input
+                <input type="password" aria-busy="true" placeholder="Working password input"/>
+            </label>
+            <label> Working password input with success
+                <input type="password" aria-busy="true" class="success" placeholder="Working password input with success"/>
+            </label>
+            <label> Working password input with warning
+                <input type="password" aria-busy="true" class="warning" placeholder="Working password input with warning"/>
+            </label>
+            <label> Working password input with error
+                <input type="password" aria-busy="true" class="error" placeholder="Working password input with error"/>
+            </label>
+        </fieldset>
+
+        <fieldset>
+            <legend>Small password inputs</legend>
+
+            <label> Small password input
+                <input type="password" class="small" placeholder="Small password input"/>
+            </label>
+            <label> Small password input with success
+                <input type="password" class="small success" placeholder="Small password input with success"/>
+            </label>
+            <label> Small password input with warning
+                <input type="password" class="small warning" placeholder="Small password input with warning"/>
+            </label>
+            <label> Small password input with error
+                <input type="password" class="small error" placeholder="Small password input with error"/>
+            </label>
+
+            <br/>
+
+            <label> Disabled small password input
+                <input type="password" disabled class="small" placeholder="Disabled small password input"/>
+            </label>
+            <label> Disabled small password input with success
+                <input type="password" disabled class="small success" placeholder="Disabled small password input with success"/>
+            </label>
+            <label> Disabled small password input with warning
+                <input type="password" disabled class="small warning" placeholder="Disabled small password input with warning"/>
+            </label>
+            <label> Disabled small password input with error
+                <input type="password" disabled class="small error" placeholder="Disabled small password input with error"/>
+            </label>
+
+            <br/>
+
+            <label> Required small password input
+                <input type="password" required class="small" placeholder="Required small password input"/>
+            </label>
+            <label> Required small password input with success
+                <input type="password" required class="small success" placeholder="Required small password input with success"/>
+            </label>
+            <label> Required small password input with warning
+                <input type="password" required class="small warning" placeholder="Required small password input with warning"/>
+            </label>
+            <label> Required small password input with error
+                <input type="password" required class="small error" placeholder="Required small password input with error"/>
+            </label>
+
+            <br/>
+
+            <label> Working small password input
+                <input type="password" aria-busy="true" class="small" placeholder="Working small password input"/>
+            </label>
+            <label> Working small password input with success
+                <input type="password" aria-busy="true" class="small success" placeholder="Working small password input with success"/>
+            </label>
+            <label> Working small password input with warning
+                <input type="password" aria-busy="true" class="small warning" placeholder="Working small password input with warning"/>
+            </label>
+            <label> Working small password input with error
+                <input type="password" aria-busy="true" class="small error" placeholder="Working small password input with error"/>
+            </label>
+        </fieldset>
+<!--
+        <fieldset>
+            <legend>Color inputs</legend>
+
+            <label> Color input
+                <input type="color" placeholder="Color input"/>
+            </label>
+            <label> Color input with success
+                <input type="color" class="success" placeholder="Color input with success"/>
+            </label>
+            <label> Color input with warning
+                <input type="color" class="warning" placeholder="Color input with warning"/>
+            </label>
+            <label> Color input with error
+                <input type="color" class="error" placeholder="Color input with error"/>
+            </label>
+
+            <br/>
+
+            <label> Disabled color input
+                <input type="color" disabled placeholder="Disabled color input"/>
+            </label>
+            <label> Disabled color input with success
+                <input type="color" disabled class="success" placeholder="Disabled color input with success"/>
+            </label>
+            <label> Disabled color input with warning
+                <input type="color" disabled class="warning" placeholder="Disabled color input with warning"/>
+            </label>
+            <label> Disabled color input with error
+                <input type="color" disabled class="error" placeholder="Disabled color input with error"/>
+            </label>
+
+            <br/>
+
+            <label> Required color input
+                <input type="color" required placeholder="Required color input"/>
+            </label>
+            <label> Required color input with success
+                <input type="color" required class="success" placeholder="Required color input with success"/>
+            </label>
+            <label> Required color input with warning
+                <input type="color" required class="warning" placeholder="Required color input with warning"/>
+            </label>
+            <label> Required color input with error
+                <input type="color" required class="error" placeholder="Required color input with error"/>
+            </label>
+
+            <br/>
+
+            <label> Working color input
+                <input type="color" aria-busy="true" placeholder="Working color input"/>
+            </label>
+            <label> Working color input with success
+                <input type="color" aria-busy="true" class="success" placeholder="Working color input with success"/>
+            </label>
+            <label> Working color input with warning
+                <input type="color" aria-busy="true" class="warning" placeholder="Working color input with warning"/>
+            </label>
+            <label> Working color input with error
+                <input type="color" aria-busy="true" class="error" placeholder="Working color input with error"/>
+            </label>
+        </fieldset>
+
+        <fieldset>
+            <legend>Small color inputs</legend>
+
+            <label> Small color input
+                <input type="color" class="small" placeholder="Small color input"/>
+            </label>
+            <label> Small color input with success
+                <input type="color" class="small success" placeholder="Small color input with success"/>
+            </label>
+            <label> Small color input with warning
+                <input type="color" class="small warning" placeholder="Small color input with warning"/>
+            </label>
+            <label> Small color input with error
+                <input type="color" class="small error" placeholder="Small color input with error"/>
+            </label>
+
+            <br/>
+
+            <label> Disabled small color input
+                <input type="color" disabled class="small" placeholder="Disabled small color input"/>
+            </label>
+            <label> Disabled small color inuput with success
+                <input type="color" disabled class="small success" placeholder="Disabled small color input with success"/>
+            </label>
+            <label> Disabled small color input with warning
+                <input type="color" disabled class="small warning" placeholder="Disabled small color input with warning"/>
+            </label>
+            <label> Disabled small color input with error
+                <input type="color" disabled class="small error" placeholder="Disabled small color input with error"/>
+            </label>
+
+            <br/>
+
+            <label> Required small color input
+                <input type="color" required class="small" placeholder="Required small color input"/>
+            </label>
+            <label> Required small color input with success
+                <input type="color" required class="small success" placeholder="Required small color input with success"/>
+            </label>
+            <label> Required small color input with warning
+                <input type="color" required class="small warning" placeholder="Required small color input with warning"/>
+            </label>
+            <label> Required small color input with error
+                <input type="color" required class="small error" placeholder="Required small color input with error"/>
+            </label>
+
+            <br/>
+
+            <label> Working small color input
+                <input type="color" aria-busy="true" class="small" placeholder="Working small color input"/>
+            </label>
+            <label> Working small color input with success
+                <input type="color" aria-busy="true" class="small success" placeholder="Working small color input with success"/>
+            </label>
+            <label> Working small color input with warning
+                <input type="color" aria-busy="true" class="small warning" placeholder="Working small color input with warning"/>
+            </label>
+            <label> Working small color input with error
+                <input type="color" aria-busy="true" class="small error" placeholder="Working small color input with error"/>
+            </label>
+        </fieldset>
+
+
+        <fieldset>
+            <legend>Color inputs</legend>
+
+            <label> Color input
+                <input type="color" placeholder="Color input"/>
+            </label>
+            <label> Color input with success
+                <input type="color" class="success" placeholder="Color input with success"/>
+            </label>
+            <label> Color input with warning
+                <input type="color" class="warning" placeholder="Color input with warning"/>
+            </label>
+            <label> Color input with error
+                <input type="color" class="error" placeholder="Color input with error"/>
+            </label>
+
+            <br/>
+
+            <label> Disabled color input
+                <input type="color" disabled placeholder="Disabled color input"/>
+            </label>
+            <label> Disabled color input with success
+                <input type="color" disabled class="success" placeholder="Disabled color input with success"/>
+            </label>
+            <label> Disabled color input with warning
+                <input type="color" disabled class="warning" placeholder="Disabled color input with warning"/>
+            </label>
+            <label> Disabled color input with error
+                <input type="color" disabled class="error" placeholder="Disabled color input with error"/>
+            </label>
+
+            <br/>
+
+            <label> Required color input
+                <input type="color" required placeholder="Required color input"/>
+            </label>
+            <label> Required color input with success
+                <input type="color" required class="success" placeholder="Required color input with success"/>
+            </label>
+            <label> Required color input with warning
+                <input type="color" required class="warning" placeholder="Required color input with warning"/>
+            </label>
+            <label> Required color input with error
+                <input type="color" required class="error" placeholder="Required color input with error"/>
+            </label>
+
+            <br/>
+
+            <label> Working color input
+                <input type="color" aria-busy="true" placeholder="Working color input"/>
+            </label>
+            <label> Working color input with success
+                <input type="color" aria-busy="true" class="success" placeholder="Working color input with success"/>
+            </label>
+            <label> Working color input with warning
+                <input type="color" aria-busy="true" class="warning" placeholder="Working color input with warning"/>
+            </label>
+            <label> Working color input with error
+                <input type="color" aria-busy="true" class="error" placeholder="Working color input with error"/>
+            </label>
+        </fieldset>
+
+        <fieldset>
+            <legend>Small color inputs</legend>
+
+            <label> Small color input
+                <input type="color" class="small" placeholder="Small color input"/>
+            </label>
+            <label> Small color input with success
+                <input type="color" class="small success" placeholder="Small color input with success"/>
+            </label>
+            <label> Small color input with warning
+                <input type="color" class="small warning" placeholder="Small color input with warning"/>
+            </label>
+            <label> Small color input with error
+                <input type="color" class="small error" placeholder="Small color input with error"/>
+            </label>
+
+            <br/>
+
+            <label> Disabled small color input
+                <input type="color" disabled class="small" placeholder="Disabled small color input"/>
+            </label>
+            <label> Disabled small color inuput with success
+                <input type="color" disabled class="small success" placeholder="Disabled small color input with success"/>
+            </label>
+            <label> Disabled small color input with warning
+                <input type="color" disabled class="small warning" placeholder="Disabled small color input with warning"/>
+            </label>
+            <label> Disabled small color input with error
+                <input type="color" disabled class="small error" placeholder="Disabled small color input with error"/>
+            </label>
+
+            <br/>
+
+            <label> Required small color input
+                <input type="color" required class="small" placeholder="Required small color input"/>
+            </label>
+            <label> Required small color input with success
+                <input type="color" required class="small success" placeholder="Required small color input with success"/>
+            </label>
+            <label> Required small color input with warning
+                <input type="color" required class="small warning" placeholder="Required small color input with warning"/>
+            </label>
+            <label> Required small color input with error
+                <input type="color" required class="small error" placeholder="Required small color input with error"/>
+            </label>
+
+            <br/>
+
+            <label> Working small color input
+                <input type="color" aria-busy="true" class="small" placeholder="Working small color input"/>
+            </label>
+            <label> Working small color input with success
+                <input type="color" aria-busy="true" class="small success" placeholder="Working small color input with success"/>
+            </label>
+            <label> Working small color input with warning
+                <input type="color" aria-busy="true" class="small warning" placeholder="Working small color input with warning"/>
+            </label>
+            <label> Working small color input with error
+                <input type="color" aria-busy="true" class="small error" placeholder="Working small color input with error"/>
+            </label>
+        </fieldset>
+
+
+        <fieldset>
+            <legend>Date inputs</legend>
+
+            <label> Date input
+                <input type="date" placeholder="Date input"/>
+            </label>
+            <label> Date input with success
+                <input type="date" class="success" placeholder="Date input with success"/>
+            </label>
+            <label> Date input with warning
+                <input type="date" class="warning" placeholder="Date input with warning"/>
+            </label>
+            <label> Date input with error
+                <input type="date" class="error" placeholder="Date input with error"/>
+            </label>
+
+            <br/>
+
+            <label> Disabled date input
+                <input type="date" disabled placeholder="Disabled date input"/>
+            </label>
+            <label> Disabled date input with success
+                <input type="date" disabled class="success" placeholder="Disabled date input with success"/>
+            </label>
+            <label> Disabled date input with warning
+                <input type="date" disabled class="warning" placeholder="Disabled date input with warning"/>
+            </label>
+            <label> Disabled date input with error
+                <input type="date" disabled class="error" placeholder="Disabled date input with error"/>
+            </label>
+
+            <br/>
+
+            <label> Required date input
+                <input type="date" required placeholder="Required date input"/>
+            </label>
+            <label> Required date input with success
+                <input type="date" required class="success" placeholder="Required date input with success"/>
+            </label>
+            <label> Required date input with warning
+                <input type="date" required class="warning" placeholder="Required date input with warning"/>
+            </label>
+            <label> Required date input with error
+                <input type="date" required class="error" placeholder="Required date input with error"/>
+            </label>
+
+            <br/>
+
+            <label> Working date input
+                <input type="date" aria-busy="true" placeholder="Working date input"/>
+            </label>
+            <label> Working date input with success
+                <input type="date" aria-busy="true" class="success" placeholder="Working date input with success"/>
+            </label>
+            <label> Working date input with warning
+                <input type="date" aria-busy="true" class="warning" placeholder="Working date input with warning"/>
+            </label>
+            <label> Working date input with error
+                <input type="date" aria-busy="true" class="error" placeholder="Working date input with error"/>
+            </label>
+        </fieldset>
+
+        <fieldset>
+            <legend>Small date inputs</legend>
+
+            <label> Small date input
+                <input type="date" class="small" placeholder="Small date input"/>
+            </label>
+            <label> Small date input with success
+                <input type="date" class="small success" placeholder="Small date input with success"/>
+            </label>
+            <label> Small date input with warning
+                <input type="date" class="small warning" placeholder="Small date input with warning"/>
+            </label>
+            <label> Small date input with error
+                <input type="date" class="small error" placeholder="Small date input with error"/>
+            </label>
+
+            <br/>
+
+            <label> Disabled small date input
+                <input type="date" disabled class="small" placeholder="Disabled small date input"/>
+            </label>
+            <label> Disabled small date inuput with success
+                <input type="date" disabled class="small success" placeholder="Disabled small date input with success"/>
+            </label>
+            <label> Disabled small date input with warning
+                <input type="date" disabled class="small warning" placeholder="Disabled small date input with warning"/>
+            </label>
+            <label> Disabled small date input with error
+                <input type="date" disabled class="small error" placeholder="Disabled small date input with error"/>
+            </label>
+
+            <br/>
+
+            <label> Required small date input
+                <input type="date" required class="small" placeholder="Required small date input"/>
+            </label>
+            <label> Required small date input with success
+                <input type="date" required class="small success" placeholder="Required small date input with success"/>
+            </label>
+            <label> Required small date input with warning
+                <input type="date" required class="small warning" placeholder="Required small date input with warning"/>
+            </label>
+            <label> Required small date input with error
+                <input type="date" required class="small error" placeholder="Required small date input with error"/>
+            </label>
+
+            <br/>
+
+            <label> Working small date input
+                <input type="date" aria-busy="true" class="small" placeholder="Working small date input"/>
+            </label>
+            <label> Working small date input with success
+                <input type="date" aria-busy="true" class="small success" placeholder="Working small date input with success"/>
+            </label>
+            <label> Working small date input with warning
+                <input type="date" aria-busy="true" class="small warning" placeholder="Working small date input with warning"/>
+            </label>
+            <label> Working small date input with error
+                <input type="date" aria-busy="true" class="small error" placeholder="Working small date input with error"/>
+            </label>
+        </fieldset>
+
+
+        <fieldset>
+            <legend>Month inputs</legend>
+
+            <label> Month input
+                <input type="month" placeholder="Month input"/>
+            </label>
+            <label> Month input with success
+                <input type="month" class="success" placeholder="Month input with success"/>
+            </label>
+            <label> Month input with warning
+                <input type="month" class="warning" placeholder="Month input with warning"/>
+            </label>
+            <label> Month input with error
+                <input type="month" class="error" placeholder="Month input with error"/>
+            </label>
+
+            <br/>
+
+            <label> Disabled month input
+                <input type="month" disabled placeholder="Disabled month input"/>
+            </label>
+            <label> Disabled month input with success
+                <input type="month" disabled class="success" placeholder="Disabled month input with success"/>
+            </label>
+            <label> Disabled month input with warning
+                <input type="month" disabled class="warning" placeholder="Disabled month input with warning"/>
+            </label>
+            <label> Disabled month input with error
+                <input type="month" disabled class="error" placeholder="Disabled month input with error"/>
+            </label>
+
+            <br/>
+
+            <label> Required month input
+                <input type="month" required placeholder="Required month input"/>
+            </label>
+            <label> Required month input with success
+                <input type="month" required class="success" placeholder="Required month input with success"/>
+            </label>
+            <label> Required month input with warning
+                <input type="month" required class="warning" placeholder="Required month input with warning"/>
+            </label>
+            <label> Required month input with error
+                <input type="month" required class="error" placeholder="Required month input with error"/>
+            </label>
+
+            <br/>
+
+            <label> Working month input
+                <input type="month" aria-busy="true" placeholder="Working month input"/>
+            </label>
+            <label> Working month input with success
+                <input type="month" aria-busy="true" class="success" placeholder="Working month input with success"/>
+            </label>
+            <label> Working month input with warning
+                <input type="month" aria-busy="true" class="warning" placeholder="Working month input with warning"/>
+            </label>
+            <label> Working month input with error
+                <input type="month" aria-busy="true" class="error" placeholder="Working month input with error"/>
+            </label>
+        </fieldset>
+
+        <fieldset>
+            <legend>Small month inputs</legend>
+
+            <label> Small month input
+                <input type="month" class="small" placeholder="Small month input"/>
+            </label>
+            <label> Small month input with success
+                <input type="month" class="small success" placeholder="Small month input with success"/>
+            </label>
+            <label> Small month input with warning
+                <input type="month" class="small warning" placeholder="Small month input with warning"/>
+            </label>
+            <label> Small month input with error
+                <input type="month" class="small error" placeholder="Small month input with error"/>
+            </label>
+
+            <br/>
+
+            <label> Disabled small month input
+                <input type="month" disabled class="small" placeholder="Disabled small month input"/>
+            </label>
+            <label> Disabled small month inuput with success
+                <input type="month" disabled class="small success" placeholder="Disabled small month input with success"/>
+            </label>
+            <label> Disabled small month input with warning
+                <input type="month" disabled class="small warning" placeholder="Disabled small month input with warning"/>
+            </label>
+            <label> Disabled small month input with error
+                <input type="month" disabled class="small error" placeholder="Disabled small month input with error"/>
+            </label>
+
+            <br/>
+
+            <label> Required small month input
+                <input type="month" required class="small" placeholder="Required small month input"/>
+            </label>
+            <label> Required small month input with success
+                <input type="month" required class="small success" placeholder="Required small month input with success"/>
+            </label>
+            <label> Required small month input with warning
+                <input type="month" required class="small warning" placeholder="Required small month input with warning"/>
+            </label>
+            <label> Required small month input with error
+                <input type="month" required class="small error" placeholder="Required small month input with error"/>
+            </label>
+
+            <br/>
+
+            <label> Working small month input
+                <input type="month" aria-busy="true" class="small" placeholder="Working small month input"/>
+            </label>
+            <label> Working small month input with success
+                <input type="month" aria-busy="true" class="small success" placeholder="Working small month input with success"/>
+            </label>
+            <label> Working small month input with warning
+                <input type="month" aria-busy="true" class="small warning" placeholder="Working small month input with warning"/>
+            </label>
+            <label> Working small month input with error
+                <input type="month" aria-busy="true" class="small error" placeholder="Working small month input with error"/>
+            </label>
+        </fieldset>
+
+
+        <fieldset>
+            <legend>Time inputs</legend>
+
+            <label> Time input
+                <input type="time" placeholder="Time input"/>
+            </label>
+            <label> Time input with success
+                <input type="time" class="success" placeholder="Time input with success"/>
+            </label>
+            <label> Time input with warning
+                <input type="time" class="warning" placeholder="Time input with warning"/>
+            </label>
+            <label> Time input with error
+                <input type="time" class="error" placeholder="Time input with error"/>
+            </label>
+
+            <br/>
+
+            <label> Disabled time input
+                <input type="time" disabled placeholder="Disabled time input"/>
+            </label>
+            <label> Disabled time input with success
+                <input type="time" disabled class="success" placeholder="Disabled time input with success"/>
+            </label>
+            <label> Disabled time input with warning
+                <input type="time" disabled class="warning" placeholder="Disabled time input with warning"/>
+            </label>
+            <label> Disabled time input with error
+                <input type="time" disabled class="error" placeholder="Disabled time input with error"/>
+            </label>
+
+            <br/>
+
+            <label> Required time input
+                <input type="time" required placeholder="Required time input"/>
+            </label>
+            <label> Required time input with success
+                <input type="time" required class="success" placeholder="Required time input with success"/>
+            </label>
+            <label> Required time input with warning
+                <input type="time" required class="warning" placeholder="Required time input with warning"/>
+            </label>
+            <label> Required time input with error
+                <input type="time" required class="error" placeholder="Required time input with error"/>
+            </label>
+
+            <br/>
+
+            <label> Working time input
+                <input type="time" aria-busy="true" placeholder="Working time input"/>
+            </label>
+            <label> Working time input with success
+                <input type="time" aria-busy="true" class="success" placeholder="Working time input with success"/>
+            </label>
+            <label> Working time input with warning
+                <input type="time" aria-busy="true" class="warning" placeholder="Working time input with warning"/>
+            </label>
+            <label> Working time input with error
+                <input type="time" aria-busy="true" class="error" placeholder="Working time input with error"/>
+            </label>
+        </fieldset>
+
+        <fieldset>
+            <legend>Small time inputs</legend>
+
+            <label> Small time input
+                <input type="time" class="small" placeholder="Small time input"/>
+            </label>
+            <label> Small time input with success
+                <input type="time" class="small success" placeholder="Small time input with success"/>
+            </label>
+            <label> Small time input with warning
+                <input type="time" class="small warning" placeholder="Small time input with warning"/>
+            </label>
+            <label> Small time input with error
+                <input type="time" class="small error" placeholder="Small time input with error"/>
+            </label>
+
+            <br/>
+
+            <label> Disabled small time input
+                <input type="time" disabled class="small" placeholder="Disabled small time input"/>
+            </label>
+            <label> Disabled small time inuput with success
+                <input type="time" disabled class="small success" placeholder="Disabled small time input with success"/>
+            </label>
+            <label> Disabled small time input with warning
+                <input type="time" disabled class="small warning" placeholder="Disabled small time input with warning"/>
+            </label>
+            <label> Disabled small time input with error
+                <input type="time" disabled class="small error" placeholder="Disabled small time input with error"/>
+            </label>
+
+            <br/>
+
+            <label> Required small time input
+                <input type="time" required class="small" placeholder="Required small time input"/>
+            </label>
+            <label> Required small time input with success
+                <input type="time" required class="small success" placeholder="Required small time input with success"/>
+            </label>
+            <label> Required small time input with warning
+                <input type="time" required class="small warning" placeholder="Required small time input with warning"/>
+            </label>
+            <label> Required small time input with error
+                <input type="time" required class="small error" placeholder="Required small time input with error"/>
+            </label>
+
+            <br/>
+
+            <label> Working small time input
+                <input type="time" aria-busy="true" class="small" placeholder="Working small time input"/>
+            </label>
+            <label> Working small time input with success
+                <input type="time" aria-busy="true" class="small success" placeholder="Working small time input with success"/>
+            </label>
+            <label> Working small time input with warning
+                <input type="time" aria-busy="true" class="small warning" placeholder="Working small time input with warning"/>
+            </label>
+            <label> Working small time input with error
+                <input type="time" aria-busy="true" class="small error" placeholder="Working small time input with error"/>
+            </label>
+        </fieldset>
+
+
+        <fieldset>
+            <legend>Datetime inputs</legend>
+
+            <label> Datetime input
+                <input type="datetime" placeholder="Datetime input"/>
+            </label>
+            <label> Datetime input with success
+                <input type="datetime" class="success" placeholder="Datetime input with success"/>
+            </label>
+            <label> Datetime input with warning
+                <input type="datetime" class="warning" placeholder="Datetime input with warning"/>
+            </label>
+            <label> Datetime input with error
+                <input type="datetime" class="error" placeholder="Datetime input with error"/>
+            </label>
+
+            <br/>
+
+            <label> Disabled datetime input
+                <input type="datetime" disabled placeholder="Disabled datetime input"/>
+            </label>
+            <label> Disabled datetime input with success
+                <input type="datetime" disabled class="success" placeholder="Disabled datetime input with success"/>
+            </label>
+            <label> Disabled datetime input with warning
+                <input type="datetime" disabled class="warning" placeholder="Disabled datetime input with warning"/>
+            </label>
+            <label> Disabled datetime input with error
+                <input type="datetime" disabled class="error" placeholder="Disabled datetime input with error"/>
+            </label>
+
+            <br/>
+
+            <label> Required datetime input
+                <input type="datetime" required placeholder="Required datetime input"/>
+            </label>
+            <label> Required datetime input with success
+                <input type="datetime" required class="success" placeholder="Required datetime input with success"/>
+            </label>
+            <label> Required datetime input with warning
+                <input type="datetime" required class="warning" placeholder="Required datetime input with warning"/>
+            </label>
+            <label> Required datetime input with error
+                <input type="datetime" required class="error" placeholder="Required datetime input with error"/>
+            </label>
+
+            <br/>
+
+            <label> Working datetime input
+                <input type="datetime" aria-busy="true" placeholder="Working datetime input"/>
+            </label>
+            <label> Working datetime input with success
+                <input type="datetime" aria-busy="true" class="success" placeholder="Working datetime input with success"/>
+            </label>
+            <label> Working datetime input with warning
+                <input type="datetime" aria-busy="true" class="warning" placeholder="Working datetime input with warning"/>
+            </label>
+            <label> Working datetime input with error
+                <input type="datetime" aria-busy="true" class="error" placeholder="Working datetime input with error"/>
+            </label>
+        </fieldset>
+
+        <fieldset>
+            <legend>Small datetime inputs</legend>
+
+            <label> Small datetime input
+                <input type="datetime" class="small" placeholder="Small datetime input"/>
+            </label>
+            <label> Small datetime input with success
+                <input type="datetime" class="small success" placeholder="Small datetime input with success"/>
+            </label>
+            <label> Small datetime input with warning
+                <input type="datetime" class="small warning" placeholder="Small datetime input with warning"/>
+            </label>
+            <label> Small datetime input with error
+                <input type="datetime" class="small error" placeholder="Small datetime input with error"/>
+            </label>
+
+            <br/>
+
+            <label> Disabled small datetime input
+                <input type="datetime" disabled class="small" placeholder="Disabled small datetime input"/>
+            </label>
+            <label> Disabled small datetime inuput with success
+                <input type="datetime" disabled class="small success" placeholder="Disabled small datetime input with success"/>
+            </label>
+            <label> Disabled small datetime input with warning
+                <input type="datetime" disabled class="small warning" placeholder="Disabled small datetime input with warning"/>
+            </label>
+            <label> Disabled small datetime input with error
+                <input type="datetime" disabled class="small error" placeholder="Disabled small datetime input with error"/>
+            </label>
+
+            <br/>
+
+            <label> Required small datetime input
+                <input type="datetime" required class="small" placeholder="Required small datetime input"/>
+            </label>
+            <label> Required small datetime input with success
+                <input type="datetime" required class="small success" placeholder="Required small datetime input with success"/>
+            </label>
+            <label> Required small datetime input with warning
+                <input type="datetime" required class="small warning" placeholder="Required small datetime input with warning"/>
+            </label>
+            <label> Required small datetime input with error
+                <input type="datetime" required class="small error" placeholder="Required small datetime input with error"/>
+            </label>
+
+            <br/>
+
+            <label> Working small datetime input
+                <input type="datetime" aria-busy="true" class="small" placeholder="Working small datetime input"/>
+            </label>
+            <label> Working small datetime input with success
+                <input type="datetime" aria-busy="true" class="small success" placeholder="Working small datetime input with success"/>
+            </label>
+            <label> Working small datetime input with warning
+                <input type="datetime" aria-busy="true" class="small warning" placeholder="Working small datetime input with warning"/>
+            </label>
+            <label> Working small datetime input with error
+                <input type="datetime" aria-busy="true" class="small error" placeholder="Working small datetime input with error"/>
+            </label>
+        </fieldset>
+
+-->
+
+        <fieldset>
+            <legend>Number inputs</legend>
+
+            <label> Number input
+                <input type="number" placeholder="Number input"/>
+            </label>
+            <label> Number input with success
+                <input type="number" class="success" placeholder="Number input with success"/>
+            </label>
+            <label> Number input with warning
+                <input type="number" class="warning" placeholder="Number input with warning"/>
+            </label>
+            <label> Number input with error
+                <input type="number" class="error" placeholder="Number input with error"/>
+            </label>
+
+            <br/>
+
+            <label> Disabled number input
+                <input type="number" disabled placeholder="Disabled number input"/>
+            </label>
+            <label> Disabled number input with success
+                <input type="number" disabled class="success" placeholder="Disabled number input with success"/>
+            </label>
+            <label> Disabled number input with warning
+                <input type="number" disabled class="warning" placeholder="Disabled number input with warning"/>
+            </label>
+            <label> Disabled number input with error
+                <input type="number" disabled class="error" placeholder="Disabled number input with error"/>
+            </label>
+
+            <br/>
+
+            <label> Required number input
+                <input type="number" required placeholder="Required number input"/>
+            </label>
+            <label> Required number input with success
+                <input type="number" required class="success" placeholder="Required number input with success"/>
+            </label>
+            <label> Required number input with warning
+                <input type="number" required class="warning" placeholder="Required number input with warning"/>
+            </label>
+            <label> Required number input with error
+                <input type="number" required class="error" placeholder="Required number input with error"/>
+            </label>
+
+            <br/>
+
+            <label> Working number input
+                <input type="number" aria-busy="true" placeholder="Working number input"/>
+            </label>
+            <label> Working number input with success
+                <input type="number" aria-busy="true" class="success" placeholder="Working number input with success"/>
+            </label>
+            <label> Working number input with warning
+                <input type="number" aria-busy="true" class="warning" placeholder="Working number input with warning"/>
+            </label>
+            <label> Working number input with error
+                <input type="number" aria-busy="true" class="error" placeholder="Working number input with error"/>
+            </label>
+        </fieldset>
+
+        <fieldset>
+            <legend>Small number inputs</legend>
+
+            <label> Small number input
+                <input type="number" class="small" placeholder="Small number input"/>
+            </label>
+            <label> Small number input with success
+                <input type="number" class="small success" placeholder="Small number input with success"/>
+            </label>
+            <label> Small number input with warning
+                <input type="number" class="small warning" placeholder="Small number input with warning"/>
+            </label>
+            <label> Small number input with error
+                <input type="number" class="small error" placeholder="Small number input with error"/>
+            </label>
+
+            <br/>
+
+            <label> Disabled small number input
+                <input type="number" disabled class="small" placeholder="Disabled small number input"/>
+            </label>
+            <label> Disabled small number inuput with success
+                <input type="number" disabled class="small success" placeholder="Disabled small number input with success"/>
+            </label>
+            <label> Disabled small number input with warning
+                <input type="number" disabled class="small warning" placeholder="Disabled small number input with warning"/>
+            </label>
+            <label> Disabled small number input with error
+                <input type="number" disabled class="small error" placeholder="Disabled small number input with error"/>
+            </label>
+
+            <br/>
+
+            <label> Required small number input
+                <input type="number" required class="small" placeholder="Required small number input"/>
+            </label>
+            <label> Required small number input with success
+                <input type="number" required class="small success" placeholder="Required small number input with success"/>
+            </label>
+            <label> Required small number input with warning
+                <input type="number" required class="small warning" placeholder="Required small number input with warning"/>
+            </label>
+            <label> Required small number input with error
+                <input type="number" required class="small error" placeholder="Required small number input with error"/>
+            </label>
+
+            <br/>
+
+            <label> Working small number input
+                <input type="number" aria-busy="true" class="small" placeholder="Working small number input"/>
+            </label>
+            <label> Working small number input with success
+                <input type="number" aria-busy="true" class="small success" placeholder="Working small number input with success"/>
+            </label>
+            <label> Working small number input with warning
+                <input type="number" aria-busy="true" class="small warning" placeholder="Working small number input with warning"/>
+            </label>
+            <label> Working small number input with error
+                <input type="number" aria-busy="true" class="small error" placeholder="Working small number input with error"/>
+            </label>
+        </fieldset>
+
+
+        <fieldset>
+            <legend>Search inputs</legend>
+
+            <label> Search input
+                <input type="search" placeholder="Search input"/>
+            </label>
+            <label> Search input with success
+                <input type="search" class="success" placeholder="Search input with success"/>
+            </label>
+            <label> Search input with warning
+                <input type="search" class="warning" placeholder="Search input with warning"/>
+            </label>
+            <label> Search input with error
+                <input type="search" class="error" placeholder="Search input with error"/>
+            </label>
+
+            <br/>
+
+            <label> Disabled search input
+                <input type="search" disabled placeholder="Disabled search input"/>
+            </label>
+            <label> Disabled search input with success
+                <input type="search" disabled class="success" placeholder="Disabled search input with success"/>
+            </label>
+            <label> Disabled search input with warning
+                <input type="search" disabled class="warning" placeholder="Disabled search input with warning"/>
+            </label>
+            <label> Disabled search input with error
+                <input type="search" disabled class="error" placeholder="Disabled search input with error"/>
+            </label>
+
+            <br/>
+
+            <label> Required search input
+                <input type="search" required placeholder="Required search input"/>
+            </label>
+            <label> Required search input with success
+                <input type="search" required class="success" placeholder="Required search input with success"/>
+            </label>
+            <label> Required search input with warning
+                <input type="search" required class="warning" placeholder="Required search input with warning"/>
+            </label>
+            <label> Required search input with error
+                <input type="search" required class="error" placeholder="Required search input with error"/>
+            </label>
+
+            <br/>
+
+            <label> Working search input
+                <input type="search" aria-busy="true" placeholder="Working search input"/>
+            </label>
+            <label> Working search input with success
+                <input type="search" aria-busy="true" class="success" placeholder="Working search input with success"/>
+            </label>
+            <label> Working search input with warning
+                <input type="search" aria-busy="true" class="warning" placeholder="Working search input with warning"/>
+            </label>
+            <label> Working search input with error
+                <input type="search" aria-busy="true" class="error" placeholder="Working search input with error"/>
+            </label>
+        </fieldset>
+
+        <fieldset>
+            <legend>Small search inputs</legend>
+
+            <label> Small search input
+                <input type="search" class="small" placeholder="Small search input"/>
+            </label>
+            <label> Small search input with success
+                <input type="search" class="small success" placeholder="Small search input with success"/>
+            </label>
+            <label> Small search input with warning
+                <input type="search" class="small warning" placeholder="Small search input with warning"/>
+            </label>
+            <label> Small search input with error
+                <input type="search" class="small error" placeholder="Small search input with error"/>
+            </label>
+
+            <br/>
+
+            <label> Disabled small search input
+                <input type="search" disabled class="small" placeholder="Disabled small search input"/>
+            </label>
+            <label> Disabled small search inuput with success
+                <input type="search" disabled class="small success" placeholder="Disabled small search input with success"/>
+            </label>
+            <label> Disabled small search input with warning
+                <input type="search" disabled class="small warning" placeholder="Disabled small search input with warning"/>
+            </label>
+            <label> Disabled small search input with error
+                <input type="search" disabled class="small error" placeholder="Disabled small search input with error"/>
+            </label>
+
+            <br/>
+
+            <label> Required small search input
+                <input type="search" required class="small" placeholder="Required small search input"/>
+            </label>
+            <label> Required small search input with success
+                <input type="search" required class="small success" placeholder="Required small search input with success"/>
+            </label>
+            <label> Required small search input with warning
+                <input type="search" required class="small warning" placeholder="Required small search input with warning"/>
+            </label>
+            <label> Required small search input with error
+                <input type="search" required class="small error" placeholder="Required small search input with error"/>
+            </label>
+
+            <br/>
+
+            <label> Working small search input
+                <input type="search" aria-busy="true" class="small" placeholder="Working small search input"/>
+            </label>
+            <label> Working small search input with success
+                <input type="search" aria-busy="true" class="small success" placeholder="Working small search input with success"/>
+            </label>
+            <label> Working small search input with warning
+                <input type="search" aria-busy="true" class="small warning" placeholder="Working small search input with warning"/>
+            </label>
+            <label> Working small search input with error
+                <input type="search" aria-busy="true" class="small error" placeholder="Working small search input with error"/>
+            </label>
+        </fieldset>
+
+
+        <fieldset>
+            <legend>Phone number inputs</legend>
+
+            <label> Phone number input
+                <input type="tel" placeholder="Phone number input"/>
+            </label>
+            <label> Phone number input with success
+                <input type="tel" class="success" placeholder="Phone number input with success"/>
+            </label>
+            <label> Phone number input with warning
+                <input type="tel" class="warning" placeholder="Phone number input with warning"/>
+            </label>
+            <label> Phone number input with error
+                <input type="tel" class="error" placeholder="Phone number input with error"/>
+            </label>
+
+            <br/>
+
+            <label> Disabled phone number input
+                <input type="tel" disabled placeholder="Disabled phone number input"/>
+            </label>
+            <label> Disabled phone number input with success
+                <input type="tel" disabled class="success" placeholder="Disabled phone number input with success"/>
+            </label>
+            <label> Disabled phone number input with warning
+                <input type="tel" disabled class="warning" placeholder="Disabled phone number input with warning"/>
+            </label>
+            <label> Disabled phone number input with error
+                <input type="tel" disabled class="error" placeholder="Disabled phone number input with error"/>
+            </label>
+
+            <br/>
+
+            <label> Required phone number input
+                <input type="tel" required placeholder="Required phone number input"/>
+            </label>
+            <label> Required phone number input with success
+                <input type="tel" required class="success" placeholder="Required phone number input with success"/>
+            </label>
+            <label> Required phone number input with warning
+                <input type="tel" required class="warning" placeholder="Required phone number input with warning"/>
+            </label>
+            <label> Required phone number input with error
+                <input type="tel" required class="error" placeholder="Required phone number input with error"/>
+            </label>
+
+            <br/>
+
+            <label> Working phone number input
+                <input type="tel" aria-busy="true" placeholder="Working phone number input"/>
+            </label>
+            <label> Working phone number input with success
+                <input type="tel" aria-busy="true" class="success" placeholder="Working phone number input with success"/>
+            </label>
+            <label> Working phone number input with warning
+                <input type="tel" aria-busy="true" class="warning" placeholder="Working phone number input with warning"/>
+            </label>
+            <label> Working phone number input with error
+                <input type="tel" aria-busy="true" class="error" placeholder="Working phone number input with error"/>
+            </label>
+        </fieldset>
+
+        <fieldset>
+            <legend>Small phone number inputs</legend>
+
+            <label> Small phone number input
+                <input type="tel" class="small" placeholder="Small phone number input"/>
+            </label>
+            <label> Small phone number input with success
+                <input type="tel" class="small success" placeholder="Small phone number input with success"/>
+            </label>
+            <label> Small phone number input with warning
+                <input type="tel" class="small warning" placeholder="Small phone number input with warning"/>
+            </label>
+            <label> Small phone number input with error
+                <input type="tel" class="small error" placeholder="Small phone number input with error"/>
+            </label>
+
+            <br/>
+
+            <label> Disabled small phone number input
+                <input type="tel" disabled class="small" placeholder="Disabled small phone number input"/>
+            </label>
+            <label> Disabled small phone number inuput with success
+                <input type="tel" disabled class="small success" placeholder="Disabled small phone number input with success"/>
+            </label>
+            <label> Disabled small phone number input with warning
+                <input type="tel" disabled class="small warning" placeholder="Disabled small phone number input with warning"/>
+            </label>
+            <label> Disabled small phone number input with error
+                <input type="tel" disabled class="small error" placeholder="Disabled small phone number input with error"/>
+            </label>
+
+            <br/>
+
+            <label> Required small phone number input
+                <input type="tel" required class="small" placeholder="Required small phone number input"/>
+            </label>
+            <label> Required small phone number input with success
+                <input type="tel" required class="small success" placeholder="Required small phone number input with success"/>
+            </label>
+            <label> Required small phone number input with warning
+                <input type="tel" required class="small warning" placeholder="Required small phone number input with warning"/>
+            </label>
+            <label> Required small phone number input with error
+                <input type="tel" required class="small error" placeholder="Required small phone number input with error"/>
+            </label>
+
+            <br/>
+
+            <label> Working small phone number input
+                <input type="tel" aria-busy="true" class="small" placeholder="Working small phone number input"/>
+            </label>
+            <label> Working small phone number input with success
+                <input type="tel" aria-busy="true" class="small success" placeholder="Working small phone number input with success"/>
+            </label>
+            <label> Working small phone number input with warning
+                <input type="tel" aria-busy="true" class="small warning" placeholder="Working small phone number input with warning"/>
+            </label>
+            <label> Working small phone number input with error
+                <input type="tel" aria-busy="true" class="small error" placeholder="Working small phone number input with error"/>
+            </label>
+        </fieldset>
+
+
+
+
+
+
+    </section>
+    <section id="typography">
+
+        <h2>Typography</h2>
+
+        <h1>Heartbroken, a gangly quizmaster explains to juveniles how continents deform</h1>
+
+        <h2>A kind harbour sot judiciously shows his extensive reportoire of amazing torniquets</h2>
+
+        <h3>Coquettish Kinfolk danced an exuberant gypsy waltz, a moving jig</h3>
+
+        <h4>Your weird choice found adequate support among joke-loving ex-buzz marketeers</h4>
+
+        <p class="lede">Lede copy ipsum dolor sit amet, consectetur adipisicing elit. Autem debitis doloremque fugit harum iste obcaecati optio, repellendus voluptate. Alias commodi doloribus eaque exercitationem, explicabo illum iste necessitatibus quidem quis veniam?</p>
+
+        <p>Here's some regular body copy, with <a href="#">an inline link</a> to something amazing within our application, and even
+            <a href="http://example.com">something external</a>. These are styled differently.</p>
+
+        <aside class="more"><a href="#">Need help?</a></aside>
+
+        <small>
+            <p>Small print, such as legal copy &copy; 2015, Uni Micro AS.
+                You may not use or otherwise export or re-export the Licensed
+                Application except as authorized by United States law and the
+                laws of the jurisdiction in which the Licensed Application was
+                obtained. In particular, but without limitation, the Licensed
+                Application may not be exported or re-exported (a) into any U.S.
+                embargoed countries or (b) to anyone on the U.S. Treasury
+                Department's list of Specially Designated Nationals or the U.S.
+                Department of Commerce Denied Person’s List or Entity List. By
+                using the Licensed Application, you represent and warrant that
+                you are not located in any such country or on any such list.
+                You also agree that you will not use these products for any
+                purposes prohibited by United States law, including, without
+                limitation, the development, design, manufacture or production
+                of nuclear, missiles, or chemical or biological weapons. </p>
+        </small>
+
+        <ol>
+            <li>Here's a list</li>
+            <li>It's ordered
+                <ol>
+                    <li>With multiple layvels
+                        <ol>
+                            <li>Nested in each other</li>
+                        </ol>
+                    </li>
+                </ol>
+            </li>
+            <li>It's amazing!</li>
+        </ol>
+
+
+        <ul>
+            <li>Here's another list</li>
+            <li>This one's unordered
+                <ul>
+                    <li>Still with multiple layvels
+                        <ul>
+                            <li>Nested in each other</li>
+                        </ul>
+                    </li>
+                </ul>
+            </li>
+            <li>It's also amazing!</li>
+        </ul>
+
+        <p>We have an <abbr title="Abbrevition">ABBR</abbr>-tag, which looks like this: <code>&lt;abbr&gt;</code>. The Acronym-tag has been deprecated by the W3C, but we'll still add an .acronym-class, because it let's us treat acronyms differently from abbrevitions (especially for speech synthesis programs, who need to pronounce UN differently from <abbr class="acronym" title="North Atlantic Treaty Organisation">NATO</abbr>).</p>
+
+        <p>Address tags are used in conjunction with HTML5 Microdata and Schema.org person or organisation schemas, like here:</p>
+
+        <address itemscope itemtype="http://schema.org/Organization">
+            <a href="http://unimicru.no" itemprop="url">
+                <span itemprop="name">Uni Micro AS</span>
+            </a><br>
+            Telefon: <a href="tel:+4756599100" itemprop="telephone">56 59 91 00</a> <br>
+            Epost: <a href="mailto:salg@unimicro.no" itemprop="email">salg@unimicro.no</a> <br/>
+            <br/>
+                <span itemscope itemprop="address" itemtype="http://schema.org/PostalAddress">
+                    <span itemprop="streetAddress">Øvre Helland</span><br/>
+                    <span itemprop="postalCode">5729</span> <span itemprop="addressLocality">Modalen</span><br/>
+                    <span itemprop="addressCountry">Norge</span>
+                </span>
+        </address>
+
+        <p>How about a nice blockquote?</p>
+
+        <blockquote cite="https://twitter.com/hotdogsladies/statuses/871694656">
+            <p>If you need to appear on an internet list to know whether you're someone's friend, you may have problems a computer can't solve.</p>
+            <cite>Merlin Mann</cite>
+        </blockquote>
+
+        <p>Or even an inline one quote, like someone once said, <q cite="https://www.youtube.com/watch?v=mOgOP_aqqtg">The only problem with Microsoft is they just have no taste</q>&hellip;</p>
+
+        <p>Let's try some <del>strike</del> deleted text as well. (The <code>strike</code>-tag was deprecated, but we should still keep it around, methinks, in the form of a class name). Here's a <del class="strike">overline</del> strike.</p>
+
+        <p>Now let's have a look at a proper code block:</p>
+
+        <code><pre>
+function deepThought(q){
+    switch q
+        case "Ultimate Question of Life, The Universe, and Everything":
+            return 42;
+
+        case "The Ultimate Question"
+            return earthComputer(q);
+}</pre></code>
+
+        <p>You might want to <mark>highlight</mark> something, too? How about a keboard shortcut? Did you know <kbd>&#8997; + &#8984; + Esc</kbd> will sleep a Mac? Datetime? Myself, I go to sleep at about <time datetime="2015-18-08T00:30:00+01:00">half past midnight</time>.</p>
+
+    </section>
+    <section id="media-elements">
+        <h2>Media Elements</h2>
+
+        <h4>Charts</h4>
+
+        <p>Highcharts</p>
+
+        <h4>Images</h4>
+
+        <img src="http://unsplash.it/600/300?random" alt="Random placeholder pic"/>
+
+        <figure>
+            <img src="http://unsplash.it/600/400?random" alt="Random placeholder pic"/>
+            <figcaption>A figure with figcaption</figcaption>
+        </figure>
+
+        <h4>Video</h4>
+
+        <video controls>
+            <source src="http://download.blender.org/peach/bigbuckbunny_movies/big_buck_bunny_480p_h264.mov" type="video/quicktime"/>
+            <source src="http://download.blender.org/peach/bigbuckbunny_movies/big_buck_bunny_480p_stereo.avi" type="video/x-msvideo"/>
+            <source src="http://download.blender.org/peach/bigbuckbunny_movies/big_buck_bunny_480p_stereo.ogg" type="application/ogg"/>
+        </video>
+
+        <h4>Maps</h4>
+
+        <p>Kendo</p>
+
+        <h4>Audio</h4>
+
+        <audio src="">Mhm</audio>
+
+        <h4>Calendar</h4>
+
+        <p>Kendo</p>
+
+    </section>
+    <section id="modals">
+        <h2>Modals</h2>
+    </section>
+    <section id="empty-states">
+        <h2>Empty states</h2>
+    </section>
+    <section id="tooltips">
+        <h2>Tool tips</h2>
+    </section>
+    <section id="navigation">
+        <h2>Navigation</h2>
+    </section>
+    <section id="comments">
+        <h2>Comments</h2>
+    </section>
+    <section id="person-profile">
+        <h2>Person profile</h2>
+
+        <p>Person profiles, like <code>address</code>es, are a great use case for HTML microdata. </p>
+
+        <article itemscope itemtype="http://schema.org/Person">
+
+            <header>
+                <p itemscope itemprop="name">
+                    <span itemprop="givenName">Jørgen Arnor</span>
+                    <span itemprop="additionalName">Gårdsø</span>
+                    <span itemprop="familyName">Lom</span>
+                </p>
+                <p>
+                    <span itemprop="jobTitle">Sr. web designer</span>,
+                    <span itemprop="affiliation">Uni Micro AS</span>
+                </p>
+            </header>
+
+            <div itemscope itemprop="address" itemtype="http://schema.org/PostalAddress">
+                <span itemprop="streetAddress">Øvre Helland</span><br/>
+                <span itemprop="postalCode">5729</span> <span itemprop="addressLocality">Modalen</span><br/>
+                <span itemprop="addressCountry">Norge</span>
+            </div>
+
+        </article>
+
+    </section>
+
+
+
+</main>
+
+
+
+
+<!-- SCRIPTS
+ ------------------------------------------------------------------------->
+<script src="js/uniui.js"></script>
+
+</body>
+</html>

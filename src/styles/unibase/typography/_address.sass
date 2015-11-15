@@ -1,0 +1,42 @@
+address[itemscope]
+  font-style: normal
+
+  a
+    &:link,
+    &:visited
+      color: $uni-color-positive
+      font-weight: 300
+      text-decoration: none
+      background: transparentize($uni-color-scale9, .9)
+      border: 1px solid $uni-color-scale9
+      border-radius: .2rem
+      padding: 0 .3rem
+      height: 1.4rem
+      box-sizing: border-box
+
+    &:after
+      display: inline-block
+      margin: 0 -.3rem 0 .3rem
+      padding: 0 .3rem
+      border-left: 1px solid $uni-color-scale9
+      line-height: 1.3rem
+      font-weight: 400
+      color: $uni-color-scale6
+
+    &:hover,
+    &:focus
+      background: transparentize($uni-color-C2A, .9)
+      border-color: $uni-color-C2A
+
+      &:after
+        border-color: $uni-color-C2A
+        background: $uni-color-C2A
+        color: $uni-color-negative
+
+
+    &[href^="mailto:"]:after
+      content: "@"
+
+    &[href^="tel:"]:after
+      content: "\2706"
+      font-size: 1.1rem

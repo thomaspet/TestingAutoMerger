@@ -1,0 +1,88 @@
+// Import Source Sans Pro from Google Fonts. We may want to self-host this later.
+@import url(http://fonts.googleapis.com/css?family=Source+Sans+Pro:200,300,400,600)
+
+// For our font stack we prefer Source Sans Pro, and try to fall back to the system defaults
+// for situations when the typeface doesn't load. (San Francisco for iOS 9 or OS X El Capitan up,
+// Segoe UI for Win 8+, Droid Sans for Android, Ubuntu for.. well, you can probably guess that one.
+// Because, _this_ will be the year of Linux on the desktop!)
+$uni-stack: "Source Sans Pro", -apple-system-body, "Segoe UI", "Droid Sans", "Roboto", "Ubuntu", "Fira Sans Light", sans
+$uni-stack-mono: "Menlo", "Consolas", "Liberation Mono", "Andale Mono", mono
+$rem: 14
+
+*
+  font-family: $uni-stack
+  font-weight: 300
+  font-size: #{$rem}px
+  line-height: #{$rem*1.5}px
+  -webkit-font-smoothing: antialiased
+  text-rendering: optimizeLegibility
+  text-shadow: rgba(0, 0, 0, .01) 0 0 1px
+  color: $uni-color-positive
+
+@import "headlines"
+@import "links"
+@import "lists"
+@import "address"
+
+
+.lede
+  font-size: 1.2rem
+  line-height: 1.5rem
+
+small,
+small *
+  color: $uni-color-scale3
+  font-size: .8rem
+
+abbr[title]
+  border-bottom: 1px dotted $uni-color-scale8
+  &.acronym
+    speak-as: normal
+
+blockquote
+  border-left: .5rem solid $uni-color-scale9
+  background: transparentize($uni-color-scale9, .5)
+  padding-left: .5rem
+  display: block
+
+  & cite:before
+    content: "– "
+
+mark
+  background: transparentize($uni-color-C2A, .9)
+  color: $uni-color-C2A
+  border-radius: .2rem
+  font-weight: 400
+
+kbd
+  display: inline-block
+  border: 1px solid $uni-color-scale9
+  background: transparentize($uni-color-scale9, .5)
+  border-radius: .2rem
+  font-family: $uni-stack
+  font-weight: 400
+  padding: 0 .5rem
+
+code
+  font: normal .9rem/1.5rem $uni-stack-mono
+  color: $uni-color-scale2
+
+  & pre,
+    display: block
+    background: -webkit-repeating-linear-gradient(top, transparentize($uni-color-scale9, .5) 0, transparentize($uni-color-scale9, .5) 1.5rem, transparent 1.5rem, transparent 3rem)
+    background-size: 100% 3rem
+    padding: 0 1.5rem
+    border: 1px solid $uni-color-scale9
+    border-radius: .2rem
+    overflow: auto
+
+del
+  background: transparentize($uni-color-Bad, .8)
+  color: $uni-color-Bad
+  border-radius: .2rem
+
+  &.strike
+    background: transparent
+    color: $uni-color-positive
+    border-radius: 0
+

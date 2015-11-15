@@ -1,0 +1,39 @@
+// The UniGrid has four breakpoints.
+// (Small is anything below $unigrid-medium)
+$unigrid-sizes: ("small": 700, "medium": 700, "large": 1100, "huge": 2000)
+$unigrid-columns: ("small": 1, "medium": 4, "large": 8, "huge": 16)
+$unigrid-gutters: ("small": 1rem, "medium": 1rem, "large": 1rem, "huge": 1rem)
+
+@function unigrid-colWidth($size)
+  @return 100% / map-get($unigrid-columns, #{$size})
+
+@mixin unigrid($huge-cols,$large-cols:round(($huge-cols/map-get($unigrid-columns, "huge"))*map-get($unigrid-columns, "large")),$medium-cols:round(($huge-cols/map-get($unigrid-columns, "huge"))*map-get($unigrid-columns, "medium")),$small-cols:round(($huge-cols/map-get($unigrid-columns, "huge"))*map-get($unigrid-columns, "small")))
+  &
+    box-sizing: border-box
+
+  @if $large-cols==0
+    $large-cols:1
+  @if $medium-cols==0
+    $medium-cols:1
+  @if $small-cols==0
+    $small-cols:1
+
+  @include media(small)
+    &
+      width: calc(#{(unigrid-colWidth(small) * $small-cols)} - #{map-get($unigrid-gutters, "small") * 2})
+      margin: auto map-get($unigrid-gutters, "small")
+
+  @include media(medium)
+    &
+      width: calc(#{(unigrid-colWidth(medium) * $medium-cols)} - #{map-get($unigrid-gutters, "medium") * 2})
+      margin: auto map-get($unigrid-gutters, "medium")
+
+  @include media(large)
+    &
+      width: calc(#{(unigrid-colWidth(large) * $large-cols)} - #{map-get($unigrid-gutters, "large") * 2})
+      margin: auto map-get($unigrid-gutters, "large")
+
+  @include media(huge)
+    &
+      width: calc(#{(unigrid-colWidth(huge) * $huge-cols)} - #{map-get($unigrid-gutters, "huge") * 2})
+      margin: auto map-get($unigrid-gutters, "huge")

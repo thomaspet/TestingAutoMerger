@@ -1,0 +1,96 @@
+$inputs-list: 'input[type="email"]', 'input[type="number"]','input[type="password"]','input[type="search"]','input[type="tel"]','input[type="text"]','input[type="url"]','input[type="color"]','input[type="date"]','input[type="datetime"]','input[type="datetime-local"]','input[type="month"]','input[type="time"]','input[type="week"]'
+
+$unquoted-inputs-list: ()
+
+@each $input-type in $inputs-list
+  $unquoted-inputs-list: append($unquoted-inputs-list, unquote($input-type), comma)
+
+$all-text-inputs: $unquoted-inputs-list
+
+@mixin uniTextInput($color)
+  border-color: $color
+  background: transparentize($color, .9)
+
+  &:focus
+    border-color: $color
+    box-shadow: 0 0 5px transparentize($color, .5)
+
+  &[disabled]
+    background: transparentize($uni-color-scale9, .4)
+
+@keyframes input-working
+  0%
+    opacity: 1
+
+  100%
+    opacity: .5
+
+#{$all-text-inputs}
+  background: none
+  border: 1px solid $uni-color-scale7
+  border-radius: 3px
+  padding: 3px 10px
+  transition: box-shadow .3s ease
+  overflow: hidden
+  text-overflow: ellipsis
+
+  &:focus
+    outline: none
+    border-color: $uni-color-C2A
+
+  &[disabled]
+    background: transparentize($uni-color-scale9, .5)
+    cursor: not-allowed
+
+  &[required]
+    box-shadow: 0 0 0 1px $uni-color-negative, 0 0 0 2px $uni-color-scale9
+
+  &[aria-busy]:not([aria-busy=false])
+    &:after
+      content: ''
+      display: inline-block
+      height: 10px
+      width: 10px
+      background: cyan
+
+  &.small
+    font-size: .8rem
+    font-weight: 400
+    height: 1.5rem
+    line-height: 1.5rem
+    margin: .25rem 0
+    padding: 0 .5rem
+
+  $uni-placeholder-text-color: $uni-color-scale5
+
+  &::-webkit-input-placeholder
+    color: $uni-placeholder-text-color
+
+  &:-moz-placeholder
+    color: $uni-placeholder-text-color
+
+  &::-moz-placeholder
+    color: $uni-placeholder-text-color
+
+  &:-ms-input-placeholder
+    color: $uni-placeholder-text-color
+
+  &.success
+    @include uniTextInput($uni-color-Good)
+
+  &.warning
+    @include uniTextInput($uni-color-Warn)
+
+  &.error
+    @include uniTextInput($uni-color-Bad)
+
+  label &
+    display: block
+
+label
+  display: inline-block
+  padding: 10px
+
+  & small
+    display: block
+    font-size: .8rem
