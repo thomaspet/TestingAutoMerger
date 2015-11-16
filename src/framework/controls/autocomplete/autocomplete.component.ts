@@ -1,34 +1,38 @@
-import {Directive, AfterViewInit,ElementRef} from 'angular2/angular2';
+import {Directive, AfterViewInit,ElementRef, Input, Control} from 'angular2/angular2';
+
+export interface AutocompleteConfig {
+	control: Control;
+	kOptions: kendo.ui.AutoCompleteOptions;
+}
 
 @Directive({
-	selector:'[autocomplete]',
-	properties:['ngControl','formControl'],
-	host: {'ng-control':'ngControl'}
+	selector:'[autocomplete]'
 })
 export class Autocomplete implements AfterViewInit {
-	formControl;
-	ngControl;
+	@Input() config: AutocompleteConfig;
 	
-	constructor(public element:ElementRef) {
-		
-	}
+	constructor(public element:ElementRef) { }
 	
 	afterViewInit() {
-		var component = this;
-		var elem:any = $(this.element.nativeElement);
-		elem.kendoAutoComplete({
-			dataTextField:'name',
-			dataValueField:'id',
-			template: '<span>#: data.id # - #: data.name #</span>',
-			dataSource:[
-				{id:"1",name:"Jorge"},
-				{id:"2",name:"Frank"}
-			],
-			select:function(event:any) {
-				let control = component.formControl.form.controls[component.ngControl];
-				let dataItem = this.dataItem(event.item.index());
-				control.updateValue(dataItem.id); 
+		
+		var control = this.config.control;
+		var options: kendo.ui.AutoCompleteOptions = this.config.kOptions;
+		
+		options.change = function(event: kendo.ui.AutoCompleteChangeEvent) {
+			var dataItem = event.sender.dataItem(0);
+			
+			// If dataItem is null it means the input does not match an item in the datasource
+			if (dataItem === null || dataItem === undefined) {
+				control.updateValue('');
+				this.value('');
+				return;
 			}
-		});
+			
+			control.updateValue(dataItem);
+		}
+
+		var autocompleteElement: any = $(this.element.nativeElement);
+		autocompleteElement.kendoAutoComplete(options);
+		
 	}
 }

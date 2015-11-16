@@ -16,7 +16,7 @@ import {
 import {RegExpWrapper, print, isPresent} from 'angular2/src/facade/lang';
 
 import {
-  Autocomplete,
+  Autocomplete, AutocompleteConfig,
   Datepicker, DatepickerConfig,
   NumericInput, NumericInputConfig,
   MaskedInput, MaskedInputConfig,
@@ -101,6 +101,7 @@ export class ModelDrivenForms {
   dropdownConfig: DropdownConfig;
   comboboxConfig: ComboboxConfig;
   maskedInputConfig: MaskedInputConfig;
+  autocompleteConfig: AutocompleteConfig;
 
   constructor(fb: FormBuilder) {
     
@@ -121,6 +122,13 @@ export class ModelDrivenForms {
       "project" : [""],
       "projectCombo": [""],
     });
+    
+    this.autocompleteConfig = {
+      control: this.form.controls.autocomplete,
+      kOptions: {
+        dataSource: this.countries
+      }
+    }
     
     this.datepickerConfig = {
       control: this.form.controls.date,

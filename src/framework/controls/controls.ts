@@ -1,4 +1,4 @@
-export {Autocomplete} from './autocomplete/autocomplete.component';
+export {Autocomplete, AutocompleteConfig} from './autocomplete/autocomplete.component';
 export {Datepicker, DatepickerConfig} from './datepicker/datepicker';
 export {NumericInput, NumericInputConfig} from './numeric/numericInput';
 export {MaskedInput, MaskedInputConfig} from './maskedInput/maskedInput';
