@@ -13,16 +13,17 @@ import {
   View,
   Host
 } from 'angular2/core';
-
 import {RegExpWrapper, print, isPresent} from 'angular2/src/facade/lang';
 
-import {Autocomplete} from '../autocomplete/autocomplete.component';
-import {Datepicker, DatepickerConfig} from '../datepicker/datepicker';
-import {NumericInput, NumericInputConfig} from '../numeric/numericInput';
-import {MaskedInput, MaskedInputConfig} from '../maskedInput/maskedInput';
-import {MultiSelect, MultiSelectConfig} from '../multiselect/multiselect';
-import {Dropdown, DropdownConfig} from '../dropdown/dropdown';
-import {Combobox, ComboboxConfig} from '../combobox/combobox';
+import {
+  Autocomplete,
+  Datepicker, DatepickerConfig,
+  NumericInput, NumericInputConfig,
+  MaskedInput, MaskedInputConfig,
+  MultiSelect, MultiSelectConfig,
+  Dropdown, DropdownConfig,
+  Combobox, ComboboxConfig,
+} from '../../../framework/controls/controls';
 
 /**
  * Custom validator.
