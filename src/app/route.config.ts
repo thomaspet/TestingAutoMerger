@@ -1,62 +1,41 @@
-import {componentProxyFactory} from '../framework/core';
-import {Route} from 'angular2/router';
+import {ComponentProxy} from '../framework/core';
+import {AsyncRoute} from 'angular2/router';
 
 export var Routes = {
-	dashboard: new Route({
+	dashboard: new AsyncRoute({
 		path: '/',
     	name: 'Dashboard',
-		component: componentProxyFactory({
-			path: './app/components/hero/heroes.component',
-			provide: m => m.HeroesComponent
-		}),
+		loader: ()=> ComponentProxy.LoadComponentAsync('DashboardComponent','./app/components/dashboard/dashboard.component')
 	}),
-	heroes: new Route({
+	heroes: new AsyncRoute({
 		path: '/heroes',
         name: 'Heroes',
-		component: componentProxyFactory({
-			path: './app/components/dashboard/dashboard.component',
-			provide: m => m.DashboardComponent
-		}),
+		loader: ()=> ComponentProxy.LoadComponentAsync('HeroesComponent','./app/components/hero/heroes.component')
 	}),
-	detail: new Route({
+	detail: new AsyncRoute({
 		path: '/detail/:id',
         name: 'Detail',
-		component: componentProxyFactory({
-				path: './app/components/hero/hero-detail.component',
-				provide: m => m.HeroDetailComponent
-		}),
+		loader: ()=> ComponentProxy.LoadComponentAsync('HeroDetailComponent','./app/components/hero/hero-detail.component')
 	}),
-	order: new Route({
+	order: new AsyncRoute({
 		path:'/orders',
         name: 'Orders',
-		component: componentProxyFactory({
-			path: './app/components/order/order.component',
-			provide: m => m.OrderGrid
-		})
+		loader: ()=> ComponentProxy.LoadComponentAsync('OrderGrid','./app/components/order/order.component')
 	}),
-	orderDetail: new Route({
+	orderDetail: new AsyncRoute({
 		path:'/orders/:id',
         name: 'OrderDetail',
-		component: componentProxyFactory({
-			path: './app/components/order/orderDetail.component',
-			provide: m => m.OrderDetail
-		})
+		loader: ()=> ComponentProxy.LoadComponentAsync('OrderDetail','./app/components/order/orderDetail.component')
 	}),
-	modelDrivenForms: new Route({
+	modelDrivenForms: new AsyncRoute({
 		path:'/model-driven-forms',
         name: 'ModelDrivenForms',
-		component: componentProxyFactory({
-			path: './app/components/modelDrivenForms/modelDrivenForms.component',
-			provide: m => m.ModelDrivenForms
-		})
+		loader: ()=> ComponentProxy.LoadComponentAsync('ModelDrivenForms','./app/components/modelDrivenForms/modelDrivenForms.component')
 	}),
-	helloworld: new Route({
+	helloworld: new AsyncRoute({
 		path:'/helloworld',
         name: 'HelloWorld',
-		component:componentProxyFactory({
-			path: './app/components/helloworld',
-			provide: m => m.HelloWorld
-		})
+		loader:()=> ComponentProxy.LoadComponentAsync('HelloWorld','./app/components/helloworld')
 	})
 };
 
