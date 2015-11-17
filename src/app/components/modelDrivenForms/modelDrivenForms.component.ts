@@ -23,7 +23,7 @@ import {
   MultiSelect, MultiSelectConfig,
   Dropdown, DropdownConfig,
   Combobox, ComboboxConfig,
-} from '../../../framework/controls/controls';
+} from '../../../framework/controls';
 
 /**
  * Custom validator.
