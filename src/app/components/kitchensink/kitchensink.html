@@ -2,34 +2,34 @@
 <p>todo</p>
 
 <h1>Control components</h1>
-<form (ng-submit)="onSubmit()" [ng-form-model]="form">
+<form (ng-submit)="onSubmit()" [ng-form-model]="form" class="col-lg-4">
 	
 	<label>Autocomplete
 		<input autocomplete ng-control="autocomplete" [config]="autocompleteConfig">
 	</label>
-	
+	<br>
 	<label>Dropdown
 		<input dropdown ng-control="dropdown" [config]="dropdownConfig">
 	</label>
-	
+	<br>
 	<label>Combobox
 		<input combobox ng-control="combobox" [config]="comboboxConfig">
 	</label>
-	
+	<br>
 	<label>Multiselect
 		<select multiselect ng-control="multiselect" [config]="multiselectConfig"></select>
 	</label>
-	
+	<br>
 	<label>Datepicker
 		<input datepicker ng-control="datepicker" [config]="datepickerConfig">
 	</label>
-	
+	<br>
 	<label>Masked input
 		<input masked ng-control="maskedInput" [config]="maskedInputConfig">
 	</label>
-	
+	<br>
 	<label>Numeric input
-		<input numeric ng-control="numericInput" [config]="numericInputConfig">
+		<input numeric ng-control="numericInput" [config]="numericInputConfig" >
 	</label>
 	
 </form>

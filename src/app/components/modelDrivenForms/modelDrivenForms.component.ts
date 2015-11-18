@@ -90,7 +90,7 @@ export class ShowError {
 @View({
   styles: ['.ng-touched.ng-invalid { border-color: red; }'],
   templateUrl: 'app/components/modelDrivenForms/modelDrivenForms.component.html',
-  directives: [FORM_DIRECTIVES, NgFor, ShowError, Autocomplete, Dropdown, Combobox, MultiSelect, MaskedInput, NumericInput, Datepicker]
+  directives: [FORM_DIRECTIVES, CONTROL_DIRECTIVES, NgFor, ShowError]
 })
 export class ModelDrivenForms {
   form;
