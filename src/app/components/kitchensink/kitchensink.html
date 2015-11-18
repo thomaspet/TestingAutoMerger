@@ -1,0 +1,35 @@
+<h1>Grid</h1>
+<p>todo</p>
+
+<h1>Control components</h1>
+<form (ng-submit)="onSubmit()" [ng-form-model]="form">
+	
+	<label>Autocomplete
+		<input autocomplete ng-control="autocomplete" [config]="autocompleteConfig">
+	</label>
+	
+	<label>Dropdown
+		<input dropdown ng-control="dropdown" [config]="dropdownConfig">
+	</label>
+	
+	<label>Combobox
+		<input combobox ng-control="combobox" [config]="comboboxConfig">
+	</label>
+	
+	<label>Multiselect
+		<select multiselect ng-control="multiselect" [config]="multiselectConfig"></select>
+	</label>
+	
+	<label>Datepicker
+		<input datepicker ng-control="datepicker" [config]="datepickerConfig">
+	</label>
+	
+	<label>Masked input
+		<input masked ng-control="maskedInput" [config]="maskedInputConfig">
+	</label>
+	
+	<label>Numeric input
+		<input numeric ng-control="numericInput" [config]="numericInputConfig">
+	</label>
+	
+</form>

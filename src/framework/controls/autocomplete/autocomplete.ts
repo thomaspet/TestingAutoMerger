@@ -28,7 +28,11 @@ export class Autocomplete implements AfterViewInit {
 				return;
 			}
 			
-			control.updateValue(dataItem);
+			if (typeof dataItem === 'object') {
+				control.updateValue(dataItem[this.options.dataTextField])
+			} else {
+				control.updateValue(dataItem);
+			}
 		}
 
 		var autocompleteElement: any = $(this.element.nativeElement);

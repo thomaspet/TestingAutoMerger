@@ -50,12 +50,12 @@ export var Routes = {
 			provide: m => m.ModelDrivenForms
 		})
 	}),
-	helloworld: new Route({
-		path:'/helloworld',
-        name: 'HelloWorld',
-		component:componentProxyFactory({
-			path: './app/components/helloworld',
-			provide: m => m.HelloWorld
+	kitchensink: new Route({
+		path: '/kitchensink',
+		name: 'Kitchensink',
+		component: componentProxyFactory({
+			path: './app/components/kitchensink/kitchensink',
+			provide: m => m.Kitchensink
 		})
 	})
 };
