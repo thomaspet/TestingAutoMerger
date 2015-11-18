@@ -7,7 +7,7 @@ $unigrid-gutters: ("small": 1rem, "medium": 1rem, "large": 1rem, "huge": 1rem)
 @function unigrid-colWidth($size)
   @return 100% / map-get($unigrid-columns, #{$size})
 
-@mixin unigrid($huge-cols,$large-cols:round(($huge-cols/map-get($unigrid-columns, "huge"))*map-get($unigrid-columns, "large")),$medium-cols:round(($huge-cols/map-get($unigrid-columns, "huge"))*map-get($unigrid-columns, "medium")),$small-cols:round(($huge-cols/map-get($unigrid-columns, "huge"))*map-get($unigrid-columns, "small")))
+@mixin unigrid($huge-cols,$large-cols:round(($huge-cols/map-get($unigrid-columns, "huge"))*map-get($unigrid-columns, "large")),$medium-cols:round(($huge-cols/map-get($unigrid-columns, "huge"))*map-get($unigrid-columns, "medium")),$small-cols:round(($huge-cols/map-get($unigrid-columns, "huge"))*map-get($unigrid-columns, "small")),$flush:false)
   &
     box-sizing: border-box
 
@@ -20,20 +20,35 @@ $unigrid-gutters: ("small": 1rem, "medium": 1rem, "large": 1rem, "huge": 1rem)
 
   @include media(small)
     &
-      width: calc(#{(unigrid-colWidth(small) * $small-cols)} - #{map-get($unigrid-gutters, "small") * 2})
-      margin: auto map-get($unigrid-gutters, "small")
+      @if $flush
+        width: #{(unigrid-colWidth(small) * $small-cols)}
+      @else
+        width: calc(#{(unigrid-colWidth(small) * $small-cols)} - #{map-get($unigrid-gutters, "small") * 2})
+        margin: auto map-get($unigrid-gutters, "small")
 
   @include media(medium)
     &
-      width: calc(#{(unigrid-colWidth(medium) * $medium-cols)} - #{map-get($unigrid-gutters, "medium") * 2})
-      margin: auto map-get($unigrid-gutters, "medium")
+      @if $flush
+        width: #{(unigrid-colWidth(medium) * $medium-cols)}
+      @else
+        width: calc(#{(unigrid-colWidth(medium) * $medium-cols)} - #{map-get($unigrid-gutters, "medium") * 2})
+        margin: auto map-get($unigrid-gutters, "medium")
 
   @include media(large)
     &
-      width: calc(#{(unigrid-colWidth(large) * $large-cols)} - #{map-get($unigrid-gutters, "large") * 2})
-      margin: auto map-get($unigrid-gutters, "large")
+      @if $flush
+        width: #{(unigrid-colWidth(large) * $large-cols)}
+      @else
+        width: calc(#{(unigrid-colWidth(large) * $large-cols)} - #{map-get($unigrid-gutters, "large") * 2})
+        margin: auto map-get($unigrid-gutters, "large")
 
   @include media(huge)
     &
-      width: calc(#{(unigrid-colWidth(huge) * $huge-cols)} - #{map-get($unigrid-gutters, "huge") * 2})
-      margin: auto map-get($unigrid-gutters, "huge")
+      @if $flush
+        width: #{(unigrid-colWidth(huge) * $huge-cols)}
+      @else
+        width: calc(#{(unigrid-colWidth(huge) * $huge-cols)} - #{map-get($unigrid-gutters, "huge") * 2})
+        margin: auto map-get($unigrid-gutters, "huge")
+
+@mixin unigrid-flush($huge-cols,$large-cols:round(($huge-cols/map-get($unigrid-columns, "huge"))*map-get($unigrid-columns, "large")),$medium-cols:round(($huge-cols/map-get($unigrid-columns, "huge"))*map-get($unigrid-columns, "medium")),$small-cols:round(($huge-cols/map-get($unigrid-columns, "huge"))*map-get($unigrid-columns, "small")))
+  @include unigrid($huge-cols, $large-cols, $medium-cols, $small-cols, true)
