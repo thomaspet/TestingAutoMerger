@@ -1,5 +1,4 @@
 /// <reference path="../../../typings/systemjs/systemjs.d.ts" />
-
 export class ComponentProxy {
 
     static LoadComponentAsync(name,path){

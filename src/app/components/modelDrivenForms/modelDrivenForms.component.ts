@@ -104,7 +104,7 @@ export class ModelDrivenForms {
   autocompleteConfig: AutocompleteConfig;
 
   constructor(fb: FormBuilder) {
-    
+
     this.form = fb.group({
       "firstName": ["", Validators.required],
       "middleName": [""],

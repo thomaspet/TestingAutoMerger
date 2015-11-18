@@ -36,6 +36,11 @@ export var Routes = {
 		path:'/helloworld',
         name: 'HelloWorld',
 		loader:()=> ComponentProxy.LoadComponentAsync('HelloWorld','./app/components/helloworld')
+	}),
+	uniFormDemo: new AsyncRoute({
+		path:'/uniformdemo',
+		name: 'UniFormDemo',
+		loader:()=> ComponentProxy.LoadComponentAsync('UniFormDemo','./app/components/uniFormDemo/uniFormDemoComponent')
 	})
 };
 
