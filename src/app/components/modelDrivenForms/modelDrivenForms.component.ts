@@ -16,13 +16,14 @@ import {
 import {RegExpWrapper, print, isPresent} from 'angular2/src/facade/lang';
 
 import {
-  Autocomplete, AutocompleteConfig,
-  Datepicker, DatepickerConfig,
-  NumericInput, NumericInputConfig,
-  MaskedInput, MaskedInputConfig,
-  MultiSelect, MultiSelectConfig,
-  Dropdown, DropdownConfig,
-  Combobox, ComboboxConfig,
+  AutocompleteConfig,
+  DatepickerConfig,
+  NumericInputConfig,
+  MaskedInputConfig,
+  MultiSelectConfig,
+  DropdownConfig,
+  ComboboxConfig,
+  CONTROL_DIRECTIVES
 } from '../../../framework/controls';
 
 /**
