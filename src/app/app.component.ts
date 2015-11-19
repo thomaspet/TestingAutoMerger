@@ -11,7 +11,6 @@ import {Routes, APP_ROUTES} from './route.config';
     <a [router-link]="[routes.heroes.name]" class="router-link">Heroes</a>
     <a [router-link]="[routes.modelDrivenForms.name]" class="router-link">FormTest</a>
     <a [router-link]="[routes.order.name]" class="router-link">Orders</a>
-    <a [router-link]="[routes.helloworld.name]" class="router-link">HelloWorld</a>
     <a [router-link]="[routes.uniFormDemo.name]" class="router-link">UniFromDemo</a>
     <a [router-link]="[routes.kitchensink.name]" class="router-link">Kitchensink</a>
     <router-outlet></router-outlet>

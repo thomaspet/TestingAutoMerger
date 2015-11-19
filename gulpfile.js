@@ -20,7 +20,8 @@ var config = {
         app: {
             ts: './src/!(test)/**/*.ts',
             html: './src/!(test)/**/*.html',
-            css: './src/!(test)/**/*.css'
+            css: './src/!(test)/**/*.css',
+            sass: './src/styles/main.sass'
         },
         index: './src/index.template.html',
         vendor: {
@@ -36,8 +37,7 @@ var config = {
             css: [
                 require.resolve('bootstrap/dist/css/bootstrap.css'),
                 require.resolve('./kendo/styles/kendo.common-bootstrap.min.css'),
-                require.resolve('./kendo/styles/kendo.bootstrap.min.css'),
-                require.resolve('./src/styles.css')
+                require.resolve('./kendo/styles/kendo.bootstrap.min.css')
             ]
         }
     },
@@ -75,10 +75,21 @@ gulp.task('build.dist.vendor.js', function(){
        .pipe(gulp.dest(config.dist.folder));
 });
 
-gulp.task('build.dist.vendor.css',function() {
+gulp.task('build.dist.vendor.css', ['build.dist.main.css.map'],function() {
     return gulp.src(config.src.vendor.css)
         .pipe(plugins.plumber())
         .pipe(plugins.concat(config.dist.vendor.css))
+        .pipe(gulp.dest(config.dist.folder));
+});
+
+gulp.task('build.dist.compile.sass',function(){
+    return plugins.rubySass(config.src.app.sass)
+        .on('error',plugins.rubySass.logError)
+        .pipe(gulp.dest(config.dist.folder));
+});
+
+gulp.task('build.dist.main.css.map', ['build.dist.compile.sass'], function(){
+    return gulp.src('./src/styles/main.css.map')
         .pipe(gulp.dest(config.dist.folder));
 });
 

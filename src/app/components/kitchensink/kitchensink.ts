@@ -32,7 +32,7 @@ import {
   MultiSelectConfig,
   DropdownConfig,
   ComboboxConfig,
-  CONTROL_DIRECTIVES
+  UNI_CONTROL_DIRECTIVES
 } from '../../../framework/controls';
 
 @Component({
@@ -41,7 +41,7 @@ import {
 })
 @View({
 	templateUrl: 'app/components/kitchensink/kitchensink.html',
-	directives: [FORM_DIRECTIVES, CONTROL_DIRECTIVES]
+	directives: [FORM_DIRECTIVES, UNI_CONTROL_DIRECTIVES]
 })
 export class Kitchensink {	
 	form;

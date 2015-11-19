@@ -32,11 +32,6 @@ export var Routes = {
         name: 'ModelDrivenForms',
 		loader: ()=> ComponentProxy.LoadComponentAsync('ModelDrivenForms','./app/components/modelDrivenForms/modelDrivenForms.component')
 	}),
-	helloworld: new AsyncRoute({
-		path:'/helloworld',
-        name: 'HelloWorld',
-		loader:()=> ComponentProxy.LoadComponentAsync('HelloWorld','./app/components/helloworld')
-	}),
 	uniFormDemo: new AsyncRoute({
 		path:'/uniformdemo',
 		name: 'UniFormDemo',

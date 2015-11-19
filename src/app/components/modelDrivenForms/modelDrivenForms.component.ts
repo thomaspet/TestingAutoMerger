@@ -23,7 +23,7 @@ import {
   MultiSelectConfig,
   DropdownConfig,
   ComboboxConfig,
-  CONTROL_DIRECTIVES
+  UNI_CONTROL_DIRECTIVES
 } from '../../../framework/controls';
 
 /**
@@ -90,7 +90,7 @@ export class ShowError {
 @View({
   styles: ['.ng-touched.ng-invalid { border-color: red; }'],
   templateUrl: 'app/components/modelDrivenForms/modelDrivenForms.component.html',
-  directives: [FORM_DIRECTIVES, CONTROL_DIRECTIVES, NgFor, ShowError]
+  directives: [FORM_DIRECTIVES, UNI_CONTROL_DIRECTIVES, NgFor, ShowError]
 })
 export class ModelDrivenForms {
   form;

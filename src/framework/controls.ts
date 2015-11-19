@@ -18,7 +18,7 @@ export {
 	ComboboxConfig
 }
 
-export const CONTROL_DIRECTIVES: Type[] = CONST_EXPR([
+export const UNI_CONTROL_DIRECTIVES: Type[] = CONST_EXPR([
   Autocomplete,
   Datepicker,
   NumericInput,
