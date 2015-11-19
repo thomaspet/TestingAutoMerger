@@ -44,6 +44,7 @@ var config = {
     dist: {
         index: './dist/index.html',
         folder: './dist',
+        maps: '.',
         appFiles: ['./dist/!(test)/**/*.js','./dist/!(test)/**/*.css','./dist/!(test)/**/*.html'],
         vendor: {
             js: 'vendor.js',
@@ -96,9 +97,10 @@ gulp.task('build.dist.main.css.map', ['build.dist.compile.sass'], function(){
 gulp.task('build.dist.app.typescript', function() {
     return gulp.src(config.src.app.ts)
         .pipe(plugins.plumber())
-        .pipe(plugins.sourcemaps.init())
+        .pipe(plugins.sourcemaps.init({loadMaps:true}))
         .pipe(plugins.typescript(config.typescript))
-        .pipe(plugins.sourcemaps.write())
+        .pipe(plugins.uglify())
+        .pipe(plugins.sourcemaps.write(config.dist.maps))
         .pipe(gulp.dest(config.dist.folder))
 });
 
