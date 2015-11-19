@@ -17,17 +17,26 @@ export class Combobox implements AfterViewInit {
 		var control = this.config.control;
 		var options = this.config.kOptions;
 		
-		options.change = function(event: kendo.ui.ComboBoxSelectEvent) {
-			var dataItem = event.sender.dataItem();
-			
-			// If input does not match any item in datasource: Reset fields and return.
-			if (dataItem === undefined) {
-				control.updateValue('');
+		options.highlightFirst = true; // This setting is important! Forcing only valid inputs wont work without it.
+		var validSelection = false;
+		
+		// Reset validSelection to false when the input text changes
+		options.dataBound = function(e) {
+			validSelection = false;
+		}
+		
+		// Update control value and set validSelection to true. Select event only fires when input text is valid.
+		options.select = function(event: kendo.ui.ComboBoxSelectEvent) {
+			control.updateValue(this.value());
+			validSelection = true;
+		}
+		
+		// Reset the fields on change events (blur, enter, ...) if input was invalid
+		options.change = function(e) {
+			if (!validSelection) {
 				this.value('');
-				return;
+				control.updateValue('');	
 			}
-			
-			control.updateValue(dataItem[options.dataValueField]);
 		}
 		
 		var comboboxElement: any = $(this.element.nativeElement);

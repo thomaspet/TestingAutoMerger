@@ -18,20 +18,15 @@ export class MultiSelect implements AfterViewInit {
 		var control = this.config.control;
 		var options = this.config.kOptions;
 		
-		options.change = function(event: kendo.ui.MultiSelectEvent) {
-			var dataItems = event.sender.dataItems();
-			var values = [];
-			
-			dataItems.forEach((dataItem) => {
-				values.push(dataItem[options.dataValueField]);
-			})
-			
-			control.updateValue(values);			
+		options.highlightFirst = true;
+		
+		options.change = function(event: kendo.ui.MultiSelectChangeEvent) {
+			control.updateValue(this.value());
 		}
 		
 		var element: any = $(this.element.nativeElement);
 		var multiselect = element.kendoMultiSelect(options).data('kendoMultiSelect');
-			
+
 		// init to control value
 		var controlValues = [];
 		if (control.value.length > 0) {
