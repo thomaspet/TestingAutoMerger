@@ -55,16 +55,13 @@ export class Kitchensink {
 	numericInputConfig: NumericInputConfig;
 	
 	
-	mockDataSource = new kendo.data.DataSource(<kendo.data.DataSourceOptions> {
-		data: [
-			{ id: "1", name: 'Felleskomponent' },
-			{ id: "2", name: 'Regnskap' },
-			{ id: "3", name: 'Faktura' },
-			{ id: "4", name: 'Lønn' },
-		]
-	});
-	
-	
+	mockData = [
+		{ id: "1", name: 'Felleskomponent' },
+		{ id: "2", name: 'Regnskap' },
+		{ id: "3", name: 'Faktura' },
+		{ id: "4", name: 'Lønn' },
+	];
+		
 	constructor(fb: FormBuilder) {
 		this.form = fb.group({
 			"autocomplete": [""],
@@ -76,11 +73,14 @@ export class Kitchensink {
 			"numericInput": [0]
 		});
 		
+		
 		this.autocompleteConfig = {
 			control: this.form.controls.autocomplete,
 			kOptions: {
 				dataTextField: 'name',
-				dataSource: this.mockDataSource
+				dataSource: new kendo.data.DataSource({
+					data: this.mockData
+				})
 			}
 		}
 		
@@ -90,7 +90,9 @@ export class Kitchensink {
 				delay: 50,
 				dataTextField: 'name',
 				dataValueField: 'id',
-				dataSource: this.mockDataSource,
+				dataSource: new kendo.data.DataSource({
+					data: this.mockData
+				}),
 				template: '<span>#: data.id # - #: data.name #</span>'
 			}
 		}
@@ -106,7 +108,9 @@ export class Kitchensink {
 				delay: 50,
 				dataTextField: 'name',
 				dataValueField: 'id',
-				dataSource: this.mockDataSource,
+				dataSource: new kendo.data.DataSource({
+					data: this.mockData
+				}),
 				template: '<span>#: data.id # - #: data.name #</span>'
 			}
 		}
@@ -125,7 +129,9 @@ export class Kitchensink {
 				delay: 50,
 				dataTextField: 'name',
 				dataValueField: 'id',
-				dataSource: this.mockDataSource,
+				dataSource: new kendo.data.DataSource({
+					data: this.mockData
+				}),
 			}
 		}
 		
