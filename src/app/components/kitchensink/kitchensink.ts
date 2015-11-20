@@ -1,14 +1,5 @@
 /// <reference path="../../../../kendo/typescript/kendo.all.d.ts" />
 
-// FORM_DIRECTIVES,
-	// NgControl,
-	// NgFormModel,
-	// FormBuilder,
-	// Component,
-	// Directive,
-	// View,
-	// Host
-
 import {
 	FORM_DIRECTIVES,
 	NgControl,
