@@ -1,0 +1,11 @@
+<div class="uni-grid-header">
+	<input type="text" *ng-if="config.searchable" [(ng-model)]="filterString" (keyup)="filterGrid()" >
+	<div class="uni-grid-header-buttons">
+		<!--<button *ng-for="#button of config.headerButtons" (click)="#button.onClick()" [ng-class]="#button.classes">
+			<i *ng-if="#button.iconClasses" [ng-class]="#button.iconClasses"></i>
+			{{ #button.title }}
+		</button>-->
+	</div>	
+</div>
+
+<div id={{gridID}}></div>

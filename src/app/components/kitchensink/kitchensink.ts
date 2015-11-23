@@ -1,5 +1,4 @@
 /// <reference path="../../../../kendo/typescript/kendo.all.d.ts" />
-
 import {
 	FORM_DIRECTIVES,
 	NgControl,
@@ -26,15 +25,19 @@ import {
   UNI_CONTROL_DIRECTIVES
 } from '../../../framework/controls';
 
+import {UniGrid, GridConfig} from '../../../framework/grid/grid'
+
 @Component({
 	selector: 'kitchensink',
 	viewProviders: [FormBuilder]
 })
 @View({
 	templateUrl: 'app/components/kitchensink/kitchensink.html',
-	directives: [FORM_DIRECTIVES, UNI_CONTROL_DIRECTIVES]
+	directives: [FORM_DIRECTIVES, UNI_CONTROL_DIRECTIVES, UniGrid]
 })
 export class Kitchensink {	
+	gridConfig: GridConfig;
+	
 	form;
 	
 	autocompleteConfig: AutocompleteConfig;
@@ -52,8 +55,30 @@ export class Kitchensink {
 		{ id: "3", name: 'Faktura' },
 		{ id: "4", name: 'Lønn' },
 	];
+	
+	gridData = [
+		{id: "1", name: 'Anders', email: 'anders.urrang@unimicro.no'},
+		{id: "2", name: 'Jorge', email: 'jorge@unimicro.no'},
+		{id: "3", name: 'Jørgen', email: 'jorgen@unimicro.no'},
+		{id: "4", name: 'Jon Terje', email: 'jonterje@unimicro.no'},
+	];
 		
 	constructor(fb: FormBuilder) {
+		this.gridConfig = {
+			id: "testgrid",
+			searchable: true,
+			// headerButtons = [{}]
+			kOptions: {
+				dataSource: this.gridData,
+				columns: [
+					{ field: 'id', title: 'Employee number', filterable: true },
+					{ field: 'name', title: 'Name', filterable: true },
+					{ field: 'email', title: 'Email', filterable: true },
+				],
+			}			
+		}
+		
+		
 		this.form = fb.group({
 			"autocomplete": [""],
 			"combobox": [""],
