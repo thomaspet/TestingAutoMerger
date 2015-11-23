@@ -1,12 +1,51 @@
-// The UniGrid has four breakpoints.
-// (Small is anything below $unigrid-medium)
+////
+/// The UniGrid grid system.
+/// (No relation to Massimo Vignelli.)
+/// @group Felleskomponent
+/// @author Jørgen Arnor Gårdsø Lom
+////
+
+
+// Configuration
+// ============================================================================
+
+/// The UniGrid has four breakpoints (in unitless pixels), with named size-classes
+/// @type Map
 $unigrid-sizes: ("small": 700, "medium": 700, "large": 1100, "huge": 2000)
+
+/// Here we set up how many columns each size class should have
+/// @type Map
 $unigrid-columns: ("small": 1, "medium": 4, "large": 8, "huge": 16)
+
+/// We also configure how large the gutters should be for each size class.
+/// In our default configuration, this is constant at 1rem.
+/// @type {Map}
 $unigrid-gutters: ("small": 1rem, "medium": 1rem, "large": 1rem, "huge": 1rem)
 
+
+// Helper functions
+// ============================================================================
+
+/// Custom function that can return the column width for any given size class.
+/// @param {String} $size - One of the enumerated size classes in $unigrid-sizes
+/// @returns {Length}
 @function unigrid-colWidth($size)
   @return 100% / map-get($unigrid-columns, #{$size})
 
+
+// Mixins
+// ============================================================================
+
+/// The main UniGrid-mixin.
+/// @param {Number} $huge-cols - How many columns should the element span on Huge displays?
+/// @param {Number} $large-cols - How many columns should the element span on Large displays?
+/// @param {Number} $medium-cols - How many columns should the element span on Medium displays?
+/// @param {Number} $small-cols - How many columns should the element span on Small displays?
+/// @param {Bool} $flush - Include gutters (margin) in output?
+/// @require {variable} $huge-cols
+/// @output Width (in percentages) and optional margin styles for all breakpoints in the grid system.
+/// @example sass
+///   @include unigrid(10, 3)
 @mixin unigrid($huge-cols,$large-cols:round(($huge-cols/map-get($unigrid-columns, "huge"))*map-get($unigrid-columns, "large")),$medium-cols:round(($huge-cols/map-get($unigrid-columns, "huge"))*map-get($unigrid-columns, "medium")),$small-cols:round(($huge-cols/map-get($unigrid-columns, "huge"))*map-get($unigrid-columns, "small")),$flush:false)
   &
     box-sizing: border-box
@@ -50,5 +89,15 @@ $unigrid-gutters: ("small": 1rem, "medium": 1rem, "large": 1rem, "huge": 1rem)
         width: calc(#{(unigrid-colWidth(huge) * $huge-cols)} - #{map-get($unigrid-gutters, "huge") * 2})
         margin: auto map-get($unigrid-gutters, "huge")
 
+/// Flush implementation of the UniGrid. Does not include margins.
+/// Shorthand for the `unigrid`-mixin, with the $flush-variable set to true.
+/// @param {Number} $huge-cols - How many columns should the element span on Huge displays?
+/// @param {Number} $large-cols - How many columns should the element span on Large displays?
+/// @param {Number} $medium-cols - How many columns should the element span on Medium displays?
+/// @param {Number} $small-cols - How many columns should the element span on Small displays?
+/// @require {variable} $huge-cols
+/// @output Width (in percentages) all breakpoints in the grid system.
+/// @example sass
+///   @include unigrid(10, 3)
 @mixin unigrid-flush($huge-cols,$large-cols:round(($huge-cols/map-get($unigrid-columns, "huge"))*map-get($unigrid-columns, "large")),$medium-cols:round(($huge-cols/map-get($unigrid-columns, "huge"))*map-get($unigrid-columns, "medium")),$small-cols:round(($huge-cols/map-get($unigrid-columns, "huge"))*map-get($unigrid-columns, "small")))
   @include unigrid($huge-cols, $large-cols, $medium-cols, $small-cols, true)
