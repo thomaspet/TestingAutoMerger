@@ -67,6 +67,10 @@ export class Kitchensink {
 		this.gridConfig = {
 			id: "testgrid",
 			searchable: true,
+			onSelect: (selectedRow) => {
+				console.log('Grid row selected!');
+				console.log(selectedRow);
+			},
 			// headerButtons = [{}]
 			kOptions: {
 				dataSource: this.gridData,

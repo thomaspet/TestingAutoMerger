@@ -14,6 +14,8 @@ import {
 export interface GridConfig {
 	id: string,
 	searchable?: boolean,
+	editable?: boolean,
+	onSelect?: (selectedRow?) => any,
 	headerButtons?: [{
 		title: string,
 		classes?: string,
@@ -28,11 +30,11 @@ export interface GridConfig {
 	templateUrl: 'framework/grid/grid.html',
 	directives: [NgIf, NgFor, NgClass]
 })
-export class UniGrid {
-	gridID: string;
+export class UniGrid {	
+	@Input() config: GridConfig;
 	
-	@Input() config;
 	filterString: string = "";
+	gridID: string;
 	grid: kendo.ui.Grid;
 	
 	constructor() { 
@@ -41,8 +43,20 @@ export class UniGrid {
 	}
 	
 	afterViewInit() {
+		var config = this.config;
+		
+		if (config.onSelect) {
+			config.kOptions.selectable = "row";
+			
+			// change event is fired when the user clicks a row in the grid
+			config.kOptions.change = function(event: kendo.ui.GridChangeEvent) {
+				var item = event.sender.dataItem(this.select());
+				config.onSelect(item);
+			}
+		}
+		
 		var element: any = $('#' + this.gridID);
-		element.kendoGrid(this.config.kOptions);
+		element.kendoGrid(config.kOptions);
 		
 		this.grid = element.data('kendoGrid');
 	}
