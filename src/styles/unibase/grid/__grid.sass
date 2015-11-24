@@ -45,7 +45,15 @@ $unigrid-gutters: ("small": 1rem, "medium": 1rem, "large": 1rem, "huge": 1rem)
 // Mixins
 // ============================================================================
 
-@mixin unigrid-query($sizeclass, $column-count, $flush)
+/// The UniGrid media query mixin. This is the mixin that the main UniGrid mixin
+/// and the classes uses to generate the styles for each breakpoint.
+/// @param {String} $sizeclass - Which size class should we target?
+/// @param {Number} $columncount - How many columns should the element span?
+/// @param {Bool} $flush - Include gutters (margin) in output?
+/// @require {variable} $sizeclass
+/// @require {variable} $column-count
+/// @output A media query, using the media-mixin.
+@mixin unigrid-query($sizeclass, $column-count, $flush:false)
   @include media($sizeclass)
     &
       @if $column-count
@@ -93,7 +101,7 @@ $unigrid-gutters: ("small": 1rem, "medium": 1rem, "large": 1rem, "huge": 1rem)
 /// @require {variable} $huge-cols
 /// @output Width (in percentages) all breakpoints in the grid system.
 /// @example sass
-///   @include unigrid(10, 3)
+///   @include unigrid-flush(10, 3)
 @mixin unigrid-flush($huge-cols,$large-cols:round(($huge-cols/map-get($unigrid-columns, "huge"))*map-get($unigrid-columns, "large")),$medium-cols:round(($huge-cols/map-get($unigrid-columns, "huge"))*map-get($unigrid-columns, "medium")),$small-cols:round(($huge-cols/map-get($unigrid-columns, "huge"))*map-get($unigrid-columns, "small")))
   @include unigrid($huge-cols, $large-cols, $medium-cols, $small-cols, true)
 
