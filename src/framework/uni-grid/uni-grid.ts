@@ -11,8 +11,9 @@ import {
 	FORM_DIRECTIVES,
 } from 'angular2/core';
 
-export interface GridConfig {
-	id: string,
+
+
+export interface IGridConfig {
 	searchable?: boolean,
 	editable?: boolean,
 	onSelect?: (selectedRow?) => any,
@@ -27,11 +28,11 @@ export interface GridConfig {
 
 @Component({
 	selector: 'uni-grid',
-	templateUrl: 'framework/grid/grid.html',
+	templateUrl: 'framework/uni-grid/uni-grid.html',
 	directives: [NgIf, NgFor, NgClass]
 })
 export class UniGrid {	
-	@Input() config: GridConfig;
+	@Input() config: IGridConfig;
 	
 	filterString: string = "";
 	gridID: string;

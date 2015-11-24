@@ -25,7 +25,7 @@ import {
   UNI_CONTROL_DIRECTIVES
 } from '../../../framework/controls';
 
-import {UniGrid, GridConfig} from '../../../framework/grid/grid'
+import {UniGrid, GridConfig} from '../../../framework/uni-grid/uni-grid'
 
 @Component({
 	selector: 'kitchensink',
@@ -65,7 +65,6 @@ export class Kitchensink {
 		
 	constructor(fb: FormBuilder) {
 		this.gridConfig = {
-			id: "testgrid",
 			searchable: true,
 			onSelect: (selectedRow) => {
 				console.log('Grid row selected!');
