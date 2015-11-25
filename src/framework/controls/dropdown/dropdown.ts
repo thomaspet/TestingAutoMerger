@@ -17,7 +17,7 @@ export class Dropdown implements AfterViewInit {
 		var vm = this;
 		var dropdownElement: any = $(this.element.nativeElement);
 		
-		this.config.kOptions.change = function(event) {			
+		this.config.kOptions.select = function(event) {			
 			vm.config.control.updateValue(this.value());
 		}
 		
