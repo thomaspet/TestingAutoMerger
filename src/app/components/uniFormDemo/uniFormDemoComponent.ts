@@ -28,7 +28,7 @@ export class UniFormDemo {
             autocomplete:'',
             combobox: ''
         };
-        var mockDataSource = new kendo.data.DataSource(<kendo.data.DataSourceOptions> {
+        let mockDataSource = new kendo.data.DataSource(<kendo.data.DataSourceOptions> {
             data: [
                 { id: "1", name: 'Felleskomponent' },
                 { id: "2", name: 'Regnskap' },
@@ -37,8 +37,7 @@ export class UniFormDemo {
             ]
         });
         let self = this;
-        this.form = [
-            {
+        this.form = [{
                 model: self.model,
                 label: 'Autocomplete label',
                 type: 'autocomplete',
@@ -53,7 +52,7 @@ export class UniFormDemo {
                 asyncValidators: [{
                     name: 'async',
                     validator:testAsyncValidator,
-                    message: 'Autocomplete is not Faktura'
+                    message: 'Autocomplete should be Faktura'
                 }],
                 kOptions: {
                     dataTextField: 'name',

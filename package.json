@@ -9,7 +9,10 @@
   "dependencies": {
     "angular2": "2.0.0-alpha.46",
     "bootstrap": "^3.3.5",
+    "es6-shim": "^0.33.13",
     "jquery": "^2.1.4",
+    "promise-polyfill": "^2.1.0",
+    "reflect-metadata": "^0.1.2",
     "systemjs": "0.19.2"
   },
   "devDependencies": {

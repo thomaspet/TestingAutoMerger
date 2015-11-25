@@ -12,7 +12,7 @@ import {ShowError} from "./showError";
     outputs:['uniFormSubmit'],
     templateUrl: "framework/forms/formBuilder.html"
 })
-export class UniForm implements OnInit{
+export class UniForm implements OnInit {
     private config;
     private form;
     private controls;

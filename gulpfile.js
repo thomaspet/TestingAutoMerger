@@ -27,10 +27,16 @@ var config = {
         index: './src/index.template.html',
         vendor: {
             js: [
+                require.resolve('systemjs/dist/system-polyfills.js'),
+                require.resolve('reflect-metadata/Reflect.js'),
+                require.resolve('es6-shim/es6-shim.js'),
+
                 require.resolve('jquery/dist/jquery.min.js'),
                 require.resolve('bootstrap/dist/js/bootstrap.min.js'),
                 require.resolve('./kendo/js/kendo.all.min.js'),
+
                 require.resolve('systemjs/dist/system.src.js'),
+
                 require.resolve('angular2/bundles/angular2.dev.js'),
                 require.resolve('angular2/bundles/router.dev.js'),
                 require.resolve('angular2/bundles/http.dev.js')
