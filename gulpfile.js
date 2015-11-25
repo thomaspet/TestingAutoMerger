@@ -99,7 +99,7 @@ gulp.task('build.dist.app.typescript', function() {
         .pipe(plugins.plumber())
         .pipe(plugins.sourcemaps.init({loadMaps:true}))
         .pipe(plugins.typescript(config.typescript))
-        .pipe(plugins.uglify())
+        //.pipe(plugins.uglify())
         .pipe(plugins.sourcemaps.write(config.dist.maps))
         .pipe(gulp.dest(config.dist.folder))
 });

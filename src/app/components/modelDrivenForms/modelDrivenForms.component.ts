@@ -26,71 +26,13 @@ import {
   UNI_CONTROL_DIRECTIVES
 } from '../../../framework/controls';
 
-/**
- * Custom validator.
- * FORM BUILDER DOESN'T SUPPOR ASYNC VALIDATOR BUT IT WILL.
- */
-export function creditCardValidator(c): {[key: string]: boolean} {
-  if (isPresent(c.value) && RegExpWrapper.test(/^\d{16}$/g, c.value)) {
-    return null;
-  } else {
-    return {"invalidCreditCard": true};
-  }
-}
-
-var emailRegex = /\S+@\S+\.\S+/;
-export function emailValidator(c): {[key: string]: boolean} {
-  if (isPresent(c.value) && RegExpWrapper.test(emailRegex, c.value)) {
-    return null;
-  } else {
-    return {"invalidEmail": true};
-  }
-}
-
-@Component({
-  selector: 'show-error', 
-  inputs: ['controlPath: control', 'errorTypes: errors']
-})
-@View({
-  template: `
-    <small *ng-if="errorMessage !== null">{{errorMessage}}</small>
-  `,
-  directives: [NgIf]
-})
-export class ShowError {
-  formDir;
-  controlPath: string;
-  errorTypes: string[];
-
-  constructor(@Host() formDir: NgFormModel) { this.formDir = formDir; }
-
-  get errorMessage(): string {
-    var control = this.formDir.form.find(this.controlPath);
-    if (isPresent(control) && control.touched) {
-      for (var i = 0; i < this.errorTypes.length; ++i) {
-        if (control.hasError(this.errorTypes[i])) {
-          return this._errorMessage(this.errorTypes[i]);
-        }
-      }
-    }
-    return null;
-  }
-
-  _errorMessage(code: string): string {
-    var config = {
-      'required': 'is required', 
-      'invalidCreditCard': 'is invalid credit card number',
-      'invalidEmail': 'is invalid email'
-    };
-    return config[code];
-  }
-}
+import {creditCardValidator, emailValidator} from '../../../framework/validators';
 
 @Component({selector: 'model-driven-forms', viewProviders: [FormBuilder]})
 @View({
   styles: ['.ng-touched.ng-invalid { border-color: red; }'],
   templateUrl: 'app/components/modelDrivenForms/modelDrivenForms.component.html',
-  directives: [FORM_DIRECTIVES, UNI_CONTROL_DIRECTIVES, NgFor, ShowError]
+  directives: [FORM_DIRECTIVES, UNI_CONTROL_DIRECTIVES, NgFor]
 })
 export class ModelDrivenForms {
   form;

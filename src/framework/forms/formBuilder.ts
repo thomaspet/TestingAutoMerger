@@ -1,93 +1,76 @@
-import {Component, FORM_DIRECTIVES, FORM_PROVIDERS, Control, FormBuilder} from 'angular2/angular2';
+import {Component, FORM_DIRECTIVES, FORM_PROVIDERS, Control, FormBuilder, Validators, OnInit} from 'angular2/angular2';
 import {EventEmitter, NgSwitchWhen, NgSwitch, NgSwitchDefault, NgIf} from "angular2/core";
+import {isArray} from 'angular2/src/facade/lang';
 import {UNI_CONTROL_DIRECTIVES} from '../controls';
+import {ShowError} from "./showError";
 
 @Component({
     selector: 'uni-form',
-    directives: [FORM_DIRECTIVES, UNI_CONTROL_DIRECTIVES, NgSwitchWhen, NgSwitch, NgSwitchDefault, NgIf],
+    directives: [FORM_DIRECTIVES, UNI_CONTROL_DIRECTIVES, NgSwitchWhen, NgSwitch, NgSwitchDefault, NgIf, ShowError],
     providers: [FORM_PROVIDERS],
+    inputs: ['config'],
     outputs:['uniFormSubmit'],
-    template: `
-        <h1>Form Builder</h1>
-        <form (submit)="onSubmit(form.value)" no-validate [ng-form-model]="form" class="col-lg-4">
-
-            <label *ng-for="#control of controls" [ng-switch]="control.type">
-                <span>{{control.label}}</span>
-                <input autocomplete [ng-control]="control.field" [config]="control" *ng-switch-when="'autocomplete'" />
-                <input dropdown [ng-control]="control.field" [config]="control" *ng-switch-when="'dropdown'" />
-                <input combobox [ng-control]="control.field" [config]="control" *ng-switch-when="'combobox'" />
-                <select multiselect [ng-control]="control.field" [config]="control" *ng-switch-when="'multiselect'"></select>
-                <input datepicker [ng-control]="control.field" [config]="control" *ng-switch-when="'datepicker'">
-                <input masked [ng-control]="control.field" [config]="control" *ng-switch-when="'masked'" />
-                <input numeric [ng-control]="control.field" [config]="control" *ng-switch-when="'numeric'" />
-                <input type="email" [ng-control]="control.field" *ng-switch-when="'email'" />
-                <input type="password" [ng-control]="control.field" *ng-switch-when="'password'" />
-                <!-- checkbox needs its own component with multiple selects -->
-                <input type="checkbox" [ng-control]="control.field" *ng-switch-when="'checkbox'" />
-                <!-- radio needs its own component with multiple selects -->
-                <input type="radio" [ng-control]="control.field" *ng-switch-when="'radio'" [name]="control.field" />
-                <input type="text" [ng-control]="control.field" *ng-switch-default />
-                <!-- how are we going to show errors???? --->
-                <small>description</small>
-            </label>
-
-            <button type="submit">submit</button>
-        </form>
-    `
+    templateUrl: "framework/forms/formBuilder.html"
 })
-export class UniForm {
-
-    private uniFormSubmit: EventEmitter<any> = new EventEmitter<any>(true);
+export class UniForm implements OnInit{
+    private config;
     private form;
     private controls;
-    constructor(fb: FormBuilder) {
-        if (!this.form) {
-            var mockDataSource = new kendo.data.DataSource(<kendo.data.DataSourceOptions> {
-                data: [
-                    { id: "1", name: 'Felleskomponent' },
-                    { id: "2", name: 'Regnskap' },
-                    { id: "3", name: 'Faktura' },
-                    { id: "4", name: 'Lønn' },
-                ]
-            });
+    private uniFormSubmit: EventEmitter<any> = new EventEmitter<any>(true);
+    constructor(public fb: FormBuilder) {
 
-            this.controls = [
-                {
-                    label: 'Autocomplete label',
-                    type: 'autocomplete',
-                    field: 'autocomplete',
-                    control: new Control(),
-                    kOptions: {
-                        dataTextField: 'name',
-                        dataSource: mockDataSource
-                    }
-                },
-                {
-                    label: 'Combobox Label',
-                    type: 'combobox',
-                    field: 'autocomplete',
-                    control: new Control(),
-                    kOptions:  {
-                        delay: 50,
-                        dataTextField: 'name',
-                        dataValueField: 'id',
-                        dataSource: mockDataSource,
-                        template: '<span>#: data.id # - #: data.name #</span>'
-                    }
-                }
-            ];
+    }
 
+    onInit() {
+        this.controls = this.buildControls(this.config);
 
-
-            var fbControls = {};
-            for(let i=0;i<this.controls.length;i++) {
-                fbControls[this.controls[i].field] = this.controls[i].control;
-            }
-            this.form = fb.group(fbControls);
+        let fbControls = {};
+        for(let i=0;i<this.config.length;i++) {
+            fbControls[this.config[i].field] = this.config[i].control;
         }
+        this.form = this.fb.group(fbControls);
+    }
+
+    buildControls(config) {
+        let controls = [];
+
+        config.forEach((c:any) => {
+            let control;
+            let controlArgs = [c.model[c.field]];
+            let validators = [];
+            let messages = {};
+
+            if (c.syncValidators && isArray(c.syncValidators)) {
+                c.syncValidators.forEach((validator)=>{
+                    validators.push(validator.validator);
+                    messages[validator.name] = validator.message;
+                });
+                controlArgs.push(Validators.compose(validators));
+            } else {
+                controlArgs.push(undefined);
+            }
+            validators = [];
+
+            if (c.asyncValidators && isArray(c.asyncValidators)) {
+                c.asyncValidators.forEach((validator)=>{
+                    validators.push(validator.validator);
+                    messages[validator.name] = validator.message;
+                });
+                controlArgs.push(Validators.composeAsync(validators));
+            } else {
+                controlArgs.push(undefined);
+            }
+
+            control = new (Function.prototype.bind.apply(Control, [null].concat(controlArgs)));
+            c.control = control;
+            c.errorMessages = messages;
+        });
+
+        return config;
     }
 
     onSubmit(value){
+        console.log(this.form);
         this.uniFormSubmit.next(value);
         return false;
     }

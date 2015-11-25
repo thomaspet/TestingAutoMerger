@@ -24,10 +24,10 @@ export class MultiSelect implements AfterViewInit {
 			
 			dataItems.forEach((dataItem) => {
 				values.push(dataItem[options.dataValueField]);
-			})
+			});
 			
 			control.updateValue(values);			
-		}
+		};
 		
 		var element: any = $(this.element.nativeElement);
 		var multiselect = element.kendoMultiSelect(options).data('kendoMultiSelect');

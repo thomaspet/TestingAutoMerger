@@ -19,7 +19,7 @@ export class NumericInput {
 		
 		options.change = function(event) {
 			control.updateValue(this.value());	
-		}
+		};
 		
 		var element: any = $(this.element.nativeElement);
 		var numericInput = element.kendoNumericTextBox(options).data('kendoNumericTextBox');

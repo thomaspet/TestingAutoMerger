@@ -3,7 +3,6 @@
     <p  class="form-group">
         <label for="firstName">First Name</label>
         <input type="text" id="firstName" ng-control="firstName" class="form-control">
-        <show-error control="firstName" [errors]="['required']"></show-error>
     </p>
     <p class="form-group">
         <label for="middleName">Middle Name</label>
@@ -12,7 +11,6 @@
     <p class="form-group">
         <label for="lastName">Last Name</label>
         <input type="text" id="lastName" ng-control="lastName" class="form-control">
-        <show-error control="lastName" [errors]="['required']"></show-error>
     </p>
     <p class="form-group">
         <label for="country">Country</label>
@@ -23,7 +21,6 @@
     <p class="form-group">
         <label for="creditCard">Credit Card</label>
         <input type="text" id="creditCard" ng-control="creditCard" class="form-control">
-        <show-error control="creditCard" [errors]="['required', 'invalidCreditCard']"></show-error>
     </p>
     <p class="form-group">
         <label for="amount">Amount</label>
@@ -33,7 +30,6 @@
     <p class="form-group">
         <label for="email">Email</label>
         <input type="email" id="email" ng-control="email" class="form-control">
-        <show-error control="email" [errors]="['required','invalidEmail']"></show-error>
     </p>
     <p class="form-group">
         <label for="comments">Comments</label>

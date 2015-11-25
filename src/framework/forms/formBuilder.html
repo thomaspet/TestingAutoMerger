@@ -1,0 +1,90 @@
+
+<form (submit)="onSubmit(form.value)" no-validate [ng-form-model]="form" class="col-lg-4">
+    <label *ng-for="#control of controls" [ng-switch]="control.type">
+        <span>{{control.label}}</span>
+
+        <input
+                autocomplete
+                [ng-control]="control.field"
+                [config]="control"
+                *ng-switch-when="'autocomplete'"
+        />
+
+        <input
+                dropdown
+                [ng-control]="control.field"
+                [config]="control" *ng-switch-when="'dropdown'"
+        />
+
+        <input
+                combobox
+                [ng-control]="control.field"
+                [config]="control"
+                *ng-switch-when="'combobox'"
+        />
+
+        <select
+                multiselect
+                [ng-control]="control.field"
+                [config]="control"
+                *ng-switch-when="'multiselect'"
+        ></select>
+
+        <input
+                datepicker
+                [ng-control]="control.field"
+                [config]="control"
+                *ng-switch-when="'datepicker'"
+        >
+
+        <input
+                masked
+                [ng-control]="control.field"
+                [config]="control"
+                *ng-switch-when="'masked'"
+        />
+
+        <input
+                numeric
+                [ng-control]="control.field"
+                [config]="control"
+                *ng-switch-when="'numeric'"
+        />
+
+        <input
+                type="email"
+                [ng-control]="control.field"
+                *ng-switch-when="'email'"
+        />
+
+        <input
+                type="password"
+                [ng-control]="control.field"
+                *ng-switch-when="'password'"
+        />
+        <!-- checkbox needs its own component with multiple selects -->
+        <input
+                type="checkbox"
+                [ng-control]="control.field"
+                *ng-switch-when="'checkbox'"
+        />
+
+        <!-- radio needs its own component with multiple selects -->
+        <input
+                type="radio"
+                [ng-control]="control.field"
+                *ng-switch-when="'radio'"
+                [name]="control.field"
+        />
+
+        <input
+                type="text"
+                [ng-control]="control.field"
+                *ng-switch-default
+        />
+
+        <!-- how are we going to show errors???? --->
+        <show-error [control]="control.control" [messages]="control.errorMessages"></show-error>
+    </label>
+    <button type="submit">submit</button>
+</form>
