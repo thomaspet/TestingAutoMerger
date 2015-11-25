@@ -1,4 +1,4 @@
-import {Directive, AfterViewInit,ElementRef, Input, Control} from 'angular2/angular2';
+import {Directive, AfterViewInit,ElementRef, Input, Control, Observable} from 'angular2/angular2';
 
 export interface AutocompleteConfig {
 	control: Control;
@@ -14,6 +14,7 @@ export class Autocomplete implements AfterViewInit {
 	constructor(public element:ElementRef) { }
 	
 	afterViewInit() {
+		var element: any = $(this.element.nativeElement);
 		
 		var control = this.config.control;
 		var options: kendo.ui.AutoCompleteOptions = this.config.kOptions;
@@ -21,14 +22,14 @@ export class Autocomplete implements AfterViewInit {
 		options.highlightFirst = true; // This setting is important! Forcing only valid inputs wont work without it.
 		var validSelection = false;
 		
-		// Reset validSelection to false when the input text changes
-		options.dataBound = function(e) {
+		// Reset validSelection when input changes
+		Observable.fromEvent(element, 'keyup').subscribe((event) => {
 			validSelection = false;
-		}
+		});
 		
 		// Update control value and set validSelection to true. Select event only fires when input text is valid.
 		options.select = function(event: kendo.ui.AutoCompleteSelectEvent) {
-			control.updateValue(this.value());
+			control.updateValue(event.item.text());
 			validSelection = true;
 		}
 		
@@ -39,8 +40,7 @@ export class Autocomplete implements AfterViewInit {
 				control.updateValue('');	
 			}
 		}
-
-		var autocompleteElement: any = $(this.element.nativeElement);
-		autocompleteElement.kendoAutoComplete(options);
+				
+		element.kendoAutoComplete(options);
 	}
 }
