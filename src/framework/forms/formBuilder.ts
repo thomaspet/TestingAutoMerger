@@ -32,38 +32,8 @@ export class UniForm implements OnInit{
     }
 
     buildControls(config) {
-        let controls = [];
-
         config.forEach((c:any) => {
-            let control;
-            let controlArgs = [c.model[c.field]];
-            let validators = [];
-            let messages = {};
-
-            if (c.syncValidators && isArray(c.syncValidators)) {
-                c.syncValidators.forEach((validator)=>{
-                    validators.push(validator.validator);
-                    messages[validator.name] = validator.message;
-                });
-                controlArgs.push(Validators.compose(validators));
-            } else {
-                controlArgs.push(undefined);
-            }
-            validators = [];
-
-            if (c.asyncValidators && isArray(c.asyncValidators)) {
-                c.asyncValidators.forEach((validator)=>{
-                    validators.push(validator.validator);
-                    messages[validator.name] = validator.message;
-                });
-                controlArgs.push(Validators.composeAsync(validators));
-            } else {
-                controlArgs.push(undefined);
-            }
-
-            control = new (Function.prototype.bind.apply(Control, [null].concat(controlArgs)));
-            c.control = control;
-            c.errorMessages = messages;
+            this.extendControl(c);
         });
 
         return config;
@@ -73,5 +43,56 @@ export class UniForm implements OnInit{
         console.log(this.form);
         this.uniFormSubmit.next(value);
         return false;
+    }
+
+
+
+
+    private extendControl(c) {
+        let syncValidators = this.composeSyncValidators(c);
+        let asyncValidators = this.composeAsyncValidators(c);
+        let messages = this.composeMessages(c);
+
+        let controlArgs = [c.model[c.field],syncValidators,asyncValidators];
+        let control = new (Function.prototype.bind.apply(Control, [null].concat(controlArgs)));
+
+        c.control = control;
+        c.errorMessages = messages;
+    }
+
+    private composeSyncValidators(c){
+        let validators = this.joinValidators(c.syncValidators);
+        return Validators.compose(validators);
+    }
+
+    private composeAsyncValidators(c){
+        let validators = this.joinValidators(c.asyncValidators);
+        return Validators.composeAsync(validators);
+    }
+
+    private joinValidators(validators) {
+        let list = [];
+        if (validators && isArray(validators)) {
+            validators.forEach((validator)=> {
+                list.push(validator.validator);
+
+            });
+        }
+        return list;
+    }
+
+    private composeMessages(c) {
+        let messages = {};
+        this.assignMessages(c.asyncValidators,messages);
+        this.assignMessages(c.syncValidators,messages);
+        return messages;
+    }
+
+    private assignMessages(validators,list) {
+        if (validators && isArray(validators)) {
+            validators.forEach((validator)=>{
+                list[validator.name] = validator.message;
+            });
+        }
     }
 }

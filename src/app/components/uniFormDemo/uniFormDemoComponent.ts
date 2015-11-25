@@ -1,22 +1,18 @@
 import {Component, Validators, Control} from 'angular2/angular2';
 import {UniForm} from '../../../framework/forms/formBuilder';
-import {PromiseWrapper} from "angular2/src/facade/promise";
 
 function testAsyncValidator(c) {
-    console.log("run async validation");
-    var completer = PromiseWrapper.completer();
-    var t = 500;
-    var res = c.value !== "Faktura" ? {"async": true} : null;
 
-    if (t == 0) {
-        completer.resolve(res);
-    } else {
-        setTimeout(() => {
-            console.log("resolved with" + JSON.stringify(res));
-            completer.resolve(res);
-        }, t);
-    }
-    return completer.promise;
+    let p = new Promise((resolve)=>{
+        c.valueChanges.debounceTime(500).subscribe((value) => {
+            if (value === 'Faktura') {
+                resolve(null);
+            } else {
+                resolve({'async':true});
+            }
+        });
+    });
+    return p;
 }
 
 @Component({
