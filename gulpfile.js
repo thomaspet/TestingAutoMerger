@@ -17,6 +17,7 @@ var config = {
         sortOutput: true
     },
     src: {
+        assets: './src/assets/**/*',
         app: {
             ts: './src/!(test)/**/*.ts',
             html: './src/!(test)/**/*.html',
@@ -44,6 +45,7 @@ var config = {
     dist: {
         index: './dist/index.html',
         folder: './dist',
+        assets: './dist/assets',
         maps: '.',
         appFiles: ['./dist/!(test)/**/*.js','./dist/!(test)/**/*.css','./dist/!(test)/**/*.html'],
         vendor: {
@@ -116,6 +118,12 @@ gulp.task('build.dist.app.css', function() {
         .pipe(gulp.dest(config.dist.folder))
 });
 
+gulp.task('build.dist.assets', function(){
+   return gulp.src(config.src.assets)
+       .pipe(plugins.plumber())
+       .pipe(gulp.dest(config.dist.assets))
+});
+
 gulp.task('build.dist.app',function(done){
    runSequence('build.dist.app.typescript','build.dist.app.html','build.dist.app.css',done);
 });
@@ -140,6 +148,7 @@ gulp.task('build.dist',function (done){
         'build.dist.app',
         'build.dist.copy.from.src.index.template',
         'build.dist.fill.index.template',
+        'build.dist.assets',
         done);
 });
 
