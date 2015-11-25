@@ -102,7 +102,7 @@ $unigrid-gutters: ("small": 1rem, "medium": 1rem, "large": 1rem, "huge": 1rem)
 /// @output Width (in percentages) all breakpoints in the grid system.
 /// @example sass
 ///   @include unigrid-flush(10, 3)
-@mixin unigrid-flush($huge-cols,$large-cols:round(($huge-cols/map-get($unigrid-columns, "huge"))*map-get($unigrid-columns, "large")),$medium-cols:round(($huge-cols/map-get($unigrid-columns, "huge"))*map-get($unigrid-columns, "medium")),$small-cols:round(($huge-cols/map-get($unigrid-columns, "huge"))*map-get($unigrid-columns, "small")))
+@mixin unigrid-flush($huge-cols,$large-cols:auto-column($huge-cols,"large"),$medium-cols:auto-column($large-cols,"medium"),$small-cols:auto-column($medium-cols,"small"))
   @include unigrid($huge-cols, $large-cols, $medium-cols, $small-cols, true)
 
 
