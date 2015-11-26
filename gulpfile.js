@@ -36,9 +36,7 @@ var config = {
                 require.resolve('angular2/bundles/http.dev.js')
             ],
             css: [
-                require.resolve('bootstrap/dist/css/bootstrap.css'),
-                require.resolve('./kendo/styles/kendo.common-bootstrap.min.css'),
-                require.resolve('./kendo/styles/kendo.bootstrap.min.css')
+                require.resolve('./kendo/styles/kendo.common.min.css')
             ]
         }
     },
