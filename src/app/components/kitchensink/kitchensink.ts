@@ -25,7 +25,7 @@ import {
   UNI_CONTROL_DIRECTIVES
 } from '../../../framework/controls';
 
-import {UniGrid, GridConfig} from '../../../framework/uni-grid/uni-grid'
+import {UniGrid, IGridConfig} from '../../../framework/uni-grid/uni-grid'
 
 @Component({
 	selector: 'kitchensink',
@@ -36,7 +36,7 @@ import {UniGrid, GridConfig} from '../../../framework/uni-grid/uni-grid'
 	directives: [FORM_DIRECTIVES, UNI_CONTROL_DIRECTIVES, UniGrid]
 })
 export class Kitchensink {	
-	gridConfig: GridConfig;
+	gridConfig: IGridConfig;
 	
 	form;
 	
