@@ -19,6 +19,11 @@ export class Datepicker implements AfterViewInit {
 		
 		var element: any = $(this.element.nativeElement);
 
+		//don't create the kendo component if it exists
+		if (element.data('kendoDatePicker')) {
+			return;
+		}
+
 		options.format = "dd.MM.yyyy";
 		options.parseFormats = [
 			"dd-MM-yyyy",

@@ -14,14 +14,20 @@ export class NumericInput {
 	constructor(public element: ElementRef) {}
 	
 	afterViewInit() {
+
+		var element: any = $(this.element.nativeElement);
+		//don't create the kendo component if it exists
+		if (element.data('kendoNumericTextBox')) {
+			return;
+		}
+
 		var control = this.config.control;
 		var options = this.config.kOptions;
 		
 		options.change = function(event) {
 			control.updateValue(this.value());	
 		};
-		
-		var element: any = $(this.element.nativeElement);
+
 		var numericInput = element.kendoNumericTextBox(options).data('kendoNumericTextBox');
 		
 		// init to control value

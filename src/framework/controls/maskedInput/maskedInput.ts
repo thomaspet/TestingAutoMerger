@@ -14,6 +14,16 @@ export class MaskedInput {
 	constructor(public element: ElementRef) {}
 	
 	afterViewInit() {
+
+		var element: any = $(this.element.nativeElement);
+
+		//don't create the kendo component if it exists
+		if (element.data('kendoMaskedTextBox')) {
+			return;
+		}
+
+		var maskedInput = element.kendoMaskedTextBox(options).data('kendoMaskedTextBox');
+
 		var control = this.config.control;
 		var options = this.config.kOptions;
 		
@@ -24,9 +34,8 @@ export class MaskedInput {
 			this.value(val); // to avoid mask disappearing in input field (due to control storing the raw string)
 		}
 		
-		var element: any = $(this.element.nativeElement);
-		var maskedInput = element.kendoMaskedTextBox(options).data('kendoMaskedTextBox');
-	
+
+
 		// init to control value
 		if (control.value !== null && control.value.length > 0) {
 			maskedInput.value(control.value);

@@ -14,6 +14,13 @@ export class Combobox implements AfterViewInit {
 	constructor(public element: ElementRef) { }
 	
 	afterViewInit() {
+		var element: any = $(this.element.nativeElement);
+
+		//don't create the kendo component if it exists
+		if (element.data('kendoComboBox')) {
+			return;
+		}
+
 		var control = this.config.control;
 		var options = this.config.kOptions;
 		
@@ -34,7 +41,7 @@ export class Combobox implements AfterViewInit {
 			}
 		}
 		
-		var element: any = $(this.element.nativeElement);
+
 		var combobox = element.kendoComboBox(options).data('kendoComboBox');
 		
 		// Reset validSelection when the input text changes
