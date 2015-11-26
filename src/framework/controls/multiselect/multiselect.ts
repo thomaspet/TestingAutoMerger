@@ -15,23 +15,23 @@ export class MultiSelect implements AfterViewInit {
 	constructor(public element: ElementRef) { }
 	
 	afterViewInit() {
-
+		var multiselect;
 		var element: any = $(this.element.nativeElement);
-		//don't create the kendo component if it exists
-		if (element.data('kendoMultiSelect')) {
-			return;
-		}
 
 		var control = this.config.control;
 		var options = this.config.kOptions;
+
+		//don't create the kendo component if it exists
+		if (!element.data('kendoMultiSelect')) {
+			multiselect = element.kendoMultiSelect(options).data('kendoMultiSelect');
+		} else {
+			multiselect = element.data('kendoMultiSelect');
+		}
 	
 		options.highlightFirst = true;		
 		options.change = function(event: kendo.ui.MultiSelectChangeEvent) {
 			control.updateValue(this.value());
 		}
-		
-
-		var multiselect = element.kendoMultiSelect(options).data('kendoMultiSelect');
 
 		// init to control value
 		var controlValues = [];

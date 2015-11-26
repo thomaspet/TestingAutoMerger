@@ -16,11 +16,6 @@ export class Autocomplete implements AfterViewInit {
 	afterViewInit() {
 		var element: any = $(this.element.nativeElement);
 
-		//don't create the kendo component if it exists
-		if (element.data('kendoAutoComplete')) {
-			return;
-		}
-
 		var control = this.config.control;
 		var options: kendo.ui.AutoCompleteOptions = this.config.kOptions;
 		
@@ -46,7 +41,10 @@ export class Autocomplete implements AfterViewInit {
 				control.updateValue('');	
 			}
 		}
-				
-		element.kendoAutoComplete(options);
+
+		//don't create the kendo component if it exists
+		if (!element.data('kendoAutoComplete')) {
+			element.kendoAutoComplete(options);
+		}
 	}
 }

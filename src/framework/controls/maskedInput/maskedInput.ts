@@ -16,16 +16,17 @@ export class MaskedInput {
 	afterViewInit() {
 
 		var element: any = $(this.element.nativeElement);
-
-		//don't create the kendo component if it exists
-		if (element.data('kendoMaskedTextBox')) {
-			return;
-		}
-
-		var maskedInput = element.kendoMaskedTextBox(options).data('kendoMaskedTextBox');
+		var maskedInput;
 
 		var control = this.config.control;
 		var options = this.config.kOptions;
+
+		//don't create the kendo component if it exists
+		if (!element.data('kendoMaskedTextBox')) {
+			maskedInput = element.kendoMaskedTextBox(options).data('kendoMaskedTextBox')
+		} else {
+			maskedInput = element.data('kendoMaskedTextBox');
+		}
 		
 		options.change = function(event) {
 			var val = this.value();

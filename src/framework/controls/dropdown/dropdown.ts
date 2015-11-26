@@ -16,15 +16,19 @@ export class Dropdown implements AfterViewInit {
 	afterViewInit() {
 		var vm = this;
 		var element: any = $(this.element.nativeElement);
-		//don't create the kendo component if it exists
-		if (element.data('kendoDropDownList')) {
-			return;
-		}
-		this.config.kOptions.change = function(event) {			
+		var dropdown;
+
+		this.config.kOptions.change = function(event) {
 			vm.config.control.updateValue(this.value());
 		}
-		
-		var dropdown = element.kendoDropDownList(this.config.kOptions);
+
+		//don't create the kendo component if it exists
+		if (!element.data('kendoDropDownList')) {
+			dropdown = element.kendoDropDownList(this.config.kOptions);
+		} else {
+			dropdown = element.data('kendoDropDownList');
+		}
+
 		dropdown.data('kendoDropDownList').value(vm.config.control.value); // init to control
 	}
 }

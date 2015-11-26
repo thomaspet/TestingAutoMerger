@@ -14,22 +14,21 @@ export class NumericInput {
 	constructor(public element: ElementRef) {}
 	
 	afterViewInit() {
-
+        var numericInput;
 		var element: any = $(this.element.nativeElement);
-		//don't create the kendo component if it exists
-		if (element.data('kendoNumericTextBox')) {
-			return;
-		}
 
-		var control = this.config.control;
-		var options = this.config.kOptions;
+        var control = this.config.control;
+        var options = this.config.kOptions;
+
+        //don't create the kendo component if it exists
+		if (!element.data('kendoNumericTextBox')) {
+            numericInput = element.kendoNumericTextBox(options).data('kendoNumericTextBox');
+		} else {
+            numericInput = element.data('kendoNumericTextBox');
+        }
 		
 		options.change = function(event) {
 			control.updateValue(this.value());	
 		};
-
-		var numericInput = element.kendoNumericTextBox(options).data('kendoNumericTextBox');
-		
-		// init to control value
 	}
 }

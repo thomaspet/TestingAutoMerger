@@ -16,13 +16,9 @@ export class Datepicker implements AfterViewInit {
 	afterViewInit() {
 		var control = this.config.control;
 		var options = this.config.kOptions;
-		
-		var element: any = $(this.element.nativeElement);
+		var datepicker;
 
-		//don't create the kendo component if it exists
-		if (element.data('kendoDatePicker')) {
-			return;
-		}
+		var element: any = $(this.element.nativeElement);
 
 		options.format = "dd.MM.yyyy";
 		options.parseFormats = [
@@ -47,8 +43,13 @@ export class Datepicker implements AfterViewInit {
 				this.value(date);
 			}
 		}
-		
-		var datepicker = element.kendoDatePicker(options).data('kendoDatePicker');
+
+		//don't create the kendo component if it exists
+		if (!element.data('kendoDatePicker')) {
+			datepicker = element.kendoDatePicker(options).data('kendoDatePicker');
+		} else {
+			datepicker = element.data('kendoDatePicker');
+		}
 		
 		// Trigger kendo change event on keyup (enter) and blur in the textbox 
 		Observable.fromEvent(element, 'keyup')
