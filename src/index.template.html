@@ -2,9 +2,99 @@
 <html>
 
 <head>
+
+
+    <!-- PAGE DEFINITIONS
+     ------------------------------------------------------------------------->
+    <meta charset="utf-8">
+    <meta http-equiv="x-ua-compatible" content="chrome=1,ie=edge">
+    <meta name="robots" content="noindex,nofollow">
+    <!--[if (gt IE 9)|!(IE)]><!-->
     <base href="/"/>
+    <!--<![endif]-->
+    <title>Uni Economy</title>
+
+
+    <!-- CONTENT DEFINITIONS
+     ------------------------------------------------------------------------->
+    <meta name="application-name" content="Uni Economy">
+    <meta name="keywords" content="Uni Economy, Uni Micro, Faktura, Lønn, Regnskap">
+    <meta name="description" content="Uni Economy fra Uni Micro AS">
+    <meta name="language" content="nb">
+    <meta name="copyright" content="Uni Micro AS">
+    <meta name="owner" content="Uni Micro AS">
+
+
+    <!-- METADATA
+     ------------------------------------------------------------------------->
+    <link rel="logo" type="image/svg" href="">
+    <link rel="shortlink" href="">
+    <link rel="me" type="text/html" href="http://unimicro.no">
+
+
+    <!-- APPLE PLATFORM TAGS
+     ------------------------------------------------------------------------->
+    <meta name="viewport" content="user-scalable=no, width=device-width"/>
+    <meta name="apple-mobile-web-app-title" content="Economy">
+    <meta name="apple-mobile-web-app-capable" content="yes"/>
+    <meta name="apple-touch-fullscreen" content="yes"/>
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="format-detection" content="telephone=no">
+
+
+    <!-- SYNDICATION AND NOTIFICATIONS
+     ------------------------------------------------------------------------->
+    <link rel="alternate" type="application/rss+xml" title="RSS" href="">
+    <link rel="alternate" type="application/atom+xml" title="Atom 0.3" href="">
+    <meta name="msapplication-notification"
+          content="frequency=30;
+                   polling-uri=.xml;
+                   polling-uri2=.xml;
+                   polling-uri3=.xml">
+
+
+    <!-- APPLICATION ICONS AND STARTUP SCREENS
+     ------------------------------------------------------------------------->
+    <link rel="manifest" href="assets/manifest.json">
+    <link rel="shortcut icon" type="image/x-icon" href="assets/favicon.ico">
+    <link rel="icon" type="image/png" href="assets/img/icon-16x16.png" sizes="16x16">
+    <link rel="icon" type="image/png" href="assets/img/icon-32x32.png" sizes="32x32">
+    <link rel="icon" type="image/png" href="assets/img/icon-96x96.png" sizes="96x96">
+    <link rel="icon" type="image/png" href="assets/img/icon-96x96.png" sizes="196x196">
+    <link rel="icon" type="image/png" href="assets/img/icon-96x96.png" sizes="228x228">
+
+    <!-- APPLE SPECIFIC-ish
+     ------------------------------------------------------------------------->
+    <link rel="apple-touch-startup-image" href="">
+    <link rel="apple-touch-icon" sizes="57x57" href="assets/apple-touch-icon-precomposed-57.png">
+    <link rel="apple-touch-icon" sizes="114x114" href="assets/apple-touch-icon-precomposed-114.png">
+    <link rel="apple-touch-icon" sizes="72x72" href="assets/apple-touch-icon-precomposed-72.png">
+    <link rel="apple-touch-icon" sizes="144x144" href="assets/apple-touch-icon-precomposed-144.png">
+    <link rel="apple-touch-icon" sizes="60x60" href="assets/apple-touch-icon-precomposed-60.png">
+    <link rel="apple-touch-icon" sizes="120x120" href="assets/apple-touch-icon-precomposed-120.png">
+    <link rel="apple-touch-icon" sizes="76x76" href="assets/apple-touch-icon-precomposed-76.png">
+    <link rel="apple-touch-icon" sizes="152x152" href="assets/apple-touch-icon-precomposed-152.png">
+
+    <!-- MICROSOFT SPECIFIC
+     ------------------------------------------------------------------------->
+    <meta name="msapplication-TileColor" content="#1492d5">
+    <meta name="msapplication-TileImage" content="assets/apple-touch-icon-precomposed-144.png">
+    <meta name="msapplication-config" content="assets/browserconfig.xml"/>
+
+
+    <!-- EXTERNAL PROFILES
+     ------------------------------------------------------------------------->
+    <link rel='profile' title='Microformats' href='http://microformats.org/profile/specs/'>
+
+
+    <!-- EXTERNAL PROFILES
+     ------------------------------------------------------------------------->
     <link rel="stylesheet" href="vendor.css?v=<%=VERSION%>">
     <link rel="stylesheet" href="main.css?v=<%=VERSION%>">
+
+
+    <!-- SCRIPTS
+     ------------------------------------------------------------------------->
     <script src="vendor.js?v=<%=VERSION%>"></script>
     <script>
         System.config({
@@ -15,9 +105,11 @@
         });
         System.import('app/bootstrap').catch(console.error.bind(console));
     </script>
+
 </head>
 <body>
-<my-app>Loading...</my-app>
-</body>
 
+<my-app>Loading...</my-app>
+
+</body>
 </html>
