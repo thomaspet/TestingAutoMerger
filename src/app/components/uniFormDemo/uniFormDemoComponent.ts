@@ -5,7 +5,7 @@ function testAsyncValidator(c) {
 
     let p = new Promise((resolve)=>{
         c.valueChanges.debounceTime(500).subscribe((value) => {
-            if (value === 'Faktura') {
+            if (value.name === 'Faktura') {
                 resolve(null);
             } else {
                 resolve({'async':true});
