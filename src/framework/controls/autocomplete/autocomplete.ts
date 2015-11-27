@@ -51,6 +51,7 @@ export class Autocomplete implements AfterViewInit {
 
 	private _destroyKendoWidget(HTMLElement) {
 		HTMLElement.data('kendoAutoComplete').destroy();
-		$(HTMLElement[0].parentNode).find('span.k-widget.k-autocomplete').remove();
+		let parent: any =$(HTMLElement[0].parentNode);
+		parent.find('span.k-widget.k-autocomplete').remove();
 	}
 }

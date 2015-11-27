@@ -70,7 +70,8 @@ export class Datepicker implements AfterViewInit {
 
 	private _destroyKendoWidget(HTMLElement) {
 		HTMLElement.data('kendoDatePicker').destroy();
-		$(HTMLElement[0].parentNode).find('span.k-widget.k-datepicker').remove();
+		let parent:any = $(HTMLElement[0].parentNode);
+		parent.find('span.k-widget.k-datepicker').remove();
 	}
 }
 

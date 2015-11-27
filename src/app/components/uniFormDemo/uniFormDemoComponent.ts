@@ -28,7 +28,10 @@ export class UniFormDemo {
             autocomplete:'',
             combobox: '',
             datepicker: '',
-            dropdown: ''
+            dropdown: '',
+            masked: '',
+            multiselect: '',
+            numeric: ''
         };
         let mockDataSource = new kendo.data.DataSource(<kendo.data.DataSourceOptions> {
             data: [
@@ -80,6 +83,53 @@ export class UniFormDemo {
                 type: 'datepicker',
                 field: 'datepicker',
                 kOptions:  {}
+            },
+            {
+                model: self.model,
+                label: 'Dropdown Label',
+                type: 'dropdown',
+                field: 'dropdown',
+                kOptions:  {
+                    delay: 50,
+                    dataTextField: 'name',
+                    dataValueField: 'id',
+                    dataSource: mockDataSource,
+                    template: '<span>#: data.id # - #: data.name #</span>'
+                }
+            },
+            {
+                model: self.model,
+                label: 'Masked Label',
+                type: 'masked',
+                field: 'masked',
+                kOptions:  {
+                    mask: "0000 00 00000",
+                    promptChar: '_'
+                }
+            },
+            {
+                model: self.model,
+                label: 'Multiselect Label',
+                type: 'multiselect',
+                field: 'multiselect',
+                kOptions:  {
+                    delay: 50,
+                    dataTextField: 'name',
+                    dataValueField: 'id',
+                    dataSource: mockDataSource
+                }
+            },
+            {
+                model: self.model,
+                label: 'Numeric Label',
+                type: 'numeric',
+                field: 'numeric',
+                kOptions:  {
+                    format: '#', // http://docs.telerik.com/kendo-ui/framework/globalization/numberformatting
+                    min: 0,
+                    max: 100,
+                    step: 10
+                }
             }
         ];
     }

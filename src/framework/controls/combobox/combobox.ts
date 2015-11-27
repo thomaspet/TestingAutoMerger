@@ -12,9 +12,7 @@ export interface ComboboxConfig {
 export class Combobox implements AfterViewInit {
 	@Input() config: ComboboxConfig;
 	control;
-	constructor(public element: ElementRef) {
-		console.log("combo constructor");
-	}
+	constructor(public element: ElementRef) {}
 
 	afterViewInit() {
 		var element: any = $(this.element.nativeElement);
@@ -54,6 +52,7 @@ export class Combobox implements AfterViewInit {
 
 	private _destroyKendoWidget(HTMLElement) {
 		HTMLElement.data('kendoComboBox').destroy();
-		$(HTMLElement[0].parentNode).find('span.k-widget.k-combobox').remove();
+		let parent:any = $(HTMLElement[0].parentNode);
+		parent.find('span.k-widget.k-combobox').remove();
 	}
 }

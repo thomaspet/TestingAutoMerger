@@ -20,15 +20,19 @@ export class NumericInput {
         var control = this.config.control;
         var options = this.config.kOptions;
 
+        options.change = function(event) {
+            control.updateValue(this.value());
+        };
         //don't create the kendo component if it exists
-		if (!element.data('kendoNumericTextBox')) {
-            numericInput = element.kendoNumericTextBox(options).data('kendoNumericTextBox');
-		} else {
-            numericInput = element.data('kendoNumericTextBox');
-        }
-		
-		options.change = function(event) {
-			control.updateValue(this.value());	
-		};
+		if (element.data('kendoNumericTextBox')) {
+            this._destroyKendoWidget(element);
+		}
+        numericInput = element.kendoNumericTextBox(options).data('kendoNumericTextBox');
 	}
+
+    private _destroyKendoWidget(HTMLElement) {
+        HTMLElement.data('kendoNumericTextBox').destroy();
+        let parent:any = $(HTMLElement[0].parentNode);
+        parent.find('span.k-widget.k-numerictextbox').remove();
+    }
 }

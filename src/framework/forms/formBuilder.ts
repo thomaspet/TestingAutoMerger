@@ -40,7 +40,6 @@ export class UniForm implements OnInit {
     }
 
     onSubmit(value){
-        console.log(this.form);
         this.uniFormSubmit.next(value);
         return false;
     }

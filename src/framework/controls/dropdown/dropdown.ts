@@ -24,10 +24,16 @@ export class Dropdown implements AfterViewInit {
 
 		//don't create the kendo component if it exists
 		if (element.data('kendoDropDownList')) {
-			//element.data('kendoDropDownList').destroy();
+			this._destroyKendoWidget(element);
 		}
 		dropdown = element.kendoDropDownList(this.config.kOptions).data('kendoDropDownList');
 
 		dropdown.value(vm.config.control.value); // init to control
+	}
+
+	private _destroyKendoWidget(HTMLElement) {
+		HTMLElement.data('kendoDropDownList').destroy();
+		let parent:any = $(HTMLElement[0].parentNode);
+		parent.find('span.k-widget.k-dropdown').remove();
 	}
 }
