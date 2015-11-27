@@ -29,7 +29,8 @@ export class Autocomplete implements AfterViewInit {
 		
 		// Update control value and set validSelection to true. Select event only fires when input text is valid.
 		options.select = function(event: kendo.ui.AutoCompleteSelectEvent) {
-			var dataItem = this.dataItem(event.item.index());
+			var item: any = event.item;
+			var dataItem = this.dataItem(item.index());
 			control.updateValue(dataItem.toJSON());
 			validSelection = true;
 		};
