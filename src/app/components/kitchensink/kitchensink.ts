@@ -25,8 +25,8 @@ import {
   UNI_CONTROL_DIRECTIVES
 } from '../../../framework/controls';
 
-import {UniGridComponent, IGridConfig} from '../../../framework/uni-grid/uni-grid'
-import {UniGridConfig} from '../../../framework/uni-grid/uni-grid-config'
+import {UniGridComponent, IGridConfig} from '../../../framework/uni-grid/uniGridComponent'
+import {UniGrid} from '../../../framework/uni-grid/uniGrid'
 
 @Component({
 	selector: 'kitchensink',
@@ -67,7 +67,7 @@ export class Kitchensink {
 	constructor(fb: FormBuilder) {	
 		
 		
-		var grid = new UniGridConfig('http://devapi.unieconomy.no/api/biz/orders', false, true);
+		var grid = new UniGrid('http://devapi.unieconomy.no/api/biz/orders', false, true);
 		grid.addColumn('ID', 'ID', 'number');
 		grid.addColumn('CustomerName', 'Kundenavn', 'text');
 		grid.addColumn('OrderDate', 'Ordredato', 'date');

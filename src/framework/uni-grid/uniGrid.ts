@@ -1,4 +1,4 @@
-export class UniGridConfig {
+export class UniGrid {
 	lookupUrl: string;
 	searchable: boolean;
 	editable: boolean;
@@ -35,8 +35,6 @@ export class UniGridConfig {
 	}
 	
 	getConfig() {
-		console.log(this.fields);
-		console.log(this.columns);
 		return {
 			searchable: this.searchable,
 			editable: this.editable,
