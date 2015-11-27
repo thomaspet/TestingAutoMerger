@@ -45,11 +45,10 @@ export class Datepicker implements AfterViewInit {
 		}
 
 		//don't create the kendo component if it exists
-		if (!element.data('kendoDatePicker')) {
-			datepicker = element.kendoDatePicker(options).data('kendoDatePicker');
-		} else {
-			datepicker = element.data('kendoDatePicker');
+		if (element.data('kendoDatePicker')) {
+			this._destroyKendoWidget(element);
 		}
+		datepicker = element.kendoDatePicker(options).data('kendoDatePicker');
 		
 		// Trigger kendo change event on keyup (enter) and blur in the textbox 
 		Observable.fromEvent(element, 'keyup')
@@ -68,9 +67,14 @@ export class Datepicker implements AfterViewInit {
 			datepicker.value(new Date(control.value));
 		}
 	}
+
+	private _destroyKendoWidget(HTMLElement) {
+		HTMLElement.data('kendoDatePicker').destroy();
+		$(HTMLElement[0].parentNode).find('span.k-widget.k-datepicker').remove();
+	}
 }
 
-export function autocompleteDate(inputValue): Date {
+function autocompleteDate(inputValue): Date {
 	
 	var input = inputValue.replace(/[^0-9]/g, "");
 	

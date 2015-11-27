@@ -1,5 +1,5 @@
 
-<form (submit)="onSubmit(form.value)" no-validate [ng-form-model]="form" class="col-lg-4">
+<form (submit)="onSubmit(form.value)" no-validate [ng-form-model]="form">
     <label *ng-for="#control of controls" [ng-switch]="control.type">
         <span>{{control.label}}</span>
 

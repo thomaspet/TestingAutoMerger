@@ -26,7 +26,9 @@ export class UniFormDemo {
     constructor() {
         this.model= {
             autocomplete:'',
-            combobox: ''
+            combobox: '',
+            datepicker: '',
+            dropdown: ''
         };
         let mockDataSource = new kendo.data.DataSource(<kendo.data.DataSourceOptions> {
             data: [
@@ -71,6 +73,13 @@ export class UniFormDemo {
                     dataSource: mockDataSource,
                     template: '<span>#: data.id # - #: data.name #</span>'
                 }
+            },
+            {
+                model: self.model,
+                label: 'DatePicker Label',
+                type: 'datepicker',
+                field: 'datepicker',
+                kOptions:  {}
             }
         ];
     }

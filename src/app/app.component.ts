@@ -27,4 +27,5 @@ import {Routes, APP_ROUTES} from './route.config';
 export class AppComponent {
   public title = 'Tour of Heroes';
   public routes = Routes;
+
 }
