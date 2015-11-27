@@ -61,11 +61,9 @@ export class Datepicker implements AfterViewInit {
 		Observable.fromEvent(element, 'blur').subscribe((e) => {
 			datepicker.trigger('change');
 		});		
-		
-		// Pass control value to kendo model
-		if (control.value.length > 0) {
-			datepicker.value(new Date(control.value));
-		}
+
+		datepicker.value(control.value);
+
 	}
 
 	private _destroyKendoWidget(HTMLElement) {

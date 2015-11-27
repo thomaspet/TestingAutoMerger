@@ -25,13 +25,16 @@ export class UniFormDemo {
     model;
     constructor() {
         this.model= {
-            autocomplete:'',
-            combobox: '',
-            datepicker: '',
-            dropdown: '',
+            autocomplete:{
+                id:"1",
+                name:"Felleskomponent",
+            },
+            combobox: '2',
+            datepicker: new Date(),
+            dropdown: '3',
             masked: '',
-            multiselect: '',
-            numeric: ''
+            multiselect: ["1","2"],
+            numeric: '10'
         };
         let mockDataSource = new kendo.data.DataSource(<kendo.data.DataSourceOptions> {
             data: [
@@ -136,5 +139,6 @@ export class UniFormDemo {
 
     onSubmit(value) {
         console.log("Form:", value);
+        console.log("Model:", this.model);
     }
 }

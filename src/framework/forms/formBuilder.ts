@@ -40,12 +40,17 @@ export class UniForm implements OnInit {
     }
 
     onSubmit(value){
+        this._updateModel(this.config[0].model,value);
         this.uniFormSubmit.next(value);
         return false;
     }
 
 
-
+    private _updateModel(model, formValue) {
+        this.config.forEach((element)=>{
+            element.model[element.field] = formValue[element.field];
+        });
+    }
 
     private extendControl(c) {
         let syncValidators = this.composeSyncValidators(c);

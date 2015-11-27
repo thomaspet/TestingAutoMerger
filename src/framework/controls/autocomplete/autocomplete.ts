@@ -15,7 +15,7 @@ export class Autocomplete implements AfterViewInit {
 	
 	afterViewInit() {
 		var element: any = $(this.element.nativeElement);
-
+		var autocomplete;
 		var control = this.config.control;
 		var options: kendo.ui.AutoCompleteOptions = this.config.kOptions;
 		
@@ -29,24 +29,25 @@ export class Autocomplete implements AfterViewInit {
 		
 		// Update control value and set validSelection to true. Select event only fires when input text is valid.
 		options.select = function(event: kendo.ui.AutoCompleteSelectEvent) {
-			let item:any = event.item;
-			control.updateValue(item.text());
+			var dataItem = this.dataItem(event.item.index());
+			control.updateValue(dataItem.toJSON());
 			validSelection = true;
-		}
+		};
 		
 		// Reset the fields on change events (blur, enter, ...) if input was invalid
 		options.change = function(event: kendo.ui.AutoCompleteChangeEvent) {
 			if (!validSelection) {
 				this.value('');
-				control.updateValue('');	
+				control.updateValue({});
 			}
-		}
+		};
 
 		//don't create the kendo component if it exists
 		if (element.data('kendoAutoComplete')) {
 			this._destroyKendoWidget(element);
 		}
-		element.kendoAutoComplete(options);
+		var autocomplete = element.kendoAutoComplete(options).data('kendoAutoComplete');
+		autocomplete.value(control.value[this.config.kOptions.dataTextField]);
 	}
 
 	private _destroyKendoWidget(HTMLElement) {
