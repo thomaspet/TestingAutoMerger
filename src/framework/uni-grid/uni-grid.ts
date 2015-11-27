@@ -11,120 +11,11 @@ import {
 	FORM_DIRECTIVES,
 } from 'angular2/core';
 
-// export class GridConfig {
-// 	AddButton(title, cls = "", iconCls = "", onClick){
-// 		return new GridButton()
-// 	}
-// 	AddColumn(titiel, asdlhasdkma sd, msdlnasdf, type, required, visible = true){
-// 		koptions.push()
-// 		columns.Add()
-// 	}
-// 	
-// 	GridConfig(): object{
-// 		
-// 	}
-// }
-
-export interface IGridColumn {
-	field: string,
-	title: string,
-	type: string,
-	format?: string,
-	editable?: boolean,
-	nullable?: boolean,
-	validation?: Object
-}
-
-export interface IGridButton {
-	title: string,
-	onClick: Function,
-	classes?: string,
-	iconClasses?: string
-}
-
-export class UniGrid {
-	searchable: boolean = false;
-	editable: boolean = false;
-	onSelect: (selectedRow) => any;
-	gridButtons: IGridButton[];
-	
-	kOptions: kendo.ui.GridOptions = {};
-	
-	constructor(lookupUrl: string, editable: boolean = false) {
-		this.kOptions.editable = editable;
-		
-		this.kOptions.dataSource = new kendo.data.DataSource({
-			transport: {
-				read: {
-                    url: lookupUrl,
-                    type: 'GET',
-                    dataType: 'json'
-                },
-                create: {
-                    url: lookupUrl,
-                    type: 'POST',
-                    dataType: 'json', 		          // The response content type
-                    contentType: 'application/json',  // The request content type
-                },
-                update: {
-                    url: function(e) {
-						return lookupUrl + '/' + e.ID;
-					},
-                    type: 'PUT',
-                    dataType: 'json',
-                    contentType: 'application/json',
-                },
-                destroy: {
-                    url: function(e) {
-						return lookupUrl + '/' + e.ID;
-					},
-                    type: 'DELETE',
-                    dataType: 'json'
-                },
-				
-				parameterMap: function(options, operation) {
-					if (operation !== "read" && options.models) {
-                    	return {models: kendo.stringify(options.models)};
-                    }
-				}
-			},
-			pageSize: 20,
-			schema: {
-				model: {
-					id: '',
-					fields: {
-						id: 'grid-model-' + Date.now(), // generate unique model identifier (kendo requires this)
-						fields: {}
-					}
-				}
-			}
-			
-			
-		});
-	}	
-	
-	addColumn (field: string, title: string, type: string, format?: string, editable?: boolean, nullable: boolean = true, validation?: Object) {		
-		var colEditable = (editable === undefined) ? this.kOptions.editable : editable;
-		
-		this.kOptions.dataSource.schema.fields[field] = {
-			type: type,
-			editable: colEditable, 
-			nullable: nullable,
-			validation: validation, // todo: check if this gives errors on undefined/null				
-		}
-		
-		this.kOptions.columns.push({
-			field: field,
-			title: title,
-		})
-	}
-}
-
 export interface IGridConfig {
 	searchable?: boolean,
 	editable?: boolean,
 	onSelect?: (selectedRow?) => any,
-	headerButtons?: [{
+	gridButtons?: [{
 		title: string,
 		classes?: string,
 		iconClasses?: string,
@@ -186,3 +77,88 @@ export class UniGridComponent {
 		this.grid.dataSource.query({filter: filter});
 	}
 } 
+
+// export interface IGridColumn {
+// 	field: string,
+// 	title: string,
+// 	type: string,
+// 	format?: string,
+// 	editable?: boolean,
+// 	nullable?: boolean,
+// 	validation?: Object
+// }
+// 
+// export interface IGridButton {
+// 	title: string,
+// 	onClick: Function,
+// 	classes?: string,
+// 	iconClasses?: string
+// }
+// 
+// export class UniGrid {
+// 	gridConfig: IGridConfig;
+// 		
+// 	constructor(lookupUrl: string, editable: boolean = false, searchable: boolean = true) {
+// 		this.gridConfig = {
+// 			searchable: searchable,
+// 			editable: editable,
+// 			
+// 			kOptions: {
+// 				dataSource: new kendo.data.DataSource({
+// 					type: 'json',
+// 					transport: {
+// 						read: {
+// 							url: lookupUrl,
+// 							type: 'GET',
+// 							headers: {
+// 								'Client': 'client1'
+// 							}
+// 						}
+// 					},
+// 					schema: {
+// 						model: {
+// 							id: 'randomID', // TODO: Generate unique ID
+// 							fields: {
+// 								// added in addColumn method
+// 							}
+// 						}
+// 					}
+// 				}),
+// 				
+// 				columns: []
+// 			},
+// 		};
+// 		
+// 	}	
+// 	
+// 	addColumn (field: string, title: string, type: string, editable?: boolean, nullable: boolean = true) {		
+// 		var colEditable = (editable === undefined) ? this.gridConfig.kOptions.editable : editable;
+// 		
+// 		this.gridConfig.kOptions.dataSource.schema.fields[field] = {
+// 			type: type,
+// 			editable: colEditable, 
+// 			nullable: nullable,
+// 		}
+// 		
+// 		this.gridConfig.kOptions.columns.push({
+// 			field: field,
+// 			title: title,
+// 		});
+// 		
+// 		console.log(this.gridConfig);
+// 	}
+// 	
+// 	setOnSelect(onSelect) {
+// 		this.gridConfig.onSelect = onSelect;
+// 	}
+// 	
+// 	getConfig() {
+// 		return {
+// 			searchable: this.gridConfig.searchable,
+// 			editable: this.gridConfig.editable,
+// 			gridButtons: null, // TODO
+// 			kOptions: this.gridConfig.kOptions
+// 		}
+// 	}
+// 	
+// }

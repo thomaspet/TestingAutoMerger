@@ -76,7 +76,7 @@ export class OrderGrid {
 						},
 						CustomerID: {
 							editable: false,
-							nullable: false
+							nullable: false 
 						},
 						OrderDate: {
 							type: "date"

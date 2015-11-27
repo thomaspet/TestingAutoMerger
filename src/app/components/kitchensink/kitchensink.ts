@@ -25,7 +25,8 @@ import {
   UNI_CONTROL_DIRECTIVES
 } from '../../../framework/controls';
 
-import {UniGrid, IGridConfig} from '../../../framework/uni-grid/uni-grid'
+import {UniGridComponent, IGridConfig} from '../../../framework/uni-grid/uni-grid'
+import {UniGridConfig} from '../../../framework/uni-grid/uni-grid-config'
 
 @Component({
 	selector: 'kitchensink',
@@ -33,7 +34,7 @@ import {UniGrid, IGridConfig} from '../../../framework/uni-grid/uni-grid'
 })
 @View({
 	templateUrl: 'app/components/kitchensink/kitchensink.html',
-	directives: [FORM_DIRECTIVES, UNI_CONTROL_DIRECTIVES, UniGrid]
+	directives: [FORM_DIRECTIVES, UNI_CONTROL_DIRECTIVES, UniGridComponent]
 })
 export class Kitchensink {	
 	gridConfig: IGridConfig;
@@ -63,23 +64,19 @@ export class Kitchensink {
 		{id: "4", name: 'Jon Terje', email: 'jonterje@unimicro.no'},
 	];
 		
-	constructor(fb: FormBuilder) {
-		this.gridConfig = {
-			searchable: true,
-			onSelect: (selectedRow) => {
-				console.log('Grid row selected!');
-				console.log(selectedRow);
-			},
-			// headerButtons = [{}]
-			kOptions: {
-				dataSource: this.gridData,
-				columns: [
-					{ field: 'id', title: 'Employee number', filterable: true },
-					{ field: 'name', title: 'Name', filterable: true },
-					{ field: 'email', title: 'Email', filterable: true },
-				],
-			}			
-		}
+	constructor(fb: FormBuilder) {	
+		
+		
+		var grid = new UniGridConfig('http://devapi.unieconomy.no/api/biz/orders', false, true);
+		grid.addColumn('ID', 'ID', 'number');
+		grid.addColumn('CustomerName', 'Kundenavn', 'text');
+		grid.addColumn('OrderDate', 'Ordredato', 'date');
+		grid.addColumn('SumTotal', 'Total', 'number');	
+		grid.setSelect((selectedRow) => {
+			console.log('Row selected!');
+			console.log(selectedRow);
+		});
+		this.gridConfig = grid.getConfig();
 		
 		
 		this.form = fb.group({
