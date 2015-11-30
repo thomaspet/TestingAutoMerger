@@ -36,14 +36,12 @@ export class UniFormDemo {
             multiselect: ["1","2"],
             numeric: '10'
         };
-        let mockDataSource = new kendo.data.DataSource(<kendo.data.DataSourceOptions> {
-            data: [
-                { id: "1", name: 'Felleskomponent' },
-                { id: "2", name: 'Regnskap' },
-                { id: "3", name: 'Faktura' },
-                { id: "4", name: 'Lønn' },
-            ]
-        });
+        let mockDataSource = [
+            { id: "1", name: 'Felleskomponent' },
+            { id: "2", name: 'Regnskap' },
+            { id: "3", name: 'Faktura' },
+            { id: "4", name: 'Lønn' },
+        ];
         let self = this;
         this.form = [{
                 model: self.model,
@@ -64,7 +62,7 @@ export class UniFormDemo {
                 }],
                 kOptions: {
                     dataTextField: 'name',
-                    dataSource: mockDataSource
+                    dataSource: new kendo.data.DataSource({data:mockDataSource})
                 }
             },
             {
@@ -96,7 +94,7 @@ export class UniFormDemo {
                     delay: 50,
                     dataTextField: 'name',
                     dataValueField: 'id',
-                    dataSource: mockDataSource,
+                    dataSource: new kendo.data.DataSource({data:mockDataSource}),
                     template: '<span>#: data.id # - #: data.name #</span>'
                 }
             },
@@ -119,7 +117,7 @@ export class UniFormDemo {
                     delay: 50,
                     dataTextField: 'name',
                     dataValueField: 'id',
-                    dataSource: mockDataSource
+                    dataSource: new kendo.data.DataSource({data:mockDataSource})
                 }
             },
             {
