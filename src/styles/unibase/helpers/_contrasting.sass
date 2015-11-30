@@ -1,5 +1,5 @@
-@function contrasting($color, $dark:$uni-color-negative, $light:$uni-color-positive)
-  @if (lightness($color) > 50)
+@function contrasting($color, $dark:$uni-color-negative, $light:$uni-color-positive, $rate:50)
+  @if (lightness($color) > $rate)
     @return $light // Lighter backgorund, return dark color
   @else
     @return $dark // Darker background, return light color
