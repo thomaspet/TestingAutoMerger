@@ -11,7 +11,7 @@ import {
 	FORM_DIRECTIVES,
 } from 'angular2/core';
 
-export interface IGridConfig {
+export interface ITableConfig {
 	searchable?: boolean,
 	editable?: boolean,
 	onSelect?: (selectedRow?) => any,
@@ -25,20 +25,20 @@ export interface IGridConfig {
 }
 
 @Component({
-	selector: 'uni-grid',
-	templateUrl: 'framework/uni-grid/uniGridComponent.html',
+	selector: 'uni-table',
+	templateUrl: 'framework/uni-table/uniTable.component.html',
 	directives: [NgIf, NgFor, NgClass]
 })
-export class UniGridComponent {	
-	@Input() config: IGridConfig;
+export class UniTableComponent {	
+	@Input() config: ITableConfig;
 	
 	filterString: string = "";
-	gridID: string;
-	grid: kendo.ui.Grid;
+	tableID: string;
+	table: kendo.ui.Grid;
 	
 	constructor() { 
-		// Generate unique ID for the grid
-		this.gridID = "uni-grid-" + Date.now();
+		// Generate unique ID for the table
+		this.tableID = "uni-table-" + Date.now();
 	}
 	
 	afterViewInit() {
@@ -47,24 +47,24 @@ export class UniGridComponent {
 		if (config.onSelect) {
 			config.kOptions.selectable = "row";
 			
-			// change event is fired when the user clicks a row in the grid
+			// change event is fired when the user clicks a row in the table
 			config.kOptions.change = function(event: kendo.ui.GridChangeEvent) {
 				var item = event.sender.dataItem(this.select());
 				config.onSelect(item);
 			}
 		}
 		
-		var element: any = $('#' + this.gridID);
+		var element: any = $('#' + this.tableID);
 		element.kendoGrid(config.kOptions);
 		
-		this.grid = element.data('kendoGrid');
+		this.table = element.data('kendoGrid');
 	}
 	
-	filterGrid() {
+	filterTable() {
 		var val = this.filterString;
 		
 		var filter = { logic: 'or', filters: [] };
-		this.grid.columns.forEach(function(column) {
+		this.table.columns.forEach(function(column) {
 			if (column.filterable) {
 				filter.filters.push({
 					field: column.field,
@@ -74,6 +74,6 @@ export class UniGridComponent {
 			}
 		});
 		
-		this.grid.dataSource.query({filter: filter});
+		this.table.dataSource.query({filter: filter});
 	}
 } 

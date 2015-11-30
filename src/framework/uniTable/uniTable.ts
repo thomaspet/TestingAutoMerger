@@ -1,4 +1,4 @@
-export class UniGrid {
+export class UniTable {
 	lookupUrl: string;
 	searchable: boolean;
 	editable: boolean;

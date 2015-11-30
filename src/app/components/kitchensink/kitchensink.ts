@@ -12,7 +12,6 @@ import {
 	View,
 	Host
 } from 'angular2/core';
-import {RegExpWrapper, print, isPresent} from 'angular2/src/facade/lang';
 
 import {
   AutocompleteConfig,
@@ -25,8 +24,8 @@ import {
   UNI_CONTROL_DIRECTIVES
 } from '../../../framework/controls';
 
-import {UniGridComponent, IGridConfig} from '../../../framework/uni-grid/uniGridComponent'
-import {UniGrid} from '../../../framework/uni-grid/uniGrid'
+import {UniTableComponent, ITableConfig} from '../../../framework/uniTable/uniTable.component'
+import {UniTable} from '../../../framework/uniTable/uniTable'
 
 @Component({
 	selector: 'kitchensink',
@@ -34,10 +33,10 @@ import {UniGrid} from '../../../framework/uni-grid/uniGrid'
 })
 @View({
 	templateUrl: 'app/components/kitchensink/kitchensink.html',
-	directives: [FORM_DIRECTIVES, UNI_CONTROL_DIRECTIVES, UniGridComponent]
+	directives: [FORM_DIRECTIVES, UNI_CONTROL_DIRECTIVES, UniTableComponent]
 })
 export class Kitchensink {	
-	gridConfig: IGridConfig;
+	tableConfig: ITableConfig;
 	
 	form;
 	
@@ -67,16 +66,19 @@ export class Kitchensink {
 	constructor(fb: FormBuilder) {	
 		
 		
-		var grid = new UniGrid('http://devapi.unieconomy.no/api/biz/orders', false, true);
-		grid.addColumn('ID', 'ID', 'number');
-		grid.addColumn('CustomerName', 'Kundenavn', 'text');
-		grid.addColumn('OrderDate', 'Ordredato', 'date');
-		grid.addColumn('SumTotal', 'Total', 'number');	
-		grid.setSelect((selectedRow) => {
+		var table = new UniTable('http://devapi.unieconomy.no/api/biz/orders', false, true);
+		
+		// Add columns to the grid. This adds the item to both grid column array and the grid datasource model
+		table.addColumn('ID', 'ID', 'number');
+		table.addColumn('CustomerName', 'Kundenavn', 'text');
+		table.addColumn('OrderDate', 'Ordredato', 'date');
+		table.addColumn('SumTotal', 'Total', 'number');	
+		
+		table.setSelect((selectedRow) => {
 			console.log('Row selected!');
 			console.log(selectedRow);
 		});
-		this.gridConfig = grid.getConfig();
+		this.tableConfig = table.getConfig();
 		
 		
 		this.form = fb.group({
