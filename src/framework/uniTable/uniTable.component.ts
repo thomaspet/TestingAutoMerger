@@ -15,7 +15,7 @@ export interface ITableConfig {
 	searchable?: boolean,
 	editable?: boolean,
 	onSelect?: (selectedRow?) => any,
-	gridButtons?: [{
+	tableButtons?: [{
 		title: string,
 		classes?: string,
 		iconClasses?: string,
@@ -26,7 +26,7 @@ export interface ITableConfig {
 
 @Component({
 	selector: 'uni-table',
-	templateUrl: 'framework/uni-table/uniTable.component.html',
+	templateUrl: 'framework/uniTable/uniTable.component.html',
 	directives: [NgIf, NgFor, NgClass]
 })
 export class UniTableComponent {	
@@ -76,4 +76,4 @@ export class UniTableComponent {
 		
 		this.table.dataSource.query({filter: filter});
 	}
-} 
+}
