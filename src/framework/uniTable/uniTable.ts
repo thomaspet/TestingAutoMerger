@@ -28,13 +28,15 @@ export class UniTable {
 			filterable: filterable
 		};
 		
-		if (format) {
-			this.fields[field].format = format;
+		var columnFormat = format;
+		if (type === 'date' && !columnFormat) {
+			columnFormat = '{0: dd.MM.yyyy}';
 		}
 		
 		this.columns.push({
 			field: field,
-			title: title
+			title: title,
+			format: columnFormat
 		});
 	}
 	
