@@ -1,17 +1,6 @@
 /// <reference path="../../../../kendo/typescript/kendo.all.d.ts" />
-import {
-	FORM_DIRECTIVES,
-	NgControl,
-	Validators,
-	NgFormModel,
-	FormBuilder,
-	NgIf,
-	NgFor,
-	Component,
-	Directive,
-	View,
-	Host
-} from 'angular2/angular2';
+import { FORM_DIRECTIVES, NgControl, FormBuilder, Component} from 'angular2/angular2';
+import {UniTable, UniTableConfig} from '../../../framework/uniTable';
 
 import {
   AutocompleteConfig,
@@ -24,20 +13,15 @@ import {
   UNI_CONTROL_DIRECTIVES
 } from '../../../framework/controls';
 
-import {UniTableComponent, ITableConfig} from '../../../framework/uniTable/uniTable.component'
-import {UniTable} from '../../../framework/uniTable/uniTable'
 
 @Component({
 	selector: 'kitchensink',
-	viewProviders: [FormBuilder]
-})
-@View({
+	viewProviders: [FormBuilder],
 	templateUrl: 'app/components/kitchensink/kitchensink.html',
-	directives: [FORM_DIRECTIVES, UNI_CONTROL_DIRECTIVES, UniTableComponent]
+	directives: [FORM_DIRECTIVES, UNI_CONTROL_DIRECTIVES, UniTable]
 })
 export class Kitchensink {	
-	tableConfig: ITableConfig;
-	
+	tableConfig;
 	form;
 	
 	autocompleteConfig: AutocompleteConfig;
@@ -65,21 +49,17 @@ export class Kitchensink {
 		
 	constructor(fb: FormBuilder) {	
 		
-		
-		var table = new UniTable('http://devapi.unieconomy.no/api/biz/orders', true, true);
-		
-		// Add columns to the grid. This adds the item to both grid column array and the grid datasource model
-		table.addColumn('ID', 'ID', 'number');
-		table.addColumn('CustomerName', 'Kundenavn', 'text');
-		table.addColumn('OrderDate', 'Ordredato', 'date');
-		table.addColumn('SumTotal', 'Total', 'number');	
-		
-		table.setSelect((selectedRow) => {
-			console.log('Row selected!');
-			console.log(selectedRow);
-		});
-		this.tableConfig = table.getConfig();
-		
+		this.tableConfig = new UniTableConfig('http://devapi.unieconomy.no/api/biz/orders', true)
+		.addColumn('ID', 'OrdreID', 'number')
+		.addColumn('CustomerName', 'Kundenavn', 'text')
+		.addColumn('OrderDate', 'Ordredato', 'date')
+		.addColumn('SumTotal', 'Sum', 'number')
+		.setOnSelect(
+			function(selectedRow) {
+				console.log('Row selected!');
+				console.log(selectedRow);
+			}
+		);
 		
 		this.form = fb.group({
 			"autocomplete": [""],

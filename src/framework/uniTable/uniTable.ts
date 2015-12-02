@@ -1,77 +1,96 @@
-export class UniTable {
-	lookupUrl: string;
-	searchable: boolean;
-	editable: boolean;
-	
-	onSelect: (selectedRow?: any) => any;
-	
-	// TODO: Type these
-	fields: any = {};
-	columns: any[] = [];
+import { Component, Input, NgIf, AfterViewInit} from 'angular2/angular2';
 
-	constructor(lookupUrl: string, searchable: boolean = true, editable: boolean = false) {
-		this.lookupUrl = lookupUrl;
-		this.searchable = searchable;
-		this.editable = editable;
-	}
+@Component({
+	selector: 'uni-table',
+	templateUrl: 'framework/uniTable/uniTable.html',
+	directives: [NgIf]
+})
+export class UniTable implements AfterViewInit {	
+	@Input() config;
+	kOptions: kendo.ui.GridOptions = {};
 	
-	setSelect(onSelect: (selectedRow?: any) => any) {
-		this.onSelect = onSelect;
-	}
+	filterString: string = "";
+	tableID: string;
+	table: kendo.ui.Grid;
 	
-	addColumn(field: string, title: string, type: string, format?: string, editable?: boolean, filterable: boolean = true) {
-		var colEditable = (editable === undefined) ? this.editable : editable;
-		
-		this.fields[field] = {
-			type: type,
-			editable: colEditable,
-			filterable: filterable
-		};
-		
-		var columnFormat = format;
-		if (type === 'date' && !columnFormat) {
-			columnFormat = '{0: dd.MM.yyyy}';
-		}
-		
-		this.columns.push({
-			field: field,
-			title: title,
-			format: columnFormat
-		});
+	constructor() { 
+		// Generate a unique ID for the table
+		this.tableID = "uni-table-" + Date.now();
 	}
-	
-	getConfig() {
-		var config = {
-			searchable: this.searchable,
-			editable: this.editable,
-			onSelect: this.onSelect,
-			// gridButtons
-			kOptions: {
-				
-				dataSource: {
-					type: 'json',
-					transport: {
-						read: {
-							url: this.lookupUrl,
-							type: 'GET',
-							headers: {
-								'Client': 'client1'
-							}
-						}
-					},
-					schema: {
-						model: {
-							id: "ID",
-							fields: this.fields
+
+	ngAfterViewInit() {	
+		// Create kendo options from the config
+		this.kOptions = {
+			dataSource: {
+				type: 'json',
+				transport: {
+					read: {
+						url: this.config.lookupUrl,
+						type: 'GET',
+						headers: {
+							'Client': 'client1'
 						}
 					}
 				},
-				
-				columns: this.columns,
-				filterable: true,
-			}	
+				schema: { 
+					model: {
+						id: 'ID',
+						fields: this.config.fields		
+					}
+				}
+			},
+			
+			columns: this.config.columns,
+			filterable: true
+		};
+		
+		// If onSelect is defined we hook it up to the kendo change event which is fired when the user clicks a row
+		if (this.config.onSelect) {
+			this.kOptions.selectable = "row";
+			
+			var vm = this;
+			
+			this.kOptions.change = function(event: kendo.ui.GridChangeEvent) {
+				var item = event.sender.dataItem(this.select());
+				vm.config.onSelect(item);
+			}
 		}
-		return config;
+		
+		// Compile kendo grid
+		var element: any = $('#' + this.tableID);
+		element.kendoGrid(this.kOptions);
+		
+		this.table = element.data('kendoGrid');
+	}
+	
+	filterTable() {
+		var val = this.filterString;
+		var filter = { logic: 'or', filters: [] };
+		
+		var fields = this.kOptions.dataSource.schema.model.fields;
+		for (var fieldName of Object.keys(fields)) {
+			let field = fields[fieldName];
+					
+			// Contains filter for text columns
+			if (field.type === 'text') {
+				filter.filters.push({
+					field: fieldName,
+					operator: 'contains',
+					value: val
+				});
+			}
+			
+			// Eq filter for number columns
+			if (field.type === 'number' && !isNaN(<any> val) ) {
+				filter.filters.push({
+					field: fieldName,
+					operator: 'eq',
+					value: parseInt(val)
+				});
+			}
+		}
+		
+		this.table.dataSource.query({filter: filter});
 	}
 	
 }
