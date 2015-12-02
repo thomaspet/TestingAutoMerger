@@ -9,7 +9,7 @@ import {
 	Control,
 	AfterViewInit,
 	FORM_DIRECTIVES,
-} from 'angular2/core';
+} from 'angular2/angular2';
 
 export interface ITableConfig {
 	searchable?: boolean,
