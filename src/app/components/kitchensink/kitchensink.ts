@@ -66,7 +66,7 @@ export class Kitchensink {
 	constructor(fb: FormBuilder) {	
 		
 		
-		var table = new UniTable('http://devapi.unieconomy.no/api/biz/orders', false, true);
+		var table = new UniTable('http://devapi.unieconomy.no/api/biz/orders', true, true);
 		
 		// Add columns to the grid. This adds the item to both grid column array and the grid datasource model
 		table.addColumn('ID', 'ID', 'number');

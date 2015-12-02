@@ -19,14 +19,19 @@ export class UniTable {
 		this.onSelect = onSelect;
 	}
 	
-	addColumn(field: string, title: string, type: string, editable?: boolean, nullable: boolean = true) {
+	addColumn(field: string, title: string, type: string, format?: string, editable?: boolean, filterable: boolean = true) {
 		var colEditable = (editable === undefined) ? this.editable : editable;
 		
 		this.fields[field] = {
+			// type: 'string',
 			type: type,
 			editable: colEditable,
-			nullable: nullable
+			filterable: filterable
 		};
+		
+		if (format) {
+			this.fields[field].format = format;
+		}
 		
 		this.columns.push({
 			field: field,
@@ -35,14 +40,14 @@ export class UniTable {
 	}
 	
 	getConfig() {
-		return {
+		var config = {
 			searchable: this.searchable,
 			editable: this.editable,
 			onSelect: this.onSelect,
 			// gridButtons
 			kOptions: {
 				
-				dataSource: new kendo.data.DataSource({
+				dataSource: {
 					type: 'json',
 					transport: {
 						read: {
@@ -55,15 +60,16 @@ export class UniTable {
 					},
 					schema: {
 						model: {
-							id: "ID",//'grid-model-' + Date.now(), // unique model ID (kendo requires this)
+							id: "ID",
 							fields: this.fields
 						}
 					}
-				}),
+				},
 				
 				columns: this.columns,
 			}	
 		}
+		return config;
 	}
 	
 }

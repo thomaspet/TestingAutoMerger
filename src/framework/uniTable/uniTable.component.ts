@@ -42,37 +42,43 @@ export class UniTableComponent {
 	}
 	
 	afterViewInit() {
-		var config = this.config;
+		var vm = this;
 		
-		if (config.onSelect) {
-			config.kOptions.selectable = "row";
+		if (vm.config.onSelect) {
+			vm.config.kOptions.selectable = "row";
 			
 			// change event is fired when the user clicks a row in the table
-			config.kOptions.change = function(event: kendo.ui.GridChangeEvent) {
+			vm.config.kOptions.change = function(event: kendo.ui.GridChangeEvent) {
 				var item = event.sender.dataItem(this.select());
-				config.onSelect(item);
+				vm.config.onSelect(item);
 			}
 		}
 		
 		var element: any = $('#' + this.tableID);
-		element.kendoGrid(config.kOptions);
+		element.kendoGrid(vm.config.kOptions);
 		
 		this.table = element.data('kendoGrid');
+		console.log(this.table);
 	}
 	
 	filterTable() {
 		var val = this.filterString;
-		
 		var filter = { logic: 'or', filters: [] };
-		this.table.columns.forEach(function(column) {
-			if (column.filterable) {
-				filter.filters.push({
-					field: column.field,
-					operator: 'contains',
-					value: val
-				})
-			}
-		});
+		
+		var fields = this.config.kOptions.dataSource.schema.model.fields;
+		for (var fieldName of Object.keys(fields)) {
+			let field = fields[fieldName];
+			var operator = 'startswith';
+			
+			if (field.type === 'number') operator = 'gte';
+			if (field.type === 'date') operator = 'eq';
+			
+			filter.filters.push({
+				field: fieldName,
+				operator: operator,
+				value: val
+			});
+		}
 		
 		this.table.dataSource.query({filter: filter});
 	}
