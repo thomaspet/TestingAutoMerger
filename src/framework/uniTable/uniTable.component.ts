@@ -29,7 +29,7 @@ export interface ITableConfig {
 	templateUrl: 'framework/uniTable/uniTable.component.html',
 	directives: [NgIf, NgFor, NgClass]
 })
-export class UniTableComponent {	
+export class UniTableComponent implements AfterViewInit {	
 	@Input() config: ITableConfig;
 	
 	filterString: string = "";
@@ -41,7 +41,7 @@ export class UniTableComponent {
 		this.tableID = "uni-table-" + Date.now();
 	}
 	
-	afterViewInit() {
+	ngAfterViewInit() {
 		var vm = this;
 		
 		if (vm.config.onSelect) {

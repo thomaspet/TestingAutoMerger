@@ -1,4 +1,4 @@
-<h1>UniTable</h1>
+<h2>UniTable</h2>
 <uni-table [config]="tableConfig"></uni-table>
 
 <h2>Control components</h2>
@@ -7,35 +7,30 @@
 	<label>Autocomplete
 		<input autocomplete ng-control="autocomplete" [config]="autocompleteConfig">
 	</label>
-	<br>
+	<br><br>
 	<label>Dropdown
 		<input dropdown ng-control="dropdown" [config]="dropdownConfig">
 		<small>Description of the field here</small>
 	</label>
-	<br>
+	<br><br>
 	<label>Combobox
 		<input combobox ng-control="combobox" [config]="comboboxConfig">
 	</label>
-	<br>
+	<br><br>
 	<label>Multiselect
 		<select multiselect ng-control="multiselect" [config]="multiselectConfig"></select>
 	</label>
-	<br>
+	<br><br>
 	<label>Datepicker
 		<input datepicker ng-control="datepicker" [config]="datepickerConfig">
 	</label>
-	<br>
+	<br><br>
 	<label>Masked input
 		<input masked ng-control="maskedInput" [config]="maskedInputConfig">
 	</label>
-	<br>
+	<br><br>
 	<label>Numeric input
 		<input numeric ng-control="numericInput" [config]="numericInputConfig" >
 	</label>
 	
 </form>
-
-Autocomplete: {{form.controls.autocomplete.value}} <br>
-Dropdown: {{form.controls.dropdown.value}} <br>
-Combo: {{form.controls.combobox.value}} <br>
-Multiselect: {{form.controls.multiselect.value}} <br>
