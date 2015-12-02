@@ -58,7 +58,6 @@ export class UniTableComponent {
 		element.kendoGrid(vm.config.kOptions);
 		
 		this.table = element.data('kendoGrid');
-		console.log(this.table);
 	}
 	
 	filterTable() {
@@ -66,20 +65,36 @@ export class UniTableComponent {
 		var filter = { logic: 'or', filters: [] };
 		
 		var fields = this.config.kOptions.dataSource.schema.model.fields;
+		
 		for (var fieldName of Object.keys(fields)) {
 			let field = fields[fieldName];
-			var operator = 'startswith';
 			
-			if (field.type === 'number') operator = 'gte';
-			if (field.type === 'date') operator = 'eq';
-			
-			filter.filters.push({
-				field: fieldName,
-				operator: operator,
-				value: val
-			});
+			if (field.type === 'number') {
+				var numericFilter = this.getNumericFilter(fieldName, val);
+				if (numericFilter) filter.filters.push(numericFilter);
+			}
+			else if (field.type === 'date') {
+				// todo? Not sure if there is any point in allowing date filtering through the textbox? (the column has its own filter functionality)
+			}
+			else {
+				filter.filters.push({
+					field: fieldName,
+					operator: 'contains',
+					value: val
+				});
+			}
 		}
-		
 		this.table.dataSource.query({filter: filter});
 	}
+	
+	private getNumericFilter(fieldName, userInput) {
+		if (isNaN(userInput)) return null;
+		
+		return {
+			field: fieldName,
+			operator: 'eq',
+			value: parseInt(userInput)
+		}
+	}
+	
 }

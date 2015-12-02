@@ -23,7 +23,6 @@ export class UniTable {
 		var colEditable = (editable === undefined) ? this.editable : editable;
 		
 		this.fields[field] = {
-			// type: 'string',
 			type: type,
 			editable: colEditable,
 			filterable: filterable
@@ -67,6 +66,7 @@ export class UniTable {
 				},
 				
 				columns: this.columns,
+				filterable: true,
 			}	
 		}
 		return config;
