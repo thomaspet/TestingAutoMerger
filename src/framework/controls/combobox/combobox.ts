@@ -14,7 +14,7 @@ export class Combobox implements AfterViewInit {
 	control;
 	constructor(public element: ElementRef) {}
 
-	afterViewInit() {
+	ngAfterViewInit() {
 		var element: any = $(this.element.nativeElement);
 		var combobox;
 		var control = this.config.control;

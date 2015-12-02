@@ -7,7 +7,7 @@
     "test": "gulp clean & gulp build.dist & gulp test.typescript & karma start karma.conf.js"
   },
   "dependencies": {
-    "angular2": "2.0.0-alpha.46",
+    "angular2": "2.0.0-alpha.47",
     "bootstrap": "^3.3.5",
     "es6-shim": "^0.33.13",
     "jquery": "^2.1.4",

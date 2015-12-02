@@ -1,5 +1,5 @@
 import {Component, Validators, Control} from 'angular2/angular2';
-import {UniForm} from '../../../framework/forms/formBuilder';
+import {UniForm} from '../../../framework/forms/uniForm';
 
 function testAsyncValidator(c) {
 
@@ -18,7 +18,10 @@ function testAsyncValidator(c) {
 @Component({
     selector: 'uni-form-demo',
     directives: [UniForm],
-    template: "<h1>Form demo</h1></h1><uni-form (uni-form-submit)='onSubmit($event)' [config]='form'></uni-form>"
+    template: `
+        <h1>Form demo</h1>
+        <uni-form (uni-form-submit)='onSubmit($event)' [config]='form'></uni-form>
+    `
 })
 export class UniFormDemo {
     form;

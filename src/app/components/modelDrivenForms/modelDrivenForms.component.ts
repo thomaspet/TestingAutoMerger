@@ -1,13 +1,16 @@
 /// <reference path="../../../../kendo/typescript/kendo.all.d.ts" />
 
 import {
-  FORM_DIRECTIVES,
-  NgControl,
-  Validators,
-  NgFormModel,
-  FormBuilder,
-  NgIf,
-  NgFor,
+    FORM_DIRECTIVES,
+    NgControl,
+    Validators,
+    NgFormModel,
+    FormBuilder,
+    NgIf,
+    NgFor
+} from 'angular2/common';
+
+import {
   Component,
   Directive,
   View,

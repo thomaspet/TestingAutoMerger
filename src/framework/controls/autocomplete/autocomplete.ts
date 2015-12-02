@@ -13,7 +13,7 @@ export class Autocomplete implements AfterViewInit {
 	
 	constructor(public element:ElementRef) { }
 	
-	afterViewInit() {
+	ngAfterViewInit() {
 		var element: any = $(this.element.nativeElement);
 		var autocomplete;
 		var control = this.config.control;

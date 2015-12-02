@@ -1,18 +1,22 @@
 /// <reference path="../../../../kendo/typescript/kendo.all.d.ts" />
 
 import {
+	Component,
+	Directive,
+	View,
+	Host
+} from 'angular2/core';
+
+import {
 	FORM_DIRECTIVES,
 	NgControl,
 	Validators,
 	NgFormModel,
 	FormBuilder,
 	NgIf,
-	NgFor,
-	Component,
-	Directive,
-	View,
-	Host
-} from 'angular2/core';
+	NgFor
+} from 'angular2/common';
+
 import {RegExpWrapper, print, isPresent} from 'angular2/src/facade/lang';
 
 import {

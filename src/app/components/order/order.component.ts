@@ -13,7 +13,7 @@ export class kendoGrid implements AfterViewInit {
 		
 	}
 	
-	afterViewInit() {
+	ngAfterViewInit() {
 		var component = this;
 		var elem:any = $(this.element.nativeElement);
 		if(!elem.data('kendoGrid')) {

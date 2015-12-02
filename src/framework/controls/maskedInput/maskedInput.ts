@@ -13,7 +13,7 @@ export class MaskedInput implements AfterViewInit{
 	
 	constructor(public element: ElementRef) {}
 
-	afterViewInit() {
+	ngAfterViewInit() {
 
 		var element: any = $(this.element.nativeElement);
 		var maskedInput;

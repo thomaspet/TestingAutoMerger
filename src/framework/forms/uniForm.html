@@ -1,4 +1,3 @@
-
 <form (submit)="onSubmit(form.value)" no-validate [ng-form-model]="form">
     <label *ng-for="#control of controls" [ng-switch]="control.type">
         <span>{{control.label}}</span>
@@ -7,41 +6,58 @@
                 autocomplete
                 [ng-control]="control.field"
                 [config]="control"
+                [ng-class] = "control.classes"
                 *ng-switch-when="'autocomplete'"
+                [readonly]="control.readonly"
+                [disabled]="control.disabled"
         />
 
         <input
                 dropdown
                 [ng-control]="control.field"
+                [ng-class] = "control.classes"
                 [config]="control" *ng-switch-when="'dropdown'"
+                [readonly]="control.readonly"
+                [disabled]="control.disabled"
         />
 
         <input
                 combobox
                 [ng-control]="control.field"
                 [config]="control"
+                [ng-class] = "control.classes"
                 *ng-switch-when="'combobox'"
+                [readonly]="control.readonly"
+                [disabled]="control.disabled"
         />
 
         <select
                 multiselect
                 [ng-control]="control.field"
                 [config]="control"
+                [ng-class] = "control.classes"
                 *ng-switch-when="'multiselect'"
+                [disabled]="control.disabled"
         ></select>
 
         <input
                 datepicker
                 [ng-control]="control.field"
                 [config]="control"
+                [ng-class] = "control.classes"
                 *ng-switch-when="'datepicker'"
+                [readonly]="control.readonly"
+                [disabled]="control.disabled"
         >
 
         <input
                 masked
                 [ng-control]="control.field"
                 [config]="control"
+                [ng-class] = "control.classes"
                 *ng-switch-when="'masked'"
+                [readonly]="control.readonly"
+                [disabled]="control.disabled"
         />
 
         <input
@@ -49,41 +65,57 @@
                 [ng-control]="control.field"
                 [config]="control"
                 *ng-switch-when="'numeric'"
+                [readonly]="control.readonly"
+                [disabled]="control.disabled"
         />
 
         <input
                 type="email"
                 [ng-control]="control.field"
+                [ng-class] = "control.classes"
                 *ng-switch-when="'email'"
+                [readonly]="control.readonly"
+                [disabled]="control.disabled"
         />
 
         <input
                 type="password"
                 [ng-control]="control.field"
                 *ng-switch-when="'password'"
+                [readonly]="control.readonly"
+                [disabled]="control.disabled"
         />
+
         <!-- checkbox needs its own component with multiple selects -->
         <input
                 type="checkbox"
                 [ng-control]="control.field"
+                [ng-class] = "control.classes"
                 *ng-switch-when="'checkbox'"
+                [readonly]="control.readonly"
+                [disabled]="control.disabled"
         />
 
         <!-- radio needs its own component with multiple selects -->
         <input
                 type="radio"
                 [ng-control]="control.field"
+                [ng-class] = "control.classes"
                 *ng-switch-when="'radio'"
                 [name]="control.field"
+                [readonly]="control.readonly"
+                [disabled]="control.disabled"
         />
 
         <input
                 type="text"
                 [ng-control]="control.field"
+                [ng-class] = "control.classes"
                 *ng-switch-default
+                [name]="control.field"
+                [readonly]="control.readonly"
+                [disabled]="control.disabled"
         />
-
-        <!-- how are we going to show errors???? --->
         <show-error [control]="control.control" [messages]="control.errorMessages"></show-error>
     </label>
     <button type="submit" [disabled]="!form.valid">submit</button>

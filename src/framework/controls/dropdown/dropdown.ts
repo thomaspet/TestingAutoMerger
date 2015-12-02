@@ -13,7 +13,7 @@ export class Dropdown implements AfterViewInit {
 	
 	constructor(public element: ElementRef) { }
 	
-	afterViewInit() {
+	ngAfterViewInit() {
 		var vm = this;
 		var element: any = $(this.element.nativeElement);
 		var dropdown;
