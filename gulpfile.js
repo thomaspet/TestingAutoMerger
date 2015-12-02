@@ -17,6 +17,7 @@ var config = {
         sortOutput: true
     },
     src: {
+        assets: './src/assets/**/*',
         app: {
             ts: './src/!(test)/**/*.ts',
             html: './src/!(test)/**/*.html',
@@ -26,24 +27,29 @@ var config = {
         index: './src/index.template.html',
         vendor: {
             js: [
+                require.resolve('systemjs/dist/system-polyfills.js'),
+                require.resolve('reflect-metadata/Reflect.js'),
+                require.resolve('es6-shim/es6-shim.js'),
+
                 require.resolve('jquery/dist/jquery.min.js'),
                 require.resolve('bootstrap/dist/js/bootstrap.min.js'),
                 require.resolve('./kendo/js/kendo.all.min.js'),
+
                 require.resolve('systemjs/dist/system.src.js'),
+
                 require.resolve('angular2/bundles/angular2.dev.js'),
                 require.resolve('angular2/bundles/router.dev.js'),
                 require.resolve('angular2/bundles/http.dev.js')
             ],
             css: [
-                require.resolve('bootstrap/dist/css/bootstrap.css'),
-                require.resolve('./kendo/styles/kendo.common-bootstrap.min.css'),
-                require.resolve('./kendo/styles/kendo.bootstrap.min.css')
+                require.resolve('./kendo/styles/kendo.common.min.css')
             ]
         }
     },
     dist: {
         index: './dist/index.html',
         folder: './dist',
+        assets: './dist/assets',
         maps: '.',
         appFiles: ['./dist/!(test)/**/*.js','./dist/!(test)/**/*.css','./dist/!(test)/**/*.html'],
         vendor: {
@@ -99,7 +105,7 @@ gulp.task('build.dist.app.typescript', function() {
         .pipe(plugins.plumber())
         .pipe(plugins.sourcemaps.init({loadMaps:true}))
         .pipe(plugins.typescript(config.typescript))
-        .pipe(plugins.uglify())
+        //.pipe(plugins.uglify())
         .pipe(plugins.sourcemaps.write(config.dist.maps))
         .pipe(gulp.dest(config.dist.folder))
 });
@@ -114,6 +120,12 @@ gulp.task('build.dist.app.css', function() {
     return gulp.src(config.src.app.css)
         .pipe(plugins.plumber())
         .pipe(gulp.dest(config.dist.folder))
+});
+
+gulp.task('build.dist.assets', function(){
+   return gulp.src(config.src.assets)
+       .pipe(plugins.plumber())
+       .pipe(gulp.dest(config.dist.assets))
 });
 
 gulp.task('build.dist.app',function(done){
@@ -140,6 +152,7 @@ gulp.task('build.dist',function (done){
         'build.dist.app',
         'build.dist.copy.from.src.index.template',
         'build.dist.fill.index.template',
+        'build.dist.assets',
         done);
 });
 

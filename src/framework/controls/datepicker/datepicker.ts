@@ -1,4 +1,5 @@
-import {Directive, AfterViewInit, ElementRef, Input, Control, Observable} from 'angular2/core';
+import {Directive, AfterViewInit, ElementRef, Input, Observable} from 'angular2/core';
+import {Control} from 'angular2/common';
 
 export interface DatepickerConfig {
 	control: Control;
@@ -13,10 +14,11 @@ export class Datepicker implements AfterViewInit {
 		
 	constructor(public element: ElementRef) { }
 	
-	afterViewInit() {
+	ngAfterViewInit() {
 		var control = this.config.control;
 		var options = this.config.kOptions;
-		
+		var datepicker;
+
 		var element: any = $(this.element.nativeElement);
 
 		options.format = "dd.MM.yyyy";
@@ -42,8 +44,12 @@ export class Datepicker implements AfterViewInit {
 				this.value(date);
 			}
 		}
-		
-		var datepicker = element.kendoDatePicker(options).data('kendoDatePicker');
+
+		//don't create the kendo component if it exists
+		if (element.data('kendoDatePicker')) {
+			this._destroyKendoWidget(element);
+		}
+		datepicker = element.kendoDatePicker(options).data('kendoDatePicker');
 		
 		// Trigger kendo change event on keyup (enter) and blur in the textbox 
 		Observable.fromEvent(element, 'keyup')
@@ -56,15 +62,19 @@ export class Datepicker implements AfterViewInit {
 		Observable.fromEvent(element, 'blur').subscribe((e) => {
 			datepicker.trigger('change');
 		});		
-		
-		// Pass control value to kendo model
-		if (control.value.length > 0) {
-			datepicker.value(new Date(control.value));
-		}
+
+		datepicker.value(control.value);
+
+	}
+
+	private _destroyKendoWidget(HTMLElement) {
+		HTMLElement.data('kendoDatePicker').destroy();
+		let parent:any = $(HTMLElement[0].parentNode);
+		parent.find('span.k-widget.k-datepicker').remove();
 	}
 }
 
-export function autocompleteDate(inputValue): Date {
+function autocompleteDate(inputValue): Date {
 	
 	var input = inputValue.replace(/[^0-9]/g, "");
 	

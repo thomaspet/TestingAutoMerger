@@ -250,3 +250,6 @@ jspm_packages
 bower_components
 .vscode
 
+src/.DS_Store
+src/styles/main.css
+.DS_Store

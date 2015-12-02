@@ -13,17 +13,26 @@ export class NumericInput {
 	
 	constructor(public element: ElementRef) {}
 	
-	afterViewInit() {
-		var control = this.config.control;
-		var options = this.config.kOptions;
-		
-		options.change = function(event) {
-			control.updateValue(this.value());	
-		}
-		
+	ngAfterViewInit() {
+        var numericInput;
 		var element: any = $(this.element.nativeElement);
-		var numericInput = element.kendoNumericTextBox(options).data('kendoNumericTextBox');
-		
-		// init to control value
+
+        var control = this.config.control;
+        var options = this.config.kOptions;
+
+        options.change = function(event) {
+            control.updateValue(this.value());
+        };
+        //don't create the kendo component if it exists
+		if (element.data('kendoNumericTextBox')) {
+            this._destroyKendoWidget(element);
+		}
+        numericInput = element.kendoNumericTextBox(options).data('kendoNumericTextBox');
 	}
+
+    private _destroyKendoWidget(HTMLElement) {
+        HTMLElement.data('kendoNumericTextBox').destroy();
+        let parent:any = $(HTMLElement[0].parentNode);
+        parent.find('span.k-widget.k-numerictextbox').remove();
+    }
 }

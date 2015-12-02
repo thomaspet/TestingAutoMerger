@@ -14,18 +14,22 @@ export class MultiSelect implements AfterViewInit {
 	
 	constructor(public element: ElementRef) { }
 	
-	afterViewInit() {
+	ngAfterViewInit() {
+		var multiselect;
+		var element: any = $(this.element.nativeElement);
+
 		var control = this.config.control;
 		var options = this.config.kOptions;
-		
+
 		options.highlightFirst = true;
-		
 		options.change = function(event: kendo.ui.MultiSelectChangeEvent) {
 			control.updateValue(this.value());
+		};
+
+		if (element.data('kendoMultiSelect')) {
+			this._destroyKendoWidget(element);
 		}
-		
-		var element: any = $(this.element.nativeElement);
-		var multiselect = element.kendoMultiSelect(options).data('kendoMultiSelect');
+		multiselect = element.kendoMultiSelect(options).data('kendoMultiSelect');
 
 		// init to control value
 		var controlValues = [];
@@ -33,5 +37,11 @@ export class MultiSelect implements AfterViewInit {
 			multiselect.value(control.value);
 			multiselect.trigger('change');
 		}
+	}
+
+	private _destroyKendoWidget(HTMLElement) {
+		HTMLElement.data('kendoMultiSelect').destroy();
+		let parent:any = $(HTMLElement[0].parentNode);
+		parent.find('div.k-widget.k-multiselect').remove();
 	}
 }

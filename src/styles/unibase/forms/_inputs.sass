@@ -13,7 +13,7 @@ $all-text-inputs: $unquoted-inputs-list
 
   &:focus
     border-color: $color
-    box-shadow: 0 0 5px transparentize($color, .5)
+    box-shadow: 0 0 pxToRem(5) transparentize($color, .5)
 
   &[disabled]
     background: transparentize($uni-color-scale9, .4)
@@ -25,14 +25,16 @@ $all-text-inputs: $unquoted-inputs-list
   100%
     opacity: .5
 
-#{$all-text-inputs}
+%uni-input
   background: none
-  border: 1px solid $uni-color-scale7
-  border-radius: 3px
-  padding: 3px 10px
+  border: pxToRem(1) solid $uni-color-scale7
+  border-radius: pxToRem(3)
+  padding: pxToRem(3) pxToRem(10)
   transition: box-shadow .3s ease
   overflow: hidden
   text-overflow: ellipsis
+  box-sizing: border-box
+  height: auto
 
   &:focus
     outline: none
@@ -43,14 +45,14 @@ $all-text-inputs: $unquoted-inputs-list
     cursor: not-allowed
 
   &[required]
-    box-shadow: 0 0 0 1px $uni-color-negative, 0 0 0 2px $uni-color-scale9
+    box-shadow: 0 0 0 pxToRem(1) $uni-color-negative, 0 0 0 pxToRem(2) $uni-color-scale9
 
   &[aria-busy]:not([aria-busy=false])
     &:after
       content: ''
       display: inline-block
-      height: 10px
-      width: 10px
+      height: pxToRem(10)
+      width: pxToRem(10)
       background: cyan
 
   &.small
@@ -87,10 +89,30 @@ $all-text-inputs: $unquoted-inputs-list
   label &
     display: block
 
+#{$all-text-inputs}
+  @extend %uni-input
+
+@mixin field-validation($color)
+  font-weight: 400
+  border-radius: pxToRem(3)
+  color: $color
+  background-color: transparentize($color, .9)
+  border: pxToRem(1) solid $color
+  padding: 0 .3rem
+  margin-top: .3rem
+
 label
   display: inline-block
-  padding: 10px
 
   & small
     display: block
     font-size: .8rem
+
+    &.error
+      @include field-validation($uni-color-Bad)
+
+    &.warn
+      @include field-validation($uni-color-Warn)
+
+    &.success
+      @include field-validation($uni-color-Good)

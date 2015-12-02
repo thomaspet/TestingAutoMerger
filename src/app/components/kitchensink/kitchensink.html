@@ -1,7 +1,7 @@
 <h1>UniTable</h1>
 <uni-table [config]="tableConfig"></uni-table>
 
-<h1>Control components</h1>
+<h2>Control components</h2>
 <form (ng-submit)="onSubmit()" [ng-form-model]="form" class="col-lg-4">
 	
 	<label>Autocomplete
@@ -10,6 +10,7 @@
 	<br>
 	<label>Dropdown
 		<input dropdown ng-control="dropdown" [config]="dropdownConfig">
+		<small>Description of the field here</small>
 	</label>
 	<br>
 	<label>Combobox
@@ -33,3 +34,8 @@
 	</label>
 	
 </form>
+
+Autocomplete: {{form.controls.autocomplete.value}} <br>
+Dropdown: {{form.controls.dropdown.value}} <br>
+Combo: {{form.controls.combobox.value}} <br>
+Multiselect: {{form.controls.multiselect.value}} <br>

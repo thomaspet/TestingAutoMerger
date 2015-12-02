@@ -13,14 +13,27 @@ export class Dropdown implements AfterViewInit {
 	
 	constructor(public element: ElementRef) { }
 	
-	afterViewInit() {
+	ngAfterViewInit() {
 		var vm = this;
-		var dropdownElement: any = $(this.element.nativeElement);
-		
-		this.config.kOptions.select = function(event) {			
+		var element: any = $(this.element.nativeElement);
+		var dropdown;
+
+		this.config.kOptions.change = function(event) {
 			vm.config.control.updateValue(this.value());
 		}
-		
-		dropdownElement.kendoDropDownList(this.config.kOptions);
+
+		//don't create the kendo component if it exists
+		if (element.data('kendoDropDownList')) {
+			this._destroyKendoWidget(element);
+		}
+		dropdown = element.kendoDropDownList(this.config.kOptions).data('kendoDropDownList');
+
+		dropdown.value(vm.config.control.value); // init to control
+	}
+
+	private _destroyKendoWidget(HTMLElement) {
+		HTMLElement.data('kendoDropDownList').destroy();
+		let parent:any = $(HTMLElement[0].parentNode);
+		parent.find('span.k-widget.k-dropdown').remove();
 	}
 }

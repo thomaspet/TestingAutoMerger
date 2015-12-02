@@ -1,5 +1,12 @@
 /// <reference path="../../../../kendo/typescript/kendo.all.d.ts" />
 import {
+	Component,
+	Directive,
+	View,
+	Host
+} from 'angular2/core';
+
+import {
 	FORM_DIRECTIVES,
 	NgControl,
 	Validators,

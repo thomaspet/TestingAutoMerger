@@ -1,45 +1,58 @@
-import {Directive, AfterViewInit, ElementRef, Input, Control} from 'angular2/angular2';
+import {Directive, AfterViewInit, ElementRef, Input, Control, Observable,} from 'angular2/angular2';
 
 export interface ComboboxConfig {
 	control: Control;
 	kOptions: kendo.ui.ComboBoxOptions;
 }
 
+
 @Directive({
 	selector: '[combobox]'
 })
 export class Combobox implements AfterViewInit {
 	@Input() config: ComboboxConfig;
-	
-	constructor(public element: ElementRef) { }
-	
-	afterViewInit() {
+	control;
+	constructor(public element: ElementRef) {}
+
+	ngAfterViewInit() {
+		var element: any = $(this.element.nativeElement);
+		var combobox;
 		var control = this.config.control;
 		var options = this.config.kOptions;
-		
-		options.highlightFirst = true; // This setting is important! Forcing only valid inputs wont work without it.
 		var validSelection = false;
-		
-		// Reset validSelection to false when the input text changes
-		options.dataBound = function(e) {
-			validSelection = false;
-		}
-		
-		// Update control value and set validSelection to true. Select event only fires when input text is valid.
+
+		// Set validSelection to true. Select event only fires when input text is valid.
 		options.select = function(event: kendo.ui.ComboBoxSelectEvent) {
-			control.updateValue(this.value());
 			validSelection = true;
-		}
-		
-		// Reset the fields on change events (blur, enter, ...) if input was invalid
+		};
+		// Store value in control if the selection was valid (input matches an item in the dataSource);
 		options.change = function(e) {
-			if (!validSelection) {
+			if (validSelection) {
+				control.updateValue(this.value());
+			} else {
+				control.updateValue('');
 				this.value('');
-				control.updateValue('');	
 			}
+		};
+		//don't create the kendo component if it exists
+		if (!element.data('kendoComboBox')) {
+			combobox = element.kendoComboBox(options).data('kendoComboBox');
+		} else {
+			combobox = element.data('kendoComboBox');
+			this._destroyKendoWidget(element);
+			combobox = element.kendoComboBox(options).data('kendoComboBox');
 		}
-		
-		var comboboxElement: any = $(this.element.nativeElement);
-		comboboxElement.kendoComboBox(options);
+
+		// Reset validSelection when the input text changes
+		Observable.fromEvent(combobox.input, 'keyup').subscribe((event: any) => {
+			validSelection = false;	
+		});
+		combobox.value(control.value);
+	}
+
+	private _destroyKendoWidget(HTMLElement) {
+		HTMLElement.data('kendoComboBox').destroy();
+		let parent:any = $(HTMLElement[0].parentNode);
+		parent.find('span.k-widget.k-combobox').remove();
 	}
 }
