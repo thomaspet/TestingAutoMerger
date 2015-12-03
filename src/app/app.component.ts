@@ -7,6 +7,7 @@ import {Routes, APP_ROUTES} from './route.config';
   selector: 'my-app',
   template: `
     <h1>{{title}}</h1>
+    <a [router-link]="[routes.login.name]" class="router-link">Login</a>
     <a [router-link]="[routes.dashboard.name]" class="router-link">Dashboard</a>
     <a [router-link]="[routes.heroes.name]" class="router-link">Heroes</a>
     <a [router-link]="[routes.modelDrivenForms.name]" class="router-link">FormTest</a>

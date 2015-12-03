@@ -1,0 +1,17 @@
+<h3>Login</h3>
+
+<form (submit)="authenticate($event, username.value, password.value)">
+	<label>Username 
+		<input type="text" #username>
+	</label>
+	
+	<label>Password 
+		<input type="password" #password>
+	</label>
+	
+	<button class="c2a">Login</button>
+	
+</form>
+
+
+<company-dropdown></company-dropdown>
