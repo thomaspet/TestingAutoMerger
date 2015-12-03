@@ -1,23 +1,6 @@
 /// <reference path="../../../../kendo/typescript/kendo.all.d.ts" />
-
-import {
-	Component,
-	Directive,
-	View,
-	Host
-} from 'angular2/core';
-
-import {
-	FORM_DIRECTIVES,
-	NgControl,
-	Validators,
-	NgFormModel,
-	FormBuilder,
-	NgIf,
-	NgFor
-} from 'angular2/common';
-
-import {RegExpWrapper, print, isPresent} from 'angular2/src/facade/lang';
+import { FORM_DIRECTIVES, NgControl, FormBuilder, Component} from 'angular2/angular2';
+import {UniTable, UniTableConfig} from '../../../framework/uniTable';
 
 import {
   AutocompleteConfig,
@@ -30,15 +13,15 @@ import {
   UNI_CONTROL_DIRECTIVES
 } from '../../../framework/controls';
 
+
 @Component({
 	selector: 'kitchensink',
-	viewProviders: [FormBuilder]
-})
-@View({
+	viewProviders: [FormBuilder],
 	templateUrl: 'app/components/kitchensink/kitchensink.html',
-	directives: [FORM_DIRECTIVES, UNI_CONTROL_DIRECTIVES]
+	directives: [FORM_DIRECTIVES, UNI_CONTROL_DIRECTIVES, UniTable]
 })
 export class Kitchensink {	
+	tableConfig;
 	form;
 	
 	autocompleteConfig: AutocompleteConfig;
@@ -56,8 +39,28 @@ export class Kitchensink {
 		{ id: "3", name: 'Faktura' },
 		{ id: "4", name: 'Lønn' },
 	];
+	
+	gridData = [
+		{id: "1", name: 'Anders', email: 'anders.urrang@unimicro.no'},
+		{id: "2", name: 'Jorge', email: 'jorge@unimicro.no'},
+		{id: "3", name: 'Jørgen', email: 'jorgen@unimicro.no'},
+		{id: "4", name: 'Jon Terje', email: 'jonterje@unimicro.no'},
+	];
 		
-	constructor(fb: FormBuilder) {
+	constructor(fb: FormBuilder) {	
+		
+		this.tableConfig = new UniTableConfig('http://devapi.unieconomy.no/api/biz/orders', true)
+		.addColumn('ID', 'OrdreID', 'number')
+		.addColumn('CustomerName', 'Kundenavn', 'text')
+		.addColumn('OrderDate', 'Ordredato', 'date')
+		.addColumn('SumTotal', 'Sum', 'number')
+		.setOnSelect(
+			function(selectedRow) {
+				console.log('Row selected!');
+				console.log(selectedRow);
+			}
+		);
+		
 		this.form = fb.group({
 			"autocomplete": [""],
 			"combobox": [""],
