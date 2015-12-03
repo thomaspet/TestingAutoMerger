@@ -1,5 +1,7 @@
-import { Component, NgModel } from 'angular2/angular2';
-import {CompanyDropdown} from '../../../framework/companyDropdown/companyDropdown';
+import { Component } from 'angular2/angular2';
+import { Http, Headers, Response } from 'angular2/http';
+import { Authenticator } from '../../../framework/authentication/authenticator';
+import { CompanyDropdown } from '../../../framework/companyDropdown/companyDropdown';
 
 @Component({
 	selector: 'login',
@@ -7,12 +9,20 @@ import {CompanyDropdown} from '../../../framework/companyDropdown/companyDropdow
 	directives: [CompanyDropdown]
 }) 
 export class Login {
-		
-	constructor() {	}
+	errorMessage: string;
 	
-	authenticate(event, username, password) {
+	constructor(public http: Http) {
+		this.errorMessage = "";
+	}
+	
+	onSubmit(event, username: string, password: string) {
 		event.preventDefault();
 		
-		window.alert('Authenticating: ' + username + ' / ' + password);
+		var auth = new Authenticator(this.http);
+		if (auth.authenticate("jonterje", "MySuperP@ss!")) {
+			// route
+		} else {
+			this.errorMessage = "Invalid username/password";
+		}
 	}
 }

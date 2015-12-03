@@ -1,6 +1,7 @@
 <h3>Login</h3>
 
-<form (submit)="authenticate($event, username.value, password.value)">
+<form (submit)="onSubmit($event, username.value, password.value)">
+	<p>{{errorMessage}}</p>
 	<label>Username 
 		<input type="text" #username>
 	</label>
@@ -10,7 +11,6 @@
 	</label>
 	
 	<button class="c2a">Login</button>
-	
 </form>
 
 
