@@ -1,22 +1,28 @@
+// jwt.io
+// Bearer <asdf>
+	
+// x-www-form-urlencoded
+// username: jonterje
+// password: MySuperP@ss!
+// grant_type: password
+	
+// response.access_token
+
+import { Injectable } from 'angular2/angular2';
 import { Http, Headers, Response } from 'angular2/http';
+
+@Injectable()
 export class Authenticator {
+	http: Http;
 	
-	// jwt.io
-	// Bearer <asdf>
-	
-	// x-www-form-urlencoded
-	// username: jonterje
-	// password: MySuperP@ss!
-	// grant_type: password
-	
-	// response.access_token
-	
-	constructor(public http: Http) {}
+	constructor(http: Http) {
+		this.http = http;
+	}
 	
 	authenticate(username: string, password: string) {
 		
 		this.http.post(
-			'uni-identity.azurewebsites.net/oauth/master-key ', 
+			'https://uni-identity.azurewebsites.net/oauth/master-key ', 
 			// request body
 			JSON.stringify({
 				username: username,
