@@ -1,17 +1,20 @@
 <h3>Login</h3>
+<p (click)="test()">(click me)</p>
 
-<form (submit)="onSubmit($event, username.value, password.value)">
+<form (submit)="onSubmit($event)">
+	
 	<p>{{errorMessage}}</p>
+	
 	<label>Username 
-		<input type="text" #username>
+		<input type="text" [(ng-model)]="credentials.username">
 	</label>
 	
 	<label>Password 
-		<input type="password" #password>
+		<input type="password" [(ng-model)]="credentials.password">
 	</label>
 	
 	<button class="c2a">Login</button>
-</form>
 
+</form>
 
 <company-dropdown></company-dropdown>

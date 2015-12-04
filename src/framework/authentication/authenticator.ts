@@ -8,7 +8,7 @@
 	
 // response.access_token
 
-import { Injectable } from 'angular2/angular2';
+import { Injectable, Observable } from 'angular2/angular2';
 import { Http, Headers, Response } from 'angular2/http';
 
 @Injectable()
@@ -16,36 +16,27 @@ export class Authenticator {
 	http: Http;
 	
 	constructor(http: Http) {
-		this.http = http;
+		this.http = http;	
 	}
 	
-	authenticate(username: string, password: string) {
+	serializeParams(username, password): string {
+		return 'username=' + username + '&password=' + password + '&grant_type=password';
+	}
+	
+	authenticate(username: string, password: string): Observable<any> {
+		var headers = new Headers();
+		headers.append('Content-type', 'application/x-www-form-urlencoded');
 		
-		this.http.post(
-			'https://uni-identity.azurewebsites.net/oauth/master-key ', 
+		return this.http.post(
+			'https://uni-identity.azurewebsites.net/oauth/master-key', 
 			// request body
-			JSON.stringify({
-				username: username,
-				password: password,
-				grant_type: 'password'
-			}),
-			// headers
-			new Headers({
-				'Accept': 'application/json',
-				'Content-type': 'application/x-www-form-urlencoded'
-			})
-		)
-		.map((res: any) => res.json())
-		.subscribe (
-			data => {
-				localStorage.setItem('jwt', data.access_token);
-				return true;
-			},
-			err => {
-				console.log(err);
-				return false;
+			this.serializeParams(username, password),
+			
+			// request headers
+			{
+				headers: headers
 			}
-		);
-		
+		)
+		.map((res: any) => res.json());		
 	}	
 }

@@ -34,9 +34,7 @@ export class CompanyDropdown implements AfterViewInit {
 			change: function(event: kendo.ui.DropDownListChangeEvent) {
 				vm.selectCompany(this.value());
 			}
-		}
-		
-		console.log(this.dropdownOptions);
+		}		
 	}
 	
 	ngAfterViewInit() {
