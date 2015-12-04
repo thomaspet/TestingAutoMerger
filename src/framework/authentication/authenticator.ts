@@ -33,9 +33,7 @@ export class Authenticator {
 			this.serializeParams(username, password),
 			
 			// request headers
-			{
-				headers: headers
-			}
+			{ headers: headers }
 		)
 		.map((res: any) => res.json());		
 	}	

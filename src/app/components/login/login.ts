@@ -16,8 +16,8 @@ export class Login {
 	
 	constructor(public authenticator: Authenticator, public router: Router) {
 		this.credentials = {
-			username: "",
-			password: ""
+			username: "jonterje",
+			password: "MySuperP@ss!"
 		}
 		this.errorMessage = "";
 	}
@@ -37,12 +37,5 @@ export class Login {
 				this.credentials = { username: "", password: "" };
 			}
 		);
-	}
-	
-	test() {
-		this.credentials = {
-			username: 'jonterje',
-			password: 'MySuperP@ss!'
-		}
 	}
 }
