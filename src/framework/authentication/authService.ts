@@ -12,7 +12,7 @@ import { Injectable, Observable } from 'angular2/angular2';
 import { Http, Headers, Response } from 'angular2/http';
 
 @Injectable()
-export class Authenticator {
+export class AuthService {
 	http: Http;
 	
 	constructor(http: Http) {
@@ -35,6 +35,10 @@ export class Authenticator {
 			// request headers
 			{ headers: headers }
 		)
-		.map((res: any) => res.json());		
-	}	
+		.map((res: any) => res.json());
+	}
+	
+	decodeToken(token: string) {
+		
+	}
 }

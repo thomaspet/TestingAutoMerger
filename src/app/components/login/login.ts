@@ -1,20 +1,20 @@
 import { Component } from 'angular2/angular2';
 import { Http, Headers, Response } from 'angular2/http';
 import { Router } from 'angular2/router';
-import { Authenticator } from '../../../framework/authentication/authenticator';
+import { AuthService } from '../../../framework/authentication/authService';
 import { CompanyDropdown } from '../../../framework/companyDropdown/companyDropdown';
 
 @Component({
 	selector: 'login',
 	templateUrl: 'app/components/login/login.html',
 	directives: [CompanyDropdown],
-	providers: [Authenticator]
+	providers: [AuthService]
 }) 
 export class Login {
 	credentials: { username: string, password: string };
 	errorMessage: string;
 	
-	constructor(public authenticator: Authenticator, public router: Router) {
+	constructor(public authService: AuthService, public router: Router) {
 		this.credentials = {
 			username: "jonterje",
 			password: "MySuperP@ss!"
@@ -25,10 +25,10 @@ export class Login {
 	onSubmit(event) {
 		event.preventDefault();
 		
-		this.authenticator.authenticate(this.credentials.username, this.credentials.password)
+		this.authService.authenticate(this.credentials.username, this.credentials.password)
 		.subscribe (
 			result => {
-				localStorage.setItem('jwt', result.access_token);
+				localStorage.setItem('jwt', "Bearer " + result.access_token);
 				this.router.navigateByUrl('/');	
 			},
 			err => {
