@@ -1,15 +1,7 @@
-// jwt.io
-// Bearer <asdf>
-	
-// x-www-form-urlencoded
-// username: jonterje
-// password: MySuperP@ss!
-// grant_type: password
-	
-// response.access_token
-
 import { Injectable, Observable } from 'angular2/angular2';
 import { Http, Headers, Response } from 'angular2/http';
+
+declare var jwt_decode: (token: string) => any; // node_modules/jwt_decode
 
 @Injectable()
 export class AuthService {
@@ -38,7 +30,8 @@ export class AuthService {
 		.map((res: any) => res.json());
 	}
 	
-	decodeToken(token: string) {
-		
+	decodeToken(token: string): Object {
+		return jwt_decode(token);
 	}
+	
 }

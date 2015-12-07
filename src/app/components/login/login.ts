@@ -1,25 +1,41 @@
+// jwt.io
+// Bearer <asdf>
+// x-www-form-urlencoded
+// username: jonterje
+// password: MySuperP@ss!
+// grant_type: password
+
 import { Component } from 'angular2/angular2';
 import { Http, Headers, Response } from 'angular2/http';
 import { Router } from 'angular2/router';
+import { CompanyDropdown } from '../common/companyDropdown/companyDropdown';
 import { AuthService } from '../../../framework/authentication/authService';
-import { CompanyDropdown } from '../../../framework/companyDropdown/companyDropdown';
+
+declare var jQuery;
 
 @Component({
 	selector: 'login',
 	templateUrl: 'app/components/login/login.html',
 	directives: [CompanyDropdown],
 	providers: [AuthService]
-}) 
+})
 export class Login {
 	credentials: { username: string, password: string };
 	errorMessage: string;
 	
-	constructor(public authService: AuthService, public router: Router) {
+	loginForm; 
+	companyDropdown;
+	
+	constructor(public authService: AuthService, public router: Router) {		
+		// Initialize credentials to a valid login for testing purposes
 		this.credentials = {
 			username: "jonterje",
 			password: "MySuperP@ss!"
 		}
 		this.errorMessage = "";
+		
+		this.loginForm = jQuery('#loginForm');
+		this.companyDropdown = jQuery('#companyDropdown').hide();
 	}
 	
 	onSubmit(event) {
@@ -27,9 +43,12 @@ export class Login {
 		
 		this.authService.authenticate(this.credentials.username, this.credentials.password)
 		.subscribe (
-			result => {
-				localStorage.setItem('jwt', "Bearer " + result.access_token);
-				this.router.navigateByUrl('/');	
+			response => {
+				var token = response.access_token;
+				var decoded = this.authService.decodeToken(token);
+				localStorage.setItem('jwt', "Bearer " + token);
+				localStorage.setItem('jwt_decoded', JSON.stringify(decoded));
+				this.loggedIn();
 			},
 			err => {
 				console.log(err);
@@ -37,5 +56,19 @@ export class Login {
 				this.credentials = { username: "", password: "" };
 			}
 		);
+	}
+	
+	loggedIn() {
+		var lastActiveCompany; // = localStorage.getItem('activeCompany');
+		
+		if (lastActiveCompany) {
+			this.router.navigateByUrl('/');	
+			return;
+		}
+		
+		// Show company selector
+		this.loginForm.fadeOut(300, () => {
+			this.companyDropdown.fadeIn(500);
+		});
 	}
 }

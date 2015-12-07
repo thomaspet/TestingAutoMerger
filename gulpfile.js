@@ -39,7 +39,9 @@ var config = {
 
                 require.resolve('angular2/bundles/angular2.dev.js'),
                 require.resolve('angular2/bundles/router.dev.js'),
-                require.resolve('angular2/bundles/http.dev.js')
+                require.resolve('angular2/bundles/http.dev.js'),
+
+                require.resolve('jwt-decode/build/jwt-decode.min.js'),
             ],
             css: [
                 require.resolve('./kendo/styles/kendo.common.min.css')

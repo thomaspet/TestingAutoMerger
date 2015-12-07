@@ -1,6 +1,6 @@
 <h3>Login</h3>
 
-<form (submit)="onSubmit($event)">
+<form id="loginForm" (submit)="onSubmit($event)">
 	
 	<p>{{errorMessage}}</p>
 	
@@ -16,4 +16,7 @@
 
 </form>
 
-<company-dropdown></company-dropdown>
+<label id="companyDropdown">Select company <br>
+	<company-dropdown></company-dropdown>	
+</label>
+

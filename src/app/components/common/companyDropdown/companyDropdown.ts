@@ -1,14 +1,16 @@
-/// <reference path="../../../kendo/typescript/kendo.all.d.ts" />
-import { Component, AfterViewInit } from 'angular2/angular2';
+/// <reference path="../../../../../kendo/typescript/kendo.all.d.ts" />
+import { Component, AfterViewInit, ElementRef } from 'angular2/angular2';
 
 export interface ICompany {
 	id: number,
 	name: string
 }
 
+declare var jQuery: any;
+
 @Component({
 	selector: 'company-dropdown',
-	template: '<select style="width: 200px" id="companyDropdown"></select>',
+	template: '<select style="width: 200px"></select>',
 	directives: []
 })
 export class CompanyDropdown implements AfterViewInit {
@@ -17,8 +19,10 @@ export class CompanyDropdown implements AfterViewInit {
 	lastActiveCompany: ICompany;
 	
 	dropdownOptions: kendo.ui.DropDownListOptions;
+	elementRef: ElementRef;
 	
-	constructor() {
+	constructor(elementRef: ElementRef) {
+		this.elementRef = elementRef;
 		var vm = this;
 		
 		this.companies = this.getCompanies();	
@@ -34,17 +38,17 @@ export class CompanyDropdown implements AfterViewInit {
 			change: function(event: kendo.ui.DropDownListChangeEvent) {
 				vm.selectCompany(this.value());
 			}
-		}		
+		}
 	}
 	
 	ngAfterViewInit() {
-		var element: any = $('#companyDropdown');
+		var element = jQuery(this.elementRef.nativeElement).find('select');
+		console.log(element);
 		var dropdown = element.kendoDropDownList(this.dropdownOptions).data('kendoDropDownList');
-		
 	}
 	
 	selectCompany(companyID: number) {
-		console.log('Selected company: ' + companyID);
+		localStorage.setItem('activeCompany', companyID.toString());
 	}
 
 	private getCompanies(): Array<any> {
@@ -59,7 +63,6 @@ export class CompanyDropdown implements AfterViewInit {
 				{ id: 4, name: 'Microsoft' },
 			];
 		}
-		
 		return companies;
 	}
 }
