@@ -2,8 +2,8 @@
 
     <div class="navbar_content">
 
-        <nav class="navbar_hamburger" (click)="burgerIsOpen = !burgerIsOpen">
-            <ul *ng-if="burgerIsOpen" [ng-class]="{'-is-open': burgerIsOpen}">
+        <nav class="navbar_hamburger" (click)="burgerIsOpen = !burgerIsOpen" [ng-class]="{'-is-open': burgerIsOpen}">
+            <ul *ng-if="burgerIsOpen">
                 <a [router-link]="[routes.kitchensink.name]"><li>Kitchensink<span class="close"></span></li></a>            <a [router-link]="[routes.login.name]"><li>Login<span class="close"></span></li></a>
                 <a [router-link]="[routes.dashboard.name]"><li> Dashboard<span class="close"></span></li></a>
                 <a [router-link]="[routes.heroes.name]"><li>Heroes<span class="close"></span></li></a>
