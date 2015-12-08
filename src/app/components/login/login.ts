@@ -26,7 +26,7 @@ export class Login {
 	errorMessage: string;
 	
 	constructor(public authService: AuthService, public router: Router) {		
-		this.loginForm = jQuery('#loginForm');
+		this.loginForm = jQuery('#loginForm').show();
 		this.companyDropdown = jQuery('#companyDropdown').hide();
 		this.errorMessage = "";
 		
@@ -44,12 +44,12 @@ export class Login {
 		.subscribe (
 			response => {
 				var token = response.access_token;
-				var decoded = this.authService.decodeToken(token);
+				var decodedToken = this.authService.decodeToken(token);
 				
 				localStorage.setItem('jwt', "Bearer " + token);
-				localStorage.setItem('jwt_decoded', JSON.stringify(decoded));
+				localStorage.setItem('jwt_decoded', JSON.stringify(decodedToken));
 				
-				this.loggedIn();
+				this.onAuthSuccess();
 			},
 			err => {
 				console.log(err);
@@ -59,18 +59,23 @@ export class Login {
 		);
 	}
 	
-	loggedIn() {
-		var lastActiveCompany; // = localStorage.getItem('activeCompany');
-		
-		// todo: check if user still has access to this company
+	onAuthSuccess() {
+		var lastActiveCompany = localStorage.getItem('activeCompany');
+				
+		// If lastActiveCompany exists in localstorage we skip the "select company" stage
 		if (lastActiveCompany) {
+			var url = localStorage.getItem('lastNavigationAttempt');
+			if (url) {
+				localStorage.removeItem('lastNavigationAttempt');
+				this.router.navigateByUrl(url);
+				return;	
+			}
+			
 			this.router.navigateByUrl('/');	
-			return;
 		}
 		
-		// Show company selector
-		this.loginForm.fadeOut(300, () => {
-			this.companyDropdown.fadeIn(500);
+		this.loginForm.fadeOut(200, () => {
+			this.companyDropdown.fadeIn(300);
 		});
 	}
 }

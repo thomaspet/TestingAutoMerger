@@ -2,6 +2,7 @@
 import {Component} from 'angular2/angular2';
 import {RouteConfig, ROUTER_DIRECTIVES} from 'angular2/router';
 import {Routes, APP_ROUTES} from './route.config';
+import {UniRouterOutlet} from './routerOutlet';
 
 @Component({
   selector: 'my-app',
@@ -14,7 +15,7 @@ import {Routes, APP_ROUTES} from './route.config';
     <a [router-link]="[routes.order.name]" class="router-link">Orders</a>
     <a [router-link]="[routes.uniFormDemo.name]" class="router-link">UniFromDemo</a>
     <a [router-link]="[routes.kitchensink.name]" class="router-link">Kitchensink</a>
-    <router-outlet></router-outlet>
+    <uni-router-outlet></uni-router-outlet>
   `,
   styles: [`
     .router-link {padding: 5px;text-decoration: none;}
@@ -22,11 +23,10 @@ import {Routes, APP_ROUTES} from './route.config';
     .router-link:hover {color: white; background-color: #1171a3; text-decoration: none;}
     .router-link.router-link-active {color: white; background-color: #52b9e9; text-decoration: none;}
   `],
-  directives: [ROUTER_DIRECTIVES]
+  directives: [ROUTER_DIRECTIVES, UniRouterOutlet]
 })
 @RouteConfig(APP_ROUTES)
 export class AppComponent {
-  public title = 'Tour of Heroes';
+  public title = 'Uni Economy';
   public routes = Routes;
-
 }

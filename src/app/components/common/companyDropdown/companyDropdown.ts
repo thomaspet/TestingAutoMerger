@@ -1,20 +1,16 @@
-/// <reference path="../../../../../kendo/typescript/kendo.all.d.ts" />
 import { Component, AfterViewInit, ElementRef } from 'angular2/angular2';
-
+import { Router } from 'angular2/router';
 declare var jQuery;
 
 @Component({
 	selector: 'company-dropdown',
 	template: '<select style="width: 200px"></select>',
 })
-export class CompanyDropdown implements AfterViewInit {
+export class CompanyDropdown implements AfterViewInit {	
 	activeCompany: any; // todo: create interface ICompany when we know what a company object is
-	
 	dropdownOptions: kendo.ui.DropDownListOptions;
-	elementRef: ElementRef;
 	
-	constructor(elementRef: ElementRef) {
-		this.elementRef = elementRef;
+	constructor(public elementRef: ElementRef, public router: Router) {
 		this.activeCompany = localStorage.getItem('activeCompany');		
 		
 		this.dropdownOptions = {
@@ -25,7 +21,8 @@ export class CompanyDropdown implements AfterViewInit {
 				data: this.getCompanies()
 			}),
 			change: (event: kendo.ui.DropDownListChangeEvent) => {
-				this.selectCompany(event.sender.value());
+				var companyID = event.sender.value().toString();
+				this.onCompanySelect(companyID);
 			}
 		}
 	}
@@ -38,10 +35,18 @@ export class CompanyDropdown implements AfterViewInit {
 		dropdown.value(this.activeCompany);
 	}
 	
-	selectCompany(companyID) {
+	private onCompanySelect(companyID) {
 		// get full company object, not just ID?
-		localStorage.setItem('activeCompany', companyID.toString());
-		// router.navigateByUrl(...)
+		localStorage.setItem('activeCompany', companyID);
+		
+		var url = localStorage.getItem('lastNavigationAttempt');
+		if (url) {
+			localStorage.removeItem('lastNavigationAttempt');
+			this.router.navigateByUrl(url);
+			return;	
+		}
+		
+		this.router.navigateByUrl('/');			
 	}
 
 	private getCompanies(): Array<any> {		
