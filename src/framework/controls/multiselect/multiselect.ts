@@ -14,7 +14,7 @@ export class MultiSelect implements AfterViewInit {
 	
 	constructor(public element: ElementRef) { }
 	
-	afterViewInit() {
+	ngAfterViewInit() {
 		var multiselect;
 		var element: any = $(this.element.nativeElement);
 

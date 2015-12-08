@@ -1,5 +1,6 @@
 import {Component, FORM_DIRECTIVES, FORM_PROVIDERS, Control, FormBuilder, Validators, OnInit} from 'angular2/angular2';
-import {EventEmitter, NgSwitchWhen, NgSwitch, NgSwitchDefault, NgIf} from "angular2/core";
+import {EventEmitter} from "angular2/core";
+import {NgSwitchWhen, NgSwitch, NgSwitchDefault, NgIf} from 'angular2/common';
 import {isArray} from 'angular2/src/facade/lang';
 import {UNI_CONTROL_DIRECTIVES} from '../controls';
 import {ShowError} from "./showError";
@@ -10,7 +11,7 @@ import {ShowError} from "./showError";
     providers: [FORM_PROVIDERS],
     inputs: ['config'],
     outputs:['uniFormSubmit'],
-    templateUrl: "framework/forms/formBuilder.html"
+    templateUrl: "framework/forms/uniForm.html"
 })
 export class UniForm implements OnInit {
     private config;
@@ -21,7 +22,7 @@ export class UniForm implements OnInit {
 
     }
 
-    onInit() {
+    ngOnInit() {
         this.controls = this.buildControls(this.config);
 
         let fbControls = {};
@@ -41,7 +42,7 @@ export class UniForm implements OnInit {
 
     onSubmit(value){
         this._updateModel(this.config[0].model,value);
-        this.uniFormSubmit.next(value);
+        this.uniFormSubmit.emit(value);
         return false;
     }
 

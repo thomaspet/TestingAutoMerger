@@ -1,0 +1,6 @@
+<div class="uni-table-header">
+	<input type="text" *ng-if="config.searchable" [(ng-model)]="filterString" (keyup)="filterTable()" >
+</div>
+
+<!-- Kendo grid is compiled to this div -->
+<div id={{tableID}}></div>

@@ -1,4 +1,5 @@
-import {Directive, AfterViewInit, ElementRef, Input, Control, Observable} from 'angular2/core';
+import {Directive, AfterViewInit, ElementRef, Input, Observable} from 'angular2/core';
+import {Control} from 'angular2/common';
 
 export interface DatepickerConfig {
 	control: Control;
@@ -13,7 +14,7 @@ export class Datepicker implements AfterViewInit {
 		
 	constructor(public element: ElementRef) { }
 	
-	afterViewInit() {
+	ngAfterViewInit() {
 		var control = this.config.control;
 		var options = this.config.kOptions;
 		var datepicker;

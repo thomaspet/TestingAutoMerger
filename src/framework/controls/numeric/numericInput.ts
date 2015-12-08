@@ -13,7 +13,7 @@ export class NumericInput {
 	
 	constructor(public element: ElementRef) {}
 	
-	afterViewInit() {
+	ngAfterViewInit() {
         var numericInput;
 		var element: any = $(this.element.nativeElement);
 

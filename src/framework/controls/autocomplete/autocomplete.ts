@@ -13,7 +13,7 @@ export class Autocomplete implements AfterViewInit {
 	
 	constructor(public element:ElementRef) { }
 	
-	afterViewInit() {
+	ngAfterViewInit() {
 		var element: any = $(this.element.nativeElement);
 		var autocomplete;
 		var control = this.config.control;
@@ -39,7 +39,7 @@ export class Autocomplete implements AfterViewInit {
 		options.change = function(event: kendo.ui.AutoCompleteChangeEvent) {
 			if (!validSelection) {
 				this.value('');
-				control.updateValue({});
+				control.updateValue(undefined);
 			}
 		};
 

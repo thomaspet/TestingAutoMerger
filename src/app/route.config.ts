@@ -2,6 +2,11 @@ import {ComponentProxy} from '../framework/core';
 import {AsyncRoute} from 'angular2/router';
 
 export var Routes = {
+	login: new AsyncRoute({
+		path: '/login',
+		name: 'Login',
+		loader: () => ComponentProxy.LoadComponentAsync('Login', './app/components/login/login')
+	}),
 	dashboard: new AsyncRoute({
 		path: '/',
     	name: 'Dashboard',

@@ -1,5 +1,5 @@
 import {Component, Validators, Control} from 'angular2/angular2';
-import {UniForm} from '../../../framework/forms/formBuilder';
+import {UniForm} from '../../../framework/forms/uniForm';
 
 function testAsyncValidator(c) {
 
@@ -18,7 +18,10 @@ function testAsyncValidator(c) {
 @Component({
     selector: 'uni-form-demo',
     directives: [UniForm],
-    template: "<h1>Form demo</h1></h1><uni-form (uni-form-submit)='onSubmit($event)' [config]='form'></uni-form>"
+    template: `
+        <h1>Form demo</h1>
+        <uni-form (uni-form-submit)='onSubmit($event)' [config]='form'></uni-form>
+    `
 })
 export class UniFormDemo {
     form;
@@ -36,14 +39,12 @@ export class UniFormDemo {
             multiselect: ["1","2"],
             numeric: '10'
         };
-        let mockDataSource = new kendo.data.DataSource(<kendo.data.DataSourceOptions> {
-            data: [
-                { id: "1", name: 'Felleskomponent' },
-                { id: "2", name: 'Regnskap' },
-                { id: "3", name: 'Faktura' },
-                { id: "4", name: 'Lønn' },
-            ]
-        });
+        let mockDataSource = [
+            { id: "1", name: 'Felleskomponent' },
+            { id: "2", name: 'Regnskap' },
+            { id: "3", name: 'Faktura' },
+            { id: "4", name: 'Lønn' },
+        ];
         let self = this;
         this.form = [{
                 model: self.model,
@@ -64,7 +65,7 @@ export class UniFormDemo {
                 }],
                 kOptions: {
                     dataTextField: 'name',
-                    dataSource: mockDataSource
+                    dataSource: new kendo.data.DataSource({data:mockDataSource})
                 }
             },
             {
@@ -96,7 +97,7 @@ export class UniFormDemo {
                     delay: 50,
                     dataTextField: 'name',
                     dataValueField: 'id',
-                    dataSource: mockDataSource,
+                    dataSource: new kendo.data.DataSource({data:mockDataSource}),
                     template: '<span>#: data.id # - #: data.name #</span>'
                 }
             },
@@ -119,7 +120,7 @@ export class UniFormDemo {
                     delay: 50,
                     dataTextField: 'name',
                     dataValueField: 'id',
-                    dataSource: mockDataSource
+                    dataSource: new kendo.data.DataSource({data:mockDataSource})
                 }
             },
             {
