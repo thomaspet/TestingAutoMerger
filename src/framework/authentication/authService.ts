@@ -30,8 +30,21 @@ export class AuthService {
 		.map((res: any) => res.json());
 	}
 	
-	decodeToken(token: string): Object {
+	decodeToken(token: string) {
 		return jwt_decode(token);
+	}
+	
+	isTokenExpired(): boolean {
+		var token = JSON.parse(localStorage.getItem('jwt_decoded'));
+		
+		if (!token || typeof token.exp === 'undefined') {
+			return true;
+		}
+		
+		var expDate = new Date(0);
+		expDate.setUTCSeconds(token.exp);
+		
+		return (new Date().valueOf() > expDate.valueOf());
 	}
 	
 }

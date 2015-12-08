@@ -20,22 +20,21 @@ declare var jQuery;
 	providers: [AuthService]
 })
 export class Login {
+	loginForm; companyDropdown;
+	
 	credentials: { username: string, password: string };
 	errorMessage: string;
 	
-	loginForm; 
-	companyDropdown;
-	
 	constructor(public authService: AuthService, public router: Router) {		
+		this.loginForm = jQuery('#loginForm');
+		this.companyDropdown = jQuery('#companyDropdown').hide();
+		this.errorMessage = "";
+		
 		// Initialize credentials to a valid login for testing purposes
 		this.credentials = {
 			username: "jonterje",
 			password: "MySuperP@ss!"
 		}
-		this.errorMessage = "";
-		
-		this.loginForm = jQuery('#loginForm');
-		this.companyDropdown = jQuery('#companyDropdown').hide();
 	}
 	
 	onSubmit(event) {
@@ -46,8 +45,10 @@ export class Login {
 			response => {
 				var token = response.access_token;
 				var decoded = this.authService.decodeToken(token);
+				
 				localStorage.setItem('jwt', "Bearer " + token);
 				localStorage.setItem('jwt_decoded', JSON.stringify(decoded));
+				
 				this.loggedIn();
 			},
 			err => {
@@ -61,6 +62,7 @@ export class Login {
 	loggedIn() {
 		var lastActiveCompany; // = localStorage.getItem('activeCompany');
 		
+		// todo: check if user still has access to this company
 		if (lastActiveCompany) {
 			this.router.navigateByUrl('/');	
 			return;
