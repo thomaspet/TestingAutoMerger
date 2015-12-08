@@ -1,0 +1,28 @@
+.poster_widget_table
+  table
+    //table-layout: fixed
+    width: calc(100% - 1rem)
+
+    td
+      white-space: nowrap
+      overflow: hidden
+      text-overflow: ellipsis
+      padding: .5rem
+
+    tr
+      @extend %clickable
+
+      &:nth-of-type(odd)
+        background: transparentize($uni-color-negative, .5)
+
+      &:hover
+        background: transparentize($uni-color-C2A, .8)
+
+    img
+      width: 5rem
+      height: 5rem
+      border-radius: 999rem
+      float: left
+      margin-right: 1rem
+
+

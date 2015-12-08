@@ -1,0 +1,30 @@
+.navbar_hamburger
+  @extend %navbarText
+  @extend %clickable
+  padding: 0 1rem
+  font-size: 0
+  width: 1.8rem
+  height: 2.5rem
+  float: left
+
+  &:before
+    display: inline-block
+    content: '\2261'
+    line-height: 2rem
+    font-size: 3rem
+
+  &:hover,
+  &:focus,
+  &.-is-open
+    background: darken($navbarBackground, 10%)
+
+  ul
+    position: absolute
+    background: $uni-color-negative
+    color: $uni-color-C2A
+    font-size: 1rem
+    box-shadow: 0 0 1rem transparentize($uni-color-positive, .8)
+    padding: 1rem 2rem
+    top: 1.5rem
+    margin-left: -1rem
+    list-style: none

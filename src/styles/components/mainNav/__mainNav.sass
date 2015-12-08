@@ -1,0 +1,26 @@
+$navbarBackground: #0083C4
+$navbarTextColor: contrasting($navbarBackground, $uni-color-negative, $uni-color-positive, 60)
+
+@import "hamburger"
+@import "tabs"
+@import "search"
+@import "userinfo"
+
+%navbarText
+  color: $navbarTextColor
+  font-weight: 400
+
+%clickable
+  cursor: pointer
+
+.navbar
+  width: 100%
+  background: linear-gradient(to bottom, #0083C4 0, #0070A8 100%)
+
+.navbar_content
+  @include unigrid-flush(14)
+  margin: 0 auto
+  display: flex
+  flex-direction: row
+  align-items: center
+  flex-wrap: nowrap
