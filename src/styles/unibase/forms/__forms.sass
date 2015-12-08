@@ -1,7 +1,27 @@
-fieldset
-  border-radius: .2rem
-  border-color: $uni-color-scale9
-  padding: .75rem 1.5rem
-
 @import "inputs"
 @import "checkboxes"
+@import "formSection"
+
+fieldset
+  border-width: 0
+  background: mix($uni-color-negative, $uni-color-scale9, 85%)
+  border-radius: .3rem
+  padding: .75rem 0 1rem
+
+select
+  display: block
+  width: 100%
+
+  &[readonly]
+    opacity: .6
+
+textarea
+  @extend input
+  width: 100%
+  min-height: 5rem
+
+  &[readonly]
+    font-weight: 400
+    border: none
+    background: mix($uni-color-negative, $uni-color-scale9, 50%)
+

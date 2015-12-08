@@ -55,6 +55,11 @@ $all-text-inputs: $unquoted-inputs-list
       width: pxToRem(10)
       background: cyan
 
+  &[readonly]
+    font-weight: 400
+    border: none
+    background: mix($uni-color-negative, $uni-color-scale9, 50%)
+
   &.small
     font-size: .8rem
     font-weight: 400
@@ -91,6 +96,7 @@ $all-text-inputs: $unquoted-inputs-list
 
 #{$all-text-inputs}
   @extend %uni-input
+  background: $uni-color-negative
 
 @mixin field-validation($color)
   font-weight: 400
@@ -116,3 +122,4 @@ label
 
     &.success
       @include field-validation($uni-color-Good)
+

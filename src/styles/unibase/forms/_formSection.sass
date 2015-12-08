@@ -1,0 +1,45 @@
+.formSection
+    width: 100%
+    display: flex
+    flex-wrap: wrap
+
+    %label
+        @include unigrid(2,2)
+        margin: 1rem 0
+
+    label
+        @extend %label
+
+        input
+            width: 100%
+
+        &.half
+            @include unigrid(1,1)
+
+        &.double
+            @include unigrid(4,4)
+
+    fieldset
+        @extend %label
+        background: mix($uni-color-negative, $uni-color-scale9, 70%)
+        border-radius: .3rem
+        padding: .5rem 0 1rem
+
+        &.unmarked
+            background: transparent
+
+            label
+                margin: 0
+
+        legend
+            background: $uni-color-negative
+            padding-right: .5rem
+            border-radius: pxToRem(3)
+
+        label
+            width: calc(100% - 2.1rem)
+            margin: 0 1rem
+            display: inline-block
+
+            &.half
+                width: calc(50% - 2.1rem)
