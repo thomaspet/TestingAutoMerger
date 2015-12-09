@@ -2,13 +2,13 @@
 import {Component} from 'angular2/angular2';
 import {RouteConfig, ROUTER_DIRECTIVES} from 'angular2/router';
 import {Routes, APP_ROUTES} from './route.config';
-import {UniRouterOutlet} from './routerOutlet';
+import {UniRouterOutlet} from './uniRouterOutlet';
 
 @Component({
   selector: 'my-app',
   template: `
     <h1>{{title}}</h1>
-    <a [router-link]="[routes.login.name]" class="router-link">Login</a>
+
     <a [router-link]="[routes.dashboard.name]" class="router-link">Dashboard</a>
     <a [router-link]="[routes.heroes.name]" class="router-link">Heroes</a>
     <a [router-link]="[routes.modelDrivenForms.name]" class="router-link">FormTest</a>

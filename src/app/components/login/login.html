@@ -1,22 +1,15 @@
-<h3>Login</h3>
-
-<form id="loginForm" class="login-form" (submit)="onSubmit($event)">
+<div class="login-component">
 	
-	<p>{{errorMessage}}</p>
+	<form id="loginForm" class="login-form" (submit)="onSubmit($event)">
+		
+		<p>{{errorMessage}}</p>
+		<input type="text" [(ng-model)]="credentials.username" placeholder="Username">
+		<input type="password" [(ng-model)]="credentials.password" placeholder="Password">
+		
+		<button class="c2a">Login</button>
 	
-	<label>Username 
-		<input type="text" [(ng-model)]="credentials.username">
-	</label>
+	</form>
 	
-	<label>Password 
-		<input type="password" [(ng-model)]="credentials.password">
-	</label>
-	 
-	<button class="c2a">Login</button>
-
-</form>
-
-<label id="companyDropdown">Select company <br>
-	<company-dropdown></company-dropdown>	
-</label>
-
+	<company-dropdown id="companyDropdown"></company-dropdown>
+	
+</div>

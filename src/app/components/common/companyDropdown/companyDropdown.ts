@@ -4,7 +4,7 @@ declare var jQuery;
 
 @Component({
 	selector: 'company-dropdown',
-	template: '<select style="width: 200px"></select>',
+	template: '<select style="width: 400px"></select>',
 })
 export class CompanyDropdown implements AfterViewInit {	
 	activeCompany: any; // todo: create interface ICompany when we know what a company object is
@@ -23,7 +23,8 @@ export class CompanyDropdown implements AfterViewInit {
 			change: (event: kendo.ui.DropDownListChangeEvent) => {
 				var companyID = event.sender.value().toString();
 				this.onCompanySelect(companyID);
-			}
+			},
+			optionLabel: 'Select a company'
 		}
 	}
 	
