@@ -39,7 +39,9 @@ var config = {
 
                 require.resolve('angular2/bundles/angular2.dev.js'),
                 require.resolve('angular2/bundles/router.dev.js'),
-                require.resolve('angular2/bundles/http.dev.js')
+                require.resolve('angular2/bundles/http.dev.js'),
+
+                require.resolve('jwt-decode/build/jwt-decode.min.js'),
             ],
             css: [
                 require.resolve('./kendo/styles/kendo.common.min.css')
@@ -159,6 +161,7 @@ gulp.task('build.dist',function (done){
 gulp.task('watch',function(){
     gulp.watch(config.src.app.ts,['build.dist.app.typescript'])
     gulp.watch(config.src.app.html,['build.dist.app.html'])
+    gulp.watch('./src/!(test)/**/*.sass', ['build.dist.compile.sass'])
     return gulp.watch(config.src.app.css,['build.dist.app.css']);
 
 });

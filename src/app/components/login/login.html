@@ -1,17 +1,15 @@
-<h3>Login</h3>
-
-<form (submit)="authenticate($event, username.value, password.value)">
-	<label>Username 
-		<input type="text" #username>
-	</label>
+<div class="login-component">
 	
-	<label>Password 
-		<input type="password" #password>
-	</label>
+	<form id="loginForm" class="login-form" (submit)="onSubmit($event)">
+		
+		<p>{{errorMessage}}</p>
+		<input type="text" [(ng-model)]="credentials.username" placeholder="Username">
+		<input type="password" [(ng-model)]="credentials.password" placeholder="Password">
+		
+		<button class="c2a">Login</button>
 	
-	<button class="c2a">Login</button>
+	</form>
 	
-</form>
-
-
-<company-dropdown></company-dropdown>
+	<company-dropdown id="companyDropdown"></company-dropdown>
+	
+</div>
