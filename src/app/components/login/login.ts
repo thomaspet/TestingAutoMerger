@@ -1,10 +1,3 @@
-// jwt.io
-// Bearer <asdf>
-// x-www-form-urlencoded
-// username: jonterje
-// password: MySuperP@ss!
-// grant_type: password
-
 import { Component } from 'angular2/angular2';
 import { Http, Headers, Response } from 'angular2/http';
 import { Router } from 'angular2/router';
@@ -26,7 +19,7 @@ export class Login {
 	errorMessage: string;
 	
 	constructor(public authService: AuthService, public router: Router) {		
-		this.loginForm = jQuery('#loginForm');//.show();
+		this.loginForm = jQuery('#loginForm');
 		this.companyDropdown = jQuery('#companyDropdown').hide();
 		this.errorMessage = "";
 		
@@ -75,8 +68,5 @@ export class Login {
 		}
 		
 		this.companyDropdown.fadeIn(200);
-		// this.loginForm.fadeOut(200, () => {
-		// 	this.companyDropdown.fadeIn(300);
-		// });
 	}
 }
