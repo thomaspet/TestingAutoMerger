@@ -1,0 +1,6 @@
+<article (click)="dropdownIsOpen = !dropdownIsOpen" class="navbar_userinfo_user">Ola Nordmann</article>
+<ul *ng-if="dropdownIsOpen">
+	<li *ng-for="#dropdownElement of dropdownElements">
+		<a href="">{{dropdownElement}}</a>
+	</li>
+</ul>

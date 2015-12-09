@@ -1,36 +1,4 @@
-<section class="navbar">
-
-    <div class="navbar_content">
-
-        <nav class="navbar_hamburger" (click)="burgerIsOpen = !burgerIsOpen" [ng-class]="{'-is-open': burgerIsOpen}">
-            <ul *ng-if="burgerIsOpen">
-                <a [router-link]="[routes.kitchensink.name]"><li>Kitchensink<span class="close"></span></li></a>            <a [router-link]="[routes.login.name]"><li>Login<span class="close"></span></li></a>
-                <a [router-link]="[routes.dashboard.name]"><li> Dashboard<span class="close"></span></li></a>
-                <a [router-link]="[routes.uniFormDemo.name]"><li>UniFromDemo<span class="close"></span></li></a>
-                <a [router-link]="[routes.kitchensink.name]"><li>Kitchensink<span class="close"></span></li></a>
-            </ul>
-        </nav>
-
-        <ol class="navbar_tabs">
-            <a [router-link]="[routes.dashboard.name]"><li>Dashboard<span class="close"></span></li></a>
-            <a [router-link]="[routes.uniFormDemo.name]"><li>UniFromDemo<span class="close"></span></li></a>
-        </ol>
-
-        <nav class="navbar_search">
-            <input type="search" placeholder="Søk etter tema eller funksjon">
-        </nav>
-
-        <div class="navbar_userinfo">
-
-            <article class="navbar_userinfo_user">Kari Knudsdatter</article>
-
-            <article class="navbar_userinfo_company">Uni Micro AS</article>
-
-        </div>
-
-    </div>
-
-</section>
+<uni-navbar></uni-navbar>
 
 <main>
     <uni-router-outlet></uni-router-outlet>
