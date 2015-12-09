@@ -2,46 +2,25 @@ import {ComponentProxy} from '../framework/core';
 import {AsyncRoute} from 'angular2/router';
 
 export var Routes = {
+	
 	login: new AsyncRoute({
 		path: '/login',
 		name: 'Login',
 		loader: () => ComponentProxy.LoadComponentAsync('Login', './app/components/login/login')
 	}),
+	
 	dashboard: new AsyncRoute({
 		path: '/',
     	name: 'Dashboard',
-		loader: ()=> ComponentProxy.LoadComponentAsync('DashboardComponent','./app/components/dashboard/dashboard.component')
+		loader: ()=> ComponentProxy.LoadComponentAsync('Dashboard','./app/components/dashboard/dashboard')
 	}),
-	heroes: new AsyncRoute({
-		path: '/heroes',
-        name: 'Heroes',
-		loader: ()=> ComponentProxy.LoadComponentAsync('HeroesComponent','./app/components/hero/heroes.component')
-	}),
-	detail: new AsyncRoute({
-		path: '/detail/:id',
-        name: 'Detail',
-		loader: ()=> ComponentProxy.LoadComponentAsync('HeroDetailComponent','./app/components/hero/hero-detail.component')
-	}),
-	order: new AsyncRoute({
-		path:'/orders',
-        name: 'Orders',
-		loader: ()=> ComponentProxy.LoadComponentAsync('OrderGrid','./app/components/order/order.component')
-	}),
-	orderDetail: new AsyncRoute({
-		path:'/orders/:id',
-        name: 'OrderDetail',
-		loader: ()=> ComponentProxy.LoadComponentAsync('OrderDetail','./app/components/order/orderDetail.component')
-	}),
-	modelDrivenForms: new AsyncRoute({
-		path:'/model-driven-forms',
-        name: 'ModelDrivenForms',
-		loader: ()=> ComponentProxy.LoadComponentAsync('ModelDrivenForms','./app/components/modelDrivenForms/modelDrivenForms.component')
-	}),
+	
 	uniFormDemo: new AsyncRoute({
 		path:'/uniformdemo',
 		name: 'UniFormDemo',
 		loader:()=> ComponentProxy.LoadComponentAsync('UniFormDemo','./app/components/uniFormDemo/uniFormDemoComponent')
 	}),
+	
 	kitchensink: new AsyncRoute({
 		path: '/kitchensink',
 		name: 'Kitchensink',

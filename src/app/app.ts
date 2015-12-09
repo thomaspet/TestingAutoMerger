@@ -5,12 +5,12 @@ import {Routes, APP_ROUTES} from './route.config';
 import {UniRouterOutlet} from './uniRouterOutlet';
 
 @Component({
-  selector: 'my-app',
-  templateUrl: './app/templates/nav.html',
+  selector: 'uni-app',
+  templateUrl: './app/app.html',
   directives: [ROUTER_DIRECTIVES, UniRouterOutlet]
 })
 @RouteConfig(APP_ROUTES)
-export class AppComponent {
+export class App {
   public title = 'Uni Economy';
   public routes = Routes;
 }
