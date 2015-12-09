@@ -161,6 +161,7 @@ gulp.task('build.dist',function (done){
 gulp.task('watch',function(){
     gulp.watch(config.src.app.ts,['build.dist.app.typescript'])
     gulp.watch(config.src.app.html,['build.dist.app.html'])
+    gulp.watch('./src/!(test)/**/*.sass', ['build.dist.compile.sass'])
     return gulp.watch(config.src.app.css,['build.dist.app.css']);
 
 });
