@@ -10,6 +10,14 @@ export class CompanyDropdown implements AfterViewInit {
 	activeCompany: any; // todo: create interface ICompany when we know what a company object is
 	dropdownOptions: kendo.ui.DropDownListOptions;
 	
+	// todo: get this from backend
+	companies = [
+		{ id: 1, name: 'Unimicro AS' },
+		{ id: 2, name: 'Google' },
+		{ id: 3, name: 'Apple' },
+		{ id: 4, name: 'Microsoft' },
+	];
+	
 	constructor(public elementRef: ElementRef, public router: Router) {
 		this.activeCompany = localStorage.getItem('activeCompany');		
 		
@@ -21,7 +29,7 @@ export class CompanyDropdown implements AfterViewInit {
 				data: this.getCompanies()
 			}),
 			change: (event: kendo.ui.DropDownListChangeEvent) => {
-				var companyID = event.sender.value().toString();
+				var companyID = event.sender.value();
 				this.onCompanySelect(companyID);
 			},
 			optionLabel: 'Select a company'
@@ -37,8 +45,15 @@ export class CompanyDropdown implements AfterViewInit {
 	}
 	
 	private onCompanySelect(companyID) {
-		// get full company object, not just ID?
-		localStorage.setItem('activeCompany', companyID);
+		var selectedCompany;
+		
+		this.companies.forEach((company) => {
+			if(company.id == companyID) {
+				selectedCompany = company;
+			}
+		})
+		
+		localStorage.setItem('activeCompany', JSON.stringify(selectedCompany));
 		
 		var url = localStorage.getItem('lastNavigationAttempt');
 		if (url) {
@@ -52,13 +67,7 @@ export class CompanyDropdown implements AfterViewInit {
 
 	private getCompanies(): Array<any> {		
 		// todo: get companies from api
-		var companies = [
-			{ id: 1, name: 'Unimicro AS' },
-			{ id: 2, name: 'Google' },
-			{ id: 3, name: 'Apple' },
-			{ id: 4, name: 'Microsoft' },
-		];
-		return companies;
+		return this.companies;
 	}
 	
 }
