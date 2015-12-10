@@ -48,8 +48,8 @@ export class UniFieldset {
     inputs: ['config'],
     directives: [UniField, UniFieldset],
     template: `
-        <article class="formSection-collapsable">
-            <h4 *ng-if="config.title">{{config.title}}</h4>
+        <article class="formSection-collapsable" [ng-class]="{'-is-open':collapsed}">
+            <h4 *ng-if="config.title" (click)="collapsed = !collapsed">{{config.title}}</h4>
             <div class="collapsable-content">
                 <template ng-for #field [ng-for-of]="config.fields" #i="index">
                     <template [ng-if]="field.fieldType === FIELD_TYPES.FIELD">
@@ -65,6 +65,7 @@ export class UniFieldset {
 })
 export class UniGroup {
     config;
+    collapsed:boolean = false;
     FIELD_TYPES;
     constructor() {
         this.FIELD_TYPES = FIELD_TYPES;
