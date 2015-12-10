@@ -1,6 +1,5 @@
 import {Component, Validators, Control} from 'angular2/angular2';
-import {UniForm} from '../../../framework/forms/uniForm';
-
+import {UniForm,FIELD_TYPES} from '../../../framework/forms/uniForm';
 function testAsyncValidator(c) {
 
     let p = new Promise((resolve)=>{
@@ -20,7 +19,7 @@ function testAsyncValidator(c) {
     directives: [UniForm],
     template: `
         <h1>Form demo</h1>
-        <uni-form (uni-form-submit)='onSubmit($event)' [config]='form'></uni-form>
+        <uni-form (uni-form-submit)='onSubmit($event)' [fields]='form'></uni-form>
     `
 })
 export class UniFormDemo {
@@ -31,6 +30,16 @@ export class UniFormDemo {
             autocomplete:{
                 id:"1",
                 name:"Felleskomponent",
+            },
+            autocomplete2:{
+                id:"1",
+                name:"Felleskomponent",
+            },
+            deep: {
+                autocomplete: {
+                    id:"1",
+                    name:"Felleskomponent",
+                }
             },
             combobox: '2',
             datepicker: new Date(),
@@ -46,7 +55,63 @@ export class UniFormDemo {
             { id: "4", name: 'Lønn' },
         ];
         let self = this;
-        this.form = [{
+        this.form = [
+            {
+                fieldType: FIELD_TYPES.GROUP,
+                title: "Group",
+                fields: [{
+                    fieldType: FIELD_TYPES.FIELD,
+                    model: self.model,
+                    label: 'Autocomplete label',
+                    type: 'autocomplete',
+                    field: 'deep.autocomplete',
+                    syncValidators: [
+                        {
+                            name: 'required',
+                            validator: Validators.required,
+                            message: 'field is required'
+                        }
+                    ],
+                    asyncValidators: [{
+                        name: 'async',
+                        validator:testAsyncValidator,
+                        message: 'Autocomplete should be Faktura'
+                    }],
+                    kOptions: {
+                        dataTextField: 'name',
+                        dataSource: new kendo.data.DataSource({data:mockDataSource})
+                    }
+                }]
+            },
+            {
+                fieldType: FIELD_TYPES.FIELDSET,
+                legend: 'Fieldset',
+                fields: [{
+                    fieldType: FIELD_TYPES.FIELD,
+                    model: self.model,
+                    label: 'Autocomplete label',
+                    type: 'autocomplete',
+                    field: 'autocomplete2',
+                    syncValidators: [
+                        {
+                            name: 'required',
+                            validator: Validators.required,
+                            message: 'field is required'
+                        }
+                    ],
+                    asyncValidators: [{
+                        name: 'async',
+                        validator:testAsyncValidator,
+                        message: 'Autocomplete should be Faktura'
+                    }],
+                    kOptions: {
+                        dataTextField: 'name',
+                        dataSource: new kendo.data.DataSource({data:mockDataSource})
+                    }
+                }]
+            },
+            {
+                fieldType: FIELD_TYPES.FIELD,
                 model: self.model,
                 label: 'Autocomplete label',
                 type: 'autocomplete',
@@ -69,6 +134,7 @@ export class UniFormDemo {
                 }
             },
             {
+                fieldType: FIELD_TYPES.FIELD,
                 model: self.model,
                 label: 'Combobox Label',
                 type: 'combobox',
@@ -82,6 +148,7 @@ export class UniFormDemo {
                 }
             },
             {
+                fieldType: FIELD_TYPES.FIELD,
                 model: self.model,
                 label: 'DatePicker Label',
                 type: 'datepicker',
@@ -89,6 +156,7 @@ export class UniFormDemo {
                 kOptions:  {}
             },
             {
+                fieldType: FIELD_TYPES.FIELD,
                 model: self.model,
                 label: 'Dropdown Label',
                 type: 'dropdown',
@@ -102,6 +170,7 @@ export class UniFormDemo {
                 }
             },
             {
+                fieldType: FIELD_TYPES.FIELD,
                 model: self.model,
                 label: 'Masked Label',
                 type: 'masked',
@@ -112,6 +181,7 @@ export class UniFormDemo {
                 }
             },
             {
+                fieldType: FIELD_TYPES.FIELD,
                 model: self.model,
                 label: 'Multiselect Label',
                 type: 'multiselect',
@@ -124,6 +194,7 @@ export class UniFormDemo {
                 }
             },
             {
+                fieldType: FIELD_TYPES.FIELD,
                 model: self.model,
                 label: 'Numeric Label',
                 type: 'numeric',
