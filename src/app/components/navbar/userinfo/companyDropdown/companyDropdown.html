@@ -1,1 +1,8 @@
-<article class="navbar_userinfo_company">Uni Micro AS</article>
+<article (click)="dropDownisOpen = !dropDownisOpen" class="navbar_userinfo_company">{{currentActiveCompany}}</article>
+
+<ul *ng-if="dropDownisOpen" class="company_drop_down">
+    <li *ng-for="#company of companies">
+        <a href="#" (click)="onCompanySelect(company, event)">{{company.name}}</a>
+    </li>
+</ul>
+
