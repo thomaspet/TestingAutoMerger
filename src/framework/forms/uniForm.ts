@@ -3,9 +3,11 @@ import {EventEmitter} from "angular2/core";
 import {NgSwitchWhen, NgSwitch, NgSwitchDefault, NgIf} from 'angular2/common';
 import {isArray} from 'angular2/src/facade/lang';
 import {UNI_CONTROL_DIRECTIVES} from '../controls';
-import {ShowError} from "../forms_old/showError";
-
-//import {ShowError} from "./showError";
+import {UniRadioGroup} from "../controls/radioGroup/uniRadioGroup";
+import {ShowError} from "./showError";
+import {UniField} from './uniField';
+import {UniFieldset} from './uniFieldset';
+import {UniGroup} from './uniGroup';
 
 declare var _;
 
@@ -13,63 +15,6 @@ export enum FIELD_TYPES {
     FIELD,
     FIELDSET,
     GROUP
-}
-
-@Component({
-    selector: 'uni-field',
-    inputs: ['config'],
-    directives: [UNI_CONTROL_DIRECTIVES, ShowError],
-    templateUrl: "framework/forms/uniField.html"
-})
-export class UniField {
-    config;
-}
-
-@Component({
-    selector: 'uni-fieldset',
-    inputs: ['config'],
-    directives: [UniField],
-    template: `<fieldset>
-        <legend *ng-if="config.legend">{{config.legend}}</legend>
-        <template ng-for #field [ng-for-of]="config.fields" #i="index">
-            <uni-field [config]="field"></uni-field>
-        </template>
-    </fieldset>`,
-})
-export class UniFieldset {
-    config;
-
-    constructor() {
-    }
-}
-
-@Component({
-    selector: 'uni-group',
-    inputs: ['config'],
-    directives: [UniField, UniFieldset],
-    template: `
-        <article class="formSection-collapsable" [ng-class]="{'-is-open':collapsed}">
-            <h4 *ng-if="config.title" (click)="collapsed = !collapsed">{{config.title}}</h4>
-            <div class="collapsable-content">
-                <template ng-for #field [ng-for-of]="config.fields" #i="index">
-                    <template [ng-if]="field.fieldType === FIELD_TYPES.FIELD">
-                        <uni-field [config]="field"></uni-field>
-                    </template>
-                    <template [ng-if]="field.fieldType === FIELD_TYPES.FIELDSET">
-                        <uni-fieldset [config]="field"></uni-fieldset>
-                    </template>
-                </template>
-            </div>
-        </article>
-    `
-})
-export class UniGroup {
-    config;
-    collapsed:boolean = false;
-    FIELD_TYPES;
-    constructor() {
-        this.FIELD_TYPES = FIELD_TYPES;
-    }
 }
 
 @Component({
