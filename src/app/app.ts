@@ -7,12 +7,17 @@ import {UniRouterOutlet} from './uniRouterOutlet';
 import {Navbar} from './components/navbar/navbar';
 
 @Component({
-  selector: 'uni-app',
-  templateUrl: './app/app.html',
-  directives: [ROUTER_DIRECTIVES, UniRouterOutlet, Navbar]
+    selector: 'uni-app',
+    templateUrl: './app/app.html',
+    directives: [ROUTER_DIRECTIVES, UniRouterOutlet, Navbar]
 })
 @RouteConfig(APP_ROUTES)
 export class App {
-  public title = 'Uni Economy';
-  public routes = Routes;
+    public routes = Routes;
+    
+    loggedIn(): boolean {
+        var token = localStorage.getItem('jwt');
+        return (token !== null);
+    }
+  
 }
