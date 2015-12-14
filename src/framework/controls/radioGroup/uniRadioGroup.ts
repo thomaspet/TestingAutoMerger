@@ -18,6 +18,7 @@ import {Component} from 'angular2/angular2';
                 [readonly]="config.readonly"
                 [disabled]="config.disabled"
                 [class.error]="config.control.touched && !config.control.valid"
+                (click)="updateFormValue(config.control,rb.value)"
                 />
                 <label>{{item[config.textField]}}</label>
             </template>
@@ -29,5 +30,9 @@ export class UniRadioGroup {
 
     constructor() {
 
+    }
+
+    updateFormValue(control,value) {
+        control.updateValue(value);
     }
 }
