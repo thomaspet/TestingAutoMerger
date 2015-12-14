@@ -97,12 +97,6 @@
      ------------------------------------------------------------------------->
     <script src="vendor.js?v=<%=VERSION%>"></script>
     <script>
-        System.config({
-            packages: {
-                'app': {defaultExtension: 'js'},
-                'framework': {defaultExtension: 'js'}
-            }
-        });
         System.import('app/bootstrap').catch(console.error.bind(console));
     </script>
 

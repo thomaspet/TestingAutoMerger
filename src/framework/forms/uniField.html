@@ -1,87 +1,87 @@
-<label [ng-switch]="config.type" ng-form *ng-if="isInput(config.type)">
+<label [ngSwitch]="config.type" ngForm *ngIf="isInput(config.type)">
     <span>{{config.label}}</span>
 
     <input
             autocomplete
-            [ng-control]="config.field"
+            [ngControl]="config.field"
             [config]="config"
-            [ng-class] = "config.classes"
-            *ng-switch-when="'autocomplete'"
+            [ngClass] = "config.classes"
+            *ngSwitchWhen="'autocomplete'"
             [readonly]="config.readonly"
             [disabled]="config.disabled"
     />
 
     <input
             dropdown
-            [ng-control]="config.field"
-            [ng-class] = "config.classes"
+            [ngControl]="config.field"
+            [ngClass] = "config.classes"
             [config]="config"
-            *ng-switch-when="'dropdown'"
+            *ngSwitchWhen="'dropdown'"
             [readonly]="config.readonly"
             [disabled]="config.disabled"
     />
 
     <input
             combobox
-            [ng-control]="config.field"
+            [ngControl]="config.field"
             [config]="config"
-            [ng-class] = "config.classes"
-            *ng-switch-when="'combobox'"
+            [ngClass] = "config.classes"
+            *ngSwitchWhen="'combobox'"
             [readonly]="config.readonly"
             [disabled]="config.disabled"
     />
 
     <select
             multiselect
-            [ng-control]="config.field"
+            [ngControl]="config.field"
             [config]="config"
-            [ng-class] = "config.classes"
-            *ng-switch-when="'multiselect'"
+            [ngClass] = "config.classes"
+            *ngSwitchWhen="'multiselect'"
             [disabled]="config.disabled"
     ></select>
 
     <input
             datepicker
-            [ng-control]="config.field"
+            [ngControl]="config.field"
             [config]="config"
-            [ng-class] = "config.classes"
-            *ng-switch-when="'datepicker'"
+            [ngClass] = "config.classes"
+            *ngSwitchWhen="'datepicker'"
             [readonly]="config.readonly"
             [disabled]="config.disabled"
     >
 
     <input
             masked
-            [ng-control]="config.field"
+            [ngControl]="config.field"
             [config]="config"
-            [ng-class] = "config.classes"
-            *ng-switch-when="'masked'"
+            [ngClass] = "config.classes"
+            *ngSwitchWhen="'masked'"
             [readonly]="config.readonly"
             [disabled]="config.disabled"
     />
 
     <input
             numeric
-            [ng-control]="config.field"
+            [ngControl]="config.field"
             [config]="config"
-            *ng-switch-when="'numeric'"
+            *ngSwitchWhen="'numeric'"
             [readonly]="config.readonly"
             [disabled]="config.disabled"
     />
 
     <input
             type="email"
-            [ng-control]="config.field"
-            [ng-class] = "config.classes"
-            *ng-switch-when="'email'"
+            [ngControl]="config.field"
+            [ngClass] = "config.classes"
+            *ngSwitchWhen="'email'"
             [readonly]="config.readonly"
             [disabled]="config.disabled"
     />
 
     <input
             type="password"
-            [ng-control]="config.field"
-            *ng-switch-when="'password'"
+            [ngControl]="config.field"
+            *ngSwitchWhen="'password'"
             [readonly]="config.readonly"
             [disabled]="config.disabled"
     />
@@ -90,9 +90,9 @@
     <input
             #cb
             type="checkbox"
-            [ng-control]="config.field"
-            [ng-class] = "config.classes"
-            *ng-switch-when="'checkbox'"
+            [ngControl]="config.field"
+            [ngClass] = "config.classes"
+            *ngSwitchWhen="'checkbox'"
             [readonly]="config.readonly"
             [disabled]="config.disabled"
             (change)="setFormValue(config.control, cb.checked)"
@@ -101,9 +101,9 @@
     <!-- radio needs its own component with multiple selects -->
     <input
             type="radio"
-            [ng-control]="config.field"
-            [ng-class] = "config.classes"
-            *ng-switch-when="'radio'"
+            [ngControl]="config.field"
+            [ngClass] = "config.classes"
+            *ngSwitchWhen="'radio'"
             [name]="config.field"
             [readonly]="config.readonly"
             [disabled]="config.disabled"
@@ -111,15 +111,15 @@
 
     <input
             type="text"
-            [ng-control]="config.field"
-            [ng-class] = "config.classes"
-            *ng-switch-default
+            [ngControl]="config.field"
+            [ngClass] = "config.classes"
+            *ngSwitchWhenDefault
             [name]="config.field"
             [readonly]="config.readonly"
             [disabled]="config.disabled"
     />
     <show-error [control]="config.control" [messages]="config.errorMessages"></show-error>
 </label>
-<uni-radio-group *ng-if="isRadioGroup(config.type)" [config]="config"></uni-radio-group>
+<uni-radio-group *ngIf="isRadioGroup(config.type)" [config]="config"></uni-radio-group>
 
 

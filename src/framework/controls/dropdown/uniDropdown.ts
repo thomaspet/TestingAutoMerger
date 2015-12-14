@@ -1,4 +1,4 @@
-import { Component, AfterViewInit, ElementRef, Input, Output, EventEmitter } from 'angular2/angular2';
+import { Component, AfterViewInit, ElementRef, Input, Output, EventEmitter } from 'angular2/core';
 declare var jQuery;
 
 @Component({

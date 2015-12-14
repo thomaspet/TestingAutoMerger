@@ -1,4 +1,5 @@
-import { Component, Input, NgIf, AfterViewInit} from 'angular2/angular2';
+import { Component, Input, AfterViewInit} from 'angular2/core';
+import {NgIf} from 'angular2/common';
 
 @Component({
 	selector: 'uni-table',

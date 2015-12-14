@@ -1,19 +1,19 @@
-import {Component} from 'angular2/angular2';
+import {Component} from 'angular2/core';
 
 @Component({
     selector: 'uni-radio-group',
     inputs: ['config'],
     template: `
         <fieldset>
-            <legend *ng-if="config.label">{{config.label}}</legend>
-            <template ng-for #item [ng-for-of]="config.items" #i="index">
+            <legend *ngIf="config.label">{{config.label}}</legend>
+            <template ngFor #item [ngForOf]="config.items" #i="index">
                 <input
                 #rb
                 type="radio"
                 [value]="item"
                 type="radio"
-                [ng-control]="config.field"
-                [ng-class] = "config.classes"
+                [ngControl]="config.field"
+                [ngClass] = "config.classes"
                 [name]="config.field"
                 [readonly]="config.readonly"
                 [disabled]="config.disabled"

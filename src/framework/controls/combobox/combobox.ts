@@ -1,4 +1,7 @@
-import {Directive, AfterViewInit, ElementRef, Input, Control, Observable,} from 'angular2/angular2';
+import {Directive, AfterViewInit, ElementRef, Input} from 'angular2/core';
+import { Observable } from 'rxjs/Observable';
+import 'rxjs/observable/fromEvent';
+import {Control} from 'angular2/common';
 
 export interface ComboboxConfig {
 	control: Control;

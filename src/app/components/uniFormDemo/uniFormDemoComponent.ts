@@ -1,4 +1,5 @@
-import {Component, Validators, Control} from 'angular2/angular2';
+import {Component} from 'angular2/core';
+import {Validators, Control} from 'angular2/common';
 import {UniForm,FIELD_TYPES} from '../../../framework/forms/uniForm';
 function testAsyncValidator(c) {
 
@@ -19,7 +20,7 @@ function testAsyncValidator(c) {
     directives: [UniForm],
     template: `
         <h1>Form demo</h1>
-        <uni-form (uni-form-submit)='onSubmit($event)' [fields]='form'></uni-form>
+        <uni-form (uniFormSubmit)='onSubmit($event)' [fields]='form'></uni-form>
     `
 })
 export class UniFormDemo {

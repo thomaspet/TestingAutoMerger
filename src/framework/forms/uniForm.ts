@@ -1,7 +1,5 @@
-import {Component, FORM_DIRECTIVES, FORM_PROVIDERS, Control, FormBuilder, Validators, OnInit} from 'angular2/angular2';
-import {EventEmitter} from "angular2/core";
-import {NgSwitchWhen, NgSwitch, NgSwitchDefault, NgIf} from 'angular2/common';
-import {isArray} from 'angular2/src/facade/lang';
+import {Component, OnInit ,EventEmitter} from 'angular2/core';
+import {FORM_DIRECTIVES, FORM_PROVIDERS, Control, FormBuilder, Validators} from "angular2/common";
 import {UNI_CONTROL_DIRECTIVES} from '../controls';
 import {UniRadioGroup} from "../controls/radioGroup/uniRadioGroup";
 import {ShowError} from "./showError";
@@ -19,24 +17,24 @@ export enum FIELD_TYPES {
 
 @Component({
     selector: 'uni-form',
-    directives: [FORM_DIRECTIVES, NgSwitchWhen, NgSwitch, NgSwitchDefault, NgIf, UniFieldset, UniGroup, UniField],
+    directives: [FORM_DIRECTIVES, UniField, UniFieldset, UniGroup],
     providers: [FORM_PROVIDERS],
     inputs: ['fields'],
     outputs: ['uniFormSubmit'],
     template: `
-        <form (submit)="onSubmit(form)" no-validate [ng-form-model]="form">
-            <template ng-for #field [ng-for-of]="fields" #i="index">
-                <template [ng-if]="field.fieldType === FIELD_TYPES.FIELD">
+        <form (submit)="onSubmit(form)" [ngFormModel]="form">
+
+           <template ngFor #field [ngForOf]="fields" #i="index">
+                <template [ngIf]="field.fieldType === FIELD_TYPES.FIELD">
                     <uni-field [config]="field"></uni-field>
                 </template>
-                <template [ng-if]="field.fieldType === FIELD_TYPES.FIELDSET">
+                <template [ngIf]="field.fieldType === FIELD_TYPES.FIELDSET">
                     <uni-fieldset [config]="field"></uni-fieldset>
                 </template>
-                <template [ng-if]="field.fieldType === FIELD_TYPES.GROUP">
+                <template [ngIf]="field.fieldType === FIELD_TYPES.GROUP">
                     <uni-group [config]="field"></uni-group>
                 </template>
             </template>
-
             <button type="submit" [disabled]="!form.valid">submit</button>
         </form>
     `
@@ -121,7 +119,7 @@ export class UniForm {
 
     private joinValidators(validators) {
         let list = [];
-        if (validators && isArray(validators)) {
+        if (validators && Array.isArray(validators)) {
             validators.forEach((validator)=> {
                 list.push(validator.validator);
 
@@ -138,7 +136,7 @@ export class UniForm {
     }
 
     private assignMessages(validators, list) {
-        if (validators && isArray(validators)) {
+        if (validators && Array.isArray(validators)) {
             validators.forEach((validator)=> {
                 list[validator.name] = validator.message;
             });

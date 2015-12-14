@@ -2,18 +2,19 @@
 
     <div class="navbar_content">
 
-        <nav class="navbar_hamburger" (click)="burgerIsOpen = !burgerIsOpen" [ng-class]="{'-is-open': burgerIsOpen}">
-            <ul *ng-if="burgerIsOpen">
-                <a [router-link]="[routes.kitchensink.name]"><li>Kitchensink<span class="close"></span></li></a>            <a [router-link]="[routes.login.name]"><li>Login<span class="close"></span></li></a>
-                <a [router-link]="[routes.dashboard.name]"><li> Dashboard<span class="close"></span></li></a>
-                <a [router-link]="[routes.uniFormDemo.name]"><li>UniFromDemo<span class="close"></span></li></a>
-                <a [router-link]="[routes.kitchensink.name]"><li>Kitchensink<span class="close"></span></li></a>
+        <nav class="navbar_hamburger" (click)="burgerIsOpen = !burgerIsOpen" [ngClass]="{'-is-open': burgerIsOpen}">
+            <ul *ngIf="burgerIsOpen">
+                <a [routerLink]="[routes.kitchensink.name]"><li>Kitchensink<span class="close"></span></li></a>
+                <a [routerLink]="[routes.login.name]"><li>Login<span class="close"></span></li></a>
+                <a [routerLink]="[routes.dashboard.name]"><li> Dashboard<span class="close"></span></li></a>
+                <a [routerLink]="[routes.uniFormDemo.name]"><li>UniFromDemo<span class="close"></span></li></a>
+                <a [routerLink]="[routes.kitchensink.name]"><li>Kitchensink<span class="close"></span></li></a>
             </ul>
         </nav>
 
         <ol class="navbar_tabs">
-            <a [router-link]="[routes.dashboard.name]"><li>Dashboard<span class="close"></span></li></a>
-            <a [router-link]="[routes.uniFormDemo.name]"><li>UniFromDemo<span class="close"></span></li></a>
+            <a [routerLink]="[routes.dashboard.name]"><li>Dashboard<span class="close"></span></li></a>
+            <a [routerLink]="[routes.uniFormDemo.name]"><li>UniFromDemo<span class="close"></span></li></a>
         </ol>
 
         <nav class="navbar_search">

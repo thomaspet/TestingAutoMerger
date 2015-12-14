@@ -33,17 +33,19 @@ var config = {
 
                 require.resolve('jquery/dist/jquery.min.js'),
                 require.resolve('bootstrap/dist/js/bootstrap.min.js'),
+                require.resolve('jwt-decode/build/jwt-decode.min.js'),
+                require.resolve('lodash/index.js'),
                 require.resolve('./kendo/js/kendo.all.min.js'),
 
                 require.resolve('systemjs/dist/system.src.js'),
 
+                require.resolve('./system.config.js'),
+
                 require.resolve('angular2/bundles/angular2.dev.js'),
                 require.resolve('angular2/bundles/router.dev.js'),
                 require.resolve('angular2/bundles/http.dev.js'),
-
-                require.resolve('jwt-decode/build/jwt-decode.min.js'),
-                require.resolve('lodash/index.js'),
             ],
+            rxjs: './node_modules/rxjs/**/*.js',
             css: [
                 require.resolve('./kendo/styles/kendo.common.min.css')
             ]
@@ -78,7 +80,13 @@ gulp.task('clean', function(done){
 /********************/
 /*  BUILDING TASKS  */
 /********************/
-gulp.task('build.dist.vendor.js', function(){
+
+gulp.task('rxjs',function(){
+    return gulp.src('./node_modules/rxjs/**/*.js')
+        .pipe(gulp.dest('./dist/lib/rxjs'));
+})
+
+gulp.task('build.dist.vendor.js', ['rxjs'], function(){
     return gulp.src(config.src.vendor.js)
        .pipe(plugins.plumber())
        .pipe(plugins.concat(config.dist.vendor.js))

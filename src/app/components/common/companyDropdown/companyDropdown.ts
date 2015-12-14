@@ -1,4 +1,4 @@
-import { Component, AfterViewInit, ElementRef } from 'angular2/angular2';
+import { Component, AfterViewInit, ElementRef } from 'angular2/core';
 import { Router } from 'angular2/router';
 declare var jQuery;
 
