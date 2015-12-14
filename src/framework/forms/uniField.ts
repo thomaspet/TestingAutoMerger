@@ -22,4 +22,8 @@ export class UniField {
     isInput(type:string) {
         return  !this.isRadioGroup(type);
     }
+
+    setFormValue(control,value) {
+        control.updateValue(value);
+    }
 }

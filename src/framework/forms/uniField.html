@@ -95,7 +95,7 @@
             *ng-switch-when="'checkbox'"
             [readonly]="config.readonly"
             [disabled]="config.disabled"
-            (change)="setFor(cb.checked)"
+            (change)="setFormValue(config.control, cb.checked)"
     />
 
     <!-- radio needs its own component with multiple selects -->
