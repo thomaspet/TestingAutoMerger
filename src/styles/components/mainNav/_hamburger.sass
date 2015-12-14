@@ -1,4 +1,4 @@
-.navbar_hamburger
+﻿.navbar_hamburger
   @extend %navbarText
   @extend %clickable
   padding: 0 1rem
@@ -23,9 +23,80 @@
     background: $uni-color-negative
     color: $uni-color-C2A
     font-size: 1rem
-    box-shadow: 0 0 1rem transparentize($uni-color-positive, .8)
+    //box-shadow: 0 0 1rem transparentize($uni-color-positive, .8)
     padding: 1rem 2rem
     top: 1.5rem
     margin-left: -1rem
     list-style: none
     z-index: 99
+
+.navbar_menu
+  display: none
+  opacity: 0
+
+.navbar_hamburger.is-active
+
+  & .navbar_menu,
+  & .navbar_menu:hover,
+  & .navbar_menu:focus
+    @include unigrid-flush(10)
+    display: block
+    position: absolute
+    top: 2rem
+    //margin-left: -1rem
+    background: linear-gradient(to bottom, $uni-color-negative, $uni-color-scale9)
+    list-style: none
+    opacity: 1
+    transition: .5s ease
+    border-radius: 0 0 .2rem .2rem
+    min-height: 30rem
+    cursor: default
+
+    & *:hover,
+    & *:focus
+      cursor: default
+      background: transparent
+
+    & li
+      color: $uni-color-positive
+      width: 11rem
+      height: 2rem
+
+      &:hover,
+      &:focus
+        background: transparent
+        cursor: pointer
+
+      & ul
+        display: none
+
+      &.is-active
+        background: $uni-color-scale9
+        color: $uni-color-C2A
+        font-weight: 400
+
+        & ul
+          display: block
+          margin-left: 11rem
+          position: absolute
+          top: 0
+          height: 30rem
+          list-style: none
+          padding: 0
+          border-left: .1rem solid $uni-color-scale9
+          background: transparent
+
+          & h3
+            color: $uni-color-positive
+            margin: 1rem 2rem 0
+            font-weight: 200
+
+          & li
+            margin: 0
+            padding: 0 2rem
+            height: 3rem
+
+            &:hover
+              background: transparent
+              cursor: pointer
+              color: $uni-color-C2A
