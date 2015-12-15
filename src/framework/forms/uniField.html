@@ -3,7 +3,7 @@
 
     <input
             autocomplete
-            [ngControl]="config.field"
+            [ngFormControl]="config.control"
             [config]="config"
             [ngClass] = "config.classes"
             *ngSwitchWhen="'autocomplete'"
@@ -13,7 +13,7 @@
 
     <input
             dropdown
-            [ngControl]="config.field"
+            [ngFormControl]="config.control"
             [ngClass] = "config.classes"
             [config]="config"
             *ngSwitchWhen="'dropdown'"
@@ -23,7 +23,7 @@
 
     <input
             combobox
-            [ngControl]="config.field"
+            [ngFormControl]="config.control"
             [config]="config"
             [ngClass] = "config.classes"
             *ngSwitchWhen="'combobox'"
@@ -33,7 +33,7 @@
 
     <select
             multiselect
-            [ngControl]="config.field"
+            [ngFormControl]="config.control"
             [config]="config"
             [ngClass] = "config.classes"
             *ngSwitchWhen="'multiselect'"
@@ -42,7 +42,7 @@
 
     <input
             datepicker
-            [ngControl]="config.field"
+            [ngFormControl]="config.control"
             [config]="config"
             [ngClass] = "config.classes"
             *ngSwitchWhen="'datepicker'"
@@ -52,7 +52,7 @@
 
     <input
             masked
-            [ngControl]="config.field"
+            [ngFormControl]="config.control"
             [config]="config"
             [ngClass] = "config.classes"
             *ngSwitchWhen="'masked'"
@@ -62,7 +62,7 @@
 
     <input
             numeric
-            [ngControl]="config.field"
+            [ngFormControl]="config.control"
             [config]="config"
             *ngSwitchWhen="'numeric'"
             [readonly]="config.readonly"
@@ -71,7 +71,7 @@
 
     <input
             type="email"
-            [ngControl]="config.field"
+            [ngFormControl]="config.control"
             [ngClass] = "config.classes"
             *ngSwitchWhen="'email'"
             [readonly]="config.readonly"
@@ -80,7 +80,7 @@
 
     <input
             type="password"
-            [ngControl]="config.field"
+            [ngFormControl]="config.control"
             *ngSwitchWhen="'password'"
             [readonly]="config.readonly"
             [disabled]="config.disabled"
@@ -90,7 +90,7 @@
     <input
             #cb
             type="checkbox"
-            [ngControl]="config.field"
+            [ngFormControl]="config.control"
             [ngClass] = "config.classes"
             *ngSwitchWhen="'checkbox'"
             [readonly]="config.readonly"
@@ -101,7 +101,7 @@
     <!-- radio needs its own component with multiple selects -->
     <input
             type="radio"
-            [ngControl]="config.field"
+            [ngFormControl]="config.control"
             [ngClass] = "config.classes"
             *ngSwitchWhen="'radio'"
             [name]="config.field"
@@ -111,7 +111,7 @@
 
     <input
             type="text"
-            [ngControl]="config.field"
+            [ngFormControl]="config.control"
             [ngClass] = "config.classes"
             *ngSwitchWhenDefault
             [name]="config.field"

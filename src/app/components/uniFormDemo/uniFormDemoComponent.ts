@@ -1,6 +1,9 @@
 import {Component} from 'angular2/core';
 import {Validators, Control} from 'angular2/common';
 import {UniForm,FIELD_TYPES} from '../../../framework/forms/uniForm';
+
+import 'rxjs/add/operator/debounceTime';
+
 function testAsyncValidator(c) {
 
     let p = new Promise((resolve)=>{
@@ -14,18 +17,19 @@ function testAsyncValidator(c) {
     });
     return p;
 }
-
 @Component({
     selector: 'uni-form-demo',
     directives: [UniForm],
     template: `
         <h1>Form demo</h1>
         <uni-form (uniFormSubmit)='onSubmit($event)' [fields]='form'></uni-form>
+
     `
 })
 export class UniFormDemo {
     form;
     model;
+
     constructor() {
         this.model= {
             autocomplete:{
