@@ -47,3 +47,43 @@ export class CompanyDropdown implements AfterViewInit {
 
     ngAfterViewInit() { }
 }
+
+// import {Component, AfterViewInit} from 'angular2/angular2';
+// declare var jQuery;
+// 
+// @Component({
+// 	selector: 'uni-company-dropdown',
+// 	templateUrl: 'app/components/navbar/userinfo/companyDropdown/companyDropdown.html'
+// })
+// export class CompanyDropdown implements AfterViewInit {
+//     companies: Array<any>;
+//     activeCompany: string;
+// 
+//     constructor() {
+//         this.activeCompany = localStorage.getItem('activeCompany');
+//         this.companies = this.getCompanies();
+//         
+//     }
+// 	
+//     //How to get companies? Already gotten?
+//     getCompanies(): Array<any> {
+//         return [
+//             { id: 1, name: 'Unimicro AS' },
+//             { id: 2, name: 'Google' },
+//             { id: 3, name: 'Apple' },
+//             { id: 4, name: 'Microsoft' },
+//         ]
+//     }
+// 
+//     selectCompany(company): void {
+//         
+//         
+//         if (comp.name != this.currentActiveCompany) {
+//             localStorage.setItem('activeCompany', JSON.stringify(comp));
+//             this.currentActiveCompany = this.getCurrentActiveCompany();
+//         }
+//         this.dropDownisOpen = false;
+//     }
+// 
+//     ngAfterViewInit() { }
+// }
