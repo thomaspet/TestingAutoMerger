@@ -100,9 +100,8 @@ export class UniForm {
         let syncValidators = this.composeSyncValidators(c);
         let asyncValidators = this.composeAsyncValidators(c);
         let messages = this.composeMessages(c);
-        let controlArgs = [_.get(c.model,c.field), syncValidators, asyncValidators];
-        let control = new (Function.prototype.bind.apply(Control, [null].concat(controlArgs)));
-
+        let control = new Control("", syncValidators, asyncValidators);
+        control.updateValue(_.get(c.model,c.field));
         c.control = control;
         c.errorMessages = messages;
     }

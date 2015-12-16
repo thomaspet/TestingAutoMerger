@@ -1,36 +1,46 @@
 import {Component} from 'angular2/core';
-import {Validators, Control} from 'angular2/common';
+import {Validators, Control, FormBuilder} from 'angular2/common';
 import {UniForm,FIELD_TYPES} from '../../../framework/forms/uniForm';
 
-import 'rxjs/add/operator/debounceTime';
+import 'rxjs/add/observable/fromEvent';
 
-function testAsyncValidator(c) {
-
+function testAsyncValidator(control) {
     let p = new Promise((resolve)=>{
-        c.valueChanges.debounceTime(500).subscribe((value) => {
-            if (value.name === 'Faktura') {
+        setTimeout(()=>{
+            if (control.value.name === 'Faktura') {
                 resolve(null);
             } else {
                 resolve({'async':true});
             }
-        });
+        },500);
     });
+    p.catch((e)=>console.error(e));
     return p;
 }
+function test2(c) {
+    return new Promise((r)=>{
+        setTimeout(()=>{
+            r(null);
+        },1000);
+    });
+}
+
 @Component({
     selector: 'uni-form-demo',
     directives: [UniForm],
     template: `
         <h1>Form demo</h1>
         <uni-form (uniFormSubmit)='onSubmit($event)' [fields]='form'></uni-form>
-
     `
 })
 export class UniFormDemo {
     form;
     model;
-
-    constructor() {
+    myControl;
+    f;
+    constructor(fb:FormBuilder) {
+        this.myControl = new Control("aa",Validators.required,testAsyncValidator);
+        this.f = fb.group({"test":this.myControl});
         this.model= {
             autocomplete:{
                 id:"1",
