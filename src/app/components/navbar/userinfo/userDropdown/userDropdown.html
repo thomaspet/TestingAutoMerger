@@ -1,7 +1,7 @@
-<article (click)="dropdownIsOpen = !dropdownIsOpen" class="navbar_userinfo_user">{{loggedInAs}}</article>
+<article class="navbar_userinfo_user">{{username}}</article>
 
-<ul *ng-if="dropdownIsOpen" class="company_drop_down">
+<ul id="navbar_user_dropdown" class="userinfo_dropdown">
 	<li *ng-for="#dropdownElement of dropdownElements">
-		<a href="" (click)="onUserRouteSelected(dropdownElement, event)">{{dropdownElement.name}}</a>
+		<a (click)="dropdownElement.action()">{{dropdownElement.title}}</a>
 	</li>
 </ul>

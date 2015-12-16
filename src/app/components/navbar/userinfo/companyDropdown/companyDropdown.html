@@ -1,8 +1,16 @@
 <article (click)="dropDownisOpen = !dropDownisOpen" class="navbar_userinfo_company">{{currentActiveCompany}}</article>
 
-<ul *ng-if="dropDownisOpen" class="company_drop_down">
+<ul *ng-if="dropDownisOpen" class="userinfo_dropdown">
     <li *ng-for="#company of companies">
         <a href="#" (click)="onCompanySelect(company, event)">{{company.name}}</a>
     </li>
 </ul>
 
+<!--<article class="navbar_userinfo_company">
+    <h3>{{currentActiveCompany}}</h3>
+    
+    <section class="company_info">
+        
+    </section>
+
+</article>-->

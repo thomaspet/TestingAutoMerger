@@ -1,49 +1,61 @@
-import {Component, AfterViewInit} from 'angular2/angular2';
+import {Component, Observable, AfterViewInit} from 'angular2/angular2';
 import {Router} from 'angular2/router';
+
+declare var jQuery;
+
+interface UserDropdownItem {
+    title: String,
+    action: Function
+}
 
 @Component({
     selector: 'uni-user-dropdown',
     templateUrl: 'app/components/navbar/userinfo/userDropdown/userDropdown.html'
 })
 export class UserDropdown implements AfterViewInit {
-    dropdownIsOpen: boolean;
-    dropdownElements: Array<any>;
-    loggedInAs: string;
+    dropdownElements: Array<UserDropdownItem>;
+    username: string;
+    
+    clickSubscription: any;
 
     constructor(public router: Router) {
-        this.dropdownIsOpen = false;
-        this.dropdownElements = this.getDropdownElements();
-        this.loggedInAs = this.getLoggedInAs();
-    }
-
-    //Should this be generic, or does users have different options here?
-    getDropdownElements(): Array<any> {
-
-        return [
-            { name: 'Min side', href: '/uniformdemo' },
-            { name: 'Innstillinger', href: '/kitchensink' },
-            { name: 'Hjelp', href: '/' },
-            { name: 'Noe annet', href: '/kitchensink' },
-            { name: 'Logg ut', href: '/login' },
+        this.username = JSON.parse(localStorage.getItem('jwt_decoded')).unique_name;
+        
+        this.dropdownElements = [
+            { title: 'Settings',  action: () => { this.navigate('/') } },
+            { title: 'Help'    ,  action: () => { this.navigate('/') } },
+            { title: 'Log out' ,  action: () => { this.logout() }      },
         ];
+                
     }
-
-    getLoggedInAs(): string {
-        //Where to get logged in users full name? Is that going to be in the token?
-        var user = JSON.parse(localStorage.getItem('jwt_decoded'));
-        if (user) {
-            return user.unique_name;
-        } else {
-            return 'Ola Nordmann';
-        }
+    
+    ngAfterViewInit() {        
+        var dropdown = jQuery('#navbar_user_dropdown').hide();
+        
+        this.clickSubscription =  Observable.fromEvent(document, 'click')
+        .subscribe(
+            (event: any) => {
+                var parentTag = event.target.parentNode.tagName;
+                if (parentTag === 'UNI-USER-DROPDOWN') {
+                    dropdown.toggle();
+                } else {
+                    dropdown.hide();
+                }
+            }
+        );
     }
-
-    onUserRouteSelected(action, e): void {
-        event.preventDefault();
-
-        this.dropdownIsOpen = false;
-        this.router.navigateByUrl(action.href);	
+    
+    navigate(url: string): void {        
+        this.router.navigateByUrl(url);
+    }
+    
+    logout(): void {
+        // Since /login removes the navbar we need to ubsubscribe to avoid duplicate subscriptions if used logs back in 
+        this.clickSubscription.unsubscribe();
+        
+        localStorage.removeItem('jwt');
+        localStorage.removeItem('jwt_decoded');
+        this.router.navigateByUrl('/login');
     }
 	
-	ngAfterViewInit() {}
 }
