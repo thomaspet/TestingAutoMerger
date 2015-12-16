@@ -37,10 +37,11 @@ export class UserDropdown implements AfterViewInit {
         this.clickSubscription =  Observable.fromEvent(document, 'click')
         .subscribe(
             (event: any) => {
-                var parentNode = event.target.parentNode;
-                if (parentNode && parentNode.tagName === 'UNI-USER-DROPDOWN') {
-                    dropdown.toggle();
+                // Toggle dropdown visibility when clicking the navbar item
+                if (jQuery(event.target).closest('.navbar_userinfo_user').length) {
+                    dropdown.toggle();    
                 } else {
+                    // Hide dropdown on clicks outside
                     dropdown.hide();
                 }
             }
@@ -51,13 +52,13 @@ export class UserDropdown implements AfterViewInit {
         this.router.navigateByUrl(url);
     }
     
-    logout(): void {
-        // Since /login removes the navbar we need to ubsubscribe to avoid duplicate subscriptions if used logs back in 
-        this.clickSubscription.unsubscribe();
-        
+    logout(): void {        
         localStorage.removeItem('jwt');
         localStorage.removeItem('jwt_decoded');
-        this.router.navigateByUrl('/login');
+        this.navigate('/login');
     }
-	
+    
+    ngOnDestroy() {
+        this.clickSubscription.unsubscribe();
+    }	
 }

@@ -1,7 +1,8 @@
 <article class="navbar_userinfo_company">
-    <h3 (click)="showSection = !showSection">{{activeCompany.name}}</h3>
     
-    <section *ngIf="showSection" id="company_info">
+    <span >{{activeCompany.name}}</span>
+    
+    <section id="company_info">
         <p>Org.nr 123456789</p>
         <p>Kontaktinfo: aasdasfasdasd</p>
 
@@ -9,11 +10,3 @@
     </section>
 
 </article>
-
-<!--<article (click)="dropDownisOpen = !dropDownisOpen" class="navbar_userinfo_company">{{currentActiveCompany}}</article>
-
-<ul *ngIf="dropDownisOpen" class="userinfo_dropdown">
-    <li *ngFor="#company of companies">
-        <a href="#" (click)="onCompanySelect(company, event)">{{company.name}}</a>
-    </li>
-</ul>-->

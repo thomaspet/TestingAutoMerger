@@ -1,6 +1,7 @@
-import {Component, AfterViewInit} from 'angular2/core';
+import {Component, AfterViewInit, OnDestroy} from 'angular2/core';
 import {Combobox, ComboboxConfig} from '../../../../../framework/controls/combobox/combobox'
-
+import {Observable} from 'rxjs/Observable';
+import 'rxjs/observable/fromEvent';
 declare var jQuery;
 
 @Component({
@@ -8,13 +9,13 @@ declare var jQuery;
 	templateUrl: 'app/components/navbar/userinfo/companyDropdown/companyDropdown.html',
     directives: [Combobox]
 })
-export class CompanyDropdown implements AfterViewInit {
+export class CompanyDropdown implements AfterViewInit, OnDestroy {
     companies: Array<any>;
     activeCompany: any;
     comboboxConfig: ComboboxConfig;
     onCompanySelect: Function;
     
-    showSection: boolean = false;
+   clickSubscription: any;
 
     constructor() {
         this.activeCompany = JSON.parse(localStorage.getItem('activeCompany'));
@@ -33,8 +34,33 @@ export class CompanyDropdown implements AfterViewInit {
 				}),
 				template: '<span>#: data.id # - #: data.name #</span>'
 			}
-		}
-            
+		}  
+    }
+    
+    ngAfterViewInit() {
+        var companySection = jQuery('#company_info').hide();
+        
+        this.clickSubscription =  Observable.fromEvent(document, 'click')
+        .subscribe(
+            (event: any) => {
+                
+                // Toggle section visibility when clicking the navbar item
+                if (jQuery(event.target).closest('.navbar_userinfo_company').length) {
+                    
+                    // Avoid hiding section on clicks inside it
+                    if (!jQuery(event.target).closest('#company_info').length) {
+                        companySection.toggle();
+                    }
+                } else {
+                    // Hide section on clicks outside
+                    companySection.hide();
+                }
+            }
+        );
+    }
+    
+    ngOnDestroy() {
+        this.clickSubscription.unsubscribe();
     }
 	
     //How to get companies? Already gotten?
