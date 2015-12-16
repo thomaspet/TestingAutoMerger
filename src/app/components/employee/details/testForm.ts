@@ -1,27 +1,26 @@
-import {Component, Input, Output, EventEmitter, NgModel} from 'angular2/core';
+import {Component, Input, AfterViewInit} from 'angular2/core';
+import {CORE_DIRECTIVES, FormBuilder, Control, Validators} from 'angular2/common';
 
-Component({
+@Component({
 	selector: 'test-form',
 	template: `
-		<form (submit)="onSubmit()">
-			<input type="text" [(ngModel)]="model.SocialSecurityNumber">
+		<form [ngFormModel]="form" (submit)="onSubmit()">
+			<input ngControl="ssn" type="text"/>
+			<button type="submit">Lagre</button>
 		</form>
 	`,
-	host: {
-		'[value]': 'model',
-		'(input)': 'modelChange.next($event.target.value)'
-	}
+	directives: [CORE_DIRECTIVES]
 })
-export class TestForm {
-	@Input() model: any;
-	@Output() modelChange: EventEmitter<any>;
+export class TestForm implements AfterViewInit {
+	@Input() model;
+	@Input() onSubmit: Function;
+	form;	
 	
-	constructor() {
-		this.modelChange = new EventEmitter<any>();
+	constructor(public fb: FormBuilder) {}
+	
+	ngAfterViewInit() {
+		this.form = this.fb.group({
+			ssn: ["", Validators.required] //new Control(this.model.SocialSecurityNumber, Validators.required)
+		});
 	}
-	
-	onSubmit() {
-		this.modelChange.next(this.model);
-	}	
-	
 }
