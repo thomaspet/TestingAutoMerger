@@ -1,5 +1,6 @@
 /// <reference path="../../../../kendo/typescript/kendo.all.d.ts" />
-import { FORM_DIRECTIVES, NgControl, FormBuilder, Component} from 'angular2/angular2';
+import {Component} from 'angular2/core';
+import {FORM_DIRECTIVES, NgControl, FormBuilder} from 'angular2/common';
 import {UniTable, UniTableConfig} from '../../../framework/uniTable';
 
 import {

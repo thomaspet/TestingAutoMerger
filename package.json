@@ -7,14 +7,18 @@
     "test": "gulp clean & gulp build.dist & gulp test.typescript & karma start karma.conf.js"
   },
   "dependencies": {
-    "angular2": "2.0.0-alpha.47",
+    "angular2": "2.0.0-alpha.53",
     "bootstrap": "^3.3.5",
-    "es6-shim": "^0.33.13",
+    "es6-promise":"^3.0.2",
+    "es6-shim": "^0.33.3",
     "jquery": "^2.1.4",
     "jwt-decode": "^1.4.0",
+    "lodash": "^3.10.1",
     "promise-polyfill": "^2.1.0",
     "reflect-metadata": "^0.1.2",
-    "systemjs": "0.19.2"
+    "rxjs": "^5.0.0-alpha.14",
+    "systemjs": "0.19.2",
+    "zone.js": "0.5.8"
   },
   "devDependencies": {
     "gulp": "^3.9.0",

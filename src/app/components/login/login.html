@@ -3,8 +3,8 @@
 	<form id="loginForm" class="login-form" (submit)="onSubmit($event)">
 		
 		<p>{{errorMessage}}</p>
-		<input type="text" [(ng-model)]="credentials.username" placeholder="Username">
-		<input type="password" [(ng-model)]="credentials.password" placeholder="Password">
+		<input type="text" [(ngModel)]="credentials.username" placeholder="Username">
+		<input type="password" [(ngModel)]="credentials.password" placeholder="Password">
 		
 		<button class="c2a">Login</button>
 	

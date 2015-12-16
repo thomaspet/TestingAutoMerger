@@ -43,3 +43,35 @@
 
             &.half
                 width: calc(50% - 2.1rem)
+
+.formSection-collapsable
+    clear: both
+
+    h4
+        color: $uni-color-scale5
+        font-size: 1rem
+        text-transform: uppercase
+        padding-top: 1rem
+        padding-bottom: .2rem
+        border-bottom: .2rem solid $uni-color-scale9
+        cursor: pointer
+
+        &:before
+            content: '\25BA'
+            display: inline-block
+            margin-right: 1rem
+            color: $uni-color-scale6
+
+
+    &.-is-open
+        h4:before
+            content: '\25BC'
+
+        .collapsable-content
+            @include clearfix
+            display: block
+
+    .collapsable-content
+        display: none
+        padding-top: 1rem
+

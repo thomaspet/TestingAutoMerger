@@ -1,4 +1,5 @@
-import {Directive, AfterViewInit, ElementRef, Input, Control} from 'angular2/angular2';
+import {Directive, AfterViewInit, ElementRef, Input} from 'angular2/core';
+import {Control} from 'angular2/common';
 
 export interface NumericInputConfig {
 	control: Control,

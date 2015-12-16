@@ -1,5 +1,5 @@
 <div class="uni-table-header">
-	<input type="text" *ng-if="config.searchable" [(ng-model)]="filterString" (keyup)="filterTable()" >
+	<input type="text" *ngIf="config.searchable" [(ngModel)]="filterString" (keyup)="filterTable()" >
 </div>
 
 <!-- Kendo grid is compiled to this div -->

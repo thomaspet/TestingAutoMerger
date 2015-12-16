@@ -1,0 +1,125 @@
+<label [ngSwitch]="config.type" ngForm *ngIf="isInput(config.type)">
+    <span>{{config.label}}</span>
+
+    <input
+            autocomplete
+            [ngFormControl]="config.control"
+            [config]="config"
+            [ngClass] = "config.classes"
+            *ngSwitchWhen="'autocomplete'"
+            [readonly]="config.readonly"
+            [disabled]="config.disabled"
+    />
+
+    <input
+            dropdown
+            [ngFormControl]="config.control"
+            [ngClass] = "config.classes"
+            [config]="config"
+            *ngSwitchWhen="'dropdown'"
+            [readonly]="config.readonly"
+            [disabled]="config.disabled"
+    />
+
+    <input
+            combobox
+            [ngFormControl]="config.control"
+            [config]="config"
+            [ngClass] = "config.classes"
+            *ngSwitchWhen="'combobox'"
+            [readonly]="config.readonly"
+            [disabled]="config.disabled"
+    />
+
+    <select
+            multiselect
+            [ngFormControl]="config.control"
+            [config]="config"
+            [ngClass] = "config.classes"
+            *ngSwitchWhen="'multiselect'"
+            [disabled]="config.disabled"
+    ></select>
+
+    <input
+            datepicker
+            [ngFormControl]="config.control"
+            [config]="config"
+            [ngClass] = "config.classes"
+            *ngSwitchWhen="'datepicker'"
+            [readonly]="config.readonly"
+            [disabled]="config.disabled"
+    >
+
+    <input
+            masked
+            [ngFormControl]="config.control"
+            [config]="config"
+            [ngClass] = "config.classes"
+            *ngSwitchWhen="'masked'"
+            [readonly]="config.readonly"
+            [disabled]="config.disabled"
+    />
+
+    <input
+            numeric
+            [ngFormControl]="config.control"
+            [config]="config"
+            *ngSwitchWhen="'numeric'"
+            [readonly]="config.readonly"
+            [disabled]="config.disabled"
+    />
+
+    <input
+            type="email"
+            [ngFormControl]="config.control"
+            [ngClass] = "config.classes"
+            *ngSwitchWhen="'email'"
+            [readonly]="config.readonly"
+            [disabled]="config.disabled"
+    />
+
+    <input
+            type="password"
+            [ngFormControl]="config.control"
+            *ngSwitchWhen="'password'"
+            [readonly]="config.readonly"
+            [disabled]="config.disabled"
+    />
+
+    <!-- checkbox needs its own component with multiple selects -->
+    <input
+            #cb
+            type="checkbox"
+            [ngFormControl]="config.control"
+            [ngClass] = "config.classes"
+            *ngSwitchWhen="'checkbox'"
+            [readonly]="config.readonly"
+            [disabled]="config.disabled"
+            (change)="setFormValue(config.control, cb.checked)"
+    />
+
+    <!-- radio needs its own component with multiple selects -->
+    <input
+            type="radio"
+            [ngFormControl]="config.control"
+            [ngClass] = "config.classes"
+            *ngSwitchWhen="'radio'"
+            [name]="config.field"
+            [readonly]="config.readonly"
+            [disabled]="config.disabled"
+    />
+
+    <input
+            type="text"
+            [ngFormControl]="config.control"
+            [ngClass] = "config.classes"
+            *ngSwitchWhenDefault
+            [name]="config.field"
+            [readonly]="config.readonly"
+            [disabled]="config.disabled"
+    />
+    <show-error [control]="config.control" [messages]="config.errorMessages"></show-error>
+</label>
+<uni-radio-group *ngIf="isRadioGroup(config.type)" [config]="config"></uni-radio-group>
+
+

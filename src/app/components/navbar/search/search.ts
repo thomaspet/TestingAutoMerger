@@ -1,4 +1,4 @@
-import {Component, AfterViewInit} from 'angular2/angular2';
+import {Component, AfterViewInit} from 'angular2/core';
 
 @Component({
 	selector: 'uni-navbar-search',

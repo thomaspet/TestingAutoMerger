@@ -1,74 +1,29 @@
+import {Component} from 'angular2/core';
+
+import {NgIf, NgForm} from 'angular2/common';
+import {UNI_CONTROL_DIRECTIVES} from '../controls';
+import {ShowError} from "../forms/showError";
+import {UniRadioGroup} from "../controls/radioGroup/uniRadioGroup";
+
+@Component({
+    selector: 'uni-field',
+    inputs: ['config'],
+    directives: [UNI_CONTROL_DIRECTIVES, ShowError, UniRadioGroup, NgIf, NgForm],
+    templateUrl: "framework/forms/uniField.html"
+})
 export class UniField {
-    label: string = '';
-    model: any;
-    field: string = '';
-    type: string = 'text';
-    kOptions: any;
-    classes: any = {};
-    readonly: boolean = false;
-    disabled: boolean = false;
-    syncValidators: Array<any> = [];
-    asyncValidators: Array<any> = [];
+    config;
+    constructor(){}
 
-    constructor(type?:string,label?:string,model?:string,modelField?:string){
-        this.type = type || 'text';
-        this.label = label || '';
-        this.model = model || undefined;
-        this.field = modelField || '';
-        return this;
+    isRadioGroup(type:string) {
+        return (type === 'radio');
     }
 
-    setLabel(label:string) {
-        this.label = label;
-        return this;
+    isInput(type:string) {
+        return  !this.isRadioGroup(type);
     }
-    setModel(model: any) {
-        this.model = model;
-        return this;
-    }
-    setModelField(key:string) {
-        this.field = key;
-        return this;
-    }
-    setType(type:string) {
-        this.type = type;
-        return this;
-    }
-    setKendoOptions(kOptions:any){
-        this.kOptions = kOptions;
-        return this;
-    }
-    addClass(className:string) {
-        this.classes[className] = true;
-        return this;
-    }
-    addSyncValidator(name:string,validator:Function,message:string) {
-        this.syncValidators.push({
-            name:name,
-            validator: validator,
-            message:message
-        });
-        return this;
-    }
-    addAsyncValidator(name:string,validator:Function,message:string) {
-        this.asyncValidators.push({
-            name:name,
-            validator: validator,
-            message:message
-        });
-        return this;
-    }
-    disable() {
-        this.disabled = true;
-    }
-    enable() {
-        this.disabled = false;
-    }
-    readmode() {
-        this.readonly = true;
-    }
-    editmode() {
-        this.readonly = false;
+
+    setFormValue(control,value) {
+        control.updateValue(value);
     }
 }
-

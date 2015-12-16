@@ -1,4 +1,4 @@
-import { Component } from 'angular2/angular2';
+import { Component } from 'angular2/core';
 import { Http, Headers, Response } from 'angular2/http';
 import { Router } from 'angular2/router';
 import { CompanyDropdown } from '../common/companyDropdown/companyDropdown';
