@@ -1,7 +1,12 @@
-<article class="navbar_userinfo_user">{{username}}</article>
+<article class="navbar_userinfo_user">
+	
+	<span>{{username}}</span>
+	
+	<ul id="navbar_user_dropdown">
+		<li *ngFor="#dropdownElement of dropdownElements">
+			<a (click)="dropdownElement.action()">{{dropdownElement.title}}</a>
+		</li>
+	</ul>
+	
+</article>
 
-<ul id="navbar_user_dropdown" class="userinfo_dropdown">
-	<li *ngFor="#dropdownElement of dropdownElements">
-		<a (click)="dropdownElement.action()">{{dropdownElement.title}}</a>
-	</li>
-</ul>
