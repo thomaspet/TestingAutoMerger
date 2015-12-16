@@ -23,8 +23,6 @@
 .navbar_userinfo_user:after
   background-image: unicon-user($navbarTextColor)
 
-.navbar_userinfo_company:after
-  background-image: unicon-company($navbarTextColor)
 
 /*Temp styling for dropdowns in userinfo part of navbar */
 .userinfo_dropdown
@@ -32,3 +30,36 @@
   z-index: 99
   list-style: none
   margin-top: 50px
+  
+article.navbar_userinfo_company
+  h3
+    @extend %navbarText
+    @extend %clickable
+    float: left
+    padding: .5rem 1rem
+
+    &:hover,
+    &:focus
+      background: darken($navbarBackground, 10%)
+
+    &:after
+      display: inline-block
+      height: 1rem
+      width: 1rem
+      content: ""
+      margin-left: .5rem
+      background-size: contain
+      background-repeat: no-repeat
+      position: relative
+      top: .1rem
+      background-image: unicon-company($navbarTextColor)
+    
+  section#company_info
+    background-color: #ccc
+    position: absolute
+    padding: 1rem
+    display: block
+    top: 100px
+    
+    
+        

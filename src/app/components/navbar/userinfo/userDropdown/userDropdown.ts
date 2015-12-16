@@ -1,5 +1,7 @@
-import {Component, Observable, AfterViewInit} from 'angular2/angular2';
+import {Component, AfterViewInit} from 'angular2/core';
 import {Router} from 'angular2/router';
+import {Observable} from 'rxjs/Observable';
+import 'rxjs/observable/fromEvent';
 
 declare var jQuery;
 
@@ -35,8 +37,8 @@ export class UserDropdown implements AfterViewInit {
         this.clickSubscription =  Observable.fromEvent(document, 'click')
         .subscribe(
             (event: any) => {
-                var parentTag = event.target.parentNode.tagName;
-                if (parentTag === 'UNI-USER-DROPDOWN') {
+                var parentNode = event.target.parentNode;
+                if (parentNode && parentNode.tagName === 'UNI-USER-DROPDOWN') {
                     dropdown.toggle();
                 } else {
                     dropdown.hide();

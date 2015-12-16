@@ -4,7 +4,7 @@
 	<a [router-link]="[routes.uniFormDemo.name]"><li>UniFromDemo<span class="close"></span></li></a
 
     <!--tabClicked function or direct link from object??-->
-    <li *ng-for="#tab of openTabs; #i = index" (click)="tabClicked(tab)">
+    <li *ngFor="#tab of openTabs; #i = index" (click)="tabClicked(tab)">
         {{tab.name}}
         <span class="close" (click)="closeTab(tab, i)"></span>
     </li>

@@ -1,10 +1,10 @@
-import {Component,View, Host, NgIf, NgForm, ControlGroup} from 'angular2/angular2';
-import {isPresent} from 'angular2/src/facade/lang';
+import {Component,View, Host} from 'angular2/core';
+import {NgIf, NgForm, ControlGroup} from 'angular2/common';
 
 @Component({selector: 'show-error', inputs: ['control','messages']})
 @View({
     template: `
-    <small *ng-if="errorMessage !== null">{{errorMessage}}</small>
+    <small *ngIf="errorMessage !== null">{{errorMessage}}</small>
   `,
     directives: [NgIf]
 })
@@ -15,7 +15,7 @@ export class ShowError {
     constructor() {  }
 
     get errorMessage(): string {
-        if (isPresent(this.control) && this.control.touched) {
+        if (this.control && this.control.touched) {
             let em = this.messages;
             for (let key in em) {
                 if (em.hasOwnProperty(key)) {

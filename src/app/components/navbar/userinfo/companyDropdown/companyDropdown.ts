@@ -1,18 +1,40 @@
-import {Component, AfterViewInit} from 'angular2/angular2';
+import {Component, AfterViewInit} from 'angular2/core';
+import {Combobox, ComboboxConfig} from '../../../../../framework/controls/combobox/combobox'
+
 declare var jQuery;
 
 @Component({
 	selector: 'uni-company-dropdown',
-	templateUrl: 'app/components/navbar/userinfo/companyDropdown/companyDropdown.html'
+	templateUrl: 'app/components/navbar/userinfo/companyDropdown/companyDropdown.html',
+    directives: [Combobox]
 })
 export class CompanyDropdown implements AfterViewInit {
-    dropDownisOpen: boolean;
     companies: Array<any>;
-    currentActiveCompany: string;
+    activeCompany: any;
+    comboboxConfig: ComboboxConfig;
+    onCompanySelect: Function;
+    
+    showSection: boolean = false;
 
     constructor() {
+        this.activeCompany = JSON.parse(localStorage.getItem('activeCompany'));
         this.companies = this.getCompanies();
-        this.currentActiveCompany = this.getCurrentActiveCompany();
+        
+        this.comboboxConfig = {
+            onSelect: (companyID) => {
+                this.selectCompany(companyID);  
+            },
+			kOptions:  {
+				delay: 50,
+				dataTextField: 'name',
+				dataValueField: 'id',
+				dataSource: new kendo.data.DataSource({
+					data: this.companies
+				}),
+				template: '<span>#: data.id # - #: data.name #</span>'
+			}
+		}
+            
     }
 	
     //How to get companies? Already gotten?
@@ -25,65 +47,19 @@ export class CompanyDropdown implements AfterViewInit {
         ]
     }
 
-    getCurrentActiveCompany(): string {
-        //return JSON.parse(localStorage.getItem('activeCompany')).name;
-
-        var activeComp = JSON.parse(localStorage.getItem('activeCompany'));
-        if (activeComp) {
-            return activeComp.name;
-        } else {
-            return 'Select Company';
+    selectCompany(companyID): void {
+        var selectedCompany;
+        
+        this.companies.forEach((company) => {
+            if (company.id == companyID) {
+                selectedCompany = company;
+            }
+        })
+        
+        if (selectedCompany) {
+            localStorage.setItem('activeCompany', JSON.stringify(selectedCompany));
+            this.activeCompany = selectedCompany;
         }
-    }
 
-    onCompanySelect(comp, e): void {
-        event.preventDefault();
-        if (comp.name != this.currentActiveCompany) {
-            localStorage.setItem('activeCompany', JSON.stringify(comp));
-            this.currentActiveCompany = this.getCurrentActiveCompany();
-        }
-        this.dropDownisOpen = false;
     }
-
-    ngAfterViewInit() { }
 }
-
-// import {Component, AfterViewInit} from 'angular2/angular2';
-// declare var jQuery;
-// 
-// @Component({
-// 	selector: 'uni-company-dropdown',
-// 	templateUrl: 'app/components/navbar/userinfo/companyDropdown/companyDropdown.html'
-// })
-// export class CompanyDropdown implements AfterViewInit {
-//     companies: Array<any>;
-//     activeCompany: string;
-// 
-//     constructor() {
-//         this.activeCompany = localStorage.getItem('activeCompany');
-//         this.companies = this.getCompanies();
-//         
-//     }
-// 	
-//     //How to get companies? Already gotten?
-//     getCompanies(): Array<any> {
-//         return [
-//             { id: 1, name: 'Unimicro AS' },
-//             { id: 2, name: 'Google' },
-//             { id: 3, name: 'Apple' },
-//             { id: 4, name: 'Microsoft' },
-//         ]
-//     }
-// 
-//     selectCompany(company): void {
-//         
-//         
-//         if (comp.name != this.currentActiveCompany) {
-//             localStorage.setItem('activeCompany', JSON.stringify(comp));
-//             this.currentActiveCompany = this.getCurrentActiveCompany();
-//         }
-//         this.dropDownisOpen = false;
-//     }
-// 
-//     ngAfterViewInit() { }
-// }

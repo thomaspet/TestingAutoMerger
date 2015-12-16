@@ -1,5 +1,7 @@
-import { Injectable, Observable } from 'angular2/angular2';
+import { Injectable } from 'angular2/core';
 import { Http, Headers, Response } from 'angular2/http';
+import { Observable } from 'rxjs/Observable';
+import 'rxjs/operator/map';
 
 declare var jwt_decode: (token: string) => any; // node_modules/jwt_decode
 

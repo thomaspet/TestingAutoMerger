@@ -1,16 +1,19 @@
-<article (click)="dropDownisOpen = !dropDownisOpen" class="navbar_userinfo_company">{{currentActiveCompany}}</article>
-
-<ul *ng-if="dropDownisOpen" class="userinfo_dropdown">
-    <li *ng-for="#company of companies">
-        <a href="#" (click)="onCompanySelect(company, event)">{{company.name}}</a>
-    </li>
-</ul>
-
-<!--<article class="navbar_userinfo_company">
-    <h3>{{currentActiveCompany}}</h3>
+<article class="navbar_userinfo_company">
+    <h3 (click)="showSection = !showSection">{{activeCompany.name}}</h3>
     
-    <section class="company_info">
-        
+    <section *ngIf="showSection" id="company_info">
+        <p>Org.nr 123456789</p>
+        <p>Kontaktinfo: aasdasfasdasd</p>
+
+        <input combobox [config]="comboboxConfig"> 
     </section>
 
-</article>-->
+</article>
+
+<!--<article (click)="dropDownisOpen = !dropDownisOpen" class="navbar_userinfo_company">{{currentActiveCompany}}</article>
+
+<ul *ngIf="dropDownisOpen" class="userinfo_dropdown">
+    <li *ngFor="#company of companies">
+        <a href="#" (click)="onCompanySelect(company, event)">{{company.name}}</a>
+    </li>
+</ul>-->

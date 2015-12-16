@@ -1,4 +1,6 @@
-import {Directive, AfterViewInit, ElementRef, Input, Observable} from 'angular2/core';
+import {Directive, AfterViewInit, ElementRef, Input} from 'angular2/core';
+import { Observable } from 'rxjs/Observable';
+import 'rxjs/observable/fromEvent';
 import {Control} from 'angular2/common';
 
 export interface DatepickerConfig {

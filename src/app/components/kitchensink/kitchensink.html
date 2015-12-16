@@ -2,35 +2,35 @@
 <uni-table [config]="tableConfig"></uni-table>
 
 <h2>Control components</h2>
-<form (ng-submit)="onSubmit()" [ng-form-model]="form" class="col-lg-4">
+<form (ngSubmit)="onSubmit()" [ngFormModel]="form" class="col-lg-4">
 	
 	<label>Autocomplete
-		<input autocomplete ng-control="autocomplete" [config]="autocompleteConfig">
+		<input autocomplete ngControl="autocomplete" [config]="autocompleteConfig">
 	</label>
 	<br><br>
 	<label>Dropdown
-		<input dropdown ng-control="dropdown" [config]="dropdownConfig">
+		<input dropdown ngControl="dropdown" [config]="dropdownConfig">
 		<small>Description of the field here</small>
 	</label>
 	<br><br>
 	<label>Combobox
-		<input combobox ng-control="combobox" [config]="comboboxConfig">
+		<input combobox ngControl="combobox" [config]="comboboxConfig">
 	</label>
 	<br><br>
 	<label>Multiselect
-		<select multiselect ng-control="multiselect" [config]="multiselectConfig"></select>
+		<select multiselect ngControl="multiselect" [config]="multiselectConfig"></select>
 	</label>
 	<br><br>
 	<label>Datepicker
-		<input datepicker ng-control="datepicker" [config]="datepickerConfig">
+		<input datepicker ngControl="datepicker" [config]="datepickerConfig">
 	</label>
 	<br><br>
 	<label>Masked input
-		<input masked ng-control="maskedInput" [config]="maskedInputConfig">
+		<input masked ngControl="maskedInput" [config]="maskedInputConfig">
 	</label>
 	<br><br>
 	<label>Numeric input
-		<input numeric ng-control="numericInput" [config]="numericInputConfig" >
+		<input numeric ngControl="numericInput" [config]="numericInputConfig" >
 	</label>
 	
 </form>
