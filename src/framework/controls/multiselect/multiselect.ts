@@ -14,6 +14,7 @@ export interface MultiSelectConfig {
 			[ngFormControl]="config.control"
 			[ngClass] = "config.classes"
 			[disabled]="config.disabled"
+			[attr.readonly]="config.readonly"
 		></select>
 	`
 })

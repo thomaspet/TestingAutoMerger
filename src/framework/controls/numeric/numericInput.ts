@@ -1,5 +1,6 @@
 import {Component, AfterViewInit, ElementRef, Input} from 'angular2/core';
 import {Control} from 'angular2/common';
+import {InputTemplateString} from "../inputTemplateString";
 
 export interface NumericInputConfig {
 	control: Control,
@@ -8,13 +9,7 @@ export interface NumericInputConfig {
 
 @Component({
 	selector: "uni-numeric",
-    template: `
-        <input
-            [ngFormControl]="config.control"
-            [readonly]="config.readonly"
-            [disabled]="config.disabled"
-        />
-    `
+    template: InputTemplateString
 })
 export class NumericInput {
 	@Input() config: NumericInputConfig;

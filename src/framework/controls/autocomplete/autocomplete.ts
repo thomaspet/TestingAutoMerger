@@ -3,6 +3,8 @@ import {Control} from 'angular2/common';
 import { Observable } from 'rxjs/Observable';
 import 'rxjs/observable/fromEvent';
 
+import {InputTemplateString} from '../inputTemplateString';
+
 export interface AutocompleteConfig {
 	control: Control;
 	kOptions: kendo.ui.AutoCompleteOptions;
@@ -10,14 +12,7 @@ export interface AutocompleteConfig {
 
 @Component({
 	selector:'uni-autocomplete',
-	template:`
-		<input
-			[ngFormControl]="config.control"
-			[ngClass] = "config.classes"
-            [readonly]="config.readonly"
-            [disabled]="config.disabled"
-		/>
-	`
+	template: InputTemplateString
 })
 export class Autocomplete implements AfterViewInit {
 	@Input() config: AutocompleteConfig;

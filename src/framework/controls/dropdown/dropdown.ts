@@ -1,6 +1,8 @@
 import {Component, AfterViewInit, ElementRef, Input} from 'angular2/core';
 import {Control} from 'angular2/common';
 
+import {InputTemplateString} from '../inputTemplateString';
+
 export interface DropdownConfig {
 	control: Control;
 	kOptions: kendo.ui.DropDownListOptions;
@@ -8,14 +10,7 @@ export interface DropdownConfig {
 
 @Component({
 	selector: 'uni-dropdown',
-	template: `
-		<input
-			[ngFormControl]="config.control"
-			[ngClass] = "config.classes"
-			[readonly]="config.readonly"
-			[disabled]="config.disabled"
-		/>
-	`
+	template: InputTemplateString
 })
 export class Dropdown implements AfterViewInit {
 	@Input() config: DropdownConfig;

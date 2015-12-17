@@ -1,5 +1,6 @@
 import {Component, AfterViewInit, ElementRef, Input } from 'angular2/core';
 import {Control} from 'angular2/common';
+import {InputTemplateString} from '../inputTemplateString';
 
 export interface MaskedInputConfig {
 	control: Control,
@@ -8,14 +9,7 @@ export interface MaskedInputConfig {
 
 @Component({
 	selector: "uni-masked",
-	template: `
-		<input
-			[ngFormControl]="config.control"
-			[ngClass] = "config.classes"
-			[readonly]="config.readonly"
-			[disabled]="config.disabled"
-		/>
-	`
+	template: InputTemplateString
 })
 export class MaskedInput implements AfterViewInit{
 	@Input() config: MaskedInputConfig;

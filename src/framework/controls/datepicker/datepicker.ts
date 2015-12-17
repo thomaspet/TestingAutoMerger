@@ -1,7 +1,10 @@
 import {Component, AfterViewInit, ElementRef, Input} from 'angular2/core';
+import {Control} from 'angular2/common';
 import { Observable } from 'rxjs/Observable';
 import 'rxjs/observable/fromEvent';
-import {Control} from 'angular2/common';
+
+
+import {InputTemplateString} from '../inputTemplateString';
 
 export interface DatepickerConfig {
 	control: Control;
@@ -10,14 +13,7 @@ export interface DatepickerConfig {
 
 @Component({
 	selector: 'uni-datepicker',
-	template: `
-		<input
-			[ngFormControl]="config.control"
-			[ngClass] = "config.classes"
-			[readonly]="config.readonly"
-			[disabled]="config.disabled"
-		/>
-	`
+	template: InputTemplateString
 })
 export class Datepicker implements AfterViewInit {
 	@Input() config: DatepickerConfig;
