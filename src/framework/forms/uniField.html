@@ -6,18 +6,10 @@
     <uni-combobox *ngSwitchWhen="'combobox'" [config]="config"></uni-combobox>
     <uni-multiselect *ngSwitchWhen="'multiselect'" [config]="config"></uni-multiselect>
     <uni-datepicker *ngSwitchWhen="'datepicker'" [config]="config"></uni-datepicker>
+    <uni-masked *ngSwitchWhen="'masked'" [config]="config"></uni-masked>
 
 
 
-    <input
-            masked
-            [ngFormControl]="config.control"
-            [config]="config"
-            [ngClass] = "config.classes"
-            *ngSwitchWhen="'masked'"
-            [readonly]="config.readonly"
-            [disabled]="config.disabled"
-    />
 
     <input
             numeric
