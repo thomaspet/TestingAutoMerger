@@ -14,10 +14,12 @@ export class CompanyDropdown implements AfterViewInit, OnDestroy {
     activeCompany: any;
     comboboxConfig: ComboboxConfig;
     onCompanySelect: Function;
-    
-   clickSubscription: any;
+    clickSubscription: any;
+    companyDropdownActive: Boolean;
+
 
     constructor() {
+        this.companyDropdownActive = false;
         this.activeCompany = JSON.parse(localStorage.getItem('activeCompany'));
         this.companies = this.getCompanies();
         
@@ -34,26 +36,17 @@ export class CompanyDropdown implements AfterViewInit, OnDestroy {
 				}),
 				template: '<span>#: data.id # - #: data.name #</span>'
 			}
-		}  
+		}
     }
     
     ngAfterViewInit() {
-        var companySection = jQuery('#company_info').hide();
-        
         this.clickSubscription =  Observable.fromEvent(document, 'click')
         .subscribe(
             (event: any) => {
-                
-                // Toggle section visibility when clicking the navbar item
-                if (jQuery(event.target).closest('.navbar_userinfo_company').length) {
-                    
-                    // Avoid hiding section on clicks inside it
-                    if (!jQuery(event.target).closest('#company_info').length) {
-                        companySection.toggle();
-                    }
-                } else {
-                    // Hide section on clicks outside
-                    companySection.hide();
+                // Hide when clicking something besides the navbar item
+                if (!jQuery(event.target).closest('.navbar_userinfo_company').length &&
+                    !jQuery(event.target).closest('.navbar_userinfo_dropdown').length) {
+                        this.companyDropdownActive = false;
                 }
             }
         );
@@ -66,7 +59,7 @@ export class CompanyDropdown implements AfterViewInit, OnDestroy {
     //How to get companies? Already gotten?
     getCompanies(): Array<any> {
         return [
-            { id: 1, name: 'Unimicro AS' },
+            { id: 1, name: 'Uni Micro AS' },
             { id: 2, name: 'Google' },
             { id: 3, name: 'Apple' },
             { id: 4, name: 'Microsoft' },
@@ -80,7 +73,7 @@ export class CompanyDropdown implements AfterViewInit, OnDestroy {
             if (company.id == companyID) {
                 selectedCompany = company;
             }
-        })
+        });
         
         if (selectedCompany) {
             localStorage.setItem('activeCompany', JSON.stringify(selectedCompany));

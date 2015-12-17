@@ -17,32 +17,27 @@ interface UserDropdownItem {
 export class UserDropdown implements AfterViewInit {
     dropdownElements: Array<UserDropdownItem>;
     username: string;
-    
     clickSubscription: any;
+    userDropdownActive: Boolean;
 
     constructor(public router: Router) {
         this.username = JSON.parse(localStorage.getItem('jwt_decoded')).unique_name;
-        
         this.dropdownElements = [
             { title: 'Settings',  action: () => { this.navigate('/') } },
             { title: 'Help'    ,  action: () => { this.navigate('/') } },
             { title: 'Log out' ,  action: () => { this.logout() }      },
         ];
-                
+        this.userDropdownActive = false;
     }
     
     ngAfterViewInit() {        
-        var dropdown = jQuery('#navbar_user_dropdown').hide();
-        
         this.clickSubscription =  Observable.fromEvent(document, 'click')
         .subscribe(
             (event: any) => {
-                // Toggle dropdown visibility when clicking the navbar item
-                if (jQuery(event.target).closest('.navbar_userinfo_user').length) {
-                    dropdown.toggle();    
-                } else {
-                    // Hide dropdown on clicks outside
-                    dropdown.hide();
+                // Dismiss dropdown on click outside of it
+                if (!jQuery(event.target).closest('.navbar_userinfo_user').length &&
+                    !jQuery(event.target).closest('.navbar_userinfo_dropdown').length) {
+                    this.userDropdownActive = false;
                 }
             }
         );

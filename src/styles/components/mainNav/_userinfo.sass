@@ -1,40 +1,47 @@
-.navbar_userinfo article
-  @extend %clickable
-  @extend %navbarText
-  float: left
-  padding: .5rem 1rem
+.navbar_userinfo
+  text-align: right
 
-  &:hover,
-  &:focus
-    background: darken($navbarBackground, 10%)
+  article
+    @extend %clickable
+    @extend %navbarText
+    padding: .5rem 1rem
+    display: inline-block
+    position: relative
 
-  span
-    &:after
-      display: inline-block
-      height: 1rem
-      width: 1rem
-      content: ""
-      margin-left: .5rem
-      background-size: contain
-      background-repeat: no-repeat
-      position: relative
-      top: .1rem      
-    
-  section#company_info
-    background-color: #ccc
-    position: absolute
-    padding: 1rem
-    display: block
-    top: 100px
-    
-  ul#navbar_user_dropdown
+    &:hover,
+    &:focus
+      background: darken($navbarBackground, 10%)
+
+    span
+      &:after
+        display: inline-block
+        height: 1rem
+        width: 1rem
+        content: ""
+        margin-left: .5rem
+        background-size: contain
+        background-repeat: no-repeat
+        position: relative
+        top: .1rem
+
+
+
+  .navbar_userinfo_dropdown
+    @extend %navbarDropdowns
     position: absolute
     list-style: none
-    margin-top: 50px
-    color: #ccc
-    
-article.navbar_userinfo_company > span:after
+    display: none
+    right: 0
+    top: 1rem
+    color: $uni-color-positive
+    margin: 1.5rem 0
+    padding: 1rem
+
+    &.-is-active
+      display: block
+
+.navbar_userinfo_company .navbar_userinfo_title:after
   background-image: unicon-company($navbarTextColor)
 
-article.navbar_userinfo_user > span:after
+.navbar_userinfo_user .navbar_userinfo_title:after
   background-image: unicon-user($navbarTextColor)

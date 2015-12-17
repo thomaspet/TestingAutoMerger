@@ -6,26 +6,17 @@
   width: 1.8rem
   height: 2.5rem
   float: left
-
-  &:before
-    display: inline-block
-    content: '\2261'
-    line-height: 2rem
-    font-size: 3rem
+  background: unicon-hamburger($navbarTextColor) no-repeat center center
+  background-size: 1.4rem
 
   &:hover,
   &:focus,
-  &.-is-open
-    background: darken($navbarBackground, 10%)
+  &.is-active
+    background-color: darken($navbarBackground, 10%)
 
   ul
-    position: absolute
-    background: $uni-color-negative
     color: $uni-color-C2A
     font-size: 1rem
-    //box-shadow: 0 0 1rem transparentize($uni-color-positive, .8)
-    //padding: 1rem 2rem
-    top: 1.5rem
     margin-left: -1rem
     list-style: none
     z-index: 99
@@ -34,21 +25,22 @@
   display: none
   opacity: 0
 
-.navbar_hamburger.is-active
+%navbarDropdowns
+  background: linear-gradient(to bottom, $uni-color-negative, $uni-color-scale9)
+  border-radius: 0 0 .2rem .2rem
 
+.navbar_hamburger.is-active
   & .navbar_menu,
   & .navbar_menu:hover,
   & .navbar_menu:focus
+    @extend %navbarDropdowns
     @include unigrid-flush(10)
     display: block
     position: absolute
-    top: 2rem
-    //margin-left: -1rem
-    background: linear-gradient(to bottom, $uni-color-negative, $uni-color-scale9)
+    margin-top: 2.5rem
     list-style: none
     opacity: 1
     transition: .5s ease
-    border-radius: 0 0 .2rem .2rem
     min-height: 30rem
     cursor: default
 
@@ -59,9 +51,12 @@
 
     & li
       color: $uni-color-positive
-      width: 11rem
+      width: 12rem
       height: 3rem
-      padding: .5rem 0 0 1rem
+      line-height: 3rem
+      padding: 0 1rem
+      box-sizing: border-box
+
 
       &:hover,
       &:focus

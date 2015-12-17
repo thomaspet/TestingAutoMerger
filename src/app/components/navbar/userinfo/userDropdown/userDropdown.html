@@ -1,8 +1,8 @@
-<article class="navbar_userinfo_user">
+<article class="navbar_userinfo_user" (click)="userDropdownActive = !userDropdownActive">
 	
-	<span>{{username}}</span>
+	<span class="navbar_userinfo_title">{{username}}</span>
 	
-	<ul id="navbar_user_dropdown">
+	<ul class="navbar_userinfo_dropdown" [ngClass]="{'-is-active': userDropdownActive}">
 		<li *ngFor="#dropdownElement of dropdownElements">
 			<a (click)="dropdownElement.action()">{{dropdownElement.title}}</a>
 		</li>
