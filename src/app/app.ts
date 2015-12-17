@@ -3,14 +3,18 @@ import {Component} from 'angular2/core';
 import {RouteConfig, ROUTER_DIRECTIVES} from 'angular2/router';
 import {Routes, APP_ROUTES} from './route.config';
 import {UniRouterOutlet} from './uniRouterOutlet';
+import {AuthService} from '../framework/authentication/authService';
 
 @Component({
-  selector: 'uni-app',
-  templateUrl: './app/app.html',
-  directives: [ROUTER_DIRECTIVES, UniRouterOutlet]
+	selector: 'uni-app',
+	templateUrl: './app/app.html',
+	directives: [ROUTER_DIRECTIVES, UniRouterOutlet],
+	providers: [AuthService]
 })
 @RouteConfig(APP_ROUTES)
 export class App {
-  public title = 'Uni Economy';
-  public routes = Routes;
+	public routes = Routes;
+	
+	constructor(private authService: AuthService) {}
+	
 }
