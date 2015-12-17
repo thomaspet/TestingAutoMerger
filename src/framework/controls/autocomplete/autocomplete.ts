@@ -1,4 +1,4 @@
-import {Directive, AfterViewInit,ElementRef, Input} from 'angular2/core';
+import {Component, AfterViewInit,ElementRef, Input} from 'angular2/core';
 import {Control} from 'angular2/common';
 import { Observable } from 'rxjs/Observable';
 import 'rxjs/observable/fromEvent';
@@ -8,8 +8,16 @@ export interface AutocompleteConfig {
 	kOptions: kendo.ui.AutoCompleteOptions;
 }
 
-@Directive({
-	selector:'[autocomplete]'
+@Component({
+	selector:'uni-autocomplete',
+	template:`
+		<input
+			[ngFormControl]="config.control"
+			[ngClass] = "config.classes"
+            [readonly]="config.readonly"
+            [disabled]="config.disabled"
+		/>
+	`
 })
 export class Autocomplete implements AfterViewInit {
 	@Input() config: AutocompleteConfig;
@@ -18,7 +26,6 @@ export class Autocomplete implements AfterViewInit {
 	
 	ngAfterViewInit() {
 		var element: any = $(this.element.nativeElement);
-		var autocomplete;
 		var control = this.config.control;
 		var options: kendo.ui.AutoCompleteOptions = this.config.kOptions;
 		
@@ -47,10 +54,10 @@ export class Autocomplete implements AfterViewInit {
 		};
 
 		//don't create the kendo component if it exists
-		if (element.data('kendoAutoComplete')) {
-			this._destroyKendoWidget(element);
-		}
-		var autocomplete = element.kendoAutoComplete(options).data('kendoAutoComplete');
+		//if (element.data('kendoAutoComplete')) {
+		//	this._destroyKendoWidget(element);
+		//}
+		var autocomplete = element.find('input').first().kendoAutoComplete(options).data('kendoAutoComplete');
 		autocomplete.value(control.value[this.config.kOptions.dataTextField]);
 	}
 

@@ -1,15 +1,7 @@
 <label [ngSwitch]="config.type" ngForm *ngIf="isInput(config.type)">
     <span>{{config.label}}</span>
 
-    <input
-            autocomplete
-            [ngFormControl]="config.control"
-            [config]="config"
-            [ngClass] = "config.classes"
-            *ngSwitchWhen="'autocomplete'"
-            [readonly]="config.readonly"
-            [disabled]="config.disabled"
-    />
+    <uni-autocomplete *ngSwitchWhen="'autocomplete'" [config]="config"></uni-autocomplete>
 
     <input
             dropdown
