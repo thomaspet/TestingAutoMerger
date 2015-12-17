@@ -1,5 +1,5 @@
 /// <reference path="../../../../kendo/typescript/kendo.all.d.ts" />
-import {Directive, AfterViewInit, ElementRef, Input} from 'angular2/core';
+import {Component, AfterViewInit, ElementRef, Input} from 'angular2/core';
 import {Control} from 'angular2/common';
 
 export interface MultiSelectConfig {
@@ -7,8 +7,15 @@ export interface MultiSelectConfig {
 	kOptions: kendo.ui.MultiSelectOptions;
 }
 
-@Directive({
-	selector: '[multiselect]'
+@Component({
+	selector: 'uni-multiselect',
+	template: `
+		<select
+			[ngFormControl]="config.control"
+			[ngClass] = "config.classes"
+			[disabled]="config.disabled"
+		></select>
+	`
 })
 export class MultiSelect implements AfterViewInit {
 	@Input() config: MultiSelectConfig;
@@ -26,11 +33,7 @@ export class MultiSelect implements AfterViewInit {
 		options.change = function(event: kendo.ui.MultiSelectChangeEvent) {
 			control.updateValue(this.value());
 		};
-
-		if (element.data('kendoMultiSelect')) {
-			this._destroyKendoWidget(element);
-		}
-		multiselect = element.kendoMultiSelect(options).data('kendoMultiSelect');
+		multiselect = element.find('select').first().kendoMultiSelect(options).data('kendoMultiSelect');
 
 		// init to control value
 		var controlValues = [];
@@ -38,11 +41,5 @@ export class MultiSelect implements AfterViewInit {
 			multiselect.value(control.value);
 			multiselect.trigger('change');
 		}
-	}
-
-	private _destroyKendoWidget(HTMLElement) {
-		HTMLElement.data('kendoMultiSelect').destroy();
-		let parent:any = $(HTMLElement[0].parentNode);
-		parent.find('div.k-widget.k-multiselect').remove();
 	}
 }
