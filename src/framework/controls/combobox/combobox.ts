@@ -1,4 +1,4 @@
-import {Directive, AfterViewInit, ElementRef, Input} from 'angular2/core';
+import {Component, AfterViewInit, ElementRef, Input} from 'angular2/core';
 import { Observable } from 'rxjs/Observable';
 import 'rxjs/observable/fromEvent';
 import {Control} from 'angular2/common';
@@ -9,8 +9,16 @@ export interface ComboboxConfig {
 }
 
 
-@Directive({
-	selector: '[combobox]'
+@Component({
+	selector: 'uni-combobox',
+	template: `
+	<input
+        [ngFormControl]="config.control"
+        [ngClass] = "config.classes"
+        [readonly]="config.readonly"
+        [disabled]="config.disabled"
+    />
+	`
 })
 export class Combobox implements AfterViewInit {
 	@Input() config: ComboboxConfig;
@@ -38,24 +46,12 @@ export class Combobox implements AfterViewInit {
 			}
 		};
 		//don't create the kendo component if it exists
-		if (!element.data('kendoComboBox')) {
-			combobox = element.kendoComboBox(options).data('kendoComboBox');
-		} else {
-			combobox = element.data('kendoComboBox');
-			this._destroyKendoWidget(element);
-			combobox = element.kendoComboBox(options).data('kendoComboBox');
-		}
+		combobox = element.find('input').first().kendoComboBox(options).data('kendoComboBox');
 
 		// Reset validSelection when the input text changes
 		Observable.fromEvent(combobox.input, 'keyup').subscribe((event: any) => {
 			validSelection = false;	
 		});
 		combobox.value(control.value);
-	}
-
-	private _destroyKendoWidget(HTMLElement) {
-		HTMLElement.data('kendoComboBox').destroy();
-		let parent:any = $(HTMLElement[0].parentNode);
-		parent.find('span.k-widget.k-combobox').remove();
 	}
 }

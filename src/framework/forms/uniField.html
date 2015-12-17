@@ -3,16 +3,7 @@
 
     <uni-autocomplete *ngSwitchWhen="'autocomplete'" [config]="config"></uni-autocomplete>
     <uni-dropdown *ngSwitchWhen="'dropdown'" [config]="config"></uni-dropdown>
-
-    <input
-            combobox
-            [ngFormControl]="config.control"
-            [config]="config"
-            [ngClass] = "config.classes"
-            *ngSwitchWhen="'combobox'"
-            [readonly]="config.readonly"
-            [disabled]="config.disabled"
-    />
+    <uni-combobox *ngSwitchWhen="'combobox'" [config]="config"></uni-combobox>
 
     <select
             multiselect

@@ -53,17 +53,7 @@ export class Autocomplete implements AfterViewInit {
 			}
 		};
 
-		//don't create the kendo component if it exists
-		//if (element.data('kendoAutoComplete')) {
-		//	this._destroyKendoWidget(element);
-		//}
 		var autocomplete = element.find('input').first().kendoAutoComplete(options).data('kendoAutoComplete');
 		autocomplete.value(control.value[this.config.kOptions.dataTextField]);
-	}
-
-	private _destroyKendoWidget(HTMLElement) {
-		HTMLElement.data('kendoAutoComplete').destroy();
-		let parent: any =$(HTMLElement[0].parentNode);
-		parent.find('span.k-widget.k-autocomplete').remove();
 	}
 }
