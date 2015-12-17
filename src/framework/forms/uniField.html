@@ -7,18 +7,7 @@
     <uni-multiselect *ngSwitchWhen="'multiselect'" [config]="config"></uni-multiselect>
     <uni-datepicker *ngSwitchWhen="'datepicker'" [config]="config"></uni-datepicker>
     <uni-masked *ngSwitchWhen="'masked'" [config]="config"></uni-masked>
-
-
-
-
-    <input
-            numeric
-            [ngFormControl]="config.control"
-            [config]="config"
-            *ngSwitchWhen="'numeric'"
-            [readonly]="config.readonly"
-            [disabled]="config.disabled"
-    />
+    <uni-numeric *ngSwitchWhen="'numeric'" [config]="config"></uni-numeric>
 
     <input
             type="email"

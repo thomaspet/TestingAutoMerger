@@ -1,4 +1,4 @@
-import {Directive, AfterViewInit, ElementRef, Input} from 'angular2/core';
+import {Component, AfterViewInit, ElementRef, Input} from 'angular2/core';
 import {Control} from 'angular2/common';
 
 export interface NumericInputConfig {
@@ -6,8 +6,15 @@ export interface NumericInputConfig {
 	kOptions: kendo.ui.NumericTextBoxOptions
 }
 
-@Directive({
-	selector: "[numeric]"
+@Component({
+	selector: "uni-numeric",
+    template: `
+        <input
+            [ngFormControl]="config.control"
+            [readonly]="config.readonly"
+            [disabled]="config.disabled"
+        />
+    `
 })
 export class NumericInput {
 	@Input() config: NumericInputConfig;
@@ -28,7 +35,7 @@ export class NumericInput {
 		if (element.data('kendoNumericTextBox')) {
             this._destroyKendoWidget(element);
 		}
-        numericInput = element.kendoNumericTextBox(options).data('kendoNumericTextBox');
+        numericInput = element.find('input').first().kendoNumericTextBox(options).data('kendoNumericTextBox');
 	}
 
     private _destroyKendoWidget(HTMLElement) {
