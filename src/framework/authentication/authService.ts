@@ -1,52 +1,53 @@
-import { Injectable } from 'angular2/core';
+import { Injectable, EventEmitter } from 'angular2/core';
 import { Http, Headers, Response } from 'angular2/http';
 import { Observable } from 'rxjs/Observable';
-import 'rxjs/operator/map';
+import 'rxjs/add/operator/share';
 
 declare var jwt_decode: (token: string) => any; // node_modules/jwt_decode
 
 @Injectable()
 export class AuthService {
-	http: Http;
+	// authenticated$: Observable<boolean>;
+	// private authenticatedObserver: any;
 	
-	constructor(http: Http) {
-		this.http = http;	
+	constructor(private http: Http) {
+		// this.authenticated$ = new Observable(observer => this.authenticatedObserver = observer)
+		// .share();
 	}
 	
-	serializeParams(username, password): string {
-		return 'username=' + username + '&password=' + password + '&grant_type=password';
-	}
-	
-	authenticate(username: string, password: string): Observable<any> {
-		var headers = new Headers();
-		headers.append('Content-type', 'application/x-www-form-urlencoded');
+	authenticate(username: string, password: string): Observable<Response> {
+		var serializedParams = 'username=' + username + '&password=' + password + '&grant_type=password';
+		var reqHeaders = new Headers({
+			'Content-type': 'application/x-www-form-urlencoded'
+		});
 		
 		return this.http.post(
 			'https://uni-identity.azurewebsites.net/oauth/master-key', 
-			// request body
-			this.serializeParams(username, password),
-			
-			// request headers
-			{ headers: headers }
-		)
-		.map((res: any) => res.json());
+			serializedParams,
+			{ headers: reqHeaders }
+		);
 	}
 	
 	decodeToken(token: string) {
 		return jwt_decode(token);
+	}	
+	
+	get authenticated(): boolean {
+		var token = localStorage.getItem('jwt');
+		return (token && !this.expired);
 	}
 	
-	isTokenExpired(): boolean {
-		var token = JSON.parse(localStorage.getItem('jwt_decoded'));
+	get expired(): boolean {
+		var decoded = JSON.parse(localStorage.getItem('jwt_decoded'));
 		
-		if (!token || typeof token.exp === 'undefined') {
+		if (!decoded || !decoded.exp) {
 			return true;
 		}
 		
-		var expDate = new Date(0);
-		expDate.setUTCSeconds(token.exp);
+		var expires = new Date(0);
+		expires.setUTCSeconds(decoded.exp);
 		
-		return (new Date().valueOf() > expDate.valueOf());
+		return (new Date().valueOf() > expires.valueOf());		
 	}
 	
 }
