@@ -2,16 +2,7 @@
     <span>{{config.label}}</span>
 
     <uni-autocomplete *ngSwitchWhen="'autocomplete'" [config]="config"></uni-autocomplete>
-
-    <input
-            dropdown
-            [ngFormControl]="config.control"
-            [ngClass] = "config.classes"
-            [config]="config"
-            *ngSwitchWhen="'dropdown'"
-            [readonly]="config.readonly"
-            [disabled]="config.disabled"
-    />
+    <uni-dropdown *ngSwitchWhen="'dropdown'" [config]="config"></uni-dropdown>
 
     <input
             combobox

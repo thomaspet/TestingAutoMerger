@@ -1,4 +1,4 @@
-import {Directive, AfterViewInit, ElementRef, Input} from 'angular2/core';
+import {Component, AfterViewInit, ElementRef, Input} from 'angular2/core';
 import {Control} from 'angular2/common';
 
 export interface DropdownConfig {
@@ -6,8 +6,16 @@ export interface DropdownConfig {
 	kOptions: kendo.ui.DropDownListOptions;
 }
 
-@Directive({
-	selector: '[dropdown]'
+@Component({
+	selector: 'uni-dropdown',
+	template: `
+		<input
+			[ngFormControl]="config.control"
+			[ngClass] = "config.classes"
+			[readonly]="config.readonly"
+			[disabled]="config.disabled"
+		/>
+	`
 })
 export class Dropdown implements AfterViewInit {
 	@Input() config: DropdownConfig;
@@ -24,17 +32,8 @@ export class Dropdown implements AfterViewInit {
 		}
 
 		//don't create the kendo component if it exists
-		if (element.data('kendoDropDownList')) {
-			this._destroyKendoWidget(element);
-		}
-		dropdown = element.kendoDropDownList(this.config.kOptions).data('kendoDropDownList');
+		dropdown = element.find('input').first().kendoDropDownList(this.config.kOptions).data('kendoDropDownList');
 
 		dropdown.value(vm.config.control.value); // init to control
-	}
-
-	private _destroyKendoWidget(HTMLElement) {
-		HTMLElement.data('kendoDropDownList').destroy();
-		let parent:any = $(HTMLElement[0].parentNode);
-		parent.find('span.k-widget.k-dropdown').remove();
 	}
 }
