@@ -7,13 +7,8 @@ declare var jwt_decode: (token: string) => any; // node_modules/jwt_decode
 
 @Injectable()
 export class AuthService {
-	// authenticated$: Observable<boolean>;
-	// private authenticatedObserver: any;
 	
-	constructor(private http: Http) {
-		// this.authenticated$ = new Observable(observer => this.authenticatedObserver = observer)
-		// .share();
-	}
+	constructor(private http: Http) {}
 	
 	authenticate(username: string, password: string): Observable<Response> {
 		var serializedParams = 'username=' + username + '&password=' + password + '&grant_type=password';
