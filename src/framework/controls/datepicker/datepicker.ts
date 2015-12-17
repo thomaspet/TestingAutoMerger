@@ -1,4 +1,4 @@
-import {Directive, AfterViewInit, ElementRef, Input} from 'angular2/core';
+import {Component, AfterViewInit, ElementRef, Input} from 'angular2/core';
 import { Observable } from 'rxjs/Observable';
 import 'rxjs/observable/fromEvent';
 import {Control} from 'angular2/common';
@@ -8,8 +8,16 @@ export interface DatepickerConfig {
 	kOptions: kendo.ui.DatePickerOptions;
 }
 
-@Directive({
-	selector: '[datepicker]'
+@Component({
+	selector: 'uni-datepicker',
+	template: `
+		<input
+			[ngFormControl]="config.control"
+			[ngClass] = "config.classes"
+			[readonly]="config.readonly"
+			[disabled]="config.disabled"
+		/>
+	`
 })
 export class Datepicker implements AfterViewInit {
 	@Input() config: DatepickerConfig;
@@ -46,12 +54,7 @@ export class Datepicker implements AfterViewInit {
 				this.value(date);
 			}
 		}
-
-		//don't create the kendo component if it exists
-		if (element.data('kendoDatePicker')) {
-			this._destroyKendoWidget(element);
-		}
-		datepicker = element.kendoDatePicker(options).data('kendoDatePicker');
+		datepicker = element.find('input').first().kendoDatePicker(options).data('kendoDatePicker');
 		
 		// Trigger kendo change event on keyup (enter) and blur in the textbox 
 		Observable.fromEvent(element, 'keyup')
@@ -67,12 +70,6 @@ export class Datepicker implements AfterViewInit {
 
 		datepicker.value(control.value);
 
-	}
-
-	private _destroyKendoWidget(HTMLElement) {
-		HTMLElement.data('kendoDatePicker').destroy();
-		let parent:any = $(HTMLElement[0].parentNode);
-		parent.find('span.k-widget.k-datepicker').remove();
 	}
 }
 
