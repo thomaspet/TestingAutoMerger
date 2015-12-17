@@ -3,6 +3,9 @@ import {Validators, Control, FormBuilder} from 'angular2/common';
 import {UniForm,FIELD_TYPES} from '../../../framework/forms/uniForm';
 
 import 'rxjs/add/observable/fromEvent';
+import {UniFormBuilder} from "../../../framework/forms/uniFormBuilder";
+import {UniFieldsetBuilder} from "../../../framework/forms/uniFieldsetBuilder";
+import {UniFieldBuilder} from "../../../framework/forms/uniFieldBuilder";
 
 function testAsyncValidator(control) {
     let p = new Promise((resolve)=>{
@@ -36,11 +39,7 @@ function test2(c) {
 export class UniFormDemo {
     form;
     model;
-    myControl;
-    f;
     constructor(fb:FormBuilder) {
-        this.myControl = new Control("aa",Validators.required,testAsyncValidator);
-        this.f = fb.group({"test":this.myControl});
         this.model= {
             autocomplete:{
                 id:"1",
@@ -70,6 +69,20 @@ export class UniFormDemo {
             { id: "4", name: 'Lønn' },
         ];
         let self = this;
+
+        var uniFormBuilder = new UniFormBuilder();
+        var autocompleteField = new UniFieldBuilder();
+        autocompleteField.setType('autocomplete')
+        .setLabel('Autocomplete label')
+        .setModel(self.model)
+        .setModelField('autocomplete')
+        .setKendoOptions({
+            dataTextField: 'name',
+            dataSource: new kendo.data.DataSource({data:mockDataSource})
+        })
+        .addSyncValidator('required',Validators.required,'field is required')
+        .addAsyncValidator('async',testAsyncValidator,'Autocomplete should be "Faktura"')
+
         this.form = [
             {
                 fieldType: FIELD_TYPES.GROUP,
@@ -125,29 +138,7 @@ export class UniFormDemo {
                     }
                 }]
             },
-            {
-                fieldType: FIELD_TYPES.FIELD,
-                model: self.model,
-                label: 'Autocomplete label',
-                type: 'autocomplete',
-                field: 'autocomplete',
-                syncValidators: [
-                    {
-                        name: 'required',
-                        validator: Validators.required,
-                        message: 'field is required'
-                    }
-                ],
-                asyncValidators: [{
-                    name: 'async',
-                    validator:testAsyncValidator,
-                    message: 'Autocomplete should be Faktura'
-                }],
-                kOptions: {
-                    dataTextField: 'name',
-                    dataSource: new kendo.data.DataSource({data:mockDataSource})
-                }
-            },
+            autocompleteField,
             {
                 fieldType: FIELD_TYPES.FIELD,
                 model: self.model,

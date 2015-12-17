@@ -1,8 +1,11 @@
+import {FIELD_TYPES} from './uniForm';
+
 export class UniFieldBuilder {
     label: string = '';
     model: any;
     field: string = '';
     type: string = 'text';
+    fieldType: number;
     kOptions: any;
     classes: any = {};
     readonly: boolean = false;
@@ -15,6 +18,8 @@ export class UniFieldBuilder {
         this.label = label || '';
         this.model = model || undefined;
         this.field = modelField || '';
+        this.fieldType = FIELD_TYPES.FIELD;
+
         return this;
     }
 
