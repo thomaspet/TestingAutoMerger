@@ -4,7 +4,7 @@ declare var jQuery;
 
 @Component({
 	selector: 'company-select',
-	template: '<select style="width: 400px"></select>',
+	template: '<select></select>',
 })
 export class CompanySelect implements AfterViewInit {	
 	// todo: create interface ICompany when we know what a company object is
