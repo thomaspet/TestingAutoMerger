@@ -1,0 +1,15 @@
+
+<ol class="navbar_tabs">
+	<!--<a [router-link]="[routes.dashboard.name]"><li>Dashboard<span class="close"></span></li></a>
+	<a [router-link]="[routes.uniFormDemo.name]"><li>UniFromDemo<span class="close"></span></li></a
+
+    <!--tabClicked function or direct link from object??-->
+    <li *ngFor="#tab of openTabs; #i = index" (click)="tabClicked(tab)">
+        {{tab.name}}
+        <span class="close" (click)="closeTab(tab, i)"></span>
+    </li>
+</ol>
+
+<!--Dummy link to test add functionality-->
+<button class="small" (click)="addNewTab()">Add tab</button>
+

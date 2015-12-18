@@ -5,10 +5,12 @@ import {Routes, APP_ROUTES} from './route.config';
 import {UniRouterOutlet} from './uniRouterOutlet';
 import {AuthService} from '../framework/authentication/authService';
 
+import {Navbar} from './components/navbar/navbar';
+
 @Component({
 	selector: 'uni-app',
 	templateUrl: './app/app.html',
-	directives: [ROUTER_DIRECTIVES, UniRouterOutlet],
+	directives: [ROUTER_DIRECTIVES, UniRouterOutlet, Navbar],
 	providers: [AuthService]
 })
 @RouteConfig(APP_ROUTES)

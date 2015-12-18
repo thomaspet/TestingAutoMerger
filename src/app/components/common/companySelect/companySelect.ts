@@ -12,6 +12,7 @@ export class CompanySelect implements AfterViewInit {
 	companies: Array<any>;
 	dropdownOptions: kendo.ui.DropDownListOptions;
 	
+	
 	constructor(public elementRef: ElementRef, public router: Router) {
 		this.activeCompany = localStorage.getItem('activeCompany');		
 		
@@ -31,7 +32,7 @@ export class CompanySelect implements AfterViewInit {
 				data: this.companies
 			}),
 			change: (event: kendo.ui.DropDownListChangeEvent) => {
-				var companyID = event.sender.value().toString();
+				var companyID = event.sender.value();
 				this.onCompanySelect(companyID);
 			},
 			optionLabel: 'Select a company'
@@ -51,9 +52,10 @@ export class CompanySelect implements AfterViewInit {
 				localStorage.setItem('activeCompany', JSON.stringify(company));
 			}
 		})
-		
+			
 		var url = localStorage.getItem('lastNavigationAttempt') || '/';
 		localStorage.removeItem('lastNavigationAttempt');
 		this.router.navigateByUrl(url);		
 	}
+	
 }
