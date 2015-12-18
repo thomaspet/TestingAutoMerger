@@ -1,18 +1,22 @@
 .navbar_userinfo
   text-align: right
 
-  article
+  .navbar_userinfo_user,
+  .navbar_userinfo_company
     @extend %clickable
     @extend %navbarText
-    padding: .5rem 1rem
     display: inline-block
     position: relative
+    padding: 0
 
     &:hover,
     &:focus
       background: darken($navbarBackground, 10%)
 
-    span
+    .navbar_userinfo_title
+      display: inline-block
+      padding: .5rem 1rem
+
       &:after
         display: inline-block
         height: 1rem

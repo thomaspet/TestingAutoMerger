@@ -1,6 +1,6 @@
-<article class="navbar_userinfo_company" (click)="companyDropdownActive = !companyDropdownActive">
+<article class="navbar_userinfo_company" >
     
-    <span class="navbar_userinfo_title">{{activeCompany.name}}</span>
+    <span class="navbar_userinfo_title" (click)="companyDropdownActive = !companyDropdownActive">{{activeCompany.name}}</span>
     
     <section class="navbar_userinfo_dropdown" [ngClass]="{'-is-active': companyDropdownActive}">
         <p>Org.nr 123456789</p>

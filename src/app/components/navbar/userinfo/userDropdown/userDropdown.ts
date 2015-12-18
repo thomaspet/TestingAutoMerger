@@ -30,7 +30,9 @@ export class UserDropdown implements AfterViewInit {
         this.userDropdownActive = false;
     }
     
-    ngAfterViewInit() {        
+    ngAfterViewInit() {
+        console.log('Hello world. ', this.userDropdownActive);
+
         this.clickSubscription =  Observable.fromEvent(document, 'click')
         .subscribe(
             (event: any) => {
