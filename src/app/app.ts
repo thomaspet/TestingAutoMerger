@@ -17,6 +17,8 @@ import {Navbar} from './components/navbar/navbar';
 export class App {
 	public routes = Routes;
 	
+	ctrlKeyHold: boolean;
+	
 	constructor(private authService: AuthService) {}
 	
 }
