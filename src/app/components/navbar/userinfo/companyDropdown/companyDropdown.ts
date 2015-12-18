@@ -1,7 +1,7 @@
 import {Component, AfterViewInit, OnDestroy} from 'angular2/core';
 import {Combobox, ComboboxConfig} from '../../../../../framework/controls/combobox/combobox'
 import {Observable} from 'rxjs/Observable';
-import 'rxjs/observable/fromEvent';
+import 'rxjs/add/observable/fromEvent';
 declare var jQuery;
 
 @Component({

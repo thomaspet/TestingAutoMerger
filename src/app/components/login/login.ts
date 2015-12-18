@@ -1,7 +1,7 @@
 import { Component } from 'angular2/core';
 import { Http, Headers, Response } from 'angular2/http';
 import { Router } from 'angular2/router';
-import { CompanyDropdown } from '../common/companyDropdown/companyDropdown';
+import { CompanySelect } from '../common/companySelect/companySelect';
 import { AuthService } from '../../../framework/authentication/authService';
 
 declare var jQuery;
@@ -9,19 +9,22 @@ declare var jQuery;
 @Component({
 	selector: 'login',
 	templateUrl: 'app/components/login/login.html',
-	directives: [CompanyDropdown],
+	directives: [CompanySelect],
 	providers: [AuthService]
 })
 export class Login {
-	loginForm; companyDropdown;
+	loginForm; 
+	companySelect;
 	
 	credentials: { username: string, password: string };
 	errorMessage: string;
+	activeCompany: any;
 	
-	constructor(public authService: AuthService, public router: Router) {		
+	constructor(public authService: AuthService, public router: Router) {				
 		this.loginForm = jQuery('#loginForm');
-		this.companyDropdown = jQuery('#companyDropdown').hide();
+		this.companySelect = jQuery('#companySelect').hide();
 		this.errorMessage = "";
+		this.activeCompany = localStorage.getItem('activeCompany');
 		
 		// Initialize credentials to a valid login for testing purposes
 		this.credentials = {
@@ -30,43 +33,34 @@ export class Login {
 		}
 	}
 	
-	onSubmit(event) {
+	authenticate(event) {
 		event.preventDefault();
 		
 		this.authService.authenticate(this.credentials.username, this.credentials.password)
 		.subscribe (
-			response => {
-				var token = response.access_token;
-				var decodedToken = this.authService.decodeToken(token);
-				
-				localStorage.setItem('jwt', "Bearer " + token);
-				localStorage.setItem('jwt_decoded', JSON.stringify(decodedToken));
-				
-				this.onAuthSuccess();
-			},
-			err => {
-				console.log(err);
-				this.errorMessage = err.error_description;
-				this.credentials = { username: "", password: "" };
-			}
+			response => this.onAuthSuccess(response.json()),
+			error    => this.onAuthError(error.json())
 		);
 	}
 	
-	onAuthSuccess() {
-		var lastActiveCompany = localStorage.getItem('activeCompany');
-				
-		// If lastActiveCompany exists in localstorage we skip the "select company" stage
-		if (lastActiveCompany) {
-			var url = localStorage.getItem('lastNavigationAttempt');
-			if (url && url !== '/login') {
-				localStorage.removeItem('lastNavigationAttempt');
-				this.router.navigateByUrl(url);
-				return;	
-			}
-			
-			this.router.navigateByUrl('/');	
+	onAuthSuccess(data) {
+		var token = data.access_token;
+		var decoded = this.authService.decodeToken(token);
+		localStorage.setItem('jwt', 'Bearer ' + token);
+		localStorage.setItem('jwt_decoded', JSON.stringify(decoded));
+		
+		// If active company exists in localStorage we can skip the companySelect part
+		// TODO: We should verify that the user still has access to the company?
+		if (this.activeCompany) {			
+			var url = localStorage.getItem('lastNavigationAttempt') || '/';
+			localStorage.removeItem('lastNavigationAttempt');
+			this.router.navigateByUrl(url);
 		}
 		
-		this.companyDropdown.fadeIn(200);
+		this.companySelect.fadeIn(200);
+	}
+	
+	onAuthError(reason) {
+		console.log(reason.error_description);
 	}
 }

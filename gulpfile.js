@@ -27,23 +27,27 @@ var config = {
         index: './src/index.template.html',
         vendor: {
             js: [
-                require.resolve('systemjs/dist/system-polyfills.js'),
-                require.resolve('reflect-metadata/Reflect.js'),
-                require.resolve('es6-shim/es6-shim.js'),
-
                 require.resolve('jquery/dist/jquery.min.js'),
                 require.resolve('bootstrap/dist/js/bootstrap.min.js'),
                 require.resolve('jwt-decode/build/jwt-decode.min.js'),
                 require.resolve('lodash/index.js'),
                 require.resolve('./kendo/js/kendo.all.min.js'),
 
+
+                ///ANGULAR 2.0
+                require.resolve('systemjs/dist/system-polyfills.js'),
+                require.resolve('reflect-metadata/Reflect.js'),
+                require.resolve('es6-shim/es6-shim.js'),
+
                 require.resolve('systemjs/dist/system.src.js'),
+                require.resolve('angular2/bundles/angular2-polyfills.js'),
 
                 require.resolve('./system.config.js'),
 
+                require.resolve('rxjs/bundles/Rx.min.js'),
                 require.resolve('angular2/bundles/angular2.dev.js'),
-                require.resolve('angular2/bundles/router.dev.js'),
-                require.resolve('angular2/bundles/http.dev.js'),
+                require.resolve('angular2/bundles/router.js'),
+                require.resolve('angular2/bundles/http.min.js'),
             ],
             rxjs: './node_modules/rxjs/**/*.js',
             css: [

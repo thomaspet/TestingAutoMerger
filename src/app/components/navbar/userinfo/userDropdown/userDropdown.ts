@@ -1,7 +1,7 @@
 import {Component, AfterViewInit} from 'angular2/core';
 import {Router} from 'angular2/router';
 import {Observable} from 'rxjs/Observable';
-import 'rxjs/observable/fromEvent';
+import 'rxjs/add/observable/fromEvent';
 
 declare var jQuery;
 
@@ -31,8 +31,6 @@ export class UserDropdown implements AfterViewInit {
     }
     
     ngAfterViewInit() {
-        console.log('Hello world. ', this.userDropdownActive);
-
         this.clickSubscription =  Observable.fromEvent(document, 'click')
         .subscribe(
             (event: any) => {
