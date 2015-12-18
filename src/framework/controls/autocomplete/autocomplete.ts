@@ -4,7 +4,9 @@ import { Observable } from 'rxjs/Observable';
 import 'rxjs/observable/fromEvent';
 
 export interface AutocompleteConfig {
-	control: Control;
+    control?: Control;
+    onSelect?: Function;
+    clearOnSelect?: boolean;
 	kOptions: kendo.ui.AutoCompleteOptions;
 }
 
@@ -31,18 +33,28 @@ export class Autocomplete implements AfterViewInit {
 		});
 		
 		// Update control value and set validSelection to true. Select event only fires when input text is valid.
-		options.select = function(event: kendo.ui.AutoCompleteSelectEvent) {
-			var item: any = event.item;
-			var dataItem = this.dataItem(item.index());
-			control.updateValue(dataItem.toJSON());
+        options.select = (event: kendo.ui.AutoCompleteSelectEvent) => {
+            var item: any = event.item;
+            var dataItem = event.sender.dataItem(item.index());
+            
+            if (control) {
+                control.updateValue(dataItem.toJSON());
+            }
+
+            if (this.config.onSelect) {
+                this.config.onSelect(event, dataItem);
+            }
+
 			validSelection = true;
 		};
 		
 		// Reset the fields on change events (blur, enter, ...) if input was invalid
-		options.change = function(event: kendo.ui.AutoCompleteChangeEvent) {
-			if (!validSelection) {
-				this.value('');
-				control.updateValue(undefined);
+        options.change = (event: kendo.ui.AutoCompleteChangeEvent) => {
+            if (!validSelection || this.config.clearOnSelect) {
+                event.sender.value('');
+                if (control) {
+                    control.updateValue(undefined);
+                }
 			}
 		};
 
@@ -50,8 +62,10 @@ export class Autocomplete implements AfterViewInit {
 		if (element.data('kendoAutoComplete')) {
 			this._destroyKendoWidget(element);
 		}
-		var autocomplete = element.kendoAutoComplete(options).data('kendoAutoComplete');
-		autocomplete.value(control.value[this.config.kOptions.dataTextField]);
+        var autocomplete = element.kendoAutoComplete(options).data('kendoAutoComplete');
+        if (control) {
+            autocomplete.value(control.value[this.config.kOptions.dataTextField]);
+        }
 	}
 
 	private _destroyKendoWidget(HTMLElement) {
