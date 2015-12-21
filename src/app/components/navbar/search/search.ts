@@ -12,6 +12,7 @@ declare var jQuery;
 export class NavbarSearch implements AfterViewInit {
     ctrlKeyHold: boolean;
     autocompleteConfig: kendo.ui.AutoCompleteOptions;
+    autocompleteElement: any;
     
     mockData = [
         { id: "1", name: 'Dashboard', url: '/' },
@@ -43,7 +44,7 @@ export class NavbarSearch implements AfterViewInit {
 
                 if (event.keyCode === 32 && this.ctrlKeyHold) {
                     event.preventDefault();
-                    jQuery("#navbar_search_field").focus();
+                    jQuery(this.autocompleteElement).focus();
                 }
             });
 
@@ -61,7 +62,7 @@ export class NavbarSearch implements AfterViewInit {
 	
 	ngAfterViewInit() {
         var element = jQuery(this.elementRef.nativeElement).find('input').first();
-	    element.kendoAutoComplete(this.autocompleteConfig).data('kendoAutoComplete');
+	    this.autocompleteElement = element.kendoAutoComplete(this.autocompleteConfig).data('kendoAutoComplete');
     }
 	
 }
