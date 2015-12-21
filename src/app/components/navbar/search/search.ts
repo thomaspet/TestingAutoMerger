@@ -1,40 +1,38 @@
 ﻿import {Component, AfterViewInit, ElementRef} from 'angular2/core';
+import {Router} from 'angular2/router';
 import {Observable} from 'rxjs/Observable';
 import 'rxjs/add/observable/fromEvent';
-import {Autocomplete, AutocompleteConfig} from '../../../../framework/controls/autocomplete/autocomplete';
-import {Router} from 'angular2/router';
+
 declare var jQuery;
 
 @Component({
     selector: 'uni-navbar-search',
     templateUrl: 'app/components/navbar/search/search.html',
-    directives: [Autocomplete]
 })
 export class NavbarSearch implements AfterViewInit {
     ctrlKeyHold: boolean;
-    autocompleteConfig: AutocompleteConfig;
-
+    autocompleteConfig: kendo.ui.AutoCompleteOptions;
+    
     mockData = [
         { id: "1", name: 'Dashboard', url: '/' },
         { id: "2", name: 'Kitchensink', url: '/kitchensink' },
         { id: "3", name: 'LoginRoute', url: '/login' },
         { id: "4", name: 'UniFormDemo', url: '/uniformdemo' }
-
     ];
 
     constructor(private elementRef: ElementRef, public router: Router) {
-
         this.autocompleteConfig = {
-            onSelect: (event, value) => {
-                this.onAutoCompleteSelected(value);
+            dataTextField: 'name',
+            placeholder: 'Søk etter tema eller funksjon',
+            highlightFirst: true,
+            dataSource: this.mockData,
+            select: (event: kendo.ui.AutoCompleteSelectEvent) => {
+                var item: any = event.item;
+                var dataItem = event.sender.dataItem(item.index());
+                this.onAutoCompleteSelected(dataItem);
             },
-            clearOnSelect: true,
-            kOptions: {
-                dataTextField: 'name',
-                placeholder: 'Søk etter tema eller funksjon',
-                dataSource: new kendo.data.DataSource({
-                    data: this.mockData
-                })
+            change: (event: kendo.ui.AutoCompleteChangeEvent) => {
+                event.sender.value('');
             }
         }
 
@@ -58,13 +56,12 @@ export class NavbarSearch implements AfterViewInit {
     }
 
     onAutoCompleteSelected(value) {
-        jQuery("#navbar_search_field").val("");
         this.router.navigateByUrl(value.url);
     }
 	
 	ngAfterViewInit() {
-		console.log(this.elementRef.nativeElement);		
-		
-	}
+        var element = jQuery(this.elementRef.nativeElement).find('input').first();
+	    element.kendoAutoComplete(this.autocompleteConfig).data('kendoAutoComplete');
+    }
 	
 }
