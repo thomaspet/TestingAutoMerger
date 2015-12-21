@@ -56,7 +56,7 @@ label > .k-widget
   color: $uni-color-positive
   font-weight: 300
   border-radius: pxToRem(3)
-  padding: 1px 5px
+  padding: pxToRem(1) pxToRem(5)
 
 // Select-list items when selected or focused
 .k-overflow-container .k-state-hover,
@@ -72,7 +72,7 @@ label > .k-widget
   color: contrasting($uni-color-C2A)
   font-weight: 400
   border-radius: pxToRem(3)
-  padding: 1px 5px
+  padding: pxToRem(1) pxToRem(5)
 
 // Keep things from jumping one pixel when drop downs are open
 .k-list-container.k-state-border-down,
@@ -103,7 +103,8 @@ label > .k-widget
 .k-numeric-wrap .k-input,
 .k-dropdown-wrap .k-input,
 .k-selectbox .k-input
-  height: 2.1rem
+  height: 1.3rem
+  padding: pxToRem(3) pxToRem(5)
 
 // All our input+button components
 .k-dropdown,
