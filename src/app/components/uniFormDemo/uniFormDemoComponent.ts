@@ -7,6 +7,8 @@ import {UniFormBuilder} from "../../../framework/forms/uniFormBuilder";
 import {UniFieldsetBuilder} from "../../../framework/forms/uniFieldsetBuilder";
 import {UniFieldBuilder} from "../../../framework/forms/uniFieldBuilder";
 
+import {TabService} from '../navbar/tabstrip/tabService';
+
 function testAsyncValidator(control) {
     let p = new Promise((resolve)=>{
         setTimeout(()=>{
@@ -39,7 +41,8 @@ function test2(c) {
 export class UniFormDemo {
     form;
     model;
-    constructor(fb:FormBuilder) {
+    constructor(fb:FormBuilder, private tabService: TabService) {
+        this.tabService.addTab({name: 'UniFormDemo', url: '/uniformdemo'});
         this.model= {
             autocomplete:{
                 id:"1",
