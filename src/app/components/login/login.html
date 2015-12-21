@@ -1,6 +1,6 @@
-<div class="login-component">
+<div class="login_component">
 	
-	<form id="loginForm" class="login-form" (submit)="onSubmit($event)">
+	<form id="loginForm" class="login_form" (submit)="authenticate($event)">
 		
 		<p>{{errorMessage}}</p>
 		<input type="text" [(ngModel)]="credentials.username" placeholder="Username">
@@ -10,6 +10,6 @@
 	
 	</form>
 	
-	<company-dropdown id="companyDropdown"></company-dropdown>
+	<company-select id="company_select"></company-select>
 	
 </div>

@@ -1,27 +1,54 @@
 .navbar_userinfo
-  article
-    @extend %navbarText
+  text-align: right
+
+  .navbar_userinfo_user,
+  .navbar_userinfo_company
     @extend %clickable
-    float: left
-    padding: .5rem 1rem
+    @extend %navbarText
+    display: inline-block
+    position: relative
+    padding: 0
 
     &:hover,
     &:focus
       background: darken($navbarBackground, 10%)
 
-    &:after
+    .navbar_userinfo_title
       display: inline-block
-      height: 1rem
-      width: 1rem
-      content: ""
-      margin-left: .5rem
-      background-size: contain
-      background-repeat: no-repeat
-      position: relative
-      top: .1rem
+      padding: .5rem 1rem
 
-.navbar_userinfo_user:after
-  background-image: unicon-user($navbarTextColor)
+      &:after
+        display: inline-block
+        height: 1rem
+        width: 1rem
+        content: ""
+        margin-left: .5rem
+        background-size: contain
+        background-repeat: no-repeat
+        position: relative
+        top: .1rem
 
-.navbar_userinfo_company:after
+
+
+  .navbar_userinfo_dropdown
+    @extend %navbarDropdowns
+    position: absolute
+    list-style: none
+    display: none
+    right: 0
+    top: 1rem
+    color: $uni-color-positive
+    margin: 1.5rem 0
+    padding: 1rem
+
+    &.-is-active
+      display: block
+
+.navbar_userinfo_company .navbar_userinfo_title:after
   background-image: unicon-company($navbarTextColor)
+
+.navbar_userinfo_user .navbar_userinfo_title:after
+  background-image: unicon-user($navbarTextColor)
+  
+.navbar_userinfo_user company-select span
+  width: 200px
