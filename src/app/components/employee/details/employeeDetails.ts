@@ -1,18 +1,29 @@
 import {Component} from 'angular2/core';
-import {RouteParams} from 'angular2/router';
+import {RouteConfig, RouteParams, ROUTER_DIRECTIVES} from 'angular2/router';
 import {Http, Headers, Response} from 'angular2/http';
 import { Observable } from 'rxjs/Observable';
-import 'rxjs/operator/map';
-import 'rxjs/operator/first';
+import 'rxjs/add/operator/map';
 
 import {WidgetPoster} from '../../common/widgetPoster/widgetPoster';
-import {TestForm} from './testForm';
+import {PersonalDetails} from './childComponents/personalDetails';
+import {Employment} from './childComponents/employment';
+import {Hours} from './childComponents/hours';
+import {Travel} from './childComponents/travel';
+import {SalaryTransactions} from './childComponents/salaryTransactions';
+
 
 @Component({
 	selector: 'uni-employee-details',
 	templateUrl: 'app/components/employee/details/employeeDetails.html',
-	directives: [WidgetPoster, TestForm]
+	directives: [ROUTER_DIRECTIVES, WidgetPoster]
 })
+@RouteConfig([
+    { path: '/', component: PersonalDetails, as: 'PersonalDetails' },
+    { path: '/employment', component: Employment, as: 'Employment' },
+    { path: '/salarytransactions', component: SalaryTransactions, as: 'SalaryTransactions' },
+    { path: '/hours', component: Hours, as: 'Hours' },
+    { path: '/travel', component: Travel, as: 'Travel' },
+])
 export class EmployeeDetails {
 	employeeID;
 	employee: any; // todo: type this as interface?
@@ -34,7 +45,6 @@ export class EmployeeDetails {
 		
 		this.http.get(url, { headers: headers })
 		.map((result: any) => result.json())
-		.first()
 		.subscribe (
 			response => {
 				this.employee = response;
