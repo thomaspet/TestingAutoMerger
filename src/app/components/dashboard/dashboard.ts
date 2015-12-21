@@ -1,4 +1,5 @@
 import {Component} from 'angular2/core';
+import {TabService} from '../navbar/tabstrip/tabService';
 
 @Component({
   selector: 'uni-dashboard',
@@ -7,6 +8,8 @@ import {Component} from 'angular2/core';
 })
 export class Dashboard {
 
-  constructor() { }
+  constructor(private tabService: TabService) {
+      this.tabService.addTab({name: 'Dashboard', url: '/'});
+   }
   
 }

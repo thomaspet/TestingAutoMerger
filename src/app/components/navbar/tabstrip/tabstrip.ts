@@ -1,44 +1,49 @@
-import {Component, AfterViewInit} from 'angular2/core';
+import {Component} from 'angular2/core';
 import {RouteConfig, ROUTER_DIRECTIVES, Router} from 'angular2/router';
 import {Routes, APP_ROUTES} from '../../../route.config';
+import {TabService} from './tabService';
+import {Observable} from 'rxjs/Observable';
+import 'rxjs/add/observable/fromArray';
+
+export interface NavbarTab {
+    name: string;
+    url: string;
+}
 
 @Component({
 	selector: 'uni-tabstrip',
 	templateUrl: 'app/components/navbar/tabstrip/tabstrip.html',
-	directives: [ROUTER_DIRECTIVES]
+	directives: [ROUTER_DIRECTIVES],
 })
-export class Tabstrip implements AfterViewInit {
-    public routes = Routes;
-    openTabs: Array<any>;
+export class Tabstrip {
 
-    constructor(public router: Router) {
-        this.openTabs = this.getOpenTabs();
+    constructor(private router: Router, public tabService: TabService) {
+        Observable.fromArray(tabService.tabs)
+        .subscribe(
+            function (x) {
+                console.log('Next: ' + x);
+            },
+            function (err) {
+                console.log('Error: ' + err);
+            },
+            function () {
+                console.log('Completed');
+            }
+        );
     }
 
-    getOpenTabs(): Array<any> {
-        return [
-            { name: 'Dashboard', unsavedWork: true, href: '/' },
-            { name: 'UniFromDemo', unsavedWork: false, href: '/uniformdemo' },
-        ];
+    addTab(): void {
+        var tab = {name: 'Dashboard', url: '/'};
+        this.tabService.addTab(tab);
+        this.router.navigateByUrl(tab.url);
     }
 
-    addNewTab(newTab): void {
-        //this.openTabs.push(newTab);
-        this.openTabs.push({ name: 'Kitchensink', unsavedWork: false, href: '/kitchensink' });
+    activateTab(tab): void {
+        this.router.navigateByUrl(tab.url);
     }
 
-    tabClicked(tab): void {
-        this.router.navigateByUrl(tab.href);
+    closeTab(tab): void {
+        this.tabService.removeTab(tab.name);
     }
 
-    closeTab(tab, index): void {
-        if (tab.unsavedWork) {
-            //Needs custom alert box with options? 
-            alert('The tab you are about to close has unsaved work. Would you like to dismiss this work?');
-        } else {
-            this.openTabs.splice(index, 1);
-        }
-    }
-
-	ngAfterViewInit() {}
 }

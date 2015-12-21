@@ -7,13 +7,12 @@ import { AuthService } from '../../../framework/authentication/authService';
 declare var jQuery;
 
 @Component({
-	selector: 'login',
+	selector: 'uni-login',
 	templateUrl: 'app/components/login/login.html',
 	directives: [CompanySelect],
 	providers: [AuthService]
 })
-export class Login {
-	loginForm; 
+export class Login { 
 	companySelect;
 	
 	credentials: { username: string, password: string };
@@ -21,8 +20,7 @@ export class Login {
 	activeCompany: any;
 	
 	constructor(public authService: AuthService, public router: Router) {				
-		this.loginForm = jQuery('#loginForm');
-		this.companySelect = jQuery('#companySelect').hide();
+		this.companySelect = jQuery('#company_select').hide();
 		this.errorMessage = "";
 		this.activeCompany = localStorage.getItem('activeCompany');
 		

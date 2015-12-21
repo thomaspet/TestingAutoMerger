@@ -1,13 +1,15 @@
 import {Component, AfterViewInit, OnDestroy} from 'angular2/core';
 import {Combobox, ComboboxConfig} from '../../../../../framework/controls/combobox/combobox'
+import {CompanySelect} from '../../../common/companySelect/companySelect'; 
 import {Observable} from 'rxjs/Observable';
 import 'rxjs/add/observable/fromEvent';
+
 declare var jQuery;
 
 @Component({
 	selector: 'uni-company-dropdown',
 	templateUrl: 'app/components/navbar/userinfo/companyDropdown/companyDropdown.html',
-    directives: [Combobox]
+    directives: [Combobox, CompanySelect]
 })
 export class CompanyDropdown implements AfterViewInit, OnDestroy {
     companies: Array<any>;

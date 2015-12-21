@@ -1,7 +1,6 @@
 import { Injectable, EventEmitter } from 'angular2/core';
 import { Http, Headers, Response } from 'angular2/http';
 import { Observable } from 'rxjs/Observable';
-import 'rxjs/add/operator/share';
 
 declare var jwt_decode: (token: string) => any; // node_modules/jwt_decode
 
@@ -29,7 +28,7 @@ export class AuthService {
 	
 	get authenticated(): boolean {
 		var token = localStorage.getItem('jwt');
-		return (token && !this.expired);
+		return (token && !this.expired && this.companySelected);
 	}
 	
 	get expired(): boolean {
@@ -43,6 +42,11 @@ export class AuthService {
 		expires.setUTCSeconds(decoded.exp);
 		
 		return (new Date().valueOf() > expires.valueOf());		
+	}
+	
+	get companySelected(): boolean {
+		var company = localStorage.getItem('activeCompany');
+		return (company !== undefined && company !== null);
 	}
 	
 }

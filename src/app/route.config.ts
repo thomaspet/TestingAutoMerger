@@ -9,6 +9,12 @@ export var Routes = {
 		loader: () => ComponentProxy.LoadComponentAsync('Login', './app/components/login/login')
 	}),
 	
+	employeeDetails: new AsyncRoute({
+		path: '/employee/:id',
+		name: 'EmployeeDetails',
+		loader: () => ComponentProxy.LoadComponentAsync('EmployeeDetails', './app/components/employee/details/employeeDetails')
+	}),
+	
 	dashboard: new AsyncRoute({
 		path: '/',
     	name: 'Dashboard',
