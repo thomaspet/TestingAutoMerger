@@ -1,0 +1,75 @@
+﻿
+<!--﻿<nav class="navbar_hamburger" (click)="openBurgerMenu()">
+    Meny
+
+    <ul class="navbar_menu">
+
+        <li class="listElement is-active">
+            Nøkkeltall
+            <ul>
+                <h3>Alt om deres økonomi</h3>
+                <li [routerLink]="[routes.kitchensink.name]">Nøkkeltall</li>
+                <li [routerLink]="[routes.uniFormDemo.name]">Salgstall</li>
+                <li [routerLink]="[routes.dashboard.name]">Regnskap</li>
+            </ul>
+        </li>
+
+        <li class="listElement">
+            Salg
+            <ul>
+                <h3>Utgående salg</h3>
+                <li [routerLink]="[routes.kitchensink.name]">Faktura</li>
+                <li [routerLink]="[routes.uniFormDemo.name]"><a href="flyordre.html">Ordre</a></li>
+                <li [routerLink]="[routes.dashboard.name]">Tilbud</li>
+                <li [routerLink]="[routes.login.name]">Innbetaling</li>
+                <li [routerLink]="[routes.uniFormDemo.name]">Purring</li>
+                <li [routerLink]="[routes.kitchensink.name]">Kunder</li>
+                <li [routerLink]="[routes.dashboard.name]">Produkter</li>
+                <li [routerLink]="[routes.uniFormDemo.name]">Prosjekter</li>
+            </ul>
+        </li>
+
+        <li class="listElement">
+            Regnskap
+            <ul>
+                <h3>Orden i bøkene</h3>
+                <li [routerLink]="[routes.kitchensink.name]">Fakturamottak</li>
+                <li [routerLink]="[routes.dashboard.name]">Bilagsføring</li>
+                <li [routerLink]="[routes.login.name]">Hovedbok</li>
+                <li [routerLink]="[routes.kitchensink.name]">Forespørsel</li>
+            </ul>
+        </li>
+
+        <li class="listElement">
+            Lønn
+            <ul>
+                <h3>Lønn og ansatte</h3>
+                <li [routerLink]="[routes.kitchensink.name]">Ansatt</li>
+                <li [routerLink]="[routes.dashboard.name]">Stillinger</li>
+            </ul>
+        </li>
+
+        <li class="listElement">
+            Rapporter
+            <ul>
+                <h3>Oversikt på papir</h3>
+                <li [routerLink]="[routes.dashboard.name]">Rapportoversikt</li>
+            </ul>
+        </li>
+
+    </ul>
+</nav>-->
+
+﻿<nav class="navbar_hamburger" (click)="openBurgerMenu()">
+    <ul class="navbar_menu">
+        <li *ngFor="#componentList of availableComponents; #i = index" class="listElement" [ngClass]="{true:'is-active', false:''}[i==0]">
+            {{componentList.componentListName}}
+            <ul>
+                <h3>{{componentList.componentListHeader}}</h3>
+                <li *ngFor="#component of componentList.componentList" (click)="navigate(component.componentUrl)">
+                    {{component.componentName}}
+                </li>
+            </ul>
+        </li>
+    </ul>
+</nav>

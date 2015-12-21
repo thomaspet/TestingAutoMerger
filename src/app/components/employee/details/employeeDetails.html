@@ -1,0 +1,16 @@
+<div *ngIf="dataIsReady">
+
+	<h3>EmployeeDetails</h3>
+	<p>SSN: <strong>{{employee.SocialSecurityNumber}}</strong></p>
+	
+	<br><br>
+	
+	<uni-widget-poster [model]="employee"></uni-widget-poster>
+
+	<br><br>
+	
+	<input type="text" [(ngModel)]="employee.SocialSecurityNumber">
+	<!--<test-form [model]="employee" [onSubmit]="onFormSubmit"></test-form>-->
+	
+</div>
+

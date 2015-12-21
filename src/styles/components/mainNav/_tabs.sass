@@ -1,5 +1,11 @@
 .navbar_tabs
   margin: 0
+  white-space: nowrap
+
+  &+button.small
+    position: absolute
+    bottom: 1rem
+    right: 1rem
 
   a
     &:first-of-type li
@@ -24,9 +30,16 @@
     margin: 0
     text-align: center
     max-width: 200px
-    float: left
     border-left: .1rem solid transparentize($navbarTextColor, .8)
     border-right: .1rem solid transparentize(contrasting($navbarTextColor), .8)
+    white-space: nowrap
+    display: inline-block
+
+    &:first-of-type
+      border-left: none
+
+    &:last-of-type
+      border-right: none
 
     &:before
       content: ''

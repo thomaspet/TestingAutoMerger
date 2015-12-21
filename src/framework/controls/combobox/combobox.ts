@@ -6,7 +6,8 @@ import 'rxjs/observable/fromEvent';
 import {InputTemplateString} from '../inputTemplateString';
 
 export interface ComboboxConfig {
-	control: Control;
+	control?: Control;
+	onSelect?: Function;
 	kOptions: kendo.ui.ComboBoxOptions;
 }
 
@@ -18,6 +19,7 @@ export interface ComboboxConfig {
 export class Combobox implements AfterViewInit {
 	@Input() config: ComboboxConfig;
 	control;
+	
 	constructor(public element: ElementRef) {}
 
 	ngAfterViewInit() {
@@ -32,13 +34,18 @@ export class Combobox implements AfterViewInit {
 			validSelection = true;
 		};
 		// Store value in control if the selection was valid (input matches an item in the dataSource);
+		var self = this;
 		options.change = function(e) {
-			if (validSelection) {
-				control.updateValue(this.value());
-			} else {
-				control.updateValue('');
-				this.value('');
+			var newValue = (validSelection) ? this.value() : '';
+			
+			if (control) {
+				control.updateValue(newValue);
 			}
+			
+			if (self.config.onSelect) {
+				self.config.onSelect(newValue);
+			}
+			
 		};
 		//don't create the kendo component if it exists
 		combobox = element.find('input').first().kendoComboBox(options).data('kendoComboBox');
@@ -47,6 +54,7 @@ export class Combobox implements AfterViewInit {
 		Observable.fromEvent(combobox.input, 'keyup').subscribe((event: any) => {
 			validSelection = false;	
 		});
-		combobox.value(control.value);
+		
+		if (control) combobox.value(control.value);
 	}
 }

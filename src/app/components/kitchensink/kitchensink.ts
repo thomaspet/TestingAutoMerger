@@ -2,6 +2,7 @@
 import {Component} from 'angular2/core';
 import {FORM_DIRECTIVES, NgControl, FormBuilder} from 'angular2/common';
 import {UniTable, UniTableConfig} from '../../../framework/uniTable';
+import {TabService} from '../navbar/tabstrip/tabService';
 
 import {
   AutocompleteConfig,
@@ -48,7 +49,8 @@ export class Kitchensink {
 		{id: "4", name: 'Jon Terje', email: 'jonterje@unimicro.no'},
 	];
 		
-	constructor(fb: FormBuilder) {	
+	constructor(private tabService: TabService, fb: FormBuilder) {	
+		this.tabService.addTab({ name: 'Kitchensink', url: '/kitchensink' });
 		
 		this.tableConfig = new UniTableConfig('http://devapi.unieconomy.no/api/biz/orders', true)
 		.addColumn('ID', 'OrdreID', 'number')
