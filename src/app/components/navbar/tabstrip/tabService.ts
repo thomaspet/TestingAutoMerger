@@ -6,7 +6,7 @@ export class TabService {
 	private _tabs: Array<NavbarTab>;
 	
 	constructor() {
-		this._tabs = [];
+		this._tabs = JSON.parse(localStorage.getItem('navbarTabs')) || [];
 	}
 	
 	get tabs(): Array<NavbarTab> {
@@ -26,14 +26,18 @@ export class TabService {
             }
 		});
 		
-		if (!duplicate) this._tabs.push(newTab);
+		if (!duplicate) { 
+            this._tabs.push(newTab)
+            localStorage.setItem('navbarTabs', JSON.stringify(this._tabs));
+        }
 	}
 	
 	removeTab(name: string) {
 		this._tabs.forEach((tab, index) => {
 			if (tab.name === name) {
 				this._tabs.splice(index, 1);
-				return;
+				localStorage.setItem('navbarTabs', JSON.stringify(this._tabs));
+                return;
 			}
 		});
 	}
