@@ -1,0 +1,6 @@
+<ul class="app_navigation">
+    <li *ngFor="#link of links">
+        <a [routerLink]="[link.childRouteName]">{{link.linkTitle}}</a>
+    </li>
+</ul>
+

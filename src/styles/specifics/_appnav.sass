@@ -1,0 +1,29 @@
+.app_navigation
+  margin: 0
+  list-style: none
+  text-align: center
+  width: 100%
+  background: mix($uni-color-scale9, $navbarBackground, 60%)
+  display: flex
+  flex-direction: row
+  justify-content: center
+
+
+  li a
+    @extend %clickable
+    display: inline-block
+    color: $navbarTextColor
+    text-decoration: none
+    font-weight: 400
+    padding: .3rem 1rem
+    border-right: .1rem solid transparentize($uni-color-negative, .5)
+
+    &:last-of-type
+      border-right: none
+
+    &.-is-active
+      background: darken(mix($uni-color-scale9, $navbarBackground, 60%), 15%)
+
+    &:hover
+      background: darken(mix($uni-color-scale9, $navbarBackground, 60%), 15%)
+

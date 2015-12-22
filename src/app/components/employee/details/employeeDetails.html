@@ -11,13 +11,14 @@
 	
 	<input type="text" [(ngModel)]="employee.SocialSecurityNumber">
     
-    <ul>
+    <!--<ul>
         <li><a [routerLink]="['/EmployeeDetails', {id: employeeID}, 'PersonalDetails']">Personopplysninger</a></li>
         <li><a [routerLink]="['/EmployeeDetails', {id: employeeID}, 'Employment']">Arbeidsforhold</a></li>
         <li><a [routerLink]="['/EmployeeDetails', {id: employeeID}, 'SalaryTransactions']">Lønnsposter</a></li>
         <li><a [routerLink]="['/EmployeeDetails', {id: employeeID}, 'Hours']">Timer</a></li>
         <li><a [routerLink]="['/EmployeeDetails', {id: employeeID}, 'Travel']">Reise</a></li>
-    </ul>
+    </ul>-->
+    <uni-application-nav [links]="appNavLinks"></uni-application-nav>
     <router-outlet></router-outlet>
 	
 </div>
