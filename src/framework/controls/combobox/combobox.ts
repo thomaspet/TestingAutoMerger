@@ -68,7 +68,6 @@ export class Combobox implements AfterViewInit {
         let parent = HTMLElement.parent().parent();
         if(parent.hasClass('k-widget')) { 
  		    parent.remove();
-            parent.parent().html(InputTemplateString);
         }
  	}
 }
