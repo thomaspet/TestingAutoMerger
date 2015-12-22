@@ -52,8 +52,9 @@ export class CompanyDropdown implements AfterViewInit, OnDestroy {
             }
         );
         
-        var element = jQuery('#companySelect');
-        element.kendoDropDownList(this.dropdownConfig).data('kendoDropDownList');
+        var container = jQuery('#companySelect');
+        var dropdown = container.kendoDropDownList(this.dropdownConfig).data('kendoDropDownList');
+        dropdown.value(this.activeCompany.id);
     }    
 	
     //How to get companies? Already gotten?
