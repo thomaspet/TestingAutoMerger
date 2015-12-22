@@ -1,6 +1,5 @@
 import {Component, AfterViewInit, OnDestroy} from 'angular2/core';
-import {Combobox, ComboboxConfig} from '../../../../../framework/controls/combobox/combobox'
-import {CompanySelect} from '../../../common/companySelect/companySelect'; 
+import {Router} from 'angular2/router'
 import {Observable} from 'rxjs/Observable';
 import 'rxjs/add/observable/fromEvent';
 
@@ -9,36 +8,36 @@ declare var jQuery;
 @Component({
 	selector: 'uni-company-dropdown',
 	templateUrl: 'app/components/navbar/userinfo/companyDropdown/companyDropdown.html',
-    directives: [Combobox, CompanySelect]
 })
 export class CompanyDropdown implements AfterViewInit, OnDestroy {
     companies: Array<any>;
     activeCompany: any;
-    comboboxConfig: ComboboxConfig;
-    onCompanySelect: Function;
     clickSubscription: any;
     companyDropdownActive: Boolean;
+    dropdownConfig: kendo.ui.DropDownListOptions;
 
 
-    constructor() {
+    constructor(private router: Router) {
         this.companyDropdownActive = false;
         this.activeCompany = JSON.parse(localStorage.getItem('activeCompany'));
         this.companies = this.getCompanies();
         
-        this.comboboxConfig = {
-            onSelect: (companyID) => {
-                this.selectCompany(companyID);  
-            },
-			kOptions:  {
-				delay: 50,
-				dataTextField: 'name',
-				dataValueField: 'id',
-				dataSource: new kendo.data.DataSource({
-					data: this.companies
-				}),
-				template: '<span>#: data.id # - #: data.name #</span>'
-			}
-		}
+        this.dropdownConfig = {
+            delay: 50,
+            dataTextField: 'name',
+            dataValueField: 'id',
+            dataSource:  [
+                { id: 1, name: 'Unimicro AS' },
+                { id: 2, name: 'Google' },
+                { id: 3, name: 'Apple' },
+                { id: 4, name: 'Microsoft' },
+            ],
+            select: (event: kendo.ui.DropDownListSelectEvent) => {
+                var item: any = event.item;
+                var dataItem = event.sender.dataItem(item.index());
+                this.companySelected(dataItem);
+            }
+        }
     }
     
     ngAfterViewInit() {
@@ -52,11 +51,10 @@ export class CompanyDropdown implements AfterViewInit, OnDestroy {
                 }
             }
         );
-    }
-    
-    ngOnDestroy() {
-        this.clickSubscription.unsubscribe();
-    }
+        
+        var element = jQuery('#companySelect');
+        element.kendoDropDownList(this.dropdownConfig).data('kendoDropDownList');
+    }    
 	
     //How to get companies? Already gotten?
     getCompanies(): Array<any> {
@@ -67,20 +65,15 @@ export class CompanyDropdown implements AfterViewInit, OnDestroy {
             { id: 4, name: 'Microsoft' },
         ]
     }
-
-    selectCompany(companyID): void {
-        var selectedCompany;
         
-        this.companies.forEach((company) => {
-            if (company.id == companyID) {
-                selectedCompany = company;
-            }
-        });
-        
-        if (selectedCompany) {
-            localStorage.setItem('activeCompany', JSON.stringify(selectedCompany));
-            this.activeCompany = selectedCompany;
-        }
-
+    companySelected(selectedCompany): void {
+        console.log(selectedCompany.name);
+        localStorage.setItem('activeCompany', JSON.stringify(selectedCompany));
+        this.activeCompany = selectedCompany;
+        this.router.navigateByUrl('/');
+    }
+    
+    ngOnDestroy() {
+        this.clickSubscription.unsubscribe();
     }
 }
