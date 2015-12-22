@@ -7,16 +7,18 @@ export interface MultiSelectConfig {
 	kOptions: kendo.ui.MultiSelectOptions;
 }
 
+var templateString = `
+    <select
+        [ngFormControl]="config.control"
+        [ngClass] = "config.classes"
+        [disabled]="config.disabled"
+        [attr.readonly]="config.readonly"
+    ></select>
+`;
+
 @Component({
 	selector: 'uni-multiselect',
-	template: `
-		<select
-			[ngFormControl]="config.control"
-			[ngClass] = "config.classes"
-			[disabled]="config.disabled"
-			[attr.readonly]="config.readonly"
-		></select>
-	`
+	template: templateString
 })
 export class MultiSelect implements AfterViewInit {
 	@Input() config: MultiSelectConfig;
@@ -34,6 +36,10 @@ export class MultiSelect implements AfterViewInit {
 		options.change = function(event: kendo.ui.MultiSelectChangeEvent) {
 			control.updateValue(this.value());
 		};
+        this._destroyKendoWidget(element.find('select').first());
+        if(!element.find('select').length){
+            element.html(templateString);
+        }
 		multiselect = element.find('select').first().kendoMultiSelect(options).data('kendoMultiSelect');
 
 		// init to control value
@@ -43,4 +49,13 @@ export class MultiSelect implements AfterViewInit {
 			multiselect.trigger('change');
 		}
 	}
+    
+    private _destroyKendoWidget(HTMLElement) {
+        if(HTMLElement.data('kendoMultiSelect')){
+            HTMLElement.data('kendoMultiSelect').destroy();
+        }
+        let parent = HTMLElement.parent();
+        parent.html("");
+        
+    }
 }
