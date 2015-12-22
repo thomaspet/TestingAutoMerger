@@ -6,7 +6,9 @@ import 'rxjs/observable/fromEvent';
 import {InputTemplateString} from '../inputTemplateString';
 
 export interface AutocompleteConfig {
-	control: Control;
+    control?: Control;
+    onSelect?: Function;
+    clearOnSelect?: boolean;
 	kOptions: kendo.ui.AutoCompleteOptions;
 }
 
@@ -20,6 +22,7 @@ export class Autocomplete implements AfterViewInit {
 	constructor(public element:ElementRef) { }
 	
 	ngAfterViewInit() {
+        var self = this;
 		var element: any = $(this.element.nativeElement);
 		var control = this.config.control;
 		var options: kendo.ui.AutoCompleteOptions = this.config.kOptions;
@@ -33,18 +36,28 @@ export class Autocomplete implements AfterViewInit {
 		});
 		
 		// Update control value and set validSelection to true. Select event only fires when input text is valid.
-		options.select = function(event: kendo.ui.AutoCompleteSelectEvent) {
-			var item: any = event.item;
-			var dataItem = this.dataItem(item.index());
-			control.updateValue(dataItem.toJSON());
+        options.select = function (event: kendo.ui.AutoCompleteSelectEvent) {
+            var item: any = event.item;
+            var dataItem = event.sender.dataItem(item.index());
+            
+            if (control) {
+                control.updateValue(dataItem.toJSON());
+            }
+
+            if (self.config.onSelect) {
+                self.config.onSelect(event, dataItem);
+            }
+
 			validSelection = true;
 		};
 		
 		// Reset the fields on change events (blur, enter, ...) if input was invalid
-		options.change = function(event: kendo.ui.AutoCompleteChangeEvent) {
-			if (!validSelection) {
-				this.value('');
-				control.updateValue(undefined);
+        options.change = function (event: kendo.ui.AutoCompleteChangeEvent) {
+            if (!validSelection || self.config.clearOnSelect) {
+                event.sender.value('');
+                if (control) {
+                    control.updateValue(undefined);
+                }
 			}
 		};
 

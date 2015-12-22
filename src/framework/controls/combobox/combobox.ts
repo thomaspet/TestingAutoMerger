@@ -48,8 +48,11 @@ export class Combobox implements AfterViewInit {
 			
 		};
 		//don't create the kendo component if it exists
+        this._destroyKendoWidget(element.find('input').first());
+        if (!element.find('input').length) {
+            element.html(InputTemplateString);
+        }
 		combobox = element.find('input').first().kendoComboBox(options).data('kendoComboBox');
-
 		// Reset validSelection when the input text changes
 		Observable.fromEvent(combobox.input, 'keyup').subscribe((event: any) => {
 			validSelection = false;	
@@ -57,4 +60,15 @@ export class Combobox implements AfterViewInit {
 		
 		if (control) combobox.value(control.value);
 	}
+    
+    private _destroyKendoWidget(HTMLElement) {
+ 		if(HTMLElement.data('kendoComboBox')){
+            HTMLElement.data('kendoComboBox').destroy();
+        }
+        let parent = HTMLElement.parent().parent();
+        if(parent.hasClass('k-widget')) { 
+ 		    parent.remove();
+            parent.parent().html(InputTemplateString);
+        }
+ 	}
 }

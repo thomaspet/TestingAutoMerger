@@ -10,7 +10,15 @@
 	<br><br>
 	
 	<input type="text" [(ngModel)]="employee.SocialSecurityNumber">
-	<!--<test-form [model]="employee" [onSubmit]="onFormSubmit"></test-form>-->
+    
+    <ul>
+        <li><a [routerLink]="['/EmployeeDetails', {id: employeeID}, 'PersonalDetails']">Personopplysninger</a></li>
+        <li><a [routerLink]="['/EmployeeDetails', {id: employeeID}, 'Employment']">Arbeidsforhold</a></li>
+        <li><a [routerLink]="['/EmployeeDetails', {id: employeeID}, 'SalaryTransactions']">Lønnsposter</a></li>
+        <li><a [routerLink]="['/EmployeeDetails', {id: employeeID}, 'Hours']">Timer</a></li>
+        <li><a [routerLink]="['/EmployeeDetails', {id: employeeID}, 'Travel']">Reise</a></li>
+    </ul>
+    <router-outlet></router-outlet>
 	
 </div>
 
