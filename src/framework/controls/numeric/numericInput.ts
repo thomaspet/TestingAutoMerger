@@ -30,12 +30,16 @@ export class NumericInput {
 		if (element.data('kendoNumericTextBox')) {
             this._destroyKendoWidget(element);
 		}
+        this._destroyKendoWidget(element.find('input').first());
+        element.html(InputTemplateString);
         numericInput = element.find('input').first().kendoNumericTextBox(options).data('kendoNumericTextBox');
 	}
 
     private _destroyKendoWidget(HTMLElement) {
-        HTMLElement.data('kendoNumericTextBox').destroy();
-        let parent:any = $(HTMLElement[0].parentNode);
-        parent.find('span.k-widget.k-numerictextbox').remove();
+        if(HTMLElement.data('kendoNumericTextBox')){
+            HTMLElement.data('kendoNumericTextBox').destroy();
+        }
+        let parent = HTMLElement.parent();
+        parent.html("");
     }
 }
