@@ -1,10 +1,10 @@
-import {Component, AfterViewInit, ElementRef, Input} from 'angular2/core';
+import {Component, ElementRef, Input, AfterViewInit, OnDestroy} from 'angular2/core';
 import {Control} from 'angular2/common';
 import { Observable } from 'rxjs/Observable';
 import 'rxjs/observable/fromEvent';
 
-
 import {InputTemplateString} from '../inputTemplateString';
+declare var jQuery;
 
 export interface DatepickerConfig {
 	control: Control;
@@ -15,17 +15,18 @@ export interface DatepickerConfig {
 	selector: 'uni-datepicker',
 	template: InputTemplateString
 })
-export class Datepicker implements AfterViewInit {
+export class Datepicker implements AfterViewInit, OnDestroy {
 	@Input() config: DatepickerConfig;
+    nativeElement;
 		
-	constructor(public element: ElementRef) { }
+	constructor(public elementRef: ElementRef) {
+        this.nativeElement = jQuery(this.elementRef.nativeElement);
+    }
 	
 	ngAfterViewInit() {
 		var control = this.config.control;
 		var options = this.config.kOptions;
 		var datepicker;
-
-		var element: any = $(this.element.nativeElement);
 
 		options.format = "dd.MM.yyyy";
 		options.parseFormats = [
@@ -50,23 +51,28 @@ export class Datepicker implements AfterViewInit {
 				this.value(date);
 			}
 		}
-		datepicker = element.find('input').first().kendoDatePicker(options).data('kendoDatePicker');
+		datepicker = this.nativeElement.find('input').first().kendoDatePicker(options).data('kendoDatePicker');
 		
 		// Trigger kendo change event on keyup (enter) and blur in the textbox 
-		Observable.fromEvent(element, 'keyup')
+		Observable.fromEvent(this.nativeElement, 'keyup')
 		.subscribe(function (event: any) {			
 			if (event.keyCode && event.keyCode === 13) {
 				datepicker.trigger('change');
 			}	
 		});
 		
-		Observable.fromEvent(element, 'blur').subscribe((e) => {
+		Observable.fromEvent(this.nativeElement, 'blur').subscribe((e) => {
 			datepicker.trigger('change');
 		});		
 
 		datepicker.value(control.value);
-
 	}
+    
+    // Remove kendo markup when component is destroyed to avoid duplicates
+    ngOnDestroy() {
+        this.nativeElement.empty();
+        this.nativeElement.html(InputTemplateString);
+    } 
 }
 
 function autocompleteDate(inputValue): Date {

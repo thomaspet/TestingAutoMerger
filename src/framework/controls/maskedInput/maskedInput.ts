@@ -1,6 +1,8 @@
-import {Component, AfterViewInit, ElementRef, Input } from 'angular2/core';
+import {Component, ElementRef, Input, AfterViewInit, OnDestroy } from 'angular2/core';
 import {Control} from 'angular2/common';
 import {InputTemplateString} from '../inputTemplateString';
+
+declare var jQuery;
 
 export interface MaskedInputConfig {
 	control: Control,
@@ -11,14 +13,15 @@ export interface MaskedInputConfig {
 	selector: "uni-masked",
 	template: InputTemplateString
 })
-export class MaskedInput implements AfterViewInit{
+export class MaskedInput implements AfterViewInit, OnDestroy {
 	@Input() config: MaskedInputConfig;
-	
-	constructor(public element: ElementRef) {}
+	nativeElement;
+    
+	constructor(public elementRef: ElementRef) {
+        this.nativeElement = jQuery(this.elementRef.nativeElement);
+    }
 
 	ngAfterViewInit() {
-
-		var element: any = $(this.element.nativeElement);
 		var maskedInput;
 
 		var control = this.config.control;
@@ -30,11 +33,17 @@ export class MaskedInput implements AfterViewInit{
 			this.value(val); // to avoid mask disappearing in input field (due to control storing the raw string)
 		}
 
-		maskedInput = element.find('input').first().kendoMaskedTextBox(options).data('kendoMaskedTextBox');
+		maskedInput = this.nativeElement.find('input').first().kendoMaskedTextBox(options).data('kendoMaskedTextBox');
 
 		// init to control value
 		if (control.value !== null && control.value.length > 0) {
 			maskedInput.value(control.value);
 		}
 	}
+    
+    // Remove kendo markup when component is destroyed to avoid duplicates
+    ngOnDestroy() {
+        this.nativeElement.empty();
+        this.nativeElement.html(InputTemplateString);
+    } 
 }

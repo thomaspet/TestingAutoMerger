@@ -1,9 +1,11 @@
-import {Component, AfterViewInit,ElementRef, Input} from 'angular2/core';
+import {Component, ElementRef, Input, AfterViewInit, OnDestroy} from 'angular2/core';
 import {Control} from 'angular2/common';
 import { Observable } from 'rxjs/Observable';
 import 'rxjs/observable/fromEvent';
 
 import {InputTemplateString} from '../inputTemplateString';
+
+declare var jQuery;
 
 export interface AutocompleteConfig {
     control?: Control;
@@ -16,14 +18,16 @@ export interface AutocompleteConfig {
 	selector:'uni-autocomplete',
 	template: InputTemplateString
 })
-export class Autocomplete implements AfterViewInit {
+export class Autocomplete implements AfterViewInit, OnDestroy {
 	@Input() config: AutocompleteConfig;
+    nativeElement;
 	
-	constructor(public element:ElementRef) { }
+	constructor(public elementRef:ElementRef) {
+        this.nativeElement = jQuery(this.elementRef.nativeElement);
+     }
 	
 	ngAfterViewInit() {
         var self = this;
-		var element: any = $(this.element.nativeElement);
 		var control = this.config.control;
 		var options: kendo.ui.AutoCompleteOptions = this.config.kOptions;
 		
@@ -31,7 +35,7 @@ export class Autocomplete implements AfterViewInit {
 		var validSelection = false;
 		
 		// Reset validSelection when input changes
-		Observable.fromEvent(element, 'keyup').subscribe((event) => {
+		Observable.fromEvent(this.nativeElement, 'keyup').subscribe((event) => {
 			validSelection = false;
 		});
 		
@@ -61,7 +65,13 @@ export class Autocomplete implements AfterViewInit {
 			}
 		};
 
-		var autocomplete = element.find('input').first().kendoAutoComplete(options).data('kendoAutoComplete');
+		var autocomplete = this.nativeElement.find('input').first().kendoAutoComplete(options).data('kendoAutoComplete');
 		autocomplete.value(control.value[this.config.kOptions.dataTextField]);
 	}
+    
+    // Remove kendo markup when component is destroyed to avoid duplicates
+    ngOnDestroy() {
+        this.nativeElement.empty();
+        this.nativeElement.html(InputTemplateString);
+    }
 }

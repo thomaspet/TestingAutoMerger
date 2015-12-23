@@ -1,7 +1,8 @@
-import {Component, AfterViewInit, ElementRef, Input} from 'angular2/core';
+import {Component, ElementRef, Input, AfterViewInit, OnDestroy} from 'angular2/core';
 import {Control} from 'angular2/common';
 
 import {InputTemplateString} from '../inputTemplateString';
+declare var jQuery;
 
 export interface DropdownConfig {
 	control: Control;
@@ -12,23 +13,29 @@ export interface DropdownConfig {
 	selector: 'uni-dropdown',
 	template: InputTemplateString
 })
-export class Dropdown implements AfterViewInit {
+export class Dropdown implements AfterViewInit, OnDestroy {
 	@Input() config: DropdownConfig;
+    nativeElement;
 	
-	constructor(public element: ElementRef) { }
+	constructor(public elementRef: ElementRef) { 
+        this.nativeElement = jQuery(this.elementRef.nativeElement);
+    }
 	
 	ngAfterViewInit() {
 		var vm = this;
-		var element: any = $(this.element.nativeElement);
 		var dropdown;
 
 		this.config.kOptions.change = function(event) {
 			vm.config.control.updateValue(this.value());
 		}
 
-		//don't create the kendo component if it exists
-		dropdown = element.find('input').first().kendoDropDownList(this.config.kOptions).data('kendoDropDownList');
-
+		dropdown = this.nativeElement.find('input').first().kendoDropDownList(this.config.kOptions).data('kendoDropDownList');
 		dropdown.value(vm.config.control.value); // init to control
 	}
+    
+    // Remove kendo markup when component is destroyed to avoid duplicates
+    ngOnDestroy() {
+        this.nativeElement.empty();
+        this.nativeElement.html(InputTemplateString);
+    } 
 }
