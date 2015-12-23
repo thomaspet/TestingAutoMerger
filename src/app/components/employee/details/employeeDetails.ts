@@ -11,11 +11,12 @@ import {Hours} from './childComponents/hours';
 import {Travel} from './childComponents/travel';
 import {SalaryTransactions} from './childComponents/salaryTransactions';
 
+import {ApplicationNav, ApplicationNavLink} from '../../common/applicationNav/applicationNav';
 
 @Component({
 	selector: 'uni-employee-details',
 	templateUrl: 'app/components/employee/details/employeeDetails.html',
-	directives: [ROUTER_DIRECTIVES, WidgetPoster]
+	directives: [ROUTER_DIRECTIVES, WidgetPoster, ApplicationNav]
 })
 @RouteConfig([
     { path: '/', component: PersonalDetails, as: 'PersonalDetails' },
@@ -30,12 +31,21 @@ export class EmployeeDetails {
 	dataIsReady: boolean = false; // better workaround for this? (view is drawn before object is back from http call)
 	
 	onFormSubmit: Function;
-	
+    appNavLinks: Array<ApplicationNavLink>;
+    	
 	constructor(private routeParams: RouteParams, private http: Http) {
 		this.employeeID = routeParams.get('id');
 		this.getEmployee('http://devapi.unieconomy.no:80/api/biz/employees/' + this.employeeID);
 		
 		this.onFormSubmit = (value) => { console.log(value); };
+        
+        this.appNavLinks = [
+                { childRouteName: 'PersonalDetails', linkTitle: 'Personopplysninger' },
+                { childRouteName: 'Employment', linkTitle: 'Arbeidsforhold' },
+                { childRouteName: 'SalaryTransactions', linkTitle: 'Lønnsposter' },
+                { childRouteName: 'Hours', linkTitle: 'Timer' },
+                { childRouteName: 'Travel', linkTitle: 'Reise' }
+        ];
 	}
 	
 	// GET employee. todo: this should happen somewhere else!
