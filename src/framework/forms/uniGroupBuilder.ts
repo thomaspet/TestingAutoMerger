@@ -2,7 +2,7 @@ import {UniField} from './uniField';
 import {UniFieldset} from './uniFieldset';
 import {FIELD_TYPES} from "./uniForm";
 
-export class UniFieldsetBuilder {
+export class UniGroupBuilder {
     legend: string = '';
     fields: Array<UniField|UniFieldset>=[];
     fieldType:number;

@@ -1,0 +1,15 @@
+export enum UNI_CONTROL_TYPES {
+    AUTOCOMPLETE,
+    COMBOBOX,
+    DATEPICKER,
+    DROPDOWN,
+    MASKED,
+    MULTISELECT,
+    NUMERIC,
+    RADIO,
+    CHECKBOX,
+    RADIOGROUP,
+    TEXT,
+    EMAIL,
+    PASSWORD
+}

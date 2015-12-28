@@ -1,19 +1,19 @@
 <label [ngSwitch]="config.type" ngForm *ngIf="isInput(config.type)">
     <span>{{config.label}}</span>
 
-    <uni-autocomplete *ngSwitchWhen="'autocomplete'" [config]="config"></uni-autocomplete>
-    <uni-dropdown *ngSwitchWhen="'dropdown'" [config]="config"></uni-dropdown>
-    <uni-combobox *ngSwitchWhen="'combobox'" [config]="config"></uni-combobox>
-    <uni-multiselect *ngSwitchWhen="'multiselect'" [config]="config"></uni-multiselect>
-    <uni-datepicker *ngSwitchWhen="'datepicker'" [config]="config"></uni-datepicker>
-    <uni-masked *ngSwitchWhen="'masked'" [config]="config"></uni-masked>
-    <uni-numeric *ngSwitchWhen="'numeric'" [config]="config"></uni-numeric>
+    <uni-autocomplete *ngSwitchWhen="CONTROL_TYPES.AUTOCOMPLETE" [config]="config"></uni-autocomplete>
+    <uni-dropdown *ngSwitchWhen="CONTROL_TYPES.DROPDOWN" [config]="config"></uni-dropdown>
+    <uni-combobox *ngSwitchWhen="CONTROL_TYPES.COMBOBOX" [config]="config"></uni-combobox>
+    <uni-multiselect *ngSwitchWhen="CONTROL_TYPES.MULTISELECT" [config]="config"></uni-multiselect>
+    <uni-datepicker *ngSwitchWhen="CONTROL_TYPES.DATEPICKER" [config]="config"></uni-datepicker>
+    <uni-masked *ngSwitchWhen="CONTROL_TYPES.MASKED" [config]="config"></uni-masked>
+    <uni-numeric *ngSwitchWhen="CONTROL_TYPES.NUMERIC" [config]="config"></uni-numeric>
 
     <input
             type="email"
             [ngFormControl]="config.control"
             [ngClass] = "config.classes"
-            *ngSwitchWhen="'email'"
+            *ngSwitchWhen="CONTROL_TYPES.EMAIL"
             [readonly]="config.readonly"
             [disabled]="config.disabled"
     />
@@ -21,7 +21,7 @@
     <input
             type="password"
             [ngFormControl]="config.control"
-            *ngSwitchWhen="'password'"
+            *ngSwitchWhen="CONTROL_TYPES.PASSWORD"
             [readonly]="config.readonly"
             [disabled]="config.disabled"
     />
@@ -32,7 +32,7 @@
             type="checkbox"
             [ngFormControl]="config.control"
             [ngClass] = "config.classes"
-            *ngSwitchWhen="'checkbox'"
+            *ngSwitchWhen="CONTROL_TYPES.CHECKBOX"
             [readonly]="config.readonly"
             [disabled]="config.disabled"
             (change)="setFormValue(config.control, cb.checked)"
@@ -43,7 +43,7 @@
             type="radio"
             [ngFormControl]="config.control"
             [ngClass] = "config.classes"
-            *ngSwitchWhen="'radio'"
+            *ngSwitchWhen="CONTROL_TYPES.RADIO"
             [name]="config.field"
             [readonly]="config.readonly"
             [disabled]="config.disabled"
@@ -53,7 +53,7 @@
             type="text"
             [ngFormControl]="config.control"
             [ngClass] = "config.classes"
-            *ngSwitchWhenDefault
+            *ngSwitchWhen="CONTROL_TYPES.TEXT"
             [name]="config.field"
             [readonly]="config.readonly"
             [disabled]="config.disabled"
