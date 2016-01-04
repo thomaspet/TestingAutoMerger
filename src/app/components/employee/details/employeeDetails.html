@@ -1,23 +1,13 @@
 <div *ngIf="dataIsReady">
 
-	<h3>EmployeeDetails</h3>
-	<p>SSN: <strong>{{employee.SocialSecurityNumber}}</strong></p>
+	<h3>Employee Details</h3>
 	
-	<br><br>
+	<br>
 	
 	<uni-widget-poster [model]="employee"></uni-widget-poster>
 
-	<br><br>
-	
-	<input type="text" [(ngModel)]="employee.SocialSecurityNumber">
+	<br>
     
-    <!--<ul>
-        <li><a [routerLink]="['/EmployeeDetails', {id: employeeID}, 'PersonalDetails']">Personopplysninger</a></li>
-        <li><a [routerLink]="['/EmployeeDetails', {id: employeeID}, 'Employment']">Arbeidsforhold</a></li>
-        <li><a [routerLink]="['/EmployeeDetails', {id: employeeID}, 'SalaryTransactions']">Lønnsposter</a></li>
-        <li><a [routerLink]="['/EmployeeDetails', {id: employeeID}, 'Hours']">Timer</a></li>
-        <li><a [routerLink]="['/EmployeeDetails', {id: employeeID}, 'Travel']">Reise</a></li>
-    </ul>-->
     <uni-application-nav [links]="appNavLinks"></uni-application-nav>
     <router-outlet></router-outlet>
 	

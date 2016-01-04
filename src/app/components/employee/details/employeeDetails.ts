@@ -1,4 +1,4 @@
-import {Component} from 'angular2/core';
+import {Component, Inject} from 'angular2/core';
 import {RouteConfig, RouteParams, ROUTER_DIRECTIVES} from 'angular2/router';
 import {Http, Headers, Response} from 'angular2/http';
 import { Observable } from 'rxjs/Observable';
@@ -13,9 +13,12 @@ import {SalaryTransactions} from './childComponents/salaryTransactions';
 
 import {ApplicationNav, ApplicationNavLink} from '../../common/applicationNav/applicationNav';
 
+import {EmployeeDS} from '../../../../framework/data/employee';
+
 @Component({
 	selector: 'uni-employee-details',
 	templateUrl: 'app/components/employee/details/employeeDetails.html',
+    providers: [EmployeeDS],
 	directives: [ROUTER_DIRECTIVES, WidgetPoster, ApplicationNav]
 })
 @RouteConfig([
@@ -33,10 +36,18 @@ export class EmployeeDetails {
 	onFormSubmit: Function;
     appNavLinks: Array<ApplicationNavLink>;
     	
-	constructor(private routeParams: RouteParams, private http: Http) {
+	constructor(private routeParams: RouteParams, @Inject(EmployeeDS) private employeeDS:EmployeeDS) {
 		this.employeeID = routeParams.get('id');
-		this.getEmployee('http://devapi.unieconomy.no:80/api/biz/employees/' + this.employeeID);
-		
+        employeeDS.get(this.employeeID)
+        .subscribe (
+			response => {
+				this.employee = response;
+                this.dataIsReady = true;
+			},
+			error => {
+				console.log(error);
+			}
+		);
 		this.onFormSubmit = (value) => { console.log(value); };
         
         this.appNavLinks = [
@@ -46,24 +57,6 @@ export class EmployeeDetails {
                 { childRouteName: 'Hours', linkTitle: 'Timer' },
                 { childRouteName: 'Travel', linkTitle: 'Reise' }
         ];
-	}
-	
-	// GET employee. todo: this should happen somewhere else!
-	getEmployee(url: string): void {
-		var headers = new Headers();
-		headers.append('Client', 'client1');
-		
-		this.http.get(url, { headers: headers })
-		.map((result: any) => result.json())
-		.subscribe (
-			response => {
-				this.employee = response;
-				this.dataIsReady = true;
-			},
-			error => {
-				console.log(error);
-			}
-		);
 	}
 	
 }

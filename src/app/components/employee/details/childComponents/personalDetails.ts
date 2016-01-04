@@ -1,4 +1,4 @@
-import {Component} from 'angular2/core';
+import {Component,Inject} from 'angular2/core';
 
 import {UniForm} from '../../../../../framework/forms/uniForm';
 import {UNI_CONTROL_TYPES} from '../../../../../framework/controls/types';
@@ -7,6 +7,9 @@ import {UniFormBuilder} from '../../../../../framework/forms/uniFormBuilder';
 import {UniFieldBuilder} from '../../../../../framework/forms/uniFieldBuilder';
 import {UniFieldsetBuilder} from '../../../../../framework/forms/uniFieldsetBuilder';
 import {UniGroupBuilder} from '../../../../../framework/forms/uniGroupBuilder';
+
+
+import {EmployeeDS} from '../../../../../framework/data/employee';
 
 @Component({
     selector: 'employee-personal-details',
@@ -20,7 +23,8 @@ import {UniGroupBuilder} from '../../../../../framework/forms/uniGroupBuilder';
 })
 export class PersonalDetails {
     form;
-    constructor() {
+    constructor(@Inject(EmployeeDS) employeeDS:EmployeeDS) {
+        console.log(employeeDS);
         var formBuilder = new UniFormBuilder();
         
         var model = {};
@@ -125,6 +129,36 @@ export class PersonalDetails {
         .setModelField('name')
         .setType(UNI_CONTROL_TYPES.TEXT)//Validation or specific field
         
+        var internationalPoster = new UniGroupBuilder("INTERNASJONALE POSTER")
+        var internationalID = new UniFieldsetBuilder("Internasjonal ID");
+        var internationalNumber = new UniFieldBuilder();
+        internationalNumber.setLabel('Nummer')
+        .setModel(model)
+        .setModelField('name')
+        .setType(UNI_CONTROL_TYPES.TEXT)//Validation or specific field
+        
+        var internationalType = new UniFieldBuilder();
+        internationalType.setLabel('Type')
+        .setModel(model)
+        .setModelField('name')
+        .setType(UNI_CONTROL_TYPES.DROPDOWN)//Validation or specific field
+        .setKendoOptions({
+            dataSource: [
+                'Passnummer',
+                'Social Security Number', 
+                'Tax Identification Nummer', 
+                'VAT Nummer'
+            ]
+        });
+        
+        var internationalCountry = new UniFieldBuilder();
+        internationalCountry.setLabel('Utstedelsesland')
+        .setModel(model)
+        .setModelField('name')
+        .setType(UNI_CONTROL_TYPES.TEXT)//Validation or specific field
+        
+        internationalID.addFields(internationalNumber,internationalType,internationalCountry);
+        internationalPoster.addFields(internationalID);
         formBuilder.addFields(
             name,
             middleName,
@@ -139,7 +173,8 @@ export class PersonalDetails {
             birthdate,
             department,
             superior,
-            workplace
+            workplace,
+            internationalPoster
         );
         
         
