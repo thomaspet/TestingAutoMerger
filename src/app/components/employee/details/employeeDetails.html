@@ -1,12 +1,17 @@
 <div *ngIf="dataIsReady">
 
-    <header class="poster_toolbar">
-        <h3 class="poster_toolbar_headline">Employee Details</h3>
-    </header>
-
+	<h3>EmployeeDetails</h3>
+	<p>SSN: <strong>{{employee.SocialSecurityNumber}}</strong></p>
+	
+	<br><br>
+	
 	<uni-widget-poster [model]="employee"></uni-widget-poster>
 
-    <uni-application-nav [links]="appNavLinks"></uni-application-nav>
+	<br><br>
+	
+	<input type="text" [(ngModel)]="employee.SocialSecurityNumber">
+    
+    <uni-application-nav [routes]="childRoutes"></uni-application-nav>
     <router-outlet></router-outlet>
 	
 </div>

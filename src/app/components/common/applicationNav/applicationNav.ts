@@ -1,10 +1,5 @@
 import {Component, Input, AfterViewInit} from 'angular2/core';
-import {ROUTER_DIRECTIVES} from 'angular2/router';
-
-export interface ApplicationNavLink {
-    childRouteName: string,
-    linkTitle: string
-}
+import {Router, RouteDefinition, ROUTER_DIRECTIVES} from 'angular2/router';
 
 @Component({
     selector: 'uni-application-nav',
@@ -12,5 +7,5 @@ export interface ApplicationNavLink {
     directives: [ROUTER_DIRECTIVES]
 })
 export class ApplicationNav {
-    @Input() links: Array<ApplicationNavLink>;
+    @Input() routes: RouteDefinition[];
 }
