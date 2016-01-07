@@ -1,23 +1,45 @@
 export class UniTableConfig {
-	lookupUrl: string;
+	queryData = {
+        url: '',
+        expand: '',
+        select: '',
+        filter: ''
+    };
+    
 	searchable: boolean;
+    editable: boolean;
 	onSelect: (selectedRow?: any) => any;
 	
-	// todo: can we type these?
 	fields: any;
 	columns: any[];
 	
-	constructor(lookupUrl: string, searchable: boolean) {
-		this.lookupUrl = lookupUrl;
+	constructor(resourceUrl: string, searchable: boolean = true, editable: boolean = false) {
+		this.queryData.url = resourceUrl;
 		this.searchable = searchable;
+        this.editable = editable;
 		this.fields = {};
 		this.columns = [];
 	}
 	
-	setLookupUrl(lookupUrl: string) {
-		this.lookupUrl = lookupUrl;
+	setResourceUrl(resourceUrl: string) {
+		this.queryData.url = resourceUrl;
 		return this;
 	}
+    
+    setSelectString(selectString: string) {
+        this.queryData.select = selectString;
+        return this;
+    }
+    
+    setExpandString(expandString: string) {
+        this.queryData.expand = expandString;
+        return this;
+    }
+    
+    setFilterString(filterString: string) {
+        this.queryData.filter = filterString;
+        return this;
+    }
 	
 	setSearchable(searchable: boolean) {
 		this.searchable = searchable;
@@ -28,6 +50,16 @@ export class UniTableConfig {
 		this.onSelect = onSelect;
 		return this;
 	}
+    
+    setSchema(schema: any) {
+        this.fields = schema;
+        return this;
+    }
+    
+    setColumns(columns: any) {
+        this.columns = columns;
+        return this;
+    }
 	
 	addColumn(field: string, title: string, type: string, format?: string, filterable: boolean = true) {
 		// Define a default date format to use if not specified on a date column
@@ -48,6 +80,7 @@ export class UniTableConfig {
 			title: title,
 			format: columnFormat
 		});
+        
 		return this;
 	}	
 }
