@@ -25,51 +25,56 @@ export class UniTable implements AfterViewInit {
             'Client': 'client1'
         }
         
-        
 		// Create kendo options from the config
 		this.tableConfig = {
 			dataSource: {
 				type: 'json',
 				transport: {
 					read: {
-						url: this.config.queryData.url + this.buildOdataString(),
+						url: this.config.resourceUrl + this.buildOdataString(),
                         type: 'GET',
 						headers: httpHeaders
 					},
                     update: {
-                        url: this.config.queryData.url,
+                        url: (item) => {
+                            return this.config.resourceUrl + '/' + item.ID
+                        },
                         type: 'PUT',
                         headers: httpHeaders  
                     },
                     create: {
-                        url: this.config.queryData.url,
+                        url: this.config.resourceUrl,
                         type: 'POST',
                         headers: httpHeaders  
                     },
                     destroy: {
-                        url: this.config.queryData.url,
+                        url: (item) => {
+                            return this.config.resourceUrl + '/' + item.ID
+                        },
                         type: 'DELETE',
                         headers: httpHeaders
                     },
+                    parameterMap: function(options, operation) {
+                        if (operation !== "read" && options) {   
+                            return kendo.stringify(options);
+                        }
+                    }
 				},
 				schema: { 
-					model: {
-						id: 'ID',
-						fields: this.config.fields
-					}
+					model: this.config.dsModel
 				},
-                pageSize: 20
+                pageSize: 20,
 			},
 			toolbar: ["create", "save", "cancel"],
 			columns: this.config.columns,
 			filterable: true,
             editable: this.config.editable,
-            navigatable: true
+            navigatable: true,            
 		};
         
 		
 		// If onSelect is defined we hook it up to the kendo change event which is fired when the user clicks a row
-		if (this.config.onSelect) {
+		if (this.config.onSelect && !this.config.editable) {
 			this.tableConfig.selectable = "row";
 			
 			var vm = this;
@@ -88,17 +93,21 @@ export class UniTable implements AfterViewInit {
 	}
     
     buildOdataString() {
+        if (!this.config.odata) {
+            return '';
+        }
+        
         var odataStr = '?';
-        odataStr += (this.config.queryData.expand) ? ('expand=' + this.config.queryData.expand + '&') : '';
-        odataStr += (this.config.queryData.select) ? ('select=' + this.config.queryData.select + '&') : '';
-        odataStr += (this.config.queryData.filter) ? ('filter=' + this.config.queryData.filter + '&') : '';
+        odataStr += (this.config.odata.expand) ? ('expand=' + this.config.odata.expand + '&') : '';
+        odataStr += (this.config.odata.select) ? ('select=' + this.config.odata.select + '&') : '';
+        odataStr += (this.config.odata.filter) ? ('filter=' + this.config.odata.filter) : '';
         
         // Remove trailing '&'
         if (odataStr[odataStr.length - 1] === '&') {
             odataStr = odataStr.slice(0, -1);
         }
         
-        // If length is 1 it means there is no odata in the config
+        // If length is 1 ("?") it means there is no odata in the config
         if (odataStr.length === 1) {
             return ''
         }

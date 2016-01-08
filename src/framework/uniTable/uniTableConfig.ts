@@ -1,43 +1,51 @@
-export class UniTableConfig {
-	queryData = {
-        url: '',
-        expand: '',
-        select: '',
-        filter: ''
-    };
-    
+export interface IOdata {
+    expand?: string,
+    select?: string,
+    filter?: string
+}
+
+export interface IColumn {
+    field: string,
+    title: string,
+	format?: string
+}
+
+export class UniTableConfig {    
+    resourceUrl: string;
+    odata: IOdata;
+
 	searchable: boolean;
     editable: boolean;
 	onSelect: (selectedRow?: any) => any;
 	
-	fields: any;
-	columns: any[];
+    dsModel: kendo.data.DataSourceSchemaModel;
+	columns: IColumn[];
 	
 	constructor(resourceUrl: string, searchable: boolean = true, editable: boolean = false) {
-		this.queryData.url = resourceUrl;
+		this.resourceUrl = resourceUrl;
 		this.searchable = searchable;
         this.editable = editable;
-		this.fields = {};
+		this.dsModel = {};
 		this.columns = [];
 	}
 	
-	setResourceUrl(resourceUrl: string) {
-		this.queryData.url = resourceUrl;
-		return this;
-	}
-    
-    setSelectString(selectString: string) {
-        this.queryData.select = selectString;
+    setResourceUrl(url: string) {
+        this.resourceUrl = url;
         return this;
     }
     
-    setExpandString(expandString: string) {
-        this.queryData.expand = expandString;
+    setOdata(odata: IOdata) {
+        this.odata = odata;
         return this;
     }
     
-    setFilterString(filterString: string) {
-        this.queryData.filter = filterString;
+    setColumns(columns: IColumn[]) {
+        this.columns = columns;
+        return this;
+    }
+    
+    setDsModel(model: kendo.data.DataSourceSchemaModel) {
+        this.dsModel = model;
         return this;
     }
 	
@@ -45,42 +53,15 @@ export class UniTableConfig {
 		this.searchable = searchable;
 		return this;
 	}
+    
+    setEditable(editable: boolean) {
+        this.editable = editable;
+        return this;
+    }
 	
 	setOnSelect(onSelect: (selectedRow?: any) => any) {
 		this.onSelect = onSelect;
 		return this;
 	}
     
-    setSchema(schema: any) {
-        this.fields = schema;
-        return this;
-    }
-    
-    setColumns(columns: any) {
-        this.columns = columns;
-        return this;
-    }
-	
-	addColumn(field: string, title: string, type: string, format?: string, filterable: boolean = true) {
-		// Define a default date format to use if not specified on a date column
-		var columnFormat = format;
-		if (type === 'date' && !columnFormat) {
-			columnFormat = '{0: dd.MM.yyyy}';
-		}
-		
-		// Fields are used in the kendo datasource schema
-		this.fields[field] = {
-			type: type,
-			filterable: filterable
-		};
-		
-		// Columns define what is shown in the kendo grid
-		this.columns.push({
-			field: field,
-			title: title,
-			format: columnFormat
-		});
-        
-		return this;
-	}	
 }
