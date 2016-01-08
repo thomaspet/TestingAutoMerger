@@ -31,28 +31,21 @@ const CHILD_ROUTES = [
 })
 @RouteConfig(CHILD_ROUTES)
 export class EmployeeDetails {
-	employeeID;
-	employee: any; // todo: type this as interface?
-	dataIsReady: boolean = false; // better workaround for this? (view is drawn before object is back from http call)
-	
-	onFormSubmit: Function;
+	employee: any = {};
     childRoutes: RouteDefinition[];
     	
-	constructor(private routeParams: RouteParams, @Inject(EmployeeDS) private employeeDS:EmployeeDS) {
-		this.employeeID = routeParams.get('id');
-        employeeDS.get(this.employeeID)
-        .subscribe (
-			response => {
-				this.employee = response;
-                this.dataIsReady = true;
-			},
-			error => {
-				console.log(error);
-			}
-		);
-		this.onFormSubmit = (value) => { console.log(value); };
-        
-        this.childRoutes = CHILD_ROUTES;
+	constructor(private routeParams: RouteParams, private employeeDS:EmployeeDS) {
+		this.childRoutes = CHILD_ROUTES;
 	}
+    
+    ngOnInit() {
+        var employeeID = this.routeParams.get('id');
+        this.employeeDS.get(employeeID)
+            .subscribe (response => this.employee = response, error => console.error(error));
+    }
+    
+    onFormSubmit(value) {
+        console.log(value);
+    }
 	
 }

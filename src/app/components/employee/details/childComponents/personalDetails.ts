@@ -1,4 +1,5 @@
-import {Component,Inject} from 'angular2/core';
+import {Component, Injector} from 'angular2/core';
+import {RouteParams} from 'angular2/router';
 
 import {UniForm} from '../../../../../framework/forms/uniForm';
 import {UNI_CONTROL_TYPES} from '../../../../../framework/controls/types';
@@ -8,23 +9,28 @@ import {UniFieldBuilder} from '../../../../../framework/forms/uniFieldBuilder';
 import {UniFieldsetBuilder} from '../../../../../framework/forms/uniFieldsetBuilder';
 import {UniGroupBuilder} from '../../../../../framework/forms/uniGroupBuilder';
 
-
 import {EmployeeDS} from '../../../../../framework/data/employee';
 
 @Component({
     selector: 'employee-personal-details',
     directives:[UniForm],
+    providers: [EmployeeDS],
     template: `
     <div class="application employee">
-    <button (click)="toggleMode()">Toogle edit mode</button>
+        <button (click)="toggleMode()">Toogle edit mode</button>
         <uni-form (uniFormSubmit)='onSubmit($event)' [fields]='form.config()'></uni-form>
     </div>
     `
 })
 export class PersonalDetails {
     form;
-    constructor(@Inject(EmployeeDS) employeeDS:EmployeeDS) {
-        console.log(employeeDS);
+    employee;
+    dataIsReady;
+    constructor(private injector: Injector, employeeDS:EmployeeDS) {
+        var routeParams = injector.parent.parent.get(RouteParams);//Any way to get that in an easy way????
+        employeeDS.get(routeParams.get('id'))
+            .subscribe(response => this.employee = response,error => console.log(error));
+            
         var formBuilder = new UniFormBuilder();
         
         var model = {};
