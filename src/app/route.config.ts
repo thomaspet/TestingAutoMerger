@@ -25,7 +25,13 @@ export var Routes = {
 		path:'/uniformdemo',
 		name: 'UniFormDemo',
 		loader:()=> ComponentProxy.LoadComponentAsync('UniFormDemo','./app/components/uniFormDemo/uniFormDemoComponent')
-	}),
+    }),
+
+    companySettings: new AsyncRoute({
+        path: '/companysettings/:id',
+        name: 'CompanySettings',
+        loader: () => ComponentProxy.LoadComponentAsync('CompanySettings', './app/components/companySettings/companySettings')
+    }),
 	
 	kitchensink: new AsyncRoute({
 		path: '/kitchensink',

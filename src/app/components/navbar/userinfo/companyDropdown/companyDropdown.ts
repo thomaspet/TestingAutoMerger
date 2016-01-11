@@ -66,12 +66,17 @@ export class CompanyDropdown implements AfterViewInit, OnDestroy {
             { id: 4, name: 'Microsoft' },
         ]
     }
-        
+
     companySelected(selectedCompany): void {
         console.log(selectedCompany.name);
         localStorage.setItem('activeCompany', JSON.stringify(selectedCompany));
         this.activeCompany = selectedCompany;
         this.router.navigateByUrl('/');
+    }
+
+    goToCompanySettings() {
+        this.companyDropdownActive = false;
+        this.router.navigate(['CompanySettings', { id: this.activeCompany.id }]);
     }
     
     ngOnDestroy() {
