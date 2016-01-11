@@ -36,3 +36,19 @@ uni-navbar-search,
 uniNavbarSearch,
 .navbar_userinfo
   flex-grow: 1
+
+@include media(large, max-width)
+  uni-hamburger-menu
+    order: 1
+
+  uni-navbar-search
+    order: 2
+    width: calc(100% - 13rem)
+
+  .navbar_userinfo
+    order: 3
+    width: 8rem
+
+  uni-tabstrip
+    order: 4
+    width: 100%
