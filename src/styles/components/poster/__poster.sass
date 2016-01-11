@@ -18,18 +18,22 @@
   @include unigrid-flush(14)
   @include clearfix
   margin: 0 auto
+  display: flex
+  flex-wrap: wrap
+  align-items: stretch
+  align-content: stretch
+  padding-bottom: 1rem
+
+  @include media(small)
+    &,
+    & p
+      font-size: .8rem
+      line-height: 1rem
 
 .poster_widget
-  @include unigrid(4, 2, 2)
+  @include unigrid(4, 2, 2, .5)
   border-width: 0
-  border-right-width: pxToRem(1)
-  border-right-style: solid
-  border-image: linear-gradient(to top, transparentize($uni-color-negative, 1) 0, $uni-color-negative 50%, transparentize($uni-color-negative, 1) 100%) 1 100%
-  float: left
-  padding: 1rem 0
-
-  &:last-of-type
-    border-right-width: 0
+  margin-top: 0 !important
 
   &.-is-important
     @include unigrid(8, 4, 4)
@@ -100,3 +104,4 @@
 
     &:hover
       background: $uni-color-scale5
+

@@ -10,11 +10,14 @@
   box-shadow: 0 0 .2rem transparentize($uni-color-scale5, .5)
 
 .poster_widget_contact
-  align-self: center
-
   p
     text-align: center
     margin: 0
 
   .avatar
     @extend %avatar
+
+    @include media(small)
+      &
+        height: 4rem
+        width: 4rem

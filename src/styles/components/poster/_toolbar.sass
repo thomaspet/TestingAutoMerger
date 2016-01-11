@@ -66,3 +66,18 @@
   line-height: 1.8rem
   border-color: $uni-color-scale9
 
+@include media(large, max-width)
+  .poster_toolbar_headline
+    width: calc(100% - 3rem)
+    float: left
+    text-overflow: ellipsis
+    white-space: nowrap
+    overflow: hidden
+
+  .poster_toolbar_tools
+    width: 3rem
+
+    .poster_toolbar_search,
+    .next,
+    .previous
+      display: none

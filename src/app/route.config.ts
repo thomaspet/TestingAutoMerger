@@ -31,6 +31,12 @@ export var Routes = {
 		path: '/kitchensink',
 		name: 'Kitchensink',
 		loader:()=> ComponentProxy.LoadComponentAsync('Kitchensink','./app/components/kitchensink/kitchensink')
+	}),
+
+	usertest: new AsyncRoute({
+		path: '/usertest',
+		name: 'Usertest',
+		loader:()=> ComponentProxy.LoadComponentAsync('Usertest','./app/components/usertest/usertest')
 	})
 };
 
