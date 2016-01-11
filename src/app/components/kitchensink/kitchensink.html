@@ -1,36 +1,4 @@
 <h2>UniTable</h2>
-<uni-table [config]="tableConfig"></uni-table>
+<!--<uni-table [config]="tableConfig"></uni-table>-->
 
-<h2>Control components</h2>
-<form (ngSubmit)="onSubmit()" [ngFormModel]="form" class="col-lg-4">
-	
-	<label>Autocomplete
-		<input autocomplete ngControl="autocomplete" [config]="autocompleteConfig">
-	</label>
-	<br><br>
-	<label>Dropdown
-		<input dropdown ngControl="dropdown" [config]="dropdownConfig">
-		<small>Description of the field here</small>
-	</label>
-	<br><br>
-	<label>Combobox
-		<input combobox ngControl="combobox" [config]="comboboxConfig">
-	</label>
-	<br><br>
-	<label>Multiselect
-		<select multiselect ngControl="multiselect" [config]="multiselectConfig"></select>
-	</label>
-	<br><br>
-	<label>Datepicker
-		<input datepicker ngControl="datepicker" [config]="datepickerConfig">
-	</label>
-	<br><br>
-	<label>Masked input
-		<input masked ngControl="maskedInput" [config]="maskedInputConfig">
-	</label>
-	<br><br>
-	<label>Numeric input
-		<input numeric ngControl="numericInput" [config]="numericInputConfig" >
-	</label>
-	
-</form>
+<uni-table [config]="editableTableConfig"></uni-table>
