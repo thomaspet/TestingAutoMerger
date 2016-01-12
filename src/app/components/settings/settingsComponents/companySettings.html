@@ -1,7 +1,8 @@
 ﻿<div>
-    <h2>Company Settings:</h2>
     <h3>{{company.CompanyName}}</h3>
-    <form>
+    <!--
+        HARD-CODED VERSION
+        <form>
         <fieldset>
             <label>
                 Firmanavn:
@@ -9,7 +10,7 @@
             </label>
             <label>
                 Organisasjonsnummer:
-                <input type="text" [(ngModel)]="company.OrganizationNumber" />
+                <input type="text" [(ngModel)]="company.OrganizationNumber"/>
             </label>
             <label>
                 Valuta:
@@ -31,7 +32,7 @@
         <fieldset>
             <label>Telefon:</label>
             <div *ngFor="#phone of company.Phones; #i = index;">
-                <button *ngIf="company.Phones.length > 1" (click)="removeFieldFromCompany('Phones', i)">X</button>
+                <button (click)="removeFieldFromCompany('Phones', i)">X</button>
                 <input type="text" [(ngModel)]="phone.Number" placeholder="Tlf-nummer" />
                 <input type="text" [(ngModel)]="phone.LandCode" placeholder="Landskode" />
                 <input type="text" [(ngModel)]="phone.Description" placeholder="Forklaring" />
@@ -43,18 +44,18 @@
         <fieldset>
             <label>E-post:</label>
             <div *ngFor="#email of company.Emails; #i = index;">
-                <button *ngIf="company.Emails.length > 1" (click)="removeFieldFromCompany('Emails', i)">X</button>
+                <button (click)="removeFieldFromCompany('Emails', i)">X</button>
                 <input type="text" [(ngModel)]="email.EmailAddress" placeholder="Epostadresse"/>
                 <input type="text" [(ngModel)]="email.Description" placeholder="Forklaring"/>
                 <input type="text" [(ngModel)]="email.Type" placeholder="Type" /><br /><br />
-            </div> 
-            <button (click)="addFieldToCompany('Emails')">Legg til ny e-post adresse</button>  
+            </div>
+            <button (click)="addFieldToCompany('Emails')">Legg til ny e-post adresse</button>
         </fieldset><br />
 
         <fieldset>
             <label>Adresse:</label>
             <div *ngFor="#adress of company.Address; #i = index;">
-                <button *ngIf="company.Address.length > 1" (click)="removeFieldFromCompany('Address', i)">X</button>
+                <button (click)="removeFieldFromCompany('Address', i)">X</button>
                 <input type="text" [(ngModel)]="adress.AddressLine1" placeholder="Gateadresse" />
                 <input type="text" [(ngModel)]="adress.AddressLine2" placeholder="Gateadresse 2" />
                 <input type="text" [(ngModel)]="adress.AddressLine3" placeholder="Gateadresse 3" />
@@ -66,7 +67,7 @@
             </div>
             <button (click)="addFieldToCompany('Address')">Legg til ny adresse</button>
         </fieldset><br />
-        
+
         <button (click)="saveCompanySettings()">Lagre innstillinger</button>
-    </form>
+    </form>-->
 </div>

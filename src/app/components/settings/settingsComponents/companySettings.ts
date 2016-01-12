@@ -6,8 +6,8 @@ import {Observable} from 'rxjs/Observable';
 import 'rxjs/add/operator/map';
 
 @Component({
-    selector: 'company-settings',
-    templateUrl: 'app/components/companySettings/companySettings.html',
+    selector: 'settings',
+    templateUrl: 'app/components/settings/settingsComponents/companySettings.html',
     directives: [NgFor, NgIf]
 })
 
@@ -15,25 +15,26 @@ export class CompanySettings implements OnInit {
 
     id: any;
     company: any;
+    activeCompany: any;
 
     constructor(public routeParam: RouteParams, public http: Http) {
         this.company = {};
     }
 
     ngOnInit() {
-        this.id = this.routeParam.get('id');
+        this.id = JSON.parse(localStorage.getItem('activeCompany')).id;
 
         var headers = new Headers();
         headers.append('Client', 'client1');
 
-        //Should get company from service (CompanyService) with the id from RouteParams
+        //Should get company from service (CompanyService) with the id from localstorage
         this.http.get('http://devapi.unieconomy.no:80/api/biz/companysettings/1?expand=Address,Emails,Phones ', { headers: headers })
             .map(res => res.json())
             .subscribe(data => this.dateIsReady(data))
     }
 
     //This method is not needed, but maybe we wanna do something when data returns??
-    dateIsReady(data){
+    dateIsReady(data) {
         this.company = data;
     }
    
@@ -50,7 +51,15 @@ export class CompanySettings implements OnInit {
 
     //Removes a field from the company object
     removeFieldFromCompany(field, index) {
-        this.company[field].splice(index, 1);
+        if (this.company[field].length > 1) {
+            this.company[field].splice(index, 1);
+        } else {
+            for (var value in this.company[field][0]) {
+                if (this.company[field][0].hasOwnProperty(value)) {
+                    this.company[field][0][value] = '';
+                }
+            }
+        }
     }
 
     //Should save the changes in the company settings object
