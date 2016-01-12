@@ -1,24 +1,31 @@
 ﻿import {Component, OnInit} from 'angular2/core';
-import {NgFor, NgIf} from 'angular2/common';
-import {RouteParams} from 'angular2/router';
+import {NgFor, NgIf, Validators, Control, FormBuilder} from 'angular2/common';
 import {Http, Headers} from 'angular2/http';
 import {Observable} from 'rxjs/Observable';
 import 'rxjs/add/operator/map';
+import 'rxjs/add/observable/fromEvent';
+
+import {UniForm, FIELD_TYPES} from '../../../../framework/forms/uniForm';
+import {UniFormBuilder} from "../../../../framework/forms/uniFormBuilder";
+import {UniFieldsetBuilder} from "../../../../framework/forms/uniFieldsetBuilder";
+import {UniFieldBuilder} from "../../../../framework/forms/uniFieldBuilder";
 
 @Component({
     selector: 'settings',
     templateUrl: 'app/components/settings/settingsComponents/companySettings.html',
-    directives: [NgFor, NgIf]
+    directives: [NgFor, NgIf, UniForm]
 })
 
 export class CompanySettings implements OnInit {
 
     id: any;
+    form: any;
     company: any;
     activeCompany: any;
 
-    constructor(public routeParam: RouteParams, public http: Http) {
+    constructor(public http: Http, public formBuilder: FormBuilder) {
         this.company = {};
+        this.form = [];
     }
 
     ngOnInit() {
@@ -36,37 +43,22 @@ export class CompanySettings implements OnInit {
     //This method is not needed, but maybe we wanna do something when data returns??
     dateIsReady(data) {
         this.company = data;
-    }
-   
-    //Adds a new field in the company object
-    addFieldToCompany(field) {
-        var tempObject = {};
-        for (var value in this.company[field][0]) {
-            if (this.company[field][0].hasOwnProperty(value)) {
-                tempObject[value] = '';
-            }
-        }
-        this.company[field].push(tempObject);
-    }
 
-    //Removes a field from the company object
-    removeFieldFromCompany(field, index) {
-        if (this.company[field].length > 1) {
-            this.company[field].splice(index, 1);
-        } else {
-            for (var value in this.company[field][0]) {
-                if (this.company[field][0].hasOwnProperty(value)) {
-                    this.company[field][0][value] = '';
-                }
-            }
-        }
-    }
+        var name = new UniFieldBuilder()
+            .setLabel('TESTING')
+            .setModel(this.company)
+            .setModelField('name')
+            .setType('Text');
 
-    //Should save the changes in the company settings object
-    //NOT IMPLEMENTED
-    saveCompanySettings() {
         console.log(this.company);
-        //TODO.. PUT? POST? Or implement service?
-    }
 
+        for (var value in this.company) {
+            if (typeof (this.company[value]) === 'object') {
+                console.log(this.company[value]);
+            } 
+        }
+
+        this.form.push(name);
+
+    }
 }
