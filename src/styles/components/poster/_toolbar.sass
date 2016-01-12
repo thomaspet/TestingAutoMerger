@@ -67,12 +67,16 @@
   border-color: $uni-color-scale9
 
 @include media(large, max-width)
+  .poster_toolbar
+    align-items: flex-start
+
   .poster_toolbar_headline
     width: calc(100% - 3rem)
     float: left
     text-overflow: ellipsis
     white-space: nowrap
     overflow: hidden
+    margin-bottom: 3rem
 
   .poster_toolbar_tools
     width: 3rem
@@ -80,4 +84,23 @@
     .poster_toolbar_search,
     .next,
     .previous
-      display: none
+      position: absolute
+      top: 10rem
+
+    .poster_toolbar_search
+      text-align: center
+      border-color: $uni-color-scale9
+
+    .next,
+    .previous
+      border: none
+
+    .previous
+      left: .5rem
+
+    .poster_toolbar_search
+      left: 3.2rem
+      width: calc(100% - 13rem)
+
+    .next
+      right: 5rem
