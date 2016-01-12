@@ -76,7 +76,8 @@ export class CompanyDropdown implements AfterViewInit, OnDestroy {
 
     goToCompanySettings() {
         this.companyDropdownActive = false;
-        this.router.navigate(['CompanySettings', { id: this.activeCompany.id }]);
+        //this.router.navigate(['CompanySettings', { id: this.activeCompany.id }]);
+        this.router.navigateByUrl('/settings/company');
     }
     
     ngOnDestroy() {

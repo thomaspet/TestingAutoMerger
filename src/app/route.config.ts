@@ -28,9 +28,9 @@ export var Routes = {
     }),
 
     companySettings: new AsyncRoute({
-        path: '/companysettings/:id',
-        name: 'CompanySettings',
-        loader: () => ComponentProxy.LoadComponentAsync('CompanySettings', './app/components/companySettings/companySettings')
+        path: '/settings/...',
+        name: 'Settings',
+        loader: () => ComponentProxy.LoadComponentAsync('Settings', './app/components/settings/settings')
     }),
 	
 	kitchensink: new AsyncRoute({
