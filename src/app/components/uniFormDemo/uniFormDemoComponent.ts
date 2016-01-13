@@ -2,6 +2,8 @@ import {Component} from 'angular2/core';
 import {Validators, Control, FormBuilder} from 'angular2/common';
 import {UniForm,FIELD_TYPES} from '../../../framework/forms/uniForm';
 
+import {UNI_CONTROL_TYPES} from '../../../framework/controls/types';
+
 import 'rxjs/add/observable/fromEvent';
 import {UniFormBuilder} from "../../../framework/forms/uniFormBuilder";
 import {UniFieldsetBuilder} from "../../../framework/forms/uniFieldsetBuilder";
@@ -75,7 +77,7 @@ export class UniFormDemo {
 
         var uniFormBuilder = new UniFormBuilder();
         var autocompleteField = new UniFieldBuilder();
-        autocompleteField.setType('autocomplete')
+        autocompleteField.setType(UNI_CONTROL_TYPES.AUTOCOMPLETE)
         .setLabel('Autocomplete label')
         .setModel(self.model)
         .setModelField('autocomplete')
@@ -94,7 +96,7 @@ export class UniFormDemo {
                     fieldType: FIELD_TYPES.FIELD,
                     model: self.model,
                     label: 'Autocomplete label',
-                    type: 'autocomplete',
+                    type: UNI_CONTROL_TYPES.AUTOCOMPLETE,
                     field: 'deep.autocomplete',
                     syncValidators: [
                         {
@@ -121,7 +123,7 @@ export class UniFormDemo {
                     fieldType: FIELD_TYPES.FIELD,
                     model: self.model,
                     label: 'Autocomplete label',
-                    type: 'autocomplete',
+                    type: UNI_CONTROL_TYPES.AUTOCOMPLETE,
                     field: 'autocomplete2',
                     syncValidators: [
                         {
@@ -146,7 +148,7 @@ export class UniFormDemo {
                 fieldType: FIELD_TYPES.FIELD,
                 model: self.model,
                 label: 'Combobox Label',
-                type: 'combobox',
+                type: UNI_CONTROL_TYPES.COMBOBOX,
                 field: 'combobox',
                 kOptions:  {
                     delay: 50,
@@ -160,7 +162,7 @@ export class UniFormDemo {
                 fieldType: FIELD_TYPES.FIELD,
                 model: self.model,
                 label: 'DatePicker Label',
-                type: 'datepicker',
+                type: UNI_CONTROL_TYPES.DATEPICKER,
                 field: 'datepicker',
                 kOptions:  {}
             },
@@ -168,7 +170,7 @@ export class UniFormDemo {
                 fieldType: FIELD_TYPES.FIELD,
                 model: self.model,
                 label: 'Dropdown Label',
-                type: 'dropdown',
+                type: UNI_CONTROL_TYPES.DROPDOWN,
                 field: 'dropdown',
                 kOptions:  {
                     delay: 50,
@@ -182,7 +184,7 @@ export class UniFormDemo {
                 fieldType: FIELD_TYPES.FIELD,
                 model: self.model,
                 label: 'Masked Label',
-                type: 'masked',
+                type: UNI_CONTROL_TYPES.MASKED,
                 field: 'masked',
                 kOptions:  {
                     mask: "0000 00 00000",
@@ -193,7 +195,7 @@ export class UniFormDemo {
                 fieldType: FIELD_TYPES.FIELD,
                 model: self.model,
                 label: 'Multiselect Label',
-                type: 'multiselect',
+                type: UNI_CONTROL_TYPES.MULTISELECT,
                 field: 'multiselect',
                 kOptions:  {
                     delay: 50,
@@ -206,7 +208,7 @@ export class UniFormDemo {
                 fieldType: FIELD_TYPES.FIELD,
                 model: self.model,
                 label: 'Numeric Label',
-                type: 'numeric',
+                type: UNI_CONTROL_TYPES.NUMERIC,
                 field: 'numeric',
                 kOptions:  {
                     format: '#', // http://docs.telerik.com/kendo-ui/framework/globalization/numberformatting

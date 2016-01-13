@@ -8,6 +8,7 @@
 
 .poster_overview
   width: 100%
+  min-height: 9rem
   background: lighten($uni-color-scale9, 5%)
 
   &.compact
@@ -18,6 +19,7 @@
   @include unigrid-flush(14)
   @include clearfix
   margin: 0 auto
+  padding: 1rem
 
 .poster_widget
   @include unigrid(4, 2, 2)
@@ -26,7 +28,6 @@
   border-right-style: solid
   border-image: linear-gradient(to top, transparentize($uni-color-negative, 1) 0, $uni-color-negative 50%, transparentize($uni-color-negative, 1) 100%) 1 100%
   float: left
-  padding: 1rem 0
 
   &:last-of-type
     border-right-width: 0

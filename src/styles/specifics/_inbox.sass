@@ -6,7 +6,13 @@
 kitchensink label
   @include unigrid-flush(5)
 
-main
+.application
   @include unigrid-flush(14)
-  padding: 1rem
-  margin: 0 auto
+  margin: 1rem auto
+
+  fieldset
+    margin-top: -.5rem
+    display: inline-block
+
+    label
+      width: calc(100% - 2rem)

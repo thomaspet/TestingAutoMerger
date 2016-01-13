@@ -1,25 +1,26 @@
 import {FIELD_TYPES} from './uniForm';
+import {UNI_CONTROL_TYPES} from '../controls/types';
 
 export class UniFieldBuilder {
     label: string = '';
     model: any;
     field: string = '';
-    type: string = 'text';
-    fieldType: number;
-    kOptions: any;
+    type: number = UNI_CONTROL_TYPES.TEXT;
+    fieldType: number = 0;
+    kOptions: any = {};
     classes: any = {};
     readonly: boolean = false;
     disabled: boolean = false;
     syncValidators: Array<any> = [];
     asyncValidators: Array<any> = [];
 
-    constructor(type?:string,label?:string,model?:string,modelField?:string){
-        this.type = type || 'text';
+    constructor(type?:number,label?:string,model?:string,modelField?:string){
+        this.type = type || UNI_CONTROL_TYPES.TEXT;
         this.label = label || '';
         this.model = model || undefined;
         this.field = modelField || '';
         this.fieldType = FIELD_TYPES.FIELD;
-
+        
         return this;
     }
 
@@ -35,7 +36,7 @@ export class UniFieldBuilder {
         this.field = key;
         return this;
     }
-    setType(type:string) {
+    setType(type:number) {
         this.type = type;
         return this;
     }

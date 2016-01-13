@@ -103,7 +103,9 @@ label > .k-widget
 .k-numeric-wrap .k-input,
 .k-dropdown-wrap .k-input,
 .k-selectbox .k-input
+  line-height: normal
   padding: pxToRem(3) pxToRem(5)
+  background: $uni-color-negative
 
 // All our input+button components
 .k-dropdown,
@@ -123,6 +125,7 @@ label > .k-widget
     border-radius: 0 pxToRem(3) pxToRem(3) 0
     border: pxToRem(1) solid $uni-color-scale7
     border-left: none
+    line-height: 1.4rem
 
     &:hover
       background: linear-gradient(to bottom, $uni-color-scale8 0, $uni-color-scale7 100%)
