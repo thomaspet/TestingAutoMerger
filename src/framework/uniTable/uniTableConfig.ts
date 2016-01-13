@@ -1,26 +1,24 @@
-export interface IOdata {
+interface IOdata {
     expand?: string,
     select?: string,
     filter?: string
 }
 
-export interface IColumn {
-    field: string,
-    title: string,
-	format?: string
-}
-
+// TODO: Url to documentation
 export class UniTableConfig {    
     resourceUrl: string;
     odata: IOdata;
 
 	searchable: boolean;
     editable: boolean;
-	onSelect: (selectedRow?: any) => any;
 	
     dsModel: kendo.data.DataSourceSchemaModel;
-	columns: IColumn[];
+	columns: kendo.ui.GridColumn[];
 	
+    // Only available in read-only grids.
+    // Example: invoice list with onSelect => gotoInvoiceDetails(invoice)
+	onSelect: (selectedRow?: any) => any;
+    
 	constructor(resourceUrl: string, searchable: boolean = true, editable: boolean = false) {
 		this.resourceUrl = resourceUrl;
 		this.searchable = searchable;
@@ -39,7 +37,7 @@ export class UniTableConfig {
         return this;
     }
     
-    setColumns(columns: IColumn[]) {
+    setColumns(columns: Array<kendo.ui.GridColumn>) {
         this.columns = columns;
         return this;
     }

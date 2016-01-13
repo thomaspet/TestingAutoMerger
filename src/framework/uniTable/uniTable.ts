@@ -61,15 +61,16 @@ export class UniTable implements AfterViewInit {
                     }
 				},
 				schema: { 
-					model: this.config.dsModel
+					model: this.config.dsModel,
 				},
-                pageSize: 20,
+                pageSize: 10,
 			},
 			toolbar: ["create", "save", "cancel"],
 			columns: this.config.columns,
 			filterable: true,
             editable: this.config.editable,
-            navigatable: true,            
+            navigatable: true,
+            pageable: true,     
 		};
         
 		
@@ -101,7 +102,7 @@ export class UniTable implements AfterViewInit {
         
         // Unbind kendo's keybind on numeric inputs so it doesn't interfere with up/down table navigation
         this.tableConfig.edit = (event) => {
-            var input = this.table.current().find('.k-numerictextbox input').unbind('keydown');
+            var input = jQuery(this.table.current()).find('.k-numerictextbox input').unbind('keydown');
         }
         
 		// Compile kendo grid
@@ -166,17 +167,14 @@ export class UniTable implements AfterViewInit {
 		this.table.dataSource.query({filter: filter});
 	}
     
-    setupKeyNavigation() {
-        var table = jQuery('#' + this.tableID);        
-        
-        jQuery(table).keydown((event) => {
+    setupKeyNavigation() {        
+        jQuery('#' + this.tableID).keyup((event) => {
             // Enter
             if (event.keyCode === 13) {
-                event.preventDefault();
                 if (event.shiftKey) {
-                    this.move('RIGHT');
+                    this.move('LEFT');
                 } else {
-                    this.move('LEFT');    
+                    this.move('RIGHT');    
                 }
             }
                         
@@ -191,23 +189,14 @@ export class UniTable implements AfterViewInit {
                 event.preventDefault();
                 this.move('DOWN');
             }
-            
-            /* Keyboard left/right are disabled for now as their shortcuts breaks native support for marking text */
-            // if (event.ctrlKey && event.keyCode === 37) {
-            //     this.move('LEFT');
-            // }            
-            // if (event.ctrlKey && event.keyCode === 39) {
-            //     this.move('RIGHT')
-            // }
-            
+                        
         });
     }
     
     move(direction) {
-        var table = jQuery('#' + this.tableID);
-        var currentCell = table.find('.k-edit-cell');
+        var currentCell = this.table.current();
         var newCell;
-        
+
         switch(direction) {
             case 'LEFT':
                 newCell = currentCell.prevAll('.editable-cell');
