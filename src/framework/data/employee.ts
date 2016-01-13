@@ -7,7 +7,7 @@ import 'rxjs/add/observable/from';
 
 @Injectable()
 export class EmployeeDS {
-    baseUrl = 'http://devapi.unieconomy.no:80/api/biz/employees/';
+    baseUrl = 'http://devapi.unieconomy.no:80/api';
     expandedProperties = 'BusinessRelationInfo,Employments,BankAccounts,EmployeeCategoryLinks,VacationRateEmployee,Localization';
     employees: Array<any> = [];
     constructor(private http:Http) {
@@ -16,15 +16,29 @@ export class EmployeeDS {
     
     get(id) {
         if (!this.employees[id]) {
-            var url = this.baseUrl + id + '?expand='+this.expandedProperties;
-            var headers = new Headers();
-            headers.append('Client','client1');
-            
+            var url = this.baseUrl + '/biz/employees/' + id + '?expand='+this.expandedProperties;
             this.employees[id] = new ReplaySubject(1);
-            return this.http.get(url,{headers:headers})
-            .map((res)=>res.json())
-            .subscribe(this.employees[id]);        
+            
+            return this._doGET(url)
+                    .subscribe(this.employees[id]);        
         }
         return this.employees[id]
+    }
+    
+    getValidation() {
+        var url = this.baseUrl + '/metadata/model/Employee';
+        return this._doGET(url);
+    }
+    
+    getModel() {
+        var url = this.baseUrl + '/metadata/validations/Employee';
+        return this._doGET(url);
+    }
+    
+    _doGET(url) {
+        var headers = new Headers();
+        headers.append('Client','client1');
+        return this.http.get(url,{headers:headers})
+        .map((res)=>res.json())
     }
 }

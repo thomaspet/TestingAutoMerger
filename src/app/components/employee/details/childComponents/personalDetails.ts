@@ -30,7 +30,10 @@ export class PersonalDetails {
         var routeParams = injector.parent.parent.get(RouteParams);//Any way to get that in an easy way????
         employeeDS.get(routeParams.get('id'))
             .subscribe(response => this.employee = response,error => console.log(error));
-            
+        
+        employeeDS.getModel().subscribe(response => console.log(response));
+        employeeDS.getValidation().subscribe(response => console.log(response));
+        
         var formBuilder = new UniFormBuilder();
         
         var model = {};
