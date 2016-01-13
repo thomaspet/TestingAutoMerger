@@ -1,5 +1,5 @@
-﻿<div>
+﻿<div *ngIf="company">
     <h2>Firmainnstillinger</h2>
     <h3>{{company.CompanyName}}</h3>
-    <uni-form [fields]='form'></uni-form>
+    <uni-form  (uniFormSubmit)='submitForm()' [fields]='form.config()'></uni-form>
 </div>
