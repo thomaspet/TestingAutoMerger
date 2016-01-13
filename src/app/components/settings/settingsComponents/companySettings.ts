@@ -29,36 +29,60 @@ export class CompanySettings implements OnInit {
     }
 
     ngOnInit() {
+
+        //ID of active company used to GET company settings
         this.id = JSON.parse(localStorage.getItem('activeCompany')).id;
+
+        //Dummy method for dev. REMOVE!!
+        if (this.id !== 1) {
+            this.id = 1;
+        }
 
         var headers = new Headers();
         headers.append('Client', 'client1');
 
-        //Should get company from service (CompanyService) with the id from localstorage
-        this.http.get('http://devapi.unieconomy.no:80/api/biz/companysettings/1?expand=Address,Emails,Phones ', { headers: headers })
+        var url = 'http://devapi.unieconomy.no:80/api/biz/companysettings/' + this.id + '?expand=Address,Emails,Phones';
+
+        //Gets settings for the company currently active
+        this.http.get(url, { headers: headers })
             .map(res => res.json())
             .subscribe(data => this.dateIsReady(data))
     }
 
-    //This method is not needed, but maybe we wanna do something when data returns??
+    //Called when data is returned from the API
     dateIsReady(data) {
         this.company = data;
 
+        var model = {};
+
+        var formBuilder = new FormBuilder()
+
         var name = new UniFieldBuilder()
             .setLabel('TESTING')
-            .setModel(this.company)
+            .setModel(model)
             .setModelField('name')
             .setType('Text');
+
+        this.formBuilder.addFields(name);
+
+        var organizationNumber = new UniFieldBuilder()
+            .setLabel('ORG-NUMBER')
+            .setModel(model)
+            .setModelField('name')
+            .setType('TEXT')
+
+        this.formBuilder.addFields(organizationNumber);
 
         console.log(this.company);
 
         for (var value in this.company) {
+            //Finds arrays inside object
             if (typeof (this.company[value]) === 'object') {
-                console.log(this.company[value]);
+                //Loops through array 
+                for (var val in this.company[value]) {
+                    console.log(this.company[value][val]);
+                }
             } 
         }
-
-        this.form.push(name);
-
     }
 }

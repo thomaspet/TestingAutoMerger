@@ -24,6 +24,5 @@ export class Settings {
     constructor(public router: Router, private tabService: TabService) {
         this.tabService.addTab({ name: 'Settings', url: '/settings' });
         this.childRoutes = CHILD_ROUTES;
-
     }
 }
