@@ -62,7 +62,7 @@ export class CompanySettings implements OnInit {
             if (typeof (this.company[value]) === 'object') {
                 //Loops through array 
                 for (var val in this.company[value]) {
-                    var tempFieldset = new UniFieldsetBuilder();
+                    //var tempFieldset = new UniFieldsetBuilder();
                     for (var v in this.company[value][val]) {
                         if (v.slice(-2) !== 'ID') {
                             var temp = new UniFieldBuilder();
@@ -70,11 +70,11 @@ export class CompanySettings implements OnInit {
                                 .setModel(this.company[value][val])
                                 .setModelField(v)
                                 .setType(UNI_CONTROL_TYPES.TEXT);
-                            
-                            tempFieldset.addField(temp);
+
+                            formBuilder.addField(temp);
                         }
                     }
-                    formBuilder.addField(tempFieldset);
+                    //formBuilder.addField(tempFieldset);
                 }
             } else {
                 if (value.slice(-2) !== 'ID') {
@@ -88,7 +88,6 @@ export class CompanySettings implements OnInit {
                 }
             } 
         }
-        console.log(formBuilder);
 
         this.form = formBuilder;
     }
@@ -96,9 +95,10 @@ export class CompanySettings implements OnInit {
     submitForm() {
         console.log(this.company);
         this.http.put(
-            'http://devapi.unieconomy.no:80/api/biz/companysettings',
+            'http://devapi.unieconomy.no:80/api/biz/companysettings/1',
             JSON.stringify(this.company),
             { headers: this.headers })
-            .map(res => console.log(res.json()))
+            .map(res => console.log(res))
+            .subscribe(data => console.log(data))
     }
 }
