@@ -20,7 +20,7 @@ export class UniTable implements AfterViewInit {
 		this.tableID = "uni-table-" + Date.now();
 	}
 
-	ngAfterViewInit() {	        
+	ngAfterViewInit() {            
         var httpHeaders = {
             'Client': 'client1'
         }
@@ -31,7 +31,7 @@ export class UniTable implements AfterViewInit {
 				type: 'json',
 				transport: {
 					read: {
-						url: this.config.resourceUrl + this.buildOdataString(),
+						url: this.config.resourceUrl,
                         type: 'GET',
 						headers: httpHeaders
 					},
@@ -54,7 +54,11 @@ export class UniTable implements AfterViewInit {
                         type: 'DELETE',
                         headers: httpHeaders
                     },
-                    parameterMap: function(options, operation) {
+                    parameterMap: (options, operation) => {                        
+                        if (operation === 'read') {
+                            return this.buildOdataString();
+                        }
+                        
                         if (operation !== "read" && options) {   
                             return kendo.stringify(options);
                         }
@@ -64,6 +68,7 @@ export class UniTable implements AfterViewInit {
 					model: this.config.dsModel,
 				},
                 pageSize: 10,
+                serverFiltering: true,
 			},
 			toolbar: ["create", "save", "cancel"],
 			columns: this.config.columns,
@@ -72,7 +77,6 @@ export class UniTable implements AfterViewInit {
             navigatable: true,
             pageable: true,     
 		};
-        
 		
 		// If onSelect is defined we hook it up to the kendo change event which is fired when the user clicks a row
 		if (this.config.onSelect && !this.config.editable) {
@@ -111,7 +115,9 @@ export class UniTable implements AfterViewInit {
 		
 		this.table = element.data('kendoGrid');
         
-        this.setupKeyNavigation();
+        if (this.config.editable) {
+            this.setupKeyNavigation();
+        }
 	}
     
     buildOdataString() {
@@ -119,52 +125,45 @@ export class UniTable implements AfterViewInit {
             return '';
         }
         
-        var odataStr = '?';
+        var odataStr = '';
         odataStr += (this.config.odata.expand) ? ('expand=' + this.config.odata.expand + '&') : '';
         odataStr += (this.config.odata.select) ? ('select=' + this.config.odata.select + '&') : '';
         odataStr += (this.config.odata.filter) ? ('filter=' + this.config.odata.filter) : '';
         
-        // Remove trailing '&'
+        // // Remove trailing '&'
         if (odataStr[odataStr.length - 1] === '&') {
             odataStr = odataStr.slice(0, -1);
-        }
-        
-        // If length is 1 ("?") it means there is no odata in the config
-        if (odataStr.length === 1) {
-            return ''
         }
         
         return odataStr;
     }
 	
 	filterTable() {
-		var val = this.filterString;
-		var filter = { logic: 'or', filters: [] };
-		
+		var filterValue = this.filterString;
+		var filter = '';
+        
 		var fields = this.tableConfig.dataSource.schema.model.fields;
 		for (var fieldName of Object.keys(fields)) {
 			let field = fields[fieldName];
-					
-			// Contains filter for text columns
+            
+            // Contains filter for text columns
 			if (field.type === 'text') {
-				filter.filters.push({
-					field: fieldName,
-					operator: 'contains',
-					value: val
-				});
+				filter += ' or contains(' + fieldName + ',\'' + filterValue + '\')';
 			}
 			
 			// Eq filter for number columns
-			if (field.type === 'number' && !isNaN(<any> val) ) {
-				filter.filters.push({
-					field: fieldName,
-					operator: 'eq',
-					value: parseInt(val)
-				});
+			if (field.type === 'number' && !isNaN(parseInt(filterValue)) ) {
+				filter += ' or ' + fieldName + ' eq ' + filterValue;
 			}
 		}
-		
-		this.table.dataSource.query({filter: filter});
+        
+        // Remove leading ' or '
+        if (filter.indexOf(' or ') === 0) {
+            filter = filter.slice(4);
+        }
+        
+        this.config.odata.filter = filter;
+		this.table.dataSource.query({});
 	}
     
     setupKeyNavigation() {        
@@ -194,8 +193,8 @@ export class UniTable implements AfterViewInit {
     }
     
     move(direction) {
-        var currentCell = this.table.current();
-        var newCell;
+        var currentCell = jQuery(this.table.current());
+        var newCell; 
 
         switch(direction) {
             case 'LEFT':

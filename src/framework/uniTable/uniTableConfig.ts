@@ -21,6 +21,7 @@ export class UniTableConfig {
     
 	constructor(resourceUrl: string, searchable: boolean = true, editable: boolean = false) {
 		this.resourceUrl = resourceUrl;
+        this.odata = {}
 		this.searchable = searchable;
         this.editable = editable;
 		this.dsModel = {};
