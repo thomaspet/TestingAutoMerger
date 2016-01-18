@@ -55,7 +55,7 @@ export class CompanySettings implements OnInit {
             this.error = true;
             return;
         }
-        console.log(data.Phones);
+        console.log(data.Emails);
         this.company = data;
         
         var formBuilder = new UniFormBuilder();
@@ -105,7 +105,7 @@ export class CompanySettings implements OnInit {
         var email = new UniFieldBuilder();
         email.setLabel('Epost')
             .setModel(this.company.Emails[0])
-            .setModelField('Email')
+            .setModelField('EmailAddress')
             .setType(UNI_CONTROL_TYPES.TEXT);
 
         formBuilder.addFields(companyName, orgNr, street, street2, postNumber, place, phone, email);
