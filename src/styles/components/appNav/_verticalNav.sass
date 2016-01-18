@@ -1,0 +1,24 @@
+﻿.vertical_nav
+  ul
+    list-style: none
+    text-align: center
+    background: mix($uni-color-scale9, $navbarBackground, 60%)
+    justify-content: center
+
+    li a
+      text-decoration: none
+      @extend %clickable
+      color: $navbarTextColor
+      font-weight: 400
+      padding: 0 1rem
+      border-right: .1rem solid transparentize($uni-color-negative, .5)
+      height: 3rem
+      box-sizing: border-box
+      line-height: 3rem
+
+      &:-is-active
+        background: darken(mix($uni-color-scale9, $navbarBackground, 60%), 15%)
+
+      &:hover,
+      &.router-link-active
+        background: darken(mix($uni-color-scale9, $navbarBackground, 60%), 15%)

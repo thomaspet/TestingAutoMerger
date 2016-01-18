@@ -1,20 +1,13 @@
 ﻿.settings
+  @include unigrid(16)
   h1
     text-align: center
   
-  nav
+  .vertical_nav
+    @include unigrid(2)
     float: left
-    padding: 0 2% 0 2%
-    border-right: 1px solid #000
-    
-    ul
-      list-style: none
-      
-      li
-        a
-          text-decoration: none
     
   article
+    @include unigrid(14)
     float: left
     margin-left: 30px
-    width: 80%
