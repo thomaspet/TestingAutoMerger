@@ -1,13 +1,9 @@
 ﻿<div class="settings">
 
-    <h1>Settings</h1>
-    <nav class="settings_navigation_menu">
-        <ul>
-            <li *ngFor="#route of childRoutes; #i = index;">
-                <a [routerLink]="['./' + route.name]">{{route.name}}</a>
-            </li>
-        </ul>
-    </nav>
+    <h1>Innstillinger</h1>
+
+    <uni-application-nav [routes]="childRoutes" class="vertical_nav"></uni-application-nav>
+
     <article class="settings_content">
         <router-outlet></router-outlet>
     </article>

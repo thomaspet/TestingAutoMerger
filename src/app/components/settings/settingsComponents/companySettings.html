@@ -1,5 +1,4 @@
 ﻿<div *ngIf="company">
-    <h2>Firmainnstillinger</h2>
-    <h3>{{company.CompanyName}}</h3>
     <uni-form  (uniFormSubmit)='submitForm()' [fields]='form.config()'></uni-form>
 </div>
+<div class="error" *ngIf="error" style="background-color: #fbe4e1; color:#a90000; padding: 5px;"><strong>Ops!</strong> Noe gikk galt. Lukk innstillinger og prøv igjen</div>

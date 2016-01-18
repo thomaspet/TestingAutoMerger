@@ -21,6 +21,7 @@ export class CompanySettings implements OnInit {
 
     id: any;
     form: any;
+    error: boolean;
     headers: Headers;
     company: any;
     activeCompany: any;
@@ -30,13 +31,11 @@ export class CompanySettings implements OnInit {
     ngOnInit() {
 
         //ID of active company used to GET company settings
+        //ONLY GETTING DATA WHEN **UNI MICRO AS*** IS CHOSEN
+        //BECAUSE ID = 1 IS THE ONLY ONE IN THE DB
         this.id = JSON.parse(localStorage.getItem('activeCompany')).id;
 
-        //Dummy method before real companies is fetched! REMOVE!!
-        //if (this.id !== 1) {
-        //    this.id = 1;
-        //}
-
+        this.error = false;
         this.headers = new Headers();
         this.headers.append('Client', 'client1');
 
@@ -51,49 +50,70 @@ export class CompanySettings implements OnInit {
 
     //Called when data is returned from the API
     dataReady(data) {
-        this.company = data;
 
-        console.log(this.company);
+        if (data === null) {
+            this.error = true;
+            return;
+        }
+        console.log(data.Phones);
+        this.company = data;
         
         var formBuilder = new UniFormBuilder();
 
-        for (var value in this.company) {
+        var companyName = new UniFieldBuilder();
+        companyName.setLabel('Firmanavn')
+            .setModel(this.company)
+            .setModelField('CompanyName')
+            .setType(UNI_CONTROL_TYPES.TEXT);
 
-            if (typeof (this.company[value]) === 'object') {
-                //Loops through array 
-                for (var val in this.company[value]) {
-                    //var tempFieldset = new UniFieldsetBuilder();
-                    for (var v in this.company[value][val]) {
-                        if (v.slice(-2) !== 'ID') {
-                            var temp = new UniFieldBuilder();
-                            temp.setLabel(v)
-                                .setModel(this.company[value][val])
-                                .setModelField(v)
-                                .setType(UNI_CONTROL_TYPES.TEXT);
+        var orgNr = new UniFieldBuilder();
+        orgNr.setLabel('Orgnr.')
+            .setModel(this.company)
+            .setModelField('OrganizationNumber')
+            .setType(UNI_CONTROL_TYPES.TEXT);
 
-                            formBuilder.addField(temp);
-                        }
-                    }
-                    //formBuilder.addField(tempFieldset);
-                }
-            } else {
-                if (value.slice(-2) !== 'ID') {
-                    var temp = new UniFieldBuilder();
-                    temp.setLabel(value)
-                        .setModel(this.company)
-                        .setModelField(value)
-                        .setType(UNI_CONTROL_TYPES.TEXT);
-                    
-                    formBuilder.addField(temp);
-                }
-            } 
-        }
+        var street = new UniFieldBuilder();
+        street.setLabel('Adresse')
+            .setModel(this.company.Address[0])
+            .setModelField('AddressLine1')
+            .setType(UNI_CONTROL_TYPES.TEXT);
+
+        var street2 = new UniFieldBuilder();
+        street2.setLabel('Adresse 2')
+            .setModel(this.company.Address[0])
+            .setModelField('AddressLine2')
+            .setType(UNI_CONTROL_TYPES.TEXT);
+        
+        var postNumber = new UniFieldBuilder();
+        postNumber.setLabel('Post Sted')
+            .setModel(this.company.Address[0])
+            .setModelField('PostalCode')
+            .setType(UNI_CONTROL_TYPES.TEXT);
+        
+        var place = new UniFieldBuilder();
+        place.setLabel('Sted')
+            .setModel(this.company.Address[0])
+            .setModelField('City')
+            .setType(UNI_CONTROL_TYPES.TEXT);
+
+        var phone = new UniFieldBuilder();
+        phone.setLabel('Telefon')
+            .setModel(this.company.Phones[0])
+            .setModelField('Number')
+            .setType(UNI_CONTROL_TYPES.TEXT);
+
+        var email = new UniFieldBuilder();
+        email.setLabel('Epost')
+            .setModel(this.company.Emails[0])
+            .setModelField('Email')
+            .setType(UNI_CONTROL_TYPES.TEXT);
+
+        formBuilder.addFields(companyName, orgNr, street, street2, postNumber, place, phone, email);
 
         this.form = formBuilder;
     }
 
     submitForm() {
-        console.log(this.company);
         this.http.put(
             'http://devapi.unieconomy.no:80/api/biz/companysettings/1',
             JSON.stringify(this.company),

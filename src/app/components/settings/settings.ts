@@ -3,17 +3,17 @@ import {RouteConfig, RouteDefinition, ROUTER_DIRECTIVES, RouterLink, Router} fro
 import {CompanySettings} from './settingsComponents/companySettings';
 import {UserSettings} from './settingsComponents/userSettings';
 import {TabService} from '../navbar/tabstrip/tabService';
+import {ApplicationNav} from '../common/applicationNav/applicationNav';
 
 const CHILD_ROUTES = [
-    { path: '/', component: CompanySettings, as: 'CompanySettings' },
-    { path: '/company', component: CompanySettings, as: 'CompanySettings' },
-    { path: '/user', component: UserSettings, as: 'UserSettings' }
+    { path: '/company', component: CompanySettings, as: 'Firmainnstillinger' },
+    { path: '/user', component: UserSettings, as: 'Brukere og roller' }
 ];
 
 @Component({
     selector: 'settings',
     templateUrl: 'app/components/settings/settings.html',
-    directives: [ROUTER_DIRECTIVES]
+    directives: [ROUTER_DIRECTIVES, ApplicationNav]
 })
 
 @RouteConfig(CHILD_ROUTES)
@@ -22,7 +22,7 @@ export class Settings {
     childRoutes: RouteDefinition[];
 
     constructor(public router: Router, private tabService: TabService) {
-        this.tabService.addTab({ name: 'Settings', url: '/settings' });
+        this.tabService.addTab({ name: 'Settings', url: '/settings/company' });
         this.childRoutes = CHILD_ROUTES;
     }
 }
