@@ -2,11 +2,13 @@
 import {RouteConfig, RouteDefinition, ROUTER_DIRECTIVES, RouterLink, Router} from 'angular2/router';
 import {CompanySettings} from './settingsComponents/companySettings';
 import {UserSettings} from './settingsComponents/userSettings';
+import {AccountSettings} from './settingsComponents/accountSettings';
 import {TabService} from '../navbar/tabstrip/tabService';
 import {ApplicationNav} from '../common/applicationNav/applicationNav';
 
 const CHILD_ROUTES = [
     { path: '/company', component: CompanySettings, as: 'Firmainnstillinger' },
+    { path: '/accounts', component: AccountSettings, as: 'Kontoer' },
     { path: '/user', component: UserSettings, as: 'Brukere og roller' }
 ];
 
