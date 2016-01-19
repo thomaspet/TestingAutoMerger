@@ -9,6 +9,7 @@ import {UniForm, FIELD_TYPES} from '../../../../framework/forms/uniForm';
 import {UniFormBuilder} from "../../../../framework/forms/uniFormBuilder";
 import {UniFieldsetBuilder} from "../../../../framework/forms/uniFieldsetBuilder";
 import {UniFieldBuilder} from "../../../../framework/forms/uniFieldBuilder";
+import {UniGroupBuilder} from '../../../../framework/forms/uniGroupBuilder';
 import {UNI_CONTROL_TYPES} from '../../../../framework/controls/types';
 
 @Component({
@@ -55,8 +56,10 @@ export class CompanySettings implements OnInit {
             this.error = true;
             return;
         }
-        console.log(data.Emails);
+        console.log(data);
         this.company = data;
+
+        var companyTypes = ['Aksjeselskap', 'Enkeltmansforetak', 'Organisasjon' ];
         
         var formBuilder = new UniFormBuilder();
 
@@ -108,17 +111,52 @@ export class CompanySettings implements OnInit {
             .setModelField('EmailAddress')
             .setType(UNI_CONTROL_TYPES.TEXT);
 
-        formBuilder.addFields(companyName, orgNr, street, street2, postNumber, place, phone, email);
+        var companySetup = new UniGroupBuilder("Selskapsoppsett")
+
+        //Checkbox not working atm
+        var companyReg = new UniFieldBuilder();
+        companyReg.setLabel('Foretaksregister')
+            .setModel(this.company)
+            .setModelField('CompanyRegistered')
+            .setType(UNI_CONTROL_TYPES.CHECKBOX);
+
+        //Checkbox not working atm
+        var taxMandatory = new UniFieldBuilder();
+        taxMandatory.setLabel('Mva-pliktig')
+            .setModel(this.company)
+            .setModelField('TaxMandatory')
+            .setType(UNI_CONTROL_TYPES.CHECKBOX);
+    
+        var companyType = new UniFieldBuilder();
+        companyType.setLabel('Firmatype')
+            .setModel(companyTypes[this.company.CompanyTypeID])
+            .setModelField('type')
+            .setType(UNI_CONTROL_TYPES.DROPDOWN)
+            .setKendoOptions({
+                dataSource: companyTypes
+            });
+
+        var companyCurrency = new UniFieldBuilder();
+        companyCurrency.setLabel('Valuta')
+            .setModel(this.company)
+            .setModelField('BaseCurrency')
+            .setType(UNI_CONTROL_TYPES.DROPDOWN)
+            .setKendoOptions({ dataSource: ['USD', 'NOK', 'EUR', 'GPD'] });
+
+        companySetup.addFields(companyReg, taxMandatory, companyType, companyCurrency);
+
+        formBuilder.addFields(companyName, orgNr, street, street2, postNumber, place, phone, email, companySetup);
 
         this.form = formBuilder;
     }
 
     submitForm() {
-        this.http.put(
-            'http://devapi.unieconomy.no:80/api/biz/companysettings/1',
-            JSON.stringify(this.company),
-            { headers: this.headers })
-            .map(res => console.log(res))
-            .subscribe(data => console.log(data))
+        //this.http.put(
+        //    'http://devapi.unieconomy.no:80/api/biz/companysettings/1',
+        //    JSON.stringify(this.company),
+        //    { headers: this.headers })
+        //    .map(res => console.log(res))
+        //    .subscribe(data => console.log(data))
+        console.log(this.company);
     }
 }
