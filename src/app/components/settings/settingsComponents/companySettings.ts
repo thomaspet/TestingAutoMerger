@@ -60,7 +60,7 @@ export class CompanySettings implements OnInit {
         this.company = data;
 
         var companyTypes = ['Aksjeselskap', 'Enkeltmansforetak', 'Organisasjon'];
-        
+
         var formBuilder = new UniFormBuilder();
 
         var companyName = new UniFieldBuilder();
@@ -86,13 +86,13 @@ export class CompanySettings implements OnInit {
             .setModel(this.company.Address[0])
             .setModelField('AddressLine2')
             .setType(UNI_CONTROL_TYPES.TEXT);
-        
+
         var postNumber = new UniFieldBuilder();
         postNumber.setLabel('Post Sted')
             .setModel(this.company.Address[0])
             .setModelField('PostalCode')
             .setType(UNI_CONTROL_TYPES.TEXT);
-        
+
         var place = new UniFieldBuilder();
         place.setLabel('Sted')
             .setModel(this.company.Address[0])
@@ -111,7 +111,7 @@ export class CompanySettings implements OnInit {
             .setModelField('EmailAddress')
             .setType(UNI_CONTROL_TYPES.TEXT);
 
-        var companySetup = new UniGroupBuilder("Selskapsoppsett")
+        var companySetup = new UniGroupBuilder("Selskapsoppsett");
 
         //Checkbox not working atm
         var companyReg = new UniFieldBuilder();
@@ -126,7 +126,7 @@ export class CompanySettings implements OnInit {
             .setModel(this.company)
             .setModelField('TaxMandatory')
             .setType(UNI_CONTROL_TYPES.CHECKBOX);
-    
+
         var companyType = new UniFieldBuilder();
         companyType.setLabel('Firmatype')
             .setModel(companyTypes[this.company.CompanyTypeID])
@@ -147,6 +147,11 @@ export class CompanySettings implements OnInit {
 
         var accountingSettings = new UniGroupBuilder('Regnskapsinnstillinger');
 
+        if (this.company.VatLockedDate !== null && this.company.AccountingLockedDate !== null) {
+            this.company.AccountingLockedDate = new Date(this.company.AccountingLockedDate);
+            this.company.VatLockedDate = new Date(this.company.VatLockedDate);
+        }
+
         var accountingLockedDate = new UniFieldBuilder();
         accountingLockedDate.setLabel('Regnskapsdato')
             .setModel(this.company)
@@ -157,9 +162,17 @@ export class CompanySettings implements OnInit {
         vatLockedDate.setLabel('Momsdato')
             .setModel(this.company)
             .setModelField('VatLockedDate')
-            .setType(UNI_CONTROL_TYPES.DATEPICKER);
+            .setType(UNI_CONTROL_TYPES.DATEPICKER)
+            .setKendoOptions({});
 
-        accountingSettings.addFields(accountingLockedDate, vatLockedDate);
+        //Checkbox not working atm
+        var forceSupplierInvoiceApproval = new UniFieldBuilder();
+        forceSupplierInvoiceApproval.setLabel('Tvungen godkjenning')
+            .setModel(this.company)
+            .setModelField('ForceSupplierInvoiceApproval')
+            .setType(UNI_CONTROL_TYPES.CHECKBOX);
+
+        accountingSettings.addFields(accountingLockedDate, vatLockedDate, forceSupplierInvoiceApproval);
 
         
 
