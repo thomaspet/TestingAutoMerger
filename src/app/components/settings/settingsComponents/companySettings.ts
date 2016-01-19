@@ -59,7 +59,7 @@ export class CompanySettings implements OnInit {
         console.log(data);
         this.company = data;
 
-        var companyTypes = ['Aksjeselskap', 'Enkeltmansforetak', 'Organisasjon' ];
+        var companyTypes = ['Aksjeselskap', 'Enkeltmansforetak', 'Organisasjon'];
         
         var formBuilder = new UniFormBuilder();
 
@@ -145,18 +145,38 @@ export class CompanySettings implements OnInit {
 
         companySetup.addFields(companyReg, taxMandatory, companyType, companyCurrency);
 
-        formBuilder.addFields(companyName, orgNr, street, street2, postNumber, place, phone, email, companySetup);
+        var accountingSettings = new UniGroupBuilder('Regnskapsinnstillinger');
+
+        var accountingLockedDate = new UniFieldBuilder();
+        accountingLockedDate.setLabel('Regnskapsdato')
+            .setModel(this.company)
+            .setModelField('AccountingLockedDate')
+            .setType(UNI_CONTROL_TYPES.DATEPICKER);
+
+        var vatLockedDate = new UniFieldBuilder();
+        vatLockedDate.setLabel('Momsdato')
+            .setModel(this.company)
+            .setModelField('VatLockedDate')
+            .setType(UNI_CONTROL_TYPES.DATEPICKER);
+
+        accountingSettings.addFields(accountingLockedDate, vatLockedDate);
+
+        
+
+        formBuilder.addFields(companyName, orgNr, street, street2, postNumber, place, phone, email, companySetup, accountingSettings);
 
         this.form = formBuilder;
     }
 
     submitForm() {
-        //this.http.put(
-        //    'http://devapi.unieconomy.no:80/api/biz/companysettings/1',
-        //    JSON.stringify(this.company),
-        //    { headers: this.headers })
-        //    .map(res => console.log(res))
-        //    .subscribe(data => console.log(data))
+        this.http.put(
+            'http://devapi.unieconomy.no:80/api/biz/companysettings/1',
+            JSON.stringify(this.company),
+            { headers: this.headers })
+            .map(res => console.log(res))
+            .subscribe(
+            data => console.log(data),
+            err => console.log(err))
         console.log(this.company);
     }
 }
