@@ -14,7 +14,6 @@ import {EmployeeDS} from '../../../../../framework/data/employee';
 @Component({
     selector: 'employee-personal-details',
     directives:[UniForm],
-    providers: [EmployeeDS],
     template: `
     <div class="application employee">
         <button (click)="toggleMode()">Toogle edit mode</button>

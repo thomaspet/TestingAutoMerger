@@ -1,4 +1,4 @@
-import {Component, Inject} from 'angular2/core';
+import {Component, Inject, provide} from 'angular2/core';
 import {RouteConfig, RouteDefinition, RouteParams, ROUTER_DIRECTIVES} from 'angular2/router';
 import {Http, Headers, Response} from 'angular2/http';
 import { Observable } from 'rxjs/Observable';
@@ -26,7 +26,7 @@ const CHILD_ROUTES = [
 @Component({
 	selector: 'uni-employee-details',
 	templateUrl: 'app/components/employee/details/employeeDetails.html',
-    providers: [EmployeeDS],
+    providers: [provide(EmployeeDS,{useClass: EmployeeDS})],
     directives: [ROUTER_DIRECTIVES, WidgetPoster, ApplicationNav]
 })
 @RouteConfig(CHILD_ROUTES)
