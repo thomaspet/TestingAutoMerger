@@ -1,0 +1,20 @@
+﻿<ul style="list-style: none; width:70vw; margin: 0 auto" id="tree_list">
+    <li *ngFor="#dir of directories">
+
+        <h2 class="iconButton" (click)="dir.toggle()" style="cursor:pointer">{{dir.getIcon()}}{{ dir.name }}</h2>
+
+        <div *ngIf="dir.expanded">
+
+            <ul style="list-style: none">
+                <li *ngFor="#file of dir.files">
+                    <h3 (click)="showContent($event)" style="cursor:pointer">{{file}}</h3>
+                    <tree-list-component-loader [config]="dir.config" class="content_div" style="display: none"></tree-list-component-loader>
+                </li>
+            </ul>
+
+            <uni-tree-list [directories]="dir.directories"></uni-tree-list>
+
+        </div>
+
+    </li>
+</ul>
