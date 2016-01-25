@@ -20,33 +20,38 @@ export class Kitchensink {
 		this.tabService.addTab({ name: 'Kitchensink', url: '/kitchensink' });        
         
         // Read-only grid
-        // this.readOnlyTableConfig = new UniTableConfig('http://devapi.unieconomy.no/api/biz/companysettings')
-        // .setOdata({
-        //     expand: 'Address,Emails,Phones'
-        // })
-        // .setDsModel({
-        //     id: 'ID',
-        //     fields: {
-        //         ID: {type: 'number'},
-        //         CompanyName: {type: 'text'},
-        //         Address: {
-        //             AddressLine1: {type: 'text'}
-        //         },
-        //         Emails: {
-        //             EmailAddress: {type: 'text'}
-        //         },
-        //         Phones: {
-        //             Number: {type: 'text'}
-        //         }
-        //     }
-        // })
-        // .setColumns([
-        //     {field: 'ID', title: 'ID'},
-        //     {field: 'CompanyName', title: 'Navn'},
-        //     {field: 'Address.AddressLine1', title: 'Adresse'},
-        //     {field: 'Emails.EmailAddress', title: 'Epost'},
-        //     {field: 'Phones.Number', title: 'Telefon'},
-        // ]);
+        this.readOnlyTableConfig = new UniTableConfig('http://devapi.unieconomy.no/api/biz/companysettings')
+        .setOdata({
+            expand: 'Address,Emails,Phones'
+        })
+        .setDsModel({
+            id: 'ID',
+            fields: {
+                ID: {type: 'number'},
+                CompanyName: {type: 'text'},
+                Address: {
+                    AddressLine1: {type: 'text'}
+                },
+                Emails: {
+                    EmailAddress: {type: 'text'}
+                },
+                Phones: {
+                    Number: {type: 'text'}
+                }
+            }
+        })
+        .setColumns([
+            {field: 'ID', title: 'ID'},
+            {field: 'CompanyName', title: 'Navn'},
+            {field: 'Address.AddressLine1', title: 'Adresse'},
+            {field: 'Emails.EmailAddress', title: 'Epost'},
+            {field: 'Phones.Number', title: 'Telefon'},
+        ])
+        .setOnSelect(
+            (selectedItem) => {
+                console.log(selectedItem);            
+            }
+        );
         
         // Inline edit        
         this.editableTableConfig = new UniTableConfig('http://devapi.unieconomy.no/api/biz/products', true, true)
