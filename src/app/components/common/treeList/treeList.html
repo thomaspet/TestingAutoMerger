@@ -6,9 +6,9 @@
         <div *ngIf="dir.expanded">
 
             <ul style="list-style: none">
-                <li *ngFor="#file of dir.files">
-                    <h3 (click)="showContent($event)" style="cursor:pointer">{{file}}</h3>
-                    <tree-list-component-loader [config]="dir.config" class="content_div" style="display: none"></tree-list-component-loader>
+                <li *ngFor="#file of dir.files; #i = index">
+                    <h3 (click)="showContent($event)" style="cursor:pointer">{{file.name}}</h3>
+                    <tree-list-component-loader *ngIf="file.config" [config]="file.config" class="content_div" style="display: none"></tree-list-component-loader>
                 </li>
             </ul>
 
