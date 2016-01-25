@@ -7,6 +7,7 @@
   display: flex
   flex-direction: row
   justify-content: center
+  height: 2rem
 
 
   li a
@@ -15,8 +16,11 @@
     color: $navbarTextColor
     text-decoration: none
     font-weight: 400
-    padding: .3rem 1rem
+    padding: 0 1rem
     border-right: .1rem solid transparentize($uni-color-negative, .5)
+    height: 2rem
+    box-sizing: border-box
+    line-height: 2rem
 
     &:last-of-type
       border-right: none
@@ -24,6 +28,7 @@
     &.-is-active
       background: darken(mix($uni-color-scale9, $navbarBackground, 60%), 15%)
 
-    &:hover
+    &:hover,
+    &.router-link-active
       background: darken(mix($uni-color-scale9, $navbarBackground, 60%), 15%)
 
