@@ -56,7 +56,7 @@ export class CompanySettings implements OnInit {
             this.error = true;
             return;
         }
-        console.log(data);
+
         this.company = data;
 
         var companyTypes = ['Aksjeselskap', 'Enkeltmansforetak', 'Organisasjon'];
