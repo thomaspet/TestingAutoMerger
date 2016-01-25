@@ -2,7 +2,7 @@
 
 @Component({
     selector: 'account-settings',
-    templateUrl: 'app/components/settings/settingsComponents/accountSettings.html'
+    templateUrl: 'app/components/settings/accountSettings/accountSettings.html'
 })
 
 export class AccountSettings {

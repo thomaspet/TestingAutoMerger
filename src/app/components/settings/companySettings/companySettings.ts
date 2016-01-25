@@ -14,7 +14,7 @@ import {UNI_CONTROL_TYPES} from '../../../../framework/controls/types';
 
 @Component({
     selector: 'settings',
-    templateUrl: 'app/components/settings/settingsComponents/companySettings.html',
+    templateUrl: 'app/components/settings/companySettings/companySettings.html',
     directives: [NgFor, NgIf, UniForm]
 })
 
