@@ -14,6 +14,7 @@ import 'rxjs/add/operator/map';
 export class Kitchensink {	
 	readOnlyTableConfig;	
 	editableTableConfig;
+    tempTableConfig;
 		
 	constructor(private tabService: TabService, private http: Http) {	
 		this.tabService.addTab({ name: 'Kitchensink', url: '/kitchensink' });        
@@ -21,7 +22,6 @@ export class Kitchensink {
         // Read-only grid
         // this.readOnlyTableConfig = new UniTableConfig('http://devapi.unieconomy.no/api/biz/companysettings')
         // .setOdata({
-        //     select: 'ID,CompanyName,Address.AddressLine1,Emails.EmailAddress,Phones.Number',
         //     expand: 'Address,Emails,Phones'
         // })
         // .setDsModel({
@@ -66,6 +66,21 @@ export class Kitchensink {
             {field: 'Name', title: 'Produktnavn'},
             {field: 'Price', title: 'Pris'},
         ]);
+        
+        this.tempTableConfig = new UniTableConfig('http://jsonplaceholder.typicode.com/comments', true, true)
+        .setDsModel({
+            id: 'id',
+            fields: {
+                id: {type: 'number', editable: false},
+                name: {type: 'text'},
+                email: {type: 'text'}
+            },
+        })
+        .setColumns([
+            {field: 'id', title: 'Kundenummer'},
+            {field: 'name', title: 'Navn'},
+            {field: 'email', title: 'Epost'},
+        ])
         
 	}
 }
