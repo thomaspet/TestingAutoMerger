@@ -14,6 +14,7 @@ export class TreeListComponentLoader implements OnInit {
 
     constructor(public dynamicComponentLoader: DynamicComponentLoader, public elementRef: ElementRef) { }
 
+    //Should be able to load any kind of component?
     ngOnInit() {
         this.dynamicComponentLoader.loadIntoLocation(UniTable, this.elementRef, 'content')
             .then((comp) => {

@@ -1,5 +1,5 @@
-/// <reference path="../../../../kendo/typescript/kendo.all.d.ts" />
-import {Component} from 'angular2/core';
+﻿/// <reference path="../../../../kendo/typescript/kendo.all.d.ts" />
+import {Component, ViewChild} from 'angular2/core';
 import {UniTable, UniTableConfig} from '../../../framework/uniTable';
 import {TabService} from '../navbar/tabstrip/tabService';
 import {Directory} from '../common/treeList/directory';
@@ -16,7 +16,8 @@ import 'rxjs/add/operator/map';
 export class Kitchensink {	
 	readOnlyTableConfig;	
     editableTableConfig;
-    directories: Array<any>;
+    directories: Array<Directory>;
+    @ViewChild(TreeList) treeList: TreeList;
 		
 	constructor(private tabService: TabService, private http: Http) {	
 		this.tabService.addTab({ name: 'Kitchensink', url: '/kitchensink' });        
@@ -84,11 +85,40 @@ export class Kitchensink {
         //    err => { console.log(err) }
         //);
 
-        const kontogruppe1 = new Directory('Kontogruppe 1', [], ['Kontogruppe 1_1', 'Kontogruppe 1_2', 'Kontogruppe 1_3'], this.editableTableConfig);
-        const kontogruppe2 = new Directory('Kontogruppe 2', [], ['Kontogruppe 2_1', 'Kontogruppe 2_2', 'Kontogruppe 2_3', 'Kontogruppe 2_4'], this.editableTableConfig);
-        const konto = new Directory('Konto', [kontogruppe1, kontogruppe2], []);
-        const settings = new Directory('Innstillinger', [], ['Generelt', 'Kontoinstillinger'], this.editableTableConfig);
+        //new Directory(name, subdirectories, files)
+
+        //Creates new Directory with files and no subdirectories
+        const kontogruppe1 = new Directory('Kontogruppe 1', [],
+            [
+                { name: 'Kontogruppe 1_1', config: this.editableTableConfig },
+                { name: 'Kontogruppe 1_2', config: this.editableTableConfig },
+                { name: 'Kontogruppe 1_3', config: this.editableTableConfig }
+            ]);
+        
+        //Creates new Directory with files and no subdirectories
+        const kontogruppe2 = new Directory('Kontogruppe 2', [],
+            [
+                { name: 'Kontogruppe 2_1', config: this.editableTableConfig },
+                { name: 'Kontogruppe 2_2', config: this.editableTableConfig },
+                { name: 'Kontogruppe 2_3', config: this.editableTableConfig }
+            ]);
+
+        //Creates new Directory with subdirectories and 1 file
+        const konto = new Directory('Konto', [kontogruppe1, kontogruppe2], [{ name: 'Generelt', config: this.editableTableConfig }]);
+
+        //Creates new Directory with files and no subdirectories
+        const settings = new Directory('Innstillinger', [],
+            [
+                { name: 'Generelt', config: this.editableTableConfig },
+                { name: 'Kontoinnstillinger', config: this.editableTableConfig }
+            ]);
+
+        //Creates new Directory with subdirectories and no files
         const bundle = new Directory('General', [konto, settings], []);
         this.directories = [settings, konto];
+    }
+
+    expandClick() {
+        this.treeList.showHideAll();
     }
 }

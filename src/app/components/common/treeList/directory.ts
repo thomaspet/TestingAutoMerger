@@ -6,8 +6,7 @@
     constructor(
         public name: string,
         public directories: Array<Directory>,
-        public files: Array<string>,
-        public config?: Object) { }
+        public files: Array<any>) { }
 
     toggle() {
         this.expanded = !this.expanded;
