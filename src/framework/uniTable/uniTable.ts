@@ -1,4 +1,5 @@
-import { Component, Input, AfterViewInit, ElementRef} from 'angular2/core';
+import { Component, Input, AfterViewInit, ElementRef, OnDestroy} from 'angular2/core';
+import {Http, Headers, URLSearchParams, Response} from 'angular2/http';
 import {NgIf} from 'angular2/common';
 declare var jQuery;
 
@@ -17,8 +18,10 @@ export class UniTable implements AfterViewInit {
     nativeElement: any;
     table: kendo.ui.Grid;
     
+    totalRows: number; // used for pagination
+    
 	
-	constructor(elementRef: ElementRef) {
+	constructor(private http: Http, elementRef: ElementRef) {
         this.nativeElement = jQuery(elementRef.nativeElement);
     }
 
@@ -32,11 +35,30 @@ export class UniTable implements AfterViewInit {
 			dataSource: {
 				type: 'json',
 				transport: {
-					read: {
-						url: this.config.resourceUrl,
-                        type: 'GET',
-						headers: httpHeaders
-					},
+                    // Read defined as a function instead of using kendo so we can get the number of rows from response headers
+                    read: (options) => {
+                        var urlParams = jQuery.extend({}, this.config.odata, options.data);
+                        var searchMap = new URLSearchParams();
+                        
+                        Object.keys(urlParams).forEach((key) => {
+                           if (urlParams[key]) {
+                               searchMap.append(key, urlParams[key]);
+                           } 
+                        });
+                        
+                        this.http.get(
+                            this.config.resourceUrl,
+                            {
+                                headers: new Headers({'Client': 'client1'}),
+                                search: searchMap
+                            }
+                        )
+                        .subscribe((response) => {
+                            var data = response.json();
+                            this.totalRows = parseInt(response.headers.get('Total')) || data.length;
+                            options.success(data)
+                        });
+                    },
                     update: {
                         url: (item) => {
                             return this.config.resourceUrl + '/' + item.ID
@@ -57,13 +79,8 @@ export class UniTable implements AfterViewInit {
                         headers: httpHeaders
                     },
                     parameterMap: (options, operation) => {
-                        console.log('hei');
-                        console.log(operation);
-                        console.log(options);                   
-                        
                         if (operation === 'read') {
-                            // return kendo.stringify(options);
-                            return this.buildOdataString();
+                            return jQuery.extend({}, this.config.odata, options);
                         }
                         
                         if (operation !== "read" && options) {   
@@ -73,31 +90,50 @@ export class UniTable implements AfterViewInit {
 				},
 				schema: { 
 					model: this.config.dsModel,
-                    total: "total"
+                    total: (response) => {
+
+                        return this.totalRows;
+                    }
 				},
-                pageSize: 10,
+                pageSize: this.config.pageSize || 10,
                 serverPaging: true,
                 serverFiltering: true,
 			},
-			toolbar: ["create", "save", "cancel"],
 			columns: this.config.columns,
 			filterable: true,
             editable: this.config.editable,
             navigatable: true,
             pageable: true,     
 		};
+		       
 		
-		// If onSelect is defined we hook it up to the kendo change event which is fired when the user clicks a row
-		if (this.config.onSelect && !this.config.editable) {
-			this.tableConfig.selectable = "row";
-			
-			var vm = this;
-			
-			this.tableConfig.change = function(event: kendo.ui.GridChangeEvent) {
-				var item = event.sender.dataItem(this.select());
-				vm.config.onSelect(item);
-			}
-		}
+        
+        if (this.config.editable) {
+            this.setupEditableTable();
+        } else {
+            this.setupReadOnlyTable();
+        }
+	}
+    
+    // Settings specific to read-only uniTable
+    setupReadOnlyTable() {
+        
+        if (this.config.onSelect) {
+            this.tableConfig.selectable = "row";
+            
+            var vm = this;
+            this.tableConfig.change = function(event: kendo.ui.GridChangeEvent) {
+                vm.config.onSelect(event.sender.dataItem(this.select()));
+            }
+        }
+        
+        // Compile kendo grid
+        this.table = this.nativeElement.find('table').kendoGrid(this.tableConfig).data('kendoGrid');
+    }
+    
+    // Settings specific to editable uniTable
+    setupEditableTable() {
+        this.tableConfig.toolbar = ["create", "save", "cancel"];
         
         // Add editable-cell class to the columns that are set to editable in the model
         this.tableConfig.columns.forEach((column) => {
@@ -111,20 +147,18 @@ export class UniTable implements AfterViewInit {
                     column.attributes = { "class": 'editable-cell' }
                 }
             }
-        });
+        });        
         
         // Unbind kendo's keybind on numeric inputs so it doesn't interfere with up/down table navigation
         this.tableConfig.edit = (event) => {
             var input = jQuery(this.table.current()).find('.k-numerictextbox input').unbind('keydown');
         }
         
-		// Compile kendo grid
+        // Compile kendo grid
         this.table = this.nativeElement.find('table').kendoGrid(this.tableConfig).data('kendoGrid');
         
-        if (this.config.editable) {
-            this.setupKeyNavigation();
-        }
-	}
+        this.setupKeyNavigation();
+    }
     
     buildOdataString() {
         if (!this.config.odata) {
@@ -133,7 +167,6 @@ export class UniTable implements AfterViewInit {
         
         var odataStr = '';
         odataStr += (this.config.odata.expand) ? ('expand=' + this.config.odata.expand + '&') : '';
-        odataStr += (this.config.odata.select) ? ('select=' + this.config.odata.select + '&') : '';
         odataStr += (this.config.odata.filter) ? ('filter=' + this.config.odata.filter) : '';
         
         // // Remove trailing '&'
@@ -233,6 +266,12 @@ export class UniTable implements AfterViewInit {
             this.table.current(newCell);
             this.table.editCell(newCell);
         }
+    }
+    
+    // Avoid duplicate uniTable when renavigating
+    ngOnDestroy() {
+        this.nativeElement.find('.k-grid').remove();
+        this.nativeElement.append('<table></table>');
     }
 	
 }
