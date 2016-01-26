@@ -22,9 +22,10 @@ import {EmployeeDS} from '../../../../../framework/data/employee';
     `
 })
 export class PersonalDetails {
-    form;
+
+    form: UniFormBuilder;
     employee;
-    dataIsReady;
+
     constructor(private injector: Injector, employeeDS:EmployeeDS) {
         var routeParams = injector.parent.parent.get(RouteParams);//Any way to get that in an easy way????
         employeeDS.get(routeParams.get('id'))

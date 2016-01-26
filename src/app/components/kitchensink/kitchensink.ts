@@ -14,45 +14,47 @@ import 'rxjs/add/operator/map';
 export class Kitchensink {	
 	readOnlyTableConfig;	
 	editableTableConfig;
+    tempTableConfig;
 		
 	constructor(private tabService: TabService, private http: Http) {	
 		this.tabService.addTab({ name: 'Kitchensink', url: '/kitchensink' });        
         
         // Read-only grid
-        // this.readOnlyTableConfig = new UniTableConfig('http://devapi.unieconomy.no/api/biz/companysettings')
-        // .setOdata({
-        //     select: 'ID,CompanyName,Address.AddressLine1,Emails.EmailAddress,Phones.Number',
-        //     expand: 'Address,Emails,Phones'
-        // })
-        // .setDsModel({
-        //     id: 'ID',
-        //     fields: {
-        //         ID: {type: 'number'},
-        //         CompanyName: {type: 'text'},
-        //         Address: {
-        //             AddressLine1: {type: 'text'}
-        //         },
-        //         Emails: {
-        //             EmailAddress: {type: 'text'}
-        //         },
-        //         Phones: {
-        //             Number: {type: 'text'}
-        //         }
-        //     }
-        // })
-        // .setColumns([
-        //     {field: 'ID', title: 'ID'},
-        //     {field: 'CompanyName', title: 'Navn'},
-        //     {field: 'Address.AddressLine1', title: 'Adresse'},
-        //     {field: 'Emails.EmailAddress', title: 'Epost'},
-        //     {field: 'Phones.Number', title: 'Telefon'},
-        // ]);
+        this.readOnlyTableConfig = new UniTableConfig('http://devapi.unieconomy.no/api/biz/companysettings')
+        .setOdata({
+            expand: 'Address,Emails,Phones'
+        })
+        .setDsModel({
+            id: 'ID',
+            fields: {
+                ID: {type: 'number'},
+                CompanyName: {type: 'text'},
+                Address: {
+                    AddressLine1: {type: 'text'}
+                },
+                Emails: {
+                    EmailAddress: {type: 'text'}
+                },
+                Phones: {
+                    Number: {type: 'text'}
+                }
+            }
+        })
+        .setColumns([
+            {field: 'ID', title: 'ID'},
+            {field: 'CompanyName', title: 'Navn'},
+            {field: 'Address.AddressLine1', title: 'Adresse'},
+            {field: 'Emails.EmailAddress', title: 'Epost'},
+            {field: 'Phones.Number', title: 'Telefon'},
+        ])
+        .setOnSelect(
+            (selectedItem) => {
+                console.log(selectedItem);            
+            }
+        );
         
         // Inline edit        
         this.editableTableConfig = new UniTableConfig('http://devapi.unieconomy.no/api/biz/products', true, true)
-        .setOdata({
-            select: 'ID,Name,Price'
-        })
         .setDsModel({
             id: 'ID',
             fields: {
@@ -66,6 +68,21 @@ export class Kitchensink {
             {field: 'Name', title: 'Produktnavn'},
             {field: 'Price', title: 'Pris'},
         ]);
+        
+        this.tempTableConfig = new UniTableConfig('http://jsonplaceholder.typicode.com/comments', true, true)
+        .setDsModel({
+            id: 'id',
+            fields: {
+                id: {type: 'number', editable: false},
+                name: {type: 'text'},
+                email: {type: 'text'}
+            },
+        })
+        .setColumns([
+            {field: 'id', title: 'Kundenummer'},
+            {field: 'name', title: 'Navn'},
+            {field: 'email', title: 'Epost'},
+        ])
         
 	}
 }

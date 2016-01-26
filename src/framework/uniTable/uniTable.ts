@@ -1,6 +1,8 @@
-import { Component, Input, AfterViewInit} from 'angular2/core';
+import { Component, Input, AfterViewInit, ElementRef} from 'angular2/core';
 import {NgIf} from 'angular2/common';
 declare var jQuery;
+
+enum DIRECTIONS { LEFT, RIGHT, UP, DOWN };
 
 @Component({
 	selector: 'uni-table',
@@ -12,13 +14,13 @@ export class UniTable implements AfterViewInit {
 	tableConfig: kendo.ui.GridOptions = {};
 	
 	filterString: string = "";
-	tableID: string;
-	table: kendo.ui.Grid;
+    nativeElement: any;
+    table: kendo.ui.Grid;
+    
 	
-	constructor() { 
-		// Generate a unique ID for the table
-		this.tableID = "uni-table-" + Date.now();
-	}
+	constructor(elementRef: ElementRef) {
+        this.nativeElement = jQuery(elementRef.nativeElement);
+    }
 
 	ngAfterViewInit() {            
         var httpHeaders = {
@@ -54,8 +56,13 @@ export class UniTable implements AfterViewInit {
                         type: 'DELETE',
                         headers: httpHeaders
                     },
-                    parameterMap: (options, operation) => {                        
+                    parameterMap: (options, operation) => {
+                        console.log('hei');
+                        console.log(operation);
+                        console.log(options);                   
+                        
                         if (operation === 'read') {
+                            // return kendo.stringify(options);
                             return this.buildOdataString();
                         }
                         
@@ -66,8 +73,10 @@ export class UniTable implements AfterViewInit {
 				},
 				schema: { 
 					model: this.config.dsModel,
+                    total: "total"
 				},
                 pageSize: 10,
+                serverPaging: true,
                 serverFiltering: true,
 			},
 			toolbar: ["create", "save", "cancel"],
@@ -110,10 +119,7 @@ export class UniTable implements AfterViewInit {
         }
         
 		// Compile kendo grid
-		var element: any = $('#' + this.tableID);
-		element.kendoGrid(this.tableConfig);
-		
-		this.table = element.data('kendoGrid');
+        this.table = this.nativeElement.find('table').kendoGrid(this.tableConfig).data('kendoGrid');
         
         if (this.config.editable) {
             this.setupKeyNavigation();
@@ -166,27 +172,27 @@ export class UniTable implements AfterViewInit {
 		this.table.dataSource.query({});
 	}
     
-    setupKeyNavigation() {        
-        jQuery('#' + this.tableID).keyup((event) => {
+    setupKeyNavigation() {
+        jQuery(this.table.table).keyup((event) => {
             // Enter
             if (event.keyCode === 13) {
                 if (event.shiftKey) {
-                    this.move('LEFT');
+                    this.move(DIRECTIONS.LEFT);
                 } else {
-                    this.move('RIGHT');    
+                    this.move(DIRECTIONS.RIGHT);    
                 }
             }
                         
             // Up arrow
             if (event.ctrlKey && event.keyCode === 38) {
                 event.preventDefault();
-                this.move('UP');
+                this.move(DIRECTIONS.UP);
             }
             
             // Down arrow
             if (event.ctrlKey && event.keyCode === 40) {
                 event.preventDefault();
-                this.move('DOWN');
+                this.move(DIRECTIONS.DOWN);
             }
                         
         });
@@ -197,33 +203,33 @@ export class UniTable implements AfterViewInit {
         var newCell; 
 
         switch(direction) {
-            case 'LEFT':
+            case DIRECTIONS.LEFT:
                 newCell = currentCell.prevAll('.editable-cell');
                 if (!newCell[0]) {  
                     newCell = currentCell.parent('tr').prev().children('.editable-cell:last');
                 }
             break;
             
-            case 'RIGHT':
+            case DIRECTIONS.RIGHT:
                 newCell = currentCell.nextAll('.editable-cell');
                 if (!newCell[0]) {
                     newCell = currentCell.parent('tr').next().children('.editable-cell:first');
                 }
             break;
             
-            case 'UP':
+            case DIRECTIONS.UP:
                 var prevRow = currentCell.parent('tr').prev('tr');
                 var newCell = jQuery('td:eq(' + currentCell.index() + ')', prevRow);
             break;
             
-            case 'DOWN':
+            case DIRECTIONS.DOWN:
                 var nextRow = currentCell.parent('tr').next('tr');
                 var newCell = jQuery('td:eq(' + currentCell.index() + ')', nextRow);
             break;
         }
                 
         if (newCell.length > 0) {
-            currentCell.find('input').blur(); // makes sure any changes in the input field are stored before moving
+            currentCell.find('input').blur(); // makes sure any changes are updated (in browser, no http call here) before moving focus
             this.table.current(newCell);
             this.table.editCell(newCell);
         }
