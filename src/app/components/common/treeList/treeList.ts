@@ -1,8 +1,10 @@
-﻿import {Component, Input, DynamicComponentLoader, ElementRef} from 'angular2/core';
+﻿import {Component, Input} from 'angular2/core';
 import {Directory} from './directory';
 import {TreeListComponentLoader} from './treeListComponentLoader';
 
 declare var jQuery;
+
+export enum TREE_LIST_TYPE { TABLE, FORM, TEXT }
 
 @Component({
     selector: 'uni-tree-list',
@@ -14,10 +16,11 @@ export class TreeList {
     
     @Input() directories: Array<Directory>;
     expanded: boolean = false;
+    type = TREE_LIST_TYPE;
     current: any;
     count: number = 0;
 
-    constructor(public dynamicComponentLoader: DynamicComponentLoader, public elementRef: ElementRef) { }
+    constructor() { }
 
     showContent(event) {
         //Slides up all .content_div

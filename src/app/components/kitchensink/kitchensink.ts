@@ -3,9 +3,16 @@ import {Component, ViewChild} from 'angular2/core';
 import {UniTable, UniTableConfig} from '../../../framework/uniTable';
 import {TabService} from '../navbar/tabstrip/tabService';
 import {Directory} from '../common/treeList/directory';
-import {TreeList} from '../common/treeList/treeList';
+import {TreeList, TREE_LIST_TYPE} from '../common/treeList/treeList';
 import {Http, Headers, Response} from 'angular2/http';
 import { Observable } from 'rxjs/Observable';
+
+//Uniform imports
+import {UNI_CONTROL_TYPES} from '../../../framework/controls/types';
+import {UniFormBuilder} from '../../../framework/forms/uniFormBuilder';
+import {UniFieldBuilder} from '../../../framework/forms/uniFieldBuilder';
+import {UniFieldsetBuilder} from '../../../framework/forms/uniFieldsetBuilder';
+import {UniGroupBuilder} from '../../../framework/forms/uniGroupBuilder';
 import 'rxjs/add/operator/map';
 
 @Component({
@@ -71,48 +78,77 @@ export class Kitchensink {
     }
 
     setUpTreeList() {
-        
-        var headers = new Headers();
-        headers.append('Client', 'client1');
 
-        //this.http.get('http://devapi.unieconomy.no:80/api/biz/accounts/1', { headers: headers })
-        //    .map(res => res.json())
-        //    .subscribe(
-        //    data => { console.log(data) },
-        //    err => { console.log(err) }
-        //);
-
-        //new Directory(name, subdirectories, files)
+        //This form object should come from server
+        var form = this.createForm();
 
         //Creates new Directory with files and no subdirectories
         const kontogruppe1 = new Directory('Kontogruppe 1', [],
             [
-                { name: 'Kontogruppe 1_1', config: this.editableTableConfig },
-                { name: 'Kontogruppe 1_2', config: this.editableTableConfig },
-                { name: 'Kontogruppe 1_3', config: this.editableTableConfig }
+                { name: 'Kontogruppe 1_1', config: this.editableTableConfig, type: TREE_LIST_TYPE.TABLE },
+                { name: 'Kontogruppe 1_2', config: this.editableTableConfig, type: TREE_LIST_TYPE.TABLE },
+                { name: 'Kontogruppe 1_3', config: this.editableTableConfig, type: TREE_LIST_TYPE.TABLE }
             ]);
         
         //Creates new Directory with files and no subdirectories
-        const kontogruppe2 = new Directory('Kontogruppe 2', [],
+        const kontogruppe2 = new Directory('TYPE EXAMPLES', [],
             [
-                { name: 'Kontogruppe 2_1', config: this.editableTableConfig },
-                { name: 'Kontogruppe 2_2' },
-                { name: 'Kontogruppe 2_3', config: this.editableTableConfig }
+                { name: 'TABLE', config: this.editableTableConfig, type: TREE_LIST_TYPE.TABLE },
+                { name: 'TEXT', config: 'Hello from text', type: TREE_LIST_TYPE.TEXT },
+                { name: 'FORM', config: form, type: TREE_LIST_TYPE.FORM, url: 'http://devapi.unieconomy.no:80/api/biz/companysettings/1' }
             ]);
 
         //Creates new Directory with subdirectories and 1 file
-        const konto = new Directory('Konto', [kontogruppe1, kontogruppe2], [{ name: 'Generelt', config: this.editableTableConfig }]);
+        const konto = new Directory('Konto', [kontogruppe1, kontogruppe2], [{ name: 'Generelt', config: this.editableTableConfig, type: TREE_LIST_TYPE.TABLE }]);
 
         //Creates new Directory with files and no subdirectories
         const settings = new Directory('Innstillinger', [],
             [
-                { name: 'Generelt', config: this.editableTableConfig },
-                { name: 'Kontoinnstillinger', config: this.editableTableConfig }
+                { name: 'Generelt', config: this.editableTableConfig, type: TREE_LIST_TYPE.TABLE },
+                { name: 'Kontoinnstillinger', config: this.editableTableConfig, type: TREE_LIST_TYPE.TABLE }
             ]);
 
         //Creates new Directory with subdirectories and no files
         const bundle = new Directory('General', [konto, settings], []);
         this.directories = [settings, konto];
+    }
+
+    createForm() {
+        var formBuilder = new UniFormBuilder();
+
+        var model = {
+            fname: 'Jørgen',
+            mname: 'Nyheim',
+            lname: 'Kristiansen',
+            ssn: 1564875123
+        };
+
+        var name = new UniFieldBuilder();
+        name.setLabel('Fornavn')
+            .setModel(model)
+            .setModelField('fname')
+            .setType(UNI_CONTROL_TYPES.TEXT)
+
+        var middleName = new UniFieldBuilder();
+        middleName.setLabel('Mellomnavn')
+            .setModel(model)
+            .setModelField('mname')
+            .setType(UNI_CONTROL_TYPES.TEXT)
+
+        var lastName = new UniFieldBuilder();
+        lastName.setLabel('Etternavn')
+            .setModel(model)
+            .setModelField('lname')
+            .setType(UNI_CONTROL_TYPES.TEXT)
+
+        var DNumber = new UniFieldBuilder();
+        DNumber.setLabel('Person- eller D-nummer')
+            .setModel(model)
+            .setModelField('ssn')
+            .setType(UNI_CONTROL_TYPES.TEXT)//Validation or specific field
+
+        formBuilder.addFields(name, middleName, lastName, DNumber);
+        return formBuilder;
     }
 
     expandClick() {
