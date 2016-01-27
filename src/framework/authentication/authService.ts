@@ -6,7 +6,7 @@ declare var jwt_decode: (token: string) => any; // node_modules/jwt_decode
 
 @Injectable()
 export class AuthService {
-	
+    
 	constructor(private http: Http) {}
 	
 	authenticate(username: string, password: string): Observable<Response> {
@@ -27,11 +27,17 @@ export class AuthService {
 	}	
 	
 	get authenticated(): boolean {
+        console.log('auth');
 		var token = localStorage.getItem('jwt');
-		return (token && !this.expired && this.companySelected);
+		return (token && !this.expired);
 	}
 	
-	get expired(): boolean {
+	get companySelected(): boolean {
+		var company = localStorage.getItem('activeCompany');
+		return (company !== undefined && company !== null);
+	}
+    
+    get expired(): boolean {
 		var decoded = JSON.parse(localStorage.getItem('jwt_decoded'));
 		
 		if (!decoded || !decoded.exp) {
@@ -42,11 +48,6 @@ export class AuthService {
 		expires.setUTCSeconds(decoded.exp);
 		
 		return (new Date().valueOf() > expires.valueOf());		
-	}
-	
-	get companySelected(): boolean {
-		var company = localStorage.getItem('activeCompany');
-		return (company !== undefined && company !== null);
 	}
 	
 }

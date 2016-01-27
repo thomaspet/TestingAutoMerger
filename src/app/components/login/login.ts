@@ -1,6 +1,6 @@
 import { Component } from 'angular2/core';
 import { Http, Headers, Response } from 'angular2/http';
-import { Router } from 'angular2/router';
+import { Router, ROUTER_DIRECTIVES } from 'angular2/router';
 import { AuthService } from '../../../framework/authentication/authService';
 
 declare var jQuery;
@@ -8,18 +8,21 @@ declare var jQuery;
 @Component({
 	selector: 'uni-login',
 	templateUrl: 'app/components/login/login.html',
-	providers: [AuthService]
+	providers: [AuthService],
+    directives: [ROUTER_DIRECTIVES]
 })
 export class Login { 
 	credentials: { username: string, password: string };
+    authenticated: boolean;
     
 	constructor(public authService: AuthService, public router: Router) {				
-		
 		// Initialize credentials to a valid login for testing purposes
 		this.credentials = {
 			username: "jonterje",
 			password: "MySuperP@ss!"
 		}
+        
+        this.authenticated = false;
 	}
 	
 	authenticate(event) {
@@ -37,6 +40,8 @@ export class Login {
         var decoded = this.authService.decodeToken(token);
         localStorage.setItem('jwt', 'Bearer ' + token);
         localStorage.setItem('jwt_decoded', JSON.stringify(decoded));
+        
+        this.authenticated = true;
         
 		// If active company exists in localStorage we can skip the companySelect part
 		// TODO: We should verify that the user still has access to the company?
@@ -73,8 +78,8 @@ export class Login {
             },
         }
         
-        element.kendoDropDownList(dropdownConfig).data('kendoDropDownList');
-        jQuery('.k-input').first().html('Select a company');
+        element.kendoDropDownList(dropdownConfig);
+        // jQuery('.k-input').first().html('Select a company');
     }
     
     onCompanySelected() {
