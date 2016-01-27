@@ -1,7 +1,5 @@
 ﻿export class Directory {
-
     expanded = false;
-    checked = false;
 
     constructor(
         public name: string,
@@ -17,17 +15,5 @@
             return '- ';
         }
         return '+ ';
-    }
-
-    check() {
-        this.checked = !this.checked;
-        this.checkRecursive(this.checked);
-    }
-
-    checkRecursive(state: boolean) {
-        this.directories.forEach(d => {
-            d.checked = state;
-            d.checkRecursive(state);
-        });
     }
 }
