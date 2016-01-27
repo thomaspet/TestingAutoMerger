@@ -54,9 +54,6 @@ export class Kitchensink {
         
         // Inline edit        
         this.editableTableConfig = new UniTableConfig('http://devapi.unieconomy.no/api/biz/products', true, true)
-        .setOdata({
-            select: 'ID,Name,Price'
-        })
         .setDsModel({
             id: 'ID',
             fields: {

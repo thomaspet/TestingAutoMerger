@@ -1,10 +1,8 @@
 interface IOdata {
     expand?: string,
-    select?: string,
     filter?: string
 }
 
-// TODO: Url to documentation
 export class UniTableConfig {    
     resourceUrl: string;
     odata: IOdata;

@@ -32,12 +32,6 @@ export class Tabstrip {
         );
     }
 
-    addTab(): void {
-        var tab = {name: 'Dashboard', url: '/'};
-        this.tabService.addTab(tab);
-        this.router.navigateByUrl(tab.url);
-    }
-
     activateTab(tab): void {
         this.router.navigateByUrl(tab.url);
     }

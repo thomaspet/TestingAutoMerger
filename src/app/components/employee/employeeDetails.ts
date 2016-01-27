@@ -1,19 +1,19 @@
-import {Component, Inject} from 'angular2/core';
+import {Component, Inject, provide} from 'angular2/core';
 import {RouteConfig, RouteDefinition, RouteParams, ROUTER_DIRECTIVES} from 'angular2/router';
 import {Http, Headers, Response} from 'angular2/http';
 import { Observable } from 'rxjs/Observable';
 import 'rxjs/add/operator/map';
 
-import {WidgetPoster} from '../../common/widgetPoster/widgetPoster';
-import {PersonalDetails} from './childComponents/personalDetails';
-import {Employment} from './childComponents/employment';
-import {Hours} from './childComponents/hours';
-import {Travel} from './childComponents/travel';
-import {SalaryTransactions} from './childComponents/salaryTransactions';
+import {WidgetPoster} from '../common/widgetPoster/widgetPoster';
+import {PersonalDetails} from './personalDetails/personalDetails';
+import {Employment} from './employments/employments';
+import {Hours} from './hours/hours';
+import {Travel} from './travel/travel';
+import {SalaryTransactions} from './salaryTransactions/salaryTransactions';
 
-import {ApplicationNav} from '../../common/applicationNav/applicationNav';
+import {ApplicationNav} from '../common/applicationNav/applicationNav';
 
-import {EmployeeDS} from '../../../../framework/data/employee';
+import {EmployeeDS} from '../../../framework/data/employee';
 
 const CHILD_ROUTES = [
     { path: '/', component: PersonalDetails, as: 'PersonalDetails' },
@@ -25,8 +25,8 @@ const CHILD_ROUTES = [
 
 @Component({
 	selector: 'uni-employee-details',
-	templateUrl: 'app/components/employee/details/employeeDetails.html',
-    providers: [EmployeeDS],
+	templateUrl: 'app/components/employee/employeeDetails.html',
+    providers: [provide(EmployeeDS,{useClass: EmployeeDS})],
     directives: [ROUTER_DIRECTIVES, WidgetPoster, ApplicationNav]
 })
 @RouteConfig(CHILD_ROUTES)
