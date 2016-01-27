@@ -99,7 +99,7 @@ export class Kitchensink {
         const kontogruppe2 = new Directory('Kontogruppe 2', [],
             [
                 { name: 'Kontogruppe 2_1', config: this.editableTableConfig },
-                { name: 'Kontogruppe 2_2', config: this.editableTableConfig },
+                { name: 'Kontogruppe 2_2' },
                 { name: 'Kontogruppe 2_3', config: this.editableTableConfig }
             ]);
 

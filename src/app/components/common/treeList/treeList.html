@@ -1,14 +1,15 @@
-﻿<ul style="list-style: none; width:70vw; margin: 0 auto" id="tree_list">
+﻿<ul id="tree_list">
     <li *ngFor="#dir of directories">
 
-        <h2 class="iconButton" (click)="dir.toggle()" style="cursor:pointer">{{dir.getIcon()}}{{ dir.name }}</h2>
+        <span class="button_icon" (click)="dir.toggle()">{{dir.getIcon()}}{{dir.name}}</span>
 
         <div *ngIf="dir.expanded">
 
-            <ul style="list-style: none">
+            <ul>
                 <li *ngFor="#file of dir.files; #i = index">
-                    <h3 (click)="showContent($event)" style="cursor:pointer">{{file.name}}</h3>
-                    <tree-list-component-loader *ngIf="file.config" [config]="file.config" class="content_div" style="display: none"></tree-list-component-loader>
+                    <h5 (click)="showContent($event)">{{file.name}}</h5>
+                    <tree-list-component-loader *ngIf="file.config" [config]="file.config" class="content_div"></tree-list-component-loader>
+                    <h4 *ngIf="!file.config" class="content_div">I have no content</h4>
                 </li>
             </ul>
 

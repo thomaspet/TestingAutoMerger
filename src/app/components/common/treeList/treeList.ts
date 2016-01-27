@@ -14,14 +14,25 @@ export class TreeList {
     
     @Input() directories: Array<Directory>;
     expanded: boolean = false;
+    current: any;
+    count: number = 0;
 
     constructor(public dynamicComponentLoader: DynamicComponentLoader, public elementRef: ElementRef) { }
 
     showContent(event) {
         //Slides up all .content_div
         jQuery('#tree_list').find('.content_div').slideUp(500);
+
         //Slides down current .content_div
-        jQuery(event.target).next('.content_div').slideDown(500);
+        //If statement makes sure that if the current is pressed, it is not shown again
+        if (this.current !== event.target || this.count === 2) {
+            jQuery(event.target).next('.content_div').slideDown(500);
+            this.count = 0;
+        }
+
+        this.current = event.target;
+        this.count++;
+        
     }
 
     showHideAll() {
@@ -30,7 +41,6 @@ export class TreeList {
     }
 
     revertAllExpanded(dir) {
-        //Needs to set explicitly true or false??
         dir.forEach((d) => {
             d.expanded = this.expanded;
             if (d.directories) {
