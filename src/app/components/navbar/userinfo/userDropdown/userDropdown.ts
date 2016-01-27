@@ -23,7 +23,7 @@ export class UserDropdown implements AfterViewInit {
     constructor(public router: Router) {
         this.username = JSON.parse(localStorage.getItem('jwt_decoded')).unique_name;
         this.dropdownElements = [
-            { title: 'Settings',  action: () => { this.navigate('/') } },
+            { title: 'Settings',  action: () => { this.navigate('/settings') } },
             { title: 'Help'    ,  action: () => { this.navigate('/') } },
             { title: 'Log out' ,  action: () => { this.logout() }      },
         ];

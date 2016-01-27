@@ -40,7 +40,8 @@ export class CompanySettings implements OnInit {
         this.headers = new Headers();
         this.headers.append('Client', 'client1');
 
-        var url = 'http://devapi.unieconomy.no:80/api/biz/companysettings/' + this.id + '?expand=Address,Emails,Phones';
+        //var url = 'http://devapi.unieconomy.no:80/api/biz/companysettings/' + this.id + '?expand=Address,Emails,Phones';
+        var url = 'http://localhost:27831/api/biz/companysettings/' + this.id + '?expand=Address,Emails,Phones';
 
         //Gets settings for the company currently active
         this.http.get(url, { headers: this.headers })
