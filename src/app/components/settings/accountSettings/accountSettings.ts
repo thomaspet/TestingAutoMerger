@@ -9,5 +9,9 @@ import {AccountDetails} from './accountDetails/accountDetails';
 })
 
 export class AccountSettings {
-    constructor() { }
+    account;
+    
+    constructor() {
+        this.account = 1;      
+    }
 }

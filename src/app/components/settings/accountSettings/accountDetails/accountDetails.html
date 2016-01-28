@@ -1,1 +1,6 @@
-<uni-form (uniFormSubmit)='onSubmit($event)' [fields]='form.config()'></uni-form>
+<div *ngIf="model">
+    <uni-form (uniFormSubmit)='onSubmit($event)' [fields]='form.config()'></uni-form>
+</div>
+<!--
+<uni-table [config]="dimensionsTableConfig"></uni-table>
+-->
