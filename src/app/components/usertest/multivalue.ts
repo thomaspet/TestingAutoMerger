@@ -40,11 +40,10 @@ export class Multival {
 
     private setMain = function(value: string){
         this.main = value;
+        this.inputVal = value;
     };
 
 
-    constructor(){
-    }
 
     ngOnInit(){
         this.inputVal = this.main;

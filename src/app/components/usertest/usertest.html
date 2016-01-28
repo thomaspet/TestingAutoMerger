@@ -131,8 +131,8 @@
         </datalist>
     </label>
 
-    <article class="collapsable -is-open">
-        <h4>Kontaktinformasjon</h4>
+    <article class="collapsable" [class.-is-open]="!kontaktActive">
+        <h4 (click)="kontaktActive = !kontaktActive">Kontaktinformasjon</h4>
         <div class="collapsable-content">
 
             <section>
@@ -153,8 +153,8 @@
     </article>
 
 
-    <article class="collapsable -is-open">
-        <h4>Skattekort</h4>
+    <article class="collapsable" [class.-is-open]="!skattActive">
+        <h4 (click)="skattActive = !skattActive">Skattekort</h4>
         <div class="collapsable-content">
             <label class="small"> Skattetabell <input type="text" value="7110"/> </label>
             <label class="small"> Skatteprosent <input type="text" value="38%"/> </label>
@@ -163,6 +163,30 @@
             <label class="small"> Kommunenummer <input type="text" value="4130"></label>
         </div>
     </article>
+
+
+
+    <article class="collapsable" [class.-is-open]="intlActive">
+        <h4 (click)="intlActive = !intlActive">Internasjonal ID / Bank</h4>
+        <div class="collapsable-content">
+            <label> IBAN <input type="text" value="NO8994840614799"/> </label>
+            <label> Bank <input type="text" value="Handelsbanken Norge"/> </label>
+            <label> SWIFT BIC <input type="text" value="HANDDNOK"/> </label>
+        </div>
+    </article>
+
+
+    <article class="collapsable" [class.-is-open]="specialActive">
+        <h4 (click)="specialActive = !specialActive">Spesialinnstillinger for ansatt</h4>
+        <div class="collapsable-content">
+            <label class="small"> Skattetabell <input type="text" value="7110"/> </label>
+            <label class="small"> Skatteprosent <input type="text" value="38%"/> </label>
+            <label class="small"> Fri inntekt <input type="text" value="50.000"/> </label>
+            <input type="checkbox" id="captionedcheck1"/> <label for="captionedcheck1" class="small"> Biarbeidsgiver </label>
+            <label class="small"> Kommunenummer <input type="text" value="4130"></label>
+        </div>
+    </article>
+
 
 
 </article>
