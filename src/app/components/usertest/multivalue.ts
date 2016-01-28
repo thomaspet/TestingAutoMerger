@@ -3,46 +3,41 @@ import {CORE_DIRECTIVES} from 'angular2/common';
 
 @Component({
     selector: 'uni-multival',
-    template: `
-        <label class="uni-multivalue -has-values">{{label}}
-
-            <input type="text" [(ngModel)]="mainValue || values[0]">
-            <button class="uni-multivalue-moreBtn" (click)="activeMultival = !activeMultival">Add</button>
-
-            <ul class="uni-multivalue-values" [class.-is-active]="activeMultival">
-                <li *ngFor="#value of values" [class.-is-main]="value === mainValue">
-                    {{value}}
-                    <button class="setMainBtn" (click)="setMain(value)">Set {{value}} as main</button>
-                </li>
-            </ul>
-
-            <button>+ Legg til</button>
-
-        </label>
-    `,
+    templateUrl: 'app/components/usertest/multivalue.html',
     directives: [CORE_DIRECTIVES],
-    inputs: ['values', 'label']
+    inputs: ['values', 'label', 'main']
 })
 
 export class Multival {
 
     private values:string[];
-    private mainValue:string;
+    private main:string;
+    private activeMultival:boolean;
+
+    private addOrDropdown = function(inputVal){
+
+        if(this.values.length === 1){
+
+            if(inputVal && this.values.indexOf(inputVal)<0){
+                this.values.push(inputVal);
+            }
+
+            this.inputVal = '';
+
+        }else if(this.values.length === 0) {
+
+            this.values.push(inputVal);
+            this.inputVal = '';
+
+        }else{
+            this.activeMultival = !this.activeMultival;
+        }
+
+    };
 
     private setMain = function(value: string){
-        this.mainValue = value;
-    };
-    private addValue = function(value: string){
-        this.values.push(value);
-    };
-    private modify = function(value, currentlyMain){
-        if(currentlyMain){
-
-        }
+        this.main = value;
     };
 
-    constructor(){
-
-    }
 
 }

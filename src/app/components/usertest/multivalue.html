@@ -1,10 +1,10 @@
-<label class="uni-multivalue -has-values">{{label}}
+<label class="uni-multivalue" [class.-has-values]="values.length > 1">{{label}}
 
-    <input type="text" [(ngModel)]="mainValue || values[0]">
-    <button class="uni-multivalue-moreBtn" (click)="activeMultival = !activeMultival">Add</button>
+    <input type="text" [(ngModel)]="inputVal" [placeholder]="main">
+    <button class="uni-multivalue-moreBtn" (click)="addOrDropdown(inputVal)">Add</button>
 
     <ul class="uni-multivalue-values" [class.-is-active]="activeMultival">
-        <li *ngFor="#value of values" [class.-is-main]="value === mainValue">
+        <li *ngFor="#value of values" [class.-is-main]="value === main">
             {{value}}
             <button class="setMainBtn" (click)="setMain(value)">Set {{value}} as main</button>
         </li>
