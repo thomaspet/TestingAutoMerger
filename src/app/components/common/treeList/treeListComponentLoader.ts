@@ -39,11 +39,8 @@ export class TreeListComponentLoader implements OnInit {
                         this.compRef = comp;
                         comp.instance.fields = this.data.config.config();
                         comp.instance.uniFormSubmit.subscribe((value) => {
-                            //this.formSubmit(value);
-                            console.log(value._value);
-                            console.log('submitted to ' + this.data.url);
+                            this.formSubmit(value);
                         })
-                        
                     })
                 break;
         }
