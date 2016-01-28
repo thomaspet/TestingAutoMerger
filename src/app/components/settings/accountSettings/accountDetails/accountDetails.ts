@@ -75,25 +75,61 @@ export class AccountDetails {
                     
         formBuilder.addFields(accountNumber, accountName, accountAlias, currency, vatType);
 
-        // Checkboxes
+        //
+        // Checkbox settings
+        //
         
-        var systemAccount = new UniFieldBuilder();
-        systemAccount.setLabel('Systemkonto')
+        var checkSystemAccount = new UniFieldBuilder();
+        checkSystemAccount.setLabel('Systemkonto')
             .setModel(this.model)
             .setModelField('SystemAccount')
             .setType(UNI_CONTROL_TYPES.CHECKBOX);
+            
+        var checkPostPost = new UniFieldBuilder();
+        checkPostPost.setLabel('PostPost')
+            .setModel(this.model)
+            .setModelField('UsePostPost')
+            .setType(UNI_CONTROL_TYPES.CHECKBOX);    
+        
+        var checkDeductionPercent = new UniFieldBuilder();
+        checkDeductionPercent.setLabel('Forholdsvismoms')
+            .setModel(this.model)
+            .setModelField('UseDeductionPercent')
+            .setType(UNI_CONTROL_TYPES.CHECKBOX);  
+            
+        var checkLockManualPosts = new UniFieldBuilder();
+        checkLockManualPosts.setLabel('Sperre manuelle poster')
+            .setModel(this.model)
+            .setModelField('LockManualPosts')
+            .setType(UNI_CONTROL_TYPES.CHECKBOX);      
+        
+        var checkLocked = new UniFieldBuilder();
+        checkLocked.setLabel('Sperret')
+            .setModel(this.model)
+            .setModelField('Locked')
+            .setType(UNI_CONTROL_TYPES.CHECKBOX);  
+            
+        var checkVisible = new UniFieldBuilder();
+        checkVisible.setLabel('Synlig')
+            .setModel(this.model)
+            .setModelField('Visible')
+            .setType(UNI_CONTROL_TYPES.CHECKBOX);      
         
         var systemSet = new UniFieldsetBuilder();
-        systemSet.addFields(systemAccount);
+        systemSet.addFields(checkSystemAccount, checkPostPost, checkDeductionPercent, checkLockManualPosts, checkLocked, checkVisible);
    
         formBuilder.addField(systemSet);
         
+        //
         // Dimensions
+        //
         
         var dimensionsGroup = new UniGroupBuilder("Dimensjoner");  
         formBuilder.addField(dimensionsGroup);
-                       
+          
+        //               
         // Compatible Account Groups
+        //
         
         var compatibleGroup = new UniGroupBuilder("Kompatible kontogr.");  
         formBuilder.addField(compatibleGroup);
