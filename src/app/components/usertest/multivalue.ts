@@ -2,6 +2,8 @@ import {Component} from 'angular2/core';
 import {CORE_DIRECTIVES} from 'angular2/common';
 import {Input} from "angular2/core";
 
+
+
 @Component({
     selector: 'uni-multival',
     templateUrl: 'app/components/usertest/multivalue.html',
@@ -42,7 +44,6 @@ export class Multival {
         this.main = value;
         this.inputVal = value;
     };
-
 
 
     ngOnInit(){
