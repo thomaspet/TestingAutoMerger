@@ -45,7 +45,7 @@
     border: pxToRem(1) solid $uni-color-scale7
     background-color: mix($uni-color-negative, $uni-color-scale9, 80%)
     margin-top: 1.6rem
-    z-index: -1
+    z-index: 99
     border-bottom-left-radius: pxToRem(3)
     border-bottom-right-radius: pxToRem(3)
     display: none
@@ -90,3 +90,10 @@
       &.-is-main .setMainBtn
         background: transparent unicon-star($uni-color-scale5) no-repeat center
         background-size: 1rem
+
+  .uni-multivalue-addBtn
+    @extend button.good
+    width: calc(100% + 1rem)
+    margin: -.2rem -.5rem -.15rem
+    box-shadow: none
+    border-radius: 0 0 pxToRem(3)

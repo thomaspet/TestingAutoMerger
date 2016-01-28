@@ -1,3 +1,32 @@
 .usertest
   label
     @include unigrid(2,2)
+    float: left
+    padding-top: 1rem
+
+    &.small
+      @include unigrid(1,1)
+
+  input[type=checkbox] + label
+    margin-top: 2.5rem
+    margin-bottom: .3rem
+
+  section,
+  .collapsable
+    @include clearfix
+
+  label.combo
+
+    div
+      display: flex
+
+    input
+      border-radius: 0
+      border-left-width: 0
+
+    input:first-of-type
+      border-radius: pxToRem(3) 0 0 pxToRem(3)
+      border-left-width: pxToRem(1)
+
+    input:last-of-type
+      border-radius: 0 pxToRem(3) pxToRem(3) 0

@@ -1,6 +1,6 @@
 <label class="uni-multivalue" [class.-has-values]="values.length > 1">{{label}}
 
-    <input type="text" [(ngModel)]="inputVal" [placeholder]="main">
+    <input type="text" [(ngModel)]="inputVal">
     <button class="uni-multivalue-moreBtn" (click)="addOrDropdown(inputVal)">Add</button>
 
     <ul class="uni-multivalue-values" [class.-is-active]="activeMultival">
@@ -8,8 +8,8 @@
             {{value}}
             <button class="setMainBtn" (click)="setMain(value)">Set {{value}} as main</button>
         </li>
+        <li><button class="uni-multivalue-addBtn" (click)="addValue()">Legg til&hellip;</button></li>
     </ul>
 
-    <button>+ Legg til</button>
 
 </label>

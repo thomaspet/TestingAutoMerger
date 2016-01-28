@@ -1,5 +1,6 @@
 import {Component} from 'angular2/core';
 import {CORE_DIRECTIVES} from 'angular2/common';
+import {Input} from "angular2/core";
 
 @Component({
     selector: 'uni-multival',
@@ -8,8 +9,10 @@ import {CORE_DIRECTIVES} from 'angular2/common';
     inputs: ['values', 'label', 'main']
 })
 
+
 export class Multival {
 
+    private inputVal:string;
     private values:string[];
     private main:string;
     private activeMultival:boolean;
@@ -39,5 +42,12 @@ export class Multival {
         this.main = value;
     };
 
+
+    constructor(){
+    }
+
+    ngOnInit(){
+        this.inputVal = this.main;
+    }
 
 }

@@ -104,9 +104,65 @@
 
 <article class="application usertest">
 
-    <uni-multival [label]="'E-post'" [values]="email" [main]="'j@lom.me'"></uni-multival>
+    <label> Navn <input type="text" value="Audhild Grieg"/> </label>
+    <label> Fødselsnr. <input type="text" value="21.08.67 35072"/> </label>
+    <label> Fødselsdato <input type="text" value="21.08.67"/> </label>
+    <label> Kjønn <input type="text" value="Kvinne" list="sex"/>
+        <datalist id="sex">
+            <option value="Kvinne">Kvinne</option>
+            <option value="Mann">Mann</option>
+        </datalist>
+    </label>
+    <uni-multival [label]="'Kontonummer'" [values]="['9484.06.14799']" [main]="'9484.06.14799'"></uni-multival>
+    <label> Kommunenummer <input type="text" value="4130"/> </label>
+    <label> Virksomhet / Lokalitet <input type="text" value="Stavanger"/> </label>
+    <label> Overordnet <input type="text" value="Vibeke Thorsen" list="supervisor"/>
+        <datalist id="supervisor">
+            <option value="Vibeke Thorsen"></option>
+            <option value="Angela Merkel"></option>
+            <option value="Hillary Clinton"></option>
+            <option value="Aung San Suu Kyi"></option>
+            <option value="Erna Solberg"></option>
+            <option value="Marissa Meyer"></option>
+            <option value="Leymah Gbowee"></option>
+            <option value="Susan Wojcicki"></option>
+            <option value="Ellen Johnson Sirleaf"></option>
+            <option value="Ginni Rometti"></option>
+        </datalist>
+    </label>
 
-    <uni-multival [label]="'Telefon'" [values]="phone" [main]="'95529331'"></uni-multival>
+    <article class="collapsable -is-open">
+        <h4>Kontaktinformasjon</h4>
+        <div class="collapsable-content">
+
+            <section>
+                <label> Addresse <input type="text" value="Hafrsfjordsgata 65"/> </label>
+                <label for="postnr" class="combo"> Postnummer og -sted
+                    <div>
+                    <input type="text" id="postnr" value="4010" class="sm"/> <input type="text" value="Stavanger"/>
+                    </div>
+                </label>
+                <label> Landskode <input type="text" value="NO"></label>
+                <label> Land <input type="text" value="Norge"></label>
+            </section>
+
+            <uni-multival [label]="'E-post'" [values]="email" [main]="'j@lom.me'"></uni-multival>
+            <uni-multival [label]="'Telefon'" [values]="phone" [main]="'+47 95529331'"></uni-multival>
+
+        </div>
+    </article>
+
+
+    <article class="collapsable -is-open">
+        <h4>Skattekort</h4>
+        <div class="collapsable-content">
+            <label class="small"> Skattetabell <input type="text" value="7110"/> </label>
+            <label class="small"> Skatteprosent <input type="text" value="38%"/> </label>
+            <label class="small"> Fri inntekt <input type="text" value="50.000"/> </label>
+            <input type="checkbox" id="captionedcheck1"/> <label for="captionedcheck1" class="small"> Biarbeidsgiver </label>
+            <label class="small"> Kommunenummer <input type="text" value="4130"></label>
+        </div>
+    </article>
 
 
 </article>
