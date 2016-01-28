@@ -5,11 +5,11 @@ import {Login} from './components/login/login';
 
 @Directive({
 	selector: 'uni-router-outlet',
-	providers: [AuthService]
 })
 export class UniRouterOutlet extends RouterOutlet {
 	private parentRouter:Router;
 	private authService: AuthService;
+    loggedIn: boolean;
 
 	constructor(elementRef:ElementRef, loader:DynamicComponentLoader, parentRouter:Router, @Attribute('name') nameAttr:string, authService: AuthService) {
     	super(elementRef, loader, parentRouter, nameAttr);
@@ -20,11 +20,12 @@ export class UniRouterOutlet extends RouterOutlet {
 
   	activate(instruction: ComponentInstruction) {
 		var url = '/' + instruction.urlPath;
-    	
-		if (url !== '/login' && !this.authService.authenticated) {
-			localStorage.setItem('lastNavigationAttempt', url); // so we can redirect to it after loggin in	
+
+		if (!this.authService.validateAuthentication() && url !== '/login' && url !== '/signup') {
+			localStorage.setItem('lastNavigationAttempt', url); // so we can redirect to it after logging in	
 			this.parentRouter.navigateByUrl('/login');
     	}
-    	return super.activate(instruction);
+    	
+        return super.activate(instruction);
 	}
 }

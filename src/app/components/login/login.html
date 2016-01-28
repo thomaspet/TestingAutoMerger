@@ -1,16 +1,16 @@
 <div class="authentication_component">
 	<img src="http://www.unimicro.no/templates/images/x-logo.png" alt="Uni Economy logo">
     
-    <div *ngIf="!authService.authenticated" class="login">
+    <!--<div *ngIf="!authService.authenticated" class="login">
         hei1
     </div>
     
     <div *ngIf="authService.authenticated && !authService.companySelected" class="company_select">
         hei2
-    </div>
+    </div>-->
     
     
-	<form id="loginForm" class="login_form" (submit)="authenticate($event)">
+	<form id="loginForm" class="login_form" (submit)="login($event)">
         <input type="text" [(ngModel)]="credentials.username" placeholder="Username">
 		<input type="password" [(ngModel)]="credentials.password" placeholder="Password">
 		
@@ -18,10 +18,10 @@
 	
 	</form>
     
-    <p *ngIf="!authenticated">Don't have an account? <a [routerLink]="['Signup']">Sign up</a></p>
+    <p>Don't have an account? <a [routerLink]="['Signup']">Sign up</a></p>
 	
     <span class="company_select">
-        <select *ngIf="authenticated" style="display: none;"></select> <!-- kendo dropdownlist will compile here -->        
+        <select style="display: none;"></select> <!-- kendo dropdownlist will compile here -->        
     </span>  
 	
 </div>

@@ -8,12 +8,10 @@ declare var jQuery;
 @Component({
 	selector: 'uni-login',
 	templateUrl: 'app/components/login/login.html',
-	providers: [AuthService],
     directives: [ROUTER_DIRECTIVES]
 })
 export class Login { 
 	credentials: { username: string, password: string };
-    authenticated: boolean;
     
 	constructor(public authService: AuthService, public router: Router) {				
 		// Initialize credentials to a valid login for testing purposes
@@ -22,42 +20,30 @@ export class Login {
 			password: "MySuperP@ss!"
 		}
         
-        this.authenticated = false;
+        // Subscribe to updates from authService
+        authService.authenticated$.subscribe((authenticated: boolean) => {
+            if (authenticated) {
+                this.onAuthSuccess();
+            } else {
+                // Show error message in view?
+                if (authService.errorMessage) console.log(authService.errorMessage);
+            }
+        });
+        
 	}
 	
-	authenticate(event) {
+	login(event) {
 		event.preventDefault();
-		
-		this.authService.authenticate(this.credentials.username, this.credentials.password)
-		.subscribe (
-			response => this.onAuthSuccess(response.json()),
-			error    => this.onAuthError(error.json())
-		);
-	}
-	
-	onAuthSuccess(data) {
-        var token = data.access_token;
-        var decoded = this.authService.decodeToken(token);
-        localStorage.setItem('jwt', 'Bearer ' + token);
-        localStorage.setItem('jwt_decoded', JSON.stringify(decoded));
-        
-        this.authenticated = true;
-        
-		// If active company exists in localStorage we can skip the companySelect part
-		// TODO: We should verify that the user still has access to the company?
-		if (localStorage.getItem('activeCompany'))			
-			this.onCompanySelected();
-		else
-            this.showCompanySelect();
-	}
-	
-	onAuthError(reason) {
-		console.log(reason.error_description);
+		this.authService.login(this.credentials.username, this.credentials.password);
 	}
     
-    showCompanySelect() {
-        var element = jQuery('.company_select > select').first().show();
+    onAuthSuccess() {
+        // Skip process of selecting a company if activeCompany exists in localStorage
+        if (localStorage.getItem('activeCompany')) {
+            this.onCompanySelected();
+        }
         
+        // Setup and compile company dropdown        
         var dropdownConfig = {
             delay: 50,
             dataTextField: 'name',
@@ -78,6 +64,7 @@ export class Login {
             },
         }
         
+        var element = jQuery('.company_select > select').first().show();
         element.kendoDropDownList(dropdownConfig);
         // jQuery('.k-input').first().html('Select a company');
     }
