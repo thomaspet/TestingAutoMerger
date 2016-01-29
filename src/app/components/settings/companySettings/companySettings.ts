@@ -38,7 +38,7 @@ export class CompanySettings implements OnInit {
     companyTypes: Array<any> = [];
     currencies: Array<any> = [];
     periodSeries: Array<any> = [];
-    baseUrl = 'http://localhost:27831/api';
+    accountGroupSets: Array<any> = [];
 
     constructor(private routeParams: RouteParams, private companySettingsDS: CompanySettingsDS) {
     }
@@ -64,25 +64,17 @@ export class CompanySettings implements OnInit {
         //     .map(res => res.json())
         //     .subscribe(data => this.dataReady(data));
         
-        /* var url = this.baseUrl + '/biz/companytypes';
-          this.http.get(url, { headers: this.headers })
-              .map(res => res.json())
-              .subscribe(data => this.dataReady2(data));*/
-
-        //VIRKEROK
-        //this.companySettingsDS.getAllCompanyTypes().subscribe(data => this.dataReady2(data));
-        //this.companySettingsDS.get(this.id).subscribe(data => this.dataReady(data));
-        
         Observable.forkJoin(
             this.companySettingsDS.get(this.id),
             this.companySettingsDS.getCompanyTypes(),
             this.companySettingsDS.getCurrencies(),
-            this.companySettingsDS.getPeriodSeries()
-        ).subscribe(results => this.dataReady3(results));
+            this.companySettingsDS.getPeriodSeries(),
+            this.companySettingsDS.getAccountGroupSets()
+        ).subscribe(results => this.dataReady(results));
 
     }
 
-    dataReady3(data) {
+    dataReady(data) {
         console.log("dataReady3 called");
 
         if (data === null) {
@@ -94,6 +86,7 @@ export class CompanySettings implements OnInit {
         this.companyTypes = data[1];
         this.currencies = data[2];
         this.periodSeries = data[3];
+        this.accountGroupSets = data[4];
 
         var formBuilder = new UniFormBuilder();
 
@@ -109,6 +102,14 @@ export class CompanySettings implements OnInit {
             .setModelField('OrganizationNumber')
             .setType(UNI_CONTROL_TYPES.TEXT);
 
+        var web = new UniFieldBuilder();
+        web.setLabel('Web')
+            .setModel(this.company)
+            .setModelField('WebAddress')
+            .setType(UNI_CONTROL_TYPES.TEXT);
+
+        //TODO
+        //Contact information should be styled according to standard - when this is ready.
         var street = new UniFieldBuilder();
         street.setLabel('Adresse')
             .setModel(this.company.Address[0])
@@ -122,7 +123,7 @@ export class CompanySettings implements OnInit {
             .setType(UNI_CONTROL_TYPES.TEXT);
 
         var postNumber = new UniFieldBuilder();
-        postNumber.setLabel('Post Sted')
+        postNumber.setLabel('Postnr')
             .setModel(this.company.Address[0])
             .setModelField('PostalCode')
             .setType(UNI_CONTROL_TYPES.TEXT);
@@ -207,13 +208,32 @@ export class CompanySettings implements OnInit {
         /*********************  Regnskapsinnstillinger    *******************/
         var accountingSettings = new UniGroupBuilder('Regnskapsinnstillinger');
 
+
+        //TODO:
+        //.setModel(this.periodSeries[this.company.PeriodSeriesAccountID]) 
+        //is not a correct selection!!
+        var periodSeriesAccountAll = new UniFieldBuilder();
+        periodSeriesAccountAll.setLabel('RegnskapsperioderAll')
+            .setModel(this.periodSeries[this.company.PeriodSeriesAccountID])
+            .setModelField('type')
+            .setType(UNI_CONTROL_TYPES.DROPDOWN)
+            .setKendoOptions({
+                dataSource: this.periodSeries,
+                dataTextField: 'Name',
+                dataValueField: 'ID'
+            });
+
+
         var periodSeriesAccount = new UniFieldBuilder();
         periodSeriesAccount.setLabel('Regnskapsperioder')
             .setModel(this.periodSeries[this.company.PeriodSeriesAccountID])
             .setModelField('type')
             .setType(UNI_CONTROL_TYPES.DROPDOWN)
             .setKendoOptions({
-                dataSource: this.periodSeries,
+                dataSource: new kendo.data.DataSource({
+                    data: this.periodSeries,
+                    filter: { field: "SeriesType", operator: "eq", value: "1" }
+                }),
                 dataTextField: 'Name',
                 dataValueField: 'ID'
             });
@@ -224,10 +244,29 @@ export class CompanySettings implements OnInit {
             .setModelField('type')
             .setType(UNI_CONTROL_TYPES.DROPDOWN)
             .setKendoOptions({
+                dataSource: new kendo.data.DataSource({
+                    data: this.periodSeries,
+                    filter: { field: "SeriesType", operator: "eq", value: "0" }
+                }),
+                dataTextField: 'Name',
+                dataValueField: 'ID'
+            });
+            
+       
+
+        //TODO: 
+        //Mangler foreløpig kobling mellom Firma og kontogruppeinndeling
+        /*var accountGroupSets = new UniFieldBuilder();
+        accountGroupSets.setLabel('Kontogruppeinndeling')
+            .setModel(this.periodSeries[this.company.PeriodSeriesVatID])
+            .setModelField('type')
+            .setType(UNI_CONTROL_TYPES.DROPDOWN)
+            .setKendoOptions({
                 dataSource: this.periodSeries,
                 dataTextField: 'Name',
                 dataValueField: 'ID'
             });
+*/
 
         if (this.company.AccountingLockedDate !== null) {
             this.company.AccountingLockedDate = new Date(this.company.AccountingLockedDate);
@@ -258,170 +297,15 @@ export class CompanySettings implements OnInit {
             .setModelField('ForceSupplierInvoiceApproval')
             .setType(UNI_CONTROL_TYPES.CHECKBOX);
 
-        accountingSettings.addFields(periodSeriesAccount, periodSeriesVat, accountingLockedDate, vatLockedDate, forceSupplierInvoiceApproval);
+        accountingSettings.addFields(periodSeriesAccount, periodSeriesAccountAll, periodSeriesVat, accountingLockedDate, vatLockedDate, forceSupplierInvoiceApproval);
 
-        formBuilder.addFields(companyName, orgNr, street, street2, postNumber, place, phone, email, companySetup, accountingSettings);
+        formBuilder.addFields(companyName, orgNr, web, street, street2, postNumber, place, phone, email, companySetup, accountingSettings);
 
         this.form = formBuilder;
     }
 
-    dataReady2(data) {
-        console.log("dataReady2 called");
-
-        if (data === null) {
-            this.error = true;
-            return;
-        }
-
-
-    }
-
-    //Called when data is returned from the API
-    /* dataReady(data) {
- 
-         if (data === null) {
-             this.error = true;
-             return;
-         }
- 
-         this.company = data;
- 
-         var companyTypes = ['Aksjeselskap', 'Enkeltmansforetak', 'Organisasjon'];
- 
-         var formBuilder = new UniFormBuilder();
- 
-         var companyName = new UniFieldBuilder();
-         companyName.setLabel('Firmanavn')
-             .setModel(this.company)
-             .setModelField('CompanyName')
-             .setType(UNI_CONTROL_TYPES.TEXT);
- 
-         var orgNr = new UniFieldBuilder();
-         orgNr.setLabel('Orgnr.')
-             .setModel(this.company)
-             .setModelField('OrganizationNumber')
-             .setType(UNI_CONTROL_TYPES.TEXT);
- 
-         var street = new UniFieldBuilder();
-         street.setLabel('Adresse')
-             .setModel(this.company.Address[0])
-             .setModelField('AddressLine1')
-             .setType(UNI_CONTROL_TYPES.TEXT);
- 
-         var street2 = new UniFieldBuilder();
-         street2.setLabel('Adresse 2')
-             .setModel(this.company.Address[0])
-             .setModelField('AddressLine2')
-             .setType(UNI_CONTROL_TYPES.TEXT);
- 
-         var postNumber = new UniFieldBuilder();
-         postNumber.setLabel('Post Sted')
-             .setModel(this.company.Address[0])
-             .setModelField('PostalCode')
-             .setType(UNI_CONTROL_TYPES.TEXT);
- 
-         var place = new UniFieldBuilder();
-         place.setLabel('Sted')
-             .setModel(this.company.Address[0])
-             .setModelField('City')
-             .setType(UNI_CONTROL_TYPES.TEXT);
- 
-         var phone = new UniFieldBuilder();
-         phone.setLabel('Telefon')
-             .setModel(this.company.Phones[0])
-             .setModelField('Number')
-             .setType(UNI_CONTROL_TYPES.TEXT);
- 
-         var email = new UniFieldBuilder();
-         email.setLabel('Epost')
-             .setModel(this.company.Emails[0])
-             .setModelField('EmailAddress')
-             .setType(UNI_CONTROL_TYPES.TEXT);
- 
-         var companySetup = new UniGroupBuilder("Selskapsoppsett");
- 
-         //Checkbox not working atm
-         var companyReg = new UniFieldBuilder();
-         companyReg.setLabel('Foretaksregister')
-             .setModel(this.company)
-             .setModelField('CompanyRegistered')
-             .setType(UNI_CONTROL_TYPES.CHECKBOX);
- 
-         //Checkbox not working atm
-         var taxMandatory = new UniFieldBuilder();
-         taxMandatory.setLabel('Mva-pliktig')
-             .setModel(this.company)
-             .setModelField('TaxMandatory')
-             .setType(UNI_CONTROL_TYPES.CHECKBOX);
- 
-         var companyType = new UniFieldBuilder();
-         companyType.setLabel('Firmatype')
-             .setModel(companyTypes[this.company.CompanyTypeID])
-             .setModelField('type')
-             .setType(UNI_CONTROL_TYPES.DROPDOWN)
-             .setKendoOptions({
-                 dataSource: companyTypes
-             });
- 
-         var companyCurrency = new UniFieldBuilder();
-         companyCurrency.setLabel('Valuta')
-             .setModel(this.company)
-             .setModelField('BaseCurrency')
-             .setType(UNI_CONTROL_TYPES.DROPDOWN)
-             .setKendoOptions({ dataSource: ['USD', 'NOK', 'EUR', 'GPD'] });
- 
-         companySetup.addFields(companyReg, taxMandatory, companyType, companyCurrency);
- 
-         var accountingSettings = new UniGroupBuilder('Regnskapsinnstillinger');
- 
-         if (this.company.AccountingLockedDate !== null) {
-             this.company.AccountingLockedDate = new Date(this.company.AccountingLockedDate);
-         }
- 
-         if (this.company.VatLockedDate !== null) {
-             this.company.VatLockedDate = new Date(this.company.VatLockedDate);
-         }
- 
-         var accountingLockedDate = new UniFieldBuilder();
-         accountingLockedDate.setLabel('Regnskapsdato')
-             .setModel(this.company)
-             .setModelField('AccountingLockedDate')
-             .setType(UNI_CONTROL_TYPES.DATEPICKER);
- 
-         var vatLockedDate = new UniFieldBuilder();
-         vatLockedDate.setLabel('Momsdato')
-             .setModel(this.company)
-             .setModelField('VatLockedDate')
-             .setType(UNI_CONTROL_TYPES.DATEPICKER)
-             .setKendoOptions({});
- 
-         //TODO
-         //Checkbox not working atm
-         var forceSupplierInvoiceApproval = new UniFieldBuilder();
-         forceSupplierInvoiceApproval.setLabel('Tvungen godkjenning')
-             .setModel(this.company)
-             .setModelField('ForceSupplierInvoiceApproval')
-             .setType(UNI_CONTROL_TYPES.CHECKBOX);
- 
-         accountingSettings.addFields(accountingLockedDate, vatLockedDate, forceSupplierInvoiceApproval);
- 
-         formBuilder.addFields(companyName, orgNr, street, street2, postNumber, place, phone, email, companySetup, accountingSettings);
- 
-         this.form = formBuilder;
-     }
-     */
-
     submitForm() {
-        // this.http.put(
-        //     'http://localhost:27831/api/biz/companysettings/1',
-        //     //'http://devapi.unieconomy.no:80/api/biz/companysettings/1',
-        //     JSON.stringify(this.company),
-        //     { headers: this.headers })
-        //     .map(res => console.log(res))
-        //     .subscribe(
-        //     data => console.log(data),
-        //     err => console.log(err))
-        console.log("Put company: ")
-        console.log(this.company);
+        console.log("submitForm called");
+        this.companySettingsDS.update(this.headers, this.company);
     }
 }

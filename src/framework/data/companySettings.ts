@@ -39,6 +39,10 @@ export class CompanySettingsDS {
         var url = this.baseUrl + '/biz/period-series';
         return this._doGET(url);
     }
+    getAccountGroupSets() {
+        var url = this.baseUrl + '/biz/accountgroupsets';
+        return this._doGET(url);
+    }
 
 
     getValidation() {
@@ -56,5 +60,21 @@ export class CompanySettingsDS {
         headers.append('Client', 'client1');
         return this.http.get(url, { headers: headers })
             .map((res) => res.json())
+    }
+
+    update(headers, company) {
+        console.log("update(headers, company) called")
+        var url = this.baseUrl + '/biz/companysettings/1';
+
+        this.http.put(
+            url,
+            JSON.stringify(company),
+            { headers: headers })
+            .map(res => console.log(res))
+            .subscribe(
+            data => console.log(data),
+            err => console.log(err))
+        console.log("Put company: ")
+        console.log(company);
     }
 }
