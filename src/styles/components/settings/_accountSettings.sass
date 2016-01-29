@@ -1,17 +1,18 @@
 .accountList
-    @include unigrid(10,5,4,1)
+    @include unigrid(10)
     float: left
     
 .accountDetails
-    @include unigrid(6,3,4,1)
+    @include unigrid(6)
     float: left
 
-.accountDetails uni-field:has(>input.fullwidth)
-    @include unigrid(16,8,4,1)
-    border: 2px solid black
-    background: red
+.accountDetails uni-field
+    @include unigrid(16)
+    float: left
     
-.accountDetails uni-field:has(>input.halfwidth)
-    @include unigrid(8,4,2,1)
-    border: 2px solid red
-    background: blue
+.accountDetails uni-field.accountRow
+    @include unigrid(8)
+    float: left
+    
+.accountDetails uni-field label
+    width: 100%

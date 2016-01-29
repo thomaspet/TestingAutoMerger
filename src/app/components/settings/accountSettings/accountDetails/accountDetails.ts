@@ -46,14 +46,14 @@ export class AccountDetails {
             .setModel(this.model)
             .setModelField('AccountNumber')
             .setType(UNI_CONTROL_TYPES.TEXT)
-            .addClass("halfwidth");
+            .addClass("accountRow");
                                   
         var accountName = new UniFieldBuilder();
         accountName.setLabel('Kontonavn')
             .setModel(this.model)
             .setModelField('AccountName')
             .setType(UNI_CONTROL_TYPES.TEXT)
-            .addClass("halfwidth");
+            .addClass("accountRow");
             
         var accountAlias = new UniFieldBuilder();
         accountAlias.setLabel('Alias')
@@ -170,6 +170,7 @@ export class AccountDetails {
     }
          
     ngOnInit() {
+        /*
         Observable.forkJoin(
             this.currencyDS.getAll(),
             this.accountingDS.getVatTypes(),
@@ -178,20 +179,12 @@ export class AccountDetails {
             this.currencies = results[0];
             this.vattypes = results[1];
             this.accountReady(results[2]);             
-        });
-               
-        /*
-        this.currencyDS.getAll().subscribe (response => {
-           this.currencies = response
-           this.accountingDS.getVatTypes().subscribe (response => {
-               this.vattypes = response 
-               this.accountingDS.getAccount(1).subscribe (response => {
-                    this.accountReady(response)
-                    console.log(response);
-               }, error => console.error(error));
-            }, error => console.error(error));        
-        }, error => console.error(error));   
-        */     
+        });*/
+        
+        // Test without backend
+        this.currencies = [];
+        this.vattypes = [];
+        this.accountReady({ AccountNumber: "4000", AccountName: "Develop"});            
     }
              
     onSubmit(value) {
