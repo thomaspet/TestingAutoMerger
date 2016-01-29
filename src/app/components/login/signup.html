@@ -1,11 +1,16 @@
-<div class="login_component">
+<div class="authentication_component">
+    <img src="http://www.unimicro.no/templates/images/x-logo.png" alt="Uni Economy logo">
+    
+    <p>{{errorMessage}}</p>
     <form id="signupForm" class="login_form" (submit)="signUp($event)">
-        <p>{{errorMessage}}</p>
-        <label class="sr-only">asdf</label>
-        <input type="text" [(ngModel)]="newUser.companyName">
-        <input type="text" [(ngModel)]="newUser.name">
-        <input type="email" [(ngModel)]="newUser.email">
-        <input type="text" [(ngModel)]="newUser.username">
-        <input type="password" [(ngModel)]="newUser.password">
+        <input type="text" [(ngModel)]="newUser.companyName" placeholder="Company name">
+        <input type="text" [(ngModel)]="newUser.name" placeholder="Full name">
+        <input type="email" [(ngModel)]="newUser.email" placeholder="Email">
+        <input type="text" [(ngModel)]="newUser.username" placeholder="Username">
+        <input type="password" [(ngModel)]="newUser.password" placeholder="Password">
+    
+        <button class="c2a">Register</button>
     </form>
+    
+    <p>Already have an account? <a [routerLink]="['Login']">Log in</a></p>
 </div>

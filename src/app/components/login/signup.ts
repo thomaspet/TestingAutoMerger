@@ -1,8 +1,10 @@
 import {Component} from 'angular2/core';
+import {ROUTER_DIRECTIVES} from 'angular2/router';
 
 @Component({
     selector: 'uni-signup',
-    templateUrl: 'app/components/login/signup.html'
+    templateUrl: 'app/components/login/signup.html',
+    directives: [ROUTER_DIRECTIVES]
 })
 export class Signup {
     newUser: { 
@@ -23,7 +25,8 @@ export class Signup {
         }
     }
     
-    signup() {
+    signUp(event) {
+        event.preventDefault();
         // post @ api
         // authenticate
         console.log(this.newUser);
