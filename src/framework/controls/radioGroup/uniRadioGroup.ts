@@ -13,7 +13,6 @@ import {Component} from 'angular2/core';
                 [value]="item"
                 type="radio"
                 [ngControl]="config.field"
-                [ngClass] = "config.classes"
                 [name]="config.field"
                 [readonly]="config.readonly"
                 [disabled]="config.disabled"

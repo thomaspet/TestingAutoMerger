@@ -1,16 +1,25 @@
-<div class="login_component">
-	
-	<form id="loginForm" class="login_form" (submit)="authenticate($event)">
-		
-		<p>{{errorMessage}}</p>
-		<input type="text" [(ngModel)]="credentials.username" placeholder="Username">
+<div class="authentication_component">
+	<img src="http://www.unimicro.no/templates/images/x-logo.png" alt="Uni Economy logo">
+    
+    <!--<div *ngIf="!authService.authenticated" class="login">
+        hei1
+    </div>
+    
+    <div *ngIf="authService.authenticated && !authService.companySelected" class="company_select">
+        hei2
+    </div>-->
+    
+    
+	<form id="loginForm" class="login_form" (submit)="login($event)">
+        <input type="text" [(ngModel)]="credentials.username" placeholder="Username">
 		<input type="password" [(ngModel)]="credentials.password" placeholder="Password">
 		
-		<button class="c2a">Login</button>
+		<button class="c2a">Log in</button>
 	
 	</form>
+    
+    <p>Don't have an account? <a [routerLink]="['Signup']">Sign up</a></p>
 	
-	<!--<company-select id="company_select"></company-select>-->
     <span class="company_select">
         <select style="display: none;"></select> <!-- kendo dropdownlist will compile here -->        
     </span>  
