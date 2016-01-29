@@ -12,7 +12,6 @@
     <input
             type="email"
             [ngFormControl]="config.control"
-            [ngClass] = "config.classes"
             *ngSwitchWhen="CONTROL_TYPES.EMAIL"
             [readonly]="config.readonly"
             [disabled]="config.disabled"
@@ -31,7 +30,6 @@
             #cb
             type="checkbox"
             [ngFormControl]="config.control"
-            [ngClass] = "config.classes"
             *ngSwitchWhen="CONTROL_TYPES.CHECKBOX"
             [readonly]="config.readonly"
             [disabled]="config.disabled"
@@ -42,7 +40,6 @@
     <input
             type="radio"
             [ngFormControl]="config.control"
-            [ngClass] = "config.classes"
             *ngSwitchWhen="CONTROL_TYPES.RADIO"
             [name]="config.field"
             [readonly]="config.readonly"
@@ -52,7 +49,6 @@
     <input
             type="text"
             [ngFormControl]="config.control"
-            [ngClass] = "config.classes"
             *ngSwitchWhen="CONTROL_TYPES.TEXT"
             [name]="config.field"
             [readonly]="config.readonly"
