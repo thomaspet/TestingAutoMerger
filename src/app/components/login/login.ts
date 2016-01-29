@@ -12,6 +12,7 @@ declare var jQuery;
 })
 export class Login { 
 	credentials: { username: string, password: string };
+    authSubscription;
     
 	constructor(public authService: AuthService, public router: Router) {				
 		// Initialize credentials to a valid login for testing purposes
@@ -21,7 +22,7 @@ export class Login {
 		}
         
         // Subscribe to updates from authService
-        authService.authenticated$.subscribe((authenticated: boolean) => {
+        this.authSubscription = authService.authenticated$.subscribe((authenticated: boolean) => {
             if (authenticated) {
                 this.onAuthSuccess();
             } else {
@@ -70,6 +71,8 @@ export class Login {
     }
     
     onCompanySelected() {
+        this.authSubscription.unsubscribe();
+        
         var url = localStorage.getItem('lastNavigationAttempt') || '/';
 		localStorage.removeItem('lastNavigationAttempt');
 		this.router.navigateByUrl(url);
