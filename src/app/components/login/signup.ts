@@ -1,6 +1,6 @@
 import {Component} from 'angular2/core';
 import {ROUTER_DIRECTIVES} from 'angular2/router';
-import {Http, Headers, Response} from 'angular2/http';
+import {Http, Headers, Response, URLSearchParams} from 'angular2/http';
 
 @Component({
     selector: 'uni-signup',
@@ -29,14 +29,21 @@ export class Signup {
     signUp(event) {
         event.preventDefault();
         
-        var serializedParams = 'company-name=' + this.newUser.companyName +
-            '&name=' + this.newUser.name + '&email=' + this.newUser.email +
-            '&user-name=' + this.newUser.username + '&password=' + this.newUser.password;
+        var urlParams = new URLSearchParams();
+        urlParams.append('company-name', 'Bedrift AS');
+        urlParams.append('name', 'Anders Urrang');
+        urlParams.append('email', 'kontakt@example.com');
+        urlParams.append('user-name', 'anders');
+        urlParams.append('password', 'anders1234');
+        
         
         // POST to api endpoint. Should use http service when its ready 
-        this.http.post('http://devapi.unieconomy.no:80/api/biz/companies', 
-            serializedParams,
-            { headers: new Headers({'Client': 'client1'}) } 
+        this.http.post('http://devapi.unieconomy.no/api/biz/companies', 
+            JSON.stringify({"Name": "", "SchemaName": ""}),
+            { 
+                headers: new Headers({'Client': 'client1'}),
+                search: urlParams
+            } 
         )
         .subscribe(
             (response) => {
