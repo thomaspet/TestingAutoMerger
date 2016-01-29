@@ -3,6 +3,7 @@
   "version": "0.0.1",
   "scripts": {
     "start": "opn http://localhost:3000 & gulp build.watch.and.serve",
+    "build": "gulp clean & gulp build.dist",
     "clean": "rimraf dist",
     "test": "gulp clean & gulp build.dist & gulp test.typescript & karma start karma.conf.js"
   },
