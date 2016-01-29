@@ -9,7 +9,6 @@ import {Login} from './components/login/login';
 export class UniRouterOutlet extends RouterOutlet {
 	private parentRouter:Router;
 	private authService: AuthService;
-    loggedIn: boolean;
 
 	constructor(elementRef:ElementRef, loader:DynamicComponentLoader, parentRouter:Router, @Attribute('name') nameAttr:string, authService: AuthService) {
     	super(elementRef, loader, parentRouter, nameAttr);
@@ -22,7 +21,7 @@ export class UniRouterOutlet extends RouterOutlet {
 		var url = '/' + instruction.urlPath;
 
 		if (!this.authService.validateAuthentication() && url !== '/login' && url !== '/signup') {
-			localStorage.setItem('lastNavigationAttempt', url); // so we can redirect to it after logging in	
+            localStorage.setItem('lastNavigationAttempt', url); // so we can redirect to it after logging in	
 			this.parentRouter.navigateByUrl('/login');
     	}
     	
