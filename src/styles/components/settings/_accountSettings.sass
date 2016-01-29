@@ -5,6 +5,13 @@
 .accountDetails
     @include unigrid(6,3,4,1)
     float: left
+
+.accountDetails uni-field:has(>input.fullwidth)
+    @include unigrid(16,8,4,1)
+    border: 2px solid black
+    background: red
     
-.accountDetails label, .accountDetails fieldset
-    width: 100%
+.accountDetails uni-field:has(>input.halfwidth)
+    @include unigrid(8,4,2,1)
+    border: 2px solid red
+    background: blue

@@ -4,9 +4,9 @@ import {UniForm,FIELD_TYPES} from '../../../../../framework/forms/uniForm';
 import {UNI_CONTROL_TYPES} from '../../../../../framework/controls/types';
 import {Observable} from 'rxjs/Observable';
 
-import {UniFormBuilder} from "../../../../../framework/forms/uniFormBuilder";
-import {UniFieldsetBuilder} from "../../../../../framework/forms/uniFieldsetBuilder";
-import {UniFieldBuilder} from "../../../../../framework/forms/uniFieldBuilder";
+import {UniFormBuilder} from '../../../../../framework/forms/uniFormBuilder';
+import {UniFieldsetBuilder} from '../../../../../framework/forms/uniFieldsetBuilder';
+import {UniFieldBuilder} from '../../../../../framework/forms/uniFieldBuilder';
 import {UniGroupBuilder} from '../../../../../framework/forms/uniGroupBuilder';
 import {UniTable, UniTableConfig} from '../../../../../framework/uniTable';
 import {AccountingDS} from '../../../../../framework/data/accounting';
@@ -45,20 +45,22 @@ export class AccountDetails {
         accountNumber.setLabel('Kontonr.')
             .setModel(this.model)
             .setModelField('AccountNumber')
-            .setType(UNI_CONTROL_TYPES.TEXT);
-            
+            .setType(UNI_CONTROL_TYPES.TEXT)
+            .addClass("halfwidth");
+                                  
         var accountName = new UniFieldBuilder();
         accountName.setLabel('Kontonavn')
             .setModel(this.model)
             .setModelField('AccountName')
-            .setType(UNI_CONTROL_TYPES.TEXT);
-
+            .setType(UNI_CONTROL_TYPES.TEXT)
+            .addClass("halfwidth");
+            
         var accountAlias = new UniFieldBuilder();
         accountAlias.setLabel('Alias')
             .setModel(this.model)
             .setModelField('alias')
             .setType(UNI_CONTROL_TYPES.TEXT);
-            
+                        
         var currency = new UniFieldBuilder();
         currency.setLabel('Valuta')
             .setModel(this.model)
