@@ -11,7 +11,6 @@ export class CompanySettingsDS {
     baseUrl = 'http://localhost:27831/api';
     expandedProperties = 'Address,Emails,Phones';
     companySettings: Array<any> = [];
-    //    companyTypes: Array<any> = [];
     
     constructor(private http: Http) { }
 
@@ -64,8 +63,8 @@ export class CompanySettingsDS {
 
     update(headers, company) {
         console.log("update(headers, company) called")
-        var url = this.baseUrl + '/biz/companysettings/1';
 
+        var url = this.baseUrl + '/biz/companysettings/1';
         this.http.put(
             url,
             JSON.stringify(company),
@@ -74,6 +73,7 @@ export class CompanySettingsDS {
             .subscribe(
             data => console.log(data),
             err => console.log(err))
+            
         console.log("Put company: ")
         console.log(company);
     }

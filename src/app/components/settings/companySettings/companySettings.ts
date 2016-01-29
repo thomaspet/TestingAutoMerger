@@ -1,13 +1,9 @@
 ﻿import {Component, OnInit, Inject, provide} from 'angular2/core';
-//import {Component, OnInit} from 'angular2/core';
 import {RouteConfig, RouteDefinition, RouteParams, ROUTER_DIRECTIVES} from 'angular2/router';//from Emp
 import {NgFor, NgIf, Validators, Control, FormBuilder} from 'angular2/common';
 import {Http, Headers, Response} from 'angular2/http';
 import {Observable} from 'rxjs/Observable';
 import 'rxjs/add/operator/map';
-//import 'rxjs/add/observable/fromEvent';
-
-//from empimport {RouteConfig, RouteDefinition, RouteParams, ROUTER_DIRECTIVES} from 'angular2/router';
 
 import {UniForm, FIELD_TYPES} from '../../../../framework/forms/uniForm';
 import {UniFormBuilder} from "../../../../framework/forms/uniFormBuilder";
@@ -40,10 +36,7 @@ export class CompanySettings implements OnInit {
     periodSeries: Array<any> = [];
     accountGroupSets: Array<any> = [];
 
-    constructor(private routeParams: RouteParams, private companySettingsDS: CompanySettingsDS) {
-    }
-        
-    //constructor(public http: Http) { }
+    constructor(private routeParams: RouteParams, private companySettingsDS: CompanySettingsDS) { }
 
     ngOnInit() {
 
@@ -56,14 +49,6 @@ export class CompanySettings implements OnInit {
         this.headers = new Headers();
         this.headers.append('Client', 'client1');
 
-        //var url = 'http://localhost:27831/api/biz/companysettings/' + this.id + '?expand=Address,Emails,Phones';
-        //var url = 'http://devapi.unieconomy.no:80/api/biz/companysettings/' + this.id + '?expand=Address,Emails,Phones';
-
-        //Gets settings for the company currently active
-        // this.http.get(url, { headers: this.headers })
-        //     .map(res => res.json())
-        //     .subscribe(data => this.dataReady(data));
-        
         Observable.forkJoin(
             this.companySettingsDS.get(this.id),
             this.companySettingsDS.getCompanyTypes(),
@@ -144,12 +129,14 @@ export class CompanySettings implements OnInit {
         email.setLabel('Epost')
             .setModel(this.company.Emails[0])
             .setModelField('EmailAddress')
-            .setType(UNI_CONTROL_TYPES.TEXT);
+            .setType(UNI_CONTROL_TYPES.EMAIL)
+        //TODO Use UNI_CONTROL_TYPES.EMAIL?? or .setType(UNI_CONTROL_TYPES.TEXT);??
 
         /********************************************************************/
         /*********************  Selskapsoppsett    **************************/
         var companySetup = new UniGroupBuilder("Selskapsoppsett");
 
+        //TODO:
         //Checkbox not working atm
         var companyReg = new UniFieldBuilder();
         companyReg.setLabel('Foretaksregister')
@@ -183,14 +170,6 @@ export class CompanySettings implements OnInit {
                 dataValueField: 'ID'
             });
 
-
-        /*  var companyCurrency = new UniFieldBuilder();
-          companyCurrency.setLabel('Valuta')
-              .setModel(this.company)
-              .setModelField('BaseCurrency')
-              .setType(UNI_CONTROL_TYPES.DROPDOWN)
-              .setKendoOptions({ dataSource: ['USD', 'NOK', 'EUR', 'GPD'] });
-              */
         var companyCurrency = new UniFieldBuilder();
         companyCurrency.setLabel('Valuta')
             .setModel(this.currencies[this.company.BaseCurrency])
@@ -208,10 +187,11 @@ export class CompanySettings implements OnInit {
         /*********************  Regnskapsinnstillinger    *******************/
         var accountingSettings = new UniGroupBuilder('Regnskapsinnstillinger');
 
-
         //TODO:
         //.setModel(this.periodSeries[this.company.PeriodSeriesAccountID]) 
         //is not a correct selection!!
+        //this.periodSeries.ID should be equal the value of .setModelField('type')
+        //periodSeriesAccountAll is only for test purpose of the above problem.
         var periodSeriesAccountAll = new UniFieldBuilder();
         periodSeriesAccountAll.setLabel('RegnskapsperioderAll')
             .setModel(this.periodSeries[this.company.PeriodSeriesAccountID])
