@@ -1,16 +1,19 @@
 import {Component} from 'angular2/core';
 import {TabService} from '../navbar/tabstrip/tabService';
-import {HttpService} from '../../../framework/data/httpService';
+import {UniHttpService, UniHttpRequest} from '../../../framework/data/uniHttpService';
 
 @Component({
   selector: 'uni-dashboard',
   templateUrl: 'app/components/dashboard/dashboard.html',
   directives: [],
-  providers: [HttpService]
+  providers: [UniHttpService]
 })
 export class Dashboard {
 
-    constructor(private tabService: TabService, private hs: HttpService) {
+    requests: UniHttpRequest;
+    requests2: UniHttpRequest;
+
+    constructor(private tabService: TabService, private hs: UniHttpService) {
         this.tabService.addTab({name: 'Dashboard', url: '/'});
         //this.hs.get
         //    ('/biz/employees/', 1, 'BusinessRelationInfo, Employments, BankAccounts, EmployeeCategoryLinks, VacationRateEmployee, Localization')
@@ -18,13 +21,21 @@ export class Dashboard {
 
         //get(urlEndpoint, id: optional, expandValues: optional)
 
+        this.requests = { resource: '/biz/companysettings/', id: 1, expand: 'Address,Emails,Phones' }
 
-        console.log('i run');
-        this.hs.getMultiple(
-            ['/biz/employees/', '/biz/employees/', '/biz/employees/', '/biz/employees/'],
-            [1, 1, 1, 1],
-            ['BusinessRelationInfo, Employments, BankAccounts, EmployeeCategoryLinks, VacationRateEmployee, Localization', 'BusinessRelationInfo, Employments, BankAccounts, EmployeeCategoryLinks, VacationRateEmployee, Localization', 'BusinessRelationInfo, Employments, BankAccounts, EmployeeCategoryLinks, VacationRateEmployee, Localization', 'BusinessRelationInfo, Employments, BankAccounts, EmployeeCategoryLinks, VacationRateEmployee, Localization'])
+        this.requests2 = { resource: '/biz/employees/', id: 1, expand: 'BusinessRelationInfo,Employments,BankAccounts,EmployeeCategoryLinks,VacationRateEmployee,Localization' }
 
+        //this.hs.get(this.requests)
+        //    .subscribe(data => console.log(data),
+        //    error => console.log(error)
+        //)
+
+        this.hs.getMultiple([this.requests, this.requests2])
+            .subscribe(data => console.log(data),
+            error => console.log(error)
+            ) 
+
+        
     }
 
 
