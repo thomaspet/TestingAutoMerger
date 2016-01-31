@@ -24,12 +24,40 @@ const CHILD_ROUTES = [
     directives: [CORE_DIRECTIVES, Multival, ROUTER_DIRECTIVES, ApplicationNav]
 })
 
+
+
 @RouteConfig(CHILD_ROUTES)
 
 export class Usertest {
 
-    private phone: string[] = ['95529331'];
-    private email: string[] = ['j@lom.me', 'jorgen@unimicro.no', 'jl@highlighter.no'];
+    private phone = [];
+
+    private email = [
+        {
+            id: 0,
+            value: 'j@lom.me',
+            main: false,
+
+        },
+        {
+            id: 1,
+            value: 'jorgen@unimicro.no',
+            main: true
+        },
+        {
+            id: 2,
+            value: 'jl@highlighter.no',
+            main: false
+        }
+    ];
+
+    private accounts = [{
+        id: 0,
+        value: '9484.06.14799',
+        main: true
+    }];
+
+
 
     childRoutes: RouteDefinition[];
 

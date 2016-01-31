@@ -44,7 +44,7 @@
     width: 100%
     border: pxToRem(1) solid $uni-color-scale7
     background-color: mix($uni-color-negative, $uni-color-scale9, 80%)
-    margin-top: 1.6rem
+    margin-top: 1.68rem
     z-index: 99
     border-bottom-left-radius: pxToRem(3)
     border-bottom-right-radius: pxToRem(3)
@@ -90,6 +90,51 @@
       &.-is-main .setMainBtn
         background: transparent unicon-star($uni-color-scale5) no-repeat center
         background-size: 1rem
+
+  .uni-multivalue-value
+    height: 1.2rem
+    width: calc(100% - 1.5rem)
+    display: inline-block
+    overflow: hidden
+    text-overflow: ellipsis
+
+  .uni-multivalue_edit
+    display: flex
+    width: calc(100% - 1rem)
+
+  .uni-multivalue_edit_value
+    padding: .2rem .5rem
+    margin: -.2rem 0 -.2rem -.5rem
+    height: 1.9rem
+
+  .uni-multivalue_edit_action-delete
+    width: 1.8rem
+    height: 1.9rem
+    font-size: 0
+    margin: -.2rem -.5rem -.2rem 0
+    padding: 0
+    background: transparent unicon-trash($uni-color-Bad) center no-repeat
+    background-size: .8rem
+    border: none
+    box-shadow: none
+
+
+    &:hover,
+    &:focus
+      background-image: unicon-trash($uni-color-negative)
+      background-color: $uni-color-Bad
+
+  .uni-multivalue_deleted
+    padding: .2rem .5rem
+    margin: -.2rem -.5rem
+    width: calc(100% + 1rem)
+    height: calc(100% + .4rem)
+    background: $uni-color-Bad
+    color: $uni-color-negative
+
+    a
+      color: $uni-color-negative
+      text-decoration: underline
 
   .uni-multivalue-addBtn
     @extend button.good

@@ -115,7 +115,7 @@
             <option value="Mann">Mann</option>
         </datalist>
     </label>
-    <uni-multival [label]="'Kontonummer'" [values]="['9484.06.14799']" [main]="'9484.06.14799'"></uni-multival>
+    <uni-multival [label]="'Kontonummer'" [values]="accounts"></uni-multival>
     <label> Kommunenummer <input type="text" value="4130"/> </label>
     <label> Virksomhet / Lokalitet <input type="text" value="Stavanger"/> </label>
     <label> Overordnet <input type="text" value="Vibeke Thorsen" list="supervisor"/>
@@ -148,8 +148,8 @@
                 <label> Land <input type="text" value="Norge"></label>
             </section>
 
-            <uni-multival [label]="'E-post'" [values]="email" [main]="'j@lom.me'"></uni-multival>
-            <uni-multival [label]="'Telefon'" [values]="phone" [main]="'+47 95529331'"></uni-multival>
+            <uni-multival [label]="'E-post'" [values]="email"></uni-multival>
+            <uni-multival [label]="'Telefon'" [values]="phone"></uni-multival>
 
         </div>
     </article>
