@@ -30,23 +30,32 @@ const CHILD_ROUTES = [
 
 export class Usertest {
 
-    private phone = [];
+    private phone = [
+        {
+            id: 0,
+            value: '+47 55543265',
+            main: true
+        },{
+            id: 1,
+            value: '+47 95529331',
+            main: false
+        }];
 
     private email = [
         {
             id: 0,
-            value: 'j@lom.me',
+            value: 'audhild@unimicro.no',
             main: false,
 
         },
         {
             id: 1,
-            value: 'jorgen@unimicro.no',
+            value: 'audhild.grieg@gmail.com',
             main: true
         },
         {
             id: 2,
-            value: 'jl@highlighter.no',
+            value: 'nsync4eva@hotmail.com',
             main: false
         }
     ];
