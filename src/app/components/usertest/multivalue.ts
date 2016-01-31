@@ -22,9 +22,7 @@ export class Multival {
     private addOrDropdown = function(inputVal){
 
         if(this.values.length <= 1){
-
             this.addValue();
-
         }else{
             this.activeMultival = !this.activeMultival;
         }
@@ -42,7 +40,8 @@ export class Multival {
     };
 
     private del = function(value){
-        var values = this.values;
+        var values = this.values,
+            self = this;
 
         value.timeout = window.setTimeout(function(){
             if(value.main){
@@ -50,6 +49,13 @@ export class Multival {
             }
             var ind = values.indexOf(value);
             values.splice(ind, 1);
+            if(!values.length){
+                self.activeMultival = false;
+                values.push({
+                    id: 0,
+                    value: ''
+                });
+            }
         }, 4000);
         this.trashCan.push(value);
     };

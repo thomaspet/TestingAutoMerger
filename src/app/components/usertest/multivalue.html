@@ -15,7 +15,7 @@
                 <button class="setMainBtn" (click)="setMain(value)">Set {{value.value}} as main</button>
             </div>
             <div *ngIf="value.timeout" class="uni-multivalue_deleted">
-                Deleted {{value.value}}. (<a (click)="putBack(value)">Undo</a>)
+                Deleted &lsquo;{{value.value}}&rsquo;. (<a (click)="putBack(value)">Undo</a>)
             </div>
 
         </li>
