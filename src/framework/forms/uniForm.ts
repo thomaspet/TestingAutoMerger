@@ -26,7 +26,11 @@ export enum FIELD_TYPES {
 
            <template ngFor #field [ngForOf]="fields" #i="index">
                 <template [ngIf]="field.fieldType === FIELD_TYPES.FIELD">
-                    <uni-field [config]="field"></uni-field>
+                    <uni-field
+                        [config]="field"
+                        [ngClass]="field.classes"
+                        [class.error]="hasError(field)">
+                    </uni-field>
                 </template>
                 <template [ngIf]="field.fieldType === FIELD_TYPES.FIELDSET">
                     <uni-fieldset [config]="field"></uni-fieldset>
@@ -59,6 +63,10 @@ export class UniForm {
 
     ngOnInit() {
         this.form = this.extendFields(this.fields);
+    }
+
+    hasError(field) {
+        return field.control.touched && !field.control.valid;
     }
 
     private updateModel(config, formValue) {
@@ -104,6 +112,7 @@ export class UniForm {
         control.updateValue(_.get(c.model,c.field));
         c.control = control;
         c.errorMessages = messages;
+        //c.classes.error = c.control.touched && !c.control.valid;
     }
 
     private composeSyncValidators(c) {
