@@ -19,13 +19,13 @@ interface MultiValue {
 
 export class Multival {
 
-    inputVal:string;
     values: MultiValue[];
     activeMultival:boolean;
     trashCan: MultiValue[];
     newValueInd: number;
 
     constructor(){
+        // Put a fresh, new bin bag in.
         this.trashCan = [];
     }
 
@@ -57,9 +57,9 @@ export class Multival {
         });
     };
 
-    // Prepps the value for delete.
-    // @fixme: Obviosly this needs to be rewritten to take server into account.
-    // We also want to use the softdelete pargdigme for this.
+    // Prepares the value for delete.
+    // @fixme: Obviously this needs to be rewritten to take server into account.
+    // We also want to use the soft delete paradigm for this.
     del(value: MultiValue){
         var values = this.values,
             self = this;
@@ -95,42 +95,33 @@ export class Multival {
         });
     };
 
-    // Set the value as the main one.
+    // Set the passed value as the main one.
     setMain(value: MultiValue){
         this.values.forEach(function(val: MultiValue){
             val.main = val === value;
         });
-        this.inputVal = value.value;
     };
 
-    mainOrFirstValue(){
-        if(this.values.length){
-            this.values.forEach(function(val: MultiValue){
-                if(val.main){
-                    return val;
-                }
-            });
-            return this.values[0].value
-        }
-        return '';
-    };
-
+    // Returns the index of the main value, or the first one.
     activeInd(){
         var index: number = 0;
 
+        // If we have a new value, return that index.
         if(this.newValueInd){
             return this.newValueInd;
         }
 
+        // If not, look for the main index.
         this.values.forEach(function(val: MultiValue, ind: number){
             if(val.main){
                 index = ind;
-                return ind;
+                return;
             }
         });
         return index;
     };
 
+    // Add a new, blank value to the array.
     addValue(){
         this.values.push(<MultiValue>{
             id: 0,
@@ -139,17 +130,24 @@ export class Multival {
         this.newValueInd = this.values.length - 1;
     };
 
+    // Operations to be performed on enter or blur
     save(value: MultiValue){
         var hasMain;
 
+        // Stop editing
         value.editing = false;
+
+        // It is no longer new
         this.newValueInd = null;
+
+        // Do we have a main value already?
         this.values.forEach(function(val){
             if(val.main){
                 hasMain = true;
             }
         });
 
+        // If not, make the first one the main one.
         if(!hasMain){
             this.values[0].main = true;
         }
