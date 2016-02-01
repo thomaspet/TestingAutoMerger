@@ -1,5 +1,5 @@
-import {Component, Injector} from 'angular2/core';
 import {Validators} from 'angular2/common';
+import {Component, Injector,ViewChild} from 'angular2/core';
 import {RouteParams} from 'angular2/router';
 
 import {UniForm} from '../../../../framework/forms/uniForm';
@@ -12,9 +12,12 @@ import {UniGroupBuilder} from '../../../../framework/forms/uniGroupBuilder';
 
 import {EmployeeDS} from '../../../../framework/data/employee';
 
+import {Observable} from 'rxjs/Observable';
+import 'rxjs/add/operator/merge';
+
 @Component({
     selector: 'employee-personal-details',
-    directives:[UniForm],
+    directives: [UniForm],
     template: `
     <div class="application employee">
         <button (click)="toggleMode()">Toogle edit mode</button>
@@ -24,151 +27,160 @@ import {EmployeeDS} from '../../../../framework/data/employee';
 })
 export class PersonalDetails {
 
-    form: UniFormBuilder;
+    form:UniFormBuilder;
+    layout;
     employee;
+    @ViewChild(UniForm) formComponent:UniForm;
 
-    constructor(private injector: Injector, employeeDS:EmployeeDS) {
+    constructor(private injector:Injector, employeeDS:EmployeeDS) {
         var routeParams = injector.parent.parent.get(RouteParams);//Any way to get that in an easy way????
-        employeeDS.get(routeParams.get('id'))
-            .subscribe(response => this.employee = response,error => console.log(error));
-        
-        //employeeDS.getModel().subscribe(response => console.log(response));
-        //employeeDS.getValidation().subscribe(response => console.log(response));
-        
+        Observable.zip(
+            employeeDS.get(routeParams.get('id')),
+            employeeDS.layout('EmployeePersonalDetailsForm'),
+            employeeDS.getValidation(),
+            employeeDS.getModel()
+        ).subscribe(
+            response => {
+                console.log(response);
+                this.employee = response[0];
+                this.layout = response[1];
+            },
+            error => console.error(error)
+        );
         var formBuilder = new UniFormBuilder();
-        
+
         var model = {};
-        
+
         var name = new UniFieldBuilder();
         name.setLabel('Fornavn')
         .setModel(model)
         .setModelField('name')
         .addSyncValidator("required",Validators.required,"Name is required")
         .setType(UNI_CONTROL_TYPES.TEXT)
-        
+
         var middleName = new UniFieldBuilder();
         middleName.setLabel('Mellomnavn')
-        .setModel(model)
-        .setModelField('name')
-        .setType(UNI_CONTROL_TYPES.TEXT)
-        
+            .setModel(model)
+            .setModelField('name')
+            .setType(UNI_CONTROL_TYPES.TEXT)
+
         var lastName = new UniFieldBuilder();
         lastName.setLabel('Etternavn')
-        .setModel(model)
-        .setModelField('name')
-        .setType(UNI_CONTROL_TYPES.TEXT)
-        
+            .setModel(model)
+            .setModelField('name')
+            .setType(UNI_CONTROL_TYPES.TEXT)
+
         var DNumber = new UniFieldBuilder();
         DNumber.setLabel('Person- eller D-nummer')
-        .setModel(model)
-        .setModelField('name')
-        .setType(UNI_CONTROL_TYPES.TEXT)//Validation or specific field
-        
+            .setModel(model)
+            .setModelField('name')
+            .setType(UNI_CONTROL_TYPES.TEXT)//Validation or specific field
+
         var address = new UniFieldsetBuilder();
         var street = new UniFieldBuilder();
         street.setLabel('Adresse')
-        .setModel(model)
-        .setModelField('name')
-        .setType(UNI_CONTROL_TYPES.TEXT)//Validation or specific field
-        
+            .setModel(model)
+            .setModelField('name')
+            .setType(UNI_CONTROL_TYPES.TEXT)//Validation or specific field
+
         var postNumber = new UniFieldBuilder();
         postNumber.setLabel('Post Sted')
-        .setModel(model)
-        .setModelField('name')
-        .setType(UNI_CONTROL_TYPES.TEXT)//Validation or specific field
-        
+            .setModel(model)
+            .setModelField('name')
+            .setType(UNI_CONTROL_TYPES.TEXT)//Validation or specific field
+
         var place = new UniFieldBuilder();
         place.setLabel('Sted')
-        .setModel(model)
-        .setModelField('name')
-        .setType(UNI_CONTROL_TYPES.TEXT)//Validation or specific field
-        
+            .setModel(model)
+            .setModelField('name')
+            .setType(UNI_CONTROL_TYPES.TEXT)//Validation or specific field
+
         address.addFields(street, postNumber, place);
-        
+
         var email = new UniFieldBuilder();
         email.setLabel('Privat epost')
-        .setModel(model)
-        .setModelField('name')
-        .setType(UNI_CONTROL_TYPES.TEXT)//Validation or specific field
-        
+            .setModel(model)
+            .setModelField('name')
+            .setType(UNI_CONTROL_TYPES.TEXT)//Validation or specific field
+
         var phone = new UniFieldBuilder();
         phone.setLabel('Telefon')
-        .setModel(model)
-        .setModelField('name')
-        .setType(UNI_CONTROL_TYPES.TEXT)//Validation or specific field
-        
+            .setModel(model)
+            .setModelField('name')
+            .setType(UNI_CONTROL_TYPES.TEXT)//Validation or specific field
+
         var employeeNumber = new UniFieldBuilder();
         employeeNumber.setLabel('Ansattnummer')
-        .setModel(model)
-        .setModelField('name')
-        .setType(UNI_CONTROL_TYPES.TEXT)//Validation or specific field
-        
+            .setModel(model)
+            .setModelField('name')
+            .setType(UNI_CONTROL_TYPES.TEXT)//Validation or specific field
+
         var account = new UniFieldBuilder();
         account.setLabel('Kontonummer')
-        .setModel(model)
-        .setModelField('name')
-        .setType(UNI_CONTROL_TYPES.TEXT)//Validation or specific field
-        
+            .setModel(model)
+            .setModelField('name')
+            .setType(UNI_CONTROL_TYPES.TEXT)//Validation or specific field
+
         var gender = new UniFieldBuilder();
         gender.setLabel('Kjønn')
-        .setModel(model)
-        .setModelField('name')
-        .setType(UNI_CONTROL_TYPES.TEXT)//Validation or specific field
-        
+            .setModel(model)
+            .setModelField('name')
+            .setType(UNI_CONTROL_TYPES.TEXT)//Validation or specific field
+
         var birthdate = new UniFieldBuilder();
         birthdate.setLabel('Fodseldato')
-        .setModel(model)
-        .setModelField('name')
-        .setType(UNI_CONTROL_TYPES.DATEPICKER)//Validation or specific field
-        .setKendoOptions({})
-        
+            .setModel(model)
+            .setModelField('name')
+            .setType(UNI_CONTROL_TYPES.DATEPICKER)//Validation or specific field
+            .setKendoOptions({})
+
         var department = new UniFieldBuilder();
         department.setLabel('Avdelinger')
-        .setModel(model)
-        .setModelField('name')
-        .setType(UNI_CONTROL_TYPES.TEXT)//Validation or specific field
-        
+            .setModel(model)
+            .setModelField('name')
+            .setType(UNI_CONTROL_TYPES.TEXT)//Validation or specific field
+
         var superior = new UniFieldBuilder();
         superior.setLabel('overordenet')
-        .setModel(model)
-        .setModelField('name')
-        .setType(UNI_CONTROL_TYPES.TEXT)//Validation or specific field
-        
+            .setModel(model)
+            .setModelField('name')
+            .setType(UNI_CONTROL_TYPES.TEXT)//Validation or specific field
+
         var workplace = new UniFieldBuilder();
         workplace.setLabel('arbeidsted')
-        .setModel(model)
-        .setModelField('name')
-        .setType(UNI_CONTROL_TYPES.TEXT)//Validation or specific field
-        
+            .setModel(model)
+            .setModelField('name')
+            .setType(UNI_CONTROL_TYPES.TEXT)//Validation or specific field
+
         var internationalPoster = new UniGroupBuilder("INTERNASJONALE POSTER")
         var internationalID = new UniFieldsetBuilder("Internasjonal ID");
         var internationalNumber = new UniFieldBuilder();
         internationalNumber.setLabel('Nummer')
-        .setModel(model)
-        .setModelField('name')
-        .setType(UNI_CONTROL_TYPES.TEXT)//Validation or specific field
-        
+            .setModel(model)
+            .setModelField('name')
+            .setType(UNI_CONTROL_TYPES.TEXT)//Validation or specific field
+
         var internationalType = new UniFieldBuilder();
         internationalType.setLabel('Type')
-        .setModel(model)
-        .setModelField('name')
-        .setType(UNI_CONTROL_TYPES.DROPDOWN)//Validation or specific field
-        .setKendoOptions({
-            dataSource: [
-                'Passnummer',
-                'Social Security Number', 
-                'Tax Identification Nummer', 
-                'VAT Nummer'
-            ]
-        });
-        
+            .setModel(model)
+            .setModelField('name')
+            .setType(UNI_CONTROL_TYPES.DROPDOWN)//Validation or specific field
+            .setKendoOptions({
+                dataSource: [
+                    'Passnummer',
+                    'Social Security Number',
+                    'Tax Identification Nummer',
+                    'VAT Nummer'
+                ]
+            });
+
         var internationalCountry = new UniFieldBuilder();
         internationalCountry.setLabel('Utstedelsesland')
-        .setModel(model)
-        .setModelField('name')
-        .setType(UNI_CONTROL_TYPES.TEXT)//Validation or specific field
-        
-        internationalID.addFields(internationalNumber,internationalType,internationalCountry);
+            .setModel(model)
+            .setModelField('name')
+            .setType(UNI_CONTROL_TYPES.TEXT)//Validation or specific field
+
+        internationalID.addFields(internationalNumber, internationalType, internationalCountry);
         internationalPoster.addFields(internationalID);
         formBuilder.addFields(
             name,
@@ -187,17 +199,20 @@ export class PersonalDetails {
             workplace,
             internationalPoster
         );
-        
-        
-        
-        this.form = formBuilder;   
+
+
+        this.form = formBuilder;
     }
-    
+
     toggleMode() {
-        this.form.isEditable() ? this.form.readmode(): this.form.editmode();
+        this.form.isEditable() ? this.form.readmode() : this.form.editmode();
     }
-    
+
     onSubmit(event) {
         console.log(event);
+    }
+
+    ngAfterViewInit() {
+        this.formComponent.getSubmitEvent().subscribe(value => console.log("caca",value));
     }
 }

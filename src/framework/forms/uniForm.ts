@@ -55,6 +55,10 @@ export class UniForm {
         this.FIELD_TYPES = FIELD_TYPES;
     }
 
+    getSubmitEvent() {
+        return this.uniFormSubmit;
+    }
+
     onSubmit(form) {
         this.updateModel(this.fields, form.value);
         this.uniFormSubmit.emit(form);
@@ -69,7 +73,8 @@ export class UniForm {
         return field.control.touched && !field.control.valid;
     }
 
-    private updateModel(config, formValue) {
+
+    updateModel(config, formValue) {
         for (let i = 0; i < config.length; i++) {
             let field = config[i];
             switch (field.fieldType) {

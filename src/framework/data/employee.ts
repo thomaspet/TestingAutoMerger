@@ -16,22 +16,28 @@ export class EmployeeDS {
     
     get(id) {
         if (!this.employees[id]) {
-            var url = this.baseUrl + '/biz/employees/' + id + '?expand='+this.expandedProperties;
+            var url = this.baseUrl + '/biz/employees/' + id + '?expand=' + this.expandedProperties;
             this.employees[id] = new ReplaySubject(1);
-            
+
             return this._doGET(url)
-                    .subscribe(this.employees[id]);        
+                .subscribe(this.employees[id]);
         }
         return this.employees[id]
     }
-    
+
+    layout(layoutID: string) {
+        return Observable.of({
+            a:"b"
+        });
+    }
+
     getValidation() {
-        var url = this.baseUrl + '/metadata/model/Employee';
+        var url = this.baseUrl + '/metadata/validations/Employee';
         return this._doGET(url);
     }
     
     getModel() {
-        var url = this.baseUrl + '/metadata/validations/Employee';
+        var url = this.baseUrl + '/metadata/model/Employee';
         return this._doGET(url);
     }
     
