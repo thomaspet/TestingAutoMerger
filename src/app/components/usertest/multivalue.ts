@@ -2,7 +2,13 @@ import {Component} from 'angular2/core';
 import {CORE_DIRECTIVES} from 'angular2/common';
 import {Input} from "angular2/core";
 
-
+interface MultiValue {
+    id: number,
+    value: string,
+    editing?: boolean,
+    main?: boolean,
+    timeout?: any
+}
 
 @Component({
     selector: 'uni-multival',
@@ -13,33 +19,48 @@ import {Input} from "angular2/core";
 
 export class Multival {
 
-    private inputVal:string;
-    private values:any[];
-    private activeMultival:boolean;
-    private trashCan: any[];
-    private newValueInd: number;
+    inputVal:string;
+    values: MultiValue[];
+    activeMultival:boolean;
+    trashCan: MultiValue[];
+    newValueInd: number;
 
-    private addOrDropdown = function(inputVal){
+    constructor(){
+        this.trashCan = [];
+    }
 
+    ngOnInit(){
+        // Add an empty placeholder value, if none are passed.
+        if(!this.values || !this.values.length){
+            this.values = [{
+                id: 0,
+                value: ''
+            }];
+        }
+    }
+
+    // What should happen when the user clicks
+    // the button next to the input?
+    addOrDropdown(){
         if(this.values.length <= 1){
             this.addValue();
         }else{
             this.activeMultival = !this.activeMultival;
         }
-
     };
 
-    private edit = function(value){
-        this.values.forEach(function(val){
-            if(val !== value){
-                val.editing = false;
-            }else{
-                val.editing = true;
-            }
+    // Set the "editing" flag to the passed value,
+    // and unset it for all others.
+    edit(value: MultiValue){
+        this.values.forEach(function(val: MultiValue){
+            val.editing = val === value;
         });
     };
 
-    private del = function(value){
+    // Prepps the value for delete.
+    // @fixme: Obviosly this needs to be rewritten to take server into account.
+    // We also want to use the softdelete pargdigme for this.
+    del(value: MultiValue){
         var values = this.values,
             self = this;
 
@@ -51,7 +72,7 @@ export class Multival {
             values.splice(ind, 1);
             if(!values.length){
                 self.activeMultival = false;
-                values.push({
+                values.push(<MultiValue>{
                     id: 0,
                     value: ''
                 });
@@ -60,7 +81,8 @@ export class Multival {
         this.trashCan.push(value);
     };
 
-    private putBack = function(value){
+    // Undo delete
+    putBack(value: MultiValue){
         var trashCan = this.trashCan;
         trashCan.forEach(function(trash, ind){
             if(trash.id == value.id && value.value === trash.value){
@@ -73,24 +95,17 @@ export class Multival {
         });
     };
 
-    private setMain = function(value){
-
-        this.values.forEach(function(val){
-
-            if(val !== value){
-                val.main = false;
-            }else{
-                val.main = true;
-            }
+    // Set the value as the main one.
+    setMain(value: MultiValue){
+        this.values.forEach(function(val: MultiValue){
+            val.main = val === value;
         });
-
         this.inputVal = value.value;
     };
 
-    private mainOrFirstValue = function(){
-
+    mainOrFirstValue(){
         if(this.values.length){
-            this.values.forEach(function(val){
+            this.values.forEach(function(val: MultiValue){
                 if(val.main){
                     return val;
                 }
@@ -100,31 +115,31 @@ export class Multival {
         return '';
     };
 
-    private activeInd = function(){
-        var index;
+    activeInd(){
+        var index: number = 0;
 
         if(this.newValueInd){
             return this.newValueInd;
         }
 
-        this.values.forEach(function(val, ind){
+        this.values.forEach(function(val: MultiValue, ind: number){
             if(val.main){
                 index = ind;
-                return;
+                return ind;
             }
         });
-        return index || 0;
+        return index;
     };
 
-    private addValue = function(){
-        this.values.push({
+    addValue(){
+        this.values.push(<MultiValue>{
             id: 0,
             value: ''
         });
         this.newValueInd = this.values.length - 1;
     };
 
-    private save = function(value){
+    save(value: MultiValue){
         var hasMain;
 
         value.editing = false;
@@ -140,20 +155,5 @@ export class Multival {
         }
     };
 
-    constructor(){
-        this.trashCan = [];
-    }
-
-
-    ngOnInit(){
-
-        if(!this.values.length){
-            this.values = [{
-                id: 0,
-                value: ''
-            }];
-        }
-
-    }
 
 }
