@@ -1,6 +1,5 @@
 .poster_widget_table
   table
-    //table-layout: fixed
     width: calc(100% - 1rem)
 
     td
@@ -8,6 +7,25 @@
       overflow: hidden
       text-overflow: ellipsis
       padding: .5rem
+      max-width: 0
+
+      &:first-child,
+      &:last-child
+        width: 3rem
+
+      &:nth-child(2)
+        width: calc(100% - 6rem)
+
+      @include media(small)
+        &
+          padding: .5rem .2rem
+
+        &:first-child,
+        &:last-child
+          width: 2rem
+
+        &:nth-child(2)
+          width: calc(100% - 4rem)
 
     tr
       @extend %clickable
@@ -24,5 +42,3 @@
       border-radius: 999rem
       float: left
       margin-right: 1rem
-
-
