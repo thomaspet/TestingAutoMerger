@@ -13,13 +13,14 @@ declare var jQuery;
 export class Login { 
 	credentials: { username: string, password: string };
     authSubscription;
+    working: boolean;
     
 	constructor(public authService: AuthService, public router: Router) {				
 		// Initialize credentials to a valid login for testing purposes
 		this.credentials = {
 			username: "jonterje",
 			password: "MySuperP@ss!"
-		}
+		};
         
         // Subscribe to updates from authService
         this.authSubscription = authService.authenticated$.subscribe((authenticated: boolean) => {
@@ -35,10 +36,13 @@ export class Login {
 	
 	login(event) {
 		event.preventDefault();
+        this.working = true;
 		this.authService.login(this.credentials.username, this.credentials.password);
 	}
     
     onAuthSuccess() {
+        this.working = false;
+
         // Skip process of selecting a company if activeCompany exists in localStorage
         if (localStorage.getItem('activeCompany')) {
             this.onCompanySelected();
@@ -63,7 +67,7 @@ export class Login {
                     this.onCompanySelected();
                 }
             },
-        }
+        };
         
         var element = jQuery('.company_select > select').first().show();
         element.kendoDropDownList(dropdownConfig);
