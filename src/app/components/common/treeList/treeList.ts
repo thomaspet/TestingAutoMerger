@@ -1,4 +1,4 @@
-﻿import {Component, Input} from 'angular2/core';
+﻿import {Component, Input, ElementRef} from 'angular2/core';
 import {Directory} from './directory';
 import {TreeListComponentLoader} from './treeListComponentLoader';
 
@@ -20,7 +20,9 @@ export class TreeList {
     current: any;
     count: number = 0;
 
-    constructor() { }
+    constructor(elementRef: ElementRef) {
+        console.log(jQuery(elementRef.nativeElement).find('ul'));
+    }
 
     showContent(event) {
         //Slides up all .content_div
