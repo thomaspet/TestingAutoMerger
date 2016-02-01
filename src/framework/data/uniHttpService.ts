@@ -16,36 +16,29 @@ export interface UniHttpRequest {
 @Injectable()
 export class UniHttpService {
     baseUrl = 'http://devapi.unieconomy.no:80/api';
-    url: string;
     headers: Headers;
-    observer: Observable<any>;
-    items: any;
 
     constructor(public http: Http) {
-        //Later will get header from localstorage
+        //Later we will get header from localstorage
         this.headers = new Headers();
         this.headers.append('Client', 'client1');
     }
  
-    //Get method
     get(request: UniHttpRequest) {
-        if (request.id) { request.resource += request.id; }
-        if (request.expand) { request.resource += ('?expand=' + request.expand) }
+        if (request.id) { request.resource += request.id; };
+        if (request.expand) { request.resource += ('?expand=' + request.expand) };
 
-        this.url = this.baseUrl + request.resource;
-
-        return this._doMethod(this.url, 'GET');
+        return this._doMethod(this.baseUrl + request.resource, 'GET');
     }
  
-    //Get multiple method
     getMultiple(request: Array<UniHttpRequest>) {
         var calls = [];
- 
-        for (var i = 0; i < request.length; i++) {
-            if (request[i].id) { request[i].resource += request[i].id }
-            if (request[i].expand) { request[i].resource += ('?expand=' + request[i].expand) }
-            calls.push(this._doMethod(this.baseUrl + request[i].resource, 'GET'))
-        }
+
+        request.forEach((req) => {
+            if (req.id) { req.resource += req.id };
+            if (req.expand) { req.resource += ('?expand=' + req.expand) };
+            calls.push(this._doMethod(this.baseUrl + req.resource, 'GET'));
+        })
 
         return Observable.forkJoin(
             calls
@@ -53,24 +46,25 @@ export class UniHttpService {
     }
 
     put(request: UniHttpRequest) {
-        if (request.id) { request.resource += request.id; }
+        if (request.id) { request.resource += request.id; };
 
-        return this._doMethod(this.url, 'PUT', request.body);
+        return this._doMethod(this.baseUrl + request.resource, 'PUT', request.body);
     }
-    
+    //Post does not need to check for ID, because there is no ID?
     post(request: UniHttpRequest) {
         if (request.id) { request.resource += request.id; }
 
-        return this._doMethod(this.url, 'POST', request.body);
+        return this._doMethod(this.baseUrl + request.resource, 'POST', request.body);
     }
 
     delete(request: UniHttpRequest) {
-        if (request.id) { request.resource += request.id; }
+        if (request.id) { request.resource += request.id; };
 
-        return this._doMethod(this.url, 'DELETE');
+        return this._doMethod(this.baseUrl + request.resource, 'DELETE');
     }
 
-    _doMethod(url, method: string, data?: any) {
+    //Better way to do this then with switch??
+    _doMethod(url: string, method: string, data?: any) {
 
         switch (method) {
             case 'GET':
