@@ -1,35 +1,34 @@
 ﻿import {Component, Input, ElementRef} from 'angular2/core';
-import {Directory} from './directory';
+import {TreeListItem} from './treeListItem';
 import {TreeListComponentLoader} from './treeListComponentLoader';
 
 declare var jQuery;
 
-export enum TREE_LIST_TYPE { TABLE, FORM, TEXT }
+export enum TREE_LIST_TYPE { TABLE, FORM, TEXT, LIST }
 
 @Component({
     selector: 'uni-tree-list',
-    templateUrl: 'app/components/common/treeList/treeList.html',
+    templateUrl: 'framework/treeList/treeList.html',
     directives: [TreeList, TreeListComponentLoader]
 })
 
 export class TreeList {
     
-    @Input() directories: Array<Directory>;
+    @Input() treeListItems: Array<TreeListItem>;
     expanded: boolean = false;
     type = TREE_LIST_TYPE;
     current: any;
     count: number = 0;
 
-    constructor(elementRef: ElementRef) {
-        console.log(jQuery(elementRef.nativeElement).find('ul'));
-    }
+    constructor(public elementRef: ElementRef) { }
 
     showContent(event) {
         //Slides up all .content_div
-        jQuery('#tree_list').find('.content_div').slideUp(500);
+        //jQuery(this.elementRef.nativeElement).find('ul').slideUp(500);
+        jQuery('.tree_list').find('.content_div').slideUp(500);
 
         //Slides down current .content_div
-        //If statement makes sure that if the current is pressed, it is not shown again
+        //If-statement makes sure that if the current is pressed, it is not shown again
         if (this.current !== event.target || this.count === 2) {
             jQuery(event.target).next('.content_div').slideDown(500);
             this.count = 0;
@@ -37,19 +36,18 @@ export class TreeList {
 
         this.current = event.target;
         this.count++;
-        
     }
 
     showHideAll() {
         this.expanded = !this.expanded;
-        this.revertAllExpanded(this.directories);
+        this.revertAllExpanded(this.treeListItems);
     }
 
-    revertAllExpanded(dir) {
-        dir.forEach((d) => {
-            d.expanded = this.expanded;
-            if (d.directories) {
-                this.revertAllExpanded(d.directories);
+    revertAllExpanded(items) {
+        items.forEach((item) => {
+            item.expanded = this.expanded;
+            if (item.treeListItems) {
+                this.revertAllExpanded(item.treeListItems);
             }
         })
     }
