@@ -41,7 +41,7 @@ export class UniFormBuilder {
     
     _readmode(fields) {
         fields.forEach((field)=>{
-           if (field.fieldType === FIELD_TYPES.FIELD) {
+           if (field instanceof UniFieldBuilder) {
                field.readmode();
            } else {
                this._readmode(field.config());
@@ -51,7 +51,7 @@ export class UniFormBuilder {
     
     _editmode(fields) {
         fields.forEach((field)=>{
-           if (field.fieldType === FIELD_TYPES.FIELD) {
+           if (field instanceof UniFieldBuilder) {
                field.editmode();
            } else {
                this._editmode(field.config());

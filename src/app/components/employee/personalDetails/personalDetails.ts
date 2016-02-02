@@ -3,7 +3,7 @@ import {Component, Injector, ViewChild, DynamicComponentLoader, ElementRef, Comp
 import {RouteParams} from 'angular2/router';
 
 import {UniForm} from '../../../../framework/forms/uniForm';
-import {UNI_CONTROL_TYPES} from '../../../../framework/controls/types';
+import {UNI_CONTROL_DIRECTIVES} from '../../../../framework/controls';
 
 import {UniFormBuilder} from '../../../../framework/forms/uniFormBuilder';
 import {UniFieldBuilder} from '../../../../framework/forms/uniFieldBuilder';
@@ -60,6 +60,7 @@ export class PersonalDetails {
         );
     }
     buildLayout(layout) {
+        var INPUT_TYPES = UNI_CONTROL_DIRECTIVES.values();
         var formBuilder = new UniFormBuilder();
 
         var model = {};
@@ -69,44 +70,43 @@ export class PersonalDetails {
             .setModel(model)
             .setModelField('name')
             .addSyncValidator("required", Validators.required, "Name is required")
-            .setType(UNI_CONTROL_TYPES.TEXT)
-
+            .setType(UNI_CONTROL_DIRECTIVES[10])
         var middleName = new UniFieldBuilder();
         middleName.setLabel('Mellomnavn')
             .setModel(model)
             .setModelField('name')
-            .setType(UNI_CONTROL_TYPES.TEXT)
+            .setType(UNI_CONTROL_DIRECTIVES[10])
 
         var lastName = new UniFieldBuilder();
         lastName.setLabel('Etternavn')
             .setModel(model)
             .setModelField('name')
-            .setType(UNI_CONTROL_TYPES.TEXT)
+            .setType(UNI_CONTROL_DIRECTIVES[10])
 
         var DNumber = new UniFieldBuilder();
         DNumber.setLabel('Person- eller D-nummer')
             .setModel(model)
             .setModelField('name')
-            .setType(UNI_CONTROL_TYPES.TEXT)//Validation or specific field
+            .setType(UNI_CONTROL_DIRECTIVES[10])//Validation or specific field
 
         var address = new UniFieldsetBuilder();
         var street = new UniFieldBuilder();
         street.setLabel('Adresse')
             .setModel(model)
             .setModelField('name')
-            .setType(UNI_CONTROL_TYPES.TEXT)//Validation or specific field
+            .setType(UNI_CONTROL_DIRECTIVES[10])//Validation or specific field
 
         var postNumber = new UniFieldBuilder();
         postNumber.setLabel('Post Sted')
             .setModel(model)
             .setModelField('name')
-            .setType(UNI_CONTROL_TYPES.TEXT)//Validation or specific field
+            .setType(UNI_CONTROL_DIRECTIVES[10])//Validation or specific field
 
         var place = new UniFieldBuilder();
         place.setLabel('Sted')
             .setModel(model)
             .setModelField('name')
-            .setType(UNI_CONTROL_TYPES.TEXT)//Validation or specific field
+            .setType(UNI_CONTROL_DIRECTIVES[10])//Validation or specific field
 
         address.addFields(street, postNumber, place);
 
@@ -114,56 +114,56 @@ export class PersonalDetails {
         email.setLabel('Privat epost')
             .setModel(model)
             .setModelField('name')
-            .setType(UNI_CONTROL_TYPES.TEXT)//Validation or specific field
+            .setType(UNI_CONTROL_DIRECTIVES[11])//Validation or specific field
 
         var phone = new UniFieldBuilder();
         phone.setLabel('Telefon')
             .setModel(model)
             .setModelField('name')
-            .setType(UNI_CONTROL_TYPES.TEXT)//Validation or specific field
+            .setType(UNI_CONTROL_DIRECTIVES[10])//Validation or specific field
 
         var employeeNumber = new UniFieldBuilder();
         employeeNumber.setLabel('Ansattnummer')
             .setModel(model)
             .setModelField('name')
-            .setType(UNI_CONTROL_TYPES.TEXT)//Validation or specific field
+            .setType(UNI_CONTROL_DIRECTIVES[10])//Validation or specific field
 
         var account = new UniFieldBuilder();
         account.setLabel('Kontonummer')
             .setModel(model)
             .setModelField('name')
-            .setType(UNI_CONTROL_TYPES.TEXT)//Validation or specific field
+            .setType(UNI_CONTROL_DIRECTIVES[10])//Validation or specific field
 
         var gender = new UniFieldBuilder();
         gender.setLabel('Kjønn')
             .setModel(model)
             .setModelField('name')
-            .setType(UNI_CONTROL_TYPES.TEXT)//Validation or specific field
+            .setType(UNI_CONTROL_DIRECTIVES[10])//Validation or specific field
 
         var birthdate = new UniFieldBuilder();
         birthdate.setLabel('Fodseldato')
             .setModel(model)
             .setModelField('name')
-            .setType(UNI_CONTROL_TYPES.DATEPICKER)//Validation or specific field
+            .setType(UNI_CONTROL_DIRECTIVES[2])//Validation or specific field
             .setKendoOptions({})
 
         var department = new UniFieldBuilder();
         department.setLabel('Avdelinger')
             .setModel(model)
             .setModelField('name')
-            .setType(UNI_CONTROL_TYPES.TEXT)//Validation or specific field
+            .setType(UNI_CONTROL_DIRECTIVES[10])//Validation or specific field
 
         var superior = new UniFieldBuilder();
         superior.setLabel('overordenet')
             .setModel(model)
             .setModelField('name')
-            .setType(UNI_CONTROL_TYPES.TEXT)//Validation or specific field
+            .setType(UNI_CONTROL_DIRECTIVES[10])//Validation or specific field
 
         var workplace = new UniFieldBuilder();
         workplace.setLabel('arbeidsted')
             .setModel(model)
             .setModelField('name')
-            .setType(UNI_CONTROL_TYPES.TEXT)//Validation or specific field
+            .setType(UNI_CONTROL_DIRECTIVES[10])//Validation or specific field
 
         var internationalPoster = new UniGroupBuilder("INTERNASJONALE POSTER")
         var internationalID = new UniFieldsetBuilder("Internasjonal ID");
@@ -171,13 +171,13 @@ export class PersonalDetails {
         internationalNumber.setLabel('Nummer')
             .setModel(model)
             .setModelField('name')
-            .setType(UNI_CONTROL_TYPES.TEXT)//Validation or specific field
+            .setType(UNI_CONTROL_DIRECTIVES[10])//Validation or specific field
 
         var internationalType = new UniFieldBuilder();
         internationalType.setLabel('Type')
             .setModel(model)
             .setModelField('name')
-            .setType(UNI_CONTROL_TYPES.DROPDOWN)//Validation or specific field
+            .setType(UNI_CONTROL_DIRECTIVES[3])//Validation or specific field
             .setKendoOptions({
                 dataSource: [
                     'Passnummer',
@@ -191,7 +191,7 @@ export class PersonalDetails {
         internationalCountry.setLabel('Utstedelsesland')
             .setModel(model)
             .setModelField('name')
-            .setType(UNI_CONTROL_TYPES.TEXT)//Validation or specific field
+            .setType(UNI_CONTROL_DIRECTIVES[10])//Validation or specific field
 
         internationalID.addFields(internationalNumber, internationalType, internationalCountry);
         internationalPoster.addFields(internationalID);
@@ -212,7 +212,6 @@ export class PersonalDetails {
             workplace,
             internationalPoster
         );
-
 
         return formBuilder;
     }

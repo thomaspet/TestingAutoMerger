@@ -4,8 +4,10 @@ import {UNI_CONTROL_DIRECTIVES} from '../controls';
 import {UniRadioGroup} from "../controls/radioGroup/uniRadioGroup";
 import {ShowError} from "./showError";
 import {UniField} from './uniField';
+import {UniFieldBuilder} from './uniFieldBuilder';
 import {UniFieldset} from './uniFieldset';
 import {UniGroup} from './uniGroup';
+import {UniComponentLoader} from "../core/componentLoader";
 
 declare var _;
 
@@ -17,27 +19,17 @@ export enum FIELD_TYPES {
 
 @Component({
     selector: 'uni-form',
-    directives: [FORM_DIRECTIVES, UniField, UniFieldset, UniGroup],
+    directives: [FORM_DIRECTIVES, UniField, UniFieldset, UniGroup, UniComponentLoader],
     providers: [FORM_PROVIDERS],
     inputs: ['fields'],
     outputs: ['uniFormSubmit'],
     template: `
         <form (submit)="onSubmit(form)" [ngFormModel]="form">
-
-           <template ngFor #field [ngForOf]="fields" #i="index">
-                <template [ngIf]="field.fieldType === FIELD_TYPES.FIELD">
-                    <uni-field
-                        [config]="field"
-                        [ngClass]="field.classes"
-                        [class.error]="hasError(field)">
-                    </uni-field>
-                </template>
-                <template [ngIf]="field.fieldType === FIELD_TYPES.FIELDSET">
-                    <uni-fieldset [config]="field"></uni-fieldset>
-                </template>
-                <template [ngIf]="field.fieldType === FIELD_TYPES.GROUP">
-                    <uni-group [config]="field"></uni-group>
-                </template>
+            <template ngFor #field [ngForOf]="fields" #i="index">
+                <uni-component-loader
+                    [type]="field.fieldType"
+                    [config]="field">
+                </uni-component-loader>
             </template>
             <button type="submit" [disabled]="!form.valid">submit</button>
         </form>
@@ -48,11 +40,9 @@ export class UniForm {
     form;
     fields;
     uniFormSubmit:EventEmitter<any> = new EventEmitter<any>(true);
-    FIELD_TYPES;
     fbControls = {};
 
     constructor(public fb:FormBuilder) {
-        this.FIELD_TYPES = FIELD_TYPES;
     }
 
     getSubmitEvent() {
@@ -77,17 +67,13 @@ export class UniForm {
     updateModel(config, formValue) {
         for (let i = 0; i < config.length; i++) {
             let field = config[i];
-            switch (field.fieldType) {
-                case FIELD_TYPES.FIELD:
-                    var model = field.model;
-                    var fieldPath = field.field;
-                    var value = _.get(formValue, fieldPath);
-                    _.set(model, fieldPath, value);
-                    break;
-
-                default:
-                    this.updateModel(field.fields, formValue);
-                    break;
+            if (field instanceof UniFieldBuilder) {
+                var model = field.model;
+                var fieldPath = field.field;
+                var value = _.get(formValue, fieldPath);
+                _.set(model, fieldPath, value);
+            } else {
+                this.updateModel(field.fields, formValue);
             }
         }
     }
@@ -95,15 +81,11 @@ export class UniForm {
     private extendFields(config) {
         for (let i = 0; i < config.length; i++) {
             let field = config[i];
-            switch (field.fieldType) {
-                case FIELD_TYPES.FIELD:
-                    this.extendField(field);
-                    this.fbControls[field.field] = field.control;
-                    break;
-
-                default:
-                    this.extendFields(field.fields);
-                    break;
+            if (field instanceof UniFieldBuilder) {
+                this.extendField(field);
+                this.fbControls[field.field] = field.control;
+            } else {
+                this.extendFields(field.fields);
             }
         }
         return this.fb.group(this.fbControls);

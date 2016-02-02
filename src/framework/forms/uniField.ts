@@ -5,10 +5,12 @@ import {UNI_CONTROL_DIRECTIVES} from '../controls';
 import {ShowError} from "../forms/showError";
 import {UniRadioGroup} from "../controls/radioGroup/uniRadioGroup";
 import {UNI_CONTROL_TYPES} from '../controls/types';
+import {UniComponentLoader} from "../core/componentLoader";
+
 @Component({
     selector: 'uni-field',
     inputs: ['config'],
-    directives: [UNI_CONTROL_DIRECTIVES, ShowError, UniRadioGroup, NgIf, NgForm],
+    directives: [UniComponentLoader, ShowError, UniRadioGroup, NgIf, NgForm],
     templateUrl: "framework/forms/uniField.html"
 })
 export class UniField {
@@ -19,14 +21,10 @@ export class UniField {
     }
 
     isRadioGroup(type:number) {
-        return (type === UNI_CONTROL_TYPES.RADIOGROUP);
+        return false
     }
 
     isInput(type:number) {
-        return  !this.isRadioGroup(type);
-    }
-
-    setFormValue(control,value) {
-        control.updateValue(value);
+        return  true
     }
 }
