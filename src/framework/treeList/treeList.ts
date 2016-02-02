@@ -24,11 +24,9 @@ export class TreeList {
 
     showContent(event) {
         //Slides up all .content_div
-        //jQuery(this.elementRef.nativeElement).find('ul').slideUp(500);
         jQuery('.tree_list').find('.content_div').slideUp(500);
 
         //Slides down current .content_div
-        //If-statement makes sure that if the current is pressed, it is not shown again
         if (this.current !== event.target || this.count === 2) {
             jQuery(event.target).next('.content_div').slideDown(500);
             this.count = 0;
