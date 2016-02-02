@@ -2,8 +2,8 @@
 import {Component, ViewChild} from 'angular2/core';
 import {UniTable, UniTableConfig} from '../../../framework/uniTable';
 import {TabService} from '../navbar/tabstrip/tabService';
-import {Directory} from '../common/treeList/directory';
-import {TreeList, TREE_LIST_TYPE} from '../common/treeList/treeList';
+import {TreeListItem} from '../../../framework/treeList/treeListItem';
+import {TreeList, TREE_LIST_TYPE} from '../../../framework/treeList/treeList';
 import {Http, Headers, Response} from 'angular2/http';
 import { Observable } from 'rxjs/Observable';
 
@@ -20,11 +20,13 @@ import 'rxjs/add/operator/map';
     templateUrl: 'app/components/kitchensink/kitchensink.html',
     directives: [UniTable, TreeList]
 })
+
 export class Kitchensink {	
 	readOnlyTableConfig;	
     editableTableConfig;
-    directories: Array<Directory>;
+    treeListItems: Array<TreeListItem>;
     @ViewChild(TreeList) treeList: TreeList;
+    test: string = 'Hello from kitchensink';
 		
 	constructor(private tabService: TabService, private http: Http) {	
 		this.tabService.addTab({ name: 'Kitchensink', url: '/kitchensink' });        
@@ -79,38 +81,58 @@ export class Kitchensink {
 
     setUpTreeList() {
 
-        //This form object should come from server
-        var form = this.createForm();
+        var kontox = new TreeListItem('KontoText')
+            .setType(TREE_LIST_TYPE.TEXT)
+            .setContent('HELLO WORLD');
 
-        //Creates new Directory with files and no subdirectories
-        const kontogruppe1 = new Directory('Kontogruppe 1', [],
-            [
-                { name: 'Kontogruppe 1_1', config: this.editableTableConfig, type: TREE_LIST_TYPE.TABLE },
-                { name: 'Kontogruppe 1_2', config: this.editableTableConfig, type: TREE_LIST_TYPE.TABLE },
-                { name: 'Kontogruppe 1_3', config: this.editableTableConfig, type: TREE_LIST_TYPE.TABLE }
-            ]);
+        var kontoy = new TreeListItem('KontoText')
+            .setType(TREE_LIST_TYPE.TEXT)
+            .setContent('HELLO WORLD');
+
+        var kontoz = new TreeListItem('KontoText')
+            .setType(TREE_LIST_TYPE.TEXT)
+            .setContent('HELLO WORLD');
+
+        var konto1 = new TreeListItem('KontoText')
+            .setType(TREE_LIST_TYPE.TEXT)
+            .setContent('HELLO WORLD');
+
+        var konto2 = new TreeListItem('KontoTable')
+            .setType(TREE_LIST_TYPE.TABLE)
+            .setContent(this.editableTableConfig);
         
-        //Creates new Directory with files and no subdirectories
-        const kontogruppe2 = new Directory('TYPE EXAMPLES', [],
-            [
-                { name: 'TABLE', config: this.editableTableConfig, type: TREE_LIST_TYPE.TABLE },
-                { name: 'TEXT', config: 'Hello from text', type: TREE_LIST_TYPE.TEXT },
-                { name: 'FORM', config: form, type: TREE_LIST_TYPE.FORM, url: 'http://devapi.unieconomy.no:80/api/biz/companysettings/1' }
-            ]);
+        var konto3 = new TreeListItem('KontoForm')
+            .setType(TREE_LIST_TYPE.FORM)
+            .setContent(this.createForm())
+            .setFormFunction(
+                (value) => { this.localFunctionToHandleFormSubmit(value) });
 
-        //Creates new Directory with subdirectories and 1 file
-        const konto = new Directory('Konto', [kontogruppe1, kontogruppe2], [{ name: 'Generelt', config: this.editableTableConfig, type: TREE_LIST_TYPE.TABLE }]);
+        var konto4 = new TreeListItem('KontoList')
+            .setType(TREE_LIST_TYPE.LIST)
+            .addTreeListItems([kontox, kontoy, kontoz])
+         
+        var kontogruppe1 = new TreeListItem('Kontogruppe1')
+            .setType(TREE_LIST_TYPE.LIST)
+            .addTreeListItems([konto1, konto4, konto2, konto3 ]);
 
-        //Creates new Directory with files and no subdirectories
-        const settings = new Directory('Innstillinger', [],
-            [
-                { name: 'Generelt', config: this.editableTableConfig, type: TREE_LIST_TYPE.TABLE },
-                { name: 'Kontoinnstillinger', config: this.editableTableConfig, type: TREE_LIST_TYPE.TABLE }
-            ]);
+        var kontogruppe2 = new TreeListItem('Kontogruppe2')
+            .setType(TREE_LIST_TYPE.LIST)
+            .addTreeListItems([konto1, konto2]);
 
-        //Creates new Directory with subdirectories and no files
-        const bundle = new Directory('General', [konto, settings], []);
-        this.directories = [settings, konto];
+        var kontogruppe3 = new TreeListItem('Kontogruppe3')
+            .setType(TREE_LIST_TYPE.LIST)
+            .addTreeListItems([konto1, konto2]);
+
+        var bundle = new TreeListItem('Bundle')
+            .setType(TREE_LIST_TYPE.LIST)
+            .addTreeListItems([kontogruppe1, kontogruppe2, kontogruppe3]);
+
+        this.treeListItems = ([bundle]);
+
+    }
+
+    localFunctionToHandleFormSubmit(value) {
+        console.log(value._value);
     }
 
     createForm() {
