@@ -11,7 +11,6 @@ export interface MultiSelectConfig {
 var templateString = `
     <select
         [ngFormControl]="config.control"
-        [ngClass] = "config.classes"
         [disabled]="config.disabled"
         [attr.readonly]="config.readonly"
     ></select>
