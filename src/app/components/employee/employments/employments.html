@@ -1,0 +1,7 @@
+<p>This is the employment child-view</p>
+<div *ngIf='currentEmployee'>
+    <h2>Arbeidsforhold</h2>
+    <div *ngFor="#employment of employmentList">
+        <uni-form (uniFormSubmit)='onSubmit($event)' [fields]='buildForm(employment).config()'></uni-form>
+    </div>
+</div>
