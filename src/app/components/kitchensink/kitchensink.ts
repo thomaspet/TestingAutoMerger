@@ -19,7 +19,9 @@ export class Kitchensink {
     tempTableConfig;
 		
 	constructor(private tabService: TabService, private http: Http, private uniHttp: UniHttpService) {	
-		this.tabService.addTab({ name: 'Kitchensink', url: '/kitchensink' });        
+		this.testHttpService();
+        
+        this.tabService.addTab({ name: 'Kitchensink', url: '/kitchensink' });        
         
         // Read-only grid
         this.readOnlyTableConfig = new UniTableConfig('http://devapi.unieconomy.no/api/biz/companysettings')
@@ -88,18 +90,54 @@ export class Kitchensink {
         
 	}
     
-    testGet() {
-        // Get one
-        this.uniHttp.get({
-            resource: 'companysettings/1',
-            expand: 'Address,Emails,Phones'
-        }).subscribe(data => console.log(data));
+    testHttpService() {
         
-        // Get all
+        // GET all
         this.uniHttp.get({
             resource: 'companysettings',
             expand: 'Address,Emails,Phones'
-        }).subscribe(data => console.log(data));
+        }).subscribe(data => {
+            console.log('GET all');
+            console.log(data)
+        });
+        
+        // GET one
+        this.uniHttp.get({
+            resource: 'companysettings/1',
+            expand: 'Address,Emails,Phones'
+        }).subscribe(data => {
+            
+            console.log('GET one');
+            console.log(data);
+            
+            // PUT
+            data.CompanyName = 'Paraply AS';
+            this.uniHttp.put({
+                resource: 'companysettings/1',
+                body: data
+            }).subscribe(data => {
+                console.log('PUT');
+                console.log(data)
+            });
+            
+            // POST
+            data.ID = null;
+            this.uniHttp.post({
+                resource: 'companysettings',
+                body: data
+            }).subscribe((data: any) => {
+                console.log('POST');
+                console.log(data)
+                
+                // DELETE
+                this.uniHttp.delete('companysettings/' + data.ID)
+                .subscribe(data => {
+                    console.log('DELETE');
+                    console.log(data)
+                });
+            });
+        });
+        
     }
     
     testPut() {

@@ -6,12 +6,13 @@ import {UniRouterOutlet} from './uniRouterOutlet';
 import {AuthService} from '../framework/authentication/authService';
 import {TabService} from './components/navbar/tabstrip/tabService';
 import {Navbar} from './components/navbar/navbar';
+import {UniHttpService} from '../framework/data/uniHttpService';
 
 @Component({
 	selector: 'uni-app',
 	templateUrl: './app/app.html',
 	directives: [ROUTER_DIRECTIVES, UniRouterOutlet, Navbar],
-	providers: [AuthService, TabService]
+	providers: [AuthService, TabService, UniHttpService]
 })
 @RouteConfig(APP_ROUTES)
 export class App {
