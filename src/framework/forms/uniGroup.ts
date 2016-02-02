@@ -1,12 +1,13 @@
 import {Component} from 'angular2/core';
 import {UniField} from './uniField';
 import {UniFieldset} from './uniFieldset';
+import {UniCombo} from './uniCombo';
 import {FIELD_TYPES} from './uniForm';
 
 @Component({
     selector: 'uni-group',
     inputs: ['config'],
-    directives: [UniField, UniFieldset],
+    directives: [UniField, UniFieldset, UniCombo],
     template: `
         <article class="formSection-collapsable" [ngClass]="{'-is-open':collapsed}">
             <h4 *ngIf="config.legend" (click)="collapsed = !collapsed">{{config.legend}}</h4>
@@ -17,6 +18,9 @@ import {FIELD_TYPES} from './uniForm';
                     </template>
                     <template [ngIf]="field.fieldType === FIELD_TYPES.FIELDSET">
                         <uni-fieldset [config]="field"></uni-fieldset>
+                    </template>
+                    <template [ngIf]="field.fieldType === FIELD_TYPES.COMBO">
+                        <uni-combo [config]="field"></uni-combo>
                     </template>
                 </template>
             </div>

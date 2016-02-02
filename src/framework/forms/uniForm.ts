@@ -6,18 +6,20 @@ import {ShowError} from "./showError";
 import {UniField} from './uniField';
 import {UniFieldset} from './uniFieldset';
 import {UniGroup} from './uniGroup';
+import {UniCombo} from './uniCombo';
 
 declare var _;
 
 export enum FIELD_TYPES {
     FIELD,
     FIELDSET,
-    GROUP
+    GROUP,
+    COMBO
 }
 
 @Component({
     selector: 'uni-form',
-    directives: [FORM_DIRECTIVES, UniField, UniFieldset, UniGroup],
+    directives: [FORM_DIRECTIVES, UniField, UniFieldset, UniGroup, UniCombo],
     providers: [FORM_PROVIDERS],
     inputs: ['fields'],
     outputs: ['uniFormSubmit'],
@@ -37,6 +39,9 @@ export enum FIELD_TYPES {
                 </template>
                 <template [ngIf]="field.fieldType === FIELD_TYPES.GROUP">
                     <uni-group [config]="field"></uni-group>
+                </template>
+                <template [ngIf]="field.fieldType === FIELD_TYPES.COMBO">
+                    <uni-combo [config]="field" [ngClass]="field.classes"></uni-combo>
                 </template>
             </template>
             <button type="submit" [disabled]="!form.valid">submit</button>

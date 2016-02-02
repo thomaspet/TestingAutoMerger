@@ -6,6 +6,7 @@ import {Observable} from 'rxjs/Observable';
 
 import {UniFormBuilder} from '../../../../../framework/forms/uniFormBuilder';
 import {UniFieldsetBuilder} from '../../../../../framework/forms/uniFieldsetBuilder';
+import {UniComboBuilder} from '../../../../../framework/forms/uniComboBuilder';
 import {UniFieldBuilder} from '../../../../../framework/forms/uniFieldBuilder';
 import {UniGroupBuilder} from '../../../../../framework/forms/uniGroupBuilder';
 import {UniTable, UniTableConfig} from '../../../../../framework/uniTable';
@@ -45,21 +46,20 @@ export class AccountDetails {
         // Acount details   
                     
         var accountNumber = new UniFieldBuilder();
-        accountNumber //.setLabel('Kontonr./navn')
+        accountNumber.setLabel('Kontonr.')
             .setModel(this.model)
             .setModelField('AccountNumber')
             .setType(UNI_CONTROL_TYPES.TEXT)
                                   
         var accountName = new UniFieldBuilder();
-        accountName //.setLabel('Kontonr./navn')
+        accountName.setLabel('Kontonavn')
             .setModel(this.model)
             .setModelField('AccountName')
             .setType(UNI_CONTROL_TYPES.TEXT)
             
-        var combo = new UniFieldsetBuilder()
-        combo.legend = "Kontonr./navn";
-        combo.addClass('combo');
-        combo.addFields(accountNumber, accountName);
+        var accountCombo = new UniComboBuilder()
+        accountCombo.addClass('combo');
+        accountCombo.addFields(accountNumber, accountName);
             
         var accountAlias = new UniFieldBuilder();
         accountAlias.setLabel('Alias')
@@ -81,7 +81,7 @@ export class AccountDetails {
             .setType(UNI_CONTROL_TYPES.DROPDOWN)
             .setKendoOptions({ dataSource: this.vattypes, dataTextField: 'Name'})
                     
-        formBuilder.addFields(combo, accountAlias, currency, vatType);
+        formBuilder.addFields(accountCombo, accountAlias, currency, vatType);
 
         //
         // Checkbox settings
@@ -176,7 +176,7 @@ export class AccountDetails {
     }
          
     ngOnInit() {
-        Observable.forkJoin(
+       Observable.forkJoin(
             this.currencyDS.getAll(),
             this.accountingDS.getVatTypes(),
             this.accountingDS.getAccount(1) 
@@ -184,7 +184,7 @@ export class AccountDetails {
             this.currencies = results[0];
             this.vattypes = results[1];
             this.accountReady(results[2]);             
-        });        
+        });     
     }
              
     onSubmit(value) {
