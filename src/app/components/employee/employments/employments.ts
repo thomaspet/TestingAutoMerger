@@ -5,9 +5,13 @@ import {EmployeeDS} from '../../../../framework/data/employee';
 import {UNI_CONTROL_TYPES} from '../../../../framework/controls/types';
 import {UniFormBuilder} from '../../../../framework/forms/uniFormBuilder';
 import {UniFieldBuilder} from '../../../../framework/forms/uniFieldBuilder';
+import {UniGroupBuilder} from '../../../../framework/forms/uniGroupBuilder';
+
+declare var jQuery;
 
 @Component({
     selector: 'employee-employment',
+    directives: [UniForm],
     templateUrl: 'app/components/employee/employments/employments.html'
 })
 export class Employment {
@@ -21,33 +25,67 @@ export class Employment {
         .subscribe(response => {
             this.currentEmployee = response;
             this.employmentList = this.currentEmployee.Employments;
-            
-            console.log(this.currentEmployee);
-            
+            console.log(response);
+            this.buildGroupConfigs();
         },error => console.log(error));
     }
     
-    buildForm(employment) {
-        var form = new UniFormBuilder();
+    buildGroupConfigs() {
+        var formbuilder = new UniFormBuilder();
+        this.employmentList.forEach((employment) => {
+            var group = new UniGroupBuilder(employment.JobName);
     
-        var jobCode = new UniFieldBuilder();
-        jobCode.setLabel('stillingskode')
-        .setModel(employment)
-        .setModelField('jobcode')
-        .setType(UNI_CONTROL_TYPES.TEXT);
-    
-        var jobName = new UniFieldBuilder();
-        jobName.setLabel('Navn')
-        .setModel(employment)
-        .setModelField('jobname')
-        .setType(UNI_CONTROL_TYPES.TEXT)
-    
-        form.addFields(jobCode, jobName);
+            var jobCode = new UniFieldBuilder();
+            jobCode.setLabel('stillingskode')
+            .setModel(employment)
+            .setModelField('JobCode')
+            .setType(UNI_CONTROL_TYPES.TEXT);
         
-        return form;
+            var jobName = new UniFieldBuilder();
+            jobName.setLabel('Navn')
+            .setModel(employment)
+            .setModelField('JobName')
+            .setType(UNI_CONTROL_TYPES.TEXT)
+            
+            var startDate = new UniFieldBuilder();
+            startDate.setLabel('Startdato')
+            .setModel(employment)
+            .setModelField('StartDate')
+            .setType(UNI_CONTROL_TYPES.DATEPICKER)
+            
+            var monthRate = new UniFieldBuilder();
+            monthRate.setLabel('Månedlønn')
+            .setModel(employment)
+            .setModelField('MonthRate')
+            .setType(UNI_CONTROL_TYPES.NUMERIC)
+            
+            var hourRate = new UniFieldBuilder();
+            hourRate.setLabel('Timelønn')
+            .setModel(employment)
+            .setModelField('HourRate')
+            .setType(UNI_CONTROL_TYPES.NUMERIC)
+            
+            var workPercent = new UniFieldBuilder();
+            workPercent.setLabel('Stillingprosent')
+            .setModel(employment)
+            .setModelField('WorkPercent')
+            .setType(UNI_CONTROL_TYPES.NUMERIC)
+            
+            var localization = new UniFieldBuilder();
+            localization.setLabel('Lokalitet')
+            .setModel(employment)
+            .setModelField('LocalizationID')
+            .setType(UNI_CONTROL_TYPES.NUMERIC)
+        
+            group.addFields(jobCode, jobName, startDate, monthRate, hourRate, workPercent, localization);
+            
+            formbuilder.addField(group);
+            
+            this.form = formbuilder;
+        });
     }
     
-    onsubmit(data) {
-        this.employmentList = data;
+    onFormSubmit(event, index) {
+        jQuery.merge(this.employmentList[index], event.value);
     }
 }
