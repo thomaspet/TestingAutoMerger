@@ -1,1 +1,1 @@
-<uni-form (uniFormSubmit)='onFormSubmit($event, index)' [fields]='form.config()'></uni-form>
+<uni-form *ngIf="currentEmployee" (uniFormSubmit)='onFormSubmit($event, index)' [fields]='form.config()'></uni-form>
