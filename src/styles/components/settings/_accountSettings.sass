@@ -6,12 +6,20 @@
     @include unigrid(6,3,4,1)
     float: left
 
-.accountDetails uni-field:has(>input.fullwidth)
-    @include unigrid(16,8,4,1)
-    border: 2px solid black
-    background: red
-    
-.accountDetails uni-field:has(>input.halfwidth)
-    @include unigrid(8,4,2,1)
-    border: 2px solid red
-    background: blue
+.accountDetails label
+    width: 100%
+          
+.accountDetails form
+
+    display: flex
+
+    .combo input
+        border-radius: 0
+        border-left-width: 0
+
+    .combo input:first-of-type
+        border-radius: pxToRem(3) 0 0 pxToRem(3)
+        border-left-width: pxToRem(1)
+
+    .combo input:last-of-type
+        border-radius: 0 pxToRem(3) pxToRem(3) 0

@@ -33,7 +33,10 @@ export class AccountDetails {
             return;
         }
 
+        console.log("DATA HENTET");
         console.log(data);
+        console.log("CURRENCYID");
+        console.log(data.CurrencyID);
         
         this.model = data;
                
@@ -46,14 +49,17 @@ export class AccountDetails {
             .setModel(this.model)
             .setModelField('AccountNumber')
             .setType(UNI_CONTROL_TYPES.TEXT)
-            .addClass("halfwidth");
+            .addClass("combo");
                                   
         var accountName = new UniFieldBuilder();
         accountName.setLabel('Kontonavn')
             .setModel(this.model)
             .setModelField('AccountName')
             .setType(UNI_CONTROL_TYPES.TEXT)
-            .addClass("halfwidth");
+            .addClass("combo");
+            
+        var combo = new UniFieldsetBuilder()
+        combo.addFields(accountNumber, accountName);
             
         var accountAlias = new UniFieldBuilder();
         accountAlias.setLabel('Alias')
@@ -64,9 +70,9 @@ export class AccountDetails {
         var currency = new UniFieldBuilder();
         currency.setLabel('Valuta')
             .setModel(this.model)
-            .setModelField('currencycode')
+            .setModelField('CurrencyID')
             .setType(UNI_CONTROL_TYPES.DROPDOWN)
-            .setKendoOptions({ dataSource: this.currencies, dataTextField: 'Code'})
+            .setKendoOptions({ dataSource: this.currencies, dataTextField: 'Code' })
 
         var vatType = new UniFieldBuilder();
         vatType.setLabel('Moms')
@@ -75,7 +81,7 @@ export class AccountDetails {
             .setType(UNI_CONTROL_TYPES.DROPDOWN)
             .setKendoOptions({ dataSource: this.vattypes, dataTextField: 'Name'})
                     
-        formBuilder.addFields(accountNumber, accountName, accountAlias, currency, vatType);
+        formBuilder.addFields(combo, accountAlias, currency, vatType);
 
         //
         // Checkbox settings
@@ -173,30 +179,16 @@ export class AccountDetails {
         Observable.forkJoin(
             this.currencyDS.getAll(),
             this.accountingDS.getVatTypes(),
-            this.accountingDS.getAccount(11) 
+            this.accountingDS.getAccount(1) 
         ).subscribe(results => {
             this.currencies = results[0];
             this.vattypes = results[1];
             this.accountReady(results[2]);             
-        });
-               
-        /*
-        this.currencyDS.getAll().subscribe (response => {
-           this.currencies = response
-           this.accountingDS.getVatTypes().subscribe (response => {
-               this.vattypes = response 
-               this.accountingDS.getAccount(1).subscribe (response => {
-                    this.accountReady(response)
-                    console.log(response);
-               }, error => console.error(error));
-            }, error => console.error(error));        
-        }, error => console.error(error));   
-        */     
+        });    
     }
              
     onSubmit(value) {
         console.log("Form");
-        console.log(value);
-        console.log(this.model);
+        console.log(JSON.stringify(this.model.CurrencyID));
     }
 }

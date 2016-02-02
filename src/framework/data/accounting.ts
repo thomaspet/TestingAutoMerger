@@ -26,12 +26,28 @@ export class AccountingDS {
         return this.accounts[id]
     }
     
+    updateAccount(account)
+    {
+        var headers = new Headers();
+        headers.append('Client','client1');
+        var url = this.baseUrl + '/biz/accounts/' + account.ID;
+
+        this.http.put(
+            url,
+            JSON.stringify(account),
+            { headers: headers })
+            .map(res => console.log(res))
+            .subscribe(
+                data => console.log(data),
+                err => console.log(err))
+    }
+    
     getVatTypes() {
         var url = this.baseUrl + '/biz/vattypes';
         this.vattypes = this._doGET(url);
         return this.vattypes;       
     }
-            
+                
     _doGET(url) {
         var headers = new Headers();
         headers.append('Client','client1');
