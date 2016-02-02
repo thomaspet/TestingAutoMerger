@@ -1,5 +1,5 @@
 import {Validators} from 'angular2/common';
-import {Component, Injector,ViewChild} from 'angular2/core';
+import {Component, Injector, ViewChild, DynamicComponentLoader, ElementRef, ComponentRef, Type} from 'angular2/core';
 import {RouteParams} from 'angular2/router';
 
 import {UniForm} from '../../../../framework/forms/uniForm';
@@ -11,52 +11,65 @@ import {UniFieldsetBuilder} from '../../../../framework/forms/uniFieldsetBuilder
 import {UniGroupBuilder} from '../../../../framework/forms/uniGroupBuilder';
 
 import {EmployeeDS} from '../../../../framework/data/employee';
+import {EmployeeModel} from '../../../../framework/models/employee';
+import {UniComponentLoader} from '../../../../framework/core/componentLoader';
 
 import {Observable} from 'rxjs/Observable';
 import 'rxjs/add/operator/merge';
 
 @Component({
     selector: 'employee-personal-details',
-    directives: [UniForm],
+    directives: [UniComponentLoader],
     template: `
     <div class="application employee">
         <button (click)="toggleMode()">Toogle edit mode</button>
-        <uni-form (uniFormSubmit)='onSubmit($event)' [fields]='form.config()'></uni-form>
+        <uni-component-loader></uni-component-loader>
     </div>
     `
 })
 export class PersonalDetails {
 
-    form:UniFormBuilder;
+    form:UniFormBuilder = new UniFormBuilder();
     layout;
     employee;
-    @ViewChild(UniForm) formComponent:UniForm;
+    @ViewChild(UniComponentLoader) ucl: UniComponentLoader;
+    EmployeeID;
 
-    constructor(private injector:Injector, employeeDS:EmployeeDS) {
-        var routeParams = injector.parent.parent.get(RouteParams);//Any way to get that in an easy way????
+    constructor(public injector:Injector, public employeeDS:EmployeeDS) {
+        var routeParams = this.injector.parent.parent.get(RouteParams);//Any way to get that in an easy way????
+        this.EmployeeID = routeParams.get('id');
+    }
+    ngAfterViewInit() {
+
+        var self = this;
         Observable.zip(
-            employeeDS.get(routeParams.get('id')),
-            employeeDS.layout('EmployeePersonalDetailsForm'),
-            employeeDS.getValidation(),
-            employeeDS.getModel()
+            self.employeeDS.get(this.EmployeeID),
+            self.employeeDS.layout('EmployeePersonalDetailsForm')
         ).subscribe(
             response => {
-                console.log(response);
-                this.employee = response[0];
-                this.layout = response[1];
+                self.employee = EmployeeModel.createFromObject(response[0]);
+
+                self.form = self.buildLayout(response[1]);
+
+                self.ucl.load(UniForm,(cmp: ComponentRef)=>{
+                    cmp.instance.uniFormSubmit.subscribe(self.onSubmit);
+                    cmp.instance.fields = self.form.config();
+                });
             },
             error => console.error(error)
         );
+    }
+    buildLayout(layout) {
         var formBuilder = new UniFormBuilder();
 
         var model = {};
 
         var name = new UniFieldBuilder();
         name.setLabel('Fornavn')
-        .setModel(model)
-        .setModelField('name')
-        .addSyncValidator("required",Validators.required,"Name is required")
-        .setType(UNI_CONTROL_TYPES.TEXT)
+            .setModel(model)
+            .setModelField('name')
+            .addSyncValidator("required", Validators.required, "Name is required")
+            .setType(UNI_CONTROL_TYPES.TEXT)
 
         var middleName = new UniFieldBuilder();
         middleName.setLabel('Mellomnavn')
@@ -201,7 +214,7 @@ export class PersonalDetails {
         );
 
 
-        this.form = formBuilder;
+        return formBuilder;
     }
 
     toggleMode() {
@@ -210,9 +223,5 @@ export class PersonalDetails {
 
     onSubmit(event) {
         console.log(event);
-    }
-
-    ngAfterViewInit() {
-        this.formComponent.getSubmitEvent().subscribe(value => console.log("caca",value));
     }
 }

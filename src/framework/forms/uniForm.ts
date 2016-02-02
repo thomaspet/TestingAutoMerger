@@ -45,11 +45,11 @@ export enum FIELD_TYPES {
 })
 export class UniForm {
 
-    private form;
-    private fields;
-    private uniFormSubmit:EventEmitter<any> = new EventEmitter<any>(true);
-    private FIELD_TYPES;
-    private fbControls = {};
+    form;
+    fields;
+    uniFormSubmit:EventEmitter<any> = new EventEmitter<any>(true);
+    FIELD_TYPES;
+    fbControls = {};
 
     constructor(public fb:FormBuilder) {
         this.FIELD_TYPES = FIELD_TYPES;
@@ -70,7 +70,7 @@ export class UniForm {
     }
 
     hasError(field) {
-        return field.control.touched && !field.control.valid;
+        return field && field.control && field.control.touched && !field.control.valid;
     }
 
 
