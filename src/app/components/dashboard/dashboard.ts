@@ -20,9 +20,9 @@ export class Dashboard {
     constructor(private tabService: TabService, private uhs: UniHttpService) {
         this.tabService.addTab({name: 'Dashboard', url: '/'});
 
-        this.requests = { resource: '/biz/companysettings/', id: 1, expand: 'Address,Emails,Phones' };
-        this.requests1 = { resource: '/biz/companysettings/', id: 1, expand: 'Address,Emails,Phones' };
-        this.requests2 = { resource: '/biz/companysettings/', id: 2, expand: 'Address,Emails,Phones' };
+        this.requests = { resource: '/biz/companysettings/1', expand: 'Address,Emails,Phones' };
+        this.requests1 = { resource: '/biz/companysettings/1', expand: 'Address,Emails,Phones' };
+        this.requests2 = { resource: '/biz/companysettings/2', expand: 'Address,Emails,Phones' };
 
         this.testGet();
     }

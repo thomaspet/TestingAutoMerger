@@ -3,8 +3,10 @@ import {Component} from 'angular2/core';
 import {UniTable, UniTableConfig} from '../../../framework/uniTable';
 import {TabService} from '../navbar/tabstrip/tabService';
 import {Http, Headers, Response} from 'angular2/http';
-import { Observable } from 'rxjs/Observable';
+import {Observable} from 'rxjs/Observable';
 import 'rxjs/add/operator/map';
+
+import {UniHttpService, UniHttpRequest} from '../../../framework/data/uniHttpService';
 
 @Component({
 	selector: 'kitchensink',
@@ -16,7 +18,7 @@ export class Kitchensink {
 	editableTableConfig;
     tempTableConfig;
 		
-	constructor(private tabService: TabService, private http: Http) {	
+	constructor(private tabService: TabService, private http: Http, private uniHttp: UniHttpService) {	
 		this.tabService.addTab({ name: 'Kitchensink', url: '/kitchensink' });        
         
         // Read-only grid
@@ -85,4 +87,23 @@ export class Kitchensink {
         ])
         
 	}
+    
+    testGet() {
+        // Get one
+        this.uniHttp.get({
+            resource: 'companysettings/1',
+            expand: 'Address,Emails,Phones'
+        }).subscribe(data => console.log(data));
+        
+        // Get all
+        this.uniHttp.get({
+            resource: 'companysettings',
+            expand: 'Address,Emails,Phones'
+        }).subscribe(data => console.log(data));
+    }
+    
+    testPut() {
+        
+    }
+    
 }
