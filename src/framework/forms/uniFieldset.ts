@@ -8,7 +8,7 @@ import {UniField} from './uniField';
     template: `<fieldset>
         <legend *ngIf="config.legend">{{config.legend}}</legend>
         <template ngFor #field [ngForOf]="config.fields" #i="index">
-            <uni-field [config]="field" [ngClass]="config.classes" [class.error]="hasError(field)"></uni-field>
+            <uni-field [config]="field" [ngClass]="field.classes" [class.error]="hasError(field)"></uni-field>
         </template>
     </fieldset>`,
 })
