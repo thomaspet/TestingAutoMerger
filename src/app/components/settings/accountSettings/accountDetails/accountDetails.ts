@@ -184,7 +184,7 @@ export class AccountDetails {
             this.currencies = results[0];
             this.vattypes = results[1];
             this.accountReady(results[2]);             
-        });    
+        });        
     }
              
     onSubmit(value) {
