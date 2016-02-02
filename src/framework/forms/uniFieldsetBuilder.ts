@@ -5,6 +5,8 @@ export class UniFieldsetBuilder {
     legend: string = '';
     fields: Array<UniFieldBuilder>=[];
     fieldType: number;
+    classes: any = {};
+        
     constructor(legend?:string) {
         this.legend = legend || "";
         this.fieldType = FIELD_TYPES.FIELDSET;
@@ -22,6 +24,11 @@ export class UniFieldsetBuilder {
         return this;
     }
 
+    addClass(className:string) {
+        this.classes[className] = true;
+        return this;
+    }
+    
     config() {
         return this.fields;
     }

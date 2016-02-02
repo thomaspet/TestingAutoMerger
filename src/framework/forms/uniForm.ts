@@ -33,7 +33,7 @@ export enum FIELD_TYPES {
                     </uni-field>
                 </template>
                 <template [ngIf]="field.fieldType === FIELD_TYPES.FIELDSET">
-                    <uni-fieldset [config]="field"></uni-fieldset>
+                    <uni-fieldset [config]="field" [ngClass]="field.classes"></uni-fieldset>
                 </template>
                 <template [ngIf]="field.fieldType === FIELD_TYPES.GROUP">
                     <uni-group [config]="field"></uni-group>

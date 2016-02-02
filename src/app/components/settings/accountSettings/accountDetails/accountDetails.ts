@@ -45,20 +45,20 @@ export class AccountDetails {
         // Acount details   
                     
         var accountNumber = new UniFieldBuilder();
-        accountNumber.setLabel('Kontonr.')
+        accountNumber //.setLabel('Kontonr./navn')
             .setModel(this.model)
             .setModelField('AccountNumber')
             .setType(UNI_CONTROL_TYPES.TEXT)
-            .addClass("combo");
                                   
         var accountName = new UniFieldBuilder();
-        accountName.setLabel('Kontonavn')
+        accountName //.setLabel('Kontonr./navn')
             .setModel(this.model)
             .setModelField('AccountName')
             .setType(UNI_CONTROL_TYPES.TEXT)
-            .addClass("combo");
             
         var combo = new UniFieldsetBuilder()
+        combo.legend = "Kontonr./navn";
+        combo.addClass('combo');
         combo.addFields(accountNumber, accountName);
             
         var accountAlias = new UniFieldBuilder();
