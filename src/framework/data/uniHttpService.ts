@@ -56,41 +56,35 @@ export class UniHttpService {
     }
     
     delete(resource: string) {
-        return this.http.delete(this.baseUrl + resource)
-        .map(response => response.json());
+        return this.http.delete(resource, {
+            headers: this.headers
+        }).map((response) => response.json());
     }
     
     multipleRequests(method: string, requests: UniHttpRequest[]) {
         var requestMethod;
+        var observables = [];
         
         switch (method.toUpperCase()) {
             case 'GET':
-                requestMethod = RequestMethod.Get;
-            break;
-            case 'PUT':
-                requestMethod = RequestMethod.Put;
+                requestMethod = (requestData) => { return this.get(requestData) };
             break;
             case 'POST':
-                requestMethod = RequestMethod.Post;
+                requestMethod = (requestData) => { return this.post(requestData) };
+            break;
+            case 'PUT':
+                requestMethod = (requestData) => { return this.put(requestData) };
             break;
             case 'DELETE':
-                requestMethod = RequestMethod.Delete;
+                requestMethod = (requestData) => { return this.delete(requestData) };
             break;
         }
-        
-        var observables = [];
+
         requests.forEach((request) => {
-            observables.push(
-                this.http.request(new Request({
-                    method: requestMethod,
-                    url: this.baseUrl + request.resource,
-                    search: this.buildUrlParams(request), // might need to toString() this!
-                    body: JSON.stringify(request.body) || null
-                }))  
-            );
+            observables.push( requestMethod(request) );
         });
-        
-        return Observable.forkJoin(observables).map(result => result.json);
+
+        return Observable.forkJoin(observables);
     }
  
 //     get(request: UniHttpRequest) {
