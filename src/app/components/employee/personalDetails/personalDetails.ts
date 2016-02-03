@@ -195,6 +195,7 @@ export class PersonalDetails {
 
         internationalID.addFields(internationalNumber, internationalType, internationalCountry);
         internationalPoster.addFields(internationalID);
+        internationalPoster.openByDefault(true);
         formBuilder.addFields(
             name,
             middleName,

@@ -1,6 +1,7 @@
 import {FIELD_TYPES} from './uniForm';
 import {UNI_CONTROL_TYPES} from '../controls/types';
 import {ComponentRef, Type} from 'angular2/core';
+import {AbstractControl} from 'angular2/common';
 import {UniField} from './UniField';
 import {UniTextInput} from '../controls/text/text';
 
@@ -16,6 +17,7 @@ export class UniFieldBuilder {
     disabled: boolean = false;
     syncValidators: Array<any> = [];
     asyncValidators: Array<any> = [];
+    control: AbstractControl;
 
     constructor(type?:Type,label?:string,model?:string,modelField?:string){
         this.type = type || UniTextInput;

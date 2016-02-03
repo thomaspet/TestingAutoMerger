@@ -27,6 +27,11 @@ export class UniGroup {
     constructor() {
         this.FIELD_TYPES = FIELD_TYPES;
     }
+
+    ngOnInit() {
+        this.collapsed = this.config.collapsed;
+    }
+
     hasError(field) {
         return field.control.touched && !field.control.valid;
     }
