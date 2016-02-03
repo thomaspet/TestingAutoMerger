@@ -1,4 +1,4 @@
-import {Component, OnInit ,EventEmitter} from 'angular2/core';
+import {Component, OnInit ,EventEmitter, Input} from 'angular2/core';
 import {FORM_DIRECTIVES, FORM_PROVIDERS, Control, FormBuilder, Validators} from "angular2/common";
 import {UNI_CONTROL_DIRECTIVES} from '../controls';
 import {UniRadioGroup} from "../controls/radioGroup/uniRadioGroup";
@@ -21,24 +21,24 @@ export enum FIELD_TYPES {
     selector: 'uni-form',
     directives: [FORM_DIRECTIVES, UniField, UniFieldset, UniGroup, UniComponentLoader],
     providers: [FORM_PROVIDERS],
-    inputs: ['fields'],
+    inputs: ['config'],
     outputs: ['uniFormSubmit'],
     template: `
-        <form (submit)="onSubmit(form)" [ngFormModel]="form">
-            <template ngFor #field [ngForOf]="fields" #i="index">
+        <form (submit)="submit()" [ngFormModel]="form">
+            <template ngFor #field [ngForOf]="config.fields" #i="index">
                 <uni-component-loader
                     [type]="field.fieldType"
                     [config]="field">
                 </uni-component-loader>
             </template>
-            <button type="submit" [disabled]="!form.valid">submit</button>
+            <button type="submit" [disabled]="!form.valid" [hidden]="config.isSubmitButtonHidden">submit</button>
         </form>
     `
 })
 export class UniForm {
 
     form;
-    fields;
+    @Input() config;
     uniFormSubmit:EventEmitter<any> = new EventEmitter<any>(true);
     fbControls = {};
 
@@ -49,14 +49,14 @@ export class UniForm {
         return this.uniFormSubmit;
     }
 
-    onSubmit(form) {
-        this.updateModel(this.fields, form.value);
-        this.uniFormSubmit.emit(form);
+    submit() {
+        this.updateModel(this.config.fields, this.form.value);
+        this.uniFormSubmit.emit(this.form);
         return false;
     }
 
     ngOnInit() {
-        this.form = this.extendFields(this.fields);
+        this.form = this.createFormControlsAndAddValidators(this.config.fields);
     }
 
     hasError(field) {
@@ -64,7 +64,10 @@ export class UniForm {
     }
 
 
-    updateModel(config, formValue) {
+    updateModel(config?, formValue?) {
+        var config = config || this.config.fields;
+        var formValue = formValue || this.form.value;
+
         for (let i = 0; i < config.length; i++) {
             let field = config[i];
             if (field instanceof UniFieldBuilder) {
@@ -78,20 +81,20 @@ export class UniForm {
         }
     }
 
-    private extendFields(config) {
+    private createFormControlsAndAddValidators(config) {
         for (let i = 0; i < config.length; i++) {
             let field = config[i];
             if (field instanceof UniFieldBuilder) {
-                this.extendField(field);
+                this.addValidators(field);
                 this.fbControls[field.field] = field.control;
             } else {
-                this.extendFields(field.fields);
+                this.createFormControlsAndAddValidators(field.fields);
             }
         }
         return this.fb.group(this.fbControls);
     }
 
-    private extendField(c) {
+    private addValidators(c) {
         let syncValidators = this.composeSyncValidators(c);
         let asyncValidators = this.composeAsyncValidators(c);
         let messages = this.composeMessages(c);

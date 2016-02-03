@@ -92,7 +92,7 @@ export class CompanySettings implements OnInit {
         web.setLabel('Web')
             .setModel(this.company)
             .setModelField('WebAddress')
-            .setType(UNI_CONTROL_TYPES.TEXT);
+            .setType(UNI_CONTROL_DIRECTIVES[10]);
 
         //TODO
         //Contact information should be styled according to standard - when this is ready.
@@ -196,7 +196,7 @@ export class CompanySettings implements OnInit {
         periodSeriesAccountAll.setLabel('RegnskapsperioderAll')
             .setModel(this.periodSeries[this.company.PeriodSeriesAccountID])
             .setModelField('type')
-            .setType(UNI_CONTROL_TYPES.DROPDOWN)
+            .setType(UNI_CONTROL_DIRECTIVES[3])
             .setKendoOptions({
                 dataSource: this.periodSeries,
                 dataTextField: 'Name',
@@ -208,7 +208,7 @@ export class CompanySettings implements OnInit {
         periodSeriesAccount.setLabel('Regnskapsperioder')
             .setModel(this.periodSeries[this.company.PeriodSeriesAccountID])
             .setModelField('type')
-            .setType(UNI_CONTROL_TYPES.DROPDOWN)
+            .setType(UNI_CONTROL_DIRECTIVES[3])
             .setKendoOptions({
                 dataSource: new kendo.data.DataSource({
                     data: this.periodSeries,
@@ -222,7 +222,7 @@ export class CompanySettings implements OnInit {
         periodSeriesVat.setLabel('Mva perioder')
             .setModel(this.periodSeries[this.company.PeriodSeriesVatID])
             .setModelField('type')
-            .setType(UNI_CONTROL_TYPES.DROPDOWN)
+            .setType(UNI_CONTROL_DIRECTIVES[3])
             .setKendoOptions({
                 dataSource: new kendo.data.DataSource({
                     data: this.periodSeries,

@@ -17,7 +17,7 @@ import {UniFieldBuilder} from "./uniFieldBuilder";
 export class UniField {
     config;
     CONTROL_TYPES;
-    constructor(){
+    constructor() {
         this.CONTROL_TYPES = UNI_CONTROL_TYPES;
     }
 

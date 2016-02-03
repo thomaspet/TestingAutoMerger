@@ -2,10 +2,11 @@ import {UniFieldBuilder} from './uniFieldBuilder';
 import {UniFieldsetBuilder} from './uniFieldsetBuilder';
 import {UniGroupBuilder} from './uniGroupBuilder';
 import {FIELD_TYPES} from './uniForm';
- 
+
 export class UniFormBuilder {
     editMode: boolean = true;
     fields:Array<UniFieldBuilder|UniFieldsetBuilder|UniGroupBuilder>=[];
+    isSubmitButtonHidden: boolean = false;
 
     constructor() {}
 
@@ -33,6 +34,14 @@ export class UniFormBuilder {
 
     isEditable() {
         return this.editMode;
+    }
+
+    hideSubmitButton() {
+        this.isSubmitButtonHidden = true;
+    }
+
+    showSubmitButton() {
+        this.isSubmitButtonHidden = false;
     }
 
     config() {
