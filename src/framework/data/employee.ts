@@ -8,7 +8,8 @@ import 'rxjs/add/observable/from';
 @Injectable()
 export class EmployeeDS {
     baseUrl = 'http://devapi.unieconomy.no:80/api';
-    expandedProperties = 'BusinessRelationInfo,Employments,BankAccounts,EmployeeCategoryLinks,VacationRateEmployee,Localization';
+    //baseUrl = 'http://localhost:27831/api';
+    expandedProperties = 'BusinessRelationInfo,Employments.Localization.BusinessRelationInfo,BankAccounts,EmployeeCategoryLinks,VacationRateEmployee,Localization';
     employees: Array<any> = [];
     constructor(private http:Http) {
         

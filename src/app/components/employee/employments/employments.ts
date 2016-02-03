@@ -16,25 +16,26 @@ declare var jQuery;
 })
 export class Employment {
     currentEmployee;
-    employmentList;
     form: UniFormBuilder;
+    formConfigs: UniFormBuilder[];
     
     constructor(private Injector:Injector, employeeDS:EmployeeDS) {
         let params = Injector.parent.parent.get(RouteParams);
         employeeDS.get(params.get('id'))
         .subscribe(response => {
             this.currentEmployee = response;
-            this.employmentList = this.currentEmployee.Employments;
             console.log(response);
-            this.buildGroupConfigs();
+            this.buildFormConfigs();
+            console.log(this.formConfigs);
         },error => console.log(error));
     }
     
-    buildGroupConfigs() {
+    buildFormConfigs() {
+        this.formConfigs = [];
         var formbuilder = new UniFormBuilder();
-        this.employmentList.forEach((employment) => {
+        this.currentEmployee.Employments.forEach((employment) => {
             var group = new UniGroupBuilder(employment.JobName);
-    
+            
             var jobCode = new UniFieldBuilder();
             jobCode.setLabel('stillingskode')
             .setModel(employment)
@@ -51,6 +52,12 @@ export class Employment {
             startDate.setLabel('Startdato')
             .setModel(employment)
             .setModelField('StartDate')
+            .setType(UNI_CONTROL_TYPES.DATEPICKER)
+            
+            var endDate = new UniFieldBuilder();
+            endDate.setLabel('Sluttdato')
+            .setModel(employment)
+            .setModelField('EndDate')
             .setType(UNI_CONTROL_TYPES.DATEPICKER)
             
             var monthRate = new UniFieldBuilder();
@@ -71,21 +78,53 @@ export class Employment {
             .setModelField('WorkPercent')
             .setType(UNI_CONTROL_TYPES.NUMERIC)
             
-            var localization = new UniFieldBuilder();
-            localization.setLabel('Lokalitet')
+            if(typeof employment.Localization !== "undefined") 
+            {
+                if(typeof employment.Localization.BusinessRelationInfo !== "undefined")
+                {
+                    var localization = new UniFieldBuilder();
+                    localization.setLabel('Lokalitet')
+                    .setModel(employment.Localization.BusinessRelationInfo)
+                    .setModelField('Name')
+                    .setType(UNI_CONTROL_TYPES.TEXT)
+                }
+            }
+            else 
+            {
+                var localization = new UniFieldBuilder();
+                    localization.setLabel('Lokalitet')
+                    .setModel(employment)
+                    .setModelField('LocalizationID')
+                    .setType(UNI_CONTROL_TYPES.NUMERIC)
+            }
+            
+            group.addFields(jobCode, jobName); //, startDate, endDate, monthRate, hourRate, workPercent, localization);
+
+            var readmore = new UniGroupBuilder("MER...");
+            
+            var salaryChanged = new UniFieldBuilder();
+            salaryChanged.setLabel('Endret lønn')
             .setModel(employment)
-            .setModelField('LocalizationID')
-            .setType(UNI_CONTROL_TYPES.NUMERIC)
+            .setModelField('LastSalaryChangeDate')
+            .setType(UNI_CONTROL_TYPES.DATEPICKER);
         
-            group.addFields(jobCode, jobName, startDate, monthRate, hourRate, workPercent, localization);
+            var workpercentChange = new UniFieldBuilder();
+            workpercentChange.setLabel('Endret stillingprosent')
+            .setModel(employment)
+            .setModelField('LastWorkPercentChangeDate')
+            .setType(UNI_CONTROL_TYPES.DATEPICKER)
+            
+            readmore.addFields(salaryChanged, workpercentChange);
             
             formbuilder.addField(group);
+            //formbuilder.addFields(readmore);
             
-            this.form = formbuilder;
+            //this.form = formbuilder;
+            this.formConfigs.push(formbuilder);
         });
     }
     
     onFormSubmit(event, index) {
-        jQuery.merge(this.employmentList[index], event.value);
+        jQuery.merge(this.currentEmployee.Employments[index], event.value);
     }
 }
