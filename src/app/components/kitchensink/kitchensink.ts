@@ -3,8 +3,10 @@ import {Component} from 'angular2/core';
 import {UniTable, UniTableConfig} from '../../../framework/uniTable';
 import {TabService} from '../navbar/tabstrip/tabService';
 import {Http, Headers, Response} from 'angular2/http';
-import { Observable } from 'rxjs/Observable';
+import {Observable} from 'rxjs/Observable';
 import 'rxjs/add/operator/map';
+
+import {UniHttpService, UniHttpRequest} from '../../../framework/data/uniHttpService';
 
 @Component({
 	selector: 'kitchensink',
@@ -16,8 +18,9 @@ export class Kitchensink {
 	editableTableConfig;
     tempTableConfig;
 		
-	constructor(private tabService: TabService, private http: Http) {	
-		this.tabService.addTab({ name: 'Kitchensink', url: '/kitchensink' });        
+	constructor(private tabService: TabService, private http: Http, private uniHttp: UniHttpService) {	
+
+        this.tabService.addTab({ name: 'Kitchensink', url: '/kitchensink' });        
         
         // Read-only grid
         this.readOnlyTableConfig = new UniTableConfig('http://devapi.unieconomy.no/api/biz/companysettings')
@@ -84,5 +87,5 @@ export class Kitchensink {
             {field: 'email', title: 'Epost'},
         ])
         
-	}
+    }
 }
