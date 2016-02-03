@@ -20,7 +20,6 @@ export class UniFieldBuilder {
         this.model = model || undefined;
         this.field = modelField || '';
         this.fieldType = FIELD_TYPES.FIELD;
-        
         return this;
     }
 

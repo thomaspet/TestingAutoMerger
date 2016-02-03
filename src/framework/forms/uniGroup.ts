@@ -13,7 +13,7 @@ import {FIELD_TYPES} from './uniForm';
             <div class="collapsable-content">
                 <template ngFor #field [ngForOf]="config.fields" #i="index">
                     <template [ngIf]="field.fieldType === FIELD_TYPES.FIELD">
-                        <uni-field [config]="field"></uni-field>
+                        <uni-field [config]="field" [ngClasses]="config.classes" [class.error]="hasError(field)"></uni-field>
                     </template>
                     <template [ngIf]="field.fieldType === FIELD_TYPES.FIELDSET">
                         <uni-fieldset [config]="field"></uni-fieldset>
@@ -29,5 +29,8 @@ export class UniGroup {
     FIELD_TYPES;
     constructor() {
         this.FIELD_TYPES = FIELD_TYPES;
+    }
+    hasError(field) {
+        return field.control.touched && !field.control.valid;
     }
 }

@@ -1,4 +1,5 @@
 import {Component, Injector} from 'angular2/core';
+import {Validators} from 'angular2/common';
 import {RouteParams} from 'angular2/router';
 
 import {UniForm} from '../../../../framework/forms/uniForm';
@@ -31,8 +32,8 @@ export class PersonalDetails {
         employeeDS.get(routeParams.get('id'))
             .subscribe(response => this.employee = response,error => console.log(error));
         
-        employeeDS.getModel().subscribe(response => console.log(response));
-        employeeDS.getValidation().subscribe(response => console.log(response));
+        //employeeDS.getModel().subscribe(response => console.log(response));
+        //employeeDS.getValidation().subscribe(response => console.log(response));
         
         var formBuilder = new UniFormBuilder();
         
@@ -42,6 +43,7 @@ export class PersonalDetails {
         name.setLabel('Fornavn')
         .setModel(model)
         .setModelField('name')
+        .addSyncValidator("required",Validators.required,"Name is required")
         .setType(UNI_CONTROL_TYPES.TEXT)
         
         var middleName = new UniFieldBuilder();

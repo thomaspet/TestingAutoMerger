@@ -1,0 +1,11 @@
+<div class="login_component">
+    <form id="signupForm" class="login_form" (submit)="signUp($event)">
+        <p>{{errorMessage}}</p>
+        <label class="sr-only">asdf</label>
+        <input type="text" [(ngModel)]="newUser.companyName">
+        <input type="text" [(ngModel)]="newUser.name">
+        <input type="email" [(ngModel)]="newUser.email">
+        <input type="text" [(ngModel)]="newUser.username">
+        <input type="password" [(ngModel)]="newUser.password">
+    </form>
+</div>
