@@ -1,9 +1,9 @@
-﻿import {Component, OnInit} from 'angular2/core';
+﻿import {Component, OnInit, Inject, provide} from 'angular2/core';
+import {RouteConfig, RouteDefinition, RouteParams, ROUTER_DIRECTIVES} from 'angular2/router';//from Emp
 import {NgFor, NgIf, Validators, Control, FormBuilder} from 'angular2/common';
-import {Http, Headers} from 'angular2/http';
+import {Http, Headers, Response} from 'angular2/http';
 import {Observable} from 'rxjs/Observable';
 import 'rxjs/add/operator/map';
-import 'rxjs/add/observable/fromEvent';
 
 import {UniForm, FIELD_TYPES} from '../../../../framework/forms/uniForm';
 import {UniFormBuilder} from "../../../../framework/forms/uniFormBuilder";
@@ -13,10 +13,15 @@ import {UniGroupBuilder} from '../../../../framework/forms/uniGroupBuilder';
 import {UNI_CONTROL_TYPES} from '../../../../framework/controls/types';
 import {UNI_CONTROL_DIRECTIVES} from '../../../../framework/controls';
 
+import {ApplicationNav} from '../../common/applicationNav/applicationNav';
+
+import {CompanySettingsDS} from '../../../../framework/data/companySettings';
+
 @Component({
     selector: 'settings',
     templateUrl: 'app/components/settings/companySettings/companySettings.html',
-    directives: [NgFor, NgIf, UniForm]
+    providers: [provide(CompanySettingsDS, { useClass: CompanySettingsDS })],
+    directives: [ROUTER_DIRECTIVES, NgFor, NgIf, UniForm]
 })
 
 export class CompanySettings implements OnInit {
@@ -27,8 +32,12 @@ export class CompanySettings implements OnInit {
     headers: Headers;
     company: any;
     activeCompany: any;
+    companyTypes: Array<any> = [];
+    currencies: Array<any> = [];
+    periodSeries: Array<any> = [];
+    accountGroupSets: Array<any> = [];
 
-    constructor(public http: Http) { }
+    constructor(private routeParams: RouteParams, private companySettingsDS: CompanySettingsDS) { }
 
     ngOnInit() {
 
@@ -41,26 +50,29 @@ export class CompanySettings implements OnInit {
         this.headers = new Headers();
         this.headers.append('Client', 'client1');
 
-        var url = 'http://devapi.unieconomy.no:80/api/biz/companysettings/' + this.id + '?expand=Address,Emails,Phones';
-
-        //Gets settings for the company currently active
-        this.http.get(url, { headers: this.headers })
-            .map(res => res.json())
-            .subscribe(data => this.dataReady(data));
+        Observable.forkJoin(
+            this.companySettingsDS.get(this.id),
+            this.companySettingsDS.getCompanyTypes(),
+            this.companySettingsDS.getCurrencies(),
+            this.companySettingsDS.getPeriodSeries(),
+            this.companySettingsDS.getAccountGroupSets()
+        ).subscribe(results => this.dataReady(results));
 
     }
 
-    //Called when data is returned from the API
     dataReady(data) {
+        console.log("dataReady3 called");
 
         if (data === null) {
             this.error = true;
             return;
         }
 
-        this.company = data;
-
-        var companyTypes = ['Aksjeselskap', 'Enkeltmansforetak', 'Organisasjon'];
+        this.company = data[0];
+        this.companyTypes = data[1];
+        this.currencies = data[2];
+        this.periodSeries = data[3];
+        this.accountGroupSets = data[4];
 
         var formBuilder = new UniFormBuilder();
 
@@ -76,6 +88,14 @@ export class CompanySettings implements OnInit {
             .setModelField('OrganizationNumber')
             .setType(UNI_CONTROL_DIRECTIVES[10]);
 
+        var web = new UniFieldBuilder();
+        web.setLabel('Web')
+            .setModel(this.company)
+            .setModelField('WebAddress')
+            .setType(UNI_CONTROL_TYPES.TEXT);
+
+        //TODO
+        //Contact information should be styled according to standard - when this is ready.
         var street = new UniFieldBuilder();
         street.setLabel('Adresse')
             .setModel(this.company.Address[0])
@@ -89,7 +109,7 @@ export class CompanySettings implements OnInit {
             .setType(UNI_CONTROL_DIRECTIVES[10]);
 
         var postNumber = new UniFieldBuilder();
-        postNumber.setLabel('Post Sted')
+        postNumber.setLabel('Postnr')
             .setModel(this.company.Address[0])
             .setModelField('PostalCode')
             .setType(UNI_CONTROL_DIRECTIVES[10]);
@@ -110,10 +130,13 @@ export class CompanySettings implements OnInit {
         email.setLabel('Epost')
             .setModel(this.company.Emails[0])
             .setModelField('EmailAddress')
-            .setType(UNI_CONTROL_DIRECTIVES[10]);
+            .setType(UNI_CONTROL_DIRECTIVES[11]);
 
+        /********************************************************************/
+        /*********************  Selskapsoppsett    **************************/
         var companySetup = new UniGroupBuilder("Selskapsoppsett");
 
+        //TODO:
         //Checkbox not working atm
         var companyReg = new UniFieldBuilder();
         companyReg.setLabel('Foretaksregister')
@@ -128,13 +151,23 @@ export class CompanySettings implements OnInit {
             .setModelField('TaxMandatory')
             .setType(UNI_CONTROL_DIRECTIVES[8]);
 
+        /*        var companyType = new UniFieldBuilder();
+                companyType.setLabel('Firmatype')
+                    .setModel(this.companyTypes[this.company.CompanyTypeID])
+                    .setModelField('type')
+                    .setType(UNI_CONTROL_TYPES.DROPDOWN)
+                    .setKendoOptions({
+                        dataSource: this.companyTypes
+                    });*/
         var companyType = new UniFieldBuilder();
         companyType.setLabel('Firmatype')
-            .setModel(companyTypes[this.company.CompanyTypeID])
+            .setModel(this.companyTypes[this.company.CompanyTypeID])
             .setModelField('type')
             .setType(UNI_CONTROL_DIRECTIVES[3])
             .setKendoOptions({
-                dataSource: companyTypes
+                dataSource: this.companyTypes,
+                dataTextField: 'FullName',
+                dataValueField: 'ID'
             });
 
         var companyCurrency = new UniFieldBuilder();
@@ -142,14 +175,84 @@ export class CompanySettings implements OnInit {
             .setModel(this.company)
             .setModelField('BaseCurrency')
             .setType(UNI_CONTROL_DIRECTIVES[3])
-            .setKendoOptions({ dataSource: ['USD', 'NOK', 'EUR', 'GPD'] });
+            .setKendoOptions({
+                dataSource: this.currencies,
+                dataTextField: 'Code',
+                dataValueField: 'Code'
+            });
 
         companySetup.addFields(companyReg, taxMandatory, companyType, companyCurrency);
 
+        /********************************************************************/
+        /*********************  Regnskapsinnstillinger    *******************/
         var accountingSettings = new UniGroupBuilder('Regnskapsinnstillinger');
 
-        if (this.company.VatLockedDate !== null && this.company.AccountingLockedDate !== null) {
+        //TODO:
+        //.setModel(this.periodSeries[this.company.PeriodSeriesAccountID]) 
+        //is not a correct selection!!
+        //this.periodSeries.ID should be equal the value of .setModelField('type')
+        //periodSeriesAccountAll is only for test purpose of the above problem.
+        var periodSeriesAccountAll = new UniFieldBuilder();
+        periodSeriesAccountAll.setLabel('RegnskapsperioderAll')
+            .setModel(this.periodSeries[this.company.PeriodSeriesAccountID])
+            .setModelField('type')
+            .setType(UNI_CONTROL_TYPES.DROPDOWN)
+            .setKendoOptions({
+                dataSource: this.periodSeries,
+                dataTextField: 'Name',
+                dataValueField: 'ID'
+            });
+
+
+        var periodSeriesAccount = new UniFieldBuilder();
+        periodSeriesAccount.setLabel('Regnskapsperioder')
+            .setModel(this.periodSeries[this.company.PeriodSeriesAccountID])
+            .setModelField('type')
+            .setType(UNI_CONTROL_TYPES.DROPDOWN)
+            .setKendoOptions({
+                dataSource: new kendo.data.DataSource({
+                    data: this.periodSeries,
+                    filter: { field: "SeriesType", operator: "eq", value: "1" }
+                }),
+                dataTextField: 'Name',
+                dataValueField: 'ID'
+            });
+
+        var periodSeriesVat = new UniFieldBuilder();
+        periodSeriesVat.setLabel('Mva perioder')
+            .setModel(this.periodSeries[this.company.PeriodSeriesVatID])
+            .setModelField('type')
+            .setType(UNI_CONTROL_TYPES.DROPDOWN)
+            .setKendoOptions({
+                dataSource: new kendo.data.DataSource({
+                    data: this.periodSeries,
+                    filter: { field: "SeriesType", operator: "eq", value: "0" }
+                }),
+                dataTextField: 'Name',
+                dataValueField: 'ID'
+            });
+            
+       
+
+        //TODO: 
+        //Mangler foreløpig kobling mellom Firma og kontogruppeinndeling
+        /*var accountGroupSets = new UniFieldBuilder();
+        accountGroupSets.setLabel('Kontogruppeinndeling')
+            .setModel(this.periodSeries[this.company.PeriodSeriesVatID])
+            .setModelField('type')
+            .setType(UNI_CONTROL_TYPES.DROPDOWN)
+            .setKendoOptions({
+                dataSource: this.periodSeries,
+                dataTextField: 'Name',
+                dataValueField: 'ID'
+            });
+*/
+
+        if (this.company.AccountingLockedDate !== null) {
             this.company.AccountingLockedDate = new Date(this.company.AccountingLockedDate);
+        }
+
+        if (this.company.VatLockedDate !== null) {
             this.company.VatLockedDate = new Date(this.company.VatLockedDate);
         }
 
@@ -166,6 +269,7 @@ export class CompanySettings implements OnInit {
             .setType(UNI_CONTROL_DIRECTIVES[2])
             .setKendoOptions({});
 
+        //TODO
         //Checkbox not working atm
         var forceSupplierInvoiceApproval = new UniFieldBuilder();
         forceSupplierInvoiceApproval.setLabel('Tvungen godkjenning')
@@ -173,24 +277,15 @@ export class CompanySettings implements OnInit {
             .setModelField('ForceSupplierInvoiceApproval')
             .setType(UNI_CONTROL_DIRECTIVES[8]);
 
-        accountingSettings.addFields(accountingLockedDate, vatLockedDate, forceSupplierInvoiceApproval);
+        accountingSettings.addFields(periodSeriesAccount, periodSeriesAccountAll, periodSeriesVat, accountingLockedDate, vatLockedDate, forceSupplierInvoiceApproval);
 
-        
-
-        formBuilder.addFields(companyName, orgNr, street, street2, postNumber, place, phone, email, companySetup, accountingSettings);
+        formBuilder.addFields(companyName, orgNr, web, street, street2, postNumber, place, phone, email, companySetup, accountingSettings);
 
         this.form = formBuilder;
     }
 
     submitForm() {
-        this.http.put(
-            'http://devapi.unieconomy.no:80/api/biz/companysettings/1',
-            JSON.stringify(this.company),
-            { headers: this.headers })
-            .map(res => console.log(res))
-            .subscribe(
-            data => console.log(data),
-            err => console.log(err))
-        console.log(this.company);
+        console.log("submitForm called");
+        this.companySettingsDS.update(this.headers, this.company);
     }
 }
