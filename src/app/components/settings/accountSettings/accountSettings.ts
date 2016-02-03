@@ -14,7 +14,7 @@ export class AccountSettings {
     constructor() {
     }
     
-    change(account) {
+    changeAccount(account) {
         this.account = account;
     }    
 }

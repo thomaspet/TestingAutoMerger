@@ -7,7 +7,7 @@ import {UniField} from './uniField';
 import {UniFieldBuilder} from './uniFieldBuilder';
 import {UniFieldset} from './uniFieldset';
 import {UniGroup} from './uniGroup';
-import {UniCombo} from './uniCombo';
+import {UniComboGroup} from './uniComboGroup';
 import {UniComponentLoader} from "../core/componentLoader";
 
 declare var _;
@@ -21,7 +21,7 @@ export enum FIELD_TYPES {
 
 @Component({
     selector: 'uni-form',
-    directives: [FORM_DIRECTIVES, UniField, UniFieldset, UniGroup, UniComponentLoader, UniCombo],
+    directives: [FORM_DIRECTIVES, UniField, UniFieldset, UniGroup, UniComboGroup, UniComponentLoader],
     providers: [FORM_PROVIDERS],
     inputs: ['config'],
     outputs: ['uniFormSubmit'],

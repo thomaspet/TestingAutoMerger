@@ -1,22 +1,22 @@
 import {UniFieldBuilder} from './uniFieldBuilder';
 import {UniFieldsetBuilder} from './uniFieldsetBuilder';
 import {UniGroupBuilder} from './uniGroupBuilder';
-import {UniCombo} from './uniCombo';
+import {UniComboGroup} from './uniComboGroup';
 import {FIELD_TYPES} from './uniForm';
 
 export class UniFormBuilder {
     editMode: boolean = true;
-    fields:Array<UniFieldBuilder|UniFieldsetBuilder|UniGroupBuilder|UniCombo>=[];
+    fields:Array<UniFieldBuilder|UniFieldsetBuilder|UniGroupBuilder|UniComboGroup>=[];
     isSubmitButtonHidden: boolean = false;
 
     constructor() {}
 
-    addField(field:UniFieldBuilder|UniFieldsetBuilder|UniGroupBuilder|UniCombo) {
+    addField(field:UniFieldBuilder|UniFieldsetBuilder|UniGroupBuilder|UniComboGroup) {
         this.fields.push(field);
         return this;
     }
 
-    addFields(...fields: Array<UniFieldBuilder|UniFieldsetBuilder|UniGroupBuilder|UniCombo>) {
+    addFields(...fields: Array<UniFieldBuilder|UniFieldsetBuilder|UniGroupBuilder|UniComboGroup>) {
         fields.forEach((field)=>{
             this.fields.push(field);
         });

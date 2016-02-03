@@ -2,7 +2,7 @@ import {Component} from 'angular2/core';
 import {UniField} from './uniField';
 
 @Component({
-    selector: 'uni-combo',
+    selector: 'uni-combo-group',
     inputs: ['config'],
     directives: [UniField],
     template: `<legend *ngIf="config.legend">{{config.legend}}</legend>
@@ -10,7 +10,7 @@ import {UniField} from './uniField';
             <uni-field [config]="field" [ngClass]="field.classes" [class.error]="hasError(field)"></uni-field>
         </template>`,
 })
-export class UniCombo {
+export class UniComboGroup {
     config;
 
     constructor() {

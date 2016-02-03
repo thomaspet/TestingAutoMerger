@@ -1,4 +1,4 @@
-import {Component, provide, Input, SimpleChange} from 'angular2/core';
+import {Component, provide, Input} from 'angular2/core';
 import {Validators, Control, FormBuilder} from 'angular2/common';
 import {UniForm,FIELD_TYPES} from '../../../../../framework/forms/uniForm';
 import {UNI_CONTROL_DIRECTIVES} from '../../../../../framework/controls';
@@ -7,13 +7,14 @@ import {Observable} from 'rxjs/Observable';
 
 import {UniFormBuilder} from '../../../../../framework/forms/uniFormBuilder';
 import {UniFieldsetBuilder} from '../../../../../framework/forms/uniFieldsetBuilder';
-import {UniComboBuilder} from '../../../../../framework/forms/uniComboBuilder';
+import {UniComboGroupBuilder} from '../../../../../framework/forms/uniComboGroupBuilder';
 import {UniFieldBuilder} from '../../../../../framework/forms/uniFieldBuilder';
 import {UniGroupBuilder} from '../../../../../framework/forms/uniGroupBuilder';
 import {AccountingDS} from '../../../../../framework/data/accounting';
 import {CurrencyDS} from '../../../../../framework/data/currency';
 import {DimensionList} from '../dimensionList/dimensionList';
 import {AccountGroupList} from '../accountGroupList/accountGroupList';
+import {UniComponentLoader} from '../../../../../framework/core/componentLoader';
 
 @Component({
     selector: 'account-details',
@@ -27,7 +28,6 @@ export class AccountDetails {
     model;
     currencies;
     vattypes;
-    dimensionsTableConfig;
     
     constructor(fb:FormBuilder, private accountingDS:AccountingDS, private currencyDS:CurrencyDS) {
     }
@@ -53,7 +53,7 @@ export class AccountDetails {
             .setModelField('AccountName')
             .setType(UNI_CONTROL_DIRECTIVES[UNI_CONTROL_TYPES.TEXT])
             
-        var accountCombo = new UniComboBuilder()
+        var accountCombo = new UniComboGroupBuilder()
         accountCombo.addClass('combo');
         accountCombo.addFields(accountNumber, accountName);
             
@@ -157,21 +157,20 @@ export class AccountDetails {
         console.log("ACCOUNT " + this.account);
    
         if (this.account == undefined) {
-            this.model = { ID: 1, AccountNumber: "4000", AccountName: "Test" }          
+            this.model = { ID: 1, AccountNumber: "4000", AccountName: "Test" }  
         } else {
-            console.log("CHANGED MODEL");
-            this.model = { ID: 7, AccountNumber: "4001", AccountName: "Test 2" }  
+            this.model = { ID: 7, AccountNumber: "4001", AccountName: "Test 2" } 
         } 
     }
-         
+              
     ngOnInit() {
-        this.update(); 
-        this.accountReady();       
-    }
-    
+        this.update();
+        this.accountReady();
+    }      
+                    
     ngOnChanges() {
         console.log("CHANGES");
-        this.update();  
+        this.update();       
     }
              
     onSubmit(value) {

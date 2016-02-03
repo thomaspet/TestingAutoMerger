@@ -5,13 +5,13 @@ import {Component, Output, EventEmitter} from 'angular2/core';
     templateUrl: 'app/components/settings/accountSettings/accountList/accountList.html'
 })
 export class AccountList {
-    @Output() change = new EventEmitter<number>();
+    @Output() uniAccountChange = new EventEmitter<number>();
  
     constructor() {
     }
     
     test()
     {
-        this.change.emit(7);
+        this.uniAccountChange.emit(7);
     }
 }

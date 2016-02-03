@@ -1,9 +1,9 @@
 import {UniFieldBuilder} from './uniFieldBuilder';
 import {FIELD_TYPES} from "./uniForm";
 import {Type} from 'angular2/core';
-import {UniCombo} from './uniCombo';
+import {UniComboGroup} from './uniComboGroup';
 
-export class UniComboBuilder {
+export class UniComboGroupBuilder {
     legend: string = '';
     fields: Array<UniFieldBuilder>=[];
     fieldType: Type;
@@ -11,7 +11,7 @@ export class UniComboBuilder {
         
     constructor(legend?:string) {
         this.legend = legend || "";
-        this.fieldType = UniCombo;
+        this.fieldType = UniComboGroup;
     }
 
     addField(field:UniFieldBuilder) {

@@ -1,13 +1,13 @@
 import {UniFieldBuilder} from './uniFieldBuilder';
 import {UniFieldsetBuilder} from './uniFieldsetBuilder';
-import {UniComboBuilder} from './uniComboBuilder';
-import {FIELD_TYPES} from "./uniForm";
+import {UniComboGroupBuilder} from './uniComboGroupBuilder';
 import {UniGroup} from "./uniGroup";
+import {FIELD_TYPES} from "./uniForm";
 import {Type} from 'angular2/core';
 
 export class UniGroupBuilder {
     legend: string = '';
-    fields: Array<UniFieldBuilder|UniFieldsetBuilder|UniComboBuilder>=[];
+    fields: Array<UniFieldBuilder|UniFieldsetBuilder|UniComboGroupBuilder>=[];
     collapsed: boolean = false;
     fieldType:Type;
     constructor(legend?:string) {
@@ -15,12 +15,12 @@ export class UniGroupBuilder {
         this.fieldType = UniGroup;
     }
 
-    addField(field:UniFieldBuilder|UniFieldsetBuilder|UniComboBuilder) {
+    addField(field:UniFieldBuilder|UniFieldsetBuilder|UniComboGroupBuilder) {
         this.fields.push(field);
         return this;
     }
 
-    addFields(...fields:Array<UniFieldBuilder|UniFieldsetBuilder|UniComboBuilder>) {
+    addFields(...fields:Array<UniFieldBuilder|UniFieldsetBuilder|UniComboGroupBuilder>) {
         fields.forEach((field)=>{
             this.fields.push(field);
         });
