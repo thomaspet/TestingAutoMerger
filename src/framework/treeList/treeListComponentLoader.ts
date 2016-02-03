@@ -13,7 +13,7 @@ import {TREE_LIST_TYPE} from './treeList';
 //This could just be a component loader for reuse??
 export class TreeListComponentLoader implements OnInit {
     
-    @Input() data;
+    @Input() componentConfig;
     compRef;
 
     constructor(public dynamicComponentLoader: DynamicComponentLoader, public elementRef: ElementRef, public http: Http) { }
@@ -23,11 +23,11 @@ export class TreeListComponentLoader implements OnInit {
         if (this.compRef) {
             this.compRef.dispose();
         }
-        switch (this.data.type) {
+        switch (this.componentConfig.type) {
             case TREE_LIST_TYPE.TABLE:
                 this.dynamicComponentLoader.loadIntoLocation(UniTable, this.elementRef, 'content')
                     .then((comp) => {
-                        comp.instance.config = this.data.content;
+                        comp.instance.config = this.componentConfig.content;
                         this.compRef = comp;
                     });
                 break;
@@ -36,8 +36,8 @@ export class TreeListComponentLoader implements OnInit {
                 this.dynamicComponentLoader.loadIntoLocation(UniForm, this.elementRef, 'content')
                     .then((comp) => {
                         this.compRef = comp;
-                        comp.instance.fields = this.data.content.config();
-                        comp.instance.uniFormSubmit.subscribe(this.data.formFunction);
+                        comp.instance.fields = this.componentConfig.content.config();
+                        comp.instance.uniFormSubmit.subscribe(this.componentConfig.formFunction);
 
                     });
                 break;

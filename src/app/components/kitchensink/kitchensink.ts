@@ -93,7 +93,7 @@ export class Kitchensink {
             .setType(TREE_LIST_TYPE.TEXT)
             .setContent('HELLO WORLD');
 
-        var konto1 = new TreeListItem('KontoText')
+        var konto1 = new TreeListItem('TEXT')
             .setType(TREE_LIST_TYPE.TEXT)
             .setContent('HELLO WORLD');
 
@@ -113,7 +113,7 @@ export class Kitchensink {
          
         var kontogruppe1 = new TreeListItem('Kontogruppe1')
             .setType(TREE_LIST_TYPE.LIST)
-            .addTreeListItems([konto1, konto4, konto2, konto3 ]);
+            .addTreeListItems([konto1, konto2, konto4, konto3 ]);
 
         var kontogruppe2 = new TreeListItem('Kontogruppe2')
             .setType(TREE_LIST_TYPE.LIST)

@@ -2,15 +2,15 @@
     <li *ngFor="#item of treeListItems">
         
         <!-- Item is another list -->
-        <div *ngIf="item.type == type.LIST" >
+        <section *ngIf="item.type == type.LIST" >
             <span [ngClass]="{button_icon_expanded: item.expanded, button_icon_collapsed: !item.expanded}" (click)="item.toggle()">{{item.title}}</span>
             <uni-tree-list [treeListItems]="item.treeListItems" *ngIf="item.expanded"></uni-tree-list>
-        </div>
+        </section>
         
         <!-- Item is form, table or text -->
         <div *ngIf="item.type !== type.LIST">
-            <h5 (click)="showContent($event)">{{item.title}}</h5>
-                <tree-list-component-loader *ngIf="item.type === type.TABLE || item.type === type.FORM" [data]="item" class="content_div"></tree-list-component-loader>
+            <h5 (click)="showHideContent($event)">{{item.title}}</h5>
+                <tree-list-component-loader *ngIf="item.type === type.TABLE || item.type === type.FORM" [componentConfig]="item" class="content_div"></tree-list-component-loader>
                 <p *ngIf="item.type == type.TEXT" class="content_div">{{item.content}}</p>
         </div>
     </li>    
