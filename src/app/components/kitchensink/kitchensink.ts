@@ -130,7 +130,7 @@ export class Kitchensink {
             (data) => {
                 console.log('MULTIPLE PUT');
                 console.log(data);
-                //this.testPostMultiple(data);
+                this.testPostMultiple(data);
             },
             error => console.log(error)
         )
@@ -150,14 +150,24 @@ export class Kitchensink {
             (data) => {
                 console.log('POST MULTIPLE');
                 console.log(data);
+                this.testDeleteMultiple(data);
             },
+            error => console.log(error))
+    }
+
+    testDeleteMultiple(data) {
+        this.uniHttp.multipleRequests('DELETE', [
+            { resource: 'companysettings/' + data[0].ID},
+            { resource: 'companysettings/' + data[1].ID},
+        ]).subscribe(
+            (data) => {
+                console.log('DELETE MULTIPLE');
+                console.log(data); },
             error => console.log(error))
     }
 
 
     testHttpService() {
-    
-           
 
         // GET all
         this.uniHttp.get({
@@ -187,30 +197,30 @@ export class Kitchensink {
             }).subscribe(data => {
                 console.log('PUT');
                 console.log(data);
-                this.testGetMultiple();
                 },
                 error => console.log(error)
             );
-            
-            //POST
-            //data.ID = null;
-            //this.uniHttp.post({
-            //    resource: 'companysettings',
-            //    body: data
-            //}).subscribe((data: any) => {
-            //    console.log('POST');
-            //    console.log(data);
 
-            //    // DELETE
-            //    this.uniHttp.delete('companysettings/1')
-            //        .subscribe(data => {
-            //            console.log('DELETE');
-            //            console.log(data)
-            //        },
-            //        error => console.log(error));
-            //    },
-            //    error => console.log(error)
-            //);
+            //POST
+            data.ID = null;
+            this.uniHttp.post({
+                resource: 'companysettings',
+                body: data
+            }).subscribe((data: any) => {
+                console.log('POST');
+                console.log(data);
+
+                // DELETE
+                this.uniHttp.delete({ resource : 'companysettings/' + data.ID })
+                    .subscribe(data => {
+                        console.log('DELETE');
+                        console.log(data)
+                        this.testGetMultiple();
+                    },
+                    error => console.log(error));
+                },
+                error => console.log(error)
+            );
         },
         error => console.log(error));
     }
