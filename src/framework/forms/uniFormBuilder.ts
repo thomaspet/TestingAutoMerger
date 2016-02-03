@@ -3,10 +3,11 @@ import {UniFieldsetBuilder} from './uniFieldsetBuilder';
 import {UniGroupBuilder} from './uniGroupBuilder';
 import {UniCombo} from './uniCombo';
 import {FIELD_TYPES} from './uniForm';
- 
+
 export class UniFormBuilder {
     editMode: boolean = true;
     fields:Array<UniFieldBuilder|UniFieldsetBuilder|UniGroupBuilder|UniCombo>=[];
+    isSubmitButtonHidden: boolean = false;
 
     constructor() {}
 
@@ -36,13 +37,21 @@ export class UniFormBuilder {
         return this.editMode;
     }
 
+    hideSubmitButton() {
+        this.isSubmitButtonHidden = true;
+    }
+
+    showSubmitButton() {
+        this.isSubmitButtonHidden = false;
+    }
+
     config() {
         return this.fields;
     }
     
     _readmode(fields) {
         fields.forEach((field)=>{
-           if (field.fieldType === FIELD_TYPES.FIELD) {
+           if (field instanceof UniFieldBuilder) {
                field.readmode();
            } else {
                this._readmode(field.config());
@@ -52,7 +61,7 @@ export class UniFormBuilder {
     
     _editmode(fields) {
         fields.forEach((field)=>{
-           if (field.fieldType === FIELD_TYPES.FIELD) {
+           if (field instanceof UniFieldBuilder) {
                field.editmode();
            } else {
                this._editmode(field.config());

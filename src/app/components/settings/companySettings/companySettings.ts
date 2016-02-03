@@ -11,6 +11,7 @@ import {UniFieldsetBuilder} from "../../../../framework/forms/uniFieldsetBuilder
 import {UniFieldBuilder} from "../../../../framework/forms/uniFieldBuilder";
 import {UniGroupBuilder} from '../../../../framework/forms/uniGroupBuilder';
 import {UNI_CONTROL_TYPES} from '../../../../framework/controls/types';
+import {UNI_CONTROL_DIRECTIVES} from '../../../../framework/controls';
 
 import {ApplicationNav} from '../../common/applicationNav/applicationNav';
 
@@ -78,19 +79,19 @@ export class CompanySettings implements OnInit {
         companyName.setLabel('Firmanavn')
             .setModel(this.company)
             .setModelField('CompanyName')
-            .setType(UNI_CONTROL_TYPES.TEXT);
+            .setType(UNI_CONTROL_DIRECTIVES[10]);
 
         var orgNr = new UniFieldBuilder();
         orgNr.setLabel('Orgnr.')
             .setModel(this.company)
             .setModelField('OrganizationNumber')
-            .setType(UNI_CONTROL_TYPES.TEXT);
+            .setType(UNI_CONTROL_DIRECTIVES[10]);
 
         var web = new UniFieldBuilder();
         web.setLabel('Web')
             .setModel(this.company)
             .setModelField('WebAddress')
-            .setType(UNI_CONTROL_TYPES.TEXT);
+            .setType(UNI_CONTROL_DIRECTIVES[10]);
 
         //TODO
         //Contact information should be styled according to standard - when this is ready.
@@ -98,38 +99,37 @@ export class CompanySettings implements OnInit {
         street.setLabel('Adresse')
             .setModel(this.company.Address[0])
             .setModelField('AddressLine1')
-            .setType(UNI_CONTROL_TYPES.TEXT);
+            .setType(UNI_CONTROL_DIRECTIVES[10]);
 
         var street2 = new UniFieldBuilder();
         street2.setLabel('Adresse 2')
             .setModel(this.company.Address[0])
             .setModelField('AddressLine2')
-            .setType(UNI_CONTROL_TYPES.TEXT);
+            .setType(UNI_CONTROL_DIRECTIVES[10]);
 
         var postNumber = new UniFieldBuilder();
         postNumber.setLabel('Postnr')
             .setModel(this.company.Address[0])
             .setModelField('PostalCode')
-            .setType(UNI_CONTROL_TYPES.TEXT);
+            .setType(UNI_CONTROL_DIRECTIVES[10]);
 
         var place = new UniFieldBuilder();
         place.setLabel('Sted')
             .setModel(this.company.Address[0])
             .setModelField('City')
-            .setType(UNI_CONTROL_TYPES.TEXT);
+            .setType(UNI_CONTROL_DIRECTIVES[10]);
 
         var phone = new UniFieldBuilder();
         phone.setLabel('Telefon')
             .setModel(this.company.Phones[0])
             .setModelField('Number')
-            .setType(UNI_CONTROL_TYPES.TEXT);
+            .setType(UNI_CONTROL_DIRECTIVES[10]);
 
         var email = new UniFieldBuilder();
         email.setLabel('Epost')
             .setModel(this.company.Emails[0])
             .setModelField('EmailAddress')
-            .setType(UNI_CONTROL_TYPES.EMAIL)
-        //TODO Use UNI_CONTROL_TYPES.EMAIL?? or .setType(UNI_CONTROL_TYPES.TEXT);??
+            .setType(UNI_CONTROL_DIRECTIVES[11]);
 
         /********************************************************************/
         /*********************  Selskapsoppsett    **************************/
@@ -141,14 +141,14 @@ export class CompanySettings implements OnInit {
         companyReg.setLabel('Foretaksregister')
             .setModel(this.company)
             .setModelField('CompanyRegistered')
-            .setType(UNI_CONTROL_TYPES.CHECKBOX);
+            .setType(UNI_CONTROL_DIRECTIVES[8]);
 
         //Checkbox not working atm
         var taxMandatory = new UniFieldBuilder();
         taxMandatory.setLabel('Mva-pliktig')
             .setModel(this.company)
             .setModelField('TaxMandatory')
-            .setType(UNI_CONTROL_TYPES.CHECKBOX);
+            .setType(UNI_CONTROL_DIRECTIVES[8]);
 
         /*        var companyType = new UniFieldBuilder();
                 companyType.setLabel('Firmatype')
@@ -162,7 +162,7 @@ export class CompanySettings implements OnInit {
         companyType.setLabel('Firmatype')
             .setModel(this.companyTypes[this.company.CompanyTypeID])
             .setModelField('type')
-            .setType(UNI_CONTROL_TYPES.DROPDOWN)
+            .setType(UNI_CONTROL_DIRECTIVES[3])
             .setKendoOptions({
                 dataSource: this.companyTypes,
                 dataTextField: 'FullName',
@@ -171,9 +171,9 @@ export class CompanySettings implements OnInit {
 
         var companyCurrency = new UniFieldBuilder();
         companyCurrency.setLabel('Valuta')
-            .setModel(this.currencies[this.company.BaseCurrency])
-            .setModelField('type')
-            .setType(UNI_CONTROL_TYPES.DROPDOWN)
+            .setModel(this.company)
+            .setModelField('BaseCurrency')
+            .setType(UNI_CONTROL_DIRECTIVES[3])
             .setKendoOptions({
                 dataSource: this.currencies,
                 dataTextField: 'Code',
@@ -195,7 +195,7 @@ export class CompanySettings implements OnInit {
         periodSeriesAccountAll.setLabel('RegnskapsperioderAll')
             .setModel(this.periodSeries[this.company.PeriodSeriesAccountID])
             .setModelField('type')
-            .setType(UNI_CONTROL_TYPES.DROPDOWN)
+            .setType(UNI_CONTROL_DIRECTIVES[3])
             .setKendoOptions({
                 dataSource: this.periodSeries,
                 dataTextField: 'Name',
@@ -207,7 +207,7 @@ export class CompanySettings implements OnInit {
         periodSeriesAccount.setLabel('Regnskapsperioder')
             .setModel(this.periodSeries[this.company.PeriodSeriesAccountID])
             .setModelField('type')
-            .setType(UNI_CONTROL_TYPES.DROPDOWN)
+            .setType(UNI_CONTROL_DIRECTIVES[3])
             .setKendoOptions({
                 dataSource: new kendo.data.DataSource({
                     data: this.periodSeries,
@@ -221,7 +221,7 @@ export class CompanySettings implements OnInit {
         periodSeriesVat.setLabel('Mva perioder')
             .setModel(this.periodSeries[this.company.PeriodSeriesVatID])
             .setModelField('type')
-            .setType(UNI_CONTROL_TYPES.DROPDOWN)
+            .setType(UNI_CONTROL_DIRECTIVES[3])
             .setKendoOptions({
                 dataSource: new kendo.data.DataSource({
                     data: this.periodSeries,
@@ -259,13 +259,13 @@ export class CompanySettings implements OnInit {
         accountingLockedDate.setLabel('Regnskapsdato')
             .setModel(this.company)
             .setModelField('AccountingLockedDate')
-            .setType(UNI_CONTROL_TYPES.DATEPICKER);
+            .setType(UNI_CONTROL_DIRECTIVES[2]);
 
         var vatLockedDate = new UniFieldBuilder();
         vatLockedDate.setLabel('Momsdato')
             .setModel(this.company)
             .setModelField('VatLockedDate')
-            .setType(UNI_CONTROL_TYPES.DATEPICKER)
+            .setType(UNI_CONTROL_DIRECTIVES[2])
             .setKendoOptions({});
 
         //TODO
@@ -274,7 +274,7 @@ export class CompanySettings implements OnInit {
         forceSupplierInvoiceApproval.setLabel('Tvungen godkjenning')
             .setModel(this.company)
             .setModelField('ForceSupplierInvoiceApproval')
-            .setType(UNI_CONTROL_TYPES.CHECKBOX);
+            .setType(UNI_CONTROL_DIRECTIVES[8]);
 
         accountingSettings.addFields(periodSeriesAccount, periodSeriesAccountAll, periodSeriesVat, accountingLockedDate, vatLockedDate, forceSupplierInvoiceApproval);
 

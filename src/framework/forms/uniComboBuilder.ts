@@ -1,15 +1,17 @@
 import {UniFieldBuilder} from './uniFieldBuilder';
 import {FIELD_TYPES} from "./uniForm";
+import {Type} from 'angular2/core';
+import {UniCombo} from './uniCombo';
 
 export class UniComboBuilder {
     legend: string = '';
     fields: Array<UniFieldBuilder>=[];
-    fieldType: number;
+    fieldType: Type;
     classes: any = {};
         
     constructor(legend?:string) {
         this.legend = legend || "";
-        this.fieldType = FIELD_TYPES.COMBO;
+        this.fieldType = UniCombo;
     }
 
     addField(field:UniFieldBuilder) {

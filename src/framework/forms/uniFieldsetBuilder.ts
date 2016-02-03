@@ -1,15 +1,15 @@
 import {UniFieldBuilder} from './uniFieldBuilder';
-import {FIELD_TYPES} from "./uniForm";
+import {UniFieldset} from "./uniFieldset";
+import {Type} from 'angular2/core';
 
 export class UniFieldsetBuilder {
     legend: string = '';
     fields: Array<UniFieldBuilder>=[];
-    fieldType: number;
     classes: any = {};
-        
+    fieldType: Type;
     constructor(legend?:string) {
         this.legend = legend || "";
-        this.fieldType = FIELD_TYPES.FIELDSET;
+        this.fieldType = UniFieldset;
     }
 
     addField(field:UniFieldBuilder) {

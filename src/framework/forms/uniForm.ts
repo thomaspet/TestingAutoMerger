@@ -1,12 +1,14 @@
-import {Component, OnInit ,EventEmitter} from 'angular2/core';
+import {Component, OnInit ,EventEmitter, Input} from 'angular2/core';
 import {FORM_DIRECTIVES, FORM_PROVIDERS, Control, FormBuilder, Validators} from "angular2/common";
 import {UNI_CONTROL_DIRECTIVES} from '../controls';
 import {UniRadioGroup} from "../controls/radioGroup/uniRadioGroup";
 import {ShowError} from "./showError";
 import {UniField} from './uniField';
+import {UniFieldBuilder} from './uniFieldBuilder';
 import {UniFieldset} from './uniFieldset';
 import {UniGroup} from './uniGroup';
 import {UniCombo} from './uniCombo';
+import {UniComponentLoader} from "../core/componentLoader";
 
 declare var _;
 
@@ -19,97 +21,82 @@ export enum FIELD_TYPES {
 
 @Component({
     selector: 'uni-form',
-    directives: [FORM_DIRECTIVES, UniField, UniFieldset, UniGroup, UniCombo],
+    directives: [FORM_DIRECTIVES, UniField, UniFieldset, UniGroup, UniComponentLoader, UniCombo],
     providers: [FORM_PROVIDERS],
-    inputs: ['fields'],
+    inputs: ['config'],
     outputs: ['uniFormSubmit'],
     template: `
-        <form (submit)="onSubmit(form)" [ngFormModel]="form">
-
-           <template ngFor #field [ngForOf]="fields" #i="index">
-                <template [ngIf]="field.fieldType === FIELD_TYPES.FIELD">
-                    <uni-field
-                        [config]="field"
-                        [ngClass]="field.classes"
-                        [class.error]="hasError(field)">
-                    </uni-field>
-                </template>
-                <template [ngIf]="field.fieldType === FIELD_TYPES.FIELDSET">
-                    <uni-fieldset [config]="field" [ngClass]="field.classes"></uni-fieldset>
-                </template>
-                <template [ngIf]="field.fieldType === FIELD_TYPES.GROUP">
-                    <uni-group [config]="field"></uni-group>
-                </template>
-                <template [ngIf]="field.fieldType === FIELD_TYPES.COMBO">
-                    <uni-combo [config]="field" [ngClass]="field.classes"></uni-combo>
-                </template>
+        <form (submit)="submit()" [ngFormModel]="form">
+            <template ngFor #field [ngForOf]="config.fields" #i="index">
+                <uni-component-loader
+                    [type]="field.fieldType"
+                    [config]="field">
+                </uni-component-loader>
             </template>
-            <button type="submit" [disabled]="!form.valid">submit</button>
+            <button type="submit" [disabled]="!form.valid" [hidden]="config.isSubmitButtonHidden">submit</button>
         </form>
     `
 })
 export class UniForm {
 
-    private form;
-    private fields;
-    private uniFormSubmit:EventEmitter<any> = new EventEmitter<any>(true);
-    private FIELD_TYPES;
-    private fbControls = {};
+    form;
+    @Input() config;
+    uniFormSubmit:EventEmitter<any> = new EventEmitter<any>(true);
+    fbControls = {};
 
     constructor(public fb:FormBuilder) {
-        this.FIELD_TYPES = FIELD_TYPES;
     }
 
-    onSubmit(form) {
-        this.updateModel(this.fields, form.value);
-        this.uniFormSubmit.emit(form);
+    getSubmitEvent() {
+        return this.uniFormSubmit;
+    }
+
+    submit() {
+        this.updateModel(this.config.fields, this.form.value);
+        this.uniFormSubmit.emit(this.form);
         return false;
     }
 
     ngOnInit() {
-        this.form = this.extendFields(this.fields);
+        this.form = this.createFormControlsAndAddValidators(this.config.fields);
     }
 
     hasError(field) {
-        return field.control.touched && !field.control.valid;
+        return field && field.control && field.control.touched && !field.control.valid;
     }
 
-    private updateModel(config, formValue) {
+
+    updateModel(config?, formValue?) {
+        var config = config || this.config.fields;
+        var formValue = formValue || this.form.value;
+
         for (let i = 0; i < config.length; i++) {
             let field = config[i];
-            switch (field.fieldType) {
-                case FIELD_TYPES.FIELD:
-                    var model = field.model;
-                    var fieldPath = field.field;
-                    var value = _.get(formValue, fieldPath);
-                    _.set(model, fieldPath, value);
-                    break;
-
-                default:
-                    this.updateModel(field.fields, formValue);
-                    break;
+            if (field instanceof UniFieldBuilder) {
+                var model = field.model;
+                var fieldPath = field.field;
+                var value = _.get(formValue, fieldPath);
+                _.set(model, fieldPath, value);
+            } else {
+                this.updateModel(field.fields, formValue);
             }
         }
     }
 
-    private extendFields(config) {
+    private createFormControlsAndAddValidators(config) {
         for (let i = 0; i < config.length; i++) {
             let field = config[i];
-            switch (field.fieldType) {
-                case FIELD_TYPES.FIELD:
-                    this.extendField(field);
-                    this.fbControls[field.field] = field.control;
-                    break;
-
-                default:
-                    this.extendFields(field.fields);
-                    break;
+            if (field instanceof UniFieldBuilder) {
+                this.addValidators(field);
+                this.fbControls[field.field] = field.control;
+            } else {
+                this.createFormControlsAndAddValidators(field.fields);
             }
         }
         return this.fb.group(this.fbControls);
     }
 
-    private extendField(c) {
+    private addValidators(c) {
         let syncValidators = this.composeSyncValidators(c);
         let asyncValidators = this.composeAsyncValidators(c);
         let messages = this.composeMessages(c);

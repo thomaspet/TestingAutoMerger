@@ -1,6 +1,7 @@
 import {Component, provide, Input, SimpleChange} from 'angular2/core';
 import {Validators, Control, FormBuilder} from 'angular2/common';
 import {UniForm,FIELD_TYPES} from '../../../../../framework/forms/uniForm';
+import {UNI_CONTROL_DIRECTIVES} from '../../../../../framework/controls';
 import {UNI_CONTROL_TYPES} from '../../../../../framework/controls/types';
 import {Observable} from 'rxjs/Observable';
 
@@ -44,13 +45,13 @@ export class AccountDetails {
         accountNumber.setLabel('Kontonr.')
             .setModel(this.model)
             .setModelField('AccountNumber')
-            .setType(UNI_CONTROL_TYPES.TEXT)
+            .setType(UNI_CONTROL_DIRECTIVES[UNI_CONTROL_TYPES.TEXT])
                                   
         var accountName = new UniFieldBuilder();
         accountName.setLabel('Kontonavn')
             .setModel(this.model)
             .setModelField('AccountName')
-            .setType(UNI_CONTROL_TYPES.TEXT)
+            .setType(UNI_CONTROL_DIRECTIVES[UNI_CONTROL_TYPES.TEXT])
             
         var accountCombo = new UniComboBuilder()
         accountCombo.addClass('combo');
@@ -60,20 +61,20 @@ export class AccountDetails {
         accountAlias.setLabel('Alias')
             .setModel(this.model)
             .setModelField('alias')
-            .setType(UNI_CONTROL_TYPES.TEXT);
+            .setType(UNI_CONTROL_DIRECTIVES[UNI_CONTROL_TYPES.TEXT]);
                         
         var currency = new UniFieldBuilder();
         currency.setLabel('Valuta')
             .setModel(this.model)
             .setModelField('CurrencyID')
-            .setType(UNI_CONTROL_TYPES.DROPDOWN)
+            .setType(UNI_CONTROL_DIRECTIVES[UNI_CONTROL_TYPES.DROPDOWN])
             .setKendoOptions({ dataSource: this.currencies, dataTextField: 'Code' })
 
         var vatType = new UniFieldBuilder();
         vatType.setLabel('Moms')
             .setModel(this.model)
             .setModelField('vattype')
-            .setType(UNI_CONTROL_TYPES.DROPDOWN)
+            .setType(UNI_CONTROL_DIRECTIVES[UNI_CONTROL_TYPES.DROPDOWN])
             .setKendoOptions({ dataSource: this.vattypes, dataTextField: 'Name'})
                     
         formBuilder.addFields(accountCombo, accountAlias, currency, vatType);
@@ -86,37 +87,37 @@ export class AccountDetails {
         checkSystemAccount.setLabel('Systemkonto')
             .setModel(this.model)
             .setModelField('SystemAccount')
-            .setType(UNI_CONTROL_TYPES.CHECKBOX);
+            .setType(UNI_CONTROL_DIRECTIVES[UNI_CONTROL_TYPES.CHECKBOX]);
             
         var checkPostPost = new UniFieldBuilder();
         checkPostPost.setLabel('PostPost')
             .setModel(this.model)
             .setModelField('UsePostPost')
-            .setType(UNI_CONTROL_TYPES.CHECKBOX);    
+            .setType(UNI_CONTROL_DIRECTIVES[UNI_CONTROL_TYPES.CHECKBOX]);    
         
         var checkDeductionPercent = new UniFieldBuilder();
         checkDeductionPercent.setLabel('Forholdsvismoms')
             .setModel(this.model)
             .setModelField('UseDeductionPercent')
-            .setType(UNI_CONTROL_TYPES.CHECKBOX);  
+            .setType(UNI_CONTROL_DIRECTIVES[UNI_CONTROL_TYPES.CHECKBOX]);  
             
         var checkLockManualPosts = new UniFieldBuilder();
         checkLockManualPosts.setLabel('Sperre manuelle poster')
             .setModel(this.model)
             .setModelField('LockManualPosts')
-            .setType(UNI_CONTROL_TYPES.CHECKBOX);      
+            .setType(UNI_CONTROL_DIRECTIVES[UNI_CONTROL_TYPES.CHECKBOX]);      
         
         var checkLocked = new UniFieldBuilder();
         checkLocked.setLabel('Sperret')
             .setModel(this.model)
             .setModelField('Locked')
-            .setType(UNI_CONTROL_TYPES.CHECKBOX);  
+            .setType(UNI_CONTROL_DIRECTIVES[UNI_CONTROL_TYPES.CHECKBOX]);  
             
         var checkVisible = new UniFieldBuilder();
         checkVisible.setLabel('Synlig')
             .setModel(this.model)
             .setModelField('Visible')
-            .setType(UNI_CONTROL_TYPES.CHECKBOX);      
+            .setType(UNI_CONTROL_DIRECTIVES[UNI_CONTROL_TYPES.CHECKBOX]);      
         
         var systemSet = new UniFieldsetBuilder();
         systemSet.addFields(checkSystemAccount, checkPostPost, checkDeductionPercent, checkLockManualPosts, checkLocked, checkVisible);
