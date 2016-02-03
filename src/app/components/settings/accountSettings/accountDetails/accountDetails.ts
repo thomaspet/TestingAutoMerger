@@ -1,4 +1,4 @@
-import {Component, provide, Input} from 'angular2/core';
+import {Component, provide, Input, SimpleChange} from 'angular2/core';
 import {Validators, Control, FormBuilder} from 'angular2/common';
 import {UniForm,FIELD_TYPES} from '../../../../../framework/forms/uniForm';
 import {UNI_CONTROL_TYPES} from '../../../../../framework/controls/types';
@@ -9,17 +9,19 @@ import {UniFieldsetBuilder} from '../../../../../framework/forms/uniFieldsetBuil
 import {UniComboBuilder} from '../../../../../framework/forms/uniComboBuilder';
 import {UniFieldBuilder} from '../../../../../framework/forms/uniFieldBuilder';
 import {UniGroupBuilder} from '../../../../../framework/forms/uniGroupBuilder';
-import {UniTable, UniTableConfig} from '../../../../../framework/uniTable';
 import {AccountingDS} from '../../../../../framework/data/accounting';
 import {CurrencyDS} from '../../../../../framework/data/currency';
+import {DimensionList} from '../dimensionList/dimensionList';
+import {AccountGroupList} from '../accountGroupList/accountGroupList';
 
 @Component({
     selector: 'account-details',
     templateUrl: 'app/components/settings/accountSettings/accountDetails/accountDetails.html',
-    directives: [UniForm, UniTable],
+    directives: [UniForm, DimensionList, AccountGroupList],
     providers: [provide(AccountingDS,{useClass: AccountingDS}), provide(CurrencyDS,{useClass: CurrencyDS})]
 })
 export class AccountDetails {
+    @Input() account;    
     form;
     model;
     currencies;
@@ -29,18 +31,11 @@ export class AccountDetails {
     constructor(fb:FormBuilder, private accountingDS:AccountingDS, private currencyDS:CurrencyDS) {
     }
 
-    accountReady(data) {
-        if (data === null) {
+    accountReady() {
+        if (this.model === null) {
             return;
         }
-
-        console.log("DATA HENTET");
-        console.log(data);
-        console.log("CURRENCYID");
-        console.log(data.CurrencyID);
-        
-        this.model = data;
-               
+             
         var formBuilder = new UniFormBuilder();
              
         // Acount details   
@@ -142,49 +137,40 @@ export class AccountDetails {
         var compatibleGroup = new UniGroupBuilder("Kompatible kontogr.");  
         formBuilder.addField(compatibleGroup);
 
-        this.form = formBuilder;
-                        
-        // TEST Tabell
-
-        this.dimensionsTableConfig = new UniTableConfig('http://localhost:27831/api/biz/companysettings')
-        .setOdata({
-            expand: 'Address,Emails,Phones'
-        })
-        .setDsModel({
-            id: 'ID',
-            fields: {
-                ID: {type: 'number'},
-                CompanyName: {type: 'text'},
-                Address: {
-                    AddressLine1: {type: 'text'}
-                },
-                Emails: {
-                    EmailAddress: {type: 'text'}
-                },
-                Phones: {
-                    Number: {type: 'text'}
-                }
-            }
-        })
-        .setColumns([
-            {field: 'ID', title: 'ID'},
-            {field: 'CompanyName', title: 'Navn'},
-            {field: 'Address.AddressLine1', title: 'Adresse'},
-            {field: 'Emails.EmailAddress', title: 'Epost'},
-            {field: 'Phones.Number', title: 'Telefon'},
-        ]);  
+        this.form = formBuilder;                        
+    }
+    
+    update() {
+/*
+        Observable.forkJoin(
+            this.currencyDS.getAll(),
+            this.accountingDS.getVatTypes(),
+            this.accountingDS.getAccount(1) // getAccount(this.account) 
+        ).subscribe(dataset => {
+            this.currencies = dataset[0];
+            this.vattypes = dataset[1];
+            this.model = dataset[2];
+            this.accountReady()             
+        });  
+*/           
+        console.log("ACCOUNT " + this.account);
+   
+        if (this.account == undefined) {
+            this.model = { ID: 1, AccountNumber: "4000", AccountName: "Test" }          
+        } else {
+            console.log("CHANGED MODEL");
+            this.model = { ID: 7, AccountNumber: "4001", AccountName: "Test 2" }  
+        } 
     }
          
     ngOnInit() {
-       Observable.forkJoin(
-            this.currencyDS.getAll(),
-            this.accountingDS.getVatTypes(),
-            this.accountingDS.getAccount(1) 
-        ).subscribe(results => {
-            this.currencies = results[0];
-            this.vattypes = results[1];
-            this.accountReady(results[2]);             
-        });     
+        this.update(); 
+        this.accountReady();       
+    }
+    
+    ngOnChanges() {
+        console.log("CHANGES");
+        this.update();  
     }
              
     onSubmit(value) {

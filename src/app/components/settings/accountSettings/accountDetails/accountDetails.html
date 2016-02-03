@@ -1,6 +1,5 @@
 <div *ngIf="model">
     <uni-form (uniFormSubmit)='onSubmit($event)' [fields]='form.config()'></uni-form>
+    <dimension-list [dimension]="model.DimensionsID"></dimension-list>
+    <account-group-list [account]="model.ID"></account-group-list>
 </div>
-<!--
-<uni-table [config]="dimensionsTableConfig"></uni-table>
--->

@@ -1,6 +1,6 @@
 ﻿<div class="accountList">
-    <account-list></account-list>
+    <account-list (change)="change($event)"></account-list>
 </div>
 <div class="accountDetails">
-    <account-details></account-details>    
+    <account-details [account]="account"></account-details>
 </div>
