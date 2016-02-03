@@ -58,3 +58,11 @@
   
 .navbar_userinfo_user company-select span
   width: 200px
+
+@include media(large, max-width)
+  .navbar_userinfo_title
+    overflow: hidden
+    text-indent: -999rem
+    width: 1rem
+    height: 1rem
+    font-size: 0
