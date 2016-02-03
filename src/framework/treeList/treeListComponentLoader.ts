@@ -30,22 +30,21 @@ export class TreeListComponentLoader implements OnInit {
                         comp.instance.config = this.componentConfig.content;
                         this.compRef = comp;
                     });
-                break;
+            break;
 
             case TREE_LIST_TYPE.FORM:
                 this.dynamicComponentLoader.loadIntoLocation(UniForm, this.elementRef, 'content')
                     .then((comp) => {
                         this.compRef = comp;
                         comp.instance.fields = this.componentConfig.content.config();
-                        comp.instance.uniFormSubmit.subscribe(this.componentConfig.formFunction);
-
+                        comp.instance.uniFormSubmit.subscribe(this.componentConfig.changeCallback);
                     });
-                break;
+            break;
             default:
                 //Should create an error component
                 //Load in error component if something went wrong
                 console.log('Something went wrong in treeListComponentLoader');
-                break;
+           break;
         }
     }
 }

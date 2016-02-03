@@ -104,8 +104,8 @@ export class Kitchensink {
         var konto3 = new TreeListItem('KontoForm')
             .setType(TREE_LIST_TYPE.FORM)
             .setContent(this.createForm())
-            .setFormFunction(
-                (value) => { this.localFunctionToHandleFormSubmit(value) });
+            .setChangeCallback(
+                (model) => { this.dataChangedInTreeList(model) });
 
         var konto4 = new TreeListItem('KontoList')
             .setType(TREE_LIST_TYPE.LIST)
@@ -131,7 +131,7 @@ export class Kitchensink {
 
     }
 
-    localFunctionToHandleFormSubmit(value) {
+    dataChangedInTreeList(value) {
         console.log(value._value);
     }
 
