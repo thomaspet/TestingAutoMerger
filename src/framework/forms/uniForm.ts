@@ -140,7 +140,7 @@ export class UniForm {
     private joinValidators(validators) {
         let list = [];
         if (validators && Array.isArray(validators)) {
-            validators.forEach((validator)=> {
+            validators.forEach((validator:any)=> {
                 list.push(validator.validator);
 
             });
@@ -157,7 +157,7 @@ export class UniForm {
 
     private assignMessages(validators, list) {
         if (validators && Array.isArray(validators)) {
-            validators.forEach((validator)=> {
+            validators.forEach((validator:any)=> {
                 list[validator.name] = validator.message;
             });
         }
