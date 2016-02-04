@@ -1,5 +1,5 @@
-import {Component, OnInit ,EventEmitter, Input} from 'angular2/core';
-import {FORM_DIRECTIVES, FORM_PROVIDERS, Control, FormBuilder, Validators} from "angular2/common";
+import {Component, OnInit ,EventEmitter, Input, Output} from 'angular2/core';
+import {FORM_DIRECTIVES, FORM_PROVIDERS, Control, ControlGroup, Validators, FormBuilder} from "angular2/common";
 import {UNI_CONTROL_DIRECTIVES} from '../controls';
 import {UniRadioGroup} from "../controls/radioGroup/uniRadioGroup";
 import {ShowError} from "./showError";
@@ -21,32 +21,35 @@ export enum FIELD_TYPES {
     selector: 'uni-form',
     directives: [FORM_DIRECTIVES, UniField, UniFieldset, UniGroup, UniComponentLoader],
     providers: [FORM_PROVIDERS],
-    inputs: ['config'],
-    outputs: ['uniFormSubmit'],
     template: `
-        <form (submit)="submit()" [ngFormModel]="form" [class]="buildClassString()">
+        <form (submit)="submit()" [ngFormModel]="form" [class]="buildClassString()" [class.error]="hasErrors()">
             <template ngFor #field [ngForOf]="config.fields" #i="index">
                 <uni-component-loader
                     [type]="field.fieldType"
                     [config]="field">
                 </uni-component-loader>
             </template>
-            <button type="submit" [disabled]="!form.valid" [hidden]="config.isSubmitButtonHidden">submit</button>
+            <button type="submit" [disabled]="hasErrors()" [hidden]="isSubmitButtonHidden()">{{submitText}}</button>
         </form>
     `
 })
-export class UniForm {
+export class UniForm implements OnInit {
 
-    form;
-    @Input() config;
+    @Input()
+    config;
+
+    @Output()
     uniFormSubmit:EventEmitter<any> = new EventEmitter<any>(true);
+
+    form: ControlGroup;
+    submitText:string = 'submit';
     fbControls = {};
 
     constructor(public fb:FormBuilder) {
     }
 
-    getSubmitEvent() {
-        return this.uniFormSubmit;
+    ngOnInit() {
+        this.form = this.createFormControlsAndAddValidators(this.config.fields);
     }
 
     submit() {
@@ -55,12 +58,16 @@ export class UniForm {
         return false;
     }
 
-    ngOnInit() {
-        this.form = this.createFormControlsAndAddValidators(this.config.fields);
+    getEventEmitter() {
+        return this.uniFormSubmit;
     }
 
-    hasError(field) {
-        return field && field.control && field.control.touched && !field.control.valid;
+    isSubmitButtonHidden() {
+        return this.config.isSubmitButtonHidden;
+    }
+
+    hasErrors() {
+        return !this.form.valid;
     }
 
     buildClassString() {
@@ -124,7 +131,6 @@ export class UniForm {
         });
         c.control = control;
         c.errorMessages = messages;
-        //c.classes.error = c.control.touched && !c.control.valid;
     }
 
     private composeSyncValidators(c) {

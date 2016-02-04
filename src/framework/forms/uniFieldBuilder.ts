@@ -30,6 +30,7 @@ export class UniFieldBuilder {
     placement: number = 0;
     entityType: string = '';
     componentLayoutID: number = 0;
+    errorMessages: Array<any> = [];
 
     static fromLayoutConfig(element:any, model:any):UniFieldBuilder {
         var ufb = new UniFieldBuilder();
