@@ -1,5 +1,5 @@
 import {Validators} from 'angular2/common';
-import {UniFieldBuilder} from "./uniFieldBuilder";
+import {UniFieldBuilder} from "./../builders/uniFieldBuilder";
 
 export class ValidatorsComposer {
 

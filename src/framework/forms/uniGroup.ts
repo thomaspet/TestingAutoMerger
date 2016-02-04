@@ -46,7 +46,7 @@ export class UniGroup {
         return this.config.legend;
     }
 
-    getFiels() {
+    getFields() {
         return this.config.fields;
     }
 

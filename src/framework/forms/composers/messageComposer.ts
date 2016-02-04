@@ -1,4 +1,4 @@
-import {UniFieldBuilder} from "./uniFieldBuilder";
+import {UniFieldBuilder} from "./../builders/uniFieldBuilder";
 export class MessageComposer {
 
     public static composeMessages(fieldConfig:UniFieldBuilder) {

@@ -1,9 +1,6 @@
-import {UniFormBuilder} from './uniFormBuilder';
-import {UniFieldBuilder} from './uniFieldBuilder';
-import {UniFieldsetBuilder} from './uniFieldsetBuilder';
-import {UniGroupBuilder} from './uniGroupBuilder';
-import {IComponentLayout} from "../interfaces/interfaces";
-import {IFieldLayout} from "../interfaces/interfaces";
+import {UniFormBuilder, UniFieldBuilder, UniFieldsetBuilder, UniGroupBuilder} from '../../forms';
+import {IComponentLayout, IFieldLayout} from "../../interfaces/interfaces";
+
 
 export class UniLayoutBuilder {
 

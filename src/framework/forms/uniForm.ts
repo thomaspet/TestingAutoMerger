@@ -4,15 +4,15 @@ import {UNI_CONTROL_DIRECTIVES} from '../controls';
 import {UniRadioGroup} from "../controls/radioGroup/uniRadioGroup";
 import {ShowError} from "./showError";
 import {UniField} from './uniField';
-import {UniFieldBuilder} from './uniFieldBuilder';
+import {UniFieldBuilder} from './builders/uniFieldBuilder';
 import {UniFieldset} from './uniFieldset';
 import {UniGroup} from './uniGroup';
 import {UniComponentLoader} from "../core/componentLoader";
-import {MessageComposer} from "./messageComposer";
-import {ValidatorsComposer} from "./validatorsComposer";
-import {ControlBuilder} from "./controlBuilder";
+import {MessageComposer} from "./composers/messageComposer";
+import {ValidatorsComposer} from "./composers/validatorsComposer";
+import {ControlBuilder} from "./builders/controlBuilder";
 import {IElementBuilder} from "./interfaces";
-import {UniFormBuilder} from "./uniFormBuilder";
+import {UniFormBuilder} from "./builders/uniFormBuilder";
 
 declare var _;
 

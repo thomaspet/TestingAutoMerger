@@ -1,6 +1,5 @@
-import {UniFieldBuilder, UniFieldsetBuilder, UniGroupBuilder} from '../forms';
-import {IElementBuilder,IElementBuilderCollection} from './interfaces';
-//import {FIELD_TYPES} from './uniForm';
+import {UniFieldBuilder, UniFieldsetBuilder, UniGroupBuilder} from '../../forms';
+import {IElementBuilder,IElementBuilderCollection} from './../interfaces';
 
 declare var _;
 

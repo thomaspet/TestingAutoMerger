@@ -6,7 +6,7 @@ import {ShowError} from "../forms/showError";
 import {UniRadioGroup} from "../controls/radioGroup/uniRadioGroup";
 import {UNI_CONTROL_TYPES} from '../controls/types';
 import {UniComponentLoader} from "../core/componentLoader";
-import {UniFieldBuilder} from "./uniFieldBuilder";
+import {UniFieldBuilder} from "./builders/uniFieldBuilder";
 import {Input} from "angular2/core";
 
 declare var _;

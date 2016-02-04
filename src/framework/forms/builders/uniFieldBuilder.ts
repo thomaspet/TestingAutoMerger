@@ -1,9 +1,8 @@
-import {FIELD_TYPES} from './uniForm';
-import {UNI_CONTROL_DIRECTIVES} from '../controls';
 import {ComponentRef, Type} from 'angular2/core';
 import {AbstractControl} from 'angular2/common';
-import {UniField} from './UniField';
-import {UniTextInput} from '../controls/text/text';
+import {UNI_CONTROL_DIRECTIVES} from '../../controls';
+import {UniField} from './../uniField';
+import {UniTextInput} from '../../controls/text/text';
 
 declare var _;
 
