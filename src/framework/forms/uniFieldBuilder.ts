@@ -93,24 +93,6 @@ export class UniFieldBuilder {
         return this;
     }
 
-    buildClassString() {
-        var classes = [];
-        for(var cl in this.classes) {
-            if (this.classes.hasOwnProperty(cl)) {
-                var value = undefined;
-                if(_.isFunction(this.classes[cl])) {
-                    value = this.classes[cl]();
-                } else {
-                    value = this.classes[cl];
-                }
-                if (value === true) {
-                    classes.push(cl);
-                }
-            }
-        }
-        return classes.join(" ");
-    }
-
     addSyncValidator(name:string, validator:Function, message:string) {
         this.syncValidators.push({
             name: name,

@@ -8,6 +8,8 @@ import {UNI_CONTROL_TYPES} from '../controls/types';
 import {UniComponentLoader} from "../core/componentLoader";
 import {UniFieldBuilder} from "./uniFieldBuilder";
 
+declare var _;
+
 @Component({
     selector: 'uni-field',
     inputs: ['config'],
@@ -35,5 +37,24 @@ export class UniField {
 
     hasError(field: UniFieldBuilder) {
         return field.control && field.control.touched && !field.control.valid;
+    }
+
+    buildClassString() {
+        var classes = [];
+        var cls = this.config.classes;
+        for(var cl in cls) {
+            if (cls.hasOwnProperty(cl)) {
+                var value = undefined;
+                if(_.isFunction(cls[cl])) {
+                    value = cls[cl]();
+                } else {
+                    value = cls[cl];
+                }
+                if (value === true) {
+                    classes.push(cl);
+                }
+            }
+        }
+        return classes.join(" ");
     }
 }

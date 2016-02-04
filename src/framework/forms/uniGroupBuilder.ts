@@ -62,24 +62,6 @@ export class UniGroupBuilder {
         return this;
     }
 
-    buildClassString() {
-        var classes = [];
-        for(var cl in this.classes) {
-            if (this.classes.hasOwnProperty(cl)) {
-                var value = undefined;
-                if(_.isFunction(this.classes[cl])) {
-                    value = this.classes[cl]();
-                } else {
-                    value = this.classes[cl];
-                }
-                if (value === true) {
-                    classes.push(cl);
-                }
-            }
-        }
-        return classes.join(" ");
-    }
-
     config():Array<UniFieldBuilder|UniFieldsetBuilder> {
         return this.fields;
     }
