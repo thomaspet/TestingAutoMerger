@@ -33,44 +33,44 @@ export class Hours {
         this.currentEmployee.Employments.forEach((employment) => {
             var group = new UniGroupBuilder(employment.JobName);
             
-            var jobCode = new UniFieldBuilder();
-            jobCode.setLabel('stillingskode')
+            var jobCode = new UniFieldBuilder()
+            .setLabel('stillingskode')
             .setModel(employment)
             .setModelField('JobCode')
             .setType(UNI_CONTROL_TYPES.TEXT);
         
-            var jobName = new UniFieldBuilder();
-            jobName.setLabel('Navn')
+            var jobName = new UniFieldBuilder()
+            .setLabel('Navn')
             .setModel(employment)
             .setModelField('JobName')
             .setType(UNI_CONTROL_TYPES.TEXT)
             
-            var startDate = new UniFieldBuilder();
-            startDate.setLabel('Startdato')
+            var startDate = new UniFieldBuilder()
+            .setLabel('Startdato')
             .setModel(employment)
             .setModelField('StartDate')
             .setType(UNI_CONTROL_TYPES.DATEPICKER)
             
-            var endDate = new UniFieldBuilder();
-            endDate.setLabel('Sluttdato')
+            var endDate = new UniFieldBuilder()
+            .setLabel('Sluttdato')
             .setModel(employment)
             .setModelField('EndDate')
             .setType(UNI_CONTROL_TYPES.DATEPICKER)
             
-            var monthRate = new UniFieldBuilder();
-            monthRate.setLabel('Månedlønn')
+            var monthRate = new UniFieldBuilder()
+            .setLabel('Månedlønn')
             .setModel(employment)
             .setModelField('MonthRate')
             .setType(UNI_CONTROL_TYPES.NUMERIC)
             
-            var hourRate = new UniFieldBuilder();
-            hourRate.setLabel('Timelønn')
+            var hourRate = new UniFieldBuilder()
+            .setLabel('Timelønn')
             .setModel(employment)
             .setModelField('HourRate')
             .setType(UNI_CONTROL_TYPES.NUMERIC)
             
-            var workPercent = new UniFieldBuilder();
-            workPercent.setLabel('Stillingprosent')
+            var workPercent = new UniFieldBuilder()
+            .setLabel('Stillingprosent')
             .setModel(employment)
             .setModelField('WorkPercent')
             .setType(UNI_CONTROL_TYPES.NUMERIC)
@@ -79,8 +79,8 @@ export class Hours {
             {
                 if(typeof employment.Localization.BusinessRelationInfo !== "undefined")
                 {
-                    var localization = new UniFieldBuilder();
-                    localization.setLabel('Lokalitet')
+                    var localization = new UniFieldBuilder()
+                    .setLabel('Lokalitet')
                     .setModel(employment.Localization.BusinessRelationInfo)
                     .setModelField('Name')
                     .setType(UNI_CONTROL_TYPES.TEXT)
@@ -88,8 +88,8 @@ export class Hours {
             }
             else 
             {
-                var localization = new UniFieldBuilder();
-                    localization.setLabel('Lokalitet')
+                var localization = new UniFieldBuilder()
+                    .setLabel('Lokalitet')
                     .setModel(employment)
                     .setModelField('LocalizationID')
                     .setType(UNI_CONTROL_TYPES.NUMERIC)
@@ -99,14 +99,14 @@ export class Hours {
 
             var readmore = new UniGroupBuilder("VIS MER...");
             
-            var salaryChanged = new UniFieldBuilder();
-            salaryChanged.setLabel('Endret lønn')
+            var salaryChanged = new UniFieldBuilder()
+            .setLabel('Endret lønn')
             .setModel(employment)
             .setModelField('LastSalaryChangeDate')
             .setType(UNI_CONTROL_TYPES.DATEPICKER);
         
-            var workpercentChange = new UniFieldBuilder();
-            workpercentChange.setLabel('Endret stillingprosent')
+            var workpercentChange = new UniFieldBuilder()
+            .setLabel('Endret stillingprosent')
             .setModel(employment)
             .setModelField('LastWorkPercentChangeDate')
             .setType(UNI_CONTROL_TYPES.DATEPICKER)

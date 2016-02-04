@@ -32,9 +32,10 @@ export class Employment {
     
     buildFormConfigs() {
         this.formConfigs = [];
-        var formbuilder = new UniFormBuilder();
+        
         this.currentEmployee.Employments.forEach((employment) => {
-            var group = new UniGroupBuilder(employment.JobName);
+            //var group = new UniGroupBuilder(employment.JobName);
+            var formbuilder = new UniFormBuilder();
             
             var jobCode = new UniFieldBuilder();
             jobCode.setLabel('stillingskode')
@@ -98,25 +99,25 @@ export class Employment {
                     .setType(UNI_CONTROL_TYPES.NUMERIC)
             }
             
-            group.addFields(jobCode, jobName); //, startDate, endDate, monthRate, hourRate, workPercent, localization);
+            //group.addFields(jobCode, jobName, startDate, endDate, monthRate, hourRate, workPercent, localization);
 
-            var readmore = new UniGroupBuilder("MER...");
-            
-            var salaryChanged = new UniFieldBuilder();
-            salaryChanged.setLabel('Endret lønn')
-            .setModel(employment)
-            .setModelField('LastSalaryChangeDate')
-            .setType(UNI_CONTROL_TYPES.DATEPICKER);
-        
-            var workpercentChange = new UniFieldBuilder();
-            workpercentChange.setLabel('Endret stillingprosent')
-            .setModel(employment)
-            .setModelField('LastWorkPercentChangeDate')
-            .setType(UNI_CONTROL_TYPES.DATEPICKER)
-            
-            readmore.addFields(salaryChanged, workpercentChange);
-            
-            formbuilder.addField(group);
+        //     var readmore = new UniGroupBuilder("MER...");
+        //     
+        //     var salaryChanged = new UniFieldBuilder();
+        //     salaryChanged.setLabel('Endret lønn')
+        //     .setModel(employment)
+        //     .setModelField('LastSalaryChangeDate')
+        //     .setType(UNI_CONTROL_TYPES.DATEPICKER);
+        // 
+        //     var workpercentChange = new UniFieldBuilder();
+        //     workpercentChange.setLabel('Endret stillingprosent')
+        //     .setModel(employment)
+        //     .setModelField('LastWorkPercentChangeDate')
+        //     .setType(UNI_CONTROL_TYPES.DATEPICKER)
+        //     
+        //     readmore.addFields(salaryChanged, workpercentChange);
+        //     
+             formbuilder.addFields(jobCode, jobName, startDate, endDate, monthRate, hourRate, workPercent, localization);
             //formbuilder.addFields(readmore);
             
             //this.form = formbuilder;
