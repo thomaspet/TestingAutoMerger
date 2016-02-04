@@ -5,11 +5,10 @@ import {RouteParams} from 'angular2/router';
 import {UniForm} from '../../../../framework/forms/uniForm';
 import {UNI_CONTROL_DIRECTIVES} from '../../../../framework/controls';
 
-import {UniFormBuilder} from '../../../../framework/forms/uniFormBuilder';
-import {UniFieldBuilder} from '../../../../framework/forms/uniFieldBuilder';
-import {UniFieldsetBuilder} from '../../../../framework/forms/uniFieldsetBuilder';
-import {UniGroupBuilder} from '../../../../framework/forms/uniGroupBuilder';
-import {UniLayoutBuilder} from '../../../../framework/forms/uniLayoutBuilder';
+import {
+    UniFormBuilder, UniFieldBuilder, UniFieldsetBuilder, UniGroupBuilder, UniLayoutBuilder
+} from '../../../../framework/forms';
+
 import {EmployeeDS} from '../../../../framework/data/employee';
 import {EmployeeModel} from '../../../../framework/models/employee';
 import {UniComponentLoader} from '../../../../framework/core/componentLoader';
