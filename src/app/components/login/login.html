@@ -11,14 +11,14 @@
     
     
 	<form id="loginForm" class="login_form" (submit)="login($event)">
-        <input type="text" [(ngModel)]="credentials.username" placeholder="Username">
-		<input type="password" [(ngModel)]="credentials.password" placeholder="Password">
+        <input type="text" [disabled]="working" [(ngModel)]="credentials.username" placeholder="Username">
+		<input type="password" [disabled]="working" [(ngModel)]="credentials.password" placeholder="Password">
 		
-		<button class="c2a">Log in</button>
+		<button class="c2a" [attr.aria-busy]="working" [disabled]="working">Sign in</button>
 	
 	</form>
     
-    <p>Don't have an account? <a [routerLink]="['Signup']">Sign up</a></p>
+    <p>Don't have an account? <a [routerLink]="['Signup']">Register</a></p>
 	
     <span class="company_select">
         <select style="display: none;"></select> <!-- kendo dropdownlist will compile here -->        

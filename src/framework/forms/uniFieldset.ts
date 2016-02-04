@@ -1,14 +1,17 @@
 import {Component} from 'angular2/core';
-import {UniField} from './uniField';
+import {UniComponentLoader} from '../core/componentLoader';
 
 @Component({
     selector: 'uni-fieldset',
     inputs: ['config'],
-    directives: [UniField],
+    directives: [UniComponentLoader],
     template: `<fieldset>
         <legend *ngIf="config.legend">{{config.legend}}</legend>
         <template ngFor #field [ngForOf]="config.fields" #i="index">
-            <uni-field [config]="field" [ngClass]="config.classes" [class.error]="hasError(field)"></uni-field>
+            <uni-component-loader
+                [type]="field.fieldType"
+                [config]="field">
+            </uni-component-loader>
         </template>
     </fieldset>`,
 })

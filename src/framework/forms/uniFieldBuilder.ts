@@ -1,25 +1,30 @@
 import {FIELD_TYPES} from './uniForm';
 import {UNI_CONTROL_TYPES} from '../controls/types';
+import {ComponentRef, Type} from 'angular2/core';
+import {AbstractControl} from 'angular2/common';
+import {UniField} from './UniField';
+import {UniTextInput} from '../controls/text/text';
 
 export class UniFieldBuilder {
     label: string = '';
     model: any;
     field: string = '';
-    type: number = UNI_CONTROL_TYPES.TEXT;
-    fieldType: number = 0;
+    type: Type = UniTextInput;
+    fieldType: Type;
     kOptions: any = {};
     classes: any = {};
     readonly: boolean = false;
     disabled: boolean = false;
     syncValidators: Array<any> = [];
     asyncValidators: Array<any> = [];
+    control: AbstractControl;
 
-    constructor(type?:number,label?:string,model?:string,modelField?:string){
-        this.type = type || UNI_CONTROL_TYPES.TEXT;
+    constructor(type?:Type,label?:string,model?:string,modelField?:string){
+        this.type = type || UniTextInput;
         this.label = label || '';
         this.model = model || undefined;
         this.field = modelField || '';
-        this.fieldType = FIELD_TYPES.FIELD;
+        this.fieldType = UniField;
         return this;
     }
 
@@ -35,7 +40,7 @@ export class UniFieldBuilder {
         this.field = key;
         return this;
     }
-    setType(type:number) {
+    setType(type:Type) {
         this.type = type;
         return this;
     }

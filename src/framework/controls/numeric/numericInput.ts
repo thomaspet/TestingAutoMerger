@@ -12,7 +12,7 @@ export interface NumericInputConfig {
 	selector: "uni-numeric",
     template: InputTemplateString
 })
-export class NumericInput implements AfterViewInit, OnDestroy {
+export class UniNumericInput implements AfterViewInit, OnDestroy {
 	@Input() config: NumericInputConfig;
 	nativeElement;
     

@@ -1,14 +1,16 @@
 import {UniFieldBuilder} from './uniFieldBuilder';
 import {UniFieldsetBuilder} from './uniFieldsetBuilder';
-import {FIELD_TYPES} from "./uniForm";
+import {UniGroup} from "./uniGroup";
+import {Type} from 'angular2/core';
 
 export class UniGroupBuilder {
     legend: string = '';
     fields: Array<UniFieldBuilder|UniFieldsetBuilder>=[];
-    fieldType:number;
+    collapsed: boolean = false;
+    fieldType:Type;
     constructor(legend?:string) {
         this.legend = legend || "";
-        this.fieldType = FIELD_TYPES.GROUP;
+        this.fieldType = UniGroup;
     }
 
     addField(field:UniFieldBuilder|UniFieldsetBuilder) {
@@ -21,6 +23,10 @@ export class UniGroupBuilder {
             this.fields.push(field);
         });
         return this;
+    }
+
+    openByDefault(value:boolean) {
+        this.collapsed = value;
     }
 
     config() {

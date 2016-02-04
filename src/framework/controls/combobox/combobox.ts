@@ -17,7 +17,7 @@ export interface ComboboxConfig {
 	selector: 'uni-combobox',
 	template: InputTemplateString
 })
-export class Combobox implements AfterViewInit, OnDestroy {
+export class UniCombobox implements AfterViewInit, OnDestroy {
 	@Input() config: ComboboxConfig;
 	control;
     nativeElement: any;
