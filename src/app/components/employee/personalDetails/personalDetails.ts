@@ -11,7 +11,7 @@ import {
 
 import {EmployeeDS} from '../../../../framework/data/employee';
 import {EmployeeModel} from '../../../../framework/models/employee';
-import {UniComponentLoader} from '../../../../framework/core/componentLoader';
+import {UniComponentLoader} from '../../../../framework/core';
 
 import {Observable} from 'rxjs/Observable';
 import 'rxjs/add/operator/merge';
