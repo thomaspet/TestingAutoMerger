@@ -9,7 +9,7 @@ import {AccountDetails} from './accountDetails/accountDetails';
     directives: [AccountList, AccountDetails]
 })
 export class AccountSettings {
-    account;
+    account = 1;
     
     constructor() {
     }

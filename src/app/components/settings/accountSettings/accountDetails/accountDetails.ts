@@ -15,6 +15,7 @@ import {CurrencyDS} from '../../../../../framework/data/currency';
 import {DimensionList} from '../dimensionList/dimensionList';
 import {AccountGroupList} from '../accountGroupList/accountGroupList';
 import {UniComponentLoader} from '../../../../../framework/core/componentLoader';
+import {UniHttpService} from '../../../../../framework/data/uniHttpService';
 
 @Component({
     selector: 'account-details',
@@ -24,22 +25,18 @@ import {UniComponentLoader} from '../../../../../framework/core/componentLoader'
 })
 export class AccountDetails {
     @Input() account;    
-    form;
+    form = new UniFormBuilder();
     model;
     currencies;
     vattypes;
     
-    constructor(fb:FormBuilder, private accountingDS:AccountingDS, private currencyDS:CurrencyDS) {
+    constructor(fb:FormBuilder, private accountingDS:AccountingDS, private currencyDS:CurrencyDS, private http:UniHttpService) {
     }
 
-    accountReady() {
-        if (this.model === null) {
-            return;
-        }
-             
-        var formBuilder = new UniFormBuilder();
-             
+    accountReady() {                     
         // Acount details   
+        console.log("ACCOUNTREADY");
+        console.log(this.model);            
                     
         var accountNumber = new UniFieldBuilder();
         accountNumber.setLabel('Kontonr.')
@@ -77,7 +74,7 @@ export class AccountDetails {
             .setType(UNI_CONTROL_DIRECTIVES[UNI_CONTROL_TYPES.DROPDOWN])
             .setKendoOptions({ dataSource: this.vattypes, dataTextField: 'Name'})
                     
-        formBuilder.addFields(accountCombo, accountAlias, currency, vatType);
+        this.form.addFields(accountCombo, accountAlias, currency, vatType);
 
         //
         // Checkbox settings
@@ -122,55 +119,44 @@ export class AccountDetails {
         var systemSet = new UniFieldsetBuilder();
         systemSet.addFields(checkSystemAccount, checkPostPost, checkDeductionPercent, checkLockManualPosts, checkLocked, checkVisible);
    
-        formBuilder.addField(systemSet);
-        
-        //
-        // Dimensions
-        //
-        
-        var dimensionsGroup = new UniGroupBuilder("Dimensjoner");  
-        formBuilder.addField(dimensionsGroup);
-          
-        //               
-        // Compatible Account Groups
-        //
-        
-        var compatibleGroup = new UniGroupBuilder("Kompatible kontogr.");  
-        formBuilder.addField(compatibleGroup);
-
-        this.form = formBuilder;                        
+        this.form.addField(systemSet);
     }
     
     update() {
-/*
-        Observable.forkJoin(
-            this.currencyDS.getAll(),
-            this.accountingDS.getVatTypes(),
-            this.accountingDS.getAccount(1) // getAccount(this.account) 
-        ).subscribe(dataset => {
-            this.currencies = dataset[0];
-            this.vattypes = dataset[1];
-            this.model = dataset[2];
-            this.accountReady()             
-        });  
-*/           
-        console.log("ACCOUNT " + this.account);
-   
+        console.log("UPDATE CALLED");
+        
+        this.http.multipleRequests('GET', [
+            { resource: "currencies" },
+            { resource: "vattypes"},
+            { resource: "accounts/" + this.account, expand: "Alias,Currency,AccountGroup" }
+        ]).subscribe(
+            (dataset) => {
+                this.currencies = dataset[0];
+                this.vattypes = dataset[1];
+                this.model = dataset[2];
+                
+                this.accountReady();
+            },
+            (error) => console.log(error)
+        )  
+  
+  /*
         if (this.account == undefined) {
             this.model = { ID: 1, AccountNumber: "4000", AccountName: "Test" }  
         } else {
             this.model = { ID: 7, AccountNumber: "4001", AccountName: "Test 2" } 
         } 
-    }
+*/ 
+   }
               
     ngOnInit() {
         this.update();
-        this.accountReady();
     }      
                     
     ngOnChanges() {
-        console.log("CHANGES");
-        this.update();       
+        console.log("NGCHANCHE")
+        console.log(this.account);
+        this.update();
     }
              
     onSubmit(value) {
