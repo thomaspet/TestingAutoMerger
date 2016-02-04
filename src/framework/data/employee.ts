@@ -36,7 +36,7 @@ export class EmployeeDS {
                     Property: "BusinessRelationInfo.Name",
                     Placement: 1,
                     Hidden: false,
-                    FieldType: 0, //TEXT
+                    FieldType: 10, //TEXT
                     ReadOnly: false,
                     LookupField: false,
                     Label: "Navn",
@@ -59,7 +59,7 @@ export class EmployeeDS {
                     Property: "SocialSecurityNumber",
                     Placement: 2,
                     Hidden: false,
-                    FieldType: 4, //MASKED
+                    FieldType: 10, //MASKED
                     ReadOnly: false,
                     LookupField: false,
                     Label: "Fødselsnummer",
@@ -116,7 +116,7 @@ export class EmployeeDS {
                     Property: "Sex",
                     Placement: 4,
                     Hidden: false,
-                    FieldType: 3, //DROPDOWN
+                    FieldType: 10, //DROPDOWN
                     ReadOnly: false,
                     LookupField: false,
                     Label: "Kjønn",

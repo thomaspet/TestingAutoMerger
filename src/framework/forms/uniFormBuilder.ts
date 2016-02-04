@@ -47,23 +47,44 @@ export class UniFormBuilder {
     config() {
         return this.fields;
     }
-    
-    _readmode(fields) {
-        fields.forEach((field)=>{
+
+    findFieldset(index:number):UniFieldsetBuilder {
+        var value: UniFieldsetBuilder = undefined;
+        this.fields.forEach((element:UniFieldBuilder|UniFieldsetBuilder|UniGroupBuilder)=>{
+            if (element.fieldsetIndex === index && element instanceof UniFieldsetBuilder) {
+                value = element;
+            }
+        });
+        return value;
+    }
+
+    findGroup(index:number): UniGroupBuilder {
+        var value: UniGroupBuilder = undefined;
+        this.fields.forEach((element:UniFieldBuilder|UniFieldsetBuilder|UniGroupBuilder)=>{
+            if (element.sectionIndex === index && element instanceof UniGroupBuilder) {
+                value = element;
+            }
+        });
+        return value;
+    }
+
+
+    _readmode(fields: Array<UniFieldBuilder|UniFieldsetBuilder|UniGroupBuilder>) {
+        fields.forEach((field: UniFieldBuilder|UniFieldsetBuilder|UniGroupBuilder)=>{
            if (field instanceof UniFieldBuilder) {
                field.readmode();
            } else {
-               this._readmode(field.config());
+               this._readmode(<any>field.config());
            }
         });
     }
     
-    _editmode(fields) {
-        fields.forEach((field)=>{
+    _editmode(fields: Array<UniFieldBuilder|UniFieldsetBuilder|UniGroupBuilder>) {
+        fields.forEach((field: UniFieldBuilder|UniFieldsetBuilder|UniGroupBuilder)=>{
            if (field instanceof UniFieldBuilder) {
                field.editmode();
            } else {
-               this._editmode(field.config());
+               this._editmode(<any>field.config());
            }
         });
     }

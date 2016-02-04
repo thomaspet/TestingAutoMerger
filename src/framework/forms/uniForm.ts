@@ -85,7 +85,7 @@ export class UniForm {
         for (let i = 0; i < config.length; i++) {
             let field = config[i];
             if (field instanceof UniFieldBuilder) {
-                this.addValidators(field);
+                this.createFormControlAndAddValidators(field);
                 this.fbControls[field.field] = field.control;
             } else {
                 this.createFormControlsAndAddValidators(field.fields);
@@ -94,12 +94,16 @@ export class UniForm {
         return this.fb.group(this.fbControls);
     }
 
-    private addValidators(c) {
+    private createFormControlAndAddValidators(c) {
         let syncValidators = this.composeSyncValidators(c);
         let asyncValidators = this.composeAsyncValidators(c);
         let messages = this.composeMessages(c);
         let control = new Control("", syncValidators, asyncValidators);
-        control.updateValue(_.get(c.model,c.field));
+        control.updateValue(_.get(c.model,c.field),{
+            onlySelf: false,
+            emitEvent: false,
+            emitModelToViewChange: true
+        });
         c.control = control;
         c.errorMessages = messages;
         //c.classes.error = c.control.touched && !c.control.valid;
