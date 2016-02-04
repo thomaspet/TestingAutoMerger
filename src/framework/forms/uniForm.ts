@@ -1,5 +1,5 @@
 import {Component, OnInit ,EventEmitter, Input, Output} from 'angular2/core';
-import {FORM_DIRECTIVES, FORM_PROVIDERS, Control, ControlGroup, Validators, FormBuilder} from "angular2/common";
+import {FORM_DIRECTIVES, FORM_PROVIDERS, Control, ControlGroup, FormBuilder} from "angular2/common";
 import {UNI_CONTROL_DIRECTIVES} from '../controls';
 import {UniRadioGroup} from "../controls/radioGroup/uniRadioGroup";
 import {ShowError} from "./showError";
@@ -8,6 +8,9 @@ import {UniFieldBuilder} from './uniFieldBuilder';
 import {UniFieldset} from './uniFieldset';
 import {UniGroup} from './uniGroup';
 import {UniComponentLoader} from "../core/componentLoader";
+import {MessageComposer} from "./messageComposer";
+import {ValidatorsComposer} from "./validatorsComposer";
+import {ControlBuilder} from "./controlBuilder";
 
 declare var _;
 
@@ -43,13 +46,14 @@ export class UniForm implements OnInit {
 
     form: ControlGroup;
     submitText:string = 'submit';
-    fbControls = {};
+    controls = {};
 
     constructor(public fb:FormBuilder) {
     }
 
     ngOnInit() {
-        this.form = this.createFormControlsAndAddValidators(this.config.fields);
+        this.createFormControls(this.config.fields);
+        this.form = this.fb.group(this.controls);
     }
 
     submit() {
@@ -106,66 +110,26 @@ export class UniForm implements OnInit {
         }
     }
 
-    private createFormControlsAndAddValidators(config) {
+    private createFormControls(config) {
         for (let i = 0; i < config.length; i++) {
             let field = config[i];
             if (field instanceof UniFieldBuilder) {
-                this.createFormControlAndAddValidators(field);
-                this.fbControls[field.field] = field.control;
+                this.createFormControl(field);
             } else {
-                this.createFormControlsAndAddValidators(field.fields);
+                this.createFormControls(field.fields);
             }
         }
-        return this.fb.group(this.fbControls);
     }
 
-    private createFormControlAndAddValidators(c) {
-        let syncValidators = this.composeSyncValidators(c);
-        let asyncValidators = this.composeAsyncValidators(c);
-        let messages = this.composeMessages(c);
-        let control = new Control("", syncValidators, asyncValidators);
-        control.updateValue(_.get(c.model,c.field),{
-            onlySelf: false,
-            emitEvent: false,
-            emitModelToViewChange: true
-        });
-        c.control = control;
-        c.errorMessages = messages;
-    }
+    private createFormControl(config) {
+        config.errorMessages = MessageComposer.composeMessages(config);
 
-    private composeSyncValidators(c) {
-        let validators = this.joinValidators(c.syncValidators);
-        return Validators.compose(validators);
-    }
+        config.control = ControlBuilder.build(
+            config,
+            ValidatorsComposer.composeSyncValidators(config),
+            ValidatorsComposer.composeAsyncValidators(config)
+        );
 
-    private composeAsyncValidators(c) {
-        let validators = this.joinValidators(c.asyncValidators);
-        return Validators.composeAsync(validators);
-    }
-
-    private joinValidators(validators) {
-        let list = [];
-        if (validators && Array.isArray(validators)) {
-            validators.forEach((validator:any)=> {
-                list.push(validator.validator);
-
-            });
-        }
-        return list;
-    }
-
-    private composeMessages(c) {
-        let messages = {};
-        this.assignMessages(c.asyncValidators, messages);
-        this.assignMessages(c.syncValidators, messages);
-        return messages;
-    }
-
-    private assignMessages(validators, list) {
-        if (validators && Array.isArray(validators)) {
-            validators.forEach((validator:any)=> {
-                list[validator.name] = validator.message;
-            });
-        }
+        this.controls[config.field] = config.control;
     }
 }
