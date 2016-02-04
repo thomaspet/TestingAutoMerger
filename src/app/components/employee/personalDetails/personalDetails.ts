@@ -45,7 +45,7 @@ export class PersonalDetails {
     ngAfterViewInit() {
 
         var self = this;
-        Observable.zip(
+        Observable.forkJoin(
             self.employeeDS.get(this.EmployeeID),
             self.employeeDS.layout('EmployeePersonalDetailsForm')
         ).subscribe(
