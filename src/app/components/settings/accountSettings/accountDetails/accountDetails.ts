@@ -1,10 +1,9 @@
 import {Component, provide, Input} from 'angular2/core';
 import {Validators, Control, FormBuilder} from 'angular2/common';
+import {Observable} from 'rxjs/Observable';
 import {UniForm,FIELD_TYPES} from '../../../../../framework/forms/uniForm';
 import {UNI_CONTROL_DIRECTIVES} from '../../../../../framework/controls';
 import {UNI_CONTROL_TYPES} from '../../../../../framework/controls/types';
-import {Observable} from 'rxjs/Observable';
-
 import {UniFormBuilder} from '../../../../../framework/forms/uniFormBuilder';
 import {UniFieldsetBuilder} from '../../../../../framework/forms/uniFieldsetBuilder';
 import {UniComboGroupBuilder} from '../../../../../framework/forms/uniComboGroupBuilder';
@@ -34,10 +33,7 @@ export class AccountDetails {
     }
 
     accountReady() {                     
-        // Acount details   
-        console.log("ACCOUNTREADY");
-        console.log(this.model);            
-                    
+        // Acount details                       
         var accountNumber = new UniFieldBuilder();
         accountNumber.setLabel('Kontonr.')
             .setModel(this.model)
@@ -122,9 +118,7 @@ export class AccountDetails {
         this.form.addField(systemSet);
     }
     
-    update() {
-        console.log("UPDATE CALLED");
-        
+    update() {      
         this.http.multipleRequests('GET', [
             { resource: "currencies" },
             { resource: "vattypes"},
@@ -133,9 +127,8 @@ export class AccountDetails {
             (dataset) => {
                 this.currencies = dataset[0];
                 this.vattypes = dataset[1];
-                this.model = dataset[2];
-                
-                this.accountReady();
+                this.model = dataset[2];   
+                this.accountReady();      
             },
             (error) => console.log(error)
         )  
@@ -154,9 +147,8 @@ export class AccountDetails {
     }      
                     
     ngOnChanges() {
-        console.log("NGCHANCHE")
-        console.log(this.account);
-        this.update();
+        console.log("NGCHANGE")
+        
     }
              
     onSubmit(value) {

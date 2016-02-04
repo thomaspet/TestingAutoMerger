@@ -60,7 +60,7 @@ export class UniForm {
     ngOnInit() {
         this.form = this.createFormControlsAndAddValidators(this.config.fields);
     }
-
+    
     hasError(field) {
         return field && field.control && field.control.touched && !field.control.valid;
     }
