@@ -60,7 +60,7 @@ export class CompanySettings implements OnInit {
     }
 
     dataReady(data) {
-        console.log("dataReady3 called");
+        console.log("dataReady called");
 
         if (data === null) {
             this.error = true;
@@ -194,15 +194,21 @@ export class CompanySettings implements OnInit {
         //periodSeriesAccountAll is only for test purpose of the above problem.
         var periodSeriesAccountAll = new UniFieldBuilder();
         periodSeriesAccountAll.setLabel('RegnskapsperioderAll')
-            .setModel(this.periodSeries[this.company.PeriodSeriesAccountID])
-            .setModelField('type')
+            .setModel(this.periodSeries)
+            .setModelField('Name')
             .setType(UNI_CONTROL_TYPES.DROPDOWN)
             .setKendoOptions({
                 dataSource: this.periodSeries,
                 dataTextField: 'Name',
-                dataValueField: 'ID'
+                dataValueField: 'ID',
+                index: 1,
+                select: (event: kendo.ui.DropDownListSelectEvent) => {
+                    var item: any = event.item;
+                    var dataItem = event.sender.dataItem(item.index());
+                    this.company.PeriodSeriesAccountID = dataItem.ID;
+                    console.log(dataItem.ID);
+                }
             });
-
 
         var periodSeriesAccount = new UniFieldBuilder();
         periodSeriesAccount.setLabel('Regnskapsperioder')
