@@ -658,6 +658,7 @@ export interface ICompanySettings {
 	AccountingLockedDate: Date;
 	VatLockedDate: Date;
 	WebAddress: string;
+	AccountGroupSetID: number;
 	StatusID: number;
 	ID: number;
 	Deleted: boolean;

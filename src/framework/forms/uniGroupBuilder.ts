@@ -57,7 +57,7 @@ export class UniGroupBuilder {
         this.collapsed = value;
     }
 
-    addClass(className:string, callback:any) {
+    addClass(className:string, callback: boolean|((...params:Array<any>)=>boolean)) {
         this.classes[className] = callback;
         return this;
     }

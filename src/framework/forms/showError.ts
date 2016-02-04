@@ -1,15 +1,19 @@
-import {Component,View, Host} from 'angular2/core';
-import {NgIf, NgForm, ControlGroup} from 'angular2/common';
+import {Component, Input} from 'angular2/core';
+import {NgIf} from 'angular2/common';
 
-@Component({selector: 'show-error', inputs: ['control','messages']})
-@View({
+@Component({
+    selector: 'show-error',
     template: `
-    <small *ngIf="errorMessage !== null">{{errorMessage}}</small>
-  `,
+        <small *ngIf="errorMessage !== null">{{errorMessage}}</small>
+    `,
     directives: [NgIf]
 })
 export class ShowError {
+
+    @Input()
     control;
+
+    @Input()
     messages;
 
     constructor() {  }

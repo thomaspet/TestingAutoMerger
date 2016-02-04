@@ -1,30 +1,46 @@
 import {Component} from 'angular2/core';
 import {UniComponentLoader} from '../core/componentLoader';
+import {Input} from "angular2/core";
+import {IElementBuilder} from "./interfaces";
 
 declare var _;
 
 @Component({
     selector: 'uni-fieldset',
-    inputs: ['config'],
     directives: [UniComponentLoader],
     template: `<fieldset [class]="buildClassString()">
-        <legend *ngIf="config.legend">{{config.legend}}</legend>
-        <template ngFor #field [ngForOf]="config.fields" #i="index">
+        <legend *ngIf="getLegend()">{{getLegend()}}</legend>
+        <template ngFor #field [ngForOf]="getFields()" #i="index">
             <uni-component-loader
-                [type]="field.fieldType"
+                [type]="getFieldType(field)"
                 [config]="field">
             </uni-component-loader>
         </template>
     </fieldset>`,
 })
 export class UniFieldset {
+
+    @Input()
     config;
 
-    constructor() {
-    }
+    constructor() {}
+
     hasError(field) {
         return field.control.touched && !field.control.valid;
     }
+
+    getFields() {
+        return this.config.fields;
+    }
+
+    getLegend() {
+        return this.config.legend;
+    }
+
+    getFieldType(field:IElementBuilder) {
+        return field.fieldType;
+    }
+
     buildClassString() {
         var classes = [];
         var cls = this.config.classes;

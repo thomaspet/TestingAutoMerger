@@ -11,6 +11,8 @@ import {UniComponentLoader} from "../core/componentLoader";
 import {MessageComposer} from "./messageComposer";
 import {ValidatorsComposer} from "./validatorsComposer";
 import {ControlBuilder} from "./controlBuilder";
+import {IElementBuilder} from "./interfaces";
+import {UniFormBuilder} from "./uniFormBuilder";
 
 declare var _;
 
@@ -26,9 +28,9 @@ export enum FIELD_TYPES {
     providers: [FORM_PROVIDERS],
     template: `
         <form (submit)="submit()" [ngFormModel]="form" [class]="buildClassString()" [class.error]="hasErrors()">
-            <template ngFor #field [ngForOf]="config.fields" #i="index">
+            <template ngFor #field [ngForOf]="getFields()" #i="index">
                 <uni-component-loader
-                    [type]="field.fieldType"
+                    [type]="getFieldType(field)"
                     [config]="field">
                 </uni-component-loader>
             </template>
@@ -39,7 +41,7 @@ export enum FIELD_TYPES {
 export class UniForm implements OnInit {
 
     @Input()
-    config;
+    config: UniFormBuilder;
 
     @Output()
     uniFormSubmit:EventEmitter<any> = new EventEmitter<any>(true);
@@ -72,6 +74,14 @@ export class UniForm implements OnInit {
 
     hasErrors() {
         return !this.form.valid;
+    }
+
+    getFields() {
+        return this.config.fields;
+    }
+
+    getFieldType(field:IElementBuilder) {
+        return field.fieldType;
     }
 
     buildClassString() {

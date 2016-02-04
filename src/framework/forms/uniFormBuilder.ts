@@ -1,25 +1,24 @@
-import {UniFieldBuilder} from './uniFieldBuilder';
-import {UniFieldsetBuilder} from './uniFieldsetBuilder';
-import {UniGroupBuilder} from './uniGroupBuilder';
-import {FIELD_TYPES} from './uniForm';
+import {UniFieldBuilder, UniFieldsetBuilder, UniGroupBuilder} from '../forms';
+import {IElementBuilder,IElementBuilderCollection} from './interfaces';
+//import {FIELD_TYPES} from './uniForm';
 
 declare var _;
 
 export class UniFormBuilder {
     editMode: boolean = true;
-    fields:Array<UniFieldBuilder|UniFieldsetBuilder|UniGroupBuilder>=[];
+    fields:IElementBuilderCollection=[];
     isSubmitButtonHidden: boolean = false;
     classes = [];
 
     constructor() {}
 
-    addField(field:UniFieldBuilder|UniFieldsetBuilder|UniGroupBuilder) {
+    addField(field:IElementBuilder) {
         this.fields.push(field);
         return this;
     }
 
-    addFields(...fields: Array<UniFieldBuilder|UniFieldsetBuilder|UniGroupBuilder>) {
-        fields.forEach((field)=>{
+    addFields(...fields:  Array<IElementBuilder>) {
+        fields.forEach((field:IElementBuilder)=>{
             this.fields.push(field);
         });
         return this;
@@ -47,7 +46,7 @@ export class UniFormBuilder {
         this.isSubmitButtonHidden = false;
     }
 
-    addClass(className:string, callback:any) {
+    addClass(className:string, callback: boolean|((...params:Array<any>)=>boolean)) {
         this.classes[className] = callback;
         return this;
     }
@@ -58,7 +57,7 @@ export class UniFormBuilder {
 
     findFieldset(index:number):UniFieldsetBuilder {
         var value: UniFieldsetBuilder = undefined;
-        this.fields.forEach((element:UniFieldBuilder|UniFieldsetBuilder|UniGroupBuilder)=>{
+        this.fields.forEach((element:IElementBuilder)=>{
             if (element.fieldsetIndex === index && element instanceof UniFieldsetBuilder) {
                 value = element;
             }
@@ -68,7 +67,7 @@ export class UniFormBuilder {
 
     findGroup(index:number): UniGroupBuilder {
         var value: UniGroupBuilder = undefined;
-        this.fields.forEach((element:UniFieldBuilder|UniFieldsetBuilder|UniGroupBuilder)=>{
+        this.fields.forEach((element:IElementBuilder)=>{
             if (element.sectionIndex === index && element instanceof UniGroupBuilder) {
                 value = element;
             }
@@ -77,8 +76,8 @@ export class UniFormBuilder {
     }
 
 
-    _readmode(fields: Array<UniFieldBuilder|UniFieldsetBuilder|UniGroupBuilder>) {
-        fields.forEach((field: UniFieldBuilder|UniFieldsetBuilder|UniGroupBuilder)=>{
+    _readmode(fields: IElementBuilderCollection) {
+        fields.forEach((field: IElementBuilder)=>{
            if (field instanceof UniFieldBuilder) {
                field.readmode();
            } else {
@@ -87,8 +86,8 @@ export class UniFormBuilder {
         });
     }
     
-    _editmode(fields: Array<UniFieldBuilder|UniFieldsetBuilder|UniGroupBuilder>) {
-        fields.forEach((field: UniFieldBuilder|UniFieldsetBuilder|UniGroupBuilder)=>{
+    _editmode(fields: IElementBuilderCollection) {
+        fields.forEach((field: IElementBuilder)=>{
            if (field instanceof UniFieldBuilder) {
                field.editmode();
            } else {

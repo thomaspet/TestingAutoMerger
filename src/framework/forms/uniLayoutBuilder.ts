@@ -2,6 +2,8 @@ import {UniFormBuilder} from './uniFormBuilder';
 import {UniFieldBuilder} from './uniFieldBuilder';
 import {UniFieldsetBuilder} from './uniFieldsetBuilder';
 import {UniGroupBuilder} from './uniGroupBuilder';
+import {IComponentLayout} from "../interfaces/interfaces";
+import {IFieldLayout} from "../interfaces/interfaces";
 
 export class UniLayoutBuilder {
 
@@ -9,9 +11,9 @@ export class UniLayoutBuilder {
 
     }
 
-    build(schema, model) {
+    build(schema:IComponentLayout, model: any) {
         var layout = new UniFormBuilder();
-        schema.Fields.forEach((element:any)=> {
+        schema.Fields.forEach((element:IFieldLayout)=> {
             if (this.isField(element)) {
                 layout.addField(UniFieldBuilder.fromLayoutConfig(element, model));//Element to add to unifield
             } else {
@@ -49,19 +51,19 @@ export class UniLayoutBuilder {
         return layout;
     }
 
-    isField(element) {
+    isField(element:IFieldLayout) {
         return element.FieldSet === 0 && element.Section === 0;
     }
 
-    isFieldSet(element) {
+    isFieldSet(element:IFieldLayout) {
         return element.FieldSet > 0 && element.Section === 0;
     }
 
-    isGroup(element) {
+    isGroup(element:IFieldLayout) {
         return element.Section > 0 && element.FieldSet === 0;
     }
 
-    isFieldsetInAGroup(element) {
+    isFieldsetInAGroup(element:IFieldLayout) {
         return element.Section > 0 && element.FieldSet > 0;
     }
 }

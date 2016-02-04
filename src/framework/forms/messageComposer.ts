@@ -1,6 +1,7 @@
+import {UniFieldBuilder} from "./uniFieldBuilder";
 export class MessageComposer {
 
-    public static composeMessages(fieldConfig) {
+    public static composeMessages(fieldConfig:UniFieldBuilder) {
         let messages = {};
         MessageComposer.assignMessages(fieldConfig.asyncValidators, messages);
         MessageComposer.assignMessages(fieldConfig.syncValidators, messages);

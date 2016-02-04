@@ -50,7 +50,7 @@ export class UniFieldsetBuilder {
         return this;
     }
 
-    addClass(className:string, callback:any) {
+    addClass(className:string, callback:boolean|((...params:Array<any>)=>boolean)) {
         this.classes[className] = callback;
         return this;
     }

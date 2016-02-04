@@ -1,8 +1,0 @@
-<label ngForm *ngIf="isInput(config.type)" [class.error]="hasError(config)" [class]="buildClassString()">
-    <span *ngIf="!isCheckbox(config.type)">{{config.label}}</span>
-    <uni-component-loader [type]="config.type" [config]="config"></uni-component-loader>
-    <show-error [control]="config.control" [messages]="config.errorMessages"></show-error>
-</label>
-<uni-radio-group *ngIf="isRadioGroup(config.type)" [config]="config"></uni-radio-group>
-
-
