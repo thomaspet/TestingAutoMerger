@@ -1,5 +1,5 @@
 <label ngForm *ngIf="isInput(config.type)" [class.error]="hasError(config)" [ngClass]="config.classes">
-    <span>{{config.label}}</span>
+    <span *ngIf="!isCheckbox(config.type)">{{config.label}}</span>
     <uni-component-loader [type]="config.type" [config]="config"></uni-component-loader>
     <show-error [control]="config.control" [messages]="config.errorMessages"></show-error>
 </label>
