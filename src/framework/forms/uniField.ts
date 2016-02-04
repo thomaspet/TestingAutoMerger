@@ -26,7 +26,11 @@ export class UniField {
     }
 
     isInput(type:Type) {
-        return  !this.isRadioGroup(type);
+        return !this.isRadioGroup(type);
+    }
+    
+    isCheckbox(type:Type) {
+        return UNI_CONTROL_DIRECTIVES.indexOf(type) === 7;
     }
 
     hasError(field: UniFieldBuilder) {
