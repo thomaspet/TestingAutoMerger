@@ -24,7 +24,7 @@ export enum FIELD_TYPES {
     inputs: ['config'],
     outputs: ['uniFormSubmit'],
     template: `
-        <form (submit)="submit()" [ngFormModel]="form">
+        <form (submit)="submit()" [ngFormModel]="form" [class]="config.buildClassString()">
             <template ngFor #field [ngForOf]="config.fields" #i="index">
                 <uni-component-loader
                     [type]="field.fieldType"

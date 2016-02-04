@@ -7,7 +7,7 @@ import {FIELD_TYPES} from './uniForm';
     inputs: ['config'],
     directives: [UniComponentLoader],
     template: `
-        <article class="formSection-collapsable" [ngClass]="{'-is-open':collapsed}">
+        <article class="formSection-collapsable" [ngClass]="{'-is-open':collapsed}" [class]="config.buildClassString()">
             <h4 *ngIf="config.legend" (click)="collapsed = !collapsed">{{config.legend}}</h4>
             <div class="collapsable-content">
                 <template ngFor #field [ngForOf]="config.fields" #i="index">

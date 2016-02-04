@@ -5,6 +5,8 @@ import {AbstractControl} from 'angular2/common';
 import {UniField} from './UniField';
 import {UniTextInput} from '../controls/text/text';
 
+declare var _;
+
 export class UniFieldBuilder {
     label:string = '';
     description: string = '';
@@ -86,9 +88,27 @@ export class UniFieldBuilder {
         return this;
     }
 
-    addClass(className:string) {
-        this.classes[className] = true;
+    addClass(className:string, callback:any) {
+        this.classes[className] = callback;
         return this;
+    }
+
+    buildClassString() {
+        var classes = [];
+        for(var cl in this.classes) {
+            if (this.classes.hasOwnProperty(cl)) {
+                var value = undefined;
+                if(_.isFunction(this.classes[cl])) {
+                    value = this.classes[cl]();
+                } else {
+                    value = this.classes[cl];
+                }
+                if (value === true) {
+                    classes.push(cl);
+                }
+            }
+        }
+        return classes.join(" ");
     }
 
     addSyncValidator(name:string, validator:Function, message:string) {

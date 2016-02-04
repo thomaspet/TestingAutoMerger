@@ -3,10 +3,13 @@ import {UniFieldsetBuilder} from './uniFieldsetBuilder';
 import {UniGroupBuilder} from './uniGroupBuilder';
 import {FIELD_TYPES} from './uniForm';
 
+declare var _;
+
 export class UniFormBuilder {
     editMode: boolean = true;
     fields:Array<UniFieldBuilder|UniFieldsetBuilder|UniGroupBuilder>=[];
     isSubmitButtonHidden: boolean = false;
+    classes = [];
 
     constructor() {}
 
@@ -42,6 +45,29 @@ export class UniFormBuilder {
 
     showSubmitButton() {
         this.isSubmitButtonHidden = false;
+    }
+
+    addClass(className:string, callback:any) {
+        this.classes[className] = callback;
+        return this;
+    }
+
+    buildClassString() {
+        var classes = [];
+        for(var cl in this.classes) {
+            if (this.classes.hasOwnProperty(cl)) {
+                var value = undefined;
+                if(_.isFunction(this.classes[cl])) {
+                    value = this.classes[cl]();
+                } else {
+                    value = this.classes[cl];
+                }
+                if (value === true) {
+                    classes.push(cl);
+                }
+            }
+        }
+        return classes.join(" ");
     }
 
     config() {

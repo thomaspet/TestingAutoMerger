@@ -5,7 +5,7 @@ import {UniComponentLoader} from '../core/componentLoader';
     selector: 'uni-fieldset',
     inputs: ['config'],
     directives: [UniComponentLoader],
-    template: `<fieldset>
+    template: `<fieldset [class]="config.buildClassString()">
         <legend *ngIf="config.legend">{{config.legend}}</legend>
         <template ngFor #field [ngForOf]="config.fields" #i="index">
             <uni-component-loader

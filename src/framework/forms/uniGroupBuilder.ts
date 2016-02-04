@@ -4,6 +4,8 @@ import {UniGroup} from "./uniGroup";
 import {Type} from 'angular2/core';
 import {UniFieldset} from "./uniFieldset";
 
+declare var _;
+
 export class UniGroupBuilder {
     legend:string = '';
     fields:Array<UniFieldBuilder|UniFieldsetBuilder> = [];
@@ -11,6 +13,7 @@ export class UniGroupBuilder {
     fieldType:Type;
     fieldsetIndex:number = 0;
     sectionIndex:number = 0;
+    classes = [];
 
     static fromLayoutConfig(element:any):UniGroupBuilder {
         var ufb = new UniGroupBuilder();
@@ -52,6 +55,29 @@ export class UniGroupBuilder {
 
     openByDefault(value:boolean) {
         this.collapsed = value;
+    }
+
+    addClass(className:string, callback:any) {
+        this.classes[className] = callback;
+        return this;
+    }
+
+    buildClassString() {
+        var classes = [];
+        for(var cl in this.classes) {
+            if (this.classes.hasOwnProperty(cl)) {
+                var value = undefined;
+                if(_.isFunction(this.classes[cl])) {
+                    value = this.classes[cl]();
+                } else {
+                    value = this.classes[cl];
+                }
+                if (value === true) {
+                    classes.push(cl);
+                }
+            }
+        }
+        return classes.join(" ");
     }
 
     config():Array<UniFieldBuilder|UniFieldsetBuilder> {
