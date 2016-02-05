@@ -23,7 +23,7 @@ export class UniComponentLoader {
     type: Type;
 
     @Input()
-    loader: any;
+    loader: (cmp:ComponentRef)=>any|Promise<any>|void;
 
     @Input()
     config: any;
