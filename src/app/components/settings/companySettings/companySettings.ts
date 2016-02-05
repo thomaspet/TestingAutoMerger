@@ -5,7 +5,7 @@ import {Http, Headers, Response} from 'angular2/http';
 import {Observable} from 'rxjs/Observable';
 import 'rxjs/add/operator/map';
 
-import {UniForm, FIELD_TYPES} from '../../../../framework/forms/uniForm';
+import {UniForm} from '../../../../framework/forms/uniForm';
 import {UniFormBuilder} from "../../../../framework/forms/builders/uniFormBuilder";
 import {UniFieldsetBuilder} from "../../../../framework/forms/builders/uniFieldsetBuilder";
 import {UniFieldBuilder} from "../../../../framework/forms/builders/uniFieldBuilder";
