@@ -3,7 +3,7 @@ import {Component, Injector, OnInit} from 'angular2/core';
 import {EmployeeDS} from '../../../../framework/data/employee';
 import {UNI_CONTROL_DIRECTIVES} from '../../../../framework/controls';
 import {UNI_CONTROL_TYPES} from '../../../../framework/controls/types';
-import {UniForm,UniFormBuilder,UniFieldBuilder,UniGroupBuilder} from '../../../../framework/forms';
+import {UniForm,UniFormBuilder,UniFieldBuilder,UniGroupBuilder,UniFieldsetBuilder} from '../../../../framework/forms';
 
 declare var jQuery;
 
@@ -34,91 +34,73 @@ export class Employment {
             
             var formbuilder = new UniFormBuilder();
             
-            var jobCode = new UniFieldBuilder()
-            .setLabel('stillingskode')
-            .setModel(employment)
-            .setModelField('JobCode')
-            .setType(UNI_CONTROL_DIRECTIVES[UNI_CONTROL_TYPES.TEXT]);
-        
-            var jobName = new UniFieldBuilder()
-            .setLabel('Navn')
-            .setModel(employment)
-            .setModelField('JobName')
-            .setType(UNI_CONTROL_DIRECTIVES[UNI_CONTROL_TYPES.TEXT]);
-            
-            var startDate = new UniFieldBuilder()
-            .setLabel('Startdato')
-            .setModel(employment)
-            .setModelField('StartDate')
-            .setType(UNI_CONTROL_DIRECTIVES[UNI_CONTROL_TYPES.DATEPICKER]);
-            
-            var endDate = new UniFieldBuilder()
-            .setLabel('Sluttdato')
-            .setModel(employment)
-            .setModelField('EndDate')
-            .setType(UNI_CONTROL_DIRECTIVES[UNI_CONTROL_TYPES.DATEPICKER]);
-            
-            var monthRate = new UniFieldBuilder()
-            .setLabel('Månedlønn')
-            .setModel(employment)
-            .setModelField('MonthRate')
-            .setType(UNI_CONTROL_DIRECTIVES[UNI_CONTROL_TYPES.NUMERIC]);
-            
-            var hourRate = new UniFieldBuilder()
-            .setLabel('Timelønn')
-            .setModel(employment)
-            .setModelField('HourRate')
-            .setType(UNI_CONTROL_DIRECTIVES[UNI_CONTROL_TYPES.NUMERIC]);
-            
-            var workPercent = new UniFieldBuilder()
-            .setLabel('Stillingprosent')
-            .setModel(employment)
-            .setModelField('WorkPercent')
-            .setType(UNI_CONTROL_DIRECTIVES[UNI_CONTROL_TYPES.NUMERIC]);
+            var jobCode = this.buildField('stillingskode',employment,'JobCode',UNI_CONTROL_TYPES.TEXT);
+            var jobName = this.buildField('Navn',employment,'JobName',UNI_CONTROL_TYPES.TEXT);
+            var startDate = this.buildField('Startdato',employment,'StartDate',UNI_CONTROL_TYPES.DATEPICKER);
+            var endDate = this.buildField('Sluttdato',employment,'EndDate',UNI_CONTROL_TYPES.DATEPICKER);
+            var monthRate = this.buildField('Månedlønn',employment,'MonthRate',UNI_CONTROL_TYPES.NUMERIC);
+            var hourRate = this.buildField('Timelønn',employment,'HourRate',UNI_CONTROL_TYPES.NUMERIC);
+            var workPercent = this.buildField('Stillingprosent',employment,'WorkPercent',UNI_CONTROL_TYPES.NUMERIC);
             
             if(typeof employment.Localization !== "undefined") 
             {
                 if(typeof employment.Localization.BusinessRelationInfo !== "undefined")
                 {
-                    var localization = new UniFieldBuilder()
-                    .setLabel('Lokalitet')
-                    .setModel(employment.Localization.BusinessRelationInfo)
-                    .setModelField('Name')
-                    .setType(UNI_CONTROL_DIRECTIVES[UNI_CONTROL_TYPES.TEXT]);
+                    var localization = this.buildField('Lokalitet',employment.Localization.BusinessRelationInfo,'Name',UNI_CONTROL_TYPES.TEXT);
                 }
             }
             else 
             {
-                var localization = new UniFieldBuilder()
-                    .setLabel('Lokalitet')
-                    .setModel(employment)
-                    .setModelField('LocalizationID')
-                    .setType(UNI_CONTROL_DIRECTIVES[UNI_CONTROL_TYPES.NUMERIC]);
+                var localization = this.buildField('Lokalitet',employment,'LocalizationID',UNI_CONTROL_TYPES.NUMERIC);
             }
             
-            //group.addFields(jobCode, jobName, startDate, endDate, monthRate, hourRate, workPercent, localization);
-
-        //     var readmore = new UniGroupBuilder("MER...");
-        //     
-        //     var salaryChanged = new UniFieldBuilder();
-        //     salaryChanged.setLabel('Endret lønn')
-        //     .setModel(employment)
-        //     .setModelField('LastSalaryChangeDate')
-        //     .setType(UNI_CONTROL_TYPES.DATEPICKER);
-        // 
-        //     var workpercentChange = new UniFieldBuilder();
-        //     workpercentChange.setLabel('Endret stillingprosent')
-        //     .setModel(employment)
-        //     .setModelField('LastWorkPercentChangeDate')
-        //     .setType(UNI_CONTROL_TYPES.DATEPICKER)
-        //     
-        //     readmore.addFields(salaryChanged, workpercentChange);
-        //     
-             formbuilder.addFields(jobCode, jobName, startDate, endDate, monthRate, hourRate, workPercent, localization);
-            //formbuilder.addFields(readmore);
+            var readgroup = this.buildGroupForm(employment);
+            
+            formbuilder.addFields(jobCode, jobName, startDate, endDate, monthRate, hourRate, workPercent, localization, readgroup);
             
             this.formConfigs.push(formbuilder);
         });
+    }
+    
+    buildGroupForm(employment) {
+        var groupBuilder = new UniGroupBuilder("Vis mer");
+        
+        //A-meldingsinfo
+        var ameldingSet = new UniFieldsetBuilder();
+        var tOfEmplnt = this.buildField('Arbeidsforhold',employment,'TypeOfEmployment',UNI_CONTROL_TYPES.COMBOBOX);
+        var hours = this.buildField('Standardtimer',employment,'HoursPerWeek',UNI_CONTROL_TYPES.COMBOBOX);
+        var renum = this.buildField('Avlønning',employment,'RenumerationType',UNI_CONTROL_TYPES.COMBOBOX);
+        var work = this.buildField('Arbeidstid',employment,'WorkingHoursScheme',UNI_CONTROL_TYPES.COMBOBOX);
+        ameldingSet.addFields(tOfEmplnt,hours,renum,work);
+        
+        //Dates
+        var dateSet = new UniFieldsetBuilder();
+        var salary = this.buildField('Lønnsjustering',employment,'LastSalaryChangeDate',UNI_CONTROL_TYPES.DATEPICKER);
+        var percent = this.buildField('Endret stillingprosent',employment,'LastWorkPercentChangeDate',UNI_CONTROL_TYPES.DATEPICKER);
+        var senority = this.buildField('Ansiennitet',employment,'SenorityDate',UNI_CONTROL_TYPES.DATEPICKER);
+        dateSet.addFields(salary,percent,senority);
+        
+        //Annen lønnsinfo
+        var infoSet = new UniFieldsetBuilder();
+        var freerate = this.buildField('Fri sats',employment,'UserdefinedRate',UNI_CONTROL_TYPES.NUMERIC);
+        var ledger = this.buildField('Hovedbokskonto',employment,'LedgerAccount',UNI_CONTROL_TYPES.NUMERIC);
+        infoSet.addFields(freerate,ledger);
+        
+        //Dimensjoner
+        //Prosjekt - ?
+        //Avdeling - ?
+        
+        groupBuilder.addFields(ameldingSet,dateSet,infoSet);
+        
+        return groupBuilder;
+    }
+    
+    buildField(label,model,modelfield,type) {
+        return new UniFieldBuilder()
+        .setLabel(label)
+        .setModel(model)
+        .setModelField(modelfield)
+        .setType(UNI_CONTROL_DIRECTIVES[type]);
     }
     
     onFormSubmit(event, index) {
