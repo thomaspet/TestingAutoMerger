@@ -1,7 +1,7 @@
 import {Component, Input} from 'angular2/core';
 
 @Component({
-    selector:'uni-email',
+    selector:'uni-text',
     template: `
         <input
             type="text"

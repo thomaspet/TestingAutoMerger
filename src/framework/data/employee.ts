@@ -1,9 +1,6 @@
-import {Injectable} from 'angular2/core';
-import {Http, Headers, Response} from 'angular2/http';
+import {Injectable,Inject} from 'angular2/core';
 import { Observable } from 'rxjs/Observable';
-import {ReplaySubject} from 'rxjs/Rx';
-import 'rxjs/add/operator/map';
-import 'rxjs/add/observable/from';
+import {UniHttpService} from "./uniHttpService";
 
 @Injectable()
 export class EmployeeDS {
@@ -11,19 +8,16 @@ export class EmployeeDS {
     baseUrl = 'http://localhost:27831/api';
     expandedProperties = 'BusinessRelationInfo,Employments.Localization.BusinessRelationInfo,BankAccounts,EmployeeCategoryLinks,VacationRateEmployee,Localization';
     employees: Array<any> = [];
-    constructor(private http:Http) {
-        
+    constructor(
+        @Inject(UniHttpService)
+        public http:UniHttpService) {
     }
     
     get(id) {
-        if (!this.employees[id]) {
-            var url = this.baseUrl + '/biz/employees/' + id + '?expand=' + this.expandedProperties;
-            this.employees[id] = new ReplaySubject(1);
-
-            return this._doGET(url)
-                .subscribe(this.employees[id]);
-        }
-        return this.employees[id]
+        return this.http.get({
+            resource: "employees/"+id,
+            expand: this.expandedProperties
+        });
     }
 
     layout(layoutID: string) {
@@ -37,7 +31,7 @@ export class EmployeeDS {
                     Property: "BusinessRelationInfo.Name",
                     Placement: 1,
                     Hidden: false,
-                    FieldType: 0, //TEXT
+                    FieldType: 10, //TEXT
                     ReadOnly: false,
                     LookupField: false,
                     Label: "Navn",
@@ -60,7 +54,7 @@ export class EmployeeDS {
                     Property: "SocialSecurityNumber",
                     Placement: 2,
                     Hidden: false,
-                    FieldType: 4, //MASKED
+                    FieldType: 10, //MASKED
                     ReadOnly: false,
                     LookupField: false,
                     Label: "Fødselsnummer",
@@ -117,7 +111,7 @@ export class EmployeeDS {
                     Property: "Sex",
                     Placement: 4,
                     Hidden: false,
-                    FieldType: 3, //DROPDOWN
+                    FieldType: 10, //DROPDOWN
                     ReadOnly: false,
                     LookupField: false,
                     Label: "Kjønn",
@@ -153,12 +147,5 @@ export class EmployeeDS {
                 }
             ]
         });
-    }
-    
-    _doGET(url) {
-        var headers = new Headers();
-        headers.append('Client','client1');
-        return this.http.get(url,{headers:headers})
-        .map((res)=>res.json())
     }
 }

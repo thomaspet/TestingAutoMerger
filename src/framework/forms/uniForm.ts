@@ -1,13 +1,18 @@
-import {Component, OnInit ,EventEmitter, Input} from 'angular2/core';
-import {FORM_DIRECTIVES, FORM_PROVIDERS, Control, FormBuilder, Validators} from "angular2/common";
+import {Component, OnInit ,EventEmitter, Input, Output} from 'angular2/core';
+import {FORM_DIRECTIVES, FORM_PROVIDERS, Control, ControlGroup, FormBuilder} from "angular2/common";
 import {UNI_CONTROL_DIRECTIVES} from '../controls';
 import {UniRadioGroup} from "../controls/radioGroup/uniRadioGroup";
 import {ShowError} from "./showError";
 import {UniField} from './uniField';
-import {UniFieldBuilder} from './uniFieldBuilder';
+import {UniFieldBuilder} from './builders/uniFieldBuilder';
 import {UniFieldset} from './uniFieldset';
 import {UniGroup} from './uniGroup';
 import {UniComponentLoader} from "../core/componentLoader";
+import {MessageComposer} from "./composers/messageComposer";
+import {ValidatorsComposer} from "./composers/validatorsComposer";
+import {ControlBuilder} from "./builders/controlBuilder";
+import {IElementBuilder} from "./interfaces";
+import {UniFormBuilder} from "./builders/uniFormBuilder";
 
 declare var _;
 
@@ -21,32 +26,36 @@ export enum FIELD_TYPES {
     selector: 'uni-form',
     directives: [FORM_DIRECTIVES, UniField, UniFieldset, UniGroup, UniComponentLoader],
     providers: [FORM_PROVIDERS],
-    inputs: ['config'],
-    outputs: ['uniFormSubmit'],
     template: `
-        <form (submit)="submit()" [ngFormModel]="form">
-            <template ngFor #field [ngForOf]="config.fields" #i="index">
+        <form (submit)="submit()" [ngFormModel]="form" [class]="buildClassString()" [class.error]="hasErrors()">
+            <template ngFor #field [ngForOf]="getFields()" #i="index">
                 <uni-component-loader
-                    [type]="field.fieldType"
+                    [type]="getFieldType(field)"
                     [config]="field">
                 </uni-component-loader>
             </template>
-            <button type="submit" [disabled]="!form.valid" [hidden]="config.isSubmitButtonHidden">submit</button>
+            <button type="submit" [disabled]="hasErrors()" [hidden]="isSubmitButtonHidden()">{{submitText}}</button>
         </form>
     `
 })
-export class UniForm {
+export class UniForm implements OnInit {
 
-    form;
-    @Input() config;
+    @Input()
+    config: UniFormBuilder;
+
+    @Output()
     uniFormSubmit:EventEmitter<any> = new EventEmitter<any>(true);
-    fbControls = {};
+
+    form: ControlGroup;
+    submitText:string = 'submit';
+    controls = {};
 
     constructor(public fb:FormBuilder) {
     }
 
-    getSubmitEvent() {
-        return this.uniFormSubmit;
+    ngOnInit() {
+        this.createFormControls(this.config.fields);
+        this.form = this.fb.group(this.controls);
     }
 
     submit() {
@@ -55,14 +64,44 @@ export class UniForm {
         return false;
     }
 
-    ngOnInit() {
-        this.form = this.createFormControlsAndAddValidators(this.config.fields);
+    getEventEmitter() {
+        return this.uniFormSubmit;
     }
 
-    hasError(field) {
-        return field && field.control && field.control.touched && !field.control.valid;
+    isSubmitButtonHidden() {
+        return this.config.isSubmitButtonHidden;
     }
 
+    hasErrors() {
+        return !this.form.valid;
+    }
+
+    getFields() {
+        return this.config.fields;
+    }
+
+    getFieldType(field:IElementBuilder) {
+        return field.fieldType;
+    }
+
+    buildClassString() {
+        var classes = [];
+        var cls = this.config.classes;
+        for(var cl in cls) {
+            if (cls.hasOwnProperty(cl)) {
+                var value = undefined;
+                if(_.isFunction(cls[cl])) {
+                    value = cls[cl]();
+                } else {
+                    value = cls[cl];
+                }
+                if (value === true) {
+                    classes.push(cl);
+                }
+            }
+        }
+        return classes.join(" ");
+    }
 
     updateModel(config?, formValue?) {
         var config = config || this.config.fields;
@@ -81,63 +120,26 @@ export class UniForm {
         }
     }
 
-    private createFormControlsAndAddValidators(config) {
+    private createFormControls(config) {
         for (let i = 0; i < config.length; i++) {
             let field = config[i];
             if (field instanceof UniFieldBuilder) {
-                this.addValidators(field);
-                this.fbControls[field.field] = field.control;
+                this.createFormControl(field);
             } else {
-                this.createFormControlsAndAddValidators(field.fields);
+                this.createFormControls(field.fields);
             }
         }
-        return this.fb.group(this.fbControls);
     }
 
-    private addValidators(c) {
-        let syncValidators = this.composeSyncValidators(c);
-        let asyncValidators = this.composeAsyncValidators(c);
-        let messages = this.composeMessages(c);
-        let control = new Control("", syncValidators, asyncValidators);
-        control.updateValue(_.get(c.model,c.field));
-        c.control = control;
-        c.errorMessages = messages;
-        //c.classes.error = c.control.touched && !c.control.valid;
-    }
+    private createFormControl(config) {
+        config.errorMessages = MessageComposer.composeMessages(config);
 
-    private composeSyncValidators(c) {
-        let validators = this.joinValidators(c.syncValidators);
-        return Validators.compose(validators);
-    }
+        config.control = ControlBuilder.build(
+            config,
+            ValidatorsComposer.composeSyncValidators(config),
+            ValidatorsComposer.composeAsyncValidators(config)
+        );
 
-    private composeAsyncValidators(c) {
-        let validators = this.joinValidators(c.asyncValidators);
-        return Validators.composeAsync(validators);
-    }
-
-    private joinValidators(validators) {
-        let list = [];
-        if (validators && Array.isArray(validators)) {
-            validators.forEach((validator)=> {
-                list.push(validator.validator);
-
-            });
-        }
-        return list;
-    }
-
-    private composeMessages(c) {
-        let messages = {};
-        this.assignMessages(c.asyncValidators, messages);
-        this.assignMessages(c.syncValidators, messages);
-        return messages;
-    }
-
-    private assignMessages(validators, list) {
-        if (validators && Array.isArray(validators)) {
-            validators.forEach((validator)=> {
-                list[validator.name] = validator.message;
-            });
-        }
+        this.controls[config.field] = config.control;
     }
 }

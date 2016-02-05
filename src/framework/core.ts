@@ -1,1 +1,2 @@
-export * from './core/component_proxy';
+export * from './core/componentProxy';
+export * from './core/componentLoader';
