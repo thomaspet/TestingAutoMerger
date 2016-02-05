@@ -26,7 +26,11 @@ export class UniComponentLoader {
         }
     }
 
-    load(type: Type,loader: any) {
-        return this.dcl.loadIntoLocation(type,this.element,'content').then(loader);
+    load(type: Type,loader?: any) {
+        var p = this.dcl.loadIntoLocation(type,this.element,'content');
+        if (loader) {
+            return p.then(loader);
+        }
+        return p;
     }
 }

@@ -32,7 +32,7 @@ export class PersonalDetails {
     form:UniFormBuilder = new UniFormBuilder();
     layout;
     employee;
-    @ViewChild(UniComponentLoader) ucl:UniComponentLoader;
+    @ViewChild(UniComponentLoader) uniCmpLoader:UniComponentLoader;
     EmployeeID;
     formInstance:UniForm;
 
@@ -53,12 +53,11 @@ export class PersonalDetails {
                 self.form = new UniLayoutBuilder().build(response[1], self.employee);
                 self.form.hideSubmitButton();
 
-                self.ucl.load(UniForm, (cmp:ComponentRef)=> {
+                self.uniCmpLoader.load(UniForm, (cmp:ComponentRef)=> {
                     cmp.instance.config = self.form;
                     setTimeout(()=> {
                         self.formInstance = cmp.instance;
                     }, 100);
-
                 });
             },
             error => console.error(error)
