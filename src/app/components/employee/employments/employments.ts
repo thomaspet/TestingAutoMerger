@@ -1,7 +1,6 @@
 import 'rxjs/add/operator/merge';
 import {Observable} from 'rxjs/Observable';
 import {RouteParams} from 'angular2/router';
-import {UniForm} from '../../../../framework/forms/uniForm';
 import {EmployeeDS} from '../../../../framework/data/employee';
 import {EmployeeModel} from '../../../../framework/models/employee';
 import {UNI_CONTROL_TYPES} from '../../../../framework/controls/types';
