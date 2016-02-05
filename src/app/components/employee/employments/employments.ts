@@ -6,9 +6,7 @@ import {EmployeeDS} from '../../../../framework/data/employee';
 import {EmployeeModel} from '../../../../framework/models/employee';
 import {UNI_CONTROL_TYPES} from '../../../../framework/controls/types';
 import {UNI_CONTROL_DIRECTIVES} from '../../../../framework/controls';
-import {UniFormBuilder} from '../../../../framework/forms/uniFormBuilder';
-import {UniFieldBuilder} from '../../../../framework/forms/uniFieldBuilder';
-import {UniGroupBuilder} from '../../../../framework/forms/uniGroupBuilder';
+import {UniForm,UniFormBuilder,UniFieldBuilder,UniGroupBuilder} from '../../../../framework/forms';
 import {UniComponentLoader} from '../../../../framework/core/componentloader';
 import {Component, Injector, OnInit, ViewChild, DynamicComponentLoader, ElementRef, 
         ComponentRef, Type} from 'angular2/core';
@@ -17,7 +15,7 @@ declare var jQuery;
 
 @Component({
     selector: 'employee-employment',
-    directives: [UniComponentLoader],
+    directives: [UniComponentLoader, UniForm],
     templateUrl: 'app/components/employee/employments/employments.html'
 })
 export class Employment {

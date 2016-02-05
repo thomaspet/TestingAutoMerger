@@ -6,10 +6,7 @@ import {UniForm} from '../../../../framework/forms/uniForm';
 import {UNI_CONTROL_TYPES} from '../../../../framework/controls/types';
 import {UNI_CONTROL_DIRECTIVES} from '../../../../framework/controls';
 
-import {UniFormBuilder} from '../../../../framework/forms/uniFormBuilder';
-import {UniFieldBuilder} from '../../../../framework/forms/uniFieldBuilder';
-import {UniFieldsetBuilder} from '../../../../framework/forms/uniFieldsetBuilder';
-import {UniGroupBuilder} from '../../../../framework/forms/uniGroupBuilder';
+import {UniFormBuilder,UniFieldBuilder,UniFieldsetBuilder,UniGroupBuilder} from '../../../../framework/forms';
 
 import {EmployeeDS} from '../../../../framework/data/employee';
 import {EmployeeModel} from '../../../../framework/models/employee';
