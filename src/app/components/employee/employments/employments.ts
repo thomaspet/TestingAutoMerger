@@ -1,67 +1,37 @@
-import 'rxjs/add/operator/merge';
-import {Observable} from 'rxjs/Observable';
 import {RouteParams} from 'angular2/router';
+import {Component, Injector, OnInit} from 'angular2/core';
 import {EmployeeDS} from '../../../../framework/data/employee';
-import {EmployeeModel} from '../../../../framework/models/employee';
-import {UNI_CONTROL_TYPES} from '../../../../framework/controls/types';
 import {UNI_CONTROL_DIRECTIVES} from '../../../../framework/controls';
+import {UNI_CONTROL_TYPES} from '../../../../framework/controls/types';
 import {UniForm,UniFormBuilder,UniFieldBuilder,UniGroupBuilder} from '../../../../framework/forms';
-import {UniComponentLoader} from '../../../../framework/core/componentloader';
-import {Component, Injector, OnInit, ViewChild, DynamicComponentLoader, ElementRef, 
-        ComponentRef, Type} from 'angular2/core';
 
 declare var jQuery;
 
 @Component({
     selector: 'employee-employment',
-    directives: [UniComponentLoader, UniForm],
+    directives: [UniForm],
     templateUrl: 'app/components/employee/employments/employments.html'
 })
 export class Employment {
     currentEmployee;
-    employeeID;
-    //form: UniFormBuilder = new UniFormBuilder();
     formConfigs: UniFormBuilder[];
-    //@ViewChild(UniComponentLoader) ucl: UniComponentLoader;
     
     constructor(private Injector:Injector, public employeeDS:EmployeeDS) {
-        //var routeParams = Injector.parent.parent.get(RouteParams);//Any way to get that in an easy way????
-        //this.employeeID = routeParams.get('id');
-        
         let params = Injector.parent.parent.get(RouteParams);
         employeeDS.get(params.get('id'))
         .subscribe(response => {
             this.currentEmployee = response;
-            console.log(response);
+            //console.log(response);
             this.buildFormConfigs();
-            console.log(this.formConfigs);
+            //console.log(this.formConfigs);
         },error => console.log(error));
     }
-    
-    // ngAfterViewInit() {
-    //     var self = this;
-    //     Observable.zip(
-    //         self.employeeDS.get(this.employeeID),
-    //         self.employeeDS.layout('EmployeeEmploymentsForm')
-    //     ).subscribe(
-    //         response => {
-    //             self.currentEmployee = EmployeeModel.createFromObject(response[0]);
-    //             self.buildFormConfigs();
-    //             
-    //             self.ucl.load(UniForm,(cmp:ComponentRef)=>{
-    //                 cmp.instance.config = self.formConfigs;
-    //                 
-    //             });
-    //         },
-    //         error => console.error(error)
-    //     );
-    // }
     
     buildFormConfigs() {
         this.formConfigs = [];
         
         this.currentEmployee.Employments.forEach((employment) => {
-            //var group = new UniGroupBuilder(employment.JobName);
+            
             var formbuilder = new UniFormBuilder();
             
             var jobCode = new UniFieldBuilder()
@@ -147,7 +117,6 @@ export class Employment {
              formbuilder.addFields(jobCode, jobName, startDate, endDate, monthRate, hourRate, workPercent, localization);
             //formbuilder.addFields(readmore);
             
-            //this.form = formbuilder;
             this.formConfigs.push(formbuilder);
         });
     }

@@ -47,7 +47,7 @@ export class Hours {
     ngAfterViewInit() {
 
         var self = this;
-        Observable.zip(
+        Observable.forkJoin(
             self.employeeDS.get(this.EmployeeID),
             self.employeeDS.layout('EmployeeEmploymentsForm')
         ).subscribe(
