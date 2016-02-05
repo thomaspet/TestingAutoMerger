@@ -6,7 +6,7 @@ import {UniForm} from '../../../../framework/forms/uniForm';
 import {UNI_CONTROL_DIRECTIVES} from '../../../../framework/controls';
 
 import {
-    UniFormBuilder, UniFieldBuilder, UniFieldsetBuilder, UniGroupBuilder, UniLayoutBuilder
+    UniFormBuilder, UniFieldBuilder, UniFieldsetBuilder, UniGroupBuilder, UniFormLayoutBuilder
 } from '../../../../framework/forms';
 
 import {EmployeeDS} from '../../../../framework/data/employee';
@@ -50,7 +50,7 @@ export class PersonalDetails {
         ).subscribe(
             response => {
                 self.employee = EmployeeModel.createFromObject(response[0]);
-                self.form = new UniLayoutBuilder().build(response[1], self.employee);
+                self.form = new UniFormLayoutBuilder().build(response[1], self.employee);
                 self.form.hideSubmitButton();
 
                 self.uniCmpLoader.load(UniForm, (cmp:ComponentRef)=> {

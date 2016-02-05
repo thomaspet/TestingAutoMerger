@@ -1,6 +1,9 @@
 import {Component, Input} from 'angular2/core';
 import {NgIf} from 'angular2/common';
 
+/**
+ * Displays error message that is attached to an invalid control
+ */
 @Component({
     selector: 'show-error',
     template: `
@@ -18,6 +21,11 @@ export class ShowError {
 
     constructor() {  }
 
+    /**
+     * Returns the first error message attached to an AbstractControl
+     *
+     * @returns {any}
+     */
     get errorMessage(): string {
         if (this.control && this.control.touched) {
             let em = this.messages;

@@ -1,8 +1,12 @@
 import {UniFormBuilder, UniFieldBuilder, UniFieldsetBuilder, UniGroupBuilder} from '../../forms';
 import {IComponentLayout, IFieldLayout} from "../../interfaces/interfaces";
 
-
-export class UniLayoutBuilder {
+/**
+ *
+ * Builds a Form Layout from an IComponentLayout that comes from server
+ *
+ */
+export class UniFormLayoutBuilder {
 
     constructor() {
 

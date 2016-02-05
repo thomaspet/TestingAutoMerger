@@ -2,9 +2,13 @@ import {Component} from 'angular2/core';
 import {UniComponentLoader} from '../core/componentLoader';
 import {Input} from "angular2/core";
 import {IElementBuilder} from "./interfaces";
+import {UniFieldsetBuilder} from "./builders/uniFieldsetBuilder";
 
 declare var _;
 
+/**
+ * Component that groups UniFields
+ */
 @Component({
     selector: 'uni-fieldset',
     directives: [UniComponentLoader],
@@ -21,26 +25,53 @@ declare var _;
 export class UniFieldset {
 
     @Input()
-    config;
+    config: UniFieldsetBuilder;
 
     constructor() {}
 
+    /**
+     * Return true if the control of this field is invalid
+     *
+     * @param field
+     * @returns {boolean}
+     */
     hasError(field) {
         return field.control.touched && !field.control.valid;
     }
 
+    /**
+     * Returns fields
+     *
+     * @returns Array<IElementBuilder>
+     */
     getFields() {
         return this.config.fields;
     }
 
+    /**
+     * return the legend
+     *
+     * @returns {string}
+     */
     getLegend() {
         return this.config.legend;
     }
 
+    /**
+     * Returns the type (IElementBuilder) of that field
+     *
+     * @param field
+     * @returns {Type}
+     */
     getFieldType(field:IElementBuilder) {
         return field.fieldType;
     }
 
+    /**
+     * It builds the string of classes after evaluate each class callback
+     *
+     * @returns {string}
+     */
     buildClassString() {
         var classes = [];
         var cls = this.config.classes;

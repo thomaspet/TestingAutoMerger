@@ -1,11 +1,15 @@
 import {Component} from 'angular2/core';
 import {UniComponentLoader} from '../core/componentLoader';
-import {FIELD_TYPES} from './uniForm';
 import {Input} from "angular2/core";
 import {IElementBuilder} from "./interfaces";
+import {UniGroupBuilder} from "./builders/uniGroupBuilder";
 
 declare var _;
 
+/**
+ * Creates a group of inputs that can be collapsed
+ * It can contain UniFields and UniFieldsets
+ */
 @Component({
     selector: 'uni-group',
     directives: [UniComponentLoader],
@@ -24,8 +28,12 @@ declare var _;
     `
 })
 export class UniGroup {
+
+    /**
+     * UniGroup config
+     */
     @Input()
-    config;
+    config: UniGroupBuilder;
 
     constructor() {
 
@@ -34,26 +42,54 @@ export class UniGroup {
     ngOnInit() {
     }
 
+    /**
+     * returns true if group is collapsed
+     * @returns {boolean|any}
+     */
     isCollapsed() {
         return this.config.collapsed;
     }
 
+    /**
+     * open and close the group
+     */
     toggleCollapsed() {
         this.config.collapsed = !this.config.collapsed;
     }
 
-    getLegend() {
+    /**
+     * return the legend
+     *
+     * @returns {string}
+     */
+    getLegend(): string {
         return this.config.legend;
     }
 
-    getFields() {
+    /**
+     * Returns fields
+     *
+     * @returns Array<IElementBuilder>
+     */
+    getFields(): Array<IElementBuilder> {
         return this.config.fields;
     }
 
+    /**
+     * Returns the type (IElementBuilder) of that field
+     *
+     * @param field
+     * @returns {Type}
+     */
     getFieldType(field:IElementBuilder) {
         return field.fieldType;
     }
 
+    /**
+     * It builds the string of classes after evaluate each class callback
+     *
+     * @returns {string}
+     */
     buildClassString() {
         var classes = [];
         var cls = this.config.classes;

@@ -9,5 +9,5 @@ export * from './forms/uniForm';
 export * from './forms/builders/uniFormBuilder';
 export * from './forms/uniGroup';
 export * from './forms/builders/uniGroupBuilder';
-export * from './forms/builders/uniLayoutBuilder';
+export * from './forms/builders/uniFormLayoutBuilder';
 export * from './forms/composers/validatorsComposer';
