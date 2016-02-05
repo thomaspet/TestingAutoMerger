@@ -33,7 +33,7 @@ export class UniGroup {
      * UniGroup config
      */
     @Input()
-    config: UniGroupBuilder;
+    config;
 
     constructor() {
 

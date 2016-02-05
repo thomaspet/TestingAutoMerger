@@ -1,6 +1,5 @@
-import {Component} from 'angular2/core';
+import {Component, Input} from 'angular2/core';
 import {UniComponentLoader} from '../core/componentLoader';
-import {Input} from "angular2/core";
 import {IElementBuilder} from "./interfaces";
 import {UniFieldsetBuilder} from "./builders/uniFieldsetBuilder";
 
@@ -25,7 +24,7 @@ declare var _;
 export class UniFieldset {
 
     @Input()
-    config: UniFieldsetBuilder;
+    config:UniFieldsetBuilder;
 
     constructor() {}
 

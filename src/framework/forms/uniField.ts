@@ -1,13 +1,10 @@
-import {Component, Type} from 'angular2/core';
-
+import {Component, Type, Input} from 'angular2/core';
 import {NgIf, NgForm} from 'angular2/common';
 import {UNI_CONTROL_DIRECTIVES} from '../controls';
 import {ShowError} from "../forms/showError";
 import {UniRadioGroup} from "../controls/radioGroup/uniRadioGroup";
-import {UNI_CONTROL_TYPES} from '../controls/types';
 import {UniComponentLoader} from "../core/componentLoader";
 import {UniFieldBuilder} from "./builders/uniFieldBuilder";
-import {Input} from "angular2/core";
 
 declare var _;
 
@@ -31,11 +28,7 @@ export class UniField {
     @Input()
     config:UniFieldBuilder;
 
-    CONTROL_TYPES;
-
-    constructor() {
-        this.CONTROL_TYPES = UNI_CONTROL_TYPES;
-    }
+    constructor() {}
 
     /**
      * Returns the actual config
