@@ -13,7 +13,7 @@ export interface MaskedInputConfig {
 	selector: "uni-masked",
 	template: InputTemplateString
 })
-export class MaskedInput implements AfterViewInit, OnDestroy {
+export class UniMaskedInput implements AfterViewInit, OnDestroy {
 	@Input() config: MaskedInputConfig;
 	nativeElement;
     

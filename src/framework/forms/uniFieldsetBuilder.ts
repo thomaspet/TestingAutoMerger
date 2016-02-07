@@ -1,13 +1,41 @@
 import {UniFieldBuilder} from './uniFieldBuilder';
-import {FIELD_TYPES} from "./uniForm";
+import {UniFieldset} from "./uniFieldset";
+import {Type} from 'angular2/core';
+
+declare var _;
 
 export class UniFieldsetBuilder {
     legend: string = '';
     fields: Array<UniFieldBuilder>=[];
-    fieldType: number;
+    fieldType: Type;
+    fieldsetIndex:number = 0;
+    sectionIndex:number = 0;
+    classes = [];
+
+    static fromLayoutConfig(element:any):UniFieldsetBuilder {
+        var ufb = new UniFieldsetBuilder();
+
+        //ufb.label = element.Label;
+        //ufb.description = element.Description;
+        //ufb.readonly = element.ReadOnly;
+        //ufb.isLookup = element.LookupField;
+        //ufb.helpText = element.helpText;
+        ufb.fieldsetIndex = element.FieldSet;
+        ufb.sectionIndex = element.Section;
+        ufb.legend = element.Legend;
+        //ufb.hidden = element.Hidden;
+        //ufb.placement = element.placement;
+        //ufb.entityType = element.EntityType;
+        //ufb.componentLayoutID = element.ComponentLayoutID;
+        //ufb.field = element.Property;
+        ufb.fieldType = UniFieldset;
+
+        return ufb;
+    }
+
     constructor(legend?:string) {
         this.legend = legend || "";
-        this.fieldType = FIELD_TYPES.FIELDSET;
+        this.fieldType = UniFieldset;
     }
 
     addField(field:UniFieldBuilder) {
@@ -22,7 +50,12 @@ export class UniFieldsetBuilder {
         return this;
     }
 
-    config() {
+    addClass(className:string, callback:any) {
+        this.classes[className] = callback;
+        return this;
+    }
+
+    config():Array<UniFieldBuilder> {
         return this.fields;
     }
 }

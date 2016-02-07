@@ -24,15 +24,6 @@ export class UniHttpService {
         // auth headers
     }
     
-    buildUrlParams(request: UniHttpRequest) {
-        var urlParams = new URLSearchParams();
-        if (request.expand) urlParams.append('expand', request.expand);
-        if (request.filter) urlParams.append('filter', request.filter);
-        if (request.action) urlParams.append('action', request.action);
-        
-        return urlParams;
-    }    
-    
     get(request: UniHttpRequest) {
         return this.http.get(this.baseUrl + request.resource, {
             headers: this.headers,
@@ -84,5 +75,14 @@ export class UniHttpService {
         });
 
         return Observable.forkJoin(uniHttpCalls);
+    }
+
+    private buildUrlParams(request: UniHttpRequest) {
+        var urlParams = new URLSearchParams();
+        if (request.expand) urlParams.append('expand', request.expand);
+        if (request.filter) urlParams.append('filter', request.filter);
+        if (request.action) urlParams.append('action', request.action);
+
+        return urlParams;
     }
 }

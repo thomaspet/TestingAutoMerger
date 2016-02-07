@@ -18,7 +18,7 @@ export interface AutocompleteConfig {
 	selector:'uni-autocomplete',
 	template: InputTemplateString
 })
-export class Autocomplete implements AfterViewInit, OnDestroy {
+export class UniAutocomplete implements AfterViewInit, OnDestroy {
 	@Input() config: AutocompleteConfig;
     nativeElement;
 	

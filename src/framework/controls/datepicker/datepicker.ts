@@ -15,7 +15,7 @@ export interface DatepickerConfig {
 	selector: 'uni-datepicker',
 	template: InputTemplateString
 })
-export class Datepicker implements AfterViewInit, OnDestroy {
+export class UniDatepicker implements AfterViewInit, OnDestroy {
 	@Input() config: DatepickerConfig;
     nativeElement;
 		
