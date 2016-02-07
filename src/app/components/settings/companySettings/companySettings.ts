@@ -16,20 +16,21 @@ import {UNI_CONTROL_DIRECTIVES} from '../../../../framework/controls';
 import {ApplicationNav} from '../../common/applicationNav/applicationNav';
 
 import {CompanySettingsDS} from '../../../../framework/data/companySettings';
+import {UniHttpService} from '../../../../framework/data/uniHttpService';
 
 @Component({
     selector: 'settings',
     templateUrl: 'app/components/settings/companySettings/companySettings.html',
-    providers: [provide(CompanySettingsDS, { useClass: CompanySettingsDS })],
-    directives: [ROUTER_DIRECTIVES, NgFor, NgIf, UniForm]
+    directives: [ROUTER_DIRECTIVES, NgFor, NgIf, UniForm],
+    providers: [provide(CompanySettingsDS, { useClass: CompanySettingsDS })]
 })
 
 export class CompanySettings implements OnInit {
 
     id: any;
     form: any;
-    error: boolean;
-    headers: Headers;
+    // error: boolean;
+    //headers: Headers;
     company: any;
     activeCompany: any;
     companyTypes: Array<any> = [];
@@ -37,43 +38,45 @@ export class CompanySettings implements OnInit {
     periodSeries: Array<any> = [];
     accountGroupSets: Array<any> = [];
 
-    constructor(private routeParams: RouteParams, private companySettingsDS: CompanySettingsDS) { }
+    constructor(private routeParams: RouteParams, private companySettingsDS: CompanySettingsDS, , private http: UniHttpService) { }
+    /*
+        ngOnInit() {
+    
+            //ID of active company used to GET company settings
+            //ONLY GETTING DATA WHEN **UNI MICRO AS*** IS CHOSEN
+            //BECAUSE ID = 1 IS THE ONLY ONE IN THE DB
+            this.id = JSON.parse(localStorage.getItem('activeCompany')).id;
+    
+            this.error = false;
+            this.headers = new Headers();
+            this.headers.append('Client', 'client1');
+    
+            //Observable.forkJoin(
+            //    this.companySettingsDS.get(this.id),
+            //    this.companySettingsDS.getCompanyTypes(),
+            //    this.companySettingsDS.getCurrencies(),
+            //    this.companySettingsDS.getPeriodSeries(),
+            //    this.companySettingsDS.getAccountGroupSets()
+            //).subscribe(results => this.dataReady(results))
+            //    , error=> console.log(error);
+    
+    
+        }
+        */
 
-    ngOnInit() {
-
-        //ID of active company used to GET company settings
-        //ONLY GETTING DATA WHEN **UNI MICRO AS*** IS CHOSEN
-        //BECAUSE ID = 1 IS THE ONLY ONE IN THE DB
-        this.id = JSON.parse(localStorage.getItem('activeCompany')).id;
-
-        this.error = false;
-        this.headers = new Headers();
-        this.headers.append('Client', 'client1');
-
-        Observable.forkJoin(
-            this.companySettingsDS.get(this.id),
-            this.companySettingsDS.getCompanyTypes(),
-            this.companySettingsDS.getCurrencies(),
-            this.companySettingsDS.getPeriodSeries(),
-            this.companySettingsDS.getAccountGroupSets()
-        ).subscribe(results => this.dataReady(results))
-            , error=>console.log(error);
-
-    }
-
-    dataReady(data) {
+    dataReady() {
         console.log("dataReady called");
 
-        if (data === null) {
-            this.error = true;
-            return;
-        }
+        //if (data === null) {
+        //    this.error = true;
+        //    return;
+        //}
 
-        this.company = data[0];
-        this.companyTypes = data[1];
-        this.currencies = data[2];
-        this.periodSeries = data[3];
-        this.accountGroupSets = data[4];
+        //this.company = data[0];
+        //this.companyTypes = data[1];
+        //this.currencies = data[2];
+        //this.periodSeries = data[3];
+        //this.accountGroupSets = data[4];
 
         var formBuilder = new UniFormBuilder();
 
@@ -183,7 +186,6 @@ export class CompanySettings implements OnInit {
                 dataValueField: 'Code',
                 index: this.currencies.indexOf(this.company.BaseCurrency)
             });
-
         companySetup.addFields(companyReg, taxMandatory, companyType, companyCurrency);
 
         /********************************************************************/
@@ -191,7 +193,7 @@ export class CompanySettings implements OnInit {
         var accountingSettings = new UniGroupBuilder('Regnskapsinnstillinger');
 
         var periodSeriesAccountAll = new UniFieldBuilder();
-        periodSeriesAccountAll.setLabel('RegnskapsperioderAllXX')
+        periodSeriesAccountAll.setLabel('RegnskapsperioderAll')
             .setModel(this.company)
             .setModelField('PeriodSeriesAccountID')
             .setType(UNI_CONTROL_DIRECTIVES[3])
@@ -290,17 +292,83 @@ export class CompanySettings implements OnInit {
             .setModel(this.company)
             .setModelField('ForceSupplierInvoiceApproval')
             .setType(UNI_CONTROL_DIRECTIVES[8]);
-
         accountingSettings.addFields(periodSeriesAccount, periodSeriesVat, accountGroupSet, accountingLockedDate, vatLockedDate, forceSupplierInvoiceApproval);
 
+        //Form Builder
         formBuilder.addFields(companyName, orgNr, web, street, street2, postNumber, place, phone, email, companySetup, accountingSettings);
 
         this.form = formBuilder;
     }
 
-    submitForm() {
-        console.log("submitForm called");
-        this.companySettingsDS.update(this.headers, this.company);
+    update() {
+        this.http.multipleRequests('GET', [
+            { resource: "companytypes" },
+            { resource: "currencies" },
+            { resource: "period-series" },
+            { resource: "accountgroupsets" },
+            { resource: "companysettings/" + this.id, expand: "Address,Emails,Phones" }
+        ]).subscribe(
+            (dataset) => {
+                this.companyTypes = dataset[0];
+                this.currencies = dataset[1];
+                this.periodSeries = dataset[2];
+                this.accountGroupSets = dataset[3];
+                this.company = dataset[4];
+                this.dataReady();
+            },
+            (error) => console.log(error)
+            )  
+  
+        /*
+              if (this.account == undefined) {
+                  this.model = { ID: 1, AccountNumber: "4000", AccountName: "Test" }  
+              } else {
+                  this.model = { ID: 7, AccountNumber: "4001", AccountName: "Test 2" } 
+              } 
+      */
+        //Observable.forkJoin(
+        //    this.companySettingsDS.get(this.id),
+        //    this.companySettingsDS.getCompanyTypes(),
+        //    this.companySettingsDS.getCurrencies(),
+        //    this.companySettingsDS.getPeriodSeries(),
+        //    this.companySettingsDS.getAccountGroupSets()
+        //).subscribe(results => this.dataReady(results))
+        //    , error=> console.log(error);
+    
     }
+
+    ngOnInit() {
+        this.id = JSON.parse(localStorage.getItem('activeCompany')).id;
+
+        //this.error = false;
+        //this.headers = new Headers();
+        //this.headers.append('Client', 'client1');
+
+        this.update();
+    }
+
+    ngOnChanges() {
+        console.log("NGCHANGE event")
+    }
+
+    onSubmit(value) {
+        console.log("onSubmit called");
+
+        //TODO..
+
+        this.http.put({
+            resource: "companysettings/" + this.company.ID,
+            body: this.company
+        }).subscribe(
+            (response) => {
+                console.log("onSubmit response");
+            },
+            (error) => console.log(error)
+            );
+    }
+    //submitForm() {
+    //    console.log("submitForm called");
+    //    this.companySettingsDS.update(this.headers, this.company);
+    //}
 
 }
