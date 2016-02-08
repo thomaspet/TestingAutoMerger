@@ -3,6 +3,8 @@ var plugins = require('gulp-load-plugins')({lazy:true});
 var rimraf = require('rimraf');
 var runSequence = require('run-sequence');
 var connect = require('gulp-connect');
+var request = require('request');
+var fs = require('fs');
 var VERSION = new Date().getTime();
 var config = {
     typescript: {
@@ -84,8 +86,21 @@ gulp.task('clean', function(done){
 /********************/
 /*  BUILDING TASKS  */
 /********************/
+gulp.task('interfaces',function(done){
+    var options = {
+        url: 'http://devapi.unieconomy.no/api/metadata/typescriptinterfaces',
+        headers: {
+            'client':'Client1'
+        }
+    };
+    var callback = function(error, response, body) {
+        fs.writeFileSync('./src/framework/interfaces/interfaces.ts',body);
+        done();
+    };
+    request(options, callback);
+});
 
-gulp.task('rxjs',function(){
+gulp.task('rxjs', ['interfaces'],function(){
     return gulp.src('./node_modules/rxjs/**/*.js')
         .pipe(gulp.dest('./dist/lib/rxjs'));
 })

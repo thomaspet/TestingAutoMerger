@@ -3,13 +3,14 @@
   "version": "0.0.1",
   "scripts": {
     "start": "opn http://localhost:3000 & gulp build.watch.and.serve",
+    "build": "gulp clean & gulp build.dist",
     "clean": "rimraf dist",
     "test": "gulp clean & gulp build.dist & gulp test.typescript & karma start karma.conf.js"
   },
   "dependencies": {
-    "angular2": "2.0.0-beta.1",
+    "angular2": "2.0.0-beta.3",
     "bootstrap": "^3.3.5",
-    "es6-promise":"^3.0.2",
+    "es6-promise": "^3.0.2",
     "es6-shim": "^0.33.3",
     "jquery": "^2.1.4",
     "jwt-decode": "^1.4.0",
@@ -18,7 +19,7 @@
     "reflect-metadata": "0.1.2",
     "rxjs": "5.0.0-beta.0",
     "systemjs": "0.19.2",
-    "zone.js": "0.5.10"
+    "zone.js": "0.5.11"
   },
   "devDependencies": {
     "gulp": "^3.9.0",
@@ -48,6 +49,7 @@
     "opn": "^3.0.3",
     "opn-cli": "^1.0.0",
     "phantomjs": "^1.9.18",
+    "request": "^2.69.0",
     "rimraf": "^2.4.3",
     "run-sequence": "^1.1.4",
     "typescript": "^1.6.2"

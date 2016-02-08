@@ -8,6 +8,12 @@ export var Routes = {
 		name: 'Login',
 		loader: () => ComponentProxy.LoadComponentAsync('Login', './app/components/login/login')
 	}),
+    
+    signup: new AsyncRoute({
+        path: '/signup',
+        name: 'Signup',
+        loader: () => ComponentProxy.LoadComponentAsync('Signup', './app/components/login/signup')
+    }),
 	
     employeeList: new AsyncRoute({
         path: '/employees',

@@ -10,7 +10,6 @@
 
 
 .poster_widget_status
-  align-self: center
   text-align: left
   flex-grow: 0
   box-sizing: border-box
@@ -72,13 +71,6 @@
       background: unicon-thumbsdown($statusColor) no-repeat center center
       background-size: contain
 
-    //&:hover
-    //  background: $statusColor
-    //  color: contrasting($statusColor)
-    //
-    //  &:before
-    //    background-image: unicon-thumbsdown(contrasting($statusColor))
-
   .error
     @include status-widget($uni-color-Bad)
 
@@ -90,5 +82,27 @@
     &:before
       background-image: unicon-thumbsup($uni-color-Good)
 
-    &:hover:before
-      //background-image: unicon-thumbsup(contrasting($uni-color-Good))
+@include media(small)
+  .poster_widget_status ul
+    min-height: 5rem
+
+  .poster_widget_status li,
+  .poster_widget_status li.error,
+  .poster_widget_status li.good
+    padding: .2rem
+
+    h3
+      font-size: .8rem
+
+    button
+      font-size: .8rem
+      line-height: 1.5em
+      padding: .2rem 1rem
+      font-weight: 400
+      text-shadow: none
+
+      &[aria-busy]:not([aria-busy=false]):before
+        margin: 0 5px -2px -5px
+
+    &:before
+      display: none

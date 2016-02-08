@@ -15,7 +15,7 @@ export interface DatepickerConfig {
 	selector: 'uni-datepicker',
 	template: InputTemplateString
 })
-export class Datepicker implements AfterViewInit, OnDestroy {
+export class UniDatepicker implements AfterViewInit, OnDestroy {
 	@Input() config: DatepickerConfig;
     nativeElement;
 		
@@ -65,7 +65,7 @@ export class Datepicker implements AfterViewInit, OnDestroy {
 			datepicker.trigger('change');
 		});		
 
-		datepicker.value(control.value);
+		datepicker.value(new Date(control.value));
 	}
     
     // Remove kendo markup when component is destroyed to avoid duplicates
