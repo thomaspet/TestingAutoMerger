@@ -7,6 +7,7 @@ import {ApplicationNav} from '../common/applicationNav/applicationNav';
 import {CompanySettings} from './companySettings/companySettings';
 import {AccountSettings} from './accountSettings/accountSettings';
 import {UserSettings} from './userSettings/userSettings';
+import {Users} from './users/users';
 
 
 
@@ -14,7 +15,8 @@ const CHILD_ROUTES = [
     { path: '/', redirectTo: ['CompanySettings']},
     { path: '/company', component: CompanySettings, as: 'CompanySettings' },
     { path: '/accounts', component: AccountSettings, as: 'AccountSettings' },
-    { path: '/user', component: UserSettings, as: 'UserSettings' }
+    { path: '/user', component: UserSettings, as: 'UserSettings' },
+    { path: '/users', component: Users, as: 'Brukere' }
 ];
 
 @Component({
