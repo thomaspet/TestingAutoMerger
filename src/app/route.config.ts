@@ -45,10 +45,10 @@ export var Routes = {
         loader: () => ComponentProxy.LoadComponentAsync('Settings', './app/components/settings/settings')
     }),
 	
-	kitchensink: new AsyncRoute({
-		path: '/kitchensink',
-		name: 'Kitchensink',
-		loader: () => ComponentProxy.LoadComponentAsync('Kitchensink','./app/components/kitchensink/kitchensink')
+	examples: new AsyncRoute({
+		path: '/examples/...',
+		name: 'Examples',
+		loader: () => ComponentProxy.LoadComponentAsync('Examples','./app/components/examples/examples')
 	})
 };
 

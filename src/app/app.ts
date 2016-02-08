@@ -4,8 +4,8 @@ import {Router, RouteConfig, ROUTER_DIRECTIVES} from 'angular2/router';
 import {Routes, APP_ROUTES} from './route.config';
 import {UniRouterOutlet} from './uniRouterOutlet';
 import {AuthService} from '../framework/authentication/authService';
-import {TabService} from './components/navbar/tabstrip/tabService';
-import {Navbar} from './components/navbar/navbar';
+import {TabService} from './components/layout/navbar/tabstrip/tabService';
+import {Navbar} from './components/layout/navbar/navbar';
 import {UniHttpService} from '../framework/data/uniHttpService';
 
 @Component({
