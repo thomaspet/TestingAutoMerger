@@ -4,7 +4,6 @@ import {NgFor, NgIf, Validators, Control, FormBuilder} from 'angular2/common';
 import {Http, Headers, Response} from 'angular2/http';
 import {Observable} from 'rxjs/Observable';
 import 'rxjs/add/operator/map';
-
 import {UniForm, FIELD_TYPES} from '../../../../framework/forms/uniForm';
 import {UniFormBuilder} from "../../../../framework/forms/uniFormBuilder";
 import {UniFieldsetBuilder} from "../../../../framework/forms/uniFieldsetBuilder";
@@ -12,9 +11,7 @@ import {UniFieldBuilder} from "../../../../framework/forms/uniFieldBuilder";
 import {UniGroupBuilder} from '../../../../framework/forms/uniGroupBuilder';
 import {UNI_CONTROL_TYPES} from '../../../../framework/controls/types';
 import {UNI_CONTROL_DIRECTIVES} from '../../../../framework/controls';
-
 import {ApplicationNav} from '../../common/applicationNav/applicationNav';
-
 import {CompanySettingsDS} from '../../../../framework/data/companySettings';
 import {UniHttpService} from '../../../../framework/data/uniHttpService';
 
@@ -29,8 +26,6 @@ export class CompanySettings implements OnInit {
 
     id: any;
     form: any;
-    // error: boolean;
-    //headers: Headers;
     company: any;
     activeCompany: any;
     companyTypes: Array<any> = [];
@@ -38,7 +33,7 @@ export class CompanySettings implements OnInit {
     periodSeries: Array<any> = [];
     accountGroupSets: Array<any> = [];
 
-    constructor(private routeParams: RouteParams, private companySettingsDS: CompanySettingsDS, , private http: UniHttpService) { }
+    constructor(private routeParams: RouteParams, private companySettingsDS: CompanySettingsDS, private http: UniHttpService) { }
     /*
         ngOnInit() {
     
@@ -66,17 +61,6 @@ export class CompanySettings implements OnInit {
 
     dataReady() {
         console.log("dataReady called");
-
-        //if (data === null) {
-        //    this.error = true;
-        //    return;
-        //}
-
-        //this.company = data[0];
-        //this.companyTypes = data[1];
-        //this.currencies = data[2];
-        //this.periodSeries = data[3];
-        //this.accountGroupSets = data[4];
 
         var formBuilder = new UniFormBuilder();
 
@@ -140,29 +124,18 @@ export class CompanySettings implements OnInit {
         /*********************  Selskapsoppsett    **************************/
         var companySetup = new UniGroupBuilder("Selskapsoppsett");
 
-        //TODO:
-        //Checkbox not working atm
         var companyReg = new UniFieldBuilder();
         companyReg.setLabel('Foretaksregister')
             .setModel(this.company)
             .setModelField('CompanyRegistered')
             .setType(UNI_CONTROL_DIRECTIVES[8]);
 
-        //Checkbox not working atm
         var taxMandatory = new UniFieldBuilder();
         taxMandatory.setLabel('Mva-pliktig')
             .setModel(this.company)
             .setModelField('TaxMandatory')
             .setType(UNI_CONTROL_DIRECTIVES[8]);
 
-        /*        var companyType = new UniFieldBuilder();
-                companyType.setLabel('Firmatype')
-                    .setModel(this.companyTypes[this.company.CompanyTypeID])
-                    .setModelField('type')
-                    .setType(UNI_CONTROL_TYPES.DROPDOWN)
-                    .setKendoOptions({
-                        dataSource: this.companyTypes
-                    });*/
         var companyType = new UniFieldBuilder();
         companyType.setLabel('Firmatype')
             .setModel(this.company)
@@ -234,26 +207,6 @@ export class CompanySettings implements OnInit {
                 index: this.periodSeries.indexOf(this.company.PeriodSeriesVatID)
             });
 
-        //periodSeriesVat.setLabel('Mva perioder')
-        //    .setModelField('type')
-        //    .setType(UNI_CONTROL_DIRECTIVES[3])
-        //    .setKendoOptions({
-        //        dataSource: new kendo.data.DataSource({
-        //            data: this.periodSeries,
-        //            filter: { field: "SeriesType", operator: "eq", value: "0" }
-        //        }),
-        //        dataTextField: 'Name',
-        //        dataValueField: 'ID',
-        //        index: this.periodSeries.indexOf(this.company.PeriodSeriesAccountID),
-        //        select: (event: kendo.ui.DropDownListSelectEvent) => {
-        //            var item: any = event.item;
-        //            var dataItem = event.sender.dataItem(item.index());
-        //            this.company.PeriodSeriesAccountID = dataItem.ID;
-        //            console.log(dataItem.ID);
-        //        }
-        //    });
-            
-
         var accountGroupSet = new UniFieldBuilder();
         accountGroupSet.setLabel('Kontogruppeinndeling')
             .setModel(this.company)
@@ -318,32 +271,10 @@ export class CompanySettings implements OnInit {
             },
             (error) => console.log(error)
             )  
-  
-        /*
-              if (this.account == undefined) {
-                  this.model = { ID: 1, AccountNumber: "4000", AccountName: "Test" }  
-              } else {
-                  this.model = { ID: 7, AccountNumber: "4001", AccountName: "Test 2" } 
-              } 
-      */
-        //Observable.forkJoin(
-        //    this.companySettingsDS.get(this.id),
-        //    this.companySettingsDS.getCompanyTypes(),
-        //    this.companySettingsDS.getCurrencies(),
-        //    this.companySettingsDS.getPeriodSeries(),
-        //    this.companySettingsDS.getAccountGroupSets()
-        //).subscribe(results => this.dataReady(results))
-        //    , error=> console.log(error);
-    
     }
 
     ngOnInit() {
         this.id = JSON.parse(localStorage.getItem('activeCompany')).id;
-
-        //this.error = false;
-        //this.headers = new Headers();
-        //this.headers.append('Client', 'client1');
-
         this.update();
     }
 
@@ -353,8 +284,6 @@ export class CompanySettings implements OnInit {
 
     onSubmit(value) {
         console.log("onSubmit called");
-
-        //TODO..
 
         this.http.put({
             resource: "companysettings/" + this.company.ID,
@@ -366,9 +295,4 @@ export class CompanySettings implements OnInit {
             (error) => console.log(error)
             );
     }
-    //submitForm() {
-    //    console.log("submitForm called");
-    //    this.companySettingsDS.update(this.headers, this.company);
-    //}
-
 }
