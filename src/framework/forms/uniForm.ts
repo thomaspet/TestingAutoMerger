@@ -15,18 +15,7 @@ import {ControlBuilder} from "./builders/controlBuilder";
 import {IElementBuilder} from "./interfaces";
 import {UniFormBuilder} from "./builders/uniFormBuilder";
 
-<<<<<<< HEAD
-declare var _;
-
-export enum FIELD_TYPES {
-    FIELD,
-    FIELDSET,
-    GROUP,
-    COMBO
-}
-=======
 declare var _; //lodash
->>>>>>> develop
 
 /**
  * Form component that wraps form elements
@@ -129,11 +118,6 @@ export class UniForm implements OnInit {
     hasErrors() {
         return !this.form.valid;
     }
-<<<<<<< HEAD
-    
-    hasError(field) {
-        return field && field.control && field.control.touched && !field.control.valid;
-=======
 
     /**
      * return all fields inside the form
@@ -141,7 +125,6 @@ export class UniForm implements OnInit {
      */
     getFields() {
         return this.config.fields;
->>>>>>> develop
     }
 
     /**

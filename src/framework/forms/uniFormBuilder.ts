@@ -2,7 +2,6 @@ import {UniFieldBuilder} from './uniFieldBuilder';
 import {UniFieldsetBuilder} from './uniFieldsetBuilder';
 import {UniGroupBuilder} from './uniGroupBuilder';
 import {UniComboGroup} from './uniComboGroup';
-import {FIELD_TYPES} from './uniForm';
 
 export class UniFormBuilder {
     editMode: boolean = true;

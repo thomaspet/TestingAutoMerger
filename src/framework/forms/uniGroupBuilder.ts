@@ -2,7 +2,6 @@ import {UniFieldBuilder} from './uniFieldBuilder';
 import {UniFieldsetBuilder} from './uniFieldsetBuilder';
 import {UniComboGroupBuilder} from './uniComboGroupBuilder';
 import {UniGroup} from "./uniGroup";
-import {FIELD_TYPES} from "./uniForm";
 import {Type} from 'angular2/core';
 
 export class UniGroupBuilder {

@@ -1,5 +1,5 @@
 import {UniFieldBuilder} from './uniFieldBuilder';
-import {UniFieldset} from "./../uniFieldset";
+import {UniFieldset} from './../uniFieldset';
 import {Type} from 'angular2/core';
 
 declare var _;

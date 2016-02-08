@@ -11,3 +11,5 @@ export * from './forms/uniGroup';
 export * from './forms/builders/uniGroupBuilder';
 export * from './forms/builders/uniFormLayoutBuilder';
 export * from './forms/composers/validatorsComposer';
+export * from './forms/uniComboGroup';
+export * from './forms/builders/uniComboGroupBuilder';

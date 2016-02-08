@@ -1,4 +1,4 @@
-import {UniFieldBuilder, UniFieldsetBuilder, UniGroupBuilder} from '../../forms';
+import {UniFieldBuilder, UniFieldsetBuilder, UniGroupBuilder, UniComboGroupBuilder} from '../../forms';
 import {IElementBuilder,IElementBuilderCollection} from './../interfaces';
 
 declare var _;
@@ -73,8 +73,17 @@ export class UniFormBuilder {
         });
         return value;
     }
-
-
+    
+    findComboGroup(index:number): UniComboGroupBuilder {
+        var value: UniComboGroupBuilder = undefined;
+        this.fields.forEach((element:IElementBuilder)=>{
+            if (element.sectionIndex === index && element instanceof UniComboGroupBuilder) {
+                value = element;
+            }
+        });
+        return value;
+    }
+   
     _readmode(fields: IElementBuilderCollection) {
         fields.forEach((field: IElementBuilder)=>{
            if (field instanceof UniFieldBuilder) {
