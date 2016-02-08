@@ -1,8 +1,8 @@
+import {Type} from 'angular2/core';
 import {UniFieldBuilder} from './uniFieldBuilder';
 import {UniFieldsetBuilder} from './uniFieldsetBuilder';
-import {UniGroup} from "./uniGroup";
-import {Type} from 'angular2/core';
-import {UniFieldset} from "./uniFieldset";
+import {UniGroup} from "./../uniGroup";
+import {UniFieldset} from "./../uniFieldset";
 
 declare var _;
 
@@ -57,7 +57,7 @@ export class UniGroupBuilder {
         this.collapsed = value;
     }
 
-    addClass(className:string, callback:any) {
+    addClass(className:string, callback: boolean|((...params:Array<any>)=>boolean)) {
         this.classes[className] = callback;
         return this;
     }

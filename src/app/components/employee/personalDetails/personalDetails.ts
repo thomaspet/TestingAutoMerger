@@ -5,14 +5,13 @@ import {RouteParams} from 'angular2/router';
 import {UniForm} from '../../../../framework/forms/uniForm';
 import {UNI_CONTROL_DIRECTIVES} from '../../../../framework/controls';
 
-import {UniFormBuilder} from '../../../../framework/forms/uniFormBuilder';
-import {UniFieldBuilder} from '../../../../framework/forms/uniFieldBuilder';
-import {UniFieldsetBuilder} from '../../../../framework/forms/uniFieldsetBuilder';
-import {UniGroupBuilder} from '../../../../framework/forms/uniGroupBuilder';
-import {UniLayoutBuilder} from '../../../../framework/forms/uniLayoutBuilder';
+import {
+    UniFormBuilder, UniFieldBuilder, UniFieldsetBuilder, UniGroupBuilder, UniFormLayoutBuilder
+} from '../../../../framework/forms';
+
 import {EmployeeDS} from '../../../../framework/data/employee';
 import {EmployeeModel} from '../../../../framework/models/employee';
-import {UniComponentLoader} from '../../../../framework/core/componentLoader';
+import {UniComponentLoader} from '../../../../framework/core';
 
 import {Observable} from 'rxjs/Observable';
 import 'rxjs/add/operator/merge';
@@ -21,11 +20,11 @@ import 'rxjs/add/operator/merge';
     selector: 'employee-personal-details',
     directives: [UniComponentLoader],
     template: `
-    <div class="application employee">
-        <button (click)="toggleMode()">Toogle edit mode</button>
-        <uni-component-loader></uni-component-loader>
-        <button type="button" (click)="executeSubmit()" [disabled]="!isValid()">Submit</button>
-    </div>
+        <div class="application employee">
+            <button (click)="toggleMode()">Toogle edit mode</button>
+            <uni-component-loader></uni-component-loader>
+            <button type="button" (click)="executeSubmit()" [disabled]="!isValid()">Submit</button>
+        </div>
     `
 })
 export class PersonalDetails {
@@ -33,7 +32,7 @@ export class PersonalDetails {
     form:UniFormBuilder = new UniFormBuilder();
     layout;
     employee;
-    @ViewChild(UniComponentLoader) ucl:UniComponentLoader;
+    @ViewChild(UniComponentLoader) uniCmpLoader:UniComponentLoader;
     EmployeeID;
     formInstance:UniForm;
 
@@ -51,15 +50,14 @@ export class PersonalDetails {
         ).subscribe(
             response => {
                 self.employee = EmployeeModel.createFromObject(response[0]);
-                self.form = new UniLayoutBuilder().build(response[1], self.employee);
+                self.form = new UniFormLayoutBuilder().build(response[1], self.employee);
                 self.form.hideSubmitButton();
 
-                self.ucl.load(UniForm, (cmp:ComponentRef)=> {
+                self.uniCmpLoader.load(UniForm, (cmp:ComponentRef)=> {
                     cmp.instance.config = self.form;
                     setTimeout(()=> {
                         self.formInstance = cmp.instance;
                     }, 100);
-
                 });
             },
             error => console.error(error)

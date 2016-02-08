@@ -1,44 +1,119 @@
-import {Component, Type} from 'angular2/core';
-
+import {Component, Type, Input} from 'angular2/core';
 import {NgIf, NgForm} from 'angular2/common';
 import {UNI_CONTROL_DIRECTIVES} from '../controls';
 import {ShowError} from "../forms/showError";
 import {UniRadioGroup} from "../controls/radioGroup/uniRadioGroup";
-import {UNI_CONTROL_TYPES} from '../controls/types';
 import {UniComponentLoader} from "../core/componentLoader";
-import {UniFieldBuilder} from "./uniFieldBuilder";
+import {UniFieldBuilder} from "./builders/uniFieldBuilder";
 
 declare var _;
 
+/**
+ *
+ */
 @Component({
     selector: 'uni-field',
-    inputs: ['config'],
     directives: [UniComponentLoader, ShowError, UniRadioGroup, NgIf, NgForm],
-    templateUrl: "framework/forms/uniField.html"
+    template: `
+        <label ngForm *ngIf="isInput()" [class.error]="hasError()" [class]="buildClassString()">
+            <span *ngIf="!isCheckbox()">{{getLabel()}}</span>
+            <uni-component-loader [type]="getType()" [config]="getConfig()"></uni-component-loader>
+            <show-error [control]="getControl()" [messages]="getErrorMessages()"></show-error>
+        </label>
+        <uni-radio-group *ngIf="isRadioGroup(getType())" [config]="getConfig()"></uni-radio-group>
+    `
 })
 export class UniField {
-    config;
-    CONTROL_TYPES;
-    constructor() {
-        this.CONTROL_TYPES = UNI_CONTROL_TYPES;
+
+    @Input()
+    config:UniFieldBuilder;
+
+    constructor() {}
+
+    /**
+     * Returns the actual config
+     *
+     * @returns {UniFieldBuilder}
+     */
+    getConfig() {
+        return this.config;
     }
 
+    /**
+     * Return type of the component
+     *
+     * @returns {Type}
+     */
+    getType() {
+        return this.config.type
+    }
+
+    /**
+     * Returns label
+     *
+     * @returns {string}
+     */
+    getLabel() {
+        return this.config.label;
+    }
+
+    /**
+     * Returns the control
+     *
+     * @returns {AbstractControl}
+     */
+    getControl() {
+        return this.config.control;
+    }
+
+    /**
+     * Returns error messages attached to that control
+     *
+     * @returns {Array<any>}
+     */
+    getErrorMessages() {
+        return this.config.errorMessages;
+    }
+
+    /**
+     * Returns true if this component is a RadioGroup
+     * @param type
+     * @returns {boolean}
+     */
     isRadioGroup(type:Type) {
         return UNI_CONTROL_DIRECTIVES.indexOf(type) === 9;
     }
 
-    isInput(type:Type) {
-        return !this.isRadioGroup(type);
-    }
-    
-    isCheckbox(type:Type) {
-        return UNI_CONTROL_DIRECTIVES.indexOf(type) === 7;
-    }
-
-    hasError(field: UniFieldBuilder) {
-        return field.control && field.control.touched && !field.control.valid;
+    /**
+     * Return true if it isn't a RadioGroup
+     * @returns {boolean}
+     */
+    isInput() {
+        return !this.isRadioGroup(this.config.type);
     }
 
+    /**
+     * Return true if it is a checkbox
+     * @returns {boolean}
+     */
+    isCheckbox() {
+        return UNI_CONTROL_DIRECTIVES.indexOf(this.config.type) === 7;
+    }
+
+    /**
+     * return true if the error has errors and it has been touched
+     *
+     * @returns {AbstractControl|boolean}
+     */
+    hasError() {
+        return this.config.control && this.config.control.touched && !this.config.control.valid;
+    }
+
+    /**
+     * It builds the string of classes after evaluate each class callback
+     *
+     * @returns {string}
+     */
     buildClassString() {
         var classes = [];
         var cls = this.config.classes;

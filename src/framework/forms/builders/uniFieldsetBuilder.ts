@@ -1,5 +1,5 @@
 import {UniFieldBuilder} from './uniFieldBuilder';
-import {UniFieldset} from "./uniFieldset";
+import {UniFieldset} from "./../uniFieldset";
 import {Type} from 'angular2/core';
 
 declare var _;
@@ -50,7 +50,7 @@ export class UniFieldsetBuilder {
         return this;
     }
 
-    addClass(className:string, callback:any) {
+    addClass(className:string, callback:boolean|((...params:Array<any>)=>boolean)) {
         this.classes[className] = callback;
         return this;
     }

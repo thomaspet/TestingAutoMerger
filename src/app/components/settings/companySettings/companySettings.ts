@@ -4,11 +4,11 @@ import {NgFor, NgIf, Validators, Control, FormBuilder} from 'angular2/common';
 import {Http, Headers, Response} from 'angular2/http';
 import {Observable} from 'rxjs/Observable';
 import 'rxjs/add/operator/map';
-import {UniForm, FIELD_TYPES} from '../../../../framework/forms/uniForm';
-import {UniFormBuilder} from "../../../../framework/forms/uniFormBuilder";
-import {UniFieldsetBuilder} from "../../../../framework/forms/uniFieldsetBuilder";
-import {UniFieldBuilder} from "../../../../framework/forms/uniFieldBuilder";
-import {UniGroupBuilder} from '../../../../framework/forms/uniGroupBuilder';
+import {UniForm} from '../../../../framework/forms/uniForm';
+import {UniFormBuilder} from "../../../../framework/forms/builders/uniFormBuilder";
+import {UniFieldsetBuilder} from "../../../../framework/forms/builders/uniFieldsetBuilder";
+import {UniFieldBuilder} from "../../../../framework/forms/builders/uniFieldBuilder";
+import {UniGroupBuilder} from '../../../../framework/forms/builders/uniGroupBuilder';
 import {UNI_CONTROL_TYPES} from '../../../../framework/controls/types';
 import {UNI_CONTROL_DIRECTIVES} from '../../../../framework/controls';
 import {ApplicationNav} from '../../common/applicationNav/applicationNav';
@@ -247,12 +247,15 @@ export class CompanySettings implements OnInit {
             .setType(UNI_CONTROL_DIRECTIVES[8]);
         accountingSettings.addFields(periodSeriesAccount, periodSeriesVat, accountGroupSet, accountingLockedDate, vatLockedDate, forceSupplierInvoiceApproval);
 
-        //Form Builder
+        /********************************************************************/
+        /*********************  Form Builder    *******************/
         formBuilder.addFields(companyName, orgNr, web, street, street2, postNumber, place, phone, email, companySetup, accountingSettings);
 
         this.form = formBuilder;
     }
 
+    /********************************************************************/
+    /*********************  Form Builder    *******************/
     update() {
         this.http.multipleRequests('GET', [
             { resource: "companytypes" },
@@ -270,7 +273,7 @@ export class CompanySettings implements OnInit {
                 this.dataReady();
             },
             (error) => console.log(error)
-            )  
+            )
     }
 
     ngOnInit() {
