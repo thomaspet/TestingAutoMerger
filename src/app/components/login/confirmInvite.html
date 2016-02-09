@@ -1,0 +1,20 @@
+﻿<div class="authentication_component">
+    <img src="http://www.unimicro.no/templates/images/x-logo.png" alt="Uni Economy logo">
+    <h3>Opprett bruker:</h3>
+    <form class="confirm_invite_form">
+        <label>
+            Brukernavn:
+            <input type="text" [(ngModel)]="user.Username" [ngClass]="{error: isInvalidUsername}" placeholder="Brukernavn" />
+        </label>
+        <label>
+            Passord:
+            <input type="password" [(ngModel)]="user.Password" [ngClass]="{error: isPasswordsMismatch}" placeholder="Passord" />
+        </label>
+        <label>
+            Gjenta Passord
+            <input type="password" [(ngModel)]="passwordRepeat.password" [ngClass]="{error: isPasswordsMismatch}" placeholder="Gjenta passord" />
+            <small *ngIf="isPasswordsMismatch || isInvalidUsername">{{errorMessage}}</small>
+        </label>
+        <button class="c2a" (click)="confirmUser()" [attr.aria-busy]="working">Bekreft bruker</button>
+    </form>
+</div>
