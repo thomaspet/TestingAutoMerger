@@ -2,19 +2,24 @@
 .k-multiselect-wrap
   @extend input
   border: pxToRem(1) solid $uni-color-scale7
+  background: $uni-color-negative
+  min-height: 1.6667rem
+  box-sizing: border-box
 
   .k-state-focused &
     border-color: $uni-color-C2A
 
   .k-input
     @extend %no-border
-    margin-top: pxToRem(3)
+    margin: 0
+    height: 1.6111rem
 
   .k-button
     @extend %no-border
-    border-radius: 99rem
+    border-radius: pxToRem(3)
     background: $uni-color-scale9
     margin: pxToRem(3)
+    line-height: 1rem
 
     .k-select
       background: transparent
