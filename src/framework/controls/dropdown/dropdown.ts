@@ -13,7 +13,7 @@ export interface DropdownConfig {
 	selector: 'uni-dropdown',
 	template: InputTemplateString
 })
-export class Dropdown implements AfterViewInit, OnDestroy {
+export class UniDropdown implements AfterViewInit, OnDestroy {
 	@Input() config: DropdownConfig;
     nativeElement;
 	

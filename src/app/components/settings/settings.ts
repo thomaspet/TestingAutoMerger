@@ -1,9 +1,9 @@
 ﻿import {Component, OnInit} from 'angular2/core';
 import {RouteConfig, RouteDefinition, ROUTER_DIRECTIVES, RouterLink, Router} from 'angular2/router';
 
-import {TabService} from '../navbar/tabstrip/tabService';
+import {TabService} from '../layout/navbar/tabstrip/tabService';
 
-import {ApplicationNav} from '../common/applicationNav/applicationNav';
+import {UniTabs} from '../layout/uniTabs/uniTabs';
 import {CompanySettings} from './companySettings/companySettings';
 import {AccountSettings} from './accountSettings/accountSettings';
 import {UserSettings} from './userSettings/userSettings';
@@ -20,7 +20,7 @@ const CHILD_ROUTES = [
 @Component({
     selector: 'settings',
     templateUrl: 'app/components/settings/settings.html',
-    directives: [ROUTER_DIRECTIVES, ApplicationNav]
+    directives: [ROUTER_DIRECTIVES, UniTabs]
 })
 @RouteConfig(CHILD_ROUTES)
 export class Settings {
