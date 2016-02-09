@@ -1,8 +1,8 @@
 import {Component} from 'angular2/core';
 import {CORE_DIRECTIVES} from 'angular2/common';
-import {TabService} from '../navbar/tabstrip/tabService';
+import {TabService} from '../layout/navbar/tabstrip/tabService';
 import {Multival} from '../usertest/multivalue';
-import {ApplicationNav} from '../common/applicationNav/applicationNav';
+import {UniTabs} from '../layout/uniTabs/uniTabs';
 import {PersonalDetails} from '../employee/personalDetails/personalDetails';
 import {Employment} from '../employee/employments/employments';
 import {Hours} from '../employee/hours/hours';
@@ -21,7 +21,7 @@ const CHILD_ROUTES = [
 @Component({
     selector: 'uni-usertest',
     templateUrl: 'app/components/usertest/usertest.html',
-    directives: [CORE_DIRECTIVES, Multival, ROUTER_DIRECTIVES, ApplicationNav]
+    directives: [CORE_DIRECTIVES, Multival, ROUTER_DIRECTIVES, UniTabs]
 })
 
 
