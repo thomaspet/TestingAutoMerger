@@ -46,18 +46,19 @@ export class Users {
 
     inviteNewUser() {
         this.isPostUserActive = true;
-        //this.http.post({ resource: '/user-verifications', body: this.newUser })
-        //    .subscribe(
-        //    (data) => {
-        //        console.log(data);
-        //        this.createUserTable();
-        //        this.isPostUserActive = false;
-        //    },
-        //    (error) => {
-        //        console.log(error);
-        //        this.isPostUserActive = false;
-        //    }
-        //)
-        console.log(this.usersConfig);
+        this.http.post({ resource: '/user-verifications', body: this.newUser })
+            .subscribe(
+            (data) => {
+                console.log(data);
+                this.newUser.DisplayName = '';
+                this.newUser.Email = '';
+                this.createUserTable();
+                this.isPostUserActive = false;
+            },
+            (error) => {
+                console.log(error);
+                this.isPostUserActive = false;
+            }
+        )
     }
 }
