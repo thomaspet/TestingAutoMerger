@@ -13,9 +13,9 @@ declare var jQuery;
 export class Users {
 
     newUser;
-    success: boolean = false;
     users: Array<any> = [];
     usersConfig: UniTableConfig;
+    isPostUserActive: boolean = false;
 
     constructor(private http: UniHttpService) {
         this.newUser = {};
@@ -24,7 +24,15 @@ export class Users {
     }
 
     createUserTable() {
-        this.usersConfig = new UniTableConfig('http://devapi.unieconomy.no/api/biz/users', false, false)
+        this.usersConfig = new UniTableConfig('http://devapi.unieconomy.no/api/biz/users', true, true)
+
+            .setDsModel({
+                id: 'ID',
+                fields: {
+                    Name: { type: 'text' },
+                    Email: { type: 'text' }
+                }
+            })
 
             .setColumns([
                 { field: 'Name', title: 'Navn' },
@@ -33,16 +41,23 @@ export class Users {
                 { field: 'Status', title: 'Status' },
                 { field: 'Role', title: 'Rolle' }
             ]);
+        
     }
 
     inviteNewUser() {
-        this.http.get({ resource: '/users'})
-            .subscribe(
-            (data) => {
-                console.log(data);
-                this.createUserTable();
-            },
-            error => console.log(error)
-        )
+        this.isPostUserActive = true;
+        //this.http.post({ resource: '/user-verifications', body: this.newUser })
+        //    .subscribe(
+        //    (data) => {
+        //        console.log(data);
+        //        this.createUserTable();
+        //        this.isPostUserActive = false;
+        //    },
+        //    (error) => {
+        //        console.log(error);
+        //        this.isPostUserActive = false;
+        //    }
+        //)
+        console.log(this.usersConfig);
     }
 }
