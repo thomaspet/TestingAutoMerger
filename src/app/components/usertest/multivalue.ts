@@ -1,6 +1,8 @@
-import {Component} from 'angular2/core';
+import {Component, ElementRef} from 'angular2/core';
 import {CORE_DIRECTIVES} from 'angular2/common';
 import {Input} from "angular2/core";
+
+declare var jQuery;
 
 interface MultiValue {
     id: number,
@@ -23,10 +25,22 @@ export class Multival {
     activeMultival:boolean;
     trashCan: MultiValue[];
     newValueInd: number;
+    element;
+    successMessage;
 
-    constructor(){
+    constructor(private el: ElementRef){
+        var self = this;
+        this.element = el.nativeElement;
+
         // Put a fresh, new bin bag in.
         this.trashCan = [];
+
+        document.addEventListener('click', function(event){
+            var $el = jQuery(el.nativeElement);
+            if(!jQuery(event.target).closest($el).length) {
+                self.activeMultival = false;
+            }
+        });
     }
 
     ngOnInit(){
@@ -51,19 +65,22 @@ export class Multival {
 
     // Set the "editing" flag to the passed value,
     // and unset it for all others.
-    edit(value: MultiValue){
+    edit(value: MultiValue, event){
+        event.stopPropagation();
         this.values.forEach(function(val: MultiValue){
             val.editing = val === value;
         });
+        return false;
     };
 
     // Prepares the value for delete.
     // @fixme: Obviously this needs to be rewritten to take server into account.
     // We also want to use the soft delete paradigm for this.
-    del(value: MultiValue){
+    del(value: MultiValue, event){
         var values = this.values,
             self = this;
 
+        event.stopPropagation();
         value.timeout = window.setTimeout(function(){
             if(value.main){
                 values[0].main = true;
@@ -79,6 +96,7 @@ export class Multival {
             }
         }, 4000);
         this.trashCan.push(value);
+        return false;
     };
 
     // Undo delete
@@ -128,14 +146,18 @@ export class Multival {
             value: ''
         });
         this.newValueInd = this.values.length - 1;
+        this.element.querySelectorAll('input')[0].focus();
+        this.activeMultival = false;
     };
 
     // Operations to be performed on enter or blur
     save(value: MultiValue){
-        var hasMain;
+        var hasMain,
+            self = this;
 
         // Stop editing
         value.editing = false;
+        this.activeMultival = false;
 
         // It is no longer new
         this.newValueInd = null;

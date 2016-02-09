@@ -13,7 +13,6 @@
 
   .uni-multivalue-moreBtn
     width: 1.7rem
-    height: 1.72rem
     margin: 0
     padding: 0
     float: right
@@ -66,7 +65,7 @@
         cursor: pointer
 
         .setMainBtn
-          background: transparent unicon-star($uni-color-scale8) no-repeat center
+          background: transparent unicon-star($uni-color-scale7) no-repeat center
           background-size: 1rem
 
       .setMainBtn
@@ -108,22 +107,26 @@
     margin: -.2rem 0 -.2rem -.5rem
     height: 1.9rem
 
+.uni-multivalue-values li
   .uni-multivalue_edit_action-delete
     width: 1.8rem
     height: 1.9rem
     font-size: 0
-    margin: -.2rem -.5rem -.2rem 0
+    position: absolute
+    top: -.5rem
+    right: 1rem
     padding: 0
-    background: transparent unicon-trash($uni-color-Bad) center no-repeat
-    background-size: .8rem
+    background: transparent
     border: none
     box-shadow: none
 
+  &:hover .uni-multivalue_edit_action-delete
+    background: transparent unicon-trash($uni-color-scale8) center no-repeat
+    background-size: .8rem
 
     &:hover,
     &:focus
-      background-image: unicon-trash($uni-color-negative)
-      background-color: $uni-color-Bad
+      background-image: unicon-trash($uni-color-Bad)
 
   .uni-multivalue_deleted
     padding: .2rem .5rem
@@ -143,3 +146,4 @@
     margin: -.2rem -.5rem -.15rem
     box-shadow: none
     border-radius: 0 0 pxToRem(3)
+    height: 2rem
