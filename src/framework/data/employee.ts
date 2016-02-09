@@ -4,10 +4,10 @@ import {UniHttpService} from "./uniHttpService";
 
 @Injectable()
 export class EmployeeDS {
-    baseUrl = 'http://devapi.unieconomy.no:80/api';
-    //baseUrl = 'http://localhost:27831/api';
+    
     expandedProperties = 'BusinessRelationInfo,Employments.Localization.BusinessRelationInfo,BankAccounts,EmployeeCategoryLinks,VacationRateEmployee,Localization';
     employees: Array<any> = [];
+    
     constructor(
         @Inject(UniHttpService)
         public http:UniHttpService) {

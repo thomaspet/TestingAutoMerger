@@ -8,6 +8,7 @@ export class UniFormBuilder {
     fields:IElementBuilderCollection=[];
     isSubmitButtonHidden: boolean = false;
     classes = [];
+    formIndex: number = 0;
 
     constructor() {}
 

@@ -16,6 +16,7 @@ export interface UniHttpRequest {
 @Injectable()
 export class UniHttpService {
     baseUrl = 'http://devapi.unieconomy.no:80/api/biz/';
+    //baseUrl = 'http://localhost:35729/api/biz/';
     headers: Headers;
 
     constructor(public http: Http) {

@@ -7,8 +7,8 @@ import 'rxjs/add/observable/from';
 
 @Injectable()
 export class CompanySettingsDS {
-    baseUrl = 'http://devapi.unieconomy.no:80/api';
-    //baseUrl = 'http://localhost:29077/api';
+    //baseUrl = 'http://devapi.unieconomy.no:80/api';
+    baseUrl = 'http://localhost:35729/api/biz/';
     expandedProperties = 'Address,Emails,Phones';
     companySettings: Array<any> = [];
     

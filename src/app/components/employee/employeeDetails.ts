@@ -14,6 +14,7 @@ import {SalaryTransactions} from './salaryTransactions/salaryTransactions';
 import {ApplicationNav} from '../common/applicationNav/applicationNav';
 
 import {EmployeeDS} from '../../../framework/data/employee';
+import {STYRKCodesDS} from '../../../framework/data/styrkCodes';
 
 const CHILD_ROUTES = [
     { path: '/', component: PersonalDetails, as: 'PersonalDetails' },
@@ -26,7 +27,7 @@ const CHILD_ROUTES = [
 @Component({
 	selector: 'uni-employee-details',
 	templateUrl: 'app/components/employee/employeeDetails.html',
-    providers: [provide(EmployeeDS,{useClass: EmployeeDS})],
+    providers: [provide(EmployeeDS,{useClass: EmployeeDS}), provide(STYRKCodesDS, {useClass: STYRKCodesDS})],
     directives: [ROUTER_DIRECTIVES, WidgetPoster, ApplicationNav]
 })
 @RouteConfig(CHILD_ROUTES)

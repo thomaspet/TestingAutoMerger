@@ -11,3 +11,5 @@ export * from './forms/uniGroup';
 export * from './forms/builders/uniGroupBuilder';
 export * from './forms/builders/uniLayoutBuilder';
 export * from './forms/composers/validatorsComposer';
+export * from './forms/builders/uniCardFormBuilder';
+export * from './forms/cardForm';
