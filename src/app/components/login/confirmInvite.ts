@@ -9,7 +9,7 @@ import {UniHttpService, UniHttpRequest} from '../../../framework/data/uniHttpSer
 
 export class Confirm {
 
-    user = { Username: '', Password: '', VerificationCode: '' };
+    user;
     passwordRepeat = { password: '' };
     isPasswordsMismatch: boolean = false;
     isInvalidUsername: boolean = false;
@@ -17,9 +17,9 @@ export class Confirm {
     errorMessage: string;
 
     constructor(private http: UniHttpService, private param: RouteParams) {
-
+        this.user = {};
         if (param.get('guid')) {
-            this.user.VerificationCode = param.get('guid');
+            this.user['verification-code'] = param.get('guid');
             
             //Check that invite exists and is still valid
             //Status not implemented yet
@@ -40,7 +40,7 @@ export class Confirm {
 
             this.http.put(
                 {
-                    resource: '/users',
+                    resource: 'users',
                     body: this.user,
                     action: 'confirm-invite'
                 }
@@ -52,21 +52,18 @@ export class Confirm {
                 error => console.log(error)
             )
         }
-
-        
     }
 
     isvalidUser() {
         this.errorMessage = '';
         var valid = true;
-
-        if (this.user.Username === '') {
+        if (this.user['user-name'] === undefined || this.user['user-name'] === '') {
             this.errorMessage += 'Ugyldig brukernavn..';
             this.isInvalidUsername = true;
             valid = false;
         } else { this.isInvalidUsername = false; }
 
-        if (this.passwordRepeat.password === '' || this.user.Password === '' || (this.user.Password !== this.passwordRepeat.password)) {
+        if (this.passwordRepeat.password === '' || this.user.password === '' || (this.user.password !== this.passwordRepeat.password)) {
             this.errorMessage += ' Ugyldige passord..';
             this.isPasswordsMismatch = true;
             valid = false;

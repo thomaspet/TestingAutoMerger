@@ -4,11 +4,11 @@
     <form class="confirm_invite_form">
         <label>
             Brukernavn:
-            <input type="text" [(ngModel)]="user.Username" [ngClass]="{error: isInvalidUsername}" placeholder="Brukernavn" />
+            <input type="text" [(ngModel)]="user['user-name']" [ngClass]="{error: isInvalidUsername}" placeholder="Brukernavn" />
         </label>
         <label>
             Passord:
-            <input type="password" [(ngModel)]="user.Password" [ngClass]="{error: isPasswordsMismatch}" placeholder="Passord" />
+            <input type="password" [(ngModel)]="user.password" [ngClass]="{error: isPasswordsMismatch}" placeholder="Passord" />
         </label>
         <label>
             Gjenta Passord
