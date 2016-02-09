@@ -7,7 +7,7 @@ declare var jQuery;
 
 @Component({
     selector: 'uni-navbar-search',
-    templateUrl: 'app/components/navbar/search/search.html',
+    templateUrl: 'app/components/layout/navbar/search/search.html',
 })
 export class NavbarSearch implements AfterViewInit {
     ctrlKeyHold: boolean;

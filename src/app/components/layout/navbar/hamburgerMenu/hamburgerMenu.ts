@@ -1,12 +1,12 @@
 ﻿import {Component, AfterViewInit} from 'angular2/core';
 import {RouteConfig, ROUTER_DIRECTIVES, Router} from 'angular2/router';
 import {NgFor, NgClass} from 'angular2/common';
-import {Routes, APP_ROUTES} from '../../../route.config';
+import {Routes, APP_ROUTES} from '../../../../route.config';
 declare var jQuery;
 
 @Component({
 	selector: 'uni-hamburger-menu',
-    templateUrl: 'app/components/navbar/hamburgerMenu/hamburgerMenu.html',
+    templateUrl: 'app/components/layout/navbar/hamburgerMenu/hamburgerMenu.html',
     directives: [ROUTER_DIRECTIVES, NgFor, NgClass]
 })
 export class HamburgerMenu implements AfterViewInit {

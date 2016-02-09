@@ -7,7 +7,7 @@ declare var jQuery;
 
 @Component({
 	selector: 'uni-company-dropdown',
-	templateUrl: 'app/components/navbar/userinfo/companyDropdown/companyDropdown.html',
+	templateUrl: 'app/components/layout/navbar/userinfo/companyDropdown/companyDropdown.html',
 })
 export class CompanyDropdown implements AfterViewInit, OnDestroy {
     companies: Array<any>;

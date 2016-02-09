@@ -1905,6 +1905,7 @@ export interface IUserVerification {
 	ExpirationDate: Date;
 	VerificationDate: Date;
 	Email: string;
+	DisplayName: string;
 	CompanyId: number;
 	ID: number;
 	Deleted: boolean;

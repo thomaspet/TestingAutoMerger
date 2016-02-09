@@ -1,7 +1,7 @@
 import {Component, AfterViewInit} from 'angular2/core';
 import {Router} from 'angular2/router';
 import {Observable} from 'rxjs/Observable';
-import {AuthService} from '../../../../../framework/authentication/authService';
+import {AuthService} from '../../../../../../framework/authentication/authService';
 import 'rxjs/add/observable/fromEvent';
 
 declare var jQuery;
@@ -13,7 +13,7 @@ interface UserDropdownItem {
 
 @Component({
     selector: 'uni-user-dropdown',
-    templateUrl: 'app/components/navbar/userinfo/userDropdown/userDropdown.html'
+    templateUrl: 'app/components/layout/navbar/userinfo/userDropdown/userDropdown.html'
 })
 export class UserDropdown implements AfterViewInit {
     dropdownElements: Array<UserDropdownItem>;

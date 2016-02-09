@@ -32,7 +32,10 @@ export class PersonalDetails {
     form:UniFormBuilder = new UniFormBuilder();
     layout;
     employee;
-    @ViewChild(UniComponentLoader) uniCmpLoader:UniComponentLoader;
+
+    @ViewChild(UniComponentLoader)
+    uniCmpLoader:UniComponentLoader;
+
     EmployeeID;
     formInstance:UniForm;
 
@@ -49,8 +52,9 @@ export class PersonalDetails {
             self.employeeDS.layout('EmployeePersonalDetailsForm')
         ).subscribe(
             response => {
-                self.employee = EmployeeModel.createFromObject(response[0]);
-                self.form = new UniFormLayoutBuilder().build(response[1], self.employee);
+                var [employee,layout] = response;
+                self.employee = EmployeeModel.createFromObject(employee);
+                self.form = new UniFormLayoutBuilder().build(layout, self.employee);
                 self.form.hideSubmitButton();
 
                 self.uniCmpLoader.load(UniForm, (cmp:ComponentRef)=> {
@@ -70,7 +74,7 @@ export class PersonalDetails {
 
     executeSubmit() {
         this.formInstance.updateModel();
-        console.log(this.formInstance.form.value)
+        console.log(this.formInstance.form.value);
     }
 
     toggleMode() {

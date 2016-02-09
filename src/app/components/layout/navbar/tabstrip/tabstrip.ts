@@ -1,6 +1,6 @@
 import {Component} from 'angular2/core';
 import {RouteConfig, ROUTER_DIRECTIVES, Router} from 'angular2/router';
-import {Routes, APP_ROUTES} from '../../../route.config';
+import {Routes, APP_ROUTES} from '../../../../route.config';
 import {TabService} from './tabService';
 import {Observable} from 'rxjs/Observable';
 import 'rxjs/add/observable/fromArray';
@@ -12,7 +12,7 @@ export interface NavbarTab {
 
 @Component({
 	selector: 'uni-tabstrip',
-	templateUrl: 'app/components/navbar/tabstrip/tabstrip.html',
+	templateUrl: 'app/components/layout/navbar/tabstrip/tabstrip.html',
 	directives: [ROUTER_DIRECTIVES],
 })
 export class Tabstrip {
