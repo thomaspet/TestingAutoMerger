@@ -20,7 +20,7 @@ export class UniRouterOutlet extends RouterOutlet {
   	activate(instruction: ComponentInstruction) {
 		var url = '/' + instruction.urlPath;
 
-		if (!this.authService.validateAuthentication() && url !== '/login' && url !== '/signup') {
+        if (!this.authService.validateAuthentication() && url !== '/login' && url !== '/signup' && url !== '/confirm') {
             localStorage.setItem('lastNavigationAttempt', url); // so we can redirect to it after logging in	
 			this.parentRouter.navigateByUrl('/login');
     	}
