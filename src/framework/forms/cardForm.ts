@@ -4,10 +4,9 @@ import {UniForm} from './uniForm';
 
 @Component({
     selector: 'card-form',
-    directives: [UniForm],
+//    directives: [UniForm],
     template: `
-        <p> heisann </p>
-         <div *ngFor="#form of config.forms #index = index">
+         <div *ngIf="config" *ngFor="#form of config.forms #index = index">
              <p> heisann </p>
              <uni-form (uniFormSubmit)="onSubmit($event, index)" [config]='config'></uni-form>
          </div>
@@ -21,7 +20,7 @@ export class CardForm {
     config: UniCardFormBuilder;
     
     constructor() {
-        console.log("config: " + this.config.forms);
+        //console.log("config: " + this.config.forms);
     }
     
     onSubmit(event, index) {

@@ -18,16 +18,55 @@ declare var jQuery;
 export class Employment {
     currentEmployee;
     formConfigs: UniFormBuilder[];
-    cardformConfigs: UniCardFormBuilder[];
+    //cardformConfigs: UniCardFormBuilder[];
     styrkCodes;
     
     typeOfEmployment: Array<any> = [
         {ID: 0, Navn: "Ikke satt"},
-        {ID: 1, Navn: "Ordinært arbeidsforhold"},
-        {ID: 2, Navn: "Maritimt arbeidsforhold"},
-        {ID: 3, Navn: "Frilans kontraktører etc"},
-        {ID: 4, Navn: "Pensjonert"}
+        {ID: 1, Navn: "1 - Ordinært arbeidsforhold"},
+        {ID: 2, Navn: "2 - Maritimt arbeidsforhold"},
+        {ID: 3, Navn: "3 - Frilanser, oppdragstager, honorar"},
+        {ID: 4, Navn: "4 - Pensjon og annet uten ansettelse"}
     ];
+    
+    renumerationType: Array<any> = [
+        {ID: 0, Navn: "Udefinert"},
+        {ID: 1, Navn: "1 - Fast lønnet"},
+        {ID: 2, Navn: "2 - Timelønnet"},
+        {ID: 3, Navn: "3 - Provisjonslønnet"},
+        {ID: 4, Navn: "4 - Honorar"},
+        {ID: 5, Navn: "5 - Akkord"}
+    ];
+
+    workingHoursScheme: Array<any> = [
+        {ID: 0, Navn: "Udefinert"},
+        {ID: 1, Navn: "1 - Ikke skiftarbeid"},
+        {ID: 2, Navn: "2 - Arbeid offshore"},
+        {ID: 3, Navn: "3 - Helkontinuerlig skiftarbeid"},
+        {ID: 4, Navn: "4 - Døgnkontinuerlig skiftarbeid"},
+        {ID: 5, Navn: "5 - 2 skiftarbeid"}
+    ];
+
+    shipType: Array<any> = [
+        {ID: 0, Navn: "Udefinert"},
+        {ID: 1, Navn: "1 - Annet"},
+        {ID: 2, Navn: "2 - Boreplattform"},
+        {ID: 3, Navn: "3 - Turist"}
+    ];
+
+    shipReg: Array<any> = [
+        {ID: 0, Navn: "Udefinert"},
+        {ID: 1, Navn: "1 - Norsk Internasjonalt skipsregister"},
+        {ID: 2, Navn: "2 - Norsk ordinært skipsregister"},
+        {ID: 3, Navn: "3 - Utenlandsk skipsregister"}
+    ];
+
+    tradeArea: Array<any> = [
+        {ID: 0, Navn: "Udefinert"},
+        {ID: 1, Navn: "1 - Innenriks"},
+        {ID: 2, Navn: "2 - Utenriks"}
+    ];
+    
     
     constructor(private Injector:Injector, public employeeDS:EmployeeDS, public styrkcodesDS:STYRKCodesDS) {
         let params = Injector.parent.parent.get(RouteParams);
@@ -36,34 +75,43 @@ export class Employment {
             this.currentEmployee = response;
             console.log(response);
             this.buildFormConfigs();
-            console.log("formconfigs:" + this.formConfigs);
-            console.log(this.cardformConfigs);
+            console.log(this.formConfigs);
+            //console.log(this.cardformConfigs);
         },error => console.log(error));
         
         styrkcodesDS.getCodes()
         .subscribe(response => {
             this.styrkCodes = response;
-            console.log("STYRKCodes: " + response);
+            console.log("STYRKCodes: " , response);
         },error => console.log(error));
     }
     
     buildFormConfigs() {
         this.formConfigs = [];
-        this.cardformConfigs = [];
+        //this.cardformConfigs = [];
         
         this.currentEmployee.Employments.forEach((employment) => {
             
             var cardformbuilder = new UniCardFormBuilder();
             var formbuilder = new UniFormBuilder();
             
+            var jobcodedatasource = new kendo.data.DataSource({data: this.styrkCodes});
             var jobCode = this.buildField('Stillingskode',employment,'JobCode',UNI_CONTROL_TYPES.AUTOCOMPLETE);
+            // jobCode.onSelect = (event,item) => {
+            //     
+            // };
             jobCode.setKendoOptions({
-               dataSource:  this.styrkCodes,
+                dataSource:  jobcodedatasource,
+                dataTextField: 'styrk',
+                dataValueField: 'tittel'
+            });
+            
+            var jobName = this.buildField('Navn',employment,'JobName',UNI_CONTROL_TYPES.AUTOCOMPLETE);
+            jobName.setKendoOptions({
+               dataSource:  jobcodedatasource,
                dataTextField: 'tittel',
                dataValueField: 'styrk'
             });
-            
-            var jobName = this.buildField('Navn',employment,'JobName',UNI_CONTROL_TYPES.TEXT);
             var startDate = this.buildField('Startdato',employment,'StartDate',UNI_CONTROL_TYPES.DATEPICKER);
             var endDate = this.buildField('Sluttdato',employment,'EndDate',UNI_CONTROL_TYPES.DATEPICKER);
             var monthRate = this.buildField('Månedlønn',employment,'MonthRate',UNI_CONTROL_TYPES.NUMERIC);
@@ -92,7 +140,7 @@ export class Employment {
             
             cardformbuilder.addForm(formbuilder);
             //cardformbuilder.addForm(otherform);
-            this.cardformConfigs.push(cardformbuilder);
+            //this.cardformConfigs.push(cardformbuilder);
             
         });
         
@@ -112,10 +160,20 @@ export class Employment {
             dataTextField: 'Navn',
             dataValueField: 'ID'
         });
-        var hours = this.buildField('Standardtimer',employment,'HoursPerWeek',UNI_CONTROL_TYPES.COMBOBOX);
         var renum = this.buildField('Avlønning',employment,'RenumerationType',UNI_CONTROL_TYPES.COMBOBOX);
+        renum.setKendoOptions({
+            dataSource:  this.renumerationType,
+            dataTextField: 'Navn',
+            dataValueField: 'ID'
+        });
         var work = this.buildField('Arbeidstid',employment,'WorkingHoursScheme',UNI_CONTROL_TYPES.COMBOBOX);
-        ameldingSet.addFields(tOfEmplnt,hours,renum,work);
+        work.setKendoOptions({
+            dataSource:  this.workingHoursScheme,
+            dataTextField: 'Navn',
+            dataValueField: 'ID'
+        });
+        var hours = this.buildField('Standardtimer',employment,'HoursPerWeek',UNI_CONTROL_TYPES.COMBOBOX);
+        ameldingSet.addFields(hours,tOfEmplnt,renum,work);
         
         //Dates
         var dateSet = new UniFieldsetBuilder();
@@ -127,7 +185,7 @@ export class Employment {
         //Annen lønnsinfo
         var infoSet = new UniFieldsetBuilder();
         var freerate = this.buildField('Fri sats',employment,'UserdefinedRate',UNI_CONTROL_TYPES.NUMERIC);
-        var ledger = this.buildField('Hovedbokskonto',employment,'LedgerAccount',UNI_CONTROL_TYPES.NUMERIC);
+        var ledger = this.buildField('Hovedbokskonto',employment,'LedgerAccount',UNI_CONTROL_TYPES.TEXT);
         infoSet.addFields(freerate,ledger);
         
         //Dimensjoner
