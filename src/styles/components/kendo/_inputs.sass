@@ -105,7 +105,6 @@ label > .k-widget
 .k-selectbox .k-input
   line-height: normal
   padding: pxToRem(3) pxToRem(5)
-  background: $uni-color-negative
 
 // All our input+button components
 .k-dropdown,
@@ -117,22 +116,31 @@ label > .k-widget
   .k-input
     border-right: none
     border-radius: pxToRem(3) 0 0 pxToRem(3)
+    min-height: 1.7rem
 
   // The button
   .k-select
     box-sizing: border-box
-    background: linear-gradient(to bottom, $uni-color-scale9 0, $uni-color-scale8 100%)
+    background: $uni-color-negative
     border-radius: 0 pxToRem(3) pxToRem(3) 0
     border: pxToRem(1) solid $uni-color-scale7
-    border-left: none
+    border-left: 1px solid $uni-color-scale7
     line-height: 1.4rem
 
     &:hover
-      background: linear-gradient(to bottom, $uni-color-scale8 0, $uni-color-scale7 100%)
+      background: $uni-color-scale9
 
 // Make sure our dropdown gets focus styling
-.k-dropdown-wrap.k-state-focused .k-input
+.k-dropdown-wrap.k-state-focused .k-input,
+.k-state-focused .k-select
   border-color: $uni-color-C2A
 
 .k-numerictextbox .k-numeric-wrap .k-select
   min-height: 2rem
+
+input[type="email"], textarea[type="email"], [type="email"].k-multiselect-wrap, input[type="number"], textarea[type="number"], [type="number"].k-multiselect-wrap, input[type="password"], textarea[type="password"], [type="password"].k-multiselect-wrap, input[type="search"], textarea[type="search"], [type="search"].k-multiselect-wrap, input[type="tel"], textarea[type="tel"], [type="tel"].k-multiselect-wrap, input[type="text"], textarea[type="text"], [type="text"].k-multiselect-wrap, input[type="url"], textarea[type="url"], [type="url"].k-multiselect-wrap, input[type="color"], textarea[type="color"], [type="color"].k-multiselect-wrap, input[type="date"], textarea[type="date"], [type="date"].k-multiselect-wrap, input[type="datetime"], textarea[type="datetime"], [type="datetime"].k-multiselect-wrap, input[type="datetime-local"], textarea[type="datetime-local"], [type="datetime-local"].k-multiselect-wrap, input[type="month"], textarea[type="month"], [type="month"].k-multiselect-wrap, input[type="time"], textarea[type="time"], [type="time"].k-multiselect-wrap, input[type="week"], textarea[type="week"], [type="week"].k-multiselect-wrap, .k-widget .k-input,
+input.k-textbox,
+textarea.k-textbox,
+.k-textbox.k-multiselect-wrap
+  box-sizing: border-box
+  height: 1.6667rem

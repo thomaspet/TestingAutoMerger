@@ -11,7 +11,6 @@ export interface MultiSelectConfig {
 var templateString = `
     <select
         [ngFormControl]="config.control"
-        [ngClass] = "config.classes"
         [disabled]="config.disabled"
         [attr.readonly]="config.readonly"
     ></select>
@@ -21,7 +20,7 @@ var templateString = `
 	selector: 'uni-multiselect',
 	template: templateString
 })
-export class MultiSelect implements AfterViewInit, OnDestroy {
+export class UniMultiSelect implements AfterViewInit, OnDestroy {
 	@Input() config: MultiSelectConfig;
 	nativeElement;
     

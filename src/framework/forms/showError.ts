@@ -1,19 +1,31 @@
-import {Component,View, Host} from 'angular2/core';
-import {NgIf, NgForm, ControlGroup} from 'angular2/common';
+import {Component, Input} from 'angular2/core';
+import {NgIf} from 'angular2/common';
 
-@Component({selector: 'show-error', inputs: ['control','messages']})
-@View({
+/**
+ * Displays error message that is attached to an invalid control
+ */
+@Component({
+    selector: 'show-error',
     template: `
-    <small *ngIf="errorMessage !== null">{{errorMessage}}</small>
-  `,
+        <small *ngIf="errorMessage !== null">{{errorMessage}}</small>
+    `,
     directives: [NgIf]
 })
 export class ShowError {
+
+    @Input()
     control;
+
+    @Input()
     messages;
 
     constructor() {  }
 
+    /**
+     * Returns the first error message attached to an AbstractControl
+     *
+     * @returns {any}
+     */
     get errorMessage(): string {
         if (this.control && this.control.touched) {
             let em = this.messages;
