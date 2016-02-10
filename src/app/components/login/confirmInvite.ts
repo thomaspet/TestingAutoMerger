@@ -56,19 +56,16 @@ export class Confirm {
 
     isvalidUser() {
         this.errorMessage = '';
-        var valid = true;
         if (this.user['user-name'] === undefined || this.user['user-name'] === '') {
             this.errorMessage += 'Ugyldig brukernavn..';
             this.isInvalidUsername = true;
-            valid = false;
         } else { this.isInvalidUsername = false; }
 
         if (this.passwordRepeat.password === '' || this.user.password === '' || (this.user.password !== this.passwordRepeat.password)) {
             this.errorMessage += ' Ugyldige passord..';
             this.isPasswordsMismatch = true;
-            valid = false;
         } else { this.isPasswordsMismatch = false; }
 
-        return valid;
+        return (!this.isInvalidUsername && !this.isPasswordsMismatch);
     }
 }
