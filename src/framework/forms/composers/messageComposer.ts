@@ -1,4 +1,14 @@
 import {UniFieldBuilder} from "./../builders/uniFieldBuilder";
+
+/**
+ * Compose an object of messages like:
+ *
+ *     {
+ *         "messageID1": "errroMessage1",
+ *         "messageID2": "errroMessage2",
+ *         ...
+ *     }
+ */
 export class MessageComposer {
 
     public static composeMessages(fieldConfig:UniFieldBuilder) {

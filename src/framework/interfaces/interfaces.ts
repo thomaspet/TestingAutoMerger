@@ -428,8 +428,7 @@ export interface IEmployeeCategory {
 
 
 export interface IUser {
-	Name: string;
-	Username: string;
+	DisplayName: string;
 	Email: string;
 	GlobalIdentity: string;
 	StatusID: number;
@@ -513,6 +512,18 @@ export interface ICurrency {
 	ExchangeRate: number;
 	Factor: number;
 	StatusID: number;
+	ID: number;
+	Deleted: boolean;
+	CustomFields: any;
+}
+
+
+export interface IComplexValidationRule {
+	EntityType: string;
+	ValidationCode: number;
+	Message: string;
+	Operation: OperationType;
+	Level: ValidationLevel;
 	ID: number;
 	Deleted: boolean;
 	CustomFields: any;

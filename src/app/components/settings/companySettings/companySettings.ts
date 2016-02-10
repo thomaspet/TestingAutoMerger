@@ -5,15 +5,13 @@ import {Http, Headers, Response} from 'angular2/http';
 import {Observable} from 'rxjs/Observable';
 import 'rxjs/add/operator/map';
 
-import {UniForm, FIELD_TYPES} from '../../../../framework/forms/uniForm';
+import {UniForm} from '../../../../framework/forms/uniForm';
 import {UniFormBuilder} from "../../../../framework/forms/builders/uniFormBuilder";
 import {UniFieldsetBuilder} from "../../../../framework/forms/builders/uniFieldsetBuilder";
 import {UniFieldBuilder} from "../../../../framework/forms/builders/uniFieldBuilder";
 import {UniGroupBuilder} from '../../../../framework/forms/builders/uniGroupBuilder';
 import {UNI_CONTROL_TYPES} from '../../../../framework/controls/types';
 import {UNI_CONTROL_DIRECTIVES} from '../../../../framework/controls';
-
-import {ApplicationNav} from '../../common/applicationNav/applicationNav';
 
 import {CompanySettingsDS} from '../../../../framework/data/companySettings';
 

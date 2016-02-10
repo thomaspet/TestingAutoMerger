@@ -6,7 +6,7 @@ import {UniForm} from '../../../../framework/forms/uniForm';
 import {UNI_CONTROL_DIRECTIVES} from '../../../../framework/controls';
 
 import {
-    UniFormBuilder, UniFieldBuilder, UniFieldsetBuilder, UniGroupBuilder, UniLayoutBuilder
+    UniFormBuilder, UniFieldBuilder, UniFieldsetBuilder, UniGroupBuilder, UniFormLayoutBuilder
 } from '../../../../framework/forms';
 
 import {EmployeeDS} from '../../../../framework/data/employee';
@@ -32,7 +32,10 @@ export class PersonalDetails {
     form:UniFormBuilder = new UniFormBuilder();
     layout;
     employee;
-    @ViewChild(UniComponentLoader) ucl:UniComponentLoader;
+
+    @ViewChild(UniComponentLoader)
+    uniCmpLoader:UniComponentLoader;
+
     EmployeeID;
     formInstance:UniForm;
 
@@ -49,16 +52,16 @@ export class PersonalDetails {
             self.employeeDS.layout('EmployeePersonalDetailsForm')
         ).subscribe(
             response => {
-                self.employee = EmployeeModel.createFromObject(response[0]);
-                self.form = new UniLayoutBuilder().build(response[1], self.employee);
+                var [employee,layout] = response;
+                self.employee = EmployeeModel.createFromObject(employee);
+                self.form = new UniFormLayoutBuilder().build(layout, self.employee);
                 self.form.hideSubmitButton();
 
-                self.ucl.load(UniForm, (cmp:ComponentRef)=> {
+                self.uniCmpLoader.load(UniForm, (cmp:ComponentRef)=> {
                     cmp.instance.config = self.form;
                     setTimeout(()=> {
                         self.formInstance = cmp.instance;
                     }, 100);
-
                 });
             },
             error => console.error(error)
@@ -71,7 +74,7 @@ export class PersonalDetails {
 
     executeSubmit() {
         this.formInstance.updateModel();
-        console.log(this.formInstance.form.value)
+        console.log(this.formInstance.form.value);
     }
 
     toggleMode() {

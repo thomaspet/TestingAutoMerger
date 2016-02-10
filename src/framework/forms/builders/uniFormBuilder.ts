@@ -55,6 +55,23 @@ export class UniFormBuilder {
         return this.fields;
     }
 
+    findFieldByPropertyName(name:string,collection?:any[]) {
+        if (!collection) {
+            collection = this.fields;
+        }
+        var ret = undefined;
+        collection.forEach((element)=>{
+            if (element instanceof UniFieldBuilder) {
+                if (element.field === name) {
+                    ret = element;
+                }
+            } else {
+                this.findFieldByPropertyName(name,element.fields);
+            }
+        });
+        return ret;
+    }
+
     findFieldset(index:number):UniFieldsetBuilder {
         var value: UniFieldsetBuilder = undefined;
         this.fields.forEach((element:IElementBuilder)=>{

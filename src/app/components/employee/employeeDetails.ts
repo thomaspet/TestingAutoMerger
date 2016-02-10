@@ -4,14 +4,14 @@ import {Http, Headers, Response} from 'angular2/http';
 import { Observable } from 'rxjs/Observable';
 import 'rxjs/add/operator/map';
 
-import {WidgetPoster} from '../common/widgetPoster/widgetPoster';
 import {PersonalDetails} from './personalDetails/personalDetails';
 import {Employment} from './employments/employments';
 import {Hours} from './hours/hours';
 import {Travel} from './travel/travel';
 import {SalaryTransactions} from './salaryTransactions/salaryTransactions';
 
-import {ApplicationNav} from '../common/applicationNav/applicationNav';
+import {UniTabs} from '../layout/uniTabs/uniTabs';
+import {WidgetPoster} from '../../../framework/widgetPoster/widgetPoster';
 
 import {EmployeeDS} from '../../../framework/data/employee';
 import {STYRKCodesDS} from '../../../framework/data/styrkCodes';
@@ -28,7 +28,7 @@ const CHILD_ROUTES = [
 	selector: 'uni-employee-details',
 	templateUrl: 'app/components/employee/employeeDetails.html',
     providers: [provide(EmployeeDS,{useClass: EmployeeDS}), provide(STYRKCodesDS, {useClass: STYRKCodesDS})],
-    directives: [ROUTER_DIRECTIVES, WidgetPoster, ApplicationNav]
+    directives: [ROUTER_DIRECTIVES, WidgetPoster, UniTabs]
 })
 @RouteConfig(CHILD_ROUTES)
 export class EmployeeDetails {

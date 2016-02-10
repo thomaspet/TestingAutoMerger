@@ -9,6 +9,7 @@ export class UniTableConfig {
 
 	searchable: boolean;
     editable: boolean;
+    pageSize: number;
 	
     dsModel: kendo.data.DataSourceSchemaModel;
 	columns: kendo.ui.GridColumn[];
@@ -53,6 +54,11 @@ export class UniTableConfig {
     
     setEditable(editable: boolean) {
         this.editable = editable;
+        return this;
+    }
+    
+    setPageSize(pageSize: number) {
+        this.pageSize = pageSize;
         return this;
     }
 	

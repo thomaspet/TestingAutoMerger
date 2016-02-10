@@ -1,6 +1,9 @@
 import {Validators} from 'angular2/common';
 import {UniFieldBuilder} from "./../builders/uniFieldBuilder";
 
+/**
+ * Join (or Compose) Validators of a UniFieldBuilder
+ */
 export class ValidatorsComposer {
 
     public static composeSyncValidators(c:UniFieldBuilder) {
