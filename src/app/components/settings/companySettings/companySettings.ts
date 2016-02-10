@@ -13,8 +13,6 @@ import {UniGroupBuilder} from '../../../../framework/forms/builders/uniGroupBuil
 import {UNI_CONTROL_TYPES} from '../../../../framework/controls/types';
 import {UNI_CONTROL_DIRECTIVES} from '../../../../framework/controls';
 
-import {ApplicationNav} from '../../common/applicationNav/applicationNav';
-
 import {CompanySettingsDS} from '../../../../framework/data/companySettings';
 
 @Component({

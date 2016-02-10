@@ -12,5 +12,5 @@ export enum UNI_CONTROL_TYPES {
     TEXT,//10
     EMAIL,//11
     PASSWORD,//12
-    COMBO//13
+    BREAK_LINE//13
 }

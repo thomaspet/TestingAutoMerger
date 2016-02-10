@@ -1,10 +1,9 @@
 import {Type} from 'angular2/core';
 import {UniFieldBuilder} from './uniFieldBuilder';
 import {UniFieldsetBuilder} from './uniFieldsetBuilder';
-import {UniComboGroupBuilder} from './uniComboGroupBuilder';
 import {UniGroup} from './../uniGroup';
 import {UniFieldset} from './../uniFieldset';
-import {UniComboGroup} from './../uniComboGroup';
+import {UniComboGroupBuilder} from './uniComboGroupBuilder';
 
 declare var _;
 
