@@ -1,0 +1,149 @@
+.uni-multivalue
+  position: relative
+
+  *
+    box-sizing: border-box
+
+  input
+    width: calc(100% - 1.7rem)
+    float: left
+    border-top-right-radius: 0
+    border-bottom-right-radius: 0
+
+
+  .uni-multivalue-moreBtn
+    width: 1.7rem
+    margin: 0
+    padding: 0
+    float: right
+    font-size: 0
+    background: $uni-color-negative unicon-plus($uni-color-scale4) no-repeat center center
+    background-size: .5rem
+    border: $uni-color-scale7 solid pxToRem(1)
+    border-left: none
+    box-shadow: none
+    border-bottom-left-radius: 0
+    border-top-left-radius: 0
+
+    &:hover,
+    &:focus,
+    &.-is-active
+      background-color: $uni-color-scale9
+
+  &.-has-values .uni-multivalue-moreBtn
+    background-image: unicon-down($uni-color-scale4)
+
+  input:focus + .uni-multivalue-moreBtn
+    border-color: $uni-color-C2A
+
+
+  .uni-multivalue-values
+    position: absolute
+    list-style: none
+    width: 100%
+    border: pxToRem(1) solid $uni-color-scale7
+    background-color: mix($uni-color-negative, $uni-color-scale9, 80%)
+    margin-top: 1.68rem
+    z-index: 99
+    border-bottom-left-radius: pxToRem(3)
+    border-bottom-right-radius: pxToRem(3)
+    display: none
+
+    &.-is-active
+      display: block
+
+    li
+      padding: .2rem .5rem
+      border-bottom: pxToRem(1) solid $uni-color-scale9
+      position: relative
+      
+      &:last-of-type
+        border-bottom: none
+
+      &:hover
+        background-color: transparentize($uni-color-C2A, .8)
+        cursor: pointer
+
+        .setMainBtn
+          background: transparent unicon-star($uni-color-scale7) no-repeat center
+          background-size: 1rem
+
+      .setMainBtn
+        font-size: 0
+        height: 1.5rem
+        width: 1.5rem
+        position: absolute
+        right: .5rem
+        top: .2rem
+        padding: 0
+        margin: 0
+        border: none
+        box-shadow: none
+        background: none
+        background-size: 1rem
+
+        &:hover
+          background: transparent unicon-star($uni-color-scale8) no-repeat center
+          background-size: 1rem
+
+      &.-is-main .setMainBtn
+        background: transparent unicon-star($uni-color-scale5) no-repeat center
+        background-size: 1rem
+
+  .uni-multivalue-value
+    height: 1.4rem
+    width: calc(100% - 1.5rem)
+    display: inline-block
+    overflow: hidden
+    text-overflow: ellipsis
+    margin-bottom: -.2rem
+
+  .uni-multivalue_edit
+    display: flex
+    width: calc(100% - 1rem)
+
+  .uni-multivalue_edit_value
+    padding: .2rem .5rem
+    margin: -.2rem 0 -.2rem -.5rem
+    height: 1.9rem
+
+.uni-multivalue-values li
+  .uni-multivalue_edit_action-delete
+    width: 1.8rem
+    height: 1.9rem
+    font-size: 0
+    position: absolute
+    top: -.5rem
+    right: 1rem
+    padding: 0
+    background: transparent
+    border: none
+    box-shadow: none
+
+  &:hover .uni-multivalue_edit_action-delete
+    background: transparent unicon-trash($uni-color-scale8) center no-repeat
+    background-size: .8rem
+
+    &:hover,
+    &:focus
+      background-image: unicon-trash($uni-color-Bad)
+
+  .uni-multivalue_deleted
+    padding: .2rem .5rem
+    margin: -.2rem -.5rem
+    width: calc(100% + 1rem)
+    height: calc(100% + .4rem)
+    background: $uni-color-Bad
+    color: $uni-color-negative
+
+    a
+      color: $uni-color-negative
+      text-decoration: underline
+
+  .uni-multivalue-addBtn
+    @extend button.good
+    width: calc(100% + 1rem)
+    margin: -.2rem -.5rem -.15rem
+    box-shadow: none
+    border-radius: 0 0 pxToRem(3)
+    height: 2rem

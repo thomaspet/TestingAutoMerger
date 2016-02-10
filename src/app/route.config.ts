@@ -39,11 +39,17 @@ export var Routes = {
 		loader: () => ComponentProxy.LoadComponentAsync('UniFormDemo','./app/components/uniFormDemo/uniFormDemoComponent')
     }),
 
-    companySettings: new AsyncRoute({
-        path: '/settings/...',
-        name: 'Settings',
-        loader: () => ComponentProxy.LoadComponentAsync('Settings', './app/components/settings/settings')
-    }),
+	companySettings: new AsyncRoute({
+		path: '/settings/...',
+		name: 'Settings',
+		loader: () => ComponentProxy.LoadComponentAsync('Settings', './app/components/settings/settings')
+	}),
+
+	usertest: new AsyncRoute({
+		path: '/usertest',
+		name: 'Usertest',
+		loader: () => ComponentProxy.LoadComponentAsync('Usertest', './app/components/usertest/usertest')
+	}),
 	
 	examples: new AsyncRoute({
 		path: '/examples/...',
