@@ -40,34 +40,31 @@ export class UniAutocomplete implements AfterViewInit, OnDestroy {
         });
 
         // Update control value and set validSelection to true. Select event only fires when input text is valid.
-        if (!options.select) {
-            options.select = function (event:kendo.ui.AutoCompleteSelectEvent) {
-                var item:any = event.item;
-                var dataItem = event.sender.dataItem(item.index());
+        options.select = function (event:kendo.ui.AutoCompleteSelectEvent) {
+            var item:any = event.item;
+            var dataItem = event.sender.dataItem(item.index());
 
-                if (control) {
-                    control.updateValue(dataItem.toJSON(),{});
-                }
+            if (control) {
+                control.updateValue(dataItem.toJSON(),{});
+            }
 
-                if (self.config.onSelect) {
-                    self.config.onSelect(event, dataItem);
-                }
+            if (self.config.onSelect) {
+                self.config.onSelect(event, dataItem);
+            }
 
-                validSelection = true;
-            };
-        }
+            validSelection = true;
+        };
 
         // Reset the fields on change events (blur, enter, ...) if input was invalid
-        if (!options.change) {
-            options.change = function (event:kendo.ui.AutoCompleteChangeEvent) {
-                if (!validSelection || self.config.clearOnSelect) {
-                    event.sender.value('');
-                    if (control) {
-                        control.updateValue(undefined,{});
-                    }
+        options.change = function (event:kendo.ui.AutoCompleteChangeEvent) {
+            if (!validSelection || self.config.clearOnSelect) {
+                event.sender.value('');
+                if (control) {
+                    control.updateValue(undefined,{});
                 }
-            };
-        }
+            }
+        };
+
         var autocomplete = this.nativeElement.find('input').first().kendoAutoComplete(options).data('kendoAutoComplete');
         autocomplete.value(control.value[this.config.kOptions.dataTextField]);
     }
