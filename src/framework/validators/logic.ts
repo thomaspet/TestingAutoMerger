@@ -1,56 +1,56 @@
 import {Control} from "angular2/common";
 
-export function greaterThan(value:number, key:string, message: string) {
+export function greaterThan(value:number, key:string) {
     return function validator(c: Control): {[key:string]: boolean} {
         if (parseInt(c.value,10) > value){
             return null;
         }
         return {
-            key: message
+            key: true
         }
     };
 }
 
-export function lowerThan(value:number, key:string, message: string) {
+export function lowerThan(value:number, key:string) {
     return function validator(c: Control): {[key:string]: boolean} {
         if (parseInt(c.value,10) < value){
             return null;
         }
         return {
-            key: message
+            key: true
         }
     };
 }
 
-export function greaterEqualThan(value:number, key:string, message: string) {
+export function greaterEqualThan(value:number, key:string) {
     return function validator(c: Control): {[key:string]: boolean} {
         if (parseInt(c.value,10) >= value){
             return null;
         }
         return {
-            key: message
+            key: true
         }
     };
 }
 
-export function lowerEqualThan(value:number, key:string, message: string) {
+export function lowerEqualThan(value:number, key:string) {
     return function validator(c: Control): {[key:string]: boolean} {
         if (parseInt(c.value,10) <= value){
             return null;
         }
         return {
-            key: message
+            key: true
         }
     };
 }
 
-export function equalThan(value:number, key:string, message: string) {
+export function equalThan(value:number, key:string) {
     return function validator(c: Control): {[key:string]: boolean} {
         if (parseInt(c.value,10) == value){
             return null;
         }
         return {
-            key: message
+            key: true
         }
     };
 }
