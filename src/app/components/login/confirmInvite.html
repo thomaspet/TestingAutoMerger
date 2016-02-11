@@ -1,7 +1,7 @@
 ﻿<div class="authentication_component">
     <img src="http://www.unimicro.no/templates/images/x-logo.png" alt="Uni Economy logo">
     <h3>Opprett bruker:</h3>
-    <form class="confirm_invite_form">
+    <form class="confirm_invite_form" *ngIf="validVerificationCode">
         <label>
             Brukernavn:
             <input type="text" [(ngModel)]="user['user-name']" [ngClass]="{error: isInvalidUsername}" placeholder="Brukernavn" />
@@ -13,8 +13,12 @@
         <label>
             Gjenta Passord
             <input type="password" [(ngModel)]="passwordRepeat.password" [ngClass]="{error: isPasswordsMismatch}" placeholder="Gjenta passord" />
-            <small *ngIf="isPasswordsMismatch || isInvalidUsername">{{errorMessage}}</small>
+            <small *ngIf="isPasswordsMismatch || isInvalidUsername">{{formErrorMessage}}</small>
         </label>
         <button class="c2a" (click)="confirmUser()" [attr.aria-busy]="working">Bekreft bruker</button>
     </form>
+    <!--Should be error message component?-->
+    <section *ngIf="!validInvite">
+        <h3>{{verificationCodeErrorMessage}}</h3>
+    </section>
 </div>

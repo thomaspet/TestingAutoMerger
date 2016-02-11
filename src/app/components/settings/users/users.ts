@@ -26,7 +26,7 @@ export class Users {
     }
 
     createUserTable() {
-        this.usersConfig = new UniTableConfig('http://devapi.unieconomy.no/api/biz/users', true, true)
+        this.usersConfig = new UniTableConfig('http://devapi.unieconomy.no/api/biz/users', false, false)
 
             .setDsModel({
                 id: 'ID',
