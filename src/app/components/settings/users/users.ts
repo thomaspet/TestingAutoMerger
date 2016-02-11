@@ -15,6 +15,8 @@ export class Users {
     newUser;
     users: Array<any> = [];
     usersConfig: UniTableConfig;
+    inviteLink: string;
+    inviteSuccess: boolean = false;
     isPostUserActive: boolean = false;
 
     constructor(private http: UniHttpService) {
@@ -29,27 +31,29 @@ export class Users {
             .setDsModel({
                 id: 'ID',
                 fields: {
-                    Name: { type: 'text' },
+                    DisplayName: { type: 'text' },
                     Email: { type: 'text' }
                 }
             })
 
             .setColumns([
-                { field: 'Name', title: 'Navn' },
+                { field: 'DisplayName', title: 'Navn' },
                 { field: 'Email', title: 'Epost' },
                 { field: 'Username', title: 'Brukernavn' },
                 { field: 'Status', title: 'Status' },
                 { field: 'Role', title: 'Rolle' }
             ]);
-        
+
     }
 
     inviteNewUser() {
         this.isPostUserActive = true;
-        this.http.post({ resource: '/user-verifications', body: this.newUser })
+        this.http.post({ resource: 'user-verifications', body: this.newUser })
             .subscribe(
             (data) => {
                 console.log(data);
+                this.inviteLink = 'http://localhost:3000/#/confirm/' + data.VerificationCode;
+                this.inviteSuccesful();
                 this.newUser.DisplayName = '';
                 this.newUser.Email = '';
                 this.createUserTable();
@@ -59,6 +63,10 @@ export class Users {
                 console.log(error);
                 this.isPostUserActive = false;
             }
-        )
+            )
+    }
+
+    inviteSuccesful() {
+        this.inviteSuccess = true;
     }
 }
