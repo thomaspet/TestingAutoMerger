@@ -9,7 +9,7 @@ declare var jQuery;
 
 export interface AutocompleteConfig {
     control?: Control;
-    onSelect?: Function;
+    select?: Function;
     clearOnSelect?: boolean;
     kOptions: kendo.ui.AutoCompleteOptions;
 }
@@ -45,11 +45,11 @@ export class UniAutocomplete implements AfterViewInit, OnDestroy {
             var dataItem = event.sender.dataItem(item.index());
 
             if (control) {
-                control.updateValue(dataItem.toJSON(),{});
+                control.updateValue(dataItem.toJSON());
             }
 
-            if (self.config.onSelect) {
-                self.config.onSelect(event, dataItem);
+            if (self.config.select) {
+                self.config.select(event);
             }
 
             validSelection = true;

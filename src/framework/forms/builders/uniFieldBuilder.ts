@@ -1,5 +1,5 @@
 import {ComponentRef, Type} from 'angular2/core';
-import {AbstractControl} from 'angular2/common';
+import {Control} from 'angular2/common';
 import {UNI_CONTROL_DIRECTIVES} from '../../controls';
 import {UniField} from './../uniField';
 import {UniTextInput} from '../../controls/text/text';
@@ -19,7 +19,7 @@ export class UniFieldBuilder {
     disabled:boolean = false;
     syncValidators:Array<any> = [];
     asyncValidators:Array<any> = [];
-    control:AbstractControl;
+    control:Control;
     fieldsetIndex:number = 0;
     sectionIndex:number = 0;
     isLookup: boolean = false;
@@ -31,6 +31,7 @@ export class UniFieldBuilder {
     componentLayoutID: number = 0;
     errorMessages: Array<any> = [];
     select: (event:kendo.ui.AutoCompleteSelectEvent) => void;
+    change: (event:kendo.ui.AutoCompleteSelectEvent) => void;
 
     static fromLayoutConfig(element:any, model:any):UniFieldBuilder {
         var ufb = new UniFieldBuilder();
@@ -136,8 +137,8 @@ export class UniFieldBuilder {
         this.select = select;
     }
     
-    onChange() {
-        return this;
+    onChange(change: (event:kendo.ui.AutoCompleteSelectEvent) => void) {
+        this.change = change;
     }
 }
 

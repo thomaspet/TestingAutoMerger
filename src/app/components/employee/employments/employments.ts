@@ -7,6 +7,7 @@ import {UNI_CONTROL_TYPES} from '../../../../framework/controls/types';
 import {
     UniCardFormBuilder,CardForm,UniForm,UniFormBuilder,UniFieldBuilder,UniGroupBuilder,UniFieldsetBuilder
 } from '../../../../framework/forms';
+import {Observable} from "rxjs/Observable";
 
 declare var jQuery;
 
@@ -18,7 +19,6 @@ declare var jQuery;
 export class Employment {
     currentEmployee;
     formConfigs: UniFormBuilder[];
-    //cardformConfigs: UniCardFormBuilder[];
     styrkCodes;
     
     typeOfEmployment: Array<any> = [
@@ -70,61 +70,47 @@ export class Employment {
     
     constructor(private Injector:Injector, public employeeDS:EmployeeDS, public styrkcodesDS:STYRKCodesDS) {
         let params = Injector.parent.parent.get(RouteParams);
-        employeeDS.get(params.get('id'))
-        .subscribe(response => {
-            this.currentEmployee = response;
-            console.log(response);
+        Observable.forkJoin(
+            employeeDS.get(params.get('id')),
+            styrkcodesDS.getCodes()
+        ).subscribe((response)=>{
+            let [employee,codes] = response;
+            this.currentEmployee = employee;
+            this.styrkCodes = codes;
             this.buildFormConfigs();
-            console.log(this.formConfigs);
-            //console.log(this.cardformConfigs);
-        },error => console.log(error));
-        
-        styrkcodesDS.getCodes()
-        .subscribe(response => {
-            this.styrkCodes = response;
-            console.log("STYRKCodes: " , response);
-        },error => console.log(error));
+        }, error => console.log(error));
     }
     
     buildFormConfigs() {
         this.formConfigs = [];
-        //this.cardformConfigs = [];
         
         this.currentEmployee.Employments.forEach((employment) => {
-            
             var cardformbuilder = new UniCardFormBuilder();
             var formbuilder = new UniFormBuilder();
-            
-            
-            var jobcodedatasource = new kendo.data.DataSource({data: this.styrkCodes});
+
             var jobCode = this.buildField('Stillingskode',employment,'JobCode',UNI_CONTROL_TYPES.AUTOCOMPLETE);
             jobCode.onSelect((event) => {
-                
                 var item:any = event.item;
-                console.log("item",item);
                 var dataItem = event.sender.dataItem(item.index());
-                
-                console.log("dataItem", dataItem);
-                
-                var f = formbuilder.findFieldByPropertyName("JobCode");
-                f.control.updateValue(dataItem.toJSON(),{});
-                
-                var name = formbuilder.findFieldByPropertyName("JobName");
-                f.control.updateValue(dataItem.toJSON(), {});
-                
+
+                var fjc = <UniFieldBuilder>formbuilder.findFieldByPropertyName("JobCode");
+                fjc.control.updateValue(dataItem.styrk, {});
+
+                var fjn = <UniFieldBuilder>formbuilder.findFieldByPropertyName("JobName");
+                fjn.control.updateValue(dataItem.tittel, {});
             });
             
             jobCode.setKendoOptions({
-                dataSource:  jobcodedatasource,
+                dataSource:  this.styrkCodes,
                 dataTextField: 'styrk',
-                dataValueField: 'tittel'
+                dataValueField: 'styrk'
             });
             
             var jobName = this.buildField('Navn',employment,'JobName',UNI_CONTROL_TYPES.AUTOCOMPLETE);
             jobName.setKendoOptions({
-               dataSource:  jobcodedatasource,
+               dataSource:  this.styrkCodes,
                dataTextField: 'tittel',
-               dataValueField: 'styrk'
+               dataValueField: 'tittel'
             });
             var startDate = this.buildField('Startdato',employment,'StartDate',UNI_CONTROL_TYPES.DATEPICKER);
             var endDate = this.buildField('Sluttdato',employment,'EndDate',UNI_CONTROL_TYPES.DATEPICKER);
