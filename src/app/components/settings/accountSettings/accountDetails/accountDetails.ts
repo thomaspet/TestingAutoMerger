@@ -1,4 +1,4 @@
-import {Component, provide, Input} from 'angular2/core';
+import {Component, provide, Input, ViewChild, ContentChild} from 'angular2/core';
 import {Validators, Control, FormBuilder} from 'angular2/common';
 import {Observable} from 'rxjs/Observable';
 import {UniForm} from '../../../../../framework/forms/uniForm';
@@ -24,15 +24,17 @@ import {UniHttpService} from '../../../../../framework/data/uniHttpService';
 })
 export class AccountDetails {
     @Input() account;    
-    form = new UniFormBuilder();
+    @ViewChild(UniForm) form: UniForm;
+    config = new UniFormBuilder();
     model;
     currencies;
     vattypes;
     
     constructor(fb:FormBuilder, private accountingDS:AccountingDS, private currencyDS:CurrencyDS, private http:UniHttpService) {
+        this.accountReady();       
     }
 
-    accountReady() {                     
+    accountReady() {                             
         // Acount details                       
         var accountNumber = new UniFieldBuilder();
         accountNumber.setLabel('Kontonr.')
@@ -70,7 +72,7 @@ export class AccountDetails {
             .setType(UNI_CONTROL_DIRECTIVES[UNI_CONTROL_TYPES.DROPDOWN])
             .setKendoOptions({ dataSource: this.vattypes, dataTextField: 'Name'})
                     
-        this.form.addFields(accountCombo, accountAlias, currency, vatType);
+        this.config.addFields(accountCombo, accountAlias, currency, vatType);
 
         //
         // Checkbox settings
@@ -115,7 +117,7 @@ export class AccountDetails {
         var systemSet = new UniFieldsetBuilder();
         systemSet.addFields(checkSystemAccount, checkPostPost, checkDeductionPercent, checkLockManualPosts, checkLocked, checkVisible);
    
-        this.form.addField(systemSet);
+        this.config.addField(systemSet);
     }
     
     update() {      
@@ -125,30 +127,26 @@ export class AccountDetails {
             { resource: "accounts/" + this.account, expand: "Alias,Currency,AccountGroup" }
         ]).subscribe(
             (dataset) => {
+                console.log("NYTT DATASETT");
                 this.currencies = dataset[0];
                 this.vattypes = dataset[1];
-                this.model = dataset[2];   
-                this.accountReady();      
+                this.model = dataset[2];  
+                this.form.updateModel();
             },
             (error) => console.log(error)
         )  
-  
-  /*
-        if (this.account == undefined) {
-            this.model = { ID: 1, AccountNumber: "4000", AccountName: "Test" }  
-        } else {
-            this.model = { ID: 7, AccountNumber: "4001", AccountName: "Test 2" } 
-        } 
-*/ 
    }
               
     ngOnInit() {
-        this.update();
     }      
                     
     ngOnChanges() {
         console.log("NGCHANGE")
+        console.log(this.form);
+        //if (this.form != null)
+        //    this.form.updateModel();
         
+        this.update();    
     }
              
     onSubmit(value) {

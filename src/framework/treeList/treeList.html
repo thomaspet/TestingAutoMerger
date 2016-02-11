@@ -11,7 +11,7 @@
         <div *ngIf="item.type !== type.LIST">
             <h5 (click)="showHideContent($event)">{{item.title}}</h5>
                 <tree-list-component-loader *ngIf="item.type === type.TABLE || item.type === type.FORM" [componentConfig]="item" class="content_div"></tree-list-component-loader>
-                <p *ngIf="item.type == type.TEXT" class="content_div">{{item.content}}</p>
+                <p *ngIf="(item.type === type.TABLE || item.type === type.FORM) && item.expanded" class="content_div">{{item.content}}</p>
         </div>
     </li>    
 </ul>
