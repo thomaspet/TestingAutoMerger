@@ -2,8 +2,15 @@
 @import "checkboxes"
 @import "formSection"
 
+// If you want the linebreak BEFORE the element
 label.-has-linebreak
-  float: none
+  clear: left // For floated layouts
+  display: block !important // For inline-block layouts
+
+// If you want the linebreak AFTER the element
+label.-has-linebreak + *
+  clear: left
+  display: block !important
 
 fieldset
   border-width: 0
