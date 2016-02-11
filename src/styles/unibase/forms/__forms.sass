@@ -4,13 +4,20 @@
 
 // If you want the linebreak BEFORE the element
 label.-has-linebreak
+  float: none // For wrapped elements
   clear: left // For floated layouts
   display: block !important // For inline-block layouts
+  &:before
+    content: '\00200B' // For other layouts
 
 // If you want the linebreak AFTER the element
 label.-has-linebreak + *
+  float: none
   clear: left
   display: block !important
+  &:before
+    content: '\00200B'
+
 
 fieldset
   border-width: 0
