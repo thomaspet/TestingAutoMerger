@@ -79,6 +79,14 @@ export class Employment {
             this.styrkCodes = codes;
             this.buildFormConfigs();
         }, error => console.log(error));
+            .subscribe(response => {
+                this.styrkCodes = response;
+                console.log("STYRKCodes: " , response);
+                this.buildFormConfigs();
+                console.log(this.formConfigs);
+            },error => console.log(error));
+            //console.log(this.cardformConfigs);
+        },error => console.log(error));
     }
     
     buildFormConfigs() {
