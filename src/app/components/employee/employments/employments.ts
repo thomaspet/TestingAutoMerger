@@ -79,14 +79,6 @@ export class Employment {
             this.styrkCodes = codes;
             this.buildFormConfigs();
         }, error => console.log(error));
-            .subscribe(response => {
-                this.styrkCodes = response;
-                console.log("STYRKCodes: " , response);
-                this.buildFormConfigs();
-                console.log(this.formConfigs);
-            },error => console.log(error));
-            //console.log(this.cardformConfigs);
-        },error => console.log(error));
     }
     
     buildFormConfigs() {
@@ -97,21 +89,16 @@ export class Employment {
             var formbuilder = new UniFormBuilder();
 
             var jobCode = this.buildField('Stillingskode',employment,'JobCode',UNI_CONTROL_TYPES.AUTOCOMPLETE);
-            jobCode.onSelect((event) => {
-                var item:any = event.item;
-                var dataItem = event.sender.dataItem(item.index());
-
-                var fjc = <UniFieldBuilder>formbuilder.findFieldByPropertyName("JobCode");
-                fjc.control.updateValue(dataItem.styrk, {});
-
-                var fjn = <UniFieldBuilder>formbuilder.findFieldByPropertyName("JobName");
-                fjn.control.updateValue(dataItem.tittel, {});
-            });
-            
             jobCode.setKendoOptions({
                 dataSource:  this.styrkCodes,
                 dataTextField: 'styrk',
                 dataValueField: 'styrk'
+            });
+            jobCode.onSelect((event) => {
+                var item:any = event.item;
+                var dataItem = event.sender.dataItem(item.index());
+                var fjn = <UniFieldBuilder>formbuilder.findFieldByPropertyName("JobName");
+                fjn.control.updateValue(dataItem.tittel, {});
             });
             
             var jobName = this.buildField('Navn',employment,'JobName',UNI_CONTROL_TYPES.AUTOCOMPLETE);
@@ -120,6 +107,13 @@ export class Employment {
                dataTextField: 'tittel',
                dataValueField: 'tittel'
             });
+            jobName.onSelect((event) => {
+                var item:any = event.item;
+                var dataItem = event.sender.dataItem(item.index());
+                var fjc = <UniFieldBuilder>formbuilder.findFieldByPropertyName("JobCode");
+                fjc.control.updateValue(dataItem.styrk, {});
+            });
+            
             var startDate = this.buildField('Startdato',employment,'StartDate',UNI_CONTROL_TYPES.DATEPICKER);
             var endDate = this.buildField('Sluttdato',employment,'EndDate',UNI_CONTROL_TYPES.DATEPICKER);
             var monthRate = this.buildField('Månedlønn',employment,'MonthRate',UNI_CONTROL_TYPES.NUMERIC);
@@ -180,7 +174,7 @@ export class Employment {
             dataTextField: 'Navn',
             dataValueField: 'ID'
         });
-        var hours = this.buildField('Standardtimer',employment,'HoursPerWeek',UNI_CONTROL_TYPES.COMBOBOX);
+        var hours = this.buildField('Standardtimer',employment,'HoursPerWeek',UNI_CONTROL_TYPES.NUMERIC);
         ameldingSet.addFields(hours,tOfEmplnt,renum,work);
         
         //Dates
