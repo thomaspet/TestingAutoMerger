@@ -1,5 +1,6 @@
 import { Component, Input, AfterViewInit, ElementRef, OnDestroy} from 'angular2/core';
 import {Http, Headers, URLSearchParams, Response} from 'angular2/http';
+import {UniHttpService, UniHttpRequest} from '../data/uniHttpService';
 import {NgIf} from 'angular2/common';
 declare var jQuery;
 
@@ -21,7 +22,7 @@ export class UniTable implements AfterViewInit {
     totalRows: number; // used for pagination
     
 	
-	constructor(private http: Http, elementRef: ElementRef) {
+	constructor(private http: Http, elementRef: ElementRef, private uniHttp: UniHttpService) {
         this.nativeElement = jQuery(elementRef.nativeElement);
     }
 
@@ -42,7 +43,11 @@ export class UniTable implements AfterViewInit {
                         
                         Object.keys(urlParams).forEach((key) => {
                            if (urlParams[key]) {
-                               searchMap.append(key, urlParams[key]);
+                               if (key === 'take') {
+                                   searchMap.append('top', urlParams[key]);
+                               } else {
+                                   searchMap.append(key, urlParams[key]);    
+                               }
                            } 
                         });
                         
@@ -59,43 +64,64 @@ export class UniTable implements AfterViewInit {
                             options.success(data)
                         });
                     },
-                    update: {
-                        url: (item) => {
-                            return this.config.resourceUrl + '/' + item.ID
-                        },
-                        type: 'PUT',
-                        headers: httpHeaders  
+                    
+                    update: (options) => {
+                        // options.data
+                        var url = 'products/' + options.data.ID;
+                        
+                        this.uniHttp.put({
+                            resource: url,
+                            body: options.data
+                        }).subscribe(
+                            (response) => {
+                                options.success(response);
+                            },
+                            (error) => {
+                                options.error(error);
+                            }
+                        );
                     },
-                    create: {
-                        url: this.config.resourceUrl,
-                        type: 'POST',
-                        headers: httpHeaders  
+                    
+                    create: (options) => {
+                        this.uniHttp.post({
+                            resource: 'products',
+                            body: options.data
+                        }).subscribe(
+                            (response) => {
+                                options.success(response);
+                            },
+                            (error) => {
+                                options.error(error);
+                            }
+                        );
                     },
-                    destroy: {
-                        url: (item) => {
-                            return this.config.resourceUrl + '/' + item.ID
-                        },
-                        type: 'DELETE',
-                        headers: httpHeaders
+                    
+                    destroy: (options) => {
+                        this.uniHttp.delete({
+                            resource: 'products/' + options.data.ID 
+                        }).subscribe(
+                            (response) => {
+                                options.success(response);
+                            },
+                            (error) => {
+                                options.error(error);
+                            }
+                        );
                     },
+
                     parameterMap: (options, operation) => {
                         if (operation === 'read') {
                             return jQuery.extend({}, this.config.odata, options);
-                        }
-                        
-                        if (operation !== "read" && options) {   
-                            return kendo.stringify(options);
                         }
                     }
 				},
 				schema: { 
 					model: this.config.dsModel,
                     total: (response) => {
-
                         return this.totalRows;
                     }
 				},
-                pageSize: this.config.pageSize || 10,
+                pageSize: 0,//5,//this.config.pageSize || 10,
                 serverPaging: true,
                 serverFiltering: true,
 			},
@@ -103,7 +129,7 @@ export class UniTable implements AfterViewInit {
 			filterable: true,
             editable: this.config.editable,
             navigatable: true,
-            pageable: true,     
+            //pageable: true,    
 		};
 		       
 		
@@ -147,34 +173,20 @@ export class UniTable implements AfterViewInit {
                     column.attributes = { "class": 'editable-cell' }
                 }
             }
-        });        
+        });
         
-        // Unbind kendo's keybind on numeric inputs so it doesn't interfere with up/down table navigation
-        this.tableConfig.edit = (event) => {
-            var input = jQuery(this.table.current()).find('.k-numerictextbox input').unbind('keydown');
-        }
+        this.tableConfig.columns.push({
+            command: ['destroy'], 
+            title: '&nbsp;'
+        })      
+        
+        
         
         // Compile kendo grid
+        console.log(this.tableConfig);
         this.table = this.nativeElement.find('table').kendoGrid(this.tableConfig).data('kendoGrid');
         
         this.setupKeyNavigation();
-    }
-    
-    buildOdataString() {
-        if (!this.config.odata) {
-            return '';
-        }
-        
-        var odataStr = '';
-        odataStr += (this.config.odata.expand) ? ('expand=' + this.config.odata.expand + '&') : '';
-        odataStr += (this.config.odata.filter) ? ('filter=' + this.config.odata.filter) : '';
-        
-        // // Remove trailing '&'
-        if (odataStr[odataStr.length - 1] === '&') {
-            odataStr = odataStr.slice(0, -1);
-        }
-        
-        return odataStr;
     }
 	
 	filterTable() {
@@ -206,6 +218,11 @@ export class UniTable implements AfterViewInit {
 	}
     
     setupKeyNavigation() {
+        // Unbind kendo's keybind on numeric inputs so it doesn't interfere with up/down table navigation
+        this.tableConfig.edit = (event) => {
+            var input = jQuery(this.table.current()).find('.k-numerictextbox input').unbind('keydown');
+        }
+        
         jQuery(this.table.table).keyup((event) => {
             // Enter
             if (event.keyCode === 13) {
