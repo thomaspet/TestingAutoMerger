@@ -228,13 +228,13 @@ export class CompanySettings implements OnInit {
         }
 
         var accountingLockedDate = new UniFieldBuilder();
-        accountingLockedDate.setLabel('Regnskapsdato')
+        accountingLockedDate.setLabel('Regnskaps låst tom')
             .setModel(this.company)
             .setModelField('AccountingLockedDate')
             .setType(UNI_CONTROL_DIRECTIVES[2]);
 
         var vatLockedDate = new UniFieldBuilder();
-        vatLockedDate.setLabel('Momsdato')
+        vatLockedDate.setLabel('Mva låst tom')
             .setModel(this.company)
             .setModelField('VatLockedDate')
             .setType(UNI_CONTROL_DIRECTIVES[2])
