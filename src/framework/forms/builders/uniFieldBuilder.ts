@@ -30,6 +30,7 @@ export class UniFieldBuilder {
     entityType: string = '';
     componentLayoutID: number = 0;
     errorMessages: Array<any> = [];
+    select: (event:kendo.ui.AutoCompleteSelectEvent) => void;
 
     static fromLayoutConfig(element:any, model:any):UniFieldBuilder {
         var ufb = new UniFieldBuilder();
@@ -128,6 +129,14 @@ export class UniFieldBuilder {
     }
 
     config():UniFieldBuilder {
+        return this;
+    }
+    
+    onSelect(select: (event:kendo.ui.AutoCompleteSelectEvent) => void) {
+        this.select = select;
+    }
+    
+    onChange() {
         return this;
     }
 }

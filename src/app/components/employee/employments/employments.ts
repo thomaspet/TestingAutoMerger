@@ -95,11 +95,25 @@ export class Employment {
             var cardformbuilder = new UniCardFormBuilder();
             var formbuilder = new UniFormBuilder();
             
+            
             var jobcodedatasource = new kendo.data.DataSource({data: this.styrkCodes});
             var jobCode = this.buildField('Stillingskode',employment,'JobCode',UNI_CONTROL_TYPES.AUTOCOMPLETE);
-            // jobCode.onSelect = (event,item) => {
-            //     
-            // };
+            jobCode.onSelect((event) => {
+                
+                var item:any = event.item;
+                console.log("item",item);
+                var dataItem = event.sender.dataItem(item.index());
+                
+                console.log("dataItem", dataItem);
+                
+                var f = formbuilder.findFieldByPropertyName("JobCode");
+                f.control.updateValue(dataItem.toJSON(),{});
+                
+                var name = formbuilder.findFieldByPropertyName("JobName");
+                f.control.updateValue(dataItem.toJSON(), {});
+                
+            });
+            
             jobCode.setKendoOptions({
                 dataSource:  jobcodedatasource,
                 dataTextField: 'styrk',
