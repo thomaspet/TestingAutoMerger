@@ -1,12 +1,12 @@
 import {RouteParams} from 'angular2/router';
 import {Component, Injector, OnInit} from 'angular2/core';
-import {EmployeeDS} from '../../../../framework/data/employee';
-import {STYRKCodesDS} from '../../../../framework/data/styrkCodes';
-import {UNI_CONTROL_DIRECTIVES} from '../../../../framework/controls';
-import {UNI_CONTROL_TYPES} from '../../../../framework/controls/types';
+import {EmployeeDS} from '../../../../../framework/data/employee';
+import {STYRKCodesDS} from '../../../../../framework/data/styrkCodes';
+import {UNI_CONTROL_DIRECTIVES} from '../../../../../framework/controls';
+import {UNI_CONTROL_TYPES} from '../../../../../framework/controls/types';
 import {
     UniCardFormBuilder,CardForm,UniForm,UniFormBuilder,UniFieldBuilder,UniGroupBuilder,UniFieldsetBuilder
-} from '../../../../framework/forms';
+} from '../../../../../framework/forms';
 import {Observable} from "rxjs/Observable";
 
 declare var jQuery;
@@ -14,7 +14,7 @@ declare var jQuery;
 @Component({
     selector: 'employee-employment',
     directives: [UniForm, CardForm],
-    templateUrl: 'app/components/employee/employments/employments.html'
+    templateUrl: 'app/components/salary/employee/employments/employments.html'
 })
 export class Employment {
     currentEmployee;

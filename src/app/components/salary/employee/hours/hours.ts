@@ -2,15 +2,15 @@ import {Validators} from 'angular2/common';
 import {Component, Injector, ViewChild, DynamicComponentLoader, ElementRef, ComponentRef, Type} from 'angular2/core';
 import {RouteParams} from 'angular2/router';
 
-import {UniForm} from '../../../../framework/forms/uniForm';
-import {UNI_CONTROL_TYPES} from '../../../../framework/controls/types';
-import {UNI_CONTROL_DIRECTIVES} from '../../../../framework/controls';
+import {UniForm} from '../../../../../framework/forms/uniForm';
+import {UNI_CONTROL_TYPES} from '../../../../../framework/controls/types';
+import {UNI_CONTROL_DIRECTIVES} from '../../../../../framework/controls';
 
-import {UniFormBuilder,UniFieldBuilder,UniFieldsetBuilder,UniGroupBuilder} from '../../../../framework/forms';
+import {UniFormBuilder,UniFieldBuilder,UniFieldsetBuilder,UniGroupBuilder} from '../../../../../framework/forms';
 
-import {EmployeeDS} from '../../../../framework/data/employee';
-import {EmployeeModel} from '../../../../framework/models/employee';
-import {UniComponentLoader} from '../../../../framework/core/componentLoader';
+import {EmployeeDS} from '../../../../../framework/data/employee';
+import {EmployeeModel} from '../../../../../framework/models/employee';
+import {UniComponentLoader} from '../../../../../framework/core/componentLoader';
 
 import {Observable} from 'rxjs/Observable';
 import 'rxjs/add/operator/merge';

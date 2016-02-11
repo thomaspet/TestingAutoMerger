@@ -3,11 +3,11 @@ import {CORE_DIRECTIVES} from 'angular2/common';
 import {TabService} from '../layout/navbar/tabstrip/tabService';
 import {Multival} from '../usertest/multivalue';
 import {UniTabs} from '../layout/uniTabs/uniTabs';
-import {PersonalDetails} from '../employee/personalDetails/personalDetails';
-import {Employment} from '../employee/employments/employments';
-import {Hours} from '../employee/hours/hours';
-import {Travel} from '../employee/travel/travel';
-import {SalaryTransactions} from '../employee/salaryTransactions/salaryTransactions';
+import {PersonalDetails} from '../salary/employee/personalDetails/personalDetails';
+import {Employment} from '../salary/employee/employments/employments';
+import {Hours} from '../salary/employee/hours/hours';
+import {Travel} from '../salary/employee/travel/travel';
+import {SalaryTransactions} from '../salary/employee/salaryTransactions/salaryTransactions';
 import {RouteConfig, RouteDefinition, RouteParams, ROUTER_DIRECTIVES} from 'angular2/router';
 
 const CHILD_ROUTES = [
