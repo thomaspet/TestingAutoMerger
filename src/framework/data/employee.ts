@@ -40,6 +40,7 @@ export class EmployeeDS {
                     FieldSet: 0,
                     Section: 0,
                     Legend: "",
+                    hasLineBreak: true,
                     Validations: [
                         {
                             ErrorMessage: "Required field",

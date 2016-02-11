@@ -11,7 +11,6 @@ import {UniMultiSelect, MultiSelectConfig} from './controls/multiselect/multisel
 import {UniNumericInput, NumericInputConfig} from './controls/numeric/numericInput';
 import {UniPasswordInput} from './controls/password/password';
 import {UniTextInput} from './controls/text/text';
-import {UniBreakLine} from './controls/breakline/breakline';
 
 export {
 	AutocompleteConfig,
@@ -41,6 +40,5 @@ export const UNI_CONTROL_DIRECTIVES: Type[] = CONST_EXPR([
     UniCheckboxInput,//UniRadioGroup
     UniTextInput,
     UniEmailInput,
-    UniPasswordInput,
-    UniBreakLine
+    UniPasswordInput
 ]);
