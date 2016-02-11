@@ -1,18 +1,20 @@
-﻿<section class="users_list" style="min-height: 400px; margin-bottom: 15px">
+﻿<section class="users_list_section" style="min-height: 400px; margin-bottom: 15px">
     <h3>Brukere</h3>
     <uni-table [config]="usersConfig"></uni-table>
 </section>
 
-<h3>Legg til bruker:</h3>
-<section style="border: 1px solid #e4e4e4; padding: 15px;">
-    <input type="text" [(ngModel)]="newUser.DisplayName" placeholder="Navn"/>
-    <input type="email" [(ngModel)]="newUser.Email" placeholder="Epostadresse"/>
-    <button (click)="inviteNewUser()" [attr.aria-busy]="isPostUserActive" class="c2a">Inviter</button>
+<section class="users_invite">
+    <h3>Legg til bruker:</h3>
+    <div>
+        <input type="text" [(ngModel)]="newUser.DisplayName" placeholder="Navn" />
+        <input type="email" [(ngModel)]="newUser.Email" placeholder="Epostadresse" />
+        <button (click)="inviteNewUser()" [attr.aria-busy]="isPostUserActive" class="c2a">Inviter</button>
+    </div>
 </section>
 
-<section *ngIf="inviteSuccess">
-    <h3>Link til invitasjon:</h3>
-    <div style="border: 1px solid #e4e4e4; padding: 15px;">
-        <p style="margin: 0; padding: 0;">www.dummylink/confirm/515123f-fdeswf23f-f23f23fsd{{inviteLink}}</p>
+<section class="users_invite"  *ngIf="inviteSuccess">
+    <h3>Invitasjon direktelink:</h3>
+    <div>
+        <p>{{inviteLink}}</p>
     </div>
 </section>
