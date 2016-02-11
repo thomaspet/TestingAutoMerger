@@ -644,6 +644,16 @@ export interface IAccountGroupSet {
 }
 
 
+export interface IVatCodeGroup {
+	No: number;
+	Name: string;
+	StatusID: number;
+	ID: number;
+	Deleted: boolean;
+	CustomFields: any;
+}
+
+
 export interface IUserAuthorization {
 	userID: number;
 	Allow: boolean;
