@@ -114,18 +114,28 @@ export class UniTable2 implements AfterViewInit {
         this.tableConfig.dataSource.type = 'json';
         this.tableConfig.dataSource.serverPaging = true;
         this.tableConfig.dataSource.serverFiltering = true;
-        
-        var resourceUrl = this.config.data.resource;
 
         this.tableConfig.dataSource.transport = {
 
             read: (options) => {
                 // TODO: add search filter and pagination stuff!
-                               
-                this.uniHttp.get(this.config.data).subscribe(
+                console.log(options);
+                console.log(this.buildOdataFilter(options.data.filter));
+                
+                this.uniHttp.get({
+                    resource: this.config.resource,
+                    expand: this.config.expand,
+                    filter: this.buildOdataFilter(options.data.filter),
+                    top: options.data.take,
+                    skip: options.data.skip
+                }).subscribe(
                     (response) => {
                         // TODO: Get count param from response headers (mocked for now)
-                        this.totalRows = 20;
+                        if (response.length < this.config.pageSize) {
+                            this.totalRows = response.length;
+                        } else {
+                            this.totalRows = 20;
+                        }
                         options.success(response)
                     },
                     (error) => options.error(error)
@@ -134,7 +144,7 @@ export class UniTable2 implements AfterViewInit {
                 
             update: (options) => {
                 this.uniHttp.put({
-                    resource: resourceUrl + '/' + options.data.ID,
+                    resource: this.config.resource + '/' + options.data.ID,
                     body: options.data
                 }).subscribe(
                     (response) => options.success(response),
@@ -144,7 +154,7 @@ export class UniTable2 implements AfterViewInit {
             
             create: (options) => {
                 this.uniHttp.post({
-                    resource: resourceUrl,
+                    resource: this.config.resource,
                     body: options.data
                 }).subscribe(
                     (response) => options.success(response),
@@ -153,7 +163,7 @@ export class UniTable2 implements AfterViewInit {
             },
            
             destroy: (options) => {
-                this.uniHttp.delete({resource: resourceUrl + '/' + options.data.ID})
+                this.uniHttp.delete({resource: this.config.resource + '/' + options.data.ID})
                 .subscribe(
                     (response) => options.success(response),
                     (error) => options.error(error)
@@ -162,33 +172,99 @@ export class UniTable2 implements AfterViewInit {
         }
 
     }
-
-	filterTable() {
-		var filterValue = this.filterString;
-		var filter = '';
+    
+    buildOdataFilter(kendoFilter): string {
+        var stringified = '';
         
-		var fields = this.tableConfig.dataSource.schema.model.fields;
-		for (var fieldName of Object.keys(fields)) {
-			let field = fields[fieldName];
-            
-            // Contains filter for text columns
-			if (field.type === 'text') {
-				filter += ' or contains(' + fieldName + ',\'' + filterValue + '\')';
-			}
-			
-			// Eq filter for number columns
-			if (field.type === 'number' && !isNaN(parseInt(filterValue)) ) {
-				filter += ' or ' + fieldName + ' eq ' + filterValue;
-			}
-		}
-        
-        // Remove leading ' or '
-        if (filter.indexOf(' or ') === 0) {
-            filter = filter.slice(4);
+        if (!kendoFilter) {
+            return this.config.filter;
         }
         
-        this.config.odata.filter = filter;
-		this.table.dataSource.query({});
+        kendoFilter.filters.forEach((filter: any) => {
+           
+           if (filter.operator === 'contains') {
+               stringified += "contains(" + filter.field + ",'" + filter.value + "') or ";
+           }
+           
+           if (filter.operator === 'eq') {
+               stringified += filter.field + " eq " + filter.value + " or "
+           }
+           
+        });
+        
+        // Remove trailing " or "
+        if (stringified.length > 0) {
+            stringified = stringified.slice(0, -4);
+        }
+        
+        // If there is no filter defined in the config we just return the stringified kendo filter
+        if (this.config.filter.length === 0) {
+            return stringified;
+        }
+        
+        // Return config filter combined with the stringified kendo filter
+        return this.config.filter + " and (" + stringified + ")";
+    }
+
+	filterTable() {
+        
+        var filter = {
+            logic: 'or',
+            filters: [],
+        }
+        
+        var fields = this.tableConfig.dataSource.schema.model.fields;
+        
+        for (var fieldName of Object.keys(fields)) {
+            let field = fields[fieldName];
+            
+            // contains filter for text columns
+            if (field.type === 'string') {
+                filter.filters.push({field: fieldName, operator: 'contains', value: this.filterString});
+            }
+            
+            // eq filter for number columns
+            if (field.type === 'number') {
+                var filterValue = parseInt(this.filterString);
+                if (!isNaN(filterValue)) {
+                    filter.filters.push({field: fieldName, operator: 'eq', value: filterValue});    
+                }
+            }
+        }
+        
+        this.table.dataSource.filter(filter);
+        
+        
+        // console.log(filter);
+        // var view = this.table.dataSource.view();
+        // console.log(view);
+        
+        
+		// var filterValue = this.filterString;
+		// var filter = '';
+        // 
+		// var fields = this.tableConfig.dataSource.schema.model.fields;
+		// for (var fieldName of Object.keys(fields)) {
+		// 	let field = fields[fieldName];
+        //     
+        //     // Contains filter for text columns
+		// 	if (field.type === 'text') {
+		// 		filter += ' or contains(' + fieldName + ',\'' + filterValue + '\')';
+		// 	}
+		// 	
+		// 	// Eq filter for number columns
+		// 	if (field.type === 'number' && !isNaN(parseInt(filterValue)) ) {
+		// 		filter += ' or ' + fieldName + ' eq ' + filterValue;
+		// 	}
+		// }
+        // 
+        // // Remove leading ' or '
+        // if (filter.indexOf(' or ') === 0) {
+        //     filter = filter.slice(4);
+        // }
+        // 
+        // this.config.odata.filter = filter;
+		// this.table.dataSource.query({});
 	}
     
     setupKeyNavigation() {

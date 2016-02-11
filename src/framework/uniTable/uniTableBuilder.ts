@@ -3,6 +3,10 @@ import {UniTableColumn} from './uniTableColumn';
 
 export class UniTableBuilder {
     remoteData: boolean;
+    resource: string | Array<any>;
+    
+    filter: string = "";
+    expand: string = "";
     searchable: boolean = true;
     editable: boolean;
     filterable: boolean;
@@ -10,10 +14,8 @@ export class UniTableBuilder {
     pageSize: number;
     
     toolbar: string[];
+    
     selectCallback: (selectedItem) => any;
-    
-    data: UniHttpRequest | Array<any>;
-    
     updateCallback: (updatedItem) => any;
     createCallback: (createdItem) => any;
     deleteCallback: (deletedItem) => any;
@@ -22,13 +24,13 @@ export class UniTableBuilder {
     columns: kendo.ui.GridColumn[];
     
     
-    constructor(data: UniHttpRequest | Array<any>, editable: boolean) {
-        this.data = data;
+    constructor(resource: string | Array<any>, editable: boolean = true) {
+        this.resource = resource;
         this.editable = editable;
         this.filterable = true;
         this.pageable = {input: true, numeric: false};
         this.pageSize = 10;
-        this.remoteData = !(Array.isArray(data));
+        this.remoteData = !(Array.isArray(resource));
         
         if (editable) {
             this.toolbar = ['create', 'save', 'cancel'];   
@@ -69,6 +71,16 @@ export class UniTableBuilder {
             });
         }
         
+        return this;
+    }
+    
+    setFilter(filter: string) {
+        this.filter = filter;
+        return this;
+    }
+    
+    setExpand(expand: string) {
+        this.expand = expand;
         return this;
     }
     

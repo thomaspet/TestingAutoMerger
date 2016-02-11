@@ -10,6 +10,8 @@ export interface UniHttpRequest {
     action?: string,
     expand?: string,
     filter?: string,
+    top?: number,
+    skip?: number,
     body?: any
 }
 
@@ -82,6 +84,8 @@ export class UniHttpService {
         if (request.expand) urlParams.append('expand', request.expand);
         if (request.filter) urlParams.append('filter', request.filter);
         if (request.action) urlParams.append('action', request.action);
+        if (request.top)    urlParams.append('top', request.top.toString());
+        if (request.skip)   urlParams.append('skip', request.skip.toString());
 
         return urlParams;
     }

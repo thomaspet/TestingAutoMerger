@@ -72,7 +72,7 @@ export class UniTableDemo {
         
         
         // Editable table working with remote data
-        this.editableRemoteDataCfg = new UniTableBuilder({resource: 'products'}, true)
+        this.editableRemoteDataCfg = new UniTableBuilder('products', true)
         .setPageSize(5)
         .addColumns(idCol, nameCol, priceCol);
         
@@ -87,7 +87,7 @@ export class UniTableDemo {
         
         
         // Read-only table working with remote data
-        this.readOnlyRemoteDataCfg = new UniTableBuilder({resource: 'products'}, false)
+        this.readOnlyRemoteDataCfg = new UniTableBuilder('products', false)
         .setPageSize(5)
         .addColumns(idCol, nameCol, priceCol)
         .setSelectCallback(selectCallback);
