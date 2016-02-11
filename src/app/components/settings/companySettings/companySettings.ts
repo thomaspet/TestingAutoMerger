@@ -11,7 +11,10 @@ import {UniFieldBuilder} from "../../../../framework/forms/builders/uniFieldBuil
 import {UniGroupBuilder} from '../../../../framework/forms/builders/uniGroupBuilder';
 import {UNI_CONTROL_TYPES} from '../../../../framework/controls/types';
 import {UNI_CONTROL_DIRECTIVES} from '../../../../framework/controls';
-import {ApplicationNav} from '../../common/applicationNav/applicationNav';
+
+import {UniTabs} from '../../layout/uniTabs/uniTabs';
+
+//import {ApplicationNav} from '../../../Layout/applicationNav/applicationNav';
 import {CompanySettingsDS} from '../../../../framework/data/companySettings';
 import {UniHttpService} from '../../../../framework/data/uniHttpService';
 
@@ -33,32 +36,10 @@ export class CompanySettings implements OnInit {
     periodSeries: Array<any> = [];
     accountGroupSets: Array<any> = [];
 
-    constructor(private routeParams: RouteParams, private companySettingsDS: CompanySettingsDS, private http: UniHttpService) { }
-    /*
-        ngOnInit() {
-    
-            //ID of active company used to GET company settings
-            //ONLY GETTING DATA WHEN **UNI MICRO AS*** IS CHOSEN
-            //BECAUSE ID = 1 IS THE ONLY ONE IN THE DB
-            this.id = JSON.parse(localStorage.getItem('activeCompany')).id;
-    
-            this.error = false;
-            this.headers = new Headers();
-            this.headers.append('Client', 'client1');
-    
-            //Observable.forkJoin(
-            //    this.companySettingsDS.get(this.id),
-            //    this.companySettingsDS.getCompanyTypes(),
-            //    this.companySettingsDS.getCurrencies(),
-            //    this.companySettingsDS.getPeriodSeries(),
-            //    this.companySettingsDS.getAccountGroupSets()
-            //).subscribe(results => this.dataReady(results))
-            //    , error=> console.log(error);
-    
-    
-        }
-        */
-
+    constructor(private routeParams: RouteParams, private companySettingsDS: CompanySettingsDS, private http: UniHttpService) {
+        
+    }
+  
     dataReady() {
         console.log("dataReady called");
 
@@ -134,7 +115,8 @@ export class CompanySettings implements OnInit {
         taxMandatory.setLabel('Mva-pliktig')
             .setModel(this.company)
             .setModelField('TaxMandatory')
-            .setType(UNI_CONTROL_DIRECTIVES[8]);
+            .setType(UNI_CONTROL_DIRECTIVES[8])
+            .hasLineBreak(true);
 
         var companyType = new UniFieldBuilder();
         companyType.setLabel('Firmatype')
@@ -165,17 +147,17 @@ export class CompanySettings implements OnInit {
         /*********************  Regnskapsinnstillinger    *******************/
         var accountingSettings = new UniGroupBuilder('Regnskapsinnstillinger');
 
-        var periodSeriesAccountAll = new UniFieldBuilder();
-        periodSeriesAccountAll.setLabel('RegnskapsperioderAll')
-            .setModel(this.company)
-            .setModelField('PeriodSeriesAccountID')
-            .setType(UNI_CONTROL_DIRECTIVES[3])
-            .setKendoOptions({
-                dataSource: this.periodSeries,
-                dataTextField: 'Name',
-                dataValueField: 'ID',
-                index: this.periodSeries.indexOf(this.company.PeriodSeriesAccountID)
-            });
+        //var periodSeriesAccountAll = new UniFieldBuilder();
+        //periodSeriesAccountAll.setLabel('RegnskapsperioderAll')
+        //    .setModel(this.company)
+        //    .setModelField('PeriodSeriesAccountID')
+        //    .setType(UNI_CONTROL_DIRECTIVES[3])
+        //    .setKendoOptions({
+        //        dataSource: this.periodSeries,
+        //        dataTextField: 'Name',
+        //        dataValueField: 'ID',
+        //        index: this.periodSeries.indexOf(this.company.PeriodSeriesAccountID)
+        //    });
 
         var periodSeriesAccount = new UniFieldBuilder();
         periodSeriesAccount.setLabel('Regnskapsperioder')
@@ -217,7 +199,8 @@ export class CompanySettings implements OnInit {
                 dataTextField: 'Name',
                 dataValueField: 'ID',
                 index: this.periodSeries.indexOf(this.company.AccountGroupSetID)
-            });
+            })
+            .hasLineBreak(true);
 
         if (this.company.AccountingLockedDate !== null) {
             this.company.AccountingLockedDate = new Date(this.company.AccountingLockedDate);
@@ -228,7 +211,7 @@ export class CompanySettings implements OnInit {
         }
 
         var accountingLockedDate = new UniFieldBuilder();
-        accountingLockedDate.setLabel('Regnskaps låst tom')
+        accountingLockedDate.setLabel('Regnskap låst tom')
             .setModel(this.company)
             .setModelField('AccountingLockedDate')
             .setType(UNI_CONTROL_DIRECTIVES[2]);
@@ -238,13 +221,15 @@ export class CompanySettings implements OnInit {
             .setModel(this.company)
             .setModelField('VatLockedDate')
             .setType(UNI_CONTROL_DIRECTIVES[2])
-            .setKendoOptions({});
+            .setKendoOptions({})
+            .hasLineBreak(true);
 
         var forceSupplierInvoiceApproval = new UniFieldBuilder();
         forceSupplierInvoiceApproval.setLabel('Tvungen godkjenning')
             .setModel(this.company)
             .setModelField('ForceSupplierInvoiceApproval')
             .setType(UNI_CONTROL_DIRECTIVES[8]);
+
         accountingSettings.addFields(periodSeriesAccount, periodSeriesVat, accountGroupSet, accountingLockedDate, vatLockedDate, forceSupplierInvoiceApproval);
 
         /********************************************************************/

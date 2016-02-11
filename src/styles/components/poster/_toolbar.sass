@@ -60,11 +60,12 @@
 
 
 
-.poster_toolbar_search
+input[type=search].poster_toolbar_search
   float: left
   width: 5rem
   line-height: 1.8rem
   border-color: $uni-color-scale9
+  height: 2.2rem
 
 @include media(large, max-width)
   .poster_toolbar
@@ -81,13 +82,13 @@
   .poster_toolbar_tools
     width: 3rem
 
-    .poster_toolbar_search,
+    input[type=search].poster_toolbar_search,
     .next,
     .previous
       position: absolute
-      top: 10rem
+      top: 12rem
 
-    .poster_toolbar_search
+    input[type=search].poster_toolbar_search
       text-align: center
       border-color: $uni-color-scale9
 
@@ -98,9 +99,9 @@
     .previous
       left: .5rem
 
-    .poster_toolbar_search
+    input[type=search].poster_toolbar_search
       left: 3.2rem
-      width: calc(100% - 13rem)
+      width: calc(100% - 10.5rem)
 
     .next
       right: 5rem

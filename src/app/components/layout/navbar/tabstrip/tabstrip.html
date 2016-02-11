@@ -1,0 +1,7 @@
+<ol class="navbar_tabs">
+    <li *ngFor="#tab of tabService.tabs" (click)="activateTab(tab)">
+        {{tab.name}}
+        <span class="close" (click)="closeTab(tab)"></span>
+    </li>
+</ol>
+

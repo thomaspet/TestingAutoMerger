@@ -30,6 +30,7 @@ export class UniFieldBuilder {
     entityType: string = '';
     componentLayoutID: number = 0;
     errorMessages: Array<any> = [];
+    lineBreak: boolean = false;
 
     static fromLayoutConfig(element:any, model:any):UniFieldBuilder {
         var ufb = new UniFieldBuilder();
@@ -50,6 +51,7 @@ export class UniFieldBuilder {
         ufb.field = element.Property;
         ufb.fieldType = UniField;
         ufb.type = UNI_CONTROL_DIRECTIVES[element.FieldType];
+        ufb.lineBreak = element.hasLineBreak || false;
 
         return ufb;
     }
@@ -85,6 +87,11 @@ export class UniFieldBuilder {
 
     setKendoOptions(kOptions:any) {
         this.kOptions = kOptions;
+        return this;
+    }
+
+    hasLineBreak(value:boolean) {
+        this.lineBreak = value;
         return this;
     }
 

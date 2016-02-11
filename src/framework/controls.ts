@@ -12,7 +12,6 @@ import {UniNumericInput, NumericInputConfig} from './controls/numeric/numericInp
 import {UniPasswordInput} from './controls/password/password';
 import {UniTextInput} from './controls/text/text';
 
-
 export {
 	AutocompleteConfig,
 	DatepickerConfig,

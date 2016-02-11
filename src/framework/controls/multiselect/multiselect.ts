@@ -42,7 +42,6 @@ export class UniMultiSelect implements AfterViewInit, OnDestroy {
 		multiselect = this.nativeElement.find('select').first().kendoMultiSelect(options).data('kendoMultiSelect');
 
 		// init to control value
-		var controlValues = [];
 		if (control.value.length > 0) {
 			multiselect.value(control.value);
 			multiselect.trigger('change');
