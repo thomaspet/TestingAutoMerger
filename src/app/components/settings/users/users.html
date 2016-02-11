@@ -3,6 +3,7 @@
     <uni-table [config]="usersConfig"></uni-table>
 </section>
 
+<h3>Legg til bruker:</h3>
 <section style="border: 1px solid #e4e4e4; padding: 15px;">
     <input type="text" [(ngModel)]="newUser.DisplayName" placeholder="Navn"/>
     <input type="email" [(ngModel)]="newUser.Email" placeholder="Epostadresse"/>
@@ -10,5 +11,8 @@
 </section>
 
 <section *ngIf="inviteSuccess">
-    <strong>Inviter med link:</strong> {{inviteLink}}
+    <h3>Link til invitasjon:</h3>
+    <div style="border: 1px solid #e4e4e4; padding: 15px;">
+        <p style="margin: 0; padding: 0;">www.dummylink/confirm/515123f-fdeswf23f-f23f23fsd{{inviteLink}}</p>
+    </div>
 </section>

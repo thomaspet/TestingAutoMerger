@@ -60,20 +60,20 @@ export class Confirm {
             this.working = true;
             console.log(this.user);
 
-            //this.http.put(
-            //    {
-            //        resource: 'user-verifications',
-            //        body: this.user,
-            //        action: 'confirm-invite'
-            //    }
-            //).subscribe(
-            //    (data) => {
-            //        this.working = false;
-            //        console.log(data);
-            //    },
-            //    //Error handling
-            //    error => console.log(error)
-            //)
+            this.http.put(
+                {
+                    resource: 'user-verifications',
+                    body: this.user,
+                    action: 'confirm-invite'
+                }
+            ).subscribe(
+                (data) => {
+                    this.working = false;
+                    console.log(data);
+                },
+                //Error handling
+                error => console.log(error)
+            )
         }
     }
 
