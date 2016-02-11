@@ -7,6 +7,7 @@ declare var jQuery;
 export interface DropdownConfig {
 	control: Control;
 	kOptions: kendo.ui.DropDownListOptions;
+	onChange: (event:kendo.ui.DropDownListChangeEvent, item:any) => any;
 }
 
 @Component({
@@ -27,6 +28,9 @@ export class UniDropdown implements AfterViewInit, OnDestroy {
 
 		this.config.kOptions.change = function(event) {
 			vm.config.control.updateValue(this.value());
+			if (vm.config.onChange) {
+				vm.config.onChange(event,this.value());
+			}
 		}
 
 		dropdown = this.nativeElement.find('input').first().kendoDropDownList(this.config.kOptions).data('kendoDropDownList');
