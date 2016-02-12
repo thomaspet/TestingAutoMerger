@@ -11,8 +11,6 @@ enum SETTINGS_ADD_NEW {
     ACCOUNT,//1
 }
 
-declare var jQuery;
-
 @Component({
     selector: 'account-list',
     templateUrl: 'app/components/settings/accountSettings/accountList/accountList.html',

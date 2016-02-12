@@ -55,7 +55,7 @@ export class AccountDetails {
         var accountCombo = new UniComboGroupBuilder()
         accountCombo.addClass('combo');
         accountCombo.addFields(accountNumber, accountName);
-            
+                                 
         var accountAlias = new UniFieldBuilder();
         accountAlias.setLabel('Alias')
             .setModel(this.model)
@@ -137,23 +137,16 @@ export class AccountDetails {
                 self.model = dataset[2];
                 console.log("NEW MODEL LOADED");
                 console.log(self.model);  
-                console.log(self.form);
-                self.form.refresh();
-               // self.form.refresh(self.config, self.model);
+                self.form.refresh(self.model);
             },
             (error) => console.log(error)
         )  
-   }
+    }
               
-   ngOnInit() {
+    ngOnInit() {
         this.buildForm();
-   }   
-   
-   test() {
-       console.log("TESTING 1.2.3");
-       this.model.AccountNumber = 5000;
-   }
-                                
+    }   
+                                  
     ngOnChanges() {
         this.update();  
     }
