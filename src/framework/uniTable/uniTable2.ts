@@ -25,11 +25,9 @@ export class UniTable2 implements AfterViewInit {
     }
 
 	ngAfterViewInit() {
-                
-		// Create kendo options from the config
+        
 		this.tableConfig = {
 			dataSource: {
-                // pageSize: this.config.pageSize || 10,
                 schema: {
                     model: this.config.schemaModel,
                     total: (response) => {
@@ -40,14 +38,13 @@ export class UniTable2 implements AfterViewInit {
 			columns: this.config.columns,
 			filterable: this.config.filterable,
             editable: this.config.editable,
-            // TODO: Fix
-            pageable: {
-                pageSize: 5
-            },//this.config.pageable,
             toolbar: this.config.toolbar,
             navigatable: true,
 		};
 		
+        if (this.config.pageable) {
+            this.tableConfig.pageable = { pageSize: this.config.pageSize };
+        }
         
 		if (this.config.remoteData) {
             this.createRemoteDataSource();
@@ -70,10 +67,8 @@ export class UniTable2 implements AfterViewInit {
             var input = jQuery(this.table.current()).find('.k-numerictextbox input').unbind('keydown');
         }
         
-        // Compile grid
+        // Compile grid and set up key navigation
         this.table = this.nativeElement.find('table').kendoGrid(this.tableConfig).data('kendoGrid');
-        
-        // Setup key navigation, this must be done after compiling
         this.setupKeyNavigation();
 	}
     
@@ -82,8 +77,8 @@ export class UniTable2 implements AfterViewInit {
         this.tableConfig.dataSource.transport = {
                 
             read: (options) => {
-                this.totalRows = 6;
-                options.success(this.config.data);
+                this.totalRows = this.config.resource.length;
+                options.success(this.config.resource);
             },
                 
             update: (options) => {
@@ -132,10 +127,11 @@ export class UniTable2 implements AfterViewInit {
                     (response) => {
                         // TODO: Get count param from response headers (mocked for now)
                         if (response.length < this.config.pageSize) {
-                            this.totalRows = response.length;
+                            this.totalRows = response.length + (this.table.dataSource.page() - 1) * this.config.pageSize;
                         } else {
                             this.totalRows = 20;
                         }
+                        
                         options.success(response)
                     },
                     (error) => options.error(error)
