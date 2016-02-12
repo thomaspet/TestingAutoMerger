@@ -1,7 +1,7 @@
 <div>
-    <div class="accountListHeader">
+    <div class="menuHeader">
         <button (click)="showHide()">Utvid/lukk</button>
-        <uni-dropdown [config]="config"></uni-dropdown>    
+        <uni-dropdown class="menuDropDown" [config]="config"></uni-dropdown>    
     </div>
     <uni-tree-list [treeListItems]="accountListItems"></uni-tree-list>
 </div>

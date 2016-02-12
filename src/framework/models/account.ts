@@ -16,13 +16,13 @@ declare var _;
 
 export class AccountModel implements IAccount {
    	AccountName: string = "";
-	AccountNumber: number = 0;
+	AccountNumber: number = null;
 	LockManualPosts: boolean = false;
 	Locked: boolean = false;
 	SystemAccount: boolean = false;
 	Visible: boolean = true;
 	Active: boolean = true;
-	AccountID: number = 0;
+	AccountID: number = null;
 	CurrencyID: number = 0;
 	AccountGroupID: number = 0;
 	AccountSetupID: number = 0;
@@ -31,7 +31,7 @@ export class AccountModel implements IAccount {
 	SupplierID: number = 0;
 	EmployeeID: number = 0;
 	DimensionsID: number = 0;
-	SubAccountNumberSeriesID: number = 0;
+	SubAccountNumberSeriesID: number = 1;
 	UseDeductivePercent: boolean = false;
 	UsePostPost: boolean = true;
 	StatusID: number = 0;

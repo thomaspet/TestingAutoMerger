@@ -1,10 +1,35 @@
 .accountList
     @include unigrid(10)
     float: left
-   
-.accountList .menuHeader
-    background: red
+
+.icon-column
+    font-size: 0        
+    height: 0.9rem
+        
+.is-locked:before
+    content: ""
+    display: inline-block
+    background: transparent unicon-lock($uni-color-positive) no-repeat
+    background-size: 0.6rem
+    padding: 0.6rem
+    margin-left: 0.4rem
     
+.is-visible:before
+    content: ""
+    display: inline-block
+    background: transparent unicon-visible($uni-color-positive) no-repeat
+    background-size: 0.6rem
+    padding: 0.6rem
+    margin-left: 0.4rem
+
+.is-hidden:before
+    content: ""
+    display: inline-block
+    background: transparent unicon-hidden($uni-color-positive) no-repeat
+    background-size: 0.6rem
+    padding: 0.6rem
+    margin-left: 0.4rem
+
 .accountDetails
     @include unigrid(6)
     float: left

@@ -11,6 +11,8 @@ enum SETTINGS_ADD_NEW {
     ACCOUNT,//1
 }
 
+declare var _;
+
 @Component({
     selector: 'account-list',
     templateUrl: 'app/components/settings/accountSettings/accountList/accountList.html',
@@ -19,11 +21,46 @@ enum SETTINGS_ADD_NEW {
 export class AccountList {
     @Output() uniAccountChange = new EventEmitter<number>();
     @ViewChild(TreeList) treeList: TreeList;
+    @ViewChild(UniDropdown) dropdown: UniDropdown;
     accountListItems: TreeListItem[] = [];
     accountgroups;
     config;
+    addDropdownControl = new Control(-1);
+    selectedAdd = { selected: -1 };
  
-    constructor(private http:UniHttpService) {        
+    constructor(private http:UniHttpService) {     
+        var kendoDropdownConfig = {
+            delay: 50,
+            dataTextField: 'name',
+            dataValueField: 'action',
+            dataSource:  [
+                { action: SETTINGS_ADD_NEW.ACCOUNTGROUP, name: 'Ny kontogruppe' },
+                { action: SETTINGS_ADD_NEW.ACCOUNT, name: 'Ny hovedbokskonto' },
+            ],
+            optionLabel: {action: -1, name: 'Select action'},
+            select: (event: kendo.ui.DropDownListSelectEvent) => {
+                var result = (event.sender.dataItem(<any>event.item));
+                console.log("ACTION SELECTED");
+                switch (result.action) {
+                    case SETTINGS_ADD_NEW.ACCOUNT:
+                        this.uniAccountChange.emit(0);
+                        break;
+                
+                    default:
+                        break;
+                }
+                
+                
+            },
+        };
+
+        this.config = {
+            control: this.addDropdownControl,
+            kOptions: kendoDropdownConfig, 
+            onChange: null,
+            model: this.selectedAdd,
+            modelField: "selected"
+        }
     }
       
     loopAccountGroups(parentgroup, id) {
@@ -37,7 +74,7 @@ export class AccountList {
                 } else {
                     parentgroup.addTreeListItem(group);
                 }
-                
+                                                      
                 // insert table
                 var tableConfig = new UniTableConfig('http://localhost:27831/api/biz/accounts', false, false)
                     .setOdata({
@@ -48,12 +85,20 @@ export class AccountList {
                         id: 'ID',
                         fields: {
                             AccountNumber: {type: 'number'},
-                            AccountName: {type: 'text'}
+                            AccountName: {type: 'text'},
+                            Locked: {type: 'boolean'}
                         }
                     })
                     .setColumns([
                         {field: 'AccountNumber', title: 'Kontonr'},
-                        {field: 'AccountName', title: 'Kontonavn'}
+                        {field: 'AccountName', title: 'Kontonavn'},
+                        {
+                            field: null,
+                            title: '', 
+                            attributes: { "class": "icon-column" }, 
+                            template: '#if(!Visible) {#<span class="is-visible" role="presentation">Visible</span>#} else {#<span class="is-hidden" role="presentation">Hidden</span>#}# ' +
+                                      '#if(!Locked) {#<span class="is-locked" role="presentation">Locked</span>#} else {#<span class="is-unlocked" role="presentation">Unlocked</span>#}#'
+                        }
                     ])
                     .setOnSelect(account => {
                         this.uniAccountChange.emit(account.ID);
@@ -78,29 +123,7 @@ export class AccountList {
                 this.loopAccountGroups(null, null); 
             },
             (error) => console.log(error)
-        );  
-           
-        var kendoDropdownConfig = {
-            delay: 50,
-            dataTextField: 'name',
-            dataValueField: 'action',
-            dataSource:  [
-                { action: SETTINGS_ADD_NEW.ACCOUNTGROUP, name: 'Ny kontogruppe' },
-                { action: SETTINGS_ADD_NEW.ACCOUNT, name: 'Ny hovedbokskonto' },
-            ],
-            optionLabel: {action: -1, name: 'Select action'},
-            select: (event: kendo.ui.DropDownListSelectEvent) => {
-                var action = (event.sender.dataItem(<any>event.item));
-                console.log("ACTION SELECTED");
-                console.log(action);
-            },
-        };
-
-        this.config = {
-            control: new Control(1),
-            kOptions: kendoDropdownConfig, 
-            onChange: null
-        }
+        );
     }
         
     showHide()

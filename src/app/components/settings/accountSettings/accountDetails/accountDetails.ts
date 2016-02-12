@@ -31,8 +31,6 @@ export class AccountDetails {
     vattypes;
     
     constructor(fb:FormBuilder, private accountingDS:AccountingDS, private currencyDS:CurrencyDS, private http:UniHttpService) {
-        this.model.AccountNumber = 2000;  // test only
-        this.model.AccountName = "Initial value Test Only";
     }
 
     buildForm() {
@@ -135,8 +133,6 @@ export class AccountDetails {
                 self.currencies = dataset[0];
                 self.vattypes = dataset[1];
                 self.model = dataset[2];
-                console.log("NEW MODEL LOADED");
-                console.log(self.model);  
                 self.form.refresh(self.model);
             },
             (error) => console.log(error)
@@ -148,11 +144,52 @@ export class AccountDetails {
     }   
                                   
     ngOnChanges() {
-        this.update();  
+        if (this.form == null) return;
+        
+        if (this.account == 0) {
+            this.model = new AccountModel();
+            this.model.AccountName = "TERJE";
+            this.form.refresh(this.model);   
+        } else {
+            this.update();            
+        }     
     }
              
     onSubmit(value) {
-        console.log("Form");
-        console.log(JSON.stringify(this.model.CurrencyID));
+        var self = this;       
+        if (this.model.ID > 0) {
+            console.log("LAGRE");
+            console.log(this.model);
+            this.http.put({
+                resource: "accounts/" + self.model.ID,
+                body: self.model
+            }).subscribe(
+                (response) => {
+                    console.log("LAGRET KONTO " + self.model.ID)
+                },
+                (error) => { 
+                    console.log("OPPDATERING FEILET");
+                    console.log(self.model);
+                    console.log(error._body);
+                }
+            );            
+        } else {
+            console.log("LAGRE");
+            console.log(self.model);
+            this.http.post({
+                resource: "accounts",
+                body: self.model
+            }).subscribe(
+                (response) => {
+                    console.log("LAGRET NY KONTO ");
+                    console.log(response);
+                },
+                (error) => {
+                    console.log("LAGRING AV NY FEILET");
+                    console.log(self.model);
+                    console.log(error._body);
+                }
+            );        
+        }
     }
 }
