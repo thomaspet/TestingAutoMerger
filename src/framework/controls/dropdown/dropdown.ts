@@ -16,7 +16,9 @@ export interface DropdownConfig extends UniFieldBuilder {
     template: InputTemplateString
 })
 export class UniDropdown implements AfterViewInit, OnDestroy {
-    @Input() config:DropdownConfig;
+    @Input()
+    config:DropdownConfig;
+
     nativeElement;
     dropdown;
 
