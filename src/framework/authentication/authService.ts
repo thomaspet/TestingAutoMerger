@@ -48,13 +48,14 @@ export class AuthService {
 		).map((res) => res.json())
         .subscribe(
             (response) => {
-                this.jwt = response.access_token;
-                this.jwt_decoded = this.decodeToken(this.jwt);
-                this.errorMessage = '';
-                
-                localStorage.setItem('jwt', this.jwt);
-                localStorage.setItem('jwt_decoded', JSON.stringify(this.jwt_decoded));
-                
+                // TODO: add this code when auth api is working
+                // this.jwt = response.access_token;
+                // this.jwt_decoded = this.decodeToken(this.jwt);
+                // this.errorMessage = '';
+                // 
+                // localStorage.setItem('jwt', this.jwt);
+                // localStorage.setItem('jwt_decoded', JSON.stringify(this.jwt_decoded));
+                // 
                 this.validateAuthentication();
             },
             (error) => {
