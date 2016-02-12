@@ -12,6 +12,7 @@ import {UniHttpService, UniHttpRequest} from '../../../framework/data/uniHttpSer
 export class Confirm {
 
     user;
+    id: number;
     passwordRepeat = { password: '' };
     isPasswordsMismatch: boolean = false;
     isInvalidUsername: boolean = false;
@@ -33,6 +34,7 @@ export class Confirm {
                     if (data[0].ExpirationDate) {
                         if (new Date(data[0].ExpirationDate) > new Date()) {
                             this.validVerificationCode = true;
+                            this.id = data[0].ID;
                         } else {
                             this.verificationCodeErrorMessage = 'Denne invitasjonen har utgått og er ikke lenger gyldig..'
                             this.validInvite = false;
@@ -62,7 +64,7 @@ export class Confirm {
 
             this.http.put(
                 {
-                    resource: 'user-verifications',
+                    resource: 'user-verifications/' + this.id,
                     body: this.user,
                     action: 'confirm-invite'
                 }
