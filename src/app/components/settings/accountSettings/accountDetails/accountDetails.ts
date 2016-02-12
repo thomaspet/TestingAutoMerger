@@ -135,10 +135,11 @@ export class AccountDetails {
                 self.currencies = dataset[0];
                 self.vattypes = dataset[1];
                 self.model = dataset[2];
+                console.log("NEW MODEL LOADED");
                 console.log(self.model);  
-                //self.form.updateModel(self.config, self.model);
-                //self.form.updateModel();
+                console.log(self.form);
                 self.form.refresh();
+               // self.form.refresh(self.config, self.model);
             },
             (error) => console.log(error)
         )  

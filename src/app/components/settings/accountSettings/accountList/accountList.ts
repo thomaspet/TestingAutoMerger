@@ -16,7 +16,7 @@ declare var jQuery;
 @Component({
     selector: 'account-list',
     templateUrl: 'app/components/settings/accountSettings/accountList/accountList.html',
-    directives: [TreeList]
+    directives: [TreeList, UniDropdown]
 })
 export class AccountList {
     @Output() uniAccountChange = new EventEmitter<number>();
@@ -81,9 +81,8 @@ export class AccountList {
             },
             (error) => console.log(error)
         );  
-      
-      
-                      var kendoDropdownConfig = {
+           
+        var kendoDropdownConfig = {
             delay: 50,
             dataTextField: 'name',
             dataValueField: 'action',
@@ -98,28 +97,12 @@ export class AccountList {
                 console.log(action);
             },
         };
-        
-//        var element = jQuery('.add_select > select').first().show();
-//        element.kendoDropDownList(kendoDropdownConfig);
-        
-     
+
         this.config = {
-            control: new Control(""),
+            control: new Control(1),
             kOptions: kendoDropdownConfig, 
             onChange: null
         }
-
-        var element = jQuery('.add_select > uni-dropdown > input').first().show();
-        //element.kendoDropDownList(kendoDropdownConfig);
-
-       
-    }
-    
-    ngAfterViewInit()
-    {
-
-       
-        console.log("AFTER VIEW INIT");
     }
         
     showHide()

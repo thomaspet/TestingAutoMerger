@@ -1,8 +1,7 @@
 <div>
-    <button (click)="showHide()">Utvid/lukk</button>
-    <uni-dropdown [config]="config"></uni-dropdown>    
-    <span class="add_select">
-        <select style="display: none;"></select> <!-- kendo dropdownlist will compile here -->        
-    </span>  
+    <div class="accountListHeader">
+        <button (click)="showHide()">Utvid/lukk</button>
+        <uni-dropdown [config]="config"></uni-dropdown>    
+    </div>
     <uni-tree-list [treeListItems]="accountListItems"></uni-tree-list>
 </div>
