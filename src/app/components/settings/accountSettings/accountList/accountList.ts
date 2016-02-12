@@ -1,8 +1,17 @@
 import {Component, Output, EventEmitter, ViewChild} from 'angular2/core';
+import {Control} from 'angular2/common';
 import {TreeListItem} from '../../../../../framework/treeList/treeListItem';
 import {TreeList, TREE_LIST_TYPE} from '../../../../../framework/treeList/treeList';
 import {UniHttpService} from '../../../../../framework/data/uniHttpService';
 import {UniTable, UniTableConfig} from '../../../../../framework/uniTable';
+import {DropdownConfig, UniDropdown} from '../../../../../framework/controls/dropdown/dropdown';
+
+enum SETTINGS_ADD_NEW {
+    ACCOUNTGROUP,//0
+    ACCOUNT,//1
+}
+
+declare var jQuery;
 
 @Component({
     selector: 'account-list',
@@ -10,12 +19,13 @@ import {UniTable, UniTableConfig} from '../../../../../framework/uniTable';
     directives: [TreeList]
 })
 export class AccountList {
-    accountListItems: TreeListItem[] = [];
-    accountgroups;
     @Output() uniAccountChange = new EventEmitter<number>();
     @ViewChild(TreeList) treeList: TreeList;
+    accountListItems: TreeListItem[] = [];
+    accountgroups;
+    config;
  
-    constructor(private http:UniHttpService) {
+    constructor(private http:UniHttpService) {        
     }
       
     loopAccountGroups(parentgroup, id) {
@@ -60,7 +70,7 @@ export class AccountList {
             }        
         });       
    }
-     
+           
    ngOnInit() {
         this.http.multipleRequests('GET', [
             { resource: "accountgroups" }
@@ -70,9 +80,48 @@ export class AccountList {
                 this.loopAccountGroups(null, null); 
             },
             (error) => console.log(error)
-        )  
+        );  
+      
+      
+                      var kendoDropdownConfig = {
+            delay: 50,
+            dataTextField: 'name',
+            dataValueField: 'action',
+            dataSource:  [
+                { action: SETTINGS_ADD_NEW.ACCOUNTGROUP, name: 'Ny kontogruppe' },
+                { action: SETTINGS_ADD_NEW.ACCOUNT, name: 'Ny hovedbokskonto' },
+            ],
+            optionLabel: {action: -1, name: 'Select action'},
+            select: (event: kendo.ui.DropDownListSelectEvent) => {
+                var action = (event.sender.dataItem(<any>event.item));
+                console.log("ACTION SELECTED");
+                console.log(action);
+            },
+        };
+        
+//        var element = jQuery('.add_select > select').first().show();
+//        element.kendoDropDownList(kendoDropdownConfig);
+        
+     
+        this.config = {
+            control: new Control(""),
+            kOptions: kendoDropdownConfig, 
+            onChange: null
+        }
+
+        var element = jQuery('.add_select > uni-dropdown > input').first().show();
+        //element.kendoDropDownList(kendoDropdownConfig);
+
+       
     }
     
+    ngAfterViewInit()
+    {
+
+       
+        console.log("AFTER VIEW INIT");
+    }
+        
     showHide()
     {
         this.treeList.showHideAll();

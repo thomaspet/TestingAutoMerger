@@ -15,7 +15,7 @@ declare var _;
     selector: 'uni-field',
     directives: [UniComponentLoader, ShowError, UniRadioGroup, NgIf, NgForm],
     template: `
-        <label ngForm *ngIf="isInput()" [class.error]="hasError()" [class]="buildClassString()">
+        <label ngForm *ngIf="isInput()" [class.error]="hasError()" [class]="buildClassString()" [class.-has-linebreak]="hasLineBreak()">
             <span *ngIf="!isCheckbox()">{{getLabel()}}</span>
             <uni-component-loader [type]="getType()" [config]="getConfig()"></uni-component-loader>
             <show-error [control]="getControl()" [messages]="getErrorMessages()"></show-error>
@@ -46,6 +46,15 @@ export class UniField {
      */
     getType() {
         return this.config.type
+    }
+
+    /**
+     * Returns true if element should have a line break
+     *
+     * @returns {boolean|(function(boolean): UniFieldBuilder)}
+     */
+    hasLineBreak() {
+        return this.config.lineBreak;
     }
 
     /**

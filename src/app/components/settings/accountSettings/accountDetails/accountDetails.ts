@@ -137,7 +137,8 @@ export class AccountDetails {
                 self.model = dataset[2];
                 console.log(self.model);  
                 //self.form.updateModel(self.config, self.model);
-                self.form.updateModel();
+                //self.form.updateModel();
+                self.form.refresh();
             },
             (error) => console.log(error)
         )  
@@ -150,7 +151,6 @@ export class AccountDetails {
    test() {
        console.log("TESTING 1.2.3");
        this.model.AccountNumber = 5000;
-       this.form.updateModel(this.config, this.model);
    }
                                 
     ngOnChanges() {

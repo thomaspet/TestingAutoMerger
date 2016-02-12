@@ -3,8 +3,6 @@
 </div>
 <div *ngIf="model">
     <uni-form (uniFormSubmit)="onSubmit($event)" [config]="config"></uni-form>
-    <uni-component-loader></uni-component-loader>
- <!--   <dimension-list [dimension]="model.DimensionsID"></dimension-list> -->
+<!--    <dimension-list [dimension]="model.DimensionsID"></dimension-list>  -->
     <account-group-list [account]="model.ID"></account-group-list>
-    <b>MODELID: {{model.ID}}</b>
 </div>

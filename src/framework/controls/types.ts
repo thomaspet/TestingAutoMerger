@@ -11,6 +11,5 @@ export enum UNI_CONTROL_TYPES {
     RADIOGROUP,//9
     TEXT,//10
     EMAIL,//11
-    PASSWORD,//12
-    BREAK_LINE//13
+    PASSWORD//12
 }
