@@ -4,11 +4,10 @@ import { Observable } from 'rxjs/Observable';
 import 'rxjs/observable/fromEvent';
 
 import {InputTemplateString} from '../inputTemplateString';
-declare var jQuery;
+import {UniFieldBuilder} from "../../forms/builders/uniFieldBuilder";
+declare var jQuery,_;
 
-export interface DatepickerConfig {
-	control: Control;
-	kOptions: kendo.ui.DatePickerOptions;
+export interface DatepickerConfig extends UniFieldBuilder {
 }
 
 @Component({
@@ -16,17 +15,27 @@ export interface DatepickerConfig {
 	template: InputTemplateString
 })
 export class UniDatepicker implements AfterViewInit, OnDestroy {
-	@Input() config: DatepickerConfig;
-    nativeElement;
+	@Input()
+	config: DatepickerConfig;
+
+	datepicker;
+
+	nativeElement;
 		
 	constructor(public elementRef: ElementRef) {
         this.nativeElement = jQuery(this.elementRef.nativeElement);
     }
-	
+
+	refresh(value) {
+		this.datepicker.value(value);
+	}
+
 	ngAfterViewInit() {
 		var control = this.config.control;
 		var options = this.config.kOptions;
 		var datepicker;
+
+		this.config.fieldComponent = this;
 
 		options.format = "dd.MM.yyyy";
 		options.parseFormats = [
@@ -34,6 +43,7 @@ export class UniDatepicker implements AfterViewInit, OnDestroy {
 			"dd/MM/yyyy",
 			"dd.MM.yyyy",				
 			"ddMMyyyy",
+			"yyyy-MM-ddTHH:mm:ss"
 		];
 		
 		options.change = function(event: kendo.ui.DatePickerChangeEvent) {
@@ -47,8 +57,10 @@ export class UniDatepicker implements AfterViewInit, OnDestroy {
 			};
 			
 			if (date) {
-				control.updateValue(date.toISOString());
+				control.updateValue(date.toISOString(),{});
 				this.value(date);
+			} else {
+				control.updateValue('',{});
 			}
 		}
 		datepicker = this.nativeElement.find('input').first().kendoDatePicker(options).data('kendoDatePicker');
@@ -61,11 +73,12 @@ export class UniDatepicker implements AfterViewInit, OnDestroy {
 			}	
 		});
 		
-		Observable.fromEvent(this.nativeElement, 'blur').subscribe((e) => {
+		Observable.fromEvent(this.nativeElement.find('input').first(), 'blur').subscribe((e) => {
 			datepicker.trigger('change');
 		});		
 
 		datepicker.value(new Date(control.value));
+		this.datepicker = datepicker;
 	}
     
     // Remove kendo markup when component is destroyed to avoid duplicates

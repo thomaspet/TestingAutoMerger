@@ -1,5 +1,6 @@
 import {Component, Input} from 'angular2/core';
 import {Guid} from '../guid';
+import {UniFieldBuilder} from "../../forms/builders/uniFieldBuilder";
 
 @Component({
     selector:'uni-checkbox',
@@ -17,11 +18,21 @@ import {Guid} from '../guid';
     `
 })
 export class UniCheckboxInput {
-    @Input() config: any;
+    @Input()
+    config: UniFieldBuilder;
+
     guid: string;
 
     constructor() { 
         this.guid = Guid.MakeNew().ToString();   
+    }
+
+    refresh(value) {
+        this.setFormValue(this.config.control, value);
+    }
+
+    ngOnInit() {
+        this.config.fieldComponent = this;
     }
 
     setFormValue(control,value) {
