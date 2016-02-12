@@ -2,6 +2,7 @@
 import {NgFor, NgIf} from 'angular2/common';
 import {UniTable, UniTableConfig} from '../../../../framework/uniTable';
 import {UniHttpService, UniHttpRequest} from '../../../../framework/data/uniHttpService';
+import {UsersDS} from '../../../../framework/data/users'
 declare var jQuery;
 
 @Component({
@@ -13,10 +14,10 @@ declare var jQuery;
 export class Users {
 
     newUser;
+    baseUrl: string = 'http://localhost:3000/#/confirm/';
     users: Array<any> = [];
     usersConfig: UniTableConfig;
     inviteLink: string;
-    inviteSuccess: boolean = false;
     isPostUserActive: boolean = false;
 
     constructor(private http: UniHttpService) {
@@ -51,22 +52,19 @@ export class Users {
         this.http.post({ resource: 'user-verifications', body: this.newUser })
             .subscribe(
             (data) => {
-                console.log(data);
-                this.inviteLink = 'http://localhost:3000/#/confirm/' + data.VerificationCode;
-                this.inviteSuccesful();
+                this.inviteLink = this.baseUrl + data.VerificationCode;
                 this.newUser.DisplayName = '';
                 this.newUser.Email = '';
                 this.createUserTable();
                 this.isPostUserActive = false;
+                jQuery('.users_invite_link').slideDown(500);
+                
             },
             (error) => {
                 console.log(error);
                 this.isPostUserActive = false;
             }
-            )
-    }
-
-    inviteSuccesful() {
-        this.inviteSuccess = true;
+        )
+        console.log(jQuery('uni-table').data('kendoGrid'));
     }
 }
