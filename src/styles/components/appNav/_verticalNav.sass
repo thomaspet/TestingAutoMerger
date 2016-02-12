@@ -10,20 +10,21 @@
     border-radius: $vTabRadius
     margin-top: 2.2rem
 
-    li
-      border-bottom: pxToRem(1) solid $uni-color-scale8
+  li
+    border-bottom: pxToRem(1) solid $uni-color-scale8
+    height: 2rem
 
-      &:first-of-type a
-        border-radius: $vTabRadius $vTabRadius 0 0
+    &:first-of-type a
+      border-radius: $vTabRadius $vTabRadius 0 0
 
-      &:last-of-type
-        border-bottom: none
+    &:last-of-type
+      border-bottom: none
+      a
+        border-radius: 0 0 $vTabRadius $vTabRadius
 
-        a
-          border-radius: 0 0 $vTabRadius $vTabRadius
 
 
-    li a
+    a
       @extend %clickable
       text-decoration: none
       display: inline-block
@@ -34,6 +35,8 @@
       padding-left: .5rem
       box-sizing: border-box
       line-height: 2rem
+      overflow: hidden
+      text-overflow: ellipsis
 
       &.router-link-active,
       &:hover
