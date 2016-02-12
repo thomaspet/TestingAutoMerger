@@ -1,4 +1,4 @@
-import {Component, provide, Input, ViewChild, ContentChild} from 'angular2/core';
+import {Component, provide, Input, ViewChild, ContentChild, ComponentRef} from 'angular2/core';
 import {Validators, Control, FormBuilder} from 'angular2/common';
 import {Observable} from 'rxjs/Observable';
 import {UniForm} from '../../../../../framework/forms/uniForm';
@@ -13,8 +13,8 @@ import {AccountingDS} from '../../../../../framework/data/accounting';
 import {CurrencyDS} from '../../../../../framework/data/currency';
 import {DimensionList} from '../dimensionList/dimensionList';
 import {AccountGroupList} from '../accountGroupList/accountGroupList';
-import {UniComponentLoader} from '../../../../../framework/core/componentLoader';
 import {UniHttpService} from '../../../../../framework/data/uniHttpService';
+import {AccountModel} from '../../../../../framework/models/account';
 
 @Component({
     selector: 'account-details',
@@ -26,16 +26,20 @@ export class AccountDetails {
     @Input() account;    
     @ViewChild(UniForm) form: UniForm;
     config = new UniFormBuilder();
-    model;
+    model: AccountModel = new AccountModel();
     currencies;
     vattypes;
     
     constructor(fb:FormBuilder, private accountingDS:AccountingDS, private currencyDS:CurrencyDS, private http:UniHttpService) {
-        this.accountReady();       
+        this.model.AccountNumber = 2000;  // test only
+        this.model.AccountName = "Initial value Test Only";
     }
 
-    accountReady() {                             
-        // Acount details                       
+    buildForm() {
+        //
+        // main fields
+        //
+        
         var accountNumber = new UniFieldBuilder();
         accountNumber.setLabel('Kontonr.')
             .setModel(this.model)
@@ -120,32 +124,29 @@ export class AccountDetails {
         this.config.addField(systemSet);
     }
     
-    update() {      
+    update() {  
+        var self = this;    
         this.http.multipleRequests('GET', [
             { resource: "currencies" },
             { resource: "vattypes"},
             { resource: "accounts/" + this.account, expand: "Alias,Currency,AccountGroup" }
         ]).subscribe(
             (dataset) => {
-                console.log("NYTT DATASETT");
                 this.currencies = dataset[0];
                 this.vattypes = dataset[1];
-                this.model = dataset[2];  
-                this.form.updateModel();
+                this.model = dataset[2];
+                console.log(this.model);  
+                self.form.updateModel(self.config, self.model);
             },
             (error) => console.log(error)
         )  
    }
               
-    ngOnInit() {
-    }      
-                    
-    ngOnChanges() {
-        console.log("NGCHANGE")
-        console.log(this.form);
-        //if (this.form != null)
-        //    this.form.updateModel();
-        
+   ngOnInit() {
+        this.buildForm();
+   }   
+                            
+   ngOnChanges() {
         this.update();    
     }
              

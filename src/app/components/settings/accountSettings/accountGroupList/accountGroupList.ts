@@ -12,7 +12,7 @@ export class AccountGroupList {
     
     constructor() {
         this.account = 11;
-        this.tableConfig = new UniTableConfig('http://devapi.unieconomy.no:80/api/biz/accountgroups')
+        this.tableConfig = new UniTableConfig('http://devapi.unieconomy.no:80/api/biz/accountgroups', false, false)
         .setOdata({
             expand: '',
             filter: 'AccountID eq ' + this.account

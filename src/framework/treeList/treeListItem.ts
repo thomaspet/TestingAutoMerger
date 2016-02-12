@@ -9,7 +9,7 @@ export class TreeListItem {
     type: TREE_LIST_TYPE;
     changeCallback: (model?: any) => void;
 
-    constructor(title: string) {
+    constructor(title: string = "") {
         this.title = title;
     }
 

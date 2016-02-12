@@ -48,12 +48,10 @@ export class AccountList {
                         {field: 'AccountName', title: 'Kontonavn'}
                     ])
                     .setOnSelect(account => {
-                        console.log("SELECTED");
-                        console.log(account);
                         this.uniAccountChange.emit(account.ID);
                     });
                     
-                var list = new TreeListItem("")
+                var list = new TreeListItem()
                 .setType(TREE_LIST_TYPE.TABLE)
                 .setContent(tableConfig);
                  

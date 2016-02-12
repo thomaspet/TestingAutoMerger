@@ -11,7 +11,7 @@ export class DimensionList {
     tableConfig: UniTableConfig;
     
     constructor() {
-        this.tableConfig = new UniTableConfig('http://devapi.unieconomy.no:80/api/biz/dimensions')
+        this.tableConfig = new UniTableConfig('http://devapi.unieconomy.no:80/api/biz/dimensions', false, false)
         .setOdata({
             expand: '',
             filter: 'ID eq ' + this.dimension
