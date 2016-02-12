@@ -3,12 +3,13 @@ import {AbstractControl} from 'angular2/common';
 import {UNI_CONTROL_DIRECTIVES} from '../../controls';
 import {UniField} from './../uniField';
 import {UniTextInput} from '../../controls/text/text';
+import {Control} from "angular2/common";
 
 declare var _;
 
 export class UniFieldBuilder {
     label:string = '';
-    description: string = '';
+    description:string = '';
     model:any;
     field:string = '';
     type:Type = UniTextInput;
@@ -19,18 +20,19 @@ export class UniFieldBuilder {
     disabled:boolean = false;
     syncValidators:Array<any> = [];
     asyncValidators:Array<any> = [];
-    control:AbstractControl;
+    control:Control;
     fieldsetIndex:number = 0;
     sectionIndex:number = 0;
-    isLookup: boolean = false;
-    helpText: string = '';
-    legend: string = '';
-    hidden: boolean = false;
-    placement: number = 0;
-    entityType: string = '';
-    componentLayoutID: number = 0;
-    errorMessages: Array<any> = [];
-    lineBreak: boolean = false;
+    isLookup:boolean = false;
+    helpText:string = '';
+    legend:string = '';
+    hidden:boolean = false;
+    placement:number = 0;
+    entityType:string = '';
+    componentLayoutID:number = 0;
+    errorMessages:Array<any> = [];
+    lineBreak:boolean = false;
+    fieldComponent: any;
 
     static fromLayoutConfig(element:any, model:any):UniFieldBuilder {
         var ufb = new UniFieldBuilder();
@@ -136,6 +138,10 @@ export class UniFieldBuilder {
 
     config():UniFieldBuilder {
         return this;
+    }
+
+    refreshField(value:any) {
+        this.fieldComponent.refresh(value);
     }
 }
 

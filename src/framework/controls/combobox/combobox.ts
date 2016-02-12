@@ -4,13 +4,12 @@ import { Observable } from 'rxjs/Observable';
 import 'rxjs/observable/fromEvent';
 
 import {InputTemplateString} from '../inputTemplateString';
+import {UniFieldBuilder} from "../../forms/builders/uniFieldBuilder";
 
 declare var jQuery; // $ is reserved for angular ElementFinder
 
-export interface ComboboxConfig {
-	control?: Control;
+export interface ComboboxConfig extends UniFieldBuilder {
 	onSelect?: Function;
-	kOptions: kendo.ui.ComboBoxOptions;
 }
 
 @Component({
@@ -21,12 +20,19 @@ export class UniCombobox implements AfterViewInit, OnDestroy {
 	@Input() config: ComboboxConfig;
 	control;
     nativeElement: any;
-	
+	combobox;
+
 	constructor(private elementRef: ElementRef) {
         this.nativeElement = jQuery(this.elementRef.nativeElement);
     }
 
+	refresh(value:any) {
+		this.combobox.value(value);
+	}
+
 	ngAfterViewInit() {
+        this.config.fieldComponent = this;
+
         var control = this.config.control;
 		var options = this.config.kOptions;
 		var validSelection = false;
@@ -42,7 +48,7 @@ export class UniCombobox implements AfterViewInit, OnDestroy {
 			var newValue = (validSelection) ? this.value() : '';
 			
 			if (control) {
-				control.updateValue(newValue);
+				control.updateValue(newValue,{});
 			}
 			
 			if (self.config.onSelect) {
@@ -52,13 +58,16 @@ export class UniCombobox implements AfterViewInit, OnDestroy {
 		};
 		
 		var combobox = this.nativeElement.find('input').first().kendoComboBox(options).data('kendoComboBox');
-		
+		this.combobox = combobox;
+
         // Reset validSelection when the input text changes
 		Observable.fromEvent(combobox.input, 'keyup').subscribe((event: any) => {
 			validSelection = false;	
 		});
 		
-		if (control) combobox.value(control.value);
+		if (control) {
+			combobox.value(control.value);
+		}
 	}
     
     

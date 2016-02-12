@@ -8,8 +8,9 @@ declare var jwt_decode: (token: string) => any; // node_modules/jwt_decode
 
 @Injectable()
 export class AuthService {
-    jwt: any;
-    jwt_decoded: any;
+    // TODO: Mocked auth token. Remove this when auth api is up and running. 
+    jwt: any = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJuYW1laWQiOiJkYmU4MjlkMS1kODM3LTRlZWUtYjY2Mi05NmQxMWFhMzIyYjkiLCJ1bmlxdWVfbmFtZSI6ImpvbnRlcmplIiwiaHR0cDovL3NjaGVtYXMubWljcm9zb2Z0LmNvbS9hY2Nlc3Njb250cm9sc2VydmljZS8yMDEwLzA3L2NsYWltcy9pZGVudGl0eXByb3ZpZGVyIjoiQVNQLk5FVCBJZGVudGl0eSIsIkFzcE5ldC5JZGVudGl0eS5TZWN1cml0eVN0YW1wIjoiYTY4YmVmM2EtZmUyOS00MmNhLThkYWUtN2MyOTBiZTE2MDNjIiwicm9sZSI6WyJBZG1pbiIsIlN1cGVyQWRtaW4iXSwiaXNzIjoiaHR0cHM6Ly91bmktaWRlbnRpdHkuYXp1cmV3ZWJzaXRlcy5uZXQiLCJhdWQiOiI0MTRlMTkyN2EzODg0ZjY4YWJjNzlmNzI4MzgzN2ZkMSIsImV4cCI6MTQ1NTM1Nzc0NywibmJmIjoxNDU1MjcxMzQ3fQ.8JOOR73Gb_uLlyAkwexH2eDaVmZnXulmmDAVJjtWFMk";
+    jwt_decoded: any = {"nameid":"dbe829d1-d837-4eee-b662-96d11aa322b9","unique_name":"jonterje","http://schemas.microsoft.com/accesscontrolservice/2010/07/claims/identityprovider":"ASP.NET Identity","AspNet.Identity.SecurityStamp":"a68bef3a-fe29-42ca-8dae-7c290be1603c","role":["Admin","SuperAdmin"],"iss":"https://uni-identity.azurewebsites.net","aud":"414e1927a3884f68abc79f7283837fd1","exp":1455357747,"nbf":1455271347};
     errorMessage: string;
     
     authenticated$: Observable<boolean>;
@@ -47,18 +48,20 @@ export class AuthService {
 		).map((res) => res.json())
         .subscribe(
             (response) => {
-                this.jwt = response.access_token;
-                this.jwt_decoded = this.decodeToken(this.jwt);
-                this.errorMessage = '';
-                
-                localStorage.setItem('jwt', this.jwt);
-                localStorage.setItem('jwt_decoded', JSON.stringify(this.jwt_decoded));
-                
+                // TODO: add this code when auth api is working
+                // this.jwt = response.access_token;
+                // this.jwt_decoded = this.decodeToken(this.jwt);
+                // this.errorMessage = '';
+                // 
+                // localStorage.setItem('jwt', this.jwt);
+                // localStorage.setItem('jwt_decoded', JSON.stringify(this.jwt_decoded));
+                // 
                 this.validateAuthentication();
             },
             (error) => {
                 this.errorMessage = error.error_description;
-                this._authenticatedObserver.next(false);
+                this._authenticatedObserver.next(true); // TODO: Use line below when auth api is working 
+                // this._authenticatedObserver.next(false);
             }
         );
     }
@@ -77,10 +80,9 @@ export class AuthService {
 	}	
 	
 	validateAuthentication(): boolean {
-	    if (!this.jwt || !this.jwt_decoded) return false;
-        
-        var isValid = !this.isTokenExpired(this.jwt_decoded);
-        
+        // TODO: Add expire check when auth api is up and running!
+        var isValid = this.jwt && this.jwt_decoded; //&& !this.isTokenExpired(this.jwt_decoded);
+
         this._authenticatedObserver.next(isValid);
         return isValid;        
 	}
