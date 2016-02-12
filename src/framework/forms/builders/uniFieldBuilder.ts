@@ -140,7 +140,7 @@ export class UniFieldBuilder {
         return this;
     }
 
-    refreshField(value:any) {
+    refresh(value:any) {
         this.fieldComponent.refresh(value);
     }
 }

@@ -103,6 +103,15 @@ export class UniForm implements OnInit {
     }
 
     /**
+     * return form value
+     *
+     * @returns {any}
+     */
+    getValue() {
+        return this.form.value;
+    }
+
+    /**
      * returns true is submit button should be hidden
      * @returns {boolean}
      */
@@ -198,7 +207,7 @@ export class UniForm implements OnInit {
                 field.model = newModel;
                 var fieldPath = field.field;
                 var value = _.get(newModel, fieldPath);
-                field.refreshField(value);
+                field.refresh(value);
             } else {
                 this.refresh(newModel, field.fields, formValue);
             }
