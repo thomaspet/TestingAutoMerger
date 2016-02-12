@@ -77,10 +77,8 @@ export class AuthService {
 	}	
 	
 	validateAuthentication(): boolean {
-	    if (!this.jwt || !this.jwt_decoded) return false;
-        
-        var isValid = !this.isTokenExpired(this.jwt_decoded);
-        
+        var isValid = this.jwt && this.jwt_decoded && !this.isTokenExpired(this.jwt_decoded);
+
         this._authenticatedObserver.next(isValid);
         return isValid;        
 	}
