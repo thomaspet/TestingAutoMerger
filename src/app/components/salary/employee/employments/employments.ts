@@ -214,4 +214,13 @@ export class Employment {
     onFormSubmit(event, index) {
         jQuery.merge(this.currentEmployee.Employments[index], event.value);
     }
+
+    // @fixme: Proper date formatting here…
+    formatDate(date){
+        if(!date)return '';
+
+        date = new Date(date);
+        return date.getDate() + '.' +(date.getMonth()+1) + '.' + date.getFullYear();
+    }
+
 }
