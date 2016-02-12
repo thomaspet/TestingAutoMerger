@@ -184,19 +184,20 @@ export class UniForm implements OnInit {
     /**
      * Updates the model
      *
+     * @param new model
      * @param config Form Config
      * @param formValue Form value
      */
-    refresh(config?, formValue?) {
+    refresh(newModel, config?, formValue?) {
         var config = config || this.config.fields;
         var formValue = formValue || this.form.value;
 
         for (let i = 0; i < config.length; i++) {
             let field = config[i];
             if (field instanceof UniFieldBuilder) {
-                var model = field.model;
+                field.model = newModel;
                 var fieldPath = field.field;
-                var value = _.get(model, fieldPath);
+                var value = _.get(newModel, fieldPath);
                 field.refreshField(value);
             } else {
                 this.refresh(field.fields, formValue);

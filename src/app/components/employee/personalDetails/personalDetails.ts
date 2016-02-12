@@ -73,8 +73,10 @@ export class PersonalDetails {
     }
 
     executeSubmit() {
-        //this.formInstance.refresh();
-        this.formInstance.updateModel();
+        this.employee = _.merge({},this.employee,{BusinessRelationInfo:{Name:"Jorge"}});
+        this.formInstance.refresh(this.employee);
+        console.log(this.employee);
+        //this.formInstance.updateModel();
     }
 
     toggleMode() {
