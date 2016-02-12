@@ -132,11 +132,12 @@ export class AccountDetails {
             { resource: "accounts/" + this.account, expand: "Alias,Currency,AccountGroup" }
         ]).subscribe(
             (dataset) => {
-                this.currencies = dataset[0];
-                this.vattypes = dataset[1];
-                this.model = dataset[2];
-                console.log(this.model);  
-                self.form.updateModel(self.config, self.model);
+                self.currencies = dataset[0];
+                self.vattypes = dataset[1];
+                self.model = dataset[2];
+                console.log(self.model);  
+                //self.form.updateModel(self.config, self.model);
+                self.form.updateModel();
             },
             (error) => console.log(error)
         )  
@@ -145,9 +146,15 @@ export class AccountDetails {
    ngOnInit() {
         this.buildForm();
    }   
-                            
-   ngOnChanges() {
-        this.update();    
+   
+   test() {
+       console.log("TESTING 1.2.3");
+       this.model.AccountNumber = 5000;
+       this.form.updateModel(this.config, this.model);
+   }
+                                
+    ngOnChanges() {
+        this.update();  
     }
              
     onSubmit(value) {
