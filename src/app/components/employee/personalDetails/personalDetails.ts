@@ -73,8 +73,8 @@ export class PersonalDetails {
     }
 
     executeSubmit() {
+        //this.formInstance.refresh();
         this.formInstance.updateModel();
-        console.log(this.formInstance.form.value);
     }
 
     toggleMode() {
