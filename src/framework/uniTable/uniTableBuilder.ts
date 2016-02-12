@@ -3,17 +3,18 @@ import {UniTableColumn} from './uniTableColumn';
 
 export class UniTableBuilder {
     remoteData: boolean;
-    resource: string | Array<any>;
     
+    resource: string | Array<any>;
     filter: string = "";
     expand: string = "";
-    searchable: boolean = true;
-    editable: boolean;
-    filterable: boolean;
-    pageable: boolean | Object;
-    pageSize: number;
     
-    toolbar: string[];
+    searchable: boolean = true;
+    editable: boolean   = true;
+    filterable: boolean = true;
+    pageable: boolean   = true;
+    pageSize: number    = 10;
+    
+    toolbar: string[] = [];
     
     selectCallback: (selectedItem) => any;
     updateCallback: (updatedItem) => any;
@@ -27,9 +28,6 @@ export class UniTableBuilder {
     constructor(resource: string | Array<any>, editable: boolean = true) {
         this.resource = resource;
         this.editable = editable;
-        this.filterable = true;
-        this.pageable = {input: true, numeric: false};
-        this.pageSize = 10;
         this.remoteData = !(Array.isArray(resource));
         
         if (editable) {
@@ -74,6 +72,11 @@ export class UniTableBuilder {
         return this;
     }
     
+    setEditable(editable: boolean) {
+        this.editable = editable;
+        return this;
+    }
+    
     setFilter(filter: string) {
         this.filter = filter;
         return this;
@@ -110,12 +113,7 @@ export class UniTableBuilder {
     }
     
     setPageable(pageable: boolean) {
-        if (pageable) {
-            this.pageable = {input: true, numeric: false};
-        } else {
-            this.pageable = false;
-        }
-        
+        this.pageable = pageable;        
         return this;
     }
     

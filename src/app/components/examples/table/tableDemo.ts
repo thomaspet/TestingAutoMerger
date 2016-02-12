@@ -1,6 +1,5 @@
 import {Component} from 'angular2/core';
-import {UniTable2, UniTableBuilder, UniTableColumn} from '../../../../framework/uniTable';
-import {UniTable, UniTableConfig} from '../../../../framework/uniTable';
+import {UniTable, UniTableBuilder, UniTableColumn} from '../../../../framework/uniTable';
 
 @Component({
     selector: 'uni-table-demo', 
@@ -20,7 +19,7 @@ import {UniTable, UniTableConfig} from '../../../../framework/uniTable';
         <h4>Read-only table with local data</h4>
         <uni-table [config]="readOnlyLocalDataCfg"></uni-table>
     `,
-    directives: [UniTable2]
+    directives: [UniTable]
 })
 export class UniTableDemo {
     editableRemoteDataCfg;
