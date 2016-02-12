@@ -16,6 +16,8 @@ import {UniComponentLoader} from '../../../../framework/core';
 import {Observable} from 'rxjs/Observable';
 import 'rxjs/add/operator/merge';
 
+declare var _;
+
 @Component({
     selector: 'employee-personal-details',
     directives: [UniComponentLoader],

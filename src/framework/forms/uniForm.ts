@@ -200,7 +200,7 @@ export class UniForm implements OnInit {
                 var value = _.get(newModel, fieldPath);
                 field.refreshField(value);
             } else {
-                this.refresh(field.fields, formValue);
+                this.refresh(newModel, field.fields, formValue);
             }
         }
     }
