@@ -82,8 +82,15 @@ export class AccountDetails {
             .setModelField('vattype')
             .setType(UNI_CONTROL_DIRECTIVES[UNI_CONTROL_TYPES.DROPDOWN])
             .setKendoOptions({ dataSource: this.vattypes, dataValueField: 'ID', dataTextField: 'Name'})
+             
+        var numSerie = new UniFieldBuilder();
+        numSerie.setLabel('Nummerserie')
+            .setModelField('SubAccountNumberSeriesID')
+            .setType(UNI_CONTROL_DIRECTIVES[UNI_CONTROL_TYPES.HYPERLINK])
+            .setDescription("kunder")
+            .setUrl('http://localhost/customer');  
                     
-        this.config.addFields(accountCombo, accountAlias, currency, vatType);
+        this.config.addFields(accountCombo, accountAlias, currency, vatType, numSerie);
 
         //
         // Checkbox settings

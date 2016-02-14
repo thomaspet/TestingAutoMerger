@@ -1,6 +1,18 @@
 .accountList
     @include unigrid(10)
     float: left
+    
+.accountDetails
+    @include unigrid(6)
+    float: left
+
+.accountDetails label
+    width: 100%
+
+.accountDetails fieldset
+    width: 100%
+    background: inherit
+    margin: 0
 
 .icon-column
     font-size: 0        
@@ -29,14 +41,7 @@
     background-size: 0.6rem
     padding: 0.6rem
     margin-left: 0.4rem
-
-.accountDetails
-    @include unigrid(6)
-    float: left
-               
-.accountDetails label
-    width: 100%
-    
+                   
 .accountList .menuDropDown
     float: right
     width: 10rem
