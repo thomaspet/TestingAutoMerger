@@ -48,4 +48,9 @@ export class AccountSettings {
             (error) => console.log(error)
         );
     }
+
+    showAccountOne()
+    {
+        this.account = 1;
+    }
 }

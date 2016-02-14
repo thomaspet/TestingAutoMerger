@@ -33,24 +33,20 @@ export class AccountList {
             delay: 50,
             dataTextField: 'name',
             dataValueField: 'action',
-            dataSource:  [
+            dataSource: [
                 { action: SETTINGS_ADD_NEW.ACCOUNTGROUP, name: 'Ny kontogruppe' },
                 { action: SETTINGS_ADD_NEW.ACCOUNT, name: 'Ny hovedbokskonto' },
             ],
-            optionLabel: {action: -1, name: 'Select action'},
+            optionLabel: {action: -1, name: 'Select an action'},
             select: (event: kendo.ui.DropDownListSelectEvent) => {
                 var result = (event.sender.dataItem(<any>event.item));
-                console.log("ACTION SELECTED");
                 switch (result.action) {
                     case SETTINGS_ADD_NEW.ACCOUNT:
                         this.uniAccountChange.emit(0);
-                        break;
-                
+                        break;              
                     default:
                         break;
-                }
-                
-                
+                }               
             },
         };
 
@@ -60,7 +56,7 @@ export class AccountList {
             onChange: null,
             model: this.selectedAdd,
             modelField: "selected"
-        }
+        }        
     }
       
     loopAccountGroups(parentgroup, id) {
@@ -129,5 +125,5 @@ export class AccountList {
     showHide()
     {
         this.treeList.showHideAll();
-    }
+    }    
 }

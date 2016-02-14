@@ -31,6 +31,15 @@ export class AccountDetails {
     vattypes;
     
     constructor(fb:FormBuilder, private accountingDS:AccountingDS, private currencyDS:CurrencyDS, private http:UniHttpService) {
+        // TEST CODE WITHOUT BACKEND
+        this.currencies = [
+          { ID: 1, Code: 'NOK' },
+          { ID: 2, Code: 'EUR' }  
+        ];
+        
+        this.vattypes = [
+          { ID: 1, Name: 'Høg sats', Percent: 25 }  
+        ];
     }
 
     buildForm() {
@@ -65,14 +74,14 @@ export class AccountDetails {
             .setModel(this.model)
             .setModelField('CurrencyID')
             .setType(UNI_CONTROL_DIRECTIVES[UNI_CONTROL_TYPES.DROPDOWN])
-            .setKendoOptions({ dataSource: this.currencies, dataTextField: 'Code' })
+            .setKendoOptions({ dataSource: this.currencies, dataValueField: 'ID', dataTextField: 'Code' })
 
         var vatType = new UniFieldBuilder();
         vatType.setLabel('Moms')
             .setModel(this.model)
             .setModelField('vattype')
             .setType(UNI_CONTROL_DIRECTIVES[UNI_CONTROL_TYPES.DROPDOWN])
-            .setKendoOptions({ dataSource: this.vattypes, dataTextField: 'Name'})
+            .setKendoOptions({ dataSource: this.vattypes, dataValueField: 'ID', dataTextField: 'Name'})
                     
         this.config.addFields(accountCombo, accountAlias, currency, vatType);
 
@@ -126,7 +135,7 @@ export class AccountDetails {
         var self = this;    
         this.http.multipleRequests('GET', [
             { resource: "currencies" },
-            { resource: "vattypes"},
+            { resource: "vattypes" },
             { resource: "accounts/" + this.account, expand: "Alias,Currency,AccountGroup" }
         ]).subscribe(
             (dataset) => {
@@ -148,9 +157,19 @@ export class AccountDetails {
         
         if (this.account == 0) {
             this.model = new AccountModel();
-            this.model.AccountName = "TERJE";
             this.form.refresh(this.model);   
-        } else {
+        }
+        else if (this.account == 1) { // TEST ONLY
+            this.model = new AccountModel();
+            this.model.AccountName = "TEST";
+            this.model.AccountNumber = 1000;
+            this.model.CurrencyID = 1;
+            this.model.Currency = { ID: 1, Code: 'NOK', Date: null, Source: null, Name: "", ExchangeRate: 1, Factor: 1, StatusID: 0, Deleted: false, CustomFields: null };    
+            this.model.VatTypeID = 1;
+            this.model.VatType = { ID: 1, Name: 'Høg moms', VatPercent: 25, VatCode: "1", VatCodeRelationID: 0, AvailableInModules: false, VatTypeSetupID: 0, ValidFrom: null, ValidTo: null, Visible: false, Locked: false, OutputVat: false, IncomingAccountID: 0, OutgoingAccountID: 0, InUse: false, StatusID: 0, Deleted: false, IncomingAccount: null, OutgoingAccount: null, CustomFields: null };
+            this.form.refresh(this.model);    
+        }
+        else {
             this.update();            
         }     
     }

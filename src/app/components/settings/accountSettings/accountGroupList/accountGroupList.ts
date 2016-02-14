@@ -11,7 +11,12 @@ export class AccountGroupList {
     tableConfig: UniTableConfig;
     
     constructor() {
-        this.account = 11;
+        this.account = 1;
+        
+        //this.model.CompatibleAccountGroups = [
+        //      { ID: 1, Name: "", AccountGroupSetupID: 0, MainGroupID: 0, CompatibleAccountID: 0, Summable: false, AccountGroupSetID: 0, AccountID: 0, StatusID: 0, Deleted: false, MainGroup: null, AccountGroupSet: null, CustomFields: null }
+        //];
+   
         this.tableConfig = new UniTableConfig('http://devapi.unieconomy.no:80/api/biz/accountgroups', false, false)
         .setOdata({
             expand: '',
@@ -27,6 +32,6 @@ export class AccountGroupList {
         .setColumns([
             {field: 'ID', title: 'ID'},
             {field: 'Name', title: 'Navn'}
-        ]);  
+        ]);
     }
 }

@@ -1900,7 +1900,6 @@ export interface IAccount {
 	StatusID: number;
 	ID: number;
 	Deleted: boolean;
-	Alias: Array<IAccountAlias>;
 	Currency: ICurrency;
 	AccountGroup: IAccountGroup;
 	VatType: IVatType;
@@ -1910,6 +1909,7 @@ export interface IAccount {
 	Employee: IEmployee;
 	Dimensions: IDimensions;
 	SubAccountNumberSeries: INumberSeries;
+	Alias: Array<IAccountAlias>;
 	CompatibleAccountGroups: Array<IAccountGroup>;
 	SubAccounts: Array<IAccount>;
 	CustomFields: any;
