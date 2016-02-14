@@ -1,5 +1,6 @@
 import {Component, Input} from 'angular2/core';
 import {UniTable, UniTableConfig} from '../../../../../framework/uniTable';
+import {UniHttpService} from '../../../../../framework/data/uniHttpService';
 
 @Component({
     selector: 'account-group-list',
@@ -7,17 +8,11 @@ import {UniTable, UniTableConfig} from '../../../../../framework/uniTable';
     directives: [UniTable]
 })
 export class AccountGroupList {
-    @Input() account;
+    @Input() account = 1;
     tableConfig: UniTableConfig;
     
-    constructor() {
-        this.account = 1;
-        
-        //this.model.CompatibleAccountGroups = [
-        //      { ID: 1, Name: "", AccountGroupSetupID: 0, MainGroupID: 0, CompatibleAccountID: 0, Summable: false, AccountGroupSetID: 0, AccountID: 0, StatusID: 0, Deleted: false, MainGroup: null, AccountGroupSet: null, CustomFields: null }
-        //];
-   
-        this.tableConfig = new UniTableConfig('http://devapi.unieconomy.no:80/api/biz/accountgroups', false, false)
+    constructor(private http:UniHttpService) {           
+        this.tableConfig = new UniTableConfig(this.http.baseUrl + 'accountgroups', false, false)
         .setOdata({
             expand: '',
             filter: 'AccountID eq ' + this.account

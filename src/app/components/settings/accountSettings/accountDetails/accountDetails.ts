@@ -31,14 +31,16 @@ export class AccountDetails {
     vattypes;
     
     constructor(fb:FormBuilder, private accountingDS:AccountingDS, private currencyDS:CurrencyDS, private http:UniHttpService) {
-        // TEST CODE WITHOUT BACKEND
+        // TEST CODE WITHOUT BACKEND      
         this.currencies = [
           { ID: 1, Code: 'NOK' },
-          { ID: 2, Code: 'EUR' }  
+          { ID: 2, Code: 'EUR' },
+          { ID: 3, Code: 'DKK' }  
         ];
         
         this.vattypes = [
-          { ID: 1, Name: 'Høg sats', Percent: 25 }  
+          { ID: 1, Name: 'Høg sats', Percent: 25 },
+          { ID: 2, Name: 'Mellomsats', Percent: 10 }  
         ];
     }
 
@@ -97,37 +99,37 @@ export class AccountDetails {
         //
         
         var checkSystemAccount = new UniFieldBuilder();
-        checkSystemAccount.setLabel('Systemkonto')
+        checkSystemAccount.setDescription('Systemkonto')
             .setModel(this.model)
             .setModelField('SystemAccount')
             .setType(UNI_CONTROL_DIRECTIVES[UNI_CONTROL_TYPES.CHECKBOX]);
             
         var checkPostPost = new UniFieldBuilder();
-        checkPostPost.setLabel('PostPost')
+        checkPostPost.setDescription('PostPost')
             .setModel(this.model)
             .setModelField('UsePostPost')
             .setType(UNI_CONTROL_DIRECTIVES[UNI_CONTROL_TYPES.CHECKBOX]);    
         
         var checkDeductionPercent = new UniFieldBuilder();
-        checkDeductionPercent.setLabel('Forholdsvismoms')
+        checkDeductionPercent.setDescription('Forholdsvismoms')
             .setModel(this.model)
             .setModelField('UseDeductionPercent')
             .setType(UNI_CONTROL_DIRECTIVES[UNI_CONTROL_TYPES.CHECKBOX]);  
             
         var checkLockManualPosts = new UniFieldBuilder();
-        checkLockManualPosts.setLabel('Sperre manuelle poster')
+        checkLockManualPosts.setDescription('Sperre manuelle poster')
             .setModel(this.model)
             .setModelField('LockManualPosts')
             .setType(UNI_CONTROL_DIRECTIVES[UNI_CONTROL_TYPES.CHECKBOX]);      
         
         var checkLocked = new UniFieldBuilder();
-        checkLocked.setLabel('Sperret')
+        checkLocked.setDescription('Sperret')
             .setModel(this.model)
             .setModelField('Locked')
             .setType(UNI_CONTROL_DIRECTIVES[UNI_CONTROL_TYPES.CHECKBOX]);  
             
         var checkVisible = new UniFieldBuilder();
-        checkVisible.setLabel('Synlig')
+        checkVisible.setDescription('Synlig')
             .setModel(this.model)
             .setModelField('Visible')
             .setType(UNI_CONTROL_DIRECTIVES[UNI_CONTROL_TYPES.CHECKBOX]);      
@@ -166,14 +168,17 @@ export class AccountDetails {
             this.model = new AccountModel();
             this.form.refresh(this.model);   
         }
-        else if (this.account == 1) { // TEST ONLY
+        else if (this.account == 1000) { // TEST ONLY
             this.model = new AccountModel();
+            this.model.ID = 1000;
             this.model.AccountName = "TEST";
             this.model.AccountNumber = 1000;
             this.model.CurrencyID = 1;
             this.model.Currency = { ID: 1, Code: 'NOK', Date: null, Source: null, Name: "", ExchangeRate: 1, Factor: 1, StatusID: 0, Deleted: false, CustomFields: null };    
             this.model.VatTypeID = 1;
+            this.model.SystemAccount = true;
             this.model.VatType = { ID: 1, Name: 'Høg moms', VatPercent: 25, VatCode: "1", VatCodeRelationID: 0, AvailableInModules: false, VatTypeSetupID: 0, ValidFrom: null, ValidTo: null, Visible: false, Locked: false, OutputVat: false, IncomingAccountID: 0, OutgoingAccountID: 0, InUse: false, StatusID: 0, Deleted: false, IncomingAccount: null, OutgoingAccount: null, CustomFields: null };
+            this.model.DimensionsID = 1;
             this.form.refresh(this.model);    
         }
         else {

@@ -26,7 +26,6 @@ export class AccountList {
     accountgroups;
     config;
     addDropdownControl = new Control(-1);
-    selectedAdd = { selected: -1 };
  
     constructor(private http:UniHttpService) {     
         var kendoDropdownConfig = {
@@ -52,10 +51,7 @@ export class AccountList {
 
         this.config = {
             control: this.addDropdownControl,
-            kOptions: kendoDropdownConfig, 
-            onChange: null,
-            model: this.selectedAdd,
-            modelField: "selected"
+            kOptions: kendoDropdownConfig
         }        
     }
       
@@ -72,7 +68,7 @@ export class AccountList {
                 }
                                                       
                 // insert table
-                var tableConfig = new UniTableConfig('http://localhost:27831/api/biz/accounts', false, false)
+                var tableConfig = new UniTableConfig(this.http.baseUrl + 'accounts', false, false)
                     .setOdata({
                         expand: '',
                         filter: 'AccountGroupID eq ' + accountgroup.ID
@@ -97,6 +93,7 @@ export class AccountList {
                         }
                     ])
                     .setOnSelect(account => {
+                        console.log(account);
                         this.uniAccountChange.emit(account.ID);
                     });
                     

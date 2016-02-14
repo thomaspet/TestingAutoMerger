@@ -1,5 +1,6 @@
 import {Component, Input} from 'angular2/core';
 import {UniTable, UniTableConfig} from '../../../../../framework/uniTable';
+import {UniHttpService} from '../../../../../framework/data/uniHttpService';
 
 @Component({
     selector: 'dimension-list',
@@ -7,11 +8,11 @@ import {UniTable, UniTableConfig} from '../../../../../framework/uniTable';
     directives: [UniTable]
 })
 export class DimensionList {
-    @Input() dimension;
+    @Input() dimension = 1;
     tableConfig: UniTableConfig;
     
-    constructor() {
-        this.tableConfig = new UniTableConfig('http://devapi.unieconomy.no:80/api/biz/dimensions', false, false)
+    constructor(private http:UniHttpService) {
+        this.tableConfig = new UniTableConfig(this.http.baseUrl + 'dimensions', false, false)
         .setOdata({
             expand: '',
             filter: 'ID eq ' + this.dimension

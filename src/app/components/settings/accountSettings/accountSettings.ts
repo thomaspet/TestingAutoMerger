@@ -48,9 +48,23 @@ export class AccountSettings {
             (error) => console.log(error)
         );
     }
-
-    showAccountOne()
+    
+    syncCurrency()
     {
-        this.account = 1;
+        console.log("LAST NED VALUTA");
+        this.http.get({
+            resource: "currencies",
+            action: "download-from-norgesbank"
+        }).subscribe(
+            (response) => {
+                alert("Valuta lasted ned");
+            },
+            (error) => console.log(error)
+        );
+    }
+
+    showTestAccount()
+    {
+        this.account = 1000;
     }
 }
