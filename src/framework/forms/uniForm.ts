@@ -7,6 +7,7 @@ import {UniField} from './uniField';
 import {UniFieldBuilder} from './builders/uniFieldBuilder';
 import {UniFieldset} from './uniFieldset';
 import {UniGroup} from './uniGroup';
+import {UniComboGroup} from './uniComboGroup';
 import {UniComponentLoader} from "../core/componentLoader";
 import {MessageComposer} from "./composers/messageComposer";
 import {ValidatorsComposer} from "./composers/validatorsComposer";
@@ -21,7 +22,7 @@ declare var _; //lodash
  */
 @Component({
     selector: 'uni-form',
-    directives: [FORM_DIRECTIVES, UniField, UniFieldset, UniGroup, UniComponentLoader],
+    directives: [FORM_DIRECTIVES, UniField, UniFieldset, UniGroup, UniComboGroup, UniComponentLoader],
     providers: [FORM_PROVIDERS],
     template: `
         <form (submit)="submit()" [ngFormModel]="form" [class]="buildClassString()" [class.error]="hasErrors()">

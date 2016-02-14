@@ -1,14 +1,15 @@
 import {Type} from 'angular2/core';
 import {UniFieldBuilder} from './uniFieldBuilder';
 import {UniFieldsetBuilder} from './uniFieldsetBuilder';
-import {UniGroup} from "./../uniGroup";
-import {UniFieldset} from "./../uniFieldset";
+import {UniGroup} from './../uniGroup';
+import {UniFieldset} from './../uniFieldset';
+import {UniComboGroupBuilder} from './uniComboGroupBuilder';
 
 declare var _;
 
 export class UniGroupBuilder {
     legend:string = '';
-    fields:Array<UniFieldBuilder|UniFieldsetBuilder> = [];
+    fields:Array<UniFieldBuilder|UniFieldsetBuilder|UniComboGroupBuilder> = [];
     collapsed:boolean = false;
     fieldType:Type;
     fieldsetIndex:number = 0;
@@ -41,12 +42,12 @@ export class UniGroupBuilder {
         this.fieldType = UniGroup;
     }
 
-    addField(field:UniFieldBuilder|UniFieldsetBuilder) {
+    addField(field:UniFieldBuilder|UniFieldsetBuilder|UniComboGroupBuilder) {
         this.fields.push(field);
         return this;
     }
 
-    addFields(...fields:Array<UniFieldBuilder|UniFieldsetBuilder>) {
+    addFields(...fields:Array<UniFieldBuilder|UniFieldsetBuilder|UniComboGroupBuilder>) {
         fields.forEach((field)=> {
             this.fields.push(field);
         });
@@ -68,7 +69,7 @@ export class UniGroupBuilder {
 
     findFieldset(index:number):UniFieldsetBuilder {
         var value:UniFieldsetBuilder = undefined;
-        this.fields.forEach((element:UniFieldBuilder|UniFieldsetBuilder|UniGroupBuilder)=> {
+        this.fields.forEach((element:UniFieldBuilder|UniFieldsetBuilder|UniGroupBuilder|UniComboGroupBuilder)=> {
             if (element.fieldsetIndex === index && element instanceof UniFieldsetBuilder) {
                 value = element;
             }

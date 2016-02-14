@@ -16,7 +16,7 @@ declare var _;
     directives: [UniComponentLoader, ShowError, UniRadioGroup, NgIf, NgForm],
     template: `
         <label ngForm *ngIf="isInput()" [class.error]="hasError()" [class]="buildClassString()" [class.-has-linebreak]="hasLineBreak()">
-            <span *ngIf="!isCheckbox()">{{getLabel()}}</span>
+            <span>{{getLabel()}}</span>
             <uni-component-loader [type]="getType()" [config]="getConfig()"></uni-component-loader>
             <show-error [control]="getControl()" [messages]="getErrorMessages()"></show-error>
         </label>

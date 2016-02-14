@@ -10,6 +10,7 @@ declare var _;
 export class UniFieldBuilder {
     label:string = '';
     description:string = '';
+    url:string = '';
     model:any;
     field:string = '';
     type:Type = UniTextInput;
@@ -69,6 +70,16 @@ export class UniFieldBuilder {
 
     setLabel(label:string) {
         this.label = label;
+        return this;
+    }
+    
+    setDescription(description:string) {
+        this.description = description;
+        return this;
+    }
+    
+    setUrl(url:string) {
+        this.url = url;
         return this;
     }
 
