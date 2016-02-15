@@ -1,5 +1,5 @@
 export class Guid {
-    constructor (public guid: string) {
+    constructor(public guid: string) {
         this._guid = guid;
     }
 
@@ -9,7 +9,6 @@ export class Guid {
         return this.guid;
     }
 
-    // Static member
     static MakeNew(): Guid {
         var result: string;
         var i: string;
@@ -17,8 +16,9 @@ export class Guid {
 
         result = "";
         for (j = 0; j < 32; j++) {
-            if (j == 8 || j == 12 || j == 16 || j == 20)
-                result = result + '-';
+            if (j === 8 || j === 12 || j === 16 || j === 20) {
+                result = result + "-";
+            }
             i = Math.floor(Math.random() * 16).toString(16).toUpperCase();
             result = result + i;
         }

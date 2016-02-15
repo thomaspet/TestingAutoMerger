@@ -1,8 +1,8 @@
-import {Component, Input} from 'angular2/core';
+import {Component, Input} from "angular2/core";
 import {UniFieldBuilder} from "../../forms/builders/uniFieldBuilder";
 
 @Component({
-    selector: 'uni-text',
+    selector: "uni-text",
     template: `
         <input
             type="text"
@@ -14,7 +14,7 @@ import {UniFieldBuilder} from "../../forms/builders/uniFieldBuilder";
 })
 export class UniTextInput {
     @Input()
-    config:UniFieldBuilder;
+    config: UniFieldBuilder;
 
     constructor() {
     }
@@ -23,7 +23,7 @@ export class UniTextInput {
         this.config.fieldComponent = this;
     }
 
-    refresh(value) {
+    refresh(value: any) {
         this.config.control.updateValue(value, {});
     }
 }

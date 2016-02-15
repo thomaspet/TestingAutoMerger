@@ -1,10 +1,10 @@
-import {Component, Output, EventEmitter, ViewChild} from 'angular2/core';
-import {Control} from 'angular2/common';
-import {TreeListItem} from '../../../../../framework/treeList/treeListItem';
-import {TreeList, TREE_LIST_TYPE} from '../../../../../framework/treeList/treeList';
-import {UniHttpService} from '../../../../../framework/data/uniHttpService';
-import {UniTable, UniTableConfig} from '../../../../../framework/uniTable';
-import {DropdownConfig, UniDropdown} from '../../../../../framework/controls/dropdown/dropdown';
+import {Component, Output, EventEmitter, ViewChild} from "angular2/core";
+import {Control} from "angular2/common";
+import {TreeListItem} from "../../../../../framework/treeList/treeListItem";
+import {TreeList, TREE_LIST_TYPE} from "../../../../../framework/treeList/treeList";
+import {UniHttpService} from "../../../../../framework/data/uniHttpService";
+import {UniTableConfig} from "../../../../../framework/uniTable";
+import {UniDropdown} from "../../../../../framework/controls/dropdown/dropdown";
 
 enum SETTINGS_ADD_NEW {
     ACCOUNTGROUP,//0
@@ -26,15 +26,15 @@ export class AccountList {
     accountgroups;
     config;
     addDropdownControl = new Control(-1);
- 
-    constructor(private http:UniHttpService) {     
+
+    constructor(private http: UniHttpService) {
         var kendoDropdownConfig = {
             delay: 50,
             dataTextField: 'name',
             dataValueField: 'action',
             dataSource: [
-                { action: SETTINGS_ADD_NEW.ACCOUNTGROUP, name: 'Ny kontogruppe' },
-                { action: SETTINGS_ADD_NEW.ACCOUNT, name: 'Ny hovedbokskonto' },
+                {action: SETTINGS_ADD_NEW.ACCOUNTGROUP, name: 'Ny kontogruppe'},
+                {action: SETTINGS_ADD_NEW.ACCOUNT, name: 'Ny hovedbokskonto'},
             ],
             optionLabel: {action: -1, name: 'Select an action'},
             select: (event: kendo.ui.DropDownListSelectEvent) => {
@@ -42,31 +42,31 @@ export class AccountList {
                 switch (result.action) {
                     case SETTINGS_ADD_NEW.ACCOUNT:
                         this.uniAccountChange.emit(0);
-                        break;              
+                        break;
                     default:
                         break;
-                }               
+                }
             },
         };
 
         this.config = {
             control: this.addDropdownControl,
             kOptions: kendoDropdownConfig
-        }        
+        }
     }
-      
+
     loopAccountGroups(parentgroup, id) {
         this.accountgroups.forEach(accountgroup => {
             if (accountgroup.MainGroupID == id) {
                 var group = new TreeListItem(accountgroup.Name)
-                .setType(TREE_LIST_TYPE.LIST);
-                     
+                    .setType(TREE_LIST_TYPE.LIST);
+
                 if (parentgroup == null) {
                     this.accountListItems.push(group);
                 } else {
                     parentgroup.addTreeListItem(group);
                 }
-                                                      
+
                 // insert table
                 var tableConfig = new UniTableConfig(this.http.baseUrl + 'accounts', false, false)
                     .setOdata({
@@ -86,41 +86,40 @@ export class AccountList {
                         {field: 'AccountName', title: 'Kontonavn'},
                         {
                             field: null,
-                            title: '', 
-                            attributes: { "class": "icon-column" }, 
+                            title: '',
+                            attributes: {"class": "icon-column"},
                             template: '#if(!Visible) {#<span class="is-visible" role="presentation">Visible</span>#} else {#<span class="is-hidden" role="presentation">Hidden</span>#}# ' +
-                                      '#if(!Locked) {#<span class="is-locked" role="presentation">Locked</span>#} else {#<span class="is-unlocked" role="presentation">Unlocked</span>#}#'
+                            '#if(!Locked) {#<span class="is-locked" role="presentation">Locked</span>#} else {#<span class="is-unlocked" role="presentation">Unlocked</span>#}#'
                         }
                     ])
                     .setOnSelect(account => {
                         console.log(account);
                         this.uniAccountChange.emit(account.ID);
                     });
-                    
+
                 var list = new TreeListItem()
-                .setType(TREE_LIST_TYPE.TABLE)
-                .setContent(tableConfig);
-                 
+                    .setType(TREE_LIST_TYPE.TABLE)
+                    .setContent(tableConfig);
+
                 group.addTreeListItem(list);
                 this.loopAccountGroups(group, accountgroup.ID);
-            }        
-        });       
-   }
-           
-   ngOnInit() {
+            }
+        });
+    }
+
+    ngOnInit() {
         this.http.multipleRequests('GET', [
-            { resource: "accountgroups" }
+            {resource: "accountgroups"}
         ]).subscribe(
             (dataset) => {
                 this.accountgroups = dataset[0];
-                this.loopAccountGroups(null, null); 
+                this.loopAccountGroups(null, null);
             },
             (error) => console.log(error)
         );
     }
-        
-    showHide()
-    {
+
+    showHide() {
         this.treeList.showHideAll();
-    }    
+    }
 }

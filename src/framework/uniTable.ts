@@ -1,2 +1,2 @@
-export * from './uniTable/uniTable';
-export * from './uniTable/uniTableConfig';
+export * from "./uniTable/uniTable";
+export * from "./uniTable/uniTableConfig";

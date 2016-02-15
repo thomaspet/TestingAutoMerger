@@ -1,5 +1,5 @@
-import {Component, Input} from 'angular2/core';
-import {NgIf} from 'angular2/common';
+import {Component, Input} from "angular2/core";
+import {NgIf} from "angular2/common";
 
 /**
  * Displays error message that is attached to an invalid control
@@ -19,7 +19,8 @@ export class ShowError {
     @Input()
     messages;
 
-    constructor() {  }
+    constructor() {
+    }
 
     /**
      * Returns the first error message attached to an AbstractControl

@@ -1,5 +1,5 @@
-import {Injectable,Inject} from 'angular2/core';
-import { Observable } from 'rxjs/Observable';
+import {Injectable, Inject} from "angular2/core";
+import { Observable } from "rxjs/Observable";
 import {UniHttpService} from "./uniHttpService";
 import {UNI_CONTROL_TYPES} from '../../framework/controls/types';
 
@@ -9,14 +9,14 @@ export class EmployeeDS {
     expandedProperties = 'BusinessRelationInfo.Addresses,BusinessRelationInfo.Emails,BusinessRelationInfo.Phones,Employments.Localization.BusinessRelationInfo,BankAccounts,EmployeeCategoryLinks,VacationRateEmployee,Localization';
     //employees: Array<any> = [];
     
-    constructor(
-        @Inject(UniHttpService)
-        public http:UniHttpService) {
+
+    constructor(@Inject(UniHttpService)
+                public http: UniHttpService) {
     }
-    
-    get(id) {
+
+    get(id: number|string) {
         return this.http.get({
-            resource: "employees/"+id,
+            resource: "employees/" + id,
             expand: this.expandedProperties
         });
     }
@@ -67,10 +67,10 @@ export class EmployeeDS {
                     Legend: "",
                     Validations: [
                         {
-                            Value:"000000 00000",
+                            Value: "000000 00000",
                             ErrorMessage: "Social Security Number should fit the pattern",
                             Operator: "MASKED",
-                            Level:3
+                            Level: 3
                         },
                         {
                             ErrorMessage: "Required field",
@@ -98,7 +98,7 @@ export class EmployeeDS {
                         {
                             ErrorMessage: "should be a valid date",
                             Operator: "DATE",
-                            Level:3
+                            Level: 3
                         },
                         {
                             ErrorMessage: "Required field",

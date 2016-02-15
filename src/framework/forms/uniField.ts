@@ -1,6 +1,6 @@
-import {Component, Type, Input} from 'angular2/core';
-import {NgIf, NgForm} from 'angular2/common';
-import {UNI_CONTROL_DIRECTIVES} from '../controls';
+import {Component, Type, Input} from "angular2/core";
+import {NgIf, NgForm} from "angular2/common";
+import {UNI_CONTROL_DIRECTIVES} from "../controls";
 import {ShowError} from "../forms/showError";
 import {UniRadioGroup} from "../controls/radioGroup/uniRadioGroup";
 import {UniComponentLoader} from "../core/componentLoader";
@@ -12,7 +12,7 @@ declare var _;
  *
  */
 @Component({
-    selector: 'uni-field',
+    selector: "uni-field",
     directives: [UniComponentLoader, ShowError, UniRadioGroup, NgIf, NgForm],
     template: `
         <label ngForm *ngIf="isInput()" [class.error]="hasError()" [class]="buildClassString()" [class.-has-linebreak]="hasLineBreak()">
@@ -26,9 +26,10 @@ declare var _;
 export class UniField {
 
     @Input()
-    config:UniFieldBuilder;
+    config: UniFieldBuilder;
 
-    constructor() {}
+    constructor() {
+    }
 
     /**
      * Returns the actual config
@@ -89,12 +90,12 @@ export class UniField {
      * @param type
      * @returns {boolean}
      */
-    isRadioGroup(type:Type) {
+    isRadioGroup(type: Type) {
         return UNI_CONTROL_DIRECTIVES.indexOf(type) === 9;
     }
 
     /**
-     * Return true if it isn't a RadioGroup
+     * Return true if it isn"t a RadioGroup
      * @returns {boolean}
      */
     isInput() {
@@ -126,10 +127,10 @@ export class UniField {
     buildClassString() {
         var classes = [];
         var cls = this.config.classes;
-        for(var cl in cls) {
+        for (var cl in cls) {
             if (cls.hasOwnProperty(cl)) {
                 var value = undefined;
-                if(_.isFunction(cls[cl])) {
+                if (_.isFunction(cls[cl])) {
                     value = cls[cl]();
                 } else {
                     value = cls[cl];
