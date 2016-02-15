@@ -96,12 +96,12 @@ export class Employment {
                 dataTextField: 'styrk',
                 dataValueField: 'styrk'
             });
-            jobCode.onSelect((event) => {
+            jobCode.onSelect = (event) => {
                 var item:any = event.item;
                 var dataItem = event.sender.dataItem(item.index());
                 var fjn = <UniFieldBuilder>formbuilder.findFieldByPropertyName("JobName");
                 fjn.control.updateValue(dataItem.tittel, {});
-            });
+            };
             
             var jobName = this.buildField('Navn',employment,'JobName',UNI_CONTROL_TYPES.AUTOCOMPLETE);
             jobName.setKendoOptions({
@@ -109,12 +109,12 @@ export class Employment {
                dataTextField: 'tittel',
                dataValueField: 'tittel'
             });
-            jobName.onSelect((event) => {
+            jobName.onSelect = (event) => {
                 var item:any = event.item;
                 var dataItem = event.sender.dataItem(item.index());
                 var fjc = <UniFieldBuilder>formbuilder.findFieldByPropertyName("JobCode");
                 fjc.control.updateValue(dataItem.styrk, {});
-            });
+            };
             
             var startDate = this.buildField('Startdato',employment,'StartDate',UNI_CONTROL_TYPES.DATEPICKER);
             var endDate = this.buildField('Sluttdato',employment,'EndDate',UNI_CONTROL_TYPES.DATEPICKER);

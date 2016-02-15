@@ -32,8 +32,6 @@ export class UniFieldBuilder {
     componentLayoutID:number = 0;
     errorMessages:Array<any> = [];
     lineBreak:boolean = false;
-	select: (event:kendo.ui.AutoCompleteSelectEvent) => void;
-    change: (event:kendo.ui.AutoCompleteSelectEvent) => void;
     fieldComponent: any;
     onSelect: any;
     clearOnSelect: any;
@@ -157,14 +155,6 @@ export class UniFieldBuilder {
 
     config(): UniFieldBuilder {
         return this;
-    }
-    
-    onSelect(select: (event:kendo.ui.AutoCompleteSelectEvent) => void) {
-        this.select = select;
-    }
-    
-    onChange(change: (event:kendo.ui.AutoCompleteSelectEvent) => void) {
-        this.change = change;
     }
 
     refresh(value: any) {

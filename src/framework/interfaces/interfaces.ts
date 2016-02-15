@@ -1049,6 +1049,7 @@ export interface ICompanySettings {
 	VatLockedDate: Date;
 	WebAddress: string;
 	AccountGroupSetID: number;
+	AutoJournalPayment: boolean;
 	StatusID: number;
 	ID: number;
 	Deleted: boolean;
@@ -1739,6 +1740,27 @@ export interface IJournalEntryLineDraft {
 }
 
 
+export interface IPayment {
+	IsPaymentToSupplier: boolean;
+	BankAccountID: number;
+	CustomerID: number;
+	PaymentID: string;
+	Amount: number;
+	CurrencyID: number;
+	InvoiceNumber: string;
+	BankAccountNumberTarget: string;
+	ReconcilePayment: boolean;
+	AutoJournal: boolean;
+	StatusID: number;
+	ID: number;
+	Deleted: boolean;
+	BankAccount: IBankAccount;
+	Customer: ICustomer;
+	Currency: ICurrency;
+	CustomFields: any;
+}
+
+
 export interface IVatCodeGroup {
 	No: number;
 	Name: string;
@@ -1900,7 +1922,6 @@ export interface IAccount {
 	StatusID: number;
 	ID: number;
 	Deleted: boolean;
-	Alias: Array<IAccountAlias>;
 	Currency: ICurrency;
 	AccountGroup: IAccountGroup;
 	VatType: IVatType;
@@ -1910,6 +1931,7 @@ export interface IAccount {
 	Employee: IEmployee;
 	Dimensions: IDimensions;
 	SubAccountNumberSeries: INumberSeries;
+	Alias: Array<IAccountAlias>;
 	CompatibleAccountGroups: Array<IAccountGroup>;
 	SubAccounts: Array<IAccount>;
 	CustomFields: any;
