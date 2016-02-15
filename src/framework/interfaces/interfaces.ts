@@ -1749,6 +1749,17 @@ export interface IVatCodeGroup {
 }
 
 
+export interface IVatReportReference {
+	VatTypeID: number;
+	Post: string;
+	StatusID: number;
+	ID: number;
+	Deleted: boolean;
+	VatType: IVatType;
+	CustomFields: any;
+}
+
+
 export interface IPostPost {
 	JournalEntryInvoiceID: number;
 	JournalEntryBankID: number;
