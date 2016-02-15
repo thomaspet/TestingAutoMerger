@@ -52,6 +52,7 @@
     "request": "^2.69.0",
     "rimraf": "^2.4.3",
     "run-sequence": "^1.1.4",
+    "tslint": "^3.3.0",
     "typescript": "^1.6.2"
   }
 }
