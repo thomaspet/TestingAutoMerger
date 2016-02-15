@@ -159,6 +159,7 @@ export class UniFieldBuilder {
     
     onChange(change: (event:kendo.ui.AutoCompleteSelectEvent) => void) {
         this.change = change;
+    }
 
     refresh(value:any) {
         this.fieldComponent.refresh(value);

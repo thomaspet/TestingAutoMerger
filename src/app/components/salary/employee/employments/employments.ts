@@ -120,17 +120,24 @@ export class Employment {
             var hourRate = this.buildField('Timelønn',employment,'HourRate',UNI_CONTROL_TYPES.NUMERIC);
             var workPercent = this.buildField('Stillingprosent',employment,'WorkPercent',UNI_CONTROL_TYPES.NUMERIC);
             
-            if(typeof employment.Localization !== "undefined") 
-            {
-                if(typeof employment.Localization.BusinessRelationInfo !== "undefined")
-                {
-                    var localization = this.buildField('Lokalitet',employment.Localization.BusinessRelationInfo,'Name',UNI_CONTROL_TYPES.TEXT);
-                }
-            }
-            else 
-            {
-                var localization = this.buildField('Lokalitet',employment,'LocalizationID',UNI_CONTROL_TYPES.NUMERIC);
-            }
+            var localization = this.buildField('Lokalitet',employment,'LocalizationID',UNI_CONTROL_TYPES.COMBOBOX);
+            localization.setKendoOptions({
+                dataSource:  this.workingHoursScheme,
+                dataTextField: 'Navn',
+                dataValueField: 'ID'
+            });
+            
+            // if(typeof employment.Localization !== "undefined") 
+            // {
+            //     if(typeof employment.Localization.BusinessRelationInfo !== "undefined")
+            //     {
+            //         var localization = this.buildField('Lokalitet',employment.Localization.BusinessRelationInfo,'Name',UNI_CONTROL_TYPES.TEXT);
+            //     }
+            // }
+            // else 
+            // {
+            //     var localization = this.buildField('Lokalitet',employment,'LocalizationID',UNI_CONTROL_TYPES.NUMERIC);
+            // }
             
             var readgroup = this.buildGroupForm(employment);
             
