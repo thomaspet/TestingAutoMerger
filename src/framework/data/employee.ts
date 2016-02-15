@@ -175,32 +175,8 @@ export class EmployeeDS {
                 {
                     ComponentLayoutID: 1,
                     EntityType: "Employee",
-                    Property: "MunicipalityNumber",
-                    Placement: 6,
-                    Hidden: false,
-                    FieldType: UNI_CONTROL_TYPES.TEXT,
-                    ReadOnly: false,
-                    LookupField: false,
-                    Label: "Kommunenr",
-                    Description: null,
-                    HelpText: null,
-                    FieldSet: 0,
-                    Section: 0,
-                    Legend: "",
-                    IsLookUp: false,
-                    Validations: [
-                        {
-                            ErrorMessage: "Required field",
-                            Level: 3,
-                            Operator: "REQUIRED"
-                        }
-                    ]
-                },
-                {
-                    ComponentLayoutID: 1,
-                    EntityType: "Employee",
                     Property: "LocalizationID",
-                    Placement: 7,
+                    Placement: 6,
                     Hidden: false,
                     FieldType: UNI_CONTROL_TYPES.TEXT,
                     ReadOnly: false,
@@ -224,7 +200,7 @@ export class EmployeeDS {
                     ComponentLayoutID: 1,
                     EntityType: "Employee",
                     Property: "",
-                    Placement: 8,
+                    Placement: 7,
                     Hidden: false,
                     FieldType: UNI_CONTROL_TYPES.TEXT,
                     ReadOnly: false,
@@ -366,21 +342,304 @@ export class EmployeeDS {
                             Operator: "REQUIRED"
                         }
                     ]
+                },
+                {
+                    ComponentLayoutID: 1,
+                    EntityType: "Employee",
+                    Property: "BusinessRelationInfo.Emails[0].EmailAddress",
+                    Placement: 6,
+                    Hidden: false,
+                    FieldType: UNI_CONTROL_TYPES.TEXT,
+                    ReadOnly: false,
+                    LookupField: false,
+                    Label: "Epost",
+                    Description: null,
+                    HelpText: null,
+                    FieldSet: 0,
+                    Section: 1,
+                    Legend: "",
+                    IsLookUp: false,
+                    Validations: [
+                        {
+                            ErrorMessage: "Required field",
+                            Level: 3,
+                            Operator: "REQUIRED"
+                        }
+                    ]
+                },
+                {
+                    ComponentLayoutID: 1,
+                    EntityType: "Employee",
+                    Property: "BusinessRelationInfo.Phones[0].LandCode",
+                    Placement: 7,
+                    Hidden: false,
+                    FieldType: UNI_CONTROL_TYPES.TEXT,
+                    ReadOnly: false,
+                    LookupField: false,
+                    Label: "Landkode",
+                    Description: null,
+                    HelpText: null,
+                    FieldSet: 0,
+                    Section: 1,
+                    Legend: "",
+                    IsLookUp: false,
+                    Validations: [
+                        {
+                            ErrorMessage: "Required field",
+                            Level: 3,
+                            Operator: "REQUIRED"
+                        }
+                    ]
+                },
+                {
+                    ComponentLayoutID: 1,
+                    EntityType: "Employee",
+                    Property: "BusinessRelationInfo.Phones[0].Number",
+                    Placement: 8,
+                    Hidden: false,
+                    FieldType: UNI_CONTROL_TYPES.TEXT,
+                    ReadOnly: false,
+                    LookupField: false,
+                    Label: "Telefon",
+                    Description: null,
+                    HelpText: null,
+                    FieldSet: 0,
+                    Section: 1,
+                    Legend: "",
+                    IsLookUp: false,
+                    Validations: [
+                        {
+                            ErrorMessage: "Required field",
+                            Level: 3,
+                            Operator: "REQUIRED"
+                        }
+                    ]
+                },
+                {
+                    ComponentLayoutID: 1,
+                    EntityType: "Employee",
+                    Property: "TaxTable",
+                    Placement: 1,
+                    Hidden: false,
+                    FieldType: UNI_CONTROL_TYPES.TEXT,
+                    ReadOnly: false,
+                    LookupField: false,
+                    Label: "Skattetabell",
+                    Description: null,
+                    HelpText: null,
+                    FieldSet: 0,
+                    Section: 2,
+                    Legend: "SKATTEKORT",
+                    IsLookUp: false,
+                    openByDefault: true,
+                    Validations: [
+                        {
+                            ErrorMessage: "Required field",
+                            Level: 3,
+                            Operator: "REQUIRED"
+                        }
+                    ]
+                },
+                {
+                    ComponentLayoutID: 1,
+                    EntityType: "Employee",
+                    Property: "TaxPercentage",
+                    Placement: 2,
+                    Hidden: false,
+                    FieldType: UNI_CONTROL_TYPES.NUMERIC,
+                    ReadOnly: false,
+                    LookupField: false,
+                    Label: "Skatteprosent",
+                    Description: null,
+                    HelpText: null,
+                    FieldSet: 0,
+                    Section: 2,
+                    Legend: "",
+                    IsLookUp: false,
+                    Validations: [
+                        {
+                            ErrorMessage: "Required field",
+                            Level: 3,
+                            Operator: "REQUIRED"
+                        }
+                    ]
+                },
+                {
+                    ComponentLayoutID: 1,
+                    EntityType: "Employee",
+                    Property: "NonTaxableAmount",
+                    Placement: 3,
+                    Hidden: false,
+                    FieldType: UNI_CONTROL_TYPES.NUMERIC,
+                    ReadOnly: false,
+                    LookupField: false,
+                    Label: "Fri inntekt",
+                    Description: null,
+                    HelpText: null,
+                    FieldSet: 0,
+                    Section: 2,
+                    Legend: "",
+                    IsLookUp: false,
+                    Validations: [
+                        {
+                            ErrorMessage: "Required field",
+                            Level: 3,
+                            Operator: "REQUIRED"
+                        }
+                    ]
+                },
+                {
+                    ComponentLayoutID: 1,
+                    EntityType: "Employee",
+                    Property: "",
+                    Placement: 4,
+                    Hidden: false,
+                    FieldType: UNI_CONTROL_TYPES.CHECKBOX,
+                    ReadOnly: false,
+                    LookupField: false,
+                    Label: "Biarbeidsgiver",
+                    Description: null,
+                    HelpText: "ikke implementert",
+                    FieldSet: 0,
+                    Section: 2,
+                    Legend: "",
+                    IsLookUp: false,
+                    Validations: [
+                        {
+                            ErrorMessage: "Required field",
+                            Level: 3,
+                            Operator: "REQUIRED"
+                        }
+                    ]
+                },
+                {
+                    ComponentLayoutID: 1,
+                    EntityType: "Employee",
+                    Property: "MunicipalityNumber",
+                    Placement: 5,
+                    Hidden: false,
+                    FieldType: UNI_CONTROL_TYPES.TEXT,
+                    ReadOnly: false,
+                    LookupField: false,
+                    Label: "Kommunenr",
+                    Description: null,
+                    HelpText: null,
+                    FieldSet: 0,
+                    Section: 2,
+                    Legend: "",
+                    IsLookUp: false,
+                    Validations: [
+                        {
+                            ErrorMessage: "Required field",
+                            Level: 3,
+                            Operator: "REQUIRED"
+                        }
+                    ]
+                },
+                {
+                    ComponentLayoutID: 1,
+                    EntityType: "Employee",
+                    Property: "InternationalID",
+                    Placement: 1,
+                    Hidden: false,
+                    FieldType: UNI_CONTROL_TYPES.TEXT,
+                    ReadOnly: false,
+                    LookupField: false,
+                    Label: "Nummer",
+                    Description: null,
+                    HelpText: null,
+                    FieldSet: 1,
+                    Section: 3,
+                    Legend: "INTERNASJONAL ID/BANK",
+                    FieldsetLegend: "Internasjonal ID",
+                    IsLookUp: false,
+                    Validations: [
+                        {
+                            ErrorMessage: "Required field",
+                            Level: 3,
+                            Operator: "REQUIRED"
+                        }
+                    ]
+                },
+                {
+                    ComponentLayoutID: 1,
+                    EntityType: "Employee",
+                    Property: "InternationalIDType",
+                    Placement: 2,
+                    Hidden: false,
+                    FieldType: UNI_CONTROL_TYPES.TEXT,
+                    ReadOnly: false,
+                    LookupField: false,
+                    Label: "Type",
+                    Description: null,
+                    HelpText: null,
+                    FieldSet: 1,
+                    Section: 3,
+                    Legend: null,
+                    FieldsetLegend: null,
+                    IsLookUp: false,
+                    Validations: [
+                        {
+                            ErrorMessage: "Required field",
+                            Level: 3,
+                            Operator: "REQUIRED"
+                        }
+                    ]
+                },
+                {
+                    ComponentLayoutID: 1,
+                    EntityType: "Employee",
+                    Property: "InternationalIDCountry",
+                    Placement: 3,
+                    Hidden: false,
+                    FieldType: UNI_CONTROL_TYPES.TEXT,
+                    ReadOnly: false,
+                    LookupField: false,
+                    Label: "Utstedelsesland",
+                    Description: null,
+                    HelpText: null,
+                    FieldSet: 1,
+                    Section: 3,
+                    Legend: null,
+                    FieldsetLegend: null,
+                    IsLookUp: false,
+                    Validations: [
+                        {
+                            ErrorMessage: "Required field",
+                            Level: 3,
+                            Operator: "REQUIRED"
+                        }
+                    ]
+                },
+                {
+                    ComponentLayoutID: 1,
+                    EntityType: "Employee",
+                    Property: "TaxTable",
+                    Placement: 1,
+                    Hidden: false,
+                    FieldType: UNI_CONTROL_TYPES.TEXT,
+                    ReadOnly: false,
+                    LookupField: false,
+                    Label: "IBAN / Kontonr.",
+                    Description: null,
+                    HelpText: null,
+                    FieldSet: 2,
+                    Section: 3,
+                    Legend: null,
+                    FieldsetLegend: "Internasjonal bankkonto",
+                    IsLookUp: false,
+                    openByDefault: true,
+                    Validations: [
+                        {
+                            ErrorMessage: "Required field",
+                            Level: 3,
+                            Operator: "REQUIRED"
+                        }
+                    ]
                 }
                 
                 /* 
                 Add fields for
-                ---------KONTAKTINFORMASJON------------
-                - Epost
-                - Retningsnummer (+47)
-                - Telefon
-                -----------SKATTEKORT--------------
-                - Skattetabell
-                - Skatteprosent
-                - Fri inntekt
-                - Biarbeidsgiver
-                - Kommunenr
-                ----------INTERNASJONAL ID/BANK--------
                 --------SPESIALINNSTILLINGER FOR DEN ANSATTE----
                 */ 
             ]

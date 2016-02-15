@@ -40,16 +40,21 @@ export class UniFormLayoutBuilder {
                         group = UniGroupBuilder.fromLayoutConfig(element); //UniGroup
                         layout.addField(group);
                     }
+                    
                     var fieldset = group.findFieldset(element.FieldSet);
                     if (!fieldset) {
                         fieldset = UniFieldsetBuilder.fromLayoutConfig(element); //Fieldset
                         group.addField(fieldset);
                     }
-                    var combogroup = layout.findComboGroup(element.FieldSet);
-                    if (!combogroup) {
-                        combogroup = UniComboGroupBuilder.fromLayoutConfig(element); //Fieldset, UniComboGroup
-                        group.addField(combogroup);
-                    }
+                    
+                    fieldset.addField(UniFieldBuilder.fromLayoutConfig(element, model));//Element to add to unifield
+                    
+                    // var combogroup = layout.findComboGroup(element.FieldSet);
+                    // if (!combogroup) {
+                    //     combogroup = UniComboGroupBuilder.fromLayoutConfig(element); //Fieldset, UniComboGroup
+                    //     group.addField(combogroup);
+                    // }
+                    
                 }
             }
         });

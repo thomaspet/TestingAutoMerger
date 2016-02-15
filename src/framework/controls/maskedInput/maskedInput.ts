@@ -36,8 +36,6 @@ export class UniMaskedInput implements AfterViewInit, OnDestroy {
         var control = this.config.control;
         var options = this.config.kOptions;
 
-console.log("config maskedinput after view",this.config);
-
         options.change = function (event) {
             var val = this.value();
             control.updateValue(this.raw(), {});

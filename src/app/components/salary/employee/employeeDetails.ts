@@ -34,7 +34,7 @@ const CHILD_ROUTES = [
 @RouteConfig(CHILD_ROUTES)
 export class EmployeeDetails {
 	employee: any = {};
-    empJSON;
+    //empJSON;
     childRoutes: RouteDefinition[];
     	
 	constructor(private routeParams: RouteParams, private employeeDS:EmployeeDS) {
@@ -49,7 +49,7 @@ export class EmployeeDetails {
             .subscribe((response) => {
                 this.employee = response;
                 console.log("employee", response);
-                this.empJSON = JSON.stringify(this.employee.BusinessRelationInfo);
+                //this.empJSON = JSON.stringify(this.employee.BusinessRelationInfo);
             }, error => console.log(error));
     }
     

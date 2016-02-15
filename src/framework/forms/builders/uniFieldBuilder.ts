@@ -57,7 +57,7 @@ export class UniFieldBuilder {
         ufb.fieldType = UniField;
         ufb.type = UNI_CONTROL_DIRECTIVES[element.FieldType];
         ufb.lineBreak = element.hasLineBreak || false;
-        console.log("element in fromLayoutConfig", element);
+        
         if(element.kendoOptions != undefined) {
             ufb.kOptions = element.kendoOptions;
         }
@@ -106,8 +106,6 @@ export class UniFieldBuilder {
 
     setKendoOptions(kOptions:any) {
         this.kOptions = kOptions;
-        console.log("kOptions unifieldbuilder in", kOptions);
-        console.log("kOptions unifieldbuilder", this.kOptions);
         return this;
     }
 

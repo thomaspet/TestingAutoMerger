@@ -13,24 +13,14 @@ export class UniFieldsetBuilder {
     classes = [];
 
     static fromLayoutConfig(element:any):UniFieldsetBuilder {
-        var ufb = new UniFieldsetBuilder();
+        var ufsb = new UniFieldsetBuilder();
+        //console.log("fieldset legend", element);
+        ufsb.fieldsetIndex = element.FieldSet;
+        ufsb.sectionIndex = element.Section;
+        ufsb.legend = element.FieldsetLegend;
+        ufsb.fieldType = UniFieldset;
 
-        //ufb.label = element.Label;
-        //ufb.description = element.Description;
-        //ufb.readonly = element.ReadOnly;
-        //ufb.isLookup = element.LookupField;
-        //ufb.helpText = element.helpText;
-        ufb.fieldsetIndex = element.FieldSet;
-        ufb.sectionIndex = element.Section;
-        ufb.legend = element.Legend;
-        //ufb.hidden = element.Hidden;
-        //ufb.placement = element.placement;
-        //ufb.entityType = element.EntityType;
-        //ufb.componentLayoutID = element.ComponentLayoutID;
-        //ufb.field = element.Property;
-        ufb.fieldType = UniFieldset;
-
-        return ufb;
+        return ufsb;
     }
 
     constructor(legend?:string) {
