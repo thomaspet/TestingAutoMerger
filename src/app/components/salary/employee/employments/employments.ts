@@ -75,6 +75,7 @@ export class Employment {
             styrkcodesDS.getCodes()
         ).subscribe((response)=>{
             let [employee,codes] = response;
+            console.log("employee from constructor",employee);
             this.currentEmployee = employee;
             this.styrkCodes = codes;
             this.buildFormConfigs();

@@ -17,24 +17,25 @@ export class UniGroupBuilder {
     classes = [];
 
     static fromLayoutConfig(element:any):UniGroupBuilder {
-        var ufb = new UniGroupBuilder();
+        var ugb = new UniGroupBuilder();
 
         //ufb.label = element.Label;
         //ufb.description = element.Description;
         //ufb.readonly = element.ReadOnly;
         //ufb.isLookup = element.LookupField;
         //ufb.helpText = element.helpText;
-        ufb.fieldsetIndex = element.FieldSet;
-        ufb.sectionIndex = element.Section;
-        ufb.legend = element.Legend;
+        ugb.fieldsetIndex = element.FieldSet;
+        ugb.sectionIndex = element.Section;
+        ugb.legend = element.Legend;
         //ufb.hidden = element.Hidden;
         //ufb.placement = element.placement;
         //ufb.entityType = element.EntityType;
         //ufb.componentLayoutID = element.ComponentLayoutID;
         //ufb.field = element.Property;
-        ufb.fieldType = UniGroup;
+        ugb.collapsed = element.openByDefault;
+        ugb.fieldType = UniGroup;
 
-        return ufb;
+        return ugb;
     }
 
     constructor(legend?:string) {
