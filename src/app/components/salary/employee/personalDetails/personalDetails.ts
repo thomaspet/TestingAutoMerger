@@ -21,9 +21,9 @@ import 'rxjs/add/operator/merge';
     directives: [UniComponentLoader],
     template: `
         <div class="application employee">
-            <button (click)="toggleMode()">Toogle edit mode</button>
+            <!--<button (click)="toggleMode()">Toogle edit mode</button>-->
             <uni-component-loader></uni-component-loader>
-            <button type="button" (click)="executeSubmit()" [disabled]="!isValid()">Submit</button>
+            <!--<button type="button" (click)="executeSubmit()" [disabled]="!isValid()">Submit</button>-->
         </div>
     `
 })

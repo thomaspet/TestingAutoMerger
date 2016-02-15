@@ -30,9 +30,11 @@ const CHILD_ROUTES = [
     providers: [provide(EmployeeDS,{useClass: EmployeeDS}), provide(STYRKCodesDS, {useClass: STYRKCodesDS})],
     directives: [ROUTER_DIRECTIVES, WidgetPoster, UniTabs]
 })
+
 @RouteConfig(CHILD_ROUTES)
 export class EmployeeDetails {
 	employee: any = {};
+    empJSON;
     childRoutes: RouteDefinition[];
     	
 	constructor(private routeParams: RouteParams, private employeeDS:EmployeeDS) {
@@ -42,7 +44,13 @@ export class EmployeeDetails {
     ngOnInit() {
         var employeeID = this.routeParams.get('id');
         this.employeeDS.get(employeeID)
-            .subscribe (response => this.employee = response, error => console.error(error));
+            //.subscribe (response => this.employee = response, error => console.error(error));
+            
+            .subscribe((response) => {
+                this.employee = response;
+                console.log("employee", response);
+                this.empJSON = JSON.stringify(this.employee.BusinessRelationInfo);
+            }, error => console.log(error));
     }
     
     onFormSubmit(value) {
