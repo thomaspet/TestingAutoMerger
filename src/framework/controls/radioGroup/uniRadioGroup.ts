@@ -1,8 +1,10 @@
 import {Component} from 'angular2/core';
+import {InputTemplateString} from "../inputTemplateString";
+import {Input} from 'angular2/core';
+import {UniFieldBuilder} from "../../forms/builders/uniFieldBuilder";
 
 @Component({
     selector: 'uni-radio-group',
-    inputs: ['config'],
     template: `
         <fieldset>
             <legend *ngIf="config.label">{{config.label}}</legend>
@@ -25,13 +27,22 @@ import {Component} from 'angular2/core';
     `
 })
 export class UniRadioGroup {
-    config;
+    @Input()
+    config:UniFieldBuilder;
 
     constructor() {
 
     }
 
-    updateFormValue(control,value) {
+    ngOnInit() {
+        this.config.fieldComponent = this;
+    }
+
+    refresh(value) {
+        this.updateFormValue(this.config.control, value);
+    }
+
+    updateFormValue(control, value) {
         control.updateValue(value);
     }
 }

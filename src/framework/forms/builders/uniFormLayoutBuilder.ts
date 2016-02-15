@@ -1,4 +1,4 @@
-import {UniFormBuilder, UniFieldBuilder, UniFieldsetBuilder, UniGroupBuilder} from '../../forms';
+import {UniFormBuilder, UniFieldBuilder, UniFieldsetBuilder, UniGroupBuilder, UniComboGroupBuilder} from '../../forms';
 import {IComponentLayout, IFieldLayout} from "../../interfaces/interfaces";
 
 /**
@@ -45,7 +45,11 @@ export class UniFormLayoutBuilder {
                         fieldset = UniFieldsetBuilder.fromLayoutConfig(element); //Fieldset
                         group.addField(fieldset);
                     }
-                    fieldset.addField(UniFieldBuilder.fromLayoutConfig(element, model));
+                    var combogroup = layout.findComboGroup(element.FieldSet);
+                    if (!combogroup) {
+                        combogroup = UniComboGroupBuilder.fromLayoutConfig(element); //Fieldset, UniComboGroup
+                        group.addField(combogroup);
+                    }
                 }
             }
         });

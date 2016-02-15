@@ -1,19 +1,16 @@
 import {Component, Input} from 'angular2/core';
+import {UniFieldBuilder} from "../../forms/builders/uniFieldBuilder";
 
 @Component({
-    selector: 'uni-email',
+    selector: 'uni-hyperlink',
     template: `
-        <input
-            type="email"
-            [ngFormControl]="config.control"
-            [readonly]="config.readonly"
-            [disabled]="config.disabled"
-        />
+        <a [href]="config.url"
+        >{{config.description}}</a>
     `
 })
-export class UniEmailInput {
+export class UniHyperlink {
     @Input()
-    config:any;
+    config:UniFieldBuilder;
 
     constructor() {
     }

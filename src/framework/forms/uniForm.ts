@@ -7,6 +7,7 @@ import {UniField} from './uniField';
 import {UniFieldBuilder} from './builders/uniFieldBuilder';
 import {UniFieldset} from './uniFieldset';
 import {UniGroup} from './uniGroup';
+import {UniComboGroup} from './uniComboGroup';
 import {UniComponentLoader} from "../core/componentLoader";
 import {MessageComposer} from "./composers/messageComposer";
 import {ValidatorsComposer} from "./composers/validatorsComposer";
@@ -21,7 +22,7 @@ declare var _; //lodash
  */
 @Component({
     selector: 'uni-form',
-    directives: [FORM_DIRECTIVES, UniField, UniFieldset, UniGroup, UniComponentLoader],
+    directives: [FORM_DIRECTIVES, UniField, UniFieldset, UniGroup, UniComboGroup, UniComponentLoader],
     providers: [FORM_PROVIDERS],
     template: `
         <form (submit)="submit()" [ngFormModel]="form" [class]="buildClassString()" [class.error]="hasErrors()">
@@ -103,6 +104,15 @@ export class UniForm implements OnInit {
     }
 
     /**
+     * return form value
+     *
+     * @returns {any}
+     */
+    getValue() {
+        return this.form.value;
+    }
+
+    /**
      * returns true is submit button should be hidden
      * @returns {boolean}
      */
@@ -177,6 +187,30 @@ export class UniForm implements OnInit {
                 _.set(model, fieldPath, value);
             } else {
                 this.updateModel(field.fields, formValue);
+            }
+        }
+    }
+
+    /**
+     * Updates the model
+     *
+     * @param new model
+     * @param config Form Config
+     * @param formValue Form value
+     */
+    refresh(newModel, config?, formValue?) {
+        var config = config || this.config.fields;
+        var formValue = formValue || this.form.value;
+
+        for (let i = 0; i < config.length; i++) {
+            let field = config[i];
+            if (field instanceof UniFieldBuilder) {
+                field.model = newModel;
+                var fieldPath = field.field;
+                var value = _.get(newModel, fieldPath);
+                field.refresh(value);
+            } else {
+                this.refresh(newModel, field.fields, formValue);
             }
         }
     }

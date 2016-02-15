@@ -4,12 +4,12 @@ import { Observable } from 'rxjs/Observable';
 import 'rxjs/observable/fromEvent';
 
 import {InputTemplateString} from '../inputTemplateString';
+import {UniFieldBuilder} from "../../forms/builders/uniFieldBuilder";
 
 declare var jQuery;
 
-export interface AutocompleteConfig {
-    control?: Control;
-    select?: Function;
+export interface AutocompleteConfig extends UniFieldBuilder {
+    onSelect?: Function;
     clearOnSelect?: boolean;
     kOptions: kendo.ui.AutoCompleteOptions;
 }
@@ -21,12 +21,19 @@ export interface AutocompleteConfig {
 export class UniAutocomplete implements AfterViewInit, OnDestroy {
     @Input() config:AutocompleteConfig;
     nativeElement;
+    autocomplete;
 
     constructor(public elementRef:ElementRef) {
         this.nativeElement = jQuery(this.elementRef.nativeElement);
     }
 
+    refresh(value) {
+         value = value[this.config.kOptions.dataTextField] || value;
+        this.autocomplete.value(value);
+    }
+
     ngAfterViewInit() {
+        this.config.fieldComponent = this;
         var self = this;
         var control = this.config.control;
         var options:kendo.ui.AutoCompleteOptions = this.config.kOptions;
@@ -45,11 +52,11 @@ export class UniAutocomplete implements AfterViewInit, OnDestroy {
             var dataItem = event.sender.dataItem(item.index());
 
             if (control) {
-                control.updateValue(dataItem.toJSON());
+                control.updateValue(dataItem.toJSON(), {});
             }
 
-            if (self.config.select) {
-                self.config.select(event);
+            if (self.config.onSelect) {
+                self.config.onSelect(event, dataItem);
             }
 
             validSelection = true;
@@ -60,13 +67,14 @@ export class UniAutocomplete implements AfterViewInit, OnDestroy {
             if (!validSelection || self.config.clearOnSelect) {
                 event.sender.value('');
                 if (control) {
-                    control.updateValue(undefined,{});
+                    control.updateValue(undefined, {});
                 }
             }
         };
 
         var autocomplete = this.nativeElement.find('input').first().kendoAutoComplete(options).data('kendoAutoComplete');
         autocomplete.value(control.value[this.config.kOptions.dataTextField]);
+        this.autocomplete = autocomplete;
     }
 
     // Remove kendo markup when component is destroyed to avoid duplicates

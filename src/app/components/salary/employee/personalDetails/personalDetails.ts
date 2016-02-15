@@ -16,6 +16,8 @@ import {UniComponentLoader} from '../../../../../framework/core';
 import {Observable} from 'rxjs/Observable';
 import 'rxjs/add/operator/merge';
 
+declare var _;
+
 @Component({
     selector: 'employee-personal-details',
     directives: [UniComponentLoader],
@@ -73,8 +75,10 @@ export class PersonalDetails {
     }
 
     executeSubmit() {
-        this.formInstance.updateModel();
-        console.log(this.formInstance.form.value);
+        this.employee = _.merge({},this.employee,{BusinessRelationInfo:{Name:"Jorge"}});
+        this.formInstance.refresh(this.employee);
+        console.log(this.employee);
+        //this.formInstance.updateModel();
     }
 
     toggleMode() {

@@ -1,7 +1,7 @@
 import {Component, Input} from 'angular2/core';
 
 @Component({
-    selector:'uni-password',
+    selector: 'uni-password',
     template: `
         <input
             type="password"
@@ -12,7 +12,17 @@ import {Component, Input} from 'angular2/core';
     `
 })
 export class UniPasswordInput {
-    @Input() config: any;
-    constructor() {}
+    @Input()
+    config:any;
 
+    constructor() {
+    }
+
+    ngOnInit() {
+        this.config.fieldComponent = this;
+    }
+
+    refresh(value) {
+        this.config.control.updateValue(value, {});
+    }
 }
