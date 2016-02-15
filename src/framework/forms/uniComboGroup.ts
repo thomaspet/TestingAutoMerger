@@ -1,9 +1,9 @@
-import {Component} from 'angular2/core';
-import {UniField} from './uniField';
+import {Component, Input} from "angular2/core";
+import {UniField} from "./uniField";
+import {UniFieldBuilder} from "./builders/uniFieldBuilder";
 
 @Component({
     selector: 'uni-combo-group',
-    inputs: ['config'],
     directives: [UniField],
     template: `<legend *ngIf="config.legend">{{config.legend}}</legend>
         <template ngFor #field [ngForOf]="config.fields" #i="index">
@@ -11,11 +11,13 @@ import {UniField} from './uniField';
         </template>`,
 })
 export class UniComboGroup {
+    @Input()
     config;
 
     constructor() {
     }
-    hasError(field) {
+
+    hasError(field: UniFieldBuilder) {
         return field.control.touched && !field.control.valid;
     }
 }

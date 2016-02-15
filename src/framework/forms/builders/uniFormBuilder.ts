@@ -46,7 +46,7 @@ export class UniFormBuilder {
         this.isSubmitButtonHidden = false;
     }
 
-    addClass(className: string , callback: boolean|((...params: Array<any>) => boolean)) {
+    addClass(className: string, callback: boolean|((...params: Array<any>) => boolean)) {
         this.classes[className] = callback;
         return this;
     }
@@ -55,7 +55,7 @@ export class UniFormBuilder {
         return this.fields;
     }
 
-    findFieldByPropertyName(name: string , collection?: any[]) {
+    findFieldByPropertyName(name: string, collection?: any[]) {
         if (!collection) {
             collection = this.fields;
         }
@@ -66,7 +66,7 @@ export class UniFormBuilder {
                     ret = element;
                 }
             } else {
-                this.findFieldByPropertyName(name , element.fields);
+                this.findFieldByPropertyName(name, element.fields);
             }
         });
         return ret;

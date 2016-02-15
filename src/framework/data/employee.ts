@@ -1,19 +1,19 @@
-import {Injectable,Inject} from 'angular2/core';
-import { Observable } from 'rxjs/Observable';
+import {Injectable, Inject} from "angular2/core";
+import { Observable } from "rxjs/Observable";
 import {UniHttpService} from "./uniHttpService";
 
 @Injectable()
 export class EmployeeDS {
-    expandedProperties = 'BusinessRelationInfo,Employments,BankAccounts,EmployeeCategoryLinks,VacationRateEmployee,Localization';
+    expandedProperties = "BusinessRelationInfo,Employments,BankAccounts,EmployeeCategoryLinks,VacationRateEmployee,Localization";
     employees: Array<any> = [];
-    constructor(
-        @Inject(UniHttpService)
-        public http:UniHttpService) {
+
+    constructor(@Inject(UniHttpService)
+                public http: UniHttpService) {
     }
-    
-    get(id) {
+
+    get(id: number|string) {
         return this.http.get({
-            resource: "employees/"+id,
+            resource: "employees/" + id,
             expand: this.expandedProperties
         });
     }
@@ -29,7 +29,7 @@ export class EmployeeDS {
                     Property: "BusinessRelationInfo.Name",
                     Placement: 1,
                     Hidden: false,
-                    FieldType: 10, //TEXT
+                    FieldType: 10, // text
                     ReadOnly: false,
                     LookupField: false,
                     Label: "Navn",
@@ -53,7 +53,7 @@ export class EmployeeDS {
                     Property: "SocialSecurityNumber",
                     Placement: 2,
                     Hidden: false,
-                    FieldType: 10, //MASKED
+                    FieldType: 10, // masked
                     ReadOnly: false,
                     LookupField: false,
                     Label: "Fødselsnummer",
@@ -64,10 +64,10 @@ export class EmployeeDS {
                     Legend: "",
                     Validations: [
                         {
-                            Value:"000000 00000",
+                            Value: "000000 00000",
                             ErrorMessage: "Social Security Number should fit the pattern",
                             Operator: "MASKED",
-                            Level:3
+                            Level: 3
                         },
                         {
                             ErrorMessage: "Required field",
@@ -82,7 +82,7 @@ export class EmployeeDS {
                     Property: "BirthDate",
                     Placement: 3,
                     Hidden: false,
-                    FieldType: 2, //DATEPICKER
+                    FieldType: 2, // datepicker
                     ReadOnly: false,
                     LookupField: false,
                     Label: "Fødselsdato",
@@ -95,7 +95,7 @@ export class EmployeeDS {
                         {
                             ErrorMessage: "should be a valid date",
                             Operator: "DATE",
-                            Level:3
+                            Level: 3
                         },
                         {
                             ErrorMessage: "Required field",
@@ -110,7 +110,7 @@ export class EmployeeDS {
                     Property: "Sex",
                     Placement: 4,
                     Hidden: false,
-                    FieldType: 10, //DROPDOWN
+                    FieldType: 10, // dropdown
                     ReadOnly: false,
                     LookupField: false,
                     Label: "Kjønn",
@@ -122,20 +122,20 @@ export class EmployeeDS {
                     IsLookUp: true,
                     LookUpValues: [
                         {
-                            value:"1",
-                            text:"Male"
+                            value: "1",
+                            text: "Male"
                         },
                         {
-                            value:"2",
-                            text:"Male"
+                            value: "2",
+                            text: "Male"
                         }
                     ],
                     Validations: [
                         {
                             ErrorMessage: "should be a valid value",
                             Operator: "SELECT",
-                            values: ["male","female"],
-                            Level:3
+                            values: ["male", "female"],
+                            Level: 3
                         },
                         {
                             ErrorMessage: "Required field",

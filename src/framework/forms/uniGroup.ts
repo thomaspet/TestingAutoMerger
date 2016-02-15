@@ -1,8 +1,7 @@
-import {Component} from 'angular2/core';
-import {UniComponentLoader} from '../core/componentLoader';
+import {Component} from "angular2/core";
+import {UniComponentLoader} from "../core/componentLoader";
 import {Input} from "angular2/core";
 import {IElementBuilder} from "./interfaces";
-import {UniGroupBuilder} from "./builders/uniGroupBuilder";
 
 declare var _;
 
@@ -11,7 +10,7 @@ declare var _;
  * It can contain UniFields and UniFieldsets
  */
 @Component({
-    selector: 'uni-group',
+    selector: "uni-group",
     directives: [UniComponentLoader],
     template: `
         <article class="formSection-collapsable" [ngClass]="{'-is-open':isCollapsed()}" [class]="buildClassString()">
@@ -81,7 +80,7 @@ export class UniGroup {
      * @param field
      * @returns {Type}
      */
-    getFieldType(field:IElementBuilder) {
+    getFieldType(field: IElementBuilder) {
         return field.fieldType;
     }
 
@@ -93,10 +92,10 @@ export class UniGroup {
     buildClassString() {
         var classes = [];
         var cls = this.config.classes;
-        for(var cl in cls) {
+        for (var cl in cls) {
             if (cls.hasOwnProperty(cl)) {
                 var value = undefined;
-                if(_.isFunction(cls[cl])) {
+                if (_.isFunction(cls[cl])) {
                     value = cls[cl]();
                 } else {
                     value = cls[cl];
