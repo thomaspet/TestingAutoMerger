@@ -1,27 +1,27 @@
 import {Component} from "angular2/core";
 import {Input} from "angular2/core";
 import {Type} from "angular2/core";
-import {OnInit} from "angular2/core";
+import {AfterViewInit} from "angular2/core";
 import {UniComponentLoader} from "../core/componentLoader";
 import {ViewChild} from "angular2/core";
 import {ComponentRef} from "angular2/core";
 
 @Component({
-    selector: 'UniModal',
+    selector: "uni-modal",
     directives: [UniComponentLoader],
     template:`
-        <dialog class=“uniModal” [attr.open]="isOpen()">
+        <dialog class=“uniModal” [attr.open]="isOpen">
             <button (click)="close()">Close</button>
             <uni-component-loader></uni-component-loader>
         </dialog>
     `
 })
-export class UniModal implements OnInit {
+export class UniModal implements AfterViewInit {
 
-    @Input()
+    @Input('config')
     config: any;
 
-    @Input()
+    @Input('type')
     componentType: Type;
 
     @ViewChild(UniComponentLoader)
@@ -33,7 +33,7 @@ export class UniModal implements OnInit {
 
     constructor() {}
 
-    ngOnInit() {
+    ngAfterViewInit() {
         this.unicmploader.load(this.componentType,(cmp: ComponentRef) => {
             cmp.instance.config = this.config;
             setTimeout(()=>{
@@ -41,8 +41,10 @@ export class UniModal implements OnInit {
             },100);
         });
 
-        document.addEventListener("keyup", e => {
-            if(e.keyCode === 27) this.isOpen = false
+        document.addEventListener("keyup", (e: any) => {
+            if(e.keyCode === 27) {
+                this.isOpen = false
+            }
         });
     }
 
