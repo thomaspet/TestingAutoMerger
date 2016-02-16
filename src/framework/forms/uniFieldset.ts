@@ -1,5 +1,5 @@
-import {Component, Input} from 'angular2/core';
-import {UniComponentLoader} from '../core/componentLoader';
+import {Component, Input} from "angular2/core";
+import {UniComponentLoader} from "../core/componentLoader";
 import {IElementBuilder} from "./interfaces";
 import {UniFieldsetBuilder} from "./builders/uniFieldsetBuilder";
 
@@ -9,7 +9,7 @@ declare var _;
  * Component that groups UniFields
  */
 @Component({
-    selector: 'uni-fieldset',
+    selector: "uni-fieldset",
     directives: [UniComponentLoader],
     template: `<fieldset [class]="buildClassString()">
         <legend *ngIf="getLegend()">{{getLegend()}}</legend>
@@ -24,9 +24,10 @@ declare var _;
 export class UniFieldset {
 
     @Input()
-    config:UniFieldsetBuilder;
+    config: UniFieldsetBuilder;
 
-    constructor() {}
+    constructor() {
+    }
 
     /**
      * Return true if the control of this field is invalid
@@ -62,7 +63,7 @@ export class UniFieldset {
      * @param field
      * @returns {Type}
      */
-    getFieldType(field:IElementBuilder) {
+    getFieldType(field: IElementBuilder) {
         return field.fieldType;
     }
 
@@ -74,10 +75,10 @@ export class UniFieldset {
     buildClassString() {
         var classes = [];
         var cls = this.config.classes;
-        for(var cl in cls) {
+        for (var cl in cls) {
             if (cls.hasOwnProperty(cl)) {
                 var value = undefined;
-                if(_.isFunction(cls[cl])) {
+                if (_.isFunction(cls[cl])) {
                     value = cls[cl]();
                 } else {
                     value = cls[cl];
