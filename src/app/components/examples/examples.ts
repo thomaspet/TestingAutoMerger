@@ -5,12 +5,14 @@ import {UniTabs} from '../layout/uniTabs/uniTabs';
 import {UniFormDemo} from './form/formDemo';
 import {UniTableDemo} from './table/tableDemo';
 import {UniTreelistDemo} from './treelist/treelistDemo';
+import {SpinnerExample} from "./spinner/spinner";
 
 const CHILD_ROUTES = [
     {path: '/', redirectTo: ['./UniFormDemo']},
     {path: '/form', component: UniFormDemo , as: 'UniFormDemo'},
     {path: '/table', component: UniTableDemo , as: 'UniTableDemo'},
     {path: '/treelist', component: UniTreelistDemo , as: 'UniTreelistDemo'},
+    {path: '/spinner', component: SpinnerExample , as: 'SpinnerExample'},
 ];
 
 @RouteConfig(CHILD_ROUTES)
