@@ -33,9 +33,10 @@ const CHILD_ROUTES = [
 
 @RouteConfig(CHILD_ROUTES)
 export class EmployeeDetails {
-	employee: any = {};
+	employee;// any = {};
     //empJSON;
     childRoutes: RouteDefinition[];
+    localizations;
     	
 	constructor(private routeParams: RouteParams, private employeeDS:EmployeeDS) {
 		this.childRoutes = CHILD_ROUTES;
@@ -43,14 +44,17 @@ export class EmployeeDetails {
     
     ngOnInit() {
         var employeeID = this.routeParams.get('id');
-        this.employeeDS.get(employeeID)
-            //.subscribe (response => this.employee = response, error => console.error(error));
+        Observable.forkJoin(
+            this.employeeDS.get(employeeID),
+            this.employeeDS.getLocalizations()
+        ).subscribe((response) => {
+            let [emp, loc] = response;
+            this.employee = emp;
+            this.localizations = loc;
             
-            .subscribe((response) => {
-                this.employee = response;
-                console.log("employee", response);
-                //this.empJSON = JSON.stringify(this.employee.BusinessRelationInfo);
-            }, error => console.log(error));
+            console.log("employee", response);
+            //this.empJSON = JSON.stringify(this.employee.BusinessRelationInfo);    
+        }, error => console.log(error));
     }
     
     onFormSubmit(value) {

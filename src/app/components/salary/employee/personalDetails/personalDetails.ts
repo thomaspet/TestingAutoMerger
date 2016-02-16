@@ -34,6 +34,7 @@ export class PersonalDetails {
     form:UniFormBuilder = new UniFormBuilder();
     layout;
     employee;
+    localizations;
 
     @ViewChild(UniComponentLoader)
     uniCmpLoader:UniComponentLoader;
@@ -49,16 +50,20 @@ export class PersonalDetails {
     ngAfterViewInit() {
 
         var self = this;
+        
         Observable.forkJoin(
             self.employeeDS.get(this.EmployeeID),
             self.employeeDS.layout('EmployeePersonalDetailsForm')
+            //self.employeeDS.getLocalizations()
         ).subscribe(
             response => {
                 var [employee,layout] = response;
                 self.employee = EmployeeModel.createFromObject(employee);
                 self.form = new UniFormLayoutBuilder().build(layout, self.employee);
                 self.form.hideSubmitButton();
-
+                //self.localizations = loc;
+                
+                
                 self.uniCmpLoader.load(UniForm, (cmp:ComponentRef)=> {
                     cmp.instance.config = self.form;
                     setTimeout(()=> {

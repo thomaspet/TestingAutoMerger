@@ -8,6 +8,7 @@ export class EmployeeDS {
     
     expandedProperties = 'BusinessRelationInfo.Addresses,BusinessRelationInfo.Emails,BusinessRelationInfo.Phones,Employments.Localization.BusinessRelationInfo,BankAccounts,EmployeeCategoryLinks,VacationRateEmployee,Localization';
     //employees: Array<any> = [];
+    localizations: Observable<any>;
     
 
     constructor(@Inject(UniHttpService)
@@ -19,6 +20,21 @@ export class EmployeeDS {
             resource: "employees/" + id,
             expand: this.expandedProperties
         });
+    }
+    
+    getLocalizations() {
+        //if(!this.localizations) {
+            return this.http.get({
+                resource: "localizations",
+                expand: "BusinessRelationInfo"
+            });
+            /*.subscribe(response => {
+                console.log("123",response);
+                this.localizations = new Observable(response);
+                //return this.localizations;
+            },error => console.log(error));
+        //} else 
+        */
     }
 
     layout(layoutID: string) {
@@ -178,7 +194,7 @@ export class EmployeeDS {
                     Property: "LocalizationID",
                     Placement: 6,
                     Hidden: false,
-                    FieldType: UNI_CONTROL_TYPES.TEXT,
+                    FieldType: UNI_CONTROL_TYPES.COMBOBOX,
                     ReadOnly: false,
                     LookupField: false,
                     Label: "Lokasjon",
@@ -188,6 +204,11 @@ export class EmployeeDS {
                     Section: 0,
                     Legend: "",
                     IsLookUp: false,
+                    kendoOptions: {
+                        dataSource:  this.localizations,
+                        dataTextField: 'BusinessRelationInfo.Name',
+                        dataValueField: 'ID'
+                    },
                     Validations: [
                         {
                             ErrorMessage: "Required field",

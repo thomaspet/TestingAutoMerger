@@ -67,17 +67,28 @@ export class Employment {
         {ID: 2, Navn: "2 - Utenriks"}
     ];
     
+    localizations: Array<any> = [
+      {ID: 0, Navn: "Modalen"},
+      {ID: 1, Navn: "Haugesund"},
+      {ID: 2, Navn: "Bergen"},
+      {ID: 3, Navn: "Oslo"},
+      {ID: 4, Navn: "Trondheim"},
+      {ID: 5, Navn: "Stavanger"},
+      {ID: 6, Navn: "Bodø"}  
+    ];
     
     constructor(private Injector:Injector, public employeeDS:EmployeeDS, public styrkcodesDS:STYRKCodesDS) {
         let params = Injector.parent.parent.get(RouteParams);
         Observable.forkJoin(
             employeeDS.get(params.get('id')),
-            styrkcodesDS.getCodes()
+            styrkcodesDS.getCodes(),
+            employeeDS.getLocalizations()
         ).subscribe((response)=>{
-            let [employee,codes] = response;
-            console.log("employee from constructor",employee);
+            let [employee,codes,loc] = response;
+            console.log("localizations from constructor",loc);
             this.currentEmployee = employee;
             this.styrkCodes = codes;
+            this.localizations = loc;
             this.buildFormConfigs();
         }, error => console.log(error));
     }
@@ -126,10 +137,10 @@ export class Employment {
             {
                 if(typeof employment.Localization.BusinessRelationInfo !== "undefined")
                 {
-                    var localization = this.buildField('Lokalitet',employment.Localization.BusinessRelationInfo,'Name',UNI_CONTROL_TYPES.COMBOBOX);
+                    var localization = this.buildField('Lokasjon',employment.Localization.BusinessRelationInfo,'Name',UNI_CONTROL_TYPES.COMBOBOX);
                     localization.setKendoOptions({
-                        dataSource:  this.workingHoursScheme,
-                        dataTextField: 'Navn',
+                        dataSource:  this.localizations,
+                        dataTextField: 'BusinessRelationInfo.Name',
                         dataValueField: 'ID'
                     });
                     bAddLocalization = true;
