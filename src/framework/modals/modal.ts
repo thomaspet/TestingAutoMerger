@@ -31,20 +31,20 @@ export class UniModal implements AfterViewInit {
 
     component: any;
 
-    constructor() {}
+    constructor() {
+        document.addEventListener("keyup", (e: any) => {
+            if(e.keyCode === 27) {
+                this.isOpen = false;
+            }
+        });
+    }
 
     ngAfterViewInit() {
         this.unicmploader.load(this.componentType,(cmp: ComponentRef) => {
             cmp.instance.config = this.config;
-            setTimeout(()=>{
+            setTimeout(() => {
                 this.component = cmp.instance;
-            },100);
-        });
-
-        document.addEventListener("keyup", (e: any) => {
-            if(e.keyCode === 27) {
-                this.isOpen = false
-            }
+            }, 100);
         });
     }
 
@@ -56,7 +56,7 @@ export class UniModal implements AfterViewInit {
         this.isOpen = false;
     }
 
-    getModal() {
+    getContent() {
         return this.component;
     }
 
