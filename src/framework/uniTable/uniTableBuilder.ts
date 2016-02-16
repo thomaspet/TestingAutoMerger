@@ -1,6 +1,8 @@
 import {UniHttpService, UniHttpRequest} from '../data/uniHttpService';
 import {UniTableColumn} from './uniTableColumn';
 
+declare var jQuery;
+
 export class UniTableBuilder {
     remoteData: boolean;
     
@@ -9,10 +11,10 @@ export class UniTableBuilder {
     expand: string = "";
     
     searchable: boolean = true;
-    editable: boolean   = true;
     filterable: boolean = true;
-    pageable: boolean   = true;
-    pageSize: number    = 10;
+    editable:   boolean = true;
+    pageable:   boolean = true;
+    pageSize:   number  = 10;
     
     toolbar: string[] = [];
     
@@ -23,7 +25,6 @@ export class UniTableBuilder {
     
     schemaModel: any;
     columns: kendo.ui.GridColumn[];
-    
     
     constructor(resource: string | Array<any>, editable: boolean = true) {
         this.resource = resource;
@@ -42,24 +43,26 @@ export class UniTableBuilder {
         this.columns = [];        
     }
     
-    addColumns(...columns: UniTableColumn[]) {        
+    addColumns(...columns: UniTableColumn[]) {
+        
         columns.forEach((column: UniTableColumn) => {
-            
             this.columns.push({
                 field: column.field,
                 title: column.title,
                 format: column.format,
-                // Add css class 'editable-cell' if column is editable 
-                attributes: { "class": (column.editable) ? 'editable-cell' : '' }
+                attributes: { "class": (column.editable) ? 'editable-cell' : '' } // add class 'editable-cell' if column is editable
             });
             
-            this.schemaModel.fields[column.field] = {
-                type: column.type,
-                editable: column.editable,
-                nullable: column.nullable
-            };
-            
+            // var schemaFieldKeys: string[] = column.field.split('.');
+            // jQuery.extend(true, this.schemaModel.fields, this.generateSchemaField(schemaFieldKeys, column.type, column.editable, column.nullable));
         });
+        
+        // Make sure ID field is always defined in the schema (required for crud operations on the table)
+        if (!this.schemaModel.fields['ID']) {
+            this.schemaModel.fields['ID'] = { type: 'number', editable: false, nullable: true };
+        }
+        
+        console.log(this.schemaModel);
         
         // Add delete button if table is editable
         if (this.editable) {
@@ -71,6 +74,22 @@ export class UniTableBuilder {
         
         return this;
     }
+    
+    // Recursively generates a kendo schema field from the field info given in addColumns
+    private generateSchemaField(keys: string[], type: string, editable: boolean, nullable: boolean): Object {
+        
+        if (keys.length === 0) {
+            return {
+                type: type,
+                editable: editable,
+                nullable: nullable
+            }
+        }
+        
+        var field = {};
+        field[keys[0]] = this.generateSchemaField(keys.slice(1), type, editable, nullable);
+        return field;
+    }    
     
     setEditable(editable: boolean) {
         this.editable = editable;

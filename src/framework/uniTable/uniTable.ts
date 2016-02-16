@@ -3,7 +3,7 @@ import {UniHttpService, UniHttpRequest} from '../data/uniHttpService';
 
 declare var jQuery;
 
-enum DIRECTIONS { LEFT, RIGHT, UP, DOWN };
+enum directions { LEFT, RIGHT, UP, DOWN };
 
 @Component({
 	selector: 'uni-table',
@@ -235,22 +235,22 @@ export class UniTable implements AfterViewInit {
             // Enter
             if (event.keyCode === 13) {
                 if (event.shiftKey) {
-                    this.move(DIRECTIONS.LEFT);
+                    this.move(directions.LEFT);
                 } else {
-                    this.move(DIRECTIONS.RIGHT);    
+                    this.move(directions.RIGHT);    
                 }
             }
                         
             // Up arrow
             if (event.ctrlKey && event.keyCode === 38) {
                 event.preventDefault();
-                this.move(DIRECTIONS.UP);
+                this.move(directions.UP);
             }
             
             // Down arrow
             if (event.ctrlKey && event.keyCode === 40) {
                 event.preventDefault();
-                this.move(DIRECTIONS.DOWN);
+                this.move(directions.DOWN);
             }
                         
         });
@@ -261,26 +261,26 @@ export class UniTable implements AfterViewInit {
         var newCell; 
 
         switch(direction) {
-            case DIRECTIONS.LEFT:
+            case directions.LEFT:
                 newCell = currentCell.prevAll('.editable-cell');
                 if (!newCell[0]) {  
                     newCell = currentCell.parent('tr').prev().children('.editable-cell:last');
                 }
             break;
             
-            case DIRECTIONS.RIGHT:
+            case directions.RIGHT:
                 newCell = currentCell.nextAll('.editable-cell');
                 if (!newCell[0]) {
                     newCell = currentCell.parent('tr').next().children('.editable-cell:first');
                 }
             break;
             
-            case DIRECTIONS.UP:
+            case directions.UP:
                 var prevRow = currentCell.parent('tr').prev('tr');
                 var newCell = jQuery('td:eq(' + currentCell.index() + ')', prevRow);
             break;
             
-            case DIRECTIONS.DOWN:
+            case directions.DOWN:
                 var nextRow = currentCell.parent('tr').next('tr');
                 var newCell = jQuery('td:eq(' + currentCell.index() + ')', nextRow);
             break;
