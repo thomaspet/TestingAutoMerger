@@ -11,6 +11,7 @@ import {ComponentRef} from "angular2/core";
     directives: [UniComponentLoader],
     template:`
         <dialog class=“uniModal” [attr.open]="isOpen()">
+            <button (click)="close()">Close</button>
             <uni-component-loader></uni-component-loader>
         </dialog>
     `
@@ -30,9 +31,7 @@ export class UniModal implements OnInit {
 
     component: any;
 
-    constructor() {
-
-    }
+    constructor() {}
 
     ngOnInit() {
         this.unicmploader.load(this.componentType,(cmp: ComponentRef) => {
@@ -40,6 +39,10 @@ export class UniModal implements OnInit {
             setTimeout(()=>{
                 this.component = cmp.instance;
             },100);
+        });
+
+        document.addEventListener("keyup", e => {
+            if(e.keyCode === 27) this.isOpen = false
         });
     }
 
@@ -54,4 +57,5 @@ export class UniModal implements OnInit {
     getModal() {
         return this.component;
     }
+
 }
