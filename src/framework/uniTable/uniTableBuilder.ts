@@ -45,16 +45,27 @@ export class UniTableBuilder {
     
     addColumns(...columns: UniTableColumn[]) {
         
-        columns.forEach((column: UniTableColumn) => {
-            this.columns.push({
-                field: column.field,
-                title: column.title,
-                format: column.format,
-                attributes: { "class": (column.editable) ? 'editable-cell' : '' } // add class 'editable-cell' if column is editable
-            });
+        columns.forEach((columnInfo: UniTableColumn) => {
+            var column = {
+                field: columnInfo.field,
+                title: columnInfo.title,
+                format: columnInfo.format,
+            };
             
-            // var schemaFieldKeys: string[] = column.field.split('.');
-            // jQuery.extend(true, this.schemaModel.fields, this.generateSchemaField(schemaFieldKeys, column.type, column.editable, column.nullable));
+            // If column contains data from relation inside relation, we need to specify the template
+            if (columnInfo.field.split('.').length > 2) {
+                column['template'] = '#=' + columnInfo.field + '#';
+            }
+            
+            // Add class editable-cell to columns that are editable
+            if (columnInfo.editable) {
+                column['attributes'] = {'class': 'editable-cell'};
+            }
+            
+            this.columns.push(column);
+            
+            var schemaFieldKeys: string[] = column.field.split('.');
+            jQuery.extend(true, this.schemaModel.fields, this.generateSchemaField(schemaFieldKeys, columnInfo.type, columnInfo.editable, columnInfo.nullable));
         });
         
         // Make sure ID field is always defined in the schema (required for crud operations on the table)

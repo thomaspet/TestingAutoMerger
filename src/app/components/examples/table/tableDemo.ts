@@ -45,10 +45,13 @@ export class UniTableDemo {
         
         var employeeNameCol = new UniTableColumn('BusinessRelationInfo.Name', 'Navn', 'string');
         
-        var employeeEmailCol = new UniTableColumn('BusinessRelationInfo.Emails.EmailAddress', 'Epost', 'string');
+        var employeeEmailCol = new UniTableColumn('BusinessRelationInfo.DefaultEmail.EmailAddress', 'Epost', 'string')
+        .setNullable(true);
+        
         
         this.expandedFieldsTableCfg = new UniTableBuilder('employees', true)
-        .setExpand('BusinessRelationInfo,BusinessRelationInfo.Emails')
+        .setExpand('BusinessRelationInfo,BusinessRelationInfo.DefaultEmail')
+        .setFilter('EmployeeNumber eq 42')
         .addColumns(employeeIdCol, employeeNumberCol, employeeNameCol, employeeEmailCol);
         
         
