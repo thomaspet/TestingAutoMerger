@@ -18,6 +18,8 @@ export class Users {
     users: Array<any> = [];
     usersConfig: UniTableConfig;
     inviteLink: string;
+    errorMessage: string;
+    invalidInviteInfo: boolean = false;
     isPostUserActive: boolean = false;
 
     constructor(private http: UniHttpService) {
@@ -48,24 +50,33 @@ export class Users {
     }
 
     inviteNewUser() {
-        this.isPostUserActive = true;
-        this.http.post({ resource: 'user-verifications', body: this.newUser })
-            .subscribe(
-            (data) => {
-                //Should never return success without VerificationCode?? If not needed?
-                if (data.VerificationCode) {
-                    this.inviteLink = this.baseUrl + data.VerificationCode;
-                    this.newUser.DisplayName = '';
-                    this.newUser.Email = '';
-                    this.createUserTable();
+        if (this.validateEmail(this.newUser.Email) && this.newUser.DisplayName !== '' && this.newUser.DisplayName !== undefined) {
+            this.isPostUserActive = true;
+            this.http.post({ resource: 'user-verifications', body: this.newUser })
+                .subscribe(
+                (data) => {
+                    //Should never return success without VerificationCode?? If not needed?
+                    if (data.VerificationCode) {
+                        this.inviteLink = this.baseUrl + data.VerificationCode;
+                        this.newUser.DisplayName = '';
+                        this.newUser.Email = '';
+                        this.createUserTable();
+                        this.isPostUserActive = false;
+                        jQuery('.users_invite_link').slideDown(500);
+                    }
+                },
+                (error) => {
+                    console.log(error);
                     this.isPostUserActive = false;
-                    jQuery('.users_invite_link').slideDown(500);
                 }
-            },
-            (error) => {
-                console.log(error);
-                this.isPostUserActive = false;
-            }
-        )
+                )
+        } else {
+            this.invalidInviteInfo = true;
+            this.errorMessage = 'Vennligst oppgi en navn og en gyldig epostaddresse.';
+        }
+    }
+
+    validateEmail(email) {
+        return /[^\s@]+@[^\s@]+\.[^\s@]+/.test(email);
     }
 }

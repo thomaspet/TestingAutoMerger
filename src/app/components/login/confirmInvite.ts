@@ -28,6 +28,7 @@ export class Confirm {
             this.user['verification-code'] = param.get('guid');
             var filter = "VerificationCode eq " + "'" + this.user['verification-code'] + "'";
 
+            //ROUTE WILL BE CHANGED
             http.get({ resource: 'user-verifications', filter: filter })
                 .subscribe(
                 (data) => {
@@ -51,7 +52,7 @@ export class Confirm {
             )
 
         } else {
-            //Error handling
+            //If this happends, the application crashed because the Router requries id..
         }
     }
 

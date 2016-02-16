@@ -10,6 +10,7 @@
         <input type="email" [(ngModel)]="newUser.Email" placeholder="Epostadresse" />
         <button (click)="inviteNewUser()" [attr.aria-busy]="isPostUserActive" class="c2a">Inviter</button>
     </div>
+    <small>{{errorMessage}}</small>
 </section>
 
 <section class="users_invite users_invite_link">
