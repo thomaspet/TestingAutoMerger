@@ -20,7 +20,7 @@ declare var jQuery;
 @Component({
     selector: 'employee-hours',
     directives: [UniComponentLoader, UniForm],
-    templateUrl: 'app/components/employee/hours/hours.html'
+    templateUrl: 'app/components/salary/employee/hours/hours.html'
 })
 export class Hours {
     currentEmployee;
@@ -57,7 +57,7 @@ export class Hours {
                 self.form = self.buildGroupConfigs();
                 self.form.hideSubmitButton();
 
-                self.ucl.load(UniForm,(cmp: ComponentRef)=>{
+                self.ucl.load(UniForm).then((cmp: ComponentRef)=>{
                     cmp.instance.config = self.form;
                     setTimeout(()=>{
                         self.formInstance = cmp.instance;

@@ -63,10 +63,11 @@ export class UniModalDemo {
                 {
                     text: "Accept",
                     method: () => {
-                        var content = self.modals[0].getContent();
-                        self.valueFromModal = content.tempValue;
-                        content.tempValue = "";
-                        self.modals[0].close();
+                        self.modals[0].getContent().then((content)=>{
+                            self.valueFromModal = content.tempValue;
+                            content.tempValue = "";
+                            self.modals[0].close();
+                        });
                     }
                 }
             ]
@@ -80,10 +81,11 @@ export class UniModalDemo {
                 {
                     text: "Accept",
                     method: () => {
-                        var content = self.modals[1].getContent();
-                        self.valueFromModal = content.tempValue;
-                        content.tempValue = "";
-                        self.modals[1].close();
+                        self.modals[1].getContent().then((content)=>{
+                            self.valueFromModal = content.tempValue;
+                            content.tempValue = "";
+                            self.modals[1].close();
+                        });
                     }
                 }
             ]

@@ -58,7 +58,7 @@ export class PersonalDetails {
                 // self.localizations = loc;
 
 
-                self.uniCmpLoader.load(UniForm, (cmp: ComponentRef) => {
+                self.uniCmpLoader.load(UniForm).then((cmp: ComponentRef) => {
                     cmp.instance.config = self.form;
                     setTimeout(() => {
                         self.formInstance = cmp.instance;
