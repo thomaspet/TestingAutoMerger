@@ -51,9 +51,28 @@ dialog.uniModal
       border-radius: 99rem
       background-size: .8rem
 
+  .modal-content
+    @include unigrid-flush(10)
+    margin: 0 auto
+    background: $uni-color-negative
+    box-shadow: 0 0 2rem transparentize($uni-color-positive, .9)
+    padding: 2rem
+    box-sizing: border-box
+    border-radius: pxToRem(5)
+    max-height: 90vh
+    overflow: auto
+
+    h1
+      @extend h2
+
+    footer
+      text-align: right
+
 
 dialog.uniModal[open=false],
 dialog.uniModal[open=false]:before
   opacity: 0
   height: 0
   animation: hide-modal 300ms linear 1
+
+

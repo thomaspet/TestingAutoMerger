@@ -10,8 +10,8 @@ import {ComponentRef} from "angular2/core";
     selector: "uni-modal",
     directives: [UniComponentLoader],
     template:`
-        <dialog class=“uniModal” [attr.open]="isOpen">
-            <button (click)="close()">Close</button>
+        <dialog class="uniModal" [attr.open]="isOpen">
+            <button (click)="close()" class="closeBtn">Close</button>
             <uni-component-loader></uni-component-loader>
         </dialog>
     `
