@@ -10,10 +10,11 @@ import {Hours} from './hours/hours';
 import {Travel} from './travel/travel';
 import {SalaryTransactions} from './salaryTransactions/salaryTransactions';
 
-import {UniTabs} from '../layout/uniTabs/uniTabs';
-import {WidgetPoster} from '../../../framework/widgetPoster/widgetPoster';
+import {UniTabs} from '../../layout/uniTabs/uniTabs';
+import {WidgetPoster} from '../../../../framework/widgetPoster/widgetPoster';
 
-import {EmployeeDS} from '../../../framework/data/employee';
+import {EmployeeDS} from '../../../../framework/data/employee';
+import {STYRKCodesDS} from '../../../../framework/data/styrkCodes';
 
 const CHILD_ROUTES = [
     { path: '/', component: PersonalDetails, as: 'PersonalDetails' },
@@ -25,14 +26,17 @@ const CHILD_ROUTES = [
 
 @Component({
 	selector: 'uni-employee-details',
-	templateUrl: 'app/components/employee/employeeDetails.html',
-    providers: [provide(EmployeeDS,{useClass: EmployeeDS})],
+	templateUrl: 'app/components/salary/employee/employeeDetails.html',
+    providers: [provide(EmployeeDS,{useClass: EmployeeDS}), provide(STYRKCodesDS, {useClass: STYRKCodesDS})],
     directives: [ROUTER_DIRECTIVES, WidgetPoster, UniTabs]
 })
+
 @RouteConfig(CHILD_ROUTES)
 export class EmployeeDetails {
-	employee: any = {};
+	employee;// any = {};
+    //empJSON;
     childRoutes: RouteDefinition[];
+    localizations;
     	
 	constructor(private routeParams: RouteParams, private employeeDS:EmployeeDS) {
 		this.childRoutes = CHILD_ROUTES;
@@ -40,8 +44,17 @@ export class EmployeeDetails {
     
     ngOnInit() {
         var employeeID = this.routeParams.get('id');
-        this.employeeDS.get(employeeID)
-            .subscribe (response => this.employee = response, error => console.error(error));
+        Observable.forkJoin(
+            this.employeeDS.get(employeeID),
+            this.employeeDS.getLocalizations()
+        ).subscribe((response) => {
+            let [emp, loc] = response;
+            this.employee = emp;
+            this.localizations = loc;
+            
+            console.log("employee", response);
+            //this.empJSON = JSON.stringify(this.employee.BusinessRelationInfo);    
+        }, error => console.log(error));
     }
     
     onFormSubmit(value) {

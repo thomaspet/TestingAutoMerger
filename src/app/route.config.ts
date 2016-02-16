@@ -22,15 +22,15 @@ export var Routes = {
     }),
 	
     employeeList: new AsyncRoute({
-        path: '/employees',
+        path: '/salary/employees',
         name: 'EmployeeList',
-        loader: () => ComponentProxy.LoadComponentAsync('EmployeeList', './app/components/employee/employeeList')
+        loader: () => ComponentProxy.LoadComponentAsync('EmployeeList', './app/components/salary/employee/employeeList')
     }),
     
     employeeDetails: new AsyncRoute({
-		path: '/employees/:id/...',
+		path: '/salary/employees/:id/...',
 		name: 'EmployeeDetails',
-		loader: () => ComponentProxy.LoadComponentAsync('EmployeeDetails', './app/components/employee/employeeDetails')
+		loader: () => ComponentProxy.LoadComponentAsync('EmployeeDetails', './app/components/salary/employee/employeeDetails')
 	}),
 	
 	dashboard: new AsyncRoute({

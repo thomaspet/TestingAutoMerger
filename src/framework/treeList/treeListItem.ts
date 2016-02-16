@@ -1,4 +1,4 @@
-﻿import {TREE_LIST_TYPE} from './treeList';
+﻿import {TREE_LIST_TYPE} from "./treeList";
 
 export class TreeListItem {
 
@@ -9,7 +9,7 @@ export class TreeListItem {
     type: TREE_LIST_TYPE;
     changeCallback: (model?: any) => void;
 
-    constructor(title: string) {
+    constructor(title: string = "") {
         this.title = title;
     }
 
@@ -39,10 +39,10 @@ export class TreeListItem {
     addTreeListItems(items: TreeListItem[]) {
         if (!this.treeListItems) {
             this.treeListItems = [];
-        }   
-        items.forEach((item) => {
+        }
+        items.forEach((item: TreeListItem) => {
             this.treeListItems.push(item);
-        })
+        });
         return this;
     }
 

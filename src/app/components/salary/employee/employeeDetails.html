@@ -1,9 +1,11 @@
 <header class="poster">
     
     <article class="poster_toolbar">
-        <h2 class="poster_toolbar_headline">Audhild S. Grieg
-            <p class="poster_toolbar_orgnr">F.nr. {{employee.SocialSecurityNumber}}</p>
-        </h2>
+        <div *ngIf="employee">
+            <h2 class="poster_toolbar_headline">{{employee.BusinessRelationInfo.Name}}
+                <p class="poster_toolbar_orgnr">Ansattnr. {{employee.EmployeeNumber}}</p>
+            </h2>
+        </div>
             
         <div class="poster_toolbar_tools">
             <input type="search" class="poster_toolbar_search">

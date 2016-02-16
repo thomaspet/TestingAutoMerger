@@ -55,7 +55,6 @@ export class CompanySettings implements OnInit {
             this.companySettingsDS.getPeriodSeries(),
             this.companySettingsDS.getAccountGroupSets()
         ).subscribe(results => this.dataReady(results));
-
     }
 
     dataReady(data) {

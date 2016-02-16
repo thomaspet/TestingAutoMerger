@@ -2,28 +2,30 @@ import {Validators} from 'angular2/common';
 import {Component, Injector, ViewChild, DynamicComponentLoader, ElementRef, ComponentRef, Type} from 'angular2/core';
 import {RouteParams} from 'angular2/router';
 
-import {UniForm} from '../../../../framework/forms/uniForm';
-import {UNI_CONTROL_DIRECTIVES} from '../../../../framework/controls';
+import {UniForm} from '../../../../../framework/forms/uniForm';
+import {UNI_CONTROL_DIRECTIVES} from '../../../../../framework/controls';
 
 import {
     UniFormBuilder, UniFieldBuilder, UniFieldsetBuilder, UniGroupBuilder, UniFormLayoutBuilder
-} from '../../../../framework/forms';
+} from '../../../../../framework/forms';
 
-import {EmployeeDS} from '../../../../framework/data/employee';
-import {EmployeeModel} from '../../../../framework/models/employee';
-import {UniComponentLoader} from '../../../../framework/core';
+import {EmployeeDS} from '../../../../../framework/data/employee';
+import {EmployeeModel} from '../../../../../framework/models/employee';
+import {UniComponentLoader} from '../../../../../framework/core';
 
 import {Observable} from 'rxjs/Observable';
 import 'rxjs/add/operator/merge';
+
+declare var _;
 
 @Component({
     selector: 'employee-personal-details',
     directives: [UniComponentLoader],
     template: `
         <div class="application employee">
-            <button (click)="toggleMode()">Toogle edit mode</button>
+            <!--<button (click)="toggleMode()">Toogle edit mode</button>-->
             <uni-component-loader></uni-component-loader>
-            <button type="button" (click)="executeSubmit()" [disabled]="!isValid()">Submit</button>
+            <!--<button type="button" (click)="executeSubmit()" [disabled]="!isValid()">Submit</button>-->
         </div>
     `
 })
@@ -32,6 +34,7 @@ export class PersonalDetails {
     form:UniFormBuilder = new UniFormBuilder();
     layout;
     employee;
+    localizations;
 
     @ViewChild(UniComponentLoader)
     uniCmpLoader:UniComponentLoader;
@@ -47,16 +50,20 @@ export class PersonalDetails {
     ngAfterViewInit() {
 
         var self = this;
+        
         Observable.forkJoin(
             self.employeeDS.get(this.EmployeeID),
             self.employeeDS.layout('EmployeePersonalDetailsForm')
+            //self.employeeDS.getLocalizations()
         ).subscribe(
             response => {
                 var [employee,layout] = response;
                 self.employee = EmployeeModel.createFromObject(employee);
                 self.form = new UniFormLayoutBuilder().build(layout, self.employee);
                 self.form.hideSubmitButton();
-
+                //self.localizations = loc;
+                
+                
                 self.uniCmpLoader.load(UniForm, (cmp:ComponentRef)=> {
                     cmp.instance.config = self.form;
                     setTimeout(()=> {
@@ -73,8 +80,10 @@ export class PersonalDetails {
     }
 
     executeSubmit() {
-        this.formInstance.updateModel();
-        console.log(this.formInstance.form.value);
+        this.employee = _.merge({},this.employee,{BusinessRelationInfo:{Name:"Jorge"}});
+        this.formInstance.refresh(this.employee);
+        console.log(this.employee);
+        //this.formInstance.updateModel();
     }
 
     toggleMode() {
