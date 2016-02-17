@@ -5,6 +5,8 @@ export class UniTableColumn {
     format: string = "";
     editable: boolean = true;
     nullable: boolean = false;
+    template: string = "";
+    command: kendo.ui.GridColumnCommandItem[] = [];
     // todo: validation
     
     constructor(field: string, title: string, type: string) {
@@ -25,6 +27,16 @@ export class UniTableColumn {
     
     setNullable(nullable: boolean) {
         this.nullable = nullable;
+        return this;
+    }
+    
+    setTemplate(template: string) {
+        this.template = template;
+        return this;
+    }
+    
+    setCommand(command: kendo.ui.GridColumnCommandItem[]) {
+        this.command = command;
         return this;
     }
     
