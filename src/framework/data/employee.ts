@@ -1,15 +1,21 @@
 import {Injectable, Inject} from "angular2/core";
 import { Observable } from "rxjs/Observable";
 import {UniHttpService} from "./uniHttpService";
-import {UNI_CONTROL_TYPES} from '../../framework/controls/types';
+import {UNI_CONTROL_TYPES} from "../../framework/controls/types";
 
 @Injectable()
 export class EmployeeDS {
-    
-    expandedProperties = 'BusinessRelationInfo.Addresses,BusinessRelationInfo.Emails,BusinessRelationInfo.Phones,Employments.Localization.BusinessRelationInfo,BankAccounts,EmployeeCategoryLinks,VacationRateEmployee,Localization';
-    //employees: Array<any> = [];
+
+    expandedProperties = [
+        "BusinessRelationInfo.Addresses"
+        , "BusinessRelationInfo.Emails"
+        , "BusinessRelationInfo.Phones"
+        , "Employments.Localization.BusinessRelationInfo"
+        , "BankAccounts"
+        , "VacationRateEmployee"
+        , "Localization"].join(",");
     localizations: Observable<any>;
-    
+
 
     constructor(@Inject(UniHttpService)
                 public http: UniHttpService) {
@@ -21,20 +27,12 @@ export class EmployeeDS {
             expand: this.expandedProperties
         });
     }
-    
+
     getLocalizations() {
-        //if(!this.localizations) {
-            return this.http.get({
-                resource: "localizations",
-                expand: "BusinessRelationInfo"
-            });
-            /*.subscribe(response => {
-                console.log("123",response);
-                this.localizations = new Observable(response);
-                //return this.localizations;
-            },error => console.log(error));
-        //} else 
-        */
+        return this.http.get({
+            resource: "localizations",
+            expand: "BusinessRelationInfo"
+        });
     }
 
     layout(layoutID: string) {
@@ -140,16 +138,16 @@ export class EmployeeDS {
                     Legend: "",
                     IsLookUp: true,
                     kendoOptions: {
-                        dataSource:  [{ID: 1, Navn: "Kvinne"}, {ID:2, Navn: "Mann"}],
-                        dataTextField: 'Navn',
-                        dataValueField: 'ID'
+                        dataSource: [{ID: 1, Navn: "Kvinne"}, {ID: 2, Navn: "Mann"}],
+                        dataTextField: "Navn",
+                        dataValueField: "ID"
                     },
                     Validations: [
                         {
                             ErrorMessage: "should be a valid value",
                             Operator: "SELECT",
-                            values: ["kvinne","mann"],
-                            Level:3
+                            values: ["kvinne", "mann"],
+                            Level: 3
                         },
                         {
                             ErrorMessage: "Required field",
@@ -176,10 +174,10 @@ export class EmployeeDS {
                     IsLookUp: false,
                     Validations: [
                         {
-                            Value:"0000 00 00000",
+                            Value: "0000 00 00000",
                             ErrorMessage: "Accountnumber should fit the pattern",
                             Operator: "MASKED",
-                            Level:3
+                            Level: 3
                         },
                         {
                             ErrorMessage: "Required field",
@@ -205,9 +203,9 @@ export class EmployeeDS {
                     Legend: "",
                     IsLookUp: false,
                     kendoOptions: {
-                        dataSource:  this.localizations,
-                        dataTextField: 'BusinessRelationInfo.Name',
-                        dataValueField: 'ID'
+                        dataSource: this.localizations,
+                        dataTextField: "BusinessRelationInfo.Name",
+                        dataValueField: "ID"
                     },
                     Validations: [
                         {
@@ -658,11 +656,11 @@ export class EmployeeDS {
                         }
                     ]
                 }
-                
+
                 /* 
-                Add fields for
-                --------SPESIALINNSTILLINGER FOR DEN ANSATTE----
-                */ 
+                 Add fields for
+                 --------SPESIALINNSTILLINGER FOR DEN ANSATTE----
+                 */
             ]
         });
     }

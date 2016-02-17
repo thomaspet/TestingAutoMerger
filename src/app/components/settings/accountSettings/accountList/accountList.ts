@@ -5,17 +5,18 @@ import {TreeList, TREE_LIST_TYPE} from "../../../../../framework/treeList/treeLi
 import {UniHttpService} from "../../../../../framework/data/uniHttpService";
 import {UniTableConfig} from "../../../../../framework/uniTable";
 import {UniDropdown} from "../../../../../framework/controls/dropdown/dropdown";
+import {IAccount} from "../../../../../framework/interfaces/interfaces";
 
 enum SETTINGS_ADD_NEW {
-    ACCOUNTGROUP,//0
-    ACCOUNT,//1
+    ACCOUNTGROUP, // 0
+    ACCOUNT
 }
 
 declare var _;
 
 @Component({
-    selector: 'account-list',
-    templateUrl: 'app/components/settings/accountSettings/accountList/accountList.html',
+    selector: "account-list",
+    templateUrl: "app/components/settings/accountSettings/accountList/accountList.html",
     directives: [TreeList, UniDropdown]
 })
 export class AccountList {
@@ -30,13 +31,13 @@ export class AccountList {
     constructor(private http: UniHttpService) {
         var kendoDropdownConfig = {
             delay: 50,
-            dataTextField: 'name',
-            dataValueField: 'action',
+            dataTextField: "name",
+            dataValueField: "action",
             dataSource: [
-                {action: SETTINGS_ADD_NEW.ACCOUNTGROUP, name: 'Ny kontogruppe'},
-                {action: SETTINGS_ADD_NEW.ACCOUNT, name: 'Ny hovedbokskonto'},
+                {action: SETTINGS_ADD_NEW.ACCOUNTGROUP, name: "Ny kontogruppe"},
+                {action: SETTINGS_ADD_NEW.ACCOUNT, name: "Ny hovedbokskonto"},
             ],
-            optionLabel: {action: -1, name: 'Select an action'},
+            optionLabel: {action: -1, name: "Select an action"},
             select: (event: kendo.ui.DropDownListSelectEvent) => {
                 var result = (event.sender.dataItem(<any>event.item));
                 switch (result.action) {
@@ -52,12 +53,12 @@ export class AccountList {
         this.config = {
             control: this.addDropdownControl,
             kOptions: kendoDropdownConfig
-        }
+        };
     }
 
-    loopAccountGroups(parentgroup, id) {
-        this.accountgroups.forEach(accountgroup => {
-            if (accountgroup.MainGroupID == id) {
+    loopAccountGroups(parentgroup: any, id: number|string) {
+        this.accountgroups.forEach((accountgroup: any) => {
+            if (accountgroup.MainGroupID === id) {
                 var group = new TreeListItem(accountgroup.Name)
                     .setType(TREE_LIST_TYPE.LIST);
 
@@ -68,31 +69,33 @@ export class AccountList {
                 }
 
                 // insert table
-                var tableConfig = new UniTableConfig(this.http.baseUrl + 'accounts', false, false)
+                var tableConfig = new UniTableConfig(this.http.baseUrl + "accounts", false, false)
                     .setOdata({
-                        expand: '',
-                        filter: 'AccountGroupID eq ' + accountgroup.ID
+                        expand: "",
+                        filter: "AccountGroupID eq " + accountgroup.ID
                     })
                     .setDsModel({
-                        id: 'ID',
+                        id: "ID",
                         fields: {
-                            AccountNumber: {type: 'number'},
-                            AccountName: {type: 'text'},
-                            Locked: {type: 'boolean'}
+                            AccountNumber: {type: "number"},
+                            AccountName: {type: "text"},
+                            Locked: {type: "boolean"}
                         }
                     })
                     .setColumns([
-                        {field: 'AccountNumber', title: 'Kontonr'},
-                        {field: 'AccountName', title: 'Kontonavn'},
+                        {field: "AccountNumber", title: "Kontonr"},
+                        {field: "AccountName", title: "Kontonavn"},
                         {
                             field: null,
-                            title: '',
+                            title: "",
                             attributes: {"class": "icon-column"},
-                            template: '#if(!Visible) {#<span class="is-visible" role="presentation">Visible</span>#} else {#<span class="is-hidden" role="presentation">Hidden</span>#}# ' +
-                            '#if(!Locked) {#<span class="is-locked" role="presentation">Locked</span>#} else {#<span class="is-unlocked" role="presentation">Unlocked</span>#}#'
+                            template: "#if(!Visible) {#<span class='is-visible' role='presentation'>Visible</span>#} " +
+                            "else {#<span class='is-hidden' role='presentation'>Hidden</span>#}# " +
+                            "#if(!Locked) {#<span class='is-locked' role='presentation'>Locked</span>#} " +
+                            "else {#<span class='is-unlocked' role='presentation'>Unlocked</span>#}#"
                         }
                     ])
-                    .setOnSelect(account => {
+                    .setOnSelect((account: IAccount) => {
                         console.log(account);
                         this.uniAccountChange.emit(account.ID);
                     });
@@ -108,14 +111,14 @@ export class AccountList {
     }
 
     ngOnInit() {
-        this.http.multipleRequests('GET', [
+        this.http.multipleRequests("GET", [
             {resource: "accountgroups"}
         ]).subscribe(
-            (dataset) => {
+            (dataset: any) => {
                 this.accountgroups = dataset[0];
                 this.loopAccountGroups(null, null);
             },
-            (error) => console.log(error)
+            (error: any) => console.log(error)
         );
     }
 

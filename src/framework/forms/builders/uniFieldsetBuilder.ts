@@ -1,20 +1,18 @@
 import {UniFieldBuilder} from "./uniFieldBuilder";
 import {UniFieldset} from "./../uniFieldset";
 import {Type} from "angular2/core";
+import {UniGenericBuilder} from "../shared/UniGenericBuilder";
 
 declare var _;
 
-export class UniFieldsetBuilder {
+export class UniFieldsetBuilder extends UniGenericBuilder {
     legend: string = "";
     fields: Array<UniFieldBuilder> = [];
     fieldType: Type;
-    fieldsetIndex: number = 0;
-    sectionIndex: number = 0;
-    classes = [];
 
     static fromLayoutConfig(element: any): UniFieldsetBuilder {
         var ufsb = new UniFieldsetBuilder();
-        //console.log("fieldset legend", element);
+
         ufsb.fieldsetIndex = element.FieldSet;
         ufsb.sectionIndex = element.Section;
         ufsb.legend = element.FieldsetLegend || element.Legend;
@@ -24,28 +22,8 @@ export class UniFieldsetBuilder {
     }
 
     constructor(legend?: string) {
+        super();
         this.legend = legend || "";
         this.fieldType = UniFieldset;
-    }
-
-    addField(field: UniFieldBuilder) {
-        this.fields.push(field);
-        return this;
-    }
-
-    addFields(...fields: UniFieldBuilder[]) {
-        fields.forEach((field: UniFieldBuilder) => {
-            this.fields.push(field);
-        });
-        return this;
-    }
-
-    addClass(className: string, callback: boolean|((...params: Array<any>) => boolean)) {
-        this.classes[className] = callback;
-        return this;
-    }
-
-    config(): Array<UniFieldBuilder> {
-        return this.fields;
     }
 }

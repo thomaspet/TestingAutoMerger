@@ -1,5 +1,8 @@
-import {UniFormBuilder, UniFieldBuilder, UniFieldsetBuilder, UniGroupBuilder, UniComboGroupBuilder} from "../../forms";
+import {UniFormBuilder, UniFieldBuilder, UniFieldsetBuilder, UniSectionBuilder} from "../../forms";
 import {IComponentLayout, IFieldLayout} from "../../interfaces/interfaces";
+import {UniElementFinder} from "../shared/UniElementFinder";
+import {UniComboField} from "../uniComboField";
+import {UniComboFieldBuilder} from "./uniComboFieldBuilder";
 
 /**
  *
@@ -8,21 +11,26 @@ import {IComponentLayout, IFieldLayout} from "../../interfaces/interfaces";
  */
 export class UniFormLayoutBuilder {
 
-    static isField(element: IFieldLayout) {
+    static isUniInput(element: IFieldLayout) {
         return element.FieldSet === 0 && element.Section === 0;
     }
 
-    static isFieldSet(element: IFieldLayout) {
+    static isUniFieldSet(element: IFieldLayout) {
         return element.FieldSet > 0 && element.Section === 0;
     }
 
-    static isGroup(element: IFieldLayout) {
+    static isUniSection(element: IFieldLayout) {
         return element.Section > 0 && element.FieldSet === 0;
     }
 
-    static isFieldsetInAGroup(element: IFieldLayout) {
+    static isUniFieldsetInsideAnUniSection(element: IFieldLayout) {
         return element.Section > 0 && element.FieldSet > 0;
     }
+
+    static isUniComboField(element: IFieldLayout) {
+        return false; // todo: check when combo is added to server interface
+    }
+
 
     constructor() {
 
@@ -31,44 +39,38 @@ export class UniFormLayoutBuilder {
     build(schema: IComponentLayout, model: any) {
         var layout = new UniFormBuilder();
         schema.Fields.forEach((element: IFieldLayout) => {
-            if (UniFormLayoutBuilder.isField(element)) {
-                layout.addField(UniFieldBuilder.fromLayoutConfig(element, model));// element to add to unifield
+            if (UniFormLayoutBuilder.isUniInput(element)) {
+                layout.addUniElement(UniFieldBuilder.fromLayoutConfig(element, model));// element to add to unifield
             } else {
-                if (UniFormLayoutBuilder.isFieldSet(element)) {
-                    var newFieldset = layout.findFieldset(element.FieldSet);
+                if (UniFormLayoutBuilder.isUniFieldSet(element)) {
+                    var newFieldset = UniElementFinder.findUniFieldset(element.FieldSet, layout.config());
                     if (!newFieldset) {
                         newFieldset = UniFieldsetBuilder.fromLayoutConfig(element);// elements to add to unifieldset
-                        layout.addField(newFieldset);
+                        layout.addUniElement(newFieldset);
                     }
-                    newFieldset.addField(UniFieldBuilder.fromLayoutConfig(element, model));
-                } else if (UniFormLayoutBuilder.isGroup(element)) {
-                    var newGroup = layout.findGroup(element.Section);
+                    newFieldset.addUniElement(UniFieldBuilder.fromLayoutConfig(element, model));
+                } else if (UniFormLayoutBuilder.isUniSection(element)) {
+                    var newGroup = UniElementFinder.findUniSection(element.Section, layout.config());
                     if (!newGroup) {
-                        newGroup = UniGroupBuilder.fromLayoutConfig(element); //elements to add to groupbuilder
-                        layout.addField(newGroup);
+                        newGroup = UniSectionBuilder.fromLayoutConfig(element); //elements to add to groupbuilder
+                        layout.addUniElement(newGroup);
                     }
-                    newGroup.addField(UniFieldBuilder.fromLayoutConfig(element, model));
-                } else if (UniFormLayoutBuilder.isFieldsetInAGroup(element)) {
-                    var group = layout.findGroup(element.Section);
+                    newGroup.addUniElement(UniFieldBuilder.fromLayoutConfig(element, model));
+                } else if (UniFormLayoutBuilder.isUniFieldsetInsideAnUniSection(element)) {
+                    var group = UniElementFinder.findUniSection(element.Section, layout.config());
                     if (!group) {
-                        group = UniGroupBuilder.fromLayoutConfig(element); // uniGroup
-                        layout.addField(group);
+                        group = UniSectionBuilder.fromLayoutConfig(element); // uniGroup
+                        layout.addUniElement(group);
                     }
-                    
-                    var fieldset = group.findFieldset(element.FieldSet);
+
+                    var fieldset = UniElementFinder.findFieldset(element.FieldSet, group.config());
                     if (!fieldset) {
                         fieldset = UniFieldsetBuilder.fromLayoutConfig(element); // fieldset
-                        group.addField(fieldset);
+                        group.addUniElement(fieldset);
                     }
-                    
-                    fieldset.addField(UniFieldBuilder.fromLayoutConfig(element, model));//Element to add to unifield
-                    
-                    // var combogroup = layout.findComboGroup(element.FieldSet);
-                    // if (!combogroup) {
-                    //     combogroup = UniComboGroupBuilder.fromLayoutConfig(element); //Fieldset, UniComboGroup
-                    //     group.addField(combogroup);
-                    // }
-                    
+
+                    fieldset.addUniElement(UniFieldBuilder.fromLayoutConfig(element, model));// element to add to unifield
+
                 }
             }
         });

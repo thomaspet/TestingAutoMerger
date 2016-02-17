@@ -6,11 +6,13 @@ import "rxjs/add/observable/forkjoin";
 import "rxjs/add/observable/from";
 
 export interface IUniHttpRequest {
-    resource: string;
-    action?: string;
-    expand?: string;
-    filter?: string;
-    body?: any;
+    resource: string,
+    action?: string,
+    expand?: string,
+    filter?: string,
+    top?: number,
+    skip?: number,
+    body?: any
 }
 
 @Injectable()
@@ -18,21 +20,6 @@ export class UniHttpService {
     baseUrl = "http://devapi.unieconomy.no:80/api/biz/";
     //baseUrl = "http://localhost:35729/api/biz/";
     headers: Headers;
-
-    static buildUrlParams(request: IUniHttpRequest) {
-        var urlParams = new URLSearchParams();
-        if (request.expand) {
-            urlParams.append("expand", request.expand);
-        }
-        if (request.filter) {
-            urlParams.append("filter", request.filter);
-        }
-        if (request.action) {
-            urlParams.append("action", request.action);
-        }
-
-        return urlParams;
-    }
 
     constructor(public http: Http) {
         this.headers = new Headers();
@@ -99,5 +86,16 @@ export class UniHttpService {
         });
 
         return Observable.forkJoin(uniHttpCalls);
+    }
+
+    private static buildUrlParams(request: IUniHttpRequest) {
+        var urlParams = new URLSearchParams();
+        if (request.expand) urlParams.append('expand', request.expand);
+        if (request.filter) urlParams.append('filter', request.filter);
+        if (request.action) urlParams.append('action', request.action);
+        if (request.top)    urlParams.append('top', request.top.toString());
+        if (request.skip)   urlParams.append('skip', request.skip.toString());
+
+        return urlParams;
     }
 }

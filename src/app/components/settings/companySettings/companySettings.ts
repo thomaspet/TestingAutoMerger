@@ -9,7 +9,7 @@ import {UniForm} from '../../../../framework/forms/uniForm';
 import {UniFormBuilder} from "../../../../framework/forms/builders/uniFormBuilder";
 import {UniFieldsetBuilder} from "../../../../framework/forms/builders/uniFieldsetBuilder";
 import {UniFieldBuilder} from "../../../../framework/forms/builders/uniFieldBuilder";
-import {UniGroupBuilder} from '../../../../framework/forms/builders/uniGroupBuilder';
+import {UniSectionBuilder} from '../../../../framework/forms/builders/uniSectionBuilder';
 import {UNI_CONTROL_TYPES} from '../../../../framework/controls/types';
 import {UNI_CONTROL_DIRECTIVES} from '../../../../framework/controls';
 
@@ -131,7 +131,7 @@ export class CompanySettings implements OnInit {
 
         /********************************************************************/
         /*********************  Selskapsoppsett    **************************/
-        var companySetup = new UniGroupBuilder("Selskapsoppsett");
+        var companySetup = new UniSectionBuilder("Selskapsoppsett");
 
         //TODO:
         //Checkbox not working atm
@@ -178,11 +178,11 @@ export class CompanySettings implements OnInit {
                 dataValueField: 'Code'
             });
 
-        companySetup.addFields(companyReg, taxMandatory, companyType, companyCurrency);
+        companySetup.addUniElements(companyReg, taxMandatory, companyType, companyCurrency);
 
         /********************************************************************/
         /*********************  Regnskapsinnstillinger    *******************/
-        var accountingSettings = new UniGroupBuilder('Regnskapsinnstillinger');
+        var accountingSettings = new UniSectionBuilder('Regnskapsinnstillinger');
 
         //TODO:
         //.setModel(this.periodSeries[this.company.PeriodSeriesAccountID]) 
@@ -274,9 +274,9 @@ export class CompanySettings implements OnInit {
             .setModelField('ForceSupplierInvoiceApproval')
             .setType(UNI_CONTROL_DIRECTIVES[8]);
 
-        accountingSettings.addFields(periodSeriesAccount, periodSeriesAccountAll, periodSeriesVat, accountingLockedDate, vatLockedDate, forceSupplierInvoiceApproval);
+        accountingSettings.addUniElements(periodSeriesAccount, periodSeriesAccountAll, periodSeriesVat, accountingLockedDate, vatLockedDate, forceSupplierInvoiceApproval);
 
-        formBuilder.addFields(companyName, orgNr, web, street, street2, postNumber, place, phone, email, companySetup, accountingSettings);
+        formBuilder.addUniElements(companyName, orgNr, web, street, street2, postNumber, place, phone, email, companySetup, accountingSettings);
 
         this.form = formBuilder;
     }
