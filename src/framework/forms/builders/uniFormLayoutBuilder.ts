@@ -37,6 +37,9 @@ export class UniFormLayoutBuilder {
             }
             context = fieldset;
         }
+
+        // check combofield here when it is available
+
         context.addUniElement(field);
     }
 
