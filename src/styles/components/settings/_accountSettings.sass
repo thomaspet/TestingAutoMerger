@@ -1,9 +1,58 @@
 .accountList
-    @include unigrid(10,5,4,1)
-    background-color: red
+    @include unigrid(10)
     float: left
     
 .accountDetails
-    @include unigrid(6,3,4,1)
-    background-color: green
+    @include unigrid(6)
     float: left
+
+.accountDetails label
+    width: 100%
+
+.accountDetails fieldset
+    width: 100%
+    background: inherit
+    margin: 0
+
+.icon-column
+    font-size: 0        
+    height: 0.9rem
+        
+.is-locked:before
+    content: ""
+    display: inline-block
+    background: transparent unicon-lock($uni-color-positive) no-repeat
+    background-size: 0.6rem
+    padding: 0.6rem
+    margin-left: 0.4rem
+    
+.is-visible:before
+    content: ""
+    display: inline-block
+    background: transparent unicon-visible($uni-color-positive) no-repeat
+    background-size: 0.6rem
+    padding: 0.6rem
+    margin-left: 0.4rem
+
+.is-hidden:before
+    content: ""
+    display: inline-block
+    background: transparent unicon-hidden($uni-color-positive) no-repeat
+    background-size: 0.6rem
+    padding: 0.6rem
+    margin-left: 0.4rem
+                   
+.accountList .menuDropDown
+    float: right
+    width: 10rem
+    padding-top: 0.5rem
+    
+.accountList .showhide
+    background: transparent unicon-plus($uni-color-positive) no-repeat
+    background-size: 0.8rem
+    background-position: 0.3rem 0.4rem
+    
+.testonly
+    clear: both
+    background: #d0d0d0
+    padding: 2rem

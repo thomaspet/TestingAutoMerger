@@ -1,9 +1,10 @@
-import {Component, Input} from 'angular2/core';
-import {Guid} from '../guid';
+import {Component, Input} from "angular2/core";
+import {Control} from "angular2/common";
+import {Guid} from "../guid";
 import {UniFieldBuilder} from "../../forms/builders/uniFieldBuilder";
 
 @Component({
-    selector:'uni-checkbox',
+    selector: "uni-checkbox",
     template: `
         <input
             #cb
@@ -14,7 +15,7 @@ import {UniFieldBuilder} from "../../forms/builders/uniFieldBuilder";
             [disabled]="config.disabled"
             (change)="setFormValue(config.control, cb.checked)"
         />
-        <label [attr.for]="guid">{{config.label}}</label>
+        <label [attr.for]="guid">{{config.description}}</label>
     `
 })
 export class UniCheckboxInput {
@@ -23,11 +24,11 @@ export class UniCheckboxInput {
 
     guid: string;
 
-    constructor() { 
-        this.guid = Guid.MakeNew().ToString();   
+    constructor() {
+        this.guid = Guid.MakeNew().ToString();
     }
 
-    refresh(value) {
+    refresh(value: any): void {
         this.setFormValue(this.config.control, value);
     }
 
@@ -35,7 +36,7 @@ export class UniCheckboxInput {
         this.config.fieldComponent = this;
     }
 
-    setFormValue(control,value) {
-        control.updateValue(value);
+    setFormValue(control: Control, value: any): void {
+        control.updateValue(value, {});
     }
 }

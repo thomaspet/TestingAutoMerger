@@ -1,8 +1,7 @@
-import {ComponentRef, Type} from 'angular2/core';
-import {AbstractControl} from 'angular2/common';
-import {UNI_CONTROL_DIRECTIVES} from '../../controls';
-import {UniField} from './../uniField';
-import {UniTextInput} from '../../controls/text/text';
+import {Type} from "angular2/core";
+import {UNI_CONTROL_DIRECTIVES} from "../../controls";
+import {UniField} from "./../uniField";
+import {UniTextInput} from "../../controls/text/text";
 import {Control} from "angular2/common";
 
 declare var _;
@@ -10,6 +9,7 @@ declare var _;
 export class UniFieldBuilder {
     label:string = '';
     description:string = '';
+    url:string = '';
     model:any;
     field:string = '';
     type:Type = UniTextInput;
@@ -33,8 +33,11 @@ export class UniFieldBuilder {
     errorMessages:Array<any> = [];
     lineBreak:boolean = false;
     fieldComponent: any;
+    onSelect: any;
+    clearOnSelect: any;
+    onChange: any;
 
-    static fromLayoutConfig(element:any, model:any):UniFieldBuilder {
+    static fromLayoutConfig(element: any, model: any): UniFieldBuilder {
         var ufb = new UniFieldBuilder();
 
         ufb.model = model;
@@ -54,55 +57,69 @@ export class UniFieldBuilder {
         ufb.fieldType = UniField;
         ufb.type = UNI_CONTROL_DIRECTIVES[element.FieldType];
         ufb.lineBreak = element.hasLineBreak || false;
-
+        
+        if(element.kendoOptions != undefined) {
+            ufb.kOptions = element.kendoOptions;
+        }
+        
         return ufb;
     }
 
-    constructor(type?:Type, label?:string, model?:string, modelField?:string) {
+    constructor(type?: Type, label?: string, model?: string, modelField?: string) {
         this.type = type || UniTextInput;
-        this.label = label || '';
+        this.label = label || "";
         this.model = model || undefined;
-        this.field = modelField || '';
+        this.field = modelField || "";
         this.fieldType = UniField;
         return this;
     }
 
-    setLabel(label:string) {
+    setLabel(label: string) {
         this.label = label;
         return this;
     }
 
-    setModel(model:any) {
+    setDescription(description: string) {
+        this.description = description;
+        return this;
+    }
+
+    setUrl(url: string) {
+        this.url = url;
+        return this;
+    }
+
+    setModel(model: any) {
         this.model = model;
         return this;
     }
 
-    setModelField(key:string) {
+    setModelField(key: string) {
         this.field = key;
         return this;
     }
 
-    setType(type:Type) {
+    setType(type: Type) {
         this.type = type;
         return this;
     }
 
-    setKendoOptions(kOptions:any) {
+    setKendoOptions(kOptions: any) {
         this.kOptions = kOptions;
         return this;
     }
 
-    hasLineBreak(value:boolean) {
+    hasLineBreak(value: boolean) {
         this.lineBreak = value;
         return this;
     }
 
-    addClass(className:string, callback:boolean|((...params:Array<any>)=>boolean)) {
+    addClass(className: string, callback: boolean|((...params: Array<any>) => boolean)) {
         this.classes[className] = callback;
         return this;
     }
 
-    addSyncValidator(name:string, validator:Function, message:string) {
+    addSyncValidator(name: string, validator: Function, message: string) {
         this.syncValidators.push({
             name: name,
             validator: validator,
@@ -111,7 +128,7 @@ export class UniFieldBuilder {
         return this;
     }
 
-    addAsyncValidator(name:string, validator:Function, message:string) {
+    addAsyncValidator(name: string, validator: Function, message: string) {
         this.asyncValidators.push({
             name: name,
             validator: validator,
@@ -136,11 +153,11 @@ export class UniFieldBuilder {
         this.readonly = false;
     }
 
-    config():UniFieldBuilder {
+    config(): UniFieldBuilder {
         return this;
     }
 
-    refreshField(value:any) {
+    refresh(value: any) {
         this.fieldComponent.refresh(value);
     }
 }

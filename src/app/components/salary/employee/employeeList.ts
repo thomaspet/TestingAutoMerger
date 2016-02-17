@@ -1,10 +1,10 @@
 import {Component} from 'angular2/core';
 import {Router, RouteConfig} from 'angular2/router';
 
-import {UniTable, UniTableConfig} from '../../../framework/uniTable';
+import {UniTable, UniTableConfig} from '../../../../framework/uniTable';
 
 @Component({
-    templateUrl: 'app/components/employee/employeeList.html',    
+    templateUrl: 'app/components/salary/employee/employeeList.html',    
     directives: [UniTable]
 })
 
@@ -33,7 +33,7 @@ export class EmployeeList {
              {field: 'BirthDate', title: 'Fødselsdato', format: '{0: dd. MMM yyyy}'},
          ])
          .setOnSelect((selectedEmployee) => {
-            router.navigateByUrl('/employees/' + selectedEmployee.ID); 
+            router.navigateByUrl('/salary/employees/' + selectedEmployee.ID); 
          });
     }
 }
