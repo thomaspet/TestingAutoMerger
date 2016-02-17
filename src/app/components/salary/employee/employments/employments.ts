@@ -5,16 +5,17 @@ import {STYRKCodesDS} from "../../../../../framework/data/styrkCodes";
 import {UNI_CONTROL_DIRECTIVES} from "../../../../../framework/controls";
 import {UNI_CONTROL_TYPES} from "../../../../../framework/controls/types";
 import {
-    UniCardFormBuilder, CardForm, UniForm, UniFormBuilder, UniFieldBuilder, UniGroupBuilder, UniFieldsetBuilder
+    UniForm, UniFormBuilder, UniFieldBuilder, UniSectionBuilder, UniFieldsetBuilder
 } from "../../../../../framework/forms";
 import {Observable} from "rxjs/Observable";
 import {IEmployment} from "../../../../../framework/interfaces/interfaces";
+import {UniElementFinder} from "../../../../../framework/forms/shared/UniElementFinder";
 
 declare var jQuery;
 
 @Component({
     selector: "employee-employment",
-    directives: [UniForm, CardForm],
+    directives: [UniForm],
     templateUrl: "app/components/salary/employee/employments/employments.html"
 })
 export class Employment {
@@ -98,7 +99,6 @@ export class Employment {
         this.formConfigs = [];
 
         this.currentEmployee.Employments.forEach((employment: IEmployment) => {
-            var cardformbuilder = new UniCardFormBuilder();
             var formbuilder = new UniFormBuilder();
             var bAddLocalization = false;
 
@@ -112,7 +112,7 @@ export class Employment {
             jobCode.onSelect = (event: kendo.ui.AutoCompleteSelectEvent) => {
                 var item: any = event.item;
                 var dataItem = event.sender.dataItem(item.index());
-                var fjn = <UniFieldBuilder>formbuilder.findFieldByPropertyName("JobName");
+                var fjn = <UniFieldBuilder>UniElementFinder.findUniFieldByPropertyName("JobName", formbuilder.config());
                 fjn.control.updateValue(dataItem.tittel, {});
             };
 
@@ -125,7 +125,7 @@ export class Employment {
             jobName.onSelect = (event: kendo.ui.AutoCompleteSelectEvent) => {
                 var item: any = event.item;
                 var dataItem = event.sender.dataItem(item.index());
-                var fjc = <UniFieldBuilder>formbuilder.findFieldByPropertyName("JobCode");
+                var fjc = <UniFieldBuilder>UniElementFinder.findUniFieldByPropertyName("JobCode", formbuilder.config());
                 fjc.control.updateValue(dataItem.styrk, {});
             };
 
@@ -151,25 +151,20 @@ export class Employment {
             var readgroup = this.buildGroupForm(employment);
 
             if (bAddLocalization) {
-                formbuilder.addFields(jobCode, jobName, startDate, endDate, monthRate, hourRate, workPercent, localization, readgroup);
+                formbuilder.addUniElements(jobCode, jobName, startDate, endDate, monthRate, hourRate, workPercent, localization, readgroup);
             } else {
-                formbuilder.addFields(jobCode, jobName, startDate, endDate, monthRate, hourRate, workPercent, readgroup);
+                formbuilder.addUniElements(jobCode, jobName, startDate, endDate, monthRate, hourRate, workPercent, readgroup);
             }
 
 
             formbuilder.hideSubmitButton();
             this.formConfigs.push(formbuilder);
-
-            cardformbuilder.addForm(formbuilder);
-            // cardformbuilder.addForm(otherform);
-            // this.cardformConfigs.push(cardformbuilder);
-
         });
 
     }
 
     buildGroupForm(employment: IEmployment) {
-        var groupBuilder = new UniGroupBuilder("Vis mer");
+        var groupBuilder = new UniSectionBuilder("Vis mer");
         if (employment.Standard === true) {
             groupBuilder.openByDefault(true);
         }
@@ -195,26 +190,26 @@ export class Employment {
             dataValueField: "ID"
         });
         var hours = this.buildField("Standardtimer", employment, "HoursPerWeek", UNI_CONTROL_TYPES.NUMERIC);
-        ameldingSet.addFields(hours, tOfEmplnt, renum, work);
+        ameldingSet.addUniElements(hours, tOfEmplnt, renum, work);
 
         // dates
         var dateSet = new UniFieldsetBuilder();
         var salary = this.buildField("Lønnsjustering", employment, "LastSalaryChangeDate", UNI_CONTROL_TYPES.DATEPICKER);
         var percent = this.buildField("Endret stillingprosent", employment, "LastWorkPercentChangeDate", UNI_CONTROL_TYPES.DATEPICKER);
         var senority = this.buildField("Ansiennitet", employment, "SenorityDate", UNI_CONTROL_TYPES.DATEPICKER);
-        dateSet.addFields(salary, percent, senority);
+        dateSet.addUniElements(salary, percent, senority);
 
         // annen lønnsinfo
         var infoSet = new UniFieldsetBuilder();
         var freerate = this.buildField("Fri sats", employment, "UserdefinedRate", UNI_CONTROL_TYPES.NUMERIC);
         var ledger = this.buildField("Hovedbokskonto", employment, "LedgerAccount", UNI_CONTROL_TYPES.TEXT);
-        infoSet.addFields(freerate, ledger);
+        infoSet.addUniElements(freerate, ledger);
 
         // dimensjoner
         // prosjekt - ?
         // avdeling - ?
 
-        groupBuilder.addFields(ameldingSet, dateSet, infoSet);
+        groupBuilder.addUniElements(ameldingSet, dateSet, infoSet);
 
         return groupBuilder;
     }

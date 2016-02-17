@@ -3,14 +3,14 @@ import {UniField} from "./uniField";
 import {UniFieldBuilder} from "./builders/uniFieldBuilder";
 
 @Component({
-    selector: 'uni-combo-group',
+    selector: 'uni-combo-field',
     directives: [UniField],
     template: `<legend *ngIf="config.legend">{{config.legend}}</legend>
         <template ngFor #field [ngForOf]="config.fields" #i="index">
             <uni-field [config]="field" [ngClass]="field.classes" [class.error]="hasError(field)"></uni-field>
         </template>`,
 })
-export class UniComboGroup {
+export class UniComboField {
     @Input()
     config;
 

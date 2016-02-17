@@ -1,6 +1,6 @@
 import {Component, Input} from "angular2/core";
 import {UniComponentLoader} from "../core/componentLoader";
-import {IElementBuilder} from "./interfaces";
+import {UniElementBuilder} from "./interfaces";
 import {UniFieldsetBuilder} from "./builders/uniFieldsetBuilder";
 
 declare var _;
@@ -42,7 +42,7 @@ export class UniFieldset {
     /**
      * Returns fields
      *
-     * @returns Array<IElementBuilder>
+     * @returns Array<UniElementBuilder>
      */
     getFields() {
         return this.config.fields;
@@ -58,12 +58,12 @@ export class UniFieldset {
     }
 
     /**
-     * Returns the type (IElementBuilder) of that field
+     * Returns the type (UniElementBuilder) of that field
      *
      * @param field
      * @returns {Type}
      */
-    getFieldType(field: IElementBuilder) {
+    getFieldType(field: UniElementBuilder) {
         return field.fieldType;
     }
 
