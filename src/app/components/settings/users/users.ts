@@ -1,7 +1,7 @@
 ﻿import {Component} from 'angular2/core';
 import {NgFor, NgIf} from 'angular2/common';
 import {UniTable, UniTableConfig} from '../../../../framework/uniTable';
-import {UniHttpService, UniHttpRequest} from '../../../../framework/data/uniHttpService';
+import {UniHttpService, IUniHttpRequest} from '../../../../framework/data/uniHttpService';
 
 declare var jQuery;
 
@@ -55,15 +55,12 @@ export class Users {
             this.http.post({ resource: 'user-verifications', body: this.newUser })
                 .subscribe(
                 (data) => {
-                    //Should never return success without VerificationCode?? If not needed?
-                    if (data.VerificationCode) {
-                        this.inviteLink = this.baseUrl + data.VerificationCode;
-                        this.newUser.DisplayName = '';
-                        this.newUser.Email = '';
-                        this.createUserTable();
-                        this.isPostUserActive = false;
-                        jQuery('.users_invite_link').slideDown(500);
-                    }
+                    this.inviteLink = this.baseUrl + data.VerificationCode;
+                    this.newUser.DisplayName = '';
+                    this.newUser.Email = '';
+                    this.createUserTable();
+                    this.isPostUserActive = false;
+                    jQuery('.users_invite_link').slideDown(500);
                 },
                 (error) => {
                     console.log(error);

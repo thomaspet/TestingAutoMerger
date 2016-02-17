@@ -1,7 +1,7 @@
 ﻿import {Component} from 'angular2/core';
 import {Router, RouteParams} from 'angular2/router';
 import {NgIf, NgClass} from 'angular2/common';
-import {UniHttpService, UniHttpRequest} from '../../../framework/data/uniHttpService';
+import {UniHttpService, IUniHttpRequest} from '../../../framework/data/uniHttpService';
 
 @Component({
     selector: 'uni-confirm-invite',
@@ -32,6 +32,7 @@ export class Confirm {
             http.get({ resource: 'user-verifications', filter: filter })
                 .subscribe(
                 (data) => {
+                    console.log(data);
                     if (data[0].ExpirationDate) {
                         if (new Date(data[0].ExpirationDate) > new Date()) {
                             this.validVerificationCode = true;
@@ -59,7 +60,7 @@ export class Confirm {
     confirmUser() {
 
         //PUT USER
-        if (this.isvalidUser()) {
+        if (this.isValidUser()) {
             this.working = true;
             console.log(this.user);
 
@@ -80,7 +81,7 @@ export class Confirm {
         }
     }
 
-    isvalidUser() {
+    isValidUser() {
         this.formErrorMessage = '';
         if (this.user['user-name'] === undefined || this.user['user-name'] === '') {
             this.formErrorMessage += 'Ugyldig brukernavn..';

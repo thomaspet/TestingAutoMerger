@@ -1049,10 +1049,7 @@ export interface ICompanySettings {
 	VatLockedDate: Date;
 	WebAddress: string;
 	AccountGroupSetID: number;
-<<<<<<< HEAD
-=======
 	AutoJournalPayment: boolean;
->>>>>>> develop
 	StatusID: number;
 	ID: number;
 	Deleted: boolean;
@@ -1646,10 +1643,6 @@ export interface IJournalEntryMode {
 	VisibleModules: string;
 	TraceLinkTypes: string;
 	StatusID: number;
-<<<<<<< HEAD
-	ID: number;
-	Deleted: boolean;
-=======
 	ID: number;
 	Deleted: boolean;
 	CustomFields: any;
@@ -1665,22 +1658,10 @@ export interface IJournalEntry {
 	FinancialYear: IFinancialYear;
 	Lines: Array<IJournalEntryLine>;
 	DraftLines: Array<IJournalEntryLineDraft>;
->>>>>>> develop
 	CustomFields: any;
 }
 
 
-<<<<<<< HEAD
-export interface IJournalEntry {
-	JournalEntryNumber: string;
-	FinancialYearID: number;
-	StatusID: number;
-	ID: number;
-	Deleted: boolean;
-	FinancialYear: IFinancialYear;
-	Lines: Array<IJournalEntryLine>;
-	DraftLines: Array<IJournalEntryLineDraft>;
-=======
 export interface IJournalEntryLine {
 	JournalEntryID: number;
 	JournalEntryNumber: string;
@@ -1715,17 +1696,12 @@ export interface IJournalEntryLine {
 	OriginalReferencePost: IJournalEntryLine;
 	ReferenceOriginalPost: IJournalEntryLine;
 	Dimensions: IDimensions;
->>>>>>> develop
 	CustomFields: any;
 }
 
 
-<<<<<<< HEAD
-export interface IJournalEntryLine {
-=======
 export interface IJournalEntryLineDraft {
 	AccrualID: number;
->>>>>>> develop
 	JournalEntryID: number;
 	JournalEntryNumber: string;
 	FinancialDate: Date;
@@ -1749,18 +1725,6 @@ export interface IJournalEntryLineDraft {
 	OriginalReferencePostID: number;
 	ReferenceOriginalPostID: number;
 	DimensionsID: number;
-<<<<<<< HEAD
-	StatusID: number;
-	ID: number;
-	Deleted: boolean;
-	VatType: IVatType;
-	Account: IAccount;
-	SubAccount: IAccount;
-	ReferenceCreditPost: IJournalEntryLine;
-	OriginalReferencePost: IJournalEntryLine;
-	ReferenceOriginalPost: IJournalEntryLine;
-	Dimensions: IDimensions;
-=======
 	StatusID: number;
 	ID: number;
 	Deleted: boolean;
@@ -1793,54 +1757,10 @@ export interface IPayment {
 	BankAccount: IBankAccount;
 	Customer: ICustomer;
 	Currency: ICurrency;
->>>>>>> develop
 	CustomFields: any;
 }
 
 
-<<<<<<< HEAD
-export interface IJournalEntryLineDraft {
-	AccrualID: number;
-	JournalEntryID: number;
-	JournalEntryNumber: string;
-	FinancialDate: Date;
-	VatDate: Date;
-	RegisteredDate: Date;
-	Signature: string;
-	Amount: number;
-	TaxBasisAmount: number;
-	CurrencyAmount: number;
-	TaxBasisCurrencyAmount: number;
-	CurrencyCode: string;
-	VatTypeID: number;
-	VatJournalEntryPostID: number;
-	AccountID: number;
-	SubAccountID: number;
-	BatchNumber: number;
-	OriginalJournalEntryPost: number;
-	Description: string;
-	VatDeductionPercent: number;
-	ReferenceCreditPostID: number;
-	OriginalReferencePostID: number;
-	ReferenceOriginalPostID: number;
-	DimensionsID: number;
-	StatusID: number;
-	ID: number;
-	Deleted: boolean;
-	Accrual: IAccrual;
-	VatType: IVatType;
-	Account: IAccount;
-	SubAccount: IAccount;
-	ReferenceCreditPost: IJournalEntryLine;
-	OriginalReferencePost: IJournalEntryLine;
-	ReferenceOriginalPost: IJournalEntryLine;
-	Dimensions: IDimensions;
-	CustomFields: any;
-}
-
-
-=======
->>>>>>> develop
 export interface IVatCodeGroup {
 	No: number;
 	Name: string;
