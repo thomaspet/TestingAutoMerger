@@ -1,7 +1,7 @@
 import {UniFormBuilder, UniFieldBuilder, UniFieldsetBuilder, UniSectionBuilder} from "../../forms";
 import {IComponentLayout, IFieldLayout} from "../../interfaces/interfaces";
 import {UniElementFinder} from "../shared/UniElementFinder";
-import {UniComboField} from "../uniComboField";
+import {UniElementBuilder} from "../interfaces";
 import {UniComboFieldBuilder} from "./uniComboFieldBuilder";
 
 /**
@@ -11,26 +11,34 @@ import {UniComboFieldBuilder} from "./uniComboFieldBuilder";
  */
 export class UniFormLayoutBuilder {
 
-    static isUniInput(element: IFieldLayout) {
-        return element.FieldSet === 0 && element.Section === 0;
-    }
+    static addElement(element: IFieldLayout, layout: UniFormBuilder, model: any) {
+        let section: UniSectionBuilder,
+            fieldset: UniFieldsetBuilder,
+            combo: UniComboFieldBuilder, // soon
+            field: UniFieldBuilder,
+            context: any;
 
-    static isUniFieldSet(element: IFieldLayout) {
-        return element.FieldSet > 0 && element.Section === 0;
-    }
+        context = layout;
+        field = UniFieldBuilder.fromLayoutConfig(element, model);
 
-    static isUniSection(element: IFieldLayout) {
-        return element.Section > 0 && element.FieldSet === 0;
+        if (element.Section > 0) {
+            section = UniElementFinder.findUniSection(element.Section, context.config());
+            if (!section) {
+                section = UniSectionBuilder.fromLayoutConfig(element);
+                context.addUniElement(section);
+            }
+            context = section;
+        }
+        if (element.FieldSet > 0) {
+            fieldset = UniElementFinder.findUniFieldset(element.Section, element.FieldSet, context.config());
+            if (!fieldset) {
+                fieldset = UniFieldsetBuilder.fromLayoutConfig(element);
+                context.addUniElement(fieldset);
+            }
+            context = fieldset;
+        }
+        context.addUniElement(field);
     }
-
-    static isUniFieldsetInsideAnUniSection(element: IFieldLayout) {
-        return element.Section > 0 && element.FieldSet > 0;
-    }
-
-    static isUniComboField(element: IFieldLayout) {
-        return false; // todo: check when combo is added to server interface
-    }
-
 
     constructor() {
 
@@ -39,40 +47,7 @@ export class UniFormLayoutBuilder {
     build(schema: IComponentLayout, model: any) {
         var layout = new UniFormBuilder();
         schema.Fields.forEach((element: IFieldLayout) => {
-            if (UniFormLayoutBuilder.isUniInput(element)) {
-                layout.addUniElement(UniFieldBuilder.fromLayoutConfig(element, model));// element to add to unifield
-            } else {
-                if (UniFormLayoutBuilder.isUniFieldSet(element)) {
-                    var newFieldset = UniElementFinder.findUniFieldset(element.FieldSet, layout.config());
-                    if (!newFieldset) {
-                        newFieldset = UniFieldsetBuilder.fromLayoutConfig(element);// elements to add to unifieldset
-                        layout.addUniElement(newFieldset);
-                    }
-                    newFieldset.addUniElement(UniFieldBuilder.fromLayoutConfig(element, model));
-                } else if (UniFormLayoutBuilder.isUniSection(element)) {
-                    var newGroup = UniElementFinder.findUniSection(element.Section, layout.config());
-                    if (!newGroup) {
-                        newGroup = UniSectionBuilder.fromLayoutConfig(element); //elements to add to groupbuilder
-                        layout.addUniElement(newGroup);
-                    }
-                    newGroup.addUniElement(UniFieldBuilder.fromLayoutConfig(element, model));
-                } else if (UniFormLayoutBuilder.isUniFieldsetInsideAnUniSection(element)) {
-                    var group = UniElementFinder.findUniSection(element.Section, layout.config());
-                    if (!group) {
-                        group = UniSectionBuilder.fromLayoutConfig(element); // uniGroup
-                        layout.addUniElement(group);
-                    }
-
-                    var fieldset = UniElementFinder.findFieldset(element.FieldSet, group.config());
-                    if (!fieldset) {
-                        fieldset = UniFieldsetBuilder.fromLayoutConfig(element); // fieldset
-                        group.addUniElement(fieldset);
-                    }
-
-                    fieldset.addUniElement(UniFieldBuilder.fromLayoutConfig(element, model));// element to add to unifield
-
-                }
-            }
+            UniFormLayoutBuilder.addElement(element, layout, model);
         });
         return layout;
     }

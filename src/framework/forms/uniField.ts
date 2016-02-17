@@ -5,6 +5,7 @@ import {ShowError} from "../forms/showError";
 import {UniRadioGroup} from "../controls/radioGroup/uniRadioGroup";
 import {UniComponentLoader} from "../core/componentLoader";
 import {UniFieldBuilder} from "./builders/uniFieldBuilder";
+import {UniGenericField} from "./shared/UniGenericField";
 
 declare var _;
 
@@ -16,37 +17,20 @@ declare var _;
     directives: [UniComponentLoader, ShowError, UniRadioGroup, NgIf, NgForm],
     template: `
         <label ngForm *ngIf="isInput()" [class.error]="hasError()" [class]="buildClassString()" [class.-has-linebreak]="hasLineBreak()">
-            <span>{{getLabel()}}</span>
-            <uni-component-loader [type]="getType()" [config]="getConfig()"></uni-component-loader>
-            <show-error [control]="getControl()" [messages]="getErrorMessages()"></show-error>
+            <span>{{config.label}}</span>
+            <uni-component-loader [type]="config.type" [config]="config"></uni-component-loader>
+            <show-error [control]="config.control" [messages]="config.errorMessages"></show-error>
         </label>
-        <uni-radio-group *ngIf="isRadioGroup(getType())" [config]="getConfig()"></uni-radio-group>
+        <uni-radio-group *ngIf="isRadioGroup()" [config]="config"></uni-radio-group>
     `
 })
-export class UniField {
+export class UniField extends UniGenericField {
 
     @Input()
     config: UniFieldBuilder;
 
     constructor() {
-    }
-
-    /**
-     * Returns the actual config
-     *
-     * @returns {UniFieldBuilder}
-     */
-    getConfig() {
-        return this.config;
-    }
-
-    /**
-     * Return type of the component
-     *
-     * @returns {Type}
-     */
-    getType() {
-        return this.config.type
+        super();
     }
 
     /**
@@ -59,39 +43,12 @@ export class UniField {
     }
 
     /**
-     * Returns label
-     *
-     * @returns {string}
-     */
-    getLabel() {
-        return this.config.label;
-    }
-
-    /**
-     * Returns the control
-     *
-     * @returns {AbstractControl}
-     */
-    getControl() {
-        return this.config.control;
-    }
-
-    /**
-     * Returns error messages attached to that control
-     *
-     * @returns {Array<any>}
-     */
-    getErrorMessages() {
-        return this.config.errorMessages;
-    }
-
-    /**
      * Returns true if this component is a RadioGroup
      * @param type
      * @returns {boolean}
      */
     isRadioGroup(type: Type) {
-        return UNI_CONTROL_DIRECTIVES.indexOf(type) === 9;
+        return UNI_CONTROL_DIRECTIVES.indexOf(this.config.type) === 9;
     }
 
     /**
@@ -117,29 +74,5 @@ export class UniField {
      */
     hasError() {
         return this.config.control && this.config.control.touched && !this.config.control.valid;
-    }
-
-    /**
-     * It builds the string of classes after evaluate each class callback
-     *
-     * @returns {string}
-     */
-    buildClassString() {
-        var classes = [];
-        var cls = this.config.classes;
-        for (var cl in cls) {
-            if (cls.hasOwnProperty(cl)) {
-                var value = undefined;
-                if (_.isFunction(cls[cl])) {
-                    value = cls[cl]();
-                } else {
-                    value = cls[cl];
-                }
-                if (value === true) {
-                    classes.push(cl);
-                }
-            }
-        }
-        return classes.join(" ");
     }
 }

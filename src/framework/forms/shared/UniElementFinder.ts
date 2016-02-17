@@ -20,10 +20,16 @@ export class UniElementFinder {
         return ret;
     }
 
-    static findUniFieldset(index: number, collection: any[]): UniFieldsetBuilder {
+    static findUniFieldset(sectionIndex: number, fieldsetIndex: number, collection: any[]): UniFieldsetBuilder {
         var value: UniFieldsetBuilder = undefined;
+        if (sectionIndex > 0) {
+            var section = UniElementFinder.findUniSection(sectionIndex, collection);
+            if (section) {
+                collection = section.config();
+            }
+        }
         collection.forEach((element: UniElementBuilder) => {
-            if (element.fieldsetIndex === index && element instanceof UniFieldsetBuilder) {
+            if (element.fieldsetIndex === fieldsetIndex && element instanceof UniFieldsetBuilder) {
                 value = element;
             }
         });
@@ -40,18 +46,20 @@ export class UniElementFinder {
         return value;
     }
 
-    static findFieldset(index: number, collection:any[]): UniFieldsetBuilder {
-        var value: UniFieldsetBuilder = undefined;
-        collection.forEach((element: UniElementBuilder) => {
-            if (element.fieldsetIndex === index && element instanceof UniFieldsetBuilder) {
-                value = element;
-            }
-        });
-        return value;
-    }
-
-    static findUniComboField(index: number, collection: any[]): UniComboFieldBuilder {
+    static findUniComboField(sectionIndex: number, fieldsetIndex: number, index: number, collection: any[]): UniComboFieldBuilder {
         var value: UniComboFieldBuilder = undefined;
+        if (sectionIndex > 0) {
+            var section = UniElementFinder.findUniSection(sectionIndex, collection);
+            if (section) {
+                collection = section.config();
+            }
+        }
+        if (fieldsetIndex > 0) {
+            var fieldset = UniElementFinder.findUniFieldset(sectionIndex, fieldsetIndex, collection);
+            if (fieldset) {
+                collection = fieldset.config();
+            }
+        }
         collection.forEach((element: UniElementBuilder) => {
             if (element.comboIndex === index && element instanceof UniComboFieldBuilder) {
                 value = element;
