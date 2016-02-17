@@ -10,7 +10,7 @@ declare var _;
  * It can contain UniFields and UniFieldsets
  */
 @Component({
-    selector: "uni-group",
+    selector: "uni-section",
     directives: [UniComponentLoader],
     template: `
         <article class="formSection-collapsable" [ngClass]="{'-is-open':isCollapsed()}" [class]="buildClassString()">
@@ -26,10 +26,10 @@ declare var _;
         </article>
     `
 })
-export class UniGroup {
+export class UniSection {
 
     /**
-     * UniGroup config
+     * UniSection config
      */
     @Input()
     config;

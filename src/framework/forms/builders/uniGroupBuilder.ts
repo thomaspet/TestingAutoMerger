@@ -1,7 +1,7 @@
 import {Type} from "angular2/core";
 import {UniFieldBuilder} from "./uniFieldBuilder";
 import {UniFieldsetBuilder} from "./uniFieldsetBuilder";
-import {UniGroup} from "./../uniGroup";
+import {UniSection} from "./../uniSection";
 import {UniComboGroupBuilder} from "./uniComboGroupBuilder";
 import {UniGrouper} from "../shared/UniGrouper";
 import {UniElementBuilder} from "../interfaces";
@@ -24,7 +24,7 @@ export class UniGroupBuilder extends UniGrouper {
         ugb.sectionIndex = element.Section;
         ugb.legend = element.Legend;
         ugb.collapsed = element.openByDefault;
-        ugb.fieldType = UniGroup;
+        ugb.fieldType = UniSection;
 
         return ugb;
     }
@@ -33,7 +33,7 @@ export class UniGroupBuilder extends UniGrouper {
         super();
 
         this.legend = legend || "";
-        this.fieldType = UniGroup;
+        this.fieldType = UniSection;
     }
 
     openByDefault(value: boolean) {

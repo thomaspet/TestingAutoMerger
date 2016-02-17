@@ -65,7 +65,7 @@ export class UniFormLayoutBuilder {
 
                     // var combogroup = layout.findComboGroup(element.FieldSet);
                     // if (!combogroup) {
-                    //     combogroup = UniComboGroupBuilder.fromLayoutConfig(element); //Fieldset, UniComboGroup
+                    //     combogroup = UniComboGroupBuilder.fromLayoutConfig(element); //Fieldset, UniComboInput
                     //     group.addField(combogroup);
                     // }
 

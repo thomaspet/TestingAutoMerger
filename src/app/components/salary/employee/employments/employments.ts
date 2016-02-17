@@ -5,7 +5,7 @@ import {STYRKCodesDS} from "../../../../../framework/data/styrkCodes";
 import {UNI_CONTROL_DIRECTIVES} from "../../../../../framework/controls";
 import {UNI_CONTROL_TYPES} from "../../../../../framework/controls/types";
 import {
-    UniCardFormBuilder, CardForm, UniForm, UniFormBuilder, UniFieldBuilder, UniGroupBuilder, UniFieldsetBuilder
+    UniCardFormBuilder, UniForm, UniFormBuilder, UniFieldBuilder, UniGroupBuilder, UniFieldsetBuilder
 } from "../../../../../framework/forms";
 import {Observable} from "rxjs/Observable";
 import {IEmployment} from "../../../../../framework/interfaces/interfaces";
@@ -14,7 +14,7 @@ declare var jQuery;
 
 @Component({
     selector: "employee-employment",
-    directives: [UniForm, CardForm],
+    directives: [UniForm],
     templateUrl: "app/components/salary/employee/employments/employments.html"
 })
 export class Employment {

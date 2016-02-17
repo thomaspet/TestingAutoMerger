@@ -1,6 +1,6 @@
 import {UniFieldBuilder} from "./../builders/uniFieldBuilder";
 import {Type} from "angular2/core";
-import {UniComboGroup} from "./../uniComboGroup";
+import {UniComboInput} from "./../uniComboInput";
 import {UniGrouper} from "../shared/UniGrouper";
 
 declare var _;
@@ -19,7 +19,7 @@ export class UniComboGroupBuilder extends UniGrouper {
         ucgb.fieldsetIndex = element.FieldSet;
         ucgb.sectionIndex = element.Section;
         ucgb.legend = element.Legend;
-        ucgb.fieldType = UniComboGroup;
+        ucgb.fieldType = UniComboInput;
 
         return ucgb;
     }
@@ -27,7 +27,7 @@ export class UniComboGroupBuilder extends UniGrouper {
     constructor(legend?: string) {
         super();
         this.legend = legend || "";
-        this.fieldType = UniComboGroup;
+        this.fieldType = UniComboInput;
     }
 
 

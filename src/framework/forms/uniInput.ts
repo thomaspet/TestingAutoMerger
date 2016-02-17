@@ -12,7 +12,7 @@ declare var _;
  *
  */
 @Component({
-    selector: "uni-field",
+    selector: "uni-input",
     directives: [UniComponentLoader, ShowError, UniRadioGroup, NgIf, NgForm],
     template: `
         <label ngForm *ngIf="isInput()" [class.error]="hasError()" [class]="buildClassString()" [class.-has-linebreak]="hasLineBreak()">
@@ -23,7 +23,7 @@ declare var _;
         <uni-radio-group *ngIf="isRadioGroup(getType())" [config]="getConfig()"></uni-radio-group>
     `
 })
-export class UniField {
+export class UniInput {
 
     @Input()
     config: UniFieldBuilder;

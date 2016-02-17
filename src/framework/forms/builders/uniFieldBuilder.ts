@@ -1,6 +1,6 @@
 import {Type} from "angular2/core";
 import {UNI_CONTROL_DIRECTIVES} from "../../controls";
-import {UniField} from "./../uniField";
+import {UniInput} from "./../uniInput";
 import {UniTextInput} from "../../controls/text/text";
 import {Control} from "angular2/common";
 
@@ -54,7 +54,7 @@ export class UniFieldBuilder {
         ufb.entityType = element.EntityType;
         ufb.componentLayoutID = element.ComponentLayoutID;
         ufb.field = element.Property;
-        ufb.fieldType = UniField;
+        ufb.fieldType = UniInput;
         ufb.type = UNI_CONTROL_DIRECTIVES[element.FieldType];
         ufb.lineBreak = element.hasLineBreak || false;
 
@@ -70,7 +70,7 @@ export class UniFieldBuilder {
         this.label = label || "";
         this.model = model || undefined;
         this.field = modelField || "";
-        this.fieldType = UniField;
+        this.fieldType = UniInput;
         return this;
     }
 

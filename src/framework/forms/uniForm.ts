@@ -3,11 +3,11 @@ import {FORM_DIRECTIVES, FORM_PROVIDERS, Control, ControlGroup, FormBuilder} fro
 import {UNI_CONTROL_DIRECTIVES} from "../controls";
 import {UniRadioGroup} from "../controls/radioGroup/uniRadioGroup";
 import {ShowError} from "./showError";
-import {UniField} from "./uniField";
+import {UniInput} from "./uniInput";
 import {UniFieldBuilder} from "./builders/uniFieldBuilder";
 import {UniFieldset} from "./uniFieldset";
-import {UniGroup} from "./uniGroup";
-import {UniComboGroup} from "./uniComboGroup";
+import {UniSection} from "./uniSection";
+import {UniComboInput} from "./uniComboInput";
 import {UniComponentLoader} from "../core/componentLoader";
 import {MessageComposer} from "./composers/messageComposer";
 import {ValidatorsComposer} from "./composers/validatorsComposer";
@@ -22,7 +22,7 @@ declare var _; //lodash
  */
 @Component({
     selector: "uni-form",
-    directives: [FORM_DIRECTIVES, UniField, UniFieldset, UniGroup, UniComboGroup, UniComponentLoader],
+    directives: [FORM_DIRECTIVES, UniInput, UniFieldset, UniSection, UniComboInput, UniComponentLoader],
     providers: [FORM_PROVIDERS],
     template: `
         <form (submit)="submit()" [ngFormModel]="form" [class]="buildClassString()" [class.error]="hasErrors()">
@@ -137,7 +137,7 @@ export class UniForm implements OnInit {
     }
 
     /**
-     * return the type of the Element return IElmementBuilder Type (UniField, UniFieldBuilder, UniGroup)
+     * return the type of the Element return IElmementBuilder Type (UniInput, UniFieldBuilder, UniSection)
      * @param field
      * @returns {Type}
      */
