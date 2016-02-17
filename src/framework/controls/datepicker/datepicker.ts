@@ -4,7 +4,7 @@ import { Observable } from "rxjs/Observable";
 import "rxjs/observable/fromEvent";
 
 import {InputTemplateString} from "../inputTemplateString";
-import {UniFieldBuilder} from "../../forms/builders/uniFieldBuilder";
+import {UniInputBuilder} from "../../forms/builders/uniInputBuilder";
 declare var jQuery, _;
 
 @Component({
@@ -13,7 +13,7 @@ declare var jQuery, _;
 })
 export class UniDatepicker implements AfterViewInit, OnDestroy {
     @Input()
-    config: UniFieldBuilder;
+    config: UniInputBuilder;
 
     datepicker: kendo.ui.DatePicker;
 

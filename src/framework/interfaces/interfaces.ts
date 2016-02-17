@@ -649,9 +649,9 @@ export interface ISalaryTransactionSupplement {
 
 
 export interface IEmployee {
-	EmployeeNumber: number;
 	BusinessRelationID: number;
 	PaymentInterval: PaymentInterval;
+	EmployeeNumber: number;
 	SocialSecurityNumber: string;
 	BirthDate: Date;
 	TaxTable: string;
@@ -1508,6 +1508,7 @@ export interface IUserVerification {
 	DisplayName: string;
 	CompanyId: number;
 	UserId: number;
+	StatusCode: number;
 	ID: number;
 	Deleted: boolean;
 	CustomFields: any;

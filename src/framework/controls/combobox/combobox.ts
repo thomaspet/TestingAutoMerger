@@ -4,7 +4,7 @@ import { Observable } from "rxjs/Observable";
 import "rxjs/observable/fromEvent";
 
 import {InputTemplateString} from "../inputTemplateString";
-import {UniFieldBuilder} from "../../forms/builders/uniFieldBuilder";
+import {UniInputBuilder} from "../../forms/builders/uniInputBuilder";
 
 declare var jQuery; // $ is reserved for angular ElementFinder
 
@@ -14,7 +14,7 @@ declare var jQuery; // $ is reserved for angular ElementFinder
 })
 export class UniCombobox implements AfterViewInit, OnDestroy {
     @Input()
-    config: UniFieldBuilder;
+    config: UniInputBuilder;
 
     control: Control;
     nativeElement: any;

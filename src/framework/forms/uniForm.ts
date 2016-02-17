@@ -4,7 +4,7 @@ import {UNI_CONTROL_DIRECTIVES} from "../controls";
 import {UniRadioGroup} from "../controls/radioGroup/uniRadioGroup";
 import {ShowError} from "./showError";
 import {UniInput} from "./uniInput";
-import {UniFieldBuilder} from "./builders/uniFieldBuilder";
+import {UniInputBuilder} from "./builders/uniInputBuilder";
 import {UniFieldset} from "./uniFieldset";
 import {UniSection} from "./uniSection";
 import {UniComboInput} from "./uniComboInput";
@@ -137,7 +137,7 @@ export class UniForm implements OnInit {
     }
 
     /**
-     * return the type of the Element return IElmementBuilder Type (UniInput, UniFieldBuilder, UniSection)
+     * return the type of the Element return IElmementBuilder Type (UniInput, UniInputBuilder, UniSection)
      * @param field
      * @returns {Type}
      */
@@ -180,7 +180,7 @@ export class UniForm implements OnInit {
 
         for (let i = 0; i < config.length; i++) {
             let field = config[i];
-            if (field instanceof UniFieldBuilder) {
+            if (field instanceof UniInputBuilder) {
                 var model = field.model;
                 var fieldPath = field.field;
                 var value = _.get(formValue, fieldPath);
@@ -204,7 +204,7 @@ export class UniForm implements OnInit {
 
         for (let i = 0; i < config.length; i++) {
             let field = config[i];
-            if (field instanceof UniFieldBuilder) {
+            if (field instanceof UniInputBuilder) {
                 field.model = newModel;
                 var fieldPath = field.field;
                 var value = _.get(newModel, fieldPath);
@@ -223,7 +223,7 @@ export class UniForm implements OnInit {
     private createFormControls(config) {
         for (let i = 0; i < config.length; i++) {
             let field = config[i];
-            if (field instanceof UniFieldBuilder) {
+            if (field instanceof UniInputBuilder) {
                 this.createFormControl(field);
             } else {
                 this.createFormControls(field.fields);

@@ -1,5 +1,5 @@
 import {Component, Input} from "angular2/core";
-import {UniFieldBuilder} from "../../forms/builders/uniFieldBuilder";
+import {UniInputBuilder} from "../../forms/builders/uniInputBuilder";
 
 @Component({
     selector: "uni-hyperlink",
@@ -10,7 +10,7 @@ import {UniFieldBuilder} from "../../forms/builders/uniFieldBuilder";
 })
 export class UniHyperlink {
     @Input()
-    config: UniFieldBuilder;
+    config: UniInputBuilder;
 
     constructor() {
     }

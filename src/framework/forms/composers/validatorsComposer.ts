@@ -1,17 +1,17 @@
 import {Validators} from "angular2/common";
-import {UniFieldBuilder} from "./../builders/uniFieldBuilder";
+import {UniInputBuilder} from "./../builders/uniInputBuilder";
 
 /**
- * Join (or Compose) Validators of a UniFieldBuilder
+ * Join (or Compose) Validators of a UniInputBuilder
  */
 export class ValidatorsComposer {
 
-    public static composeSyncValidators(c: UniFieldBuilder) {
+    public static composeSyncValidators(c: UniInputBuilder) {
         let validators = ValidatorsComposer.joinValidators(c.syncValidators);
         return Validators.compose(validators);
     }
 
-    public static composeAsyncValidators(c: UniFieldBuilder) {
+    public static composeAsyncValidators(c: UniInputBuilder) {
         let validators = ValidatorsComposer.joinValidators(c.asyncValidators);
         return Validators.composeAsync(validators);
     }

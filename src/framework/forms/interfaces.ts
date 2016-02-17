@@ -1,9 +1,7 @@
-import {UniFieldBuilder} from './builders/uniFieldBuilder';
+import {UniInputBuilder} from './builders/uniInputBuilder';
 import {UniFieldsetBuilder} from './builders/uniFieldsetBuilder';
-import {UniGroupBuilder} from './builders/uniGroupBuilder';
+import {UniSectionBuilder} from './builders/uniSectionBuilder';
 import {UniFormBuilder} from './builders/uniFormBuilder';
-import {UniComboGroupBuilder} from './builders/uniComboGroupBuilder';
+import {UniComboInputBuilder} from './builders/uniComboInputBuilder';
 
-export type UniElementBuilder = UniFieldBuilder|UniFieldsetBuilder|UniGroupBuilder|UniComboGroupBuilder;
-export type UniElementBuilderCollection = Array<UniElementBuilder>;
-export type UniFormBuilderCollection = Array<UniFormBuilder>;
+export type UniElementBuilder = UniInputBuilder|UniFieldsetBuilder|UniSectionBuilder|UniComboInputBuilder;

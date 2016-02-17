@@ -4,7 +4,7 @@ import {UNI_CONTROL_DIRECTIVES} from "../controls";
 import {ShowError} from "../forms/showError";
 import {UniRadioGroup} from "../controls/radioGroup/uniRadioGroup";
 import {UniComponentLoader} from "../core/componentLoader";
-import {UniFieldBuilder} from "./builders/uniFieldBuilder";
+import {UniInputBuilder} from "./builders/uniInputBuilder";
 
 declare var _;
 
@@ -26,7 +26,7 @@ declare var _;
 export class UniInput {
 
     @Input()
-    config: UniFieldBuilder;
+    config: UniInputBuilder;
 
     constructor() {
     }

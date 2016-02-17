@@ -8,8 +8,8 @@ import 'rxjs/add/operator/map';
 import {UniForm} from '../../../../framework/forms/uniForm';
 import {UniFormBuilder} from "../../../../framework/forms/builders/uniFormBuilder";
 import {UniFieldsetBuilder} from "../../../../framework/forms/builders/uniFieldsetBuilder";
-import {UniFieldBuilder} from "../../../../framework/forms/builders/uniFieldBuilder";
-import {UniGroupBuilder} from '../../../../framework/forms/builders/uniGroupBuilder';
+import {UniInputBuilder} from "../../../../framework/forms/builders/uniInputBuilder";
+import {UniSectionBuilder} from '../../../../framework/forms/builders/uniSectionBuilder';
 import {UNI_CONTROL_TYPES} from '../../../../framework/controls/types';
 import {UNI_CONTROL_DIRECTIVES} from '../../../../framework/controls';
 
@@ -73,19 +73,19 @@ export class CompanySettings implements OnInit {
 
         var formBuilder = new UniFormBuilder();
 
-        var companyName = new UniFieldBuilder();
+        var companyName = new UniInputBuilder();
         companyName.setLabel('Firmanavn')
             .setModel(this.company)
             .setModelField('CompanyName')
             .setType(UNI_CONTROL_DIRECTIVES[10]);
 
-        var orgNr = new UniFieldBuilder();
+        var orgNr = new UniInputBuilder();
         orgNr.setLabel('Orgnr.')
             .setModel(this.company)
             .setModelField('OrganizationNumber')
             .setType(UNI_CONTROL_DIRECTIVES[10]);
 
-        var web = new UniFieldBuilder();
+        var web = new UniInputBuilder();
         web.setLabel('Web')
             .setModel(this.company)
             .setModelField('WebAddress')
@@ -93,37 +93,37 @@ export class CompanySettings implements OnInit {
 
         //TODO
         //Contact information should be styled according to standard - when this is ready.
-        var street = new UniFieldBuilder();
+        var street = new UniInputBuilder();
         street.setLabel('Adresse')
             .setModel(this.company.Address[0])
             .setModelField('AddressLine1')
             .setType(UNI_CONTROL_DIRECTIVES[10]);
 
-        var street2 = new UniFieldBuilder();
+        var street2 = new UniInputBuilder();
         street2.setLabel('Adresse 2')
             .setModel(this.company.Address[0])
             .setModelField('AddressLine2')
             .setType(UNI_CONTROL_DIRECTIVES[10]);
 
-        var postNumber = new UniFieldBuilder();
+        var postNumber = new UniInputBuilder();
         postNumber.setLabel('Postnr')
             .setModel(this.company.Address[0])
             .setModelField('PostalCode')
             .setType(UNI_CONTROL_DIRECTIVES[10]);
 
-        var place = new UniFieldBuilder();
+        var place = new UniInputBuilder();
         place.setLabel('Sted')
             .setModel(this.company.Address[0])
             .setModelField('City')
             .setType(UNI_CONTROL_DIRECTIVES[10]);
 
-        var phone = new UniFieldBuilder();
+        var phone = new UniInputBuilder();
         phone.setLabel('Telefon')
             .setModel(this.company.Phones[0])
             .setModelField('Number')
             .setType(UNI_CONTROL_DIRECTIVES[10]);
 
-        var email = new UniFieldBuilder();
+        var email = new UniInputBuilder();
         email.setLabel('Epost')
             .setModel(this.company.Emails[0])
             .setModelField('EmailAddress')
@@ -131,24 +131,24 @@ export class CompanySettings implements OnInit {
 
         /********************************************************************/
         /*********************  Selskapsoppsett    **************************/
-        var companySetup = new UniGroupBuilder("Selskapsoppsett");
+        var companySetup = new UniSectionBuilder("Selskapsoppsett");
 
         //TODO:
         //Checkbox not working atm
-        var companyReg = new UniFieldBuilder();
+        var companyReg = new UniInputBuilder();
         companyReg.setLabel('Foretaksregister')
             .setModel(this.company)
             .setModelField('CompanyRegistered')
             .setType(UNI_CONTROL_DIRECTIVES[8]);
 
         //Checkbox not working atm
-        var taxMandatory = new UniFieldBuilder();
+        var taxMandatory = new UniInputBuilder();
         taxMandatory.setLabel('Mva-pliktig')
             .setModel(this.company)
             .setModelField('TaxMandatory')
             .setType(UNI_CONTROL_DIRECTIVES[8]);
 
-        /*        var companyType = new UniFieldBuilder();
+        /*        var companyType = new UniInputBuilder();
                 companyType.setLabel('Firmatype')
                     .setModel(this.companyTypes[this.company.CompanyTypeID])
                     .setModelField('type')
@@ -156,7 +156,7 @@ export class CompanySettings implements OnInit {
                     .setKendoOptions({
                         dataSource: this.companyTypes
                     });*/
-        var companyType = new UniFieldBuilder();
+        var companyType = new UniInputBuilder();
         companyType.setLabel('Firmatype')
             .setModel(this.companyTypes[this.company.CompanyTypeID])
             .setModelField('type')
@@ -167,7 +167,7 @@ export class CompanySettings implements OnInit {
                 dataValueField: 'ID'
             });
 
-        var companyCurrency = new UniFieldBuilder();
+        var companyCurrency = new UniInputBuilder();
         companyCurrency.setLabel('Valuta')
             .setModel(this.company)
             .setModelField('BaseCurrency')
@@ -178,18 +178,18 @@ export class CompanySettings implements OnInit {
                 dataValueField: 'Code'
             });
 
-        companySetup.addFields(companyReg, taxMandatory, companyType, companyCurrency);
+        companySetup.addUniElements(companyReg, taxMandatory, companyType, companyCurrency);
 
         /********************************************************************/
         /*********************  Regnskapsinnstillinger    *******************/
-        var accountingSettings = new UniGroupBuilder('Regnskapsinnstillinger');
+        var accountingSettings = new UniSectionBuilder('Regnskapsinnstillinger');
 
         //TODO:
         //.setModel(this.periodSeries[this.company.PeriodSeriesAccountID]) 
         //is not a correct selection!!
         //this.periodSeries.ID should be equal the value of .setModelField('type')
         //periodSeriesAccountAll is only for test purpose of the above problem.
-        var periodSeriesAccountAll = new UniFieldBuilder();
+        var periodSeriesAccountAll = new UniInputBuilder();
         periodSeriesAccountAll.setLabel('RegnskapsperioderAll')
             .setModel(this.periodSeries[this.company.PeriodSeriesAccountID])
             .setModelField('type')
@@ -201,7 +201,7 @@ export class CompanySettings implements OnInit {
             });
 
 
-        var periodSeriesAccount = new UniFieldBuilder();
+        var periodSeriesAccount = new UniInputBuilder();
         periodSeriesAccount.setLabel('Regnskapsperioder')
             .setModel(this.periodSeries[this.company.PeriodSeriesAccountID])
             .setModelField('type')
@@ -215,7 +215,7 @@ export class CompanySettings implements OnInit {
                 dataValueField: 'ID'
             });
 
-        var periodSeriesVat = new UniFieldBuilder();
+        var periodSeriesVat = new UniInputBuilder();
         periodSeriesVat.setLabel('Mva perioder')
             .setModel(this.periodSeries[this.company.PeriodSeriesVatID])
             .setModelField('type')
@@ -233,7 +233,7 @@ export class CompanySettings implements OnInit {
 
         //TODO: 
         //Mangler foreløpig kobling mellom Firma og kontogruppeinndeling
-        /*var accountGroupSets = new UniFieldBuilder();
+        /*var accountGroupSets = new UniInputBuilder();
         accountGroupSets.setLabel('Kontogruppeinndeling')
             .setModel(this.periodSeries[this.company.PeriodSeriesVatID])
             .setModelField('type')
@@ -253,13 +253,13 @@ export class CompanySettings implements OnInit {
             this.company.VatLockedDate = new Date(this.company.VatLockedDate);
         }
 
-        var accountingLockedDate = new UniFieldBuilder();
+        var accountingLockedDate = new UniInputBuilder();
         accountingLockedDate.setLabel('Regnskapsdato')
             .setModel(this.company)
             .setModelField('AccountingLockedDate')
             .setType(UNI_CONTROL_DIRECTIVES[2]);
 
-        var vatLockedDate = new UniFieldBuilder();
+        var vatLockedDate = new UniInputBuilder();
         vatLockedDate.setLabel('Momsdato')
             .setModel(this.company)
             .setModelField('VatLockedDate')
@@ -268,15 +268,15 @@ export class CompanySettings implements OnInit {
 
         //TODO
         //Checkbox not working atm
-        var forceSupplierInvoiceApproval = new UniFieldBuilder();
+        var forceSupplierInvoiceApproval = new UniInputBuilder();
         forceSupplierInvoiceApproval.setLabel('Tvungen godkjenning')
             .setModel(this.company)
             .setModelField('ForceSupplierInvoiceApproval')
             .setType(UNI_CONTROL_DIRECTIVES[8]);
 
-        accountingSettings.addFields(periodSeriesAccount, periodSeriesAccountAll, periodSeriesVat, accountingLockedDate, vatLockedDate, forceSupplierInvoiceApproval);
+        accountingSettings.addUniElements(periodSeriesAccount, periodSeriesAccountAll, periodSeriesVat, accountingLockedDate, vatLockedDate, forceSupplierInvoiceApproval);
 
-        formBuilder.addFields(companyName, orgNr, web, street, street2, postNumber, place, phone, email, companySetup, accountingSettings);
+        formBuilder.addUniElements(companyName, orgNr, web, street, street2, postNumber, place, phone, email, companySetup, accountingSettings);
 
         this.form = formBuilder;
     }

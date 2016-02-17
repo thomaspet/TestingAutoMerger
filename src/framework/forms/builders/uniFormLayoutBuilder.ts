@@ -1,4 +1,4 @@
-import {UniFormBuilder, UniFieldBuilder, UniFieldsetBuilder, UniGroupBuilder} from "../../forms";
+import {UniFormBuilder, UniInputBuilder, UniFieldsetBuilder, UniSectionBuilder} from "../../forms";
 import {IComponentLayout, IFieldLayout} from "../../interfaces/interfaces";
 
 /**
@@ -8,19 +8,19 @@ import {IComponentLayout, IFieldLayout} from "../../interfaces/interfaces";
  */
 export class UniFormLayoutBuilder {
 
-    static isField(element: IFieldLayout) {
+    static isUniInput(element: IFieldLayout) {
         return element.FieldSet === 0 && element.Section === 0;
     }
 
-    static isFieldSet(element: IFieldLayout) {
+    static isUniFieldSet(element: IFieldLayout) {
         return element.FieldSet > 0 && element.Section === 0;
     }
 
-    static isGroup(element: IFieldLayout) {
+    static isUniSection(element: IFieldLayout) {
         return element.Section > 0 && element.FieldSet === 0;
     }
 
-    static isFieldsetInAGroup(element: IFieldLayout) {
+    static isUniFieldsetInAnUniSection(element: IFieldLayout) {
         return element.Section > 0 && element.FieldSet > 0;
     }
 
@@ -31,42 +31,42 @@ export class UniFormLayoutBuilder {
     build(schema: IComponentLayout, model: any) {
         var layout = new UniFormBuilder();
         schema.Fields.forEach((element: IFieldLayout) => {
-            if (UniFormLayoutBuilder.isField(element)) {
-                layout.addField(UniFieldBuilder.fromLayoutConfig(element, model));// element to add to unifield
+            if (UniFormLayoutBuilder.isUniInput(element)) {
+                layout.addUniElement(UniInputBuilder.fromLayoutConfig(element, model));// element to add to unifield
             } else {
-                if (UniFormLayoutBuilder.isFieldSet(element)) {
+                if (UniFormLayoutBuilder.isUniFieldSet(element)) {
                     var newFieldset = layout.findFieldset(element.FieldSet);
                     if (!newFieldset) {
                         newFieldset = UniFieldsetBuilder.fromLayoutConfig(element);// elements to add to unifieldset
-                        layout.addField(newFieldset);
+                        layout.addUniElement(newFieldset);
                     }
-                    newFieldset.addField(UniFieldBuilder.fromLayoutConfig(element, model));
-                } else if (UniFormLayoutBuilder.isGroup(element)) {
+                    newFieldset.addUniElement(UniInputBuilder.fromLayoutConfig(element, model));
+                } else if (UniFormLayoutBuilder.isUniSection(element)) {
                     var newGroup = layout.findGroup(element.Section);
                     if (!newGroup) {
-                        newGroup = UniGroupBuilder.fromLayoutConfig(element); //elements to add to groupbuilder
-                        layout.addField(newGroup);
+                        newGroup = UniSectionBuilder.fromLayoutConfig(element); //elements to add to groupbuilder
+                        layout.addUniElement(newGroup);
                     }
-                    newGroup.addField(UniFieldBuilder.fromLayoutConfig(element, model));
-                } else if (UniFormLayoutBuilder.isFieldsetInAGroup(element)) {
+                    newGroup.addUniElement(UniInputBuilder.fromLayoutConfig(element, model));
+                } else if (UniFormLayoutBuilder.isUniFieldsetInAnUniSection(element)) {
                     var group = layout.findGroup(element.Section);
                     if (!group) {
-                        group = UniGroupBuilder.fromLayoutConfig(element); // uniGroup
-                        layout.addField(group);
+                        group = UniSectionBuilder.fromLayoutConfig(element); // uniGroup
+                        layout.addUniElement(group);
                     }
 
                     var fieldset = group.findFieldset(element.FieldSet);
                     if (!fieldset) {
                         fieldset = UniFieldsetBuilder.fromLayoutConfig(element); // fieldset
-                        group.addField(fieldset);
+                        group.addUniElement(fieldset);
                     }
 
-                    fieldset.addField(UniFieldBuilder.fromLayoutConfig(element, model));// element to add to unifield
+                    fieldset.addUniElement(UniInputBuilder.fromLayoutConfig(element, model));// element to add to unifield
 
                     // var combogroup = layout.findComboGroup(element.FieldSet);
                     // if (!combogroup) {
-                    //     combogroup = UniComboGroupBuilder.fromLayoutConfig(element); //Fieldset, UniComboInput
-                    //     group.addField(combogroup);
+                    //     combogroup = UniComboInputBuilder.fromLayoutConfig(element); //Fieldset, UniComboInput
+                    //     group.addUniElement(combogroup);
                     // }
 
                 }

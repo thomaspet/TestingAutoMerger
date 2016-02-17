@@ -1,7 +1,7 @@
 import {Component, Input} from "angular2/core";
 import {InputTemplateString} from "../inputTemplateString";
 import {Control} from "angular2/common";
-import {UniFieldBuilder} from "../../forms/builders/uniFieldBuilder";
+import {UniInputBuilder} from "../../forms/builders/uniInputBuilder";
 
 @Component({
     selector: "uni-radio-group",
@@ -28,7 +28,7 @@ import {UniFieldBuilder} from "../../forms/builders/uniFieldBuilder";
 })
 export class UniRadioGroup {
     @Input()
-    config: UniFieldBuilder;
+    config: UniInputBuilder;
 
     constructor() {
 

@@ -1,20 +1,19 @@
-import {UniFieldBuilder} from "./../builders/uniFieldBuilder";
+import {UniInputBuilder} from "./uniInputBuilder";
 import {Type} from "angular2/core";
 import {UniComboInput} from "./../uniComboInput";
-import {UniGrouper} from "../shared/UniGrouper";
+import {UniGenericBuilder} from "../shared/UniGenericBuilder";
 
 declare var _;
 
-export class UniComboGroupBuilder extends UniGrouper {
+export class UniComboInputBuilder extends UniGenericBuilder {
     legend: string = "";
-    fields: Array<UniFieldBuilder> = [];
+    fields: Array<UniInputBuilder> = [];
     fieldType: Type;
-    classes: any = {};
     fieldsetIndex: number = 0;
     sectionIndex: number = 0;
 
-    static fromLayoutConfig(element: any): UniComboGroupBuilder {
-        var ucgb = new UniComboGroupBuilder();
+    static fromLayoutConfig(element: any): UniComboInputBuilder {
+        var ucgb = new UniComboInputBuilder();
 
         ucgb.fieldsetIndex = element.FieldSet;
         ucgb.sectionIndex = element.Section;
@@ -31,10 +30,7 @@ export class UniComboGroupBuilder extends UniGrouper {
     }
 
 
-    addClass(className: string) {
-        this.classes[className] = true;
-        return this;
-    }
+
 
     config() {
         return this.fields;

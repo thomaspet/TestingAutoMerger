@@ -1,17 +1,16 @@
-import {UniFieldBuilder} from "./uniFieldBuilder";
+import {UniInputBuilder} from "./uniInputBuilder";
 import {UniFieldset} from "./../uniFieldset";
 import {Type} from "angular2/core";
-import {UniGrouper} from "../shared/UniGrouper";
+import {UniGenericBuilder} from "../shared/UniGenericBuilder";
 
 declare var _;
 
-export class UniFieldsetBuilder extends UniGrouper {
+export class UniFieldsetBuilder extends UniGenericBuilder {
     legend: string = "";
-    fields: Array<UniFieldBuilder> = [];
+    fields: Array<UniInputBuilder> = [];
     fieldType: Type;
     fieldsetIndex: number = 0;
     sectionIndex: number = 0;
-    classes = [];
 
     static fromLayoutConfig(element: any): UniFieldsetBuilder {
         var ufsb = new UniFieldsetBuilder();
@@ -30,12 +29,7 @@ export class UniFieldsetBuilder extends UniGrouper {
         this.fieldType = UniFieldset;
     }
 
-    addClass(className: string, callback: boolean|((...params: Array<any>) => boolean)) {
-        this.classes[className] = callback;
-        return this;
-    }
-
-    config(): Array<UniFieldBuilder> {
+    config(): Array<UniInputBuilder> {
         return this.fields;
     }
 }

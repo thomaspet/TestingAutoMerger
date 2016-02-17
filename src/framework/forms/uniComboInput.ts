@@ -1,6 +1,6 @@
 import {Component, Input} from "angular2/core";
 import {UniInput} from "./uniInput";
-import {UniFieldBuilder} from "./builders/uniFieldBuilder";
+import {UniInputBuilder} from "./builders/uniInputBuilder";
 
 @Component({
     selector: 'uni-combo-input',
@@ -17,7 +17,7 @@ export class UniComboInput {
     constructor() {
     }
 
-    hasError(field: UniFieldBuilder) {
+    hasError(field: UniInputBuilder) {
         return field.control.touched && !field.control.valid;
     }
 }

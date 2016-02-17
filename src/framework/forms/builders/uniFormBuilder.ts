@@ -1,12 +1,12 @@
-import {UniFieldBuilder, UniFieldsetBuilder, UniGroupBuilder, UniComboGroupBuilder} from "../../forms";
-import {UniElementBuilder, UniElementBuilderCollection} from "./../interfaces";
-import {UniGrouper} from "../shared/UniGrouper";
+import {UniInputBuilder, UniFieldsetBuilder, UniSectionBuilder, UniComboInputBuilder} from "../../forms";
+import {UniElementBuilder} from "./../interfaces";
+import {UniGenericBuilder} from "../shared/UniGenericBuilder";
 
 declare var _;
 
-export class UniFormBuilder extends UniGrouper {
+export class UniFormBuilder extends UniGenericBuilder {
     editMode: boolean = true;
-    fields: UniElementBuilderCollection = [];
+    fields: UniElementBuilder[] = [];
     isSubmitButtonHidden: boolean = false;
     classes = [];
     formIndex: number = 0;
@@ -37,11 +37,6 @@ export class UniFormBuilder extends UniGrouper {
         this.isSubmitButtonHidden = false;
     }
 
-    addClass(className: string, callback: boolean|((...params: Array<any>) => boolean)) {
-        this.classes[className] = callback;
-        return this;
-    }
-
     config() {
         return this.fields;
     }
@@ -52,7 +47,7 @@ export class UniFormBuilder extends UniGrouper {
         }
         var ret = undefined;
         collection.forEach((element: any) => {
-            if (element instanceof UniFieldBuilder) {
+            if (element instanceof UniInputBuilder) {
                 if (element.field === name) {
                     ret = element;
                 }
@@ -73,29 +68,29 @@ export class UniFormBuilder extends UniGrouper {
         return value;
     }
 
-    findGroup(index: number): UniGroupBuilder {
-        var value: UniGroupBuilder = undefined;
+    findGroup(index: number): UniSectionBuilder {
+        var value: UniSectionBuilder = undefined;
         this.fields.forEach((element: UniElementBuilder) => {
-            if (element.sectionIndex === index && element instanceof UniGroupBuilder) {
+            if (element.sectionIndex === index && element instanceof UniSectionBuilder) {
                 value = element;
             }
         });
         return value;
     }
 
-    findComboGroup(index: number): UniComboGroupBuilder {
-        var value: UniComboGroupBuilder = undefined;
+    findComboGroup(index: number): UniComboInputBuilder {
+        var value: UniComboInputBuilder = undefined;
         this.fields.forEach((element: UniElementBuilder) => {
-            if (element.sectionIndex === index && element instanceof UniComboGroupBuilder) {
+            if (element.sectionIndex === index && element instanceof UniComboInputBuilder) {
                 value = element;
             }
         });
         return value;
     }
 
-    _readmode(fields: UniElementBuilderCollection) {
+    _readmode(fields: UniElementBuilder[]) {
         fields.forEach((field: UniElementBuilder) => {
-            if (field instanceof UniFieldBuilder) {
+            if (field instanceof UniInputBuilder) {
                 field.readmode();
             } else {
                 this._readmode(<any>field.config());
@@ -103,9 +98,9 @@ export class UniFormBuilder extends UniGrouper {
         });
     }
 
-    _editmode(fields: UniElementBuilderCollection) {
+    _editmode(fields: UniElementBuilder[]) {
         fields.forEach((field: UniElementBuilder) => {
-            if (field instanceof UniFieldBuilder) {
+            if (field instanceof UniInputBuilder) {
                 field.editmode();
             } else {
                 this._editmode(<any>field.config());

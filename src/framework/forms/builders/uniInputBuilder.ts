@@ -6,7 +6,7 @@ import {Control} from "angular2/common";
 
 declare var _;
 
-export class UniFieldBuilder {
+export class UniInputBuilder {
     label: string = "";
     description: string = "";
     url: string = "";
@@ -37,8 +37,8 @@ export class UniFieldBuilder {
     clearOnSelect: any;
     onChange: any;
 
-    static fromLayoutConfig(element: any, model: any): UniFieldBuilder {
-        var ufb = new UniFieldBuilder();
+    static fromLayoutConfig(element: any, model: any): UniInputBuilder {
+        var ufb = new UniInputBuilder();
 
         ufb.model = model;
         ufb.label = element.Label;
@@ -153,7 +153,7 @@ export class UniFieldBuilder {
         this.readonly = false;
     }
 
-    config(): UniFieldBuilder {
+    config(): UniInputBuilder {
         return this;
     }
 
