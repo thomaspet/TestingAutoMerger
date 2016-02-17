@@ -26,7 +26,6 @@ export class UniTable implements AfterViewInit {
     
     refresh(data?: any) {
         if (data && !this.config.remoteData) {
-            console.log('new resource');
             this.config.resource = data;
         }
         this.table.dataSource.read();
