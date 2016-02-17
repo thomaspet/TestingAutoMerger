@@ -3,12 +3,14 @@ import {UniFieldBuilder} from "./uniFieldBuilder";
 import {UniFieldsetBuilder} from "./uniFieldsetBuilder";
 import {UniGroup} from "./../uniGroup";
 import {UniComboGroupBuilder} from "./uniComboGroupBuilder";
+import {UniGrouper} from "../shared/UniGrouper";
+import {UniElementBuilder} from "../interfaces";
 
 declare var _;
 
-export class UniGroupBuilder {
+export class UniGroupBuilder extends UniGrouper {
     legend: string = "";
-    fields: Array<UniFieldBuilder|UniFieldsetBuilder|UniComboGroupBuilder> = [];
+    fields: UniElementBuilder[] = [];
     collapsed: boolean = false;
     fieldType: Type;
     fieldsetIndex: number = 0;
@@ -17,31 +19,21 @@ export class UniGroupBuilder {
 
     static fromLayoutConfig(element: any): UniGroupBuilder {
         var ugb = new UniGroupBuilder();
-        
+
         ugb.fieldsetIndex = element.FieldSet;
         ugb.sectionIndex = element.Section;
         ugb.legend = element.Legend;
         ugb.collapsed = element.openByDefault;
         ugb.fieldType = UniGroup;
-        
+
         return ugb;
     }
 
     constructor(legend?: string) {
+        super();
+
         this.legend = legend || "";
         this.fieldType = UniGroup;
-    }
-
-    addField(field: UniFieldBuilder|UniFieldsetBuilder|UniComboGroupBuilder) {
-        this.fields.push(field);
-        return this;
-    }
-
-    addFields(...fields: Array<UniFieldBuilder|UniFieldsetBuilder|UniComboGroupBuilder>) {
-        fields.forEach((field: UniFieldBuilder|UniFieldsetBuilder|UniComboGroupBuilder) => {
-            this.fields.push(field);
-        });
-        return this;
     }
 
     openByDefault(value: boolean) {
@@ -53,7 +45,7 @@ export class UniGroupBuilder {
         return this;
     }
 
-    config(): Array<UniFieldBuilder|UniFieldsetBuilder> {
+    config(): UniElementBuilder[] {
         return this.fields;
     }
 

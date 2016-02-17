@@ -435,7 +435,6 @@ export interface IEmployeeCategory {
 	StatusID: number;
 	ID: number;
 	Deleted: boolean;
-	EmployeeCategoryLink: IEmployeeCategoryLink;
 	CustomFields: any;
 }
 
@@ -447,6 +446,7 @@ export interface IEmployeeCategoryLink {
 	ID: number;
 	Deleted: boolean;
 	EmployeeCategory: IEmployeeCategory;
+	Employee: IEmployee;
 	CustomFields: any;
 }
 
@@ -649,9 +649,9 @@ export interface ISalaryTransactionSupplement {
 
 
 export interface IEmployee {
+	EmployeeNumber: number;
 	BusinessRelationID: number;
 	PaymentInterval: PaymentInterval;
-	EmployeeNumber: number;
 	SocialSecurityNumber: string;
 	BirthDate: Date;
 	TaxTable: string;
@@ -676,7 +676,6 @@ export interface IEmployee {
 	BusinessRelationInfo: IBusinessRelation;
 	Employments: Array<IEmployment>;
 	BankAccounts: Array<IBankAccountSalary>;
-	EmployeeCategoryLinks: Array<IEmployeeCategoryLink>;
 	VacationRateEmployee: IVacationRateEmployee;
 	Localization: ILocalization;
 	CustomFields: any;
@@ -1508,6 +1507,7 @@ export interface IUserVerification {
 	Email: string;
 	DisplayName: string;
 	CompanyId: number;
+	UserId: number;
 	ID: number;
 	Deleted: boolean;
 	CustomFields: any;

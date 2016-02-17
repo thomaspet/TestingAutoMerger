@@ -7,31 +7,31 @@ import {Control} from "angular2/common";
 declare var _;
 
 export class UniFieldBuilder {
-    label:string = '';
-    description:string = '';
-    url:string = '';
-    model:any;
-    field:string = '';
-    type:Type = UniTextInput;
-    fieldType:Type;
-    kOptions:any = {};
-    classes:any = {};
-    readonly:boolean = false;
-    disabled:boolean = false;
-    syncValidators:Array<any> = [];
-    asyncValidators:Array<any> = [];
-    control:Control;
-    fieldsetIndex:number = 0;
-    sectionIndex:number = 0;
-    isLookup:boolean = false;
-    helpText:string = '';
-    legend:string = '';
-    hidden:boolean = false;
-    placement:number = 0;
-    entityType:string = '';
-    componentLayoutID:number = 0;
-    errorMessages:Array<any> = [];
-    lineBreak:boolean = false;
+    label: string = "";
+    description: string = "";
+    url: string = "";
+    model: any;
+    field: string = "";
+    type: Type = UniTextInput;
+    fieldType: Type;
+    kOptions: any = {};
+    classes: any = {};
+    readonly: boolean = false;
+    disabled: boolean = false;
+    syncValidators: Array<any> = [];
+    asyncValidators: Array<any> = [];
+    control: Control;
+    fieldsetIndex: number = 0;
+    sectionIndex: number = 0;
+    isLookup: boolean = false;
+    helpText: string = "";
+    legend: string = "";
+    hidden: boolean = false;
+    placement: number = 0;
+    entityType: string = "";
+    componentLayoutID: number = 0;
+    errorMessages: Array<any> = [];
+    lineBreak: boolean = false;
     fieldComponent: any;
     onSelect: any;
     clearOnSelect: any;
@@ -57,11 +57,11 @@ export class UniFieldBuilder {
         ufb.fieldType = UniField;
         ufb.type = UNI_CONTROL_DIRECTIVES[element.FieldType];
         ufb.lineBreak = element.hasLineBreak || false;
-        
-        if(element.kendoOptions != undefined) {
+
+        if (element.kendoOptions !== undefined) {
             ufb.kOptions = element.kendoOptions;
         }
-        
+
         return ufb;
     }
 

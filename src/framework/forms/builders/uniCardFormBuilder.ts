@@ -1,27 +1,28 @@
-import {UniFormBuilder} from '../../forms';
-import {IFormBuilder,IFormBuilderCollection} from './../interfaces';
+import {UniFormBuilder} from "../../forms";
+import {UniFormBuilderCollection} from "../interfaces";
 
 declare var _;
 
 export class UniCardFormBuilder {
-    forms:IFormBuilderCollection=[];
+    forms: UniFormBuilderCollection = [];
     classes = [];
 
-    constructor() {}
+    constructor() {
+    }
 
-    addForm(form:IFormBuilder) {
+    addForm(form: UniFormBuilder) {
         this.forms.push(form);
         return this;
     }
 
-    addForms(...forms:  Array<IFormBuilder>) {
-        forms.forEach((form:IFormBuilder)=>{
+    addForms(...forms: Array<UniFormBuilder>) {
+        forms.forEach((form: UniFormBuilder) => {
             this.forms.push(form);
         });
         return this;
     }
 
-    addClass(className:string, callback: boolean|((...params:Array<any>)=>boolean)) {
+    addClass(className: string, callback: boolean|((...params: Array<any>) => boolean)) {
         this.classes[className] = callback;
         return this;
     }
@@ -30,9 +31,9 @@ export class UniCardFormBuilder {
         return this.forms;
     }
 
-    findForm(index:number):UniFormBuilder {
+    findForm(index: number): UniFormBuilder {
         var value: UniFormBuilder = undefined;
-        this.forms.forEach((element:IFormBuilder)=>{
+        this.forms.forEach((element: UniFormBuilder) => {
             if (element.formIndex === index && element instanceof UniFormBuilder) {
                 value = element;
             }

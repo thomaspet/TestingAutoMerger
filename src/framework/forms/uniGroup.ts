@@ -1,7 +1,7 @@
 import {Component} from "angular2/core";
 import {UniComponentLoader} from "../core/componentLoader";
 import {Input} from "angular2/core";
-import {IElementBuilder} from "./interfaces";
+import {UniElementBuilder} from "./interfaces";
 
 declare var _;
 
@@ -70,17 +70,17 @@ export class UniGroup {
      *
      * @returns Array<IElementBuilder>
      */
-    getFields(): Array<IElementBuilder> {
+    getFields(): Array<UniElementBuilder> {
         return this.config.fields;
     }
 
     /**
-     * Returns the type (IElementBuilder) of that field
+     * Returns the type (UniElementBuilder) of that field
      *
      * @param field
      * @returns {Type}
      */
-    getFieldType(field: IElementBuilder) {
+    getFieldType(field: UniElementBuilder) {
         return field.fieldType;
     }
 
@@ -89,7 +89,7 @@ export class UniGroup {
      *
      * @returns {string}
      */
-    buildClassString() {
+    buildClassString(): string {
         var classes = [];
         var cls = this.config.classes;
         for (var cl in cls) {

@@ -12,7 +12,7 @@ import {UniComponentLoader} from "../core/componentLoader";
 import {MessageComposer} from "./composers/messageComposer";
 import {ValidatorsComposer} from "./composers/validatorsComposer";
 import {ControlBuilder} from "./builders/controlBuilder";
-import {IElementBuilder} from "./interfaces";
+import {UniElementBuilder} from "./interfaces";
 import {UniFormBuilder} from "./builders/uniFormBuilder";
 
 declare var _; //lodash
@@ -130,7 +130,7 @@ export class UniForm implements OnInit {
 
     /**
      * return all fields inside the form
-     * @returns {IElementBuilderCollection}
+     * @returns {UniElementBuilderCollection}
      */
     getFields() {
         return this.config.fields;
@@ -141,7 +141,7 @@ export class UniForm implements OnInit {
      * @param field
      * @returns {Type}
      */
-    getFieldType(field: IElementBuilder) {
+    getFieldType(field: UniElementBuilder) {
         return field.fieldType;
     }
 
