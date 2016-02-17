@@ -46,16 +46,12 @@ export class UniTableBuilder {
     addColumns(...columns: UniTableColumn[]) {
         
         columns.forEach((columnInfo: UniTableColumn) => {
+            
             var column = {
                 field: columnInfo.field,
                 title: columnInfo.title,
                 format: columnInfo.format,
             };
-            
-            // If column contains data from relation inside relation, we need to specify the template
-            if (columnInfo.field.split('.').length > 2) {
-                column['template'] = '#=' + columnInfo.field + '#';
-            }
             
             // Add class editable-cell to columns that are editable
             if (columnInfo.editable) {
@@ -64,16 +60,25 @@ export class UniTableBuilder {
             
             this.columns.push(column);
             
-            var schemaFieldKeys: string[] = column.field.split('.');
-            jQuery.extend(true, this.schemaModel.fields, this.generateSchemaField(schemaFieldKeys, columnInfo.type, columnInfo.editable, columnInfo.nullable));
+            // var schemaField = columnInfo.field.split('.');
+            // var fieldName = schemaField.join('');
+            
+            // this.schemaModel.fields[fieldName] = {
+            //     type: columnInfo.type,
+            //     editable: columnInfo.editable,
+            //     nullable: columnInfo.nullable,
+            // }
+            
+            // if (schemaField.length > 1) {
+            //     this.schemaModel.fields[fieldName].from = columnInfo.field;
+            // }
+
         });
         
         // Make sure ID field is always defined in the schema (required for crud operations on the table)
         if (!this.schemaModel.fields['ID']) {
             this.schemaModel.fields['ID'] = { type: 'number', editable: false, nullable: true };
         }
-        
-        console.log(this.schemaModel);
         
         // Add delete button if table is editable
         if (this.editable) {
@@ -83,24 +88,12 @@ export class UniTableBuilder {
             });
         }
         
+        console.log(this.columns);
+        console.log(this.schemaModel);
+        
         return this;
     }
     
-    // Recursively generates a kendo schema field from the field info given in addColumns
-    private generateSchemaField(keys: string[], type: string, editable: boolean, nullable: boolean): Object {
-        
-        if (keys.length === 0) {
-            return {
-                type: type,
-                editable: editable,
-                nullable: nullable
-            }
-        }
-        
-        var field = {};
-        field[keys[0]] = this.generateSchemaField(keys.slice(1), type, editable, nullable);
-        return field;
-    }    
     
     setEditable(editable: boolean) {
         this.editable = editable;
