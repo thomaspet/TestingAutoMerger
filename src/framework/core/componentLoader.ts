@@ -39,10 +39,11 @@ export class UniComponentLoader {
     ngOnInit() {
         var self = this;
         if (this.type && this.loader) {
-            this.load(this.type, this.loader)
+            this.load(this.type).then(this.loader);
         } else if (this.type && this.config) {
             this.dcl.loadIntoLocation(this.type, this.element, 'content').then((cmp: ComponentRef) => {
                 cmp.instance.config = self.config;
+                return cmp;
             });
         } else if (this.type) {
             this.dcl.loadIntoLocation(this.type, this.element, 'content');
@@ -57,11 +58,7 @@ export class UniComponentLoader {
      * @param loader Function that can manage the component loaded
      * @returns {any} (optional) it can return nothing or a promise
      */
-    load(type: Type, loader?: any) {
-        var p = this.dcl.loadIntoLocation(type, this.element, 'content');
-        if (loader) {
-            return p.then(loader);
-        }
-        return p;
+    load(type: Type) {
+        return this.dcl.loadIntoLocation(type, this.element, 'content');
     }
 }

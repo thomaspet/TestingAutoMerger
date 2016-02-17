@@ -6,13 +6,13 @@ import {ShowError} from "./showError";
 import {UniField} from "./uniField";
 import {UniFieldBuilder} from "./builders/uniFieldBuilder";
 import {UniFieldset} from "./uniFieldset";
-import {UniGroup} from "./uniGroup";
-import {UniComboGroup} from "./uniComboGroup";
+import {UniSection} from "./uniSection";
+import {UniComboField} from "./uniComboField";
 import {UniComponentLoader} from "../core/componentLoader";
 import {MessageComposer} from "./composers/messageComposer";
 import {ValidatorsComposer} from "./composers/validatorsComposer";
 import {ControlBuilder} from "./builders/controlBuilder";
-import {IElementBuilder} from "./interfaces";
+import {UniElementBuilder} from "./interfaces";
 import {UniFormBuilder} from "./builders/uniFormBuilder";
 
 declare var _; //lodash
@@ -22,7 +22,7 @@ declare var _; //lodash
  */
 @Component({
     selector: "uni-form",
-    directives: [FORM_DIRECTIVES, UniField, UniFieldset, UniGroup, UniComboGroup, UniComponentLoader],
+    directives: [FORM_DIRECTIVES, UniField, UniFieldset, UniSection, UniComboField, UniComponentLoader],
     providers: [FORM_PROVIDERS],
     template: `
         <form (submit)="submit()" [ngFormModel]="form" [class]="buildClassString()" [class.error]="hasErrors()">
@@ -130,18 +130,18 @@ export class UniForm implements OnInit {
 
     /**
      * return all fields inside the form
-     * @returns {IElementBuilderCollection}
+     * @returns {UniElementBuilderCollection}
      */
     getFields() {
         return this.config.fields;
     }
 
     /**
-     * return the type of the Element return IElmementBuilder Type (UniField, UniFieldBuilder, UniGroup)
+     * return the type of the Element return IElmementBuilder Type (UniField, UniFieldBuilder, UniSection)
      * @param field
      * @returns {Type}
      */
-    getFieldType(field: IElementBuilder) {
+    getFieldType(field: UniElementBuilder) {
         return field.fieldType;
     }
 
