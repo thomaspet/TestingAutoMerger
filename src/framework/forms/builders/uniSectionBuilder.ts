@@ -38,15 +38,6 @@ export class UniSectionBuilder extends UniGenericBuilder {
         this.collapsed = value;
     }
 
-    addClass(className: string, callback: boolean|((...params: Array<any>) => boolean)) {
-        this.classes[className] = callback;
-        return this;
-    }
-
-    config(): UniElementBuilder[] {
-        return this.fields;
-    }
-
     findFieldset(index: number): UniFieldsetBuilder {
         var value: UniFieldsetBuilder = undefined;
         this.fields.forEach((element: UniElementBuilder) => {

@@ -28,8 +28,4 @@ export class UniFieldsetBuilder extends UniGenericBuilder {
         this.legend = legend || "";
         this.fieldType = UniFieldset;
     }
-
-    config(): Array<UniInputBuilder> {
-        return this.fields;
-    }
 }

@@ -1,4 +1,5 @@
 import {UniElementBuilder} from "../interfaces";
+import {UniInputBuilder} from "../builders/uniInputBuilder";
 
 export class UniGenericBuilder {
     fields: UniElementBuilder[] = [];
@@ -24,5 +25,9 @@ export class UniGenericBuilder {
             this.classes[className] = callback;
         }
         return this;
+    }
+
+    config() {
+        return this.fields;
     }
 }

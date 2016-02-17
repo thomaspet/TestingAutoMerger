@@ -28,11 +28,4 @@ export class UniComboInputBuilder extends UniGenericBuilder {
         this.legend = legend || "";
         this.fieldType = UniComboInput;
     }
-
-
-
-
-    config() {
-        return this.fields;
-    }
 }
