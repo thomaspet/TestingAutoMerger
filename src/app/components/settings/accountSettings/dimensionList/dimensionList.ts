@@ -9,33 +9,23 @@ import {UniTable, UniTableBuilder, UniTableColumn} from '../../../../../framewor
 })
 export class DimensionList {
     @Input() dimension = 1;
-    tableConfig: UniTableBuilder;
+    tableConfig;
+    localData;
     
     constructor(private http:UniHttpService) {
-        var idCol = new UniTableColumn('ID', 'Dimnr', 'number')
-        var nameCol = new UniTableColumn('Name', 'Navn', 'string'); 
         
-        var tableConfig = new UniTableBuilder(this.http.baseUrl + "dimensions", false)
+        this.localData = [
+            {ID: 1, Type: 'Prosjekt', Name: 'Test'},
+            {ID: 2, Type: 'Avdeling', Name: 'Haugesund'},
+        ];
+       
+        var idCol = new UniTableColumn('ID', 'Dimnr', 'number')
+        var typeCol = new UniTableColumn('Type', 'Type', 'string');
+        var nameCol = new UniTableColumn('Name', 'Navn', 'string');
+        
+        this.tableConfig = new UniTableBuilder(this.localData, false)
         .setPageSize(5)
-        .addColumns(idCol, nameCol);
-
-        /*
-        this.tableConfig = new UniTableConfig(this.http.baseUrl + 'dimensions', false, false)
-        .setOdata({
-            expand: '',
-            filter: 'ID eq ' + this.dimension
-        })
-        .setDsModel({
-            id: 'ID',
-            fields: {
-                ID: {type: 'number'},
-                Name: {type: 'text'}
-            }
-        })
-        .setColumns([
-            {field: 'ID', title: 'Dimnr'},
-            {field: 'Name', title: 'Navn'}
-        ]); 
-        */ 
+        .setSearchable(false)
+        .addColumns(idCol, typeCol, nameCol);
     }
 }

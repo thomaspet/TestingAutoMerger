@@ -9,33 +9,16 @@ import {UniTable, UniTableBuilder, UniTableColumn} from '../../../../../framewor
 })
 export class AccountGroupList {
     @Input() account = 1;
-    tableConfig: UniTableBuilder;
+    tableConfig;
 
     constructor(private http: UniHttpService) {
         var idCol = new UniTableColumn('ID', 'ID', 'number')
         var nameCol = new UniTableColumn('Name', 'Navn', 'string'); 
         
-        var tableConfig = new UniTableBuilder(this.http.baseUrl + "accountgroups", false)
+        this.tableConfig = new UniTableBuilder("accountgroups", false)
+        .setFilter("AccountID eq " + this.account)
         .setPageSize(5)
+        .setSearchable(false)
         .addColumns(idCol, nameCol);
-
-        /*
-        this.tableConfig = new UniTableConfig(this.http.baseUrl + "accountgroups", false, false)
-            .setOdata({
-                expand: "",
-                filter: "AccountID eq " + this.account
-            })
-            .setDsModel({
-                id: "ID",
-                fields: {
-                    ID: {type: "number"},
-                    Name: {type: "text"}
-                }
-            })
-            .setColumns([
-                {field: "ID", title: "ID"},
-                {field: "Name", title: "Navn"}
-            ]);
-        */
     }
 }

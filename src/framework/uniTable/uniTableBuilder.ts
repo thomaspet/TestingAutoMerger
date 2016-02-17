@@ -51,13 +51,24 @@ export class UniTableBuilder {
                 field: columnInfo.field,
                 title: columnInfo.title,
                 format: columnInfo.format,
+                width: columnInfo.width,
             };
-            
+
+            var classes = columnInfo.classes;
             // Add class editable-cell to columns that are editable
             if (columnInfo.editable) {
-                column['attributes'] = {'class': 'editable-cell'};
+                classes.push('editable-cell');
+            }
+       
+            if (classes.length > 0) {
+                column['attributes'] = {'class': classes.join(' ') };
             }
             
+            // Add custom template
+            if (columnInfo.template != "") {
+                column['template'] = columnInfo.template;
+            }
+                       
             this.columns.push(column);
             
             // var schemaField = columnInfo.field.split('.');
@@ -97,6 +108,11 @@ export class UniTableBuilder {
     
     setEditable(editable: boolean) {
         this.editable = editable;
+        return this;
+    }
+    
+    setSearchable(searchable: boolean) {
+        this.searchable = searchable;
         return this;
     }
     

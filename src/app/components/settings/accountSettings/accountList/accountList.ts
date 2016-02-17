@@ -57,7 +57,6 @@ export class AccountList {
 
     loopAccountGroups(parentgroup: any, id: number|string) {
         this.accountgroups.forEach((accountgroup: any) => {
-            console.log(accountgroup);
             if (accountgroup.MainGroupID === id) {
                 var group = new TreeListItem(accountgroup.Name)
                     .setType(TREE_LIST_TYPE.LIST);
@@ -67,53 +66,37 @@ export class AccountList {
                 } else {
                     parentgroup.addTreeListItem(group);
                 }
+     
+                var accountNumberCol = new UniTableColumn('AccountNumber', 'Kontonr', 'number')
+                .setWidth("5rem");
                 
-                var idCol = new UniTableColumn('ID', 'Produktnummer', 'number')
-                var accountNumberCol = new UniTableColumn('AccountNumber', 'Kontonr', 'number');
                 var accountNameCol = new UniTableColumn('AccountName', 'Kontonavn', 'string'); 
-                var lockedCol = new UniTableColumn('Locked', '', 'string');
                 
-                var tableConfig = new UniTableBuilder(this.http.baseUrl + "accounts", false)
-                .setPageSize(5)
-                .addColumns(idCol, accountNumberCol, accountNameCol, lockedCol);
-
-                // insert table
-                /*
-                var tableConfig = new UniTableConfig(this.http.baseUrl + "accounts", false, false)
-                    .setOdata({
-                        expand: "",
-                        filter: "AccountGroupID eq " + accountgroup.ID
-                    })
-                    .setDsModel({
-                        id: "ID",
-                        fields: {
-                            AccountNumber: {type: "number"},
-                            AccountName: {type: "text"},
-                            Locked: {type: "boolean"}
-                        }
-                    })
-                    .setColumns([
-                        {field: "AccountNumber", title: "Kontonr"},
-                        {field: "AccountName", title: "Kontonavn"},
-                        {
-                            field: null,
-                            title: "",
-                            attributes: {"class": "icon-column"},
-                            template: "#if(!Visible) {#<span class='is-visible' role='presentation'>Visible</span>#} " +
+                var vatTypeCol = new UniTableColumn('', 'Mvakode/sats', 'string')
+                .setTemplate("#= VatType.Name# - #= VatType.VatPercent#");
+                
+                
+                var lockedCol = new UniTableColumn('', 'Synlig/låst', 'boolean')
+                .addClass("icon-column")
+                .setTemplate("#if(Visible) {#<span class='is-visible' role='presentation'>Visible</span>#} " +
                             "else {#<span class='is-hidden' role='presentation'>Hidden</span>#}# " +
-                            "#if(!Locked) {#<span class='is-locked' role='presentation'>Locked</span>#} " +
+                            "#if(Locked) {#<span class='is-locked' role='presentation'>Locked</span>#} " +
                             "else {#<span class='is-unlocked' role='presentation'>Unlocked</span>#}#"
-                        }
-                    ])
-                    .setOnSelect((account: IAccount) => {
-                        console.log(account);
-                        this.uniAccountChange.emit(account.ID);
-                    });
-                */
+                )
+                .setWidth("5rem");
+                
+                var tableConfig = new UniTableBuilder("accounts", false)
+                .setExpand('VatType')
+                .setFilter('AccountGroupID eq ' + accountgroup.ID)
+                .setPageSize(10)
+                .addColumns(accountNumberCol, accountNameCol, vatTypeCol, lockedCol)
+                .setSelectCallback((account: IAccount) => {
+                    this.uniAccountChange.emit(account.ID);
+                });
 
                 var list = new TreeListItem()
-               //     .setType(TREE_LIST_TYPE.TABLE)
-               //     .setContent(tableConfig);
+                    .setType(TREE_LIST_TYPE.TABLE)
+                    .setContent(tableConfig);
 
                 group.addTreeListItem(list);
                 this.loopAccountGroups(group, accountgroup.ID);

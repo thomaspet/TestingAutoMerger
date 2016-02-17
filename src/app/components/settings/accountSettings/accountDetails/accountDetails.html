@@ -1,5 +1,5 @@
 <div *ngIf="model">
     <uni-form (uniFormSubmit)="onSubmit($event)" [config]="config"></uni-form>
-    <dimension-list [dimension]="model.DimensionsID"></dimension-list>
+    <dimension-list [dimension]="model.DimensionsID"></dimension-list>    
     <account-group-list [account]="model.ID"></account-group-list>
 </div>

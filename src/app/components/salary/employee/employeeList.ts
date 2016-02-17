@@ -1,7 +1,8 @@
 import {Component} from 'angular2/core';
 import {Router, RouteConfig} from 'angular2/router';
 
-import {UniTable, UniTableConfig} from '../../../../framework/uniTable';
+import {UniTable, UniTableBuilder, UniTableColumn} from '../../../../framework/uniTable';
+
 
 @Component({
     templateUrl: 'app/components/salary/employee/employeeList.html',    
@@ -12,6 +13,7 @@ export class EmployeeList {
     employeeTableConfig;
     
     constructor(router: Router) {
+        /* Should be fixed to UniTableBuilder
         this.employeeTableConfig = new UniTableConfig('http://devapi.unieconomy.no/api/biz/employees', true, false)
         .setOdata({
             expand: 'BusinessRelationInfo,BusinessRelationInfo.Phones',
@@ -35,5 +37,6 @@ export class EmployeeList {
          .setOnSelect((selectedEmployee) => {
             router.navigateByUrl('/salary/employees/' + selectedEmployee.ID); 
          });
+         */
     }
 }

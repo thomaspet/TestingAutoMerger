@@ -7,6 +7,8 @@ export class UniTableColumn {
     nullable: boolean = false;
     template: string = "";
     command: kendo.ui.GridColumnCommandItem[] = [];
+    classes = [];
+    width: string = "";
     // todo: validation
     
     constructor(field: string, title: string, type: string) {
@@ -34,10 +36,20 @@ export class UniTableColumn {
         this.template = template;
         return this;
     }
-    
+   
     setCommand(command: kendo.ui.GridColumnCommandItem[]) {
         this.command = command;
         return this;
     }
     
+    setWidth(width: string) {
+        this.width = width;
+        return this;
+    }
+    
+    addClass(cls: string) {
+        this.classes.push(cls);
+        return this;
+    }
+       
 }
