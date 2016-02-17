@@ -114,8 +114,12 @@ export class UniInputBuilder {
         return this;
     }
 
-    addClass(className: string, callback: boolean|((...params: Array<any>) => boolean)) {
-        this.classes[className] = callback;
+    addClass(className: string, callback?: boolean|((...params: Array<any>) => boolean)) {
+        if (callback === undefined || callback === null) {
+            this.classes[className] = true;
+        } else {
+            this.classes[className] = callback;
+        }
         return this;
     }
 
