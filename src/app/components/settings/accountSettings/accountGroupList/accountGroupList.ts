@@ -1,6 +1,6 @@
 import {Component, Input} from "angular2/core";
-import {UniTable, UniTableConfig} from "../../../../../framework/uniTable";
 import {UniHttpService} from "../../../../../framework/data/uniHttpService";
+import {UniTable, UniTableBuilder, UniTableColumn} from '../../../../../framework/uniTable';
 
 @Component({
     selector: "account-group-list",
@@ -9,9 +9,17 @@ import {UniHttpService} from "../../../../../framework/data/uniHttpService";
 })
 export class AccountGroupList {
     @Input() account = 1;
-    tableConfig: UniTableConfig;
+    tableConfig: UniTableBuilder;
 
     constructor(private http: UniHttpService) {
+        var idCol = new UniTableColumn('ID', 'ID', 'number')
+        var nameCol = new UniTableColumn('Name', 'Navn', 'string'); 
+        
+        var tableConfig = new UniTableBuilder(this.http.baseUrl + "accountgroups", false)
+        .setPageSize(5)
+        .addColumns(idCol, nameCol);
+
+        /*
         this.tableConfig = new UniTableConfig(this.http.baseUrl + "accountgroups", false, false)
             .setOdata({
                 expand: "",
@@ -28,5 +36,6 @@ export class AccountGroupList {
                 {field: "ID", title: "ID"},
                 {field: "Name", title: "Navn"}
             ]);
+        */
     }
 }

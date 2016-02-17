@@ -1,9 +1,8 @@
 import {Component, Output, EventEmitter, ViewChild} from "angular2/core";
 import {Control} from "angular2/common";
-import {TreeListItem} from "../../../../../framework/treeList/treeListItem";
-import {TreeList, TREE_LIST_TYPE} from "../../../../../framework/treeList/treeList";
+import {TreeList, TreeListItem, TREE_LIST_TYPE} from "../../../../../framework/treeList";
 import {UniHttpService} from "../../../../../framework/data/uniHttpService";
-import {UniTableConfig} from "../../../../../framework/uniTable";
+import {UniTable, UniTableBuilder, UniTableColumn} from '../../../../../framework/uniTable';
 import {UniDropdown} from "../../../../../framework/controls/dropdown/dropdown";
 import {IAccount} from "../../../../../framework/interfaces/interfaces";
 
@@ -58,6 +57,7 @@ export class AccountList {
 
     loopAccountGroups(parentgroup: any, id: number|string) {
         this.accountgroups.forEach((accountgroup: any) => {
+            console.log(accountgroup);
             if (accountgroup.MainGroupID === id) {
                 var group = new TreeListItem(accountgroup.Name)
                     .setType(TREE_LIST_TYPE.LIST);
@@ -67,8 +67,18 @@ export class AccountList {
                 } else {
                     parentgroup.addTreeListItem(group);
                 }
+                
+                var idCol = new UniTableColumn('ID', 'Produktnummer', 'number')
+                var accountNumberCol = new UniTableColumn('AccountNumber', 'Kontonr', 'number');
+                var accountNameCol = new UniTableColumn('AccountName', 'Kontonavn', 'string'); 
+                var lockedCol = new UniTableColumn('Locked', '', 'string');
+                
+                var tableConfig = new UniTableBuilder(this.http.baseUrl + "accounts", false)
+                .setPageSize(5)
+                .addColumns(idCol, accountNumberCol, accountNameCol, lockedCol);
 
                 // insert table
+                /*
                 var tableConfig = new UniTableConfig(this.http.baseUrl + "accounts", false, false)
                     .setOdata({
                         expand: "",
@@ -99,10 +109,11 @@ export class AccountList {
                         console.log(account);
                         this.uniAccountChange.emit(account.ID);
                     });
+                */
 
                 var list = new TreeListItem()
-                    .setType(TREE_LIST_TYPE.TABLE)
-                    .setContent(tableConfig);
+               //     .setType(TREE_LIST_TYPE.TABLE)
+               //     .setContent(tableConfig);
 
                 group.addTreeListItem(list);
                 this.loopAccountGroups(group, accountgroup.ID);
