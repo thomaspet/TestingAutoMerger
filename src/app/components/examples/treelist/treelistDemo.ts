@@ -1,8 +1,6 @@
 import {Component, OnInit} from 'angular2/core';
-import {TreeList, TREE_LIST_TYPE} from '../../../../framework/treeList/treeList';
-import {TreeListItem} from '../../../../framework/treeList/treeListItem';
-
-import {UniTable, UniTableBuilder, UniTableColumn} from '../../../../framework/uniTable';
+import {TreeList, TreeListItem, TREE_LIST_TYPE} from '../../../../framework/treeList';
+import {UniTableBuilder, UniTableColumn} from '../../../../framework/uniTable';
 
 @Component({
     selector: 'uni-treelist-demo', 
@@ -15,6 +13,8 @@ import {UniTable, UniTableBuilder, UniTableColumn} from '../../../../framework/u
 export class UniTreelistDemo {
     treeListItems: any;
     
+    constructor() {}
+    
     ngOnInit() {
         var tableConfig = this.createTableConfig();
         console.log(tableConfig);
@@ -26,11 +26,7 @@ export class UniTreelistDemo {
          
         var item2 = new TreeListItem('Item 2')
             .setType(TREE_LIST_TYPE.TABLE)
-            .setContent(tableConfig)
-            .setChangeCallback((changed) => {
-                console.log('Changed:');
-                console.log(changed);
-            });
+            .setContent(tableConfig);
         
         var item3 = new TreeListItem('Item 3')
             .setType(TREE_LIST_TYPE.LIST)
@@ -42,11 +38,6 @@ export class UniTreelistDemo {
             .addTreeListItems([item1, item2, item3])
         
         this.treeListItems = [mainItem];
-    }
-    
-    constructor() {       
-        
-        
     }
     
     createTableConfig(): any {
@@ -69,5 +60,17 @@ export class UniTreelistDemo {
         return new UniTableBuilder(data, true)
         .setPageSize(5)
         .addColumns(idCol, nameCol, priceCol)
+        .setUpdateCallback((updatedItem) => {
+            console.log('Updated:');
+            console.log(updatedItem);
+        })
+        .setCreateCallback((createdItem) => {
+            console.log('Created:');
+            console.log(createdItem);
+        })
+        .setDeleteCallback((deletedItem) => {
+            console.log('Deleted:');
+            console.log(deletedItem);
+        });
     }
 }

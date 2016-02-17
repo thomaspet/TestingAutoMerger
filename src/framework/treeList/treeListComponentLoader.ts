@@ -30,14 +30,7 @@ export class TreeListComponentLoader implements OnInit {
             case TREE_LIST_TYPE.TABLE:
                 this.dynamicComponentLoader.loadIntoLocation(UniTable, this.elementRef, "content")
                     .then((comp) => {
-                        var config = this.componentConfig.content;
-                        console.log(this.componentConfig.changeCallback);
-                        config.updateCallback = this.componentConfig.changeCallback;
-                        config.ceateCallback = this.componentConfig.changeCallback;
-                        config.deleteCallback = this.componentConfig.changeCallback;
-                        
-                        console.log(config);
-                        comp.instance.config = config;
+                        comp.instance.config = this.componentConfig.content;
                         this.compRef = comp;
                     });
                 break;
@@ -47,7 +40,7 @@ export class TreeListComponentLoader implements OnInit {
                     .then((comp) => {
                         this.compRef = comp;
                         comp.instance.fields = this.componentConfig.content.config();
-                        comp.instance.uniFormSubmit.subscribe(this.componentConfig.changeCallback);
+                        comp.instance.uniFormSubmit.subscribe(this.componentConfig.formSubmitCallback);
                     });
                 break;
             default:

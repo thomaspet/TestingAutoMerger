@@ -1,4 +1,4 @@
-import {UniHttpService, UniHttpRequest} from '../data/uniHttpService';
+import {UniHttpService, IUniHttpRequest} from '../data/uniHttpService';
 import {UniTableColumn} from './uniTableColumn';
 
 declare var jQuery;
