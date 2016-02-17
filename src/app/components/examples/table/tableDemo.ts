@@ -1,4 +1,4 @@
-import {Component} from 'angular2/core';
+import {Component, ViewChild} from 'angular2/core';
 import {UniTable, UniTableBuilder, UniTableColumn} from '../../../../framework/uniTable';
 
 @Component({
@@ -7,25 +7,35 @@ import {UniTable, UniTableBuilder, UniTableColumn} from '../../../../framework/u
     //     <h4>Table with expanded properties in lookup</h4>
     //     <uni-table [config]="expandedFieldsTableCfg"></uni-table>
     // `, 
+    // template: `   
+    //     <h4>Editable table with remote data</h4>
+    //     <uni-table [config]="editableRemoteDataCfg"></uni-table>
+    //     <br><br>
+    //     
+    //     <h4>Editable table with local data</h4>
+    //     <uni-table [config]="editableLocalDataCfg"></uni-table>
+    //     <br><br>
+    //     
+    //     <h4>Read-only table with remote data</h4>
+    //     <uni-table [config]="readOnlyRemoteDataCfg"></uni-table>
+    //     <br><br>
+    //     
+    //     <h4>Read-only table with local data</h4>
+    //     <uni-table [config]="readOnlyLocalDataCfg"></uni-table>
+    //     <button (click)="addRow()">Test table refresh with new row</button>
+    // `,
     template: `   
-        <h4>Editable table with remote data</h4>
-        <uni-table [config]="editableRemoteDataCfg"></uni-table>
-        <br><br>
-        
-        <h4>Editable table with local data</h4>
-        <uni-table [config]="editableLocalDataCfg"></uni-table>
-        <br><br>
-        
-        <h4>Read-only table with remote data</h4>
-        <uni-table [config]="readOnlyRemoteDataCfg"></uni-table>
-        <br><br>
-        
         <h4>Read-only table with local data</h4>
         <uni-table [config]="readOnlyLocalDataCfg"></uni-table>
+        <button (click)="testTableRefresh()">Test table refresh with new row</button>
     `,
     directives: [UniTable]
 })
 export class UniTableDemo {
+    @ViewChild(UniTable) table: UniTable;
+ 
+    localData: any;
+    
     expandedFieldsTableCfg;
     
     editableRemoteDataCfg;
@@ -33,6 +43,11 @@ export class UniTableDemo {
     
     readOnlyRemoteDataCfg;
     readOnlyLocalDataCfg;	
+    
+    testTableRefresh() {
+        this.localData[0].Name = "Navn endret av refresh!";
+        this.table.refresh(this.localData);
+    }
     
     constructor() {
         // Create columns to use in the tables
@@ -45,7 +60,7 @@ export class UniTableDemo {
         
         
         // Mocked local data
-        var localData = [
+        this.localData = [
             {ID: 1, Name: 'Vare 1', Price: 10},
             {ID: 2, Name: 'Vare 2', Price: 20},
             {ID: 3, Name: 'Vare 3', Price: 30},
@@ -83,7 +98,7 @@ export class UniTableDemo {
         
         
         // Editable table working with local data
-        this.editableLocalDataCfg = new UniTableBuilder(localData, true)
+        this.editableLocalDataCfg = new UniTableBuilder(this.localData, true)
         .setPageSize(5)
         .addColumns(idCol, nameCol, priceCol)
         .setUpdateCallback(updateCallback)
@@ -99,7 +114,7 @@ export class UniTableDemo {
         
         
         // Read-only table working with local data
-        this.readOnlyLocalDataCfg = new UniTableBuilder(localData, false)
+        this.readOnlyLocalDataCfg = new UniTableBuilder(this.localData, false)
         .setPageSize(5)
         .addColumns(idCol, nameCol, priceCol)
         .setSelectCallback(selectCallback);
@@ -170,7 +185,5 @@ export class UniTableDemo {
 //         })
 //         .addColumns(employeeIdCol, employeeNumberCol, employeeNameCol, employeeEmailCol);
         
-        
-    
     }
 }

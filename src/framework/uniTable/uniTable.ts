@@ -1,5 +1,5 @@
 import {Component, Input, AfterViewInit, ElementRef, OnDestroy} from 'angular2/core';
-import {UniHttpService, UniHttpRequest} from '../data/uniHttpService';
+import {UniHttpService, IUniHttpRequest} from '../data/uniHttpService';
 
 declare var jQuery;
 
@@ -18,12 +18,20 @@ export class UniTable implements AfterViewInit {
     
     nativeElement: any;
     table: kendo.ui.Grid;
-      
+    
 	
 	constructor(private uniHttp: UniHttpService, elementRef: ElementRef) {
         this.nativeElement = jQuery(elementRef.nativeElement);
     }
-
+    
+    refresh(data?: any) {
+        if (data && !this.config.remoteData) {
+            console.log('new resource');
+            this.config.resource = data;
+        }
+        this.table.dataSource.read();
+    }
+    
 	ngAfterViewInit() {
         
 		this.tableConfig = {
@@ -156,7 +164,7 @@ export class UniTable implements AfterViewInit {
             },
            
             destroy: (options) => {
-                this.uniHttp.delete({resource: this.config.resource + '/' + options.data.ID})
+                this.uniHttp.remove({resource: this.config.resource + '/' + options.data.ID})
                 .subscribe(
                     (response) => options.success(response),
                     (error) => options.error(error)
