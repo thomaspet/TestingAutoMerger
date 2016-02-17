@@ -4,7 +4,7 @@ import { Observable } from "rxjs/Observable";
 import "rxjs/observable/fromEvent";
 
 import {InputTemplateString} from "../inputTemplateString";
-import {UniInputBuilder} from "../../forms/builders/uniInputBuilder";
+import {UniFieldBuilder} from "../../forms/builders/uniFieldBuilder";
 
 declare var jQuery;
 
@@ -14,7 +14,7 @@ declare var jQuery;
 })
 export class UniAutocomplete implements AfterViewInit, OnDestroy {
     @Input()
-    config: UniInputBuilder;
+    config: UniFieldBuilder;
 
     nativeElement;
     autocomplete;

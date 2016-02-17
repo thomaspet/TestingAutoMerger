@@ -1,4 +1,4 @@
-import {UniInputBuilder} from "./uniInputBuilder";
+import {UniFieldBuilder} from "./uniFieldBuilder";
 import {UniFieldset} from "./../uniFieldset";
 import {Type} from "angular2/core";
 import {UniGenericBuilder} from "../shared/UniGenericBuilder";
@@ -7,10 +7,8 @@ declare var _;
 
 export class UniFieldsetBuilder extends UniGenericBuilder {
     legend: string = "";
-    fields: Array<UniInputBuilder> = [];
+    fields: Array<UniFieldBuilder> = [];
     fieldType: Type;
-    fieldsetIndex: number = 0;
-    sectionIndex: number = 0;
 
     static fromLayoutConfig(element: any): UniFieldsetBuilder {
         var ufsb = new UniFieldsetBuilder();

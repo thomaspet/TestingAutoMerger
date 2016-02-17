@@ -1,7 +1,7 @@
 import {Component, Input} from "angular2/core";
 import {Control} from "angular2/common";
 import {Guid} from "../guid";
-import {UniInputBuilder} from "../../forms/builders/uniInputBuilder";
+import {UniFieldBuilder} from "../../forms/builders/uniFieldBuilder";
 
 @Component({
     selector: "uni-checkbox",
@@ -20,7 +20,7 @@ import {UniInputBuilder} from "../../forms/builders/uniInputBuilder";
 })
 export class UniCheckboxInput {
     @Input()
-    config: UniInputBuilder;
+    config: UniFieldBuilder;
 
     guid: string;
 

@@ -1,10 +1,13 @@
 import {UniElementBuilder} from "../interfaces";
-import {UniInputBuilder} from "../builders/uniInputBuilder";
+import {UniFieldBuilder} from "../builders/uniFieldBuilder";
 
 export class UniGenericBuilder {
     fields: UniElementBuilder[] = [];
     classes: any = {};
     legend: string = "";
+    sectionIndex: number = 0;
+    fieldsetIndex: number = 0;
+    comboIndex: number = 0;
 
     addUniElement(field: UniElementBuilder) {
         this.fields.push(field);

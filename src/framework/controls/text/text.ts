@@ -1,5 +1,5 @@
 import {Component, Input} from "angular2/core";
-import {UniInputBuilder} from "../../forms/builders/uniInputBuilder";
+import {UniFieldBuilder} from "../../forms/builders/uniFieldBuilder";
 
 @Component({
     selector: "uni-text",
@@ -14,7 +14,7 @@ import {UniInputBuilder} from "../../forms/builders/uniInputBuilder";
 })
 export class UniTextInput {
     @Input()
-    config: UniInputBuilder;
+    config: UniFieldBuilder;
 
     constructor() {
     }

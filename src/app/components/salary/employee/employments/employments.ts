@@ -5,10 +5,11 @@ import {STYRKCodesDS} from "../../../../../framework/data/styrkCodes";
 import {UNI_CONTROL_DIRECTIVES} from "../../../../../framework/controls";
 import {UNI_CONTROL_TYPES} from "../../../../../framework/controls/types";
 import {
-    UniForm, UniFormBuilder, UniInputBuilder, UniSectionBuilder, UniFieldsetBuilder
+    UniForm, UniFormBuilder, UniFieldBuilder, UniSectionBuilder, UniFieldsetBuilder
 } from "../../../../../framework/forms";
 import {Observable} from "rxjs/Observable";
 import {IEmployment} from "../../../../../framework/interfaces/interfaces";
+import {UniElementFinder} from "../../../../../framework/forms/shared/UniElementFinder";
 
 declare var jQuery;
 
@@ -111,7 +112,7 @@ export class Employment {
             jobCode.onSelect = (event: kendo.ui.AutoCompleteSelectEvent) => {
                 var item: any = event.item;
                 var dataItem = event.sender.dataItem(item.index());
-                var fjn = <UniInputBuilder>formbuilder.findFieldByPropertyName("JobName");
+                var fjn = <UniFieldBuilder>UniElementFinder.findUniFieldByPropertyName("JobName", formbuilder.config());
                 fjn.control.updateValue(dataItem.tittel, {});
             };
 
@@ -124,7 +125,7 @@ export class Employment {
             jobName.onSelect = (event: kendo.ui.AutoCompleteSelectEvent) => {
                 var item: any = event.item;
                 var dataItem = event.sender.dataItem(item.index());
-                var fjc = <UniInputBuilder>formbuilder.findFieldByPropertyName("JobCode");
+                var fjc = <UniFieldBuilder>UniElementFinder.findUniFieldByPropertyName("JobCode", formbuilder.config());
                 fjc.control.updateValue(dataItem.styrk, {});
             };
 
@@ -214,7 +215,7 @@ export class Employment {
     }
 
     buildField(label: string, model: any, modelfield: string, type: number, index = null) {
-        return new UniInputBuilder()
+        return new UniFieldBuilder()
             .setLabel(label)
             .setModel(model)
             .setModelField(modelfield)

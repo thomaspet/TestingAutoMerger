@@ -1,6 +1,6 @@
 import {Component, ElementRef, Input, AfterViewInit, OnDestroy} from "angular2/core";
 import {InputTemplateString} from "../inputTemplateString";
-import {UniInputBuilder} from "../../forms/builders/uniInputBuilder";
+import {UniFieldBuilder} from "../../forms/builders/uniFieldBuilder";
 declare var jQuery;
 
 @Component({
@@ -9,7 +9,7 @@ declare var jQuery;
 })
 export class UniDropdown implements AfterViewInit, OnDestroy {
     @Input()
-    config: UniInputBuilder;
+    config: UniFieldBuilder;
 
     nativeElement;
     dropdown: kendo.ui.DropDownList;

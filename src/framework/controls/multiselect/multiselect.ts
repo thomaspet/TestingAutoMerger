@@ -1,7 +1,7 @@
 /// <reference path="../../../../kendo/typescript/kendo.all.d.ts" />
 import {Component, ElementRef, Input, AfterViewInit, OnDestroy} from "angular2/core";
 import {Control} from "angular2/common";
-import {UniInputBuilder} from "../../forms/builders/uniInputBuilder";
+import {UniFieldBuilder} from "../../forms/builders/uniFieldBuilder";
 declare var jQuery;
 
 var templateString = `
@@ -18,7 +18,7 @@ var templateString = `
 })
 export class UniMultiSelect implements AfterViewInit, OnDestroy {
     @Input()
-    config: UniInputBuilder;
+    config: UniFieldBuilder;
 
     nativeElement;
     multiselect;

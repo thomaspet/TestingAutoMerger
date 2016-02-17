@@ -1,4 +1,4 @@
-import {UniInputBuilder} from "./../builders/uniInputBuilder";
+import {UniFieldBuilder} from "./../builders/uniFieldBuilder";
 
 /**
  * Compose an object of messages like:
@@ -11,7 +11,7 @@ import {UniInputBuilder} from "./../builders/uniInputBuilder";
  */
 export class MessageComposer {
 
-    public static composeMessages(fieldConfig: UniInputBuilder) {
+    public static composeMessages(fieldConfig: UniFieldBuilder) {
         let messages = {};
         MessageComposer.assignMessages(fieldConfig.asyncValidators, messages);
         MessageComposer.assignMessages(fieldConfig.syncValidators, messages);

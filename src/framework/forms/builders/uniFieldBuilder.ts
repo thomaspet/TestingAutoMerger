@@ -1,12 +1,12 @@
 import {Type} from "angular2/core";
 import {UNI_CONTROL_DIRECTIVES} from "../../controls";
-import {UniInput} from "./../uniInput";
+import {UniField} from "./../uniField";
 import {UniTextInput} from "../../controls/text/text";
 import {Control} from "angular2/common";
 
 declare var _;
 
-export class UniInputBuilder {
+export class UniFieldBuilder {
     label: string = "";
     description: string = "";
     url: string = "";
@@ -21,6 +21,7 @@ export class UniInputBuilder {
     syncValidators: Array<any> = [];
     asyncValidators: Array<any> = [];
     control: Control;
+    comboIndex: number = 0;
     fieldsetIndex: number = 0;
     sectionIndex: number = 0;
     isLookup: boolean = false;
@@ -37,8 +38,8 @@ export class UniInputBuilder {
     clearOnSelect: any;
     onChange: any;
 
-    static fromLayoutConfig(element: any, model: any): UniInputBuilder {
-        var ufb = new UniInputBuilder();
+    static fromLayoutConfig(element: any, model: any): UniFieldBuilder {
+        var ufb = new UniFieldBuilder();
 
         ufb.model = model;
         ufb.label = element.Label;
@@ -54,7 +55,7 @@ export class UniInputBuilder {
         ufb.entityType = element.EntityType;
         ufb.componentLayoutID = element.ComponentLayoutID;
         ufb.field = element.Property;
-        ufb.fieldType = UniInput;
+        ufb.fieldType = UniField;
         ufb.type = UNI_CONTROL_DIRECTIVES[element.FieldType];
         ufb.lineBreak = element.hasLineBreak || false;
 
@@ -70,7 +71,7 @@ export class UniInputBuilder {
         this.label = label || "";
         this.model = model || undefined;
         this.field = modelField || "";
-        this.fieldType = UniInput;
+        this.fieldType = UniField;
         return this;
     }
 
@@ -157,7 +158,7 @@ export class UniInputBuilder {
         this.readonly = false;
     }
 
-    config(): UniInputBuilder {
+    config(): UniFieldBuilder {
         return this;
     }
 

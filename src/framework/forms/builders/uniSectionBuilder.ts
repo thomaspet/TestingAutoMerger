@@ -1,8 +1,8 @@
 import {Type} from "angular2/core";
-import {UniInputBuilder} from "./uniInputBuilder";
+import {UniFieldBuilder} from "./uniFieldBuilder";
 import {UniFieldsetBuilder} from "./uniFieldsetBuilder";
 import {UniSection} from "./../uniSection";
-import {UniComboInputBuilder} from "./uniComboInputBuilder";
+import {UniComboFieldBuilder} from "./uniComboFieldBuilder";
 import {UniGenericBuilder} from "../shared/UniGenericBuilder";
 import {UniElementBuilder} from "../interfaces";
 
@@ -11,8 +11,6 @@ declare var _;
 export class UniSectionBuilder extends UniGenericBuilder {
     collapsed: boolean = false;
     fieldType: Type;
-    fieldsetIndex: number = 0;
-    sectionIndex: number = 0;
     classes = [];
 
     static fromLayoutConfig(element: any): UniSectionBuilder {
@@ -36,15 +34,5 @@ export class UniSectionBuilder extends UniGenericBuilder {
 
     openByDefault(value: boolean) {
         this.collapsed = value;
-    }
-
-    findFieldset(index: number): UniFieldsetBuilder {
-        var value: UniFieldsetBuilder = undefined;
-        this.fields.forEach((element: UniElementBuilder) => {
-            if (element.fieldsetIndex === index && element instanceof UniFieldsetBuilder) {
-                value = element;
-            }
-        });
-        return value;
     }
 }

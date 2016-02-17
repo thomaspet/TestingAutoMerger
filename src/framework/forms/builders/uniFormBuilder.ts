@@ -1,4 +1,4 @@
-import {UniInputBuilder, UniFieldsetBuilder, UniSectionBuilder, UniComboInputBuilder} from "../../forms";
+import {UniFieldBuilder, UniFieldsetBuilder, UniSectionBuilder, UniComboFieldBuilder} from "../../forms";
 import {UniElementBuilder} from "./../interfaces";
 import {UniGenericBuilder} from "../shared/UniGenericBuilder";
 
@@ -41,56 +41,9 @@ export class UniFormBuilder extends UniGenericBuilder {
         return this.fields;
     }
 
-    findFieldByPropertyName(name: string, collection?: any[]) {
-        if (!collection) {
-            collection = this.fields;
-        }
-        var ret = undefined;
-        collection.forEach((element: any) => {
-            if (element instanceof UniInputBuilder) {
-                if (element.field === name) {
-                    ret = element;
-                }
-            } else {
-                this.findFieldByPropertyName(name, element.fields);
-            }
-        });
-        return ret;
-    }
-
-    findFieldset(index: number): UniFieldsetBuilder {
-        var value: UniFieldsetBuilder = undefined;
-        this.fields.forEach((element: UniElementBuilder) => {
-            if (element.fieldsetIndex === index && element instanceof UniFieldsetBuilder) {
-                value = element;
-            }
-        });
-        return value;
-    }
-
-    findGroup(index: number): UniSectionBuilder {
-        var value: UniSectionBuilder = undefined;
-        this.fields.forEach((element: UniElementBuilder) => {
-            if (element.sectionIndex === index && element instanceof UniSectionBuilder) {
-                value = element;
-            }
-        });
-        return value;
-    }
-
-    findComboGroup(index: number): UniComboInputBuilder {
-        var value: UniComboInputBuilder = undefined;
-        this.fields.forEach((element: UniElementBuilder) => {
-            if (element.sectionIndex === index && element instanceof UniComboInputBuilder) {
-                value = element;
-            }
-        });
-        return value;
-    }
-
     _readmode(fields: UniElementBuilder[]) {
         fields.forEach((field: UniElementBuilder) => {
-            if (field instanceof UniInputBuilder) {
+            if (field instanceof UniFieldBuilder) {
                 field.readmode();
             } else {
                 this._readmode(<any>field.config());
@@ -100,7 +53,7 @@ export class UniFormBuilder extends UniGenericBuilder {
 
     _editmode(fields: UniElementBuilder[]) {
         fields.forEach((field: UniElementBuilder) => {
-            if (field instanceof UniInputBuilder) {
+            if (field instanceof UniFieldBuilder) {
                 field.editmode();
             } else {
                 this._editmode(<any>field.config());

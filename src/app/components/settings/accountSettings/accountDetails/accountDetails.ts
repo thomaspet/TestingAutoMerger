@@ -6,8 +6,8 @@ import {UNI_CONTROL_DIRECTIVES} from "../../../../../framework/controls";
 import {UNI_CONTROL_TYPES} from "../../../../../framework/controls/types";
 import {UniFormBuilder} from "../../../../../framework/forms/builders/uniFormBuilder";
 import {UniFieldsetBuilder} from "../../../../../framework/forms/builders/uniFieldsetBuilder";
-import {UniComboInputBuilder} from "../../../../../framework/forms/builders/uniComboInputBuilder";
-import {UniInputBuilder} from "../../../../../framework/forms/builders/uniInputBuilder";
+import {UniComboFieldBuilder} from "../../../../../framework/forms/builders/uniComboFieldBuilder";
+import {UniFieldBuilder} from "../../../../../framework/forms/builders/uniFieldBuilder";
 import {UniSectionBuilder} from "../../../../../framework/forms/builders/uniSectionBuilder";
 import {AccountingDS} from "../../../../../framework/data/accounting";
 import {CurrencyDS} from "../../../../../framework/data/currency";
@@ -49,43 +49,43 @@ export class AccountDetails {
         // main fields
         //
 
-        var accountNumber = new UniInputBuilder();
+        var accountNumber = new UniFieldBuilder();
         accountNumber.setLabel("Kontonr.")
             .setModel(this.model)
             .setModelField("AccountNumber")
             .setType(UNI_CONTROL_DIRECTIVES[UNI_CONTROL_TYPES.TEXT])
 
-        var accountName = new UniInputBuilder();
+        var accountName = new UniFieldBuilder();
         accountName.setLabel("Kontonavn")
             .setModel(this.model)
             .setModelField("AccountName")
             .setType(UNI_CONTROL_DIRECTIVES[UNI_CONTROL_TYPES.TEXT])
 
-        var accountCombo = new UniComboInputBuilder()
+        var accountCombo = new UniComboFieldBuilder()
         accountCombo.addClass("combo");
         accountCombo.addUniElements(accountNumber, accountName);
 
-        var accountAlias = new UniInputBuilder();
+        var accountAlias = new UniFieldBuilder();
         accountAlias.setLabel("Alias")
             .setModel(this.model)
             .setModelField("alias")
             .setType(UNI_CONTROL_DIRECTIVES[UNI_CONTROL_TYPES.TEXT]);
 
-        var currency = new UniInputBuilder();
+        var currency = new UniFieldBuilder();
         currency.setLabel("Valuta")
             .setModel(this.model)
             .setModelField("CurrencyID")
             .setType(UNI_CONTROL_DIRECTIVES[UNI_CONTROL_TYPES.DROPDOWN])
             .setKendoOptions({dataSource: this.currencies, dataValueField: "ID", dataTextField: "Code"})
 
-        var vatType = new UniInputBuilder();
+        var vatType = new UniFieldBuilder();
         vatType.setLabel("Moms")
             .setModel(this.model)
             .setModelField("vattype")
             .setType(UNI_CONTROL_DIRECTIVES[UNI_CONTROL_TYPES.DROPDOWN])
             .setKendoOptions({dataSource: this.vattypes, dataValueField: "ID", dataTextField: "Name"})
 
-        var numSerie = new UniInputBuilder();
+        var numSerie = new UniFieldBuilder();
         numSerie.setLabel("Nummerserie")
             .setModelField("SubAccountNumberSeriesID")
             .setType(UNI_CONTROL_DIRECTIVES[UNI_CONTROL_TYPES.HYPERLINK])
@@ -98,37 +98,37 @@ export class AccountDetails {
         // Checkbox settings
         //
 
-        var checkSystemAccount = new UniInputBuilder();
+        var checkSystemAccount = new UniFieldBuilder();
         checkSystemAccount.setDescription("Systemkonto")
             .setModel(this.model)
             .setModelField("SystemAccount")
             .setType(UNI_CONTROL_DIRECTIVES[UNI_CONTROL_TYPES.CHECKBOX]);
 
-        var checkPostPost = new UniInputBuilder();
+        var checkPostPost = new UniFieldBuilder();
         checkPostPost.setDescription("PostPost")
             .setModel(this.model)
             .setModelField("UsePostPost")
             .setType(UNI_CONTROL_DIRECTIVES[UNI_CONTROL_TYPES.CHECKBOX]);
 
-        var checkDeductionPercent = new UniInputBuilder();
+        var checkDeductionPercent = new UniFieldBuilder();
         checkDeductionPercent.setDescription("Forholdsvismoms")
             .setModel(this.model)
             .setModelField("UseDeductionPercent")
             .setType(UNI_CONTROL_DIRECTIVES[UNI_CONTROL_TYPES.CHECKBOX]);
 
-        var checkLockManualPosts = new UniInputBuilder();
+        var checkLockManualPosts = new UniFieldBuilder();
         checkLockManualPosts.setDescription("Sperre manuelle poster")
             .setModel(this.model)
             .setModelField("LockManualPosts")
             .setType(UNI_CONTROL_DIRECTIVES[UNI_CONTROL_TYPES.CHECKBOX]);
 
-        var checkLocked = new UniInputBuilder();
+        var checkLocked = new UniFieldBuilder();
         checkLocked.setDescription("Sperret")
             .setModel(this.model)
             .setModelField("Locked")
             .setType(UNI_CONTROL_DIRECTIVES[UNI_CONTROL_TYPES.CHECKBOX]);
 
-        var checkVisible = new UniInputBuilder();
+        var checkVisible = new UniFieldBuilder();
         checkVisible.setDescription("Synlig")
             .setModel(this.model)
             .setModelField("Visible")

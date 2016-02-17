@@ -14,7 +14,7 @@ import {UniComponentLoader} from "../../../../../framework/core/componentLoader"
 import {Observable} from "rxjs/Observable";
 import "rxjs/add/operator/merge";
 import {UniSectionBuilder} from "../../../../../framework/forms/builders/uniSectionBuilder";
-import {UniInputBuilder} from "../../../../../framework/forms/builders/uniInputBuilder";
+import {UniFieldBuilder} from "../../../../../framework/forms/builders/uniFieldBuilder";
 import {IEmployment} from "../../../../../framework/interfaces/interfaces";
 
 declare var jQuery;
@@ -80,43 +80,43 @@ export class Hours {
             //     group.openByDefault(true);
             // }
 
-            var jobCode = new UniInputBuilder()
+            var jobCode = new UniFieldBuilder()
                 .setLabel("stillingskode")
                 .setModel(employment)
                 .setModelField("JobCode")
                 .setType(UNI_CONTROL_DIRECTIVES[UNI_CONTROL_TYPES.TEXT]);
 
-            var jobName = new UniInputBuilder()
+            var jobName = new UniFieldBuilder()
                 .setLabel("Navn")
                 .setModel(employment)
                 .setModelField("JobName")
                 .setType(UNI_CONTROL_DIRECTIVES[UNI_CONTROL_TYPES.TEXT]);
 
-            var startDate = new UniInputBuilder()
+            var startDate = new UniFieldBuilder()
                 .setLabel("Startdato")
                 .setModel(employment)
                 .setModelField("StartDate")
                 .setType(UNI_CONTROL_DIRECTIVES[UNI_CONTROL_TYPES.DATEPICKER]);
 
-            var endDate = new UniInputBuilder()
+            var endDate = new UniFieldBuilder()
                 .setLabel("Sluttdato")
                 .setModel(employment)
                 .setModelField("EndDate")
                 .setType(UNI_CONTROL_DIRECTIVES[UNI_CONTROL_TYPES.DATEPICKER]);
 
-            var monthRate = new UniInputBuilder()
+            var monthRate = new UniFieldBuilder()
                 .setLabel("Månedlønn")
                 .setModel(employment)
                 .setModelField("MonthRate")
                 .setType(UNI_CONTROL_DIRECTIVES[UNI_CONTROL_TYPES.NUMERIC]);
 
-            var hourRate = new UniInputBuilder()
+            var hourRate = new UniFieldBuilder()
                 .setLabel("Timelønn")
                 .setModel(employment)
                 .setModelField("HourRate")
                 .setType(UNI_CONTROL_DIRECTIVES[UNI_CONTROL_TYPES.NUMERIC]);
 
-            var workPercent = new UniInputBuilder()
+            var workPercent = new UniFieldBuilder()
                 .setLabel("Stillingprosent")
                 .setModel(employment)
                 .setModelField("WorkPercent")
@@ -124,14 +124,14 @@ export class Hours {
 
             if (typeof employment.Localization !== "undefined") {
                 if (typeof employment.Localization.BusinessRelationInfo !== "undefined") {
-                    var localization = new UniInputBuilder()
+                    var localization = new UniFieldBuilder()
                         .setLabel("Lokalitet")
                         .setModel(employment.Localization.BusinessRelationInfo)
                         .setModelField("Name")
                         .setType(UNI_CONTROL_DIRECTIVES[UNI_CONTROL_TYPES.TEXT]);
                 }
             } else {
-                var localization = new UniInputBuilder()
+                var localization = new UniFieldBuilder()
                     .setLabel("Lokalitet")
                     .setModel(employment)
                     .setModelField("LocalizationID")
@@ -142,13 +142,13 @@ export class Hours {
 
             var readmore = new UniSectionBuilder("VIS MER...");
 
-            var salaryChanged = new UniInputBuilder()
+            var salaryChanged = new UniFieldBuilder()
                 .setLabel("Endret lønn")
                 .setModel(employment)
                 .setModelField("LastSalaryChangeDate")
                 .setType(UNI_CONTROL_DIRECTIVES[UNI_CONTROL_TYPES.DATEPICKER]);
 
-            var workpercentChange = new UniInputBuilder()
+            var workpercentChange = new UniFieldBuilder()
                 .setLabel("Endret stillingprosent")
                 .setModel(employment)
                 .setModelField("LastWorkPercentChangeDate")

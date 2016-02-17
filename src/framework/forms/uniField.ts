@@ -4,7 +4,7 @@ import {UNI_CONTROL_DIRECTIVES} from "../controls";
 import {ShowError} from "../forms/showError";
 import {UniRadioGroup} from "../controls/radioGroup/uniRadioGroup";
 import {UniComponentLoader} from "../core/componentLoader";
-import {UniInputBuilder} from "./builders/uniInputBuilder";
+import {UniFieldBuilder} from "./builders/uniFieldBuilder";
 
 declare var _;
 
@@ -12,7 +12,7 @@ declare var _;
  *
  */
 @Component({
-    selector: "uni-input",
+    selector: "uni-field",
     directives: [UniComponentLoader, ShowError, UniRadioGroup, NgIf, NgForm],
     template: `
         <label ngForm *ngIf="isInput()" [class.error]="hasError()" [class]="buildClassString()" [class.-has-linebreak]="hasLineBreak()">
@@ -23,10 +23,10 @@ declare var _;
         <uni-radio-group *ngIf="isRadioGroup(getType())" [config]="getConfig()"></uni-radio-group>
     `
 })
-export class UniInput {
+export class UniField {
 
     @Input()
-    config: UniInputBuilder;
+    config: UniFieldBuilder;
 
     constructor() {
     }

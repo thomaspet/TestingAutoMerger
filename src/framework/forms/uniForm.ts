@@ -3,11 +3,11 @@ import {FORM_DIRECTIVES, FORM_PROVIDERS, Control, ControlGroup, FormBuilder} fro
 import {UNI_CONTROL_DIRECTIVES} from "../controls";
 import {UniRadioGroup} from "../controls/radioGroup/uniRadioGroup";
 import {ShowError} from "./showError";
-import {UniInput} from "./uniInput";
-import {UniInputBuilder} from "./builders/uniInputBuilder";
+import {UniField} from "./uniField";
+import {UniFieldBuilder} from "./builders/uniFieldBuilder";
 import {UniFieldset} from "./uniFieldset";
 import {UniSection} from "./uniSection";
-import {UniComboInput} from "./uniComboInput";
+import {UniComboField} from "./uniComboField";
 import {UniComponentLoader} from "../core/componentLoader";
 import {MessageComposer} from "./composers/messageComposer";
 import {ValidatorsComposer} from "./composers/validatorsComposer";
@@ -22,7 +22,7 @@ declare var _; //lodash
  */
 @Component({
     selector: "uni-form",
-    directives: [FORM_DIRECTIVES, UniInput, UniFieldset, UniSection, UniComboInput, UniComponentLoader],
+    directives: [FORM_DIRECTIVES, UniField, UniFieldset, UniSection, UniComboField, UniComponentLoader],
     providers: [FORM_PROVIDERS],
     template: `
         <form (submit)="submit()" [ngFormModel]="form" [class]="buildClassString()" [class.error]="hasErrors()">
@@ -137,7 +137,7 @@ export class UniForm implements OnInit {
     }
 
     /**
-     * return the type of the Element return IElmementBuilder Type (UniInput, UniInputBuilder, UniSection)
+     * return the type of the Element return IElmementBuilder Type (UniField, UniFieldBuilder, UniSection)
      * @param field
      * @returns {Type}
      */
@@ -180,7 +180,7 @@ export class UniForm implements OnInit {
 
         for (let i = 0; i < config.length; i++) {
             let field = config[i];
-            if (field instanceof UniInputBuilder) {
+            if (field instanceof UniFieldBuilder) {
                 var model = field.model;
                 var fieldPath = field.field;
                 var value = _.get(formValue, fieldPath);
@@ -204,7 +204,7 @@ export class UniForm implements OnInit {
 
         for (let i = 0; i < config.length; i++) {
             let field = config[i];
-            if (field instanceof UniInputBuilder) {
+            if (field instanceof UniFieldBuilder) {
                 field.model = newModel;
                 var fieldPath = field.field;
                 var value = _.get(newModel, fieldPath);
@@ -223,7 +223,7 @@ export class UniForm implements OnInit {
     private createFormControls(config) {
         for (let i = 0; i < config.length; i++) {
             let field = config[i];
-            if (field instanceof UniInputBuilder) {
+            if (field instanceof UniFieldBuilder) {
                 this.createFormControl(field);
             } else {
                 this.createFormControls(field.fields);

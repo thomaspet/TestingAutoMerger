@@ -1,7 +1,7 @@
 import {Component, ElementRef, Input, AfterViewInit, OnDestroy} from "angular2/core";
 import {Control} from "angular2/common";
 import {InputTemplateString} from "../inputTemplateString";
-import {UniInputBuilder} from "../../forms/builders/uniInputBuilder";
+import {UniFieldBuilder} from "../../forms/builders/uniFieldBuilder";
 declare var jQuery;
 
 @Component({
@@ -10,7 +10,7 @@ declare var jQuery;
 })
 export class UniNumericInput implements AfterViewInit, OnDestroy {
     @Input()
-    config: UniInputBuilder;
+    config: UniFieldBuilder;
 
     nativeElement;
     numericInput;
