@@ -1,6 +1,6 @@
 ﻿<section class="users_list_section" style="min-height: 400px; margin-bottom: 15px">
     <h3>Brukere</h3>
-    <uni-table [config]="usersConfig"></uni-table>
+    <uni-table *ngIf="usersTable" [config]="usersTable"></uni-table>
 </section>
 
 <section class="users_invite">
@@ -10,7 +10,7 @@
         <input type="email" [(ngModel)]="newUser.Email" placeholder="Epostadresse" />
         <button (click)="inviteNewUser()" [attr.aria-busy]="isPostUserActive" class="c2a">Inviter</button>
     </div>
-    <small>{{errorMessage}}</small>
+    <small *ngIf="invalidInviteInfo">{{errorMessage}}</small>
 </section>
 
 <section class="users_invite users_invite_link">
