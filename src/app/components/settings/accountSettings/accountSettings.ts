@@ -65,6 +65,6 @@ export class AccountSettings {
 
     showTestAccount()
     {
-        this.account = 1000;
+        this.account = -1;
     }
 }

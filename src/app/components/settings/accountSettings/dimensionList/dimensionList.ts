@@ -27,8 +27,9 @@ export class DimensionList {
     }
     
     ngOnChanges() {
+        var data = [];
+ 
         if (this.dimensions) {
-            var data = [];
             
             if (this.dimensions.Project != null) {
                 data.push({ID: this.dimensions.ProjectID, Type: 'Prosjekt', Name: this.dimensions.Project.Name});
@@ -47,7 +48,11 @@ export class DimensionList {
             }
             
             this.localData = data;   
-            this.table.refresh(this.localData);         
+        }
+        
+        this.localData = data;
+        if (this.table != null) {
+            this.table.refresh(this.localData);        
         }
     }
 }

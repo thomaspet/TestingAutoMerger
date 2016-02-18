@@ -132,7 +132,7 @@ export class AccountDetails {
     update() {
         var self = this;
         this.http.get(
-            {resource: "accounts/" + this.account, expand: "Alias,Currency,AccountGroup"}
+            {resource: "accounts/" + this.account, expand: "Alias,Currency,AccountGroup,Dimensions,Dimensions.Project,Dimensions.Region,Dimensions.Responsible,Dimensions.Departement"}
         ).subscribe(
             (dataset) => {
                 self.model = dataset;
@@ -169,7 +169,7 @@ export class AccountDetails {
             this.model = new AccountModel();
             this.form.refresh(this.model);
         }
-        else if (this.account == 1000) { // TEST ONLY
+        else if (this.account == -1) { // TEST ONLY
             this.model = new AccountModel();
             this.model.ID = 1000;
             this.model.AccountName = "TEST";

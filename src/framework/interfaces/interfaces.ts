@@ -1924,9 +1924,9 @@ export interface IAccount {
 	StatusID: number;
 	ID: number;
 	Deleted: boolean;
-	VatType: IVatType;
 	Currency: ICurrency;
 	AccountGroup: IAccountGroup;
+	VatType: IVatType;
 	MainAccount: IAccount;
 	Customer: ICustomer;
 	Supplier: ISupplier;
@@ -2226,8 +2226,20 @@ export enum ForeignWorker{
 
 
 export enum FieldType{
-	Text = 0,
-	Number = 1,
+	AUTOCOMPLETE = 0,
+	COMBOBOX = 1,
+	DATEPICKER = 2,
+	DROPDOWN = 3,
+	MASKED = 4,
+	MULTISELECT = 5,
+	NUMERIC = 6,
+	RADIO = 7,
+	CHECKBOX = 8,
+	RADIOGROUP = 9,
+	TEXT = 10,
+	EMAIL = 11,
+	PASSWORD = 12,
+	HYPERLINK = 13,
 }
 
 

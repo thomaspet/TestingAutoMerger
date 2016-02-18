@@ -15,6 +15,7 @@ export class UniTable implements AfterViewInit {
 	tableConfig: kendo.ui.GridOptions = {};
 	filterString: string = "";
     totalRows: number; // used for pagination
+    numRows: number; // number of rows
     
     nativeElement: any;
     table: kendo.ui.Grid;
@@ -82,7 +83,7 @@ export class UniTable implements AfterViewInit {
         
         // Compile grid and set up key navigation
         this.table = this.nativeElement.find('table').kendoGrid(this.tableConfig).data('kendoGrid');
-        this.setupKeyNavigation();
+        this.setupKeyNavigation();        
 	}
     
     // Create a datasource that works with local data
@@ -90,6 +91,7 @@ export class UniTable implements AfterViewInit {
         this.tableConfig.dataSource.transport = {
                 
             read: (options) => {
+                this.numRows = this.config.resource.length;
                 this.totalRows = this.config.resource.length;
                 options.success(this.config.resource);
             },
@@ -135,7 +137,11 @@ export class UniTable implements AfterViewInit {
                     skip: options.data.skip
                 }).subscribe(
                     (response) => {
-                        // TODO: Get count param from response headers (mocked for now)
+                        // TODO: Get count param from response headers (mocked for now)   
+                        this.numRows = response.length;
+                        console.log("NUMROWS IN TABLE " + this.numRows);
+                        if (this.numRows == 0) jQuery(this.table.table).hide(); // TEST
+                                             
                         if (response.length < this.config.pageSize) {
                             this.totalRows = response.length + (this.table.dataSource.page() - 1) * this.config.pageSize;
                         } else {
