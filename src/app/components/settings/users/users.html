@@ -5,17 +5,17 @@
 
 <section class="users_invite">
     <h3>Legg til bruker:</h3>
-    <div>
+    <section>
         <input type="text" [(ngModel)]="newUser.DisplayName" placeholder="Navn" />
         <input type="email" [(ngModel)]="newUser.Email" placeholder="Epostadresse" />
         <button (click)="inviteNewUser()" [attr.aria-busy]="isPostUserActive" class="c2a">Inviter</button>
-    </div>
+    </section>
     <small *ngIf="invalidInviteInfo">{{errorMessage}}</small>
 </section>
 
 <section class="users_invite users_invite_link">
     <h3>Invitasjon direktelink:</h3>
-    <div>
+    <section>
         <p>{{inviteLink}}</p>
-    </div>
+    </section>
 </section>

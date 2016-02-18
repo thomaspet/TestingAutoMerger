@@ -33,16 +33,19 @@ export class Users {
         var emailCol = new UniTableColumn('Email', 'Epost', 'string');
         var statusCol = new UniTableColumn('Status', 'Status', 'string');
         var roleCol = new UniTableColumn('Role', 'Rolle', 'string');
-        var commandCol = new UniTableColumn('Resend', '', 'string')
-            .setCommand({ command: "destroy" });
-        var revokeCol = new UniTableColumn('Revoke', '', 'string');
+        var commandCol = new UniTableColumn('', '', '')
+            .setCommand(
+            [
+                { name: "destroy" } // built-in "destroy" command
+            ]
+            );
+           
         
         this.usersTable = new UniTableBuilder(this.users, false)
             .setPageSize(2)
             .setPageable(false)
-            .addColumns(nameCol, emailCol, statusCol, roleCol, revokeCol)
+            .addColumns(nameCol, emailCol, statusCol, roleCol, commandCol)
             .setFilterable(false)
-            .setSelectCallback(this.testCallback);
     }
 
     //This needs to merge data from 3 resources (users, usersstatus, roles)
@@ -50,17 +53,21 @@ export class Users {
     setUserTableData() {
 
         var status = this.statusDummy();
+        var role = this.roleDummy();
         this.http.get({ resource: 'users' })
             .subscribe(
-                (data) => {
-                    this.users = data;
+                (users) => {
+                    this.users = users;
 
-                    data.forEach((user) => {
+                    users.forEach((user) => {
                         user.Status = status[status.map((st) => { return st.ID }).indexOf(user.StatusID)].Name;
+                        if (user.Status === 'Invited') {
+                            user.Role = role[Math.floor(Math.random() * 6)].Name;
+                        }
                     })
 
                     if (this.usersTable) {
-                        this.userTable.refresh(data);
+                        this.userTable.refresh(users);
                     } else {
                         this.createUserTable();
                     }
@@ -70,10 +77,6 @@ export class Users {
                     console.log(error);
                 }
             );
-    }
-
-    testCallback(momo) {
-        console.log(momo);
     }
 
     inviteNewUser() {
@@ -124,6 +127,17 @@ export class Users {
                 Name: 'Revoked',
                 ID: 20
             }
+        ]
+    }
+
+    roleDummy() {
+        return [
+            { Name: 'Admin' },
+            { Name: 'User(#845)' },
+            { Name: 'User(#323)' },
+            { Name: 'User(#523)' },
+            { Name: 'General User' },
+            { Name: 'Temporary' },
         ]
     }
 }
