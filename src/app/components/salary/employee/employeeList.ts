@@ -2,7 +2,6 @@ import {Component} from 'angular2/core';
 import {Router, RouteConfig} from 'angular2/router';
 
 import {UniTable, UniTableBuilder, UniTableColumn} from '../../../../framework/uniTable';
-
 @Component({
     templateUrl: 'app/components/salary/employee/employeeList.html',    
     directives: [UniTable]
