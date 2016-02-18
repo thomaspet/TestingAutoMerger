@@ -33,3 +33,28 @@
     -webkit-animation: spinner 600ms linear infinite
     opacity: 1
 
+label[aria-busy]
+  position: relative
+  white-space: nowrap
+
+  &:before
+    content: ''
+    display: block
+    height: 1rem
+    width: 1rem
+    position: absolute
+    top: 1.8rem
+    right: .5rem
+    border-radius: 50%
+    border-top: .1rem solid $uni-color-scale7
+    border-right: .1rem solid transparent
+    animation: spinner 600ms linear infinite
+    -webkit-animation: spinner 600ms linear infinite
+
+  input[type="text"]
+    @extend input[type="text"][disabled]
+    color: $uni-color-scale5
+    pointer-events: none
+
+  *
+    white-space: normal
