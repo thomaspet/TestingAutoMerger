@@ -1,4 +1,4 @@
-import {Component, ViewChild} from 'angular2/core';
+import {Component, ViewChild, ViewChildren, AfterViewInit} from 'angular2/core';
 import {UniTable, UniTableBuilder, UniTableColumn} from '../../../../framework/uniTable';
 
 @Component({
@@ -7,24 +7,19 @@ import {UniTable, UniTableBuilder, UniTableColumn} from '../../../../framework/u
     //     <h4>Table with expanded properties in lookup</h4>
     //     <uni-table [config]="expandedFieldsTableCfg"></uni-table>
     // `, 
-    // template: `   
-    //     <h4>Editable table with remote data</h4>
-    //     <uni-table [config]="editableRemoteDataCfg"></uni-table>
-    //     <br><br>
-    //     
-    //     <h4>Editable table with local data</h4>
-    //     <uni-table [config]="editableLocalDataCfg"></uni-table>
-    //     <br><br>
-    //     
-    //     <h4>Read-only table with remote data</h4>
-    //     <uni-table [config]="readOnlyRemoteDataCfg"></uni-table>
-    //     <br><br>
-    //     
-    //     <h4>Read-only table with local data</h4>
-    //     <uni-table [config]="readOnlyLocalDataCfg"></uni-table>
-    //     <button (click)="addRow()">Test table refresh with new row</button>
-    // `,
     template: `   
+        <h4>Editable table with remote data</h4>
+        <uni-table [config]="editableRemoteDataCfg"></uni-table>
+        <br><br>
+        
+        <h4>Editable table with local data</h4>
+        <uni-table [config]="editableLocalDataCfg"></uni-table>
+        <br><br>
+        
+        <h4>Read-only table with remote data</h4>
+        <uni-table [config]="readOnlyRemoteDataCfg"></uni-table>
+        <br><br>
+        
         <h4>Read-only table with local data</h4>
         <uni-table [config]="readOnlyLocalDataCfg"></uni-table>
         <button (click)="testTableRefresh()">Test table refresh with new row</button>
@@ -32,7 +27,7 @@ import {UniTable, UniTableBuilder, UniTableColumn} from '../../../../framework/u
     directives: [UniTable]
 })
 export class UniTableDemo {
-    @ViewChild(UniTable) table: UniTable;
+    @ViewChildren(UniTable) tables: any;
  
     localData: any;
     
@@ -46,7 +41,7 @@ export class UniTableDemo {
     
     testTableRefresh() {
         this.localData[0].Name = "Navn endret av refresh!";
-        this.table.refresh(this.localData);
+        this.tables.toArray()[3].refresh(this.localData);
     }
     
     constructor() {

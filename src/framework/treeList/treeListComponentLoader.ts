@@ -40,7 +40,7 @@ export class TreeListComponentLoader implements OnInit {
                     .then((comp) => {
                         this.compRef = comp;
                         comp.instance.fields = this.componentConfig.content.config();
-                        comp.instance.uniFormSubmit.subscribe(this.componentConfig.changeCallback);
+                        comp.instance.uniFormSubmit.subscribe(this.componentConfig.formSubmitCallback);
                     });
                 break;
             default:

@@ -7,7 +7,7 @@ export class TreeListItem {
     treeListItems: Array<TreeListItem>;
     content: Object | string;
     type: TREE_LIST_TYPE;
-    changeCallback: (model?: any) => void;
+    formSubmitCallback: (model?: any) => void;
 
     constructor(title: string = "") {
         this.title = title;
@@ -23,8 +23,8 @@ export class TreeListItem {
         return this;
     }
 
-    setChangeCallback(changeCallback: (model?: any) => void) {
-        this.changeCallback = changeCallback;
+    setFormSubmitCallback(submitCallback: (model?: any) => void) {
+        this.formSubmitCallback = submitCallback;
         return this;
     }
 
