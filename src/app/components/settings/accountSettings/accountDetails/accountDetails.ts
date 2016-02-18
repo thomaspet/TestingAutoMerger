@@ -194,7 +194,6 @@ export class AccountDetails {
                 Name: "Høg moms",
                 VatPercent: 25,
                 VatCode: "1",
-                VatCodeRelationID: 0,
                 AvailableInModules: false,
                 VatTypeSetupID: 0,
                 ValidFrom: null,
@@ -209,7 +208,9 @@ export class AccountDetails {
                 Deleted: false,
                 IncomingAccount: null,
                 OutgoingAccount: null,
-                CustomFields: null
+                CustomFields: null,
+                Alias: null,
+                Deductions: null
             };
             this.model.Dimensions = {
                 CustomFields: null,
