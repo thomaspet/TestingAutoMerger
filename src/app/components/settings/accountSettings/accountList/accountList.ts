@@ -81,7 +81,7 @@ export class AccountList {
                 
                 
                 var lockedCol = new UniTableColumn('', 'Synlig/låst', 'boolean')
-                .addClass("icon-column")
+                .setClass("icon-column")
                 .setTemplate("#if(Visible) {#<span class='is-visible' role='presentation'>Visible</span>#} " +
                             "else {#<span class='is-hidden' role='presentation'>Hidden</span>#}# " +
                             "#if(Locked) {#<span class='is-locked' role='presentation'>Locked</span>#} " +

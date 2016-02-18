@@ -37,10 +37,6 @@ export class UniFormBuilder extends UniGenericBuilder {
         this.isSubmitButtonHidden = false;
     }
 
-    config() {
-        return this.fields;
-    }
-
     _readmode(fields: UniElementBuilder[]) {
         fields.forEach((field: UniElementBuilder) => {
             if (field instanceof UniFieldBuilder) {

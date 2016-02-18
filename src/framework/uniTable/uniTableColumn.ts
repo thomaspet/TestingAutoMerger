@@ -5,9 +5,9 @@ export class UniTableColumn {
     format: string = "";
     editable: boolean = true;
     nullable: boolean = false;
+    class: string = "";
     template: string = "";
     command: kendo.ui.GridColumnCommandItem[] = [];
-    classes = [];
     width: string = "";
     // todo: validation
     
@@ -32,6 +32,11 @@ export class UniTableColumn {
         return this;
     }
     
+    setClass(classString: string) {
+        this.class = classString;
+        return this;
+    }
+    
     setTemplate(template: string) {
         this.template = template;
         return this;
@@ -45,11 +50,5 @@ export class UniTableColumn {
     setWidth(width: string) {
         this.width = width;
         return this;
-    }
-    
-    addClass(cls: string) {
-        this.classes.push(cls);
-        return this;
-    }
-       
+    }       
 }
