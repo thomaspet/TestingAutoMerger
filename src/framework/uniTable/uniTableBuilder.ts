@@ -25,6 +25,7 @@ export class UniTableBuilder {
     
     schemaModel: any;
     columns: kendo.ui.GridColumn[];
+    commands: kendo.ui.GridColumnCommandItem[] = [];
     
     constructor(resource: string | Array<any>, editable: boolean = true) {
         this.resource = resource;
@@ -47,31 +48,42 @@ export class UniTableBuilder {
         
         columns.forEach((columnInfo: UniTableColumn) => {
             
+            // Add class editable-cell to columns that are editable
+            if (columnInfo.editable) {
+                columnInfo.class += ' editable-cell';
+            }
+            
             var column = {
                 field: columnInfo.field,
                 title: columnInfo.title,
                 format: columnInfo.format,
-            };
+                template: columnInfo.template || null,
+                attributes: {
+                    "class": columnInfo.class
+                }
+            };      
             
-            // Add class editable-cell to columns that are editable
-            if (columnInfo.editable) {
-                column['attributes'] = {'class': 'editable-cell'};
+            this.schemaModel.fields[columnInfo.field] = {
+                type: columnInfo.type,
+                editable: columnInfo.editable,
+                nullable: columnInfo.nullable,
             }
-            
-            this.columns.push(column);
             
             // var schemaField = columnInfo.field.split('.');
             // var fieldName = schemaField.join('');
-            
+            // 
             // this.schemaModel.fields[fieldName] = {
             //     type: columnInfo.type,
             //     editable: columnInfo.editable,
             //     nullable: columnInfo.nullable,
             // }
-            
+            // 
             // if (schemaField.length > 1) {
             //     this.schemaModel.fields[fieldName].from = columnInfo.field;
+            //     column.field = fieldName;
             // }
+            
+            this.columns.push(column);
 
         });
         
@@ -80,17 +92,14 @@ export class UniTableBuilder {
             this.schemaModel.fields['ID'] = { type: 'number', editable: false, nullable: true };
         }
         
-        // Add delete button if table is editable
-        if (this.editable) {
-            this.columns.push({
-                command: ['destroy'],
-                title: ' '
-            });
-        }
-        
         console.log(this.columns);
         console.log(this.schemaModel);
         
+        return this;
+    }
+    
+    addCommands(...commands: kendo.ui.GridColumnCommandItem[]) {
+        this.commands = commands;
         return this;
     }
     
