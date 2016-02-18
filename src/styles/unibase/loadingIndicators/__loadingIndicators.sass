@@ -1,0 +1,33 @@
+@keyframes spinner
+  to
+    transform: rotate(360deg)
+
+*[aria-busy]:not([aria-busy=false]):not(button):not(input):not(label)
+  @extend %hideText
+  position: relative
+  display: block
+  background-color: transparentize($uni-color-scale9, .5)
+  border-radius: pxToRem(5)
+  min-height: 4rem
+  border: pxToRem(1) dashed $uni-color-scale8
+
+  *
+    opacity: 0
+    transition: opacity 1000ms ease
+
+  &:before
+    content: ''
+    position: absolute
+    top: 50%
+    left: 50%
+    width: 2rem
+    height: 2rem
+    margin-top: -1rem
+    margin-left: -1rem
+    border-radius: 50%
+    border-top: .2rem solid $uni-color-scale7
+    border-right: .2rem solid transparent
+    animation: spinner 600ms linear infinite
+    -webkit-animation: spinner 600ms linear infinite
+    opacity: 1
+
