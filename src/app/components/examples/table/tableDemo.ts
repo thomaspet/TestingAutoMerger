@@ -89,7 +89,12 @@ export class UniTableDemo {
         // Editable table working with remote data
         this.editableRemoteDataCfg = new UniTableBuilder('products', true)
         .setPageSize(5)
-        .addColumns(idCol, nameCol, priceCol);
+        .addColumns(idCol, nameCol, priceCol)
+        .addCommands(
+            'destroy',
+            { name: 'Command1', text: 'Command 1', click: (event) => {event.preventDefault(); console.log(event)} },
+            { name: 'Command2', text: 'Command 2', click: (event) => {event.preventDefault(); console.log(event)} }
+        );
         
         
         // Editable table working with local data
