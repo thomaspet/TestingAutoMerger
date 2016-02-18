@@ -2,6 +2,7 @@ import {Component, ViewChild, Injector} from 'angular2/core';
 import {RouteParams} from "angular2/router";
 import {EmployeeDS} from "../../../../../framework/data/employee";
 import {UniTable, UniTableBuilder, UniTableColumn} from '../../../../../framework/uniTable';
+import {IEmployment} from "../../../../../framework/interfaces/interfaces";
 import {Observable} from "rxjs/Observable";
 
 @Component({
@@ -12,7 +13,7 @@ import {Observable} from "rxjs/Observable";
 export class EmployeeLeave {
     @ViewChild(UniTable) table: UniTable;
     
-    localData: any;
+    currentEmployee;
     
     leaveType: Array<any> = [
         {ID: 0, Name: "ikke satt"},
@@ -23,30 +24,26 @@ export class EmployeeLeave {
     dataConfig;
     constructor(private Injector: Injector, public employeeDS:EmployeeDS) {
         let params = Injector.parent.parent.get(RouteParams);
-        Observable.forkJoin(
-            employeeDS.get(params.get("id"))
-        ).subscribe((response: any) => {
-            let [employee] = response;
-        })
-        
+        employeeDS
+            .get(params.get("id"))
+            .subscribe((response) =>{
+                this.currentEmployee = response;
+                this.buildTableConfigs();
+            });
     }
     
     buildTableConfigs(){
+        
         var idCol = new UniTableColumn('ID', 'Id', 'number')
         .setEditable(false)
         .setNullable(true);
         
-        var leavePercentCol = new UniTableColumn('LeavePercent', 'Andel permisjon', 'percent');
+        var fromDateCol = new UniTableColumn('FromDate', 'Startdato', 'string');
+        var toDateCol = new UniTableColumn('ToDate', 'Sluttdato', 'string');
+        var leavePercentCol = new UniTableColumn('LeavePercent', 'Andel permisjon', 'number');
         var commentCol = new UniTableColumn('Description', 'Kommentar', 'string');
-        
-        this.localData = [
-            {ID: 1, LeavePercent: 10, Description: "Kommentar 1"},
-            {ID: 2, LeavePercent: 20, Description: "Kommentar 2"},
-            {ID: 3, LeavePercent: 30, Description: "Kommentar 3"},
-            {ID: 4, LeavePercent: 40, Description: "Kommentar 4"},
-            {ID: 5, LeavePercent: 50, Description: "Kommentar 5"},
-            {ID: 6, LeavePercent: 55, Description: "Kommentar 6"},
-        ];
+        var leaveTypeCol = new UniTableColumn('LeaveType', 'Type', 'string');
+        var EmploymentIDCol = new UniTableColumn('EmploymentID', 'ArbeidsforholdsID', 'string');
         
         var selectCallback = (selectedItem) => {
             console.log('Selected: ');
@@ -54,8 +51,18 @@ export class EmployeeLeave {
         }
         
         this.dataConfig = new UniTableBuilder('EmployeeLeave', false)
-        .setPageSize(5)
-        .addColumns(idCol, leavePercentCol, commentCol)
+        .setFilter(this.buildFilter())
+        .addColumns(idCol, fromDateCol, toDateCol, leavePercentCol, leaveTypeCol, EmploymentIDCol, commentCol)
         .setSelectCallback(selectCallback);
+    }
+    
+    buildFilter(){
+        var filter = "";
+        this.currentEmployee.Employments.forEach((employment:IEmployment) => {
+            filter += " EmploymentID eq " + employment.ID + " or";
+        });
+        filter = filter.slice(0, filter.length - 2);
+        console.log("EmployeeLeave filter: " + filter);
+        return filter;
     }
 }
