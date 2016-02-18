@@ -1,6 +1,7 @@
 import {Component, Input} from "angular2/core";
 import {UniField} from "./uniField";
 import {UniFieldBuilder} from "./builders/uniFieldBuilder";
+import {UniGenericField} from "./shared/UniGenericField";
 
 @Component({
     selector: 'uni-combo-field',
@@ -10,11 +11,12 @@ import {UniFieldBuilder} from "./builders/uniFieldBuilder";
             <uni-field [config]="field" [ngClass]="field.classes" [class.error]="hasError(field)"></uni-field>
         </template>`,
 })
-export class UniComboField {
+export class UniComboField extends UniGenericField{
     @Input()
     config;
 
     constructor() {
+        super();
     }
 
     hasError(field: UniFieldBuilder) {

@@ -1399,6 +1399,7 @@ export interface IUser {
 	StatusID: number;
 	ID: number;
 	Deleted: boolean;
+	Status: IStatus;
 	CustomFields: any;
 }
 
@@ -1923,9 +1924,9 @@ export interface IAccount {
 	StatusID: number;
 	ID: number;
 	Deleted: boolean;
+	VatType: IVatType;
 	Currency: ICurrency;
 	AccountGroup: IAccountGroup;
-	VatType: IVatType;
 	MainAccount: IAccount;
 	Customer: ICustomer;
 	Supplier: ISupplier;
@@ -2023,19 +2024,19 @@ export interface IVatCodeDeduction {
 	DeductionPercent: number;
 	ValidFrom: Date;
 	ValidTo: Date;
-	VatCodeRelationID: number;
+	VatTypeID: number;
 	StatusID: number;
 	ID: number;
 	Deleted: boolean;
-	VatCodeRelation: IVatCodeRelation;
+	VatType: IVatType;
 	CustomFields: any;
 }
 
 
 export interface IVatType {
 	VatCode: string;
-	VatCodeRelationID: number;
 	Name: string;
+	Alias: string;
 	VatPercent: number;
 	AvailableInModules: boolean;
 	VatTypeSetupID: number;
@@ -2052,29 +2053,7 @@ export interface IVatType {
 	Deleted: boolean;
 	IncomingAccount: IAccount;
 	OutgoingAccount: IAccount;
-	CustomFields: any;
-}
-
-
-export interface IVatCodeAlias {
-	Name: string;
-	VatCodeRelationID: number;
-	StatusID: number;
-	ID: number;
-	Deleted: boolean;
-	VatCodeRelation: IVatCodeRelation;
-	CustomFields: any;
-}
-
-
-export interface IVatCodeRelation {
-	VatTypeID: number;
-	StatusID: number;
-	ID: number;
-	Deleted: boolean;
 	Deductions: Array<IVatCodeDeduction>;
-	Alias: Array<IVatCodeAlias>;
-	VatType: IVatType;
 	CustomFields: any;
 }
 

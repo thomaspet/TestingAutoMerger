@@ -32,6 +32,12 @@ export class UniTable implements AfterViewInit {
     }
     
 	ngAfterViewInit() {
+
+        if (this.config.commands.length > 0) {
+            this.config.columns.push({
+                command: this.config.commands
+            });
+        }
         
 		this.tableConfig = {
 			dataSource: {
