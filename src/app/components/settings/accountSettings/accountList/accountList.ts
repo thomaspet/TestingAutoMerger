@@ -45,9 +45,7 @@ export class AccountList {
                         console.log("CHANGED IT");
                         this.uniAccountChange.emit(0);
                         console.log(this.dropdown);
-                        //self.dropdown.refresh("");
-                        self.addDropdownControl.value = "";
-                        self.dropdown.refresh(0);
+                        self.dropdown.refresh("");
                         break;
                     default:
                         break;
