@@ -28,6 +28,7 @@ export class AccountList {
     addDropdownControl = new Control(-1);
 
     constructor(private http: UniHttpService) {
+        var self = this;
         var kendoDropdownConfig = {
             delay: 50,
             dataTextField: "name",
@@ -41,7 +42,12 @@ export class AccountList {
                 var result = (event.sender.dataItem(<any>event.item));
                 switch (result.action) {
                     case SETTINGS_ADD_NEW.ACCOUNT:
+                        console.log("CHANGED IT");
                         this.uniAccountChange.emit(0);
+                        console.log(this.dropdown);
+                        //self.dropdown.refresh("");
+                        self.addDropdownControl.value = "";
+                        self.dropdown.refresh(0);
                         break;
                     default:
                         break;
@@ -73,7 +79,7 @@ export class AccountList {
                 var accountNameCol = new UniTableColumn('AccountName', 'Kontonavn', 'string'); 
                 
                 var vatTypeCol = new UniTableColumn('', 'Mvakode/sats', 'string')
-                .setTemplate("#= VatType.Name# - #= VatType.VatPercent#");
+                .setTemplate("#= VatType.Name# - #= VatType.VatPercent#%");
                 
                 
                 var lockedCol = new UniTableColumn('', 'Synlig/låst', 'boolean')

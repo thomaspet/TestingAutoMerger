@@ -31,17 +31,6 @@ export class AccountDetails {
     vattypes;
 
     constructor(fb: FormBuilder, private accountingDS: AccountingDS, private currencyDS: CurrencyDS, private http: UniHttpService) {
-        // TEST CODE WITHOUT BACKEND      
-        this.currencies = [
-            {ID: 1, Code: "NOK"},
-            {ID: 2, Code: "EUR"},
-            {ID: 3, Code: "DKK"}
-        ];
-
-        this.vattypes = [
-            {ID: 1, Name: "Høg sats", Percent: 25},
-            {ID: 2, Name: "Mellomsats", Percent: 10}
-        ];
     }
 
     buildForm() {
@@ -139,18 +128,14 @@ export class AccountDetails {
 
         this.config.addUniElement(systemSet);
     }
-
+   
     update() {
         var self = this;
-        this.http.multipleRequests("GET", [
-            {resource: "currencies"},
-            {resource: "vattypes"},
+        this.http.get(
             {resource: "accounts/" + this.account, expand: "Alias,Currency,AccountGroup"}
-        ]).subscribe(
+        ).subscribe(
             (dataset) => {
-                self.currencies = dataset[0];
-                self.vattypes = dataset[1];
-                self.model = dataset[2];
+                self.model = dataset;
                 self.form.refresh(self.model);
             },
             (error) => console.log(error)
@@ -158,7 +143,23 @@ export class AccountDetails {
     }
 
     ngOnInit() {
-        this.buildForm();
+        var self = this;
+        this.http.multipleRequests("GET", [
+            {resource: "currencies"},
+            {resource: "vattypes"}
+        ]).subscribe(
+            (dataset) => {
+                self.currencies = dataset[0];
+                self.vattypes = dataset[1];
+                
+                console.log("currencies");
+                console.log(self.currencies);  
+                
+            },
+            (error) => console.log(error)
+        )  
+        
+        self.buildForm();                
     }
 
     ngOnChanges() {
@@ -209,6 +210,28 @@ export class AccountDetails {
                 IncomingAccount: null,
                 OutgoingAccount: null,
                 CustomFields: null
+            };
+            this.model.Dimensions = {
+                CustomFields: null,
+                Project: {
+                    ProjectLeadName: "Per Hansen",
+                    Name: "Project Solar Reflection",
+                    Description: "",
+                    StatusID: 0,
+                    ID: 1,
+                    Deleted: false,
+                    CustomFields: null              
+                },
+                ProjectID: 1,
+                Departement: null,
+                DepartementID: 1,
+                Responsible: null,
+                ResponsibleID: 1,
+                Region: null,
+                RegionID: 1,
+                StatusID: null,
+                ID: 1,
+                Deleted: false
             };
             this.model.DimensionsID = 1;
             this.form.refresh(this.model);
