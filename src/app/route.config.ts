@@ -55,6 +55,12 @@ export var Routes = {
         path: "/examples/...",
         name: "Examples",
         loader: () => ComponentProxy.LoadComponentAsync("Examples", "./app/components/examples/examples")
+    }),
+    
+    salarytrans: new AsyncRoute({
+        path: "/salary/salarytrans",
+        name: "SalaryTransEmployee",
+        loader: () => ComponentProxy.LoadComponentAsync("SalaryTransactionEmployeeList", "./app/components/salary/salarytrans/salarytransactionEmployeeList")
     })
 };
 
