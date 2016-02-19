@@ -2081,11 +2081,10 @@ export interface IVatCodeRelation {
 export interface IClientValidationRule {
 	EntityType: string;
 	PropertyName: string;
-	ValidationForType: string;
-	Operator: string;
+	Operator: Operator;
 	Operation: OperationType;
 	Level: ValidationLevel;
-	Value: number;
+	Value: string;
 	ErrorMessage: string;
 	ID: number;
 	Deleted: boolean;
@@ -2301,6 +2300,21 @@ export enum StatusCategoryCode{
 	Deviation = 60000,
 	Error = 70000,
 	Deleted = 90000,
+}
+
+
+export enum Operator{
+	Min = 0,
+	Max = 1,
+	MinIncl = 2,
+	MaxIncl = 3,
+	MinLength = 4,
+	MaxLength = 5,
+	EqualsLength = 6,
+	Required = 7,
+	Equals = 8,
+	NotEquals = 9,
+	RegExp = 10,
 }
 
 
