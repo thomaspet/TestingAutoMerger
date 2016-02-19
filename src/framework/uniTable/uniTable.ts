@@ -39,7 +39,13 @@ export class UniTable {
         this.table.dataSource.read();
     }
     
-	setupAndCompile() {
+    ngAfterViewInit() {
+        if (!this.table && this.config.constructor.name === 'UniTableBuilder') {
+            this.setupAndCompile();
+        }	   
+    }
+    
+    setupAndCompile() {
 
         if (this.config.commands.length > 0) {
             this.config.columns.push({
@@ -90,7 +96,7 @@ export class UniTable {
         
         // Compile grid and set up key navigation
         this.table = this.nativeElement.find('table').kendoGrid(this.tableConfig).data('kendoGrid');
-        this.setupKeyNavigation();
+        this.setupKeyNavigation();        
 	}
     
     // Create a datasource that works with local data
@@ -143,7 +149,7 @@ export class UniTable {
                     skip: options.data.skip
                 }).subscribe(
                     (response) => {
-                        // TODO: Get count param from response headers (mocked for now)
+                        // TODO: Get count param from response headers (mocked for now)   
                         if (response.length < this.config.pageSize) {
                             this.totalRows = response.length + (this.table.dataSource.page() - 1) * this.config.pageSize;
                         } else {
