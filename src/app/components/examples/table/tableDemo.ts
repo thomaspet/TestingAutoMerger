@@ -5,27 +5,27 @@ import {UniHttpService} from '../../../../framework/data/uniHttpService';
 
 @Component({
     selector: 'uni-table-demo',
-    // template: `
-    //     <h4>Table with expanded properties in lookup</h4>
-    //     <uni-table [config]="expandedFieldsTableCfg"></uni-table>
-    // `, 
-    template: `   
-        <h4>Editable table with remote data</h4>
-        <uni-table [config]="editableRemoteDataCfg"></uni-table>
-        <br><br>
-        
-        <h4>Editable table with local data</h4>
-        <uni-table [config]="editableLocalDataCfg"></uni-table>
-        <br><br>
-        
-        <h4>Read-only table with remote data</h4>
-        <uni-table [config]="readOnlyRemoteDataCfg"></uni-table>
-        <br><br>
-        
-        <h4>Read-only table with local data</h4>
-        <uni-table [config]="readOnlyLocalDataCfg"></uni-table>
-        <button (click)="testTableRefresh()">Test table refresh with new row</button>
-    `,
+    template: `
+        <h4>Table with custom editor (dropdown) in "Type" column</h4>
+        <uni-table [config]="customEditorTableConfig"></uni-table>
+    `, 
+    // template: `   
+    //     <h4>Editable table with remote data</h4>
+    //     <uni-table [config]="editableRemoteDataCfg"></uni-table>
+    //     <br><br>
+    //     
+    //     <h4>Editable table with local data</h4>
+    //     <uni-table [config]="editableLocalDataCfg"></uni-table>
+    //     <br><br>
+    //     
+    //     <h4>Read-only table with remote data</h4>
+    //     <uni-table [config]="readOnlyRemoteDataCfg"></uni-table>
+    //     <br><br>
+    //     
+    //     <h4>Read-only table with local data</h4>
+    //     <uni-table [config]="readOnlyLocalDataCfg"></uni-table>
+    //     <button (click)="testTableRefresh()">Test table refresh with new row</button>
+    // `,
     directives: [UniTable]
 })
 export class UniTableDemo {
@@ -39,7 +39,9 @@ export class UniTableDemo {
     editableLocalDataCfg;
     
     readOnlyRemoteDataCfg;
-    readOnlyLocalDataCfg;	
+    readOnlyLocalDataCfg;
+    
+    customEditorTableConfig;
     
     testTableRefresh() {
         this.localData[0].Name = "Navn endret av refresh!";
@@ -128,70 +130,36 @@ export class UniTableDemo {
         .setSelectCallback(selectCallback);
          
         
+        // Test table with custom editor
+        var leaveTypes = [
+          { typeID: "1", text: "Permisjon" },
+          { typeID: "2", text: "Permittering" }  
+        ];
         
-        // Expand test
-        // var employeeIdCol = new UniTableColumn('ID', 'ID', 'number')
-        // .setEditable(false)
-        // .setNullable(true);
-        // 
-        // var employeeNumberCol = new UniTableColumn('EmployeeNumber', 'Ansattnummer', 'number')
-        // .setEditable(false);
-        // 
-        // var employeeNameCol = new UniTableColumn('BusinessRelationInfo.Name', 'Navn', 'string');
-        // 
-        // var employeeEmailCol = new UniTableColumn('BusinessRelationInfo.DefaultEmail.EmailAddress', 'Epost', 'string')
-        // .setNullable(true);
-        // 
-        // 
-        // this.expandedFieldsTableCfg = new UniTableBuilder('employees', true)
-        // .setExpand('BusinessRelationInfo,BusinessRelationInfo.DefaultEmail')
-        // .setFilter('EmployeeNumber eq 42')
-        // .addColumns(employeeIdCol, employeeNumberCol, employeeNameCol, employeeEmailCol);
+        var idCol = new UniTableColumn('ID', 'Id', 'number')
+        .setEditable(false)
+        .setNullable(true);
         
-//         var data = [
-//             {
-//                 ID: 1,
-//                 EmployeeNumber: 1,
-//                 BusinessRelationInfo: {
-//                     Name: 'Anders',
-//                     DefaultEmail: {
-//                         EmailAddress: 'anders@test.com'
-//                     }                    
-//                 }
-//             },
-//             {
-//                 ID: 2,
-//                 EmployeeNumber: 2,
-//                 BusinessRelationInfo: {
-//                     Name: 'Jonis',
-//                     DefaultEmail: {
-// 
-//                     }                    
-//                 }
-//             },
-//             {
-//                 ID: 3,
-//                 EmployeeNumber: 3,
-//                 BusinessRelationInfo: {
-//                     DefaultEmail: {}                    
-//                 }
-//             },
-//         ];
-//         this.expandedFieldsTableCfg = new UniTableBuilder(data, true)
-//         .setUpdateCallback((updatedItem) => {
-//             var myObj = {
-//                 ID: 1,
-//                 EmployeeNumber: 1,
-//                 BusinessRelationInfo: {
-//                     Name: '',
-//                     DefaultEmail: {
-//                         EmailAddress: ''
-//                     }
-//                 }
-//             }
-//             console.log(jQuery.extend(myObj, updatedItem));
-//         })
-//         .addColumns(employeeIdCol, employeeNumberCol, employeeNameCol, employeeEmailCol);
+        var fromDateCol = new UniTableColumn('FromDate', 'Startdato', 'date')
+        .setFormat("{0: dd.MM.yyyy}");
         
+        var toDateCol = new UniTableColumn('ToDate', 'Sluttdato', 'date')
+        .setFormat("{0: dd.MM.yyyy}");
+        
+        var leaveTypeCol = new UniTableColumn('LeaveType', 'Type', 'string') // remove 'string' ?
+        .setCustomEditor('dropdown', {
+            dataSource: leaveTypes,
+            dataValueField: 'typeID',
+            dataTextField: 'text'
+        });
+        
+        var leavePercentCol = new UniTableColumn('LeavePercent', 'Andel permisjon', 'number');
+        var commentCol = new UniTableColumn('Description', 'Kommentar', 'string');
+        var employmentIDCol = new UniTableColumn('EmploymentID', 'Arbeidsforhold', 'string');
+        
+        this.customEditorTableConfig = new UniTableBuilder('EmployeeLeave', true)
+        .addColumns(idCol, fromDateCol, toDateCol, leavePercentCol, leaveTypeCol, employmentIDCol, commentCol);
+        
+       
     }
 }

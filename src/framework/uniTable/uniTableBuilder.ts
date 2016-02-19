@@ -1,9 +1,12 @@
 import {UniHttpService, IUniHttpRequest} from '../data/uniHttpService';
 import {UniTableColumn} from './uniTableColumn';
+import {UniTableControls} from './uniTableControls';
 
 declare var jQuery;
 
 export class UniTableBuilder {
+    private controls = new UniTableControls();
+    
     remoteData: boolean;
     
     resource: string | Array<any>;
@@ -53,16 +56,17 @@ export class UniTableBuilder {
                 columnInfo.class += ' editable-cell';
             }
             
-            var column = {
+            this.columns.push({
                 field: columnInfo.field,
                 title: columnInfo.title,
                 format: columnInfo.format,
                 width: columnInfo.width,
                 template: columnInfo.template || null,
+                editor: columnInfo.editor || null,
                 attributes: {
                     "class": columnInfo.class
                 }
-            };      
+            });
                                           
             this.schemaModel.fields[columnInfo.field] = {
                 type: columnInfo.type,
@@ -84,8 +88,6 @@ export class UniTableBuilder {
             //     column.field = fieldName;
             // }
             
-            this.columns.push(column);
-
         });
         
         // Make sure ID field is always defined in the schema (required for crud operations on the table)
@@ -98,6 +100,26 @@ export class UniTableBuilder {
         
         return this;
     }
+    
+    mockCustomEditor(kendoOptions) {
+        return function(container, options) {
+
+            console.log(container);
+            console.log(options);
+            jQuery('<select />')
+            .appendTo(container)
+            .kendoDropDownList(jQuery.extend(kendoOptions, {
+                // Init to model value
+                value: options.model[options.field],
+                
+                // Update model when dropdown value changes
+                change: (event: kendo.ui.DropDownListChangeEvent) => {
+                    options.model[options.field] = event.sender.value();
+                }
+            }));
+        }
+    }
+    
     
     addCommands(...commands: kendo.ui.GridColumnCommandItem[]) {
         this.commands = commands;

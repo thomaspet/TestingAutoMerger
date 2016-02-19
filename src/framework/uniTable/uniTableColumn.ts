@@ -1,4 +1,8 @@
+import {UniTableControls} from './uniTableControls';
+
 export class UniTableColumn {
+    private controls = new UniTableControls();
+    
     field: string = "";
     title: string = "";
     type: string  = "";
@@ -9,6 +13,9 @@ export class UniTableColumn {
     template: string = "";
     command: kendo.ui.GridColumnCommandItem[] = [];
     width: string = "";
+    
+    editor: any;
+    customEditor: { type: string, kendoOptions: any };
     // todo: validation
     
     constructor(field: string, title: string, type: string) {
@@ -50,5 +57,24 @@ export class UniTableColumn {
     setWidth(width: string) {
         this.width = width;
         return this;
-    }       
+    }
+    
+    // setCustomEditor(type: string, kendoOptions: any) {
+    //     this.customEditor = {
+    //         type: type,
+    //         kendoOptions: kendoOptions
+    //     }
+    //     return this;
+    // }
+    
+    setCustomEditor(type: string, kendoOptions: any) {
+        switch (type) {
+            case 'dropdown':
+                this.editor = this.controls.dropdown(kendoOptions);
+            break;
+            
+        }
+        
+        return this;
+    } 
 }
