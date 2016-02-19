@@ -2,7 +2,7 @@ import {Component, Injector, ViewChild, ComponentRef} from "angular2/core";
 import {RouteParams} from "angular2/router";
 
 import {UniForm} from "../../../../../framework/forms/uniForm";
-import {UNI_CONTROL_TYPES} from "../../../../../framework/controls/types";
+import {FieldType} from "../../../../../framework/interfaces/interfaces";
 import {UNI_CONTROL_DIRECTIVES} from "../../../../../framework/controls";
 
 import {UniFormBuilder} from "../../../../../framework/forms";
@@ -84,43 +84,43 @@ export class Hours {
                 .setLabel("stillingskode")
                 .setModel(employment)
                 .setModelField("JobCode")
-                .setType(UNI_CONTROL_DIRECTIVES[UNI_CONTROL_TYPES.TEXT]);
+                .setType(UNI_CONTROL_DIRECTIVES[FieldType.TEXT]);
 
             var jobName = new UniFieldBuilder()
                 .setLabel("Navn")
                 .setModel(employment)
                 .setModelField("JobName")
-                .setType(UNI_CONTROL_DIRECTIVES[UNI_CONTROL_TYPES.TEXT]);
+                .setType(UNI_CONTROL_DIRECTIVES[FieldType.TEXT]);
 
             var startDate = new UniFieldBuilder()
                 .setLabel("Startdato")
                 .setModel(employment)
                 .setModelField("StartDate")
-                .setType(UNI_CONTROL_DIRECTIVES[UNI_CONTROL_TYPES.DATEPICKER]);
+                .setType(UNI_CONTROL_DIRECTIVES[FieldType.DATEPICKER]);
 
             var endDate = new UniFieldBuilder()
                 .setLabel("Sluttdato")
                 .setModel(employment)
                 .setModelField("EndDate")
-                .setType(UNI_CONTROL_DIRECTIVES[UNI_CONTROL_TYPES.DATEPICKER]);
+                .setType(UNI_CONTROL_DIRECTIVES[FieldType.DATEPICKER]);
 
             var monthRate = new UniFieldBuilder()
                 .setLabel("Månedlønn")
                 .setModel(employment)
                 .setModelField("MonthRate")
-                .setType(UNI_CONTROL_DIRECTIVES[UNI_CONTROL_TYPES.NUMERIC]);
+                .setType(UNI_CONTROL_DIRECTIVES[FieldType.NUMERIC]);
 
             var hourRate = new UniFieldBuilder()
                 .setLabel("Timelønn")
                 .setModel(employment)
                 .setModelField("HourRate")
-                .setType(UNI_CONTROL_DIRECTIVES[UNI_CONTROL_TYPES.NUMERIC]);
+                .setType(UNI_CONTROL_DIRECTIVES[FieldType.NUMERIC]);
 
             var workPercent = new UniFieldBuilder()
                 .setLabel("Stillingprosent")
                 .setModel(employment)
                 .setModelField("WorkPercent")
-                .setType(UNI_CONTROL_DIRECTIVES[UNI_CONTROL_TYPES.NUMERIC]);
+                .setType(UNI_CONTROL_DIRECTIVES[FieldType.NUMERIC]);
 
             if (typeof employment.Localization !== "undefined") {
                 if (typeof employment.Localization.BusinessRelationInfo !== "undefined") {
@@ -128,14 +128,14 @@ export class Hours {
                         .setLabel("Lokalitet")
                         .setModel(employment.Localization.BusinessRelationInfo)
                         .setModelField("Name")
-                        .setType(UNI_CONTROL_DIRECTIVES[UNI_CONTROL_TYPES.TEXT]);
+                        .setType(UNI_CONTROL_DIRECTIVES[FieldType.TEXT]);
                 }
             } else {
                 var localization = new UniFieldBuilder()
                     .setLabel("Lokalitet")
                     .setModel(employment)
                     .setModelField("LocalizationID")
-                    .setType(UNI_CONTROL_DIRECTIVES[UNI_CONTROL_TYPES.NUMERIC]);
+                    .setType(UNI_CONTROL_DIRECTIVES[FieldType.NUMERIC]);
             }
 
             group.addUniElements(jobCode, jobName, startDate, endDate, monthRate, hourRate, workPercent, localization);
@@ -146,13 +146,13 @@ export class Hours {
                 .setLabel("Endret lønn")
                 .setModel(employment)
                 .setModelField("LastSalaryChangeDate")
-                .setType(UNI_CONTROL_DIRECTIVES[UNI_CONTROL_TYPES.DATEPICKER]);
+                .setType(UNI_CONTROL_DIRECTIVES[FieldType.DATEPICKER]);
 
             var workpercentChange = new UniFieldBuilder()
                 .setLabel("Endret stillingprosent")
                 .setModel(employment)
                 .setModelField("LastWorkPercentChangeDate")
-                .setType(UNI_CONTROL_DIRECTIVES[UNI_CONTROL_TYPES.DATEPICKER]);
+                .setType(UNI_CONTROL_DIRECTIVES[FieldType.DATEPICKER]);
 
             readmore.addUniElements(salaryChanged, workpercentChange);
 

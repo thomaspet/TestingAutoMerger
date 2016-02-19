@@ -9,7 +9,7 @@ import {UniFieldBuilder} from "../../forms/builders/uniFieldBuilder";
         <input
             #cb
             [attr.id]="guid"
-            type="checkbox"
+            type="radio"
             [ngFormControl]="config.control"
             [readonly]="config.readonly"
             [disabled]="config.disabled"
@@ -18,7 +18,7 @@ import {UniFieldBuilder} from "../../forms/builders/uniFieldBuilder";
         <label [attr.for]="guid">{{config.label}}</label>
     `
 })
-export class UniCheckboxInput {
+export class UniRadioInput {
     @Input()
     config: UniFieldBuilder;
 

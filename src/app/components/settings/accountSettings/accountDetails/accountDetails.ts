@@ -1,14 +1,12 @@
-import {Component, provide, Input, ViewChild, ContentChild, ComponentRef} from "angular2/core";
-import {Validators, Control, FormBuilder} from "angular2/common";
-import {Observable} from "rxjs/Observable";
+import {Component, provide, Input, ViewChild} from "angular2/core";
+import {FormBuilder} from "angular2/common";
 import {UniForm} from "../../../../../framework/forms/uniForm";
 import {UNI_CONTROL_DIRECTIVES} from "../../../../../framework/controls";
-import {UNI_CONTROL_TYPES} from "../../../../../framework/controls/types";
+import {FieldType} from "../../../../../framework/interfaces/interfaces";
 import {UniFormBuilder} from "../../../../../framework/forms/builders/uniFormBuilder";
 import {UniFieldsetBuilder} from "../../../../../framework/forms/builders/uniFieldsetBuilder";
 import {UniComboFieldBuilder} from "../../../../../framework/forms/builders/uniComboFieldBuilder";
 import {UniFieldBuilder} from "../../../../../framework/forms/builders/uniFieldBuilder";
-import {UniSectionBuilder} from "../../../../../framework/forms/builders/uniSectionBuilder";
 import {AccountingDS} from "../../../../../framework/data/accounting";
 import {CurrencyDS} from "../../../../../framework/data/currency";
 import {DimensionList} from "../dimensionList/dimensionList";
@@ -42,13 +40,13 @@ export class AccountDetails {
         accountNumber.setLabel("Kontonr.")
             .setModel(this.model)
             .setModelField("AccountNumber")
-            .setType(UNI_CONTROL_DIRECTIVES[UNI_CONTROL_TYPES.TEXT])
+            .setType(UNI_CONTROL_DIRECTIVES[FieldType.TEXT])
 
         var accountName = new UniFieldBuilder();
         accountName.setLabel("Kontonavn")
             .setModel(this.model)
             .setModelField("AccountName")
-            .setType(UNI_CONTROL_DIRECTIVES[UNI_CONTROL_TYPES.TEXT])
+            .setType(UNI_CONTROL_DIRECTIVES[FieldType.TEXT])
 
         var accountCombo = new UniComboFieldBuilder()
         accountCombo.addClass("combo");
@@ -58,77 +56,77 @@ export class AccountDetails {
         accountAlias.setLabel("Alias")
             .setModel(this.model)
             .setModelField("alias")
-            .setType(UNI_CONTROL_DIRECTIVES[UNI_CONTROL_TYPES.TEXT]);
+            .setType(UNI_CONTROL_DIRECTIVES[FieldType.TEXT]);
 
         var currency = new UniFieldBuilder();
         currency.setLabel("Valuta")
             .setModel(this.model)
             .setModelField("CurrencyID")
-            .setType(UNI_CONTROL_DIRECTIVES[UNI_CONTROL_TYPES.DROPDOWN])
+            .setType(UNI_CONTROL_DIRECTIVES[FieldType.DROPDOWN])
             .setKendoOptions({dataSource: this.currencies, dataValueField: "ID", dataTextField: "Code"})
 
         var vatType = new UniFieldBuilder();
         vatType.setLabel("Moms")
             .setModel(this.model)
             .setModelField("vattype")
-            .setType(UNI_CONTROL_DIRECTIVES[UNI_CONTROL_TYPES.DROPDOWN])
+            .setType(UNI_CONTROL_DIRECTIVES[FieldType.DROPDOWN])
             .setKendoOptions({dataSource: this.vattypes, dataValueField: "ID", dataTextField: "Name"})
 
         var numSerie = new UniFieldBuilder();
         numSerie.setLabel("Nummerserie")
             .setModelField("SubAccountNumberSeriesID")
-            .setType(UNI_CONTROL_DIRECTIVES[UNI_CONTROL_TYPES.HYPERLINK])
+            .setType(UNI_CONTROL_DIRECTIVES[FieldType.HYPERLINK])
             .setDescription("kunder")
             .setUrl("http://localhost/customer");
 
         this.config.addUniElements(accountCombo, accountAlias, currency, vatType, numSerie);
 
         //
-        // Checkbox settings
+        // checkbox settings
         //
 
         var checkSystemAccount = new UniFieldBuilder();
         checkSystemAccount.setDescription("Systemkonto")
             .setModel(this.model)
             .setModelField("SystemAccount")
-            .setType(UNI_CONTROL_DIRECTIVES[UNI_CONTROL_TYPES.CHECKBOX]);
+            .setType(UNI_CONTROL_DIRECTIVES[FieldType.CHECKBOX]);
 
         var checkPostPost = new UniFieldBuilder();
         checkPostPost.setDescription("PostPost")
             .setModel(this.model)
             .setModelField("UsePostPost")
-            .setType(UNI_CONTROL_DIRECTIVES[UNI_CONTROL_TYPES.CHECKBOX]);
+            .setType(UNI_CONTROL_DIRECTIVES[FieldType.CHECKBOX]);
 
         var checkDeductionPercent = new UniFieldBuilder();
         checkDeductionPercent.setDescription("Forholdsvismoms")
             .setModel(this.model)
             .setModelField("UseDeductionPercent")
-            .setType(UNI_CONTROL_DIRECTIVES[UNI_CONTROL_TYPES.CHECKBOX]);
+            .setType(UNI_CONTROL_DIRECTIVES[FieldType.CHECKBOX]);
 
         var checkLockManualPosts = new UniFieldBuilder();
         checkLockManualPosts.setDescription("Sperre manuelle poster")
             .setModel(this.model)
             .setModelField("LockManualPosts")
-            .setType(UNI_CONTROL_DIRECTIVES[UNI_CONTROL_TYPES.CHECKBOX]);
+            .setType(UNI_CONTROL_DIRECTIVES[FieldType.CHECKBOX]);
 
         var checkLocked = new UniFieldBuilder();
         checkLocked.setDescription("Sperret")
             .setModel(this.model)
             .setModelField("Locked")
-            .setType(UNI_CONTROL_DIRECTIVES[UNI_CONTROL_TYPES.CHECKBOX]);
+            .setType(UNI_CONTROL_DIRECTIVES[FieldType.CHECKBOX]);
 
         var checkVisible = new UniFieldBuilder();
         checkVisible.setDescription("Synlig")
             .setModel(this.model)
             .setModelField("Visible")
-            .setType(UNI_CONTROL_DIRECTIVES[UNI_CONTROL_TYPES.CHECKBOX]);
+            .setType(UNI_CONTROL_DIRECTIVES[FieldType.CHECKBOX]);
 
         var systemSet = new UniFieldsetBuilder();
         systemSet.addUniElements(checkSystemAccount, checkPostPost, checkDeductionPercent, checkLockManualPosts, checkLocked, checkVisible);
 
         this.config.addUniElement(systemSet);
     }
-   
+
     update() {
         var self = this;
         this.http.get(
@@ -151,15 +149,15 @@ export class AccountDetails {
             (dataset) => {
                 self.currencies = dataset[0];
                 self.vattypes = dataset[1];
-                
+
                 console.log("currencies");
-                console.log(self.currencies);  
-                
+                console.log(self.currencies);
+
             },
             (error) => console.log(error)
-        )  
-        
-        self.buildForm();                
+        )
+
+        self.buildForm();
     }
 
     ngOnChanges() {
@@ -221,7 +219,7 @@ export class AccountDetails {
                     StatusID: 0,
                     ID: 1,
                     Deleted: false,
-                    CustomFields: null              
+                    CustomFields: null
                 },
                 ProjectID: 1,
                 Departement: null,
