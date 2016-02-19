@@ -13,7 +13,7 @@ import {AccountingDS} from "../../../../../framework/data/accounting";
 import {CurrencyDS} from "../../../../../framework/data/currency";
 import {DimensionList} from "../dimensionList/dimensionList";
 import {AccountGroupList} from "../accountGroupList/accountGroupList";
-import {UniHttpService} from "../../../../../framework/data/uniHttpService";
+import {UniHttp} from "../../../../../framework/core/http";
 import {AccountModel} from "../../../../../framework/models/account";
 
 @Component({
@@ -31,25 +31,30 @@ export class AccountDetails {
     currencies: Array<any> = [];
     vattypes: Array<any> = [];
 
-    constructor(private accountingDS: AccountingDS, private currencyDS: CurrencyDS, private http: UniHttpService) {}
-
-    ngOnInit() {        
-        this.http.multipleRequests("GET", [
-            {resource: "currencies"},
-            {resource: "vattypes"}
-        ]).subscribe(
-            (dataset) => {
-                this.currencies = dataset[0];
-                this.vattypes = dataset[1];
-                this.dataReady();        
-            },
-            (error) => console.log(error)
-        );
+    constructor(private accountingDS: AccountingDS, private currencyDS: CurrencyDS, private http: UniHttp) {
     }
-         
+
+    ngOnInit() {
+        this.http
+            .asGET()
+            .usingBusinessDomain()
+            .multipleRequests([
+                {endPoint: "currencies"},
+                {endPoint: "vattypes"}
+            ])
+            .subscribe(
+                (dataset) => {
+                    this.currencies = dataset[0];
+                    this.vattypes = dataset[1];
+                    this.dataReady();
+                },
+                (error) => console.log(error)
+            );
+    }
+
     dataReady() {
         var fb = new UniFormBuilder();
-        
+
         //
         // main fields
         //
@@ -146,22 +151,27 @@ export class AccountDetails {
 
         this.config = fb;
     }
-   
+
     update() {
-        this.http.get(
-            {resource: "accounts/" + this.account, expand: "Alias,Currency,AccountGroup,Dimensions,Dimensions.Project,Dimensions.Region,Dimensions.Responsible,Dimensions.Departement"}
-        ).subscribe(
-            (dataset) => {
-                this.model = dataset;
-                this.form.refresh(this.model);
-            },
-            (error) => console.log(error)
-        )
+        this.http
+            .asGET()
+            .usingBusinessDomain()
+            .withEndPoint("accounts/" + this.account)
+            .send({
+                expand: "Alias,Currency,AccountGroup,Dimensions,Dimensions.Project,Dimensions.Region,Dimensions.Responsible,Dimensions.Departement"
+            })
+            .subscribe(
+                (dataset) => {
+                    this.model = dataset;
+                    this.form.refresh(this.model);
+                },
+                (error) => console.log(error)
+            )
     }
-    
-    ngOnChanges(changes: {[propName: string]: SimpleChange}) { 
+
+    ngOnChanges(changes: {[propName: string]: SimpleChange}) {
         if (this.form == null) return;
-        
+
         if (this.account == 0) {
             this.model = new AccountModel();
             this.form.refresh(this.model);
@@ -220,7 +230,7 @@ export class AccountDetails {
                     StatusID: 0,
                     ID: 1,
                     Deleted: false,
-                    CustomFields: null              
+                    CustomFields: null
                 },
                 ProjectID: 1,
                 Departement: null,
@@ -238,7 +248,7 @@ export class AccountDetails {
         }
         else {
             this.update();
-        }        
+        }
     }
 
     onSubmit(value) {
@@ -246,10 +256,11 @@ export class AccountDetails {
         if (this.model.ID > 0) {
             console.log("LAGRE");
             console.log(this.model);
-            this.http.put({
-                resource: "accounts/" + self.model.ID,
-                body: self.model
-            }).subscribe(
+            this.http
+                .asPUT()
+                .withEndPoint("accounts/" + self.model.ID)
+                .withBody(self.model)
+                .send().subscribe(
                 (response) => {
                     console.log("LAGRET KONTO " + self.model.ID)
                     this.uniSaved.emit(this.model);
@@ -263,21 +274,24 @@ export class AccountDetails {
         } else {
             console.log("LAGRE");
             console.log(self.model);
-            this.http.post({
-                resource: "accounts",
-                body: self.model
-            }).subscribe(
-                (response) => {
-                    console.log("LAGRET NY KONTO ");
-                    console.log(response);
-                    this.uniSaved.emit(this.model);
-                },
-                (error) => {
-                    console.log("LAGRING AV NY FEILET");
-                    console.log(self.model);
-                    console.log(error._body);
-                }
-            );
+            this.http
+                .usingBusinessDomain()
+                .asPOST()
+                .withBody(self.model)
+                .withEndPoint("accounts")
+                .send()
+                .subscribe(
+                    (response: any) => {
+                        console.log("LAGRET NY KONTO ");
+                        console.log(response);
+                        this.uniSaved.emit(this.model);
+                    },
+                    (error: any) => {
+                        console.log("LAGRING AV NY FEILET");
+                        console.log(self.model);
+                        console.log(error._body);
+                    }
+                );
         }
     }
 }

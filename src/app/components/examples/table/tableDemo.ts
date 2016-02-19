@@ -1,7 +1,7 @@
 import {Component, ViewChild, ViewChildren, AfterViewInit} from 'angular2/core';
 import {UniTable, UniTableBuilder, UniTableColumn} from '../../../../framework/uniTable';
 
-import {UniHttpService} from '../../../../framework/data/uniHttpService';
+import {UniHttp} from '../../../../framework/core/http';
 
 @Component({
     selector: 'uni-table-demo',
@@ -46,7 +46,7 @@ export class UniTableDemo {
         this.tables.toArray()[3].refresh(this.localData);
     }
     
-    constructor(uniHttpService: UniHttpService) {        
+    constructor(uniHttpService: UniHttp) {
         
         // Create columns to use in the tables
         var idCol = new UniTableColumn('ID', 'Produktnummer', 'number')
@@ -101,10 +101,12 @@ export class UniTableDemo {
         
         
         // Editable table working with local data
-        uniHttpService.get({
-            resource: 'products',
-            top: 5
-        }).subscribe((response) => {
+        uniHttpService
+        .asGET()
+        .usingBusinessDomain()
+        .withEndPoint("products")
+        .send({top:5})
+        .subscribe((response) => {
            this.editableLocalDataCfg = new UniTableBuilder(response, true)
             .setPageSize(5)
             .addColumns(idCol, nameCol, priceCol)
