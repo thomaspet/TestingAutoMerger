@@ -43,17 +43,18 @@ export class EmployeeLeave {
         var leavePercentCol = new UniTableColumn('LeavePercent', 'Andel permisjon', 'number');
         var commentCol = new UniTableColumn('Description', 'Kommentar', 'string');
         var leaveTypeCol = new UniTableColumn('LeaveType', 'Type', 'string');
-        var EmploymentIDCol = new UniTableColumn('EmploymentID', 'ArbeidsforholdsID', 'string');
+        var employmentIDCol = new UniTableColumn('EmploymentID', 'Arbeidsforhold', 'string');
         
         var selectCallback = (selectedItem) => {
             console.log('Selected: ');
             console.log(selectedItem);
         }
         
-        this.dataConfig = new UniTableBuilder('EmployeeLeave', false)
+        this.dataConfig = new UniTableBuilder('EmployeeLeave', true)
         .setFilter(this.buildFilter())
-        .addColumns(idCol, fromDateCol, toDateCol, leavePercentCol, leaveTypeCol, EmploymentIDCol, commentCol)
-        .setSelectCallback(selectCallback);
+        .addColumns(idCol, fromDateCol, toDateCol, leavePercentCol, leaveTypeCol, employmentIDCol, commentCol)
+        .setSelectCallback(selectCallback)
+        .setToolbarOptions([]); //removes add,update and cancel buttons
     }
     
     buildFilter(){
