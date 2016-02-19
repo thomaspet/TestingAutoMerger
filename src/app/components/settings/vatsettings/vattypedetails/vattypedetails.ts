@@ -7,7 +7,7 @@ import {IVatType} from '../../../../../framework/interfaces/interfaces';
 import {VatTypeService} from '../../../../services/services';
 import {UNI_CONTROL_DIRECTIVES} from '../../../../../framework/controls';
 import {UNI_CONTROL_TYPES} from '../../../../../framework/controls/types';
-import {UniForm, UniFormBuilder, UniFieldsetBuilder, UniFieldBuilder, UniComboGroupBuilder, UniGroupBuilder} from '../../../../../framework/forms';
+import {UniForm, UniFormBuilder, UniFieldsetBuilder, UniFieldBuilder, UniComboFieldBuilder, UniSectionBuilder} from '../../../../../framework/forms';
 
 
 //KE: Burde ikke dette være mulig?
@@ -111,9 +111,9 @@ export class VatTypeDetails {
             .setType(UNI_CONTROL_DIRECTIVES[UNI_CONTROL_TYPES.CHECKBOX]);      
         
         var systemSet = new UniFieldsetBuilder();
-        systemSet.addFields(vatAvailable, vatLocked, vatVisible);
+        systemSet.addUniElements(vatAvailable, vatLocked, vatVisible);
    
-        this.config.addFields(vatCode, vatAlias, vatName, vatPercentage, vatDateFrom, vatDateTo, vatAccountOut, vatAccountIn, systemSet); 
+        this.config.addUniElements(vatCode, vatAlias, vatName, vatPercentage, vatDateFrom, vatDateTo, vatAccountOut, vatAccountIn, systemSet); 
 
     }
               

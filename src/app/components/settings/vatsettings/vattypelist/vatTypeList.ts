@@ -3,7 +3,7 @@ import {IVatType} from '../../../../../framework/interfaces/interfaces';
 import {VatTypeService} from '../../../../services/services';
 import {UNI_CONTROL_DIRECTIVES} from '../../../../../framework/controls';
 import {UNI_CONTROL_TYPES} from '../../../../../framework/controls/types';
-import {UniForm, UniFormBuilder, UniFieldsetBuilder, UniFieldBuilder, UniComboGroupBuilder, UniGroupBuilder} from '../../../../../framework/forms';
+import {UniForm, UniFormBuilder, UniFieldsetBuilder, UniFieldBuilder, UniComboFieldBuilder, UniSectionBuilder} from '../../../../../framework/forms';
 
 @Component({
     selector: 'vattype-list',

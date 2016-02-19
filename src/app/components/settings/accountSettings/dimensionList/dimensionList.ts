@@ -1,6 +1,6 @@
-import {Component, Input} from 'angular2/core';
-import {UniTable, UniTableConfig} from '../../../../../framework/uniTable';
+import {Component, Input, ViewChild} from 'angular2/core';
 import {UniHttpService} from '../../../../../framework/data/uniHttpService';
+import {UniTable, UniTableBuilder, UniTableColumn} from '../../../../../framework/uniTable';
 
 @Component({
     selector: 'dimension-list',
@@ -8,25 +8,55 @@ import {UniHttpService} from '../../../../../framework/data/uniHttpService';
     directives: [UniTable]
 })
 export class DimensionList {
-    @Input() dimension = 1;
-    tableConfig: UniTableConfig;
+    @Input() dimensions;
+    @ViewChild(UniTable) table: UniTable;
+    tableConfig: any;
+    localData = [];
     
-    constructor(private http:UniHttpService) {
-        this.tableConfig = new UniTableConfig(this.http.baseUrl + 'dimensions', false, false)
-        .setOdata({
-            expand: '',
-            filter: 'ID eq ' + this.dimension
-        })
-        .setDsModel({
-            id: 'ID',
-            fields: {
-                ID: {type: 'number'},
-                Name: {type: 'text'}
+    constructor(private http:UniHttpService) {}
+    
+    ngOnInit() {
+        var idCol = new UniTableColumn('ID', 'Dimnr', 'number')
+        var typeCol = new UniTableColumn('Type', 'Type', 'string');
+        var nameCol = new UniTableColumn('Name', 'Navn', 'string');
+        
+        idCol.setWidth("4rem");
+        
+        var config = new UniTableBuilder(this.localData, false)
+        .setPageSize(5)
+        .setSearchable(false)
+        .addColumns(idCol, typeCol, nameCol);  
+        
+        this.tableConfig = config;      
+    }
+    
+    ngOnChanges() {
+        var data = [];
+ 
+        if (this.dimensions) {
+            
+            if (this.dimensions.Project != null) {
+                data.push({ID: this.dimensions.ProjectID, Type: 'Prosjekt', Name: this.dimensions.Project.Name});
             }
-        })
-        .setColumns([
-            {field: 'ID', title: 'Dimnr'},
-            {field: 'Name', title: 'Navn'}
-        ]);  
+            
+            if (this.dimensions.Department != null) {
+                data.push({ID: this.dimensions.DepartementID, Type: 'Avdeling', Name: this.dimensions.Departement.Name});
+            }
+            
+            if (this.dimensions.Responsible != null) {
+                data.push({ID: this.dimensions.ResponsibleID, Type: 'Ansvar', Name: this.dimensions.Responsible.Name});
+            }
+            
+            if (this.dimensions.Region != null) {
+                data.push({ID: this.dimensions.RegionID, Type: 'Region', Name: this.dimensions.Region.Name});
+            }
+            
+            this.localData = data;   
+        }
+        
+        this.localData = data;
+        if (this.table != null) {
+            this.table.refresh(this.localData);        
+        }
     }
 }

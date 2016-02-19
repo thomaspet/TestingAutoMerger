@@ -6,14 +6,15 @@ import {ShowError} from "./showError";
 import {UniField} from "./uniField";
 import {UniFieldBuilder} from "./builders/uniFieldBuilder";
 import {UniFieldset} from "./uniFieldset";
-import {UniGroup} from "./uniGroup";
-import {UniComboGroup} from "./uniComboGroup";
+import {UniSection} from "./uniSection";
+import {UniComboField} from "./uniComboField";
 import {UniComponentLoader} from "../core/componentLoader";
 import {MessageComposer} from "./composers/messageComposer";
 import {ValidatorsComposer} from "./composers/validatorsComposer";
 import {ControlBuilder} from "./builders/controlBuilder";
-import {IElementBuilder} from "./interfaces";
+import {UniElementBuilder} from "./interfaces";
 import {UniFormBuilder} from "./builders/uniFormBuilder";
+import {UniGenericField} from "./shared/UniGenericField";
 
 declare var _; //lodash
 
@@ -22,13 +23,13 @@ declare var _; //lodash
  */
 @Component({
     selector: "uni-form",
-    directives: [FORM_DIRECTIVES, UniField, UniFieldset, UniGroup, UniComboGroup, UniComponentLoader],
+    directives: [FORM_DIRECTIVES, UniField, UniFieldset, UniSection, UniComboField, UniComponentLoader],
     providers: [FORM_PROVIDERS],
     template: `
         <form (submit)="submit()" [ngFormModel]="form" [class]="buildClassString()" [class.error]="hasErrors()">
             <template ngFor #field [ngForOf]="getFields()" #i="index">
                 <uni-component-loader
-                    [type]="getFieldType(field)"
+                    [type]="field.fieldType"
                     [config]="field">
                 </uni-component-loader>
             </template>
@@ -36,7 +37,7 @@ declare var _; //lodash
         </form>
     `
 })
-export class UniForm implements OnInit {
+export class UniForm extends UniGenericField implements OnInit {
 
     /**
      * Configuration of the form
@@ -73,6 +74,7 @@ export class UniForm implements OnInit {
      * @param fb
      */
     constructor(public fb: FormBuilder) {
+        super();
     }
 
     /**
@@ -130,42 +132,10 @@ export class UniForm implements OnInit {
 
     /**
      * return all fields inside the form
-     * @returns {IElementBuilderCollection}
+     * @returns {UniElementBuilderCollection}
      */
     getFields() {
         return this.config.fields;
-    }
-
-    /**
-     * return the type of the Element return IElmementBuilder Type (UniField, UniFieldBuilder, UniGroup)
-     * @param field
-     * @returns {Type}
-     */
-    getFieldType(field: IElementBuilder) {
-        return field.fieldType;
-    }
-
-    /**
-     * Check the value of each property in the classes and builds the string value it should be showed
-     * @returns {string}
-     */
-    buildClassString() {
-        var classes = [];
-        var cls = this.config.classes;
-        for (var cl in cls) {
-            if (cls.hasOwnProperty(cl)) {
-                var value = undefined;
-                if (_.isFunction(cls[cl])) {
-                    value = cls[cl]();
-                } else {
-                    value = cls[cl];
-                }
-                if (value === true) {
-                    classes.push(cl);
-                }
-            }
-        }
-        return classes.join(" ");
     }
 
     /**

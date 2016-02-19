@@ -1,276 +1,329 @@
-import { Component, Input, AfterViewInit, ElementRef} from "angular2/core";
-import {Http, Headers, URLSearchParams} from "angular2/http";
-import {NgIf} from "angular2/common";
+import {Component, Input, OnChanges, SimpleChange, ElementRef, OnDestroy} from 'angular2/core';
+import {UniHttpService, IUniHttpRequest} from '../data/uniHttpService';
+
+import {UniTableBuilder} from './UniTableBuilder';
+
 declare var jQuery;
 
-enum DIRECTIONS { LEFT, RIGHT, UP, DOWN }
+enum directions { LEFT, RIGHT, UP, DOWN };
 
 @Component({
-    selector: "uni-table",
-    templateUrl: "framework/uniTable/uniTable.html",
-    directives: [NgIf]
+	selector: 'uni-table',
+	templateUrl: 'framework/uniTable/uniTable.html',
 })
-export class UniTable implements AfterViewInit {
+export class UniTable {	
     @Input() config;
-    tableConfig: kendo.ui.GridOptions = {};
-
-    filterString: string = "";
+    
+	tableConfig: kendo.ui.GridOptions = {};
+	filterString: string = "";
+    totalRows: number; // used for pagination
+    
     nativeElement: any;
     table: kendo.ui.Grid;
-
-    totalRows: number; // used for pagination
-
-
-    constructor(private http: Http, elementRef: ElementRef) {
+    
+	
+	constructor(private uniHttp: UniHttpService, elementRef: ElementRef) {
         this.nativeElement = jQuery(elementRef.nativeElement);
     }
-
+    
+    ngOnChanges(changes: {[propName: string]: SimpleChange}) {
+        if (changes['config'].currentValue && changes['config'].currentValue.constructor.name === 'UniTableBuilder') {
+            this.setupAndCompile();
+        }
+    }
+    
+    refresh(data?: any) {
+        if (data && !this.config.remoteData) {
+            this.config.resource = data;
+        }
+        this.table.dataSource.read();
+    }
+    
     ngAfterViewInit() {
-        var httpHeaders;
-        httpHeaders = {
-            "Client": "client1"
-        };
+        if (!this.table && this.config.constructor.name === 'UniTableBuilder') {
+            this.setupAndCompile();
+        }	   
+    }
+    
+    setupAndCompile() {
 
-        // create kendo options from the config
-        this.tableConfig = {
-            dataSource: {
-                type: "json",
-                transport: {
-                    // read defined as a function instead of using kendo so we can get the number of rows from response headers
-                    read: (options: any) => {
-                        var urlParams = jQuery.extend({}, this.config.odata, options.data);
-                        var searchMap = new URLSearchParams();
-
-                        Object.keys(urlParams).forEach((key: string) => {
-                            if (urlParams[key]) {
-                                searchMap.append(key, urlParams[key]);
-                            }
-                        });
-
-                        this.http.get(
-                            this.config.resourceUrl,
-                            {
-                                headers: new Headers({"Client": "client1"}),
-                                search: searchMap
-                            }
-                            )
-                            .subscribe((response: any) => {
-                                var data = response.json();
-                                this.totalRows = parseInt(response.headers.get("Total"), 10) || data.length;
-                                options.success(data);
-                            });
-                    },
-                    update: {
-                        url: (item: any) => {
-                            return this.config.resourceUrl + "/" + item.ID;
-                        },
-                        type: "PUT",
-                        headers: httpHeaders
-                    },
-                    create: {
-                        url: this.config.resourceUrl,
-                        type: "POST",
-                        headers: httpHeaders
-                    },
-                    destroy: {
-                        url: (item: any) => {
-                            return this.config.resourceUrl + "/" + item.ID;
-                        },
-                        type: "DELETE",
-                        headers: httpHeaders
-                    },
-                    parameterMap: (options: any, operation: any) => {
-                        if (operation === "read") {
-                            return jQuery.extend({}, this.config.odata, options);
-                        }
-
-                        if (operation !== "read" && options) {
-                            return kendo.stringify(options);
-                        }
-                    }
-                },
+        if (this.config.commands.length > 0) {
+            this.config.columns.push({
+                command: this.config.commands
+            });
+        }
+        
+		this.tableConfig = {
+			dataSource: {
                 schema: {
-                    model: this.config.dsModel,
-                    total: () => {
+                    model: this.config.schemaModel,
+                    total: (response) => {
                         return this.totalRows;
                     }
-                },
-                pageSize: this.config.pageSize || 10,
-                serverPaging: true,
-                serverFiltering: true,
-            },
-            columns: this.config.columns,
-            filterable: true,
-            editable: this.config.editable,
-            navigatable: true,
-            pageable: true,
-        };
-
-
-        if (this.config.editable) {
-            this.setupEditableTable();
-        } else {
-            this.setupReadOnlyTable();
-        }
-    }
-
-    // settings specific to read-only uniTable
-    setupReadOnlyTable() {
-
-        if (this.config.onSelect) {
-            this.tableConfig.selectable = "row";
-
-            var vm = this;
-            this.tableConfig.change = function (event: kendo.ui.GridChangeEvent) {
-                vm.config.onSelect(event.sender.dataItem(this.select()));
-            };
-        }
-
-        // compile kendo grid
-        this.table = this.nativeElement.find("table").kendoGrid(this.tableConfig).data("kendoGrid");
-    }
-
-    // settings specific to editable uniTable
-    setupEditableTable() {
-        this.tableConfig.toolbar = ["create", "save", "cancel"];
-
-        // add editable-cell class to the columns that are set to editable in the model
-        this.tableConfig.columns.forEach((column: any) => {
-            var modelField = this.tableConfig.dataSource.schema.model.fields[column.field];
-
-            // check if the model field has editable = true or undefined (will be editable unless specified as false)
-            if (modelField && (modelField.editable || modelField.editable === undefined)) {
-                if (column.attributes) {
-                    column.attributes.class = (column.attributes.class || "") + " editable-cell";
-                } else {
-                    column.attributes = {"class": "editable-cell"};
                 }
+            },
+			columns: this.config.columns,
+			filterable: this.config.filterable,
+            editable: this.config.editable,
+            toolbar: this.config.toolbar,
+            navigatable: true,
+		};
+		
+        if (this.config.pageable) {
+            this.tableConfig.pageable = { pageSize: this.config.pageSize };
+        }
+        
+		if (this.config.remoteData) {
+            this.createRemoteDataSource();
+        } else {
+            this.createLocalDataSource();
+        }
+        
+        // Set up select callback on read-only tables
+        if (!this.config.editable && this.config.selectCallback) {
+            this.tableConfig.selectable = "row";
+            
+            var vm = this;
+            this.tableConfig.change = function(event: kendo.ui.GridChangeEvent) {
+                vm.config.selectCallback(event.sender.dataItem(this.select()));
             }
+        }
+        
+        // Unbind kendo's keybind on numeric inputs so it doesn't interfere with up/down table navigation
+        this.tableConfig.edit = (event) => {
+            var input = jQuery(this.table.current()).find('.k-numerictextbox input').unbind('keydown');
+        }
+        
+        // Compile grid and set up key navigation
+        this.table = this.nativeElement.find('table').kendoGrid(this.tableConfig).data('kendoGrid');
+        this.setupKeyNavigation();        
+	}
+    
+    // Create a datasource that works with local data
+    createLocalDataSource() {
+        this.tableConfig.dataSource.transport = {
+                
+            read: (options) => {
+                this.totalRows = this.config.resource.length;
+                options.success(this.config.resource);
+            },
+                
+            update: (options) => {
+                if (this.config.updateCallback) {
+                    this.config.updateCallback(options.data);
+                }
+                options.success();        
+            },
+                
+            create: (options) => {
+                if (this.config.createCallback) {
+                    this.config.createCallback(options.data);
+                }
+                options.success();
+            },
+                
+            destroy: (options) => {
+                if (this.config.deleteCallback) {
+                    this.config.deleteCallback(options.data);
+                }
+                options.success();
+            }
+        }
+    }
+    
+    // Create a datasource that works with remote data
+    createRemoteDataSource() {       
+        this.tableConfig.dataSource.type = 'json';
+        this.tableConfig.dataSource.serverPaging = true;
+        this.tableConfig.dataSource.serverFiltering = true;
+
+        this.tableConfig.dataSource.transport = {
+
+            read: (options) => {
+                
+                this.uniHttp.get({
+                    resource: this.config.resource,
+                    expand: this.config.expand,
+                    filter: this.buildOdataFilter(options.data.filter),
+                    top: options.data.take,
+                    skip: options.data.skip
+                }).subscribe(
+                    (response) => {
+                        // TODO: Get count param from response headers (mocked for now)   
+                        if (response.length < this.config.pageSize) {
+                            this.totalRows = response.length + (this.table.dataSource.page() - 1) * this.config.pageSize;
+                        } else {
+                            this.totalRows = 20;
+                        }
+                        
+                        options.success(response)
+                    },
+                    (error) => options.error(error)
+                );
+            },
+                
+            update: (options) => {
+                this.uniHttp.put({
+                    resource: this.config.resource + '/' + options.data.ID,
+                    body: options.data
+                }).subscribe(
+                    (response) => options.success(response),
+                    (error) => options.error(error)
+                );
+            },
+            
+            create: (options) => {
+                this.uniHttp.post({
+                    resource: this.config.resource,
+                    body: options.data
+                }).subscribe(
+                    (response) => options.success(response),
+                    (error) => options.error(error)                    
+                );
+            },
+           
+            destroy: (options) => {
+                this.uniHttp.remove({resource: this.config.resource + '/' + options.data.ID})
+                .subscribe(
+                    (response) => options.success(response),
+                    (error) => options.error(error)
+                );
+            },
+        }
+
+    }
+    
+    buildOdataFilter(kendoFilter): string {
+        var stringified = '';
+        
+        if (!kendoFilter) {
+            return this.config.filter;
+        }
+        
+        kendoFilter.filters.forEach((filter: any) => {
+           
+           if (filter.operator === 'contains') {
+               stringified += "contains(" + filter.field + ",'" + filter.value + "') or ";
+           }
+           
+           if (filter.operator === 'eq') {
+               stringified += filter.field + " eq " + filter.value + " or "
+           }
+           
         });
-
-        // unbind kendo"s keybind on numeric inputs so it doesn"t interfere with up/down table navigation
-        this.tableConfig.edit = () => {
-            jQuery(this.table.current()).find(".k-numerictextbox input").unbind("keydown");
-        };
-
-        // compile kendo grid
-        this.table = this.nativeElement.find("table").kendoGrid(this.tableConfig).data("kendoGrid");
-
-        this.setupKeyNavigation();
+        
+        // Remove trailing " or "
+        if (stringified.length > 0) {
+            stringified = stringified.slice(0, -4);
+        }
+        
+        // If there is no filter defined in the config we just return the stringified kendo filter
+        if (this.config.filter.length === 0) {
+            return stringified;
+        }
+        
+        // Return config filter combined with the stringified kendo filter
+        return this.config.filter + " and (" + stringified + ")";
     }
 
-    buildOdataString() {
-        if (!this.config.odata) {
-            return "";
+	filterTable() {
+        
+        var filter = {
+            logic: 'or',
+            filters: [],
         }
-
-        var odataStr = "";
-        odataStr += (this.config.odata.expand) ? ("expand=" + this.config.odata.expand + "&") : "";
-        odataStr += (this.config.odata.filter) ? ("filter=" + this.config.odata.filter) : "";
-
-        // // Remove trailing "&"
-        if (odataStr[odataStr.length - 1] === "&") {
-            odataStr = odataStr.slice(0, -1);
-        }
-
-        return odataStr;
-    }
-
-    filterTable() {
-        var filterValue = this.filterString;
-        var filter = "";
-
+        
         var fields = this.tableConfig.dataSource.schema.model.fields;
+        
         for (var fieldName of Object.keys(fields)) {
             let field = fields[fieldName];
-
+            
             // contains filter for text columns
-            if (field.type === "text") {
-                filter += " or contains(" + fieldName + ",\"" + filterValue + "\")";
+            if (field.type === 'string') {
+                filter.filters.push({field: fieldName, operator: 'contains', value: this.filterString});
             }
-
+            
             // eq filter for number columns
-            if (field.type === "number" && !isNaN(parseInt(filterValue, 10))) {
-                filter += " or " + fieldName + " eq " + filterValue;
+            if (field.type === 'number') {
+                var filterValue = parseInt(this.filterString);
+                if (!isNaN(filterValue)) {
+                    filter.filters.push({field: fieldName, operator: 'eq', value: filterValue});    
+                }
             }
         }
-
-        // remove leading " or "
-        if (filter.indexOf(" or ") === 0) {
-            filter = filter.slice(4);
-        }
-
-        this.config.odata.filter = filter;
-        this.table.dataSource.query({});
-    }
-
+        
+        this.table.dataSource.filter(filter);
+	}
+    
     setupKeyNavigation() {
-        jQuery(this.table.table).keyup((event: any) => {
-            // enter
+        if (!this.config.editable) return;
+        
+        jQuery(this.table.table).keyup((event) => {
+            // Enter
             if (event.keyCode === 13) {
                 if (event.shiftKey) {
-                    this.move(DIRECTIONS.LEFT);
+                    this.move(directions.LEFT);
                 } else {
-                    this.move(DIRECTIONS.RIGHT);
+                    this.move(directions.RIGHT);    
                 }
             }
-
-            // up arrow
+                        
+            // Up arrow
             if (event.ctrlKey && event.keyCode === 38) {
                 event.preventDefault();
-                this.move(DIRECTIONS.UP);
+                this.move(directions.UP);
             }
-
-            // down arrow
+            
+            // Down arrow
             if (event.ctrlKey && event.keyCode === 40) {
                 event.preventDefault();
-                this.move(DIRECTIONS.DOWN);
+                this.move(directions.DOWN);
             }
-
+                        
         });
     }
-
-    move(direction: any) {
+    
+    move(direction) {
         var currentCell = jQuery(this.table.current());
-        var newCell;
+        var newCell; 
 
-        switch (direction) {
-            case DIRECTIONS.LEFT:
-                newCell = currentCell.prevAll(".editable-cell");
-                if (!newCell[0]) {
-                    newCell = currentCell.parent("tr").prev().children(".editable-cell:last");
+        switch(direction) {
+            case directions.LEFT:
+                newCell = currentCell.prevAll('.editable-cell');
+                if (!newCell[0]) {  
+                    newCell = currentCell.parent('tr').prev().children('.editable-cell:last');
                 }
-                break;
-
-            case DIRECTIONS.RIGHT:
-                newCell = currentCell.nextAll(".editable-cell");
+            break;
+            
+            case directions.RIGHT:
+                newCell = currentCell.nextAll('.editable-cell');
                 if (!newCell[0]) {
-                    newCell = currentCell.parent("tr").next().children(".editable-cell:first");
+                    newCell = currentCell.parent('tr').next().children('.editable-cell:first');
                 }
-                break;
-
-            case DIRECTIONS.UP:
-                var prevRow = currentCell.parent("tr").prev("tr");
-                newCell = jQuery("td:eq(" + currentCell.index() + ")", prevRow);
-                break;
-
-            case DIRECTIONS.DOWN:
-                var nextRow = currentCell.parent("tr").next("tr");
-                newCell = jQuery("td:eq(" + currentCell.index() + ")", nextRow);
-                break;
+            break;
+            
+            case directions.UP:
+                var prevRow = currentCell.parent('tr').prev('tr');
+                var newCell = jQuery('td:eq(' + currentCell.index() + ')', prevRow);
+            break;
+            
+            case directions.DOWN:
+                var nextRow = currentCell.parent('tr').next('tr');
+                var newCell = jQuery('td:eq(' + currentCell.index() + ')', nextRow);
+            break;
         }
-
+                
         if (newCell.length > 0) {
-            currentCell.find("input").blur(); // makes sure any changes are updated (in browser, no http call here) before moving focus
+            currentCell.find('input').blur(); // makes sure any changes are updated (in browser, no http call here) before moving focus
             this.table.current(newCell);
             this.table.editCell(newCell);
         }
     }
-
-    // avoid duplicate uniTable when renavigating
+    
+    // Avoid duplicate uniTable when renavigating
     ngOnDestroy() {
-        this.nativeElement.find(".k-grid").remove();
-        this.nativeElement.append("<table></table>");
+        this.nativeElement.find('.k-grid').remove();
+        this.nativeElement.append('<table></table>');
     }
-
+	
 }
