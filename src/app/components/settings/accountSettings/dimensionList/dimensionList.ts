@@ -10,25 +10,30 @@ import {UniTable, UniTableBuilder, UniTableColumn} from '../../../../../framewor
 export class DimensionList {
     @Input() dimensions;
     @ViewChild(UniTable) table: UniTable;
-    tableConfig;
+    tableConfig: any;
     localData = [];
     
-    constructor(private http:UniHttpService) {       
+    constructor(private http:UniHttpService) {}
+    
+    ngOnInit() {
         var idCol = new UniTableColumn('ID', 'Dimnr', 'number')
         var typeCol = new UniTableColumn('Type', 'Type', 'string');
         var nameCol = new UniTableColumn('Name', 'Navn', 'string');
         
         idCol.setWidth("4rem");
         
-        this.tableConfig = new UniTableBuilder(this.localData, false)
+        var config = new UniTableBuilder(this.localData, false)
         .setPageSize(5)
         .setSearchable(false)
-        .addColumns(idCol, typeCol, nameCol);
+        .addColumns(idCol, typeCol, nameCol);  
+        
+        this.tableConfig = config;      
     }
     
     ngOnChanges() {
+        var data = [];
+ 
         if (this.dimensions) {
-            var data = [];
             
             if (this.dimensions.Project != null) {
                 data.push({ID: this.dimensions.ProjectID, Type: 'Prosjekt', Name: this.dimensions.Project.Name});
@@ -47,7 +52,11 @@ export class DimensionList {
             }
             
             this.localData = data;   
-            this.table.refresh(this.localData);         
+        }
+        
+        this.localData = data;
+        if (this.table != null) {
+            this.table.refresh(this.localData);        
         }
     }
 }

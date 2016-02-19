@@ -34,6 +34,12 @@ export class EmployeeDS {
             expand: "BusinessRelationInfo"
         });
     }
+    
+    getEmployeeLeave(){
+        return this.http.get({
+            resource: "EmployeeLeave"
+        });
+    }
 
     layout(layoutID: string) {
         return Observable.of({

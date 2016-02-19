@@ -1,4 +1,4 @@
-﻿import {Component} from 'angular2/core';
+﻿import {Component, ViewChild} from 'angular2/core';
 
 import {AccountList} from './accountList/accountList';
 import {AccountDetails} from './accountDetails/accountDetails';
@@ -11,6 +11,7 @@ import {UniHttpService} from '../../../../framework/data/uniHttpService';
 })
 export class AccountSettings {
     account = 0;
+    @ViewChild(AccountList) accountlist: AccountList;
     
     constructor(private http:UniHttpService) {
     }
@@ -18,6 +19,12 @@ export class AccountSettings {
     changeAccount(account) {
         this.account = account;
     }    
+    
+    accountSaved(account) {
+        console.log("SAVED ACCOUNT");
+        console.log(account);
+        this.accountlist.refresh(account);
+    }
     
     // TEST DATA NOT AVAILABLE DIRECTLY YET
     
@@ -65,6 +72,6 @@ export class AccountSettings {
 
     showTestAccount()
     {
-        this.account = 1000;
+        this.account = -1;
     }
 }
