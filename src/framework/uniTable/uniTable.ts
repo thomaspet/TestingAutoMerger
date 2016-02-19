@@ -39,7 +39,13 @@ export class UniTable {
         this.table.dataSource.read();
     }
     
-	setupAndCompile() {
+    ngAfterViewInit() {
+        if (this.config && this.config.constructor.name === 'UniTableBuilder') {
+            this.setupAndCompile();
+        }	   
+    }
+    
+    setupAndCompile() {
 
         if (this.config.commands.length > 0) {
             this.config.columns.push({
