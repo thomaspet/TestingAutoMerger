@@ -40,7 +40,7 @@ export class UniTable {
     }
     
     ngAfterViewInit() {
-        if (this.config && this.config.constructor.name === 'UniTableBuilder') {
+        if (!this.table && this.config.constructor.name === 'UniTableBuilder') {
             this.setupAndCompile();
         }	   
     }

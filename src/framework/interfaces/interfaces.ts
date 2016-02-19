@@ -1386,6 +1386,7 @@ export interface IVatTypeSetup {
 	IsCompensated: boolean;
 	IncomingAccountNumber: number;
 	OutgoingAccountNumber: number;
+	VatCodeGroupNo: number;
 	ID: number;
 	Deleted: boolean;
 	CustomFields: any;
@@ -2048,12 +2049,14 @@ export interface IVatType {
 	IncomingAccountID: number;
 	OutgoingAccountID: number;
 	InUse: boolean;
+	VatCodeGroupID: number;
 	StatusID: number;
 	ID: number;
 	Deleted: boolean;
 	IncomingAccount: IAccount;
 	OutgoingAccount: IAccount;
 	Deductions: Array<IVatCodeDeduction>;
+	VatCodeGroup: IVatCodeGroup;
 	CustomFields: any;
 }
 

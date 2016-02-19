@@ -33,7 +33,7 @@ export class AccountList {
             dataTextField: "name",
             dataValueField: "action",
             dataSource: [
-                {action: SETTINGS_ADD_NEW.ACCOUNTGROUP, name: "Ny kontogruppe"},
+           //     {action: SETTINGS_ADD_NEW.ACCOUNTGROUP, name: "Ny kontogruppe"},
                 {action: SETTINGS_ADD_NEW.ACCOUNT, name: "Ny hovedbokskonto"},
             ],
             optionLabel: {action: -1, name: "Select an action"}
@@ -56,6 +56,12 @@ export class AccountList {
             }
         };
     }
+    
+    refresh(account) {
+        console.log("DO REFRESH OF TABLE");
+        console.log(account);
+        //this.treeList.refresh();
+    }
 
     loopAccountGroups(parentgroup: any, id: number|string) {
         this.accountgroups.forEach((accountgroup: any) => {
@@ -75,9 +81,8 @@ export class AccountList {
                 var accountNameCol = new UniTableColumn('AccountName', 'Kontonavn', 'string'); 
                 
                 var vatTypeCol = new UniTableColumn('', 'Mvakode/sats', 'string')
-                .setTemplate("#= VatType.Name# - #= VatType.VatPercent#%");
-                
-                
+                .setTemplate("#if(VatType != null) {# #= VatType.Name# - #= VatType.VatPercent#% #}#");
+                                
                 var lockedCol = new UniTableColumn('', 'Synlig/låst', 'boolean')
                 .setClass("icon-column")
                 .setTemplate("#if(Visible) {#<span class='is-visible' role='presentation'>Visible</span>#} " +
