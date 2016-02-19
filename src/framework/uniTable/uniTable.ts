@@ -1,5 +1,7 @@
-import {Component, Input, AfterViewInit, ElementRef, OnDestroy} from 'angular2/core';
+import {Component, Input, OnChanges, SimpleChange, ElementRef, OnDestroy} from 'angular2/core';
 import {UniHttpService, IUniHttpRequest} from '../data/uniHttpService';
+
+import {UniTableBuilder} from './UniTableBuilder';
 
 declare var jQuery;
 
@@ -9,7 +11,7 @@ enum directions { LEFT, RIGHT, UP, DOWN };
 	selector: 'uni-table',
 	templateUrl: 'framework/uniTable/uniTable.html',
 })
-export class UniTable implements AfterViewInit {	
+export class UniTable {	
     @Input() config;
     
 	tableConfig: kendo.ui.GridOptions = {};
@@ -24,6 +26,12 @@ export class UniTable implements AfterViewInit {
         this.nativeElement = jQuery(elementRef.nativeElement);
     }
     
+    ngOnChanges(changes: {[propName: string]: SimpleChange}) {
+        if (changes['config'].currentValue && changes['config'].currentValue.constructor.name === 'UniTableBuilder') {
+            this.setupAndCompile();
+        }
+    }
+    
     refresh(data?: any) {
         if (data && !this.config.remoteData) {
             this.config.resource = data;
@@ -31,7 +39,7 @@ export class UniTable implements AfterViewInit {
         this.table.dataSource.read();
     }
     
-	ngAfterViewInit() {
+	setupAndCompile() {
 
         if (this.config.commands.length > 0) {
             this.config.columns.push({
