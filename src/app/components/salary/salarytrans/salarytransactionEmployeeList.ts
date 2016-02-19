@@ -3,14 +3,17 @@ import {Router, RouteConfig} from "angular2/router";
 import {UniTable, UniTableBuilder, UniTableColumn} from "../../../../framework/uniTable";
 
 @Component({
-    templateUrl: "app/components/salary/salarytransaction/salarytransactionEmployeeList.html",
-    directives: [UniTable]
+    selector: "salary-transactions-employee",
+    templateUrl: "app/components/salary/salarytrans/salarytransactionEmployeeList.html",
+    directives: [UniTable],
+    inputs: ["ansatt"]
 })
 
 export class SalaryTransactionEmployeeList {
     salarytransEmployeeTableConfig;
     
     constructor(router: Router) {
+        
         var idCol = new UniTableColumn("ID","ID","number");
         var wagetypeidCol = new UniTableColumn("wagetype.wagetypeid","Lønnsart","number");
         var wagetypenameCol = new UniTableColumn("text","Tekst","string");
@@ -26,7 +29,11 @@ export class SalaryTransactionEmployeeList {
         this.salarytransEmployeeTableConfig = new UniTableBuilder("salarytrans",false)
         .setExpand("wagetype")
         .addColumns(idCol, wagetypeidCol, wagetypenameCol, 
-            fromdateCol, rateCol, amountCol, sumCol, employmentidCol, 
+            fromdateCol, 
+            rateCol, amountCol, sumCol, employmentidCol, 
             accountCol, payoutCol, transtypeCol);
     }
+    
+    
+    
 }

@@ -57,10 +57,16 @@ export var Routes = {
         loader: () => ComponentProxy.LoadComponentAsync("Examples", "./app/components/examples/examples")
     }),
     
-    salarytrans: new AsyncRoute({
-        path: "/salary/salarytrans",
-        name: "SalaryTransEmployee",
+    salarytransEmployee: new AsyncRoute({
+        path: "/salary/salarytranser",
+        name: "SalaryTransactionEmployeeList",
         loader: () => ComponentProxy.LoadComponentAsync("SalaryTransactionEmployeeList", "./app/components/salary/salarytrans/salarytransactionEmployeeList")
+    }),
+    
+    salarytransSelection: new AsyncRoute({
+        path: "/salary/salarytrans",
+        name: "SalaryTransactionSelectionList",
+        loader: () => ComponentProxy.LoadComponentAsync("SalaryTransactionSelectionList", "./app/components/salary/salarytrans/salarytransactionSelectionList")
     })
 };
 

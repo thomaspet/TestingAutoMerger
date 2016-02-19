@@ -11,19 +11,14 @@ export class EmployeeList {
     employeeTableConfig;
     
     constructor(router: Router) {
-        var idCol = new UniTableColumn('ID', 'ID', 'number');
-        
         var idCol = new UniTableColumn("ID", "ID", "number")
         .setEditable(false);
         var empNmbCol = new UniTableColumn("EmployeeNumber", "Ansattnummer", "number")
         .setEditable(false);
         var nameCol = new UniTableColumn("BusinessRelationInfo.Name", "Navn", "string");
         var birthCol = new UniTableColumn("BirthDate", "Fødselsdato","datetime")
-        .setNullable(true);
-        
-        var selectCallback = (selectedItem) => {
-            router.navigateByUrl("/salary/employees/" + selectedItem.ID);
-        };
+        .setNullable(true)
+        .setFormat("{0: dd.MM.yyyy}");
         var employmentDateCol = new UniTableColumn('EmploymentDate', 'Ansettelsesdato', 'date')
         .setFormat("{0: dd.MM.yyyy}");
         
@@ -33,6 +28,6 @@ export class EmployeeList {
         .setSelectCallback((selectedEmployee) => {
             router.navigateByUrl('/salary/employees/' + selectedEmployee.ID); 
         })
-        .addColumns(idCol, nameCol, employmentDateCol);   
+        .addColumns(idCol, nameCol, birthCol, employmentDateCol);   
     }
 }
