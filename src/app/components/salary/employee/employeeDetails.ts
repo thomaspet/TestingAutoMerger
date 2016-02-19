@@ -9,6 +9,7 @@ import {Employment} from './employments/employments';
 import {Hours} from './hours/hours';
 import {Travel} from './travel/travel';
 import {SalaryTransactions} from './salaryTransactions/salaryTransactions';
+import {EmployeeLeave} from './employeeLeave/employeeLeave';
 
 import {UniTabs} from '../../layout/uniTabs/uniTabs';
 import {WidgetPoster} from '../../../../framework/widgetPoster/widgetPoster';
@@ -22,6 +23,7 @@ const CHILD_ROUTES = [
     { path: '/salarytransactions', component: SalaryTransactions, as: 'SalaryTransactions' },
     { path: '/hours', component: Hours, as: 'Hours' },
     { path: '/travel', component: Travel, as: 'Travel' },
+    { path: '/employeeleave', component: EmployeeLeave, as: 'EmployeeLeave'}
 ];
 
 @Component({

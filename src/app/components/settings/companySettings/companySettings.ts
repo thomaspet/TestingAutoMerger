@@ -1,16 +1,14 @@
 ﻿import {Component, OnInit, provide} from "angular2/core";
-import {RouteConfig, RouteDefinition, RouteParams, ROUTER_DIRECTIVES} from "angular2/router";//from Emp
-import {NgFor, NgIf, Validators, Control, FormBuilder} from "angular2/common";
-import {Http, Headers, Response} from "angular2/http";
+import {RouteParams, ROUTER_DIRECTIVES} from "angular2/router";//from Emp
+import {NgFor, NgIf} from "angular2/common";
+import {Headers} from "angular2/http";
 import {Observable} from "rxjs/Observable";
 import "rxjs/add/operator/map";
 
 import {UniForm} from "../../../../framework/forms/uniForm";
 import {UniFormBuilder} from "../../../../framework/forms/builders/uniFormBuilder";
-import {UniFieldsetBuilder} from "../../../../framework/forms/builders/uniFieldsetBuilder";
 import {UniFieldBuilder} from "../../../../framework/forms/builders/uniFieldBuilder";
 import {UniSectionBuilder} from "../../../../framework/forms/builders/uniSectionBuilder";
-import {FieldType} from "../../../../framework/interfaces/interfaces";
 import {UNI_CONTROL_DIRECTIVES} from "../../../../framework/controls";
 
 import {CompanySettingsDS} from "../../../../framework/data/companySettings";

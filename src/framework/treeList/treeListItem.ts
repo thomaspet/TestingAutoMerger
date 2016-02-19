@@ -48,5 +48,5 @@ export class TreeListItem {
 
     toggle() {
         this.expanded = !this.expanded;
-    }
+    }    
 }

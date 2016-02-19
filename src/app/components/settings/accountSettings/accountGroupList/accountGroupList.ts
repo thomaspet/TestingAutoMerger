@@ -9,16 +9,20 @@ import {UniTable, UniTableBuilder, UniTableColumn} from '../../../../../framewor
 })
 export class AccountGroupList {
     @Input() account = 1;
-    tableConfig;
+    tableConfig: any;
 
-    constructor(private http: UniHttpService) {
+    constructor(private http: UniHttpService) {}
+
+    ngOnInit() {
         var idCol = new UniTableColumn('ID', 'ID', 'number')
         var nameCol = new UniTableColumn('Name', 'Navn', 'string'); 
         
-        this.tableConfig = new UniTableBuilder("accountgroups", false)
+        var config = new UniTableBuilder("accountgroups", false)
         .setFilter("AccountID eq " + this.account)
         .setPageSize(5)
         .setSearchable(false)
         .addColumns(idCol, nameCol);
+
+        this.tableConfig = config;
     }
 }

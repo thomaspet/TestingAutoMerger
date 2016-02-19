@@ -21,7 +21,6 @@ declare var _;
 export class AccountList {
     @Output() uniAccountChange = new EventEmitter<number>();
     @ViewChild(TreeList) treeList: TreeList;
-    @ViewChild(UniDropdown) dropdown: UniDropdown;
     accountListItems: TreeListItem[] = [];
     accountgroups;
     config;
@@ -34,29 +33,34 @@ export class AccountList {
             dataTextField: "name",
             dataValueField: "action",
             dataSource: [
-                {action: SETTINGS_ADD_NEW.ACCOUNTGROUP, name: "Ny kontogruppe"},
+           //     {action: SETTINGS_ADD_NEW.ACCOUNTGROUP, name: "Ny kontogruppe"},
                 {action: SETTINGS_ADD_NEW.ACCOUNT, name: "Ny hovedbokskonto"},
             ],
-            optionLabel: {action: -1, name: "Select an action"},
-            select: (event: kendo.ui.DropDownListSelectEvent) => {
-                var result = (event.sender.dataItem(<any>event.item));
-                switch (result.action) {
-                    case SETTINGS_ADD_NEW.ACCOUNT:
-                        console.log("CHANGED IT");
-                        this.uniAccountChange.emit(0);
-                        console.log(this.dropdown);
-                        self.dropdown.refresh("");
-                        break;
-                    default:
-                        break;
-                }
-            },
+            optionLabel: {action: -1, name: "Select an action"}
         };
 
         this.config = {
             control: this.addDropdownControl,
-            kOptions: kendoDropdownConfig
+            kOptions: kendoDropdownConfig,
+            onChange: (event) => {
+                var result = (event.sender.dataItem(<any>event.item));
+                switch (result.action) {
+                    case SETTINGS_ADD_NEW.ACCOUNT:
+                        this.uniAccountChange.emit(0);
+                        break;
+                    default:
+                        break;
+                }
+
+                event.sender.value('');
+            }
         };
+    }
+    
+    refresh(account) {
+        console.log("DO REFRESH OF TABLE");
+        console.log(account);
+        //this.treeList.refresh();
     }
 
     loopAccountGroups(parentgroup: any, id: number|string) {
@@ -77,9 +81,8 @@ export class AccountList {
                 var accountNameCol = new UniTableColumn('AccountName', 'Kontonavn', 'string'); 
                 
                 var vatTypeCol = new UniTableColumn('', 'Mvakode/sats', 'string')
-                .setTemplate("#= VatType.Name# - #= VatType.VatPercent#%");
-                
-                
+                .setTemplate("#if(VatType != null) {# #= VatType.Name# - #= VatType.VatPercent#% #}#");
+                                
                 var lockedCol = new UniTableColumn('', 'Synlig/låst', 'boolean')
                 .setClass("icon-column")
                 .setTemplate("#if(Visible) {#<span class='is-visible' role='presentation'>Visible</span>#} " +
