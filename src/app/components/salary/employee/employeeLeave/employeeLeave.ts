@@ -1,4 +1,4 @@
-import {Component, ViewChild, Injector} from 'angular2/core';
+import {Component, Injector} from 'angular2/core';
 import {RouteParams} from "angular2/router";
 import {EmployeeDS} from "../../../../../framework/data/employee";
 import {UniTable, UniTableBuilder, UniTableColumn} from '../../../../../framework/uniTable';
@@ -11,7 +11,6 @@ import {Observable} from "rxjs/Observable";
     directives: [UniTable]
 })
 export class EmployeeLeave {
-    @ViewChild(UniTable) table: UniTable;
     
     currentEmployee;
     
@@ -38,23 +37,16 @@ export class EmployeeLeave {
         .setEditable(false)
         .setNullable(true);
         
-        var fromDateCol = new UniTableColumn('FromDate', 'Startdato', 'string');
-        var toDateCol = new UniTableColumn('ToDate', 'Sluttdato', 'string');
+        var fromDateCol = new UniTableColumn('FromDate', 'Startdato', 'date').setFormat("{0: dd.MM.yyyy}");
+        var toDateCol = new UniTableColumn('ToDate', 'Sluttdato', 'date').setFormat("{0: dd.MM.yyyy}");
         var leavePercentCol = new UniTableColumn('LeavePercent', 'Andel permisjon', 'number');
         var commentCol = new UniTableColumn('Description', 'Kommentar', 'string');
         var leaveTypeCol = new UniTableColumn('LeaveType', 'Type', 'string');
         var employmentIDCol = new UniTableColumn('EmploymentID', 'Arbeidsforhold', 'string');
         
-        var selectCallback = (selectedItem) => {
-            console.log('Selected: ');
-            console.log(selectedItem);
-        }
-        
         this.dataConfig = new UniTableBuilder('EmployeeLeave', true)
         .setFilter(this.buildFilter())
-        .addColumns(idCol, fromDateCol, toDateCol, leavePercentCol, leaveTypeCol, employmentIDCol, commentCol)
-        .setSelectCallback(selectCallback)
-        .setToolbarOptions([]); //removes add,update and cancel buttons
+        .addColumns(idCol, fromDateCol, toDateCol, leavePercentCol, leaveTypeCol, employmentIDCol, commentCol);
     }
     
     buildFilter(){
