@@ -1,6 +1,6 @@
 import {Injectable, Inject} from "angular2/core";
 import { Observable } from "rxjs/Observable";
-import {UniHttpService} from "./uniHttpService";
+import {UniHttp} from "./../core/http";
 import {UNI_CONTROL_TYPES} from "../../framework/controls/types";
 
 @Injectable()
@@ -17,32 +17,36 @@ export class EmployeeDS {
     localizations: Observable<any>;
 
 
-    constructor(@Inject(UniHttpService)
-                public http: UniHttpService) {
+    constructor(@Inject(UniHttp)
+                public http: UniHttp) {
     }
 
     get(id: number|string) {
-        return this.http.get({
-            resource: "employees/" + id,
-            expand: this.expandedProperties
-        });
+        return this.http
+            .asGET()
+            .usingBusinessDomain()
+            .withEndPoint("employees/" + id)
+            .send({expand: this.expandedProperties});
     }
 
     getLocalizations() {
-        return this.http.get({
-            resource: "localizations",
-            expand: "BusinessRelationInfo"
-        });
+        return this.http
+            .asGET()
+            .usingBusinessDomain()
+            .withEndPoint("localizations")
+            .send({expand: "BusinessRelationInfo"});
     }
-    
-    getEmployeeLeave(){
-        return this.http.get({
-            resource: "EmployeeLeave"
-        });
+
+    getEmployeeLeave() {
+        return this.http
+            .asGET()
+            .usingBusinessDomain()
+            .withEndPoint("EmployeeLeave")
+            .send();
     }
 
     layout(layoutID: string) {
-        return Observable.of({
+        return Observable.from([{
             Name: layoutID,
             BaseEntity: "Employee",
             Fields: [
@@ -668,6 +672,6 @@ export class EmployeeDS {
                  --------SPESIALINNSTILLINGER FOR DEN ANSATTE----
                  */
             ]
-        });
+        }]);
     }
 }
