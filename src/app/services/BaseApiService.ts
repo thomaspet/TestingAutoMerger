@@ -9,7 +9,7 @@ export class BaseApiService<T> {
     protected LogAll: boolean;
     protected DefaultOrderBy: string;
     
-    //should be found based on type? set in childclass constructor now
+    //Should be found based on type of T. Set in childclass constructor now
     protected RelativeURL : string;
     
     public GetRelativeUrl() : string {
@@ -30,11 +30,7 @@ export class BaseApiService<T> {
         return this.http
             .asGET()
             .withEndPoint(this.RelativeURL + '/' + ID)
-            .send()
-            .catch((err) => {                
-                this.handleError(err);
-                return Observable.throw(err);
-            });                    
+            .send();                    
     }
         
     public GetAll<T>(query: string) : Observable<any> {
@@ -50,11 +46,15 @@ export class BaseApiService<T> {
         return this.http
             .asGET()
             .withEndPoint(this.RelativeURL + (query ? '?' + query : ''))
+<<<<<<< HEAD
             .send()                
             .catch((err) => {
                 this.handleError(err);
                 return Observable.throw(err);
             }); 
+=======
+            .send();
+>>>>>>> feature (accounting): added services and vatlist
     }
     
     public Post<T>(entity: T) : Observable<any> {
@@ -63,11 +63,7 @@ export class BaseApiService<T> {
             .asPOST()
             .withBody(entity)
             .withEndPoint(this.RelativeURL)
-            .send()                
-            .catch((err) => {
-                this.handleError(err);
-                return Observable.throw(err);
-            });
+            .send();
     }
     
     public Put<T>(ID: number, entity: T) : Observable<any> {        
@@ -76,11 +72,7 @@ export class BaseApiService<T> {
             .asPUT()
             .withBody(entity)
             .withEndPoint(this.RelativeURL + "/" + ID)
-            .send()         
-            .catch((err) => {
-                this.handleError(err);
-                return Observable.throw(err);
-            });
+            .send();
     }
     
     public Remove<T>(ID: number, entity: T) : void {        
@@ -90,24 +82,6 @@ export class BaseApiService<T> {
         this.http
             .asDELETE()
             .withEndPoint(this.RelativeURL + "/" + ID)
-            .send()
-            .catch((err) => {
-                this.handleError(err);
-                return Observable.throw(err);
-            });     
-    }    
-        
-    public handleError(error) {
-        
-        //should use a logger class? also check for typical statuscodes, 
-        //e.g. 401 and redirect to loginpage if the user is not logged in
-        
-        /*if (error.status === 401) {
-            redirect to login view
-        } else if (error.status === ...) {
-            
-        }*/
-        
-        console.log('Error occured in dataservice: ', error)        
-    }
+            .send();     
+    }   
 }

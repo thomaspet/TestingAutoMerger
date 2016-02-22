@@ -9,6 +9,7 @@ export class VatTypeService extends BaseApiService<IVatType> {
         
         //TODO: Kjetil: should resolve this from configuration based on type (IVatType)? Frank is working on something..
         this.RelativeURL = 'VatTypes';
+<<<<<<< HEAD
         this.DefaultOrderBy = 'VatCode';
         
         //set this property if you want a default sort order from the API
@@ -24,6 +25,11 @@ export class VatTypeService extends BaseApiService<IVatType> {
     public GetSpecialStuff(specialfilter: string) : IVatType [] {
         //this.http.get(....)
         return null;
+=======
+        
+        //set this property if you want a default sort order from the API
+        this.DefaultOrderBy = 'VatCode';       
+>>>>>>> feature (accounting): added services and vatlist
     }
     
     /* 

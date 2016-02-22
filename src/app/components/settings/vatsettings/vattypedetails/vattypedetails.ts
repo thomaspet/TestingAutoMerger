@@ -139,7 +139,7 @@ export class VatTypeDetails {
             .setModel(this.model)
             .setModelField('ValidTo')
             .setType(UNI_CONTROL_DIRECTIVES[UNI_CONTROL_TYPES.DATEPICKER])
-                        
+            
         var vatAccountOut = new UniFieldBuilder();
         vatAccountOut.setLabel('Utg. konto')
             .setModel(this.model)
@@ -153,7 +153,13 @@ export class VatTypeDetails {
             .setModelField('IncomingAccountID')
             .setType(UNI_CONTROL_DIRECTIVES[UNI_CONTROL_TYPES.DROPDOWN])
             .setKendoOptions({ dataSource: this.accounts, dataValueField: 'ID', dataTextField: 'AccountName', filter:'Contains', template:'<span>#:AccountNumber# - #:AccountName#</span>', valueTemplate:'<span>#:AccountNumber# - #:AccountName#</span>'  }); 
-        
+
+        var outputVat = new UniFieldBuilder();
+        outputVat.setDescription('Utgående MVA')
+            .setModel(this.model) 
+            .setModelField('OutputVat')
+            .setType(UNI_CONTROL_DIRECTIVES[UNI_CONTROL_TYPES.CHECKBOX])
+
         var vatAvailable = new UniFieldBuilder();
         vatAvailable.setDescription('Tilgjengelig i moduler')
             .setModel(this.model)
@@ -173,7 +179,7 @@ export class VatTypeDetails {
             .setType(UNI_CONTROL_DIRECTIVES[UNI_CONTROL_TYPES.CHECKBOX]);      
         
         var systemSet = new UniFieldsetBuilder();
-        systemSet.addUniElements(vatAvailable, vatLocked, vatVisible);
+        systemSet.addUniElements(outputVat, vatAvailable, vatLocked, vatVisible);
    
         this.config.addUniElements(vatCodeGroup, vatCode, vatAlias, vatName, vatPercentage, vatDateFrom, vatDateTo, vatAccountOut, vatAccountIn, systemSet); 
 

@@ -7,6 +7,7 @@ export class VatCodeDeductionService extends BaseApiService<IVatCodeDeduction> {
     constructor(http: UniHttp) {        
         super(http);
         
+<<<<<<< HEAD
         //TODO: Kjetil: should resolve this from configuration based on type (IVatType)? Frank is working on something..
         this.RelativeURL = 'VatCodeDeductions';
         this.DefaultOrderBy = null;
@@ -16,5 +17,11 @@ export class VatCodeDeductionService extends BaseApiService<IVatCodeDeduction> {
         
         if (this.LogAll)
             console.log('VatCodeDeductionService created, API URL:' + this.GetApiUrl());
+=======
+        this.RelativeURL = 'VatCodeDeductions';
+        
+        //set this property if you want a default sort order from the API, e.g. AccountNumber
+        this.DefaultOrderBy = null;
+>>>>>>> feature (accounting): added services and vatlist
     }       
 }
