@@ -8,9 +8,14 @@ export class VatTypeService extends BaseApiService<IVatType> {
         super(http);
         
         //TODO: Kjetil: should resolve this from configuration based on type (IVatType)? Frank is working on something..
-        this.RelativeURL = "VatTypes";
+        this.RelativeURL = 'VatTypes';
+        this.DefaultOrderBy = 'VatCode';
         
-        console.log('VatTypeService created, API URL:' + this.GetApiUrl());
+        //set this property if you want a default sort order from the API
+        this.DefaultOrderBy = null;
+        
+        if (this.LogAll)
+            console.log('VatTypeService created, API URL:' + this.GetApiUrl());
     }
         
     //if you need something special that is not supported by the base class, implement your own 
@@ -20,4 +25,15 @@ export class VatTypeService extends BaseApiService<IVatType> {
         //this.http.get(....)
         return null;
     }
+    
+    /* 
+    //if you need something special in get/getall/post/put the default implementation can be overridden
+    public GetAll(query: string) {
+        console.log('GetAll i child');
+        if (query === null) {
+            query = "orderby=AccountNumber";
+        }        
+        
+        return super.GetAll(query);
+    }*/
 }

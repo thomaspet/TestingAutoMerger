@@ -8,8 +8,10 @@ export class AccountService extends BaseApiService<IAccount> {
         super(http);
         
         //TODO: Kjetil: should resolve this from configuration based on type (IAccount)? Frank is working on something..
-        this.RelativeURL = "Accounts";
+        this.RelativeURL = 'Accounts';
+        this.DefaultOrderBy = 'AccountNumber';
         
-        console.log('AccountService created, API URL:' + this.GetApiUrl());
-    }
+        if (this.LogAll)
+            console.log('AccountService created, API URL:' + this.GetApiUrl());
+    }    
 }

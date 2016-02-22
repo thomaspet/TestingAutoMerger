@@ -1,55 +1,76 @@
-import {Component, ViewChild} from 'angular2/core';
-import {IVatType} from '../../../../../framework/interfaces/interfaces';
-import {VatTypeService} from '../../../../services/services';
+import {Component, ViewChild, Output, EventEmitter} from 'angular2/core';
+import {Observable} from 'rxjs/Observable';
+import "rxjs/add/observable/forkjoin";
+
+import {IVatType, IVatCodeGroup} from '../../../../../framework/interfaces/interfaces';
+import {VatTypeService, VatCodeGroupService} from '../../../../services/services';
 import {UNI_CONTROL_DIRECTIVES} from '../../../../../framework/controls';
 import {UNI_CONTROL_TYPES} from '../../../../../framework/controls/types';
 import {UniForm, UniFormBuilder, UniFieldsetBuilder, UniFieldBuilder, UniComboFieldBuilder, UniSectionBuilder} from '../../../../../framework/forms';
 import {UniTable, UniTableBuilder, UniTableColumn} from '../../../../../framework/uniTable';
 import {TreeList, TreeListItem, TREE_LIST_TYPE} from "../../../../../framework/treeList";
 
+
 @Component({
     selector: 'vattype-list',
     templateUrl: 'app/components/settings/vatSettings/vattypelist/vattypelist.html',
-    providers: [VatTypeService]
+    providers: [VatTypeService, VatCodeGroupService],
+     directives: [TreeList]
 })
 export class VatTypeList {
-    @ViewChild(TreeList) treeList: TreeList;
-    vatListItems: TreeListItem[] = [];
-    vatgroups;
+    @Output()
+    uniVatTypeChange = new EventEmitter<number>();
+   @ViewChild(TreeList) treeList: TreeList;
+    vatCodeGroupListItems: TreeListItem[] = [];
+    vatcodegroups : IVatCodeGroup[];
 
-    constructor(private vatTypeService: VatTypeService) {}
+    constructor(private vatTypeService: VatTypeService, private vatCodeGroupService: VatCodeGroupService) {}
     
     loopGroups() {
-        this.vatgroups.forEach((vatgroup: any) => {           
-            console.log(vatgroup);
+        this.vatcodegroups.forEach((vatgroup: IVatCodeGroup) => {           
+            console.log(vatgroup); 
+                  
+            var group = new TreeListItem(vatgroup.Name)
+                .setType(TREE_LIST_TYPE.LIST);
             
-            var nameCol = new UniTableColumn('Name', 'Navn', 'string'); 
-                        
-            var tableConfig = new UniTableBuilder("vattype", false)
-            .setPageSize(10)
-            .addColumns(nameCol)
+            this.vatCodeGroupListItems.push(group);
+                       
+            var nameCol = new UniTableColumn('Name', 'Navn', 'string');
+            
+            var tableConfig = new UniTableBuilder(this.vatTypeService.GetRelativeUrl(), false)
+                .setFilter("VatCodeGroupId eq " + vatgroup.ID)
+                .setPageSize(100)
+                .setPageable(false)
+                .addColumns(nameCol)
+                .setSelectCallback((vattype: IVatType) => {
+                    this.uniVatTypeChange.emit(vattype.ID);
+                });
        
             var list = new TreeListItem(vatgroup.Name)
                 .setType(TREE_LIST_TYPE.TABLE)
                 .setContent(tableConfig);
                 
-            this.vatListItems.push(list);
+            group.addTreeListItem(list);            
         });
+        
+            
+       console.log('this.vatCodeGroupListItems.length: ' + this.vatCodeGroupListItems.length);         
     }
 
     
     ngOnInit() {
         console.log('vatlist initializing');   
         
-        this.vatgroups = [
-            {ID: 1, No: 1, Name: "Innenlands omsetning og uttak" },
-            {ID: 2, No: 2, Name: "Utførsel" }
-        ];
-        
-        this.loopGroups();
-        //var vattype = this.vatTypeService.Get(XX);    
-        
-                 
+        Observable.forkJoin(
+                this.vatCodeGroupService.GetAll(null)
+        ).subscribe(response => {
+            var [vatcodegroups] = response;
+            this.vatcodegroups = vatcodegroups;
+            
+            this.loopGroups();            
+            //this.buildForm();                
+        });
+                         
     }    
 }
     

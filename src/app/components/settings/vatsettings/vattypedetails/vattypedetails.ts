@@ -1,21 +1,21 @@
 import {Component, Input, ViewChild, ContentChild, ComponentRef} from 'angular2/core';
 import {Validators, Control, FormBuilder} from 'angular2/common';
 import {Observable} from 'rxjs/Observable';
+import "rxjs/add/observable/forkjoin";
 
 import {UNI_CONTROL_DIRECTIVES} from '../../../../../framework/controls';
 import {UNI_CONTROL_TYPES} from '../../../../../framework/controls/types';
 import {UniForm, UniFormBuilder, UniFieldsetBuilder, UniFieldBuilder, UniComboFieldBuilder, UniSectionBuilder} from '../../../../../framework/forms';
 
-import {IVatType, IAccount} from '../../../../../framework/interfaces/interfaces';
-import {VatTypeService, AccountService} from '../../../../services/services';
+import {IVatType, IVatCodeGroup, IVatReportReference, IAccount} from '../../../../../framework/interfaces/interfaces';
+import {VatTypeService, VatCodeGroupService, VatCodeDeductionService, AccountService} from '../../../../services/services';
 
-import "rxjs/add/observable/forkjoin";
 
 @Component({
     selector: 'vattype-details',
     templateUrl: 'app/components/settings/vatSettings/vattypedetails/vattypedetails.html',
     directives: [UniForm],
-    providers: [VatTypeService, AccountService]
+    providers: [VatTypeService, AccountService, VatCodeGroupService]
 })
 export class VatTypeDetails {
     @Input() VatType : IVatType;
@@ -24,19 +24,25 @@ export class VatTypeDetails {
     config = new UniFormBuilder(); 
     model : IVatType;
     accounts: IAccount[];
-   
-    constructor(private vatTypeService: VatTypeService, private accountService: AccountService) {
+    vatcodegroups: IVatCodeGroup[];
+    
+    constructor(private vatTypeService: VatTypeService, private accountService: AccountService, private vatCodeGroupService: VatCodeGroupService) {
             
     }    
     
-    ngOnInit() {
-        console.log('vatdetails initializing');
-        
-        Observable.forkJoin(this.vatTypeService.Get(2),this.accountService.GetAll(null))
+    ngOnInit() {        
+        Observable.forkJoin(
+            this.vatTypeService.Get(2),
+            this.accountService.GetAll(null),
+            this.vatCodeGroupService.GetAll(null)
+            )
         .subscribe(response => {
-            var [model,accounts] = response;
+            var [model,accounts, vatcodegroups] = response;
+            
             this.model = model;
             this.accounts = accounts;
+            this.vatcodegroups = vatcodegroups;
+            
             this.buildForm();
         });
         /*
@@ -63,7 +69,7 @@ export class VatTypeDetails {
                 }, 
                 error => console.log('error in vatdetails.ngOnInit.accountService.GetAll: ' + error)
             )     
-          */           
+         */            
     }  
     
     refreshForm() {
@@ -80,7 +86,7 @@ export class VatTypeDetails {
                     data => this.model = data,
                     error => console.log('error in vatdetails.onSubmit: ' + error)                    
                 );              
-        } else {
+        } else { 
             this.vatTypeService.Post(this.model)
                 .subscribe(
                     data => this.model = data,
@@ -91,8 +97,13 @@ export class VatTypeDetails {
     
     buildForm() {   
         
-        
-             
+        var vatCodeGroup = new UniFieldBuilder();
+        vatCodeGroup.setLabel('Gruppe')
+            .setModel(this.model)
+            .setModelField('VatCodeGroupID')
+            .setType(UNI_CONTROL_DIRECTIVES[UNI_CONTROL_TYPES.DROPDOWN])
+            .setKendoOptions({ dataSource: this.vatcodegroups, dataValueField: 'ID', dataTextField: 'Name', filter:'Contains' });
+                   
         var vatCode = new UniFieldBuilder();
         vatCode.setLabel('MVA kode.')
             .setModel(this.model)
@@ -134,14 +145,14 @@ export class VatTypeDetails {
             .setModel(this.model)
             .setModelField('OutgoingAccountID')
             .setType(UNI_CONTROL_DIRECTIVES[UNI_CONTROL_TYPES.DROPDOWN])
-            .setKendoOptions({ dataSource: this.accounts, dataValueField: 'ID', dataTextField: 'AccountName' });
+            .setKendoOptions({ dataSource: this.accounts, dataValueField: 'ID', dataTextField: 'AccountName', filter:'Contains', template:'<span>#:AccountNumber# - #:AccountName#</span>', valueTemplate:'<span>#:AccountNumber# - #:AccountName#</span>' });
             
         var vatAccountIn = new UniFieldBuilder();
         vatAccountIn.setLabel('Inng. konto')
             .setModel(this.model)
             .setModelField('IncomingAccountID')
             .setType(UNI_CONTROL_DIRECTIVES[UNI_CONTROL_TYPES.DROPDOWN])
-            .setKendoOptions({ dataSource: this.accounts, dataValueField: 'ID', dataTextField: 'AccountName', filter:'Contains', template: '<span>aaa # :AccountName #aaa</span>' }); 
+            .setKendoOptions({ dataSource: this.accounts, dataValueField: 'ID', dataTextField: 'AccountName', filter:'Contains', template:'<span>#:AccountNumber# - #:AccountName#</span>', valueTemplate:'<span>#:AccountNumber# - #:AccountName#</span>'  }); 
         
         var vatAvailable = new UniFieldBuilder();
         vatAvailable.setDescription('Tilgjengelig i moduler')
@@ -164,7 +175,7 @@ export class VatTypeDetails {
         var systemSet = new UniFieldsetBuilder();
         systemSet.addUniElements(vatAvailable, vatLocked, vatVisible);
    
-        this.config.addUniElements(vatCode, vatAlias, vatName, vatPercentage, vatDateFrom, vatDateTo, vatAccountOut, vatAccountIn, systemSet); 
+        this.config.addUniElements(vatCodeGroup, vatCode, vatAlias, vatName, vatPercentage, vatDateFrom, vatDateTo, vatAccountOut, vatAccountIn, systemSet); 
 
     }
 }

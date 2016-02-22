@@ -7,9 +7,14 @@ export class BaseApiService<T> {
     
     protected BaseURL : string;
     protected LogAll: boolean;
+    protected DefaultOrderBy: string;
     
     //should be found based on type? set in childclass constructor now
     protected RelativeURL : string;
+    
+    public GetRelativeUrl() : string {
+        return this.RelativeURL;
+    }
     
     public GetApiUrl() {
         return this.BaseURL + "/" + this.RelativeURL;
@@ -17,7 +22,7 @@ export class BaseApiService<T> {
     
     constructor(protected http : UniHttp) {        
         this.BaseURL = http.getBaseUrl();
-        this.LogAll = false;                
+        this.LogAll = true;                
     }    
     
     public Get<T>(ID: number) : Observable<any> {
@@ -34,9 +39,17 @@ export class BaseApiService<T> {
         
     public GetAll<T>(query: string) : Observable<any> {
      
+        if (this.DefaultOrderBy !== null && (query === null || (query !== null && query.toLowerCase().indexOf("orderby") === 0))) {
+            if (query !== null) {
+                query += '&orderby=' + this.DefaultOrderBy;
+            } else {
+                query = 'orderby=' + this.DefaultOrderBy;
+            }            
+        }
+     
         return this.http
             .asGET()
-            .withEndPoint(this.RelativeURL + (query != null ? query : ""))
+            .withEndPoint(this.RelativeURL + (query ? '?' + query : ''))
             .send()                
             .catch((err) => {
                 this.handleError(err);
