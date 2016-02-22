@@ -9,6 +9,8 @@ import {EmployeeModel} from "../../../../../framework/models/employee";
 import {UniComponentLoader} from "../../../../../framework/core";
 import {Observable} from "rxjs/Observable";
 import "rxjs/add/operator/merge";
+import {UniValidator} from "../../../../../framework/validators/UniValidator";
+import {OperationType, Operator, ValidationLevel} from '../../../../../framework/interfaces/interfaces';
 
 declare var _;
 
@@ -62,6 +64,18 @@ export class PersonalDetails {
         ).subscribe(
             (response: any) => {
                 var [employee, layout] = response;
+                var mockValidation = UniValidator.fromObject({
+                    "EntityType": "BusinessRelation",
+                    "PropertyName": "BusinessRelationInfo.Name",
+                    "Operator": Operator.Required,
+                    "Operation": OperationType.CreateAndUpdate, // not used now. Operation is applied in all levels
+                    "Level": ValidationLevel.Error, // not used now. All messages are errors
+                    "Value": null,
+                    "ErrorMessage": "Employee name is required",
+                    "ID": 1,
+                    "Deleted": false
+                });
+                layout.Fields[0].Validators = [mockValidation];
                 self.employee = EmployeeModel.createFromObject(employee);
                 self.form = new UniFormLayoutBuilder().build(layout, self.employee);
                 self.form.hideSubmitButton();
@@ -72,6 +86,7 @@ export class PersonalDetails {
                     cmp.instance.config = self.form;
                     setTimeout(() => {
                         self.formInstance = cmp.instance;
+                        console.log(self.formInstance);
                     }, 100);
                 });
             },
