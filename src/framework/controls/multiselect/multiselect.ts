@@ -6,6 +6,7 @@ declare var jQuery;
 
 var templateString = `
     <select
+        *ngIf="config.control"
         [ngFormControl]="config.control"
         [disabled]="config.disabled"
         [attr.readonly]="config.readonly"

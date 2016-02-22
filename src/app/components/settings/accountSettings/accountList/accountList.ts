@@ -1,8 +1,8 @@
 import {Component, Output, EventEmitter, ViewChild} from "angular2/core";
 import {Control} from "angular2/common";
 import {TreeList, TreeListItem, TREE_LIST_TYPE} from "../../../../../framework/treeList";
-import {UniHttpService} from "../../../../../framework/data/uniHttpService";
-import {UniTable, UniTableBuilder, UniTableColumn} from '../../../../../framework/uniTable';
+import {UniHttp} from "../../../../../framework/core/http";
+import { UniTableBuilder, UniTableColumn} from "../../../../../framework/uniTable";
 import {UniDropdown} from "../../../../../framework/controls/dropdown/dropdown";
 import {IAccount} from "../../../../../framework/interfaces/interfaces";
 
@@ -19,21 +19,23 @@ declare var _;
     directives: [TreeList, UniDropdown]
 })
 export class AccountList {
-    @Output() uniAccountChange = new EventEmitter<number>();
-    @ViewChild(TreeList) treeList: TreeList;
+    @Output()
+    uniAccountChange = new EventEmitter<number>();
+    @ViewChild(TreeList)
+    treeList: TreeList;
+
     accountListItems: TreeListItem[] = [];
     accountgroups;
     config;
     addDropdownControl = new Control(-1);
 
-    constructor(private http: UniHttpService) {
-        var self = this;
+    constructor(private http: UniHttp) {
         var kendoDropdownConfig = {
             delay: 50,
             dataTextField: "name",
             dataValueField: "action",
             dataSource: [
-           //     {action: SETTINGS_ADD_NEW.ACCOUNTGROUP, name: "Ny kontogruppe"},
+                //     {action: SETTINGS_ADD_NEW.ACCOUNTGROUP, name: "Ny kontogruppe"},
                 {action: SETTINGS_ADD_NEW.ACCOUNT, name: "Ny hovedbokskonto"},
             ],
             optionLabel: {action: -1, name: "Select an action"}
@@ -52,15 +54,15 @@ export class AccountList {
                         break;
                 }
 
-                event.sender.value('');
+                event.sender.value("");
             }
         };
     }
-    
-    refresh(account) {
+
+    refresh(account: IAccount) {
         console.log("DO REFRESH OF TABLE");
         console.log(account);
-        //this.treeList.refresh();
+        // this.treeList.refresh();
     }
 
     loopAccountGroups(parentgroup: any, id: number|string) {
@@ -74,32 +76,32 @@ export class AccountList {
                 } else {
                     parentgroup.addTreeListItem(group);
                 }
-     
-                var accountNumberCol = new UniTableColumn('AccountNumber', 'Kontonr', 'number')
-                .setWidth("5rem");
-                
-                var accountNameCol = new UniTableColumn('AccountName', 'Kontonavn', 'string'); 
-                
-                var vatTypeCol = new UniTableColumn('', 'Mvakode/sats', 'string')
-                .setTemplate("#if(VatType != null) {# #= VatType.Name# - #= VatType.VatPercent#% #}#");
-                                
-                var lockedCol = new UniTableColumn('', 'Synlig/låst', 'boolean')
-                .setClass("icon-column")
-                .setTemplate("#if(Visible) {#<span class='is-visible' role='presentation'>Visible</span>#} " +
-                            "else {#<span class='is-hidden' role='presentation'>Hidden</span>#}# " +
-                            "#if(Locked) {#<span class='is-locked' role='presentation'>Locked</span>#} " +
-                            "else {#<span class='is-unlocked' role='presentation'>Unlocked</span>#}#"
-                )
-                .setWidth("5rem");
-                
+
+                var accountNumberCol = new UniTableColumn("AccountNumber", "Kontonr", "number")
+                    .setWidth("5rem");
+
+                var accountNameCol = new UniTableColumn("AccountName", "Kontonavn", "string");
+
+                var vatTypeCol = new UniTableColumn("", "Mvakode/sats", "string")
+                    .setTemplate("#if(VatType != null) {# #= VatType.Name# - #= VatType.VatPercent#% #}#");
+
+                var lockedCol = new UniTableColumn("", "Synlig/låst", "boolean")
+                    .setClass("icon-column")
+                    .setTemplate("#if(Visible) {#<span class='is-visible' role='presentation'>Visible</span>#} " +
+                        "else {#<span class='is-hidden' role='presentation'>Hidden</span>#}# " +
+                        "#if(Locked) {#<span class='is-locked' role='presentation'>Locked</span>#} " +
+                        "else {#<span class='is-unlocked' role='presentation'>Unlocked</span>#}#"
+                    )
+                    .setWidth("5rem");
+
                 var tableConfig = new UniTableBuilder("accounts", false)
-                .setExpand('VatType')
-                .setFilter('AccountGroupID eq ' + accountgroup.ID)
-                .setPageSize(10)
-                .addColumns(accountNumberCol, accountNameCol, vatTypeCol, lockedCol)
-                .setSelectCallback((account: IAccount) => {
-                    this.uniAccountChange.emit(account.ID);
-                });
+                    .setExpand("VatType")
+                    .setFilter("AccountGroupID eq " + accountgroup.ID)
+                    .setPageSize(10)
+                    .addColumns(accountNumberCol, accountNameCol, vatTypeCol, lockedCol)
+                    .setSelectCallback((account: IAccount) => {
+                        this.uniAccountChange.emit(account.ID);
+                    });
 
                 var list = new TreeListItem()
                     .setType(TREE_LIST_TYPE.TABLE)
@@ -112,15 +114,17 @@ export class AccountList {
     }
 
     ngOnInit() {
-        this.http.multipleRequests("GET", [
-            {resource: "accountgroups"}
-        ]).subscribe(
-            (dataset: any) => {
-                this.accountgroups = dataset[0];
-                this.loopAccountGroups(null, null);
-            },
-            (error: any) => console.log(error)
-        );
+        this.http
+            .asGET()
+            .withEndPoint("accountgroups")
+            .send()
+            .subscribe(
+                (dataset: any) => {
+                    this.accountgroups = dataset[0];
+                    this.loopAccountGroups(null, null);
+                },
+                (error: any) => console.log(error)
+            );
     }
 
     showHide() {

@@ -1,42 +1,27 @@
-import {Component} from 'angular2/core';
-import {RouteConfig, ROUTER_DIRECTIVES, Router} from 'angular2/router';
-import {Routes, APP_ROUTES} from '../../../../route.config';
-import {TabService} from './tabService';
-import {Observable} from 'rxjs/Observable';
-import 'rxjs/add/observable/fromArray';
+import {Component} from "angular2/core";
+import {ROUTER_DIRECTIVES, Router} from "angular2/router";
+import {TabService} from "./tabService";
 
-export interface NavbarTab {
-    name: string;
+export interface IUniTab {
     url: string;
+    name: string;
 }
 
 @Component({
-	selector: 'uni-tabstrip',
-	templateUrl: 'app/components/layout/navbar/tabstrip/tabstrip.html',
-	directives: [ROUTER_DIRECTIVES],
+    selector: "uni-tabstrip",
+    templateUrl: "app/components/layout/navbar/tabstrip/tabstrip.html",
+    directives: [ROUTER_DIRECTIVES],
 })
-export class Tabstrip {
+export class UniTabStrip {
 
     constructor(private router: Router, public tabService: TabService) {
-        Observable.fromArray(tabService.tabs)
-        .subscribe(
-            function (x) {
-                console.log('Next: ' + x);
-            },
-            function (err) {
-                console.log('Error: ' + err);
-            },
-            function () {
-                console.log('Completed');
-            }
-        );
     }
 
-    activateTab(tab): void {
+    activateTab(tab: IUniTab): void {
         this.router.navigateByUrl(tab.url);
     }
 
-    closeTab(tab): void {
+    closeTab(tab: IUniTab): void {
         this.tabService.removeTab(tab.name);
     }
 

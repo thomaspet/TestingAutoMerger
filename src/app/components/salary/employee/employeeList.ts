@@ -1,15 +1,17 @@
-import {Component} from 'angular2/core';
-import {Router, RouteConfig} from 'angular2/router';
+import {Component} from "angular2/core";
+import {Router} from "angular2/router";
 
-import {UniTable, UniTableBuilder, UniTableColumn} from '../../../../framework/uniTable';
+import {UniTable, UniTableBuilder, UniTableColumn} from "../../../../framework/uniTable";
+import {IEmployee} from "../../../../framework/interfaces/interfaces";
+
 @Component({
-    templateUrl: 'app/components/salary/employee/employeeList.html',    
+    templateUrl: "app/components/salary/employee/employeeList.html",
     directives: [UniTable]
 })
 
 export class EmployeeList {
     employeeTableConfig;
-    
+
     constructor(router: Router) {
         var idCol = new UniTableColumn("ID", "ID", "number")
         .setEditable(false);

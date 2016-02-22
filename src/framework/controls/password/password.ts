@@ -5,6 +5,7 @@ import {UniFieldBuilder} from "../../forms/builders/uniFieldBuilder";
     selector: "uni-password",
     template: `
         <input
+            *ngIf="config.control"
             type="password"
             [ngFormControl]="config.control"
             [readonly]="config.readonly"
