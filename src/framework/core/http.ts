@@ -9,7 +9,7 @@ import "rxjs/add/observable/from";
 export interface IUniHttpRequest {
     baseUrl?: string;
     headers?: any;
-    apidomain?: string;
+    apiDomain?: string;
     endPoint?: string;
     body?: any;
     method?: any;
@@ -127,7 +127,7 @@ export class UniHttp {
     send(request?: IUniHttpRequest) {
         request = request || {};
         var baseurl = request.baseUrl || this.baseUrl,
-            apidomain = request.apidomain || this.apiDomain,
+            apidomain = request.apiDomain || this.apiDomain,
             endpoint = request.endPoint || this.endPoint,
             method = request.method || this.method,
             body = request.body || this.body

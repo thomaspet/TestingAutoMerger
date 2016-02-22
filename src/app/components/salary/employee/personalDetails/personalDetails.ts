@@ -45,6 +45,16 @@ export class PersonalDetails {
 
         var self = this;
 
+        /*
+             http.get(url).map(res => res.json())
+             .flatMap(response => {
+                return http.get(url2+'/'+response.param).map(res => res.json())
+                    .map(response2 => {
+                        //do whatever and return
+                })
+             }).subscribe()
+         */
+
         Observable.forkJoin(
             self.employeeDS.get(this.EmployeeID),
             self.employeeDS.layout("EmployeePersonalDetailsForm")
