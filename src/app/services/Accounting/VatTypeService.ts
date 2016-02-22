@@ -1,18 +1,21 @@
 import {BaseApiService} from '../BaseApiService';
 import {IVatType} from '../../../framework/interfaces/interfaces';
-import {UniHttpService} from '../../../framework/data/uniHttpService';
+import {UniHttp} from '../../../framework/core/http';
 
 export class VatTypeService extends BaseApiService<IVatType> {
     
-    constructor(http: UniHttpService) {        
+    constructor(http: UniHttp) {        
         super(http);
         
-        //TODO: resolve this from configuration based on type (IVatType)?
-        this.RelativeURL = "VatType";
+        //TODO: Kjetil: should resolve this from configuration based on type (IVatType)? Frank is working on something..
+        this.RelativeURL = "VatTypes";
         
-        console.log('VatTypeService created, API URL:' + this.BaseURL + "/" + this.RelativeURL);
+        console.log('VatTypeService created, API URL:' + this.GetApiUrl());
     }
-    
+        
+    //if you need something special that is not supported by the base class, implement your own 
+    //method - either using the Get/Post/Put/Remove methods in the base class or by using the
+    //base class' http-service directly
     public GetSpecialStuff(specialfilter: string) : IVatType [] {
         //this.http.get(....)
         return null;

@@ -1,65 +1,117 @@
-import {Component, Input} from 'angular2/core';
-//import {Validators, Control, FormBuilder} from 'angular2/common';
-//import {Observable} from 'rxjs/Observable';
-//import {UniHttpService} from '../../../../../framework/data/uniHttpService';
+import {Component, Input, ViewChild, ContentChild, ComponentRef} from 'angular2/core';
+import {Validators, Control, FormBuilder} from 'angular2/common';
+import {Observable} from 'rxjs/Observable';
 
-import {IVatType} from '../../../../../framework/interfaces/interfaces';
-import {VatTypeService} from '../../../../services/services';
 import {UNI_CONTROL_DIRECTIVES} from '../../../../../framework/controls';
 import {UNI_CONTROL_TYPES} from '../../../../../framework/controls/types';
 import {UniForm, UniFormBuilder, UniFieldsetBuilder, UniFieldBuilder, UniComboFieldBuilder, UniSectionBuilder} from '../../../../../framework/forms';
 
+import {IVatType, IAccount} from '../../../../../framework/interfaces/interfaces';
+import {VatTypeService, AccountService} from '../../../../services/services';
 
-//KE: Burde ikke dette være mulig?
-//import {UNIFORM_COMPONENTS} from '../../../../../framework/forms';
+import "rxjs/add/observable/forkjoin";
 
 @Component({
     selector: 'vattype-details',
     templateUrl: 'app/components/settings/vatSettings/vattypedetails/vattypedetails.html',
     directives: [UniForm],
-    providers: [VatTypeService]
+    providers: [VatTypeService, AccountService]
 })
 export class VatTypeDetails {
     @Input() VatType : IVatType;
+    @ViewChild(UniForm) form: UniForm;
     
-    config = new UniFormBuilder();
-    private model : IVatType;
-    
-    constructor(private vatTypeService: VatTypeService) {
-        
+    config = new UniFormBuilder(); 
+    model : IVatType;
+    accounts: IAccount[];
+   
+    constructor(private vatTypeService: VatTypeService, private accountService: AccountService) {
+            
     }    
     
     ngOnInit() {
         console.log('vatdetails initializing');
-        this.model = this.VatType;
-        this.buildForm();
+        
+        Observable.forkJoin(this.vatTypeService.Get(2),this.accountService.GetAll(null))
+        .subscribe(response => {
+            var [model,accounts] = response;
+            this.model = model;
+            this.accounts = accounts;
+            this.buildForm();
+        });
+        /*
+        
+        //KJETIL EK: Koden under fungerer kun hvis this.accounts har verdi før this.model.
+        //Noe med angular lifecycles som er problemet sannsynligvis. Bør vurdere å endre i uniform
+        
+        this.vatTypeService.Get(2)
+            .subscribe(
+                data => {
+                    this.model = data; 
+                    console.log('modell hentet');
+                    this.refreshForm();
+                },
+                error => console.log('error in vatdetails.ngOnInit.vatTypeService.Get: ' + error)
+            );    
+            
+        this.accountService.GetAll(null)    //.delay(1000)
+            .subscribe(
+                data => {
+                    this.accounts = data;    
+                    console.log('accounts hentet');            
+                    this.refreshForm();            
+                }, 
+                error => console.log('error in vatdetails.ngOnInit.accountService.GetAll: ' + error)
+            )     
+          */           
     }  
     
-    onSubmit(value) {
-        console.log('vatdetails onsubmit - NOT IMPLEMENTED. Model: ', this.model);
-       // this.vatTypeService.Post(this.model.ID, this.Model);               
+    refreshForm() {
+         
+        if (this.model && this.accounts) {
+            this.buildForm();
+        }
     }
     
-    buildForm() {        
+    onSubmit(value) {        
+        if (this.model.ID > 0) {
+            this.vatTypeService.Put(this.model.ID, this.model)
+                .subscribe(
+                    data => this.model = data,
+                    error => console.log('error in vatdetails.onSubmit: ' + error)                    
+                );              
+        } else {
+            this.vatTypeService.Post(this.model)
+                .subscribe(
+                    data => this.model = data,
+                    error => console.log('error in vatdetails.onSubmit: ' + error)
+                );
+        } 
+    }
+    
+    buildForm() {   
+        
+        
+             
         var vatCode = new UniFieldBuilder();
         vatCode.setLabel('MVA kode.')
             .setModel(this.model)
             .setModelField('VatCode')
             .setType(UNI_CONTROL_DIRECTIVES[UNI_CONTROL_TYPES.TEXT])
-                                         
+                                        
         var vatAlias = new UniFieldBuilder();
         vatAlias.setLabel('Alias')
             .setModel(this.model)
-            .setModelField('VatCodeRelation.Alias[0].Name')
+            .setModelField('Alias')
             .setType(UNI_CONTROL_DIRECTIVES[UNI_CONTROL_TYPES.TEXT]);
-        
+         
         var vatName = new UniFieldBuilder();
         vatName.setLabel('Navn')
             .setModel(this.model)
             .setModelField('Name')
             .setType(UNI_CONTROL_DIRECTIVES[UNI_CONTROL_TYPES.TEXT])
 
-        var vatPercentage = new UniFieldBuilder();
+      var vatPercentage = new UniFieldBuilder();
         vatPercentage.setLabel('Sats (prosent)')
             .setModel(this.model)
             .setModelField('VatPercent')
@@ -81,23 +133,22 @@ export class VatTypeDetails {
         vatAccountOut.setLabel('Utg. konto')
             .setModel(this.model)
             .setModelField('OutgoingAccountID')
-            .setType(UNI_CONTROL_DIRECTIVES[UNI_CONTROL_TYPES.DROPDOWN]);
-            //.setKendoOptions({ dataSource: this.currencies, dataValueField: 'ID', dataTextField: 'Code' })
+            .setType(UNI_CONTROL_DIRECTIVES[UNI_CONTROL_TYPES.DROPDOWN])
+            .setKendoOptions({ dataSource: this.accounts, dataValueField: 'ID', dataTextField: 'AccountName' });
             
         var vatAccountIn = new UniFieldBuilder();
         vatAccountIn.setLabel('Inng. konto')
             .setModel(this.model)
             .setModelField('IncomingAccountID')
-            .setType(UNI_CONTROL_DIRECTIVES[UNI_CONTROL_TYPES.DROPDOWN]);
-            //.setKendoOptions({ dataSource: this.currencies, dataValueField: 'ID', dataTextField: 'Code' })
+            .setType(UNI_CONTROL_DIRECTIVES[UNI_CONTROL_TYPES.DROPDOWN])
+            .setKendoOptions({ dataSource: this.accounts, dataValueField: 'ID', dataTextField: 'AccountName', filter:'Contains', template: '<span>aaa # :AccountName #aaa</span>' }); 
         
         var vatAvailable = new UniFieldBuilder();
         vatAvailable.setDescription('Tilgjengelig i moduler')
             .setModel(this.model)
             .setModelField('AvailableInModules')
             .setType(UNI_CONTROL_DIRECTIVES[UNI_CONTROL_TYPES.CHECKBOX]);      
-                     
-            
+                    
         var vatLocked = new UniFieldBuilder();
         vatLocked.setDescription('Sperret')
             .setModel(this.model)
@@ -116,7 +167,5 @@ export class VatTypeDetails {
         this.config.addUniElements(vatCode, vatAlias, vatName, vatPercentage, vatDateFrom, vatDateTo, vatAccountOut, vatAccountIn, systemSet); 
 
     }
-              
-   
 }
     
