@@ -94,6 +94,9 @@ $all-text-inputs: $unquoted-inputs-list
   label &
     display: block
 
+input
+  @extend %uni-input
+
 #{$all-text-inputs}
   @extend %uni-input
   background: $uni-color-negative
@@ -133,4 +136,3 @@ input[type=search]
   box-sizing: content-box
   padding-right: 2rem
   font-weight: 400
-
