@@ -1,4 +1,4 @@
-import {Component, provide, Input, ViewChild, ContentChild, ComponentRef} from "angular2/core";
+import {Component, provide, Input, ViewChild, ContentChild, ComponentRef, SimpleChange, Output, EventEmitter} from "angular2/core";
 import {Validators, Control, FormBuilder} from "angular2/common";
 import {Observable} from "rxjs/Observable";
 import {UniForm} from "../../../../../framework/forms/uniForm";
@@ -13,27 +13,48 @@ import {AccountingDS} from "../../../../../framework/data/accounting";
 import {CurrencyDS} from "../../../../../framework/data/currency";
 import {DimensionList} from "../dimensionList/dimensionList";
 import {AccountGroupList} from "../accountGroupList/accountGroupList";
-import {UniHttpService} from "../../../../../framework/data/uniHttpService";
+import {UniHttp} from "../../../../../framework/core/http";
 import {AccountModel} from "../../../../../framework/models/account";
 
 @Component({
     selector: "account-details",
     templateUrl: "app/components/settings/accountSettings/accountDetails/accountDetails.html",
-    directives: [UniForm, DimensionList, AccountGroupList],
+    directives: [DimensionList, AccountGroupList, UniForm],
     providers: [provide(AccountingDS, {useClass: AccountingDS}), provide(CurrencyDS, {useClass: CurrencyDS})]
 })
 export class AccountDetails {
     @Input() account;
+    @Output() uniSaved = new EventEmitter<AccountModel>();
     @ViewChild(UniForm) form: UniForm;
-    config = new UniFormBuilder();
+    config: any;
     model: AccountModel = new AccountModel();
-    currencies;
-    vattypes;
+    currencies: Array<any> = [];
+    vattypes: Array<any> = [];
 
-    constructor(fb: FormBuilder, private accountingDS: AccountingDS, private currencyDS: CurrencyDS, private http: UniHttpService) {
+    constructor(private accountingDS: AccountingDS, private currencyDS: CurrencyDS, private http: UniHttp) {
     }
 
-    buildForm() {
+    ngOnInit() {
+        this.http
+            .asGET()
+            .usingBusinessDomain()
+            .multipleRequests([
+                {endPoint: "currencies"},
+                {endPoint: "vattypes"}
+            ])
+            .subscribe(
+                (dataset) => {
+                    this.currencies = dataset[0];
+                    this.vattypes = dataset[1];
+                    this.dataReady();
+                },
+                (error) => console.log(error)
+            );
+    }
+
+    dataReady() {
+        var fb = new UniFormBuilder();
+
         //
         // main fields
         //
@@ -42,7 +63,7 @@ export class AccountDetails {
         accountNumber.setLabel("Kontonr.")
             .setModel(this.model)
             .setModelField("AccountNumber")
-            .setType(UNI_CONTROL_DIRECTIVES[UNI_CONTROL_TYPES.TEXT])
+            .setType(UNI_CONTROL_DIRECTIVES[UNI_CONTROL_TYPES.TEXT]);
 
         var accountName = new UniFieldBuilder();
         accountName.setLabel("Kontonavn")
@@ -70,7 +91,7 @@ export class AccountDetails {
         var vatType = new UniFieldBuilder();
         vatType.setLabel("Moms")
             .setModel(this.model)
-            .setModelField("vattype")
+            .setModelField("VatTypeID")
             .setType(UNI_CONTROL_DIRECTIVES[UNI_CONTROL_TYPES.DROPDOWN])
             .setKendoOptions({dataSource: this.vattypes, dataValueField: "ID", dataTextField: "Name"})
 
@@ -81,7 +102,7 @@ export class AccountDetails {
             .setDescription("kunder")
             .setUrl("http://localhost/customer");
 
-        this.config.addUniElements(accountCombo, accountAlias, currency, vatType, numSerie);
+        fb.addUniElements(accountCombo, accountAlias, currency, vatType, numSerie);
 
         //
         // Checkbox settings
@@ -126,50 +147,36 @@ export class AccountDetails {
         var systemSet = new UniFieldsetBuilder();
         systemSet.addUniElements(checkSystemAccount, checkPostPost, checkDeductionPercent, checkLockManualPosts, checkLocked, checkVisible);
 
-        this.config.addUniElement(systemSet);
+        fb.addUniElement(systemSet);
+
+        this.config = fb;
     }
-   
+
     update() {
-        var self = this;
-        this.http.get(
-            {resource: "accounts/" + this.account, expand: "Alias,Currency,AccountGroup"}
-        ).subscribe(
-            (dataset) => {
-                self.model = dataset;
-                self.form.refresh(self.model);
-            },
-            (error) => console.log(error)
-        )
+        this.http
+            .asGET()
+            .usingBusinessDomain()
+            .withEndPoint("accounts/" + this.account)
+            .send({
+                expand: "Alias,Currency,AccountGroup,Dimensions,Dimensions.Project,Dimensions.Region,Dimensions.Responsible,Dimensions.Departement"
+            })
+            .subscribe(
+                (dataset) => {
+                    this.model = dataset;
+                    this.form.refresh(this.model);
+                },
+                (error) => console.log(error)
+            )
     }
 
-    ngOnInit() {
-        var self = this;
-        this.http.multipleRequests("GET", [
-            {resource: "currencies"},
-            {resource: "vattypes"}
-        ]).subscribe(
-            (dataset) => {
-                self.currencies = dataset[0];
-                self.vattypes = dataset[1];
-                
-                console.log("currencies");
-                console.log(self.currencies);  
-                
-            },
-            (error) => console.log(error)
-        )  
-        
-        self.buildForm();                
-    }
-
-    ngOnChanges() {
+    ngOnChanges(changes: {[propName: string]: SimpleChange}) {
         if (this.form == null) return;
 
         if (this.account == 0) {
             this.model = new AccountModel();
             this.form.refresh(this.model);
         }
-        else if (this.account == 1000) { // TEST ONLY
+        else if (this.account == -1) { // TEST ONLY
             this.model = new AccountModel();
             this.model.ID = 1000;
             this.model.AccountName = "TEST";
@@ -210,7 +217,9 @@ export class AccountDetails {
                 OutgoingAccount: null,
                 CustomFields: null,
                 Alias: null,
-                Deductions: null
+                Deductions: null,
+                VatCodeGroup: null,
+                VatCodeGroupID: null
             };
             this.model.Dimensions = {
                 CustomFields: null,
@@ -221,7 +230,7 @@ export class AccountDetails {
                     StatusID: 0,
                     ID: 1,
                     Deleted: false,
-                    CustomFields: null              
+                    CustomFields: null
                 },
                 ProjectID: 1,
                 Departement: null,
@@ -247,12 +256,14 @@ export class AccountDetails {
         if (this.model.ID > 0) {
             console.log("LAGRE");
             console.log(this.model);
-            this.http.put({
-                resource: "accounts/" + self.model.ID,
-                body: self.model
-            }).subscribe(
+            this.http
+                .asPUT()
+                .withEndPoint("accounts/" + self.model.ID)
+                .withBody(self.model)
+                .send().subscribe(
                 (response) => {
                     console.log("LAGRET KONTO " + self.model.ID)
+                    this.uniSaved.emit(this.model);
                 },
                 (error) => {
                     console.log("OPPDATERING FEILET");
@@ -263,20 +274,24 @@ export class AccountDetails {
         } else {
             console.log("LAGRE");
             console.log(self.model);
-            this.http.post({
-                resource: "accounts",
-                body: self.model
-            }).subscribe(
-                (response) => {
-                    console.log("LAGRET NY KONTO ");
-                    console.log(response);
-                },
-                (error) => {
-                    console.log("LAGRING AV NY FEILET");
-                    console.log(self.model);
-                    console.log(error._body);
-                }
-            );
+            this.http
+                .usingBusinessDomain()
+                .asPOST()
+                .withBody(self.model)
+                .withEndPoint("accounts")
+                .send()
+                .subscribe(
+                    (response: any) => {
+                        console.log("LAGRET NY KONTO ");
+                        console.log(response);
+                        this.uniSaved.emit(this.model);
+                    },
+                    (error: any) => {
+                        console.log("LAGRING AV NY FEILET");
+                        console.log(self.model);
+                        console.log(error._body);
+                    }
+                );
         }
     }
 }

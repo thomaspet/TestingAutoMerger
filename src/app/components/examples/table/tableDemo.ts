@@ -1,31 +1,28 @@
-import {Component, ViewChild, ViewChildren, AfterViewInit} from 'angular2/core';
+import {Component, ViewChildren, AfterViewInit} from 'angular2/core';
 import {UniTable, UniTableBuilder, UniTableColumn} from '../../../../framework/uniTable';
 
-import {UniHttpService} from '../../../../framework/data/uniHttpService';
+import {UniHttp} from '../../../../framework/core/http';
 
 @Component({
     selector: 'uni-table-demo',
-    template: `
-        <h4>Table with custom editor (dropdown) in "Type" column</h4>
-        <uni-table [config]="customEditorTableConfig"></uni-table>
-    `, 
-    // template: `   
-    //     <h4>Editable table with remote data</h4>
-    //     <uni-table [config]="editableRemoteDataCfg"></uni-table>
-    //     <br><br>
-    //     
-    //     <h4>Editable table with local data</h4>
-    //     <uni-table [config]="editableLocalDataCfg"></uni-table>
-    //     <br><br>
-    //     
-    //     <h4>Read-only table with remote data</h4>
-    //     <uni-table [config]="readOnlyRemoteDataCfg"></uni-table>
-    //     <br><br>
-    //     
-    //     <h4>Read-only table with local data</h4>
-    //     <uni-table [config]="readOnlyLocalDataCfg"></uni-table>
-    //     <button (click)="testTableRefresh()">Test table refresh with new row</button>
-    // `,
+    template: `   
+        <h4>Editable table with remote data</h4>
+        <uni-table [config]="editableRemoteDataCfg"></uni-table>
+        <button (click)="testUpdateFilter()">Test updateFilter</button>
+        <br><br>
+        
+        <h4>Editable table with local data</h4>
+        <uni-table [config]="editableLocalDataCfg"></uni-table>
+        <br><br>
+        
+        <h4>Read-only table with remote data</h4>
+        <uni-table [config]="readOnlyRemoteDataCfg"></uni-table>
+        <br><br>
+        
+        <h4>Read-only table with local data</h4>
+        <uni-table [config]="readOnlyLocalDataCfg"></uni-table>
+        <button (click)="testTableRefresh()">Test table refresh with new row</button>
+    `,
     directives: [UniTable]
 })
 export class UniTableDemo {
@@ -39,16 +36,18 @@ export class UniTableDemo {
     editableLocalDataCfg;
     
     readOnlyRemoteDataCfg;
-    readOnlyLocalDataCfg;
-    
-    customEditorTableConfig;
+    readOnlyLocalDataCfg;	
     
     testTableRefresh() {
         this.localData[0].Name = "Navn endret av refresh!";
         this.tables.toArray()[3].refresh(this.localData);
     }
     
-    constructor(uniHttpService: UniHttpService) {        
+    testUpdateFilter() {
+        this.tables.toArray()[0].updateFilter('Price gt 200');
+    }
+    
+    constructor(uniHttpService: UniHttp) {
         
         // Create columns to use in the tables
         var idCol = new UniTableColumn('ID', 'Produktnummer', 'number')
@@ -93,6 +92,7 @@ export class UniTableDemo {
         
         // Editable table working with remote data
         this.editableRemoteDataCfg = new UniTableBuilder('products', true)
+        .setFilter('Price gt 100')
         .setPageSize(5)
         .addColumns(idCol, nameCol, priceCol)
         .addCommands(
@@ -103,10 +103,12 @@ export class UniTableDemo {
         
         
         // Editable table working with local data
-        uniHttpService.get({
-            resource: 'products',
-            top: 5
-        }).subscribe((response) => {
+        uniHttpService
+        .asGET()
+        .usingBusinessDomain()
+        .withEndPoint("products")
+        .send({top:5})
+        .subscribe((response) => {
            this.editableLocalDataCfg = new UniTableBuilder(response, true)
             .setPageSize(5)
             .addColumns(idCol, nameCol, priceCol)
@@ -129,37 +131,5 @@ export class UniTableDemo {
         .addColumns(idCol, nameCol, priceCol)
         .setSelectCallback(selectCallback);
          
-        
-        // Test table with custom editor
-        var leaveTypes = [
-          { typeID: "1", text: "Permisjon" },
-          { typeID: "2", text: "Permittering" }  
-        ];
-        
-        var idCol = new UniTableColumn('ID', 'Id', 'number')
-        .setEditable(false)
-        .setNullable(true);
-        
-        var fromDateCol = new UniTableColumn('FromDate', 'Startdato', 'date')
-        .setFormat("{0: dd.MM.yyyy}");
-        
-        var toDateCol = new UniTableColumn('ToDate', 'Sluttdato', 'date')
-        .setFormat("{0: dd.MM.yyyy}");
-        
-        var leaveTypeCol = new UniTableColumn('LeaveType', 'Type', 'string') // remove 'string' ?
-        .setCustomEditor('dropdown', {
-            dataSource: leaveTypes,
-            dataValueField: 'typeID',
-            dataTextField: 'text'
-        });
-        
-        var leavePercentCol = new UniTableColumn('LeavePercent', 'Andel permisjon', 'number');
-        var commentCol = new UniTableColumn('Description', 'Kommentar', 'string');
-        var employmentIDCol = new UniTableColumn('EmploymentID', 'Arbeidsforhold', 'string');
-        
-        this.customEditorTableConfig = new UniTableBuilder('EmployeeLeave', true)
-        .addColumns(idCol, fromDateCol, toDateCol, leavePercentCol, leaveTypeCol, employmentIDCol, commentCol);
-        
-       
     }
 }

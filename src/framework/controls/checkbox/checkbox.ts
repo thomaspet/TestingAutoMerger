@@ -7,6 +7,7 @@ import {UniFieldBuilder} from "../../forms/builders/uniFieldBuilder";
     selector: "uni-checkbox",
     template: `
         <input
+            *ngIf="config.control"
             #cb
             [attr.id]="guid"
             type="checkbox"
