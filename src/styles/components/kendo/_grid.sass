@@ -1,0 +1,60 @@
+.k-grid *
+  border-color: transparent
+
+  tr
+    border-bottom: pxToRem(1) solid $uni-color-scale9
+
+    &:nth-of-type(even)
+      background: transparentize($uni-color-scale9, .6)
+
+  .editable-cell
+    padding: pxToRem(5) pxToRem(10)
+
+    &.k-edit-cell
+      padding: 0
+
+    input
+      padding-left: pxToRem(3)
+
+.k-grid-header
+  background: $uni-color-scale9
+
+
+.k-icon.k-filter
+  background: transparent unicon-filter($uni-color-scale7) top center no-repeat
+  background-size: .8rem
+
+  .k-grid-filter:hover &
+    background: transparent unicon-filter($uni-color-scale3) top center no-repeat
+    background-size: .8rem
+
+.k-filter-menu
+  background: $uni-color-negative
+  border-radius: pxToRem(5)
+  box-shadow: 0 0 0.6rem rgba(34, 46, 55, 0.3)
+  border-color: $uni-color-scale8
+
+
+.k-button
+  border-style: none
+  padding: 0 1.5rem
+
+
+//tbody[role=rowgroup]
+//  overflow: hidden
+//
+//  td
+//    position: relative
+//    overflow: visible
+//
+//  td:hover
+//
+//    &:after
+//      content: ''
+//      background: transparentize($uni-color-C2A, .9)
+//      height: 200vh
+//      top: -100vh
+//      left: 0
+//      width: 100%
+//      position: absolute
+//      display: block
