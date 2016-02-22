@@ -5,8 +5,7 @@ import {UniTableBuilder} from './UniTableBuilder';
 
 declare var jQuery;
 
-enum directions { LEFT, RIGHT, UP, DOWN }
-;
+enum directions { LEFT, RIGHT, UP, DOWN };
 
 @Component({
     selector: 'uni-table',
@@ -21,27 +20,33 @@ export class UniTable {
 
     nativeElement: any;
     table: kendo.ui.Grid;
-
-
+    
     constructor(private uniHttp: UniHttp, elementRef: ElementRef) {
         this.nativeElement = jQuery(elementRef.nativeElement);
     }
-
-    ngOnChanges(changes: {[propName: string]: SimpleChange}) {
-        if (changes['config'].currentValue && changes['config'].currentValue.constructor.name === 'UniTableBuilder') {
-            this.setupAndCompile();
-        }
-    }
-
+    
     refresh(data?: any) {
         if (data && !this.config.remoteData) {
             this.config.resource = data;
         }
         this.table.dataSource.read();
     }
+    
+    updateFilter(filter: string) {
+        this.config.filter = filter;
+        this.table.dataSource.read();
+    }
 
+    ngOnChanges(changes: {[propName: string]: SimpleChange}) {
+        var current = changes['config'].currentValue;
+        
+        if (!this.table && current) {
+            this.setupAndCompile();
+        }
+    }
+    
     ngAfterViewInit() {
-        if (this.table && this.config.constructor.name === 'UniTableBuilder') {
+        if (!this.table && this.config) {
             this.setupAndCompile();
         }
     }
@@ -98,6 +103,7 @@ export class UniTable {
         // Compile grid and set up key navigation
         this.table = this.nativeElement.find('table').kendoGrid(this.tableConfig).data('kendoGrid');
         this.setupKeyNavigation();
+        this.compiled = true;
     }
 
     // Create a datasource that works with local data
