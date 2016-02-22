@@ -103,7 +103,6 @@ export class UniTable {
         // Compile grid and set up key navigation
         this.table = this.nativeElement.find('table').kendoGrid(this.tableConfig).data('kendoGrid');
         this.setupKeyNavigation();
-        this.compiled = true;
     }
 
     // Create a datasource that works with local data
