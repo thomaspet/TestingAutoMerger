@@ -10,7 +10,7 @@ import {UniComponentLoader} from "../../../../../framework/core";
 import {Observable} from "rxjs/Observable";
 import "rxjs/add/operator/merge";
 import {UniValidator} from "../../../../../framework/validators/UniValidator";
-import {OperationType, Operator, ValidationLevel} from '../../../../../framework/interfaces/interfaces';
+import {OperationType, Operator, ValidationLevel} from "../../../../../framework/interfaces/interfaces";
 
 declare var _;
 
@@ -48,13 +48,13 @@ export class PersonalDetails {
         var self = this;
 
         /*
-             http.get(url).map(res => res.json())
-             .flatMap(response => {
-                return http.get(url2+'/'+response.param).map(res => res.json())
-                    .map(response2 => {
-                        //do whatever and return
-                })
-             }).subscribe()
+         http.get(url).map(res => res.json())
+         .flatMap(response => {
+         return http.get(url2+'/'+response.param).map(res => res.json())
+         .map(response2 => {
+         //do whatever and return
+         })
+         }).subscribe()
          */
 
         Observable.forkJoin(
