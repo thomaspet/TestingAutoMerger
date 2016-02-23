@@ -2,7 +2,7 @@ import {Injectable, Inject} from "angular2/core";
 import { Observable } from "rxjs/Observable";
 import {UniHttp} from "./../core/http";
 import {FieldType} from "../../framework/interfaces/interfaces";
-
+import "rxjs/add/observable/fromArray";
 
 @Injectable()
 export class EmployeeDS {
@@ -55,7 +55,7 @@ export class EmployeeDS {
     }
 
     layout(layoutID: string) {
-        return Observable.from([{
+        return Observable.fromArray([{
             Name: layoutID,
             BaseEntity: "Employee",
             Fields: [

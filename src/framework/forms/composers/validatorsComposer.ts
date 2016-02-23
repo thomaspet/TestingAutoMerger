@@ -17,11 +17,12 @@ export class ValidatorsComposer {
         return Validators.composeAsync(validators);
     }
 
-    private static joinValidators(validators: UniValidator[]) {
+    private static joinValidators(validators: any[]) {
         let list = [];
         if (validators && Array.isArray(validators)) {
-            validators.forEach((validator: UniValidator) => {
-                list.push(validator.Validator);
+            validators.forEach((validator: any) => {
+                var v = UniValidator.fromObject(validator);
+                list.push(v.Validator);
 
             });
         }
