@@ -3,7 +3,7 @@ import {Control} from "angular2/common";
 import {InputTemplateString} from "../inputTemplateString";
 import {UniFieldBuilder} from "../../forms/builders/uniFieldBuilder";
 
-declare var jQuery;
+declare var jQuery,_;
 
 @Component({
     selector: "uni-masked",
@@ -41,7 +41,7 @@ export class UniMaskedInput implements AfterViewInit, OnDestroy {
         this.maskedInput = maskedInput;
 
         // init to control value
-        if (control.value !== null && control.value.length > 0) {
+        if (!_.isNil(control.value) && control.value.length > 0) {
             maskedInput.value(control.value);
         }
     }
