@@ -253,3 +253,6 @@ bower_components
 src/.DS_Store
 src/styles/main.css
 .DS_Store
+
+# interfaces from server
+./src/framework/interfaces/interfaces.ts

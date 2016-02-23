@@ -3,7 +3,7 @@ import {Component, Injector} from "angular2/core";
 import {EmployeeDS} from "../../../../../framework/data/employee";
 import {STYRKCodesDS} from "../../../../../framework/data/styrkCodes";
 import {UNI_CONTROL_DIRECTIVES} from "../../../../../framework/controls";
-import {UNI_CONTROL_TYPES} from "../../../../../framework/controls/types";
+import {FieldType} from "../../../../../framework/interfaces/interfaces";
 import {
     UniForm, UniFormBuilder, UniFieldBuilder, UniSectionBuilder, UniFieldsetBuilder
 } from "../../../../../framework/forms";
@@ -103,7 +103,7 @@ export class Employment {
             var bAddLocalization = false;
 
             var jobCode = this
-                .buildField("Stillingskode", employment, "JobCode", UNI_CONTROL_TYPES.AUTOCOMPLETE)
+                .buildField("Stillingskode", employment, "JobCode", FieldType.AUTOCOMPLETE)
                 .setKendoOptions({
                     dataSource: this.styrkCodes,
                     dataTextField: "styrk",
@@ -116,7 +116,7 @@ export class Employment {
                 fjn.control.updateValue(dataItem.tittel, {});
             };
 
-            var jobName = this.buildField("Navn", employment, "JobName", UNI_CONTROL_TYPES.AUTOCOMPLETE)
+            var jobName = this.buildField("Navn", employment, "JobName", FieldType.AUTOCOMPLETE)
                 .setKendoOptions({
                     dataSource: this.styrkCodes,
                     dataTextField: "tittel",
@@ -129,16 +129,16 @@ export class Employment {
                 fjc.control.updateValue(dataItem.styrk, {});
             };
 
-            var startDate = this.buildField("Startdato", employment, "StartDate", UNI_CONTROL_TYPES.DATEPICKER);
-            var endDate = this.buildField("Sluttdato", employment, "EndDate", UNI_CONTROL_TYPES.DATEPICKER);
-            var monthRate = this.buildField("Månedlønn", employment, "MonthRate", UNI_CONTROL_TYPES.NUMERIC);
-            var hourRate = this.buildField("Timelønn", employment, "HourRate", UNI_CONTROL_TYPES.NUMERIC);
-            var workPercent = this.buildField("Stillingprosent", employment, "WorkPercent", UNI_CONTROL_TYPES.NUMERIC);
+            var startDate = this.buildField("Startdato", employment, "StartDate", FieldType.DATEPICKER);
+            var endDate = this.buildField("Sluttdato", employment, "EndDate", FieldType.DATEPICKER);
+            var monthRate = this.buildField("Månedlønn", employment, "MonthRate", FieldType.NUMERIC);
+            var hourRate = this.buildField("Timelønn", employment, "HourRate", FieldType.NUMERIC);
+            var workPercent = this.buildField("Stillingprosent", employment, "WorkPercent", FieldType.NUMERIC);
 
             if (typeof employment.Localization !== "undefined") {
                 if (typeof employment.Localization.BusinessRelationInfo !== "undefined") {
                     var localization = this
-                        .buildField("Lokasjon", employment.Localization.BusinessRelationInfo, "Name", UNI_CONTROL_TYPES.COMBOBOX);
+                        .buildField("Lokasjon", employment.Localization.BusinessRelationInfo, "Name", FieldType.COMBOBOX);
                     localization.setKendoOptions({
                         dataSource: this.localizations,
                         dataTextField: "BusinessRelationInfo.Name",
@@ -171,38 +171,38 @@ export class Employment {
 
         // a-meldingsinfo
         var ameldingSet = new UniFieldsetBuilder();
-        var tOfEmplnt = this.buildField("Arbeidsforhold", employment, "TypeOfEmployment", UNI_CONTROL_TYPES.COMBOBOX);
+        var tOfEmplnt = this.buildField("Arbeidsforhold", employment, "TypeOfEmployment", FieldType.COMBOBOX);
         tOfEmplnt.setKendoOptions({
             dataSource: this.typeOfEmployment,
             dataTextField: "Navn",
             dataValueField: "ID"
         });
-        var renum = this.buildField("Avlønning", employment, "RenumerationType", UNI_CONTROL_TYPES.COMBOBOX);
+        var renum = this.buildField("Avlønning", employment, "RenumerationType", FieldType.COMBOBOX);
         renum.setKendoOptions({
             dataSource: this.renumerationType,
             dataTextField: "Navn",
             dataValueField: "ID"
         });
-        var work = this.buildField("Arbeidstid", employment, "WorkingHoursScheme", UNI_CONTROL_TYPES.COMBOBOX);
+        var work = this.buildField("Arbeidstid", employment, "WorkingHoursScheme", FieldType.COMBOBOX);
         work.setKendoOptions({
             dataSource: this.workingHoursScheme,
             dataTextField: "Navn",
             dataValueField: "ID"
         });
-        var hours = this.buildField("Standardtimer", employment, "HoursPerWeek", UNI_CONTROL_TYPES.NUMERIC);
+        var hours = this.buildField("Standardtimer", employment, "HoursPerWeek", FieldType.NUMERIC);
         ameldingSet.addUniElements(hours, tOfEmplnt, renum, work);
 
         // dates
         var dateSet = new UniFieldsetBuilder();
-        var salary = this.buildField("Lønnsjustering", employment, "LastSalaryChangeDate", UNI_CONTROL_TYPES.DATEPICKER);
-        var percent = this.buildField("Endret stillingprosent", employment, "LastWorkPercentChangeDate", UNI_CONTROL_TYPES.DATEPICKER);
-        var senority = this.buildField("Ansiennitet", employment, "SenorityDate", UNI_CONTROL_TYPES.DATEPICKER);
+        var salary = this.buildField("Lønnsjustering", employment, "LastSalaryChangeDate", FieldType.DATEPICKER);
+        var percent = this.buildField("Endret stillingprosent", employment, "LastWorkPercentChangeDate", FieldType.DATEPICKER);
+        var senority = this.buildField("Ansiennitet", employment, "SenorityDate", FieldType.DATEPICKER);
         dateSet.addUniElements(salary, percent, senority);
 
         // annen lønnsinfo
         var infoSet = new UniFieldsetBuilder();
-        var freerate = this.buildField("Fri sats", employment, "UserdefinedRate", UNI_CONTROL_TYPES.NUMERIC);
-        var ledger = this.buildField("Hovedbokskonto", employment, "LedgerAccount", UNI_CONTROL_TYPES.TEXT);
+        var freerate = this.buildField("Fri sats", employment, "UserdefinedRate", FieldType.NUMERIC);
+        var ledger = this.buildField("Hovedbokskonto", employment, "LedgerAccount", FieldType.TEXT);
         infoSet.addUniElements(freerate, ledger);
 
         // dimensjoner

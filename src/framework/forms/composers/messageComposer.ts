@@ -21,7 +21,7 @@ export class MessageComposer {
     private static assignMessages(validators: any[], messages: any) {
         if (validators && Array.isArray(validators)) {
             validators.forEach((validator: any) => {
-                messages[validator.name] = validator.message;
+                messages[validator.ValidatorKey] = validator.ErrorMessage;
             });
         }
     }
