@@ -36,6 +36,14 @@ export class EmployeeDS {
             .withEndPoint("localizations")
             .send({expand: "BusinessRelationInfo"});
     }
+    
+    getTotals(ansattID:number) {
+        return this.http
+            .asGET()
+            .usingBusinessDomain()
+            .withEndPoint("salarytrans")
+            .send({filter: "EmployeeNumber eq " + ansattID});
+    }
 
     getEmployeeLeave() {
         return this.http
