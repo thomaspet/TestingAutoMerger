@@ -58,6 +58,11 @@ export class UniHttp {
         return this.appendHeaders(headers);
     }
 
+    usingInitDomain() {
+        this.apiDomain = AppConfig.API_DOMAINS.INIT;
+        return this;
+    }
+
     usingMetadataDomain() {
         this.apiDomain = AppConfig.API_DOMAINS.METADATA;
         return this;
