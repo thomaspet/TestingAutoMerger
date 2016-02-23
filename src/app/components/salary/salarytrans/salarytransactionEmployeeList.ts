@@ -1,5 +1,5 @@
-import {Component, Input, ViewChildren, provide} from "angular2/core";
-import {Router, RouteConfig} from "angular2/router";
+import {Component, Input, ViewChildren, provide, Injector} from "angular2/core";
+import {Router, RouteConfig, RouteParams} from "angular2/router";
 import {UniTable, UniTableBuilder, UniTableColumn} from "../../../../framework/uniTable";
 import {Observable} from "rxjs/Observable";
 import {UniHttp} from "../../../../framework/core/http";
@@ -19,29 +19,31 @@ export class SalaryTransactionEmployeeList {
     @Input() ansattID: number;
     @ViewChildren(UniTable) tables: any;
     
-    constructor(public employeeDS: EmployeeDS) {
-        
+    constructor(public employeeDS: EmployeeDS, private Injector: Injector) {
+        if(!this.ansattID) {
+            let params = this.Injector.parent.parent.get(RouteParams);
+            this.ansattID = params.get("id");
+            console.log("ansattID satt til ", this.ansattID);
+        }
     }
     
     ngOnInit() {
         this.createTableConfig();   
-        this.createTotalTableConfig(); 
+        Observable.forkJoin(
+            this.employeeDS.getTotals(this.ansattID)
+        ).subscribe((response: any) => {
+            let [totals] = response;
+            this.employeeTotals = totals;
+            console.log("totals",totals);
+            this.createTotalTableConfig();
+        }, (error: any) => console.log(error));
     }
     
     ngOnChanges() {
         console.log("onChange: ansattID",this.ansattID);
         if(this.tables && this.ansattID) {
             this.tables.toArray()[0].updateFilter('EmployeeNumber eq ' + this.ansattID);
-            Observable.forkJoin(
-                this.employeeDS.getTotals(this.ansattID)
-            ).subscribe((response: any) => {
-                let [totals] = response;
-                this.employeeTotals = totals;
-                console.log("totals",totals);
-                this.calculateTotals(totals);
-                //this.createTotalTableConfig();
-                
-            }, (error: any) => console.log(error));
+            this.calculateTotals();
         }
     }
     
@@ -55,50 +57,44 @@ export class SalaryTransactionEmployeeList {
         var amountCol = new UniTableColumn("Amount","Antall","number");
         var sumCol = new UniTableColumn("Sum","Beløp","number");
         var employmentidCol = new UniTableColumn("EmploymentID","Arb.forhold ID","number");
-        var accountCol = new UniTableColumn("account","Konto","string");
-        // var payoutCol = new UniTableColumn("wagetype.base_payment","Utbetales","bool");
+        var accountCol = new UniTableColumn("Account","Konto","string");
+        var payoutCol = new UniTableColumn("Wagetype.Base_Payment","Utbetales","bool");
         var transtypeCol = new UniTableColumn("","Fast/Variabel post","string");
         
         this.salarytransEmployeeTableConfig = new UniTableBuilder("salarytrans",true)
-        //.setExpand("Wagetype")
+        .setExpand("Wagetype")
         .setFilter("EmployeeNumber eq " + this.ansattID)
         .addColumns(idCol
-            //, wagetypeidCol
+            , wagetypeidCol
             , wagetypenameCol
             , fromdateCol 
             , rateCol 
-            , amountCol, sumCol, employmentidCol, 
-            accountCol, 
-            //payoutCol, 
-            transtypeCol
+            , amountCol
+            , sumCol
+            , employmentidCol
+            , accountCol
+            , payoutCol
+            //, transtypeCol
             );
     }
     
-    calculateTotals(totals) {
-        var tmp: Array<any> = [
-            {Percent:"", Table:"", Paid:0, Aga:0, Vacation:0}
-        ];
-        
-        totals.forEach(element => {
-            console.log("element",element);
-            tmp[0].Percent += element.Percent;
-            tmp[0].Table += element.ID;
-            tmp[0].Paid += element.Sum;
-            tmp[0].Aga += element.Rate;
-            tmp[0].Vacation += element.Amount;
-        });
-        console.log("tmp",tmp);
-        
-        this.employeeTotals = totals;
-        this.tables.toArray()[1].refresh(this.employeeTotals);
+    calculateTotals() {
+        Observable.forkJoin(
+            this.employeeDS.getTotals(this.ansattID)
+        ).subscribe((response: any) => {
+            let [totals] = response;
+            this.employeeTotals = totals;
+            //console.log("totals",this.employeeTotals);
+            this.tables.toArray()[1].refresh(this.employeeTotals);
+        }, (error: any) => console.log(error));
     }
     
     createTotalTableConfig() {
-        var percentCol = new UniTableColumn("Percent","Prosenttrekk","string");
-        var taxtableCol = new UniTableColumn("Table","Tabelltrekk","string");
-        var paidCol = new UniTableColumn("Paid","Utbetalt beløp","number");
-        var agaCol = new UniTableColumn("Aga","Beregnet AGA", "number");
-        var basevacationCol = new UniTableColumn("Vacation","Grunnlag feriepenger","number"); 
+        var percentCol = new UniTableColumn("Account","Prosenttrekk","string");
+        var taxtableCol = new UniTableColumn("Amount","Tabelltrekk","string");
+        var paidCol = new UniTableColumn("EmployeeNumber","Utbetalt beløp","number");
+        var agaCol = new UniTableColumn("Rate","Beregnet AGA", "number");
+        var basevacationCol = new UniTableColumn("Sum","Grunnlag feriepenger","number"); 
         
         this.salarytransEmployeeTotalsTableConfig = new UniTableBuilder(this.employeeTotals,false)
         .addColumns(percentCol, taxtableCol, paidCol, agaCol, basevacationCol);

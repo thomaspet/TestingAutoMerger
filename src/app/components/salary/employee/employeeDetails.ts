@@ -15,11 +15,13 @@ import {WidgetPoster} from "../../../../framework/widgetPoster/widgetPoster";
 
 import {EmployeeDS} from "../../../../framework/data/employee";
 import {STYRKCodesDS} from "../../../../framework/data/styrkCodes";
+import {SalaryTransactionEmployeeList} from "../salarytrans/salarytransactionEmployeeList";
 
 const CHILD_ROUTES = [
     {path: "/", component: PersonalDetails, as: "PersonalDetails"},
     {path: "/employment", component: Employment, as: "Employment"},
     {path: "/salarytransactions", component: SalaryTransactions, as: "SalaryTransactions"},
+    {path: "/salarytrans", component: SalaryTransactionEmployeeList, as: "Lønnstranser"},
     {path: "/hours", component: Hours, as: "Hours"},
     {path: "/travel", component: Travel, as: "Travel"},
     {path: "/employeeleave", component: EmployeeLeave, as: "EmployeeLeave"}
