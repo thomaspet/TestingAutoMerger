@@ -16,28 +16,35 @@
 
       .user_list_header
         cursor: pointer
-        font-weight: 200
+        font-size: 18px
 
       span
-        @include unigrid-flush(5,2,4)
         display: inline-block
-        padding-left: 1rem
         line-heigth: 1.8rem
         vertical-align: middle
         font-size: 16px
 
-        &:nth-last-of-type(3),&:nth-last-of-type(2),&:last-of-type
-          @include unigrid-flush(2,1,4)
-
         p
           padding: 0
           margin: 0
+
+      .user_list_name
+        @include unigrid-flush(5,2,1,1)
+        padding-left: 1rem 
+
+      .user_list_email
+        @include unigrid-flush(5,2,2,1)
+
+      .user_list_status
+        @include unigrid-flush(2,1,1,1)
     
       .user_invite_resend
+        @include unigrid-flush(2,1,1,1)
         color: $uni-color-Good
         cursor: pointer
 
       .user_invite_revoke
+        @include unigrid-flush(2,1,1,1)
         color: $uni-color-Bad
         cursor: pointer
 

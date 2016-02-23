@@ -1,8 +1,7 @@
 ﻿import {Component} from 'angular2/core';
 import {Router, RouteParams} from 'angular2/router';
 import {NgIf, NgClass} from 'angular2/common';
-import {UniHttpService, IUniHttpRequest} from '../../../framework/data/uniHttpService';
-import {Http, URLSearchParams, Headers} from 'angular2/http';
+import {UniHttp} from '../../../framework/core/http';
 
 @Component({
     selector: 'uni-confirm-invite',
@@ -13,7 +12,7 @@ import {Http, URLSearchParams, Headers} from 'angular2/http';
 export class Confirm {
 
     user;
-    id: number;
+    verificationCode: string;
     passwordRepeat = { password: '' };
     isInvalidPasswords: boolean = false;
     isPasswordMismatch: boolean = false;
@@ -22,26 +21,23 @@ export class Confirm {
     working: boolean = false;
     formErrorMessage: string;
     verificationCodeErrorMessage: string;
-    headers = new Headers();
-    
 
-    constructor(private uniHttp: UniHttpService, private param: RouteParams, private http: Http, private router: Router) {
+    constructor(private uniHttp: UniHttp, private param: RouteParams, private router: Router) {
         this.user = {};
-        this.headers.append("Client", "client1");
         if (param.get('guid')) {
-            this.user['verification-code'] = param.get('guid');
-            var filter = "VerificationCode eq " + "'" + this.user['verification-code'] + "'";
+            this.verificationCode = param.get('guid');
 
             //ROUTE WILL BE CHANGED
-            http.get('http://devapi.unieconomy.no:80/api/init/user-verification/' + this.user['verification-code'], { headers: this.headers })
-                .map(res => res.json())
+            this.uniHttp
+                .asGET()
+                .usingInitDomain()
+                .withEndPoint('user-verification/' + this.verificationCode)
+                .send()
                 .subscribe(
                 (data) => {
-                    console.log();
                     if (data.ExpirationDate) {
                         if (new Date(data.ExpirationDate) > new Date()) {
                             this.validInvite = true;
-                            this.id = data.ID;
                         } else {
                             this.verificationCodeErrorMessage = 'Denne invitasjonen har utgått og er ikke lenger gyldig..'
                             this.validInvite = false;
@@ -68,20 +64,15 @@ export class Confirm {
         if (this.isValidUser()) {
             this.working = true;
 
-            var urlParams = new URLSearchParams();
-            urlParams.append('verification-code', this.user['verification-code']);
-            urlParams.append('user-name', this.user['user-name']);
-            urlParams.append('password', this.user.password);
-            urlParams.append('action', 'confirm-invite');
-
-            this.http.put('http://devapi.unieconomy.no:80/api/biz/user-verifications', null,
-                { headers: this.headers, search: urlParams }
-            ).subscribe(
-                (data) => {
-                    this.working = false;
-                    this.router.navigateByUrl('/login');
-                },
-                (error) => { this.formErrorMessage = 'Noe gikk galt ved registrering. Prøv igjen'; })
+            this.uniHttp
+                .asPUT()
+                .usingInitDomain()
+                .withEndPoint('user-verification/' + this.verificationCode)
+                .send({ body: this.user, action: 'confirm-invite' })
+                .subscribe(
+                (data) => { console.log(data); this.working = false; /*this.router.navigateByUrl('/login');*/},
+                (error) => { this.formErrorMessage = 'Noe gikk galt ved registrering. Prøv igjen'; }
+                )
         }
     }
 
