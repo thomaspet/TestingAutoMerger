@@ -1,17 +1,19 @@
-import {Injectable, Inject} from 'angular2/core';
-import {UniHttpService} from "./uniHttpService";
+import {Injectable, Inject} from "angular2/core";
+import {UniHttp} from "./../core/http";
 
 @Injectable()
 export class STYRKCodesDS {
-    
-    constructor(
-        @Inject(UniHttpService)
-        public http:UniHttpService) { }
-    
-    getCodes() {
-        return this.http.get({
-            resource: "STYRK/"
-        });
+
+    constructor(@Inject(UniHttp)
+                public http: UniHttp) {
     }
-    
+
+    getCodes() {
+        return this.http
+            .usingBusinessDomain()
+            .asGET()
+            .withEndPoint("STYRK/")
+            .send();
+    }
+
 }

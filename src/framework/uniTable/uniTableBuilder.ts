@@ -1,4 +1,4 @@
-import {UniHttpService, IUniHttpRequest} from '../data/uniHttpService';
+import {UniHttp, IUniHttpRequest} from '../core/http';
 import {UniTableColumn} from './uniTableColumn';
 
 declare var jQuery;
@@ -57,12 +57,13 @@ export class UniTableBuilder {
                 field: columnInfo.field,
                 title: columnInfo.title,
                 format: columnInfo.format,
+                width: columnInfo.width,
                 template: columnInfo.template || null,
                 attributes: {
                     "class": columnInfo.class
                 }
             };      
-            
+                                          
             this.schemaModel.fields[columnInfo.field] = {
                 type: columnInfo.type,
                 editable: columnInfo.editable,
@@ -92,8 +93,8 @@ export class UniTableBuilder {
             this.schemaModel.fields['ID'] = { type: 'number', editable: false, nullable: true };
         }
         
-        console.log(this.columns);
-        console.log(this.schemaModel);
+        //console.log(this.columns);
+        //console.log(this.schemaModel);
         
         return this;
     }
@@ -106,6 +107,11 @@ export class UniTableBuilder {
     
     setEditable(editable: boolean) {
         this.editable = editable;
+        return this;
+    }
+    
+    setSearchable(searchable: boolean) {
+        this.searchable = searchable;
         return this;
     }
     

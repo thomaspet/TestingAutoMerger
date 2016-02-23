@@ -2,7 +2,7 @@
     <account-list (uniAccountChange)="changeAccount($event)"></account-list>
 </div>
 <div class="accountDetails">
-    <account-details [account]="account"></account-details>
+    <account-details (uniSaved)="accountSaved($event)" [account]="account"></account-details>
 </div>
 <div class="testonly">
     <i>Test knapper før alt er helt klart</i><br>

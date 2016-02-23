@@ -4,6 +4,7 @@ import {Component, Input} from "angular2/core";
     selector: "uni-email",
     template: `
         <input
+            *ngIf="config.control"
             type="email"
             [ngFormControl]="config.control"
             [readonly]="config.readonly"
