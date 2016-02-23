@@ -46,15 +46,7 @@ export class BaseApiService<T> {
         return this.http
             .asGET()
             .withEndPoint(this.RelativeURL + (query ? '?' + query : ''))
-<<<<<<< HEAD
-            .send()                
-            .catch((err) => {
-                this.handleError(err);
-                return Observable.throw(err);
-            }); 
-=======
             .send();
->>>>>>> feature (accounting): added services and vatlist
     }
     
     public Post<T>(entity: T) : Observable<any> {
@@ -77,8 +69,7 @@ export class BaseApiService<T> {
     
     public Remove<T>(ID: number, entity: T) : void {        
         //maybe not neccessary to include entity as parameter? 
-        //could be useful for validating if entity could be deleted?
-                
+        //could be useful for validating if entity could be deleted?                
         this.http
             .asDELETE()
             .withEndPoint(this.RelativeURL + "/" + ID)

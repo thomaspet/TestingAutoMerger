@@ -1,4 +1,4 @@
-import {Component, Input, ViewChild, ContentChild, ComponentRef} from 'angular2/core';
+import {Component, Input, ViewChild, ContentChild, ComponentRef, SimpleChange} from 'angular2/core';
 import {Validators, Control, FormBuilder} from 'angular2/common';
 import {Observable} from 'rxjs/Observable';
 import "rxjs/add/observable/forkjoin";
@@ -30,21 +30,26 @@ export class VatTypeDetails {
             
     }    
     
-    ngOnInit() {        
-        Observable.forkJoin(
-            this.vatTypeService.Get(2),
+    ngOnInit() {  
+        
+        if (this.VatType != null) {            
+            this.model = this.VatType;
+        }
+              
+        Observable.forkJoin(            
             this.accountService.GetAll(null),
             this.vatCodeGroupService.GetAll(null)
             )
         .subscribe(response => {
-            var [model,accounts, vatcodegroups] = response;
+            var [accounts, vatcodegroups] = response;
             
-            this.model = model;
             this.accounts = accounts;
             this.vatcodegroups = vatcodegroups;
             
             this.buildForm();
         });
+        
+        
         /*
         
         //KJETIL EK: Koden under fungerer kun hvis this.accounts har verdi før this.model.
@@ -69,14 +74,19 @@ export class VatTypeDetails {
                 }, 
                 error => console.log('error in vatdetails.ngOnInit.accountService.GetAll: ' + error)
             )     
-         */            
-    }  
-    
-    refreshForm() {
-         
-        if (this.model && this.accounts) {
-            this.buildForm();
-        }
+         */       
+     }
+        
+     ngOnChanges(changes: {[propName: string]: SimpleChange}) {
+        if (this.VatType != null) {            
+            this.model = this.VatType;
+            
+            //TODO: Remove timeout, needed for now to give angular time to set up form after this.model has been set
+            setTimeout(() => {
+                if (this.form != null)
+                    this.form.refresh(this.model);
+            }, 1000);
+        }  
     }
     
     onSubmit(value) {        
@@ -145,14 +155,14 @@ export class VatTypeDetails {
             .setModel(this.model)
             .setModelField('OutgoingAccountID')
             .setType(UNI_CONTROL_DIRECTIVES[UNI_CONTROL_TYPES.DROPDOWN])
-            .setKendoOptions({ dataSource: this.accounts, dataValueField: 'ID', dataTextField: 'AccountName', filter:'Contains', template:'<span>#:AccountNumber# - #:AccountName#</span>', valueTemplate:'<span>#:AccountNumber# - #:AccountName#</span>' });
+            .setKendoOptions({ dataSource: this.accounts, dataValueField: 'ID', dataTextField: 'AccountName', filter:'Contains', template:'<span>#:AccountNumber# - #:AccountName#</span>', valueTemplate:'<span>#: data.ID > 0 ? data.AccountNumber : ""# - #:AccountName#</span>' });
             
         var vatAccountIn = new UniFieldBuilder();
         vatAccountIn.setLabel('Inng. konto')
             .setModel(this.model)
             .setModelField('IncomingAccountID')
             .setType(UNI_CONTROL_DIRECTIVES[UNI_CONTROL_TYPES.DROPDOWN])
-            .setKendoOptions({ dataSource: this.accounts, dataValueField: 'ID', dataTextField: 'AccountName', filter:'Contains', template:'<span>#:AccountNumber# - #:AccountName#</span>', valueTemplate:'<span>#:AccountNumber# - #:AccountName#</span>'  }); 
+            .setKendoOptions({ dataSource: this.accounts, dataValueField: 'ID', dataTextField: 'AccountName', filter:'Contains', template:'<span>#:AccountNumber# - #:AccountName#</span>', valueTemplate:'<span>#: data.ID > 0 ? data.AccountNumber : "" # - #:AccountName#</span>'  }); 
 
         var outputVat = new UniFieldBuilder();
         outputVat.setDescription('Utgående MVA')

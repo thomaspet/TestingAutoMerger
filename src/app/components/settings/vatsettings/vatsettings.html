@@ -1,6 +1,6 @@
 <div class="vatList">
-    <vattype-list></vattype-list>
+    <vattype-list (uniVatTypeChange)="changeVatType($event)"></vattype-list>
 </div>
 <div class="vatDetails">
-    <vattype-details></vattype-details>
+    <vattype-details [VatType]="vatType"></vattype-details>
 </div>
