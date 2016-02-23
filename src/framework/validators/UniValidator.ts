@@ -1,5 +1,4 @@
 import {IValidationItem} from "../validators";
-declare var _;
 
 import {UniValidationOperators} from "../validators";
 
@@ -42,10 +41,14 @@ export class UniValidator {
         return this;
     }
 
-    withValidator(validator: IValidationItem, value: any) {
+    usingValue(value:any) {
         this.Value = value;
-        this.ValidatorKey = validator.name;
-        this.Validator = validator.validator(this.Value, this.ValidatorKey);
+        return this;
+    }
+
+    build() {
+        this.ValidatorKey = UniValidationOperators[this.Operator].name;
+        this.Validator = UniValidationOperators[this.Operator].validator(this.Value, this.ValidatorKey);
         return this;
     }
 }
