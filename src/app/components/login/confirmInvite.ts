@@ -22,22 +22,26 @@ export class Confirm {
     working: boolean = false;
     formErrorMessage: string;
     verificationCodeErrorMessage: string;
+    headers = new Headers();
+    
 
     constructor(private uniHttp: UniHttpService, private param: RouteParams, private http: Http, private router: Router) {
         this.user = {};
+        this.headers.append("Client", "client1");
         if (param.get('guid')) {
             this.user['verification-code'] = param.get('guid');
             var filter = "VerificationCode eq " + "'" + this.user['verification-code'] + "'";
 
             //ROUTE WILL BE CHANGED
-            uniHttp.get({ resource: 'user-verifications', filter: filter })
+            http.get('http://devapi.unieconomy.no:80/api/init/user-verification/' + this.user['verification-code'], { headers: this.headers })
+                .map(res => res.json())
                 .subscribe(
                 (data) => {
-                    console.log(data);
-                    if (data[0].ExpirationDate) {
-                        if (new Date(data[0].ExpirationDate) > new Date()) {
+                    console.log();
+                    if (data.ExpirationDate) {
+                        if (new Date(data.ExpirationDate) > new Date()) {
                             this.validInvite = true;
-                            this.id = data[0].ID;
+                            this.id = data.ID;
                         } else {
                             this.verificationCodeErrorMessage = 'Denne invitasjonen har utgått og er ikke lenger gyldig..'
                             this.validInvite = false;
@@ -63,8 +67,6 @@ export class Confirm {
         //PUT USER
         if (this.isValidUser()) {
             this.working = true;
-            var headers = new Headers();
-            headers.append("Client", "client1");
 
             var urlParams = new URLSearchParams();
             urlParams.append('verification-code', this.user['verification-code']);
@@ -73,7 +75,7 @@ export class Confirm {
             urlParams.append('action', 'confirm-invite');
 
             this.http.put('http://devapi.unieconomy.no:80/api/biz/user-verifications', null,
-                { headers: headers, search: urlParams }
+                { headers: this.headers, search: urlParams }
             ).subscribe(
                 (data) => {
                     this.working = false;
@@ -92,7 +94,7 @@ export class Confirm {
             this.isInvalidUsername = true;
         } else { this.isInvalidUsername = false; }
 
-        //Passwords should have 8-16 characters and should contain big and small numbers, and at least 1 number
+        //Passwords should have 8-16 characters and should contain big and small letters, and at least 1 number
         if (!/(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,16}/g.test(this.user.password)) {
             this.formErrorMessage += ' Passord må være mellom 8-16 tegn, store og små bokstaver og minst 1 tall';
             this.isInvalidPasswords = true;

@@ -1386,6 +1386,7 @@ export interface IVatTypeSetup {
 	IsCompensated: boolean;
 	IncomingAccountNumber: number;
 	OutgoingAccountNumber: number;
+	VatCodeGroupNo: number;
 	ID: number;
 	Deleted: boolean;
 	CustomFields: any;
@@ -1399,6 +1400,7 @@ export interface IUser {
 	StatusID: number;
 	ID: number;
 	Deleted: boolean;
+	Status: IStatus;
 	CustomFields: any;
 }
 
@@ -2023,19 +2025,19 @@ export interface IVatCodeDeduction {
 	DeductionPercent: number;
 	ValidFrom: Date;
 	ValidTo: Date;
-	VatCodeRelationID: number;
+	VatTypeID: number;
 	StatusID: number;
 	ID: number;
 	Deleted: boolean;
-	VatCodeRelation: IVatCodeRelation;
+	VatType: IVatType;
 	CustomFields: any;
 }
 
 
 export interface IVatType {
 	VatCode: string;
-	VatCodeRelationID: number;
 	Name: string;
+	Alias: string;
 	VatPercent: number;
 	AvailableInModules: boolean;
 	VatTypeSetupID: number;
@@ -2047,34 +2049,14 @@ export interface IVatType {
 	IncomingAccountID: number;
 	OutgoingAccountID: number;
 	InUse: boolean;
+	VatCodeGroupID: number;
 	StatusID: number;
 	ID: number;
 	Deleted: boolean;
 	IncomingAccount: IAccount;
 	OutgoingAccount: IAccount;
-	CustomFields: any;
-}
-
-
-export interface IVatCodeAlias {
-	Name: string;
-	VatCodeRelationID: number;
-	StatusID: number;
-	ID: number;
-	Deleted: boolean;
-	VatCodeRelation: IVatCodeRelation;
-	CustomFields: any;
-}
-
-
-export interface IVatCodeRelation {
-	VatTypeID: number;
-	StatusID: number;
-	ID: number;
-	Deleted: boolean;
 	Deductions: Array<IVatCodeDeduction>;
-	Alias: Array<IVatCodeAlias>;
-	VatType: IVatType;
+	VatCodeGroup: IVatCodeGroup;
 	CustomFields: any;
 }
 
@@ -2247,8 +2229,20 @@ export enum ForeignWorker{
 
 
 export enum FieldType{
-	Text = 0,
-	Number = 1,
+	AUTOCOMPLETE = 0,
+	COMBOBOX = 1,
+	DATEPICKER = 2,
+	DROPDOWN = 3,
+	MASKED = 4,
+	MULTISELECT = 5,
+	NUMERIC = 6,
+	RADIO = 7,
+	CHECKBOX = 8,
+	RADIOGROUP = 9,
+	TEXT = 10,
+	EMAIL = 11,
+	PASSWORD = 12,
+	HYPERLINK = 13,
 }
 
 

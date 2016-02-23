@@ -1,6 +1,5 @@
-﻿import {Component, ViewChild, Pipe} from 'angular2/core';
+﻿import {Component, Pipe} from 'angular2/core';
 import {NgFor, NgIf} from 'angular2/common';
-import {UniTable, UniTableBuilder, UniTableColumn} from '../../../../framework/uniTable';
 import {UniHttpService} from '../../../../framework/data/uniHttpService';
 
 declare var jQuery;
@@ -12,7 +11,6 @@ declare var jQuery;
 export class OrderByPipe {
     transform(value, property) {
         return value.sort(this.dynamicSort(property[0]));
-        
     }
 
     dynamicSort(property) {
@@ -24,7 +22,6 @@ export class OrderByPipe {
                 property = property.substr(1);
             }
         }
-        
 
         return function (a, b) {
             var result = (a[property] < b[property]) ? -1 : (a[property] > b[property]) ? 1 : 0;
@@ -37,13 +34,11 @@ export class OrderByPipe {
     selector: 'uni-users',
     pipes: [OrderByPipe],
     templateUrl: 'app/components/settings/users/users.html',
-    directives: [NgFor, NgIf, UniTable]
+    directives: [NgFor, NgIf]
 })
 
 export class Users {
-    @ViewChild(UniTable) userTable: UniTable;
     newUser;
-    usersTable: UniTableBuilder;
     users: Array<any>;
     inviteLink: string;
     errorMessage: string;
@@ -57,41 +52,6 @@ export class Users {
         this.setUserTableData();
     }
 
-    createUserTable() {
-
-        var nameCol = new UniTableColumn('DisplayName', 'Navn', 'string').setEditable(true);
-        var emailCol = new UniTableColumn('Email', 'Epost', 'string');
-        var statusCol = new UniTableColumn('Status', 'Status', 'string');
-        //var roleCol = new UniTableColumn('Role', 'Rolle', 'string');
-        var self = this;
-           
-        this.usersTable = new UniTableBuilder(this.users, false)
-            .setPageSize(2)
-            .setPageable(false)
-            .addColumns(nameCol, emailCol, statusCol)
-            .addCommands(
-            {
-                name: 'Resend',
-                click: function (e) {
-                    e.preventDefault();
-                    var tr = jQuery(e.target).closest("tr");
-                    self.resendInvite(this.dataItem(tr));
-                },
-                className: 'btn_resend'
-            },
-            {
-                name: 'Revoke',
-                click: function (e) {
-                    e.preventDefault();
-                    var tr = jQuery(e.target).closest("tr");
-                    self.revokeInvite(this.dataItem(tr));
-                },
-                className: 'btn_revoke'
-            }
-            )
-            .setFilterable(false)
-    }
-
     //This needs to merge data from 3 resources (users, usersstatus, roles)
     //Need for DS? Uses data that is not used any other place?
     setUserTableData() {
@@ -100,17 +60,9 @@ export class Users {
         this.http.get({ resource: 'users' })
             .subscribe(
                 (users) => {
-                    
-
                     users.forEach((user) => {
                         user.Status = status[status.map((st) => { return st.ID }).indexOf(user.StatusID + (Math.floor(Math.random()* 3)))].Name;
                     })
-
-                    //if (this.usersTable) {
-                    //    this.userTable.refresh(users);
-                    //} else {
-                    //    this.createUserTable();
-                    //}
 
                     this.users = users;
                 },
@@ -121,6 +73,7 @@ export class Users {
             );
     }
 
+    //Invites new user
     inviteNewUser() {
         if (this.validateEmail(this.newUser.Email) && this.newUser.DisplayName !== '' && this.newUser.DisplayName !== undefined) {
             this.isPostUserActive = true;
@@ -147,16 +100,14 @@ export class Users {
         }
     }
 
+    //Sends out a new invite email to the user 
     resendInvite(user) {
         this.newUser.DisplayName = user.DisplayName;
         this.newUser.Email = user.Email;
         this.inviteNewUser();
     }
 
-    /*
-        Should cancel current active user-verification invite..
-        Should set status to Invoked/Removed/Invactive?
-     */
+    //Revokes the rights of the user
     revokeInvite(user) {
         var revoke = confirm('Er du sikker på at du ønsker å fjerne rettighetene til ' + user.DisplayName + '?');
 
@@ -165,10 +116,12 @@ export class Users {
         }
     }
 
+    //Regex to check valididation of email
     validateEmail(email) {
         return /[^\s@]+@[^\s@]+\.[^\s@]+/.test(email);
     }
 
+    //Sets the property of which the list is sorted by
     sortList(sortValue) {
         if (sortValue === this.sortProperty) {
             var tempstring = '-' + this.sortProperty;
@@ -178,6 +131,7 @@ export class Users {
         }
     }
 
+    //DUMMY
     statusDummy() {
         return [
             { Name: 'Invitert', ID: 17 },
@@ -187,6 +141,7 @@ export class Users {
         ]
     }
 
+    //DUMMY
     roleDummy() {
         return [
             { Name: 'Admin' },
