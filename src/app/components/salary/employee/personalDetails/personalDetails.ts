@@ -89,8 +89,8 @@ export class PersonalDetails {
                         console.log(self.formInstance);
                     }, 100);
                 });
-            },
-            (error: any) => console.error(error)
+            }
+            , (error: any) => console.error(error)
         );
     }
 
