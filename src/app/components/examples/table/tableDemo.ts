@@ -1,7 +1,28 @@
-import {Component, ViewChildren, AfterViewInit} from 'angular2/core';
+import {Component, Input, ElementRef, ViewChildren, AfterViewInit} from 'angular2/core';
 import {UniTable, UniTableBuilder, UniTableColumn} from '../../../../framework/uniTable';
 
 import {UniHttp} from '../../../../framework/core/http';
+
+declare var jQuery;
+
+@Component({
+    selector: 'table-dropdown-test',
+    template: '<input />'
+})
+class TableDropdown {
+    @Input() kendoOptions;
+    nativeElement;
+    
+    constructor(elementRef: ElementRef) {
+        this.nativeElement = jQuery(elementRef.nativeElement);
+        this.nativeElement.kendoDropDownList(this.kendoOptions);
+    }
+    
+    ngAfterViewInit() {
+        console.log(this.nativeElement);
+        this.nativeElement.kendoDropDownList(this.kendoOptions);
+    }
+}
 
 @Component({
     selector: 'uni-table-demo',
@@ -27,7 +48,7 @@ import {UniHttp} from '../../../../framework/core/http';
         <h4>Table with custom editor (dropdown) in "Type" column</h4>
         <uni-table [config]="customEditorCfg"></uni-table>
     `, 
-    directives: [UniTable]
+    directives: [UniTable, TableDropdown]
 })
 export class UniTableDemo {
     @ViewChildren(UniTable) tables: any;
@@ -44,13 +65,31 @@ export class UniTableDemo {
     
     customEditorCfg;
     
-    constructor(uniHttpService: UniHttp) {
-        // Test table with custom editor
-        var leaveTypes = [
-          { typeID: "1", text: "Permisjon" },
-          { typeID: "2", text: "Permittering" }  
-        ];
+    leaveTypes: any[];
+    employments: any[];
+    
+    getLeaveTypeText = (typeID: string) => {
+        var text = "";
+        this.leaveTypes.forEach((leaveType) => {
+            if (leaveType.typeID === typeID) {
+                text = leaveType.text;
+            }
+        });
+        return text;
+    }
+    
+    getEmploymentJobName = (employmentID: number) => {
+        var jobName = "";
         
+        this.employments.forEach((employment) => {
+            if (employment.ID === employmentID) {
+                jobName = employment.JobName;
+            }
+        });
+        return jobName;
+    }
+    
+    setupCustomEditorCfg() {
         var idCol = new UniTableColumn('ID', 'Id', 'number')
         .setEditable(false)
         .setNullable(true);
@@ -61,20 +100,52 @@ export class UniTableDemo {
         var toDateCol = new UniTableColumn('ToDate', 'Sluttdato', 'date')
         .setFormat("{0: dd.MM.yyyy}");
         
-        var leaveTypeCol = new UniTableColumn('LeaveType', 'Type', 'string') // remove 'string' ?
+        var leaveTypeCol = new UniTableColumn('LeaveType', 'Type', 'string')
+        .setTemplate((dataItem) => {
+            return this.getLeaveTypeText(dataItem.LeaveType);
+        })
         .setCustomEditor('dropdown', {
-            dataSource: leaveTypes,
+            dataSource: this.leaveTypes,
             dataValueField: 'typeID',
             dataTextField: 'text'
         });
         
-        var leavePercentCol = new UniTableColumn('LeavePercent', 'Andel permisjon', 'number');
+        var leavePercentCol = new UniTableColumn('LeavePercent', 'Andel permisjon', 'number')
+        .setFormat("{0: #\\'%'}");
+        
         var commentCol = new UniTableColumn('Description', 'Kommentar', 'string');
-        var employmentIDCol = new UniTableColumn('EmploymentID', 'Arbeidsforhold', 'string');
+        
+        var employmentIDCol = new UniTableColumn('EmploymentID', 'Arbeidsforhold', '')
+        .setTemplate((dataItem) => {
+            return this.getEmploymentJobName(dataItem.EmploymentID)
+        })
+        .setCustomEditor('dropdown', {
+            dataSource: this.employments,
+            dataValueField: 'ID',
+            dataTextField: 'JobName',
+        });
+        
         
         this.customEditorCfg = new UniTableBuilder('EmployeeLeave', true)
         .addColumns(idCol, fromDateCol, toDateCol, leavePercentCol, leaveTypeCol, employmentIDCol, commentCol);
+
+    }
+    
+    constructor(private uniHttpService: UniHttp) {
+        // Test table with custom editor
+        this.leaveTypes = [
+          { typeID: "1", text: "Permisjon" },
+          { typeID: "2", text: "Permittering" }  
+        ];
         
+        this.uniHttpService.asGET()
+        .usingBusinessDomain()
+        .withEndPoint('employments')
+        .send()
+        .subscribe((response) => {
+            this.employments = response;
+            this.setupCustomEditorCfg();
+        });        
         
         
         // Create columns to use in the tables

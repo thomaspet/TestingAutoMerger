@@ -10,7 +10,7 @@ export class UniTableColumn {
     editable: boolean = true;
     nullable: boolean = false;
     class: string = "";
-    template: string = "";
+    template: string | Function = "";
     command: kendo.ui.GridColumnCommandItem[] = [];
     width: string = "";
     
@@ -44,7 +44,7 @@ export class UniTableColumn {
         return this;
     }
     
-    setTemplate(template: string) {
+    setTemplate(template: string | Function) {
         this.template = template;
         return this;
     }
@@ -58,21 +58,12 @@ export class UniTableColumn {
         this.width = width;
         return this;
     }
-    
-    // setCustomEditor(type: string, kendoOptions: any) {
-    //     this.customEditor = {
-    //         type: type,
-    //         kendoOptions: kendoOptions
-    //     }
-    //     return this;
-    // }
-    
+
     setCustomEditor(type: string, kendoOptions: any) {
         switch (type) {
             case 'dropdown':
                 this.editor = this.controls.dropdown(kendoOptions);
             break;
-            
         }
         
         return this;
