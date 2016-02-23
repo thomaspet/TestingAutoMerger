@@ -18,32 +18,34 @@ import {TreeList, TreeListItem, TREE_LIST_TYPE} from "../../../../../framework/t
      directives: [TreeList]
 })
 export class VatTypeList {
-    @Output()
-    uniVatTypeChange = new EventEmitter<number>();
-   @ViewChild(TreeList) treeList: TreeList;
+    @Output() uniVatTypeChange = new EventEmitter<IVatType>();
+    @ViewChild(TreeList) treeList: TreeList;
     vatCodeGroupListItems: TreeListItem[] = [];
     vatcodegroups : IVatCodeGroup[];
 
     constructor(private vatTypeService: VatTypeService, private vatCodeGroupService: VatCodeGroupService) {}
     
     loopGroups() {
+        
+        var codeCol = new UniTableColumn('VatCode', 'Kode', 'string');
+        var aliasCol = new UniTableColumn('Alias', 'Alias', 'string');
+        var nameCol = new UniTableColumn('Name', 'Navn', 'string');
+        var percentCol = new UniTableColumn('VatPercent', 'Prosent', 'string');
+            
         this.vatcodegroups.forEach((vatgroup: IVatCodeGroup) => {           
-            console.log(vatgroup); 
                   
             var group = new TreeListItem(vatgroup.Name)
                 .setType(TREE_LIST_TYPE.LIST);
             
             this.vatCodeGroupListItems.push(group);
                        
-            var nameCol = new UniTableColumn('Name', 'Navn', 'string');
-            
             var tableConfig = new UniTableBuilder(this.vatTypeService.GetRelativeUrl(), false)
-                .setFilter("VatCodeGroupId eq " + vatgroup.ID)
+                .setFilter("VatCodeGroupID eq " + vatgroup.ID)
                 .setPageSize(100)
                 .setPageable(false)
-                .addColumns(nameCol)
+                .addColumns(codeCol, aliasCol, nameCol, percentCol)
                 .setSelectCallback((vattype: IVatType) => {
-                    this.uniVatTypeChange.emit(vattype.ID);
+                    this.uniVatTypeChange.emit(vattype);
                 });
        
             var list = new TreeListItem(vatgroup.Name)
@@ -51,15 +53,10 @@ export class VatTypeList {
                 .setContent(tableConfig);
                 
             group.addTreeListItem(list);            
-        });
-        
-            
-       console.log('this.vatCodeGroupListItems.length: ' + this.vatCodeGroupListItems.length);         
+        });          
     }
-
     
     ngOnInit() {
-        console.log('vatlist initializing');   
         
         Observable.forkJoin(
                 this.vatCodeGroupService.GetAll(null)

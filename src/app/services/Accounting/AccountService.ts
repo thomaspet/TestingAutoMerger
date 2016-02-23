@@ -1,4 +1,4 @@
-import {BaseApiService} from '../BaseApiService';
+import {BaseApiService} from '../../../framework/core/BaseApiService';
 import {IAccount} from '../../../framework/interfaces/interfaces';
 import {UniHttp} from '../../../framework/core/http';
 
@@ -6,18 +6,10 @@ export class AccountService extends BaseApiService<IAccount> {
     
     constructor(http: UniHttp) {        
         super(http);
-                
+        
+        //TODO: should resolve this from configuration based on type (IAccount)? Frank is working on something..               
         this.RelativeURL = 'Accounts';
         
-<<<<<<< HEAD
-        //TODO: Kjetil: should resolve this from configuration based on type (IAccount)? Frank is working on something..
-        this.RelativeURL = 'Accounts';
-        this.DefaultOrderBy = 'AccountNumber';
-        
-        if (this.LogAll)
-            console.log('AccountService created, API URL:' + this.GetApiUrl());
-    }    
-=======
         //set this property if you want a default sort order from the API, e.g. AccountNumber
         this.DefaultOrderBy = 'AccountNumber';        
     }  
@@ -39,6 +31,6 @@ export class AccountService extends BaseApiService<IAccount> {
         }        
         
         return super.GetAll(query);
-    }*/  
->>>>>>> feature (accounting): added services and vatlist
+    }*/ 
+
 }

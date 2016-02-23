@@ -1,5 +1,5 @@
 import {Injectable, EventEmitter} from 'angular2/core';
-import {UniHttp} from '../../framework/core/http';
+import {UniHttp} from './http';
 import {Observable} from 'rxjs/Observable';
 
 @Injectable()
@@ -23,7 +23,7 @@ export class BaseApiService<T> {
     constructor(protected http : UniHttp) {        
         this.BaseURL = http.getBaseUrl();
         this.LogAll = true;                
-    }    
+    }     
     
     public Get<T>(ID: number) : Observable<any> {
                 
@@ -46,15 +46,7 @@ export class BaseApiService<T> {
         return this.http
             .asGET()
             .withEndPoint(this.RelativeURL + (query ? '?' + query : ''))
-<<<<<<< HEAD
-            .send()                
-            .catch((err) => {
-                this.handleError(err);
-                return Observable.throw(err);
-            }); 
-=======
             .send();
->>>>>>> feature (accounting): added services and vatlist
     }
     
     public Post<T>(entity: T) : Observable<any> {
@@ -77,8 +69,7 @@ export class BaseApiService<T> {
     
     public Remove<T>(ID: number, entity: T) : void {        
         //maybe not neccessary to include entity as parameter? 
-        //could be useful for validating if entity could be deleted?
-                
+        //could be useful for validating if entity could be deleted?                
         this.http
             .asDELETE()
             .withEndPoint(this.RelativeURL + "/" + ID)
