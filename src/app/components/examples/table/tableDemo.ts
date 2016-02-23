@@ -26,28 +26,28 @@ class TableDropdown {
 
 @Component({
     selector: 'uni-table-demo',
-    // template: `   
-    //     <h4>Editable table with remote data</h4>
-    //     <uni-table [config]="editableRemoteDataCfg"></uni-table>
-    //     <button (click)="testUpdateFilter()">Test updateFilter</button>
-    //     <br><br>
-    //     
-    //     <h4>Editable table with local data</h4>
-    //     <uni-table [config]="editableLocalDataCfg"></uni-table>
-    //     <br><br>
-    //     
-    //     <h4>Read-only table with remote data</h4>
-    //     <uni-table [config]="readOnlyRemoteDataCfg"></uni-table>
-    //     <br><br>
-    //     
-    //     <h4>Read-only table with local data</h4>
-    //     <uni-table [config]="readOnlyLocalDataCfg"></uni-table>
-    //     <button (click)="testTableRefresh()">Test table refresh with new row</button>
-    // `,
-    template: `
+    template: `   
         <h4>Table with custom editor (dropdown) in "Type" column</h4>
         <uni-table [config]="customEditorCfg"></uni-table>
-    `, 
+        <br><br>
+        
+        <h4>Editable table with remote data</h4>
+        <uni-table [config]="editableRemoteDataCfg"></uni-table>
+        <button (click)="testUpdateFilter()">Test updateFilter</button>
+        <br><br>
+        
+        <h4>Editable table with local data</h4>
+        <uni-table [config]="editableLocalDataCfg"></uni-table>
+        <br><br>
+        
+        <h4>Read-only table with remote data</h4>
+        <uni-table [config]="readOnlyRemoteDataCfg"></uni-table>
+        <br><br>
+        
+        <h4>Read-only table with local data</h4>
+        <uni-table [config]="readOnlyLocalDataCfg"></uni-table>
+        <button (click)="testTableRefresh()">Test table refresh with new row</button>
+    `,
     directives: [UniTable, TableDropdown]
 })
 export class UniTableDemo {
