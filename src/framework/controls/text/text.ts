@@ -5,6 +5,7 @@ import {UniFieldBuilder} from "../../forms/builders/uniFieldBuilder";
     selector: "uni-text",
     template: `
         <input
+            *ngIf="config.control"
             type="text"
             [ngFormControl]="config.control"
             [readonly]="config.readonly"

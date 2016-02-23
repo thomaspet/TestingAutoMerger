@@ -1,4 +1,4 @@
-import {UniHttpService, IUniHttpRequest} from '../data/uniHttpService';
+import {UniHttp, IUniHttpRequest} from '../core/http';
 import {UniTableColumn} from './uniTableColumn';
 
 declare var jQuery;
@@ -93,8 +93,8 @@ export class UniTableBuilder {
             this.schemaModel.fields['ID'] = { type: 'number', editable: false, nullable: true };
         }
         
-        console.log(this.columns);
-        console.log(this.schemaModel);
+        //console.log(this.columns);
+        //console.log(this.schemaModel);
         
         return this;
     }

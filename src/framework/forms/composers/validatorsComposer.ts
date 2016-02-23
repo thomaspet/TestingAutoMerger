@@ -1,5 +1,6 @@
 import {Validators} from "angular2/common";
 import {UniFieldBuilder} from "./../builders/uniFieldBuilder";
+import {UniValidator} from "../../validators/UniValidator";
 
 /**
  * Join (or Compose) Validators of a UniFieldBuilder
@@ -16,11 +17,11 @@ export class ValidatorsComposer {
         return Validators.composeAsync(validators);
     }
 
-    private static joinValidators(validators: any[]) {
+    private static joinValidators(validators: UniValidator[]) {
         let list = [];
         if (validators && Array.isArray(validators)) {
-            validators.forEach((validator: any) => {
-                list.push(validator.validator);
+            validators.forEach((validator: UniValidator) => {
+                list.push(validator.Validator);
 
             });
         }

@@ -6,7 +6,7 @@ import {UniFieldBuilder} from "../../forms/builders/uniFieldBuilder";
 @Component({
     selector: "uni-radio-group",
     template: `
-        <fieldset>
+        <fieldset *ngIf="config.control">
             <legend *ngIf="config.label">{{config.label}}</legend>
             <template ngFor #item [ngForOf]="config.items" #i="index">
                 <input

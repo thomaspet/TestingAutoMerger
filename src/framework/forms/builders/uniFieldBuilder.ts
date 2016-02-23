@@ -58,6 +58,7 @@ export class UniFieldBuilder {
         ufb.fieldType = UniField;
         ufb.type = UNI_CONTROL_DIRECTIVES[element.FieldType];
         ufb.lineBreak = element.hasLineBreak || false;
+        ufb.syncValidators = element.Validators;
 
         if (element.kendoOptions !== undefined) {
             ufb.kOptions = element.kendoOptions;

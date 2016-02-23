@@ -1,17 +1,14 @@
-import {Component, ViewChild, ViewChildren, AfterViewInit} from 'angular2/core';
+import {Component, ViewChildren, AfterViewInit} from 'angular2/core';
 import {UniTable, UniTableBuilder, UniTableColumn} from '../../../../framework/uniTable';
 
-import {UniHttpService} from '../../../../framework/data/uniHttpService';
+import {UniHttp} from '../../../../framework/core/http';
 
 @Component({
     selector: 'uni-table-demo',
-    // template: `
-    //     <h4>Table with expanded properties in lookup</h4>
-    //     <uni-table [config]="expandedFieldsTableCfg"></uni-table>
-    // `, 
     template: `   
         <h4>Editable table with remote data</h4>
         <uni-table [config]="editableRemoteDataCfg"></uni-table>
+        <button (click)="testUpdateFilter()">Test updateFilter</button>
         <br><br>
         
         <h4>Editable table with local data</h4>
@@ -46,7 +43,11 @@ export class UniTableDemo {
         this.tables.toArray()[3].refresh(this.localData);
     }
     
-    constructor(uniHttpService: UniHttpService) {        
+    testUpdateFilter() {
+        this.tables.toArray()[0].updateFilter('Price gt 200');
+    }
+    
+    constructor(uniHttpService: UniHttp) {
         
         // Create columns to use in the tables
         var idCol = new UniTableColumn('ID', 'Produktnummer', 'number')
@@ -91,6 +92,7 @@ export class UniTableDemo {
         
         // Editable table working with remote data
         this.editableRemoteDataCfg = new UniTableBuilder('products', true)
+        .setFilter('Price gt 100')
         .setPageSize(5)
         .addColumns(idCol, nameCol, priceCol)
         .addCommands(
@@ -101,10 +103,12 @@ export class UniTableDemo {
         
         
         // Editable table working with local data
-        uniHttpService.get({
-            resource: 'products',
-            top: 5
-        }).subscribe((response) => {
+        uniHttpService
+        .asGET()
+        .usingBusinessDomain()
+        .withEndPoint("products")
+        .send({top:5})
+        .subscribe((response) => {
            this.editableLocalDataCfg = new UniTableBuilder(response, true)
             .setPageSize(5)
             .addColumns(idCol, nameCol, priceCol)
@@ -127,71 +131,5 @@ export class UniTableDemo {
         .addColumns(idCol, nameCol, priceCol)
         .setSelectCallback(selectCallback);
          
-        
-        
-        // Expand test
-        // var employeeIdCol = new UniTableColumn('ID', 'ID', 'number')
-        // .setEditable(false)
-        // .setNullable(true);
-        // 
-        // var employeeNumberCol = new UniTableColumn('EmployeeNumber', 'Ansattnummer', 'number')
-        // .setEditable(false);
-        // 
-        // var employeeNameCol = new UniTableColumn('BusinessRelationInfo.Name', 'Navn', 'string');
-        // 
-        // var employeeEmailCol = new UniTableColumn('BusinessRelationInfo.DefaultEmail.EmailAddress', 'Epost', 'string')
-        // .setNullable(true);
-        // 
-        // 
-        // this.expandedFieldsTableCfg = new UniTableBuilder('employees', true)
-        // .setExpand('BusinessRelationInfo,BusinessRelationInfo.DefaultEmail')
-        // .setFilter('EmployeeNumber eq 42')
-        // .addColumns(employeeIdCol, employeeNumberCol, employeeNameCol, employeeEmailCol);
-        
-//         var data = [
-//             {
-//                 ID: 1,
-//                 EmployeeNumber: 1,
-//                 BusinessRelationInfo: {
-//                     Name: 'Anders',
-//                     DefaultEmail: {
-//                         EmailAddress: 'anders@test.com'
-//                     }                    
-//                 }
-//             },
-//             {
-//                 ID: 2,
-//                 EmployeeNumber: 2,
-//                 BusinessRelationInfo: {
-//                     Name: 'Jonis',
-//                     DefaultEmail: {
-// 
-//                     }                    
-//                 }
-//             },
-//             {
-//                 ID: 3,
-//                 EmployeeNumber: 3,
-//                 BusinessRelationInfo: {
-//                     DefaultEmail: {}                    
-//                 }
-//             },
-//         ];
-//         this.expandedFieldsTableCfg = new UniTableBuilder(data, true)
-//         .setUpdateCallback((updatedItem) => {
-//             var myObj = {
-//                 ID: 1,
-//                 EmployeeNumber: 1,
-//                 BusinessRelationInfo: {
-//                     Name: '',
-//                     DefaultEmail: {
-//                         EmailAddress: ''
-//                     }
-//                 }
-//             }
-//             console.log(jQuery.extend(myObj, updatedItem));
-//         })
-//         .addColumns(employeeIdCol, employeeNumberCol, employeeNameCol, employeeEmailCol);
-        
     }
 }

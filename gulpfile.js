@@ -32,7 +32,7 @@ var config = {
                 require.resolve('jquery/dist/jquery.min.js'),
                 require.resolve('bootstrap/dist/js/bootstrap.min.js'),
                 require.resolve('jwt-decode/build/jwt-decode.min.js'),
-                require.resolve('lodash/index.js'),
+                require.resolve('lodash/lodash.js'),
                 require.resolve('./kendo/js/kendo.all.min.js'),
 
 
