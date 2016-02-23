@@ -1,11 +1,36 @@
-import {Component, ViewChildren, AfterViewInit} from 'angular2/core';
+import {Component, Input, ElementRef, ViewChildren, AfterViewInit} from 'angular2/core';
 import {UniTable, UniTableBuilder, UniTableColumn} from '../../../../framework/uniTable';
 
 import {UniHttp} from '../../../../framework/core/http';
 
+declare var jQuery;
+
+@Component({
+    selector: 'table-dropdown-test',
+    template: '<input />'
+})
+class TableDropdown {
+    @Input() kendoOptions;
+    nativeElement;
+    
+    constructor(elementRef: ElementRef) {
+        this.nativeElement = jQuery(elementRef.nativeElement);
+        this.nativeElement.kendoDropDownList(this.kendoOptions);
+    }
+    
+    ngAfterViewInit() {
+        console.log(this.nativeElement);
+        this.nativeElement.kendoDropDownList(this.kendoOptions);
+    }
+}
+
 @Component({
     selector: 'uni-table-demo',
     template: `   
+        <h4>Table with custom editor (dropdown) in "Type" column</h4>
+        <uni-table [config]="customEditorCfg"></uni-table>
+        <br><br>
+        
         <h4>Editable table with remote data</h4>
         <uni-table [config]="editableRemoteDataCfg"></uni-table>
         <button (click)="testUpdateFilter()">Test updateFilter</button>
@@ -23,7 +48,7 @@ import {UniHttp} from '../../../../framework/core/http';
         <uni-table [config]="readOnlyLocalDataCfg"></uni-table>
         <button (click)="testTableRefresh()">Test table refresh with new row</button>
     `,
-    directives: [UniTable]
+    directives: [UniTable, TableDropdown]
 })
 export class UniTableDemo {
     @ViewChildren(UniTable) tables: any;
@@ -38,16 +63,90 @@ export class UniTableDemo {
     readOnlyRemoteDataCfg;
     readOnlyLocalDataCfg;	
     
-    testTableRefresh() {
-        this.localData[0].Name = "Navn endret av refresh!";
-        this.tables.toArray()[3].refresh(this.localData);
+    customEditorCfg;
+    
+    leaveTypes: any[];
+    employments: any[];
+    
+    getLeaveTypeText = (typeID: string) => {
+        var text = "";
+        this.leaveTypes.forEach((leaveType) => {
+            if (leaveType.typeID === typeID) {
+                text = leaveType.text;
+            }
+        });
+        return text;
     }
     
-    testUpdateFilter() {
-        this.tables.toArray()[0].updateFilter('Price gt 200');
+    getEmploymentJobName = (employmentID: number) => {
+        var jobName = "";
+        
+        this.employments.forEach((employment) => {
+            if (employment.ID === employmentID) {
+                jobName = employment.JobName;
+            }
+        });
+        return jobName;
     }
     
-    constructor(uniHttpService: UniHttp) {
+    setupCustomEditorCfg() {
+        var idCol = new UniTableColumn('ID', 'Id', 'number')
+        .setEditable(false)
+        .setNullable(true);
+        
+        var fromDateCol = new UniTableColumn('FromDate', 'Startdato', 'date')
+        .setFormat("{0: dd.MM.yyyy}");
+        
+        var toDateCol = new UniTableColumn('ToDate', 'Sluttdato', 'date')
+        .setFormat("{0: dd.MM.yyyy}");
+        
+        var leaveTypeCol = new UniTableColumn('LeaveType', 'Type', 'string')
+        .setTemplate((dataItem) => {
+            return this.getLeaveTypeText(dataItem.LeaveType);
+        })
+        .setCustomEditor('dropdown', {
+            dataSource: this.leaveTypes,
+            dataValueField: 'typeID',
+            dataTextField: 'text'
+        });
+        
+        var leavePercentCol = new UniTableColumn('LeavePercent', 'Andel permisjon', 'number')
+        .setFormat("{0: #\\'%'}");
+        
+        var commentCol = new UniTableColumn('Description', 'Kommentar', 'string');
+        
+        var employmentIDCol = new UniTableColumn('EmploymentID', 'Arbeidsforhold', '')
+        .setTemplate((dataItem) => {
+            return this.getEmploymentJobName(dataItem.EmploymentID)
+        })
+        .setCustomEditor('dropdown', {
+            dataSource: this.employments,
+            dataValueField: 'ID',
+            dataTextField: 'JobName',
+        });
+        
+        
+        this.customEditorCfg = new UniTableBuilder('EmployeeLeave', true)
+        .addColumns(idCol, fromDateCol, toDateCol, leavePercentCol, leaveTypeCol, employmentIDCol, commentCol);
+
+    }
+    
+    constructor(private uniHttpService: UniHttp) {
+        // Test table with custom editor
+        this.leaveTypes = [
+          { typeID: "1", text: "Permisjon" },
+          { typeID: "2", text: "Permittering" }  
+        ];
+        
+        this.uniHttpService.asGET()
+        .usingBusinessDomain()
+        .withEndPoint('employments')
+        .send()
+        .subscribe((response) => {
+            this.employments = response;
+            this.setupCustomEditorCfg();
+        });        
+        
         
         // Create columns to use in the tables
         var idCol = new UniTableColumn('ID', 'Produktnummer', 'number')
@@ -131,5 +230,14 @@ export class UniTableDemo {
         .addColumns(idCol, nameCol, priceCol)
         .setSelectCallback(selectCallback);
          
+    }
+    
+    testTableRefresh() {
+        this.localData[0].Name = "Navn endret av refresh!";
+        this.tables.toArray()[3].refresh(this.localData);
+    }
+    
+    testUpdateFilter() {
+        this.tables.toArray()[0].updateFilter('Price gt 200');
     }
 }
