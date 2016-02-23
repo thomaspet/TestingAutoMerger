@@ -44,20 +44,36 @@ export class PersonalDetails {
     ngAfterViewInit() {
 
         var self = this;
-
+        if(self.employeeDS.localizations){
+            console.log("Localizations are cached");
+            self.getData();
+        }else{
+            console.log("Caching localizations");
+            self.cacheLocAndGetData();
+        }
+    }
+    
+    cacheLocAndGetData(){
+        var self = this;
+        self.employeeDS.getLocalizations().subscribe((response) => {
+            self.employeeDS.localizations = response;
+            
+            self.getData();
+        });
+    }
+    
+    getData(){
+        var self = this;
         Observable.forkJoin(
             self.employeeDS.get(this.EmployeeID),
             self.employeeDS.layout("EmployeePersonalDetailsForm")
-            // self.employeeDS.getLocalizations()
         ).subscribe(
             (response: any) => {
                 var [employee, layout] = response;
                 self.employee = EmployeeModel.createFromObject(employee);
                 self.form = new UniFormLayoutBuilder().build(layout, self.employee);
                 self.form.hideSubmitButton();
-                // self.localizations = loc;
-
-
+                
                 self.uniCmpLoader.load(UniForm).then((cmp: ComponentRef) => {
                     cmp.instance.config = self.form;
                     setTimeout(() => {
