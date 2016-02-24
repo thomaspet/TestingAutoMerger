@@ -6,6 +6,7 @@ import {UniRadioGroup} from "../controls/radioGroup/uniRadioGroup";
 import {UniComponentLoader} from "../core/componentLoader";
 import {UniFieldBuilder} from "./builders/uniFieldBuilder";
 import {UniGenericField} from "./shared/UniGenericField";
+import {UniCheckboxInput} from "../controls/checkbox/checkbox";
 
 declare var _;
 
@@ -14,13 +15,14 @@ declare var _;
  */
 @Component({
     selector: "uni-field",
-    directives: [UniComponentLoader, ShowError, UniRadioGroup, NgIf, NgForm],
+    directives: [UniComponentLoader, ShowError, UniRadioGroup, NgIf, NgForm, UniCheckboxInput],
     template: `
         <label ngForm *ngIf="isInput()" [class.error]="hasError()" [class]="buildClassString()" [class.-has-linebreak]="hasLineBreak()">
             <span>{{config.label}}</span>
             <uni-component-loader [type]="config.type" [config]="config"></uni-component-loader>
             <show-error [control]="config.control" [messages]="config.errorMessages"></show-error>
         </label>
+        <uni-checkbox *ngIf="isCheckbox()" [config]="config"></uni-checkbox>
         <uni-radio-group *ngIf="isRadioGroup()" [config]="config"></uni-radio-group>
     `
 })
@@ -44,10 +46,9 @@ export class UniField extends UniGenericField {
 
     /**
      * Returns true if this component is a RadioGroup
-     * @param type
      * @returns {boolean}
      */
-    isRadioGroup(type: Type) {
+    isRadioGroup() {
         return UNI_CONTROL_DIRECTIVES.indexOf(this.config.type) === 9;
     }
 
@@ -56,7 +57,7 @@ export class UniField extends UniGenericField {
      * @returns {boolean}
      */
     isInput() {
-        return !this.isRadioGroup(this.config.type);
+        return !this.isRadioGroup() && !this.isCheckbox();
     }
 
     /**
@@ -64,7 +65,7 @@ export class UniField extends UniGenericField {
      * @returns {boolean}
      */
     isCheckbox() {
-        return UNI_CONTROL_DIRECTIVES.indexOf(this.config.type) === 7;
+        return UNI_CONTROL_DIRECTIVES.indexOf(this.config.type) === 8;
     }
 
     /**

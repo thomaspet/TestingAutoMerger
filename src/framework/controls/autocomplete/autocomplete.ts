@@ -1,7 +1,7 @@
 import {Component, ElementRef, Input, AfterViewInit, OnDestroy} from "angular2/core";
 // import { Control } from "angular2/common";
 import { Observable } from "rxjs/Observable";
-import "rxjs/observable/fromEvent";
+import "rxjs/observable/FromEventObservable";
 
 import {InputTemplateString} from "../inputTemplateString";
 import {UniFieldBuilder} from "../../forms/builders/uniFieldBuilder";
