@@ -5,7 +5,7 @@
         <form class="confirm_invite_form">
             <label>
                 Brukernavn:
-                <input type="text" [(ngModel)]="user['user-name']" [ngClass]="{error: isInvalidUsername}" placeholder="Brukernavn" />
+                <input type="text" [(ngModel)]="user.username" [ngClass]="{error: isInvalidUsername}" placeholder="Brukernavn" />
             </label>
             <label>
                 Passord:
@@ -22,6 +22,6 @@
 
     <!--Should be error message component?-->
     <section *ngIf="!validInvite">
-        <h3>{{verificationCodeErrorMessage}}</h3>
+        <p>{{verificationCodeErrorMessage}}</p>
     </section>
 </div>

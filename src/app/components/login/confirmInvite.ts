@@ -80,7 +80,7 @@ export class Confirm {
         this.formErrorMessage = '';
 
         //Username should not be empty or undefined
-        if (this.user['user-name'] === undefined || this.user['user-name'] === '') {
+        if (this.user.username === undefined || this.user.username === '') {
             this.formErrorMessage += 'Ugyldig brukernavn..';
             this.isInvalidUsername = true;
         } else { this.isInvalidUsername = false; }

@@ -1,33 +1,9 @@
-﻿import {Component, Pipe} from 'angular2/core';
+﻿import {Component} from 'angular2/core';
 import {NgFor, NgIf} from 'angular2/common';
 import {UniHttp} from '../../../../framework/core/http';
+import {OrderByPipe} from '../../../../framework/pipes/orderByPipe';
 
 declare var jQuery;
-
-@Pipe({
-    name: 'sort'
-})
-
-export class OrderByPipe {
-    transform(value, property) {
-        return value.sort(this.dynamicSort(property[0]));
-    }
-
-    dynamicSort(property) {
-        var sortOrder = 1;
-
-        if (property !== undefined) {
-            if (property.charAt(0) === '-') {
-                sortOrder = -1;
-                property = property.substr(1);
-            }
-        }
-
-        return (a, b) => {
-            return ((a[property] < b[property]) ? -1 : (a[property] > b[property]) ? 1 : 0) * sortOrder;
-        }
-    }
-}
 
 @Component({
     selector: 'uni-users',
@@ -51,10 +27,7 @@ export class Users {
         this.setUserTableData();
     }
 
-    //This needs to merge data from 3 resources (users, usersstatus, roles)
-    //Need for DS? Uses data that is not used any other place?
     setUserTableData() {
-        var status = this.statusDummy();
         this.http
             .asGET()
             .usingBusinessDomain()
@@ -127,14 +100,5 @@ export class Users {
         } else {
             this.sortProperty = sortValue;
         }
-    }
-
-    //DUMMY
-    statusDummy() {
-        return [
-            { Name: 'Invitert', ID: 17 },
-            { Name: 'Aktiv', ID: 18 },
-            { Name: 'Inaktiv', ID: 19 }
-        ]
     }
 }
