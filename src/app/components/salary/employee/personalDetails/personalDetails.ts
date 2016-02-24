@@ -80,7 +80,7 @@ export class PersonalDetails {
         ).subscribe(
             (response: any) => {
                 var [employee, layout] = response;
-                var mockValidation = UniValidator.fromObject({
+                layout.Fields[0].Validators = [{
                     "EntityType": "BusinessRelation",
                     "PropertyName": "BusinessRelationInfo.Name",
                     "Operator": Operator.Required,
@@ -90,8 +90,7 @@ export class PersonalDetails {
                     "ErrorMessage": "Employee name is required",
                     "ID": 1,
                     "Deleted": false
-                });
-                layout.Fields[0].Validators = [mockValidation];
+                }];
                 self.employee = EmployeeModel.createFromObject(employee);
                 self.form = new UniFormLayoutBuilder().build(layout, self.employee);
                 self.form.hideSubmitButton();
@@ -103,8 +102,8 @@ export class PersonalDetails {
                         console.log(self.formInstance);
                     }, 100);
                 });
-            },
-            (error: any) => console.error(error)
+            }
+            , (error: any) => console.error(error)
         );
     }
 

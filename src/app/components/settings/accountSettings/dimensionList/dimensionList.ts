@@ -28,7 +28,8 @@ export class DimensionList {
         idCol.setWidth("4rem");
 
         this.tableConfig = new UniTableBuilder(this.localData, false)
-            .setPageSize(5)
+            .setPageSize(100)
+            .setPageable(false)
             .setSearchable(false)
             .addColumns(idCol, typeCol, nameCol);
     }
