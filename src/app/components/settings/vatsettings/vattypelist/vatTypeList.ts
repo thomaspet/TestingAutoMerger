@@ -27,10 +27,15 @@ export class VatTypeList {
     
     loopGroups() {
         
-        var codeCol = new UniTableColumn('VatCode', 'Kode', 'string');
-        var aliasCol = new UniTableColumn('Alias', 'Alias', 'string');
-        var nameCol = new UniTableColumn('Name', 'Navn', 'string');
-        var percentCol = new UniTableColumn('VatPercent', 'Prosent', 'string');
+        var codeCol = new UniTableColumn('VatCode', 'Kode', 'string').setWidth("15%");;
+        var aliasCol = new UniTableColumn('Alias', 'Alias', 'string').setWidth("15%");;
+        var nameCol = new UniTableColumn('Name', 'Navn', 'string').setWidth("50%");
+        var percentCol = new UniTableColumn('VatPercent', 'Prosent', 'string').setWidth("15%");            
+        var copyCol = new UniTableColumn("", "", "boolean")
+            .setClass("icon-column")
+            .setTemplate("<span label='Venter på bedre rammeverkstøtte for ikonknapper i tabeller' class='is-locked' role='presentation'></span>"
+            )
+            .setWidth("5%");
             
         this.vatcodegroups.forEach((vatgroup: IVatCodeGroup) => {           
                   
@@ -43,7 +48,8 @@ export class VatTypeList {
                 .setFilter("VatCodeGroupID eq " + vatgroup.ID)
                 .setPageSize(100)
                 .setPageable(false)
-                .addColumns(codeCol, aliasCol, nameCol, percentCol)
+                .setSearchable(false)
+                .addColumns(codeCol, aliasCol, nameCol, percentCol, copyCol)
                 .setSelectCallback((vattype: IVatType) => {
                     this.uniVatTypeChange.emit(vattype);
                 });

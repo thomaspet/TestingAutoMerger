@@ -1,9 +1,9 @@
 .vatList
-    @include unigrid(10)
+    @include unigrid(12)
     float: left
     
 .vatDetails
-    @include unigrid(6)
+    @include unigrid(4)
     float: left
 
 .vatDetails label
@@ -13,3 +13,13 @@
     width: 100%
     background: inherit
     margin: 0
+
+      
+.is-locked:before
+    content: ""
+    display: inline-block
+    background: transparent unicon-lock($uni-color-positive) no-repeat
+    background-size: 0.6rem
+    padding: 0.6rem
+    margin-left: 0.4rem
+    
