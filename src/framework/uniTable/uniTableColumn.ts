@@ -64,6 +64,11 @@ export class UniTableColumn {
             case 'dropdown':
                 this.editor = this.controls.dropdown(kendoOptions);
             break;
+            
+            case 'datepicker':
+                this.editor = this.controls.datepicker(kendoOptions);
+            break;
+            
         }
         
         return this;

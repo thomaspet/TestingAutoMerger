@@ -98,6 +98,7 @@ export class UniTableDemo {
         .setFormat("{0: dd.MM.yyyy}");
         
         var toDateCol = new UniTableColumn('ToDate', 'Sluttdato', 'date')
+        .setCustomEditor('datepicker', {format: 'dd.MM.yyyy'})
         .setFormat("{0: dd.MM.yyyy}");
         
         var leaveTypeCol = new UniTableColumn('LeaveType', 'Type', 'string')

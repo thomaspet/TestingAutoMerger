@@ -85,7 +85,7 @@ export class UniDatepicker implements AfterViewInit, OnDestroy {
     }
 }
 
-function autocompleteDate(inputValue: string): Date {
+export function autocompleteDate(inputValue: string): Date {
     "use strict";
     var input = inputValue.replace(/[^0-9]/g, "");
 
