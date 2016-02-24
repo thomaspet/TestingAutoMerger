@@ -79,10 +79,12 @@ export class VatTypeDetails {
         if (this.VatType != null) {            
             this.model = this.VatType;
             
+            var self = this;
+            
             //TODO: Remove timeout, needed for now to give angular time to set up form after this.model has been set
             setTimeout(() => {
-                if (this.form != null)
-                    this.form.refresh(this.model);
+                if (self.form != null)
+                    self.form.refresh(self.model);
             }, 1000);
         }  
     }
