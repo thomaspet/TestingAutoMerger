@@ -1,7 +1,10 @@
 import {Injectable, Inject} from "angular2/core";
 import {UniHttp} from "./../core/http";
 import { Observable } from "rxjs/Observable";
-import {UNI_CONTROL_TYPES} from "../../framework/controls/types";
+import "rxjs/add/observable/fromArray";
+
+//import {UNI_CONTROL_TYPES} from "../../framework/controls/types";
+import {FieldType} from "../../framework/interfaces/interfaces";
 
 @Injectable()
 export class WagetypeService {
@@ -38,7 +41,7 @@ export class WagetypeService {
     }
         
     layout(layoutID: string) {
-        return Observable.from([{
+        return Observable.fromArray([{
             Name: layoutID,
             BaseEntity: "wagetype",
             Fields: [
@@ -48,7 +51,7 @@ export class WagetypeService {
                     Property: "WageTypeId",
                     Placement: 1,
                     Hidden: false,
-                    FieldType: UNI_CONTROL_TYPES.TEXT,
+                    FieldType: FieldType.TEXT,
                     ReadOnly: true,
                     LookupField: false,
                     Label: "Wagetype ID",                    
@@ -72,7 +75,7 @@ export class WagetypeService {
                     Property: "WageTypeName",
                     Placement: 1,
                     Hidden: false,
-                    FieldType: UNI_CONTROL_TYPES.TEXT,
+                    FieldType: FieldType.TEXT,
                     ReadOnly: false,
                     LookupField: false,
                     Label: "Wagetype Name",
@@ -96,7 +99,7 @@ export class WagetypeService {
                     Property: "Description",
                     Placement: 1,
                     Hidden: false,
-                    FieldType: UNI_CONTROL_TYPES.TEXT,
+                    FieldType: FieldType.TEXT,
                     ReadOnly: false,
                     LookupField: false,
                     Label: "Description",
@@ -113,7 +116,7 @@ export class WagetypeService {
                     Property: "Base_EmploymentTax",
                     Placement: 1,
                     Hidden: false,
-                    FieldType: UNI_CONTROL_TYPES.CHECKBOX,
+                    FieldType: FieldType.CHECKBOX,
                     ReadOnly: false,
                     LookupField: false,
                     Label: "Employment Tax",
@@ -137,7 +140,7 @@ export class WagetypeService {
                     Property: "Base_Payment",
                     Placement: 1,
                     Hidden: false,
-                    FieldType: UNI_CONTROL_TYPES.CHECKBOX,
+                    FieldType: FieldType.CHECKBOX,
                     ReadOnly: false,
                     LookupField: false,
                     Label: "Is Payment",
@@ -161,7 +164,7 @@ export class WagetypeService {
                     Property: "HideFromPaycheck",
                     Placement: 1,
                     Hidden: false,
-                    FieldType: UNI_CONTROL_TYPES.CHECKBOX,
+                    FieldType: FieldType.CHECKBOX,
                     ReadOnly: false,
                     LookupField: false,
                     Label: "Hide from paycheck",
@@ -185,7 +188,7 @@ export class WagetypeService {
                     Property: "Base_Vacation",
                     Placement: 1,
                     Hidden: false,
-                    FieldType: UNI_CONTROL_TYPES.CHECKBOX,
+                    FieldType: FieldType.CHECKBOX,
                     ReadOnly: false,
                     LookupField: false,
                     Label: "Holiday",
@@ -209,7 +212,7 @@ export class WagetypeService {
                     Property: "StandardWageTypeFor",
                     Placement: 1,
                     Hidden: false,
-                    FieldType: UNI_CONTROL_TYPES.COMBOBOX,
+                    FieldType: FieldType.COMBOBOX,
                     ReadOnly: false,
                     LookupField: false,
                     Label: "Standard Wagetype for",
@@ -233,7 +236,7 @@ export class WagetypeService {
                     Property: "StandardWageTypeFor",
                     Placement: 1,
                     Hidden: false,
-                    FieldType: UNI_CONTROL_TYPES.COMBOBOX,
+                    FieldType: FieldType.COMBOBOX,
                     ReadOnly: false,
                     LookupField: false,
                     Label: "Tax Type",
@@ -257,7 +260,7 @@ export class WagetypeService {
                     Property: "AccountNumber",
                     Placement: 1,
                     Hidden: false,
-                    FieldType: UNI_CONTROL_TYPES.TEXT,
+                    FieldType: FieldType.TEXT,
                     ReadOnly: false,
                     LookupField: false,
                     Label: "Account Number",
