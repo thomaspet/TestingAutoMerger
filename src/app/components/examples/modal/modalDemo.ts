@@ -8,7 +8,7 @@ import {UniModal} from "../../../../framework/modals/modal";
     template: `
         <article class="modal-content">
             <h1 *ngIf="config.title">{{config.title}}</h1>
-            <input [(ngModel)]="tempValue"/>
+            <input type="text" [(ngModel)]="tempValue"/>
             <footer>
                 <button *ngFor="#action of config.actions; #i=index" (click)="action.method()">
                     {{action.text}}

@@ -12,6 +12,8 @@ import {UniNumericInput} from "./controls/numeric/numericInput";
 import {UniPasswordInput} from "./controls/password/password";
 import {UniTextInput} from "./controls/text/text";
 import {UniHyperlink} from "./controls/hyperlink/hyperlink";
+import {UniRadioGroup} from "./controls/radioGroup/uniRadioGroup";
+import {UniRadioInput} from "./controls/radio/radio";
 
 /**
  * !!!!!!!!!   IMPORTANT  !!!!!!!!
@@ -26,9 +28,9 @@ export const UNI_CONTROL_DIRECTIVES: Type[] = CONST_EXPR([
     UniMaskedInput,
     UniMultiSelect,
     UniNumericInput,
-    UniCheckboxInput,// uniRadio
+    UniRadioInput,// uniRadio
     UniCheckboxInput,
-    UniCheckboxInput,// uniRadioGroup
+    UniRadioGroup,// uniRadioGroup
     UniTextInput,
     UniEmailInput,
     UniPasswordInput,

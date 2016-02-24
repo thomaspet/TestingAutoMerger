@@ -1,27 +1,15 @@
 import {Control} from "angular2/common";
 import {Validators} from "angular2/common";
 
-export function required(key: string) {
+export function required(value = null, key: string) {
     "use strict";
-    return function validator(c: Control): {[key: string]: boolean} {
+    return function validator(c: Control): any {
         if (c.value === null || c.value === '' || c.value === undefined) {
-            return {
-                key: true
-            };
+            let error = {};
+            error[key] = true;
+            return error;
         }
         return null;
 
-    };
-}
-
-export function matchField(controlToMatch: Control, key: string) {
-    "use strict";
-    return function validator(c: Control): {[key: string]: boolean} {
-        if (controlToMatch.value === c.value) {
-            return null;
-        }
-        return {
-            key: true
-        };
     };
 }

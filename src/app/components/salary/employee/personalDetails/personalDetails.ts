@@ -9,6 +9,8 @@ import {EmployeeModel} from "../../../../../framework/models/employee";
 import {UniComponentLoader} from "../../../../../framework/core";
 import {Observable} from "rxjs/Observable";
 import "rxjs/add/operator/merge";
+import {UniValidator} from "../../../../../framework/validators/UniValidator";
+import {OperationType, Operator, ValidationLevel} from "../../../../../framework/interfaces/interfaces";
 
 declare var _;
 
@@ -43,39 +45,65 @@ export class PersonalDetails {
 
     ngAfterViewInit() {
 
+        if(this.employeeDS.localizations){
+            console.log("Localizations are cached");
+            this.getData();
+        }else{
+            console.log("Caching localizations");
+            this.cacheLocAndGetData();
+        }
+    }
+    
+    cacheLocAndGetData(){
+        this.employeeDS.getLocalizations().subscribe((response) => {
+            this.employeeDS.localizations = response;
+            
+            this.getData();
+        });
+    }
+    
+    getData(){
         var self = this;
 
         /*
-             http.get(url).map(res => res.json())
-             .flatMap(response => {
-                return http.get(url2+'/'+response.param).map(res => res.json())
-                    .map(response2 => {
-                        //do whatever and return
-                })
-             }).subscribe()
+         http.get(url).map(res => res.json())
+         .flatMap(response => {
+         return http.get(url2+'/'+response.param).map(res => res.json())
+         .map(response2 => {
+         //do whatever and return
+         })
+         }).subscribe()
          */
-
         Observable.forkJoin(
             self.employeeDS.get(this.EmployeeID),
             self.employeeDS.layout("EmployeePersonalDetailsForm")
-            // self.employeeDS.getLocalizations()
         ).subscribe(
             (response: any) => {
                 var [employee, layout] = response;
+                layout.Fields[0].Validators = [{
+                    "EntityType": "BusinessRelation",
+                    "PropertyName": "BusinessRelationInfo.Name",
+                    "Operator": Operator.Required,
+                    "Operation": OperationType.CreateAndUpdate, // not used now. Operation is applied in all levels
+                    "Level": ValidationLevel.Error, // not used now. All messages are errors
+                    "Value": null,
+                    "ErrorMessage": "Employee name is required",
+                    "ID": 1,
+                    "Deleted": false
+                }];
                 self.employee = EmployeeModel.createFromObject(employee);
                 self.form = new UniFormLayoutBuilder().build(layout, self.employee);
                 self.form.hideSubmitButton();
-                // self.localizations = loc;
-
-
+                
                 self.uniCmpLoader.load(UniForm).then((cmp: ComponentRef) => {
                     cmp.instance.config = self.form;
                     setTimeout(() => {
                         self.formInstance = cmp.instance;
+                        console.log(self.formInstance);
                     }, 100);
                 });
-            },
-            (error: any) => console.error(error)
+            }
+            , (error: any) => console.error(error)
         );
     }
 
