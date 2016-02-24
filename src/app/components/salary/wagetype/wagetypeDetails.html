@@ -1,0 +1,33 @@
+
+
+<header class="poster">    
+    <article class="poster_toolbar">
+        <div *ngIf="wageType">
+            <h2 class="poster_toolbar_headline">{{wageType.WageTypeId}}&nbsp;-&nbsp;{{wageType.WageTypeName}}
+                 <p class="poster_toolbar_orgnr"></p>  
+            </h2>
+        </div>
+            
+        <div class="poster_toolbar_tools">
+            <input type="search" class="poster_toolbar_search">
+            <a href="#" class="previous">Forrige</a>
+            <a href="#" class="next">Neste</a>
+            <a href="#" class="new">Ny ansatt</a>
+        </div>
+            
+    </article>    
+    <!-- Widget poster -->
+    <section class="poster_overview">
+        <uni-widget-poster [model]="wageType"></uni-widget-poster>
+    </section>
+    
+</header>
+	
+
+    <div class="application wagetype">
+<uni-component-loader></uni-component-loader>
+</div>
+
+    
+
+
