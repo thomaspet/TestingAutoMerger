@@ -61,18 +61,8 @@ export class Users {
             .withEndPoint("users")
             .send()
             .subscribe(
-                (users) => {
-                    //Dummy while waiting for implementation of status
-                    users.forEach((user) => {
-                        user.Status = status[status.map((st) => { return st.ID }).indexOf(user.StatusID + (Math.floor(Math.random()* 2)))].Name;
-                    })
-
-                    this.users = users;
-                },
-                (error) => {
-                    //Error handling
-                    console.log(error);
-                }
+                (users) => { this.users = users; },
+                (error) => { /*Error handling*/ console.log(error); }
             );
     }
 
