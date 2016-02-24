@@ -45,22 +45,20 @@ export class PersonalDetails {
 
     ngAfterViewInit() {
 
-        var self = this;
-        if(self.employeeDS.localizations){
+        if(this.employeeDS.localizations){
             console.log("Localizations are cached");
-            self.getData();
+            this.getData();
         }else{
             console.log("Caching localizations");
-            self.cacheLocAndGetData();
+            this.cacheLocAndGetData();
         }
     }
     
     cacheLocAndGetData(){
-        var self = this;
-        self.employeeDS.getLocalizations().subscribe((response) => {
-            self.employeeDS.localizations = response;
+        this.employeeDS.getLocalizations().subscribe((response) => {
+            this.employeeDS.localizations = response;
             
-            self.getData();
+            this.getData();
         });
     }
     
