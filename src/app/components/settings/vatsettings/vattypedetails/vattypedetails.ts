@@ -3,8 +3,8 @@ import {Validators, Control, FormBuilder} from 'angular2/common';
 import {Observable} from 'rxjs/Observable';
 import "rxjs/add/observable/forkjoin";
 
-import {UNI_CONTROL_DIRECTIVES} from '../../../../../framework/controls';
-import {UNI_CONTROL_TYPES} from '../../../../../framework/controls/types';
+import {UNI_CONTROL_DIRECTIVES} from "../../../../../framework/controls";
+import {FieldType} from "../../../../../framework/interfaces/interfaces";
 import {UniForm, UniFormBuilder, UniFieldsetBuilder, UniFieldBuilder, UniComboFieldBuilder, UniSectionBuilder} from '../../../../../framework/forms';
 
 import {IVatType, IVatCodeGroup, IVatReportReference, IAccount} from '../../../../../framework/interfaces/interfaces';
@@ -40,11 +40,9 @@ export class VatTypeDetails {
             this.accountService.GetAll(null),
             this.vatCodeGroupService.GetAll(null)
             )
-        .subscribe(response => {
-            var [accounts, vatcodegroups] = response;
-            
-            this.accounts = accounts;
-            this.vatcodegroups = vatcodegroups;
+        .subscribe(response => {            
+            this.accounts = response[0];
+            this.vatcodegroups = response[1];
             
             this.buildForm();
         });
@@ -94,13 +92,13 @@ export class VatTypeDetails {
             this.vatTypeService.Put(this.model.ID, this.model)
                 .subscribe(
                     data => this.model = data,
-                    error => console.log('error in vatdetails.onSubmit: ' + error)                    
+                    error => console.log('error in vatdetails.onSubmit: ', error)                    
                 );              
         } else { 
             this.vatTypeService.Post(this.model)
                 .subscribe(
                     data => this.model = data,
-                    error => console.log('error in vatdetails.onSubmit: ' + error)
+                    error => console.log('error in vatdetails.onSubmit: ', error)
                 );
         } 
     }
@@ -111,82 +109,82 @@ export class VatTypeDetails {
         vatCodeGroup.setLabel('Gruppe')
             .setModel(this.model)
             .setModelField('VatCodeGroupID')
-            .setType(UNI_CONTROL_DIRECTIVES[UNI_CONTROL_TYPES.DROPDOWN])
+            .setType(UNI_CONTROL_DIRECTIVES[FieldType.DROPDOWN])
             .setKendoOptions({ dataSource: this.vatcodegroups, dataValueField: 'ID', dataTextField: 'Name', filter:'Contains' });
                    
         var vatCode = new UniFieldBuilder();
         vatCode.setLabel('MVA kode.')
             .setModel(this.model)
             .setModelField('VatCode')
-            .setType(UNI_CONTROL_DIRECTIVES[UNI_CONTROL_TYPES.TEXT])
+            .setType(UNI_CONTROL_DIRECTIVES[FieldType.TEXT])
                                         
         var vatAlias = new UniFieldBuilder();
         vatAlias.setLabel('Alias')
             .setModel(this.model)
             .setModelField('Alias')
-            .setType(UNI_CONTROL_DIRECTIVES[UNI_CONTROL_TYPES.TEXT]);
+            .setType(UNI_CONTROL_DIRECTIVES[FieldType.TEXT]);
          
         var vatName = new UniFieldBuilder();
         vatName.setLabel('Navn')
             .setModel(this.model)
             .setModelField('Name')
-            .setType(UNI_CONTROL_DIRECTIVES[UNI_CONTROL_TYPES.TEXT])
+            .setType(UNI_CONTROL_DIRECTIVES[FieldType.TEXT])
 
       var vatPercentage = new UniFieldBuilder();
         vatPercentage.setLabel('Sats (prosent)')
             .setModel(this.model)
             .setModelField('VatPercent')
-            .setType(UNI_CONTROL_DIRECTIVES[UNI_CONTROL_TYPES.NUMERIC])
+            .setType(UNI_CONTROL_DIRECTIVES[FieldType.NUMERIC])
 
         var vatDateFrom = new UniFieldBuilder();
         vatDateFrom.setLabel('Dato fra')
             .setModel(this.model)
             .setModelField('ValidFrom')
-            .setType(UNI_CONTROL_DIRECTIVES[UNI_CONTROL_TYPES.DATEPICKER])
+            .setType(UNI_CONTROL_DIRECTIVES[FieldType.DATEPICKER])
 
         var vatDateTo = new UniFieldBuilder();
         vatDateTo.setLabel('Dato til')
             .setModel(this.model)
             .setModelField('ValidTo')
-            .setType(UNI_CONTROL_DIRECTIVES[UNI_CONTROL_TYPES.DATEPICKER])
+            .setType(UNI_CONTROL_DIRECTIVES[FieldType.DATEPICKER])
             
         var vatAccountOut = new UniFieldBuilder();
         vatAccountOut.setLabel('Utg. konto')
             .setModel(this.model)
             .setModelField('OutgoingAccountID')
-            .setType(UNI_CONTROL_DIRECTIVES[UNI_CONTROL_TYPES.DROPDOWN])
+            .setType(UNI_CONTROL_DIRECTIVES[FieldType.DROPDOWN])
             .setKendoOptions({ dataSource: this.accounts, dataValueField: 'ID', dataTextField: 'AccountName', filter:'Contains', template:'<span>#:AccountNumber# - #:AccountName#</span>', valueTemplate:'<span>#: data.ID > 0 ? data.AccountNumber : ""# - #:AccountName#</span>' });
             
         var vatAccountIn = new UniFieldBuilder();
         vatAccountIn.setLabel('Inng. konto')
             .setModel(this.model)
             .setModelField('IncomingAccountID')
-            .setType(UNI_CONTROL_DIRECTIVES[UNI_CONTROL_TYPES.DROPDOWN])
+            .setType(UNI_CONTROL_DIRECTIVES[FieldType.DROPDOWN])
             .setKendoOptions({ dataSource: this.accounts, dataValueField: 'ID', dataTextField: 'AccountName', filter:'Contains', template:'<span>#:AccountNumber# - #:AccountName#</span>', valueTemplate:'<span>#: data.ID > 0 ? data.AccountNumber : "" # - #:AccountName#</span>'  }); 
 
         var outputVat = new UniFieldBuilder();
         outputVat.setDescription('Utgående MVA')
             .setModel(this.model) 
             .setModelField('OutputVat')
-            .setType(UNI_CONTROL_DIRECTIVES[UNI_CONTROL_TYPES.CHECKBOX])
+            .setType(UNI_CONTROL_DIRECTIVES[FieldType.CHECKBOX])
 
         var vatAvailable = new UniFieldBuilder();
         vatAvailable.setDescription('Tilgjengelig i moduler')
             .setModel(this.model)
             .setModelField('AvailableInModules')
-            .setType(UNI_CONTROL_DIRECTIVES[UNI_CONTROL_TYPES.CHECKBOX]);      
+            .setType(UNI_CONTROL_DIRECTIVES[FieldType.CHECKBOX]);      
                     
         var vatLocked = new UniFieldBuilder();
         vatLocked.setDescription('Sperret')
             .setModel(this.model)
             .setModelField('Locked')
-            .setType(UNI_CONTROL_DIRECTIVES[UNI_CONTROL_TYPES.CHECKBOX]);      
+            .setType(UNI_CONTROL_DIRECTIVES[FieldType.CHECKBOX]);      
                    
         var vatVisible = new UniFieldBuilder();
         vatVisible.setDescription('Synlig')
             .setModel(this.model)
             .setModelField('Visible')
-            .setType(UNI_CONTROL_DIRECTIVES[UNI_CONTROL_TYPES.CHECKBOX]);      
+            .setType(UNI_CONTROL_DIRECTIVES[FieldType.CHECKBOX]);      
         
         var systemSet = new UniFieldsetBuilder();
         systemSet.addUniElements(outputVat, vatAvailable, vatLocked, vatVisible);

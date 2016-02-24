@@ -4,13 +4,13 @@ import "rxjs/add/observable/forkjoin";
 
 import {IVatType, IVatCodeGroup} from '../../../../../framework/interfaces/interfaces';
 import {VatTypeService, VatCodeGroupService} from '../../../../services/services';
-import {UNI_CONTROL_DIRECTIVES} from '../../../../../framework/controls';
-import {UNI_CONTROL_TYPES} from '../../../../../framework/controls/types';
+import {UNI_CONTROL_DIRECTIVES} from "../../../../../framework/controls";
+import {FieldType} from "../../../../../framework/interfaces/interfaces";
 import {UniForm, UniFormBuilder, UniFieldsetBuilder, UniFieldBuilder, UniComboFieldBuilder, UniSectionBuilder} from '../../../../../framework/forms';
 import {UniTable, UniTableBuilder, UniTableColumn} from '../../../../../framework/uniTable';
 import {TreeList, TreeListItem, TREE_LIST_TYPE} from "../../../../../framework/treeList";
 
-
+ 
 @Component({
     selector: 'vattype-list',
     templateUrl: 'app/components/settings/vatSettings/vattypelist/vattypelist.html',
@@ -64,16 +64,11 @@ export class VatTypeList {
     
     ngOnInit() {
         
-        Observable.forkJoin(
-                this.vatCodeGroupService.GetAll(null)
-        ).subscribe(response => {
-            var [vatcodegroups] = response;
-            this.vatcodegroups = vatcodegroups;
-            
-            this.loopGroups();            
-            //this.buildForm();                
-        });
-                         
+        this.vatCodeGroupService.GetAll(null)
+            .subscribe(response => {
+                this.vatcodegroups = response;                
+                this.loopGroups();
+            });
     }    
 }
     
