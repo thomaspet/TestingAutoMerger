@@ -89,32 +89,24 @@ export class WagetypeService {
                             Operator: "REQUIRED"
                         }
                     ]
-                },/*
+                },
                 {
                     ComponentLayoutID: 1,
                     EntityType: "wagetype",
-                    Property: "",
+                    Property: "Description",
                     Placement: 1,
                     Hidden: false,
                     FieldType: UNI_CONTROL_TYPES.TEXT,
                     ReadOnly: false,
                     LookupField: false,
-                    Label: "Adresse",
+                    Label: "Description",
                     Description: null,
                     HelpText: null,
                     FieldSet: 0,
-                    Section: 1,
-                    Legend: "SETTINGS",
-                    IsLookUp: false,
-                    openByDefault: true,
-                    Validations: [
-                        {
-                            ErrorMessage: "Required field",
-                            Level: 3,
-                            Operator: "REQUIRED"
-                        }
-                    ]
-                },*/
+                    Section: 0,
+                    Legend: "",
+                    hasLineBreak: false                    
+                },
                 {
                     ComponentLayoutID: 1,
                     EntityType: "wagetype",
