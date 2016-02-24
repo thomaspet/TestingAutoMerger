@@ -3,6 +3,8 @@ import {contains, match, maxLenght, minLength, eqLenght} from "./validators/stri
 import {equalTo, greaterEqualThan, greaterThan, lowerEqualThan, lowerThan} from "./validators/logic";
 import {isDate, isDateGreaterThan, isDateGreaterThanEqual, isDateLowerThan, isDateLowerThanEqual} from "./validators/date";
 
+export * from './validators/UniValidator';
+
 export interface IValidationItem {
     name: string;
     validator: Function;
