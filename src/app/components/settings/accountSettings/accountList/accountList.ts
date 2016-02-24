@@ -66,6 +66,24 @@ export class AccountList {
     }
 
     loopAccountGroups(parentgroup: any, id: number|string) {
+        
+         var accountNumberCol = new UniTableColumn("AccountNumber", "Kontonr", "number")
+                    .setWidth("5rem");
+
+        var accountNameCol = new UniTableColumn("AccountName", "Kontonavn", "string");
+
+        var vatTypeCol = new UniTableColumn("", "Mvakode/sats", "string")
+            .setTemplate("#if(VatType != null) {# #= VatType.Name# - #= VatType.VatPercent#% #}#");
+
+        var lockedCol = new UniTableColumn("", "Synlig/låst", "boolean")
+            .setClass("icon-column")
+            .setTemplate("#if(Visible) {#<span class='is-visible' role='presentation'>Visible</span>#} " +
+                "else {#<span class='is-hidden' role='presentation'>Hidden</span>#}# " +
+                "#if(Locked) {#<span class='is-locked' role='presentation'>Locked</span>#} " +
+                "else {#<span class='is-unlocked' role='presentation'>Unlocked</span>#}#"
+            )
+            .setWidth("5rem");
+        
         this.accountgroups.forEach((accountgroup: any) => {
             if (accountgroup.MainGroupID === id) {
                 var group = new TreeListItem(accountgroup.Name)
@@ -75,29 +93,13 @@ export class AccountList {
                     this.accountListItems.push(group);
                 } else {
                     parentgroup.addTreeListItem(group);
-                }
-
-                var accountNumberCol = new UniTableColumn("AccountNumber", "Kontonr", "number")
-                    .setWidth("5rem");
-
-                var accountNameCol = new UniTableColumn("AccountName", "Kontonavn", "string");
-
-                var vatTypeCol = new UniTableColumn("", "Mvakode/sats", "string")
-                    .setTemplate("#if(VatType != null) {# #= VatType.Name# - #= VatType.VatPercent#% #}#");
-
-                var lockedCol = new UniTableColumn("", "Synlig/låst", "boolean")
-                    .setClass("icon-column")
-                    .setTemplate("#if(Visible) {#<span class='is-visible' role='presentation'>Visible</span>#} " +
-                        "else {#<span class='is-hidden' role='presentation'>Hidden</span>#}# " +
-                        "#if(Locked) {#<span class='is-locked' role='presentation'>Locked</span>#} " +
-                        "else {#<span class='is-unlocked' role='presentation'>Unlocked</span>#}#"
-                    )
-                    .setWidth("5rem");
+                }               
 
                 var tableConfig = new UniTableBuilder("accounts", false)
                     .setExpand("VatType")
                     .setFilter("AccountGroupID eq " + accountgroup.ID)
-                    .setPageSize(10)
+                    .setPageSize(100)
+                    .setPageable(false)
                     .addColumns(accountNumberCol, accountNameCol, vatTypeCol, lockedCol)
                     .setSelectCallback((account: IAccount) => {
                         this.uniAccountChange.emit(account.ID);
@@ -120,7 +122,7 @@ export class AccountList {
             .send()
             .subscribe(
                 (dataset: any) => {
-                    this.accountgroups = dataset[0];
+                    this.accountgroups = dataset;
                     this.loopAccountGroups(null, null);
                 },
                 (error: any) => console.log(error)
