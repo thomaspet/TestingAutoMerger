@@ -13,7 +13,6 @@ export class OrderByPipe {
         var sortOrder = 1;
 
         if (property !== undefined) {
-            console.log(property);
             if (property.charAt(0) === '-') {
                 sortOrder = -1;
                 property = property.substr(1);

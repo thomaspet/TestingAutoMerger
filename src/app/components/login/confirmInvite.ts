@@ -17,6 +17,7 @@ export class Confirm {
     isInvalidPasswords: boolean = false;
     isPasswordMismatch: boolean = false;
     isInvalidUsername: boolean = false;
+    isError: boolean = false;
     validInvite: boolean = true;
     working: boolean = false;
     formErrorMessage: string;
@@ -27,7 +28,7 @@ export class Confirm {
         if (param.get('guid')) {
             this.verificationCode = param.get('guid');
 
-            //ROUTE WILL BE CHANGED
+            //Gets the full user-verification object to see if it is valid
             this.uniHttp
                 .asGET()
                 .usingInitDomain()
@@ -35,7 +36,9 @@ export class Confirm {
                 .send()
                 .subscribe(
                 (data) => {
-                    if (data.ExpirationDate) {
+
+                    //Checks that the verifcationobject is valid and is not already confirmed
+                    if (data.ExpirationDate && data.StatusCode === 0) {
                         if (new Date(data.ExpirationDate) > new Date()) {
                             this.validInvite = true;
                         } else {
@@ -58,27 +61,36 @@ export class Confirm {
         }
     }
 
+    //Put to user-verification to confirm user
     confirmUser() {
-
-        //PUT USER
+        this.formErrorMessage = '';
+        this.isError = false; 
         if (this.isValidUser()) {
             this.working = true;
-
+            console.log(this.user);
             this.uniHttp
                 .asPUT()
                 .usingInitDomain()
-                .withEndPoint('user-verification/' + this.verificationCode)
-                .send({ body: this.user, action: 'confirm-invite' })
+                .withEndPoint('user-verification/' + this.verificationCode + '/')
+                .withHeader('Content-Type', 'application/json')
+                .withBody(this.user)
+                .send({ action: 'confirm-invite' })
                 .subscribe(
-                (data) => { console.log(data); this.working = false; /*this.router.navigateByUrl('/login');*/},
-                (error) => { this.formErrorMessage = 'Noe gikk galt ved registrering. Prøv igjen'; }
+                (data) => {
+                    this.working = false;
+                    this.router.navigateByUrl('/login');
+                },
+                (error) => {
+                    this.formErrorMessage = 'Noe gikk galt ved verifiseringen. Prøv igjen';
+                    this.isError = true;
+                    this.working = false;
+                }
                 )
         }
     }
 
+    //Checks if form input fields are all valid
     isValidUser() {
-        this.formErrorMessage = '';
-
         //Username should not be empty or undefined
         if (this.user.username === undefined || this.user.username === '') {
             this.formErrorMessage += 'Ugyldig brukernavn..';
@@ -87,7 +99,7 @@ export class Confirm {
 
         //Passwords should have 8-16 characters and should contain big and small letters, and at least 1 number
         if (!/(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,16}/g.test(this.user.password)) {
-            this.formErrorMessage += ' Passord må være mellom 8-16 tegn, store og små bokstaver og minst 1 tall';
+            this.formErrorMessage += ' Passord må være mellom 8-16 tegn, store og små bokstaver og minst 1 tall..';
             this.isInvalidPasswords = true;
         } else { this.isInvalidPasswords = false; }
 

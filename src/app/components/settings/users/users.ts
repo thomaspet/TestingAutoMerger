@@ -24,10 +24,11 @@ export class Users {
     constructor(private http: UniHttp) {
         this.newUser = {};
         this.newUser.CompanyId = JSON.parse(localStorage.getItem('activeCompany')).id;
-        this.setUserTableData();
+        this.getUserTableData();
     }
 
-    setUserTableData() {
+    //Gets the list of users
+    getUserTableData() {
         this.http
             .asGET()
             .usingBusinessDomain()
@@ -56,7 +57,7 @@ export class Users {
                     this.inviteLink = 'http://localhost:3000/#/confirm/' + data.VerificationCode;
                     this.newUser.DisplayName = '';
                     this.newUser.Email = '';
-                    this.setUserTableData();
+                    this.getUserTableData();
                     this.isPostUserActive = false;
                     jQuery('.users_invite_link').slideDown(500);
                 },
@@ -80,11 +81,8 @@ export class Users {
 
     //Revokes the rights of the user
     revokeInvite(user) {
-        var revoke = confirm('Er du sikker på at du ønsker å fjerne rettighetene til ' + user.DisplayName + '?');
-
-        if (revoke) {
-            console.log(user.DisplayName + '\'s rights have been revoked..');
-        }
+        /* TODO */
+        console.log(user.DisplayName + '\'s rights have been revoked..');
     }
 
     //Regex to check valididation of email
