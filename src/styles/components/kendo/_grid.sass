@@ -75,25 +75,44 @@
   border-style: none
   padding: 0 1.5rem
 
+.k-pager-nav
+  .k-icon
+    background: no-repeat center center
+    background-size: .6rem .6rem
+
+  &.k-state-disabled .k-icon
+    opacity: .3
+
+  &:not(.k-state-disabled):hover .k-icon
+    background-position: center center
+
+  .k-i-seek-w
+    background-image: unicon-first-page($uni-color-scale5)
+
+  &:not(.k-state-disabled):hover .k-i-seek-w
+    background-image: unicon-first-page($uni-color-scale2)
+
+  .k-i-arrow-w
+    background-image: unicon-prev-page($uni-color-scale5)
+
+  &:not(.k-state-disabled):hover .k-i-arrow-w
+    background-image: unicon-prev-page($uni-color-scale2)
+
+  .k-i-arrow-e
+    background-image: unicon-next-page($uni-color-scale5)
+
+  &:not(.k-state-disabled):hover .k-i-arrow-e
+    background-image: unicon-next-page($uni-color-scale2)
+
+  .k-i-seek-e
+    background-image: unicon-last-page($uni-color-scale5)
+
+  &:not(.k-state-disabled):hover .k-i-seek-e
+    background-image: unicon-last-page($uni-color-scale2)
+
 .k-pager-wrap
   width: calc(100% - 1rem)
   border-top: pxToRem(1) solid $uni-color-scale9
-
-  .k-icon
-    background: no-repeat center center
-    background-size: .5rem
-
-  .k-i-arrow-w
-    background-image: unicon-prev($uni-color-scale8)
-
-  .k-i-arrow-e
-    background-image: unicon-next($uni-color-scale8)
-
-  .k-i-seek-w
-    background-image: unicon-lock($uni-color-scale8)
-
-  .k-i-seek-e
-    background-image: unicon-trash($uni-color-scale8)
 
   .k-pager-numbers,
   .k-pager-nav
@@ -116,6 +135,8 @@
 
   .k-pager-nav:last-of-type
     border-radius: 0 pxToRem(3) pxToRem(3) 0
+
+  .k-cur
 
 
 
