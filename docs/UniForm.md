@@ -101,7 +101,7 @@ var group = new UniSection();
 group.addField(field);
 ```
 
-**UniForm can't contain other UniForms**
-**UniSection can't contain other UniSections or UniForms**
-**UniFieldset can't contain other UniForms, UniSections or UniFieldsets**
-**UniComboField can't contain other UniForms, UniSections, UniFieldsets or UniComboFields**
+- **UniForm can't contain other UniForms**
+- **UniSection can't contain other UniSections or UniForms**
+- **UniFieldset can't contain other UniForms, UniSections or UniFieldsets**
+- **UniComboField can't contain other UniForms, UniSections, UniFieldsets or UniComboFields**
