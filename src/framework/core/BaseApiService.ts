@@ -74,5 +74,14 @@ export class BaseApiService<T> {
             .asDELETE()
             .withEndPoint(this.RelativeURL + "/" + ID)
             .send();     
-    }   
+    }  
+    
+    public Transition<T>(ID: number, entity: T, transitionName: string) : Observable<any> {        
+                
+        return this.http
+            .asPUT()
+            .withBody(entity)
+            .withEndPoint(this.RelativeURL + "/" + ID + "?Transition=" + transitionName)
+            .send();
+    }
 }
