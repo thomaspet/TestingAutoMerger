@@ -3,7 +3,7 @@ import {RouteParams, ROUTER_DIRECTIVES} from "angular2/router";
 import {NgFor, NgIf} from "angular2/common";
 import {Headers} from "angular2/http";
 import {Observable} from "rxjs/Observable";
-import "rxjs/add/operator/map";
+import "rxjs/add/observable/forkJoin";
 
 import {UniForm} from "../../../../framework/forms/uniForm";
 import {UniFormBuilder} from "../../../../framework/forms/builders/uniFormBuilder";
@@ -52,7 +52,15 @@ export class CompanySettings implements OnInit {
             this.companySettingsDS.getCurrencies(),
             this.companySettingsDS.getPeriodSeries(),
             this.companySettingsDS.getAccountGroupSets()
-        ).subscribe((results: any[]) => this.dataReady(results));
+        ).subscribe(
+            (results: any[]) => {
+                console.log(results);
+                this.dataReady(results)
+            },
+            (error: any) => {
+                console.error(error);
+            },
+        );
     }
 
     dataReady(data: any[]) {
@@ -126,7 +134,7 @@ export class CompanySettings implements OnInit {
             .setModel(this.company.Emails[0])
             .setModelField("EmailAddress")
             .setType(UNI_CONTROL_DIRECTIVES[11]);
-        
+
         // ********************  Selskapsoppsett    **************************/
         var companySetup = new UniSectionBuilder("Selskapsoppsett");
 
