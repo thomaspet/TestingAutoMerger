@@ -17,8 +17,11 @@ import {VatTypeService, VatCodeGroupService, AccountService} from "../../../../s
     providers: [VatTypeService, AccountService, VatCodeGroupService]
 })
 export class VatTypeDetails {
-    @Input() VatType: IVatType;
-    @ViewChild(UniForm) form: UniForm;
+    @Input()
+    VatType: IVatType;
+
+    @ViewChild(UniForm)
+    form: UniForm;
 
     config = new UniFormBuilder();
     model: IVatType;
@@ -79,6 +82,7 @@ export class VatTypeDetails {
     ngOnChanges(changes: {[propName: string]: SimpleChange}) {
         if (this.VatType != null) {
             this.model = this.VatType;
+            console.log(this.model);
 
             var self = this;
 
@@ -148,12 +152,18 @@ export class VatTypeDetails {
         vatDateFrom.setLabel("Dato fra")
             .setModel(this.model)
             .setModelField("ValidFrom")
+            .setKendoOptions({
+                autocomplete:false
+            })
             .setType(UNI_CONTROL_DIRECTIVES[FieldType.DATEPICKER]);
 
         var vatDateTo = new UniFieldBuilder();
         vatDateTo.setLabel("Dato til")
             .setModel(this.model)
             .setModelField("ValidTo")
+            .setKendoOptions({
+                autocomplete:false
+            })
             .setType(UNI_CONTROL_DIRECTIVES[FieldType.DATEPICKER]);
 
         var vatAccountOut = new UniFieldBuilder();
