@@ -24,7 +24,11 @@ export class UniDatepicker implements AfterViewInit, OnDestroy {
     }
 
     refresh(value: any): void {
+        if (typeof value === "string") {
+            value = autocompleteDate(value);
+        }
         this.datepicker.value(value);
+        this.datepicker.trigger("change");
     }
 
     ngAfterViewInit() {

@@ -26,6 +26,8 @@ export class UniCombobox implements AfterViewInit, OnDestroy {
 
     refresh(value: any) {
         this.combobox.value(value);
+        this.combobox.trigger("select");
+        this.combobox.trigger("change");
     }
 
     ngAfterViewInit() {

@@ -492,6 +492,7 @@ export interface IEmployment {
 	ID: number;
 	Deleted: boolean;
 	Localization: ILocalization;
+	Leaves: Array<IEmployeeLeave>;
 	Leave: Array<IEmployeeLeave>;
 	CustomFields: any;
 }
