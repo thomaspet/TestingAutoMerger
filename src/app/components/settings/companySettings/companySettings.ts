@@ -59,7 +59,7 @@ export class CompanySettings implements OnInit {
             },
             (error: any) => {
                 console.error(error);
-            },
+            }
         );
     }
 

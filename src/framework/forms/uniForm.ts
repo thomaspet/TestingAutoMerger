@@ -154,7 +154,10 @@ export class UniForm extends UniGenericField implements OnInit {
                 var model = field.model;
                 var fieldPath = field.field;
                 var value = _.get(formValue, fieldPath);
+                console.log(model)
+                console.log("model["+field.field+"] from ->",value);
                 _.set(model, fieldPath, value);
+                console.log("model["+field.field+"] to ->",model[fieldPath]);
             } else {
                 this.updateModel(field.fields, formValue);
             }
