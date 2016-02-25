@@ -45,6 +45,7 @@ this.config = {
         {
             text: "Accept",
             method: () => {
+                //don't use this here to refer the component, use self pattern instead
                 self.modals[0].getContent().then((content)=>{
                     self.valueFromModal = content.tempValue;
                     content.tempValue = "";
