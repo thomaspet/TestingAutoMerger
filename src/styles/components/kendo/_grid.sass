@@ -1,11 +1,31 @@
-.k-grid *
-  border-color: transparent
+.uni-table-header
+  @include unigrid(2)
+  float: right
+  z-index: 9
+  position: relative
+  top: .8rem
+
+  input[type="search"]
+    width: 100%
+
+.k-grid
+  *
+    border-color: transparent
 
   tr
     border-bottom: pxToRem(1) solid $uni-color-scale9
 
-    &:nth-of-type(even)
+    &:nth-of-type(odd)
       background: transparentize($uni-color-scale9, .6)
+
+  td, th
+    border-left: pxToRem(1) solid $uni-color-scale9
+
+    &:first-of-type
+      border-left: none
+
+    .k-button
+      @extend button.small
 
   .editable-cell
     padding: pxToRem(5) pxToRem(10)
@@ -16,20 +36,34 @@
     input
       padding-left: pxToRem(3)
 
+  .k-button
+    @extend button
+
+  .k-button-icontext span.k-icon
+    display: none
+
+  .k-grid-add
+    @extend button.good
+
+
 .k-grid-content
   background: $uni-color-negative
 
-.k-grid-header thead
-  background: $uni-color-scale9
+.k-grid .k-grid-header tr
+  background: $uni-color-negative
 
+.k-grid-header-wrap
+  border-bottom: pxToRem(1) solid $uni-color-scale8
+  margin-bottom: pxToRem(-1)
 
 .k-icon.k-filter
+  margin-right: 1rem
   background: transparent unicon-filter($uni-color-scale7) top center no-repeat
-  background-size: .8rem
+  background-size: .65rem
 
   .k-grid-filter:hover &
     background: transparent unicon-filter($uni-color-scale3) top center no-repeat
-    background-size: .8rem
+    background-size: .65rem
 
 .k-filter-menu
   background: $uni-color-negative
@@ -37,10 +71,52 @@
   box-shadow: 0 0 0.6rem rgba(34, 46, 55, 0.3)
   border-color: $uni-color-scale8
 
-
 .k-button
   border-style: none
   padding: 0 1.5rem
+
+.k-pager-wrap
+  width: calc(100% - 1rem)
+  border-top: pxToRem(1) solid $uni-color-scale9
+
+  .k-icon
+    background: no-repeat center center
+    background-size: .5rem
+
+  .k-i-arrow-w
+    background-image: unicon-prev($uni-color-scale8)
+
+  .k-i-arrow-e
+    background-image: unicon-next($uni-color-scale8)
+
+  .k-i-seek-w
+    background-image: unicon-lock($uni-color-scale8)
+
+  .k-i-seek-e
+    background-image: unicon-trash($uni-color-scale8)
+
+  .k-pager-numbers,
+  .k-pager-nav
+    box-sizing: border-box
+    height: 2rem
+    margin: 0
+    border-radius: 0
+    border-width: 0
+    border-top: pxToRem(1) solid $uni-color-scale9
+    border-bottom: pxToRem(1) solid $uni-color-scale9
+    border-right: pxToRem(1) solid $uni-color-scale9
+    line-height: 1.8rem
+
+    .k-link
+      line-height: 1.8rem
+
+  .k-pager-nav:first-of-type
+    border-radius: pxToRem(3) 0 0 pxToRem(3)
+    border-left: pxToRem(1) solid $uni-color-scale9
+
+  .k-pager-nav:last-of-type
+    border-radius: 0 pxToRem(3) pxToRem(3) 0
+
 
 
 //tbody[role=rowgroup]
