@@ -51,12 +51,12 @@ export class UniTableControls {
     }
 
 
-    public datepicker(kendoOptions, changeCallback?: (item: any, rowModel: any) => any) {
+    public datepicker(kendoOptions: any, changeCallback?: (item: any, rowModel: any) => any) {
         return function(container, options) {
             jQuery('<input data-bind="value:' + options.field + '"/>')
             .appendTo(container)
             .kendoDatePicker(jQuery.extend(kendoOptions, {
-
+                format: kendoOptions.format || 'dd.MM.yyyy',
                 parseFormats: [
                     "dd-MM-yyyy",
                     "dd/MM/yyyy",
