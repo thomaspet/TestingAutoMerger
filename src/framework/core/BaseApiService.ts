@@ -79,9 +79,9 @@ export class BaseApiService<T> {
     public Transition<T>(ID: number, entity: T, transitionName: string) : Observable<any> {        
                 
         return this.http
-            .asPUT()
+            .asPOST()
             .withBody(entity)
-            .withEndPoint(this.RelativeURL + "/" + ID + "?Transition=" + transitionName)
+            .withEndPoint(this.RelativeURL + "/" + ID + "?action=" + transitionName)
             .send();
     }
 }
