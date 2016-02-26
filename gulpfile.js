@@ -32,14 +32,14 @@ var config = {
                 require.resolve('jquery/dist/jquery.min.js'),
                 require.resolve('bootstrap/dist/js/bootstrap.min.js'),
                 require.resolve('jwt-decode/build/jwt-decode.min.js'),
-                require.resolve('lodash/lodash.js'),
+                require.resolve('lodash/lodash.min.js'),
                 require.resolve('./kendo/js/kendo.all.min.js'),
 
 
                 ///ANGULAR 2.0
                 require.resolve('systemjs/dist/system-polyfills.js'),
                 require.resolve('reflect-metadata/Reflect.js'),
-                require.resolve('es6-shim/es6-shim.js'),
+                require.resolve('es6-shim/es6-shim.min.js'),
 
                 require.resolve('systemjs/dist/system.src.js'),
                 require.resolve('angular2/bundles/angular2-polyfills.js'),
@@ -48,7 +48,7 @@ var config = {
 
                 require.resolve('rxjs/bundles/Rx.min.js'),
                 require.resolve('angular2/bundles/angular2.dev.js'),
-                require.resolve('angular2/bundles/router.js'),
+                require.resolve('angular2/bundles/router.min.js'),
                 require.resolve('angular2/bundles/http.min.js'),
             ],
             rxjs: './node_modules/rxjs/**/*.js',

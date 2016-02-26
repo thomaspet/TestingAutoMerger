@@ -16,7 +16,7 @@ import {UniFieldBuilder} from "../../forms/builders/uniFieldBuilder";
             [disabled]="config.disabled"
             (change)="setFormValue(config.control, cb.checked)"
         />
-        <label [attr.for]="guid">{{config.description}}</label>
+        <label [attr.for]="guid">{{config.label}}</label>
     `
 })
 export class UniCheckboxInput {

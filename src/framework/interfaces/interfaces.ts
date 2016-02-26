@@ -461,6 +461,7 @@ export interface IEmployeeLeave {
 	StatusID: number;
 	ID: number;
 	Deleted: boolean;
+	Employment: IEmployment;
 	CustomFields: any;
 }
 
@@ -492,6 +493,7 @@ export interface IEmployment {
 	ID: number;
 	Deleted: boolean;
 	Localization: ILocalization;
+	Leaves: Array<IEmployeeLeave>;
 	Leave: Array<IEmployeeLeave>;
 	CustomFields: any;
 }
@@ -609,7 +611,8 @@ export interface ISalaryTransaction {
 	EmployeeNumber: number;
 	FromDate: Date;
 	ToDate: Date;
-	WageTypeId: number;
+	WageTypeID: number;
+	WageTypeNumber: number;
 	Text: string;
 	Amount: number;
 	Rate: number;
@@ -1375,6 +1378,32 @@ export interface ITaxTable {
 }
 
 
+export interface IVatCodeGroupSetup {
+	No: number;
+	Name: string;
+	ID: number;
+	Deleted: boolean;
+	CustomFields: any;
+}
+
+
+export interface IVatPostSetup {
+	Name: string;
+	ID: number;
+	Deleted: boolean;
+	CustomFields: any;
+}
+
+
+export interface IVatReportReferenceSetup {
+	VatCode: string;
+	VatPostName: string;
+	ID: number;
+	Deleted: boolean;
+	CustomFields: any;
+}
+
+
 export interface IVatTypeSetup {
 	VatCode: string;
 	Name: string;
@@ -1552,11 +1581,13 @@ export interface ITransition {
 
 export interface ITransitionFlow {
 	FromStatusID: number;
+	ToStatusID: number;
 	TransitionID: number;
 	EntityType: string;
 	ID: number;
 	Deleted: boolean;
 	FromStatus: IStatus;
+	ToStatus: IStatus;
 	Transition: ITransition;
 	CustomFields: any;
 }
@@ -1774,13 +1805,23 @@ export interface IVatCodeGroup {
 }
 
 
+export interface IVatPost {
+	Name: string;
+	StatusID: number;
+	ID: number;
+	Deleted: boolean;
+	CustomFields: any;
+}
+
+
 export interface IVatReportReference {
 	VatTypeID: number;
-	Post: string;
+	VatPostID: number;
 	StatusID: number;
 	ID: number;
 	Deleted: boolean;
 	VatType: IVatType;
+	VatPost: IVatPost;
 	CustomFields: any;
 }
 
@@ -2057,6 +2098,7 @@ export interface IVatType {
 	OutgoingAccount: IAccount;
 	Deductions: Array<IVatCodeDeduction>;
 	VatCodeGroup: IVatCodeGroup;
+	VatReportReferences: Array<IVatReportReference>;
 	CustomFields: any;
 }
 

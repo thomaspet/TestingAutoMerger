@@ -1,11 +1,19 @@
 import {Component, ElementRef, Input, AfterViewInit, OnDestroy} from "angular2/core";
 import {Control} from "angular2/common";
 import { Observable } from "rxjs/Observable";
-import "rxjs/observable/fromEvent";
+import "rxjs/observable/FromEventObservable";
 
 import {InputTemplateString} from "../inputTemplateString";
 import {UniFieldBuilder} from "../../forms/builders/uniFieldBuilder";
 declare var jQuery, _;
+
+var parseFormats = [
+    "dd-MM-yyyy",
+    "dd/MM/yyyy",
+    "dd.MM.yyyy",
+    "ddMMyyyy",
+    "yyyy-MM-ddTHH:mm:ss"
+];
 
 @Component({
     selector: "uni-datepicker",
@@ -23,8 +31,10 @@ export class UniDatepicker implements AfterViewInit, OnDestroy {
         this.nativeElement = jQuery(this.elementRef.nativeElement);
     }
 
-    refresh(value: any): void {
-        this.datepicker.value(value);
+    refresh(value: string): void {
+        var date = kendo.parseDate(value,parseFormats);
+        this.datepicker.value(date);
+        this.datepicker.trigger("change");
     }
 
     ngAfterViewInit() {
@@ -33,20 +43,16 @@ export class UniDatepicker implements AfterViewInit, OnDestroy {
         var datepicker;
 
         this.config.fieldComponent = this;
-
-        options.format = "dd.MM.yyyy";
-        options.parseFormats = [
-            "dd-MM-yyyy",
-            "dd/MM/yyyy",
-            "dd.MM.yyyy",
-            "ddMMyyyy",
-            "yyyy-MM-ddTHH:mm:ss"
-        ];
+        if(options.autocomplete === undefined) {
+            options.autocomplete = false;
+        }
+        options.format = options.format || "dd.MM.yyyy";
+        options.parseFormats = options.parseFormats || parseFormats;
 
         options.change = function () {
             var date = this.value();
 
-            if (date === null || date === undefined) {
+            if (options.autocomplete && (date === null || date === undefined)) {
                 var autocompleted = autocompleteDate(this.element.val());
                 if (autocompleted != null) {
                     date = autocompleted;
@@ -54,10 +60,10 @@ export class UniDatepicker implements AfterViewInit, OnDestroy {
             }
 
             if (date) {
-                control.updateValue(date.toISOString(), {});
+                control.updateValue(kendo.toString(date,"yyyy-MM-ddTHH:mm:ss"), {});
                 this.value(date);
             } else {
-                control.updateValue("", {});
+                control.updateValue(null, {});
             }
         };
         datepicker = this.nativeElement.find("input").first().kendoDatePicker(options).data("kendoDatePicker");

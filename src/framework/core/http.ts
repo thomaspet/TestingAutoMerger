@@ -44,6 +44,10 @@ export class UniHttp {
         return this;
     }
 
+    getBaseUrl() {
+        return this.baseUrl;
+    }
+
     withBaseUrl(url: string) {
         this.baseUrl = url;
         return this;

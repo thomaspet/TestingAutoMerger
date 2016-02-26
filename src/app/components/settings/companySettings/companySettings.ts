@@ -1,9 +1,9 @@
-﻿import {Component, OnInit, provide} from "angular2/core";
+﻿import {Component, OnInit, provide} from "angular2/core"
 import {RouteParams, ROUTER_DIRECTIVES} from "angular2/router";
 import {NgFor, NgIf} from "angular2/common";
 import {Headers} from "angular2/http";
 import {Observable} from "rxjs/Observable";
-import "rxjs/add/operator/map";
+import "rxjs/add/observable/forkJoin";
 
 import {UniForm} from "../../../../framework/forms/uniForm";
 import {UniFormBuilder} from "../../../../framework/forms/builders/uniFormBuilder";
@@ -37,7 +37,6 @@ export class CompanySettings implements OnInit {
     }
 
     ngOnInit() {
-
         //ID of active company used to GET company settings
         //ONLY GETTING DATA WHEN **UNI MICRO AS*** IS CHOSEN
         //BECAUSE ID = 1 IS THE ONLY ONE IN THE DB
@@ -53,7 +52,15 @@ export class CompanySettings implements OnInit {
             this.companySettingsDS.getCurrencies(),
             this.companySettingsDS.getPeriodSeries(),
             this.companySettingsDS.getAccountGroupSets()
-        ).subscribe((results: any[]) => this.dataReady(results));
+        ).subscribe(
+            (results: any[]) => {
+                console.log(results);
+                this.dataReady(results)
+            },
+            (error: any) => {
+                console.error(error);
+            }
+        );
     }
 
     dataReady(data: any[]) {
@@ -90,8 +97,8 @@ export class CompanySettings implements OnInit {
             .setModelField("WebAddress")
             .setType(UNI_CONTROL_DIRECTIVES[10]);
 
-        //TODO
-        //Contact information should be styled according to standard - when this is ready.
+        // todo
+        // contact information should be styled according to standard - when this is ready.
         var street = new UniFieldBuilder();
         street.setLabel("Adresse")
             .setModel(this.company.Address[0])
@@ -128,19 +135,18 @@ export class CompanySettings implements OnInit {
             .setModelField("EmailAddress")
             .setType(UNI_CONTROL_DIRECTIVES[11]);
 
-        // ********************************************************************/
-        // *********************  Selskapsoppsett    **************************/
+        // ********************  Selskapsoppsett    **************************/
         var companySetup = new UniSectionBuilder("Selskapsoppsett");
 
-        //TODO:
-        //Checkbox not working atm
+        // todo:
+        // checkbox not working atm
         var companyReg = new UniFieldBuilder();
         companyReg.setLabel("Foretaksregister")
             .setModel(this.company)
             .setModelField("CompanyRegistered")
             .setType(UNI_CONTROL_DIRECTIVES[8]);
 
-        //Checkbox not working atm
+        // checkbox not working atm
         var taxMandatory = new UniFieldBuilder();
         taxMandatory.setLabel("Mva-pliktig")
             .setModel(this.company)
@@ -229,8 +235,8 @@ export class CompanySettings implements OnInit {
             });
 
 
-        //TODO: 
-        //Mangler foreløpig kobling mellom Firma og kontogruppeinndeling
+        // todo:
+        // mangler foreløpig kobling mellom Firma og kontogruppeinndeling
         /*var accountGroupSets = new UniFieldBuilder();
          accountGroupSets.setLabel("Kontogruppeinndeling")
          .setModel(this.periodSeries[this.company.PeriodSeriesVatID])
@@ -264,17 +270,19 @@ export class CompanySettings implements OnInit {
             .setType(UNI_CONTROL_DIRECTIVES[2])
             .setKendoOptions({});
 
-        //TODO
-        //Checkbox not working atm
+        // todo
+        // checkbox not working atm
         var forceSupplierInvoiceApproval = new UniFieldBuilder();
         forceSupplierInvoiceApproval.setLabel("Tvungen godkjenning")
             .setModel(this.company)
             .setModelField("ForceSupplierInvoiceApproval")
             .setType(UNI_CONTROL_DIRECTIVES[8]);
-
-        accountingSettings.addUniElements(periodSeriesAccount, periodSeriesAccountAll, periodSeriesVat, accountingLockedDate, vatLockedDate, forceSupplierInvoiceApproval);
-
-        formBuilder.addUniElements(companyName, orgNr, web, street, street2, postNumber, place, phone, email, companySetup, accountingSettings);
+        accountingSettings.addUniElements(
+            periodSeriesAccount, periodSeriesAccountAll, periodSeriesVat,
+            accountingLockedDate, vatLockedDate, forceSupplierInvoiceApproval
+        );
+        formBuilder.addUniElements(companyName, orgNr, web, street, street2,
+            postNumber, place, phone, email, companySetup, accountingSettings);
 
         this.form = formBuilder;
     }

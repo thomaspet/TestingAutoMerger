@@ -9,20 +9,13 @@ export class CompanySettingsDS {
     baseUrl = "http://devapi.unieconomy.no:80/api";
     // baseUrl = "http://localhost:29077/api";
     expandedProperties = "Address,Emails,Phones";
-    companySettings: Array<any> = [];
 
     constructor(private http: Http) {
     }
 
     get(id: number | string) {
-        if (!this.companySettings[id]) {
-            var url = this.baseUrl + "/biz/companysettings/" + id + "?expand=" + this.expandedProperties;
-            this.companySettings[id] = new ReplaySubject(1);
-
-            return this._doGET(url)
-                .subscribe(this.companySettings[id]);
-        }
-        return this.companySettings[id];
+        var url = this.baseUrl + "/biz/companysettings/" + id + "?expand=" + this.expandedProperties;
+        return this._doGET(url);
     }
 
     getCompanyTypes() {

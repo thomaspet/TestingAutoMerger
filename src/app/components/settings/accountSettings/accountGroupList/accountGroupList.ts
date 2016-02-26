@@ -17,8 +17,9 @@ export class AccountGroupList implements OnInit {
 
         var config = new UniTableBuilder("accountgroups", false)
             .setFilter("AccountID eq " + this.account)
-            .setPageSize(5)
+            .setPageSize(100)
             .setSearchable(false)
+            .setPageable(false)
             .addColumns(idCol, nameCol);
 
         this.tableConfig = config;

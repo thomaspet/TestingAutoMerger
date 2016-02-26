@@ -7,14 +7,18 @@ import {UniTabs} from '../layout/uniTabs/uniTabs';
 import {CompanySettings} from './companySettings/companySettings';
 import {AccountSettings} from './accountSettings/accountSettings';
 import {UserSettings} from './userSettings/userSettings';
+
 import {Users} from './users/users';
+
+import {VatSettings} from './vatSettings/vatSettings';
 
 const CHILD_ROUTES = [
     { path: '/', redirectTo: ['CompanySettings']},
-    { path: '/company', component: CompanySettings, as: 'CompanySettings' },
-    { path: '/accounts', component: AccountSettings, as: 'AccountSettings' },
-    { path: '/user', component: UserSettings, as: 'UserSettings' },
-    { path: '/users', component: Users, as: 'Brukere' }
+    { path: '/company', component: CompanySettings, as: 'Firmainnstillinger' },
+    { path: '/accounts', component: AccountSettings, as: 'Kontoer' },
+    { path: '/vat', component: VatSettings, as: 'MVA' },
+    { path: '/user', component: UserSettings, as: 'Brukerinnstillinger' },
+    { path: '/users', component: Users, as: 'Brukere og roller'}
 ];
 
 @Component({
