@@ -1,4 +1,5 @@
 import {UniFieldBuilder} from "./../builders/uniFieldBuilder";
+import {UniValidator} from "../../validators/UniValidator";
 
 /**
  * Compose an object of messages like:
@@ -21,7 +22,8 @@ export class MessageComposer {
     private static assignMessages(validators: any[], messages: any) {
         if (validators && Array.isArray(validators)) {
             validators.forEach((validator: any) => {
-                messages[validator.ValidatorKey] = validator.ErrorMessage;
+                var v = UniValidator.fromObject(validator);
+                messages[v.ValidatorKey] = v.ErrorMessage;
             });
         }
     }

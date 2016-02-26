@@ -1,7 +1,7 @@
 import {Component, ElementRef, Input, AfterViewInit, OnDestroy} from "angular2/core";
 import {Control} from "angular2/common";
 import { Observable } from "rxjs/Observable";
-import "rxjs/observable/fromEvent";
+import "rxjs/observable/FromEventObservable";
 
 import {InputTemplateString} from "../inputTemplateString";
 import {UniFieldBuilder} from "../../forms/builders/uniFieldBuilder";
@@ -26,6 +26,8 @@ export class UniCombobox implements AfterViewInit, OnDestroy {
 
     refresh(value: any) {
         this.combobox.value(value);
+        this.combobox.trigger("select");
+        this.combobox.trigger("change");
     }
 
     ngAfterViewInit() {

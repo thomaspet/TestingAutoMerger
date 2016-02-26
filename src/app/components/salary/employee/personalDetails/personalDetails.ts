@@ -45,6 +45,24 @@ export class PersonalDetails {
 
     ngAfterViewInit() {
 
+        if(this.employeeDS.localizations){
+            console.log("Localizations are cached");
+            this.getData();
+        }else{
+            console.log("Caching localizations");
+            this.cacheLocAndGetData();
+        }
+    }
+    
+    cacheLocAndGetData(){
+        this.employeeDS.getLocalizations().subscribe((response) => {
+            this.employeeDS.localizations = response;
+            
+            this.getData();
+        });
+    }
+    
+    getData(){
         var self = this;
 
         /*
@@ -56,15 +74,13 @@ export class PersonalDetails {
          })
          }).subscribe()
          */
-
         Observable.forkJoin(
             self.employeeDS.get(this.EmployeeID),
             self.employeeDS.layout("EmployeePersonalDetailsForm")
-            // self.employeeDS.getLocalizations()
         ).subscribe(
             (response: any) => {
                 var [employee, layout] = response;
-                var mockValidation = UniValidator.fromObject({
+                layout.Fields[0].Validators = [{
                     "EntityType": "BusinessRelation",
                     "PropertyName": "BusinessRelationInfo.Name",
                     "Operator": Operator.Required,
@@ -74,14 +90,11 @@ export class PersonalDetails {
                     "ErrorMessage": "Employee name is required",
                     "ID": 1,
                     "Deleted": false
-                });
-                layout.Fields[0].Validators = [mockValidation];
+                }];
                 self.employee = EmployeeModel.createFromObject(employee);
                 self.form = new UniFormLayoutBuilder().build(layout, self.employee);
                 self.form.hideSubmitButton();
-                // self.localizations = loc;
-
-
+                
                 self.uniCmpLoader.load(UniForm).then((cmp: ComponentRef) => {
                     cmp.instance.config = self.form;
                     setTimeout(() => {
@@ -89,8 +102,8 @@ export class PersonalDetails {
                         console.log(self.formInstance);
                     }, 100);
                 });
-            },
-            (error: any) => console.error(error)
+            }
+            , (error: any) => console.error(error)
         );
     }
 
