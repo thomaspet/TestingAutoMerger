@@ -116,7 +116,7 @@ export class UniTableDemo {
         
         var commentCol = new UniTableColumn('Description', 'Kommentar', 'string');
         
-        var employmentIDCol = new UniTableColumn('EmploymentID', 'Arbeidsforhold', '')
+        var employmentIDCol = new UniTableColumn('EmploymentID', 'Arbeidsforhold')
         .setTemplate((dataItem) => {
             return this.getEmploymentJobName(dataItem.EmploymentID)
         })
@@ -124,6 +124,9 @@ export class UniTableDemo {
             dataSource: this.employments,
             dataValueField: 'ID',
             dataTextField: 'JobName',
+        }, (selectedItem, rowModel) => {
+            // Change LeavePercent when employment changes (for testing purposes)
+            rowModel.set('LeavePercent', 33);
         });
         
         
