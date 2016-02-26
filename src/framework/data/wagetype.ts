@@ -153,6 +153,7 @@ export class WagetypeService {
                     Label: "Employment Tax",
                     Description: null,
                     HelpText: null,
+                    openByDefault: true,
                     FieldSet: 0,
                     Section: 1,
                     Legend: "SETTINGS",
