@@ -26,6 +26,7 @@ export class UniAutocomplete implements AfterViewInit, OnDestroy {
     refresh(value: any) {
         value = value[this.config.kOptions.dataTextField] || value;
         this.autocomplete.value(value);
+        this.autocomplete.trigger("change");
     }
 
     ngAfterViewInit() {

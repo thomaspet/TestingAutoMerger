@@ -20,6 +20,7 @@ export class UniDropdown implements AfterViewInit, OnDestroy {
 
     refresh(value: any): void {
         this.dropdown.value(value);
+        this.dropdown.trigger("change");
     }
 
     ngAfterViewInit() {

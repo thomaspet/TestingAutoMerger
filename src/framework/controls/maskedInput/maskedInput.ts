@@ -22,6 +22,7 @@ export class UniMaskedInput implements AfterViewInit, OnDestroy {
 
     refresh(value) {
         this.maskedInput.value(value);
+        this.config.control.updateValue(value,{});
     }
 
     ngAfterViewInit() {

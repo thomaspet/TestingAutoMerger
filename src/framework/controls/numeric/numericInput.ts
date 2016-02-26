@@ -21,6 +21,7 @@ export class UniNumericInput implements AfterViewInit, OnDestroy {
 
     refresh(value: any) {
         this.numericInput.value(value);
+        this.numericInput.trigger("change");
     }
 
     ngAfterViewInit() {
