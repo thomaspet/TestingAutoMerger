@@ -304,38 +304,38 @@ export class UniTable {
 
     move(direction) {
         var currentCell = jQuery(this.table.current());
-        var newCell;
+        var nextCell;
 
         switch (direction) {
             case directions.LEFT:
-                newCell = currentCell.prevAll('.editable-cell');
-                if (!newCell[0]) {
-                    newCell = currentCell.parent('tr').prev().children('.editable-cell:last');
+                nextCell = currentCell.prevAll('.editable-cell')[0];
+                if (!nextCell) {
+                    nextCell = currentCell.parent('tr').prev().children('.editable-cell:last');
                 }
                 break;
 
             case directions.RIGHT:
-                newCell = currentCell.nextAll('.editable-cell');
-                if (!newCell[0]) {
-                    newCell = currentCell.parent('tr').next().children('.editable-cell:first');
+                nextCell = currentCell.nextAll('.editable-cell')[0];
+                if (!nextCell) {
+                    nextCell = currentCell.parent('tr').next().children('.editable-cell:first');
                 }
                 break;
 
             case directions.UP:
                 var prevRow = currentCell.parent('tr').prev('tr');
-                var newCell = jQuery('td:eq(' + currentCell.index() + ')', prevRow);
+                var nextCell = jQuery('td:eq(' + currentCell.index() + ')', prevRow);
                 break;
 
             case directions.DOWN:
                 var nextRow = currentCell.parent('tr').next('tr');
-                var newCell = jQuery('td:eq(' + currentCell.index() + ')', nextRow);
+                var nextCell = jQuery('td:eq(' + currentCell.index() + ')', nextRow);
                 break;
         }
 
-        if (newCell.length > 0) {
+        if (nextCell) {
             currentCell.find('input').blur(); // makes sure any changes are updated (in browser, no http call here) before moving focus
-            this.table.current(newCell);
-            this.table.editCell(newCell);
+            this.table.current(nextCell);
+            this.table.editCell(nextCell);
         }
     }
 
