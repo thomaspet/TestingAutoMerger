@@ -5,6 +5,7 @@ import "rxjs/add/observable/fromArray";
 
 //import {UNI_CONTROL_TYPES} from "../../framework/controls/types";
 import {FieldType} from "../../framework/interfaces/interfaces";
+import {IWageType, StdWageType, LimitType, TaxType, RateTypeColumn} from "../../framework/interfaces/interfaces";
 
 @Injectable()
 export class WagetypeService {
@@ -39,7 +40,37 @@ export class WagetypeService {
             .withEndPoint("wagetypes/")
             .send();
     }
-        
+    
+    taxType : Array<any> = [
+        {ID: TaxType.Tax_None, Name:"None" },        
+        {ID: TaxType.Tax_Table, Name:"TableTax" },
+        {ID: TaxType.Tax_Percent, Name:"PercentTax" },
+        {ID: TaxType.Tax_0, Name:"..." }
+    ];    
+    
+    rateType : Array<any> = [
+        {ID: RateTypeColumn.none, Name:"None" },        
+        {ID: RateTypeColumn.Employment, Name:"Employment" },
+        {ID: RateTypeColumn.Employee, Name:"Employee" },
+        {ID: RateTypeColumn.Salary_scale, Name:"Salary Scale" }
+    ];    
+    
+    limitType : Array<any> = [
+        {ID: LimitType.None, Name:"None" },        
+        {ID: LimitType.Amount, Name:"Amount" },
+        {ID: LimitType.Sum, Name:"Sum" }
+    ];    
+    
+    stdWageType : Array<any> = [
+        {ID: StdWageType.None, Name:"None" },
+        {ID: StdWageType.TaxDrawTable, Name:"TableTax" },
+        {ID: StdWageType.TaxDrawPercent, Name:"PercentTax" },
+        {ID: StdWageType.HolidayPayWithTaxDeduction, Name:"Holidaypay with tax" },
+        {ID: StdWageType.HolidayPayThisYear, Name:"Holidaypay this year" },
+        {ID: StdWageType.HolidayPayLastYear, Name:"Holidaypay last year" },
+    ];
+    
+    
     layout(layoutID: string) {
         return Observable.fromArray([{
             Name: layoutID,
@@ -147,7 +178,7 @@ export class WagetypeService {
                     Description: null,
                     HelpText: null,
                     FieldSet: 0,
-                    Section: 1,
+                    Section: 1,  
                     Legend: "SETTINGS",
                     hasLineBreak: false,
                     Validations: [
@@ -157,7 +188,8 @@ export class WagetypeService {
                             Operator: "REQUIRED"
                         }
                     ]
-                },                 
+                }
+                ,                 
                 {
                     ComponentLayoutID: 1,
                     EntityType: "wagetype",
@@ -214,9 +246,24 @@ export class WagetypeService {
                     Hidden: false,
                     FieldType: FieldType.COMBOBOX,
                     ReadOnly: false,
-                    LookupField: false,
+                    //LookupField: false,
+                    LookupField : "Name",                    
+                    kendoOptions: {
+                        dataSource: this.stdWageType,
+                        dataTextField: "Name",
+                        dataValueField: "ID"
+                    },
+                    /*
+                    fromArray: [
+        {ID: 0, Name:"None" },
+        {ID: 1, Name:"TableTax" },
+        {ID: 2, Name:"PercentTax" },
+        {ID: 3, Name:"Holidaypay with tax" },
+        {ID: 4, Name:"Holidaypay this year" },
+        {ID: 5, Name:"Holidaypay last year" },
+    ],*/
                     Label: "Standard Wagetype for",
-                    Description: null,
+                    Description: null,                    
                     HelpText: null,
                     FieldSet: 0,
                     Section: 1,
@@ -233,7 +280,7 @@ export class WagetypeService {
                 ,{
                     ComponentLayoutID: 1,
                     EntityType: "wagetype",
-                    Property: "StandardWageTypeFor",
+                    Property: "TaxType",
                     Placement: 1,
                     Hidden: false,
                     FieldType: FieldType.COMBOBOX,
@@ -243,8 +290,13 @@ export class WagetypeService {
                     Description: null,
                     HelpText: null,
                     FieldSet: 0,
-                    Section: 1,
+                    Section: 1,                    
                     Legend: "",
+                    kendoOptions:{
+                      dataSource: this.taxType,
+                      dataTextField: "Name",
+                      data: "ID"   
+                    },
                     hasLineBreak: false,
                     Validations: [
                         {

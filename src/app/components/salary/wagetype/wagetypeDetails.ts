@@ -9,17 +9,22 @@ import {WagetypeService} from "../../../../framework/data/wagetype";
 
 import {UniComponentLoader} from "../../../../framework/core";
 import {UniForm} from "../../../../framework/forms/uniForm";
-import {UniFormBuilder, UniFormLayoutBuilder} from "../../../../framework/forms";
+import {UniFormBuilder, UniFormLayoutBuilder, UniFieldBuilder, UniSectionBuilder} from "../../../../framework/forms";
+
+
+import {IWageType, StdWageType, LimitType, TaxType, RateTypeColumn, FieldType} from "../../../../framework/interfaces/interfaces";
+import {UNI_CONTROL_DIRECTIVES} from "../../../../framework/controls";
 
 @Component({
     selector: 'wagetype-details',
     templateUrl: 'app/components/salary/wagetype/wagetypedetails.html',
     providers: [provide(WagetypeService, {useClass: WagetypeService})],
-    directives: [UniComponentLoader]
+    directives: [UniComponentLoader, UniForm]
 })
 export class WagetypeDetail implements OnInit{
-    wageType; 
+    wageType: IWageType; 
     layout;
+    formCfg : UniFormBuilder[];
     
     
     
@@ -42,13 +47,13 @@ export class WagetypeDetail implements OnInit{
         ).subscribe((response: any) => {
             let [wt, lt] = response;
             this.wageType = wt;
-            this.layout = lt;        
-        
+            this.layout = lt;
+            
             this.form = new UniFormLayoutBuilder().build(this.layout, this.wageType);            
             this.form.hideSubmitButton();
             
             console.log("wagetype", response);
-            
+            //this.buildFormConfig();
             this.uniCompLoader.load(UniForm).then((cmp: ComponentRef) => {
                     cmp.instance.config = this.form;
                     setTimeout(() => {
@@ -59,6 +64,63 @@ export class WagetypeDetail implements OnInit{
         }, error => console.log(error));
     }
 
+
+    buildFormConfig(){
+        this.formCfg = [];
+        
+        this.formCfg.push(new UniFormBuilder()            
+            .addUniElements(
+              /*  new UniFieldBuilder()
+                    .setLabel("Employment Tax")
+                    .setModel(this.wageType)
+                    .setModelField("StandardWageTypeFor")
+                    .setType(UNI_CONTROL_DIRECTIVES[FieldType.COMBOBOX])                        
+                    .setKendoOptions({
+                        dataSource: this.stdWageType,
+                        dataTextField: "Name",
+                        dataValueField: "ID" 
+                     }),*/
+                new UniFieldBuilder()
+                    .setLabel("JadiJai")
+                    .setModel(this.wageType)
+                    .setModelField("Description")
+                    .setType(UNI_CONTROL_DIRECTIVES[FieldType.TEXT]),
+                new UniFieldBuilder()
+                    .setLabel("label")
+                    .setModel(this.wageType)
+                    .setModelField("Description")
+                    .setType(UNI_CONTROL_DIRECTIVES[FieldType.DATEPICKER])
+                ));
+                
+            this.formCfg[0].hideSubmitButton();
+            
+            
+        //var formBldr = new UniFormBuilder();
+        /*var sec = new UniSectionBuilder("VisMer")
+            .openByDefault(true);*/           
+            /*
+        this.formCfg.push(new UniFormBuilder()
+            .addUniElements(
+                new UniFieldBuilder()
+                    .setLabel("Employment Tax")
+                    .setModel(this.wageType)
+                    .setModelField("StandardWageTypeFor")
+                    .setType(UNI_CONTROL_DIRECTIVES[FieldType.COMBOBOX])                        
+                    .setKendoOptions({
+                        dataSource: this.stdWageType,
+                        dataTextField: "Name",
+                        dataValueField: "ID" 
+                     }))//,   
+                // new UniFieldBuilder()
+                //      .setLabel("JadiJai")
+                //      .setModel(this.wageType)
+                //      .setModelField("wagetypename")
+                //      .setType(UNI_CONTROL_DIRECTIVES[FieldType.TEXT])           
+            //)
+            .hideSubmitButton()
+            );
+            */
+    }
 
 
 }
