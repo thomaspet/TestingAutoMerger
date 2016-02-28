@@ -41,6 +41,16 @@ export class WagetypeService {
             .send();
     }
     
+    update(entity)
+    {
+        return this.http
+        .usingBusinessDomain()
+        .asPUT()
+        .withEndPoint("wagetypes/")
+        .send(JSON.stringify(entity));
+        
+    }
+    
     taxType : Array<any> = [
         {ID: TaxType.Tax_None, Name:"None" },        
         {ID: TaxType.Tax_Table, Name:"TableTax" },
