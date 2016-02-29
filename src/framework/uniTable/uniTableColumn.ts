@@ -22,6 +22,10 @@ export class UniTableColumn {
         this.field = field;
         this.title = title;
         this.type = type;
+        
+        if (type === 'date') {
+            this.editor = this.controls.datepicker({});
+        }
     }
     
     setFormat(format: string) {
@@ -70,7 +74,7 @@ export class UniTableColumn {
             break;
             
             case 'datepicker':
-                this.editor = this.controls.datepicker(kendoOptions, changeCallback);
+                this.editor = this.controls.datepicker(kendoOptions);
             break;
             
         }
