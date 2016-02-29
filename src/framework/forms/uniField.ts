@@ -22,8 +22,8 @@ declare var _;
             <uni-component-loader [type]="config.type" [config]="config"></uni-component-loader>
             <show-error [control]="config.control" [messages]="config.errorMessages"></show-error>
         </label>
-        <uni-checkbox *ngIf="isCheckbox()" [config]="config"></uni-checkbox>
-        <uni-radio-group *ngIf="isRadioGroup()" [config]="config"></uni-radio-group>
+        <uni-checkbox *ngIf="isCheckbox()" [config]="config" [class.-has-linebreak]="hasLineBreak()"></uni-checkbox>
+        <uni-radio-group *ngIf="isRadioGroup()" [config]="config" [class.-has-linebreak]="hasLineBreak()"></uni-radio-group>
     `
 })
 export class UniField extends UniGenericField {
