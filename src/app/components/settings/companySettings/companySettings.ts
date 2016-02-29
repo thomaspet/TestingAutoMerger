@@ -26,7 +26,6 @@ import {UniHttpService} from '../../../../framework/data/uniHttpService';
 })
 
 export class CompanySettings implements OnInit {
-
     id: any;
     form: any;
     company: any;
