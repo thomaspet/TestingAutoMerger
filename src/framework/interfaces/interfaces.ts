@@ -65,6 +65,7 @@ export interface ICustomerInvoice {
 	ID: number;
 	Deleted: boolean;
 	Items: Array<ICustomerInvoiceItem>;
+	JournalEntry: IJournalEntry;
 	Dimensions: IDimensions;
 	CustomFields: any;
 }
@@ -902,6 +903,7 @@ export interface IInvoiceHeader {
 	StatusID: number;
 	ID: number;
 	Deleted: boolean;
+	JournalEntry: IJournalEntry;
 	Dimensions: IDimensions;
 	CustomFields: any;
 }
@@ -1914,7 +1916,9 @@ export interface ISupplierInvoice {
 	StatusID: number;
 	ID: number;
 	Deleted: boolean;
+	Supplier: ISupplier;
 	Items: Array<ISupplierInvoiceItem>;
+	JournalEntry: IJournalEntry;
 	Dimensions: IDimensions;
 	CustomFields: any;
 }

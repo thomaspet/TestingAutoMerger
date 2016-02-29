@@ -1,2 +1,3 @@
-<uni-table [config]="salarytransSelectionTableConfig"></uni-table>
+<salarytrans-filter></salarytrans-filter>
+<uni-table [config]="salarytransSelectionTableConfig" [filterString]="filterResultString"></uni-table>
 <salary-transactions-employee *ngIf="selectedEmployeeID" [ansattID]="selectedEmployeeID"></salary-transactions-employee>

@@ -1,19 +1,29 @@
-import {Component} from "angular2/core";
+import {Component, Input, ViewChildren} from "angular2/core";
 import {Router, RouteConfig} from "angular2/router";
 import {UniTable, UniTableBuilder, UniTableColumn} from "../../../../framework/uniTable";
 import {SalaryTransactionEmployeeList} from "./salarytransactionEmployeeList";
+import {SalarytransFilter} from "./salarytransFilter";
 
 @Component({
     templateUrl: "app/components/salary/salarytrans/salarytransactionSelectionList.html",
-    directives: [UniTable, SalaryTransactionEmployeeList]
+    directives: [UniTable, SalaryTransactionEmployeeList, SalarytransFilter]
 })
 
 export class SalaryTransactionSelectionList {
     salarytransSelectionTableConfig;
     selectedEmployeeID:number;
+    @Input() filterString: string;
+    @ViewChildren(UniTable) tables: any;
     
     constructor(router: Router) {
         this.createTableConfig();
+    }
+    
+    ngOnChanges() {
+        console.log("onChange: filter", this.filterString);
+        if(this.tables && this.filterString) {
+            this.tables.toArray()[0].updateFilter(this.filterString);
+        }
     }
     
     createTableConfig() {
@@ -38,6 +48,7 @@ export class SalaryTransactionSelectionList {
         
         this.salarytransSelectionTableConfig = new UniTableBuilder("employees",false)
         .setExpand("BusinessRelationInfo,Localization.BusinessRelationInfo,BankAccounts")
+        .setFilter(this.filterString)
         .setSelectCallback((selEmp) => {
             this.selectedEmployeeID = selEmp.EmployeeNumber;
             console.log("ansatt", selEmp);
