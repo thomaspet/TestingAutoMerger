@@ -1,18 +1,20 @@
-import {Component, OnInit ,EventEmitter, Input, Output} from 'angular2/core';
+import {Component, OnInit ,EventEmitter, Input, Output} from "angular2/core";
 import {FORM_DIRECTIVES, FORM_PROVIDERS, Control, ControlGroup, FormBuilder} from "angular2/common";
-import {UNI_CONTROL_DIRECTIVES} from '../controls';
+import {UNI_CONTROL_DIRECTIVES} from "../controls";
 import {UniRadioGroup} from "../controls/radioGroup/uniRadioGroup";
 import {ShowError} from "./showError";
-import {UniField} from './uniField';
-import {UniFieldBuilder} from './builders/uniFieldBuilder';
-import {UniFieldset} from './uniFieldset';
-import {UniGroup} from './uniGroup';
+import {UniField} from "./uniField";
+import {UniFieldBuilder} from "./builders/uniFieldBuilder";
+import {UniFieldset} from "./uniFieldset";
+import {UniSection} from "./uniSection";
+import {UniComboField} from "./uniComboField";
 import {UniComponentLoader} from "../core/componentLoader";
 import {MessageComposer} from "./composers/messageComposer";
 import {ValidatorsComposer} from "./composers/validatorsComposer";
 import {ControlBuilder} from "./builders/controlBuilder";
-import {IElementBuilder} from "./interfaces";
+import {UniElementBuilder} from "./interfaces";
 import {UniFormBuilder} from "./builders/uniFormBuilder";
+import {UniGenericField} from "./shared/UniGenericField";
 
 declare var _; //lodash
 
@@ -20,14 +22,14 @@ declare var _; //lodash
  * Form component that wraps form elements
  */
 @Component({
-    selector: 'uni-form',
-    directives: [FORM_DIRECTIVES, UniField, UniFieldset, UniGroup, UniComponentLoader],
+    selector: "uni-form",
+    directives: [FORM_DIRECTIVES, UniField, UniFieldset, UniSection, UniComboField, UniComponentLoader],
     providers: [FORM_PROVIDERS],
     template: `
         <form (submit)="submit()" [ngFormModel]="form" [class]="buildClassString()" [class.error]="hasErrors()">
             <template ngFor #field [ngForOf]="getFields()" #i="index">
                 <uni-component-loader
-                    [type]="getFieldType(field)"
+                    [type]="field.fieldType"
                     [config]="field">
                 </uni-component-loader>
             </template>
@@ -35,7 +37,7 @@ declare var _; //lodash
         </form>
     `
 })
-export class UniForm implements OnInit {
+export class UniForm extends UniGenericField implements OnInit {
 
     /**
      * Configuration of the form
@@ -48,7 +50,7 @@ export class UniForm implements OnInit {
      * @type {EventEmitter<any>}
      */
     @Output()
-    uniFormSubmit:EventEmitter<any> = new EventEmitter<any>(true);
+    uniFormSubmit: EventEmitter<any> = new EventEmitter<any>(true);
 
     /**
      * Angular2 FormGroup used to validate each input (See FormBuilder and ControlGroup in Angular2 Docs)
@@ -59,7 +61,7 @@ export class UniForm implements OnInit {
      * Text displayed in the submit button
      * @type {string}
      */
-    submitText:string = 'submit';
+    submitText: string = "submit";
 
     /**
      * Object that contains each Angualar2 form control (see AbstractControl in Angular2 Docs)
@@ -71,7 +73,8 @@ export class UniForm implements OnInit {
      *
      * @param fb
      */
-    constructor(public fb:FormBuilder) {
+    constructor(public fb: FormBuilder) {
+        super();
     }
 
     /**
@@ -103,6 +106,15 @@ export class UniForm implements OnInit {
     }
 
     /**
+     * return form value
+     *
+     * @returns {any}
+     */
+    getValue() {
+        return this.form.value;
+    }
+
+    /**
      * returns true is submit button should be hidden
      * @returns {boolean}
      */
@@ -120,42 +132,10 @@ export class UniForm implements OnInit {
 
     /**
      * return all fields inside the form
-     * @returns {IElementBuilderCollection}
+     * @returns {UniElementBuilderCollection}
      */
     getFields() {
         return this.config.fields;
-    }
-
-    /**
-     * return the type of the Element return IElmementBuilder Type (UniField, UniFieldBuilder, UniGroup)
-     * @param field
-     * @returns {Type}
-     */
-    getFieldType(field:IElementBuilder) {
-        return field.fieldType;
-    }
-
-    /**
-     * Check the value of each property in the classes and builds the string value it should be showed
-     * @returns {string}
-     */
-    buildClassString() {
-        var classes = [];
-        var cls = this.config.classes;
-        for(var cl in cls) {
-            if (cls.hasOwnProperty(cl)) {
-                var value = undefined;
-                if(_.isFunction(cls[cl])) {
-                    value = cls[cl]();
-                } else {
-                    value = cls[cl];
-                }
-                if (value === true) {
-                    classes.push(cl);
-                }
-            }
-        }
-        return classes.join(" ");
     }
 
     /**
@@ -174,7 +154,10 @@ export class UniForm implements OnInit {
                 var model = field.model;
                 var fieldPath = field.field;
                 var value = _.get(formValue, fieldPath);
+                console.log(model)
+                console.log("model["+field.field+"] from ->",value);
                 _.set(model, fieldPath, value);
+                console.log("model["+field.field+"] to ->",model[fieldPath]);
             } else {
                 this.updateModel(field.fields, formValue);
             }
@@ -198,7 +181,7 @@ export class UniForm implements OnInit {
                 field.model = newModel;
                 var fieldPath = field.field;
                 var value = _.get(newModel, fieldPath);
-                field.refreshField(value);
+                field.refresh(value);
             } else {
                 this.refresh(newModel, field.fields, formValue);
             }

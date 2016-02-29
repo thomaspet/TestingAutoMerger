@@ -435,7 +435,6 @@ export interface IEmployeeCategory {
 	StatusID: number;
 	ID: number;
 	Deleted: boolean;
-	EmployeeCategoryLink: IEmployeeCategoryLink;
 	CustomFields: any;
 }
 
@@ -447,6 +446,7 @@ export interface IEmployeeCategoryLink {
 	ID: number;
 	Deleted: boolean;
 	EmployeeCategory: IEmployeeCategory;
+	Employee: IEmployee;
 	CustomFields: any;
 }
 
@@ -492,6 +492,7 @@ export interface IEmployment {
 	ID: number;
 	Deleted: boolean;
 	Localization: ILocalization;
+	Leaves: Array<IEmployeeLeave>;
 	Leave: Array<IEmployeeLeave>;
 	CustomFields: any;
 }
@@ -676,7 +677,6 @@ export interface IEmployee {
 	BusinessRelationInfo: IBusinessRelation;
 	Employments: Array<IEmployment>;
 	BankAccounts: Array<IBankAccountSalary>;
-	EmployeeCategoryLinks: Array<IEmployeeCategoryLink>;
 	VacationRateEmployee: IVacationRateEmployee;
 	Localization: ILocalization;
 	CustomFields: any;
@@ -1049,6 +1049,7 @@ export interface ICompanySettings {
 	VatLockedDate: Date;
 	WebAddress: string;
 	AccountGroupSetID: number;
+	AutoJournalPayment: boolean;
 	StatusID: number;
 	ID: number;
 	Deleted: boolean;
@@ -1386,6 +1387,7 @@ export interface IVatTypeSetup {
 	IsCompensated: boolean;
 	IncomingAccountNumber: number;
 	OutgoingAccountNumber: number;
+	VatCodeGroupNo: number;
 	ID: number;
 	Deleted: boolean;
 	CustomFields: any;
@@ -1399,6 +1401,7 @@ export interface IUser {
 	StatusID: number;
 	ID: number;
 	Deleted: boolean;
+	Status: IStatus;
 	CustomFields: any;
 }
 
@@ -1507,6 +1510,8 @@ export interface IUserVerification {
 	Email: string;
 	DisplayName: string;
 	CompanyId: number;
+	UserId: number;
+	StatusCode: number;
 	ID: number;
 	Deleted: boolean;
 	CustomFields: any;
@@ -1735,6 +1740,27 @@ export interface IJournalEntryLineDraft {
 	OriginalReferencePost: IJournalEntryLine;
 	ReferenceOriginalPost: IJournalEntryLine;
 	Dimensions: IDimensions;
+	CustomFields: any;
+}
+
+
+export interface IPayment {
+	IsPaymentToSupplier: boolean;
+	BankAccountID: number;
+	CustomerID: number;
+	PaymentID: string;
+	Amount: number;
+	CurrencyID: number;
+	InvoiceNumber: string;
+	BankAccountNumberTarget: string;
+	ReconcilePayment: boolean;
+	AutoJournal: boolean;
+	StatusID: number;
+	ID: number;
+	Deleted: boolean;
+	BankAccount: IBankAccount;
+	Customer: ICustomer;
+	Currency: ICurrency;
 	CustomFields: any;
 }
 
@@ -2000,19 +2026,19 @@ export interface IVatCodeDeduction {
 	DeductionPercent: number;
 	ValidFrom: Date;
 	ValidTo: Date;
-	VatCodeRelationID: number;
+	VatTypeID: number;
 	StatusID: number;
 	ID: number;
 	Deleted: boolean;
-	VatCodeRelation: IVatCodeRelation;
+	VatType: IVatType;
 	CustomFields: any;
 }
 
 
 export interface IVatType {
 	VatCode: string;
-	VatCodeRelationID: number;
 	Name: string;
+	Alias: string;
 	VatPercent: number;
 	AvailableInModules: boolean;
 	VatTypeSetupID: number;
@@ -2024,34 +2050,14 @@ export interface IVatType {
 	IncomingAccountID: number;
 	OutgoingAccountID: number;
 	InUse: boolean;
+	VatCodeGroupID: number;
 	StatusID: number;
 	ID: number;
 	Deleted: boolean;
 	IncomingAccount: IAccount;
 	OutgoingAccount: IAccount;
-	CustomFields: any;
-}
-
-
-export interface IVatCodeAlias {
-	Name: string;
-	VatCodeRelationID: number;
-	StatusID: number;
-	ID: number;
-	Deleted: boolean;
-	VatCodeRelation: IVatCodeRelation;
-	CustomFields: any;
-}
-
-
-export interface IVatCodeRelation {
-	VatTypeID: number;
-	StatusID: number;
-	ID: number;
-	Deleted: boolean;
 	Deductions: Array<IVatCodeDeduction>;
-	Alias: Array<IVatCodeAlias>;
-	VatType: IVatType;
+	VatCodeGroup: IVatCodeGroup;
 	CustomFields: any;
 }
 
@@ -2059,11 +2065,10 @@ export interface IVatCodeRelation {
 export interface IClientValidationRule {
 	EntityType: string;
 	PropertyName: string;
-	ValidationForType: string;
-	Operator: string;
+	Operator: Operator;
 	Operation: OperationType;
 	Level: ValidationLevel;
-	Value: number;
+	Value: string;
 	ErrorMessage: string;
 	ID: number;
 	Deleted: boolean;
@@ -2225,8 +2230,20 @@ export enum ForeignWorker{
 
 
 export enum FieldType{
-	Text = 0,
-	Number = 1,
+	AUTOCOMPLETE = 0,
+	COMBOBOX = 1,
+	DATEPICKER = 2,
+	DROPDOWN = 3,
+	MASKED = 4,
+	MULTISELECT = 5,
+	NUMERIC = 6,
+	RADIO = 7,
+	CHECKBOX = 8,
+	RADIOGROUP = 9,
+	TEXT = 10,
+	EMAIL = 11,
+	PASSWORD = 12,
+	HYPERLINK = 13,
 }
 
 
@@ -2279,6 +2296,21 @@ export enum StatusCategoryCode{
 	Deviation = 60000,
 	Error = 70000,
 	Deleted = 90000,
+}
+
+
+export enum Operator{
+	Min = 0,
+	Max = 1,
+	MinIncl = 2,
+	MaxIncl = 3,
+	MinLength = 4,
+	MaxLength = 5,
+	EqualsLength = 6,
+	Required = 7,
+	Equals = 8,
+	NotEquals = 9,
+	RegExp = 10,
 }
 
 

@@ -1,6 +1,7 @@
 import {UniFieldBuilder} from './builders/uniFieldBuilder';
 import {UniFieldsetBuilder} from './builders/uniFieldsetBuilder';
-import {UniGroupBuilder} from './builders/uniGroupBuilder';
+import {UniSectionBuilder} from './builders/uniSectionBuilder';
+import {UniFormBuilder} from './builders/uniFormBuilder';
+import {UniComboFieldBuilder} from './builders/uniComboFieldBuilder';
 
-export type IElementBuilder = UniFieldBuilder|UniFieldsetBuilder|UniGroupBuilder;
-export type IElementBuilderCollection = Array<IElementBuilder>;
+export type UniElementBuilder = UniFieldBuilder|UniFieldsetBuilder|UniSectionBuilder|UniComboFieldBuilder;

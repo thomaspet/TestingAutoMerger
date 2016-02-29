@@ -13,8 +13,8 @@ import {Component,DynamicComponentLoader, ElementRef, ComponentRef, Input, Type}
  * config?: any => Configuration object for the component
  */
 @Component({
-    selector:'uni-component-loader',
-    inputs: ['type','loader','config'],
+    selector: 'uni-component-loader',
+    inputs: ['type', 'loader', 'config'],
     template: '<div #content></div>',
 })
 export class UniComponentLoader {
@@ -23,7 +23,7 @@ export class UniComponentLoader {
     type: Type;
 
     @Input()
-    loader: (cmp:ComponentRef)=>any|Promise<any>|void;
+    loader: (cmp: ComponentRef)=>any|Promise<any>|void;
 
     @Input()
     config: any;
@@ -39,13 +39,14 @@ export class UniComponentLoader {
     ngOnInit() {
         var self = this;
         if (this.type && this.loader) {
-            this.load(this.type,this.loader)
+            this.load(this.type).then(this.loader);
         } else if (this.type && this.config) {
-            this.dcl.loadIntoLocation(this.type,this.element,'content').then((cmp:ComponentRef) => {
+            this.dcl.loadIntoLocation(this.type, this.element, 'content').then((cmp: ComponentRef) => {
                 cmp.instance.config = self.config;
+                return cmp;
             });
         } else if (this.type) {
-            this.dcl.loadIntoLocation(this.type,this.element,'content');
+            this.dcl.loadIntoLocation(this.type, this.element, 'content');
         }
     }
 
@@ -57,11 +58,7 @@ export class UniComponentLoader {
      * @param loader Function that can manage the component loaded
      * @returns {any} (optional) it can return nothing or a promise
      */
-    load(type: Type,loader?: any) {
-        var p = this.dcl.loadIntoLocation(type,this.element,'content');
-        if (loader) {
-            return p.then(loader);
-        }
-        return p;
+    load(type: Type) {
+        return this.dcl.loadIntoLocation(type, this.element, 'content');
     }
 }

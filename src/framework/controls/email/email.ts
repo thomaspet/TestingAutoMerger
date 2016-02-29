@@ -1,9 +1,10 @@
-import {Component, Input} from 'angular2/core';
+import {Component, Input} from "angular2/core";
 
 @Component({
-    selector: 'uni-email',
+    selector: "uni-email",
     template: `
         <input
+            *ngIf="config.control"
             type="email"
             [ngFormControl]="config.control"
             [readonly]="config.readonly"
@@ -13,7 +14,7 @@ import {Component, Input} from 'angular2/core';
 })
 export class UniEmailInput {
     @Input()
-    config:any;
+    config: any;
 
     constructor() {
     }
@@ -22,7 +23,7 @@ export class UniEmailInput {
         this.config.fieldComponent = this;
     }
 
-    refresh(value) {
+    refresh(value: any): void {
         this.config.control.updateValue(value, {});
     }
 }

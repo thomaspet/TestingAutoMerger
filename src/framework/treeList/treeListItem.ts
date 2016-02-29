@@ -1,4 +1,4 @@
-﻿import {TREE_LIST_TYPE} from './treeList';
+﻿import {TREE_LIST_TYPE} from "./treeList";
 
 export class TreeListItem {
 
@@ -7,9 +7,9 @@ export class TreeListItem {
     treeListItems: Array<TreeListItem>;
     content: Object | string;
     type: TREE_LIST_TYPE;
-    changeCallback: (model?: any) => void;
+    formSubmitCallback: (model?: any) => void;
 
-    constructor(title: string) {
+    constructor(title: string = "") {
         this.title = title;
     }
 
@@ -23,8 +23,8 @@ export class TreeListItem {
         return this;
     }
 
-    setChangeCallback(changeCallback: (model?: any) => void) {
-        this.changeCallback = changeCallback;
+    setFormSubmitCallback(submitCallback: (model?: any) => void) {
+        this.formSubmitCallback = submitCallback;
         return this;
     }
 
@@ -39,14 +39,14 @@ export class TreeListItem {
     addTreeListItems(items: TreeListItem[]) {
         if (!this.treeListItems) {
             this.treeListItems = [];
-        }   
-        items.forEach((item) => {
+        }
+        items.forEach((item: TreeListItem) => {
             this.treeListItems.push(item);
-        })
+        });
         return this;
     }
 
     toggle() {
         this.expanded = !this.expanded;
-    }
+    }    
 }

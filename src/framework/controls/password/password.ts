@@ -1,9 +1,11 @@
-import {Component, Input} from 'angular2/core';
+import {Component, Input} from "angular2/core";
+import {UniFieldBuilder} from "../../forms/builders/uniFieldBuilder";
 
 @Component({
-    selector: 'uni-password',
+    selector: "uni-password",
     template: `
         <input
+            *ngIf="config.control"
             type="password"
             [ngFormControl]="config.control"
             [readonly]="config.readonly"
@@ -13,7 +15,7 @@ import {Component, Input} from 'angular2/core';
 })
 export class UniPasswordInput {
     @Input()
-    config:any;
+    config: UniFieldBuilder;
 
     constructor() {
     }
@@ -22,7 +24,7 @@ export class UniPasswordInput {
         this.config.fieldComponent = this;
     }
 
-    refresh(value) {
+    refresh(value: any) {
         this.config.control.updateValue(value, {});
     }
 }

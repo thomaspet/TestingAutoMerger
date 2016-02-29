@@ -1,0 +1,30 @@
+<main *ngIf="currentEmployee && formConfigs"
+         class="employment_cardform">
+
+    <section class="uni-card"
+             *ngFor="#config of formConfigs #index = index">
+
+        <header class="uni-card_header">
+
+            <uni-checkbox _ngcontent-cls-21>
+                <input type="checkbox" id="employeeEmploymentDefaultCheckBoxID{{index}}" (click)="changeDefault($event,index)"/>
+                <label [attr.for]="'employeeEmploymentDefaultCheckBoxID'+index">Standard</label>
+            </uni-checkbox>
+
+            <h1>{{config.fields[1].model.JobName}}, {{config.fields[6].model.WorkPercent}}%</h1>
+            <p>{{formatDate(config.fields[2].model.StartDate)}} - {{formatDate(config.fields[3].model.EndDate) || 'inneværende'}}</p>
+
+        </header>
+
+        <article class="uni-card_content">
+            <uni-form (uniFormSubmit)='onFormSubmit($event, index)' [config]='config'></uni-form>
+        </article>
+
+    </section>
+
+    <a class="uni-card_add">
+
+        <h1>Add employment</h1>
+    </a>
+
+</main>
