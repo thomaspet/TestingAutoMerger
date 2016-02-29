@@ -25,7 +25,6 @@ export class UniFormDemo {
 
     Model: EmployeeModel;
     FormConfig: UniFormBuilder;
-    Instance: UniForm;
 
     @ViewChild(UniComponentLoader)
     UniCmpLoader: UniComponentLoader;
@@ -55,9 +54,6 @@ export class UniFormDemo {
         var self = this;
         return this.UniCmpLoader.load(UniForm).then((cmp: ComponentRef) => {
             cmp.instance.config = self.FormConfig;
-            setTimeout(() => {
-                self.Instance = cmp.instance;
-            }, 100);
         });
     }
 
