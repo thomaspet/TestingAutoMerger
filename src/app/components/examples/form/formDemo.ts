@@ -1,24 +1,22 @@
 import {Component, ComponentRef, ViewChild} from 'angular2/core';
 import {UniHttp} from '../../../../framework/core/http';
-import {IComponentLayout} from '../../../../framework/interfaces/interfaces';
 import {Observable} from 'rxjs/Observable';
-import {BaseApiService} from '../../../../framework/core/BaseApiService';
 import {Operator} from '../../../../framework/interfaces/interfaces';
 import {OperationType} from '../../../../framework/interfaces/interfaces';
 import {ValidationLevel} from '../../../../framework/interfaces/interfaces';
-import {EmployeeModel} from "../../../../framework/models/employee";
-import {UniFormBuilder} from "../../../../framework/forms/builders/uniFormBuilder";
-import {UniFormLayoutBuilder} from "../../../../framework/forms/builders/uniFormLayoutBuilder";
-import {UniForm} from "../../../../framework/forms/uniForm";
-import {UniComponentLoader} from "../../../../framework/core/componentLoader";
-import {IEmployee} from "../../../../framework/interfaces/interfaces";
+import {EmployeeModel} from '../../../../framework/models/employee';
+import {UniFormBuilder} from '../../../../framework/forms/builders/uniFormBuilder';
+import {UniFormLayoutBuilder} from '../../../../framework/forms/builders/uniFormLayoutBuilder';
+import {UniForm} from '../../../../framework/forms/uniForm';
+import {UniComponentLoader} from '../../../../framework/core/componentLoader';
+import {EmployeeService} from '../../../services/Salary/Employee/EmployeeService';
 
 @Component({
     selector: 'uni-form-demo',
     directives: [UniComponentLoader],
-    providers: [BaseApiService],
+    providers: [EmployeeService],
     template: `
-        <div class="application employee">
+        <div class='application employee'>
             <uni-component-loader></uni-component-loader>
         </div>
     `
@@ -32,7 +30,7 @@ export class UniFormDemo {
     @ViewChild(UniComponentLoader)
     UniCmpLoader: UniComponentLoader;
 
-    constructor(public http: UniHttp, public api: BaseApiService<IEmployee>) {
+    constructor(public http: UniHttp, public api: EmployeeService) {
         this.api.setRelativeUrl('employees');
     }
 
@@ -100,6 +98,19 @@ export class UniFormDemo {
             'ID': 1,
             'Deleted': false
         }];
+        /*
+        layout.Fields[1].Validators = [{
+            'EntityType': 'Employee',
+            'PropertyName': 'SocialSecurityNumber',
+            'Operator': Operator.RegExp,
+            'Operation': OperationType.CreateAndUpdate, // not used now. Operation is applied in all levels
+            'Level': ValidationLevel.Error, // not used now. All messages are errors
+            'Value': "^[0-9]{11}$",
+            'ErrorMessage': 'Employee fødselsnummer should have 11 numbers',
+            'ID': 1,
+            'Deleted': false
+        }];
+        */
         return layout;
     }
 }
