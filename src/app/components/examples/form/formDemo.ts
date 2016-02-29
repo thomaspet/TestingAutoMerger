@@ -1,6 +1,9 @@
 import {Component, ComponentRef, ViewChild} from 'angular2/core';
 import {UniHttp} from '../../../../framework/core/http';
+
 import {Observable} from 'rxjs/Observable';
+import "rxjs/add/operator/concatMap";
+
 import {Operator} from '../../../../framework/interfaces/interfaces';
 import {OperationType} from '../../../../framework/interfaces/interfaces';
 import {ValidationLevel} from '../../../../framework/interfaces/interfaces';
@@ -10,6 +13,9 @@ import {UniFormLayoutBuilder} from '../../../../framework/forms/builders/uniForm
 import {UniForm} from '../../../../framework/forms/uniForm';
 import {UniComponentLoader} from '../../../../framework/core/componentLoader';
 import {EmployeeService} from '../../../services/Salary/Employee/EmployeeService';
+import {IEmployee} from "../../../../framework/interfaces/interfaces";
+import {UniElementFinder} from "../../../../framework/forms/shared/UniElementFinder";
+import {UniFieldBuilder} from "../../../../framework/forms/builders/uniFieldBuilder";
 
 @Component({
     selector: 'uni-form-demo',
@@ -36,9 +42,10 @@ export class UniFormDemo {
     ngOnInit() {
         var self = this;
         this.getData().subscribe((results: any[]) => {
+            console.log(results);
             var [layout,employee] = results;
 
-            layout = self.addValidators(layout);
+            layout = self.extendFields(layout);
 
             self.setModel(employee);
 
@@ -59,6 +66,7 @@ export class UniFormDemo {
 
     private setLayout(layout, model) {
         this.FormConfig = new UniFormLayoutBuilder().build(layout, model);
+        this.extendFormConfig();
     }
 
     private setModel(model) {
@@ -66,8 +74,15 @@ export class UniFormDemo {
     }
 
     private getData() {
-        var sources = [this.getLayout(), this.getEmployee(1)];
-        return Observable.forkJoin(sources);
+        var layout, self = this;
+        return this.getLayout()
+            .concatMap((data: any) => {
+                layout = data;
+                return self.getEmployee(1, data.Expands);
+            })
+            .map((employee: IEmployee) => {
+                return [layout, employee];
+            });
     }
 
     private getLayout() {
@@ -78,14 +93,40 @@ export class UniFormDemo {
             .send();
     }
 
-    private getEmployee(id: number) {
-        return this.api.Get(id);
+    private getEmployee(id: number, expand: string[]) {
+        return this.http.asGET()
+            .usingBusinessDomain()
+            .withEndPoint('employees/' + id)
+            .send({
+                expand: expand.join(',')
+            });
+        //return this.api.Get(id);
     }
 
-    private addValidators(layout) {
+    private extendFormConfig() {
+        var field:UniFieldBuilder = UniElementFinder.findUniFieldByPropertyName("Sex",this.FormConfig.fields);
+        field.setKendoOptions({
+            dataTextField: 'text',
+            dataValueField: 'id',
+            dataSource: [{
+                'id': 1,
+                'text': 'mann'
+            }, {
+                'id': 2,
+                'text': 'kvinne'
+            }]
+        });
+        field = UniElementFinder.findUniFieldByPropertyName("SocialSecurityNumber",this.FormConfig.fields);
+        field.setKendoOptions({
+            mask:"000000 00000",
+            promptChar:"_"
+        });
+    }
+
+    private extendFields(layout) {
         layout.Fields[0].Validators = [{
             'EntityType': 'BusinessRelation',
-            'PropertyName': 'BusinessRelationInfo.Name',
+            'PropertyName': 'Name',
             'Operator': Operator.Required,
             'Operation': OperationType.CreateAndUpdate, // not used now. Operation is applied in all levels
             'Level': ValidationLevel.Error, // not used now. All messages are errors
@@ -94,7 +135,7 @@ export class UniFormDemo {
             'ID': 1,
             'Deleted': false
         }];
-        /*
+
         layout.Fields[1].Validators = [{
             'EntityType': 'Employee',
             'PropertyName': 'SocialSecurityNumber',
@@ -106,7 +147,6 @@ export class UniFormDemo {
             'ID': 1,
             'Deleted': false
         }];
-        */
         return layout;
     }
 }
