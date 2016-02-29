@@ -20,6 +20,10 @@ export class BaseApiService<T> {
         return this.BaseURL + "/" + this.RelativeURL;
     }
 
+    public setRelativeUrl(relativeurl:string) {
+        this.RelativeURL = relativeurl;
+    }
+
     constructor(protected http: UniHttp) {
         this.BaseURL = http.getBaseUrl();
         this.LogAll = true;
