@@ -127,7 +127,7 @@ export class CompanySettings implements OnInit {
             .setModelField('EmailAddress')
             .setType(UNI_CONTROL_DIRECTIVES[11]);
 
-        // ********************  Selskapsoppsett    **************************/
+        // ********************  Selskapsoppsett    ***************************/
         var companySetup = new UniSectionBuilder("Selskapsoppsett");
 
         var companyReg = new UniFieldBuilder();
