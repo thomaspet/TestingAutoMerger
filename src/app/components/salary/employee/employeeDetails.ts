@@ -55,8 +55,8 @@ export class EmployeeDetails {
             this.employee = emp;
             this.localizations = loc;
 
-            console.log("employee", response);
-            // this.empJSON = JSON.stringify(this.employee.BusinessRelationInfo);
+            //console.log("employee", response);
+            
         }, error => console.log(error));
     }
 

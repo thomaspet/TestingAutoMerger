@@ -51,7 +51,7 @@ export class UniTableControls {
     }
 
 
-    public datepicker(kendoOptions: any, changeCallback?: (item: any, rowModel: any) => any) {
+    public datepicker(kendoOptions: any) {
         return function(container, options) {
             jQuery('<input data-bind="value:' + options.field + '"/>')
             .appendTo(container)
