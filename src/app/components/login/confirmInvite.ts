@@ -38,7 +38,7 @@ export class Confirm {
                 (data) => {
 
                     //Checks that the verifcationobject is valid and is not already confirmed
-                    if (data.ExpirationDate && data.StatusCode === 0) {
+                    if (data.ExpirationDate && data.StatusCode === 1) {
                         if (new Date(data.ExpirationDate) > new Date()) {
                             this.validInvite = true;
                         } else {

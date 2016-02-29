@@ -2,12 +2,13 @@
 import {NgFor, NgIf} from 'angular2/common';
 import {UniHttp} from '../../../../framework/core/http';
 import {OrderByPipe} from '../../../../framework/pipes/orderByPipe';
+import {FilterInactivePipe} from '../../../../framework/pipes/filterInactivePipe';
 
 declare var jQuery;
 
 @Component({
     selector: 'uni-users',
-    pipes: [OrderByPipe],
+    pipes: [OrderByPipe, FilterInactivePipe],
     templateUrl: 'app/components/settings/users/users.html',
     directives: [NgFor, NgIf]
 })
@@ -19,6 +20,7 @@ export class Users {
     errorMessage: string;
     invalidInviteInfo: boolean = false;
     isPostUserActive: boolean = false;
+    hideInactive: boolean = false;
     sortProperty: string;
 
     constructor(private http: UniHttp) {
@@ -74,15 +76,39 @@ export class Users {
 
     //Creates a new user-verification object and code for the user, and sends out a new email
     resendInvite(user) {
-        this.newUser.DisplayName = user.DisplayName;
-        this.newUser.Email = user.Email;
-        this.inviteNewUser();
+        //If user is inactive
+        if (user.StatusID === 19) {
+            this.http
+                .asPOST()
+                .usingBusinessDomain()
+                .withEndPoint('users/' + user.ID)
+                .send({ action: 'activate' })
+                .subscribe(
+                    (data) => { this.getUserTableData(); console.log(data) },
+                    (error) => { console.log(error) }
+                )
+        }
+        //If user has not responded to invite
+        else {
+            this.newUser.DisplayName = user.DisplayName;
+            this.newUser.Email = user.Email;
+            this.inviteNewUser();
+        }
     }
 
     //Revokes the rights of the user
     revokeInvite(user) {
-        /* TODO */
         console.log(user.DisplayName + '\'s rights have been revoked..');
+
+        this.http
+            .asPOST()
+            .usingBusinessDomain()
+            .withEndPoint('users/' + user.ID)
+            .send({ action: 'inactivate' })
+            .subscribe(
+                (data) => { this.getUserTableData() },
+                (error) => { console.log(error) }
+            )
     }
 
     //Regex to check valididation of email
