@@ -2,10 +2,10 @@
 @import "checkboxes"
 @import "formSection"
 
-label.-has-linebreak
+label.-has-linebreak, uni-checkbox.-has-linebreak
   float: none // For wrapped elements
 
-label.-has-linebreak + *
+label.-has-linebreak + *,uni-checkbox.-has-linebreak + *
   clear: left
   display: block !important
   &:after
