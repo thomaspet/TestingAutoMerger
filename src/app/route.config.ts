@@ -44,7 +44,27 @@ export var Routes = {
         name: "Settings",
         loader: () => ComponentProxy.LoadComponentAsync("Settings", "./app/components/settings/settings")
     }),
-
+/*
+    journalEntry: new AsyncRoute({
+        path: "/journalentry",
+        name: "JournalEntry",
+        loader: () => ComponentProxy.LoadComponentAsync("JournalEntry", "./app/components/accounting/journalentry/journalentry")
+    }),
+  */
+    
+    journalEntrySub: new AsyncRoute({
+        path: "/journalentry/...",
+        name: "JournalEntry",
+        loader: () => ComponentProxy.LoadComponentAsync("JournalEntry", "./app/components/accounting/journalentry/journalentry")
+    }),
+    
+    /*
+     journalEntryManual: new AsyncRoute({
+        path: "/journalentrymanual",
+        name: "JournalEntryManual",
+        loader: () => ComponentProxy.LoadComponentAsync("JournalEntryManual", "./app/components/accounting/journalentry/journalentrymanual/journalentrymanual")
+    }),
+  */
     usertest: new AsyncRoute({
         path: "/usertest",
         name: "Usertest",
