@@ -13,9 +13,6 @@ import {IEmployee} from '../../../../framework/interfaces/interfaces';
 import {UniFieldBuilder} from '../../../../framework/forms/builders/uniFieldBuilder';
 import {IComponentLayout} from '../../../../framework/interfaces/interfaces';
 
-//observable operations
-import 'rxjs/add/operator/concatMap';
-
 @Component({
     selector: 'uni-form-demo',
     directives: [UniComponentLoader],
