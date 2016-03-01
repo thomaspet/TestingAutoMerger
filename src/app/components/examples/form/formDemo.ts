@@ -55,7 +55,7 @@ export class UniFormDemo {
 
     // private methods
     private startApp(view: any, model: IEmployee) {
-        view = this.extendFields(view);
+        view = this.extendLayout(view);
         this.setModel(model);
         this.setLayout(view, model);
         this.loadForm();
@@ -98,7 +98,7 @@ export class UniFormDemo {
         });
     }
 
-    private extendFields(layout: any) {
+    private extendLayout(layout: any) {
         layout.Fields[0].Validators = [{
             'EntityType': 'BusinessRelation',
             'PropertyName': 'Name',
