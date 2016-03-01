@@ -193,7 +193,7 @@ export class AccountDetails {
             };
             this.model.VatTypeID = 1;
             this.model.SystemAccount = true;
-            this.model.VatType = {
+            this.model.VatType = <any>{
                 ID: 1,
                 Name: "Høg moms",
                 VatPercent: 25,

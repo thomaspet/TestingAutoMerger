@@ -1,9 +1,5 @@
 import {Component, ComponentRef, ViewChild} from 'angular2/core';
 import {UniHttp} from '../../../../framework/core/http';
-
-import {Observable} from 'rxjs/Observable';
-import "rxjs/add/operator/concatMap";
-
 import {Operator} from '../../../../framework/interfaces/interfaces';
 import {OperationType} from '../../../../framework/interfaces/interfaces';
 import {ValidationLevel} from '../../../../framework/interfaces/interfaces';
@@ -13,9 +9,12 @@ import {UniFormLayoutBuilder} from '../../../../framework/forms/builders/uniForm
 import {UniForm} from '../../../../framework/forms/uniForm';
 import {UniComponentLoader} from '../../../../framework/core/componentLoader';
 import {EmployeeService} from '../../../services/Salary/Employee/EmployeeService';
-import {IEmployee} from "../../../../framework/interfaces/interfaces";
-import {UniElementFinder} from "../../../../framework/forms/shared/UniElementFinder";
-import {UniFieldBuilder} from "../../../../framework/forms/builders/uniFieldBuilder";
+import {IEmployee} from '../../../../framework/interfaces/interfaces';
+import {UniFieldBuilder} from '../../../../framework/forms/builders/uniFieldBuilder';
+import {IComponentLayout} from '../../../../framework/interfaces/interfaces';
+
+//observable operations
+import 'rxjs/add/operator/concatMap';
 
 @Component({
     selector: 'uni-form-demo',
@@ -29,21 +28,26 @@ import {UniFieldBuilder} from "../../../../framework/forms/builders/uniFieldBuil
 })
 export class UniFormDemo {
 
+    Http: UniHttp;
+    Api: EmployeeService;
+
     Model: EmployeeModel;
     FormConfig: UniFormBuilder;
 
     @ViewChild(UniComponentLoader)
     UniCmpLoader: UniComponentLoader;
 
-    constructor(public http: UniHttp, public api: EmployeeService) {
-        this.api.setRelativeUrl('employees');
+    constructor(http: UniHttp, api: EmployeeService) {
+        this.Http = http;
+        this.Api = api;
+        this.Api.setRelativeUrl('employees');
     }
 
     ngOnInit() {
         var self = this;
         this.getData().subscribe((results: any[]) => {
-            console.log(results);
-            var [layout,employee] = results;
+            var layout: IComponentLayout = results[0];
+            var employee: IEmployee = results[1];
 
             layout = self.extendFields(layout);
 
@@ -57,19 +61,24 @@ export class UniFormDemo {
 
 
     // private methods
+    private submit() {
+        alert('Model updated!');
+    }
+
     private loadForm() {
         var self = this;
         return this.UniCmpLoader.load(UniForm).then((cmp: ComponentRef) => {
             cmp.instance.config = self.FormConfig;
+            cmp.instance.getEventEmitter().subscribe(self.submit);
         });
     }
 
-    private setLayout(layout, model) {
+    private setLayout(layout: IComponentLayout, model: IEmployee) {
         this.FormConfig = new UniFormLayoutBuilder().build(layout, model);
         this.extendFormConfig();
     }
 
-    private setModel(model) {
+    private setModel(model: IEmployee) {
         this.Model = EmployeeModel.createFromObject(model);
     }
 
@@ -86,7 +95,7 @@ export class UniFormDemo {
     }
 
     private getLayout() {
-        return this.http
+        return this.Http
             .asGET()
             .usingMetadataDomain()
             .withEndPoint('/layout/EmployeePersonalDetailsForm')
@@ -94,7 +103,7 @@ export class UniFormDemo {
     }
 
     private getEmployee(id: number, expand: string[]) {
-        return this.http.asGET()
+        return this.Http.asGET()
             .usingBusinessDomain()
             .withEndPoint('employees/' + id)
             .send({
@@ -104,7 +113,7 @@ export class UniFormDemo {
     }
 
     private extendFormConfig() {
-        var field:UniFieldBuilder = UniElementFinder.findUniFieldByPropertyName("Sex",this.FormConfig.fields);
+        var field: UniFieldBuilder = this.FormConfig.find('Sex');
         field.setKendoOptions({
             dataTextField: 'text',
             dataValueField: 'id',
@@ -116,14 +125,14 @@ export class UniFormDemo {
                 'text': 'kvinne'
             }]
         });
-        field = UniElementFinder.findUniFieldByPropertyName("SocialSecurityNumber",this.FormConfig.fields);
+        field = this.FormConfig.find('SocialSecurityNumber');
         field.setKendoOptions({
-            mask:"000000 00000",
-            promptChar:"_"
+            mask: '000000 00000',
+            promptChar: '_'
         });
     }
 
-    private extendFields(layout) {
+    private extendFields(layout: any) {
         layout.Fields[0].Validators = [{
             'EntityType': 'BusinessRelation',
             'PropertyName': 'Name',
@@ -142,7 +151,7 @@ export class UniFormDemo {
             'Operator': Operator.RegExp,
             'Operation': OperationType.CreateAndUpdate, // not used now. Operation is applied in all levels
             'Level': ValidationLevel.Error, // not used now. All messages are errors
-            'Value': "^[0-9]{11}$",
+            'Value': '^[0-9]{11}$',
             'ErrorMessage': 'Employee fødselsnummer should have 11 numbers',
             'ID': 1,
             'Deleted': false
