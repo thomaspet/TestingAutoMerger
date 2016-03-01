@@ -45,9 +45,6 @@ export class UniModalDemo {
     modalConfig2: any = {};
 
     valueFromModal: string = "";
-
-    modalInstance: UniModalTest;
-    modalInstance2: UniModalTest;
     type: Type = UniModalTest;
 
     constructor() {
