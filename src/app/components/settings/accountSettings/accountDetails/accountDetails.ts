@@ -174,7 +174,7 @@ export class AccountDetails {
             this.form.refresh(this.model);
         } else if (this.account === -1) { // test only
         } else if (this.account === -1) { // test only
-            this.model = new AccountModel();
+        /*    this.model = new AccountModel();
             this.model.ID = 1000;
             this.model.AccountName = "TEST";
             this.model.AccountNumber = 1000;
@@ -241,7 +241,7 @@ export class AccountDetails {
                 Deleted: false
             };
             this.model.DimensionsID = 1;
-            this.form.refresh(this.model);
+            this.form.refresh(this.model);*/
         } else {
             this.update();
         }
