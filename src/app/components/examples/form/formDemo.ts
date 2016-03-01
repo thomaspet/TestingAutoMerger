@@ -45,28 +45,20 @@ export class UniFormDemo {
 
     ngOnInit() {
         var self = this;
-        this.Api.getAppData(1,'EmployeePersonalDetailsForm').subscribe((results: any[]) => {
-            var layout: IComponentLayout = results[0];
-            var employee: IEmployee = results[1];
-
-            layout = self.extendFields(layout);
-
-            self.setModel(employee);
-
-            self.setLayout(layout, self.Model);
-
-            self.loadForm();
+        this.Api.getAppData(1, 'EmployeePersonalDetailsForm').subscribe((results: any[]) => {
+            var view: IComponentLayout = results[0];
+            var model: IEmployee = results[1];
+            self.startApp(view, model)
         });
     }
 
 
     // private methods
-    private submit(context: UniFormDemo) {
-        return () => {
-            context.Api.Post(context.Model).subscribe((result: any) => {
-                alert(JSON.stringify(result));
-            });
-        };
+    private startApp(view: any, model: IEmployee) {
+        view = this.extendFields(view);
+        this.setModel(model);
+        this.setLayout(view, model);
+        this.loadForm();
     }
 
     private loadForm() {
@@ -131,5 +123,13 @@ export class UniFormDemo {
             'Deleted': false
         }];
         return layout;
+    }
+
+    private submit(context: UniFormDemo) {
+        return () => {
+            context.Api.Post(context.Model).subscribe((result: any) => {
+                alert(JSON.stringify(result));
+            });
+        };
     }
 }
