@@ -61,15 +61,19 @@ export class UniFormDemo {
 
 
     // private methods
-    private submit() {
-        alert('Model updated!');
+    private submit(context: UniFormDemo) {
+        return () => {
+            context.Api.Post(context.Model).subscribe((result: any) => {
+                alert(JSON.stringify(result));
+            });
+        };
     }
 
     private loadForm() {
         var self = this;
         return this.UniCmpLoader.load(UniForm).then((cmp: ComponentRef) => {
             cmp.instance.config = self.FormConfig;
-            cmp.instance.getEventEmitter().subscribe(self.submit);
+            cmp.instance.getEventEmitter().subscribe(self.submit(self));
         });
     }
 
