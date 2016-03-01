@@ -45,16 +45,22 @@ export class UniFormDemo {
         this.Api.getAppData(1, 'EmployeePersonalDetailsForm').subscribe((results: any[]) => {
             var view: IComponentLayout = results[0];
             var model: IEmployee = results[1];
-            self.startApp(view, model)
+            self.startApp(view, model);
         });
     }
 
 
     // private methods
     private startApp(view: any, model: IEmployee) {
-        view = this.extendLayout(view);
-        this.setModel(model);
-        this.setLayout(view, model);
+        // We can extend layout before form config creation
+        view = this.extendLayoutConfig(view);
+
+        this.createModel(model);
+        this.buildFormConfig(view, model);
+
+        // We can extend the form config after the LayoutBuilder has created the layout
+        this.extendFormConfig();
+
         this.loadForm();
     }
 
@@ -66,12 +72,11 @@ export class UniFormDemo {
         });
     }
 
-    private setLayout(layout: IComponentLayout, model: IEmployee) {
+    private buildFormConfig(layout: IComponentLayout, model: IEmployee) {
         this.FormConfig = new UniFormLayoutBuilder().build(layout, model);
-        this.extendFormConfig();
     }
 
-    private setModel(model: IEmployee) {
+    private createModel(model: IEmployee) {
         this.Model = EmployeeModel.createFromObject(model);
     }
 
@@ -95,7 +100,7 @@ export class UniFormDemo {
         });
     }
 
-    private extendLayout(layout: any) {
+    private extendLayoutConfig(layout: any) {
         layout.Fields[0].Validators = [{
             'EntityType': 'BusinessRelation',
             'PropertyName': 'Name',
