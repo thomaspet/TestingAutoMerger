@@ -45,7 +45,7 @@ export class UniFormDemo {
 
     ngOnInit() {
         var self = this;
-        this.getData().subscribe((results: any[]) => {
+        this.Api.getAppData(1,'EmployeePersonalDetailsForm').subscribe((results: any[]) => {
             var layout: IComponentLayout = results[0];
             var employee: IEmployee = results[1];
 
@@ -84,36 +84,6 @@ export class UniFormDemo {
 
     private setModel(model: IEmployee) {
         this.Model = EmployeeModel.createFromObject(model);
-    }
-
-    private getData() {
-        var layout, self = this;
-        return this.getLayout()
-            .concatMap((data: any) => {
-                layout = data;
-                return self.getEmployee(1, data.Expands);
-            })
-            .map((employee: IEmployee) => {
-                return [layout, employee];
-            });
-    }
-
-    private getLayout() {
-        return this.Http
-            .asGET()
-            .usingMetadataDomain()
-            .withEndPoint('/layout/EmployeePersonalDetailsForm')
-            .send();
-    }
-
-    private getEmployee(id: number, expand: string[]) {
-        return this.Http.asGET()
-            .usingBusinessDomain()
-            .withEndPoint('employees/' + id)
-            .send({
-                expand: expand.join(',')
-            });
-        //return this.api.Get(id);
     }
 
     private extendFormConfig() {

@@ -9,4 +9,33 @@ export class EmployeeService extends BaseApiService<IEmployee> {
         super(http);
         this.RelativeURL = 'Employees';
     }
+
+    getLayout(id: string) {
+        return this.http
+            .asGET()
+            .usingMetadataDomain()
+            .withEndPoint('/layout/' + id)
+            .send();
+    }
+
+    getEmployee(id: number, expand: string[]) {
+        return this.http.asGET()
+            .usingBusinessDomain()
+            .withEndPoint('employees/' + id)
+            .send({
+                expand: expand.join(',')
+            });
+    }
+
+    getAppData(EmployeeID: number, LayoutID: string) {
+        var layout, self = this;
+        return this.getLayout(LayoutID)
+            .concatMap((data: any) => {
+                layout = data;
+                return self.getEmployee(EmployeeID, data.Expands);
+            })
+            .map((employee: IEmployee) => {
+                return [layout, employee];
+            });
+    }
 }
