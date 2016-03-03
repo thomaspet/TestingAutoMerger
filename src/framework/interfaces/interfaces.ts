@@ -569,7 +569,7 @@ export interface IWageType {
 	Aga_nav: boolean;
 	Limit_type: LimitType;
 	Limit_value: number;
-	Limit_WagetTypeID: number;
+	Limit_WageTypeID: number;
 	Limit_newRate: number;
 	StandardWageTypeFor: StdWageType;
 	Base_div1: boolean;
@@ -749,6 +749,7 @@ export interface IUserAuthorization {
 export interface ICompany {
 	Name: string;
 	SchemaName: string;
+	Key: string;
 	ID: number;
 	Deleted: boolean;
 	CustomFields: any;
