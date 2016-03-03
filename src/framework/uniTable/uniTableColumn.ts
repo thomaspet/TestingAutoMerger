@@ -18,10 +18,14 @@ export class UniTableColumn {
     customEditor: { type: string, kendoOptions: any };
     // todo: validation
     
-    constructor(field: string, title: string, type: string) {
+    constructor(field: string, title: string, type: string = '') {
         this.field = field;
         this.title = title;
         this.type = type;
+        
+        if (type === 'date') {
+            this.editor = this.controls.datepicker({});
+        }
     }
     
     setFormat(format: string) {
@@ -59,11 +63,20 @@ export class UniTableColumn {
         return this;
     }
 
-    setCustomEditor(type: string, kendoOptions: any) {
+    setCustomEditor(type: string, kendoOptions: any, changeCallback?: (item: any, rowModel: any) => any) {
         switch (type) {
             case 'dropdown':
-                this.editor = this.controls.dropdown(kendoOptions);
+                this.editor = this.controls.dropdown(kendoOptions, changeCallback);
             break;
+            
+            case 'combobox':
+                this.editor = this.controls.combobox(kendoOptions, changeCallback);
+            break;
+            
+            case 'datepicker':
+                this.editor = this.controls.datepicker(kendoOptions);
+            break;
+            
         }
         
         return this;

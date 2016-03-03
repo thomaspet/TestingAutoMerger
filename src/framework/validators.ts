@@ -1,6 +1,6 @@
 import {required} from "./validators/input";
 import {contains, match, maxLenght, minLength, eqLenght} from "./validators/string";
-import {equalTo, greaterEqualThan, greaterThan, lowerEqualThan, lowerThan} from "./validators/logic";
+import {equalTo, notEqualTo, greaterEqualThan, greaterThan, lowerEqualThan, lowerThan} from "./validators/logic";
 import {isDate, isDateGreaterThan, isDateGreaterThanEqual, isDateLowerThan, isDateLowerThanEqual} from "./validators/date";
 
 export * from './validators/UniValidator';
@@ -46,6 +46,10 @@ export var UniValidationOperators: IValidationItem[] = [
     {
         name: "equalTo",
         validator: equalTo
+    },
+    {
+        name: "notEqualTo",
+        validator: notEqualTo
     },
     {
         name: "match",

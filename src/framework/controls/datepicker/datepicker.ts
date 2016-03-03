@@ -43,13 +43,16 @@ export class UniDatepicker implements AfterViewInit, OnDestroy {
         var datepicker;
 
         this.config.fieldComponent = this;
+        
         if(options.autocomplete === undefined) {
-            options.autocomplete = false;
+            options.autocomplete = true;
         }
+        
         options.format = options.format || "dd.MM.yyyy";
         options.parseFormats = options.parseFormats || parseFormats;
-
+        
         options.change = function () {
+       
             var date = this.value();
 
             if (options.autocomplete && (date === null || date === undefined)) {
@@ -91,8 +94,9 @@ export class UniDatepicker implements AfterViewInit, OnDestroy {
     }
 }
 
-function autocompleteDate(inputValue: string): Date {
+export function autocompleteDate(inputValue: string): Date {
     "use strict";
+    
     var input = inputValue.replace(/[^0-9]/g, "");
 
     var day, month, year;

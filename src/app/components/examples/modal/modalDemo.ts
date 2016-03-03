@@ -13,7 +13,6 @@ import {UniModal} from "../../../../framework/modals/modal";
                 <button *ngFor="#action of config.actions; #i=index" (click)="action.method()">
                     {{action.text}}
                 </button>
-                <button *ngIf="config.hasCancelButton" (click)="config.cancel()">Cancel</button>
             </footer>
         </article>
     `
@@ -22,6 +21,10 @@ export class UniModalTest {
     @Input('config')
     config;
     tempValue;
+
+    ngAfterViewInit() {
+
+    }
 }
 
 @Component({
@@ -45,9 +48,6 @@ export class UniModalDemo {
     modalConfig2: any = {};
 
     valueFromModal: string = "";
-
-    modalInstance: UniModalTest;
-    modalInstance2: UniModalTest;
     type: Type = UniModalTest;
 
     constructor() {
@@ -55,16 +55,21 @@ export class UniModalDemo {
         this.modalConfig = {
             title: "Modal 1",
             value: "Initial value",
-            hasCancelButton: true,
-            cancel: () => {
-                self.modals[0].close();
-            },
             actions: [
                 {
                     text: "Accept",
                     method: () => {
                         self.modals[0].getContent().then((content)=>{
                             self.valueFromModal = content.tempValue;
+                            content.tempValue = "";
+                            self.modals[0].close();
+                        });
+                    }
+                },
+                {
+                    text: "Cancel",
+                    method: () => {
+                        self.modals[0].getContent().then((content)=>{
                             content.tempValue = "";
                             self.modals[0].close();
                         });

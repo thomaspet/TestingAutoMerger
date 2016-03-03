@@ -94,33 +94,11 @@ export class UniTableBuilder {
         if (!this.schemaModel.fields['ID']) {
             this.schemaModel.fields['ID'] = { type: 'number', editable: false, nullable: true };
         }
-        
-        //console.log(this.columns);
-        //console.log(this.schemaModel);
-        
+                
         return this;
     }
-    
-    mockCustomEditor(kendoOptions) {
-        return function(container, options) {
 
-            console.log(container);
-            console.log(options);
-            jQuery('<select />')
-            .appendTo(container)
-            .kendoDropDownList(jQuery.extend(kendoOptions, {
-                // Init to model value
-                value: options.model[options.field],
-                
-                // Update model when dropdown value changes
-                change: (event: kendo.ui.DropDownListChangeEvent) => {
-                    options.model[options.field] = event.sender.value();
-                }
-            }));
-        }
-    }
-    
-    
+
     addCommands(...commands: kendo.ui.GridColumnCommandItem[]) {
         this.commands = commands;
         return this;
