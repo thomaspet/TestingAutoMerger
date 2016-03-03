@@ -1,4 +1,6 @@
 /// <reference path="../../kendo/typescript/kendo.all.d.ts" />
+/// <reference path="../../typings/main.d.ts" />
+
 import {Component} from "angular2/core";
 import {Router, RouteConfig, ROUTER_DIRECTIVES} from "angular2/router";
 import {Routes, APP_ROUTES} from "./route.config";
