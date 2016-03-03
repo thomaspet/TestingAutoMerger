@@ -15,12 +15,16 @@ import {UniForm, UniFormBuilder, UniFieldsetBuilder, UniFieldBuilder} from "../.
 export class JournalEntrySimpleEdit {
     @Input() JournalEntryLine: IJournalEntryLine;
     
-    @Output() Updated = new EventEmitter<IJournalEntryLine>();
+    @Output() Updated = new EventEmitter<any>();
+    @Output() Aborted = new EventEmitter<any>();
         
     constructor() {
   
     }
     
+    abortEditJournalEntry(event) {
+        this.Aborted.emit(null);
+    }
     
     
 }

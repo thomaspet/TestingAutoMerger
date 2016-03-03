@@ -1,2 +1,30 @@
-<journal-entry-simple-list></journal-entry-simple-list>
-<journal-entry-simple-add (Created)="newLineCreated=($event)"></journal-entry-simple-add>
+<table>
+    <thead>
+        <tr>
+            <th>Dato</th>
+            <th>Kontoer</th>
+            <th>Beløp</th>
+            <th>Fordeling</th>
+            <th>Beskrivelse</th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>        
+        <tr *ngFor="#line of journalEntryLines" class="journalentrysimple-itemline" (click)="setSelectedJournalEntryLine(line)">
+            <td class="journalentrysimple-biginfo">{{line.FinancialDate.toLocaleDateString()}}</td>
+            <td class="journalentrysimple-multilineinfo">
+                <div><label>Debet:</label> {{line.DebitAccountNumber}} - {{line.DebitAccount.AccountName}}</div>
+                <div><label>Kredit:</label> {{line.CreditAccountNumber}} - {{line.CreditAccount.AccountName}}</div>
+            </td>
+            <td class="journalentrysimple-biginfo">{{line.Amount}}</td>
+            <td class="journalentrysimple-multilineinfo">
+                <div><label>Avdeling:</label> Ikke valgt</div>
+                <div><label>Prosjekt:</label> Ikke valgt</div>
+            </td>
+            <td>{{line.Description}}</td>
+            <td class="journalentrysimple-actions"></td>
+        </tr>                  
+    </tbody>
+</table>    
+<journal-entry-simple-edit [JournalEntryLine]="selectedJournalEntryLine" (Updated)="editViewUpdated($event)" (Aborted)="abortEdit()" *ngIf="selectedJournalEntryLine != null"></journal-entry-simple-edit>
+<journal-entry-simple-add (Created)="newLineCreated($event)" *ngIf="selectedJournalEntryLine == null"></journal-entry-simple-add>

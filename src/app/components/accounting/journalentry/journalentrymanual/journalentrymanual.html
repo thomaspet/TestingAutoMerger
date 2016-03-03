@@ -1,15 +1,11 @@
-<div class="journalentrytempbox">
-    Her er manuell bilagsregistrering
-    
-    <select id="select-user-mode" [(ngModel)]="journalEntryMode" class="journalentrymodeselector">
-        <option value="SIMPLE">Enkel</option>
-        <option value="PROFFESIONAL">Proff</option>            
-    </select>
+<select id="select-user-mode" [(ngModel)]="journalEntryMode" class="journalentrymodeselector">
+    <option value="SIMPLE">Enkel</option>
+    <option value="PROFFESIONAL">Proff</option>            
+</select>
 
-    <div *ngIf="journalEntryMode == 'SIMPLE'">
-        <journal-entry-simple></journal-entry-simple>
-    </div>
-    <div *ngIf="journalEntryMode == 'PROFFESIONAL'">
-        <journal-entry-professional></journal-entry-professional>
-    </div>
+<div *ngIf="journalEntryMode == 'SIMPLE'">
+    <journal-entry-simple></journal-entry-simple>
+</div>
+<div *ngIf="journalEntryMode == 'PROFFESIONAL'">
+    <journal-entry-professional></journal-entry-professional>
 </div>

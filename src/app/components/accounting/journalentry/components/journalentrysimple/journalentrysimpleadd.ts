@@ -16,9 +16,12 @@ export class JournalEntrySimpleAdd {
     @Input()
     JournalEntryLine: IJournalEntryLine;
         
-    @Output() Created = new EventEmitter<IJournalEntryLine>();
+    @Output() Created = new EventEmitter<any>();
         
-    constructor() {
-  
+    constructor() {        
     }
-}
+    
+    addJournalEntry(event: any) {        
+        this.Created.emit(event)
+    }
+} 
