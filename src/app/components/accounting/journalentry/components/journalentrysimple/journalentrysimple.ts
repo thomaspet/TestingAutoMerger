@@ -3,8 +3,8 @@ import {Observable} from "rxjs/Observable";
 import "rxjs/add/observable/forkjoin";
 
 import {FieldType, IVatType, IVatCodeGroup, IAccount} from "../../../../../../framework/interfaces/interfaces";
-import {VatTypeService, VatCodeGroupService, AccountService, JournalEntryService, JournalEntryAggregated} from "../../../../../services/services";
-
+import {VatTypeService, VatCodeGroupService, AccountService, JournalEntryService} from "../../../../../services/services";
+import {JournalEntryData} from "../../../../../models/models";
 import {UNI_CONTROL_DIRECTIVES} from "../../../../../../framework/controls";
 import {UniForm, UniFormBuilder, UniFieldsetBuilder, UniFieldBuilder} from "../../../../../../framework/forms";
 
@@ -18,12 +18,12 @@ import {JournalEntrySimpleAdd} from './journalentrysimpleadd';
     providers: [JournalEntryService]    
 })
 export class JournalEntrySimple {    
-    public selectedJournalEntryLine : JournalEntryAggregated;
+    public selectedJournalEntryLine : JournalEntryData;
     
-    public journalEntryLines: Array<JournalEntryAggregated>;
+    public journalEntryLines: Array<JournalEntryData>;
         
     constructor(private journalEntryService : JournalEntryService) {
-        this.journalEntryLines = new Array<JournalEntryAggregated>();
+        this.journalEntryLines = new Array<JournalEntryData>();
     }
     
     ngOnInit() {
@@ -38,7 +38,7 @@ export class JournalEntrySimple {
         this.journalEntryLines.push(JournalEntryService.getSomeNewDataForMe());
     }
     
-    setSelectedJournalEntryLine(selectedLine: JournalEntryAggregated) {        
+    setSelectedJournalEntryLine(selectedLine: JournalEntryData) {        
         this.selectedJournalEntryLine = selectedLine;
         
                 
@@ -48,7 +48,7 @@ export class JournalEntrySimple {
         this.selectedJournalEntryLine = null;        
     }
     
-    editViewUpdated(updatedLine : JournalEntryAggregated) {        
+    editViewUpdated(updatedLine : JournalEntryData) {        
         
     }
 }

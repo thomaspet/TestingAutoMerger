@@ -1,5 +1,6 @@
 import {BaseApiService} from '../../../framework/core/BaseApiService';
 import {IJournalEntry, IAccount, IVatType, IDimensions} from '../../../framework/interfaces/interfaces';
+import {JournalEntryData} from '../../models/accounting/journalentrydata';
 import {UniHttp} from '../../../framework/core/http';
 import {Observable} from "rxjs/Observable";
 import "rxjs/add/observable/fromArray";
@@ -17,14 +18,14 @@ export class JournalEntryService extends BaseApiService<IJournalEntry> {
     }       
     
     getAggregatedData() : Observable<any> {
-        return Observable.fromArray([[JournalEntryService.getSomeNewDataForMe(), JournalEntryService.getSomeNewDataForMe()]]);
+        return Observable.fromArray([[JournalEntryService.getSomeNewDataForMe(), JournalEntryService.getSomeNewDataForMe(), JournalEntryService.getSomeNewDataForMe()]]);
     }
     
-    public static getSomeNewDataForMe() : JournalEntryAggregated {
+    public static getSomeNewDataForMe() : JournalEntryData {
         
         var descriptions = ['Betaling','Avskrivning','Faktura','Lønnsutbetaling']
         
-        var data = new JournalEntryAggregated();
+        var data = new JournalEntryData();
         
         data.JournalEntryNo = 1;
         data.Amount = Math.round(Math.random() * 10000);
@@ -40,33 +41,3 @@ export class JournalEntryService extends BaseApiService<IJournalEntry> {
     } 
 }
 
-export class JournalEntryAggregated {
-        
-    JournalEntryID: number;
-    JournalEntryLineID: number;
-    JournalEntryDraftLineID: number;
-    
-    JournalEntryNo: number;
-    
-    Amount: number;
-    
-    DebitAccountID: number;
-    DebitAccountNumber: number;
-    DebitAccount: any;    
-    DebitVatTypeID: number;
-    DebitVatType: IVatType;
-    
-    CreditAccountID: number; 
-    CreditAccountNumber: number;
-    CreditAccount: any;
-    CreditVatTypeID: number;
-    CreditVatType: IVatType;      
-    
-    Description: string;
-    
-    FinancialDate: Date;  
-    
-    Dimensions: IDimensions;
-    
-    
-}
