@@ -85,6 +85,30 @@ export class BaseApiService<T> {
             .send();     
 
     }  
+
+    public Action<T>(ID: number, actionName: string): Observable<any> {
+        if (ID === null) {
+            return this.http
+                .asPUT()
+                .withEndPoint(this.RelativeURL + "?action=" + actionName)
+                .send();
+        }
+        else {
+            return this.http
+                .asPUT()
+                .withEndPoint(this.RelativeURL + "/" + ID + "?action=" + actionName)
+                .send();
+
+        }
+
+        //return this.http
+        //    .usingBusinessDomain()
+        //    .asGET()
+        //    .withEndPoint(this.RelativeURL + (query ? "?" + query : ""))  ///USE THIS!!!
+        //    .send();
+
+      
+    }
     
     public Transition<T>(ID: number, entity: T, transitionName: string) : Observable<any> {        
                 

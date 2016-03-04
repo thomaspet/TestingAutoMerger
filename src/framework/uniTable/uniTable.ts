@@ -73,6 +73,7 @@ export class UniTable {
             editable: this.config.editable,
             toolbar: this.config.toolbar,
             navigatable: true,
+            sortable: true,
         };
 
         if (this.config.pageable) {
