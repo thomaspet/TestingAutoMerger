@@ -25,9 +25,9 @@
                 <td>{{line.Description}}</td>
                 <td class="action_menu"></td>
             </tr>
-            <tr>
+            <tr *ngIf="selectedJournalEntryLine == line">
                 <td colspan="6">
-                    <journal-entry-simple-edit [JournalEntryLine]="selectedJournalEntryLine" (Updated)="editViewUpdated($event)" (Aborted)="abortEdit()" *ngIf="selectedJournalEntryLine == line"></journal-entry-simple-edit>
+                    <journal-entry-simple-edit [JournalEntryLine]="selectedJournalEntryLine" (Updated)="editViewUpdated($event)" (Aborted)="abortEdit()"></journal-entry-simple-edit>
                 </td>
             </tr>
         </template>                  
