@@ -65,7 +65,7 @@ export class SalaryTransactionEmployeeList {
         .setExpand("Wagetype")
         .setFilter("EmployeeNumber eq " + this.ansattID)
         .addColumns(idCol
-            , wagetypeidCol
+            //, wagetypeidCol
             , wagetypenameCol
             , fromdateCol 
             , rateCol 
@@ -73,7 +73,7 @@ export class SalaryTransactionEmployeeList {
             , sumCol
             , employmentidCol
             , accountCol
-            , payoutCol
+            //, payoutCol
             //, transtypeCol
             );
     }
