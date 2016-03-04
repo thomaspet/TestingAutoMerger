@@ -103,7 +103,7 @@ gulp.task('interfaces',function(done){
 gulp.task('rxjs', ['interfaces'],function(){
     return gulp.src('./node_modules/rxjs/**/*.js')
         .pipe(gulp.dest('./dist/lib/rxjs'));
-})
+});
 
 gulp.task('build.dist.vendor.js', ['rxjs'], function(){
     return gulp.src(config.src.vendor.js)
