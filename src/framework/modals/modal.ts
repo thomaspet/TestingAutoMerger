@@ -11,7 +11,7 @@ import {ComponentRef} from "angular2/core";
     directives: [UniComponentLoader],
     template:`
         <dialog class="uniModal" [attr.open]="isOpen">
-            <button (click)="close()" class="closeBtn">Close</button>
+            <button (click)="close()" class="closeBtn"></button>
             <uni-component-loader></uni-component-loader>
         </dialog>
     `

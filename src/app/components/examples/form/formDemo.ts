@@ -1,9 +1,5 @@
 import {Component, ComponentRef, ViewChild} from 'angular2/core';
 import {UniHttp} from '../../../../framework/core/http';
-
-import {Observable} from 'rxjs/Observable';
-import "rxjs/add/operator/concatMap";
-
 import {Operator} from '../../../../framework/interfaces/interfaces';
 import {OperationType} from '../../../../framework/interfaces/interfaces';
 import {ValidationLevel} from '../../../../framework/interfaces/interfaces';
@@ -13,21 +9,24 @@ import {UniFormLayoutBuilder} from '../../../../framework/forms/builders/uniForm
 import {UniForm} from '../../../../framework/forms/uniForm';
 import {UniComponentLoader} from '../../../../framework/core/componentLoader';
 import {EmployeeService} from '../../../services/Salary/Employee/EmployeeService';
-import {IEmployee} from "../../../../framework/interfaces/interfaces";
-import {UniElementFinder} from "../../../../framework/forms/shared/UniElementFinder";
-import {UniFieldBuilder} from "../../../../framework/forms/builders/uniFieldBuilder";
+import {IEmployee} from '../../../../framework/interfaces/interfaces';
+import {UniFieldBuilder} from '../../../../framework/forms/builders/uniFieldBuilder';
+import {IComponentLayout} from '../../../../framework/interfaces/interfaces';
 
 @Component({
     selector: 'uni-form-demo',
     directives: [UniComponentLoader],
     providers: [EmployeeService],
     template: `
-        <div class='application employee'>
+        <div class='application usertest'>
             <uni-component-loader></uni-component-loader>
         </div>
     `
 })
 export class UniFormDemo {
+
+    Http: UniHttp;
+    Api: EmployeeService;
 
     Model: EmployeeModel;
     FormConfig: UniFormBuilder;
@@ -35,76 +34,54 @@ export class UniFormDemo {
     @ViewChild(UniComponentLoader)
     UniCmpLoader: UniComponentLoader;
 
-    constructor(public http: UniHttp, public api: EmployeeService) {
-        this.api.setRelativeUrl('employees');
+    constructor(http: UniHttp, api: EmployeeService) {
+        this.Http = http;
+        this.Api = api;
+        this.Api.setRelativeUrl('employees');
     }
 
     ngOnInit() {
         var self = this;
-        this.getData().subscribe((results: any[]) => {
-            console.log(results);
-            var [layout,employee] = results;
-
-            layout = self.extendFields(layout);
-
-            self.setModel(employee);
-
-            self.setLayout(layout, self.Model);
-
-            self.loadForm();
+        this.Api.getAppData(1, 'EmployeePersonalDetailsForm').subscribe((results: any[]) => {
+            var view: IComponentLayout = results[0];
+            var model: IEmployee = results[1];
+            self.startApp(view, model);
         });
     }
 
 
     // private methods
+    private startApp(view: any, model: IEmployee) {
+        // We can extend layout before form config creation
+        view = this.extendLayoutConfig(view);
+
+        this.createModel(model);
+        this.buildFormConfig(view, model);
+
+        // We can extend the form config after the LayoutBuilder has created the layout
+        this.extendFormConfig();
+
+        this.loadForm();
+    }
+
     private loadForm() {
         var self = this;
         return this.UniCmpLoader.load(UniForm).then((cmp: ComponentRef) => {
             cmp.instance.config = self.FormConfig;
+            cmp.instance.getEventEmitter().subscribe(self.submit(self));
         });
     }
 
-    private setLayout(layout, model) {
+    private buildFormConfig(layout: IComponentLayout, model: IEmployee) {
         this.FormConfig = new UniFormLayoutBuilder().build(layout, model);
-        this.extendFormConfig();
     }
 
-    private setModel(model) {
+    private createModel(model: IEmployee) {
         this.Model = EmployeeModel.createFromObject(model);
     }
 
-    private getData() {
-        var layout, self = this;
-        return this.getLayout()
-            .concatMap((data: any) => {
-                layout = data;
-                return self.getEmployee(1, data.Expands);
-            })
-            .map((employee: IEmployee) => {
-                return [layout, employee];
-            });
-    }
-
-    private getLayout() {
-        return this.http
-            .asGET()
-            .usingMetadataDomain()
-            .withEndPoint('/layout/EmployeePersonalDetailsForm')
-            .send();
-    }
-
-    private getEmployee(id: number, expand: string[]) {
-        return this.http.asGET()
-            .usingBusinessDomain()
-            .withEndPoint('employees/' + id)
-            .send({
-                expand: expand.join(',')
-            });
-        //return this.api.Get(id);
-    }
-
     private extendFormConfig() {
-        var field:UniFieldBuilder = UniElementFinder.findUniFieldByPropertyName("Sex",this.FormConfig.fields);
+        var field: UniFieldBuilder = this.FormConfig.find('Sex');
         field.setKendoOptions({
             dataTextField: 'text',
             dataValueField: 'id',
@@ -116,14 +93,14 @@ export class UniFormDemo {
                 'text': 'kvinne'
             }]
         });
-        field = UniElementFinder.findUniFieldByPropertyName("SocialSecurityNumber",this.FormConfig.fields);
+        field = this.FormConfig.find('SocialSecurityNumber');
         field.setKendoOptions({
-            mask:"000000 00000",
-            promptChar:"_"
+            mask: '000000 00000',
+            promptChar: '_'
         });
     }
 
-    private extendFields(layout) {
+    private extendLayoutConfig(layout: any) {
         layout.Fields[0].Validators = [{
             'EntityType': 'BusinessRelation',
             'PropertyName': 'Name',
@@ -142,11 +119,19 @@ export class UniFormDemo {
             'Operator': Operator.RegExp,
             'Operation': OperationType.CreateAndUpdate, // not used now. Operation is applied in all levels
             'Level': ValidationLevel.Error, // not used now. All messages are errors
-            'Value': "^[0-9]{11}$",
+            'Value': '^[0-9]{11}$',
             'ErrorMessage': 'Employee fødselsnummer should have 11 numbers',
             'ID': 1,
             'Deleted': false
         }];
         return layout;
+    }
+
+    private submit(context: UniFormDemo) {
+        return () => {
+            context.Api.Post(context.Model).subscribe((result: any) => {
+                alert(JSON.stringify(result));
+            });
+        };
     }
 }

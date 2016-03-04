@@ -1,6 +1,7 @@
-import {UniFieldBuilder, UniFieldsetBuilder, UniSectionBuilder, UniComboFieldBuilder} from "../../forms";
-import {UniElementBuilder} from "./../interfaces";
-import {UniGenericBuilder} from "../shared/UniGenericBuilder";
+import {UniFieldBuilder} from '../../forms';
+import {UniElementBuilder} from './../interfaces';
+import {UniGenericBuilder} from '../shared/UniGenericBuilder';
+import {UniElementFinder} from '../shared/UniElementFinder';
 
 declare var _;
 
@@ -13,6 +14,10 @@ export class UniFormBuilder extends UniGenericBuilder {
 
     constructor() {
         super();
+    }
+
+    find(property: string) {
+        return UniElementFinder.findUniFieldByPropertyName(property, this.fields);
     }
 
     readmode(): void {

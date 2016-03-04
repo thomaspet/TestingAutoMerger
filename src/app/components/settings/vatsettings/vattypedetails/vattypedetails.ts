@@ -1,4 +1,5 @@
 import {Component, Input, ViewChild, SimpleChange} from "angular2/core";
+
 import {Observable} from "rxjs/Observable";
 import "rxjs/add/observable/forkjoin";
 
@@ -81,9 +82,7 @@ export class VatTypeDetails {
 
     ngOnChanges(changes: {[propName: string]: SimpleChange}) {
         if (this.VatType != null) {
-            this.model = this.VatType;
-            console.log(this.model);
-
+            this.model = this.VatType;            
             var self = this;
 
             //TODO: Remove timeout, needed for now to give angular time to set up form after this.model has been set

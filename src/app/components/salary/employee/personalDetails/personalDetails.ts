@@ -18,11 +18,11 @@ declare var _;
     selector: "employee-personal-details",
     directives: [UniComponentLoader],
     template: `
-        <div class="application employee">
+        <article class="application usertest">
             <!--<button (click)="toggleMode()">Toogle edit mode</button>-->
             <uni-component-loader></uni-component-loader>
             <!--<button type="button" (click)="executeSubmit()" [disabled]="!isValid()">Submit</button>-->
-        </div>
+        </article>
     `
 })
 export class PersonalDetails {

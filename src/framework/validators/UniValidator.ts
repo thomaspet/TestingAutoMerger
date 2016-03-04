@@ -25,7 +25,6 @@ export class UniValidator {
         x.Level = obj.Level;
         x.Value = obj.Value;
         x.ErrorMessage = obj.ErrorMessage;
-        console.log(UniValidationOperators);
         x.ValidatorKey = UniValidationOperators[x.Operator].name;
         x.Validator = UniValidationOperators[x.Operator].validator(x.Value, x.ValidatorKey);
 
