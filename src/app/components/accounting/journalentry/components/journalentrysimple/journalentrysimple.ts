@@ -39,7 +39,9 @@ export class JournalEntrySimple {
     }
     
     setSelectedJournalEntryLine(selectedLine: JournalEntryAggregated) {        
-        this.selectedJournalEntryLine = selectedLine;        
+        this.selectedJournalEntryLine = selectedLine;
+        
+                
     }
     
     abortEdit() {

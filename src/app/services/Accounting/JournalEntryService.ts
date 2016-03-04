@@ -33,7 +33,7 @@ export class JournalEntryService extends BaseApiService<IJournalEntry> {
 	    data.CreditAccountNumber = 5000;
         data.CreditAccount = {AccountNumber:5000, AccountName: "lønn"};
     
-        data.FinancialDate = new Date();
+        data.FinancialDate = new Date(2016, Math.floor(Math.random() * 12), Math.floor(Math.random() * 29));
         data.Description = descriptions[Math.floor(Math.random() * 4)];
                 
         return data;
