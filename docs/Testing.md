@@ -2,11 +2,11 @@
 
 # how to run test
 
-``ts
+```ts
 
 npm run tests
 
-``
+```
 
 Open a browser `http://localhost:9999/tests.html`
 
