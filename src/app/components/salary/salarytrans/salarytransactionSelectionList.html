@@ -1,3 +1,7 @@
-<salarytrans-filter></salarytrans-filter>
-<uni-table [config]="salarytransSelectionTableConfig" [filterString]="filterResultString"></uni-table>
-<salary-transactions-employee *ngIf="selectedEmployeeID" [ansattID]="selectedEmployeeID"></salary-transactions-employee>
+<section class="horizontal_buttonlist">
+    <salarytrans-filter (filtStringChange)="changeFilter($event)"></salarytrans-filter>
+</section>
+<section class="splitview">
+    <nav class="splitview_list"><uni-table [config]="salarytransSelectionTableConfig"></uni-table></nav>
+    <main class="splitview_detail"><salary-transactions-employee *ngIf="selectedEmployeeID" [ansattID]="selectedEmployeeID"></salary-transactions-employee></main>
+</section>

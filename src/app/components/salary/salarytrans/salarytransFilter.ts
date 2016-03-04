@@ -1,4 +1,4 @@
-import {Component, Type, ViewChildren, QueryList, Input} from "angular2/core";
+import {Component, Type, ViewChildren, QueryList, Input, Output, EventEmitter} from "angular2/core";
 import {UniModal} from "../../../../framework/modals/modal";
 import {NgIf, NgModel, NgFor} from "angular2/common";
 
@@ -27,8 +27,8 @@ export class SalarytransFilterContent {
     
     constructor() {
         this.filters = [
-            {Ledger: "Aktiv", FilterValue: "Active ne 'false'"},
-            {Ledger: "Lønnstype", FilterValue: "PaymentInterval eq 0"}
+            {Ledger: "Aktiv", FilterValue: "Active eq 1"}
+            //,{Ledger: "Lønnstype", FilterValue: "PaymentInterval eq 0"}
         ];
     }
 }
@@ -61,6 +61,7 @@ export class SalarytransFilter {
     filterValues;
     type: Type = SalarytransFilterContent;
     filterResultString: string;
+    @Output() filtStringChange = new EventEmitter<string>();
     
     constructor() {
         var self = this;
@@ -79,6 +80,7 @@ export class SalarytransFilter {
                             self.filterValues = content.filters;
                             self.createResultFilterString();
                             content.tempValue = "";
+                            self.filtStringChange.emit(self.filterResultString);
                             self.modals[0].close();
                         });
                     }

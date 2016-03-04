@@ -49,7 +49,7 @@ export class SalaryTransactionEmployeeList {
     
     createTableConfig() {
         var idCol = new UniTableColumn("ID","ID","number");
-        var wagetypeidCol = new UniTableColumn("Wagetype.WageTypeId","Lønnsart","number");
+        var wagetypeidCol = new UniTableColumn("Wagetype.WageTypeNumber","Lønnsart","number");
         var wagetypenameCol = new UniTableColumn("Text","Tekst","string");
         var fromdateCol = new UniTableColumn("FromDate","Dato fra-til","datetime")
         .setFormat("{0: dd.MM.yyyy}");
