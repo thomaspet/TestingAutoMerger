@@ -26,14 +26,32 @@ export class SalarytransFilterContent {
     filters: any[];
     
     constructor() {
+        this.buildFilterConfig();
         this.filters = [
             {Ledger: "Aktiv", FilterValue: "Active eq 1"}
-            //,{Ledger: "Lønnstype", FilterValue: "PaymentInterval eq 0"}
+            ,{Ledger: "Lønnstype", FilterValue: "PaymentInterval eq 0"}
         ];
     }
+    
+    buildFilterConfig() {
+        
+    }
+    
+    ngOnInit() {
+        this.filters = [
+            {Ledger: "Aktiv", FilterValue: "Active eq 1"}
+            ,{Ledger: "Lønnstype", FilterValue: "PaymentInterval eq 0"}
+        ];
+    }
+    
+    ngAfterViewInit() {
+        this.filters = [
+            {Ledger: "Aktiv", FilterValue: "Active eq 1"}
+            ,{Ledger: "Lønnstype", FilterValue: "PaymentInterval eq 0"}
+        ];
+    }
+    
 }
-
-
 
 @Component({
     selector: "salarytrans-filter",
@@ -41,14 +59,13 @@ export class SalarytransFilterContent {
     template: `
         <article class="salarytrans-filter">
             <label>Utvalg av ansatte, filtrert etter </label>
-            <ul>
+            <ul class="horizontal-buttonlist">
                 <li *ngFor="#filter of filterValues">
-                <button (click)="removeFilter()">{{ filter.Ledger }} X</button>
+                <button (click)="removeFilter(filter)">{{ filter.Ledger }}</button>
                 </li>
             </ul>
             <button (click)="openModalFilter()">Legg til</button>
             <uni-modal [type]="type" [config]="modalConfig"></uni-modal>
-            {{filterResultString}}
         </article>
     `
 })
@@ -77,16 +94,30 @@ export class SalarytransFilter {
                     text: "Accept",
                     method: () => {
                         self.modals[0].getContent().then((content) => {
+                            console.log("content",content);
                             self.filterValues = content.filters;
                             self.createResultFilterString();
                             content.tempValue = "";
-                            self.filtStringChange.emit(self.filterResultString);
+                            //content.filters = [];
                             self.modals[0].close();
                         });
                     }
                 }
             ]
         };
+    }
+    
+    removeFilter(filter) {
+        console.log("remove index: ", filter);
+        console.log("filtervalues before remove: ", this.filterValues);
+        for (var i = 0; i < this.filterValues.length; i++) {
+            if(filter.Ledger === this.filterValues[i].Ledger) {
+                this.filterValues.splice(i,1);
+            }
+            
+        }
+        this.createResultFilterString();
+        console.log("filtervalues after remove: ", this.filterValues);
     }
     
     ngAfterViewInit() {
@@ -104,5 +135,6 @@ export class SalarytransFilter {
             this.filterResultString += element.FilterValue + " and ";
         }
         this.filterResultString = this.filterResultString.slice(0,this.filterResultString.length -5);
+        this.filtStringChange.emit(this.filterResultString);
     }
 }

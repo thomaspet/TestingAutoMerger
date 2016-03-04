@@ -19,7 +19,7 @@ export class SalaryTransactionSelectionList {
     }
     
     changeFilter(filter: string) {
-        //console.log(filter);
+        //console.log(filter)
         this.tables.toArray()[0].updateFilter(filter);
     }
     
