@@ -10,8 +10,9 @@ import {AccountingDS} from "../../../../data/accounting";
 import {CurrencyDS} from "../../../../data/currency";
 import {DimensionList} from "../dimensionList/dimensionList";
 import {AccountGroupList} from "../accountGroupList/accountGroupList";
-import {UniHttp} from "../../../../../framework/core/http";
+import {UniHttp} from "../../../../../framework/core/http/http";
 import {AccountModel} from "../../../../models/account";
+
 
 @Component({
     selector: "account-details",

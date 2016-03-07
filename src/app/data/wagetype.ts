@@ -1,5 +1,5 @@
 import {Injectable, Inject} from "angular2/core";
-import {UniHttp} from "../../framework/core/http";
+import {UniHttp} from "../../framework/core/http/http";
 import { Observable } from "rxjs/Observable";
 import "rxjs/add/observable/fromArray";
 

@@ -1,4 +1,4 @@
-import {UniHttp, IUniHttpRequest} from '../core/http';
+import {UniHttp, IUniHttpRequest} from '../core/http/http';
 import {UniTableColumn} from './uniTableColumn';
 import {UniTableControls} from './uniTableControls';
 

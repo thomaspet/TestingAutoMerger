@@ -1,7 +1,7 @@
 import {Component, Output, EventEmitter, ViewChild} from "angular2/core";
 import {Control} from "angular2/common";
 import {TreeList, TreeListItem, TREE_LIST_TYPE} from "../../../../../framework/treeList";
-import {UniHttp} from "../../../../../framework/core/http";
+import {UniHttp} from "../../../../../framework/core/http/http";
 import { UniTableBuilder, UniTableColumn} from "../../../../../framework/uniTable";
 import {UniDropdown} from "../../../../../framework/controls/dropdown/dropdown";
 import {IAccount} from "../../../../interfaces";

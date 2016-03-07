@@ -8,7 +8,7 @@ import {UniRouterOutlet} from "./uniRouterOutlet";
 import {AuthService} from "../framework/authentication/authService";
 import {TabService} from "./components/layout/navbar/tabstrip/tabService";
 import {UniNavbar} from "./components/layout/navbar/navbar";
-import {UniHttp} from "../framework/core/http";
+import {UniHttp} from "../framework/core/http/http";
 
 @Component({
     selector: "uni-app",

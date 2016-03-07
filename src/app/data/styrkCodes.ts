@@ -1,5 +1,5 @@
-import {Injectable, Inject} from "../../../node_modules/angular2/core.d";
-import {UniHttp} from "../../framework/core/http";
+import {UniHttp} from "../../framework/core/http/http";
+import {Injectable, Inject} from "angular2/core";
 
 @Injectable()
 export class STYRKCodesDS {
