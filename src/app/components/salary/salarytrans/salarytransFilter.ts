@@ -153,6 +153,7 @@ export class SalarytransFilter {
     //called when coming from modal
     createResultFilterString() {
         this.filterResultString = "";
+        this.filterValues = [];
         //for (var index = 0; index < this.filterValues.length; index++) {
         for (var index = 0; index < this.filterContent.formConfig.fields.length; index++) {
             var element = this.filterContent.formConfig.fields[index];
