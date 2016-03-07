@@ -1,5 +1,5 @@
 import {Component, ComponentRef, ViewChild} from 'angular2/core';
-import {UniHttp} from '../../../../framework/core/http';
+import {UniHttp} from '../../../../framework/core/http/http';
 import {Operator} from '../../../../framework/interfaces/interfaces';
 import {OperationType} from '../../../../framework/interfaces/interfaces';
 import {ValidationLevel} from '../../../../framework/interfaces/interfaces';
@@ -25,24 +25,22 @@ import {IComponentLayout} from '../../../../framework/interfaces/interfaces';
 })
 export class UniFormDemo {
 
-    Http: UniHttp;
-    Api: EmployeeService;
-
-    Model: EmployeeModel;
-    FormConfig: UniFormBuilder;
+    private Model: EmployeeModel;
+    private FormConfig: UniFormBuilder;
 
     @ViewChild(UniComponentLoader)
     UniCmpLoader: UniComponentLoader;
 
-    constructor(http: UniHttp, api: EmployeeService) {
-        this.Http = http;
-        this.Api = api;
+    constructor(
+        private Http: UniHttp,
+        private Api: EmployeeService
+    ) {
         this.Api.setRelativeUrl('employees');
     }
 
     ngOnInit() {
         var self = this;
-        this.Api.getAppData(1, 'EmployeePersonalDetailsForm').subscribe((results: any[]) => {
+        this.Api.GetLayoutAndEntity('EmployeePersonalDetailsForm',1).subscribe((results: any[]) => {
             var view: IComponentLayout = results[0];
             var model: IEmployee = results[1];
             self.startApp(view, model);

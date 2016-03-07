@@ -1,5 +1,5 @@
 import {Component, Input, OnChanges, SimpleChange, ElementRef, OnDestroy} from 'angular2/core';
-import {UniHttp, IUniHttpRequest} from '../core/http';
+import {UniHttp, IUniHttpRequest} from '../core/http/http';
 
 import {UniTableBuilder} from './UniTableBuilder';
 

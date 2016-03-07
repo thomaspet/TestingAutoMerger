@@ -1,5 +1,5 @@
 import {Component, Input, ViewChild} from "angular2/core";
-import {UniHttp} from "../../../../../framework/core/http";
+import {UniHttp} from "../../../../../framework/core/http/http";
 import {UniTable, UniTableBuilder, UniTableColumn} from "../../../../../framework/uniTable";
 import {IDimensions} from "../../../../../framework/interfaces/interfaces";
 
