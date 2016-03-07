@@ -4,6 +4,7 @@ import "rxjs/add/observable/forkjoin";
 
 import {UniTable, UniTableBuilder, UniTableColumn} from '../../../../../framework/uniTable';
 import {FieldType, ISupplier, ISupplierInvoice, ISupplierInvoiceItem} from "../../../../../framework/interfaces/interfaces";
+//import {SupplierInvoice} from "../../../../models/models"; //TODO use this?
 import {JournalEntryService, JournalEntryLineService, SupplierInvoiceService, SupplierService, AccountService} from "../../../../services/services";
 
 import {TabService} from "../../../layout/navbar/tabstrip/tabService";
@@ -32,36 +33,19 @@ export class SupplierInvoiceList {
 
     constructor(private supplierInvoiceService: SupplierInvoiceService, private accountService: AccountService) { }
 
-//TODO Get data by paging? 
-        
-//TODO map StatusID to some text
-    //    this.localData = [
-    //        { ID: 1, Name: 'Vare 1', Price: 10 },
-    //        { ID: 2, Name: 'Vare 2', Price: 20 },
-    //        { ID: 3, Name: 'Vare 3', Price: 30 },
-    //        { ID: 4, Name: 'Vare 4', Price: 40 },
-    //        { ID: 5, Name: 'Vare 5', Price: 50 },
-    //        { ID: 6, Name: 'Vare 6', Price: 60 },
-    //    ];
-
-//TODO??        
-        
-    //    // Editable table working with local data
-    //    uniHttpService
-    //        .asGET()
-    //        .usingBusinessDomain()
-    //        .withEndPoint("products")
-    //        .send({ top: 5 })
-    //        .subscribe((response) => {
-    //            this.editableLocalDataCfg = new UniTableBuilder(response, true)
-    //                .setPageSize(5)
-    //                .addColumns(idCol, nameCol, priceCol)
-    //                .setUpdateCallback(updateCallback)
-    //                .setCreateCallback(createCallback)
-    //                .setDeleteCallback(deleteCallback);
-    //        });
-        
-        
+    //TODO: To be retrieved from database schema shared.Status instead?
+    statusTypes: Array<any> = [
+        { ID: 0, Text: "Udefinert" },
+        { ID: 1, Text: "Kladd" },
+        { ID: 2, Text: "For godkjenning" },
+        { ID: 3, Text: "Godkjent" },
+        { ID: 4, Text: "Slettet" },
+        { ID: 5, Text: "Bokført" },
+        { ID: 6, Text: "Til betaling" },
+        { ID: 7, Text: "Delvis betalt" },
+        { ID: 8, Text: "Betalt" },
+        { ID: 9, Text: "Fullført" }
+    ];
 
     //TODO REFRESH???
     //testTableRefresh() {
@@ -69,13 +53,38 @@ export class SupplierInvoiceList {
     //    this.tables.toArray()[3].refresh(this.localData);
     //}
 
-    setupTableCfg() {
+    getStatusText = (StatusID: string) => {
+        var text = "";
+        this.statusTypes.forEach((status) => {
+            if (status.ID === StatusID) {
+                text = status.Text;
+            }
+        });
+        return text;
+    }
+
+    setDateExpiredClass = (ID: string) => {
+        var text = "";
+        if (ID === "15")
+            text = "supplier-invoice-table-payment-overdue";
+        return text;
+    }
+
+    setupTableCfg(response) {
         console.log("setupTableCfg() called");
         var idCol = new UniTableColumn('ID', 'Id', 'number')
             .setEditable(false)
             .setNullable(true);
 
-        var statusCol = new UniTableColumn('StatusID', 'Status', 'number')
+        //For test purpose only
+        //var statusIdCol = new UniTableColumn('StatusID', 'StatusId', 'number')
+        //    .setEditable(false)
+        //    .setNullable(true);
+
+        var statusTextCol = new UniTableColumn('StatusText', 'Status', 'string')
+            .setTemplate((dataItem) => {
+                return this.getStatusText(dataItem.StatusID);
+            })
             .setEditable(false)
             .setNullable(true);
 
@@ -83,7 +92,10 @@ export class SupplierInvoiceList {
             .setFormat("{0: dd.MM.yyyy}");
 
         var paymentDueDateCol = new UniTableColumn('PaymentDueDate', 'Forfallsdato', 'date')
-            .setClass("supplier-invoice-table-payment-overdue") //TODO: set only if date is expired.
+            .setTemplate((dataItem) => {
+                return this.setDateExpiredClass(dataItem.ID);
+            })
+            //.setClass("supplier-invoice-table-payment-overdue") //TODO: set only if date is expired.
             .setFormat("{0: dd.MM.yyyy}");
 
         var invoiceIDCol = new UniTableColumn('InvoiceID', 'Fakturanr', 'number')
@@ -93,9 +105,9 @@ export class SupplierInvoiceList {
         var taxInclusiveAmountCol = new UniTableColumn('TaxInclusiveAmount', 'Beløp', 'number')
             .setEditable(false)
             .setNullable(true)
-            .setClass("supplier-invoice-table-amount")
+            //.setClass("supplier-invoice-table-amount")
             .setFormat("{0:n}");
-            //.setFormat("{0: #,###.##}");
+        //.setFormat("{0: #,###.##}");
 
         //CALLBACK
         var selectCallback = (selectedItem) => {
@@ -105,25 +117,27 @@ export class SupplierInvoiceList {
             this.onSelect.emit(selectedItem);
         }
 
-        this.supplierInvoiceTableCfg = new UniTableBuilder('SupplierInvoices', false)
-            .addColumns(idCol, statusCol, invoiceDateCol, paymentDueDateCol, invoiceIDCol, taxInclusiveAmountCol)
+        //this.supplierInvoiceTableCfg = new UniTableBuilder('SupplierInvoices', false)
+        this.supplierInvoiceTableCfg = new UniTableBuilder(response, false)
+            .addColumns(idCol, statusTextCol, invoiceDateCol, paymentDueDateCol, invoiceIDCol, taxInclusiveAmountCol)
             .setSelectCallback(selectCallback)
             .setPageSize(5)
             .addCommands({ name: 'ContextMenu', text: '...', click: (event) => { event.preventDefault(); console.log(event) } });
     }
 
-    dataReady() {
+    dataReady(response) {
         console.log("dataReady called");
 
         //Create table
-        this.setupTableCfg();
+        this.setupTableCfg(response);
     }
 
     ngOnInit() {
+        //TODO. Currently getting all. Should propably implement paging towards server as well.
         this.supplierInvoiceService.GetAll(null)
             .subscribe(response => {
                 this.supplierInvoices = response;
-                this.dataReady();
+                this.dataReady(response);
             });
     }
 
@@ -131,7 +145,7 @@ export class SupplierInvoiceList {
         //todo
     }
 
-//#region "Test code"
+    //#region "Test code"
 
     //*******************************  TEST DATA NOT AVAILABLE DIRECTLY YET  *********************************************//
     // THIS CODE TO BE REMOVED LATER
@@ -225,15 +239,15 @@ export class SupplierInvoiceList {
 
         this.supplierInvoiceService.Post(this.newSupplierInvoice)
             .subscribe(
-                (response: any) => {
-                    console.log(response);
-                    this.newSupplierInvoice = response;
-                    this.smartBooking();
-                },
-                (error: any) => {
-                    console.log(error);
-                }
-        );
+            (response: any) => {
+                console.log(response);
+                this.newSupplierInvoice = response;
+                this.smartBooking();
+            },
+            (error: any) => {
+                console.log(error);
+            }
+            );
     }
-//#endregion "Test code"
+    //#endregion "Test code"
 }
