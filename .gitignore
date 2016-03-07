@@ -257,3 +257,6 @@ src/styles/main.css
 # interfaces from server
 src/framework/interfaces/interfaces.ts
 *.orig
+
+#remove coverage
+coverage
