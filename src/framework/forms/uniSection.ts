@@ -14,7 +14,7 @@ declare var _;
     selector: "uni-section",
     directives: [UniComponentLoader],
     template: `
-        <article class="formSection-collapsable" [ngClass]="{'-is-open':config.collapsed}" [class]="buildClassString()">
+        <article class="collapsable" [ngClass]="{'-is-open':config.collapsed}" [class]="buildClassString()">
             <h4 *ngIf="config.legend" (click)="toggleCollapsed()">{{config.legend}}</h4>
             <div class="collapsable-content">
                 <template ngFor #field [ngForOf]="config.fields" #i="index">

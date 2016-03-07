@@ -18,7 +18,7 @@ import {IComponentLayout} from '../../../../framework/interfaces/interfaces';
     directives: [UniComponentLoader],
     providers: [EmployeeService],
     template: `
-        <div class='application employee'>
+        <div class='application usertest'>
             <uni-component-loader></uni-component-loader>
         </div>
     `

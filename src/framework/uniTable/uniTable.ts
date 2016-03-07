@@ -243,7 +243,7 @@ export class UniTable {
         }
 
         // Return config filter combined with the stringified kendo filter
-        return this.config.filter + " and (" + stringified + ")";
+        return '(' + this.config.filter + ')' + " and (" + stringified + ")";
     }
 
     filterTable() {
