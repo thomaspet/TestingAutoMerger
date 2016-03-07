@@ -18,13 +18,13 @@ export class SalaryTransactionEmployeeList {
     employeeTotals: Array<any>;
     employments:any[];
     @Input() ansattID: number;
+    @Input() payrollRunID: number;
     @ViewChildren(UniTable) tables: any;
     
     constructor(public employeeDS: EmployeeDS, private Injector: Injector, private uniHttpService: UniHttp) {
         if(!this.ansattID) {
             let params = this.Injector.parent.parent.get(RouteParams);
             this.ansattID = params.get("id");
-            console.log("ansattID satt til ", this.ansattID);
         }
     }
     
@@ -37,27 +37,28 @@ export class SalaryTransactionEmployeeList {
             this.employments = response;
             this.createTableConfig();
         });
-        //this.createTableConfig();   
+        
         Observable.forkJoin(
             this.employeeDS.getTotals(this.ansattID)
         ).subscribe((response: any) => {
             let [totals] = response;
             this.employeeTotals = totals;
-            console.log("totals",totals);
             this.createTotalTableConfig();
         }, (error: any) => console.log(error));
     }
     
     ngOnChanges() {
-        console.log("onChange: ansattID",this.ansattID);
         if(this.tables && this.ansattID) {
-            this.tables.toArray()[0].updateFilter('EmployeeNumber eq ' + this.ansattID);
+            this.tables.toArray()[0].updateFilter(this.buildFilter());
             this.calculateTotals();
         }
     }
     
+    buildFilter() {
+        return "EmployeeNumber eq " + this.ansattID + " and PayrollRunID eq " + this.payrollRunID;
+    }
+    
     createTableConfig() {
-        //var idCol = new UniTableColumn("ID","ID","number");
         var wagetypeidCol = new UniTableColumn("Wagetype.WageTypeNumber","Lønnsart","string");
         var wagetypenameCol = new UniTableColumn("Text","Tekst","string");
         var fromdateCol = new UniTableColumn("FromDate","Fra dato","date")
@@ -82,11 +83,9 @@ export class SalaryTransactionEmployeeList {
         
         this.salarytransEmployeeTableConfig = new UniTableBuilder("salarytrans",true)
         .setExpand("Wagetype")
-        .setFilter("EmployeeNumber eq " + this.ansattID)
+        .setFilter(this.buildFilter())
         .addColumns(
-            //idCol
-            //, wagetypeidCol
-            //, 
+            //wagetypeidCol 
             wagetypenameCol
             , employmentidCol
             , fromdateCol 
@@ -106,7 +105,6 @@ export class SalaryTransactionEmployeeList {
         ).subscribe((response: any) => {
             let [totals] = response;
             this.employeeTotals = totals;
-            //console.log("totals",this.employeeTotals);
             this.tables.toArray()[1].refresh(this.employeeTotals);
         }, (error: any) => console.log(error));
     }

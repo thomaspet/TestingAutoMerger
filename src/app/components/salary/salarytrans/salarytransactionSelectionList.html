@@ -1,11 +1,11 @@
 <section *ngIf="payrollRun" class="salarytrans-payrollrun-detail">
     <h1>Lønnsutbetaling nr {{payrollRun.ID}}</h1>
     <p>Utbetaling {{payrollRun.PayDate}} - Status:{{payrollRun.StatusID}}</p>
-</section>    
+</section>
 <section class="salarytrans-filter">
     <salarytrans-filter (filtStringChange)="changeFilter($event)"></salarytrans-filter>
 </section>
 <section class="splitview">
     <nav class="splitview_list"><uni-table [config]="salarytransSelectionTableConfig"></uni-table></nav>
-    <main class="splitview_detail"><salary-transactions-employee *ngIf="selectedEmployeeID" [ansattID]="selectedEmployeeID"></salary-transactions-employee></main>
+    <main class="splitview_detail"><salary-transactions-employee *ngIf="selectedEmployeeID" [ansattID]="selectedEmployeeID" [payrollRunID]="selectedPayrollRunID"></salary-transactions-employee></main>
 </section>

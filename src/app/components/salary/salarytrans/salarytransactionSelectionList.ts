@@ -13,6 +13,7 @@ import {UniHttp} from "../../../../framework/core/http";
 export class SalaryTransactionSelectionList {
     salarytransSelectionTableConfig;
     selectedEmployeeID:number;
+    selectedPayrollRunID:number;
     payrollRun;
     @ViewChildren(UniTable) tables: any;
     
@@ -23,6 +24,7 @@ export class SalaryTransactionSelectionList {
         .send()
         .subscribe((response) => {
             this.payrollRun = response;
+            this.selectedPayrollRunID = this.payrollRun.ID;
             console.log(response);
             this.createTableConfig();
         });
@@ -43,7 +45,6 @@ export class SalaryTransactionSelectionList {
         var taxcardCol = new UniTableColumn("TaxTable","Skattekort","bool");
         var forpayoutCol = new UniTableColumn("Pay","Beløp til utbetaling","number");
         var localizationCol = new UniTableColumn("Localization.BusinessRelationInfo.Name","Lokasjon","string");
-        var leaveCol = new UniTableColumn("Leave","Permisjon","datetime");
         this.salarytransSelectionTableConfig = new UniTableBuilder("employees",false)
         .setExpand("BusinessRelationInfo,Localization.BusinessRelationInfo,BankAccounts")
         .setSelectCallback((selEmp) => {
@@ -56,7 +57,6 @@ export class SalaryTransactionSelectionList {
             ,taxcardCol
             ,localizationCol
             ,forpayoutCol
-            //,leaveCol
             );
     }
     

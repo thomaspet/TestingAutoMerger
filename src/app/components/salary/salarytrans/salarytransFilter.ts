@@ -30,10 +30,6 @@ export class SalarytransFilterContent {
     
     constructor() {
         this.buildFilterConfig();
-        // this.filters = [
-        //     {Ledger: "Aktiv", FilterValue: "Active eq 1"}
-        //     ,{Ledger: "Lønnstype", FilterValue: "PaymentInterval eq 0"}
-        // ];
     }
     
     buildFilterConfig() {
@@ -50,9 +46,6 @@ export class SalarytransFilterContent {
         formBuild.addUniElements(activeField);
         formBuild.hideSubmitButton();
         this.formConfig = formBuild;
-        
-        //this.formConfig.hideSubmitButton();
-        //this.formConfig.addUniElements(activeField);
     }
 }
 
@@ -98,11 +91,8 @@ export class SalarytransFilter {
                     text: "Accept",
                     method: () => {
                         self.modals[0].getContent().then((content) => {
-                            //console.log("content",content);
                             self.filterContent = content;
-                            //self.filterValues = content.filters;
                             self.createResultFilterString();
-                            //content.filters = [];
                             self.modals[0].close();
                         });
                     }
@@ -112,20 +102,13 @@ export class SalarytransFilter {
     }
     
     removeFilter(filter) {
-        //console.log("remove index: ", filter);
-        //console.log("filtervalues before remove: ", this.filterValues);
         for (var i = 0; i < this.filterValues.length; i++) {
-            //console.log("filter.Ledger",filter.Ledger);
-            //console.log("this.filterValues[i].Ledger", this.filterValues[i].Ledger);
             if(filter.Ledger === this.filterValues[i].Ledger) {
-                //console.log("spliced");
                 this.filterValues.splice(i,1);
             }
             
         }
-        //console.log("filtervalues after remove and before filterbuild: ", this.filterValues);
         this.updateFilterString();
-        //console.log("filtervalues after remove: ", this.filterValues);
     }
     
     ngAfterViewInit() {
@@ -136,21 +119,15 @@ export class SalarytransFilter {
         this.modals[0].open();
     }
     
-    //called when coming from modal
+    //called when arriving from modal-component
     createResultFilterString() {
         this.filterResultString = "";
         this.filterValues = [];
-        //for (var index = 0; index < this.filterValues.length; index++) {
         for (var index = 0; index < this.filterContent.formConfig.fields.length; index++) {
             var element = this.filterContent.formConfig.fields[index];
-            //console.log("element", element);
-            //console.log("verdi:", element.control._value);
             if(element.control._value !== undefined) {
                 var splitted = element.control._value.split("|");
-                //console.log("splitted",splitted);
-                //if(element.control._value !== "") {
                 if(splitted[1] !== "") {
-                    //this.filterResultString += element.control._value + " and ";
                     this.filterResultString += splitted[1] + " and ";
                 }
                 this.filterValues.push({Ledger: element.kOptions.dataSource[splitted[0]].Name, FilterValue: element.control._value});
@@ -169,6 +146,7 @@ export class SalarytransFilter {
         this.sliceAndEmit();
     }
     
+    //Remove last "and" from filter and fires event
     sliceAndEmit() {
         if(this.filterResultString !== "") {
             this.filterResultString = this.filterResultString.slice(0,this.filterResultString.length -5);
