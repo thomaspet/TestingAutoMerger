@@ -8,7 +8,7 @@ export class SupplierInvoiceService extends BizHttp<ISupplierInvoice> {
         super(http);
         
         //TODO: should resolve this from configuration based on type (IVatType)? Frank is working on something..
-        this.RelativeURL = 'SupplierInvoices';
+        this.relativeURL = 'SupplierInvoices';
         
         //set this property if you want a default sort order from the API
         this.DefaultOrderBy = null;

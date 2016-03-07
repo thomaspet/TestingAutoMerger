@@ -8,7 +8,7 @@ export class JournalEntryService extends BizHttp<IJournalEntry> {
         super(http);
         
         //TODO: should resolve this from configuration based on type (IVatType)? Frank is working on something..
-        this.RelativeURL = 'JournalEntries';
+        this.relativeURL = 'JournalEntries';
         
         //set this property if you want a default sort order from the API
         this.DefaultOrderBy = null;

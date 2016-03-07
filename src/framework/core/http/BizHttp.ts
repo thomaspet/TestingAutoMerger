@@ -11,14 +11,14 @@ export class BizHttp<T> {
     protected DefaultOrderBy:string;
 
     // should be found based on type of T. Set in childclass constructor now
-    protected RelativeURL:string;
+    protected relativeURL:string;
 
     public GetRelativeUrl():string {
-        return this.RelativeURL;
+        return this.relativeURL;
     }
 
     public setRelativeUrl(relativeurl:string) {
-        this.RelativeURL = relativeurl;
+        this.relativeURL = relativeurl;
     }
 
     constructor(protected http:UniHttp) {
@@ -34,7 +34,7 @@ export class BizHttp<T> {
         return this.http
             .usingBusinessDomain()
             .asGET()
-            .withEndPoint(this.RelativeURL + '/' + ID)
+            .withEndPoint(this.relativeURL + '/' + ID)
             .send({
                 expand: expandStr
             });
@@ -52,7 +52,7 @@ export class BizHttp<T> {
         return this.http
             .usingBusinessDomain()
             .asGET()
-            .withEndPoint(this.RelativeURL + (query ? '?' + query : ''))
+            .withEndPoint(this.relativeURL + (query ? '?' + query : ''))
             .send();
     }
 
@@ -61,7 +61,7 @@ export class BizHttp<T> {
             .usingBusinessDomain()
             .asPOST()
             .withBody(entity)
-            .withEndPoint(this.RelativeURL)
+            .withEndPoint(this.relativeURL)
             .send();
     }
 
@@ -70,7 +70,7 @@ export class BizHttp<T> {
             .usingBusinessDomain()
             .asPUT()
             .withBody(entity)
-            .withEndPoint(this.RelativeURL + '/' + ID)
+            .withEndPoint(this.relativeURL + '/' + ID)
             .send();
     }
 
@@ -80,7 +80,7 @@ export class BizHttp<T> {
         this.http
             .usingBusinessDomain()
             .asDELETE()
-            .withEndPoint(this.RelativeURL + '/' + ID)
+            .withEndPoint(this.relativeURL + '/' + ID)
             .send();
     }
 
@@ -89,7 +89,7 @@ export class BizHttp<T> {
             .usingBusinessDomain()
             .asPOST()
             .withBody(entity)
-            .withEndPoint(this.RelativeURL + '/' + ID + '?action=' + transitionName)
+            .withEndPoint(this.relativeURL + '/' + ID + '?action=' + transitionName)
             .send();
     }
 
