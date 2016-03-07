@@ -26,17 +26,18 @@ export class SalarytransFilterContent {
     @Input('config')
     config;
     filters: any[];
-    formConfig: UniFormBuilder = new UniFormBuilder();
+    formConfig: UniFormBuilder;
     
     constructor() {
         this.buildFilterConfig();
-        this.filters = [
-            {Ledger: "Aktiv", FilterValue: "Active eq 1"}
-            ,{Ledger: "Lønnstype", FilterValue: "PaymentInterval eq 0"}
-        ];
+        // this.filters = [
+        //     {Ledger: "Aktiv", FilterValue: "Active eq 1"}
+        //     ,{Ledger: "Lønnstype", FilterValue: "PaymentInterval eq 0"}
+        // ];
     }
     
     buildFilterConfig() {
+        var formBuild = new UniFormBuilder();
         var activeField = new UniFieldBuilder()
         .setLabel("Aktiv")
         .setType(UNI_CONTROL_DIRECTIVES[FieldType.COMBOBOX])
@@ -46,28 +47,13 @@ export class SalarytransFilterContent {
             dataValueField: "Value"
         })
         
-        this.formConfig.hideSubmitButton();
-        this.formConfig.addUniElements(activeField);
-    }
-    
-    ngOnChange() {
+        formBuild.addUniElements(activeField);
+        formBuild.hideSubmitButton();
+        this.formConfig = formBuild;
         
+        //this.formConfig.hideSubmitButton();
+        //this.formConfig.addUniElements(activeField);
     }
-    
-    ngOnInit() {
-        this.filters = [
-            {Ledger: "Aktiv", FilterValue: "Active eq 1"}
-            ,{Ledger: "Lønnstype", FilterValue: "PaymentInterval eq 0"}
-        ];
-    }
-    
-    ngAfterViewInit() {
-        this.filters = [
-            {Ledger: "Aktiv", FilterValue: "Active eq 1"}
-            ,{Ledger: "Lønnstype", FilterValue: "PaymentInterval eq 0"}
-        ];
-    }
-    
 }
 
 @Component({
@@ -159,14 +145,16 @@ export class SalarytransFilter {
             var element = this.filterContent.formConfig.fields[index];
             //console.log("element", element);
             //console.log("verdi:", element.control._value);
-            var splitted = element.control._value.split("|");
-            //console.log("splitted",splitted);
-            //if(element.control._value !== "") {
-            if(splitted[1] !== "") {
-                //this.filterResultString += element.control._value + " and ";
-                this.filterResultString += splitted[1] + " and ";
+            if(element.control._value !== undefined) {
+                var splitted = element.control._value.split("|");
+                //console.log("splitted",splitted);
+                //if(element.control._value !== "") {
+                if(splitted[1] !== "") {
+                    //this.filterResultString += element.control._value + " and ";
+                    this.filterResultString += splitted[1] + " and ";
+                }
+                this.filterValues.push({Ledger: element.kOptions.dataSource[splitted[0]].Name, FilterValue: element.control._value});
             }
-            this.filterValues.push({Ledger: element.kOptions.dataSource[splitted[0]].Name, FilterValue: element.control._value});
         }
         this.sliceAndEmit();
     }

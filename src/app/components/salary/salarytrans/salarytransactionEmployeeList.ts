@@ -57,7 +57,7 @@ export class SalaryTransactionEmployeeList {
     }
     
     createTableConfig() {
-        var idCol = new UniTableColumn("ID","ID","number");
+        //var idCol = new UniTableColumn("ID","ID","number");
         var wagetypeidCol = new UniTableColumn("Wagetype.WageTypeNumber","Lønnsart","string");
         var wagetypenameCol = new UniTableColumn("Text","Tekst","string");
         var fromdateCol = new UniTableColumn("FromDate","Fra dato","date")
@@ -83,9 +83,11 @@ export class SalaryTransactionEmployeeList {
         this.salarytransEmployeeTableConfig = new UniTableBuilder("salarytrans",true)
         .setExpand("Wagetype")
         .setFilter("EmployeeNumber eq " + this.ansattID)
-        .addColumns(idCol
-            , wagetypeidCol
-            , wagetypenameCol
+        .addColumns(
+            //idCol
+            //, wagetypeidCol
+            //, 
+            wagetypenameCol
             , employmentidCol
             , fromdateCol 
             , toDateCol

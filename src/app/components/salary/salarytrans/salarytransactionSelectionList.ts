@@ -3,6 +3,7 @@ import {Router, RouteConfig} from "angular2/router";
 import {UniTable, UniTableBuilder, UniTableColumn} from "../../../../framework/uniTable";
 import {SalaryTransactionEmployeeList} from "./salarytransactionEmployeeList";
 import {SalarytransFilter} from "./salarytransFilter";
+import {UniHttp} from "../../../../framework/core/http";
 
 @Component({
     templateUrl: "app/components/salary/salarytrans/salarytransactionSelectionList.html",
@@ -12,10 +13,19 @@ import {SalarytransFilter} from "./salarytransFilter";
 export class SalaryTransactionSelectionList {
     salarytransSelectionTableConfig;
     selectedEmployeeID:number;
+    payrollRun;
     @ViewChildren(UniTable) tables: any;
     
-    constructor() {
-        this.createTableConfig();
+    constructor(private uniHttpService: UniHttp) {
+        this.uniHttpService.asGET()
+        .usingBusinessDomain()
+        .withEndPoint("payrollrun/1")
+        .send()
+        .subscribe((response) => {
+            this.payrollRun = response;
+            console.log(response);
+            this.createTableConfig();
+        });
     }
     
     changeFilter(filter: string) {
@@ -24,7 +34,6 @@ export class SalaryTransactionSelectionList {
     }
     
     createTableConfig() {
-        var idCol = new UniTableColumn("ID","ID","number");
         var employeenumberCol = new UniTableColumn("EmployeeNumber","Ansattnr.","number");
         var nameCol = new UniTableColumn("BusinessRelationInfo.Name","Navn","string");
         var bankaccountCol = new UniTableColumn("BankAccounts","Bankkonto","object")
@@ -41,8 +50,7 @@ export class SalaryTransactionSelectionList {
             this.selectedEmployeeID = selEmp.EmployeeNumber;
         })
         .addColumns(
-            idCol
-            ,employeenumberCol
+            employeenumberCol
             ,nameCol 
             ,bankaccountCol
             ,taxcardCol

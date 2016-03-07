@@ -1,3 +1,7 @@
+<section *ngIf="payrollRun" class="salarytrans-payrollrun-detail">
+    <h1>Lønnsutbetaling nr {{payrollRun.ID}}</h1>
+    <p>Utbetaling {{payrollRun.PayDate}} - Status:{{payrollRun.StatusID}}</p>
+</section>    
 <section class="salarytrans-filter">
     <salarytrans-filter (filtStringChange)="changeFilter($event)"></salarytrans-filter>
 </section>
