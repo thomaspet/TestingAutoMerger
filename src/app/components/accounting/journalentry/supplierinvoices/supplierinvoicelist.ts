@@ -2,8 +2,7 @@ import {Component, SimpleChange, Input, Output, EventEmitter, ViewChildren} from
 import {Observable} from "rxjs/Observable";
 import "rxjs/add/observable/forkjoin";
 
-import {UniTable, UniTableBuilder, UniTableColumn} from '../../../../../framework/uniTable';
-import {FieldType, ISupplier, ISupplierInvoice, ISupplierInvoiceItem} from "../../../../../framework/interfaces/interfaces";
+import {FieldType, ISupplier, ISupplierInvoice, ISupplierInvoiceItem} from "../../../../interfaces";
 //import {SupplierInvoice} from "../../../../models/models"; //TODO use this?
 import {JournalEntryService, JournalEntryLineService, SupplierInvoiceService, SupplierService, AccountService} from "../../../../services/services";
 
@@ -13,7 +12,8 @@ import {UniForm, UniFormBuilder, UniFieldsetBuilder, UniFieldBuilder} from "../.
 import {UniTabs} from '../../../layout/uniTabs/uniTabs';
 
 import {SupplierInvoiceEdit} from './supplierinvoiceedit';
-import {UniHttp} from '../../../../../framework/core/http';
+import {UniTable, UniTableBuilder, UniTableColumn} from '../../../../../framework/uniTable';
+import {UniHttp} from '../../../../../framework/core/http/http';
 
 @Component({
     selector: "supplier-invoice-list",
@@ -63,14 +63,7 @@ export class SupplierInvoiceList {
         return text;
     }
 
-    setDateExpiredClass = (ID: string) => {
-        var text = "";
-        if (ID === "15")
-            text = "supplier-invoice-table-payment-overdue";
-        return text;
-    }
-
-    setupTableCfg(response) {
+     setupTableCfg(response) {
         console.log("setupTableCfg() called");
         var idCol = new UniTableColumn('ID', 'Id', 'number')
             .setEditable(false)
@@ -92,10 +85,7 @@ export class SupplierInvoiceList {
             .setFormat("{0: dd.MM.yyyy}");
 
         var paymentDueDateCol = new UniTableColumn('PaymentDueDate', 'Forfallsdato', 'date')
-            .setTemplate((dataItem) => {
-                return this.setDateExpiredClass(dataItem.ID);
-            })
-            //.setClass("supplier-invoice-table-payment-overdue") //TODO: set only if date is expired.
+            .setClass("supplier-invoice-table-payment-overdue") //TODO: set only if date is expired.
             .setFormat("{0: dd.MM.yyyy}");
 
         var invoiceIDCol = new UniTableColumn('InvoiceID', 'Fakturanr', 'number')

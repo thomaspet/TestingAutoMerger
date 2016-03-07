@@ -1,17 +1,18 @@
 import {Component, provide, Input, ViewChild, Output, EventEmitter, SimpleChange} from "angular2/core";
 import {UniForm} from "../../../../../framework/forms/uniForm";
 import {UNI_CONTROL_DIRECTIVES} from "../../../../../framework/controls";
-import {FieldType} from "../../../../../framework/interfaces/interfaces";
+import {FieldType} from "../../../../interfaces";
 import {UniFormBuilder} from "../../../../../framework/forms/builders/uniFormBuilder";
 import {UniFieldsetBuilder} from "../../../../../framework/forms/builders/uniFieldsetBuilder";
 import {UniComboFieldBuilder} from "../../../../../framework/forms/builders/uniComboFieldBuilder";
 import {UniFieldBuilder} from "../../../../../framework/forms/builders/uniFieldBuilder";
-import {AccountingDS} from "../../../../../framework/data/accounting";
-import {CurrencyDS} from "../../../../../framework/data/currency";
+import {AccountingDS} from "../../../../data/accounting";
+import {CurrencyDS} from "../../../../data/currency";
 import {DimensionList} from "../dimensionList/dimensionList";
 import {AccountGroupList} from "../accountGroupList/accountGroupList";
-import {UniHttp} from "../../../../../framework/core/http";
-import {AccountModel} from "../../../../../framework/models/account";
+import {UniHttp} from "../../../../../framework/core/http/http";
+import {AccountModel} from "../../../../models/account";
+
 
 @Component({
     selector: "account-details",

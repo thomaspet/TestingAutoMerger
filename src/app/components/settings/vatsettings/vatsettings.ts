@@ -1,7 +1,7 @@
 import {Component} from 'angular2/core';
 import {VatTypeList} from './vattypeList/vatTypeList';
 import {VatTypeDetails} from './vattypedetails/vattypedetails';
-import {IVatType} from '../../../../framework/interfaces/interfaces';
+import {IVatType} from '../../../interfaces';
 
 @Component({
     selector: 'vat-settings',

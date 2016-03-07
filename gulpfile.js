@@ -88,13 +88,27 @@ gulp.task('interfaces' , function (done) {
         }
     };
     var callback = function (error , response , body) {
-        fs.writeFileSync('./src/framework/interfaces/interfaces.ts' , body);
+        fs.writeFileSync('./src/app/interfaces.ts' , body);
         done();
     };
     request(options , callback);
 });
 
-gulp.task('rxjs' , ['interfaces'] , function () {
+gulp.task('entities' , function (done) {
+    var options = {
+        url: 'http://devapi.unieconomy.no/api/metadata/typescriptentities' ,
+        headers: {
+            'client': 'Client1'
+        }
+    };
+    var callback = function (error , response , body) {
+        fs.writeFileSync('./src/app/unientities.ts' , body);
+        done();
+    };
+    request(options , callback);
+});
+
+gulp.task('rxjs' , ['interfaces','entities'] , function () {
     return gulp.src('./node_modules/rxjs/**/*.js')
         .pipe(gulp.dest('./dist/lib/rxjs'));
 });

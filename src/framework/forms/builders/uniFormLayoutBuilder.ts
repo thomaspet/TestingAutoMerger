@@ -1,5 +1,5 @@
 import {UniFormBuilder, UniFieldBuilder, UniFieldsetBuilder, UniSectionBuilder} from "../../forms";
-import {IComponentLayout, IFieldLayout} from "../../interfaces/interfaces";
+import {IComponentLayout, IFieldLayout} from "../../../app/interfaces";
 import {UniElementFinder} from "../shared/UniElementFinder";
 import {UniElementBuilder} from "../interfaces";
 import {UniComboFieldBuilder} from "./uniComboFieldBuilder";
