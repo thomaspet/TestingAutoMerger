@@ -5,16 +5,16 @@ import {UniForm} from "../../../../../framework/forms/uniForm";
 import {UNI_CONTROL_DIRECTIVES} from "../../../../../framework/controls";
 
 import {UniFormBuilder} from "../../../../../framework/forms";
-import {FieldType} from "../../../../../framework/interfaces/interfaces";
-import {EmployeeDS} from "../../../../../framework/data/employee";
-import {EmployeeModel} from "../../../../../framework/models/employee";
+import {FieldType} from "../../../../interfaces";
+import {EmployeeDS} from "../../../../data/employee";
+import {EmployeeModel} from "../../../../models/employee";
 import {UniComponentLoader} from "../../../../../framework/core/componentLoader";
 
 import {Observable} from "rxjs/Observable";
 import "rxjs/add/operator/merge";
 import {UniSectionBuilder} from "../../../../../framework/forms/builders/uniSectionBuilder";
 import {UniFieldBuilder} from "../../../../../framework/forms/builders/uniFieldBuilder";
-import {IEmployment} from "../../../../../framework/interfaces/interfaces";
+import {IEmployment} from "../../../../interfaces";
 
 declare var jQuery;
 

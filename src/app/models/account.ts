@@ -10,7 +10,7 @@ import {
     IDimensions,
     INumberSeries,
     IAccountAlias
-} from "../interfaces/interfaces";
+} from "../interfaces";
 
 declare var _;
 

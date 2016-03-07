@@ -1,6 +1,7 @@
 import {BizHttp} from '../../../framework/core/http/BizHttp';
-import {IJournalEntryLineDraft} from '../../../framework/interfaces/interfaces';
+import {IJournalEntryLineDraft} from '../../interfaces';
 import {UniHttp} from '../../../framework/core/http/http';
+
 
 export class JournalEntryLineDraftService extends BizHttp<IJournalEntryLineDraft> {
     

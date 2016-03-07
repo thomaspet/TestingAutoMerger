@@ -1,6 +1,7 @@
 import {BizHttp} from '../../../framework/core/http/BizHttp';
-import {IVatCodeDeduction, IVatType} from '../../../framework/interfaces/interfaces';
+import {IVatCodeDeduction, IVatType} from '../../interfaces';
 import {UniHttp} from '../../../framework/core/http/http';
+
 
 export class VatCodeDeductionService extends BizHttp<IVatCodeDeduction> {
     

@@ -1,6 +1,7 @@
 import {BizHttp} from '../../../framework/core/http/BizHttp';
-import {ISupplierInvoice} from '../../../framework/interfaces/interfaces';
+import {ISupplierInvoice} from '../../interfaces';
 import {UniHttp} from '../../../framework/core/http/http';
+
 
 export class SupplierInvoiceService extends BizHttp<ISupplierInvoice> {
     

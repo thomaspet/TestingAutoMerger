@@ -2,7 +2,7 @@ import {Component, OnInit} from 'angular2/core';
 import {Router } from 'angular2/router';
 
 import {UniTable, UniTableBuilder, UniTableColumn} from "../../../../framework/uniTable";
-import {IWageType} from "../../../../framework/interfaces/interfaces";
+import {IWageType} from "../../../interfaces";
 
 @Component({
     selector: 'wagetypes',       

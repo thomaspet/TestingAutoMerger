@@ -2,7 +2,7 @@ import {Component} from "angular2/core";
 import {Router} from "angular2/router";
 
 import {UniTable, UniTableBuilder, UniTableColumn} from "../../../../framework/uniTable";
-import {IEmployee} from "../../../../framework/interfaces/interfaces";
+import {IEmployee} from "../../../interfaces";
 
 @Component({
     templateUrl: "app/components/salary/employee/employeeList.html",

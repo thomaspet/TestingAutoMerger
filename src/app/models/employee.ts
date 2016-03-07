@@ -9,7 +9,7 @@ import {
     IEmployeeCategoryLink,
     IVacationRateEmployee,
     ILocalization
-} from "../interfaces/interfaces";
+} from "../interfaces";
 
 declare var _;
 

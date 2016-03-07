@@ -1,6 +1,7 @@
 import {BizHttp} from '../../../framework/core/http/BizHttp';
-import {IVatCodeGroup, IVatType} from '../../../framework/interfaces/interfaces';
+import {IVatCodeGroup, IVatType} from '../../interfaces';
 import {UniHttp} from '../../../framework/core/http/http';
+
 
 export class VatCodeGroupService extends BizHttp<IVatCodeGroup> {
     

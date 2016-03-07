@@ -1,5 +1,5 @@
 import {BizHttp} from '../../../framework/core/http/BizHttp';
-import {IAccount} from '../../../framework/interfaces/interfaces';
+import {IAccount} from '../../interfaces';
 import {UniHttp} from '../../../framework/core/http/http';
 
 export class AccountService extends BizHttp<IAccount> {

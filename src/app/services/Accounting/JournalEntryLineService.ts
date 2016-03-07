@@ -1,5 +1,5 @@
 import {BizHttp} from '../../../framework/core/http/BizHttp';
-import {IJournalEntryLine} from '../../../framework/interfaces/interfaces';
+import {IJournalEntryLine} from '../../interfaces';
 import {UniHttp} from '../../../framework/core/http/http';
 
 export class JournalEntryLineService extends BizHttp<IJournalEntryLine> {

@@ -11,8 +11,9 @@ import {UniFieldBuilder} from "../../../../framework/forms/builders/uniFieldBuil
 import {UniSectionBuilder} from "../../../../framework/forms/builders/uniSectionBuilder";
 import {UNI_CONTROL_DIRECTIVES} from "../../../../framework/controls";
 
-import {CompanySettingsDS} from "../../../../framework/data/companySettings";
+import {CompanySettingsDS} from "../../../data/companySettings";
 import {UniHttp} from "../../../../framework/core/http/http";
+
 
 @Component({
     selector: "settings",

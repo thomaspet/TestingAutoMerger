@@ -4,10 +4,10 @@ import {Observable} from "rxjs/Observable";
 import "rxjs/add/observable/forkjoin";
 
 import {UNI_CONTROL_DIRECTIVES} from "../../../../../framework/controls";
-import {FieldType} from "../../../../../framework/interfaces/interfaces";
+import {FieldType} from "../../../../interfaces";
 import {UniForm, UniFormBuilder, UniFieldsetBuilder, UniFieldBuilder} from "../../../../../framework/forms";
 
-import {IVatType, IVatCodeGroup, IAccount} from "../../../../../framework/interfaces/interfaces";
+import {IVatType, IVatCodeGroup, IAccount} from "../../../../interfaces";
 import {VatTypeService, VatCodeGroupService, AccountService} from "../../../../services/services";
 
 
