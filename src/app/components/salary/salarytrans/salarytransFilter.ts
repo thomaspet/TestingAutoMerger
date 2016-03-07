@@ -53,9 +53,9 @@ export class SalarytransFilterContent {
     selector: "salarytrans-filter",
     directives: [UniModal],
     template: `
-        <article class="salarytrans-filter">
-            <label>Utvalg av ansatte, filtrert etter </label>
-            <ul class="horizontal-buttonlist">
+        <article class="salarytrans_filter">
+            <p id="button-list-label-id">Utvalg av ansatte, filtrert etter </p>
+            <ul class="filter_buttonlist" aria-labelledby="button-list-label-id">
                 <li *ngFor="#filter of filterValues">
                 <button (click)="removeFilter(filter)">{{ filter.Ledger }}</button>
                 </li>
