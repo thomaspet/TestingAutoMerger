@@ -10,7 +10,7 @@ import {AccountingDS} from "../../../../../framework/data/accounting";
 import {CurrencyDS} from "../../../../../framework/data/currency";
 import {DimensionList} from "../dimensionList/dimensionList";
 import {AccountGroupList} from "../accountGroupList/accountGroupList";
-import {UniHttp} from "../../../../../framework/core/http";
+import {UniHttp} from "../../../../../framework/core/http/http";
 import {AccountModel} from "../../../../../framework/models/account";
 
 @Component({

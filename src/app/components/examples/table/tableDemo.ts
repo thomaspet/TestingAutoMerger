@@ -1,7 +1,7 @@
 import {Component, ViewChildren} from 'angular2/core';
 import {UniTable, UniTableBuilder, UniTableColumn} from '../../../../framework/uniTable';
 
-import {UniHttp} from '../../../../framework/core/http';
+import {UniHttp} from '../../../../framework/core/http/http';
 declare var jQuery;
 
 @Component({

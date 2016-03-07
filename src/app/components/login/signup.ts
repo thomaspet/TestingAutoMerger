@@ -1,7 +1,7 @@
 import {Component} from "angular2/core";
 import {ROUTER_DIRECTIVES} from "angular2/router";
 import {Http, Headers} from "angular2/http";
-import {UniHttp} from "../../../framework/core/http";
+import {UniHttp} from "../../../framework/core/http/http";
 
 @Component({
     selector: "uni-signup",

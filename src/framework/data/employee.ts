@@ -1,6 +1,6 @@
 import {Injectable, Inject} from "angular2/core";
 import { Observable } from "rxjs/Observable";
-import {UniHttp} from "./../core/http";
+import {UniHttp} from "./../core/http/http";
 import {FieldType} from "../../framework/interfaces/interfaces";
 import "rxjs/add/observable/fromArray";
 

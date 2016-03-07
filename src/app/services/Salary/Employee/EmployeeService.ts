@@ -1,5 +1,5 @@
-import {BaseApiService} from '../../../../framework/core/BaseApiService';
-import {UniHttp} from '../../../../framework/core/http';
+import {BaseApiService} from '../../../../framework/core/http/BaseApiService';
+import {UniHttp} from '../../../../framework/core/http/http';
 import {IEmployee} from '../../../../framework/interfaces/interfaces';
 
 //observable operations

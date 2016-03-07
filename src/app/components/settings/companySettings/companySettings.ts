@@ -12,7 +12,7 @@ import {UniSectionBuilder} from "../../../../framework/forms/builders/uniSection
 import {UNI_CONTROL_DIRECTIVES} from "../../../../framework/controls";
 
 import {CompanySettingsDS} from "../../../../framework/data/companySettings";
-import {UniHttp} from "../../../../framework/core/http";
+import {UniHttp} from "../../../../framework/core/http/http";
 
 @Component({
     selector: "settings",

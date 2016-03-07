@@ -1,6 +1,6 @@
-import {BaseApiService} from '../../../framework/core/BaseApiService';
+import {BaseApiService} from '../../../framework/core/http/BaseApiService';
 import {IVatCodeDeduction, IVatType} from '../../../framework/interfaces/interfaces';
-import {UniHttp} from '../../../framework/core/http';
+import {UniHttp} from '../../../framework/core/http/http';
 
 export class VatCodeDeductionService extends BaseApiService<IVatCodeDeduction> {
     

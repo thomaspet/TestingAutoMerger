@@ -1,5 +1,5 @@
 import {Component, ComponentRef, ViewChild} from 'angular2/core';
-import {UniHttp} from '../../../../framework/core/http';
+import {UniHttp} from '../../../../framework/core/http/http';
 import {Operator} from '../../../../framework/interfaces/interfaces';
 import {OperationType} from '../../../../framework/interfaces/interfaces';
 import {ValidationLevel} from '../../../../framework/interfaces/interfaces';
