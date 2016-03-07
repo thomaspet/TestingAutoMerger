@@ -34,14 +34,12 @@ export class JournalEntrySimple {
             });
     }       
     
-    newLineCreated(journalEntryLine : any) {        
+    newLineCreated(journalEntryLine : any) {      
         this.journalEntryLines.push(JournalEntryService.getSomeNewDataForMe());
     }
     
     setSelectedJournalEntryLine(selectedLine: JournalEntryData) {        
-        this.selectedJournalEntryLine = selectedLine;
-        
-                
+        this.selectedJournalEntryLine = selectedLine;                
     }
     
     abortEdit() {

@@ -4,7 +4,7 @@ import "rxjs/add/observable/forkjoin";
 
 import {FieldType, IVatType, IVatCodeGroup, IAccount, IJournalEntry, IJournalEntryLine, IJournalEntryLineDraft} from "../../../../../../framework/interfaces/interfaces";
 import {JournalEntryData} from "../../../../../models/models";
-import {VatTypeService, VatCodeGroupService, AccountService, JournalEntryService, JournalEntryLineService} from "../../../../../services/services";
+import {VatTypeService, VatCodeGroupService, AccountService, JournalEntryService, JournalEntryLineService, DepartementService, ProjectService} from "../../../../../services/services";
 
 import {UNI_CONTROL_DIRECTIVES} from "../../../../../../framework/controls";
 import {UniFormBuilder} from "../../../../../../framework/forms/builders/uniFormBuilder";
@@ -12,12 +12,13 @@ import {UniFormLayoutBuilder} from "../../../../../../framework/forms/builders/u
 import {UniForm} from "../../../../../../framework/forms/uniForm";
 import {UniFieldBuilder} from "../../../../../../framework/forms/builders/uniFieldBuilder";
 import {UniComponentLoader} from "../../../../../../framework/core/componentLoader";
-import {IComponentLayout, IFieldLayout} from "../../../../../../framework/interfaces/interfaces";
+import {IComponentLayout, IFieldLayout, IDepartement, IProject} from "../../../../../../framework/interfaces/interfaces";
 
 @Component({
     selector: "journal-entry-simple-add",
     templateUrl: "app/components/accounting/journalentry/components/journalentrysimple/journalentrysimpleadd.html",
-    directives: [UniComponentLoader]    
+    directives: [UniComponentLoader],
+    providers: [DepartementService, ProjectService, VatTypeService, AccountService]    
 })
 export class JournalEntrySimpleAdd {
     @Input()
@@ -29,8 +30,16 @@ export class JournalEntrySimpleAdd {
     UniCmpLoader: UniComponentLoader;    
     
     FormConfig: UniFormBuilder;
+    
+    departements: IDepartement[];
+    projects: IProject[];
+    vattypes: IVatType[];
+    accounts: IAccount[];
         
-    constructor() {        
+    constructor(private departementService: DepartementService,
+                private projectService: ProjectService,
+                private vattypeService: VatTypeService,
+                private accountService: AccountService) {        
     }
     
     addJournalEntry(event: any) {        
@@ -135,7 +144,7 @@ export class JournalEntrySimpleAdd {
                 {
                     ComponentLayoutID: 1,
                     EntityType: "JournalEntryLineDraft",
-                    Property: "VatTypeID",
+                    Property: "VatType",
                     Placement: 4,
                     Hidden: false,
                     FieldType: 1,
@@ -236,15 +245,79 @@ export class JournalEntrySimpleAdd {
         };
          
         this.FormConfig = new UniFormLayoutBuilder().build(view, this.JournalEntryLine);
-        this.loadForm();
+        
+        Observable.forkJoin(
+            this.departementService.GetAll(null),
+            this.projectService.GetAll(null),
+            this.vattypeService.GetAll(null),
+            this.accountService.GetAll(null)
+        ).subscribe(response => {
+            this.departements = response[0];
+            this.projects = response[1];
+            this.vattypes = response[2];
+            this.accounts = response[3];
+                          
+            this.extendFormConfig();
+            this.loadForm();
+        });
+    }
+    
+    extendFormConfig() {
+        var departement: UniFieldBuilder = this.FormConfig.find('Departement');       
+        departement.setKendoOptions({
+            dataTextField: 'Name',
+            dataValueField: 'ID',
+            dataSource: this.departements
+        });
+        
+        var project: UniFieldBuilder = this.FormConfig.find('Project');
+        project.setKendoOptions({
+           dataTextField: 'Name',
+           dataValueField: 'ID',
+           dataSource: this.projects 
+        });      
+
+        var vattype: UniFieldBuilder = this.FormConfig.find('VatType');
+        vattype.setKendoOptions({
+           dataTextField: 'VatCode',
+           dataValueField: 'ID',
+           template: "${data.VatCode} (${ data.VatPercent }%)",
+           dataSource: this.vattypes 
+        });      
+
+        var debitaccount: UniFieldBuilder = this.FormConfig.find('DebitAccountNumber');
+        debitaccount.setKendoOptions({
+           dataTextField: 'AccountNumber',
+           dataValueField: 'ID',
+           dataSource: this.accounts
+        });      
+        
+        var creditaccount: UniFieldBuilder = this.FormConfig.find('CreditAccountNumber');
+        creditaccount.setKendoOptions({
+           dataTextField: 'AccountNumber',
+           dataValueField: 'ID',
+           dataSource: this.accounts
+        });      
     }
        
     loadForm() {
         var self = this;
-        console.log("loadForm");
-        console.log(this.UniCmpLoader);
         return this.UniCmpLoader.load(UniForm).then((cmp: ComponentRef) => {
            cmp.instance.config = self.FormConfig;
+           cmp.instance.getEventEmitter().subscribe(self.submit(self));
         });
+    }
+    
+    private submit(context: JournalEntrySimpleAdd) {
+        return () => {
+            console.log("SUBMIT");
+            console.log(context.JournalEntryLine);
+            
+            this.addJournalEntry(context.JournalEntryLine);
+            
+            //context.Api.Post(context.Model).subscribe((result: any) => {
+            //    alert(JSON.stringify(result));
+            //});
+        };
     }
 } 
