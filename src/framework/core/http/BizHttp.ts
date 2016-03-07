@@ -1,6 +1,6 @@
-import {Injectable, EventEmitter} from "angular2/core";
-import {UniHttp} from "./http";
-import {Observable} from "rxjs/Observable";
+import {Injectable, EventEmitter} from 'angular2/core';
+import {UniHttp} from './http';
+import {Observable} from 'rxjs/Observable';
 
 @Injectable()
 export class BizHttp<T> {
@@ -16,10 +16,6 @@ export class BizHttp<T> {
         return this.RelativeURL;
     }
 
-    public GetApiUrl() {
-        return this.BaseURL + "/" + this.RelativeURL;
-    }
-
     public setRelativeUrl(relativeurl:string) {
         this.RelativeURL = relativeurl;
     }
@@ -33,22 +29,22 @@ export class BizHttp<T> {
     public Get<T>(ID: number): Observable<any> {
         return this.http
             .asGET()
-            .withEndPoint(this.RelativeURL + "/" + ID)
+            .withEndPoint(this.RelativeURL + '/' + ID)
             .send();
     }
 
     public GetAll<T>(query: string): Observable<any> {
-        if (this.DefaultOrderBy !== null && (query === null || (query !== null && query.toLowerCase().indexOf("orderby") === 0))) {
+        if (this.DefaultOrderBy !== null && (query === null || (query !== null && query.toLowerCase().indexOf('orderby') === 0))) {
             if (query !== null) {
-                query += "&orderby=" + this.DefaultOrderBy;
+                query += '&orderby=' + this.DefaultOrderBy;
             } else {
-                query = "orderby=" + this.DefaultOrderBy;
+                query = 'orderby=' + this.DefaultOrderBy;
             }
         }
 
         return this.http
             .asGET()
-            .withEndPoint(this.RelativeURL + (query ? "?" + query : ""))
+            .withEndPoint(this.RelativeURL + (query ? '?' + query : ''))
             .send();
     }
 
@@ -64,7 +60,7 @@ export class BizHttp<T> {
         return this.http
             .asPUT()
             .withBody(entity)
-            .withEndPoint(this.RelativeURL + "/" + ID)
+            .withEndPoint(this.RelativeURL + '/' + ID)
             .send();
     }
 
@@ -73,16 +69,15 @@ export class BizHttp<T> {
         // could be useful for validating if entity could be deleted?
         this.http
             .asDELETE()
-            .withEndPoint(this.RelativeURL + "/" + ID)
-            .send();     
+            .withEndPoint(this.RelativeURL + '/' + ID)
+            .send();
+    }
 
-    }  
-    
     public Transition<T>(ID: number, entity: T, transitionName: string) : Observable<any> {
         return this.http
             .asPOST()
             .withBody(entity)
-            .withEndPoint(this.RelativeURL + "/" + ID + "?action=" + transitionName)
+            .withEndPoint(this.RelativeURL + '/' + ID + '?action=' + transitionName)
             .send();
     }
 }
