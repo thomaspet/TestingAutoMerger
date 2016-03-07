@@ -51,6 +51,7 @@ export class JournalEntrySimpleAdd {
         this.JournalEntryLine.JournalEntryNo = 1;
         this.JournalEntryLine.Amount = 100;
         this.JournalEntryLine.FinancialDate = new Date();
+        this.JournalEntryLine.Description = "";
 
         // TODO get it from the API and move these to backend migrations        
         var view: IComponentLayout = {
@@ -220,7 +221,7 @@ export class JournalEntrySimpleAdd {
                     ID: 8,
                     Deleted: false,
                     CustomFields: null 
-                },   
+                },
                 {
                     ComponentLayoutID: 1,
                     EntityType: "JournalEntryLineDraft",
@@ -231,7 +232,7 @@ export class JournalEntrySimpleAdd {
                     ReadOnly: false,
                     LookupField: false,
                     Label: "Beskrivelse",
-                    Description: "En liten beskrivelse",
+                    Description: "Beskrivelse av føring",
                     HelpText: "",
                     FieldSet: 0,
                     Section: 0,
@@ -240,7 +241,7 @@ export class JournalEntrySimpleAdd {
                     ID: 9,
                     Deleted: false,
                     CustomFields: null 
-                } 
+                }
             ]               
         };
          
@@ -310,14 +311,7 @@ export class JournalEntrySimpleAdd {
     
     private submit(context: JournalEntrySimpleAdd) {
         return () => {
-            console.log("SUBMIT");
-            console.log(context.JournalEntryLine);
-            
             this.addJournalEntry(context.JournalEntryLine);
-            
-            //context.Api.Post(context.Model).subscribe((result: any) => {
-            //    alert(JSON.stringify(result));
-            //});
         };
     }
 } 
