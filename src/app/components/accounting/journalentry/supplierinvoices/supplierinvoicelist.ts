@@ -21,8 +21,10 @@ import {UniHttp} from '../../../../../framework/core/http';
     directives: [SupplierInvoiceEdit, UniTable]
 })
 export class SupplierInvoiceList {
+    @Output() onSelect = new EventEmitter<ISupplierInvoice>();
     supplierInvoices: ISupplierInvoice[];
     newSupplierInvoice: any;
+    selectedSupplierInvoice: any;
 
     @ViewChildren(UniTable) tables: any;
 
@@ -81,7 +83,7 @@ export class SupplierInvoiceList {
             .setFormat("{0: dd.MM.yyyy}");
 
         var paymentDueDateCol = new UniTableColumn('PaymentDueDate', 'Forfallsdato', 'date')
-            .setClass("supplier-invoice-table-payment-overdue")
+            .setClass("supplier-invoice-table-payment-overdue") //TODO: set only if date is expired.
             .setFormat("{0: dd.MM.yyyy}");
 
         var invoiceIDCol = new UniTableColumn('InvoiceID', 'Fakturanr', 'number')
@@ -99,7 +101,8 @@ export class SupplierInvoiceList {
         var selectCallback = (selectedItem) => {
             console.log('Selected: ');
             console.log(selectedItem);
-
+            this.selectedSupplierInvoice = selectedItem;
+            this.onSelect.emit(selectedItem);
         }
 
         this.supplierInvoiceTableCfg = new UniTableBuilder('SupplierInvoices', false)

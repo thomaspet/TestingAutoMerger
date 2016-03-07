@@ -1,4 +1,5 @@
 <article class="journalentrytempbox">
+    <label [value]="selectedSupplierInvoice.ID" />
     <uni-table [config]="supplierInvoiceTableCfg"></uni-table>
     <supplier-invoice-edit [SupplierInvoice]="selectedSupplierInvoice" (Updated)="supplierInvoiceUpdated=($event)"></supplier-invoice-edit>
 
