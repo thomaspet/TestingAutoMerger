@@ -1,6 +1,6 @@
 import {BaseApiService} from '../../../../framework/core/BaseApiService';
 import {UniHttp} from '../../../../framework/core/http';
-import {IEmployee} from '../../../../framework/interfaces/interfaces';
+import {IEmployee} from '../../../interfaces';
 
 //observable operations
 import 'rxjs/add/operator/concatMap';

@@ -1,14 +1,14 @@
 import {RouteParams} from "angular2/router";
 import {Component, Injector} from "angular2/core";
-import {EmployeeDS} from "../../../../../framework/data/employee";
-import {STYRKCodesDS} from "../../../../../framework/data/styrkCodes";
+import {EmployeeDS} from "../../../../data/employee";
+import {STYRKCodesDS} from "../../../../data/styrkCodes";
 import {UNI_CONTROL_DIRECTIVES} from "../../../../../framework/controls";
-import {FieldType} from "../../../../../framework/interfaces/interfaces";
+import {FieldType} from "../../../../interfaces";
 import {
     UniForm, UniFormBuilder, UniFieldBuilder, UniSectionBuilder, UniFieldsetBuilder
 } from "../../../../../framework/forms";
 import {Observable} from "rxjs/Observable";
-import {IEmployment} from "../../../../../framework/interfaces/interfaces";
+import {IEmployment} from "../../../../interfaces";
 import {UniElementFinder} from "../../../../../framework/forms/shared/UniElementFinder";
 
 declare var jQuery;

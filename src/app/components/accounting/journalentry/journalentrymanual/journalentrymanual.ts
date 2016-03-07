@@ -2,7 +2,7 @@ import {Component, SimpleChange, Input, Output, EventEmitter} from "angular2/cor
 import {Observable} from "rxjs/Observable";
 import "rxjs/add/observable/forkjoin";
 
-import {FieldType, IVatType, IVatCodeGroup, IAccount, IJournalEntry, IJournalEntryLine, ISupplierInvoice} from "../../../../../framework/interfaces/interfaces";
+import {FieldType, IVatType, IVatCodeGroup, IAccount, IJournalEntry, IJournalEntryLine, ISupplierInvoice} from "../../../../interfaces";
 import {VatTypeService, VatCodeGroupService, AccountService, JournalEntryService, JournalEntryLineService, SupplierInvoiceService} from "../../../../services/services";
 
 import {TabService} from "../../../layout/navbar/tabstrip/tabService";

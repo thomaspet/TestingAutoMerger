@@ -4,7 +4,7 @@ import {TreeList, TreeListItem, TREE_LIST_TYPE} from "../../../../../framework/t
 import {UniHttp} from "../../../../../framework/core/http";
 import { UniTableBuilder, UniTableColumn} from "../../../../../framework/uniTable";
 import {UniDropdown} from "../../../../../framework/controls/dropdown/dropdown";
-import {IAccount} from "../../../../../framework/interfaces/interfaces";
+import {IAccount} from "../../../../interfaces";
 
 enum SETTINGS_ADD_NEW {
     ACCOUNTGROUP, // 0

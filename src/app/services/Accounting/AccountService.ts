@@ -1,5 +1,5 @@
 import {BaseApiService} from '../../../framework/core/BaseApiService';
-import {IAccount} from '../../../framework/interfaces/interfaces';
+import {IAccount} from '../../interfaces';
 import {UniHttp} from '../../../framework/core/http';
 
 export class AccountService extends BaseApiService<IAccount> {

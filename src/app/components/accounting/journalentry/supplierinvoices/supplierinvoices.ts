@@ -2,7 +2,7 @@ import {Component, SimpleChange, Input, Output, EventEmitter} from "angular2/cor
 import {Observable} from "rxjs/Observable";
 import "rxjs/add/observable/forkjoin";
 
-import {FieldType, ISupplier, ISupplierInvoice, ISupplierInvoiceItem} from "../../../../../framework/interfaces/interfaces";
+import {FieldType, ISupplier, ISupplierInvoice, ISupplierInvoiceItem} from "../../../../interfaces";
 import {JournalEntryService, JournalEntryLineService, SupplierInvoiceService, SupplierService} from "../../../../services/services";
 
 import {JournalEntryManual} from '../journalentrymanual/journalentrymanual';

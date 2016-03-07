@@ -1,5 +1,5 @@
 import {BaseApiService} from '../../../framework/core/BaseApiService';
-import {IJournalEntry} from '../../../framework/interfaces/interfaces';
+import {IJournalEntry} from '../../interfaces';
 import {UniHttp} from '../../../framework/core/http';
 
 export class JournalEntryService extends BaseApiService<IJournalEntry> {

@@ -1,5 +1,5 @@
 import {BaseApiService} from '../../../framework/core/BaseApiService';
-import {IVatType} from '../../../framework/interfaces/interfaces';
+import {IVatType} from '../../interfaces';
 import {UniHttp} from '../../../framework/core/http';
 
 export class VatTypeService extends BaseApiService<IVatType> {

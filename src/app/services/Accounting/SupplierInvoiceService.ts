@@ -1,5 +1,5 @@
 import {BaseApiService} from '../../../framework/core/BaseApiService';
-import {ISupplierInvoice} from '../../../framework/interfaces/interfaces';
+import {ISupplierInvoice} from '../../interfaces';
 import {UniHttp} from '../../../framework/core/http';
 
 export class SupplierInvoiceService extends BaseApiService<ISupplierInvoice> {
