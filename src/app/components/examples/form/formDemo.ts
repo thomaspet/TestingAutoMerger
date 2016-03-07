@@ -25,22 +25,22 @@ import {IComponentLayout} from '../../../../framework/interfaces/interfaces';
 })
 export class UniFormDemo {
 
-    Api: EmployeeService;
-
-    Model: EmployeeModel;
-    FormConfig: UniFormBuilder;
+    private Model: EmployeeModel;
+    private FormConfig: UniFormBuilder;
 
     @ViewChild(UniComponentLoader)
     UniCmpLoader: UniComponentLoader;
 
-    constructor(api: EmployeeService) {
-        this.Api = api;
+    constructor(
+        private Http: UniHttp,
+        private Api: EmployeeService
+    ) {
         this.Api.setRelativeUrl('employees');
     }
 
     ngOnInit() {
         var self = this;
-        this.Api.getLayoutAndEmployee('EmployeePersonalDetailsForm',1).subscribe((results: any[]) => {
+        this.Api.GetLayoutAndEntity('EmployeePersonalDetailsForm',1).subscribe((results: any[]) => {
             var view: IComponentLayout = results[0];
             var model: IEmployee = results[1];
             self.startApp(view, model);
