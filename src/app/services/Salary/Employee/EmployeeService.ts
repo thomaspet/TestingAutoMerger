@@ -1,11 +1,11 @@
-import {BaseApiService} from '../../../../framework/core/http/BaseApiService';
+import {BizHttp} from '../../../../framework/core/http/BizHttp';
 import {UniHttp} from '../../../../framework/core/http/http';
 import {IEmployee} from '../../../../framework/interfaces/interfaces';
 
 //observable operations
 import 'rxjs/add/operator/concatMap';
 
-export class EmployeeService extends BaseApiService<IEmployee> {
+export class EmployeeService extends BizHttp<IEmployee> {
 
     constructor(http: UniHttp) {
         super(http);

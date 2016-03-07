@@ -1,8 +1,8 @@
-import {BaseApiService} from '../../../framework/core/http/BaseApiService';
+import {BizHttp} from '../../../framework/core/http/BizHttp';
 import {ISupplierInvoice} from '../../../framework/interfaces/interfaces';
 import {UniHttp} from '../../../framework/core/http/http';
 
-export class SupplierInvoiceService extends BaseApiService<ISupplierInvoice> {
+export class SupplierInvoiceService extends BizHttp<ISupplierInvoice> {
     
     constructor(http: UniHttp) {        
         super(http);

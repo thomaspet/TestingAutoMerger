@@ -1,8 +1,8 @@
-import {BaseApiService} from '../../../framework/core/http/BaseApiService';
+import {BizHttp} from '../../../framework/core/http/BizHttp';
 import {IJournalEntryLine} from '../../../framework/interfaces/interfaces';
 import {UniHttp} from '../../../framework/core/http/http';
 
-export class JournalEntryLineService extends BaseApiService<IJournalEntryLine> {
+export class JournalEntryLineService extends BizHttp<IJournalEntryLine> {
     
     constructor(http: UniHttp) {        
         super(http);

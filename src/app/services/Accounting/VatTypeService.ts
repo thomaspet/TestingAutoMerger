@@ -1,8 +1,8 @@
-import {BaseApiService} from '../../../framework/core/http/BaseApiService';
+import {BizHttp} from '../../../framework/core/http/BizHttp';
 import {IVatType} from '../../../framework/interfaces/interfaces';
 import {UniHttp} from '../../../framework/core/http/http';
 
-export class VatTypeService extends BaseApiService<IVatType> {
+export class VatTypeService extends BizHttp<IVatType> {
     
     constructor(http: UniHttp) {        
         super(http);

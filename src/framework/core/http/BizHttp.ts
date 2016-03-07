@@ -3,7 +3,7 @@ import {UniHttp} from "./http";
 import {Observable} from "rxjs/Observable";
 
 @Injectable()
-export class BaseApiService<T> {
+export class BizHttp<T> {
 
     protected BaseURL: string;
     protected LogAll: boolean;
