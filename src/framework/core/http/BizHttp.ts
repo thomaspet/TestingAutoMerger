@@ -27,19 +27,17 @@ export class BizHttp<T> {
     constructor(protected http: UniHttp) {
         this.BaseURL = http.getBaseUrl();
         this.LogAll = true;
+        this.http = http.usingBusinessDomain();
     }
 
     public Get<T>(ID: number): Observable<any> {
-
         return this.http
-            .usingBusinessDomain()
             .asGET()
             .withEndPoint(this.RelativeURL + "/" + ID)
             .send();
     }
 
     public GetAll<T>(query: string): Observable<any> {
-
         if (this.DefaultOrderBy !== null && (query === null || (query !== null && query.toLowerCase().indexOf("orderby") === 0))) {
             if (query !== null) {
                 query += "&orderby=" + this.DefaultOrderBy;
@@ -49,16 +47,13 @@ export class BizHttp<T> {
         }
 
         return this.http
-            .usingBusinessDomain()
             .asGET()
             .withEndPoint(this.RelativeURL + (query ? "?" + query : ""))
             .send();
     }
 
     public Post<T>(entity: T): Observable<any> {
-
         return this.http
-            .usingBusinessDomain()
             .asPOST()
             .withBody(entity)
             .withEndPoint(this.RelativeURL)
@@ -66,9 +61,7 @@ export class BizHttp<T> {
     }
 
     public Put<T>(ID: number, entity: T): Observable<any> {
-
         return this.http
-            .usingBusinessDomain()
             .asPUT()
             .withBody(entity)
             .withEndPoint(this.RelativeURL + "/" + ID)
@@ -79,15 +72,13 @@ export class BizHttp<T> {
         // maybe not neccessary to include entity as parameter?
         // could be useful for validating if entity could be deleted?
         this.http
-            .usingBusinessDomain()
             .asDELETE()
             .withEndPoint(this.RelativeURL + "/" + ID)
             .send();     
 
     }  
     
-    public Transition<T>(ID: number, entity: T, transitionName: string) : Observable<any> {        
-                
+    public Transition<T>(ID: number, entity: T, transitionName: string) : Observable<any> {
         return this.http
             .asPOST()
             .withBody(entity)
