@@ -3,7 +3,7 @@ import {Router, RouteConfig} from "angular2/router";
 import {UniTable, UniTableBuilder, UniTableColumn} from "../../../../framework/uniTable";
 import {SalaryTransactionEmployeeList} from "./salarytransactionEmployeeList";
 import {SalarytransFilter} from "./salarytransFilter";
-import {UniHttp} from "../../../../framework/core/http";
+import {UniHttp} from "../../../../framework/core/http/http";
 
 @Component({
     templateUrl: "app/components/salary/salarytrans/salarytransactionSelectionList.html",

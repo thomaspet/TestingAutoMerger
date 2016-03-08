@@ -2,8 +2,8 @@ import {Component, Input, ViewChildren, provide, Injector} from "angular2/core";
 import {Router, RouteConfig, RouteParams} from "angular2/router";
 import {UniTable, UniTableBuilder, UniTableColumn} from "../../../../framework/uniTable";
 import {Observable} from "rxjs/Observable";
-import {UniHttp} from "../../../../framework/core/http";
-import {EmployeeDS} from "../../../../framework/data/employee";
+import {UniHttp} from "../../../../framework/core/http/http";
+import {EmployeeDS} from "../../../data/employee";
 
 @Component({
     selector: "salary-transactions-employee",

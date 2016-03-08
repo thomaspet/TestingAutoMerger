@@ -1,13 +1,12 @@
 import {Component, Type, ViewChildren, QueryList, Input, Output, EventEmitter} from "angular2/core";
 import {UniModal} from "../../../../framework/modals/modal";
-import {NgIf, NgModel, NgFor} from "angular2/common";
 import {UniForm, UniFormBuilder, UniFieldBuilder} from "../../../../framework/forms";
 import {UNI_CONTROL_DIRECTIVES} from "../../../../framework/controls";
 import {FieldType} from "../../../../framework/interfaces/interfaces";
 
 @Component({
     selector: "salarytrans-filter-content",
-    directives: [NgIf, NgModel, NgFor, UniForm],
+    directives: [UniForm],
     template: `
         <article class="modal-content">
             <h1 *ngIf="config.title">{{config.title}}</h1>
