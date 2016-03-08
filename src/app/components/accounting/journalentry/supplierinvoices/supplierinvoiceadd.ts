@@ -2,7 +2,7 @@ import {Component, ViewChild, SimpleChange, Input, Output, EventEmitter} from "a
 import {Observable} from "rxjs/Observable";
 import "rxjs/add/observable/forkjoin";
 
-import {FieldType, ISupplier, ISupplierInvoice, ISupplierInvoiceItem} from "../../../../../framework/interfaces/interfaces";
+import {FieldType, ISupplier, ISupplierInvoice, ISupplierInvoiceItem} from "../../../../interfaces";
 import {SupplierInvoiceService, SupplierService} from "../../../../services/services";
 
 import {UNI_CONTROL_DIRECTIVES} from "../../../../../../src/framework/controls";

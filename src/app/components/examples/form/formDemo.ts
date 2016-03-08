@@ -1,17 +1,17 @@
 import {Component, ComponentRef, ViewChild} from 'angular2/core';
-import {UniHttp} from '../../../../framework/core/http';
-import {Operator} from '../../../../framework/interfaces/interfaces';
-import {OperationType} from '../../../../framework/interfaces/interfaces';
-import {ValidationLevel} from '../../../../framework/interfaces/interfaces';
-import {EmployeeModel} from '../../../../framework/models/employee';
+import {UniHttp} from '../../../../framework/core/http/http';
+import {Operator} from '../../../interfaces';
+import {OperationType} from '../../../interfaces';
+import {ValidationLevel} from '../../../interfaces';
+import {EmployeeModel} from '../../../models/employee';
 import {UniFormBuilder} from '../../../../framework/forms/builders/uniFormBuilder';
 import {UniFormLayoutBuilder} from '../../../../framework/forms/builders/uniFormLayoutBuilder';
 import {UniForm} from '../../../../framework/forms/uniForm';
 import {UniComponentLoader} from '../../../../framework/core/componentLoader';
 import {EmployeeService} from '../../../services/Salary/Employee/EmployeeService';
-import {IEmployee} from '../../../../framework/interfaces/interfaces';
+import {IEmployee} from '../../../interfaces';
 import {UniFieldBuilder} from '../../../../framework/forms/builders/uniFieldBuilder';
-import {IComponentLayout} from '../../../../framework/interfaces/interfaces';
+import {IComponentLayout} from '../../../interfaces';
 
 @Component({
     selector: 'uni-form-demo',
@@ -25,24 +25,22 @@ import {IComponentLayout} from '../../../../framework/interfaces/interfaces';
 })
 export class UniFormDemo {
 
-    Http: UniHttp;
-    Api: EmployeeService;
-
-    Model: EmployeeModel;
-    FormConfig: UniFormBuilder;
+    private Model: EmployeeModel;
+    private FormConfig: UniFormBuilder;
 
     @ViewChild(UniComponentLoader)
     UniCmpLoader: UniComponentLoader;
 
-    constructor(http: UniHttp, api: EmployeeService) {
-        this.Http = http;
-        this.Api = api;
+    constructor(
+        private Http: UniHttp,
+        private Api: EmployeeService
+    ) {
         this.Api.setRelativeUrl('employees');
     }
 
     ngOnInit() {
         var self = this;
-        this.Api.getAppData(1, 'EmployeePersonalDetailsForm').subscribe((results: any[]) => {
+        this.Api.GetLayoutAndEntity('EmployeePersonalDetailsForm',1).subscribe((results: any[]) => {
             var view: IComponentLayout = results[0];
             var model: IEmployee = results[1];
             self.startApp(view, model);

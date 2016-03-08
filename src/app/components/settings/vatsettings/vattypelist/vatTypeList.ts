@@ -2,10 +2,10 @@ import {Component, ViewChild, Output, EventEmitter} from 'angular2/core';
 import {Observable} from 'rxjs/Observable';
 import "rxjs/add/observable/forkjoin";
 
-import {IVatType, IVatCodeGroup} from '../../../../../framework/interfaces/interfaces';
+import {IVatType, IVatCodeGroup} from '../../../../interfaces';
 import {VatTypeService, VatCodeGroupService} from '../../../../services/services';
 import {UNI_CONTROL_DIRECTIVES} from "../../../../../framework/controls";
-import {FieldType} from "../../../../../framework/interfaces/interfaces";
+import {FieldType} from "../../../../interfaces";
 import {UniForm, UniFormBuilder, UniFieldsetBuilder, UniFieldBuilder, UniComboFieldBuilder, UniSectionBuilder} from '../../../../../framework/forms';
 import {UniTable, UniTableBuilder, UniTableColumn} from '../../../../../framework/uniTable';
 import {TreeList, TreeListItem, TREE_LIST_TYPE} from "../../../../../framework/treeList";

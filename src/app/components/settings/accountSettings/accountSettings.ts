@@ -2,7 +2,7 @@
 
 import {AccountList} from "./accountList/accountList";
 import {AccountDetails} from "./accountDetails/accountDetails";
-import {UniHttp} from "../../../../framework/core/http";
+import {UniHttp} from "../../../../framework/core/http/http";
 
 @Component({
     selector: "account-settings",

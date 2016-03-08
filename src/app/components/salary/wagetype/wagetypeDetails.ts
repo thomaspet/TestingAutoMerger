@@ -3,7 +3,7 @@ import {RouteConfig, RouteParams} from "angular2/router";
 
 import { Observable } from "rxjs/Observable";
 
-import {WagetypeService} from "../../../../framework/data/wagetype";
+import {WagetypeService} from "../../../data/wagetype";
 
 
 import {UniComponentLoader} from "../../../../framework/core";
@@ -11,7 +11,7 @@ import {UniForm} from "../../../../framework/forms/uniForm";
 import {UniFormBuilder, UniFormLayoutBuilder, UniFieldBuilder, UniSectionBuilder} from "../../../../framework/forms";
 
 
-import {IWageType, StdWageType, LimitType, TaxType, RateTypeColumn, FieldType} from "../../../../framework/interfaces/interfaces";
+import {IWageType, StdWageType, LimitType, TaxType, RateTypeColumn, FieldType} from "../../../interfaces";
 import {UNI_CONTROL_DIRECTIVES} from "../../../../framework/controls";
 
 @Component({

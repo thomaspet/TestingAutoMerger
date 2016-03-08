@@ -3,7 +3,7 @@ import {RouteConfig, RouteDefinition, ROUTER_DIRECTIVES, Router} from "angular2/
 import {Observable} from "rxjs/Observable";
 import "rxjs/add/observable/forkjoin";
 
-import {FieldType, IAccount, IJournalEntry, ISupplier, ISupplierInvoice} from "../../../../framework/interfaces/interfaces";
+import {FieldType, IAccount, IJournalEntry, ISupplier, ISupplierInvoice} from "../../../interfaces";
 import {AccountService, JournalEntryService, SupplierService, SupplierInvoiceService} from "../../../services/services";
 
 import {TabService} from "../../layout/navbar/tabstrip/tabService";

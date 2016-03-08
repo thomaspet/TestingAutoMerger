@@ -13,8 +13,9 @@ import {EmployeeLeave} from "./employeeLeave/employeeLeave";
 import {UniTabs} from "../../layout/uniTabs/uniTabs";
 import {WidgetPoster} from "../../../../framework/widgetPoster/widgetPoster";
 
-import {EmployeeDS} from "../../../../framework/data/employee";
-import {STYRKCodesDS} from "../../../../framework/data/styrkCodes";
+
+import {EmployeeDS} from "../../../data/employee";
+import {STYRKCodesDS} from "../../../data/styrkCodes";
 import {SalaryTransactionEmployeeList} from "../salarytrans/salarytransactionEmployeeList";
 
 const CHILD_ROUTES = [

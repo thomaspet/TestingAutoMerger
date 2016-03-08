@@ -1,8 +1,8 @@
 import {Component, Injector} from "angular2/core";
 import {RouteParams} from "angular2/router";
-import {EmployeeDS} from "../../../../../framework/data/employee";
+import {EmployeeDS} from "../../../../data/employee";
 import {UniTable, UniTableBuilder, UniTableColumn} from "../../../../../framework/uniTable";
-import {IEmployment} from "../../../../../framework/interfaces/interfaces";
+import {IEmployment} from "../../../../interfaces";
 
 @Component({
     selector: "employee-leave",
