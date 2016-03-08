@@ -2,7 +2,7 @@ import {Component, Input, Output, ViewChild, SimpleChange, EventEmitter} from "a
 import {Observable} from "rxjs/Observable";
 import "rxjs/add/observable/forkjoin";
 
-import {FieldType, IVatType, IVatCodeGroup, IAccount} from "../../../../../../framework/interfaces/interfaces";
+import {FieldType, IVatType, IVatCodeGroup, IAccount, IDimensions} from "../../../../../../framework/interfaces/interfaces";
 import {VatTypeService, VatCodeGroupService, AccountService, JournalEntryService} from "../../../../../services/services";
 import {JournalEntryData} from "../../../../../models/models";
 import {UNI_CONTROL_DIRECTIVES} from "../../../../../../framework/controls";
@@ -31,15 +31,26 @@ export class JournalEntrySimple {
             .subscribe(data => 
             {                
                 this.journalEntryLines = data;
-            });
+            }); 
     }       
     
-    newLineCreated(journalEntryLine : any) {      
-        this.journalEntryLines.push(JournalEntryService.getSomeNewDataForMe());
+    postJournalEntryData() {
+        this.journalEntryService.postJournalEntryData(this.journalEntryLines)
+            .subscribe(
+                data => console.log('returnerte data:',data),
+                err => console.log('error: ', err)
+            );
+    }
+    
+    newLineCreated(journalEntryLine : any) {
+        var newline = JournalEntryService.getSomeNewDataForMe();
+        newline.JournalEntryNo = Math.round((this.journalEntryLines.length/3) + 1);
+        console.log('newline:', newline);        
+        this.journalEntryLines.unshift(newline);
     }
     
     setSelectedJournalEntryLine(selectedLine: JournalEntryData) {        
-        this.selectedJournalEntryLine = selectedLine;                
+        this.selectedJournalEntryLine = selectedLine;
     }
     
     abortEdit() {

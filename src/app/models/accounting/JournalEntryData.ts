@@ -6,6 +6,7 @@ export class JournalEntryData {
     JournalEntryDraftLineID: number;
     
     JournalEntryNo: number;
+    SupplierInvoiceNo: string;
     
     Amount: number;
     
@@ -25,5 +26,8 @@ export class JournalEntryData {
     
     FinancialDate: Date;  
     
-    Dimensions: IDimensions;
+    CurrencyID: number;
+    CurrencyCode: string;
+        
+    Dimensions: any;
 }

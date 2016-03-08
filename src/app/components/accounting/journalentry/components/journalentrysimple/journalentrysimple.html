@@ -1,7 +1,13 @@
+
+<button (click)="postJournalEntryData($event)">Lagre og bokfør</button>
+
+<journal-entry-simple-add tabindex="1" (Created)="newLineCreated($event)" *ngIf="selectedJournalEntryLine == null"></journal-entry-simple-add>
+
 <table>
     <thead>
         <tr>
             <th class="medium_col">Dato</th>
+            <th class="medium_col">Nummer</th>
             <th>Kontoer</th>
             <th class="medium_col">Beløp</th>
             <th>Fordeling</th>
@@ -11,16 +17,20 @@
     </thead>
     <tbody>
         <template ngFor #line [ngForOf]="journalEntryLines" [ngForTrackBy]="trackByLines">        
-            <tr class="journalentrysimple-itemline" (click)="setSelectedJournalEntryLine(line)">
+            <tr tabindex="2" (keyup.enter)="setSelectedJournalEntryLine(line)" class="journalentrysimple-itemline" (click)="setSelectedJournalEntryLine(line)">
                 <td class="journalentrysimple-biginfo">{{line.FinancialDate.toLocaleDateString()}}</td>
+                <td class="journalentrysimple-multilineinfo">
+                    <div><label>Bilagsnr:</label> {{line.JournalEntryNo}}</div>
+                    <div><label>Fakturanr:</label> {{line.SupplierInvoiceNo}}</div>
+                </td>
                 <td class="journalentrysimple-multilineinfo">
                     <div><label>Debet:</label> {{line.DebitAccountNumber}} - {{line.DebitAccount.AccountName}}</div>
                     <div><label>Kredit:</label> {{line.CreditAccountNumber}} - {{line.CreditAccount.AccountName}}</div>
                 </td>
                 <td class="journalentrysimple-biginfo">{{line.Amount}}</td>
                 <td class="journalentrysimple-multilineinfo">
-                    <div><label>Avdeling:</label> Ikke valgt</div>
-                    <div><label>Prosjekt:</label> Ikke valgt</div>
+                    <div><label>Avdeling:</label> {{line.Dimensions.DepartmentID}}</div>
+                    <div><label>Prosjekt:</label> {{line.Dimensions.ProjectID}}</div>
                 </td>
                 <td>{{line.Description}}</td>
                 <td class="action_menu"></td>
@@ -33,5 +43,3 @@
         </template>                  
     </tbody>
 </table>    
-
-<journal-entry-simple-add (Created)="newLineCreated($event)" *ngIf="selectedJournalEntryLine == null"></journal-entry-simple-add>

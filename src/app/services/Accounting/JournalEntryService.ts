@@ -17,6 +17,24 @@ export class JournalEntryService extends BaseApiService<IJournalEntry> {
         this.DefaultOrderBy = null;
     }       
     
+    
+    postJournalEntryData(journalDataEntries: Array<JournalEntryData>): Observable<any> {        
+        return this.http
+            .asPOST()
+            .usingBusinessDomain()
+            .withBody(journalDataEntries)
+            .withEndPoint(this.RelativeURL + '?action=post-journal-entry-data&foo=blabla&doh=123')
+            .send();
+    }    
+    
+    getJournalEntryData(): Observable<any> {
+        return this.http
+            .asGET()
+            .usingBusinessDomain()            
+            .withEndPoint(this.RelativeURL + '?action=get-journal-entry-data')
+            .send();
+    }      
+    
     getAggregatedData() : Observable<any> {
         return Observable.fromArray([[JournalEntryService.getSomeNewDataForMe(), JournalEntryService.getSomeNewDataForMe(), JournalEntryService.getSomeNewDataForMe()]]);
     }
@@ -24,6 +42,8 @@ export class JournalEntryService extends BaseApiService<IJournalEntry> {
     public static getSomeNewDataForMe() : JournalEntryData {
         
         var descriptions = ['Betaling','Avskrivning','Faktura','Lønnsutbetaling']
+        var projects = [1, 2, 3, 4];
+        var departments = [1, 2, 3, 4];
         
         var data = new JournalEntryData();
         
@@ -36,6 +56,11 @@ export class JournalEntryService extends BaseApiService<IJournalEntry> {
     
         data.FinancialDate = new Date(2016, Math.floor(Math.random() * 12), Math.floor(Math.random() * 29));
         data.Description = descriptions[Math.floor(Math.random() * 4)];
+        
+        data.Dimensions = {ProjectID: projects[Math.floor(Math.random() * 4)], DepartmentID: departments[Math.floor(Math.random() * 4)]};
+        
+        if (Math)
+        data.SupplierInvoiceNo = ((Math.floor(Math.random() * 10) * 10000) + Math.floor(Math.random() * 10000)).toString();
                 
         return data;
     } 
