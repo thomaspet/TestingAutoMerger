@@ -3,7 +3,6 @@ import {Observable} from "rxjs/Observable";
 import "rxjs/add/observable/forkjoin";
 
 import {FieldType, ISupplier, ISupplierInvoice, ISupplierInvoiceItem} from "../../../../interfaces";
-//import {SupplierInvoice} from "../../../../models/models"; //TODO use this?
 import {JournalEntryService, JournalEntryLineService, SupplierInvoiceService, SupplierService, AccountService} from "../../../../services/services";
 
 import {TabService} from "../../../layout/navbar/tabstrip/tabService";
@@ -54,20 +53,29 @@ export class SupplierInvoiceList {
     //}
 
     getStatusText = (StatusID: string) => {
-        var text = "";
         this.statusTypes.forEach((status) => {
             if (status.ID === StatusID) {
-                text = status.Text;
+                return status.Text;
             }
         });
-        return text;
+        return "";
     }
 
-     setupTableCfg(response) {
-        console.log("setupTableCfg() called");
+    //TODO: Needs to use this for now since the UniTable throws exception if value is null.
+    getJournalEntryNumber = (dataItem) => {
+        var text = "";
+        if (dataItem.JournalEntryID === null) return "BilagsID=null";
+        if (dataItem.JournalEntry === null) return "Bilag=null";
+        if (dataItem.JournalEntry.JournalEntryNumber === null) return "Bilagsnr =null";
+
+        return dataItem.JournalEntry.JournalEntryNumber;
+    }
+
+    setupTableCfg() {
         var idCol = new UniTableColumn('ID', 'Id', 'number')
             .setEditable(false)
-            .setNullable(true);
+            .setNullable(true)
+            .setWidth('4'); //Ser ikke ut til å virke
 
         //For test purpose only
         //var statusIdCol = new UniTableColumn('StatusID', 'StatusId', 'number')
@@ -78,6 +86,22 @@ export class SupplierInvoiceList {
             .setTemplate((dataItem) => {
                 return this.getStatusText(dataItem.StatusID);
             })
+            .setEditable(false)
+            .setNullable(true);
+
+        var journalEntryCol = new UniTableColumn('JournalEntryID', 'Bilagsnr', 'string')
+            .setTemplate((dataItem) => {
+                return this.getJournalEntryNumber(dataItem);
+            })
+            .setEditable(false)
+            .setNullable(true);
+
+        //TODO when expand is working for supplier and supplier information is available
+        var supplierNrCol = new UniTableColumn('xxx', 'Lev. nr', 'string')
+            .setEditable(false)
+            .setNullable(true);
+
+        var supplierNameCol = new UniTableColumn('xxx', 'Lev. navn', 'string')
             .setEditable(false)
             .setNullable(true);
 
@@ -95,40 +119,47 @@ export class SupplierInvoiceList {
         var taxInclusiveAmountCol = new UniTableColumn('TaxInclusiveAmount', 'Beløp', 'number')
             .setEditable(false)
             .setNullable(true)
-            //.setClass("supplier-invoice-table-amount")
+            .setClass("supplier-invoice-table-amount")
             .setFormat("{0:n}");
         //.setFormat("{0: #,###.##}");
 
         //CALLBACK
         var selectCallback = (selectedItem) => {
-            console.log('Selected: ');
-            console.log(selectedItem);
             this.selectedSupplierInvoice = selectedItem;
             this.onSelect.emit(selectedItem);
         }
+        
+        //Different data sources:
+        //**************************************************************
+        //This config uses the datasource spcified in this component
+        //this.supplierInvoiceTableCfg = new UniTableBuilder(response, false)
+        //    .addColumns(idCol, statusTextCol, invoiceDateCol, paymentDueDateCol, invoiceIDCol, taxInclusiveAmountCol)
+        //    .setSelectCallback(selectCallback)
+        //    .setPageSize(5)
+        //    .addCommands({ name: 'ContextMenu', text: '...', click: (event) => { event.preventDefault(); console.log(event) } });
 
-        //this.supplierInvoiceTableCfg = new UniTableBuilder('SupplierInvoices', false)
-        this.supplierInvoiceTableCfg = new UniTableBuilder(response, false)
-            .addColumns(idCol, statusTextCol, invoiceDateCol, paymentDueDateCol, invoiceIDCol, taxInclusiveAmountCol)
+        //This config uses UniTable's remote datasource
+        this.supplierInvoiceTableCfg = new UniTableBuilder('SupplierInvoices', false)
+            .addColumns(idCol, statusTextCol, journalEntryCol, supplierNrCol, supplierNameCol, invoiceDateCol, paymentDueDateCol, invoiceIDCol, taxInclusiveAmountCol)
             .setSelectCallback(selectCallback)
+            .setExpand("JournalEntry")
             .setPageSize(5)
             .addCommands({ name: 'ContextMenu', text: '...', click: (event) => { event.preventDefault(); console.log(event) } });
     }
 
     dataReady(response) {
-        console.log("dataReady called");
-
         //Create table
-        this.setupTableCfg(response);
+        //this.setupTableCfg(response);
     }
 
     ngOnInit() {
-        //TODO. Currently getting all. Should propably implement paging towards server as well.
-        this.supplierInvoiceService.GetAll(null)
-            .subscribe(response => {
-                this.supplierInvoices = response;
-                this.dataReady(response);
-            });
+        this.setupTableCfg();
+
+        //this.supplierInvoiceService.GetAll(null)
+        //    .subscribe(response => {
+        //        this.supplierInvoices = response;
+        //        this.dataReady(response);
+        //    });
     }
 
     supplierInvoiceUpdated(supplierInvoice: ISupplierInvoice) {
@@ -161,9 +192,11 @@ export class SupplierInvoiceList {
             .subscribe(
             (response: any) => {
                 console.log("Smart booking completed");
+                this.onSelect.emit(response);
             },
             (error: any) => console.log(error)
             );
+
     }
 
     postSupplierInvoice() {

@@ -2646,6 +2646,272 @@ export class FieldLayoutDto {
 }
 
 
+export class ComponentLayoutDto {
+	static relativeUrl = ""
+
+	Name: string;
+	BaseEntity: string;
+	Url: string;
+	Fields: Array<FieldLayoutDto>;
+	CustomFields: any;
+}
+
+
+export class FieldLayoutDto {
+	static relativeUrl = ""
+
+	Url: string;
+	LookupEntityType: string;
+	ComponentLayoutID: number;
+	EntityType: string;
+	Property: string;
+	Placement: number;
+	Hidden: boolean;
+	FieldType: FieldType;
+	ReadOnly: boolean;
+	LookupField: boolean;
+	Label: string;
+	Description: string;
+	HelpText: string;
+	FieldSet: number;
+	Section: number;
+	Legend: string;
+	StatusID: number;
+	ID: number;
+	Deleted: boolean;
+	Validations: Array<ClientValidationRule>;
+	CustomFields: any;
+}
+
+
+export class ComponentLayoutDto {
+	static relativeUrl = ""
+
+	Name: string;
+	BaseEntity: string;
+	Url: string;
+	Fields: Array<FieldLayoutDto>;
+	CustomFields: any;
+}
+
+
+export class FieldLayoutDto {
+	static relativeUrl = ""
+
+	Url: string;
+	LookupEntityType: string;
+	ComponentLayoutID: number;
+	EntityType: string;
+	Property: string;
+	Placement: number;
+	Hidden: boolean;
+	FieldType: FieldType;
+	ReadOnly: boolean;
+	LookupField: boolean;
+	Label: string;
+	Description: string;
+	HelpText: string;
+	FieldSet: number;
+	Section: number;
+	Legend: string;
+	StatusID: number;
+	ID: number;
+	Deleted: boolean;
+	Validations: Array<ClientValidationRule>;
+	CustomFields: any;
+}
+
+
+export class ComponentLayoutDto {
+	static relativeUrl = ""
+
+	Name: string;
+	BaseEntity: string;
+	Url: string;
+	Fields: Array<FieldLayoutDto>;
+	CustomFields: any;
+}
+
+
+export class FieldLayoutDto {
+	static relativeUrl = ""
+
+	Url: string;
+	LookupEntityType: string;
+	ComponentLayoutID: number;
+	EntityType: string;
+	Property: string;
+	Placement: number;
+	Hidden: boolean;
+	FieldType: FieldType;
+	ReadOnly: boolean;
+	LookupField: boolean;
+	Label: string;
+	Description: string;
+	HelpText: string;
+	FieldSet: number;
+	Section: number;
+	Legend: string;
+	StatusID: number;
+	ID: number;
+	Deleted: boolean;
+	Validations: Array<ClientValidationRule>;
+	CustomFields: any;
+}
+
+
+export class ComponentLayoutDto {
+	static relativeUrl = ""
+
+	Name: string;
+	BaseEntity: string;
+	Url: string;
+	Fields: Array<FieldLayoutDto>;
+	CustomFields: any;
+}
+
+
+export class FieldLayoutDto {
+	static relativeUrl = ""
+
+	Url: string;
+	LookupEntityType: string;
+	ComponentLayoutID: number;
+	EntityType: string;
+	Property: string;
+	Placement: number;
+	Hidden: boolean;
+	FieldType: FieldType;
+	ReadOnly: boolean;
+	LookupField: boolean;
+	Label: string;
+	Description: string;
+	HelpText: string;
+	FieldSet: number;
+	Section: number;
+	Legend: string;
+	StatusID: number;
+	ID: number;
+	Deleted: boolean;
+	Validations: Array<ClientValidationRule>;
+	CustomFields: any;
+}
+
+
+export class ComponentLayoutDto {
+	static relativeUrl = ""
+
+	Name: string;
+	BaseEntity: string;
+	Url: string;
+	Fields: Array<FieldLayoutDto>;
+	CustomFields: any;
+}
+
+
+export class FieldLayoutDto {
+	static relativeUrl = ""
+
+	Url: string;
+	LookupEntityType: string;
+	ComponentLayoutID: number;
+	EntityType: string;
+	Property: string;
+	Placement: number;
+	Hidden: boolean;
+	FieldType: FieldType;
+	ReadOnly: boolean;
+	LookupField: boolean;
+	Label: string;
+	Description: string;
+	HelpText: string;
+	FieldSet: number;
+	Section: number;
+	Legend: string;
+	StatusID: number;
+	ID: number;
+	Deleted: boolean;
+	Validations: Array<ClientValidationRule>;
+	CustomFields: any;
+}
+
+
+export class ComponentLayoutDto {
+	static relativeUrl = ""
+
+	Name: string;
+	BaseEntity: string;
+	Url: string;
+	Fields: Array<FieldLayoutDto>;
+	CustomFields: any;
+}
+
+
+export class FieldLayoutDto {
+	static relativeUrl = ""
+
+	Url: string;
+	LookupEntityType: string;
+	ComponentLayoutID: number;
+	EntityType: string;
+	Property: string;
+	Placement: number;
+	Hidden: boolean;
+	FieldType: FieldType;
+	ReadOnly: boolean;
+	LookupField: boolean;
+	Label: string;
+	Description: string;
+	HelpText: string;
+	FieldSet: number;
+	Section: number;
+	Legend: string;
+	StatusID: number;
+	ID: number;
+	Deleted: boolean;
+	Validations: Array<ClientValidationRule>;
+	CustomFields: any;
+}
+
+
+export class ComponentLayoutDto {
+	static relativeUrl = ""
+
+	Name: string;
+	BaseEntity: string;
+	Url: string;
+	Fields: Array<FieldLayoutDto>;
+	CustomFields: any;
+}
+
+
+export class FieldLayoutDto {
+	static relativeUrl = ""
+
+	Url: string;
+	LookupEntityType: string;
+	ComponentLayoutID: number;
+	EntityType: string;
+	Property: string;
+	Placement: number;
+	Hidden: boolean;
+	FieldType: FieldType;
+	ReadOnly: boolean;
+	LookupField: boolean;
+	Label: string;
+	Description: string;
+	HelpText: string;
+	FieldSet: number;
+	Section: number;
+	Legend: string;
+	StatusID: number;
+	ID: number;
+	Deleted: boolean;
+	Validations: Array<ClientValidationRule>;
+	CustomFields: any;
+}
+
+
 export enum PhoneTypeEnum{
 	PtPhone = 150101,
 	PtMobile = 150102,
