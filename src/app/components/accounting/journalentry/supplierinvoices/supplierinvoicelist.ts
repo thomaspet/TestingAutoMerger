@@ -1,4 +1,4 @@
-import {Component, SimpleChange, Input, Output, EventEmitter, ViewChild} from "angular2/core";
+import {Component, SimpleChange, Input, Output, EventEmitter, ViewChild, Type} from "angular2/core";
 import {Observable} from "rxjs/Observable";
 import "rxjs/add/observable/forkjoin";
 
@@ -7,10 +7,12 @@ import {JournalEntryService, JournalEntryLineService, SupplierInvoiceService, Su
 
 import {TabService} from "../../../layout/navbar/tabstrip/tabService";
 import {UNI_CONTROL_DIRECTIVES} from "../../../../../../src/framework/controls";
+import {UniModal} from "../../../../../framework/modals/modal";
 import {UniForm, UniFormBuilder, UniFieldsetBuilder, UniFieldBuilder} from "../../../../../framework/forms";
 import {UniTabs} from '../../../layout/uniTabs/uniTabs';
 
 import {SupplierInvoiceEdit} from './supplierinvoiceedit';
+import {SupplierInvoiceModal} from './supplierinvoiceedit';
 
 import {UniTable, UniTableBuilder, UniTableColumn} from '../../../../../framework/uniTable';
 import {UniHttp} from '../../../../../framework/core/http/http';
@@ -19,7 +21,7 @@ import {UniHttp} from '../../../../../framework/core/http/http';
     selector: "supplier-invoice-list",
     templateUrl: "app/components/accounting/journalentry/supplierinvoices/supplierinvoicelist.html",
     providers: [SupplierInvoiceService, AccountService],
-    directives: [SupplierInvoiceEdit, UniTable]
+    directives: [SupplierInvoiceModal, SupplierInvoiceEdit, UniTable, UniModal]
 })
 export class SupplierInvoiceList {
     @Output() onSelect = new EventEmitter<ISupplierInvoice>();
@@ -54,12 +56,14 @@ export class SupplierInvoiceList {
     //}
 
     getStatusText = (StatusID: string) => {
+        var text = "";
         this.statusTypes.forEach((status) => {
             if (status.ID === StatusID) {
-                return status.Text;
+                text = status.Text;
+                return;
             }
         });
-        return "";
+        return text;
     }
 
     //TODO: Needs to use this for now since the UniTable throws exception if value is null.
@@ -98,11 +102,12 @@ export class SupplierInvoiceList {
             .setNullable(true);
 
         //TODO when expand is working for supplier and supplier information is available
-        var supplierNrCol = new UniTableColumn('xxx', 'Lev. nr', 'string')
+        var supplierNrCol = new UniTableColumn('Supplier.ID', 'Lev. id', 'string')
             .setEditable(false)
             .setNullable(true);
 
-        var supplierNameCol = new UniTableColumn('xxx', 'Lev. navn', 'string')
+        //TODO: Test if the code handle if Supplier++ is not provided...
+        var supplierNameCol = new UniTableColumn('Supplier.Info.Name', 'Lev. navn', 'string')
             .setEditable(false)
             .setNullable(true);
 
@@ -128,6 +133,10 @@ export class SupplierInvoiceList {
         var selectCallback = (selectedItem) => {
             this.selectedSupplierInvoice = selectedItem;
             this.onSelect.emit(selectedItem);
+
+            //this.setupModalConfig();
+            this.modalConfig.value = this.selectedSupplierInvoice;
+            this.modal.open();
         }
         
         //Different data sources:
@@ -143,7 +152,7 @@ export class SupplierInvoiceList {
         this.supplierInvoiceTableCfg = new UniTableBuilder('SupplierInvoices', false)
             .addColumns(idCol, statusTextCol, journalEntryCol, supplierNrCol, supplierNameCol, invoiceDateCol, paymentDueDateCol, invoiceIDCol, taxInclusiveAmountCol)
             .setSelectCallback(selectCallback)
-            .setExpand("JournalEntry")
+            .setExpand("JournalEntry, Supplier.Info")
             .setPageSize(5)
             .addCommands({ name: 'ContextMenu', text: '...', click: (event) => { event.preventDefault(); console.log(event) } });
     }
@@ -155,6 +164,7 @@ export class SupplierInvoiceList {
 
     ngOnInit() {
         this.setupTableCfg();
+        this.setupModalConfig();
 
         //this.supplierInvoiceService.GetAll(null)
         //    .subscribe(response => {
@@ -164,7 +174,7 @@ export class SupplierInvoiceList {
     }
 
     supplierInvoiceUpdated(supplierInvoice: ISupplierInvoice) {
-    //supplierInvoiceUpdated(supplierInvoice) {
+        //supplierInvoiceUpdated(supplierInvoice) {
         //TODO
         console.log("supplierInvoiceUpdated called");
         console.log(supplierInvoice);
@@ -177,6 +187,48 @@ export class SupplierInvoiceList {
             this.table.refresh();
         }
     }
+
+    //#region "Modal dialog for supplier invoice"
+    @ViewChild(UniModal)
+    modal: UniModal;
+    modalConfig: any = {};
+
+    valueFromModal: string = "";
+    type: Type = SupplierInvoiceModal;
+
+    setupModalConfig() {
+        var self = this;
+        this.modalConfig = {
+            title: "Edit 1",
+            //value: "Initial value",
+            value: this.selectedSupplierInvoice,
+            actions: [
+                {
+                    text: "Accept",
+                    method: () => {
+                        self.modal.getContent().then((content: SupplierInvoiceModal) => {
+                            content.instance.then((rc: SupplierInvoiceEdit) => {
+                                console.log(rc.form.form);
+                                console.log(rc.form.form.value.FirstName + " " + rc.form.form.value.LastName);
+                                alert(rc.form.form.value.FirstName + " " + rc.form.form.value.LastName);
+                            });
+                        });
+                    }
+                },
+                {
+                    text: "Cancel",
+                    method: () => {
+                        self.modal.getContent().then(() => {
+                            self.modal.close();
+                        });
+                    }
+                }
+            ]
+        };
+    }
+
+
+    //#endregion "Modal dialog for supplier invoice"
 
     //#region "Test code"
 

@@ -1,19 +1,27 @@
-import {Component, ViewChild, SimpleChange, Input, Output, EventEmitter} from "angular2/core";
+import {Component, ViewChild, SimpleChange, Input, Output, EventEmitter, ViewChildren, QueryList, ComponentRef} from "angular2/core";
+import {NgIf, NgModel, NgFor} from "angular2/common";
+
 import {UniModal} from "../../../../../framework/modals/modal";
+import {UniComponentLoader} from "../../../../../framework/core/componentLoader";
 
 import {Observable} from "rxjs/Observable";
 import "rxjs/add/observable/forkjoin";
 
-import {FieldType, ISupplier, ISupplierInvoice, ISupplierInvoiceItem, IAccount} from "../../../../interfaces";
+import {ISupplier, ISupplierInvoice, ISupplierInvoiceItem, IAccount} from "../../../../interfaces";
 import {SupplierInvoiceService, SupplierService} from "../../../../services/services";
 
 import {UNI_CONTROL_DIRECTIVES} from "../../../../../framework/controls";
 import {UniForm, UniFormBuilder, UniFieldsetBuilder, UniFieldBuilder} from "../../../../../framework/forms";
+import {FieldType} from "../../../../unientities";
 
 
 @Component({
     selector: "supplier-invoice-edit",
-    templateUrl: "app/components/accounting/journalentry/supplierinvoices/supplierinvoiceedit.html",
+    //templateUrl: "app/components/accounting/journalentry/supplierinvoices/supplierinvoiceedit.html",
+    template: `
+        <uni-form [config]="formConfig">
+        </uni-form>
+    `,
     directives: [UniForm],
     providers: [SupplierInvoiceService]
 })
@@ -68,24 +76,26 @@ export class SupplierInvoiceEdit {
         }
     }
 
-    onSubmit(value) {
-        if (this.model.ID > 0) {
-            this.supplierInvoiceService.Put(this.model.ID, this.model)
-                .subscribe((response: any) => {
-                    console.log("Response: ", response);
-                    this.model = response;
-                    this.Updated.emit(response);
-                }, (error: any) => console.log(error));
-        } else {
-            this.supplierInvoiceService.Post(this.model)
-                .subscribe(
-                data => this.model = data,
-                error => console.log("error in vatdetails.onSubmit: ", error)
-                );
-        }
-    }
+    //onSubmit(value) {
+    //    if (this.model.ID > 0) {
+    //        this.supplierInvoiceService.Put(this.model.ID, this.model)
+    //            .subscribe((response: any) => {
+    //                console.log("Response: ", response);
+    //                this.model = response;
+    //                this.Updated.emit(response);
+    //            }, (error: any) => console.log(error));
+    //    } else {
+    //        this.supplierInvoiceService.Post(this.model)
+    //            .subscribe(
+    //            data => this.model = data,
+    //            error => console.log("error in vatdetails.onSubmit: ", error)
+    //            );
+    //    }
+    //}
 
     buildForm() {
+        this.formConfig.hideSubmitButton();
+
         var supplierInvoiceId = new UniFieldBuilder();
         supplierInvoiceId.setLabel("ID")
             .setModel(this.model)
@@ -104,5 +114,38 @@ export class SupplierInvoiceEdit {
         this.formConfig.addUniElements(
             supplierInvoiceId, invoiceDate
         );
+    }
+}
+
+@Component({
+    selector: "supplier-invoice-modal",
+    directives: [NgIf, NgModel, NgFor, UniComponentLoader],
+    template: `
+        <article class="modal-content">
+            <h1 *ngIf="config.title">{{config.title}}</h1>
+            <uni-component-loader></uni-component-loader>
+            <footer>
+                <button *ngFor="#action of config.actions; #i=index" (click)="action.method()">
+                    {{action.text}}
+                </button>
+            </footer>
+        </article>
+    `
+})
+export class SupplierInvoiceModal {
+    @Input('config')
+    config;
+    @ViewChild(UniComponentLoader)
+    ucl: UniComponentLoader;
+    instance: Promise<SupplierInvoiceEdit>;
+
+    ngAfterViewInit() {
+        var self = this;
+        this.ucl.load(SupplierInvoiceEdit).then((cmp: ComponentRef) => {
+            cmp.instance.SupplierInvoice = self.config.value;
+            self.instance = new Promise((resolve) => {
+                resolve(cmp.instance);
+            });
+        });
     }
 }
