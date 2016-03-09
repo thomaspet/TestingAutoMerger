@@ -21,7 +21,6 @@ import {SalaryTransactionEmployeeList} from "../salarytrans/salarytransactionEmp
 const CHILD_ROUTES = [
     {path: "/", component: PersonalDetails, as: "PersonalDetails"},
     {path: "/employment", component: Employment, as: "Employment"},
-    {path: "/salarytransactions", component: SalaryTransactions, as: "SalaryTransactions"},
     {path: "/salarytrans", component: SalaryTransactionEmployeeList, as: "Lønnstranser"},
     {path: "/hours", component: Hours, as: "Hours"},
     {path: "/travel", component: Travel, as: "Travel"},

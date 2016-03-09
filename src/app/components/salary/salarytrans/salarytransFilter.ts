@@ -3,6 +3,7 @@ import {UniModal} from "../../../../framework/modals/modal";
 import {UniForm, UniFormBuilder, UniFieldBuilder} from "../../../../framework/forms";
 import {UNI_CONTROL_DIRECTIVES} from "../../../../framework/controls";
 import {FieldType} from "../../../../framework/interfaces/interfaces";
+declare var jQuery;
 
 @Component({
     selector: "salarytrans-filter-content",
@@ -24,7 +25,8 @@ import {FieldType} from "../../../../framework/interfaces/interfaces";
 export class SalarytransFilterContent {
     @Input('config')
     config;
-    filters: any[];
+    filters: any[] = [];
+    activeFilters: any[] = [];
     formConfig: UniFormBuilder;
     
     constructor() {
@@ -33,18 +35,44 @@ export class SalarytransFilterContent {
     
     buildFilterConfig() {
         var formBuild = new UniFormBuilder();
+        formBuild.hideSubmitButton();
+        
         var activeField = new UniFieldBuilder()
         .setLabel("Aktiv")
-        .setType(UNI_CONTROL_DIRECTIVES[FieldType.COMBOBOX])
+        .setType(UNI_CONTROL_DIRECTIVES[FieldType.DROPDOWN])
         .setKendoOptions({
-            dataSource: [{ID:0, Name:"Alle", Value:"0|"}, {ID:1, Name:"Ikke aktiv", Value:"1|Active eq 0"}, {ID:2, Name:"Aktiv", Value:"2|Active eq 1"}],
-            dataTextField: "Name",
-            dataValueField: "Value"
+            dataSource: [
+                {name: 'Alle', filter: ''},
+                {name: 'Ikke aktiv', filter: 'Active eq 0'},
+                {name: 'Aktiv', filter: 'Active eq 1'}
+            ],
+            dataValueField: 'filter', // blir egentlig ikke brukt, vi setter verdien i select event istedenfor
+            dataTextField: 'name',
+            select: (event: kendo.ui.DropDownListSelectEvent) => {
+                var selectedItem = event.sender.dataItem(jQuery(event.item).index());
+                this.removeOldFilters();
+                this.activeFilters = [];
+                this.activeFilters.push(selectedItem);
+                this.filters.push(selectedItem);
+            }
         })
         
         formBuild.addUniElements(activeField);
-        formBuild.hideSubmitButton();
         this.formConfig = formBuild;
+    }
+    
+    //Remove old filterparts
+    removeOldFilters() {
+        for (var j = 0; j < this.filters.length; j++) {
+            var filter = this.filters[j];
+            //When more filterfields in uniform, just add for-loop-section here
+            for (var i = 0; i < this.activeFilters.length; i++) {
+                var activeFilter = this.activeFilters[i];
+                if(activeFilter.name === filter.name) {
+                    this.filters.splice(j,1);
+                }
+            }
+        }
     }
 }
 
@@ -55,8 +83,8 @@ export class SalarytransFilterContent {
         <article class="salarytrans_filter">
             <p id="button-list-label-id">Utvalg av ansatte, filtrert etter </p>
             <ul class="filter_buttonlist" aria-labelledby="button-list-label-id">
-                <li *ngFor="#filter of filterValues">
-                <button (click)="removeFilter(filter)">{{ filter.Ledger }}</button>
+                <li *ngFor="#filter of filters">
+                <button (click)="removeFilter(filter)">{{ filter.name }}</button>
                 </li>
             </ul>
             <button (click)="openModalFilter()">Legg til</button>
@@ -70,8 +98,7 @@ export class SalarytransFilter {
     modalElements: QueryList<UniModal>;
     modals: UniModal[];
     modalConfig: any = {};
-    filterValues: any[] = [];
-    filterContent;
+    filters;
     type: Type = SalarytransFilterContent;
     filterResultString: string;
     @Output() filtStringChange = new EventEmitter<string>();
@@ -90,7 +117,7 @@ export class SalarytransFilter {
                     text: "Accept",
                     method: () => {
                         self.modals[0].getContent().then((content) => {
-                            self.filterContent = content;
+                            self.filters = content.filters;
                             self.createResultFilterString();
                             self.modals[0].close();
                         });
@@ -101,9 +128,9 @@ export class SalarytransFilter {
     }
     
     removeFilter(filter) {
-        for (var i = 0; i < this.filterValues.length; i++) {
-            if(filter.Ledger === this.filterValues[i].Ledger) {
-                this.filterValues.splice(i,1);
+        for (var i = 0; i < this.filters.length; i++) {
+            if(filter.name === this.filters[i].name) {
+                this.filters.splice(i,1);
             }
             
         }
@@ -121,26 +148,20 @@ export class SalarytransFilter {
     //called when arriving from modal-component
     createResultFilterString() {
         this.filterResultString = "";
-        this.filterValues = [];
-        for (var index = 0; index < this.filterContent.formConfig.fields.length; index++) {
-            var element = this.filterContent.formConfig.fields[index];
-            if(element.control._value !== undefined) {
-                var splitted = element.control._value.split("|");
-                if(splitted[1] !== "") {
-                    this.filterResultString += splitted[1] + " and ";
-                }
-                this.filterValues.push({Ledger: element.kOptions.dataSource[splitted[0]].Name, FilterValue: element.control._value});
+        this.filters.forEach((filter) => {
+            if(filter.filter !== "") {
+                this.filterResultString += filter.filter + " and ";
             }
-        }
+        });
         this.sliceAndEmit();
     }
     
     //called when part of filter is removed
     updateFilterString() {
         this.filterResultString = "";
-        for (var i = 0; i < this.filterValues.length; i++) {
-            var element = this.filterValues[i];
-            this.filterResultString += element.FilterValue + " and ";
+        for (var i = 0; i < this.filters.length; i++) {
+            var element = this.filters[i];
+            this.filterResultString += element.filter + " and ";
         }
         this.sliceAndEmit();
     }

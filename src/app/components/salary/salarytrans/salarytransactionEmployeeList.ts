@@ -40,7 +40,8 @@ export class SalaryTransactionEmployeeList {
         
         Observable.forkJoin(
             this.employeeDS.getTotals(this.ansattID)
-        ).subscribe((response: any) => {
+        )
+        .subscribe((response: any) => {
             let [totals] = response;
             this.employeeTotals = totals;
             this.createTotalTableConfig();

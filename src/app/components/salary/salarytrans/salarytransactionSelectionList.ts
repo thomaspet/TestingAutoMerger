@@ -25,7 +25,6 @@ export class SalaryTransactionSelectionList {
         .subscribe((response) => {
             this.payrollRun = response;
             this.selectedPayrollRunID = this.payrollRun.ID;
-            console.log(response);
             this.createTableConfig();
         });
     }
@@ -38,11 +37,11 @@ export class SalaryTransactionSelectionList {
     createTableConfig() {
         var employeenumberCol = new UniTableColumn("EmployeeNumber","Ansattnr.","number");
         var nameCol = new UniTableColumn("BusinessRelationInfo.Name","Navn","string");
-        var bankaccountCol = new UniTableColumn("BankAccounts","Bankkonto","object")
+        var bankaccountCol = new UniTableColumn("BankAccounts","Bankkonto")
         .setTemplate((dataItem) => {
             return this.getStandardBankAccountNumber(dataItem.BankAccounts);
         });
-        var taxcardCol = new UniTableColumn("TaxTable","Skattekort","bool");
+        var taxcardCol = new UniTableColumn("TaxTable","Skattekort","string");
         var forpayoutCol = new UniTableColumn("Pay","Beløp til utbetaling","number");
         var localizationCol = new UniTableColumn("Localization.BusinessRelationInfo.Name","Lokasjon","string");
         this.salarytransSelectionTableConfig = new UniTableBuilder("employees",false)

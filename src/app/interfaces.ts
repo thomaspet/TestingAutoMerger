@@ -2133,6 +2133,7 @@ export interface IComplexValidationRule {
 	CustomFields: any;
 }
 
+
 export interface IComponentLayoutDto {
 	Name: string;
 	BaseEntity: string;
@@ -2140,6 +2141,823 @@ export interface IComponentLayoutDto {
 	Fields: Array<IFieldLayoutDto>;
 	CustomFields: any;
 }
+
+
+export interface IFieldLayoutDto {
+	Url: string;
+	LookupEntityType: string;
+	ComponentLayoutID: number;
+	EntityType: string;
+	Property: string;
+	Placement: number;
+	Hidden: boolean;
+	FieldType: FieldType;
+	ReadOnly: boolean;
+	LookupField: boolean;
+	Label: string;
+	Description: string;
+	HelpText: string;
+	FieldSet: number;
+	Section: number;
+	Legend: string;
+	StatusID: number;
+	ID: number;
+	Deleted: boolean;
+	Validations: Array<IClientValidationRule>;
+	CustomFields: any;
+}
+
+
+export interface IComponentLayoutDto {
+	Name: string;
+	BaseEntity: string;
+	Url: string;
+	Fields: Array<IFieldLayoutDto>;
+	CustomFields: any;
+}
+
+
+export interface IFieldLayoutDto {
+	Url: string;
+	LookupEntityType: string;
+	ComponentLayoutID: number;
+	EntityType: string;
+	Property: string;
+	Placement: number;
+	Hidden: boolean;
+	FieldType: FieldType;
+	ReadOnly: boolean;
+	LookupField: boolean;
+	Label: string;
+	Description: string;
+	HelpText: string;
+	FieldSet: number;
+	Section: number;
+	Legend: string;
+	StatusID: number;
+	ID: number;
+	Deleted: boolean;
+	Validations: Array<IClientValidationRule>;
+	CustomFields: any;
+}
+
+
+export interface IComponentLayoutDto {
+	Name: string;
+	BaseEntity: string;
+	Url: string;
+	Fields: Array<IFieldLayoutDto>;
+	CustomFields: any;
+}
+
+
+export interface IFieldLayoutDto {
+	Url: string;
+	LookupEntityType: string;
+	ComponentLayoutID: number;
+	EntityType: string;
+	Property: string;
+	Placement: number;
+	Hidden: boolean;
+	FieldType: FieldType;
+	ReadOnly: boolean;
+	LookupField: boolean;
+	Label: string;
+	Description: string;
+	HelpText: string;
+	FieldSet: number;
+	Section: number;
+	Legend: string;
+	StatusID: number;
+	ID: number;
+	Deleted: boolean;
+	Validations: Array<IClientValidationRule>;
+	CustomFields: any;
+}
+
+
+export interface IComponentLayoutDto {
+	Name: string;
+	BaseEntity: string;
+	Url: string;
+	Fields: Array<IFieldLayoutDto>;
+	CustomFields: any;
+}
+
+
+export interface IFieldLayoutDto {
+	Url: string;
+	LookupEntityType: string;
+	ComponentLayoutID: number;
+	EntityType: string;
+	Property: string;
+	Placement: number;
+	Hidden: boolean;
+	FieldType: FieldType;
+	ReadOnly: boolean;
+	LookupField: boolean;
+	Label: string;
+	Description: string;
+	HelpText: string;
+	FieldSet: number;
+	Section: number;
+	Legend: string;
+	StatusID: number;
+	ID: number;
+	Deleted: boolean;
+	Validations: Array<IClientValidationRule>;
+	CustomFields: any;
+}
+
+
+export interface IComponentLayoutDto {
+	Name: string;
+	BaseEntity: string;
+	Url: string;
+	Fields: Array<IFieldLayoutDto>;
+	CustomFields: any;
+}
+
+
+export interface IFieldLayoutDto {
+	Url: string;
+	LookupEntityType: string;
+	ComponentLayoutID: number;
+	EntityType: string;
+	Property: string;
+	Placement: number;
+	Hidden: boolean;
+	FieldType: FieldType;
+	ReadOnly: boolean;
+	LookupField: boolean;
+	Label: string;
+	Description: string;
+	HelpText: string;
+	FieldSet: number;
+	Section: number;
+	Legend: string;
+	StatusID: number;
+	ID: number;
+	Deleted: boolean;
+	Validations: Array<IClientValidationRule>;
+	CustomFields: any;
+}
+
+
+export interface IComponentLayoutDto {
+	Name: string;
+	BaseEntity: string;
+	Url: string;
+	Fields: Array<IFieldLayoutDto>;
+	CustomFields: any;
+}
+
+
+export interface IFieldLayoutDto {
+	Url: string;
+	LookupEntityType: string;
+	ComponentLayoutID: number;
+	EntityType: string;
+	Property: string;
+	Placement: number;
+	Hidden: boolean;
+	FieldType: FieldType;
+	ReadOnly: boolean;
+	LookupField: boolean;
+	Label: string;
+	Description: string;
+	HelpText: string;
+	FieldSet: number;
+	Section: number;
+	Legend: string;
+	StatusID: number;
+	ID: number;
+	Deleted: boolean;
+	Validations: Array<IClientValidationRule>;
+	CustomFields: any;
+}
+
+
+export interface IComponentLayoutDto {
+	Name: string;
+	BaseEntity: string;
+	Url: string;
+	Fields: Array<IFieldLayoutDto>;
+	CustomFields: any;
+}
+
+
+export interface IFieldLayoutDto {
+	Url: string;
+	LookupEntityType: string;
+	ComponentLayoutID: number;
+	EntityType: string;
+	Property: string;
+	Placement: number;
+	Hidden: boolean;
+	FieldType: FieldType;
+	ReadOnly: boolean;
+	LookupField: boolean;
+	Label: string;
+	Description: string;
+	HelpText: string;
+	FieldSet: number;
+	Section: number;
+	Legend: string;
+	StatusID: number;
+	ID: number;
+	Deleted: boolean;
+	Validations: Array<IClientValidationRule>;
+	CustomFields: any;
+}
+
+
+export interface IComponentLayoutDto {
+	Name: string;
+	BaseEntity: string;
+	Url: string;
+	Fields: Array<IFieldLayoutDto>;
+	CustomFields: any;
+}
+
+
+export interface IFieldLayoutDto {
+	Url: string;
+	LookupEntityType: string;
+	ComponentLayoutID: number;
+	EntityType: string;
+	Property: string;
+	Placement: number;
+	Hidden: boolean;
+	FieldType: FieldType;
+	ReadOnly: boolean;
+	LookupField: boolean;
+	Label: string;
+	Description: string;
+	HelpText: string;
+	FieldSet: number;
+	Section: number;
+	Legend: string;
+	StatusID: number;
+	ID: number;
+	Deleted: boolean;
+	Validations: Array<IClientValidationRule>;
+	CustomFields: any;
+}
+
+
+export interface IComponentLayoutDto {
+	Name: string;
+	BaseEntity: string;
+	Url: string;
+	Fields: Array<IFieldLayoutDto>;
+	CustomFields: any;
+}
+
+
+export interface IFieldLayoutDto {
+	Url: string;
+	LookupEntityType: string;
+	ComponentLayoutID: number;
+	EntityType: string;
+	Property: string;
+	Placement: number;
+	Hidden: boolean;
+	FieldType: FieldType;
+	ReadOnly: boolean;
+	LookupField: boolean;
+	Label: string;
+	Description: string;
+	HelpText: string;
+	FieldSet: number;
+	Section: number;
+	Legend: string;
+	StatusID: number;
+	ID: number;
+	Deleted: boolean;
+	Validations: Array<IClientValidationRule>;
+	CustomFields: any;
+}
+
+
+export interface IComponentLayoutDto {
+	Name: string;
+	BaseEntity: string;
+	Url: string;
+	Fields: Array<IFieldLayoutDto>;
+	CustomFields: any;
+}
+
+
+export interface IFieldLayoutDto {
+	Url: string;
+	LookupEntityType: string;
+	ComponentLayoutID: number;
+	EntityType: string;
+	Property: string;
+	Placement: number;
+	Hidden: boolean;
+	FieldType: FieldType;
+	ReadOnly: boolean;
+	LookupField: boolean;
+	Label: string;
+	Description: string;
+	HelpText: string;
+	FieldSet: number;
+	Section: number;
+	Legend: string;
+	StatusID: number;
+	ID: number;
+	Deleted: boolean;
+	Validations: Array<IClientValidationRule>;
+	CustomFields: any;
+}
+
+
+export interface IComponentLayoutDto {
+	Name: string;
+	BaseEntity: string;
+	Url: string;
+	Fields: Array<IFieldLayoutDto>;
+	CustomFields: any;
+}
+
+
+export interface IFieldLayoutDto {
+	Url: string;
+	LookupEntityType: string;
+	ComponentLayoutID: number;
+	EntityType: string;
+	Property: string;
+	Placement: number;
+	Hidden: boolean;
+	FieldType: FieldType;
+	ReadOnly: boolean;
+	LookupField: boolean;
+	Label: string;
+	Description: string;
+	HelpText: string;
+	FieldSet: number;
+	Section: number;
+	Legend: string;
+	StatusID: number;
+	ID: number;
+	Deleted: boolean;
+	Validations: Array<IClientValidationRule>;
+	CustomFields: any;
+}
+
+
+export interface IComponentLayoutDto {
+	Name: string;
+	BaseEntity: string;
+	Url: string;
+	Fields: Array<IFieldLayoutDto>;
+	CustomFields: any;
+}
+
+
+export interface IFieldLayoutDto {
+	Url: string;
+	LookupEntityType: string;
+	ComponentLayoutID: number;
+	EntityType: string;
+	Property: string;
+	Placement: number;
+	Hidden: boolean;
+	FieldType: FieldType;
+	ReadOnly: boolean;
+	LookupField: boolean;
+	Label: string;
+	Description: string;
+	HelpText: string;
+	FieldSet: number;
+	Section: number;
+	Legend: string;
+	StatusID: number;
+	ID: number;
+	Deleted: boolean;
+	Validations: Array<IClientValidationRule>;
+	CustomFields: any;
+}
+
+
+export interface IComponentLayoutDto {
+	Name: string;
+	BaseEntity: string;
+	Url: string;
+	Fields: Array<IFieldLayoutDto>;
+	CustomFields: any;
+}
+
+
+export interface IFieldLayoutDto {
+	Url: string;
+	LookupEntityType: string;
+	ComponentLayoutID: number;
+	EntityType: string;
+	Property: string;
+	Placement: number;
+	Hidden: boolean;
+	FieldType: FieldType;
+	ReadOnly: boolean;
+	LookupField: boolean;
+	Label: string;
+	Description: string;
+	HelpText: string;
+	FieldSet: number;
+	Section: number;
+	Legend: string;
+	StatusID: number;
+	ID: number;
+	Deleted: boolean;
+	Validations: Array<IClientValidationRule>;
+	CustomFields: any;
+}
+
+
+export interface IComponentLayoutDto {
+	Name: string;
+	BaseEntity: string;
+	Url: string;
+	Fields: Array<IFieldLayoutDto>;
+	CustomFields: any;
+}
+
+
+export interface IFieldLayoutDto {
+	Url: string;
+	LookupEntityType: string;
+	ComponentLayoutID: number;
+	EntityType: string;
+	Property: string;
+	Placement: number;
+	Hidden: boolean;
+	FieldType: FieldType;
+	ReadOnly: boolean;
+	LookupField: boolean;
+	Label: string;
+	Description: string;
+	HelpText: string;
+	FieldSet: number;
+	Section: number;
+	Legend: string;
+	StatusID: number;
+	ID: number;
+	Deleted: boolean;
+	Validations: Array<IClientValidationRule>;
+	CustomFields: any;
+}
+
+
+export interface IComponentLayoutDto {
+	Name: string;
+	BaseEntity: string;
+	Url: string;
+	Fields: Array<IFieldLayoutDto>;
+	CustomFields: any;
+}
+
+
+export interface IFieldLayoutDto {
+	Url: string;
+	LookupEntityType: string;
+	ComponentLayoutID: number;
+	EntityType: string;
+	Property: string;
+	Placement: number;
+	Hidden: boolean;
+	FieldType: FieldType;
+	ReadOnly: boolean;
+	LookupField: boolean;
+	Label: string;
+	Description: string;
+	HelpText: string;
+	FieldSet: number;
+	Section: number;
+	Legend: string;
+	StatusID: number;
+	ID: number;
+	Deleted: boolean;
+	Validations: Array<IClientValidationRule>;
+	CustomFields: any;
+}
+
+
+export interface IComponentLayoutDto {
+	Name: string;
+	BaseEntity: string;
+	Url: string;
+	Fields: Array<IFieldLayoutDto>;
+	CustomFields: any;
+}
+
+
+export interface IFieldLayoutDto {
+	Url: string;
+	LookupEntityType: string;
+	ComponentLayoutID: number;
+	EntityType: string;
+	Property: string;
+	Placement: number;
+	Hidden: boolean;
+	FieldType: FieldType;
+	ReadOnly: boolean;
+	LookupField: boolean;
+	Label: string;
+	Description: string;
+	HelpText: string;
+	FieldSet: number;
+	Section: number;
+	Legend: string;
+	StatusID: number;
+	ID: number;
+	Deleted: boolean;
+	Validations: Array<IClientValidationRule>;
+	CustomFields: any;
+}
+
+
+export interface IComponentLayoutDto {
+	Name: string;
+	BaseEntity: string;
+	Url: string;
+	Fields: Array<IFieldLayoutDto>;
+	CustomFields: any;
+}
+
+
+export interface IFieldLayoutDto {
+	Url: string;
+	LookupEntityType: string;
+	ComponentLayoutID: number;
+	EntityType: string;
+	Property: string;
+	Placement: number;
+	Hidden: boolean;
+	FieldType: FieldType;
+	ReadOnly: boolean;
+	LookupField: boolean;
+	Label: string;
+	Description: string;
+	HelpText: string;
+	FieldSet: number;
+	Section: number;
+	Legend: string;
+	StatusID: number;
+	ID: number;
+	Deleted: boolean;
+	Validations: Array<IClientValidationRule>;
+	CustomFields: any;
+}
+
+
+export interface IComponentLayoutDto {
+	Name: string;
+	BaseEntity: string;
+	Url: string;
+	Fields: Array<IFieldLayoutDto>;
+	CustomFields: any;
+}
+
+
+export interface IFieldLayoutDto {
+	Url: string;
+	LookupEntityType: string;
+	ComponentLayoutID: number;
+	EntityType: string;
+	Property: string;
+	Placement: number;
+	Hidden: boolean;
+	FieldType: FieldType;
+	ReadOnly: boolean;
+	LookupField: boolean;
+	Label: string;
+	Description: string;
+	HelpText: string;
+	FieldSet: number;
+	Section: number;
+	Legend: string;
+	StatusID: number;
+	ID: number;
+	Deleted: boolean;
+	Validations: Array<IClientValidationRule>;
+	CustomFields: any;
+}
+
+
+export interface IComponentLayoutDto {
+	Name: string;
+	BaseEntity: string;
+	Url: string;
+	Fields: Array<IFieldLayoutDto>;
+	CustomFields: any;
+}
+
+
+export interface IFieldLayoutDto {
+	Url: string;
+	LookupEntityType: string;
+	ComponentLayoutID: number;
+	EntityType: string;
+	Property: string;
+	Placement: number;
+	Hidden: boolean;
+	FieldType: FieldType;
+	ReadOnly: boolean;
+	LookupField: boolean;
+	Label: string;
+	Description: string;
+	HelpText: string;
+	FieldSet: number;
+	Section: number;
+	Legend: string;
+	StatusID: number;
+	ID: number;
+	Deleted: boolean;
+	Validations: Array<IClientValidationRule>;
+	CustomFields: any;
+}
+
+
+export interface IComponentLayoutDto {
+	Name: string;
+	BaseEntity: string;
+	Url: string;
+	Fields: Array<IFieldLayoutDto>;
+	CustomFields: any;
+}
+
+
+export interface IFieldLayoutDto {
+	Url: string;
+	LookupEntityType: string;
+	ComponentLayoutID: number;
+	EntityType: string;
+	Property: string;
+	Placement: number;
+	Hidden: boolean;
+	FieldType: FieldType;
+	ReadOnly: boolean;
+	LookupField: boolean;
+	Label: string;
+	Description: string;
+	HelpText: string;
+	FieldSet: number;
+	Section: number;
+	Legend: string;
+	StatusID: number;
+	ID: number;
+	Deleted: boolean;
+	Validations: Array<IClientValidationRule>;
+	CustomFields: any;
+}
+
+
+export interface IComponentLayoutDto {
+	Name: string;
+	BaseEntity: string;
+	Url: string;
+	Fields: Array<IFieldLayoutDto>;
+	CustomFields: any;
+}
+
+
+export interface IFieldLayoutDto {
+	Url: string;
+	LookupEntityType: string;
+	ComponentLayoutID: number;
+	EntityType: string;
+	Property: string;
+	Placement: number;
+	Hidden: boolean;
+	FieldType: FieldType;
+	ReadOnly: boolean;
+	LookupField: boolean;
+	Label: string;
+	Description: string;
+	HelpText: string;
+	FieldSet: number;
+	Section: number;
+	Legend: string;
+	StatusID: number;
+	ID: number;
+	Deleted: boolean;
+	Validations: Array<IClientValidationRule>;
+	CustomFields: any;
+}
+
+
+export interface IComponentLayoutDto {
+	Name: string;
+	BaseEntity: string;
+	Url: string;
+	Fields: Array<IFieldLayoutDto>;
+	CustomFields: any;
+}
+
+
+export interface IFieldLayoutDto {
+	Url: string;
+	LookupEntityType: string;
+	ComponentLayoutID: number;
+	EntityType: string;
+	Property: string;
+	Placement: number;
+	Hidden: boolean;
+	FieldType: FieldType;
+	ReadOnly: boolean;
+	LookupField: boolean;
+	Label: string;
+	Description: string;
+	HelpText: string;
+	FieldSet: number;
+	Section: number;
+	Legend: string;
+	StatusID: number;
+	ID: number;
+	Deleted: boolean;
+	Validations: Array<IClientValidationRule>;
+	CustomFields: any;
+}
+
+
+export interface IComponentLayoutDto {
+	Name: string;
+	BaseEntity: string;
+	Url: string;
+	Fields: Array<IFieldLayoutDto>;
+	CustomFields: any;
+}
+
+
+export interface IFieldLayoutDto {
+	Url: string;
+	LookupEntityType: string;
+	ComponentLayoutID: number;
+	EntityType: string;
+	Property: string;
+	Placement: number;
+	Hidden: boolean;
+	FieldType: FieldType;
+	ReadOnly: boolean;
+	LookupField: boolean;
+	Label: string;
+	Description: string;
+	HelpText: string;
+	FieldSet: number;
+	Section: number;
+	Legend: string;
+	StatusID: number;
+	ID: number;
+	Deleted: boolean;
+	Validations: Array<IClientValidationRule>;
+	CustomFields: any;
+}
+
+
+export interface IComponentLayoutDto {
+	Name: string;
+	BaseEntity: string;
+	Url: string;
+	Fields: Array<IFieldLayoutDto>;
+	CustomFields: any;
+}
+
+
+export interface IFieldLayoutDto {
+	Url: string;
+	LookupEntityType: string;
+	ComponentLayoutID: number;
+	EntityType: string;
+	Property: string;
+	Placement: number;
+	Hidden: boolean;
+	FieldType: FieldType;
+	ReadOnly: boolean;
+	LookupField: boolean;
+	Label: string;
+	Description: string;
+	HelpText: string;
+	FieldSet: number;
+	Section: number;
+	Legend: string;
+	StatusID: number;
+	ID: number;
+	Deleted: boolean;
+	Validations: Array<IClientValidationRule>;
+	CustomFields: any;
+}
+
+
+export interface IComponentLayoutDto {
+	Name: string;
+	BaseEntity: string;
+	Url: string;
+	Fields: Array<IFieldLayoutDto>;
+	CustomFields: any;
+}
+
 
 export interface IFieldLayoutDto {
 	Url: string;
