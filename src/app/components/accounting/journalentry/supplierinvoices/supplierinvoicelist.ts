@@ -1,4 +1,4 @@
-import {Component, SimpleChange, Input, Output, EventEmitter, ViewChildren} from "angular2/core";
+import {Component, SimpleChange, Input, Output, EventEmitter, ViewChild} from "angular2/core";
 import {Observable} from "rxjs/Observable";
 import "rxjs/add/observable/forkjoin";
 
@@ -11,6 +11,7 @@ import {UniForm, UniFormBuilder, UniFieldsetBuilder, UniFieldBuilder} from "../.
 import {UniTabs} from '../../../layout/uniTabs/uniTabs';
 
 import {SupplierInvoiceEdit} from './supplierinvoiceedit';
+
 import {UniTable, UniTableBuilder, UniTableColumn} from '../../../../../framework/uniTable';
 import {UniHttp} from '../../../../../framework/core/http/http';
 
@@ -26,7 +27,7 @@ export class SupplierInvoiceList {
     newSupplierInvoice: any;
     selectedSupplierInvoice: any;
 
-    @ViewChildren(UniTable) tables: any;
+    @ViewChild(UniTable) table: any;
 
     supplierInvoiceTableCfg;
 
@@ -163,7 +164,18 @@ export class SupplierInvoiceList {
     }
 
     supplierInvoiceUpdated(supplierInvoice: ISupplierInvoice) {
-        //todo
+    //supplierInvoiceUpdated(supplierInvoice) {
+        //TODO
+        console.log("supplierInvoiceUpdated called");
+        console.log(supplierInvoice);
+        this.refreshTable();
+    }
+
+    refreshTable() {
+        //TODO Throws exception today
+        if (this.table !== null) {
+            this.table.refresh();
+        }
     }
 
     //#region "Test code"

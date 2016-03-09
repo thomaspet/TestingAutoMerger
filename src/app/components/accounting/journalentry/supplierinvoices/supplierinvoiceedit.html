@@ -1,1 +1,6 @@
-<div class="journalentrytempbox">her kommer detaljbilde for å redigere supplierinvoices - denne bør kanskje vises i en modal eller en egen tab?</div>
+<div *ngIf="model">
+    <h2>Detaljer</h2>
+    <uni-form (uniFormSubmit)="onSubmit($event)" [config]="formConfig"></uni-form>
+</div>
+
+
