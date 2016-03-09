@@ -4,6 +4,7 @@ import {RouteConfig, RouteParams} from "angular2/router";
 import { Observable } from "rxjs/Observable";
 
 import {WagetypeService} from "../../../data/wagetype";
+import {WageTypeService} from "../../../services/services";
 
 
 import {UniComponentLoader} from "../../../../framework/core";
@@ -17,10 +18,10 @@ import {UNI_CONTROL_DIRECTIVES} from "../../../../framework/controls";
 @Component({
     selector: 'wagetype-details',
     templateUrl: 'app/components/salary/wagetype/wagetypedetails.html',
-    providers: [provide(WagetypeService, {useClass: WagetypeService})],
+    providers: [provide(WagetypeService, {useClass: WagetypeService}), WageTypeService],
     directives: [UniComponentLoader, UniForm]
 })
-export class WagetypeDetail implements OnInit{
+export class WagetypeDetail{
     wageType: IWageType; 
     layout;
     formCfg : UniFormBuilder[];
@@ -32,28 +33,29 @@ export class WagetypeDetail implements OnInit{
     
     @ViewChild(UniComponentLoader)  uniCompLoader: UniComponentLoader;
     
-    constructor(private _routeparams: RouteParams, private _wagetypeService : WagetypeService) {               
+    constructor(private _routeparams: RouteParams, private _wagetypeService : WagetypeService, private _wageService : WageTypeService) {               
     }
 
     ngOnInit() {    
         
-        
-        let ID = +this._routeparams.get("id");
+        var self = this;
+        let ID = +self._routeparams.get("id");
                 
         Observable.forkJoin(
-            this._wagetypeService.get(ID),
-            this._wagetypeService.layout("")
+            self._wagetypeService.get(ID),
+            self._wagetypeService.layout("")
         ).subscribe((response: any) => {
             let [wt, lt] = response;
-            this.wageType = wt;
-            this.layout = lt;
+            self.wageType = wt;
+            self.layout = lt;
             
-            this.form = new UniFormLayoutBuilder().build(this.layout, this.wageType);            
+            self.form = new UniFormLayoutBuilder().build(self.layout, self.wageType);            
                         
-            this.uniCompLoader.load(UniForm).then((cmp: ComponentRef) => {
-                    cmp.instance.config = this.form;
+            self.uniCompLoader.load(UniForm).then((cmp: ComponentRef) => {
+                    cmp.instance.config = self.form;
+                    cmp.instance.getEventEmitter().subscribe(self.onSubmit());
                     setTimeout(() => {
-                        this.formInstance = cmp.instance;
+                        self.formInstance = cmp.instance;
                     }, 103);
                 });
         
@@ -62,7 +64,29 @@ export class WagetypeDetail implements OnInit{
     
     onSubmit()
     {
-        this._wagetypeService.update(this.wageType)
+        /*return() => {
+            this._wagetypeService.update(this.wageType).subscribe((response) => {
+                console.log(response);
+            });
+        };*/
+        return () =>{
+            console.log(this);
+            if(this.wageType.ID > 0){
+                this._wageService.Put(this.wageType.ID, this.wageType)
+                    .subscribe(
+                        data => this.wageType = data,
+                        error => console.log("error in wagetypedetails.onSubmit: ", error)
+                    );
+            }
+            else{
+                this._wageService.Post(this.wageType)
+                    .subscribe(
+                        data => this.wageType = data,
+                        error => console.log("error in wagetypedetails.onSubmit: ", error)
+                    );
+            }
+        }
+        
     }
 
 }

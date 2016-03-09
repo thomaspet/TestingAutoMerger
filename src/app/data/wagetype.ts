@@ -42,6 +42,7 @@ export class WagetypeService {
     }
 
     update(entity) {
+        console.log("trying to update wagetype");
         return this.http
             .usingBusinessDomain()
             .asPUT()
@@ -295,7 +296,7 @@ export class WagetypeService {
                     Hidden: false,
                     FieldType: FieldType.COMBOBOX,
                     ReadOnly: false,
-                    LookupField: false,
+                    LookupField: "Name",
                     Label: "Tax Type",
                     Description: null,
                     HelpText: null,
