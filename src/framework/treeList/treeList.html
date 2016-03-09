@@ -1,17 +1,19 @@
-<ul class="tree_list">
-    <li *ngFor="#item of treeListItems">
-        
-        <!-- Item is another list -->
-        <section *ngIf="item.type == type.LIST" >
-            <span [ngClass]="{button_icon_expanded: item.expanded, button_icon_collapsed: !item.expanded}" (click)="item.toggle()">{{item.title}}</span>
-            <uni-tree-list [treeListItems]="item.treeListItems" *ngIf="item.expanded"></uni-tree-list>
+<ul class="treelist" role="tree">
+    <li *ngFor="#item of treeListItems" role="treeitem" [attr.aria-label]="item.title" [attr.aria-expanded]="item.expanded" class="treelist_item" [attr.id]="item.guid">
+
+        <h5 (click)="item.expanded = !item.expanded" class="treelist_headline" [attr.aria-controls]="item.guid">- {{item.title}}</h5>
+
+        <section *ngIf="item.expanded" class="treelist_content">
+
+            <!-- Item is another list -->
+            <uni-tree-list *ngIf="item.type === type.LIST" [treeListItems]="item.treeListItems" role="group"></uni-tree-list>
+
+            <!-- Item is text -->
+            <p *ngIf="item.type === type.TEXT">{{item.content}}</p>
+
+            <!-- Item is a loadable component (Table or Form) -->
+            <tree-list-component-loader *ngIf="item.type === type.TABLE || item.type === type.FORM" [componentConfig]="item"></tree-list-component-loader>
+
         </section>
-        
-        <!-- Item is form, table or text -->
-        <div *ngIf="item.type !== type.LIST">
-            <h5 (click)="showHideContent($event)">{{item.title}}</h5>
-                <tree-list-component-loader *ngIf="item.type === type.TABLE || item.type === type.FORM" [componentConfig]="item" class="content_div"></tree-list-component-loader>
-                <p *ngIf="(item.type === type.TABLE || item.type === type.FORM) && item.expanded" class="content_div">{{item.content}}</p>
-        </div>
-    </li>    
+    </li>
 </ul>

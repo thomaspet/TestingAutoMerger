@@ -1,9 +1,18 @@
 .splitview
   display: flex
   flex-direction: row
+  margin: 2rem 0
   *
     box-sizing: border-box
 
 .splitview_list,
 .splitview_detail
   align-self: flex-start
+
+.splitview_list
+  min-width: 15rem
+
+.splitview_detail
+  border: pxToRem(1) solid $uni-color-scale5
+  border-radius: pxToRem(5)
+  padding: 1rem
