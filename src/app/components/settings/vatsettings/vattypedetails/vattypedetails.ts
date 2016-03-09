@@ -4,10 +4,10 @@ import {Observable} from "rxjs/Observable";
 import "rxjs/add/observable/forkjoin";
 
 import {UNI_CONTROL_DIRECTIVES} from "../../../../../framework/controls";
-import {FieldType} from "../../../../interfaces";
+import {FieldType} from "../../../../unientities";
 import {UniForm, UniFormBuilder, UniFieldsetBuilder, UniFieldBuilder} from "../../../../../framework/forms";
 
-import {IVatType, IVatCodeGroup, IAccount} from "../../../../interfaces";
+import {VatType, VatCodeGroup, Account} from "../../../../unientities";
 import {VatTypeService, VatCodeGroupService, AccountService} from "../../../../services/services";
 
 
@@ -19,15 +19,15 @@ import {VatTypeService, VatCodeGroupService, AccountService} from "../../../../s
 })
 export class VatTypeDetails {
     @Input()
-    VatType: IVatType;
+    VatType: VatType;
 
     @ViewChild(UniForm)
     form: UniForm;
 
     config = new UniFormBuilder();
-    model: IVatType;
-    accounts: IAccount[];
-    vatcodegroups: IVatCodeGroup[];
+    model: VatType;
+    accounts: Account[];
+    vatcodegroups: VatCodeGroup[];
 
     constructor(private vatTypeService: VatTypeService,
                 private accountService: AccountService,

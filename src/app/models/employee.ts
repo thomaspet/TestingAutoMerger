@@ -1,19 +1,19 @@
 import {
-    IEmployee,
+    Employee,
     PaymentInterval,
     InternationalIDType,
     ForeignWorker,
-    IBusinessRelation,
-    IEmployment,
-    IBankAccountSalary,
-    IEmployeeCategoryLink,
-    IVacationRateEmployee,
-    ILocalization
-} from "../interfaces";
+    BusinessRelation,
+    Employment,
+    BankAccountSalary,
+    EmployeeCategoryLink,
+    VacationRateEmployee,
+    Localization
+} from "../unientities";
 
 declare var _;
 
-export class EmployeeModel implements IEmployee {
+export class EmployeeModel implements Employee {
     BusinessRelationID: number = 0;
     PaymentInterval: PaymentInterval = 0;
     EmployeeNumber: number = 0;
@@ -38,12 +38,12 @@ export class EmployeeModel implements IEmployee {
     StatusID: number = 0;
     ID: number = 0;
     Deleted: boolean = false;
-    BusinessRelationInfo: IBusinessRelation = null;
-    Employments: Array<IEmployment> = [];
-    BankAccounts: Array<IBankAccountSalary> = [];
-    EmployeeCategoryLinks: Array<IEmployeeCategoryLink> = [];
-    VacationRateEmployee: IVacationRateEmployee = null;
-    Localization: ILocalization = null;
+    BusinessRelationInfo: BusinessRelation = null;
+    Employments: Array<Employment> = [];
+    BankAccounts: Array<BankAccountSalary> = [];
+    EmployeeCategoryLinks: Array<EmployeeCategoryLink> = [];
+    VacationRateEmployee: VacationRateEmployee = null;
+    Localization: Localization = null;
     CustomFields: any = {};
 
     static createFromObject(data: any) {

@@ -80,19 +80,6 @@ gulp.task('clean' , function (done) {
 /********************/
 /*  BUILDING TASKS  */
 /********************/
-gulp.task('interfaces' , function (done) {
-    var options = {
-        url: 'http://devapi.unieconomy.no/api/metadata/typescriptinterfaces' ,
-        headers: {
-            'client': 'Client1'
-        }
-    };
-    var callback = function (error , response , body) {
-        fs.writeFileSync('./src/app/interfaces.ts' , body);
-        done();
-    };
-    request(options , callback);
-});
 
 gulp.task('entities' , function (done) {
     var options = {
@@ -108,7 +95,7 @@ gulp.task('entities' , function (done) {
     request(options , callback);
 });
 
-gulp.task('rxjs' , ['interfaces','entities'] , function () {
+gulp.task('rxjs' , ['entities'] , function () {
     return gulp.src('./node_modules/rxjs/**/*.js')
         .pipe(gulp.dest('./dist/lib/rxjs'));
 });

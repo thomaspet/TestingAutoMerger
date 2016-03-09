@@ -1,20 +1,20 @@
 import {
-    IAccount,
-    ILocalization,
-    ICurrency,
-    IAccountGroup,
-    IVatType,
-    ICustomer,
-    ISupplier,
-    IEmployee,
-    IDimensions,
-    INumberSeries,
-    IAccountAlias
-} from "../interfaces";
+    Account,
+    Localization,
+    Currency,
+    AccountGroup,
+    VatType,
+    Customer,
+    Supplier,
+    Employee,
+    Dimensions,
+    NumberSeries,
+    AccountAlias
+} from "../unientities";
 
 declare var _;
 
-export class AccountModel implements IAccount {
+export class AccountModel implements Account {
     AccountName: string = "";
     AccountNumber: number = null;
     LockManualPosts: boolean = false;
@@ -37,17 +37,17 @@ export class AccountModel implements IAccount {
     StatusID: number = null;
     ID: number = 0;
     Deleted: boolean = false;
-    Currency: ICurrency = null;
-    AccountGroup: IAccountGroup = null;
-    VatType: IVatType = null;
-    MainAccount: IAccount = null;
-    Customer: ICustomer = null;
-    Supplier: ISupplier = null;
-    Employee: IEmployee = null;
-    Dimensions: IDimensions = null;
-    SubAccountNumberSeries: INumberSeries = null;
-    Alias: Array<IAccountAlias> = null;
-    CompatibleAccountGroups: Array<IAccountGroup> = null;
-    SubAccounts: Array<IAccount> = null;
+    Currency: Currency = null;
+    AccountGroup: AccountGroup = null;
+    VatType: VatType = null;
+    MainAccount: Account = null;
+    Customer: Customer = null;
+    Supplier: Supplier = null;
+    Employee: Employee = null;
+    Dimensions: Dimensions = null;
+    SubAccountNumberSeries: NumberSeries = null;
+    Alias: Array<AccountAlias> = null;
+    CompatibleAccountGroups: Array<AccountGroup> = null;
+    SubAccounts: Array<Account> = null;
     CustomFields: any = null;
 }

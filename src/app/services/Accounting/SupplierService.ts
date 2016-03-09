@@ -1,15 +1,15 @@
 import {BizHttp} from '../../../framework/core/http/BizHttp';
-import {ISupplier} from '../../interfaces';
+import {Supplier} from '../../unientities';
 import {UniHttp} from '../../../framework/core/http/http';
 
 
-export class SupplierService extends BizHttp<ISupplier> {
+export class SupplierService extends BizHttp<Supplier> {
     
     constructor(http: UniHttp) {        
         super(http);
         
         //TODO: should resolve this from configuration based on type (IVatType)? Frank is working on something..
-        this.relativeURL = 'Suppliers';
+        this.relativeURL = Supplier.relativeUrl;
         
         //set this property if you want a default sort order from the API
         this.DefaultOrderBy = null;
