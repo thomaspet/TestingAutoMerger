@@ -74,7 +74,7 @@ export class WagetypeDetail{
             if(this.wageType.ID > 0){
                 this._wageService.Put(this.wageType.ID, this.wageType)
                     .subscribe(
-                        data => this.wageType = data,
+                        data => {console.log("It worked, here is the data: " + JSON.stringify(data)) ;this.wageType = data},
                         error => console.log("error in wagetypedetails.onSubmit: ", error)
                     );
             }
