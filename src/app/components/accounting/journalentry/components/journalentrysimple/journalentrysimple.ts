@@ -21,9 +21,10 @@ export class JournalEntrySimple {
     public selectedJournalEntryLine : JournalEntryData;
     
     public journalEntryLines: Array<JournalEntryData>;
+    public validationResult: any;
         
     constructor(private journalEntryService : JournalEntryService) {
-        this.journalEntryLines = new Array<JournalEntryData>();
+        this.journalEntryLines = new Array<JournalEntryData>();        
     }
     
     ngOnInit() {
@@ -37,15 +38,36 @@ export class JournalEntrySimple {
     postJournalEntryData() {
         this.journalEntryService.postJournalEntryData(this.journalEntryLines)
             .subscribe(
-                data => console.log('returnerte data:',data),
-                err => console.log('error: ', err)
+                data => {
+                    data.forEach((row) => row.FinancialDate = new Date(row.FinancialDate));
+                    
+                    console.log(data);
+                    this.journalEntryLines = data
+                },
+                err => console.log('error in postJournalEntryData: ', err)
             );
+    }
+    
+    validateJournalEntryData() {
+        this.journalEntryService.validateJournalEntryData(this.journalEntryLines)
+            .subscribe(
+                data => {
+                    this.validationResult = data;
+                    console.log('valideringsresultat:', data);
+                },
+                err => console.log('error int validateJournalEntryData:', err)
+            );
+    }
+    
+    addDummyJournalEntry() {
+        var newline = JournalEntryService.getSomeNewDataForMe();
+        newline.JournalEntryNo = Math.round((this.journalEntryLines.length/3) + 1);         
+        this.journalEntryLines.unshift(newline);
     }
     
     newLineCreated(journalEntryLine : any) {
         var newline = JournalEntryService.getSomeNewDataForMe();
-        newline.JournalEntryNo = Math.round((this.journalEntryLines.length/3) + 1);
-        console.log('newline:', newline);        
+        newline.JournalEntryNo = Math.round((this.journalEntryLines.length/3) + 1);        
         this.journalEntryLines.unshift(newline);
     }
     

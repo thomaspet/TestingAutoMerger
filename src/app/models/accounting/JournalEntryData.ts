@@ -30,4 +30,6 @@ export class JournalEntryData {
     CurrencyCode: string;
         
     Dimensions: any;
+    
+    JournalEntryDraftIDs: number[];
 }

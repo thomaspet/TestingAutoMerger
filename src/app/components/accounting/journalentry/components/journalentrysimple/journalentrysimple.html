@@ -1,5 +1,7 @@
 
 <button (click)="postJournalEntryData($event)">Lagre og bokfør</button>
+<button (click)="validateJournalEntryData($event)">Valider data</button>
+<button (click)="addDummyJournalEntry($event)">Legg til dummylinje</button>
 
 <journal-entry-simple-add tabindex="1" (Created)="newLineCreated($event)" *ngIf="selectedJournalEntryLine == null"></journal-entry-simple-add>
 
@@ -18,18 +20,18 @@
     <tbody>
         <template ngFor #line [ngForOf]="journalEntryLines" [ngForTrackBy]="trackByLines">        
             <tr tabindex="2" (keyup.enter)="setSelectedJournalEntryLine(line)" class="journalentrysimple-itemline" (click)="setSelectedJournalEntryLine(line)">
-                <td class="journalentrysimple-biginfo">{{line.FinancialDate.toLocaleDateString()}}</td>
+                <td class="journalentrysimple-biginfo">{{line.FinancialDate | date:'dd.MM.yyyy'}}</td>
                 <td class="journalentrysimple-multilineinfo">
                     <div><label>Bilagsnr:</label> {{line.JournalEntryNo}}</div>
                     <div><label>Fakturanr:</label> {{line.SupplierInvoiceNo}}</div>
                 </td>
                 <td class="journalentrysimple-multilineinfo">
-                    <div><label>Debet:</label> {{line.DebitAccountNumber}} - {{line.DebitAccount.AccountName}}</div>
-                    <div><label>Kredit:</label> {{line.CreditAccountNumber}} - {{line.CreditAccount.AccountName}}</div>
+                    <div><label>Debet:</label> {{line.DebitAccount ? line.DebitAccountNumber + " - " + line.DebitAccount.AccountName : ""}}</div>
+                    <div><label>Kredit:</label> {{line.CreditAccount ? line.CreditAccountNumber + " - " + line.CreditAccount.AccountName : ""}}</div>
                 </td>
                 <td class="journalentrysimple-biginfo">{{line.Amount}}</td>
                 <td class="journalentrysimple-multilineinfo">
-                    <div><label>Avdeling:</label> {{line.Dimensions.DepartmentID}}</div>
+                    <div><label>Avdeling:</label> {{line.Dimensions.DepartementID}}</div>
                     <div><label>Prosjekt:</label> {{line.Dimensions.ProjectID}}</div>
                 </td>
                 <td>{{line.Description}}</td>
@@ -43,3 +45,23 @@
         </template>                  
     </tbody>
 </table>    
+
+<article class="validationresultboxmedium" *ngIf="validationResult">
+    <h3 *ngIf="validationResult.Messages.length == 0">
+        Ingen valideringsfeil!    
+    </h3>
+    <h3 *ngIf="validationResult.Messages.length > 0">
+        Feil i validering:    
+    </h3>
+    <ul>
+        <li *ngFor="#message of validationResult.Messages">
+            {{message}}
+        </li>
+    </ul>
+</article>
+<article class="validationresultboxmedium">
+    <h3>
+        Tips
+    </h3>
+    <p>Brukt Tab-knappen for å navigere til andre rader og trykk enter for å redigere de</p>
+</article>

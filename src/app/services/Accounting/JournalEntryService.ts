@@ -23,7 +23,16 @@ export class JournalEntryService extends BaseApiService<IJournalEntry> {
             .asPOST()
             .usingBusinessDomain()
             .withBody(journalDataEntries)
-            .withEndPoint(this.RelativeURL + '?action=post-journal-entry-data&foo=blabla&doh=123')
+            .withEndPoint(this.RelativeURL + '?action=post-journal-entry-data')
+            .send();
+    }  
+    
+    validateJournalEntryData(journalDataEntries: Array<JournalEntryData>): Observable<any> {        
+        return this.http
+            .asPOST()
+            .usingBusinessDomain()
+            .withBody(journalDataEntries)
+            .withEndPoint(this.RelativeURL + '?action=validate-journal-entry-data')
             .send();
     }    
     
@@ -57,10 +66,10 @@ export class JournalEntryService extends BaseApiService<IJournalEntry> {
         data.FinancialDate = new Date(2016, Math.floor(Math.random() * 12), Math.floor(Math.random() * 29));
         data.Description = descriptions[Math.floor(Math.random() * 4)];
         
-        data.Dimensions = {ProjectID: projects[Math.floor(Math.random() * 4)], DepartmentID: departments[Math.floor(Math.random() * 4)]};
-        
-        if (Math)
+        data.Dimensions = {ProjectID: projects[Math.floor(Math.random() * 4)], DepartementID: departments[Math.floor(Math.random() * 4)]};
         data.SupplierInvoiceNo = ((Math.floor(Math.random() * 10) * 10000) + Math.floor(Math.random() * 10000)).toString();
+        
+        data.JournalEntryDraftIDs = [];
                 
         return data;
     } 
