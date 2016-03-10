@@ -2290,22 +2290,22 @@ export class ComponentLayoutDto {
 export class FieldLayoutDto {
 	static relativeUrl = ""
 
+	Url: string;
+	LookupEntityType: string;
 	ComponentLayoutID: number;
 	EntityType: string;
 	Property: string;
 	Placement: number;
+	Hidden: boolean;
 	FieldType: FieldType;
+	ReadOnly: boolean;
+	LookupField: boolean;
 	Label: string;
+	Description: string;
+	HelpText: string;
 	FieldSet: number;
 	Section: number;
 	Legend: string;
-	LookupField: boolean;
-	Url: string;
-	LookupEntityType: string;
-	Hidden: boolean;
-	ReadOnly: boolean;
-	Description: string;
-	HelpText: string;
 	StatusID: number;
 	ID: number;
 	Deleted: boolean;

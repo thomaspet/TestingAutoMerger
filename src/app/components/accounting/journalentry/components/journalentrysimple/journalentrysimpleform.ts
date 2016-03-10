@@ -1,10 +1,8 @@
 import {Component, ComponentRef, Input, Output, ViewChild, SimpleChange, EventEmitter} from "angular2/core";
 import {Observable} from "rxjs/Observable";
-import "rxjs/add/observable/forkjoin";
 
 import {FieldType, FieldLayout, ComponentLayout, Departement, Project, VatType, VatCodeGroup, Account, JournalEntry, JournalEntryLine, JournalEntryLineDraft} from "../../../../../unientities";
 import {JournalEntryData} from "../../../../../models/models";
-import {VatTypeService, VatCodeGroupService, AccountService, JournalEntryService, JournalEntryLineService, DepartementService, ProjectService} from "../../../../../services/services";
 
 import {UNI_CONTROL_DIRECTIVES} from "../../../../../../framework/controls";
 import {UniFormBuilder} from "../../../../../../framework/forms/builders/uniFormBuilder";
@@ -14,16 +12,19 @@ import {UniFieldBuilder} from "../../../../../../framework/forms/builders/uniFie
 import {UniComponentLoader} from "../../../../../../framework/core/componentLoader";
  
 @Component({
-    selector: "journal-entry-simple-add",
-    templateUrl: "app/components/accounting/journalentry/components/journalentrysimple/journalentrysimpleadd.html",
-    directives: [UniComponentLoader],
-    providers: [DepartementService, ProjectService, VatTypeService, AccountService]    
+    selector: "journal-entry-simple-form",
+    templateUrl: "app/components/accounting/journalentry/components/journalentrysimple/journalentrysimpleform.html",
+    directives: [UniComponentLoader]
 })
-export class JournalEntrySimpleAdd {
+export class JournalEntrySimpleForm {
+    @Input()
+    DropdownData: any;
+    
     @Input()
     JournalEntryLine: JournalEntryData;
-                            
+                                
     @Output() Created = new EventEmitter<any>();
+    @Output() Aborted = new EventEmitter<any>();
        
     @ViewChild(UniComponentLoader)
     UniCmpLoader: UniComponentLoader;    
@@ -34,15 +35,32 @@ export class JournalEntrySimpleAdd {
     projects: Project[];
     vattypes: VatType[];
     accounts: Account[];
-        
-    constructor(private departementService: DepartementService,
-                private projectService: ProjectService, 
-                private vattypeService: VatTypeService,
-                private accountService: AccountService) {        
-    }
     
+    @ViewChild(UniForm)
+    form: UniForm;
+        
+    constructor() {     
+    }
+        
     addJournalEntry(event: any) {        
         this.Created.emit(event)
+    }
+    
+    ngOnChanges(changes: {[propName: string]: SimpleChange}) { 
+        console.log("NG ON CHANGE");
+        console.log(SimpleChange);
+        
+        this.departements = this.DropdownData[0];
+        this.projects = this.DropdownData[1];
+        this.vattypes = this.DropdownData[2];
+        this.accounts = this.DropdownData[3];
+        
+        console.log("CHANGE FORM");
+        console.log(this.form);
+        console.log(this.projects);
+        
+        
+        //this.form.refresh(this.FormConfig);
     }
     
     ngAfterViewInit() {
@@ -242,24 +260,11 @@ export class JournalEntrySimpleAdd {
                     CustomFields: null 
                 }
             ]               
-        };
-         
-        this.FormConfig = new UniFormLayoutBuilder().build(view, this.JournalEntryLine);
+        };   
         
-        Observable.forkJoin(
-            this.departementService.GetAll(null),
-            this.projectService.GetAll(null),
-            this.vattypeService.GetAll(null),
-            this.accountService.GetAll(null)
-        ).subscribe(response => {
-            this.departements = response[0];
-            this.projects = response[1];
-            this.vattypes = response[2];
-            this.accounts = response[3];
-                          
-            this.extendFormConfig();
-            this.loadForm();
-        });
+        this.FormConfig = new UniFormLayoutBuilder().build(view, this.JournalEntryLine);  
+        this.extendFormConfig();
+        this.loadForm();                
     }
     
     extendFormConfig() {
@@ -301,6 +306,8 @@ export class JournalEntrySimpleAdd {
     }
        
     loadForm() {
+        console.log("loadFORM");
+        
         var self = this;
         return this.UniCmpLoader.load(UniForm).then((cmp: ComponentRef) => {
            cmp.instance.config = self.FormConfig;
@@ -308,7 +315,11 @@ export class JournalEntrySimpleAdd {
         });
     }
     
-    private submit(context: JournalEntrySimpleAdd) {
+    abortEditJournalEntry(event) {
+        this.Aborted.emit(null);
+    }
+    
+    private submit(context: JournalEntrySimpleForm) {
         return () => {
             this.addJournalEntry(context.JournalEntryLine);
         };

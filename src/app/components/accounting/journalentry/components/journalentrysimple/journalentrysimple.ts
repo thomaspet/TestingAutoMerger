@@ -1,29 +1,34 @@
-import {Component, Input, Output, ViewChild, SimpleChange, EventEmitter} from "angular2/core";
+import {Component, Input, Output, ViewChild, SimpleChange, EventEmitter, QueryList} from "angular2/core";
 import {Observable} from "rxjs/Observable";
 import "rxjs/add/observable/forkjoin";
 
 import {FieldType, VatType, VatCodeGroup, Account, Dimensions} from "../../../../../unientities";
-import {VatTypeService, VatCodeGroupService, AccountService, JournalEntryService} from "../../../../../services/services";
+import {VatTypeService, VatCodeGroupService, AccountService, JournalEntryService, JournalEntryLineService, DepartementService, ProjectService} from "../../../../../services/services";
+
 import {JournalEntryData} from "../../../../../models/models";
 import {UNI_CONTROL_DIRECTIVES} from "../../../../../../framework/controls";
 import {UniForm, UniFormBuilder, UniFieldsetBuilder, UniFieldBuilder} from "../../../../../../framework/forms";
 
-import {JournalEntrySimpleEdit} from './journalentrysimpleedit';
-import {JournalEntrySimpleAdd} from './journalentrysimpleadd';
+import {JournalEntrySimpleForm} from './journalentrysimpleform';
 
 @Component({
     selector: "journal-entry-simple",
     templateUrl: "app/components/accounting/journalentry/components/journalentrysimple/journalentrysimple.html",
-    directives: [JournalEntrySimpleEdit, JournalEntrySimpleAdd],
-    providers: [JournalEntryService]    
+    directives: [JournalEntrySimpleForm],
+    providers: [JournalEntryService, DepartementService, ProjectService, VatTypeService, AccountService]    
 })
 export class JournalEntrySimple {
     public selectedJournalEntryLine : JournalEntryData;
     
     public journalEntryLines: Array<JournalEntryData>;
     public validationResult: any;
+    public DropdownData: any;
         
-    constructor(private journalEntryService : JournalEntryService) {
+    constructor(private journalEntryService : JournalEntryService, 
+                private departementService: DepartementService,
+                private projectService: ProjectService, 
+                private vattypeService: VatTypeService,
+                private accountService: AccountService) {
         this.journalEntryLines = new Array<JournalEntryData>();        
     }
     
@@ -33,6 +38,16 @@ export class JournalEntrySimple {
             {                
                 this.journalEntryLines = data;
             }); 
+            
+       Observable.forkJoin(
+            this.departementService.GetAll(null),
+            this.projectService.GetAll(null),
+            this.vattypeService.GetAll(null),
+            this.accountService.GetAll(null)
+        ).subscribe(response => {
+            console.log("DATA ER HENTET");
+            this.DropdownData = response;                               
+        });
     }       
     
     postJournalEntryData() {

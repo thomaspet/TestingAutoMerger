@@ -3,7 +3,7 @@
 <button (click)="validateJournalEntryData($event)">Valider data</button>
 <button (click)="addDummyJournalEntry($event)">Legg til dummylinje</button>
 
-<journal-entry-simple-add tabindex="1" (Created)="newLineCreated($event)" *ngIf="selectedJournalEntryLine == null"></journal-entry-simple-add>
+<journal-entry-simple-form DropdownData="DropdownData" tabindex="1" (Created)="newLineCreated($event)" *ngIf="selectedJournalEntryLine == null"></journal-entry-simple-form>
 
 <table>
     <thead>
@@ -39,7 +39,7 @@
             </tr>
             <tr *ngIf="selectedJournalEntryLine == line">
                 <td colspan="6">
-                    <journal-entry-simple-edit [JournalEntryLine]="selectedJournalEntryLine" (Updated)="editViewUpdated($event)" (Aborted)="abortEdit()"></journal-entry-simple-edit>
+                    <journal-entry-simple-form DropdownData="DropdownData" [JournalEntryLine]="selectedJournalEntryLine" (Updated)="editViewUpdated($event)" (Aborted)="abortEdit()"></journal-entry-simple-form>
                 </td>
             </tr>
         </template>                  
