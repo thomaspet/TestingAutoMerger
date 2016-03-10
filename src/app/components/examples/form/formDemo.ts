@@ -1,17 +1,17 @@
 import {Component, ComponentRef, ViewChild} from 'angular2/core';
 import {UniHttp} from '../../../../framework/core/http/http';
-import {Operator} from '../../../interfaces';
-import {OperationType} from '../../../interfaces';
-import {ValidationLevel} from '../../../interfaces';
+import {Operator} from '../../../unientities';
+import {OperationType} from '../../../unientities';
+import {ValidationLevel} from '../../../unientities';
 import {EmployeeModel} from '../../../models/employee';
 import {UniFormBuilder} from '../../../../framework/forms/builders/uniFormBuilder';
 import {UniFormLayoutBuilder} from '../../../../framework/forms/builders/uniFormLayoutBuilder';
 import {UniForm} from '../../../../framework/forms/uniForm';
 import {UniComponentLoader} from '../../../../framework/core/componentLoader';
 import {EmployeeService} from '../../../services/Salary/Employee/EmployeeService';
-import {IEmployee} from '../../../interfaces';
+import {Employee} from '../../../unientities';
 import {UniFieldBuilder} from '../../../../framework/forms/builders/uniFieldBuilder';
-import {IComponentLayout} from '../../../interfaces';
+import {ComponentLayout} from '../../../unientities';
 
 @Component({
     selector: 'uni-form-demo',
@@ -41,15 +41,15 @@ export class UniFormDemo {
     ngOnInit() {
         var self = this;
         this.Api.GetLayoutAndEntity('EmployeePersonalDetailsForm',1).subscribe((results: any[]) => {
-            var view: IComponentLayout = results[0];
-            var model: IEmployee = results[1];
+            var view: ComponentLayout = results[0];
+            var model: Employee = results[1];
             self.startApp(view, model);
         });
     }
 
 
     // private methods
-    private startApp(view: any, model: IEmployee) {
+    private startApp(view: any, model: Employee) {
         // We can extend layout before form config creation
         view = this.extendLayoutConfig(view);
 
@@ -70,11 +70,11 @@ export class UniFormDemo {
         });
     }
 
-    private buildFormConfig(layout: IComponentLayout, model: IEmployee) {
+    private buildFormConfig(layout: ComponentLayout, model: Employee) {
         this.FormConfig = new UniFormLayoutBuilder().build(layout, model);
     }
 
-    private createModel(model: IEmployee) {
+    private createModel(model: Employee) {
         this.Model = EmployeeModel.createFromObject(model);
     }
 

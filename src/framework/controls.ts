@@ -18,7 +18,7 @@ import {UniRadioInput} from "./controls/radio/radio";
 /**
  * !!!!!!!!!   IMPORTANT  !!!!!!!!
  *
- * This array should have the same order as enum FieldType in interfaces/interfaces.ts
+ * This array should have the same order as enum FieldType in app/unientities.ts
  */
 export const UNI_CONTROL_DIRECTIVES: Type[] = CONST_EXPR([
     UniAutocomplete,

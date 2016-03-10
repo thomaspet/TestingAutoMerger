@@ -3,12 +3,12 @@ import {Component, Injector} from "angular2/core";
 import {EmployeeDS} from "../../../../data/employee";
 import {STYRKCodesDS} from "../../../../data/styrkCodes";
 import {UNI_CONTROL_DIRECTIVES} from "../../../../../framework/controls";
-import {FieldType} from "../../../../interfaces";
+import {FieldType} from "../../../../unientities";
 import {
     UniForm, UniFormBuilder, UniFieldBuilder, UniSectionBuilder, UniFieldsetBuilder
 } from "../../../../../framework/forms";
 import {Observable} from "rxjs/Observable";
-import {IEmployment} from "../../../../interfaces";
+import {Employment} from "../../../../unientities";
 import {UniElementFinder} from "../../../../../framework/forms/shared/UniElementFinder";
 
 declare var jQuery;
@@ -18,7 +18,7 @@ declare var jQuery;
     directives: [UniForm],
     templateUrl: "app/components/salary/employee/employments/employments.html"
 })
-export class Employment {
+export class EmployeeEmployment {
     currentEmployee;
     formConfigs: UniFormBuilder[];
     styrkCodes;
@@ -98,7 +98,7 @@ export class Employment {
     buildFormConfigs() {
         this.formConfigs = [];
 
-        this.currentEmployee.Employments.forEach((employment: IEmployment) => {
+        this.currentEmployee.Employments.forEach((employment: Employment) => {
             var formbuilder = new UniFormBuilder();
             var bAddLocalization = false;
 
@@ -163,7 +163,7 @@ export class Employment {
 
     }
 
-    buildGroupForm(employment: IEmployment) {
+    buildGroupForm(employment: Employment) {
         var groupBuilder = new UniSectionBuilder("Vis mer");
         if (employment.Standard === true) {
             groupBuilder.openByDefault(true);
