@@ -10,7 +10,7 @@ import {UniComponentLoader} from "../../../../../framework/core";
 import {Observable} from "rxjs/Observable";
 import "rxjs/add/operator/merge";
 import {UniValidator} from "../../../../../framework/validators/UniValidator";
-import {OperationType, Operator, ValidationLevel} from "../../../../interfaces";
+import {OperationType, Operator, ValidationLevel} from "../../../../unientities";
 
 declare var _;
 

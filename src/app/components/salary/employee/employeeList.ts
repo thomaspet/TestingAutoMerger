@@ -2,7 +2,7 @@ import {Component} from "angular2/core";
 import {Router} from "angular2/router";
 
 import {UniTable, UniTableBuilder, UniTableColumn} from "../../../../framework/uniTable";
-import {IEmployee} from "../../../interfaces";
+import {Employee} from "../../../unientities";
 
 @Component({
     templateUrl: "app/components/salary/employee/employeeList.html",
@@ -23,7 +23,7 @@ export class EmployeeList {
         this.employeeTableConfig = new UniTableBuilder("employees", false)
             .setExpand("BusinessRelationInfo")
             .setFilter("BusinessRelationID gt 0")
-            .setSelectCallback((selectedEmployee: IEmployee) => {
+            .setSelectCallback((selectedEmployee: Employee) => {
                 router.navigateByUrl("/salary/employees/" + selectedEmployee.ID);
             })
             .addColumns(idCol, nameCol, employmentDateCol);

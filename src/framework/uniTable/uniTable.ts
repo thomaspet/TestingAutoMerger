@@ -73,6 +73,7 @@ export class UniTable {
             editable: this.config.editable,
             toolbar: this.config.toolbar,
             navigatable: true,
+            sortable: true,
         };
 
         if (this.config.pageable) {
@@ -162,7 +163,7 @@ export class UniTable {
                         if (response.length < this.config.pageSize) {
                             this.totalRows = response.length + (this.table.dataSource.page() - 1) * this.config.pageSize;
                         } else {
-                            this.totalRows = 20;
+                            this.totalRows = 50;
                         }
 
                         options.success(response)

@@ -93,6 +93,28 @@ export class BizHttp<T> {
             .send();
     }
 
+    public Action<T>(ID: number, actionName: string): Observable<any> {
+        if (ID === null) {
+            return this.http
+                .asPUT()
+                .withEndPoint(this.relativeURL + '?action=' + actionName)
+                .send();
+        }
+        else {
+            return this.http
+                .asPUT()
+                .withEndPoint(this.relativeURL + '/' + ID + '?action=' + actionName)
+                .send();
+
+        }
+
+        //return this.http
+        //    .usingBusinessDomain()
+        //    .asGET()
+        //    .withEndPoint(this.RelativeURL + (query ? "?" + query : ""))  ///USE THIS!!!
+        //    .send();
+    }
+
     GetLayout(ID:string) {
         var endPoint = ["layout", ID].join("/");
         return this.http
@@ -113,4 +135,5 @@ export class BizHttp<T> {
                 return [layout, entity];
             });
     }
+
 }

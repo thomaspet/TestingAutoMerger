@@ -1,19 +1,16 @@
-import {Component, OnInit, provide, ViewChild, ComponentRef, AfterViewInit} from 'angular2/core';
-import {RouteConfig, RouteParams} from "angular2/router";
+import {Component, OnInit, provide, ViewChild, ComponentRef} from 'angular2/core';
+import {RouteParams} from "angular2/router";
 
 import { Observable } from "rxjs/Observable";
 
 import {WagetypeService} from "../../../data/wagetype";
 import {WageTypeService} from "../../../services/services";
 
-
 import {UniComponentLoader} from "../../../../framework/core";
 import {UniForm} from "../../../../framework/forms/uniForm";
-import {UniFormBuilder, UniFormLayoutBuilder, UniFieldBuilder, UniSectionBuilder} from "../../../../framework/forms";
+import {UniFormBuilder, UniFormLayoutBuilder} from "../../../../framework/forms";
 
-
-import {IWageType, StdWageType, LimitType, TaxType, RateTypeColumn, FieldType} from "../../../interfaces";
-import {UNI_CONTROL_DIRECTIVES} from "../../../../framework/controls";
+import {WageType} from "../../../unientities";
 
 @Component({
     selector: 'wagetype-details',
@@ -21,16 +18,14 @@ import {UNI_CONTROL_DIRECTIVES} from "../../../../framework/controls";
     providers: [provide(WagetypeService, {useClass: WagetypeService}), WageTypeService],
     directives: [UniComponentLoader, UniForm]
 })
-export class WagetypeDetail{
-    wageType: IWageType; 
+export class WagetypeDetail implements OnInit {
+    wageType: WageType;
     layout;
-    formCfg : UniFormBuilder[];
-    
-    
-    
+    formCfg: UniFormBuilder[];
+
     form: UniFormBuilder = new UniFormBuilder();
     formInstance: UniForm;
-    
+
     @ViewChild(UniComponentLoader)  uniCompLoader: UniComponentLoader;
     
     constructor(private _routeparams: RouteParams, private _wagetypeService : WagetypeService, private _wageService : WageTypeService) {               
@@ -40,7 +35,7 @@ export class WagetypeDetail{
         
         var self = this;
         let ID = +self._routeparams.get("id");
-                
+        
         Observable.forkJoin(
             self._wagetypeService.get(ID),
             self._wagetypeService.layout("")
@@ -86,7 +81,6 @@ export class WagetypeDetail{
                     );
             }
         }
-        
     }
 
 }
