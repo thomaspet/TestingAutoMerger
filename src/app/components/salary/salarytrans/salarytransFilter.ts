@@ -26,7 +26,7 @@ export class SalarytransFilterContent {
     @Input('config')
     config;
     filters: any[] = [];
-    activeFilters: any[] = [];
+    activeFieldFilters = [];
     formConfig: UniFormBuilder;
     
     constructor() {
@@ -51,8 +51,8 @@ export class SalarytransFilterContent {
             select: (event: kendo.ui.DropDownListSelectEvent) => {
                 var selectedItem = event.sender.dataItem(jQuery(event.item).index());
                 this.removeOldFilters();
-                this.activeFilters = [];
-                this.activeFilters.push(selectedItem);
+                this.activeFieldFilters = [];
+                this.activeFieldFilters.push(selectedItem);
                 this.filters.push(selectedItem);
             }
         })
@@ -66,8 +66,8 @@ export class SalarytransFilterContent {
         for (var j = 0; j < this.filters.length; j++) {
             var filter = this.filters[j];
             //When more filterfields in uniform, just add for-loop-section here
-            for (var i = 0; i < this.activeFilters.length; i++) {
-                var activeFilter = this.activeFilters[i];
+            for (var i = 0; i < this.activeFieldFilters.length; i++) {
+                var activeFilter = this.activeFieldFilters[i];
                 if(activeFilter.name === filter.name) {
                     this.filters.splice(j,1);
                 }
@@ -98,7 +98,7 @@ export class SalarytransFilter {
     modalElements: QueryList<UniModal>;
     modals: UniModal[];
     modalConfig: any = {};
-    filters;
+    filters: any[] = [];
     type: Type = SalarytransFilterContent;
     filterResultString: string;
     @Output() filtStringChange = new EventEmitter<string>();
@@ -132,7 +132,6 @@ export class SalarytransFilter {
             if(filter.name === this.filters[i].name) {
                 this.filters.splice(i,1);
             }
-            
         }
         this.updateFilterString();
     }
