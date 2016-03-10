@@ -1,17 +1,18 @@
-import {BaseApiService} from '../../../framework/core/BaseApiService';
-import {IJournalEntry, IAccount, IVatType, IDimensions} from '../../../framework/interfaces/interfaces';
+import {Account, VatType, Dimensions} from '../../unientities';
 import {JournalEntryData} from '../../models/accounting/journalentrydata';
-import {UniHttp} from '../../../framework/core/http';
 import {Observable} from "rxjs/Observable";
 import "rxjs/add/observable/fromArray";
+import {BizHttp} from '../../../framework/core/http/BizHttp';
+import {JournalEntry} from '../../unientities';
+import {UniHttp} from '../../../framework/core/http/http';
 
-export class JournalEntryService extends BaseApiService<IJournalEntry> {
+export class JournalEntryService extends BizHttp<JournalEntry> {
     
     constructor(http: UniHttp) {        
         super(http);
         
         //TODO: should resolve this from configuration based on type (IVatType)? Frank is working on something..
-        this.RelativeURL = 'JournalEntries';
+        this.relativeURL = JournalEntry.relativeUrl;
         
         //set this property if you want a default sort order from the API
         this.DefaultOrderBy = null;
@@ -23,7 +24,7 @@ export class JournalEntryService extends BaseApiService<IJournalEntry> {
             .asPOST()
             .usingBusinessDomain()
             .withBody(journalDataEntries)
-            .withEndPoint(this.RelativeURL + '?action=post-journal-entry-data')
+            .withEndPoint(this.relativeURL + '?action=post-journal-entry-data')
             .send();
     }  
     
@@ -32,7 +33,7 @@ export class JournalEntryService extends BaseApiService<IJournalEntry> {
             .asPOST()
             .usingBusinessDomain()
             .withBody(journalDataEntries)
-            .withEndPoint(this.RelativeURL + '?action=validate-journal-entry-data')
+            .withEndPoint(this.relativeURL + '?action=validate-journal-entry-data')
             .send();
     }    
     
@@ -40,8 +41,8 @@ export class JournalEntryService extends BaseApiService<IJournalEntry> {
         return this.http
             .asGET()
             .usingBusinessDomain()            
-            .withEndPoint(this.RelativeURL + '?action=get-journal-entry-data')
-            .send();
+            .withEndPoint(this.relativeURL + '?action=get-journal-entry-data')
+            .send(); 
     }      
     
     getAggregatedData() : Observable<any> {

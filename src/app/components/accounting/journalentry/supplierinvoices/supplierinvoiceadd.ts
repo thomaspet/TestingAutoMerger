@@ -1,20 +1,13 @@
-import {Component, ViewChild, SimpleChange, Input, Output, EventEmitter} from "angular2/core";
-import {Observable} from "rxjs/Observable";
-import "rxjs/add/observable/forkjoin";
-
-import {FieldType, ISupplier, ISupplierInvoice, ISupplierInvoiceItem} from "../../../../../framework/interfaces/interfaces";
-import {SupplierInvoiceService, SupplierService} from "../../../../services/services";
-
-import {UNI_CONTROL_DIRECTIVES} from "../../../../../../src/framework/controls";
-import {UniForm, UniFormBuilder, UniFieldsetBuilder, UniFieldBuilder} from "../../../../../framework/forms";
+import {Component, Input, Output, EventEmitter} from "angular2/core";
+import {SupplierInvoice} from "../../../../unientities";
 
 @Component({
     selector: "supplier-invoice-add",
     templateUrl: "app/components/accounting/journalentry/supplierinvoices/supplierinvoiceadd.html"    
 })
 export class SupplierInvoiceAdd {
-    @Input() SupplierInvoice: ISupplierInvoice;
-    @Output() Created = new EventEmitter<ISupplierInvoice>();
+    @Input() SupplierInvoice: SupplierInvoice;
+    @Output() Created = new EventEmitter<SupplierInvoice>();
                 
     constructor() {
   

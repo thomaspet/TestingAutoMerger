@@ -5,10 +5,10 @@
     "start": "opn http://localhost:3000 & gulp build.watch.and.serve",
     "build": "gulp clean & gulp build.dist",
     "clean": "rimraf dist",
-    "test": "gulp clean & gulp build.dist & gulp test.typescript & karma start karma.conf.js"
+    "test": "gulp serve.tests"
   },
   "dependencies": {
-    "angular2": "2.0.0-beta.7",
+    "angular2": "2.0.0-beta.9",
     "bootstrap": "^3.3.5",
     "es6-promise": "^3.0.2",
     "es6-shim": "^0.33.3",
@@ -43,9 +43,13 @@
     "karma": "^0.13.15",
     "karma-chrome-launcher": "^0.2.1",
     "karma-cli": "^0.1.1",
+    "karma-coverage": "^0.5.4",
     "karma-jasmine": "^0.3.6",
+    "karma-mocha": "^0.2.2",
+    "karma-mocha-reporter": "^1.2.3",
     "karma-phantomjs-launcher": "^0.2.1",
     "live-server": "^0.8.2",
+    "mocha": "^2.4.5",
     "opn": "^3.0.3",
     "opn-cli": "^1.0.0",
     "phantomjs": "^1.9.18",

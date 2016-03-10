@@ -11,8 +11,9 @@ import {UniFieldBuilder} from "../../../../framework/forms/builders/uniFieldBuil
 import {UniSectionBuilder} from "../../../../framework/forms/builders/uniSectionBuilder";
 import {UNI_CONTROL_DIRECTIVES} from "../../../../framework/controls";
 
-import {CompanySettingsDS} from "../../../../framework/data/companySettings";
-import {UniHttp} from "../../../../framework/core/http";
+import {CompanySettingsDS} from "../../../data/companySettings";
+import {UniHttp} from "../../../../framework/core/http/http";
+
 
 @Component({
     selector: "settings",
@@ -228,6 +229,7 @@ export class CompanySettings implements OnInit {
             })
             .hasLineBreak(true);
 
+
         if (this.company.AccountingLockedDate !== null) {
             this.company.AccountingLockedDate = new Date(this.company.AccountingLockedDate);
         }
@@ -255,7 +257,6 @@ export class CompanySettings implements OnInit {
             .setModel(this.company)
             .setModelField('ForceSupplierInvoiceApproval')
             .setType(UNI_CONTROL_DIRECTIVES[8]);
-
 
         accountingSettings.addUniElements(
             periodSeriesAccount, periodSeriesVat,

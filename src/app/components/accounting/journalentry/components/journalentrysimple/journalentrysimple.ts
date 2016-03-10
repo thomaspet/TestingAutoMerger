@@ -2,7 +2,7 @@ import {Component, Input, Output, ViewChild, SimpleChange, EventEmitter} from "a
 import {Observable} from "rxjs/Observable";
 import "rxjs/add/observable/forkjoin";
 
-import {FieldType, IVatType, IVatCodeGroup, IAccount, IDimensions} from "../../../../../../framework/interfaces/interfaces";
+import {FieldType, VatType, VatCodeGroup, Account, Dimensions} from "../../../../../unientities";
 import {VatTypeService, VatCodeGroupService, AccountService, JournalEntryService} from "../../../../../services/services";
 import {JournalEntryData} from "../../../../../models/models";
 import {UNI_CONTROL_DIRECTIVES} from "../../../../../../framework/controls";
@@ -17,7 +17,7 @@ import {JournalEntrySimpleAdd} from './journalentrysimpleadd';
     directives: [JournalEntrySimpleEdit, JournalEntrySimpleAdd],
     providers: [JournalEntryService]    
 })
-export class JournalEntrySimple {    
+export class JournalEntrySimple {
     public selectedJournalEntryLine : JournalEntryData;
     
     public journalEntryLines: Array<JournalEntryData>;

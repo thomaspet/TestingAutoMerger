@@ -53,7 +53,7 @@ export class UniTableControls {
 
     public datepicker(kendoOptions: any) {
         return function(container, options) {
-            jQuery('<input data-bind="value:' + options.field + '"/>')
+            var datepicker = jQuery('<input data-bind="value:' + options.field + '"/>')
             .appendTo(container)
             .kendoDatePicker(jQuery.extend(kendoOptions, {
                 format: kendoOptions.format || 'dd.MM.yyyy',
@@ -69,7 +69,7 @@ export class UniTableControls {
 
                 change: (event: kendo.ui.DatePickerChangeEvent) => {
                     var date = event.sender.value();
-
+                    
                     // Autocomplete if date was given by text, not selected in the picker
                     if (date === null || date === undefined) {
                         var autocompleted = autocompleteDate(jQuery(event.sender.element).val());
@@ -83,6 +83,12 @@ export class UniTableControls {
                     }
                 }
             }));
+            
+            // Kendo change event wont fire if initial value was null. 
+            // Blur event listener makes sure we always autocomplete the input value
+            datepicker.blur((event) => {
+                datepicker.data('kendoDatePicker').trigger('change');
+            });
         }
     }
 

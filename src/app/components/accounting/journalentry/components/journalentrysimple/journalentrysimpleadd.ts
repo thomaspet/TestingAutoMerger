@@ -2,7 +2,7 @@ import {Component, ComponentRef, Input, Output, ViewChild, SimpleChange, EventEm
 import {Observable} from "rxjs/Observable";
 import "rxjs/add/observable/forkjoin";
 
-import {FieldType, IVatType, IVatCodeGroup, IAccount, IJournalEntry, IJournalEntryLine, IJournalEntryLineDraft} from "../../../../../../framework/interfaces/interfaces";
+import {FieldType, FieldLayout, ComponentLayout, Departement, Project, VatType, VatCodeGroup, Account, JournalEntry, JournalEntryLine, JournalEntryLineDraft} from "../../../../../unientities";
 import {JournalEntryData} from "../../../../../models/models";
 import {VatTypeService, VatCodeGroupService, AccountService, JournalEntryService, JournalEntryLineService, DepartementService, ProjectService} from "../../../../../services/services";
 
@@ -12,8 +12,7 @@ import {UniFormLayoutBuilder} from "../../../../../../framework/forms/builders/u
 import {UniForm} from "../../../../../../framework/forms/uniForm";
 import {UniFieldBuilder} from "../../../../../../framework/forms/builders/uniFieldBuilder";
 import {UniComponentLoader} from "../../../../../../framework/core/componentLoader";
-import {IComponentLayout, IFieldLayout, IDepartement, IProject} from "../../../../../../framework/interfaces/interfaces";
-
+ 
 @Component({
     selector: "journal-entry-simple-add",
     templateUrl: "app/components/accounting/journalentry/components/journalentrysimple/journalentrysimpleadd.html",
@@ -31,13 +30,13 @@ export class JournalEntrySimpleAdd {
     
     FormConfig: UniFormBuilder;
     
-    departements: IDepartement[];
-    projects: IProject[];
-    vattypes: IVatType[];
-    accounts: IAccount[];
+    departements: Departement[];
+    projects: Project[];
+    vattypes: VatType[];
+    accounts: Account[];
         
     constructor(private departementService: DepartementService,
-                private projectService: ProjectService,
+                private projectService: ProjectService, 
                 private vattypeService: VatTypeService,
                 private accountService: AccountService) {        
     }
@@ -54,7 +53,7 @@ export class JournalEntrySimpleAdd {
         this.JournalEntryLine.Description = "";
 
         // TODO get it from the API and move these to backend migrations        
-        var view: IComponentLayout = {
+        var view: ComponentLayout = {
             Name: "ManualJournalEntryLineDraft",
             BaseEntity: "JournalEntryLineDraft",
             StatusID: 0,

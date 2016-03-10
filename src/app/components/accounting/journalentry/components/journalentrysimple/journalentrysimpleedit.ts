@@ -2,7 +2,7 @@ import {Component, Input, Output, ViewChild, SimpleChange, EventEmitter} from "a
 import {Observable} from "rxjs/Observable";
 import "rxjs/add/observable/forkjoin";
 
-import {FieldType, IVatType, IVatCodeGroup, IAccount, IJournalEntry, IJournalEntryLine, IJournalEntryLineDraft} from "../../../../../../framework/interfaces/interfaces";
+import {FieldType, VatType, VatCodeGroup, Account, JournalEntry, JournalEntryLine, JournalEntryLineDraft} from "../../../../../unientities";
 import {VatTypeService, VatCodeGroupService, AccountService, JournalEntryService, JournalEntryLineService} from "../../../../../services/services";
 
 import {UNI_CONTROL_DIRECTIVES} from "../../../../../../framework/controls";
@@ -13,7 +13,7 @@ import {UniForm, UniFormBuilder, UniFieldsetBuilder, UniFieldBuilder} from "../.
     templateUrl: "app/components/accounting/journalentry/components/journalentrysimple/journalentrysimpleedit.html"    
 })
 export class JournalEntrySimpleEdit {
-    @Input() JournalEntryLine: IJournalEntryLine;
+    @Input() JournalEntryLine: JournalEntryLine;
     
     @Output() Updated = new EventEmitter<any>();
     @Output() Aborted = new EventEmitter<any>();

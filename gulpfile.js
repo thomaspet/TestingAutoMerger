@@ -1,5 +1,5 @@
 var gulp = require('gulp');
-var plugins = require('gulp-load-plugins')({lazy:true});
+var plugins = require('gulp-load-plugins')({lazy: true});
 var rimraf = require('rimraf');
 var runSequence = require('run-sequence');
 var connect = require('gulp-connect');
@@ -8,166 +8,161 @@ var fs = require('fs');
 var VERSION = new Date().getTime();
 var config = {
     typescript: {
-        target: "ES5",
-        module: "system",
-        moduleResolution: "node",
-        sourceMap: true,
-        emitDecoratorMetadata: true,
-        experimentalDecorators: true,
-        removeComments: false,
-        noImplicitAny: false,
+        target: "ES5" ,
+        module: "system" ,
+        moduleResolution: "node" ,
+        sourceMap: true ,
+        emitDecoratorMetadata: true ,
+        experimentalDecorators: true ,
+        removeComments: false ,
+        noImplicitAny: false ,
         sortOutput: true
-    },
+    } ,
     src: {
-        assets: './src/assets/**/*',
+        assets: './src/assets/**/*' ,
         app: {
-            ts: './src/!(test)/**/*.ts',
-            html: './src/!(test)/**/*.html',
-            css: './src/!(test)/**/*.css',
+            ts: './src/**/*.ts' ,
+            html: './src/**/*.html' ,
+            css: './src/**/*.css' ,
             sass: './src/styles/main.sass'
-        },
-        index: './src/index.template.html',
+        } ,
+        index: './src/index.template.html' ,
         vendor: {
             js: [
-                require.resolve('jquery/dist/jquery.min.js'),
-                require.resolve('bootstrap/dist/js/bootstrap.min.js'),
-                require.resolve('jwt-decode/build/jwt-decode.min.js'),
-                require.resolve('lodash/lodash.min.js'),
-                require.resolve('./kendo/js/kendo.all.min.js'),
+                require.resolve('jquery/dist/jquery.min.js') ,
+                require.resolve('bootstrap/dist/js/bootstrap.min.js') ,
+                require.resolve('jwt-decode/build/jwt-decode.min.js') ,
+                require.resolve('lodash/lodash.min.js') ,
+                require.resolve('./kendo/js/kendo.all.min.js') ,
 
 
                 ///ANGULAR 2.0
-                require.resolve('systemjs/dist/system-polyfills.js'),
-                require.resolve('reflect-metadata/Reflect.js'),
-                require.resolve('es6-shim/es6-shim.min.js'),
+                require.resolve('systemjs/dist/system-polyfills.js') ,
+                require.resolve('reflect-metadata/Reflect.js') ,
+                require.resolve('es6-shim/es6-shim.min.js') ,
 
-                require.resolve('systemjs/dist/system.src.js'),
-                require.resolve('angular2/bundles/angular2-polyfills.js'),
+                require.resolve('systemjs/dist/system.src.js') ,
+                require.resolve('angular2/bundles/angular2-polyfills.js') ,
 
-                require.resolve('./system.config.js'),
+                require.resolve('./system.config.js') ,
 
-                require.resolve('rxjs/bundles/Rx.min.js'),
-                require.resolve('angular2/bundles/angular2.dev.js'),
-                require.resolve('angular2/bundles/router.min.js'),
-                require.resolve('angular2/bundles/http.min.js'),
-            ],
-            rxjs: './node_modules/rxjs/**/*.js',
+                require.resolve('rxjs/bundles/Rx.min.js') ,
+                require.resolve('angular2/bundles/angular2.dev.js') ,
+                require.resolve('angular2/bundles/router.min.js') ,
+                require.resolve('angular2/bundles/http.min.js') ,
+            ] ,
+            rxjs: './node_modules/rxjs/**/*.js' ,
             css: [
                 require.resolve('./kendo/styles/kendo.common.min.css')
             ]
         }
-    },
+    } ,
     dist: {
-        index: './dist/index.html',
-        folder: './dist',
-        assets: './dist/assets',
-        maps: '.',
-        appFiles: ['./dist/!(test)/**/*.js','./dist/!(test)/**/*.css','./dist/!(test)/**/*.html'],
+        index: './dist/index.html' ,
+        folder: './dist' ,
+        assets: './dist/assets' ,
+        maps: '.' ,
+        appFiles: ['./dist/**/*.js' , './dist//**/*.css' , './dist/**/*.html'] ,
         vendor: {
-            js: 'vendor.js',
+            js: 'vendor.js' ,
             css: 'vendor.css'
         }
-    },
-    test: {
-        files: {
-            ts:'./src/test/**/*.ts'
-        },
-        dest: './dist/test/'
     }
 };
 
 /********************/
 /*  CLEANING TASKS  */
 /********************/
-gulp.task('clean', function(done){
-    rimraf(config.dist.folder,done);
+gulp.task('clean' , function (done) {
+    rimraf(config.dist.folder , done);
 });
 
 /********************/
 /*  BUILDING TASKS  */
 /********************/
-gulp.task('interfaces',function(done){
+
+gulp.task('entities' , function (done) {
     var options = {
-        url: 'http://devapi.unieconomy.no/api/metadata/typescriptinterfaces',
+        url: 'http://devapi.unieconomy.no/api/metadata/typescriptentities' ,
         headers: {
-            'client':'Client1'
+            'client': 'Client1'
         }
     };
-    var callback = function(error, response, body) {
-        fs.writeFileSync('./src/framework/interfaces/interfaces.ts',body);
+    var callback = function (error , response , body) {
+        fs.writeFileSync('./src/app/unientities.ts' , body);
         done();
     };
-    request(options, callback);
+    request(options , callback);
 });
 
-gulp.task('rxjs', ['interfaces'],function(){
+gulp.task('rxjs' , ['entities'] , function () {
     return gulp.src('./node_modules/rxjs/**/*.js')
         .pipe(gulp.dest('./dist/lib/rxjs'));
-})
-
-gulp.task('build.dist.vendor.js', ['rxjs'], function(){
-    return gulp.src(config.src.vendor.js)
-       .pipe(plugins.plumber())
-       .pipe(plugins.concat(config.dist.vendor.js))
-       .pipe(gulp.dest(config.dist.folder));
 });
 
-gulp.task('build.dist.vendor.css', ['build.dist.main.css.map'],function() {
+gulp.task('build.dist.vendor.js' , ['rxjs'] , function () {
+    return gulp.src(config.src.vendor.js)
+        .pipe(plugins.plumber())
+        .pipe(plugins.concat(config.dist.vendor.js))
+        .pipe(gulp.dest(config.dist.folder));
+});
+
+gulp.task('build.dist.vendor.css' , ['build.dist.main.css.map'] , function () {
     return gulp.src(config.src.vendor.css)
         .pipe(plugins.plumber())
         .pipe(plugins.concat(config.dist.vendor.css))
         .pipe(gulp.dest(config.dist.folder));
 });
 
-gulp.task('build.dist.compile.sass',function(){
+gulp.task('build.dist.compile.sass' , function () {
     return plugins.rubySass(config.src.app.sass)
-        .on('error',plugins.rubySass.logError)
+        .on('error' , plugins.rubySass.logError)
         .pipe(gulp.dest(config.dist.folder));
 });
 
-gulp.task('build.dist.main.css.map', ['build.dist.compile.sass'], function(){
+gulp.task('build.dist.main.css.map' , ['build.dist.compile.sass'] , function () {
     return gulp.src('./src/styles/main.css.map')
         .pipe(gulp.dest(config.dist.folder));
 });
 
-gulp.task('build.dist.app.typescript', function() {
+gulp.task('build.dist.app.typescript' , function () {
     return gulp.src(config.src.app.ts)
         .pipe(plugins.plumber())
-        .pipe(plugins.sourcemaps.init({loadMaps:true}))
+        .pipe(plugins.sourcemaps.init({loadMaps: true}))
         .pipe(plugins.typescript(config.typescript))
         //.pipe(plugins.uglify())
         .pipe(plugins.sourcemaps.write(config.dist.maps))
         .pipe(gulp.dest(config.dist.folder))
 });
 
-gulp.task('build.dist.app.html', function() {
+gulp.task('build.dist.app.html' , function () {
     return gulp.src(config.src.app.html)
         .pipe(plugins.plumber())
         .pipe(gulp.dest(config.dist.folder))
 });
 
-gulp.task('build.dist.app.css', function() {
+gulp.task('build.dist.app.css' , function () {
     return gulp.src(config.src.app.css)
         .pipe(plugins.plumber())
         .pipe(gulp.dest(config.dist.folder))
 });
 
-gulp.task('build.dist.assets', function(){
-   return gulp.src(config.src.assets)
-       .pipe(plugins.plumber())
-       .pipe(gulp.dest(config.dist.assets))
+gulp.task('build.dist.assets' , function () {
+    return gulp.src(config.src.assets)
+        .pipe(plugins.plumber())
+        .pipe(gulp.dest(config.dist.assets))
 });
 
-gulp.task('build.dist.app',function(done){
-   runSequence('build.dist.app.typescript','build.dist.app.html','build.dist.app.css',done);
+gulp.task('build.dist.app' , function (done) {
+    runSequence('build.dist.app.typescript' , 'build.dist.app.html' , 'build.dist.app.css' , done);
 });
 
-gulp.task('build.dist.copy.from.src.index.template', function() {
+gulp.task('build.dist.copy.from.src.index.template' , function () {
     return gulp.src(config.src.index)
         .pipe(plugins.rename('index.html'))
         .pipe(gulp.dest(config.dist.folder));
 });
-gulp.task('build.dist.fill.index.template',function(){
+gulp.task('build.dist.fill.index.template' , function () {
     return gulp.src(config.dist.index)
         .pipe(plugins.template({
             VERSION: VERSION
@@ -175,51 +170,60 @@ gulp.task('build.dist.fill.index.template',function(){
         .pipe(gulp.dest(config.dist.folder));
 });
 
-gulp.task('build.dist',function (done){
+gulp.task('build.dist' , function (done) {
     runSequence(
-        'build.dist.vendor.js',
-        'build.dist.vendor.css',
-        'build.dist.app',
-        'build.dist.copy.from.src.index.template',
-        'build.dist.fill.index.template',
-        'build.dist.assets',
+        'build.dist.vendor.js' ,
+        'build.dist.vendor.css' ,
+        'build.dist.app' ,
+        'build.dist.copy.from.src.index.template' ,
+        'build.dist.fill.index.template' ,
+        'build.dist.assets' ,
         done);
 });
 
-gulp.task('watch',function(){
-    gulp.watch(config.src.app.ts,['build.dist.app.typescript'])
-    gulp.watch(config.src.app.html,['build.dist.app.html'])
-    gulp.watch('./src/!(test)/**/*.sass', ['build.dist.compile.sass'])
-    return gulp.watch(config.src.app.css,['build.dist.app.css']);
+gulp.task('watch' , function () {
+    gulp.watch(config.src.app.ts , ['build.dist.app.typescript'])
+    gulp.watch(config.src.app.html , ['build.dist.app.html'])
+    gulp.watch('./src/**/*.sass' , ['build.dist.compile.sass'])
+    return gulp.watch(config.src.app.css , ['build.dist.app.css']);
 
 });
 
-gulp.task('serve',function(){
+gulp.task('serve' , function () {
     return connect.server({
-        livereload:true,
-        root:'dist',
+        livereload: true ,
+        root: 'dist' ,
         port: 3000
     });
 });
 
-gulp.task('livereload',function(){
+gulp.task('livereload' , function () {
     return gulp.src(config.dist.appFiles)
         .pipe(plugins.watch(config.dist.appFiles))
         .pipe(connect.reload())
 });
 
-gulp.task('build.watch.and.serve',function(done){
-    runSequence('clean','build.dist','serve', 'watch', 'livereload', done);
+gulp.task('build.watch.and.serve' , function (done) {
+    runSequence('clean' , 'build.dist' , 'serve' , 'watch' , 'livereload' , done);
 });
 
-/******************/
-/*    TESTING     */
-/******************/
-gulp.task('test.typescript',function(){
-    return gulp.src(config.test.files.ts)
-        .pipe(plugins.plumber())
-        .pipe(plugins.sourcemaps.init())
-        .pipe(plugins.typescript(config.typescript))
-        .pipe(plugins.sourcemaps.write())
-        .pipe(gulp.dest(config.test.dest))
+gulp.task('test' , function () {
+    return gulp.src('tests.html')
+        .pipe(
+            plugins.inject(gulp.src(['./src/**/*.spec.ts'] , {read: false}) , {
+                starttag: '<!-- inject:spec -->' ,
+                endtag: '<!-- endinject -->' ,
+                transform: function (filepath , file) {
+                    return "System.import('" + filepath + "'),\r\n";
+                }
+            }))
+        .pipe(gulp.dest('./'))
+});
+
+gulp.task('serve.tests', ['test'], function(){
+    return connect.server({
+        livereload: true ,
+        root: './' ,
+        port: 9999
+    });
 });

@@ -1,7 +1,7 @@
 ﻿import {Injectable} from "angular2/core";
 import {Http, Headers, URLSearchParams, Request, RequestMethod} from "angular2/http";
 import { Observable } from "rxjs/Observable";
-import { AppConfig } from "../../app/AppConfig";
+import { AppConfig } from "../../../app/AppConfig";
 import "rxjs/add/operator/map";
 import "rxjs/add/observable/forkjoin";
 import "rxjs/add/observable/from";

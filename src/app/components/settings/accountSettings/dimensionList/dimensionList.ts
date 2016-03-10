@@ -1,7 +1,7 @@
 import {Component, Input, ViewChild} from "angular2/core";
-import {UniHttp} from "../../../../../framework/core/http";
+import {UniHttp} from "../../../../../framework/core/http/http";
 import {UniTable, UniTableBuilder, UniTableColumn} from "../../../../../framework/uniTable";
-import {IDimensions} from "../../../../../framework/interfaces/interfaces";
+import {Dimensions} from "../../../../unientities";
 
 @Component({
     selector: "dimension-list",
@@ -10,7 +10,7 @@ import {IDimensions} from "../../../../../framework/interfaces/interfaces";
 })
 export class DimensionList {
     @Input()
-    dimensions: IDimensions;
+    dimensions: Dimensions;
     @ViewChild(UniTable)
     table: UniTable;
 

@@ -45,19 +45,19 @@ export var Routes = {
         loader: () => ComponentProxy.LoadComponentAsync("Settings", "./app/components/settings/settings")
     }),
 
-    journalEntrySub: new AsyncRoute({
+    journalEntry: new AsyncRoute({
         path: "/journalentry/...",
         name: "JournalEntry",
         loader: () => ComponentProxy.LoadComponentAsync("JournalEntry", "./app/components/accounting/journalentry/journalentry")
-    }),
-        
+    }),     
+    
     usertest: new AsyncRoute({
         path: "/usertest",
         name: "Usertest",
         loader: () => ComponentProxy.LoadComponentAsync("Usertest", "./app/components/usertest/usertest")
     }),
-    
-    wagetype : new AsyncRoute({
+
+    wagetype: new AsyncRoute({
         path: "/salary/wagetypes/:id",
         name: "WageTypeDetail",
         loader: () => ComponentProxy.LoadComponentAsync("WagetypeDetail", "./app/components/salary/wagetype/wagetypeDetails")
@@ -66,7 +66,7 @@ export var Routes = {
         path: "/salary/wagetypes",
         name: "WagetypeList",
         loader: () => ComponentProxy.LoadComponentAsync("WagetypeList", "./app/components/salary/wagetype/wagetypeList")
-    }),    
+    }),
 
     examples: new AsyncRoute({
         path: "/examples/...",
