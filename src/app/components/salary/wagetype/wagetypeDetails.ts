@@ -34,7 +34,22 @@ export class WagetypeDetail {
 
         var self: WagetypeDetail = this;
         let ID: number = +self._routeparams.get('id');
-
+        
+        this._wageService.GetLayout('mock').subscribe((response: any) => {
+            self.layout = response;
+            if(ID == 0){
+            }
+            else{
+                this._wageService.Get(ID).subscribe((response: any) => {
+                    self.wageType = response;
+                
+                    self.buildForm();
+                    self.loadForm();
+                });
+            }
+            
+        });
+        /*
         this._wageService.GetLayoutAndEntity('mock', ID).subscribe((response: any) => {
             let [layout, entity] = response;
             self.wageType = entity;
@@ -46,6 +61,20 @@ export class WagetypeDetail {
                 cmp.instance.getEventEmitter().subscribe(self.onSubmit(self));
                 self.whenFormInstance = new Promise((resolve: Function) => resolve(cmp.instance));
             });
+        });*/
+    }
+    
+    buildForm(){
+        var self: WagetypeDetail = this;
+        self.form = new UniFormLayoutBuilder().build(self.layout, self.wageType);
+    }
+    
+    loadForm(){
+        var self: WagetypeDetail = this;
+        self.uniCompLoader.load(UniForm).then((cmp: ComponentRef) => {
+            cmp.instance.config = self.form;
+            cmp.instance.getEventEmitter().subscribe(self.onSubmit(self));
+            self.whenFormInstance = new Promise((resolve: Function) => resolve(cmp.instance));
         });
     }
 
