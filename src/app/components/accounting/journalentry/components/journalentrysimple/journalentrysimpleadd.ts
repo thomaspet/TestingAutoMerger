@@ -1,12 +1,5 @@
-import {Component, Input, Output, ViewChild, SimpleChange, EventEmitter} from "angular2/core";
-import {Observable} from "rxjs/Observable";
-import "rxjs/add/observable/forkjoin";
-
-import {FieldType, IVatType, IVatCodeGroup, IAccount, IJournalEntry, IJournalEntryLine, IJournalEntryLineDraft} from "../../../../../interfaces";
-import {VatTypeService, VatCodeGroupService, AccountService, JournalEntryService, JournalEntryLineService} from "../../../../../services/services";
-
-import {UNI_CONTROL_DIRECTIVES} from "../../../../../../framework/controls";
-import {UniForm, UniFormBuilder, UniFieldsetBuilder, UniFieldBuilder} from "../../../../../../framework/forms";
+import {Component, Input, Output, EventEmitter} from "angular2/core";
+import {JournalEntryLine} from "../../../../../unientities";
 
 @Component({
     selector: "journal-entry-simple-add",
@@ -14,9 +7,9 @@ import {UniForm, UniFormBuilder, UniFieldsetBuilder, UniFieldBuilder} from "../.
 })
 export class JournalEntrySimpleAdd {
     @Input()
-    JournalEntryLine: IJournalEntryLine;
+    JournalEntryLine: JournalEntryLine;
         
-    @Output() Created = new EventEmitter<IJournalEntryLine>();
+    @Output() Created = new EventEmitter<JournalEntryLine>();
         
     constructor() {
   

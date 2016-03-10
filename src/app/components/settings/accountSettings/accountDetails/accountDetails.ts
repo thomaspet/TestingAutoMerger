@@ -1,7 +1,7 @@
 import {Component, provide, Input, ViewChild, Output, EventEmitter, SimpleChange} from "angular2/core";
 import {UniForm} from "../../../../../framework/forms/uniForm";
 import {UNI_CONTROL_DIRECTIVES} from "../../../../../framework/controls";
-import {FieldType} from "../../../../interfaces";
+import {FieldType} from "../../../../unientities";
 import {UniFormBuilder} from "../../../../../framework/forms/builders/uniFormBuilder";
 import {UniFieldsetBuilder} from "../../../../../framework/forms/builders/uniFieldsetBuilder";
 import {UniComboFieldBuilder} from "../../../../../framework/forms/builders/uniComboFieldBuilder";

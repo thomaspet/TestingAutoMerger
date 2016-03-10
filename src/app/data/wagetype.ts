@@ -4,8 +4,8 @@ import { Observable } from "rxjs/Observable";
 import "rxjs/add/observable/fromArray";
 
 //import {UNI_CONTROL_TYPES} from "../../framework/controls/types";
-import {FieldType} from "../../app/interfaces";
-import {IWageType, StdWageType, LimitType, TaxType, RateTypeColumn} from "../../app/interfaces";
+import {FieldType} from "../unientities";
+import {WageType, StdWageType, LimitType, TaxType, RateTypeColumn} from "../unientities";
 
 @Injectable()
 export class WagetypeService {

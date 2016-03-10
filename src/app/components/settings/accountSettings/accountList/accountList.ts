@@ -4,7 +4,7 @@ import {TreeList, TreeListItem, TREE_LIST_TYPE} from "../../../../../framework/t
 import {UniHttp} from "../../../../../framework/core/http/http";
 import { UniTableBuilder, UniTableColumn} from "../../../../../framework/uniTable";
 import {UniDropdown} from "../../../../../framework/controls/dropdown/dropdown";
-import {IAccount} from "../../../../interfaces";
+import {Account} from "../../../../unientities";
 
 enum SETTINGS_ADD_NEW {
     ACCOUNTGROUP, // 0
@@ -59,7 +59,7 @@ export class AccountList {
         };
     }
 
-    refresh(account: IAccount) {
+    refresh(account: Account) {
         console.log("DO REFRESH OF TABLE");
         console.log(account);
         // this.treeList.refresh();
@@ -101,7 +101,7 @@ export class AccountList {
                     .setPageSize(100)
                     .setPageable(false)
                     .addColumns(accountNumberCol, accountNameCol, vatTypeCol, lockedCol)
-                    .setSelectCallback((account: IAccount) => {
+                    .setSelectCallback((account: Account) => {
                         this.uniAccountChange.emit(account.ID);
                     });
 

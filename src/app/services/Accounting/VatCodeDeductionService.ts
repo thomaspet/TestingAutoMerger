@@ -1,15 +1,15 @@
 import {BizHttp} from '../../../framework/core/http/BizHttp';
-import {IVatCodeDeduction, IVatType} from '../../interfaces';
+import {VatCodeDeduction} from '../../unientities';
 import {UniHttp} from '../../../framework/core/http/http';
 
 
-export class VatCodeDeductionService extends BizHttp<IVatCodeDeduction> {
+export class VatCodeDeductionService extends BizHttp<VatCodeDeduction> {
     
     constructor(http: UniHttp) {        
         super(http);
         
         //TODO: should resolve this from configuration based on type (IVatType)? Frank is working on something..
-        this.relativeURL = 'VatCodeDeductions';
+        this.relativeURL = VatCodeDeduction.relativeUrl;
         
         //set this property if you want a default sort order from the API
         this.DefaultOrderBy = null;

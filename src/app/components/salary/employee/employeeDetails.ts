@@ -4,7 +4,7 @@ import { Observable } from "rxjs/Observable";
 import "rxjs/add/operator/map";
 
 import {PersonalDetails} from "./personalDetails/personalDetails";
-import {Employment} from "./employments/employments";
+import {EmployeeEmployment} from "./employments/employments";
 import {Hours} from "./hours/hours";
 import {Travel} from "./travel/travel";
 import {SalaryTransactions} from "./salaryTransactions/salaryTransactions";
@@ -20,7 +20,7 @@ import {SalaryTransactionEmployeeList} from "../salarytrans/salarytransactionEmp
 
 const CHILD_ROUTES = [
     {path: "/", component: PersonalDetails, as: "PersonalDetails"},
-    {path: "/employment", component: Employment, as: "Employment"},
+    {path: "/employment", component: EmployeeEmployment, as: "Employment"},
     {path: "/salarytrans", component: SalaryTransactionEmployeeList, as: "Lønnstranser"},
     {path: "/hours", component: Hours, as: "Hours"},
     {path: "/travel", component: Travel, as: "Travel"},

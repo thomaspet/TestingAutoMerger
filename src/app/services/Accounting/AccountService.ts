@@ -1,14 +1,14 @@
 import {BizHttp} from '../../../framework/core/http/BizHttp';
-import {IAccount} from '../../interfaces';
+import {Account} from '../../unientities';
 import {UniHttp} from '../../../framework/core/http/http';
 
-export class AccountService extends BizHttp<IAccount> {
+export class AccountService extends BizHttp<Account> {
 
     constructor(http: UniHttp) {
         super(http);
 
         //TODO: should resolve this from configuration based on type (IAccount)? Frank is working on something..               
-        this.relativeURL = 'Accounts';
+        this.relativeURL = Account.relativeUrl;
 
         //set this property if you want a default sort order from the API, e.g. AccountNumber
         this.DefaultOrderBy = 'AccountNumber';
