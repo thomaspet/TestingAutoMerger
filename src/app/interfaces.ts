@@ -23,6 +23,14 @@ export interface ICustomerInvoice {
 	AmountRegards: string;
 	DeliveryName: string;
 	JournalEntryID: number;
+	ShippingAddressLine1: string;
+	ShippingAddressLine2: string;
+	ShippingAddressLine3: string;
+	ShippingPostalCode: number;
+	ShippingCity: string;
+	ShippingCountryCode: string;
+	ShippingCountry: string;
+	CustomerPerson: string;
 	InvoiceRecieverName: string;
 	InvoiceAddressLine1: string;
 	InvoiceAddressLine2: string;
@@ -31,17 +39,9 @@ export interface ICustomerInvoice {
 	InvoiceCity: string;
 	InvoiceCountryCode: string;
 	InvoiceCountry: string;
-	ShippingAddressLine1: string;
-	ShippingAddressLine2: string;
-	ShippingAddressLine3: string;
-	ShippingPostalCode: number;
-	ShippingCity: string;
-	ShippingCountryCode: string;
-	ShippingCountry: string;
 	OurReference: string;
 	YourReference: string;
 	SalesPerson: string;
-	CustomerPerson: string;
 	DeliveryMethod: string;
 	PaymentTerm: string;
 	DeliveryTerm: string;
@@ -73,6 +73,7 @@ export interface ICustomerInvoice {
 
 export interface ICustomerInvoiceItem {
 	CustomerInvoiceID: number;
+	Comment: string;
 	ProductID: number;
 	ItemText: string;
 	NumberOfItems: number;
@@ -82,7 +83,6 @@ export interface ICustomerInvoiceItem {
 	DimensionsID: number;
 	SumTotal: number;
 	SumVat: number;
-	Comment: string;
 	StatusID: number;
 	ID: number;
 	Deleted: boolean;
@@ -96,6 +96,14 @@ export interface ICustomerOrder {
 	CustomerID: number;
 	OrderDate: Date;
 	OrderReference: string;
+	ShippingAddressLine1: string;
+	ShippingAddressLine2: string;
+	ShippingAddressLine3: string;
+	ShippingPostalCode: number;
+	ShippingCity: string;
+	ShippingCountryCode: string;
+	ShippingCountry: string;
+	CustomerPerson: string;
 	InvoiceRecieverName: string;
 	InvoiceAddressLine1: string;
 	InvoiceAddressLine2: string;
@@ -104,17 +112,9 @@ export interface ICustomerOrder {
 	InvoiceCity: string;
 	InvoiceCountryCode: string;
 	InvoiceCountry: string;
-	ShippingAddressLine1: string;
-	ShippingAddressLine2: string;
-	ShippingAddressLine3: string;
-	ShippingPostalCode: number;
-	ShippingCity: string;
-	ShippingCountryCode: string;
-	ShippingCountry: string;
 	OurReference: string;
 	YourReference: string;
 	SalesPerson: string;
-	CustomerPerson: string;
 	DeliveryMethod: string;
 	PaymentTerm: string;
 	DeliveryTerm: string;
@@ -146,6 +146,7 @@ export interface ICustomerOrder {
 export interface ICustomerOrderItem {
 	Code: string;
 	CustomerOrderID: number;
+	Comment: string;
 	ProductID: number;
 	ItemText: string;
 	NumberOfItems: number;
@@ -155,7 +156,6 @@ export interface ICustomerOrderItem {
 	DimensionsID: number;
 	SumTotal: number;
 	SumVat: number;
-	Comment: string;
 	StatusID: number;
 	ID: number;
 	Deleted: boolean;
@@ -169,6 +169,14 @@ export interface ICustomerQuote {
 	CustomerID: number;
 	QuoteDate: Date;
 	InquiryReference: number;
+	ShippingAddressLine1: string;
+	ShippingAddressLine2: string;
+	ShippingAddressLine3: string;
+	ShippingPostalCode: number;
+	ShippingCity: string;
+	ShippingCountryCode: string;
+	ShippingCountry: string;
+	CustomerPerson: string;
 	InvoiceRecieverName: string;
 	InvoiceAddressLine1: string;
 	InvoiceAddressLine2: string;
@@ -177,17 +185,9 @@ export interface ICustomerQuote {
 	InvoiceCity: string;
 	InvoiceCountryCode: string;
 	InvoiceCountry: string;
-	ShippingAddressLine1: string;
-	ShippingAddressLine2: string;
-	ShippingAddressLine3: string;
-	ShippingPostalCode: number;
-	ShippingCity: string;
-	ShippingCountryCode: string;
-	ShippingCountry: string;
 	OurReference: string;
 	YourReference: string;
 	SalesPerson: string;
-	CustomerPerson: string;
 	DeliveryMethod: string;
 	PaymentTerm: string;
 	DeliveryTerm: string;
@@ -218,6 +218,7 @@ export interface ICustomerQuote {
 
 export interface ICustomerQuoteItem {
 	CustomerQuoteID: number;
+	Comment: string;
 	ProductID: number;
 	ItemText: string;
 	NumberOfItems: number;
@@ -227,7 +228,6 @@ export interface ICustomerQuoteItem {
 	DimensionsID: number;
 	SumTotal: number;
 	SumVat: number;
-	Comment: string;
 	StatusID: number;
 	ID: number;
 	Deleted: boolean;
@@ -322,6 +322,7 @@ export interface IAddress {
 	StatusID: number;
 	ID: number;
 	Deleted: boolean;
+	BusinessRelation: IBusinessRelation;
 	CustomFields: any;
 }
 
@@ -443,6 +444,7 @@ export interface IEmployeeCategory {
 export interface IEmployeeCategoryLink {
 	EmployeeCategoryID: number;
 	EmployeeID: number;
+	EmployeeNumber: number;
 	StatusID: number;
 	ID: number;
 	Deleted: boolean;
@@ -468,6 +470,7 @@ export interface IEmployeeLeave {
 
 
 export interface IEmployment {
+	EmployeeNumber: number;
 	EmployeeID: number;
 	LocalizationID: number;
 	JobCode: string;
@@ -486,13 +489,14 @@ export interface IEmployment {
 	WorkingHoursScheme: WorkingHoursScheme;
 	WorkPercent: number;
 	HoursPerWeek: number;
+	LedgerAccount: string;
 	ShipType: ShipTypeOfShip;
 	ShipReg: ShipRegistry;
 	TradeArea: ShipTradeArea;
-	LedgerAccount: string;
 	StatusID: number;
 	ID: number;
 	Deleted: boolean;
+	Employee: IEmployee;
 	Localization: ILocalization;
 	Leaves: Array<IEmployeeLeave>;
 	Leave: Array<IEmployeeLeave>;
@@ -609,6 +613,7 @@ export interface IWageTypeSupplement {
 export interface ISalaryTransaction {
 	PayrollRunID: number;
 	runID: number;
+	EmployeeID: number;
 	EmployeeNumber: number;
 	FromDate: Date;
 	ToDate: Date;
@@ -631,6 +636,7 @@ export interface ISalaryTransaction {
 	ID: number;
 	Deleted: boolean;
 	payrollrun: IPayrollRun;
+	Employee: IEmployee;
 	Wagetype: IWageType;
 	Supplements: Array<ISalaryTransactionSupplement>;
 	CustomFields: any;
@@ -674,6 +680,7 @@ export interface IEmployee {
 	PhotoID: number;
 	EmploymentDate: Date;
 	Sex: number;
+	NotMainEmployer: boolean;
 	StatusID: number;
 	ID: number;
 	Deleted: boolean;
@@ -689,11 +696,11 @@ export interface IEmployee {
 export interface IBankAccountSalary {
 	EmployeeID: number;
 	AccountNumber: string;
+	Active: boolean;
 	BIC: string;
 	BankName: string;
 	LandCode: string;
 	BankAddress: string;
-	Active: boolean;
 	StatusID: number;
 	ID: number;
 	Deleted: boolean;
@@ -799,113 +806,6 @@ export interface IEmploymentValidValues {
 	WorkPercent: boolean;
 	ID: number;
 	Deleted: boolean;
-	CustomFields: any;
-}
-
-
-export interface ITradeHeader {
-	InvoiceRecieverName: string;
-	InvoiceAddressLine1: string;
-	InvoiceAddressLine2: string;
-	InvoiceAddressLine3: string;
-	InvoicePostalCode: number;
-	InvoiceCity: string;
-	InvoiceCountryCode: string;
-	InvoiceCountry: string;
-	ShippingAddressLine1: string;
-	ShippingAddressLine2: string;
-	ShippingAddressLine3: string;
-	ShippingPostalCode: number;
-	ShippingCity: string;
-	ShippingCountryCode: string;
-	ShippingCountry: string;
-	OurReference: string;
-	YourReference: string;
-	SalesPerson: string;
-	CustomerPerson: string;
-	DeliveryMethod: string;
-	PaymentTerm: string;
-	DeliveryTerm: string;
-	DeliveryDate: Date;
-	Comment: string;
-	InternalNote: string;
-	FreeTxt: string;
-	TaxInclusiveAmount: number;
-	VatTotalsAmount: number;
-	Attachments: string;
-	DimensionsID: number;
-	CurrencyCode: string;
-	CreatedBy: string;
-	CreatedDate: Date;
-	SupplierOrgNumber: string;
-	CustomerOrgNumber: string;
-	TaxInclusiveCurrencyAmount: number;
-	TaxExclusiveCurrencyAmount: number;
-	TaxExclusiveAmount: number;
-	StatusID: number;
-	ID: number;
-	Deleted: boolean;
-	Dimensions: IDimensions;
-	CustomFields: any;
-}
-
-
-export interface IInvoiceHeader {
-	InvoiceDate: Date;
-	PaymentDueDate: Date;
-	InvoiceType: number;
-	PaymentID: string;
-	PaymentInformation: string;
-	InvoiceID: number;
-	Credited: boolean;
-	BankAccount: string;
-	Payment: string;
-	AmountRegards: string;
-	DeliveryName: string;
-	JournalEntryID: number;
-	InvoiceRecieverName: string;
-	InvoiceAddressLine1: string;
-	InvoiceAddressLine2: string;
-	InvoiceAddressLine3: string;
-	InvoicePostalCode: number;
-	InvoiceCity: string;
-	InvoiceCountryCode: string;
-	InvoiceCountry: string;
-	ShippingAddressLine1: string;
-	ShippingAddressLine2: string;
-	ShippingAddressLine3: string;
-	ShippingPostalCode: number;
-	ShippingCity: string;
-	ShippingCountryCode: string;
-	ShippingCountry: string;
-	OurReference: string;
-	YourReference: string;
-	SalesPerson: string;
-	CustomerPerson: string;
-	DeliveryMethod: string;
-	PaymentTerm: string;
-	DeliveryTerm: string;
-	DeliveryDate: Date;
-	Comment: string;
-	InternalNote: string;
-	FreeTxt: string;
-	TaxInclusiveAmount: number;
-	VatTotalsAmount: number;
-	Attachments: string;
-	DimensionsID: number;
-	CurrencyCode: string;
-	CreatedBy: string;
-	CreatedDate: Date;
-	SupplierOrgNumber: string;
-	CustomerOrgNumber: string;
-	TaxInclusiveCurrencyAmount: number;
-	TaxExclusiveCurrencyAmount: number;
-	TaxExclusiveAmount: number;
-	StatusID: number;
-	ID: number;
-	Deleted: boolean;
-	JournalEntry: IJournalEntry;
-	Dimensions: IDimensions;
 	CustomFields: any;
 }
 
@@ -1470,6 +1370,7 @@ export interface IProduct {
 
 
 export interface ITradeItem {
+	Comment: string;
 	ProductID: number;
 	ItemText: string;
 	NumberOfItems: number;
@@ -1479,7 +1380,6 @@ export interface ITradeItem {
 	DimensionsID: number;
 	SumTotal: number;
 	SumVat: number;
-	Comment: string;
 	StatusID: number;
 	ID: number;
 	Deleted: boolean;
@@ -1843,6 +1743,7 @@ export interface IPostPost {
 
 export interface ISupplierInvoiceItem {
 	SupplierInvoiceID: number;
+	Comment: string;
 	ProductID: number;
 	ItemText: string;
 	NumberOfItems: number;
@@ -1852,7 +1753,6 @@ export interface ISupplierInvoiceItem {
 	DimensionsID: number;
 	SumTotal: number;
 	SumVat: number;
-	Comment: string;
 	StatusID: number;
 	ID: number;
 	Deleted: boolean;
@@ -1876,6 +1776,14 @@ export interface ISupplierInvoice {
 	AmountRegards: string;
 	DeliveryName: string;
 	JournalEntryID: number;
+	ShippingAddressLine1: string;
+	ShippingAddressLine2: string;
+	ShippingAddressLine3: string;
+	ShippingPostalCode: number;
+	ShippingCity: string;
+	ShippingCountryCode: string;
+	ShippingCountry: string;
+	CustomerPerson: string;
 	InvoiceRecieverName: string;
 	InvoiceAddressLine1: string;
 	InvoiceAddressLine2: string;
@@ -1884,17 +1792,9 @@ export interface ISupplierInvoice {
 	InvoiceCity: string;
 	InvoiceCountryCode: string;
 	InvoiceCountry: string;
-	ShippingAddressLine1: string;
-	ShippingAddressLine2: string;
-	ShippingAddressLine3: string;
-	ShippingPostalCode: number;
-	ShippingCity: string;
-	ShippingCountryCode: string;
-	ShippingCountry: string;
 	OurReference: string;
 	YourReference: string;
 	SalesPerson: string;
-	CustomerPerson: string;
 	DeliveryMethod: string;
 	PaymentTerm: string;
 	DeliveryTerm: string;
@@ -2130,754 +2030,6 @@ export interface IComplexValidationRule {
 	Level: ValidationLevel;
 	ID: number;
 	Deleted: boolean;
-	CustomFields: any;
-}
-
-
-export interface IComponentLayoutDto {
-	Name: string;
-	BaseEntity: string;
-	Url: string;
-	Fields: Array<IFieldLayoutDto>;
-	CustomFields: any;
-}
-
-
-export interface IFieldLayoutDto {
-	Url: string;
-	LookupEntityType: string;
-	ComponentLayoutID: number;
-	EntityType: string;
-	Property: string;
-	Placement: number;
-	Hidden: boolean;
-	FieldType: FieldType;
-	ReadOnly: boolean;
-	LookupField: boolean;
-	Label: string;
-	Description: string;
-	HelpText: string;
-	FieldSet: number;
-	Section: number;
-	Legend: string;
-	StatusID: number;
-	ID: number;
-	Deleted: boolean;
-	Validations: Array<IClientValidationRule>;
-	CustomFields: any;
-}
-
-
-export interface IComponentLayoutDto {
-	Name: string;
-	BaseEntity: string;
-	Url: string;
-	Fields: Array<IFieldLayoutDto>;
-	CustomFields: any;
-}
-
-
-export interface IFieldLayoutDto {
-	Url: string;
-	LookupEntityType: string;
-	ComponentLayoutID: number;
-	EntityType: string;
-	Property: string;
-	Placement: number;
-	Hidden: boolean;
-	FieldType: FieldType;
-	ReadOnly: boolean;
-	LookupField: boolean;
-	Label: string;
-	Description: string;
-	HelpText: string;
-	FieldSet: number;
-	Section: number;
-	Legend: string;
-	StatusID: number;
-	ID: number;
-	Deleted: boolean;
-	Validations: Array<IClientValidationRule>;
-	CustomFields: any;
-}
-
-
-export interface IComponentLayoutDto {
-	Name: string;
-	BaseEntity: string;
-	Url: string;
-	Fields: Array<IFieldLayoutDto>;
-	CustomFields: any;
-}
-
-
-export interface IFieldLayoutDto {
-	Url: string;
-	LookupEntityType: string;
-	ComponentLayoutID: number;
-	EntityType: string;
-	Property: string;
-	Placement: number;
-	Hidden: boolean;
-	FieldType: FieldType;
-	ReadOnly: boolean;
-	LookupField: boolean;
-	Label: string;
-	Description: string;
-	HelpText: string;
-	FieldSet: number;
-	Section: number;
-	Legend: string;
-	StatusID: number;
-	ID: number;
-	Deleted: boolean;
-	Validations: Array<IClientValidationRule>;
-	CustomFields: any;
-}
-
-
-export interface IComponentLayoutDto {
-	Name: string;
-	BaseEntity: string;
-	Url: string;
-	Fields: Array<IFieldLayoutDto>;
-	CustomFields: any;
-}
-
-
-export interface IFieldLayoutDto {
-	Url: string;
-	LookupEntityType: string;
-	ComponentLayoutID: number;
-	EntityType: string;
-	Property: string;
-	Placement: number;
-	Hidden: boolean;
-	FieldType: FieldType;
-	ReadOnly: boolean;
-	LookupField: boolean;
-	Label: string;
-	Description: string;
-	HelpText: string;
-	FieldSet: number;
-	Section: number;
-	Legend: string;
-	StatusID: number;
-	ID: number;
-	Deleted: boolean;
-	Validations: Array<IClientValidationRule>;
-	CustomFields: any;
-}
-
-
-export interface IComponentLayoutDto {
-	Name: string;
-	BaseEntity: string;
-	Url: string;
-	Fields: Array<IFieldLayoutDto>;
-	CustomFields: any;
-}
-
-
-export interface IFieldLayoutDto {
-	Url: string;
-	LookupEntityType: string;
-	ComponentLayoutID: number;
-	EntityType: string;
-	Property: string;
-	Placement: number;
-	Hidden: boolean;
-	FieldType: FieldType;
-	ReadOnly: boolean;
-	LookupField: boolean;
-	Label: string;
-	Description: string;
-	HelpText: string;
-	FieldSet: number;
-	Section: number;
-	Legend: string;
-	StatusID: number;
-	ID: number;
-	Deleted: boolean;
-	Validations: Array<IClientValidationRule>;
-	CustomFields: any;
-}
-
-
-export interface IComponentLayoutDto {
-	Name: string;
-	BaseEntity: string;
-	Url: string;
-	Fields: Array<IFieldLayoutDto>;
-	CustomFields: any;
-}
-
-
-export interface IFieldLayoutDto {
-	Url: string;
-	LookupEntityType: string;
-	ComponentLayoutID: number;
-	EntityType: string;
-	Property: string;
-	Placement: number;
-	Hidden: boolean;
-	FieldType: FieldType;
-	ReadOnly: boolean;
-	LookupField: boolean;
-	Label: string;
-	Description: string;
-	HelpText: string;
-	FieldSet: number;
-	Section: number;
-	Legend: string;
-	StatusID: number;
-	ID: number;
-	Deleted: boolean;
-	Validations: Array<IClientValidationRule>;
-	CustomFields: any;
-}
-
-
-export interface IComponentLayoutDto {
-	Name: string;
-	BaseEntity: string;
-	Url: string;
-	Fields: Array<IFieldLayoutDto>;
-	CustomFields: any;
-}
-
-
-export interface IFieldLayoutDto {
-	Url: string;
-	LookupEntityType: string;
-	ComponentLayoutID: number;
-	EntityType: string;
-	Property: string;
-	Placement: number;
-	Hidden: boolean;
-	FieldType: FieldType;
-	ReadOnly: boolean;
-	LookupField: boolean;
-	Label: string;
-	Description: string;
-	HelpText: string;
-	FieldSet: number;
-	Section: number;
-	Legend: string;
-	StatusID: number;
-	ID: number;
-	Deleted: boolean;
-	Validations: Array<IClientValidationRule>;
-	CustomFields: any;
-}
-
-
-export interface IComponentLayoutDto {
-	Name: string;
-	BaseEntity: string;
-	Url: string;
-	Fields: Array<IFieldLayoutDto>;
-	CustomFields: any;
-}
-
-
-export interface IFieldLayoutDto {
-	Url: string;
-	LookupEntityType: string;
-	ComponentLayoutID: number;
-	EntityType: string;
-	Property: string;
-	Placement: number;
-	Hidden: boolean;
-	FieldType: FieldType;
-	ReadOnly: boolean;
-	LookupField: boolean;
-	Label: string;
-	Description: string;
-	HelpText: string;
-	FieldSet: number;
-	Section: number;
-	Legend: string;
-	StatusID: number;
-	ID: number;
-	Deleted: boolean;
-	Validations: Array<IClientValidationRule>;
-	CustomFields: any;
-}
-
-
-export interface IComponentLayoutDto {
-	Name: string;
-	BaseEntity: string;
-	Url: string;
-	Fields: Array<IFieldLayoutDto>;
-	CustomFields: any;
-}
-
-
-export interface IFieldLayoutDto {
-	Url: string;
-	LookupEntityType: string;
-	ComponentLayoutID: number;
-	EntityType: string;
-	Property: string;
-	Placement: number;
-	Hidden: boolean;
-	FieldType: FieldType;
-	ReadOnly: boolean;
-	LookupField: boolean;
-	Label: string;
-	Description: string;
-	HelpText: string;
-	FieldSet: number;
-	Section: number;
-	Legend: string;
-	StatusID: number;
-	ID: number;
-	Deleted: boolean;
-	Validations: Array<IClientValidationRule>;
-	CustomFields: any;
-}
-
-
-export interface IComponentLayoutDto {
-	Name: string;
-	BaseEntity: string;
-	Url: string;
-	Fields: Array<IFieldLayoutDto>;
-	CustomFields: any;
-}
-
-
-export interface IFieldLayoutDto {
-	Url: string;
-	LookupEntityType: string;
-	ComponentLayoutID: number;
-	EntityType: string;
-	Property: string;
-	Placement: number;
-	Hidden: boolean;
-	FieldType: FieldType;
-	ReadOnly: boolean;
-	LookupField: boolean;
-	Label: string;
-	Description: string;
-	HelpText: string;
-	FieldSet: number;
-	Section: number;
-	Legend: string;
-	StatusID: number;
-	ID: number;
-	Deleted: boolean;
-	Validations: Array<IClientValidationRule>;
-	CustomFields: any;
-}
-
-
-export interface IComponentLayoutDto {
-	Name: string;
-	BaseEntity: string;
-	Url: string;
-	Fields: Array<IFieldLayoutDto>;
-	CustomFields: any;
-}
-
-
-export interface IFieldLayoutDto {
-	Url: string;
-	LookupEntityType: string;
-	ComponentLayoutID: number;
-	EntityType: string;
-	Property: string;
-	Placement: number;
-	Hidden: boolean;
-	FieldType: FieldType;
-	ReadOnly: boolean;
-	LookupField: boolean;
-	Label: string;
-	Description: string;
-	HelpText: string;
-	FieldSet: number;
-	Section: number;
-	Legend: string;
-	StatusID: number;
-	ID: number;
-	Deleted: boolean;
-	Validations: Array<IClientValidationRule>;
-	CustomFields: any;
-}
-
-
-export interface IComponentLayoutDto {
-	Name: string;
-	BaseEntity: string;
-	Url: string;
-	Fields: Array<IFieldLayoutDto>;
-	CustomFields: any;
-}
-
-
-export interface IFieldLayoutDto {
-	Url: string;
-	LookupEntityType: string;
-	ComponentLayoutID: number;
-	EntityType: string;
-	Property: string;
-	Placement: number;
-	Hidden: boolean;
-	FieldType: FieldType;
-	ReadOnly: boolean;
-	LookupField: boolean;
-	Label: string;
-	Description: string;
-	HelpText: string;
-	FieldSet: number;
-	Section: number;
-	Legend: string;
-	StatusID: number;
-	ID: number;
-	Deleted: boolean;
-	Validations: Array<IClientValidationRule>;
-	CustomFields: any;
-}
-
-
-export interface IComponentLayoutDto {
-	Name: string;
-	BaseEntity: string;
-	Url: string;
-	Fields: Array<IFieldLayoutDto>;
-	CustomFields: any;
-}
-
-
-export interface IFieldLayoutDto {
-	Url: string;
-	LookupEntityType: string;
-	ComponentLayoutID: number;
-	EntityType: string;
-	Property: string;
-	Placement: number;
-	Hidden: boolean;
-	FieldType: FieldType;
-	ReadOnly: boolean;
-	LookupField: boolean;
-	Label: string;
-	Description: string;
-	HelpText: string;
-	FieldSet: number;
-	Section: number;
-	Legend: string;
-	StatusID: number;
-	ID: number;
-	Deleted: boolean;
-	Validations: Array<IClientValidationRule>;
-	CustomFields: any;
-}
-
-
-export interface IComponentLayoutDto {
-	Name: string;
-	BaseEntity: string;
-	Url: string;
-	Fields: Array<IFieldLayoutDto>;
-	CustomFields: any;
-}
-
-
-export interface IFieldLayoutDto {
-	Url: string;
-	LookupEntityType: string;
-	ComponentLayoutID: number;
-	EntityType: string;
-	Property: string;
-	Placement: number;
-	Hidden: boolean;
-	FieldType: FieldType;
-	ReadOnly: boolean;
-	LookupField: boolean;
-	Label: string;
-	Description: string;
-	HelpText: string;
-	FieldSet: number;
-	Section: number;
-	Legend: string;
-	StatusID: number;
-	ID: number;
-	Deleted: boolean;
-	Validations: Array<IClientValidationRule>;
-	CustomFields: any;
-}
-
-
-export interface IComponentLayoutDto {
-	Name: string;
-	BaseEntity: string;
-	Url: string;
-	Fields: Array<IFieldLayoutDto>;
-	CustomFields: any;
-}
-
-
-export interface IFieldLayoutDto {
-	Url: string;
-	LookupEntityType: string;
-	ComponentLayoutID: number;
-	EntityType: string;
-	Property: string;
-	Placement: number;
-	Hidden: boolean;
-	FieldType: FieldType;
-	ReadOnly: boolean;
-	LookupField: boolean;
-	Label: string;
-	Description: string;
-	HelpText: string;
-	FieldSet: number;
-	Section: number;
-	Legend: string;
-	StatusID: number;
-	ID: number;
-	Deleted: boolean;
-	Validations: Array<IClientValidationRule>;
-	CustomFields: any;
-}
-
-
-export interface IComponentLayoutDto {
-	Name: string;
-	BaseEntity: string;
-	Url: string;
-	Fields: Array<IFieldLayoutDto>;
-	CustomFields: any;
-}
-
-
-export interface IFieldLayoutDto {
-	Url: string;
-	LookupEntityType: string;
-	ComponentLayoutID: number;
-	EntityType: string;
-	Property: string;
-	Placement: number;
-	Hidden: boolean;
-	FieldType: FieldType;
-	ReadOnly: boolean;
-	LookupField: boolean;
-	Label: string;
-	Description: string;
-	HelpText: string;
-	FieldSet: number;
-	Section: number;
-	Legend: string;
-	StatusID: number;
-	ID: number;
-	Deleted: boolean;
-	Validations: Array<IClientValidationRule>;
-	CustomFields: any;
-}
-
-
-export interface IComponentLayoutDto {
-	Name: string;
-	BaseEntity: string;
-	Url: string;
-	Fields: Array<IFieldLayoutDto>;
-	CustomFields: any;
-}
-
-
-export interface IFieldLayoutDto {
-	Url: string;
-	LookupEntityType: string;
-	ComponentLayoutID: number;
-	EntityType: string;
-	Property: string;
-	Placement: number;
-	Hidden: boolean;
-	FieldType: FieldType;
-	ReadOnly: boolean;
-	LookupField: boolean;
-	Label: string;
-	Description: string;
-	HelpText: string;
-	FieldSet: number;
-	Section: number;
-	Legend: string;
-	StatusID: number;
-	ID: number;
-	Deleted: boolean;
-	Validations: Array<IClientValidationRule>;
-	CustomFields: any;
-}
-
-
-export interface IComponentLayoutDto {
-	Name: string;
-	BaseEntity: string;
-	Url: string;
-	Fields: Array<IFieldLayoutDto>;
-	CustomFields: any;
-}
-
-
-export interface IFieldLayoutDto {
-	Url: string;
-	LookupEntityType: string;
-	ComponentLayoutID: number;
-	EntityType: string;
-	Property: string;
-	Placement: number;
-	Hidden: boolean;
-	FieldType: FieldType;
-	ReadOnly: boolean;
-	LookupField: boolean;
-	Label: string;
-	Description: string;
-	HelpText: string;
-	FieldSet: number;
-	Section: number;
-	Legend: string;
-	StatusID: number;
-	ID: number;
-	Deleted: boolean;
-	Validations: Array<IClientValidationRule>;
-	CustomFields: any;
-}
-
-
-export interface IComponentLayoutDto {
-	Name: string;
-	BaseEntity: string;
-	Url: string;
-	Fields: Array<IFieldLayoutDto>;
-	CustomFields: any;
-}
-
-
-export interface IFieldLayoutDto {
-	Url: string;
-	LookupEntityType: string;
-	ComponentLayoutID: number;
-	EntityType: string;
-	Property: string;
-	Placement: number;
-	Hidden: boolean;
-	FieldType: FieldType;
-	ReadOnly: boolean;
-	LookupField: boolean;
-	Label: string;
-	Description: string;
-	HelpText: string;
-	FieldSet: number;
-	Section: number;
-	Legend: string;
-	StatusID: number;
-	ID: number;
-	Deleted: boolean;
-	Validations: Array<IClientValidationRule>;
-	CustomFields: any;
-}
-
-
-export interface IComponentLayoutDto {
-	Name: string;
-	BaseEntity: string;
-	Url: string;
-	Fields: Array<IFieldLayoutDto>;
-	CustomFields: any;
-}
-
-
-export interface IFieldLayoutDto {
-	Url: string;
-	LookupEntityType: string;
-	ComponentLayoutID: number;
-	EntityType: string;
-	Property: string;
-	Placement: number;
-	Hidden: boolean;
-	FieldType: FieldType;
-	ReadOnly: boolean;
-	LookupField: boolean;
-	Label: string;
-	Description: string;
-	HelpText: string;
-	FieldSet: number;
-	Section: number;
-	Legend: string;
-	StatusID: number;
-	ID: number;
-	Deleted: boolean;
-	Validations: Array<IClientValidationRule>;
-	CustomFields: any;
-}
-
-
-export interface IComponentLayoutDto {
-	Name: string;
-	BaseEntity: string;
-	Url: string;
-	Fields: Array<IFieldLayoutDto>;
-	CustomFields: any;
-}
-
-
-export interface IFieldLayoutDto {
-	Url: string;
-	LookupEntityType: string;
-	ComponentLayoutID: number;
-	EntityType: string;
-	Property: string;
-	Placement: number;
-	Hidden: boolean;
-	FieldType: FieldType;
-	ReadOnly: boolean;
-	LookupField: boolean;
-	Label: string;
-	Description: string;
-	HelpText: string;
-	FieldSet: number;
-	Section: number;
-	Legend: string;
-	StatusID: number;
-	ID: number;
-	Deleted: boolean;
-	Validations: Array<IClientValidationRule>;
-	CustomFields: any;
-}
-
-
-export interface IComponentLayoutDto {
-	Name: string;
-	BaseEntity: string;
-	Url: string;
-	Fields: Array<IFieldLayoutDto>;
-	CustomFields: any;
-}
-
-
-export interface IFieldLayoutDto {
-	Url: string;
-	LookupEntityType: string;
-	ComponentLayoutID: number;
-	EntityType: string;
-	Property: string;
-	Placement: number;
-	Hidden: boolean;
-	FieldType: FieldType;
-	ReadOnly: boolean;
-	LookupField: boolean;
-	Label: string;
-	Description: string;
-	HelpText: string;
-	FieldSet: number;
-	Section: number;
-	Legend: string;
-	StatusID: number;
-	ID: number;
-	Deleted: boolean;
-	Validations: Array<IClientValidationRule>;
 	CustomFields: any;
 }
 
