@@ -2,7 +2,7 @@ import {Component, OnInit} from 'angular2/core';
 import {Router } from 'angular2/router';
 
 import {UniTable, UniTableBuilder, UniTableColumn} from "../../../../framework/uniTable";
-import {IWageType} from "../../../../framework/interfaces/interfaces";
+import {WageType} from "../../../unientities";
 
 @Component({
     selector: 'wagetypes',       
@@ -28,7 +28,7 @@ export class WagetypeList implements OnInit{
     
 
     this.wagetypelistConfig = new UniTableBuilder("wagetypes", false)            
-            .setSelectCallback((selectedWagetype: IWageType) => {
+            .setSelectCallback((selectedWagetype: WageType) => {
                 
                 this._router.navigateByUrl("/salary/wagetypes/" + selectedWagetype.ID);
             })            

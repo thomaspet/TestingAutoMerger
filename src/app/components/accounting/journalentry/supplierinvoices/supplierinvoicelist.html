@@ -1,4 +1,9 @@
-<div class="journalentrytempbox">
-    her kommer listen med supplierinvoices - bruker unitable kanskje?
+<article>
+    <uni-table [config]="supplierInvoiceTableCfg"></uni-table>
     <supplier-invoice-edit [SupplierInvoice]="selectedSupplierInvoice" (Updated)="supplierInvoiceUpdated=($event)"></supplier-invoice-edit>
-</div>
+</article>
+<article class="testonly">
+    <i>Testknapper før alt er helt klart:</i><br>
+    <button (click)="syncAS()">Synkroniser kontoplan</button>
+    <button (click)="postSupplierInvoice()">Lag en ny leverandørfaktura</button>
+</article>

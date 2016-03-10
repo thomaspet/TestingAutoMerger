@@ -1,14 +1,15 @@
-import {BaseApiService} from '../../../framework/core/BaseApiService';
-import {IVatCodeGroup, IVatType} from '../../../framework/interfaces/interfaces';
-import {UniHttp} from '../../../framework/core/http';
+import {BizHttp} from '../../../framework/core/http/BizHttp';
+import {VatCodeGroup, VatType} from '../../unientities';
+import {UniHttp} from '../../../framework/core/http/http';
 
-export class VatCodeGroupService extends BaseApiService<IVatCodeGroup> {
+
+export class VatCodeGroupService extends BizHttp<VatCodeGroup> {
     
     constructor(http: UniHttp) {        
         super(http);
         
         //TODO: should resolve this from configuration based on type (IVatType)? Frank is working on something..
-        this.RelativeURL = 'VatCodeGroups';
+        this.relativeURL = VatCodeGroup.relativeUrl;
         
         //set this property if you want a default sort order from the API
         this.DefaultOrderBy = null;        

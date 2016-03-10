@@ -1,10 +1,10 @@
 import {Component, Output, EventEmitter, ViewChild} from "angular2/core";
 import {Control} from "angular2/common";
 import {TreeList, TreeListItem, TREE_LIST_TYPE} from "../../../../../framework/treeList";
-import {UniHttp} from "../../../../../framework/core/http";
+import {UniHttp} from "../../../../../framework/core/http/http";
 import { UniTableBuilder, UniTableColumn} from "../../../../../framework/uniTable";
 import {UniDropdown} from "../../../../../framework/controls/dropdown/dropdown";
-import {IAccount} from "../../../../../framework/interfaces/interfaces";
+import {Account} from "../../../../unientities";
 
 enum SETTINGS_ADD_NEW {
     ACCOUNTGROUP, // 0
@@ -59,7 +59,7 @@ export class AccountList {
         };
     }
 
-    refresh(account: IAccount) {
+    refresh(account: Account) {
         console.log("DO REFRESH OF TABLE");
         console.log(account);
         // this.treeList.refresh();
@@ -101,7 +101,7 @@ export class AccountList {
                     .setPageSize(100)
                     .setPageable(false)
                     .addColumns(accountNumberCol, accountNameCol, vatTypeCol, lockedCol)
-                    .setSelectCallback((account: IAccount) => {
+                    .setSelectCallback((account: Account) => {
                         this.uniAccountChange.emit(account.ID);
                     });
 

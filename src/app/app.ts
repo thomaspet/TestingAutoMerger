@@ -1,4 +1,6 @@
 /// <reference path="../../kendo/typescript/kendo.all.d.ts" />
+/// <reference path="../../typings/main.d.ts" />
+
 import {Component} from "angular2/core";
 import {Router, RouteConfig, ROUTER_DIRECTIVES} from "angular2/router";
 import {Routes, APP_ROUTES} from "./route.config";
@@ -6,7 +8,7 @@ import {UniRouterOutlet} from "./uniRouterOutlet";
 import {AuthService} from "../framework/authentication/authService";
 import {TabService} from "./components/layout/navbar/tabstrip/tabService";
 import {UniNavbar} from "./components/layout/navbar/navbar";
-import {UniHttp} from "../framework/core/http";
+import {UniHttp} from "../framework/core/http/http";
 
 @Component({
     selector: "uni-app",

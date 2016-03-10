@@ -23,8 +23,10 @@ export class UniTableColumn {
         this.title = title;
         this.type = type;
         
+        // Set custom editor and default format on date columns
         if (type === 'date') {
             this.editor = this.controls.datepicker({});
+            this.format = "{0: dd.MM.yyyy}";
         }
     }
     

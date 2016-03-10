@@ -2,7 +2,7 @@ import {Component, Input, Output, ViewChild, SimpleChange, EventEmitter} from "a
 import {Observable} from "rxjs/Observable";
 import "rxjs/add/observable/forkjoin";
 
-import {FieldType, IVatType, IVatCodeGroup, IAccount} from "../../../../../../framework/interfaces/interfaces";
+import {FieldType, VatType, VatCodeGroup, Account, Dimensions} from "../../../../../unientities";
 import {VatTypeService, VatCodeGroupService, AccountService, JournalEntryService} from "../../../../../services/services";
 import {JournalEntryData} from "../../../../../models/models";
 import {UNI_CONTROL_DIRECTIVES} from "../../../../../../framework/controls";
@@ -17,13 +17,14 @@ import {JournalEntrySimpleAdd} from './journalentrysimpleadd';
     directives: [JournalEntrySimpleEdit, JournalEntrySimpleAdd],
     providers: [JournalEntryService]    
 })
-export class JournalEntrySimple {    
+export class JournalEntrySimple {
     public selectedJournalEntryLine : JournalEntryData;
     
     public journalEntryLines: Array<JournalEntryData>;
+    public validationResult: any;
         
     constructor(private journalEntryService : JournalEntryService) {
-        this.journalEntryLines = new Array<JournalEntryData>();
+        this.journalEntryLines = new Array<JournalEntryData>();        
     }
     
     ngOnInit() {
@@ -31,15 +32,47 @@ export class JournalEntrySimple {
             .subscribe(data => 
             {                
                 this.journalEntryLines = data;
-            });
+            }); 
     }       
     
-    newLineCreated(journalEntryLine : any) {      
-        this.journalEntryLines.push(JournalEntryService.getSomeNewDataForMe());
+    postJournalEntryData() {
+        this.journalEntryService.postJournalEntryData(this.journalEntryLines)
+            .subscribe(
+                data => {
+                    data.forEach((row) => row.FinancialDate = new Date(row.FinancialDate));
+                    
+                    console.log(data);
+                    this.journalEntryLines = data
+                },
+                err => console.log('error in postJournalEntryData: ', err)
+            );
+    }
+    
+    validateJournalEntryData() {
+        this.journalEntryService.validateJournalEntryData(this.journalEntryLines)
+            .subscribe(
+                data => {
+                    this.validationResult = data;
+                    console.log('valideringsresultat:', data);
+                },
+                err => console.log('error int validateJournalEntryData:', err)
+            );
+    }
+    
+    addDummyJournalEntry() {
+        var newline = JournalEntryService.getSomeNewDataForMe();
+        newline.JournalEntryNo = Math.round((this.journalEntryLines.length/3) + 1);         
+        this.journalEntryLines.unshift(newline);
+    }
+    
+    newLineCreated(journalEntryLine : any) {
+        var newline = JournalEntryService.getSomeNewDataForMe();
+        newline.JournalEntryNo = Math.round((this.journalEntryLines.length/3) + 1);        
+        this.journalEntryLines.unshift(newline);
     }
     
     setSelectedJournalEntryLine(selectedLine: JournalEntryData) {        
-        this.selectedJournalEntryLine = selectedLine;                
+        this.selectedJournalEntryLine = selectedLine;
     }
     
     abortEdit() {

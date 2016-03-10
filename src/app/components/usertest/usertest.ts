@@ -4,7 +4,7 @@ import {TabService} from "../layout/navbar/tabstrip/tabService";
 import {Multival} from "../usertest/multivalue";
 import {UniTabs} from "../layout/uniTabs/uniTabs";
 import {PersonalDetails} from "../salary/employee/personalDetails/personalDetails";
-import {Employment} from "../salary/employee/employments/employments";
+import {EmployeeEmployment} from "../salary/employee/employments/employments";
 import {Hours} from "../salary/employee/hours/hours";
 import {Travel} from "../salary/employee/travel/travel";
 import {SalaryTransactions} from "../salary/employee/salaryTransactions/salaryTransactions";
@@ -12,7 +12,7 @@ import {RouteConfig, RouteDefinition, ROUTER_DIRECTIVES} from "angular2/router";
 
 const CHILD_ROUTES = [
     {path: "/", component: PersonalDetails, as: "Personopplysninger"},
-    {path: "/employment", component: Employment, as: "Stillinger"},
+    {path: "/employment", component: EmployeeEmployment, as: "Stillinger"},
     {path: "/salarytransactions", component: SalaryTransactions, as: "Lønnsposter"},
     {path: "/hours", component: Hours, as: "Timer"},
     {path: "/travel", component: Travel, as: "Reise"},

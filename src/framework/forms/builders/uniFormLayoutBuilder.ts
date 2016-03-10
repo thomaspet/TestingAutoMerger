@@ -1,7 +1,6 @@
 import {UniFormBuilder, UniFieldBuilder, UniFieldsetBuilder, UniSectionBuilder} from "../../forms";
-import {IComponentLayout, IFieldLayout} from "../../interfaces/interfaces";
+import {ComponentLayout, FieldLayout} from "../../../app/unientities";
 import {UniElementFinder} from "../shared/UniElementFinder";
-import {UniElementBuilder} from "../interfaces";
 import {UniComboFieldBuilder} from "./uniComboFieldBuilder";
 
 /**
@@ -11,7 +10,7 @@ import {UniComboFieldBuilder} from "./uniComboFieldBuilder";
  */
 export class UniFormLayoutBuilder {
 
-    static addElement(element: IFieldLayout, layout: UniFormBuilder, model: any) {
+    static addElement(element: FieldLayout, layout: UniFormBuilder, model: any) {
         let section: UniSectionBuilder,
             fieldset: UniFieldsetBuilder,
             combo: UniComboFieldBuilder, // soon
@@ -47,9 +46,9 @@ export class UniFormLayoutBuilder {
 
     }
 
-    build(schema: IComponentLayout, model: any) {
+    build(schema: ComponentLayout, model: any) {
         var layout = new UniFormBuilder();
-        schema.Fields.forEach((element: IFieldLayout) => {
+        schema.Fields.forEach((element: FieldLayout) => {
             UniFormLayoutBuilder.addElement(element, layout, model);
         });
         return layout;

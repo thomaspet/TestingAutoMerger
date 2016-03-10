@@ -4,13 +4,13 @@ import {UniForm} from "../../../../../framework/forms/uniForm";
 import {
     UniFormBuilder, UniFormLayoutBuilder
 } from "../../../../../framework/forms";
-import {EmployeeDS} from "../../../../../framework/data/employee";
-import {EmployeeModel} from "../../../../../framework/models/employee";
+import {EmployeeDS} from "../../../../data/employee";
+import {EmployeeModel} from "../../../../models/employee";
 import {UniComponentLoader} from "../../../../../framework/core";
 import {Observable} from "rxjs/Observable";
 import "rxjs/add/operator/merge";
 import {UniValidator} from "../../../../../framework/validators/UniValidator";
-import {OperationType, Operator, ValidationLevel} from "../../../../../framework/interfaces/interfaces";
+import {OperationType, Operator, ValidationLevel} from "../../../../unientities";
 
 declare var _;
 
@@ -18,11 +18,11 @@ declare var _;
     selector: "employee-personal-details",
     directives: [UniComponentLoader],
     template: `
-        <div class="application employee">
+        <article class="application usertest">
             <!--<button (click)="toggleMode()">Toogle edit mode</button>-->
             <uni-component-loader></uni-component-loader>
             <!--<button type="button" (click)="executeSubmit()" [disabled]="!isValid()">Submit</button>-->
-        </div>
+        </article>
     `
 })
 export class PersonalDetails {

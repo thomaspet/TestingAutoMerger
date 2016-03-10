@@ -1,7 +1,7 @@
 import {Component} from 'angular2/core';
 import {VatTypeList} from './vattypeList/vatTypeList';
 import {VatTypeDetails} from './vattypedetails/vattypedetails';
-import {IVatType} from '../../../../framework/interfaces/interfaces';
+import {VatType} from '../../../unientities';
 
 @Component({
     selector: 'vat-settings',
@@ -9,10 +9,10 @@ import {IVatType} from '../../../../framework/interfaces/interfaces';
     directives: [VatTypeList, VatTypeDetails]
 })
 export class VatSettings {
-    
-    vatType: IVatType;
-    
-    changeVatType(vatType) {        
+
+    vatType: VatType;
+
+    changeVatType(vatType) {
         this.vatType = vatType;
     }
 }

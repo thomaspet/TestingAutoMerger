@@ -1,4 +1,4 @@
-import { Injectable, EventEmitter } from "angular2/core";
+import { Injectable, EventEmitter, Inject } from "angular2/core";
 import { Http, Headers, Response } from "angular2/http";
 import { Observable } from "rxjs/Observable";
 import "rxjs/add/operator/map";
@@ -18,7 +18,7 @@ export class AuthService {
 
     authenticated: boolean;
 
-    constructor(private http: Http) {
+    constructor(@Inject(Http) private http: Http) {
         this.authenticated$ = new Observable((observer) => {
             this._authenticatedObserver = observer;
         }).share();

@@ -1,57 +1,55 @@
 import {Component, ComponentRef, ViewChild} from 'angular2/core';
-import {UniHttp} from '../../../../framework/core/http';
-import {Operator} from '../../../../framework/interfaces/interfaces';
-import {OperationType} from '../../../../framework/interfaces/interfaces';
-import {ValidationLevel} from '../../../../framework/interfaces/interfaces';
-import {EmployeeModel} from '../../../../framework/models/employee';
+import {UniHttp} from '../../../../framework/core/http/http';
+import {Operator} from '../../../unientities';
+import {OperationType} from '../../../unientities';
+import {ValidationLevel} from '../../../unientities';
+import {EmployeeModel} from '../../../models/employee';
 import {UniFormBuilder} from '../../../../framework/forms/builders/uniFormBuilder';
 import {UniFormLayoutBuilder} from '../../../../framework/forms/builders/uniFormLayoutBuilder';
 import {UniForm} from '../../../../framework/forms/uniForm';
 import {UniComponentLoader} from '../../../../framework/core/componentLoader';
 import {EmployeeService} from '../../../services/Salary/Employee/EmployeeService';
-import {IEmployee} from '../../../../framework/interfaces/interfaces';
+import {Employee} from '../../../unientities';
 import {UniFieldBuilder} from '../../../../framework/forms/builders/uniFieldBuilder';
-import {IComponentLayout} from '../../../../framework/interfaces/interfaces';
+import {ComponentLayout} from '../../../unientities';
 
 @Component({
     selector: 'uni-form-demo',
     directives: [UniComponentLoader],
     providers: [EmployeeService],
     template: `
-        <div class='application employee'>
+        <div class='application usertest'>
             <uni-component-loader></uni-component-loader>
         </div>
     `
 })
 export class UniFormDemo {
 
-    Http: UniHttp;
-    Api: EmployeeService;
-
-    Model: EmployeeModel;
-    FormConfig: UniFormBuilder;
+    private Model: EmployeeModel;
+    private FormConfig: UniFormBuilder;
 
     @ViewChild(UniComponentLoader)
     UniCmpLoader: UniComponentLoader;
 
-    constructor(http: UniHttp, api: EmployeeService) {
-        this.Http = http;
-        this.Api = api;
+    constructor(
+        private Http: UniHttp,
+        private Api: EmployeeService
+    ) {
         this.Api.setRelativeUrl('employees');
     }
 
     ngOnInit() {
         var self = this;
-        this.Api.getAppData(1, 'EmployeePersonalDetailsForm').subscribe((results: any[]) => {
-            var view: IComponentLayout = results[0];
-            var model: IEmployee = results[1];
+        this.Api.GetLayoutAndEntity('EmployeePersonalDetailsForm',1).subscribe((results: any[]) => {
+            var view: ComponentLayout = results[0];
+            var model: Employee = results[1];
             self.startApp(view, model);
         });
     }
 
 
     // private methods
-    private startApp(view: any, model: IEmployee) {
+    private startApp(view: any, model: Employee) {
         // We can extend layout before form config creation
         view = this.extendLayoutConfig(view);
 
@@ -72,11 +70,11 @@ export class UniFormDemo {
         });
     }
 
-    private buildFormConfig(layout: IComponentLayout, model: IEmployee) {
+    private buildFormConfig(layout: ComponentLayout, model: Employee) {
         this.FormConfig = new UniFormLayoutBuilder().build(layout, model);
     }
 
-    private createModel(model: IEmployee) {
+    private createModel(model: Employee) {
         this.Model = EmployeeModel.createFromObject(model);
     }
 

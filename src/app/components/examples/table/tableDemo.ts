@@ -1,123 +1,99 @@
-import {Component, Input, ElementRef, ViewChildren, AfterViewInit} from 'angular2/core';
+import {Component, ViewChildren} from 'angular2/core';
 import {UniTable, UniTableBuilder, UniTableColumn} from '../../../../framework/uniTable';
 
-import {UniHttp} from '../../../../framework/core/http';
-
+import {UniHttp} from '../../../../framework/core/http/http';
 declare var jQuery;
-
-@Component({
-    selector: 'table-dropdown-test',
-    template: '<input />'
-})
-class TableDropdown {
-    @Input() kendoOptions;
-    nativeElement;
-    
-    constructor(elementRef: ElementRef) {
-        this.nativeElement = jQuery(elementRef.nativeElement);
-        this.nativeElement.kendoDropDownList(this.kendoOptions);
-    }
-    
-    ngAfterViewInit() {
-        console.log(this.nativeElement);
-        this.nativeElement.kendoDropDownList(this.kendoOptions);
-    }
-}
 
 @Component({
     selector: 'uni-table-demo',
     template: `   
-        <h4>Table with custom editor (dropdown) in "Type" column</h4>
-        <uni-table [config]="customEditorCfg"></uni-table>
+        <h4>Editable table with remote data lookup and custom controls (dropdown)</h4>
+        <uni-table [config]="demoTable1"></uni-table>
         <br><br>
         
-        <h4>Editable table with remote data</h4>
-        <uni-table [config]="editableRemoteDataCfg"></uni-table>
-        <button (click)="testUpdateFilter()">Test updateFilter</button>
+        <h4>Editable table with local data, create/update/delete callbacks (logs to console) and commands/buttons</h4>
+        <uni-table [config]="demoTable2"></uni-table>
+        <button class="c2a" (click)="refreshTable()">Refresh table with changes to first row</button>
         <br><br>
         
-        <h4>Editable table with local data</h4>
-        <uni-table [config]="editableLocalDataCfg"></uni-table>
-        <br><br>
-        
-        <h4>Read-only table with remote data</h4>
-        <uni-table [config]="readOnlyRemoteDataCfg"></uni-table>
-        <br><br>
-        
-        <h4>Read-only table with local data</h4>
-        <uni-table [config]="readOnlyLocalDataCfg"></uni-table>
-        <button (click)="testTableRefresh()">Test table refresh with new row</button>
+        <h4>Read-only table with callback on row click (logs to console)</h4>
+        <uni-table [config]="demoTable3"></uni-table>
+        <button class="c2a" (click)="updateTableFilter()">Update filter (price > 100)</button>
     `,
-    directives: [UniTable, TableDropdown]
+    directives: [UniTable]
 })
 export class UniTableDemo {
     @ViewChildren(UniTable) tables: any;
  
     localData: any;
-    
-    expandedFieldsTableCfg;
-    
-    editableRemoteDataCfg;
-    editableLocalDataCfg;
-    
-    readOnlyRemoteDataCfg;
-    readOnlyLocalDataCfg;	
-    
-    customEditorCfg;
-    
     leaveTypes: any[];
-    employments: any[];
+    employments: any[];    
     
-    getLeaveTypeText = (typeID: string) => {
-        var text = "";
-        this.leaveTypes.forEach((leaveType) => {
-            if (leaveType.typeID === typeID) {
-                text = leaveType.text;
-            }
+    demoTable1: UniTableBuilder;
+    demoTable2: UniTableBuilder;
+    demoTable3: UniTableBuilder;
+    
+    constructor(private uniHttpService: UniHttp) {
+        
+        this.leaveTypes = [
+          { ID: "0", Name: "Ikke valgt" },
+          { ID: "1", Name: "Permisjon" },
+          { ID: "2", Name: "Permittering" }  
+        ];
+        
+        this.uniHttpService.asGET()
+        .usingBusinessDomain()
+        .withEndPoint('employments')
+        .send()
+        .subscribe((response) => {
+            this.employments = response;
+            this.setupDemoTable1();
         });
-        return text;
+
+        this.localData = [
+            {ID: 1, Name: 'Vare 1', Price: 10},
+            {ID: 2, Name: 'Vare 2', Price: 20},
+            {ID: 3, Name: 'Vare 3', Price: 30},
+            {ID: 4, Name: 'Vare 4', Price: 40},
+            {ID: 5, Name: 'Vare 5', Price: 50},
+            {ID: 6, Name: 'Vare 6', Price: 60},
+        ];
+        
+        this.setupDemoTable2();
+        this.setupDemoTable3();
+        
     }
     
-    getEmploymentJobName = (employmentID: number) => {
-        var jobName = "";
+    setupDemoTable1() {
+        var idCol = new UniTableColumn('ID', 'ID', 'number')
+        .setEditable(false);
         
-        this.employments.forEach((employment) => {
-            if (employment.ID === employmentID) {
-                jobName = employment.JobName;
-            }
-        });
-        return jobName;
-    }
-    
-    setupCustomEditorCfg() {
-        var idCol = new UniTableColumn('ID', 'Id', 'number')
-        .setEditable(false)
-        .setNullable(true);
-        
-        var fromDateCol = new UniTableColumn('FromDate', 'Startdato', 'date')
-        .setFormat("{0: dd.MM.yyyy}");
+        var fromDateCol = new UniTableColumn('FromDate', 'Startdato', 'date');
         
         var toDateCol = new UniTableColumn('ToDate', 'Sluttdato', 'date')
-        .setFormat("{0: dd.MM.yyyy}")
         .setCustomEditor('datepicker', {});
-        
-        var leaveTypeCol = new UniTableColumn('LeaveType', 'Type', 'string')
-        .setTemplate((dataItem) => {
-            return this.getLeaveTypeText(dataItem.LeaveType);
-        })
-        .setCustomEditor('dropdown', {
-            dataSource: this.leaveTypes,
-            dataValueField: 'typeID',
-            dataTextField: 'text'
-        });
         
         var leavePercentCol = new UniTableColumn('LeavePercent', 'Andel permisjon', 'number')
         .setFormat("{0: #\\'%'}");
         
-        var commentCol = new UniTableColumn('Description', 'Kommentar', 'string');
+        var leaveTypeCol = new UniTableColumn('LeaveType', 'Type', 'string')
+        .setTemplate((dataItem) => {
+            // Show leave type name instead of ID
+            if (this.leaveTypes[dataItem.LeaveType]) {
+                return this.leaveTypes[dataItem.LeaveType].Name;
+            } else {
+                return "";
+            }
+        })
+        .setCustomEditor('dropdown', {
+            dataSource: this.leaveTypes,
+            dataValueField: 'ID',
+            dataTextField: 'Name'
+        });
         
         var employmentIDCol = new UniTableColumn('EmploymentID', 'Arbeidsforhold')
         .setTemplate((dataItem) => {
+            // Show employment JobName instead of ID
             return this.getEmploymentJobName(dataItem.EmploymentID)
         })
         .setCustomEditor('dropdown', {
@@ -129,49 +105,21 @@ export class UniTableDemo {
             rowModel.set('LeavePercent', 33);
         });
         
+        var commentCol = new UniTableColumn('Description', 'Kommentar', 'string');
         
-        this.customEditorCfg = new UniTableBuilder('EmployeeLeave', true)
+        this.demoTable1 = new UniTableBuilder('EmployeeLeave', true)
         .addColumns(idCol, fromDateCol, toDateCol, leavePercentCol, leaveTypeCol, employmentIDCol, commentCol);
-
     }
     
-    constructor(private uniHttpService: UniHttp) {
-        // Test table with custom editor
-        this.leaveTypes = [
-          { typeID: "1", text: "Permisjon" },
-          { typeID: "2", text: "Permittering" }  
-        ];
-        
-        this.uniHttpService.asGET()
-        .usingBusinessDomain()
-        .withEndPoint('employments')
-        .send()
-        .subscribe((response) => {
-            this.employments = response;
-            this.setupCustomEditorCfg();
-        });        
-        
-        
-        // Create columns to use in the tables
+    setupDemoTable2() {
+        // Define columns to use in the table
         var idCol = new UniTableColumn('ID', 'Produktnummer', 'number')
-        .setEditable(false)
-        .setNullable(true);
+        .setEditable(false);
         
         var nameCol = new UniTableColumn('Name', 'Produktnavn', 'string');
         var priceCol = new UniTableColumn('Price', 'Pris', 'number');
         
-        
-        // Mocked local data
-        this.localData = [
-            {ID: 1, Name: 'Vare 1', Price: 10},
-            {ID: 2, Name: 'Vare 2', Price: 20},
-            {ID: 3, Name: 'Vare 3', Price: 30},
-            {ID: 4, Name: 'Vare 4', Price: 40},
-            {ID: 5, Name: 'Vare 5', Price: 50},
-            {ID: 6, Name: 'Vare 6', Price: 60},
-        ];
-        
-        // Defined callbacks used in the tables
+        // Define callback functions for create, update and delete
         var updateCallback = (updatedItem) => {
             console.log('Updated: ');
             console.log(updatedItem);
@@ -187,61 +135,59 @@ export class UniTableDemo {
             console.log(deletedItem);
         }
         
+        this.demoTable2 = new UniTableBuilder(this.localData, true)
+        .setPageSize(5)
+        .setCreateCallback(createCallback)
+        .setUpdateCallback(updateCallback)
+        .setDeleteCallback(deleteCallback)
+        .addCommands(
+            'destroy', 
+            { name: 'Command1', text: 'Command 1', click: (event) => {event.preventDefault(); console.log(event)} },
+            { name: 'Command2', text: 'Command 2', click: (event) => {event.preventDefault(); console.log(event)} }
+         )
+        .addColumns(idCol, nameCol, priceCol);
+        
+    }
+    
+    setupDemoTable3() {
+        // Define columns to use in the table
+        var idCol = new UniTableColumn('ID', 'Produktnummer', 'number')
+        .setEditable(false);
+        
+        var nameCol = new UniTableColumn('Name', 'Produktnavn', 'string');
+        var priceCol = new UniTableColumn('Price', 'Pris', 'number');
+        
+        // Define callback function for row clicks
         var selectCallback = (selectedItem) => {
             console.log('Selected: ');
             console.log(selectedItem);
         }
         
+        // Setup table
+        this.demoTable3 = new UniTableBuilder('products', false)
+        .setSelectCallback(selectCallback)
+        .addColumns(idCol, nameCol, priceCol);
+    }
+    
+    
+    // Returns JobName for the selected ID in employment dropdown
+    getEmploymentJobName = (employmentID: number) => {
+        var jobName = "";
         
-        // Editable table working with remote data
-        this.editableRemoteDataCfg = new UniTableBuilder('products', true)
-        .setFilter('Price gt 100')
-        .setPageSize(5)
-        .addColumns(idCol, nameCol, priceCol)
-        .addCommands(
-            'destroy',
-            { name: 'Command1', text: 'Command 1', click: (event) => {event.preventDefault(); console.log(event)} },
-            { name: 'Command2', text: 'Command 2', click: (event) => {event.preventDefault(); console.log(event)} }
-        );
-        
-        
-        // Editable table working with local data
-        uniHttpService
-        .asGET()
-        .usingBusinessDomain()
-        .withEndPoint("products")
-        .send({top:5})
-        .subscribe((response) => {
-           this.editableLocalDataCfg = new UniTableBuilder(response, true)
-            .setPageSize(5)
-            .addColumns(idCol, nameCol, priceCol)
-            .setUpdateCallback(updateCallback)
-            .setCreateCallback(createCallback)
-            .setDeleteCallback(deleteCallback); 
+        this.employments.forEach((employment) => {
+            if (employment.ID === employmentID) {
+                jobName = employment.JobName;
+            }
         });
-        
-        
-        // Read-only table working with remote data
-        this.readOnlyRemoteDataCfg = new UniTableBuilder('products', false)
-        .setPageSize(5)
-        .addColumns(idCol, nameCol, priceCol)
-        .setSelectCallback(selectCallback);
-        
-        
-        // Read-only table working with local data
-        this.readOnlyLocalDataCfg = new UniTableBuilder(this.localData, false)
-        .setPageSize(5)
-        .addColumns(idCol, nameCol, priceCol)
-        .setSelectCallback(selectCallback);
-         
+        return jobName;
     }
     
-    testTableRefresh() {
-        this.localData[0].Name = "Navn endret av refresh!";
-        this.tables.toArray()[3].refresh(this.localData);
+    refreshTable() {
+        this.localData[0].Name = "Navn endret etter tabell init!";
+        this.tables.toArray()[1].refresh(this.localData);
     }
     
-    testUpdateFilter() {
-        this.tables.toArray()[0].updateFilter('Price gt 200');
+    updateTableFilter() {
+        this.tables.toArray()[2].updateFilter('Price gt 100');
     }
 }
