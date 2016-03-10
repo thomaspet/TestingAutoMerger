@@ -27,6 +27,14 @@ export class CustomerInvoice {
 	AmountRegards: string;
 	DeliveryName: string;
 	JournalEntryID: number;
+	ShippingAddressLine1: string;
+	ShippingAddressLine2: string;
+	ShippingAddressLine3: string;
+	ShippingPostalCode: number;
+	ShippingCity: string;
+	ShippingCountryCode: string;
+	ShippingCountry: string;
+	CustomerPerson: string;
 	InvoiceRecieverName: string;
 	InvoiceAddressLine1: string;
 	InvoiceAddressLine2: string;
@@ -35,17 +43,9 @@ export class CustomerInvoice {
 	InvoiceCity: string;
 	InvoiceCountryCode: string;
 	InvoiceCountry: string;
-	ShippingAddressLine1: string;
-	ShippingAddressLine2: string;
-	ShippingAddressLine3: string;
-	ShippingPostalCode: number;
-	ShippingCity: string;
-	ShippingCountryCode: string;
-	ShippingCountry: string;
 	OurReference: string;
 	YourReference: string;
 	SalesPerson: string;
-	CustomerPerson: string;
 	DeliveryMethod: string;
 	PaymentTerm: string;
 	DeliveryTerm: string;
@@ -79,6 +79,7 @@ export class CustomerInvoiceItem {
 	static relativeUrl = ""
 
 	CustomerInvoiceID: number;
+	Comment: string;
 	ProductID: number;
 	ItemText: string;
 	NumberOfItems: number;
@@ -88,7 +89,6 @@ export class CustomerInvoiceItem {
 	DimensionsID: number;
 	SumTotal: number;
 	SumVat: number;
-	Comment: string;
 	StatusID: number;
 	ID: number;
 	Deleted: boolean;
@@ -104,6 +104,14 @@ export class CustomerOrder {
 	CustomerID: number;
 	OrderDate: Date;
 	OrderReference: string;
+	ShippingAddressLine1: string;
+	ShippingAddressLine2: string;
+	ShippingAddressLine3: string;
+	ShippingPostalCode: number;
+	ShippingCity: string;
+	ShippingCountryCode: string;
+	ShippingCountry: string;
+	CustomerPerson: string;
 	InvoiceRecieverName: string;
 	InvoiceAddressLine1: string;
 	InvoiceAddressLine2: string;
@@ -112,17 +120,9 @@ export class CustomerOrder {
 	InvoiceCity: string;
 	InvoiceCountryCode: string;
 	InvoiceCountry: string;
-	ShippingAddressLine1: string;
-	ShippingAddressLine2: string;
-	ShippingAddressLine3: string;
-	ShippingPostalCode: number;
-	ShippingCity: string;
-	ShippingCountryCode: string;
-	ShippingCountry: string;
 	OurReference: string;
 	YourReference: string;
 	SalesPerson: string;
-	CustomerPerson: string;
 	DeliveryMethod: string;
 	PaymentTerm: string;
 	DeliveryTerm: string;
@@ -156,6 +156,7 @@ export class CustomerOrderItem {
 
 	Code: string;
 	CustomerOrderID: number;
+	Comment: string;
 	ProductID: number;
 	ItemText: string;
 	NumberOfItems: number;
@@ -165,7 +166,6 @@ export class CustomerOrderItem {
 	DimensionsID: number;
 	SumTotal: number;
 	SumVat: number;
-	Comment: string;
 	StatusID: number;
 	ID: number;
 	Deleted: boolean;
@@ -181,6 +181,14 @@ export class CustomerQuote {
 	CustomerID: number;
 	QuoteDate: Date;
 	InquiryReference: number;
+	ShippingAddressLine1: string;
+	ShippingAddressLine2: string;
+	ShippingAddressLine3: string;
+	ShippingPostalCode: number;
+	ShippingCity: string;
+	ShippingCountryCode: string;
+	ShippingCountry: string;
+	CustomerPerson: string;
 	InvoiceRecieverName: string;
 	InvoiceAddressLine1: string;
 	InvoiceAddressLine2: string;
@@ -189,17 +197,9 @@ export class CustomerQuote {
 	InvoiceCity: string;
 	InvoiceCountryCode: string;
 	InvoiceCountry: string;
-	ShippingAddressLine1: string;
-	ShippingAddressLine2: string;
-	ShippingAddressLine3: string;
-	ShippingPostalCode: number;
-	ShippingCity: string;
-	ShippingCountryCode: string;
-	ShippingCountry: string;
 	OurReference: string;
 	YourReference: string;
 	SalesPerson: string;
-	CustomerPerson: string;
 	DeliveryMethod: string;
 	PaymentTerm: string;
 	DeliveryTerm: string;
@@ -232,6 +232,7 @@ export class CustomerQuoteItem {
 	static relativeUrl = ""
 
 	CustomerQuoteID: number;
+	Comment: string;
 	ProductID: number;
 	ItemText: string;
 	NumberOfItems: number;
@@ -241,7 +242,6 @@ export class CustomerQuoteItem {
 	DimensionsID: number;
 	SumTotal: number;
 	SumVat: number;
-	Comment: string;
 	StatusID: number;
 	ID: number;
 	Deleted: boolean;
@@ -350,6 +350,7 @@ export class Address {
 	StatusID: number;
 	ID: number;
 	Deleted: boolean;
+	BusinessRelation: BusinessRelation;
 	CustomFields: any;
 }
 
@@ -489,6 +490,7 @@ export class EmployeeCategoryLink {
 
 	EmployeeCategoryID: number;
 	EmployeeID: number;
+	EmployeeNumber: number;
 	StatusID: number;
 	ID: number;
 	Deleted: boolean;
@@ -518,6 +520,7 @@ export class EmployeeLeave {
 export class Employment {
 	static relativeUrl = "employments";
 
+	EmployeeNumber: number;
 	EmployeeID: number;
 	LocalizationID: number;
 	JobCode: string;
@@ -536,13 +539,14 @@ export class Employment {
 	WorkingHoursScheme: WorkingHoursScheme;
 	WorkPercent: number;
 	HoursPerWeek: number;
+	LedgerAccount: string;
 	ShipType: ShipTypeOfShip;
 	ShipReg: ShipRegistry;
 	TradeArea: ShipTradeArea;
-	LedgerAccount: string;
 	StatusID: number;
 	ID: number;
 	Deleted: boolean;
+	Employee: Employee;
 	Localization: Localization;
 	Leaves: Array<EmployeeLeave>;
 	Leave: Array<EmployeeLeave>;
@@ -673,6 +677,7 @@ export class SalaryTransaction {
 
 	PayrollRunID: number;
 	runID: number;
+	EmployeeID: number;
 	EmployeeNumber: number;
 	FromDate: Date;
 	ToDate: Date;
@@ -695,6 +700,7 @@ export class SalaryTransaction {
 	ID: number;
 	Deleted: boolean;
 	payrollrun: PayrollRun;
+	Employee: Employee;
 	Wagetype: WageType;
 	Supplements: Array<SalaryTransactionSupplement>;
 	CustomFields: any;
@@ -742,6 +748,7 @@ export class Employee {
 	PhotoID: number;
 	EmploymentDate: Date;
 	Sex: number;
+	NotMainEmployer: boolean;
 	StatusID: number;
 	ID: number;
 	Deleted: boolean;
@@ -759,11 +766,11 @@ export class BankAccountSalary {
 
 	EmployeeID: number;
 	AccountNumber: string;
+	Active: boolean;
 	BIC: string;
 	BankName: string;
 	LandCode: string;
 	BankAddress: string;
-	Active: boolean;
 	StatusID: number;
 	ID: number;
 	Deleted: boolean;
@@ -883,117 +890,6 @@ export class EmploymentValidValues {
 	WorkPercent: boolean;
 	ID: number;
 	Deleted: boolean;
-	CustomFields: any;
-}
-
-
-export class TradeHeader {
-	static relativeUrl = ""
-
-	InvoiceRecieverName: string;
-	InvoiceAddressLine1: string;
-	InvoiceAddressLine2: string;
-	InvoiceAddressLine3: string;
-	InvoicePostalCode: number;
-	InvoiceCity: string;
-	InvoiceCountryCode: string;
-	InvoiceCountry: string;
-	ShippingAddressLine1: string;
-	ShippingAddressLine2: string;
-	ShippingAddressLine3: string;
-	ShippingPostalCode: number;
-	ShippingCity: string;
-	ShippingCountryCode: string;
-	ShippingCountry: string;
-	OurReference: string;
-	YourReference: string;
-	SalesPerson: string;
-	CustomerPerson: string;
-	DeliveryMethod: string;
-	PaymentTerm: string;
-	DeliveryTerm: string;
-	DeliveryDate: Date;
-	Comment: string;
-	InternalNote: string;
-	FreeTxt: string;
-	TaxInclusiveAmount: number;
-	VatTotalsAmount: number;
-	Attachments: string;
-	DimensionsID: number;
-	CurrencyCode: string;
-	CreatedBy: string;
-	CreatedDate: Date;
-	SupplierOrgNumber: string;
-	CustomerOrgNumber: string;
-	TaxInclusiveCurrencyAmount: number;
-	TaxExclusiveCurrencyAmount: number;
-	TaxExclusiveAmount: number;
-	StatusID: number;
-	ID: number;
-	Deleted: boolean;
-	Dimensions: Dimensions;
-	CustomFields: any;
-}
-
-
-export class InvoiceHeader {
-	static relativeUrl = ""
-
-	InvoiceDate: Date;
-	PaymentDueDate: Date;
-	InvoiceType: number;
-	PaymentID: string;
-	PaymentInformation: string;
-	InvoiceID: number;
-	Credited: boolean;
-	BankAccount: string;
-	Payment: string;
-	AmountRegards: string;
-	DeliveryName: string;
-	JournalEntryID: number;
-	InvoiceRecieverName: string;
-	InvoiceAddressLine1: string;
-	InvoiceAddressLine2: string;
-	InvoiceAddressLine3: string;
-	InvoicePostalCode: number;
-	InvoiceCity: string;
-	InvoiceCountryCode: string;
-	InvoiceCountry: string;
-	ShippingAddressLine1: string;
-	ShippingAddressLine2: string;
-	ShippingAddressLine3: string;
-	ShippingPostalCode: number;
-	ShippingCity: string;
-	ShippingCountryCode: string;
-	ShippingCountry: string;
-	OurReference: string;
-	YourReference: string;
-	SalesPerson: string;
-	CustomerPerson: string;
-	DeliveryMethod: string;
-	PaymentTerm: string;
-	DeliveryTerm: string;
-	DeliveryDate: Date;
-	Comment: string;
-	InternalNote: string;
-	FreeTxt: string;
-	TaxInclusiveAmount: number;
-	VatTotalsAmount: number;
-	Attachments: string;
-	DimensionsID: number;
-	CurrencyCode: string;
-	CreatedBy: string;
-	CreatedDate: Date;
-	SupplierOrgNumber: string;
-	CustomerOrgNumber: string;
-	TaxInclusiveCurrencyAmount: number;
-	TaxExclusiveCurrencyAmount: number;
-	TaxExclusiveAmount: number;
-	StatusID: number;
-	ID: number;
-	Deleted: boolean;
-	JournalEntry: JournalEntry;
-	Dimensions: Dimensions;
 	CustomFields: any;
 }
 
@@ -1644,6 +1540,7 @@ export class Product {
 export class TradeItem {
 	static relativeUrl = ""
 
+	Comment: string;
 	ProductID: number;
 	ItemText: string;
 	NumberOfItems: number;
@@ -1653,7 +1550,6 @@ export class TradeItem {
 	DimensionsID: number;
 	SumTotal: number;
 	SumVat: number;
-	Comment: string;
 	StatusID: number;
 	ID: number;
 	Deleted: boolean;
@@ -2061,6 +1957,7 @@ export class SupplierInvoiceItem {
 	static relativeUrl = ""
 
 	SupplierInvoiceID: number;
+	Comment: string;
 	ProductID: number;
 	ItemText: string;
 	NumberOfItems: number;
@@ -2070,7 +1967,6 @@ export class SupplierInvoiceItem {
 	DimensionsID: number;
 	SumTotal: number;
 	SumVat: number;
-	Comment: string;
 	StatusID: number;
 	ID: number;
 	Deleted: boolean;
@@ -2096,6 +1992,14 @@ export class SupplierInvoice {
 	AmountRegards: string;
 	DeliveryName: string;
 	JournalEntryID: number;
+	ShippingAddressLine1: string;
+	ShippingAddressLine2: string;
+	ShippingAddressLine3: string;
+	ShippingPostalCode: number;
+	ShippingCity: string;
+	ShippingCountryCode: string;
+	ShippingCountry: string;
+	CustomerPerson: string;
 	InvoiceRecieverName: string;
 	InvoiceAddressLine1: string;
 	InvoiceAddressLine2: string;
@@ -2104,17 +2008,9 @@ export class SupplierInvoice {
 	InvoiceCity: string;
 	InvoiceCountryCode: string;
 	InvoiceCountry: string;
-	ShippingAddressLine1: string;
-	ShippingAddressLine2: string;
-	ShippingAddressLine3: string;
-	ShippingPostalCode: number;
-	ShippingCity: string;
-	ShippingCountryCode: string;
-	ShippingCountry: string;
 	OurReference: string;
 	YourReference: string;
 	SalesPerson: string;
-	CustomerPerson: string;
 	DeliveryMethod: string;
 	PaymentTerm: string;
 	DeliveryTerm: string;
@@ -2417,1676 +2313,6 @@ export class FieldLayoutDto {
 	CustomFields: any;
 }
 
-
-export class ComponentLayoutDto {
-	static relativeUrl = ""
-
-	Name: string;
-	BaseEntity: string;
-	Url: string;
-	Fields: Array<FieldLayoutDto>;
-	CustomFields: any;
-}
-
-
-export class FieldLayoutDto {
-	static relativeUrl = ""
-
-	Url: string;
-	LookupEntityType: string;
-	ComponentLayoutID: number;
-	EntityType: string;
-	Property: string;
-	Placement: number;
-	Hidden: boolean;
-	FieldType: FieldType;
-	ReadOnly: boolean;
-	LookupField: boolean;
-	Label: string;
-	Description: string;
-	HelpText: string;
-	FieldSet: number;
-	Section: number;
-	Legend: string;
-	StatusID: number;
-	ID: number;
-	Deleted: boolean;
-	Validations: Array<ClientValidationRule>;
-	CustomFields: any;
-}
-
-
-export class ComponentLayoutDto {
-	static relativeUrl = ""
-
-	Name: string;
-	BaseEntity: string;
-	Url: string;
-	Fields: Array<FieldLayoutDto>;
-	CustomFields: any;
-}
-
-
-export class FieldLayoutDto {
-	static relativeUrl = ""
-
-	Url: string;
-	LookupEntityType: string;
-	ComponentLayoutID: number;
-	EntityType: string;
-	Property: string;
-	Placement: number;
-	Hidden: boolean;
-	FieldType: FieldType;
-	ReadOnly: boolean;
-	LookupField: boolean;
-	Label: string;
-	Description: string;
-	HelpText: string;
-	FieldSet: number;
-	Section: number;
-	Legend: string;
-	StatusID: number;
-	ID: number;
-	Deleted: boolean;
-	Validations: Array<ClientValidationRule>;
-	CustomFields: any;
-}
-
-
-export class ComponentLayoutDto {
-	static relativeUrl = ""
-
-	Name: string;
-	BaseEntity: string;
-	Url: string;
-	Fields: Array<FieldLayoutDto>;
-	CustomFields: any;
-}
-
-
-export class FieldLayoutDto {
-	static relativeUrl = ""
-
-	Url: string;
-	LookupEntityType: string;
-	ComponentLayoutID: number;
-	EntityType: string;
-	Property: string;
-	Placement: number;
-	Hidden: boolean;
-	FieldType: FieldType;
-	ReadOnly: boolean;
-	LookupField: boolean;
-	Label: string;
-	Description: string;
-	HelpText: string;
-	FieldSet: number;
-	Section: number;
-	Legend: string;
-	StatusID: number;
-	ID: number;
-	Deleted: boolean;
-	Validations: Array<ClientValidationRule>;
-	CustomFields: any;
-}
-
-
-export class ComponentLayoutDto {
-	static relativeUrl = ""
-
-	Name: string;
-	BaseEntity: string;
-	Url: string;
-	Fields: Array<FieldLayoutDto>;
-	CustomFields: any;
-}
-
-
-export class FieldLayoutDto {
-	static relativeUrl = ""
-
-	Url: string;
-	LookupEntityType: string;
-	ComponentLayoutID: number;
-	EntityType: string;
-	Property: string;
-	Placement: number;
-	Hidden: boolean;
-	FieldType: FieldType;
-	ReadOnly: boolean;
-	LookupField: boolean;
-	Label: string;
-	Description: string;
-	HelpText: string;
-	FieldSet: number;
-	Section: number;
-	Legend: string;
-	StatusID: number;
-	ID: number;
-	Deleted: boolean;
-	Validations: Array<ClientValidationRule>;
-	CustomFields: any;
-}
-
-
-export class ComponentLayoutDto {
-	static relativeUrl = ""
-
-	Name: string;
-	BaseEntity: string;
-	Url: string;
-	Fields: Array<FieldLayoutDto>;
-	CustomFields: any;
-}
-
-
-export class FieldLayoutDto {
-	static relativeUrl = ""
-
-	Url: string;
-	LookupEntityType: string;
-	ComponentLayoutID: number;
-	EntityType: string;
-	Property: string;
-	Placement: number;
-	Hidden: boolean;
-	FieldType: FieldType;
-	ReadOnly: boolean;
-	LookupField: boolean;
-	Label: string;
-	Description: string;
-	HelpText: string;
-	FieldSet: number;
-	Section: number;
-	Legend: string;
-	StatusID: number;
-	ID: number;
-	Deleted: boolean;
-	Validations: Array<ClientValidationRule>;
-	CustomFields: any;
-}
-
-
-export class ComponentLayoutDto {
-	static relativeUrl = ""
-
-	Name: string;
-	BaseEntity: string;
-	Url: string;
-	Fields: Array<FieldLayoutDto>;
-	CustomFields: any;
-}
-
-
-export class FieldLayoutDto {
-	static relativeUrl = ""
-
-	Url: string;
-	LookupEntityType: string;
-	ComponentLayoutID: number;
-	EntityType: string;
-	Property: string;
-	Placement: number;
-	Hidden: boolean;
-	FieldType: FieldType;
-	ReadOnly: boolean;
-	LookupField: boolean;
-	Label: string;
-	Description: string;
-	HelpText: string;
-	FieldSet: number;
-	Section: number;
-	Legend: string;
-	StatusID: number;
-	ID: number;
-	Deleted: boolean;
-	Validations: Array<ClientValidationRule>;
-	CustomFields: any;
-}
-
-
-export class ComponentLayoutDto {
-	static relativeUrl = ""
-
-	Name: string;
-	BaseEntity: string;
-	Url: string;
-	Fields: Array<FieldLayoutDto>;
-	CustomFields: any;
-}
-
-
-export class FieldLayoutDto {
-	static relativeUrl = ""
-
-	Url: string;
-	LookupEntityType: string;
-	ComponentLayoutID: number;
-	EntityType: string;
-	Property: string;
-	Placement: number;
-	Hidden: boolean;
-	FieldType: FieldType;
-	ReadOnly: boolean;
-	LookupField: boolean;
-	Label: string;
-	Description: string;
-	HelpText: string;
-	FieldSet: number;
-	Section: number;
-	Legend: string;
-	StatusID: number;
-	ID: number;
-	Deleted: boolean;
-	Validations: Array<ClientValidationRule>;
-	CustomFields: any;
-}
-
-
-export class ComponentLayoutDto {
-	static relativeUrl = ""
-
-	Name: string;
-	BaseEntity: string;
-	Url: string;
-	Fields: Array<FieldLayoutDto>;
-	CustomFields: any;
-}
-
-
-export class FieldLayoutDto {
-	static relativeUrl = ""
-
-	Url: string;
-	LookupEntityType: string;
-	ComponentLayoutID: number;
-	EntityType: string;
-	Property: string;
-	Placement: number;
-	Hidden: boolean;
-	FieldType: FieldType;
-	ReadOnly: boolean;
-	LookupField: boolean;
-	Label: string;
-	Description: string;
-	HelpText: string;
-	FieldSet: number;
-	Section: number;
-	Legend: string;
-	StatusID: number;
-	ID: number;
-	Deleted: boolean;
-	Validations: Array<ClientValidationRule>;
-	CustomFields: any;
-}
-
-
-export class ComponentLayoutDto {
-	static relativeUrl = ""
-
-	Name: string;
-	BaseEntity: string;
-	Url: string;
-	Fields: Array<FieldLayoutDto>;
-	CustomFields: any;
-}
-
-
-export class FieldLayoutDto {
-	static relativeUrl = ""
-
-	Url: string;
-	LookupEntityType: string;
-	ComponentLayoutID: number;
-	EntityType: string;
-	Property: string;
-	Placement: number;
-	Hidden: boolean;
-	FieldType: FieldType;
-	ReadOnly: boolean;
-	LookupField: boolean;
-	Label: string;
-	Description: string;
-	HelpText: string;
-	FieldSet: number;
-	Section: number;
-	Legend: string;
-	StatusID: number;
-	ID: number;
-	Deleted: boolean;
-	Validations: Array<ClientValidationRule>;
-	CustomFields: any;
-}
-
-
-export class ComponentLayoutDto {
-	static relativeUrl = ""
-
-	Name: string;
-	BaseEntity: string;
-	Url: string;
-	Fields: Array<FieldLayoutDto>;
-	CustomFields: any;
-}
-
-
-export class FieldLayoutDto {
-	static relativeUrl = ""
-
-	Url: string;
-	LookupEntityType: string;
-	ComponentLayoutID: number;
-	EntityType: string;
-	Property: string;
-	Placement: number;
-	Hidden: boolean;
-	FieldType: FieldType;
-	ReadOnly: boolean;
-	LookupField: boolean;
-	Label: string;
-	Description: string;
-	HelpText: string;
-	FieldSet: number;
-	Section: number;
-	Legend: string;
-	StatusID: number;
-	ID: number;
-	Deleted: boolean;
-	Validations: Array<ClientValidationRule>;
-	CustomFields: any;
-}
-
-
-export class ComponentLayoutDto {
-	static relativeUrl = ""
-
-	Name: string;
-	BaseEntity: string;
-	Url: string;
-	Fields: Array<FieldLayoutDto>;
-	CustomFields: any;
-}
-
-
-export class FieldLayoutDto {
-	static relativeUrl = ""
-
-	Url: string;
-	LookupEntityType: string;
-	ComponentLayoutID: number;
-	EntityType: string;
-	Property: string;
-	Placement: number;
-	Hidden: boolean;
-	FieldType: FieldType;
-	ReadOnly: boolean;
-	LookupField: boolean;
-	Label: string;
-	Description: string;
-	HelpText: string;
-	FieldSet: number;
-	Section: number;
-	Legend: string;
-	StatusID: number;
-	ID: number;
-	Deleted: boolean;
-	Validations: Array<ClientValidationRule>;
-	CustomFields: any;
-}
-
-
-export class ComponentLayoutDto {
-	static relativeUrl = ""
-
-	Name: string;
-	BaseEntity: string;
-	Url: string;
-	Fields: Array<FieldLayoutDto>;
-	CustomFields: any;
-}
-
-
-export class FieldLayoutDto {
-	static relativeUrl = ""
-
-	Url: string;
-	LookupEntityType: string;
-	ComponentLayoutID: number;
-	EntityType: string;
-	Property: string;
-	Placement: number;
-	Hidden: boolean;
-	FieldType: FieldType;
-	ReadOnly: boolean;
-	LookupField: boolean;
-	Label: string;
-	Description: string;
-	HelpText: string;
-	FieldSet: number;
-	Section: number;
-	Legend: string;
-	StatusID: number;
-	ID: number;
-	Deleted: boolean;
-	Validations: Array<ClientValidationRule>;
-	CustomFields: any;
-}
-
-
-export class ComponentLayoutDto {
-	static relativeUrl = ""
-
-	Name: string;
-	BaseEntity: string;
-	Url: string;
-	Fields: Array<FieldLayoutDto>;
-	CustomFields: any;
-}
-
-
-export class FieldLayoutDto {
-	static relativeUrl = ""
-
-	Url: string;
-	LookupEntityType: string;
-	ComponentLayoutID: number;
-	EntityType: string;
-	Property: string;
-	Placement: number;
-	Hidden: boolean;
-	FieldType: FieldType;
-	ReadOnly: boolean;
-	LookupField: boolean;
-	Label: string;
-	Description: string;
-	HelpText: string;
-	FieldSet: number;
-	Section: number;
-	Legend: string;
-	StatusID: number;
-	ID: number;
-	Deleted: boolean;
-	Validations: Array<ClientValidationRule>;
-	CustomFields: any;
-}
-
-
-export class ComponentLayoutDto {
-	static relativeUrl = ""
-
-	Name: string;
-	BaseEntity: string;
-	Url: string;
-	Fields: Array<FieldLayoutDto>;
-	CustomFields: any;
-}
-
-
-export class FieldLayoutDto {
-	static relativeUrl = ""
-
-	Url: string;
-	LookupEntityType: string;
-	ComponentLayoutID: number;
-	EntityType: string;
-	Property: string;
-	Placement: number;
-	Hidden: boolean;
-	FieldType: FieldType;
-	ReadOnly: boolean;
-	LookupField: boolean;
-	Label: string;
-	Description: string;
-	HelpText: string;
-	FieldSet: number;
-	Section: number;
-	Legend: string;
-	StatusID: number;
-	ID: number;
-	Deleted: boolean;
-	Validations: Array<ClientValidationRule>;
-	CustomFields: any;
-}
-
-
-export class ComponentLayoutDto {
-	static relativeUrl = ""
-
-	Name: string;
-	BaseEntity: string;
-	Url: string;
-	Fields: Array<FieldLayoutDto>;
-	CustomFields: any;
-}
-
-
-export class FieldLayoutDto {
-	static relativeUrl = ""
-
-	Url: string;
-	LookupEntityType: string;
-	ComponentLayoutID: number;
-	EntityType: string;
-	Property: string;
-	Placement: number;
-	Hidden: boolean;
-	FieldType: FieldType;
-	ReadOnly: boolean;
-	LookupField: boolean;
-	Label: string;
-	Description: string;
-	HelpText: string;
-	FieldSet: number;
-	Section: number;
-	Legend: string;
-	StatusID: number;
-	ID: number;
-	Deleted: boolean;
-	Validations: Array<ClientValidationRule>;
-	CustomFields: any;
-}
-
-
-export class ComponentLayoutDto {
-	static relativeUrl = ""
-
-	Name: string;
-	BaseEntity: string;
-	Url: string;
-	Fields: Array<FieldLayoutDto>;
-	CustomFields: any;
-}
-
-
-export class FieldLayoutDto {
-	static relativeUrl = ""
-
-	Url: string;
-	LookupEntityType: string;
-	ComponentLayoutID: number;
-	EntityType: string;
-	Property: string;
-	Placement: number;
-	Hidden: boolean;
-	FieldType: FieldType;
-	ReadOnly: boolean;
-	LookupField: boolean;
-	Label: string;
-	Description: string;
-	HelpText: string;
-	FieldSet: number;
-	Section: number;
-	Legend: string;
-	StatusID: number;
-	ID: number;
-	Deleted: boolean;
-	Validations: Array<ClientValidationRule>;
-	CustomFields: any;
-}
-
-
-export class ComponentLayoutDto {
-	static relativeUrl = ""
-
-	Name: string;
-	BaseEntity: string;
-	Url: string;
-	Fields: Array<FieldLayoutDto>;
-	CustomFields: any;
-}
-
-
-export class FieldLayoutDto {
-	static relativeUrl = ""
-
-	Url: string;
-	LookupEntityType: string;
-	ComponentLayoutID: number;
-	EntityType: string;
-	Property: string;
-	Placement: number;
-	Hidden: boolean;
-	FieldType: FieldType;
-	ReadOnly: boolean;
-	LookupField: boolean;
-	Label: string;
-	Description: string;
-	HelpText: string;
-	FieldSet: number;
-	Section: number;
-	Legend: string;
-	StatusID: number;
-	ID: number;
-	Deleted: boolean;
-	Validations: Array<ClientValidationRule>;
-	CustomFields: any;
-}
-
-
-export class ComponentLayoutDto {
-	static relativeUrl = ""
-
-	Name: string;
-	BaseEntity: string;
-	Url: string;
-	Fields: Array<FieldLayoutDto>;
-	CustomFields: any;
-}
-
-
-export class FieldLayoutDto {
-	static relativeUrl = ""
-
-	Url: string;
-	LookupEntityType: string;
-	ComponentLayoutID: number;
-	EntityType: string;
-	Property: string;
-	Placement: number;
-	Hidden: boolean;
-	FieldType: FieldType;
-	ReadOnly: boolean;
-	LookupField: boolean;
-	Label: string;
-	Description: string;
-	HelpText: string;
-	FieldSet: number;
-	Section: number;
-	Legend: string;
-	StatusID: number;
-	ID: number;
-	Deleted: boolean;
-	Validations: Array<ClientValidationRule>;
-	CustomFields: any;
-}
-
-
-export class ComponentLayoutDto {
-	static relativeUrl = ""
-
-	Name: string;
-	BaseEntity: string;
-	Url: string;
-	Fields: Array<FieldLayoutDto>;
-	CustomFields: any;
-}
-
-
-export class FieldLayoutDto {
-	static relativeUrl = ""
-
-	Url: string;
-	LookupEntityType: string;
-	ComponentLayoutID: number;
-	EntityType: string;
-	Property: string;
-	Placement: number;
-	Hidden: boolean;
-	FieldType: FieldType;
-	ReadOnly: boolean;
-	LookupField: boolean;
-	Label: string;
-	Description: string;
-	HelpText: string;
-	FieldSet: number;
-	Section: number;
-	Legend: string;
-	StatusID: number;
-	ID: number;
-	Deleted: boolean;
-	Validations: Array<ClientValidationRule>;
-	CustomFields: any;
-}
-
-
-export class ComponentLayoutDto {
-	static relativeUrl = ""
-
-	Name: string;
-	BaseEntity: string;
-	Url: string;
-	Fields: Array<FieldLayoutDto>;
-	CustomFields: any;
-}
-
-
-export class FieldLayoutDto {
-	static relativeUrl = ""
-
-	Url: string;
-	LookupEntityType: string;
-	ComponentLayoutID: number;
-	EntityType: string;
-	Property: string;
-	Placement: number;
-	Hidden: boolean;
-	FieldType: FieldType;
-	ReadOnly: boolean;
-	LookupField: boolean;
-	Label: string;
-	Description: string;
-	HelpText: string;
-	FieldSet: number;
-	Section: number;
-	Legend: string;
-	StatusID: number;
-	ID: number;
-	Deleted: boolean;
-	Validations: Array<ClientValidationRule>;
-	CustomFields: any;
-}
-
-
-export class ComponentLayoutDto {
-	static relativeUrl = ""
-
-	Name: string;
-	BaseEntity: string;
-	Url: string;
-	Fields: Array<FieldLayoutDto>;
-	CustomFields: any;
-}
-
-
-export class FieldLayoutDto {
-	static relativeUrl = ""
-
-	Url: string;
-	LookupEntityType: string;
-	ComponentLayoutID: number;
-	EntityType: string;
-	Property: string;
-	Placement: number;
-	Hidden: boolean;
-	FieldType: FieldType;
-	ReadOnly: boolean;
-	LookupField: boolean;
-	Label: string;
-	Description: string;
-	HelpText: string;
-	FieldSet: number;
-	Section: number;
-	Legend: string;
-	StatusID: number;
-	ID: number;
-	Deleted: boolean;
-	Validations: Array<ClientValidationRule>;
-	CustomFields: any;
-}
-
-
-export class ComponentLayoutDto {
-	static relativeUrl = ""
-
-	Name: string;
-	BaseEntity: string;
-	Url: string;
-	Fields: Array<FieldLayoutDto>;
-	CustomFields: any;
-}
-
-
-export class FieldLayoutDto {
-	static relativeUrl = ""
-
-	Url: string;
-	LookupEntityType: string;
-	ComponentLayoutID: number;
-	EntityType: string;
-	Property: string;
-	Placement: number;
-	Hidden: boolean;
-	FieldType: FieldType;
-	ReadOnly: boolean;
-	LookupField: boolean;
-	Label: string;
-	Description: string;
-	HelpText: string;
-	FieldSet: number;
-	Section: number;
-	Legend: string;
-	StatusID: number;
-	ID: number;
-	Deleted: boolean;
-	Validations: Array<ClientValidationRule>;
-	CustomFields: any;
-}
-
-
-export class ComponentLayoutDto {
-	static relativeUrl = ""
-
-	Name: string;
-	BaseEntity: string;
-	Url: string;
-	Fields: Array<FieldLayoutDto>;
-	CustomFields: any;
-}
-
-
-export class FieldLayoutDto {
-	static relativeUrl = ""
-
-	Url: string;
-	LookupEntityType: string;
-	ComponentLayoutID: number;
-	EntityType: string;
-	Property: string;
-	Placement: number;
-	Hidden: boolean;
-	FieldType: FieldType;
-	ReadOnly: boolean;
-	LookupField: boolean;
-	Label: string;
-	Description: string;
-	HelpText: string;
-	FieldSet: number;
-	Section: number;
-	Legend: string;
-	StatusID: number;
-	ID: number;
-	Deleted: boolean;
-	Validations: Array<ClientValidationRule>;
-	CustomFields: any;
-}
-
-export class ComponentLayoutDto {
-	static relativeUrl = ""
-
-	Name: string;
-	BaseEntity: string;
-	Url: string;
-	Fields: Array<FieldLayoutDto>;
-	CustomFields: any;
-}
-
-
-export class FieldLayoutDto {
-	static relativeUrl = ""
-
-	Url: string;
-	LookupEntityType: string;
-	ComponentLayoutID: number;
-	EntityType: string;
-	Property: string;
-	Placement: number;
-	Hidden: boolean;
-	FieldType: FieldType;
-	ReadOnly: boolean;
-	LookupField: boolean;
-	Label: string;
-	Description: string;
-	HelpText: string;
-	FieldSet: number;
-	Section: number;
-	Legend: string;
-	StatusID: number;
-	ID: number;
-	Deleted: boolean;
-	Validations: Array<ClientValidationRule>;
-	CustomFields: any;
-}
-
-
-export class ComponentLayoutDto {
-	static relativeUrl = ""
-
-	Name: string;
-	BaseEntity: string;
-	Url: string;
-	Fields: Array<FieldLayoutDto>;
-	CustomFields: any;
-}
-
-
-export class FieldLayoutDto {
-	static relativeUrl = ""
-
-	Url: string;
-	LookupEntityType: string;
-	ComponentLayoutID: number;
-	EntityType: string;
-	Property: string;
-	Placement: number;
-	Hidden: boolean;
-	FieldType: FieldType;
-	ReadOnly: boolean;
-	LookupField: boolean;
-	Label: string;
-	Description: string;
-	HelpText: string;
-	FieldSet: number;
-	Section: number;
-	Legend: string;
-	StatusID: number;
-	ID: number;
-	Deleted: boolean;
-	Validations: Array<ClientValidationRule>;
-	CustomFields: any;
-}
-
-
-export class ComponentLayoutDto {
-	static relativeUrl = ""
-
-	Name: string;
-	BaseEntity: string;
-	Url: string;
-	Fields: Array<FieldLayoutDto>;
-	CustomFields: any;
-}
-
-
-export class FieldLayoutDto {
-	static relativeUrl = ""
-
-	Url: string;
-	LookupEntityType: string;
-	ComponentLayoutID: number;
-	EntityType: string;
-	Property: string;
-	Placement: number;
-	Hidden: boolean;
-	FieldType: FieldType;
-	ReadOnly: boolean;
-	LookupField: boolean;
-	Label: string;
-	Description: string;
-	HelpText: string;
-	FieldSet: number;
-	Section: number;
-	Legend: string;
-	StatusID: number;
-	ID: number;
-	Deleted: boolean;
-	Validations: Array<ClientValidationRule>;
-	CustomFields: any;
-}
-
-
-export class ComponentLayoutDto {
-	static relativeUrl = ""
-
-	Name: string;
-	BaseEntity: string;
-	Url: string;
-	Fields: Array<FieldLayoutDto>;
-	CustomFields: any;
-}
-
-
-export class FieldLayoutDto {
-	static relativeUrl = ""
-
-	Url: string;
-	LookupEntityType: string;
-	ComponentLayoutID: number;
-	EntityType: string;
-	Property: string;
-	Placement: number;
-	Hidden: boolean;
-	FieldType: FieldType;
-	ReadOnly: boolean;
-	LookupField: boolean;
-	Label: string;
-	Description: string;
-	HelpText: string;
-	FieldSet: number;
-	Section: number;
-	Legend: string;
-	StatusID: number;
-	ID: number;
-	Deleted: boolean;
-	Validations: Array<ClientValidationRule>;
-	CustomFields: any;
-}
-
-
-export class ComponentLayoutDto {
-	static relativeUrl = ""
-
-	Name: string;
-	BaseEntity: string;
-	Url: string;
-	Fields: Array<FieldLayoutDto>;
-	CustomFields: any;
-}
-
-
-export class FieldLayoutDto {
-	static relativeUrl = ""
-
-	Url: string;
-	LookupEntityType: string;
-	ComponentLayoutID: number;
-	EntityType: string;
-	Property: string;
-	Placement: number;
-	Hidden: boolean;
-	FieldType: FieldType;
-	ReadOnly: boolean;
-	LookupField: boolean;
-	Label: string;
-	Description: string;
-	HelpText: string;
-	FieldSet: number;
-	Section: number;
-	Legend: string;
-	StatusID: number;
-	ID: number;
-	Deleted: boolean;
-	Validations: Array<ClientValidationRule>;
-	CustomFields: any;
-}
-
-
-export class ComponentLayoutDto {
-	static relativeUrl = ""
-
-	Name: string;
-	BaseEntity: string;
-	Url: string;
-	Fields: Array<FieldLayoutDto>;
-	CustomFields: any;
-}
-
-
-export class FieldLayoutDto {
-	static relativeUrl = ""
-
-	Url: string;
-	LookupEntityType: string;
-	ComponentLayoutID: number;
-	EntityType: string;
-	Property: string;
-	Placement: number;
-	Hidden: boolean;
-	FieldType: FieldType;
-	ReadOnly: boolean;
-	LookupField: boolean;
-	Label: string;
-	Description: string;
-	HelpText: string;
-	FieldSet: number;
-	Section: number;
-	Legend: string;
-	StatusID: number;
-	ID: number;
-	Deleted: boolean;
-	Validations: Array<ClientValidationRule>;
-	CustomFields: any;
-}
-
-
-export class ComponentLayoutDto {
-	static relativeUrl = ""
-
-	Name: string;
-	BaseEntity: string;
-	Url: string;
-	Fields: Array<FieldLayoutDto>;
-	CustomFields: any;
-}
-
-
-export class FieldLayoutDto {
-	static relativeUrl = ""
-
-	Url: string;
-	LookupEntityType: string;
-	ComponentLayoutID: number;
-	EntityType: string;
-	Property: string;
-	Placement: number;
-	Hidden: boolean;
-	FieldType: FieldType;
-	ReadOnly: boolean;
-	LookupField: boolean;
-	Label: string;
-	Description: string;
-	HelpText: string;
-	FieldSet: number;
-	Section: number;
-	Legend: string;
-	StatusID: number;
-	ID: number;
-	Deleted: boolean;
-	Validations: Array<ClientValidationRule>;
-	CustomFields: any;
-}
-
-
-export class ComponentLayoutDto {
-	static relativeUrl = ""
-
-	Name: string;
-	BaseEntity: string;
-	Url: string;
-	Fields: Array<FieldLayoutDto>;
-	CustomFields: any;
-}
-
-
-export class FieldLayoutDto {
-	static relativeUrl = ""
-
-	Url: string;
-	LookupEntityType: string;
-	ComponentLayoutID: number;
-	EntityType: string;
-	Property: string;
-	Placement: number;
-	Hidden: boolean;
-	FieldType: FieldType;
-	ReadOnly: boolean;
-	LookupField: boolean;
-	Label: string;
-	Description: string;
-	HelpText: string;
-	FieldSet: number;
-	Section: number;
-	Legend: string;
-	StatusID: number;
-	ID: number;
-	Deleted: boolean;
-	Validations: Array<ClientValidationRule>;
-	CustomFields: any;
-}
-
-
-export class ComponentLayoutDto {
-	static relativeUrl = ""
-
-	Name: string;
-	BaseEntity: string;
-	Url: string;
-	Fields: Array<FieldLayoutDto>;
-	CustomFields: any;
-}
-
-
-export class FieldLayoutDto {
-	static relativeUrl = ""
-
-	Url: string;
-	LookupEntityType: string;
-	ComponentLayoutID: number;
-	EntityType: string;
-	Property: string;
-	Placement: number;
-	Hidden: boolean;
-	FieldType: FieldType;
-	ReadOnly: boolean;
-	LookupField: boolean;
-	Label: string;
-	Description: string;
-	HelpText: string;
-	FieldSet: number;
-	Section: number;
-	Legend: string;
-	StatusID: number;
-	ID: number;
-	Deleted: boolean;
-	Validations: Array<ClientValidationRule>;
-	CustomFields: any;
-}
-
-
-export class ComponentLayoutDto {
-	static relativeUrl = ""
-
-	Name: string;
-	BaseEntity: string;
-	Url: string;
-	Fields: Array<FieldLayoutDto>;
-	CustomFields: any;
-}
-
-
-export class FieldLayoutDto {
-	static relativeUrl = ""
-
-	Url: string;
-	LookupEntityType: string;
-	ComponentLayoutID: number;
-	EntityType: string;
-	Property: string;
-	Placement: number;
-	Hidden: boolean;
-	FieldType: FieldType;
-	ReadOnly: boolean;
-	LookupField: boolean;
-	Label: string;
-	Description: string;
-	HelpText: string;
-	FieldSet: number;
-	Section: number;
-	Legend: string;
-	StatusID: number;
-	ID: number;
-	Deleted: boolean;
-	Validations: Array<ClientValidationRule>;
-	CustomFields: any;
-}
-
-
-export class ComponentLayoutDto {
-	static relativeUrl = ""
-
-	Name: string;
-	BaseEntity: string;
-	Url: string;
-	Fields: Array<FieldLayoutDto>;
-	CustomFields: any;
-}
-
-
-export class FieldLayoutDto {
-	static relativeUrl = ""
-
-	Url: string;
-	LookupEntityType: string;
-	ComponentLayoutID: number;
-	EntityType: string;
-	Property: string;
-	Placement: number;
-	Hidden: boolean;
-	FieldType: FieldType;
-	ReadOnly: boolean;
-	LookupField: boolean;
-	Label: string;
-	Description: string;
-	HelpText: string;
-	FieldSet: number;
-	Section: number;
-	Legend: string;
-	StatusID: number;
-	ID: number;
-	Deleted: boolean;
-	Validations: Array<ClientValidationRule>;
-	CustomFields: any;
-}
-
-
-export class ComponentLayoutDto {
-	static relativeUrl = ""
-
-	Name: string;
-	BaseEntity: string;
-	Url: string;
-	Fields: Array<FieldLayoutDto>;
-	CustomFields: any;
-}
-
-
-export class FieldLayoutDto {
-	static relativeUrl = ""
-
-	Url: string;
-	LookupEntityType: string;
-	ComponentLayoutID: number;
-	EntityType: string;
-	Property: string;
-	Placement: number;
-	Hidden: boolean;
-	FieldType: FieldType;
-	ReadOnly: boolean;
-	LookupField: boolean;
-	Label: string;
-	Description: string;
-	HelpText: string;
-	FieldSet: number;
-	Section: number;
-	Legend: string;
-	StatusID: number;
-	ID: number;
-	Deleted: boolean;
-	Validations: Array<ClientValidationRule>;
-	CustomFields: any;
-}
-
-
-export class ComponentLayoutDto {
-	static relativeUrl = ""
-
-	Name: string;
-	BaseEntity: string;
-	Url: string;
-	Fields: Array<FieldLayoutDto>;
-	CustomFields: any;
-}
-
-
-export class FieldLayoutDto {
-	static relativeUrl = ""
-
-	Url: string;
-	LookupEntityType: string;
-	ComponentLayoutID: number;
-	EntityType: string;
-	Property: string;
-	Placement: number;
-	Hidden: boolean;
-	FieldType: FieldType;
-	ReadOnly: boolean;
-	LookupField: boolean;
-	Label: string;
-	Description: string;
-	HelpText: string;
-	FieldSet: number;
-	Section: number;
-	Legend: string;
-	StatusID: number;
-	ID: number;
-	Deleted: boolean;
-	Validations: Array<ClientValidationRule>;
-	CustomFields: any;
-}
-
-
-export class ComponentLayoutDto {
-	static relativeUrl = ""
-
-	Name: string;
-	BaseEntity: string;
-	Url: string;
-	Fields: Array<FieldLayoutDto>;
-	CustomFields: any;
-}
-
-
-export class FieldLayoutDto {
-	static relativeUrl = ""
-
-	Url: string;
-	LookupEntityType: string;
-	ComponentLayoutID: number;
-	EntityType: string;
-	Property: string;
-	Placement: number;
-	Hidden: boolean;
-	FieldType: FieldType;
-	ReadOnly: boolean;
-	LookupField: boolean;
-	Label: string;
-	Description: string;
-	HelpText: string;
-	FieldSet: number;
-	Section: number;
-	Legend: string;
-	StatusID: number;
-	ID: number;
-	Deleted: boolean;
-	Validations: Array<ClientValidationRule>;
-	CustomFields: any;
-}
-
-
-export class ComponentLayoutDto {
-	static relativeUrl = ""
-
-	Name: string;
-	BaseEntity: string;
-	Url: string;
-	Fields: Array<FieldLayoutDto>;
-	CustomFields: any;
-}
-
-
-export class FieldLayoutDto {
-	static relativeUrl = ""
-
-	Url: string;
-	LookupEntityType: string;
-	ComponentLayoutID: number;
-	EntityType: string;
-	Property: string;
-	Placement: number;
-	Hidden: boolean;
-	FieldType: FieldType;
-	ReadOnly: boolean;
-	LookupField: boolean;
-	Label: string;
-	Description: string;
-	HelpText: string;
-	FieldSet: number;
-	Section: number;
-	Legend: string;
-	StatusID: number;
-	ID: number;
-	Deleted: boolean;
-	Validations: Array<ClientValidationRule>;
-	CustomFields: any;
-}
-
-
-export class ComponentLayoutDto {
-	static relativeUrl = ""
-
-	Name: string;
-	BaseEntity: string;
-	Url: string;
-	Fields: Array<FieldLayoutDto>;
-	CustomFields: any;
-}
-
-
-export class FieldLayoutDto {
-	static relativeUrl = ""
-
-	Url: string;
-	LookupEntityType: string;
-	ComponentLayoutID: number;
-	EntityType: string;
-	Property: string;
-	Placement: number;
-	Hidden: boolean;
-	FieldType: FieldType;
-	ReadOnly: boolean;
-	LookupField: boolean;
-	Label: string;
-	Description: string;
-	HelpText: string;
-	FieldSet: number;
-	Section: number;
-	Legend: string;
-	StatusID: number;
-	ID: number;
-	Deleted: boolean;
-	Validations: Array<ClientValidationRule>;
-	CustomFields: any;
-}
-
-
-export class ComponentLayoutDto {
-	static relativeUrl = ""
-
-	Name: string;
-	BaseEntity: string;
-	Url: string;
-	Fields: Array<FieldLayoutDto>;
-	CustomFields: any;
-}
-
-
-export class FieldLayoutDto {
-	static relativeUrl = ""
-
-	Url: string;
-	LookupEntityType: string;
-	ComponentLayoutID: number;
-	EntityType: string;
-	Property: string;
-	Placement: number;
-	Hidden: boolean;
-	FieldType: FieldType;
-	ReadOnly: boolean;
-	LookupField: boolean;
-	Label: string;
-	Description: string;
-	HelpText: string;
-	FieldSet: number;
-	Section: number;
-	Legend: string;
-	StatusID: number;
-	ID: number;
-	Deleted: boolean;
-	Validations: Array<ClientValidationRule>;
-	CustomFields: any;
-}
-
-
-export class ComponentLayoutDto {
-	static relativeUrl = ""
-
-	Name: string;
-	BaseEntity: string;
-	Url: string;
-	Fields: Array<FieldLayoutDto>;
-	CustomFields: any;
-}
-
-
-export class FieldLayoutDto {
-	static relativeUrl = ""
-
-	Url: string;
-	LookupEntityType: string;
-	ComponentLayoutID: number;
-	EntityType: string;
-	Property: string;
-	Placement: number;
-	Hidden: boolean;
-	FieldType: FieldType;
-	ReadOnly: boolean;
-	LookupField: boolean;
-	Label: string;
-	Description: string;
-	HelpText: string;
-	FieldSet: number;
-	Section: number;
-	Legend: string;
-	StatusID: number;
-	ID: number;
-	Deleted: boolean;
-	Validations: Array<ClientValidationRule>;
-	CustomFields: any;
-}
-
-
-export class ComponentLayoutDto {
-	static relativeUrl = ""
-
-	Name: string;
-	BaseEntity: string;
-	Url: string;
-	Fields: Array<FieldLayoutDto>;
-	CustomFields: any;
-}
-
-
-export class FieldLayoutDto {
-	static relativeUrl = ""
-
-	Url: string;
-	LookupEntityType: string;
-	ComponentLayoutID: number;
-	EntityType: string;
-	Property: string;
-	Placement: number;
-	Hidden: boolean;
-	FieldType: FieldType;
-	ReadOnly: boolean;
-	LookupField: boolean;
-	Label: string;
-	Description: string;
-	HelpText: string;
-	FieldSet: number;
-	Section: number;
-	Legend: string;
-	StatusID: number;
-	ID: number;
-	Deleted: boolean;
-	Validations: Array<ClientValidationRule>;
-	CustomFields: any;
-}
-
-
-export class ComponentLayoutDto {
-	static relativeUrl = ""
-
-	Name: string;
-	BaseEntity: string;
-	Url: string;
-	Fields: Array<FieldLayoutDto>;
-	CustomFields: any;
-}
-
-
-export class FieldLayoutDto {
-	static relativeUrl = ""
-
-	Url: string;
-	LookupEntityType: string;
-	ComponentLayoutID: number;
-	EntityType: string;
-	Property: string;
-	Placement: number;
-	Hidden: boolean;
-	FieldType: FieldType;
-	ReadOnly: boolean;
-	LookupField: boolean;
-	Label: string;
-	Description: string;
-	HelpText: string;
-	FieldSet: number;
-	Section: number;
-	Legend: string;
-	StatusID: number;
-	ID: number;
-	Deleted: boolean;
-	Validations: Array<ClientValidationRule>;
-	CustomFields: any;
-}
-
-
-export class ComponentLayoutDto {
-	static relativeUrl = ""
-
-	Name: string;
-	BaseEntity: string;
-	Url: string;
-	Fields: Array<FieldLayoutDto>;
-	CustomFields: any;
-}
-
-
-export class FieldLayoutDto {
-	static relativeUrl = ""
-
-	Url: string;
-	LookupEntityType: string;
-	ComponentLayoutID: number;
-	EntityType: string;
-	Property: string;
-	Placement: number;
-	Hidden: boolean;
-	FieldType: FieldType;
-	ReadOnly: boolean;
-	LookupField: boolean;
-	Label: string;
-	Description: string;
-	HelpText: string;
-	FieldSet: number;
-	Section: number;
-	Legend: string;
-	StatusID: number;
-	ID: number;
-	Deleted: boolean;
-	Validations: Array<ClientValidationRule>;
-	CustomFields: any;
-}
 
 export enum PhoneTypeEnum{
 	PtPhone = 150101,
