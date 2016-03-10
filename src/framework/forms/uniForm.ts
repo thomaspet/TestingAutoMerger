@@ -162,9 +162,9 @@ export class UniForm extends UniGenericField implements OnInit {
     }
 
     /**
-     * Updates the model
+     * updates the model with a new instance
      *
-     * @param new model
+     * @param new instance of model
      * @param config Form Config
      * @param formValue Form value
      */

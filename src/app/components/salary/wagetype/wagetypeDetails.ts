@@ -1,9 +1,8 @@
-import {Component, OnInit, provide, ViewChild, ComponentRef} from 'angular2/core';
+import {Component, provide, ViewChild, ComponentRef} from 'angular2/core';
 import {RouteParams} from "angular2/router";
 
 import { Observable } from "rxjs/Observable";
 
-import {WagetypeService} from "../../../data/wagetype";
 import {WageTypeService} from "../../../services/services";
 
 import {UniComponentLoader} from "../../../../framework/core";
@@ -15,72 +14,63 @@ import {WageType} from "../../../unientities";
 @Component({
     selector: 'wagetype-details',
     templateUrl: 'app/components/salary/wagetype/wagetypedetails.html',
-    providers: [provide(WagetypeService, {useClass: WagetypeService}), WageTypeService],
+    providers: [WageTypeService],
     directives: [UniComponentLoader, UniForm]
 })
-export class WagetypeDetail implements OnInit {
+export class WagetypeDetail {
     wageType: WageType;
     layout;
     formCfg: UniFormBuilder[];
 
     form: UniFormBuilder = new UniFormBuilder();
-    formInstance: UniForm;
+    whenFormInstance: Promise<UniForm>;
 
     @ViewChild(UniComponentLoader)  uniCompLoader: UniComponentLoader;
-    
-    constructor(private _routeparams: RouteParams, private _wagetypeService : WagetypeService, private _wageService : WageTypeService) {               
+
+    constructor(private _routeparams: RouteParams, private _wageService: WageTypeService) {
     }
 
-    ngOnInit() {    
-        
-        var self = this;
-        let ID = +self._routeparams.get("id");
-        
-        Observable.forkJoin(
-            self._wagetypeService.get(ID),
-            self._wagetypeService.layout("")
-        ).subscribe((response: any) => {
-            let [wt, lt] = response;
-            self.wageType = wt;
-            self.layout = lt;
-            
-            self.form = new UniFormLayoutBuilder().build(self.layout, self.wageType);            
-                        
+    ngOnInit() {
+
+        var self: WagetypeDetail = this;
+        let ID: number = +self._routeparams.get('id');
+
+        this._wageService.GetLayoutAndEntity('mock', ID).subscribe((response: any) => {
+            let [layout, entity] = response;
+            self.wageType = entity;
+            self.layout = layout;
+
+            self.form = new UniFormLayoutBuilder().build(self.layout, self.wageType);
             self.uniCompLoader.load(UniForm).then((cmp: ComponentRef) => {
-                    cmp.instance.config = self.form;
-                    cmp.instance.getEventEmitter().subscribe(self.onSubmit());
-                    setTimeout(() => {
-                        self.formInstance = cmp.instance;
-                    }, 103);
-                });
-        
-        }, error => console.log(error));
-    }
-    
-    onSubmit()
-    {
-        /*return() => {
-            this._wagetypeService.update(this.wageType).subscribe((response) => {
-                console.log(response);
+                cmp.instance.config = self.form;
+                cmp.instance.getEventEmitter().subscribe(self.onSubmit(self));
+                self.whenFormInstance = new Promise((resolve: Function) => resolve(cmp.instance));
             });
-        };*/
-        return () =>{
-            console.log(this);
-            if(this.wageType.ID > 0){
-                this._wageService.Put(this.wageType.ID, this.wageType)
+        });
+    }
+
+    onSubmit(context: WagetypeDetail) {
+        return () => {
+            if (context.wageType.ID > 0) {
+                context._wageService.Put(context.wageType.ID, context.wageType)
                     .subscribe(
-                        data => {console.log("It worked, here is the data: " + JSON.stringify(data)) ;this.wageType = data},
-                        error => console.log("error in wagetypedetails.onSubmit: ", error)
+                        (data: WageType) => {
+                            context.wageType = data;
+                            context.whenFormInstance.then((instance: UniForm) => instance.refresh(context.wageType));
+                        },
+                        (error: Error) => console.error('error in wagetypedetails.onSubmit - Put: ', error)
+                    );
+            } else {
+                context._wageService.Post(context.wageType)
+                    .subscribe(
+                        (data: WageType) => {
+                            context.wageType = data;
+                            context.whenFormInstance.then((instance: UniForm) => instance.refresh(context.wageType));
+                        },
+                        (error: Error) => console.error('error in wagetypedetails.onSubmit - Post: ', error)
                     );
             }
-            else{
-                this._wageService.Post(this.wageType)
-                    .subscribe(
-                        data => this.wageType = data,
-                        error => console.log("error in wagetypedetails.onSubmit: ", error)
-                    );
-            }
-        }
+        };
     }
 
 }
