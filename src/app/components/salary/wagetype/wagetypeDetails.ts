@@ -23,7 +23,7 @@ export class WagetypeDetail {
     formCfg: UniFormBuilder[];
 
     form: UniFormBuilder = new UniFormBuilder();
-    formInstance: Promise<UniForm>;
+    whenFormInstance: Promise<UniForm>;
 
     @ViewChild(UniComponentLoader)  uniCompLoader: UniComponentLoader;
 
@@ -44,7 +44,7 @@ export class WagetypeDetail {
             self.uniCompLoader.load(UniForm).then((cmp: ComponentRef) => {
                 cmp.instance.config = self.form;
                 cmp.instance.getEventEmitter().subscribe(self.onSubmit(self));
-                self.formInstance = new Promise((resolve: Function) => resolve(cmp.instance));
+                self.whenFormInstance = new Promise((resolve: Function) => resolve(cmp.instance));
             });
         });
     }
@@ -56,7 +56,7 @@ export class WagetypeDetail {
                     .subscribe(
                         (data: WageType) => {
                             context.wageType = data;
-                            context.formInstance.then((instance: UniForm) => instance.refresh(context.wageType));
+                            context.whenFormInstance.then((instance: UniForm) => instance.refresh(context.wageType));
                         },
                         (error: Error) => console.error('error in wagetypedetails.onSubmit - Put: ', error)
                     );
@@ -65,7 +65,7 @@ export class WagetypeDetail {
                     .subscribe(
                         (data: WageType) => {
                             context.wageType = data;
-                            context.formInstance.then((instance: UniForm) => instance.refresh(context.wageType));
+                            context.whenFormInstance.then((instance: UniForm) => instance.refresh(context.wageType));
                         },
                         (error: Error) => console.error('error in wagetypedetails.onSubmit - Post: ', error)
                     );
