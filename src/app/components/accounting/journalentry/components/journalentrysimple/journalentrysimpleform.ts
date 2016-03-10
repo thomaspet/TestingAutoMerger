@@ -36,40 +36,51 @@ export class JournalEntrySimpleForm {
     vattypes: VatType[];
     accounts: Account[];
     
+    isLoaded: boolean;
+    
     @ViewChild(UniForm)
     form: UniForm;
         
-    constructor() {     
+    constructor() {   
+        this.isLoaded = false;
+        this.departements = [];
+        this.projects = []; 
+        this.vattypes = [];
+        this.accounts = [];
+        this.JournalEntryLine = new JournalEntryData();
     }
         
     addJournalEntry(event: any) {        
-        this.Created.emit(event)
+        this.Created.emit(event);
+        
+        var oldData = this.JournalEntryLine; 
+        this.JournalEntryLine = new JournalEntryData(); 
+        this.JournalEntryLine.JournalEntryNo = oldData.JournalEntryNo;
+        this.JournalEntryLine.FinancialDate = oldData.FinancialDate;
     }
     
     ngOnChanges(changes: {[propName: string]: SimpleChange}) { 
-        console.log("NG ON CHANGE");
-        console.log(SimpleChange);
         
         this.departements = this.DropdownData[0];
         this.projects = this.DropdownData[1];
         this.vattypes = this.DropdownData[2];
         this.accounts = this.DropdownData[3];
         
-        console.log("CHANGE FORM");
-        console.log(this.form);
-        console.log(this.projects);
-        
-        
-        //this.form.refresh(this.FormConfig);
+        var self = this;
+
+        setTimeout(() => {
+            if(self.form != null) {
+                //self.form.refresh(self.FormConfig); 
+            }
+        });   
     }
     
     ngAfterViewInit() {
-        this.JournalEntryLine = new JournalEntryData();
-        this.JournalEntryLine.JournalEntryNo = 1;
-        this.JournalEntryLine.Amount = 100;
-        this.JournalEntryLine.FinancialDate = new Date();
+        
+        this.JournalEntryLine = new JournalEntryData();        
+        this.JournalEntryLine.Amount = 0;
         this.JournalEntryLine.Description = "";
-
+        
         // TODO get it from the API and move these to backend migrations        
         var view: ComponentLayout = {
             Name: "ManualJournalEntryLineDraft",
@@ -85,7 +96,7 @@ export class JournalEntrySimpleForm {
                     Property: "JournalEntryNo",
                     Placement: 1,
                     Hidden: false,
-                    FieldType: 0,
+                    FieldType: 6,
                     ReadOnly: false,
                     LookupField: false,
                     Label: "Bilagsnr",
@@ -128,7 +139,7 @@ export class JournalEntrySimpleForm {
                     FieldType: 1,
                     ReadOnly: false,
                     LookupField: false,
-                    Label: "Debit",
+                    Label: "Debet",
                     Description: "",
                     HelpText: "",
                     FieldSet: 0,
@@ -148,7 +159,7 @@ export class JournalEntrySimpleForm {
                     FieldType: 1,
                     ReadOnly: false,
                     LookupField: false,
-                    Label: "Kreditt",
+                    Label: "Kredit",
                     Description: "",
                     HelpText: "",
                     FieldSet: 0,
@@ -243,9 +254,9 @@ export class JournalEntrySimpleForm {
                     ComponentLayoutID: 1,
                     EntityType: "JournalEntryLineDraft",
                     Property: "Description",
-                    Placement: 1,
+                    Placement: 11,
                     Hidden: false,
-                    FieldType: 0,
+                    FieldType: 11,
                     ReadOnly: false,
                     LookupField: false,
                     Label: "Beskrivelse",
@@ -264,16 +275,25 @@ export class JournalEntrySimpleForm {
         
         this.FormConfig = new UniFormLayoutBuilder().build(view, this.JournalEntryLine);  
         this.extendFormConfig();
-        this.loadForm();                
+        this.loadForm();
+                        
     }
     
     extendFormConfig() {
+        var journalEntryNo: UniFieldBuilder = this.FormConfig.find('JournalEntryNo');       
+        journalEntryNo.setKendoOptions({
+           format: "n0",
+           min: 1
+        });
+        journalEntryNo.addClass('small-field');
+        
         var departement: UniFieldBuilder = this.FormConfig.find('Departement');       
         departement.setKendoOptions({
             dataTextField: 'Name',
             dataValueField: 'ID',
             dataSource: this.departements
         });
+        departement.addClass('large-field');
         
         var project: UniFieldBuilder = this.FormConfig.find('Project');
         project.setKendoOptions({
@@ -281,7 +301,8 @@ export class JournalEntrySimpleForm {
            dataValueField: 'ID',
            dataSource: this.projects 
         });      
-
+        project.addClass('large-field');
+        
         var vattype: UniFieldBuilder = this.FormConfig.find('VatType');
         vattype.setKendoOptions({
            dataTextField: 'VatCode',
@@ -302,16 +323,24 @@ export class JournalEntrySimpleForm {
            dataTextField: 'AccountNumber',
            dataValueField: 'ID',
            dataSource: this.accounts
-        });      
+        }); 
+        
+        var description: UniFieldBuilder = this.FormConfig.find('Description');
+        description.addClass('large-field');     
+    }
+    
+    
+    private buildFormConfig(layout: ComponentLayout, model: JournalEntryData) {
+        this.FormConfig = new UniFormLayoutBuilder().build(layout, model);
     }
        
     loadForm() {
-        console.log("loadFORM");
         
         var self = this;
         return this.UniCmpLoader.load(UniForm).then((cmp: ComponentRef) => {
            cmp.instance.config = self.FormConfig;
            cmp.instance.getEventEmitter().subscribe(self.submit(self));
+           //self.elementRef.nativeElement.focus();
         });
     }
     

@@ -1,31 +1,43 @@
+
+
 journal-entry-simple table
-    margin-top: 15px
-    margin-left: 10px
-    margin-right: 10px
     width: 100%
+    margin-top: 1rem
+
+journal-entry-simple h3
+    margin-top: 0.1rem
+    margin-bottom: 0.1rem
+
+journal-entry-simple p
+    margin-top: 0.1rem
+    margin-bottom: 0.1rem
 
 journal-entry-simple td
-    border-bottom: 1px solid #E8E8E8
+    border-bottom: 0.1rem solid #E8E8E8
 
 journal-entry-simple tr:hover
     background-color: #F2F2F2
 
-
 .journalentrysimple-biginfo
-    font-size: 25px
+    font-size: 1.4rem
 
 .journalentrysimple-multilineinfo
-    font-size: 12px
+    font-size: 0.75rem
 
 .journalentrysimple-multilineinfo label 
     color: grey
 
+journal-entry-simple td
+    whitespace: nowrap
+    overflow-x: hidden    
+
 journal-entry-simple .small_col
-    width: 50px
+    width: 2rem
 
 journal-entry-simple .medium_col
-    width: 150px
-
+    min-width: 8rem
+    width: 8rem    
+    
 journal-entry-simple .action_menu    
     font-size: 0      
     &:after
@@ -40,3 +52,53 @@ journal-entry-simple .action_menu
         top: .3rem
         border: .1rem solid $uni-color-scale8
         border-radius: 99rem
+
+.journal-entry-simple-table-wrapper
+    @include unigrid(12,6,4,1)  
+    float: left  
+    margin-top: 10rem
+
+.journal-entry-simple-validation
+    @include unigrid(4,2,4,1)
+    float: left    
+    background-color: #F2F2F2
+    padding-left: 1rem
+    padding-right: 1rem
+    padding-bottom: 1rem    
+    margin-bottom: 2rem !important
+    
+.journal-entry-simple-helper
+    @include unigrid(4,2,4,1)
+    font-size: 1rem
+    float: right    
+    background-color: #F2F2F2
+    padding-left: 1rem
+    padding-right: 1rem
+    padding-bottom: 1rem    
+
+.journal-entry-simple-form-buttonrow    
+    width: 100%
+    margin-top: 1rem
+    margin-bottom: 1rem
+    
+.journal-entry-simple-form
+    background-color: #F2F2F2
+    font-size: 0.8rem
+    
+.journal-entry-simple-form uni-form
+    width: 100%
+
+    label,
+    fieldset
+        //@include unigrid(2, 2, 1)
+        width: 120px 
+        float: left // And float them.
+        margin-left: 0.5rem
+        margin-right: 0.5rem
+        min-height: 3rem // So they don't run flush row-to-row.
+
+    .small-field
+        width: 60px
+        
+    .large-field
+        width: 200px

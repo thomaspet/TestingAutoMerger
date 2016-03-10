@@ -50,6 +50,26 @@ export class JournalEntrySimple {
         });
     }       
     
+    getDepartmentName(id: number): string {
+        if (this.DropdownData) {
+            var dep = this.DropdownData[0].find((d) => d.ID == id);
+            if (dep != null)
+                return id + ' - ' + dep.Name;            
+        }
+        
+        return id.toString();
+    }
+    
+    getProjectName(id: number): string {
+        if (this.DropdownData) {
+            var project = this.DropdownData[1].find((d) => d.ID == id);
+            if (project != null)
+                return id + ' - ' + project.Name;
+        }
+        
+        return id.toString(); 
+    }
+    
     postJournalEntryData() {
         this.journalEntryService.postJournalEntryData(this.journalEntryLines)
             .subscribe(
@@ -81,9 +101,7 @@ export class JournalEntrySimple {
     }
     
     newLineCreated(journalEntryLine : any) {
-        var newline = JournalEntryService.getSomeNewDataForMe();
-        newline.JournalEntryNo = Math.round((this.journalEntryLines.length/3) + 1);        
-        this.journalEntryLines.unshift(newline);
+        this.journalEntryLines.unshift(journalEntryLine);
     }
     
     setSelectedJournalEntryLine(selectedLine: JournalEntryData) {        

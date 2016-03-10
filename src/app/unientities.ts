@@ -2071,12 +2071,12 @@ export class AccountGroupSet {
 export class Account {
 	static relativeUrl = "accounts";
 
+	Visible: boolean;
 	AccountName: string;
 	AccountNumber: number;
 	LockManualPosts: boolean;
 	Locked: boolean;
 	SystemAccount: boolean;
-	Visible: boolean;
 	Active: boolean;
 	AccountID: number;
 	CurrencyID: number;
