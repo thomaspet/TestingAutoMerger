@@ -74,13 +74,8 @@ export class JournalEntrySimpleForm {
             }
         });   
     }
-    
+        
     ngAfterViewInit() {
-        
-        this.JournalEntryLine = new JournalEntryData();        
-        this.JournalEntryLine.Amount = 0;
-        this.JournalEntryLine.Description = "";
-        
         // TODO get it from the API and move these to backend migrations        
         var view: ComponentLayout = {
             Name: "ManualJournalEntryLineDraft",

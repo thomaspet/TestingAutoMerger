@@ -39,13 +39,12 @@ export class JournalEntrySimple {
                 this.journalEntryLines = data;
             }); 
             
-       Observable.forkJoin(
+        Observable.forkJoin(
             this.departementService.GetAll(null),
             this.projectService.GetAll(null),
             this.vattypeService.GetAll(null),
             this.accountService.GetAll(null)
         ).subscribe(response => {
-            console.log("DATA ER HENTET");
             this.DropdownData = response;                               
         });
     }       
