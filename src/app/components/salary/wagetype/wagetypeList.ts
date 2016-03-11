@@ -19,7 +19,7 @@ export class WagetypeList implements OnInit {
 
     ngOnInit() {
 
-        var idCol = new UniTableColumn("ID", "ID", "number");
+        var idCol = new UniTableColumn("WageTypeId", "Nr", "number");
         idCol.setWidth("10rem");
 
         var nameCol = new UniTableColumn("WageTypeName", "Name", "string");
@@ -32,5 +32,9 @@ export class WagetypeList implements OnInit {
                 this._router.navigateByUrl("/salary/wagetypes/" + selectedWagetype.ID);
             })
             .addColumns(idCol, nameCol, descCol);
+    }
+    
+    newWageType(){
+        this._router.navigateByUrl("/salary/wagetypes/" + 0);
     }
 }

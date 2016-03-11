@@ -1,5 +1,5 @@
 import {Component, provide, ViewChild, ComponentRef} from 'angular2/core';
-import {RouteParams} from "angular2/router";
+import {RouteParams, Router} from "angular2/router";
 
 import { Observable } from "rxjs/Observable";
 
@@ -8,8 +8,10 @@ import {WageTypeService} from "../../../services/services";
 import {UniComponentLoader} from "../../../../framework/core";
 import {UniForm} from "../../../../framework/forms/uniForm";
 import {UniFormBuilder, UniFormLayoutBuilder} from "../../../../framework/forms";
+import {UniFieldBuilder} from '../../../../framework/forms/builders/uniFieldBuilder';
 
 import {WageType} from "../../../unientities";
+import {WageTypeModel} from "../../../models/wagetype"
 
 @Component({
     selector: 'wagetype-details',
@@ -18,7 +20,7 @@ import {WageType} from "../../../unientities";
     directives: [UniComponentLoader, UniForm]
 })
 export class WagetypeDetail {
-    wageType: WageType;
+    wageType: WageTypeModel;
     layout;
     formCfg: UniFormBuilder[];
 
@@ -27,7 +29,7 @@ export class WagetypeDetail {
 
     @ViewChild(UniComponentLoader)  uniCompLoader: UniComponentLoader;
 
-    constructor(private _routeparams: RouteParams, private _wageService: WageTypeService) {
+    constructor(private _routeparams: RouteParams, private _router: Router, private _wageService: WageTypeService) {
     }
 
     ngOnInit() {
@@ -38,12 +40,19 @@ export class WagetypeDetail {
         this._wageService.GetLayout('mock').subscribe((response: any) => {
             self.layout = response;
             if(ID == 0){
+                this._wageService.GetNewEntity().subscribe((newEntity: WageType) => {
+                    self.wageType = new WageTypeModel();
+                    self.buildForm();
+                    self.extendForm(false);
+                    self.loadForm();
+                });
             }
             else{
                 this._wageService.Get(ID).subscribe((response: any) => {
                     self.wageType = response;
                 
                     self.buildForm();
+                    self.extendForm(true);
                     self.loadForm();
                 });
             }
@@ -69,6 +78,11 @@ export class WagetypeDetail {
         self.form = new UniFormLayoutBuilder().build(self.layout, self.wageType);
     }
     
+    extendForm(readOnly : boolean){
+        var field : UniFieldBuilder = this.form.find('WageTypeId');
+        field.readonly = readOnly;
+    }
+    
     loadForm(){
         var self: WagetypeDetail = this;
         self.uniCompLoader.load(UniForm).then((cmp: ComponentRef) => {
@@ -80,26 +94,27 @@ export class WagetypeDetail {
 
     onSubmit(context: WagetypeDetail) {
         return () => {
-            if (context.wageType.ID > 0) {
+            if (context.wageType.ID) {
                 context._wageService.Put(context.wageType.ID, context.wageType)
                     .subscribe(
                         (data: WageType) => {
-                            context.wageType = data;
+                            context.wageType = WageTypeModel.createFromObject(data);
                             context.whenFormInstance.then((instance: UniForm) => instance.refresh(context.wageType));
                         },
                         (error: Error) => console.error('error in wagetypedetails.onSubmit - Put: ', error)
                     );
             } else {
+                console.log("we are now Posting");
                 context._wageService.Post(context.wageType)
                     .subscribe(
                         (data: WageType) => {
-                            context.wageType = data;
-                            context.whenFormInstance.then((instance: UniForm) => instance.refresh(context.wageType));
+                            context.wageType = WageTypeModel.createFromObject(data);
+                            //context.whenFormInstance.then((instance: UniForm) => instance.refresh(context.wageType));
+                            this._router.navigateByUrl("/salary/wagetypes/" + context.wageType.ID);
                         },
                         (error: Error) => console.error('error in wagetypedetails.onSubmit - Post: ', error)
                     );
             }
         };
     }
-
 }
