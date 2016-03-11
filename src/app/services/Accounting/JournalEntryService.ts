@@ -60,11 +60,11 @@ export class JournalEntryService extends BizHttp<JournalEntry> {
         data.JournalEntryNo = 1;
         data.Amount = Math.round(Math.random() * 10000);
         data.DebitAccountNumber = 4000;
-        data.DebitAccount = {ID: 11, AccountNumber:4000, AccountName: "varekjøp test"};
-	    data.CreditAccountNumber = 5000;
-        data.CreditAccount = {ID: 12, AccountNumber:5000, AccountName: "forskning"};
-        data.DebitAccountID = 11;
-        data.CreditAccountID = 12;
+        data.DebitAccount = {ID: 297, AccountNumber:4000, AccountName: "Varekjøp, høy sats"};
+	    data.CreditAccountNumber = 1920 ;
+        data.CreditAccount = {ID: 169, AccountNumber:1920 , AccountName: "Bankinnskudd"};
+        data.DebitAccountID = 297;
+        data.CreditAccountID = 169;
     
         data.FinancialDate = new Date(2016, Math.floor(Math.random() * 12), Math.floor(Math.random() * 29));
         data.Description = descriptions[Math.floor(Math.random() * 4)];
