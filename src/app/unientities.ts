@@ -894,6 +894,17 @@ export class EmploymentValidValues {
 }
 
 
+export class StaticRegister {
+	static relativeUrl = "StaticRegister";
+
+	Registry: string;
+	stamp: Date;
+	ID: number;
+	Deleted: boolean;
+	CustomFields: any;
+}
+
+
 export class MunicipalAGAZone {
 	static relativeUrl = "MunicipalAGAZones";
 
@@ -2071,12 +2082,12 @@ export class AccountGroupSet {
 export class Account {
 	static relativeUrl = "accounts";
 
-	Visible: boolean;
 	AccountName: string;
 	AccountNumber: number;
 	LockManualPosts: boolean;
 	Locked: boolean;
 	SystemAccount: boolean;
+	Visible: boolean;
 	Active: boolean;
 	AccountID: number;
 	CurrencyID: number;
