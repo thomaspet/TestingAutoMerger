@@ -9,3 +9,5 @@ export * from './accounting/supplierservice';
 export * from './accounting/supplierinvoiceservice';
 export * from './accounting/supplierinvoiceitemservice';
 export * from './salary/employee/employeeservice';
+export * from './common/departementservice';
+export * from './common/projectservice';

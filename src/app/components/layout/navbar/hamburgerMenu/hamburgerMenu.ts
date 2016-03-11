@@ -44,7 +44,7 @@ export class HamburgerMenu {
                 componentListHeader: "Orden i bøkene",
                 componentList: [
                     {componentName: "Fakturamottak", componentUrl: "/kitchensink"},
-                    {componentName: "Bilagsføring", componentUrl: "/"},
+                    {componentName: "Bilagsføring", componentUrl: "/journalentry"},
                     {componentName: "Hovedbok", componentUrl: "/uniformdemo"},
                     {componentName: "Forespørsel", componentUrl: "/"},
                 ]
