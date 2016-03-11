@@ -1,0 +1,36 @@
+<header class="poster">
+    <article class="poster_toolbar">
+        <div *ngIf="supplierInvoice">
+            <h2 class="poster_toolbar_headline">
+                {{supplierInvoice.ID}}&nbsp;-&nbsp;{{supplierInvoice.Supplier.Info.Name}}
+                <p class="poster_toolbar_orgnr"></p>
+            </h2>
+        </div>
+        <!--<div *ngIf="!supplierInvoice.Supplier.Info.Name">
+            <h2 class="poster_toolbar_headline">
+                Ny registrering
+                <p class="poster_toolbar_orgnr"></p>
+            </h2>
+        </div>-->
+
+        <nav class="poster_toolbar_tools">
+            <input type="search" class="poster_toolbar_search">
+            <a href="#" class="previous">Forrige</a>
+            <a href="#" class="next">Neste</a>
+            <a href="#" class="new">Ny faktura</a>
+        </nav>
+
+    </article>
+    <!-- Widget poster -->
+    <section class="poster_overview">
+        <uni-widget-poster [model]="SupplierInvoice"></uni-widget-poster>
+    </section>
+
+</header>
+
+
+
+<article>
+    <router-outlet></router-outlet>
+    <uni-form (uniFormSubmit)="onSubmit($event)" [config]="formBuilder"></uni-form>
+</article>

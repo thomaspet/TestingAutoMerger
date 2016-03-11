@@ -255,7 +255,6 @@ src/styles/main.css
 .DS_Store
 
 # interfaces from server
-src/app/interfaces.ts
 src/app/unientities.ts
 *.orig
 
