@@ -213,10 +213,16 @@ let layout = {
             Hidden: false,
             FieldType: FieldType.COMBOBOX,
             ReadOnly: false,
-            //LookupField: false,
             LookupField: "Name",
             kendoOptions: {
-                dataSource: this.stdWageType,
+                dataSource: [
+                    {ID: StdWageType.None, Name: "None"},
+                    {ID: StdWageType.TaxDrawTable, Name: "TableTax"},
+                    {ID: StdWageType.TaxDrawPercent, Name: "PercentTax"},
+                    {ID: StdWageType.HolidayPayWithTaxDeduction, Name: "Holidaypay with tax"},
+                    {ID: StdWageType.HolidayPayThisYear, Name: "Holidaypay this year"},
+                    {ID: StdWageType.HolidayPayLastYear, Name: "Holidaypay last year"}
+                ],
                 dataTextField: "Name",
                 dataValueField: "ID"
             },
@@ -247,7 +253,7 @@ let layout = {
         , {
             ComponentLayoutID: 1,
             EntityType: "wagetype",
-            Property: "TaxType",
+            Property: "taxtype",
             Placement: 1,
             Hidden: false,
             FieldType: FieldType.COMBOBOX,
@@ -260,9 +266,14 @@ let layout = {
             Section: 1,
             Legend: "",
             kendoOptions: {
-                dataSource: this.taxType,
+                dataSource: [
+                    {ID: TaxType.Tax_None, Name: "None"},
+                    {ID: TaxType.Tax_Table, Name: "TableTax"},
+                    {ID: TaxType.Tax_Percent, Name: "PercentTax"},
+                    {ID: TaxType.Tax_0, Name: "..."}
+                ],
                 dataTextField: "Name",
-                data: "ID"
+                dataValueField: "ID"
             },
             hasLineBreak: false,
             Validations: [
