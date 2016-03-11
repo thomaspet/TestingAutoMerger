@@ -1,7 +1,7 @@
 import {Component, Input, ViewChildren, ViewChild} from "angular2/core";
 import {Router, RouteConfig} from "angular2/router";
 import {UniTable, UniTableBuilder, UniTableColumn} from "../../../../framework/uniTable";
-import {SalaryTransactionEmployeeList} from "./salarytransactionEmployeeList";
+import {SalaryTransactionEmployeeList} from "./salarytransList";
 import {SalarytransFilter} from "./salarytransFilter";
 import {UniHttp} from "../../../../framework/core/http/http";
 

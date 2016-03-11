@@ -16,7 +16,7 @@ import {WidgetPoster} from "../../../../framework/widgetPoster/widgetPoster";
 
 import {EmployeeDS} from "../../../data/employee";
 import {STYRKCodesDS} from "../../../data/styrkCodes";
-import {SalaryTransactionEmployeeList} from "../salarytrans/salarytransactionEmployeeList";
+import {SalaryTransactionEmployeeList} from "../salarytrans/salarytransList";
 
 const CHILD_ROUTES = [
     {path: "/", component: PersonalDetails, as: "PersonalDetails"},

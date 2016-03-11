@@ -7,7 +7,7 @@ import {EmployeeDS} from "../../../data/employee";
 
 @Component({
     selector: "salary-transactions-employee",
-    templateUrl: "app/components/salary/salarytrans/salarytransactionEmployeeList.html",
+    templateUrl: "app/components/salary/salarytrans/salarytransList.html",
     directives: [UniTable],
     providers: [provide(EmployeeDS, {useClass: EmployeeDS})]
 })
