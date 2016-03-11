@@ -12,6 +12,7 @@ export class UniTableBuilder {
     resource: string | Array<any>;
     filter: string = "";
     expand: string = "";
+    sort: kendo.data.DataSourceSortItem[];
     
     searchable: boolean = true;
     filterable: boolean = true;
@@ -104,6 +105,10 @@ export class UniTableBuilder {
         return this;
     }
     
+    addSortItems(...sortItems: kendo.data.DataSourceSortItem[]) {
+        this.sort = sortItems;
+        return this;
+    }
     
     setEditable(editable: boolean) {
         this.editable = editable;

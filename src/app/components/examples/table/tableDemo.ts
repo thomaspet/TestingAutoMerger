@@ -8,7 +8,7 @@ declare var jQuery;
 @Component({
     selector: 'uni-table-demo',
     template: `   
-        <h4>Editable table with remote data lookup and custom controls (dropdown)</h4>
+        <h4>Editable table with remote data lookup and sorting by two columns</h4>
         <uni-table [config]="demoTable1"></uni-table>
         <br><br>
         
@@ -109,6 +109,10 @@ export class UniTableDemo {
         var commentCol = new UniTableColumn('Description', 'Kommentar', 'string');
 
         this.demoTable1 = new UniTableBuilder('EmployeeLeave', true)
+            .addSortItems(
+                {field: 'LeaveType', dir: 'desc'},
+                {field: 'ID', dir: 'asc'}
+             )
             .addColumns(idCol, fromDateCol, toDateCol, leavePercentCol, leaveTypeCol, employmentIDCol, commentCol);
     }
 
