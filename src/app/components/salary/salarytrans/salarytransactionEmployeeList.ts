@@ -56,7 +56,12 @@ export class SalaryTransactionEmployeeList {
     }
     
     buildFilter() {
-        return "EmployeeNumber eq " + this.ansattID + " and PayrollRunID eq " + this.payrollRunID;
+        if(this.payrollRunID === undefined) {
+            return "EmployeeNumber eq " + this.ansattID;
+        } else {
+            return "EmployeeNumber eq " + this.ansattID + " and PayrollRunID eq " + this.payrollRunID;
+        }
+        
     }
     
     createTableConfig() {

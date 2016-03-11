@@ -2,7 +2,7 @@ import {Component, Type, ViewChildren, QueryList, Input, Output, EventEmitter} f
 import {UniModal} from "../../../../framework/modals/modal";
 import {UniForm, UniFormBuilder, UniFieldBuilder} from "../../../../framework/forms";
 import {UNI_CONTROL_DIRECTIVES} from "../../../../framework/controls";
-import {FieldType} from "../../../../framework/interfaces/interfaces";
+import {FieldType} from "../../../../app/unientities";
 declare var jQuery;
 
 @Component({
