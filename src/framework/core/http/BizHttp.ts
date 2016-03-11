@@ -6,27 +6,27 @@ import "rxjs/add/operator/concatMap";
 @Injectable()
 export class BizHttp<T> {
 
-    protected BaseURL:string;
-    protected LogAll:boolean;
-    protected DefaultOrderBy:string;
+    protected BaseURL: string;
+    protected LogAll: boolean;
+    protected DefaultOrderBy: string;
 
     // should be found based on type of T. Set in childclass constructor now
-    protected relativeURL:string;
+    protected relativeURL: string;
 
-    public GetRelativeUrl():string {
+    public GetRelativeUrl(): string {
         return this.relativeURL;
     }
 
-    public setRelativeUrl(relativeurl:string) {
+    public setRelativeUrl(relativeurl: string) {
         this.relativeURL = relativeurl;
     }
 
-    constructor(protected http:UniHttp) {
+    constructor(protected http: UniHttp) {
         this.BaseURL = http.getBaseUrl();
         this.LogAll = true;
     }
 
-    public Get<T>(ID:number, expand?:string[]):Observable<any> {
+    public Get<T>(ID: number, expand?: string[]): Observable<any> {
         let expandStr;
         if (expand) {
             expandStr = expand.join(',');
@@ -40,7 +40,7 @@ export class BizHttp<T> {
             });
     }
 
-    public GetAll<T>(query:string):Observable<any> {
+    public GetAll<T>(query: string): Observable<any> {
         if (this.DefaultOrderBy !== null && (query === null || (query !== null && query.toLowerCase().indexOf('orderby') === 0))) {
             if (query !== null) {
                 query += '&orderby=' + this.DefaultOrderBy;
@@ -56,7 +56,7 @@ export class BizHttp<T> {
             .send();
     }
 
-    public Post<T>(entity:T):Observable<any> {
+    public Post<T>(entity: T): Observable<any> {
         return this.http
             .usingBusinessDomain()
             .asPOST()
@@ -65,7 +65,7 @@ export class BizHttp<T> {
             .send();
     }
 
-    public Put<T>(ID:number, entity:T):Observable<any> {
+    public Put<T>(ID: number, entity: T): Observable<any> {
         return this.http
             .usingBusinessDomain()
             .asPUT()
@@ -74,7 +74,7 @@ export class BizHttp<T> {
             .send();
     }
 
-    public Remove<T>(ID:number, entity:T):void {
+    public Remove<T>(ID: number, entity: T): void {
         // maybe not neccessary to include entity as parameter?
         // could be useful for validating if entity could be deleted?
         this.http
@@ -84,7 +84,7 @@ export class BizHttp<T> {
             .send();
     }
 
-    public Transition<T>(ID:number, entity:T, transitionName:string):Observable<any> {
+    public Transition<T>(ID: number, entity: T, transitionName: string): Observable<any> {
         return this.http
             .usingBusinessDomain()
             .asPOST()
@@ -107,15 +107,23 @@ export class BizHttp<T> {
                 .send();
 
         }
-
-        //return this.http
-        //    .usingBusinessDomain()
-        //    .asGET()
-        //    .withEndPoint(this.RelativeURL + (query ? "?" + query : ""))  ///USE THIS!!!
-        //    .send();
     }
 
-    GetLayout(ID:string) {
+    GetNewEntity(expand?: string[]) {
+        let expandStr;
+        if (expand) {
+            expandStr = expand.join(',');
+        }
+        return this.http
+            .usingBusinessDomain()
+            .asGET()
+            .withEndPoint(this.relativeURL + '/new')
+            .send({
+                expand: expandStr
+            });
+    }
+
+    GetLayout(ID: string) {
         var endPoint = ["layout", ID].join("/");
         return this.http
             .usingMetadataDomain()
@@ -124,14 +132,14 @@ export class BizHttp<T> {
             .send();
     }
 
-    public GetLayoutAndEntity(LayoutID:string, EntityID:number) {
+    public GetLayoutAndEntity(LayoutID: string, EntityID: number) {
         var layout, self = this;
         return this.GetLayout(LayoutID)
-            .concatMap((data:any) => {
+            .concatMap((data: any) => {
                 layout = data;
                 return self.Get(EntityID, data.Expands);
             })
-            .map((entity:any) => {
+            .map((entity: any) => {
                 return [layout, entity];
             });
     }

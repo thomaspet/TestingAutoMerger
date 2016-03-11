@@ -66,7 +66,8 @@ export class UniTable {
                     total: (response) => {
                         return this.totalRows;
                     }
-                }
+                },
+                sort: this.config.sort
             },
             columns: this.config.columns,
             filterable: this.config.filterable,
