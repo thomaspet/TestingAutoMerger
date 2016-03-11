@@ -17,7 +17,7 @@ journal-entry-simple p
     margin-bottom: 0.1rem
 
 journal-entry-simple td
-    border-bottom: 0.1rem solid #E8E8E8
+    border-bottom: 0.1rem solid $uni-color-scale9
 
 journal-entry-simple table div
     overflow: hidden
@@ -34,7 +34,7 @@ journal-entry-simple tr:hover
     font-size: 0.75rem
 
 .journalentrysimple-multilineinfo label 
-    color: grey
+    color: $uni-color-scale7
 
 journal-entry-simple td
     whitespace: nowrap
@@ -116,17 +116,17 @@ journal-entry-simple .action_menu
     label,
     fieldset
         //@include unigrid(2, 2, 1)
-        width: 120px 
+        width: pxToRem(120) 
         float: left // And float them.
         margin-left: 0.5rem
         margin-right: 0.5rem
         min-height: 3rem // So they don't run flush row-to-row.
 
     .small-field
-        width: 60px
+        width: pxToRem(60)
         
     .large-field
-        width: 200px
+        width: pxToRem(200)
 
 .journal-entry-simple-form-loading-placeholder
     background-color: transparentize($uni-color-scale9, .8)
