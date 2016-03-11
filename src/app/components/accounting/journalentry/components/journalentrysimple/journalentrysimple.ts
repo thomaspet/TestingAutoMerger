@@ -82,6 +82,10 @@ export class JournalEntrySimple {
             );
     }
     
+    saveDraftJournalEntryData() {        
+        alert('Ikke implementert');        
+    }
+    
     validateJournalEntryData() {
         this.journalEntryService.validateJournalEntryData(this.journalEntryLines)
             .subscribe(
@@ -91,6 +95,12 @@ export class JournalEntrySimple {
                 },
                 err => console.log('error int validateJournalEntryData:', err)
             );
+    }
+    
+    removeJournalEntryData() {        
+        if (confirm('Er du sikker på at du vil forkaste alle endringene dine?')) {
+            this.journalEntryLines = new Array<JournalEntryData>(); 
+        }        
     }
     
     addDummyJournalEntry() {

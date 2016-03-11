@@ -1,12 +1,16 @@
 <section class="journal-entry-simple-form-buttonrow">
     <button (click)="postJournalEntryData($event)">Lagre og bokfør</button>
+    <button (click)="saveDraftJournalEntryData($event)">Lagre som kladd</button>
+    <button (click)="removeJournalEntryData($event)">Forkast</button>
     <button (click)="validateJournalEntryData($event)">Valider data</button>
-    <button (click)="addDummyJournalEntry($event)">Legg til dummylinje</button>
+    <button (click)="addDummyJournalEntry($event)">Test</button>
 </section>
 
 <section class="journal-entry-simple-table-wrapper">
-    <journal-entry-simple-form [DropdownData]="DropdownData" tabindex="1" (Created)="newLineCreated($event)" *ngIf="DropdownData != null && selectedJournalEntryLine == null"></journal-entry-simple-form>
-
+    <journal-entry-simple-form [DropdownData]="DropdownData" tabindex="1" (Created)="newLineCreated($event)" *ngIf="DropdownData != null"></journal-entry-simple-form>
+    <section *ngIf="DropdownData == null" class="journal-entry-simple-form-loading-placeholder" [attr.aria-busy]="DropdownData == null" >
+    Laster...
+    </section>
     <table>
         <thead>
              <tr>
@@ -21,7 +25,7 @@
         </thead>
         <tbody>
             <template ngFor #line [ngForOf]="journalEntryLines" [ngForTrackBy]="trackByLines">        
-                <tr tabindex="2" (keyup.enter)="setSelectedJournalEntryLine(line)" class="journalentrysimple-itemline" (click)="setSelectedJournalEntryLine(line)">
+                <tr tabindex="2" (keyup.enter)="setSelectedJournalEntryLine(line)" class="journalentrysimple-itemline" (click)="setSelectedJournalEntryLine(line)" [class.journal-entry-row-selected]="selectedJournalEntryLine == line">
                     <td class="journalentrysimple-multilineinfo">
                         <div><label>Bilagsnr:</label> {{line.JournalEntryNo}}</div>
                         <!--<div><label>Fakturanr:</label> {{line.SupplierInvoiceNo}}</div>-->
@@ -45,7 +49,12 @@
                         <journal-entry-simple-form [DropdownData]="DropdownData" [JournalEntryLine]="selectedJournalEntryLine" (Updated)="editViewUpdated($event)" (Aborted)="abortEdit()"></journal-entry-simple-form>
                		</td>
                 </tr>
-            </template>                  
+            </template>  
+            <tr *ngIf="journalEntryLines.length == 0">
+                    <td colspan="7">
+                        Fyll inn data og trykk Legg til over for å legge inn en eller flere bilagslinjer
+               		</td>
+                </tr>              
         </tbody>
     </table>    
 </section>
