@@ -33,7 +33,7 @@ declare var _; //lodash
                     [config]="field">
                 </uni-component-loader>
             </template>
-            <button type="submit" [disabled]="hasErrors()" [hidden]="isSubmitButtonHidden()">{{submitText}}</button>
+            <button *ngIf="!isSubmitButtonHidden()" type="submit" [disabled]="hasErrors()">{{submitText}}</button>
         </form>
     `
 })
