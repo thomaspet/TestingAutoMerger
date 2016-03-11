@@ -37,12 +37,14 @@ export class JournalEntrySimpleForm {
     accounts: Account[];
     
     isLoaded: boolean;
+    isEditMode: boolean;
     
     @ViewChild(UniForm)
     form: UniForm;
         
     constructor() {   
         this.isLoaded = false;
+        this.isEditMode = false;
         this.departements = [];
         this.projects = []; 
         this.vattypes = [];
@@ -59,23 +61,20 @@ export class JournalEntrySimpleForm {
         this.JournalEntryLine.FinancialDate = oldData.FinancialDate;
     }
     
-    ngOnChanges(changes: {[propName: string]: SimpleChange}) { 
+    ngOnChanges(changes: {[propName: string]: SimpleChange}) {         
+        if (changes['DropdownData'] != null) {
+            this.departements = this.DropdownData[0];
+            this.projects = this.DropdownData[1];
+            this.vattypes = this.DropdownData[2];
+            this.accounts = this.DropdownData[3];  
+        }
         
-        this.departements = this.DropdownData[0];
-        this.projects = this.DropdownData[1];
-        this.vattypes = this.DropdownData[2];
-        this.accounts = this.DropdownData[3];
-        
-        var self = this;
-
-        setTimeout(() => {
-            if(self.form != null) {
-                //self.form.refresh(self.FormConfig); 
-            }
-        });   
+        if (changes['JournalEntryLine'] != null) {
+            this.isEditMode = true;
+        }
     }
         
-    ngAfterViewInit() {
+    ngAfterViewInit() {        
         // TODO get it from the API and move these to backend migrations        
         var view: ComponentLayout = {
             Name: "ManualJournalEntryLineDraft",
@@ -268,10 +267,10 @@ export class JournalEntrySimpleForm {
             ]               
         };   
         
-        this.FormConfig = new UniFormLayoutBuilder().build(view, this.JournalEntryLine);  
+        this.FormConfig = new UniFormLayoutBuilder().build(view, this.JournalEntryLine);
+        this.FormConfig.hideSubmitButton();  
         this.extendFormConfig();
-        this.loadForm();
-                        
+        this.loadForm();                      
     }
     
     extendFormConfig() {
@@ -322,8 +321,7 @@ export class JournalEntrySimpleForm {
         
         var description: UniFieldBuilder = this.FormConfig.find('Description');
         description.addClass('large-field');     
-    }
-    
+    }    
     
     private buildFormConfig(layout: ComponentLayout, model: JournalEntryData) {
         this.FormConfig = new UniFormLayoutBuilder().build(layout, model);
@@ -334,18 +332,10 @@ export class JournalEntrySimpleForm {
         var self = this;
         return this.UniCmpLoader.load(UniForm).then((cmp: ComponentRef) => {
            cmp.instance.config = self.FormConfig;
-           cmp.instance.getEventEmitter().subscribe(self.submit(self));
-           //self.elementRef.nativeElement.focus();
         });
     }
     
     abortEditJournalEntry(event) {
         this.Aborted.emit(null);
-    }
-    
-    private submit(context: JournalEntrySimpleForm) {
-        return () => {
-            this.addJournalEntry(context.JournalEntryLine);
-        };
-    }
+    }    
 } 
