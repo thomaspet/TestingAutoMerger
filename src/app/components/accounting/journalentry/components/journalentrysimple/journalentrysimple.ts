@@ -56,7 +56,27 @@ export class JournalEntrySimple {
                 return id + ' - ' + dep.Name;            
         }
         
-        return id.toString();
+        return id != undefined ? id.toString() : "";
+    }
+    
+    getAccount(id: number): Account { 
+        if (this.DropdownData) {
+            var dep = this.DropdownData[3].find((d) => d.ID == id);
+            if (dep != null)
+                return dep;            
+        }
+        
+        return null;
+    }
+    
+    getVatType(id: number): VatType { 
+        if (this.DropdownData) {
+            var dep = this.DropdownData[2].find((d) => d.ID == id);
+            if (dep != null)
+                return dep;            
+        }
+        
+        return null;
     }
     
     getProjectName(id: number): string {
@@ -66,7 +86,7 @@ export class JournalEntrySimple {
                 return id + ' - ' + project.Name;
         }
         
-        return id.toString(); 
+        return id != undefined ? id.toString() : ""; 
     }
     
     postJournalEntryData() {
@@ -98,11 +118,7 @@ export class JournalEntrySimple {
         newline.JournalEntryNo = Math.round((this.journalEntryLines.length/3) + 1);         
         this.journalEntryLines.unshift(newline);
     }
-    
-    newLineCreated(journalEntryLine : any) {
-        this.journalEntryLines.unshift(journalEntryLine);
-    }
-    
+        
     setSelectedJournalEntryLine(selectedLine: JournalEntryData) {        
         this.selectedJournalEntryLine = selectedLine;
     }
@@ -111,8 +127,37 @@ export class JournalEntrySimple {
         this.selectedJournalEntryLine = null;        
     }
     
-    editViewUpdated(updatedLine : JournalEntryData) {        
+    parseJournalEntryData(updatedLine: JournalEntryData) : JournalEntryData {
+        var dimensions = new Dimensions();
+        dimensions.DepartementID = updatedLine['Dimensions.DepartementID'];
+        dimensions.ProjectID = updatedLine['Dimensions.ProjectID'];
+        updatedLine.Dimensions = dimensions;
         
+        updatedLine.DebitAccount = this.getAccount(updatedLine['DebitAccountID']);
+        updatedLine.CreditAccount = this.getAccount(updatedLine['CreditAccountID']);
+        updatedLine.DebitVatType = this.getVatType(updatedLine['VatTypeID']);
+        
+        updatedLine.FinancialDate = new Date(updatedLine['FinancialDate'].toString())
+                
+        return updatedLine;          
+    }
+    
+    newLineCreated(journalEntryLine : any) {
+        console.log("==CREATED==");
+        journalEntryLine = this.parseJournalEntryData(journalEntryLine);
+        console.log(journalEntryLine);
+        
+        this.journalEntryLines.unshift(journalEntryLine);
+    }
+
+    editViewUpdated(journalEntryLine : JournalEntryData) { 
+        console.log("==UPDATED==");      
+        journalEntryLine = this.parseJournalEntryData(journalEntryLine);          
+        console.log(journalEntryLine);
+       
+        var currentRow = this.journalEntryLines.indexOf(this.selectedJournalEntryLine);
+        this.journalEntryLines[currentRow] = journalEntryLine;                   
+        this.selectedJournalEntryLine = null;
     }
 }
 

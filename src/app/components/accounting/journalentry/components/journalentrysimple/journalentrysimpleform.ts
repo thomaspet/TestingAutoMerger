@@ -1,7 +1,7 @@
 import {Component, ComponentRef, Input, Output, ViewChild, SimpleChange, EventEmitter} from "angular2/core";
 import {Observable} from "rxjs/Observable";
 
-import {FieldType, FieldLayout, ComponentLayout, Departement, Project, VatType, VatCodeGroup, Account, JournalEntry, JournalEntryLine, JournalEntryLineDraft} from "../../../../../unientities";
+import {FieldType, FieldLayout, ComponentLayout, Departement, Project, VatType, VatCodeGroup, Account, JournalEntry, JournalEntryLine, JournalEntryLineDraft, Dimensions} from "../../../../../unientities";
 import {JournalEntryData} from "../../../../../models/models";
 
 import {UNI_CONTROL_DIRECTIVES} from "../../../../../../framework/controls";
@@ -25,6 +25,7 @@ export class JournalEntrySimpleForm {
                                 
     @Output() Created = new EventEmitter<any>();
     @Output() Aborted = new EventEmitter<any>();
+    @Output() Updated = new EventEmitter<any>();
        
     @ViewChild(UniComponentLoader)
     UniCmpLoader: UniComponentLoader;    
@@ -38,9 +39,7 @@ export class JournalEntrySimpleForm {
     
     isLoaded: boolean;
     isEditMode: boolean;
-    
-    @ViewChild(UniForm)
-    form: UniForm;
+    formInstance: UniForm;
         
     constructor() {   
         this.isLoaded = false;
@@ -53,12 +52,16 @@ export class JournalEntrySimpleForm {
     }
         
     addJournalEntry(event: any) {        
-        this.Created.emit(event);
+        this.Created.emit(this.formInstance.getValue());
         
         var oldData = this.JournalEntryLine; 
         this.JournalEntryLine = new JournalEntryData(); 
         this.JournalEntryLine.JournalEntryNo = oldData.JournalEntryNo;
-        this.JournalEntryLine.FinancialDate = oldData.FinancialDate;
+        this.JournalEntryLine.FinancialDate = oldData.FinancialDate;        
+    }
+    
+    editJournalEntry(event: any) {     
+        this.Updated.emit(this.formInstance.getValue());
     }
     
     ngOnChanges(changes: {[propName: string]: SimpleChange}) {         
@@ -75,7 +78,7 @@ export class JournalEntrySimpleForm {
     }
         
     ngAfterViewInit() {        
-        // TODO get it from the API and move these to backend migrations        
+        // TODO get it from the API and move these to backend migrations   
         var view: ComponentLayout = {
             Name: "ManualJournalEntryLineDraft",
             BaseEntity: "JournalEntryLineDraft",
@@ -127,7 +130,7 @@ export class JournalEntrySimpleForm {
                 {
                     ComponentLayoutID: 1,
                     EntityType: "JournalEntryLineDraft",
-                    Property: "DebitAccountNumber",
+                    Property: "DebitAccountID",
                     Placement: 4,
                     Hidden: false,
                     FieldType: 1,
@@ -147,7 +150,7 @@ export class JournalEntrySimpleForm {
                 {
                     ComponentLayoutID: 1,
                     EntityType: "JournalEntryLineDraft",
-                    Property: "CreditAccountNumber",
+                    Property: "CreditAccountID",
                     Placement: 4,
                     Hidden: false,
                     FieldType: 1,
@@ -167,7 +170,7 @@ export class JournalEntrySimpleForm {
                 {
                     ComponentLayoutID: 1,
                     EntityType: "JournalEntryLineDraft",
-                    Property: "VatType",
+                    Property: "DebitVatTypeID",
                     Placement: 4,
                     Hidden: false,
                     FieldType: 1,
@@ -207,7 +210,7 @@ export class JournalEntrySimpleForm {
                 {
                     ComponentLayoutID: 1,
                     EntityType: "JournalEntryLineDraft",
-                    Property: "Departement",
+                    Property: "Dimensions.DepartementID",
                     Placement: 4,
                     Hidden: false,
                     FieldType: 1,
@@ -227,7 +230,7 @@ export class JournalEntrySimpleForm {
                 {
                     ComponentLayoutID: 1,
                     EntityType: "JournalEntryLineDraft",
-                    Property: "Project",
+                    Property: "Dimensions.ProjectID",
                     Placement: 4,
                     Hidden: false,
                     FieldType: 1,
@@ -250,7 +253,7 @@ export class JournalEntrySimpleForm {
                     Property: "Description",
                     Placement: 11,
                     Hidden: false,
-                    FieldType: 11,
+                    FieldType: 10,
                     ReadOnly: false,
                     LookupField: false,
                     Label: "Beskrivelse",
@@ -281,15 +284,15 @@ export class JournalEntrySimpleForm {
         });
         journalEntryNo.addClass('small-field');
         
-        var departement: UniFieldBuilder = this.FormConfig.find('Departement');       
+        var departement: UniFieldBuilder = this.FormConfig.find('Dimensions.DepartementID');       
         departement.setKendoOptions({
             dataTextField: 'Name',
             dataValueField: 'ID',
             dataSource: this.departements
         });
         departement.addClass('large-field');
-        
-        var project: UniFieldBuilder = this.FormConfig.find('Project');
+
+        var project: UniFieldBuilder = this.FormConfig.find('Dimensions.ProjectID');
         project.setKendoOptions({
            dataTextField: 'Name',
            dataValueField: 'ID',
@@ -297,7 +300,7 @@ export class JournalEntrySimpleForm {
         });      
         project.addClass('large-field');
         
-        var vattype: UniFieldBuilder = this.FormConfig.find('VatType');
+        var vattype: UniFieldBuilder = this.FormConfig.find('DebitVatTypeID');
         vattype.setKendoOptions({
            dataTextField: 'VatCode',
            dataValueField: 'ID',
@@ -305,17 +308,19 @@ export class JournalEntrySimpleForm {
            dataSource: this.vattypes 
         });      
 
-        var debitaccount: UniFieldBuilder = this.FormConfig.find('DebitAccountNumber');
+        var debitaccount: UniFieldBuilder = this.FormConfig.find('DebitAccountID');
         debitaccount.setKendoOptions({
            dataTextField: 'AccountNumber',
            dataValueField: 'ID',
+           //template: "${data.AccountNumber} - ${data.AccountName}",
            dataSource: this.accounts
         });      
         
-        var creditaccount: UniFieldBuilder = this.FormConfig.find('CreditAccountNumber');
+        var creditaccount: UniFieldBuilder = this.FormConfig.find('CreditAccountID');
         creditaccount.setKendoOptions({
            dataTextField: 'AccountNumber',
            dataValueField: 'ID',
+           //template: "${data.AccountNumber} - ${data.AccountName}",
            dataSource: this.accounts
         }); 
         
@@ -327,15 +332,17 @@ export class JournalEntrySimpleForm {
         this.FormConfig = new UniFormLayoutBuilder().build(layout, model);
     }
        
-    loadForm() {
-        
+    loadForm() {       
         var self = this;
         return this.UniCmpLoader.load(UniForm).then((cmp: ComponentRef) => {
            cmp.instance.config = self.FormConfig;
+           setTimeout(() => {
+                self.formInstance = cmp.instance;
+           });
         });
     }
     
     abortEditJournalEntry(event) {
         this.Aborted.emit(null);
-    }    
+    }  
 } 

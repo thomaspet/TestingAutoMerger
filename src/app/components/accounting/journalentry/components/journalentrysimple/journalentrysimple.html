@@ -6,7 +6,6 @@
 
 <section class="journal-entry-simple-table-wrapper">
     <journal-entry-simple-form [DropdownData]="DropdownData" tabindex="1" (Created)="newLineCreated($event)" *ngIf="DropdownData != null && selectedJournalEntryLine == null"></journal-entry-simple-form>
-
     <table>
         <thead>
              <tr>
@@ -28,8 +27,8 @@
                     </td>
                     <td class="journalentrysimple-biginfo">{{line.FinancialDate.toLocaleDateString()}}</td>                    
                     <td class="journalentrysimple-multilineinfo">
-                        <div><label>Debet:</label> {{line.DebitAccount ? line.DebitAccountNumber + " - " + line.DebitAccount.AccountName : ""}}</div>
-                        <div><label>Kredit:</label> {{line.CreditAccount ? line.CreditAccountNumber + " - " + line.CreditAccount.AccountName : ""}}</div>
+                        <div><label>Debet:</label> {{line.DebitAccount ? line.DebitAccount.AccountNumber + " - " + line.DebitAccount.AccountName : ""}}</div>
+                        <div><label>Kredit:</label> {{line.CreditAccount ? line.CreditAccount.AccountNumber + " - " + line.CreditAccount.AccountName : ""}}</div>
                     </td>
                     <td class="journalentrysimple-biginfo">{{line.Amount | number:'1.2-2'}}</td>
                     <td class="journalentrysimple-multilineinfo">

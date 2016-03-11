@@ -1,5 +1,6 @@
 <section class="journal-entry-simple-form">
     <uni-component-loader></uni-component-loader>
-    <button (click)="addJournalEntry($event)">Legg til</button>
+    <button *ngIf="!isEditMode" (click)="addJournalEntry($event)">Legg til</button>
+    <button *ngIf="isEditMode" (click)="editJournalEntry($event)">Oppdater</button>
     <button *ngIf="isEditMode" (click)="abortEditJournalEntry($event)">Avbryt</button>
 </section>
