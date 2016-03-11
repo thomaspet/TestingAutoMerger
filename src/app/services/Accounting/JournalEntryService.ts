@@ -37,11 +37,11 @@ export class JournalEntryService extends BizHttp<JournalEntry> {
             .send();
     }    
     
-    getJournalEntryData(): Observable<any> {
+    getJournalEntryDataBySupplierInvoiceID(supplierInvoiceID: number): Observable<any> {
         return this.http
             .asGET()
-            .usingBusinessDomain()            
-            .withEndPoint(this.relativeURL + '?action=get-journal-entry-data')
+            .usingBusinessDomain()             
+            .withEndPoint(this.relativeURL + '?action=get-journal-entry-data&supplierInvoiceID=' + supplierInvoiceID)
             .send(); 
     }      
     

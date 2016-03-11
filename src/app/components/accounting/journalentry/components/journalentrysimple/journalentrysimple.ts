@@ -18,6 +18,7 @@ import {JournalEntrySimpleForm} from './journalentrysimpleform';
     providers: [JournalEntryService, DepartementService, ProjectService, VatTypeService, AccountService]    
 })
 export class JournalEntrySimple {
+    @Input() supplierInvoiceID: number;
     public selectedJournalEntryLine : JournalEntryData;
     
     public journalEntryLines: Array<JournalEntryData>;
@@ -33,12 +34,16 @@ export class JournalEntrySimple {
     }
     
     ngOnInit() {
-        this.journalEntryService.getAggregatedData()
-            .subscribe(data => 
-            {                
-                this.journalEntryLines = data;
-            }); 
-            
+        if (this.supplierInvoiceID) {
+            this.journalEntryService.getJournalEntryDataBySupplierInvoiceID(this.supplierInvoiceID)
+                .subscribe(data => 
+                {                
+                    this.journalEntryLines = data;
+                }); 
+        } else {                           
+            this.journalEntryLines = new Array<JournalEntryData>(); ;               
+        }
+        
         Observable.forkJoin(
             this.departementService.GetAll(null),
             this.projectService.GetAll(null),
