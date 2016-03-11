@@ -13,13 +13,15 @@ import {EmployeeLeave} from "./employeeLeave/employeeLeave";
 import {UniTabs} from "../../layout/uniTabs/uniTabs";
 import {WidgetPoster} from "../../../../framework/widgetPoster/widgetPoster";
 
+
 import {EmployeeDS} from "../../../data/employee";
 import {STYRKCodesDS} from "../../../data/styrkCodes";
+import {SalaryTransactionEmployeeList} from "../salarytrans/salarytransList";
 
 const CHILD_ROUTES = [
     {path: "/", component: PersonalDetails, as: "PersonalDetails"},
     {path: "/employment", component: EmployeeEmployment, as: "Employment"},
-    {path: "/salarytransactions", component: SalaryTransactions, as: "SalaryTransactions"},
+    {path: "/salarytrans", component: SalaryTransactionEmployeeList, as: "Lønnstranser"},
     {path: "/hours", component: Hours, as: "Hours"},
     {path: "/travel", component: Travel, as: "Travel"},
     {path: "/employeeleave", component: EmployeeLeave, as: "EmployeeLeave"}

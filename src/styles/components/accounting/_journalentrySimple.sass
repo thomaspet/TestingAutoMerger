@@ -3,6 +3,10 @@
 journal-entry-simple table
     width: 100%
     margin-top: 1rem
+    margin-bottom: 1.5rem
+
+journal-entry-simple .journal-entry-row-selected
+    opacity: 0.5
 
 journal-entry-simple h3
     margin-top: 0.1rem
@@ -15,8 +19,13 @@ journal-entry-simple p
 journal-entry-simple td
     border-bottom: 0.1rem solid #E8E8E8
 
+journal-entry-simple table div
+    overflow: hidden
+    white-space: nowrap 
+    text-overflow: ellipsis    
+
 journal-entry-simple tr:hover
-    background-color: #F2F2F2
+    background-color: transparentize($uni-color-scale9, .5)
 
 .journalentrysimple-biginfo
     font-size: 1.4rem
@@ -59,19 +68,19 @@ journal-entry-simple .action_menu
     margin-top: 10rem
 
 .journal-entry-simple-validation
-    @include unigrid(4,2,4,1)
+    @include unigrid(4,2,2,1)
     float: left    
-    background-color: #F2F2F2
+    background-color: transparentize($uni-color-scale9, .5)
     padding-left: 1rem
     padding-right: 1rem
     padding-bottom: 1rem    
     margin-bottom: 2rem !important
     
 .journal-entry-simple-helper
-    @include unigrid(4,2,4,1)
+    @include unigrid(4,2,2,1)
     font-size: 1rem
     float: right    
-    background-color: #F2F2F2
+    background-color: transparentize($uni-color-scale9, .5)
     padding-left: 1rem
     padding-right: 1rem
     padding-bottom: 1rem    
@@ -81,13 +90,25 @@ journal-entry-simple .action_menu
     margin-top: 1rem
     margin-bottom: 1rem
     padding-bottom: 1rem
+    margin-left: 0.5rem
+
+.journal-entry-simple-form-buttonrow button
+    padding: 0 0.5rem
+    margin: 0.5rem 0.5rem
     
 .journal-entry-simple-form
-    background-color: #F2F2F2
+    background-color: transparentize($uni-color-scale9, .5)
     font-size: 0.8rem
+    min-height: 7rem
  
-    button
-        margin-top: 1.4rem
+    .button-group
+        float: left
+ 
+    button        
+        margin-top: 1.5rem
+        margin-right: 0.3rem
+        margin-left: 0.3rem
+
     
 .journal-entry-simple-form uni-form
     width: 100%
@@ -106,3 +127,8 @@ journal-entry-simple .action_menu
         
     .large-field
         width: 200px
+
+.journal-entry-simple-form-loading-placeholder
+    background-color: transparentize($uni-color-scale9, .8)
+    height: 7rem
+    width: 100%
