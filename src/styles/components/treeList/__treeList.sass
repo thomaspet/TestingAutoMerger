@@ -14,6 +14,7 @@
 
   .k-grid-content
     overflow-y: hidden
+    margin-bottom: 1rem
 
   .k-grid tr.k-state-selected
     color: $uni-color-negative
@@ -28,7 +29,7 @@
   background: unicon-chevron-right($uni-color-scale5) no-repeat 0 .5rem
   background-size: .35rem
 
-  .treelist_item[aria-expanded=true] &
+  .treelist_item[aria-expanded=true] > &
     background: unicon-chevron-down($uni-color-scale5) no-repeat 0 .5rem
     background-size: .7rem
 
@@ -38,4 +39,7 @@
 .treelist_content
   input[type=search]
     display: none
+
+  uni-table
+    margin-bottom: 1rem
 
