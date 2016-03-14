@@ -2,6 +2,7 @@
 import {NgFor, NgIf} from 'angular2/common';
 import {UniHttp} from '../../../../framework/core/http';
 import {OrderByPipe} from '../../../../framework/pipes/orderByPipe';
+import {Observable} from "rxjs/Observable";
 import {FilterInactivePipe} from '../../../../framework/pipes/filterInactivePipe';
 
 declare var jQuery;
@@ -27,6 +28,7 @@ export class Users {
         this.newUser = {};
         this.newUser.CompanyId = JSON.parse(localStorage.getItem('activeCompany')).id;
         this.getUserTableData();
+
     }
 
     //Gets the list of users

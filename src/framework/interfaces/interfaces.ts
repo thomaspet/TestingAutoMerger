@@ -749,6 +749,7 @@ export interface IUserAuthorization {
 export interface ICompany {
 	Name: string;
 	SchemaName: string;
+	Key: string;
 	ID: number;
 	Deleted: boolean;
 	CustomFields: any;
