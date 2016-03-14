@@ -215,14 +215,7 @@ let layout = {
             ReadOnly: false,
             LookupField: "Name",
             kendoOptions: {
-                dataSource: [
-                    {ID: StdWageType.None, Name: "None"},
-                    {ID: StdWageType.TaxDrawTable, Name: "TableTax"},
-                    {ID: StdWageType.TaxDrawPercent, Name: "PercentTax"},
-                    {ID: StdWageType.HolidayPayWithTaxDeduction, Name: "Holidaypay with tax"},
-                    {ID: StdWageType.HolidayPayThisYear, Name: "Holidaypay this year"},
-                    {ID: StdWageType.HolidayPayLastYear, Name: "Holidaypay last year"}
-                ],
+                dataSource: taxType
                 dataTextField: "Name",
                 dataValueField: "ID"
             },
@@ -266,12 +259,7 @@ let layout = {
             Section: 1,
             Legend: "",
             kendoOptions: {
-                dataSource: [
-                    {ID: TaxType.Tax_None, Name: "None"},
-                    {ID: TaxType.Tax_Table, Name: "TableTax"},
-                    {ID: TaxType.Tax_Percent, Name: "PercentTax"},
-                    {ID: TaxType.Tax_0, Name: "..."}
-                ],
+                dataSource: stdWageType,
                 dataTextField: "Name",
                 dataValueField: "ID"
             },

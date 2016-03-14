@@ -45,7 +45,7 @@ export class WagetypeDetail {
                     this.wageType.AccountNumber = null;
                 }
                 this.form = new UniFormLayoutBuilder().build(this.layout, this.wageType);
-                if(this.wageType.ID == 0){
+                if(this.wageType.ID === 0){
                     this.form.find('WageTypeId').readonly = false;
                 }
                 
