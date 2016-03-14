@@ -12,6 +12,7 @@ export class UniTableBuilder {
     resource: string | Array<any>;
     filter: string = "";
     expand: string = "";
+    orderBy: kendo.data.DataSourceSortItem;
     
     searchable: boolean = true;
     filterable: boolean = true;
@@ -104,7 +105,6 @@ export class UniTableBuilder {
         return this;
     }
     
-    
     setEditable(editable: boolean) {
         this.editable = editable;
         return this;
@@ -117,6 +117,14 @@ export class UniTableBuilder {
     
     setFilter(filter: string) {
         this.filter = filter;
+        return this;
+    }
+    
+    setOrderBy(field: string, direction?: string) {
+        this.orderBy = {
+            field: field,
+            dir: direction || ""
+        }
         return this;
     }
     

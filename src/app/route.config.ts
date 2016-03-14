@@ -44,27 +44,13 @@ export var Routes = {
         name: "Settings",
         loader: () => ComponentProxy.LoadComponentAsync("Settings", "./app/components/settings/settings")
     }),
-    /*
-     journalEntry: new AsyncRoute({
-     path: "/journalentry",
-     name: "JournalEntry",
-     loader: () => ComponentProxy.LoadComponentAsync("JournalEntry", "./app/components/accounting/journalentry/journalentry")
-     }),
-     */
 
-    journalEntrySub: new AsyncRoute({
+    journalEntry: new AsyncRoute({
         path: "/journalentry/...",
         name: "JournalEntry",
         loader: () => ComponentProxy.LoadComponentAsync("JournalEntry", "./app/components/accounting/journalentry/journalentry")
-    }),
-
-    /*
-     journalEntryManual: new AsyncRoute({
-     path: "/journalentrymanual",
-     name: "JournalEntryManual",
-     loader: () => ComponentProxy.LoadComponentAsync("JournalEntryManual", "./app/components/accounting/journalentry/journalentrymanual/journalentrymanual")
-     }),
-     */
+    }),     
+    
     usertest: new AsyncRoute({
         path: "/usertest",
         name: "Usertest",
@@ -86,6 +72,12 @@ export var Routes = {
         path: "/examples/...",
         name: "Examples",
         loader: () => ComponentProxy.LoadComponentAsync("Examples", "./app/components/examples/examples")
+    }),
+    
+    salarytransSelection: new AsyncRoute({
+        path: "/salary/salarytrans",
+        name: "SalaryTransactionSelectionList",
+        loader: () => ComponentProxy.LoadComponentAsync("SalaryTransactionSelectionList", "./app/components/salary/salarytrans/salarytransactionSelectionList")
     })
 };
 

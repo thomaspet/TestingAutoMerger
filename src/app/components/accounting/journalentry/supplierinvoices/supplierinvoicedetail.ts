@@ -7,21 +7,26 @@ import {SupplierInvoiceService, SupplierService} from "../../../../services/serv
 
 import {UniForm} from "../../../../../framework/forms/uniForm";
 import {UniFormBuilder, UniFormLayoutBuilder} from "../../../../../framework/forms";
-import {UniFieldsetBuilder, UniFieldBuilder} from "../../../../../framework/forms";
+import {UniFieldsetBuilder, UniFieldBuilder, UniSectionBuilder} from "../../../../../framework/forms";
+import {UniComponentLoader} from '../../../../../framework/core/componentLoader';
 import {UNI_CONTROL_DIRECTIVES} from "../../../../../framework/controls";
-import {FieldType} from "../../../../unientities";
-import {SupplierInvoice} from "../../../../unientities";
+import {FieldType, FieldLayout, ComponentLayout} from "../../../../unientities";
+import {SupplierInvoice, Supplier} from "../../../../unientities";
 
 @Component({
     selector: "supplier-invoice-detail",
     templateUrl: "app/components/accounting/journalentry/supplierinvoices/supplierinvoicedetail.html",
-    directives: [UniForm],
+    directives: [UniForm, UniComponentLoader],
     providers: [SupplierInvoiceService, SupplierService]
 })
 export class SupplierInvoiceDetail implements OnInit {
-    supplierInvoice: SupplierInvoice; // = new SupplierInvoice();
-    suppliers: Array<any> = [];
-    formBuilder: UniFormBuilder = new UniFormBuilder();
+    supplierInvoice: SupplierInvoice;
+    suppliers: Supplier[];
+
+    formBuilder: UniFormBuilder; 
+    formInstance: UniForm;
+
+    @ViewChild(UniComponentLoader) uniCompLoader: UniComponentLoader;
 
     constructor(
         private _supplierInvoiceService: SupplierInvoiceService,
@@ -40,48 +45,20 @@ export class SupplierInvoiceDetail implements OnInit {
             //Get drop down data TODO
         }
         else {
+
             Observable.forkJoin(
                 this._supplierInvoiceService.Get(id, ["JournalEntry", "Supplier.Info"]),
-                this._supplierService.GetAll(null)
+                this._supplierService.GetAll(null, ["Info"])
             ).subscribe((response: any) => {
                 let [invoice, suppliers] = response;
                 this.supplierInvoice = invoice;
                 this.suppliers = suppliers;
 
-                setTimeout(() => {
-                    this.buildForm();
-                }, 1000);
-
-                //this.layout = lt;
-                //this.form = new UniFormLayoutBuilder().build(this.layout, this.SupplierInvoice);
-
-                //this.uniCompLoader.load(UniForm).then((cmp: ComponentRef) => {
-                //    cmp.instance.config = this.form;
-
-                //if (this.supplierInvoice != null) {
-                //    //this.model = this.SupplierInvoice;
-
-                //    setTimeout(() => {
-                //        //this.form.refresh(this.supplierInvoice);
-                //        this.formBuilder = this.buildForm();
-                //    }, 1000);
-                //}
+                this.buildForm2();
             }, error => console.log(error));
         }
 
     }
-
-    //    if (this.SupplierInvoice != null) {
-    //        this.model = this.SupplierInvoice;
-    //        var self = this;
-
-    //        //TODO: Remove timeout, needed for now to give angular time to set up form after this.model has been set
-    //        setTimeout(() => {
-    //            if (self.form != null)
-    //                self.form.refresh(self.model);
-    //        }, 1000);
-    //    }
-
 
     onSubmit() {
         console.log("Submit called...");
@@ -100,57 +77,126 @@ export class SupplierInvoiceDetail implements OnInit {
         }
     }
 
-    buildForm() {
-        //var fb = new UniFormBuilder();
+    buildForm2() {        
+        // TODO get it from the API and move these to backend migrations   
+        var view: ComponentLayout = {
+            Name: "SupplierInvoiceDetail",
+            BaseEntity: "SupplierInvoice",
+            StatusID: 0,
+            Deleted: false,
+            ID: 1,
+            CustomFields: null,
+            Fields: [
+                {
+                    ComponentLayoutID: 1,
+                    EntityType: "SupplierInvoice",
+                    Property: "ID",
+                    Placement: 1,
+                    Hidden: false,
+                    FieldType: FieldType.TEXT, //
+                    ReadOnly: false,
+                    LookupField: false,
+                    Label: "ID", //
+                    Description: "",
+                    HelpText: "",
+                    FieldSet: 0, //
+                    Section: 0, //
+                    Legend: "",
+                    StatusID: 0,
+                    ID: 1,
+                    Deleted: false,
+                    CustomFields: null
+                },
+                {
+                    ComponentLayoutID: 1,
+                    EntityType: "SupplierInvoice",
+                    Property: "SupplierID",
+                    Placement: 2,
+                    Hidden: false,
+                    FieldType: FieldType.COMBOBOX,
+                    ReadOnly: false,
+                    LookupField: false,
+                    Label: "Leverandørnavn",
+                    Description: "",
+                    HelpText: "",
+                    FieldSet: 0,
+                    Section: 0,
+                    Legend: "",
+                    StatusID: 0,
+                    ID: 2,
+                    Deleted: false,
+                    CustomFields: null
+                },
+                {
+                    ComponentLayoutID: 1,
+                    EntityType: "SupplierInvoice",
+                    Property: "InvoiceDate",
+                    Placement: 3,
+                    Hidden: false,
+                    FieldType: FieldType.DATEPICKER, 
+                    ReadOnly: false,
+                    LookupField: false,
+                    Label: "Fakturadato",
+                    Description: "",
+                    HelpText: "",
+                    FieldSet: 0,
+                    Section: 0,
+                    Legend: "",
+                    StatusID: 0,
+                    ID: 3,
+                    Deleted: false,
+                    CustomFields: null
+                },
+                {
+                    ComponentLayoutID: 1,
+                    EntityType: "SupplierInvoice",
+                    Property: "PaymentDueDate",
+                    Placement: 4,
+                    Hidden: false,
+                    FieldType: FieldType.DATEPICKER, 
+                    ReadOnly: false,
+                    LookupField: false,
+                    Label: "Forfallsdato",
+                    Description: "",
+                    HelpText: "",
+                    FieldSet: 0,
+                    Section: 0,
+                    Legend: "",
+                    StatusID: 0,
+                    ID: 4,
+                    Deleted: false,
+                    CustomFields: null
+                }
+            ]
+        };
 
-        var supplierId = new UniFieldBuilder();
-        supplierId.setLabel("LeverandørId")
-            .setModel(this.supplierInvoice)
-            .setModelField("Supplier.ID")
-            .setType(UNI_CONTROL_DIRECTIVES[FieldType.TEXT]);
+        this.formBuilder = new UniFormLayoutBuilder().build(view, this.supplierInvoice);
+        //this.formBuilder.hideSubmitButton();
+        this.extendFormConfig();
+        this.loadForm();
+    }
 
-        //var supplierIdListe = new UniFieldBuilder();
-        //supplierIdListe.setLabel('leverandør')
-        //    .setModel(this.supplierInvoice)
-        //    .setModelField('SupplierID')
-        //    .setType(UNI_CONTROL_DIRECTIVES[3])
-        //    .setKendoOptions({
-        //        dataSource: this.suppliers,
-        //        dataTextField: 'OrgNumber',
-        //        dataValueField: 'ID',
-        //        index: this.suppliers.indexOf(this.supplierInvoice.SupplierID)
-        //    })
-        //    .hasLineBreak(true);
+    extendFormConfig() {
+        var fieldSupplierName: UniFieldBuilder = this.formBuilder.find('SupplierID');
+        fieldSupplierName.setKendoOptions({
+            dataTextField: 'Supplier.Info.Name',
+            dataValueField: 'ID',
+            template: "${data.ID} - ${data.Info.Name}",
+            dataSource: this.suppliers
+        });  
+    }    
 
-        var supplierName = new UniFieldBuilder();
-        supplierName.setLabel("Leverandørnavn")
-            .setModel(this.supplierInvoice)
-            .setModelField("Supplier.Info.Name")
-            .setType(UNI_CONTROL_DIRECTIVES[FieldType.TEXT]);
+    private buildFormConfig(layout: ComponentLayout, model: SupplierInvoice) {
+        this.formBuilder = new UniFormLayoutBuilder().build(layout, model);
+    }
 
-        var supplierInvoiceId = new UniFieldBuilder();
-        supplierInvoiceId.setLabel("ID")
-            .setModel(this.supplierInvoice)
-            .setModelField("ID")
-            .setType(UNI_CONTROL_DIRECTIVES[FieldType.TEXT]);
-
-
-        //var invoiceDate = new UniFieldBuilder();
-        //invoiceDate.setLabel("Fakturadato")
-        //    .setModel(this.supplierInvoice)
-        //    .setModelField("InvoiceDate")
-        //    .setType(UNI_CONTROL_DIRECTIVES[FieldType.DATEPICKER]);
-
-        var invoiceDate = new UniFieldBuilder();
-        invoiceDate.setLabel('Fakturadato2')
-            .setModel(this.supplierInvoice)
-            .setModelField('InvoiceDate')
-            .setType(UNI_CONTROL_DIRECTIVES[2])
-            .setKendoOptions({})
-            .hasLineBreak(true);
-
-        this.formBuilder.addUniElements(supplierInvoiceId, supplierId, supplierName, invoiceDate);
-
-        //this.formBuilder = fb;
+    loadForm() {
+        var self = this;
+        return this.uniCompLoader.load(UniForm).then((cmp: ComponentRef) => {
+            cmp.instance.config = self.formBuilder;
+            setTimeout(() => {
+                self.formInstance = cmp.instance;
+            });
+        });
     }
 }

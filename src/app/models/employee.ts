@@ -13,7 +13,7 @@ import {
 
 declare var _;
 
-export class EmployeeModel implements Employee {
+export class EmployeeModel extends Employee {
     BusinessRelationID: number = 0;
     PaymentInterval: PaymentInterval = 0;
     EmployeeNumber: number = 0;
@@ -53,6 +53,6 @@ export class EmployeeModel implements Employee {
     }
 
     constructor() {
-
+        super();
     }
 }

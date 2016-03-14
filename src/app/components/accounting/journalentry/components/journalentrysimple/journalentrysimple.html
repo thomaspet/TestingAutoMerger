@@ -1,2 +1,80 @@
-<journal-entry-simple-list></journal-entry-simple-list>
-<journal-entry-simple-add (Created)="newLineCreated=($event)"></journal-entry-simple-add>
+<section class="journal-entry-simple-form-buttonrow">
+    <button (click)="postJournalEntryData($event)">Lagre og bokfør</button>
+    <button (click)="saveDraftJournalEntryData($event)">Lagre som kladd</button>
+    <button (click)="removeJournalEntryData($event)">Forkast</button>
+    <button (click)="validateJournalEntryData($event)">Valider data</button>
+    <button (click)="addDummyJournalEntry($event)">Test</button>
+</section>
+
+<section class="journal-entry-simple-table-wrapper">
+    <journal-entry-simple-form [DropdownData]="DropdownData" tabindex="1" (Created)="newLineCreated($event)" *ngIf="DropdownData != null"></journal-entry-simple-form>
+    <section *ngIf="DropdownData == null" class="journal-entry-simple-form-loading-placeholder" [attr.aria-busy]="DropdownData == null" >
+    Laster...
+    </section>
+    <table>
+        <thead>
+             <tr>
+                <th>Nummer</th>
+                <th class="medium_col">Dato</th>                
+                <th>Kontoer</th>
+                <th>Beløp</th>
+                <th>Fordeling</th>
+                <th>Beskrivelse</th>
+                <th class="small_col"></th>
+            </tr>
+        </thead>
+        <tbody>
+            <template ngFor #line [ngForOf]="journalEntryLines" [ngForTrackBy]="trackByLines">        
+                <tr tabindex="2" (keyup.enter)="setSelectedJournalEntryLine(line)" class="journalentrysimple-itemline" (click)="setSelectedJournalEntryLine(line)" [class.journal-entry-row-selected]="selectedJournalEntryLine == line">
+                    <td class="journalentrysimple-multilineinfo">
+                        <div><label>Bilagsnr:</label> {{line.JournalEntryNo}}</div>
+                        <!--<div><label>Fakturanr:</label> {{line.SupplierInvoiceNo}}</div>-->
+                    </td>
+                    <td class="journalentrysimple-biginfo">{{line.FinancialDate.toLocaleDateString()}}</td>                    
+                    <td class="journalentrysimple-multilineinfo">
+                        <div><label>Debet:</label> {{line.DebitAccount ? line.DebitAccount.AccountNumber + " - " + line.DebitAccount.AccountName : ""}}</div>
+                        <div><label>Kredit:</label> {{line.CreditAccount ? line.CreditAccount.AccountNumber + " - " + line.CreditAccount.AccountName : ""}}</div>
+                    </td>
+                    <td class="journalentrysimple-biginfo">{{line.Amount | number:'1.2-2'}}</td>
+                    <td class="journalentrysimple-multilineinfo">
+                        <div><label>Avdeling:</label> {{getDepartmentName(line.Dimensions.DepartementID)}}</div>
+                        <div><label>Prosjekt:</label> {{getProjectName(line.Dimensions.ProjectID)}}</div>
+                    </td>
+                    <td>{{line.Description}}</td>
+                    <td class="action_menu">                    
+                    </td>
+                </tr>
+                <tr *ngIf="selectedJournalEntryLine == line">
+                    <td colspan="7">
+                        <journal-entry-simple-form [DropdownData]="DropdownData" [JournalEntryLine]="selectedJournalEntryLine" (Updated)="editViewUpdated($event)" (Aborted)="abortEdit()"></journal-entry-simple-form>
+               		</td>
+                </tr>
+            </template>  
+            <tr *ngIf="journalEntryLines.length == 0">
+                    <td colspan="7">
+                        Fyll inn data og trykk Legg til over for å legge inn en eller flere bilagslinjer
+               		</td>
+                </tr>              
+        </tbody>
+    </table>    
+</section>
+<section class="journal-entry-simple-validation" *ngIf="validationResult">
+    <h3 *ngIf="validationResult.Messages.length == 0">
+        Ingen valideringsfeil!    
+    </h3>
+    <h3 *ngIf="validationResult.Messages.length > 0">
+        Feil i validering:    
+    </h3>
+    <ul>
+        <li *ngFor="#message of validationResult.Messages">
+            {{message}}
+        </li>
+    </ul>
+</section>
+<section class="journal-entry-simple-helper">
+    <h3>
+        Tips
+    </h3>
+    <p>Bruk Tab-knappen for å navigere til andre rader og trykk enter for å redigere de, eller klikk på raden du vil redigere med musen</p>
+    <p></p> 
+</section>

@@ -894,6 +894,17 @@ export class EmploymentValidValues {
 }
 
 
+export class StaticRegister {
+	static relativeUrl = "StaticRegister";
+
+	Registry: string;
+	stamp: Date;
+	ID: number;
+	Deleted: boolean;
+	CustomFields: any;
+}
+
+
 export class MunicipalAGAZone {
 	static relativeUrl = "MunicipalAGAZones";
 
