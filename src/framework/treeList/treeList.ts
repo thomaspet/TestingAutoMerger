@@ -2,8 +2,6 @@
 import {TreeListItem} from "./treeListItem";
 import {TreeListComponentLoader} from "./treeListComponentLoader";
 
-declare var jQuery;
-
 export enum TREE_LIST_TYPE { TABLE, FORM, TEXT, LIST }
 
 @Component({
@@ -24,18 +22,8 @@ export class TreeList {
     constructor(public elementRef: ElementRef) {
     }
 
-    showHideContent(event) {
-        jQuery(event.target).next(".content_div").slideToggle(500);
-    }
-
     showHideAll() {
         this.expanded = !this.expanded;
-
-        // slides all content up if user closes the whole list.. If this is not a good idea, just remove!!
-        if (!this.expanded) {
-            jQuery(".tree_list").find(".content_div").slideUp(500);
-        }
-
         this.updateExpandedState(this.treeListItems);
 
     }
