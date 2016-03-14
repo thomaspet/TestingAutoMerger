@@ -335,14 +335,24 @@ export class WageTypeService extends BizHttp<WageType> {
             .withEndPoint('wagetypes')
             .send();
     }
+    
+    getWageType(id): Observable<any> {
+        if(id === 0){
+            this.relativeURL = 'wagetype';
+            return this.GetNewEntity();
+        }else{
+            this.relativeURL = 'wagetypes'
+            return this.Get(id);
+        }
+    }
 
     //mocks layout request
-    public GetLayout(ID: string) {
+    public getLayout(ID: string) {
         return Observable.of(layout);
     }
 
     //mocked with layout request
-    public GetLayoutAndEntity(LayoutID: string, EntityID: number) {
+    public getLayoutAndEntity(LayoutID: string, EntityID: number) {
         var layout, self = this;
         return this.GetLayout(LayoutID)
             .concatMap((data: any) => {
