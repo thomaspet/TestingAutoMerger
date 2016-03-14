@@ -215,7 +215,7 @@ let layout = {
             ReadOnly: false,
             LookupField: "Name",
             kendoOptions: {
-                dataSource: taxType
+                dataSource: taxType,
                 dataTextField: "Name",
                 dataValueField: "ID"
             },
