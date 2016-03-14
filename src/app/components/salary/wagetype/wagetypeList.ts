@@ -31,9 +31,7 @@ export class WagetypeList implements OnInit {
 
                 this._router.navigateByUrl("/salary/wagetypes/" + selectedWagetype.ID);
             })
-            .addSortItems(
-                {field: 'WageTypeId', dir: 'asc'}
-            )
+            .setOrderBy('WageTypeId', 'asc')
             .addColumns(idCol, nameCol, descCol);
     }
     
