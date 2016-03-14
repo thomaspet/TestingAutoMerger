@@ -1,9 +1,9 @@
 <ul class="treelist" role="tree">
     <li *ngFor="#item of treeListItems" role="treeitem" [attr.aria-label]="item.title" [attr.aria-expanded]="item.expanded" class="treelist_item" [attr.id]="item.guid">
 
-        <h5 (click)="item.expanded = !item.expanded" class="treelist_headline" [attr.aria-controls]="item.guid">- {{item.title}}</h5>
+        <h5 (click)="item.expanded = !item.expanded" class="treelist_headline" [attr.aria-controls]="item.guid">{{item.title}}</h5>
 
-        <section *ngIf="item.expanded" class="treelist_content">
+        <section *ngIf="item.expanded || !item.title" class="treelist_content">
 
             <!-- Item is another list -->
             <uni-tree-list *ngIf="item.type === type.LIST" [treeListItems]="item.treeListItems" role="group"></uni-tree-list>

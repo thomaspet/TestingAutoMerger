@@ -5,12 +5,19 @@
   *
     box-sizing: border-box
 
+  @include media(small)
+    flex-wrap: wrap
+
 .splitview_list,
 .splitview_detail
   align-self: flex-start
 
 .splitview_list
   min-width: 15rem
+  max-width: 33%
+
+  @include media(small)
+    width: 100%
 
 .splitview_detail
   border: pxToRem(1) solid $uni-color-scale5
