@@ -25,16 +25,17 @@
   display: none
   opacity: 0
 
-%navbarDropdowns
-  background: linear-gradient(to bottom, $uni-color-negative, $uni-color-scale9)
-  border-radius: 0 0 .2rem .2rem
-
 .navbar_hamburger.is-active
   & .navbar_menu,
   & .navbar_menu:hover,
   & .navbar_menu:focus
-    @extend %navbarDropdowns
     @include unigrid-flush(10)
+    color: $uni-color-positive
+    background: $uni-color-negative
+    border: pxToRem(1) solid $uni-color-scale8
+    box-shadow: 0 0 .6rem transparentize($uni-color-scale1, .7)
+    border-radius: 0 0 pxToRem(5) pxToRem(5)
+    z-index: 9999
     display: block
     position: absolute
     margin-top: 2.5rem
@@ -68,8 +69,20 @@
 
       &.is-active
         background: $uni-color-scale9
-        color: $uni-color-C2A
+        color: $uni-color-positive
         font-weight: 400
+
+        &:before
+          position: absolute
+          display: block
+          content: ''
+          margin-left: 11rem
+          height: 0
+          width: 0
+          border-top: 1.5rem solid transparent
+          border-bottom: 1.5rem solid transparent
+          border-left: 1.5rem solid $uni-color-scale9
+          z-index: 999
 
         & ul
           display: block

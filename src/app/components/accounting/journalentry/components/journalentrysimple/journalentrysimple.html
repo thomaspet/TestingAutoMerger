@@ -27,18 +27,31 @@
             <template ngFor #line [ngForOf]="journalEntryLines" [ngForTrackBy]="trackByLines">        
                 <tr tabindex="2" (keyup.enter)="setSelectedJournalEntryLine(line)" class="journalentrysimple-itemline" (click)="setSelectedJournalEntryLine(line)" [class.journal-entry-row-selected]="selectedJournalEntryLine == line">
                     <td class="journalentrysimple-multilineinfo">
-                        <div><label>Bilagsnr:</label> {{line.JournalEntryNo}}</div>
+                        <dl>
+                            <dt>Bilagsnr</dt>
+                            <dd>{{line.JournalEntryNo}}</dd>
+                        </dl>
                         <!--<div><label>Fakturanr:</label> {{line.SupplierInvoiceNo}}</div>-->
                     </td>
                     <td class="journalentrysimple-biginfo">{{line.FinancialDate.toLocaleDateString()}}</td>                    
                     <td class="journalentrysimple-multilineinfo">
-                        <div><label>Debet:</label> {{line.DebitAccount ? line.DebitAccount.AccountNumber + " - " + line.DebitAccount.AccountName : ""}}</div>
-                        <div><label>Kredit:</label> {{line.CreditAccount ? line.CreditAccount.AccountNumber + " - " + line.CreditAccount.AccountName : ""}}</div>
+                        <dl>
+                            <dt>Debet</dt>
+                            <dd>{{line.DebitAccount ? line.DebitAccount.AccountNumber + " - " + line.DebitAccount.AccountName : ""}}</dd>
+
+                            <dt>Kredit</dt>
+                            <dd>{{line.CreditAccount ? line.CreditAccount.AccountNumber + " - " + line.CreditAccount.AccountName : ""}}</dd>
+                        </dl>
                     </td>
                     <td class="journalentrysimple-biginfo">{{line.Amount | number:'1.2-2'}}</td>
                     <td class="journalentrysimple-multilineinfo">
-                        <div><label>Avdeling:</label> {{getDepartmentName(line.Dimensions.DepartementID)}}</div>
-                        <div><label>Prosjekt:</label> {{getProjectName(line.Dimensions.ProjectID)}}</div>
+                        <dl>
+                            <dt>Avdeling</dt>
+                            <dd>{{getDepartmentName(line.Dimensions.DepartementID)}}</dd>
+
+                            <dt>Prosjekt</dt>
+                            <dd>{{getProjectName(line.Dimensions.ProjectID)}}</dd>
+                        </dl>
                     </td>
                     <td>{{line.Description}}</td>
                     <td class="action_menu">                    
@@ -64,12 +77,10 @@
     </h3>
     <h3 *ngIf="validationResult.Messages.length > 0">
         Feil i validering:    
-    </h3>
-    <ul>
-        <li *ngFor="#message of validationResult.Messages">
-            {{message}}
-        </li>
-    </ul>
+    </h3>    
+    <p *ngFor="#message of validationResult.Messages">
+        {{message.Message}}
+    </p>
 </section>
 <section class="journal-entry-simple-helper">
     <h3>
