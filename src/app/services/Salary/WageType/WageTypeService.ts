@@ -308,11 +308,11 @@ export class WageTypeService extends BizHttp<WageType> {
         this.relativeURL = WageType.relativeUrl;
     }
 
-    getLocalizations() {
+    getSubEntities() {
         return this.http
             .asGET()
             .usingBusinessDomain()
-            .withEndPoint('localizations')
+            .withEndPoint('subentities')
             .send();
     }
 
