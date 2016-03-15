@@ -8,7 +8,7 @@ declare var jQuery;
 @Component({
     selector: 'uni-table-demo',
     template: `   
-        <h4>Editable table with remote data lookup and custom controls (dropdown)</h4>
+        <h4>Editable table with remote data lookup and sorting by two columns</h4>
         <uni-table [config]="demoTable1"></uni-table>
         <br><br>
         
@@ -109,6 +109,7 @@ export class UniTableDemo {
         var commentCol = new UniTableColumn('Description', 'Kommentar', 'string');
 
         this.demoTable1 = new UniTableBuilder('EmployeeLeave', true)
+            .setOrderBy('ID', 'desc')
             .addColumns(idCol, fromDateCol, toDateCol, leavePercentCol, leaveTypeCol, employmentIDCol, commentCol);
     }
 
@@ -138,6 +139,7 @@ export class UniTableDemo {
 
         this.demoTable2 = new UniTableBuilder(this.localData, true)
             .setPageSize(5)
+            .setOrderBy('ID', 'desc')
             .setCreateCallback(createCallback)
             .setUpdateCallback(updateCallback)
             .setDeleteCallback(deleteCallback)

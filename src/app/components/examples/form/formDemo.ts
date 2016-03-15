@@ -71,6 +71,7 @@ export class UniFormDemo {
     }
 
     private buildFormConfig(layout: ComponentLayout, model: Employee) {
+        console.log(layout);
         this.FormConfig = new UniFormLayoutBuilder().build(layout, model);
     }
 

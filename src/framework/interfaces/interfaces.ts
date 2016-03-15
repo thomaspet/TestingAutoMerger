@@ -1,19 +1,15 @@
-export class Customer {
-	static relativeUrl = "customers";
-
+export interface ICustomer {
 	BusinessRelationID: number;
 	Orgnumber: string;
 	StatusID: number;
 	ID: number;
 	Deleted: boolean;
-	Info: BusinessRelation;
+	Info: IBusinessRelation;
 	CustomFields: any;
 }
 
 
-export class CustomerInvoice {
-	static relativeUrl = "invoices";
-
+export interface ICustomerInvoice {
 	CustomerID: number;
 	InvoiceDate: Date;
 	PaymentDueDate: Date;
@@ -68,16 +64,14 @@ export class CustomerInvoice {
 	StatusID: number;
 	ID: number;
 	Deleted: boolean;
-	Items: Array<CustomerInvoiceItem>;
-	JournalEntry: JournalEntry;
-	Dimensions: Dimensions;
+	Items: Array<ICustomerInvoiceItem>;
+	JournalEntry: IJournalEntry;
+	Dimensions: IDimensions;
 	CustomFields: any;
 }
 
 
-export class CustomerInvoiceItem {
-	static relativeUrl = ""
-
+export interface ICustomerInvoiceItem {
 	CustomerInvoiceID: number;
 	Comment: string;
 	ProductID: number;
@@ -92,15 +86,13 @@ export class CustomerInvoiceItem {
 	StatusID: number;
 	ID: number;
 	Deleted: boolean;
-	Product: Product;
-	Dimensions: Dimensions;
+	Product: IProduct;
+	Dimensions: IDimensions;
 	CustomFields: any;
 }
 
 
-export class CustomerOrder {
-	static relativeUrl = "orders";
-
+export interface ICustomerOrder {
 	CustomerID: number;
 	OrderDate: Date;
 	OrderReference: string;
@@ -145,15 +137,13 @@ export class CustomerOrder {
 	StatusID: number;
 	ID: number;
 	Deleted: boolean;
-	Items: Array<CustomerOrderItem>;
-	Dimensions: Dimensions;
+	Items: Array<ICustomerOrderItem>;
+	Dimensions: IDimensions;
 	CustomFields: any;
 }
 
 
-export class CustomerOrderItem {
-	static relativeUrl = ""
-
+export interface ICustomerOrderItem {
 	Code: string;
 	CustomerOrderID: number;
 	Comment: string;
@@ -169,15 +159,13 @@ export class CustomerOrderItem {
 	StatusID: number;
 	ID: number;
 	Deleted: boolean;
-	Product: Product;
-	Dimensions: Dimensions;
+	Product: IProduct;
+	Dimensions: IDimensions;
 	CustomFields: any;
 }
 
 
-export class CustomerQuote {
-	static relativeUrl = "quotes";
-
+export interface ICustomerQuote {
 	CustomerID: number;
 	QuoteDate: Date;
 	InquiryReference: number;
@@ -222,15 +210,13 @@ export class CustomerQuote {
 	StatusID: number;
 	ID: number;
 	Deleted: boolean;
-	Items: Array<CustomerQuoteItem>;
-	Dimensions: Dimensions;
+	Items: Array<ICustomerQuoteItem>;
+	Dimensions: IDimensions;
 	CustomFields: any;
 }
 
 
-export class CustomerQuoteItem {
-	static relativeUrl = ""
-
+export interface ICustomerQuoteItem {
 	CustomerQuoteID: number;
 	Comment: string;
 	ProductID: number;
@@ -245,28 +231,24 @@ export class CustomerQuoteItem {
 	StatusID: number;
 	ID: number;
 	Deleted: boolean;
-	Product: Product;
-	Dimensions: Dimensions;
+	Product: IProduct;
+	Dimensions: IDimensions;
 	CustomFields: any;
 }
 
 
-export class Supplier {
-	static relativeUrl = "suppliers";
-
+export interface ISupplier {
 	BusinessRelationID: number;
 	OrgNumber: string;
 	StatusID: number;
 	ID: number;
 	Deleted: boolean;
-	Info: BusinessRelation;
+	Info: IBusinessRelation;
 	CustomFields: any;
 }
 
 
-export class Region {
-	static relativeUrl = "regions";
-
+export interface IRegion {
 	RegionCode: string;
 	CountryCode: string;
 	Name: string;
@@ -278,9 +260,7 @@ export class Region {
 }
 
 
-export class Departement {
-	static relativeUrl = "departements";
-
+export interface IDepartement {
 	DepartementManagerName: string;
 	Name: string;
 	Description: string;
@@ -291,9 +271,7 @@ export class Departement {
 }
 
 
-export class Dimensions {
-	static relativeUrl = "dimensions";
-
+export interface IDimensions {
 	ProjectID: number;
 	DepartementID: number;
 	ResponsibleID: number;
@@ -301,17 +279,15 @@ export class Dimensions {
 	StatusID: number;
 	ID: number;
 	Deleted: boolean;
-	Project: Project;
-	Departement: Departement;
-	Responsible: Responsible;
-	Region: Region;
+	Project: IProject;
+	Departement: IDepartement;
+	Responsible: IResponsible;
+	Region: IRegion;
 	CustomFields: any;
 }
 
 
-export class Project {
-	static relativeUrl = "projects";
-
+export interface IProject {
 	ProjectLeadName: string;
 	Name: string;
 	Description: string;
@@ -322,9 +298,7 @@ export class Project {
 }
 
 
-export class Responsible {
-	static relativeUrl = "responsibles";
-
+export interface IResponsible {
 	NameOfResponsible: string;
 	Name: string;
 	Description: string;
@@ -335,9 +309,7 @@ export class Responsible {
 }
 
 
-export class Address {
-	static relativeUrl = ""
-
+export interface IAddress {
 	BusinessRelationID: number;
 	AddressLine1: string;
 	AddressLine2: string;
@@ -350,14 +322,12 @@ export class Address {
 	StatusID: number;
 	ID: number;
 	Deleted: boolean;
-	BusinessRelation: BusinessRelation;
+	BusinessRelation: IBusinessRelation;
 	CustomFields: any;
 }
 
 
-export class Contact {
-	static relativeUrl = "contacts";
-
+export interface IContact {
 	InfoID: number;
 	ParentBusinessRelationID: number;
 	Role: string;
@@ -365,15 +335,13 @@ export class Contact {
 	StatusID: number;
 	ID: number;
 	Deleted: boolean;
-	ParentBusinessRelation: BusinessRelation;
-	Info: BusinessRelation;
+	ParentBusinessRelation: IBusinessRelation;
+	Info: IBusinessRelation;
 	CustomFields: any;
 }
 
 
-export class BusinessRelation {
-	static relativeUrl = ""
-
+export interface IBusinessRelation {
 	Name: string;
 	InvoiceAddressID: number;
 	ShippingAddressID: number;
@@ -382,20 +350,18 @@ export class BusinessRelation {
 	StatusID: number;
 	ID: number;
 	Deleted: boolean;
-	Addresses: Array<Address>;
-	Phones: Array<Phone>;
-	Emails: Array<Email>;
-	InvoiceAddress: Address;
-	ShippingAddress: Address;
-	DefaultPhone: Phone;
-	DefaultEmail: Email;
+	Addresses: Array<IAddress>;
+	Phones: Array<IPhone>;
+	Emails: Array<IEmail>;
+	InvoiceAddress: IAddress;
+	ShippingAddress: IAddress;
+	DefaultPhone: IPhone;
+	DefaultEmail: IEmail;
 	CustomFields: any;
 }
 
 
-export class Email {
-	static relativeUrl = ""
-
+export interface IEmail {
 	EmailAddress: string;
 	Description: string;
 	Type: string;
@@ -407,9 +373,7 @@ export class Email {
 }
 
 
-export class Phone {
-	static relativeUrl = ""
-
+export interface IPhone {
 	LandCode: string;
 	Number: string;
 	Description: string;
@@ -422,9 +386,7 @@ export class Phone {
 }
 
 
-export class BasicAmount {
-	static relativeUrl = "basicamounts";
-
+export interface IBasicAmount {
 	BasicAmountPrYear: number;
 	BasicAmountPrMonth: number;
 	AveragePrYear: number;
@@ -437,9 +399,7 @@ export class BasicAmount {
 }
 
 
-export class CompanySalary {
-	static relativeUrl = "companysalary";
-
+export interface ICompanySalary {
 	BankAccountSalary: number;
 	BankAccountTaxWithdraw: number;
 	MainAccountAllocatedAGA: number;
@@ -460,9 +420,7 @@ export class CompanySalary {
 }
 
 
-export class CompanyVacationRate {
-	static relativeUrl = "companyvacationrates";
-
+export interface ICompanyVacationRate {
 	Rate: number;
 	Rate60: number;
 	FromDate: Date;
@@ -473,9 +431,7 @@ export class CompanyVacationRate {
 }
 
 
-export class EmployeeCategory {
-	static relativeUrl = "employeecategories";
-
+export interface IEmployeeCategory {
 	Name: string;
 	EmployeeCategoryLinkID: number;
 	StatusID: number;
@@ -485,24 +441,20 @@ export class EmployeeCategory {
 }
 
 
-export class EmployeeCategoryLink {
-	static relativeUrl = "employeecategorylinks";
-
+export interface IEmployeeCategoryLink {
 	EmployeeCategoryID: number;
 	EmployeeID: number;
 	EmployeeNumber: number;
 	StatusID: number;
 	ID: number;
 	Deleted: boolean;
-	EmployeeCategory: EmployeeCategory;
-	Employee: Employee;
+	EmployeeCategory: IEmployeeCategory;
+	Employee: IEmployee;
 	CustomFields: any;
 }
 
 
-export class EmployeeLeave {
-	static relativeUrl = "EmployeeLeave";
-
+export interface IEmployeeLeave {
 	EmploymentID: number;
 	LeaveType: Leavetype;
 	FromDate: Date;
@@ -512,14 +464,12 @@ export class EmployeeLeave {
 	StatusID: number;
 	ID: number;
 	Deleted: boolean;
-	Employment: Employment;
+	Employment: IEmployment;
 	CustomFields: any;
 }
 
 
-export class Employment {
-	static relativeUrl = "employments";
-
+export interface IEmployment {
 	EmployeeNumber: number;
 	EmployeeID: number;
 	LocalizationID: number;
@@ -546,17 +496,15 @@ export class Employment {
 	StatusID: number;
 	ID: number;
 	Deleted: boolean;
-	Employee: Employee;
-	Localization: Localization;
-	Leaves: Array<EmployeeLeave>;
-	Leave: Array<EmployeeLeave>;
+	Employee: IEmployee;
+	Localization: ILocalization;
+	Leaves: Array<IEmployeeLeave>;
+	Leave: Array<IEmployeeLeave>;
 	CustomFields: any;
 }
 
 
-export class Localization {
-	static relativeUrl = "localizations";
-
+export interface ILocalization {
 	OrgNumber: string;
 	BusinessRelationID: number;
 	MunicipalityNo: string;
@@ -566,15 +514,13 @@ export class Localization {
 	StatusID: number;
 	ID: number;
 	Deleted: boolean;
-	BusinessRelationInfo: BusinessRelation;
-	SuperiorOrganization: Localization;
+	BusinessRelationInfo: IBusinessRelation;
+	SuperiorOrganization: ILocalization;
 	CustomFields: any;
 }
 
 
-export class Grant {
-	static relativeUrl = "grants";
-
+export interface IGrant {
 	Description: string;
 	Amount: number;
 	FromDate: Date;
@@ -586,9 +532,7 @@ export class Grant {
 }
 
 
-export class PayrollRun {
-	static relativeUrl = "payrollrun";
-
+export interface IPayrollRun {
 	PayDate: Date;
 	FromDate: Date;
 	ToDate: Date;
@@ -602,9 +546,7 @@ export class PayrollRun {
 }
 
 
-export class VacationRateEmployee {
-	static relativeUrl = "employeevacationrates";
-
+export interface IVacationRateEmployee {
 	Rate: number;
 	Rate60: number;
 	StartDate: Date;
@@ -616,9 +558,7 @@ export class VacationRateEmployee {
 }
 
 
-export class WageType {
-	static relativeUrl = "wagetypes";
-
+export interface IWageType {
 	WageTypeId: number;
 	SystemRequiredWageType: number;
 	Base_EmploymentTax: boolean;
@@ -650,14 +590,12 @@ export class WageType {
 	StatusID: number;
 	ID: number;
 	Deleted: boolean;
-	SupplementaryInformations: Array<WageTypeSupplement>;
+	SupplementaryInformations: Array<IWageTypeSupplement>;
 	CustomFields: any;
 }
 
 
-export class WageTypeSupplement {
-	static relativeUrl = ""
-
+export interface IWageTypeSupplement {
 	WageTypeID: number;
 	SalaryTransactionSupplementID: number;
 	Name: string;
@@ -667,14 +605,12 @@ export class WageTypeSupplement {
 	StatusID: number;
 	ID: number;
 	Deleted: boolean;
-	SalaryTransactionSupplement: SalaryTransactionSupplement;
+	SalaryTransactionSupplement: ISalaryTransactionSupplement;
 	CustomFields: any;
 }
 
 
-export class SalaryTransaction {
-	static relativeUrl = "salarytrans";
-
+export interface ISalaryTransaction {
 	PayrollRunID: number;
 	runID: number;
 	EmployeeID: number;
@@ -699,17 +635,15 @@ export class SalaryTransaction {
 	StatusID: number;
 	ID: number;
 	Deleted: boolean;
-	payrollrun: PayrollRun;
-	Employee: Employee;
-	Wagetype: WageType;
-	Supplements: Array<SalaryTransactionSupplement>;
+	payrollrun: IPayrollRun;
+	Employee: IEmployee;
+	Wagetype: IWageType;
+	Supplements: Array<ISalaryTransactionSupplement>;
 	CustomFields: any;
 }
 
 
-export class SalaryTransactionSupplement {
-	static relativeUrl = ""
-
+export interface ISalaryTransactionSupplement {
 	SalaryTransactionID: number;
 	WageTypeSupplementID: number;
 	ValueString: string;
@@ -719,14 +653,12 @@ export class SalaryTransactionSupplement {
 	StatusID: number;
 	ID: number;
 	Deleted: boolean;
-	WageTypeSupplement: WageTypeSupplement;
+	WageTypeSupplement: IWageTypeSupplement;
 	CustomFields: any;
 }
 
 
-export class Employee {
-	static relativeUrl = "employees";
-
+export interface IEmployee {
 	BusinessRelationID: number;
 	PaymentInterval: PaymentInterval;
 	EmployeeNumber: number;
@@ -752,18 +684,16 @@ export class Employee {
 	StatusID: number;
 	ID: number;
 	Deleted: boolean;
-	BusinessRelationInfo: BusinessRelation;
-	Employments: Array<Employment>;
-	BankAccounts: Array<BankAccountSalary>;
-	VacationRateEmployee: VacationRateEmployee;
-	Localization: Localization;
+	BusinessRelationInfo: IBusinessRelation;
+	Employments: Array<IEmployment>;
+	BankAccounts: Array<IBankAccountSalary>;
+	VacationRateEmployee: IVacationRateEmployee;
+	Localization: ILocalization;
 	CustomFields: any;
 }
 
 
-export class BankAccountSalary {
-	static relativeUrl = ""
-
+export interface IBankAccountSalary {
 	EmployeeID: number;
 	AccountNumber: string;
 	Active: boolean;
@@ -778,9 +708,7 @@ export class BankAccountSalary {
 }
 
 
-export class FieldLayout {
-	static relativeUrl = ""
-
+export interface IFieldLayout {
 	ComponentLayoutID: number;
 	EntityType: string;
 	Property: string;
@@ -802,22 +730,18 @@ export class FieldLayout {
 }
 
 
-export class ComponentLayout {
-	static relativeUrl = ""
-
+export interface IComponentLayout {
 	Name: string;
 	BaseEntity: string;
 	StatusID: number;
 	ID: number;
 	Deleted: boolean;
-	Fields: Array<FieldLayout>;
+	Fields: Array<IFieldLayout>;
 	CustomFields: any;
 }
 
 
-export class UserAuthorization {
-	static relativeUrl = "UserAuthorization";
-
+export interface IUserAuthorization {
 	userID: number;
 	Allow: boolean;
 	Model: string;
@@ -829,9 +753,7 @@ export class UserAuthorization {
 }
 
 
-export class Company {
-	static relativeUrl = "companies";
-
+export interface ICompany {
 	Name: string;
 	SchemaName: string;
 	Key: string;
@@ -841,9 +763,7 @@ export class Company {
 }
 
 
-export class CompanyAccess {
-	static relativeUrl = "companies-access";
-
+export interface ICompanyAccess {
 	GlobalIdentity: string;
 	CompanyID: number;
 	ID: number;
@@ -852,9 +772,7 @@ export class CompanyAccess {
 }
 
 
-export class PaymentCode {
-	static relativeUrl = "paymentCodes";
-
+export interface IPaymentCode {
 	Code: number;
 	Name: string;
 	Description: string;
@@ -865,9 +783,7 @@ export class PaymentCode {
 }
 
 
-export class EmploymentValidValues {
-	static relativeUrl = "employmentvalidvalues";
-
+export interface IEmploymentValidValues {
 	employment: TypeOfEmployment;
 	typeOfEmployment: boolean;
 	RenumerationType: boolean;
@@ -894,9 +810,7 @@ export class EmploymentValidValues {
 }
 
 
-export class StaticRegister {
-	static relativeUrl = "StaticRegister";
-
+export interface IStaticRegister {
 	Registry: string;
 	stamp: Date;
 	ID: number;
@@ -905,9 +819,8 @@ export class StaticRegister {
 }
 
 
-export class MunicipalAGAZone {
-	static relativeUrl = "MunicipalAGAZones";
 
+export interface IMunicipalAGAZone {
 	MunicipalityNo: string;
 	ZoneID: number;
 	Startdate: Date;
@@ -917,9 +830,7 @@ export class MunicipalAGAZone {
 }
 
 
-export class PeriodSeries {
-	static relativeUrl = "period-series";
-
+export interface IPeriodSeries {
 	Name: string;
 	SeriesType: PeriodSeriesType;
 	Active: boolean;
@@ -929,9 +840,7 @@ export class PeriodSeries {
 }
 
 
-export class Period {
-	static relativeUrl = "periodes";
-
+export interface IPeriod {
 	Name: string;
 	FromDate: Date;
 	ToDate: Date;
@@ -941,14 +850,12 @@ export class Period {
 	StatusID: number;
 	ID: number;
 	Deleted: boolean;
-	PeriodTemplate: PeriodTemplate;
+	PeriodTemplate: IPeriodTemplate;
 	CustomFields: any;
 }
 
 
-export class PeriodTemplate {
-	static relativeUrl = "period-templates";
-
+export interface IPeriodTemplate {
 	Name: string;
 	FromDate: Date;
 	ToDate: Date;
@@ -956,14 +863,12 @@ export class PeriodTemplate {
 	PeriodSeriesID: number;
 	ID: number;
 	Deleted: boolean;
-	PeriodSeries: PeriodSeries;
+	PeriodSeries: IPeriodSeries;
 	CustomFields: any;
 }
 
 
-export class CurrencyEntry {
-	static relativeUrl = ""
-
+export interface ICurrencyEntry {
 	Date: Date;
 	Source: CurrencySourceEnum;
 	Code: string;
@@ -975,34 +880,28 @@ export class CurrencyEntry {
 }
 
 
-export class AGAZone {
-	static relativeUrl = "AGAZones";
-
+export interface IAGAZone {
 	ZoneName: string;
 	ID: number;
 	Deleted: boolean;
-	rates: Array<AGARate>;
-	municipalsOnZone: Array<MunicipalAGAZone>;
+	rates: Array<IAGARate>;
+	municipalsOnZone: Array<IMunicipalAGAZone>;
 	CustomFields: any;
 }
 
 
-export class AGARate {
-	static relativeUrl = ""
-
+export interface IAGARate {
 	ZoneID: number;
 	Rate: number;
 	RateValidFrom: Date;
 	ID: number;
 	Deleted: boolean;
-	sector: Array<AGASector>;
+	sector: Array<IAGASector>;
 	CustomFields: any;
 }
 
 
-export class AGASector {
-	static relativeUrl = ""
-
+export interface IAGASector {
 	RateID: number;
 	sector: string;
 	freeAmount: number;
@@ -1014,9 +913,7 @@ export class AGASector {
 }
 
 
-export class TracelinkType {
-	static relativeUrl = "tracelinktypes";
-
+export interface ITracelinkType {
 	Name: string;
 	Description: string;
 	ID: number;
@@ -1025,23 +922,19 @@ export class TracelinkType {
 }
 
 
-export class AccountGroupSetup {
-	static relativeUrl = ""
-
+export interface IAccountGroupSetup {
 	PlanType: PlanTypeEnum;
 	ExternalReference: string;
 	Name: string;
 	ParentID: number;
 	ID: number;
 	Deleted: boolean;
-	Parent: AccountGroupSetup;
+	Parent: IAccountGroupSetup;
 	CustomFields: any;
 }
 
 
-export class AccountSetup {
-	static relativeUrl = ""
-
+export interface IAccountSetup {
 	PlanType: PlanTypeEnum;
 	AccountNumber: number;
 	AccountName: string;
@@ -1052,14 +945,12 @@ export class AccountSetup {
 	ExpectedDebitBalance: boolean;
 	ID: number;
 	Deleted: boolean;
-	AccountGroup: AccountGroupSetup;
+	AccountGroup: IAccountGroupSetup;
 	CustomFields: any;
 }
 
 
-export class CompanySettings {
-	static relativeUrl = "companysettings";
-
+export interface ICompanySettings {
 	CompanyTypeID: number;
 	TaxMandatory: boolean;
 	CompanyName: string;
@@ -1077,16 +968,14 @@ export class CompanySettings {
 	StatusID: number;
 	ID: number;
 	Deleted: boolean;
-	Address: Array<Address>;
-	Phones: Array<Phone>;
-	Emails: Array<Email>;
+	Address: Array<IAddress>;
+	Phones: Array<IPhone>;
+	Emails: Array<IEmail>;
 	CustomFields: any;
 }
 
 
-export class CompanyType {
-	static relativeUrl = "companytypes";
-
+export interface ICompanyType {
 	Name: string;
 	FullName: string;
 	Description: string;
@@ -1097,9 +986,7 @@ export class CompanyType {
 }
 
 
-export class Country {
-	static relativeUrl = "countries";
-
+export interface ICountry {
 	CountryCode: string;
 	Name: string;
 	DefaultCurrencyCode: string;
@@ -1110,9 +997,7 @@ export class Country {
 }
 
 
-export class Municipal {
-	static relativeUrl = "Municipals";
-
+export interface IMunicipal {
 	MunicipalityNo: string;
 	CountyNo: string;
 	CountyName: string;
@@ -1123,9 +1008,7 @@ export class Municipal {
 }
 
 
-export class Inntekt {
-	static relativeUrl = "salaryvalidvalues";
-
+export interface IInntekt {
 	gammelkode: string;
 	gyldigfraogmed: string;
 	gyldigtil: string;
@@ -1144,16 +1027,14 @@ export class Inntekt {
 	pensjonEllerTrygdID: number;
 	ID: number;
 	Deleted: boolean;
-	loennsinntekt: loennsinntekt;
-	naeringsinntekt: naeringsinntekt;
-	pensjonEllerTrygd: pensjonEllerTrygd;
+	loennsinntekt: Iloennsinntekt;
+	naeringsinntekt: Inaeringsinntekt;
+	pensjonEllerTrygd: IpensjonEllerTrygd;
 	CustomFields: any;
 }
 
 
-export class loennsinntekt {
-	static relativeUrl = ""
-
+export interface Iloennsinntekt {
 	InntektID: number;
 	beskrivelse: string;
 	tilleggsinformasjonID: number;
@@ -1161,44 +1042,38 @@ export class loennsinntekt {
 	antall: string;
 	ID: number;
 	Deleted: boolean;
-	Inntekt: Inntekt;
-	tilleggsinformasjon: tilleggsinformasjon;
-	spesifikasjon: spesifikasjon;
+	Inntekt: IInntekt;
+	tilleggsinformasjon: Itilleggsinformasjon;
+	spesifikasjon: Ispesifikasjon;
 	CustomFields: any;
 }
 
 
-export class naeringsinntekt {
-	static relativeUrl = ""
-
+export interface Inaeringsinntekt {
 	InntektID: number;
 	beskrivelse: string;
 	tilleggsinformasjonID: number;
 	ID: number;
 	Deleted: boolean;
-	Inntekt: Inntekt;
-	tilleggsinformasjon: tilleggsinformasjon;
+	Inntekt: IInntekt;
+	tilleggsinformasjon: Itilleggsinformasjon;
 	CustomFields: any;
 }
 
 
-export class pensjonEllerTrygd {
-	static relativeUrl = ""
-
+export interface IpensjonEllerTrygd {
 	InntektID: number;
 	beskrivelse: string;
 	tilleggsinformasjonID: number;
 	ID: number;
 	Deleted: boolean;
-	Inntekt: Inntekt;
-	tilleggsinformasjon: tilleggsinformasjon;
+	Inntekt: IInntekt;
+	tilleggsinformasjon: Itilleggsinformasjon;
 	CustomFields: any;
 }
 
 
-export class spesifikasjon {
-	static relativeUrl = ""
-
+export interface Ispesifikasjon {
 	loennsinntektID: number;
 	skattemessigBosattILand: string;
 	opptjeningsland: string;
@@ -1206,14 +1081,12 @@ export class spesifikasjon {
 	erOpptjentPaaKontinentalsokkel: number;
 	ID: number;
 	Deleted: boolean;
-	loennsinntekt: loennsinntekt;
+	loennsinntekt: Iloennsinntekt;
 	CustomFields: any;
 }
 
 
-export class tilleggsinformasjon {
-	static relativeUrl = ""
-
+export interface Itilleggsinformasjon {
 	loennsinntektID: number;
 	naeringsinntektID: number;
 	pensjonEllerTrygdID: number;
@@ -1231,28 +1104,26 @@ export class tilleggsinformasjon {
 	bonusFraForsvaretID: number;
 	ID: number;
 	Deleted: boolean;
-	loennsinntekt: loennsinntekt;
-	naeringsinntekt: naeringsinntekt;
-	pensjonEllerTrygd: pensjonEllerTrygd;
-	bilOgBaat: bilOgBaat;
-	dagmammaIEgenBolig: dagmammaIEgenBolig;
-	etterbetalingsperiode: etterbetalingsperiode;
-	inntektPaaNorskKontinentalsokkel: inntektPaaNorskKontinentalsokkel;
-	inntjeningsforhold: inntjeningsforhold;
-	livrente: livrente;
-	lottOgPart: lottOgPart;
-	nettoloenn: nettoloenn;
-	pensjon: pensjon;
-	reiseKostOgLosji: reiseKostOgLosji;
-	utenlandskArtist: utenlandskArtist;
-	bonusFraForsvaret: bonusFraForsvaret;
+	loennsinntekt: Iloennsinntekt;
+	naeringsinntekt: Inaeringsinntekt;
+	pensjonEllerTrygd: IpensjonEllerTrygd;
+	bilOgBaat: IbilOgBaat;
+	dagmammaIEgenBolig: IdagmammaIEgenBolig;
+	etterbetalingsperiode: Ietterbetalingsperiode;
+	inntektPaaNorskKontinentalsokkel: IinntektPaaNorskKontinentalsokkel;
+	inntjeningsforhold: Iinntjeningsforhold;
+	livrente: Ilivrente;
+	lottOgPart: IlottOgPart;
+	nettoloenn: Inettoloenn;
+	pensjon: Ipensjon;
+	reiseKostOgLosji: IreiseKostOgLosji;
+	utenlandskArtist: IutenlandskArtist;
+	bonusFraForsvaret: IbonusFraForsvaret;
 	CustomFields: any;
 }
 
 
-export class bilOgBaat {
-	static relativeUrl = ""
-
+export interface IbilOgBaat {
 	tilleggsinformasjonID: number;
 	nettoloennID: number;
 	listeprisForBil: string;
@@ -1264,41 +1135,35 @@ export class bilOgBaat {
 	erBilPool: string;
 	ID: number;
 	Deleted: boolean;
-	tilleggsinformasjon: tilleggsinformasjon;
-	nettoloenn: nettoloenn;
+	tilleggsinformasjon: Itilleggsinformasjon;
+	nettoloenn: Inettoloenn;
 	CustomFields: any;
 }
 
 
-export class dagmammaIEgenBolig {
-	static relativeUrl = ""
-
+export interface IdagmammaIEgenBolig {
 	tilleggsinformasjonID: number;
 	antallBarn: string;
 	antallMaaneder: string;
 	ID: number;
 	Deleted: boolean;
-	tilleggsinformasjon: tilleggsinformasjon;
+	tilleggsinformasjon: Itilleggsinformasjon;
 	CustomFields: any;
 }
 
 
-export class etterbetalingsperiode {
-	static relativeUrl = ""
-
+export interface Ietterbetalingsperiode {
 	tilleggsinformasjonID: number;
 	startdato: string;
 	sluttdato: string;
 	ID: number;
 	Deleted: boolean;
-	tilleggsinformasjon: tilleggsinformasjon;
+	tilleggsinformasjon: Itilleggsinformasjon;
 	CustomFields: any;
 }
 
 
-export class inntektPaaNorskKontinentalsokkel {
-	static relativeUrl = ""
-
+export interface IinntektPaaNorskKontinentalsokkel {
 	tilleggsinformasjonID: number;
 	tidsrom: string;
 	gjelderLoennFoerste60Dager: number;
@@ -1306,65 +1171,55 @@ export class inntektPaaNorskKontinentalsokkel {
 	sluttdato: string;
 	ID: number;
 	Deleted: boolean;
-	tilleggsinformasjon: tilleggsinformasjon;
+	tilleggsinformasjon: Itilleggsinformasjon;
 	CustomFields: any;
 }
 
 
-export class inntjeningsforhold {
-	static relativeUrl = ""
-
+export interface Iinntjeningsforhold {
 	tilleggsinformasjonID: number;
 	Inntjeningsforhold: string;
 	ID: number;
 	Deleted: boolean;
-	tilleggsinformasjon: tilleggsinformasjon;
+	tilleggsinformasjon: Itilleggsinformasjon;
 	CustomFields: any;
 }
 
 
-export class livrente {
-	static relativeUrl = ""
-
+export interface Ilivrente {
 	tilleggsinformasjonID: number;
 	totaltUtbetaltBeloep: string;
 	ID: number;
 	Deleted: boolean;
-	tilleggsinformasjon: tilleggsinformasjon;
+	tilleggsinformasjon: Itilleggsinformasjon;
 	CustomFields: any;
 }
 
 
-export class lottOgPart {
-	static relativeUrl = ""
-
+export interface IlottOgPart {
 	tilleggsinformasjonID: number;
 	antallDager: string;
 	ID: number;
 	Deleted: boolean;
-	tilleggsinformasjon: tilleggsinformasjon;
+	tilleggsinformasjon: Itilleggsinformasjon;
 	CustomFields: any;
 }
 
 
-export class nettoloenn {
-	static relativeUrl = ""
-
+export interface Inettoloenn {
 	tilleggsinformasjonID: number;
 	oppgrossingstabellnummer: string;
 	bilOgBaatID: number;
 	betaltSkattebeloepIUtlandet: string;
 	ID: number;
 	Deleted: boolean;
-	tilleggsinformasjon: tilleggsinformasjon;
-	bilOgBaat: bilOgBaat;
+	tilleggsinformasjon: Itilleggsinformasjon;
+	bilOgBaat: IbilOgBaat;
 	CustomFields: any;
 }
 
 
-export class pensjon {
-	static relativeUrl = ""
-
+export interface Ipensjon {
 	tilleggsinformasjonID: number;
 	grunnpensjonsbeloep: string;
 	tilleggspensjonbeloep: string;
@@ -1374,53 +1229,45 @@ export class pensjon {
 	tidsrom: string;
 	ID: number;
 	Deleted: boolean;
-	tilleggsinformasjon: tilleggsinformasjon;
+	tilleggsinformasjon: Itilleggsinformasjon;
 	CustomFields: any;
 }
 
 
-export class reiseKostOgLosji {
-	static relativeUrl = ""
-
+export interface IreiseKostOgLosji {
 	tilleggsinformasjonID: number;
 	persontype: string;
 	antallreiser: string;
 	ID: number;
 	Deleted: boolean;
-	tilleggsinformasjon: tilleggsinformasjon;
+	tilleggsinformasjon: Itilleggsinformasjon;
 	CustomFields: any;
 }
 
 
-export class utenlandskArtist {
-	static relativeUrl = ""
-
+export interface IutenlandskArtist {
 	tilleggsinformasjonID: number;
 	inntektsaar: string;
 	oppgrossingsgrunnlag: string;
 	trukketArtistskatt: string;
 	ID: number;
 	Deleted: boolean;
-	tilleggsinformasjon: tilleggsinformasjon;
+	tilleggsinformasjon: Itilleggsinformasjon;
 	CustomFields: any;
 }
 
 
-export class bonusFraForsvaret {
-	static relativeUrl = ""
-
+export interface IbonusFraForsvaret {
 	tilleggsinformasjonID: number;
 	aaretUtbetalingenGjelderFor: string;
 	ID: number;
 	Deleted: boolean;
-	tilleggsinformasjon: tilleggsinformasjon;
+	tilleggsinformasjon: Itilleggsinformasjon;
 	CustomFields: any;
 }
 
 
-export class STYRKCode {
-	static relativeUrl = "STYRK";
-
+export interface ISTYRKCode {
 	ynr: number;
 	lnr: number;
 	styrk: string;
@@ -1431,9 +1278,7 @@ export class STYRKCode {
 }
 
 
-export class TaxTable {
-	static relativeUrl = "taxtable";
-
+export interface ITaxTable {
 	year: number;
 	TableNumber: string;
 	DrawPeriod: Drawperiod;
@@ -1446,9 +1291,7 @@ export class TaxTable {
 }
 
 
-export class VatCodeGroupSetup {
-	static relativeUrl = ""
-
+export interface IVatCodeGroupSetup {
 	No: number;
 	Name: string;
 	ID: number;
@@ -1457,9 +1300,7 @@ export class VatCodeGroupSetup {
 }
 
 
-export class VatPostSetup {
-	static relativeUrl = ""
-
+export interface IVatPostSetup {
 	Name: string;
 	ID: number;
 	Deleted: boolean;
@@ -1467,9 +1308,7 @@ export class VatPostSetup {
 }
 
 
-export class VatReportReferenceSetup {
-	static relativeUrl = ""
-
+export interface IVatReportReferenceSetup {
 	VatCode: string;
 	VatPostName: string;
 	ID: number;
@@ -1478,9 +1317,7 @@ export class VatReportReferenceSetup {
 }
 
 
-export class VatTypeSetup {
-	static relativeUrl = ""
-
+export interface IVatTypeSetup {
 	VatCode: string;
 	Name: string;
 	VatPercent: number;
@@ -1498,23 +1335,19 @@ export class VatTypeSetup {
 }
 
 
-export class User {
-	static relativeUrl = "users";
-
+export interface IUser {
 	DisplayName: string;
 	Email: string;
 	GlobalIdentity: string;
 	StatusID: number;
 	ID: number;
 	Deleted: boolean;
-	Status: Status;
+	Status: IStatus;
 	CustomFields: any;
 }
 
 
-export class TreeStructure {
-	static relativeUrl = ""
-
+export interface ITreeStructure {
 	ParentID: number;
 	Lft: number;
 	Rght: number;
@@ -1526,9 +1359,7 @@ export class TreeStructure {
 }
 
 
-export class Product {
-	static relativeUrl = "products";
-
+export interface IProduct {
 	PartName: string;
 	Name: string;
 	Price: number;
@@ -1543,14 +1374,12 @@ export class Product {
 	StatusID: number;
 	ID: number;
 	Deleted: boolean;
-	ProductCategoryLinks: Array<ProductCategoryLink>;
+	ProductCategoryLinks: Array<IProductCategoryLink>;
 	CustomFields: any;
 }
 
 
-export class TradeItem {
-	static relativeUrl = ""
-
+export interface ITradeItem {
 	Comment: string;
 	ProductID: number;
 	ItemText: string;
@@ -1564,15 +1393,13 @@ export class TradeItem {
 	StatusID: number;
 	ID: number;
 	Deleted: boolean;
-	Product: Product;
-	Dimensions: Dimensions;
+	Product: IProduct;
+	Dimensions: IDimensions;
 	CustomFields: any;
 }
 
 
-export class ProductCategory {
-	static relativeUrl = "productcategories";
-
+export interface IProductCategory {
 	Name: string;
 	Description: string;
 	Status: number;
@@ -1588,22 +1415,18 @@ export class ProductCategory {
 }
 
 
-export class ProductCategoryLink {
-	static relativeUrl = "productcategorylinks";
-
+export interface IProductCategoryLink {
 	ProductID: number;
 	ProductCategoryID: number;
 	StatusID: number;
 	ID: number;
 	Deleted: boolean;
-	ProductCategory: ProductCategory;
+	ProductCategory: IProductCategory;
 	CustomFields: any;
 }
 
 
-export class Tracelink {
-	static relativeUrl = ""
-
+export interface ITracelink {
 	Date: Date;
 	RootID: number;
 	RootTypeID: number;
@@ -1614,16 +1437,14 @@ export class Tracelink {
 	StatusID: number;
 	ID: number;
 	Deleted: boolean;
-	RootType: TracelinkType;
-	SourceType: TracelinkType;
-	DestinationType: TracelinkType;
+	RootType: ITracelinkType;
+	SourceType: ITracelinkType;
+	DestinationType: ITracelinkType;
 	CustomFields: any;
 }
 
 
-export class UserVerification {
-	static relativeUrl = "user-verifications";
-
+export interface IUserVerification {
 	VerificationCode: string;
 	ExpirationDate: Date;
 	VerificationDate: Date;
@@ -1638,9 +1459,7 @@ export class UserVerification {
 }
 
 
-export class Status {
-	static relativeUrl = ""
-
+export interface IStatus {
 	StatusCategoryID: number;
 	StatusCode: number;
 	System: boolean;
@@ -1649,14 +1468,12 @@ export class Status {
 	EntityType: string;
 	ID: number;
 	Deleted: boolean;
-	StatusCategory: StatusCategory;
+	StatusCategory: IStatusCategory;
 	CustomFields: any;
 }
 
 
-export class StatusCategory {
-	static relativeUrl = ""
-
+export interface IStatusCategory {
 	Name: string;
 	StatusCategoryCode: StatusCategoryCode;
 	ID: number;
@@ -1665,9 +1482,7 @@ export class StatusCategory {
 }
 
 
-export class Transition {
-	static relativeUrl = ""
-
+export interface ITransition {
 	MethodName: string;
 	EntityType: string;
 	Controller: string;
@@ -1677,39 +1492,33 @@ export class Transition {
 }
 
 
-export class TransitionFlow {
-	static relativeUrl = ""
-
+export interface ITransitionFlow {
 	FromStatusID: number;
 	ToStatusID: number;
 	TransitionID: number;
 	EntityType: string;
 	ID: number;
 	Deleted: boolean;
-	FromStatus: Status;
-	ToStatus: Status;
-	Transition: Transition;
+	FromStatus: IStatus;
+	ToStatus: IStatus;
+	Transition: ITransition;
 	CustomFields: any;
 }
 
 
-export class NumberSeriesInvalidOverlap {
-	static relativeUrl = "number-series-invalid-overlaps";
-
+export interface INumberSeriesInvalidOverlap {
 	NumberSerieTypeAID: number;
 	NumberSerieTypeBID: number;
 	StatusID: number;
 	ID: number;
 	Deleted: boolean;
-	NumberSerieTypeA: NumberSeriesType;
-	NumberSerieTypeB: NumberSeriesType;
+	NumberSerieTypeA: INumberSeriesType;
+	NumberSerieTypeB: INumberSeriesType;
 	CustomFields: any;
 }
 
 
-export class NumberSeries {
-	static relativeUrl = "number-series";
-
+export interface INumberSeries {
 	Name: string;
 	FromNumber: number;
 	ToNumber: number;
@@ -1722,14 +1531,12 @@ export class NumberSeries {
 	StatusID: number;
 	ID: number;
 	Deleted: boolean;
-	NumberSeriesType: NumberSeriesType;
+	NumberSeriesType: INumberSeriesType;
 	CustomFields: any;
 }
 
 
-export class NumberSeriesType {
-	static relativeUrl = "number-series-types";
-
+export interface INumberSeriesType {
 	Name: string;
 	EntityType: string;
 	Yearly: boolean;
@@ -1740,9 +1547,7 @@ export class NumberSeriesType {
 }
 
 
-export class Accrual {
-	static relativeUrl = "accruals";
-
+export interface IAccrual {
 	BalanceID: number;
 	StartDate: Date;
 	NumberOfMonths: number;
@@ -1773,15 +1578,13 @@ export class Accrual {
 	StatusID: number;
 	ID: number;
 	Deleted: boolean;
-	Balance: Account;
-	Line: JournalEntryLineDraft;
+	Balance: IAccount;
+	Line: IJournalEntryLineDraft;
 	CustomFields: any;
 }
 
 
-export class JournalEntryMode {
-	static relativeUrl = "journalEntryModes";
-
+export interface IJournalEntryMode {
 	Name: string;
 	ColumnSetUp: string;
 	VisibleModules: string;
@@ -1793,24 +1596,20 @@ export class JournalEntryMode {
 }
 
 
-export class JournalEntry {
-	static relativeUrl = "journalentries";
-
+export interface IJournalEntry {
 	JournalEntryNumber: string;
 	FinancialYearID: number;
 	StatusID: number;
 	ID: number;
 	Deleted: boolean;
-	FinancialYear: FinancialYear;
-	Lines: Array<JournalEntryLine>;
-	DraftLines: Array<JournalEntryLineDraft>;
+	FinancialYear: IFinancialYear;
+	Lines: Array<IJournalEntryLine>;
+	DraftLines: Array<IJournalEntryLineDraft>;
 	CustomFields: any;
 }
 
 
-export class JournalEntryLine {
-	static relativeUrl = "journalentrylines";
-
+export interface IJournalEntryLine {
 	JournalEntryID: number;
 	JournalEntryNumber: string;
 	FinancialDate: Date;
@@ -1837,20 +1636,18 @@ export class JournalEntryLine {
 	StatusID: number;
 	ID: number;
 	Deleted: boolean;
-	VatType: VatType;
-	Account: Account;
-	SubAccount: Account;
-	ReferenceCreditPost: JournalEntryLine;
-	OriginalReferencePost: JournalEntryLine;
-	ReferenceOriginalPost: JournalEntryLine;
-	Dimensions: Dimensions;
+	VatType: IVatType;
+	Account: IAccount;
+	SubAccount: IAccount;
+	ReferenceCreditPost: IJournalEntryLine;
+	OriginalReferencePost: IJournalEntryLine;
+	ReferenceOriginalPost: IJournalEntryLine;
+	Dimensions: IDimensions;
 	CustomFields: any;
 }
 
 
-export class JournalEntryLineDraft {
-	static relativeUrl = "journalentrylinedrafts";
-
+export interface IJournalEntryLineDraft {
 	AccrualID: number;
 	JournalEntryID: number;
 	JournalEntryNumber: string;
@@ -1878,21 +1675,19 @@ export class JournalEntryLineDraft {
 	StatusID: number;
 	ID: number;
 	Deleted: boolean;
-	Accrual: Accrual;
-	VatType: VatType;
-	Account: Account;
-	SubAccount: Account;
-	ReferenceCreditPost: JournalEntryLine;
-	OriginalReferencePost: JournalEntryLine;
-	ReferenceOriginalPost: JournalEntryLine;
-	Dimensions: Dimensions;
+	Accrual: IAccrual;
+	VatType: IVatType;
+	Account: IAccount;
+	SubAccount: IAccount;
+	ReferenceCreditPost: IJournalEntryLine;
+	OriginalReferencePost: IJournalEntryLine;
+	ReferenceOriginalPost: IJournalEntryLine;
+	Dimensions: IDimensions;
 	CustomFields: any;
 }
 
 
-export class Payment {
-	static relativeUrl = "payments";
-
+export interface IPayment {
 	IsPaymentToSupplier: boolean;
 	BankAccountID: number;
 	CustomerID: number;
@@ -1906,16 +1701,14 @@ export class Payment {
 	StatusID: number;
 	ID: number;
 	Deleted: boolean;
-	BankAccount: BankAccount;
-	Customer: Customer;
-	Currency: Currency;
+	BankAccount: IBankAccount;
+	Customer: ICustomer;
+	Currency: ICurrency;
 	CustomFields: any;
 }
 
 
-export class VatCodeGroup {
-	static relativeUrl = ""
-
+export interface IVatCodeGroup {
 	No: number;
 	Name: string;
 	StatusID: number;
@@ -1925,9 +1718,7 @@ export class VatCodeGroup {
 }
 
 
-export class VatPost {
-	static relativeUrl = ""
-
+export interface IVatPost {
 	Name: string;
 	StatusID: number;
 	ID: number;
@@ -1936,37 +1727,31 @@ export class VatPost {
 }
 
 
-export class VatReportReference {
-	static relativeUrl = "vatreportreferences";
-
+export interface IVatReportReference {
 	VatTypeID: number;
 	VatPostID: number;
 	StatusID: number;
 	ID: number;
 	Deleted: boolean;
-	VatType: VatType;
-	VatPost: VatPost;
+	VatType: IVatType;
+	VatPost: IVatPost;
 	CustomFields: any;
 }
 
 
-export class PostPost {
-	static relativeUrl = "postposts";
-
+export interface IPostPost {
 	JournalEntryInvoiceID: number;
 	JournalEntryBankID: number;
 	StatusID: number;
 	ID: number;
 	Deleted: boolean;
-	JournalEntryInvoice: JournalEntry;
-	JournalEntryBank: JournalEntry;
+	JournalEntryInvoice: IJournalEntry;
+	JournalEntryBank: IJournalEntry;
 	CustomFields: any;
 }
 
 
-export class SupplierInvoiceItem {
-	static relativeUrl = ""
-
+export interface ISupplierInvoiceItem {
 	SupplierInvoiceID: number;
 	Comment: string;
 	ProductID: number;
@@ -1981,15 +1766,13 @@ export class SupplierInvoiceItem {
 	StatusID: number;
 	ID: number;
 	Deleted: boolean;
-	Product: Product;
-	Dimensions: Dimensions;
+	Product: IProduct;
+	Dimensions: IDimensions;
 	CustomFields: any;
 }
 
 
-export class SupplierInvoice {
-	static relativeUrl = "supplierinvoices";
-
+export interface ISupplierInvoice {
 	SupplierID: number;
 	InvoiceDate: Date;
 	PaymentDueDate: Date;
@@ -2044,17 +1827,15 @@ export class SupplierInvoice {
 	StatusID: number;
 	ID: number;
 	Deleted: boolean;
-	Supplier: Supplier;
-	Items: Array<SupplierInvoiceItem>;
-	JournalEntry: JournalEntry;
-	Dimensions: Dimensions;
+	Supplier: ISupplier;
+	Items: Array<ISupplierInvoiceItem>;
+	JournalEntry: IJournalEntry;
+	Dimensions: IDimensions;
 	CustomFields: any;
 }
 
 
-export class JournalEntrySourceSerie {
-	static relativeUrl = ""
-
+export interface IJournalEntrySourceSerie {
 	JournalEntrySourceID: number;
 	StatusID: number;
 	ID: number;
@@ -2063,9 +1844,7 @@ export class JournalEntrySourceSerie {
 }
 
 
-export class AccountGroupSet {
-	static relativeUrl = "accountgroupsets";
-
+export interface IAccountGroupSet {
 	Name: string;
 	System: boolean;
 	Shared: boolean;
@@ -2079,9 +1858,7 @@ export class AccountGroupSet {
 }
 
 
-export class Account {
-	static relativeUrl = "accounts";
-
+export interface IAccount {
 	AccountName: string;
 	AccountNumber: number;
 	LockManualPosts: boolean;
@@ -2104,25 +1881,23 @@ export class Account {
 	StatusID: number;
 	ID: number;
 	Deleted: boolean;
-	Currency: Currency;
-	AccountGroup: AccountGroup;
-	VatType: VatType;
-	MainAccount: Account;
-	Customer: Customer;
-	Supplier: Supplier;
-	Employee: Employee;
-	Dimensions: Dimensions;
-	SubAccountNumberSeries: NumberSeries;
-	Alias: Array<AccountAlias>;
-	CompatibleAccountGroups: Array<AccountGroup>;
-	SubAccounts: Array<Account>;
+	Currency: ICurrency;
+	AccountGroup: IAccountGroup;
+	VatType: IVatType;
+	MainAccount: IAccount;
+	Customer: ICustomer;
+	Supplier: ISupplier;
+	Employee: IEmployee;
+	Dimensions: IDimensions;
+	SubAccountNumberSeries: INumberSeries;
+	Alias: Array<IAccountAlias>;
+	CompatibleAccountGroups: Array<IAccountGroup>;
+	SubAccounts: Array<IAccount>;
 	CustomFields: any;
 }
 
 
-export class AccountAlias {
-	static relativeUrl = ""
-
+export interface IAccountAlias {
 	Name: string;
 	AccountID: number;
 	StatusID: number;
@@ -2132,9 +1907,7 @@ export class AccountAlias {
 }
 
 
-export class AccountGroup {
-	static relativeUrl = "accountgroups";
-
+export interface IAccountGroup {
 	Name: string;
 	AccountGroupSetupID: number;
 	MainGroupID: number;
@@ -2145,15 +1918,13 @@ export class AccountGroup {
 	StatusID: number;
 	ID: number;
 	Deleted: boolean;
-	MainGroup: AccountGroup;
-	AccountGroupSet: AccountGroupSet;
+	MainGroup: IAccountGroup;
+	AccountGroupSet: IAccountGroupSet;
 	CustomFields: any;
 }
 
 
-export class Bank {
-	static relativeUrl = "banks";
-
+export interface IBank {
 	Name: string;
 	Web: string;
 	BIC: string;
@@ -2167,9 +1938,7 @@ export class Bank {
 }
 
 
-export class BankAccount {
-	static relativeUrl = "bankaccounts";
-
+export interface IBankAccount {
 	AccountNumber: string;
 	BankID: number;
 	AccountID: number;
@@ -2183,9 +1952,7 @@ export class BankAccount {
 }
 
 
-export class Currency {
-	static relativeUrl = "currencies";
-
+export interface ICurrency {
 	Date: Date;
 	Source: CurrencySourceEnum;
 	Code: string;
@@ -2199,9 +1966,7 @@ export class Currency {
 }
 
 
-export class FinancialYear {
-	static relativeUrl = ""
-
+export interface IFinancialYear {
 	Year: number;
 	ValidFrom: Date;
 	ValidTo: Date;
@@ -2212,9 +1977,7 @@ export class FinancialYear {
 }
 
 
-export class VatCodeDeduction {
-	static relativeUrl = "vatcodedeductions";
-
+export interface IVatCodeDeduction {
 	DeductionPercent: number;
 	ValidFrom: Date;
 	ValidTo: Date;
@@ -2222,14 +1985,12 @@ export class VatCodeDeduction {
 	StatusID: number;
 	ID: number;
 	Deleted: boolean;
-	VatType: VatType;
+	VatType: IVatType;
 	CustomFields: any;
 }
 
 
-export class VatType {
-	static relativeUrl = "vattypes";
-
+export interface IVatType {
 	VatCode: string;
 	Name: string;
 	Alias: string;
@@ -2248,18 +2009,16 @@ export class VatType {
 	StatusID: number;
 	ID: number;
 	Deleted: boolean;
-	IncomingAccount: Account;
-	OutgoingAccount: Account;
-	Deductions: Array<VatCodeDeduction>;
-	VatCodeGroup: VatCodeGroup;
-	VatReportReferences: Array<VatReportReference>;
+	IncomingAccount: IAccount;
+	OutgoingAccount: IAccount;
+	Deductions: Array<IVatCodeDeduction>;
+	VatCodeGroup: IVatCodeGroup;
+	VatReportReferences: Array<IVatReportReference>;
 	CustomFields: any;
 }
 
 
-export class ClientValidationRule {
-	static relativeUrl = ""
-
+export interface IClientValidationRule {
 	EntityType: string;
 	PropertyName: string;
 	Operator: Operator;
@@ -2273,9 +2032,7 @@ export class ClientValidationRule {
 }
 
 
-export class ComplexValidationRule {
-	static relativeUrl = ""
-
+export interface IComplexValidationRule {
 	EntityType: string;
 	ValidationCode: number;
 	Message: string;
@@ -2283,44 +2040,6 @@ export class ComplexValidationRule {
 	Level: ValidationLevel;
 	ID: number;
 	Deleted: boolean;
-	CustomFields: any;
-}
-
-
-export class ComponentLayoutDto {
-	static relativeUrl = ""
-
-	Name: string;
-	BaseEntity: string;
-	Url: string;
-	Fields: Array<FieldLayoutDto>;
-	CustomFields: any;
-}
-
-
-export class FieldLayoutDto {
-	static relativeUrl = ""
-
-	Url: string;
-	LookupEntityType: string;
-	ComponentLayoutID: number;
-	EntityType: string;
-	Property: string;
-	Placement: number;
-	Hidden: boolean;
-	FieldType: FieldType;
-	ReadOnly: boolean;
-	LookupField: boolean;
-	Label: string;
-	Description: string;
-	HelpText: string;
-	FieldSet: number;
-	Section: number;
-	Legend: string;
-	StatusID: number;
-	ID: number;
-	Deleted: boolean;
-	Validations: Array<ClientValidationRule>;
 	CustomFields: any;
 }
 

@@ -66,7 +66,8 @@ export class UniTable {
                     total: (response) => {
                         return this.totalRows;
                     }
-                }
+                },
+                sort: this.config.orderBy
             },
             columns: this.config.columns,
             filterable: this.config.filterable,
@@ -143,10 +144,16 @@ export class UniTable {
         this.tableConfig.dataSource.type = 'json';
         this.tableConfig.dataSource.serverPaging = true;
         this.tableConfig.dataSource.serverFiltering = true;
-
+        this.tableConfig.dataSource.serverSorting = true;
+        
+        
         this.tableConfig.dataSource.transport = {
 
             read: (options) => {
+                var orderBy = "";
+                if (options.data.sort) {
+                    orderBy = options.data.sort[0].field + ' ' + options.data.sort[0].dir;
+                }
 
                 this.uniHttp
                     .asGET()
@@ -155,6 +162,7 @@ export class UniTable {
                     .send({
                         expand: this.config.expand,
                         filter: this.buildOdataFilter(options.data.filter),
+                        orderBy: orderBy,
                         top: options.data.take,
                         skip: options.data.skip
                     }).subscribe(
