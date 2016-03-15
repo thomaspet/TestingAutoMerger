@@ -122,7 +122,7 @@ export class BizHttp<T> {
             expandStr = expand.join(',');
         }
         return this.http
-            .usingBusinessDomain()
+            .usingMetadataDomain()
             .asGET()
             .withEndPoint(this.relativeURL + '/new')
             .send({
