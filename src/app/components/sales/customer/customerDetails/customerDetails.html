@@ -1,3 +1,27 @@
-<section class="customer-details">
+<header class="poster">
+    
+    <article class="poster_toolbar">
+        <div *ngIf="Customer">
+            <h1 class="poster_toolbar_headline">{{Customer.Info.Name}}
+                <p class="poster_toolbar_orgnr">Kundenr. {{Customer.ID}}</p>
+            </h1>
+        </div>
+            
+        <div class="poster_toolbar_tools">
+            <a href="#" class="previous">Forrige</a>
+            <a href="#" class="next">Neste</a>
+            <a href="#/customer" class="new">Ny kunde</a>
+        </div>         
+    </article>
+    
+    <!-- Widget poster -->
+    <section class="poster_overview">
+        ..widgets kommer her..
+        <uni-widget-poster [model]="Customer"></uni-widget-poster>
+    </section>
+    
+</header>
+
+<section class="customer-details application">
     <uni-component-loader></uni-component-loader>
 </section>

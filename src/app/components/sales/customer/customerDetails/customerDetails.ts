@@ -2,7 +2,9 @@ import {Component, ComponentRef, Input, Output, ViewChild, SimpleChange, EventEm
 import {Observable} from "rxjs/Observable";
 import "rxjs/add/observable/forkjoin";
 
-import {FieldType, FieldLayout, ComponentLayout, Customer} from "../../../../unientities";
+import {DepartementService, ProjectService} from "../../../../services/services";
+
+import {FieldType, FieldLayout, ComponentLayout, Customer, BusinessRelation} from "../../../../unientities";
 import {UNI_CONTROL_DIRECTIVES} from "../../../../../framework/controls";
 import {UniFormBuilder} from "../../../../../framework/forms/builders/uniFormBuilder";
 import {UniFormLayoutBuilder} from "../../../../../framework/forms/builders/uniFormLayoutBuilder";
@@ -13,7 +15,8 @@ import {UniComponentLoader} from "../../../../../framework/core/componentLoader"
 @Component({
     selector: "customer-details",
     templateUrl: "app/components/sales/customer/customerDetails/customerDetails.html",
-    directives: [UniComponentLoader]
+    directives: [UniComponentLoader],
+    providers: [DepartementService, ProjectService]
 })
 export class CustomerDetails {
             
@@ -25,13 +28,24 @@ export class CustomerDetails {
 
     FormConfig: UniFormBuilder;
     formInstance: UniForm;
+    DropdownData: any;
 
-    constructor() {
+    constructor(private departementService: DepartementService,
+                private projectService: ProjectService
+                ) {
         this.Customer = new Customer();
-        this.Customer.Orgnumber = "912849627";
+        this.Customer.Orgnumber = "912 849 627";
+        this.Customer.Info = new BusinessRelation();
+        this.Customer.Info.Name = "Terje Pedersen";
     }
     
     ngOnInit() {
+        Observable.forkJoin(
+            this.departementService.GetAll(null),
+            this.projectService.GetAll(null)
+        ).subscribe(response => {
+            this.DropdownData = response;                               
+        });
     }
     
     ngAfterViewInit() {        
@@ -45,7 +59,7 @@ export class CustomerDetails {
             CustomFields: null,
             Fields: [
                 {
-                    ComponentLayoutID: 1,
+                    ComponentLayoutID: 3,
                     EntityType: "Customer",
                     Property: "CustomerNo",
                     Placement: 1,
@@ -65,9 +79,9 @@ export class CustomerDetails {
                     CustomFields: null 
                 },
                 {
-                    ComponentLayoutID: 1,
-                    EntityType: "Customer",
-                    Property: "Name",
+                    ComponentLayoutID: 3,
+                    EntityType: "BusinessRelation",
+                    Property: "Info.Name",
                     Placement: 1,
                     Hidden: false,
                     FieldType: 10,
@@ -85,7 +99,7 @@ export class CustomerDetails {
                     CustomFields: null 
                 },
                 {
-                    ComponentLayoutID: 1,
+                    ComponentLayoutID: 3,
                     EntityType: "Customer",
                     Property: "Orgnumber",
                     Placement: 1,
@@ -105,7 +119,7 @@ export class CustomerDetails {
                     CustomFields: null 
                 },
                 {
-                    ComponentLayoutID: 1,
+                    ComponentLayoutID: 3,
                     EntityType: "Customer",
                     Property: "Address",
                     Placement: 1,
@@ -125,7 +139,7 @@ export class CustomerDetails {
                     CustomFields: null 
                 },
                 {
-                    ComponentLayoutID: 1,
+                    ComponentLayoutID: 3,
                     EntityType: "Customer",
                     Property: "Address2",
                     Placement: 1,
@@ -145,7 +159,7 @@ export class CustomerDetails {
                     CustomFields: null 
                 },
                 {
-                    ComponentLayoutID: 1,
+                    ComponentLayoutID: 3,
                     EntityType: "Customer",
                     Property: "Address",
                     Placement: 1,
@@ -165,7 +179,7 @@ export class CustomerDetails {
                     CustomFields: null 
                 },
                 {
-                    ComponentLayoutID: 1,
+                    ComponentLayoutID: 3,
                     EntityType: "Customer",
                     Property: "Address3",
                     Placement: 1,
@@ -185,7 +199,7 @@ export class CustomerDetails {
                     CustomFields: null 
                 },
                 {
-                    ComponentLayoutID: 1,
+                    ComponentLayoutID: 3,
                     EntityType: "Customer",
                     Property: "WebUrl",
                     Placement: 1,
@@ -205,7 +219,7 @@ export class CustomerDetails {
                     CustomFields: null 
                 },
                 {
-                    ComponentLayoutID: 1,
+                    ComponentLayoutID: 3,
                     EntityType: "Customer",
                     Property: "Dimensions.ProjectID",
                     Placement: 4,
@@ -217,15 +231,15 @@ export class CustomerDetails {
                     Description: "",
                     HelpText: "",
                     FieldSet: 0,
-                    Section: 0,
-                    Legend: "",
+                    Section: 1,
+                    Legend: "Dimensjoner",
                     StatusID: 0,
                     ID: 8,
                     Deleted: false,
                     CustomFields: null 
                 },
                 {
-                    ComponentLayoutID: 1,
+                    ComponentLayoutID: 3,
                     EntityType: "Customer",
                     Property: "Dimensions.DepartementID",
                     Placement: 4,
@@ -237,13 +251,13 @@ export class CustomerDetails {
                     Description: "",
                     HelpText: "",
                     FieldSet: 0,
-                    Section: 0,
+                    Section: 1,
                     Legend: "",
                     StatusID: 0,
                     ID: 9,
                     Deleted: false,
                     CustomFields: null 
-                },
+                }
             ]               
         };   
         
@@ -254,62 +268,32 @@ export class CustomerDetails {
     }
     
     extendFormConfig() {
-/*
-        var journalEntryNo: UniFieldBuilder = this.FormConfig.find('JournalEntryNo');       
-        journalEntryNo.setKendoOptions({
-           format: "n0",
-           min: 1
+        var orgnumber: UniFieldBuilder = this.FormConfig.find('Orgnumber');
+        orgnumber.setKendoOptions({
+            mask: '000 000 000',
+            promptChar: '_'
         });
-        journalEntryNo.addClass('small-field');
-        
+
+        /*
         var departement: UniFieldBuilder = this.FormConfig.find('Dimensions.DepartementID');       
         departement.setKendoOptions({
             dataTextField: 'Name',
             dataValueField: 'ID',
-            dataSource: this.departements
+            dataSource: this.DropdownData[0]
         });
         departement.addClass('large-field');
 
         var project: UniFieldBuilder = this.FormConfig.find('Dimensions.ProjectID');
+        console.log("PROJECT");
+        console.log(project);
         project.setKendoOptions({
            dataTextField: 'Name',
            dataValueField: 'ID',
-           dataSource: this.projects 
+           dataSource: this.DropdownData[1]
         });      
         project.addClass('large-field');
-        
-        var vattype: UniFieldBuilder = this.FormConfig.find('DebitVatTypeID');
-        vattype.setKendoOptions({
-           dataTextField: 'VatCode',
-           dataValueField: 'ID',
-           template: "${data.VatCode} (${ data.VatPercent }%)",
-           dataSource: this.vattypes 
-        });      
-
-        var debitaccount: UniFieldBuilder = this.FormConfig.find('DebitAccountID');
-        debitaccount.setKendoOptions({
-           dataTextField: 'AccountNumber',
-           dataValueField: 'ID',
-           //template: "${data.AccountNumber} - ${data.AccountName}",
-           dataSource: this.accounts
-        });      
-        
-        var creditaccount: UniFieldBuilder = this.FormConfig.find('CreditAccountID');
-        creditaccount.setKendoOptions({
-           dataTextField: 'AccountNumber',
-           dataValueField: 'ID',
-           //template: "${data.AccountNumber} - ${data.AccountName}",
-           dataSource: this.accounts
-        }); 
-        
-        var description: UniFieldBuilder = this.FormConfig.find('Description');
-        description.addClass('large-field');  
-*/   
+        */
     }    
-    
-    private buildFormConfig(layout: ComponentLayout, model: Customer) {
-        this.FormConfig = new UniFormLayoutBuilder().build(layout, model);
-    }
        
     loadForm() {       
         var self = this;

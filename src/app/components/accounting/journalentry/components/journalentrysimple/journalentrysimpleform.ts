@@ -327,11 +327,7 @@ export class JournalEntrySimpleForm {
         var description: UniFieldBuilder = this.FormConfig.find('Description');
         description.addClass('large-field');     
     }    
-    
-    private buildFormConfig(layout: ComponentLayout, model: JournalEntryData) {
-        this.FormConfig = new UniFormLayoutBuilder().build(layout, model);
-    }
-       
+           
     loadForm() {       
         var self = this;
         return this.UniCmpLoader.load(UniForm).then((cmp: ComponentRef) => {
