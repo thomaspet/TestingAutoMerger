@@ -69,7 +69,7 @@ export class EmployeeEmployment {
         {ID: 2, Navn: "2 - Utenriks"}
     ];
 
-    localizations: Array<any> = [
+    subEntities: Array<any> = [
         {ID: 0, Navn: "Modalen"},
         {ID: 1, Navn: "Haugesund"},
         {ID: 2, Navn: "Bergen"},
@@ -84,13 +84,13 @@ export class EmployeeEmployment {
         Observable.forkJoin(
             employeeDS.get(params.get("id")),
             styrkcodesDS.getCodes(),
-            employeeDS.getLocalizations()
+            employeeDS.getSubEntities()
         ).subscribe((response: any) => {
-            let [employee, codes, loc] = response;
-            console.log("localizations from constructor", loc);
+            let [employee, codes, subEnt] = response;
+            console.log("SubEntities from constructor", subEnt);
             this.currentEmployee = employee;
             this.styrkCodes = codes;
-            this.localizations = loc;
+            this.subEntities = subEnt;
             this.buildFormConfigs();
         }, (error: any) => console.log(error));
     }
@@ -100,7 +100,7 @@ export class EmployeeEmployment {
 
         this.currentEmployee.Employments.forEach((employment: Employment) => {
             var formbuilder = new UniFormBuilder();
-            var bAddLocalization = false;
+            var AddSubEntity = false;
 
             var jobCode = this
                 .buildField("Stillingskode", employment, "JobCode", FieldType.AUTOCOMPLETE)
@@ -135,23 +135,23 @@ export class EmployeeEmployment {
             var hourRate = this.buildField("Timelønn", employment, "HourRate", FieldType.NUMERIC);
             var workPercent = this.buildField("Stillingprosent", employment, "WorkPercent", FieldType.NUMERIC);
 
-            if (typeof employment.Localization !== "undefined") {
-                if (typeof employment.Localization.BusinessRelationInfo !== "undefined") {
-                    var localization = this
-                        .buildField("Lokasjon", employment.Localization.BusinessRelationInfo, "Name", FieldType.COMBOBOX);
-                    localization.setKendoOptions({
-                        dataSource: this.localizations,
+            if (typeof employment.SubEntity !== "undefined") {
+                if (typeof employment.SubEntity.BusinessRelationInfo !== "undefined") {
+                    var subEntity = this
+                        .buildField("Lokasjon", employment.SubEntity.BusinessRelationInfo, "Name", FieldType.COMBOBOX);
+                    subEntity.setKendoOptions({
+                        dataSource: this.subEntities,
                         dataTextField: "BusinessRelationInfo.Name",
                         dataValueField: "ID"
                     });
-                    bAddLocalization = true;
+                    AddSubEntity = true;
                 }
             }
 
             var readgroup = this.buildGroupForm(employment);
 
-            if (bAddLocalization) {
-                formbuilder.addUniElements(jobCode, jobName, startDate, endDate, monthRate, hourRate, workPercent, localization, readgroup);
+            if (AddSubEntity) {
+                formbuilder.addUniElements(jobCode, jobName, startDate, endDate, monthRate, hourRate, workPercent, subEntity, readgroup);
             } else {
                 formbuilder.addUniElements(jobCode, jobName, startDate, endDate, monthRate, hourRate, workPercent, readgroup);
             }
