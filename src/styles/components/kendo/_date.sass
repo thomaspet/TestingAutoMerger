@@ -8,15 +8,19 @@
     &[data-value]:focus
       background: $uni-color-scale9
 
-  .k-state-selected .k-link
-    color: $uni-color-negative
-    background: $uni-color-C2A
-
   .k-weekend .k-link
     color: $uni-color-scale5
 
   .k-other-month .k-link
     color: $uni-color-scale8
+
+  .k-state-selected .k-link
+    color: $uni-color-negative
+    background: $uni-color-C2A
+
+    &:hover,
+    &:focus
+      background: $uni-color-C2A
 
   %datepicker-icons
     background-repeat: no-repeat
