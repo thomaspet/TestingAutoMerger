@@ -6,6 +6,8 @@ var connect = require('gulp-connect');
 var request = require('request');
 var fs = require('fs');
 var VERSION = new Date().getTime();
+var tslint = require('gulp-tslint');
+
 var config = {
     typescript: {
         target: "ES5" ,
@@ -69,6 +71,31 @@ var config = {
         }
     }
 };
+
+/********************/
+/*    LINT CODE     */
+/********************/
+gulp.task('tslint', function() {
+    const lintSource = gulp.src([
+        './src/**/*.ts',
+        '!./src/framework/validators/**',
+        '!./src/framework/interfaces/interfaces.ts',
+        '!./src/app/unientities.ts'
+    ]);
+    
+    return lintSource
+        .pipe(tslint())
+        .pipe(tslint.report('prose', {
+            emitError: false,
+            summarizeFailureOutput: true
+        }));
+        // .pipe(tslint.report('verbose'));
+    
+    
+    // return gulp.src('./src/**/*.ts')
+    //     .pipe(tslint())
+    //     .pipe(tslint.report('verbose'));
+});
 
 /********************/
 /*  CLEANING TASKS  */
