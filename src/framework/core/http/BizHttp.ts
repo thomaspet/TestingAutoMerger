@@ -9,7 +9,8 @@ export class BizHttp<T> {
     protected BaseURL: string;
     protected LogAll: boolean;
     protected DefaultOrderBy: string;
-
+    protected defaultExpand: string[];
+    
     // should be found based on type of T. Set in childclass constructor now
     protected relativeURL: string;
 
@@ -30,6 +31,8 @@ export class BizHttp<T> {
         let expandStr;
         if (expand) {
             expandStr = expand.join(',');
+        } else if (this.defaultExpand) {
+            expandStr = this.defaultExpand.join(',');
         }
         return this.http
             .usingBusinessDomain()

@@ -5,10 +5,12 @@ import {TabService} from "../../layout/navbar/tabstrip/tabService";
 import {UniTabs} from '../../layout/uniTabs/uniTabs';
 
 import {CustomerDetails} from './customerDetails/customerDetails';
+import {CustomerSearch} from './search/customerSearch';
 
 const CHILD_ROUTES = [
-    {path: '/search', redirectTo: ['CustomerSearch']},
-    {path: '/', component: CustomerDetails, as: 'CustomerDetails'}
+    {path: '/', redirectTo: ['CustomerSearch']},
+    {path: '/search', component: CustomerSearch, as: 'CustomerSearch'},
+    {path: '/details/:id', component: CustomerDetails, as: 'CustomerDetails'}
 ]
 
 @Component({
