@@ -81,7 +81,7 @@ export class SupplierInvoiceList implements OnInit{
         var text = "";
         if (dataItem.JournalEntryID === null) return "BilagsID=null";
         if (dataItem.JournalEntry === null) return "Bilag=null";
-        if (dataItem.JournalEntry.JournalEntryNumber === null) return "Bilagsnr =null";
+        if (dataItem.JournalEntry.JournalEntryNumber === null) return "Kladdebilag";
 
         return dataItem.JournalEntry.JournalEntryNumber;
     }

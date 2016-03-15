@@ -3,3 +3,12 @@
     <uni-form  (uniFormSubmit)='onSubmit($event)' [config]='form'></uni-form>
 </div>
 <div class="error" *ngIf="error" style="background-color: #fbe4e1; color:#a90000; padding: 5px;"><strong>Ops!</strong> Noe gikk galt. Lukk innstillinger og prøv igjen</div>
+
+<section class="testonly">
+    <i>Test knapper før alt er helt klart</i><br>
+    <button (click)="syncAS()">Synkroniser kontoplan</button>
+    <button (click)="syncVat()">Synkroniser mva</button>
+    <button (click)="syncCurrency()">Last ned valuta</button>
+</section>
+
+

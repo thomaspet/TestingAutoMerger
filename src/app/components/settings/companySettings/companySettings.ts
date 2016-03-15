@@ -359,4 +359,54 @@ export class CompanySettings implements OnInit {
             }
             );
     }
+
+    //#region Test data
+    syncAS() {
+        console.log("SYNKRONISER KONTOPLAN");
+        this.http
+            .asPUT()
+            .usingBusinessDomain()
+            .withEndPoint("accounts")
+            .send({
+                "action": "synchronize-ns4102-as"
+            })
+            .subscribe(
+            (response: any) => {
+                alert("Kontoplan synkronisert for AS");
+            },
+            (error: any) => console.log(error)
+            );
+    }
+
+    syncVat() {
+        console.log("SYNKRONISER MVA");
+        this.http
+            .asPUT()
+            .usingBusinessDomain()
+            .withEndPoint("vattypes")
+            .send({ "action": "synchronize" })
+            .subscribe(
+            (response: any) => {
+                alert("VatTypes synkronisert");
+            },
+            (error: any) => console.log(error)
+            );
+    }
+
+    syncCurrency() {
+        console.log("LAST NED VALUTA");
+        this.http
+            .asGET()
+            .withEndPoint("currencies")
+            .send({ action: "download-from-norgesbank" })
+            .subscribe(
+            (response: any) => {
+                alert("Valuta lasted ned");
+            },
+            (error: any) => console.log(error)
+            );
+    }
+
+
+    //#endregion Test data
 }

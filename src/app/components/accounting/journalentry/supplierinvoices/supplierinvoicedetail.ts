@@ -23,7 +23,7 @@ export class SupplierInvoiceDetail implements OnInit {
     supplierInvoice: SupplierInvoice;
     suppliers: Supplier[];
 
-    formBuilder: UniFormBuilder; 
+    formBuilder: UniFormBuilder;
     formInstance: UniForm;
 
     @ViewChild(UniComponentLoader) uniCompLoader: UniComponentLoader;
@@ -32,17 +32,22 @@ export class SupplierInvoiceDetail implements OnInit {
         private _supplierInvoiceService: SupplierInvoiceService,
         private _supplierService: SupplierService,
         private _routeParams: RouteParams) {
-
     }
 
     ngOnInit() {
-
         let id = +this._routeParams.get("id");
 
         if (id === null || typeof id === "undefined" || isNaN(id)) {
             console.log("id is null");
-            this.supplierInvoice = new SupplierInvoice();
-            //Get drop down data TODO
+
+            Observable.forkJoin(
+                this._supplierInvoiceService.Get(new, ["JournalEntry", "Supplier.Info"]),
+                this._supplierService.GetAll(null, ["Info"])
+            ).subscribe((response: any) => {
+                this.suppliers = response;
+
+                this.buildForm2();
+            }, error => console.log(error));
         }
         else {
 
@@ -60,21 +65,31 @@ export class SupplierInvoiceDetail implements OnInit {
 
     }
 
-    onSubmit() {
-        console.log("Submit called...");
-        if (this.supplierInvoice.ID > 0) {
-            this._supplierInvoiceService.Put(this.supplierInvoice.ID, this.supplierInvoice)
-                .subscribe((response: any) => {
-                    console.log("Response: ", response);
-                    this.supplierInvoice = response;
-                }, (error: any) => console.log(error));
-        } else {
-            this._supplierInvoiceService.Post(this.supplierInvoice)
-                .subscribe(
-                data => this.supplierInvoice = data,
-                error => console.log("Error in vatdetails.onSubmit: ", error)
-                );
-        }
+    private onSubmit(context: SupplierInvoiceDetail) {
+        return () => {
+            //context.Api.Post(context.Model).subscribe((result: any) => {
+            //    alert(JSON.stringify(result));
+
+
+            console.log("Submit called...");
+            if (context.supplierInvoice.ID > 0) {
+                context._supplierInvoiceService.Put(context.supplierInvoice.ID, context.supplierInvoice)
+                    .subscribe((response: any) => {
+                        //console.log("Response: ", response);
+                        context.supplierInvoice = response;
+                        alert(JSON.stringify(response));
+                    }, (error: any) => console.log(error));
+            }
+            ////Else TODO:
+            //    else {
+            //        this._supplierInvoiceService.Post(this.supplierInvoice)
+            //            .subscribe(
+            //            data => this.supplierInvoice = data,
+            //            error => console.log("Error in vatdetails.onSubmit: ", error)
+            //            );
+            //    }
+
+        };
     }
 
     buildForm2() {        
@@ -88,18 +103,18 @@ export class SupplierInvoiceDetail implements OnInit {
             CustomFields: null,
             Fields: [
                 {
-                    ComponentLayoutID: 1,
+                    ComponentLayoutID: 2,
                     EntityType: "SupplierInvoice",
                     Property: "ID",
                     Placement: 1,
                     Hidden: false,
                     FieldType: FieldType.TEXT, //
-                    ReadOnly: false,
+                    ReadOnly: true,
                     LookupField: false,
                     Label: "ID", //
                     Description: "",
                     HelpText: "",
-                    FieldSet: 0, //
+                    FieldSet: 0, ///
                     Section: 0, //
                     Legend: "",
                     StatusID: 0,
@@ -108,12 +123,12 @@ export class SupplierInvoiceDetail implements OnInit {
                     CustomFields: null
                 },
                 {
-                    ComponentLayoutID: 1,
-                    EntityType: "SupplierInvoice",
-                    Property: "SupplierID",
+                    ComponentLayoutID: 2,
+                    EntityType: "Supplier",
+                    Property: "Supplier.BusinessRelationID",
                     Placement: 2,
                     Hidden: false,
-                    FieldType: FieldType.COMBOBOX,
+                    FieldType: FieldType.DROPDOWN,
                     ReadOnly: false,
                     LookupField: false,
                     Label: "Leverandørnavn",
@@ -128,12 +143,12 @@ export class SupplierInvoiceDetail implements OnInit {
                     CustomFields: null
                 },
                 {
-                    ComponentLayoutID: 1,
+                    ComponentLayoutID: 2,
                     EntityType: "SupplierInvoice",
                     Property: "InvoiceDate",
                     Placement: 3,
                     Hidden: false,
-                    FieldType: FieldType.DATEPICKER, 
+                    FieldType: FieldType.DATEPICKER,
                     ReadOnly: false,
                     LookupField: false,
                     Label: "Fakturadato",
@@ -148,12 +163,12 @@ export class SupplierInvoiceDetail implements OnInit {
                     CustomFields: null
                 },
                 {
-                    ComponentLayoutID: 1,
+                    ComponentLayoutID: 2,
                     EntityType: "SupplierInvoice",
                     Property: "PaymentDueDate",
                     Placement: 4,
                     Hidden: false,
-                    FieldType: FieldType.DATEPICKER, 
+                    FieldType: FieldType.DATEPICKER,
                     ReadOnly: false,
                     LookupField: false,
                     Label: "Forfallsdato",
@@ -166,7 +181,108 @@ export class SupplierInvoiceDetail implements OnInit {
                     ID: 4,
                     Deleted: false,
                     CustomFields: null
+                },
+                {
+                    ComponentLayoutID: 2,
+                    EntityType: "SupplierInvoice",
+                    Property: "TaxInclusiveAmount",
+                    Placement: 4,
+                    Hidden: false,
+                    FieldType: FieldType.NUMERIC,
+                    ReadOnly: false,
+                    LookupField: false,
+                    Label: "Beløp",
+                    Description: "",
+                    HelpText: "",
+                    FieldSet: 0,
+                    Section: 0,
+                    Legend: "",
+                    StatusID: 0,
+                    ID: 4,
+                    Deleted: false,
+                    CustomFields: null
+                },
+                {
+                    ComponentLayoutID: 2,
+                    EntityType: "SupplierInvoice",
+                    Property: "InvoiceID",
+                    Placement: 4,
+                    Hidden: false,
+                    FieldType: FieldType.TEXT,
+                    ReadOnly: false,
+                    LookupField: false,
+                    Label: "Fakturanr",
+                    Description: "",
+                    HelpText: "",
+                    FieldSet: 0,
+                    Section: 0,
+                    Legend: "",
+                    StatusID: 0,
+                    ID: 4,
+                    Deleted: false,
+                    CustomFields: null
+                },
+                {
+                    ComponentLayoutID: 2,
+                    EntityType: "SupplierInvoice",
+                    Property: "PaymentID",
+                    Placement: 4,
+                    Hidden: false,
+                    FieldType: FieldType.TEXT,
+                    ReadOnly: false,
+                    LookupField: false,
+                    Label: "KID",
+                    Description: "",
+                    HelpText: "",
+                    FieldSet: 0,
+                    Section: 0,
+                    Legend: "",
+                    StatusID: 0,
+                    ID: 4,
+                    Deleted: false,
+                    CustomFields: null
+                },
+                {
+                    ComponentLayoutID: 2,
+                    EntityType: "SupplierInvoice",
+                    Property: "PaymentInformation",
+                    Placement: 4,
+                    Hidden: false,
+                    FieldType: FieldType.TEXT,
+                    ReadOnly: false,
+                    LookupField: false,
+                    Label: "Bilagstekst",
+                    Description: "",
+                    HelpText: "",
+                    FieldSet: 0,
+                    Section: 0,
+                    Legend: "",
+                    StatusID: 0,
+                    ID: 4,
+                    Deleted: false,
+                    CustomFields: null
+                },
+                {
+                    ComponentLayoutID: 2,
+                    EntityType: "SupplierInvoice",
+                    Property: "JournalEntryID",
+                    Placement: 4,
+                    Hidden: false,
+                    FieldType: FieldType.TEXT,
+                    ReadOnly: true,
+                    LookupField: false,
+                    Label: "Bilagsnr",
+                    Description: "",
+                    HelpText: "",
+                    FieldSet: 0,
+                    Section: 0,
+                    Legend: "",
+                    StatusID: 0,
+                    ID: 4,
+                    Deleted: false,
+                    CustomFields: null
                 }
+                //TODO: Lev. Kontonr.; Bilagstekst, Merknad
             ]
         };
 
@@ -177,14 +293,31 @@ export class SupplierInvoiceDetail implements OnInit {
     }
 
     extendFormConfig() {
-        var fieldSupplierName: UniFieldBuilder = this.formBuilder.find('SupplierID');
+        var fieldSupplierName: UniFieldBuilder = this.formBuilder.find('Supplier.BusinessRelationID');
         fieldSupplierName.setKendoOptions({
-            dataTextField: 'Supplier.Info.Name',
+            dataTextField: 'Info.Name',
             dataValueField: 'ID',
-            template: "${data.ID} - ${data.Info.Name}",
+            //template: "${data.ID} - ${data.Info.Name}",
             dataSource: this.suppliers
         });  
-    }    
+
+        //var field: UniFieldBuilder = this.formBuilder.find('JournalEntryID');
+        //field.setKendoOptions({
+        //    dataTextField: 'Supplier.Info.Name',
+        //    dataValueField: 'ID',
+        //    template: getJournalEntryNumber(data),
+        //    dataSource: this.supplierInvoice.
+        //});
+    }
+
+    getJournalEntryNumber = (dataItem) => {
+        var text = "";
+        if (dataItem.JournalEntryID === null) return "BilagsID=null";
+        if (dataItem.JournalEntry === null) return "Bilag=null";
+        if (dataItem.JournalEntry.JournalEntryNumber === null) return "Bilagsnr =null";
+
+        return dataItem.JournalEntry.JournalEntryNumber;
+    }
 
     private buildFormConfig(layout: ComponentLayout, model: SupplierInvoice) {
         this.formBuilder = new UniFormLayoutBuilder().build(layout, model);
@@ -194,6 +327,7 @@ export class SupplierInvoiceDetail implements OnInit {
         var self = this;
         return this.uniCompLoader.load(UniForm).then((cmp: ComponentRef) => {
             cmp.instance.config = self.formBuilder;
+            cmp.instance.getEventEmitter().subscribe(self.onSubmit(self));
             setTimeout(() => {
                 self.formInstance = cmp.instance;
             });

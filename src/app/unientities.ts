@@ -522,7 +522,7 @@ export class Employment {
 
 	EmployeeNumber: number;
 	EmployeeID: number;
-	LocalizationID: number;
+	SubEntityID: number;
 	JobCode: string;
 	JobName: string;
 	Standard: boolean;
@@ -547,15 +547,15 @@ export class Employment {
 	ID: number;
 	Deleted: boolean;
 	Employee: Employee;
-	Localization: Localization;
+	SubEntity: SubEntity;
 	Leaves: Array<EmployeeLeave>;
 	Leave: Array<EmployeeLeave>;
 	CustomFields: any;
 }
 
 
-export class Localization {
-	static relativeUrl = "localizations";
+export class SubEntity {
+	static relativeUrl = "subentities";
 
 	OrgNumber: string;
 	BusinessRelationID: number;
@@ -567,7 +567,7 @@ export class Localization {
 	ID: number;
 	Deleted: boolean;
 	BusinessRelationInfo: BusinessRelation;
-	SuperiorOrganization: Localization;
+	SuperiorOrganization: SubEntity;
 	CustomFields: any;
 }
 
@@ -743,7 +743,7 @@ export class Employee {
 	InternasjonalIDCountry: string;
 	ForeignWorker: ForeignWorker;
 	VacationRateEmployeeID: number;
-	LocalizationID: number;
+	SubEntityID: number;
 	Active: boolean;
 	PhotoID: number;
 	EmploymentDate: Date;
@@ -756,7 +756,7 @@ export class Employee {
 	Employments: Array<Employment>;
 	BankAccounts: Array<BankAccountSalary>;
 	VacationRateEmployee: VacationRateEmployee;
-	Localization: Localization;
+	SubEntity: SubEntity;
 	CustomFields: any;
 }
 
@@ -2267,6 +2267,7 @@ export class ClientValidationRule {
 	Level: ValidationLevel;
 	Value: string;
 	ErrorMessage: string;
+	System: boolean;
 	ID: number;
 	Deleted: boolean;
 	CustomFields: any;
@@ -2279,6 +2280,7 @@ export class ComplexValidationRule {
 	EntityType: string;
 	ValidationCode: number;
 	Message: string;
+	System: boolean;
 	Operation: OperationType;
 	Level: ValidationLevel;
 	ID: number;
@@ -2301,22 +2303,22 @@ export class ComponentLayoutDto {
 export class FieldLayoutDto {
 	static relativeUrl = ""
 
-	Url: string;
-	LookupEntityType: string;
 	ComponentLayoutID: number;
 	EntityType: string;
 	Property: string;
 	Placement: number;
-	Hidden: boolean;
 	FieldType: FieldType;
-	ReadOnly: boolean;
-	LookupField: boolean;
 	Label: string;
-	Description: string;
-	HelpText: string;
 	FieldSet: number;
 	Section: number;
 	Legend: string;
+	Url: string;
+	LookupEntityType: string;
+	Hidden: boolean;
+	ReadOnly: boolean;
+	LookupField: boolean;
+	Description: string;
+	HelpText: string;
 	StatusID: number;
 	ID: number;
 	Deleted: boolean;
