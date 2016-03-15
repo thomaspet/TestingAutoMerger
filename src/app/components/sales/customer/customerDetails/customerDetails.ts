@@ -8,6 +8,7 @@ import {FieldType, FieldLayout, ComponentLayout, Customer, BusinessRelation} fro
 import {UNI_CONTROL_DIRECTIVES} from "../../../../../framework/controls";
 import {UniFormBuilder} from "../../../../../framework/forms/builders/uniFormBuilder";
 import {UniFormLayoutBuilder} from "../../../../../framework/forms/builders/uniFormLayoutBuilder";
+import {UniSectionBuilder} from "../../../../../framework/forms";
 import {UniForm} from "../../../../../framework/forms/uniForm";
 import {UniFieldBuilder} from "../../../../../framework/forms/builders/uniFieldBuilder";
 import {UniComponentLoader} from "../../../../../framework/core/componentLoader";
@@ -47,7 +48,7 @@ export class CustomerDetails {
             this.DropdownData = response;      
             
             this.extendFormConfig();
-            this.loadForm();              
+            this.loadForm();                  
         });
     }
     
@@ -273,26 +274,29 @@ export class CustomerDetails {
             mask: '000 000 000',
             promptChar: '_'
         });
+                   
+        var departement: UniFieldBuilder = this.FormConfig.find('Dimensions.DepartementID'); 
+        console.log("DEPARTEMENT SHOULD RETURN");
+        console.log(departement);
+        
+        if (departement != null) {
+            departement.setKendoOptions({
+                dataTextField: 'Name',
+                dataValueField: 'ID',
+                dataSource: this.DropdownData[0]
+            });
+            departement.addClass('large-field');
+        }
 
-        var departement: UniFieldBuilder = this.FormConfig.find('Dimensions.DepartementID');       
-        /*
-        departement.setKendoOptions({
+        var project: UniFieldBuilder = this.FormConfig.find('Dimensions.ProjectID');
+        if (project != null) {
+            project.setKendoOptions({
             dataTextField: 'Name',
             dataValueField: 'ID',
-            dataSource: this.DropdownData[0]
-        });
-        departement.addClass('large-field');
-*/
-        var project: UniFieldBuilder = this.FormConfig.find('Dimensions.ProjectID');
-        console.log("PROJECT");
-        console.log(project);
-  /*      project.setKendoOptions({
-           dataTextField: 'Name',
-           dataValueField: 'ID',
-           dataSource: this.DropdownData[1]
-        });      
-        project.addClass('large-field');
-        */
+            dataSource: this.DropdownData[1]
+            });      
+            project.addClass('large-field');            
+        }
     }    
        
     loadForm() {       
