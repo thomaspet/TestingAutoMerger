@@ -44,7 +44,10 @@ export class CustomerDetails {
             this.departementService.GetAll(null),
             this.projectService.GetAll(null)
         ).subscribe(response => {
-            this.DropdownData = response;                               
+            this.DropdownData = response;      
+            
+            this.extendFormConfig();
+            this.loadForm();              
         });
     }
     
@@ -220,7 +223,7 @@ export class CustomerDetails {
                 },
                 {
                     ComponentLayoutID: 3,
-                    EntityType: "Customer",
+                    EntityType: "Project",
                     Property: "Dimensions.ProjectID",
                     Placement: 4,
                     Hidden: false,
@@ -240,7 +243,7 @@ export class CustomerDetails {
                 },
                 {
                     ComponentLayoutID: 3,
-                    EntityType: "Customer",
+                    EntityType: "Departement",
                     Property: "Dimensions.DepartementID",
                     Placement: 4,
                     Hidden: false,
@@ -256,15 +259,12 @@ export class CustomerDetails {
                     StatusID: 0,
                     ID: 9,
                     Deleted: false,
-                    CustomFields: null 
+                    CustomFields: null
                 }
             ]               
         };   
         
         this.FormConfig = new UniFormLayoutBuilder().build(view, this.Customer);
-        //this.FormConfig.hideSubmitButton();  
-        this.extendFormConfig();
-        this.loadForm();                      
     }
     
     extendFormConfig() {
@@ -274,19 +274,19 @@ export class CustomerDetails {
             promptChar: '_'
         });
 
-        /*
         var departement: UniFieldBuilder = this.FormConfig.find('Dimensions.DepartementID');       
+        /*
         departement.setKendoOptions({
             dataTextField: 'Name',
             dataValueField: 'ID',
             dataSource: this.DropdownData[0]
         });
         departement.addClass('large-field');
-
+*/
         var project: UniFieldBuilder = this.FormConfig.find('Dimensions.ProjectID');
         console.log("PROJECT");
         console.log(project);
-        project.setKendoOptions({
+  /*      project.setKendoOptions({
            dataTextField: 'Name',
            dataValueField: 'ID',
            dataSource: this.DropdownData[1]
