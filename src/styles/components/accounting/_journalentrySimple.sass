@@ -33,8 +33,18 @@ journal-entry-simple tr:hover
 .journalentrysimple-multilineinfo
     font-size: 0.75rem
 
-.journalentrysimple-multilineinfo label 
-    color: $uni-color-scale7
+    dl, dt, dd
+        margin: 0
+        display: inline-block
+        float: left
+
+    dt
+        color: $uni-color-scale4
+        padding-right: .5rem
+        clear: left
+
+        &:after
+            content: ':'
 
 journal-entry-simple td
     whitespace: nowrap
