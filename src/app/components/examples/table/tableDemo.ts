@@ -109,10 +109,7 @@ export class UniTableDemo {
         var commentCol = new UniTableColumn('Description', 'Kommentar', 'string');
 
         this.demoTable1 = new UniTableBuilder('EmployeeLeave', true)
-            .addSortItems(
-                {field: 'LeaveType', dir: 'desc'},
-                {field: 'ID', dir: 'asc'}
-             )
+            .setOrderBy('ID', 'desc')
             .addColumns(idCol, fromDateCol, toDateCol, leavePercentCol, leaveTypeCol, employmentIDCol, commentCol);
     }
 
@@ -142,6 +139,7 @@ export class UniTableDemo {
 
         this.demoTable2 = new UniTableBuilder(this.localData, true)
             .setPageSize(5)
+            .setOrderBy('ID', 'desc')
             .setCreateCallback(createCallback)
             .setUpdateCallback(updateCallback)
             .setDeleteCallback(deleteCallback)
