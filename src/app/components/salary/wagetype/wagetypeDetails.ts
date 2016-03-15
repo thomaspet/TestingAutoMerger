@@ -1,61 +1,90 @@
-import {Component, OnInit, provide, ViewChild, ComponentRef} from 'angular2/core';
-import {RouteParams} from "angular2/router";
+import {Component, provide, ViewChild, ComponentRef} from 'angular2/core';
+import {RouteParams, Router} from "angular2/router";
 
 import { Observable } from "rxjs/Observable";
 
-import {WagetypeService} from "../../../data/wagetype";
+import {WageTypeService} from "../../../services/services";
 
 import {UniComponentLoader} from "../../../../framework/core";
 import {UniForm} from "../../../../framework/forms/uniForm";
 import {UniFormBuilder, UniFormLayoutBuilder} from "../../../../framework/forms";
+import {UniFieldBuilder} from '../../../../framework/forms/builders/uniFieldBuilder';
 
 import {WageType} from "../../../unientities";
 
 @Component({
     selector: 'wagetype-details',
     templateUrl: 'app/components/salary/wagetype/wagetypedetails.html',
-    providers: [provide(WagetypeService, {useClass: WagetypeService})],
+    providers: [WageTypeService],
     directives: [UniComponentLoader, UniForm]
 })
-export class WagetypeDetail implements OnInit {
+export class WagetypeDetail {
     wageType: WageType;
     layout;
     formCfg: UniFormBuilder[];
 
     form: UniFormBuilder = new UniFormBuilder();
-    formInstance: UniForm;
+    whenFormInstance: Promise<UniForm>;
 
     @ViewChild(UniComponentLoader)  uniCompLoader: UniComponentLoader;
 
-    constructor(private _routeparams: RouteParams, private _wagetypeService: WagetypeService) {
+    constructor(private routeparams: RouteParams, private router: Router, private wageService: WageTypeService) {
     }
 
     ngOnInit() {
-
-        let ID = +this._routeparams.get("id");
-
-        Observable.forkJoin(
-            this._wagetypeService.get(ID),
-            this._wagetypeService.layout("")
-        ).subscribe((response: any) => {
-            let [wt, lt] = response;
-            this.wageType = wt;
-            this.layout = lt;
-
-            this.form = new UniFormLayoutBuilder().build(this.layout, this.wageType);
-
-            this.uniCompLoader.load(UniForm).then((cmp: ComponentRef) => {
-                cmp.instance.config = this.form;
-                setTimeout(() => {
-                    this.formInstance = cmp.instance;
-                }, 103);
+        let ID: number = +this.routeparams.get('id');
+        
+        this.wageService.getLayout('mock').subscribe((response: any) => {
+            this.layout = response;
+            this.wageService.getWageType(ID).subscribe((response : WageType) => {
+                console.log(response);
+                this.wageType = response;
+                
+                if(this.wageType.ID === 0){
+                    this.wageType.WageTypeId = null;
+                    this.wageType.AccountNumber = null;
+                }
+                this.form = new UniFormLayoutBuilder().build(this.layout, this.wageType);
+                if(this.wageType.ID === 0){
+                    this.form.find('WageTypeId').readonly = false;
+                }
+                
+                this.loadForm();
             });
-
-        }, error => console.log(error));
+        });
+    }
+    
+    loadForm(){
+        this.uniCompLoader.load(UniForm).then((cmp: ComponentRef) => {
+            cmp.instance.config = this.form;
+            cmp.instance.getEventEmitter().subscribe(this.onSubmit(this));
+            this.whenFormInstance = new Promise((resolve: Function) => resolve(cmp.instance));
+        });
     }
 
-    onSubmit() {
-        this._wagetypeService.update(this.wageType)
+    onSubmit(context: WagetypeDetail) {
+        return () => {
+            context.wageService.setRelativeUrl('wagetypes');
+            if (context.wageType.ID) {
+                context.wageService.Put(context.wageType.ID, context.wageType)
+                    .subscribe(
+                        (data: WageType) => {
+                            context.wageType = data;
+                            context.whenFormInstance.then((instance: UniForm) => instance.refresh(context.wageType));
+                        },
+                        (error: Error) => console.error('error in wagetypedetails.onSubmit - Put: ', error)
+                    );
+            } else {
+                console.log("we are now Posting");
+                context.wageService.Post(context.wageType)
+                    .subscribe(
+                        (data: WageType) => {
+                            context.wageType = data;
+                            this.router.navigateByUrl("/salary/wagetypes/" + context.wageType.ID);
+                        },
+                        (error: Error) => console.error('error in wagetypedetails.onSubmit - Post: ', error)
+                    );
+            }
+        };
     }
-
 }

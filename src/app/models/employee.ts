@@ -44,6 +44,7 @@ export class EmployeeModel extends Employee {
     EmployeeCategoryLinks: Array<EmployeeCategoryLink> = [];
     VacationRateEmployee: VacationRateEmployee = null;
     Localization: Localization = null;
+    NotMainEmployer = false;
     CustomFields: any = {};
 
     static createFromObject(data: any) {
