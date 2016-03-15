@@ -64,12 +64,10 @@
     </h3>
     <h3 *ngIf="validationResult.Messages.length > 0">
         Feil i validering:    
-    </h3>
-    <ul>
-        <li *ngFor="#message of validationResult.Messages">
-            {{message}}
-        </li>
-    </ul>
+    </h3>    
+    <p *ngFor="#message of validationResult.Messages">
+        {{message.Message}}
+    </p>
 </section>
 <section class="journal-entry-simple-helper">
     <h3>

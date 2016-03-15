@@ -132,6 +132,8 @@ export class JournalEntrySimple {
         var newline = JournalEntryService.getSomeNewDataForMe();
         newline.JournalEntryNo = Math.round((this.journalEntryLines.length/3) + 1);         
         this.journalEntryLines.unshift(newline);
+        
+        this.validateJournalEntryData();
     }
         
     setSelectedJournalEntryLine(selectedLine: JournalEntryData) {        
@@ -163,6 +165,8 @@ export class JournalEntrySimple {
         console.log(journalEntryLine);
         
         this.journalEntryLines.unshift(journalEntryLine);
+        
+        this.validateJournalEntryData();
     }
 
     editViewUpdated(journalEntryLine : JournalEntryData) { 
@@ -173,6 +177,8 @@ export class JournalEntrySimple {
         var currentRow = this.journalEntryLines.indexOf(this.selectedJournalEntryLine);
         this.journalEntryLines[currentRow] = journalEntryLine;                   
         this.selectedJournalEntryLine = null;
+        
+        this.validateJournalEntryData();        
     }
 }
 
