@@ -1,0 +1,40 @@
+.k-calendar
+
+  .k-link
+    color: $uni-color-positive
+    border-radius: pxToRem(5)
+
+    &[data-value]:hover,
+    &[data-value]:focus
+      background: $uni-color-scale9
+
+  .k-state-selected .k-link
+    color: $uni-color-negative
+    background: $uni-color-C2A
+
+  .k-weekend .k-link
+    color: $uni-color-scale5
+
+  .k-other-month .k-link
+    color: $uni-color-scale8
+
+  %datepicker-icons
+    background-repeat: no-repeat
+    background-position: top center
+    background-size: .5rem
+
+  .k-icon.k-i-arrow-e
+    @extend %datepicker-icons
+    background-image: unicon-next($uni-color-scale5)
+
+  .k-state-hover>.k-icon.k-i-arrow-e
+    @extend %datepicker-icons
+    background-image: unicon-next($uni-color-C2A)
+
+  .k-icon.k-i-arrow-w
+    @extend %datepicker-icons
+    background-image: unicon-prev($uni-color-scale5)
+
+  .k-state-hover>.k-icon.k-i-arrow-w
+    @extend %datepicker-icons
+    background-image: unicon-prev($uni-color-C2A)
