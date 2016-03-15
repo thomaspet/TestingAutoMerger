@@ -61,7 +61,7 @@ export class CustomerDetails {
                 private params: RouteParams
                 ) {
         
-        this.CustomerNo = params.get("CustomerNo");
+        this.CustomerNo = params.get("id");
     }
     
     ngOnInit() {
