@@ -12,3 +12,4 @@ export * from './salary/employee/employeeservice';
 export * from './salary/wagetype/wagetypeservice'
 export * from './common/departementservice';
 export * from './common/projectservice';
+export * from './sales/customerservice';

@@ -1,17 +1,17 @@
-<header class="poster">
+<header class="customer_poster">
     
     <article class="poster_toolbar">
-        <div *ngIf="Customer">
-            <h1 class="poster_toolbar_headline">{{Customer.Info.Name}}
-                <p class="poster_toolbar_orgnr">Kundenr. {{Customer.ID}}</p>
+        <section>
+            <h1 *ngIf="Customer && Customer.ID > 0">{{Customer.Info.Name}}
+                <p>Kundenr. {{Customer.ID}}</p>
             </h1>
-        </div>
+        </section>
             
-        <div class="poster_toolbar_tools">
+        <nav class="poster_toolbar_tools">
             <a href="#" class="previous">Forrige</a>
             <a href="#" class="next">Neste</a>
             <a href="#/customer" class="new">Ny kunde</a>
-        </div>         
+        </nav>         
     </article>
     
     <!-- Widget poster -->
@@ -24,4 +24,6 @@
 
 <section class="customer-details application">
     <uni-component-loader></uni-component-loader>
+    
+    <uni-multival [label]="'E-post'" [values]="email"></uni-multival>
 </section>

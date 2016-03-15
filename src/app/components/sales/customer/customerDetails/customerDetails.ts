@@ -1,8 +1,9 @@
 import {Component, ComponentRef, Input, Output, ViewChild, SimpleChange, EventEmitter} from "angular2/core";
+import {Router, RouteParams} from "angular2/router";
 import {Observable} from "rxjs/Observable";
 import "rxjs/add/observable/forkjoin";
 
-import {DepartementService, ProjectService} from "../../../../services/services";
+import {DepartementService, ProjectService, CustomerService} from "../../../../services/services";
 
 import {FieldType, FieldLayout, ComponentLayout, Customer, BusinessRelation} from "../../../../unientities";
 import {UNI_CONTROL_DIRECTIVES} from "../../../../../framework/controls";
@@ -17,42 +18,86 @@ import {UniComponentLoader} from "../../../../../framework/core/componentLoader"
     selector: "customer-details",
     templateUrl: "app/components/sales/customer/customerDetails/customerDetails.html",
     directives: [UniComponentLoader],
-    providers: [DepartementService, ProjectService]
+    providers: [DepartementService, ProjectService, CustomerService]
 })
 export class CustomerDetails {
             
-    @Input()
-    Customer: Customer;
-               
+    @Input() CustomerNo: any;
+                  
     @ViewChild(UniComponentLoader)
     UniCmpLoader: UniComponentLoader;    
 
     FormConfig: UniFormBuilder;
     formInstance: UniForm;
     DropdownData: any;
+    Customer: Customer;
+    
+    whenFormInstance: Promise<UniForm>;
+    
+    // TEST MULTI
+    private email = [
+        {
+            id: 0,
+            value: "audhild@unimicro.no",
+            main: false,
+
+        },
+        {
+            id: 1,
+            value: "audhild.grieg@gmail.com",
+            main: true
+        },
+        {
+            id: 2,
+            value: "nsync4eva@hotmail.com",
+            main: false
+        }
+    ];
 
     constructor(private departementService: DepartementService,
-                private projectService: ProjectService
+                private projectService: ProjectService,
+                private customerService: CustomerService,
+                private router: Router,
+                private params: RouteParams
                 ) {
-        this.Customer = new Customer();
-        this.Customer.Orgnumber = "912 849 627";
-        this.Customer.Info = new BusinessRelation();
-        this.Customer.Info.Name = "Terje Pedersen";
+        
+        this.CustomerNo = params.get("CustomerNo");
     }
     
     ngOnInit() {
-        Observable.forkJoin(
-            this.departementService.GetAll(null),
-            this.projectService.GetAll(null)
-        ).subscribe(response => {
-            this.DropdownData = response;      
-            
-            this.extendFormConfig();
-            this.loadForm();                  
-        });
+        if (this.CustomerNo > 0) {
+            Observable.forkJoin(
+                this.departementService.GetAll(null),
+                this.projectService.GetAll(null),
+                this.customerService.Get(this.CustomerNo, ["Info"])
+            ).subscribe(response => {
+                this.DropdownData = [response[0], response[1]];
+                this.Customer = response[2];
+                console.log("RESPONSE");
+                console.log(this.Customer);
+                
+                this.createFormConfig();
+                this.extendFormConfig();
+                this.loadForm();                  
+            });            
+        } else {
+            Observable.forkJoin(
+                this.departementService.GetAll(null),
+                this.projectService.GetAll(null)
+            ).subscribe(response => {
+                this.DropdownData = [response[0], response[1]];
+                this.Customer = { BusinessRelationID: 0, Info: new BusinessRelation(), Orgnumber: "", StatusID: 0, Deleted: false, ID: 0, CustomFields: null };
+                
+                this.createFormConfig();
+                this.extendFormConfig();
+                this.loadForm();                  
+            });                        
+        }
+        
+        
     }
     
-    ngAfterViewInit() {        
+    createFormConfig() {   
         // TODO get it from the API and move these to backend migrations   
         var view: ComponentLayout = {
             Name: "Customer",
@@ -275,37 +320,61 @@ export class CustomerDetails {
             promptChar: '_'
         });
                    
-        var departement: UniFieldBuilder = this.FormConfig.find('Dimensions.DepartementID'); 
-        console.log("DEPARTEMENT SHOULD RETURN");
-        console.log(departement);
-        
-        if (departement != null) {
-            departement.setKendoOptions({
-                dataTextField: 'Name',
-                dataValueField: 'ID',
-                dataSource: this.DropdownData[0]
-            });
-            departement.addClass('large-field');
-        }
+        var departement: UniFieldBuilder = this.FormConfig.find('Dimensions.DepartementID');         
+        departement.setKendoOptions({
+            dataTextField: 'Name',
+            dataValueField: 'ID',
+            dataSource: this.DropdownData[0]
+        });
+        departement.addClass('large-field');
 
         var project: UniFieldBuilder = this.FormConfig.find('Dimensions.ProjectID');
-        if (project != null) {
-            project.setKendoOptions({
+        project.setKendoOptions({
             dataTextField: 'Name',
             dataValueField: 'ID',
             dataSource: this.DropdownData[1]
-            });      
-            project.addClass('large-field');            
-        }
+        });      
+        project.addClass('large-field');            
     }    
        
     loadForm() {       
         var self = this;
         return this.UniCmpLoader.load(UniForm).then((cmp: ComponentRef) => {
            cmp.instance.config = self.FormConfig;
+           cmp.instance.getEventEmitter().subscribe(this.onSubmit(this));
+           self.whenFormInstance = new Promise((resolve: Function) => resolve(cmp.instance));
            setTimeout(() => {
                 self.formInstance = cmp.instance;
            });
         });
     }           
+
+    onSubmit(context: CustomerDetails) {
+        return () => {    
+            var customer = this.formInstance.getValue();
+            
+            context.Customer.Orgnumber = customer["OrgNumber"];
+            
+            console.log("BEFORE SAVING");
+            console.log(customer);
+            
+            if (context.Customer.ID > 0) {
+                context.customerService.Put(context.Customer.ID, context.Customer).subscribe(
+                        (data: Customer) => {
+                            context.Customer = data;
+                            context.whenFormInstance.then((instance: UniForm) => instance.refresh(context.Customer));
+                        },
+                        (error: Error) => console.error('error in CustomerDetails.onSubmit - Put: ', error)
+                    );       
+            } else {
+                context.customerService.Post(context.Customer).subscribe(
+                        (data: Customer) => {
+                            context.Customer = data;
+                            this.router.navigateByUrl("/customer/" + context.Customer.ID);
+                        },
+                        (error: Error) => console.error('error in CustomerDetails.onSubmit - Post: ', error)
+                    );    
+            }
+        }
+    }
 }

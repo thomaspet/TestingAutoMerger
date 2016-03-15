@@ -1,13 +1,13 @@
 import {BizHttp} from '../../../framework/core/http/BizHttp';
-import {Departement} from '../../unientities';
+import {Customer} from '../../unientities';
 import {UniHttp} from '../../../framework/core/http/http';
 
-export class DepartementService extends BizHttp<Departement> {
+export class CustomerService extends BizHttp<Customer> {
     
     constructor(http: UniHttp) {        
         super(http);
-        
-        this.relativeURL = Departement.relativeUrl;
+       
+        this.relativeURL = Customer.relativeUrl;       
         this.DefaultOrderBy = null;
     }       
 }
