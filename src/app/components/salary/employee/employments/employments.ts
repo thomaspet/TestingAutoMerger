@@ -135,8 +135,8 @@ export class EmployeeEmployment {
             var hourRate = this.buildField("Timelønn", employment, "HourRate", FieldType.NUMERIC);
             var workPercent = this.buildField("Stillingprosent", employment, "WorkPercent", FieldType.NUMERIC);
 
-            if (typeof employment.SubEntity !== "undefined") {
-                if (typeof employment.SubEntity.BusinessRelationInfo !== "undefined") {
+            if (typeof employment.SubEntity) {
+                if (typeof employment.SubEntity.BusinessRelationInfo) {
                     var subEntity = this
                         .buildField("Lokasjon", employment.SubEntity.BusinessRelationInfo, "Name", FieldType.COMBOBOX);
                     subEntity.setKendoOptions({

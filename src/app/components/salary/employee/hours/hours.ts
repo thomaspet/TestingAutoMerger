@@ -121,8 +121,8 @@ export class Hours {
                 .setModelField("WorkPercent")
                 .setType(UNI_CONTROL_DIRECTIVES[FieldType.NUMERIC]);
 
-            if (typeof employment.SubEntity !== "undefined") {
-                if (typeof employment.SubEntity.BusinessRelationInfo !== "undefined") {
+            if (typeof employment.SubEntity) {
+                if (typeof employment.SubEntity.BusinessRelationInfo) {
                     var subEntity = new UniFieldBuilder()
                         .setLabel("Lokalitet")
                         .setModel(employment.SubEntity.BusinessRelationInfo)
