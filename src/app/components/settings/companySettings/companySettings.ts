@@ -13,12 +13,14 @@ import {UNI_CONTROL_DIRECTIVES} from "../../../../framework/controls";
 
 import {CompanySettingsDS} from "../../../data/companySettings";
 import {UniHttp} from "../../../../framework/core/http/http";
+import {SubEntity} from "../../../unientities";
+import {SubEntityService} from "../../../services/services";
 
 
 @Component({
     selector: "settings",
     templateUrl: "app/components/settings/companySettings/companySettings.html",
-    providers: [provide(CompanySettingsDS, { useClass: CompanySettingsDS })],
+    providers: [provide(CompanySettingsDS, { useClass: CompanySettingsDS }), SubEntityService],
     directives: [ROUTER_DIRECTIVES, NgFor, NgIf, UniForm]
 })
 
@@ -28,6 +30,7 @@ export class CompanySettings implements OnInit {
     error: boolean;
     headers: Headers;
     company: any;
+    subEntities: Array<SubEntity>;
     activeCompany: any;
     companyTypes: Array<any> = [];
     currencies: Array<any> = [];
@@ -35,7 +38,10 @@ export class CompanySettings implements OnInit {
     accountGroupSets: Array<any> = [];
 
     //TODO Use service instead of Http, Use interfaces!!
-    constructor(private routeParams: RouteParams, private companySettingsDS: CompanySettingsDS, private http: UniHttp) {
+    constructor(private routeParams: RouteParams,
+                private companySettingsDS: CompanySettingsDS, 
+                private http: UniHttp, 
+                private subEntityService: SubEntityService) {
 
     }
 
@@ -127,6 +133,11 @@ export class CompanySettings implements OnInit {
             .setModel(this.company.Emails[0])
             .setModelField('EmailAddress')
             .setType(UNI_CONTROL_DIRECTIVES[11]);
+        
+        //*********************  Virksomhet og aga  ***************************/
+        var subEntitySection = new UniSectionBuilder("Virksomhet og aga");
+        
+        
 
         // ********************  Selskapsoppsett    ***************************/
         var companySetup = new UniSectionBuilder("Selskapsoppsett");
@@ -270,17 +281,16 @@ export class CompanySettings implements OnInit {
 
     /********************************************************************/
     /*********************  Form Builder    *******************/
+    
     update() {
-        this.http
-            .asGET()
-            .usingBusinessDomain()
-            .multipleRequests([
-                { endPoint: "companytypes" },
-                { endPoint: "currencies" },
-                { endPoint: "period-series" },
-                { endPoint: "accountgroupsets" },
-                { endPoint: "companysettings/" + this.id, expand: "Address,Emails,Phones" }
-            ])
+        Observable.forkJoin(
+            this.companySettingsDS.getCompanyTypes(),
+            this.companySettingsDS.getCurrencies(),
+            this.companySettingsDS.getPeriodSeries(),
+            this.companySettingsDS.getAccountGroupSets(),
+            this.companySettingsDS.get(this.id),
+            this.subEntityService.GetAll("")
+        )
             .subscribe(
             (dataset) => {
                 this.companyTypes = dataset[0];
@@ -288,6 +298,7 @@ export class CompanySettings implements OnInit {
                 this.periodSeries = dataset[2];
                 this.accountGroupSets = dataset[3];
                 this.company = dataset[4];
+                this.subEntities = dataset[5];
                 this.dataReady();
             },
             (error) => console.log(error)
