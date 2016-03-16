@@ -1,0 +1,51 @@
+.customer-add-input-area
+    @include unigrid-flush(10,5,2,1)
+    padding-right: pxToRem(20)
+    float: left
+    
+.customer-add-search-area
+    @include unigrid-flush(6,3,2,1)
+    float: left
+    margin-top: pxToRem(125)
+    background-color: transparentize($uni-color-scale9, .5)    
+
+.customer-add-search-area input
+    display: inline-block    
+
+.customer-add-input-area uni-form
+    width: 100%
+
+    label,
+    fieldset
+        @include unigrid(8, 8, 4, 1)         
+        float: left // And float them.
+        margin-left: 0.5rem
+        margin-right: 0.5rem
+        min-height: 3rem // So they don't run flush row-to-row.
+
+    .small-field
+        width: pxToRem(60)
+        
+    .large-field
+        width: pxToRem(200)
+
+
+external-search .search-content
+    margin-left: pxToRem(15)
+    margin-right: pxToRem(15)
+    padding-bottom: pxToRem(10)
+    
+external-search h3
+    margin-top: 0.1rem
+    margin-bottom: 0.1rem
+
+external-search .search-result-extra-info
+    font-size: pxToRem(14) 
+    color: $uni-color-scale5
+      
+external-search .search-result
+    margin-top: pxToRem(15)
+
+external-search .search-result article:hover
+    background-color: $uni-color-scale9
+    

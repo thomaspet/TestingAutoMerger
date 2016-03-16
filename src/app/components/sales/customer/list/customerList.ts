@@ -6,11 +6,11 @@ import {UniHttp} from '../../../../../framework/core/http/http';
 declare var jQuery;
 
 @Component({
-    selector: 'customer-search',
-    templateUrl: 'app/components/sales/customer/search/customerSearch.html',
+    selector: 'customer-list',
+    templateUrl: 'app/components/sales/customer/list/customerList.html',
     directives: [UniTable]
 })
-export class CustomerSearch {
+export class CustomerList {
     @ViewChildren(UniTable) tables: any;
     
     customerTable: UniTableBuilder;
@@ -18,10 +18,14 @@ export class CustomerSearch {
     constructor(private uniHttpService: UniHttp, private router: Router) {
         this.setupCustomerTable();
     }
+    
+    createCustomer() {        
+        this.router.navigateByUrl('/customer/add');
+    }
 
     setupCustomerTable() {
         // Define columns to use in the table
-        var numberCol = new UniTableColumn('Orgnumber', 'Kundenr', 'number').setWidth('15%');
+        var numberCol = new UniTableColumn('ID', 'Kundenr', 'number').setWidth('15%');
         var nameCol = new UniTableColumn('Info.Name', 'Navn', 'string');
         var orgNoCol = new UniTableColumn('Orgnumber', 'Orgnr', 'string').setWidth('15%');
                 
@@ -36,6 +40,6 @@ export class CustomerSearch {
             .setSelectCallback(selectCallback)
             .setFilterable(false)
             .setPageSize(25)
-            .addColumns(numberCol, nameCol, orgNoCol);
+            .addColumns(numberCol, nameCol, orgNoCol);            
     }
 }
