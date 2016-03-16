@@ -46,10 +46,8 @@ export class PersonalDetails {
     ngAfterViewInit() {
 
         if(this.employeeDS.subEntities){
-            console.log("SubEntities are cached");
             this.getData();
         }else{
-            console.log("Caching subEntities");
             this.cacheLocAndGetData();
         }
     }

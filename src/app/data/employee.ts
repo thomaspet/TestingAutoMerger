@@ -8,15 +8,16 @@ import "rxjs/add/observable/fromArray";
 export class EmployeeDS {
 
     expandedProperties = [
-        "BusinessRelationInfo.Addresses"
-        , "BusinessRelationInfo.Emails"
-        , "BusinessRelationInfo.Phones"
-        , "Employments.SubEntity.BusinessRelationInfo"
-        , "BankAccounts"
-        , "VacationRateEmployee"
-        , "SubEntity"].join(",");
+        "BusinessRelationInfo.Addresses",
+        "BusinessRelationInfo.Emails",
+        "BusinessRelationInfo.Phones",
+        "Employments.SubEntity.BusinessRelationInfo",
+        "BankAccounts",
+        "VacationRateEmployee",
+        "SubEntity"
+    ].join(",");
+        
     subEntities: Observable<any>;
-
 
     constructor(@Inject(UniHttp)
                 public http: UniHttp) {
