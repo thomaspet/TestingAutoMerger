@@ -1,0 +1,14 @@
+<section class="search-content">
+    <h3>Søk i eksterne registre:  {{searchText}}</h3>
+
+    <input type="text" id="searchText" *ngIf="useInternalSearchBox"/>
+    <input type="checkbox" value="BRREG" />Brønnøysund
+    <input type="checkbox" value="1880" />1880
+
+    <section class="search-result">
+        <article *ngFor="#item of searchResult">
+            <section class="search-result-main-info">{{item.Name}}</section>
+            <section class="search-result-extra-info">Orgnr: {{item.OrgNo}}, {{item.ZipCode + " " + item.City}}</section>
+        </article>
+    </section>
+</section>
