@@ -52,11 +52,11 @@ export class SupplierInvoiceList implements OnInit{
         {ID: 2, Text: "For godkjenning"},
         {ID: 3, Text: "Godkjent"},
         {ID: 4, Text: "Slettet"},
-        {ID: 5, Text: "Bokf�rt"},
+        {ID: 5, Text: "Bokført"},
         {ID: 6, Text: "Til betaling"},
         {ID: 7, Text: "Delvis betalt"},
         {ID: 8, Text: "Betalt"},
-        {ID: 9, Text: "Fullf�rt"}
+        {ID: 9, Text: "Fullført"}
     ];
 
     //TODO REFRESH???
@@ -90,7 +90,7 @@ export class SupplierInvoiceList implements OnInit{
         var idCol = new UniTableColumn('ID', 'Id', 'number')
             .setEditable(false)
             .setNullable(true)
-            .setWidth('4'); //Ser ikke ut til � virke
+            .setWidth('4'); //Ser ikke ut til å virke
 
         //For test purpose only
         //var statusIdCol = new UniTableColumn('StatusID', 'StatusId', 'number')
@@ -132,7 +132,7 @@ export class SupplierInvoiceList implements OnInit{
             .setEditable(false)
             .setNullable(true);
 
-        var taxInclusiveAmountCol = new UniTableColumn('TaxInclusiveAmount', 'Bel�p', 'number')
+        var taxInclusiveAmountCol = new UniTableColumn('TaxInclusiveAmount', 'Beløp', 'number')
             .setEditable(false)
             .setNullable(true)
             .setClass("supplier-invoice-table-amount")
