@@ -39,6 +39,15 @@ export class SupplierInvoiceDetail implements OnInit {
 
         if (id === null || typeof id === "undefined" || isNaN(id)) {
             console.log("id is null");
+
+            Observable.forkJoin(
+                this._supplierInvoiceService.Get(id, ["JournalEntry", "Supplier.Info"]),
+                this._supplierService.GetAll(null, ["Info"])
+            ).subscribe((response: any) => {
+                this.suppliers = response;
+
+                this.buildForm2();
+            }, error => console.log(error));
         }
         else {
 
@@ -122,7 +131,7 @@ export class SupplierInvoiceDetail implements OnInit {
                     FieldType: FieldType.DROPDOWN,
                     ReadOnly: false,
                     LookupField: false,
-                    Label: "Leverandørnavn",
+                    Label: "LeverandÃ¸rnavn",
                     Description: "",
                     HelpText: "",
                     FieldSet: 0,
@@ -182,7 +191,7 @@ export class SupplierInvoiceDetail implements OnInit {
                     FieldType: FieldType.NUMERIC,
                     ReadOnly: false,
                     LookupField: false,
-                    Label: "Beløp",
+                    Label: "BelÃ¸p",
                     Description: "",
                     HelpText: "",
                     FieldSet: 0,

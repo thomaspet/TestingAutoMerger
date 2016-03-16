@@ -26,10 +26,13 @@ export class BizHttp<T> {
         this.LogAll = true;
     }
 
-    public Get<T>(ID: number, expand?: string[]): Observable<any> {
+    public Get<T>(ID: number|string, expand?: string[]): Observable<any> {
         let expandStr;
         if (expand) {
             expandStr = expand.join(',');
+        }
+        if (!ID) {
+            ID = 'new';
         }
         return this.http
             .usingBusinessDomain()

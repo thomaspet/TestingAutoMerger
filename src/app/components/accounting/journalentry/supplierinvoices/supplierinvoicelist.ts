@@ -14,18 +14,18 @@ import {UniTabs} from '../../../layout/uniTabs/uniTabs';
 import {SupplierInvoiceEdit} from './supplierinvoiceedit';
 import {SupplierInvoiceDetail} from './supplierinvoicedetail';
 
+
 import {UniTable, UniTableBuilder, UniTableColumn} from '../../../../../framework/uniTable';
 import {SupplierInvoice} from "../../../../unientities";
 
-declare var jQuery: any;
 
 @Component({
     selector: "supplier-invoice-list",
     templateUrl: "app/components/accounting/journalentry/supplierinvoices/supplierinvoicelist.html",
     providers: [SupplierInvoiceService, AccountService],
-    directives: [UniTable, ROUTER_DIRECTIVES]
+    directives: [SupplierInvoiceEdit, UniTable, UniModal, ROUTER_DIRECTIVES]
 })
-export class SupplierInvoiceList implements OnInit {
+export class SupplierInvoiceList implements OnInit{
     @Output() onSelect = new EventEmitter<SupplierInvoice>();
     supplierInvoices: SupplierInvoice[];
     newSupplierInvoice: any;
@@ -40,22 +40,23 @@ export class SupplierInvoiceList implements OnInit {
         private supplierInvoiceService: SupplierInvoiceService,
         private accountService: AccountService,
         private _router: Router,
-        routeParams: RouteParams) {
+        routeParams: RouteParams)
+    {
         //this._selectedId = +routeParams.get('id');
     }
 
     //TODO: To be retrieved from database schema shared.Status instead?
     statusTypes: Array<any> = [
-        { ID: 0, Text: "Udefinert" },
-        { ID: 1, Text: "Kladd" },
-        { ID: 2, Text: "For godkjenning" },
-        { ID: 3, Text: "Godkjent" },
-        { ID: 4, Text: "Slettet" },
-        { ID: 5, Text: "Bokf�rt" },
-        { ID: 6, Text: "Til betaling" },
-        { ID: 7, Text: "Delvis betalt" },
-        { ID: 8, Text: "Betalt" },
-        { ID: 9, Text: "Fullf�rt" }
+        {ID: 0, Text: "Udefinert"},
+        {ID: 1, Text: "Kladd"},
+        {ID: 2, Text: "For godkjenning"},
+        {ID: 3, Text: "Godkjent"},
+        {ID: 4, Text: "Slettet"},
+        {ID: 5, Text: "Bokført"},
+        {ID: 6, Text: "Til betaling"},
+        {ID: 7, Text: "Delvis betalt"},
+        {ID: 8, Text: "Betalt"},
+        {ID: 9, Text: "Fullført"}
     ];
 
     //TODO REFRESH???
@@ -89,7 +90,7 @@ export class SupplierInvoiceList implements OnInit {
         var idCol = new UniTableColumn('ID', 'Id', 'number')
             .setEditable(false)
             .setNullable(true)
-            .setWidth('4'); //Ser ikke ut til � virke
+            .setWidth('4'); //Ser ikke ut til å virke
 
         //For test purpose only
         //var statusIdCol = new UniTableColumn('StatusID', 'StatusId', 'number')
@@ -131,8 +132,8 @@ export class SupplierInvoiceList implements OnInit {
             .setEditable(false)
             .setNullable(true);
 
-        var taxInclusiveAmountCol = new UniTableColumn('TaxInclusiveAmount', 'Bel�p', 'number')
-            .setEditable(true)
+        var taxInclusiveAmountCol = new UniTableColumn('TaxInclusiveAmount', 'Beløp', 'number')
+            .setEditable(false)
             .setNullable(true)
             .setClass("supplier-invoice-table-amount")
             .setFormat("{0:n}");
@@ -142,31 +143,17 @@ export class SupplierInvoiceList implements OnInit {
         var selectCallback = (selectedItem) => {
             console.log("selectCallback() called");
             this.selectedSupplierInvoice = selectedItem;
-            //this._router.navigateByUrl("/journalentry/supplierinvoices/" + selectedItem.ID);
 
-            this.onSelect.emit(selectedItem);
+            //this._router.navigate(['SupplierinvoiceEdit', { id: selectedItem.ID }]);
+            //this._router.navigateByUrl("/journalentry/supplierinvoices/Supplierinvoiceadd/" + selectedItem.ID);
+
+            this._router.navigateByUrl("/journalentry/supplierinvoices/" + selectedItem.ID);
+            //this.onSelect.emit(selectedItem);
 
             //this.setupModalConfig();
             //this.modalConfig.value = this.selectedSupplierInvoice;
             //this.modal.open();
         }
-
-        var createCallback = (createdItem) => {
-            console.log('Created: ');
-            console.log(createdItem);
-
-            this.selectedSupplierInvoice = createdItem;
-
-            //this._router.navigate(['SupplierinvoiceEdit', { id: selectedItem.ID }]);
-            //this._router.navigateByUrl("/journalentry/supplierinvoices/Supplierinvoiceadd/" + selectedItem.ID);
-
-            this._router.navigateByUrl("/journalentry/supplierinvoices/" + createdItem.ID);
-
-        };
-        var updateCallback = (updatedItem) => {
-            console.log('Updated: ');
-            console.log(updatedItem);
-        };
 
         //Different data sources:
         //**************************************************************
@@ -181,39 +168,14 @@ export class SupplierInvoiceList implements OnInit {
         this.supplierInvoiceTableCfg = new UniTableBuilder('SupplierInvoices', false)
             .addColumns(idCol, statusTextCol, journalEntryCol, supplierNrCol, supplierNameCol, invoiceDateCol, paymentDueDateCol, invoiceIDCol, taxInclusiveAmountCol)
             .setSelectCallback(selectCallback)
-            //.setCreateCallback(createCallback)
-            //.setUpdateCallback(updateCallback)
             .setExpand("JournalEntry, Supplier.Info")
             .setPageSize(5)
             .addCommands({
-                name: 'ContextMenu', text: '...', click: (function (event) {
+                name: 'ContextMenu', text: '...', click: (event) => {
                     event.preventDefault();
-                    var dataItem = this.dataItem(jQuery(event.currentTarget).closest("tr"));
-                    console.log(dataItem);
-
-                    if (dataItem !== null && dataItem.ID !== null) {
-                        this.selectedSupplierInvoice = dataItem;
-                        this._router.navigateByUrl("/journalentry/supplierinvoices/" + dataItem.ID);
-                    }
-                    else
-                        console.log("Error in selecting the SupplierInvoices");
-                })
+                    console.log(event)
+                }
             });
-
-        //.addCommands({
-        //    name: 'ContextMenu', text: '...', click: (event) => {
-        //        event.preventDefault();
-        //        console.log(event);
-
-        //        var dataItem = jQuery(event.currentTarget).closest("tr");
-
-        //        //var dataItem = this.dataItem(jQuery(event.currentTarget).closest("tr"));
-
-        //        //console.log(dataItem);
-        //        //this.selectedSupplierInvoice = event.;
-        //        //this._router.navigateByUrl("/journalentry/supplierinvoices/" + selectedItem.ID);
-        //    }
-        //});
     }
 
     //dataReady(response) {
@@ -254,10 +216,10 @@ export class SupplierInvoiceList implements OnInit {
         console.log("SYNKRONISER KONTOPLAN");
         this.accountService.Action(null, "synchronize-ns4102-as")
             .subscribe(
-            (response: any) => {
-                alert("Kontoplan synkronisert for AS");
-            },
-            (error: any) => console.log(error)
+                (response: any) => {
+                    alert("Kontoplan synkronisert for AS");
+                },
+                (error: any) => console.log(error)
             );
     }
 
@@ -269,11 +231,11 @@ export class SupplierInvoiceList implements OnInit {
         }
         this.supplierInvoiceService.Action(this.newSupplierInvoice.ID, "smartbooking")
             .subscribe(
-            (response: any) => {
-                console.log("Smart booking completed");
-                this.onSelect.emit(response);
-            },
-            (error: any) => console.log(error)
+                (response: any) => {
+                    console.log("Smart booking completed");
+                    this.onSelect.emit(response);
+                },
+                (error: any) => console.log(error)
             );
 
     }
@@ -341,14 +303,14 @@ export class SupplierInvoiceList implements OnInit {
 
         this.supplierInvoiceService.Post(this.newSupplierInvoice)
             .subscribe(
-            (response: any) => {
-                console.log(response);
-                this.newSupplierInvoice = response;
-                this.smartBooking();
-            },
-            (error: any) => {
-                console.log(error);
-            }
+                (response: any) => {
+                    console.log(response);
+                    this.newSupplierInvoice = response;
+                    this.smartBooking();
+                },
+                (error: any) => {
+                    console.log(error);
+                }
             );
     }
 
