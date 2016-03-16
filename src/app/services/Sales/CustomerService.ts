@@ -13,4 +13,24 @@ export class CustomerService extends BizHttp<Customer> {
         
         this.defaultExpand = ["Info"];
     }       
+    
+    NextCustomer(CurrentID: number): Customer
+    {
+        return super.Action(ID, "next-customer");
+    }
+    
+    PreviousCustomer(CurrenID: number): Customer
+    {
+        return super.Action(ID, "previous-customer");
+    }
+    
+    FirstCustomer(): Customer
+    {
+        return super.Action(0, "first-customer");
+    }
+    
+    LastCustomer(): Customer
+    {
+        return super.Action(0, "last-customer");
+    }
 }

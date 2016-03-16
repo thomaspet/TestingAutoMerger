@@ -12,7 +12,9 @@ const CHILD_ROUTES = [
     {path: '/', redirectTo: ['CustomerList']},
     {path: '/list', component: CustomerList, as: 'CustomerList'},
     {path: '/details/:id', component: CustomerDetails, as: 'CustomerDetails'},
-    {path: '/add', component: CustomerAdd, as: 'CustomerAdd'}
+    {path: '/add', name: 'CustomerAdd', component: CustomerAdd, as: 'CustomerAdd'},
+    {path: '/next', name: 'CustomerNext', component: CustomerDetails, as: 'CustomerDetails'},
+    {path: '/previous', name: 'CustomerPreviuos', component: CustomerDetails, as: 'CustomerDetails'},   
 ]
 
 @Component({
