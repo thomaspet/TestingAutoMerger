@@ -10,6 +10,8 @@ import {SupplierInvoiceAdd} from './supplierinvoiceadd';
 import {SupplierInvoiceEdit} from './supplierinvoiceedit';
 import {SupplierInvoiceDetail} from './supplierinvoicedetail';
 
+import {UniFieldsetBuilder, UniFieldBuilder, UniSectionBuilder} from "../../../../../framework/forms";
+
 @Component({
     selector: "supplier-invoices",
     templateUrl: "app/components/accounting/journalentry/supplierinvoices/supplierinvoices.html",
@@ -24,6 +26,8 @@ import {SupplierInvoiceDetail} from './supplierinvoicedetail';
 //])
 
 export class SupplierInvoices {
+    private selectedSupplierInvoice: SupplierInvoice;
+
     constructor(private _router: Router) {
         //TODO: Sett opp knapper for å lage ny faktura etc + events for å oppdatere tabell 
     }
@@ -43,5 +47,10 @@ export class SupplierInvoices {
     }
     openSupplierInvoiceAddDialog() {
         console.log("openSupplierInvoiceAddDialog");
+    }
+
+    todo(input)
+    {
+        this.selectedSupplierInvoice = input;
     }
 }

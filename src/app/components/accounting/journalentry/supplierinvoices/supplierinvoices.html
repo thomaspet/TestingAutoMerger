@@ -4,11 +4,9 @@
     <!--<button [routerLink]="['Supplierinvoice', {id: 'new'}]">Add</button>-->
     <button class="new" (click)="onAddNew()">Ny</button>
 
-    <supplier-invoice-list></supplier-invoice-list>
+    <supplier-invoice-list (onSelect)="todo($event)"></supplier-invoice-list>
 
     <!--<supplier-invoice-add (Created)="newSupplierInvoiceCreated=($event)"></supplier-invoice-add>-->
-
-    <div>Når en supplierinvoice er valgt vises foreslått bokføring</div>
-    <journal-entry-manual></journal-entry-manual>
+    <journal-entry-manual [SupplierInvoice]="selectedSupplierInvoice" *ngIf="selectedSupplierInvoice"></journal-entry-manual>
 </article>
 <router-outlet></router-outlet>

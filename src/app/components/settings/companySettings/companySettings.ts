@@ -259,7 +259,7 @@ export class CompanySettings implements OnInit {
             .setType(UNI_CONTROL_DIRECTIVES[8]);
 
         accountingSettings.addUniElements(
-            periodSeriesAccount, periodSeriesVat,
+            periodSeriesAccount, periodSeriesVat, accountGroupSet, 
             accountingLockedDate, vatLockedDate, forceSupplierInvoiceApproval);
 
         formBuilder.addUniElements(companyName, orgNr, web, street, street2,

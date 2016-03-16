@@ -52,7 +52,20 @@ export class JournalEntrySimple {
         ).subscribe(response => {
             this.DropdownData = response;                               
         });
-    }       
+    }  
+    
+    ngOnChanges(changes: { [propName: string]: SimpleChange }) {
+        console.log("ngOnChanges...");
+
+        if (this.supplierInvoiceID) {
+            this.journalEntryService.getJournalEntryDataBySupplierInvoiceID(this.supplierInvoiceID)
+                .subscribe(data => {
+                    this.journalEntryLines = data;
+                });
+        } else {
+            this.journalEntryLines = new Array<JournalEntryData>();;
+        }
+    }     
     
     getDepartmentName(id: number): string {
         if (this.DropdownData) {
