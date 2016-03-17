@@ -15,6 +15,8 @@ import {ComponentLayout} from '../../../unientities';
 import {UniElementFinder} from "../../../../framework/forms/shared/UniElementFinder";
 import {UniSectionBuilder} from "../../../../framework/forms/builders/uniSectionBuilder";
 import {UniTextInput} from "../../../../framework/controls/text/text";
+import {UNI_CONTROL_DIRECTIVES} from "../../../../framework/controls";
+import {FieldType} from "../../../unientities";
 
 @Component({
     selector: 'uni-form-demo',
@@ -33,6 +35,25 @@ export class UniFormDemo {
 
     @ViewChild(UniComponentLoader)
     UniCmpLoader:UniComponentLoader;
+
+    private email = [
+        {
+            id: 1,
+            value: "audhild@unimicro.no",
+            main: false,
+
+        },
+        {
+            id: 2,
+            value: "audhild.grieg@gmail.com",
+            main: true
+        },
+        {
+            id: 3,
+            value: "nsync4eva@hotmail.com",
+            main: false
+        }
+    ];
 
     constructor(private Http:UniHttp,
                 private Api:EmployeeService) {
@@ -59,6 +80,7 @@ export class UniFormDemo {
 
         // We can extend the form config after the LayoutBuilder has created the layout
         this.extendFormConfig();
+        this.addMultiValue();
 
         this.loadForm();
     }
@@ -78,6 +100,25 @@ export class UniFormDemo {
 
     private createModel(model:Employee) {
         this.Model = EmployeeModel.createFromObject(model);
+    }
+
+    private addMultiValue() {
+        var field = new UniFieldBuilder();
+        field
+            .setLabel("Epostadresser")
+            .setType(UNI_CONTROL_DIRECTIVES[14])
+     /*       .setKendoOptions({
+                dataTextField: 'Name',
+                dataValueField: 'ID',
+                dataSource: [
+                    {ID: 150101, Name: "Telefon"},
+                    {ID: 150102, Name: "Mobil" },
+                    {ID: 150103, Name: "Fax"}
+                ]
+            })*/
+        //    .control
+         
+        this.FormConfig.addUniElement(field);
     }
 
     private extendFormConfig() {

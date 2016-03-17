@@ -14,6 +14,7 @@ import {UniTextInput} from "./controls/text/text";
 import {UniHyperlink} from "./controls/hyperlink/hyperlink";
 import {UniRadioGroup} from "./controls/radioGroup/uniRadioGroup";
 import {UniRadioInput} from "./controls/radio/radio";
+import {UniMultiValue} from "./controls/multivalue/multivalue";
 
 /**
  * !!!!!!!!!   IMPORTANT  !!!!!!!!
@@ -34,5 +35,6 @@ export const UNI_CONTROL_DIRECTIVES: Type[] = CONST_EXPR([
     UniTextInput,
     UniEmailInput,
     UniPasswordInput,
-    UniHyperlink
+    UniHyperlink,
+    UniMultiValue
 ]);
