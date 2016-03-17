@@ -6,45 +6,44 @@ import {UniFormBuilder} from "../../../../../../framework/forms/builders/uniForm
 import {UniForm} from "../../../../../../framework/forms/uniForm";
 import {UNI_CONTROL_DIRECTIVES} from "../../../../../../framework/controls";
 import {UniFieldBuilder} from "../../../../../../framework/forms/builders/uniFieldBuilder";
-import {FieldType, ComponentLayout, Address} from "../../../../../unientities";
+import {FieldType, ComponentLayout, Phone, PhoneTypeEnum} from "../../../../../unientities";
 import {UniFormLayoutBuilder} from "../../../../../../framework/forms/builders/uniFormLayoutBuilder";
 
 // Reusable address form
 @Component({
-    selector: 'address-form',
+    selector: 'phone-form',
     directives: [UniForm,NgIf],
     template: `
         <uni-form *ngIf="config" [config]="config">
         </uni-form>
     `
 })
-export class AddressForm {
+export class PhoneForm {
     config: UniFormBuilder;
 
     @ViewChild(UniForm)
     form: UniForm;
 
-    Address: Address;
+    Phone: Phone;
 
     constructor() {
-        this.Address = new Address();
-        this.Address.AddressLine1 = "Oterstadneset 14";
-        this.Address.PostalCode = "5727";
-        this.Address.City = "Stamnes";
-        this.Address.CountryCode = "NO";
-        this.Address.Country = "NORGE";
+        this.Phone = new Phone();
+        this.Phone.Number = "91334697";
+        this.Phone.Description = "privat mobil";
+        this.Phone.Type = PhoneTypeEnum.PtMobile;
     }
-   
+    
     ngOnInit()
     {
         this.createFormConfig();      
+        this.extendFormConfig();
     }
- 
+       
     createFormConfig() {   
         // TODO get it from the API and move these to backend migrations   
         var view: ComponentLayout = {
-            Name: "Address",
-            BaseEntity: "Address",
+            Name: "Phone",
+            BaseEntity: "Phone",
             StatusID: 0,
             Deleted: false,
             ID: 1,
@@ -52,14 +51,14 @@ export class AddressForm {
             Fields: [
                 {
                     ComponentLayoutID: 1,
-                    EntityType: "Address",
-                    Property: "AddressLine1",
+                    EntityType: "Phone",
+                    Property: "Number",
                     Placement: 1,
                     Hidden: false,
                     FieldType: 10,
                     ReadOnly: false,
                     LookupField: false,
-                    Label: "Adresse",
+                    Label: "Telefonnr",
                     Description: "",
                     HelpText: "",
                     FieldSet: 0,
@@ -72,14 +71,14 @@ export class AddressForm {
                 },
                 {
                     ComponentLayoutID: 1,
-                    EntityType: "Address",
-                    Property: "AddressLine2",
+                    EntityType: "Phone",
+                    Property: "Description",
                     Placement: 1,
                     Hidden: false,
                     FieldType: 10,
                     ReadOnly: false,
                     LookupField: false,
-                    Label: "Adresse2",
+                    Label: "Beskrivelse",
                     Description: "",
                     HelpText: "",
                     FieldSet: 0,
@@ -92,14 +91,14 @@ export class AddressForm {
                 },
                 {
                     ComponentLayoutID: 1,
-                    EntityType: "Address",
-                    Property: "AddressLine3",
+                    EntityType: "Phone",
+                    Property: "Type",
                     Placement: 1,
                     Hidden: false,
-                    FieldType: 10,
+                    FieldType: 1,
                     ReadOnly: false,
                     LookupField: false,
-                    Label: "Adresse3",
+                    Label: "Type",
                     Description: "",
                     HelpText: "",
                     FieldSet: 0,
@@ -109,99 +108,32 @@ export class AddressForm {
                     ID: 1,
                     Deleted: false,
                     CustomFields: null 
-                },
-                {
-                    ComponentLayoutID: 1,
-                    EntityType: "Address",
-                    Property: "PostalCode",
-                    Placement: 1,
-                    Hidden: false,
-                    FieldType: 10,
-                    ReadOnly: false,
-                    LookupField: false,
-                    Label: "Postnr",
-                    Description: "",
-                    HelpText: "",
-                    FieldSet: 0,
-                    Section: 0,
-                    Legend: "",
-                    StatusID: 0,
-                    ID: 1,
-                    Deleted: false,
-                    CustomFields: null 
-                },
-                {
-                    ComponentLayoutID: 1,
-                    EntityType: "Address",
-                    Property: "City",
-                    Placement: 1,
-                    Hidden: false,
-                    FieldType: 10,
-                    ReadOnly: false,
-                    LookupField: false,
-                    Label: "Poststed",
-                    Description: "",
-                    HelpText: "",
-                    FieldSet: 0,
-                    Section: 0,
-                    Legend: "",
-                    StatusID: 0,
-                    ID: 1,
-                    Deleted: false,
-                    CustomFields: null 
-                },
-                {
-                    ComponentLayoutID: 1,
-                    EntityType: "Address",
-                    Property: "CountryCode",
-                    Placement: 1,
-                    Hidden: false,
-                    FieldType: 10,
-                    ReadOnly: false,
-                    LookupField: false,
-                    Label: "Landkode",
-                    Description: "",
-                    HelpText: "",
-                    FieldSet: 0,
-                    Section: 0,
-                    Legend: "",
-                    StatusID: 0,
-                    ID: 1,
-                    Deleted: false,
-                    CustomFields: null 
-                },
-                {
-                    ComponentLayoutID: 1,
-                    EntityType: "Address",
-                    Property: "Country",
-                    Placement: 1,
-                    Hidden: false,
-                    FieldType: 10,
-                    ReadOnly: false,
-                    LookupField: false,
-                    Label: "Land",
-                    Description: "",
-                    HelpText: "",
-                    FieldSet: 0,
-                    Section: 0,
-                    Legend: "",
-                    StatusID: 0,
-                    ID: 1,
-                    Deleted: false,
-                    CustomFields: null 
-                }
+                }  
             ]               
         };   
         
-        this.config = new UniFormLayoutBuilder().build(view, this.Address);
+        this.config = new UniFormLayoutBuilder().build(view, this.Phone);
         this.config.hideSubmitButton();
     }
 
+    extendFormConfig() {
+        var project: UniFieldBuilder = this.config.find('Type');
+        project.setKendoOptions({
+            dataTextField: 'Name',
+            dataValueField: 'ID',
+            dataSource: [
+                {ID: 150101, Name: "Telefon"},
+                {ID: 150102, Name: "Mobil" },
+                {ID: 150103, Name: "Fax"}
+            ]
+        });      
+        project.addClass('large-field');            
+    }   
 }
 
-// address modal type
+// phone modal type
 @Component({
-    selector: "address-modal-type",
+    selector: "phone-modal-type",
     directives: [NgIf, NgModel, NgFor, UniComponentLoader],
     template: `
         <article class="modal-content">
@@ -215,16 +147,16 @@ export class AddressForm {
         </article>
     `
 })
-export class AddressModalType {
+export class PhoneModalType {
     @Input('config')
     config;
     @ViewChild(UniComponentLoader)
     ucl: UniComponentLoader;
-    instance: Promise<AddressForm>;
+    instance: Promise<PhoneForm>;
             
     ngAfterViewInit() {
         var self = this;
-        this.ucl.load(AddressForm).then((cmp: ComponentRef)=> {
+        this.ucl.load(PhoneForm).then((cmp: ComponentRef)=> {
             self.instance = new Promise((resolve)=> {
                 resolve(cmp.instance);
             });
@@ -232,33 +164,33 @@ export class AddressModalType {
     }
 }
 
-// address modal
+// phone modal
 @Component({
-    selector: "address-modal",
+    selector: "phone-modal",
     template: `
-        <button (click)="openModal()">Adresse modal</button>
+        <button (click)="openModal()">Telefon modal</button>
         <uni-modal [type]="type" [config]="modalConfig"></uni-modal>
     `,
     directives: [UniModal]
 })
-export class AddressModal {
+export class PhoneModal {
     @ViewChild(UniModal)
     modal: UniModal;
     modalConfig: any = {};
 
-    type: Type = AddressModalType;
+    type: Type = PhoneModalType;
 
     constructor() {
         var self = this;
         this.modalConfig = {
-            title: "Adresse",
+            title: "Telefonnummer",
             value: "Initial value",
             actions: [
                 {
                     text: "Accept",
                     method: () => {
-                        self.modal.getContent().then((content: AddressModalType)=> {
-                            content.instance.then((rc: AddressForm)=> {
+                        self.modal.getContent().then((content: PhoneModalType)=> {
+                            content.instance.then((rc: PhoneForm)=> {
                                 console.log(rc.form.form);
                             });
                         });

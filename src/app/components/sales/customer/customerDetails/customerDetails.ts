@@ -15,11 +15,13 @@ import {UniFieldBuilder} from "../../../../../framework/forms/builders/uniFieldB
 import {UniComponentLoader} from "../../../../../framework/core/componentLoader";
 
 import {AddressModal} from "../modals/address/address";
+import {EmailModal} from "../modals/email/email";
+import {PhoneModal} from "../modals/phone/phone";
 
 @Component({
     selector: "customer-details",
     templateUrl: "app/components/sales/customer/customerDetails/customerDetails.html",
-    directives: [UniComponentLoader, RouterLink, AddressModal],
+    directives: [UniComponentLoader, RouterLink, AddressModal, EmailModal, PhoneModal],
     providers: [DepartementService, ProjectService, CustomerService]
 })
 export class CustomerDetails {
