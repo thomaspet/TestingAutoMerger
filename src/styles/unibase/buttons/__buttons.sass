@@ -1,4 +1,4 @@
-$buttons-list: 'button', 'input[type="button"]', 'input[type="reset"]', 'input[type="submit"]'
+$buttons-list: 'button', 'input[type=button]', 'input[type=reset]', 'input[type=submit]'
 $all-buttons: assign-inputs($buttons-list)
 
 @keyframes rotate
@@ -48,7 +48,7 @@ $all-buttons: assign-inputs($buttons-list)
 
     &[aria-busy]:not([aria-busy=false]):before
         display: inline-block
-        content: ""
+        content: ''
         height: 10px
         width: 10px
         background: transparent

@@ -220,14 +220,14 @@ select
  * 3. Improve usability and consistency of cursor style between image-type
  *    `input` and others.
 
-button, html input[type="button"]
+button, html input[type=button]
     -webkit-appearance: button
     /* 2
     cursor: pointer
 /* 3
 
 input
-    &[type="reset"], &[type="submit"]
+    &[type=reset], &[type=submit]
         -webkit-appearance: button
         /* 2
         cursor: pointer
@@ -251,15 +251,15 @@ input
         border: 0
         padding: 0
     line-height: normal
-    &[type="checkbox"], &[type="radio"]
+    &[type=checkbox], &[type=radio]
         box-sizing: border-box
         /* 1
         padding: 0
     /* 2
-    &[type="number"]
+    &[type=number]
         &::-webkit-inner-spin-button, &::-webkit-outer-spin-button
             height: auto
-    &[type="search"]
+    &[type=search]
         -webkit-appearance: textfield
         /* 1
         -moz-box-sizing: content-box
