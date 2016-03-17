@@ -39,7 +39,7 @@ export class EmployeeDetails {
     employee; // any = {};
     // empJSON;
     childRoutes: RouteDefinition[];
-    localizations;
+    subEntities;
 
     constructor(private routeParams: RouteParams, private employeeDS: EmployeeDS) {
         this.childRoutes = CHILD_ROUTES;
@@ -49,11 +49,11 @@ export class EmployeeDetails {
         var employeeID = this.routeParams.get("id");
         Observable.forkJoin(
             this.employeeDS.get(employeeID),
-            this.employeeDS.getLocalizations()
+            this.employeeDS.getSubEntities()
         ).subscribe((response: any) => {
             let [emp, loc] = response;
             this.employee = emp;
-            this.localizations = loc;
+            this.subEntities = loc;
 
             //console.log("employee", response);
             

@@ -8,15 +8,16 @@ import "rxjs/add/observable/fromArray";
 export class EmployeeDS {
 
     expandedProperties = [
-        "BusinessRelationInfo.Addresses"
-        , "BusinessRelationInfo.Emails"
-        , "BusinessRelationInfo.Phones"
-        , "Employments.Localization.BusinessRelationInfo"
-        , "BankAccounts"
-        , "VacationRateEmployee"
-        , "Localization"].join(",");
-    localizations: Observable<any>;
-
+        "BusinessRelationInfo.Addresses",
+        "BusinessRelationInfo.Emails",
+        "BusinessRelationInfo.Phones",
+        "Employments.SubEntity.BusinessRelationInfo",
+        "BankAccounts",
+        "VacationRateEmployee",
+        "SubEntity"
+    ].join(",");
+        
+    subEntities: Observable<any>;
 
     constructor(@Inject(UniHttp)
                 public http: UniHttp) {
@@ -30,11 +31,11 @@ export class EmployeeDS {
             .send({expand: this.expandedProperties});
     }
 
-    getLocalizations() {
+    getSubEntities() {
         return this.http
             .asGET()
             .usingBusinessDomain()
-            .withEndPoint("localizations")
+            .withEndPoint("subentities")
             .send({expand: "BusinessRelationInfo"});
     }
     
@@ -208,7 +209,7 @@ export class EmployeeDS {
                 {
                     ComponentLayoutID: 1,
                     EntityType: "Employee",
-                    Property: "LocalizationID",
+                    Property: "SubEntityID",
                     Placement: 6,
                     Hidden: false,
                     FieldType: FieldType.COMBOBOX,
@@ -222,7 +223,7 @@ export class EmployeeDS {
                     Legend: "",
                     IsLookUp: false,
                     kendoOptions: {
-                        dataSource: this.localizations,
+                        dataSource: this.subEntities,
                         dataTextField: "BusinessRelationInfo.Name",
                         dataValueField: "ID"
                     },
