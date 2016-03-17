@@ -1,4 +1,4 @@
-<header class="customer_poster">
+<header class="customer_poster" *ngIf="Customer">
     
     <article class="poster_toolbar">
         <section>
@@ -19,8 +19,10 @@
     
     <!-- Widget poster -->
     <section class="poster_overview">        
-        <uni-widget-poster [model]="Customer" *ngIf="StatusID != null"></uni-widget-poster>
-        <external-search [searchText]="searchText" (onSelect)="addSearchInfo($event)" *ngIf="StatusID == null"></external-search>
+        <uni-widget-poster [model]="Customer" *ngIf="Customer.StatusID != null">
+            asdfasdf
+        </uni-widget-poster>
+        <external-search [searchText]="searchText" (onSelect)="addSearchInfo($event)" *ngIf="Customer.StatusID == null"></external-search>
     </section>
     
 </header>
@@ -35,8 +37,8 @@
     <uni-multival [label]="'E-post'" [values]="email"></uni-multival>
 </section>
 
-<footer>
+<footer class="full-footer">
     <section class="application">
-        <button class="hotspot" (click)="saveCustomerManual()">Lagre kunde</button>
-    <section>
+        <button class="hotspot" (click)="saveCustomerManual($event)">Lagre kunde</button>
+    </section>
 </footer>

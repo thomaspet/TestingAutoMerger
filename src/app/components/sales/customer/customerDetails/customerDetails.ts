@@ -21,8 +21,7 @@ import {PhoneModal} from "../modals/phone/phone";
 
 @Component({
     selector: "customer-details",
-    templateUrl: "app/components/sales/customer/customerDetails/customerDetails.html",
-    directives: [UniComponentLoader],
+    templateUrl: "app/components/sales/customer/customerDetails/customerDetails.html",    
     directives: [UniComponentLoader, RouterLink, AddressModal, EmailModal, PhoneModal, ExternalSearch],
     providers: [DepartementService, ProjectService, CustomerService]
 })
@@ -70,7 +69,6 @@ export class CustomerDetails {
                 
         this.CustomerNo = params.get("id");
         
-        console.log("DATA");
         console.log(params.get("action"));
         
         this.router.subscribe((val) => {
@@ -89,36 +87,18 @@ export class CustomerDetails {
     }
           
     ngOnInit() {
-        if (this.CustomerNo > 0) {
-            Observable.forkJoin(
-                this.departementService.GetAll(null),
-                this.projectService.GetAll(null),
-                this.customerService.Get(this.CustomerNo, ["Info"])
-            ).subscribe(response => {
-                this.DropdownData = [response[0], response[1]];
-                this.Customer = response[2];
-                console.log("RESPONSE");
-                console.log(this.Customer);
-                
-                this.createFormConfig();
-                this.extendFormConfig();
-                this.loadForm();                  
-            });            
-        } else {
-            Observable.forkJoin(
-                this.departementService.GetAll(null),
-                this.projectService.GetAll(null)
-            ).subscribe(response => {
-                this.DropdownData = [response[0], response[1]];
-                this.Customer = { BusinessRelationID: 0, Info: new BusinessRelation(), Orgnumber: "", StatusID: 0, Deleted: false, ID: 0, CustomFields: null };
-                
-                this.createFormConfig();
-                this.extendFormConfig();
-                this.loadForm();                  
-            });                        
-        }
-        
-        
+        Observable.forkJoin(
+            this.departementService.GetAll(null),
+            this.projectService.GetAll(null),
+            this.customerService.Get(this.CustomerNo, ["Info"])
+        ).subscribe(response => {
+            this.DropdownData = [response[0], response[1]];
+            this.Customer = response[2];
+                            
+            this.createFormConfig();
+            this.extendFormConfig();
+            this.loadForm();                  
+        });       
     }
     
     addSearchInfo(selectedSearchInfo: any) {
@@ -344,7 +324,7 @@ export class CustomerDetails {
         };   
         
         this.FormConfig = new UniFormLayoutBuilder().build(view, this.Customer);
-        
+        this.FormConfig.hideSubmitButton();
     }
     
     extendFormConfig() {
@@ -375,7 +355,7 @@ export class CustomerDetails {
         var self = this;
         return this.ucl.load(UniForm).then((cmp: ComponentRef) => {
            cmp.instance.config = self.FormConfig;
-           cmp.instance.getEventEmitter().subscribe(this.onSubmit(this));
+           //cmp.instance.getEventEmitter().subscribe(this.onSubmit(this));
            self.whenFormInstance = new Promise((resolve: Function) => resolve(cmp.instance));
            setTimeout(() => {
                 self.formInstance = cmp.instance;   
@@ -395,7 +375,8 @@ export class CustomerDetails {
         });
     }           
 
-    saveCustomerManual() {
+    saveCustomerManual(event: any) {
+        console.log('Lagrer kunde manuelt');
         
         this.saveCustomer(false);
     }
@@ -403,8 +384,9 @@ export class CustomerDetails {
     saveCustomer(autosave: boolean) {
         this.formInstance.updateModel();
                         
-        if (autosave) {
-            
+        if (!autosave && this.Customer.StatusID == null) {
+            //set status if it is a draft
+            this.Customer.StatusID = 1;            
         }                
                             
         this.customerService.Put(this.Customer.ID, this.Customer)
@@ -415,7 +397,8 @@ export class CustomerDetails {
                     if (autosave) {
                         this.LastSavedInfo = "Sist autolagret: " + (new Date()).toLocaleTimeString();
                     } else {
-                        //redirect back to list?                        
+                        //redirect back to list?
+                        this.LastSavedInfo = "Sist lagret: " + (new Date()).toLocaleTimeString();                         
                     }                                       
                 },
                 (err) => console.log('Feil oppsto ved lagring', err),
@@ -423,7 +406,7 @@ export class CustomerDetails {
             )
     }
 
-    onSubmit(context: CustomerDetails) {
+    /*onSubmit(context: CustomerDetails) {
         return () => {    
             this.formInstance.updateModel();
             //var customer = this.formInstance.getValue();
@@ -450,5 +433,5 @@ export class CustomerDetails {
                     );    
             }
         }
-    }    
+    }*/
 }
