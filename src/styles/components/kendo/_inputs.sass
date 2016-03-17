@@ -1,23 +1,23 @@
 // Reset the inputs
 .k-widget .k-input,
 input.k-textbox
-  @extend %uni-input
+    @extend %uni-input
 
 // We have a lot of places where we need to override borders.
 // Let's make a placeholder.
 %no-border
-  border-top-width: 0
-  border-top-style: none
-  border-top-color: transparent
-  border-right-width: 0
-  border-right-style: none
-  border-right-color: transparent
-  border-left-width: 0
-  border-left-style: none
-  border-left-color: transparent
-  border-bottom-width: 0
-  border-bottom-style: none
-  border-bottom-color: transparent
+    border-top-width: 0
+    border-top-style: none
+    border-top-color: transparent
+    border-right-width: 0
+    border-right-style: none
+    border-right-color: transparent
+    border-left-width: 0
+    border-left-style: none
+    border-left-color: transparent
+    border-bottom-width: 0
+    border-bottom-style: none
+    border-bottom-color: transparent
 
 // Remove default borders
 .k-widget,
@@ -27,36 +27,36 @@ input.k-textbox
 .k-picker-wrap,
 .k-numeric-wrap,
 .k-multiselect-wrap
-  @extend %no-border
+    @extend %no-border
 
 // Widgets should drop down, not run inline
 label > .k-widget
-  display: block
+    display: block
 
 // Remove spacing
 .k-combobox .k-dropdown-wrap:before,
 .k-picker-wrap:before,
 .k-numeric-wrap:before
-  display: none
+    display: none
 
 // Popovers get some styling
 .k-popup.k-list-container,
 .k-popup.k-calendar-container
-  @extend %no-border
-  background: $uni-color-negative
-  border: pxToRem(1) solid $uni-color-scale8
-  box-shadow: 0 0 1rem transparentize($uni-color-positive, .8)
-  border-radius: pxToRem(3)
-  box-sizing: border-box
+    @extend %no-border
+    background: $uni-color-negative
+    border: pxToRem(1) solid $uni-color-scale8
+    box-shadow: 0 0 1rem transparentize($uni-color-positive, .8)
+    border-radius: pxToRem(3)
+    box-sizing: border-box
 
 // Select-list-items get a hover state
 .k-popup .k-list .k-state-hover
-  @extend %no-border
-  background: mix(white, $uni-color-C2A, 80%)
-  color: $uni-color-positive
-  font-weight: 300
-  border-radius: pxToRem(3)
-  padding: pxToRem(1) pxToRem(5)
+    @extend %no-border
+    background: mix(white, $uni-color-C2A, 80%)
+    color: $uni-color-positive
+    font-weight: 300
+    border-radius: pxToRem(3)
+    padding: pxToRem(1) pxToRem(5)
 
 // Select-list items when selected or focused
 .k-overflow-container .k-state-hover,
@@ -67,12 +67,12 @@ label > .k-widget
 .k-overflow-container .k-state-selected,
 .k-fieldselector .k-list .k-item,
 .k-list-optionlabel.k-state-selected
-  @extend %no-border
-  background: $uni-color-C2A
-  color: contrasting($uni-color-C2A)
-  font-weight: 400
-  border-radius: pxToRem(3)
-  padding: pxToRem(1) pxToRem(5)
+    @extend %no-border
+    background: $uni-color-C2A
+    color: contrasting($uni-color-C2A)
+    font-weight: 400
+    border-radius: pxToRem(3)
+    padding: pxToRem(1) pxToRem(5)
 
 // Keep things from jumping one pixel when drop downs are open
 .k-list-container.k-state-border-down,
@@ -80,7 +80,7 @@ label > .k-widget
 .k-dropdown-wrap.k-state-border-down,
 .k-picker-wrap.k-state-border-down,
 .k-numeric-wrap.k-state-border-down
-  padding-bottom: 0
+    padding-bottom: 0
 
 // Set all the inputs to 100% of its containing label
 .k-autocomplete,
@@ -94,17 +94,17 @@ label > .k-widget
 .k-selectbox,
 .k-textbox,
 .k-toolbar .k-split-button
-  width: 100%
+    width: 100%
 
 // Kendo wants to control our input height, and we're having none of it
-.k-textbox>input,
+.k-textbox > input,
 .k-autocomplete .k-input,
 .k-picker-wrap .k-input,
 .k-numeric-wrap .k-input,
 .k-dropdown-wrap .k-input,
 .k-selectbox .k-input
-  line-height: normal
-  padding: pxToRem(3) pxToRem(5)
+    line-height: normal
+    padding: pxToRem(3) pxToRem(5)
 
 // All our input+button components
 .k-dropdown,
@@ -112,35 +112,35 @@ label > .k-widget
 .k-combobox,
 .k-picker-wrap,
 .k-numeric-wrap
-  // The input
-  .k-input
-    border-right: none
-    border-radius: pxToRem(3) 0 0 pxToRem(3)
-    min-height: 1.7rem
+    // The input
+    .k-input
+        border-right: none
+        border-radius: pxToRem(3) 0 0 pxToRem(3)
+        min-height: 1.7rem
 
-  // The button
-  .k-select
-    box-sizing: border-box
-    background: $uni-color-negative
-    border-radius: 0 pxToRem(3) pxToRem(3) 0
-    border: pxToRem(1) solid $uni-color-scale7
-    border-left: 1px solid $uni-color-scale7
-    line-height: 1.4rem
+    // The button
+    .k-select
+        box-sizing: border-box
+        background: $uni-color-negative
+        border-radius: 0 pxToRem(3) pxToRem(3) 0
+        border: pxToRem(1) solid $uni-color-scale7
+        border-left: 1px solid $uni-color-scale7
+        line-height: 1.4rem
 
-    &:hover
-      background: $uni-color-scale9
+        &:hover
+            background: $uni-color-scale9
 
 // Make sure our dropdown gets focus styling
 .k-dropdown-wrap.k-state-focused .k-input,
 .k-state-focused .k-select
-  border-color: $uni-color-C2A
+    border-color: $uni-color-C2A
 
 .k-numerictextbox .k-numeric-wrap .k-select
-  min-height: 2rem
+    min-height: 2rem
 
 input[type="email"], textarea[type="email"], [type="email"].k-multiselect-wrap, input[type="number"], textarea[type="number"], [type="number"].k-multiselect-wrap, input[type="password"], textarea[type="password"], [type="password"].k-multiselect-wrap, input[type="search"], textarea[type="search"], [type="search"].k-multiselect-wrap, input[type="tel"], textarea[type="tel"], [type="tel"].k-multiselect-wrap, input[type="text"], textarea[type="text"], [type="text"].k-multiselect-wrap, input[type="url"], textarea[type="url"], [type="url"].k-multiselect-wrap, input[type="color"], textarea[type="color"], [type="color"].k-multiselect-wrap, input[type="date"], textarea[type="date"], [type="date"].k-multiselect-wrap, input[type="datetime"], textarea[type="datetime"], [type="datetime"].k-multiselect-wrap, input[type="datetime-local"], textarea[type="datetime-local"], [type="datetime-local"].k-multiselect-wrap, input[type="month"], textarea[type="month"], [type="month"].k-multiselect-wrap, input[type="time"], textarea[type="time"], [type="time"].k-multiselect-wrap, input[type="week"], textarea[type="week"], [type="week"].k-multiselect-wrap, .k-widget .k-input,
 input.k-textbox,
 textarea.k-textbox,
 .k-textbox.k-multiselect-wrap
-  box-sizing: border-box
-  height: 1.6667rem
+    box-sizing: border-box
+    height: 1.6667rem

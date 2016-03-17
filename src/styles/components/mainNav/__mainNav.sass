@@ -7,49 +7,49 @@ $navbarTextColor: contrasting($navbarBackground, $uni-color-negative, $uni-color
 @import "userinfo"
 
 %navbarText
-  color: $navbarTextColor
-  font-weight: 400
+    color: $navbarTextColor
+    font-weight: 400
 
 %clickable
-  cursor: pointer
+    cursor: pointer
 
 .navbar
-  width: 100%
-  background: linear-gradient(to bottom, #0083C4 0, #0070A8 100%)
+    width: 100%
+    background: linear-gradient(to bottom, #0083C4 0, #0070A8 100%)
 
 .navbar_content
-  @include unigrid-flush(14)
-  margin: 0 auto
-  display: flex
-  flex-direction: row
-  align-items: center
-  flex-wrap: wrap
+    @include unigrid-flush(14)
+    margin: 0 auto
+    display: flex
+    flex-direction: row
+    align-items: center
+    flex-wrap: wrap
 
 // Layout
 uni-hamburger-menu,
 uniHamburgerMenu
-  flex-grow: 0
+    flex-grow: 0
 
 uni-tabstrip,
 uniTabstrip,
 uni-navbar-search,
 uniNavbarSearch,
 .navbar_userinfo
-  flex-grow: 1
+    flex-grow: 1
 
 @include media(large, max-width)
-  uni-hamburger-menu
-    order: 1
+    uni-hamburger-menu
+        order: 1
 
-  uni-navbar-search
-    order: 2
-    width: calc(100% - 13rem)
+    uni-navbar-search
+        order: 2
+        width: calc(100% - 13rem)
 
-  .navbar_userinfo
-    order: 3
-    width: 8rem
+    .navbar_userinfo
+        order: 3
+        width: 8rem
 
-  uni-tabstrip
-    order: 4
-    width: 100%
-    overflow-x: scroll
+    uni-tabstrip
+        order: 4
+        width: 100%
+        overflow-x: scroll

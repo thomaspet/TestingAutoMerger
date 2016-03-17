@@ -1,44 +1,44 @@
 .poster_widget_table
-  table
-    width: calc(100% - 1rem)
+    table
+        width: calc(100% - 1rem)
 
-    td
-      white-space: nowrap
-      overflow: hidden
-      text-overflow: ellipsis
-      padding: .5rem
-      max-width: 0
+        td
+            white-space: nowrap
+            overflow: hidden
+            text-overflow: ellipsis
+            padding: .5rem
+            max-width: 0
 
-      &:first-child,
-      &:last-child
-        width: 3rem
+            &:first-child,
+            &:last-child
+                width: 3rem
 
-      &:nth-child(2)
-        width: calc(100% - 6rem)
+            &:nth-child(2)
+                width: calc(100% - 6rem)
 
-      @include media(small)
-        &
-          padding: .5rem .2rem
+            @include media(small)
+                &
+                    padding: .5rem .2rem
 
-        &:first-child,
-        &:last-child
-          width: 2rem
+                &:first-child,
+                &:last-child
+                    width: 2rem
 
-        &:nth-child(2)
-          width: calc(100% - 4rem)
+                &:nth-child(2)
+                    width: calc(100% - 4rem)
 
-    tr
-      @extend %clickable
+        tr
+            @extend %clickable
 
-      &:nth-of-type(odd)
-        background: transparentize($uni-color-negative, .5)
+            &:nth-of-type(odd)
+                background: transparentize($uni-color-negative, .5)
 
-      &:hover
-        background: transparentize($uni-color-C2A, .8)
+            &:hover
+                background: transparentize($uni-color-C2A, .8)
 
-    img
-      width: 5rem
-      height: 5rem
-      border-radius: 999rem
-      float: left
-      margin-right: 1rem
+        img
+            width: 5rem
+            height: 5rem
+            border-radius: 999rem
+            float: left
+            margin-right: 1rem

@@ -1,45 +1,46 @@
 ﻿.treelist
-  list-style: none
-  padding: 0
+    list-style: none
+    padding: 0
 
-  .treelist
-    padding-left: 1rem
-    border-left: pxToRem(2) solid $uni-color-scale9
+    .treelist
+        padding-left: 1rem
+        border-left: pxToRem(2) solid $uni-color-scale9
 
-  &[aria-expanded=true]
-    background: red
+    &[aria-expanded=true]
+        background: red
 
-  div.k-grid-header
-    padding-right: 0 !important // Because of Kendo's $%#@ing inline styles
+    div.k-grid-header
+        padding-right: 0 !important
+    // Because of Kendo's $%#@ing inline styles
 
-  .k-grid-content
-    overflow-y: hidden
-    margin-bottom: 1rem
+    .k-grid-content
+        overflow-y: hidden
+        margin-bottom: 1rem
 
-  .k-grid tr.k-state-selected
-    color: $uni-color-negative
-    background: $uni-color-C2A
+    .k-grid tr.k-state-selected
+        color: $uni-color-negative
+        background: $uni-color-C2A
 
 .treelist_headline
-  cursor: pointer
-  font-weight: 300
-  font-size: 1rem
-  padding: 0 0 .2em 1rem
-  margin: 0
-  background: unicon-chevron-right($uni-color-scale5) no-repeat 0 .5rem
-  background-size: .35rem
+    cursor: pointer
+    font-weight: 300
+    font-size: 1rem
+    padding: 0 0 .2em 1rem
+    margin: 0
+    background: unicon-chevron-right($uni-color-scale5) no-repeat 0 .5rem
+    background-size: .35rem
 
-  .treelist_item[aria-expanded=true] > &
-    background: unicon-chevron-down($uni-color-scale5) no-repeat 0 .5rem
-    background-size: .7rem
+    .treelist_item[aria-expanded=true] > &
+        background: unicon-chevron-down($uni-color-scale5) no-repeat 0 .5rem
+        background-size: .7rem
 
-  &:empty
-    display: none
+    &:empty
+        display: none
 
 .treelist_content
-  input[type=search]
-    display: none
+    input[type=search]
+        display: none
 
-  uni-table
-    margin-bottom: 1rem
+    uni-table
+        margin-bottom: 1rem
 
