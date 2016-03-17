@@ -3,10 +3,13 @@
     <article class="poster_toolbar">
         <section>
             <h1 *ngIf="Customer && Customer.ID > 0">{{Customer.Info.Name}}
-                <p>Kundenr. Customer.CustomerNumber</p>
+                <p *ngIf="Customer.StatusID != null">Kundenr. {{Customer.CustomerNumber}}</p>
+                <p *ngIf="Customer.StatusID == null"><i>Kladd</i></p>
             </h1>
         </section>
-            
+        <section class="auto_save_info">
+            {{ LastSavedInfo }}    
+        </section>    
         <nav class="poster_toolbar_tools">
             <a [routerLink]="['../CustomerPrevious']" class="previous">Forrige</a>
             <a [routerLink]="['../CustomerNext']" class="next">Neste</a>
@@ -15,9 +18,9 @@
     </article>
     
     <!-- Widget poster -->
-    <section class="poster_overview">
-        ..widgets kommer her..
-        <uni-widget-poster [model]="Customer"></uni-widget-poster>
+    <section class="poster_overview">        
+        <uni-widget-poster [model]="Customer" *ngIf="StatusID != null"></uni-widget-poster>
+        <external-search [searchText]="searchText" (onSelect)="addSearchInfo($event)" *ngIf="StatusID == null"></external-search>
     </section>
     
 </header>
@@ -31,3 +34,9 @@
     
     <uni-multival [label]="'E-post'" [values]="email"></uni-multival>
 </section>
+
+<footer>
+    <section class="application">
+        <button class="hotspot" (click)="saveCustomerManual()">Lagre kunde</button>
+    <section>
+</footer>

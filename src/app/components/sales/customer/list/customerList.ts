@@ -2,25 +2,39 @@ import {Component, ViewChildren} from 'angular2/core';
 import {UniTable, UniTableBuilder, UniTableColumn} from '../../../../../framework/uniTable';
 import {ComponentInstruction, RouteParams, Router} from 'angular2/router';
 import {UniHttp} from '../../../../../framework/core/http/http';
+import { CustomerService} from "../../../../services/services";
+import {Customer, BusinessRelation} from "../../../../unientities";
 
 declare var jQuery;
 
 @Component({
     selector: 'customer-list',
     templateUrl: 'app/components/sales/customer/list/customerList.html',
-    directives: [UniTable]
+    directives: [UniTable],
+    providers: [CustomerService]
 })
 export class CustomerList {
     @ViewChildren(UniTable) tables: any;
     
     customerTable: UniTableBuilder;
  
-    constructor(private uniHttpService: UniHttp, private router: Router) {
+    constructor(private uniHttpService: UniHttp, private router: Router, private customerService: CustomerService) {
         this.setupCustomerTable();
     }
     
     createCustomer() {        
-        this.router.navigateByUrl('/customer/add');
+        
+        var c = new Customer();
+        c.Info = new BusinessRelation(); 
+        
+        this.customerService.Post(c)
+            .subscribe(
+                (data) => {
+                    this.router.navigateByUrl('/customer/details/' + data.ID);        
+                },
+                (err) => console.log('Error creating customer: ', err)
+            );   
+            
     }
 
     setupCustomerTable() {
@@ -31,7 +45,6 @@ export class CustomerList {
                 
         // Define callback function for row clicks
         var selectCallback = (selectedItem) => {
-            console.log('Selected: ' + selectedItem.ID);            
             this.router.navigateByUrl('/customer/details/' + selectedItem.ID);
         }
 

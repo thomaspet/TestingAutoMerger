@@ -22,8 +22,12 @@ export class ExternalSearch {
             this.useInternalSearchBox = false;
         }
         
-        this.searchResult = [{Name: "Kjetils testfirma", OrgNo: "123456789", ZipCode: "5518", City: "Haugesund"}, {Name: "Tronds testfirma", OrgNo: "234567890", ZipCode: "5545", City: "Vormedal"}];
-    }      
+        this.searchResult = [{Name: "Kjetils testfirma", OrgNo: "123456789", ZipCode: "5518", City: "Haugesund", Email: "kjetil.ek@unimicro.no", Phone: "99389923"}, {Name: "Tronds testfirma", OrgNo: "234567890", ZipCode: "5545", City: "Vormedal", Email: "tj@unimicro.no", Phone: "99887766"}];
+    }   
+    
+    selectItem(item: any) {
+        this.onSelect.emit(item);
+    }   
 }
 
 export class SearchResultItem {

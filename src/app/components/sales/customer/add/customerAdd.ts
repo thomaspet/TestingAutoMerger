@@ -2,6 +2,7 @@ import {Component, ComponentRef, ViewChild, ViewChildren, Input, Output, EventEm
 import {UniHttp} from '../../../../../framework/core/http/http';
 import {Observable} from "rxjs/Observable";
 import {ExternalSearch} from '../../../common/externalSearch/externalSearch';
+import {ComponentInstruction, RouteParams, Router} from 'angular2/router';
 
 import {FieldType, FieldLayout, ComponentLayout, Customer, BusinessRelation} from "../../../../unientities";
 import {UNI_CONTROL_DIRECTIVES} from "../../../../../framework/controls";
@@ -11,7 +12,6 @@ import {UniSectionBuilder} from "../../../../../framework/forms";
 import {UniForm} from "../../../../../framework/forms/uniForm";
 import {UniFieldBuilder} from "../../../../../framework/forms/builders/uniFieldBuilder";
 import {UniComponentLoader} from "../../../../../framework/core/componentLoader";
-
 
 @Component({
     selector: 'customer-add',
@@ -29,7 +29,7 @@ export class CustomerAdd {
    
     private customer: any; 
        
-    constructor(private http: UniHttp) {
+    constructor(private http: UniHttp, private router: Router) {
         
     }    
     
@@ -41,10 +41,29 @@ export class CustomerAdd {
     ngAfterViewInit() {        
         // TODO get it from the API and move these to backend migrations   
         var view = this.setupFormConfig();           
-        this.FormConfig = new UniFormLayoutBuilder().build(view, this.customer);        
+        this.FormConfig = new UniFormLayoutBuilder().build(view, this.customer);
+        this.FormConfig.hideSubmitButton();        
         this.extendFormConfig();
         this.loadForm();   
     }   
+    
+    addSearchInfo(searchResultItem: any){
+        this.customer.Name = searchResultItem.Name;
+        this.customer.Orgnumber = searchResultItem.OrgNo;
+        this.customer.City = searchResultItem.City;
+        this.customer.Phone = searchResultItem.Phone;
+        this.customer.Email = searchResultItem.Email;
+        
+        //this.formInstance.form.value = this.customer;
+        this.formInstance.refresh(this.customer);
+    }
+    
+    createCustomer() {        
+        //TODO: send request for å opprette kunde + evt adresse, telefon og epost
+        
+        //redirect to detail for new customer
+        this.router.navigateByUrl('/customer/details/1'); // + newCustomer.ID);
+    }
     
     extendFormConfig() {
         var orgnumber: UniFieldBuilder = this.FormConfig.find('Orgnumber');
@@ -66,7 +85,8 @@ export class CustomerAdd {
                     .distinctUntilChanged()
                     .subscribe((data) => self.searchText = data);
            });
-        });
+        });       
+        
     }  
     
     setupFormConfig(): ComponentLayout {
@@ -148,6 +168,26 @@ export class CustomerAdd {
                     ReadOnly: false,
                     LookupField: false,
                     Label: "Adresselinje 2",
+                    Description: "",
+                    HelpText: "",
+                    FieldSet: 0,
+                    Section: 0,
+                    Legend: "",
+                    StatusID: 0,
+                    ID: 5,
+                    Deleted: false,
+                    CustomFields: null 
+                },
+                {
+                    ComponentLayoutID: 3,
+                    EntityType: "Customer",
+                    Property: "City",
+                    Placement: 1,
+                    Hidden: false,
+                    FieldType: 10,
+                    ReadOnly: false,
+                    LookupField: false,
+                    Label: "Poststed",
                     Description: "",
                     HelpText: "",
                     FieldSet: 0,

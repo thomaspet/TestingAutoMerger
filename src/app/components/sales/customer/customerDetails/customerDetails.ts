@@ -4,6 +4,7 @@ import {Observable} from "rxjs/Observable";
 import "rxjs/add/observable/forkjoin";
 
 import {DepartementService, ProjectService, CustomerService} from "../../../../services/services";
+import {ExternalSearch} from '../../../common/externalSearch/externalSearch';
 
 import {FieldType, FieldLayout, ComponentLayout, Customer, BusinessRelation} from "../../../../unientities";
 import {UNI_CONTROL_DIRECTIVES} from "../../../../../framework/controls";
@@ -21,7 +22,8 @@ import {PhoneModal} from "../modals/phone/phone";
 @Component({
     selector: "customer-details",
     templateUrl: "app/components/sales/customer/customerDetails/customerDetails.html",
-    directives: [UniComponentLoader, RouterLink, AddressModal, EmailModal, PhoneModal],
+    directives: [UniComponentLoader],
+    directives: [UniComponentLoader, RouterLink, AddressModal, EmailModal, PhoneModal, ExternalSearch],
     providers: [DepartementService, ProjectService, CustomerService]
 })
 export class CustomerDetails {
@@ -35,6 +37,7 @@ export class CustomerDetails {
     formInstance: UniForm;
     DropdownData: any;
     Customer: Customer;
+    LastSavedInfo: string;
     
     whenFormInstance: Promise<UniForm>;
         
@@ -116,6 +119,15 @@ export class CustomerDetails {
         }
         
         
+    }
+    
+    addSearchInfo(selectedSearchInfo: any) {
+        if (this.Customer != null) {
+            this.Customer.Info.Name = selectedSearchInfo.Name;
+            this.Customer.Orgnumber = selectedSearchInfo.OrgNo;
+            
+            this.formInstance.refresh(this.Customer); 
+        } 
     }
     
     createFormConfig() {   
@@ -332,6 +344,7 @@ export class CustomerDetails {
         };   
         
         this.FormConfig = new UniFormLayoutBuilder().build(view, this.Customer);
+        
     }
     
     extendFormConfig() {
@@ -365,10 +378,50 @@ export class CustomerDetails {
            cmp.instance.getEventEmitter().subscribe(this.onSubmit(this));
            self.whenFormInstance = new Promise((resolve: Function) => resolve(cmp.instance));
            setTimeout(() => {
-                self.formInstance = cmp.instance;
-           });
+                self.formInstance = cmp.instance;   
+                self.formInstance.form
+                    .valueChanges
+                    .debounceTime(2000)
+                    .subscribe(
+                        (value) =>  {
+                            console.log('verdi endret seg, lagrer..');//, value);                                                        
+                            self.saveCustomer(true);                            
+                        },
+                        (err) => { 
+                            console.log('Feil oppsto:', err);
+                        }
+                    );             
+           });           
         });
     }           
+
+    saveCustomerManual() {
+        
+        this.saveCustomer(false);
+    }
+
+    saveCustomer(autosave: boolean) {
+        this.formInstance.updateModel();
+                        
+        if (autosave) {
+            
+        }                
+                            
+        this.customerService.Put(this.Customer.ID, this.Customer)
+            .subscribe(
+                (updatedValue) => {
+                    console.log('data lagret vellykket');
+                    
+                    if (autosave) {
+                        this.LastSavedInfo = "Sist autolagret: " + (new Date()).toLocaleTimeString();
+                    } else {
+                        //redirect back to list?                        
+                    }                                       
+                },
+                (err) => console.log('Feil oppsto ved lagring', err),
+                () => console.log('Ferdig å lagre endringer')
+            )
+    }
 
     onSubmit(context: CustomerDetails) {
         return () => {    
@@ -377,7 +430,6 @@ export class CustomerDetails {
             
             //context.Customer.Orgnumber = customer["OrgNumber"];
             
-            console.log("BEFORE SAVING");
             console.log(this.Customer);
             
             if (context.Customer.ID > 0) {
