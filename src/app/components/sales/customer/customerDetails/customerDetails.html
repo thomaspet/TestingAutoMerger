@@ -3,14 +3,14 @@
     <article class="poster_toolbar">
         <section>
             <h1 *ngIf="Customer && Customer.ID > 0">{{Customer.Info.Name}}
-                <p>Kundenr. <i>..comming..</i></p>
+                <p>Kundenr. Customer.CustomerNumber</p>
             </h1>
         </section>
             
         <nav class="poster_toolbar_tools">
-            <a [routerLink]="['CustomerPrevious']" class="previous">Forrige</a>
-            <a [routerLink]="['CustomerNext']" class="next">Neste</a>
-            <a [routerLink]="['CustomerAdd']" class="new">Ny kunde</a>
+            <a [routerLink]="['../CustomerPrevious']" class="previous">Forrige</a>
+            <a [routerLink]="['../CustomerNext']" class="next">Neste</a>
+            <a [routerLink]="['../CustomerAdd']" class="new">Ny kunde</a>
         </nav>         
     </article>
     
@@ -21,6 +21,8 @@
     </section>
     
 </header>
+
+<address-modal></address-modal>
 
 <section class="customer-details application">
     <uni-component-loader></uni-component-loader>

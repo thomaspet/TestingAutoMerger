@@ -1,5 +1,5 @@
 import {Component, ComponentRef, Input, Output, ViewChild, SimpleChange, EventEmitter} from "angular2/core";
-import {Router, RouteParams} from "angular2/router";
+import {Router, RouteParams, RouterLink} from "angular2/router";
 import {Observable} from "rxjs/Observable";
 import "rxjs/add/observable/forkjoin";
 
@@ -14,10 +14,12 @@ import {UniForm} from "../../../../../framework/forms/uniForm";
 import {UniFieldBuilder} from "../../../../../framework/forms/builders/uniFieldBuilder";
 import {UniComponentLoader} from "../../../../../framework/core/componentLoader";
 
+import {AddressModal} from "../modals/address/address";
+
 @Component({
     selector: "customer-details",
     templateUrl: "app/components/sales/customer/customerDetails/customerDetails.html",
-    directives: [UniComponentLoader],
+    directives: [UniComponentLoader, RouterLink, AddressModal],
     providers: [DepartementService, ProjectService, CustomerService]
 })
 export class CustomerDetails {
@@ -25,7 +27,7 @@ export class CustomerDetails {
     @Input() CustomerNo: any;
                   
     @ViewChild(UniComponentLoader)
-    UniCmpLoader: UniComponentLoader;    
+    ucl: UniComponentLoader;    
 
     FormConfig: UniFormBuilder;
     formInstance: UniForm;
@@ -33,7 +35,7 @@ export class CustomerDetails {
     Customer: Customer;
     
     whenFormInstance: Promise<UniForm>;
-    
+        
     // TEST MULTI
     private email = [
         {
@@ -60,10 +62,27 @@ export class CustomerDetails {
                 private router: Router,
                 private params: RouteParams
                 ) {
-        
+                
         this.CustomerNo = params.get("id");
+        
+        console.log("DATA");
+        console.log(params.get("action"));
+        
+        this.router.subscribe((val) => {
+            console.log("val");
+            console.log(val);
+          //  if (this.isActive(['../CustomerPrevious'])) {
+          //      console.log("PREVIOUS==");
+          //  } else if(this.isActive(['../CustomerNext'])) {
+          //      console.log("NEXT==");
+          //  }
+        });
     }
     
+    isActive(instruction: any[]): boolean {
+        return this.router.isRouteActive(this.router.generate(instruction));
+    }
+          
     ngOnInit() {
         if (this.CustomerNo > 0) {
             Observable.forkJoin(
@@ -339,7 +358,7 @@ export class CustomerDetails {
        
     loadForm() {       
         var self = this;
-        return this.UniCmpLoader.load(UniForm).then((cmp: ComponentRef) => {
+        return this.ucl.load(UniForm).then((cmp: ComponentRef) => {
            cmp.instance.config = self.FormConfig;
            cmp.instance.getEventEmitter().subscribe(this.onSubmit(this));
            self.whenFormInstance = new Promise((resolve: Function) => resolve(cmp.instance));
@@ -376,5 +395,5 @@ export class CustomerDetails {
                     );    
             }
         }
-    }
+    }    
 }

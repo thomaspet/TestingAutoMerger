@@ -12,9 +12,9 @@ const CHILD_ROUTES = [
     {path: '/', redirectTo: ['CustomerList']},
     {path: '/list', component: CustomerList, as: 'CustomerList'},
     {path: '/details/:id', component: CustomerDetails, as: 'CustomerDetails'},
-    {path: '/add', name: 'CustomerAdd', component: CustomerAdd, as: 'CustomerAdd'},
-    {path: '/next', name: 'CustomerNext', component: CustomerDetails, as: 'CustomerDetails'},
-    {path: '/previous', name: 'CustomerPreviuos', component: CustomerDetails, as: 'CustomerDetails'},   
+    {path: '/add', component: CustomerAdd, as: 'CustomerAdd'},
+    {path: '/next', component: CustomerDetails, as: 'CustomerNext', data: {action: 'next'}},
+    {path: '/previous', component: CustomerDetails, as: 'CustomerPrevious', data: {action: 'previous'}},   
 ]
 
 @Component({
@@ -29,10 +29,8 @@ export class Customer {
     
     constructor(public router: Router, private tabService: TabService) {
         this.tabService.addTab({name: "Kunder", url: "/customer"});
-        this.childRoutes = CHILD_ROUTES.slice(1);        
-    }
-
-    ngOnInit() {
+        this.childRoutes = CHILD_ROUTES.slice(1);     
+        
 
     }
 }
