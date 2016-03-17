@@ -190,8 +190,8 @@ export class CustomerDetails {
                 },
                 {
                     ComponentLayoutID: 3,
-                    EntityType: "Customer",
-                    Property: "Address",
+                    EntityType: "Address",
+                    Property: "Info.InvoiceAddress.AddressLine1",
                     Placement: 1,
                     Hidden: false,
                     FieldType: 1,
@@ -210,8 +210,8 @@ export class CustomerDetails {
                 },
                 {
                     ComponentLayoutID: 3,
-                    EntityType: "Customer",
-                    Property: "Address2",
+                    EntityType: "Address",
+                    Property: "Info.ShippingAddress.AddressLine1",
                     Placement: 1,
                     Hidden: false,
                     FieldType: 1,
@@ -372,12 +372,13 @@ export class CustomerDetails {
 
     onSubmit(context: CustomerDetails) {
         return () => {    
-            var customer = this.formInstance.getValue();
+            this.formInstance.updateModel();
+            //var customer = this.formInstance.getValue();
             
-            context.Customer.Orgnumber = customer["OrgNumber"];
+            //context.Customer.Orgnumber = customer["OrgNumber"];
             
             console.log("BEFORE SAVING");
-            console.log(customer);
+            console.log(this.Customer);
             
             if (context.Customer.ID > 0) {
                 context.customerService.Put(context.Customer.ID, context.Customer).subscribe(

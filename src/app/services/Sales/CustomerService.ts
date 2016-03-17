@@ -19,7 +19,7 @@ export class CustomerService extends BizHttp<Customer> {
         return super.Action(ID, "next-customer");
     }
     
-    PreviousCustomer(CurrenID: number): Customer
+    PreviousCustomer(CurrentID: number): Customer
     {
         return super.Action(ID, "previous-customer");
     }
