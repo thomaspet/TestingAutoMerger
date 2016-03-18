@@ -19,7 +19,7 @@ import {STYRKCodesDS} from "../../../data/styrkCodes";
 import {SalaryTransactionEmployeeList} from "../salarytrans/salarytransList";
 
 const CHILD_ROUTES = [
-    {path: "/", component: PersonalDetails, as: "PersonalDetails"},
+    {path: "/", component: PersonalDetails, as: "PersonalDetails", useAsDefault:true},
     {path: "/employment", component: EmployeeEmployment, as: "Employment"},
     {path: "/salarytrans", component: SalaryTransactionEmployeeList, as: "Lønnstranser"},
     {path: "/hours", component: Hours, as: "Hours"},
