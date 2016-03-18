@@ -23,65 +23,41 @@ export class UniMultiValue {
     @Input()
     config: UniFieldBuilder;
 
-    values: MultiValue[];
     activeMultival: boolean;
     trashCan: MultiValue[];
     newValueInd: number;
     element;
     successMessage;
-
-    private email = [
-        {
-            id: 1,
-            value: "terjep@unimicro.no",
-            main: false,
-
-        },
-        {
-            id: 2,
-            value: "audhild.grieg@gmail.com",
-            main: true
-        },
-        {
-            id: 3,
-            value: "nsync4eva@hotmail.com",
-            main: false
-        }
-    ];
-
-
+    
+    index: number = 0;
+    editindex: number = null;
+    
     constructor(private el: ElementRef) {
         var self = this;
         this.element = el.nativeElement;
-
+        
         // Put a fresh, new bin bag in.
         this.trashCan = [];
-        this.values = this.email;
-
+        
         document.addEventListener("click", function (event) {
             var $el = jQuery(el.nativeElement);
             if (!jQuery(event.target).closest($el).length) {
                 self.activeMultival = false;
+                self.editindex = null;
             }
         });    
     }
 
     ngOnInit() {
         this.config.fieldComponent = this;
-        
-        // Add an empty placeholder value, if none are passed.
-        if (!this.values || !this.values.length) {
-            this.values = [{
-                id: 0,
-                value: ""
-            }];
-        }
+        //this.config.model[this.config.field].push(this.placeholder());
     }
 
     // What should happen when the user clicks
     // the button next to the input?
     addOrDropdown() {
-        if (this.values.length <= 1) {
+        console.log("CALLING ADD OR DROPDOWN");
+        if (this.config.model[this.config.field].length <= 1) {
             this.addValue();
         } else {
             this.activeMultival = !this.activeMultival;
@@ -90,11 +66,11 @@ export class UniMultiValue {
 
     // Set the "editing" flag to the passed value,
     // and unset it for all others.
-    edit(value: MultiValue, event) {
+    edit(index, event) {
+        this.editindex = index;
+        
         event.stopPropagation();
-        this.values.forEach(function (val: MultiValue) {
-            val.editing = val === value;
-        });
+
         return false;
     };
 
@@ -102,7 +78,7 @@ export class UniMultiValue {
     // @fixme: Obviously this needs to be rewritten to take server into account.
     // We also want to use the soft delete paradigm for this.
     del(value: MultiValue, event) {
-        var values = this.values,
+        var values = this.config.model,
             self = this;
 
         event.stopPropagation();
@@ -139,65 +115,48 @@ export class UniMultiValue {
     };
 
     // Set the passed value as the main one.
-    setMain(value: MultiValue) {
-        this.values.forEach(function (val: MultiValue) {
-            val.main = val === value;
-        });
+    setAsDefault(row, index) {
+        this.index = index;
+        this.config.model[this.config.defaultfield] = row[this.config.kOptions.dataValueField];
     };
-
-    // Returns the index of the main value, or the first one.
-    activeInd() {
-        var index: number = 0;
-
-        // If we have a new value, return that index.
-        if (this.newValueInd) {
-            return this.newValueInd;
-        }
-
-        // If not, look for the main index.
-        this.values.forEach(function (val: MultiValue, ind: number) {
-            if (val.main) {
-                index = ind;
-                return;
-            }
-        });
-        return index;
-    };
-
+    
     // Add a new, blank value to the array.
-    addValue() {
-        this.values.push(<MultiValue>{
-            id: 0,
-            value: ""
-        });
-        this.newValueInd = this.values.length - 1;
-        this.element.querySelectorAll("input")[0].focus();
-        this.activeMultival = false;
+    addValue(event) {
+        this.config.model[this.config.field].push(this.placeholder());
+        this.editindex = this.config.model[this.config.field].length - 1;
+        //this.element.querySelectorAll("input")[0].focus();
+        event.stopPropagation();
+        
+        return false;
     };
 
     // Operations to be performed on enter or blur
-    save(value: MultiValue) {
-        var hasMain;
-
-        // Stop editing
-        value.editing = false;
-        this.activeMultival = false;
+    save(row) {
+        console.log("SAVE NOW");
+        console.log(row);
+        
+        // not edit any more    
+        this.editindex = null;
 
         // It is no longer new
         this.newValueInd = null;
-
-        // Do we have a main value already?
-        this.values.forEach(function (val) {
-            if (val.main) {
-                hasMain = true;
-            }
-        });
-
-        // If not, make the first one the main one.
-        if (!hasMain) {
-            this.values[0].main = true;
-        }
     };
+    
+    placeholder() {
+        return this.copyObject(this.config.placeholder);
+    }
+    
+    private copyObject<T> (object:T): T {
+        var objectCopy = <T>{};
 
+        for (var key in object)
+        {
+            if (object.hasOwnProperty(key))
+            {
+                objectCopy[key] = object[key];
+            }
+        }
 
+        return objectCopy;
+    }
 }

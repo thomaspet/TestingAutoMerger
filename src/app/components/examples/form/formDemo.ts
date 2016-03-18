@@ -16,7 +16,7 @@ import {UniElementFinder} from "../../../../framework/forms/shared/UniElementFin
 import {UniSectionBuilder} from "../../../../framework/forms/builders/uniSectionBuilder";
 import {UniTextInput} from "../../../../framework/controls/text/text";
 import {UNI_CONTROL_DIRECTIVES} from "../../../../framework/controls";
-import {FieldType} from "../../../unientities";
+import {FieldType,BusinessRelation,Phone,PhoneTypeEnum} from "../../../unientities";
 
 @Component({
     selector: 'uni-form-demo',
@@ -31,29 +31,11 @@ import {FieldType} from "../../../unientities";
 export class UniFormDemo {
 
     private Model:EmployeeModel;
+    private BusinessModel:BusinessRelation;
     private FormConfig:UniFormBuilder;
 
     @ViewChild(UniComponentLoader)
     UniCmpLoader:UniComponentLoader;
-
-    private email = [
-        {
-            id: 1,
-            value: "audhild@unimicro.no",
-            main: false,
-
-        },
-        {
-            id: 2,
-            value: "audhild.grieg@gmail.com",
-            main: true
-        },
-        {
-            id: 3,
-            value: "nsync4eva@hotmail.com",
-            main: false
-        }
-    ];
 
     constructor(private Http:UniHttp,
                 private Api:EmployeeService) {
@@ -62,6 +44,33 @@ export class UniFormDemo {
 
     ngOnInit() {
         var self = this;
+        
+        this.BusinessModel = new BusinessRelation();
+        this.BusinessModel.DefaultPhoneID = 1;
+        this.BusinessModel.Phones = new Array<Phone>();
+        this.BusinessModel.Phones.push({
+           ID: 1,
+           LandCode: "NO",
+           Number: "+4791334697",
+           Description: "privat mobiltelefon",
+           Type: PhoneTypeEnum.PtMobile,
+           Deleted: false,
+           CustomFields: null,
+           BusinessRelationID: 1,
+           StatusCode: 0
+        });
+        this.BusinessModel.Phones.push({
+           ID: 2,
+           LandCode: "NO",
+           Number: "+4722222222",
+           Description: "fax",
+           Type: PhoneTypeEnum.PtFax,
+           Deleted: false,
+           CustomFields: null,
+           BusinessRelationID: 1,
+           StatusCode: 0
+        });
+        
         this.Api.GetLayoutAndEntity('EmployeePersonalDetailsForm', 1).subscribe((results:any[]) => {
             var view:ComponentLayout = results[0];
             var model:Employee = results[1];
@@ -105,18 +114,16 @@ export class UniFormDemo {
     private addMultiValue() {
         var field = new UniFieldBuilder();
         field
-            .setLabel("Epostadresser")
+            .setLabel("Telefonnummer")
             .setType(UNI_CONTROL_DIRECTIVES[14])
-     /*       .setKendoOptions({
-                dataTextField: 'Name',
-                dataValueField: 'ID',
-                dataSource: [
-                    {ID: 150101, Name: "Telefon"},
-                    {ID: 150102, Name: "Mobil" },
-                    {ID: 150103, Name: "Fax"}
-                ]
-            })*/
-        //    .control
+            .setKendoOptions({
+                dataTextField: 'Number',
+                dataValueField: 'ID'
+            })
+            .setModel(this.BusinessModel)
+            .setModelField('Phones')
+            .setModelDefaultField("DefaultPhoneID")
+            .setPlaceholder(new Phone());
          
         this.FormConfig.addUniElement(field);
     }
@@ -134,6 +141,7 @@ export class UniFormDemo {
                 'text': 'kvinne'
             }]
         });
+        
         field = this.FormConfig.find('SocialSecurityNumber');
         field.setKendoOptions({
             mask: '000000 00000',

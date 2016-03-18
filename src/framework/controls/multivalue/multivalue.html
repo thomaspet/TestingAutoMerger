@@ -1,25 +1,25 @@
 <section class="uni-multivalue">{{label}}
 
-    <input type="text" [(ngModel)]="values[activeInd()].value" (blur)="save(values[activeInd()].value)" (keyup.enter)="save(values[activeInd()].value)">
+    <input type="text" *ngIf="config.model" [(ngModel)]="config.model[config.field][index][config.kOptions.dataTextField]">
     <button class="uni-multivalue-moreBtn" (click)="addOrDropdown(inputVal)">Add</button>
 
     <ul class="uni-multivalue-values" [class.-is-active]="activeMultival">
-        <li *ngFor="#value of values" [class.-is-main]="value.main">
+        <li *ngFor="#row of config.model[config.field]; #i = index" [class.-is-main]="index == i">
 
-            <div *ngIf="!value.timeout">
-                <div class="uni-multivalue_edit" *ngIf="value.editing">
-                    <input class="uni-multivalue_edit_value" [(ngModel)]="value.value" (blur)="save(value)" (keyup.enter)="save(value)" type="text">
+            <div *ngIf="true">
+                <div class="uni-multivalue_edit" *ngIf="editindex == i">
+                    <input class="uni-multivalue_edit_value" [(ngModel)]="row[config.kOptions.dataTextField]" (blur)="save(row)" (keyup.enter)="save(row)" type="text">
                 </div>
-                <span *ngIf="!value.editing" (click)="edit(value, $event)" class="uni-multivalue-value">{{value.value}}</span>
-                <button class="uni-multivalue_edit_action-delete" (click)="del(value, $event)">Delete</button>
-                <button class="setMainBtn" (click)="setMain(value)">Set {{value.value}} as main</button>
+                <span *ngIf="editindex != i" (click)="setAsDefault(row, i)" class="uni-multivalue-value">{{row[config.kOptions.dataTextField]}}</span>
+                <button class="uni-multivalue_edit_action-delete" (click)="del(row, $event)">Delete</button>
+                <button class="setEditBtn" (click)="edit(i, $event)">Edit {{row[config.kOptions.dataTextField]}}</button>
             </div>
-            <div *ngIf="value.timeout" class="uni-multivalue_deleted">
-                Deleted &lsquo;{{value.value}}&rsquo;. (<a (click)="putBack(value)">Undo</a>)
+            <div *ngIf="false" class="uni-multivalue_deleted">
+                Deleted &lsquo;{{row.value}}&rsquo;. (<a (click)="putBack(row)">Undo</a>)
             </div>
 
         </li>
-        <li><button class="uni-multivalue-addBtn" (click)="addValue()">Legg til&hellip;</button></li>
+        <li><button class="uni-multivalue-addBtn" (click)="addValue($event)">Legg til&hellip;</button></li>
     </ul>
 
     <small *ngIf="successMessage" class="good">Saved.</small>
