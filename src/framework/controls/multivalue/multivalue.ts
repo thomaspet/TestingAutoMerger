@@ -121,25 +121,18 @@ export class UniMultiValue {
     };
     
     // Add a new, blank value to the array.
-    addValue(event) {
+    addValue(event = null) {
         this.config.model[this.config.field].push(this.placeholder());
         this.editindex = this.config.model[this.config.field].length - 1;
         //this.element.querySelectorAll("input")[0].focus();
-        event.stopPropagation();
+        if (event) { event.stopPropagation(); }
         
         return false;
     };
 
     // Operations to be performed on enter or blur
     save(row) {
-        console.log("SAVE NOW");
-        console.log(row);
-        
-        // not edit any more    
         this.editindex = null;
-
-        // It is no longer new
-        this.newValueInd = null;
     };
     
     placeholder() {

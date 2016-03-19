@@ -64,11 +64,33 @@
         background-color: transparentize($uni-color-C2A, .8)
         cursor: pointer
 
-        .setMainBtn
+        .setEditBtn
           background: transparent unicon-star($uni-color-scale7) no-repeat center
           background-size: 1rem
 
       .setEditBtn
+        font-size: 0
+        height: 1.5rem
+        width: 1.5rem
+        position: absolute
+        right: 0.5rem
+        top: .2rem
+        padding: 0
+        margin: 0
+        border: none
+        box-shadow: none
+        background: none
+        background-size: 1rem
+
+        &:hover
+          background: transparent unicon-edit($uni-color-scale8) no-repeat center
+          background-size: 1rem
+                    
+      &.-is-main .setMainBtn
+        background: transparent unicon-star($uni-color-scale5) no-repeat center
+        background-size: 1rem
+          
+      .setMainBtn
         font-size: 0
         height: 1.5rem
         width: 1.5rem
@@ -81,15 +103,7 @@
         box-shadow: none
         background: none
         background-size: 1rem
-
-        &:hover
-          background: transparent unicon-edit($uni-color-scale8) no-repeat center
-          background-size: 1rem
-
-      &.-is-main .setMainBtn
-        background: transparent unicon-star($uni-color-scale5) no-repeat center
-        background-size: 1rem
-
+        
   .uni-multivalue-value
     height: 1.4rem
     width: calc(100% - 1.5rem)
