@@ -17,6 +17,7 @@ import {UniSectionBuilder} from "../../../../framework/forms/builders/uniSection
 import {UniTextInput} from "../../../../framework/controls/text/text";
 import {UNI_CONTROL_DIRECTIVES} from "../../../../framework/controls";
 import {FieldType,BusinessRelation,Phone,PhoneTypeEnum} from "../../../unientities";
+import {PhoneModal} from "../../sales/customer/modals/phone/phone";
 
 @Component({
     selector: 'uni-form-demo',
@@ -44,36 +45,11 @@ export class UniFormDemo {
 
     ngOnInit() {
         var self = this;
-        
-        this.BusinessModel = new BusinessRelation();
-        this.BusinessModel.DefaultPhoneID = 1;
-        this.BusinessModel.Phones = new Array<Phone>();
-        this.BusinessModel.Phones.push({
-           ID: 1,
-           LandCode: "NO",
-           Number: "+4791334697",
-           Description: "privat mobiltelefon",
-           Type: PhoneTypeEnum.PtMobile,
-           Deleted: false,
-           CustomFields: null,
-           BusinessRelationID: 1,
-           StatusCode: 0
-        });
-        this.BusinessModel.Phones.push({
-           ID: 2,
-           LandCode: "NO",
-           Number: "+4722222222",
-           Description: "fax",
-           Type: PhoneTypeEnum.PtFax,
-           Deleted: false,
-           CustomFields: null,
-           BusinessRelationID: 1,
-           StatusCode: 0
-        });
-        
+               
         this.Api.GetLayoutAndEntity('EmployeePersonalDetailsForm', 1).subscribe((results:any[]) => {
             var view:ComponentLayout = results[0];
             var model:Employee = results[1];
+
             self.startApp(view, model);
         });
     }
@@ -85,6 +61,7 @@ export class UniFormDemo {
         view = this.extendLayoutConfig(view);
 
         this.createModel(model);
+        this.createPhoneModel();
         this.buildFormConfig(view, model);
 
         // We can extend the form config after the LayoutBuilder has created the layout
@@ -109,6 +86,34 @@ export class UniFormDemo {
 
     private createModel(model:Employee) {
         this.Model = EmployeeModel.createFromObject(model);
+    }
+    
+    private createPhoneModel() {
+        this.BusinessModel = new BusinessRelation();
+        this.BusinessModel.DefaultPhoneID = 1;
+        this.BusinessModel.Phones = new Array<Phone>();
+        this.BusinessModel.Phones.push({
+            ID: 1,
+            LandCode: "NO",
+            Number: "+4791334697",
+            Description: "privat mobiltelefon",
+            Type: PhoneTypeEnum.PtMobile,
+            Deleted: false,
+            CustomFields: null,
+            BusinessRelationID: 1,
+            StatusCode: 0
+        });
+        this.BusinessModel.Phones.push({
+            ID: 2,
+            LandCode: "NO",
+            Number: "+4722222222",
+            Description: "fax",
+            Type: PhoneTypeEnum.PtFax,
+            Deleted: false,
+            CustomFields: null,
+            BusinessRelationID: 1,
+            StatusCode: 0
+        });   
     }
 
     private addMultiValue() {

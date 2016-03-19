@@ -8,12 +8,13 @@
 
             <div *ngIf="true">
                 <div class="uni-multivalue_edit" *ngIf="editindex == i">
-                    <input class="uni-multivalue_edit_value" [(ngModel)]="row[config.kOptions.dataTextField]" (blur)="save(row)" (keyup.enter)="save(row)" type="text">
+                    <input #editinput class="uni-multivalue_edit_value" [(ngModel)]="row[config.kOptions.dataTextField]" (blur)="save(row, $event)" (keyup.enter)="save(row, $event)" type="text">
                 </div>
-                <span *ngIf="editindex != i" (click)="setAsDefault(row, i)" class="uni-multivalue-value">{{row[config.kOptions.dataTextField]}}</span>
-                <button class="uni-multivalue_edit_action-delete" (click)="del(row, $event)">Delete</button>
-                <button class="setEditBtn" (click)="edit(i, $event)">Edit {{row[config.kOptions.dataTextField]}}</button>
-                <button class="setMainBtn">Active row</button>
+                <div *ngIf="editindex != i">
+                    <span *ngIf="editindex != i" (click)="setAsDefault(row, i)" class="uni-multivalue-value">{{row[config.kOptions.dataTextField]}}</span>
+                    <button class="uni-multivalue_edit_action-delete" (click)="del(row, $event)">Delete</button>
+                    <button class="setEditBtn" (click)="edit(i, $event)">Edit {{row[config.kOptions.dataTextField]}}</button>                    
+                </div>
             </div>
             <div *ngIf="false" class="uni-multivalue_deleted">
                 Deleted &lsquo;{{row.value}}&rsquo;. (<a (click)="putBack(row)">Undo</a>)
@@ -24,5 +25,9 @@
     </ul>
 
     <small *ngIf="successMessage" class="good">Saved.</small>
+
+ <!--   <uni-component-loader></uni-component-loader> -->
+ <!--   <phone-modal></phone-modal> -->
+ <phone-form></phone-form>
 
 </section>

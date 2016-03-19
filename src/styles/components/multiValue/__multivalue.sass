@@ -64,10 +64,6 @@
         background-color: transparentize($uni-color-C2A, .8)
         cursor: pointer
 
-        .setEditBtn
-          background: transparent unicon-star($uni-color-scale7) no-repeat center
-          background-size: 1rem
-
       .setEditBtn
         font-size: 0
         height: 1.5rem
@@ -84,26 +80,11 @@
 
         &:hover
           background: transparent unicon-edit($uni-color-scale8) no-repeat center
-          background-size: 1rem
+          background-size: .8rem
                     
-      &.-is-main .setMainBtn
-        background: transparent unicon-star($uni-color-scale5) no-repeat center
-        background-size: 1rem
-          
-      .setMainBtn
-        font-size: 0
-        height: 1.5rem
-        width: 1.5rem
-        position: absolute
-        right: .5rem
-        top: .2rem
-        padding: 0
-        margin: 0
-        border: none
-        box-shadow: none
-        background: none
-        background-size: 1rem
-        
+      &.-is-main
+        background-color: transparentize($uni-color-Good, .8)
+                  
   .uni-multivalue-value
     height: 1.4rem
     width: calc(100% - 1.5rem)
@@ -114,12 +95,13 @@
 
   .uni-multivalue_edit
     display: flex
-    width: calc(100% - 1rem)
+    width: calc(100% + 1rem)
 
   .uni-multivalue_edit_value
     padding: .2rem .5rem
     margin: -.2rem 0 -.2rem -.5rem
     height: 1.9rem
+    width: calc(100%)
 
 .uni-multivalue-values li
   .uni-multivalue_edit_action-delete

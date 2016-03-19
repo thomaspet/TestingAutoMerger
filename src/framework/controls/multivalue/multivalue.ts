@@ -1,6 +1,8 @@
-import {Component, ElementRef, Input} from "angular2/core";
-import {CORE_DIRECTIVES} from "angular2/common";
+import {Component, ComponentRef, ElementRef, Input, ViewChild, ViewChildren} from "angular2/core";
+import {NgIf, NgFor} from "angular2/common";
 import {UniFieldBuilder} from "../../forms/builders/uniFieldBuilder";
+import {UniComponentLoader} from '../../../framework/core/componentLoader';
+import {PhoneModal} from "../../../app/components/sales/customer/modals/phone/phone";
 
 declare var jQuery;
 
@@ -15,13 +17,19 @@ interface MultiValue {
 @Component({
     selector: "uni-multivalue",
     templateUrl: "framework/controls/multivalue/multivalue.html",
-    directives: [CORE_DIRECTIVES],
+    directives: [NgIf, NgFor],
     inputs: ["values", "label"]
 })
 
 export class UniMultiValue {
     @Input()
     config: UniFieldBuilder;
+
+    @ViewChild(UniComponentLoader)
+    ucl: UniComponentLoader;
+    modalinstance: Promise<PhoneModal>;
+    
+    @ViewChildren('editinput') editinputs;
 
     activeMultival: boolean;
     trashCan: MultiValue[];
@@ -53,6 +61,16 @@ export class UniMultiValue {
         //this.config.model[this.config.field].push(this.placeholder());
     }
 
+    ngAfterViewInit() {
+        var self = this;      
+                
+   /*     this.ucl.load(PhoneModal).then((cmp: ComponentRef)=> {
+            self.modalinstance = new Promise((resolve)=> {
+                resolve(cmp.instance);
+           });
+       });
+*/    }
+
     // What should happen when the user clicks
     // the button next to the input?
     addOrDropdown() {
@@ -67,10 +85,15 @@ export class UniMultiValue {
     // Set the "editing" flag to the passed value,
     // and unset it for all others.
     edit(index, event) {
+        var self = this;
         this.editindex = index;
         
+        setTimeout(() => {
+            self.editinputs.first.nativeElement.focus();            
+        });
+      
         event.stopPropagation();
-
+  
         return false;
     };
 
@@ -122,17 +145,24 @@ export class UniMultiValue {
     
     // Add a new, blank value to the array.
     addValue(event = null) {
+        var self = this;
         this.config.model[this.config.field].push(this.placeholder());
         this.editindex = this.config.model[this.config.field].length - 1;
-        //this.element.querySelectorAll("input")[0].focus();
+        
+        setTimeout(() => {
+            self.editinputs.first.nativeElement.focus();            
+        });
+        
         if (event) { event.stopPropagation(); }
         
         return false;
     };
 
     // Operations to be performed on enter or blur
-    save(row) {
+    save(row, event) {
         this.editindex = null;
+                
+        return false;
     };
     
     placeholder() {
