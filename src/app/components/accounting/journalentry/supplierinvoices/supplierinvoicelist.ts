@@ -1,7 +1,7 @@
 import {Component, SimpleChange, Input, Output, EventEmitter, ViewChild, Type, OnInit} from "angular2/core";
 import {Observable} from "rxjs/Observable";
 import "rxjs/add/observable/forkjoin";
-import {Router, RouteParams, ROUTER_DIRECTIVES } from 'angular2/router';
+import {ComponentInstruction, Router, RouteParams } from 'angular2/router';
 
 import {JournalEntryService, JournalEntryLineService, SupplierInvoiceService, SupplierService, AccountService} from "../../../../services/services";
 
@@ -23,7 +23,7 @@ import {SupplierInvoice} from "../../../../unientities";
     selector: "supplier-invoice-list",
     templateUrl: "app/components/accounting/journalentry/supplierinvoices/supplierinvoicelist.html",
     providers: [SupplierInvoiceService, AccountService],
-    directives: [SupplierInvoiceEdit, UniTable, UniModal, ROUTER_DIRECTIVES]
+    directives: [SupplierInvoiceEdit, UniTable, UniModal]
 })
 export class SupplierInvoiceList implements OnInit{
     @Output() onSelect = new EventEmitter<SupplierInvoice>();
@@ -87,6 +87,8 @@ export class SupplierInvoiceList implements OnInit{
     }
 
     setupTableCfg() {
+        var self = this;
+
         var idCol = new UniTableColumn('ID', 'Id', 'number')
             .setEditable(false)
             .setNullable(true)
@@ -143,17 +145,34 @@ export class SupplierInvoiceList implements OnInit{
         var selectCallback = (selectedItem) => {
             console.log("selectCallback() called");
             this.selectedSupplierInvoice = selectedItem;
+            this.onSelect.emit(selectedItem);
 
             //this._router.navigate(['SupplierinvoiceEdit', { id: selectedItem.ID }]);
             //this._router.navigateByUrl("/journalentry/supplierinvoices/Supplierinvoiceadd/" + selectedItem.ID);
 
-            this._router.navigateByUrl("/journalentry/supplierinvoices/" + selectedItem.ID);
+            //this._router.navigateByUrl("/journalentry/supplierinvoices/" + selectedItem.ID);
             //this.onSelect.emit(selectedItem);
 
             //this.setupModalConfig();
             //this.modalConfig.value = this.selectedSupplierInvoice;
             //this.modal.open();
         }
+        var createCallback = (createdItem) => {
+            console.log('Created: ');
+            console.log(createdItem);
+
+            this.selectedSupplierInvoice = createdItem;
+
+            //this._router.navigate(['SupplierinvoiceEdit', { id: selectedItem.ID }]);
+            //this._router.navigateByUrl("/journalentry/supplierinvoices/Supplierinvoiceadd/" + selectedItem.ID);
+
+            this._router.navigateByUrl("/journalentry/supplierinvoices/" + createdItem.ID);
+
+        };
+        var updateCallback = (updatedItem) => {
+            console.log('Updated: ');
+            console.log(updatedItem);
+        };
 
         //Different data sources:
         //**************************************************************
@@ -165,16 +184,37 @@ export class SupplierInvoiceList implements OnInit{
         //    .addCommands({ name: 'ContextMenu', text: '...', click: (event) => { event.preventDefault(); console.log(event) } });
 
         //This config uses UniTable's remote datasource
+        //this.supplierInvoiceTableCfg = new UniTableBuilder('SupplierInvoices', false)
+        //    .addColumns(idCol, statusTextCol, journalEntryCol, supplierNrCol, supplierNameCol, invoiceDateCol, paymentDueDateCol, invoiceIDCol, taxInclusiveAmountCol)
+        //    .setSelectCallback(selectCallback)
+        //    .setExpand("JournalEntry, Supplier.Info")
+        //    .setPageSize(5)
+        //    .addCommands({
+        //        name: 'ContextMenu', text: '...', click: (event) => {
+        //            event.preventDefault();
+        //            console.log(event)
+        //        }
+        //    });
         this.supplierInvoiceTableCfg = new UniTableBuilder('SupplierInvoices', false)
             .addColumns(idCol, statusTextCol, journalEntryCol, supplierNrCol, supplierNameCol, invoiceDateCol, paymentDueDateCol, invoiceIDCol, taxInclusiveAmountCol)
             .setSelectCallback(selectCallback)
+            //.setCreateCallback(createCallback)
+            //.setUpdateCallback(updateCallback)
             .setExpand("JournalEntry, Supplier.Info")
             .setPageSize(5)
             .addCommands({
-                name: 'ContextMenu', text: '...', click: (event) => {
+                name: 'ContextMenu', text: '...', click: (function (event) {
                     event.preventDefault();
-                    console.log(event)
-                }
+                    var dataItem = this.dataItem(jQuery(event.currentTarget).closest("tr"));
+                    console.log(dataItem);
+
+                    if (dataItem !== null && dataItem.ID !== null) {
+                        self.selectedSupplierInvoice = dataItem;
+                        self._router.navigateByUrl("/journalentry/supplierinvoices/" + dataItem.ID);
+                    }
+                    else
+                        console.log("Error in selecting the SupplierInvoices");
+                })
             });
     }
 

@@ -1,5 +1,5 @@
 import {Component, OnInit, provide, ViewChild, ComponentRef} from 'angular2/core';
-import {RouteParams} from "angular2/router";
+import {Router, RouteParams, RouterLink} from "angular2/router";
 
 import { Observable } from "rxjs/Observable";
 
@@ -11,12 +11,12 @@ import {UniFieldsetBuilder, UniFieldBuilder, UniSectionBuilder} from "../../../.
 import {UniComponentLoader} from '../../../../../framework/core/componentLoader';
 import {UNI_CONTROL_DIRECTIVES} from "../../../../../framework/controls";
 import {FieldType, FieldLayout, ComponentLayout} from "../../../../unientities";
-import {SupplierInvoice, Supplier} from "../../../../unientities";
+import {SupplierInvoice, Supplier, BusinessRelation} from "../../../../unientities";
 
 @Component({
     selector: "supplier-invoice-detail",
     templateUrl: "app/components/accounting/journalentry/supplierinvoices/supplierinvoicedetail.html",
-    directives: [UniForm, UniComponentLoader],
+    directives: [UniForm, UniComponentLoader, RouterLink],
     providers: [SupplierInvoiceService, SupplierService]
 })
 export class SupplierInvoiceDetail implements OnInit {
@@ -28,70 +28,114 @@ export class SupplierInvoiceDetail implements OnInit {
 
     @ViewChild(UniComponentLoader) uniCompLoader: UniComponentLoader;
 
+    whenFormInstance: Promise<UniForm>;
+
     constructor(
         private _supplierInvoiceService: SupplierInvoiceService,
         private _supplierService: SupplierService,
+        private router: Router,
         private _routeParams: RouteParams) {
     }
 
     ngOnInit() {
+        var self = this;
+
         let id = +this._routeParams.get("id");
 
         if (id === null || typeof id === "undefined" || isNaN(id)) {
             console.log("id is null");
 
-            Observable.forkJoin(
-                this._supplierInvoiceService.Get(id, ["JournalEntry", "Supplier.Info"]),
-                this._supplierService.GetAll(null, ["Info"])
-            ).subscribe((response: any) => {
-                this.suppliers = response;
 
-                this.buildForm2();
+            Observable.forkJoin(
+                //self._supplierInvoiceService.getNewSupplierInvoice(["JournalEntry", "Supplier.Info"]), //TODO: GetNewEntity virker ikke
+                self._supplierInvoiceService.GetNewEntity(), //TODO: GetNewEntity virker ikke
+                self._supplierService.GetAll(null, ["Info"])
+            ).subscribe((response: any) => {
+                let [invoice, suppliers] = response;
+                self.supplierInvoice = invoice;
+                self.suppliers = suppliers;
+                //self.suppliers = response;
+
+                //self.supplierInvoice.Supplier = new Supplier();
+                //self.supplierInvoice.Supplier.Info = new BusinessRelation();
+
+                self.buildForm2();
             }, error => console.log(error));
         }
         else {
 
             Observable.forkJoin(
-                this._supplierInvoiceService.Get(id, ["JournalEntry", "Supplier.Info"]),
-                this._supplierService.GetAll(null, ["Info"])
+                self._supplierInvoiceService.Get(id, ["JournalEntry", "Supplier.Info"]),
+                self._supplierService.GetAll(null, ["Info"])
             ).subscribe((response: any) => {
                 let [invoice, suppliers] = response;
-                this.supplierInvoice = invoice;
-                this.suppliers = suppliers;
+                self.supplierInvoice = invoice;
+                self.suppliers = suppliers;
 
-                this.buildForm2();
+                self.buildForm2();
             }, error => console.log(error));
         }
 
     }
 
     private onSubmit(context: SupplierInvoiceDetail) {
+        var self = this;
+
         return () => {
-            //context.Api.Post(context.Model).subscribe((result: any) => {
-            //    alert(JSON.stringify(result));
-
-
-            console.log("Submit called...");
             if (context.supplierInvoice.ID > 0) {
+                console.log("PUT Submit called...");
+                if (context.supplierInvoice.SupplierID != 0)
+                    context.supplierInvoice.Supplier = null; //Needs to do this to avoid conflict between Supplier and SupplierID
                 context._supplierInvoiceService.Put(context.supplierInvoice.ID, context.supplierInvoice)
                     .subscribe((response: any) => {
-                        //console.log("Response: ", response);
                         context.supplierInvoice = response;
                         alert(JSON.stringify(response));
-                    }, (error: any) => console.log(error));
+                        context.whenFormInstance.then((instance: UniForm) => instance.refresh(context.supplierInvoice));
+                    },
+                    (error: Error) => console.error('error in SupplierInvoiceDetail.onSubmit - Put: ', error))
             }
-            ////Else TODO:
-            //    else {
-            //        this._supplierInvoiceService.Post(this.supplierInvoice)
-            //            .subscribe(
-            //            data => this.supplierInvoice = data,
-            //            error => console.log("Error in vatdetails.onSubmit: ", error)
-            //            );
-            //    }
+            else {
+                console.log("POST Submit called...");
+                //context.supplierInvoice.SupplierID = 1;
+                //context.supplierInvoice.JournalEntryID = null;
+                context.supplierInvoice.CreatedBy = "TK";
+                context.supplierInvoice.CurrencyCode = "NOK";
 
+                context._supplierInvoiceService.Post(context.supplierInvoice)
+                    .subscribe((result: SupplierInvoice) => {
+                        context.supplierInvoice = result;
+                        context.smartBooking(context);
+                    },
+                    (error: Error) => console.error('error in SupplierInvoiceDetail.onSubmit - Post: ', error)
+                    );
+            }
         };
     }
 
+    onSmartBook() {
+        console.log("SMART BOOKING Triggered Manually");
+        this.smartBooking(this);
+    }
+
+    private smartBooking(context: SupplierInvoiceDetail) {
+        var self = this;
+
+        console.log("SMART BOOKING ");
+        if (context.supplierInvoice.ID === null) {
+            console.error("Smart booking can not be performed since (SupplierInvoice.ID is null");
+            return;
+        }
+        context._supplierInvoiceService.Action(context.supplierInvoice.ID, "smartbooking")
+            .subscribe(
+            (response: any) => {
+                console.log("Smart booking completed");
+                self.router.navigateByUrl("/journalentry/supplierinvoices/" + context.supplierInvoice.ID);
+                //this.onSelect.emit(response);
+            },
+            (error: any) => console.log(error)
+            );
+
+    }
     buildForm2() {        
         // TODO get it from the API and move these to backend migrations   
         var view: ComponentLayout = {
@@ -124,8 +168,28 @@ export class SupplierInvoiceDetail implements OnInit {
                 },
                 {
                     ComponentLayoutID: 2,
-                    EntityType: "Supplier",
-                    Property: "Supplier.BusinessRelationID",
+                    EntityType: "SupplierInvoice",
+                    Property: "StatusCode",
+                    Placement: 1,
+                    Hidden: false,
+                    FieldType: FieldType.TEXT, //
+                    ReadOnly: true,
+                    LookupField: false,
+                    Label: "StatusCode", //
+                    Description: "",
+                    HelpText: "",
+                    FieldSet: 0, ///
+                    Section: 0, //
+                    Legend: "",
+                    StatusID: 0,
+                    ID: 1,
+                    Deleted: false,
+                    CustomFields: null
+                },
+                {
+                    ComponentLayoutID: 2,
+                    EntityType: "SupplierInvoice",
+                    Property: "SupplierID",
                     Placement: 2,
                     Hidden: false,
                     FieldType: FieldType.DROPDOWN,
@@ -142,6 +206,26 @@ export class SupplierInvoiceDetail implements OnInit {
                     Deleted: false,
                     CustomFields: null
                 },
+                //{
+                //    ComponentLayoutID: 2,
+                //    EntityType: "Supplier",
+                //    Property: "Supplier.BusinessRelationID",
+                //    Placement: 2,
+                //    Hidden: false,
+                //    FieldType: FieldType.DROPDOWN,
+                //    ReadOnly: false,
+                //    LookupField: false,
+                //    Label: "Leverandørnavn",
+                //    Description: "",
+                //    HelpText: "",
+                //    FieldSet: 0,
+                //    Section: 0,
+                //    Legend: "",
+                //    StatusID: 0,
+                //    ID: 2,
+                //    Deleted: false,
+                //    CustomFields: null
+                //},
                 {
                     ComponentLayoutID: 2,
                     EntityType: "SupplierInvoice",
@@ -293,11 +377,19 @@ export class SupplierInvoiceDetail implements OnInit {
     }
 
     extendFormConfig() {
-        var fieldSupplierName: UniFieldBuilder = this.formBuilder.find('Supplier.BusinessRelationID');
+        //var fieldSupplierName: UniFieldBuilder = this.formBuilder.find('Supplier.BusinessRelationID');
+        //fieldSupplierName.setKendoOptions({
+        //    dataTextField: 'Info.Name',
+        //    dataValueField: 'ID',
+        //    //template: "${data.ID} - ${data.Info.Name}",
+        //    dataSource: this.suppliers
+        //});  
+
+        var fieldSupplierName: UniFieldBuilder = this.formBuilder.find('SupplierID');
         fieldSupplierName.setKendoOptions({
             dataTextField: 'Info.Name',
             dataValueField: 'ID',
-            //template: "${data.ID} - ${data.Info.Name}",
+            template: "${data.ID} - ${data.Info.Name}",
             dataSource: this.suppliers
         });  
 
@@ -328,6 +420,7 @@ export class SupplierInvoiceDetail implements OnInit {
         return this.uniCompLoader.load(UniForm).then((cmp: ComponentRef) => {
             cmp.instance.config = self.formBuilder;
             cmp.instance.getEventEmitter().subscribe(self.onSubmit(self));
+            self.whenFormInstance = new Promise((resolve: Function) => resolve(cmp.instance));
             setTimeout(() => {
                 self.formInstance = cmp.instance;
             });

@@ -124,10 +124,13 @@ export class BizHttp<T> {
         if (expand) {
             expandStr = expand.join(',');
         }
+
+        //TODO. Needs a more robust way to handle the Singular Url needed for this request.
+        let relativeUrlSingular = this.relativeURL.slice(0, this.relativeURL.length - 1); 
         return this.http
             .usingMetadataDomain()
             .asGET()
-            .withEndPoint(this.relativeURL + '/new')
+            .withEndPoint(relativeUrlSingular + '/new')
             .send({
                 expand: expandStr
             });

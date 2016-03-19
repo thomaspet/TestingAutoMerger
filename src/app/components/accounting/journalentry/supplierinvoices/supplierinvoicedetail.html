@@ -1,20 +1,12 @@
 <header class="poster">
     <article class="poster_toolbar">
-        <div *ngIf="supplierInvoice">
-            <h2 class="poster_toolbar_headline">
-                {{supplierInvoice.ID}}&nbsp;-&nbsp;{{supplierInvoice.Supplier.Info.Name}}
-                <p class="poster_toolbar_orgnr"></p>
-            </h2>
-        </div>
-        <!--<div *ngIf="!supplierInvoice.Supplier.Info.Name">
-            <h2 class="poster_toolbar_headline">
-                Ny registrering
-                <p class="poster_toolbar_orgnr"></p>
-            </h2>
-        </div>-->
+        <h2 class="poster_toolbar_headline">
+            <p *ngIf="supplierInvoice != null && supplierInvoice.ID > 0">Leverandørnummer &nbsp;:&nbsp; {{supplierInvoice.ID}}</p>
+            <p *ngIf="supplierInvoice == null || supplierInvoice.ID == 0"><i>Ny faktura-registrering med smart bokføring.</i></p>
+            <button *ngIf="supplierInvoice != null && supplierInvoice.JournalEntryID == null && supplierInvoice.ID > 0" (click)="onSmartBook()">Smart bokføring</button>
+        </h2>
 
         <nav class="poster_toolbar_tools">
-            <input type="search" class="poster_toolbar_search">
             <a href="#" class="previous">Forrige</a>
             <a href="#" class="next">Neste</a>
             <a href="#" class="new">Ny faktura</a>
@@ -41,6 +33,6 @@
     <h3>
         Faktura
     </h3>
-    <p>Faktura dokument kan vises her. Ikke implementert foreløpig. Avventer til dokumentsystem er på plass</p>
+    <p>Fakturadokument kan vises her. Ikke implementert foreløpig. Avventer til dokumentsystem er på plass</p>
     <p></p>
 </section>
