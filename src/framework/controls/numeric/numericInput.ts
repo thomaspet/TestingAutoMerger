@@ -20,6 +20,7 @@ export class UniNumericInput implements AfterViewInit, OnDestroy {
     }
 
     refresh(value: any) {
+        value = value || 0;
         this.numericInput.value(value);
         this.numericInput.trigger("change");
     }

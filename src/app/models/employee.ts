@@ -8,7 +8,7 @@ import {
     BankAccountSalary,
     EmployeeCategoryLink,
     VacationRateEmployee,
-    Localization
+    SubEntity
 } from "../unientities";
 
 declare var _;
@@ -30,7 +30,7 @@ export class EmployeeModel extends Employee {
     InternasjonalIDCountry: string = "";
     ForeignWorker: ForeignWorker = 0;
     VacationRateEmployeeID: number = 0;
-    LocalizationID: number = 0;
+    SubEntityID: number = 0;
     Active: boolean = false;
     PhotoID: number = 0;
     EmploymentDate: Date = null;
@@ -43,7 +43,7 @@ export class EmployeeModel extends Employee {
     BankAccounts: Array<BankAccountSalary> = [];
     EmployeeCategoryLinks: Array<EmployeeCategoryLink> = [];
     VacationRateEmployee: VacationRateEmployee = null;
-    Localization: Localization = null;
+    SubEntity: SubEntity = null;
     NotMainEmployer = false;
     CustomFields: any = {};
 

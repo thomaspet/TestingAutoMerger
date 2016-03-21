@@ -29,6 +29,7 @@ export class UniMultiSelect implements AfterViewInit, OnDestroy {
     }
 
     refresh(value: any): void {
+        value = value || [];
         this.multiselect.value(value);
         this.multiselect.trigger("change");
     }

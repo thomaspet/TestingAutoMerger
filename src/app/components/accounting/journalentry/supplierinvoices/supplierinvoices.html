@@ -1,12 +1,8 @@
 <article>
-    <!--<button (click)="openSupplierInvoiceAddDialog($event)">Ny...</button>-->
-
-    <!--<button [routerLink]="['Supplierinvoice', {id: 'new'}]">Add</button>-->
     <button class="new" (click)="onAddNew()">Ny</button>
 
     <supplier-invoice-list (onSelect)="todo($event)"></supplier-invoice-list>
 
-    <!--<supplier-invoice-add (Created)="newSupplierInvoiceCreated=($event)"></supplier-invoice-add>-->
     <journal-entry-manual [SupplierInvoice]="selectedSupplierInvoice" *ngIf="selectedSupplierInvoice"></journal-entry-manual>
 </article>
 <router-outlet></router-outlet>

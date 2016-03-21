@@ -11,7 +11,6 @@ import {UniModal} from "../../../../../framework/modals/modal";
 import {UniForm, UniFormBuilder, UniFieldsetBuilder, UniFieldBuilder} from "../../../../../framework/forms";
 import {UniTabs} from '../../../layout/uniTabs/uniTabs';
 
-import {SupplierInvoiceEdit} from './supplierinvoiceedit';
 import {SupplierInvoiceDetail} from './supplierinvoicedetail';
 
 
@@ -23,7 +22,7 @@ import {SupplierInvoice} from "../../../../unientities";
     selector: "supplier-invoice-list",
     templateUrl: "app/components/accounting/journalentry/supplierinvoices/supplierinvoicelist.html",
     providers: [SupplierInvoiceService, AccountService],
-    directives: [SupplierInvoiceEdit, UniTable, UniModal]
+    directives: [UniTable, UniModal]
 })
 export class SupplierInvoiceList implements OnInit{
     @Output() onSelect = new EventEmitter<SupplierInvoice>();
@@ -42,7 +41,6 @@ export class SupplierInvoiceList implements OnInit{
         private _router: Router,
         routeParams: RouteParams)
     {
-        //this._selectedId = +routeParams.get('id');
     }
 
     //TODO: To be retrieved from database schema shared.Status instead?
@@ -58,12 +56,6 @@ export class SupplierInvoiceList implements OnInit{
         {ID: 8, Text: "Betalt"},
         {ID: 9, Text: "Fullført"}
     ];
-
-    //TODO REFRESH???
-    //testTableRefresh() {
-    //    this.localData[0].Name = "Navn endret av refresh!";
-    //    this.tables.toArray()[3].refresh(this.localData);
-    //}
 
     getStatusText = (StatusID: string) => {
         var text = "";
@@ -94,11 +86,6 @@ export class SupplierInvoiceList implements OnInit{
             .setNullable(true)
             .setWidth('4'); //Ser ikke ut til å virke
 
-        //For test purpose only
-        //var statusIdCol = new UniTableColumn('StatusID', 'StatusId', 'number')
-        //    .setEditable(false)
-        //    .setNullable(true);
-
         var statusTextCol = new UniTableColumn('StatusText', 'Status', 'string')
             .setTemplate((dataItem) => {
                 return this.getStatusText(dataItem.StatusID);
@@ -113,7 +100,6 @@ export class SupplierInvoiceList implements OnInit{
             .setEditable(false)
             .setNullable(true);
 
-        //TODO when expand is working for supplier and supplier information is available
         var supplierNrCol = new UniTableColumn('Supplier.ID', 'Lev. id', 'string')
             .setEditable(false)
             .setNullable(true);
@@ -127,7 +113,7 @@ export class SupplierInvoiceList implements OnInit{
             .setFormat("{0: dd.MM.yyyy}");
 
         var paymentDueDateCol = new UniTableColumn('PaymentDueDate', 'Forfallsdato', 'date')
-            .setClass("supplier-invoice-table-payment-overdue") //TODO: set only if date is expired.
+            .setClass("supplier-invoice-table-payment-overdue") //TODO: Set only if date is expired.
             .setFormat("{0: dd.MM.yyyy}");
 
         var invoiceIDCol = new UniTableColumn('InvoiceID', 'Fakturanr', 'number')
@@ -139,74 +125,23 @@ export class SupplierInvoiceList implements OnInit{
             .setNullable(true)
             .setClass("supplier-invoice-table-amount")
             .setFormat("{0:n}");
-        //.setFormat("{0: #,###.##}");
+        //.setFormat("{0: #,###.##}"); //TODO decide what/how format is set for the different field types
 
-        //CALLBACK
+        //CALLBACKs
         var selectCallback = (selectedItem) => {
-            console.log("selectCallback() called");
             this.selectedSupplierInvoice = selectedItem;
             this.onSelect.emit(selectedItem);
-
-            //this._router.navigate(['SupplierinvoiceEdit', { id: selectedItem.ID }]);
-            //this._router.navigateByUrl("/journalentry/supplierinvoices/Supplierinvoiceadd/" + selectedItem.ID);
-
-            //this._router.navigateByUrl("/journalentry/supplierinvoices/" + selectedItem.ID);
-            //this.onSelect.emit(selectedItem);
-
-            //this.setupModalConfig();
-            //this.modalConfig.value = this.selectedSupplierInvoice;
-            //this.modal.open();
         }
-        var createCallback = (createdItem) => {
-            console.log('Created: ');
-            console.log(createdItem);
 
-            this.selectedSupplierInvoice = createdItem;
-
-            //this._router.navigate(['SupplierinvoiceEdit', { id: selectedItem.ID }]);
-            //this._router.navigateByUrl("/journalentry/supplierinvoices/Supplierinvoiceadd/" + selectedItem.ID);
-
-            this._router.navigateByUrl("/journalentry/supplierinvoices/" + createdItem.ID);
-
-        };
-        var updateCallback = (updatedItem) => {
-            console.log('Updated: ');
-            console.log(updatedItem);
-        };
-
-        //Different data sources:
-        //**************************************************************
-        //This config uses the datasource spcified in this component
-        //this.supplierInvoiceTableCfg = new UniTableBuilder(response, false)
-        //    .addColumns(idCol, statusTextCol, invoiceDateCol, paymentDueDateCol, invoiceIDCol, taxInclusiveAmountCol)
-        //    .setSelectCallback(selectCallback)
-        //    .setPageSize(5)
-        //    .addCommands({ name: 'ContextMenu', text: '...', click: (event) => { event.preventDefault(); console.log(event) } });
-
-        //This config uses UniTable's remote datasource
-        //this.supplierInvoiceTableCfg = new UniTableBuilder('SupplierInvoices', false)
-        //    .addColumns(idCol, statusTextCol, journalEntryCol, supplierNrCol, supplierNameCol, invoiceDateCol, paymentDueDateCol, invoiceIDCol, taxInclusiveAmountCol)
-        //    .setSelectCallback(selectCallback)
-        //    .setExpand("JournalEntry, Supplier.Info")
-        //    .setPageSize(5)
-        //    .addCommands({
-        //        name: 'ContextMenu', text: '...', click: (event) => {
-        //            event.preventDefault();
-        //            console.log(event)
-        //        }
-        //    });
         this.supplierInvoiceTableCfg = new UniTableBuilder('SupplierInvoices', false)
             .addColumns(idCol, statusTextCol, journalEntryCol, supplierNrCol, supplierNameCol, invoiceDateCol, paymentDueDateCol, invoiceIDCol, taxInclusiveAmountCol)
             .setSelectCallback(selectCallback)
-            //.setCreateCallback(createCallback)
-            //.setUpdateCallback(updateCallback)
             .setExpand("JournalEntry, Supplier.Info")
             .setPageSize(5)
             .addCommands({
                 name: 'ContextMenu', text: '...', click: (function (event) {
                     event.preventDefault();
                     var dataItem = this.dataItem(jQuery(event.currentTarget).closest("tr"));
-                    console.log(dataItem);
 
                     if (dataItem !== null && dataItem.ID !== null) {
                         self.selectedSupplierInvoice = dataItem;
@@ -218,141 +153,7 @@ export class SupplierInvoiceList implements OnInit{
             });
     }
 
-    //dataReady(response) {
-    //    //Create table
-    //    //this.setupTableCfg(response);
-    //}
-
     ngOnInit() {
         this.setupTableCfg();
-
-        //this.supplierInvoiceService.GetAll(null)
-        //    .subscribe(response => {
-        //        this.supplierInvoices = response;
-        //        this.dataReady(response);
-        //    });
     }
-
-    supplierInvoiceUpdated(supplierInvoice: SupplierInvoice) {
-        //TODO
-        console.log("supplierInvoiceUpdated called");
-        console.log(supplierInvoice);
-        this.refreshTable();
-    }
-
-    refreshTable() {
-        //TODO Throws exception today
-        if (this.table !== null) {
-            this.table.refresh();
-        }
-    }
-
-    //#region "Test code"
-
-    //*******************************  TEST DATA NOT AVAILABLE DIRECTLY YET  *********************************************//
-    // THIS CODE TO BE REMOVED LATER
-    //********************************************************************************************************************//
-    syncAS() {
-        console.log("SYNKRONISER KONTOPLAN");
-        this.accountService.Action(null, "synchronize-ns4102-as")
-            .subscribe(
-                (response: any) => {
-                    alert("Kontoplan synkronisert for AS");
-                },
-                (error: any) => console.log(error)
-            );
-    }
-
-    smartBooking() {
-        console.log("SMART BOOKING NEW SUPPLIER INVOICE");
-        if (this.newSupplierInvoice.ID === null) {
-            console.error("Smart booking can not be performed since (this.newSupplierInvoice.ID is null");
-            return;
-        }
-        this.supplierInvoiceService.Action(this.newSupplierInvoice.ID, "smartbooking")
-            .subscribe(
-                (response: any) => {
-                    console.log("Smart booking completed");
-                    this.onSelect.emit(response);
-                },
-                (error: any) => console.log(error)
-            );
-
-    }
-
-    postSupplierInvoice() {
-        var rand = Math.random() * 100000;
-        var totalPrice = rand.toFixed(2);
-
-        this.newSupplierInvoice = {
-            "SupplierID": 1,
-            "InvoiceDate": new Date(),
-            "PaymentDueDate": new Date(),
-            "InvoiceType": 0,
-            "PaymentID": "123NEW",
-            "PaymentInformation": null,
-            "InvoiceID": 12,
-            "Credited": false,
-            "BankAccount": null,
-            "Payment": null,
-            "AmountRegards": null,
-            "DeliveryName": null,
-            "JournalEntryID": null,
-            "InvoiceRecieverName": "Ola Norman",
-            "InvoiceAddressLine1": null,
-            "InvoiceAddressLine2": null,
-            "InvoiceAddressLine3": null,
-            "InvoicePostalCode": 0,
-            "InvoiceCity": null,
-            "InvoiceCountryCode": null,
-            "InvoiceCountry": null,
-            "ShippingAddressLine1": null,
-            "ShippingAddressLine2": null,
-            "ShippingAddressLine3": null,
-            "ShippingPostalCode": 0,
-            "ShippingCity": null,
-            "ShippingCountryCode": null,
-            "ShippingCountry": null,
-            "OurReference": null,
-            "YourReference": null,
-            "SalesPerson": "Ola Salesman",
-            "CustomerPerson": null,
-            "DeliveryMethod": null,
-            "PaymentTerm": null,
-            "DeliveryTerm": null,
-            "DeliveryDate": null,
-            "Comment": null,
-            "InternalNote": null,
-            "FreeTxt": null,
-            "TaxInclusiveAmount": totalPrice,
-            "VatTotalsAmount": 0,
-            "Attachments": null,
-            "DimensionsID": 0,
-            "CurrencyCode": "NOK",
-            "CreatedBy": "Alan",
-            "CreatedDate": null,
-            "SupplierOrgNumber": null,
-            "CustomerOrgNumber": null,
-            "TaxInclusiveCurrencyAmount": 0,
-            "TaxExclusiveCurrencyAmount": 0,
-            "TaxExclusiveAmount": 0,
-            "StatusID": null,
-            "Deleted": false,
-            "CustomValues": {}
-        }
-
-        this.supplierInvoiceService.Post(this.newSupplierInvoice)
-            .subscribe(
-                (response: any) => {
-                    console.log(response);
-                    this.newSupplierInvoice = response;
-                    this.smartBooking();
-                },
-                (error: any) => {
-                    console.log(error);
-                }
-            );
-    }
-
-    //#endregion "Test code"
 }

@@ -1,6 +1,6 @@
 import {
     Account,
-    Localization,
+    SubEntity,
     Currency,
     AccountGroup,
     VatType,

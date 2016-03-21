@@ -43,21 +43,13 @@ export class SupplierInvoiceDetail implements OnInit {
         let id = +this._routeParams.get("id");
 
         if (id === null || typeof id === "undefined" || isNaN(id)) {
-            console.log("id is null");
-
-
             Observable.forkJoin(
-                //self._supplierInvoiceService.getNewSupplierInvoice(["JournalEntry", "Supplier.Info"]), //TODO: GetNewEntity virker ikke
-                self._supplierInvoiceService.GetNewEntity(), //TODO: GetNewEntity virker ikke
+                self._supplierInvoiceService.GetNewEntity(),
                 self._supplierService.GetAll(null, ["Info"])
             ).subscribe((response: any) => {
                 let [invoice, suppliers] = response;
                 self.supplierInvoice = invoice;
                 self.suppliers = suppliers;
-                //self.suppliers = response;
-
-                //self.supplierInvoice.Supplier = new Supplier();
-                //self.supplierInvoice.Supplier.Info = new BusinessRelation();
 
                 self.buildForm2();
             }, error => console.log(error));
@@ -75,7 +67,6 @@ export class SupplierInvoiceDetail implements OnInit {
                 self.buildForm2();
             }, error => console.log(error));
         }
-
     }
 
     private onSubmit(context: SupplierInvoiceDetail) {
@@ -83,28 +74,25 @@ export class SupplierInvoiceDetail implements OnInit {
 
         return () => {
             if (context.supplierInvoice.ID > 0) {
-                console.log("PUT Submit called...");
                 if (context.supplierInvoice.SupplierID != 0)
                     context.supplierInvoice.Supplier = null; //Needs to do this to avoid conflict between Supplier and SupplierID
                 context._supplierInvoiceService.Put(context.supplierInvoice.ID, context.supplierInvoice)
                     .subscribe((response: any) => {
                         context.supplierInvoice = response;
-                        alert(JSON.stringify(response));
+                        //alert(JSON.stringify(response));
                         context.whenFormInstance.then((instance: UniForm) => instance.refresh(context.supplierInvoice));
                     },
                     (error: Error) => console.error('error in SupplierInvoiceDetail.onSubmit - Put: ', error))
             }
             else {
-                console.log("POST Submit called...");
-                //context.supplierInvoice.SupplierID = 1;
-                //context.supplierInvoice.JournalEntryID = null;
+                //Following fields are required. For now hardcoded.
                 context.supplierInvoice.CreatedBy = "TK";
                 context.supplierInvoice.CurrencyCode = "NOK";
 
                 context._supplierInvoiceService.Post(context.supplierInvoice)
                     .subscribe((result: SupplierInvoice) => {
                         context.supplierInvoice = result;
-                        context.smartBooking(context);
+                        context.smartBooking(context, true);
                     },
                     (error: Error) => console.error('error in SupplierInvoiceDetail.onSubmit - Post: ', error)
                     );
@@ -113,24 +101,26 @@ export class SupplierInvoiceDetail implements OnInit {
     }
 
     onSmartBook() {
-        console.log("SMART BOOKING Triggered Manually");
-        this.smartBooking(this);
+        this.smartBooking(this, false);
     }
 
-    private smartBooking(context: SupplierInvoiceDetail) {
+    private smartBooking(context: SupplierInvoiceDetail, isNew: boolean) {
         var self = this;
+        console.log("smartBooking called.")
 
-        console.log("SMART BOOKING ");
         if (context.supplierInvoice.ID === null) {
-            console.error("Smart booking can not be performed since (SupplierInvoice.ID is null");
+            console.error("Smart booking can not be performed since SupplierInvoice.ID is null");
             return;
         }
         context._supplierInvoiceService.Action(context.supplierInvoice.ID, "smartbooking")
             .subscribe(
             (response: any) => {
-                console.log("Smart booking completed");
-                self.router.navigateByUrl("/journalentry/supplierinvoices/" + context.supplierInvoice.ID);
-                //this.onSelect.emit(response);
+                console.log("smartBooking completed.")
+                alert(JSON.stringify(response));
+                if (isNew)
+                    self.router.navigateByUrl("/journalentry/supplierinvoices/" + self.supplierInvoice.ID);
+                else
+                    self.whenFormInstance.then((instance: UniForm) => instance.refresh(self.supplierInvoice));
             },
             (error: any) => console.log(error)
             );
@@ -141,7 +131,7 @@ export class SupplierInvoiceDetail implements OnInit {
         var view: ComponentLayout = {
             Name: "SupplierInvoiceDetail",
             BaseEntity: "SupplierInvoice",
-            StatusID: 0,
+            StatusCode: 0,
             Deleted: false,
             ID: 1,
             CustomFields: null,
@@ -161,7 +151,7 @@ export class SupplierInvoiceDetail implements OnInit {
                     FieldSet: 0, ///
                     Section: 0, //
                     Legend: "",
-                    StatusID: 0,
+                    StatusCode: 0,
                     ID: 1,
                     Deleted: false,
                     CustomFields: null
@@ -181,7 +171,7 @@ export class SupplierInvoiceDetail implements OnInit {
                     FieldSet: 0, ///
                     Section: 0, //
                     Legend: "",
-                    StatusID: 0,
+                    StatusCode: 0,
                     ID: 1,
                     Deleted: false,
                     CustomFields: null
@@ -201,31 +191,11 @@ export class SupplierInvoiceDetail implements OnInit {
                     FieldSet: 0,
                     Section: 0,
                     Legend: "",
-                    StatusID: 0,
+                    StatusCode: 0,
                     ID: 2,
                     Deleted: false,
                     CustomFields: null
                 },
-                //{
-                //    ComponentLayoutID: 2,
-                //    EntityType: "Supplier",
-                //    Property: "Supplier.BusinessRelationID",
-                //    Placement: 2,
-                //    Hidden: false,
-                //    FieldType: FieldType.DROPDOWN,
-                //    ReadOnly: false,
-                //    LookupField: false,
-                //    Label: "Leverandørnavn",
-                //    Description: "",
-                //    HelpText: "",
-                //    FieldSet: 0,
-                //    Section: 0,
-                //    Legend: "",
-                //    StatusID: 0,
-                //    ID: 2,
-                //    Deleted: false,
-                //    CustomFields: null
-                //},
                 {
                     ComponentLayoutID: 2,
                     EntityType: "SupplierInvoice",
@@ -241,7 +211,7 @@ export class SupplierInvoiceDetail implements OnInit {
                     FieldSet: 0,
                     Section: 0,
                     Legend: "",
-                    StatusID: 0,
+                    StatusCode: 0,
                     ID: 3,
                     Deleted: false,
                     CustomFields: null
@@ -261,7 +231,7 @@ export class SupplierInvoiceDetail implements OnInit {
                     FieldSet: 0,
                     Section: 0,
                     Legend: "",
-                    StatusID: 0,
+                    StatusCode: 0,
                     ID: 4,
                     Deleted: false,
                     CustomFields: null
@@ -281,7 +251,7 @@ export class SupplierInvoiceDetail implements OnInit {
                     FieldSet: 0,
                     Section: 0,
                     Legend: "",
-                    StatusID: 0,
+                    StatusCode: 0,
                     ID: 4,
                     Deleted: false,
                     CustomFields: null
@@ -301,7 +271,7 @@ export class SupplierInvoiceDetail implements OnInit {
                     FieldSet: 0,
                     Section: 0,
                     Legend: "",
-                    StatusID: 0,
+                    StatusCode: 0,
                     ID: 4,
                     Deleted: false,
                     CustomFields: null
@@ -321,7 +291,7 @@ export class SupplierInvoiceDetail implements OnInit {
                     FieldSet: 0,
                     Section: 0,
                     Legend: "",
-                    StatusID: 0,
+                    StatusCode: 0,
                     ID: 4,
                     Deleted: false,
                     CustomFields: null
@@ -341,7 +311,7 @@ export class SupplierInvoiceDetail implements OnInit {
                     FieldSet: 0,
                     Section: 0,
                     Legend: "",
-                    StatusID: 0,
+                    StatusCode: 0,
                     ID: 4,
                     Deleted: false,
                     CustomFields: null
@@ -361,12 +331,12 @@ export class SupplierInvoiceDetail implements OnInit {
                     FieldSet: 0,
                     Section: 0,
                     Legend: "",
-                    StatusID: 0,
+                    StatusCode: 0,
                     ID: 4,
                     Deleted: false,
                     CustomFields: null
                 }
-                //TODO: Lev. Kontonr.; Bilagstekst, Merknad
+                //TODO: Following fileds missing: Lev. Kontonr.; Bilagstekst, Merknad
             ]
         };
 
@@ -377,38 +347,13 @@ export class SupplierInvoiceDetail implements OnInit {
     }
 
     extendFormConfig() {
-        //var fieldSupplierName: UniFieldBuilder = this.formBuilder.find('Supplier.BusinessRelationID');
-        //fieldSupplierName.setKendoOptions({
-        //    dataTextField: 'Info.Name',
-        //    dataValueField: 'ID',
-        //    //template: "${data.ID} - ${data.Info.Name}",
-        //    dataSource: this.suppliers
-        //});  
-
         var fieldSupplierName: UniFieldBuilder = this.formBuilder.find('SupplierID');
         fieldSupplierName.setKendoOptions({
             dataTextField: 'Info.Name',
             dataValueField: 'ID',
             template: "${data.ID} - ${data.Info.Name}",
             dataSource: this.suppliers
-        });  
-
-        //var field: UniFieldBuilder = this.formBuilder.find('JournalEntryID');
-        //field.setKendoOptions({
-        //    dataTextField: 'Supplier.Info.Name',
-        //    dataValueField: 'ID',
-        //    template: getJournalEntryNumber(data),
-        //    dataSource: this.supplierInvoice.
-        //});
-    }
-
-    getJournalEntryNumber = (dataItem) => {
-        var text = "";
-        if (dataItem.JournalEntryID === null) return "BilagsID=null";
-        if (dataItem.JournalEntry === null) return "Bilag=null";
-        if (dataItem.JournalEntry.JournalEntryNumber === null) return "Bilagsnr =null";
-
-        return dataItem.JournalEntry.JournalEntryNumber;
+        });
     }
 
     private buildFormConfig(layout: ComponentLayout, model: SupplierInvoice) {

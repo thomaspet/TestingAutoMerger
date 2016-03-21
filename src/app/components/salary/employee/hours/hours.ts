@@ -121,23 +121,23 @@ export class Hours {
                 .setModelField("WorkPercent")
                 .setType(UNI_CONTROL_DIRECTIVES[FieldType.NUMERIC]);
 
-            if (typeof employment.Localization !== "undefined") {
-                if (typeof employment.Localization.BusinessRelationInfo !== "undefined") {
-                    var localization = new UniFieldBuilder()
+            if (typeof employment.SubEntity) {
+                if (typeof employment.SubEntity.BusinessRelationInfo) {
+                    var subEntity = new UniFieldBuilder()
                         .setLabel("Lokalitet")
-                        .setModel(employment.Localization.BusinessRelationInfo)
+                        .setModel(employment.SubEntity.BusinessRelationInfo)
                         .setModelField("Name")
                         .setType(UNI_CONTROL_DIRECTIVES[FieldType.TEXT]);
                 }
             } else {
-                var localization = new UniFieldBuilder()
+                var subEntity = new UniFieldBuilder()
                     .setLabel("Lokalitet")
                     .setModel(employment)
-                    .setModelField("LocalizationID")
+                    .setModelField("SubEntityID")
                     .setType(UNI_CONTROL_DIRECTIVES[FieldType.NUMERIC]);
             }
 
-            group.addUniElements(jobCode, jobName, startDate, endDate, monthRate, hourRate, workPercent, localization);
+            group.addUniElements(jobCode, jobName, startDate, endDate, monthRate, hourRate, workPercent, subEntity);
 
             var readmore = new UniSectionBuilder("VIS MER...");
 
