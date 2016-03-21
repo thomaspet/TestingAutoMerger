@@ -4,8 +4,8 @@ import {
     TaxType,
     LimitType,
     StdWageType,
-    WageTypeSupplement
-} from "../unientities"
+    WageTypeSupplement,
+} from '../unientities'
 
 declare var _;
 

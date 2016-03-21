@@ -5,22 +5,20 @@ import {Headers} from "angular2/http";
 import {Observable} from "rxjs/Observable";
 import "rxjs/add/observable/forkJoin";
 
-import {UniForm} from "../../../../framework/forms/uniForm";
-import {UniFormBuilder} from "../../../../framework/forms/builders/uniFormBuilder";
-import {UniFieldBuilder} from "../../../../framework/forms/builders/uniFieldBuilder";
-import {UniSectionBuilder} from "../../../../framework/forms/builders/uniSectionBuilder";
+import {UniFieldBuilder, UniFormBuilder, UniForm, UniSectionBuilder, UniComboFieldBuilder} from "../../../../framework/forms";
+import {} from '../../../../framework/forms/uniComboGroupBuilder'
 import {UNI_CONTROL_DIRECTIVES} from "../../../../framework/controls";
 
 import {CompanySettingsDS} from "../../../data/companySettings";
 import {UniHttp} from "../../../../framework/core/http/http";
-import {SubEntity} from "../../../unientities";
-import {SubEntityService} from "../../../services/services";
+import {SubEntity, AGAZone, FieldType} from '../../../unientities';
+import {SubEntityService, AgaZoneService, MunicipalService} from '../../../services/services';
 
 
 @Component({
-    selector: "settings",
-    templateUrl: "app/components/settings/companySettings/companySettings.html",
-    providers: [provide(CompanySettingsDS, { useClass: CompanySettingsDS }), SubEntityService],
+    selector: 'settings',
+    templateUrl: 'app/components/settings/companySettings/companySettings.html',
+    providers: [provide(CompanySettingsDS, { useClass: CompanySettingsDS }), SubEntityService, AgaZoneService, MunicipalService],
     directives: [ROUTER_DIRECTIVES, NgFor, NgIf, UniForm]
 })
 
@@ -36,12 +34,17 @@ export class CompanySettings implements OnInit {
     currencies: Array<any> = [];
     periodSeries: Array<any> = [];
     accountGroupSets: Array<any> = [];
+    agaZones: Array<any> = [];
+    agaRules: Array<any> = [];
+    municipals: Array<any> = [];
 
     //TODO Use service instead of Http, Use interfaces!!
     constructor(private routeParams: RouteParams,
                 private companySettingsDS: CompanySettingsDS, 
                 private http: UniHttp, 
-                private subEntityService: SubEntityService) {
+                private subEntityService: SubEntityService,
+                private agaZoneService: AgaZoneService,
+                private municipalService: MunicipalService) {
 
     }
 
@@ -73,7 +76,7 @@ export class CompanySettings implements OnInit {
     //}
 
     dataReady() {
-        console.log("dataReady called");
+        console.log('dataReady called');
 
         var formBuilder = new UniFormBuilder();
 
@@ -134,13 +137,113 @@ export class CompanySettings implements OnInit {
             .setModelField('EmailAddress')
             .setType(UNI_CONTROL_DIRECTIVES[11]);
         
+        var officeMunicipalNumber = new UniFieldBuilder();
+        officeMunicipalNumber.setModel(this.company)
+            .setLabel('Kontorkommunenr/navn')
+            .setModelField('OfficeMunicipalityNo')
+            .setType(UNI_CONTROL_DIRECTIVES[10]);
+                
+        var officeMunicipalName = new UniFieldBuilder();
+        officeMunicipalName.setModel(this.municipals.find(x => x.MunicipalityNo === this.company.OfficeMunicipalityNo))
+            .setModelField('MunicipalityName')
+            .setType(UNI_CONTROL_DIRECTIVES[10]);
+        
+        var officeMunicipality = new UniComboFieldBuilder();
+        officeMunicipality.addUniElements(officeMunicipalNumber, officeMunicipalName);
+        
         //*********************  Virksomhet og aga  ***************************/
-        var subEntitySection = new UniSectionBuilder("Virksomhet og aga");
+        var subEntitiesSection = new UniSectionBuilder('Virksomhet og aga');
+        this.subEntities.forEach(subEntity => {
+            var municipal = this.municipals.find(x => x.MunicipalityNo === subEntity.MunicipalityNo);
+            var agaZone: AGAZone = this.getAgaZone(subEntity.AgaZone);
+            var agaRule = this.agaRules.find(x => x.sectorID === subEntity.AgaRule);
+            var agaZoneName = '';
+            var agaRuleName = '';
+            if (agaZone) { agaZoneName = ', Sone ' + agaZone.ZoneName}
+            if (agaRule) { agaRuleName = ', ' + agaRule.sector}
+            var subEntitySection = new UniSectionBuilder(subEntity.BusinessRelationInfo.Name + 
+                ', ' + subEntity.OrgNumber + 
+                ', ' + subEntity.MunicipalityNo + '-' + municipal.MunicipalityName +
+                agaZoneName + 
+                agaRuleName );
+            
+            var subEntityName = new UniFieldBuilder();
+            subEntityName.setLabel('Virksomhet navn')
+                .setModel(subEntity)
+                .setModelField('BusinessRelationInfo.Name')
+                .setType(UNI_CONTROL_DIRECTIVES[10]);
+            
+            var subEntityOrgNumber = new UniFieldBuilder();
+            subEntityOrgNumber.setLabel('Orgnr for virksomheten')
+                .setModel(subEntity)
+                .setModelField('OrgNumber')
+                .setType(UNI_CONTROL_DIRECTIVES[10]);
+            
+            var subEntityAddress = new UniFieldBuilder();
+            subEntityAddress.setLabel('Gateadr')
+                .setModel(subEntity)
+                .setModelField('BusinessRelationInfo.InvoiceAddress.AddressLine1')
+                .setType(UNI_CONTROL_DIRECTIVES[10]);
+            
+            var subEntityPostnr = new UniFieldBuilder();
+            subEntityPostnr.setLabel('Postnr, sted')
+                .setModel(subEntity)
+                .setModelField('BusinessRelationInfo.InvoiceAddress.PostalCode')
+                .setType(UNI_CONTROL_DIRECTIVES[10]);
+            var subEntityCity = new UniFieldBuilder();
+            subEntityCity
+                .setModel(subEntity)
+                .setModelField('BusinessRelationInfo.InvoiceAddress.City')
+                .setType(UNI_CONTROL_DIRECTIVES[10]);
+            var subEntityLocation = new UniComboFieldBuilder();
+            subEntityLocation.addUniElements(subEntityPostnr, subEntityCity);
+                
+            var subEntityMunicipalNumber = new UniFieldBuilder();
+            subEntityMunicipalNumber.setModel(subEntity)
+                .setLabel('Kommunenr/navn')
+                .setModelField('MunicipalityNo')
+                .setType(UNI_CONTROL_DIRECTIVES[10]);
+                
+            var subEntityMunicipalName = new UniFieldBuilder();
+            subEntityMunicipalName.setModel(this.municipals.find(x => x.MunicipalityNo === subEntity.MunicipalityNo))
+                .setModelField('MunicipalityName')
+                .setType(UNI_CONTROL_DIRECTIVES[10]);
+            
+            var subEntityMunicipality = new UniComboFieldBuilder();
+            subEntityMunicipality.addUniElements(subEntityMunicipalNumber, subEntityMunicipalName);
+            
+            
+            var subEntityAgaZone = new UniFieldBuilder();
+            subEntityAgaZone.setLabel('Sone')
+                .setModel(subEntity)
+                .setModelField('AgaZone')
+                .setType(UNI_CONTROL_DIRECTIVES[3])
+                .setKendoOptions({
+                    dataSource: this.agaZones,
+                    dataTextField: 'ZoneName',
+                    dataValueField: 'ID',
+                });
+            
+            var subEntityAgaRule = new UniFieldBuilder();
+            subEntityAgaRule.setLabel('Beregningsregel AGA')
+                .setModel(subEntity)
+                .setModelField('AgaRule')
+                .setType(UNI_CONTROL_DIRECTIVES[3])
+                .setKendoOptions({
+                    dataSource: this.agaRules,
+                    dataTextField: 'Sector',
+                    dataValueField: 'SectorID',
+                });
+            
+            subEntitySection.addUniElements(subEntityName, subEntityOrgNumber, subEntityAddress, subEntityLocation, subEntityMunicipality, subEntityAgaZone, subEntityAgaRule);
+            subEntitiesSection.addUniElement(subEntitySection);
+        });
         
         
-
+        
+        // ********************************************************************/
         // ********************  Selskapsoppsett    ***************************/
-        var companySetup = new UniSectionBuilder("Selskapsoppsett");
+        var companySetup = new UniSectionBuilder('Selskapsoppsett');
 
         var companyReg = new UniFieldBuilder();
         companyReg.setLabel('Foretaksregister')
@@ -183,7 +286,7 @@ export class CompanySettings implements OnInit {
 
         // ********************************************************************/
         // *********************  Regnskapsinnstillinger    *******************/
-        var accountingSettings = new UniSectionBuilder("Regnskapsinnstillinger");
+        var accountingSettings = new UniSectionBuilder('Regnskapsinnstillinger');
 
         //var periodSeriesAccountAll = new UniFieldBuilder();
         //periodSeriesAccountAll.setLabel('RegnskapsperioderAll')
@@ -205,7 +308,7 @@ export class CompanySettings implements OnInit {
             .setKendoOptions({
                 dataSource: new kendo.data.DataSource({
                     data: this.periodSeries,
-                    filter: { field: "SeriesType", operator: "eq", value: "1" }
+                    filter: { field: 'SeriesType', operator: 'eq', value: '1' }
                 }),
                 dataTextField: 'Name',
                 dataValueField: 'ID',
@@ -220,7 +323,7 @@ export class CompanySettings implements OnInit {
             .setKendoOptions({
                 dataSource: new kendo.data.DataSource({
                     data: this.periodSeries,
-                    filter: { field: "SeriesType", operator: "eq", value: "0" }
+                    filter: { field: 'SeriesType', operator: 'eq', value: '0' }
                 }),
                 dataTextField: 'Name',
                 dataValueField: 'ID',
@@ -274,7 +377,7 @@ export class CompanySettings implements OnInit {
             accountingLockedDate, vatLockedDate, forceSupplierInvoiceApproval);
 
         formBuilder.addUniElements(companyName, orgNr, web, street, street2,
-            postNumber, place, phone, email, companySetup, accountingSettings);
+            postNumber, place, phone, email, officeMunicipality, subEntitiesSection, companySetup, accountingSettings);
 
         this.form = formBuilder;
     }
@@ -289,17 +392,39 @@ export class CompanySettings implements OnInit {
             this.companySettingsDS.getPeriodSeries(),
             this.companySettingsDS.getAccountGroupSets(),
             this.companySettingsDS.get(this.id),
-            this.subEntityService.GetAll("")
+            this.subEntityService.GetAll('expand=BusinessRelationInfo,BusinessRelationInfo.InvoiceAddress'),
+            this.agaZoneService.GetAll(''),
+            this.agaZoneService.getAgaRules()
         )
             .subscribe(
             (dataset) => {
-                this.companyTypes = dataset[0];
-                this.currencies = dataset[1];
-                this.periodSeries = dataset[2];
-                this.accountGroupSets = dataset[3];
-                this.company = dataset[4];
-                this.subEntities = dataset[5];
-                this.dataReady();
+                
+                var filter: string = '';
+                
+                dataset[5].forEach((element) => {
+                    filter += 'MunicipalityNo eq ' + element.MunicipalityNo + ' or ';
+                });
+                
+                filter = filter.slice(0, filter.length - 3);
+                console.log('filter: ' + filter);
+                
+                this.municipalService.GetAll('filter=' + filter).subscribe((response) => {
+                    this.companyTypes = dataset[0];
+                    this.currencies = dataset[1];
+                    this.periodSeries = dataset[2];
+                    this.accountGroupSets = dataset[3];
+                    this.company = dataset[4];
+                    this.subEntities = dataset[5];
+                    this.agaZones = dataset[6];
+                    this.agaRules = dataset[7];
+                    console.log('error 1');
+                    this.municipals = response;
+                    console.log(JSON.stringify(response));
+                    this.dataReady();
+                    
+                },
+                (error) => console.log(error));
+                
             },
             (error) => console.log(error)
             );
@@ -331,7 +456,11 @@ export class CompanySettings implements OnInit {
     }
 
     ngOnChanges() {
-        console.log("NGCHANGE event")
+        console.log('NGCHANGE event')
+    }
+    
+    getAgaZone(id: number) {
+        return this.agaZones.find(object => object.ID === id);
     }
 
     /*
@@ -350,22 +479,22 @@ export class CompanySettings implements OnInit {
     }
     */
     onSubmit(value) {
-        console.log("onSubmit called");
+        console.log('onSubmit called');
 
         var self = this;
 
-        console.log("LAGRE id: " + this.id);
+        console.log('LAGRE id: ' + this.id);
         this.http
             .asPUT()
-            .withEndPoint("companysettings/" + self.company.ID)
+            .withEndPoint('companysettings/' + self.company.ID)
             .withBody(self.company)
             .send().subscribe(
             (response) => {
-                console.log("LAGRET Firmainnstillinger " + self.company.ID)
+                console.log('LAGRET Firmainnstillinger ' + self.company.ID)
                 //this.uniSaved.emit(this.company); //TODO according to account...
             },
             (error) => {
-                console.log("OPPDATERING FEILET");
+                console.log('OPPDATERING FEILET');
                 console.log(error._body);
             }
             );

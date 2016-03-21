@@ -13,3 +13,5 @@ export * from './salary/wagetype/wagetypeservice';
 export * from './salary/subentity/subentityservice';
 export * from './common/departementservice';
 export * from './common/projectservice';
+export * from './shared/agazoneservice';
+export * from './shared/municipalservice';
