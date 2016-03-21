@@ -10,18 +10,23 @@ import {
 import {Observable} from "rxjs/Observable";
 import {Employment} from "../../../../unientities";
 import {UniElementFinder} from "../../../../../framework/forms/shared/UniElementFinder";
+import {StaticRegisterService} from '../../../../services/staticregisterservice';
 
 declare var jQuery;
 
 @Component({
     selector: "employee-employment",
     directives: [UniForm],
-    templateUrl: "app/components/salary/employee/employments/employments.html"
+    templateUrl: "app/components/salary/employee/employments/employments.html",
+    providers: [StaticRegisterService]
+    
 })
 export class EmployeeEmployment {
     currentEmployee;
     formConfigs: UniFormBuilder[];
     styrkCodes;
+    staticRegisterService: StaticRegisterService;
+    styrk;
 
     typeOfEmployment: Array<any> = [
         {ID: 0, Navn: "Ikke satt"},
@@ -79,15 +84,23 @@ export class EmployeeEmployment {
         {ID: 6, Navn: "Bodø"}
     ];
 
-    constructor(private Injector: Injector, public employeeDS: EmployeeDS, public styrkcodesDS: STYRKCodesDS) {
+    constructor(private Injector: Injector, public employeeDS: EmployeeDS, public styrkcodesDS: STYRKCodesDS, public statReg: StaticRegisterService) {
+        
+        this.statReg.checkForStaticRegisterUpdate();
+        
         let params = Injector.parent.parent.get(RouteParams);
         Observable.forkJoin(
             employeeDS.get(params.get("id")),
             styrkcodesDS.getCodes(),
+            //this.staticRegisterService.getStaticRegisterDataset("styrk"),
+            //statReg.getStaticRegisterDataset("styrk"),
             employeeDS.getLocalizations()
         ).subscribe((response: any) => {
             let [employee, codes, loc] = response;
+            this.styrk = localStorage.getItem("styrkData");
             console.log("localizations from constructor", loc);
+            console.log("styrk",this.styrk);
+            console.log("styrkCodes", this.styrkCodes);
             this.currentEmployee = employee;
             this.styrkCodes = codes;
             this.localizations = loc;
@@ -97,6 +110,8 @@ export class EmployeeEmployment {
 
     buildFormConfigs() {
         this.formConfigs = [];
+        
+        //this.statReg.checkForStaticRegisterUpdate();
 
         this.currentEmployee.Employments.forEach((employment: Employment) => {
             var formbuilder = new UniFormBuilder();
@@ -105,7 +120,8 @@ export class EmployeeEmployment {
             var jobCode = this
                 .buildField("Stillingskode", employment, "JobCode", FieldType.AUTOCOMPLETE)
                 .setKendoOptions({
-                    dataSource: this.styrkCodes,
+                    //dataSource: this.styrkCodes,
+                    dataSource: this.statReg.getStaticRegisterDataset("styrk"),
                     dataTextField: "styrk",
                     dataValueField: "styrk"
                 });
@@ -135,10 +151,10 @@ export class EmployeeEmployment {
             var hourRate = this.buildField("Timelønn", employment, "HourRate", FieldType.NUMERIC);
             var workPercent = this.buildField("Stillingprosent", employment, "WorkPercent", FieldType.NUMERIC);
 
-            if (typeof employment.Localization !== "undefined") {
-                if (typeof employment.Localization.BusinessRelationInfo !== "undefined") {
+            if (typeof employment.SubEntity !== "undefined") {
+                if (typeof employment.SubEntity.BusinessRelationInfo !== "undefined") {
                     var localization = this
-                        .buildField("Lokasjon", employment.Localization.BusinessRelationInfo, "Name", FieldType.COMBOBOX);
+                        .buildField("Lokasjon", employment.SubEntity.BusinessRelationInfo, "Name", FieldType.COMBOBOX);
                     localization.setKendoOptions({
                         dataSource: this.localizations,
                         dataTextField: "BusinessRelationInfo.Name",

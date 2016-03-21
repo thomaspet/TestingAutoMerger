@@ -44,6 +44,7 @@ export class SalaryTransactionSelectionList {
         var taxcardCol = new UniTableColumn("TaxTable","Skattekort","string");
         var forpayoutCol = new UniTableColumn("Pay","Beløp til utbetaling","number");
         var localizationCol = new UniTableColumn("Localization.BusinessRelationInfo.Name","Lokasjon","string");
+        
         this.salarytransSelectionTableConfig = new UniTableBuilder("employees",false)
         .setExpand("BusinessRelationInfo,Localization.BusinessRelationInfo,BankAccounts")
         .setSelectCallback((selEmp) => {
