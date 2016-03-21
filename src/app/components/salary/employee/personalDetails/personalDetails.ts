@@ -30,7 +30,7 @@ export class PersonalDetails {
     form: UniFormBuilder = new UniFormBuilder();
     layout;
     employee;
-    localizations;
+    subEntities;
 
     @ViewChild(UniComponentLoader)
     uniCmpLoader: UniComponentLoader;
@@ -45,18 +45,16 @@ export class PersonalDetails {
 
     ngAfterViewInit() {
 
-        if(this.employeeDS.localizations){
-            console.log("Localizations are cached");
+        if(this.employeeDS.subEntities){
             this.getData();
         }else{
-            console.log("Caching localizations");
             this.cacheLocAndGetData();
         }
     }
     
     cacheLocAndGetData(){
-        this.employeeDS.getLocalizations().subscribe((response) => {
-            this.employeeDS.localizations = response;
+        this.employeeDS.getSubEntities().subscribe((response) => {
+            this.employeeDS.subEntities = response;
             
             this.getData();
         });

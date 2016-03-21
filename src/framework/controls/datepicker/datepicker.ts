@@ -32,6 +32,7 @@ export class UniDatepicker implements AfterViewInit, OnDestroy {
     }
 
     refresh(value: string): void {
+        value = value || "";
         var date = kendo.parseDate(value,parseFormats);
         this.datepicker.value(date);
         this.datepicker.trigger("change");
