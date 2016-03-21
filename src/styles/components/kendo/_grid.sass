@@ -1,166 +1,162 @@
 .uni-table-header
-  @include unigrid(2)
-  float: right
-  z-index: 9
-  position: relative
-  top: .8rem
+    @include unigrid(2)
+    float: right
+    z-index: 9
+    position: relative
+    top: .8rem
 
-  input[type="search"]
-    width: 100%
+    input[type=search]
+        width: 100%
 
 .k-grid
-  *
-    border-color: transparent
+    *
+        border-color: transparent
 
-  tr
-    border-bottom: pxToRem(1) solid $uni-color-scale9
+    tr
+        border-bottom: pxToRem(1) solid $uni-color-scale9
 
-    &:nth-of-type(odd)
-      background: transparentize($uni-color-scale9, .6)
+        &:nth-of-type(odd)
+            background: transparentize($uni-color-scale9, .6)
 
-  td, th
-    border-left: pxToRem(1) solid $uni-color-scale9
+    td, th
+        border-left: pxToRem(1) solid $uni-color-scale9
 
-    &:first-of-type
-      border-left: none
+        &:first-of-type
+            border-left: none
+
+        .k-button
+            @extend button.small
+
+    .editable-cell
+        padding: pxToRem(5) pxToRem(10)
+
+        &.k-edit-cell
+            padding: 0
+
+        input
+            padding-left: pxToRem(3)
 
     .k-button
-      @extend button.small
+        @extend button
 
-  .editable-cell
-    padding: pxToRem(5) pxToRem(10)
+    .k-button-icontext span.k-icon
+        display: none
 
-    &.k-edit-cell
-      padding: 0
-
-    input
-      padding-left: pxToRem(3)
-
-  .k-button
-    @extend button
-
-  .k-button-icontext span.k-icon
-    display: none
-
-  .k-grid-add
-    @extend button.good
+    .k-grid-add
+        @extend button.good
 
 .k-header
-  position: relative
+    position: relative
 
-.k-header>.k-grid-filter,
-.k-header>.k-header-column-menu
-  position: absolute
-  right: .2rem
+.k-header > .k-grid-filter,
+.k-header > .k-header-column-menu
+    position: absolute
+    right: .2rem
 
 .k-grid-content
-  background: $uni-color-negative
+    background: $uni-color-negative
 
 .k-grid .k-grid-header tr
-  background: $uni-color-negative
+    background: $uni-color-negative
 
 .k-grid-header-wrap
-  border-bottom: pxToRem(1) solid $uni-color-scale8
-  margin-bottom: pxToRem(-1)
+    border-bottom: pxToRem(1) solid $uni-color-scale8
+    margin-bottom: pxToRem(-1)
 
 .k-icon.k-filter
-  margin-right: 1rem
-  background: transparent unicon-filter($uni-color-scale7) top center no-repeat
-  background-size: .65rem
-
-  .k-grid-filter:hover &
-    background: transparent unicon-filter($uni-color-scale3) top center no-repeat
+    margin-right: 1rem
+    background: transparent unicon-filter($uni-color-scale7) top center no-repeat
     background-size: .65rem
 
+    .k-grid-filter:hover &
+        background: transparent unicon-filter($uni-color-scale3) top center no-repeat
+        background-size: .65rem
+
 .k-filter-menu
-  background: $uni-color-negative
-  border-radius: pxToRem(5)
-  box-shadow: 0 0 0.6rem rgba(34, 46, 55, 0.3)
-  border-color: $uni-color-scale8
+    background: $uni-color-negative
+    border-radius: pxToRem(5)
+    box-shadow: 0 0 0.6rem rgba(34, 46, 55, 0.3)
+    border-color: $uni-color-scale8
 
 .k-button
-  border-style: none
-  padding: 0 1.5rem
+    border-style: none
+    padding: 0 1.5rem
 
 .k-pager-nav
-  .k-icon
-    background: no-repeat center center
-    background-size: .6rem .6rem
-
-
-  &.k-state-disabled .k-icon
-    opacity: .3
-
-  &:not(.k-state-disabled):hover
-    background: transparentize($uni-color-scale9, .5)
     .k-icon
-      background-position: center center
+        background: no-repeat center center
+        background-size: .6rem .6rem
 
-  .k-i-seek-w
-    background-image: unicon-first-page($uni-color-scale5)
+    &.k-state-disabled .k-icon
+        opacity: .3
 
-  &:not(.k-state-disabled):hover .k-i-seek-w
-    background-image: unicon-first-page($uni-color-scale2)
+    &:not(.k-state-disabled):hover
+        background: transparentize($uni-color-scale9, .5)
+        .k-icon
+            background-position: center center
 
-  .k-i-arrow-w
-    background-image: unicon-prev-page($uni-color-scale5)
+    .k-i-seek-w
+        background-image: unicon-first-page($uni-color-scale5)
 
-  &:not(.k-state-disabled):hover .k-i-arrow-w
-    background-image: unicon-prev-page($uni-color-scale2)
+    &:not(.k-state-disabled):hover .k-i-seek-w
+        background-image: unicon-first-page($uni-color-scale2)
 
-  .k-i-arrow-e
-    background-image: unicon-next-page($uni-color-scale5)
+    .k-i-arrow-w
+        background-image: unicon-prev-page($uni-color-scale5)
 
-  &:not(.k-state-disabled):hover .k-i-arrow-e
-    background-image: unicon-next-page($uni-color-scale2)
+    &:not(.k-state-disabled):hover .k-i-arrow-w
+        background-image: unicon-prev-page($uni-color-scale2)
 
-  .k-i-seek-e
-    background-image: unicon-last-page($uni-color-scale5)
+    .k-i-arrow-e
+        background-image: unicon-next-page($uni-color-scale5)
 
-  &:not(.k-state-disabled):hover .k-i-seek-e
-    background-image: unicon-last-page($uni-color-scale2)
+    &:not(.k-state-disabled):hover .k-i-arrow-e
+        background-image: unicon-next-page($uni-color-scale2)
 
+    .k-i-seek-e
+        background-image: unicon-last-page($uni-color-scale5)
 
+    &:not(.k-state-disabled):hover .k-i-seek-e
+        background-image: unicon-last-page($uni-color-scale2)
 
 .k-pager-wrap
-  width: calc(100% - 1rem)
-  border-top: pxToRem(1) solid $uni-color-scale9
-
-  .k-pager-numbers,
-  .k-pager-nav
-    box-sizing: border-box
-    height: 2rem
-    margin: 0
-    border-radius: 0
-    border-width: 0
+    width: calc(100% - 1rem)
     border-top: pxToRem(1) solid $uni-color-scale9
-    border-bottom: pxToRem(1) solid $uni-color-scale9
-    border-right: pxToRem(1) solid $uni-color-scale9
-    line-height: 1.8rem
 
-    .k-link
-      line-height: 1.8rem
-      border-radius: 0
-      &:hover
-        border-bottom: pxToRem(2) $uni-color-scale8 solid
+    .k-pager-numbers,
+    .k-pager-nav
+        box-sizing: border-box
+        height: 2rem
+        margin: 0
+        border-radius: 0
+        border-width: 0
+        border-top: pxToRem(1) solid $uni-color-scale9
+        border-bottom: pxToRem(1) solid $uni-color-scale9
+        border-right: pxToRem(1) solid $uni-color-scale9
+        line-height: 1.8rem
 
-  .k-pager-nav:first-of-type
-    border-radius: pxToRem(3) 0 0 pxToRem(3)
-    border-left: pxToRem(1) solid $uni-color-scale9
+        .k-link
+            line-height: 1.8rem
+            border-radius: 0
+            &:hover
+                border-bottom: pxToRem(2) $uni-color-scale8 solid
 
-  .k-pager-nav:last-of-type
-    border-radius: 0 pxToRem(3) pxToRem(3) 0
+    .k-pager-nav:first-of-type
+        border-radius: pxToRem(3) 0 0 pxToRem(3)
+        border-left: pxToRem(1) solid $uni-color-scale9
+
+    .k-pager-nav:last-of-type
+        border-radius: 0 pxToRem(3) pxToRem(3) 0
 
 .k-pager-numbers
-  .k-state-selected
-    border-bottom: pxToRem(2) $uni-color-C2A solid
-    font-weight: 600
-    border-radius: 0
-    background: transparentize($uni-color-scale9, .5)
+    .k-state-selected
+        border-bottom: pxToRem(2) $uni-color-C2A solid
+        font-weight: 600
+        border-radius: 0
+        background: transparentize($uni-color-scale9, .5)
 
-  .k-link
-    color: $uni-color-scale2
-
+    .k-link
+        color: $uni-color-scale2
 
 //tbody[role=rowgroup]
 //  overflow: hidden
