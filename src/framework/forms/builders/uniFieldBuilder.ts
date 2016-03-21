@@ -39,6 +39,7 @@ export class UniFieldBuilder {
     onSelect: any;
     clearOnSelect: any;
     onChange: any;
+    editor: any;
 
     static fromLayoutConfig(element: any, model: any): UniFieldBuilder {
         var ufb = new UniFieldBuilder();
@@ -114,6 +115,11 @@ export class UniFieldBuilder {
     
     setPlaceholder(placeholder: any) {
         this.placeholder = placeholder;
+        return this;
+    }
+    
+    setEditor(editor: any) {
+        this.editor = editor;
         return this;
     }
 

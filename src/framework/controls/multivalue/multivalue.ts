@@ -17,7 +17,7 @@ interface MultiValue {
 @Component({
     selector: "uni-multivalue",
     templateUrl: "framework/controls/multivalue/multivalue.html",
-    directives: [NgIf, NgFor],
+    directives: [NgIf, NgFor, UniComponentLoader],
     inputs: ["values", "label"]
 })
 
@@ -62,14 +62,8 @@ export class UniMultiValue {
     }
 
     ngAfterViewInit() {
-        var self = this;      
-                
-   /*     this.ucl.load(PhoneModal).then((cmp: ComponentRef)=> {
-            self.modalinstance = new Promise((resolve)=> {
-                resolve(cmp.instance);
-           });
-       });
-*/    }
+        var self = this;                      
+    }
 
     // What should happen when the user clicks
     // the button next to the input?
@@ -87,11 +81,16 @@ export class UniMultiValue {
     edit(index, event) {
         var self = this;
         this.editindex = index;
+
+        this.ucl.load(this.config.editor).then((cmp: ComponentRef)=> {
+            console.log("==EDITOR ADDED==");   
+            //cmp.instance.modal.open();        
+        });            
+       
+     //   setTimeout(() => {
+     //       self.editinputs.first.nativeElement.focus();            
+     //   });
         
-        setTimeout(() => {
-            self.editinputs.first.nativeElement.focus();            
-        });
-      
         event.stopPropagation();
   
         return false;

@@ -24,10 +24,8 @@
         <li><button class="uni-multivalue-addBtn" (click)="addValue($event)">Legg til&hellip;</button></li>
     </ul>
 
-    <small *ngIf="successMessage" class="good">Saved.</small>
+    <uni-component-loader></uni-component-loader>
 
- <!--   <uni-component-loader></uni-component-loader> -->
- <!--   <phone-modal></phone-modal> -->
- <phone-form></phone-form>
+    <small *ngIf="successMessage" class="good">Saved.</small>
 
 </section>

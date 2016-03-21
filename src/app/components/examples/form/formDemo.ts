@@ -16,13 +16,14 @@ import {UniElementFinder} from "../../../../framework/forms/shared/UniElementFin
 import {UniSectionBuilder} from "../../../../framework/forms/builders/uniSectionBuilder";
 import {UniTextInput} from "../../../../framework/controls/text/text";
 import {UNI_CONTROL_DIRECTIVES} from "../../../../framework/controls";
-import {FieldType,BusinessRelation,Phone,PhoneTypeEnum} from "../../../unientities";
+import {FieldType,BusinessRelation,Phone} from "../../../unientities";
 import {PhoneModal} from "../../sales/customer/modals/phone/phone";
+import {BusinessRelationService,PhoneService} from "../../../services/services";
 
 @Component({
     selector: 'uni-form-demo',
-    directives: [UniComponentLoader],
-    providers: [EmployeeService],
+    directives: [UniComponentLoader,PhoneModal],
+    providers: [EmployeeService,BusinessRelationService,PhoneService],
     template: `
         <div class='application usertest'>
             <uni-component-loader></uni-component-loader>
@@ -34,13 +35,17 @@ export class UniFormDemo {
     private Model:EmployeeModel;
     private BusinessModel:BusinessRelation;
     private FormConfig:UniFormBuilder;
+    private EmptyPhone:Phone;
 
     @ViewChild(UniComponentLoader)
     UniCmpLoader:UniComponentLoader;
 
     constructor(private Http:UniHttp,
-                private Api:EmployeeService) {
+                private Api:EmployeeService,
+                private businessRelationService:BusinessRelationService,
+                private phoneService:PhoneService) {
         this.Api.setRelativeUrl('employees');
+        this.createPhoneModel();
     }
 
     ngOnInit() {
@@ -61,7 +66,6 @@ export class UniFormDemo {
         view = this.extendLayoutConfig(view);
 
         this.createModel(model);
-        this.createPhoneModel();
         this.buildFormConfig(view, model);
 
         // We can extend the form config after the LayoutBuilder has created the layout
@@ -89,31 +93,45 @@ export class UniFormDemo {
     }
     
     private createPhoneModel() {
-        this.BusinessModel = new BusinessRelation();
-        this.BusinessModel.DefaultPhoneID = 1;
-        this.BusinessModel.Phones = new Array<Phone>();
-        this.BusinessModel.Phones.push({
-            ID: 1,
-            LandCode: "NO",
-            Number: "+4791334697",
-            Description: "privat mobiltelefon",
-            Type: PhoneTypeEnum.PtMobile,
-            Deleted: false,
-            CustomFields: null,
-            BusinessRelationID: 1,
-            StatusCode: 0
-        });
-        this.BusinessModel.Phones.push({
-            ID: 2,
-            LandCode: "NO",
-            Number: "+4722222222",
-            Description: "fax",
-            Type: PhoneTypeEnum.PtFax,
-            Deleted: false,
-            CustomFields: null,
-            BusinessRelationID: 1,
-            StatusCode: 0
-        });   
+        this.businessRelationService.setRelativeUrl("businessrelation");
+        this.businessRelationService.GetNewEntity().subscribe(bm => {
+            this.BusinessModel = bm;
+            this.BusinessModel.DefaultPhoneID = 1;
+            this.BusinessModel.Phones = new Array<Phone>();
+            this.BusinessModel.Phones.push({
+                ID: 1,
+                LandCode: "NO",
+                Number: "+4791334697",
+                Description: "privat mobiltelefon",
+                Type: 150102,
+                Deleted: false,
+                CustomFields: null,
+                BusinessRelationID: 1,
+                StatusCode: 0
+            });
+            this.BusinessModel.Phones.push({
+                ID: 2,
+                LandCode: "NO",
+                Number: "+4722222222",
+                Description: "fax",
+                Type: 150103,
+                Deleted: false,
+                CustomFields: null,
+                BusinessRelationID: 1,
+                StatusCode: 0
+            });
+
+           console.log("==NEW BUSINESS RELATION");
+           console.log(this.BusinessModel); 
+           
+           this.phoneService.setRelativeUrl("phone");
+           this.phoneService.GetNewEntity().subscribe(phone => {
+              this.EmptyPhone = phone; 
+              
+              console.log("==EMPTY");
+              console.log(this.EmptyPhone);
+           });
+        });        
     }
 
     private addMultiValue() {
@@ -128,7 +146,8 @@ export class UniFormDemo {
             .setModel(this.BusinessModel)
             .setModelField('Phones')
             .setModelDefaultField("DefaultPhoneID")
-            .setPlaceholder(new Phone());
+            .setPlaceholder(this.EmptyPhone)
+            .setEditor(PhoneModal);
          
         this.FormConfig.addUniElement(field);
     }
@@ -192,9 +211,9 @@ export class UniFormDemo {
 
     private submit(context:UniFormDemo) {
         return () => {
-            context.Api.Post(context.Model).subscribe((result:any) => {
-                alert(JSON.stringify(result));
-            });
+         //   context.Api.Post(context.Model).subscribe((result:any) => {
+         //       alert(JSON.stringify(result));
+         //   });
         };
     }
 }
