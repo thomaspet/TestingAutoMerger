@@ -12,9 +12,9 @@ import {UniFieldBuilder} from "../../../../../../framework/forms/builders/uniFie
 import {UniComponentLoader} from "../../../../../../framework/core/componentLoader";
  
 @Component({
-    selector: "journal-entry-simple-form",
-    templateUrl: "app/components/accounting/journalentry/components/journalentrysimple/journalentrysimpleform.html",
-    directives: [UniComponentLoader]
+    selector: 'journal-entry-simple-form',
+    templateUrl: 'app/components/accounting/journalentry/components/journalentrysimple/journalentrysimpleform.html',
+    directives: [UniComponentLoader],
 })
 export class JournalEntrySimpleForm {
     @Input()

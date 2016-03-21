@@ -40,14 +40,19 @@ export class ExternalSearch {
                     .search(this.searchText)
                     .subscribe(
                         (result) => {
-                            this.fullSearchResult = result.Data.entries;
-                            
-                            if (this.showAllResults) {
-                                this.searchResult = this.fullSearchResult;
+                            if (result != null && result.Data != null) {
+                                this.fullSearchResult = result.Data.entries;
+                                
+                                if (this.showAllResults) {
+                                    this.searchResult = this.fullSearchResult;
+                                } else {
+                                    //default display only first 4 searchresults
+                                    this.searchResult = this.fullSearchResult.slice(0, 4);
+                                }
                             } else {
-                                //default display only first 4 searchresults
-                                this.searchResult = this.fullSearchResult.slice(0, 4);
-                            }                                                        
+                                this.searchResult = [];
+                                this.fullSearchResult = [];
+                            }                                                       
                         },
                         (err) => console.log('Feil ved søk:', err)
                     );               
