@@ -1,18 +1,24 @@
 <section class="application">
     <section class="header">
-        <h3>Søk i eksterne registre:</h3>
-    </section> 
-    <section class="filter">
-        <input type="text" id="searchText" *ngIf="useInternalSearchBox"/>
-        <input type="checkbox" value="BRREG" />Brønnøysund
-        <input type="checkbox" value="1880" />1880
-    </section>        
+        <section class="header-info">
+            <h3>Søk i eksterne registre:</h3>
+        </section>
+        <section class="filter">
+            <input type="text" id="searchText" *ngIf="useInternalSearchBox"/>
+            <input type="checkbox" value="BRREG" />Brønnøysund
+            <input type="checkbox" value="1880" />1880
+        </section>  
+    </section>
     <section class="search-content">        
         <section class="search-result">
             <article *ngFor="#item of searchResult" (click)="selectItem(item)" class="search-result-item">
-                <section class="search-result-main-info">{{item.Name}}</section>
-                <section class="search-result-extra-info">Orgnr: {{item.OrgNo}}, {{item.ZipCode + " " + item.City}}</section>
-            </article>
+                <section class="search-result-main-info">{{item.navn}}</section>
+                <section class="search-result-extra-info">Orgnr: {{item.orgnr}}, {{item.forradrpostnr + " " + item.forradrpoststed}}</section>
+            </article>            
         </section>
-    </section>
+        <section *ngIf="searchResult.length != fullSearchResult.length">Viser {{searchResult.length}} av {{fullSearchResult.length}} treff</section>
+        <p *ngIf="fullSearchResult.length == 0">
+            Begynn å skrive noe i "Navn" under for å søke i Brønnøysundregisteret
+        </p>
+    </section>    
 </section>

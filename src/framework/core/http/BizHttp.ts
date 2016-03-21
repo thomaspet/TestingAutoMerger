@@ -96,20 +96,11 @@ export class BizHttp<T> {
             .send();
     }
 
-    public Action<T>(ID: number, actionName: string): Observable<any> {
-        if (ID === null) {
-            return this.http
-                .asPUT()
-                .withEndPoint(this.relativeURL + '?action=' + actionName)
-                .send();
-        }
-        else {
-            return this.http
-                .asPUT()
-                .withEndPoint(this.relativeURL + '/' + ID + '?action=' + actionName)
-                .send();
-
-        }
+    public Action<T>(ID: number, actionName: string, parameters: string = null): Observable<any> {        
+        return this.http
+            .asPUT()
+            .withEndPoint(this.relativeURL + (ID === null ? '' : ID) + '?action=' + actionName + (parameters === null ? '' : '&' + parameters))
+            .send();
     }
 
     GetNewEntity(expand?: string[]) {

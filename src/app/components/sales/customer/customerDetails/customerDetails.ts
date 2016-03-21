@@ -4,7 +4,7 @@ import {Observable} from "rxjs/Observable";
 import "rxjs/add/observable/forkjoin";
 
 import {DepartementService, ProjectService, CustomerService} from "../../../../services/services";
-import {ExternalSearch} from '../../../common/externalSearch/externalSearch';
+import {ExternalSearch, SearchResultItem} from '../../../common/externalSearch/externalSearch';
 
 import {FieldType, FieldLayout, ComponentLayout, Customer, BusinessRelation} from "../../../../unientities";
 import {UNI_CONTROL_DIRECTIVES} from "../../../../../framework/controls";
@@ -37,6 +37,7 @@ export class CustomerDetails {
     DropdownData: any;
     Customer: Customer;
     LastSavedInfo: string;
+    searchText: string;
     
     whenFormInstance: Promise<UniForm>;
         
@@ -101,10 +102,10 @@ export class CustomerDetails {
         });       
     }
     
-    addSearchInfo(selectedSearchInfo: any) {
+    addSearchInfo(selectedSearchInfo: SearchResultItem) {
         if (this.Customer != null) {
-            this.Customer.Info.Name = selectedSearchInfo.Name;
-            this.Customer.Orgnumber = selectedSearchInfo.OrgNo;
+            this.Customer.Info.Name = selectedSearchInfo.navn;
+            this.Customer.Orgnumber = selectedSearchInfo.orgnr;
             
             this.formInstance.refresh(this.Customer); 
         } 
@@ -115,7 +116,7 @@ export class CustomerDetails {
         var view: ComponentLayout = {
             Name: "Customer",
             BaseEntity: "Customer",
-            StatusID: 0,
+            StatusCode: 0,
             Deleted: false,
             ID: 1,
             CustomFields: null,
@@ -135,7 +136,7 @@ export class CustomerDetails {
                     FieldSet: 0,
                     Section: 0,
                     Legend: "",
-                    StatusID: 0,
+                    StatusCode: 0,
                     ID: 1,
                     Deleted: false,
                     CustomFields: null 
@@ -155,7 +156,7 @@ export class CustomerDetails {
                     FieldSet: 0,
                     Section: 0,
                     Legend: "",
-                    StatusID: 0,
+                    StatusCode: 0,
                     ID: 2,
                     Deleted: false,
                     CustomFields: null 
@@ -175,7 +176,7 @@ export class CustomerDetails {
                     FieldSet: 0,
                     Section: 0,
                     Legend: "",
-                    StatusID: 0,
+                    StatusCode: 0,
                     ID: 3,
                     Deleted: false,
                     CustomFields: null 
@@ -195,7 +196,7 @@ export class CustomerDetails {
                     FieldSet: 0,
                     Section: 0,
                     Legend: "",
-                    StatusID: 0,
+                    StatusCode: 0,
                     ID: 4,
                     Deleted: false,
                     CustomFields: null 
@@ -215,7 +216,7 @@ export class CustomerDetails {
                     FieldSet: 0,
                     Section: 0,
                     Legend: "",
-                    StatusID: 0,
+                    StatusCode: 0,
                     ID: 5,
                     Deleted: false,
                     CustomFields: null 
@@ -235,7 +236,7 @@ export class CustomerDetails {
                     FieldSet: 0,
                     Section: 0,
                     Legend: "",
-                    StatusID: 0,
+                    StatusCode: 0,
                     ID: 5,
                     Deleted: false,
                     CustomFields: null 
@@ -255,7 +256,7 @@ export class CustomerDetails {
                     FieldSet: 0,
                     Section: 0,
                     Legend: "",
-                    StatusID: 0,
+                    StatusCode: 0,
                     ID: 6,
                     Deleted: false,
                     CustomFields: null 
@@ -275,7 +276,7 @@ export class CustomerDetails {
                     FieldSet: 0,
                     Section: 0,
                     Legend: "",
-                    StatusID: 0,
+                    StatusCode: 0,
                     ID: 7,
                     Deleted: false,
                     CustomFields: null 
@@ -295,7 +296,7 @@ export class CustomerDetails {
                     FieldSet: 0,
                     Section: 1,
                     Legend: "Dimensjoner",
-                    StatusID: 0,
+                    StatusCode: 0,
                     ID: 8,
                     Deleted: false,
                     CustomFields: null 
@@ -315,7 +316,7 @@ export class CustomerDetails {
                     FieldSet: 0,
                     Section: 1,
                     Legend: "",
-                    StatusID: 0,
+                    StatusCode: 0,
                     ID: 9,
                     Deleted: false,
                     CustomFields: null
@@ -359,41 +360,50 @@ export class CustomerDetails {
            self.whenFormInstance = new Promise((resolve: Function) => resolve(cmp.instance));
            setTimeout(() => {
                 self.formInstance = cmp.instance;   
+                
+                //subscribe to valueChanges of form to autosave data after X seconds
                 self.formInstance.form
                     .valueChanges
-                    .debounceTime(2000)
+                    .debounceTime(3000)
                     .subscribe(
-                        (value) =>  {
-                            console.log('verdi endret seg, lagrer..');//, value);                                                        
+                        (value) =>  {                                                                                
                             self.saveCustomer(true);                            
                         },
                         (err) => { 
                             console.log('Feil oppsto:', err);
                         }
-                    );             
+                    ); 
+                
+                //subscribe to valueChanges of Name input to autosearch external registries 
+                self.formInstance.controls["Info.Name"]
+                    .valueChanges
+                    .debounceTime(300)
+                    .distinctUntilChanged()
+                    .subscribe((data) => self.searchText = data);            
            });           
         });
     }           
 
-    saveCustomerManual(event: any) {
-        console.log('Lagrer kunde manuelt');
-        
+    saveCustomerManual(event: any) {        
         this.saveCustomer(false);
     }
 
     saveCustomer(autosave: boolean) {
         this.formInstance.updateModel();
                         
-        if (!autosave && this.Customer.StatusID == null) {
-            //set status if it is a draft
-            this.Customer.StatusID = 1;            
+        if (!autosave) {            
+            if (this.Customer.StatusCode == null) {
+                //set status if it is a draft
+                this.Customer.StatusCode = 1;
+            }            
+            this.LastSavedInfo = 'Lagrer kundeinformasjon...';                
+        } else {
+           this.LastSavedInfo = 'Autolagrer kundeinformasjon...';
         }                
                             
         this.customerService.Put(this.Customer.ID, this.Customer)
             .subscribe(
-                (updatedValue) => {
-                    console.log('data lagret vellykket');
-                    
+                (updatedValue) => {                    
                     if (autosave) {
                         this.LastSavedInfo = "Sist autolagret: " + (new Date()).toLocaleTimeString();
                     } else {
@@ -401,37 +411,7 @@ export class CustomerDetails {
                         this.LastSavedInfo = "Sist lagret: " + (new Date()).toLocaleTimeString();                         
                     }                                       
                 },
-                (err) => console.log('Feil oppsto ved lagring', err),
-                () => console.log('Ferdig å lagre endringer')
-            )
+                (err) => console.log('Feil oppsto ved lagring', err)
+            );
     }
-
-    /*onSubmit(context: CustomerDetails) {
-        return () => {    
-            this.formInstance.updateModel();
-            //var customer = this.formInstance.getValue();
-            
-            //context.Customer.Orgnumber = customer["OrgNumber"];
-            
-            console.log(this.Customer);
-            
-            if (context.Customer.ID > 0) {
-                context.customerService.Put(context.Customer.ID, context.Customer).subscribe(
-                        (data: Customer) => {
-                            context.Customer = data;
-                            context.whenFormInstance.then((instance: UniForm) => instance.refresh(context.Customer));
-                        },
-                        (error: Error) => console.error('error in CustomerDetails.onSubmit - Put: ', error)
-                    );       
-            } else {
-                context.customerService.Post(context.Customer).subscribe(
-                        (data: Customer) => {
-                            context.Customer = data;
-                            this.router.navigateByUrl("/customer/" + context.Customer.ID);
-                        },
-                        (error: Error) => console.error('error in CustomerDetails.onSubmit - Post: ', error)
-                    );    
-            }
-        }
-    }*/
 }
