@@ -9,10 +9,7 @@ export class AgaZoneService extends BizHttp<AGAZone> {
     }
     
     getAgaRules() {
-        return this.http
-            .asGET()
-            .usingBusinessDomain()
-            .withEndPoint(AGAZone.relativeUrl + '?action=get-agasectors')
-            .send();
+       return this.GetAll('action=get-agasectors');
     }
+    
 }
