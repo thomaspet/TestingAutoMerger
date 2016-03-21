@@ -1,7 +1,7 @@
 /// Media Query Mixin
 ///
-/// @param {string} $sizeclass One of the $unigrid-size keys, the string "retina", or pixel value.
-/// @param {string} $kind One of the media query types, for example "min-width"
+/// @param {string} $sizeclass One of the $unigrid-size keys, the string 'retina', or pixel value.
+/// @param {string} $kind One of the media query types, for example 'min-width'
 ///
 /// @author Jørgen Arnor G. Lom <jorgen@unimicro.no>
 ///
@@ -19,8 +19,8 @@
     $size: #{map-get($unigrid-sizes, $sizeclass)}px
 
     // If no kind is set, we assume that we want JUST the size class specified
-    @if $kind==false and $sizeclass!="small"
-      @media only screen and (min-width: $size) and (max-width: #{map-get-next($unigrid-sizes, $sizeclass, "9999")}px)
+    @if $kind==false and $sizeclass!='small'
+      @media only screen and (min-width: $size) and (max-width: #{map-get-next($unigrid-sizes, $sizeclass, '9999')}px)
         @content
 
     @else
@@ -31,7 +31,7 @@
       @media only screen and (#{$kind}: $size)
         @content
 
-  @else if $sizeclass=="retina"
+  @else if $sizeclass=='retina'
     @media (min-device-pixel-ratio: 2), (min-resolution: 192dpi)
       @content
 
