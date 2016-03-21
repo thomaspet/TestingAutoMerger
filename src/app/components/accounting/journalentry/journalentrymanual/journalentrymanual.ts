@@ -27,6 +27,6 @@ export class JournalEntryManual {
     }
 
     ngOnChanges(changes: { [propName: string]: SimpleChange }) {
-        console.log("ngOnChanges...");
+        
     }
 }

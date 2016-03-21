@@ -17,6 +17,7 @@ import {SupplierInvoiceDetail} from './supplierinvoicedetail';
 import {UniTable, UniTableBuilder, UniTableColumn} from '../../../../../framework/uniTable';
 import {SupplierInvoice} from "../../../../unientities";
 
+declare var jQuery;
 
 @Component({
     selector: "supplier-invoice-list",
