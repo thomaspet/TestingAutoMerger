@@ -1,6 +1,7 @@
 import {BizHttp} from '../../../framework/core/http/BizHttp';
 import {Customer, BusinessRelation} from '../../unientities';
 import {UniHttp} from '../../../framework/core/http/http';
+import { Observable } from "rxjs/Observable";
 
 export class CustomerService extends BizHttp<Customer> {
     
@@ -14,16 +15,17 @@ export class CustomerService extends BizHttp<Customer> {
         this.defaultExpand = ["Info"];
     }       
     
-    NextCustomer(CurrentID: number): Customer
+    NextCustomer(currentID: number): Observable<Customer>
     {
-        return super.Action(ID, "next-customer");
+        return super.Action(currentID, "next");
     }
     
-    PreviousCustomer(CurrentID: number): Customer
+    PreviousCustomer(currentID: number): Observable<Customer>
     {
-        return super.Action(ID, "previous-customer");
+        return super.Action(currentID, "previous");
     }
     
+    /* Not implemented on backend
     FirstCustomer(): Customer
     {
         return super.Action(0, "first-customer");
@@ -33,4 +35,5 @@ export class CustomerService extends BizHttp<Customer> {
     {
         return super.Action(0, "last-customer");
     }
+    */
 }
