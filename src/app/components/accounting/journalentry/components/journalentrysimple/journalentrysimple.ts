@@ -2,7 +2,7 @@ import {Component, Input, Output, ViewChild, SimpleChange, EventEmitter, QueryLi
 import {Observable} from "rxjs/Observable";
 import "rxjs/add/observable/forkjoin";
 
-import {FieldType, VatType, VatCodeGroup, Account, Dimensions} from "../../../../../unientities";
+import {FieldType, VatType, VatCodeGroup, Account, Dimensions, SupplierInvoice} from "../../../../../unientities";
 import {VatTypeService, VatCodeGroupService, AccountService, JournalEntryService, JournalEntryLineService, DepartementService, ProjectService} from "../../../../../services/services";
 
 import {JournalEntryData} from "../../../../../models/models";
@@ -18,7 +18,7 @@ import {JournalEntrySimpleForm} from './journalentrysimpleform';
     providers: [JournalEntryService, DepartementService, ProjectService, VatTypeService, AccountService]    
 })
 export class JournalEntrySimple {
-    @Input() supplierInvoiceID: number;
+    @Input() supplierInvoice: SupplierInvoice;
     public selectedJournalEntryLine : JournalEntryData;
     
     public journalEntryLines: Array<JournalEntryData>;
@@ -34,8 +34,8 @@ export class JournalEntrySimple {
     }
     
     ngOnInit() {
-        if (this.supplierInvoiceID) {
-            this.journalEntryService.getJournalEntryDataBySupplierInvoiceID(this.supplierInvoiceID)
+        if (this.supplierInvoice) {
+            this.journalEntryService.getJournalEntryDataBySupplierInvoiceID(this.supplierInvoice.ID)
                 .subscribe(data => 
                 {                
                     this.journalEntryLines = data;
@@ -52,16 +52,29 @@ export class JournalEntrySimple {
         ).subscribe(response => {
             this.DropdownData = response;                               
         });
-    }       
+    }  
     
-    getDepartmentName(id: number): string {
-        if (this.DropdownData) {
-            var dep = this.DropdownData[0].find((d) => d.ID == id);
+    ngOnChanges(changes: { [propName: string]: SimpleChange }) {
+
+        if (this.supplierInvoice) {
+            this.journalEntryService.getJournalEntryDataBySupplierInvoiceID(this.supplierInvoice.ID)
+                .subscribe(data => {
+                    this.journalEntryLines = data;
+                });
+        } else {
+            this.journalEntryLines = new Array<JournalEntryData>();;
+        }
+    }     
+    
+    getDepartmentName(line: JournalEntryData): string {
+        if (this.DropdownData && line && line.Dimensions) {
+            
+            var dep = this.DropdownData[0].find((d) => d.ID == line.Dimensions.DepartementID);
             if (dep != null)
-                return id + ' - ' + dep.Name;            
+                return line.Dimensions.DepartementID + ' - ' + dep.Name;            
         }
         
-        return id != undefined ? id.toString() : "";
+        return (line && line.Dimensions && line.Dimensions.DepartementID) ? line.Dimensions.DepartementID.toString() : "";        
     }
     
     getAccount(id: number): Account { 
@@ -84,14 +97,14 @@ export class JournalEntrySimple {
         return null;
     }
     
-    getProjectName(id: number): string {
-        if (this.DropdownData) {
-            var project = this.DropdownData[1].find((d) => d.ID == id);
+    getProjectName(line: JournalEntryData): string {
+        if (this.DropdownData && line && line.Dimensions) {
+            var project = this.DropdownData[1].find((d) => d.ID == line.Dimensions.ProjectID);
             if (project != null)
-                return id + ' - ' + project.Name;
+                return line.Dimensions.ProjectID + ' - ' + project.Name;
         }
         
-        return id != undefined ? id.toString() : ""; 
+        return (line && line.Dimensions && line.Dimensions.ProjectID) ? line.Dimensions.ProjectID.toString() : ""; 
     }
     
     postJournalEntryData() {
