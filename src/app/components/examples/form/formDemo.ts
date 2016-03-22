@@ -84,7 +84,6 @@ export class UniFormDemo {
     }
 
     private buildFormConfig(layout:ComponentLayout, model:Employee) {
-        console.log(layout);
         this.FormConfig = new UniFormLayoutBuilder().build(layout, model);
     }
 
@@ -93,6 +92,8 @@ export class UniFormDemo {
     }
     
     private createPhoneModel() {
+        var self = this;
+        
         this.businessRelationService.setRelativeUrl("businessrelation");
         this.businessRelationService.GetNewEntity().subscribe(bm => {
             this.BusinessModel = bm;
@@ -120,16 +121,10 @@ export class UniFormDemo {
                 BusinessRelationID: 1,
                 StatusCode: 0
             });
-
-           console.log("==NEW BUSINESS RELATION");
-           console.log(this.BusinessModel); 
-           
+     
            this.phoneService.setRelativeUrl("phone");
            this.phoneService.GetNewEntity().subscribe(phone => {
-              this.EmptyPhone = phone; 
-              
-              console.log("==EMPTY");
-              console.log(this.EmptyPhone);
+              self.EmptyPhone = phone; 
            });
         });        
     }
@@ -172,14 +167,23 @@ export class UniFormDemo {
             promptChar: '_'
         });
 
-        var section = UniElementFinder.findUniSection(1, this.FormConfig.fields);
-        var newSection = new UniSectionBuilder();
-        newSection.legend = 'New Section';
+        //////////////////////////////////
+        // add section inside a section
+        //////////////////////////////////
         var elem = new UniFieldBuilder();
         elem.fieldType = UniTextInput;
-        elem.setModel(this.Model).setModelField('Name').setLabel('New Field');
+        elem
+            .setModel(this.Model)
+            .setModelField('Name')
+            .setLabel('New Field');
+
+        var newSection = new UniSectionBuilder();
+        newSection.legend = 'New Section';
         newSection.addUniElement(elem);
+
+        var section = UniElementFinder.findUniSection(1, this.FormConfig.fields);
         section.addUniElement(newSection);
+        //////////////////////////////////
     }
 
     private extendLayoutConfig(layout:any) {

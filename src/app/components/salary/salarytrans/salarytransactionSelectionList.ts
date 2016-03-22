@@ -43,9 +43,9 @@ export class SalaryTransactionSelectionList {
         });
         var taxcardCol = new UniTableColumn("TaxTable","Skattekort","string");
         var forpayoutCol = new UniTableColumn("Pay","Beløp til utbetaling","number");
-        var localizationCol = new UniTableColumn("Localization.BusinessRelationInfo.Name","Lokasjon","string");
+        var subEntityCol = new UniTableColumn("SubEntity.BusinessRelationInfo.Name","Virksomhet","string");
         this.salarytransSelectionTableConfig = new UniTableBuilder("employees",false)
-        .setExpand("BusinessRelationInfo,Localization.BusinessRelationInfo,BankAccounts")
+        .setExpand("BusinessRelationInfo,SubEntity.BusinessRelationInfo,BankAccounts")
         .setSelectCallback((selEmp) => {
             this.selectedEmployeeID = selEmp.EmployeeNumber;
         })
@@ -54,7 +54,7 @@ export class SalaryTransactionSelectionList {
             ,nameCol 
             ,bankaccountCol
             ,taxcardCol
-            ,localizationCol
+            ,subEntityCol
             ,forpayoutCol
             );
     }

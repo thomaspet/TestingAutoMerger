@@ -1,15 +1,20 @@
-﻿@import "kendo/_kendo"
-@import "uniFormDemo/_uniFormDemo"
-@import "mainNav/_mainNav"
-@import "authentication/_authentication"
-@import "uniForm/_uniForm"
-@import "poster/_poster"
-@import "multiValue/_multivalueusertest"
-@import "multiValue/_multivalue"
-@import "appNav/_appNav"
-@import "settings/_settings"
-@import "cards/_cards"
-@import "uniModal/_uniModal"
-@import "accounting/_journalentry"
-@import "splitView/_splitView"
-@import "treeList/_treeList"
+﻿// NOTE: A Sass component is different from an Angular-component.
+// ============================================================================
+// Whereas in Angular, everything is a component - a Sass component is
+// strictly reserved as code that's meant to be reuseable.
+//
+// That means that the poster, the main nav bar, etc. are defined here.
+// Your individual views, and everything that's only meant to be used once,
+// belongs in 'Specifics'. (Or, better yet, make split some of it into more
+// generic classes, and make components of it.)
+
+@import 'cards/_cards'
+@import 'kendo/_kendo'
+@import 'mainNav/_mainNav'
+@import 'appNav/_appNav'
+@import 'multiValue/_multivalue'
+@import 'poster/_poster'
+@import 'splitView/_splitView'
+@import 'treeList/_treeList'
+@import 'uniForm/_uniForm'
+@import 'uniModal/_uniModal'

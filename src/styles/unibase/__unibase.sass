@@ -1,45 +1,17 @@
-﻿// This is the base index
-@import "icons/_icons"
-@import "colors/_colors"
-@import "typography/_typography"
-@import "helpers/_helpers"
-@import "grid/_grid"
-@import "buttons/_buttons"
-@import "forms/_forms"
-@import "loadingIndicators/_loadingIndicators"
+﻿// About UniBase.sass
+// ============================================================================
+// These are the base styles for Uni Micro web projects.
+// This includes things like the font stack, color variables, helper functions,
+// the grid system, and styling for very basic controls (things like headlines,
+// inputs, buttons, and soforth).
+// Though built for Uni Economy, the idea is that we should be able to drop
+// these styles into any future web project as a sold foundation.
 
-
-body.kitchensink
-  & main
-    @include unigrid(14)
-    margin: 0 auto !important
-
-  & label
-    @include unigrid(3,3,4,1)
-    & input
-      box-sizing: border-box
-      width: 100%
-
-  & #grids
-    @include clearfix
-
-    & div
-      background: $uni-color-scale9
-      border: 1px dotted $uni-color-C2A
-      margin-bottom: .3rem
-
-      &:hover
-        background: $uni-color-C2A
-        color: $uni-color-negative
-
-  & .one
-    @include unigrid(1)
-    @include clearfix
-    float: left
-
-  & .example
-    clear: both
-
-    @for $i from 1 through 16
-      &.col#{$i}
-        @include unigrid($i)
+@import 'helpers/_helpers'
+@import 'colors/_colors'
+@import 'typography/_typography'
+@import 'grid/_grid'
+@import 'buttons/_buttons'
+@import 'forms/_forms'
+@import 'icons/_icons'
+@import 'loadingIndicators/_loadingIndicators'

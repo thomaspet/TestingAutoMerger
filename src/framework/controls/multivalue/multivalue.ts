@@ -2,7 +2,7 @@ import {Component, ComponentRef, ElementRef, Input, ViewChild, ViewChildren} fro
 import {NgIf, NgFor} from "angular2/common";
 import {UniFieldBuilder} from "../../forms/builders/uniFieldBuilder";
 import {UniComponentLoader} from '../../../framework/core/componentLoader';
-import {PhoneModal} from "../../../app/components/sales/customer/modals/phone/phone";
+import {UniModal} from '../../modals/modal';
 
 declare var jQuery;
 
@@ -27,7 +27,6 @@ export class UniMultiValue {
 
     @ViewChild(UniComponentLoader)
     ucl: UniComponentLoader;
-    modalinstance: Promise<PhoneModal>;
     
     @ViewChildren('editinput') editinputs;
 
@@ -55,20 +54,15 @@ export class UniMultiValue {
             }
         });    
     }
-
+    
     ngOnInit() {
         this.config.fieldComponent = this;
         //this.config.model[this.config.field].push(this.placeholder());
     }
 
-    ngAfterViewInit() {
-        var self = this;                      
-    }
-
     // What should happen when the user clicks
     // the button next to the input?
     addOrDropdown() {
-        console.log("CALLING ADD OR DROPDOWN");
         if (this.config.model[this.config.field].length <= 1) {
             this.addValue();
         } else {
@@ -80,17 +74,24 @@ export class UniMultiValue {
     // and unset it for all others.
     edit(index, event) {
         var self = this;
-        this.editindex = index;
-
-        this.ucl.load(this.config.editor).then((cmp: ComponentRef)=> {
-            console.log("==EDITOR ADDED==");   
-            //cmp.instance.modal.open();        
-        });            
-       
-     //   setTimeout(() => {
-     //       self.editinputs.first.nativeElement.focus();            
-     //   });
-        
+ 
+        if (this.config.editor) { // Use custom editor
+            this.ucl.load(this.config.editor).then((cmp: ComponentRef)=> {
+                cmp.instance.modalConfig.isOpen = true;
+                cmp.instance.modalConfig.model = this.config.model[this.config.field][index];
+                
+                cmp.instance.Changed.subscribe((model: any) => {
+                    self.config.model[this.config.field][index] = model;
+                });                     
+            });                        
+        } else {
+            this.editindex = index;
+    
+            setTimeout(() => {
+               self.editinputs.first.nativeElement.focus();            
+            });    
+        }
+                
         event.stopPropagation();
   
         return false;
