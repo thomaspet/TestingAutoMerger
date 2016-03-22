@@ -1,29 +1,28 @@
+<h2>Leverandørfaktura</h2>
 <header class="poster">
     <article class="poster_toolbar">
         <h2 class="poster_toolbar_headline">
-            <p *ngIf="supplierInvoice != null && supplierInvoice.ID > 0">Leverandørnummer &nbsp;:&nbsp; {{supplierInvoice.ID}}</p>
+            <!--<p *ngIf="supplierInvoice != null && supplierInvoice.ID > 0">Leverandørnummer &nbsp;:&nbsp; {{supplierInvoice.Supplier.Info.Name}}</p>-->
             <p *ngIf="supplierInvoice == null || supplierInvoice.ID == 0"><i>Ny faktura-registrering med smart bokføring.</i></p>
-            <button *ngIf="supplierInvoice != null && supplierInvoice.JournalEntryID == null && supplierInvoice.ID > 0" (click)="onSmartBook()">Smart bokføring</button>
+            <!--<button *ngIf="supplierInvoice != null && supplierInvoice.JournalEntryID == null && supplierInvoice.ID > 0" (click)="onSmartBook()">Smart bokføring</button>-->
         </h2>
-
-        <nav class="poster_toolbar_tools">
-            <a href="#" class="previous">Forrige</a>
-            <a href="#" class="next">Neste</a>
-            <a href="#" class="new">Ny faktura</a>
-        </nav>
 
     </article>
     <!-- Widget poster -->
     <section class="poster_overview">
         <uni-widget-poster [model]="SupplierInvoice"></uni-widget-poster>
     </section>
-
 </header>
 
 
 <article class="supplier-invoice-detail-form">
     <router-outlet></router-outlet>
     <uni-component-loader></uni-component-loader>
+    <!--<footer class="full-footer">
+        <section class="application">
+            <button class="good" (click)="save($event)">Lagre</button>
+        </section>
+    </footer>-->
 </article>
 
 <section class="supplier-invoice-detail-document">
@@ -33,4 +32,5 @@
     <p>Fakturadokument kan vises her. Ikke implementert foreløpig. Avventer til dokumentsystem er på plass</p>
     <p></p>
 </section>
+
 

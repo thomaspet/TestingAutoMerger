@@ -25,7 +25,7 @@ export class SupplierInvoices {
 
     }
 
-    onAddNew()
+    onCreateNew()
     {
         this._router.navigateByUrl("/journalentry/supplierinvoices/New");
     }

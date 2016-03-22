@@ -15,7 +15,7 @@ import {SupplierInvoiceDetail} from './supplierinvoicedetail';
 
 
 import {UniTable, UniTableBuilder, UniTableColumn} from '../../../../../framework/uniTable';
-import {SupplierInvoice} from "../../../../unientities";
+import {SupplierInvoice, Status, StatusCategoryCode} from "../../../../unientities";
 
 declare var jQuery;
 
@@ -25,10 +25,9 @@ declare var jQuery;
     providers: [SupplierInvoiceService, AccountService],
     directives: [UniTable, UniModal]
 })
-export class SupplierInvoiceList implements OnInit{
+export class SupplierInvoiceList implements OnInit {
     @Output() onSelect = new EventEmitter<SupplierInvoice>();
     supplierInvoices: SupplierInvoice[];
-    newSupplierInvoice: any;
     selectedSupplierInvoice: SupplierInvoice;
 
     @ViewChild(UniTable) table: any;
@@ -40,28 +39,36 @@ export class SupplierInvoiceList implements OnInit{
         private supplierInvoiceService: SupplierInvoiceService,
         private accountService: AccountService,
         private _router: Router,
-        routeParams: RouteParams)
-    {
+        routeParams: RouteParams) {
+        this._selectedId = 34;
     }
 
     //TODO: To be retrieved from database schema shared.Status instead?
     statusTypes: Array<any> = [
-        {ID: 0, Text: "Udefinert"},
-        {ID: 1, Text: "Kladd"},
-        {ID: 2, Text: "For godkjenning"},
-        {ID: 3, Text: "Godkjent"},
-        {ID: 4, Text: "Slettet"},
-        {ID: 5, Text: "Bokført"},
-        {ID: 6, Text: "Til betaling"},
-        {ID: 7, Text: "Delvis betalt"},
-        {ID: 8, Text: "Betalt"},
-        {ID: 9, Text: "Fullført"}
+        { Code: "1", Text: "Kladd" },
+        { Code: "10000", Text: "Kladd" },
+        { Code: "10001", Text: "Kladd" },
+        { Code: "20000", Text: "Pending" },
+        { Code: "30000", Text: "Active" },
+        { Code: "40000", Text: "Fullført" },
+        { Code: "50000", Text: "InActive" },
+        { Code: "60000", Text: "Deviation" },
+        { Code: "70000", Text: "Error" },
+        { Code: "90000", Text: "Deleted" },
+
+        { Code: "2", Text: "For godkjenning" },
+        { Code: "30002", Text: "For godkjenning" },
+        { Code: "30003", Text: "Godkjent" },
+        { Code: "30004", Text: "Bokført" },
+        { Code: "30005", Text: "Til betaling" },
+        { Code: "30006", Text: "Delvis betalt" },
+        { Code: "30007", Text: "Betalt" },
     ];
 
-    getStatusText = (StatusID: string) => {
-        var text = "";
+    getStatusText = (StatusCode: string) => {
+        var text = "Udefinert";
         this.statusTypes.forEach((status) => {
-            if (status.ID === StatusID) {
+            if (status.Code === StatusCode) {
                 text = status.Text;
                 return;
             }
@@ -87,9 +94,9 @@ export class SupplierInvoiceList implements OnInit{
             .setNullable(true)
             .setWidth('4'); //Ser ikke ut til å virke
 
-        var statusTextCol = new UniTableColumn('StatusText', 'Status', 'string')
+        var statusTextCol = new UniTableColumn('StatusCode', 'Status', 'string')
             .setTemplate((dataItem) => {
-                return this.getStatusText(dataItem.StatusID);
+                return this.getStatusText(dataItem.StatusCode);
             })
             .setEditable(false)
             .setNullable(true);
@@ -101,7 +108,7 @@ export class SupplierInvoiceList implements OnInit{
             .setEditable(false)
             .setNullable(true);
 
-        var supplierNrCol = new UniTableColumn('Supplier.ID', 'Lev. id', 'string')
+        var supplierNrCol = new UniTableColumn('Supplier.SupplierNumber', 'Lev. id', 'string')
             .setEditable(false)
             .setNullable(true);
 
@@ -139,6 +146,7 @@ export class SupplierInvoiceList implements OnInit{
             .setSelectCallback(selectCallback)
             .setExpand("JournalEntry, Supplier.Info")
             .setPageSize(5)
+            .setFilterable(true)
             .addCommands({
                 name: 'ContextMenu', text: '...', click: (function (event) {
                     event.preventDefault();
@@ -156,5 +164,31 @@ export class SupplierInvoiceList implements OnInit{
 
     ngOnInit() {
         this.setupTableCfg();
+    }
+
+    createNew() {
+
+        this._router.navigateByUrl("/journalentry/supplierinvoices/New");
+
+        //TODO?? When vlaidation for Draft status can be bypassed.
+        //this.supplierInvoiceService.GetNewEntity()
+        //    .subscribe(
+        //    (data) => {
+        //        this.PostSupplierInvoiceDraft(data);
+        //    },
+        //    (err) => console.log('Error creating new supplier invoice: ', err)
+        //    );
+    }
+    private PostSupplierInvoiceDraft(context: SupplierInvoice) {
+        context.StatusCode = StatusCategoryCode.Draft;
+
+        this.supplierInvoiceService.Post(context)
+            .subscribe(
+            (data) => {
+                this._router.navigateByUrl('/journalentry/supplierinvoices/' + data.ID);
+            },
+            (err) => console.log('Error creating new supplier invoice: ', err)
+            );
+
     }
 }
