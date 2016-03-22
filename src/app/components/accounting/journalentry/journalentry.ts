@@ -1,6 +1,8 @@
 import {Component} from "angular2/core";
 import {RouteConfig, RouteDefinition, ROUTER_DIRECTIVES, Router} from "angular2/router";
 
+import {ComponentProxy} from "../../../../framework/core";
+import {AsyncRoute} from "angular2/router";
 
 import {TabService} from "../../layout/navbar/tabstrip/tabService";
 import {UniTabs} from '../../layout/uniTabs/uniTabs';
@@ -8,12 +10,14 @@ import {UniTabs} from '../../layout/uniTabs/uniTabs';
 import {JournalEntryManual} from './journalentrymanual/journalentrymanual';
 import {Payments} from './payments/payments';
 import {SupplierInvoices} from './supplierinvoices/supplierinvoices';
+import {SupplierInvoiceDetail} from './supplierinvoices/supplierinvoicedetail';
 
 const CHILD_ROUTES = [
     {path: '/', redirectTo: ['JournalEntryManual']},
-    {path: '/manual', component: JournalEntryManual, as: 'JournalEntryManual'},
-    {path: '/payments', component: Payments, as: 'Payments'},
-    {path: '/supplierinvoices', component: SupplierInvoices, as: 'SupplierInvoices'}
+    {path: '/manual', component: JournalEntryManual, as: 'Bilagsregistrering'},
+    {path: '/payments', component: Payments, as: 'Betaling'},
+    {path: '/supplierinvoices', component: SupplierInvoices, as: 'Leverandørfaktura' },
+    {path: '/supplierinvoices/:id', component: SupplierInvoiceDetail, as: 'SupplierInvoiceDetail'}
 ];
 
 @Component({
@@ -27,8 +31,9 @@ export class JournalEntry {
     childRoutes: RouteDefinition[];
 
     constructor(public router: Router, private tabService: TabService) {
-        this.tabService.addTab({name: "Bilagsregistrering", url: "/accounting/journalentry"});
-        this.childRoutes = CHILD_ROUTES.slice(1); // we dont want the redirect route in our navigation
+        this.tabService.addTab({ name: "Bilagsregistrering", url: "/accounting/journalentry" });
+        this.childRoutes = CHILD_ROUTES.slice(1, CHILD_ROUTES.length-1); 
+        // we dont want the redirect route in our navigation
     }
 
     ngOnInit() {

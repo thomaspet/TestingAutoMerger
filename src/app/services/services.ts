@@ -8,6 +8,7 @@ export * from './accounting/journalentrylinedraftservice';
 export * from './accounting/supplierservice';
 export * from './accounting/supplierinvoiceservice';
 export * from './accounting/supplierinvoiceitemservice';
+export * from './accounting/BankAccountService';
 export * from './salary/employee/employeeservice';
 export * from './salary/employee/employmentservice';
 export * from './salary/wagetype/wagetypeservice'

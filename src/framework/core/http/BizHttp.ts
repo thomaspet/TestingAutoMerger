@@ -26,10 +26,13 @@ export class BizHttp<T> {
         this.LogAll = true;
     }
 
-    public Get<T>(ID: number, expand?: string[]): Observable<any> {
+    public Get<T>(ID: number|string, expand?: string[]): Observable<any> {
         let expandStr;
         if (expand) {
             expandStr = expand.join(',');
+        }
+        if (!ID) {
+            ID = 'new';
         }
         return this.http
             .usingBusinessDomain()
@@ -40,7 +43,7 @@ export class BizHttp<T> {
             });
     }
 
-    public GetAll<T>(query: string): Observable<any> {
+    public GetAll<T>(query: string, expand?: string[]): Observable<any> {
         if (this.DefaultOrderBy !== null && (query === null || (query !== null && query.toLowerCase().indexOf('orderby') === 0))) {
             if (query !== null) {
                 query += '&orderby=' + this.DefaultOrderBy;
@@ -49,11 +52,18 @@ export class BizHttp<T> {
             }
         }
 
+        let expandStr;
+        if (expand) {
+            expandStr = expand.join(',');
+        }
+
         return this.http
             .usingBusinessDomain()
             .asGET()
             .withEndPoint(this.relativeURL + (query ? '?' + query : ''))
-            .send();
+            .send({
+                expand: expandStr
+            });
     }
 
     public Post<T>(entity: T): Observable<any> {
@@ -114,10 +124,13 @@ export class BizHttp<T> {
         if (expand) {
             expandStr = expand.join(',');
         }
+
+        //TODO. Needs a more robust way to handle the Singular Url needed for this request.
+        let relativeUrlSingular = this.relativeURL.slice(0, this.relativeURL.length - 1); 
         return this.http
             .usingMetadataDomain()
             .asGET()
-            .withEndPoint(this.relativeURL + '/new')
+            .withEndPoint(relativeUrlSingular + '/new')
             .send({
                 expand: expandStr
             });
