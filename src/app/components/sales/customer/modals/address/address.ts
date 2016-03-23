@@ -1,4 +1,4 @@
-import {Component, ViewChildren, Type, Input, QueryList, ViewChild, ComponentRef} from "angular2/core";
+import {Component, ViewChildren, Type, Input, Output, QueryList, ViewChild, ComponentRef, EventEmitter} from "angular2/core";
 import {NgIf, NgModel, NgFor} from "angular2/common";
 import {UniModal} from "../../../../../../framework/modals/modal";
 import {UniComponentLoader} from "../../../../../../framework/core/componentLoader";
@@ -24,17 +24,8 @@ export class AddressForm {
     @ViewChild(UniForm)
     form: UniForm;
 
-    Address: Address;
+    model: Address;
 
-    constructor() {
-        this.Address = new Address();
-        this.Address.AddressLine1 = "Oterstadneset 14";
-        this.Address.PostalCode = "5727";
-        this.Address.City = "Stamnes";
-        this.Address.CountryCode = "NO";
-        this.Address.Country = "NORGE";
-    }
-   
     ngOnInit()
     {
         this.createFormConfig();      
@@ -45,7 +36,7 @@ export class AddressForm {
         var view: ComponentLayout = {
             Name: "Address",
             BaseEntity: "Address",
-            StatusID: 0,
+            StatusCode: 0,
             Deleted: false,
             ID: 1,
             CustomFields: null,
@@ -65,7 +56,7 @@ export class AddressForm {
                     FieldSet: 0,
                     Section: 0,
                     Legend: "",
-                    StatusID: 0,
+                    StatusCode: 0,
                     ID: 1,
                     Deleted: false,
                     CustomFields: null 
@@ -85,7 +76,7 @@ export class AddressForm {
                     FieldSet: 0,
                     Section: 0,
                     Legend: "",
-                    StatusID: 0,
+                    StatusCode: 0,
                     ID: 1,
                     Deleted: false,
                     CustomFields: null 
@@ -105,7 +96,7 @@ export class AddressForm {
                     FieldSet: 0,
                     Section: 0,
                     Legend: "",
-                    StatusID: 0,
+                    StatusCode: 0,
                     ID: 1,
                     Deleted: false,
                     CustomFields: null 
@@ -125,7 +116,7 @@ export class AddressForm {
                     FieldSet: 0,
                     Section: 0,
                     Legend: "",
-                    StatusID: 0,
+                    StatusCode: 0,
                     ID: 1,
                     Deleted: false,
                     CustomFields: null 
@@ -145,7 +136,7 @@ export class AddressForm {
                     FieldSet: 0,
                     Section: 0,
                     Legend: "",
-                    StatusID: 0,
+                    StatusCode: 0,
                     ID: 1,
                     Deleted: false,
                     CustomFields: null 
@@ -165,7 +156,7 @@ export class AddressForm {
                     FieldSet: 0,
                     Section: 0,
                     Legend: "",
-                    StatusID: 0,
+                    StatusCode: 0,
                     ID: 1,
                     Deleted: false,
                     CustomFields: null 
@@ -185,7 +176,7 @@ export class AddressForm {
                     FieldSet: 0,
                     Section: 0,
                     Legend: "",
-                    StatusID: 0,
+                    StatusCode: 0,
                     ID: 1,
                     Deleted: false,
                     CustomFields: null 
@@ -193,7 +184,7 @@ export class AddressForm {
             ]               
         };   
         
-        this.config = new UniFormLayoutBuilder().build(view, this.Address);
+        this.config = new UniFormLayoutBuilder().build(view, this.model);
         this.config.hideSubmitButton();
     }
 
@@ -243,6 +234,9 @@ export class AddressModalType {
 export class AddressModal {
     @ViewChild(UniModal)
     modal: UniModal;
+    
+    @Output() Changed = new EventEmitter<Address>();
+
     modalConfig: any = {};
 
     type: Type = AddressModalType;
@@ -257,8 +251,10 @@ export class AddressModal {
                     text: "Accept",
                     method: () => {
                         self.modal.getContent().then((content: AddressModalType)=> {
-                            content.instance.then((rc: AddressForm)=> {
-                                console.log(rc.form.form);
+                            content.instance.then((form: AddressForm)=> {
+                                form.form.updateModel();
+                                self.modal.close();                               
+                                self.Changed.emit(form.model);
                             });
                         });
                     }

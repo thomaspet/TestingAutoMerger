@@ -15,3 +15,6 @@ export * from './common/departementservice';
 export * from './common/projectservice';
 export * from './sales/customerservice';
 export * from './sales/businessrelationservice';
+export * from './sales/addressservice';
+export * from './sales/phoneservice';
+export * from './sales/emailservice';
