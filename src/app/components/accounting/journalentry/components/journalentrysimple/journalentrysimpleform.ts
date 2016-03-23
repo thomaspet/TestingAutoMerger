@@ -82,7 +82,7 @@ export class JournalEntrySimpleForm {
         var view: ComponentLayout = {
             Name: "ManualJournalEntryLineDraft",
             BaseEntity: "JournalEntryLineDraft",
-            StatusID: 0,
+            StatusCode: 0,
             Deleted: false,
             ID: 1,
             CustomFields: null,
@@ -102,7 +102,7 @@ export class JournalEntrySimpleForm {
                     FieldSet: 0,
                     Section: 0,
                     Legend: "",
-                    StatusID: 0,
+                    StatusCode: 0,
                     ID: 1,
                     Deleted: false,
                     CustomFields: null 
@@ -122,7 +122,7 @@ export class JournalEntrySimpleForm {
                     FieldSet: 0,
                     Section: 0,
                     Legend: "",
-                    StatusID: 0,
+                    StatusCode: 0,
                     ID: 2,
                     Deleted: false,
                     CustomFields: null 
@@ -142,7 +142,7 @@ export class JournalEntrySimpleForm {
                     FieldSet: 0,
                     Section: 0,
                     Legend: "",
-                    StatusID: 0,
+                    StatusCode: 0,
                     ID: 3,
                     Deleted: false,
                     CustomFields: null 
@@ -162,7 +162,7 @@ export class JournalEntrySimpleForm {
                     FieldSet: 0,
                     Section: 0,
                     Legend: "",
-                    StatusID: 0,
+                    StatusCode: 0,
                     ID: 4,
                     Deleted: false,
                     CustomFields: null 
@@ -182,7 +182,7 @@ export class JournalEntrySimpleForm {
                     FieldSet: 0,
                     Section: 0,
                     Legend: "",
-                    StatusID: 0,
+                    StatusCode: 0,
                     ID: 5,
                     Deleted: false,
                     CustomFields: null 
@@ -202,7 +202,7 @@ export class JournalEntrySimpleForm {
                     FieldSet: 0,
                     Section: 0,
                     Legend: "",
-                    StatusID: 0,
+                    StatusCode: 0,
                     ID: 6,
                     Deleted: false,
                     CustomFields: null 
@@ -222,7 +222,7 @@ export class JournalEntrySimpleForm {
                     FieldSet: 0,
                     Section: 0,
                     Legend: "",
-                    StatusID: 0,
+                    StatusCode: 0,
                     ID: 7,
                     Deleted: false,
                     CustomFields: null 
@@ -242,7 +242,7 @@ export class JournalEntrySimpleForm {
                     FieldSet: 0,
                     Section: 0,
                     Legend: "",
-                    StatusID: 0,
+                    StatusCode: 0,
                     ID: 8,
                     Deleted: false,
                     CustomFields: null 
@@ -262,7 +262,7 @@ export class JournalEntrySimpleForm {
                     FieldSet: 0,
                     Section: 0,
                     Legend: "",
-                    StatusID: 0,
+                    StatusCode: 0,
                     ID: 9,
                     Deleted: false,
                     CustomFields: null 
