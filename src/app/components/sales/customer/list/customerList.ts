@@ -2,7 +2,7 @@ import {Component, ViewChildren} from 'angular2/core';
 import {UniTable, UniTableBuilder, UniTableColumn} from '../../../../../framework/uniTable';
 import {ComponentInstruction, RouteParams, Router} from 'angular2/router';
 import {UniHttp} from '../../../../../framework/core/http/http';
-import { CustomerService} from "../../../../services/services";
+import {CustomerService} from "../../../../services/services";
 import {Customer, BusinessRelation} from "../../../../unientities";
 
 declare var jQuery;
@@ -23,8 +23,22 @@ export class CustomerList {
     }
     
     createCustomer() {        
+        /*     
+        this.customerService.setRelativeUrl("customer"); // TODO: remove when its fixed
+        this.customerService.GetNewEntity(["Info"]).subscribe((c)=> {
+            console.log("CUSTOMER");
+            console.log(c);
+            this.customerService.Post(c)
+                .subscribe(
+                    (data) => {
+                        this.router.navigateByUrl('/customer/details/' + data.ID);        
+                    },
+                    (err) => console.log('Error creating customer: ', err)
+                );        
+        });    */
         
-        var c = new Customer();
+        /* OLD VERSION */
+                var c = new Customer();
         c.Info = new BusinessRelation(); 
         
         this.customerService.Post(c)
@@ -33,8 +47,7 @@ export class CustomerList {
                     this.router.navigateByUrl('/customer/details/' + data.ID);        
                 },
                 (err) => console.log('Error creating customer: ', err)
-            );   
-            
+            );      
     }
 
     setupCustomerTable() {

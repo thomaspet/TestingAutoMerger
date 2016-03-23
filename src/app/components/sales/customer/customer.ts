@@ -11,10 +11,7 @@ import {CustomerAdd} from './add/customerAdd';
 const CHILD_ROUTES = [
     {path: '/', redirectTo: ['CustomerList']},
     {path: '/list', component: CustomerList, as: 'CustomerList'},
-    {path: '/details/:id', component: CustomerDetails, as: 'CustomerDetails'},
-    {path: '/add', component: CustomerAdd, as: 'CustomerAdd'},
-    {path: '/next', component: CustomerDetails, as: 'CustomerNext', data: {action: 'next'}},
-    {path: '/previous', component: CustomerDetails, as: 'CustomerPrevious', data: {action: 'previous'}},   
+    {path: '/details/:id', component: CustomerDetails, as: 'CustomerDetails'}
 ]
 
 @Component({

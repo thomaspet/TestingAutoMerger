@@ -3,31 +3,27 @@
     <article class="poster_toolbar">
         <section>
             <h1 *ngIf="Customer && Customer.ID > 0">{{Customer.Info.Name}}
-                <p *ngIf="Customer.StatusID != null">Kundenr. {{Customer.CustomerNumber}}</p>
-                <p *ngIf="Customer.StatusID == null"><i>Kladd</i></p>
+                <p *ngIf="Customer.StatusCode != null">Kundenr. {{Customer.CustomerNumber}}</p>
+                <p *ngIf="Customer.StatusCode == 1"><i>Kladd</i></p>
             </h1>
         </section>
             
         <nav class="poster_toolbar_tools">
-            <a [routerLink]="['../CustomerPrevious']" class="previous">Forrige</a>
-            <a [routerLink]="['../CustomerNext']" class="next">Neste</a>
-            <a [routerLink]="['../CustomerAdd']" class="new">Ny kunde</a>
+            <a (click)="previousCustomer()" class="previous">Forrige</a>
+            <a (click)="nextCustomer()" class="next">Neste</a>
+            <a (click)="createCustomer()" class="new">Ny kunde</a>
         </nav>         
     </article>
     
     <!-- Widget poster -->
     <section class="poster_overview">        
-        <uni-widget-poster [model]="Customer" *ngIf="Customer.StatusID != null">
-            asdfasdf
+        <uni-widget-poster [model]="Customer" *ngIf="Customer.StatusCode != null">
+            ..future widgets..
         </uni-widget-poster>
-        <external-search [searchText]="searchText" (onSelect)="addSearchInfo($event)" *ngIf="Customer.StatusID == null"></external-search>
+        <external-search [searchText]="searchText" (onSelect)="addSearchInfo($event)" *ngIf="Customer.StatusCode == null"></external-search>
     </section>
     
 </header>
-
-<email-modal></email-modal>
-<phone-modal></phone-modal>
-<address-modal></address-modal>
 
 <section class="customer-details application">
     <uni-component-loader></uni-component-loader>

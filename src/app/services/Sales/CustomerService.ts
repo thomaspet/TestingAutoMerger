@@ -1,7 +1,7 @@
 import {BizHttp} from '../../../framework/core/http/BizHttp';
 import {Customer, BusinessRelation} from '../../unientities';
 import {UniHttp} from '../../../framework/core/http/http';
-import { Observable } from "rxjs/Observable";
+import {Observable} from "rxjs/Observable";
 
 export class CustomerService extends BizHttp<Customer> {
     
@@ -17,23 +17,23 @@ export class CustomerService extends BizHttp<Customer> {
     
     NextCustomer(currentID: number): Observable<Customer>
     {
-        return super.Action(currentID, "next");
+        return super.GetAction(currentID, "next");
     }
     
     PreviousCustomer(currentID: number): Observable<Customer>
     {
-        return super.Action(currentID, "previous");
+        return super.GetAction(currentID, "previous");
     }
     
     /* Not implemented on backend
     FirstCustomer(): Customer
     {
-        return super.Action(0, "first-customer");
+        return super.Action(0, "first");
     }
     
     LastCustomer(): Customer
     {
-        return super.Action(0, "last-customer");
+        return super.Action(0, "last");
     }
     */
 }

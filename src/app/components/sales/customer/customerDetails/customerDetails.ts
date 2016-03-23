@@ -40,26 +40,6 @@ export class CustomerDetails {
     searchText: string;
     
     whenFormInstance: Promise<UniForm>;
-        
-    // TEST MULTI
-    private email = [
-        {
-            id: 0,
-            value: "audhild@unimicro.no",
-            main: false,
-
-        },
-        {
-            id: 1,
-            value: "audhild.grieg@gmail.com",
-            main: true
-        },
-        {
-            id: 2,
-            value: "nsync4eva@hotmail.com",
-            main: false
-        }
-    ];
 
     constructor(private departementService: DepartementService,
                 private projectService: ProjectService,
@@ -68,19 +48,47 @@ export class CustomerDetails {
                 private params: RouteParams
                 ) {
                 
-        this.CustomerNo = params.get("id");
+        this.CustomerNo = params.get("id");        
+    }
+    
+    nextCustomer() {
+        this.customerService.NextCustomer(this.Customer.ID)
+            .subscribe((data) => {
+                this.router.navigateByUrl('/customer/details/' + data.ID);
+            });
+    }
+    
+    previousCustomer() {
+        this.customerService.PreviousCustomer(this.Customer.ID)
+            .subscribe((data) => {
+                this.router.navigateByUrl('/customer/details/' + data.ID);
+            });        
+    }
+    
+    createCustomer() {   
+        var c = new Customer();
+        c.Info = new BusinessRelation(); 
         
-        console.log(params.get("action"));
-        
-        this.router.subscribe((val) => {
-            console.log("val");
-            console.log(val);
-          //  if (this.isActive(['../CustomerPrevious'])) {
-          //      console.log("PREVIOUS==");
-          //  } else if(this.isActive(['../CustomerNext'])) {
-          //      console.log("NEXT==");
-          //  }
+        this.customerService.Post(c)
+            .subscribe(
+                (data) => {
+                    this.router.navigateByUrl('/customer/details/' + data.ID);        
+                },
+                (err) => console.log('Error creating customer: ', err)
+            );      
+
+        /* Using GetNewEntity not working        
+        this.customerService.setRelativeUrl("customer"); // TODO: remove when its fixed
+        this.customerService.GetNewEntity(["Info"]).subscribe((c)=> {
+            this.customerService.Post(c)
+                .subscribe(
+                    (data) => {
+                        this.router.navigateByUrl('/customer/details/' + data.ID);        
+                    },
+                    (err) => console.log('Error creating customer: ', err)
+                );        
         });
+        */
     }
     
     isActive(instruction: any[]): boolean {
@@ -95,7 +103,7 @@ export class CustomerDetails {
         ).subscribe(response => {
             this.DropdownData = [response[0], response[1]];
             this.Customer = response[2];
-                            
+                                      
             this.createFormConfig();
             this.extendFormConfig();
             this.loadForm();                  
@@ -127,7 +135,7 @@ export class CustomerDetails {
                     Property: "CustomerNo",
                     Placement: 1,
                     Hidden: false,
-                    FieldType: 6,
+                    FieldType: 10,
                     ReadOnly: false,
                     LookupField: false,
                     Label: "Kundenummer",

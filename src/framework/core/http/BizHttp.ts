@@ -1,4 +1,5 @@
 import {Injectable, EventEmitter} from 'angular2/core';
+import {RequestMethod} from "angular2/http";
 import {UniHttp} from './http';
 import {Observable} from 'rxjs/Observable';
 import "rxjs/add/operator/concatMap";
@@ -95,12 +96,28 @@ export class BizHttp<T> {
             .withEndPoint(this.relativeURL + '/' + ID + '?action=' + transitionName)
             .send();
     }
-
-    public Action<T>(ID: number, actionName: string, parameters: string = null): Observable<any> {        
+     
+    public Action<T>(ID: number, actionName: string, parameters: string = null, method: number = RequestMethod.Put): Observable<any> {        
         return this.http
-            .asPUT()
-            .withEndPoint(this.relativeURL + (ID === null ? '' : ID) + '?action=' + actionName + (parameters === null ? '' : '&' + parameters))
+            .as(method)
+            .withEndPoint(this.relativeURL + '/' + (ID === null ? '' : ID) + '?action=' + actionName + (parameters === null ? '' : '&' + parameters))
             .send();
+    }
+
+    public GetAction<T>(ID: number, actionName: string, parameters: string = null) {
+        return this.Action(ID, actionName, parameters, RequestMethod.Get);    
+    }
+
+    public PostAction<T>(ID: number, actionName: string, parameters: string = null) {
+        return this.Action(ID, actionName, parameters, RequestMethod.Post);    
+    }
+
+    public PutAction<T>(ID: number, actionName: string, parameters: string = null) {
+        return this.Action(ID, actionName, parameters, RequestMethod.Put);    
+    }
+
+    public DeleteAction<T>(ID: number, actionName: string, parameters: string = null) {
+        return this.Action(ID, actionName, parameters, RequestMethod.Delete);    
     }
 
     GetNewEntity(expand?: string[]) {
