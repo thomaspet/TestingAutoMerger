@@ -6,14 +6,6 @@ import {UniModal} from '../../modals/modal';
 
 declare var jQuery;
 
-interface MultiValue {
-    id: number,
-    value: string,
-    editing?: boolean,
-    main?: boolean,
-    timeout?: any
-}
-
 @Component({
     selector: "uni-multivalue",
     templateUrl: "framework/controls/multivalue/multivalue.html",
@@ -31,10 +23,11 @@ export class UniMultiValue {
     @ViewChildren('editinput') editinputs;
 
     activeMultival: boolean;
-    trashCan: MultiValue[];
+    trashCan = [];
     newValueInd: number;
     element;
     successMessage;
+    timeout: any;
     
     index: number = 0;
     editindex: number = null;
@@ -100,45 +93,31 @@ export class UniMultiValue {
     // Prepares the value for delete.
     // @fixme: Obviously this needs to be rewritten to take server into account.
     // We also want to use the soft delete paradigm for this.
-    del(value: MultiValue, event) {
-        var values = this.config.model,
+    del(index, row, event) {
+        var values = this.config.model[this.config.field],
             self = this;
 
         event.stopPropagation();
-        value.timeout = window.setTimeout(function () {
-            if (value.main) {
-                values[0].main = true;
-            }
-            var ind = values.indexOf(value);
-            values.splice(ind, 1);
-            if (!values.length) {
-                self.activeMultival = false;
-                values.push(<MultiValue>{
-                    id: 0,
-                    value: ""
-                });
-            }
+        
+        this.timeout = setTimeout(function () {
+            values.splice(index, 1);
+            self.timeout = null;
         }, 4000);
-        this.trashCan.push(value);
+        
+        this.trashCan.push(row);
+               
         return false;
     };
 
     // Undo delete
-    putBack(value: MultiValue) {
-        var trashCan = this.trashCan;
-        trashCan.forEach(function (trash, ind) {
-            if (trash.id == value.id && value.value === trash.value) {
-                clearTimeout(value.timeout);
-                value.timeout = null;
-                value.editing = false;
-                trashCan.splice(ind, 1);
-                return;
-            }
-        });
+    putBack(value) {
+        clearTimeout(this.timeout);
+        this.config.model[this.config.field].concat(this.trashCan);      
+        this.trashCan = [];
     };
 
     // Set the passed value as the main one.
-    setAsDefault(row, index) {
+    setAsDefault(index, row) {
         this.index = index;
         this.config.model[this.config.defaultfield] = row[this.config.kOptions.dataValueField];
     };
