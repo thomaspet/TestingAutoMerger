@@ -42,7 +42,7 @@ export class EmailForm {
         var view: ComponentLayout = {
             Name: "Email",
             BaseEntity: "Email",
-            StatusID: 0,
+            StatusCode: 0,
             Deleted: false,
             ID: 1,
             CustomFields: null,
@@ -62,7 +62,7 @@ export class EmailForm {
                     FieldSet: 0,
                     Section: 0,
                     Legend: "",
-                    StatusID: 0,
+                    StatusCode: 0,
                     ID: 1,
                     Deleted: false,
                     CustomFields: null 
@@ -82,7 +82,7 @@ export class EmailForm {
                     FieldSet: 0,
                     Section: 0,
                     Legend: "",
-                    StatusID: 0,
+                    StatusCode: 0,
                     ID: 1,
                     Deleted: false,
                     CustomFields: null 
@@ -133,7 +133,6 @@ export class EmailModalType {
 @Component({
     selector: "email-modal",
     template: `
-        <button (click)="openModal()">Epost modal</button>
         <uni-modal [type]="type" [config]="modalConfig"></uni-modal>
     `,
     directives: [UniModal]

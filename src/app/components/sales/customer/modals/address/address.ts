@@ -236,7 +236,6 @@ export class AddressModalType {
 @Component({
     selector: "address-modal",
     template: `
-        <button (click)="openModal()">Adresse modal</button>
         <uni-modal [type]="type" [config]="modalConfig"></uni-modal>
     `,
     directives: [UniModal]

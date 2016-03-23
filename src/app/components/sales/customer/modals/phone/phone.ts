@@ -168,7 +168,6 @@ export class PhoneModalType {
 @Component({
     selector: "phone-modal",
     template: `
-        <button (click)="openModal()">Telefon modal</button>
         <uni-modal [type]="type" [config]="modalConfig"></uni-modal>
     `,
     directives: [UniModal]
