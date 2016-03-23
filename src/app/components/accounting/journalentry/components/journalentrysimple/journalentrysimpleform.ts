@@ -54,10 +54,21 @@ export class JournalEntrySimpleForm {
     addJournalEntry(event: any) {        
         this.Created.emit(this.formInstance.getValue());
         
-        var oldData = this.JournalEntryLine; 
+        
+        var oldData = this.formInstance.getValue(); 
         this.JournalEntryLine = new JournalEntryData(); 
         this.JournalEntryLine.JournalEntryNo = oldData.JournalEntryNo;
-        this.JournalEntryLine.FinancialDate = oldData.FinancialDate;        
+        this.JournalEntryLine.FinancialDate = oldData.FinancialDate;      
+        
+        var self = this;
+        setTimeout(() => {
+                if (self.formInstance != null) {                    
+                    self.formInstance.refresh(self.JournalEntryLine);
+                    console.log('refreshet formInstance, self.JournalEntryLine:', self.JournalEntryLine);
+                }
+            }, 1000);
+                
+        console.log('addJournalEntry kjørt');          
     }
     
     editJournalEntry(event: any) {     
@@ -327,11 +338,7 @@ export class JournalEntrySimpleForm {
         var description: UniFieldBuilder = this.FormConfig.find('Description');
         description.addClass('large-field');     
     }    
-    
-    private buildFormConfig(layout: ComponentLayout, model: JournalEntryData) {
-        this.FormConfig = new UniFormLayoutBuilder().build(layout, model);
-    }
-       
+           
     loadForm() {       
         var self = this;
         return this.UniCmpLoader.load(UniForm).then((cmp: ComponentRef) => {
