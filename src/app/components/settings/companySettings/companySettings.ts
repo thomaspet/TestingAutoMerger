@@ -1,19 +1,18 @@
-﻿import {Component, OnInit, provide} from "angular2/core"
-import {RouteParams, ROUTER_DIRECTIVES} from "angular2/router";
-import {NgFor, NgIf} from "angular2/common";
-import {Headers} from "angular2/http";
-import {Observable} from "rxjs/Observable";
-import "rxjs/add/observable/forkJoin";
+﻿import {Component, OnInit, provide} from 'angular2/core'
+import {RouteParams, ROUTER_DIRECTIVES} from 'angular2/router';
+import {NgFor, NgIf} from 'angular2/common';
+import {Headers} from 'angular2/http';
+import {Observable} from 'rxjs/Observable';
+import 'rxjs/add/observable/forkJoin';
 
-import {UniFieldBuilder, UniFormBuilder, UniForm, UniSectionBuilder, UniComboFieldBuilder} from "../../../../framework/forms";
+import {UniFieldBuilder, UniFormBuilder, UniForm, UniSectionBuilder, UniComboFieldBuilder} from '../../../../framework/forms';
 import {} from '../../../../framework/forms/uniComboGroupBuilder'
-import {UNI_CONTROL_DIRECTIVES} from "../../../../framework/controls";
+import {UNI_CONTROL_DIRECTIVES} from '../../../../framework/controls';
 
-import {CompanySettingsDS} from "../../../data/companySettings";
-import {UniHttp} from "../../../../framework/core/http/http";
+import {CompanySettingsDS} from '../../../data/companySettings';
+import {UniHttp} from '../../../../framework/core/http/http';
 import {SubEntity, AGAZone, FieldType} from '../../../unientities';
 import {SubEntityService, AgaZoneService, MunicipalService} from '../../../services/services';
-
 
 @Component({
     selector: 'settings',
@@ -37,6 +36,7 @@ export class CompanySettings implements OnInit {
     agaZones: Array<any> = [];
     agaRules: Array<any> = [];
     municipals: Array<any> = [];
+    accounts: Array<any> = [];
 
     //TODO Use service instead of Http, Use interfaces!!
     constructor(private routeParams: RouteParams,
@@ -52,11 +52,11 @@ export class CompanySettings implements OnInit {
     //    //ID of active company used to GET company settings
     //    //ONLY GETTING DATA WHEN **UNI MICRO AS*** IS CHOSEN
     //    //BECAUSE ID = 1 IS THE ONLY ONE IN THE DB
-    //    this.id = JSON.parse(localStorage.getItem("activeCompany")).id;
+    //    this.id = JSON.parse(localStorage.getItem('activeCompany')).id;
 
     //    this.error = false;
     //    this.headers = new Headers();
-    //    this.headers.append("Client", "client1");
+    //    this.headers.append('Client', 'client1');
 
     //    Observable.forkJoin(
     //        this.companySettingsDS.get(this.id),
@@ -75,7 +75,7 @@ export class CompanySettings implements OnInit {
     //    );
     //}
 
-    dataReady() {
+    private dataReady() {
         console.log('dataReady called');
 
         var formBuilder = new UniFormBuilder();
@@ -280,9 +280,44 @@ export class CompanySettings implements OnInit {
                 dataTextField: 'Code',
                 dataValueField: 'Code',
                 index: this.currencies.indexOf(this.company.BaseCurrency)
+            })
+            .hasLineBreak(true);
+
+        //TODO
+
+        var supplierAccount = new UniFieldBuilder();
+        supplierAccount.setLabel('Leverandør-konto')
+            .setModel(this.company)
+            .setModelField('SupplierAccountID')
+            .setType(UNI_CONTROL_DIRECTIVES[3])
+            .setKendoOptions({
+                dataSource: this.accounts,
+                dataTextField: 'AccountNumber',
+                dataValueField: 'ID',
+                index: this.currencies.indexOf(this.company.SupplierAccountID)
             });
 
-        companySetup.addUniElements(companyReg, taxMandatory, companyType, companyCurrency);
+        var customerAccount = new UniFieldBuilder();
+        customerAccount.setLabel('Kunde-Konto')
+            .setModel(this.company)
+            .setModelField('CustomerAccountID')
+            .setType(UNI_CONTROL_DIRECTIVES[3])
+            .setKendoOptions({
+                dataSource: this.accounts,
+                dataTextField: 'AccountNumber',
+                dataValueField: 'ID',
+                index: this.currencies.indexOf(this.company.CustomerAccountID)
+            })
+            .hasLineBreak(true);;
+
+        var creditDays = new UniFieldBuilder();
+        creditDays.setLabel('Kredittdager')
+            .setModel(this.company)
+            .setModelField('CustomerCreditDays')
+            .setType(UNI_CONTROL_DIRECTIVES[10]);
+
+
+        companySetup.addUniElements(companyReg, taxMandatory, companyType, companyCurrency, supplierAccount, customerAccount, creditDays);
 
         // ********************************************************************/
         // *********************  Regnskapsinnstillinger    *******************/
@@ -373,7 +408,7 @@ export class CompanySettings implements OnInit {
             .setType(UNI_CONTROL_DIRECTIVES[8]);
 
         accountingSettings.addUniElements(
-            periodSeriesAccount, periodSeriesVat,
+            periodSeriesAccount, periodSeriesVat, accountGroupSet, 
             accountingLockedDate, vatLockedDate, forceSupplierInvoiceApproval);
 
         formBuilder.addUniElements(companyName, orgNr, web, street, street2,
@@ -385,12 +420,13 @@ export class CompanySettings implements OnInit {
     /********************************************************************/
     /*********************  Form Builder    *******************/
     
-    update() {
+    private update() {
         Observable.forkJoin(
             this.companySettingsDS.getCompanyTypes(),
             this.companySettingsDS.getCurrencies(),
             this.companySettingsDS.getPeriodSeries(),
             this.companySettingsDS.getAccountGroupSets(),
+            this.companySettingsDS.getAccounts(),
             this.companySettingsDS.get(this.id),
             this.subEntityService.GetAll('expand=BusinessRelationInfo,BusinessRelationInfo.InvoiceAddress'),
             this.agaZoneService.GetAll(''),
@@ -401,7 +437,7 @@ export class CompanySettings implements OnInit {
                 
                 var filter: string = '';
                 
-                dataset[5].forEach((element) => {
+                dataset[6].forEach((element) => {
                     filter += 'MunicipalityNo eq ' + element.MunicipalityNo + ' or ';
                 });
                 
@@ -413,10 +449,11 @@ export class CompanySettings implements OnInit {
                     this.currencies = dataset[1];
                     this.periodSeries = dataset[2];
                     this.accountGroupSets = dataset[3];
-                    this.company = dataset[4];
-                    this.subEntities = dataset[5];
-                    this.agaZones = dataset[6];
-                    this.agaRules = dataset[7];
+                    this.accounts = dataset[4];
+                    this.company = dataset[5];
+                    this.subEntities = dataset[6];
+                    this.agaZones = dataset[7];
+                    this.agaRules = dataset[8];
                     console.log('error 1');
                     this.municipals = response;
                     console.log(JSON.stringify(response));
@@ -424,61 +461,64 @@ export class CompanySettings implements OnInit {
                     
                 },
                 (error) => console.log(error));
-                
+/*
+        var self = this;
+
+        this.http
+            .asGET()
+            .usingBusinessDomain()
+            .multipleRequests([
+                { endPoint: 'companytypes' },
+                { endPoint: 'currencies' },
+                { endPoint: 'period-series' },
+                { endPoint: 'accountgroupsets' },
+                { endPoint: 'accounts' },
+                { endPoint: 'companysettings/' + self.id, expand: 'Address,Emails,Phones' }
+            ])
+            .subscribe(
+            (dataset) => {
+                self.companyTypes = dataset[0];
+                self.currencies = dataset[1];
+                self.periodSeries = dataset[2];
+                self.accountGroupSets = dataset[3];
+                self.accounts = dataset[4];
+                self.company = dataset[5];
+                self.dataReady();
+*/
             },
             (error) => console.log(error)
             );
-
-        /*
-        this.http.multipleRequests('GET', [
-            { resource: "companytypes" },
-            { resource: "currencies" },
-            { resource: "period-series" },
-            { resource: "accountgroupsets" },
-            { resource: "companysettings/" + this.id, expand: "Address,Emails,Phones" }
-        ]).subscribe(
-            (dataset) => {
-                this.companyTypes = dataset[0];
-                this.currencies = dataset[1];
-                this.periodSeries = dataset[2];
-                this.accountGroupSets = dataset[3];
-                this.company = dataset[4];
-                this.dataReady();
-            },
-            (error) => console.log(error)
-            )
-        */
     }
 
-    ngOnInit() {
+    private ngOnInit() {
         this.id = JSON.parse(localStorage.getItem('activeCompany')).id;
         this.update();
     }
 
-    ngOnChanges() {
+    private ngOnChanges() {
         console.log('NGCHANGE event')
     }
     
-    getAgaZone(id: number) {
+    private getAgaZone(id: number) {
         return this.agaZones.find(object => object.ID === id);
     }
 
     /*
     onSubmit(value) {
-        console.log("onSubmit called");
+        console.log('onSubmit called');
 
         this.http.put({
-            resource: "companysettings/" + this.company.ID,
+            resource: 'companysettings/' + this.company.ID,
             body: this.company
         }).subscribe(
             (response) => {
-                console.log("onSubmit response");
+                console.log('onSubmit response');
             },
             (error) => console.log(error)
             );
     }
     */
-    onSubmit(value) {
+    private onSubmit(value) {
         console.log('onSubmit called');
 
         var self = this;
@@ -499,4 +539,54 @@ export class CompanySettings implements OnInit {
             }
             );
     }
+
+    //#region Test data
+    private syncAS() {
+        console.log('SYNKRONISER KONTOPLAN');
+        this.http
+            .asPUT()
+            .usingBusinessDomain()
+            .withEndPoint('accounts')
+            .send({
+                'action': 'synchronize-ns4102-as'
+            })
+            .subscribe(
+            (response: any) => {
+                alert('Kontoplan synkronisert for AS');
+            },
+            (error: any) => console.log(error)
+            );
+    }
+
+    private syncVat() {
+        console.log('SYNKRONISER MVA');
+        this.http
+            .asPUT()
+            .usingBusinessDomain()
+            .withEndPoint('vattypes')
+            .send({ 'action': 'synchronize' })
+            .subscribe(
+            (response: any) => {
+                alert('VatTypes synkronisert');
+            },
+            (error: any) => console.log(error)
+            );
+    }
+
+    private syncCurrency() {
+        console.log('LAST NED VALUTA');
+        this.http
+            .asGET()
+            .withEndPoint('currencies')
+            .send({ action: 'download-from-norgesbank' })
+            .subscribe(
+            (response: any) => {
+                alert('Valuta lasted ned');
+            },
+            (error: any) => console.log(error)
+            );
+    }
+
+
+    //#endregion Test data
 }

@@ -8,10 +8,14 @@ export * from './accounting/journalentrylinedraftservice';
 export * from './accounting/supplierservice';
 export * from './accounting/supplierinvoiceservice';
 export * from './accounting/supplierinvoiceitemservice';
+export * from './accounting/BankAccountService';
 export * from './salary/employee/employeeservice';
-export * from './salary/wagetype/wagetypeservice';
-export * from './salary/subentity/subentityservice';
+export * from './staticregisterservice';
+export * from './salary/wagetype/wagetypeservice'
 export * from './common/departementservice';
 export * from './common/projectservice';
+export * from './sales/customerservice';
+export * from './sales/businessrelationservice';
+export * from './salary/subentity/subentityservice';
 export * from './shared/agazoneservice';
 export * from './shared/municipalservice';

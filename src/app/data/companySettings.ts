@@ -37,6 +37,11 @@ export class CompanySettingsDS {
         var url = this.baseUrl + '/biz/accountgroupsets';
         return this._doGET(url);
     }
+    
+    getAccounts(){
+        var url = this.baseUrl + '/biz/accounts';
+        return this._doGET(url);
+    }
 
 
     getValidation() {

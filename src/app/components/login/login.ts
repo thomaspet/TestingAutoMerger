@@ -1,6 +1,7 @@
 import { Component } from "angular2/core";
 import { Router, ROUTER_DIRECTIVES } from "angular2/router";
 import { AuthService } from "../../../framework/authentication/authService";
+import {StaticRegisterService} from '../../services/staticregisterservice';
 
 declare var jQuery;
 
@@ -13,6 +14,7 @@ export class Login {
     credentials: { username: string, password: string };
     authSubscription;
     working: boolean;
+    staticRegisterService: StaticRegisterService;
 
     constructor(public authService: AuthService, public router: Router) {
         // initialize credentials to a valid login for testing purposes
@@ -73,6 +75,8 @@ export class Login {
         var element = jQuery(".company_select > select").first().show();
         element.kendoDropDownList(dropdownConfig);
         // jQuery(".k-input").first().html("Select a company");
+        
+        this.staticRegisterService.checkForStaticRegisterUpdate();
     }
 
     onCompanySelected() {
