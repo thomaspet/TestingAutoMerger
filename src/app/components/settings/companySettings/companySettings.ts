@@ -1,4 +1,4 @@
-﻿import {Component, OnInit, provide} from 'angular2/core'
+﻿import {Component, OnInit, provide} from 'angular2/core';
 import {RouteParams, ROUTER_DIRECTIVES} from 'angular2/router';
 import {NgFor, NgIf} from 'angular2/common';
 import {Headers} from 'angular2/http';
@@ -6,39 +6,42 @@ import {Observable} from 'rxjs/Observable';
 import 'rxjs/add/observable/forkJoin';
 
 import {UniFieldBuilder, UniFormBuilder, UniForm, UniSectionBuilder, UniComboFieldBuilder} from '../../../../framework/forms';
-import {} from '../../../../framework/forms/uniComboGroupBuilder'
+import {} from '../../../../framework/forms/uniComboGroupBuilder';
 import {UNI_CONTROL_DIRECTIVES} from '../../../../framework/controls';
 
 import {CompanySettingsDS} from '../../../data/companySettings';
 import {UniHttp} from '../../../../framework/core/http/http';
-import {SubEntity, AGAZone, FieldType} from '../../../unientities';
+import {SubEntity, AGAZone} from '../../../unientities';
 import {SubEntityService, AgaZoneService, MunicipalService} from '../../../services/services';
 
 @Component({
     selector: 'settings',
     templateUrl: 'app/components/settings/companySettings/companySettings.html',
-    providers: [provide(CompanySettingsDS, { useClass: CompanySettingsDS }), SubEntityService, AgaZoneService, MunicipalService],
+    providers: [provide(CompanySettingsDS, { useClass: CompanySettingsDS }),
+                SubEntityService, 
+                AgaZoneService, 
+                MunicipalService],
     directives: [ROUTER_DIRECTIVES, NgFor, NgIf, UniForm]
 })
 
 export class CompanySettings implements OnInit {
-    id: any;
-    form: any;
-    error: boolean;
-    headers: Headers;
-    company: any;
-    subEntities: Array<SubEntity>;
-    activeCompany: any;
-    companyTypes: Array<any> = [];
-    currencies: Array<any> = [];
-    periodSeries: Array<any> = [];
-    accountGroupSets: Array<any> = [];
-    agaZones: Array<any> = [];
-    agaRules: Array<any> = [];
-    municipals: Array<any> = [];
-    accounts: Array<any> = [];
+    private id: any;
+    private form: any;
+    private error: boolean;
+    private headers: Headers;
+    private company: any;
+    private subEntities: Array<SubEntity>;
+    private activeCompany: any;
+    private companyTypes: Array<any> = [];
+    private currencies: Array<any> = [];
+    private periodSeries: Array<any> = [];
+    private accountGroupSets: Array<any> = [];
+    private agaZones: Array<any> = [];
+    private agaRules: Array<any> = [];
+    private municipals: Array<any> = [];
+    private accounts: Array<any> = [];
 
-    //TODO Use service instead of Http, Use interfaces!!
+    // TODO Use service instead of Http, Use interfaces!!
     constructor(private routeParams: RouteParams,
                 private companySettingsDS: CompanySettingsDS, 
                 private http: UniHttp, 
@@ -99,8 +102,8 @@ export class CompanySettings implements OnInit {
             .setType(UNI_CONTROL_DIRECTIVES[10]);
 
 
-        //TODO
-        //Contact information should be styled according to standard - when this is ready.
+        // TODO
+        // Contact information should be styled according to standard - when this is ready.
         var street = new UniFieldBuilder();
         street.setLabel('Adresse')
             .setModel(this.company.Address[0])
@@ -151,7 +154,7 @@ export class CompanySettings implements OnInit {
         var officeMunicipality = new UniComboFieldBuilder();
         officeMunicipality.addUniElements(officeMunicipalNumber, officeMunicipalName);
         
-        //*********************  Virksomhet og aga  ***************************/
+        // *********************  Virksomhet og aga  ***************************/
         var subEntitiesSection = new UniSectionBuilder('Virksomhet og aga');
         this.subEntities.forEach(subEntity => {
             var municipal = this.municipals.find(x => x.MunicipalityNo === subEntity.MunicipalityNo);
@@ -159,8 +162,8 @@ export class CompanySettings implements OnInit {
             var agaRule = this.agaRules.find(x => x.sectorID === subEntity.AgaRule);
             var agaZoneName = '';
             var agaRuleName = '';
-            if (agaZone) { agaZoneName = ', Sone ' + agaZone.ZoneName}
-            if (agaRule) { agaRuleName = ', ' + agaRule.sector}
+            if (agaZone) { agaZoneName = ', Sone ' + agaZone.ZoneName; }
+            if (agaRule) { agaRuleName = ', ' + agaRule.sector; }
             var subEntitySection = new UniSectionBuilder(subEntity.BusinessRelationInfo.Name + 
                 ', ' + subEntity.OrgNumber + 
                 ', ' + subEntity.MunicipalityNo + '-' + municipal.MunicipalityName +
@@ -235,7 +238,14 @@ export class CompanySettings implements OnInit {
                     dataValueField: 'SectorID',
                 });
             
-            subEntitySection.addUniElements(subEntityName, subEntityOrgNumber, subEntityAddress, subEntityLocation, subEntityMunicipality, subEntityAgaZone, subEntityAgaRule);
+            subEntitySection.addUniElements(subEntityName,
+                                            subEntityOrgNumber, 
+                                            subEntityAddress, 
+                                            subEntityLocation, 
+                                            subEntityMunicipality, 
+                                            subEntityAgaZone, 
+                                            subEntityAgaRule);
+                                            
             subEntitiesSection.addUniElement(subEntitySection);
         });
         
@@ -283,7 +293,7 @@ export class CompanySettings implements OnInit {
             })
             .hasLineBreak(true);
 
-        //TODO
+        // TODO
 
         var supplierAccount = new UniFieldBuilder();
         supplierAccount.setLabel('Leverandør-konto')
@@ -308,7 +318,7 @@ export class CompanySettings implements OnInit {
                 dataValueField: 'ID',
                 index: this.currencies.indexOf(this.company.CustomerAccountID)
             })
-            .hasLineBreak(true);;
+            .hasLineBreak(true);
 
         var creditDays = new UniFieldBuilder();
         creditDays.setLabel('Kredittdager')
@@ -317,7 +327,13 @@ export class CompanySettings implements OnInit {
             .setType(UNI_CONTROL_DIRECTIVES[10]);
 
 
-        companySetup.addUniElements(companyReg, taxMandatory, companyType, companyCurrency, supplierAccount, customerAccount, creditDays);
+        companySetup.addUniElements(companyReg, 
+                                    taxMandatory, 
+                                    companyType, 
+                                    companyCurrency, 
+                                    supplierAccount, 
+                                    customerAccount, 
+                                    creditDays);
 
         // ********************************************************************/
         // *********************  Regnskapsinnstillinger    *******************/
@@ -411,8 +427,19 @@ export class CompanySettings implements OnInit {
             periodSeriesAccount, periodSeriesVat, accountGroupSet, 
             accountingLockedDate, vatLockedDate, forceSupplierInvoiceApproval);
 
-        formBuilder.addUniElements(companyName, orgNr, web, street, street2,
-            postNumber, place, phone, email, officeMunicipality, subEntitiesSection, companySetup, accountingSettings);
+        formBuilder.addUniElements(companyName, 
+                                   orgNr, 
+                                   web, 
+                                   street, 
+                                   street2,
+                                   postNumber, 
+                                   place, 
+                                   phone, 
+                                   email, 
+                                   officeMunicipality, 
+                                   subEntitiesSection, 
+                                   companySetup, 
+                                   accountingSettings);
 
         this.form = formBuilder;
     }
@@ -442,7 +469,6 @@ export class CompanySettings implements OnInit {
                 });
                 
                 filter = filter.slice(0, filter.length - 3);
-                console.log('filter: ' + filter);
                 
                 this.municipalService.GetAll('filter=' + filter).subscribe((response) => {
                     this.companyTypes = dataset[0];
@@ -454,9 +480,7 @@ export class CompanySettings implements OnInit {
                     this.subEntities = dataset[6];
                     this.agaZones = dataset[7];
                     this.agaRules = dataset[8];
-                    console.log('error 1');
                     this.municipals = response;
-                    console.log(JSON.stringify(response));
                     this.dataReady();
                     
                 },
@@ -490,12 +514,12 @@ export class CompanySettings implements OnInit {
             );
     }
 
-    private ngOnInit() {
+    public ngOnInit() {
         this.id = JSON.parse(localStorage.getItem('activeCompany')).id;
         this.update();
     }
 
-    private ngOnChanges() {
+    public ngOnChanges() {
         console.log('NGCHANGE event')
     }
     
@@ -518,7 +542,7 @@ export class CompanySettings implements OnInit {
             );
     }
     */
-    private onSubmit(value) {
+    public onSubmit(value) {
         console.log('onSubmit called');
 
         var self = this;
@@ -530,8 +554,8 @@ export class CompanySettings implements OnInit {
             .withBody(self.company)
             .send().subscribe(
             (response) => {
-                console.log('LAGRET Firmainnstillinger ' + self.company.ID)
-                //this.uniSaved.emit(this.company); //TODO according to account...
+                console.log('LAGRET Firmainnstillinger ' + self.company.ID);
+                // this.uniSaved.emit(this.company); //TODO according to account...
             },
             (error) => {
                 console.log('OPPDATERING FEILET');
@@ -541,7 +565,7 @@ export class CompanySettings implements OnInit {
     }
 
     //#region Test data
-    private syncAS() {
+    public syncAS() {
         console.log('SYNKRONISER KONTOPLAN');
         this.http
             .asPUT()
@@ -558,7 +582,7 @@ export class CompanySettings implements OnInit {
             );
     }
 
-    private syncVat() {
+    public syncVat() {
         console.log('SYNKRONISER MVA');
         this.http
             .asPUT()
@@ -573,7 +597,7 @@ export class CompanySettings implements OnInit {
             );
     }
 
-    private syncCurrency() {
+    public syncCurrency() {
         console.log('LAST NED VALUTA');
         this.http
             .asGET()
