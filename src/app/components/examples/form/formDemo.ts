@@ -53,6 +53,8 @@ export class UniFormDemo {
     private startApp(view:any, model:Employee) {
         // We can extend layout before form config creation
         view = this.extendLayoutConfig(view);
+        console.log("LAYOUT");
+        console.log(view);
 
         this.createModel(model);
         this.buildFormConfig(view, model);

@@ -78,7 +78,13 @@ export var Routes = {
         path: "/salary/salarytrans",
         name: "SalaryTransactionSelectionList",
         loader: () => ComponentProxy.LoadComponentAsync("SalaryTransactionSelectionList", "./app/components/salary/salarytrans/salarytransactionSelectionList")
-    })
+    }),
+    
+    customer: new AsyncRoute({
+        path: "/customer/...",
+        name: "Customer",
+        loader: () => ComponentProxy.LoadComponentAsync("Customer", "./app/components/sales/customer/customer")
+    }),
 };
 
 export const APP_ROUTES = Object.keys(Routes).map((r: string) => Routes[r]);
