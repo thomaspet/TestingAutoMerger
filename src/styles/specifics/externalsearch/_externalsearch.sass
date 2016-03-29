@@ -1,0 +1,34 @@
+external-search .search-content
+    margin-left: pxToRem(15)
+    margin-right: pxToRem(15)
+    padding-bottom: pxToRem(10)
+
+external-search .header-info
+    @include unigrid(8, 4, 4, 1)
+    
+external-search .filter
+    @include unigrid(6, 4, 4, 1)
+    
+external-search h3
+    margin-top: 0.1rem
+    margin-bottom: 0.1rem
+    
+external-search .search-result-extra-info
+    font-size: pxToRem(14) 
+    color: $uni-color-scale5
+
+external-search .filter input
+    display: inline-block
+    margin-left: pxToRem(5)
+        
+external-search .search-result
+    clear: both
+
+external-search .search-result-item
+    @include unigrid(2, 3, 4, 1)    
+    display: inline-block
+    padding: pxToRem(7)
+
+external-search  .search-result-item:hover
+    background-color: $uni-color-scale9
+    cursor: pointer
