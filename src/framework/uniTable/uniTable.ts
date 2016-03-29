@@ -114,19 +114,19 @@ export class UniTable implements OnChanges, OnDestroy {
 
             read: (options) => {
                 this.totalRows = this.config.resource.length;
-                options.success(this.config.resource);
+                options.success(this.flattenData(this.config.resource));
             },
 
             update: (options) => {
                 if (this.config.updateCallback) {
-                    this.config.updateCallback(options.data);
+                    this.config.updateCallback(this.unflattenData(options.data));
                 }
                 options.success();
             },
 
             create: (options) => {
                 if (this.config.createCallback) {
-                    this.config.createCallback(options.data);
+                    this.config.createCallback(this.unflattenData(options.data));
                 }
                 options.success();
             },
@@ -179,13 +179,8 @@ export class UniTable implements OnChanges, OnDestroy {
                         } else {
                             this.totalRows = 50;
                         }
-                        
-                        let flattened = [];
-                        response.forEach((item) => {
-                            flattened.push(this.flattenData(item));
-                        });
 
-                        options.success(flattened);
+                        options.success(this.flattenData(response));
                     },
                     (error) => options.error(error)
                 );
@@ -238,6 +233,15 @@ export class UniTable implements OnChanges, OnDestroy {
     }
     
     private flattenData(data) {
+        let flattened = [];
+        data.forEach((row) => {
+            flattened.push(this.flattenObject(row)); 
+        });
+        
+        return flattened;
+    }
+    
+    private flattenObject(obj) {
         let result = {};
 
         let step = (object, prevKey) => {
@@ -255,7 +259,7 @@ export class UniTable implements OnChanges, OnDestroy {
             });
         };
 
-        step(data, '');
+        step(obj, '');
         return result;
     }
     
