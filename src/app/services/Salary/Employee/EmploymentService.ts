@@ -8,12 +8,5 @@ export class EmploymentService extends BizHttp<Employment> {
         super(http);
         this.relativeURL = Employment.relativeUrl;
     }
-    
-    public getNewEntity(){
-        this.relativeURL = 'employment';
-        var response = this.GetNewEntity();
-        this.relativeURL = Employment.relativeUrl;
-        return response;
-    }
 
 }

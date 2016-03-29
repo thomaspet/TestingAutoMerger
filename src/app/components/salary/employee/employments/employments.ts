@@ -92,7 +92,7 @@ export class EmployeeEmployment {
             _employeeDS.getSubEntities()
         ).subscribe((response: any) => {
             let [employee, codes, subEnt] = response;
-            console.log('SubEntities from constructor', subEnt);
+            //console.log('SubEntities from constructor', subEnt);
             this.currentEmployee = employee;
             this.styrkCodes = codes;
             this.subEntities = subEnt;
@@ -102,11 +102,11 @@ export class EmployeeEmployment {
 
     private buildFormConfigs() {
         this.formConfigs = [];
-
+        console.log('employments: ' + JSON.stringify(this.currentEmployee.Employments));
         this.currentEmployee.Employments.forEach((employment: Employment) => {
             var formbuilder = new UniFormBuilder();
             var AddSubEntity = false;
-
+            if (!employment.JobCode) {employment.JobCode = ''; }
             var jobCode = this
                 .buildField('Stillingskode', employment, 'JobCode', FieldType.AUTOCOMPLETE)
                 .setKendoOptions({
@@ -117,8 +117,7 @@ export class EmployeeEmployment {
             jobCode.onSelect = (event: kendo.ui.AutoCompleteSelectEvent) => {
                 var item: any = event.item;
                 var dataItem = event.sender.dataItem(item.index());
-                var fjn = <UniFieldBuilder>UniElementFinder.findUniFieldByPropertyName('JobName', formbuilder.config());
-                fjn.control.updateValue(dataItem.tittel, {});
+                this.updateJobCodeFields(dataItem, formbuilder);
             };
 
             var jobName = this.buildField('Navn', employment, 'JobName', FieldType.AUTOCOMPLETE)
@@ -130,8 +129,7 @@ export class EmployeeEmployment {
             jobName.onSelect = (event: kendo.ui.AutoCompleteSelectEvent) => {
                 var item: any = event.item;
                 var dataItem = event.sender.dataItem(item.index());
-                var fjc = <UniFieldBuilder>UniElementFinder.findUniFieldByPropertyName('JobCode', formbuilder.config());
-                fjc.control.updateValue(dataItem.styrk, {});
+                this.updateJobCodeFields(dataItem, formbuilder);
             };
 
             var startDate = this.buildField('Startdato', employment, 'StartDate', FieldType.DATEPICKER);
@@ -162,10 +160,17 @@ export class EmployeeEmployment {
             }
 
 
-            formbuilder.hideSubmitButton();
+            //formbuilder.hideSubmitButton();
             this.formConfigs.push(formbuilder);
         });
 
+    }
+    
+    private updateJobCodeFields(dataItem, formbuilder: UniFormBuilder){
+        var fjn = <UniFieldBuilder>UniElementFinder.findUniFieldByPropertyName('JobName', formbuilder.config());
+        fjn.control.updateValue(dataItem.tittel, {});
+        var fjc = <UniFieldBuilder>UniElementFinder.findUniFieldByPropertyName('JobCode', formbuilder.config());
+        fjc.control.updateValue(dataItem.styrk, {});
     }
 
     private buildGroupForm(employment: Employment) {
@@ -231,20 +236,47 @@ export class EmployeeEmployment {
         console.log('Index when changing default: ' + index);
     }
 
-    private onFormSubmit(event, index) {
-        jQuery.merge(this.currentEmployee.Employments[index], event.value);
+    private onFormSubmit(index) {
+        console.log('onFormSubmit(event, index)');
+        
+        if (this.currentEmployee.Employments[index].ID) {
+            console.log('PUT');
+            this._employmentService.Put(this.currentEmployee.Employments[index].ID, this.currentEmployee.Employments[index])
+                .subscribe(
+                    (data: Employment) => {
+                        this.currentEmployee.Employments[index] = data;
+                        this.buildFormConfigs();
+                    },
+                    (error: Error) => console.error('error in personaldetails.onFormSubmit - Put: ', error)
+                );
+        } else {
+            console.log("we are now Posting this: " + JSON.stringify(this.currentEmployee.Employments[index]));
+            this._employmentService.Post(this.currentEmployee.Employments[index])
+                .subscribe(
+                    (data: Employment) => {
+                        this.currentEmployee.Employments[index] = data;
+                        this.buildFormConfigs();
+                    },
+                    (error: Error) => console.error('error in personaldetails.onFormSubmit - Post: ', error)
+                );
+        }
     }
     
-    private addNewEmployment(){
+    private addNewEmployment() {
         console.log('addNewEmployment()');
-        this._employmentService.getNewEntity().subscribe((response: Employment) => {
+        this._employmentService.GetNewEntity().subscribe((response: Employment) => {
             
             var newEmployment = response;
             newEmployment.EmployeeNumber = this.currentEmployee.EmployeeNumber;
             newEmployment.EmployeeID = this.currentEmployee.ID;
-            newEmployment.Employee = this.currentEmployee;
-            newEmployment.SubEntityID = 0;
             newEmployment.JobCode = '';
+            newEmployment.JobName = '';
+            newEmployment.StartDate = new Date();
+            newEmployment.EndDate = new Date();
+            newEmployment.LastSalaryChangeDate = new Date();
+            newEmployment.LastWorkPercentChangeDate = new Date();
+            newEmployment.SeniorityDate = new Date();
+            
             console.log(JSON.stringify(response));
             this.currentEmployee.Employments.push(response);
             this.buildFormConfigs();
@@ -253,7 +285,7 @@ export class EmployeeEmployment {
 
     // @fixme: Proper date formatting here…
     private formatDate(date) {
-        if (!date)return '';
+        if (!date) {return ''; }
 
         date = new Date(date);
         return date.getDate() + '.' + (date.getMonth() + 1) + '.' + date.getFullYear();
