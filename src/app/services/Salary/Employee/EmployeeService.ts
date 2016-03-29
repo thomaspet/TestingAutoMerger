@@ -9,9 +9,9 @@ export class EmployeeService extends BizHttp<Employee> {
         'BusinessRelationInfo.Addresses',
         'BusinessRelationInfo.Emails',
         'BusinessRelationInfo.Phones',
-        //'Employments.SubEntity.BusinessRelationInfo',
+        'Employments.SubEntity.BusinessRelationInfo',
         'BankAccounts',
-        //'VacationRateEmployee',
+        'VacationRateEmployee',
         'SubEntity'
     ];
     

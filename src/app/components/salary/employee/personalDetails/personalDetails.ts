@@ -4,7 +4,6 @@ import {UniForm} from '../../../../../framework/forms/uniForm';
 import {
     UniFormBuilder, UniFormLayoutBuilder
 } from '../../../../../framework/forms';
-import {EmployeeDS} from '../../../../data/employee';
 import {EmployeeModel} from '../../../../models/employee';
 import {UniComponentLoader} from '../../../../../framework/core';
 import {Observable} from 'rxjs/Observable';
@@ -42,7 +41,6 @@ export class PersonalDetails {
     private whenFormInstance: Promise<UniForm>;
 
     constructor(public injector: Injector,
-                public employeeDS: EmployeeDS,
                 public employeeService: EmployeeService,
                 public router: Router) {
         // any way to get that in an easy way????
@@ -75,7 +73,7 @@ export class PersonalDetails {
         });
     }
     
-    private getData(){
+    private getData() {
         var self = this;
 
         /*
@@ -105,12 +103,12 @@ export class PersonalDetails {
                     'Deleted': false
                 }];
                 self.employee = employee;
-                if (!self.employee.BankAccounts[0]) {
+                /*if (!self.employee.BankAccounts[0]) {
                     console.log('making ready account');
                     var account: BankAccountSalary = new BankAccountSalary();
-                    account.AccountNumber = '12345678903';
-                    self.employee.BankAccounts[0] = account;
-                }
+                    account.AccountNumber = '';
+                    self.employee.BankAccounts.push(account);
+                }*/
                 self.form = new UniFormLayoutBuilder().build(layout, self.employee);
                 
                 self.uniCmpLoader.load(UniForm).then((cmp: ComponentRef) => {
@@ -144,7 +142,7 @@ export class PersonalDetails {
                     );
             } else {
                 console.log('we are now Posting');
-                console.log('Account number: ' + context.employee.BankAccounts[0].AccountNumber);
+                console.log('Account number: ' + JSON.stringify(context.employee.BankAccounts));
                 context.employeeService.post(context.employee)
                     .subscribe(
                         (data: Employee) => {
@@ -154,7 +152,7 @@ export class PersonalDetails {
                         (error: Error) => console.error('error in personaldetails.onSubmit - Post: ', error)
                     );
             }
-        }
+        };
         
         // this.formInstance.updateModel();
     }
