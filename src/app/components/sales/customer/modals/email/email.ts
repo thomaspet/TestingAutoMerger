@@ -143,7 +143,7 @@ export class EmailModal {
 
     type: Type = EmailModalType;
 
-    constructor() {
+    constructor(private emailService: EmailService) {
         var self = this;
         this.modalConfig = {
             title: "Epost",
@@ -154,7 +154,15 @@ export class EmailModal {
                         self.modal.getContent().then((content: EmailModalType)=> {
                             content.instance.then((form: EmailForm)=> {
                                 form.form.updateModel();
-                                self.modal.close();                               
+                                self.modal.close();       
+                                
+                                // store
+                                if(form.model.ID) {
+                                    emailService.Put(form.model.ID, form.model).subscribe(null, (error: Error) => console.log('error in updating phone from modal - Put: ' + error));
+                                } else {
+                                    emailService.Post(form.model).subscribe(null, (error: Error) => console.error('error in posting phone from modal - Post: ', error));
+                                }
+                                                        
                                 self.Changed.emit(form.model);
                             });
                         });

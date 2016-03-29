@@ -8,6 +8,7 @@ import {UNI_CONTROL_DIRECTIVES} from "../../../../../../framework/controls";
 import {UniFieldBuilder} from "../../../../../../framework/forms/builders/uniFieldBuilder";
 import {FieldType, ComponentLayout, Phone, PhoneTypeEnum} from "../../../../../unientities";
 import {UniFormLayoutBuilder} from "../../../../../../framework/forms/builders/uniFormLayoutBuilder";
+import {PhoneService} from "../../../../../services/services";
 
 // Reusable address form
 @Component({
@@ -175,7 +176,7 @@ export class PhoneModal {
 
     type: Type = PhoneModalType;
 
-    constructor() {
+    constructor(private phoneService: PhoneService) {
         var self = this;
         this.modalConfig = {
             title: "Telefonnummer",
@@ -187,6 +188,14 @@ export class PhoneModal {
                             content.instance.then((form: PhoneForm)=> {
                                 form.form.updateModel();
                                 self.modal.close();                               
+                                
+                                // store
+                                if(form.model.ID) {
+                                    phoneService.Put(form.model.ID, form.model).subscribe(null, (error: Error) => console.log('error in updating phone from modal - Put: ' + error));
+                                } else {
+                                    phoneService.Post(form.model).subscribe(null, (error: Error) => console.error('error in posting phone from modal - Post: ', error));
+                                }
+                                
                                 self.Changed.emit(form.model);
                             });
                         });
