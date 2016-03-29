@@ -54,7 +54,7 @@ export class EmailForm {
                     Label: "Epostadresse",
                     Description: "",
                     HelpText: "",
-                    FieldSet: 0,
+                    FieldSet: 1,
                     Section: 0,
                     Legend: "",
                     StatusCode: 0,
@@ -74,7 +74,7 @@ export class EmailForm {
                     Label: "Beskrivelse",
                     Description: "",
                     HelpText: "",
-                    FieldSet: 0,
+                    FieldSet: 1,
                     Section: 0,
                     Legend: "",
                     StatusCode: 0,
@@ -96,7 +96,7 @@ export class EmailForm {
     selector: "email-modal-type",
     directives: [NgIf, NgModel, NgFor, UniComponentLoader],
     template: `
-        <article class="modal-content">
+        <article class="modal-content email-modal">
             <h1 *ngIf="config.title">{{config.title}}</h1>
             <uni-component-loader></uni-component-loader>
             <footer>
