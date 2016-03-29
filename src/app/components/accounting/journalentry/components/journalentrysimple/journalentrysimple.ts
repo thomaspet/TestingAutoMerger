@@ -173,9 +173,7 @@ export class JournalEntrySimple {
     }
     
     newLineCreated(journalEntryLine : any) {
-        console.log("==CREATED==");
         journalEntryLine = this.parseJournalEntryData(journalEntryLine);
-        console.log(journalEntryLine);
         
         this.journalEntryLines.unshift(journalEntryLine);
         
@@ -183,10 +181,8 @@ export class JournalEntrySimple {
     }
 
     editViewUpdated(journalEntryLine : JournalEntryData) { 
-        console.log("==UPDATED==");      
         journalEntryLine = this.parseJournalEntryData(journalEntryLine);          
-        console.log(journalEntryLine);
-       
+        
         var currentRow = this.journalEntryLines.indexOf(this.selectedJournalEntryLine);
         this.journalEntryLines[currentRow] = journalEntryLine;                   
         this.selectedJournalEntryLine = null;

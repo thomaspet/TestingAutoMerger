@@ -1,4 +1,5 @@
 import {Injectable, EventEmitter} from 'angular2/core';
+import {RequestMethod} from "angular2/http";
 import {UniHttp} from './http';
 import {Observable} from 'rxjs/Observable';
 import "rxjs/add/operator/concatMap";
@@ -9,7 +10,8 @@ export class BizHttp<T> {
     protected BaseURL: string;
     protected LogAll: boolean;
     protected DefaultOrderBy: string;
-
+    protected defaultExpand: string[];
+    
     // should be found based on type of T. Set in childclass constructor now
     protected relativeURL: string;
 
@@ -30,6 +32,8 @@ export class BizHttp<T> {
         let expandStr;
         if (expand) {
             expandStr = expand.join(',');
+        } else if (this.defaultExpand) {
+            expandStr = this.defaultExpand.join(',');
         }
         if (!ID) {
             ID = 'new';
@@ -102,21 +106,28 @@ export class BizHttp<T> {
             .withEndPoint(this.relativeURL + '/' + ID + '?action=' + transitionName)
             .send();
     }
+     
+    public Action<T>(ID: number, actionName: string, parameters: string = null, method: number = RequestMethod.Put): Observable<any> {        
+        return this.http
+            .as(method)
+            .withEndPoint(this.relativeURL + '/' + (ID === null ? '' : ID) + '?action=' + actionName + (parameters === null ? '' : '&' + parameters))
+            .send();
+    }
 
-    public Action<T>(ID: number, actionName: string): Observable<any> {
-        if (ID === null) {
-            return this.http
-                .asPUT()
-                .withEndPoint(this.relativeURL + '?action=' + actionName)
-                .send();
-        }
-        else {
-            return this.http
-                .asPUT()
-                .withEndPoint(this.relativeURL + '/' + ID + '?action=' + actionName)
-                .send();
+    public GetAction<T>(ID: number, actionName: string, parameters: string = null) {
+        return this.Action(ID, actionName, parameters, RequestMethod.Get);    
+    }
 
-        }
+    public PostAction<T>(ID: number, actionName: string, parameters: string = null) {
+        return this.Action(ID, actionName, parameters, RequestMethod.Post);    
+    }
+
+    public PutAction<T>(ID: number, actionName: string, parameters: string = null) {
+        return this.Action(ID, actionName, parameters, RequestMethod.Put);    
+    }
+
+    public DeleteAction<T>(ID: number, actionName: string, parameters: string = null) {
+        return this.Action(ID, actionName, parameters, RequestMethod.Delete);    
     }
 
     GetNewEntity(expand?: string[]) {
