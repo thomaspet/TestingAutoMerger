@@ -92,7 +92,6 @@ export class EmployeeEmployment {
             _employeeDS.getSubEntities()
         ).subscribe((response: any) => {
             let [employee, codes, subEnt] = response;
-            //console.log('SubEntities from constructor', subEnt);
             this.currentEmployee = employee;
             this.styrkCodes = codes;
             this.subEntities = subEnt;
@@ -102,10 +101,8 @@ export class EmployeeEmployment {
 
     private buildFormConfigs() {
         this.formConfigs = [];
-        console.log('employments: ' + JSON.stringify(this.currentEmployee.Employments));
         this.currentEmployee.Employments.forEach((employment: Employment) => {
             var formbuilder = new UniFormBuilder();
-            var AddSubEntity = false;
             if (!employment.JobCode) {employment.JobCode = ''; }
             var jobCode = this
                 .buildField('Stillingskode', employment, 'JobCode', FieldType.AUTOCOMPLETE)
@@ -138,35 +135,24 @@ export class EmployeeEmployment {
             var hourRate = this.buildField('Timelønn', employment, 'HourRate', FieldType.NUMERIC);
             var workPercent = this.buildField('Stillingprosent', employment, 'WorkPercent', FieldType.NUMERIC);
 
-            if (employment.SubEntity) {
-                if (employment.SubEntity.BusinessRelationInfo) {
-                    var subEntity = this
-                        .buildField('Lokasjon', employment.SubEntity.BusinessRelationInfo, 'Name', FieldType.COMBOBOX);
-                    subEntity.setKendoOptions({
-                        dataSource: this.subEntities,
-                        dataTextField: 'BusinessRelationInfo.Name',
-                        dataValueField: 'ID'
-                    });
-                    AddSubEntity = true;
-                }
-            }
+            
+            var subEntity = this.buildField('Lokasjon', employment.SubEntity.BusinessRelationInfo, 'Name', FieldType.COMBOBOX);
+            subEntity.setKendoOptions({
+                dataSource: this.subEntities,
+                dataTextField: 'BusinessRelationInfo.Name',
+                dataValueField: 'ID'
+            });
 
             var readgroup = this.buildGroupForm(employment);
 
-            if (AddSubEntity) {
-                formbuilder.addUniElements(jobCode, jobName, startDate, endDate, monthRate, hourRate, workPercent, subEntity, readgroup);
-            } else {
-                formbuilder.addUniElements(jobCode, jobName, startDate, endDate, monthRate, hourRate, workPercent, readgroup);
-            }
+            formbuilder.addUniElements(jobCode, jobName, startDate, endDate, monthRate, hourRate, workPercent, subEntity, readgroup);
 
-
-            //formbuilder.hideSubmitButton();
             this.formConfigs.push(formbuilder);
         });
 
     }
     
-    private updateJobCodeFields(dataItem, formbuilder: UniFormBuilder){
+    private updateJobCodeFields(dataItem, formbuilder: UniFormBuilder) {
         var fjn = <UniFieldBuilder>UniElementFinder.findUniFieldByPropertyName('JobName', formbuilder.config());
         fjn.control.updateValue(dataItem.tittel, {});
         var fjc = <UniFieldBuilder>UniElementFinder.findUniFieldByPropertyName('JobCode', formbuilder.config());
@@ -250,7 +236,7 @@ export class EmployeeEmployment {
                     (error: Error) => console.error('error in personaldetails.onFormSubmit - Put: ', error)
                 );
         } else {
-            console.log("we are now Posting this: " + JSON.stringify(this.currentEmployee.Employments[index]));
+            console.log('POST');
             this._employmentService.Post(this.currentEmployee.Employments[index])
                 .subscribe(
                     (data: Employment) => {
@@ -265,7 +251,7 @@ export class EmployeeEmployment {
     private addNewEmployment() {
         console.log('addNewEmployment()');
         this._employmentService.GetNewEntity().subscribe((response: Employment) => {
-            
+            var standardSubEntity = this.subEntities.find(subEntity => subEntity.SuperiorOrganizationID == null);
             var newEmployment = response;
             newEmployment.EmployeeNumber = this.currentEmployee.EmployeeNumber;
             newEmployment.EmployeeID = this.currentEmployee.ID;
@@ -276,8 +262,9 @@ export class EmployeeEmployment {
             newEmployment.LastSalaryChangeDate = new Date();
             newEmployment.LastWorkPercentChangeDate = new Date();
             newEmployment.SeniorityDate = new Date();
+            newEmployment.SubEntityID = standardSubEntity.ID;
+            newEmployment.SubEntity = standardSubEntity;
             
-            console.log(JSON.stringify(response));
             this.currentEmployee.Employments.push(response);
             this.buildFormConfigs();
         });
