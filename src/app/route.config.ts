@@ -3,6 +3,13 @@ import {AsyncRoute} from 'angular2/router';
 
 export const Routes = [
     new AsyncRoute({
+        useAsDefault: true,
+        path: '/',
+        name: 'Dashboard',
+        loader: () => ComponentProxy.LoadComponentAsync('Dashboard', './app/components/dashboard/dashboard')
+    }),
+
+    new AsyncRoute({
         path: '/login',
         name: 'Login',
         loader: () => ComponentProxy.LoadComponentAsync('Login', './app/components/login/login')
@@ -15,21 +22,15 @@ export const Routes = [
     }),
 
     new AsyncRoute({
-        path: '/',
-        name: 'Dashboard',
-        loader: () => ComponentProxy.LoadComponentAsync('Dashboard', './app/components/dashboard/dashboard')
-    }),
-
-    new AsyncRoute({
         path: '/salary/...',
         name: 'UniSalary',
-        loader: () => ComponentProxy.LoadComponentAsync('UniSalary', './app/components/salary/routes')
+        loader: () => ComponentProxy.LoadComponentAsync('UniSalary', './app/components/salary/salary')
     }),
 
     new AsyncRoute({
-        path: '/uniformdemo',
-        name: 'UniFormDemo',
-        loader: () => ComponentProxy.LoadComponentAsync('UniFormDemo', './app/components/uniFormDemo/uniFormDemoComponent')
+        path: '/sales/...',
+        name: 'UniSales',
+        loader: () => ComponentProxy.LoadComponentAsync('UniSales', './app/components/sales/sales')
     }),
 
     new AsyncRoute({
@@ -39,10 +40,16 @@ export const Routes = [
     }),
 
     new AsyncRoute({
-        path: '/journalentry/...',
-        name: 'JournalEntry',
-        loader: () => ComponentProxy.LoadComponentAsync('JournalEntry', './app/components/accounting/journalentry/journalentry')
+        path: '/accounting/...',
+        name: 'UniAccounting',
+        loader: () => ComponentProxy.LoadComponentAsync('UniAccounting', './app/components/accounting/accounting')
     }),
+
+
+
+
+
+    /// ROUTES FOR TESTING POURPOSES
 
     new AsyncRoute({
         path: '/usertest',

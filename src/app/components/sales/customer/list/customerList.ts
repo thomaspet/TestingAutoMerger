@@ -58,7 +58,7 @@ export class CustomerList {
                 
         // Define callback function for row clicks
         var selectCallback = (selectedItem) => {
-            this.router.navigateByUrl('/customer/details/' + selectedItem.ID);
+            this.router.navigateByUrl('/sales/customer/details/' + selectedItem.ID);
         }
 
         // Setup table
