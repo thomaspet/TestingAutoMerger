@@ -1,8 +1,7 @@
 import {Component} from "angular2/core";
-import {Router, RouteConfig, ROUTER_DIRECTIVES} from "angular2/router";
+import {RouteConfig, ROUTER_DIRECTIVES} from "angular2/router";
 import {ComponentProxy} from "../../../framework/core/componentProxy";
 import {AsyncRoute} from "angular2/router";
-import {Redirect} from "angular2/router";
 import {UniRouterOutlet} from "../../uniRouterOutlet";
 
 const SALARY_ROUTES = [
