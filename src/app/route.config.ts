@@ -51,6 +51,12 @@ export var Routes = {
         loader: () => ComponentProxy.LoadComponentAsync("JournalEntry", "./app/components/accounting/journalentry/journalentry")
     }),     
     
+    products: new AsyncRoute({
+        path: "/products/...",
+        name: "Products",
+        loader: () => ComponentProxy.LoadComponentAsync("Product", "./app/components/common/product/product")
+    }),
+    
     usertest: new AsyncRoute({
         path: "/usertest",
         name: "Usertest",

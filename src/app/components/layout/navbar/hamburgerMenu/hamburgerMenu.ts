@@ -34,8 +34,8 @@ export class HamburgerMenu {
                     {componentName: "Tilbud", componentUrl: "/"},
                     {componentName: "Innbetaling", componentUrl: "/uniformdemo"},
                     {componentName: "Purring", componentUrl: "/kitchensink"},
-                    {componentName: "Kunder", componentUrl: "/"},
-                    {componentName: "Produkter", componentUrl: "/uniformdemo"},
+                    {componentName: "Kunder", componentUrl: "/customer"},
+                    {componentName: "Produkter", componentUrl: "/products"},
                     {componentName: "Prosjekter", componentUrl: "/"}
                 ]
             },
