@@ -1,5 +1,6 @@
+<h2>Bilagsregistrering</h2>
 <div *ngIf="journalEntryMode == 'SIMPLE'">
-    <journal-entry-simple></journal-entry-simple>
+    <journal-entry-simple [supplierInvoice]="SupplierInvoice"></journal-entry-simple>
 </div>
 <div *ngIf="journalEntryMode == 'PROFFESIONAL'">
     <journal-entry-professional></journal-entry-professional>

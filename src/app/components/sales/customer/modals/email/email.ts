@@ -1,4 +1,4 @@
-import {Component, ViewChildren, Type, Input, Output, QueryList, ViewChild, ComponentRef, EventEmitter} from "angular2/core";
+import {Component, ViewChildren, Type, Input, QueryList, ViewChild, ComponentRef} from "angular2/core";
 import {NgIf, NgModel, NgFor} from "angular2/common";
 import {UniModal} from "../../../../../../framework/modals/modal";
 import {UniComponentLoader} from "../../../../../../framework/core/componentLoader";
@@ -6,65 +6,70 @@ import {UniFormBuilder} from "../../../../../../framework/forms/builders/uniForm
 import {UniForm} from "../../../../../../framework/forms/uniForm";
 import {UNI_CONTROL_DIRECTIVES} from "../../../../../../framework/controls";
 import {UniFieldBuilder} from "../../../../../../framework/forms/builders/uniFieldBuilder";
-import {FieldType, ComponentLayout, Phone, PhoneTypeEnum} from "../../../../../unientities";
+import {FieldType, ComponentLayout, Email} from "../../../../../unientities";
 import {UniFormLayoutBuilder} from "../../../../../../framework/forms/builders/uniFormLayoutBuilder";
 
-// Reusable address form
+// Reusable email form
 @Component({
-    selector: 'phone-form',
+    selector: 'email-form',
     directives: [UniForm,NgIf],
     template: `
         <uni-form *ngIf="config" [config]="config">
         </uni-form>
     `
 })
-export class PhoneForm {
+export class EmailForm {
     config: UniFormBuilder;
 
     @ViewChild(UniForm)
     form: UniForm;
 
-    model: Phone;
-    
+    Email: Email;
+
+    constructor() {
+        this.Email = new Email();
+        this.Email.EmailAddress = "terje@senikk.com";
+        this.Email.Description = "privat adresse";
+    }
+       
     ngOnInit()
     {
         this.createFormConfig();      
-        this.extendFormConfig();
     }
-           
+ 
     createFormConfig() {   
         // TODO get it from the API and move these to backend migrations   
         var view: ComponentLayout = {
-            StatusCode: 0,
-            Name: "Phone",
-            BaseEntity: "Phone",
+            Name: "Email",
+            BaseEntity: "Email",
+            StatusID: 0,
             Deleted: false,
             ID: 1,
             CustomFields: null,
             Fields: [
                 {
                     ComponentLayoutID: 1,
-                    EntityType: "Phone",
-                    Property: "Number",
+                    EntityType: "Email",
+                    Property: "EmailAddress",
                     Placement: 1,
                     Hidden: false,
-                    FieldType: 10,
+                    FieldType: 11,
                     ReadOnly: false,
                     LookupField: false,
-                    Label: "Telefonnr",
+                    Label: "Epostadresse",
                     Description: "",
                     HelpText: "",
                     FieldSet: 0,
                     Section: 0,
                     Legend: "",
-                    StatusCode: 0,
+                    StatusID: 0,
                     ID: 1,
                     Deleted: false,
                     CustomFields: null 
                 },
                 {
                     ComponentLayoutID: 1,
-                    EntityType: "Phone",
+                    EntityType: "Email",
                     Property: "Description",
                     Placement: 1,
                     Hidden: false,
@@ -77,56 +82,23 @@ export class PhoneForm {
                     FieldSet: 0,
                     Section: 0,
                     Legend: "",
-                    StatusCode: 0,
+                    StatusID: 0,
                     ID: 1,
                     Deleted: false,
                     CustomFields: null 
-                },
-                {
-                    ComponentLayoutID: 1,
-                    EntityType: "Phone",
-                    Property: "Type",
-                    Placement: 1,
-                    Hidden: false,
-                    FieldType: 1,
-                    ReadOnly: false,
-                    LookupField: false,
-                    Label: "Type",
-                    Description: "",
-                    HelpText: "",
-                    FieldSet: 0,
-                    Section: 0,
-                    Legend: "",
-                    StatusCode: 0,
-                    ID: 1,
-                    Deleted: false,
-                    CustomFields: null 
-                }  
+                } 
             ]               
         };   
         
-        this.config = new UniFormLayoutBuilder().build(view, this.model);
+        this.config = new UniFormLayoutBuilder().build(view, this.Email);
         this.config.hideSubmitButton();
     }
 
-    extendFormConfig() {
-        var project: UniFieldBuilder = this.config.find('Type');
-        project.setKendoOptions({
-            dataTextField: 'Name',
-            dataValueField: 'ID',
-            dataSource: [
-                {ID: 150101, Name: "Telefon"},
-                {ID: 150102, Name: "Mobil" },
-                {ID: 150103, Name: "Fax"}
-            ]
-        });      
-        project.addClass('large-field');            
-    }   
 }
 
-// phone modal type
+// email modal type
 @Component({
-    selector: "phone-modal-type",
+    selector: "email-modal-type",
     directives: [NgIf, NgModel, NgFor, UniComponentLoader],
     template: `
         <article class="modal-content">
@@ -140,17 +112,16 @@ export class PhoneForm {
         </article>
     `
 })
-export class PhoneModalType {
+export class EmailModalType {
     @Input('config')
     config;
     @ViewChild(UniComponentLoader)
     ucl: UniComponentLoader;
-    instance: Promise<PhoneForm>;
+    instance: Promise<EmailForm>;
             
     ngAfterViewInit() {
         var self = this;
-        this.ucl.load(PhoneForm).then((cmp: ComponentRef)=> {
-            cmp.instance.model = self.config.model;
+        this.ucl.load(EmailForm).then((cmp: ComponentRef)=> {
             self.instance = new Promise((resolve)=> {
                 resolve(cmp.instance);
             });
@@ -158,37 +129,34 @@ export class PhoneModalType {
     }
 }
 
-// phone modal
+// email modal
 @Component({
-    selector: "phone-modal",
+    selector: "email-modal",
     template: `
+        <button (click)="openModal()">Epost modal</button>
         <uni-modal [type]="type" [config]="modalConfig"></uni-modal>
     `,
     directives: [UniModal]
 })
-export class PhoneModal {
+export class EmailModal {
     @ViewChild(UniModal)
     modal: UniModal;
-    
-    @Output() Changed = new EventEmitter<Phone>();
-    
     modalConfig: any = {};
-    type: Type = PhoneModalType;
+
+    type: Type = EmailModalType;
 
     constructor() {
         var self = this;
         this.modalConfig = {
-            title: "Telefonnummer",
-            model: null,
+            title: "Epost",
+            value: "Initial value",
             actions: [
                 {
                     text: "Accept",
                     method: () => {
-                        self.modal.getContent().then((content: PhoneModalType)=> {
-                            content.instance.then((form: PhoneForm)=> {
-                                form.form.updateModel();
-                                self.modal.close();
-                                self.Changed.emit(form.model);
+                        self.modal.getContent().then((content: EmailModalType)=> {
+                            content.instance.then((rc: EmailForm)=> {
+                                console.log(rc.form.form);
                             });
                         });
                     }
