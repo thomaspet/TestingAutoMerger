@@ -93,7 +93,8 @@ export class UniTable implements OnChanges, OnDestroy {
 
             var vm = this;
             this.tableConfig.change = function (event: kendo.ui.GridChangeEvent) {
-                vm.config.selectCallback(event.sender.dataItem(this.select()));
+                let unflattened = vm.unflattenData(event.sender.dataItem(this.select()));
+                vm.config.selectCallback(unflattened);
             };
         }
 
