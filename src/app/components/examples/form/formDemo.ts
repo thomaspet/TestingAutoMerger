@@ -53,6 +53,8 @@ export class UniFormDemo {
     private startApp(view:any, model:Employee) {
         // We can extend layout before form config creation
         view = this.extendLayoutConfig(view);
+        console.log("LAYOUT");
+        console.log(view);
 
         this.createModel(model);
         this.buildFormConfig(view, model);
@@ -99,14 +101,23 @@ export class UniFormDemo {
             promptChar: '_'
         });
 
-        var section = UniElementFinder.findUniSection(1, this.FormConfig.fields);
-        var newSection = new UniSectionBuilder();
-        newSection.legend = 'New Section';
+        //////////////////////////////////
+        // add section inside a section
+        //////////////////////////////////
         var elem = new UniFieldBuilder();
         elem.fieldType = UniTextInput;
-        elem.setModel(this.Model).setModelField('Name').setLabel('New Field');
+        elem
+            .setModel(this.Model)
+            .setModelField('Name')
+            .setLabel('New Field');
+
+        var newSection = new UniSectionBuilder();
+        newSection.legend = 'New Section';
         newSection.addUniElement(elem);
+
+        var section = UniElementFinder.findUniSection(1, this.FormConfig.fields);
         section.addUniElement(newSection);
+        //////////////////////////////////
     }
 
     private extendLayoutConfig(layout:any) {
