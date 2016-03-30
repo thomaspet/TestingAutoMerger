@@ -56,6 +56,7 @@ export class SalaryTransactionEmployeeList {
     }
     
     buildFilter() {
+        console.log("payrollrunID",this.payrollRunID);
         if(this.payrollRunID === undefined) {
             return "EmployeeNumber eq " + this.ansattID;
         } else {

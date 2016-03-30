@@ -10,6 +10,7 @@ export * from './accounting/supplierinvoiceservice';
 export * from './accounting/supplierinvoiceitemservice';
 export * from './accounting/BankAccountService';
 export * from './salary/employee/employeeservice';
+export * from './staticregisterservice';
 export * from './salary/wagetype/wagetypeservice'
 export * from './common/departementservice';
 export * from './common/projectservice';
