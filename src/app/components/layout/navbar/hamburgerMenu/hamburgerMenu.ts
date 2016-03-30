@@ -34,7 +34,7 @@ export class HamburgerMenu {
                     {componentName: "Tilbud", componentUrl: "/"},
                     {componentName: "Innbetaling", componentUrl: "/uniformdemo"},
                     {componentName: "Purring", componentUrl: "/kitchensink"},
-                    {componentName: "Kunder", componentUrl: "/customer"},
+                    {componentName: "Kunder", componentUrl: "/sales"},
                     {componentName: "Produkter", componentUrl: "/products"},
                     {componentName: "Prosjekter", componentUrl: "/"}
                 ]
@@ -44,7 +44,7 @@ export class HamburgerMenu {
                 componentListHeader: "Orden i bøkene",
                 componentList: [
                     {componentName: "Fakturamottak", componentUrl: "/kitchensink"},
-                    {componentName: "Bilagsføring", componentUrl: "/journalentry"},
+                    {componentName: "Bilagsføring", componentUrl: "/accounting"},
                     {componentName: "Hovedbok", componentUrl: "/uniformdemo"},
                     {componentName: "Forespørsel", componentUrl: "/"},
                 ]

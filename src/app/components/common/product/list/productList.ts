@@ -35,6 +35,10 @@ export class ProductList {
             
     }
 
+    getStatusText() {
+        return "foo";
+    }
+
     setupProductTable() {
         // Define columns to use in the table
         var partNameCol = new UniTableColumn('PartName', 'Produktnr', 'string').setWidth('15%');
@@ -44,6 +48,9 @@ export class ProductList {
                             .setFormat('{0:n}')
                             .setClass('column-align-right');
         var statusCol = new UniTableColumn('StatusCode', 'Status', 'string').setWidth('15%');
+        statusCol.setTemplate("#var statusText; if(!StatusCode) {statusText = 'Kladd'} else {statusText = 'Aktiv'} # #= statusText #");
+        
+                
                 
         // Define callback function for row clicks
         var selectCallback = (selectedItem) => {            

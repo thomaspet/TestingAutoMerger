@@ -44,7 +44,8 @@ export class CustomerList {
         this.customerService.Post(c)
             .subscribe(
                 (data) => {
-                    this.router.navigateByUrl('/customer/details/' + data.ID);        
+                    console.log('Kunde opprettet, id: ' + data.ID);
+                    this.router.navigateByUrl('/sales/customer/details/' + data.ID);        
                 },
                 (err) => console.log('Error creating customer: ', err)
             );      
@@ -58,7 +59,7 @@ export class CustomerList {
                 
         // Define callback function for row clicks
         var selectCallback = (selectedItem) => {
-            this.router.navigateByUrl('/customer/details/' + selectedItem.ID);
+            this.router.navigateByUrl('/sales/customer/details/' + selectedItem.ID);
         }
 
         // Setup table
