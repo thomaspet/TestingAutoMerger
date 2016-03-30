@@ -1,33 +1,37 @@
 import {Component} from "angular2/core";
-import {RouteConfig, RouteDefinition, ROUTER_DIRECTIVES, Router, RouteParams} from "angular2/router";
+import {RouteConfig, RouteDefinition, ROUTER_DIRECTIVES, Router, AsyncRoute} from "angular2/router";
 
 import {TabService} from "../../layout/navbar/tabstrip/tabService";
 import {UniTabs} from '../../layout/uniTabs/uniTabs';
 
-import {CustomerDetails} from './customerDetails/customerDetails';
-import {CustomerList} from './list/customerList';
-import {CustomerAdd} from './add/customerAdd';
+import {ComponentProxy} from "../../../../framework/core/componentProxy";
 
-const CHILD_ROUTES = [
-    {path: '/', redirectTo: ['CustomerList']},
-    {path: '/list', component: CustomerList, as: 'CustomerList'},
-    {path: '/details/:id', component: CustomerDetails, as: 'CustomerDetails'}
-]
+const CUSTOMER_ROUTES = [
+    new AsyncRoute({
+        useAsDefault: true,
+        path: "/list",
+        name: "CustomerList",
+        loader: () => ComponentProxy.LoadComponentAsync("CustomerList", "./app/components/sales/customer/list/customerList")
+    }),
+    new AsyncRoute({
+        path: "/details/:id",
+        name: "CustomerDetails",
+        loader: () => ComponentProxy.LoadComponentAsync("CustomerDetails", "./app/components/sales/customer/customerDetails/customerDetails")
+    })
+];
 
 @Component({
-    selector: "customer",
+    selector: "uni-customer",
     templateUrl: "app/components/sales/customer/customer.html",
-    directives: [ROUTER_DIRECTIVES, UniTabs, CustomerDetails]
+    directives: [ROUTER_DIRECTIVES, UniTabs]
 })
-@RouteConfig(CHILD_ROUTES)
+@RouteConfig(CUSTOMER_ROUTES)
 export class Customer {
 
     childRoutes: RouteDefinition[];
-    
-    constructor(public router: Router, private tabService: TabService) {
-        this.tabService.addTab({name: "Kunder", url: "/customer"});
-        this.childRoutes = CHILD_ROUTES.slice(1);     
-        
 
+    constructor(public router: Router, private tabService: TabService) {
+        this.tabService.addTab({name: "Kunder", url: "/sales/customers"});
+        this.childRoutes = CUSTOMER_ROUTES.slice(0, CUSTOMER_ROUTES.length - 1);
     }
 }

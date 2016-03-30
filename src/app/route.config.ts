@@ -1,90 +1,66 @@
-import {ComponentProxy} from "../framework/core";
-import {AsyncRoute} from "angular2/router";
+import {ComponentProxy} from '../framework/core';
+import {AsyncRoute} from 'angular2/router';
 
-export var Routes = {
-
-    login: new AsyncRoute({
-        path: "/login",
-        name: "Login",
-        loader: () => ComponentProxy.LoadComponentAsync("Login", "./app/components/login/login")
-    }),
-
-    signup: new AsyncRoute({
-        path: "/signup",
-        name: "Signup",
-        loader: () => ComponentProxy.LoadComponentAsync("Signup", "./app/components/login/signup")
+export const Routes = [
+    new AsyncRoute({
+        useAsDefault: true,
+        path: '/',
+        name: 'Dashboard',
+        loader: () => ComponentProxy.LoadComponentAsync('Dashboard', './app/components/dashboard/dashboard')
     }),
 
-    employeeList: new AsyncRoute({
-        path: "/salary/employees",
-        name: "EmployeeList",
-        loader: () => ComponentProxy.LoadComponentAsync("EmployeeList", "./app/components/salary/employee/employeeList")
+    new AsyncRoute({
+        path: '/login',
+        name: 'Login',
+        loader: () => ComponentProxy.LoadComponentAsync('Login', './app/components/login/login')
     }),
 
-    employeeDetails: new AsyncRoute({
-        path: "/salary/employees/:id/...",
-        name: "EmployeeDetails",
-        loader: () => ComponentProxy.LoadComponentAsync("EmployeeDetails", "./app/components/salary/employee/employeeDetails")
+    new AsyncRoute({
+        path: '/signup',
+        name: 'Signup',
+        loader: () => ComponentProxy.LoadComponentAsync('Signup', './app/components/login/signup')
     }),
 
-    dashboard: new AsyncRoute({
-        path: "/",
-        name: "Dashboard",
-        loader: () => ComponentProxy.LoadComponentAsync("Dashboard", "./app/components/dashboard/dashboard")
+    new AsyncRoute({
+        path: '/salary/...',
+        name: 'UniSalary',
+        loader: () => ComponentProxy.LoadComponentAsync('UniSalary', './app/components/salary/salary')
     }),
 
-    uniFormDemo: new AsyncRoute({
-        path: "/uniformdemo",
-        name: "UniFormDemo",
-        loader: () => ComponentProxy.LoadComponentAsync("UniFormDemo", "./app/components/uniFormDemo/uniFormDemoComponent")
+    new AsyncRoute({
+        path: '/sales/...',
+        name: 'UniSales',
+        loader: () => ComponentProxy.LoadComponentAsync('UniSales', './app/components/sales/sales')
     }),
 
-    companySettings: new AsyncRoute({
-        path: "/settings/...",
-        name: "Settings",
-        loader: () => ComponentProxy.LoadComponentAsync("Settings", "./app/components/settings/settings")
+    new AsyncRoute({
+        path: '/settings/...',
+        name: 'Settings',
+        loader: () => ComponentProxy.LoadComponentAsync('Settings', './app/components/settings/settings')
     }),
 
-    journalEntry: new AsyncRoute({
-        path: "/journalentry/...",
-        name: "JournalEntry",
-        loader: () => ComponentProxy.LoadComponentAsync("JournalEntry", "./app/components/accounting/journalentry/journalentry")
-    }),     
-    
-    usertest: new AsyncRoute({
-        path: "/usertest",
-        name: "Usertest",
-        loader: () => ComponentProxy.LoadComponentAsync("Usertest", "./app/components/usertest/usertest")
+    new AsyncRoute({
+        path: '/accounting/...',
+        name: 'UniAccounting',
+        loader: () => ComponentProxy.LoadComponentAsync('UniAccounting', './app/components/accounting/accounting')
     }),
 
-    wagetype: new AsyncRoute({
-        path: "/salary/wagetypes/:id",
-        name: "WageTypeDetail",
-        loader: () => ComponentProxy.LoadComponentAsync("WagetypeDetail", "./app/components/salary/wagetype/wagetypeDetails")
-    }),
-    wagetypeList: new AsyncRoute({
-        path: "/salary/wagetypes",
-        name: "WagetypeList",
-        loader: () => ComponentProxy.LoadComponentAsync("WagetypeList", "./app/components/salary/wagetype/wagetypeList")
+
+
+
+
+    /// ROUTES FOR TESTING POURPOSES
+
+    new AsyncRoute({
+        path: '/usertest',
+        name: 'Usertest',
+        loader: () => ComponentProxy.LoadComponentAsync('Usertest', './app/components/usertest/usertest')
     }),
 
-    examples: new AsyncRoute({
-        path: "/examples/...",
-        name: "Examples",
-        loader: () => ComponentProxy.LoadComponentAsync("Examples", "./app/components/examples/examples")
-    }),
-    
-    salarytransSelection: new AsyncRoute({
-        path: "/salary/salarytrans",
-        name: "SalaryTransactionSelectionList",
-        loader: () => ComponentProxy.LoadComponentAsync("SalaryTransactionSelectionList", "./app/components/salary/salarytrans/salarytransactionSelectionList")
-    }),
-    
-    customer: new AsyncRoute({
-        path: "/customer/...",
-        name: "Customer",
-        loader: () => ComponentProxy.LoadComponentAsync("Customer", "./app/components/sales/customer/customer")
-    }),
-};
+    new AsyncRoute({
+        path: '/examples/...',
+        name: 'Examples',
+        loader: () => ComponentProxy.LoadComponentAsync('Examples', './app/components/examples/examples')
+    })
+];
 
-export const APP_ROUTES = Object.keys(Routes).map((r: string) => Routes[r]);

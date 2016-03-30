@@ -154,7 +154,7 @@ export class SupplierInvoiceList implements OnInit {
 
                     if (dataItem !== null && dataItem.ID !== null) {
                         self.selectedSupplierInvoice = dataItem;
-                        self._router.navigateByUrl("/journalentry/supplierinvoices/" + dataItem.ID);
+                        self._router.navigateByUrl("/accounting/journalentry/supplierinvoices/" + dataItem.ID);
                     }
                     else
                         console.log("Error in selecting the SupplierInvoices");
@@ -168,7 +168,7 @@ export class SupplierInvoiceList implements OnInit {
 
     createNew() {
 
-        this._router.navigateByUrl("/journalentry/supplierinvoices/New");
+        this._router.navigateByUrl("/accounting/journalentry/supplierinvoices/New");
 
         //TODO?? When vlaidation for Draft status can be bypassed.
         //this.supplierInvoiceService.GetNewEntity()
@@ -185,7 +185,7 @@ export class SupplierInvoiceList implements OnInit {
         this.supplierInvoiceService.Post(context)
             .subscribe(
             (data) => {
-                this._router.navigateByUrl('/journalentry/supplierinvoices/' + data.ID);
+                this._router.navigateByUrl('/accounting/journalentry/supplierinvoices/' + data.ID);
             },
             (err) => console.log('Error creating new supplier invoice: ', err)
             );
