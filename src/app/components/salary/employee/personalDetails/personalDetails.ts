@@ -4,12 +4,10 @@ import {UniForm} from '../../../../../framework/forms/uniForm';
 import {
     UniFormBuilder, UniFormLayoutBuilder
 } from '../../../../../framework/forms';
-import {EmployeeModel} from '../../../../models/employee';
 import {UniComponentLoader} from '../../../../../framework/core';
 import {Observable} from 'rxjs/Observable';
 import 'rxjs/add/operator/merge';
-import {UniValidator} from '../../../../../framework/validators/UniValidator';
-import {OperationType, Operator, ValidationLevel, Employee, BankAccountSalary} from '../../../../unientities';
+import {OperationType, Operator, ValidationLevel, Employee} from '../../../../unientities';
 import {EmployeeService} from '../../../../services/services';
 declare var _;
 
@@ -28,9 +26,7 @@ declare var _;
 export class PersonalDetails implements OnInit {
 
     private form: UniFormBuilder = new UniFormBuilder();
-    private layout;
     private employee: Employee;
-    private subEntities;
 
     @ViewChild(UniComponentLoader)
     private uniCmpLoader: UniComponentLoader;
@@ -54,15 +50,6 @@ export class PersonalDetails implements OnInit {
             this.cacheLocAndGetData();
         }
     }
-
-    /*private ngAfterViewInit() {
-
-        if (this.employeeService.subEntities){
-            this.getData();
-        }else {
-            this.cacheLocAndGetData();
-        }
-    }*/
     
     private cacheLocAndGetData() {
         this.employeeService.getSubEntities().subscribe((response) => {
@@ -73,7 +60,6 @@ export class PersonalDetails implements OnInit {
     }
     
     private getData() {
-        var self = this;
 
         /*
          http.get(url).map(res => res.json())
@@ -85,8 +71,8 @@ export class PersonalDetails implements OnInit {
          }).subscribe()
          */
         Observable.forkJoin(
-            self.employeeService.get(this.employeeID),
-            self.employeeService.layout('EmployeePersonalDetailsForm')
+            this.employeeService.get(this.employeeID),
+            this.employeeService.layout('EmployeePersonalDetailsForm')
         ).subscribe(
             (response: any) => {
                 var [employee, layout] = response;
@@ -101,38 +87,29 @@ export class PersonalDetails implements OnInit {
                     'ID': 1,
                     'Deleted': false
                 }];
-                self.employee = employee;
-                /*if (!self.employee.BankAccounts[0]) {
-                    console.log('making ready account');
-                    var account: BankAccountSalary = new BankAccountSalary();
-                    account.AccountNumber = '';
-                    self.employee.BankAccounts.push(account);
-                }*/
-                self.form = new UniFormLayoutBuilder().build(layout, self.employee);
+                this.employee = employee;
+                this.form = new UniFormLayoutBuilder().build(layout, this.employee);
                 
-                self.uniCmpLoader.load(UniForm).then((cmp: ComponentRef) => {
-                    cmp.instance.config = self.form;
+                this.uniCmpLoader.load(UniForm).then((cmp: ComponentRef) => {
+                    cmp.instance.config = this.form;
                     cmp.instance.getEventEmitter().subscribe(this.executeSubmit(this));
                     this.whenFormInstance = new Promise((resolve: Function) => {
                         resolve(cmp.instance);
                     });
-                    /*setTimeout(() => {
-                        self.formInstance = cmp.instance;
-                        console.log(self.formInstance);
-                    }, 100);*/
                 });
             }
             , (error: any) => console.error(error)
         );
     }
 
-    private isValid() {
+    public isValid() {
         return this.formInstance && this.formInstance.form && this.formInstance.form.valid;
     }
 
     private executeSubmit(context: PersonalDetails) {
         return () => {
             if (context.employee.ID) {
+                console.log('PUT');
                 context.employeeService.Put(context.employee.ID, context.employee)
                     .subscribe(
                         (data: Employee) => {
@@ -146,8 +123,7 @@ export class PersonalDetails implements OnInit {
                         }
                     );
             } else {
-                console.log('we are now Posting');
-                console.log('Account number: ' + JSON.stringify(context.employee.BankAccounts));
+                console.log('POST');
                 context.employeeService.post(context.employee)
                     .subscribe(
                         (data: Employee) => {
@@ -160,11 +136,9 @@ export class PersonalDetails implements OnInit {
                     );
             }
         };
-        
-        // this.formInstance.updateModel();
     }
 
-    private toggleMode() {
+    public toggleMode() {
         this.form.isEditable() ? this.form.readmode() : this.form.editmode();
     }
 }

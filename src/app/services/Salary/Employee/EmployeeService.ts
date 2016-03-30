@@ -193,7 +193,7 @@ export class EmployeeService extends BizHttp<Employee> {
                     Property: 'Sex',
                     Placement: 4,
                     Hidden: false,
-                    FieldType: FieldType.COMBOBOX,
+                    FieldType: FieldType.DROPDOWN,
                     ReadOnly: false,
                     LookupField: false,
                     Label: 'Kjønn',
@@ -204,8 +204,8 @@ export class EmployeeService extends BizHttp<Employee> {
                     Legend: '',
                     IsLookUp: true,
                     kendoOptions: {
-                        dataSource: [{ID: 1, Navn: 'Kvinne'}, {ID: 2, Navn: 'Mann'}],
-                        dataTextField: 'Navn',
+                        dataSource: [{ID: 1, Name: 'Kvinne'}, {ID: 2, Name: 'Mann'}],
+                        dataTextField: 'Name',
                         dataValueField: 'ID'
                     },
                     Validations: [
@@ -255,7 +255,7 @@ export class EmployeeService extends BizHttp<Employee> {
                     Property: 'SubEntityID',
                     Placement: 6,
                     Hidden: false,
-                    FieldType: FieldType.COMBOBOX,
+                    FieldType: FieldType.DROPDOWN,
                     ReadOnly: false,
                     LookupField: false,
                     Label: 'Virksomhet',
