@@ -25,7 +25,7 @@ export class EmployeeEmployment {
     private formConfigs: UniFormBuilder[];
     // private styrkCodes: Array<any>;
     // private staticRegisterService: StaticRegisterService;
-    private styrks: any;
+    private styrks: STYRKCode[];
 
     private typeOfEmployment: {ID: number, Name: string}[] = [
         {ID: 0, Name: 'Ikke satt'},
@@ -162,9 +162,11 @@ export class EmployeeEmployment {
     }
     
     private updateJobCodeFields(dataItem, formbuilder: UniFormBuilder) {
-        var fjn = <UniFieldBuilder>UniElementFinder.findUniFieldByPropertyName('JobName', formbuilder.config());
+        var fjn = <UniFieldBuilder>UniElementFinder.findUniFieldByPropertyName('JobName',
+            formbuilder.config());
         fjn.control.updateValue(dataItem.tittel, {});
-        var fjc = <UniFieldBuilder>UniElementFinder.findUniFieldByPropertyName('JobCode', formbuilder.config());
+        var fjc = <UniFieldBuilder>UniElementFinder.findUniFieldByPropertyName('JobCode', 
+            formbuilder.config());
         fjc.control.updateValue(dataItem.styrk, {});
     }
 
@@ -206,13 +208,13 @@ export class EmployeeEmployment {
             , FieldType.DATEPICKER);
         var percent = this.buildField('Endret stillingprosent', employment
             , 'LastWorkPercentChangeDate', FieldType.DATEPICKER);
-        var senority = this.buildField('Ansiennitet', employment, 'SenorityDate'
+        var senority = this.buildField('Ansiennitet', employment, 'SeniorityDate'
             , FieldType.DATEPICKER);
         dateSet.addUniElements(salary, percent, senority);
 
         // annen lønnsinfo
         var infoSet = new UniFieldsetBuilder();
-        var freerate = this.buildField('Fri sats', employment, 'UserdefinedRate'
+        var freerate = this.buildField('Fri sats', employment, 'UserDefinedRate'
             , FieldType.NUMERIC);
         var ledger = this.buildField('Hovedbokskonto', employment, 'LedgerAccount'
             , FieldType.TEXT);
@@ -235,11 +237,11 @@ export class EmployeeEmployment {
             .setType(UNI_CONTROL_DIRECTIVES[type]);
     }
 
-    private changeDefault(event, index) {
+    public changeDefault(event, index) {
         console.log('Index when changing default: ' + index);
     }
 
-    private onFormSubmit(index) {
+    public onFormSubmit(index) {
         console.log('onFormSubmit(event, index)');
         
         if (this.currentEmployee.Employments[index].ID) {
@@ -251,7 +253,9 @@ export class EmployeeEmployment {
                         this.currentEmployee.Employments[index] = data;
                         this.buildFormConfigs();
                     },
-                    (error: Error) => console.error('error in personaldetails.onFormSubmit - Put: ', error)
+                    (error: Error) => {
+                        console.error('error in personaldetails.onFormSubmit - Put: ', error);
+                    }
                 );
         } else {
             console.log('POST');
@@ -261,15 +265,20 @@ export class EmployeeEmployment {
                         this.currentEmployee.Employments[index] = data;
                         this.buildFormConfigs();
                     },
-                    (error: Error) => console.error('error in personaldetails.onFormSubmit - Post: ', error)
+                    (error: Error) => {
+                        console.error('error in personaldetails.onFormSubmit - Post: ', error);
+                    }
                 );
         }
     }
     
-    private addNewEmployment() {
+    public addNewEmployment() {
         console.log('addNewEmployment()');
         this._employmentService.GetNewEntity().subscribe((response: Employment) => {
-            var standardSubEntity = this.subEntities.find(newSubEntity => newSubEntity.SuperiorOrganizationID == null);
+            
+            var standardSubEntity = this.subEntities.find(newSubEntity => 
+                    newSubEntity.SuperiorOrganizationID === null);
+                    
             var newEmployment = response;
             newEmployment.EmployeeNumber = this.currentEmployee.EmployeeNumber;
             newEmployment.EmployeeID = this.currentEmployee.ID;
