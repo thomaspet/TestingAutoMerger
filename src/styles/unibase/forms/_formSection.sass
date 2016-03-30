@@ -4,7 +4,7 @@
     flex-wrap: wrap
 
     %label
-        @include unigrid(2,2)
+        @include unigrid(2, 2)
         margin: 1rem 0
 
     label
@@ -14,10 +14,10 @@
             width: 100%
 
         &.half
-            @include unigrid(1,1)
+            @include unigrid(1, 1)
 
         &.double
-            @include unigrid(4,4)
+            @include unigrid(4, 4)
 
     fieldset
         @extend %label
@@ -61,7 +61,6 @@
             display: inline-block
             margin-right: 1rem
             color: $uni-color-scale6
-
 
     &.-is-open
         h4:before

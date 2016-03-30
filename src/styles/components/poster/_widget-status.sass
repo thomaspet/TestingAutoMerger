@@ -1,108 +1,106 @@
 @keyframes success
-  0%
-    background-color: transparentize($uni-color-Bad, .8)
-    border-color: $uni-color-Bad
+    0%
+        background-color: transparentize($uni-color-Bad, .8)
+        border-color: $uni-color-Bad
 
-  100%
-    background-color: transparentize($uni-color-Good, .8)
-    border-color: $uni-color-Good
-
-
+    100%
+        background-color: transparentize($uni-color-Good, .8)
+        border-color: $uni-color-Good
 
 .poster_widget_status
-  text-align: left
-  flex-grow: 0
-  box-sizing: border-box
-
-  ul
-    display: flex
-    flex-direction: column
-    align-content: stretch
-    min-height: 11rem
-
-  %widget-status-box
-    font-weight: 400
-    text-align: center
-    font-size: 1.2rem
-    padding-left: 1rem
-    border-radius: pxToRem(6)
-    transition: all .3s ease
-    width: 100%
-    flex-grow: 1
-    list-style: none
+    text-align: left
+    flex-grow: 0
     box-sizing: border-box
-    margin-bottom: .5rem
-    position: relative
-    display: flex
-    flex-direction: column
-    justify-content: space-around
 
-    h3
-      font-size: 1rem
-      margin: 0
-      font-weight: 600
-      text-transform: uppercase
-      line-height: 1.5
+    ul
+        display: flex
+        flex-direction: column
+        align-content: stretch
+        min-height: 11rem
 
-    &:before
-      height: 2rem
-      width: 2rem
-      content: ''
-      display: block
-      float: left
-      position: absolute
-      top: calc(50% - 1rem)
+    %widget-status-box
+        font-weight: 400
+        text-align: center
+        font-size: 1.2rem
+        padding-left: 1rem
+        border-radius: pxToRem(6)
+        transition: all .3s ease
+        width: 100%
+        flex-grow: 1
+        list-style: none
+        box-sizing: border-box
+        margin-bottom: .5rem
+        position: relative
+        display: flex
+        flex-direction: column
+        justify-content: space-around
 
-    button
-      display: block
-      margin: .6rem auto
+        h3
+            font-size: 1rem
+            margin: 0
+            font-weight: 600
+            text-transform: uppercase
+            line-height: 1.5
 
-    &.-is-cleared
-      animation: success 1s ease
-      opacity: 0
+        &:before
+            height: 2rem
+            width: 2rem
+            content: ''
+            display: block
+            float: left
+            position: absolute
+            top: calc(50% - 1rem)
 
-  @mixin status-widget($statusColor)
-    @extend %widget-status-box
-    border: pxToRem(2) solid $statusColor
-    color: $statusColor
-    background: transparentize($statusColor, .8)
+        button
+            display: block
+            margin: .6rem auto
 
-    &:before
-      background: unicon-thumbsdown($statusColor) no-repeat center center
-      background-size: contain
+        &.-is-cleared
+            animation: success 1s ease
+            opacity: 0
 
-  .error
-    @include status-widget($uni-color-Bad)
+    @mixin status-widget($statusColor)
+        @extend %widget-status-box
+        border: pxToRem(2) solid $statusColor
+        color: $statusColor
+        background: transparentize($statusColor, .8)
 
-  .good
-    @include status-widget($uni-color-Good)
-    h3
-      font-size: 1.5rem
+        &:before
+            background: unicon-thumbsdown($statusColor) no-repeat center center
+            background-size: contain
 
-    &:before
-      background-image: unicon-thumbsup($uni-color-Good)
+    .error
+        @include status-widget($uni-color-Bad)
+
+    .good
+        @include status-widget($uni-color-Good)
+        h3
+            font-size: 1.5rem
+
+        &:before
+            background-image: unicon-thumbsup($uni-color-Good)
 
 @include media(small)
-  .poster_widget_status ul
-    min-height: 5rem
+    .poster_widget_status ul
+        min-height: 5rem
 
-  .poster_widget_status li,
-  .poster_widget_status li.error,
-  .poster_widget_status li.good
-    padding: .2rem
+    .poster_widget_status li,
+    .poster_widget_status li.error,
+    .poster_widget_status li.good
+        padding: .2rem
 
-    h3
-      font-size: .8rem
+        h3
+            font-size: .8rem
 
-    button
-      font-size: .8rem
-      line-height: 1.5em
-      padding: .2rem 1rem
-      font-weight: 400
-      text-shadow: none
+        button
+            font-size: .8rem
+            line-height: 1.5em
+            padding: .2rem 1rem
+            font-weight: 400
+            text-shadow: none
 
-      &[aria-busy]:not([aria-busy=false]):before
-        margin: 0 5px -2px -5px
+            &[aria-busy]:not([aria-busy=false]):before
+                margin: 0 5px -2px -5px
 
-    &:before
-      display: none
+        &:before
+            display: none

@@ -1,80 +1,79 @@
 .navbar_tabs
-  margin: 0
-  white-space: nowrap
-
-  &+button.small
-    position: fixed
-    bottom: 1rem
-    right: 1rem
-
-  a
-    &:first-of-type li
-      border-left: none
-
-    &:last-of-type li
-      border-right: none
-
-    &.router-link-active li
-      background: $uni-color-negative
-      color: $navbarBackground
-
-      .close
-        border: pxToRem(1) solid mix($uni-color-C2A, $navbarBackground, 70%)
-        background-image: unicon-close($uni-color-negative), linear-gradient(to top, mix($uni-color-C2A, $navbarBackground, 50%) 0,mix($uni-color-C2A, $navbarBackground, 60%) 100%)
-        opacity: .8
-
-  li
-    @extend %navbarText
-    @extend %clickable
-    padding: .5rem .7rem
     margin: 0
-    text-align: center
-    max-width: 200px
-    border-left: .1rem solid transparentize($navbarTextColor, .8)
-    border-right: .1rem solid transparentize(contrasting($navbarTextColor), .8)
     white-space: nowrap
-    display: inline-block
 
-    &:first-of-type
-      border-left: none
+    & + button.small
+        position: fixed
+        bottom: 1rem
+        right: 1rem
 
-    &:last-of-type
-      border-right: none
+    a
+        &:first-of-type li
+            border-left: none
 
-    &:before
-      content: ''
+        &:last-of-type li
+            border-right: none
 
-    .close
-      display: inline-block
-      height: .75rem
-      width: .75rem
-      margin-left: .7rem
-      top: .1rem
-      position: relative
-      border-radius: pxToRem(3)
-      border: pxToRem(1) solid mix($uni-color-positive, $navbarBackground, 70%)
-      background-image: unicon-close($uni-color-negative), linear-gradient(to top, mix($uni-color-positive, $navbarBackground, 50%) 0,mix($uni-color-positive, $navbarBackground, 60%) 100%)
-      background-position: center center
-      background-repeat: no-repeat
-      background-size: .4rem, contain
-      opacity: .4
-      transition: all .3s ease
+        &.router-link-active li
+            background: $uni-color-negative
+            color: $navbarBackground
 
-    &:hover,
-    &:focus
-      background: darken($navbarBackground, 10%)
+            .close
+                border: pxToRem(1) solid mix($uni-color-C2A, $navbarBackground, 70%)
+                background-image: unicon-close($uni-color-negative), linear-gradient(to top, mix($uni-color-C2A, $navbarBackground, 50%) 0, mix($uni-color-C2A, $navbarBackground, 60%) 100%)
+                opacity: .8
 
-      &:after
-        opacity: 1
+    li
+        @extend %navbarText
+        @extend %clickable
+        padding: .5rem .7rem
+        margin: 0
+        text-align: center
+        max-width: 200px
+        border-left: .1rem solid transparentize($navbarTextColor, .8)
+        border-right: .1rem solid transparentize(contrasting($navbarTextColor), .8)
+        white-space: nowrap
+        display: inline-block
 
+        &:first-of-type
+            border-left: none
 
-  @include media(large, max-width)
-    $btmNavColor1: mix($navbarBackground, $uni-color-scale1, 80%)
-    $btmNavColor2: mix($navbarBackground, $uni-color-scale1, 70%)
+        &:last-of-type
+            border-right: none
 
-    &
-      border-top: pxToRem(1) solid mix($uni-color-positive, $navbarBackground, 30%)
+        &:before
+            content: ''
 
-    &,
-    & li
-      background: linear-gradient(to top, $btmNavColor1, $btmNavColor2)
+        .close
+            display: inline-block
+            height: .75rem
+            width: .75rem
+            margin-left: .7rem
+            top: .1rem
+            position: relative
+            border-radius: pxToRem(3)
+            border: pxToRem(1) solid mix($uni-color-positive, $navbarBackground, 70%)
+            background-image: unicon-close($uni-color-negative), linear-gradient(to top, mix($uni-color-positive, $navbarBackground, 50%) 0, mix($uni-color-positive, $navbarBackground, 60%) 100%)
+            background-position: center center
+            background-repeat: no-repeat
+            background-size: .4rem, contain
+            opacity: .4
+            transition: all .3s ease
+
+        &:hover,
+        &:focus
+            background: darken($navbarBackground, 10%)
+
+            &:after
+                opacity: 1
+
+    @include media(large, max-width)
+        $btmNavColor1: mix($navbarBackground, $uni-color-scale1, 80%)
+        $btmNavColor2: mix($navbarBackground, $uni-color-scale1, 70%)
+
+        &
+            border-top: pxToRem(1) solid mix($uni-color-positive, $navbarBackground, 30%)
+
+        &,
+        & li
+            background: linear-gradient(to top, $btmNavColor1, $btmNavColor2)

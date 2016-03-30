@@ -64,6 +64,8 @@ export class UniFormDemo {
     private startApp(view:any, model:Employee) {
         // We can extend layout before form config creation
         view = this.extendLayoutConfig(view);
+        console.log("LAYOUT");
+        console.log(view);
 
         this.createModel(model);
         this.buildFormConfig(view, model);
@@ -93,14 +95,13 @@ export class UniFormDemo {
     }
     
     private createPhoneModel() {
-        this.businessRelationService.setRelativeUrl("businessrelation");
         this.businessRelationService.GetNewEntity().subscribe(bm => {
             this.BusinessModel = bm;
             this.BusinessModel.DefaultPhoneID = 1;
             this.BusinessModel.Phones = new Array<Phone>();
             this.BusinessModel.Phones.push({
                 ID: 1,
-                LandCode: "NO",
+                CountryCode: "NO",
                 Number: "+4791334697",
                 Description: "privat mobiltelefon",
                 Type: 150102,
@@ -111,7 +112,7 @@ export class UniFormDemo {
             });
             this.BusinessModel.Phones.push({
                 ID: 2,
-                LandCode: "NO",
+                CountryCode: "NO",
                 Number: "+4722222222",
                 Description: "fax",
                 Type: 150103,
@@ -120,16 +121,9 @@ export class UniFormDemo {
                 BusinessRelationID: 1,
                 StatusCode: 0
             });
-
-           console.log("==NEW BUSINESS RELATION");
-           console.log(this.BusinessModel); 
-           
-           this.phoneService.setRelativeUrl("phone");
+                
            this.phoneService.GetNewEntity().subscribe(phone => {
               this.EmptyPhone = phone; 
-              
-              console.log("==EMPTY");
-              console.log(this.EmptyPhone);
            });
         });        
     }
@@ -172,14 +166,23 @@ export class UniFormDemo {
             promptChar: '_'
         });
 
-        var section = UniElementFinder.findUniSection(1, this.FormConfig.fields);
-        var newSection = new UniSectionBuilder();
-        newSection.legend = 'New Section';
+        //////////////////////////////////
+        // add section inside a section
+        //////////////////////////////////
         var elem = new UniFieldBuilder();
         elem.fieldType = UniTextInput;
-        elem.setModel(this.Model).setModelField('Name').setLabel('New Field');
+        elem
+            .setModel(this.Model)
+            .setModelField('Name')
+            .setLabel('New Field');
+
+        var newSection = new UniSectionBuilder();
+        newSection.legend = 'New Section';
         newSection.addUniElement(elem);
+
+        var section = UniElementFinder.findUniSection(1, this.FormConfig.fields);
         section.addUniElement(newSection);
+        //////////////////////////////////
     }
 
     private extendLayoutConfig(layout:any) {

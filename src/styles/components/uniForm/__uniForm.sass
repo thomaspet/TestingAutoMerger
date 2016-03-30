@@ -13,36 +13,39 @@
 // the component - so it's easier to remember.
 
 uni-form
-  // Let's add some margins on either side of our demo. It'll be fun!
-  width: 100%
+    // Let's add some margins on either side of our demo. It'll be fun!
+    width: 100%
 
-  label,
-  fieldset
-    // Our inputs already have their width set to 100% of their parent, so we need
-    // to style that parent.
-    //
-    // We want our inputs to take up 1/4 of the uni-form-demo on large and huge screens,
-    // but on our `medium`-sized screens, they tend to get a bit small-ish so we
-    // want to set that manually to half. The math for our params, then is:
-    //
-    //    huge:   1/4th = 16/4 = 4
-    //    large:  1/4th = 8/4  = 2
-    //    medium:  half = 4/2  = 2
-    //
-    // `small` is always single column, so no need to pass that. Though, we could
-    // give it either 1 or false (to hide it on mobile).
-    @include unigrid(4, 2, 2)
-    float: left // And float them.
-    min-height: 4rem // So they don't run flush row-to-row.
+    label,
+    fieldset
+        // Our inputs already have their width set to 100% of their parent, so we need
+        // to style that parent.
+        //
+        // We want our inputs to take up 1/4 of the uni-form-demo on large and huge screens,
+        // but on our `medium`-sized screens, they tend to get a bit small-ish so we
+        // want to set that manually to half. The math for our params, then is:
+        //
+        //    huge:   1/4th = 16/4 = 4
+        //    large:  1/4th = 8/4  = 2
+        //    medium:  half = 4/2  = 2
+        //
+        // `small` is always single column, so no need to pass that. Though, we could
+        // give it either 1 or false (to hide it on mobile).
+        @include unigrid(4, 2, 2)
+        float: left
+        // And float them.
+        min-height: 4rem
+    // So they don't run flush row-to-row.
 
 
-  // This also accommodates for possible error messages without breaking float.
+    // This also accommodates for possible error messages without breaking float.
 
-  // @todo: UniGrid needs an optional row preserver.
-  // (Probably a :nth-of-type clearfix or something flexbox based.)
+    // @todo: UniGrid needs an optional row preserver.
+    // (Probably a :nth-of-type clearfix or something flexbox based.)
 
-  button[type=submit]
-    // Lets make this look like a Call-to-action button (Blue)
-    @extend button.c2a
-    margin-top: 1.5rem // To make it aligned with the input field.
-    // (1.5rem is the line height on the label.)
+    button[type=submit]
+        // Lets make this look like a Call-to-action button (Blue)
+        @extend button.c2a
+        margin-top: 1.5rem
+// To make it aligned with the input field.
+// (1.5rem is the line height on the label.)
