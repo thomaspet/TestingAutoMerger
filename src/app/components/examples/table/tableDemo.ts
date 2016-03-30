@@ -7,7 +7,7 @@ declare var jQuery;
 
 @Component({
     selector: 'uni-table-demo',
-    template: `   
+    template: `
         <h4>Editable table with remote data lookup and config defined sorting</h4>
         <uni-table [config]="demoTable1"></uni-table>
         <br><br>
@@ -64,62 +64,56 @@ export class UniTableDemo {
 
         this.setupDemoTable2();
         this.setupDemoTable3();
+        
     }
-
+    
     private setupDemoTable1() {
-        var idCol = new UniTableColumn('ID', 'ID', 'number')
-            .setEditable(false);
-
-        var fromDateCol = new UniTableColumn('FromDate', 'Startdato', 'date');
-
-        var toDateCol = new UniTableColumn('ToDate', 'Sluttdato', 'date')
-            .setCustomEditor('datepicker', {});
-
-        var leavePercentCol = new UniTableColumn('LeavePercent', 'Andel permisjon', 'number')
-            .setFormat("{0: #\\'%'}");
-
-        var leaveTypeCol = new UniTableColumn('LeaveType', 'Type', 'string')
-            .setTemplate((dataItem) => {
-                // Show leave type name instead of ID
-                if (this.leaveTypes[dataItem.LeaveType]) {
-                    return this.leaveTypes[dataItem.LeaveType].Name;
-                } else {
-                    return '';
-                }
-            })
+        // Foreign key column values must be on the form [{value, text}]
+        let leaveTypeDS = [
+            {value: null, text: 'Ikke valgt'},
+            {value: 1, text: 'Permisjon'},
+            {value: 2, text: 'Permittring'}
+        ];
+        
+        let employmentDS = [
+            {value: null, text: 'Ikke valgt'}
+        ];
+        this.employments.forEach((item) => {
+            employmentDS.push({value: item.ID, text: item.JobName});
+        });
+        
+        let descriptionCol = new UniTableColumn('Description', 'Beskrivelse', 'string');
+        let fromDateCol = new UniTableColumn('FromDate', 'Fra', 'date');
+        let toDateCol = new UniTableColumn('ToDate', 'Til', 'date');
+                    
+        let leavePercentCol = new UniTableColumn('LeavePercent', 'Prosent', 'number')
+            .setFormat("{0: # \\'%'}");
+                    
+        let leaveTypeCol = new UniTableColumn('LeaveType', 'Type', 'number')
+            .setValues(leaveTypeDS)
+            .setDefaultValue(null);
+                    
+        let employmentCol = new UniTableColumn('EmploymentID', 'Ansattforhold', 'number')
+            .setValues(employmentDS)
+            .setDefaultValue(null)
             .setCustomEditor('dropdown', {
-                dataSource: this.leaveTypes,
-                dataValueField: 'ID',
-                dataTextField: 'Name'
-            });
-
-        var employmentIDCol = new UniTableColumn('EmploymentID', 'Arbeidsforhold')
-            .setTemplate((dataItem) => {
-                // Show employment JobName instead of ID
-                return this.getEmploymentJobName(dataItem.EmploymentID);
-            })
-            .setCustomEditor('dropdown', {
-                dataSource: this.employments,
-                dataValueField: 'ID',
-                dataTextField: 'JobName',
-            }, (selectedItem, rowModel) => {
+                dataSource: employmentDS,
+                dataValueField: 'value',
+                dataTextField: 'text'
+            }, (item, rowModel) => {
                 // Change LeavePercent when employment changes (for testing purposes)
-                rowModel.set('LeavePercent', 33);
+                rowModel.set('LeavePercent', 33);    
             });
-
-        var commentCol = new UniTableColumn('Description', 'Kommentar', 'string');
-
-        this.demoTable1 = new UniTableBuilder('EmployeeLeave', true)
-            .setOrderBy('ID', 'desc')
+                    
+        this.demoTable1 = new UniTableBuilder('employeeleave', true)
             .addColumns(
-                idCol,
+                descriptionCol,
                 fromDateCol,
                 toDateCol,
                 leavePercentCol,
                 leaveTypeCol,
-                employmentIDCol,
-                commentCol
-            );
+                employmentCol
+            );     
     }
 
     private setupDemoTable2() {

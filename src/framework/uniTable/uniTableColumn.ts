@@ -14,6 +14,8 @@ export class UniTableColumn {
     public command: kendo.ui.GridColumnCommandItem[] = [];
     public width: string = '';
     public editor: any;
+    public defaultValue: any;
+    public values: any[];
     
     constructor(field: string, title: string, type: string = '') {
         this.title = title;
@@ -67,6 +69,16 @@ export class UniTableColumn {
     
     public setWidth(width: string) {
         this.width = width;
+        return this;
+    }
+    
+    public setDefaultValue(defaultValue) {
+        this.defaultValue = defaultValue;
+        return this;
+    }
+    
+    public setValues(values: any[]) {
+        this.values = values;
         return this;
     }
 

@@ -169,8 +169,8 @@ export class UniTable implements OnChanges, OnDestroy {
                         expand: this.config.expand,
                         filter: this.buildOdataFilter(options.data.filter),
                         orderBy: orderBy,
-                        top: options.data.take,
-                        skip: options.data.skip
+                        // top: options.data.take,
+                        // skip: options.data.skip
                     }).subscribe(
                     (response) => {
                         // TODO: Get count param from response headers (mocked for now)   
