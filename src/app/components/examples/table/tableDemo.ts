@@ -111,6 +111,7 @@ export class UniTableDemo {
 
         this.demoTable1 = new UniTableBuilder('EmployeeLeave', true)
             .setOrderBy('ID', 'desc')
+            .setPageable(false)
             .addColumns(
                 idCol,
                 fromDateCol,

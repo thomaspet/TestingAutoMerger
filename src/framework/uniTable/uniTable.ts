@@ -152,38 +152,57 @@ export class UniTable implements OnChanges, OnDestroy {
         this.tableConfig.dataSource.transport = {
 
             read: (options) => {
-                let orderBy = '';
+                let searchParams = {
+                    expand: this.config.expand,
+                    filter: this.buildOdataFilter(options.data.filter)
+                };
+                
                 if (options.data.sort) {
                     let sortField = options.data.sort[0].field;
                     if (sortField.split('$').length) {
                         sortField = sortField.split('$').join('.');
                     }
-                    orderBy = sortField + ' ' + options.data.sort[0].dir;
+                    searchParams['orderby'] = sortField + ' ' + options.data.sort[0].dir;
                 }
+                
+                if (this.config.pageable) {
+                    searchParams['top'] = options.data.take;
+                    searchParams['skip'] = options.data.skip;
+                }
+                
+                // if (this.config.expand) {
+                //     searchParams['expand'] = this.config.expand;
+                // }
+                
+                // searchParams['filter'] = this.buildOdataFilter(options.data.filter);
+                
+                // let orderBy = '';
+                // if (options.data.sort) {
+                //     let sortField = options.data.sort[0].field;
+                //     if (sortField.split('$').length) {
+                //         sortField = sortField.split('$').join('.');
+                //     }
+                //     orderBy = sortField + ' ' + options.data.sort[0].dir;
+                // }
 
                 this.uniHttp
                     .asGET()
                     .usingBusinessDomain()
                     .withEndPoint(this.config.resource.toString())
-                    .send({
-                        expand: this.config.expand,
-                        filter: this.buildOdataFilter(options.data.filter),
-                        orderBy: orderBy,
-                        top: options.data.take,
-                        skip: options.data.skip
-                    }).subscribe(
-                    (response) => {
-                        // TODO: Get count param from response headers (mocked for now)   
-                        if (response.length < this.config.pageSize) {
-                            this.totalRows = response.length + 
-                            (this.table.dataSource.page() - 1) * this.config.pageSize;
-                        } else {
-                            this.totalRows = 50;
-                        }
+                    .send(searchParams)
+                    .subscribe(
+                        (response) => {
+                            // TODO: Get count param from response headers (mocked for now)   
+                            if (response.length < this.config.pageSize) {
+                                this.totalRows = response.length + 
+                                (this.table.dataSource.page() - 1) * this.config.pageSize;
+                            } else {
+                                this.totalRows = 50;
+                            }
 
-                        options.success(this.flattenData(response));
-                    },
-                    (error) => options.error(error)
+                            options.success(this.flattenData(response));
+                        },
+                        (error) => options.error(error)
                 );
             },
 
