@@ -26,9 +26,17 @@ export class UniDatepicker implements AfterViewInit, OnDestroy {
     public datepicker: kendo.ui.DatePicker;
 
     public nativeElement: any;
-
+    
     constructor(public elementRef: ElementRef) {
         this.nativeElement = jQuery(this.elementRef.nativeElement);
+    }
+
+    public setFocus() {
+        this.nativeElement
+            .find('input')
+            .first()
+            .focus()
+        return this;
     }
 
     public refresh(value: string): void {

@@ -23,6 +23,11 @@ export class UniDropdown implements AfterViewInit, OnDestroy {
         this.dropdown.trigger('change');
     }
 
+    public setFocus() {
+        this.dropdown.focus();
+        return this;
+    }
+
     public ngAfterViewInit() {
         this.config.fieldComponent = this;
         var vm = this;
@@ -44,6 +49,7 @@ export class UniDropdown implements AfterViewInit, OnDestroy {
         dropdown.value(vm.config.control.value); // init to control
 
         this.dropdown = dropdown;
+        this.ready = Promise.resolve(true);
     }
 
     // remove kendo markup when component is destroyed to avoid duplicates

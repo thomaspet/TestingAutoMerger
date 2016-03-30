@@ -1,6 +1,8 @@
-import {Component, Input} from 'angular2/core';
+import {Component, Input, ElementRef} from 'angular2/core';
 import {Guid} from '../guid';
 import {UniFieldBuilder} from '../../forms/builders/uniFieldBuilder';
+
+declare var jQuery;
 
 @Component({
     selector: 'uni-checkbox',
@@ -21,10 +23,9 @@ import {UniFieldBuilder} from '../../forms/builders/uniFieldBuilder';
 export class UniCheckboxInput {
     @Input()
     public config: UniFieldBuilder;
-
     public guid: string;
 
-    constructor() {
+    constructor(public elementRef: ElementRef) {
         this.guid = Guid.MakeNew().ToString();
     }
 
@@ -32,10 +33,15 @@ export class UniCheckboxInput {
         this.setFormValue(value);
     }
 
+    public setFocus() {
+        jQuery(this.elementRef).focus();
+        return this;
+    }
+
     public ngOnInit() {
         this.config.fieldComponent = this;
     }
-
+    
     public setFormValue(value: any): void {
         this.config.control.updateValue(value, {});
     }

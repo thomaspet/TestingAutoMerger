@@ -1,5 +1,7 @@
-import {Component, Input} from 'angular2/core';
+import {Component, Input, ElementRef} from 'angular2/core';
 import {UniFieldBuilder} from '../../forms/builders/uniFieldBuilder';
+
+declare var jQuery;
 
 @Component({
     selector: 'uni-password',
@@ -16,8 +18,13 @@ import {UniFieldBuilder} from '../../forms/builders/uniFieldBuilder';
 export class UniPasswordInput {
     @Input()
     public config: UniFieldBuilder;
+    
+    constructor(public elementRef: ElementRef) {
+    }
 
-    constructor() {
+    public setFocus() {
+        jQuery(this.elementRef).focus();
+        return this;
     }
 
     public ngOnInit() {

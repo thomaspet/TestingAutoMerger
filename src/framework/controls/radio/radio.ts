@@ -1,7 +1,8 @@
-import {Component, Input} from 'angular2/core';
-import {Control} from 'angular2/common';
+import {Component, Input, ElementRef} from 'angular2/core';
 import {Guid} from '../guid';
 import {UniFieldBuilder} from '../../forms/builders/uniFieldBuilder';
+
+declare var jQuery;
 
 @Component({
     selector: 'uni-checkbox',
@@ -21,11 +22,15 @@ import {UniFieldBuilder} from '../../forms/builders/uniFieldBuilder';
 export class UniRadioInput {
     @Input()
     public config: UniFieldBuilder;
-
     public guid: string;
 
-    constructor() {
+    constructor(public elementRef:ElementRef) {
         this.guid = Guid.MakeNew().ToString();
+    }
+
+    public setFocus() {
+        jQuery(this.elementRef).find('input').first().focus();
+        return this;
     }
 
     public refresh(value: any): void {

@@ -19,7 +19,7 @@ export class UniCombobox implements AfterViewInit, OnDestroy {
     public control: Control;
     public nativeElement: any;
     public combobox: kendo.ui.ComboBox;
-
+    
     constructor(private elementRef: ElementRef) {
         this.nativeElement = jQuery(this.elementRef.nativeElement);
     }
@@ -29,6 +29,11 @@ export class UniCombobox implements AfterViewInit, OnDestroy {
         this.combobox.value(value);
         this.combobox.trigger('select');
         this.combobox.trigger('change');
+    }
+
+    public setFocus() {
+        this.combobox.focus();
+        return this;
     }
 
     public ngAfterViewInit() {

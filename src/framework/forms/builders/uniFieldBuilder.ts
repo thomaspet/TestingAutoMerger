@@ -7,38 +7,38 @@ import {Control} from "angular2/common";
 declare var _;
 
 export class UniFieldBuilder {
-    label: string = "";
-    description: string = "";
-    url: string = "";
-    model: any;
-    field: string = "";
-    type: Type = UniTextInput;
-    fieldType: Type;
-    kOptions: any = {};
-    classes: any = {};
-    readonly: boolean = false;
-    disabled: boolean = false;
-    syncValidators: Array<any> = [];
-    asyncValidators: Array<any> = [];
-    control: Control;
-    comboIndex: number = 0;
-    fieldsetIndex: number = 0;
-    sectionIndex: number = 0;
-    isLookup: boolean = false;
-    helpText: string = "";
-    legend: string = "";
-    hidden: boolean = false;
-    placement: number = 0;
-    entityType: string = "";
-    componentLayoutID: number = 0;
-    errorMessages: Array<any> = [];
-    lineBreak: boolean = false;
-    fieldComponent: any;
-    onSelect: any;
-    clearOnSelect: any;
-    onChange: any;
+    public label: string = "";
+    public description: string = "";
+    public url: string = "";
+    public model: any;
+    public field: string = "";
+    public type: Type = UniTextInput;
+    public fieldType: Type;
+    public kOptions: any = {};
+    public classes: any = {};
+    public readonly: boolean = false;
+    public disabled: boolean = false;
+    public syncValidators: Array<any> = [];
+    public asyncValidators: Array<any> = [];
+    public control: Control;
+    public comboIndex: number = 0;
+    public fieldsetIndex: number = 0;
+    public sectionIndex: number = 0;
+    public isLookup: boolean = false;
+    public helpText: string = "";
+    public legend: string = "";
+    public hidden: boolean = false;
+    public placement: number = 0;
+    public entityType: string = "";
+    public componentLayoutID: number = 0;
+    public errorMessages: Array<any> = [];
+    public lineBreak: boolean = false;
+    public fieldComponent: any;
+    public onSelect: any;
+    public clearOnSelect: any;
+    public onChange: any;
 
-    static fromLayoutConfig(element: any, model: any): UniFieldBuilder {
+    public static fromLayoutConfig(element: any, model: any): UniFieldBuilder {
         var ufb = new UniFieldBuilder();
 
         ufb.model = model;
@@ -75,47 +75,47 @@ export class UniFieldBuilder {
         return this;
     }
 
-    setLabel(label: string) {
+    public setLabel(label: string) {
         this.label = label;
         return this;
     }
 
-    setDescription(description: string) {
+    public setDescription(description: string) {
         this.description = description;
         return this;
     }
 
-    setUrl(url: string) {
+    public setUrl(url: string) {
         this.url = url;
         return this;
     }
 
-    setModel(model: any) {
+    public setModel(model: any) {
         this.model = model;
         return this;
     }
 
-    setModelField(key: string) {
+    public setModelField(key: string) {
         this.field = key;
         return this;
     }
 
-    setType(type: Type) {
+    public setType(type: Type) {
         this.type = type;
         return this;
     }
 
-    setKendoOptions(kOptions: any) {
+    public setKendoOptions(kOptions: any) {
         this.kOptions = kOptions;
         return this;
     }
 
-    hasLineBreak(value: boolean) {
+    public hasLineBreak(value: boolean) {
         this.lineBreak = value;
         return this;
     }
 
-    addClass(className: string, callback?: boolean|((...params: Array<any>) => boolean)) {
+    public addClass(className: string, callback?: boolean|((...params: Array<any>) => boolean)) {
         if (callback === undefined || callback === null) {
             this.classes[className] = true;
         } else {
@@ -124,7 +124,7 @@ export class UniFieldBuilder {
         return this;
     }
 
-    addSyncValidator(name: string, validator: Function, message: string) {
+    public addSyncValidator(name: string, validator: Function, message: string) {
         this.syncValidators.push({
             name: name,
             validator: validator,
@@ -133,7 +133,7 @@ export class UniFieldBuilder {
         return this;
     }
 
-    addAsyncValidator(name: string, validator: Function, message: string) {
+    public addAsyncValidator(name: string, validator: Function, message: string) {
         this.asyncValidators.push({
             name: name,
             validator: validator,
@@ -142,28 +142,32 @@ export class UniFieldBuilder {
         return this;
     }
 
-    disable() {
+    public disable() {
         this.disabled = true;
     }
 
-    enable() {
+    public enable() {
         this.disabled = false;
     }
 
-    readmode() {
+    public readmode() {
         this.readonly = true;
     }
 
-    editmode() {
+    public editmode() {
         this.readonly = false;
     }
 
-    config(): UniFieldBuilder {
+    public config(): UniFieldBuilder {
         return this;
     }
 
-    refresh(value: any) {
+    public refresh(value: any) {
         this.fieldComponent.refresh(value);
+    }
+
+    public setFocus() {
+        this.fieldComponent.setFocus();
     }
 }
 

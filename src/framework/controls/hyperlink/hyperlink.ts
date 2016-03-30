@@ -1,5 +1,7 @@
-import {Component, Input} from 'angular2/core';
+import {Component, Input, ElementRef} from 'angular2/core';
 import {UniFieldBuilder} from '../../forms/builders/uniFieldBuilder';
+
+declare var jQuery;
 
 @Component({
     selector: 'uni-hyperlink',
@@ -11,10 +13,16 @@ import {UniFieldBuilder} from '../../forms/builders/uniFieldBuilder';
 export class UniHyperlink {
     @Input()
     public config: UniFieldBuilder;
-
-    constructor() {
+    public ready: Promise<boolean>;
+    
+    constructor(public elementRef: ElementRef) {
     }
 
+    public setFocus() {
+        jQuery(this.elementRef).focus();
+        return this;
+    }
+    
     public ngOnInit() {
         this.config.fieldComponent = this;
     }

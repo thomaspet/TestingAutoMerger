@@ -10,22 +10,27 @@ declare var jQuery;
 })
 export class UniNumericInput implements AfterViewInit, OnDestroy {
     @Input()
-    config: UniFieldBuilder;
+    public config: UniFieldBuilder;
 
-    nativeElement;
-    numericInput;
-
+    public nativeElement: any;
+    public numericInput: kendo.ui.NumericTextBox;
+    
     constructor(public elementRef: ElementRef) {
         this.nativeElement = jQuery(this.elementRef.nativeElement);
     }
 
-    refresh(value: any) {
+    public setFocus() {
+        this.numericInput.focus();
+        return this;
+    }
+
+    public refresh(value: any) {
         value = value || 0;
         this.numericInput.value(value);
         this.numericInput.trigger('change');
     }
 
-    ngAfterViewInit() {
+    public ngAfterViewInit() {
         this.config.fieldComponent = this;
         var numericInput;
 

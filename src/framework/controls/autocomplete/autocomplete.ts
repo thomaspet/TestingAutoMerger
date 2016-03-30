@@ -17,7 +17,7 @@ export class UniAutocomplete implements AfterViewInit, OnDestroy {
 
     public nativeElement: any;
     public autocomplete: any;
-
+    
     constructor(public elementRef: ElementRef) {
         this.nativeElement = jQuery(this.elementRef.nativeElement);
     }
@@ -26,6 +26,11 @@ export class UniAutocomplete implements AfterViewInit, OnDestroy {
         value = value[this.config.kOptions.dataTextField] || value;
         this.autocomplete.value(value);
         this.autocomplete.trigger('change');
+    }
+
+    public setFocus() {
+        this.autocomplete.focus();
+        return this;
     }
 
     public ngAfterViewInit() {

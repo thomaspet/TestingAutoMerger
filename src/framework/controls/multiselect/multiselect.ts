@@ -22,10 +22,15 @@ export class UniMultiSelect implements AfterViewInit, OnDestroy {
     public config: UniFieldBuilder;
 
     public nativeElement: any;
-    public multiselect: any;
+    public multiselect: kendo.ui.MultiSelect;
 
     constructor(public elementRef: ElementRef) {
         this.nativeElement = jQuery(this.elementRef.nativeElement);
+    }
+
+    public setFocus() {
+        this.multiselect.focus();
+        return this;
     }
 
     public refresh(value: any): void {

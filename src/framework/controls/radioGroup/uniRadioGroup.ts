@@ -26,10 +26,13 @@ import {UniFieldBuilder} from '../../forms/builders/uniFieldBuilder';
 export class UniRadioGroup {
     @Input()
     public config: UniFieldBuilder;
-
     constructor() {
-
     }
+
+    public setFocus() {
+        return this;
+    }
+
 
     public ngOnInit() {
         this.config.fieldComponent = this;

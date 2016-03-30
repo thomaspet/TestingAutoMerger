@@ -12,12 +12,19 @@ declare var jQuery, _;
 export class UniMaskedInput implements AfterViewInit, OnDestroy {
     @Input()
     public config: UniFieldBuilder;
-
     public nativeElement: any;
-    public maskedInput: any;
+    public maskedInput: kendo.ui.MaskedTextBox;
 
     constructor(public elementRef: ElementRef) {
         this.nativeElement = jQuery(this.elementRef.nativeElement);
+    }
+
+    public setFocus() {
+        this.nativeElement
+            .find('input')
+            .first()
+            .focus();
+        return this;
     }
 
     public refresh(value) {

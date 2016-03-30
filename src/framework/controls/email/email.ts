@@ -1,4 +1,6 @@
-import {Component, Input} from 'angular2/core';
+import {Component, Input, ElementRef} from 'angular2/core';
+
+declare var jQuery;
 
 @Component({
     selector: 'uni-email',
@@ -16,9 +18,14 @@ export class UniEmailInput {
     @Input()
     public config: any;
 
-    constructor() {
+    constructor(public elementRef: ElementRef) {
     }
 
+    public setFocus() {
+        jQuery(this.elementRef).focus();
+        return this;
+    }
+    
     public ngOnInit() {
         this.config.fieldComponent = this;
     }
