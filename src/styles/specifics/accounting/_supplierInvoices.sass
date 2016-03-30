@@ -1,5 +1,16 @@
-.supplier-invoice-table-amount
-    text-align: right
+.supplier-invoice-table-amount 
+	text-align: right
 
 .supplier-invoice-table-payment-overdue
-    color: red
+	color: red
+
+.supplier-invoice-detail-form
+	@include unigrid(8, 4, 1)
+	float: left
+	label
+		@include unigrid(8, 4,4)
+
+.supplier-invoice-detail-document
+	@include unigrid(8, 4, 3)
+	float: left
+	background-color: transparentize($uni-color-scale9, .5)

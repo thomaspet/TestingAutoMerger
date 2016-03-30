@@ -4,6 +4,7 @@ import {Component, ComponentRef, Input, Output, ViewChild, SimpleChange, EventEm
 import {Router, RouteParams, RouterLink} from "angular2/router";
 import {Observable} from "rxjs/Observable";
 import "rxjs/add/observable/forkjoin";
+import "rxjs/Rx";
 
 import {ProductService, AccountService, VatTypeService} from "../../../../services/services";
 
@@ -51,6 +52,7 @@ export class ProductDetails {
        
     constructor(private productService: ProductService, private accountService: AccountService, private vatTypeService: VatTypeService, private router: Router, private params: RouteParams) {                
         this.productId = params.get("id");
+        
     }
     
     isActive(instruction: any[]): boolean {
@@ -74,112 +76,7 @@ export class ProductDetails {
                 this.setPriceReadonlyMode(this.product.CalculateGrossPriceBasedOnNetPrice);          
             });       
     }
-        
-    createFormConfig() {   
-        // TODO get it from the API and move these to backend migrations   
-        var view: ComponentLayout = this.getComponentLayout();
-        
-        this.FormConfig = new UniFormLayoutBuilder().build(view, this.product);
-        this.FormConfig.hideSubmitButton();
-        
-    }
     
-    calculatePrice(grossAmount: number) {
-        console.log('kalkulerer oppdaterte priser');
-        
-        this.formInstance.updateModel();
-                
-        this.productService.calculatePrice(this.product)
-            .subscribe((data) => {
-                this.product.PriceExVat = data.PriceExVat;
-                this.product.PriceIncVat = data.PriceIncVat;
-                this.formInstance.refresh(this.product);                    
-            },
-            (err) => console.log('Feil ved kalkulering av pris', err)
-        );  
-    }
-   
-    extendFormConfig() {
-        var vatTypeField: UniFieldBuilder = this.FormConfig.find('VatTypeID');       
-        vatTypeField.setKendoOptions({
-            dataTextField: 'VatCode',
-            dataValueField: 'ID',
-            template: "${data.VatCode} (${ data.VatPercent }%)",
-            dataSource: this.vatTypes
-        });
-        
-        var accountField: UniFieldBuilder = this.FormConfig.find('AccountID');       
-        accountField.setKendoOptions({
-            dataTextField: 'AccountNumber',
-            dataValueField: 'ID',
-            dataSource: this.accounts
-        });
-        
-        var typeField: UniFieldBuilder = this.FormConfig.find('Type');       
-        typeField.setKendoOptions({
-            dataTextField: 'TypeName',
-            dataValueField: 'ID',
-            dataSource: this.productTypes
-        });
-        
-        this.priceExVat = this.FormConfig.find('PriceExVat');
-        this.priceIncVat = this.FormConfig.find('PriceIncVat');
-                   
-    }    
-       
-    loadForm() {       
-        var self = this;
-        return this.ucl.load(UniForm).then((cmp: ComponentRef) => {
-           cmp.instance.config = self.FormConfig;
-           self.whenFormInstance = new Promise((resolve: Function) => resolve(cmp.instance));
-           setTimeout(() => {
-                self.formInstance = cmp.instance;   
-                
-                //subscribe to valueChanges of form to autosave data after X seconds
-                self.formInstance.form
-                    .valueChanges
-                    .debounceTime(5000)
-                    .subscribe(
-                        (value) =>  {                                                                                
-                            self.saveProduct(true);                            
-                        },
-                        (err) => { 
-                            console.log('Feil oppsto:', err);
-                        }
-                    );
-                    
-                //subscribe to valueChanges of Price fields to automatically calculate the other amount 
-                self.formInstance.controls["PriceExVat"]
-                    .valueChanges
-                    .debounceTime(500)
-                    .distinctUntilChanged()
-                    .subscribe((data) => self.calculatePrice(data)); 
-                
-                var piv = self.formInstance.controls["PriceIncVat"];
-                piv.valueChanges
-                    .debounceTime(500)
-                    .distinctUntilChanged()
-                    .subscribe((data) => self.calculatePrice(data));    
-                    
-                var calcOption = self.formInstance.controls["CalculateGrossPriceBasedOnNetPrice"];
-                calcOption.valueChanges
-                    .subscribe((value) => {
-                        self.setPriceReadonlyMode(value);                        
-                    });
-           });           
-        });
-    }           
-    
-    setPriceReadonlyMode(calculateGrossPriceBasedOnNetPrice: boolean) {
-        if (calculateGrossPriceBasedOnNetPrice) {
-            this.priceIncVat.readonly = false;       
-            this.priceExVat.readonly = true;
-        } else {
-            this.priceExVat.readonly = false;
-            this.priceIncVat.readonly = true;                            
-        }
-    }
-
     saveProductManual(event: any) {        
         this.saveProduct(false);
     }
@@ -210,6 +107,142 @@ export class ProductDetails {
                 (err) => console.log('Feil oppsto ved lagring', err)
             );
     }
+        
+    calculateAndUpdatePrice() {
+        console.log('kalkulerer oppdaterte priser');
+        
+        this.formInstance.updateModel();
+                
+        this.productService.calculatePrice(this.product)            
+            .subscribe((data) => {
+                console.log('oppdaterte priser returnert fra server');
+                this.product.PriceIncVat = data.PriceIncVat;
+                this.product.PriceExVat = data.PriceExVat;
+                this.formInstance.refresh(this.product);                    
+            },
+            (err) => console.log('Feil ved kalkulering av pris', err)
+        );  
+    }
+    
+    setPriceReadonlyMode(calculateGrossPriceBasedOnNetPrice: boolean) {
+        console.log('setPriceReadonlyMode: ', calculateGrossPriceBasedOnNetPrice);     
+        if (calculateGrossPriceBasedOnNetPrice) {
+            this.priceExVat.addClass('hidden');
+            //this.priceExVat.removeClass('hidden');
+            //this.priceIncVat.('hidden');
+        } else { 
+            this.priceIncVat.addClass('hidden');
+            //this.priceExVat.addClass('hidden');   
+        }
+        
+        
+        //this.priceExVat.readonly = calculateGrossPriceBasedOnNetPrice;
+        //this.priceIncVat.readonly = !calculateGrossPriceBasedOnNetPrice;
+    }
+        
+    createFormConfig() {   
+        // TODO get it from the API and move these to backend migrations   
+        var view: ComponentLayout = this.getComponentLayout();
+        
+        this.FormConfig = new UniFormLayoutBuilder().build(view, this.product);
+        this.FormConfig.hideSubmitButton();
+        
+    }
+    
+    extendFormConfig() {
+        var vatTypeField: UniFieldBuilder = this.FormConfig.find('VatTypeID');       
+        vatTypeField.setKendoOptions({
+            dataTextField: 'VatCode',
+            dataValueField: 'ID',
+            template: "${data.VatCode} (${ data.VatPercent }%)",
+            dataSource: this.vatTypes
+        });
+        
+        var accountField: UniFieldBuilder = this.FormConfig.find('AccountID');       
+        accountField.setKendoOptions({
+            dataTextField: 'AccountNumber',
+            dataValueField: 'ID',
+            dataSource: this.accounts
+        });
+        
+        var typeField: UniFieldBuilder = this.FormConfig.find('Type');       
+        typeField.setKendoOptions({
+            dataTextField: 'TypeName',
+            dataValueField: 'ID',
+            dataSource: this.productTypes
+        });
+        
+        this.priceExVat = this.FormConfig.find('PriceExVat');
+        this.priceIncVat = this.FormConfig.find('PriceIncVat');
+                   
+        var descriptionField: UniFieldBuilder = this.FormConfig.find('Description');
+        descriptionField.addClass('max-width');       
+    }    
+       
+    loadForm() {       
+        var self = this;
+        return this.ucl.load(UniForm).then((cmp: ComponentRef) => {
+           cmp.instance.config = self.FormConfig;
+           self.whenFormInstance = new Promise((resolve: Function) => resolve(cmp.instance));
+           setTimeout(() => {
+                self.formInstance = cmp.instance;   
+                
+                //subscribe to valueChanges of form to autosave data after X seconds
+                self.formInstance.form
+                    .valueChanges
+                    .debounceTime(5000)
+                    .subscribe(
+                        (value) =>  {                                                                                
+                            self.saveProduct(true);                            
+                        },
+                        (err) => { 
+                            console.log('Feil oppsto:', err);
+                        }
+                    );
+                    
+                //subscribe to valueChanges of Price fields to automatically calculate the other amount
+                self.formInstance.controls["VatTypeID"]
+                    .valueChanges                    
+                    .debounceTime(500)
+                    .distinctUntilChanged()                    
+                    .subscribe((data) => {
+                        if(self.product.VatTypeID != data) {
+                            //recalculate when vattype changes also                           
+                            self.calculateAndUpdatePrice();
+                        }                             
+                    }); 
+                 
+                self.formInstance.controls["PriceExVat"]
+                    .valueChanges                    
+                    .debounceTime(500)
+                    .distinctUntilChanged()                    
+                    .subscribe((data) => {
+                        if(!self.product.CalculateGrossPriceBasedOnNetPrice && self.product.PriceExVat != data) {                            
+                            self.calculateAndUpdatePrice();    
+                        }                             
+                    }); 
+                
+                var piv = self.formInstance.controls["PriceIncVat"];
+                piv.valueChanges                    
+                    .debounceTime(500)
+                    .distinctUntilChanged()
+                    .subscribe((data) => {
+                        if(self.product.CalculateGrossPriceBasedOnNetPrice && self.product.PriceIncVat != data) {
+                            self.calculateAndUpdatePrice();    
+                        }                             
+                    });
+                    
+                var calcOption = self.formInstance.controls["CalculateGrossPriceBasedOnNetPrice"];
+                calcOption.valueChanges
+                    .distinctUntilChanged()
+                    .subscribe((value) => {                        
+                        if (self.product.CalculateGrossPriceBasedOnNetPrice != value) {
+                            self.setPriceReadonlyMode(value);                        
+                        }
+                    });
+           });           
+        });
+    } 
     
     getComponentLayout(): ComponentLayout {
         return {
@@ -258,7 +291,7 @@ export class ProductDetails {
                     StatusCode: 0,
                     ID: 2,
                     Deleted: false,
-                    CustomFields: null 
+                    CustomFields: null                     
                 },
                 {
                     ComponentLayoutID: 3,

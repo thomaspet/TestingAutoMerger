@@ -53,7 +53,7 @@ export class HamburgerMenu {
                 componentListName: "Lønn",
                 componentListHeader: "Lønn og ansatte",
                 componentList: [
-                    {componentName: "Ansatt", componentUrl: "/kitchensink"},
+                    {componentName: "Ansatt", componentUrl: "/salary/employees"},
                     {componentName: "Stillinger", componentUrl: "/"}
                 ]
             },

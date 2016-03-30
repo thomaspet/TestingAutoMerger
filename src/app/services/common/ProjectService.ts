@@ -7,10 +7,7 @@ export class ProjectService extends BizHttp<Project> {
     constructor(http: UniHttp) {        
         super(http);
         
-        //TODO: should resolve this from configuration based on type (IVatType)? Frank is working on something..
-        this.relativeURL = Project.relativeUrl;
-        
-        //set this property if you want a default sort order from the API
+        this.relativeURL = Project.relativeUrl;       
         this.DefaultOrderBy = null;
     }       
 }

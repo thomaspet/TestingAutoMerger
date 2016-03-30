@@ -1,4 +1,4 @@
-import {Component, Input} from "angular2/core";
+import {Component, Input, SimpleChange} from "angular2/core";
 import {JournalEntrySimple} from '../components/journalentrysimple/journalentrysimple';
 import {JournalEntryProfessional} from '../components/journalentryprofessional/journalentryprofessional';
 import {SupplierInvoice} from "../../../../unientities";
@@ -25,6 +25,8 @@ export class JournalEntryManual {
             
         }
     }
-    
-    
+
+    ngOnChanges(changes: { [propName: string]: SimpleChange }) {
+        
+    }
 }
