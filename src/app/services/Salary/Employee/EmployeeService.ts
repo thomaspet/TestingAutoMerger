@@ -1,6 +1,6 @@
 import {BizHttp} from '../../../../framework/core/http/BizHttp';
 import {UniHttp} from '../../../../framework/core/http/http';
-import {Employee, FieldType} from '../../../unientities';
+import {Employee, FieldType, OperationType, Operator} from '../../../unientities';
 import { Observable } from 'rxjs/Observable';
 
 export class EmployeeService extends BizHttp<Employee> {
@@ -210,15 +210,9 @@ export class EmployeeService extends BizHttp<Employee> {
                     },
                     Validations: [
                         {
-                            ErrorMessage: 'should be a valid value',
-                            Operator: 'SELECT',
-                            values: ['kvinne', 'mann'],
-                            Level: 3
-                        },
-                        {
                             ErrorMessage: 'Required field',
                             Level: 3,
-                            Operator: 'REQUIRED'
+                            Operator: Operator.Required
                         }
                     ]
                 },
@@ -238,17 +232,20 @@ export class EmployeeService extends BizHttp<Employee> {
                     Section: 0,
                     Legend: '',
                     IsLookUp: false,
+                    kendoOptions: {
+                        mask: '0000 00 00000'
+                    },
                     Validations: [
                         {
-                            Value: '0000 00 00000',
+                            Value: '^/%d{11}/$',
                             ErrorMessage: 'Accountnumber should fit the pattern',
-                            Operator: 'MASKED',
+                            Operator: Operator.RegExp,
                             Level: 3
                         },
                         {
                             ErrorMessage: 'Required field',
                             Level: 3,
-                            Operator: 'REQUIRED'
+                            Operator: Operator.Required
                         }
                     ]
                 },
