@@ -1,87 +1,91 @@
-import {Component, ElementRef, Input, AfterViewInit, OnDestroy} from "angular2/core";
-import {Control} from "angular2/common";
-import { Observable } from "rxjs/Observable";
-import "rxjs/observable/FromEventObservable";
+import {Component, ElementRef, Input, AfterViewInit, OnDestroy} from 'angular2/core';
+import {Control} from 'angular2/common';
+import {Observable} from 'rxjs/Observable';
+import 'rxjs/observable/FromEventObservable';
 
-import {InputTemplateString} from "../inputTemplateString";
-import {UniFieldBuilder} from "../../forms/builders/uniFieldBuilder";
+import {InputTemplateString} from '../inputTemplateString';
+import {UniFieldBuilder} from '../../forms/builders/uniFieldBuilder';
 declare var jQuery, _;
 
 var parseFormats = [
-    "dd-MM-yyyy",
-    "dd/MM/yyyy",
-    "dd.MM.yyyy",
-    "ddMMyyyy",
-    "yyyy-MM-ddTHH:mm:ss"
+    'dd-MM-yyyy',
+    'dd/MM/yyyy',
+    'dd.MM.yyyy',
+    'ddMMyyyy',
+    'yyyy-MM-ddTHH:mm:ss'
 ];
 
 @Component({
-    selector: "uni-datepicker",
+    selector: 'uni-datepicker',
     template: InputTemplateString
 })
 export class UniDatepicker implements AfterViewInit, OnDestroy {
     @Input()
-    config: UniFieldBuilder;
+    public config: UniFieldBuilder;
 
-    datepicker: kendo.ui.DatePicker;
+    public datepicker: kendo.ui.DatePicker;
 
-    nativeElement;
+    public nativeElement: any;
 
     constructor(public elementRef: ElementRef) {
         this.nativeElement = jQuery(this.elementRef.nativeElement);
     }
 
-    refresh(value: string): void {
-        value = value || "";
-        var date = kendo.parseDate(value,parseFormats);
+    public refresh(value: string): void {
+        value = value || '';
+        var date = kendo.parseDate(value, parseFormats);
         this.datepicker.value(date);
-        this.datepicker.trigger("change");
+        this.datepicker.trigger('change');
     }
 
-    ngAfterViewInit() {
+    public ngAfterViewInit() {
         var control: Control = this.config.control;
         var options = this.config.kOptions;
         var datepicker;
 
         this.config.fieldComponent = this;
-        
-        if(options.autocomplete === undefined) {
+
+        if (options.autocomplete === undefined) {
             options.autocomplete = true;
         }
-        
-        options.format = options.format || "dd.MM.yyyy";
+
+        options.format = options.format || 'dd.MM.yyyy';
         options.parseFormats = options.parseFormats || parseFormats;
-        
+
         options.change = function () {
-       
+
             var date = this.value();
 
             if (options.autocomplete && (date === null || date === undefined)) {
                 var autocompleted = autocompleteDate(this.element.val());
-                if (autocompleted != null) {
+                if (autocompleted) {
                     date = autocompleted;
                 }
             }
 
             if (date) {
-                control.updateValue(kendo.toString(date,"yyyy-MM-ddTHH:mm:ss"), {});
+                control.updateValue(kendo.toString(date, 'yyyy-MM-ddTHH:mm:ss'), {});
                 this.value(date);
             } else {
                 control.updateValue(null, {});
             }
         };
-        datepicker = this.nativeElement.find("input").first().kendoDatePicker(options).data("kendoDatePicker");
+        datepicker = this.nativeElement
+            .find('input')
+            .first()
+            .kendoDatePicker(options)
+            .data('kendoDatePicker');
 
         // trigger kendo change event on keyup (enter) and blur in the textbox
-        Observable.fromEvent(this.nativeElement, "keyup")
+        Observable.fromEvent(this.nativeElement, 'keyup')
             .subscribe(function (event: any) {
                 if (event.keyCode && event.keyCode === 13) {
-                    datepicker.trigger("change");
+                    datepicker.trigger('change');
                 }
             });
 
-        Observable.fromEvent(this.nativeElement.find("input").first(), "blur").subscribe(() => {
-            datepicker.trigger("change");
+        Observable.fromEvent(this.nativeElement.find('input').first(), 'blur').subscribe(() => {
+            datepicker.trigger('change');
         });
 
         datepicker.value(new Date(control.value));
@@ -89,16 +93,16 @@ export class UniDatepicker implements AfterViewInit, OnDestroy {
     }
 
     // remove kendo markup when component is destroyed to avoid duplicates
-    ngOnDestroy() {
+    public ngOnDestroy() {
         this.nativeElement.empty();
         this.nativeElement.html(InputTemplateString);
     }
 }
 
 export function autocompleteDate(inputValue: string): Date {
-    "use strict";
-    
-    var input = inputValue.replace(/[^0-9]/g, "");
+    'use strict';
+
+    var input = inputValue.replace(/[^0-9]/g, '');
 
     var day, month, year;
     var date = new Date();
@@ -146,7 +150,7 @@ export function autocompleteDate(inputValue: string): Date {
         return null;
     }
     if (day > new Date(0, month, 0).getDate()) {
-        console.log("null");
+        console.log('null');
         console.log(day);
         console.log(new Date(0, month, 0).getDate());
         return null; // if (day > max day of month)

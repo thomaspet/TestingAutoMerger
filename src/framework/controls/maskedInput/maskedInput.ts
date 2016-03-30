@@ -1,32 +1,32 @@
-import {Component, ElementRef, Input, AfterViewInit, OnDestroy } from "angular2/core";
-import {Control} from "angular2/common";
-import {InputTemplateString} from "../inputTemplateString";
-import {UniFieldBuilder} from "../../forms/builders/uniFieldBuilder";
+import {Component, ElementRef, Input, AfterViewInit, OnDestroy} from 'angular2/core';
+import {Control} from 'angular2/common';
+import {InputTemplateString} from '../inputTemplateString';
+import {UniFieldBuilder} from '../../forms/builders/uniFieldBuilder';
 
-declare var jQuery,_;
+declare var jQuery, _;
 
 @Component({
-    selector: "uni-masked",
+    selector: 'uni-masked',
     template: InputTemplateString
 })
 export class UniMaskedInput implements AfterViewInit, OnDestroy {
     @Input()
-    config: UniFieldBuilder;
+    public config: UniFieldBuilder;
 
-    nativeElement;
-    maskedInput;
+    public nativeElement: any;
+    public maskedInput: any;
 
     constructor(public elementRef: ElementRef) {
         this.nativeElement = jQuery(this.elementRef.nativeElement);
     }
 
-    refresh(value) {
-        value = value || "";
+    public refresh(value) {
+        value = value || '';
         this.maskedInput.value(value);
-        this.config.control.updateValue(value,{});
+        this.config.control.updateValue(value, {});
     }
 
-    ngAfterViewInit() {
+    public ngAfterViewInit() {
         this.config.fieldComponent = this;
         var maskedInput;
 
@@ -36,10 +36,16 @@ export class UniMaskedInput implements AfterViewInit, OnDestroy {
         options.change = function () {
             var val = this.value();
             control.updateValue(this.raw(), {});
-            this.value(val); // to avoid mask disappearing in input field (due to control storing the raw string)
+            // to avoid mask disappearing in input field (due to control storing the raw string)
+            this.value(val);
         };
 
-        maskedInput = this.nativeElement.find("input").first().kendoMaskedTextBox(options).data("kendoMaskedTextBox");
+        maskedInput = this.nativeElement
+            .find('input')
+            .first()
+            .kendoMaskedTextBox(options)
+            .data('kendoMaskedTextBox');
+
         this.maskedInput = maskedInput;
 
         // init to control value
@@ -49,7 +55,7 @@ export class UniMaskedInput implements AfterViewInit, OnDestroy {
     }
 
     // remove kendo markup when component is destroyed to avoid duplicates
-    ngOnDestroy() {
+    public ngOnDestroy() {
         this.nativeElement.empty();
         this.nativeElement.html(InputTemplateString);
     }

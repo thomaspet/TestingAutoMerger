@@ -1,10 +1,10 @@
-import {Component, Input} from "angular2/core";
-import {Control} from "angular2/common";
-import {Guid} from "../guid";
-import {UniFieldBuilder} from "../../forms/builders/uniFieldBuilder";
+import {Component, Input} from 'angular2/core';
+import {Control} from 'angular2/common';
+import {Guid} from '../guid';
+import {UniFieldBuilder} from '../../forms/builders/uniFieldBuilder';
 
 @Component({
-    selector: "uni-checkbox",
+    selector: 'uni-checkbox',
     template: `
         <input
             #cb
@@ -13,30 +13,30 @@ import {UniFieldBuilder} from "../../forms/builders/uniFieldBuilder";
             [ngFormControl]="config.control"
             [readonly]="config.readonly"
             [disabled]="config.disabled"
-            (change)="setFormValue(config.control, cb.checked)"
+            (change)="setFormValue(cb.checked)"
         />
         <label [attr.for]="guid">{{config.label}}</label>
     `
 })
 export class UniRadioInput {
     @Input()
-    config: UniFieldBuilder;
+    public config: UniFieldBuilder;
 
-    guid: string;
+    public guid: string;
 
     constructor() {
         this.guid = Guid.MakeNew().ToString();
     }
 
-    refresh(value: any): void {
-        this.setFormValue(this.config.control, value);
+    public refresh(value: any): void {
+        this.setFormValue(value);
     }
 
-    ngOnInit() {
+    public ngOnInit() {
         this.config.fieldComponent = this;
     }
 
-    setFormValue(control: Control, value: any): void {
-        control.updateValue(value, {});
+    public setFormValue(value: any): void {
+        this.config.control.updateValue(value, {});
     }
 }

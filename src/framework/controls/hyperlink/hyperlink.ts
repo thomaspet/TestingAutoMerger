@@ -1,8 +1,8 @@
-import {Component, Input} from "angular2/core";
-import {UniFieldBuilder} from "../../forms/builders/uniFieldBuilder";
+import {Component, Input} from 'angular2/core';
+import {UniFieldBuilder} from '../../forms/builders/uniFieldBuilder';
 
 @Component({
-    selector: "uni-hyperlink",
+    selector: 'uni-hyperlink',
     template: `
         <a [href]="config.url"
         >{{config.description}}</a>
@@ -10,16 +10,16 @@ import {UniFieldBuilder} from "../../forms/builders/uniFieldBuilder";
 })
 export class UniHyperlink {
     @Input()
-    config: UniFieldBuilder;
+    public config: UniFieldBuilder;
 
     constructor() {
     }
 
-    ngOnInit() {
+    public ngOnInit() {
         this.config.fieldComponent = this;
     }
 
-    refresh(value: any): void {
+    public refresh(value: any): void {
         this.config.control.updateValue(value, {});
     }
 }

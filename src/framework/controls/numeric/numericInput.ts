@@ -1,11 +1,11 @@
-import {Component, ElementRef, Input, AfterViewInit, OnDestroy} from "angular2/core";
-import {Control} from "angular2/common";
-import {InputTemplateString} from "../inputTemplateString";
-import {UniFieldBuilder} from "../../forms/builders/uniFieldBuilder";
+import {Component, ElementRef, Input, AfterViewInit, OnDestroy} from 'angular2/core';
+import {Control} from 'angular2/common';
+import {InputTemplateString} from '../inputTemplateString';
+import {UniFieldBuilder} from '../../forms/builders/uniFieldBuilder';
 declare var jQuery;
 
 @Component({
-    selector: "uni-numeric",
+    selector: 'uni-numeric',
     template: InputTemplateString
 })
 export class UniNumericInput implements AfterViewInit, OnDestroy {
@@ -22,7 +22,7 @@ export class UniNumericInput implements AfterViewInit, OnDestroy {
     refresh(value: any) {
         value = value || 0;
         this.numericInput.value(value);
-        this.numericInput.trigger("change");
+        this.numericInput.trigger('change');
     }
 
     ngAfterViewInit() {
@@ -36,7 +36,7 @@ export class UniNumericInput implements AfterViewInit, OnDestroy {
             control.updateValue(this.value(), {});
         };
 
-        numericInput = this.nativeElement.find("input").first().kendoNumericTextBox(options).data("kendoNumericTextBox");
+        numericInput = this.nativeElement.find('input').first().kendoNumericTextBox(options).data('kendoNumericTextBox');
         this.numericInput = numericInput;
         numericInput.value(control.value);
     }

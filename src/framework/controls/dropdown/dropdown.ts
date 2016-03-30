@@ -1,29 +1,29 @@
-import {Component, ElementRef, Input, AfterViewInit, OnDestroy} from "angular2/core";
-import {InputTemplateString} from "../inputTemplateString";
-import {UniFieldBuilder} from "../../forms/builders/uniFieldBuilder";
+import {Component, ElementRef, Input, AfterViewInit, OnDestroy} from 'angular2/core';
+import {InputTemplateString} from '../inputTemplateString';
+import {UniFieldBuilder} from '../../forms/builders/uniFieldBuilder';
 declare var jQuery;
 
 @Component({
-    selector: "uni-dropdown",
+    selector: 'uni-dropdown',
     template: InputTemplateString
 })
 export class UniDropdown implements AfterViewInit, OnDestroy {
     @Input()
-    config: UniFieldBuilder;
+    public config: UniFieldBuilder;
 
-    nativeElement;
-    dropdown: kendo.ui.DropDownList;
+    public nativeElement;
+    public dropdown: kendo.ui.DropDownList;
 
     constructor(public elementRef: ElementRef) {
         this.nativeElement = jQuery(this.elementRef.nativeElement);
     }
 
-    refresh(value: any): void {
+    public refresh(value: any): void {
         this.dropdown.value(value);
-        this.dropdown.trigger("change");
+        this.dropdown.trigger('change');
     }
 
-    ngAfterViewInit() {
+    public ngAfterViewInit() {
         this.config.fieldComponent = this;
         var vm = this;
         var dropdown: kendo.ui.DropDownList;
@@ -35,13 +35,19 @@ export class UniDropdown implements AfterViewInit, OnDestroy {
             }
         };
 
-        dropdown = this.nativeElement.find("input").first().kendoDropDownList(this.config.kOptions).data("kendoDropDownList");
+        dropdown = this.nativeElement
+            .find('input')
+            .first()
+            .kendoDropDownList(this.config.kOptions)
+            .data('kendoDropDownList');
+
         dropdown.value(vm.config.control.value); // init to control
+
         this.dropdown = dropdown;
     }
 
     // remove kendo markup when component is destroyed to avoid duplicates
-    ngOnDestroy() {
+    public ngOnDestroy() {
         this.nativeElement.empty();
         this.nativeElement.html(InputTemplateString);
     }

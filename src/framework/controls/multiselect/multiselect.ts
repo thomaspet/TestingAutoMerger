@@ -1,7 +1,7 @@
-/// <reference path="../../../../kendo/typescript/kendo.all.d.ts" />
-import {Component, ElementRef, Input, AfterViewInit, OnDestroy} from "angular2/core";
-import {Control} from "angular2/common";
-import {UniFieldBuilder} from "../../forms/builders/uniFieldBuilder";
+/// <reference path='../../../../kendo/typescript/kendo.all.d.ts' />
+import {Component, ElementRef, Input, AfterViewInit, OnDestroy} from 'angular2/core';
+import {Control} from 'angular2/common';
+import {UniFieldBuilder} from '../../forms/builders/uniFieldBuilder';
 declare var jQuery;
 
 var templateString = `
@@ -14,27 +14,27 @@ var templateString = `
 `;
 
 @Component({
-    selector: "uni-multiselect",
+    selector: 'uni-multiselect',
     template: templateString
 })
 export class UniMultiSelect implements AfterViewInit, OnDestroy {
     @Input()
-    config: UniFieldBuilder;
+    public config: UniFieldBuilder;
 
-    nativeElement;
-    multiselect;
+    public nativeElement: any;
+    public multiselect: any;
 
     constructor(public elementRef: ElementRef) {
         this.nativeElement = jQuery(this.elementRef.nativeElement);
     }
 
-    refresh(value: any): void {
+    public refresh(value: any): void {
         value = value || [];
         this.multiselect.value(value);
-        this.multiselect.trigger("change");
+        this.multiselect.trigger('change');
     }
 
-    ngAfterViewInit() {
+    public ngAfterViewInit() {
         this.config.fieldComponent = this;
         var multiselect;
 
@@ -46,18 +46,23 @@ export class UniMultiSelect implements AfterViewInit, OnDestroy {
             control.updateValue(this.value(), {});
         };
 
-        multiselect = this.nativeElement.find("select").first().kendoMultiSelect(options).data("kendoMultiSelect");
+        multiselect = this.nativeElement
+            .find('select')
+            .first()
+            .kendoMultiSelect(options)
+            .data('kendoMultiSelect');
+
         this.multiselect = multiselect;
 
         // init to control value
         if (control.value.length > 0) {
             multiselect.value(control.value);
-            multiselect.trigger("change");
+            multiselect.trigger('change');
         }
     }
 
     // remove kendo markup when component is destroyed to avoid duplicates
-    ngOnDestroy() {
+    public ngOnDestroy() {
         this.nativeElement.empty();
         this.nativeElement.html(templateString);
     }
