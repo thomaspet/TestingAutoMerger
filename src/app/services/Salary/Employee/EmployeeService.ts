@@ -42,13 +42,9 @@ export class EmployeeService extends BizHttp<Employee> {
     public get(id: number| string) {
         
         if (id === 0) {
-            console.log('getting new entity');
-            this.relativeURL = 'employee';
             var response = this.GetNewEntity();
-            this.relativeURL = 'employees';
             return response;
         }else {
-            console.log('not getting new entity. id: ' + id);
             return this.Get(id, this.expandedProperties);
         }
     }

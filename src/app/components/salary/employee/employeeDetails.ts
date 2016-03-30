@@ -6,7 +6,8 @@ import 'rxjs/add/operator/map';
 import {UniTabs} from '../../layout/uniTabs/uniTabs';
 import {WidgetPoster} from '../../../../framework/widgetPoster/widgetPoster';
 
-
+import {EmployeeService} from '../../../services/services';
+import {SubEntity, Employee, BusinessRelation} from '../../../unientities';
 import {EmployeeDS} from '../../../data/employee';
 import {STYRKCodesDS} from '../../../data/styrkCodes';
 import {ComponentProxy} from '../../../../framework/core/componentProxy';
@@ -48,37 +49,39 @@ const CHILD_ROUTES = [
 @Component({
     selector: 'uni-employee-details',
     templateUrl: 'app/components/salary/employee/employeeDetails.html',
-    providers: [provide(EmployeeDS, {useClass: EmployeeDS}), provide(STYRKCodesDS, {useClass: STYRKCodesDS})],
+    providers: [provide(EmployeeDS, {useClass: EmployeeDS}),
+                provide(STYRKCodesDS, {useClass: STYRKCodesDS}), 
+                EmployeeService],
     directives: [ROUTER_DIRECTIVES, WidgetPoster, UniTabs]
 })
 
 @RouteConfig(CHILD_ROUTES)
 export class EmployeeDetails {
-    employee; // any = {};
+    private employee: Employee = new Employee(); // any = {};
     // empJSON;
-    childRoutes: RouteDefinition[];
-    subEntities;
+    private childRoutes: RouteDefinition[];
 
-    constructor(private routeParams: RouteParams, private employeeDS: EmployeeDS) {
+    constructor(private routeParams: RouteParams, private _employeeService: EmployeeService) {
         this.childRoutes = CHILD_ROUTES;
     }
 
-    ngOnInit() {
-        var employeeID = this.routeParams.get('id');
-        Observable.forkJoin(
-            this.employeeDS.get(employeeID),
-            this.employeeDS.getSubEntities()
-        ).subscribe((response: any) => {
-            let [emp, loc] = response;
-            this.employee = emp;
-            this.subEntities = loc;
-
-            //console.log('employee', response);
-            
-        }, error => console.log(error));
+    public ngOnInit() {
+        var employeeID = +this.routeParams.get('id');
+        if (employeeID) {
+            this._employeeService.get(employeeID).subscribe((response: any) => {
+                let [emp] = response;
+                this.employee = emp;  
+            }, error => console.log(error));
+        }else {
+            var businessRelation: BusinessRelation = new BusinessRelation();
+            businessRelation.Name = 'Ny Ansatt';
+            this.employee.BusinessRelationInfo = businessRelation;
+            this.employee.EmployeeNumber = 0;
+        }
+        
     }
 
-    onFormSubmit(value) {
+    public onFormSubmit(value) {
         console.log(value);
     }
 

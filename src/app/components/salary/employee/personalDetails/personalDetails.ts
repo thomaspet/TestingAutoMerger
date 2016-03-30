@@ -70,6 +70,7 @@ export class PersonalDetails implements OnInit {
          })
          }).subscribe()
          */
+        console.log('getting data');
         Observable.forkJoin(
             this.employeeService.get(this.employeeID),
             this.employeeService.layout('EmployeePersonalDetailsForm')
@@ -89,7 +90,6 @@ export class PersonalDetails implements OnInit {
                 }];
                 this.employee = employee;
                 this.form = new UniFormLayoutBuilder().build(layout, this.employee);
-                
                 this.uniCmpLoader.load(UniForm).then((cmp: ComponentRef) => {
                     cmp.instance.config = this.form;
                     cmp.instance.getEventEmitter().subscribe(this.executeSubmit(this));
