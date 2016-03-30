@@ -1,4 +1,4 @@
-import {Component, ViewChildren, Type, Input, QueryList, ViewChild, ComponentRef} from "angular2/core";
+import {Component, ViewChildren, Type, Input, Output, QueryList, ViewChild, ComponentRef, EventEmitter} from "angular2/core";
 import {NgIf, NgModel, NgFor} from "angular2/common";
 import {UniModal} from "../../../../../../framework/modals/modal";
 import {UniComponentLoader} from "../../../../../../framework/core/componentLoader";
@@ -24,27 +24,24 @@ export class PhoneForm {
     @ViewChild(UniForm)
     form: UniForm;
 
-    Phone: Phone;
-
-    constructor() {
-        this.Phone = new Phone();
-        this.Phone.Number = "91334697";
-        this.Phone.Description = "privat mobil";
-        this.Phone.Type = PhoneTypeEnum.PtMobile;
-    }
+    model: Phone;
     
     ngOnInit()
     {
         this.createFormConfig();      
         this.extendFormConfig();
     }
-       
+           
     createFormConfig() {   
         // TODO get it from the API and move these to backend migrations   
         var view: ComponentLayout = {
+            StatusCode: 0,
             Name: "Phone",
             BaseEntity: "Phone",
+<<<<<<< HEAD
             StatusCode: 0,
+=======
+>>>>>>> 4eb61a5d4f9d98b70ab758c9bb6a8134686cf0e4
             Deleted: false,
             ID: 1,
             CustomFields: null,
@@ -112,7 +109,7 @@ export class PhoneForm {
             ]               
         };   
         
-        this.config = new UniFormLayoutBuilder().build(view, this.Phone);
+        this.config = new UniFormLayoutBuilder().build(view, this.model);
         this.config.hideSubmitButton();
     }
 
@@ -157,6 +154,7 @@ export class PhoneModalType {
     ngAfterViewInit() {
         var self = this;
         this.ucl.load(PhoneForm).then((cmp: ComponentRef)=> {
+            cmp.instance.model = self.config.model;
             self.instance = new Promise((resolve)=> {
                 resolve(cmp.instance);
             });
@@ -175,22 +173,26 @@ export class PhoneModalType {
 export class PhoneModal {
     @ViewChild(UniModal)
     modal: UniModal;
+    
+    @Output() Changed = new EventEmitter<Phone>();
+    
     modalConfig: any = {};
-
     type: Type = PhoneModalType;
 
     constructor() {
         var self = this;
         this.modalConfig = {
             title: "Telefonnummer",
-            value: "Initial value",
+            model: null,
             actions: [
                 {
                     text: "Accept",
                     method: () => {
                         self.modal.getContent().then((content: PhoneModalType)=> {
-                            content.instance.then((rc: PhoneForm)=> {
-                                console.log(rc.form.form);
+                            content.instance.then((form: PhoneForm)=> {
+                                form.form.updateModel();
+                                self.modal.close();
+                                self.Changed.emit(form.model);
                             });
                         });
                     }

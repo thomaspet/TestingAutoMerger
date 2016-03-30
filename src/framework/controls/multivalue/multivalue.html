@@ -7,6 +7,7 @@
         <template ngFor #row [ngForOf]="config.model[config.field]" #i = "index">
             <li *ngIf="!row.Deleted" [class.-is-main]="index == i">
 
+<<<<<<< HEAD
                 <div *ngIf="!indelete(i)">
                     <div class="uni-multivalue_edit" *ngIf="editindex == i">
                         <input #editinput class="uni-multivalue_edit_value" [(ngModel)]="row[config.kOptions.dataTextField]" (blur)="save(row, $event)" (keyup.enter)="save(row, $event)" type="text">
@@ -24,6 +25,23 @@
             </li>
                 
         </template>
+=======
+            <div *ngIf="!timeout">
+                <div class="uni-multivalue_edit" *ngIf="editindex == i">
+                    <input #editinput class="uni-multivalue_edit_value" [(ngModel)]="row[config.kOptions.dataTextField]" (blur)="save(row, $event)" (keyup.enter)="save(row, $event)" type="text">
+                </div>
+                <div *ngIf="editindex != i">
+                    <span *ngIf="editindex != i" (click)="setAsDefault(i, row)" class="uni-multivalue-value">{{row[config.kOptions.dataTextField]}}</span>
+                    <button class="uni-multivalue_edit_action-delete" (click)="del(i, row, $event)">Delete</button>
+                    <button class="setEditBtn" (click)="edit(i, $event)">Edit {{row[config.kOptions.dataTextField]}}</button>                    
+                </div>
+            </div>
+            <div *ngIf="timeout" class="uni-multivalue_deleted">
+                Deleted &lsquo;{{row.value}}&rsquo;. (<a (click)="putBack(row)">Undo</a>)
+            </div>
+
+        </li>
+>>>>>>> 4eb61a5d4f9d98b70ab758c9bb6a8134686cf0e4
         <li><button class="uni-multivalue-addBtn" (click)="addValue($event)">Legg til&hellip;</button></li>
     </ul>
 

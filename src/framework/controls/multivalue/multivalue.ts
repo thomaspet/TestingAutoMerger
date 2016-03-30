@@ -2,16 +2,12 @@ import {Component, ComponentRef, ElementRef, Input, ViewChild, ViewChildren} fro
 import {NgIf, NgFor} from "angular2/common";
 import {UniFieldBuilder} from "../../forms/builders/uniFieldBuilder";
 import {UniComponentLoader} from '../../../framework/core/componentLoader';
+<<<<<<< HEAD
+=======
+import {UniModal} from '../../modals/modal';
+>>>>>>> 4eb61a5d4f9d98b70ab758c9bb6a8134686cf0e4
 
 declare var jQuery;
-
-interface MultiValue {
-    id: number,
-    value: string,
-    editing?: boolean,
-    main?: boolean,
-    timeout?: any
-}
 
 @Component({
     selector: "uni-multivalue",
@@ -26,14 +22,22 @@ export class UniMultiValue {
 
     @ViewChild(UniComponentLoader)
     ucl: UniComponentLoader;
+<<<<<<< HEAD
     modalinstance: Promise<any>;
+=======
+>>>>>>> 4eb61a5d4f9d98b70ab758c9bb6a8134686cf0e4
     
     @ViewChildren('editinput') editinputs;
 
     activeMultival: boolean;
+<<<<<<< HEAD
+=======
+    trashCan = [];
+>>>>>>> 4eb61a5d4f9d98b70ab758c9bb6a8134686cf0e4
     newValueInd: number;
     element;
     successMessage;
+    timeout: any;
     
     index: number = 0;
     editindex: number = null;
@@ -52,13 +56,9 @@ export class UniMultiValue {
             }
         });    
     }
-
+    
     ngOnInit() {
         this.config.fieldComponent = this;
-    }
-
-    ngAfterViewInit() {
-        var self = this;                      
     }
 
     // What should happen when the user clicks
@@ -75,6 +75,7 @@ export class UniMultiValue {
     // and unset it for all others.
     edit(row, index, event) {
         var self = this;
+<<<<<<< HEAD
         this.editindex = index;
 
         if (this.config.editor) {
@@ -88,11 +89,32 @@ export class UniMultiValue {
      //       self.editinputs.first.nativeElement.focus();            
      //   });
         
+=======
+ 
+        if (this.config.editor) { // Use custom editor
+            this.ucl.load(this.config.editor).then((cmp: ComponentRef)=> {
+                cmp.instance.modalConfig.isOpen = true;
+                cmp.instance.modalConfig.model = this.config.model[this.config.field][index];
+                
+                cmp.instance.Changed.subscribe((model: any) => {
+                    self.config.model[this.config.field][index] = model;
+                });                     
+            });                        
+        } else {
+            this.editindex = index;
+    
+            setTimeout(() => {
+               self.editinputs.first.nativeElement.focus();            
+            });    
+        }
+                
+>>>>>>> 4eb61a5d4f9d98b70ab758c9bb6a8134686cf0e4
         event.stopPropagation();
   
         return false;
     };
 
+<<<<<<< HEAD
     indelete(index) {
         var delidx = this.delindexes.indexOf(index);
         return delidx > -1;
@@ -106,6 +128,14 @@ export class UniMultiValue {
             this.timers.splice(delidx, 1);
          }    
     }
+=======
+    // Prepares the value for delete.
+    // @fixme: Obviously this needs to be rewritten to take server into account.
+    // We also want to use the soft delete paradigm for this.
+    del(index, row, event) {
+        var values = this.config.model[this.config.field],
+            self = this;
+>>>>>>> 4eb61a5d4f9d98b70ab758c9bb6a8134686cf0e4
 
     // Prepares the value for delete.
     del(row, index, event) {
@@ -122,20 +152,38 @@ export class UniMultiValue {
         }, 10000, row, index));
     
         event.stopPropagation();
+<<<<<<< HEAD
  
+=======
+        
+        this.timeout = setTimeout(function () {
+            values.splice(index, 1);
+            self.timeout = null;
+        }, 4000);
+        
+        this.trashCan.push(row);
+               
+>>>>>>> 4eb61a5d4f9d98b70ab758c9bb6a8134686cf0e4
         return false;
     };
 
     // Undo delete
+<<<<<<< HEAD
     putBack(row, index, event) {
         this.remdelete(index, true);
         event.stopPropagation();
         
         return false;
+=======
+    putBack(value) {
+        clearTimeout(this.timeout);
+        this.config.model[this.config.field].concat(this.trashCan);      
+        this.trashCan = [];
+>>>>>>> 4eb61a5d4f9d98b70ab758c9bb6a8134686cf0e4
     };
 
     // Set the passed value as the main one.
-    setAsDefault(row, index) {
+    setAsDefault(index, row) {
         this.index = index;
         this.config.model[this.config.defaultfield] = row[this.config.kOptions.dataValueField];
     };
