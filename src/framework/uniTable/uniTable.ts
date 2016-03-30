@@ -1,6 +1,5 @@
 import {Component, Input, OnChanges, SimpleChange, ElementRef, OnDestroy} from 'angular2/core';
-import {UniHttp, IUniHttpRequest} from '../core/http/http';
-
+import {UniHttp} from '../core/http/http';
 import {UniTableBuilder} from './UniTableBuilder';
 
 declare var jQuery;
@@ -11,33 +10,34 @@ enum directions { LEFT, RIGHT, UP, DOWN };
     selector: 'uni-table',
     templateUrl: 'framework/uniTable/uniTable.html',
 })
-export class UniTable {
-    @Input() config;
+export class UniTable implements OnChanges, OnDestroy {
+    @Input()
+    private config: UniTableBuilder;
 
-    tableConfig: kendo.ui.GridOptions = {};
-    filterString: string = "";
-    totalRows: number; // used for pagination
+    private tableConfig: kendo.ui.GridOptions = {};
+    private filterString: string = '';
+    private totalRows: number; // used for pagination
 
-    nativeElement: any;
-    table: kendo.ui.Grid;
+    private nativeElement: any;
+    private table: kendo.ui.Grid;
     
     constructor(private uniHttp: UniHttp, elementRef: ElementRef) {
         this.nativeElement = jQuery(elementRef.nativeElement);
     }
     
-    refresh(data?: any) {
+    public refresh(data?: any) {
         if (data && !this.config.remoteData) {
             this.config.resource = data;
         }
         this.table.dataSource.read();
     }
     
-    updateFilter(filter: string) {
+    public updateFilter(filter: string) {
         this.config.filter = filter;
         this.table.dataSource.read();
     }
 
-    ngOnChanges(changes: {[propName: string]: SimpleChange}) {
+    public ngOnChanges(changes: {[propName: string]: SimpleChange}) {
         var current = changes['config'].currentValue;
         
         if (!this.table && current) {
@@ -45,13 +45,13 @@ export class UniTable {
         }
     }
     
-    ngAfterViewInit() {
+    public ngAfterViewInit() {
         if (!this.table && this.config) {
             this.setupAndCompile();
         }
     }
 
-    setupAndCompile() {
+    private setupAndCompile() {
 
         if (this.config.commands.length > 0) {
             this.config.columns.push({
@@ -89,18 +89,20 @@ export class UniTable {
 
         // Set up select callback on read-only tables
         if (!this.config.editable && this.config.selectCallback) {
-            this.tableConfig.selectable = "row";
+            this.tableConfig.selectable = 'row';
 
             var vm = this;
             this.tableConfig.change = function (event: kendo.ui.GridChangeEvent) {
-                vm.config.selectCallback(event.sender.dataItem(this.select()));
-            }
+                let unflattened = vm.unflattenData(event.sender.dataItem(this.select()));
+                vm.config.selectCallback(unflattened);
+            };
         }
 
-        // Unbind kendo's keybind on numeric inputs so it doesn't interfere with up/down table navigation
+        // Unbind kendo's keybind on numeric inputs 
+        // so it doesn't interfere with up/down table navigation
         this.tableConfig.edit = (event) => {
-            var input = jQuery(this.table.current()).find('.k-numerictextbox input').unbind('keydown');
-        }
+            jQuery(this.table.current()).find('.k-numerictextbox input').unbind('keydown');
+        };
 
         // Compile grid and set up key navigation
         this.table = this.nativeElement.find('table').kendoGrid(this.tableConfig).data('kendoGrid');
@@ -108,24 +110,24 @@ export class UniTable {
     }
 
     // Create a datasource that works with local data
-    createLocalDataSource() {
+    private createLocalDataSource() {
         this.tableConfig.dataSource.transport = {
 
             read: (options) => {
                 this.totalRows = this.config.resource.length;
-                options.success(this.config.resource);
+                options.success(this.flattenData(this.config.resource));
             },
 
             update: (options) => {
                 if (this.config.updateCallback) {
-                    this.config.updateCallback(options.data);
+                    this.config.updateCallback(this.unflattenData(options.data));
                 }
                 options.success();
             },
 
             create: (options) => {
                 if (this.config.createCallback) {
-                    this.config.createCallback(options.data);
+                    this.config.createCallback(this.unflattenData(options.data));
                 }
                 options.success();
             },
@@ -136,11 +138,11 @@ export class UniTable {
                 }
                 options.success();
             }
-        }
+        };
     }
 
     // Create a datasource that works with remote data
-    createRemoteDataSource() {
+    private createRemoteDataSource() {
         this.tableConfig.dataSource.type = 'json';
         this.tableConfig.dataSource.serverPaging = true;
         this.tableConfig.dataSource.serverFiltering = true;
@@ -150,15 +152,19 @@ export class UniTable {
         this.tableConfig.dataSource.transport = {
 
             read: (options) => {
-                var orderBy = "";
+                let orderBy = '';
                 if (options.data.sort) {
-                    orderBy = options.data.sort[0].field + ' ' + options.data.sort[0].dir;
+                    let sortField = options.data.sort[0].field;
+                    if (sortField.split('$').length) {
+                        sortField = sortField.split('$').join('.');
+                    }
+                    orderBy = sortField + ' ' + options.data.sort[0].dir;
                 }
 
                 this.uniHttp
                     .asGET()
                     .usingBusinessDomain()
-                    .withEndPoint(this.config.resource)
+                    .withEndPoint(this.config.resource.toString())
                     .send({
                         expand: this.config.expand,
                         filter: this.buildOdataFilter(options.data.filter),
@@ -169,39 +175,46 @@ export class UniTable {
                     (response) => {
                         // TODO: Get count param from response headers (mocked for now)   
                         if (response.length < this.config.pageSize) {
-                            this.totalRows = response.length + (this.table.dataSource.page() - 1) * this.config.pageSize;
+                            this.totalRows = response.length + 
+                            (this.table.dataSource.page() - 1) * this.config.pageSize;
                         } else {
                             this.totalRows = 50;
                         }
 
-                        options.success(response)
+                        options.success(this.flattenData(response));
                     },
                     (error) => options.error(error)
                 );
             },
 
-            update: (options) => {
+            update: (options) => {                
+                let data = this.unflattenData(options.data);
+                
                 this.uniHttp
                     .asPUT()
                     .usingBusinessDomain()
-                    .withBody(options.data)
+                    .withBody(data)
                     .withEndPoint(this.config.resource + '/' + options.data.ID)
                     .send()
                     .subscribe(
-                        (response) => options.success(response),
+                        (response) => options.success(this.flattenData(response)),
                         (error) => options.error(error)
                     );
             },
 
             create: (options) => {
+                let data = this.unflattenData(options.data);
+                
+                console.log(options);
+                
                 this.uniHttp
                     .asPOST()
                     .usingBusinessDomain()
-                    .withEndPoint(this.config.resource)
-                    .withBody(options.data)
+                    .withEndPoint(this.config.resource.toString())
+                    .withBody(data)
                     .send()
                     .subscribe(
-                        (response) => options.success(response),
+                        (response) => options.success(this.flattenData(response)),
                         (error) => options.error(error)
                     );
             },
@@ -217,11 +230,74 @@ export class UniTable {
                         (error) => options.error(error)
                     );
             },
-        }
+        };
+    }
+    
+    private flattenData(data) {
+        let flattened = [];
+        data.forEach((row) => {
+            flattened.push(this.flattenObject(row)); 
+        });
+        
+        return flattened;
+    }
+    
+    private flattenObject(obj) {
+        let result = {};
 
+        let step = (object, prevKey) => {
+            Object.keys(object).forEach((key) => {
+                let value = object[key];
+                let newKey = prevKey ? (prevKey + '$' + key) : key;
+
+                if (value instanceof Object
+                    && !Array.isArray(value)
+                    && Object.keys(value).length) {
+                    return step(value, newKey);
+                }
+
+                result[newKey] = value;
+            });
+        };
+
+        step(obj, '');
+        return result;
+    }
+    
+    private unflattenData(data) {
+        // Base case
+        if (Object.prototype.toString.call(data) !== '[object Object]') {
+            return data;
+        }
+        
+        const keys = Object.keys(data);
+        let result = {};
+        
+        keys.forEach((item) => {
+            
+            let current = result;
+            let key = item.split('$');
+            let target = key.shift();
+            
+            while (key[0]) {
+                if (!current[target]) {
+                    current[target] = {};
+                }
+                
+                current = current[target];
+                
+                if (key.length) {
+                    target = key.shift();
+                }
+            }
+            
+            current[target] = this.unflattenData(data[item]);
+        });
+        
+        return result;  
     }
 
-    buildOdataFilter(kendoFilter): string {
+    private buildOdataFilter(kendoFilter): string {
         var stringified = '';
 
         if (!kendoFilter) {
@@ -229,13 +305,15 @@ export class UniTable {
         }
 
         kendoFilter.filters.forEach((filter: any) => {
-
+            
             if (filter.operator === 'contains') {
-                stringified += "contains(" + filter.field + ",'" + filter.value + "') or ";
+                stringified += `contains(${filter.field},${filter.value}) or `;
+                // stringified += "contains(" + filter.field + ",'" + filter.value + "') or ";
             }
 
             if (filter.operator === 'eq') {
-                stringified += filter.field + " eq " + filter.value + " or "
+                stringified += `${filter.field} eq ${filter.value} or `;
+                // stringified += filter.field + " eq " + filter.value + " or "
             }
 
         });
@@ -251,15 +329,16 @@ export class UniTable {
         }
 
         // Return config filter combined with the stringified kendo filter
-        return '(' + this.config.filter + ')' + " and (" + stringified + ")";
+        return `(${this.config.filter}) and (${stringified})`
+        // return '(' + this.config.filter + ')' + " and (" + stringified + ")";
     }
 
-    filterTable() {
+    private filterTable() {
 
         var filter = {
             logic: 'or',
             filters: [],
-        }
+        };
 
         var fields = this.tableConfig.dataSource.schema.model.fields;
 
@@ -268,7 +347,11 @@ export class UniTable {
 
             // contains filter for text columns
             if (field.type === 'string') {
-                filter.filters.push({field: fieldName, operator: 'contains', value: this.filterString});
+                filter.filters.push({
+                    field: fieldName,
+                    operator: 'contains',
+                    value: this.filterString
+                });
             }
 
             // eq filter for number columns
@@ -283,7 +366,7 @@ export class UniTable {
         this.table.dataSource.filter(filter);
     }
 
-    setupKeyNavigation() {
+    private setupKeyNavigation() {
         if (!this.config.editable) return;
 
         jQuery(this.table.table).keyup((event) => {
@@ -311,7 +394,7 @@ export class UniTable {
         });
     }
 
-    move(direction) {
+    private move(direction) {
         var currentCell = jQuery(this.table.current());
         var nextCell;
 
@@ -342,14 +425,15 @@ export class UniTable {
         }
 
         if (nextCell) {
-            currentCell.find('input').blur(); // makes sure any changes are updated (in browser, no http call here) before moving focus
+            // makes sure the kendo grid catches the changes before moving focus
+            currentCell.find('input').blur();
             this.table.current(nextCell);
             this.table.editCell(nextCell);
         }
     }
 
     // Avoid duplicate uniTable when renavigating
-    ngOnDestroy() {
+    public ngOnDestroy() {
         this.nativeElement.find('.k-grid').remove();
         this.nativeElement.append('<table></table>');
     }
