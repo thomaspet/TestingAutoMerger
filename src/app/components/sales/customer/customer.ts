@@ -14,10 +14,15 @@ const CUSTOMER_ROUTES = [
         loader: () => ComponentProxy.LoadComponentAsync("CustomerList", "./app/components/sales/customer/list/customerList")
     }),
     new AsyncRoute({
+        path: "/add",
+        name: "CustomerAdd",
+        loader: () => ComponentProxy.LoadComponentAsync("CustomerAdd", "./app/components/sales/customer/add/customerAdd")
+    }),
+    new AsyncRoute({
         path: "/details/:id",
         name: "CustomerDetails",
         loader: () => ComponentProxy.LoadComponentAsync("CustomerDetails", "./app/components/sales/customer/customerDetails/customerDetails")
-    })
+    })    
 ];
 
 @Component({
@@ -31,7 +36,7 @@ export class Customer {
     childRoutes: RouteDefinition[];
 
     constructor(public router: Router, private tabService: TabService) {
-        this.tabService.addTab({name: "Kunder", url: "/sales/customers"});
+        this.tabService.addTab({name: "Kunder", url: "/sales/customer"});
         this.childRoutes = CUSTOMER_ROUTES.slice(0, CUSTOMER_ROUTES.length - 1);
     }
 }

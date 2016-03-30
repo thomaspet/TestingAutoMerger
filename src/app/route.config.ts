@@ -45,10 +45,12 @@ export const Routes = [
         loader: () => ComponentProxy.LoadComponentAsync('UniAccounting', './app/components/accounting/accounting')
     }),
 
-
-
-
-
+	new AsyncRoute({
+        path: '/products/...',
+        name: 'Products',
+        loader: () => ComponentProxy.LoadComponentAsync('Product', './app/components/common/product/product')
+    }),
+    
     /// ROUTES FOR TESTING POURPOSES
 
     new AsyncRoute({
