@@ -43,7 +43,7 @@ textarea
         display: table
         clear: both
 
-    h4
+    & > h4
         @include clearfix
         margin-top: 2.5rem
         margin-bottom: 1rem
@@ -55,13 +55,17 @@ textarea
         color: $uni-color-scale2
         cursor: pointer
 
-    .collapsable-content
+    & > .collapsable-content
         display: none
 
     &.-is-open
-        h4
+        & > h4
             background: unicon-minus($uni-color-scale2) no-repeat left .2rem bottom .65rem
             background-size: .5rem
 
-        .collapsable-content
+        & > .collapsable-content
             display: block
+
+        .collapsable
+            margin: 0 1rem
+            width: calc(100% - 2rem)
