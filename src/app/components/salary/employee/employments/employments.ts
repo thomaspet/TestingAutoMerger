@@ -4,7 +4,7 @@ import {EmployeeDS} from '../../../../data/employee';
 import {EmploymentService} from '../../../../services/services';
 import {STYRKCodesDS} from '../../../../data/styrkCodes';
 import {UNI_CONTROL_DIRECTIVES} from '../../../../../framework/controls';
-import {FieldType, STYRKCode, Employee} from '../../../../unientities';
+import {FieldType, STYRKCode, Employee, SubEntity} from '../../../../unientities';
 import {
     UniForm, UniFormBuilder, UniFieldBuilder, UniSectionBuilder, UniFieldsetBuilder
 } from '../../../../../framework/forms';
@@ -25,62 +25,54 @@ export class EmployeeEmployment {
     private formConfigs: UniFormBuilder[];
     private styrkCodes: STYRKCode;
 
-    private typeOfEmployment: Array<any> = [
-        {ID: 0, Navn: 'Ikke satt'},
-        {ID: 1, Navn: '1 - Ordinært arbeidsforhold'},
-        {ID: 2, Navn: '2 - Maritimt arbeidsforhold'},
-        {ID: 3, Navn: '3 - Frilanser, oppdragstager, honorar'},
-        {ID: 4, Navn: '4 - Pensjon og annet uten ansettelse'}
+    private typeOfEmployment: {ID: number, Name: string}[] = [
+        {ID: 0, Name: 'Ikke satt'},
+        {ID: 1, Name: '1 - Ordinært arbeidsforhold'},
+        {ID: 2, Name: '2 - Maritimt arbeidsforhold'},
+        {ID: 3, Name: '3 - Frilanser, oppdragstager, honorar'},
+        {ID: 4, Name: '4 - Pensjon og annet uten ansettelse'}
     ];
 
-    private renumerationType: Array<any> = [
-        {ID: 0, Navn: 'Udefinert'},
-        {ID: 1, Navn: '1 - Fast lønnet'},
-        {ID: 2, Navn: '2 - Timelønnet'},
-        {ID: 3, Navn: '3 - Provisjonslønnet'},
-        {ID: 4, Navn: '4 - Honorar'},
-        {ID: 5, Navn: '5 - Akkord'}
+    private renumerationType: {ID: number, Name: string}[] = [
+        {ID: 0, Name: 'Udefinert'},
+        {ID: 1, Name: '1 - Fast lønnet'},
+        {ID: 2, Name: '2 - Timelønnet'},
+        {ID: 3, Name: '3 - Provisjonslønnet'},
+        {ID: 4, Name: '4 - Honorar'},
+        {ID: 5, Name: '5 - Akkord'}
     ];
 
-    private workingHoursScheme: Array<any> = [
-        {ID: 0, Navn: 'Udefinert'},
-        {ID: 1, Navn: '1 - Ikke skiftarbeid'},
-        {ID: 2, Navn: '2 - Arbeid offshore'},
-        {ID: 3, Navn: '3 - Helkontinuerlig skiftarbeid'},
-        {ID: 4, Navn: '4 - Døgnkontinuerlig skiftarbeid'},
-        {ID: 5, Navn: '5 - 2 skiftarbeid'}
+    private workingHoursScheme: {ID: number, Name: string}[] = [
+        {ID: 0, Name: 'Udefinert'},
+        {ID: 1, Name: '1 - Ikke skiftarbeid'},
+        {ID: 2, Name: '2 - Arbeid offshore'},
+        {ID: 3, Name: '3 - Helkontinuerlig skiftarbeid'},
+        {ID: 4, Name: '4 - Døgnkontinuerlig skiftarbeid'},
+        {ID: 5, Name: '5 - 2 skiftarbeid'}
     ];
 
-    private shipType: Array<any> = [
-        {ID: 0, Navn: 'Udefinert'},
-        {ID: 1, Navn: '1 - Annet'},
-        {ID: 2, Navn: '2 - Boreplattform'},
-        {ID: 3, Navn: '3 - Turist'}
+    private shipType: {ID: number, Name: string}[] = [
+        {ID: 0, Name: 'Udefinert'},
+        {ID: 1, Name: '1 - Annet'},
+        {ID: 2, Name: '2 - Boreplattform'},
+        {ID: 3, Name: '3 - Turist'}
     ];
 
-    private shipReg: Array<any> = [
-        {ID: 0, Navn: 'Udefinert'},
-        {ID: 1, Navn: '1 - Norsk Internasjonalt skipsregister'},
-        {ID: 2, Navn: '2 - Norsk ordinært skipsregister'},
-        {ID: 3, Navn: '3 - Utenlandsk skipsregister'}
+    private shipReg: {ID: number, Name: string}[] = [
+        {ID: 0, Name: 'Udefinert'},
+        {ID: 1, Name: '1 - Norsk Internasjonalt skipsregister'},
+        {ID: 2, Name: '2 - Norsk ordinært skipsregister'},
+        {ID: 3, Name: '3 - Utenlandsk skipsregister'}
     ];
 
-    private tradeArea: Array<any> = [
-        {ID: 0, Navn: 'Udefinert'},
-        {ID: 1, Navn: '1 - Innenriks'},
-        {ID: 2, Navn: '2 - Utenriks'}
+    private tradeArea: {ID: number, Name: string}[] = [
+        {ID: 0, Name: 'Udefinert'},
+        {ID: 1, Name: '1 - Innenriks'},
+        {ID: 2, Name: '2 - Utenriks'}
     ];
 
-    private subEntities: Array<any> = [
-        {ID: 0, Navn: 'Modalen'},
-        {ID: 1, Navn: 'Haugesund'},
-        {ID: 2, Navn: 'Bergen'},
-        {ID: 3, Navn: 'Oslo'},
-        {ID: 4, Navn: 'Trondheim'},
-        {ID: 5, Navn: 'Stavanger'},
-        {ID: 6, Navn: 'Bodø'}
-    ];
-
+    private subEntities: SubEntity[];
+    
     constructor(private _injector: Injector,
                 private _employeeDS: EmployeeDS,
                 private _styrkcodesDS: STYRKCodesDS,
@@ -117,7 +109,7 @@ export class EmployeeEmployment {
                 this.updateJobCodeFields(dataItem, formbuilder);
             };
 
-            var jobName = this.buildField('Navn', employment, 'JobName', FieldType.AUTOCOMPLETE)
+            var jobName = this.buildField('Name', employment, 'JobName', FieldType.AUTOCOMPLETE)
                 .setKendoOptions({
                     dataSource: this.styrkCodes,
                     dataTextField: 'tittel',
@@ -145,7 +137,15 @@ export class EmployeeEmployment {
 
             var readgroup = this.buildGroupForm(employment);
 
-            formbuilder.addUniElements(jobCode, jobName, startDate, endDate, monthRate, hourRate, workPercent, subEntity, readgroup);
+            formbuilder.addUniElements(jobCode, 
+                                       jobName, 
+                                       startDate, 
+                                       endDate, 
+                                       monthRate, 
+                                       hourRate, 
+                                       workPercent, 
+                                       subEntity, 
+                                       readgroup);
 
             this.formConfigs.push(formbuilder);
         });
@@ -170,19 +170,19 @@ export class EmployeeEmployment {
         var tOfEmplnt = this.buildField('Arbeidsforhold', employment, 'TypeOfEmployment', FieldType.COMBOBOX);
         tOfEmplnt.setKendoOptions({
             dataSource: this.typeOfEmployment,
-            dataTextField: 'Navn',
+            dataTextField: 'Name',
             dataValueField: 'ID'
         });
         var renum = this.buildField('Avlønning', employment, 'RenumerationType', FieldType.COMBOBOX);
         renum.setKendoOptions({
             dataSource: this.renumerationType,
-            dataTextField: 'Navn',
+            dataTextField: 'Name',
             dataValueField: 'ID'
         });
         var work = this.buildField('Arbeidstid', employment, 'WorkingHoursScheme', FieldType.COMBOBOX);
         work.setKendoOptions({
             dataSource: this.workingHoursScheme,
-            dataTextField: 'Navn',
+            dataTextField: 'Name',
             dataValueField: 'ID'
         });
         var hours = this.buildField('Standardtimer', employment, 'HoursPerWeek', FieldType.NUMERIC);
@@ -251,7 +251,7 @@ export class EmployeeEmployment {
     private addNewEmployment() {
         console.log('addNewEmployment()');
         this._employmentService.GetNewEntity().subscribe((response: Employment) => {
-            var standardSubEntity = this.subEntities.find(subEntity => subEntity.SuperiorOrganizationID == null);
+            var standardSubEntity = this.subEntities.find(newSubEntity => newSubEntity.SuperiorOrganizationID == null);
             var newEmployment = response;
             newEmployment.EmployeeNumber = this.currentEmployee.EmployeeNumber;
             newEmployment.EmployeeID = this.currentEmployee.ID;
