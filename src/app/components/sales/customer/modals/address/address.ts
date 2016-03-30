@@ -230,7 +230,8 @@ export class AddressModalType {
     template: `
         <uni-modal [type]="type" [config]="modalConfig"></uni-modal>
     `,
-    directives: [UniModal]
+    directives: [UniModal],
+    providers: [AddressService]
 })
 export class AddressModal {
     @ViewChild(UniModal)

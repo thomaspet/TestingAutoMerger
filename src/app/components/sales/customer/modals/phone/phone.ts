@@ -164,7 +164,8 @@ export class PhoneModalType {
     template: `
         <uni-modal [type]="type" [config]="modalConfig"></uni-modal>
     `,
-    directives: [UniModal]
+    directives: [UniModal],
+    providers: [PhoneService]
 })
 export class PhoneModal {
     @ViewChild(UniModal)

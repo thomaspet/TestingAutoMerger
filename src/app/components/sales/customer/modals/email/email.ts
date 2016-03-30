@@ -130,7 +130,8 @@ export class EmailModalType {
     template: `
         <uni-modal [type]="type" [config]="modalConfig"></uni-modal>
     `,
-    directives: [UniModal]
+    directives: [UniModal],
+    providers: [EmailService]
 })
 export class EmailModal {
     @ViewChild(UniModal)
