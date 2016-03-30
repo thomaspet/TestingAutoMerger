@@ -33,19 +33,19 @@ export class UniTableControls {
     public combobox(kendoOptions, changeCallback?: (item: any, rowModel: any) => any) {
         
         return (container, options) => {
-            var element = jQuery('<input data-bind="value:' + options.field + '"/>')
-            .appendTo(container)
-            .kendoComboBox(jQuery.extend(kendoOptions, {
-                value: options.model[options.field],
-                delay: kendoOptions.delay || 50,
-                
-                select: (event: kendo.ui.ComboBoxSelectEvent) => { 
-                    var selectedItem = event.sender.dataItem(jQuery(event.item).index());
-                    if (changeCallback) {
-                        changeCallback(selectedItem, this.getRowModel(container));
-                    }
-                },
-            }));
+            jQuery('<input data-bind="value:' + options.field + '"/>')
+                .appendTo(container)
+                .kendoComboBox(jQuery.extend(kendoOptions, {
+                    value: options.model[options.field],
+                    delay: kendoOptions.delay || 50,
+                    
+                    select: (event: kendo.ui.ComboBoxSelectEvent) => { 
+                        var selectedItem = event.sender.dataItem(jQuery(event.item).index());
+                        if (changeCallback) {
+                            changeCallback(selectedItem, this.getRowModel(container));
+                        }
+                    },
+                }));
                
         }
     }
@@ -54,35 +54,35 @@ export class UniTableControls {
     public datepicker(kendoOptions: any) {
         return function(container, options) {
             var datepicker = jQuery('<input data-bind="value:' + options.field + '"/>')
-            .appendTo(container)
-            .kendoDatePicker(jQuery.extend(kendoOptions, {
-                format: kendoOptions.format || 'dd.MM.yyyy',
-                parseFormats: [
-                    "dd-MM-yyyy",
-                    "dd/MM/yyyy",
-                    "dd.MM.yyyy",
-                    "ddMMyyyy",
-                    "yyyy-MM-ddTHH:mm:ss"
-                ],
+                .appendTo(container)
+                .kendoDatePicker(jQuery.extend(kendoOptions, {
+                    format: kendoOptions.format || 'dd.MM.yyyy',
+                    parseFormats: [
+                        "dd-MM-yyyy",
+                        "dd/MM/yyyy",
+                        "dd.MM.yyyy",
+                        "ddMMyyyy",
+                        "yyyy-MM-ddTHH:mm:ss"
+                    ],
 
-                value: options.model[options.field],
+                    value: options.model[options.field],
 
-                change: (event: kendo.ui.DatePickerChangeEvent) => {
-                    var date = event.sender.value();
-                    
-                    // Autocomplete if date was given by text, not selected in the picker
-                    if (date === null || date === undefined) {
-                        var autocompleted = autocompleteDate(jQuery(event.sender.element).val());
+                    change: (event: kendo.ui.DatePickerChangeEvent) => {
+                        var date = event.sender.value();
+                        
+                        // Autocomplete if date was given by text, not selected in the picker
+                        if (date === null || date === undefined) {
+                            var autocompleted = autocompleteDate(jQuery(event.sender.element).val());
 
-                        if (autocompleted) {
-                            options.model[options.field] = autocompleted;
-                            event.sender.value(autocompleted);
-                        } else {
-                            options.model[options.field] = "";
+                            if (autocompleted) {
+                                options.model[options.field] = autocompleted;
+                                event.sender.value(autocompleted);
+                            } else {
+                                options.model[options.field] = "";
+                            }
                         }
                     }
-                }
-            }));
+                }));
             
             // Kendo change event wont fire if initial value was null. 
             // Blur event listener makes sure we always autocomplete the input value
