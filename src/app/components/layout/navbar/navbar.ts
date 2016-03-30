@@ -1,6 +1,6 @@
 import {Component, AfterViewInit} from 'angular2/core';
 import {RouteConfig, ROUTER_DIRECTIVES} from 'angular2/router';
-import {Routes, APP_ROUTES} from '../../../route.config';
+import {Routes} from '../../../route.config';
 
 import {HamburgerMenu} from './hamburgerMenu/hamburgerMenu';
 import {UniTabStrip} from './tabstrip/tabstrip';

@@ -3,7 +3,7 @@
 
 import {Component} from "angular2/core";
 import {Router, RouteConfig, ROUTER_DIRECTIVES} from "angular2/router";
-import {Routes, APP_ROUTES} from "./route.config";
+import {Routes} from "./route.config";
 import {UniRouterOutlet} from "./uniRouterOutlet";
 import {AuthService} from "../framework/authentication/authService";
 import {TabService} from "./components/layout/navbar/tabstrip/tabService";
@@ -16,7 +16,7 @@ import {UniHttp} from "../framework/core/http/http";
     directives: [ROUTER_DIRECTIVES, UniRouterOutlet, UniNavbar],
     providers: [AuthService, TabService, UniHttp]
 })
-@RouteConfig(APP_ROUTES)
+@RouteConfig(Routes)
 export class App {
     public routes = Routes;
 
