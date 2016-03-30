@@ -14,7 +14,6 @@ import {UNI_CONTROL_DIRECTIVES} from "../../../../framework/controls";
 import {CompanySettingsDS} from "../../../data/companySettings";
 import {UniHttp} from "../../../../framework/core/http/http";
 
-
 @Component({
     selector: "settings",
     templateUrl: "app/components/settings/companySettings/companySettings.html",
@@ -33,6 +32,7 @@ export class CompanySettings implements OnInit {
     currencies: Array<any> = [];
     periodSeries: Array<any> = [];
     accountGroupSets: Array<any> = [];
+    accounts: Array<any> = [];
 
     //TODO Use service instead of Http, Use interfaces!!
     constructor(private routeParams: RouteParams, private companySettingsDS: CompanySettingsDS, private http: UniHttp) {
@@ -166,9 +166,44 @@ export class CompanySettings implements OnInit {
                 dataTextField: 'Code',
                 dataValueField: 'Code',
                 index: this.currencies.indexOf(this.company.BaseCurrency)
+            })
+            .hasLineBreak(true);
+
+        //TODO
+
+        var supplierAccount = new UniFieldBuilder();
+        supplierAccount.setLabel('Leverandør-konto')
+            .setModel(this.company)
+            .setModelField('SupplierAccountID')
+            .setType(UNI_CONTROL_DIRECTIVES[3])
+            .setKendoOptions({
+                dataSource: this.accounts,
+                dataTextField: 'AccountNumber',
+                dataValueField: 'ID',
+                index: this.currencies.indexOf(this.company.SupplierAccountID)
             });
 
-        companySetup.addUniElements(companyReg, taxMandatory, companyType, companyCurrency);
+        var customerAccount = new UniFieldBuilder();
+        customerAccount.setLabel('Kunde-Konto')
+            .setModel(this.company)
+            .setModelField('CustomerAccountID')
+            .setType(UNI_CONTROL_DIRECTIVES[3])
+            .setKendoOptions({
+                dataSource: this.accounts,
+                dataTextField: 'AccountNumber',
+                dataValueField: 'ID',
+                index: this.currencies.indexOf(this.company.CustomerAccountID)
+            })
+            .hasLineBreak(true);;
+
+        var creditDays = new UniFieldBuilder();
+        creditDays.setLabel('Kredittdager')
+            .setModel(this.company)
+            .setModelField('CustomerCreditDays')
+            .setType(UNI_CONTROL_DIRECTIVES[10]);
+
+
+        companySetup.addUniElements(companyReg, taxMandatory, companyType, companyCurrency, supplierAccount, customerAccount, creditDays);
 
         // ********************************************************************/
         // *********************  Regnskapsinnstillinger    *******************/
@@ -259,7 +294,7 @@ export class CompanySettings implements OnInit {
             .setType(UNI_CONTROL_DIRECTIVES[8]);
 
         accountingSettings.addUniElements(
-            periodSeriesAccount, periodSeriesVat,
+            periodSeriesAccount, periodSeriesVat, accountGroupSet, 
             accountingLockedDate, vatLockedDate, forceSupplierInvoiceApproval);
 
         formBuilder.addUniElements(companyName, orgNr, web, street, street2,
@@ -271,6 +306,8 @@ export class CompanySettings implements OnInit {
     /********************************************************************/
     /*********************  Form Builder    *******************/
     update() {
+        var self = this;
+
         this.http
             .asGET()
             .usingBusinessDomain()
@@ -279,39 +316,21 @@ export class CompanySettings implements OnInit {
                 { endPoint: "currencies" },
                 { endPoint: "period-series" },
                 { endPoint: "accountgroupsets" },
-                { endPoint: "companysettings/" + this.id, expand: "Address,Emails,Phones" }
+                { endPoint: "accounts" },
+                { endPoint: "companysettings/" + self.id, expand: "Address,Emails,Phones" }
             ])
             .subscribe(
             (dataset) => {
-                this.companyTypes = dataset[0];
-                this.currencies = dataset[1];
-                this.periodSeries = dataset[2];
-                this.accountGroupSets = dataset[3];
-                this.company = dataset[4];
-                this.dataReady();
+                self.companyTypes = dataset[0];
+                self.currencies = dataset[1];
+                self.periodSeries = dataset[2];
+                self.accountGroupSets = dataset[3];
+                self.accounts = dataset[4];
+                self.company = dataset[5];
+                self.dataReady();
             },
             (error) => console.log(error)
             );
-
-        /*
-        this.http.multipleRequests('GET', [
-            { resource: "companytypes" },
-            { resource: "currencies" },
-            { resource: "period-series" },
-            { resource: "accountgroupsets" },
-            { resource: "companysettings/" + this.id, expand: "Address,Emails,Phones" }
-        ]).subscribe(
-            (dataset) => {
-                this.companyTypes = dataset[0];
-                this.currencies = dataset[1];
-                this.periodSeries = dataset[2];
-                this.accountGroupSets = dataset[3];
-                this.company = dataset[4];
-                this.dataReady();
-            },
-            (error) => console.log(error)
-            )
-        */
     }
 
     ngOnInit() {
@@ -359,4 +378,54 @@ export class CompanySettings implements OnInit {
             }
             );
     }
+
+    //#region Test data
+    syncAS() {
+        console.log("SYNKRONISER KONTOPLAN");
+        this.http
+            .asPUT()
+            .usingBusinessDomain()
+            .withEndPoint("accounts")
+            .send({
+                "action": "synchronize-ns4102-as"
+            })
+            .subscribe(
+            (response: any) => {
+                alert("Kontoplan synkronisert for AS");
+            },
+            (error: any) => console.log(error)
+            );
+    }
+
+    syncVat() {
+        console.log("SYNKRONISER MVA");
+        this.http
+            .asPUT()
+            .usingBusinessDomain()
+            .withEndPoint("vattypes")
+            .send({ "action": "synchronize" })
+            .subscribe(
+            (response: any) => {
+                alert("VatTypes synkronisert");
+            },
+            (error: any) => console.log(error)
+            );
+    }
+
+    syncCurrency() {
+        console.log("LAST NED VALUTA");
+        this.http
+            .asGET()
+            .withEndPoint("currencies")
+            .send({ action: "download-from-norgesbank" })
+            .subscribe(
+            (response: any) => {
+                alert("Valuta lasted ned");
+            },
+            (error: any) => console.log(error)
+            );
+    }
+
+
+    //#endregion Test data
 }

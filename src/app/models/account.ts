@@ -34,7 +34,7 @@ export class AccountModel implements Account {
     SubAccountNumberSeriesID: number = 1;
     UseDeductivePercent: boolean = false;
     UsePostPost: boolean = true;
-    StatusID: number = null;
+    StatusCode: number = null;
     ID: number = 0;
     Deleted: boolean = false;
     Currency: Currency = null;

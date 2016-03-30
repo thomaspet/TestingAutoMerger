@@ -1,4 +1,4 @@
-import {Component, Injector, ViewChild, ComponentRef} from 'angular2/core';
+import {Component, Injector, ViewChild, ComponentRef, OnInit} from 'angular2/core';
 import {RouteParams, Router} from 'angular2/router';
 import {UniForm} from '../../../../../framework/forms/uniForm';
 import {
@@ -11,7 +11,6 @@ import 'rxjs/add/operator/merge';
 import {UniValidator} from '../../../../../framework/validators/UniValidator';
 import {OperationType, Operator, ValidationLevel, Employee, BankAccountSalary} from '../../../../unientities';
 import {EmployeeService} from '../../../../services/services';
-
 declare var _;
 
 @Component({
@@ -26,7 +25,7 @@ declare var _;
         </article>
     `
 })
-export class PersonalDetails {
+export class PersonalDetails implements OnInit {
 
     private form: UniFormBuilder = new UniFormBuilder();
     private layout;
@@ -48,7 +47,7 @@ export class PersonalDetails {
         this.employeeID = +routeParams.get('id');
     }
     
-    private ngOnInit() {
+    public ngOnInit() {
         if (this.employeeService.subEntities) {
             this.getData();
         }else {
@@ -114,7 +113,9 @@ export class PersonalDetails {
                 self.uniCmpLoader.load(UniForm).then((cmp: ComponentRef) => {
                     cmp.instance.config = self.form;
                     cmp.instance.getEventEmitter().subscribe(this.executeSubmit(this));
-                    this.whenFormInstance = new Promise((resolve: Function) => resolve(cmp.instance));
+                    this.whenFormInstance = new Promise((resolve: Function) => {
+                        resolve(cmp.instance);
+                    });
                     /*setTimeout(() => {
                         self.formInstance = cmp.instance;
                         console.log(self.formInstance);
@@ -136,9 +137,13 @@ export class PersonalDetails {
                     .subscribe(
                         (data: Employee) => {
                             context.employee = data;
-                            context.whenFormInstance.then((instance: UniForm) => instance.refresh(context.employee));
+                            context.whenFormInstance.then((instance: UniForm) => {
+                                instance.refresh(context.employee);
+                            });
                         },
-                        (error: Error) => console.error('error in perosonaldetails.onSubmit - Put: ', error)
+                        (error: Error) => {
+                            console.error('error in perosonaldetails.onSubmit - Put: ', error);
+                        }
                     );
             } else {
                 console.log('we are now Posting');
@@ -149,7 +154,9 @@ export class PersonalDetails {
                             context.employee = data;
                             this.router.navigateByUrl('/salary/employees/' + context.employee.ID);
                         },
-                        (error: Error) => console.error('error in personaldetails.onSubmit - Post: ', error)
+                        (error: Error) => {
+                            console.error('error in personaldetails.onSubmit - Post: ', error);
+                        }
                     );
             }
         };
