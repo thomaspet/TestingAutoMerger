@@ -16,8 +16,8 @@
     <section class="poster_overview">        
         <uni-widget-poster [model]="product">
             <section class="application">
-                <section>Utpris eks. MVA: {{product.PriceExVat | number:'1.2' }}</section>
-                <section>Utpris ink. MVA: {{product.PriceIncVat | number:'1.2'}}</section>
+                <section>Utpris eks. MVA: kr. {{product.PriceExVat }}</section>
+                <section>Utpris ink. MVA: kr. {{product.PriceIncVat }}</section>
             </section>
         </uni-widget-poster>        
     </section> 

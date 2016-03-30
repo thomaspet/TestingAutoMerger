@@ -13,10 +13,10 @@ import {VatSettings} from './vatSettings/vatSettings';
 
 const CHILD_ROUTES = [
     { path: '/', redirectTo: ['CompanySettings']},
-    { path: '/company', component: CompanySettings, as: 'Firmainnstillinger' },
-    { path: '/accounts', component: AccountSettings, as: 'Kontoer' },
-    { path: '/vat', component: VatSettings, as: 'MVA' },
-    { path: '/user', component: UserSettings, as: 'Brukere og roller' }
+    { path: '/company', component: CompanySettings, as: 'CompanySettings' },
+    { path: '/accounts', component: AccountSettings, as: 'Accounts' },
+    { path: '/vat', component: VatSettings, as: 'VAT' },
+    { path: '/user', component: UserSettings, as: 'UsersAndRoles' }
 ];
 
 @Component({

@@ -1,10 +1,7 @@
-
-
 import {Component, ComponentRef, Input, Output, ViewChild, SimpleChange, EventEmitter} from "angular2/core";
 import {Router, RouteParams, RouterLink} from "angular2/router";
 import {Observable} from "rxjs/Observable";
 import "rxjs/add/observable/forkjoin";
-import "rxjs/Rx";
 
 import {ProductService, AccountService, VatTypeService} from "../../../../services/services";
 
@@ -108,9 +105,7 @@ export class ProductDetails {
             );
     }
         
-    calculateAndUpdatePrice() {
-        console.log('kalkulerer oppdaterte priser');
-        
+    calculateAndUpdatePrice() {        
         this.formInstance.updateModel();
                 
         this.productService.calculatePrice(this.product)            
@@ -125,19 +120,9 @@ export class ProductDetails {
     }
     
     setPriceReadonlyMode(calculateGrossPriceBasedOnNetPrice: boolean) {
-        console.log('setPriceReadonlyMode: ', calculateGrossPriceBasedOnNetPrice);     
-        if (calculateGrossPriceBasedOnNetPrice) {
-            this.priceExVat.addClass('hidden');
-            //this.priceExVat.removeClass('hidden');
-            //this.priceIncVat.('hidden');
-        } else { 
-            this.priceIncVat.addClass('hidden');
-            //this.priceExVat.addClass('hidden');   
-        }
-        
-        
-        //this.priceExVat.readonly = calculateGrossPriceBasedOnNetPrice;
-        //this.priceIncVat.readonly = !calculateGrossPriceBasedOnNetPrice;
+        //show/hide price fields based on checkbox - this currenctly does not work, Jorge is working on a fix        
+        this.priceIncVat.hidden = !calculateGrossPriceBasedOnNetPrice;
+        this.priceExVat.hidden = calculateGrossPriceBasedOnNetPrice;            
     }
         
     createFormConfig() {   

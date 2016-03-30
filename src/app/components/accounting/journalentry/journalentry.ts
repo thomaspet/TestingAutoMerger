@@ -14,9 +14,9 @@ import {SupplierInvoiceDetail} from './supplierinvoices/supplierinvoicedetail';
 
 const CHILD_ROUTES = [
     {path: '/', redirectTo: ['JournalEntryManual']},
-    {path: '/manual', component: JournalEntryManual, as: 'Bilagsregistrering'},
-    {path: '/payments', component: Payments, as: 'Betaling'},
-    {path: '/supplierinvoices', component: SupplierInvoices, as: 'Leverandørfaktura' },
+    {path: '/manual', component: JournalEntryManual, as: 'JournalEntryManual'},
+    {path: '/payments', component: Payments, as: 'Payments'},
+    {path: '/supplierinvoices', component: SupplierInvoices, as: 'SupplierInvoices' },
     {path: '/supplierinvoices/:id', component: SupplierInvoiceDetail, as: 'SupplierInvoiceDetail'}
 ];
 

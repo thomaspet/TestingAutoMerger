@@ -9,7 +9,7 @@ export class VatCodeGroupService extends BizHttp<VatCodeGroup> {
         super(http);
         
         //TODO: should resolve this from configuration based on type (IVatType)? Frank is working on something..
-        this.relativeURL = VatCodeGroup.relativeUrl;
+        this.relativeURL = "vatcodegroups";// VatCodeGroup.relativeUrl;
         
         //set this property if you want a default sort order from the API
         this.DefaultOrderBy = null;        
