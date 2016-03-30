@@ -152,19 +152,19 @@ export class UniTable implements OnChanges, OnDestroy {
         this.tableConfig.dataSource.transport = {
 
             read: (options) => {
-                let searchParams = {
+                var searchParams = {
                     expand: this.config.expand,
                     filter: this.buildOdataFilter(options.data.filter)
                 };
-                
+                                                
                 if (options.data.sort) {
-                    let sortField = options.data.sort[0].field;
+                    var sortField = options.data.sort[0].field;
                     if (sortField.split('$').length) {
                         sortField = sortField.split('$').join('.');
                     }
-                    searchParams['orderby'] = sortField + ' ' + options.data.sort[0].dir;
+                    searchParams['orderBy'] = sortField + ' ' + options.data.sort[0].dir;
                 }
-                
+                                
                 if (this.config.pageable) {
                     searchParams['top'] = options.data.take;
                     searchParams['skip'] = options.data.skip;
