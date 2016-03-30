@@ -59,6 +59,7 @@ export class UniMaskedInput implements AfterViewInit, OnDestroy {
         if (!_.isNil(control.value) && control.value.length > 0) {
             maskedInput.value(control.value);
         }
+        this.config.isDomReady.emit(true);
     }
 
     // remove kendo markup when component is destroyed to avoid duplicates

@@ -82,6 +82,7 @@ export class UniAutocomplete implements AfterViewInit, OnDestroy {
             .data('kendoAutoComplete');
         autocomplete.value(control.value[this.config.kOptions.dataTextField]);
         this.autocomplete = autocomplete;
+        this.config.isDomReady.emit(true);
     }
 
     // remove kendo markup when component is destroyed to avoid duplicates

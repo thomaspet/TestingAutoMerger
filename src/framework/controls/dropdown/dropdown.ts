@@ -49,6 +49,7 @@ export class UniDropdown implements AfterViewInit, OnDestroy {
         dropdown.value(vm.config.control.value); // init to control
 
         this.dropdown = dropdown;
+        this.config.isDomReady.emit(true);
     }
 
     // remove kendo markup when component is destroyed to avoid duplicates

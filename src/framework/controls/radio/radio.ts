@@ -41,6 +41,10 @@ export class UniRadioInput {
         this.config.fieldComponent = this;
     }
 
+    public ngAfterViewInit() {
+        this.config.isDomReady.emit(true);
+    }
+
     public setFormValue(value: any): void {
         this.config.control.updateValue(value, {});
     }

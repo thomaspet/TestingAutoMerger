@@ -15,7 +15,6 @@ declare var jQuery; // $ is reserved for angular ElementFinder
 export class UniCombobox implements AfterViewInit, OnDestroy {
     @Input()
     public config: UniFieldBuilder;
-
     public control: Control;
     public nativeElement: any;
     public combobox: kendo.ui.ComboBox;
@@ -79,6 +78,7 @@ export class UniCombobox implements AfterViewInit, OnDestroy {
         if (control) {
             combobox.value(control.value);
         }
+        this.config.isDomReady.emit(true);
     }
 
 

@@ -1,4 +1,4 @@
-import {Type} from "angular2/core";
+import {EventEmitter} from "angular2/core";
 import {UNI_CONTROL_DIRECTIVES} from "../../controls";
 import {UniField} from "./../uniField";
 import {UniTextInput} from "../../controls/text/text";
@@ -12,8 +12,8 @@ export class UniFieldBuilder {
     public url: string = "";
     public model: any;
     public field: string = "";
-    public type: Type = UniTextInput;
-    public fieldType: Type;
+    public type: any = UniTextInput;
+    public fieldType: any;
     public kOptions: any = {};
     public classes: any = {};
     public readonly: boolean = false;
@@ -37,7 +37,7 @@ export class UniFieldBuilder {
     public onSelect: any;
     public clearOnSelect: any;
     public onChange: any;
-
+    public isDomReady: EventEmitter<boolean> = new EventEmitter<boolean>(true);
     public static fromLayoutConfig(element: any, model: any): UniFieldBuilder {
         var ufb = new UniFieldBuilder();
 
@@ -66,7 +66,7 @@ export class UniFieldBuilder {
         return ufb;
     }
 
-    constructor(type?: Type, label?: string, model?: string, modelField?: string) {
+    constructor(type?: any, label?: string, model?: string, modelField?: string) {
         this.type = type || UniTextInput;
         this.label = label || "";
         this.model = model || undefined;
@@ -100,7 +100,7 @@ export class UniFieldBuilder {
         return this;
     }
 
-    public setType(type: Type) {
+    public setType(type: any) {
         this.type = type;
         return this;
     }

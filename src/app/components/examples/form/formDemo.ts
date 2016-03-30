@@ -70,6 +70,9 @@ export class UniFormDemo {
         return this.UniCmpLoader.load(UniForm).then((cmp: ComponentRef) => {
             cmp.instance.config = self.FormConfig;
             cmp.instance.getEventEmitter().subscribe(self.submit(self));
+            cmp.instance.isDomReady.subscribe(()=>{
+                self.FormConfig.find('SocialSecurityNumber').setFocus();
+            });
         });
     }
 
@@ -94,8 +97,9 @@ export class UniFormDemo {
                 'text': 'kvinne'
             }]
         });
-        field = this.FormConfig.find('SocialSecurityNumber');
-        field.setKendoOptions({
+
+        var field2: UniFieldBuilder = this.FormConfig.find('SocialSecurityNumber');
+        field2.setKendoOptions({
             mask: '000000 00000',
             promptChar: '_'
         });

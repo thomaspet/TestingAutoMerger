@@ -44,6 +44,7 @@ export class UniNumericInput implements AfterViewInit, OnDestroy {
         numericInput = this.nativeElement.find('input').first().kendoNumericTextBox(options).data('kendoNumericTextBox');
         this.numericInput = numericInput;
         numericInput.value(control.value);
+        this.config.isDomReady.emit(true);
     }
 
     // remove kendo markup when component is destroyed to avoid duplicates

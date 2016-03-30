@@ -1,8 +1,5 @@
-import {Component, OnInit ,EventEmitter, Input, Output} from "angular2/core";
-import {FORM_DIRECTIVES, FORM_PROVIDERS, Control, ControlGroup, FormBuilder} from "angular2/common";
-import {UNI_CONTROL_DIRECTIVES} from "../controls";
-import {UniRadioGroup} from "../controls/radioGroup/uniRadioGroup";
-import {ShowError} from "./showError";
+import {Component, OnInit, EventEmitter, Input, Output} from "angular2/core";
+import {FORM_DIRECTIVES, FORM_PROVIDERS, ControlGroup, FormBuilder} from "angular2/common";
 import {UniField} from "./uniField";
 import {UniFieldBuilder} from "./builders/uniFieldBuilder";
 import {UniFieldset} from "./uniFieldset";
@@ -12,7 +9,6 @@ import {UniComponentLoader} from "../core/componentLoader";
 import {MessageComposer} from "./composers/messageComposer";
 import {ValidatorsComposer} from "./composers/validatorsComposer";
 import {ControlBuilder} from "./builders/controlBuilder";
-import {UniElementBuilder} from "./interfaces";
 import {UniFormBuilder} from "./builders/uniFormBuilder";
 import {UniGenericField} from "./shared/UniGenericField";
 
@@ -69,6 +65,10 @@ export class UniForm extends UniGenericField implements OnInit {
      */
     controls = {};
 
+
+    numberOfFields = -1;
+    readyFields = 0;
+    isDomReady: EventEmitter<boolean> = new EventEmitter<boolean>(true);
     /**
      *
      * @param fb
@@ -83,6 +83,29 @@ export class UniForm extends UniGenericField implements OnInit {
     ngOnInit() {
         this.createFormControls(this.config.fields);
         this.form = this.fb.group(this.controls);
+    }
+
+    ngAfterViewInit() {
+        this.getNumberOfFields(this.config.fields);
+        this.subscribeToDomIsReady(this.config.fields);
+    }
+
+    subscribeToDomIsReady(fields) {
+        var self = this;
+        for (let i = 0; i < fields.length; i++) {
+            let field = fields[i];
+            if (field instanceof UniFieldBuilder) {
+                field.isDomReady.subscribe(
+                    ()=> {
+                        self.readyFields++;
+                        if (self.numberOfFields === self.readyFields) {
+                            self.isDomReady.emit(true);
+                        }
+                    },(error) => console.error("UniForm -> IsDomReadyError:",error));
+            } else {
+                this.subscribeToDomIsReady(field.fields);
+            }
+        }
     }
 
     /**
@@ -216,5 +239,23 @@ export class UniForm extends UniGenericField implements OnInit {
         );
 
         this.controls[config.field] = config.control;
+    }
+
+    private getNumberOfFields(fields): number {
+        if (this.numberOfFields >= 0) {
+            return this.numberOfFields;
+        }
+        var nfields = 0;
+
+        for (let i = 0; i < fields.length; i++) {
+            if (fields[i] instanceof UniFieldBuilder) {
+                nfields++;
+            } else {
+                this.getNumberOfFields(fields[i].fields);
+            }
+        }
+
+        this.numberOfFields = nfields;
+        return nfields;
     }
 }

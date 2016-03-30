@@ -31,6 +31,10 @@ export class UniPasswordInput {
         this.config.fieldComponent = this;
     }
 
+    public ngAfterViewInit() {
+        this.config.isDomReady.emit(true);
+    }
+
     public refresh(value: any) {
         this.config.control.updateValue(value, {});
     }
