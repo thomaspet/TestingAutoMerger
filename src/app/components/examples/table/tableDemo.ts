@@ -82,6 +82,7 @@ export class UniTableDemo {
             employmentDS.push({value: item.ID, text: item.JobName});
         });
         
+        let idCol = new UniTableColumn('ID', 'ID', 'number');
         let descriptionCol = new UniTableColumn('Description', 'Beskrivelse', 'string');
         let fromDateCol = new UniTableColumn('FromDate', 'Fra', 'date');
         let toDateCol = new UniTableColumn('ToDate', 'Til', 'date');
@@ -89,11 +90,11 @@ export class UniTableDemo {
         let leavePercentCol = new UniTableColumn('LeavePercent', 'Prosent', 'number')
             .setFormat("{0: # \\'%'}");
                     
-        let leaveTypeCol = new UniTableColumn('LeaveType', 'Type', 'number')
+        let leaveTypeCol = new UniTableColumn('LeaveType', 'Type', 'text')
             .setValues(leaveTypeDS)
             .setDefaultValue(null);
                     
-        let employmentCol = new UniTableColumn('EmploymentID', 'Ansattforhold', 'number')
+        let employmentCol = new UniTableColumn('EmploymentID', 'Ansattforhold', 'text')
             .setValues(employmentDS)
             .setDefaultValue(null)
             .setCustomEditor('dropdown', {
@@ -108,6 +109,7 @@ export class UniTableDemo {
         this.demoTable1 = new UniTableBuilder('employeeleave', true)
             .setPageable(false)
             .addColumns(
+                idCol,
                 descriptionCol,
                 fromDateCol,
                 toDateCol,
