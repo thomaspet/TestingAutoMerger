@@ -1,4 +1,4 @@
-import {Component, ViewChildren, Type, Input, QueryList, ViewChild, ComponentRef} from "angular2/core";
+import {Component, ViewChildren, Type, Input, Output, QueryList, ViewChild, ComponentRef, EventEmitter} from "angular2/core";
 import {NgIf, NgModel, NgFor} from "angular2/common";
 import {UniModal} from "../../../../../../framework/modals/modal";
 import {UniComponentLoader} from "../../../../../../framework/core/componentLoader";
@@ -8,6 +8,7 @@ import {UNI_CONTROL_DIRECTIVES} from "../../../../../../framework/controls";
 import {UniFieldBuilder} from "../../../../../../framework/forms/builders/uniFieldBuilder";
 import {FieldType, ComponentLayout, Email} from "../../../../../unientities";
 import {UniFormLayoutBuilder} from "../../../../../../framework/forms/builders/uniFormLayoutBuilder";
+import {EmailService} from "../../../../../services/services";
 
 // Reusable email form
 @Component({
@@ -24,13 +25,7 @@ export class EmailForm {
     @ViewChild(UniForm)
     form: UniForm;
 
-    Email: Email;
-
-    constructor() {
-        this.Email = new Email();
-        this.Email.EmailAddress = "terje@senikk.com";
-        this.Email.Description = "privat adresse";
-    }
+    model: Email;
        
     ngOnInit()
     {
@@ -59,7 +54,7 @@ export class EmailForm {
                     Label: "Epostadresse",
                     Description: "",
                     HelpText: "",
-                    FieldSet: 0,
+                    FieldSet: 1,
                     Section: 0,
                     Legend: "",
                     StatusCode: 0,
@@ -79,7 +74,7 @@ export class EmailForm {
                     Label: "Beskrivelse",
                     Description: "",
                     HelpText: "",
-                    FieldSet: 0,
+                    FieldSet: 1,
                     Section: 0,
                     Legend: "",
                     StatusCode: 0,
@@ -90,7 +85,7 @@ export class EmailForm {
             ]               
         };   
         
-        this.config = new UniFormLayoutBuilder().build(view, this.Email);
+        this.config = new UniFormLayoutBuilder().build(view, this.model);
         this.config.hideSubmitButton();
     }
 
@@ -101,7 +96,7 @@ export class EmailForm {
     selector: "email-modal-type",
     directives: [NgIf, NgModel, NgFor, UniComponentLoader],
     template: `
-        <article class="modal-content">
+        <article class="modal-content email-modal">
             <h1 *ngIf="config.title">{{config.title}}</h1>
             <uni-component-loader></uni-component-loader>
             <footer>
@@ -133,30 +128,43 @@ export class EmailModalType {
 @Component({
     selector: "email-modal",
     template: `
-        <button (click)="openModal()">Epost modal</button>
         <uni-modal [type]="type" [config]="modalConfig"></uni-modal>
     `,
-    directives: [UniModal]
+    directives: [UniModal],
+    providers: [EmailService]
 })
 export class EmailModal {
     @ViewChild(UniModal)
     modal: UniModal;
+    
+    @Output() Changed = new EventEmitter<Email>();
+
     modalConfig: any = {};
+    
 
     type: Type = EmailModalType;
 
-    constructor() {
+    constructor(private emailService: EmailService) {
         var self = this;
         this.modalConfig = {
             title: "Epost",
-            value: "Initial value",
             actions: [
                 {
                     text: "Accept",
                     method: () => {
                         self.modal.getContent().then((content: EmailModalType)=> {
-                            content.instance.then((rc: EmailForm)=> {
-                                console.log(rc.form.form);
+                            content.instance.then((form: EmailForm)=> {
+                                form.form.updateModel();
+                                self.modal.close();       
+                                
+                                // store
+                                if(form.model.ID) {
+                                    emailService.Put(form.model.ID, form.model).subscribe(null, (error: Error) => console.log('error in updating phone from modal - Put: ' + error));
+                                } else {
+                                    emailService.Post(form.model).subscribe(null, (error: Error) => console.error('error in posting phone from modal - Post: ', error));
+                                }
+                                                        
+                                self.Changed.emit(form.model);
                             });
                         });
                     }

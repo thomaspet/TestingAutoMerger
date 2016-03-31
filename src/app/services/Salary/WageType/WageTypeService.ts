@@ -326,10 +326,8 @@ export class WageTypeService extends BizHttp<WageType> {
     
     getWageType(id): Observable<any> {
         if(id === 0){
-            this.relativeURL = 'wagetype';
             return this.GetNewEntity();
         }else{
-            this.relativeURL = 'wagetypes'
             return this.Get(id);
         }
     }

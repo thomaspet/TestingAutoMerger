@@ -64,7 +64,6 @@ export class WagetypeDetail {
 
     onSubmit(context: WagetypeDetail) {
         return () => {
-            context.wageService.setRelativeUrl('wagetypes');
             if (context.wageType.ID) {
                 context.wageService.Put(context.wageType.ID, context.wageType)
                     .subscribe(
