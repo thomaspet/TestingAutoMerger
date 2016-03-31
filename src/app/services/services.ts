@@ -15,9 +15,8 @@ export * from './salary/wagetype/wagetypeservice'
 export * from './common/departementservice';
 export * from './common/projectservice';
 export * from './sales/phoneservice';
-<<<<<<< HEAD
 export * from './common/productservice';
-=======
->>>>>>> 4eb61a5d4f9d98b70ab758c9bb6a8134686cf0e4
 export * from './sales/customerservice';
 export * from './sales/businessrelationservice';
+export * from './sales/emailservice';
+export * from './sales/addressservice';

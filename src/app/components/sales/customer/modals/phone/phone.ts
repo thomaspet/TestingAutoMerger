@@ -38,10 +38,6 @@ export class PhoneForm {
             StatusCode: 0,
             Name: "Phone",
             BaseEntity: "Phone",
-<<<<<<< HEAD
-            StatusCode: 0,
-=======
->>>>>>> 4eb61a5d4f9d98b70ab758c9bb6a8134686cf0e4
             Deleted: false,
             ID: 1,
             CustomFields: null,

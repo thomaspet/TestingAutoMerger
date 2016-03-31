@@ -94,12 +94,8 @@ export class UniFormDemo {
     }
     
     private createPhoneModel() {
-<<<<<<< HEAD
-=======
         var self = this;
-        
-        this.businessRelationService.setRelativeUrl("businessrelation");
->>>>>>> 4eb61a5d4f9d98b70ab758c9bb6a8134686cf0e4
+        this.businessRelationService.setRelativeUrl("businessrelations");
         this.businessRelationService.GetNewEntity().subscribe(bm => {
             this.BusinessModel = bm;
             this.BusinessModel.DefaultPhoneID = 1;
@@ -126,17 +122,10 @@ export class UniFormDemo {
                 BusinessRelationID: 1,
                 StatusCode: 0
             });
-<<<<<<< HEAD
-                
-           this.phoneService.GetNewEntity().subscribe(phone => {
-              this.EmptyPhone = phone; 
-=======
-     
-           this.phoneService.setRelativeUrl("phone");
-           this.phoneService.GetNewEntity().subscribe(phone => {
-              self.EmptyPhone = phone; 
->>>>>>> 4eb61a5d4f9d98b70ab758c9bb6a8134686cf0e4
-           });
+            this.phoneService.setRelativeUrl("phones");
+            this.phoneService.GetNewEntity().subscribe(phone => {
+                self.EmptyPhone = phone; 
+            });
         });        
     }
 
