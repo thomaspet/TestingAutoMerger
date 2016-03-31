@@ -26,7 +26,7 @@ export class UniMultiValue {
     element;
     successMessage;
     
-    index: number = null;
+    index: number = 0;
     editindex: number = null;
     delindexes = [];
     timers = [];

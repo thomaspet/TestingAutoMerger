@@ -1,7 +1,5 @@
 <section class="uni-multivalue-ng">{{label}}
 
-     <h1>{config.field}</h1>
-
     <input type="text" *ngIf="config.model" [(ngModel)]="config.model[config.field][index][config.kOptions.dataTextField]">
     <button class="uni-multivalue-moreBtn" (click)="addOrDropdown(inputVal)">Add</button>
 
@@ -23,8 +21,7 @@
                     Deleted &lsquo;{{row.value}}&rsquo;. (<a (click)="putBack(row, i, $event)">Undo</a>)
                 </div>
                            
-            </li>
-                
+            </li>             
         </template>
         <li><button class="uni-multivalue-addBtn" (click)="addValue($event)">Legg til&hellip;</button></li>
     </ul>

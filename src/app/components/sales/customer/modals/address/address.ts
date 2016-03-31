@@ -1,4 +1,4 @@
-import {Component, ViewChildren, Type, Input, QueryList, ViewChild, ComponentRef} from "angular2/core";
+import {Component, ViewChildren, Type, Input, Output, QueryList, ViewChild, ComponentRef, EventEmitter} from "angular2/core";
 import {NgIf, NgModel, NgFor} from "angular2/common";
 import {UniModal} from "../../../../../../framework/modals/modal";
 import {UniComponentLoader} from "../../../../../../framework/core/componentLoader";
@@ -8,6 +8,7 @@ import {UNI_CONTROL_DIRECTIVES} from "../../../../../../framework/controls";
 import {UniFieldBuilder} from "../../../../../../framework/forms/builders/uniFieldBuilder";
 import {FieldType, ComponentLayout, Address} from "../../../../../unientities";
 import {UniFormLayoutBuilder} from "../../../../../../framework/forms/builders/uniFormLayoutBuilder";
+import {AddressService} from "../../../../../services/services";
 
 // Reusable address form
 @Component({
@@ -24,17 +25,8 @@ export class AddressForm {
     @ViewChild(UniForm)
     form: UniForm;
 
-    Address: Address;
+    model: Address;
 
-    constructor() {
-        this.Address = new Address();
-        this.Address.AddressLine1 = "Oterstadneset 14";
-        this.Address.PostalCode = "5727";
-        this.Address.City = "Stamnes";
-        this.Address.CountryCode = "NO";
-        this.Address.Country = "NORGE";
-    }
-   
     ngOnInit()
     {
         this.createFormConfig();      
@@ -193,7 +185,7 @@ export class AddressForm {
             ]               
         };   
         
-        this.config = new UniFormLayoutBuilder().build(view, this.Address);
+        this.config = new UniFormLayoutBuilder().build(view, this.model);
         this.config.hideSubmitButton();
     }
 
@@ -204,7 +196,7 @@ export class AddressForm {
     selector: "address-modal-type",
     directives: [NgIf, NgModel, NgFor, UniComponentLoader],
     template: `
-        <article class="modal-content">
+        <article class="modal-content address-modal">
             <h1 *ngIf="config.title">{{config.title}}</h1>
             <uni-component-loader></uni-component-loader>
             <footer>
@@ -238,16 +230,20 @@ export class AddressModalType {
     template: `
         <uni-modal [type]="type" [config]="modalConfig"></uni-modal>
     `,
-    directives: [UniModal]
+    directives: [UniModal],
+    providers: [AddressService]
 })
 export class AddressModal {
     @ViewChild(UniModal)
     modal: UniModal;
+    
+    @Output() Changed = new EventEmitter<Address>();
+
     modalConfig: any = {};
 
     type: Type = AddressModalType;
 
-    constructor() {
+    constructor(private addressService: AddressService) {
         var self = this;
         this.modalConfig = {
             title: "Adresse",
@@ -257,8 +253,18 @@ export class AddressModal {
                     text: "Accept",
                     method: () => {
                         self.modal.getContent().then((content: AddressModalType)=> {
-                            content.instance.then((rc: AddressForm)=> {
-                                console.log(rc.form.form);
+                            content.instance.then((form: AddressForm)=> {
+                                form.form.updateModel();
+                                self.modal.close();       
+                                
+                                // store
+                                if(form.model.ID) {
+                                    addressService.Put(form.model.ID, form.model).subscribe(null, (error: Error) => console.log('error in updating phone from modal - Put: ' + error));
+                                } else {
+                                    addressService.Post(form.model).subscribe(null, (error: Error) => console.error('error in posting phone from modal - Post: ', error));
+                                }
+                                                        
+                                self.Changed.emit(form.model);
                             });
                         });
                     }

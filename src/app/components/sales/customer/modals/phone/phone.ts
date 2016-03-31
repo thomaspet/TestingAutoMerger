@@ -8,6 +8,7 @@ import {UNI_CONTROL_DIRECTIVES} from "../../../../../../framework/controls";
 import {UniFieldBuilder} from "../../../../../../framework/forms/builders/uniFieldBuilder";
 import {FieldType, ComponentLayout, Phone, PhoneTypeEnum} from "../../../../../unientities";
 import {UniFormLayoutBuilder} from "../../../../../../framework/forms/builders/uniFormLayoutBuilder";
+import {PhoneService} from "../../../../../services/services";
 
 // Reusable address form
 @Component({
@@ -129,7 +130,7 @@ export class PhoneForm {
     selector: "phone-modal-type",
     directives: [NgIf, NgModel, NgFor, UniComponentLoader],
     template: `
-        <article class="modal-content">
+        <article class="modal-content phone-modal">
             <h1 *ngIf="config.title">{{config.title}}</h1>
             <uni-component-loader></uni-component-loader>
             <footer>
@@ -164,7 +165,8 @@ export class PhoneModalType {
     template: `
         <uni-modal [type]="type" [config]="modalConfig"></uni-modal>
     `,
-    directives: [UniModal]
+    directives: [UniModal],
+    providers: [PhoneService]
 })
 export class PhoneModal {
     @ViewChild(UniModal)
@@ -175,11 +177,12 @@ export class PhoneModal {
     modalConfig: any = {};
     type: Type = PhoneModalType;
 
-    constructor() {
+    constructor(private phoneService: PhoneService) {
         var self = this;
         this.modalConfig = {
             title: "Telefonnummer",
             model: null,
+
             actions: [
                 {
                     text: "Accept",
@@ -187,7 +190,15 @@ export class PhoneModal {
                         self.modal.getContent().then((content: PhoneModalType)=> {
                             content.instance.then((form: PhoneForm)=> {
                                 form.form.updateModel();
-                                self.modal.close();
+                                self.modal.close();                               
+                                
+                                // store
+                                if(form.model.ID) {
+                                    phoneService.Put(form.model.ID, form.model).subscribe(null, (error: Error) => console.log('error in updating phone from modal - Put: ' + error));
+                                } else {
+                                    phoneService.Post(form.model).subscribe(null, (error: Error) => console.error('error in posting phone from modal - Post: ', error));
+                                }
+                                
                                 self.Changed.emit(form.model);
                             });
                         });
