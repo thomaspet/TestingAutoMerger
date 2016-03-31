@@ -51,7 +51,7 @@ export class SupplierList {
 
     setupSupplierTable() {
         // Define columns to use in the table
-        var numberCol = new UniTableColumn('ID', 'Leverandørnr', 'number').setWidth('15%');
+        var numberCol = new UniTableColumn('SupplierNumber', 'Leverandørnr', 'number').setWidth('15%');
         var nameCol = new UniTableColumn('Info.Name', 'Navn', 'string');
         var orgNoCol = new UniTableColumn('Orgnumber', 'Orgnr', 'string').setWidth('15%');
                 
