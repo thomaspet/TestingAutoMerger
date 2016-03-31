@@ -60,6 +60,7 @@ export class UniTableBuilder {
                 width: columnInfo.width,
                 template: columnInfo.template || null,
                 editor: columnInfo.editor || null,
+                values: columnInfo.values || null,
                 attributes: {
                     'class': columnInfo.class
                 }
@@ -69,6 +70,7 @@ export class UniTableBuilder {
                 type: columnInfo.type,
                 editable: columnInfo.editable,
                 nullable: columnInfo.nullable,
+                defaultValue: columnInfo.defaultValue || null,
             };            
         });
         

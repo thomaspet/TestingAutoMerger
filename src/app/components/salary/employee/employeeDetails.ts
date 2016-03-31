@@ -1,5 +1,5 @@
 import {Component, provide, OnInit} from 'angular2/core';
-import {RouteConfig, RouteDefinition, RouteParams, ROUTER_DIRECTIVES} from 'angular2/router';
+import {RouteConfig, RouteDefinition, RouteParams, ROUTER_DIRECTIVES, AsyncRoute} from 'angular2/router';
 import { Observable } from 'rxjs/Observable';
 import 'rxjs/add/operator/map';
 
@@ -17,14 +17,40 @@ import {EmployeeCategoryButtons} from './employeeCategoryButtons';
 import {EmployeeDS} from '../../../data/employee';
 import {STYRKCodesDS} from '../../../data/styrkCodes';
 import {SalaryTransactionEmployeeList} from '../salarytrans/salarytransList';
+import {ComponentProxy} from '../../../../framework/core/componentProxy';
 
 const CHILD_ROUTES = [
-    {path: '/', component: PersonalDetails, as: 'PersonalDetails'},
-    {path: '/employment', component: EmployeeEmployment, as: 'Employment'},
-    {path: '/salarytrans', component: SalaryTransactionEmployeeList, as: 'Lønnstranser'},
-    {path: '/hours', component: Hours, as: 'Hours'},
-    {path: '/travel', component: Travel, as: 'Travel'},
-    {path: '/employeeleave', component: EmployeeLeave, as: 'EmployeeLeave'}
+    new AsyncRoute({
+        useAsDefault: true,
+        path: '/personal-details',
+        name: 'Detaljer',
+        loader: () => ComponentProxy.LoadComponentAsync('PersonalDetails', './app/components/salary/employee/personalDetails/personalDetails')
+    }),
+    new AsyncRoute({
+        path: '/employment',
+        name: 'Employment',
+        loader: () => ComponentProxy.LoadComponentAsync('EmployeeEmployment', './app/components/salary/employee/employments/employments')
+    }),
+    new AsyncRoute({
+        path: '/salarytrans',
+        name: 'Lønnstranser',
+        loader: () => ComponentProxy.LoadComponentAsync('SalaryTransactionEmployeeList', './app/components/salary/salarytrans/salarytransList')
+    }),
+    new AsyncRoute({
+        path: '/hours',
+        name: 'Hours',
+        loader: () => ComponentProxy.LoadComponentAsync('Hours', './app/components/salary/employee/hours/hours')
+    }),
+    new AsyncRoute({
+        path: '/travel',
+        name: 'Travel',
+        loader: () => ComponentProxy.LoadComponentAsync('Travel', './app/components/salary/employee/travel/travel')
+    }),
+    new AsyncRoute({
+        path: '/employeeleave',
+        name: 'EmployeeLeave',
+        loader: () => ComponentProxy.LoadComponentAsync('EmployeeLeave', './app/components/salary/employee/employeeLeave/employeeLeave')
+    })
 ];
 
 @Component({

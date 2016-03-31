@@ -93,7 +93,7 @@ export class CustomerAdd {
         return {
             Name: "Customer",
             BaseEntity: "Customer",
-            StatusID: 0,
+            StatusCode: 0,
             Deleted: false,
             ID: 1,
             CustomFields: null,
@@ -113,7 +113,7 @@ export class CustomerAdd {
                     FieldSet: 0,
                     Section: 0,
                     Legend: "",
-                    StatusID: 0,
+                    StatusCode: 0,
                     ID: 2,
                     Deleted: false,
                     CustomFields: null 
@@ -133,7 +133,7 @@ export class CustomerAdd {
                     FieldSet: 0,
                     Section: 0,
                     Legend: "",
-                    StatusID: 0,
+                    StatusCode: 0,
                     ID: 3,
                     Deleted: false,
                     CustomFields: null 
@@ -153,7 +153,7 @@ export class CustomerAdd {
                     FieldSet: 0,
                     Section: 0,
                     Legend: "",
-                    StatusID: 0,
+                    StatusCode: 0,
                     ID: 4,
                     Deleted: false,
                     CustomFields: null 
@@ -173,7 +173,7 @@ export class CustomerAdd {
                     FieldSet: 0,
                     Section: 0,
                     Legend: "",
-                    StatusID: 0,
+                    StatusCode: 0,
                     ID: 5,
                     Deleted: false,
                     CustomFields: null 
@@ -193,7 +193,7 @@ export class CustomerAdd {
                     FieldSet: 0,
                     Section: 0,
                     Legend: "",
-                    StatusID: 0,
+                    StatusCode: 0,
                     ID: 5,
                     Deleted: false,
                     CustomFields: null 
@@ -213,7 +213,7 @@ export class CustomerAdd {
                     FieldSet: 0,
                     Section: 0,
                     Legend: "",
-                    StatusID: 0,
+                    StatusCode: 0,
                     ID: 5,
                     Deleted: false,
                     CustomFields: null 
@@ -233,7 +233,7 @@ export class CustomerAdd {
                     FieldSet: 0,
                     Section: 0,
                     Legend: "",
-                    StatusID: 0,
+                    StatusCode: 0,
                     ID: 6,
                     Deleted: false,
                     CustomFields: null 

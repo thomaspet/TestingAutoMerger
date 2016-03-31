@@ -107,37 +107,37 @@ export class AccountDetails {
         //
 
         var checkSystemAccount = new UniFieldBuilder();
-        checkSystemAccount.setDescription("Systemkonto")
+        checkSystemAccount.setLabel("Systemkonto")
             .setModel(this.model)
             .setModelField("SystemAccount")
             .setType(UNI_CONTROL_DIRECTIVES[FieldType.CHECKBOX]);
 
         var checkPostPost = new UniFieldBuilder();
-        checkPostPost.setDescription("PostPost")
+        checkPostPost.setLabel("PostPost")
             .setModel(this.model)
             .setModelField("UsePostPost")
             .setType(UNI_CONTROL_DIRECTIVES[FieldType.CHECKBOX]);
 
         var checkDeductionPercent = new UniFieldBuilder();
-        checkDeductionPercent.setDescription("Forholdsvismoms")
+        checkDeductionPercent.setLabel("Forholdsvismoms")
             .setModel(this.model)
             .setModelField("UseDeductionPercent")
             .setType(UNI_CONTROL_DIRECTIVES[FieldType.CHECKBOX]);
 
         var checkLockManualPosts = new UniFieldBuilder();
-        checkLockManualPosts.setDescription("Sperre manuelle poster")
+        checkLockManualPosts.setLabel("Sperre manuelle poster") 
             .setModel(this.model)
             .setModelField("LockManualPosts")
             .setType(UNI_CONTROL_DIRECTIVES[FieldType.CHECKBOX]);
 
         var checkLocked = new UniFieldBuilder();
-        checkLocked.setDescription("Sperret")
+        checkLocked.setLabel("Sperret")
             .setModel(this.model)
             .setModelField("Locked")
             .setType(UNI_CONTROL_DIRECTIVES[FieldType.CHECKBOX]);
 
         var checkVisible = new UniFieldBuilder();
-        checkVisible.setDescription("Synlig")
+        checkVisible.setLabel("Synlig")
             .setModel(this.model)
             .setModelField("Visible")
             .setType(UNI_CONTROL_DIRECTIVES[FieldType.CHECKBOX]);

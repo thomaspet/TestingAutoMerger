@@ -10,8 +10,14 @@ export * from './accounting/supplierinvoiceservice';
 export * from './accounting/supplierinvoiceitemservice';
 export * from './accounting/BankAccountService';
 export * from './salary/employee/employeeservice';
+export * from './salary/employee/employmentservice';
+export * from './staticregisterservice';
 export * from './salary/wagetype/wagetypeservice'
 export * from './common/departementservice';
 export * from './common/projectservice';
+export * from './common/productservice';
 export * from './sales/customerservice';
 export * from './sales/businessrelationservice';
+export * from './sales/addressservice';
+export * from './sales/phoneservice';
+export * from './sales/emailservice';

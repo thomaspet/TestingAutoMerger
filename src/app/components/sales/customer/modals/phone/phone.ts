@@ -1,4 +1,4 @@
-import {Component, ViewChildren, Type, Input, QueryList, ViewChild, ComponentRef} from "angular2/core";
+import {Component, ViewChildren, Type, Input, Output, QueryList, ViewChild, ComponentRef, EventEmitter} from "angular2/core";
 import {NgIf, NgModel, NgFor} from "angular2/common";
 import {UniModal} from "../../../../../../framework/modals/modal";
 import {UniComponentLoader} from "../../../../../../framework/core/componentLoader";
@@ -8,6 +8,7 @@ import {UNI_CONTROL_DIRECTIVES} from "../../../../../../framework/controls";
 import {UniFieldBuilder} from "../../../../../../framework/forms/builders/uniFieldBuilder";
 import {FieldType, ComponentLayout, Phone, PhoneTypeEnum} from "../../../../../unientities";
 import {UniFormLayoutBuilder} from "../../../../../../framework/forms/builders/uniFormLayoutBuilder";
+import {PhoneService} from "../../../../../services/services";
 
 // Reusable address form
 @Component({
@@ -24,14 +25,7 @@ export class PhoneForm {
     @ViewChild(UniForm)
     form: UniForm;
 
-    Phone: Phone;
-
-    constructor() {
-        this.Phone = new Phone();
-        this.Phone.Number = "91334697";
-        this.Phone.Description = "privat mobil";
-        this.Phone.Type = PhoneTypeEnum.PtMobile;
-    }
+    model: Phone;
     
     ngOnInit()
     {
@@ -44,7 +38,7 @@ export class PhoneForm {
         var view: ComponentLayout = {
             Name: "Phone",
             BaseEntity: "Phone",
-            StatusID: 0,
+            StatusCode: 0,
             Deleted: false,
             ID: 1,
             CustomFields: null,
@@ -64,7 +58,7 @@ export class PhoneForm {
                     FieldSet: 0,
                     Section: 0,
                     Legend: "",
-                    StatusID: 0,
+                    StatusCode: 0,
                     ID: 1,
                     Deleted: false,
                     CustomFields: null 
@@ -84,7 +78,7 @@ export class PhoneForm {
                     FieldSet: 0,
                     Section: 0,
                     Legend: "",
-                    StatusID: 0,
+                    StatusCode: 0,
                     ID: 1,
                     Deleted: false,
                     CustomFields: null 
@@ -104,7 +98,7 @@ export class PhoneForm {
                     FieldSet: 0,
                     Section: 0,
                     Legend: "",
-                    StatusID: 0,
+                    StatusCode: 0,
                     ID: 1,
                     Deleted: false,
                     CustomFields: null 
@@ -112,7 +106,7 @@ export class PhoneForm {
             ]               
         };   
         
-        this.config = new UniFormLayoutBuilder().build(view, this.Phone);
+        this.config = new UniFormLayoutBuilder().build(view, this.model);
         this.config.hideSubmitButton();
     }
 
@@ -136,7 +130,7 @@ export class PhoneForm {
     selector: "phone-modal-type",
     directives: [NgIf, NgModel, NgFor, UniComponentLoader],
     template: `
-        <article class="modal-content">
+        <article class="modal-content phone-modal">
             <h1 *ngIf="config.title">{{config.title}}</h1>
             <uni-component-loader></uni-component-loader>
             <footer>
@@ -168,30 +162,42 @@ export class PhoneModalType {
 @Component({
     selector: "phone-modal",
     template: `
-        <button (click)="openModal()">Telefon modal</button>
         <uni-modal [type]="type" [config]="modalConfig"></uni-modal>
     `,
-    directives: [UniModal]
+    directives: [UniModal],
+    providers: [PhoneService]
 })
 export class PhoneModal {
     @ViewChild(UniModal)
     modal: UniModal;
+    
+    @Output() Changed = new EventEmitter<Phone>();
+    
     modalConfig: any = {};
 
     type: Type = PhoneModalType;
 
-    constructor() {
+    constructor(private phoneService: PhoneService) {
         var self = this;
         this.modalConfig = {
             title: "Telefonnummer",
-            value: "Initial value",
             actions: [
                 {
                     text: "Accept",
                     method: () => {
                         self.modal.getContent().then((content: PhoneModalType)=> {
-                            content.instance.then((rc: PhoneForm)=> {
-                                console.log(rc.form.form);
+                            content.instance.then((form: PhoneForm)=> {
+                                form.form.updateModel();
+                                self.modal.close();                               
+                                
+                                // store
+                                if(form.model.ID) {
+                                    phoneService.Put(form.model.ID, form.model).subscribe(null, (error: Error) => console.log('error in updating phone from modal - Put: ' + error));
+                                } else {
+                                    phoneService.Post(form.model).subscribe(null, (error: Error) => console.error('error in posting phone from modal - Post: ', error));
+                                }
+                                
+                                self.Changed.emit(form.model);
                             });
                         });
                     }
