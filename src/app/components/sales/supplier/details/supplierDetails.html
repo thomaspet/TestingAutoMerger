@@ -1,0 +1,41 @@
+<header class="supplier_poster" *ngIf="Supplier">
+    
+    <article class="poster_toolbar">
+        <section>
+            <h1 *ngIf="Supplier && Supplier.ID > 0">{{Supplier.Info.Name}}
+                <p *ngIf="Supplier.StatusCode != null">Leverandørnr. {{Supplier.SupplierNumber}}</p>
+                <p *ngIf="Supplier.StatusCode == 1"><i>Kladd</i></p>
+            </h1>
+        </section>
+            
+        <nav class="poster_toolbar_tools">
+            <a (click)="previousCustomer()" class="previous">Forrige</a>
+            <a (click)="nextCustomer()" class="next">Neste</a>
+            <a (click)="createCustomer()" class="new">Ny leverandør</a>
+        </nav>         
+    </article>
+    
+    <!-- Widget poster -->
+    <section class="poster_overview">        
+        <uni-widget-poster [model]="Supplier" *ngIf="Supplier.StatusCode != null">
+            ..future widgets..
+        </uni-widget-poster>
+        <external-search [searchText]="searchText" (onSelect)="addSearchInfo($event)" *ngIf="Supplier.StatusCode == null"></external-search>
+    </section>
+    
+</header>
+
+<section class="supplier-details application">
+    <uni-component-loader></uni-component-loader>
+    
+    <uni-multival [label]="'E-post'" [values]="email"></uni-multival>
+</section>
+
+<footer class="full-footer">
+    <section class="application">
+        <button class="good" (click)="saveSupplierManual($event)">Lagre leverandør</button>
+        <section class="auto_save_info">
+            {{ LastSavedInfo }}    
+        </section>
+    </section>
+</footer>
