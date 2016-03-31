@@ -194,25 +194,25 @@ export class VatTypeDetails {
             });
 
         var outputVat = new UniFieldBuilder();
-        outputVat.setDescription("Utgående MVA")
+        outputVat.setLabel("Utgående MVA")
             .setModel(this.model)
             .setModelField("OutputVat")
             .setType(UNI_CONTROL_DIRECTIVES[FieldType.CHECKBOX]);
 
         var vatAvailable = new UniFieldBuilder();
-        vatAvailable.setDescription("Tilgjengelig i moduler")
+        vatAvailable.setLabel("Tilgjengelig i moduler")
             .setModel(this.model)
             .setModelField("AvailableInModules")
             .setType(UNI_CONTROL_DIRECTIVES[FieldType.CHECKBOX]);
 
         var vatLocked = new UniFieldBuilder();
-        vatLocked.setDescription("Sperret")
+        vatLocked.setLabel("Sperret")
             .setModel(this.model)
             .setModelField("Locked")
             .setType(UNI_CONTROL_DIRECTIVES[FieldType.CHECKBOX]);
 
         var vatVisible = new UniFieldBuilder();
-        vatVisible.setDescription("Synlig")
+        vatVisible.setLabel("Synlig")
             .setModel(this.model)
             .setModelField("Visible")
             .setType(UNI_CONTROL_DIRECTIVES[FieldType.CHECKBOX]);

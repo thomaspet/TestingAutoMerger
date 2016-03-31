@@ -15,5 +15,6 @@ export * from './staticregisterservice';
 export * from './salary/wagetype/wagetypeservice'
 export * from './common/departementservice';
 export * from './common/projectservice';
+export * from './common/productservice';
 export * from './sales/customerservice';
 export * from './sales/businessrelationservice';
