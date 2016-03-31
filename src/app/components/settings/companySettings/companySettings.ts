@@ -6,7 +6,6 @@ import {Observable} from 'rxjs/Observable';
 import 'rxjs/add/observable/forkJoin';
 
 import {UniFieldBuilder, UniFormBuilder, UniForm, UniSectionBuilder, UniComboFieldBuilder} from '../../../../framework/forms';
-import {} from '../../../../framework/forms/uniComboGroupBuilder';
 import {UNI_CONTROL_DIRECTIVES} from '../../../../framework/controls';
 
 import {CompanySettingsDS} from '../../../data/companySettings';
@@ -79,7 +78,6 @@ export class CompanySettings implements OnInit {
     //}
 
     private dataReady() {
-        console.log('dataReady called');
 
         var formBuilder = new UniFormBuilder();
 
