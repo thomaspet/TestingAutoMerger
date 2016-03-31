@@ -73,7 +73,7 @@ export class EmployeeEmployment {
     //     {ID: 2, Name: '2 - Utenriks'}
     // ];
 
-    private subEntities: SubEntity[] = [];
+    private subEntities: any;
 
     constructor(private injector: Injector, 
                 public employeeDS: EmployeeDS, 
@@ -275,7 +275,7 @@ export class EmployeeEmployment {
     public addNewEmployment() {
         console.log('addNewEmployment()');
         this._employmentService.GetNewEntity().subscribe((response: Employment) => {
-            
+            console.log('response');
             var standardSubEntity = this.subEntities.find(newSubEntity => 
                     newSubEntity.SuperiorOrganizationID === null);
                     
