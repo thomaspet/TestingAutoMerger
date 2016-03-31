@@ -85,7 +85,7 @@ export class SupplierInvoiceDetail implements OnInit {
                     self.supplierInvoice = response;
                     //alert(JSON.stringify(response));
                     //self.whenFormInstance.then((instance: UniForm) => instance.refresh(self.supplierInvoice));
-                    self.router.navigateByUrl("/journalentry/supplierinvoices/");
+                    self.router.navigateByUrl("/accounting/journalentry/supplierinvoices/");
                 },
                 (error: Error) => console.error('error in SupplierInvoiceDetail.onSubmit - Put: ', error))
         }
@@ -121,7 +121,7 @@ export class SupplierInvoiceDetail implements OnInit {
                             context.smartBooking(context, false);
                         }
                         else {
-                            self.router.navigateByUrl("/journalentry/supplierinvoices/");
+                            self.router.navigateByUrl("/accounting/journalentry/supplierinvoices/");
                         }
                     },
                     (error: Error) => console.error('error in SupplierInvoiceDetail.onSubmit - Put: ', error))
@@ -159,7 +159,7 @@ export class SupplierInvoiceDetail implements OnInit {
             .subscribe(
             (response: any) => {
                 console.log("smartBooking completed.")
-                self.router.navigateByUrl("/journalentry/supplierinvoices/");
+                self.router.navigateByUrl("/accounting/journalentry/supplierinvoices/");
                 //alert(JSON.stringify(response));
                 //if (isNew)
                 //    self.router.navigateByUrl("/journalentry/supplierinvoices/" + self.supplierInvoice.ID);

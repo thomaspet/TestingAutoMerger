@@ -38,7 +38,7 @@ export class WageTypeModel implements WageType {
 	Benefit: string = "";
 	Description: string = "";
 	Postnr: string = "";
-	StatusID: number = null;
+	StatusCode: number = null;
 	ID: number = 0;
 	Deleted: boolean = false;
 	CustomFields: any = {};
