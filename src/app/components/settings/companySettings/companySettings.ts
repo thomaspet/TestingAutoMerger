@@ -1,25 +1,38 @@
-﻿import {Component, OnInit, provide} from 'angular2/core';
+﻿import {Component, OnInit, provide, Inject} from 'angular2/core';
 import {RouteParams, ROUTER_DIRECTIVES} from 'angular2/router';
 import {NgFor, NgIf} from 'angular2/common';
 import {Headers} from 'angular2/http';
 import {Observable} from 'rxjs/Observable';
 import 'rxjs/add/observable/forkJoin';
 
-import {UniFieldBuilder, UniFormBuilder, UniForm, UniSectionBuilder, UniComboFieldBuilder} from '../../../../framework/forms';
+import {
+    UniFieldBuilder, UniFormBuilder, UniForm, UniSectionBuilder, UniComboFieldBuilder
+} from '../../../../framework/forms';
 import {UNI_CONTROL_DIRECTIVES} from '../../../../framework/controls';
 
 import {CompanySettingsDS} from '../../../data/companySettings';
 import {UniHttp} from '../../../../framework/core/http/http';
-import {SubEntity, AGAZone, FieldType} from '../../../unientities';
-import {SubEntityService, AgaZoneService, MunicipalService} from '../../../services/services';
+import {
+    SubEntity, 
+    AGAZone, 
+    Municipal, 
+    CompanyType, 
+    PeriodSeries, 
+    Currency, 
+    FieldType, 
+    AccountGroup,
+    AGARate,
+    Account
+} from '../../../unientities';
+import { AgaZoneService} from '../../../services/services';
+
+declare var _;
 
 @Component({
     selector: 'settings',
     templateUrl: 'app/components/settings/companySettings/companySettings.html',
     providers: [provide(CompanySettingsDS, { useClass: CompanySettingsDS }),
-                SubEntityService, 
-                AgaZoneService, 
-                MunicipalService],
+                AgaZoneService],
     directives: [ROUTER_DIRECTIVES, NgFor, NgIf, UniForm]
 })
 
@@ -29,53 +42,70 @@ export class CompanySettings implements OnInit {
     private error: boolean;
     private headers: Headers;
     private company: any;
-    private subEntities: Array<SubEntity>;
+    private subEntities: Array<SubEntity> = [];
     private activeCompany: any;
-    private companyTypes: Array<any> = [];
-    private currencies: Array<any> = [];
-    private periodSeries: Array<any> = [];
-    private accountGroupSets: Array<any> = [];
-    private agaZones: Array<any> = [];
-    private agaRules: Array<any> = [];
-    private municipals: Array<any> = [];
-    private accounts: Array<any> = [];
+    private companyTypes: Array<CompanyType> = [];
+    private currencies: Array<Currency> = [];
+    private periodSeries: Array<PeriodSeries> = [];
+    private accountGroupSets: Array<AccountGroup> = [];
+    private agaZones: Array<AGAZone> = [];
+    private agaRules: Array<AGARate> = [];
+    private municipals: Array<Municipal> = [];
+    private accounts: Array<Account> = [];
+    
 
     // TODO Use service instead of Http, Use interfaces!!
     constructor(private routeParams: RouteParams,
                 private companySettingsDS: CompanySettingsDS, 
-                private http: UniHttp, 
-                private subEntityService: SubEntityService,
-                private agaZoneService: AgaZoneService,
-                private municipalService: MunicipalService) {
+                private http: UniHttp,
+                private agaZoneService: AgaZoneService) {
 
     }
-
-    //ngOnInit() {
-    //    //ID of active company used to GET company settings
-    //    //ONLY GETTING DATA WHEN **UNI MICRO AS*** IS CHOSEN
-    //    //BECAUSE ID = 1 IS THE ONLY ONE IN THE DB
-    //    this.id = JSON.parse(localStorage.getItem('activeCompany')).id;
-
-    //    this.error = false;
-    //    this.headers = new Headers();
-    //    this.headers.append('Client', 'client1');
-
-    //    Observable.forkJoin(
-    //        this.companySettingsDS.get(this.id),
-    //        this.companySettingsDS.getCompanyTypes(),
-    //        this.companySettingsDS.getCurrencies(),
-    //        this.companySettingsDS.getPeriodSeries(),
-    //        this.companySettingsDS.getAccountGroupSets()
-    //    ).subscribe(
-    //        (results: any[]) => {
-    //            console.log(results);
-    //            this.dataReady(results)
-    //        },
-    //        (error: any) => {
-    //            console.error(error);
-    //        }
-    //    );
-    //}
+    
+    public ngOnInit() {
+        this.id = JSON.parse(localStorage.getItem('activeCompany')).id;
+        this.update();
+    }
+    
+    private update() {
+        Observable.forkJoin(
+            this.companySettingsDS.getCompanyTypes(),
+            this.companySettingsDS.getCurrencies(),
+            this.companySettingsDS.getPeriodSeries(),
+            this.companySettingsDS.getAccountGroupSets(),
+            this.companySettingsDS.getAccounts(),
+            this.companySettingsDS.get(this.id),
+            this.companySettingsDS.getSubEntities(),
+            this.agaZoneService.GetAll(''),
+            this.agaZoneService.getAgaRules()
+        ).subscribe(
+            (dataset) => {
+                
+                var filter: string = '';
+                
+                dataset[6].forEach((element) => {
+                    filter += 'MunicipalityNo eq ' + element.MunicipalityNo + ' or ';
+                });
+                filter = filter.slice(0, filter.length - 3);
+                
+                this.companySettingsDS.getMunicipalities(filter).subscribe((response) => {
+                    this.companyTypes = dataset[0];
+                    this.currencies = dataset[1];
+                    this.periodSeries = dataset[2];
+                    this.accountGroupSets = dataset[3];
+                    this.accounts = dataset[4];
+                    this.company = dataset[5];
+                    this.subEntities = dataset[6];
+                    this.agaZones = dataset[7];
+                    this.agaRules = dataset[8];
+                    this.municipals = response;
+                    this.dataReady();
+                },
+                (error) => console.log(error));
+            },
+            (error) => console.log(error)
+            );
+    }
 
     private dataReady() {
 
@@ -145,7 +175,7 @@ export class CompanySettings implements OnInit {
             .setType(UNI_CONTROL_DIRECTIVES[FieldType.TEXT]);
                 
         var officeMunicipalName = new UniFieldBuilder();
-        officeMunicipalName.setModel(this.municipals.find(x => x.MunicipalityNo === this.company.OfficeMunicipalityNo))
+        officeMunicipalName.setModel(this.getMunicipality(this.company.OfficeMunicipalityNo))
             .setModelField('MunicipalityName')
             .setType(UNI_CONTROL_DIRECTIVES[FieldType.TEXT]);
         
@@ -155,9 +185,9 @@ export class CompanySettings implements OnInit {
         // *********************  Virksomhet og aga  ***************************/
         var subEntitiesSection = new UniSectionBuilder('Virksomhet og aga');
         this.subEntities.forEach(subEntity => {
-            var municipal = this.municipals.find(x => x.MunicipalityNo === subEntity.MunicipalityNo);
+            var municipal = this.getMunicipality(subEntity.MunicipalityNo);
             var agaZone: AGAZone = this.getAgaZone(subEntity.AgaZone);
-            var agaRule = this.agaRules.find(x => x.sectorID === subEntity.AgaRule);
+            var agaRule = _.find(this.agaRules, x => x.sectorID === subEntity.AgaRule);
             var agaZoneName = '';
             var agaRuleName = '';
             if (agaZone) { agaZoneName = ', Sone ' + agaZone.ZoneName; }
@@ -187,7 +217,7 @@ export class CompanySettings implements OnInit {
                 .setType(UNI_CONTROL_DIRECTIVES[FieldType.TEXT]);
             
             var subEntityPostnr = new UniFieldBuilder();
-            subEntityPostnr.setLabel('Postnr, sted')
+            subEntityPostnr.setLabel('Postnr/Sted')
                 .setModel(subEntity)
                 .setModelField('BusinessRelationInfo.InvoiceAddress.PostalCode')
                 .setType(UNI_CONTROL_DIRECTIVES[FieldType.TEXT]);
@@ -201,12 +231,12 @@ export class CompanySettings implements OnInit {
                 
             var subEntityMunicipalNumber = new UniFieldBuilder();
             subEntityMunicipalNumber.setModel(subEntity)
-                .setLabel('Kommunenr/navn')
+                .setLabel('Kommunenr/Navn')
                 .setModelField('MunicipalityNo')
                 .setType(UNI_CONTROL_DIRECTIVES[FieldType.TEXT]);
                 
             var subEntityMunicipalName = new UniFieldBuilder();
-            subEntityMunicipalName.setModel(this.municipals.find(x => x.MunicipalityNo === subEntity.MunicipalityNo))
+            subEntityMunicipalName.setModel(municipal)
                 .setModelField('MunicipalityName')
                 .setType(UNI_CONTROL_DIRECTIVES[FieldType.TEXT]);
             
@@ -337,18 +367,6 @@ export class CompanySettings implements OnInit {
         // *********************  Regnskapsinnstillinger    *******************/
         var accountingSettings = new UniSectionBuilder('Regnskapsinnstillinger');
 
-        //var periodSeriesAccountAll = new UniFieldBuilder();
-        //periodSeriesAccountAll.setLabel('RegnskapsperioderAll')
-        //    .setModel(this.company)
-        //    .setModelField('PeriodSeriesAccountID')
-        //    .setType(UNI_CONTROL_DIRECTIVES[3])
-        //    .setKendoOptions({
-        //        dataSource: this.periodSeries,
-        //        dataTextField: 'Name',
-        //        dataValueField: 'ID',
-        //        index: this.periodSeries.indexOf(this.company.PeriodSeriesAccountID)
-        //    });
-
         var periodSeriesAccount = new UniFieldBuilder();
         periodSeriesAccount.setLabel('Regnskapsperioder')
             .setModel(this.company)
@@ -445,101 +463,15 @@ export class CompanySettings implements OnInit {
     /********************************************************************/
     /*********************  Form Builder    *******************/
     
-    private update() {
-        Observable.forkJoin(
-            this.companySettingsDS.getCompanyTypes(),
-            this.companySettingsDS.getCurrencies(),
-            this.companySettingsDS.getPeriodSeries(),
-            this.companySettingsDS.getAccountGroupSets(),
-            this.companySettingsDS.getAccounts(),
-            this.companySettingsDS.get(this.id),
-            this.subEntityService.GetAll('expand=BusinessRelationInfo,BusinessRelationInfo.InvoiceAddress'),
-            this.agaZoneService.GetAll(''),
-            this.agaZoneService.getAgaRules()
-        )
-            .subscribe(
-            (dataset) => {
-                
-                var filter: string = '';
-                
-                dataset[6].forEach((element) => {
-                    filter += 'MunicipalityNo eq ' + element.MunicipalityNo + ' or ';
-                });
-                
-                filter = filter.slice(0, filter.length - 3);
-                
-                this.municipalService.GetAll('filter=' + filter).subscribe((response) => {
-                    this.companyTypes = dataset[0];
-                    this.currencies = dataset[1];
-                    this.periodSeries = dataset[2];
-                    this.accountGroupSets = dataset[3];
-                    this.accounts = dataset[4];
-                    this.company = dataset[5];
-                    this.subEntities = dataset[6];
-                    this.agaZones = dataset[7];
-                    this.agaRules = dataset[8];
-                    this.municipals = response;
-                    this.dataReady();
-                    
-                },
-                (error) => console.log(error));
-/*
-        var self = this;
-
-        this.http
-            .asGET()
-            .usingBusinessDomain()
-            .multipleRequests([
-                { endPoint: 'companytypes' },
-                { endPoint: 'currencies' },
-                { endPoint: 'period-series' },
-                { endPoint: 'accountgroupsets' },
-                { endPoint: 'accounts' },
-                { endPoint: 'companysettings/' + self.id, expand: 'Address,Emails,Phones' }
-            ])
-            .subscribe(
-            (dataset) => {
-                self.companyTypes = dataset[0];
-                self.currencies = dataset[1];
-                self.periodSeries = dataset[2];
-                self.accountGroupSets = dataset[3];
-                self.accounts = dataset[4];
-                self.company = dataset[5];
-                self.dataReady();
-*/
-            },
-            (error) => console.log(error)
-            );
-    }
-
-    public ngOnInit() {
-        this.id = JSON.parse(localStorage.getItem('activeCompany')).id;
-        this.update();
-    }
-
-    public ngOnChanges() {
-        console.log('NGCHANGE event')
+    private getAgaZone(id: number) {
+        // lodash find
+        return _.find(this.agaZones, object => object.ID === id);
     }
     
-    private getAgaZone(id: number) {
-        return this.agaZones.find(object => object.ID === id);
+    private getMunicipality(municipalityNumber) {
+        return _.find(this.municipals, object => object.MunicipalityNo === municipalityNumber);
     }
-
-    /*
-    onSubmit(value) {
-        console.log('onSubmit called');
-
-        this.http.put({
-            resource: 'companysettings/' + this.company.ID,
-            body: this.company
-        }).subscribe(
-            (response) => {
-                console.log('onSubmit response');
-            },
-            (error) => console.log(error)
-            );
-    }
-    */
+    
     public onSubmit(value) {
         console.log('onSubmit called');
 

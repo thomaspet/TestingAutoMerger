@@ -8,7 +8,7 @@ export class AgaZoneService extends BizHttp<AGAZone> {
         this.relativeURL = AGAZone.relativeUrl;
     }
     
-    getAgaRules() {
+    public getAgaRules() {
        return this.GetAll('action=get-agasectors');
     }
     

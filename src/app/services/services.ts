@@ -16,6 +16,4 @@ export * from './common/departementservice';
 export * from './common/projectservice';
 export * from './sales/customerservice';
 export * from './sales/businessrelationservice';
-export * from './salary/subentity/subentityservice';
 export * from './shared/agazoneservice';
-export * from './shared/municipalservice';
