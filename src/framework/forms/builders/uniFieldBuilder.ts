@@ -37,7 +37,7 @@ export class UniFieldBuilder {
     public onSelect: any;
     public clearOnSelect: any;
     public onChange: any;
-    public isDomReady: EventEmitter<boolean> = new EventEmitter<boolean>(true);
+    public isDomReady: EventEmitter<any> = new EventEmitter<any>(true);
     public static fromLayoutConfig(element: any, model: any): UniFieldBuilder {
         var ufb = new UniFieldBuilder();
 

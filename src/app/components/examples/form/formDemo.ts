@@ -70,8 +70,8 @@ export class UniFormDemo {
         return this.UniCmpLoader.load(UniForm).then((cmp: ComponentRef) => {
             cmp.instance.config = self.FormConfig;
             cmp.instance.getEventEmitter().subscribe(self.submit(self));
-            cmp.instance.isDomReady.subscribe(()=>{
-                self.FormConfig.find('SocialSecurityNumber').setFocus();
+            cmp.instance.isDomReady.subscribe((component: UniForm)=>{
+                component.config.find('Sex').setFocus();
             });
         });
     }

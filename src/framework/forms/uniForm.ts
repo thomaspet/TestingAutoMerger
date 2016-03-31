@@ -39,36 +39,51 @@ export class UniForm extends UniGenericField implements OnInit {
      * Configuration of the form
      */
     @Input()
-    config: UniFormBuilder;
+    public config: UniFormBuilder;
 
     /**
      * Object use to emit values to other components
      * @type {EventEmitter<any>}
      */
     @Output()
-    uniFormSubmit: EventEmitter<any> = new EventEmitter<any>(true);
+    public uniFormSubmit: EventEmitter<any> = new EventEmitter<any>(true);
 
     /**
-     * Angular2 FormGroup used to validate each input (See FormBuilder and ControlGroup in Angular2 Docs)
+     * Angular2 FormGroup used to validate each input
+     * (See FormBuilder and ControlGroup in Angular2 Docs)
      */
-    form: ControlGroup;
+    public form: ControlGroup;
 
     /**
      * Text displayed in the submit button
      * @type {string}
      */
-    submitText: string = "submit";
+    public submitText: string = 'submit';
 
     /**
      * Object that contains each Angualar2 form control (see AbstractControl in Angular2 Docs)
      * @type {{}}
      */
-    controls = {};
+    public controls: any = {};
 
+    /**
+     * number of fields in the form
+     * @type {number}
+     */
+    public numberOfFields: number = -1;
 
-    numberOfFields = -1;
-    readyFields = 0;
-    isDomReady: EventEmitter<boolean> = new EventEmitter<boolean>(true);
+    /**
+     * number of fields that have executed ngAfterViewInit
+     * @type {number}
+     */
+    public readyFields: number = 0;
+
+    /**
+     * Emits the form when all fields are ready
+     * @type {EventEmitter<any>}
+     */
+    public isDomReady: EventEmitter<any> = new EventEmitter<any>(true);
+
     /**
      *
      * @param fb
@@ -80,17 +95,17 @@ export class UniForm extends UniGenericField implements OnInit {
     /**
      * Initialize the angular2 form builder UniForm uses to validate inputs
      */
-    ngOnInit() {
+    public ngOnInit() {
         this.createFormControls(this.config.fields);
         this.form = this.fb.group(this.controls);
     }
 
-    ngAfterViewInit() {
+    public ngAfterViewInit() {
         this.getNumberOfFields(this.config.fields);
         this.subscribeToDomIsReady(this.config.fields);
     }
 
-    subscribeToDomIsReady(fields) {
+    public subscribeToDomIsReady(fields) {
         var self = this;
         for (let i = 0; i < fields.length; i++) {
             let field = fields[i];
@@ -99,9 +114,9 @@ export class UniForm extends UniGenericField implements OnInit {
                     ()=> {
                         self.readyFields++;
                         if (self.numberOfFields === self.readyFields) {
-                            self.isDomReady.emit(true);
+                            self.isDomReady.emit(self);
                         }
-                    },(error) => console.error("UniForm -> IsDomReadyError:",error));
+                    }, (error) => console.error("UniForm -> IsDomReadyError:", error));
             } else {
                 this.subscribeToDomIsReady(field.fields);
             }
@@ -112,7 +127,7 @@ export class UniForm extends UniGenericField implements OnInit {
      * It updates the model and emit the value of the form
      * @returns {boolean}
      */
-    submit(): boolean {
+    public submit(): boolean {
         this.updateModel(this.config.fields, this.form.value);
         this.uniFormSubmit.emit(this.form);
         return false;
@@ -124,7 +139,7 @@ export class UniForm extends UniGenericField implements OnInit {
      *
      * @returns {EventEmitter<any>}
      */
-    getEventEmitter() {
+    public getEventEmitter() {
         return this.uniFormSubmit;
     }
 
@@ -133,7 +148,7 @@ export class UniForm extends UniGenericField implements OnInit {
      *
      * @returns {any}
      */
-    getValue() {
+    public getValue() {
         return this.form.value;
     }
 
@@ -141,7 +156,7 @@ export class UniForm extends UniGenericField implements OnInit {
      * returns true is submit button should be hidden
      * @returns {boolean}
      */
-    isSubmitButtonHidden() {
+    public isSubmitButtonHidden() {
         return this.config.isSubmitButtonHidden;
     }
 
@@ -149,7 +164,7 @@ export class UniForm extends UniGenericField implements OnInit {
      * returns true if form has any error
      * @returns {boolean}
      */
-    hasErrors() {
+    public hasErrors() {
         return !this.form.valid;
     }
 
@@ -157,7 +172,7 @@ export class UniForm extends UniGenericField implements OnInit {
      * return all fields inside the form
      * @returns {UniElementBuilderCollection}
      */
-    getFields() {
+    public getFields() {
         return this.config.fields;
     }
 
@@ -167,9 +182,9 @@ export class UniForm extends UniGenericField implements OnInit {
      * @param config Form Config
      * @param formValue Form value
      */
-    updateModel(config?, formValue?) {
-        var config = config || this.config.fields;
-        var formValue = formValue || this.form.value;
+    public updateModel(config?: any, formValue?: any) {
+        config = config || this.config.fields;
+        formValue = formValue || this.form.value;
 
         for (let i = 0; i < config.length; i++) {
             let field = config[i];
@@ -191,9 +206,9 @@ export class UniForm extends UniGenericField implements OnInit {
      * @param config Form Config
      * @param formValue Form value
      */
-    refresh(newModel, config?, formValue?) {
-        var config = config || this.config.fields;
-        var formValue = formValue || this.form.value;
+    public refresh(newModel, config?, formValue?) {
+        config = config || this.config.fields;
+        formValue = formValue || this.form.value;
 
         for (let i = 0; i < config.length; i++) {
             let field = config[i];
