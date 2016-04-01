@@ -12,6 +12,8 @@ export class UniFieldBuilder {
     url: string = "";
     model: any;
     field: string = "";
+    placeholder: any;
+    defaultfield: string = "";
     type: Type = UniTextInput;
     fieldType: Type;
     kOptions: any = {};
@@ -37,6 +39,7 @@ export class UniFieldBuilder {
     onSelect: any;
     clearOnSelect: any;
     onChange: any;
+    editor: any;
 
     static fromLayoutConfig(element: any, model: any): UniFieldBuilder {
         var ufb = new UniFieldBuilder();
@@ -99,9 +102,24 @@ export class UniFieldBuilder {
         this.field = key;
         return this;
     }
+    
+    setModelDefaultField(key: string) {
+        this.defaultfield = key;
+        return this;
+    }
 
     setType(type: Type) {
         this.type = type;
+        return this;
+    }
+    
+    setPlaceholder(placeholder: any) {
+        this.placeholder = placeholder;
+        return this;
+    }
+    
+    setEditor(editor: any) {
+        this.editor = editor;
         return this;
     }
 
