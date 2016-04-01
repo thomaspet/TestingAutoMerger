@@ -148,7 +148,7 @@ export class CustomerDetails {
                 {
                     ComponentLayoutID: 3,
                     EntityType: "Customer",
-                    Property: "CustomerNo",
+                    Property: "CustomerNumber",
                     Placement: 1,
                     Hidden: false,
                     FieldType: 10,
@@ -485,10 +485,12 @@ export class CustomerDetails {
     saveCustomer(autosave: boolean) {
         this.formInstance.updateModel();
                         
-        if (!autosave) {            
+        if (!autosave) {    
             if (this.Customer.StatusCode == null) {
                 //set status if it is a draft
                 this.Customer.StatusCode = 1;
+            } else if (this.Customer.StatusCode == 1) {
+                this.Customer.StatusCode = 2; //??
             }            
             this.LastSavedInfo = 'Lagrer kundeinformasjon...';                
         } else {
