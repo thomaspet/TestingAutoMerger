@@ -47,7 +47,7 @@ export class UniMultiValue {
     ngOnInit() {
         this.config.fieldComponent = this;
     }
-
+    
     // What should happen when the user clicks
     // the button next to the input?
     addOrDropdown() {

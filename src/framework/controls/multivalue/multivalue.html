@@ -1,6 +1,6 @@
 <section class="uni-multivalue-ng">{{label}}
 
-    <input type="text" *ngIf="config.model" [(ngModel)]="config.model[config.field][index][config.kOptions.dataTextField]">
+    <input type="text" [(ngModel)]="config.model[config.field][index][config.kOptions.dataTextField]">
     <button class="uni-multivalue-moreBtn" (click)="addOrDropdown(inputVal)">Add</button>
 
     <ul class="uni-multivalue-values" [class.-is-active]="activeMultival">

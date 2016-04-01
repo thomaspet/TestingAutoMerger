@@ -95,7 +95,6 @@ export class UniFormDemo {
     
     private createPhoneModel() {
         var self = this;
-        this.businessRelationService.setRelativeUrl("businessrelations");
         this.businessRelationService.GetNewEntity().subscribe(bm => {
             this.BusinessModel = bm;
             this.BusinessModel.DefaultPhoneID = 1;
@@ -122,7 +121,6 @@ export class UniFormDemo {
                 BusinessRelationID: 1,
                 StatusCode: 0
             });
-            this.phoneService.setRelativeUrl("phones");
             this.phoneService.GetNewEntity().subscribe(phone => {
                 self.EmptyPhone = phone; 
             });
