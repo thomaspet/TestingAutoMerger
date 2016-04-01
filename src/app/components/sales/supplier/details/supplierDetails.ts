@@ -28,7 +28,7 @@ import {PhoneModal} from "../modals/phone/phone";
 })
 export class SupplierDetails {
             
-    @Input() SupplierNo: any;
+    @Input() SupplierID: any;
                   
     @ViewChild(UniComponentLoader)
     ucl: UniComponentLoader;    
@@ -49,7 +49,7 @@ export class SupplierDetails {
                 private params: RouteParams
                 ) {
                 
-        this.SupplierNo = params.get("id");        
+        this.SupplierID = params.get("id");        
     }
     
     /*
@@ -101,15 +101,14 @@ export class SupplierDetails {
         Observable.forkJoin(
             this.departementService.GetAll(null),
             this.projectService.GetAll(null),
-            this.supplierService.Get(this.SupplierNo, ["Info"])
+            this.supplierService.Get(this.SupplierID, ["Info", "Info.Phones", "Info.Addresses", "Info.Emails"])
         ).subscribe(response => {
             this.DropdownData = [response[0], response[1]];
             this.Supplier = response[2];
             
-            //TODO: Copy based on customerdetails                          
-            //this.createFormConfig();
-            //this.extendFormConfig();
-            //this.loadForm();                  
+            this.createFormConfig();
+            this.extendFormConfig();
+            this.loadForm();                  
         });       
     }
     
@@ -128,7 +127,9 @@ export class SupplierDetails {
             if (this.Supplier.StatusCode == null) {
                 //set status if it is a draft
                 this.Supplier.StatusCode = 1;
-            }            
+            } else if (this.Supplier.StatusCode == 1) {
+                this.Supplier.StatusCode = 2; // ?
+            }        
             this.LastSavedInfo = 'Lagrer informasjon...';                
         } else {
            this.LastSavedInfo = 'Autolagrer informasjon...';
@@ -146,5 +147,350 @@ export class SupplierDetails {
                 },
                 (err) => console.log('Feil oppsto ved lagring', err)
             );
+    }
+    
+    loadForm() {       
+        var self = this;
+        return this.ucl.load(UniForm).then((cmp: ComponentRef) => {
+           cmp.instance.config = self.FormConfig;
+           //cmp.instance.getEventEmitter().subscribe(this.onSubmit(this));
+           self.whenFormInstance = new Promise((resolve: Function) => resolve(cmp.instance));
+           setTimeout(() => {
+                self.formInstance = cmp.instance;   
+                
+                //subscribe to valueChanges of form to autosave data after X seconds
+                self.formInstance.form
+                    .valueChanges
+                    .debounceTime(3000)
+                    .subscribe(
+                        (value) =>  {                                                                                
+                            self.saveSupplier(true);                            
+                        },
+                        (err) => { 
+                            console.log('Feil oppsto:', err);
+                        }
+                    ); 
+                
+                //subscribe to valueChanges of Name input to autosearch external registries 
+                self.formInstance.controls["Info.Name"]
+                    .valueChanges
+                    .debounceTime(300)
+                    .distinctUntilChanged()
+                    .subscribe((data) => self.searchText = data);            
+           });           
+        });
+    }
+    
+    extendFormConfig() {
+        var orgnumber: UniFieldBuilder = this.FormConfig.find('Orgnumber');
+        orgnumber.setKendoOptions({
+            mask: '000 000 000',
+            promptChar: '_'
+        });
+                   
+        var departement: UniFieldBuilder = this.FormConfig.find('Dimensions.DepartementID');         
+        departement.setKendoOptions({
+            dataTextField: 'Name',
+            dataValueField: 'ID',
+            dataSource: this.DropdownData[0]
+        });
+        departement.addClass('large-field');
+
+        var project: UniFieldBuilder = this.FormConfig.find('Dimensions.ProjectID');
+        project.setKendoOptions({
+            dataTextField: 'Name',
+            dataValueField: 'ID',
+            dataSource: this.DropdownData[1]
+        });      
+        project.addClass('large-field');    
+        
+        // MultiValue
+       /* 
+        var phones: UniFieldBuilder = this.FormConfig.find('Phones');
+        phones
+            .setKendoOptions({
+                dataTextField: 'Number',
+                dataValueField: 'ID'
+            })
+            .setModel(this.Customer.Info)
+            .setModelField('Phones')
+            .setModelDefaultField("DefaultPhoneID")
+            .setPlaceholder(this.EmptyPhone)
+            .setEditor(PhoneModal);     
+
+        var emails: UniFieldBuilder = this.FormConfig.find('Emails');
+        emails
+            .setKendoOptions({
+                dataTextField: 'EmailAddress',
+                dataValueField: 'ID'
+            })
+            .setModel(this.Customer.Info)
+            .setModelField('Emails')
+            .setModelDefaultField("DefaultEmailID")
+            .setPlaceholder(this.EmptyEmail)
+            .setEditor(EmailModal);     
+
+        var invoiceaddresses: UniFieldBuilder = this.FormConfig.find('InvoiceAddress');
+        invoiceaddresses
+            .setKendoOptions({
+                dataTextField: 'AddressLine1',
+                dataValueField: 'ID'
+            })
+            .setModel(this.Customer.Info)
+            .setModelField('Addresses')
+            .setModelDefaultField("InvoiceAddressID")
+            .setPlaceholder(this.EmptyAddress)
+            .setEditor(AddressModal);     
+
+        var shippingaddress: UniFieldBuilder = this.FormConfig.find('ShippingAddress');
+        shippingaddress
+            .setKendoOptions({
+                dataTextField: 'AddressLine1',
+                dataValueField: 'ID'
+            })
+            .setModel(this.Customer.Info)
+            .setModelField('Addresses')
+            .setModelDefaultField("ShippingAddressID")
+            .setPlaceholder(this.EmptyAddress)
+            .setEditor(AddressModal);         
+            
+            */        
+    }      
+    
+    createFormConfig() {   
+        // TODO get it from the API and move these to backend migrations   
+        var view: ComponentLayout = {
+            Name: "Customer",
+            BaseEntity: "Customer",
+            StatusCode: 0,
+            Deleted: false,
+            ID: 1,
+            CustomFields: null,
+            Fields: [
+                {
+                    ComponentLayoutID: 3,
+                    EntityType: "Customer",
+                    Property: "SupplierNumber",
+                    Placement: 1,
+                    Hidden: false,
+                    FieldType: 10,
+                    ReadOnly: false,
+                    LookupField: false,
+                    Label: "Leverandørnummer",
+                    Description: "",
+                    HelpText: "",
+                    FieldSet: 0,
+                    Section: 0,
+                    Legend: "",
+                    StatusCode: 0,
+                    ID: 1,
+                    Deleted: false,
+                    CustomFields: null 
+                },
+                {
+                    ComponentLayoutID: 3,
+                    EntityType: "BusinessRelation",
+                    Property: "Info.Name",
+                    Placement: 1,
+                    Hidden: false,
+                    FieldType: 10,
+                    ReadOnly: false,
+                    LookupField: false,
+                    Label: "Navn",
+                    Description: "",
+                    HelpText: "",
+                    FieldSet: 0,
+                    Section: 0,
+                    Legend: "",
+                    StatusCode: 0,
+                    ID: 2,
+                    Deleted: false,
+                    CustomFields: null 
+                },
+                {
+                    ComponentLayoutID: 3,
+                    EntityType: "Customer",
+                    Property: "Orgnumber",
+                    Placement: 1,
+                    Hidden: false,
+                    FieldType: 10,
+                    ReadOnly: false,
+                    LookupField: false,
+                    Label: "Organisasjonsnummer",
+                    Description: "",
+                    HelpText: "",
+                    FieldSet: 0,
+                    Section: 0,
+                    Legend: "",
+                    StatusCode: 0,
+                    ID: 3,
+                    Deleted: false,
+                    CustomFields: null 
+                },
+                {
+                    ComponentLayoutID: 3,
+                    EntityType: "Address",
+                    Property: "InvoiceAddress",
+                    Placement: 1,
+                    Hidden: false,
+                    FieldType: 14,
+                    ReadOnly: false,
+                    LookupField: false,
+                    Label: "Fakturaadresse",
+                    Description: "",
+                    HelpText: "",
+                    FieldSet: 0,
+                    Section: 0,
+                    Legend: "",
+                    StatusCode: 0,
+                    ID: 4,
+                    Deleted: false,
+                    CustomFields: null 
+                },
+                {
+                    ComponentLayoutID: 3,
+                    EntityType: "Address",
+                    Property: "ShippingAddress",
+                    Placement: 1,
+                    Hidden: false,
+                    FieldType: 14,
+                    ReadOnly: false,
+                    LookupField: false,
+                    Label: "Leveringsadresse",
+                    Description: "",
+                    HelpText: "",
+                    FieldSet: 0,
+                    Section: 0,
+                    Legend: "",
+                    StatusCode: 0,
+                    ID: 5,
+                    Deleted: false,
+                    CustomFields: null 
+                },
+                {
+                    ComponentLayoutID: 3,
+                    EntityType: "Customer",
+                    Property: "Emails",
+                    Placement: 1,
+                    Hidden: false,
+                    FieldType: 14,
+                    ReadOnly: false,
+                    LookupField: false,
+                    Label: "E-post adresser",
+                    Description: "",
+                    HelpText: "",
+                    FieldSet: 0,
+                    Section: 0,
+                    Legend: "",
+                    StatusCode: 0,
+                    ID: 5,
+                    Deleted: false,
+                    CustomFields: null 
+                },
+                {
+                    ComponentLayoutID: 3,
+                    EntityType: "Customer",
+                    Property: "Phones",
+                    Placement: 1,
+                    Hidden: false,
+                    FieldType: 14,
+                    ReadOnly: false,
+                    LookupField: false,
+                    Label: "Telefonnumre",
+                    Description: "",
+                    HelpText: "",
+                    FieldSet: 0,
+                    Section: 0,
+                    Legend: "",
+                    StatusCode: 0,
+                    ID: 6,
+                    Deleted: false,
+                    CustomFields: null 
+                },
+                {
+                    ComponentLayoutID: 3,
+                    EntityType: "Customer",
+                    Property: "WebUrl",
+                    Placement: 1,
+                    Hidden: false,
+                    FieldType: 15,
+                    ReadOnly: false,
+                    LookupField: false,
+                    Label: "Webadresse",
+                    Description: "",
+                    HelpText: "",
+                    FieldSet: 0,
+                    Section: 0,
+                    Legend: "",
+                    StatusCode: 0,
+                    ID: 7,
+                    Deleted: false,
+                    CustomFields: null 
+                },
+                {
+                    ComponentLayoutID: 3,
+                    EntityType: "Customer",
+                    Property: "CreditDays",
+                    Placement: 1,
+                    Hidden: false,
+                    FieldType: 10,
+                    ReadOnly: false,
+                    LookupField: false,
+                    Label: "Kredittdager",
+                    Description: "",
+                    HelpText: "",
+                    FieldSet: 0,
+                    Section: 1,
+                    Legend: "Betingelser",
+                    StatusCode: 0,
+                    ID: 7,
+                    Deleted: false,
+                    CustomFields: null 
+                },
+                {
+                    ComponentLayoutID: 3,
+                    EntityType: "Project",
+                    Property: "Dimensions.ProjectID",
+                    Placement: 4,
+                    Hidden: false,
+                    FieldType: 1,
+                    ReadOnly: false,
+                    LookupField: false,
+                    Label: "Prosjekt",
+                    Description: "",
+                    HelpText: "",
+                    FieldSet: 0,
+                    Section: 2,
+                    Legend: "Dimensjoner",
+                    StatusCode: 0,
+                    ID: 8,
+                    Deleted: false,
+                    CustomFields: null 
+                },
+                {
+                    ComponentLayoutID: 3,
+                    EntityType: "Departement",
+                    Property: "Dimensions.DepartementID",
+                    Placement: 4,
+                    Hidden: false,
+                    FieldType: 1,
+                    ReadOnly: false,
+                    LookupField: false,
+                    Label: "Avdeling",
+                    Description: "",
+                    HelpText: "",
+                    FieldSet: 0,
+                    Section: 2,
+                    Legend: "",
+                    StatusCode: 0,
+                    ID: 9,
+                    Deleted: false,
+                    CustomFields: null
+                }
+            ]               
+        };   
+        
+        this.FormConfig = new UniFormLayoutBuilder().build(view, this.Supplier);
+        this.FormConfig.hideSubmitButton();
     }
 }
