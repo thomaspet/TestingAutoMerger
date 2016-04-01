@@ -307,7 +307,7 @@ export class UniTable implements OnChanges, OnDestroy {
         kendoFilter.filters.forEach((filter: any) => {
             
             if (filter.operator === 'contains') {
-                stringified += `contains(${filter.field},${filter.value}) or `;
+                stringified += `contains(${filter.field},'${filter.value}'') or `;
                 // stringified += "contains(" + filter.field + ",'" + filter.value + "') or ";
             }
 
@@ -342,9 +342,10 @@ export class UniTable implements OnChanges, OnDestroy {
 
         var fields = this.tableConfig.dataSource.schema.model.fields;
 
-        for (var fieldName of Object.keys(fields)) {
-            let field = fields[fieldName];
-
+        Object.keys(fields).forEach((key) => {
+            let fieldName = key.split('$').join('.');
+            let field = fields[key];
+            
             // contains filter for text columns
             if (field.type === 'string') {
                 filter.filters.push({
@@ -356,12 +357,33 @@ export class UniTable implements OnChanges, OnDestroy {
 
             // eq filter for number columns
             if (field.type === 'number') {
-                var filterValue = parseInt(this.filterString);
+                let filterValue = parseInt(this.filterString);
                 if (!isNaN(filterValue)) {
                     filter.filters.push({field: fieldName, operator: 'eq', value: filterValue});
                 }
             }
-        }
+        });
+
+        // for (var fieldName of Object.keys(fields)) {
+        //     let field = fields[fieldName];
+
+        //     // contains filter for text columns
+        //     if (field.type === 'string') {
+        //         filter.filters.push({
+        //             field: fieldName,
+        //             operator: 'contains',
+        //             value: this.filterString
+        //         });
+        //     }
+
+        //     // eq filter for number columns
+        //     if (field.type === 'number') {
+        //         var filterValue = parseInt(this.filterString);
+        //         if (!isNaN(filterValue)) {
+        //             filter.filters.push({field: fieldName, operator: 'eq', value: filterValue});
+        //         }
+        //     }
+        // }
 
         this.table.dataSource.filter(filter);
     }

@@ -32,13 +32,13 @@ import {BusinessRelationService,PhoneService} from "../../../services/services";
 })
 export class UniFormDemo {
 
-    private Model:EmployeeModel;
-    private BusinessModel:BusinessRelation;
-    private FormConfig:UniFormBuilder;
-    private EmptyPhone:Phone;
+    private Model: EmployeeModel;
+    private BusinessModel: BusinessRelation;
+    private FormConfig: UniFormBuilder;
+    private EmptyPhone: Phone;
 
     @ViewChild(UniComponentLoader)
-    UniCmpLoader:UniComponentLoader;
+    UniCmpLoader: UniComponentLoader;
 
     constructor(private Http:UniHttp,
                 private Api:EmployeeService,
@@ -59,9 +59,8 @@ export class UniFormDemo {
         });
     }
 
-
     // private methods
-    private startApp(view:any, model:Employee) {
+    private startApp(view: any, model: Employee) {
         // We can extend layout before form config creation
         view = this.extendLayoutConfig(view);
         console.log("LAYOUT");
@@ -79,17 +78,18 @@ export class UniFormDemo {
 
     private loadForm() {
         var self = this;
-        return this.UniCmpLoader.load(UniForm).then((cmp:ComponentRef) => {
+        return this.UniCmpLoader.load(UniForm).then((cmp: ComponentRef) => {
             cmp.instance.config = self.FormConfig;
             cmp.instance.getEventEmitter().subscribe(self.submit(self));
         });
     }
 
-    private buildFormConfig(layout:ComponentLayout, model:Employee) {
+    private buildFormConfig(layout: ComponentLayout, model: Employee) {
+        console.log(layout);
         this.FormConfig = new UniFormLayoutBuilder().build(layout, model);
     }
 
-    private createModel(model:Employee) {
+    private createModel(model: Employee) {
         this.Model = EmployeeModel.createFromObject(model);
     }
     
@@ -146,7 +146,7 @@ export class UniFormDemo {
     }
 
     private extendFormConfig() {
-        var field:UniFieldBuilder = this.FormConfig.find('Sex');
+        var field: UniFieldBuilder = this.FormConfig.find('Sex');
         field.setKendoOptions({
             dataTextField: 'text',
             dataValueField: 'id',
@@ -184,7 +184,7 @@ export class UniFormDemo {
         //////////////////////////////////
     }
 
-    private extendLayoutConfig(layout:any) {
+    private extendLayoutConfig(layout: any) {
         layout.Fields[0].Validators = [{
             'EntityType': 'BusinessRelation',
             'PropertyName': 'Name',
@@ -211,11 +211,11 @@ export class UniFormDemo {
         return layout;
     }
 
-    private submit(context:UniFormDemo) {
+    private submit(context: UniFormDemo) {
         return () => {
-         //   context.Api.Post(context.Model).subscribe((result:any) => {
-         //       alert(JSON.stringify(result));
-         //   });
+            context.Api.Post(context.Model).subscribe((result: any) => {
+                alert(JSON.stringify(result));
+            });
         };
     }
 }
