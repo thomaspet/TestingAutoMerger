@@ -107,15 +107,15 @@ export class CustomerDetails {
             this.departementService.GetAll(null),
             this.projectService.GetAll(null),
             this.customerService.Get(this.CustomerID, ["Info", "Info.Phones", "Info.Addresses", "Info.Emails"]),
-            this.phoneService.GetNewEntity()
-            //this.emailService.GetNewEntity(),
-            //this.addressService.GetNewEntity()
+            this.phoneService.GetNewEntity(),
+            this.emailService.GetNewEntity(),
+            this.addressService.GetNewEntity()
         ).subscribe(response => {
             this.DropdownData = [response[0], response[1]];
             this.Customer = response[2];
             this.EmptyPhone = response[3];
-            //this.EmptyEmail = response[4];
-            //this.EmptyAddress = response[5];
+            this.EmptyEmail = response[4];
+            this.EmptyAddress = response[5];
             
             console.log("== CUSTOMER ==");
             console.log(this.Customer);
@@ -145,26 +145,6 @@ export class CustomerDetails {
             ID: 1,
             CustomFields: null,
             Fields: [
-                {
-                    ComponentLayoutID: 3,
-                    EntityType: "Customer",
-                    Property: "CustomerNumber",
-                    Placement: 1,
-                    Hidden: false,
-                    FieldType: 10,
-                    ReadOnly: false,
-                    LookupField: false,
-                    Label: "Kundenummer",
-                    Description: "",
-                    HelpText: "",
-                    FieldSet: 0,
-                    Section: 0,
-                    Legend: "",
-                    StatusCode: 0,
-                    ID: 1,
-                    Deleted: false,
-                    CustomFields: null 
-                },
                 {
                     ComponentLayoutID: 3,
                     EntityType: "BusinessRelation",
@@ -486,15 +466,10 @@ export class CustomerDetails {
         this.formInstance.updateModel();
                         
         if (!autosave) {    
-            console.log("=== HVA ER INFO NÅ ===");
-            console.log(this.Customer.Info);
-            
             if (this.Customer.StatusCode == null) {
                 //set status if it is a draft
                 this.Customer.StatusCode = 1;
-            } else if (this.Customer.StatusCode == 1) {
-                this.Customer.StatusCode = 2; //??
-            }            
+            } 
             this.LastSavedInfo = 'Lagrer kundeinformasjon...';                
         } else {
            this.LastSavedInfo = 'Autolagrer kundeinformasjon...';

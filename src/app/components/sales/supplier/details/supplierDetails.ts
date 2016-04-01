@@ -3,10 +3,10 @@ import {Router, RouteParams, RouterLink} from "angular2/router";
 import {Observable} from "rxjs/Observable";
 import "rxjs/add/observable/forkjoin";
 
-import {DepartementService, ProjectService, SupplierService} from "../../../../services/services";
+import {DepartementService, ProjectService, SupplierService, PhoneService, AddressService, EmailService} from "../../../../services/services";
 import {ExternalSearch, SearchResultItem} from '../../../common/externalSearch/externalSearch';
 
-import {FieldType, FieldLayout, ComponentLayout, Supplier, BusinessRelation} from "../../../../unientities";
+import {FieldType, FieldLayout, ComponentLayout, Supplier, BusinessRelation, Email, Phone, Address} from "../../../../unientities";
 import {UNI_CONTROL_DIRECTIVES} from "../../../../../framework/controls";
 import {UniFormBuilder} from "../../../../../framework/forms/builders/uniFormBuilder";
 import {UniFormLayoutBuilder} from "../../../../../framework/forms/builders/uniFormLayoutBuilder";
@@ -15,16 +15,15 @@ import {UniForm} from "../../../../../framework/forms/uniForm";
 import {UniFieldBuilder} from "../../../../../framework/forms/builders/uniFieldBuilder";
 import {UniComponentLoader} from "../../../../../framework/core/componentLoader";
 
-/*
-import {AddressModal} from "../modals/address/address";
-import {EmailModal} from "../modals/email/email";
-import {PhoneModal} from "../modals/phone/phone";
-*/
+import {AddressModal} from "../../customer/modals/address/address";
+import {EmailModal} from "../../customer/modals/email/email";
+import {PhoneModal} from "../../customer/modals/phone/phone";
+
 @Component({
     selector: "supplier-details",
     templateUrl: "app/components/sales/supplier/details/supplierDetails.html",    
     directives: [UniComponentLoader, RouterLink, ExternalSearch], //, AddressModal, EmailModal, PhoneModal],
-    providers: [DepartementService, ProjectService, SupplierService]
+    providers: [DepartementService, ProjectService, SupplierService, PhoneService, AddressService, EmailService]
 })
 export class SupplierDetails {
             
@@ -40,32 +39,38 @@ export class SupplierDetails {
     LastSavedInfo: string;
     searchText: string;
     
+    EmptyPhone: Phone;
+    EmptyEmail: Email;
+    EmptyAddress: Address;
+    
     whenFormInstance: Promise<UniForm>;
 
     constructor(private departementService: DepartementService,
                 private projectService: ProjectService,
                 private supplierService: SupplierService,
                 private router: Router,
-                private params: RouteParams
+                private params: RouteParams,
+                private phoneService: PhoneService,
+                private emailService: EmailService,
+                private addressService: AddressService
                 ) {
                 
         this.SupplierID = params.get("id");        
     }
     
-    /*
     nextSupplier() {
         this.supplierService.NextSupplier(this.Supplier.ID)
             .subscribe((data) => {
-                this.router.navigateByUrl('/customer/details/' + data.ID);
+                this.router.navigateByUrl('/suppliers/details/' + data.ID);
             });
     }
     
     previousSupplier() {
         this.supplierService.PreviousSupplier(this.Supplier.ID)
             .subscribe((data) => {
-                this.router.navigateByUrl('/customer/details/' + data.ID);
+                this.router.navigateByUrl('/suppliers/details/' + data.ID);
             });        
-    }*/
+    }
     
     createSupplier() {   
         var c = new Supplier();
@@ -101,10 +106,19 @@ export class SupplierDetails {
         Observable.forkJoin(
             this.departementService.GetAll(null),
             this.projectService.GetAll(null),
-            this.supplierService.Get(this.SupplierID, ["Info", "Info.Phones", "Info.Addresses", "Info.Emails"])
+            this.supplierService.Get(this.SupplierID, ["Info", "Info.Phones", "Info.Addresses", "Info.Emails"]),
+            this.phoneService.GetNewEntity(),
+            this.emailService.GetNewEntity()
+          //  this.addressService.GetNewEntity()
         ).subscribe(response => {
             this.DropdownData = [response[0], response[1]];
             this.Supplier = response[2];
+            this.EmptyPhone = response[3];
+            this.EmptyEmail = response[4];
+         //   this.EmptyAddress = response[5];
+            
+            console.log("RESP");
+            console.log(response);
             
             this.createFormConfig();
             this.extendFormConfig();
@@ -121,15 +135,15 @@ export class SupplierDetails {
     }
 
     saveSupplier(autosave: boolean) {
+        console.log("SAVING " + autosave);
         this.formInstance.updateModel();
                         
         if (!autosave) {            
             if (this.Supplier.StatusCode == null) {
                 //set status if it is a draft
                 this.Supplier.StatusCode = 1;
-            } else if (this.Supplier.StatusCode == 1) {
-                this.Supplier.StatusCode = 2; // ?
-            }        
+            }
+               
             this.LastSavedInfo = 'Lagrer informasjon...';                
         } else {
            this.LastSavedInfo = 'Autolagrer informasjon...';
@@ -182,7 +196,7 @@ export class SupplierDetails {
     }
     
     extendFormConfig() {
-        var orgnumber: UniFieldBuilder = this.FormConfig.find('Orgnumber');
+        var orgnumber: UniFieldBuilder = this.FormConfig.find('OrgNumber');
         orgnumber.setKendoOptions({
             mask: '000 000 000',
             promptChar: '_'
@@ -205,14 +219,13 @@ export class SupplierDetails {
         project.addClass('large-field');    
         
         // MultiValue
-       /* 
         var phones: UniFieldBuilder = this.FormConfig.find('Phones');
         phones
             .setKendoOptions({
                 dataTextField: 'Number',
                 dataValueField: 'ID'
             })
-            .setModel(this.Customer.Info)
+            .setModel(this.Supplier.Info)
             .setModelField('Phones')
             .setModelDefaultField("DefaultPhoneID")
             .setPlaceholder(this.EmptyPhone)
@@ -224,7 +237,7 @@ export class SupplierDetails {
                 dataTextField: 'EmailAddress',
                 dataValueField: 'ID'
             })
-            .setModel(this.Customer.Info)
+            .setModel(this.Supplier.Info)
             .setModelField('Emails')
             .setModelDefaultField("DefaultEmailID")
             .setPlaceholder(this.EmptyEmail)
@@ -236,7 +249,7 @@ export class SupplierDetails {
                 dataTextField: 'AddressLine1',
                 dataValueField: 'ID'
             })
-            .setModel(this.Customer.Info)
+            .setModel(this.Supplier.Info)
             .setModelField('Addresses')
             .setModelDefaultField("InvoiceAddressID")
             .setPlaceholder(this.EmptyAddress)
@@ -248,45 +261,23 @@ export class SupplierDetails {
                 dataTextField: 'AddressLine1',
                 dataValueField: 'ID'
             })
-            .setModel(this.Customer.Info)
+            .setModel(this.Supplier.Info)
             .setModelField('Addresses')
             .setModelDefaultField("ShippingAddressID")
             .setPlaceholder(this.EmptyAddress)
             .setEditor(AddressModal);         
-            
-            */        
     }      
     
     createFormConfig() {   
         // TODO get it from the API and move these to backend migrations   
         var view: ComponentLayout = {
-            Name: "Customer",
-            BaseEntity: "Customer",
+            Name: "Supplier",
+            BaseEntity: "Supplier",
             StatusCode: 0,
             Deleted: false,
             ID: 1,
             CustomFields: null,
             Fields: [
-                {
-                    ComponentLayoutID: 3,
-                    EntityType: "Customer",
-                    Property: "SupplierNumber",
-                    Placement: 1,
-                    Hidden: false,
-                    FieldType: 10,
-                    ReadOnly: false,
-                    LookupField: false,
-                    Label: "Leverandørnummer",
-                    Description: "",
-                    HelpText: "",
-                    FieldSet: 0,
-                    Section: 0,
-                    Legend: "",
-                    StatusCode: 0,
-                    ID: 1,
-                    Deleted: false,
-                    CustomFields: null 
-                },
                 {
                     ComponentLayoutID: 3,
                     EntityType: "BusinessRelation",
@@ -309,8 +300,8 @@ export class SupplierDetails {
                 },
                 {
                     ComponentLayoutID: 3,
-                    EntityType: "Customer",
-                    Property: "Orgnumber",
+                    EntityType: "Supplier",
+                    Property: "OrgNumber",
                     Placement: 1,
                     Hidden: false,
                     FieldType: 10,
@@ -329,7 +320,7 @@ export class SupplierDetails {
                 },
                 {
                     ComponentLayoutID: 3,
-                    EntityType: "Address",
+                    EntityType: "Supplier",
                     Property: "InvoiceAddress",
                     Placement: 1,
                     Hidden: false,
@@ -349,7 +340,7 @@ export class SupplierDetails {
                 },
                 {
                     ComponentLayoutID: 3,
-                    EntityType: "Address",
+                    EntityType: "Supplier",
                     Property: "ShippingAddress",
                     Placement: 1,
                     Hidden: false,
@@ -369,7 +360,7 @@ export class SupplierDetails {
                 },
                 {
                     ComponentLayoutID: 3,
-                    EntityType: "Customer",
+                    EntityType: "Supplier",
                     Property: "Emails",
                     Placement: 1,
                     Hidden: false,
@@ -389,7 +380,7 @@ export class SupplierDetails {
                 },
                 {
                     ComponentLayoutID: 3,
-                    EntityType: "Customer",
+                    EntityType: "Supplier",
                     Property: "Phones",
                     Placement: 1,
                     Hidden: false,
@@ -409,7 +400,7 @@ export class SupplierDetails {
                 },
                 {
                     ComponentLayoutID: 3,
-                    EntityType: "Customer",
+                    EntityType: "Supplier",
                     Property: "WebUrl",
                     Placement: 1,
                     Hidden: false,
@@ -429,7 +420,7 @@ export class SupplierDetails {
                 },
                 {
                     ComponentLayoutID: 3,
-                    EntityType: "Customer",
+                    EntityType: "Supplier",
                     Property: "CreditDays",
                     Placement: 1,
                     Hidden: false,
