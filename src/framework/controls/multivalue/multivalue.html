@@ -1,25 +1,21 @@
 <section class="uni-multivalue-ng">{{label}}
 
     <input type="text" [(ngModel)]="config.model[config.field][index][config.kOptions.dataTextField]">
-    <button class="uni-multivalue-moreBtn" (click)="addOrDropdown(inputVal)">Add</button>
+    <button class="uni-multivalue-moreBtn" (click)="addOrDropdown(inputVal)">Ny</button>
 
     <ul class="uni-multivalue-values" [class.-is-active]="activeMultival">
         <template ngFor #row [ngForOf]="config.model[config.field]" #i = "index">
             <li *ngIf="!row.Deleted" [class.-is-main]="index == i">
 
-                <div *ngIf="!indelete(i)">
-                    <div class="uni-multivalue_edit" *ngIf="editindex == i">
-                        <input #editinput class="uni-multivalue_edit_value" [(ngModel)]="row[config.kOptions.dataTextField]" (blur)="save(row, $event)" (keyup.enter)="save(row, $event)" type="text">
-                    </div>
-                    <div *ngIf="editindex != i">
-                        <span *ngIf="editindex != i" (click)="setAsDefault(row, i)" class="uni-multivalue-value">{{row[config.kOptions.dataTextField]}}</span>
-                        <button class="uni-multivalue_edit_action-delete" (click)="del(row, i, $event)">Delete</button>
-                        <button class="setEditBtn" (click)="edit(row, i, $event)">Edit {{row[config.kOptions.dataTextField]}}</button>                    
-                    </div>
+                <input *ngIf="!indelete(i) && editindex == i" #editinput class="uni-multivalue_edit" [(ngModel)]="row[config.kOptions.dataTextField]" (blur)="save(row, $event)" (keyup.enter)="save(row, $event)" type="text">
+                <div *ngIf="!indelete(i) && editindex != i">
+                    <span class="uni-multivalue-value" (click)="setAsDefault(row, i)">{{row[config.kOptions.dataTextField]}}</span>
+                    <button class="uni-multivalue_edit_action-delete" (click)="del(row, i, $event)">Delete</button>
+                    <button class="setEditBtn" (click)="edit(row, i, $event)">Rediger {{row[config.kOptions.dataTextField]}}</button>                    
                 </div>
-                <div *ngIf="indelete(i)" class="uni-multivalue_deleted">
-                    Deleted &lsquo;{{row.value}}&rsquo;. (<a (click)="putBack(row, i, $event)">Undo</a>)
-                </div>
+                <p *ngIf="indelete(i)" class="uni-multivalue_deleted">
+                    Slettet &lsquo;{{row.value}}&rsquo;. (<a (click)="putBack(row, i, $event)">Angre</a>)
+                </p>
                            
             </li>             
         </template>
@@ -28,6 +24,6 @@
 
     <uni-component-loader></uni-component-loader>
 
-    <small *ngIf="successMessage" class="good">Saved.</small>
+    <small *ngIf="successMessage" class="good">Lagret.</small>
 
 </section>

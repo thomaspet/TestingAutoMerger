@@ -1,5 +1,5 @@
 import {Component, ViewChildren, Type, Input, Output, QueryList, ViewChild, ComponentRef, EventEmitter} from "angular2/core";
-import {NgIf, NgModel, NgFor} from "angular2/common";
+import {NgIf, NgModel, NgFor, NgClass} from "angular2/common";
 import {UniModal} from "../../../../../../framework/modals/modal";
 import {UniComponentLoader} from "../../../../../../framework/core/componentLoader";
 import {UniFormBuilder} from "../../../../../../framework/forms/builders/uniFormBuilder";
@@ -128,13 +128,13 @@ export class PhoneForm {
 // phone modal type
 @Component({
     selector: "phone-modal-type",
-    directives: [NgIf, NgModel, NgFor, UniComponentLoader],
+    directives: [NgIf, NgModel, NgFor, NgClass, UniComponentLoader],
     template: `
         <article class="modal-content phone-modal">
             <h1 *ngIf="config.title">{{config.title}}</h1>
             <uni-component-loader></uni-component-loader>
             <footer>
-                <button *ngFor="#action of config.actions; #i=index" (click)="action.method()">
+                <button *ngFor="#action of config.actions; #i=index" (click)="action.method()" [ngClass]="action.class">
                     {{action.text}}
                 </button>
             </footer>
@@ -185,7 +185,8 @@ export class PhoneModal {
 
             actions: [
                 {
-                    text: "Accept",
+                    text: "Lagre nummer",
+                    class: "good",
                     method: () => {
                         self.modal.getContent().then((content: PhoneModalType)=> {
                             content.instance.then((form: PhoneForm)=> {
@@ -205,7 +206,7 @@ export class PhoneModal {
                     }
                 },
                 {
-                    text: "Cancel",
+                    text: "Angre",
                     method: () => {
                         self.modal.getContent().then(() => {
                             self.modal.close();

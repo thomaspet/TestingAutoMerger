@@ -66,8 +66,7 @@ export class UniMultiValue {
     // and unset it for all others.
     edit(row, index, event) {
         var self = this;
-        this.editindex = index;
-
+ 
         if (this.config.editor) { // Use custom editor
             this.ucl.load(this.config.editor).then((cmp: ComponentRef)=> {
                 cmp.instance.modalConfig.isOpen = true;
@@ -75,6 +74,7 @@ export class UniMultiValue {
                 
                 cmp.instance.Changed.subscribe((model: any) => {
                     self.config.model[this.config.field][index] = model;
+                    self.editindex = null;
                 });                     
             });                        
         } else {
@@ -140,11 +140,25 @@ export class UniMultiValue {
     addValue(event = null) {
         var self = this;
         this.config.model[this.config.field].push(this.placeholder());
-        this.editindex = this.config.model[this.config.field].length - 1;
+        var index = this.config.model[this.config.field].length - 1;
         
-        setTimeout(() => {
-            self.editinputs.first.nativeElement.focus();            
-        });
+        if (this.config.editor) { // Use custom editor
+            this.ucl.load(this.config.editor).then((cmp: ComponentRef)=> {
+                cmp.instance.modalConfig.isOpen = true;
+                cmp.instance.modalConfig.model = self.config.model[self.config.field][index];
+                
+                cmp.instance.Changed.subscribe((model: any) => {
+                    self.config.model[self.config.field][index] = model;
+                    self.editindex = null;
+                });                     
+            });                        
+        } else {
+            this.editindex = this.config.model[this.config.field].length - 1;
+            
+            setTimeout(() => {
+                self.editinputs.first.nativeElement.focus();            
+            });            
+        }
         
         if (event) { event.stopPropagation(); }
         
