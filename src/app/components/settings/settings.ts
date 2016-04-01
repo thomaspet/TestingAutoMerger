@@ -22,7 +22,7 @@ const CHILD_ROUTES = [
     }),
     new AsyncRoute({
         path: "/vat",
-        name: "MVA",
+        name: "VAT",
         loader: () => ComponentProxy.LoadComponentAsync("VatSettings", "./app/components/settings/vatSettings/vatSettings")
     }),
     new AsyncRoute({

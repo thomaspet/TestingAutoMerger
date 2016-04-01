@@ -152,38 +152,23 @@ export class UniTable implements OnChanges, OnDestroy {
         this.tableConfig.dataSource.transport = {
 
             read: (options) => {
-                let searchParams = {
+                var searchParams = {
                     expand: this.config.expand,
                     filter: this.buildOdataFilter(options.data.filter)
                 };
-                
+                                                
                 if (options.data.sort) {
-                    let sortField = options.data.sort[0].field;
+                    var sortField = options.data.sort[0].field;
                     if (sortField.split('$').length) {
                         sortField = sortField.split('$').join('.');
                     }
-                    searchParams['orderby'] = sortField + ' ' + options.data.sort[0].dir;
+                    searchParams['orderBy'] = sortField + ' ' + options.data.sort[0].dir;
                 }
-                
+                                
                 if (this.config.pageable) {
                     searchParams['top'] = options.data.take;
                     searchParams['skip'] = options.data.skip;
                 }
-                
-                // if (this.config.expand) {
-                //     searchParams['expand'] = this.config.expand;
-                // }
-                
-                // searchParams['filter'] = this.buildOdataFilter(options.data.filter);
-                
-                // let orderBy = '';
-                // if (options.data.sort) {
-                //     let sortField = options.data.sort[0].field;
-                //     if (sortField.split('$').length) {
-                //         sortField = sortField.split('$').join('.');
-                //     }
-                //     orderBy = sortField + ' ' + options.data.sort[0].dir;
-                // }
 
                 this.uniHttp
                     .asGET()
@@ -222,15 +207,11 @@ export class UniTable implements OnChanges, OnDestroy {
             },
 
             create: (options) => {
-                let data = this.unflattenData(options.data);
-                
-                console.log(options);
-                
                 this.uniHttp
                     .asPOST()
                     .usingBusinessDomain()
                     .withEndPoint(this.config.resource.toString())
-                    .withBody(data)
+                    .withBody(this.unflattenData(options.data))
                     .send()
                     .subscribe(
                         (response) => options.success(this.flattenData(response)),
@@ -326,7 +307,7 @@ export class UniTable implements OnChanges, OnDestroy {
         kendoFilter.filters.forEach((filter: any) => {
             
             if (filter.operator === 'contains') {
-                stringified += `contains(${filter.field},${filter.value}) or `;
+                stringified += `contains(${filter.field},'${filter.value}'') or `;
                 // stringified += "contains(" + filter.field + ",'" + filter.value + "') or ";
             }
 
@@ -361,9 +342,10 @@ export class UniTable implements OnChanges, OnDestroy {
 
         var fields = this.tableConfig.dataSource.schema.model.fields;
 
-        for (var fieldName of Object.keys(fields)) {
-            let field = fields[fieldName];
-
+        Object.keys(fields).forEach((key) => {
+            let fieldName = key.split('$').join('.');
+            let field = fields[key];
+            
             // contains filter for text columns
             if (field.type === 'string') {
                 filter.filters.push({
@@ -375,12 +357,33 @@ export class UniTable implements OnChanges, OnDestroy {
 
             // eq filter for number columns
             if (field.type === 'number') {
-                var filterValue = parseInt(this.filterString);
+                let filterValue = parseInt(this.filterString);
                 if (!isNaN(filterValue)) {
                     filter.filters.push({field: fieldName, operator: 'eq', value: filterValue});
                 }
             }
-        }
+        });
+
+        // for (var fieldName of Object.keys(fields)) {
+        //     let field = fields[fieldName];
+
+        //     // contains filter for text columns
+        //     if (field.type === 'string') {
+        //         filter.filters.push({
+        //             field: fieldName,
+        //             operator: 'contains',
+        //             value: this.filterString
+        //         });
+        //     }
+
+        //     // eq filter for number columns
+        //     if (field.type === 'number') {
+        //         var filterValue = parseInt(this.filterString);
+        //         if (!isNaN(filterValue)) {
+        //             filter.filters.push({field: fieldName, operator: 'eq', value: filterValue});
+        //         }
+        //     }
+        // }
 
         this.table.dataSource.filter(filter);
     }

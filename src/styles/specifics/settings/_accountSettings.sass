@@ -1,9 +1,9 @@
 .accountList
-    @include unigrid(10)
+    @include unigrid(10, 8)
     float: left
 
 .accountDetails
-    @include unigrid(6)
+    @include unigrid(6, 2)
     float: left
 
 .accountDetails label
@@ -13,6 +13,11 @@
     width: 100%
     background: inherit
     margin: 0
+
+account-details
+    uni-checkbox        
+        label
+            min-height: 0px 
 
 .icon-column
     font-size: 0

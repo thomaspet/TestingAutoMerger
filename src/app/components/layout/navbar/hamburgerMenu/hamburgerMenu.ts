@@ -34,8 +34,9 @@ export class HamburgerMenu {
                     {componentName: "Tilbud", componentUrl: "/"},
                     {componentName: "Innbetaling", componentUrl: "/uniformdemo"},
                     {componentName: "Purring", componentUrl: "/kitchensink"},
-                    {componentName: "Kunder", componentUrl: "/customer"},
-                    {componentName: "Produkter", componentUrl: "/uniformdemo"},
+                    {componentName: "Kunder", componentUrl: "/sales"},
+                    {componentName: "Leverandører", componentUrl: "/sales/supplier"},
+                    {componentName: "Produkter", componentUrl: "/products"},
                     {componentName: "Prosjekter", componentUrl: "/"}
                 ]
             },
@@ -44,7 +45,7 @@ export class HamburgerMenu {
                 componentListHeader: "Orden i bøkene",
                 componentList: [
                     {componentName: "Fakturamottak", componentUrl: "/kitchensink"},
-                    {componentName: "Bilagsføring", componentUrl: "/journalentry"},
+                    {componentName: "Bilagsføring", componentUrl: "/accounting"},
                     {componentName: "Hovedbok", componentUrl: "/uniformdemo"},
                     {componentName: "Forespørsel", componentUrl: "/"},
                 ]
@@ -53,8 +54,9 @@ export class HamburgerMenu {
                 componentListName: "Lønn",
                 componentListHeader: "Lønn og ansatte",
                 componentList: [
-                    {componentName: "Ansatt", componentUrl: "/salary/employees"},
-                    {componentName: "Stillinger", componentUrl: "/"}
+                    {componentName: "Ansatte", componentUrl: "/salary/employees"},
+                    {componentName: "Transaksjoner", componentUrl: "/salary/salarytrans"},
+                    {componentName: "Lønnsarter", componentUrl: "/salary/wagetypes"}                    
                 ]
             },
             {

@@ -1,0 +1,37 @@
+<header class="product_poster" *ngIf="product">    
+    <article class="poster_toolbar">
+        <section>
+            <h1 *ngIf="product">{{product.Name}} <p>Produktnr. {{product.PartName}}</p></h1>            
+            <p *ngIf="product.StatusCode == null"><i>Kladd</i></p>            
+        </section>
+            
+        <nav class="poster_toolbar_tools">
+            <a (click)="previousProduct()"  class="previous">Forrige</a>
+            <a (click)="nextProduct()"  class="next">Neste</a>
+            <a (click)="addProduct()"  class="new">Nytt produkt</a>
+        </nav>         
+    </article>       
+    
+     <!-- Widget poster -->
+    <section class="poster_overview">        
+        <uni-widget-poster [model]="product">
+            <section class="application">
+                <section>Utpris eks. MVA: kr. {{product.PriceExVat }}</section>
+                <section>Utpris ink. MVA: kr. {{product.PriceIncVat }}</section>
+            </section>
+        </uni-widget-poster>        
+    </section> 
+</header>
+
+<section class="product-details application">
+    <uni-component-loader></uni-component-loader>        
+</section>
+
+<footer class="full-footer">
+    <section class="application">
+        <button class="good" (click)="saveProductManual($event)">Lagre produkt</button>
+        <section class="auto_save_info">
+            {{ LastSavedInfo }}    
+        </section>
+    </section>
+</footer>
