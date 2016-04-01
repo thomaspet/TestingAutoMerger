@@ -1,5 +1,4 @@
-import {Component,DynamicComponentLoader, ElementRef, ComponentRef, Input, Type} from 'angular2/core';
-
+import {Component, DynamicComponentLoader, ElementRef, ComponentRef, Input} from 'angular2/core';
 
 /**
  * Component Loader
@@ -9,21 +8,21 @@ import {Component,DynamicComponentLoader, ElementRef, ComponentRef, Input, Type}
  * @Inputs
  *
  * type?: Type => Type (Class) of the element we want to load
- * loader?: (component:ComponentRef) => any|Promise<any> = function that manages the component once is loaded
+ * loader?: (component:ComponentRef) => any|Promise<any>
+ *      function that manages the component once is loaded
  * config?: any => Configuration object for the component
  */
 @Component({
     selector: 'uni-component-loader',
-    inputs: ['type', 'loader', 'config'],
     template: '<div #content></div>',
 })
 export class UniComponentLoader {
 
     @Input()
-    type: Type;
+    type: any;
 
     @Input()
-    loader: (cmp: ComponentRef)=>any|Promise<any>|void;
+    loader: (cmp: ComponentRef) => any|Promise<any>|void;
 
     @Input()
     config: any;
@@ -41,15 +40,15 @@ export class UniComponentLoader {
         if (this.type && this.loader) {
             this.load(this.type).then(this.loader);
         } else if (this.type && this.config) {
-            this.dcl.loadIntoLocation(this.type, this.element, 'content').then((cmp: ComponentRef) => {
-                cmp.instance.config = self.config;
-                return cmp;
-            });
+            this.dcl.loadIntoLocation(this.type, this.element, 'content')
+                .then((cmp: ComponentRef) => {
+                    cmp.instance.config = self.config;
+                    return cmp;
+                });
         } else if (this.type) {
             this.dcl.loadIntoLocation(this.type, this.element, 'content');
         }
     }
-
 
     /**
      * It returns a promise with the component we want to load
@@ -58,7 +57,7 @@ export class UniComponentLoader {
      * @param loader Function that can manage the component loaded
      * @returns {any} (optional) it can return nothing or a promise
      */
-    load(type: Type) {
+    load(type: any) {
         return this.dcl.loadIntoLocation(type, this.element, 'content');
     }
 }
