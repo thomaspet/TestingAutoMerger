@@ -1,4 +1,4 @@
-﻿import {Component, OnInit, provide, Inject} from 'angular2/core';
+﻿import {Component, OnInit, provide} from 'angular2/core';
 import {RouteParams, ROUTER_DIRECTIVES} from 'angular2/router';
 import {NgFor, NgIf} from 'angular2/common';
 import {Headers} from 'angular2/http';
@@ -39,11 +39,8 @@ declare var _;
 export class CompanySettings implements OnInit {
     private id: any;
     private form: any;
-    private error: boolean;
-    private headers: Headers;
     private company: any;
     private subEntities: Array<SubEntity> = [];
-    private activeCompany: any;
     private companyTypes: Array<CompanyType> = [];
     private currencies: Array<Currency> = [];
     private periodSeries: Array<PeriodSeries> = [];
