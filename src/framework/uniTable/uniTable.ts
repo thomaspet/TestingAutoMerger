@@ -301,7 +301,7 @@ export class UniTable implements OnChanges, OnDestroy {
         kendoFilter.filters.forEach((filter: any) => {
             
             if (filter.operator === 'contains') {
-                stringified += `contains(${filter.field},'${filter.value}'') or `;
+                stringified += `contains(${filter.field},'${filter.value}') or `;
                 // stringified += "contains(" + filter.field + ",'" + filter.value + "') or ";
             }
 
