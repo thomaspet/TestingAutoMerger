@@ -34,8 +34,8 @@ export class CustomerAdd {
     }    
     
     ngOnInit() {
-        this.searchText = "testfirma"
-        this.customer = {Name: "testfirma"};
+        this.searchText = "";
+        this.customer = {Name: ""};
     }   
     
     ngAfterViewInit() {        
@@ -48,13 +48,15 @@ export class CustomerAdd {
     }   
     
     addSearchInfo(searchResultItem: any){
-        this.customer.Name = searchResultItem.Name;
-        this.customer.Orgnumber = searchResultItem.OrgNo;
-        this.customer.City = searchResultItem.City;
-        this.customer.Phone = searchResultItem.Phone;
-        this.customer.Email = searchResultItem.Email;
+        this.customer.Name = searchResultItem.navn;
+        this.customer.Orgnumber = searchResultItem.orgnr;
+        this.customer.Address1 = searchResultItem.forretningsadr;
+        //forradrpostnr
+        this.customer.City = searchResultItem.forradrpoststed;
+        this.customer.Phone = searchResultItem.tlf;
+        //this.customer.Email = searchResultItem.Email;
+        this.customer.Web = searchResultItem.web;
         
-        //this.formInstance.form.value = this.customer;
         this.formInstance.refresh(this.customer);
     }
     
@@ -228,6 +230,26 @@ export class CustomerAdd {
                     ReadOnly: false,
                     LookupField: false,
                     Label: "Telefonnummer",
+                    Description: "",
+                    HelpText: "",
+                    FieldSet: 0,
+                    Section: 0,
+                    Legend: "",
+                    StatusCode: 0,
+                    ID: 6,
+                    Deleted: false,
+                    CustomFields: null 
+                },
+                {
+                    ComponentLayoutID: 3,
+                    EntityType: "Customer",
+                    Property: "WebUrl",
+                    Placement: 1,
+                    Hidden: false,
+                    FieldType: 10,
+                    ReadOnly: false,
+                    LookupField: false,
+                    Label: "Web",
                     Description: "",
                     HelpText: "",
                     FieldSet: 0,

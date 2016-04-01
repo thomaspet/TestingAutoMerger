@@ -35,6 +35,7 @@ export class HamburgerMenu {
                     {componentName: "Innbetaling", componentUrl: "/uniformdemo"},
                     {componentName: "Purring", componentUrl: "/kitchensink"},
                     {componentName: "Kunder", componentUrl: "/sales"},
+                    {componentName: "Leverandører", componentUrl: "/sales/supplier"},
                     {componentName: "Produkter", componentUrl: "/products"},
                     {componentName: "Prosjekter", componentUrl: "/"}
                 ]
