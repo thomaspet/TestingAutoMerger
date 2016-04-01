@@ -150,42 +150,36 @@ export class UniTable implements OnChanges, OnDestroy {
         
         
         this.tableConfig.dataSource.transport = {
-
+            
             read: (options) => {
-                var searchParams = {
+                var requestOptions = {
+                    returnResponseHeaders: true,
                     expand: this.config.expand,
                     filter: this.buildOdataFilter(options.data.filter)
                 };
                                                 
-                if (options.data.sort) {
+                if (options.data.sort && options.data.sort[0]) {
                     var sortField = options.data.sort[0].field;
                     if (sortField.split('$').length) {
                         sortField = sortField.split('$').join('.');
                     }
-                    searchParams['orderBy'] = sortField + ' ' + options.data.sort[0].dir;
+                    requestOptions['orderBy'] = sortField + ' ' + options.data.sort[0].dir;
                 }
                                 
                 if (this.config.pageable) {
-                    searchParams['top'] = options.data.take;
-                    searchParams['skip'] = options.data.skip;
+                    requestOptions['top'] = options.data.take;
+                    requestOptions['skip'] = options.data.skip;
                 }
 
                 this.uniHttp
                     .asGET()
                     .usingBusinessDomain()
                     .withEndPoint(this.config.resource.toString())
-                    .send(searchParams)
+                    .send(requestOptions)
                     .subscribe(
                         (response) => {
-                            // TODO: Get count param from response headers (mocked for now)   
-                            if (response.length < this.config.pageSize) {
-                                this.totalRows = response.length + 
-                                (this.table.dataSource.page() - 1) * this.config.pageSize;
-                            } else {
-                                this.totalRows = 50;
-                            }
-
-                            options.success(this.flattenData(response));
+                            this.totalRows = response.headers.get('count');
+                            options.success(this.flattenData(response.json()));
                         },
                         (error) => options.error(error)
                 );
