@@ -15,12 +15,14 @@ import "rxjs/add/operator/merge";
 import {UniSectionBuilder} from "../../../../../framework/forms/builders/uniSectionBuilder";
 import {UniFieldBuilder} from "../../../../../framework/forms/builders/uniFieldBuilder";
 import {Employment} from "../../../../unientities";
+import {EmployeeService} from "../../../../services/services";
 
 declare var jQuery;
 
 @Component({
     selector: "employee-hours",
     directives: [UniComponentLoader, UniForm],
+    providers: [EmployeeService],
     templateUrl: "app/components/salary/employee/hours/hours.html"
 })
 export class Hours {
@@ -32,7 +34,7 @@ export class Hours {
     formInstance: UniForm;
     model;
 
-    constructor(private Injector: Injector, public employeeDS: EmployeeDS) {
+    constructor(private Injector: Injector, public _employeeService: EmployeeService) {
         // let params = Injector.parent.parent.get(RouteParams);
         // employeeDS.get(params.get("id"))
         // .subscribe(response => {
@@ -49,8 +51,8 @@ export class Hours {
 
         var self = this;
         Observable.forkJoin(
-            self.employeeDS.get(this.EmployeeID),
-            self.employeeDS.layout("EmployeeEmploymentsForm")
+            self._employeeService.get(this.EmployeeID),
+            self._employeeService.layout("EmployeeEmploymentsForm")
         ).subscribe(
             (response: any) => {
                 self.currentEmployee = EmployeeModel.createFromObject(response[0]);

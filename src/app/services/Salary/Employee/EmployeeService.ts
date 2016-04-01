@@ -22,28 +22,10 @@ export class EmployeeService extends BizHttp<Employee> {
         this.relativeURL = Employee.relativeUrl;
     }
     
-    
-    public post(entity: Employee) {
-        console.log('EmployeeNumber: ' + entity.EmployeeNumber);
-        if (entity.EmployeeNumber === 0) {
-            console.log('searching for next EmpNo');
-            this.GetAll('action=nextemployeenumber').subscribe((response) => {
-                entity.EmployeeNumber = response;
-                console.log('employeenumber: ' + entity.EmployeeNumber);
-                return this.Post(entity);
-            });
-            
-        }else {
-            return this.Post(entity);
-        }
-        
-    }
-    
     public get(id: number| string) {
         
         if (id === 0) {
-            var response = this.GetNewEntity();
-            return response;
+            return this.GetNewEntity();
         }else {
             return this.Get(id, this.expandedProperties);
         }
@@ -78,30 +60,6 @@ export class EmployeeService extends BizHttp<Employee> {
             Name: layoutID,
             BaseEntity: 'Employee',
             Fields: [
-                {
-                    ComponentLayoutID: 1,
-                    EntityType: 'Employee',
-                    Property: 'EmployeeNumber',
-                    Placement: 1,
-                    Hidden: false,
-                    FieldType: FieldType.TEXT,
-                    ReadOnly: false,
-                    LookupField: false,
-                    Label: 'Ansattnr',
-                    Description: null,
-                    HelpText: null,
-                    FieldSet: 0,
-                    Section: 0,
-                    Legend: '',
-                    hasLineBreak: false,
-                    Validations: [
-                        {
-                            ErrorMessage: 'Required field',
-                            Level: 3,
-                            Operator: 'REQUIRED'
-                        }
-                    ]
-                },
                 {
                     ComponentLayoutID: 1,
                     EntityType: 'BusinessRelation',

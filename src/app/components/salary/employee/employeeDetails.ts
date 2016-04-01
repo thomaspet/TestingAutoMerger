@@ -57,25 +57,27 @@ const CHILD_ROUTES = [
 
 @RouteConfig(CHILD_ROUTES)
 export class EmployeeDetails {
-    private employee: Employee = new Employee(); // any = {};
+    private employee: Employee; // any = {};
+    private businessRelation: BusinessRelation;
     // empJSON;
     private childRoutes: RouteDefinition[];
 
     constructor(private routeParams: RouteParams, private _employeeService: EmployeeService) {
         this.childRoutes = CHILD_ROUTES;
+        this.employee = new Employee();
+        this.businessRelation = new BusinessRelation();
+        this.employee.BusinessRelationInfo = this.businessRelation;
     }
 
     public ngOnInit() {
         var employeeID = +this.routeParams.get('id');
         if (employeeID) {
             this._employeeService.get(employeeID).subscribe((response: any) => {
-                let [emp] = response;
-                this.employee = emp;  
+                this.employee = response;  
             }, error => console.log(error));
         }else {
-            var businessRelation: BusinessRelation = new BusinessRelation();
-            businessRelation.Name = 'Ny Ansatt';
-            this.employee.BusinessRelationInfo = businessRelation;
+            this.businessRelation.Name = 'Ny Ansatt';
+            this.employee.BusinessRelationInfo = this.businessRelation;
             this.employee.EmployeeNumber = 0;
         }
         

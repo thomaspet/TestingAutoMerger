@@ -124,7 +124,7 @@ export class PersonalDetails implements OnInit {
                     );
             } else {
                 console.log('POST');
-                context.employeeService.post(context.employee)
+                context.employeeService.Post(context.employee)
                     .subscribe(
                         (data: Employee) => {
                             context.employee = data;
