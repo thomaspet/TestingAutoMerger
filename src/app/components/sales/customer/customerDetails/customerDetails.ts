@@ -3,10 +3,10 @@ import {Router, RouteParams, RouterLink} from "angular2/router";
 import {Observable} from "rxjs/Observable";
 import "rxjs/add/observable/forkjoin";
 
-import {DepartementService, ProjectService, CustomerService} from "../../../../services/services";
+import {DepartementService, ProjectService, CustomerService, PhoneService, AddressService, EmailService} from "../../../../services/services";
 import {ExternalSearch, SearchResultItem} from '../../../common/externalSearch/externalSearch';
 
-import {FieldType, FieldLayout, ComponentLayout, Customer, BusinessRelation} from "../../../../unientities";
+import {FieldType, FieldLayout, ComponentLayout, Customer, BusinessRelation, Email, Phone, Address} from "../../../../unientities";
 import {UNI_CONTROL_DIRECTIVES} from "../../../../../framework/controls";
 import {UniFormBuilder} from "../../../../../framework/forms/builders/uniFormBuilder";
 import {UniFormLayoutBuilder} from "../../../../../framework/forms/builders/uniFormLayoutBuilder";
@@ -23,11 +23,11 @@ import {PhoneModal} from "../modals/phone/phone";
     selector: "customer-details",
     templateUrl: "app/components/sales/customer/customerDetails/customerDetails.html",    
     directives: [UniComponentLoader, RouterLink, AddressModal, EmailModal, PhoneModal, ExternalSearch],
-    providers: [DepartementService, ProjectService, CustomerService]
+    providers: [DepartementService, ProjectService, CustomerService, PhoneService, AddressService, EmailService]
 })
 export class CustomerDetails {
             
-    @Input() CustomerNo: any;
+    @Input() CustomerID: any;
                   
     @ViewChild(UniComponentLoader)
     ucl: UniComponentLoader;    
@@ -38,6 +38,9 @@ export class CustomerDetails {
     Customer: Customer;
     LastSavedInfo: string;
     searchText: string;
+    EmptyPhone: Phone;
+    EmptyEmail: Email;
+    EmptyAddress: Address;
     
     whenFormInstance: Promise<UniForm>;
 
@@ -45,10 +48,14 @@ export class CustomerDetails {
                 private projectService: ProjectService,
                 private customerService: CustomerService,
                 private router: Router,
-                private params: RouteParams
+                private params: RouteParams,
+                private phoneService: PhoneService,
+                private emailService: EmailService,
+                private addressService: AddressService
                 ) {
                 
-        this.CustomerNo = params.get("id");        
+        var self = this;        
+        this.CustomerID = params.get("id");            
     }
     
     nextCustomer() {
@@ -99,11 +106,20 @@ export class CustomerDetails {
         Observable.forkJoin(
             this.departementService.GetAll(null),
             this.projectService.GetAll(null),
-            this.customerService.Get(this.CustomerNo, ["Info"])
+            this.customerService.Get(this.CustomerID, ["Info", "Info.Phones", "Info.Addresses", "Info.Emails"]),
+            this.phoneService.GetNewEntity()
+            //this.emailService.GetNewEntity(),
+            //this.addressService.GetNewEntity()
         ).subscribe(response => {
             this.DropdownData = [response[0], response[1]];
             this.Customer = response[2];
-                                      
+            this.EmptyPhone = response[3];
+            //this.EmptyEmail = response[4];
+            //this.EmptyAddress = response[5];
+            
+            console.log("== CUSTOMER ==");
+            console.log(this.Customer);
+                        
             this.createFormConfig();
             this.extendFormConfig();
             this.loadForm();                  
@@ -132,7 +148,7 @@ export class CustomerDetails {
                 {
                     ComponentLayoutID: 3,
                     EntityType: "Customer",
-                    Property: "CustomerNo",
+                    Property: "CustomerNumber",
                     Placement: 1,
                     Hidden: false,
                     FieldType: 10,
@@ -192,10 +208,10 @@ export class CustomerDetails {
                 {
                     ComponentLayoutID: 3,
                     EntityType: "Address",
-                    Property: "Info.InvoiceAddress.AddressLine1",
+                    Property: "InvoiceAddress",
                     Placement: 1,
                     Hidden: false,
-                    FieldType: 1,
+                    FieldType: 14,
                     ReadOnly: false,
                     LookupField: false,
                     Label: "Fakturaadresse",
@@ -212,10 +228,10 @@ export class CustomerDetails {
                 {
                     ComponentLayoutID: 3,
                     EntityType: "Address",
-                    Property: "Info.ShippingAddress.AddressLine1",
+                    Property: "ShippingAddress",
                     Placement: 1,
                     Hidden: false,
-                    FieldType: 1,
+                    FieldType: 14,
                     ReadOnly: false,
                     LookupField: false,
                     Label: "Leveringsadresse",
@@ -232,10 +248,10 @@ export class CustomerDetails {
                 {
                     ComponentLayoutID: 3,
                     EntityType: "Customer",
-                    Property: "Address",
+                    Property: "Emails",
                     Placement: 1,
                     Hidden: false,
-                    FieldType: 1,
+                    FieldType: 14,
                     ReadOnly: false,
                     LookupField: false,
                     Label: "E-post adresser",
@@ -252,10 +268,10 @@ export class CustomerDetails {
                 {
                     ComponentLayoutID: 3,
                     EntityType: "Customer",
-                    Property: "Address3",
+                    Property: "Phones",
                     Placement: 1,
                     Hidden: false,
-                    FieldType: 1,
+                    FieldType: 14,
                     ReadOnly: false,
                     LookupField: false,
                     Label: "Telefonnumre",
@@ -275,7 +291,7 @@ export class CustomerDetails {
                     Property: "WebUrl",
                     Placement: 1,
                     Hidden: false,
-                    FieldType: 10,
+                    FieldType: 15,
                     ReadOnly: false,
                     LookupField: false,
                     Label: "Webadresse",
@@ -289,7 +305,7 @@ export class CustomerDetails {
                     Deleted: false,
                     CustomFields: null 
                 },
-                                {
+                {
                     ComponentLayoutID: 3,
                     EntityType: "Customer",
                     Property: "CreditDays",
@@ -377,7 +393,57 @@ export class CustomerDetails {
             dataValueField: 'ID',
             dataSource: this.DropdownData[1]
         });      
-        project.addClass('large-field');            
+        project.addClass('large-field');    
+        
+        // MultiValue
+        
+        var phones: UniFieldBuilder = this.FormConfig.find('Phones');
+        phones
+            .setKendoOptions({
+                dataTextField: 'Number',
+                dataValueField: 'ID'
+            })
+            .setModel(this.Customer.Info)
+            .setModelField('Phones')
+            .setModelDefaultField("DefaultPhoneID")
+            .setPlaceholder(this.EmptyPhone)
+            .setEditor(PhoneModal);     
+
+        var emails: UniFieldBuilder = this.FormConfig.find('Emails');
+        emails
+            .setKendoOptions({
+                dataTextField: 'EmailAddress',
+                dataValueField: 'ID'
+            })
+            .setModel(this.Customer.Info)
+            .setModelField('Emails')
+            .setModelDefaultField("DefaultEmailID")
+            .setPlaceholder(this.EmptyEmail)
+            .setEditor(EmailModal);     
+
+        var invoiceaddresses: UniFieldBuilder = this.FormConfig.find('InvoiceAddress');
+        invoiceaddresses
+            .setKendoOptions({
+                dataTextField: 'AddressLine1',
+                dataValueField: 'ID'
+            })
+            .setModel(this.Customer.Info)
+            .setModelField('Addresses')
+            .setModelDefaultField("InvoiceAddressID")
+            .setPlaceholder(this.EmptyAddress)
+            .setEditor(AddressModal);     
+
+        var shippingaddress: UniFieldBuilder = this.FormConfig.find('ShippingAddress');
+        shippingaddress
+            .setKendoOptions({
+                dataTextField: 'AddressLine1',
+                dataValueField: 'ID'
+            })
+            .setModel(this.Customer.Info)
+            .setModelField('Addresses')
+            .setModelDefaultField("ShippingAddressID")
+            .setPlaceholder(this.EmptyAddress)
+            .setEditor(AddressModal);                 
     }    
        
     loadForm() {       
@@ -419,10 +485,15 @@ export class CustomerDetails {
     saveCustomer(autosave: boolean) {
         this.formInstance.updateModel();
                         
-        if (!autosave) {            
+        if (!autosave) {    
+            console.log("=== HVA ER INFO NÅ ===");
+            console.log(this.Customer.Info);
+            
             if (this.Customer.StatusCode == null) {
                 //set status if it is a draft
                 this.Customer.StatusCode = 1;
+            } else if (this.Customer.StatusCode == 1) {
+                this.Customer.StatusCode = 2; //??
             }            
             this.LastSavedInfo = 'Lagrer kundeinformasjon...';                
         } else {

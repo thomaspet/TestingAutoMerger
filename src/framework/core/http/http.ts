@@ -1,10 +1,10 @@
-﻿import {Injectable} from "angular2/core";
-import {Http, Headers, URLSearchParams, Request, RequestMethod} from "angular2/http";
-import { Observable } from "rxjs/Observable";
-import { AppConfig } from "../../../app/AppConfig";
-import "rxjs/add/operator/map";
-import "rxjs/add/observable/forkjoin";
-import "rxjs/add/observable/from";
+﻿import {Injectable} from 'angular2/core';
+import {Http, Headers, URLSearchParams, Request, RequestMethod} from 'angular2/http';
+import {Observable} from 'rxjs/Observable';
+import {AppConfig} from '../../../app/AppConfig';
+import 'rxjs/add/operator/map';
+import 'rxjs/add/observable/forkjoin';
+import 'rxjs/add/observable/from';
 
 export interface IUniHttpRequest {
     baseUrl?: string;
@@ -19,12 +19,13 @@ export interface IUniHttpRequest {
     orderBy?: string;
     top?: number;
     skip?: number;
+    returnResponseHeaders?: boolean;
 }
 
 @Injectable()
 export class UniHttp {
-    private baseUrl = AppConfig.BASE_URL;
-    private apiDomain = AppConfig.API_DOMAINS.BUSINESS;
+    private baseUrl: string = AppConfig.BASE_URL;
+    private apiDomain: string = AppConfig.API_DOMAINS.BUSINESS;
     private headers: Headers;
     private method: number;
     private body: any;
@@ -36,7 +37,7 @@ export class UniHttp {
         this.appendHeaders(headers);
     }
 
-    appendHeaders(headers: any) {
+    private appendHeaders(headers: any) {
         for (var header in headers) {
             if (headers.hasOwnProperty(header)) {
                 this.headers.append(header, AppConfig.DEFAULT_HEADERS[header]);
@@ -45,80 +46,80 @@ export class UniHttp {
         return this;
     }
 
-    getBaseUrl() {
+    public getBaseUrl() {
         return this.baseUrl;
     }
 
-    withBaseUrl(url: string) {
+    public withBaseUrl(url: string) {
         this.baseUrl = url;
         return this;
     }
 
-    withHeader(name: string, value: any) {
+    public withHeader(name: string, value: any) {
         this.headers.append(name, value);
         return this;
     }
 
-    withHeaders(headers: any) {
+    public withHeaders(headers: any) {
         return this.appendHeaders(headers);
     }
 
-    usingMetadataDomain() {
+    public usingMetadataDomain() {
         this.apiDomain = AppConfig.API_DOMAINS.METADATA;
         return this;
     }
 
-    usingBusinessDomain() {
+    public usingBusinessDomain() {
         this.apiDomain = AppConfig.API_DOMAINS.BUSINESS;
         return this;
     }
 
-    as(method: number) {
+    public as(method: number) {
         this.method = method;
         return this;
     }
 
-    asGET() {
+    public asGET() {
         this.method = RequestMethod.Get;
         return this;
     }
 
-    asPUT() {
+    public asPUT() {
         this.method = RequestMethod.Put;
         return this;
     }
 
-    asPOST() {
+    public asPOST() {
         this.method = RequestMethod.Post;
         return this;
     }
 
-    asDELETE() {
+    public asDELETE() {
         this.method = RequestMethod.Delete;
         return this;
     }
 
-    asPATCH() {
+    public asPATCH() {
         this.method = RequestMethod.Patch;
         return this;
     }
 
-    asHEAD() {
+    public asHEAD() {
         this.method = RequestMethod.Head;
         return this;
     }
 
-    withBody(body: any) {
+    public withBody(body: any) {
         this.body = body;
         return this;
     }
 
-    withEndPoint(endPoint: string) {
+    public withEndPoint(endPoint: string) {
         this.endPoint = endPoint;
         return this;
     }
 
-    sendToUrl(url: any) {
+    public sendToUrl(url: any) {
         var options: any = {
             method: this.method,
             url: url
@@ -128,8 +129,8 @@ export class UniHttp {
         }
         return this.http.request(new Request(options)).map((response: any) => response.json());
     }
-
-    send(request?: IUniHttpRequest) {
+    
+    public send(request?: IUniHttpRequest): Observable<any> {
         request = request || {};
         var baseurl = request.baseUrl || this.baseUrl,
             apidomain = request.apiDomain || this.apiDomain,
@@ -149,22 +150,29 @@ export class UniHttp {
         if (request) {
             options.search = UniHttp.buildUrlParams(request);
         }
-        return this.http.request(new Request(options)).map((response: any) => response.json());
+        
+        let req = this.http.request(new Request(options));
+        
+        if (request.returnResponseHeaders) {            
+            return req;
+        }
+        
+        return req.map(response => response.json());
     }
 
-
-    multipleRequests(requests: IUniHttpRequest[]) {
+    public multipleRequests(requests: IUniHttpRequest[]) {
         var uniHttpCalls = [];
         requests.forEach((request: IUniHttpRequest) => {
             uniHttpCalls.push(
-                this.send(request));
+                this.send(request)
+            );
         });
         return Observable.forkJoin(uniHttpCalls);
     }
 
     private static buildUrlParams(request: IUniHttpRequest) {
         var urlParams = new URLSearchParams();
-        var filters = ["expand", "filter", "orderBy", "action", "top", "skip"];
+        var filters = ['expand', 'filter', 'orderBy', 'action', 'top', 'skip'];
         filters.forEach((filter: string) => {
             if (request[filter]) {
                 urlParams.append(filter, request[filter]);

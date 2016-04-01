@@ -15,11 +15,15 @@ import {ComponentLayout} from '../../../unientities';
 import {UniElementFinder} from "../../../../framework/forms/shared/UniElementFinder";
 import {UniSectionBuilder} from "../../../../framework/forms/builders/uniSectionBuilder";
 import {UniTextInput} from "../../../../framework/controls/text/text";
+import {UNI_CONTROL_DIRECTIVES} from "../../../../framework/controls";
+import {FieldType,BusinessRelation,Phone} from "../../../unientities";
+import {PhoneModal} from "../../sales/customer/modals/phone/phone";
+import {BusinessRelationService,PhoneService} from "../../../services/services";
 
 @Component({
     selector: 'uni-form-demo',
-    directives: [UniComponentLoader],
-    providers: [EmployeeService],
+    directives: [UniComponentLoader,PhoneModal],
+    providers: [EmployeeService,BusinessRelationService,PhoneService],
     template: `
         <div class='application usertest'>
             <uni-component-loader></uni-component-loader>
@@ -29,21 +33,28 @@ import {UniTextInput} from "../../../../framework/controls/text/text";
 export class UniFormDemo {
 
     private Model: EmployeeModel;
+    private BusinessModel: BusinessRelation;
     private FormConfig: UniFormBuilder;
+    private EmptyPhone: Phone;
 
     @ViewChild(UniComponentLoader)
     UniCmpLoader: UniComponentLoader;
 
-    constructor(private Http: UniHttp,
-                private Api: EmployeeService) {
+    constructor(private Http:UniHttp,
+                private Api:EmployeeService,
+                private businessRelationService:BusinessRelationService,
+                private phoneService:PhoneService) {
         this.Api.setRelativeUrl('employees');
+        this.createPhoneModel();
     }
 
     ngOnInit() {
         var self = this;
-        this.Api.GetLayoutAndEntity('EmployeePersonalDetailsForm', 1).subscribe((results: any[]) => {
-            var view: ComponentLayout = results[0];
-            var model: Employee = results[1];
+               
+        this.Api.GetLayoutAndEntity('EmployeePersonalDetailsForm', 1).subscribe((results:any[]) => {
+            var view:ComponentLayout = results[0];
+            var model:Employee = results[1];
+
             self.startApp(view, model);
         });
     }
@@ -60,6 +71,7 @@ export class UniFormDemo {
 
         // We can extend the form config after the LayoutBuilder has created the layout
         this.extendFormConfig();
+        this.addMultiValue();
 
         this.loadForm();
     }
@@ -80,6 +92,58 @@ export class UniFormDemo {
     private createModel(model: Employee) {
         this.Model = EmployeeModel.createFromObject(model);
     }
+    
+    private createPhoneModel() {
+        var self = this;
+        this.businessRelationService.GetNewEntity().subscribe(bm => {
+            this.BusinessModel = bm;
+            this.BusinessModel.DefaultPhoneID = 1;
+            this.BusinessModel.Phones = new Array<Phone>();
+            this.BusinessModel.Phones.push({
+                ID: 1,
+                CountryCode: "NO",
+                Number: "+4791334697",
+                Description: "privat mobiltelefon",
+                Type: 150102,
+                Deleted: false,
+                CustomFields: null,
+                BusinessRelationID: 1,
+                StatusCode: 0
+            });
+            this.BusinessModel.Phones.push({
+                ID: 2,
+                CountryCode: "NO",
+                Number: "+4722222222",
+                Description: "fax",
+                Type: 150103,
+                Deleted: false,
+                CustomFields: null,
+                BusinessRelationID: 1,
+                StatusCode: 0
+            });
+            this.phoneService.GetNewEntity().subscribe(phone => {
+                self.EmptyPhone = phone; 
+            });
+        });        
+    }
+
+    private addMultiValue() {
+        var field = new UniFieldBuilder();
+        field
+            .setLabel("Telefonnummer")
+            .setType(UNI_CONTROL_DIRECTIVES[14])
+            .setKendoOptions({
+                dataTextField: 'Number',
+                dataValueField: 'ID'
+            })
+            .setModel(this.BusinessModel)
+            .setModelField('Phones')
+            .setModelDefaultField("DefaultPhoneID")
+            .setPlaceholder(this.EmptyPhone)
+            .setEditor(PhoneModal);
+         
+        this.FormConfig.addUniElement(field);
+    }
 
     private extendFormConfig() {
         var field: UniFieldBuilder = this.FormConfig.find('Sex');
@@ -94,6 +158,7 @@ export class UniFormDemo {
                 'text': 'kvinne'
             }]
         });
+        
         field = this.FormConfig.find('SocialSecurityNumber');
         field.setKendoOptions({
             mask: '000000 00000',
