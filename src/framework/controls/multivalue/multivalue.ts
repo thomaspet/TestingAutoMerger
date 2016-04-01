@@ -48,6 +48,10 @@ export class UniMultiValue {
         this.config.fieldComponent = this;
     }
     
+    refresh(value: any): void {
+        this.config.control.updateValue(value, {});
+    }
+    
     // What should happen when the user clicks
     // the button next to the input?
     addOrDropdown() {
@@ -126,9 +130,10 @@ export class UniMultiValue {
     };
 
     // Set the passed value as the main one.
-    setAsDefault(index, row) {
+    setAsDefault(row, index) {
         this.index = index;
         this.config.model[this.config.defaultfield] = row[this.config.kOptions.dataValueField];
+        this.activeMultival = false;        
     };
     
     // Add a new, blank value to the array.

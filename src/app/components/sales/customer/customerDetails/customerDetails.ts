@@ -486,6 +486,9 @@ export class CustomerDetails {
         this.formInstance.updateModel();
                         
         if (!autosave) {    
+            console.log("=== HVA ER INFO NÅ ===");
+            console.log(this.Customer.Info);
+            
             if (this.Customer.StatusCode == null) {
                 //set status if it is a draft
                 this.Customer.StatusCode = 1;
