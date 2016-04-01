@@ -54,8 +54,9 @@ export class HamburgerMenu {
                 componentListName: "Lønn",
                 componentListHeader: "Lønn og ansatte",
                 componentList: [
-                    {componentName: "Ansatt", componentUrl: "/salary/employees"},
-                    {componentName: "Stillinger", componentUrl: "/"}
+                    {componentName: "Ansatte", componentUrl: "/salary/employees"},
+                    {componentName: "Transaksjoner", componentUrl: "/salary/salarytrans"},
+                    {componentName: "Lønnsarter", componentUrl: "/salary/wagetypes"}                    
                 ]
             },
             {
