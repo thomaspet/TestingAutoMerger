@@ -64,10 +64,10 @@ export class CompanySettings implements OnInit {
     
     public ngOnInit() {
         this.id = JSON.parse(localStorage.getItem('activeCompany')).id;
-        this.update();
+        this.getDataAndSetupForm();
     }
     
-    private update() {
+    private getDataAndSetupForm() {
         Observable.forkJoin(
             this.companySettingsDS.getCompanyTypes(),
             this.companySettingsDS.getCurrencies(),
