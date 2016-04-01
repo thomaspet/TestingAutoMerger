@@ -80,34 +80,35 @@ export class CompanySettings implements OnInit {
             this.agaZoneService.getAgaRules()
         ).subscribe(
             (dataset) => {
-                
-                var filter: string = '';
+                let filter: string = '';
                 
                 dataset[6].forEach((element) => {
                     filter += 'MunicipalityNo eq ' + element.MunicipalityNo + ' or ';
                 });
                 filter = filter.slice(0, filter.length - 3);
                 
-                this.companySettingsDS.getMunicipalities(filter).subscribe((response) => {
-                    this.companyTypes = dataset[0];
-                    this.currencies = dataset[1];
-                    this.periodSeries = dataset[2];
-                    this.accountGroupSets = dataset[3];
-                    this.accounts = dataset[4];
-                    this.company = dataset[5];
-                    this.subEntities = dataset[6];
-                    this.agaZones = dataset[7];
-                    this.agaRules = dataset[8];
-                    this.municipals = response;
-                    this.dataReady();
-                },
-                (error) => console.log(error));
+                this.companySettingsDS.getMunicipalities(filter).subscribe(
+                    (response) => {
+                        this.companyTypes = dataset[0];
+                        this.currencies = dataset[1];
+                        this.periodSeries = dataset[2];
+                        this.accountGroupSets = dataset[3];
+                        this.accounts = dataset[4];
+                        this.company = dataset[5];
+                        this.subEntities = dataset[6];
+                        this.agaZones = dataset[7];
+                        this.agaRules = dataset[8];
+                        this.municipals = response;
+                        this.buildForm();
+                    }, 
+                    error => console.log(error)
+                );
             },
-            (error) => console.log(error)
-            );
+            error => console.log(error)
+        );
     }
 
-    private dataReady() {
+    private buildForm() {
 
         var formBuilder = new UniFormBuilder();
 
