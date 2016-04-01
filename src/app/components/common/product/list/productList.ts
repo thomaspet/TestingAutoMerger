@@ -47,7 +47,7 @@ export class ProductList {
                             .setWidth('15%')
                             .setFormat('{0:n}')
                             .setClass('column-align-right');
-        var statusCol = new UniTableColumn('StatusCode', 'Status', 'string').setWidth('15%');
+        var statusCol = new UniTableColumn('StatusCode', 'Status', 'number').setWidth('15%');
         statusCol.setTemplate("#var statusText; if(!StatusCode) {statusText = 'Kladd'} else {statusText = 'Aktiv'} # #= statusText #");
         
                 

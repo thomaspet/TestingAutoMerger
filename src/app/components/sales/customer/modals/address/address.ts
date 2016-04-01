@@ -1,5 +1,5 @@
 import {Component, ViewChildren, Type, Input, Output, QueryList, ViewChild, ComponentRef, EventEmitter} from "angular2/core";
-import {NgIf, NgModel, NgFor} from "angular2/common";
+import {NgIf, NgModel, NgFor, NgClass} from "angular2/common";
 import {UniModal} from "../../../../../../framework/modals/modal";
 import {UniComponentLoader} from "../../../../../../framework/core/componentLoader";
 import {UniFormBuilder} from "../../../../../../framework/forms/builders/uniFormBuilder";
@@ -194,13 +194,13 @@ export class AddressForm {
 // address modal type
 @Component({
     selector: "address-modal-type",
-    directives: [NgIf, NgModel, NgFor, UniComponentLoader],
+    directives: [NgIf, NgModel, NgFor, NgClass, UniComponentLoader],
     template: `
         <article class="modal-content address-modal">
             <h1 *ngIf="config.title">{{config.title}}</h1>
             <uni-component-loader></uni-component-loader>
             <footer>
-                <button *ngFor="#action of config.actions; #i=index" (click)="action.method()">
+                <button *ngFor="#action of config.actions; #i=index" (click)="action.method()" [ngClass]="action.class">
                     {{action.text}}
                 </button>
             </footer>
@@ -250,7 +250,8 @@ export class AddressModal {
             value: "Initial value",
             actions: [
                 {
-                    text: "Accept",
+                    text: "Lagre adresse",
+                    class: "good",
                     method: () => {
                         self.modal.getContent().then((content: AddressModalType)=> {
                             content.instance.then((form: AddressForm)=> {
@@ -270,7 +271,7 @@ export class AddressModal {
                     }
                 },
                 {
-                    text: "Cancel",
+                    text: "Angre",
                     method: () => {
                         self.modal.getContent().then(() => {
                             self.modal.close();
