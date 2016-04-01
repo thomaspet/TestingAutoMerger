@@ -201,7 +201,7 @@ export class UniTable implements OnChanges, OnDestroy {
                     .withEndPoint(this.config.resource + '/' + options.data.ID)
                     .send()
                     .subscribe(
-                        (response) => options.success(this.flattenData(response)),
+                        (response) => options.success(this.flattenObject(response)),
                         (error) => options.error(error)
                     );
             },
@@ -214,7 +214,7 @@ export class UniTable implements OnChanges, OnDestroy {
                     .withBody(this.unflattenData(options.data))
                     .send()
                     .subscribe(
-                        (response) => options.success(this.flattenData(response)),
+                        (response) => options.success(this.flattenObject(response)),
                         (error) => options.error(error)
                     );
             },
