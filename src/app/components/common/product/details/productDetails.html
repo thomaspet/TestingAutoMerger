@@ -6,9 +6,9 @@
         </section>
             
         <nav class="poster_toolbar_tools">
-            <a [routerLink]="['../Previous']" class="previous">Forrige</a>
-            <a [routerLink]="['../Next']" class="next">Neste</a>
-            <a [routerLink]="['../Add']" class="new">Nytt produkt</a>
+            <a (click)="previousProduct()"  class="previous">Forrige</a>
+            <a (click)="nextProduct()"  class="next">Neste</a>
+            <a (click)="addProduct()"  class="new">Nytt produkt</a>
         </nav>         
     </article>       
     
