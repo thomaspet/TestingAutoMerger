@@ -107,8 +107,9 @@ export class BizHttp<T> {
             .send();
     }
      
-    public Action<T>(ID: number, actionName: string, parameters: string = null, method: number = RequestMethod.Put): Observable<any> {        
+    public Action<T>(ID: number, actionName: string, parameters: string = null, method: number = RequestMethod.Put): Observable<any> {
         return this.http
+            .usingBusinessDomain()
             .as(method)
             .withEndPoint(this.relativeURL + '/' + (ID === null ? '' : ID) + '?action=' + actionName + (parameters === null ? '' : '&' + parameters))
             .send();

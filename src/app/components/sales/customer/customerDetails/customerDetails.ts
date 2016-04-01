@@ -59,16 +59,17 @@ export class CustomerDetails {
     }
     
     nextCustomer() {
+        var self = this;
         this.customerService.NextCustomer(this.Customer.ID)
             .subscribe((data) => {
-                this.router.navigateByUrl('/customer/details/' + data.ID);
+                this.router.navigateByUrl('/sales/customer/details/' + data.ID);
             });
     }
     
     previousCustomer() {
         this.customerService.PreviousCustomer(this.Customer.ID)
             .subscribe((data) => {
-                this.router.navigateByUrl('/customer/details/' + data.ID);
+                this.router.navigateByUrl('/sales/customer/details/' + data.ID);
             });        
     }
     
@@ -79,7 +80,7 @@ export class CustomerDetails {
         this.customerService.Post(c)
             .subscribe(
                 (data) => {
-                    this.router.navigateByUrl('/customer/details/' + data.ID);        
+                    this.router.navigateByUrl('/sales/customer/details/' + data.ID);        
                 },
                 (err) => console.log('Error creating customer: ', err)
             );      
@@ -90,7 +91,7 @@ export class CustomerDetails {
             this.customerService.Post(c)
                 .subscribe(
                     (data) => {
-                        this.router.navigateByUrl('/customer/details/' + data.ID);        
+                        this.router.navigateByUrl('/sales/customer/details/' + data.ID);        
                     },
                     (err) => console.log('Error creating customer: ', err)
                 );        
@@ -108,14 +109,14 @@ export class CustomerDetails {
             this.projectService.GetAll(null),
             this.customerService.Get(this.CustomerID, ["Info", "Info.Phones", "Info.Addresses", "Info.Emails"]),
             this.phoneService.GetNewEntity(),
-            this.emailService.GetNewEntity(),
-            this.addressService.GetNewEntity()
+            this.emailService.GetNewEntity()
+         //   this.addressService.GetNewEntity()
         ).subscribe(response => {
             this.DropdownData = [response[0], response[1]];
             this.Customer = response[2];
             this.EmptyPhone = response[3];
             this.EmptyEmail = response[4];
-            this.EmptyAddress = response[5];
+         //   this.EmptyAddress = response[5];
             
             console.log("== CUSTOMER ==");
             console.log(this.Customer);

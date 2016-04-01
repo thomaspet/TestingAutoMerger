@@ -3,10 +3,10 @@ import {Router, RouteParams, RouterLink} from "angular2/router";
 import {Observable} from "rxjs/Observable";
 import "rxjs/add/observable/forkjoin";
 
-import {DepartementService, ProjectService, SupplierService, PhoneService, AddressService, EmailService} from "../../../../services/services";
+import {DepartementService, ProjectService, SupplierService, PhoneService, AddressService, EmailService, BankAccountService} from "../../../../services/services";
 import {ExternalSearch, SearchResultItem} from '../../../common/externalSearch/externalSearch';
 
-import {FieldType, FieldLayout, ComponentLayout, Supplier, BusinessRelation, Email, Phone, Address} from "../../../../unientities";
+import {FieldType, FieldLayout, ComponentLayout, Supplier, BusinessRelation, Email, Phone, Address, BankAccount} from "../../../../unientities";
 import {UNI_CONTROL_DIRECTIVES} from "../../../../../framework/controls";
 import {UniFormBuilder} from "../../../../../framework/forms/builders/uniFormBuilder";
 import {UniFormLayoutBuilder} from "../../../../../framework/forms/builders/uniFormLayoutBuilder";
@@ -22,8 +22,8 @@ import {PhoneModal} from "../../customer/modals/phone/phone";
 @Component({
     selector: "supplier-details",
     templateUrl: "app/components/sales/supplier/details/supplierDetails.html",    
-    directives: [UniComponentLoader, RouterLink, ExternalSearch], //, AddressModal, EmailModal, PhoneModal],
-    providers: [DepartementService, ProjectService, SupplierService, PhoneService, AddressService, EmailService]
+    directives: [UniComponentLoader, RouterLink, ExternalSearch, AddressModal, EmailModal, PhoneModal],
+    providers: [DepartementService, ProjectService, SupplierService, PhoneService, AddressService, EmailService, BankAccountService]
 })
 export class SupplierDetails {
             
@@ -42,6 +42,7 @@ export class SupplierDetails {
     EmptyPhone: Phone;
     EmptyEmail: Email;
     EmptyAddress: Address;
+    BankAccounts: any;
     
     whenFormInstance: Promise<UniForm>;
 
@@ -52,7 +53,8 @@ export class SupplierDetails {
                 private params: RouteParams,
                 private phoneService: PhoneService,
                 private emailService: EmailService,
-                private addressService: AddressService
+                private addressService: AddressService,
+                private bankaccountService: BankAccountService
                 ) {
                 
         this.SupplierID = params.get("id");        
@@ -61,14 +63,14 @@ export class SupplierDetails {
     nextSupplier() {
         this.supplierService.NextSupplier(this.Supplier.ID)
             .subscribe((data) => {
-                this.router.navigateByUrl('/suppliers/details/' + data.ID);
+                this.router.navigateByUrl('/sales/supplier/details/' + data.ID);
             });
     }
     
     previousSupplier() {
         this.supplierService.PreviousSupplier(this.Supplier.ID)
             .subscribe((data) => {
-                this.router.navigateByUrl('/suppliers/details/' + data.ID);
+                this.router.navigateByUrl('/sales/supplier/details/' + data.ID);
             });        
     }
     
@@ -79,7 +81,7 @@ export class SupplierDetails {
         this.supplierService.Post(c)
             .subscribe(
                 (data) => {
-                    this.router.navigateByUrl('/supplier/details/' + data.ID);        
+                    this.router.navigateByUrl('/sales/supplier/details/' + data.ID);        
                 },
                 (err) => console.log('Error creating supplier: ', err)
             );      
@@ -90,7 +92,7 @@ export class SupplierDetails {
             this.customerService.Post(c)
                 .subscribe(
                     (data) => {
-                        this.router.navigateByUrl('/customer/details/' + data.ID);        
+                        this.router.navigateByUrl('/sales/customer/details/' + data.ID);        
                     },
                     (err) => console.log('Error creating customer: ', err)
                 );        
@@ -108,18 +110,20 @@ export class SupplierDetails {
             this.projectService.GetAll(null),
             this.supplierService.Get(this.SupplierID, ["Info", "Info.Phones", "Info.Addresses", "Info.Emails"]),
             this.phoneService.GetNewEntity(),
-            this.emailService.GetNewEntity()
+            this.emailService.GetNewEntity(),
+            this.bankaccountService.GetAll("")
           //  this.addressService.GetNewEntity()
         ).subscribe(response => {
             this.DropdownData = [response[0], response[1]];
             this.Supplier = response[2];
             this.EmptyPhone = response[3];
             this.EmptyEmail = response[4];
+            this.BankAccounts = response[5];
          //   this.EmptyAddress = response[5];
-            
-            console.log("RESP");
-            console.log(response);
-            
+         
+            console.log("==SUPPLIER==");
+            console.log(this.Supplier);
+                       
             this.createFormConfig();
             this.extendFormConfig();
             this.loadForm();                  
@@ -135,7 +139,6 @@ export class SupplierDetails {
     }
 
     saveSupplier(autosave: boolean) {
-        console.log("SAVING " + autosave);
         this.formInstance.updateModel();
                         
         if (!autosave) {            
@@ -265,7 +268,12 @@ export class SupplierDetails {
             .setModelField('Addresses')
             .setModelDefaultField("ShippingAddressID")
             .setPlaceholder(this.EmptyAddress)
-            .setEditor(AddressModal);         
+            .setEditor(AddressModal);      
+            
+        var bankaccount: UniFieldBuilder = this.FormConfig.find('DefaultBankAccountID');
+        bankaccount
+            .setKendoOptions({dataSource: this.BankAccounts, dataValueField: "ID", dataTextField: "AccountNumber"});
+   
     }      
     
     createFormConfig() {   
@@ -420,26 +428,6 @@ export class SupplierDetails {
                 },
                 {
                     ComponentLayoutID: 3,
-                    EntityType: "Supplier",
-                    Property: "CreditDays",
-                    Placement: 1,
-                    Hidden: false,
-                    FieldType: 10,
-                    ReadOnly: false,
-                    LookupField: false,
-                    Label: "Kredittdager",
-                    Description: "",
-                    HelpText: "",
-                    FieldSet: 0,
-                    Section: 1,
-                    Legend: "Betingelser",
-                    StatusCode: 0,
-                    ID: 7,
-                    Deleted: false,
-                    CustomFields: null 
-                },
-                {
-                    ComponentLayoutID: 3,
                     EntityType: "Project",
                     Property: "Dimensions.ProjectID",
                     Placement: 4,
@@ -477,6 +465,26 @@ export class SupplierDetails {
                     ID: 9,
                     Deleted: false,
                     CustomFields: null
+                },
+                {
+                    ComponentLayoutID: 3,
+                    EntityType: "Supplier",
+                    Property: "DefaultBankAccountID",
+                    Placement: 4,
+                    Hidden: false,
+                    FieldType: 1,
+                    ReadOnly: false,
+                    LookupField: false,
+                    Label: "Bankkonto",
+                    Description: "",
+                    HelpText: "",
+                    FieldSet: 0,
+                    Section: 3,
+                    Legend: "Konto & bank",
+                    StatusCode: 0,
+                    ID: 10,
+                    Deleted: false,
+                    CustomFields: null  
                 }
             ]               
         };   
