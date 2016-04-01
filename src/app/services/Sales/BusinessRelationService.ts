@@ -6,8 +6,9 @@ import {Observable} from "rxjs/Observable";
 export class BusinessRelationService extends BizHttp<BusinessRelation> {
     
     constructor(http: UniHttp) {        
-        super(http);        
-        this.relativeURL = BusinessRelation.relativeUrl;
+        super(http);       
+        this.relativeURL = "businessrelations"; // TODO: change to BusinessRelation.relativeUrl;
+        this.DefaultOrderBy = null;
     }       
     
     search(searchText: string): Observable<any> {

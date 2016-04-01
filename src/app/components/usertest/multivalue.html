@@ -1,4 +1,4 @@
-<label class="uni-multivalue" [class.-has-values]="values.length > 1">{{label}}
+<label class="uni-multivalue-usertest" [class.-has-values]="values.length > 1">{{label}}
 
     <input type="text" [(ngModel)]="values[activeInd()].value" (blur)="save(values[activeInd()].value)" (keyup.enter)="save(values[activeInd()].value)">
     <button class="uni-multivalue-moreBtn" (click)="addOrDropdown(inputVal)">Add</button>

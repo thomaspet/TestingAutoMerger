@@ -36,7 +36,6 @@ export class UniTableDemo {
     private demoTable3: UniTableBuilder;
 
     constructor(private uniHttpService: UniHttp, params: RouteParams) {
-
         this.leaveTypes = [
             {ID: '0', Name: 'Ikke valgt'},
             {ID: '1', Name: 'Permisjon'},
@@ -64,9 +63,8 @@ export class UniTableDemo {
 
         this.setupDemoTable2();
         this.setupDemoTable3();
-        
     }
-    
+   
     private setupDemoTable1() {
         // Foreign key column values must be on the form [{value, text}]
         let leaveTypeDS = [
@@ -107,7 +105,7 @@ export class UniTableDemo {
             });
                     
         this.demoTable1 = new UniTableBuilder('employeeleave', true)
-            .setPageable(false)
+            // .setPageable(false)
             .addColumns(
                 idCol,
                 descriptionCol,

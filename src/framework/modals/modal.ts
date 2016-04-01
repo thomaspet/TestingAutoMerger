@@ -44,6 +44,7 @@ export class UniModal implements AfterViewInit {
         this.unicmploader.load(this.componentType).then((cmp: ComponentRef) => {
             this.component = new Promise((resolve) => {
                 cmp.instance.config = self.config;
+                self.isOpen = self.config.isOpen || false;
                 resolve(cmp.instance);
             });
         });
