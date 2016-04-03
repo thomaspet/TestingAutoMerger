@@ -150,42 +150,36 @@ export class UniTable implements OnChanges, OnDestroy {
         
         
         this.tableConfig.dataSource.transport = {
-
+            
             read: (options) => {
-                var searchParams = {
+                var requestOptions = {
+                    returnResponseHeaders: true,
                     expand: this.config.expand,
                     filter: this.buildOdataFilter(options.data.filter)
                 };
                                                 
-                if (options.data.sort) {
+                if (options.data.sort && options.data.sort[0]) {
                     var sortField = options.data.sort[0].field;
                     if (sortField.split('$').length) {
                         sortField = sortField.split('$').join('.');
                     }
-                    searchParams['orderBy'] = sortField + ' ' + options.data.sort[0].dir;
+                    requestOptions['orderBy'] = sortField + ' ' + options.data.sort[0].dir;
                 }
                                 
                 if (this.config.pageable) {
-                    searchParams['top'] = options.data.take;
-                    searchParams['skip'] = options.data.skip;
+                    requestOptions['top'] = options.data.take;
+                    requestOptions['skip'] = options.data.skip;
                 }
 
                 this.uniHttp
                     .asGET()
                     .usingBusinessDomain()
                     .withEndPoint(this.config.resource.toString())
-                    .send(searchParams)
+                    .send(requestOptions)
                     .subscribe(
                         (response) => {
-                            // TODO: Get count param from response headers (mocked for now)   
-                            if (response.length < this.config.pageSize) {
-                                this.totalRows = response.length + 
-                                (this.table.dataSource.page() - 1) * this.config.pageSize;
-                            } else {
-                                this.totalRows = 50;
-                            }
-
-                            options.success(this.flattenData(response));
+                            this.totalRows = response.headers.get('count');
+                            options.success(this.flattenData(response.json()));
                         },
                         (error) => options.error(error)
                 );
@@ -201,7 +195,7 @@ export class UniTable implements OnChanges, OnDestroy {
                     .withEndPoint(this.config.resource + '/' + options.data.ID)
                     .send()
                     .subscribe(
-                        (response) => options.success(this.flattenData(response)),
+                        (response) => options.success(this.flattenObject(response)),
                         (error) => options.error(error)
                     );
             },
@@ -214,7 +208,7 @@ export class UniTable implements OnChanges, OnDestroy {
                     .withBody(this.unflattenData(options.data))
                     .send()
                     .subscribe(
-                        (response) => options.success(this.flattenData(response)),
+                        (response) => options.success(this.flattenObject(response)),
                         (error) => options.error(error)
                     );
             },
@@ -307,7 +301,7 @@ export class UniTable implements OnChanges, OnDestroy {
         kendoFilter.filters.forEach((filter: any) => {
             
             if (filter.operator === 'contains') {
-                stringified += `contains(${filter.field},${filter.value}) or `;
+                stringified += `contains(${filter.field},'${filter.value}') or `;
                 // stringified += "contains(" + filter.field + ",'" + filter.value + "') or ";
             }
 
@@ -342,9 +336,10 @@ export class UniTable implements OnChanges, OnDestroy {
 
         var fields = this.tableConfig.dataSource.schema.model.fields;
 
-        for (var fieldName of Object.keys(fields)) {
-            let field = fields[fieldName];
-
+        Object.keys(fields).forEach((key) => {
+            let fieldName = key.split('$').join('.');
+            let field = fields[key];
+            
             // contains filter for text columns
             if (field.type === 'string') {
                 filter.filters.push({
@@ -356,12 +351,33 @@ export class UniTable implements OnChanges, OnDestroy {
 
             // eq filter for number columns
             if (field.type === 'number') {
-                var filterValue = parseInt(this.filterString);
+                let filterValue = parseInt(this.filterString);
                 if (!isNaN(filterValue)) {
                     filter.filters.push({field: fieldName, operator: 'eq', value: filterValue});
                 }
             }
-        }
+        });
+
+        // for (var fieldName of Object.keys(fields)) {
+        //     let field = fields[fieldName];
+
+        //     // contains filter for text columns
+        //     if (field.type === 'string') {
+        //         filter.filters.push({
+        //             field: fieldName,
+        //             operator: 'contains',
+        //             value: this.filterString
+        //         });
+        //     }
+
+        //     // eq filter for number columns
+        //     if (field.type === 'number') {
+        //         var filterValue = parseInt(this.filterString);
+        //         if (!isNaN(filterValue)) {
+        //             filter.filters.push({field: fieldName, operator: 'eq', value: filterValue});
+        //         }
+        //     }
+        // }
 
         this.table.dataSource.filter(filter);
     }

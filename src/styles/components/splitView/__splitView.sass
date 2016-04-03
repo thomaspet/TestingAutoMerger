@@ -13,6 +13,7 @@
     align-self: flex-start
 
 .splitview_list
+    @extend %detaillist
     min-width: 15rem
     max-width: 33%
 
@@ -23,3 +24,26 @@
     border: pxToRem(1) solid $uni-color-scale5
     border-radius: pxToRem(5)
     padding: 1rem
+    align-self: stretch
+    max-width: calc(100% - 15rem)
+    min-width: 66%
+
+    &:empty
+        box-shadow: inset $uni-color-scale9 0 0 3rem
+        color: $uni-color-scale3
+
+        &:before
+            @extend h2
+            content: 'Ingenting valgt'
+            display: inline-block
+            text-align: center
+            width: 100%
+            margin-top: 3rem
+
+        &:after
+            @extend p
+            content: 'Velg fra listen til venstre, for å se detaljer eller gjøre endringer.'
+            display: block
+            text-align: center
+            width: 15rem
+            margin: 2rem auto

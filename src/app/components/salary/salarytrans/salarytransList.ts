@@ -1,13 +1,13 @@
-import {Component, Input, ViewChildren, provide, Injector} from "angular2/core";
-import {Router, RouteConfig, RouteParams} from "angular2/router";
-import {UniTable, UniTableBuilder, UniTableColumn} from "../../../../framework/uniTable";
-import {Observable} from "rxjs/Observable";
-import {UniHttp} from "../../../../framework/core/http/http";
-import {EmployeeDS} from "../../../data/employee";
+import {Component, Input, ViewChildren, provide, Injector, OnInit} from 'angular2/core';
+import {RouteParams} from 'angular2/router';
+import {UniTable, UniTableBuilder, UniTableColumn} from '../../../../framework/uniTable';
+import {Observable} from 'rxjs/Observable';
+import {UniHttp} from '../../../../framework/core/http/http';
+import {EmployeeDS} from '../../../data/employee';
 
 @Component({
-    selector: "salary-transactions-employee",
-    templateUrl: "app/components/salary/salarytrans/salarytransList.html",
+    selector: 'salary-transactions-employee',
+    templateUrl: 'app/components/salary/salarytrans/salarytransList.html',
     directives: [UniTable],
     providers: [provide(EmployeeDS, {useClass: EmployeeDS})]
 })
@@ -27,18 +27,20 @@ export class SalaryTransactionEmployeeList {
     empIDcol : UniTableColumn;
     empNumbercol : UniTableColumn;
     
-    constructor(public employeeDS: EmployeeDS, private Injector: Injector, private uniHttpService: UniHttp) {
-        if(!this.ansattID) {
-            let params = this.Injector.parent.parent.get(RouteParams);
-            this.ansattID = params.get("id");                       
-            }
+    constructor(public employeeDS: EmployeeDS, 
+                private injector: Injector, 
+                private uniHttpService: UniHttp) {
+        if (!this.ansattID) {
+            let params = this.injector.parent.parent.get(RouteParams);
+            this.ansattID = params.get('id');
+        }
     }
     
     ngOnInit() {
         this.busy = true;
         this.uniHttpService.asGET()
         .usingBusinessDomain()
-        .withEndPoint("employments")
+        .withEndPoint('employments')
         .send()
         .subscribe((response) => {
             this.employments = response;
@@ -65,16 +67,12 @@ export class SalaryTransactionEmployeeList {
         }
     }
     
-    buildFilter() {
-        //console.log("payrollrunID",this.payrollRunID);
-        this.empIDcol.setDefaultValue(this.ansattID);        
-                
-        if(this.payrollRunID === undefined) {
-            this.runIDcol.setDefaultValue(0);            
-            return "EmployeeNumber eq " + this.ansattID;
+    private buildFilter() {
+        if (this.payrollRunID === undefined) {
+            return 'EmployeeNumber eq ' + this.ansattID;
         } else {
-            this.runIDcol.setDefaultValue(this.payrollRunID);
-            return "EmployeeNumber eq " + this.ansattID + " and PayrollRunID eq " + this.payrollRunID;
+            return 'EmployeeNumber eq ' + this.ansattID 
+            + ' and PayrollRunID eq ' + this.payrollRunID;
         }        
     }
     
@@ -95,14 +93,14 @@ export class SalaryTransactionEmployeeList {
             .setTemplate((dataItem) => {
                 return this.getEmploymentName(dataItem.EmploymentID);
             });
-        var accountCol = new UniTableColumn("Account","Konto","string");
-        var payoutCol = new UniTableColumn("Wagetype.Base_Payment","Utbetales","bool");
-        var transtypeCol = new UniTableColumn("IsRecurringPost","Fast/Variabel post","bool")
+        var accountCol = new UniTableColumn('Account', 'Konto', 'string');
+        // var payoutCol = new UniTableColumn('Wagetype.Base_Payment','Utbetales','bool');
+        var transtypeCol = new UniTableColumn('IsRecurringPost', 'Fast/Variabel post', 'bool')
         .setTemplate((dataItem) => {
-            if(dataItem.IsRecurringPost) {
-                return "Fast";
+            if (dataItem.IsRecurringPost) {
+                return 'Fast';
             } else {
-                return "Variabel";
+                return 'Variabel';
             }
         });
         
@@ -111,6 +109,7 @@ export class SalaryTransactionEmployeeList {
         this.salarytransEmployeeTableConfig = new UniTableBuilder("salarytrans",true)
         .setExpand("@Wagetype")
         .setFilter(this.buildFilter())
+        .setPageable(false)
         .addColumns(
             this.runIDcol,
             this.empIDcol,
@@ -124,12 +123,12 @@ export class SalaryTransactionEmployeeList {
             , rateCol 
             , amountCol
             , sumCol
-            //, payoutCol
+            // , payoutCol
             , transtypeCol
             );
     }
     
-    calculateTotals() {
+    private calculateTotals() {
         this.busy = true;
         Observable.forkJoin(            
             this.employeeDS.getTotals(this.ansattID)
@@ -143,22 +142,22 @@ export class SalaryTransactionEmployeeList {
         }, (error: any) => console.log(error));
     }
     
-    createTotalTableConfig() {
-        var percentCol = new UniTableColumn("Account","Prosenttrekk","string");
-        var taxtableCol = new UniTableColumn("Amount","Tabelltrekk","string");
-        var paidCol = new UniTableColumn("EmployeeNumber","Utbetalt beløp","number");
-        var agaCol = new UniTableColumn("Rate","Beregnet AGA", "number");
-        var basevacationCol = new UniTableColumn("Sum","Grunnlag feriepenger","number"); 
+    private createTotalTableConfig() {
+        var percentCol = new UniTableColumn('Account', 'Prosenttrekk', 'string');
+        var taxtableCol = new UniTableColumn('Amount', 'Tabelltrekk', 'string');
+        var paidCol = new UniTableColumn('EmployeeNumber', 'Utbetalt beløp', 'number');
+        var agaCol = new UniTableColumn('Rate', 'Beregnet AGA', 'number');
+        var basevacationCol = new UniTableColumn('Sum', 'Grunnlag feriepenger', 'number'); 
         
-        this.salarytransEmployeeTotalsTableConfig = new UniTableBuilder(this.employeeTotals,false)
+        this.salarytransEmployeeTotalsTableConfig = new UniTableBuilder(this.employeeTotals, false)
         .addColumns(percentCol, taxtableCol, paidCol, agaCol, basevacationCol);
     }
     
-    getEmploymentName = (employmentID:number) => {
-        var name = "";
+    private getEmploymentName(employmentID: number) {
+        var name = '';
         for (var i = 0; i < this.employments.length; i++) {
             var employment = this.employments[i];
-            if(employment.ID === employmentID) {
+            if (employment.ID === employmentID) {
                 name = employment.JobName;
                 break;
             }

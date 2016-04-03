@@ -16,10 +16,22 @@ export class UniTableColumn {
     public editor: any;
     public defaultValue: any;
     public values: any[];
+    public textAlign: string = 'left';
     
     constructor(field: string, title: string, type: string = '') {
         this.title = title;
         this.type = type;
+        
+        if (type === 'number' && field !== 'ID') {
+            this.textAlign = 'right';
+        }
+        
+        // Set custom editor and default format on date columns
+        if (type === 'date') {
+            this.editor = this.controls.datepicker({});
+            this.format = '{0: dd.MM.yyyy}';
+            this.textAlign = 'right';
+        }        
         
         // Separate multi-level expanded fields with $
         // so we can flatten/unflatten the dataobjects to avoid kendo crash.
@@ -28,12 +40,6 @@ export class UniTableColumn {
             this.field = splitField.join('$');
         } else {
             this.field = field;
-        }
-        
-        // Set custom editor and default format on date columns
-        if (type === 'date') {
-            this.editor = this.controls.datepicker({});
-            this.format = '{0: dd.MM.yyyy}';
         }
     }
     
@@ -101,5 +107,10 @@ export class UniTableColumn {
         }
         
         return this;
-    } 
+    }
+    
+    public overrideTextAlign(textAlign: string) {
+        this.textAlign = textAlign;
+        return this;
+    }
 }

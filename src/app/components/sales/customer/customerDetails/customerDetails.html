@@ -4,7 +4,7 @@
         <section>
             <h1 *ngIf="Customer && Customer.ID > 0">{{Customer.Info.Name}}
                 <p *ngIf="Customer.StatusCode != null">Kundenr. {{Customer.CustomerNumber}}</p>
-                <p *ngIf="Customer.StatusCode == 1"><i>Kladd</i></p>
+                <p *ngIf="Customer.StatusCode == null"><i>Kladd</i></p>
             </h1>
         </section>
             
