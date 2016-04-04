@@ -19,6 +19,8 @@ export * from './sales/phoneservice';
 export * from './common/productservice';
 export * from './sales/customerservice';
 export * from './sales/businessrelationservice';
+export * from './sales/customerquoteservice';
+export * from './sales/customerquoteitemservice'
 export * from './shared/agazoneservice';
 export * from './sales/addressservice';
 export * from './sales/phoneservice';
