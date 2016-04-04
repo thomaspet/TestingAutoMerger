@@ -4,6 +4,7 @@ import {Observable} from "rxjs/Observable";
 import "rxjs/add/observable/forkjoin";
 
 import {CustomerQuoteService, CustomerQuoteItemService, CustomerService, SupplierService, ProductService} from "../../../../services/services";
+import {QuoteItemList} from './quoteItemList';
 
 import {FieldType, FieldLayout, ComponentLayout, CustomerQuote, CustomerQuoteItem, Customer} from "../../../../unientities";
 import {UNI_CONTROL_DIRECTIVES} from "../../../../../framework/controls";
@@ -17,7 +18,7 @@ import {UniComponentLoader} from "../../../../../framework/core/componentLoader"
 @Component({
     selector: "quote-details",
     templateUrl: "app/components/sales/quote/details/quoteDetails.html",    
-    directives: [UniComponentLoader, RouterLink],
+    directives: [UniComponentLoader, RouterLink, QuoteItemList],
     providers: [CustomerQuoteService, CustomerQuoteItemService, CustomerService]
 })
 export class QuoteDetails {

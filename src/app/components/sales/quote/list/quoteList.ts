@@ -13,16 +13,16 @@ declare var jQuery;
     directives: [UniTable],
     providers: [CustomerQuoteService]
 })
-export class SupplierList {
+export class QuoteList { 
     @ViewChildren(UniTable) tables: any;
     
-    supplierTable: UniTableBuilder;
+    quoteTable: UniTableBuilder;
  
     constructor(private uniHttpService: UniHttp, private router: Router, private customerQouteService: CustomerQuoteService) {
         this.setupQuoteTable();
     }
     
-    createSupplier() {        
+    createQuote() {        
         /*     
         this.customerQouteService.GetNewEntity().subscribe((s)=> {
             this.customerQouteService.Post(s)
@@ -48,23 +48,23 @@ export class SupplierList {
     }
 
     setupQuoteTable() {
-        /*
+        
         // Define columns to use in the table
-        var numberCol = new UniTableColumn('SupplierNumber', 'Leverandørnr', 'number').setWidth('15%');
-        var nameCol = new UniTableColumn('Info.Name', 'Navn', 'string');
-        var orgNoCol = new UniTableColumn('Orgnumber', 'Orgnr', 'string').setWidth('15%');
+        var numberCol = new UniTableColumn('ID', 'ID', 'number').setWidth('15%');
+        var nameCol = new UniTableColumn('CustomerID', 'Kundeid', 'string');
+        //var orgNoCol = new UniTableColumn('Orgnumber', 'Orgnr', 'string').setWidth('15%');
                 
         // Define callback function for row clicks
         var selectCallback = (selectedItem) => {
-            this.router.navigateByUrl('/sales/supplier/details/' + selectedItem.ID);
+            this.router.navigateByUrl('/sales/quote/details/' + selectedItem.ID);
         }
 
         // Setup table
-        this.supplierTable = new UniTableBuilder('suppliers?expand=Info', false)
+        this.quoteTable = new UniTableBuilder('quotes', false)
             .setSelectCallback(selectCallback)
             .setFilterable(false)
             .setPageSize(25)
-            .addColumns(numberCol, nameCol, orgNoCol); 
-        */               
+            .addColumns(numberCol, nameCol);//, orgNoCol); 
+                       
     }
 }
