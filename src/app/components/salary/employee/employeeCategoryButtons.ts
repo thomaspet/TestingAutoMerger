@@ -1,5 +1,5 @@
 import {Component, Input, OnInit} from 'angular2/core';
-import {EmployeeCategory} from '../../../unientities';
+import {EmployeeCategory, Employee, EmployeeCategoryLink} from '../../../unientities';
 import {EmployeeService} from '../../../services/services';
 
 declare var jQuery;
@@ -24,8 +24,9 @@ declare var jQuery;
 export class EmployeeCategoryButtons implements OnInit {
     private categories: Array<EmployeeCategory>;
     @Input()
-    private employeeID: number;
-    //private multiselection: any;
+    private selectedEmployee: Employee;
+    private categoriesFromEmployee: Array<EmployeeCategoryLink>;
+    //private multiselect: any;
     
     //private newItemText: any;
     
@@ -80,6 +81,16 @@ export class EmployeeCategoryButtons implements OnInit {
     //     }
     // }
     
+    private setCategories() {
+        // this.selectedEmployee.EmployeeCategoryLinks.forEach(categoryLinkID => {
+        //     var cat = new EmployeeCategory();
+        //     console.log('kategorilink', categoryLinkID);
+        //     cat.EmployeeCategoryLinkID = categoryLinkID.EmployeeCategoryID;
+        // });
+        
+        // this.categoriesFromEmployee = this.selectedEmployee.EmployeeCategoryLinks;
+    }
+    
     public ngOnInit() {
         var tags = [
             { text: "Tag1", value:"Tag1" },
@@ -87,9 +98,11 @@ export class EmployeeCategoryButtons implements OnInit {
             { text: "Tag3", value:"Tag3" }
         ];
 
-		var newitemtext;
-
-		var multiselect = jQuery("#tags").kendoMultiSelect({
+        // this.setCategories();
+		
+        var newitemtext;
+        
+        var multiselect = jQuery('#tags').kendoMultiSelect({
 			// change: function() {
 			// 	var value = this.value().slice(0);
 			// 	var dataitems = this.dataSource.data();
@@ -148,22 +161,25 @@ export class EmployeeCategoryButtons implements OnInit {
 			// 	}
 			// },
 			dataSource: tags,
-			dataTextField: "text",
-			dataValueField: "value",
-			filter: "contains",
+			dataTextField: 'text',
+			dataValueField: 'value',
+			filter: 'contains',
 			animation: false
 		});
         
+        console.log('multiselect', multiselect);
+        // multiselect.dataSource.filter({});
+        // multiselect.value = ('Tag1', 'Tag3');
+        // multiselect.trigger('change');
         
         
         
-        
-        
-        
-        this.employeeService.getEmployeeCategories(this.employeeID)
+        this.employeeService.getEmployeeCategories(this.selectedEmployee.EmployeeNumber)
         .subscribe((response: any) => {
             this.categories = response;
             console.log('response kategorier', response);
+            
+            
             
             var data: any = [
                 { text : 'name1', value : 'name1' },
@@ -176,7 +192,7 @@ export class EmployeeCategoryButtons implements OnInit {
             
             var newItemText;
             
-            var multiselect = jQuery('#selectedCategories').kendoMultiSelect({
+            var multiselect2 = jQuery('#selectedCategories').kendoMultiSelect({
                 animation: false,
                 dataSource: data,
                 // dataSource: this.data,

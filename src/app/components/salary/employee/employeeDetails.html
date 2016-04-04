@@ -5,7 +5,7 @@
             <h2 class="poster_toolbar_headline">{{employee.BusinessRelationInfo.Name}}
                 <p class="poster_toolbar_orgnr">Ansattnr. {{employee.EmployeeNumber}}</p>
             </h2>
-            <employeecategory-buttons [employeeID]="employee.EmployeeNumber"></employeecategory-buttons>
+            <employeecategory-buttons [selectedEmployee]="employee"></employeecategory-buttons>
         </div>
             
         <div class="poster_toolbar_tools">
