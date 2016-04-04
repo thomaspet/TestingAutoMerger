@@ -59,16 +59,17 @@ export class CustomerDetails {
     }
     
     nextCustomer() {
+        var self = this;
         this.customerService.NextCustomer(this.Customer.ID)
             .subscribe((data) => {
-                this.router.navigateByUrl('/customer/details/' + data.ID);
+                this.router.navigateByUrl('/sales/customer/details/' + data.ID);
             });
     }
     
     previousCustomer() {
         this.customerService.PreviousCustomer(this.Customer.ID)
             .subscribe((data) => {
-                this.router.navigateByUrl('/customer/details/' + data.ID);
+                this.router.navigateByUrl('/sales/customer/details/' + data.ID);
             });        
     }
     
@@ -79,7 +80,7 @@ export class CustomerDetails {
         this.customerService.Post(c)
             .subscribe(
                 (data) => {
-                    this.router.navigateByUrl('/customer/details/' + data.ID);        
+                    this.router.navigateByUrl('/sales/customer/details/' + data.ID);        
                 },
                 (err) => console.log('Error creating customer: ', err)
             );      
@@ -90,7 +91,7 @@ export class CustomerDetails {
             this.customerService.Post(c)
                 .subscribe(
                     (data) => {
-                        this.router.navigateByUrl('/customer/details/' + data.ID);        
+                        this.router.navigateByUrl('/sales/customer/details/' + data.ID);        
                     },
                     (err) => console.log('Error creating customer: ', err)
                 );        
@@ -107,19 +108,19 @@ export class CustomerDetails {
             this.departementService.GetAll(null),
             this.projectService.GetAll(null),
             this.customerService.Get(this.CustomerID, ["Info", "Info.Phones", "Info.Addresses", "Info.Emails"]),
-            this.phoneService.GetNewEntity()
-            //this.emailService.GetNewEntity(),
-            //this.addressService.GetNewEntity()
+            this.phoneService.GetNewEntity(),
+            this.emailService.GetNewEntity()
+         //   this.addressService.GetNewEntity()
         ).subscribe(response => {
             this.DropdownData = [response[0], response[1]];
             this.Customer = response[2];
             this.EmptyPhone = response[3];
-            //this.EmptyEmail = response[4];
-            //this.EmptyAddress = response[5];
+            this.EmptyEmail = response[4];
+         //   this.EmptyAddress = response[5];
             
             console.log("== CUSTOMER ==");
             console.log(this.Customer);
-                        
+                                   
             this.createFormConfig();
             this.extendFormConfig();
             this.loadForm();                  
@@ -145,26 +146,6 @@ export class CustomerDetails {
             ID: 1,
             CustomFields: null,
             Fields: [
-                {
-                    ComponentLayoutID: 3,
-                    EntityType: "Customer",
-                    Property: "CustomerNumber",
-                    Placement: 1,
-                    Hidden: false,
-                    FieldType: 10,
-                    ReadOnly: false,
-                    LookupField: false,
-                    Label: "Kundenummer",
-                    Description: "",
-                    HelpText: "",
-                    FieldSet: 0,
-                    Section: 0,
-                    Legend: "",
-                    StatusCode: 0,
-                    ID: 1,
-                    Deleted: false,
-                    CustomFields: null 
-                },
                 {
                     ComponentLayoutID: 3,
                     EntityType: "BusinessRelation",
@@ -395,8 +376,7 @@ export class CustomerDetails {
         });      
         project.addClass('large-field');    
         
-        // MultiValue
-        
+        // MultiValue       
         var phones: UniFieldBuilder = this.FormConfig.find('Phones');
         phones
             .setKendoOptions({
@@ -420,9 +400,9 @@ export class CustomerDetails {
             .setModelDefaultField("DefaultEmailID")
             .setPlaceholder(this.EmptyEmail)
             .setEditor(EmailModal);     
-
-        var invoiceaddresses: UniFieldBuilder = this.FormConfig.find('InvoiceAddress');
-        invoiceaddresses
+            
+        var invoiceaddress: UniFieldBuilder = this.FormConfig.find('InvoiceAddress');
+        invoiceaddress
             .setKendoOptions({
                 dataTextField: 'AddressLine1',
                 dataValueField: 'ID'
@@ -443,7 +423,7 @@ export class CustomerDetails {
             .setModelField('Addresses')
             .setModelDefaultField("ShippingAddressID")
             .setPlaceholder(this.EmptyAddress)
-            .setEditor(AddressModal);                 
+            .setEditor(AddressModal);           
     }    
        
     loadForm() {       
@@ -486,15 +466,10 @@ export class CustomerDetails {
         this.formInstance.updateModel();
                         
         if (!autosave) {    
-            console.log("=== HVA ER INFO NÅ ===");
-            console.log(this.Customer.Info);
-            
             if (this.Customer.StatusCode == null) {
                 //set status if it is a draft
                 this.Customer.StatusCode = 1;
-            } else if (this.Customer.StatusCode == 1) {
-                this.Customer.StatusCode = 2; //??
-            }            
+            } 
             this.LastSavedInfo = 'Lagrer kundeinformasjon...';                
         } else {
            this.LastSavedInfo = 'Autolagrer kundeinformasjon...';

@@ -1,6 +1,23 @@
-﻿.treelist
-    list-style: none
+﻿%detaillist
     padding: 0
+
+    .k-grid tr.k-state-selected
+        color: $uni-color-negative
+        background: $uni-color-C2A
+
+    div.k-grid-header
+        padding-right: 0 !important // Because of Kendo's $%#@ing inline styles
+
+    input[type=search]
+        display: none
+
+    .k-grid-content
+        overflow-y: hidden
+        margin-bottom: 1rem
+
+.treelist
+    @extend %detaillist
+    list-style: none
 
     .treelist
         padding-left: 1rem
@@ -9,16 +26,6 @@
     &[aria-expanded=true]
         background: red
 
-    div.k-grid-header
-        padding-right: 0 !important // Because of Kendo's $%#@ing inline styles
-
-    .k-grid-content
-        overflow-y: hidden
-        margin-bottom: 1rem
-
-    .k-grid tr.k-state-selected
-        color: $uni-color-negative
-        background: $uni-color-C2A
 
 .treelist_headline
     cursor: pointer
@@ -37,9 +44,6 @@
         display: none
 
 .treelist_content
-    input[type=search]
-        display: none
-
     uni-table
         margin-bottom: 1rem
 

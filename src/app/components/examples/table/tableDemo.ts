@@ -19,6 +19,8 @@ declare var jQuery;
         
         <h4>Read-only table with callback on row click (logs to console)</h4>
         <uni-table [config]="demoTable3"></uni-table>
+        <button class="c2a" (click)="hideIDCol()">Hide ID column</button>
+        <button class="c2a" (click)="showIDCol()">Show ID column</button>
         <button class="c2a" (click)="updateTableFilter()">Update filter (price > 100)</button>
     `,
     directives: [UniTable]
@@ -80,6 +82,7 @@ export class UniTableDemo {
             employmentDS.push({value: item.ID, text: item.JobName});
         });
         
+        let idCol = new UniTableColumn('ID', 'ID', 'number');
         let descriptionCol = new UniTableColumn('Description', 'Beskrivelse', 'string');
         let fromDateCol = new UniTableColumn('FromDate', 'Fra', 'date');
         let toDateCol = new UniTableColumn('ToDate', 'Til', 'date');
@@ -87,11 +90,11 @@ export class UniTableDemo {
         let leavePercentCol = new UniTableColumn('LeavePercent', 'Prosent', 'number')
             .setFormat("{0: # \\'%'}");
                     
-        let leaveTypeCol = new UniTableColumn('LeaveType', 'Type', 'number')
+        let leaveTypeCol = new UniTableColumn('LeaveType', 'Type', 'text')
             .setValues(leaveTypeDS)
             .setDefaultValue(null);
                     
-        let employmentCol = new UniTableColumn('EmploymentID', 'Ansattforhold', 'number')
+        let employmentCol = new UniTableColumn('EmploymentID', 'Ansattforhold', 'text')
             .setValues(employmentDS)
             .setDefaultValue(null)
             .setCustomEditor('dropdown', {
@@ -106,6 +109,7 @@ export class UniTableDemo {
         this.demoTable1 = new UniTableBuilder('employeeleave', true)
             // .setPageable(false)
             .addColumns(
+                idCol,
                 descriptionCol,
                 fromDateCol,
                 toDateCol,
@@ -170,7 +174,7 @@ export class UniTableDemo {
             .setEditable(false);
 
         var nameCol = new UniTableColumn('Name', 'Produktnavn', 'string');
-        var priceCol = new UniTableColumn('PriceIncVat', 'Pris inkl. mva.', 'number');
+        var priceCol = new UniTableColumn('CostPrice', 'Kostpris', 'number');
 
         // Define callback function for row clicks
         var selectCallback = (selectedItem) => {
@@ -203,5 +207,13 @@ export class UniTableDemo {
 
     private updateTableFilter() {
         this.tables.toArray()[2].updateFilter('Price gt 100');
+    }
+    
+    private hideIDCol() {
+        this.tables.toArray()[2].hideColumn('ID');
+    }
+    
+    private showIDCol() {
+        this.tables.toArray()[2].showColumn('ID');
     }
 }
