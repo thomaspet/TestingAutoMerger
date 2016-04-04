@@ -36,6 +36,14 @@ export class UniTable implements OnChanges, OnDestroy {
         this.config.filter = filter;
         this.table.dataSource.read();
     }
+    
+    public hideColumn(field: string): void {
+        this.table.hideColumn(field);
+    }
+    
+    public showColumn(field: string): void {
+        this.table.showColumn(field);
+    }
 
     public ngOnChanges(changes: {[propName: string]: SimpleChange}) {
         var current = changes['config'].currentValue;

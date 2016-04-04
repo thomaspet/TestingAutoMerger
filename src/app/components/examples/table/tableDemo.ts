@@ -19,6 +19,8 @@ declare var jQuery;
         
         <h4>Read-only table with callback on row click (logs to console)</h4>
         <uni-table [config]="demoTable3"></uni-table>
+        <button class="c2a" (click)="hideIDCol()">Hide ID column</button>
+        <button class="c2a" (click)="showIDCol()">Show ID column</button>
         <button class="c2a" (click)="updateTableFilter()">Update filter (price > 100)</button>
     `,
     directives: [UniTable]
@@ -172,7 +174,7 @@ export class UniTableDemo {
             .setEditable(false);
 
         var nameCol = new UniTableColumn('Name', 'Produktnavn', 'string');
-        var priceCol = new UniTableColumn('PriceIncVat', 'Pris inkl. mva.', 'number');
+        var priceCol = new UniTableColumn('CostPrice', 'Kostpris', 'number');
 
         // Define callback function for row clicks
         var selectCallback = (selectedItem) => {
@@ -205,5 +207,13 @@ export class UniTableDemo {
 
     private updateTableFilter() {
         this.tables.toArray()[2].updateFilter('Price gt 100');
+    }
+    
+    private hideIDCol() {
+        this.tables.toArray()[2].hideColumn('ID');
+    }
+    
+    private showIDCol() {
+        this.tables.toArray()[2].showColumn('ID');
     }
 }
