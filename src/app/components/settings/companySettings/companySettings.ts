@@ -325,7 +325,7 @@ export class CompanySettings implements OnInit {
         supplierAccount.setLabel('Leverandør-konto')
             .setModel(this.company)
             .setModelField('SupplierAccountID')
-            .setType(UNI_CONTROL_DIRECTIVES[FieldType.CHECKBOX])
+            .setType(UNI_CONTROL_DIRECTIVES[FieldType.DROPDOWN])
             .setKendoOptions({
                 dataSource: this.accounts,
                 dataTextField: 'AccountNumber',
@@ -337,7 +337,7 @@ export class CompanySettings implements OnInit {
         customerAccount.setLabel('Kunde-Konto')
             .setModel(this.company)
             .setModelField('CustomerAccountID')
-            .setType(UNI_CONTROL_DIRECTIVES[FieldType.CHECKBOX])
+            .setType(UNI_CONTROL_DIRECTIVES[FieldType.DROPDOWN])
             .setKendoOptions({
                 dataSource: this.accounts,
                 dataTextField: 'AccountNumber',
