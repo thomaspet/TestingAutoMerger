@@ -132,6 +132,23 @@ export class CustomerDetails {
             this.Customer.Info.Name = selectedSearchInfo.navn;
             this.Customer.Orgnumber = selectedSearchInfo.orgnr;
             
+            var address = new Address();
+            address.AddressLine1 = selectedSearchInfo.forretningsadr;
+            address.PostalCode = selectedSearchInfo.forradrpostnr;
+            address.City = selectedSearchInfo.forradrpoststed;
+            address.Country = selectedSearchInfo.forradrland;
+            
+            var address2= new Address();
+            address2.AddressLine1 = selectedSearchInfo.postadresse;
+            address2.PostalCode = selectedSearchInfo.ppostnr;
+            address2.City = selectedSearchInfo.ppoststed;
+            address2.Country = selectedSearchInfo.ppostland;
+            
+            console.log("====");
+            console.log(address);
+            console.log(selectedSearchInfo);
+           
+            this.Customer.Info.Addresses.push(address);
             this.formInstance.refresh(this.Customer); 
         } 
     }

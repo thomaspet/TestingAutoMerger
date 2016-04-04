@@ -76,7 +76,13 @@ export class SearchResultItem {
     orgnr: string;
     forretningsadr: string;
     forradrpostnr: string;
-    forradrpoststed: string;    
+    forradrpoststed: string;
+    forradrland: string;
+    postadresse: string;
+    ppostnr: string;
+    ppoststed: string;
+    ppostland: string;¨
+    tlf_mobil: string;    
     tlf: string;
     url: string;
 }
