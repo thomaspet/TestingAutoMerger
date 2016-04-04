@@ -120,7 +120,7 @@ export class CustomerDetails {
             
             console.log("== CUSTOMER ==");
             console.log(this.Customer);
-                        
+                                   
             this.createFormConfig();
             this.extendFormConfig();
             this.loadForm();                  
@@ -376,8 +376,7 @@ export class CustomerDetails {
         });      
         project.addClass('large-field');    
         
-        // MultiValue
-        
+        // MultiValue       
         var phones: UniFieldBuilder = this.FormConfig.find('Phones');
         phones
             .setKendoOptions({
@@ -401,9 +400,9 @@ export class CustomerDetails {
             .setModelDefaultField("DefaultEmailID")
             .setPlaceholder(this.EmptyEmail)
             .setEditor(EmailModal);     
-
-        var invoiceaddresses: UniFieldBuilder = this.FormConfig.find('InvoiceAddress');
-        invoiceaddresses
+            
+        var invoiceaddress: UniFieldBuilder = this.FormConfig.find('InvoiceAddress');
+        invoiceaddress
             .setKendoOptions({
                 dataTextField: 'AddressLine1',
                 dataValueField: 'ID'
@@ -424,7 +423,7 @@ export class CustomerDetails {
             .setModelField('Addresses')
             .setModelDefaultField("ShippingAddressID")
             .setPlaceholder(this.EmptyAddress)
-            .setEditor(AddressModal);                 
+            .setEditor(AddressModal);           
     }    
        
     loadForm() {       
