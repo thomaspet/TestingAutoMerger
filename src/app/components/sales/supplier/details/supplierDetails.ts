@@ -131,7 +131,12 @@ export class SupplierDetails {
     }
     
     addSearchInfo(selectedSearchInfo: SearchResultItem) {
-        //TODO 
+        if (this.Supplier != null) {
+            this.Supplier.Info.Name = selectedSearchInfo.navn;
+            this.Supplier.OrgNumber = selectedSearchInfo.orgnr;
+            
+            this.formInstance.refresh(this.Supplier); 
+        } 
     }
     
     saveSupplierManual(event: any) {        
