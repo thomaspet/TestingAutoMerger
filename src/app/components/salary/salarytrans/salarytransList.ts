@@ -12,31 +12,32 @@ import {EmployeeDS} from '../../../data/employee';
     providers: [provide(EmployeeDS, {useClass: EmployeeDS})]
 })
 
-export class SalaryTransactionEmployeeList {
-    busy = true;
-    salarytransEmployeeTableConfig;
-    salarytransEmployeeTotalsTableConfig;
-    employeeTotals: Array<any>;
-    employments:any[];
-    @Input() ansattID: number;
-    @Input() payrollRunID: number;
-    @ViewChildren(UniTable) tables: any;
-        
-    empnumber : any;
-    runIDcol : UniTableColumn;
-    empIDcol : UniTableColumn;
-    empNumbercol : UniTableColumn;
+export class SalaryTransactionEmployeeList implements OnInit {     
+    private salarytransEmployeeTableConfig;
+    private salarytransEmployeeTotalsTableConfig;
+    private employeeTotals: Array<any>;
+    private employments: any[];
+    @Input() private ansattID: number;
+    @Input() private payrollRunID: number;
+    @ViewChildren(UniTable) private tables: any;
+    
+    private busy: boolean;    
+    private runIDcol: UniTableColumn;
+    private empIDcol: UniTableColumn;
+    //private empNumbercol: UniTableColumn;
     
     constructor(public employeeDS: EmployeeDS, 
                 private injector: Injector, 
                 private uniHttpService: UniHttp) {
-        if (!this.ansattID) {
-            let params = this.injector.parent.parent.get(RouteParams);
-            this.ansattID = params.get('id');
-        }
-    }
+                    this.busy = true;
+                    if (!this.ansattID)     
+                    {
+                        let params = this.injector.parent.parent.get(RouteParams);
+                        this.ansattID = params.get('id');
+                    }
+            }
     
-    ngOnInit() {
+    public ngOnInit() {
         this.busy = true;
         this.uniHttpService.asGET()
         .usingBusinessDomain()
@@ -58,7 +59,7 @@ export class SalaryTransactionEmployeeList {
         }, (error: any) => console.log(error));
     }
     
-    ngOnChanges() {
+    public ngOnChanges() {
         this.busy = true;
         if(this.tables && this.ansattID) {
             this.tables.toArray()[0].updateFilter(this.buildFilter());
@@ -76,20 +77,21 @@ export class SalaryTransactionEmployeeList {
         }        
     }
     
-    createTableConfig() {
-        var wagetypeidCol = new UniTableColumn("Wagetype.WageTypeNumber","Lønnsart","string");
-        var wagetypenameCol = new UniTableColumn("Text","Tekst","string");
-        var fromdateCol = new UniTableColumn("FromDate","Fra dato","date")
-        var toDateCol = new UniTableColumn("ToDate","Til dato","date");
-        var rateCol = new UniTableColumn("Rate","Sats","number");
-        var amountCol = new UniTableColumn("Amount","Antall","number");
-        var sumCol = new UniTableColumn("Sum","Beløp","number");
+    private createTableConfig() {
+        //var wagetypeidCol = new UniTableColumn('Wagetype.WageTypeNumber','Lønnsart','string');
+        var wagetypenameCol = new UniTableColumn('Text','Tekst','string');
+        var fromdateCol = new UniTableColumn('FromDate','Fra dato','date')
+        var toDateCol = new UniTableColumn('ToDate','Til dato','date');
+        var rateCol = new UniTableColumn('Rate','Sats','number');
+        var amountCol = new UniTableColumn('Amount','Antall','number');
+        var sumCol = new UniTableColumn('Sum','Beløp','number');
         
-        this.runIDcol = new UniTableColumn("PayrollRunID", "Lønnsavregningsid" );
+        this.runIDcol = new UniTableColumn('PayrollRunID', 'Lønnsavregningsid' );
         this.runIDcol.defaultValue = this.payrollRunID;
-        this.empIDcol = new UniTableColumn("EmployeeID", "AnsattID" );
-                
-        var employmentidCol = new UniTableColumn("EmploymentID","Arbeidsforhold")         
+        this.empIDcol = new UniTableColumn('EmployeeID', 'AnsattID' );
+        this.empIDcol.defaultValue = this.ansattID;
+
+        var employmentidCol = new UniTableColumn('EmploymentID','Arbeidsforhold')         
             .setTemplate((dataItem) => {
                 return this.getEmploymentName(dataItem.EmploymentID);
             });
@@ -104,10 +106,10 @@ export class SalaryTransactionEmployeeList {
             }
         });
         
-        var wageTypeCol = new UniTableColumn("WageTypeNumber", "Lønnsart");
+        var wageTypeCol = new UniTableColumn('WageTypeNumber', 'Lønnsart');
         
-        this.salarytransEmployeeTableConfig = new UniTableBuilder("salarytrans",true)
-        .setExpand("@Wagetype")
+        this.salarytransEmployeeTableConfig = new UniTableBuilder('salarytrans',true)
+        .setExpand('@Wagetype')
         .setFilter(this.buildFilter())
         .setPageable(false)
         .addColumns(
@@ -125,7 +127,8 @@ export class SalaryTransactionEmployeeList {
             , sumCol
             // , payoutCol
             , transtypeCol
-            );
+            )
+            .addCommands('destroy');
     }
     
     private calculateTotals() {
@@ -135,10 +138,8 @@ export class SalaryTransactionEmployeeList {
         ).subscribe((response: any) => {
             let [totals] = response;
             this.employeeTotals = totals;
-            this.busy = false;            
+            this.busy = false;
             
-            //this.tables.toArray()[1].refresh(this.employeeTotals);
-            //this.tables.toArray()[1].
         }, (error: any) => console.log(error));
     }
     
