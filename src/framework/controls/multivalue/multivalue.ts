@@ -34,7 +34,7 @@ export class UniMultiValue {
     constructor(private el: ElementRef) {
         var self = this;
         this.element = el.nativeElement;
-                
+                              
         document.addEventListener("click", function (event) {
             var $el = jQuery(el.nativeElement);
             if (!jQuery(event.target).closest($el).length) {
@@ -42,12 +42,24 @@ export class UniMultiValue {
                 self.editindex = null;
             }
         });    
-    }
+   }
     
     ngOnInit() {
+        var list = this.config.model[this.config.field];
+        if (list.length < 1) {
+            this.config.model[this.config.field].push(this.placeholder());
+        }
+              
         this.config.fieldComponent = this;
     }
     
+    //ngAfterViewInit() {
+    //          if (this.config.model[this.config.field].length == 0) {
+    //        this.config.model[this.config.field].push(this.placeholder());
+    //    }
+ 
+//    }
+        
     refresh(value: any): void {
         this.config.control.updateValue(value, {});
     }
