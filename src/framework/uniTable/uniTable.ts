@@ -57,7 +57,6 @@ export class UniTable implements OnChanges, OnDestroy {
         var current = changes['config'].currentValue;
         
         if (!this.table && current) {
-            console.log('compiling');
             this.setupAndCompile();
         }
     }
