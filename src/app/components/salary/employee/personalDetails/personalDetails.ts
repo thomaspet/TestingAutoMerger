@@ -59,8 +59,6 @@ export class PersonalDetails implements OnInit {
     }
     
     private getData() {
-
-        console.log('getting data');
         Observable.forkJoin(
             this.employeeService.get(this.employeeID),
             this.employeeService.layout('EmployeePersonalDetailsForm')
@@ -99,7 +97,6 @@ export class PersonalDetails implements OnInit {
     private executeSubmit(context: PersonalDetails) {
         return () => {
             if (context.employee.ID) {
-                console.log('PUT');
                 context.employeeService.Put(context.employee.ID, context.employee)
                     .subscribe(
                         (data: Employee) => {
@@ -113,7 +110,6 @@ export class PersonalDetails implements OnInit {
                         }
                     );
             } else {
-                console.log('POST');
                 context.employeeService.Post(context.employee)
                     .subscribe(
                         (data: Employee) => {

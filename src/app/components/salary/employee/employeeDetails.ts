@@ -96,16 +96,11 @@ export class EmployeeDetails {
             this.employee.EmployeeNumber = 0;
         }
     }
-
-    public onFormSubmit(value) {
-        console.log(value);
-    }
     
     public nextEmployee() {
         this._employeeService.getNext(this.employeeID).subscribe((response) => {
             if (response) {
                 this.employee = response;
-                console.log('nextEmployee response: ' + response);
                 this.isNextOrPrevious = true;
                 this._router.navigateByUrl(this.url + this.employee.ID);
             }
@@ -116,7 +111,6 @@ export class EmployeeDetails {
         this._employeeService.getPrevious(this.employeeID).subscribe((response) => {
             if (response) {
                 this.employee = response;
-                console.log('nextEmployee response: ' + response);
                 this.isNextOrPrevious = true;
                 this._router.navigateByUrl(this.url + this.employee.ID);
             }
