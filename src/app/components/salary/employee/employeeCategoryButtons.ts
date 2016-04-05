@@ -28,7 +28,6 @@ declare var jQuery;
         </section>
         
         
-        
         <article class="buttonlist_component">
             <ul class="filter_buttonlist">
                 <li *ngFor="#category of categories">

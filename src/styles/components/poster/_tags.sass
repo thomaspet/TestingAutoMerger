@@ -1,0 +1,92 @@
+.poster_tags
+    @include unigrid-flush(14)
+    margin: 0 auto
+    padding: 0 1rem 1rem
+
+.poster_tags_list
+    display: inline-block
+    list-style: none
+    margin: 0
+
+    li
+        display: inline-block
+        background: $uni-color-scale5
+        color: $uni-color-negative
+        padding: 0 0 0 .5rem
+        margin-right: .2rem
+        border-radius: pxToRem(3)
+        font-size: .8rem
+        font-weight: 400
+        line-height: 1.1rem
+        border: pxToRem(2) solid $uni-color-scale5
+        cursor: default
+
+    .remove
+        display: inline-block
+        font-size: 0
+        color: transparent
+        border: none
+        box-shadow: none
+        margin: 0
+        padding: 0
+        height: 1.1rem
+        width: 1.1rem
+        background: transparent unicon-middot($uni-color-scale9) center center no-repeat
+        background-size: .3rem
+
+    li:hover .remove
+        background: transparent unicon-close($uni-color-negative) center center no-repeat
+        background-size: .4rem
+
+.poster_tags_addBtn
+    display: inline-block
+    margin: 0
+    padding: 0 .5rem
+    color: $uni-color-scale5
+    font-size: .8rem
+    line-height: 1.12rem
+    font-weight: 400
+    background: none
+    box-shadow: none
+    border: pxToRem(2) solid $uni-color-scale8
+    border-radius: pxToRem(3)
+    text-shadow: none
+    height: auto
+
+    &.-is-active
+        display: none
+
+.poster_tags_addDropdown
+    display: none
+
+    &.-is-active
+        display: inline-block
+        position: absolute
+        background: $uni-color-negative
+        border: pxToRem(1) solid $uni-color-scale9
+        border-radius: pxToRem(5)
+        box-shadow: 0 0 1rem transparentize($uni-color-scale9, .5)
+        margin: -.1rem .2rem 0
+
+    input
+        min-width: 10rem
+        width: 100%
+        animation: .3s ease-in-out foldoutTagSearch
+
+    ul
+        list-style: none
+        margin: 0
+
+    li
+        border-top: pxToRem(1) solid $uni-color-scale9
+        padding: .2rem 1rem
+
+        &:first-of-type
+            border-top: none
+
+        &:hover,
+        &:hover strong
+            cursor: pointer
+            background: $uni-color-C2A
+            color: $uni-color-negative
+            font-weight: 400
