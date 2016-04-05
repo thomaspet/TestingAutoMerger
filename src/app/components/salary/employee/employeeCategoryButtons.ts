@@ -1,12 +1,12 @@
 import {Component, Input, OnInit} from 'angular2/core';
 import {EmployeeCategory, Employee, EmployeeCategoryLink} from '../../../unientities';
-import {EmployeeService} from '../../../services/services';
+import {EmployeeService, EmployeeCategoryService} from '../../../services/services';
 
 declare var jQuery;
 
 @Component({
     selector: 'employeecategory-buttons',
-    providers: [EmployeeService],
+    providers: [EmployeeService, EmployeeCategoryService],
     template: `
         <article class="buttonlist_component">
             <ul class="filter_buttonlist">
@@ -15,6 +15,7 @@ declare var jQuery;
                 </li>
             </ul>
             <button (click)="addCategories()">Legg til</button>
+            <button (click)="saveCategories()">Lagre</button>
             <select id="tags"></select>
             <input id="selectedCategories">
         </article>
@@ -30,7 +31,8 @@ export class EmployeeCategoryButtons implements OnInit {
     
     //private newItemText: any;
     
-    constructor(private employeeService: EmployeeService) {
+    constructor(private employeeService: EmployeeService, 
+                private employeeCategoryService: EmployeeCategoryService) {
         
     }
     
@@ -179,7 +181,7 @@ export class EmployeeCategoryButtons implements OnInit {
             this.categories = response;
             console.log('response kategorier', response);
             
-            
+            this.selectedEmployee.EmployeeCategories = response;
             
             var data: any = [
                 { text : 'name1', value : 'name1' },
@@ -295,7 +297,24 @@ export class EmployeeCategoryButtons implements OnInit {
         console.log('Add category');
     }
     
-    public removeCategory(category: EmployeeCategory) {
+    public removeCategory(removeCategory: EmployeeCategory) {
         console.log('Remove category');
+        var item: number = 0;
+        this.selectedEmployee.EmployeeCategories.forEach(category => {
+            if (category.Name === removeCategory.Name) {
+                this.selectedEmployee.EmployeeCategories.splice(item, 1);
+                // Here we must also delete categorylink on server
+                // OR
+                // we must flag categorylink to be deleted when employee is saved ?
+            }
+            item += 1;
+        });
+    }
+    
+    // lagrer kategorier basert på arrayen av kategorilinkID'er som ligg på den ansatte
+    // ... dvs dersom det ligg linker i den arrayen - uvisst om den skal brukes no.
+    // Avklaring på dette er rett rundt hjørnet (04.04.2016)
+    public saveCategories() {
+        this.employeeCategoryService.saveCategoriesOnEmployee(this.selectedEmployee);
     }
 }
