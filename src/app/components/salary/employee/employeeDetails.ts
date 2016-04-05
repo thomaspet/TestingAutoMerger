@@ -1,13 +1,20 @@
 import {Component, provide} from 'angular2/core';
-import {RouteConfig, RouteDefinition, RouteParams, ROUTER_DIRECTIVES, AsyncRoute} from 'angular2/router';
-import { Observable } from 'rxjs/Observable';
+import {
+    RouteConfig, 
+    RouteDefinition, 
+    RouteParams, 
+    ROUTER_DIRECTIVES, 
+    AsyncRoute, 
+    Router} 
+from 'angular2/router';
+
 import 'rxjs/add/operator/map';
 
 import {UniTabs} from '../../layout/uniTabs/uniTabs';
 import {WidgetPoster} from '../../../../framework/widgetPoster/widgetPoster';
 
 import {EmployeeService} from '../../../services/services';
-import {SubEntity, Employee, BusinessRelation} from '../../../unientities';
+import {Employee, BusinessRelation} from '../../../unientities';
 import {EmployeeDS} from '../../../data/employee';
 import {STYRKCodesDS} from '../../../data/styrkCodes';
 import {ComponentProxy} from '../../../../framework/core/componentProxy';
@@ -57,34 +64,63 @@ const CHILD_ROUTES = [
 
 @RouteConfig(CHILD_ROUTES)
 export class EmployeeDetails {
-    private employee: Employee; // any = {};
+    private employee: Employee;
+    private url: string;
+    private employeeID: number;
+    private isNextOrPrevious: boolean;
     private businessRelation: BusinessRelation;
-    // empJSON;
     private childRoutes: RouteDefinition[];
 
-    constructor(private routeParams: RouteParams, private _employeeService: EmployeeService) {
+    constructor(private routeParams: RouteParams,
+                private _employeeService: EmployeeService, 
+                private _router: Router) {
         this.childRoutes = CHILD_ROUTES;
         this.employee = new Employee();
         this.businessRelation = new BusinessRelation();
         this.employee.BusinessRelationInfo = this.businessRelation;
+        this.url = '/salary/employees/';
+        this.employeeID = +this.routeParams.get('id');
     }
 
     public ngOnInit() {
-        var employeeID = +this.routeParams.get('id');
-        if (employeeID) {
-            this._employeeService.get(employeeID).subscribe((response: any) => {
-                this.employee = response;  
-            }, error => console.log(error));
+        if (this.employeeID) {
+            if (!this.isNextOrPrevious) {
+                this._employeeService.get(this.employeeID).subscribe((response: any) => {
+                this.employee = response;
+                }, error => console.log(error));
+            }
+            this.isNextOrPrevious = false;
         }else {
             this.businessRelation.Name = 'Ny Ansatt';
             this.employee.BusinessRelationInfo = this.businessRelation;
             this.employee.EmployeeNumber = 0;
         }
-        
     }
 
     public onFormSubmit(value) {
         console.log(value);
+    }
+    
+    public nextEmployee() {
+        this._employeeService.getNext(this.employeeID).subscribe((response) => {
+            if (response) {
+                this.employee = response;
+                console.log('nextEmployee response: ' + response);
+                this.isNextOrPrevious = true;
+                this._router.navigateByUrl(this.url + this.employee.ID);
+            }
+        });
+    }
+    
+    public previousEmployee() {
+        this._employeeService.getPrevious(this.employeeID).subscribe((response) => {
+            if (response) {
+                this.employee = response;
+                console.log('nextEmployee response: ' + response);
+                this.isNextOrPrevious = true;
+                this._router.navigateByUrl(this.url + this.employee.ID);
+            }
+        });
     }
 
 }

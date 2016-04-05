@@ -2,7 +2,8 @@ import {Component, Injector, ViewChild, ComponentRef, OnInit} from 'angular2/cor
 import {RouteParams, Router} from 'angular2/router';
 import {UniForm} from '../../../../../framework/forms/uniForm';
 import {
-    UniFormBuilder, UniFormLayoutBuilder
+    UniFormBuilder,
+    UniFormLayoutBuilder
 } from '../../../../../framework/forms';
 import {UniComponentLoader} from '../../../../../framework/core';
 import {Observable} from 'rxjs/Observable';
@@ -17,9 +18,7 @@ declare var _;
     providers: [EmployeeService],
     template: `
         <article class='application usertest'>
-            <!--<button (click)='toggleMode()'>Toogle edit mode</button>-->
             <uni-component-loader></uni-component-loader>
-            <!--<button type='button' (click)='executeSubmit()' [disabled]='!isValid()'>Submit</button>-->
         </article>
     `
 })
@@ -61,15 +60,6 @@ export class PersonalDetails implements OnInit {
     
     private getData() {
 
-        /*
-         http.get(url).map(res => res.json())
-         .flatMap(response => {
-         return http.get(url2+'/'+response.param).map(res => res.json())
-         .map(response2 => {
-         //do whatever and return
-         })
-         }).subscribe()
-         */
         console.log('getting data');
         Observable.forkJoin(
             this.employeeService.get(this.employeeID),
@@ -136,9 +126,5 @@ export class PersonalDetails implements OnInit {
                     );
             }
         };
-    }
-
-    public toggleMode() {
-        this.form.isEditable() ? this.form.readmode() : this.form.editmode();
     }
 }

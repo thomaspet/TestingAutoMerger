@@ -1,6 +1,6 @@
 import {BizHttp} from '../../../../framework/core/http/BizHttp';
 import {UniHttp} from '../../../../framework/core/http/http';
-import {Employee, FieldType, OperationType, Operator} from '../../../unientities';
+import {Employee, FieldType, Operator} from '../../../unientities';
 import { Observable } from 'rxjs/Observable';
 
 export class EmployeeService extends BizHttp<Employee> {
@@ -53,6 +53,14 @@ export class EmployeeService extends BizHttp<Employee> {
             .usingBusinessDomain()
             .withEndPoint('EmployeeLeave')
             .send();
+    }
+    
+    public getNext(id: number) {
+        return super.GetAction(id, 'next', 'expand:' + this.expandedProperties.join(','));
+    }
+    
+    public getPrevious(id: number) {
+        return super.GetAction(id, 'previous', 'expand:' + this.expandedProperties.join(','));
     }
     
     public layout(layoutID: string) {

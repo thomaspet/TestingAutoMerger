@@ -1,58 +1,56 @@
-import {Component, Injector, ViewChild, ComponentRef} from "angular2/core";
-import {RouteParams} from "angular2/router";
+import {Component, Injector, ViewChild, ComponentRef} from 'angular2/core';
+import {RouteParams} from 'angular2/router';
 
-import {UniForm} from "../../../../../framework/forms/uniForm";
-import {UNI_CONTROL_DIRECTIVES} from "../../../../../framework/controls";
+import {UniForm} from '../../../../../framework/forms/uniForm';
+import {UNI_CONTROL_DIRECTIVES} from '../../../../../framework/controls';
 
-import {UniFormBuilder} from "../../../../../framework/forms";
-import {FieldType} from "../../../../unientities";
-import {EmployeeDS} from "../../../../data/employee";
-import {EmployeeModel} from "../../../../models/employee";
-import {UniComponentLoader} from "../../../../../framework/core/componentLoader";
+import {UniFormBuilder} from '../../../../../framework/forms';
+import {FieldType} from '../../../../unientities';
+import {EmployeeModel} from '../../../../models/employee';
+import {UniComponentLoader} from '../../../../../framework/core/componentLoader';
 
-import {Observable} from "rxjs/Observable";
-import "rxjs/add/operator/merge";
-import {UniSectionBuilder} from "../../../../../framework/forms/builders/uniSectionBuilder";
-import {UniFieldBuilder} from "../../../../../framework/forms/builders/uniFieldBuilder";
-import {Employment} from "../../../../unientities";
-import {EmployeeService} from "../../../../services/services";
+import {Observable} from 'rxjs/Observable';
+import 'rxjs/add/operator/merge';
+import {UniSectionBuilder} from '../../../../../framework/forms/builders/uniSectionBuilder';
+import {UniFieldBuilder} from '../../../../../framework/forms/builders/uniFieldBuilder';
+import {Employment, Employee} from '../../../../unientities';
+import {EmployeeService} from '../../../../services/services';
 
 declare var jQuery;
 
 @Component({
-    selector: "employee-hours",
+    selector: 'employee-hours',
     directives: [UniComponentLoader, UniForm],
     providers: [EmployeeService],
-    templateUrl: "app/components/salary/employee/hours/hours.html"
+    templateUrl: 'app/components/salary/employee/hours/hours.html'
 })
 export class Hours {
-    currentEmployee;
-    form: UniFormBuilder = new UniFormBuilder();
-    layout;
-    @ViewChild(UniComponentLoader) ucl: UniComponentLoader;
-    EmployeeID;
-    formInstance: UniForm;
-    model;
+    private currentEmployee: Employee;
+    private form: UniFormBuilder = new UniFormBuilder();
+    @ViewChild(UniComponentLoader) 
+    private ucl: UniComponentLoader;
+    private employeeID: any;
+    private formInstance: UniForm;
 
-    constructor(private Injector: Injector, public _employeeService: EmployeeService) {
+    constructor(private _injector: Injector, public _employeeService: EmployeeService) {
         // let params = Injector.parent.parent.get(RouteParams);
-        // employeeDS.get(params.get("id"))
+        // employeeDS.get(params.get('id'))
         // .subscribe(response => {
         //     this.currentEmployee = response;
         //     console.log(response);
         //     this.buildGroupConfigs();
         // },error => console.log(error));
 
-        let params = Injector.parent.parent.get(RouteParams);
-        this.EmployeeID = params.get("id");
+        let params = _injector.parent.parent.get(RouteParams);
+        this.employeeID = params.get('id');
     }
 
-    ngAfterViewInit() {
+    public ngAfterViewInit() {
 
         var self = this;
         Observable.forkJoin(
-            self._employeeService.get(this.EmployeeID),
-            self._employeeService.layout("EmployeeEmploymentsForm")
+            self._employeeService.get(this.employeeID),
+            self._employeeService.layout('EmployeeEmploymentsForm')
         ).subscribe(
             (response: any) => {
                 self.currentEmployee = EmployeeModel.createFromObject(response[0]);
@@ -72,7 +70,7 @@ export class Hours {
         );
     }
 
-    buildGroupConfigs() {
+    private buildGroupConfigs() {
         var formbuilder = new UniFormBuilder();
         this.currentEmployee.Employments.forEach((employment: Employment) => {
             var group = new UniSectionBuilder(employment.JobName);
@@ -82,77 +80,80 @@ export class Hours {
             // }
 
             var jobCode = new UniFieldBuilder()
-                .setLabel("stillingskode")
+                .setLabel('stillingskode')
                 .setModel(employment)
-                .setModelField("JobCode")
+                .setModelField('JobCode')
                 .setType(UNI_CONTROL_DIRECTIVES[FieldType.TEXT]);
 
             var jobName = new UniFieldBuilder()
-                .setLabel("Navn")
+                .setLabel('Navn')
                 .setModel(employment)
-                .setModelField("JobName")
+                .setModelField('JobName')
                 .setType(UNI_CONTROL_DIRECTIVES[FieldType.TEXT]);
 
             var startDate = new UniFieldBuilder()
-                .setLabel("Startdato")
+                .setLabel('Startdato')
                 .setModel(employment)
-                .setModelField("StartDate")
+                .setModelField('StartDate')
                 .setType(UNI_CONTROL_DIRECTIVES[FieldType.DATEPICKER]);
 
             var endDate = new UniFieldBuilder()
-                .setLabel("Sluttdato")
+                .setLabel('Sluttdato')
                 .setModel(employment)
-                .setModelField("EndDate")
+                .setModelField('EndDate')
                 .setType(UNI_CONTROL_DIRECTIVES[FieldType.DATEPICKER]);
 
             var monthRate = new UniFieldBuilder()
-                .setLabel("Månedlønn")
+                .setLabel('Månedlønn')
                 .setModel(employment)
-                .setModelField("MonthRate")
+                .setModelField('MonthRate')
                 .setType(UNI_CONTROL_DIRECTIVES[FieldType.NUMERIC]);
 
             var hourRate = new UniFieldBuilder()
-                .setLabel("Timelønn")
+                .setLabel('Timelønn')
                 .setModel(employment)
-                .setModelField("HourRate")
+                .setModelField('HourRate')
                 .setType(UNI_CONTROL_DIRECTIVES[FieldType.NUMERIC]);
 
             var workPercent = new UniFieldBuilder()
-                .setLabel("Stillingprosent")
+                .setLabel('Stillingprosent')
                 .setModel(employment)
-                .setModelField("WorkPercent")
+                .setModelField('WorkPercent')
                 .setType(UNI_CONTROL_DIRECTIVES[FieldType.NUMERIC]);
-
+                
+            var subEntity = new UniFieldBuilder();
+            
             if (typeof employment.SubEntity) {
                 if (typeof employment.SubEntity.BusinessRelationInfo) {
-                    var subEntity = new UniFieldBuilder()
-                        .setLabel("Lokalitet")
+                    subEntity
+                        .setLabel('Lokalitet')
                         .setModel(employment.SubEntity.BusinessRelationInfo)
-                        .setModelField("Name")
+                        .setModelField('Name')
                         .setType(UNI_CONTROL_DIRECTIVES[FieldType.TEXT]);
                 }
             } else {
-                var subEntity = new UniFieldBuilder()
-                    .setLabel("Lokalitet")
+                subEntity
+                    .setLabel('Lokalitet')
                     .setModel(employment)
-                    .setModelField("SubEntityID")
+                    .setModelField('SubEntityID')
                     .setType(UNI_CONTROL_DIRECTIVES[FieldType.NUMERIC]);
             }
 
-            group.addUniElements(jobCode, jobName, startDate, endDate, monthRate, hourRate, workPercent, subEntity);
+            group.addUniElements(jobCode, jobName, startDate, endDate,
+                                 monthRate, hourRate, workPercent, subEntity);
 
-            var readmore = new UniSectionBuilder("VIS MER...");
+            var readmore = new UniSectionBuilder('VIS MER...');
 
             var salaryChanged = new UniFieldBuilder()
-                .setLabel("Endret lønn")
+                .setLabel('Endret lønn')
                 .setModel(employment)
-                .setModelField("LastSalaryChangeDate")
+                .setModelField('LastSalaryChangeDate')
                 .setType(UNI_CONTROL_DIRECTIVES[FieldType.DATEPICKER]);
 
             var workpercentChange = new UniFieldBuilder()
-                .setLabel("Endret stillingprosent")
+                .setLabel('Endret stillingprosent')
                 .setModel(employment)
-                .setModelField("LastWorkPercentChangeDate")
+                .setModelField('LastWorkPercentChangeDate')
                 .setType(UNI_CONTROL_DIRECTIVES[FieldType.DATEPICKER]);
 
             readmore.addUniElements(salaryChanged, workpercentChange);
@@ -164,7 +165,7 @@ export class Hours {
         return formbuilder;
     }
 
-    onFormSubmit(event: any, index: number|string) {
+    public onFormSubmit(event: any, index: number|string) {
         jQuery.merge(this.currentEmployee.Employments[index], event.value);
     }
 }
