@@ -314,9 +314,10 @@ export class EmployeeCategoryButtons implements OnInit {
     }
     
     public addCategory(category) {
-        console.log('Add category');
+        console.log('Add category', category);
         this.selectedEmployee.EmployeeCategories.push(category);
-        this.categories.push(category);
+        this.selectedEmployee.EmployeeCategories.splice(this.selectedEmployee.EmployeeCategories.indexOf(category.Name),1);
+        // this.categories.push(category);
     }
     
     public removeCategory(removeCategory: EmployeeCategory) {
@@ -342,29 +343,31 @@ export class EmployeeCategoryButtons implements OnInit {
     
     private tags: string[] = ['Aktiv', 'Sjømenn', 'Pensjon'];
 
-    private results: string[] = [];
+    private results: Array<EmployeeCategory> = [];
 
 
     private filterTags = function(tag: string) {
-
-        let containsString = function(str:string) {
-            return str.toLowerCase().indexOf(tag.toLowerCase()) >= 0;
+        console.log('str', tag);
+        let containsString = function(str: EmployeeCategory) {
+            console.log('str2', str);
+            return str.Name.toLowerCase().indexOf(tag.toLowerCase()) >= 0;
         };
 
-        return this.availableTags.filter(containsString);
+        return this.selectedEmployee.EmployeeCategories.filter(containsString);
     };
 
-    private presentResults = function(tag:string){
+    private presentResults = function(tag: string){
+        console.log('present result', tag);
         this.results = this.filterTags(tag).splice(0, 5);
     };
 
-    private addTag(tag) {
-        this.tags.push(tag);
-        this.availableTags.splice(this.availableTags.indexOf(tag), 1);
-    }
+    // private addTag(tag) {
+    //     this.tags.push(tag);
+    //     this.availableTags.splice(this.availableTags.indexOf(tag), 1);
+    // }
 
-    private removeTag(tag) {
-        this.tags.splice(this.tags.indexOf(tag), 1);
-        this.availableTags.unshift(tag);
-    }
+    // private removeTag(tag) {
+    //     this.tags.splice(this.tags.indexOf(tag), 1);
+    //     this.availableTags.unshift(tag);
+    // }
 }
