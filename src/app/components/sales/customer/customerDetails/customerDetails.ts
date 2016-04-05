@@ -6,7 +6,7 @@ import "rxjs/add/observable/forkjoin";
 import {DepartementService, ProjectService, CustomerService, PhoneService, AddressService, EmailService} from "../../../../services/services";
 import {ExternalSearch, SearchResultItem} from '../../../common/externalSearch/externalSearch';
 
-import {FieldType, FieldLayout, ComponentLayout, Customer, BusinessRelation, Email, Phone, Address} from "../../../../unientities";
+import {FieldType, FieldLayout, ComponentLayout, Customer, BusinessRelation, Email, Phone, Address, PhoneTypeEnum} from "../../../../unientities";
 import {UNI_CONTROL_DIRECTIVES} from "../../../../../framework/controls";
 import {UniFormBuilder} from "../../../../../framework/forms/builders/uniFormBuilder";
 import {UniFormLayoutBuilder} from "../../../../../framework/forms/builders/uniFormLayoutBuilder";
@@ -130,25 +130,32 @@ export class CustomerDetails {
     addSearchInfo(selectedSearchInfo: SearchResultItem) {
         if (this.Customer != null) {
             this.Customer.Info.Name = selectedSearchInfo.navn;
-            this.Customer.Orgnumber = selectedSearchInfo.orgnr;
+            this.Customer.OrgNumber = selectedSearchInfo.orgnr;
+   
+            var businessaddress = this.addressService.businessAddressFromSearch(selectedSearchInfo);
+            var postaladdress = this.addressService.postalAddressFromSearch(selectedSearchInfo);
+            var phone = this.phoneService.phoneFromSearch(selectedSearchInfo);
+            var mobile = this.phoneService.mobileFromSearch(selectedSearchInfo);
             
-            var address = new Address();
-            address.AddressLine1 = selectedSearchInfo.forretningsadr;
-            address.PostalCode = selectedSearchInfo.forradrpostnr;
-            address.City = selectedSearchInfo.forradrpoststed;
-            address.Country = selectedSearchInfo.forradrland;
+            console.log("==BUSINESSADDRESS==");
+            console.log(businessaddress);
             
-            var address2= new Address();
-            address2.AddressLine1 = selectedSearchInfo.postadresse;
-            address2.PostalCode = selectedSearchInfo.ppostnr;
-            address2.City = selectedSearchInfo.ppoststed;
-            address2.Country = selectedSearchInfo.ppostland;
+            if (businessaddress) {
+                console.log("==SETTING BUSINESS ADDRESS==");
+                //this.Customer.Info.Addresses.push(businessaddress);
+                //this.Customer.Info.InvoiceAddress = businessaddress;
+            }
             
-            console.log("====");
-            console.log(address);
-            console.log(selectedSearchInfo);
-           
-            this.Customer.Info.Addresses.push(address);
+            /*
+            if (!postaladdress) postaladdress = businessaddress;
+            if (postaladdress) {
+                this.Customer.Info.Addresses.push(postaladdress);
+                this.Customer.Info.ShippingAddress = postaladdress;
+            }
+            */
+            
+            console.log("==TESTING==");
+            console.log(this.Customer);
             this.formInstance.refresh(this.Customer); 
         } 
     }
