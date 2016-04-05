@@ -8,6 +8,27 @@ declare var jQuery;
     selector: 'employeecategory-buttons',
     providers: [EmployeeService, EmployeeCategoryService],
     template: `
+        <section class="poster_tags">
+
+            <ul class="poster_tags_list">
+                <li *ngFor="#category of categories">{{category.Name}} <button class="remove" (click)="removeTag(category)">Remove</button></li>
+            </ul>
+
+            <button class="poster_tags_addBtn" (click)="addingTags = !addingTags" [ngClass]="{'-is-active': addingTags}">Legg til&hellip;</button>
+            <div class="poster_tags_addDropdown" [ngClass]="{'-is-active': addingTags}">
+
+                <input type="text" placeholder="Søk kategorierier…" [(ngModel)]="newTag" (keyup)="presentResults(newTag)" autofocus/>
+
+                <ul (click)="addingTags = false; newTag = ''" *ngIf="newTag">
+                    <li *ngFor="#result of results" (click)="addTag(result)">{{result}}</li>
+                    <li class="poster_tags_addNew" (click)="addTag(newTag)">Legg til <strong>‘{{newTag}}’</strong>…</li>
+                </ul>
+            </div>
+
+        </section>
+        
+        
+        
         <article class="buttonlist_component">
             <ul class="filter_buttonlist">
                 <li *ngFor="#category of categories">
