@@ -20,8 +20,8 @@ declare var jQuery;
                 <input type="text" placeholder="Søk kategorierier…" [(ngModel)]="newTag" (keyup)="presentResults(newTag)" autofocus/>
 
                 <ul (click)="addingTags = false; newTag = ''" *ngIf="newTag">
-                    <li *ngFor="#result of results" (click)="addTag(result)">{{result}}</li>
-                    <li class="poster_tags_addNew" (click)="addTag(newTag)">Legg til <strong>‘{{newTag}}’</strong>…</li>
+                    <li *ngFor="#result of results" (click)="addCategory(result)">{{result}}</li>
+                    <li class="poster_tags_addNew" (click)="addCategory(newTag)">Legg til <strong>‘{{newTag}}’</strong>…</li>
                 </ul>
             </div>
 
@@ -313,8 +313,10 @@ export class EmployeeCategoryButtons implements OnInit {
         });
     }
     
-    public addCategories() {
+    public addCategory(category) {
         console.log('Add category');
+        this.selectedEmployee.EmployeeCategories.push(category);
+        this.categories.push(category);
     }
     
     public removeCategory(removeCategory: EmployeeCategory) {
@@ -336,5 +338,33 @@ export class EmployeeCategoryButtons implements OnInit {
     // Avklaring på dette er rett rundt hjørnet (04.04.2016)
     public saveCategories() {
         this.employeeCategoryService.saveCategoriesOnEmployee(this.selectedEmployee);
+    }
+    
+    private tags: string[] = ['Aktiv', 'Sjømenn', 'Pensjon'];
+
+    private results: string[] = [];
+
+
+    private filterTags = function(tag: string) {
+
+        let containsString = function(str:string) {
+            return str.toLowerCase().indexOf(tag.toLowerCase()) >= 0;
+        };
+
+        return this.availableTags.filter(containsString);
+    };
+
+    private presentResults = function(tag:string){
+        this.results = this.filterTags(tag).splice(0, 5);
+    };
+
+    private addTag(tag) {
+        this.tags.push(tag);
+        this.availableTags.splice(this.availableTags.indexOf(tag), 1);
+    }
+
+    private removeTag(tag) {
+        this.tags.splice(this.tags.indexOf(tag), 1);
+        this.availableTags.unshift(tag);
     }
 }
