@@ -24,7 +24,7 @@ export class SalaryTransactionEmployeeList implements OnInit {
     private busy: boolean;    
     private runIDcol: UniTableColumn;
     private empIDcol: UniTableColumn;
-    //private empNumbercol: UniTableColumn;
+    // private empNumbercol: UniTableColumn;
     
     constructor(public employeeDS: EmployeeDS, 
                 private injector: Injector, 
@@ -61,12 +61,17 @@ export class SalaryTransactionEmployeeList implements OnInit {
     
     public ngOnChanges() {
         this.busy = true;
-        if(this.tables && this.ansattID) {
-            this.tables.toArray()[0].updateFilter(this.buildFilter());
-            
+        if (this.tables && this.ansattID) {
+            this.tables.toArray()[0].updateFilter(this.buildFilter());            
             this.calculateTotals();
-        }
+            this.runIDcol.defaultValue = this.payrollRunID;                
+            this.empIDcol.defaultValue = this.ansattID; 
+            this.empIDcol.setDefaultValue(this.ansattID);  
+            console.log("ansatt (ch) " + this.ansattID);
+            console.log("payrollid  (ch) " + this.payrollRunID);                
+        }        
     }
+    
     
     private buildFilter() {
         if (this.payrollRunID === undefined) {
@@ -78,7 +83,7 @@ export class SalaryTransactionEmployeeList implements OnInit {
     }
     
     private createTableConfig() {
-        //var wagetypeidCol = new UniTableColumn('Wagetype.WageTypeNumber','Lønnsart','string');
+        // var wagetypeidCol = new UniTableColumn('Wagetype.WageTypeNumber','Lønnsart','string');
         var wagetypenameCol = new UniTableColumn('Text','Tekst','string');
         var fromdateCol = new UniTableColumn('FromDate','Fra dato','date')
         var toDateCol = new UniTableColumn('ToDate','Til dato','date');
@@ -116,7 +121,7 @@ export class SalaryTransactionEmployeeList implements OnInit {
             this.runIDcol,
             this.empIDcol,
             wageTypeCol,                        
-            //wagetypeidCol 
+            // wagetypeidCol 
             wagetypenameCol
             , employmentidCol
             , fromdateCol 
@@ -138,6 +143,11 @@ export class SalaryTransactionEmployeeList implements OnInit {
         ).subscribe((response: any) => {
             let [totals] = response;
             this.employeeTotals = totals;
+            console.log("ansatt " + this.ansattID);
+            console.log("payrollid  " + this.payrollRunID);
+            this.runIDcol.defaultValue = this.payrollRunID;                
+            this.empIDcol.defaultValue = this.ansattID;    
+            
             this.busy = false;
             
         }, (error: any) => console.log(error));
