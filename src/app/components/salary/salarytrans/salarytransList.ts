@@ -62,13 +62,17 @@ export class SalaryTransactionEmployeeList implements OnInit {
     public ngOnChanges() {
         this.busy = true;
         if (this.tables && this.ansattID) {
-            this.tables.toArray()[0].updateFilter(this.buildFilter());            
+            
+            // this.tables.toArray()[0].updateFilter(this.buildFilter());            
             this.calculateTotals();
             this.runIDcol.defaultValue = this.payrollRunID;                
             this.empIDcol.defaultValue = this.ansattID; 
             this.empIDcol.setDefaultValue(this.ansattID);  
-            console.log("ansatt (ch) " + this.ansattID);
-            console.log("payrollid  (ch) " + this.payrollRunID);                
+            
+            let tableConfig = this.salarytransEmployeeTableConfig;
+            tableConfig.schemaModel.fields['EmployeeID'].defaultValue = this.ansattID;
+            tableConfig.filter = this.buildFilter();
+            this.tables.toArray()[0].updateConfig(tableConfig);
         }        
     }
     
