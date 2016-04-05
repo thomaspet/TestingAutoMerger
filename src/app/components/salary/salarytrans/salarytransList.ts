@@ -46,6 +46,7 @@ export class SalaryTransactionEmployeeList implements OnInit {
             this.createTableConfig();
         });
         
+        
         Observable.forkJoin(
             this.employeeDS.getTotals(this.ansattID)
         )
@@ -53,6 +54,8 @@ export class SalaryTransactionEmployeeList implements OnInit {
             let [totals] = response;
             this.employeeTotals = totals;
             this.createTotalTableConfig();
+            this.tables.toArray()[0].hideColumn('PayrollRunID');
+            this.tables.toArray()[0].hideColumn('EmployeeID');
             this.busy = false;
         }, (error: any) => console.log(error));
     }
@@ -63,12 +66,16 @@ export class SalaryTransactionEmployeeList implements OnInit {
             this.calculateTotals();
             this.runIDcol.defaultValue = this.payrollRunID;                
             this.empIDcol.defaultValue = this.ansattID; 
-            this.empIDcol.setDefaultValue(this.ansattID);  
+            //this.empIDcol.setDefaultValue(this.ansattID);
+              
             
             let tableConfig = this.salarytransEmployeeTableConfig;
             tableConfig.schemaModel.fields['EmployeeID'].defaultValue = this.ansattID;
             tableConfig.filter = this.buildFilter();
+            
             this.tables.toArray()[0].updateConfig(tableConfig);
+            this.tables.toArray()[0].hideColumn('PayrollRunID');
+            this.tables.toArray()[0].hideColumn('EmployeeID');
         }        
     }
     
@@ -79,7 +86,8 @@ export class SalaryTransactionEmployeeList implements OnInit {
         } else {
             return 'EmployeeNumber eq ' + this.ansattID 
             + ' and PayrollRunID eq ' + this.payrollRunID;
-        }        
+        }       
+        
     }
     
     private createTableConfig() {

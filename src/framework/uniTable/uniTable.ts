@@ -51,6 +51,8 @@ export class UniTable implements OnChanges, OnDestroy {
         }
         
         this.setupAndCompile();
+    }
+    
     public hideColumn(field: string): void {
         this.table.hideColumn(field);
     }
