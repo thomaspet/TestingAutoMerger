@@ -13,8 +13,8 @@ import {EmployeeDS} from '../../../data/employee';
 })
 
 export class SalaryTransactionEmployeeList implements OnInit {     
-    private salarytransEmployeeTableConfig;
-    private salarytransEmployeeTotalsTableConfig;
+    private salarytransEmployeeTableConfig: any;
+    private salarytransEmployeeTotalsTableConfig: any;
     private employeeTotals: Array<any>;
     private employments: any[];
     @Input() private ansattID: number;
@@ -24,14 +24,12 @@ export class SalaryTransactionEmployeeList implements OnInit {
     private busy: boolean;    
     private runIDcol: UniTableColumn;
     private empIDcol: UniTableColumn;
-    // private empNumbercol: UniTableColumn;
     
     constructor(public employeeDS: EmployeeDS, 
                 private injector: Injector, 
                 private uniHttpService: UniHttp) {
                     this.busy = true;
-                    if (!this.ansattID)     
-                    {
+                    if (!this.ansattID) {
                         let params = this.injector.parent.parent.get(RouteParams);
                         this.ansattID = params.get('id');
                     }
@@ -61,9 +59,7 @@ export class SalaryTransactionEmployeeList implements OnInit {
     
     public ngOnChanges() {
         this.busy = true;
-        if (this.tables && this.ansattID) {
-            
-            // this.tables.toArray()[0].updateFilter(this.buildFilter());            
+        if (this.tables && this.ansattID) {         
             this.calculateTotals();
             this.runIDcol.defaultValue = this.payrollRunID;                
             this.empIDcol.defaultValue = this.ansattID; 
@@ -87,25 +83,23 @@ export class SalaryTransactionEmployeeList implements OnInit {
     }
     
     private createTableConfig() {
-        // var wagetypeidCol = new UniTableColumn('Wagetype.WageTypeNumber','Lønnsart','string');
-        var wagetypenameCol = new UniTableColumn('Text','Tekst','string');
-        var fromdateCol = new UniTableColumn('FromDate','Fra dato','date')
-        var toDateCol = new UniTableColumn('ToDate','Til dato','date');
-        var rateCol = new UniTableColumn('Rate','Sats','number');
-        var amountCol = new UniTableColumn('Amount','Antall','number');
-        var sumCol = new UniTableColumn('Sum','Beløp','number');
+        var wagetypenameCol = new UniTableColumn('Text', 'Tekst', 'string');
+        var fromdateCol = new UniTableColumn('FromDate', 'Fra dato', 'date');
+        var toDateCol = new UniTableColumn('ToDate', 'Til dato', 'date');
+        var rateCol = new UniTableColumn('Rate', 'Sats', 'number');
+        var amountCol = new UniTableColumn('Amount', 'Antall', 'number');
+        var sumCol = new UniTableColumn('Sum', 'Beløp', 'number');
         
         this.runIDcol = new UniTableColumn('PayrollRunID', 'Lønnsavregningsid' );
         this.runIDcol.defaultValue = this.payrollRunID;
         this.empIDcol = new UniTableColumn('EmployeeID', 'AnsattID' );
         this.empIDcol.defaultValue = this.ansattID;
 
-        var employmentidCol = new UniTableColumn('EmploymentID','Arbeidsforhold')         
+        var employmentidCol = new UniTableColumn('EmploymentID', 'Arbeidsforhold')         
             .setTemplate((dataItem) => {
                 return this.getEmploymentName(dataItem.EmploymentID);
             });
         var accountCol = new UniTableColumn('Account', 'Konto', 'string');
-        // var payoutCol = new UniTableColumn('Wagetype.Base_Payment','Utbetales','bool');
         var transtypeCol = new UniTableColumn('IsRecurringPost', 'Fast/Variabel post', 'bool')
         .setTemplate((dataItem) => {
             if (dataItem.IsRecurringPost) {
@@ -117,15 +111,14 @@ export class SalaryTransactionEmployeeList implements OnInit {
         
         var wageTypeCol = new UniTableColumn('WageTypeNumber', 'Lønnsart');
         
-        this.salarytransEmployeeTableConfig = new UniTableBuilder('salarytrans',true)
+        this.salarytransEmployeeTableConfig = new UniTableBuilder('salarytrans', true)
         .setExpand('@Wagetype')
         .setFilter(this.buildFilter())
         .setPageable(false)
         .addColumns(
             this.runIDcol,
             this.empIDcol,
-            wageTypeCol,                        
-            // wagetypeidCol 
+            wageTypeCol,                         
             wagetypenameCol
             , employmentidCol
             , fromdateCol 
@@ -134,7 +127,6 @@ export class SalaryTransactionEmployeeList implements OnInit {
             , rateCol 
             , amountCol
             , sumCol
-            // , payoutCol
             , transtypeCol
             )
             .addCommands('destroy');
@@ -147,8 +139,6 @@ export class SalaryTransactionEmployeeList implements OnInit {
         ).subscribe((response: any) => {
             let [totals] = response;
             this.employeeTotals = totals;
-            console.log("ansatt " + this.ansattID);
-            console.log("payrollid  " + this.payrollRunID);
             this.runIDcol.defaultValue = this.payrollRunID;                
             this.empIDcol.defaultValue = this.ansattID;    
             
