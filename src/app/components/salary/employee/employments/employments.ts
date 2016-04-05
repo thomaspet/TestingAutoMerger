@@ -16,7 +16,7 @@ declare var jQuery;
 @Component({
     selector: 'employee-employment',
     directives: [UniForm],
-    providers: [EmploymentService, StaticRegisterService],
+    providers: [EmploymentService],
     templateUrl: 'app/components/salary/employee/employments/employments.html'
 })
 

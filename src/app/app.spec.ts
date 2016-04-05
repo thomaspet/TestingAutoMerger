@@ -6,7 +6,7 @@ import {Http, Response, BaseRequestOptions, ResponseOptions} from 'angular2/http
 import {Router, Location, ROUTER_PRIMARY_COMPONENT} from 'angular2/router';
 
 import {App} from './app';
-import {AuthService} from '../framework/authentication/authService';
+import {AuthService} from '../framework/core/authService';
 
 //NOT PUBLIC ANGULAR PACKAGES
 import {RouteRegistry} from 'angular2/src/router/route_registry';
