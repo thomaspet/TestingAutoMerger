@@ -67,7 +67,7 @@ export class Login {
             select: (event: kendo.ui.DropDownListSelectEvent) => {
                 var company = (event.sender.dataItem(<any>event.item));
                 if (company.id >= 0) {
-                    localStorage.setItem('activeCompany', JSON.stringify(company));
+                    this._authService.setActiveCompany(company);
                     this.onCompanySelected();
                 }
             },
@@ -78,10 +78,8 @@ export class Login {
     }
 
     private onCompanySelected() {
-        console.log('onCompanySelected');
         var url = localStorage.getItem('lastNavigationAttempt') || '/';
         localStorage.removeItem('lastNavigationAttempt');
-        console.log(url);
         this._router.navigateByUrl(url);
     }
 }
