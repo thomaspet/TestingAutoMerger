@@ -23,7 +23,7 @@ declare var jQuery;
 
                 <ul (click)="addingTags = false; newTag = ''" *ngIf="newTag">
                     <li *ngFor="#result of results" (click)="addCategory(result.Name)">{{result.Name}}</li>
-                    <li class="poster_tags_addNew" (click)="addCategory(newTag)">
+                    <li class="poster_tags_addNew" (click)="addCategoryAndSave(newTag)">
                     Legg til <strong>‘{{newTag}}’</strong>…</li>
                 </ul>
             </div>
@@ -34,13 +34,9 @@ declare var jQuery;
         <article class="buttonlist_component">
             <ul class="filter_buttonlist">
                 <li *ngFor="#category of categories">
-                    <button (click)="removeCategory(category)">{{category.Name}}</button>
+                    <button>{{category.Name}}</button>
                 </li>
             </ul>
-            <!--<button (click)="addCategories()">Legg til</button>
-            <button (click)="saveCategories()">Lagre</button>
-            <select id="tags"></select>
-            <input id="selectedCategories">-->
         </article>
     `
 })
@@ -92,10 +88,6 @@ export class EmployeeCategoryButtons implements OnInit {
     }
     
     public addCategory(categoryName) {
-        console.log('Add category', categoryName);
-        console.log('categories', this.categories);
-        console.log('indexOf', this.categories.indexOf(categoryName));
-        
         var category = new EmployeeCategory();
         category.Name = categoryName;
         
@@ -104,30 +96,28 @@ export class EmployeeCategoryButtons implements OnInit {
         var indx = this.categories.map(function(e) {
             return e.Name;
         }).indexOf(categoryName);
-        
-        this.categories.splice(indx, 1);
-        
+        console.log('indx', indx);
+        if (indx > -1) {
+            this.categories.splice(indx, 1);
+        }
+        return category;
+    }
+    
+    public addCategoryAndSave(categoryName) {
+        var cat = this.addCategory(categoryName);
+        console.log('category for save', cat);
+        this.saveCategory(cat);
     }
     
     public removeCategory(removeCategory: EmployeeCategory) {
-        console.log('Remove category');
-        console.log('removed at index', this.selectedEmployee.EmployeeCategories.indexOf(removeCategory));
         this.selectedEmployee.EmployeeCategories.splice(this.selectedEmployee.EmployeeCategories.indexOf(removeCategory), 1);
-        this.categories.unshift(removeCategory);
-        
-        // var item: number = 0;
-        // this.selectedEmployee.EmployeeCategories.forEach(category => {
-        //     if (category.Name === removeCategory.Name) {
-        //         this.selectedEmployee.EmployeeCategories.splice(item, 1);
-        //         // Here we must also delete categorylink on server
-        //         // OR
-        //         // we must flag categorylink to be deleted when employee is saved ?
-        //     }
-        //     item += 1;
-        // });
+        this.categories.push(removeCategory);
     }
     
-    public saveCategories() {
-        this.employeeCategoryService.saveCategoriesOnEmployee(this.selectedEmployee);
+    public saveCategory(category) {
+        this.employeeCategoryService.saveCategory(category)
+        .subscribe(response => {
+            console.log('saved category', response);
+        });
     }
 }
