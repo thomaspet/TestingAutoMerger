@@ -83,12 +83,16 @@ export class HamburgerMenu {
         });
     }
 
+    private closeNavbar() {
+        jQuery('.navbar_hamburger').removeClass('is-active');   
+    }
+
     private onClick(event) {
         let target = jQuery(event.target);
         
         // Close on clicks outside
         if (!target.parents(this.elementRef.nativeElement).length) {
-            jQuery('.navbar_hamburger').removeClass('is-active');
+            this.closeNavbar();
             return;
         }
         
@@ -98,6 +102,7 @@ export class HamburgerMenu {
     }
 
     private navigate(url: string): void {
+        this.closeNavbar();
         this.router.navigateByUrl(url);
     }
 }
