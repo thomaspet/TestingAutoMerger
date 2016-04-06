@@ -12,7 +12,7 @@ import {EmployeeDS} from '../../../data/employee';
     providers: [provide(EmployeeDS, {useClass: EmployeeDS})]
 })
 
-export class SalaryTransactionEmployeeList implements OnInit {
+export class SalaryTransactionEmployeeList implements OnInit {     
     private salarytransEmployeeTableConfig: any;
     private salarytransEmployeeTotalsTableConfig: any;
     private employeeTotals: Array<any>;
@@ -21,16 +21,22 @@ export class SalaryTransactionEmployeeList implements OnInit {
     @Input() private payrollRunID: number;
     @ViewChildren(UniTable) private tables: any;
     
+    private busy: boolean;    
+    private runIDcol: UniTableColumn;
+    private empIDcol: UniTableColumn;
+    
     constructor(public employeeDS: EmployeeDS, 
                 private injector: Injector, 
                 private uniHttpService: UniHttp) {
-        if (!this.ansattID) {
-            let params = this.injector.parent.parent.get(RouteParams);
-            this.ansattID = params.get('id');
-        }
-    }
+                    this.busy = true;
+                    if (!this.ansattID) {
+                        let params = this.injector.parent.parent.get(RouteParams);
+                        this.ansattID = params.get('id');
+                    }
+            }
     
     public ngOnInit() {
+        this.busy = true;
         this.uniHttpService.asGET()
         .usingBusinessDomain()
         .withEndPoint('employments')
@@ -40,6 +46,7 @@ export class SalaryTransactionEmployeeList implements OnInit {
             this.createTableConfig();
         });
         
+        
         Observable.forkJoin(
             this.employeeDS.getTotals(this.ansattID)
         )
@@ -47,15 +54,31 @@ export class SalaryTransactionEmployeeList implements OnInit {
             let [totals] = response;
             this.employeeTotals = totals;
             this.createTotalTableConfig();
+            this.tables.toArray()[0].hideColumn('PayrollRunID');
+            this.tables.toArray()[0].hideColumn('EmployeeID');
+            this.busy = false;
         }, (error: any) => console.log(error));
     }
     
     public ngOnChanges() {
-        if (this.tables && this.ansattID) {
-            this.tables.toArray()[0].updateFilter(this.buildFilter());
+        this.busy = true;
+        if (this.tables && this.ansattID) {         
             this.calculateTotals();
-        }
+            this.runIDcol.defaultValue = this.payrollRunID;                
+            this.empIDcol.defaultValue = this.ansattID; 
+            //this.empIDcol.setDefaultValue(this.ansattID);
+              
+            
+            let tableConfig = this.salarytransEmployeeTableConfig;
+            tableConfig.schemaModel.fields['EmployeeID'].defaultValue = this.ansattID;
+            tableConfig.filter = this.buildFilter();
+            
+            this.tables.toArray()[0].updateConfig(tableConfig);
+            this.tables.toArray()[0].hideColumn('PayrollRunID');
+            this.tables.toArray()[0].hideColumn('EmployeeID');
+        }        
     }
+    
     
     private buildFilter() {
         if (this.payrollRunID === undefined) {
@@ -63,24 +86,28 @@ export class SalaryTransactionEmployeeList implements OnInit {
         } else {
             return 'EmployeeNumber eq ' + this.ansattID 
             + ' and PayrollRunID eq ' + this.payrollRunID;
-        }
+        }       
         
     }
     
     private createTableConfig() {
-        // var wagetypeidCol = new UniTableColumn('Wagetype.WageTypeNumber', 'Lønnsart', 'string');
         var wagetypenameCol = new UniTableColumn('Text', 'Tekst', 'string');
         var fromdateCol = new UniTableColumn('FromDate', 'Fra dato', 'date');
         var toDateCol = new UniTableColumn('ToDate', 'Til dato', 'date');
         var rateCol = new UniTableColumn('Rate', 'Sats', 'number');
         var amountCol = new UniTableColumn('Amount', 'Antall', 'number');
         var sumCol = new UniTableColumn('Sum', 'Beløp', 'number');
-        var employmentidCol = new UniTableColumn('EmploymentID', 'Arbeidsforhold')
-        .setTemplate((dataItem) => {
-            return this.getEmploymentName(dataItem.EmploymentID);
-        });
+        
+        this.runIDcol = new UniTableColumn('PayrollRunID', 'Lønnsavregningsid' );
+        this.runIDcol.defaultValue = this.payrollRunID;
+        this.empIDcol = new UniTableColumn('EmployeeID', 'AnsattID' );
+        this.empIDcol.defaultValue = this.ansattID;
+
+        var employmentidCol = new UniTableColumn('EmploymentID', 'Arbeidsforhold')         
+            .setTemplate((dataItem) => {
+                return this.getEmploymentName(dataItem.EmploymentID);
+            });
         var accountCol = new UniTableColumn('Account', 'Konto', 'string');
-        // var payoutCol = new UniTableColumn('Wagetype.Base_Payment','Utbetales','bool');
         var transtypeCol = new UniTableColumn('IsRecurringPost', 'Fast/Variabel post', 'bool')
         .setTemplate((dataItem) => {
             if (dataItem.IsRecurringPost) {
@@ -90,12 +117,16 @@ export class SalaryTransactionEmployeeList implements OnInit {
             }
         });
         
+        var wageTypeCol = new UniTableColumn('WageTypeNumber', 'Lønnsart');
+        
         this.salarytransEmployeeTableConfig = new UniTableBuilder('salarytrans', true)
-        .setExpand('Wagetype')
+        .setExpand('@Wagetype')
         .setFilter(this.buildFilter())
         .setPageable(false)
         .addColumns(
-            // wagetypeidCol 
+            this.runIDcol,
+            this.empIDcol,
+            wageTypeCol,                         
             wagetypenameCol
             , employmentidCol
             , fromdateCol 
@@ -104,18 +135,23 @@ export class SalaryTransactionEmployeeList implements OnInit {
             , rateCol 
             , amountCol
             , sumCol
-            // , payoutCol
             , transtypeCol
-            );
+            )
+            .addCommands('destroy');
     }
     
     private calculateTotals() {
-        Observable.forkJoin(
+        this.busy = true;
+        Observable.forkJoin(            
             this.employeeDS.getTotals(this.ansattID)
         ).subscribe((response: any) => {
             let [totals] = response;
             this.employeeTotals = totals;
-            this.tables.toArray()[1].refresh(this.employeeTotals);
+            this.runIDcol.defaultValue = this.payrollRunID;                
+            this.empIDcol.defaultValue = this.ansattID;    
+            
+            this.busy = false;
+            
         }, (error: any) => console.log(error));
     }
     
