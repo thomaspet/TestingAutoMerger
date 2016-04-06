@@ -67,7 +67,8 @@ const CHILD_ROUTES = [
     templateUrl: 'app/components/salary/employee/employeeDetails.html',
     providers: [
             provide(EmployeeDS, {useClass: EmployeeDS})
-            , provide(STYRKCodesDS, {useClass: STYRKCodesDS})
+            , provide(STYRKCodesDS, {useClass: STYRKCodesDS}),
+            EmployeeService
         ],
     directives: [ROUTER_DIRECTIVES, WidgetPoster, UniTabs, EmployeeCategoryButtons]
 })
@@ -80,11 +81,11 @@ export class EmployeeDetails implements OnInit {
     private isNextOrPrevious: boolean;
     private businessRelation: BusinessRelation;
     private childRoutes: RouteDefinition[];
-    private subEntities: any;
 
     constructor(private routeParams: RouteParams,
                 private _employeeService: EmployeeService, 
                 private _router: Router) {
+                    
         this.childRoutes = CHILD_ROUTES;
         this.employee = new Employee();
         this.businessRelation = new BusinessRelation();

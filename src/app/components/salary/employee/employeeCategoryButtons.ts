@@ -1,5 +1,5 @@
 import {Component, Input, OnInit} from 'angular2/core';
-import {EmployeeCategory, Employee} from '../../../unientities';
+import {EmployeeCategory} from '../../../unientities';
 import {EmployeeService, EmployeeCategoryService} from '../../../services/services';
 
 declare var jQuery;
@@ -45,7 +45,7 @@ export class EmployeeCategoryButtons implements OnInit {
     private categories: Array<EmployeeCategory>;
     private results: Array<EmployeeCategory> = [];
     @Input()
-    private selectedEmployee: Employee;
+    private selectedEmployee: any;
     
     constructor(private employeeService: EmployeeService, 
                 private employeeCategoryService: EmployeeCategoryService) {
@@ -68,13 +68,13 @@ export class EmployeeCategoryButtons implements OnInit {
         this.results = this.filterTags(tag).splice(0, 5);
     };
     
-    public ngOnInit() {        
+    public ngOnInit() {
         this.employeeService.getEmployeeCategories(this.selectedEmployee.EmployeeNumber)
         .subscribe((response: any) => {
-            this.selectedEmployee.EmployeeCategories = response;
+            this.selectedEmployee.EmployeeCategories = response ? response : [];
             
             // remove selected categories from available categories
-            var arrLength = this.selectedEmployee.EmployeeCategories.length;
+            var arrLength = this.selectedEmployee.EmployeeCategories ? this.selectedEmployee.EmployeeCategories.length : 0;
             for (var selIndx = 0; selIndx < arrLength; selIndx++) {
                 var selCat = this.selectedEmployee.EmployeeCategories[selIndx];
                 for (var avIndx = this.categories.length - 1; avIndx >= 0; avIndx--) {
@@ -96,7 +96,6 @@ export class EmployeeCategoryButtons implements OnInit {
         var indx = this.categories.map(function(e) {
             return e.Name;
         }).indexOf(categoryName);
-        console.log('indx', indx);
         if (indx > -1) {
             this.categories.splice(indx, 1);
         }
@@ -105,7 +104,6 @@ export class EmployeeCategoryButtons implements OnInit {
     
     public addCategoryAndSave(categoryName) {
         var cat = this.addCategory(categoryName);
-        console.log('category for save', cat);
         this.saveCategory(cat);
     }
     
@@ -117,7 +115,7 @@ export class EmployeeCategoryButtons implements OnInit {
     public saveCategory(category) {
         this.employeeCategoryService.saveCategory(category)
         .subscribe(response => {
-            console.log('saved category', response);
+            
         });
     }
 }
