@@ -28,8 +28,10 @@ export class UniRouterOutlet extends RouterOutlet {
             let url = this.getCurrentRoute(parentInstruction);
             
             if (url !== '/login' && url !== '/signup') {
-                // Avoid overriding lastNavigationAttempt from child router
-                if (!localStorage.getItem('lastNavigationAttempt')) {
+                // Add url to last navigation attempt if it doesnt already exist
+                // (avoid overriding it in child outlet)
+                let lastNavAttempt = localStorage.getItem('lastNavigationAttempt');
+                if (!lastNavAttempt || lastNavAttempt === '/') {
                     localStorage.setItem('lastNavigationAttempt', url);
                 }
                 
