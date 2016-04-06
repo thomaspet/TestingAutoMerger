@@ -3,7 +3,7 @@
 
 import {Component} from 'angular2/core';
 import {Router, RouteConfig, ROUTER_DIRECTIVES, AsyncRoute} from 'angular2/router';
-import {Routes} from './route.config';
+import {ROUTES} from './route.config';
 import {UniRouterOutlet} from './uniRouterOutlet';
 import {AuthService} from '../framework/core/authService';
 import {TabService} from './components/layout/navbar/tabstrip/tabService';
@@ -17,9 +17,9 @@ import {StaticRegisterService} from './services/staticregisterservice';
     directives: [ROUTER_DIRECTIVES, UniRouterOutlet, UniNavbar],
     providers: [AuthService, TabService, UniHttp, StaticRegisterService]
 })
-@RouteConfig(Routes)
+@RouteConfig(ROUTES)
 export class App {
-    public routes: AsyncRoute[] = Routes;
+    public routes: AsyncRoute[] = ROUTES;
 
     constructor(private authService: AuthService, router: Router) {}
 

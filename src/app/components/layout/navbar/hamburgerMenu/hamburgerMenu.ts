@@ -1,7 +1,7 @@
 ﻿import {Component, Host, ElementRef} from 'angular2/core';
 import {ROUTER_DIRECTIVES, Router, AsyncRoute} from 'angular2/router';
 import {NgFor, NgClass} from 'angular2/common';
-import {Routes} from '../../../../route.config';
+import {ROUTES} from '../../../../route.config';
 declare var jQuery;
 
 @Component({
@@ -13,7 +13,7 @@ declare var jQuery;
     }
 })
 export class HamburgerMenu {
-    public routes: AsyncRoute[] = Routes;
+    public routes: AsyncRoute[] = ROUTES;
     public availableComponents: Array<any>;
 
     public static getAvailableComponents(): Array<any> {
@@ -84,7 +84,7 @@ export class HamburgerMenu {
     }
 
     private onClick(event) {
-        let target: JQuery = jQuery(event.target);
+        let target = jQuery(event.target);
         
         // Close on clicks outside
         if (!target.parents(this.elementRef.nativeElement).length) {

@@ -1,6 +1,6 @@
 import {Component} from 'angular2/core';
 import {AsyncRoute, ROUTER_DIRECTIVES} from 'angular2/router';
-import {Routes} from '../../../route.config';
+import {ROUTES} from '../../../route.config';
 
 import {HamburgerMenu} from './hamburgerMenu/hamburgerMenu';
 import {UniTabStrip} from './tabstrip/tabstrip';
@@ -23,5 +23,5 @@ declare var jQuery;
     ]
 })
 export class UniNavbar {
-    public routes: AsyncRoute[] = Routes;
+    public routes: AsyncRoute[] = ROUTES;
 }
