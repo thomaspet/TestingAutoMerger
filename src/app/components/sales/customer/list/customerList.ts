@@ -53,7 +53,7 @@ export class CustomerList {
 
     setupCustomerTable() {
         // Define columns to use in the table
-        var numberCol = new UniTableColumn('ID', 'Kundenr', 'number').setWidth('15%');
+        var numberCol = new UniTableColumn('CustomerNumber', 'Kundenr', 'number').setWidth('15%');
         var nameCol = new UniTableColumn('Info.Name', 'Navn', 'string');
         var orgNoCol = new UniTableColumn('Orgnumber', 'Orgnr', 'string').setWidth('15%');
                 

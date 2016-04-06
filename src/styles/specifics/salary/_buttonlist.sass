@@ -6,11 +6,26 @@
 
 .filter_buttonlist
     list-style-type: none
-    padding: 0
-    margin: 0
-    overflow: hidden
-    font-style: no
+    display: inline-block
 
-    > li
-        display: block
-        float: left
+    li
+        display: inline-block
+
+    button
+        display: inline-block
+        background: none
+        box-shadow: none
+        border: pxToRem(1) solid $uni-color-scale7
+        padding: 0 1.5rem 1.75rem .5rem
+        background-image: unicon-close($uni-color-scale7)
+        background-repeat: no-repeat
+        background-position: right .5rem center
+        background-size: .5rem
+        margin-right: .5rem
+        margin-left: .5rem
+
+        &:hover,
+        &:focus
+            border-color: $uni-color-scale4
+            background-image: unicon-close($uni-color-scale4)
+            background-size: .5rem

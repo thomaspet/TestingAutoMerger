@@ -1,0 +1,37 @@
+<header class="quote_poster" *ngIf="quote">    
+    <article class="poster_toolbar">
+        <section>
+            <h1 *ngIf="quote">{{quote.Title}} <p>Tilbudsnr. {{quote.ID}}</p></h1>            
+            <p *ngIf="quote.StatusCode == null"><i>Kladd</i></p>            
+        </section>
+            
+        <nav class="poster_toolbar_tools">
+            <a (click)="previousQuote()"  class="previous">Forrige</a>
+            <a (click)="nextQuote()"  class="next">Neste</a>
+            <a (click)="addQuote()"  class="new">Nytt tilbud</a>
+        </nav>         
+    </article>       
+    
+     <!-- Widget poster -->
+    <section class="poster_overview">        
+        <uni-widget-poster [model]="quote">
+            <section class="application">
+                widgetdata kommer her...
+            </section>
+        </uni-widget-poster>        
+    </section> 
+</header>
+
+<section class="quote-details application">
+    <uni-component-loader></uni-component-loader>
+    <quote-item-list></quote-item-list>        
+</section>
+
+<footer class="full-footer">
+    <section class="application">
+        <button class="good" (click)="saveProductManual($event)">Lagre tilbud</button>
+        <section class="auto_save_info">
+            {{ LastSavedInfo }}    
+        </section>
+    </section>
+</footer>

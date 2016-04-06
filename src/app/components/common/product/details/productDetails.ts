@@ -70,7 +70,7 @@ export class ProductDetails {
                 this.extendFormConfig();
                 this.loadForm();        
                 
-                this.setPriceReadonlyMode(this.product.CalculateGrossPriceBasedOnNetPrice);          
+                this.showHidePriceFields(this.product.CalculateGrossPriceBasedOnNetPrice);          
             });       
     }
     
@@ -119,10 +119,22 @@ export class ProductDetails {
         );  
     }
     
-    setPriceReadonlyMode(calculateGrossPriceBasedOnNetPrice: boolean) {
+    showHidePriceFields(calculateGrossPriceBasedOnNetPrice: boolean) {
         //show/hide price fields based on checkbox - this currenctly does not work, Jorge is working on a fix        
         this.priceIncVat.hidden = !calculateGrossPriceBasedOnNetPrice;
         this.priceExVat.hidden = calculateGrossPriceBasedOnNetPrice;            
+    }
+    
+    previousProduct() {
+        
+    }
+    
+    nextProduct() {
+        
+    }
+    
+    addProduct() {
+        
     }
         
     createFormConfig() {   
@@ -130,8 +142,7 @@ export class ProductDetails {
         var view: ComponentLayout = this.getComponentLayout();
         
         this.FormConfig = new UniFormLayoutBuilder().build(view, this.product);
-        this.FormConfig.hideSubmitButton();
-        
+        this.FormConfig.hideSubmitButton();        
     }
     
     extendFormConfig() {
@@ -222,7 +233,7 @@ export class ProductDetails {
                     .distinctUntilChanged()
                     .subscribe((value) => {                        
                         if (self.product.CalculateGrossPriceBasedOnNetPrice != value) {
-                            self.setPriceReadonlyMode(value);                        
+                            self.showHidePriceFields(value);                        
                         }
                     });
            });           

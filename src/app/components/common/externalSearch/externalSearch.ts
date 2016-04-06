@@ -46,8 +46,8 @@ export class ExternalSearch {
                                 if (this.showAllResults) {
                                     this.searchResult = this.fullSearchResult;
                                 } else {
-                                    //default display only first 4 searchresults
-                                    this.searchResult = this.fullSearchResult.slice(0, 4);
+                                    //default display only first 6 searchresults
+                                    this.searchResult = this.fullSearchResult.slice(0, 6);
                                 }
                             } else {
                                 this.searchResult = [];
@@ -57,6 +57,11 @@ export class ExternalSearch {
                         (err) => console.log('Feil ved søk:', err)
                     );               
         }        
+    }
+    
+    doShowAllResults() {
+        this.searchResult = this.fullSearchResult;
+        return false;
     }
     
     selectItem(item: any) {

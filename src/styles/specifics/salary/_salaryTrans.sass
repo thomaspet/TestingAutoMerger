@@ -1,0 +1,32 @@
+uni-salary
+  display: block
+
+  .splitview
+    @include unigrid-flush(14)
+    margin: 0 auto 5rem
+
+.salarytrans-payrollrun-detail
+  @include unigrid-flush(14)
+  margin: 0 auto
+
+  h1
+    @extend h2
+    margin: 0
+
+  p
+    @extend .poster_toolbar_orgnr
+
+section.salarytrans-filter
+  width: 100%
+  background-color: transparentize($uni-color-scale9, .5)
+
+  salarytrans-filter
+    display: block
+    @include unigrid-flush(14)
+    margin: 1rem auto
+    padding: 1rem 0
+    text-align: center
+
+  p
+    display: inline-block
+    margin: 0

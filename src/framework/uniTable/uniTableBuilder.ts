@@ -52,7 +52,7 @@ export class UniTableBuilder {
             if (columnInfo.editable) {
                 columnInfo.class += ' editable-cell';
             }
-            
+                      
             this.columns.push({
                 field: columnInfo.field,
                 title: columnInfo.title,
@@ -62,10 +62,14 @@ export class UniTableBuilder {
                 editor: columnInfo.editor || null,
                 values: columnInfo.values || null,
                 attributes: {
-                    'class': columnInfo.class
+                    class: columnInfo.class,
+                    style: 'text-align: ' + columnInfo.textAlign
+                },
+                headerAttributes: {
+                    style: 'text-align: ' + columnInfo.textAlign
                 }
             });
-                                          
+                      
             this.schemaModel.fields[columnInfo.field] = {
                 type: columnInfo.type,
                 editable: columnInfo.editable,

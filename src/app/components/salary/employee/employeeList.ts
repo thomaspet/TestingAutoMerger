@@ -10,23 +10,29 @@ import {Employee} from '../../../unientities';
 })
 
 export class EmployeeList {
-    private employeeTableConfig: any;
-    
-    constructor(router: Router) {
-        var idCol = new UniTableColumn('ID', 'ID', 'number');
+    private employeeTableConfig: UniTableBuilder;
 
-        var nameCol = new UniTableColumn('BusinessRelationInfo.Name', 'Name', 'string');
+    constructor(private router: Router) {
+        var idCol = new UniTableColumn('EmployeeNumber', 'Ansattnummer', 'number').setWidth('15%');
+
+        var nameCol = new UniTableColumn('BusinessRelationInfo.Name', 'Navn', 'string');
 
         var employmentDateCol = new UniTableColumn('EmploymentDate', 'Ansettelsesdato', 'date')
-            .setFormat('{0: dd.MM.yyyy}');
+            .setFormat('{0: dd.MM.yyyy}')
+            .setWidth('15%');
 
         this.employeeTableConfig = new UniTableBuilder('employees', false)
             .setExpand('BusinessRelationInfo')
             .setFilter('BusinessRelationID gt 0')
             .setSelectCallback((selectedEmployee: Employee) => {
-                //router.navigateByUrl(`/salary/employees/${selectedEmployee.ID}`);
-                router.navigate(['EmployeeDetails', {id: selectedEmployee.ID}]).then(result => console.log(result));
+                router.navigate(['EmployeeDetails', {id: selectedEmployee.ID}])
+                      .then(result => console.log(result));
             })
             .addColumns(idCol, nameCol, employmentDateCol);
     }
+    
+    public newEmployee() {
+        this.router.navigateByUrl('/salary/employees/' + 0);
+    }
+    
 }
