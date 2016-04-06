@@ -11,7 +11,7 @@ declare var jQuery;
         <section class="poster_tags">
 
             <ul class="poster_tags_list">
-                <li *ngFor="#category of selectedEmployee.EmployeeCategories">{{category.Name}} 
+                <li *ngFor="#category of categories">{{category.Name}} 
                 <button class="remove" (click)="removeCategory(category)">Remove</button></li>
             </ul>
 
@@ -29,15 +29,6 @@ declare var jQuery;
             </div>
 
         </section>
-        
-        
-        <article class="buttonlist_component">
-            <ul class="filter_buttonlist">
-                <li *ngFor="#category of categories">
-                    <button>{{category.Name}}</button>
-                </li>
-            </ul>
-        </article>
     `
 })
 
