@@ -28,6 +28,7 @@ export class AuthService {
         this.jwt = token;
         localStorage.setItem('jwt', this.jwt);
         this.jwtDecoded = this.decodeToken(this.jwt);
+        this.expiredToken = false;
     }
     
     /**

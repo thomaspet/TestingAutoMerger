@@ -22,13 +22,32 @@ export class UniRouterOutlet extends RouterOutlet {
     }
 
     public activate(instruction: ComponentInstruction) {
-        var url = '/' + instruction.urlPath;
-
-        if (!this.authService.isAuthenticated && url !== '/login' && url !== '/signup') {
-            localStorage.setItem('lastNavigationAttempt', url); // so we can redirect to it after logging in	
-            this.parentRouter.navigateByUrl('/login');
+        
+        if (!this.authService.isAuthenticated()) {
+            let parentInstruction = this.parentRouter.currentInstruction;
+            let url = this.getCurrentRoute(parentInstruction);
+            
+            if (url !== '/login' && url !== '/signup') {
+                // Avoid overriding lastNavigationAttempt from child router
+                if (!localStorage.getItem('lastNavigationAttempt')) {
+                    localStorage.setItem('lastNavigationAttempt', url);
+                }
+                
+                this.parentRouter.navigateByUrl('/login');
+            }
         }
         
         return super.activate(instruction);
     }
+    
+    private getCurrentRoute(instruction) {
+        var route = '/' + instruction.urlPath;
+        
+        if (instruction.child) {
+            route += this.getCurrentRoute(instruction.child);
+        }
+        
+        return route;
+    }
+
 }
