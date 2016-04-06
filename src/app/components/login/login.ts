@@ -2,6 +2,7 @@ import {Component} from 'angular2/core';
 import {Http, Headers} from 'angular2/http';
 import {Router, ROUTER_DIRECTIVES} from 'angular2/router';
 import {AuthService} from '../../../framework/core/authService';
+import {AppConfig} from '../../AppConfig';
 import {StaticRegisterService} from '../../services/staticregisterservice';
 
 declare var jQuery;
@@ -29,9 +30,8 @@ export class Login {
         this.working = true;
         
         let headers = new Headers({'Content-type': 'application/json'});
-        // let creds = `username=${this.credentials.username}&password=${this.credentials.password}`;
         this._http.post(
-            'http://devapi.unieconomy.no/api/init/sign-in', JSON.stringify(this.credentials), {headers: headers}
+           AppConfig.LOGIN_URL, JSON.stringify(this.credentials), {headers: headers}
         ).map(response => JSON.parse(response.json()))
         .subscribe(
             (response) => {
@@ -45,7 +45,8 @@ export class Login {
 
     private onAuthSuccess() {
         this.working = false;
-
+        
+        console.log(this._authService.hasActiveCompany());
         // skip process of selecting a company if activeCompany exists in localStorage
         if (this._authService.hasActiveCompany()) {
             this.onCompanySelected();
@@ -77,8 +78,10 @@ export class Login {
     }
 
     private onCompanySelected() {
+        console.log('onCompanySelected');
         var url = localStorage.getItem('lastNavigationAttempt') || '/';
         localStorage.removeItem('lastNavigationAttempt');
+        console.log(url);
         this._router.navigateByUrl(url);
     }
 }
