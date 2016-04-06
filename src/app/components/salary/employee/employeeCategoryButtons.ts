@@ -1,5 +1,5 @@
 import {Component, Input, OnInit} from 'angular2/core';
-import {EmployeeCategory, Employee, EmployeeCategoryLink} from '../../../unientities';
+import {EmployeeCategory, Employee} from '../../../unientities';
 import {EmployeeService, EmployeeCategoryService} from '../../../services/services';
 
 declare var jQuery;
@@ -12,7 +12,7 @@ declare var jQuery;
 
             <ul class="poster_tags_list">
                 <li *ngFor="#category of selectedEmployee.EmployeeCategories">{{category.Name}} 
-                <button class="remove" (click)="removeTag(category)">Remove</button></li>
+                <button class="remove" (click)="removeCategory(category)">Remove</button></li>
             </ul>
 
             <button class="poster_tags_addBtn" (click)="addingTags = !addingTags" [ngClass]="{'-is-active': addingTags}">Legg til&hellip;</button>
@@ -47,6 +47,7 @@ declare var jQuery;
 
 export class EmployeeCategoryButtons implements OnInit {
     private categories: Array<EmployeeCategory>;
+    private results: Array<EmployeeCategory> = [];
     @Input()
     private selectedEmployee: Employee;
     
@@ -59,28 +60,58 @@ export class EmployeeCategoryButtons implements OnInit {
         });
     }
     
+    private filterTags(tag: string) {
+        let containsString = function(str: EmployeeCategory) {
+            return str.Name.toLowerCase().indexOf(tag.toLowerCase()) >= 0;
+        };
+
+        return this.categories.filter(containsString);
+    };
+
+    private presentResults(tag: string) {
+        this.results = this.filterTags(tag).splice(0, 5);
+    };
+    
     public ngOnInit() {        
         this.employeeService.getEmployeeCategories(this.selectedEmployee.EmployeeNumber)
         .subscribe((response: any) => {
             this.selectedEmployee.EmployeeCategories = response;
+            
+            // remove selected categories from available categories
+            var arrLength = this.selectedEmployee.EmployeeCategories.length;
+            for (var selIndx = 0; selIndx < arrLength; selIndx++) {
+                var selCat = this.selectedEmployee.EmployeeCategories[selIndx];
+                for (var avIndx = this.categories.length - 1; avIndx >= 0; avIndx--) {
+                    var avCat = this.categories[avIndx];
+                    if (avCat.Name === selCat.Name) {
+                        this.categories.splice(avIndx, 1);
+                    }
+                }
+            }
         });
     }
     
     public addCategory(categoryName) {
         console.log('Add category', categoryName);
         console.log('categories', this.categories);
+        console.log('indexOf', this.categories.indexOf(categoryName));
         
         var category = new EmployeeCategory();
         category.Name = categoryName;
         
         this.selectedEmployee.EmployeeCategories.push(category);
-        this.categories.splice(this.categories.indexOf(categoryName), 1);
         
-        console.log('categories', this.categories);
+        var indx = this.categories.map(function(e) {
+            return e.Name;
+        }).indexOf(categoryName);
+        
+        this.categories.splice(indx, 1);
+        
     }
     
     public removeCategory(removeCategory: EmployeeCategory) {
         console.log('Remove category');
+        console.log('removed at index', this.selectedEmployee.EmployeeCategories.indexOf(removeCategory));
         this.selectedEmployee.EmployeeCategories.splice(this.selectedEmployee.EmployeeCategories.indexOf(removeCategory), 1);
         this.categories.unshift(removeCategory);
         
@@ -99,31 +130,4 @@ export class EmployeeCategoryButtons implements OnInit {
     public saveCategories() {
         this.employeeCategoryService.saveCategoriesOnEmployee(this.selectedEmployee);
     }
-    
-    // private tags: string[] = ['Aktiv', 'Sjømenn', 'Pensjon'];
-
-    private results: Array<EmployeeCategory> = [];
-    
-    private filterTags = function(tag: string) {
-        let containsString = function(str: EmployeeCategory) {
-            return str.Name.toLowerCase().indexOf(tag.toLowerCase()) >= 0;
-        };
-
-        return this.selectedEmployee.EmployeeCategories.filter(containsString);
-    };
-
-    private presentResults = function(tag: string){
-        console.log('present result', tag);
-        this.results = this.filterTags(tag).splice(0, 5);
-    };
-
-    // private addTag(tag) {
-    //     this.tags.push(tag);
-    //     this.availableTags.splice(this.availableTags.indexOf(tag), 1);
-    // }
-
-    // private removeTag(tag) {
-    //     this.tags.splice(this.tags.indexOf(tag), 1);
-    //     this.availableTags.unshift(tag);
-    // }
 }
