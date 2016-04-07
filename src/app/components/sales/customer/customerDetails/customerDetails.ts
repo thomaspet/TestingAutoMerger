@@ -132,20 +132,36 @@ export class CustomerDetails {
             this.Customer.Info.Name = selectedSearchInfo.navn;
             this.Customer.OrgNumber = selectedSearchInfo.orgnr;
    
+            console.log("=== NY ADRESSE ===");
             var businessaddress = this.addressService.businessAddressFromSearch(selectedSearchInfo);
-            var postaladdress = this.addressService.postalAddressFromSearch(selectedSearchInfo);
-            var phone = this.phoneService.phoneFromSearch(selectedSearchInfo);
-            var mobile = this.phoneService.mobileFromSearch(selectedSearchInfo);
-            
-            console.log("==BUSINESSADDRESS==");
             console.log(businessaddress);
             
-            if (businessaddress) {
-                console.log("==SETTING BUSINESS ADDRESS==");
-                //this.Customer.Info.Addresses.push(businessaddress);
-                //this.Customer.Info.InvoiceAddress = businessaddress;
-            }
+            //var postaladdress = this.addressService.postalAddressFromSearch(selectedSearchInfo);
+            //var phone = this.phoneService.phoneFromSearch(selectedSearchInfo);
+            //console.log("PHONE FROM OUTSIDE");
+            //console.log(phone);
             
+            //var mobile = this.phoneService.mobileFromSearch(selectedSearchInfo);
+            
+         //   var batch = [];
+         //   if (businessaddress) batch.push(this.addressService.Post(businessaddress));
+         /*   if (postaladdress) batch.push(this.addressService.Post(postaladdress));
+            if (phone) batch.push(this.phoneService.Post(phone));
+            if (mobile) batch.push(this.phoneService.Post(mobile));
+            
+            Observable.forkJoin(batch).subscribe((res) => {
+               console.log("RESULT OF SAVE");
+               console.log(res); 
+            });
+           */ 
+                
+        /*    if (businessaddress) {
+                console.log("==SETTING BUSINESS ADDRESS==");
+                 
+                this.Customer.Info.Addresses.push(businessaddress);
+                this.Customer.Info.InvoiceAddress = businessaddress;
+            }
+          */  
             /*
             if (!postaladdress) postaladdress = businessaddress;
             if (postaladdress) {
@@ -154,9 +170,8 @@ export class CustomerDetails {
             }
             */
             
-            console.log("==TESTING==");
-            console.log(this.Customer);
-            this.formInstance.refresh(this.Customer); 
+            //this.formInstance.refresh(this.Customer); 
+            
         } 
     }
     

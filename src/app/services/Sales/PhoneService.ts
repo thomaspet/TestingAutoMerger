@@ -14,18 +14,28 @@ export class PhoneService extends BizHttp<Phone> {
     }
     
     phoneFromSearch(selectedSearchInfo: SearchResultItem): Phone {
-        var phone = new Phone();
+        this.GetNewEntity().subscribe(phone => {
+           console.log("::INSIDE::");
+           console.log(phone);
+           phone.Number = selectedSearchInfo.tlf;
+           phone.Type = PhoneTypeEnum.PtPhone;
+           return phone; 
+        });
+        
+        /*var phone = new Phone();
         phone.Number = selectedSearchInfo.tlf;
         phone.Type = PhoneTypeEnum.PtPhone;
+        phone.StatusCode = 1;
         
         if (phone.Number == "") return null;
-        else return phone;
+        else return phone;*/
     }
     
     mobileFromSearch(selectedSearchInfo: SearchResultItem): Phone {
         var phone = new Phone();
         phone.Number = selectedSearchInfo.tlf_mobil;
         phone.Type = PhoneTypeEnum.PtMobile;
+        phone.StatusCode = 1;
         
         if (phone.Number == "") return null;
         else return phone;

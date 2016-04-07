@@ -14,14 +14,28 @@ export class AddressService extends BizHttp<Address> {
     }           
     
     businessAddressFromSearch(selectedSearchInfo: SearchResultItem): Address {
-        var address = new Address();
-        address.AddressLine1 = selectedSearchInfo.forretningsadr;
-        address.PostalCode = selectedSearchInfo.forradrpostnr;
-        address.City = selectedSearchInfo.forradrpoststed;
-        address.Country = selectedSearchInfo.forradrland;  
+        if(selectedSearchInfo.forretningsadr == "" && selectedSearchInfo.forradrpostnr == "" && selectedSearchInfo.forradrpoststed == "" && selectedSearchInfo.forradrland == "") {
+            return null;
+        };
         
-        if(address.AddressLine1 == "" && address.PostalCode == "" && address.City == "" && address.Country == "") return null;
-        else return address; 
+        console.log("ZZ businessAddressFromSearch");
+        this.GetNewEntity(null, "address").subscribe((data) => {
+            console.log("XX8 GetNewEntity");
+            console.log(data);
+        });
+           /*     
+        this.GetNewEntity().map(address => {
+            console.log("ZZ GetNewEntity");
+            address.AddressLine1 = selectedSearchInfo.forretningsadr;
+            address.PostalCode = selectedSearchInfo.forradrpostnr;
+            address.City = selectedSearchInfo.forradrpoststed;
+            address.Country = selectedSearchInfo.forradrland;
+            
+            console.log("ZZ INSIDE ==");
+            console.log(address);
+            
+            return address; 
+        });*/
     }
     
     postalAddressFromSearch(selectedSearchInfo: SearchResultItem): Address {
@@ -30,7 +44,7 @@ export class AddressService extends BizHttp<Address> {
         address.PostalCode = selectedSearchInfo.ppostnr;
         address.City = selectedSearchInfo.ppoststed;
         address.Country = selectedSearchInfo.ppostland;
-
+    
         if(address.AddressLine1 == "" && address.PostalCode == "" && address.City == "" && address.Country == "") return null;
         else return address;   
     }

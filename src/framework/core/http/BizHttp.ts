@@ -131,14 +131,15 @@ export class BizHttp<T> {
         return this.Action(ID, actionName, parameters, RequestMethod.Delete);    
     }
 
-    GetNewEntity(expand?: string[]) {
+    GetNewEntity(expand?: string[], entityname: string = null) {
         let expandStr;
         if (expand) {
             expandStr = expand.join(',');
         }
-
-        //TODO. Needs a more robust way to handle the Singular Url needed for this request.
-        let relativeUrlSingular = this.relativeURL.slice(0, this.relativeURL.length - 1); 
+        
+        //TODO. Needs a more robust way to handle the Singular Url needed for this request.     
+        let relativeUrlSingular = entityname != null ? entityname : this.relativeURL.slice(0, this.relativeURL.length - 1); 
+        
         return this.http
             .usingMetadataDomain()
             .asGET()
@@ -168,5 +169,4 @@ export class BizHttp<T> {
                 return [layout, entity];
             });
     }
-
 }
