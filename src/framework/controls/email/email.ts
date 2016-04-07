@@ -1,7 +1,9 @@
-import {Component, Input} from "angular2/core";
+import {Component, Input, ElementRef} from 'angular2/core';
+
+declare var jQuery;
 
 @Component({
-    selector: "uni-email",
+    selector: 'uni-email',
     template: `
         <input
             *ngIf="config.control"
@@ -14,16 +16,25 @@ import {Component, Input} from "angular2/core";
 })
 export class UniEmailInput {
     @Input()
-    config: any;
+    public config: any;
 
-    constructor() {
+    constructor(public elementRef: ElementRef) {
     }
 
-    ngOnInit() {
+    public setFocus() {
+        jQuery(this.elementRef).focus();
+        return this;
+    }
+    
+    public ngOnInit() {
         this.config.fieldComponent = this;
     }
 
-    refresh(value: any): void {
+    public ngAfterViewInit() {
+        this.config.isDomReady.emit(this);
+    }
+
+    public refresh(value: any): void {
         this.config.control.updateValue(value, {});
     }
 }

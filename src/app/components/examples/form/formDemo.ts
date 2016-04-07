@@ -49,14 +49,12 @@ export class UniFormDemo {
                 private Api: EmployeeService,
                 private businessRelationService: BusinessRelationService,
                 private phoneService: PhoneService) {
-
         this.Api.setRelativeUrl('employees');
         this.createPhoneModel();
     }
 
-    ngOnInit() {
+    public ngOnInit() {
         var self = this;
-
         this.Api.GetLayoutAndEntity('EmployeePersonalDetailsForm', 1).subscribe((results: any[]) => {
             var view: ComponentLayout = results[0];
             var model: Employee = results[1];
@@ -104,11 +102,13 @@ export class UniFormDemo {
         return this.UniCmpLoader.load(UniForm).then((cmp: ComponentRef) => {
             cmp.instance.config = self.FormConfig;
             cmp.instance.getEventEmitter().subscribe(self.submit(self));
+            cmp.instance.isDomReady.subscribe((component: UniForm)=> {
+                component.config.find('Sex').setFocus();
+            });
         });
     }
 
     private buildFormConfig(layout: ComponentLayout, model: Employee) {
-        console.log(layout);
         this.FormConfig = new UniFormLayoutBuilder().build(layout, model);
     }
 
@@ -182,11 +182,12 @@ export class UniFormDemo {
             }]
         });
 
-        field = this.FormConfig.find('SocialSecurityNumber');
-        field.setKendoOptions({
+        var field2: UniFieldBuilder = this.FormConfig.find('SocialSecurityNumber');
+        field2.setKendoOptions({
             mask: '000000 00000',
             promptChar: '_'
-        });
+        })
+        ;
 
         //////////////////////////////////
         // add section inside a section
@@ -207,7 +208,8 @@ export class UniFormDemo {
         //////////////////////////////////
     }
 
-    private extendLayoutConfig(layout: any) {
+    private
+    extendLayoutConfig(layout: any) {
         layout.Fields[0].Validators = [{
             'EntityType': 'BusinessRelation',
             'PropertyName': 'Name',

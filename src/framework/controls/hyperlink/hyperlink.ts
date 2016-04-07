@@ -1,8 +1,10 @@
-import {Component, Input} from "angular2/core";
-import {UniFieldBuilder} from "../../forms/builders/uniFieldBuilder";
+import {Component, Input, ElementRef} from 'angular2/core';
+import {UniFieldBuilder} from '../../forms/builders/uniFieldBuilder';
+
+declare var jQuery;
 
 @Component({
-    selector: "uni-hyperlink",
+    selector: 'uni-hyperlink',
     template: `
         <a [href]="config.url"
         >{{config.description}}</a>
@@ -10,16 +12,26 @@ import {UniFieldBuilder} from "../../forms/builders/uniFieldBuilder";
 })
 export class UniHyperlink {
     @Input()
-    config: UniFieldBuilder;
-
-    constructor() {
+    public config: UniFieldBuilder;
+    public ready: Promise<boolean>;
+    
+    constructor(public elementRef: ElementRef) {
     }
 
-    ngOnInit() {
+    public setFocus() {
+        jQuery(this.elementRef).focus();
+        return this;
+    }
+    
+    public ngOnInit() {
         this.config.fieldComponent = this;
     }
 
-    refresh(value: any): void {
+    public ngAfterViewInit() {
+        this.config.isDomReady.emit(this);
+    }
+
+    public refresh(value: any): void {
         this.config.control.updateValue(value, {});
     }
 }

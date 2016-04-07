@@ -1,10 +1,8 @@
-import {Component, Input} from "angular2/core";
-import {InputTemplateString} from "../inputTemplateString";
-import {Control} from "angular2/common";
-import {UniFieldBuilder} from "../../forms/builders/uniFieldBuilder";
+import {Component, Input} from 'angular2/core';
+import {UniFieldBuilder} from '../../forms/builders/uniFieldBuilder';
 
 @Component({
-    selector: "uni-radio-group",
+    selector: 'uni-radio-group',
     template: `
         <fieldset *ngIf="config.control">
             <legend *ngIf="config.label">{{config.label}}</legend>
@@ -13,13 +11,12 @@ import {UniFieldBuilder} from "../../forms/builders/uniFieldBuilder";
                 #rb
                 type="radio"
                 [value]="item"
-                type="radio"
                 [ngControl]="config.field"
                 [name]="config.field"
                 [readonly]="config.readonly"
                 [disabled]="config.disabled"
                 [class.error]="config.control.touched && !config.control.valid"
-                (click)="updateFormValue(config.control,rb.value)"
+                (click)="updateFormValue(rb.value)"
                 />
                 <label>{{item[config.textField]}}</label>
             </template>
@@ -28,21 +25,28 @@ import {UniFieldBuilder} from "../../forms/builders/uniFieldBuilder";
 })
 export class UniRadioGroup {
     @Input()
-    config: UniFieldBuilder;
-
+    public config: UniFieldBuilder;
     constructor() {
-
     }
 
-    ngOnInit() {
+    public setFocus() {
+        return this;
+    }
+
+
+    public ngOnInit() {
         this.config.fieldComponent = this;
     }
 
-    refresh(value: any) {
-        this.updateFormValue(this.config.control, value);
+    public ngAfterViewInit() {
+        this.config.isDomReady.emit(this);
     }
 
-    updateFormValue(control: Control, value: any) {
-        control.updateValue(value, {});
+    public refresh(value: any) {
+        this.updateFormValue(value);
+    }
+
+    public updateFormValue(value: any) {
+        this.config.control.updateValue(value, {});
     }
 }

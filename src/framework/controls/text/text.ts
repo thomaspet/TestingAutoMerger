@@ -1,8 +1,10 @@
-import {Component, Input} from "angular2/core";
-import {UniFieldBuilder} from "../../forms/builders/uniFieldBuilder";
+import {Component, Input, ElementRef} from 'angular2/core';
+import {UniFieldBuilder} from '../../forms/builders/uniFieldBuilder';
+
+declare var jQuery;
 
 @Component({
-    selector: "uni-text",
+    selector: 'uni-text',
     template: `
         <input
             *ngIf="config.control"
@@ -15,16 +17,25 @@ import {UniFieldBuilder} from "../../forms/builders/uniFieldBuilder";
 })
 export class UniTextInput {
     @Input()
-    config: UniFieldBuilder;
-
-    constructor() {
+    public config: UniFieldBuilder;
+    constructor(public elementRef: ElementRef) {
     }
 
-    ngOnInit() {
+    public setFocus() {
+        jQuery(this.elementRef).focus();
+        return this;
+    }
+
+
+    public ngOnInit() {
         this.config.fieldComponent = this;
     }
 
-    refresh(value: any) {
+    public ngAfterViewInit() {
+        this.config.isDomReady.emit(this);
+    }
+
+    public refresh(value: any) {
         this.config.control.updateValue(value, {});
     }
 }
