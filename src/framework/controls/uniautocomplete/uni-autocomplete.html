@@ -19,7 +19,7 @@
             (mouseover)="selected = result"
             (click)="choose(result)"
             [attr.aria-selected]="selected === result">
-            {{result}}
+            {{result[config.displayKey]}}
         </li>
 
     </ul>
