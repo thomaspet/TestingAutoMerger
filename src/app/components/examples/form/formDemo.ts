@@ -23,6 +23,7 @@ import {UniTextInput} from "../../../../framework/controls/text/text";
 import {UNI_CONTROL_DIRECTIVES} from "../../../../framework/controls";
 import {PhoneModal} from "../../sales/customer/modals/phone/phone";
 import {BusinessRelationService, PhoneService} from "../../../services/services";
+import {UniState} from "../../../../framework/core/UniState";
 
 @Component({
     selector: 'uni-form-demo',
@@ -48,7 +49,8 @@ export class UniFormDemo {
                 private Http: UniHttp,
                 private Api: EmployeeService,
                 private businessRelationService: BusinessRelationService,
-                private phoneService: PhoneService) {
+                private phoneService: PhoneService,
+                private state: UniState) {
         this.Api.setRelativeUrl('employees');
         this.createPhoneModel();
     }
@@ -63,21 +65,27 @@ export class UniFormDemo {
         });
     }
 
-    ngAfterViewInit() {
-        var w: any = window;
-        if (w.state && w.state[this.router.root.lastNavigationAttempt]) {
-            var state = w.state[this.router.root.lastNavigationAttempt];
-            this.UniCmpLoader.component.setState(state.value);
-        }
+    ngOnDestroy() {
+        this.state.saveState(this.buildState());
     }
 
-    ngOnDestroy() {
-        var w: any = window;
-        w.state = w.state || {};
-        w.state[this.router.root.lastNavigationAttempt] = {};
-        var state = w.state[this.router.root.lastNavigationAttempt];
+    buildState() {
         var component: UniForm = this.UniCmpLoader.component;
-        state.form = component.getState();
+        return {
+            form: component.getState()
+        };
+    }
+
+    applyState(context: UniFormDemo, model:any) {
+        return (ref: ComponentRef) => {
+            var state = context.state.getState();
+            if (state) {
+                ref.instance.isDomReady.subscribe((cmp: UniForm)=> {
+                    cmp.updateModel(null,state.form.value);
+                    cmp.refresh(model)
+                });
+            }
+        };
     }
 
     // private methods
@@ -92,9 +100,9 @@ export class UniFormDemo {
 
         // We can extend the form config after the LayoutBuilder has created the layout
         this.extendFormConfig();
-        this.addMultiValue();
+        //this.addMultiValue();
 
-        this.loadForm();
+        this.loadForm().then(this.applyState(this,model));
     }
 
     private loadForm() {
@@ -105,6 +113,7 @@ export class UniFormDemo {
             cmp.instance.isDomReady.subscribe((component: UniForm)=> {
                 component.config.find('Sex').setFocus();
             });
+            return cmp;
         });
     }
 
@@ -239,7 +248,7 @@ export class UniFormDemo {
     private submit(context: UniFormDemo) {
         return () => {
             context.Api.Post(context.Model).subscribe((result: any) => {
-                alert(JSON.stringify(result));
+                //alert(JSON.stringify(result));
             });
         };
     }

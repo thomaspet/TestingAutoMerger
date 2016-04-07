@@ -11,6 +11,7 @@ import {ValidatorsComposer} from "./composers/validatorsComposer";
 import {ControlBuilder} from "./builders/controlBuilder";
 import {UniFormBuilder} from "./builders/uniFormBuilder";
 import {UniGenericField} from "./shared/UniGenericField";
+import {UniElementBuilder} from "./interfaces";
 
 declare var _; //lodash
 
@@ -231,8 +232,15 @@ export class UniForm extends UniGenericField implements OnInit {
     }
 
     setState(formValue) {
-        this.updateModel(this.config, formValue);
+        var self = this;
+        return this.isDomReady.subscribe((cmp: UniForm) => {
+            cmp.updateModel(null, formValue);
+            var field: UniFieldBuilder = <UniFieldBuilder>self.config.fields[0];
+            cmp.refresh(field.model);
+            return cmp;
+        });
     };
+
     /**
      * Creates form controls
      *
