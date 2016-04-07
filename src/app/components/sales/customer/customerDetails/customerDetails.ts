@@ -132,46 +132,42 @@ export class CustomerDetails {
             this.Customer.Info.Name = selectedSearchInfo.navn;
             this.Customer.OrgNumber = selectedSearchInfo.orgnr;
    
-            console.log("=== NY ADRESSE ===");
             var businessaddress = this.addressService.businessAddressFromSearch(selectedSearchInfo);
-            console.log(businessaddress);
+            var postaladdress = this.addressService.postalAddressFromSearch(selectedSearchInfo);
+            var phone = this.phoneService.phoneFromSearch(selectedSearchInfo);
+            var mobile = this.phoneService.mobileFromSearch(selectedSearchInfo);
             
-            //var postaladdress = this.addressService.postalAddressFromSearch(selectedSearchInfo);
-            //var phone = this.phoneService.phoneFromSearch(selectedSearchInfo);
-            //console.log("PHONE FROM OUTSIDE");
-            //console.log(phone);
-            
-            //var mobile = this.phoneService.mobileFromSearch(selectedSearchInfo);
-            
-         //   var batch = [];
-         //   if (businessaddress) batch.push(this.addressService.Post(businessaddress));
-         /*   if (postaladdress) batch.push(this.addressService.Post(postaladdress));
-            if (phone) batch.push(this.phoneService.Post(phone));
-            if (mobile) batch.push(this.phoneService.Post(mobile));
-            
-            Observable.forkJoin(batch).subscribe((res) => {
-               console.log("RESULT OF SAVE");
-               console.log(res); 
-            });
-           */ 
+          //  Promise.all([businessaddress, postaladdress, phone, mobile]).then(result => {
+              Promise.all([businessaddress]).then(result => {
+                var businessaddress = result[0];
+             //   var postaladdress = result[1];
+             //   var phone = result[2];
+             //   var mobile = result[3];
                 
-        /*    if (businessaddress) {
-                console.log("==SETTING BUSINESS ADDRESS==");
-                 
-                this.Customer.Info.Addresses.push(businessaddress);
-                this.Customer.Info.InvoiceAddress = businessaddress;
-            }
-          */  
-            /*
-            if (!postaladdress) postaladdress = businessaddress;
-            if (postaladdress) {
-                this.Customer.Info.Addresses.push(postaladdress);
-                this.Customer.Info.ShippingAddress = postaladdress;
-            }
-            */
-            
-            //this.formInstance.refresh(this.Customer); 
-            
+                if (businessaddress) {
+                    this.Customer.Info.Addresses.push(businessaddress);
+                    this.Customer.Info.InvoiceAddressID = businessaddress.ID;
+                }
+         /*
+                if (!postaladdress) postaladdress = businessaddress;
+                if (postaladdress) {
+                    this.Customer.Info.Addresses.push(postaladdress);
+                    this.Customer.Info.ShippingAddressID = postaladdress.ID;
+                }
+                
+                if (phone) {
+                    this.Customer.Info.Phones.push(phone);
+                    this.Customer.Info.DefaultPhoneID = phone.ID;
+                }
+                
+                if (mobile) {
+                    this.Customer.Info.Phones.push(mobile);
+                } 
+                
+                */              
+            });
+              
+            //this.formInstance.refresh(this.Customer);  
         } 
     }
     

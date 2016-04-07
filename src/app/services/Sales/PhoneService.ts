@@ -13,31 +13,37 @@ export class PhoneService extends BizHttp<Phone> {
         this.DefaultOrderBy = null;
     }
     
-    phoneFromSearch(selectedSearchInfo: SearchResultItem): Phone {
-        this.GetNewEntity().subscribe(phone => {
-           console.log("::INSIDE::");
-           console.log(phone);
-           phone.Number = selectedSearchInfo.tlf;
-           phone.Type = PhoneTypeEnum.PtPhone;
-           return phone; 
-        });
+    phoneFromSearch(selectedSearchInfo: SearchResultItem): Promise {
+        if(selectedSearchInfo.tlf == "") {
+            return null;
+        };
         
-        /*var phone = new Phone();
-        phone.Number = selectedSearchInfo.tlf;
-        phone.Type = PhoneTypeEnum.PtPhone;
-        phone.StatusCode = 1;
-        
-        if (phone.Number == "") return null;
-        else return phone;*/
+        return new Promise(resolve => {
+            this.GetNewEntity([], "phone").subscribe(phone => {
+                phone.Number = selectedSearchInfo.tlf;
+                phone.Type = PhoneTypeEnum.PtPhone;
+                            
+                this.Post<Phone>(phone).subscribe(phone => {
+                    resolve(phone);                 
+                });
+            }); 
+        });  
     }
     
-    mobileFromSearch(selectedSearchInfo: SearchResultItem): Phone {
-        var phone = new Phone();
-        phone.Number = selectedSearchInfo.tlf_mobil;
-        phone.Type = PhoneTypeEnum.PtMobile;
-        phone.StatusCode = 1;
-        
-        if (phone.Number == "") return null;
-        else return phone;
+    mobileFromSearch(selectedSearchInfo: SearchResultItem): Promise {
+        if(selectedSearchInfo.tlf_mobil == "") {
+            return null;
+        };
+ 
+        return new Promise(resolve => {
+            this.GetNewEntity([], "phone").subscribe(phone => {
+                phone.Number = selectedSearchInfo.tlf_mobil;
+                phone.Type = PhoneTypeEnum.PtMobile;
+                        
+                this.Post<Phone>(phone).subscribe(phone => {
+                    resolve(phone);                 
+                });
+            }); 
+        });        
     }        
 }
