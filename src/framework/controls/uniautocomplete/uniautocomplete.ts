@@ -6,7 +6,7 @@ declare var jQuery;
 
 @Component({
     selector: 'autocomplete',
-    templateUrl: 'framework/controls/uniautocomplete/uni-autocomplete.html'
+    templateUrl: 'framework/controls/uniautocomplete/uniautocomplete.html'
 })
 
 export class Autocomplete {

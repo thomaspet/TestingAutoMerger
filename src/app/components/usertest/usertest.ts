@@ -9,7 +9,7 @@ import {Hours} from "../salary/employee/hours/hours";
 import {Travel} from "../salary/employee/travel/travel";
 import {SalaryTransactions} from "../salary/employee/salaryTransactions/salaryTransactions";
 import {RouteConfig, RouteDefinition, ROUTER_DIRECTIVES} from "angular2/router";
-import {Autocomplete} from "../../../framework/controls/uniautocomplete/autocomplete";
+import {Autocomplete} from "../../../framework/controls/uniautocomplete/uniautocomplete";
 
 const CHILD_ROUTES = [
     {path: "/", component: PersonalDetails, as: "Personopplysninger"},
