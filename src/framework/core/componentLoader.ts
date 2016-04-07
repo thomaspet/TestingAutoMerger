@@ -27,6 +27,8 @@ export class UniComponentLoader {
     @Input()
     config: any;
 
+    public component: any;
+
     constructor(public element: ElementRef, public dcl: DynamicComponentLoader) {
 
     }
@@ -58,6 +60,10 @@ export class UniComponentLoader {
      * @returns {any} (optional) it can return nothing or a promise
      */
     load(type: any) {
-        return this.dcl.loadIntoLocation(type, this.element, 'content');
+        var self = this;
+        return this.dcl.loadIntoLocation(type, this.element, 'content').then((ref: ComponentRef) => {
+            self.component = ref.instance;
+            return ref;
+        });
     }
 }

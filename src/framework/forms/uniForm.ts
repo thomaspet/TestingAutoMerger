@@ -185,6 +185,16 @@ export class UniForm extends UniGenericField implements OnInit {
         }
     }
 
+    getState() {
+        var self = this;
+        return {
+            value: self.form.value
+        };
+    }
+
+    setState(formValue) {
+        this.updateModel(this.config, formValue);
+    };
     /**
      * Creates form controls
      *
