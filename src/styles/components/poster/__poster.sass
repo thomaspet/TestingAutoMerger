@@ -5,6 +5,7 @@
 @import 'widget-table'
 @import 'widget-contact'
 @import 'emptystate'
+@import 'tags'
 
 .poster_overview
     width: 100%
@@ -76,32 +77,4 @@
 
     .compact + &
         background-image: unicon-down($uni-color-scale8)
-
-.poster_tags
-    @include unigrid-flush(14)
-    @extend %clickable
-    margin: 0 auto
-    list-style: none
-    padding: 0 1rem
-
-    .compact &
-        margin-top: 1rem
-
-    li
-        float: right
-        display: block
-        position: relative
-        background: $uni-color-scale7
-        height: .4rem
-        margin: .5rem .2rem
-        line-height: .4rem
-        padding: .5rem
-        font-size: .8rem
-        text-transform: uppercase
-        color: $uni-color-scale9
-        border-radius: 99rem
-        font-weight: 600
-
-        &:hover
-            background: $uni-color-scale5
 

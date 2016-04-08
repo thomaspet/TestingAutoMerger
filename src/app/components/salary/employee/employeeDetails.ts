@@ -1,4 +1,4 @@
-import {Component, provide} from 'angular2/core';
+import {Component, provide, OnInit} from 'angular2/core';
 import {
     RouteConfig, 
     RouteDefinition, 
@@ -10,13 +10,22 @@ from 'angular2/router';
 
 import 'rxjs/add/operator/map';
 
+import {PersonalDetails} from './personalDetails/personalDetails';
+import {EmployeeEmployment} from './employments/employments';
+import {Hours} from './hours/hours';
+import {Travel} from './travel/travel';
+// import {SalaryTransactions} from './salaryTransactions/salaryTransactions';
+import {EmployeeLeave} from './employeeLeave/employeeLeave';
+
 import {UniTabs} from '../../layout/uniTabs/uniTabs';
 import {WidgetPoster} from '../../../../framework/widgetPoster/widgetPoster';
+import {EmployeeCategoryButtons} from './employeeCategoryButtons';
 
 import {EmployeeService} from '../../../services/services';
 import {Employee, BusinessRelation} from '../../../unientities';
 import {EmployeeDS} from '../../../data/employee';
 import {STYRKCodesDS} from '../../../data/styrkCodes';
+import {SalaryTransactionEmployeeList} from '../salarytrans/salarytransList';
 import {ComponentProxy} from '../../../../framework/core/componentProxy';
 
 const CHILD_ROUTES = [
@@ -56,14 +65,16 @@ const CHILD_ROUTES = [
 @Component({
     selector: 'uni-employee-details',
     templateUrl: 'app/components/salary/employee/employeeDetails.html',
-    providers: [provide(EmployeeDS, {useClass: EmployeeDS}),
-                provide(STYRKCodesDS, {useClass: STYRKCodesDS}), 
-                EmployeeService],
-    directives: [ROUTER_DIRECTIVES, WidgetPoster, UniTabs]
+    providers: [
+            provide(EmployeeDS, {useClass: EmployeeDS})
+            , provide(STYRKCodesDS, {useClass: STYRKCodesDS}),
+            EmployeeService
+        ],
+    directives: [ROUTER_DIRECTIVES, WidgetPoster, UniTabs, EmployeeCategoryButtons]
 })
 
 @RouteConfig(CHILD_ROUTES)
-export class EmployeeDetails {
+export class EmployeeDetails implements OnInit {
     private employee: Employee;
     private url: string;
     private employeeID: number;
@@ -74,6 +85,7 @@ export class EmployeeDetails {
     constructor(private routeParams: RouteParams,
                 private _employeeService: EmployeeService, 
                 private _router: Router) {
+                    
         this.childRoutes = CHILD_ROUTES;
         this.employee = new Employee();
         this.businessRelation = new BusinessRelation();
