@@ -178,7 +178,8 @@ export class UniForm extends UniGenericField implements OnInit {
     }
 
     /**
-     * Updates the model
+     * Updates model values (doesn't replace the instance)
+     * and form values
      *
      * @param config Form Config
      * @param formValue Form value
@@ -202,7 +203,33 @@ export class UniForm extends UniGenericField implements OnInit {
     }
 
     /**
-     * updates the model with a new instance
+     * Updates form values but not model's values
+     *
+     * You can update the form to an invalid state
+     *
+     * @param config
+     * @param formValue
+     */
+    public updateFormValues(config?: any, formValue?: any) {
+        config = config || this.config.fields;
+        formValue = formValue || this.form.value;
+
+        for (let i = 0; i < config.length; i++) {
+            let field = config[i];
+            if (field instanceof UniFieldBuilder) {
+                var fieldPath = field.field;
+                var value = _.get(formValue, fieldPath);
+                field.refresh(value);
+            } else {
+                this.updateFormValues(field.fields, formValue);
+            }
+        }
+    }
+
+    /**
+     * updates the model with a new instance and updates form value
+     *
+     * Use this method when you want to use other model instance in the form
      *
      * @param new instance of model
      * @param config Form Config

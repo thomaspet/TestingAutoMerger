@@ -38,6 +38,7 @@ declare var _;
 export class UniFormDemo {
 
     private Model: EmployeeModel;
+    private CurrentState: any;
     private BusinessModel: BusinessRelation;
     private FormConfig: UniFormBuilder;
     private EmptyPhone: Phone;
@@ -50,6 +51,7 @@ export class UniFormDemo {
                 private phoneService: PhoneService,
                 private state: UniState) {
 
+        this.CurrentState = this.state.getState();
         this.Api.setRelativeUrl('employees');
         this.createPhoneModel();
     }
@@ -79,30 +81,19 @@ export class UniFormDemo {
     // private methods
     private startApp(view: any, model: Employee) {
         // We can extend layout before form config creation
-        view = this.extendLayoutConfig(view);
-        this.createModel(model);
-        this.buildFormConfig(view, this.Model);
-
-        // We can extend the form config after the LayoutBuilder has created the layout
-        this.extendFormConfig();
-        //this.addMultiValue();
-
+        this.buildFormConfig(view, model);
         return this.loadForm();
     }
 
     private loadForm() {
         var self = this;
         return this.UniCmpLoader.load(UniForm).then((cmp: ComponentRef) => {
-            var state = self.state.getState();
-            if(!state) {
-                cmp.instance.config = self.FormConfig;
-            } else {
-                cmp.instance.config = state.config;
-            }
+            cmp.instance.config = self.FormConfig;
             cmp.instance.getEventEmitter().subscribe(self.submit(self));
-            cmp.instance.isDomReady.subscribe((component: UniForm)=> {
-                if (state) {
-                    component.updateModel(null, state.form.value);
+            cmp.instance.isDomReady.subscribe((component: UniForm) => {
+                if (self.CurrentState) {
+                    component.refresh(self.Model);
+                    component.updateFormValues(null, self.CurrentState.form.value);
                 }
                 component.config.find('Sex').setFocus();
             });
@@ -111,7 +102,17 @@ export class UniFormDemo {
     }
 
     private buildFormConfig(layout: ComponentLayout, model: Employee) {
+        if (this.CurrentState) {
+            this.FormConfig = this.CurrentState.config;
+            this.createModel(model);
+            return;
+        }
+        layout = this.extendLayoutConfig(layout);
+        this.createModel(model);
         this.FormConfig = new UniFormLayoutBuilder().build(layout, model);
+        // We can extend the form config after the LayoutBuilder has created the layout
+        this.extendFormConfig();
+        //this.addMultiValue();
     }
 
     private createModel(model: Employee) {
