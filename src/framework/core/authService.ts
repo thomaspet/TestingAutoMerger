@@ -111,8 +111,10 @@ export class AuthService {
      */
     public logout(): void {
         localStorage.removeItem('jwt');
+        localStorage.removeItem('activeCompany');
         this.jwt = undefined;
         this.jwtDecoded = undefined;
+        this.activeCompany = undefined;
         
         this.router.navigate(['Login']);
     }

@@ -34,28 +34,29 @@ export class UniHttp {
 
     constructor(public http: Http, private authService: AuthService) {
         var headers = AppConfig.DEFAULT_HEADERS;
-        this.headers = new Headers();
         this.appendHeaders(headers);
     }
 
     private appendHeaders(headers: any) {
+        this.headers = new Headers();
+        
         for (var header in headers) {
             if (headers.hasOwnProperty(header)) {
                 this.headers.append(header, AppConfig.DEFAULT_HEADERS[header]);
             }
         }
         
-        let token = this.authService.getToken();
-        if (token) {
-            this.headers.append('Authorization', 'Bearer ' + token);
-        }
+        // let token = this.authService.getToken();
+        // if (token) {
+        //     this.headers.append('Authorization', 'Bearer ' + token);
+        // }
         
-        let activeCompany = this.authService.getActiveCompany();
-        if (activeCompany) {
-            this.headers.append('CompanyKey', activeCompany.Key);
-        }
-        
-        return this;
+        // let activeCompany = this.authService.getActiveCompany();
+        // if (activeCompany) {
+        //     this.headers.append('CompanyKey', activeCompany.Key);
+        // }
+                
+        // return this;
     }
 
     public getBaseUrl() {
