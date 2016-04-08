@@ -20,7 +20,7 @@ export class Login {
                 private _staticRegisterService: StaticRegisterService) {
         // initialize credentials to a valid login for testing purposes
         this.credentials = {
-            username: 'joare',
+            username: 'einar23',
             password: 'SimplePass1'
         };
     }
