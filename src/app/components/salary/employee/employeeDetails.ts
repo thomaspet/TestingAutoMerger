@@ -1,14 +1,31 @@
-import {Component, provide} from 'angular2/core';
-import {RouteConfig, RouteDefinition, RouteParams, ROUTER_DIRECTIVES, AsyncRoute} from 'angular2/router';
-import { Observable } from 'rxjs/Observable';
+import {Component, provide, OnInit} from 'angular2/core';
+import {
+    RouteConfig, 
+    RouteDefinition, 
+    RouteParams, 
+    ROUTER_DIRECTIVES, 
+    AsyncRoute, 
+    Router} 
+from 'angular2/router';
+
 import 'rxjs/add/operator/map';
+
+import {PersonalDetails} from './personalDetails/personalDetails';
+import {EmployeeEmployment} from './employments/employments';
+import {Hours} from './hours/hours';
+import {Travel} from './travel/travel';
+// import {SalaryTransactions} from './salaryTransactions/salaryTransactions';
+import {EmployeeLeave} from './employeeLeave/employeeLeave';
 
 import {UniTabs} from '../../layout/uniTabs/uniTabs';
 import {WidgetPoster} from '../../../../framework/widgetPoster/widgetPoster';
+import {EmployeeCategoryButtons} from './employeeCategoryButtons';
 
-
+import {EmployeeService} from '../../../services/services';
+import {Employee, BusinessRelation} from '../../../unientities';
 import {EmployeeDS} from '../../../data/employee';
 import {STYRKCodesDS} from '../../../data/styrkCodes';
+import {SalaryTransactionEmployeeList} from '../salarytrans/salarytransList';
 import {ComponentProxy} from '../../../../framework/core/componentProxy';
 
 const CHILD_ROUTES = [
@@ -48,38 +65,68 @@ const CHILD_ROUTES = [
 @Component({
     selector: 'uni-employee-details',
     templateUrl: 'app/components/salary/employee/employeeDetails.html',
-    providers: [provide(EmployeeDS, {useClass: EmployeeDS}), provide(STYRKCodesDS, {useClass: STYRKCodesDS})],
-    directives: [ROUTER_DIRECTIVES, WidgetPoster, UniTabs]
+    providers: [
+            provide(EmployeeDS, {useClass: EmployeeDS})
+            , provide(STYRKCodesDS, {useClass: STYRKCodesDS}),
+            EmployeeService
+        ],
+    directives: [ROUTER_DIRECTIVES, WidgetPoster, UniTabs, EmployeeCategoryButtons]
 })
 
 @RouteConfig(CHILD_ROUTES)
-export class EmployeeDetails {
-    employee; // any = {};
-    // empJSON;
-    childRoutes: RouteDefinition[];
-    subEntities;
+export class EmployeeDetails implements OnInit {
+    private employee: Employee;
+    private url: string;
+    private employeeID: number;
+    private isNextOrPrevious: boolean;
+    private businessRelation: BusinessRelation;
+    private childRoutes: RouteDefinition[];
 
-    constructor(private routeParams: RouteParams, private employeeDS: EmployeeDS) {
+    constructor(private routeParams: RouteParams,
+                private _employeeService: EmployeeService, 
+                private _router: Router) {
+                    
         this.childRoutes = CHILD_ROUTES;
+        this.employee = new Employee();
+        this.businessRelation = new BusinessRelation();
+        this.employee.BusinessRelationInfo = this.businessRelation;
+        this.url = '/salary/employees/';
+        this.employeeID = +this.routeParams.get('id');
     }
 
-    ngOnInit() {
-        var employeeID = this.routeParams.get('id');
-        Observable.forkJoin(
-            this.employeeDS.get(employeeID),
-            this.employeeDS.getSubEntities()
-        ).subscribe((response: any) => {
-            let [emp, loc] = response;
-            this.employee = emp;
-            this.subEntities = loc;
-
-            //console.log('employee', response);
-            
-        }, error => console.log(error));
+    public ngOnInit() {
+        if (this.employeeID) {
+            if (!this.isNextOrPrevious) {
+                this._employeeService.get(this.employeeID).subscribe((response: any) => {
+                this.employee = response;
+                }, error => console.log(error));
+            }
+            this.isNextOrPrevious = false;
+        }else {
+            this.businessRelation.Name = 'Ny Ansatt';
+            this.employee.BusinessRelationInfo = this.businessRelation;
+            this.employee.EmployeeNumber = 0;
+        }
     }
-
-    onFormSubmit(value) {
-        console.log(value);
+    
+    public nextEmployee() {
+        this._employeeService.getNext(this.employeeID).subscribe((response) => {
+            if (response) {
+                this.employee = response;
+                this.isNextOrPrevious = true;
+                this._router.navigateByUrl(this.url + this.employee.ID);
+            }
+        });
+    }
+    
+    public previousEmployee() {
+        this._employeeService.getPrevious(this.employeeID).subscribe((response) => {
+            if (response) {
+                this.employee = response;
+                this.isNextOrPrevious = true;
+                this._router.navigateByUrl(this.url + this.employee.ID);
+            }
+        });
     }
 
 }

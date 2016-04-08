@@ -50,6 +50,30 @@ export class UniTable implements OnChanges, OnDestroy {
         this.config.filter = filter;
         this.table.dataSource.read();
     }
+    
+    public updateConfig(config: UniTableBuilder) {
+        // Avoid duplicate tables in markup
+        this.nativeElement.find('.k-grid').remove();
+        this.nativeElement.append('<table></table>');
+        
+        this.config = config;
+        
+        // Avoid duplicate commands columns when redrawing the kendo grid
+        // TODO: This shouldnt be needed when we implement context-menu
+        if (this.config.columns[this.config.columns.length - 1].command) {
+            this.config.columns.pop();
+        }
+        
+        this.setupAndCompile();
+    }
+    
+    public hideColumn(field: string): void {
+        this.table.hideColumn(field);
+    }
+    
+    public showColumn(field: string): void {
+        this.table.showColumn(field);
+    }
 
     public ngOnChanges(changes: {[propName: string]: SimpleChange}) {
         var current = changes['config'].currentValue;
@@ -67,7 +91,7 @@ export class UniTable implements OnChanges, OnDestroy {
 
     private setupAndCompile() {
 
-        if (this.config.commands.length > 0) {
+        if (this.config.commands.length) {            
             this.config.columns.push({
                 command: this.config.commands
             });

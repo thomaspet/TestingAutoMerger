@@ -2,6 +2,7 @@
 import {Http, Headers, URLSearchParams, Request, RequestMethod} from 'angular2/http';
 import {Observable} from 'rxjs/Observable';
 import {AppConfig} from '../../../app/AppConfig';
+import {AuthService} from '../authService';
 import 'rxjs/add/operator/map';
 import 'rxjs/add/observable/forkjoin';
 import 'rxjs/add/observable/from';
@@ -31,10 +32,11 @@ export class UniHttp {
     private body: any;
     private endPoint: string;
 
-    constructor(public http: Http) {
+    constructor(public http: Http, authService: AuthService) {
         var headers = AppConfig.DEFAULT_HEADERS;
         this.headers = new Headers();
         this.appendHeaders(headers);
+        this.headers.append('authentication', 'Bearer ' + authService.getToken());
     }
 
     private appendHeaders(headers: any) {

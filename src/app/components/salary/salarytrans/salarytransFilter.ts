@@ -80,7 +80,7 @@ export class SalarytransFilterContent {
     selector: "salarytrans-filter",
     directives: [UniModal],
     template: `
-        <article class="salarytrans_filter">
+        <article class="buttonlist_component">
             <p id="button-list-label-id">Utvalg av ansatte, filtrert etter </p>
             <ul class="filter_buttonlist" aria-labelledby="button-list-label-id">
                 <li *ngFor="#filter of filters">

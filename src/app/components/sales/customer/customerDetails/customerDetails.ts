@@ -130,7 +130,7 @@ export class CustomerDetails {
     addSearchInfo(selectedSearchInfo: SearchResultItem) {
         if (this.Customer != null) {
             this.Customer.Info.Name = selectedSearchInfo.navn;
-            this.Customer.Orgnumber = selectedSearchInfo.orgnr;
+            this.Customer.OrgNumber = selectedSearchInfo.orgnr;
             
             this.formInstance.refresh(this.Customer); 
         } 
