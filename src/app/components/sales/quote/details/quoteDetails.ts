@@ -6,7 +6,7 @@ import "rxjs/add/observable/forkjoin";
 import {CustomerQuoteService, CustomerQuoteItemService, CustomerService, SupplierService, ProjectService, DepartementService} from "../../../../services/services";
 import {QuoteItemList} from './quoteItemList';
 
-import {FieldType, FieldLayout, ComponentLayout, CustomerQuote, CustomerQuoteItem, Customer, Departement, Project} from "../../../../unientities";
+import {FieldType, FieldLayout, ComponentLayout, CustomerQuote, CustomerQuoteItem, Customer, Departement, Project, Address, BusinessRelation} from "../../../../unientities";
 import {UNI_CONTROL_DIRECTIVES} from "../../../../../framework/controls";
 import {UniFormBuilder} from "../../../../../framework/forms/builders/uniFormBuilder";
 import {UniFormLayoutBuilder} from "../../../../../framework/forms/builders/uniFormLayoutBuilder";
@@ -30,6 +30,7 @@ export class QuoteDetails {
     ucl: UniComponentLoader;
     
     Quote: CustomerQuote;
+    BusinessRelation: BusinessRelation;
     LastSavedInfo: string;
     
     Customers: Customer[];
@@ -58,15 +59,20 @@ export class QuoteDetails {
             this.departementService.GetAll(null),
             this.projectService.GetAll(null),
             this.customerQuoteService.Get(this.QuoteID, ["Dimensions"]),
-            this.customerService.GetAll(null, ["Info"])
+            this.customerService.GetAll(null, ["Info", "Info.Addresses"])
         ).subscribe(response => { 
                 this.DropdownData = [response[0], response[1]];
                 this.Quote = response[2];
                 this.Customers = response[3];
-                                             
-                console.log("== QUOTE ==");
-                console.log(this.Quote);                             
-                                                               
+                
+                this.Customers.forEach(customer => {
+                   if (customer.ID == this.Quote.CustomerID) {
+                       this.BusinessRelation = customer.Info;
+                       console.log("=== ADDRESSES ===");
+                       console.log(this.BusinessRelation);
+                   } 
+                });
+                                                                                                   
                 this.createFormConfig();
                 this.extendFormConfig();
                 this.loadForm();                
@@ -162,7 +168,7 @@ export class QuoteDetails {
                 dataTextField: 'AddressLine1',
                 dataValueField: 'ID'
             })
-            .setModel(this.Quote.Dimensions)
+            .setModel(this.BusinessRelation)
             .setModelField('Addresses')
             .setModelDefaultField("InvoiceAddressID")
           //  .setPlaceholder(this.EmptyAddress)
@@ -174,11 +180,19 @@ export class QuoteDetails {
                 dataTextField: 'AddressLine1',
                 dataValueField: 'ID'
             })
-            .setModel(this.Quote.Dimensions)
+            .setModel(this.BusinessRelation)
             .setModelField('Addresses')
             .setModelDefaultField("ShippingAddressID")
         //    .setPlaceholder(this.EmptyAddress)
             .setEditor(AddressModal);   
+    
+        var customer: UniFieldBuilder = this.FormConfig.find('CustomerID');
+        customer
+            .setKendoOptions({
+               dataTextField: 'Info.Name',
+               dataValueField: 'ID',
+               dataSource: this.Customers
+            });
     }    
        
     loadForm() {       
@@ -218,7 +232,7 @@ export class QuoteDetails {
                 {
                     ComponentLayoutID: 3,
                     EntityType: "CustomerQuote",
-                    Property: "Customer",
+                    Property: "CustomerID",
                     Placement: 4,
                     Hidden: false,
                     FieldType: 1,
@@ -301,7 +315,7 @@ export class QuoteDetails {
                     Property: "InvoiceAddress",
                     Placement: 1,
                     Hidden: false,
-                    FieldType: 1,
+                    FieldType: 14,
                     ReadOnly: false,
                     LookupField: false,
                     Label: "Fakturaadresse",
