@@ -39,6 +39,7 @@ export class UniFormDemo {
 
     private Model: EmployeeModel;
     private CurrentState: any;
+    private LastForm: any;
     private BusinessModel: BusinessRelation;
     private FormConfig: UniFormBuilder;
     private EmptyPhone: Phone;
@@ -52,6 +53,12 @@ export class UniFormDemo {
                 private state: UniState) {
 
         this.CurrentState = this.state.getState();
+
+        if(this.CurrentState) {
+            this.LastForm = this.CurrentState.form;
+            this.FormConfig = this.CurrentState.config;
+        }
+
         this.Api.setRelativeUrl('employees');
         this.createPhoneModel();
     }
@@ -91,10 +98,8 @@ export class UniFormDemo {
             cmp.instance.config = self.FormConfig;
             cmp.instance.getEventEmitter().subscribe(self.submit(self));
             cmp.instance.isDomReady.subscribe((component: UniForm) => {
-                if (self.CurrentState) {
-                    component.refresh(self.Model);
-                    component.updateFormValues(null, self.CurrentState.form.value);
-                }
+                component.refresh(self.Model);
+                component.updateFormValues(null, (self.LastForm && self.LastForm.value) || null);
                 component.config.find('Sex').setFocus();
             });
             return cmp;
@@ -102,18 +107,14 @@ export class UniFormDemo {
     }
 
     private buildFormConfig(layout: ComponentLayout, model: Employee) {
-        if (this.CurrentState) {
-            this.FormConfig = this.CurrentState.config;
-            this.createModel(model);
-            return;
-        }
         layout = this.extendLayoutConfig(layout);
         this.createModel(model);
-        this.FormConfig = new UniFormLayoutBuilder().build(layout, model);
+        this.FormConfig = this.FormConfig || new UniFormLayoutBuilder().build(layout, model);
         // We can extend the form config after the LayoutBuilder has created the layout
         this.extendFormConfig();
         //this.addMultiValue();
     }
+
 
     private createModel(model: Employee) {
         this.Model = EmployeeModel.createFromObject(model);
