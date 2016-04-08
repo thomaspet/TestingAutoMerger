@@ -24,7 +24,21 @@
 
 <section class="quote-details application">
     <uni-component-loader></uni-component-loader>
-    <quote-item-list></quote-item-list>        
+    <quote-item-list [quote]="quote" (ItemsUpdated)="recalcItemSums($event)"></quote-item-list>    
+    <section *ngIf="ItemsSummaryData">
+        <section> 
+            Antall tilbudslinjer
+            {{ItemsSummaryData.NumberOfItems}}
+        </section>
+        <section> 
+            Total rabatt
+            {{ItemsSummaryData.SumDiscount}}
+        </section>        
+        <section> 
+            Total sum inkl mva
+            {{ItemsSummaryData.SumIncVat}}
+        </section>      
+    </section>
 </section>
 
 <footer class="full-footer">

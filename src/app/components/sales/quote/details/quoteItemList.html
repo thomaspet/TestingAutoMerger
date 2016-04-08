@@ -1,1 +1,13 @@
-<section>her kommer redigering av tilbudslinjer</section>
+<span *ngIf="quote">
+    <uni-table [config]="quoteItemTable"></uni-table>
+    
+    <b>Gjenstår:</b>
+    <ul>                
+        <li>Validering</li>
+        <li>Lagring: skal lagre med lagre-knappen i hovedkomponenten - avhengig av å få ut flate data igjen. 
+        <li>Lagring: må (foreløpig) også holde kontroll på sletting av data (PUT/POST/DELETE) - bør data lagres underveis (ved skifte av rad f.eks.)?</li>        
+        <li>Produktsøk/dropdown - trenger bedre komponent</li>
+        <li>Tab forbi ikkeredigerbarefelter automatisk (må sjekke på om de har en input? alle må settes som editable pga beregninger...)</li>
+        <li>Må bruke mus for å legge til ny rad, burde kanskje autoopprettes?</li>        
+    </ul>
+</span>

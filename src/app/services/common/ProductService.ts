@@ -10,7 +10,7 @@ export class ProductService extends BizHttp<Product> {
 
         this.relativeURL = Product.relativeUrl;
 
-        this.DefaultOrderBy = 'ProductNumber';
+        this.DefaultOrderBy = 'PartName';
     }   
         
     calculatePrice(product: Product): Observable<any> {        

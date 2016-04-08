@@ -31,6 +31,8 @@ export class QuoteDetails {
     quote: CustomerQuote;
     LastSavedInfo: string;
     
+    ItemsSummaryData: any;
+    
     customers: Customer[];
    
     FormConfig: UniFormBuilder;
@@ -58,6 +60,25 @@ export class QuoteDetails {
                 this.extendFormConfig();
                 this.loadForm();                
             });       
+    }
+    
+    recalcItemSums(quoteItems: any) {        
+        console.log('rekalkulerer summer i parent - data: ', quoteItems);
+        
+        this.ItemsSummaryData = {
+            NumberOfItems: 0,
+            SumDiscount: 0,
+            SumIncVat: 0    
+        };
+        
+        quoteItems.forEach ((x) => {
+            this.ItemsSummaryData.SumDiscount += x.Discount;
+            this.ItemsSummaryData.SumIncVat += x.SumTotalIncVat;    
+        }); 
+        
+        
+        this.ItemsSummaryData.NumberOfItems = quoteItems.length;
+                
     }
     
     saveQuoteManual(event: any) {        
