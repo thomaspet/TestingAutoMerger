@@ -1,12 +1,12 @@
 <article class="navbar_userinfo_company" >
     
-    <span class="navbar_userinfo_title" (click)="companyDropdownActive = !companyDropdownActive">{{activeCompany.name}}</span>
+    <span class="navbar_userinfo_title" (click)="companyDropdownActive = !companyDropdownActive">{{activeCompany.Name}}</span>
     
     <section class="navbar_userinfo_dropdown" [ngClass]="{'-is-active': companyDropdownActive}">
 
         <address class="companyinfo" itemtype="http://schema.org/Organization">
 
-            <h4 itemprop="name" (click)="console.log(activeCompany)"> {{activeCompany.name}} </h4>
+            <h4 itemprop="name" (click)="console.log(activeCompany)"> {{activeCompany.Name}} </h4>
 
             <dl>
                 <dt>Org.nr</dt>

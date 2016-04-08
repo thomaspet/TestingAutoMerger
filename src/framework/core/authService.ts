@@ -1,5 +1,9 @@
 import {Injectable, Inject} from 'angular2/core';
 import {Router} from 'angular2/router';
+import {Http, Headers} from 'angular2/http';
+import {Observable} from 'rxjs/Observable';
+import {AppConfig} from '../../app/AppConfig';
+import 'rxjs/add/operator/map';
 
 declare var jwt_decode: (token: string) => any; // node_modules/jwt_decode
 
@@ -10,8 +14,8 @@ export class AuthService {
     public activeCompany: any;
     public expiredToken: boolean;
 
-    constructor(@Inject(Router) private router: Router) {
-        this.activeCompany = localStorage.getItem('activeCompany') || undefined;
+    constructor(@Inject(Router) private router: Router, @Inject(Http) private http: Http) {
+        this.activeCompany = JSON.parse(localStorage.getItem('activeCompany')) || undefined;
         this.jwt = localStorage.getItem('jwt') || undefined;
         this.jwtDecoded = this.decodeToken(this.jwt);
         
@@ -22,6 +26,31 @@ export class AuthService {
         setInterval(() => {
             this.expiredToken = this.isTokenExpired(this.jwt, 30);
         }, 25000);
+    }
+    
+    /**
+     * Authenticates the user and returns an observable of the response
+     * @param {Object} credentials
+     * @returns Observable
+     */
+    public authenticate(credentials: {username: string, password: string}): Observable<any> {
+        let url = AppConfig.BASE_URL + AppConfig.API_DOMAINS.INIT + 'sign-in';
+        let headers = new Headers({'Content-Type': 'application/json'});
+        
+        return this.http.post(url, JSON.stringify(credentials), {headers: headers})
+            .map(response => JSON.parse(response.json()));
+    }
+    
+    /**
+     * Returns an observable of the available companies for the authenticated user
+     * @returns Observable
+     */
+    public getCompanies(): Observable<any[]> {
+        let url = AppConfig.BASE_URL + AppConfig.API_DOMAINS.INIT + 'companies';
+        let headers = new Headers({'Authorization': 'Bearer ' + this.jwt});
+        
+        return this.http.get(url, {headers: headers})
+            .map(response => response.json());
     }
     
     public setToken(token: string) {

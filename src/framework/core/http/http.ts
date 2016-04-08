@@ -32,11 +32,10 @@ export class UniHttp {
     private body: any;
     private endPoint: string;
 
-    constructor(public http: Http, authService: AuthService) {
+    constructor(public http: Http, private authService: AuthService) {
         var headers = AppConfig.DEFAULT_HEADERS;
         this.headers = new Headers();
         this.appendHeaders(headers);
-        this.headers.append('authentication', 'Bearer ' + authService.getToken());
     }
 
     private appendHeaders(headers: any) {
@@ -45,6 +44,17 @@ export class UniHttp {
                 this.headers.append(header, AppConfig.DEFAULT_HEADERS[header]);
             }
         }
+        
+        let token = this.authService.getToken();
+        if (token) {
+            this.headers.append('Authorization', 'Bearer ' + token);
+        }
+        
+        let activeCompany = this.authService.getActiveCompany();
+        if (activeCompany) {
+            this.headers.append('CompanyKey', activeCompany.Key);
+        }
+        
         return this;
     }
 
@@ -73,6 +83,11 @@ export class UniHttp {
 
     public usingBusinessDomain() {
         this.apiDomain = AppConfig.API_DOMAINS.BUSINESS;
+        return this;
+    }
+    
+    public usingInitDomain() {
+        this.apiDomain = AppConfig.API_DOMAINS.INIT;
         return this;
     }
 
