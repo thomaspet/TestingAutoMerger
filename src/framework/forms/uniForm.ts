@@ -194,6 +194,7 @@ export class UniForm extends UniGenericField implements OnInit {
                 var fieldPath = field.field;
                 var value = _.get(formValue, fieldPath);
                 _.set(model, fieldPath, value);
+                field.refresh(value);
             } else {
                 this.updateModel(field.fields, formValue);
             }
@@ -207,9 +208,8 @@ export class UniForm extends UniGenericField implements OnInit {
      * @param config Form Config
      * @param formValue Form value
      */
-    public refresh(newModel, config?, formValue?) {
+    public refresh(newModel, config?) {
         config = config || this.config.fields;
-        formValue = formValue || this.form.value;
 
         for (let i = 0; i < config.length; i++) {
             let field = config[i];
@@ -219,27 +219,10 @@ export class UniForm extends UniGenericField implements OnInit {
                 var value = _.get(newModel, fieldPath);
                 field.refresh(value);
             } else {
-                this.refresh(newModel, field.fields, formValue);
+                this.refresh(newModel, field.fields);
             }
         }
     }
-
-    getState() {
-        var self = this;
-        return {
-            value: self.form.value
-        };
-    }
-
-    setState(formValue) {
-        var self = this;
-        return this.isDomReady.subscribe((cmp: UniForm) => {
-            cmp.updateModel(null, formValue);
-            var field: UniFieldBuilder = <UniFieldBuilder>self.config.fields[0];
-            cmp.refresh(field.model);
-            return cmp;
-        });
-    };
 
     /**
      * Creates form controls

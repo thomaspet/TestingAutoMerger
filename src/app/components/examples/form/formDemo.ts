@@ -1,6 +1,4 @@
 import {Component, ComponentRef, ViewChild} from "angular2/core";
-import {Router} from "angular2/router";
-import {UniHttp} from "../../../../framework/core/http/http";
 import {
     Operator,
     OperationType,
@@ -25,6 +23,8 @@ import {PhoneModal} from "../../sales/customer/modals/phone/phone";
 import {BusinessRelationService, PhoneService} from "../../../services/services";
 import {UniState} from "../../../../framework/core/UniState";
 
+declare var _;
+
 @Component({
     selector: 'uni-form-demo',
     directives: [UniComponentLoader, PhoneModal],
@@ -45,17 +45,24 @@ export class UniFormDemo {
     @ViewChild(UniComponentLoader)
     UniCmpLoader: UniComponentLoader;
 
-    constructor(private router: Router,
-                private Http: UniHttp,
-                private Api: EmployeeService,
+    constructor(private Api: EmployeeService,
                 private businessRelationService: BusinessRelationService,
                 private phoneService: PhoneService,
                 private state: UniState) {
+
         this.Api.setRelativeUrl('employees');
         this.createPhoneModel();
     }
 
-    public ngOnInit() {
+    public buildState() {
+        var component: UniForm = this.UniCmpLoader.component;
+        return {
+            form: component.form,
+            config: component.config
+        };
+    }
+
+    public ngAfterViewInit() {
         var self = this;
         this.Api.GetLayoutAndEntity('EmployeePersonalDetailsForm', 1).subscribe((results: any[]) => {
             var view: ComponentLayout = results[0];
@@ -65,52 +72,38 @@ export class UniFormDemo {
         });
     }
 
-    ngOnDestroy() {
+    public ngOnDestroy() {
         this.state.saveState(this.buildState());
-    }
-
-    buildState() {
-        var component: UniForm = this.UniCmpLoader.component;
-        return {
-            form: component.getState()
-        };
-    }
-
-    applyState(context: UniFormDemo, model:any) {
-        return (ref: ComponentRef) => {
-            var state = context.state.getState();
-            if (state) {
-                ref.instance.isDomReady.subscribe((cmp: UniForm)=> {
-                    cmp.updateModel(null,state.form.value);
-                    cmp.refresh(model)
-                });
-            }
-        };
     }
 
     // private methods
     private startApp(view: any, model: Employee) {
         // We can extend layout before form config creation
         view = this.extendLayoutConfig(view);
-        console.log('LAYOUT');
-        console.log(view);
-
         this.createModel(model);
-        this.buildFormConfig(view, model);
+        this.buildFormConfig(view, this.Model);
 
         // We can extend the form config after the LayoutBuilder has created the layout
         this.extendFormConfig();
         //this.addMultiValue();
 
-        this.loadForm().then(this.applyState(this,model));
+        return this.loadForm();
     }
 
     private loadForm() {
         var self = this;
         return this.UniCmpLoader.load(UniForm).then((cmp: ComponentRef) => {
-            cmp.instance.config = self.FormConfig;
+            var state = self.state.getState();
+            if(!state) {
+                cmp.instance.config = self.FormConfig;
+            } else {
+                cmp.instance.config = state.config;
+            }
             cmp.instance.getEventEmitter().subscribe(self.submit(self));
             cmp.instance.isDomReady.subscribe((component: UniForm)=> {
+                if (state) {
+                    component.updateModel(null, state.form.value);
+                }
                 component.config.find('Sex').setFocus();
             });
             return cmp;

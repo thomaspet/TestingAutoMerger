@@ -6,9 +6,7 @@ export class UniState {
     public store: any;
 
     constructor(public router: Router) {
-        var w: any = window;
-        w.state = w.state || {};
-        this.store = w.state;
+        this.store = {};
     };
 
     saveState(state:any) {
