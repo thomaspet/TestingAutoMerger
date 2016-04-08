@@ -3,6 +3,7 @@ import {Router } from 'angular2/router';
 
 import {UniTable, UniTableBuilder, UniTableColumn} from "../../../../framework/uniTable";
 import {WageType} from "../../../unientities";
+import {TabService} from '../../layout/navbar/tabstrip/tabService';
 
 @Component({
     selector: 'wagetypes',
@@ -13,8 +14,10 @@ export class WagetypeList implements OnInit {
 
     wagetypelistConfig;
 
-    constructor(private _router: Router) {
-
+    constructor(private _router: Router,
+        private tabSer: TabService) {
+        
+        this.tabSer.addTab({name: 'Lønnsarter', url: 'salary/wagetypes' });
     }
 
     ngOnInit() {
