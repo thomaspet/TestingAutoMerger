@@ -74,7 +74,7 @@ export class SupplierDetails {
             });        
     }
     
-    createSupplier() {   
+    addSupplier() {   
         var c = new Supplier();
         c.Info = new BusinessRelation(); 
         

@@ -73,7 +73,7 @@ export class CustomerDetails {
             });        
     }
     
-    createCustomer() {   
+    addCustomer() {   
         var c = new Customer();
         c.Info = new BusinessRelation(); 
         

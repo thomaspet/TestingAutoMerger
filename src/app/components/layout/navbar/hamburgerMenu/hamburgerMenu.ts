@@ -34,7 +34,7 @@ export class HamburgerMenu {
                 componentListHeader: 'Utgående salg',
                 componentList: [
                     {componentName: 'Faktura', componentUrl: '/kitchensink'},
-                    {componentName: 'Tilbud', componentUrl: '/'},
+                    {componentName: 'Tilbud', componentUrl: '/sales/quote'},
                     {componentName: 'Innbetaling', componentUrl: '/uniformdemo'},
                     {componentName: 'Purring', componentUrl: '/kitchensink'},
                     {componentName: 'Kunder', componentUrl: '/sales'},

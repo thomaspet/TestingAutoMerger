@@ -1,8 +1,8 @@
-<header class="quote_poster" *ngIf="quote">    
+<header class="quote_poster" *ngIf="Quote">    
     <article class="poster_toolbar">
         <section>
-            <h1 *ngIf="quote">{{quote.Title}} <p>Tilbudsnr. {{quote.ID}}</p></h1>            
-            <p *ngIf="quote.StatusCode == null"><i>Kladd</i></p>            
+            <h1 *ngIf="Quote">{{Quote.Title}} <p>Tilbudsnr. {{Quote.ID}}</p></h1>            
+            <p *ngIf="Quote.StatusCode == null"><i>Kladd</i></p>            
         </section>
             
         <nav class="poster_toolbar_tools">
@@ -14,7 +14,7 @@
     
      <!-- Widget poster -->
     <section class="poster_overview">        
-        <uni-widget-poster [model]="quote">
+        <uni-widget-poster [model]="Quote">
             <section class="application">
                 widgetdata kommer her...
             </section>
