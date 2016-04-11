@@ -25,6 +25,20 @@ export class UniTable implements OnChanges, OnDestroy {
         this.nativeElement = jQuery(elementRef.nativeElement);
     }
     
+    public getUnFlattendDataFromDataSource() {
+        
+        let realData = [];
+        
+        
+        let data = this.table.dataSource.data();
+        
+        for (var i = 0; i < data.length; i++) {
+            realData.push(data[i]);
+        }
+        
+        return this.unflattenData(realData);
+    }
+    
     public refresh(data?: any) {
         if (data && !this.config.remoteData) {
             this.config.resource = data;
@@ -133,8 +147,24 @@ export class UniTable implements OnChanges, OnDestroy {
         this.setupKeyNavigation();
     }
 
+    private getRowModel() {        
+        var row = jQuery(this.nativeElement).find('.k-grid-edit-row');
+        if (this.table)        
+            return this.table.dataItem(row);
+        return null;
+    }
+
     // Create a datasource that works with local data
     private createLocalDataSource() {
+        
+        //Setup changecallback        
+        this.tableConfig.dataSource.change = (e) => {
+            if (this.config.changeCallback) {
+                var rowModel = this.getRowModel();
+                this.config.changeCallback(e, rowModel);
+            }   
+        }
+        
         this.tableConfig.dataSource.transport = {
 
             read: (options) => {

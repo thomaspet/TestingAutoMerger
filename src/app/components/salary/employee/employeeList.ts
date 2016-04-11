@@ -4,6 +4,8 @@ import {Router} from 'angular2/router';
 import {UniTable, UniTableBuilder, UniTableColumn} from '../../../../framework/uniTable';
 import {Employee} from '../../../unientities';
 
+import {TabService} from '../../layout/navbar/tabstrip/tabService';
+
 @Component({
     templateUrl: 'app/components/salary/employee/employeeList.html',
     directives: [UniTable]
@@ -12,7 +14,9 @@ import {Employee} from '../../../unientities';
 export class EmployeeList {
     private employeeTableConfig: UniTableBuilder;
 
-    constructor(private router: Router) {
+    constructor(private router: Router, private tabSer: TabService) {
+        
+        
         var idCol = new UniTableColumn('EmployeeNumber', 'Ansattnummer', 'number').setWidth('15%');
 
         var nameCol = new UniTableColumn('BusinessRelationInfo.Name', 'Navn', 'string');
@@ -29,6 +33,8 @@ export class EmployeeList {
                       .then(result => console.log(result));
             })
             .addColumns(idCol, nameCol, employmentDateCol);
+        
+        this.tabSer.addTab({name: 'Ansatte', url: '/salary/employees'});
     }
     
     public newEmployee() {
