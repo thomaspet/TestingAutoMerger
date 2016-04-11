@@ -1,31 +1,42 @@
-import {Component, Input, ViewChildren, provide, Injector, OnInit} from 'angular2/core';
+import {Component, Input, ViewChildren, Injector, OnInit, EventEmitter, Output} from 'angular2/core';
 import {RouteParams} from 'angular2/router';
 import {UniTable, UniTableBuilder, UniTableColumn} from '../../../../framework/uniTable';
+import {UniFormBuilder, UniFieldBuilder} from '../../../../framework/forms';
 import {Observable} from 'rxjs/Observable';
 import {UniHttp} from '../../../../framework/core/http/http';
-import {EmployeeDS} from '../../../data/employee';
+import {Employee, FieldType, AGAZone} from '../../../unientities';
+import {EmployeeService, AgaZoneService} from '../../../services/services';
+import {UNI_CONTROL_DIRECTIVES} from '../../../../framework/controls';
 
 @Component({
     selector: 'salary-transactions-employee',
     templateUrl: 'app/components/salary/salarytrans/salarytransList.html',
     directives: [UniTable],
-    providers: [provide(EmployeeDS, {useClass: EmployeeDS})]
+    providers: [EmployeeService, AgaZoneService]
 })
 
 export class SalaryTransactionEmployeeList implements OnInit {     
     private salarytransEmployeeTableConfig: any;
     private salarytransEmployeeTotalsTableConfig: any;
-    private employeeTotals: Array<any>;
+    private employeeTotals: any[] = [];
     private employments: any[];
+    private employee: Employee;
+    public headingConfig: UniFormBuilder;
+    private agaZone: AGAZone;
     @Input() private ansattID: number;
     @Input() private payrollRunID: number;
+    @Output()
+    public nextEmployee: EventEmitter<any> = new EventEmitter<any>(true);
+    @Output()
+    public previousEmployee: EventEmitter<any> = new EventEmitter<any>(true);
     @ViewChildren(UniTable) private tables: any;
     
     private busy: boolean;    
     private runIDcol: UniTableColumn;
     private empIDcol: UniTableColumn;
     
-    constructor(public employeeDS: EmployeeDS, 
+    constructor(public employeeService: EmployeeService, 
+                private _agaZoneService: AgaZoneService, 
                 private injector: Injector, 
                 private uniHttpService: UniHttp) {
                     this.busy = true;
@@ -48,34 +59,63 @@ export class SalaryTransactionEmployeeList implements OnInit {
         
         
         Observable.forkJoin(
-            this.employeeDS.getTotals(this.ansattID)
+            this.employeeService.getTotals(this.payrollRunID, this.ansattID),
+            this.employeeService.get(this.ansattID, ['BusinessRelationInfo, SubEntity.BusinessRelationInfo'])
         )
         .subscribe((response: any) => {
-            let [totals] = response;
-            this.employeeTotals = totals;
+            let [totals, emp] = response;
+            this.employeeTotals.push(totals);
+            console.log('totals: ' + JSON.stringify(this.employeeTotals));
+            this.employee = emp;
+            console.log('Employee: ' + JSON.stringify(this.employee.SubEntity));
             this.createTotalTableConfig();
             this.tables.toArray()[0].hideColumn('PayrollRunID');
             this.tables.toArray()[0].hideColumn('EmployeeID');
-            this.busy = false;
+            if (this.employee.SubEntity) {
+                this._agaZoneService
+                .Get(this.employee.SubEntity.AgaZone)
+                .subscribe((agaResponse: AGAZone) => {
+                    this.agaZone = response;
+                    this.createHeadingForm();
+                    this.busy = false;
+                });
+            }
+            
         }, (error: any) => console.log(error));
     }
     
     public ngOnChanges() {
         this.busy = true;
         if (this.tables && this.ansattID) {         
-            this.calculateTotals();
+            //this.calculateTotals();
+            
+            Observable.forkJoin(            
+            this.employeeService.getTotals(this.payrollRunID, this.ansattID)
+        ).subscribe((response: any) => {
+            let [totals] = response;
+            this.employeeTotals[0] = totals;
             this.runIDcol.defaultValue = this.payrollRunID;                
-            this.empIDcol.defaultValue = this.ansattID; 
-            //this.empIDcol.setDefaultValue(this.ansattID);
-              
+            this.empIDcol.defaultValue = this.ansattID;  
             
             let tableConfig = this.salarytransEmployeeTableConfig;
+            let totalsConfig = this.salarytransEmployeeTotalsTableConfig;
             tableConfig.schemaModel.fields['EmployeeID'].defaultValue = this.ansattID;
             tableConfig.filter = this.buildFilter();
             
             this.tables.toArray()[0].updateConfig(tableConfig);
             this.tables.toArray()[0].hideColumn('PayrollRunID');
             this.tables.toArray()[0].hideColumn('EmployeeID');
+            this.tables.toArray()[1].updateConfig(totalsConfig);  
+            
+            this.busy = false;
+            
+        }, (error: any) => console.log(error));
+            
+            //this.runIDcol.defaultValue = this.payrollRunID;                
+            //this.empIDcol.defaultValue = this.ansattID; 
+            //this.empIDcol.setDefaultValue(this.ansattID);
+              
+           
         }        
     }
     
@@ -87,6 +127,36 @@ export class SalaryTransactionEmployeeList implements OnInit {
             return 'EmployeeNumber eq ' + this.ansattID 
             + ' and PayrollRunID eq ' + this.payrollRunID;
         }       
+        
+    }
+    
+    private createHeadingForm() {
+        var formBuilder = new UniFormBuilder();
+        var percent = new UniFieldBuilder();
+        percent.setLabel('Prosenttrekk')
+            .setModel(this.employee)
+            .setModelField('TaxPercentage')
+            .setType(UNI_CONTROL_DIRECTIVES[FieldType.TEXT])
+        
+        var subEntity = new UniFieldBuilder();
+        subEntity.setLabel('Virksomhet')
+            .setModel(this.employee)
+            .setModelField('SubEntity.BusinessRelation.Name')
+            .setType(UNI_CONTROL_DIRECTIVES[FieldType.TEXT])
+        
+        var tableTax = new UniFieldBuilder();
+        tableTax.setLabel('Tabelltrekk')
+            .setModel(this.employee)
+            .setModelField('TaxTable')
+            .setType(UNI_CONTROL_DIRECTIVES[FieldType.TEXT])
+        var agaZone = new UniFieldBuilder();
+        agaZone.setLabel('AGA-sone')
+            .setModel(this.agaZone)
+            .setModelField('ZoneName')
+            .setType(UNI_CONTROL_DIRECTIVES[FieldType.TEXT])
+        
+        formBuilder.addUniElements(percent, subEntity, tableTax, agaZone);
+        this.headingConfig = formBuilder;
         
     }
     
@@ -123,19 +193,21 @@ export class SalaryTransactionEmployeeList implements OnInit {
         .setExpand('@Wagetype')
         .setFilter(this.buildFilter())
         .setPageable(false)
+        .setToolbarOptions(['create', 'cancel'])
+        .setFilterable(false)
         .addColumns(
             this.runIDcol,
             this.empIDcol,
             wageTypeCol,                         
-            wagetypenameCol
-            , employmentidCol
-            , fromdateCol 
-            , toDateCol
-            , accountCol
-            , rateCol 
-            , amountCol
-            , sumCol
-            , transtypeCol
+            wagetypenameCol,
+            employmentidCol,
+            fromdateCol,
+            toDateCol,
+            accountCol,
+            rateCol,
+            amountCol,
+            sumCol,
+            transtypeCol
             )
             .addCommands('destroy');
     }
@@ -143,7 +215,7 @@ export class SalaryTransactionEmployeeList implements OnInit {
     private calculateTotals() {
         this.busy = true;
         Observable.forkJoin(            
-            this.employeeDS.getTotals(this.ansattID)
+            this.employeeService.getTotals(this.payrollRunID, this.ansattID)
         ).subscribe((response: any) => {
             let [totals] = response;
             this.employeeTotals = totals;
@@ -156,13 +228,15 @@ export class SalaryTransactionEmployeeList implements OnInit {
     }
     
     private createTotalTableConfig() {
-        var percentCol = new UniTableColumn('Account', 'Prosenttrekk', 'string');
-        var taxtableCol = new UniTableColumn('Amount', 'Tabelltrekk', 'string');
-        var paidCol = new UniTableColumn('EmployeeNumber', 'Utbetalt beløp', 'number');
-        var agaCol = new UniTableColumn('Rate', 'Beregnet AGA', 'number');
-        var basevacationCol = new UniTableColumn('Sum', 'Grunnlag feriepenger', 'number'); 
+        var percentCol = new UniTableColumn('percentTax', 'Prosenttrekk', 'string');
+        var taxtableCol = new UniTableColumn('tableTax', 'Tabelltrekk', 'string');
+        var paidCol = new UniTableColumn('netPayment', 'Utbetalt beløp', 'number');
+        var agaCol = new UniTableColumn('baseAGA', 'Beregnet AGA', 'number');
+        var basevacationCol = new UniTableColumn('baseVacation', 'Grunnlag feriepenger', 'number'); 
         
         this.salarytransEmployeeTotalsTableConfig = new UniTableBuilder(this.employeeTotals, false)
+        .setFilterable(false)
+        .setSearchable(false)
         .addColumns(percentCol, taxtableCol, paidCol, agaCol, basevacationCol);
     }
     
@@ -176,5 +250,9 @@ export class SalaryTransactionEmployeeList implements OnInit {
             }
         }
         return name;
+    }
+    
+    public getNext() {
+        this.nextEmployee.emit(this.ansattID);
     }
 }

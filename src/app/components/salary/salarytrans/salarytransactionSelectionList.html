@@ -1,11 +1,25 @@
-<section *ngIf="payrollRun" class="salarytrans-payrollrun-detail">
-    <h1>Lønnsutbetaling nr {{payrollRun.ID}}</h1>
-    <p>Utbetaling {{payrollRun.PayDate}} - Status:{{payrollRun.StatusID}}</p>
-</section>
+<header class="poster">
+    
+    <article class="poster_toolbar">
+        
+        <section *ngIf="payrollRun" class="salarytrans-payrollrun-detail">
+            <h1>Lønnsutbetaling nr {{payrollRun.ID}}</h1>
+            <p>Utbetaling {{payDate}} - Status:{{payrollRun.StatusID}}</p>
+        </section>
+            
+        <nav class="poster_toolbar_tools">
+            <a class="previous">Forrige</a>
+            <a class="next">Neste</a>
+            <a class="new">Ny lønnsavregning</a>
+        </nav>
+            
+    </article>
+    
+</header>
 <section class="salarytrans-filter">
     <salarytrans-filter (filtStringChange)="changeFilter($event)"></salarytrans-filter>
 </section>
 <section class="splitview">
     <nav class="splitview_list"><uni-table [config]="salarytransSelectionTableConfig"></uni-table></nav>
-    <main class="splitview_detail"><salary-transactions-employee *ngIf="selectedEmployeeID" [ansattID]="selectedEmployeeID" [payrollRunID]="selectedPayrollRunID"></salary-transactions-employee></main>
+    <main class="splitview_detail"><salary-transactions-employee *ngIf="selectedEmployeeID" [ansattID]="selectedEmployeeID" [payrollRunID]="selectedPayrollRunID" (nextEmployee)="goToNext()"></salary-transactions-employee></main>
 </section>

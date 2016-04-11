@@ -1,2 +1,19 @@
+<header class="poster">
+    
+    <article class="poster_toolbar">
+        
+        <section *ngIf="employee" class="salarytrans-payrollrun-detail">
+            <h1>{{employee.BusinessRelationInfo.Name}}</h1>
+            <uni-form [config]="headingConfig"></uni-form>
+        </section>
+        
+        <nav class="poster_toolbar_tools">
+            <a class="previous">Forrige</a>
+            <a (click)="getNext()" class="next">Neste</a>
+        </nav>
+            
+    </article>
+    
+</header>
 <uni-table [config]="salarytransEmployeeTableConfig" [attr.aria-busy]="busy"></uni-table>
-<!--<uni-table [config]="salarytransEmployeeTotalsTableConfig"></uni-table>-->
+<uni-table [config]="salarytransEmployeeTotalsTableConfig" [attr.aria-busy]="busy"></uni-table>

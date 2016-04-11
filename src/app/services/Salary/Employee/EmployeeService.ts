@@ -22,11 +22,14 @@ export class EmployeeService extends BizHttp<Employee> {
         this.relativeURL = Employee.relativeUrl;
     }
     
-    public get(id: number| string) {
+    public get(id: number| string, expand: string[] = null) {
         
         if (id === 0) {
             return this.GetNewEntity();
         }else {
+            if (expand) {
+                return this.Get(id, expand);
+            }
             return this.Get(id, this.expandedProperties);
         }
     }
@@ -39,12 +42,13 @@ export class EmployeeService extends BizHttp<Employee> {
             .send({expand: 'BusinessRelationInfo'});
     }
     
-    public getTotals(ansattID: number) {
+    public getTotals(payrunID: number, employeeID: number) {
+        console.log('empID: ' + employeeID);
         return this.http
             .asGET()
             .usingBusinessDomain()
             .withEndPoint('salarytrans')
-            .send({filter: 'EmployeeNumber eq ' + ansattID});
+            .send({action: 'Sums&payrun=' + payrunID + '&employee=' + employeeID});
     }
 
     public getEmployeeLeave() {
