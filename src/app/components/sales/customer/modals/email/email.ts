@@ -155,7 +155,7 @@ export class EmailModal {
                     method: () => {
                         self.modal.getContent().then((content: EmailModalType)=> {
                             content.instance.then((form: EmailForm)=> {
-                                form.form.updateModel();
+                                form.form.sync();
                                 self.modal.close();       
                                 
                                 // store

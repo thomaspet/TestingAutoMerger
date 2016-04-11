@@ -255,7 +255,7 @@ export class AddressModal {
                     method: () => {
                         self.modal.getContent().then((content: AddressModalType)=> {
                             content.instance.then((form: AddressForm)=> {
-                                form.form.updateModel();
+                                form.form.sync();
                                 self.modal.close();       
                                 
                                 // store

@@ -1,31 +1,36 @@
-import {Component, ElementRef, Input, AfterViewInit, OnDestroy} from "angular2/core";
-import {Control} from "angular2/common";
-import {InputTemplateString} from "../inputTemplateString";
-import {UniFieldBuilder} from "../../forms/builders/uniFieldBuilder";
+import {Component, ElementRef, Input, AfterViewInit, OnDestroy} from 'angular2/core';
+import {Control} from 'angular2/common';
+import {InputTemplateString} from '../inputTemplateString';
+import {UniFieldBuilder} from '../../forms/builders/uniFieldBuilder';
 declare var jQuery;
 
 @Component({
-    selector: "uni-numeric",
+    selector: 'uni-numeric',
     template: InputTemplateString
 })
 export class UniNumericInput implements AfterViewInit, OnDestroy {
     @Input()
-    config: UniFieldBuilder;
+    public config: UniFieldBuilder;
 
-    nativeElement;
-    numericInput;
-
+    public nativeElement: any;
+    public numericInput: kendo.ui.NumericTextBox;
+    
     constructor(public elementRef: ElementRef) {
         this.nativeElement = jQuery(this.elementRef.nativeElement);
     }
 
-    refresh(value: any) {
-        value = value || 0;
-        this.numericInput.value(value);
-        this.numericInput.trigger("change");
+    public setFocus() {
+        this.numericInput.focus();
+        return this;
     }
 
-    ngAfterViewInit() {
+    public refresh(value: any) {
+        value = value || 0;
+        this.numericInput.value(value);
+        this.numericInput.trigger('change');
+    }
+
+    public ngAfterViewInit() {
         this.config.fieldComponent = this;
         var numericInput;
 
@@ -36,9 +41,10 @@ export class UniNumericInput implements AfterViewInit, OnDestroy {
             control.updateValue(this.value(), {});
         };
 
-        numericInput = this.nativeElement.find("input").first().kendoNumericTextBox(options).data("kendoNumericTextBox");
+        numericInput = this.nativeElement.find('input').first().kendoNumericTextBox(options).data('kendoNumericTextBox');
         this.numericInput = numericInput;
         numericInput.value(control.value);
+        this.config.ready.emit(this);
     }
 
     // remove kendo markup when component is destroyed to avoid duplicates

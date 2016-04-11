@@ -52,27 +52,24 @@ export class JournalEntrySimpleForm {
     }
         
     addJournalEntry(event: any) {        
-        this.Created.emit(this.formInstance.getValue());
+        this.Created.emit(this.formInstance.Value);
         
         
-        var oldData = this.formInstance.getValue(); 
+        var oldData = this.formInstance.Value;
         this.JournalEntryLine = new JournalEntryData(); 
         this.JournalEntryLine.JournalEntryNo = oldData.JournalEntryNo;
         this.JournalEntryLine.FinancialDate = oldData.FinancialDate;      
         
         var self = this;
-        setTimeout(() => {
-                if (self.formInstance != null) {                    
-                    self.formInstance.refresh(self.JournalEntryLine);
-                    console.log('refreshet formInstance, self.JournalEntryLine:', self.JournalEntryLine);
-                }
-            }, 1000);
-                
+        this.formInstance.ready.toPromise().then((instance: UniForm)=>{
+            instance.Model = self.JournalEntryLine;
+            console.log('refreshet formInstance, self.JournalEntryLine:', self.JournalEntryLine);
+        });
         console.log('addJournalEntry kjørt');          
     }
     
     editJournalEntry(event: any) {     
-        this.Updated.emit(this.formInstance.getValue());
+        this.Updated.emit(this.formInstance.Value);
     }
     
     ngOnChanges(changes: {[propName: string]: SimpleChange}) {         
@@ -342,10 +339,8 @@ export class JournalEntrySimpleForm {
     loadForm() {       
         var self = this;
         return this.UniCmpLoader.load(UniForm).then((cmp: ComponentRef) => {
-           cmp.instance.config = self.FormConfig;
-           setTimeout(() => {
-                self.formInstance = cmp.instance;
-           });
+            cmp.instance.config = self.FormConfig;
+            cmp.instance.ready.subscribe((instance:UniForm) => self.formInstance = cmp.instance);
         });
     }
     
