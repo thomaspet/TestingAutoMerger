@@ -69,7 +69,7 @@ export class WagetypeDetail {
                     .subscribe(
                         (data: WageType) => {
                             context.wageType = data;
-                            context.whenFormInstance.then((instance: UniForm) => instance.refresh(context.wageType));
+                            context.whenFormInstance.then((instance: UniForm) => instance.Model = context.wageType);
                         },
                         (error: Error) => console.error('error in wagetypedetails.onSubmit - Put: ', error)
                     );

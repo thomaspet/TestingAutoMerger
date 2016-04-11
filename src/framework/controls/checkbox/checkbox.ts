@@ -1,10 +1,11 @@
-import {Component, Input} from "angular2/core";
-import {Control} from "angular2/common";
-import {Guid} from "../guid";
-import {UniFieldBuilder} from "../../forms/builders/uniFieldBuilder";
+import {Component, Input, ElementRef} from 'angular2/core';
+import {Guid} from '../guid';
+import {UniFieldBuilder} from '../../forms/builders/uniFieldBuilder';
+
+declare var jQuery;
 
 @Component({
-    selector: "uni-checkbox",
+    selector: 'uni-checkbox',
     template: `
         <input
             *ngIf="config.control"
@@ -14,30 +15,38 @@ import {UniFieldBuilder} from "../../forms/builders/uniFieldBuilder";
             [ngFormControl]="config.control"
             [readonly]="config.readonly"
             [disabled]="config.disabled"
-            (change)="setFormValue(config.control, cb.checked)"
+            (change)="setFormValue(cb.checked)"
         />
         <label [attr.for]="guid">{{config.label}}</label>
     `
 })
 export class UniCheckboxInput {
     @Input()
-    config: UniFieldBuilder;
+    public config: UniFieldBuilder;
+    public guid: string;
 
-    guid: string;
-
-    constructor() {
+    constructor(public elementRef: ElementRef) {
         this.guid = Guid.MakeNew().ToString();
     }
 
-    refresh(value: any): void {
-        this.setFormValue(this.config.control, value);
+    public refresh(value: any): void {
+        this.setFormValue(value);
     }
 
-    ngOnInit() {
+    public setFocus() {
+        jQuery(this.elementRef).focus();
+        return this;
+    }
+
+    public ngOnInit() {
         this.config.fieldComponent = this;
     }
 
-    setFormValue(control: Control, value: any): void {
-        control.updateValue(value, {});
+    public ngAfterViewInit() {
+        this.config.ready.emit(this);
+    }
+
+    public setFormValue(value: any): void {
+        this.config.control.updateValue(value, {});
     }
 }

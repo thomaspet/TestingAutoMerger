@@ -1,4 +1,4 @@
-var gulp = require('gulp');
+﻿var gulp = require('gulp');
 var plugins = require('gulp-load-plugins')({lazy: true});
 var rimraf = require('rimraf');
 var runSequence = require('run-sequence');
@@ -112,7 +112,7 @@ gulp.task('entities' , function (done) {
     var options = {
         url: 'http://devapi.unieconomy.no/api/metadata/typescriptentities' ,
         headers: {
-            'client': 'Client1'
+            'client': 'economytestas'
         }
     };
     var callback = function (error , response , body) {
@@ -218,20 +218,20 @@ gulp.task('watch' , function () {
 
 gulp.task('serve' , function () {
     return connect.server({
-        livereload: true ,
+        //livereload: true ,
         root: 'dist' ,
         port: 3000
     });
 });
-
+/*
 gulp.task('livereload' , function () {
-    return gulp.src(config.dist.appFiles)
-        .pipe(plugins.watch(config.dist.appFiles))
-        .pipe(connect.reload())
+    return gulp.src(config.dist.appFiles);
+        //.pipe(plugins.watch(config.dist.appFiles))
+        //.pipe(connect.reload())
 });
-
+*/
 gulp.task('build.watch.and.serve' , function (done) {
-    runSequence('clean' , 'build.dist' , 'serve' , 'watch' , 'livereload' , done);
+    runSequence('clean' , 'build.dist' , 'serve' , 'watch' , done);
 });
 
 gulp.task('test' , function () {
@@ -249,7 +249,7 @@ gulp.task('test' , function () {
 
 gulp.task('serve.tests', ['test'], function(){
     return connect.server({
-        livereload: true ,
+        livereload: false ,
         root: './' ,
         port: 9999
     });
