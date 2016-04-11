@@ -24,6 +24,8 @@ export class UniTableBuilder {
     public createCallback: (createdItem) => any;
     public deleteCallback: (deletedItem) => any;
     
+    public changeCallback: (e, rowModel) => any;
+    
     public schemaModel: any;
     public columns: kendo.ui.GridColumn[];
     public commands: kendo.ui.GridColumnCommandItem[] = [];
@@ -52,6 +54,13 @@ export class UniTableBuilder {
             if (columnInfo.editable) {
                 columnInfo.class += ' editable-cell';
             }
+            
+            var hideColumn = false;
+            if(!columnInfo.showOnSmallScreen && jQuery(window).width() < 700) {
+                hideColumn = true;
+            } else if (!columnInfo.showOnLargeScreen && jQuery(window).width() >= 700) {
+                hideColumn = true;
+            }
                       
             this.columns.push({
                 field: columnInfo.field,
@@ -66,8 +75,10 @@ export class UniTableBuilder {
                     style: 'text-align: ' + columnInfo.textAlign
                 },
                 headerAttributes: {
+                    class: columnInfo.class,
                     style: 'text-align: ' + columnInfo.textAlign
-                }
+                },
+                hidden: hideColumn                
             });
                       
             this.schemaModel.fields[columnInfo.field] = {
@@ -137,6 +148,11 @@ export class UniTableBuilder {
     
     public setSelectCallback(callbackFunction: (selectedItem) => any) {        
         this.selectCallback = callbackFunction;
+        return this;
+    }
+    
+    public setChangeCallback(callbackFunction: (event, rowModel) => any) {
+        this.changeCallback = callbackFunction;
         return this;
     }
     

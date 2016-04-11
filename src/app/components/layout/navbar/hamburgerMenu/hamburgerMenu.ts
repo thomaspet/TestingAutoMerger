@@ -24,33 +24,25 @@ export class HamburgerMenu {
                 componentListName: 'Nøkkeltall',
                 componentListHeader: 'Alt om deres økonomi',
                 componentList: [
-                    {componentName: 'Nøkkeltall', componentUrl: '/'},
-                    {componentName: 'Salgstall', componentUrl: '/uniformdemo'},
-                    {componentName: 'Regnskap', componentUrl: '/kitchensink'}
+                    {componentName: 'Nøkkeltall', componentUrl: '/'},                    
+                    {componentName: 'Regnskap', componentUrl: '/accounting'}
                 ]
             },
             {
                 componentListName: 'Salg',
                 componentListHeader: 'Utgående salg',
                 componentList: [
-                    {componentName: 'Faktura', componentUrl: '/kitchensink'},
-                    {componentName: 'Tilbud', componentUrl: '/'},
-                    {componentName: 'Innbetaling', componentUrl: '/uniformdemo'},
-                    {componentName: 'Purring', componentUrl: '/kitchensink'},
+                    {componentName: 'Tilbud', componentUrl: '/sales/quote'},
                     {componentName: 'Kunder', componentUrl: '/sales'},
                     {componentName: 'Leverandører', componentUrl: '/sales/supplier'},
-                    {componentName: 'Produkter', componentUrl: '/products'},
-                    {componentName: 'Prosjekter', componentUrl: '/'}
+                    {componentName: 'Produkter', componentUrl: '/products'}                    
                 ]
             },
             {
                 componentListName: 'Regnskap',
                 componentListHeader: 'Orden i bøkene',
                 componentList: [
-                    {componentName: 'Fakturamottak', componentUrl: '/kitchensink'},
-                    {componentName: 'Bilagsføring', componentUrl: '/accounting'},
-                    {componentName: 'Hovedbok', componentUrl: '/uniformdemo'},
-                    {componentName: 'Forespørsel', componentUrl: '/'},
+                    {componentName: 'Bilagsføring', componentUrl: '/accounting'}                    
                 ]
             },
             {
