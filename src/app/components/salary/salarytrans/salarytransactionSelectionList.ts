@@ -4,6 +4,7 @@ import {UniTable, UniTableBuilder, UniTableColumn} from "../../../../framework/u
 import {SalaryTransactionEmployeeList} from "./salarytransList";
 import {SalarytransFilter} from "./salarytransFilter";
 import {UniHttp} from "../../../../framework/core/http/http";
+import {TabService} from '../../layout/navbar/tabstrip/tabService';
 
 @Component({
     templateUrl: "app/components/salary/salarytrans/salarytransactionSelectionList.html",
@@ -17,7 +18,8 @@ export class SalaryTransactionSelectionList {
     payrollRun;
     @ViewChildren(UniTable) tables: any;
     
-    constructor(private uniHttpService: UniHttp) {
+    constructor(private uniHttpService: UniHttp,
+        private tabSer: TabService) {
         this.uniHttpService.asGET()
         .usingBusinessDomain()
         .withEndPoint("payrollrun/1")
@@ -27,6 +29,8 @@ export class SalaryTransactionSelectionList {
             this.selectedPayrollRunID = this.payrollRun.ID;
             this.createTableConfig();
         });
+     
+        this.tabSer.addTab({name: 'Transaksjoner', url: '/salary/salarytrans'});   
     }
     
     changeFilter(filter: string) {
