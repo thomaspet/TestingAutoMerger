@@ -21,9 +21,19 @@ export class EmployeeService extends BizHttp<Employee> {
         super(http);
         this.relativeURL = Employee.relativeUrl;
     }
-    
-    public get(id: number| string, expand: string[] = null) {
-        
+    public getEmployeeCategories(employeenumber: number) {
+        return this.http
+            .asGET()
+            .usingBusinessDomain()
+            // .withEndPoint('employeecategories')
+            .withEndPoint(
+                this.relativeURL 
+                + '?action=get-employee-categories&EmployeeNumber=' 
+                + employeenumber)
+            .send();
+            // .send({expand: '', filter: 'EmployeeNumber eq ' + id});
+    }
+    public get(id: number| string, expand: string[] = null) {    
         if (id === 0) {
             return this.GetNewEntity();
         }else {

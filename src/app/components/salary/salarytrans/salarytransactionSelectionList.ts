@@ -4,6 +4,7 @@ import {SalaryTransactionEmployeeList} from './salarytransList';
 import {SalarytransFilter} from './salarytransFilter';
 import {UniHttp} from '../../../../framework/core/http/http';
 import {PayrollRun} from '../../../unientities';
+import {TabService} from '../../layout/navbar/tabstrip/tabService';
 
 @Component({
     templateUrl: 'app/components/salary/salarytrans/salarytransactionSelectionList.html',
@@ -20,10 +21,10 @@ export class SalaryTransactionSelectionList implements OnInit {
     private payDate: any;
     @ViewChildren(UniTable) private tables: any;
     
-    constructor(private uniHttpService: UniHttp) {
+    constructor(private uniHttpService: UniHttp,
+                private tabSer: TabService) {
         
-    }
-    
+   }
     public ngOnInit() {
         this.uniHttpService.asGET()
         .usingBusinessDomain()
@@ -38,6 +39,8 @@ export class SalaryTransactionSelectionList implements OnInit {
             // this.tables.toArray()[0].hideColumn('BankAccounts');
             // this.tables.toArray()[0].hideColumn('TaxTable');
         });
+     
+        this.tabSer.addTab({name: 'Transaksjoner', url: '/salary/salarytrans'});   
     }
     
     private choosePayrollRun(response: PayrollRun[]): PayrollRun {

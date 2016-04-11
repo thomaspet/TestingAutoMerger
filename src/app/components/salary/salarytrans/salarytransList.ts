@@ -161,6 +161,7 @@ export class SalaryTransactionEmployeeList implements OnInit {
     }
     
     private createTableConfig() {
+        // var wagetypeidCol = new UniTableColumn('Wagetype.WageTypeNumber', 'Lønnsart', 'string');
         var wagetypenameCol = new UniTableColumn('Text', 'Tekst', 'string');
         var fromdateCol = new UniTableColumn('FromDate', 'Fra dato', 'date');
         var toDateCol = new UniTableColumn('ToDate', 'Til dato', 'date');
@@ -180,6 +181,9 @@ export class SalaryTransactionEmployeeList implements OnInit {
         var accountCol = new UniTableColumn('Account', 'Konto', 'string');
         var transtypeCol = new UniTableColumn('IsRecurringPost', 'Fast/Variabel post', 'bool')
         .setTemplate((dataItem) => {
+        var accountCol = new UniTableColumn('Account', 'Konto', 'string');
+        // var payoutCol = new UniTableColumn('Wagetype.Base_Payment','Utbetales','bool');
+        var transtypeCol = new UniTableColumn('IsRecurringPost', 'Fast/Variabel post', 'bool')
             if (dataItem.IsRecurringPost) {
                 return 'Fast';
             } else {
