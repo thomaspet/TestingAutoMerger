@@ -1,9 +1,6 @@
 import {Component} from 'angular2/core';
-// import {Http, Headers} from 'angular2/http';
 import {Router, ROUTER_DIRECTIVES} from 'angular2/router';
 import {AuthService} from '../../../framework/core/authService';
-import {UniHttp} from '../../../framework/core/http/http';
-import {AppConfig} from '../../AppConfig';
 import {StaticRegisterService} from '../../services/staticregisterservice';
 
 declare var jQuery;
@@ -18,7 +15,7 @@ export class Login {
     private working: boolean;
 
     constructor(private _authService: AuthService, private _router: Router, 
-                private _staticRegisterService: StaticRegisterService, private _uniHttp: UniHttp) {
+                private _staticRegisterService: StaticRegisterService) {
         // initialize credentials to a valid login for testing purposes
         this.credentials = {
             username: 'einar23',
@@ -34,7 +31,6 @@ export class Login {
             .subscribe(
                 (response) => {
                     this._authService.setToken(response.access_token);
-                    this._uniHttp.withHeader('Authorization', 'Bearer ' + response.access_token);
                     this.onAuthSuccess();
                 }, error => console.log(error)
             );        
@@ -75,7 +71,6 @@ export class Login {
     }
 
     private onCompanySelected() {
-        this._uniHttp.withHeader('CompanyKey', this._authService.getActiveCompany().Key);
         this._staticRegisterService.checkForStaticRegisterUpdate();
         var url = localStorage.getItem('lastNavigationAttempt') || '/';
         localStorage.removeItem('lastNavigationAttempt');

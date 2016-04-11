@@ -20,7 +20,6 @@ export interface IUniHttpRequest {
     orderBy?: string;
     top?: number;
     skip?: number;
-    returnResponseHeaders?: boolean;
 }
 
 @Injectable()
@@ -148,30 +147,42 @@ export class UniHttp {
         return this.http.request(new Request(options)).map((response: any) => response.json());
     }
     
-    public send(request?: IUniHttpRequest): Observable<any> {
-        request = request || {};
+    public send(request: IUniHttpRequest = {}, returnResponseHeaders: boolean = false): Observable<any> {
+        let token = this.authService.getToken();
+        let activeCompany = this.authService.getActiveCompany();
+        
+        if (token && !this.headers.has('Authorization')) {
+            this.headers.append('Authorization', 'Bearer ' + token);
+        }
+        
+        if (activeCompany && !this.headers.has('CompanyKey')) {
+            this.headers.append('CompanyKey', activeCompany.Key);
+        }
+        
         var baseurl = request.baseUrl || this.baseUrl,
             apidomain = request.apiDomain || this.apiDomain,
             endpoint = request.endPoint || this.endPoint,
             method = request.method || this.method,
-            body = request.body || this.body
-            ;
+            body = request.body || this.body;
+        
         var url = baseurl + apidomain + endpoint;
         var options: any = {
             method: method,
             url: url,
             headers: this.headers
         };
+        
         if (this.body) {
             options.body = JSON.stringify(body);
         }
+        
         if (request) {
             options.search = UniHttp.buildUrlParams(request);
         }
         
         let req = this.http.request(new Request(options));
         
-        if (request.returnResponseHeaders) {            
+        if (returnResponseHeaders) {            
             return req;
         }
         
