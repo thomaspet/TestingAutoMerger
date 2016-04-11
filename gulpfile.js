@@ -112,7 +112,7 @@ gulp.task('entities' , function (done) {
     var options = {
         url: 'http://devapi.unieconomy.no/api/metadata/typescriptentities' ,
         headers: {
-            'client': 'Client1'
+            'client': 'economytestas'
         }
     };
     var callback = function (error , response , body) {
