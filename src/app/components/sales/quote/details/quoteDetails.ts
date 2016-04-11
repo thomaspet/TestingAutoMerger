@@ -101,14 +101,18 @@ export class QuoteDetails {
     }
 
     saveQuote(autosave: boolean) {
-        this.formInstance.updateModel();
-               
-        if (this.quote.StatusCode == null) {
-            //set status if it is a draft
-            this.quote.StatusCode = 1;
-        }            
-        this.lastSavedInfo = 'Lagrer tilbud...';                
-                          
+        this.formInstance.sync();
+                        
+        if (!autosave) {            
+            if (this.quote.StatusCode == null) {
+                //set status if it is a draft
+                this.quote.StatusCode = 1;
+            }            
+            this.lastSavedInfo = 'Lagrer tilbud...';
+        } else {
+           this.lastSavedInfo = 'Autolagrer tilbud...';
+        }                
+
         this.customerQuoteService.Put(this.quote.ID, this.quote)
             .subscribe(
                 (updatedValue) => {  

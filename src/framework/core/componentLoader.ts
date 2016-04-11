@@ -1,4 +1,4 @@
-import {Component, DynamicComponentLoader, ElementRef, ComponentRef, Input} from 'angular2/core';
+import {Component, DynamicComponentLoader, ElementRef, ComponentRef, Input, EventEmitter} from 'angular2/core';
 
 /**
  * Component Loader
@@ -27,6 +27,7 @@ export class UniComponentLoader {
     @Input()
     config: any;
 
+    component: any;
     constructor(public element: ElementRef, public dcl: DynamicComponentLoader) {
 
     }
@@ -43,10 +44,14 @@ export class UniComponentLoader {
             this.dcl.loadIntoLocation(this.type, this.element, 'content')
                 .then((cmp: ComponentRef) => {
                     cmp.instance.config = self.config;
+                    self.component = cmp.instance;
                     return cmp;
                 });
         } else if (this.type) {
-            this.dcl.loadIntoLocation(this.type, this.element, 'content');
+            this.dcl.loadIntoLocation(this.type, this.element, 'content').then((cmp:ComponentRef)=>{
+                self.component = cmp.instance;
+                return cmp;
+            });;
         }
     }
 
@@ -58,6 +63,10 @@ export class UniComponentLoader {
      * @returns {any} (optional) it can return nothing or a promise
      */
     load(type: any) {
-        return this.dcl.loadIntoLocation(type, this.element, 'content');
+        var self = this;
+        return this.dcl.loadIntoLocation(type, this.element, 'content').then((cmp:ComponentRef)=>{
+            self.component = cmp.instance;
+            return cmp;
+        });
     }
 }

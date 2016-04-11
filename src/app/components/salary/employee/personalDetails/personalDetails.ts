@@ -102,7 +102,7 @@ export class PersonalDetails implements OnInit {
                         (data: Employee) => {
                             context.employee = data;
                             context.whenFormInstance.then((instance: UniForm) => {
-                                instance.refresh(context.employee);
+                                instance.Model = context.employee;
                             });
                         },
                         (error: Error) => {

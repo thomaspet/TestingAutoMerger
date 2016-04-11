@@ -161,7 +161,7 @@ export class AccountDetails {
             .subscribe(
                 (dataset) => {
                     this.model = dataset;
-                    this.form.refresh(this.model);
+                    this.form.Model = this.model;
                 },
                 (error) => console.log(error)
             )
@@ -172,7 +172,7 @@ export class AccountDetails {
 
         if (this.account == 0) {
             this.model = new AccountModel();
-            this.form.refresh(this.model);
+            this.form.Model = this.model;
         } else if (this.account === -1) { // test only
         } else if (this.account === -1) { // test only
         /*    this.model = new AccountModel();
