@@ -24,28 +24,53 @@
 
 <section class="quote-details application">
     <uni-component-loader></uni-component-loader>
-    <quote-item-list [quote]="quote" (ItemsUpdated)="recalcItemSums($event)"></quote-item-list>    
-    <section *ngIf="ItemsSummaryData">
+    <quote-item-list [quote]="quote" (ItemsUpdated)="recalcItemSums($event)" (ItemsLoaded)="recalcItemSums($event)"></quote-item-list>    
+    <section *ngIf="itemsSummaryData">        
         <section> 
-            Antall tilbudslinjer
-            {{ItemsSummaryData.NumberOfItems}}
+            Avgiftsfritt
+            {{itemsSummaryData.SumNoVatBasis}}
         </section>
         <section> 
-            Total rabatt
-            {{ItemsSummaryData.SumDiscount}}
-        </section>        
+            Avgiftsgrunnlag
+            {{itemsSummaryData.SumVatBasis}}
+        </section>
         <section> 
-            Total sum inkl mva
-            {{ItemsSummaryData.SumIncVat}}
+            Sum rabatt
+            {{itemsSummaryData.SumDiscount}}
+        </section>
+        <section> 
+            Nettosum
+            {{itemsSummaryData.SumTotalExVat}}
+        </section>
+        <section> 
+            Mva
+            {{itemsSummaryData.SumVat}}
+        </section>
+        <section> 
+            Øreavrunding
+            {{itemsSummaryData.DecimalRounding}}
+        </section>
+        <section> 
+            Totalsum
+            {{itemsSummaryData.SumTotalIncVat}}
         </section>      
     </section>
 </section>
+
+<b>Gjenstår linjeliste:</b>
+<ul>                
+    <li>Validering</li>
+    <li>Sletting - marker rad som slettet (Deleted=true). Ikke vis i grid hvis Deleted=true</li>        
+    <li>Produktsøk/dropdown - trenger bedre komponent</li>
+    <li>Tab forbi ikkeredigerbarefelter automatisk (må sjekke på om de har en input? alle må settes som editable pga beregninger...)</li>
+    <li>Må bruke mus for å legge til ny rad, burde kanskje autoopprettes?</li>        
+</ul>
 
 <footer class="full-footer">
     <section class="application">
         <button class="good" (click)="saveProductManual($event)">Lagre tilbud</button>
         <section class="auto_save_info">
-            {{ LastSavedInfo }}    
+            {{ lastSavedInfo }}    
         </section>
     </section>
 </footer>

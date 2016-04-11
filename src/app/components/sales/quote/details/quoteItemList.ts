@@ -7,7 +7,7 @@ import {ComponentInstruction, RouteParams, Router} from 'angular2/router';
 import {UniTable, UniTableBuilder, UniTableColumn} from '../../../../../framework/uniTable';
 import {UniHttp} from '../../../../../framework/core/http/http';
 
-import {CustomerQuoteItemService, ProductService, VatTypeService} from '../../../../services/services';
+import {ProductService, VatTypeService} from '../../../../services/services';
 import {CustomerQuote, CustomerQuoteItem, Product, VatType} from '../../../../unientities';
 
 declare var jQuery;
@@ -16,12 +16,13 @@ declare var jQuery;
     selector: 'quote-item-list',
     templateUrl: 'app/components/sales/quote/details/quoteItemList.html',
     directives: [UniTable],
-    providers: [CustomerQuoteItemService, ProductService, VatTypeService]
+    providers: [ProductService, VatTypeService]
 })
 export class QuoteItemList {
     @Input() quote: CustomerQuote; 
     @ViewChild(UniTable) table: UniTable;
     @Output() ItemsUpdated = new EventEmitter<any>();
+    @Output() ItemsLoaded = new EventEmitter<any>();
     
     quoteItemTable: UniTableBuilder;
     
@@ -29,7 +30,7 @@ export class QuoteItemList {
     vatTypes: VatType[];
     items: CustomerQuoteItem[];
     
-    constructor(private uniHttpService: UniHttp, private router: Router, private customerQuoteItemService: CustomerQuoteItemService, private productService: ProductService, private vatTypeService: VatTypeService) {
+    constructor(private uniHttpService: UniHttp, private router: Router, private productService: ProductService, private vatTypeService: VatTypeService) {
                    
     }
     
@@ -43,20 +44,20 @@ export class QuoteItemList {
     
     setupQuoteItemTable() {
         
-        if (this.quote) {            
+        if (this.quote) {
+            this.items = this.quote.Items;
+                        
             Observable.forkJoin(
-                this.customerQuoteItemService.GetAll('filter=CustomerQuoteID eq ' + this.quote.ID, ['Product','VatType']),
                 this.productService.GetAll(null, ['VatType']),
                 this.vatTypeService.GetAll(null)
             ).subscribe(
-                (data) => {
-                    this.items = data[0]; 
-                    this.products = data[1];
-                    this.vatTypes = data[2];
+                (data) => {                    
+                    this.products = data[0];
+                    this.vatTypes = data[1];
                     
                     this.setupUniTable();
                     
-                    this.ItemsUpdated.emit(this.items);
+                    this.ItemsLoaded.emit(this.items);
                 },
                 (err) => console.log('Error retrieving data: ', err)
             );            
@@ -65,57 +66,64 @@ export class QuoteItemList {
     
     setupUniTable() {
         // Define columns to use in the table
-        var numberCol = new UniTableColumn('ProductID', 'Produktnr', 'text')
+        var productIdCol = new UniTableColumn('ProductID', 'ProductID', 'number').setShowOnSmallScreen(false).setShowOnLargeScreen(false);       
+        var partnameCol = new UniTableColumn('Product', 'Produktnr', 'text')
                             .setShowOnSmallScreen(false)
                             .setValues(this.products)
-                            .setDefaultValue(null)
-                            //PROBLEM: utflating av data skaper litt problemer med templates?
+                            .setDefaultValue(null)                            
                             .setTemplate('# if (ProductID) {# <span> #=Product$PartName #</span> #}#')
                             .setCustomEditor('dropdown', {
                                 dataSource: this.products,
                                 dataValueField: 'ID',
                                 dataTextField: 'PartName'
                             }, (item, rowModel) => {
-                                rowModel.set('Product$PartName', item.PartName);
+                                rowModel.set('ProductID', item.ID);
+                                rowModel.set('Product$PartName', item.PartName);                                
                                 rowModel.set('ItemText', item.Name);
                                 rowModel.set('Unit', item.Unit);
                                 rowModel.set('PriceExVat', item.PriceExVat);
                                 rowModel.set('PriceIncVat', item.PriceIncVat);
+                                console.log('item.VatTypeID:', item.VatTypeID);
+                                rowModel.set('VatTypeID', item.VatTypeID);
                                 rowModel.set('VatType$VatPercent', item.VatType != null ? item.VatType.VatPercent : null);
-                                rowModel.set('VatTypeID', item.VatTypeID);                                    
+                                rowModel.set('VatType', item.VatType);
                             });                            
         var nameCol = new UniTableColumn('ItemText', 'Tekst', 'string').setShowOnSmallScreen(false);
-        var unitCol = new UniTableColumn('Unit', 'Enhet', 'string').setShowOnSmallScreen(false);
-        var noOfItemsCol = new UniTableColumn('NumberOfItems', 'Antall', 'number').setShowOnSmallScreen(false);
-        var priceCol = new UniTableColumn('PriceExVat', 'Pris', 'number')
-            //.setTemplate('# if (CalculateGrossPriceBasedOnNetPrice) {# <span> #=PriceIncVat #%</span>#} else {# <span> #=PriceExVat #</span>#}#')
-            .setShowOnSmallScreen(false);
-        var discountPercentCol = new UniTableColumn('DiscountPercent', 'Rabatt %', 'number').setShowOnSmallScreen(false);
-        var discountCol = new UniTableColumn('Discount', 'Rabatt', 'number').setCustomEditor('readonlyeditor', null).setEditable(true).setShowOnSmallScreen(false);
-        var vatTypeCol = new UniTableColumn('VatTypeID', 'MVA%', 'text')
+        var unitCol = new UniTableColumn('Unit', 'Enhet', 'string').setShowOnSmallScreen(false).setWidth('7%');
+        var noOfItemsCol = new UniTableColumn('NumberOfItems', 'Antall', 'number').setShowOnSmallScreen(false).setWidth('7%');
+        var priceCol = new UniTableColumn('PriceExVat', 'Pris', 'number').setShowOnSmallScreen(false).setWidth('7%'); //.setTemplate('# if (CalculateGrossPriceBasedOnNetPrice) {# <span> #=PriceIncVat #%</span>#} else {# <span> #=PriceExVat #</span>#}#')            
+        var discountPercentCol = new UniTableColumn('DiscountPercent', 'Rabatt %', 'number').setShowOnSmallScreen(false).setWidth('9%');
+        var discountCol = new UniTableColumn('Discount', 'Rabatt', 'number').setCustomEditor('readonlyeditor', null).setEditable(true).setShowOnSmallScreen(false).setWidth('7%');
+        var vatTypeIdCol = new UniTableColumn('VatTypeID', 'MVA%', 'number').setShowOnSmallScreen(false).setShowOnLargeScreen(false);
+        var vatTypeCol = new UniTableColumn('VatType', 'MVA%', 'text')
             .setShowOnSmallScreen(false)
             .setValues(this.vatTypes)
             .setDefaultValue(null)
+            .setWidth('7%')
             .setTemplate('# if (VatTypeID && VatType$VatPercent) {# <span> #=VatType$VatPercent #%</span> #}#')
             .setCustomEditor('dropdown', {
                 dataSource: this.vatTypes,
                 dataValueField: 'ID',
                 dataTextField: 'VatPercent'
-            }, (item, rowModel) => {              
+            }, (item, rowModel) => {
+                rowModel.set('VatTypeID', item.ID);              
                 rowModel.set('VatType$VatPercent', item.VatPercent);
             });  
-        var sumTotalExVatCol = new UniTableColumn('SumTotalExVat', 'Netto', 'number').setCustomEditor('readonlyeditor', null).setEditable(true).setShowOnSmallScreen(false);
-        var sumVatCol = new UniTableColumn('SumVat', 'Mva', 'number').setCustomEditor('readonlyeditor', null).setEditable(true).setShowOnSmallScreen(false);
+        var sumTotalExVatCol = new UniTableColumn('SumTotalExVat', 'Netto', 'number').setCustomEditor('readonlyeditor', null).setEditable(true).setShowOnSmallScreen(false).setWidth('7%');
+        var sumVatCol = new UniTableColumn('SumVat', 'Mva', 'number').setCustomEditor('readonlyeditor', null).setEditable(true).setShowOnSmallScreen(false).setWidth('7%');
         var sumTotalIncVatCol = new UniTableColumn('SumTotalIncVat', 'Sum ink. mva', 'number').setCustomEditor('readonlyeditor', null).setEditable(true).setShowOnSmallScreen(false);        
-        var smallScreenTemplateCol = new UniTableColumn('ID', 'Tilbudslinjer', 'string').setShowOnLargeScreen(false).setEditable(false).setTemplate('<span>ProduktID: </span>#: ProductID #, <span>Antall: </span>#:NumberOfItems#');
+        var smallScreenTemplateCol = new UniTableColumn('ID', 'Tilbudslinjer', 'string')
+            .setShowOnLargeScreen(false).setEditable(false)
+            .setTemplate('<span>#:ItemText#</span>, <span>Antall: </span>#:NumberOfItems#, <span>Rabatt: </span>#:Discount#, <span>Sum ink. mva: </span>#:SumTotalIncVat#');
         
         // Setup table        
         this.quoteItemTable = new UniTableBuilder(this.items, true)            
             .setFilterable(false)
             .setSearchable(false)            
             .setPageable(false)
+            .setToolbarOptions(['create'])
             .setChangeCallback((e, rowModel) => this.handleDataSourceChanges(e, rowModel))            
-            .addColumns(numberCol, nameCol, unitCol, noOfItemsCol, priceCol, discountPercentCol, discountCol, vatTypeCol, sumTotalExVatCol, sumVatCol, sumTotalIncVatCol, smallScreenTemplateCol);       
+            .addColumns(productIdCol, partnameCol, nameCol, unitCol, noOfItemsCol, priceCol, discountPercentCol, discountCol, vatTypeIdCol, vatTypeCol, sumTotalExVatCol, sumVatCol, sumTotalIncVatCol, smallScreenTemplateCol);       
     }    
     
     public handleDataSourceChanges(e, rowModel) {
@@ -123,7 +131,7 @@ export class QuoteItemList {
         var numberHasChanged: boolean = false;
                 
         if (e.action === 'itemchange') {
-            //console.log('Object updated. Property changed: ' + e.field);// + '. New object: ', e.items[0]);
+            //console.log('Object updated. Property changed: ' + e.field);
             
             var item = e.items[0];
             
@@ -158,14 +166,14 @@ export class QuoteItemList {
                     rowModel.set('SumVat', item.SumTotalIncVat - item.SumTotalExVat);
                     
                     /*setTimeout(() => {
-                        console.log('dummycalc ferdig etter endring i '  + e.field + ' (erstattes av et HTTP-kall)');
-                    }, 500);
-                    */
+                        console.log('kalkulering ferdig etter endring i '  + e.field + ' (vurder å erstatte med et HTTP-kall)');
+                    }, 500);*/
+                    
                     numberHasChanged = true;    
                 }                
             }            
         } else if (e.action === 'add') {
-            console.log('Object added. Antall tilbudslinjer nå: ' + e.sender._data.length); //+ '. New object: ', e.items[0]);
+            console.log('Object added. Antall tilbudslinjer nå: ' + e.sender._data.length); 
             
             var item = e.items[0];
                                 
@@ -176,18 +184,17 @@ export class QuoteItemList {
             rowModel.set('SumTotalExVat', 0);
             rowModel.set('SumTotalIncVat', 0);
             */
+            
+            numberHasChanged = true;  
         } 
         else if (e.action === 'delete') {
             numberHasChanged = true;  
         }   
         
         //emit event to parent
-        if (e.sender && e.sender._data && numberHasChanged) {
-            
-            var tableData = this.table.getUnFlattendDataFromDataSource();
-            
-            this.ItemsUpdated.emit(tableData);            
-            //this.ItemsUpdated.emit(e.sender._data);                                    
+        if (e.sender && e.sender._data && numberHasChanged) {            
+            var tableData = this.table.getUnFlattendDataFromDataSource();            
+            this.ItemsUpdated.emit(tableData);  
         } 
     }    
 }

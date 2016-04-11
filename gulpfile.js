@@ -218,20 +218,21 @@ gulp.task('watch' , function () {
 
 gulp.task('serve' , function () {
     return connect.server({
-        livereload: true ,
+        //livereload: true ,
         root: 'dist' ,
         port: 3000
     });
 });
-
+/*
 gulp.task('livereload' , function () {
     return gulp.src(config.dist.appFiles)
         .pipe(plugins.watch(config.dist.appFiles))
         .pipe(connect.reload())
+       
 });
-
+*/
 gulp.task('build.watch.and.serve' , function (done) {
-    runSequence('clean' , 'build.dist' , 'serve' , 'watch' , 'livereload' , done);
+    runSequence('clean' , 'build.dist' , 'serve' , 'watch' , done);
 });
 
 gulp.task('test' , function () {
