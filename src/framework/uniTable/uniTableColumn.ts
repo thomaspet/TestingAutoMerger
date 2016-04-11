@@ -17,6 +17,7 @@ export class UniTableColumn {
     public defaultValue: any;
     public values: any[];
     public textAlign: string = 'left';
+    public hidden: boolean = false;
     public showOnSmallScreen: boolean = true;
     public showOnLargeScreen: boolean = true;
     
@@ -77,6 +78,11 @@ export class UniTableColumn {
     
     public setWidth(width: string) {
         this.width = width;
+        return this;
+    }
+    
+    public setHidden(hidden: boolean = true) {
+        this.hidden = hidden;
         return this;
     }
     
