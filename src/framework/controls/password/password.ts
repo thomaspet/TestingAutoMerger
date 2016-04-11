@@ -32,7 +32,7 @@ export class UniPasswordInput {
     }
 
     public ngAfterViewInit() {
-        this.config.isDomReady.emit(this);
+        this.config.ready.emit(this);
     }
 
     public refresh(value: any) {

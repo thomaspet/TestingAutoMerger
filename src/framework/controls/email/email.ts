@@ -1,4 +1,5 @@
 import {Component, Input, ElementRef} from 'angular2/core';
+import {UniFieldBuilder} from "../../forms/builders/uniFieldBuilder";
 
 declare var jQuery;
 
@@ -16,7 +17,7 @@ declare var jQuery;
 })
 export class UniEmailInput {
     @Input()
-    public config: any;
+    public config: UniFieldBuilder;
 
     constructor(public elementRef: ElementRef) {
     }
@@ -31,7 +32,7 @@ export class UniEmailInput {
     }
 
     public ngAfterViewInit() {
-        this.config.isDomReady.emit(this);
+        this.config.ready.emit(this);
     }
 
     public refresh(value: any): void {

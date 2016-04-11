@@ -78,7 +78,7 @@ export class UniCombobox implements AfterViewInit, OnDestroy {
         if (control) {
             combobox.value(control.value);
         }
-        this.config.isDomReady.emit(this);
+        this.config.ready.emit(this);
     }
 
 

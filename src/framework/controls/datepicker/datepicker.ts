@@ -98,7 +98,7 @@ export class UniDatepicker implements AfterViewInit, OnDestroy {
 
         datepicker.value(new Date(control.value));
         this.datepicker = datepicker;
-        this.config.isDomReady.emit(this);
+        this.config.ready.emit(this);
     }
 
     // remove kendo markup when component is destroyed to avoid duplicates

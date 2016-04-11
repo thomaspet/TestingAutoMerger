@@ -43,7 +43,7 @@ export class UniCheckboxInput {
     }
 
     public ngAfterViewInit() {
-        this.config.isDomReady.emit(this);
+        this.config.ready.emit(this);
     }
 
     public setFormValue(value: any): void {

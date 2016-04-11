@@ -28,7 +28,7 @@ export class UniHyperlink {
     }
 
     public ngAfterViewInit() {
-        this.config.isDomReady.emit(this);
+        this.config.ready.emit(this);
     }
 
     public refresh(value: any): void {

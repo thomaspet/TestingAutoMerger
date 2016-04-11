@@ -64,7 +64,7 @@ export class UniMultiSelect implements AfterViewInit, OnDestroy {
             multiselect.value(control.value);
             multiselect.trigger('change');
         }
-        this.config.isDomReady.emit(this);
+        this.config.ready.emit(this);
     }
 
     // remove kendo markup when component is destroyed to avoid duplicates

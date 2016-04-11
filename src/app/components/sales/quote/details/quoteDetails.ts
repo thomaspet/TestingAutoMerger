@@ -65,7 +65,7 @@ export class QuoteDetails {
     }
 
     saveQuote(autosave: boolean) {
-        this.formInstance.updateModel();
+        this.formInstance.sync();
                         
         if (!autosave) {            
             if (this.quote.StatusCode == null) {

@@ -39,7 +39,7 @@ export class UniRadioGroup {
     }
 
     public ngAfterViewInit() {
-        this.config.isDomReady.emit(this);
+        this.config.ready.emit(this);
     }
 
     public refresh(value: any) {

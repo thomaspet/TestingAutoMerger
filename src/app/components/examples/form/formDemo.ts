@@ -39,7 +39,7 @@ export class UniFormDemo {
 
     private Model: EmployeeModel;
     private CurrentState: any;
-    private LastForm: any;
+    private LastFormValue: any;
     private BusinessModel: BusinessRelation;
     private FormConfig: UniFormBuilder;
     private EmptyPhone: Phone;
@@ -55,7 +55,7 @@ export class UniFormDemo {
         this.CurrentState = this.state.getState();
 
         if(this.CurrentState) {
-            this.LastForm = this.CurrentState.form;
+            this.LastFormValue = this.CurrentState.form;
             this.FormConfig = this.CurrentState.config;
         }
 
@@ -66,7 +66,7 @@ export class UniFormDemo {
     public buildState() {
         var component: UniForm = this.UniCmpLoader.component;
         return {
-            form: component.form,
+            form: component.form.value,
             config: component.config
         };
     }
@@ -96,11 +96,11 @@ export class UniFormDemo {
         var self = this;
         return this.UniCmpLoader.load(UniForm).then((cmp: ComponentRef) => {
             cmp.instance.config = self.FormConfig;
-            cmp.instance.getEventEmitter().subscribe(self.submit(self));
-            cmp.instance.isDomReady.subscribe((component: UniForm) => {
-                component.refresh(self.Model);
-                component.updateFormValues(null, (self.LastForm && self.LastForm.value) || null);
-                component.config.find('Sex').setFocus();
+            cmp.instance.submit.subscribe(self.submit(self));
+            cmp.instance.ready.subscribe((component: UniForm) => {
+                component.Model  = self.Model;
+                component.Value = self.LastFormValue;
+                component.find('Sex').setFocus();
             });
             return cmp;
         });
@@ -212,8 +212,7 @@ export class UniFormDemo {
         //////////////////////////////////
     }
 
-    private
-    extendLayoutConfig(layout: any) {
+    private extendLayoutConfig(layout: any) {
         layout.Fields[0].Validators = [{
             'EntityType': 'BusinessRelation',
             'PropertyName': 'Name',
@@ -242,9 +241,10 @@ export class UniFormDemo {
 
     private submit(context: UniFormDemo) {
         return () => {
-            context.Api.Post(context.Model).subscribe((result: any) => {
+            console.log("Submit");
+            //context.Api.Post(context.Model).subscribe((result: any) => {
                 //alert(JSON.stringify(result));
-            });
+            //});
         };
     }
 }

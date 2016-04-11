@@ -40,7 +40,7 @@ export class UniFieldBuilder {
     public onChange: any;
     public editor: any;
     public placeholder: any;
-    public isDomReady: EventEmitter<any> = new EventEmitter<any>(true);
+    public ready: EventEmitter<any> = new EventEmitter<any>(true);
 
     public static fromLayoutConfig(element: any, model: any): UniFieldBuilder {
         var ufb = new UniFieldBuilder();
