@@ -190,7 +190,7 @@ export class PhoneModal {
                     method: () => {
                         self.modal.getContent().then((content: PhoneModalType)=> {
                             content.instance.then((form: PhoneForm)=> {
-                                form.form.updateModel();
+                                form.form.sync();
                                 self.modal.close();                               
                                 
                                 // store

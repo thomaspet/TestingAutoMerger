@@ -20,6 +20,23 @@ export class UniFormBuilder extends UniGenericBuilder {
         return UniElementFinder.findUniFieldByPropertyName(property, this.fields);
     }
 
+    setModel(newInstance: any, config?: any) {
+        var config = config || this.fields;
+
+        for (let i = 0; i < config.length; i++) {
+            let field: any = config[i];
+            if (field instanceof UniFieldBuilder) {
+                field.model = newInstance;
+                var fieldPath = field.field;
+                var value = _.get(newInstance, fieldPath);
+                field.refresh(value);
+            } else {
+                this.setModel(newInstance, field.fields);
+            }
+        }
+        return this;
+    }
+
     readmode(): void {
         this._readmode(this.fields);
         this.editMode = false;

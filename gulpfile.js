@@ -1,4 +1,4 @@
-var gulp = require('gulp');
+﻿var gulp = require('gulp');
 var plugins = require('gulp-load-plugins')({lazy: true});
 var rimraf = require('rimraf');
 var runSequence = require('run-sequence');
@@ -225,10 +225,9 @@ gulp.task('serve' , function () {
 });
 /*
 gulp.task('livereload' , function () {
-    return gulp.src(config.dist.appFiles)
-        .pipe(plugins.watch(config.dist.appFiles))
-        .pipe(connect.reload())
-       
+    return gulp.src(config.dist.appFiles);
+        //.pipe(plugins.watch(config.dist.appFiles))
+        //.pipe(connect.reload())
 });
 */
 gulp.task('build.watch.and.serve' , function (done) {
@@ -250,7 +249,7 @@ gulp.task('test' , function () {
 
 gulp.task('serve.tests', ['test'], function(){
     return connect.server({
-        livereload: true ,
+        livereload: false ,
         root: './' ,
         port: 9999
     });

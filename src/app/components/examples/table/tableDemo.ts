@@ -108,6 +108,7 @@ export class UniTableDemo {
                     
         this.demoTable1 = new UniTableBuilder('employeeleave', true)
             // .setPageable(false)
+            .setName('tableDemoEmployeeLeave')
             .addColumns(
                 idCol,
                 descriptionCol,
