@@ -93,18 +93,17 @@ export class UniFormDemo {
     }
 
     private loadForm() {
-        var self = this;
-        return this.UniCmpLoader.load(UniForm).then((cmp: ComponentRef) => {
-            cmp.instance.config = self.FormConfig;
-            cmp.instance.submit.subscribe(self.submit(self));
-            cmp.instance.ready.subscribe((component: UniForm) => {
-                component.Model  = self.Model;
-                component.Value = self.LastFormValue;
+        return this.UniCmpLoader.load(UniForm).then(((cmp: ComponentRef) => {
+            cmp.instance.config = this.FormConfig;
+            cmp.instance.submit.subscribe(this.submit.bind(this));
+            cmp.instance.ready.subscribe(((component: UniForm) => {
+                component.Model  = this.Model;
+                component.Value = this.LastFormValue;
                 component.find('Sex').setFocus();
-                self.FormIsReady = true;
-            });
+                this.FormIsReady = true;
+            }).bind(this));
             return cmp;
-        });
+        }).bind(this));
     }
 
     private buildFormConfig(layout: ComponentLayout, model: Employee) {
@@ -240,12 +239,10 @@ export class UniFormDemo {
         return layout;
     }
 
-    private submit(context: UniFormDemo) {
-        return () => {
-            console.log("Submit");
-            //context.Api.Post(context.Model).subscribe((result: any) => {
-                //alert(JSON.stringify(result));
-            //});
-        };
+    private submit() {
+        console.log(this,"Submit");
+        //this.Api.Post(this.Model).subscribe((result: any) => {
+        //    alert(JSON.stringify(result));
+        //});
     }
 }
