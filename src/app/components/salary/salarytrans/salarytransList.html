@@ -4,7 +4,7 @@
         
         <section *ngIf="employee" class="salarytrans-payrollrun-detail">
             <h1>{{employee.BusinessRelationInfo.Name}}</h1>
-            <!--<uni-form [config]="headingConfig"></uni-form>-->
+            <uni-component-loader></uni-component-loader>
             <p>Skattetabell: {{employee.TaxTable}}</p>
             <p *ngIf="employee.SubEntity">Virksomhet: {{employee.SubEntity.BusinessRelationInfo.Name}}</p>
             <p>Skatteprosent: {{employee.TaxPercentage}}%</p>

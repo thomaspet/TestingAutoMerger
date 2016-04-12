@@ -3,34 +3,34 @@
     <article class="poster_toolbar">
         
         <section *ngIf="payrollRun" class="salarytrans-payrollrun-detail">
-            <h1>Lønnsutbetaling nr {{payrollRun.ID}}</h1>
-            <p>Utbetaling {{payDate}} - Status:{{payrollRun.StatusID}}</p>
+            <h1>Lønnsavregning nr {{payrollRun.ID}}</h1>
+            <p>Utbetaling {{payDate}} - Status:{{status}}</p>
         </section>
             
         <nav class="poster_toolbar_tools">
-            <a class="previous">Forrige</a>
-            <a class="next">Neste</a>
+            <a (click)="previousPayrollRun()" class="previous">Forrige</a>
+            <a (click)="nextPayrollRun()" class="next">Neste</a>
             <a class="new">Ny lønnsavregning</a>
-            <button type="submit">Lagre</button>
         </nav>
             
     </article>
-    
+
 </header>
 <section class="salarytrans-filter">
     <salarytrans-filter (filtStringChange)="changeFilter($event)"></salarytrans-filter>
 </section>
 <section class="splitview">
-    <nav class="splitview_list"><uni-table [config]="salarytransSelectionTableConfig"></uni-table></nav>
+    <nav class="splitview_list"><uni-table [config]="salarytransSelectionTableConfig" [attr.aria-busy]="busy"></uni-table></nav>
     <main class="splitview_detail">
         <salary-transactions-employee 
             *ngIf="selectedEmployeeID" 
             [ansattID]="selectedEmployeeID" 
             [payrollRunID]="selectedPayrollRunID" 
-            (nextEmployee)="goToNext($id)"
-            (previousEmployee)="goToPrevious($id)"></salary-transactions-employee>
+            (nextEmployee)="goToNextEmployee($id)"
+            (previousEmployee)="goToPreviousEmployee($id)"></salary-transactions-employee>
     </main>
 </section>
+
 <footer class="full-footer">
     <section class="application">
         <button class="good" (click)="saveRun($event)">Lagre lønnsavregning</button>

@@ -52,13 +52,17 @@ export class EmployeeService extends BizHttp<Employee> {
             .send({expand: 'BusinessRelationInfo'});
     }
     
-    public getTotals(payrunID: number, employeeID: number) {
+    public getTotals(payrunID: number, employeeID: number = 0) {
         console.log('empID: ' + employeeID);
+        var params = '&payrun=' + payrunID;
+        if (employeeID) {
+            params += '&employee=' + employeeID;
+        }
         return this.http
             .asGET()
             .usingBusinessDomain()
             .withEndPoint('salarytrans')
-            .send({action: 'Sums&payrun=' + payrunID + '&employee=' + employeeID});
+            .send({action: 'Sums' + params});
     }
 
     public getEmployeeLeave() {

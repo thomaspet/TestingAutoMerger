@@ -4,11 +4,15 @@ import {SalaryTransactionEmployeeList} from './salarytransList';
 import {SalarytransFilter} from './salarytransFilter';
 import {UniHttp} from '../../../../framework/core/http/http';
 import {PayrollRun, Employee} from '../../../unientities';
+import {EmployeeService, PayrollRunService} from '../../../services/services';
 import {TabService} from '../../layout/navbar/tabstrip/tabService';
+import {Observable} from 'rxjs/Observable';
+declare var _
 
 @Component({
     templateUrl: 'app/components/salary/salarytrans/salarytransactionSelectionList.html',
-    directives: [UniTable, SalaryTransactionEmployeeList, SalarytransFilter]
+    directives: [UniTable, SalaryTransactionEmployeeList, SalarytransFilter],
+    providers: [EmployeeService, PayrollRunService]
 })
 
 export class SalaryTransactionSelectionList implements OnInit {
@@ -19,25 +23,41 @@ export class SalaryTransactionSelectionList implements OnInit {
     private bankaccountCol: UniTableColumn;
     private taxcardCol: UniTableColumn;
     private payDate: any;
-    private employeeList: Employee[] = [];
+    private status: string;
+    private payrollStatus: any;
+    private employeeList: any[] = [];
     public savingInfo: string = 'hei';
+    
+    public busy: boolean;
     @ViewChild(UniTable) private tables: UniTable;
     
     constructor(private uniHttpService: UniHttp,
-                private tabSer: TabService) {
-        
-   }
+                private tabSer: TabService,
+                private _employeeService: EmployeeService,
+                private _payrollRunService: PayrollRunService) {
+        this.payrollStatus = [
+            {Code: '0', Name: 'åpen'},
+            {Code: '1', Name: 'kalkulert'},
+            {Code: '2', Name: 'godkjent'},
+            {Code: '3', Name: 'remittert'},
+            {Code: '4', Name: 'betalt'},
+            {Code: '5', Name: 'bokført'},
+            {Code: '6', Name: 'slettet'}
+        ];
+    }
+    
     public ngOnInit() {
         this.uniHttpService.asGET()
         .usingBusinessDomain()
         .withEndPoint('payrollrun/1')
         .send()
         .subscribe((response: PayrollRun) => {
+            this.status = _.find(this.payrollStatus, x => x.Code === response.StatusCode ? response.StatusCode : 0);
             this.payrollRun = response; // this.choosePayrollRun(response);
             console.log('tables: ' + JSON.stringify(this.payrollRun));
-            this.payDate = this.payrollRun.PayDate;
+            this.payDate = this.formatDate(this.payrollRun.PayDate);
             this.selectedPayrollRunID = this.payrollRun.ID;
-            this.createTableConfig();
+            this.tableConfig();
         });
      
         this.tabSer.addTab({name: 'Transaksjoner', url: '/salary/salarytrans'});   
@@ -51,37 +71,51 @@ export class SalaryTransactionSelectionList implements OnInit {
         return Math.max.apply(Math, response.map(run => run.ToDate));
     }
     
-    private createTableConfig() {
-        
-        var employeenumberCol = new UniTableColumn('EmployeeNumber', '#', 'number').setWidth('10%');
-        var nameCol = new UniTableColumn('BusinessRelationInfo.Name', 'Navn', 'string');
-        this.bankaccountCol = new UniTableColumn('BankAccounts', 'Bankkonto')
-            .setTemplate((dataItem) => {
-                return this.getStandardBankAccountNumber(dataItem.BankAccounts);
-            });
+    private tableConfig(update: boolean = false, filter = '') {
+        this.busy = true;
+        Observable.forkJoin(
+            this._employeeService.GetAll(filter ? 'filter=' + filter : '', ['BusinessRelationInfo', 'SubEntity.BusinessRelationInfo', 'BankAccounts'])
+            // this._employeeService.getTotals(this.payrollRun.ID)
+            )
+            .subscribe((response: any) => {
+            let [emp] = response;
+            this.employeeList = emp;
+            /*this.employeeList.forEach((item) => {
+                var total = _.find(totals, obj => obj.Employee === item.ID);
+                item.Pay = total.netPayment;
+            });*/
+            if (update) {
+                this.tables.refresh(this.salarytransSelectionTableConfig);
+            } else {
+                
+                var employeenumberCol = new UniTableColumn('EmployeeNumber', '#', 'number').setWidth('10%');
+                var nameCol = new UniTableColumn('BusinessRelationInfo.Name', 'Navn', 'string');
+                this.bankaccountCol = new UniTableColumn('BankAccounts', 'Bankkonto')
+                    .setHidden(true)
+                    .setTemplate((dataItem) => {
+                        return this.getStandardBankAccountNumber(dataItem.BankAccounts);
+                    });
             
-        this.taxcardCol = new UniTableColumn('TaxTable', 'Skattekort', 'string');
-        var forpayoutCol = new UniTableColumn('Pay', 'Beløp til utbetaling', 'number');
-        var subEntityCol = new UniTableColumn('SubEntity.BusinessRelationInfo.Name', 'Virksomhet', 'string');
-        this.salarytransSelectionTableConfig = new UniTableBuilder('employees', false)
-        .setExpand('BusinessRelationInfo,SubEntity.BusinessRelationInfo,BankAccounts')
-        .setSelectCallback((selEmp) => {
-            this.selectedEmployeeID = selEmp.EmployeeNumber;
-        })
-        .setOrderBy('ID', 'asc')
-        .setFilterable(false)
-        .addColumns(
-            employeenumberCol,
-            nameCol,
-            // this.bankaccountCol,
-            // this.taxcardCol,
-            subEntityCol,
-            forpayoutCol
-            );
+                this.taxcardCol = new UniTableColumn('TaxTable', 'Skattekort', 'string').setHidden(true);
+                // var forpayoutCol = new UniTableColumn('Pay', 'Beløp til utbetaling', 'number');
+                var subEntityCol = new UniTableColumn('SubEntity.BusinessRelationInfo.Name', 'Virksomhet', 'string');
+                this.salarytransSelectionTableConfig = new UniTableBuilder(this.employeeList, false)
+                .setSelectCallback((selEmp) => {
+                    this.selectedEmployeeID = selEmp.EmployeeNumber;
+                })
+                .setFilterable(false)
+                .addColumns(
+                    employeenumberCol,
+                    nameCol,
+                    this.bankaccountCol,
+                    this.taxcardCol,
+                    subEntityCol
+                    // forpayoutCol
+                );
+                this.busy = false;
+            }
             
-        /*console.log('tables: ' + JSON.stringify(this.tables));
-        this.tables.hideColumn('BankAccounts');
-        this.tables.hideColumn('TaxTable');*/
+        });
     }
     
     private getStandardBankAccountNumber(bankAccounts: any) {
@@ -95,26 +129,67 @@ export class SalaryTransactionSelectionList implements OnInit {
         return bAccount;
     }
     
-    public goToNext(id) {
-        console.log('Next event');
+    private formatDate(date) {
+        if (!date) {
+            return '';
+        }
+        date = new Date(date);
+        return date.getDate() + '.' + (date.getMonth() + 1) + '.' + date.getFullYear();
     }
     
-    public goToPrevious(id) {
+    
+    
+    public goToNextEmployee(id) {
+        console.log('Next event');
+        var index = _.findIndex(this.employeeList, x => x.ID === this.selectedEmployeeID);
+        if (index + 1 < this.employeeList.length) {
+            this.selectedEmployeeID = this.employeeList[index + 1].ID;
+        }
+    }
+    
+    public goToPreviousEmployee(id) {
         console.log('Previous event');
+        var index = _.findIndex(this.employeeList, x => x.ID === this.selectedEmployeeID);
+        if (index > 0) {
+            this.selectedEmployeeID = this.employeeList[index - 1].ID;
+        }
+    }
+    
+    public previousPayrollRun() {
+        this._payrollRunService.next(this.selectedPayrollRunID).subscribe((response: PayrollRun) => {
+            this.selectedEmployeeID = 0;
+            this.selectedPayrollRunID = response.ID;
+            this.status = _.find(this.payrollStatus, x => x.Code === response.StatusCode ? response.StatusCode : 0);
+        });
+    }
+    
+    public nextPayrollRun() {
+        this._payrollRunService.previous(this.selectedPayrollRunID).subscribe((response: PayrollRun) => {
+            this.selectedEmployeeID = 0;
+            this.selectedPayrollRunID = response.ID;
+            this.status = _.find(this.payrollStatus, x => x.Code === response.StatusCode ? response.StatusCode : 0);
+        });
     }
     
     public changeFilter(filter: string) {
-        this.tables.updateFilter(filter);
+        //this.tables.updateFilter(filter);
+        this.tableConfig(true, filter);
         this.selectedEmployeeID = 0;
     }
     
     public saveRun(event: any) {
         console.log('saving');
+        var saveRequest;
+        if (this.payrollRun.ID) {
+            saveRequest = this._payrollRunService.Put(this.payrollRun.ID, this.payrollRun);
+        }else {
+            saveRequest = this._payrollRunService.Post(this.payrollRun);
+        }
+        saveRequest.subscribe((response) => {
+            // TODO save transes
+        });
+        
         this.savingInfo = 'Sist lagret: ' + (new Date()).toLocaleTimeString(); 
         //this.tables.refresh(this.employeeList);
-    }
-    
-    public saveTrans(trans) {
-        
     }
 }

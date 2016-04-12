@@ -1,7 +1,8 @@
-import {Component, Input, ViewChildren, Injector, OnInit, EventEmitter, Output} from 'angular2/core';
+import {Component, Input, ViewChildren, Injector, OnInit, EventEmitter, Output, ViewChild, ComponentRef} from 'angular2/core';
 import {RouteParams} from 'angular2/router';
 import {UniTable, UniTableBuilder, UniTableColumn} from '../../../../framework/uniTable';
-import {UniFormBuilder, UniFieldBuilder} from '../../../../framework/forms';
+import {UniFormBuilder, UniFieldBuilder, UniForm} from '../../../../framework/forms';
+import {UniComponentLoader} from '../../../../framework/core';
 import {Observable} from 'rxjs/Observable';
 import {UniHttp} from '../../../../framework/core/http/http';
 import {Employee, FieldType, AGAZone} from '../../../unientities';
@@ -21,7 +22,9 @@ export class SalaryTransactionEmployeeList implements OnInit {
     private employeeTotals: any[] = [];
     private employments: any[];
     public employee: Employee;
-    public headingConfig: UniFormBuilder;
+    public form: UniFormBuilder = new UniFormBuilder();
+    private whenFormInstance: Promise<UniForm>;
+    @ViewChild(UniComponentLoader) private uniCompLoader: UniComponentLoader;
     private agaZone: AGAZone;
     @Input() private ansattID: number;
     @Input() private payrollRunID: number;
@@ -87,7 +90,7 @@ export class SalaryTransactionEmployeeList implements OnInit {
     public ngOnChanges() {
         this.busy = true;
         if (this.tables && this.ansattID) {         
-            //this.calculateTotals();
+            // this.calculateTotals();
             
             Observable.forkJoin(            
             this.employeeService.getTotals(this.payrollRunID, this.ansattID),
@@ -113,9 +116,9 @@ export class SalaryTransactionEmployeeList implements OnInit {
             
         }, (error: any) => console.log(error));
             
-            //this.runIDcol.defaultValue = this.payrollRunID;                
-            //this.empIDcol.defaultValue = this.ansattID; 
-            //this.empIDcol.setDefaultValue(this.ansattID);
+            // this.runIDcol.defaultValue = this.payrollRunID;                
+            // this.empIDcol.defaultValue = this.ansattID; 
+            // this.empIDcol.setDefaultValue(this.ansattID);
               
            
         }        
@@ -159,7 +162,8 @@ export class SalaryTransactionEmployeeList implements OnInit {
             .setType(UNI_CONTROL_DIRECTIVES[FieldType.TEXT]);
         
         formBuilder.addUniElements(percent, subEntity, tableTax, agaZone);
-        this.headingConfig = formBuilder;
+        this.form = formBuilder;
+        this.loadForm();
         
     }
     
@@ -172,9 +176,9 @@ export class SalaryTransactionEmployeeList implements OnInit {
         var amountCol = new UniTableColumn('Amount', 'Antall', 'number');
         var sumCol = new UniTableColumn('Sum', 'Beløp', 'number');
         
-        this.runIDcol = new UniTableColumn('PayrollRunID', 'Lønnsavregningsid' );
+        this.runIDcol = new UniTableColumn('PayrollRunID', 'Lønnsavregningsid' ).setHidden(true);
         this.runIDcol.defaultValue = this.payrollRunID;
-        this.empIDcol = new UniTableColumn('EmployeeID', 'AnsattID' );
+        this.empIDcol = new UniTableColumn('EmployeeID', 'AnsattID' ).setHidden(true);
         this.empIDcol.defaultValue = this.ansattID;
 
         var employmentidCol = new UniTableColumn('EmploymentID', 'Arbeidsforhold')         
@@ -210,6 +214,7 @@ export class SalaryTransactionEmployeeList implements OnInit {
         .setPageable(false)
         .setToolbarOptions(['create', 'cancel'])
         .setFilterable(false)
+        .setSearchable(false)
         .addColumns(
             this.runIDcol,
             this.empIDcol,
@@ -267,6 +272,13 @@ export class SalaryTransactionEmployeeList implements OnInit {
             }
         }
         return name;
+    }
+    
+    private loadForm(){
+        this.uniCompLoader.load(UniForm).then((cmp: ComponentRef) => {
+            cmp.instance.config = this.form;
+            this.whenFormInstance = new Promise((resolve: Function) => resolve(cmp.instance));
+        });
     }
     
     public getNext() {
