@@ -1,4 +1,4 @@
-import {Component, ComponentRef, ViewChild} from "angular2/core";
+import {Component, ComponentRef, ViewChild, HostBinding} from "angular2/core";
 import {
     Operator,
     OperationType,
@@ -30,13 +30,13 @@ declare var _;
     directives: [UniComponentLoader, PhoneModal],
     providers: [EmployeeService, BusinessRelationService, PhoneService],
     template: `
-        <div class='application usertest'>
-            <uni-component-loader></uni-component-loader>
-        </div>
+        <uni-component-loader></uni-component-loader>
     `
 })
 export class UniFormDemo {
-
+    @HostBinding('attr.aria-busy')
+    get busy() { return !this.FormIsReady};
+    private FormIsReady = false;
     private Model: EmployeeModel;
     private CurrentState: any;
     private LastFormValue: any;
@@ -101,6 +101,7 @@ export class UniFormDemo {
                 component.Model  = self.Model;
                 component.Value = self.LastFormValue;
                 component.find('Sex').setFocus();
+                self.FormIsReady = true;
             });
             return cmp;
         });
