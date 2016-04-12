@@ -12,14 +12,14 @@ export class CustomerQuoteService extends BizHttp<CustomerQuote> {
         this.DefaultOrderBy = null;
     }    
             
-    NextQuote(currentID: number): Observable<CustomerQuote>
+    Next(currentID: number): Observable<CustomerQuote>
     {
-        return super.GetAction(currentID, "next");
+        return super.GetAction(currentID, 'next');
     }
     
-    PreviousQuote(currentID: number): Observable<CustomerQuote>
+    Previous(currentID: number): Observable<CustomerQuote>
     {
-        return super.GetAction(currentID, "previous");
+        return super.GetAction(currentID, 'previous');
     }
 
     calculateQuoteSummary(quoteItems: Array<CustomerQuoteItem>): Observable<any> {        

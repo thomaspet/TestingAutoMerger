@@ -435,19 +435,6 @@ export class CustomerDetails {
            setTimeout(() => {
                 self.formInstance = cmp.instance;   
                 
-                //subscribe to valueChanges of form to autosave data after X seconds
-                self.formInstance.form
-                    .valueChanges
-                    .debounceTime(3000)
-                    .subscribe(
-                        (value) =>  {                                                                                
-                            self.saveCustomer(true);                            
-                        },
-                        (err) => { 
-                            console.log('Feil oppsto:', err);
-                        }
-                    ); 
-                
                 //subscribe to valueChanges of Name input to autosearch external registries 
                 self.formInstance.controls["Info.Name"]
                     .valueChanges
@@ -459,31 +446,22 @@ export class CustomerDetails {
     }           
 
     saveCustomerManual(event: any) {        
-        this.saveCustomer(false);
+        this.saveCustomer();
     }
 
-    saveCustomer(autosave: boolean) {
+    saveCustomer() {
         this.formInstance.sync();
                         
-        if (!autosave) {    
-            if (this.Customer.StatusCode == null) {
-                //set status if it is a draft
-                this.Customer.StatusCode = 1;
-            } 
-            this.LastSavedInfo = 'Lagrer kundeinformasjon...';                
-        } else {
-           this.LastSavedInfo = 'Autolagrer kundeinformasjon...';
-        }                
+        if (this.Customer.StatusCode == null) {
+            //set status if it is a draft
+            this.Customer.StatusCode = 1;
+        } 
+        this.LastSavedInfo = 'Lagrer kundeinformasjon...';                
                             
         this.customerService.Put(this.Customer.ID, this.Customer)
             .subscribe(
-                (updatedValue) => {                    
-                    if (autosave) {
-                        this.LastSavedInfo = "Sist autolagret: " + (new Date()).toLocaleTimeString();
-                    } else {
-                        //redirect back to list?
-                        this.LastSavedInfo = "Sist lagret: " + (new Date()).toLocaleTimeString();                         
-                    }                                       
+                (updatedValue) => {  
+                    this.LastSavedInfo = "Sist lagret: " + (new Date()).toLocaleTimeString(); 
                 },
                 (err) => console.log('Feil oppsto ved lagring', err)
             );

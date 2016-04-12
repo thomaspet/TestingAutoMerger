@@ -31,7 +31,7 @@ export class QuoteItemList {
     items: CustomerQuoteItem[];
     
     constructor(private uniHttpService: UniHttp, private router: Router, private productService: ProductService, private vatTypeService: VatTypeService) {
-                   
+                 
     }
     
     ngOnInit() {
@@ -43,7 +43,6 @@ export class QuoteItemList {
     }
     
     setupQuoteItemTable() {
-        
         if (this.quote) {
             this.items = this.quote.Items;
                         
@@ -82,8 +81,7 @@ export class QuoteItemList {
                                 rowModel.set('ItemText', item.Name);
                                 rowModel.set('Unit', item.Unit);
                                 rowModel.set('PriceExVat', item.PriceExVat);
-                                rowModel.set('PriceIncVat', item.PriceIncVat);
-                                console.log('item.VatTypeID:', item.VatTypeID);
+                                rowModel.set('PriceIncVat', item.PriceIncVat);                                
                                 rowModel.set('VatTypeID', item.VatTypeID);
                                 rowModel.set('VatType$VatPercent', item.VatType != null ? item.VatType.VatPercent : null);
                                 rowModel.set('VatType', item.VatType);
@@ -106,8 +104,8 @@ export class QuoteItemList {
                 dataValueField: 'ID',
                 dataTextField: 'VatPercent'
             }, (item, rowModel) => {
-                rowModel.set('VatTypeID', item.ID);              
                 rowModel.set('VatType$VatPercent', item.VatPercent);
+                rowModel.set('VatTypeID', item.ID);              
             });  
         var sumTotalExVatCol = new UniTableColumn('SumTotalExVat', 'Netto', 'number').setCustomEditor('readonlyeditor', null).setEditable(true).setShowOnSmallScreen(false).setWidth('7%');
         var sumVatCol = new UniTableColumn('SumVat', 'Mva', 'number').setCustomEditor('readonlyeditor', null).setEditable(true).setShowOnSmallScreen(false).setWidth('7%');
@@ -155,7 +153,7 @@ export class QuoteItemList {
                         item.PriceIncVat = (item.PriceExVat * (100 + item['VatType$VatPercent'])) / 100;
                     }
                                 
-                    console.log('kalkulerer sumkolonner pga endring i ' + e.field);
+                    //console.log('kalkulerer sumkolonner pga endring i ' + e.field);
                                             
                     var discountExVat = (item.NumberOfItems * item.PriceExVat * item.DiscountPercent) / 100;
                     var discountIncVat = (item.NumberOfItems * item.PriceIncVat * item.DiscountPercent) / 100;

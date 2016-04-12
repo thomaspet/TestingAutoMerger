@@ -140,32 +140,23 @@ export class SupplierDetails {
     }
     
     saveSupplierManual(event: any) {        
-        this.saveSupplier(false);
+        this.saveSupplier();
     }
 
-    saveSupplier(autosave: boolean) {
+    saveSupplier() {
         this.formInstance.sync();
                         
-        if (!autosave) {            
-            if (this.Supplier.StatusCode == null) {
-                //set status if it is a draft
-                this.Supplier.StatusCode = 1;
-            }
-               
-            this.LastSavedInfo = 'Lagrer informasjon...';                
-        } else {
-           this.LastSavedInfo = 'Autolagrer informasjon...';
-        }                
+        if (this.Supplier.StatusCode == null) {
+            //set status if it is a draft
+            this.Supplier.StatusCode = 1;
+        }
+            
+        this.LastSavedInfo = 'Lagrer informasjon...';                
                             
         this.supplierService.Put(this.Supplier.ID, this.Supplier)
             .subscribe(
                 (updatedValue) => {                    
-                    if (autosave) {
-                        this.LastSavedInfo = "Sist autolagret: " + (new Date()).toLocaleTimeString();
-                    } else {
-                        //redirect back to list?
-                        this.LastSavedInfo = "Sist lagret: " + (new Date()).toLocaleTimeString();                         
-                    }                                       
+                    this.LastSavedInfo = "Sist lagret: " + (new Date()).toLocaleTimeString(); 
                 },
                 (err) => console.log('Feil oppsto ved lagring', err)
             );
@@ -179,19 +170,6 @@ export class SupplierDetails {
            self.whenFormInstance = new Promise((resolve: Function) => resolve(cmp.instance));
            setTimeout(() => {
                 self.formInstance = cmp.instance;   
-                
-                //subscribe to valueChanges of form to autosave data after X seconds
-                self.formInstance.form
-                    .valueChanges
-                    .debounceTime(3000)
-                    .subscribe(
-                        (value) =>  {                                                                                
-                            self.saveSupplier(true);                            
-                        },
-                        (err) => { 
-                            console.log('Feil oppsto:', err);
-                        }
-                    ); 
                 
                 //subscribe to valueChanges of Name input to autosearch external registries 
                 self.formInstance.controls["Info.Name"]
