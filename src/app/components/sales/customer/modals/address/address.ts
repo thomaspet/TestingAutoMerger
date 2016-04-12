@@ -161,26 +161,6 @@ export class AddressForm {
                     ID: 1,
                     Deleted: false,
                     CustomFields: null 
-                },
-                {
-                    ComponentLayoutID: 1,
-                    EntityType: "Address",
-                    Property: "Country",
-                    Placement: 1,
-                    Hidden: false,
-                    FieldType: 10,
-                    ReadOnly: false,
-                    LookupField: false,
-                    Label: "Land",
-                    Description: "",
-                    HelpText: "",
-                    FieldSet: 0,
-                    Section: 0,
-                    Legend: "",
-                    StatusCode: 0,
-                    ID: 1,
-                    Deleted: false,
-                    CustomFields: null 
                 }
             ]               
         };   
@@ -199,6 +179,7 @@ export class AddressForm {
         <article class="modal-content address-modal">
             <h1 *ngIf="config.title">{{config.title}}</h1>
             <uni-component-loader></uni-component-loader>
+            <input type="checkbox" name="saveonmainentity"><label for="saveonmainentity">Lagre på kundekort</label>
             <footer>
                 <button *ngFor="#action of config.actions; #i=index" (click)="action.method()" [ngClass]="action.class">
                     {{action.text}}
@@ -264,7 +245,8 @@ export class AddressModal {
                                 } else {
                                     addressService.Post(form.model).subscribe(null, (error: Error) => console.error('error in posting phone from modal - Post: ', error));
                                 }
-                                                        
+                                             
+                                console.log("====== SENDING CHANGED EVENT ======");           
                                 self.Changed.emit(form.model);
                             });
                         });
