@@ -1,12 +1,12 @@
-import {Component, Type, Input} from "angular2/core";
-import {NgIf, NgForm} from "angular2/common";
-import {UNI_CONTROL_DIRECTIVES} from "../controls";
-import {ShowError} from "../forms/showError";
-import {UniRadioGroup} from "../controls/radioGroup/uniRadioGroup";
-import {UniComponentLoader} from "../core/componentLoader";
-import {UniFieldBuilder} from "./builders/uniFieldBuilder";
-import {UniGenericField} from "./shared/UniGenericField";
-import {UniCheckboxInput} from "../controls/checkbox/checkbox";
+import {Component, Type, Input} from 'angular2/core';
+import {NgIf, NgForm} from 'angular2/common';
+import {UNI_CONTROL_DIRECTIVES} from '../controls';
+import {ShowError} from '../forms/showError';
+import {UniRadioGroup} from '../controls/radioGroup/uniRadioGroup';
+import {UniComponentLoader} from '../core/componentLoader';
+import {UniFieldBuilder} from './builders/uniFieldBuilder';
+import {UniGenericField} from './shared/UniGenericField';
+import {UniCheckboxInput} from '../controls/checkbox/checkbox';
 
 declare var _;
 
@@ -14,7 +14,7 @@ declare var _;
  *
  */
 @Component({
-    selector: "uni-field",
+    selector: 'uni-field',
     directives: [UniComponentLoader, ShowError, UniRadioGroup, NgIf, NgForm, UniCheckboxInput],
     template: `
         <label ngForm *ngIf="isInput()" [class.error]="hasError()" [class]="buildClassString()" [class.-has-linebreak]="hasLineBreak()">
@@ -29,7 +29,7 @@ declare var _;
 export class UniField extends UniGenericField {
 
     @Input()
-    config: UniFieldBuilder;
+    public config: UniFieldBuilder;
 
     constructor() {
         super();
@@ -40,7 +40,7 @@ export class UniField extends UniGenericField {
      *
      * @returns {boolean|(function(boolean): UniFieldBuilder)}
      */
-    hasLineBreak() {
+    public hasLineBreak() {
         return this.config.lineBreak;
     }
 
@@ -48,15 +48,15 @@ export class UniField extends UniGenericField {
      * Returns true if this component is a RadioGroup
      * @returns {boolean}
      */
-    isRadioGroup() {
+    public isRadioGroup() {
         return UNI_CONTROL_DIRECTIVES.indexOf(this.config.type) === 9;
     }
 
     /**
-     * Return true if it isn"t a RadioGroup
+     * Return true if it isn't a RadioGroup
      * @returns {boolean}
      */
-    isInput() {
+    public isInput() {
         return !this.isRadioGroup() && !this.isCheckbox();
     }
 
@@ -64,7 +64,7 @@ export class UniField extends UniGenericField {
      * Return true if it is a checkbox
      * @returns {boolean}
      */
-    isCheckbox() {
+    public isCheckbox() {
         return UNI_CONTROL_DIRECTIVES.indexOf(this.config.type) === 8;
     }
 
@@ -73,7 +73,7 @@ export class UniField extends UniGenericField {
      *
      * @returns {AbstractControl|boolean}
      */
-    hasError() {
+    public hasError() {
         return this.config.control && this.config.control.touched && !this.config.control.valid;
     }
 }

@@ -15,6 +15,7 @@ import {UniForm} from "../../../../../framework/forms/uniForm";
 import {UniFieldBuilder} from "../../../../../framework/forms/builders/uniFieldBuilder";
 import {UniComponentLoader} from "../../../../../framework/core/componentLoader";
 import {AddressModal} from "../../customer/modals/address/address";
+import {QuoteCalculationSummary} from '../../../../models/sales/QuoteCalculationSummary'
 
 @Component({
     selector: "quote-details",
@@ -29,9 +30,11 @@ export class QuoteDetails {
     @ViewChild(UniComponentLoader)
     ucl: UniComponentLoader;
     
-    Quote: CustomerQuote;
     BusinessRelation: BusinessRelation;
-    LastSavedInfo: string;
+    Quote: CustomerQuote;
+    lastSavedInfo: string;
+    
+    itemsSummaryData: QuoteCalculationSummary;
     
     Customers: Customer[];
     DropdownData: any;
@@ -58,8 +61,8 @@ export class QuoteDetails {
         Observable.forkJoin(
             this.departementService.GetAll(null),
             this.projectService.GetAll(null),
-            this.customerQuoteService.Get(this.QuoteID, ["Dimensions"]),
-            this.customerService.GetAll(null, ["Info", "Info.Addresses"])
+            this.customerQuoteService.Get(this.QuoteID, ['Dimensions','Items','Items.Product','Items.VatType']),
+            this.customerService.GetAll(null, ['Info', 'Info.Addresses'])
         ).subscribe(response => { 
                 this.DropdownData = [response[0], response[1]];
                 this.Quote = response[2];
@@ -79,32 +82,60 @@ export class QuoteDetails {
             });       
     }
     
+    recalcTimeout: any;
+    
+    recalcItemSums(quoteItems: any) {        
+        console.log('rekalkulerer summer i parent - data: ', quoteItems);
+        
+        this.Quote.Items = quoteItems;
+        
+        //do recalc after 1 second to avoid to much requests
+        if (this.recalcTimeout) {
+            clearTimeout(this.recalcTimeout);
+        }
+        
+        this.recalcTimeout = setTimeout(() => {
+            console.log('calling server for calculations');
+            
+            quoteItems.forEach((x) => {
+                x.PriceIncVat = x.PriceIncVat ? x.PriceIncVat : 0;
+                x.PriceExVat = x.PriceExVat ? x.PriceExVat : 0;
+                x.CalculateGrossPriceBasedOnNetPrice = x.CalculateGrossPriceBasedOnNetPrice ? x.CalculateGrossPriceBasedOnNetPrice : false;
+                x.Discount = x.Discount ? x.Discount : 0;
+                x.DiscountPercent = x.DiscountPercent ? x.DiscountPercent : 0;
+                x.NumberOfItems = x.NumberOfItems ? x.NumberOfItems : 0;
+                x.SumTotalExVat = x.SumTotalExVat ? x.SumTotalExVat : 0;
+                x.SumTotalIncVat = x.SumTotalIncVat ? x.SumTotalIncVat : 0;  
+            });
+            
+            this.customerQuoteService.calculateQuoteSummary(quoteItems)
+            .subscribe((data) => this.itemsSummaryData = data,
+                       (err) => console.log('Error when recalculating items:',err)); 
+        }, 1000); 
+        
+    }
+    
     saveQuoteManual(event: any) {        
         this.saveQuote(false);
     }
 
     saveQuote(autosave: boolean) {
-        this.formInstance.updateModel();
+        this.formInstance.sync();
                         
         if (!autosave) {            
             if (this.Quote.StatusCode == null) {
                 //set status if it is a draft
                 this.Quote.StatusCode = 1;
             }            
-            this.LastSavedInfo = 'Lagrer tilbud...';                
+            this.lastSavedInfo = 'Lagrer tilbud...';
         } else {
-           this.LastSavedInfo = 'Autolagrer tilbud...';
+           this.lastSavedInfo = 'Autolagrer tilbud...';
         }                
-                            
+
         this.customerQuoteService.Put(this.Quote.ID, this.Quote)
             .subscribe(
-                (updatedValue) => {                    
-                    if (autosave) {
-                        this.LastSavedInfo = "Sist autolagret: " + (new Date()).toLocaleTimeString();
-                    } else {
-                        //redirect back to list?
-                        this.LastSavedInfo = "Sist lagret: " + (new Date()).toLocaleTimeString();                         
-                    }                                       
+                (updatedValue) => {  
+                    this.lastSavedInfo = "Sist lagret: " + (new Date()).toLocaleTimeString();    
                 },
                 (err) => console.log('Feil oppsto ved lagring', err)
             );
@@ -203,19 +234,6 @@ export class QuoteDetails {
            setTimeout(() => {
                 self.formInstance = cmp.instance;   
                 
-                //subscribe to valueChanges of form to autosave data after X seconds
-                self.formInstance.form
-                    .valueChanges
-                    .debounceTime(5000)
-                    .subscribe(
-                        (value) =>  {                                                                                
-                            self.saveQuote(true);                            
-                        },
-                        (err) => { 
-                            console.log('Feil oppsto:', err);
-                        }
-                    );                    
-               
            });           
         });
     } 

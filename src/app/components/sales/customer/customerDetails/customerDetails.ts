@@ -132,7 +132,7 @@ export class CustomerDetails {
             this.Customer.Info.Name = selectedSearchInfo.navn;
             this.Customer.OrgNumber = selectedSearchInfo.orgnr;
             
-            this.formInstance.refresh(this.Customer); 
+            this.formInstance.Model = this.Customer;
         } 
     }
     
@@ -463,7 +463,7 @@ export class CustomerDetails {
     }
 
     saveCustomer(autosave: boolean) {
-        this.formInstance.updateModel();
+        this.formInstance.sync();
                         
         if (!autosave) {    
             if (this.Customer.StatusCode == null) {

@@ -135,7 +135,7 @@ export class SupplierDetails {
             this.Supplier.Info.Name = selectedSearchInfo.navn;
             this.Supplier.OrgNumber = selectedSearchInfo.orgnr;
             
-            this.formInstance.refresh(this.Supplier); 
+            this.formInstance.Model = this.Supplier;
         } 
     }
     
@@ -144,7 +144,7 @@ export class SupplierDetails {
     }
 
     saveSupplier(autosave: boolean) {
-        this.formInstance.updateModel();
+        this.formInstance.sync();
                         
         if (!autosave) {            
             if (this.Supplier.StatusCode == null) {
