@@ -4,9 +4,59 @@ UniForm is a component to display forms based on configuration files.
 
 ## UniForm Component
 
+#### API
+
+## `UniForm.ready`
+
+It is an observable that emits form component when all fields are ready.
+Ready means that `ngAfterViewInit` has run
+``ts
+form.ready.subscribe((form:UniForm) => { 
+    // do what you want with the form
+});
+``
+
+This methods is useful when you want to be sure that all the DOM and values are ready
+
+## `UniForm.submit`
+
+It is an observable that emits the form value each time submit button is clicked
+``ts
+form.submit.subscribe((form: ControlGroup) => { 
+    // do what you want with the ControlGroup
+});
+``
+
+## `UniForm.Value`
+
+This is a getter and setter of the form value
+It doesn't set the Model value.
+``ts
+form.Value = formValue
+``
+
+## `UniForm.Model`
+
+This is a getter and setter of the model linked to the form
+It refreshes the instance of the model and update form value
+``ts
+form.Value = formValue
+``
+
+
+## `UniForm.sync`
+
+It sets the model to the form value.
+Each time you call sync form sets values in the model
+with the same value that the control attached has.
+``ts
+form.sync()
+``
+
+#### Display UniForm in your components
 To display a UniForm inside your component you have different ways:
 
-1. Declare it explicitly in a template
+2. Declare it explicitly in a template
 
 ```html
 
@@ -18,7 +68,7 @@ Notice you have two elements:
  - an *input*: the **config** 
  - an *output*: the **submit event**
  
-2. Load with the `UniComponentLoader`
+3. Load with the `UniComponentLoader`
 
 Template:
 ```html
@@ -35,10 +85,7 @@ Load component explicitly:
 ```ts
 self.uniCmpLoader.load(UniForm).then((cmp: ComponentRef) => {
     cmp.instance.config = self.form;
-    setTimeout(() => {
-        self.formInstance = cmp.instance;
-        console.log(self.formInstance);
-    }, 100);
+    cmp.instance.ready.subscribe((form:UniForm)=>self.formInstance = form);
 });
 ```
 
