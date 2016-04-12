@@ -17,6 +17,8 @@ export class UniTableBuilder {
     public pageable:   boolean = true;
     public pageSize:   number  = 10;
     
+    public columnMenuVisible: boolean = true;
+    
     public toolbar: string[] = [];
     
     public selectCallback: (selectedItem) => any;
@@ -132,6 +134,11 @@ export class UniTableBuilder {
     
     public setExpand(expand: string) {
         this.expand = expand;
+        return this;
+    }
+    
+    public setColumnMenuVisible(visible: boolean) {
+        this.columnMenuVisible = visible;
         return this;
     }
     

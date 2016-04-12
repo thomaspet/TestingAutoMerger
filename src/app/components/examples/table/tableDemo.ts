@@ -145,6 +145,7 @@ export class UniTableDemo {
         };
 
         this.demoTable2 = new UniTableBuilder(this.localData, true)
+            .setColumnMenuVisible(false)
             .setPageSize(5)
             .setOrderBy('ID', 'desc')
             .setCreateCallback(createCallback)
