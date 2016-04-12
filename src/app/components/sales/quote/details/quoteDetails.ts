@@ -16,8 +16,7 @@ import {UniFieldBuilder} from "../../../../../framework/forms/builders/uniFieldB
 import {UniComponentLoader} from "../../../../../framework/core/componentLoader";
 import {AddressModal} from "../../customer/modals/address/address";
 import {QuoteCalculationSummary} from '../../../../models/sales/QuoteCalculationSummary';
-import {StatusCodeCustomerQuote} from '../../../../models/sales/StatusCodeCustomerQuote';
-
+ 
 @Component({
     selector: "quote-details",
     templateUrl: "app/components/sales/quote/details/quoteDetails.html",    
@@ -118,12 +117,7 @@ export class QuoteDetails {
     }
 
     saveQuote() {
-        this.formInstance.sync();
-                        
-        if (this.quote.StatusCode == null) {
-            //set status if it is a draft
-            this.quote.StatusCode = StatusCodeCustomerQuote.Draft;
-        }            
+        this.formInstance.sync();        
         this.lastSavedInfo = 'Lagrer tilbud...';
     
         this.customerQuoteService.Put(this.quote.ID, this.quote)
@@ -136,14 +130,7 @@ export class QuoteDetails {
     }       
     
     getStatusText() {
-        if (this.quote) {
-            if (!this.quote.StatusCode) {
-                return 'Ikke satt';
-            } else {
-                return StatusCodeCustomerQuote[this.quote.StatusCode].toString();
-            }
-        }
-        return 'Ikke satt';
+        return this.customerQuoteService.getStatusText(this.quote.StatusCode.toString());
     }
            
     nextQuote() {
