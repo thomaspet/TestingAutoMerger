@@ -20,7 +20,7 @@ export class SalaryTransactionEmployeeList implements OnInit {
     private salarytransEmployeeTotalsTableConfig: any;
     private employeeTotals: any[] = [];
     private employments: any[];
-    private employee: Employee;
+    public employee: Employee;
     public headingConfig: UniFormBuilder;
     private agaZone: AGAZone;
     @Input() private ansattID: number;
@@ -90,10 +90,12 @@ export class SalaryTransactionEmployeeList implements OnInit {
             //this.calculateTotals();
             
             Observable.forkJoin(            
-            this.employeeService.getTotals(this.payrollRunID, this.ansattID)
+            this.employeeService.getTotals(this.payrollRunID, this.ansattID),
+            this.employeeService.get(this.ansattID, ['BusinessRelationInfo, SubEntity.BusinessRelationInfo'])
         ).subscribe((response: any) => {
-            let [totals] = response;
+            let [totals, emp] = response;
             this.employeeTotals[0] = totals;
+            this.employee = emp;
             this.runIDcol.defaultValue = this.payrollRunID;                
             this.empIDcol.defaultValue = this.ansattID;  
             
@@ -131,29 +133,30 @@ export class SalaryTransactionEmployeeList implements OnInit {
     }
     
     private createHeadingForm() {
+        console.log('creating form');
         var formBuilder = new UniFormBuilder();
         var percent = new UniFieldBuilder();
         percent.setLabel('Prosenttrekk')
             .setModel(this.employee)
             .setModelField('TaxPercentage')
-            .setType(UNI_CONTROL_DIRECTIVES[FieldType.TEXT])
+            .setType(UNI_CONTROL_DIRECTIVES[FieldType.TEXT]);
         
         var subEntity = new UniFieldBuilder();
         subEntity.setLabel('Virksomhet')
             .setModel(this.employee)
             .setModelField('SubEntity.BusinessRelation.Name')
-            .setType(UNI_CONTROL_DIRECTIVES[FieldType.TEXT])
+            .setType(UNI_CONTROL_DIRECTIVES[FieldType.TEXT]);
         
         var tableTax = new UniFieldBuilder();
         tableTax.setLabel('Tabelltrekk')
             .setModel(this.employee)
             .setModelField('TaxTable')
-            .setType(UNI_CONTROL_DIRECTIVES[FieldType.TEXT])
+            .setType(UNI_CONTROL_DIRECTIVES[FieldType.TEXT]);
         var agaZone = new UniFieldBuilder();
         agaZone.setLabel('AGA-sone')
             .setModel(this.agaZone)
             .setModelField('ZoneName')
-            .setType(UNI_CONTROL_DIRECTIVES[FieldType.TEXT])
+            .setType(UNI_CONTROL_DIRECTIVES[FieldType.TEXT]);
         
         formBuilder.addUniElements(percent, subEntity, tableTax, agaZone);
         this.headingConfig = formBuilder;
@@ -179,11 +182,19 @@ export class SalaryTransactionEmployeeList implements OnInit {
                 return this.getEmploymentName(dataItem.EmploymentID);
             });
         var accountCol = new UniTableColumn('Account', 'Konto', 'string');
+        /*var payoutCol = new UniTableColumn('Wagetype.Base_Payment', 'Utbetales', 'bool')
+            .setTemplate((dataItem) => {
+                payoutCol = new UniTableColumn('Wagetype.Base_Payment', 'Utbetales', 'bool');
+                if(dataItem.Wagetype.Base_Payment){
+                    return 'Ja';
+                } else {
+                    return 'nei';
+                }
+            });*/
         var transtypeCol = new UniTableColumn('IsRecurringPost', 'Fast/Variabel post', 'bool')
         .setTemplate((dataItem) => {
-        var accountCol = new UniTableColumn('Account', 'Konto', 'string');
-        // var payoutCol = new UniTableColumn('Wagetype.Base_Payment','Utbetales','bool');
-        var transtypeCol = new UniTableColumn('IsRecurringPost', 'Fast/Variabel post', 'bool')
+            accountCol = new UniTableColumn('Account', 'Konto', 'string');
+            transtypeCol = new UniTableColumn('IsRecurringPost', 'Fast/Variabel post', 'bool');
             if (dataItem.IsRecurringPost) {
                 return 'Fast';
             } else {
@@ -212,6 +223,7 @@ export class SalaryTransactionEmployeeList implements OnInit {
             amountCol,
             sumCol,
             transtypeCol
+           // payoutCol
             )
             .addCommands('destroy');
     }
@@ -241,6 +253,7 @@ export class SalaryTransactionEmployeeList implements OnInit {
         this.salarytransEmployeeTotalsTableConfig = new UniTableBuilder(this.employeeTotals, false)
         .setFilterable(false)
         .setSearchable(false)
+        .setPageable(false)
         .addColumns(percentCol, taxtableCol, paidCol, agaCol, basevacationCol);
     }
     
@@ -258,5 +271,9 @@ export class SalaryTransactionEmployeeList implements OnInit {
     
     public getNext() {
         this.nextEmployee.emit(this.ansattID);
+    }
+    
+    public getPrevious() {
+        this.previousEmployee.emit(this.ansattID);
     }
 }

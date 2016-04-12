@@ -11,6 +11,7 @@
             <a class="previous">Forrige</a>
             <a class="next">Neste</a>
             <a class="new">Ny lønnsavregning</a>
+            <button type="submit">Lagre</button>
         </nav>
             
     </article>
@@ -21,5 +22,20 @@
 </section>
 <section class="splitview">
     <nav class="splitview_list"><uni-table [config]="salarytransSelectionTableConfig"></uni-table></nav>
-    <main class="splitview_detail"><salary-transactions-employee *ngIf="selectedEmployeeID" [ansattID]="selectedEmployeeID" [payrollRunID]="selectedPayrollRunID" (nextEmployee)="goToNext()"></salary-transactions-employee></main>
+    <main class="splitview_detail">
+        <salary-transactions-employee 
+            *ngIf="selectedEmployeeID" 
+            [ansattID]="selectedEmployeeID" 
+            [payrollRunID]="selectedPayrollRunID" 
+            (nextEmployee)="goToNext($id)"
+            (previousEmployee)="goToPrevious($id)"></salary-transactions-employee>
+    </main>
 </section>
+<footer class="full-footer">
+    <section class="application">
+        <button class="good" (click)="saveRun($event)">Lagre lønnsavregning</button>
+        <section class="auto_save_info">
+            {{ savingInfo }}    
+        </section>
+    </section>
+</footer>

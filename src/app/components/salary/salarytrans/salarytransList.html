@@ -4,11 +4,15 @@
         
         <section *ngIf="employee" class="salarytrans-payrollrun-detail">
             <h1>{{employee.BusinessRelationInfo.Name}}</h1>
-            <uni-form [config]="headingConfig"></uni-form>
+            <!--<uni-form [config]="headingConfig"></uni-form>-->
+            <p>Skattetabell: {{employee.TaxTable}}</p>
+            <p *ngIf="employee.SubEntity">Virksomhet: {{employee.SubEntity.BusinessRelationInfo.Name}}</p>
+            <p>Skatteprosent: {{employee.TaxPercentage}}%</p>
+            <p>Sone: {{employee.SubEntity.AgaZone}}</p>
         </section>
         
         <nav class="poster_toolbar_tools">
-            <a class="previous">Forrige</a>
+            <a (click)="getPrevious()" class="previous">Forrige</a>
             <a (click)="getNext()" class="next">Neste</a>
         </nav>
             
