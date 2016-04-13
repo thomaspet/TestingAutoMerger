@@ -17,6 +17,9 @@ export class UniTableColumn {
     public defaultValue: any;
     public values: any[];
     public textAlign: string = 'left';
+    public hidden: boolean = false;
+    public showOnSmallScreen: boolean = true;
+    public showOnLargeScreen: boolean = true;
     
     constructor(field: string, title: string, type: string = '') {
         this.title = title;
@@ -78,6 +81,21 @@ export class UniTableColumn {
         return this;
     }
     
+    public setHidden(hidden: boolean = true) {
+        this.hidden = hidden;
+        return this;
+    }
+    
+    public setShowOnSmallScreen(show: boolean) {
+        this.showOnSmallScreen = show;
+        return this;
+    }
+    
+    public setShowOnLargeScreen(show: boolean) {
+        this.showOnLargeScreen = show;
+        return this;
+    }
+    
     public setDefaultValue(defaultValue) {
         this.defaultValue = defaultValue;
         return this;
@@ -104,6 +122,9 @@ export class UniTableColumn {
                 this.editor = this.controls.datepicker(kendoOptions);
             break;
             
+            case 'readonlyeditor':
+                this.editor = this.controls.readonlyeditor(kendoOptions);
+            break;
         }
         
         return this;

@@ -1,4 +1,5 @@
 import {UniElementBuilder} from "../interfaces";
+import {UniFieldBuilder} from "../builders/uniFieldBuilder";
 
 export class UniGenericBuilder {
     fields: UniElementBuilder[] = [];

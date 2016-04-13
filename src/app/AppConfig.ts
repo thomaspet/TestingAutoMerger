@@ -9,6 +9,6 @@ export const AppConfig = CONST_EXPR({
         INIT: '/api/init/'
     },
     DEFAULT_HEADERS: {
-        'Client': 'client1'
+        'Client': 'economytestas'
     }
 });

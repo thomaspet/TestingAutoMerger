@@ -10,6 +10,14 @@ export class UniTableControls {
         var row = jQuery(container).closest('.k-grid-edit-row');
         return table.dataItem(row);
     }
+    
+    public readonlyeditor(kendoOptions, changeCallback?: (item: any, rowModel: any) => any) {
+        
+        return (container, options) => {            
+            jQuery("<span>" + options.model[options.field] + "</span>")
+            .appendTo(container);
+        }
+    }
 
     public dropdown(kendoOptions, changeCallback?: (item: any, rowModel: any) => any) {
         

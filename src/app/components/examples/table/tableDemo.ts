@@ -108,6 +108,7 @@ export class UniTableDemo {
                     
         this.demoTable1 = new UniTableBuilder('employeeleave', true)
             // .setPageable(false)
+            .setName('tableDemoEmployeeLeave')
             .addColumns(
                 idCol,
                 descriptionCol,
@@ -144,6 +145,7 @@ export class UniTableDemo {
         };
 
         this.demoTable2 = new UniTableBuilder(this.localData, true)
+            .setColumnMenuVisible(false)
             .setPageSize(5)
             .setOrderBy('ID', 'desc')
             .setCreateCallback(createCallback)

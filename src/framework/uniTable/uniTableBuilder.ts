@@ -3,7 +3,7 @@ import {UniTableColumn} from './uniTableColumn';
 declare var jQuery;
 
 export class UniTableBuilder {
-    
+    public name: string = '';
     public remoteData: boolean;
     
     public resource: string | Array<any>;
@@ -17,12 +17,16 @@ export class UniTableBuilder {
     public pageable:   boolean = true;
     public pageSize:   number  = 10;
     
+    public columnMenuVisible: boolean = true;
+    
     public toolbar: string[] = [];
     
     public selectCallback: (selectedItem) => any;
     public updateCallback: (updatedItem) => any;
     public createCallback: (createdItem) => any;
     public deleteCallback: (deletedItem) => any;
+    
+    public changeCallback: (e, rowModel) => any;
     
     public schemaModel: any;
     public columns: kendo.ui.GridColumn[];
@@ -46,13 +50,19 @@ export class UniTableBuilder {
     }
     
     public addColumns(...columns: UniTableColumn[]) {
-        columns.forEach((columnInfo: UniTableColumn) => {
-            
+        columns.forEach((columnInfo: UniTableColumn) => {            
             // Add class editable-cell to columns that are editable
             if (columnInfo.editable) {
                 columnInfo.class += ' editable-cell';
             }
-                      
+            
+            var hideColumn = columnInfo.hidden;
+            if (!columnInfo.showOnSmallScreen && jQuery(window).width() < 700) {
+                hideColumn = true;
+            } else if (!columnInfo.showOnLargeScreen && jQuery(window).width() >= 700) {
+                hideColumn = true;
+            }
+                
             this.columns.push({
                 field: columnInfo.field,
                 title: columnInfo.title,
@@ -66,8 +76,10 @@ export class UniTableBuilder {
                     style: 'text-align: ' + columnInfo.textAlign
                 },
                 headerAttributes: {
+                    class: columnInfo.class,
                     style: 'text-align: ' + columnInfo.textAlign
-                }
+                },
+                hidden: hideColumn              
             });
                       
             this.schemaModel.fields[columnInfo.field] = {
@@ -88,6 +100,11 @@ export class UniTableBuilder {
     
     public addCommands(...commands: kendo.ui.GridColumnCommandItem[]) {
         this.commands = commands;
+        return this;
+    }
+    
+    public setName(name: string) {
+        this.name = name;
         return this;
     }
     
@@ -120,6 +137,11 @@ export class UniTableBuilder {
         return this;
     }
     
+    public setColumnMenuVisible(visible: boolean) {
+        this.columnMenuVisible = visible;
+        return this;
+    }
+    
     public setUpdateCallback(callbackFunction: (updatedItem) => any) {
         this.updateCallback = callbackFunction;
         return this;
@@ -137,6 +159,11 @@ export class UniTableBuilder {
     
     public setSelectCallback(callbackFunction: (selectedItem) => any) {        
         this.selectCallback = callbackFunction;
+        return this;
+    }
+    
+    public setChangeCallback(callbackFunction: (event, rowModel) => any) {
+        this.changeCallback = callbackFunction;
         return this;
     }
     
