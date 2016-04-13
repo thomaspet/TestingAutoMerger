@@ -1,0 +1,20 @@
+<header class="poster">
+    <article class="poster_toolbar">
+        <div *ngIf="payrollrun">
+            <h2 class="poster_toolbar_headline">{{payrollrun.Description}}
+                <p class="poster_toolbar_orgnr">Lønnsavregning nr. {{payrollrun.ID}}</p>
+            </h2>
+        </div>
+            
+        <nav class="poster_toolbar_tools">
+            <input type="search" class="poster_toolbar_search">
+            <a (click)="previousPayrollrun()" class="previous">Forrige</a>
+            <a (click)="nextPayrollrun()" class="next">Neste</a>
+            <a href="#/salary/payrollrun/0" class="new">Ny lønnsavregning</a>
+        </nav>
+            
+    </article>
+</header>
+<section>
+    <uni-component-loader></uni-component-loader>
+</section>
