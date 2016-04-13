@@ -67,11 +67,13 @@ export class UniMultiValue {
     // What should happen when the user clicks
     // the button next to the input?
     addOrDropdown() {
-        if (this.config.model[this.config.field].length <= 1) {
-            this.addValue();
-        } else {
-            this.activeMultival = !this.activeMultival;
-        }
+        //if (this.config.model[this.config.field].length <= 1) {
+        //    this.addValue();
+        //} else {
+        //    this.activeMultival = !this.activeMultival;
+        //}
+        
+        return false;
     };
 
     // Set the "editing" flag to the passed value

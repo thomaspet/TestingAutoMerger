@@ -162,7 +162,7 @@ export class QuoteDetails {
         this.customerQuoteService.Post(q)
             .subscribe(
                 (data) => {
-                    this.router.navigateByUrl('/sales/qupte/details/' + data.ID);        
+                    this.router.navigateByUrl('/sales/quote/details/' + data.ID);        
                 },
                 (err) => console.log('Error creating quote: ', err)
             );      
