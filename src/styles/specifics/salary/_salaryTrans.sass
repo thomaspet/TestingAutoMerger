@@ -4,6 +4,21 @@ uni-salary
   .splitview
     @include unigrid-flush(14)
     margin: 0 auto 5rem
+    
+    .splitview_list
+    
+      .icon-column
+        font-size: 0
+        height: 0.9rem
+      
+      .missing-info:before
+        content: ''
+        display: inline-block
+        background: transparent unicon-star($uni-color-Bad) no-repeat
+        background-size: 0.6rem
+        padding: 0.6rem
+        margin-left: 0.4rem
+        
 
 .salarytrans-payrollrun-detail
   @include unigrid-flush(14)
@@ -16,6 +31,10 @@ uni-salary
   p
     @extend .poster_toolbar_orgnr
 
+.salarytrans-employee-detail
+  @extend .salarytrans-payrollrun-detail
+  @include unigrid-flush(8)
+    
 section.salarytrans-filter
   width: 100%
   background-color: transparentize($uni-color-scale9, .5)

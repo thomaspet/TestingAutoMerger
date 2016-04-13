@@ -163,8 +163,6 @@ export class SalaryTransactionEmployeeList implements OnInit {
         
         formBuilder.addUniElements(percent, subEntity, tableTax, agaZone);
         this.form = formBuilder;
-        this.loadForm();
-        
     }
     
     private createTableConfig() {
@@ -214,6 +212,7 @@ export class SalaryTransactionEmployeeList implements OnInit {
         .setPageable(false)
         .setToolbarOptions(['create', 'cancel'])
         .setFilterable(false)
+        .setColumnMenuVisible(false)
         .setSearchable(false)
         .addColumns(
             this.runIDcol,
@@ -257,6 +256,7 @@ export class SalaryTransactionEmployeeList implements OnInit {
         
         this.salarytransEmployeeTotalsTableConfig = new UniTableBuilder(this.employeeTotals, false)
         .setFilterable(false)
+        .setColumnMenuVisible(false)
         .setSearchable(false)
         .setPageable(false)
         .addColumns(percentCol, taxtableCol, paidCol, agaCol, basevacationCol);
@@ -274,7 +274,7 @@ export class SalaryTransactionEmployeeList implements OnInit {
         return name;
     }
     
-    private loadForm(){
+    private loadForm() {
         this.uniCompLoader.load(UniForm).then((cmp: ComponentRef) => {
             cmp.instance.config = this.form;
             this.whenFormInstance = new Promise((resolve: Function) => resolve(cmp.instance));

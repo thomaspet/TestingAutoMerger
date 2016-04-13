@@ -25,7 +25,7 @@ export class SalaryTransactionSelectionList implements OnInit {
     private payDate: any;
     private status: string;
     private payrollStatus: any;
-    private employeeList: any[] = [];
+    private employeeList: Employee[] = [];
     public savingInfo: string = 'hei';
     
     public busy: boolean;
@@ -73,6 +73,7 @@ export class SalaryTransactionSelectionList implements OnInit {
     
     private tableConfig(update: boolean = false, filter = '') {
         this.busy = true;
+        console.log('filter: ' + filter);
         Observable.forkJoin(
             this._employeeService.GetAll(filter ? 'filter=' + filter : '', ['BusinessRelationInfo', 'SubEntity.BusinessRelationInfo', 'BankAccounts'])
             // this._employeeService.getTotals(this.payrollRun.ID)
@@ -84,12 +85,22 @@ export class SalaryTransactionSelectionList implements OnInit {
                 var total = _.find(totals, obj => obj.Employee === item.ID);
                 item.Pay = total.netPayment;
             });*/
+            
             if (update) {
-                this.tables.refresh(this.salarytransSelectionTableConfig);
+                console.log('refresh');
+                this.tables.refresh(this.employeeList);
+                console.log('refreshed');
             } else {
                 
                 var employeenumberCol = new UniTableColumn('EmployeeNumber', '#', 'number').setWidth('10%');
                 var nameCol = new UniTableColumn('BusinessRelationInfo.Name', 'Navn', 'string');
+                var lockedCol = new UniTableColumn('', 'Synlig/låst', 'boolean')
+            .setClass('icon-column')
+            .setTemplate(
+                "#if(TaxTable === null || !BankAccounts.some(x => x.Active === true)) {#<span class='missing-info' role='presentation'>Visible</span>#} " +
+                "else {#<span role='presentation'></span>#}# "
+            )
+            .setWidth('5rem');
                 this.bankaccountCol = new UniTableColumn('BankAccounts', 'Bankkonto')
                     .setHidden(true)
                     .setTemplate((dataItem) => {
@@ -101,19 +112,21 @@ export class SalaryTransactionSelectionList implements OnInit {
                 var subEntityCol = new UniTableColumn('SubEntity.BusinessRelationInfo.Name', 'Virksomhet', 'string');
                 this.salarytransSelectionTableConfig = new UniTableBuilder(this.employeeList, false)
                 .setSelectCallback((selEmp) => {
-                    this.selectedEmployeeID = selEmp.EmployeeNumber;
+                    this.selectedEmployeeID = selEmp.ID;
                 })
+                .setColumnMenuVisible(false)
                 .setFilterable(false)
                 .addColumns(
                     employeenumberCol,
                     nameCol,
                     this.bankaccountCol,
                     this.taxcardCol,
-                    subEntityCol
+                    subEntityCol,
+                    lockedCol
                     // forpayoutCol
                 );
-                this.busy = false;
             }
+            this.busy = false;
             
         });
     }
