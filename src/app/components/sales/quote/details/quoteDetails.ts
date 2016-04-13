@@ -15,8 +15,8 @@ import {UniForm} from "../../../../../framework/forms/uniForm";
 import {UniFieldBuilder} from "../../../../../framework/forms/builders/uniFieldBuilder";
 import {UniComponentLoader} from "../../../../../framework/core/componentLoader";
 import {AddressModal} from "../../customer/modals/address/address";
-import {QuoteCalculationSummary} from '../../../../models/sales/QuoteCalculationSummary'
-
+import {QuoteCalculationSummary} from '../../../../models/sales/QuoteCalculationSummary';
+ 
 @Component({
     selector: "quote-details",
     templateUrl: "app/components/sales/quote/details/quoteDetails.html",    
@@ -30,16 +30,16 @@ export class QuoteDetails {
     @ViewChild(UniComponentLoader)
     ucl: UniComponentLoader;
     
-    BusinessRelation: BusinessRelation;
-    Quote: CustomerQuote;
+    businessRelation: BusinessRelation;
+    quote: CustomerQuote;
     lastSavedInfo: string;
     
     itemsSummaryData: QuoteCalculationSummary;
     
-    Customers: Customer[];
-    DropdownData: any;
+    customers: Customer[];
+    dropdownData: any;
    
-    FormConfig: UniFormBuilder;
+    formConfig: UniFormBuilder;
     formInstance: UniForm;
     
     whenFormInstance: Promise<UniForm>;
@@ -64,15 +64,15 @@ export class QuoteDetails {
             this.customerQuoteService.Get(this.QuoteID, ['Dimensions','Items','Items.Product','Items.VatType']),
             this.customerService.GetAll(null, ['Info', 'Info.Addresses'])
         ).subscribe(response => { 
-                this.DropdownData = [response[0], response[1]];
-                this.Quote = response[2];
-                this.Customers = response[3];
+                this.dropdownData = [response[0], response[1]];
+                this.quote = response[2];
+                this.customers = response[3];
                 
-                this.Customers.forEach(customer => {
-                   if (customer.ID == this.Quote.CustomerID) {
-                       this.BusinessRelation = customer.Info;
+                this.customers.forEach(customer => {
+                   if (customer.ID == this.quote.CustomerID) {
+                       this.businessRelation = customer.Info;
                        console.log("=== ADDRESSES ===");
-                       console.log(this.BusinessRelation);
+                       console.log(this.businessRelation);
                    } 
                 });
                                                                                                    
@@ -84,18 +84,15 @@ export class QuoteDetails {
     
     recalcTimeout: any;
     
-    recalcItemSums(quoteItems: any) {        
-        console.log('rekalkulerer summer i parent - data: ', quoteItems);
+    recalcItemSums(quoteItems: any) {
+        this.quote.Items = quoteItems;
         
-        this.Quote.Items = quoteItems;
-        
-        //do recalc after 1 second to avoid to much requests
+        //do recalc after 2 second to avoid to much requests
         if (this.recalcTimeout) {
             clearTimeout(this.recalcTimeout);
         }
         
         this.recalcTimeout = setTimeout(() => {
-            console.log('calling server for calculations');
             
             quoteItems.forEach((x) => {
                 x.PriceIncVat = x.PriceIncVat ? x.PriceIncVat : 0;
@@ -111,28 +108,19 @@ export class QuoteDetails {
             this.customerQuoteService.calculateQuoteSummary(quoteItems)
             .subscribe((data) => this.itemsSummaryData = data,
                        (err) => console.log('Error when recalculating items:',err)); 
-        }, 1000); 
+        }, 2000); 
         
     }
     
     saveQuoteManual(event: any) {        
-        this.saveQuote(false);
+        this.saveQuote();
     }
 
-    saveQuote(autosave: boolean) {
-        this.formInstance.sync();
-                        
-        if (!autosave) {            
-            if (this.Quote.StatusCode == null) {
-                //set status if it is a draft
-                this.Quote.StatusCode = 1;
-            }            
-            this.lastSavedInfo = 'Lagrer tilbud...';
-        } else {
-           this.lastSavedInfo = 'Autolagrer tilbud...';
-        }                
-
-        this.customerQuoteService.Put(this.Quote.ID, this.Quote)
+    saveQuote() {
+        this.formInstance.sync();        
+        this.lastSavedInfo = 'Lagrer tilbud...';
+    
+        this.customerQuoteService.Put(this.quote.ID, this.quote)
             .subscribe(
                 (updatedValue) => {  
                     this.lastSavedInfo = "Sist lagret: " + (new Date()).toLocaleTimeString();    
@@ -140,17 +128,21 @@ export class QuoteDetails {
                 (err) => console.log('Feil oppsto ved lagring', err)
             );
     }       
+    
+    getStatusText() {
+        return this.customerQuoteService.getStatusText(this.quote.StatusCode.toString());
+    }
            
     nextQuote() {
         var self = this;
-        this.customerQuoteService.NextQuote(this.Quote.ID)
+        this.customerQuoteService.Next(this.quote.ID)
             .subscribe((data) => {
                 this.router.navigateByUrl('/sales/quote/details/' + data.ID);
             });
     }
     
     previousQuote() {
-        this.customerQuoteService.PreviousQuote(this.Quote.ID)
+        this.customerQuoteService.Previous(this.quote.ID)
             .subscribe((data) => {
                 this.router.navigateByUrl('/sales/quote/details/' + data.ID);
             });        
@@ -172,64 +164,67 @@ export class QuoteDetails {
         // TODO get it from the API and move these to backend migrations   
         var view: ComponentLayout = this.getComponentLayout();
         
-        this.FormConfig = new UniFormLayoutBuilder().build(view, this.Quote);
-        this.FormConfig.hideSubmitButton();        
+        this.formConfig = new UniFormLayoutBuilder().build(view, this.quote);
+        this.formConfig.hideSubmitButton();        
     }
     
     extendFormConfig() {   
-        var departement: UniFieldBuilder = this.FormConfig.find('Dimensions.DepartementID');         
+        var departement: UniFieldBuilder = this.formConfig.find('Dimensions.DepartementID');         
         departement.setKendoOptions({
             dataTextField: 'Name',
             dataValueField: 'ID',
-            dataSource: this.DropdownData[0]
+            dataSource: this.dropdownData[0]
         });
         departement.addClass('large-field');
 
-        var project: UniFieldBuilder = this.FormConfig.find('Dimensions.ProjectID');
+        var project: UniFieldBuilder = this.formConfig.find('Dimensions.ProjectID');
         project.setKendoOptions({
             dataTextField: 'Name',
             dataValueField: 'ID',
-            dataSource: this.DropdownData[1]
+            dataSource: this.dropdownData[1]
         });      
         project.addClass('large-field');  
        
-        var invoiceaddress: UniFieldBuilder = this.FormConfig.find('InvoiceAddress');
+        var invoiceaddress: UniFieldBuilder = this.formConfig.find('InvoiceAddress');
         invoiceaddress
             .setKendoOptions({
                 dataTextField: 'AddressLine1',
                 dataValueField: 'ID'
             })
-            .setModel(this.BusinessRelation)
+            .setModel(this.businessRelation)
             .setModelField('Addresses')
             .setModelDefaultField("InvoiceAddressID")
           //  .setPlaceholder(this.EmptyAddress)
             .setEditor(AddressModal);     
 
-        var shippingaddress: UniFieldBuilder = this.FormConfig.find('ShippingAddress');
+        var shippingaddress: UniFieldBuilder = this.formConfig.find('ShippingAddress');
         shippingaddress
             .setKendoOptions({
                 dataTextField: 'AddressLine1',
                 dataValueField: 'ID'
             })
-            .setModel(this.BusinessRelation)
+            .setModel(this.businessRelation)
             .setModelField('Addresses')
             .setModelDefaultField("ShippingAddressID")
         //    .setPlaceholder(this.EmptyAddress)
             .setEditor(AddressModal);   
     
-        var customer: UniFieldBuilder = this.FormConfig.find('CustomerID');
+        var customer: UniFieldBuilder = this.formConfig.find('CustomerID');
         customer
             .setKendoOptions({
                dataTextField: 'Info.Name',
                dataValueField: 'ID',
-               dataSource: this.Customers
+               dataSource: this.customers
             });
+            
+        var freeTextField: UniFieldBuilder = this.formConfig.find('FreeTxt');
+        freeTextField.addClass('max-width'); 
     }    
        
     loadForm() {       
         var self = this;
         return this.ucl.load(UniForm).then((cmp: ComponentRef) => {
-           cmp.instance.config = self.FormConfig;
+           cmp.instance.config = self.formConfig;
            self.whenFormInstance = new Promise((resolve: Function) => resolve(cmp.instance));
            setTimeout(() => {
                 self.formInstance = cmp.instance;   

@@ -2,7 +2,7 @@
 	<input type="search" *ngIf="config && config.searchable" [(ngModel)]="filterString" (keyup)="filterTable()" >
 </nav>
 
-<uni-table-column-menu *ngIf="config" 
+<uni-table-column-menu *ngIf="config && config.columnMenuVisible" 
                        [columns]="config.columns"
                        [tableName]="config.name"
                        (columnVisibilityChange)="setColumnVisibility($event)">

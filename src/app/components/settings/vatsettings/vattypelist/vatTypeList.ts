@@ -28,9 +28,7 @@ export class VatTypeList {
     loopGroups() {
 
         var codeCol = new UniTableColumn('VatCode', 'Kode', 'string').setWidth("15%");
-        ;
         var aliasCol = new UniTableColumn('Alias', 'Alias', 'string').setWidth("15%");
-        ;
         var nameCol = new UniTableColumn('Name', 'Navn', 'string').setWidth("50%");
         var percentCol = new UniTableColumn('VatPercent', 'Prosent', 'string').setWidth("15%");
         var copyCol = new UniTableColumn("", "", "boolean")
@@ -41,17 +39,13 @@ export class VatTypeList {
 
         this.vatcodegroups.forEach((vatgroup: VatCodeGroup) => {
 
-            var group = new TreeListItem(vatgroup.Name)
-                .setType(TREE_LIST_TYPE.LIST);
-
-            this.vatCodeGroupListItems.push(group);
-
             var tableConfig = new UniTableBuilder(this.vatTypeService.GetRelativeUrl(), false)
                 .setFilter("VatCodeGroupID eq " + vatgroup.ID)
                 .setPageSize(100)
                 .setPageable(false)
                 .setSearchable(false)
                 .addColumns(codeCol, aliasCol, nameCol, percentCol, copyCol)
+                .setColumnMenuVisible(false)
                 .setSelectCallback((vattype: VatType) => {
                     this.uniVatTypeChange.emit(vattype);
                 });
@@ -60,7 +54,7 @@ export class VatTypeList {
                 .setType(TREE_LIST_TYPE.TABLE)
                 .setContent(tableConfig);
 
-            group.addTreeListItem(list);
+            this.vatCodeGroupListItems.push(list);
         });
     }
 

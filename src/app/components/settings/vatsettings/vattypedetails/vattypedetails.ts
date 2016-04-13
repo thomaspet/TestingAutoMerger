@@ -89,7 +89,7 @@ export class VatTypeDetails {
             setTimeout(() => {
                 if (self.form != null)
                     self.form.Model = self.model;
-            }, 1000);
+            }, 500);
         }
     }
 
