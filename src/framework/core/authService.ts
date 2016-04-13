@@ -38,7 +38,7 @@ export class AuthService {
         let headers = new Headers({'Content-Type': 'application/json'});
         
         return this.http.post(url, JSON.stringify(credentials), {headers: headers})
-            .map(response => JSON.parse(response.json()));
+            .map(response => response.json());
     }
     
     /**
