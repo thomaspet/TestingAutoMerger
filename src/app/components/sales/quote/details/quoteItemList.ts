@@ -90,7 +90,7 @@ export class QuoteItemList {
         var unitCol = new UniTableColumn('Unit', 'Enhet', 'string').setShowOnSmallScreen(false).setWidth('7%');
         var noOfItemsCol = new UniTableColumn('NumberOfItems', 'Antall', 'number').setShowOnSmallScreen(false).setWidth('7%');
         var priceCol = new UniTableColumn('PriceExVat', 'Pris', 'number').setShowOnSmallScreen(false).setWidth('7%'); //.setTemplate('# if (CalculateGrossPriceBasedOnNetPrice) {# <span> #=PriceIncVat #%</span>#} else {# <span> #=PriceExVat #</span>#}#')            
-        var discountPercentCol = new UniTableColumn('DiscountPercent', 'Rabatt %', 'number').setShowOnSmallScreen(false).setWidth('9%');
+        var discountPercentCol = new UniTableColumn('DiscountPercent', 'Rabatt %', 'number').setFormat("{0: # \\'%'}").setShowOnSmallScreen(false).setWidth('9%');
         var discountCol = new UniTableColumn('Discount', 'Rabatt', 'number').setCustomEditor('readonlyeditor', null).setEditable(true).setShowOnSmallScreen(false).setWidth('7%');
         var vatTypeIdCol = new UniTableColumn('VatTypeID', 'MVA%', 'number').setShowOnSmallScreen(false).setShowOnLargeScreen(false);
         var vatTypeCol = new UniTableColumn('VatType', 'MVA%', 'text')

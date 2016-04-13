@@ -21,8 +21,8 @@ export class DimensionList {
     }
 
     ngOnInit() {
-        var idCol = new UniTableColumn("ID", "Dimnr", "number");
         var typeCol = new UniTableColumn("Type", "Type", "string");
+        var idCol = new UniTableColumn("ID", "Dimnr", "number");
         var nameCol = new UniTableColumn("Name", "Navn", "string");
 
         idCol.setWidth("4rem");
@@ -31,7 +31,8 @@ export class DimensionList {
             .setPageSize(100)
             .setPageable(false)
             .setSearchable(false)
-            .addColumns(idCol, typeCol, nameCol);
+            .addColumns(typeCol, idCol, nameCol)
+            .setColumnMenuVisible(false);
     }
 
     ngOnChanges() {
