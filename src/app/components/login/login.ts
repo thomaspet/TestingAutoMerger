@@ -49,6 +49,10 @@ export class Login {
             delay: 50,
             dataTextField: 'Name',
             dataValueField: 'ID',
+            optionLabel: {
+                Name: 'Select a company',
+                ID: -1
+            },
             dataSource: {
                 transport: {
                     read: (options) => {
@@ -61,8 +65,10 @@ export class Login {
             },
             select: (event: kendo.ui.DropDownListSelectEvent) => {
                 var company = (event.sender.dataItem(<any>event.item));
-                this._authService.setActiveCompany(company);
-                this.onCompanySelected();
+                if (company.ID >= 0) {
+                    this._authService.setActiveCompany(company);
+                    this.onCompanySelected();
+                }
             },
         };
 
@@ -76,4 +82,5 @@ export class Login {
         localStorage.removeItem('lastNavigationAttempt');
         this._router.navigateByUrl(url);
     }
+    
 }

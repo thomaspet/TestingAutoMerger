@@ -1,60 +1,48 @@
-import {Component} from "angular2/core";
-import {ROUTER_DIRECTIVES} from "angular2/router";
-import {Http, Headers} from "angular2/http";
-import {UniHttp} from "../../../framework/core/http/http";
+import {Component} from 'angular2/core';
+import {Router, ROUTER_DIRECTIVES} from 'angular2/router';
+import {UniHttp} from '../../../framework/core/http/http';
 
 @Component({
-    selector: "uni-signup",
-    templateUrl: "app/components/login/signup.html",
+    selector: 'uni-signup',
+    templateUrl: 'app/components/login/signup.html',
     directives: [ROUTER_DIRECTIVES]
 })
-export class UniSignup {
-    newUser: {
-        companyName: string,
-        name: string,
-        email: string,
-        username: string,
-        password: string
+export class Signup {
+    private user: {
+        Name: string,
+        CompanyName: string,
+        Email: string,
+        UserName: string,
+        Password: string,
+        IsTest: boolean
     };
 
-    constructor(private http: UniHttp) {
-        this.newUser = {
-            companyName: "",
-            name: "",
-            email: "",
-            username: "",
-            password: ""
-        }
+    constructor(private _http: UniHttp, private _router: Router) {
+        this.user = {
+            Name: '',
+            CompanyName: '',
+            Email: '',
+            UserName: '',
+            Password: '',
+            IsTest: true
+        };
     }
 
-    signUp(event) {
+    private signup(event) {
         event.preventDefault();
-
-        // var urlParams = new URLSearchParams();
-        // urlParams.append("company-name", "joho123");
-        // urlParams.append("name", "Test");
-        // urlParams.append("email", "kontak123t@example.com");
-        // urlParams.append("user-name", "anders");
-        // urlParams.append("password", "anders1234");
-
-        var url = "http://devapi.unieconomy.no/api/biz/companies?name=" + this.newUser.name + "&email=" + this.newUser.email +
-            "&user-name=" + this.newUser.username + "&password=" + this.newUser.password + "&company-name=" + this.newUser.companyName;
-
-
-        // post to api endpoint. Should use http service when its ready
-        // this.http.post("http://devapi.unieconomy.no/api/biz/companies",
-        this.http
-            .asPOST()
-            .withBody({"Name": "", "SchemaName": ""})
-            .sendToUrl(url)
+        
+        this._http.asPOST()
+            .usingInitDomain()
+            .withEndPoint('sign-up')
+            .withHeader('Content-Type', 'application/json')
+            .withBody(this.user)
+            .send()
             .subscribe(
-                (response: any) => {
-                    console.log(response);
+                (response) => {
+                    this._router.navigate(['Login']);       
                 },
-                (error: any) => {
-                    console.log(error);
-                }
+                error => console.log(error)
             );
-        // authenticate with the newly created user, or wait for email confirmation?
+
     }
 }

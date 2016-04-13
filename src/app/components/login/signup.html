@@ -2,14 +2,14 @@
     <img src="../../../assets/uni-logo.png" alt="Uni Economy logo">
     
     <p>{{errorMessage}}</p>
-    <form id="signupForm" class="login_form" (submit)="signUp($event)">
-        <input type="text" [(ngModel)]="newUser.companyName" placeholder="Company name">
-        <input type="text" [(ngModel)]="newUser.name" placeholder="Full name">
-        <input type="email" [(ngModel)]="newUser.email" placeholder="Email">
-        <input type="text" [(ngModel)]="newUser.username" placeholder="Username">
-        <input type="password" [(ngModel)]="newUser.password" placeholder="Password">
+    <form id="signupForm" class="login_form" (submit)="signup($event)">
+        <input type="text" [(ngModel)]="user.CompanyName" placeholder="Company name">
+        <input type="text" [(ngModel)]="user.Name" placeholder="Full name">
+        <input type="email" [(ngModel)]="user.Email" placeholder="Email">
+        <input type="text" [(ngModel)]="user.UserName" placeholder="Username">
+        <input type="password" [(ngModel)]="user.Password" placeholder="Password">
     
-        <button class="c2a">Register</button>
+        <button type="submit" class="c2a">Register</button>
     </form>
     
     <p>Already have an account? <a [routerLink]="['Login']">Log in</a></p>
