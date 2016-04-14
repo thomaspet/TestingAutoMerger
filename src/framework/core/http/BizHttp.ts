@@ -11,7 +11,7 @@ export class BizHttp<T> {
     protected LogAll: boolean;
     protected DefaultOrderBy: string;
     protected defaultExpand: string[];
-    
+    protected debounceTime:number = 500;
     // should be found based on type of T. Set in childclass constructor now
     protected relativeURL: string;
 
@@ -59,6 +59,8 @@ export class BizHttp<T> {
         let expandStr;
         if (expand) {
             expandStr = expand.join(',');
+        } else {
+            expandStr = this.defaultExpand.join(',');
         }
 
         return this.http

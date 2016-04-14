@@ -5,7 +5,7 @@ import { Observable } from 'rxjs/Observable';
 
 export class EmployeeService extends BizHttp<Employee> {
     
-    private expandedProperties: any = [
+    public defaultExpand: any = [
         'BusinessRelationInfo.Addresses',
         'BusinessRelationInfo.Emails',
         'BusinessRelationInfo.Phones',
@@ -14,7 +14,7 @@ export class EmployeeService extends BizHttp<Employee> {
         'VacationRateEmployee',
         'SubEntity'
     ];
-    
+    public debounceTime = 500;
     public subEntities: Observable<any>;
     
     constructor(http: UniHttp) {
@@ -40,7 +40,7 @@ export class EmployeeService extends BizHttp<Employee> {
         if (id === 0) {
             return this.GetNewEntity();
         }else {
-            return this.Get(id, this.expandedProperties);
+            return this.Get(id, this.defaultExpand);
         }
     }
 
@@ -69,11 +69,11 @@ export class EmployeeService extends BizHttp<Employee> {
     }
     
     public getNext(id: number) {
-        return super.GetAction(id, 'next', 'expand:' + this.expandedProperties.join(','));
+        return super.GetAction(id, 'next', 'expand:' + this.defaultExpand.join(','));
     }
     
     public getPrevious(id: number) {
-        return super.GetAction(id, 'previous', 'expand:' + this.expandedProperties.join(','));
+        return super.GetAction(id, 'previous', 'expand:' + this.defaultExpand.join(','));
     }
     
     public layout(layoutID: string) {

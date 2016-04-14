@@ -9,7 +9,7 @@ import {Hours} from "../salary/employee/hours/hours";
 import {Travel} from "../salary/employee/travel/travel";
 import {SalaryTransactions} from "../salary/employee/salaryTransactions/salaryTransactions";
 import {RouteConfig, RouteDefinition, ROUTER_DIRECTIVES} from "angular2/router";
-import {Autocomplete} from "../../../framework/controls/uniautocomplete/uniautocomplete";
+import {UniAutocomplete} from "../../../framework/controls/autocomplete/autocomplete";
 
 const CHILD_ROUTES = [
     {path: "/", component: PersonalDetails, as: "Personopplysninger"},
@@ -22,7 +22,7 @@ const CHILD_ROUTES = [
 @Component({
     selector: "uni-usertest",
     templateUrl: "app/components/usertest/usertest.html",
-    directives: [CORE_DIRECTIVES, Multival, ROUTER_DIRECTIVES, UniTabs, Autocomplete]
+    directives: [CORE_DIRECTIVES, Multival, ROUTER_DIRECTIVES, UniTabs, UniAutocomplete]
 })
 
 

@@ -22,6 +22,7 @@ import {UNI_CONTROL_DIRECTIVES} from "../../../../framework/controls";
 import {PhoneModal} from "../../sales/customer/modals/phone/phone";
 import {BusinessRelationService, PhoneService} from "../../../services/services";
 import {UniState} from "../../../../framework/core/UniState";
+import {Observable} from 'rxjs/Observable';
 
 declare var _;
 
@@ -100,6 +101,7 @@ export class UniFormDemo {
                 component.Model  = this.Model;
                 component.Value = this.LastFormValue;
                 component.find('Sex').setFocus();
+                component.find('BusinessRelationInfo.Name').change$.subscribe((item)=>console.log(item));
                 this.FormIsReady = true;
             }).bind(this));
             return cmp;
@@ -225,6 +227,16 @@ export class UniFormDemo {
             'Deleted': false
         }];
 
+        //autocomplte
+        layout.Fields[0].FieldType = 0;
+        layout.Fields[0].kendoOptions = {
+            source: this.Api,
+            valueKey: 'BusinessRelationInfo.Name',
+            template: (obj:Employee) => `${obj.ID} - ${obj.BusinessRelationInfo.Name}`,
+            minLength: 2,
+            debounceTime: 300,
+            //search: (query:string) => Observable.fromArray([{ID:1,BusinessRelationInfo: { Name: "Jorge"}}])
+        };
         layout.Fields[1].Validators = [{
             'EntityType': 'Employee',
             'PropertyName': 'SocialSecurityNumber',

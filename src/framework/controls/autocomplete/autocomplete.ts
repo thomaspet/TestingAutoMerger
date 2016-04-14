@@ -1,93 +1,217 @@
-import {Component, ElementRef, Input, AfterViewInit, OnDestroy} from 'angular2/core';
+import {Component, Input, ElementRef, EventEmitter, Output} from 'angular2/core';
+import {Control} from 'angular2/common';
 import {Observable} from 'rxjs/Observable';
-import 'rxjs/observable/FromEventObservable';
+import guid = kendo.guid;
+import {UniFieldBuilder} from "../../forms/builders/uniFieldBuilder";
+import {BizHttp} from "../../core/http/BizHttp";
+import {Employee} from "../../../app/unientities";
 
-import {InputTemplateString} from '../inputTemplateString';
-import {UniFieldBuilder} from '../../forms/builders/uniFieldBuilder';
-
-declare var jQuery;
+declare var jQuery, _;
 
 @Component({
     selector: 'uni-autocomplete',
-    template: InputTemplateString
+    templateUrl: 'framework/controls/autocomplete/autocomplete.html'
 })
-export class UniAutocomplete implements AfterViewInit, OnDestroy {
+export class UniAutocomplete {
+
+    public value: any;
+
     @Input()
     public config: UniFieldBuilder;
 
-    public nativeElement: any;
-    public autocomplete: any;
-    
-    constructor(public elementRef: ElementRef) {
-        this.nativeElement = jQuery(this.elementRef.nativeElement);
+    public change$: EventEmitter<any> = new EventEmitter<any>(true);
+
+    // State vars
+    private options: any;
+    private control: Control;
+    private lastValue: any;
+    private source: BizHttp<any>|Array<any>;
+    private guid: string;
+    private isExpanded: boolean = false;
+    private selected: any;
+    private results: any[];
+    private query: string;
+
+    constructor(public el: ElementRef) {
+        // Set a guid to use in DOM IDs etc.
+        this.guid = guid();
+
+        // Add event listeners for dismissing the dropdown
+        let $el = jQuery(el.nativeElement);
+        document.addEventListener('click', (event) => {
+            if (!jQuery(event.target).closest($el).length) {
+                this.isExpanded = false;
+            }
+        });
+        document.addEventListener('keyup', (event) => {
+            // Escape to dismiss
+            if (event.keyCode === 27) {
+                this.isExpanded = false;
+            }
+        });
+
+        // And for navigating within the dropdown
+        el.nativeElement.addEventListener('keyup', (event) => {
+            if (event.keyCode === 38) {
+                // Arrow up
+                this.moveSelection(-1);
+            } else if (event.keyCode === 40) {
+                // Arrow down
+                this.moveSelection(1);
+            } else if (event.keyCode === 13 ||
+                event.keyCode === 9) {
+                // Enter or tab
+                this.choose(this.selected);
+            }
+        });
+
     }
 
     public refresh(value: any) {
-        value = value[this.config.kOptions.dataTextField] || value;
-        this.autocomplete.value(value);
-        this.autocomplete.trigger('change');
+        this.control.updateValue(value, {});
     }
 
     public setFocus() {
-        this.autocomplete.focus();
+        jQuery(this.el.nativeElement).focus();
         return this;
     }
 
     public ngAfterViewInit() {
-        this.config.fieldComponent = this;
         var self = this;
-        var control = this.config.control;
-        var options: kendo.ui.AutoCompleteOptions = this.config.kOptions;
+        this.options = this.config.kOptions;
+        this.control = this.config.control;
+        this.source = this.options.source;
+        this.config.fieldComponent = this;
+        var minLength = this.options.minLength || 0;
 
-        // this setting is important! Forcing only valid inputs wont work without it.
-        options.highlightFirst = true;
-        var validSelection = false;
-
-        // reset validSelection when input changes
-        Observable.fromEvent(this.nativeElement, 'keyup').subscribe(() => {
-            validSelection = false;
-        });
-
-        // update control value and set validSelection to true.
-        // Select event only fires when input text is valid.
-        options.select = function (event: kendo.ui.AutoCompleteSelectEvent) {
-            var item: any = event.item;
-            var dataItem = event.sender.dataItem(item.index());
-
-            if (control) {
-                control.updateValue(dataItem.toJSON(), {});
-            }
-
-            if (self.config.onSelect) {
-                self.config.onSelect(event, dataItem);
-            }
-
-            validSelection = true;
-        };
-
-        // reset the fields on change events (blur, enter, ...) if input was invalid
-        options.change = function (event: kendo.ui.AutoCompleteChangeEvent) {
-            if (!validSelection || self.config.clearOnSelect) {
-                event.sender.value('');
-                if (control) {
-                    control.updateValue(undefined, {});
+        //Select item first time to init autocomplete values
+        //That means initial value should be in the result
+        //Values that are not in the source are not allowed
+        this.search(_.get(this.config.model,this.options.valueKey))
+            .toPromise()
+            .then((x) => {
+                if(x && x[0]){
+                    this.selected = x[0];
+                    self.choose(x[0]);
                 }
-            }
-        };
+            });
 
-        var autocomplete = this.nativeElement
-            .find('input')
-            .first()
-            .kendoAutoComplete(options)
-            .data('kendoAutoComplete');
-        autocomplete.value(control.value[this.config.kOptions.dataTextField]);
-        this.autocomplete = autocomplete;
+        //Listen for changes in the input
+        this.control.valueChanges
+            .debounceTime(this.options.debounceTime || 0)
+            .distinctUntilChanged()
+            .filter(x => x !== undefined)
+            .filter((x:string) => x.length >= minLength)
+            .filter((x:string) => self.lastValue !== x)
+            .skip(1) //We skip first change
+            .subscribe((value) => self.searchHandler(value));
+
         this.config.ready.emit(this);
     }
 
-    // remove kendo markup when component is destroyed to avoid duplicates
-    public ngOnDestroy() {
-        this.nativeElement.empty();
-        this.nativeElement.html(InputTemplateString);
+    // Replace this with the call to server
+    private search(query: string) {
+        if (this.options.search) {
+            return this.options.search(query);    
+        }
+        return this._search(query);
+        
+    }
+    private _search(query: string) {
+        if (this.source.constructor === Array) {
+            let containsString = (str: Employee) => this.options.template(str).toLowerCase().indexOf(query.toLowerCase()) >= 0;
+            return Observable.fromArray((<Array<any>>this.source).filter(containsString))
+        }
+        var filter = /^\d+$/.test(query) ? 'startswith' : 'contains';
+        return (<BizHttp<any>>this.source)
+            .GetAll(`filter=${filter}(${this.options.valueKey},'${query}')`);
+    }
+
+    // The UI handler for searching
+    private searchHandler(query: any) {
+        this.results = [];
+
+        // Clean up if the search is cleared out
+        if (!query) {
+            this.isExpanded = false;
+            this.selected = undefined;
+            return;
+        }
+
+        // Kick off the search function
+        this.search(query).subscribe(
+            (result) => {
+                if (result.constructor === Array) {
+                    if(result.length > 0) {
+                        this.selected = result[0]
+                    }
+                    this.results = result;
+                } else {
+                    this.selected = result;
+                    this.results.push(result);
+                }
+                this.isExpanded = true;
+            },
+            (err) => {
+                console.error(err);
+            }
+        );
+    }
+
+    // Keyboard navigation within list
+    private moveSelection(moveBy) {
+        // If we have no results to traverse, return out
+        if (!this.results) {
+            return;
+        }
+
+        // If we have no current selection
+        if (!this.selected && moveBy >= 0) {
+            // If we move down without a selection, start at the top
+            return this.selected = this.results[0];
+        } else if (!this.selected && moveBy < 0) {
+            // If we move up without a selection, start at the bottom
+            return this.selected = this.results[this.results.length - 1];
+        }
+
+        // If we have a selection already
+        let currentIndex = this.results.indexOf(this.selected);
+
+        if (currentIndex < 0 ||
+            currentIndex + moveBy >= this.results.length) {
+            // If the selected result is no longer a result, or if we wrap around,
+            // then we go to the first item
+            this.selected = this.results[0];
+        } else if (currentIndex + moveBy < 0) {
+            // Wrap around the other way
+            this.selected = this.results[this.results.length - 1];
+        } else {
+            this.selected = this.results[currentIndex + moveBy];
+        }
+    }
+
+    // Make a selection
+    private choose(item) {
+        this.isExpanded = false;
+
+        if (item) {
+            this.query = _.get(item, this.options.valueKey);
+            this.value = _.get(item, this.options.valueKey);
+        } else {
+            this.query = '';
+            this.value = undefined;
+        }
+        this.lastValue = this.value;
+        this.control.updateValue(this.value, {});
+        this.change$.emit(item);
+    }
+
+    private template(obj: any) {
+        if (!this.options.template) {
+            return _.get(obj,this.options.valueKey);
+        } else {
+            return this.options.template(obj);
+        }
     }
 }
+
