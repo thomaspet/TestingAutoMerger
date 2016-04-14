@@ -138,6 +138,7 @@ export class EmailModal {
     modal: UniModal;
     
     @Output() Changed = new EventEmitter<Email>();
+    @Output() Canceled = new EventEmitter<boolean>();
 
     modalConfig: any = {};
     
@@ -168,6 +169,8 @@ export class EmailModal {
                                 self.Changed.emit(form.model);
                             });
                         });
+                        
+                        return false;
                     }
                 },
                 {
@@ -175,7 +178,10 @@ export class EmailModal {
                     method: () => {
                         self.modal.getContent().then(() => {
                             self.modal.close();
+                            self.Canceled.emit(true);
                         });
+                        
+                        return false;
                     }
                 }
             ]

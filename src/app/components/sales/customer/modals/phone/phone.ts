@@ -173,6 +173,7 @@ export class PhoneModal {
     modal: UniModal;
     
     @Output() Changed = new EventEmitter<Phone>();
+    @Output() Canceled = new EventEmitter<boolean>();
     
     modalConfig: any = {};
     type: Type = PhoneModalType;
@@ -203,6 +204,8 @@ export class PhoneModal {
                                 self.Changed.emit(form.model);
                             });
                         });
+                        
+                        return false;
                     }
                 },
                 {
@@ -210,7 +213,10 @@ export class PhoneModal {
                     method: () => {
                         self.modal.getContent().then(() => {
                             self.modal.close();
+                            self.Canceled.emit(true);
                         });
+                        
+                        return false;
                     }
                 }
             ]

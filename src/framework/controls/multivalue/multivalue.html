@@ -1,7 +1,7 @@
 <section class="uni-multivalue-ng">{{label}}
     
     <input type="text" [(ngModel)]="config.model[config.field][index][config.kOptions.dataTextField]">
-    <button class="uni-multivalue-moreBtn" (click)="addOrDropdown">Ny</button>
+    <button class="uni-multivalue-moreBtn" (click)="addOrDropdown()">Ny</button>
 
     <ul class="uni-multivalue-values" [class.-is-active]="activeMultival">
         <template ngFor #row [ngForOf]="config.model[config.field]" #i = "index">

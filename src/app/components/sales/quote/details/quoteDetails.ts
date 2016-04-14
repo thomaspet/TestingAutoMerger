@@ -16,6 +16,8 @@ import {UniFieldBuilder} from "../../../../../framework/forms/builders/uniFieldB
 import {UniComponentLoader} from "../../../../../framework/core/componentLoader";
 import {AddressModal} from "../../customer/modals/address/address";
 import {QuoteCalculationSummary} from '../../../../models/sales/QuoteCalculationSummary';
+
+declare var _;
  
 @Component({
     selector: "quote-details",
@@ -30,7 +32,8 @@ export class QuoteDetails {
     @ViewChild(UniComponentLoader)
     ucl: UniComponentLoader;
     
-    businessRelation: BusinessRelation;
+    businessRelationInvoice: BusinessRelation;
+    businessRelationShipping: BusinessRelation;
     quote: CustomerQuote;
     lastSavedInfo: string;
     
@@ -67,21 +70,23 @@ export class QuoteDetails {
                 this.dropdownData = [response[0], response[1]];
                 this.quote = response[2];
                 this.customers = response[3];
-                
+                     
                 this.customers.forEach(customer => {
                    if (customer.ID == this.quote.CustomerID) {
-                       this.businessRelation = customer.Info;
-                       console.log("=== ADDRESSES ===");
-                       console.log(this.businessRelation);
+                       this.businessRelationInvoice = _.cloneDeep(customer.Info);
+                       this.businessRelationShipping = _.cloneDeep(customer.Info);
                    } 
                 });
+                
+                this.businessRelationInvoice.Addresses.unshift(this.invoiceToAddress());
+                this.businessRelationShipping.Addresses.unshift(this.shippingtoAddress());
                                                                                                    
                 this.createFormConfig();
                 this.extendFormConfig();
                 this.loadForm();                
             });       
     }
-    
+        
     recalcTimeout: any;
     
     recalcItemSums(quoteItems: any) {
@@ -120,6 +125,9 @@ export class QuoteDetails {
         this.formInstance.sync();        
         this.lastSavedInfo = 'Lagrer tilbud...';
     
+        console.log("==SAVING==");
+        console.log(this.quote);
+    
         this.customerQuoteService.Put(this.quote.ID, this.quote)
             .subscribe(
                 (updatedValue) => {  
@@ -129,8 +137,8 @@ export class QuoteDetails {
             );
     }       
     
-    getStatusText() {
-        return this.customerQuoteService.getStatusText(this.quote.StatusCode.toString());
+    getStatusText() {     
+        return this.customerQuoteService.getStatusText((this.quote.StatusCode || "").toString());
     }
            
     nextQuote() {
@@ -191,11 +199,15 @@ export class QuoteDetails {
                 dataTextField: 'AddressLine1',
                 dataValueField: 'ID'
             })
-            .setModel(this.businessRelation)
+            .setModel(this.businessRelationInvoice)
             .setModelField('Addresses')
-            .setModelDefaultField("InvoiceAddressID")
+            .setModelDefaultField("InvoiceAddressID")           
           //  .setPlaceholder(this.EmptyAddress)
-            .setEditor(AddressModal);     
+            .setEditor(AddressModal);
+        invoiceaddress.onSelect = (address: Address) => {
+            this.addressToInvoice(address);
+            this.businessRelationInvoice.Addresses[0] = address;            
+        };
 
         var shippingaddress: UniFieldBuilder = this.formConfig.find('ShippingAddress');
         shippingaddress
@@ -203,11 +215,15 @@ export class QuoteDetails {
                 dataTextField: 'AddressLine1',
                 dataValueField: 'ID'
             })
-            .setModel(this.businessRelation)
+            .setModel(this.businessRelationShipping)
             .setModelField('Addresses')
             .setModelDefaultField("ShippingAddressID")
         //    .setPlaceholder(this.EmptyAddress)
             .setEditor(AddressModal);   
+        shippingaddress.onSelect = (address: Address) => {
+            this.addressToShipping(address);
+            this.businessRelationShipping.Addresses[0] = address;   
+        };
     
         var customer: UniFieldBuilder = this.formConfig.find('CustomerID');
         customer
@@ -227,10 +243,55 @@ export class QuoteDetails {
            cmp.instance.config = self.formConfig;
            self.whenFormInstance = new Promise((resolve: Function) => resolve(cmp.instance));
            setTimeout(() => {
-                self.formInstance = cmp.instance;   
-                
+                self.formInstance = cmp.instance;             
            });           
         });
+    } 
+    
+    invoiceToAddress(): Address {
+        var a = new Address();
+        a.AddressLine1 = this.quote.InvoiceAddressLine1;
+        a.AddressLine2 = this.quote.InvoiceAddressLine2;
+        a.AddressLine3 = this.quote.ShippingAddressLine3;
+        a.PostalCode = this.quote.InvoicePostalCode;
+        a.City = this.quote.InvoiceCity;
+        a.Country = this.quote.InvoiceCountry;
+        a.CountryCode = this.quote.InvoiceCountryCode;
+                
+        return a;
+    }
+    
+    shippingtoAddress(): Address {
+        var a = new Address();
+        a.AddressLine1 = this.quote.ShippingAddressLine1;
+        a.AddressLine2 = this.quote.ShippingAddressLine2;
+        a.AddressLine3 = this.quote.ShippingAddressLine3;
+        a.PostalCode = this.quote.ShippingPostalCode;
+        a.City = this.quote.ShippingCity;
+        a.Country = this.quote.ShippingCountry;
+        a.CountryCode = this.quote.ShippingCountryCode;
+                
+        return a;
+    }
+
+    addressToInvoice(a: Address) {
+        this.quote.InvoiceAddressLine1 = a.AddressLine1;
+        this.quote.InvoiceAddressLine2 = a.AddressLine2;
+        this.quote.ShippingAddressLine3 = a.AddressLine3;
+        this.quote.InvoicePostalCode = a.PostalCode;
+        this.quote.InvoiceCity = a.City;
+        this.quote.InvoiceCountry = a.Country;
+        this.quote.InvoiceCountryCode = a.CountryCode;     
+    }    
+
+    addressToShipping(a: Address) {
+        this.quote.ShippingAddressLine1 = a.AddressLine1;
+        this.quote.ShippingAddressLine2 = a.AddressLine2;
+        this.quote.ShippingAddressLine3 = a.AddressLine3;
+        this.quote.ShippingPostalCode = a.PostalCode;
+        this.quote.ShippingCity = a.City;
+        this.quote.ShippingCountry = a.Country;
+        this.quote.ShippingCountryCode = a.CountryCode;     
     } 
     
     getComponentLayout(): ComponentLayout {
@@ -261,7 +322,7 @@ export class QuoteDetails {
                     ID: 1,
                     Deleted: false,
                     CustomFields: null 
-                },
+                },/*
                 {
                     ComponentLayoutID: 3,
                     EntityType: "CustomerQuote",
@@ -301,7 +362,7 @@ export class QuoteDetails {
                     ID: 3,
                     Deleted: false,
                     CustomFields: null 
-                },
+                },*/
                 {
                     ComponentLayoutID: 3,
                     EntityType: "CustomerQuote",
@@ -348,7 +409,7 @@ export class QuoteDetails {
                     Property: "ShippingAddress",
                     Placement: 1,
                     Hidden: false,
-                    FieldType: 1,
+                    FieldType: 14,
                     ReadOnly: false,
                     LookupField: false,
                     Label: "Leveringsadresse",

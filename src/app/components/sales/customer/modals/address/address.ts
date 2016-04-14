@@ -13,7 +13,7 @@ import {AddressService} from "../../../../../services/services";
 // Reusable address form
 @Component({
     selector: 'address-form',
-    directives: [UniForm,NgIf],
+    directives: [UniForm,NgIf,NgModel],
     template: `
         <uni-form *ngIf="config" [config]="config">
         </uni-form>
@@ -21,15 +21,28 @@ import {AddressService} from "../../../../../services/services";
 })
 export class AddressForm {
     config: UniFormBuilder;
+    checkboxconfig: UniFieldBuilder;
 
     @ViewChild(UniForm)
     form: UniForm;
 
     model: Address;
-
+    saveenabled: boolean;
+    
     ngOnInit()
     {
-        this.createFormConfig();      
+        this.createCheckboxConfig();
+        this.createFormConfig();    
+        this.config.addUniElement(this.checkboxconfig);  
+    }
+    
+    createCheckboxConfig() {
+        this.checkboxconfig = new UniFieldBuilder()
+        this.checkboxconfig
+            .setLabel("Lagre på kundekort")
+            .setModel(this)
+            .setType(UNI_CONTROL_DIRECTIVES[FieldType.CHECKBOX])
+            .setModelField("saveenabled");
     }
  
     createFormConfig() {   
@@ -179,7 +192,6 @@ export class AddressForm {
         <article class="modal-content address-modal">
             <h1 *ngIf="config.title">{{config.title}}</h1>
             <uni-component-loader></uni-component-loader>
-            <input type="checkbox" name="saveonmainentity"><label for="saveonmainentity">Lagre på kundekort</label>
             <footer>
                 <button *ngFor="#action of config.actions; #i=index" (click)="action.method()" [ngClass]="action.class">
                     {{action.text}}
@@ -217,8 +229,10 @@ export class AddressModalType {
 export class AddressModal {
     @ViewChild(UniModal)
     modal: UniModal;
+    model: Address;
     
     @Output() Changed = new EventEmitter<Address>();
+    @Output() Canceled = new EventEmitter<boolean>();
 
     modalConfig: any = {};
 
@@ -237,19 +251,23 @@ export class AddressModal {
                         self.modal.getContent().then((content: AddressModalType)=> {
                             content.instance.then((form: AddressForm)=> {
                                 form.form.sync();
-                                self.modal.close();       
-                                
-                                // store
-                                if(form.model.ID) {
-                                    addressService.Put(form.model.ID, form.model).subscribe(null, (error: Error) => console.log('error in updating phone from modal - Put: ' + error));
-                                } else {
-                                    addressService.Post(form.model).subscribe(null, (error: Error) => console.error('error in posting phone from modal - Post: ', error));
+                      
+                                if (form.saveenabled) {
+                                    console.log("=== LAGRER ===");
+                                    // store
+                                    if(form.model.ID) {
+                                        addressService.Put(form.model.ID, form.model).subscribe(null, (error: Error) => console.log('error in updating phone from modal - Put: ' + error));
+                                    } else {
+                                        addressService.Post(form.model).subscribe(null, (error: Error) => console.error('error in posting phone from modal - Post: ', error));
+                                    }                                    
                                 }
-                                             
-                                console.log("====== SENDING CHANGED EVENT ======");           
+
+                                self.modal.close();                       
                                 self.Changed.emit(form.model);
-                            });
+                           });
                         });
+                        
+                        return false;
                     }
                 },
                 {
@@ -257,7 +275,10 @@ export class AddressModal {
                     method: () => {
                         self.modal.getContent().then(() => {
                             self.modal.close();
+                            self.Canceled.emit(true);
                         });
+                        
+                        return false;
                     }
                 }
             ]
