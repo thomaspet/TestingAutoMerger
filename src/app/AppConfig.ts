@@ -7,7 +7,6 @@ export const AppConfig = CONST_EXPR({
         INIT : '/api/init/',
         BUSINESS: '/api/biz/',
         METADATA: '/api/metadata/',
-        INIT: '/api/init/'
     },
     DEFAULT_HEADERS: {
         'Content-Type': 'application/json',
