@@ -13,13 +13,15 @@ declare var jQuery;
 export class Login {
     private credentials: { username: string, password: string };
     private working: boolean;
+    private loginSuccess: boolean  = false;
+    private errorMessage: string = '';
 
     constructor(private _authService: AuthService, private _router: Router, 
                 private _staticRegisterService: StaticRegisterService) {
         // initialize credentials to a valid login for testing purposes
         this.credentials = {
-            username: 'einar23',
-            password: 'SimplePass1'
+            username: '',
+            password: ''
         };
     }
 
@@ -32,12 +34,17 @@ export class Login {
                 (response) => {
                     this._authService.setToken(response.access_token);
                     this.onAuthSuccess();
-                }, error => console.log(error)
+                },
+                (error) => {
+                    this.working = false;
+                    this.errorMessage = 'Invalid username or password'; // TODO: This should come from backend (statusText)?
+                }
             );        
     }
 
     private onAuthSuccess() {
         this.working = false;
+        this.loginSuccess = true;
         
         // skip process of selecting a company if activeCompany exists in localStorage
         if (this._authService.hasActiveCompany()) {
