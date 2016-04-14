@@ -1,83 +1,175 @@
-import {Component, ComponentRef, ViewChild} from 'angular2/core';
-import {UniHttp} from '../../../../framework/core/http';
-import {Operator} from '../../../../framework/interfaces/interfaces';
-import {OperationType} from '../../../../framework/interfaces/interfaces';
-import {ValidationLevel} from '../../../../framework/interfaces/interfaces';
-import {EmployeeModel} from '../../../../framework/models/employee';
-import {UniFormBuilder} from '../../../../framework/forms/builders/uniFormBuilder';
-import {UniFormLayoutBuilder} from '../../../../framework/forms/builders/uniFormLayoutBuilder';
-import {UniForm} from '../../../../framework/forms/uniForm';
-import {UniComponentLoader} from '../../../../framework/core/componentLoader';
-import {EmployeeService} from '../../../services/Salary/Employee/EmployeeService';
-import {IEmployee} from '../../../../framework/interfaces/interfaces';
-import {UniFieldBuilder} from '../../../../framework/forms/builders/uniFieldBuilder';
-import {IComponentLayout} from '../../../../framework/interfaces/interfaces';
+import {Component, ComponentRef, ViewChild, HostBinding} from "angular2/core";
+import {
+    Operator,
+    OperationType,
+    ValidationLevel,
+    Employee,
+    ComponentLayout,
+    BusinessRelation,
+    Phone
+} from "../../../unientities";
+import {EmployeeModel} from "../../../models/employee";
+import {UniFormBuilder} from "../../../../framework/forms/builders/uniFormBuilder";
+import {UniFormLayoutBuilder} from "../../../../framework/forms/builders/uniFormLayoutBuilder";
+import {UniForm} from "../../../../framework/forms/uniForm";
+import {UniComponentLoader} from "../../../../framework/core/componentLoader";
+import {EmployeeService} from "../../../services/Salary/Employee/EmployeeService";
+import {UniFieldBuilder} from "../../../../framework/forms/builders/uniFieldBuilder";
+import {UniElementFinder} from "../../../../framework/forms/shared/UniElementFinder";
+import {UniSectionBuilder} from "../../../../framework/forms/builders/uniSectionBuilder";
+import {UniTextInput} from "../../../../framework/controls/text/text";
+import {UNI_CONTROL_DIRECTIVES} from "../../../../framework/controls";
+import {PhoneModal} from "../../sales/customer/modals/phone/phone";
+import {BusinessRelationService, PhoneService} from "../../../services/services";
+import {UniState} from "../../../../framework/core/UniState";
+
+declare var _;
 
 @Component({
     selector: 'uni-form-demo',
-    directives: [UniComponentLoader],
-    providers: [EmployeeService],
+    directives: [UniComponentLoader, PhoneModal],
+    providers: [EmployeeService, BusinessRelationService, PhoneService],
     template: `
-        <div class='application employee'>
-            <uni-component-loader></uni-component-loader>
-        </div>
+        <uni-component-loader></uni-component-loader>
     `
 })
 export class UniFormDemo {
-
-    Http: UniHttp;
-    Api: EmployeeService;
-
-    Model: EmployeeModel;
-    FormConfig: UniFormBuilder;
+    @HostBinding('attr.aria-busy')
+    get busy() { return !this.FormIsReady};
+    private FormIsReady = false;
+    private Model: EmployeeModel;
+    private CurrentState: any;
+    private LastFormValue: any;
+    private BusinessModel: BusinessRelation;
+    private FormConfig: UniFormBuilder;
+    private EmptyPhone: Phone;
 
     @ViewChild(UniComponentLoader)
     UniCmpLoader: UniComponentLoader;
 
-    constructor(http: UniHttp, api: EmployeeService) {
-        this.Http = http;
-        this.Api = api;
+    constructor(private Api: EmployeeService,
+                private businessRelationService: BusinessRelationService,
+                private phoneService: PhoneService,
+                private state: UniState) {
+
+        this.CurrentState = this.state.getState();
+
+        if(this.CurrentState) {
+            this.LastFormValue = this.CurrentState.form;
+            this.FormConfig = this.CurrentState.config;
+        }
+
         this.Api.setRelativeUrl('employees');
+        this.createPhoneModel();
     }
 
-    ngOnInit() {
+    public buildState() {
+        var component: UniForm = this.UniCmpLoader.component;
+        return {
+            form: component.form.value,
+            config: component.config
+        };
+    }
+
+    public ngAfterViewInit() {
         var self = this;
-        this.Api.getAppData(1, 'EmployeePersonalDetailsForm').subscribe((results: any[]) => {
-            var view: IComponentLayout = results[0];
-            var model: IEmployee = results[1];
+        this.Api.GetLayoutAndEntity('EmployeePersonalDetailsForm', 1).subscribe((results: any[]) => {
+            var view: ComponentLayout = results[0];
+            var model: Employee = results[1];
+
             self.startApp(view, model);
         });
     }
 
+    public ngOnDestroy() {
+        this.state.saveState(this.buildState());
+    }
 
     // private methods
-    private startApp(view: any, model: IEmployee) {
+    private startApp(view: any, model: Employee) {
         // We can extend layout before form config creation
-        view = this.extendLayoutConfig(view);
-
-        this.createModel(model);
         this.buildFormConfig(view, model);
-
-        // We can extend the form config after the LayoutBuilder has created the layout
-        this.extendFormConfig();
-
-        this.loadForm();
+        return this.loadForm();
     }
 
     private loadForm() {
+        return this.UniCmpLoader.load(UniForm).then(((cmp: ComponentRef) => {
+            cmp.instance.config = this.FormConfig;
+            cmp.instance.submit.subscribe(this.submit.bind(this));
+            cmp.instance.ready.subscribe(((component: UniForm) => {
+                component.Model  = this.Model;
+                component.Value = this.LastFormValue;
+                component.find('Sex').setFocus();
+                this.FormIsReady = true;
+            }).bind(this));
+            return cmp;
+        }).bind(this));
+    }
+
+    private buildFormConfig(layout: ComponentLayout, model: Employee) {
+        layout = this.extendLayoutConfig(layout);
+        this.createModel(model);
+        this.FormConfig = this.FormConfig || new UniFormLayoutBuilder().build(layout, model);
+        // We can extend the form config after the LayoutBuilder has created the layout
+        this.extendFormConfig();
+        //this.addMultiValue();
+    }
+
+
+    private createModel(model: Employee) {
+        this.Model = EmployeeModel.createFromObject(model);
+    }
+
+    private createPhoneModel() {
         var self = this;
-        return this.UniCmpLoader.load(UniForm).then((cmp: ComponentRef) => {
-            cmp.instance.config = self.FormConfig;
-            cmp.instance.getEventEmitter().subscribe(self.submit(self));
+        this.businessRelationService.GetNewEntity().subscribe(bm => {
+            this.BusinessModel = bm;
+            this.BusinessModel.DefaultPhoneID = 1;
+            this.BusinessModel.Phones = [];
+            this.BusinessModel.Phones.push({
+                ID: 1,
+                CountryCode: 'NO',
+                Number: '+4791334697',
+                Description: 'privat mobiltelefon',
+                Type: 150102,
+                Deleted: false,
+                CustomFields: null,
+                BusinessRelationID: 1,
+                StatusCode: 0
+            });
+            this.BusinessModel.Phones.push({
+                ID: 2,
+                CountryCode: 'NO',
+                Number: '+4722222222',
+                Description: 'fax',
+                Type: 150103,
+                Deleted: false,
+                CustomFields: null,
+                BusinessRelationID: 1,
+                StatusCode: 0
+            });
+            this.phoneService.GetNewEntity().subscribe(phone => {
+                self.EmptyPhone = phone;
+            });
         });
     }
 
-    private buildFormConfig(layout: IComponentLayout, model: IEmployee) {
-        this.FormConfig = new UniFormLayoutBuilder().build(layout, model);
-    }
+    private addMultiValue() {
+        var field = new UniFieldBuilder();
+        field
+            .setLabel('Telefonnummer')
+            .setType(UNI_CONTROL_DIRECTIVES[14])
+            .setKendoOptions({
+                dataTextField: 'Number',
+                dataValueField: 'ID'
+            })
+            .setModel(this.BusinessModel)
+            .setModelField('Phones')
+            .setModelDefaultField('DefaultPhoneID')
+            .setPlaceholder(this.EmptyPhone)
+            .setEditor(PhoneModal);
 
-    private createModel(model: IEmployee) {
-        this.Model = EmployeeModel.createFromObject(model);
+        this.FormConfig.addUniElement(field);
     }
 
     private extendFormConfig() {
@@ -93,11 +185,31 @@ export class UniFormDemo {
                 'text': 'kvinne'
             }]
         });
-        field = this.FormConfig.find('SocialSecurityNumber');
-        field.setKendoOptions({
+
+        var field2: UniFieldBuilder = this.FormConfig.find('SocialSecurityNumber');
+        field2.setKendoOptions({
             mask: '000000 00000',
             promptChar: '_'
-        });
+        })
+        ;
+
+        //////////////////////////////////
+        // add section inside a section
+        //////////////////////////////////
+        var elem = new UniFieldBuilder();
+        elem.fieldType = UniTextInput;
+        elem
+            .setModel(this.Model)
+            .setModelField('Name')
+            .setLabel('New Field');
+
+        var newSection = new UniSectionBuilder();
+        newSection.legend = 'New Section';
+        newSection.addUniElement(elem);
+
+        var section = UniElementFinder.findUniSection(1, this.FormConfig.fields);
+        section.addUniElement(newSection);
+        //////////////////////////////////
     }
 
     private extendLayoutConfig(layout: any) {
@@ -127,11 +239,10 @@ export class UniFormDemo {
         return layout;
     }
 
-    private submit(context: UniFormDemo) {
-        return () => {
-            context.Api.Post(context.Model).subscribe((result: any) => {
-                alert(JSON.stringify(result));
-            });
-        };
+    private submit() {
+        console.log(this,"Submit");
+        //this.Api.Post(this.Model).subscribe((result: any) => {
+        //    alert(JSON.stringify(result));
+        //});
     }
 }

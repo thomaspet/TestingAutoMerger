@@ -1,65 +1,34 @@
 .usertest
-  margin-bottom: 3rem
+    margin-bottom: 3rem
 
-  label
-    @include unigrid(2,2,2)
-    float: left
-    padding-top: 1rem
+    label
+        @include unigrid(2, 2, 2)
+        float: left
+        padding-top: 1rem
 
-    &.small
-      @include unigrid(1,1)
+        &.small
+            @include unigrid(1, 1)
 
-  input[type=checkbox] + label
-    margin-top: 2.5rem
-    margin-bottom: .3rem
+    input[type=checkbox] + label
+        margin-top: 2.5rem
+        margin-bottom: .3rem
 
-  section,
-  .collapsable
-    @include clearfix
+    section,
+    .collapsable
+        @include clearfix
 
-  label.combo
+    label.combo
 
-    div
-      display: flex
+        div
+            display: flex
 
-    input
-      border-radius: 0
-      border-left-width: 0
+        input
+            border-radius: 0
+            border-left-width: 0
 
-    input:first-of-type
-      border-radius: pxToRem(3) 0 0 pxToRem(3)
-      border-left-width: pxToRem(1)
+        input:first-of-type
+            border-radius: pxToRem(3) 0 0 pxToRem(3)
+            border-left-width: pxToRem(1)
 
-    input:last-of-type
-      border-radius: 0 pxToRem(3) pxToRem(3) 0
-
-  .collapsable
-    width: 100%
-
-    &:before
-      content: ""
-      display: table
-      clear: both
-
-    h4
-      @include clearfix
-      margin-top: 2.5rem
-      margin-bottom: 1rem
-      border-bottom: pxToRem(1) solid $uni-color-scale7
-      padding-left: 1.5rem
-      background: unicon-plus($uni-color-scale2) no-repeat left .2rem bottom .4rem
-      background-size: .5rem
-      font-weight: 400
-      color: $uni-color-scale2
-      cursor: pointer
-
-    .collapsable-content
-      display: none
-
-    &.-is-open
-      h4
-        background: unicon-minus($uni-color-scale2) no-repeat left .2rem bottom .65rem
-        background-size: .5rem
-
-      .collapsable-content
-        display: block
+        input:last-of-type
+            border-radius: 0 pxToRem(3) pxToRem(3) 0

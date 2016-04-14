@@ -4,10 +4,10 @@ import {Observable} from "rxjs/Observable";
 import "rxjs/add/observable/forkjoin";
 
 import {UNI_CONTROL_DIRECTIVES} from "../../../../../framework/controls";
-import {FieldType} from "../../../../../framework/interfaces/interfaces";
+import {FieldType} from "../../../../unientities";
 import {UniForm, UniFormBuilder, UniFieldsetBuilder, UniFieldBuilder} from "../../../../../framework/forms";
 
-import {IVatType, IVatCodeGroup, IAccount} from "../../../../../framework/interfaces/interfaces";
+import {VatType, VatCodeGroup, Account} from "../../../../unientities";
 import {VatTypeService, VatCodeGroupService, AccountService} from "../../../../services/services";
 
 
@@ -19,15 +19,15 @@ import {VatTypeService, VatCodeGroupService, AccountService} from "../../../../s
 })
 export class VatTypeDetails {
     @Input()
-    VatType: IVatType;
+    VatType: VatType;
 
     @ViewChild(UniForm)
     form: UniForm;
 
     config = new UniFormBuilder();
-    model: IVatType;
-    accounts: IAccount[];
-    vatcodegroups: IVatCodeGroup[];
+    model: VatType;
+    accounts: Account[];
+    vatcodegroups: VatCodeGroup[];
 
     constructor(private vatTypeService: VatTypeService,
                 private accountService: AccountService,
@@ -88,7 +88,7 @@ export class VatTypeDetails {
             //TODO: Remove timeout, needed for now to give angular time to set up form after this.model has been set
             setTimeout(() => {
                 if (self.form != null)
-                    self.form.refresh(self.model);
+                    self.form.Model = self.model;
             }, 1000);
         }
     }
@@ -194,25 +194,25 @@ export class VatTypeDetails {
             });
 
         var outputVat = new UniFieldBuilder();
-        outputVat.setDescription("Utgående MVA")
+        outputVat.setLabel("Utgående MVA")
             .setModel(this.model)
             .setModelField("OutputVat")
             .setType(UNI_CONTROL_DIRECTIVES[FieldType.CHECKBOX]);
 
         var vatAvailable = new UniFieldBuilder();
-        vatAvailable.setDescription("Tilgjengelig i moduler")
+        vatAvailable.setLabel("Tilgjengelig i moduler")
             .setModel(this.model)
             .setModelField("AvailableInModules")
             .setType(UNI_CONTROL_DIRECTIVES[FieldType.CHECKBOX]);
 
         var vatLocked = new UniFieldBuilder();
-        vatLocked.setDescription("Sperret")
+        vatLocked.setLabel("Sperret")
             .setModel(this.model)
             .setModelField("Locked")
             .setType(UNI_CONTROL_DIRECTIVES[FieldType.CHECKBOX]);
 
         var vatVisible = new UniFieldBuilder();
-        vatVisible.setDescription("Synlig")
+        vatVisible.setLabel("Synlig")
             .setModel(this.model)
             .setModelField("Visible")
             .setType(UNI_CONTROL_DIRECTIVES[FieldType.CHECKBOX]);

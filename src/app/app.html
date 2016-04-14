@@ -1,4 +1,4 @@
-<uni-navbar *ngIf="loggedIn"></uni-navbar>
+<uni-navbar *ngIf="authService.isAuthenticated() && authService.hasActiveCompany()"></uni-navbar>
 
 <main>
     <uni-router-outlet></uni-router-outlet>

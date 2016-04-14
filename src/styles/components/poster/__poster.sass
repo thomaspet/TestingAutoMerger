@@ -1,107 +1,80 @@
-@import "toolbar"
-@import "widget-headlines"
-@import "widget-figure"
-@import "widget-status"
-@import "widget-table"
-@import "widget-contact"
-@import "emptystate"
+@import 'toolbar'
+@import 'widget-headlines'
+@import 'widget-figure'
+@import 'widget-status'
+@import 'widget-table'
+@import 'widget-contact'
+@import 'emptystate'
+@import 'tags'
 
 .poster_overview
-  width: 100%
-  background: lighten($uni-color-scale9, 5%)
+    width: 100%
+    background: lighten($uni-color-scale9, 5%)
 
-  &.compact
-    .poster_widgets
-      display: none
+    &.compact
+        .poster_widgets
+            display: none
 
 .poster_widgets
-  @include unigrid-flush(14)
-  @include clearfix
-  margin: 0 auto
-  display: flex
-  flex-wrap: wrap
-  align-items: stretch
-  align-content: stretch
-  padding-bottom: 1rem
+    @include unigrid-flush(14)
+    @include clearfix
+    margin: 0 auto
+    display: flex
+    flex-wrap: wrap
+    align-items: stretch
+    align-content: stretch
+    padding-bottom: 1rem
 
-  @include media(small)
-    &,
-    & p
-      font-size: .8rem
-      line-height: 1rem
+    @include media(small)
+        &,
+        & p
+            font-size: .8rem
+            line-height: 1rem
 
 .poster_widget
-  @include unigrid(4, 2, 2, .5)
-  border-width: 0
-  margin-top: 0 !important
+    @include unigrid(4, 2, 2, .5)
+    border-width: 0
+    margin-top: 0 !important
 
-  &.-is-important
-    @include unigrid(8, 4, 4)
+    &.-is-important
+        @include unigrid(8, 4, 4)
 
-  a.internal
-    display: inline-block
-    color: $uni-color-positive
-    text-decoration: none
-    font-weight: 300
-    border: pxToRem(1) dashed transparent
-    margin: auto -#{pxToRem(3)}
-    padding: 0 pxToRem(2)
-    border-radius: pxToRem(5)
-    transition: all .3s ease
-    border-bottom: pxToRem(1) dashed $uni-color-scale8
+    a.internal
+        display: inline-block
+        color: $uni-color-positive
+        text-decoration: none
+        font-weight: 300
+        border: pxToRem(1) dashed transparent
+        margin: auto -#{pxToRem(3)}
+        padding: 0 pxToRem(2)
+        border-radius: pxToRem(5)
+        transition: all .3s ease
+        border-bottom: pxToRem(1) dashed $uni-color-scale8
 
-    &:hover
-      border-color: $uni-color-C2A
-      background: transparentize($uni-color-C2A, .8)
+        &:hover
+            border-color: $uni-color-C2A
+            background: transparentize($uni-color-C2A, .8)
 
 .poster_toggle
-  @extend %clickable
-  float: right
-  position: absolute
-  right: 1rem
-  margin-top: 2.1rem
-  height: 1.5rem
-  width: 1.5rem
-  text-indent: -99rem
-  overflow: hidden
-  border-radius: 0 0 pxToRem(3) pxToRem(3)
-  background: transparentize($uni-color-scale9, .5)
-  border: pxToRem(1) solid $uni-color-scale8
-  border-top: none
-  background: unicon-up($uni-color-scale8) no-repeat center center
-  background-size: .7rem
-
-  &:hover
-    background-color: transparentize($uni-color-scale9, .2)
-
-  .compact + &
-    background-image: unicon-down($uni-color-scale8)
-
-.poster_tags
-  @include unigrid-flush(14)
-  @extend %clickable
-  margin: 0 auto
-  list-style: none
-  padding: 0 1rem
-
-  .compact &
-    margin-top: 1rem
-
-  li
+    @extend %clickable
     float: right
-    display: block
-    position: relative
-    background: $uni-color-scale7
-    height: .4rem
-    margin: .5rem .2rem
-    line-height: .4rem
-    padding: .5rem
-    font-size: .8rem
-    text-transform: uppercase
-    color: $uni-color-scale9
-    border-radius: 99rem
-    font-weight: 600
+    position: absolute
+    right: 1rem
+    margin-top: 2.1rem
+    height: 1.5rem
+    width: 1.5rem
+    text-indent: -99rem
+    overflow: hidden
+    border-radius: 0 0 pxToRem(3) pxToRem(3)
+    background: transparentize($uni-color-scale9, .5)
+    border: pxToRem(1) solid $uni-color-scale8
+    border-top: none
+    background: unicon-up($uni-color-scale8) no-repeat center center
+    background-size: .7rem
 
     &:hover
-      background: $uni-color-scale5
+        background-color: transparentize($uni-color-scale9, .2)
+
+    .compact + &
+        background-image: unicon-down($uni-color-scale8)
 

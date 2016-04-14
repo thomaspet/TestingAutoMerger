@@ -1,29 +1,37 @@
-import {Component, SimpleChange, Input, Output, EventEmitter} from "angular2/core";
-import {Observable} from "rxjs/Observable";
-import "rxjs/add/observable/forkjoin";
+import {Component} from "angular2/core";
+import {Router } from 'angular2/router';
 
-import {FieldType, ISupplier, ISupplierInvoice, ISupplierInvoiceItem} from "../../../../../framework/interfaces/interfaces";
-import {JournalEntryService, JournalEntryLineService, SupplierInvoiceService, SupplierService} from "../../../../services/services";
+import {SupplierInvoice} from "../../../../unientities";
 
 import {JournalEntryManual} from '../journalentrymanual/journalentrymanual';
 import {SupplierInvoiceList} from './supplierinvoicelist';
-import {SupplierInvoiceAdd} from './supplierinvoiceadd';
+import {SupplierInvoiceDetail} from './supplierinvoicedetail';
 
-@Component({ 
+import {UniFieldsetBuilder, UniFieldBuilder, UniSectionBuilder} from "../../../../../framework/forms";
+
+@Component({
     selector: "supplier-invoices",
     templateUrl: "app/components/accounting/journalentry/supplierinvoices/supplierinvoices.html",
-    directives: [SupplierInvoiceList, SupplierInvoiceAdd, JournalEntryManual]    
+    directives: [SupplierInvoiceList, SupplierInvoiceDetail, JournalEntryManual]
 })
-export class SupplierInvoices {        
-    constructor() {
-        //TODO: Sett opp knapper for å lage ny faktura etc + events for å oppdatere tabell 
+
+export class SupplierInvoices {
+    private selectedSupplierInvoice: SupplierInvoice;
+
+    constructor(private _router: Router) {
     }
-    
+
     ngInit() {
-        
+
     }
-    
-    newSupplierInvoiceCreated(SupplierInvoice : ISupplierInvoice) {
-        //todo
+
+    onCreateNew()
+    {
+        this._router.navigateByUrl("/accounting/journalentry/supplierinvoices/New");
+    }
+
+    todo(input)
+    {
+        this.selectedSupplierInvoice = input;
     }
 }

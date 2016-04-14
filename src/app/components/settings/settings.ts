@@ -1,24 +1,49 @@
 ﻿import {Component} from "angular2/core";
-import {RouteConfig, RouteDefinition, ROUTER_DIRECTIVES, Router} from "angular2/router";
+import {RouteConfig, RouteDefinition, ROUTER_DIRECTIVES, Router, AsyncRoute} from "angular2/router";
 
 import {TabService} from "../layout/navbar/tabstrip/tabService";
 
 import {UniTabs} from '../layout/uniTabs/uniTabs';
+
 import {CompanySettings} from './companySettings/companySettings';
 import {AccountSettings} from './accountSettings/accountSettings';
 import {UserSettings} from './userSettings/userSettings';
+import {ComponentProxy} from "../../../framework/core/componentProxy";
+
 
 import {Users} from './users/users';
 
 import {VatSettings} from './vatSettings/vatSettings';
 
 const CHILD_ROUTES = [
-    { path: '/', redirectTo: ['CompanySettings']},
-    { path: '/company', component: CompanySettings, as: 'Firmainnstillinger' },
-    { path: '/accounts', component: AccountSettings, as: 'Kontoer' },
-    { path: '/vat', component: VatSettings, as: 'MVA' },
-    { path: '/user', component: UserSettings, as: 'Brukerinnstillinger' },
-    { path: '/users', component: Users, as: 'Brukere og roller'}
+
+    new AsyncRoute({
+        useAsDefault: true,
+        path: "/company",
+        name: "Firmainnstillinger",
+        loader: () => ComponentProxy.LoadComponentAsync("CompanySettings", "./app/components/settings/companySettings/companySettings")
+    }),
+    new AsyncRoute({
+        path: "/accounts",
+        name: "Kontoer",
+        loader: () => ComponentProxy.LoadComponentAsync("AccountSettings", "./app/components/settings/accountSettings/accountSettings")
+    }),
+    new AsyncRoute({
+        path: "/vat",
+        name: "VAT",
+        loader: () => ComponentProxy.LoadComponentAsync("VatSettings", "./app/components/settings/vatSettings/vatSettings")
+    }),
+    new AsyncRoute({
+        path: "/user",
+        name: "Brukerinnstillinger",
+        loader: () => ComponentProxy.LoadComponentAsync("UserSettings", "./app/components/settings/userSettings/userSettings")
+    }),
+
+    new AsyncRoute({
+        path: "/users",
+        name: "Brukere og roller",
+        loader: () => ComponentProxy.LoadComponentAsync("Users", "./app/components/settings/users/users")
+    })
 ];
 
 @Component({
@@ -33,6 +58,6 @@ export class Settings {
 
     constructor(public router: Router, private tabService: TabService) {
         this.tabService.addTab({ name: "Settings", url: "/settings/company" });
-        this.childRoutes = CHILD_ROUTES.slice(1); // we dont want the redirect route in our navigation
+        this.childRoutes = CHILD_ROUTES; // we dont want the redirect route in our navigation
     }
 }

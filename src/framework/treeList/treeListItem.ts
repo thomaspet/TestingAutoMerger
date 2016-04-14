@@ -1,4 +1,5 @@
 ﻿import {TREE_LIST_TYPE} from "./treeList";
+import guid = kendo.guid;
 
 export class TreeListItem {
 
@@ -8,9 +9,11 @@ export class TreeListItem {
     content: Object | string;
     type: TREE_LIST_TYPE;
     formSubmitCallback: (model?: any) => void;
+    guid: string;
 
     constructor(title: string = "") {
         this.title = title;
+        this.guid = 'id-' + guid();
     }
 
     setContent(content: Object | string) {
@@ -46,7 +49,4 @@ export class TreeListItem {
         return this;
     }
 
-    toggle() {
-        this.expanded = !this.expanded;
-    }    
 }

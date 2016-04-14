@@ -1,17 +1,18 @@
 import {Component, provide, Input, ViewChild, Output, EventEmitter, SimpleChange} from "angular2/core";
 import {UniForm} from "../../../../../framework/forms/uniForm";
 import {UNI_CONTROL_DIRECTIVES} from "../../../../../framework/controls";
-import {FieldType} from "../../../../../framework/interfaces/interfaces";
+import {FieldType} from "../../../../unientities";
 import {UniFormBuilder} from "../../../../../framework/forms/builders/uniFormBuilder";
 import {UniFieldsetBuilder} from "../../../../../framework/forms/builders/uniFieldsetBuilder";
 import {UniComboFieldBuilder} from "../../../../../framework/forms/builders/uniComboFieldBuilder";
 import {UniFieldBuilder} from "../../../../../framework/forms/builders/uniFieldBuilder";
-import {AccountingDS} from "../../../../../framework/data/accounting";
-import {CurrencyDS} from "../../../../../framework/data/currency";
+import {AccountingDS} from "../../../../data/accounting";
+import {CurrencyDS} from "../../../../data/currency";
 import {DimensionList} from "../dimensionList/dimensionList";
 import {AccountGroupList} from "../accountGroupList/accountGroupList";
-import {UniHttp} from "../../../../../framework/core/http";
-import {AccountModel} from "../../../../../framework/models/account";
+import {UniHttp} from "../../../../../framework/core/http/http";
+import {AccountModel} from "../../../../models/account";
+
 
 @Component({
     selector: "account-details",
@@ -106,37 +107,37 @@ export class AccountDetails {
         //
 
         var checkSystemAccount = new UniFieldBuilder();
-        checkSystemAccount.setDescription("Systemkonto")
+        checkSystemAccount.setLabel("Systemkonto")
             .setModel(this.model)
             .setModelField("SystemAccount")
             .setType(UNI_CONTROL_DIRECTIVES[FieldType.CHECKBOX]);
 
         var checkPostPost = new UniFieldBuilder();
-        checkPostPost.setDescription("PostPost")
+        checkPostPost.setLabel("PostPost")
             .setModel(this.model)
             .setModelField("UsePostPost")
             .setType(UNI_CONTROL_DIRECTIVES[FieldType.CHECKBOX]);
 
         var checkDeductionPercent = new UniFieldBuilder();
-        checkDeductionPercent.setDescription("Forholdsvismoms")
+        checkDeductionPercent.setLabel("Forholdsvismoms")
             .setModel(this.model)
             .setModelField("UseDeductionPercent")
             .setType(UNI_CONTROL_DIRECTIVES[FieldType.CHECKBOX]);
 
         var checkLockManualPosts = new UniFieldBuilder();
-        checkLockManualPosts.setDescription("Sperre manuelle poster")
+        checkLockManualPosts.setLabel("Sperre manuelle poster") 
             .setModel(this.model)
             .setModelField("LockManualPosts")
             .setType(UNI_CONTROL_DIRECTIVES[FieldType.CHECKBOX]);
 
         var checkLocked = new UniFieldBuilder();
-        checkLocked.setDescription("Sperret")
+        checkLocked.setLabel("Sperret")
             .setModel(this.model)
             .setModelField("Locked")
             .setType(UNI_CONTROL_DIRECTIVES[FieldType.CHECKBOX]);
 
         var checkVisible = new UniFieldBuilder();
-        checkVisible.setDescription("Synlig")
+        checkVisible.setLabel("Synlig")
             .setModel(this.model)
             .setModelField("Visible")
             .setType(UNI_CONTROL_DIRECTIVES[FieldType.CHECKBOX]);
@@ -160,7 +161,7 @@ export class AccountDetails {
             .subscribe(
                 (dataset) => {
                     this.model = dataset;
-                    this.form.refresh(this.model);
+                    this.form.Model = this.model;
                 },
                 (error) => console.log(error)
             )
@@ -171,7 +172,7 @@ export class AccountDetails {
 
         if (this.account == 0) {
             this.model = new AccountModel();
-            this.form.refresh(this.model);
+            this.form.Model = this.model;
         } else if (this.account === -1) { // test only
         } else if (this.account === -1) { // test only
         /*    this.model = new AccountModel();

@@ -1,5 +1,37 @@
-table.k-selectable
-    tr
-        cursor: pointer
-        &:hover
-            background-color: lighten($uni-color-scale9, 10%)
+uni-table-column-menu    
+       
+    .column-menu-dropdown
+        position: absolute
+        z-index: 1
+        
+        list-style: none
+        margin: 0
+        padding: 0
+        width: 15rem
+        border: 1px solid darken($uni-color-scale9, 5%)
+        border-top: none
+        
+        border-radius: 5px
+            
+        li
+            height: 2rem
+            margin-left: 18px
+            background-color: white
+            
+            label
+                display: block
+                padding: 10px
+                cursor: pointer
+                
+                & :hover
+                    background-color: #c41230
+                    color: white
+                
+                input[type=checkbox]
+                    display: inline-block
+                    width: auto
+                    margin-right: .5rem
+            
+            button
+                maring: 2rem auto
+                width: 80%

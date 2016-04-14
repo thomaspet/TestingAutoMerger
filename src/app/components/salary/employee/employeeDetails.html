@@ -1,18 +1,19 @@
 <header class="poster">
     
     <article class="poster_toolbar">
-        <div *ngIf="employee">
+        <div *ngIf="employee.EmployeeNumber">
             <h2 class="poster_toolbar_headline">{{employee.BusinessRelationInfo.Name}}
                 <p class="poster_toolbar_orgnr">Ansattnr. {{employee.EmployeeNumber}}</p>
             </h2>
+            <employeecategory-buttons [selectedEmployee]="employee"></employeecategory-buttons>
         </div>
             
-        <div class="poster_toolbar_tools">
+        <nav class="poster_toolbar_tools">
             <input type="search" class="poster_toolbar_search">
-            <a href="#" class="previous">Forrige</a>
-            <a href="#" class="next">Neste</a>
-            <a href="#" class="new">Ny ansatt</a>
-        </div>
+            <a (click)="previousEmployee()" class="previous">Forrige</a>
+            <a (click)="nextEmployee()" class="next">Neste</a>
+            <a href="#/salary/employees/0" class="new">Ny ansatt</a>
+        </nav>
             
     </article>
     

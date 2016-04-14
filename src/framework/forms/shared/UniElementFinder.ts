@@ -9,16 +9,17 @@ export class UniElementFinder {
     static findUniFieldByPropertyName(name: string, collection: any[]) {
         var ret = undefined;
         collection.forEach((element: any) => {
+            if (ret != undefined) { return; }
             if (element instanceof UniFieldBuilder) {
                 if (element.field === name) {
                     ret = element;
                 }
             } else {
-                this.findUniFieldByPropertyName(name, element.fields);
+                ret = this.findUniFieldByPropertyName(name, element.fields);
             }
         });
         return ret;
-    }
+    }   
 
     static findUniFieldset(sectionIndex: number, fieldsetIndex: number, collection: any[]): UniFieldsetBuilder {
         var value: UniFieldsetBuilder = undefined;

@@ -5,13 +5,14 @@
     "start": "opn http://localhost:3000 & gulp build.watch.and.serve",
     "build": "gulp clean & gulp build.dist",
     "clean": "rimraf dist",
-    "test": "gulp clean & gulp build.dist & gulp test.typescript & karma start karma.conf.js"
+    "test": "gulp serve.tests",
+    "lint": "gulp tslint"
   },
   "dependencies": {
-    "angular2": "2.0.0-beta.7",
+    "angular2": "2.0.0-beta.12",
     "bootstrap": "^3.3.5",
     "es6-promise": "^3.0.2",
-    "es6-shim": "^0.33.3",
+    "es6-shim": "^0.35.0",
     "jquery": "^2.1.4",
     "jwt-decode": "^1.4.0",
     "lodash": "^4.5.1",
@@ -19,12 +20,12 @@
     "reflect-metadata": "0.1.2",
     "rxjs": "5.0.0-beta.2",
     "systemjs": "^0.19.2",
-    "zone.js": "0.5.15"
+    "zone.js": "^0.6.6"
   },
   "devDependencies": {
     "gulp": "^3.9.0",
     "gulp-concat": "^2.6.0",
-    "gulp-connect": "^2.2.0",
+    "gulp-connect": "^3.2.0",
     "gulp-inject": "^3.0.0",
     "gulp-live-server": "0.0.29",
     "gulp-load-plugins": "^1.1.0",
@@ -34,6 +35,7 @@
     "gulp-run": "^1.6.11",
     "gulp-sourcemaps": "^1.6.0",
     "gulp-template": "^3.0.0",
+    "gulp-tslint": "^4.3.3",
     "gulp-typescript": "^2.9.2",
     "gulp-uglify": "^1.5.1",
     "gulp-uglifyjs": "^0.6.2",
@@ -43,15 +45,20 @@
     "karma": "^0.13.15",
     "karma-chrome-launcher": "^0.2.1",
     "karma-cli": "^0.1.1",
+    "karma-coverage": "^0.5.4",
     "karma-jasmine": "^0.3.6",
+    "karma-mocha": "^0.2.2",
+    "karma-mocha-reporter": "^1.2.3",
     "karma-phantomjs-launcher": "^0.2.1",
     "live-server": "^0.8.2",
+    "mocha": "^2.4.5",
     "opn": "^3.0.3",
     "opn-cli": "^1.0.0",
     "phantomjs": "^1.9.18",
     "request": "^2.69.0",
     "rimraf": "^2.4.3",
     "run-sequence": "^1.1.4",
+    "tsc": "^1.20150623.0",
     "tslint": "^3.3.0",
     "typescript": "^1.6.2"
   }

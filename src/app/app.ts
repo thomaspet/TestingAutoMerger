@@ -1,34 +1,26 @@
 /// <reference path="../../kendo/typescript/kendo.all.d.ts" />
-import {Component} from "angular2/core";
-import {Router, RouteConfig, ROUTER_DIRECTIVES} from "angular2/router";
-import {Routes, APP_ROUTES} from "./route.config";
-import {UniRouterOutlet} from "./uniRouterOutlet";
-import {AuthService} from "../framework/authentication/authService";
-import {TabService} from "./components/layout/navbar/tabstrip/tabService";
-import {UniNavbar} from "./components/layout/navbar/navbar";
-import {UniHttp} from "../framework/core/http";
+/// <reference path="../../typings/main.d.ts" />
+
+import {Component} from 'angular2/core';
+import {Router, RouteConfig, ROUTER_DIRECTIVES, AsyncRoute} from 'angular2/router';
+import {ROUTES} from './route.config';
+import {UniRouterOutlet} from './uniRouterOutlet';
+import {AuthService} from '../framework/core/authService';
+import {TabService} from './components/layout/navbar/tabstrip/tabService';
+import {UniNavbar} from './components/layout/navbar/navbar';
+import {UniHttp} from '../framework/core/http/http';
+import {StaticRegisterService} from './services/staticregisterservice';
 
 @Component({
-    selector: "uni-app",
-    templateUrl: "./app/app.html",
+    selector: 'uni-app',
+    templateUrl: './app/app.html',
     directives: [ROUTER_DIRECTIVES, UniRouterOutlet, UniNavbar],
-    providers: [AuthService, TabService, UniHttp]
+    providers: [AuthService, TabService, UniHttp, StaticRegisterService]
 })
-@RouteConfig(APP_ROUTES)
+@RouteConfig(ROUTES)
 export class App {
-    public routes = Routes;
+    public routes: AsyncRoute[] = ROUTES;
 
-    loggedIn: boolean;
-
-    constructor(authService: AuthService, router: Router) {
-        this.loggedIn = false;
-
-        // Subscribe to updates from authService
-        authService.authenticated$.subscribe((authenticated) => {
-            this.loggedIn = authenticated && localStorage.getItem("activeCompany");
-        });
-
-        authService.validateAuthentication();
-    }
+    constructor(private authService: AuthService, router: Router) {}
 
 }

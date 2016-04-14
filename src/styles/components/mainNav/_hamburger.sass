@@ -1,98 +1,110 @@
 ﻿.navbar_hamburger
-  @extend %navbarText
-  @extend %clickable
-  padding: 0 1rem
-  font-size: 0
-  width: 1.8rem
-  height: 2.5rem
-  float: left
-  background: unicon-hamburger($navbarTextColor) no-repeat center center
-  background-size: 1.4rem
+    @extend %navbarText
+    @extend %clickable
+    padding: 0 1rem
+    font-size: 0
+    width: 1.8rem
+    height: 2.5rem
+    float: left
+    background: unicon-hamburger($navbarTextColor) no-repeat center center
+    background-size: 1.4rem
 
-  &:hover,
-  &:focus,
-  &.is-active
-    background-color: darken($navbarBackground, 10%)
+    &:hover,
+    &:focus,
+    &.is-active
+        background-color: darken($navbarBackground, 10%)
 
-  ul
-    color: $uni-color-C2A
-    font-size: 1rem
-    margin-left: -1rem
-    list-style: none
-    z-index: 99
+    ul
+        color: $uni-color-C2A
+        font-size: 1rem
+        margin-left: -1rem
+        list-style: none
+        z-index: 99
 
 .navbar_menu
-  display: none
-  opacity: 0
-
-%navbarDropdowns
-  background: linear-gradient(to bottom, $uni-color-negative, $uni-color-scale9)
-  border-radius: 0 0 .2rem .2rem
+    display: none
+    opacity: 0
 
 .navbar_hamburger.is-active
-  & .navbar_menu,
-  & .navbar_menu:hover,
-  & .navbar_menu:focus
-    @extend %navbarDropdowns
-    @include unigrid-flush(10)
-    display: block
-    position: absolute
-    margin-top: 2.5rem
-    list-style: none
-    opacity: 1
-    transition: .5s ease
-    min-height: 30rem
-    cursor: default
+    & .navbar_menu,
+    & .navbar_menu:hover,
+    & .navbar_menu:focus
+        @include unigrid-flush(10)
+        color: $uni-color-positive
+        background: $uni-color-negative
+        border: pxToRem(1) solid $uni-color-scale8
+        box-shadow: 0 0 .6rem transparentize($uni-color-scale1, .7)
+        border-radius: 0 0 pxToRem(5) pxToRem(5)
+        z-index: 9999
+        display: block
+        position: absolute
+        margin-top: 2.5rem
+        list-style: none
+        opacity: 1
+        transition: .5s ease
+        min-height: 30rem
+        cursor: default
 
-    & *:hover,
-    & *:focus
-      cursor: default
-      background: transparent
+        & *:hover,
+        & *:focus
+            cursor: default
+            background: transparent
 
-    & li
-      color: $uni-color-positive
-      width: 12rem
-      height: 3rem
-      line-height: 3rem
-      padding: 0 1rem
-      box-sizing: border-box
-
-
-      &:hover,
-      &:focus
-        background: transparent
-        cursor: pointer
-
-      & ul
-        display: none
-
-      &.is-active
-        background: $uni-color-scale9
-        color: $uni-color-C2A
-        font-weight: 400
-
-        & ul
-          display: block
-          margin-left: 11rem
-          position: absolute
-          top: 0
-          height: 30rem
-          list-style: none
-          padding: 0
-          border-left: .1rem solid $uni-color-scale9
-          background: transparent
-
-          & h3
+        & li
             color: $uni-color-positive
-            margin: 1rem 2rem 0
-            font-weight: 200
-
-          & li
-            margin: 0
-            padding: 0 2rem
+            width: 12rem
             height: 3rem
+            line-height: 3rem
+            padding: 0 1rem
+            box-sizing: border-box
 
-            &:hover
-              background: transparent
-              cursor: pointer
-              color: $uni-color-C2A
+            &:hover,
+            &:focus
+                background: transparent
+                cursor: pointer
+
+            & ul
+                display: none
+
+            &.is-active
+                background: $uni-color-scale9
+                color: $uni-color-positive
+                font-weight: 400
+
+                &:before
+                    position: absolute
+                    display: block
+                    content: ''
+                    margin-left: 11rem
+                    height: 0
+                    width: 0
+                    border-top: 1.5rem solid transparent
+                    border-bottom: 1.5rem solid transparent
+                    border-left: 1.5rem solid $uni-color-scale9
+                    z-index: 999
+
+                & ul
+                    display: block
+                    margin-left: 11rem
+                    position: absolute
+                    top: 0
+                    height: 30rem
+                    list-style: none
+                    padding: 0
+                    border-left: .1rem solid $uni-color-scale9
+                    background: transparent
+
+                    & h3
+                        color: $uni-color-positive
+                        margin: 1rem 2rem 0
+                        font-weight: 200
+
+                    & li
+                        margin: 0
+                        padding: 0 2rem
+                        height: 3rem
+
+                        &:hover
+                            background: transparent
+                            cursor: pointer
+                            color: $uni-color-C2A

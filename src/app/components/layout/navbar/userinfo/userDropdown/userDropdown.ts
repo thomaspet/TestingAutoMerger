@@ -1,8 +1,8 @@
-import {Component, AfterViewInit} from "angular2/core";
-import {Router} from "angular2/router";
-import {Observable} from "rxjs/Observable";
-import {AuthService} from "../../../../../../framework/authentication/authService";
-import "rxjs/add/observable/fromEvent";
+import {Component, AfterViewInit} from 'angular2/core';
+import {Router} from 'angular2/router';
+import {Observable} from 'rxjs/Observable';
+import {AuthService} from '../../../../../../framework/core/authService';
+import 'rxjs/add/observable/fromEvent';
 
 declare var jQuery;
 
@@ -12,8 +12,8 @@ interface IUniUserDropdownItem {
 }
 
 @Component({
-    selector: "uni-user-dropdown",
-    templateUrl: "app/components/layout/navbar/userinfo/userDropdown/userDropdown.html"
+    selector: 'uni-user-dropdown',
+    templateUrl: 'app/components/layout/navbar/userinfo/userDropdown/userDropdown.html'
 })
 export class UniUserDropdown implements AfterViewInit {
     dropdownElements: Array<IUniUserDropdownItem>;
@@ -22,7 +22,7 @@ export class UniUserDropdown implements AfterViewInit {
     userDropdownActive: Boolean;
 
     constructor(private router: Router, private authService: AuthService) {
-        this.username = JSON.parse(localStorage.getItem("jwt_decoded")).unique_name;
+        this.username = authService.jwtDecoded.unique_name;
         this.dropdownElements = [
             {
                 title: "Settings", action: () => {
@@ -36,7 +36,7 @@ export class UniUserDropdown implements AfterViewInit {
             },
             {
                 title: "Log out", action: () => {
-                this.logout();
+                this.authService.logout();
             }
             },
         ];
@@ -58,11 +58,6 @@ export class UniUserDropdown implements AfterViewInit {
 
     navigate(url: string): void {
         this.router.navigateByUrl(url);
-    }
-
-    logout(): void {
-        this.authService.logout();
-        this.navigate("/login");
     }
 
     ngOnDestroy() {

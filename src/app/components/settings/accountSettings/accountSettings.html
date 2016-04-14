@@ -1,9 +1,15 @@
-﻿<div class="accountList">
-    <account-list (uniAccountChange)="changeAccount($event)"></account-list>
-</div>
-<div class="accountDetails">
-    <account-details (uniSaved)="accountSaved($event)" [account]="account"></account-details>
-</div>
+﻿<section class="splitview">
+
+    <nav class="splitview_list">
+        <account-list (uniAccountChange)="changeAccount($event)"></account-list>
+    </nav>
+    <main class="splitview_detail">
+        <account-details (uniSaved)="accountSaved($event)" [account]="account"></account-details>
+    </main>
+
+</section>
+
+
 <div class="testonly">
     <i>Test knapper før alt er helt klart</i><br>
     <button (click)="syncAS()">Synkroniser kontoplan</button>

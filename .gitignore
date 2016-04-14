@@ -255,5 +255,8 @@ src/styles/main.css
 .DS_Store
 
 # interfaces from server
-src/framework/interfaces/interfaces.ts
+src/app/unientities.ts
 *.orig
+
+#remove coverage
+coverage

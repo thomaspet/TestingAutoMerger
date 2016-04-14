@@ -14,11 +14,13 @@ import {UniTextInput} from "./controls/text/text";
 import {UniHyperlink} from "./controls/hyperlink/hyperlink";
 import {UniRadioGroup} from "./controls/radioGroup/uniRadioGroup";
 import {UniRadioInput} from "./controls/radio/radio";
+import {UniMultiValue} from "./controls/multivalue/multivalue";
+import {UniUrlInput} from "./controls/url/url";
 
 /**
  * !!!!!!!!!   IMPORTANT  !!!!!!!!
  *
- * This array should have the same order as enum FieldType in interfaces/interfaces.ts
+ * This array should have the same order as enum FieldType in app/unientities.ts
  */
 export const UNI_CONTROL_DIRECTIVES: Type[] = CONST_EXPR([
     UniAutocomplete,
@@ -34,5 +36,7 @@ export const UNI_CONTROL_DIRECTIVES: Type[] = CONST_EXPR([
     UniTextInput,
     UniEmailInput,
     UniPasswordInput,
-    UniHyperlink
+    UniHyperlink,
+    UniMultiValue,
+    UniUrlInput
 ]);

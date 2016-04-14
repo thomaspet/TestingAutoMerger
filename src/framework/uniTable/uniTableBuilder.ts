@@ -1,34 +1,36 @@
-import {UniHttp, IUniHttpRequest} from '../core/http';
 import {UniTableColumn} from './uniTableColumn';
-import {UniTableControls} from './uniTableControls';
 
 declare var jQuery;
 
 export class UniTableBuilder {
-    private controls = new UniTableControls();
+    public name: string = '';
+    public remoteData: boolean;
     
-    remoteData: boolean;
+    public resource: string | Array<any>;
+    public filter: string = '';
+    public expand: string = '';
+    public orderBy: kendo.data.DataSourceSortItem;
     
-    resource: string | Array<any>;
-    filter: string = "";
-    expand: string = "";
+    public searchable: boolean = true;
+    public filterable: boolean = true;
+    public editable:   boolean = true;
+    public pageable:   boolean = true;
+    public pageSize:   number  = 10;
     
-    searchable: boolean = true;
-    filterable: boolean = true;
-    editable:   boolean = true;
-    pageable:   boolean = true;
-    pageSize:   number  = 10;
+    public columnMenuVisible: boolean = true;
     
-    toolbar: string[] = [];
+    public toolbar: string[] = [];
     
-    selectCallback: (selectedItem) => any;
-    updateCallback: (updatedItem) => any;
-    createCallback: (createdItem) => any;
-    deleteCallback: (deletedItem) => any;
+    public selectCallback: (selectedItem) => any;
+    public updateCallback: (updatedItem) => any;
+    public createCallback: (createdItem) => any;
+    public deleteCallback: (deletedItem) => any;
     
-    schemaModel: any;
-    columns: kendo.ui.GridColumn[];
-    commands: kendo.ui.GridColumnCommandItem[] = [];
+    public changeCallback: (e, rowModel) => any;
+    
+    public schemaModel: any;
+    public columns: kendo.ui.GridColumn[];
+    public commands: kendo.ui.GridColumnCommandItem[] = [];
     
     constructor(resource: string | Array<any>, editable: boolean = true) {
         this.resource = resource;
@@ -47,15 +49,20 @@ export class UniTableBuilder {
         this.columns = [];        
     }
     
-    addColumns(...columns: UniTableColumn[]) {
-        
-        columns.forEach((columnInfo: UniTableColumn) => {
-            
+    public addColumns(...columns: UniTableColumn[]) {
+        columns.forEach((columnInfo: UniTableColumn) => {            
             // Add class editable-cell to columns that are editable
             if (columnInfo.editable) {
                 columnInfo.class += ' editable-cell';
             }
             
+            var hideColumn = columnInfo.hidden;
+            if (!columnInfo.showOnSmallScreen && jQuery(window).width() < 700) {
+                hideColumn = true;
+            } else if (!columnInfo.showOnLargeScreen && jQuery(window).width() >= 700) {
+                hideColumn = true;
+            }
+                
             this.columns.push({
                 field: columnInfo.field,
                 title: columnInfo.title,
@@ -63,104 +70,119 @@ export class UniTableBuilder {
                 width: columnInfo.width,
                 template: columnInfo.template || null,
                 editor: columnInfo.editor || null,
+                values: columnInfo.values || null,
                 attributes: {
-                    "class": columnInfo.class
-                }
+                    class: columnInfo.class,
+                    style: 'text-align: ' + columnInfo.textAlign
+                },
+                headerAttributes: {
+                    class: columnInfo.class,
+                    style: 'text-align: ' + columnInfo.textAlign
+                },
+                hidden: hideColumn              
             });
-                                          
+                      
             this.schemaModel.fields[columnInfo.field] = {
                 type: columnInfo.type,
                 editable: columnInfo.editable,
                 nullable: columnInfo.nullable,
-            }
-            
-            // var schemaField = columnInfo.field.split('.');
-            // var fieldName = schemaField.join('');
-            // 
-            // this.schemaModel.fields[fieldName] = {
-            //     type: columnInfo.type,
-            //     editable: columnInfo.editable,
-            //     nullable: columnInfo.nullable,
-            // }
-            // 
-            // if (schemaField.length > 1) {
-            //     this.schemaModel.fields[fieldName].from = columnInfo.field;
-            //     column.field = fieldName;
-            // }
-            
+                defaultValue: columnInfo.defaultValue || null,
+            };            
         });
         
-        // Make sure ID field is always defined in the schema (required for crud operations on the table)
+        // Make sure ID field is always defined in the schema
         if (!this.schemaModel.fields['ID']) {
             this.schemaModel.fields['ID'] = { type: 'number', editable: false, nullable: true };
         }
                 
         return this;
     }
-
-
-    addCommands(...commands: kendo.ui.GridColumnCommandItem[]) {
+    
+    public addCommands(...commands: kendo.ui.GridColumnCommandItem[]) {
         this.commands = commands;
         return this;
     }
     
+    public setName(name: string) {
+        this.name = name;
+        return this;
+    }
     
-    setEditable(editable: boolean) {
+    public setEditable(editable: boolean) {
         this.editable = editable;
         return this;
     }
     
-    setSearchable(searchable: boolean) {
+    public setSearchable(searchable: boolean) {
         this.searchable = searchable;
         return this;
     }
     
-    setFilter(filter: string) {
+    public setFilter(filter: string) {
         this.filter = filter;
         return this;
     }
     
-    setExpand(expand: string) {
+    public setOrderBy(field: string, direction?: string) {
+        this.orderBy = {
+            field: field,
+            dir: direction || ''
+        };
+        
+        return this;
+    }
+    
+    public setExpand(expand: string) {
         this.expand = expand;
         return this;
     }
     
-    setUpdateCallback(callbackFunction: (updatedItem) => any) {
+    public setColumnMenuVisible(visible: boolean) {
+        this.columnMenuVisible = visible;
+        return this;
+    }
+    
+    public setUpdateCallback(callbackFunction: (updatedItem) => any) {
         this.updateCallback = callbackFunction;
         return this;
     }
     
-    setCreateCallback(callbackFunction: (createdItem) => any) {
+    public setCreateCallback(callbackFunction: (createdItem) => any) {
         this.createCallback = callbackFunction;
         return this;
     }
     
-    setDeleteCallback(callbackFunction: (deletedItem) => any) {
+    public setDeleteCallback(callbackFunction: (deletedItem) => any) {
         this.deleteCallback = callbackFunction;
         return this;
     }
     
-    setSelectCallback(callbackFunction: (selectedItem) => any) {        
+    public setSelectCallback(callbackFunction: (selectedItem) => any) {        
         this.selectCallback = callbackFunction;
         return this;
     }
     
-    setFilterable(filterable: boolean) {
+    public setChangeCallback(callbackFunction: (event, rowModel) => any) {
+        this.changeCallback = callbackFunction;
+        return this;
+    }
+    
+    public setFilterable(filterable: boolean) {
         this.filterable = filterable;
         return this;
     }
     
-    setPageable(pageable: boolean) {
+    public setPageable(pageable: boolean) {
         this.pageable = pageable;        
         return this;
     }
     
-    setPageSize(pageSize: number) {
+    public setPageSize(pageSize: number) {
         this.pageSize = pageSize;
         return this;
     }
     
-    setToolbarOptions(options: string[]) {
+    public setToolbarOptions(options: string[]) {
         this.toolbar = options;
         return this;
     }

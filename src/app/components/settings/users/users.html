@@ -12,9 +12,9 @@
         <li *ngFor="#user of users | sort: sortProperty | filter: hideInactive : 'Inactive'">
             <span itemprop="name" class="user_list_name">{{user.DisplayName}}</span>
             <span itemprop="email" class="user_list_email">{{user.Email}}</span>
-            <span itemprop="status" class="user_list_status">{{user.Status.Description}}</span>
-            <span class="user_invite_resend"><p *ngIf="user.Status.Description != 'Active'" (click)="resendInvite(user)">Resend</p></span>
-            <span class="user_invite_revoke"><p *ngIf="user.Status.Description != 'Inactive'" (click)="revokeInvite(user)">Revoke</p></span>
+            <span itemprop="status" class="user_list_status">{{user.StatusID}}</span>
+            <span class="user_invite_resend"><p *ngIf="user.StatusID != 19" (click)="resendInvite(user)">Resend</p></span>
+            <span class="user_invite_revoke"><p *ngIf="user.StatusID != 19" (click)="revokeInvite(user)">Revoke</p></span>
         </li>
     </ul>
 </section>

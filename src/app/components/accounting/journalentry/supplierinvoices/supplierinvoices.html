@@ -1,9 +1,9 @@
-<div class="journalentrytempbox">
-    her kommer leverandørfakturafunksjonalitet
-    <supplier-invoice-list></supplier-invoice-list>
+<h2>Leverand�rfaktura</h2>
+<article>
+    <!--<button class="new" (click)="onCreateNew()">Ny</button>-->
 
-    <supplier-invoice-add (Created)="newSupplierInvoiceCreated=($event)"></supplier-invoice-add>
+    <supplier-invoice-list (onSelect)="todo($event)"></supplier-invoice-list>
 
-    <div>Når en supplierinvoice er valgt vises foreslått bokføring</div>
-    <journal-entry-manual></journal-entry-manual>
-</div>
+    <journal-entry-manual [SupplierInvoice]="selectedSupplierInvoice" *ngIf="selectedSupplierInvoice"></journal-entry-manual>
+</article>
+<router-outlet></router-outlet>

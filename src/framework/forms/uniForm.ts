@@ -1,8 +1,5 @@
-import {Component, OnInit ,EventEmitter, Input, Output} from "angular2/core";
-import {FORM_DIRECTIVES, FORM_PROVIDERS, Control, ControlGroup, FormBuilder} from "angular2/common";
-import {UNI_CONTROL_DIRECTIVES} from "../controls";
-import {UniRadioGroup} from "../controls/radioGroup/uniRadioGroup";
-import {ShowError} from "./showError";
+import {Component, OnInit, EventEmitter, Input, Output} from "angular2/core";
+import {FORM_DIRECTIVES, FORM_PROVIDERS, ControlGroup, FormBuilder} from "angular2/common";
 import {UniField} from "./uniField";
 import {UniFieldBuilder} from "./builders/uniFieldBuilder";
 import {UniFieldset} from "./uniFieldset";
@@ -12,9 +9,9 @@ import {UniComponentLoader} from "../core/componentLoader";
 import {MessageComposer} from "./composers/messageComposer";
 import {ValidatorsComposer} from "./composers/validatorsComposer";
 import {ControlBuilder} from "./builders/controlBuilder";
-import {UniElementBuilder} from "./interfaces";
 import {UniFormBuilder} from "./builders/uniFormBuilder";
 import {UniGenericField} from "./shared/UniGenericField";
+import {UniElementBuilder} from "./interfaces";
 
 declare var _; //lodash
 
@@ -26,127 +23,106 @@ declare var _; //lodash
     directives: [FORM_DIRECTIVES, UniField, UniFieldset, UniSection, UniComboField, UniComponentLoader],
     providers: [FORM_PROVIDERS],
     template: `
-        <form (submit)="submit()" [ngFormModel]="form" [class]="buildClassString()" [class.error]="hasErrors()">
+        <form (submit)="doSubmit()" [ngFormModel]="form" [class]="buildClassString()" [class.error]="hasErrors()">
             <template ngFor #field [ngForOf]="getFields()" #i="index">
                 <uni-component-loader
                     [type]="field.fieldType"
                     [config]="field">
                 </uni-component-loader>
             </template>
-            <button type="submit" [disabled]="hasErrors()" [hidden]="isSubmitButtonHidden()">{{submitText}}</button>
+            <button *ngIf="!isSubmitButtonHidden()" type="submit" [disabled]="hasErrors()">{{submitText}}</button>
         </form>
     `
 })
 export class UniForm extends UniGenericField implements OnInit {
 
-    /**
-     * Configuration of the form
-     */
     @Input()
-    config: UniFormBuilder;
+    public config: UniFormBuilder;
 
-    /**
-     * Object use to emit values to other components
-     * @type {EventEmitter<any>}
-     */
     @Output()
-    uniFormSubmit: EventEmitter<any> = new EventEmitter<any>(true);
+    public submit: EventEmitter<any> = new EventEmitter<any>(true);
 
-    /**
-     * Angular2 FormGroup used to validate each input (See FormBuilder and ControlGroup in Angular2 Docs)
-     */
-    form: ControlGroup;
+    @Output()
+    public ready: EventEmitter<any> = new EventEmitter<any>(true);
 
-    /**
-     * Text displayed in the submit button
-     * @type {string}
-     */
-    submitText: string = "submit";
+    public form: ControlGroup;
 
-    /**
-     * Object that contains each Angualar2 form control (see AbstractControl in Angular2 Docs)
-     * @type {{}}
-     */
-    controls = {};
+    public submitText: string = 'submit';
 
-    /**
-     *
-     * @param fb
-     */
+    public controls: any = {};
+
+    public numberOfFields: number = -1;
+
+    public readyFields: number = 0;
+
+    public get Value() {
+        return this.form.value;
+    }
+
+    public set Value(value: any) {
+        this._updateFormValues(value);
+    }
+
+    public get Model() {
+        return this._getModel();
+    }
+
+    public set Model(model: any) {
+        this._setModel(model);
+    }
+
     constructor(public fb: FormBuilder) {
         super();
     }
 
-    /**
-     * Initialize the angular2 form builder UniForm uses to validate inputs
-     */
-    ngOnInit() {
-        this.createFormControls(this.config.fields);
+    public ngOnInit() {
+        this._createFormControls(this.config.fields);
         this.form = this.fb.group(this.controls);
     }
 
-    /**
-     * It updates the model and emit the value of the form
-     * @returns {boolean}
-     */
-    submit(): boolean {
-        this.updateModel(this.config.fields, this.form.value);
-        this.uniFormSubmit.emit(this.form);
-        return false;
+    public ngAfterViewInit() {
+        this._getNumberOfFields(this.config.fields);
+        this._areAllFieldsReady(this.config.fields);
     }
 
-    /**
-     * Inteface to get the event emitter
-     * It helps developer to manage form behaviour
-     *
-     * @returns {EventEmitter<any>}
-     */
-    getEventEmitter() {
-        return this.uniFormSubmit;
+    public find(propertyName: string) {
+        var configField: UniFieldBuilder = this.config.find(propertyName);
+        if (configField) {
+            return configField.fieldComponent;
+        }
     }
 
-    /**
-     * return form value
-     *
-     * @returns {any}
-     */
-    getValue() {
-        return this.form.value;
+    public onChanges() {
+        return this.form.valueChanges;
     }
 
-    /**
-     * returns true is submit button should be hidden
-     * @returns {boolean}
-     */
-    isSubmitButtonHidden() {
+    public hideSubmitButton() {
+        this.config.isSubmitButtonHidden = true;
+    }
+
+    public showSubmitButton() {
+        this.config.isSubmitButtonHidden = false;
+    }
+
+    public isSubmitButtonHidden() {
         return this.config.isSubmitButtonHidden;
     }
 
-    /**
-     * returns true if form has any error
-     * @returns {boolean}
-     */
-    hasErrors() {
+    public hasErrors() {
         return !this.form.valid;
     }
 
-    /**
-     * return all fields inside the form
-     * @returns {UniElementBuilderCollection}
-     */
-    getFields() {
+    public getFields() {
         return this.config.fields;
     }
 
-    /**
-     * Updates the model
-     *
-     * @param config Form Config
-     * @param formValue Form value
-     */
-    updateModel(config?, formValue?) {
-        var config = config || this.config.fields;
-        var formValue = formValue || this.form.value;
+    public sync() {
+        this._sync(this.form.value,this.config.fields);
+    }
+
+    private _sync(formValue?: any, config?: any) {
+        config = config || this.config.fields;
+        formValue = formValue || this.form.value;
 
         for (let i = 0; i < config.length; i++) {
             let field = config[i];
@@ -155,22 +131,26 @@ export class UniForm extends UniGenericField implements OnInit {
                 var fieldPath = field.field;
                 var value = _.get(formValue, fieldPath);
                 _.set(model, fieldPath, value);
+                field.refresh(value);
             } else {
-                this.updateModel(field.fields, formValue);
+                this._sync(field.fields, formValue);
             }
         }
     }
 
-    /**
-     * Updates the model
-     *
-     * @param new model
-     * @param config Form Config
-     * @param formValue Form value
-     */
-    refresh(newModel, config?, formValue?) {
-        var config = config || this.config.fields;
-        var formValue = formValue || this.form.value;
+    private _getModel() {
+        var config = this.config.fields;
+        for (let i = 0; i < config.length; i++) {
+            let field = config[i];
+            if (field instanceof UniFieldBuilder) {
+                return field.model;
+            }
+        }
+        return undefined;
+    }
+
+    private _setModel(newModel, config?) {
+        config = config || this.config.fields;
 
         for (let i = 0; i < config.length; i++) {
             let field = config[i];
@@ -180,33 +160,57 @@ export class UniForm extends UniGenericField implements OnInit {
                 var value = _.get(newModel, fieldPath);
                 field.refresh(value);
             } else {
-                this.refresh(newModel, field.fields, formValue);
+                this._setModel(newModel, field.fields);
             }
         }
     }
 
-    /**
-     * Creates form controls
-     *
-     * @param config
-     */
-    private createFormControls(config) {
+    private _updateFormValues(formValue?: any, config?: any) {
+        config = config || this.config.fields;
+        formValue = formValue || this.form.value;
+
         for (let i = 0; i < config.length; i++) {
             let field = config[i];
             if (field instanceof UniFieldBuilder) {
-                this.createFormControl(field);
+                var fieldPath = field.field;
+                var value = _.get(formValue, fieldPath);
+                field.refresh(value);
             } else {
-                this.createFormControls(field.fields);
+                this._updateFormValues(field.fields, formValue);
             }
         }
     }
 
-    /**
-     * Composes error messages and validators
-     *
-     * @param config
-     */
-    private createFormControl(config) {
+    private _areAllFieldsReady(fields) {
+        var self = this;
+        for (let i = 0; i < fields.length; i++) {
+            let field = fields[i];
+            if (field instanceof UniFieldBuilder) {
+                field.ready.subscribe(
+                    ()=> {
+                        self.readyFields++;
+                        if (self.numberOfFields === self.readyFields) {
+                            self.ready.emit(self);
+                        }
+                    }, (error) => console.error("UniForm -> IsDomReadyError:", error));
+            } else {
+                this._areAllFieldsReady(field.fields);
+            }
+        }
+    }
+
+    private _createFormControls(config) {
+        for (let i = 0; i < config.length; i++) {
+            let field = config[i];
+            if (field instanceof UniFieldBuilder) {
+                this._createFormControl(field);
+            } else {
+                this._createFormControls(field.fields);
+            }
+        }
+    }
+
+    private _createFormControl(config) {
         config.errorMessages = MessageComposer.composeMessages(config);
 
         config.control = ControlBuilder.build(
@@ -216,5 +220,29 @@ export class UniForm extends UniGenericField implements OnInit {
         );
 
         this.controls[config.field] = config.control;
+    }
+
+    private _getNumberOfFields(fields): number {
+        if (this.numberOfFields >= 0) {
+            return this.numberOfFields;
+        }
+        var nfields = 0;
+
+        for (let i = 0; i < fields.length; i++) {
+            if (fields[i] instanceof UniFieldBuilder) {
+                nfields++;
+            } else {
+                this._getNumberOfFields(fields[i].fields);
+            }
+        }
+
+        this.numberOfFields = nfields;
+        return nfields;
+    }
+
+    private doSubmit(): boolean {
+        this.sync();
+        this.submit.emit(this.form);
+        return false;
     }
 }
