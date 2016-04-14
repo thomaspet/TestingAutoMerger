@@ -5,7 +5,7 @@
         role="combobox"
         aria-autocomplete="inline"
         [attr.aria-owns]="'results-'+guid"
-
+        (blur)="choose(selected)"
 
         *ngIf="config.control"
         [ngFormControl]="config.control"
