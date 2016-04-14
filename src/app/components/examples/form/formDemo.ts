@@ -23,6 +23,7 @@ import {PhoneModal} from "../../sales/customer/modals/phone/phone";
 import {BusinessRelationService, PhoneService} from "../../../services/services";
 import {UniState} from "../../../../framework/core/UniState";
 import {Observable} from 'rxjs/Observable';
+import {UniAutocompleteConfig} from "../../../../framework/controls/autocomplete/autocomplete";
 
 declare var _;
 
@@ -229,14 +230,14 @@ export class UniFormDemo {
 
         //autocomplte
         layout.Fields[0].FieldType = 0;
-        layout.Fields[0].kendoOptions = {
+        layout.Fields[0].kendoOptions = UniAutocompleteConfig.build({
             source: this.Api,
             valueKey: 'BusinessRelationInfo.Name',
             template: (obj:Employee) => `${obj.ID} - ${obj.BusinessRelationInfo.Name}`,
             minLength: 2,
             debounceTime: 300,
             //search: (query:string) => Observable.fromArray([{ID:1,BusinessRelationInfo: { Name: "Jorge"}}])
-        };
+        });
         layout.Fields[1].Validators = [{
             'EntityType': 'Employee',
             'PropertyName': 'SocialSecurityNumber',

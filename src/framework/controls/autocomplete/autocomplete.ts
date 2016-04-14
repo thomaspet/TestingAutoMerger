@@ -1,12 +1,27 @@
-import {Component, Input, ElementRef, EventEmitter, Output} from 'angular2/core';
-import {Control} from 'angular2/common';
-import {Observable} from 'rxjs/Observable';
-import guid = kendo.guid;
+import {Component, Input, ElementRef, EventEmitter} from "angular2/core";
+import {Control} from "angular2/common";
+import {Observable} from "rxjs/Observable";
 import {UniFieldBuilder} from "../../forms/builders/uniFieldBuilder";
 import {BizHttp} from "../../core/http/BizHttp";
 import {Employee} from "../../../app/unientities";
+import guid = kendo.guid;
 
 declare var jQuery, _;
+
+export class UniAutocompleteConfig {
+    public source: BizHttp<any>|any[];
+    public valueKey: string;
+    public template: (obj:any) => string;
+    public minLength: number;
+    public debounceTime: number;
+    public search: (query:string) => Observable<any>;
+
+    public static build(obj:any) {
+        return _.assign(new UniAutocompleteConfig(),obj);
+    }
+
+    constructor(){}
+}
 
 @Component({
     selector: 'uni-autocomplete',
@@ -40,6 +55,7 @@ export class UniAutocomplete {
         let $el = jQuery(el.nativeElement);
         document.addEventListener('click', (event) => {
             if (!jQuery(event.target).closest($el).length) {
+                event.stopPropagation();
                 this.isExpanded = false;
             }
         });
@@ -62,6 +78,13 @@ export class UniAutocomplete {
                 event.keyCode === 9) {
                 // Enter or tab
                 this.choose(this.selected);
+            }
+        });
+
+        el.nativeElement.addEventListener('keydown', (event) => {
+            if(event.keyCode === 13) {
+                event.preventDefault();
+                event.stopPropagation();
             }
         });
 
@@ -100,10 +123,15 @@ export class UniAutocomplete {
         this.control.valueChanges
             .debounceTime(this.options.debounceTime || 0)
             .distinctUntilChanged()
-            .filter(x => x !== undefined)
-            .filter((x:string) => x.length >= minLength)
-            .filter((x:string) => self.lastValue !== x)
-            .skip(1) //We skip first change
+            .filter(x => {
+                return x !== undefined
+            })
+            .filter((x:string) => {
+                return x.length >= minLength
+            })
+            .filter((x:string) => {
+                return self.lastValue !== x
+            })
             .subscribe((value) => self.searchHandler(value));
 
         this.config.ready.emit(this);
