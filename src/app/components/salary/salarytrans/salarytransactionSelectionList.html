@@ -1,7 +1,7 @@
 <header class="poster">
-    
+
     <article class="poster_toolbar">
-        
+
         <section *ngIf="payrollRun" class="salarytrans-payrollrun-detail">
             <h1>Lønnsavregning nr {{payrollRun.ID}}</h1>
             <p>Utbetaling {{payDate}} - Status:{{status}}</p>
@@ -12,7 +12,7 @@
             <a (click)="nextPayrollRun()" class="next">Neste</a>
             <a class="new">Ny lønnsavregning</a>
         </nav>
-            
+
     </article>
 
 </header>
