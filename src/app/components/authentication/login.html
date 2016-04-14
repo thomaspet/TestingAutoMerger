@@ -1,4 +1,4 @@
-<div class="authentication_component">
+<section class="authentication-component">
 	<img src="../../../assets/uni-logo.png" alt="Uni Economy logo">
     
 	<form id="loginForm" class="login_form" (submit)="login($event)">
@@ -10,9 +10,10 @@
 	</form>
     
     <p>Don't have an account? <a [routerLink]="['Signup']">Register</a></p>
-	
+	<p>Forgot password? <a [routerLink]="['ResetPassword']">Reset</a></p>
+    
     <span class="company_select">
         <select style="display: none;"></select> <!-- kendo dropdownlist will compile here -->        
     </span>  
 	
-</div>
+</section>

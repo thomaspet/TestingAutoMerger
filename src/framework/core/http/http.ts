@@ -147,7 +147,7 @@ export class UniHttp {
         return this.http.request(new Request(options)).map((response: any) => response.json());
     }
     
-    public send(request: IUniHttpRequest = {}, returnResponseHeaders: boolean = false): Observable<any> {
+    public send(request: IUniHttpRequest = {}, withoutJsonMap: boolean = false): Observable<any> {
         let token = this.authService.getToken();
         let activeCompany = this.authService.getActiveCompany();
         
@@ -182,7 +182,7 @@ export class UniHttp {
         
         let req = this.http.request(new Request(options));
         
-        if (returnResponseHeaders) {            
+        if (withoutJsonMap) {            
             return req;
         }
         

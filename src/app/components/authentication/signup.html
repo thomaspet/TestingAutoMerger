@@ -1,0 +1,16 @@
+<section class="authentication-component">
+    <img src="../../../assets/uni-logo.png" alt="Uni Economy logo">
+    
+    <p>{{errorMessage}}</p>
+    <form [ngFormModel]="form" (ngSubmit)="signup()" #f="ngForm">
+        <input type="text" ngControl="CompanyName" placeholder="Company name">
+        <input type="text" ngControl="Name" placeholder="Full name">
+        <input type="email" ngControl="Email" placeholder="Email">
+        <input type="text" ngControl="UserName" placeholder="Username">
+        <input type="password" ngControl="Password" placeholder="Password">
+        
+        <button type="submit" [disabled]="!f.form.valid" class="c2a">Register</button>
+    </form>
+    
+    <p>Already have an account? <a [routerLink]="['Login']">Log in</a></p>
+</section>

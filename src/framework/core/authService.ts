@@ -64,12 +64,7 @@ export class AuthService {
      * Returns web token or redirects to /login if user is not authenticated
      * @returns {String}
      */
-    public getToken(): string {
-        if (!this.isAuthenticated()) {
-            this.router.navigate(['Login']);
-            return;
-        }
-        
+    public getToken(): string {       
         return this.jwt;
     }
     

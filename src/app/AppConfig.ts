@@ -9,6 +9,7 @@ export const AppConfig = CONST_EXPR({
         INIT: '/api/init/'
     },
     DEFAULT_HEADERS: {
+        'Content-Type': 'application/json',
         'Client': 'economytestas'
     }
 });

@@ -7,7 +7,7 @@ declare var jQuery;
 
 @Component({
     selector: 'uni-login',
-    templateUrl: 'app/components/login/login.html',
+    templateUrl: 'app/components/authentication/login.html',
     directives: [ROUTER_DIRECTIVES]
 })
 export class Login {
@@ -82,5 +82,4 @@ export class Login {
         localStorage.removeItem('lastNavigationAttempt');
         this._router.navigateByUrl(url);
     }
-    
 }
