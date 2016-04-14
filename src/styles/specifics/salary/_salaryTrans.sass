@@ -9,15 +9,15 @@ uni-salary
     
       .icon-column
         font-size: 0
-        height: 0.9rem
+        height: 1rem
       
       .missing-info:before
         content: ''
         display: inline-block
-        background: transparent unicon-star($uni-color-Bad) no-repeat
-        background-size: 0.6rem
+        background: transparent unicon-warning($uni-color-Bad) no-repeat
+        background-size: 1rem
         padding: 0.6rem
-        margin-left: 0.4rem
+        margin-right: 0.4rem
         
 
 .salarytrans-payrollrun-detail
@@ -30,10 +30,6 @@ uni-salary
 
   p
     @extend .poster_toolbar_orgnr
-
-.salarytrans-employee-detail
-  @extend .salarytrans-payrollrun-detail
-  @include unigrid-flush(8)
     
 section.salarytrans-filter
   width: 100%

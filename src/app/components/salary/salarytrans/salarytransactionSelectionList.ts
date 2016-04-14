@@ -23,8 +23,8 @@ export class SalaryTransactionSelectionList implements OnInit {
     private bankaccountCol: UniTableColumn;
     private taxcardCol: UniTableColumn;
     private payDate: any;
-    private status: string;
-    private payrollStatus: any;
+    private status: any;
+    private payrollStatus: any[];
     private employeeList: Employee[] = [];
     public savingInfo: string = 'hei';
     
@@ -100,7 +100,7 @@ export class SalaryTransactionSelectionList implements OnInit {
                 "#if(TaxTable === null || !BankAccounts.some(x => x.Active === true)) {#<span class='missing-info' role='presentation'>Visible</span>#} " +
                 "else {#<span role='presentation'></span>#}# "
             )
-            .setWidth('5rem');
+            .setWidth('2rem');
                 this.bankaccountCol = new UniTableColumn('BankAccounts', 'Bankkonto')
                     .setHidden(true)
                     .setTemplate((dataItem) => {
@@ -147,7 +147,10 @@ export class SalaryTransactionSelectionList implements OnInit {
             return '';
         }
         date = new Date(date);
-        return date.getDate() + '.' + (date.getMonth() + 1) + '.' + date.getFullYear();
+        var day = date.getDate() < 10 ? '0' + date.getDate() : date.getDate();
+        var month = (date.getMonth() + 1) < 10 ? '0' + (date.getMonth() + 1) : (date.getMonth() + 1);
+        
+        return day + '.' + month + '.' + date.getFullYear();
     }
     
     
@@ -173,15 +176,16 @@ export class SalaryTransactionSelectionList implements OnInit {
             this.selectedEmployeeID = 0;
             this.selectedPayrollRunID = response.ID;
             this.status = _.find(this.payrollStatus, x => x.Code === response.StatusCode ? response.StatusCode : 0);
-        });
+        }, (error) => console.error(error));
     }
     
     public nextPayrollRun() {
         this._payrollRunService.previous(this.selectedPayrollRunID).subscribe((response: PayrollRun) => {
+            console.log('got normal response: ' + JSON.stringify(response));
             this.selectedEmployeeID = 0;
             this.selectedPayrollRunID = response.ID;
             this.status = _.find(this.payrollStatus, x => x.Code === response.StatusCode ? response.StatusCode : 0);
-        });
+        }, (error) => console.error(error));
     }
     
     public changeFilter(filter: string) {

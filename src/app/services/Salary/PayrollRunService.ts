@@ -13,13 +13,13 @@ export class PayrollRunService extends BizHttp<PayrollRun> {
         return this.http
                    .asGET()
                    .withEndPoint(this.relativeURL)
-                   .send({action: 'next'});
+                   .send({action: 'next&RunID=' + id});
     }
     
     public previous(id: number) {
         return this.http
                    .asGET()
                    .withEndPoint(this.relativeURL)
-                   .send({action: 'previous'});
+                   .send({action: 'previous&RunID=' + id});
     }
 }

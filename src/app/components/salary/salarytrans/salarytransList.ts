@@ -1,4 +1,15 @@
-import {Component, Input, ViewChildren, Injector, OnInit, EventEmitter, Output, ViewChild, ComponentRef} from 'angular2/core';
+import {
+    Component, 
+    Input, 
+    ViewChildren, 
+    Injector, 
+    OnInit, 
+    EventEmitter, 
+    Output, 
+    ViewChild, 
+    ComponentRef
+} from 'angular2/core';
+
 import {RouteParams} from 'angular2/router';
 import {UniTable, UniTableBuilder, UniTableColumn} from '../../../../framework/uniTable';
 import {UniFormBuilder, UniFieldBuilder, UniForm} from '../../../../framework/forms';
@@ -12,7 +23,7 @@ import {UNI_CONTROL_DIRECTIVES} from '../../../../framework/controls';
 @Component({
     selector: 'salary-transactions-employee',
     templateUrl: 'app/components/salary/salarytrans/salarytransList.html',
-    directives: [UniTable],
+    directives: [UniTable, UniComponentLoader],
     providers: [EmployeeService, AgaZoneService]
 })
 
@@ -22,10 +33,12 @@ export class SalaryTransactionEmployeeList implements OnInit {
     private employeeTotals: any[] = [];
     private employments: any[];
     public employee: Employee;
-    public form: UniFormBuilder = new UniFormBuilder();
-    private whenFormInstance: Promise<UniForm>;
-    @ViewChild(UniComponentLoader) private uniCompLoader: UniComponentLoader;
     private agaZone: AGAZone;
+    public form: UniFormBuilder = new UniFormBuilder();
+    public formModel: any = {};
+    private whenFormInstance: Promise<UniForm>;
+    
+    @ViewChild(UniComponentLoader) private uniCompLoader: UniComponentLoader;
     @Input() private ansattID: number;
     @Input() private payrollRunID: number;
     @Output()
@@ -42,6 +55,7 @@ export class SalaryTransactionEmployeeList implements OnInit {
                 private _agaZoneService: AgaZoneService, 
                 private injector: Injector, 
                 private uniHttpService: UniHttp) {
+                    this.agaZone = new AGAZone();
                     this.busy = true;
                     if (!this.ansattID) {
                         let params = this.injector.parent.parent.get(RouteParams);
@@ -68,21 +82,12 @@ export class SalaryTransactionEmployeeList implements OnInit {
         .subscribe((response: any) => {
             let [totals, emp] = response;
             this.employeeTotals.push(totals);
-            console.log('totals: ' + JSON.stringify(this.employeeTotals));
             this.employee = emp;
-            console.log('Employee: ' + JSON.stringify(this.employee.SubEntity));
             this.createTotalTableConfig();
-            this.tables.toArray()[0].hideColumn('PayrollRunID');
-            this.tables.toArray()[0].hideColumn('EmployeeID');
-            if (this.employee.SubEntity) {
-                this._agaZoneService
-                .Get(this.employee.SubEntity.AgaZone)
-                .subscribe((agaResponse: AGAZone) => {
-                    this.agaZone = response;
-                    this.createHeadingForm();
-                    this.busy = false;
-                });
-            }
+            setTimeout(() => {
+                this.getAgaAndShowView(false);
+            }, 100);
+            
             
         }, (error: any) => console.log(error));
     }
@@ -108,22 +113,45 @@ export class SalaryTransactionEmployeeList implements OnInit {
             tableConfig.filter = this.buildFilter();
             
             this.tables.toArray()[0].updateConfig(tableConfig);
-            this.tables.toArray()[0].hideColumn('PayrollRunID');
-            this.tables.toArray()[0].hideColumn('EmployeeID');
             this.tables.toArray()[1].updateConfig(totalsConfig);  
             
-            this.busy = false;
+            this.getAgaAndShowView(true);
             
         }, (error: any) => console.log(error));
-            
-            // this.runIDcol.defaultValue = this.payrollRunID;                
-            // this.empIDcol.defaultValue = this.ansattID; 
-            // this.empIDcol.setDefaultValue(this.ansattID);
-              
-           
         }        
     }
     
+    private getAgaAndShowView(update: boolean) {
+        console.log('getAgaShowView');
+        if (this.employee.SubEntity) {
+            console.log('Getting data');
+            this._agaZoneService
+                .Get(this.employee.SubEntity.AgaZone)
+                .subscribe((agaResponse: AGAZone) => {
+                    this.agaZone = agaResponse;
+                    if (update) {
+                        this.formModel.aga = this.agaZone;
+                        this.formModel.employee = this.employee;
+                        this.whenFormInstance.then((instance: UniForm) => instance.Model = this.formModel);
+                    } else {
+                        this.createHeadingForm();
+                        this.loadForm();
+                    }
+                    this.busy = false;
+                });
+        }else {
+            this.agaZone = new AGAZone();
+            if (update) {
+                this.formModel.aga = this.agaZone;
+                this.formModel.employee = this.employee;
+                this.whenFormInstance.then((instance: UniForm) => instance.Model = this.formModel);
+            } else {
+                this.createHeadingForm();
+                this.loadForm();
+            }
+            this.busy = false;
+        }
+    }
     
     private buildFilter() {
         if (this.payrollRunID === undefined) {
@@ -137,31 +165,37 @@ export class SalaryTransactionEmployeeList implements OnInit {
     
     private createHeadingForm() {
         console.log('creating form');
+        this.formModel.employee = this.employee;
+        this.formModel.aga = this.agaZone;
         var formBuilder = new UniFormBuilder();
         var percent = new UniFieldBuilder();
         percent.setLabel('Prosenttrekk')
-            .setModel(this.employee)
-            .setModelField('TaxPercentage')
+            .setModel(this.formModel)
+            .setModelField('employee.TaxPercentage')
             .setType(UNI_CONTROL_DIRECTIVES[FieldType.TEXT]);
         
         var subEntity = new UniFieldBuilder();
         subEntity.setLabel('Virksomhet')
-            .setModel(this.employee)
-            .setModelField('SubEntity.BusinessRelation.Name')
-            .setType(UNI_CONTROL_DIRECTIVES[FieldType.TEXT]);
+            .setModel(this.formModel)
+            .setModelField('employee.SubEntity.BusinessRelationInfo.Name')
+            .setType(UNI_CONTROL_DIRECTIVES[FieldType.TEXT])
+            .hasLineBreak(true);
         
         var tableTax = new UniFieldBuilder();
         tableTax.setLabel('Tabelltrekk')
-            .setModel(this.employee)
-            .setModelField('TaxTable')
-            .setType(UNI_CONTROL_DIRECTIVES[FieldType.TEXT]);
-        var agaZone = new UniFieldBuilder();
-        agaZone.setLabel('AGA-sone')
-            .setModel(this.agaZone)
-            .setModelField('ZoneName')
+            .setModel(this.formModel)
+            .setModelField('employee.TaxTable')
             .setType(UNI_CONTROL_DIRECTIVES[FieldType.TEXT]);
         
+        var agaZone = new UniFieldBuilder();
+        agaZone.setLabel('AGA-sone')
+            .setModel(this.formModel)
+            .setModelField('aga.ZoneName')
+            .setType(UNI_CONTROL_DIRECTIVES[FieldType.TEXT]);
+            
         formBuilder.addUniElements(percent, subEntity, tableTax, agaZone);
+        formBuilder.readmode();
+        formBuilder.hideSubmitButton();
         this.form = formBuilder;
     }
     
@@ -184,18 +218,16 @@ export class SalaryTransactionEmployeeList implements OnInit {
                 return this.getEmploymentName(dataItem.EmploymentID);
             });
         var accountCol = new UniTableColumn('Account', 'Konto', 'string');
-        /*var payoutCol = new UniTableColumn('Wagetype.Base_Payment', 'Utbetales', 'bool')
+        var payoutCol = new UniTableColumn('Wagetype.Base_Payment', 'Utbetales', 'bool')
             .setTemplate((dataItem) => {
-                payoutCol = new UniTableColumn('Wagetype.Base_Payment', 'Utbetales', 'bool');
-                if(dataItem.Wagetype.Base_Payment){
+                if (dataItem.Wagetype$Base_Payment) {
                     return 'Ja';
                 } else {
                     return 'nei';
                 }
-            });*/
+            });
         var transtypeCol = new UniTableColumn('IsRecurringPost', 'Fast/Variabel post', 'bool')
         .setTemplate((dataItem) => {
-            accountCol = new UniTableColumn('Account', 'Konto', 'string');
             transtypeCol = new UniTableColumn('IsRecurringPost', 'Fast/Variabel post', 'bool');
             if (dataItem.IsRecurringPost) {
                 return 'Fast';
@@ -226,8 +258,8 @@ export class SalaryTransactionEmployeeList implements OnInit {
             rateCol,
             amountCol,
             sumCol,
-            transtypeCol
-           // payoutCol
+            transtypeCol,
+            payoutCol
             )
             .addCommands('destroy');
     }
