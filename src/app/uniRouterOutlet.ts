@@ -40,7 +40,7 @@ export class UniRouterOutlet extends RouterOutlet {
                 this.parentRouter.navigateByUrl('/login');
             }
         }
-        
+
         return super.activate(instruction);
     }
     
