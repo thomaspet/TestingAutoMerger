@@ -77,22 +77,29 @@ export class UniMultiValue {
         return false;
     };
 
+    editIfEditor(event) {
+        if (this.config.editor) {
+            this.edit(0, event);
+            return false;        
+        } 
+        
+        return true;
+    }
+
     // Set the "editing" flag to the passed value
     // and unset it for all others.
-    edit(row, index, event) {
+    edit(index, event) {
         var self = this;
  
         if (this.config.editor) { // Use custom editor
             this.ucl.load(this.config.editor).then((cmp: ComponentRef)=> {
                 cmp.instance.modalConfig.isOpen = true;
-                console.log("==LASTE INN");
-                //console.log(this.config.model[this.config.field][index]);
                 cmp.instance.modalConfig.model = this.config.model[this.config.field][index];
-                //cmp.instance.modal.config.model = this.config.model[this.config.field][index];
                         
                 cmp.instance.Changed.subscribe((model: any) => {
-                  //  self.config.model[this.config.field][index] = model;
+                    self.config.model[this.config.field][index] = model;
                     self.editindex = null;
+                    self.activeMultival = false;
                     if (self.config.onChange) {
                         self.config.onChange(model);   
                     }

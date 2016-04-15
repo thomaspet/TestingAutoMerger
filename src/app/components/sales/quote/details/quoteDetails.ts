@@ -22,7 +22,7 @@ declare var _;
 @Component({
     selector: "quote-details",
     templateUrl: "app/components/sales/quote/details/quoteDetails.html",    
-    directives: [UniComponentLoader, RouterLink, QuoteItemList],
+    directives: [UniComponentLoader, RouterLink, QuoteItemList, AddressModal],
     providers: [CustomerQuoteService, CustomerQuoteItemService, CustomerService, ProjectService, DepartementService]
 })
 export class QuoteDetails {
@@ -201,7 +201,7 @@ export class QuoteDetails {
             })
             .setModel(this.businessRelationInvoice)
             .setModelField('Addresses')
-            .setModelDefaultField("InvoiceAddressID")           
+          //  .setModelDefaultField("InvoiceAddressID")           
           //  .setPlaceholder(this.EmptyAddress)
             .setEditor(AddressModal);
         invoiceaddress.onSelect = (address: Address) => {
@@ -217,7 +217,7 @@ export class QuoteDetails {
             })
             .setModel(this.businessRelationShipping)
             .setModelField('Addresses')
-            .setModelDefaultField("ShippingAddressID")
+        //    .setModelDefaultField("ShippingAddressID")
         //    .setPlaceholder(this.EmptyAddress)
             .setEditor(AddressModal);   
         shippingaddress.onSelect = (address: Address) => {
@@ -385,7 +385,7 @@ export class QuoteDetails {
                 },
                 {
                     ComponentLayoutID: 3,
-                    EntityType: "Address",
+                    EntityType: "BusinessRelation",
                     Property: "InvoiceAddress",
                     Placement: 1,
                     Hidden: false,
@@ -405,7 +405,7 @@ export class QuoteDetails {
                 },
                 {
                     ComponentLayoutID: 3,
-                    EntityType: "Address",
+                    EntityType: "BusinessRelation",
                     Property: "ShippingAddress",
                     Placement: 1,
                     Hidden: false,

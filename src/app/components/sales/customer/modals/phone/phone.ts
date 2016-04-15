@@ -32,6 +32,11 @@ export class PhoneForm {
         this.createFormConfig();      
         this.extendFormConfig();
     }
+    
+    ngAfterViewInit() {
+        console.log("===THE PHONE");
+        console.log(this.model);
+    }
            
     createFormConfig() {   
         // TODO get it from the API and move these to backend migrations   

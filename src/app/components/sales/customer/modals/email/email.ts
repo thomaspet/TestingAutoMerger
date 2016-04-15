@@ -39,7 +39,7 @@ export class EmailForm {
             BaseEntity: "Email",
             StatusCode: 0,
             Deleted: false,
-            ID: 1,
+            ID: 3,
             CustomFields: null,
             Fields: [
                 {
@@ -117,6 +117,7 @@ export class EmailModalType {
     ngAfterViewInit() {
         var self = this;
         this.ucl.load(EmailForm).then((cmp: ComponentRef)=> {
+            cmp.instance.model = self.config.model;
             self.instance = new Promise((resolve)=> {
                 resolve(cmp.instance);
             });

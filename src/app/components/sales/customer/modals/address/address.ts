@@ -13,7 +13,7 @@ import {AddressService} from "../../../../../services/services";
 // Reusable address form
 @Component({
     selector: 'address-form',
-    directives: [UniForm,NgIf,NgModel],
+    directives: [UniForm,NgIf],
     template: `
         <uni-form *ngIf="config" [config]="config">
         </uni-form>
@@ -31,9 +31,8 @@ export class AddressForm {
     
     ngOnInit()
     {
-        this.createCheckboxConfig();
         this.createFormConfig();    
-        this.config.addUniElement(this.checkboxconfig);  
+        this.createCheckboxConfig();
     }
     
     createCheckboxConfig() {
@@ -43,16 +42,18 @@ export class AddressForm {
             .setModel(this)
             .setType(UNI_CONTROL_DIRECTIVES[FieldType.CHECKBOX])
             .setModelField("saveenabled");
+            
+        this.config.addUniElement(this.checkboxconfig);
     }
  
     createFormConfig() {   
         // TODO get it from the API and move these to backend migrations   
         var view: ComponentLayout = {
+            StatusCode: 0,
             Name: "Address",
             BaseEntity: "Address",
-            StatusCode: 0,
             Deleted: false,
-            ID: 1,
+            ID: 2,
             CustomFields: null,
             Fields: [
                 {
@@ -210,6 +211,7 @@ export class AddressModalType {
     ngAfterViewInit() {
         var self = this;
         this.ucl.load(AddressForm).then((cmp: ComponentRef)=> {
+            cmp.instance.model = self.config.model;
             self.instance = new Promise((resolve)=> {
                 resolve(cmp.instance);
             });
@@ -229,20 +231,19 @@ export class AddressModalType {
 export class AddressModal {
     @ViewChild(UniModal)
     modal: UniModal;
-    model: Address;
     
     @Output() Changed = new EventEmitter<Address>();
     @Output() Canceled = new EventEmitter<boolean>();
 
     modalConfig: any = {};
-
     type: Type = AddressModalType;
 
     constructor(private addressService: AddressService) {
         var self = this;
         this.modalConfig = {
             title: "Adresse",
-            value: "Initial value",
+            mode: null,
+         
             actions: [
                 {
                     text: "Lagre adresse",
@@ -251,7 +252,8 @@ export class AddressModal {
                         self.modal.getContent().then((content: AddressModalType)=> {
                             content.instance.then((form: AddressForm)=> {
                                 form.form.sync();
-                      
+                                self.modal.close();                       
+                        
                                 if (form.saveenabled) {
                                     console.log("=== LAGRER ===");
                                     // store
@@ -262,7 +264,6 @@ export class AddressModal {
                                     }                                    
                                 }
 
-                                self.modal.close();                       
                                 self.Changed.emit(form.model);
                            });
                         });

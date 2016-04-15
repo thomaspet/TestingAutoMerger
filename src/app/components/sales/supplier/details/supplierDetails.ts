@@ -181,6 +181,13 @@ export class SupplierDetails {
         });
     }
     
+    createFormConfig() {
+        var view: ComponentLayout = this.getComponentLayout();
+        
+        this.FormConfig = new UniFormLayoutBuilder().build(view, this.Supplier);
+        this.FormConfig.hideSubmitButton();
+    }
+    
     extendFormConfig() {
         var orgnumber: UniFieldBuilder = this.FormConfig.find('OrgNumber');
         orgnumber.setKendoOptions({
@@ -259,9 +266,8 @@ export class SupplierDetails {
    
     }      
     
-    createFormConfig() {   
-        // TODO get it from the API and move these to backend migrations   
-        var view: ComponentLayout = {
+    getComponentLayout(): ComponentLayout {   
+        return {
             Name: "Supplier",
             BaseEntity: "Supplier",
             StatusCode: 0,
@@ -471,8 +477,5 @@ export class SupplierDetails {
                 }
             ]               
         };   
-        
-        this.FormConfig = new UniFormLayoutBuilder().build(view, this.Supplier);
-        this.FormConfig.hideSubmitButton();
     }
 }
