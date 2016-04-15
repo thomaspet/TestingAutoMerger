@@ -1,56 +1,81 @@
 import {Component, provide, Input, ViewChild, Output, EventEmitter, SimpleChange} from "angular2/core";
-import {UniForm} from "../../../../../framework/forms/uniForm";
+import {Observable} from "rxjs/Observable";
+import "rxjs/add/observable/forkjoin";
+
+
 import {UNI_CONTROL_DIRECTIVES} from "../../../../../framework/controls";
 import {FieldType} from "../../../../unientities";
-import {UniFormBuilder} from "../../../../../framework/forms/builders/uniFormBuilder";
-import {UniFieldsetBuilder} from "../../../../../framework/forms/builders/uniFieldsetBuilder";
+import {UniForm, UniFormBuilder, UniFieldsetBuilder, UniFieldBuilder} from "../../../../../framework/forms";
 import {UniComboFieldBuilder} from "../../../../../framework/forms/builders/uniComboFieldBuilder";
-import {UniFieldBuilder} from "../../../../../framework/forms/builders/uniFieldBuilder";
-import {AccountingDS} from "../../../../data/accounting";
-import {CurrencyDS} from "../../../../data/currency";
+
 import {DimensionList} from "../dimensionList/dimensionList";
 import {AccountGroupList} from "../accountGroupList/accountGroupList";
-import {UniHttp} from "../../../../../framework/core/http/http";
-import {AccountModel} from "../../../../models/account";
 
+import {Account} from "../../../../unientities";
+import {VatTypeService, CurrencyService, AccountService} from "../../../../services/services";
 
 @Component({
     selector: "account-details",
     templateUrl: "app/components/settings/accountSettings/accountDetails/accountDetails.html",
     directives: [DimensionList, AccountGroupList, UniForm],
-    providers: [provide(AccountingDS, {useClass: AccountingDS}), provide(CurrencyDS, {useClass: CurrencyDS})]
+    providers: [AccountService, CurrencyService, VatTypeService]
 })
 export class AccountDetails {
     @Input() account;
-    @Output() uniSaved = new EventEmitter<AccountModel>();
+    @Output() uniSaved = new EventEmitter<Account>();
     @ViewChild(UniForm) form: UniForm;
     config: any;
-    model: AccountModel = new AccountModel();
+    model: Account = null;
     currencies: Array<any> = [];
     vattypes: Array<any> = [];
 
-    constructor(private accountingDS: AccountingDS, private currencyDS: CurrencyDS, private http: UniHttp) {
+    constructor(private accountService: AccountService, private currencyService: CurrencyService, private vatTypeService: VatTypeService) {
+    }
+   
+    ngOnInit() {
+
+        //if (this.account != null && this.account > 0) {            
+        //}
+
+        Observable.forkJoin(
+                this.currencyService.GetAll(null),
+                this.vatTypeService.GetAll(null)   
+            ).subscribe(
+                    (dataset) => {
+                        this.currencies = dataset[0];
+                        this.vattypes = dataset[1];                        
+                        this.buildForm();                        
+                    },
+                    (error) => console.log(error)
+                );
     }
 
-    ngOnInit() {
-        this.http
-            .asGET()
-            .usingBusinessDomain()
-            .multipleRequests([
-                {endPoint: "currencies"},
-                {endPoint: "vattypes"}
-            ])
+
+    ngOnChanges(changes: {[propName: string]: SimpleChange}) {
+        if (changes['account'].currentValue == '0')
+            return;
+        
+        this.update();        
+    }
+    
+    update() {        
+        var self = this;        
+        this.accountService
+            .Get(this.account, ['Alias','Currency','AccountGroup','Dimensions','Dimensions.Project','Dimensions.Region','Dimensions.Responsible','Dimensions.Departement'])            
             .subscribe(
                 (dataset) => {
-                    this.currencies = dataset[0];
-                    this.vattypes = dataset[1];
-                    this.dataReady();
+                    self.model = dataset;
+                    
+                    setTimeout(() => {
+                        if (self.form != null)
+                            self.form.Model = self.model;
+                    });                    
                 },
                 (error) => console.log(error)
-            );
+            )
     }
-
-    dataReady() {
+    
+    buildForm() {
         var fb = new UniFormBuilder();
 
         //
@@ -58,15 +83,15 @@ export class AccountDetails {
         //
 
         var accountNumber = new UniFieldBuilder();
-        accountNumber.setLabel("Kontonr.")
+        accountNumber.setLabel("Kontonr./navn")
             .setModel(this.model)
             .setModelField("AccountNumber")
             .setType(UNI_CONTROL_DIRECTIVES[FieldType.TEXT]);
 
-        var accountName = new UniFieldBuilder();
-        accountName.setLabel("Kontonavn")
-            .setModel(this.model)
+        var accountName = new UniFieldBuilder();        
+        accountName.setModel(this.model)
             .setModelField("AccountName")
+            .addClass('small-combo-field')
             .setType(UNI_CONTROL_DIRECTIVES[FieldType.TEXT]);
 
         var accountCombo = new UniComboFieldBuilder();
@@ -150,143 +175,28 @@ export class AccountDetails {
         this.config = fb;
     }
 
-    update() {
-        this.http
-            .asGET()
-            .usingBusinessDomain()
-            .withEndPoint("accounts/" + this.account)
-            .send({
-                expand: "Alias,Currency,AccountGroup,Dimensions,Dimensions.Project,Dimensions.Region,Dimensions.Responsible,Dimensions.Departement"
-            })
-            .subscribe(
-                (dataset) => {
-                    this.model = dataset;
-                    this.form.Model = this.model;
-                },
-                (error) => console.log(error)
-            )
-    }
-
-    ngOnChanges(changes: {[propName: string]: SimpleChange}) {
-        if (this.form == null) return;
-
-        if (this.account == 0) {
-            this.model = new AccountModel();
-            this.form.Model = this.model;
-        } else if (this.account === -1) { // test only
-        } else if (this.account === -1) { // test only
-        /*    this.model = new AccountModel();
-            this.model.ID = 1000;
-            this.model.AccountName = "TEST";
-            this.model.AccountNumber = 1000;
-            this.model.CurrencyID = 1;
-            this.model.Currency = {
-                ID: 1,
-                Code: "NOK",
-                Date: null,
-                Source: null,
-                Name: "",
-                ExchangeRate: 1,
-                Factor: 1,
-                StatusID: 0,
-                Deleted: false,
-                CustomFields: null
-            };
-            this.model.VatTypeID = 1;
-            this.model.SystemAccount = true;
-            this.model.VatType = <any>{
-                ID: 1,
-                Name: "Høg moms",
-                VatPercent: 25,
-                VatCode: "1",
-                AvailableInModules: false,
-                VatTypeSetupID: 0,
-                ValidFrom: null,
-                ValidTo: null,
-                Visible: false,
-                Locked: false,
-                OutputVat: false,
-                IncomingAccountID: 0,
-                OutgoingAccountID: 0,
-                InUse: false,
-                StatusID: 0,
-                Deleted: false,
-                IncomingAccount: null,
-                OutgoingAccount: null,
-                CustomFields: null,
-                Alias: null,
-                Deductions: null,
-                VatCodeGroup: null,
-                VatCodeGroupID: null
-            };
-            this.model.Dimensions = {
-                CustomFields: null,
-                Project: {
-                    ProjectLeadName: "Per Hansen",
-                    Name: "Project Solar Reflection",
-                    Description: "",
-                    StatusID: 0,
-                    ID: 1,
-                    Deleted: false,
-                    CustomFields: null
-                },
-                ProjectID: 1,
-                Departement: null,
-                DepartementID: 1,
-                Responsible: null,
-                ResponsibleID: 1,
-                Region: null,
-                RegionID: 1,
-                StatusID: null,
-                ID: 1,
-                Deleted: false
-            };
-            this.model.DimensionsID = 1;
-            this.form.refresh(this.model);*/
-        } else {
-            this.update();
-        }
-    }
-
     onSubmit(value) {
         var self = this;
-        if (this.model.ID > 0) {
-            console.log("LAGRE");
-            console.log(this.model);
-            this.http
-                .asPUT()
-                .withEndPoint("accounts/" + self.model.ID)
-                .withBody(self.model)
-                .send().subscribe(
-                (response) => {
-                    console.log("LAGRET KONTO " + self.model.ID)
-                    this.uniSaved.emit(this.model);
-                },
-                (error) => {
-                    console.log("OPPDATERING FEILET");
-                    console.log(self.model);
-                    console.log(error._body);
-                }
-            );
-        } else {
-            console.log("LAGRE");
-            console.log(self.model);
-            this.http
-                .usingBusinessDomain()
-                .asPOST()
-                .withBody(self.model)
-                .withEndPoint("accounts")
-                .send()
+        if (this.model.ID > 0) {            
+            this.accountService
+                .Put(self.model.ID, self.model)
                 .subscribe(
-                    (response: any) => {
-                        console.log("LAGRET NY KONTO ");
-                        console.log(response);
+                    (response) => {
                         this.uniSaved.emit(this.model);
                     },
-                    (error: any) => {
-                        console.log("LAGRING AV NY FEILET");
-                        console.log(self.model);
-                        console.log(error._body);
+                    (err) => {
+                        console.log('Save failed: ', err);                        
+                    }
+                );
+        } else {
+            this.accountService
+                .Post(self.model)
+                .subscribe(
+                    (response) => {
+                        this.uniSaved.emit(this.model);
+                    },
+                    (err) => {
+                        console.log('Save failed: ', err);                        
                     }
                 );
         }

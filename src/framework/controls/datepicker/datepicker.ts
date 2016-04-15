@@ -2,9 +2,10 @@ import {Component, ElementRef, Input, AfterViewInit, OnDestroy} from 'angular2/c
 import {Control} from 'angular2/common';
 import {Observable} from 'rxjs/Observable';
 import 'rxjs/observable/FromEventObservable';
-
+import {autocompleteDate} from './autocompleteDate';
 import {InputTemplateString} from '../inputTemplateString';
 import {UniFieldBuilder} from '../../forms/builders/uniFieldBuilder';
+
 declare var jQuery, _;
 
 var parseFormats = [
@@ -14,6 +15,8 @@ var parseFormats = [
     'ddMMyyyy',
     'yyyy-MM-ddTHH:mm:ss'
 ];
+
+
 
 @Component({
     selector: 'uni-datepicker',
@@ -26,7 +29,7 @@ export class UniDatepicker implements AfterViewInit, OnDestroy {
     public datepicker: kendo.ui.DatePicker;
 
     public nativeElement: any;
-    
+
     constructor(public elementRef: ElementRef) {
         this.nativeElement = jQuery(this.elementRef.nativeElement);
     }
@@ -35,7 +38,7 @@ export class UniDatepicker implements AfterViewInit, OnDestroy {
         this.nativeElement
             .find('input')
             .first()
-            .focus()
+            .focus();
         return this;
     }
 
@@ -106,63 +109,4 @@ export class UniDatepicker implements AfterViewInit, OnDestroy {
         this.nativeElement.empty();
         this.nativeElement.html(InputTemplateString);
     }
-}
-
-export function autocompleteDate(inputValue: string): Date {
-    'use strict';
-
-    var input = inputValue.replace(/[^0-9]/g, '');
-
-    var day, month, year;
-    var date = new Date();
-
-    switch (input.length) {
-        case 0:
-            return date;
-        case 1:
-            day = parseInt(input, 10);
-            month = date.getMonth();
-            year = date.getFullYear();
-            break;
-        case 2:
-            day = parseInt(input, 10);
-            month = date.getMonth();
-            year = date.getFullYear();
-            break;
-        case 3:
-            day = parseInt(input.slice(0, 2), 10);
-            month = parseInt(input[2], 10) - 1;
-            year = date.getFullYear();
-            if (day > new Date(0, month, year).getDate()) {
-                day = parseInt(input[0], 10);
-                month = parseInt(input.slice(1), 10) - 1;
-            }
-            break;
-        case 4:
-            day = parseInt(input.slice(0, 2), 10);
-            month = parseInt(input.slice(2), 10) - 1;
-            year = date.getFullYear();
-            break;
-        case 6:
-            day = parseInt(input.slice(0, 2), 10);
-            month = parseInt(input.slice(2, 4), 10) - 1;
-            year = parseInt(date.getFullYear().toString().substr(0, 2) + input.slice(4), 10);
-            break;
-        default:
-            return null;
-    }
-
-    if (year < 1900) {
-        return null;
-    }
-    if (month < 0 || month > 12) {
-        return null;
-    }
-    if (day > new Date(0, month, 0).getDate()) {
-        console.log('null');
-        console.log(day);
-        console.log(new Date(0, month, 0).getDate());
-        return null; // if (day > max day of month)
-    }
-    return new Date(year, month, day);
 }

@@ -1,4 +1,4 @@
-import {Component, ComponentRef, ViewChild} from "angular2/core";
+import {Component, ComponentRef, ViewChild, HostBinding} from "angular2/core";
 import {
     Operator,
     OperationType,
@@ -30,13 +30,13 @@ declare var _;
     directives: [UniComponentLoader, PhoneModal],
     providers: [EmployeeService, BusinessRelationService, PhoneService],
     template: `
-        <div class='application usertest'>
-            <uni-component-loader></uni-component-loader>
-        </div>
+        <uni-component-loader></uni-component-loader>
     `
 })
 export class UniFormDemo {
-
+    @HostBinding('attr.aria-busy')
+    get busy() { return !this.FormIsReady};
+    private FormIsReady = false;
     private Model: EmployeeModel;
     private CurrentState: any;
     private LastFormValue: any;
@@ -93,17 +93,17 @@ export class UniFormDemo {
     }
 
     private loadForm() {
-        var self = this;
-        return this.UniCmpLoader.load(UniForm).then((cmp: ComponentRef) => {
-            cmp.instance.config = self.FormConfig;
-            cmp.instance.submit.subscribe(self.submit(self));
-            cmp.instance.ready.subscribe((component: UniForm) => {
-                component.Model  = self.Model;
-                component.Value = self.LastFormValue;
+        return this.UniCmpLoader.load(UniForm).then(((cmp: ComponentRef) => {
+            cmp.instance.config = this.FormConfig;
+            cmp.instance.submit.subscribe(this.submit.bind(this));
+            cmp.instance.ready.subscribe(((component: UniForm) => {
+                component.Model  = this.Model;
+                component.Value = this.LastFormValue;
                 component.find('Sex').setFocus();
-            });
+                this.FormIsReady = true;
+            }).bind(this));
             return cmp;
-        });
+        }).bind(this));
     }
 
     private buildFormConfig(layout: ComponentLayout, model: Employee) {
@@ -239,12 +239,10 @@ export class UniFormDemo {
         return layout;
     }
 
-    private submit(context: UniFormDemo) {
-        return () => {
-            console.log("Submit");
-            //context.Api.Post(context.Model).subscribe((result: any) => {
-                //alert(JSON.stringify(result));
-            //});
-        };
+    private submit() {
+        console.log(this,"Submit");
+        //this.Api.Post(this.Model).subscribe((result: any) => {
+        //    alert(JSON.stringify(result));
+        //});
     }
 }

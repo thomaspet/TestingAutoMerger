@@ -1,3 +1,15 @@
+account-settings
+    .splitview_list
+        min-width: 66%
+        max-width: 66%
+
+        @include media(small)
+            width: 100%
+
+    .splitview_detail
+        max-width: 33%
+        min-width: 33%
+
 .accountList
     @include unigrid(10, 8)
     float: left
@@ -6,6 +18,16 @@
     @include unigrid(6, 2)
     float: left
 
+account-details
+    uni-form 
+        label
+            width: 90%
+            float: left
+            
+account-details
+    .small-combo-field
+        width: calc(90% - 5rem) !important         
+    
 .accountDetails label
     width: 100%
 
@@ -56,8 +78,3 @@ account-details
     background: transparent unicon-plus($uni-color-positive) no-repeat
     background-size: 0.8rem
     background-position: 0.3rem 0.4rem
-
-.testonly
-    clear: both
-    background: #d0d0d0
-    padding: 2rem

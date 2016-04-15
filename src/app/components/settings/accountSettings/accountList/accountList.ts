@@ -1,10 +1,11 @@
 import {Component, Output, EventEmitter, ViewChild} from "angular2/core";
 import {Control} from "angular2/common";
 import {TreeList, TreeListItem, TREE_LIST_TYPE} from "../../../../../framework/treeList";
-import {UniHttp} from "../../../../../framework/core/http/http";
-import { UniTableBuilder, UniTableColumn} from "../../../../../framework/uniTable";
+import {UniTableBuilder, UniTableColumn} from "../../../../../framework/uniTable";
 import {UniDropdown} from "../../../../../framework/controls/dropdown/dropdown";
 import {Account} from "../../../../unientities";
+
+import {AccountGroupService} from "../../../../services/services";
 
 enum SETTINGS_ADD_NEW {
     ACCOUNTGROUP, // 0
@@ -16,7 +17,8 @@ declare var _;
 @Component({
     selector: "account-list",
     templateUrl: "app/components/settings/accountSettings/accountList/accountList.html",
-    directives: [TreeList, UniDropdown]
+    directives: [TreeList, UniDropdown],
+    providers: [AccountGroupService]
 })
 export class AccountList {
     @Output()
@@ -29,7 +31,11 @@ export class AccountList {
     config;
     addDropdownControl = new Control(-1);
 
-    constructor(private http: UniHttp) {
+    constructor(private accountGroupService: AccountGroupService) {
+        
+        /*
+        KE 13042016: Fjernet midlertidig - har uansett ingen funksjon per i dag, og gjør nå at hele viewet krasjer
+        
         var kendoDropdownConfig = {
             delay: 50,
             dataTextField: "name",
@@ -56,7 +62,8 @@ export class AccountList {
 
                 event.sender.value("");
             }
-        };
+            
+        };*/
     }
 
     refresh(account: Account) {
@@ -72,8 +79,8 @@ export class AccountList {
 
         var accountNameCol = new UniTableColumn("AccountName", "Kontonavn", "string");
 
-        var vatTypeCol = new UniTableColumn("", "Mvakode/sats", "string")
-            .setTemplate("#if(VatType != null) {# #= VatType.Name# - #= VatType.VatPercent#% #}#");
+        var vatTypeCol = new UniTableColumn("VatType", "Mvakode/sats", "string")
+            .setTemplate("# if(VatType != null) {# #= VatType.Name# - #= VatType.VatPercent#% #} else {# Ikke definert #}#");
 
         var lockedCol = new UniTableColumn("", "Synlig/låst", "boolean")
             .setClass("icon-column")
@@ -98,12 +105,14 @@ export class AccountList {
                 var tableConfig = new UniTableBuilder("accounts", false)
                     .setExpand("VatType")
                     .setFilter("AccountGroupID eq " + accountgroup.ID)
+                    .setOrderBy('AccountNumber')
                     .setPageSize(100)
                     .setPageable(false)
                     .addColumns(accountNumberCol, accountNameCol, vatTypeCol, lockedCol)
                     .setSelectCallback((account: Account) => {
                         this.uniAccountChange.emit(account.ID);
-                    });
+                    })
+                    .setColumnMenuVisible(false);
 
                 var list = new TreeListItem()
                     .setType(TREE_LIST_TYPE.TABLE)
@@ -116,16 +125,14 @@ export class AccountList {
     }
 
     ngOnInit() {
-        this.http
-            .asGET()
-            .withEndPoint("accountgroups")
-            .send()
+        this.accountGroupService
+            .GetAll(null)
             .subscribe(
                 (dataset: any) => {
                     this.accountgroups = dataset;
                     this.loopAccountGroups(null, null);
                 },
-                (error: any) => console.log(error)
+                (error: any) => console.log('Error retrieving accountgroups: ', error)
             );
     }
 
