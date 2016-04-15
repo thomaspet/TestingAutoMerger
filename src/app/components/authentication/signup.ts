@@ -39,7 +39,6 @@ export class Signup {
             Validators.maxLength(16)
         ]);
      
-                
         this._http.asGET()
             .usingInitDomain()
             .withEndPoint('users?email=' + uriEncoded)
@@ -61,7 +60,7 @@ export class Signup {
                         UserName: new Control('', Validators.required),
                         CompanyName: new Control('', Validators.required),
                         Password: new Control('', passwordValidators),
-                        ConfirmPassword: new Control('', passwordValidators)
+                        ConfirmPassword: new Control('', passwordValidators),
                     });
                     
                     this.detailsForm.controls['Password'].valueChanges.subscribe((value) => {
@@ -91,8 +90,9 @@ export class Signup {
         
         if (!this.existingUser) {
             body['Name'] = controls['Name'].value;
-            body['UserName'] = controls['Name'].value;
+            body['UserName'] = controls['UserName'].value;
             body['Password'] = controls['Password'].value;
+            body['IsTest'] = true;
         }
         
         this._http.asPOST()
