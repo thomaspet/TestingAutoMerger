@@ -74,10 +74,7 @@ export class QuoteDetails {
                 this.dropdownData = [response[0], response[1]];
                 this.quote = response[2];
                 this.customers = response[3];
-            //    this.EmptyAddress = response[4];
-                
-                console.log("==ADDRESS EMPTY==");
-                console.log(this.EmptyAddress);
+            //    this.EmptyAddress = response[4];                
                 this.EmptyAddress = new Address();
                                     
                 this.addAddresses();                                                                               
@@ -88,10 +85,16 @@ export class QuoteDetails {
     }
         
     addAddresses() {
-        if (!this.quote.Customer) return;
-                
-        this.businessRelationInvoice = _.cloneDeep(this.quote.Customer.Info);
-        this.businessRelationShipping = _.cloneDeep(this.quote.Customer.Info);
+        if (this.quote.Customer) {
+            this.businessRelationInvoice = _.cloneDeep(this.quote.Customer.Info);
+            this.businessRelationShipping = _.cloneDeep(this.quote.Customer.Info);         
+        } else {
+            this.businessRelationInvoice = new BusinessRelation();
+            this.businessRelationShipping = new BusinessRelation();
+            
+            this.businessRelationInvoice.Addresses = [];
+            this.businessRelationShipping.Addresses = [];
+        }           
                                     
         this.businessRelationInvoice.Addresses.unshift(this.invoiceToAddress());
         this.businessRelationShipping.Addresses.unshift(this.shippingtoAddress());                    
