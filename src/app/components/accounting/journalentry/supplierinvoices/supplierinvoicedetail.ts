@@ -51,7 +51,6 @@ export class SupplierInvoiceDetail implements OnInit {
                 self._supplierService.GetAll(null, ['Info']),
                 self._bankAccountService.GetAll(null)
             ).subscribe((response: any) => {
-                console.log(response);
                 let [invoice, suppliers, bac] = response;
                 self.supplierInvoice = invoice;
                 self.suppliers = suppliers;
@@ -65,7 +64,6 @@ export class SupplierInvoiceDetail implements OnInit {
                 self._supplierService.GetAll(null, ['Info']),
                 self._bankAccountService.GetAll(null)
             ).subscribe((response: any) => {
-                console.log(response);
                 let [invoice, suppliers, bac] = response;
                 self.supplierInvoice = invoice;
                 self.suppliers = suppliers;
@@ -77,7 +75,6 @@ export class SupplierInvoiceDetail implements OnInit {
     }
 
     private onSubmit() {
-        console.log('onSubmit called');
         var self = this;
 
         if (self.supplierInvoice.ID > 0) {
@@ -116,7 +113,6 @@ export class SupplierInvoiceDetail implements OnInit {
 
     private smartBooking(isNew: boolean) {
         var self = this;
-        console.log('smartBooking called.');
 
         if (self.supplierInvoice.ID === null) {
             console.error('Smart booking can not be performed since SupplierInvoice.ID is null');
@@ -125,7 +121,6 @@ export class SupplierInvoiceDetail implements OnInit {
         self._supplierInvoiceService.Action(self.supplierInvoice.ID, 'smartbooking')
             .subscribe(
             (response: any) => {
-                console.log('smartBooking completed.');
                 self.router.navigateByUrl('/accounting/journalentry/supplierinvoices/');
                 // alert(JSON.stringify(response));
             },

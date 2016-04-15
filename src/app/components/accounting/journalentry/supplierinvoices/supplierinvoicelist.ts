@@ -31,9 +31,9 @@ export class SupplierInvoiceList implements OnInit {
 
     // TODO: Needs to use this for now since the UniTable throws exception if value is null.
     private getJournalEntryNumber = (dataItem) => {
-        if (dataItem.JournalEntryID === null) return 'BilagsID=null';
-        if (dataItem.JournalEntry === null) return 'Bilag=null';
-        if (dataItem.JournalEntry.JournalEntryNumber === null) return 'Kladdebilag';
+        if (dataItem.JournalEntryID == null) return 'BilagsID=null';
+        if (dataItem.JournalEntry == null) return 'Bilag=null';
+        if (dataItem.JournalEntry.JournalEntryNumber == null) return 'Kladdebilag';
 
         return dataItem.JournalEntry.JournalEntryNumber;
     }

@@ -32,6 +32,11 @@ export class PhoneForm {
         this.createFormConfig();      
         this.extendFormConfig();
     }
+    
+    ngAfterViewInit() {
+        console.log("===THE PHONE");
+        console.log(this.model);
+    }
            
     createFormConfig() {   
         // TODO get it from the API and move these to backend migrations   
@@ -173,6 +178,7 @@ export class PhoneModal {
     modal: UniModal;
     
     @Output() Changed = new EventEmitter<Phone>();
+    @Output() Canceled = new EventEmitter<boolean>();
     
     modalConfig: any = {};
     type: Type = PhoneModalType;
@@ -203,6 +209,8 @@ export class PhoneModal {
                                 self.Changed.emit(form.model);
                             });
                         });
+                        
+                        return false;
                     }
                 },
                 {
@@ -210,7 +218,10 @@ export class PhoneModal {
                     method: () => {
                         self.modal.getContent().then(() => {
                             self.modal.close();
+                            self.Canceled.emit(true);
                         });
+                        
+                        return false;
                     }
                 }
             ]
