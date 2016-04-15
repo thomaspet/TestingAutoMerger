@@ -1,10 +1,10 @@
 <header class="quote_poster" *ngIf="quote">    
     <article class="poster_toolbar">
         <section>
-            <h1 *ngIf="quote">{{quote.Title}} <p>Tilbudsnr. {{quote.ID}}</p></h1>            
-            <p *ngIf="quote.StatusCode == null"><i>Kladd</i></p>            
+            <h1 *ngIf="quote">{{quote.CustomerName ? quote.CustomerName : quote.Customer ? quote.Customer.Info.Name : ''}}</h1>            
+            <p>Tilbudsnr. {{quote.QuoteNumber}} <span  *ngIf="!itemsSummaryData">. Netto kr {{quote.TaxExclusiveAmount}}</span> <span *ngIf="itemsSummaryData">. Netto kr {{itemsSummaryData.SumTotalExVat}}</span>. Status: {{ getStatusText() }}</p>
+            <p></p>
         </section>
-            
         <nav class="poster_toolbar_tools">
             <a (click)="previousQuote()"  class="previous">Forrige</a>
             <a (click)="nextQuote()"  class="next">Neste</a>
@@ -24,51 +24,43 @@
 
 <section class="quote-details application">
     <uni-component-loader></uni-component-loader>
+
     <quote-item-list [quote]="quote" (ItemsUpdated)="recalcItemSums($event)" (ItemsLoaded)="recalcItemSums($event)"></quote-item-list>    
-    <section *ngIf="itemsSummaryData">        
+    <section class="quote-items-summary" *ngIf="itemsSummaryData">        
         <section> 
-            Avgiftsfritt
+            Avgiftsfritt<br/>
             {{itemsSummaryData.SumNoVatBasis}}
         </section>
         <section> 
-            Avgiftsgrunnlag
+            Avgiftsgrunnlag<br/>
             {{itemsSummaryData.SumVatBasis}}
         </section>
         <section> 
-            Sum rabatt
+            Sum rabatt<br/>
             {{itemsSummaryData.SumDiscount}}
         </section>
         <section> 
-            Nettosum
+            Nettosum<br/>
             {{itemsSummaryData.SumTotalExVat}}
         </section>
         <section> 
-            Mva
+            Mva<br/>
             {{itemsSummaryData.SumVat}}
         </section>
         <section> 
-            Øreavrunding
+            Øreavrunding<br/>
             {{itemsSummaryData.DecimalRounding}}
         </section>
         <section> 
-            Totalsum
+            Totalsum<br/>
             {{itemsSummaryData.SumTotalIncVat}}
         </section>      
     </section>
 </section>
 
-<b>Gjenstår linjeliste:</b>
-<ul>                
-    <li>Validering</li>
-    <li>Sletting - marker rad som slettet (Deleted=true). Ikke vis i grid hvis Deleted=true</li>        
-    <li>Produktsøk/dropdown - trenger bedre komponent</li>
-    <li>Tab forbi ikkeredigerbarefelter automatisk (må sjekke på om de har en input? alle må settes som editable pga beregninger...)</li>
-    <li>Må bruke mus for å legge til ny rad, burde kanskje autoopprettes?</li>        
-</ul>
-
 <footer class="full-footer">
     <section class="application">
-        <button class="good" (click)="saveProductManual($event)">Lagre tilbud</button>
+        <button class="good" (click)="saveQuoteManual($event)">Lagre tilbud</button>
         <section class="auto_save_info">
             {{ lastSavedInfo }}    
         </section>

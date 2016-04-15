@@ -75,31 +75,22 @@ export class ProductDetails {
     }
     
     saveProductManual(event: any) {        
-        this.saveProduct(false);
+        this.saveProduct();
     }
 
-    saveProduct(autosave: boolean) {
+    saveProduct() {
         this.formInstance.sync();
                         
-        if (!autosave) {            
-            if (this.product.StatusCode == null) {
-                //set status if it is a draft
-                this.product.StatusCode = 1;
-            }            
-            this.LastSavedInfo = 'Lagrer produktinformasjon...';                
-        } else {
-           this.LastSavedInfo = 'Autolagrer produktinformasjon...';
-        }                
+        if (this.product.StatusCode == null) {
+            //set status if it is a draft
+            this.product.StatusCode = 1;
+        }            
+        this.LastSavedInfo = 'Lagrer produktinformasjon...';                
                             
         this.productService.Put(this.product.ID, this.product)
             .subscribe(
                 (updatedValue) => {                    
-                    if (autosave) {
-                        this.LastSavedInfo = "Sist autolagret: " + (new Date()).toLocaleTimeString();
-                    } else {
-                        //redirect back to list?
-                        this.LastSavedInfo = "Sist lagret: " + (new Date()).toLocaleTimeString();                         
-                    }                                       
+                    this.LastSavedInfo = "Sist lagret: " + (new Date()).toLocaleTimeString();     
                 },
                 (err) => console.log('Feil oppsto ved lagring', err)
             );
@@ -109,8 +100,7 @@ export class ProductDetails {
         this.formInstance.sync();
                 
         this.productService.calculatePrice(this.product)            
-            .subscribe((data) => {
-                console.log('oppdaterte priser returnert fra server');
+            .subscribe((data) => {                
                 this.product.PriceIncVat = data.PriceIncVat;
                 this.product.PriceExVat = data.PriceExVat;
                 this.formInstance.Model = this.product;
@@ -182,19 +172,6 @@ export class ProductDetails {
            self.whenFormInstance = new Promise((resolve: Function) => resolve(cmp.instance));
            cmp.instance.ready.subscribe((form: UniForm) => {
                self.formInstance = cmp.instance;
-
-               //subscribe to valueChanges of form to autosave data after X seconds
-               self.formInstance.form
-                   .valueChanges
-                   .debounceTime(5000)
-                   .subscribe(
-                       (value) =>  {
-                           self.saveProduct(true);
-                       },
-                       (err) => {
-                           console.log('Feil oppsto:', err);
-                       }
-                   );
 
                //subscribe to valueChanges of Price fields to automatically calculate the other amount
                self.formInstance.controls["VatTypeID"]

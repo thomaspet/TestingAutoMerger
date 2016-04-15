@@ -4,6 +4,7 @@ import {UniFieldBuilder} from "../../forms/builders/uniFieldBuilder";
 import {UniComponentLoader} from '../../../framework/core/componentLoader';
 
 declare var jQuery;
+declare var _;
 
 @Component({
     selector: "uni-multivalue",
@@ -61,34 +62,49 @@ export class UniMultiValue {
 //    }
         
     refresh(value: any): void {
-        this.config.control.updateValue(value, {});
+        this.config.model = value;
     }
     
     // What should happen when the user clicks
     // the button next to the input?
-    addOrDropdown() {
+    addOrDropdown() {  
         if (this.config.model[this.config.field].length <= 1) {
             this.addValue();
         } else {
             this.activeMultival = !this.activeMultival;
         }
+        
+        return false;
     };
+
+    editIfEditor(event) {
+        if (this.config.editor) {
+            this.edit(0, event);
+            return false;        
+        } 
+        
+        return true;
+    }
 
     // Set the "editing" flag to the passed value
     // and unset it for all others.
-    edit(row, index, event) {
+    edit(index, event) {
         var self = this;
  
         if (this.config.editor) { // Use custom editor
             this.ucl.load(this.config.editor).then((cmp: ComponentRef)=> {
                 cmp.instance.modalConfig.isOpen = true;
                 cmp.instance.modalConfig.model = this.config.model[this.config.field][index];
-                
+                        
                 cmp.instance.Changed.subscribe((model: any) => {
                     self.config.model[this.config.field][index] = model;
                     self.editindex = null;
-                });                     
-            });                        
+                    self.activeMultival = false;
+                    if (self.config.onChange) {
+                        self.config.onChange(model);   
+                    }
+                });    
+            });                       
         } else {
             this.editindex = index;
     
@@ -145,7 +161,10 @@ export class UniMultiValue {
     setAsDefault(row, index) {
         this.index = index;
         this.config.model[this.config.defaultfield] = row[this.config.kOptions.dataValueField];
-        this.activeMultival = false;        
+        this.activeMultival = false;  
+        if (this.config.onSelect) {
+           this.config.onSelect(row);             
+        } 
     };
     
     // Add a new, blank value to the array.
@@ -162,7 +181,7 @@ export class UniMultiValue {
                 cmp.instance.Changed.subscribe((model: any) => {
                     self.config.model[self.config.field][index] = model;
                     self.editindex = null;
-                });                     
+                });                
             });                        
         } else {
             this.editindex = this.config.model[this.config.field].length - 1;
@@ -185,20 +204,6 @@ export class UniMultiValue {
     };
     
     placeholder() {
-        return this.copyObject(this.config.placeholder);
-    }
-    
-    private copyObject<T> (object:T): T {
-        var objectCopy = <T>{};
-
-        for (var key in object)
-        {
-            if (object.hasOwnProperty(key))
-            {
-                objectCopy[key] = object[key];
-            }
-        }
-
-        return objectCopy;
+        return _.cloneDeep(this.config.placeholder);
     }
 }
