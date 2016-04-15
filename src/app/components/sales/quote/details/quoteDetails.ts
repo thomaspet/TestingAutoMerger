@@ -3,7 +3,7 @@ import {Router, RouteParams, RouterLink} from "angular2/router";
 import {Observable} from "rxjs/Observable";
 import "rxjs/add/observable/forkjoin";
 
-import {CustomerQuoteService, CustomerQuoteItemService, CustomerService, SupplierService, ProjectService, DepartementService} from "../../../../services/services";
+import {CustomerQuoteService, CustomerQuoteItemService, CustomerService, SupplierService, ProjectService, DepartementService, AddressService} from "../../../../services/services";
 import {QuoteItemList} from './quoteItemList';
 
 import {FieldType, FieldLayout, ComponentLayout, CustomerQuote, CustomerQuoteItem, Customer, Departement, Project, Address, BusinessRelation} from "../../../../unientities";
@@ -23,7 +23,7 @@ declare var _;
     selector: "quote-details",
     templateUrl: "app/components/sales/quote/details/quoteDetails.html",    
     directives: [UniComponentLoader, RouterLink, QuoteItemList, AddressModal],
-    providers: [CustomerQuoteService, CustomerQuoteItemService, CustomerService, ProjectService, DepartementService]
+    providers: [CustomerQuoteService, CustomerQuoteItemService, CustomerService, ProjectService, DepartementService, AddressService]
 })
 export class QuoteDetails {
             
@@ -46,12 +46,15 @@ export class QuoteDetails {
     formInstance: UniForm;
     
     whenFormInstance: Promise<UniForm>;
+    
+    EmptyAddress: Address;
        
     constructor(private customerService: CustomerService, 
                 private customerQuoteService: CustomerQuoteService, 
                 private customerQuoteItemService: CustomerQuoteItemService,
                 private departementService: DepartementService,
-                private projectService: ProjectService, 
+                private projectService: ProjectService,
+                private addressService: AddressService, 
                 private router: Router, private params: RouteParams) {                
         this.QuoteID = params.get("id");
     }
@@ -64,28 +67,35 @@ export class QuoteDetails {
         Observable.forkJoin(
             this.departementService.GetAll(null),
             this.projectService.GetAll(null),
-            this.customerQuoteService.Get(this.QuoteID, ['Dimensions','Items','Items.Product','Items.VatType']),
-            this.customerService.GetAll(null, ['Info', 'Info.Addresses'])
+            this.customerQuoteService.Get(this.QuoteID, ['Dimensions','Items','Items.Product','Items.VatType', 'Customer', 'Customer.Info', 'Customer.Info.Addresses']),
+            this.customerService.GetAll(null, ['Info'])
+        //    this.addressService.GetNewEntity()
         ).subscribe(response => { 
                 this.dropdownData = [response[0], response[1]];
                 this.quote = response[2];
                 this.customers = response[3];
-                     
-                this.customers.forEach(customer => {
-                   if (customer.ID == this.quote.CustomerID) {
-                       this.businessRelationInvoice = _.cloneDeep(customer.Info);
-                       this.businessRelationShipping = _.cloneDeep(customer.Info);
-                   } 
-                });
+            //    this.EmptyAddress = response[4];
                 
-                this.businessRelationInvoice.Addresses.unshift(this.invoiceToAddress());
-                this.businessRelationShipping.Addresses.unshift(this.shippingtoAddress());
-                                                                                                   
+                console.log("==ADDRESS EMPTY==");
+                console.log(this.EmptyAddress);
+                this.EmptyAddress = new Address();
+                                    
+                this.addAddresses();                                                                               
                 this.createFormConfig();
                 this.extendFormConfig();
                 this.loadForm();                
             });       
     }
+        
+    addAddresses() {
+        if (!this.quote.Customer) return;
+                
+        this.businessRelationInvoice = _.cloneDeep(this.quote.Customer.Info);
+        this.businessRelationShipping = _.cloneDeep(this.quote.Customer.Info);
+                                    
+        this.businessRelationInvoice.Addresses.unshift(this.invoiceToAddress());
+        this.businessRelationShipping.Addresses.unshift(this.shippingtoAddress());                    
+    }    
         
     recalcTimeout: any;
     
@@ -174,7 +184,8 @@ export class QuoteDetails {
         this.formConfig.hideSubmitButton();        
     }
     
-    extendFormConfig() {   
+    extendFormConfig() {  
+        var self = this; 
         var departement: UniFieldBuilder = this.formConfig.find('Dimensions.DepartementID');         
         departement.setKendoOptions({
             dataTextField: 'Name',
@@ -200,7 +211,7 @@ export class QuoteDetails {
             .setModel(this.businessRelationInvoice)
             .setModelField('Addresses')
           //  .setModelDefaultField("InvoiceAddressID")           
-          //  .setPlaceholder(this.EmptyAddress)
+            .setPlaceholder(this.EmptyAddress)
             .setEditor(AddressModal);
         invoiceaddress.onSelect = (address: Address) => {
             this.addressToInvoice(address);
@@ -216,7 +227,7 @@ export class QuoteDetails {
             .setModel(this.businessRelationShipping)
             .setModelField('Addresses')
         //    .setModelDefaultField("ShippingAddressID")
-        //    .setPlaceholder(this.EmptyAddress)
+            .setPlaceholder(this.EmptyAddress)
             .setEditor(AddressModal);   
         shippingaddress.onSelect = (address: Address) => {
             this.addressToShipping(address);
@@ -230,6 +241,16 @@ export class QuoteDetails {
                dataValueField: 'ID',
                dataSource: this.customers
             });
+        customer.onSelect = function (customerID) {
+            console.log("Customer changed");
+            
+            self.customerService.Get(customerID, ['Info', 'Info.Addresses']).subscribe((customer) => {
+                self.quote.Customer = customer;
+                self.addAddresses();           
+                invoiceaddress.refresh(self.businessRelationInvoice);
+                shippingaddress.refresh(self.businessRelationShipping);
+            });
+        };
             
         var freeTextField: UniFieldBuilder = this.formConfig.find('FreeTxt');
         freeTextField.addClass('max-width'); 
