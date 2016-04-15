@@ -93,8 +93,8 @@ export class ResetPassword {
             .withEndPoint('reset-password')
             .withBody({
                 newpassword: this.passwordForm.controls['password'].value,
-                resetpasswordcode: encodeURIComponent(this.code),
-                userid: encodeURIComponent(this.userid)
+                resetpasswordcode: this.code,
+                userid: this.userid
             })
             .send({}, true)
             .subscribe(
