@@ -124,10 +124,8 @@ export class QuoteDetails {
     saveQuote() {
         this.formInstance.sync();        
         this.lastSavedInfo = 'Lagrer tilbud...';
-    
-        console.log("==SAVING==");
-        console.log(this.quote);
-    
+        this.quote.StatusCode = 40008;
+                
         this.customerQuoteService.Put(this.quote.ID, this.quote)
             .subscribe(
                 (updatedValue) => {  
@@ -322,7 +320,7 @@ export class QuoteDetails {
                     ID: 1,
                     Deleted: false,
                     CustomFields: null 
-                },/*
+                },
                 {
                     ComponentLayoutID: 3,
                     EntityType: "CustomerQuote",
@@ -362,7 +360,7 @@ export class QuoteDetails {
                     ID: 3,
                     Deleted: false,
                     CustomFields: null 
-                },*/
+                },
                 {
                     ComponentLayoutID: 3,
                     EntityType: "CustomerQuote",
