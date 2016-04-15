@@ -122,9 +122,7 @@ export class SalaryTransactionEmployeeList implements OnInit {
     }
     
     private getAgaAndShowView(update: boolean) {
-        console.log('getAgaShowView');
         if (this.employee.SubEntity) {
-            console.log('Getting data');
             this._agaZoneService
                 .Get(this.employee.SubEntity.AgaZone)
                 .subscribe((agaResponse: AGAZone) => {
@@ -164,7 +162,6 @@ export class SalaryTransactionEmployeeList implements OnInit {
     }
     
     private createHeadingForm() {
-        console.log('creating form');
         this.formModel.employee = this.employee;
         this.formModel.aga = this.agaZone;
         var formBuilder = new UniFormBuilder();

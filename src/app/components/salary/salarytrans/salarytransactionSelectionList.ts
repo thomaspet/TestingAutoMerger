@@ -23,27 +23,14 @@ export class SalaryTransactionSelectionList implements OnInit {
     private bankaccountCol: UniTableColumn;
     private taxcardCol: UniTableColumn;
     private payDate: any;
-    private status: any;
-    private payrollStatus: any[];
     private employeeList: Employee[] = [];
-    public savingInfo: string = 'hei';
     
     public busy: boolean;
     @ViewChild(UniTable) private tables: UniTable;
     
     constructor(private uniHttpService: UniHttp,
                 private tabSer: TabService,
-                private _employeeService: EmployeeService,
-                private _payrollRunService: PayrollRunService) {
-        this.payrollStatus = [
-            {Code: '0', Name: 'åpen'},
-            {Code: '1', Name: 'kalkulert'},
-            {Code: '2', Name: 'godkjent'},
-            {Code: '3', Name: 'remittert'},
-            {Code: '4', Name: 'betalt'},
-            {Code: '5', Name: 'bokført'},
-            {Code: '6', Name: 'slettet'}
-        ];
+                private _employeeService: EmployeeService) {
     }
     
     public ngOnInit() {
@@ -52,9 +39,7 @@ export class SalaryTransactionSelectionList implements OnInit {
         .withEndPoint('payrollrun/1')
         .send()
         .subscribe((response: PayrollRun) => {
-            this.status = _.find(this.payrollStatus, x => x.Code === response.StatusCode ? response.StatusCode : 0);
-            this.payrollRun = response; // this.choosePayrollRun(response);
-            console.log('tables: ' + JSON.stringify(this.payrollRun));
+            this.payrollRun = response;
             this.payDate = this.formatDate(this.payrollRun.PayDate);
             this.selectedPayrollRunID = this.payrollRun.ID;
             this.tableConfig();
@@ -63,33 +48,17 @@ export class SalaryTransactionSelectionList implements OnInit {
         this.tabSer.addTab({name: 'Transaksjoner', url: '/salary/salarytrans'});   
     }
     
-    private choosePayrollRun(response: PayrollRun[]): PayrollRun {
-        var activeRuns = response.filter( run => run.SettlementDate === null);
-        if (activeRuns.length > 0) {
-            return Math.max.apply(Math, activeRuns.map(run => run.ToDate));
-        }
-        return Math.max.apply(Math, response.map(run => run.ToDate));
-    }
-    
     private tableConfig(update: boolean = false, filter = '') {
         this.busy = true;
-        console.log('filter: ' + filter);
         Observable.forkJoin(
             this._employeeService.GetAll(filter ? 'filter=' + filter : '', ['BusinessRelationInfo', 'SubEntity.BusinessRelationInfo', 'BankAccounts'])
-            // this._employeeService.getTotals(this.payrollRun.ID)
             )
             .subscribe((response: any) => {
             let [emp] = response;
             this.employeeList = emp;
-            /*this.employeeList.forEach((item) => {
-                var total = _.find(totals, obj => obj.Employee === item.ID);
-                item.Pay = total.netPayment;
-            });*/
             
             if (update) {
-                console.log('refresh');
                 this.tables.refresh(this.employeeList);
-                console.log('refreshed');
             } else {
                 
                 var employeenumberCol = new UniTableColumn('EmployeeNumber', '#', 'number').setWidth('10%');
@@ -156,7 +125,6 @@ export class SalaryTransactionSelectionList implements OnInit {
     
     
     public goToNextEmployee(id) {
-        console.log('Next event');
         var index = _.findIndex(this.employeeList, x => x.ID === this.selectedEmployeeID);
         if (index + 1 < this.employeeList.length) {
             this.selectedEmployeeID = this.employeeList[index + 1].ID;
@@ -164,7 +132,6 @@ export class SalaryTransactionSelectionList implements OnInit {
     }
     
     public goToPreviousEmployee(id) {
-        console.log('Previous event');
         var index = _.findIndex(this.employeeList, x => x.ID === this.selectedEmployeeID);
         if (index > 0) {
             this.selectedEmployeeID = this.employeeList[index - 1].ID;
@@ -172,20 +139,21 @@ export class SalaryTransactionSelectionList implements OnInit {
     }
     
     public previousPayrollRun() {
-        this._payrollRunService.next(this.selectedPayrollRunID).subscribe((response: PayrollRun) => {
+        // should be moved to payrollrun
+        /*this._payrollRunService.next(this.selectedPayrollRunID).subscribe((response: PayrollRun) => {
             this.selectedEmployeeID = 0;
             this.selectedPayrollRunID = response.ID;
             this.status = _.find(this.payrollStatus, x => x.Code === response.StatusCode ? response.StatusCode : 0);
-        }, (error) => console.error(error));
+        }, (error) => console.error(error));*/
     }
     
     public nextPayrollRun() {
-        this._payrollRunService.previous(this.selectedPayrollRunID).subscribe((response: PayrollRun) => {
-            console.log('got normal response: ' + JSON.stringify(response));
+        
+        /*this._payrollRunService.previous(this.selectedPayrollRunID).subscribe((response: PayrollRun) => {
             this.selectedEmployeeID = 0;
             this.selectedPayrollRunID = response.ID;
             this.status = _.find(this.payrollStatus, x => x.Code === response.StatusCode ? response.StatusCode : 0);
-        }, (error) => console.error(error));
+        }, (error) => console.error(error));*/
     }
     
     public changeFilter(filter: string) {
@@ -195,8 +163,7 @@ export class SalaryTransactionSelectionList implements OnInit {
     }
     
     public saveRun(event: any) {
-        console.log('saving');
-        var saveRequest;
+        /*var saveRequest;
         if (this.payrollRun.ID) {
             saveRequest = this._payrollRunService.Put(this.payrollRun.ID, this.payrollRun);
         }else {
@@ -206,7 +173,7 @@ export class SalaryTransactionSelectionList implements OnInit {
             // TODO save transes
         });
         
-        this.savingInfo = 'Sist lagret: ' + (new Date()).toLocaleTimeString(); 
+        this.savingInfo = 'Sist lagret: ' + (new Date()).toLocaleTimeString(); */
         //this.tables.refresh(this.employeeList);
     }
 }
