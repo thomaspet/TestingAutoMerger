@@ -2,7 +2,9 @@
     <article class="poster_toolbar">
         <div *ngIf="payrollrun">
             <h2 class="poster_toolbar_headline">{{payrollrun.Description}}
-                <p class="poster_toolbar_orgnr">Lønnsavregning nr. {{payrollrun.ID}}</p>
+                <p class="poster_toolbar_orgnr">
+                    Lønnsavregning nr. {{payrollrun.ID}}    Utbetalingsdato: {{payrollrun.PayDate}}    Status: {{payrollrun.StatusCode}}
+                </p>
             </h2>
         </div>
             
@@ -16,7 +18,8 @@
     </article>
 </header>
 <section class="payrollrun_details">
-<article class="payrollrun_details">
     <uni-component-loader class="payrollrun_details"></uni-component-loader>
-</article>
+</section>
+<section *ngIf="payrollrun">
+    <salarytrans [selectedPayrollRunID]="payrollrunID"></salarytrans>
 </section>

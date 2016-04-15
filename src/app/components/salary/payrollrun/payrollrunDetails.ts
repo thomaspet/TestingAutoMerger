@@ -5,12 +5,13 @@ import {PayrollrunService} from '../../../services/services';
 import {Observable} from 'rxjs/Observable';
 import {UniFormBuilder, UniFormLayoutBuilder, UniForm} from '../../../../framework/forms';
 import {UniComponentLoader} from '../../../../framework/core';
+import {SalaryTransactionSelectionList} from '../../salary/salarytrans/salarytransactionSelectionList';
 
 @Component({
     selector: 'payrollrun-details',
     templateUrl: 'app/components/salary/payrollrun/payrollrunDetails.html',
     providers: [PayrollrunService],
-    directives: [UniComponentLoader]
+    directives: [UniComponentLoader, SalaryTransactionSelectionList]
 })
 
 export class PayrollrunDetails implements OnInit {
@@ -29,6 +30,7 @@ export class PayrollrunDetails implements OnInit {
     
     public ngOnInit() {
         if (this.payrollrunID) {
+            
             Observable.forkJoin(
                 this.payrollrunService.Get<PayrollRun>(this.payrollrunID),
                 this.payrollrunService.layout('payrollrunDetailsForm')
