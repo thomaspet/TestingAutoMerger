@@ -13,17 +13,19 @@ export class ResetPassword {
     private code: string;
     private userid: string;
         
+    private working: boolean = false;
     private passwordChanged: boolean = false;
     private passwordsMatch: boolean = false;
     
-    private emailFormMessage: string = '';
+    private successMessage: string = '';
+    private errorMessage: string = '';
     private emailForm: ControlGroup;
     private passwordForm: ControlGroup;
     
     constructor(routeParams: RouteParams, private uniHttp: UniHttp) {
         this.code = routeParams.get('code');
         this.userid = routeParams.get('userid');
-        
+                
         var validator = Validators.compose([
             passwordValidator,
             Validators.required,
@@ -56,43 +58,53 @@ export class ResetPassword {
     }
         
     private sendResetEmail() {
+        this.working = true;
+        this.errorMessage = '';
+        this.successMessage = '';
+        
         this.uniHttp.asPOST()
             .usingInitDomain()
             .withEndPoint('forgot-password')
             .withBody({'email': this.emailForm.controls['email'].value})
-            .send()           
+            .send({}, true)           
             .subscribe(
                 (response) => {
-                    console.log(response.status);
-                    console.log(response.json());
                     if (response.status === 200) {
-                        this.emailFormMessage = 'Please check your inbox.';
+                        this.successMessage = 'Please check your inbox.';
+                        this.working = false;
                     }
                 },
                 (error) => {
                     if (error.status === 404) {
-                        this.emailFormMessage = 'Email not found.';
+                        this.errorMessage = 'Email not found.';
                     }
+                    this.working = false;
                 }
             );
     }
     
-    private resetPassword() {        
+    private resetPassword() {
+        this.working = true;
+        this.errorMessage = '';
+        this.successMessage = '';   
+        
         this.uniHttp.asPOST()
             .usingInitDomain()
             .withEndPoint('reset-password')
             .withBody({
                 newpassword: this.passwordForm.controls['password'].value,
-                resetpasswordcode: this.code,
-                userid: this.userid
+                resetpasswordcode: encodeURIComponent(this.code),
+                userid: encodeURIComponent(this.userid)
             })
             .send({}, true)
             .subscribe(
                 (response) => {
                     if (response.status === 200) {
                         this.passwordChanged = true;
+                        this.working = false;
                     }
-                }, error => this.passwordChanged = true // TODO: Remove this after testing!
+                },
+                error => this.errorMessage = 'Something went wrong'
             );
                         
     }

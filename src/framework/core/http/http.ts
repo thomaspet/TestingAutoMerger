@@ -44,18 +44,6 @@ export class UniHttp {
                 this.headers.append(header, AppConfig.DEFAULT_HEADERS[header]);
             }
         }
-        
-        // let token = this.authService.getToken();
-        // if (token) {
-        //     this.headers.append('Authorization', 'Bearer ' + token);
-        // }
-        
-        // let activeCompany = this.authService.getActiveCompany();
-        // if (activeCompany) {
-        //     this.headers.append('CompanyKey', activeCompany.Key);
-        // }
-                
-        // return this;
     }
 
     public getBaseUrl() {
