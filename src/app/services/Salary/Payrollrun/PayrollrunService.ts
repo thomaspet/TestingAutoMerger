@@ -10,6 +10,22 @@ export class PayrollrunService extends BizHttp<PayrollRun> {
         this.relativeURL = PayrollRun.relativeUrl;
     }
     
+    public getPrevious(ID: number) {
+        return this.http
+            .usingBusinessDomain()
+            .asGET()
+            .withEndPoint(this.relativeURL + '/' + ID + '?action=previous&RunID=' + ID)
+            .send();
+    }
+    
+    public getNext(ID: number) {
+        return this.http
+            .usingBusinessDomain()
+            .asGET()
+            .withEndPoint(this.relativeURL + '/' + ID + '?action=next&RunID=' + ID)
+            .send();
+    }
+    
     public layout(layoutID: string) {
         return Observable.fromArray([{
             Name: layoutID,
@@ -18,18 +34,18 @@ export class PayrollrunService extends BizHttp<PayrollRun> {
                 {
                     ComponentLayoutID: 1,
                     EntityType: 'Payrollrun',
-                    Property: 'Description',
-                    Placement: 1,
+                    Property: 'ID',
+                    Placement: 0,
                     Hidden: false,
                     FieldType: FieldType.TEXT,
-                    ReadOnly: false,
+                    ReadOnly: true,
                     LookupField: false,
-                    Label: 'Nr ',
+                    Label: 'Nr',
                     Description: null,
                     HelpText: null,
                     FieldSet: 0,
-                    Section: 0,
-                    Legend: '',
+                    Section: 1,
+                    Legend: 'Detaljer',
                     hasLineBreak: false,
                     Validations: [
                         {
@@ -43,7 +59,31 @@ export class PayrollrunService extends BizHttp<PayrollRun> {
                     ComponentLayoutID: 1,
                     EntityType: 'Payrollrun',
                     Property: 'Description',
-                    Placement: 4,
+                    Placement: 0,
+                    Hidden: false,
+                    FieldType: FieldType.TEXT,
+                    ReadOnly: false,
+                    LookupField: false,
+                    Label: 'Beskrivelse',
+                    Description: null,
+                    HelpText: null,
+                    FieldSet: 0,
+                    Section: 1,
+                    Legend: '',
+                    hasLineBreak: false,
+                    Validations: [
+                        {
+                            ErrorMessage: 'Required field',
+                            Level: 3,
+                            Operator: 'REQUIRED'
+                        }
+                    ]
+                },
+                {
+                    ComponentLayoutID: 1,
+                    EntityType: 'Payrollrun',
+                    Property: '',
+                    Placement: 1,
                     Hidden: false,
                     FieldType: FieldType.TEXT,
                     ReadOnly: true,
@@ -52,7 +92,7 @@ export class PayrollrunService extends BizHttp<PayrollRun> {
                     Description: null,
                     HelpText: null,
                     FieldSet: 0,
-                    Section: 0,
+                    Section: 1,
                     Legend: '',
                     hasLineBreak: true,
                 },
@@ -69,7 +109,7 @@ export class PayrollrunService extends BizHttp<PayrollRun> {
                     Description: null,
                     HelpText: null,
                     FieldSet: 0,
-                    Section: 0,
+                    Section: 1,
                     Legend: '',
                     hasLineBreak: false,
                     Validations: [
@@ -94,12 +134,13 @@ export class PayrollrunService extends BizHttp<PayrollRun> {
                     FieldType: FieldType.DATEPICKER,
                     ReadOnly: false,
                     LookupField: false,
-                    Label: 'Datointervall lønnsposter',
+                    Label: 'Fra dato',
                     Description: null,
                     HelpText: null,
                     FieldSet: 0,
-                    Section: 0,
+                    Section: 1,
                     Legend: '',
+                    hasLineBreak: false,
                     Validations: [
                         {
                             ErrorMessage: 'should be a valid date',
@@ -122,11 +163,11 @@ export class PayrollrunService extends BizHttp<PayrollRun> {
                     FieldType: FieldType.DATEPICKER,
                     ReadOnly: false,
                     LookupField: false,
-                    Label: 'Ta med lønnsposter frem til',
+                    Label: 'Til dato',
                     Description: null,
                     HelpText: null,
                     FieldSet: 0,
-                    Section: 0,
+                    Section: 1,
                     Legend: '',
                     hasLineBreak: true,
                     Validations: [
@@ -145,7 +186,7 @@ export class PayrollrunService extends BizHttp<PayrollRun> {
                 {
                     ComponentLayoutID: 1,
                     EntityType: 'Payrollrun',
-                    Property: 'Description',
+                    Property: '',
                     Placement: 3,
                     Hidden: false,
                     FieldType: FieldType.DROPDOWN,
@@ -155,8 +196,16 @@ export class PayrollrunService extends BizHttp<PayrollRun> {
                     Description: null,
                     HelpText: null,
                     FieldSet: 0,
-                    Section: 0,
+                    Section: 1,
                     Legend: '',
+                    kendoOptions: {
+                        dataSource: [
+                            {Indx: 0, Name: 'Ordinært skattetrekk'}, 
+                            {Indx: 1, Name: 'Halv skatt'},
+                            {Indx: 2, Name: 'Ingen skattetrekk'}],
+                        dataTextField: 'Name',
+                        dataValueField: 'Indx'
+                    },
                     Validations: [
                         {
                             ErrorMessage: 'should be a valid date',
@@ -173,19 +222,29 @@ export class PayrollrunService extends BizHttp<PayrollRun> {
                 {
                     ComponentLayoutID: 1,
                     EntityType: 'Payrollrun',
-                    Property: 'Description',
+                    Property: '',
                     Placement: 3,
                     Hidden: false,
-                    FieldType: FieldType.COMBOBOX,
+                    FieldType: FieldType.DROPDOWN,
                     ReadOnly: false,
                     LookupField: false,
                     Label: 'Behandling av fastlønn i feriemåned',
                     Description: null,
                     HelpText: null,
                     FieldSet: 0,
-                    Section: 0,
+                    Section: 1,
                     Legend: '',
                     hasLineBreak: true,
+                    kendoOptions: {
+                        dataSource: [
+                            {Indx: 0, Name: 'Vanlig'}, 
+                            {Indx: 1, Name: 'Ferielønn (+1/26)'},
+                            {Indx: 2, Name: 'Ferielønn (-1/26)'},
+                            {Indx: 1, Name: 'Ferielønn (-4/26)'},
+                            {Indx: 2, Name: 'Ferielønn (-3/22)'}],
+                        dataTextField: 'Name',
+                        dataValueField: 'Indx'
+                    },
                     Validations: [
                         {
                             ErrorMessage: 'should be a valid date',
@@ -212,9 +271,9 @@ export class PayrollrunService extends BizHttp<PayrollRun> {
                     Description: null,
                     HelpText: null,
                     FieldSet: 0,
-                    Section: 0,
+                    Section: 1,
                     Legend: '',
-                    hasLineBreak: true,
+                    hasLineBreak: false,
                     Validations: [
                         {
                             ErrorMessage: 'should be a valid date',
@@ -231,17 +290,17 @@ export class PayrollrunService extends BizHttp<PayrollRun> {
                 {
                     ComponentLayoutID: 1,
                     EntityType: 'Payrollrun',
-                    Property: 'Description',
+                    Property: '1',
                     Placement: 4,
                     Hidden: false,
                     FieldType: FieldType.CHECKBOX,
-                    ReadOnly: false,
+                    ReadOnly: true,
                     LookupField: false,
                     Label: 'Ansatte med negativ lønn utelates',
                     Description: null,
                     HelpText: null,
                     FieldSet: 0,
-                    Section: 0,
+                    Section: 1,
                     Legend: '',
                     hasLineBreak: true,
                     Validations: [
@@ -270,7 +329,7 @@ export class PayrollrunService extends BizHttp<PayrollRun> {
                     Description: null,
                     HelpText: null,
                     FieldSet: 0,
-                    Section: 0,
+                    Section: 1,
                     Legend: ''
                 },
             ]

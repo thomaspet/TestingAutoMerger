@@ -1,5 +1,5 @@
 import {Component, OnInit, ViewChild, ComponentRef} from 'angular2/core';
-import {RouteParams} from 'angular2/router';
+import {RouteParams, Router} from 'angular2/router';
 import {PayrollRun} from '../../../unientities';
 import {PayrollrunService} from '../../../services/services';
 import {Observable} from 'rxjs/Observable';
@@ -7,6 +7,7 @@ import {UniFormBuilder, UniFormLayoutBuilder, UniForm} from '../../../../framewo
 import {UniComponentLoader} from '../../../../framework/core';
 
 @Component({
+    selector: 'payrollrun-details',
     templateUrl: 'app/components/salary/payrollrun/payrollrunDetails.html',
     providers: [PayrollrunService],
     directives: [UniComponentLoader]
@@ -19,9 +20,11 @@ export class PayrollrunDetails implements OnInit {
     @ViewChild(UniComponentLoader)
     private uniCmpLoader: UniComponentLoader;
     
-    constructor(private routeParams: RouteParams, private payrollrunService: PayrollrunService) {
+    constructor(private routeParams: RouteParams, private payrollrunService: PayrollrunService, private router: Router) {
         this.payrollrunID = +this.routeParams.get('id');
-        console.log('payrollrunID', this.payrollrunID);
+        if (this.payrollrunID === 0) {
+            this.payrollrunID = 1;
+        }
     }
     
     public ngOnInit() {
@@ -39,9 +42,30 @@ export class PayrollrunDetails implements OnInit {
                 });
                 
                 this.form.hideSubmitButton();
-                
             }
             , error => console.log(error));
         }
+    }
+    
+    public previousPayrollrun() {
+        this.payrollrunService.getPrevious(this.payrollrunID)
+        .subscribe((response) => {
+            if (response) {
+                this.payrollrun = response;
+                this.payrollrunID = this.payrollrun.ID;
+                this.router.navigateByUrl('/salary/payrollrun/' + this.payrollrunID);
+            }
+        });
+    }
+    
+    public nextPayrollrun() {
+        this.payrollrunService.getNext(this.payrollrunID)
+        .subscribe((response) => {
+            if (response) {
+                this.payrollrun = response;
+                this.payrollrunID = this.payrollrun.ID;
+                this.router.navigateByUrl('/salary/payrollrun/' + this.payrollrunID);
+            }
+        });
     }
 }
