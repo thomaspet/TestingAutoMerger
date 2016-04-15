@@ -78,11 +78,6 @@ export class UniHttp {
         this.apiDomain = AppConfig.API_DOMAINS.INIT;
         return this;
     }
-    
-    public usingInitDomain() {
-        this.apiDomain = AppConfig.API_DOMAINS.INIT;
-        return this;
-    }
 
     public as(method: number) {
         this.method = method;
