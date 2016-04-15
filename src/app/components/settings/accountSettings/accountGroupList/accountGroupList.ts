@@ -20,6 +20,7 @@ export class AccountGroupList implements OnInit {
             .setPageSize(100)
             .setSearchable(false)
             .setPageable(false)
+            .setColumnMenuVisible(false)
             .addColumns(idCol, nameCol);
 
         this.tableConfig = config;

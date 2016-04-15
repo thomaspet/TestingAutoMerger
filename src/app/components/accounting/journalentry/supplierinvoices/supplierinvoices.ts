@@ -1,17 +1,15 @@
-import {Component} from "angular2/core";
+import {Component} from 'angular2/core';
 import {Router } from 'angular2/router';
 
-import {SupplierInvoice} from "../../../../unientities";
+import {SupplierInvoice} from '../../../../unientities';
 
 import {JournalEntryManual} from '../journalentrymanual/journalentrymanual';
 import {SupplierInvoiceList} from './supplierinvoicelist';
 import {SupplierInvoiceDetail} from './supplierinvoicedetail';
 
-import {UniFieldsetBuilder, UniFieldBuilder, UniSectionBuilder} from "../../../../../framework/forms";
-
 @Component({
-    selector: "supplier-invoices",
-    templateUrl: "app/components/accounting/journalentry/supplierinvoices/supplierinvoices.html",
+    selector: 'supplier-invoices',
+    templateUrl: 'app/components/accounting/journalentry/supplierinvoices/supplierinvoices.html',
     directives: [SupplierInvoiceList, SupplierInvoiceDetail, JournalEntryManual]
 })
 
@@ -21,17 +19,7 @@ export class SupplierInvoices {
     constructor(private _router: Router) {
     }
 
-    ngInit() {
-
-    }
-
-    onCreateNew()
-    {
-        this._router.navigateByUrl("/accounting/journalentry/supplierinvoices/New");
-    }
-
-    todo(input)
-    {
+    private invoiceSelected(input) {
         this.selectedSupplierInvoice = input;
     }
 }

@@ -31,7 +31,7 @@ export class Confirm {
             //Gets the full user-verification object to see if it is valid
             this.uniHttp
                 .asGET()
-                .usingInitDomain()
+                .usingInitDomain()  
                 .withEndPoint('user-verification/' + this.verificationCode)
                 .send()
                 .subscribe(

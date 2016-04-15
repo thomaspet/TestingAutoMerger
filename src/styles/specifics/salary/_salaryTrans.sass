@@ -1,32 +1,173 @@
 uni-salary
-  display: block
+    display: block
+    
+    .k-grid td
+        white-space: nowrap
 
-  .splitview
-    @include unigrid-flush(14)
-    margin: 0 auto 5rem
+    .splitview
+        @include unigrid-flush(14)
+        margin: 0 auto 5rem
+
+        .splitview_list
+
+            .icon-column
+                font-size: 0
+                height: 1rem
+
+            .missing-info:before
+                content: ''
+                display: inline-block
+                background: transparent unicon-warning($uni-color-Bad) top .2rem center no-repeat
+                background-size: 1rem
+                padding: 0.6rem
+                margin-right: 0.4rem
+
+            .k-state-selected .missing-info:before
+                background-image: unicon-warning($uni-color-negative)
+                background-size: 1rem
+
+            th:last-child,
+            td:last-child
+                border-left: none
 
 .salarytrans-payrollrun-detail
-  @include unigrid-flush(14)
-  margin: 0 auto
+    @include unigrid-flush(14)
+    margin: 0 auto
 
-  h1
-    @extend h2
-    margin: 0
+    h1
+        @extend h2
+        margin: 0
 
-  p
-    @extend .poster_toolbar_orgnr
+    p
+        @extend .poster_toolbar_orgnr
 
 section.salarytrans-filter
-  width: 100%
-  background-color: transparentize($uni-color-scale9, .5)
+    width: 100%
+    background-color: transparentize($uni-color-scale9, .5)
 
-  salarytrans-filter
-    display: block
-    @include unigrid-flush(14)
-    margin: 1rem auto
-    padding: 1rem 0
-    text-align: center
+    salarytrans-filter
+        display: block
+        @include unigrid-flush(14)
+        margin: 1rem auto
+        padding: 1rem 0
+        text-align: center
 
-  p
-    display: inline-block
+    p
+        display: inline-block
+        margin: 0
+
+.detail_header
+    @include clearfix
     margin: 0
+    padding: 0
+    position: relative
+
+.detail_header_info
+    width: 100%
+
+    h1
+        @extend h2
+        margin: 0 0 .5rem
+
+.detail_header_info_tableForm
+    color: $uni-color-scale5
+
+    label
+        @include unigrid-flush(2)
+        position: relative
+        margin-left: 0
+        margin-right: 10rem
+        min-height: 1.5rem
+        font-weight: 400
+
+    input[readonly]
+        color: $uni-color-scale5
+        padding-left: 0
+        position: absolute
+        top: 0
+        left: 100%
+        width: 10rem
+        font-weight: 300
+
+
+.detail_header_navigation
+    @extend .poster_toolbar_tools
+    position: absolute
+    top: 0
+    right: 0
+    min-width: auto
+
+uni-salary .k-grid tbody td>.k-grid-delete
+    @extend %unbutton
+    display: block
+    height: 1rem
+    width: 1rem
+    background: unicon-close($uni-color-scale6) center center no-repeat
+    background-size: .5rem
+    font-size: 0
+
+    &:hover,
+    &:focus
+        background: transparent unicon-close($uni-color-scale2) center center no-repeat
+        background-size: .5rem
+
+uni-salary .detail_tables
+    margin-left: -1rem
+    width: calc(100% + 2rem)
+
+    .maintable
+        font-size: .778rem
+        font-weight: 400
+
+        .k-grid-content
+            overflow: hidden
+        
+        div.k-grid-header
+            padding-right: 0 !important
+
+        .k-grid-toolbar
+            text-align: right
+
+    .k-grid-content
+        padding-right: 1px
+
+.summarytable
+    display: block
+    background: transparentize($uni-color-Good, .9)
+    border-top: pxToRem(3) double $uni-color-scale9
+    border-bottom: pxToRem(1) solid $uni-color-scale9
+
+    .k-grid
+        .k-grid-header tr,
+        tr:nth-of-type(odd),
+        tr:nth-of-type(even),
+        td,
+        th,
+        .k-grid-content
+            background: transparent
+            overflow: visible
+            text-align: left !important
+
+        div.k-grid-header
+            padding-right: 0 !important
+
+        .k-grid-toolbar
+            display: none
+
+        .k-grid-header-wrap
+            border-bottom: none
+
+        .k-grid-header th.k-header>.k-link
+            color: $uni-color-scale3
+            text-transform: lowercase
+            font-variant: small-caps
+
+        td
+            font-weight: 400
+            line-height: .5rem
+            padding-bottom: 1.5rem
+            padding-left: 2rem
+
+        th
+            padding-top: 1rem
+            padding-left: 2rem
