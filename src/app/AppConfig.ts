@@ -5,6 +5,7 @@ export const AppConfig = CONST_EXPR({
     LOGIN_URL: 'http://devapi.unieconomy.no/api/init/sign-in',
     BASE_URL: 'http://devapi.unieconomy.no/',
     API_DOMAINS: {
+        INIT : '/api/init/',
         BUSINESS: '/api/biz/',
         METADATA: '/api/metadata/'
     },
