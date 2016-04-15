@@ -1,7 +1,7 @@
 ﻿import {Component} from 'angular2/core';
 import {Router, RouteParams} from 'angular2/router';
 import {NgIf, NgClass} from 'angular2/common';
-import {UniHttp} from '../../../framework/core/http';
+import {UniHttp} from '../../../framework/core/http/http';
 
 @Component({
     selector: 'uni-confirm-invite',
@@ -31,7 +31,7 @@ export class Confirm {
             //Gets the full user-verification object to see if it is valid
             this.uniHttp
                 .asGET()
-                .usingInitDomain()
+                .usingInitDomain()  
                 .withEndPoint('user-verification/' + this.verificationCode)
                 .send()
                 .subscribe(

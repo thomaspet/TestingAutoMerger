@@ -23,6 +23,8 @@ export class Users {
     isPostUserActive: boolean = false;
     hideInactive: boolean = false;
     sortProperty: string;
+    inviteErrorMessage: string;
+    showInviteErrormessage: boolean = false;
 
     constructor(private http: UniHttp) {
         this.newUser = {};
@@ -39,7 +41,7 @@ export class Users {
             .withEndPoint("users")
             .send()
             .subscribe(
-                (users) => { this.users = users; },
+            (users) => { this.users = users; console.log(users);},
                 (error) => { /*Error handling*/ console.log(error); }
             );
     }
@@ -49,6 +51,7 @@ export class Users {
         if (this.validateEmail(this.newUser.Email) && this.newUser.DisplayName !== '' && this.newUser.DisplayName !== undefined) {
             this.isPostUserActive = true;
             this.invalidInviteInfo = false;
+            console.log(this.newUser);
             this.http
                 .asPOST()
                 .usingBusinessDomain()
@@ -67,7 +70,15 @@ export class Users {
                 },
                 (error) => {
                     console.log(error);
+                    console.log(error.body);
                     this.isPostUserActive = false;
+                    this.showInviteErrormessage = true;
+                    //Get message from response???
+                    //QUICKFIX 
+                    this.inviteErrorMessage = 'Noe gikk galt med invitasjonen. Prøv igjen.';
+                    setTimeout(() => {
+                        this.showInviteErrormessage = false;       
+                    }, 5000)
                 }
                 )
         } else {
