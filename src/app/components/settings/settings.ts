@@ -4,11 +4,19 @@ import {RouteConfig, RouteDefinition, ROUTER_DIRECTIVES, Router, AsyncRoute} fro
 import {TabService} from "../layout/navbar/tabstrip/tabService";
 
 import {UniTabs} from '../layout/uniTabs/uniTabs';
+
+import {CompanySettings} from './companySettings/companySettings';
+import {AccountSettings} from './accountSettings/accountSettings';
+import {UserSettings} from './userSettings/userSettings';
 import {ComponentProxy} from "../../../framework/core/componentProxy";
 
 
+import {Users} from './users/users';
+
+import {VatSettings} from './vatSettings/vatSettings';
 
 const CHILD_ROUTES = [
+
     new AsyncRoute({
         useAsDefault: true,
         path: "/company",
@@ -27,8 +35,14 @@ const CHILD_ROUTES = [
     }),
     new AsyncRoute({
         path: "/user",
-        name: "Brukere og roller",
+        name: "Brukerinnstillinger",
         loader: () => ComponentProxy.LoadComponentAsync("UserSettings", "./app/components/settings/userSettings/userSettings")
+    }),
+
+    new AsyncRoute({
+        path: "/users",
+        name: "Brukere og roller",
+        loader: () => ComponentProxy.LoadComponentAsync("Users", "./app/components/settings/users/users")
     })
 ];
 

@@ -6,6 +6,7 @@ export const AppConfig = CONST_EXPR({
     //BASE_URL: 'http://devapi.unieconomy.no/',
     BASE_URL: 'http://localhost:27831',
     API_DOMAINS: {
+        INIT : '/api/init/',
         BUSINESS: '/api/biz/',
         METADATA: '/api/metadata/'
     },
