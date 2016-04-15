@@ -62,7 +62,7 @@ export class UniMultiValue {
 //    }
         
     refresh(value: any): void {
-        this.config.control.updateValue(value, {});
+        this.config.model = value;
     }
     
     // What should happen when the user clicks

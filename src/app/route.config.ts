@@ -50,7 +50,13 @@ export const ROUTES = [
         name: 'Products',
         loader: () => ComponentProxy.LoadComponentAsync('Product', './app/components/common/product/product')
     }),
-    
+
+    new AsyncRoute({
+        path: '/confirm/...',
+        name: 'Confirm',
+        loader: () => ComponentProxy.LoadComponentAsync('Confirm', './app/components/login/confirmInvite')
+    }),
+
     /// ROUTES FOR TESTING POURPOSES
 
     new AsyncRoute({
