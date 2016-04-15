@@ -1,7 +1,7 @@
 <section class="uni-multivalue-ng">{{label}}
     
-    <input type="text" [(ngModel)]="config.model[config.field][index][config.kOptions.dataTextField]">
-    <button class="uni-multivalue-moreBtn" (click)="addOrDropdown(inputVal)">Ny</button>
+    <input type="text" [(ngModel)]="config.model[config.field][index][config.kOptions.dataTextField]" [disabled]="config.editor">
+    <button class="uni-multivalue-moreBtn" (click)="addOrDropdown()">Ny</button>
 
     <ul class="uni-multivalue-values" [class.-is-active]="activeMultival">
         <template ngFor #row [ngForOf]="config.model[config.field]" #i = "index">
@@ -11,7 +11,7 @@
                 <div *ngIf="!indelete(i) && editindex != i">
                     <span class="uni-multivalue-value" (click)="setAsDefault(row, i)">{{row[config.kOptions.dataTextField]}}</span>
                     <button class="uni-multivalue_edit_action-delete" (click)="del(row, i, $event)">Delete</button>
-                    <button class="setEditBtn" (click)="edit(row, i, $event)">Rediger {{row[config.kOptions.dataTextField]}}</button>                    
+                    <button class="setEditBtn" (click)="edit(i, $event)">Rediger {{row[config.kOptions.dataTextField]}}</button>                    
                 </div>
                 <p *ngIf="indelete(i)" class="uni-multivalue_deleted">
                     Slettet &lsquo;{{row.value}}&rsquo;. (<a (click)="putBack(row, i, $event)">Angre</a>)
@@ -22,8 +22,7 @@
         <li><button class="uni-multivalue-addBtn" (click)="addValue($event)">Legg til&hellip;</button></li>
     </ul>
 
-    <uni-component-loader></uni-component-loader>
-
     <small *ngIf="successMessage" class="good">Lagret.</small>
+    <uni-component-loader></uni-component-loader>
 
 </section>

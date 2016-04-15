@@ -21,25 +21,39 @@ import {AddressService} from "../../../../../services/services";
 })
 export class AddressForm {
     config: UniFormBuilder;
+    checkboxconfig: UniFieldBuilder;
 
     @ViewChild(UniForm)
     form: UniForm;
 
     model: Address;
-
+    saveenabled: boolean;
+    
     ngOnInit()
     {
-        this.createFormConfig();      
+        this.createFormConfig();    
+        this.createCheckboxConfig();
+    }
+    
+    createCheckboxConfig() {
+        this.checkboxconfig = new UniFieldBuilder()
+        this.checkboxconfig
+            .setLabel("Lagre på kundekort")
+            .setModel(this)
+            .setType(UNI_CONTROL_DIRECTIVES[FieldType.CHECKBOX])
+            .setModelField("saveenabled");
+            
+        this.config.addUniElement(this.checkboxconfig);
     }
  
     createFormConfig() {   
         // TODO get it from the API and move these to backend migrations   
         var view: ComponentLayout = {
+            StatusCode: 0,
             Name: "Address",
             BaseEntity: "Address",
-            StatusCode: 0,
             Deleted: false,
-            ID: 1,
+            ID: 2,
             CustomFields: null,
             Fields: [
                 {
@@ -161,26 +175,6 @@ export class AddressForm {
                     ID: 1,
                     Deleted: false,
                     CustomFields: null 
-                },
-                {
-                    ComponentLayoutID: 1,
-                    EntityType: "Address",
-                    Property: "Country",
-                    Placement: 1,
-                    Hidden: false,
-                    FieldType: 10,
-                    ReadOnly: false,
-                    LookupField: false,
-                    Label: "Land",
-                    Description: "",
-                    HelpText: "",
-                    FieldSet: 0,
-                    Section: 0,
-                    Legend: "",
-                    StatusCode: 0,
-                    ID: 1,
-                    Deleted: false,
-                    CustomFields: null 
                 }
             ]               
         };   
@@ -217,6 +211,7 @@ export class AddressModalType {
     ngAfterViewInit() {
         var self = this;
         this.ucl.load(AddressForm).then((cmp: ComponentRef)=> {
+            cmp.instance.model = self.config.model;
             self.instance = new Promise((resolve)=> {
                 resolve(cmp.instance);
             });
@@ -238,16 +233,17 @@ export class AddressModal {
     modal: UniModal;
     
     @Output() Changed = new EventEmitter<Address>();
+    @Output() Canceled = new EventEmitter<boolean>();
 
     modalConfig: any = {};
-
     type: Type = AddressModalType;
 
     constructor(private addressService: AddressService) {
         var self = this;
         this.modalConfig = {
             title: "Adresse",
-            value: "Initial value",
+            mode: null,
+         
             actions: [
                 {
                     text: "Lagre adresse",
@@ -256,18 +252,23 @@ export class AddressModal {
                         self.modal.getContent().then((content: AddressModalType)=> {
                             content.instance.then((form: AddressForm)=> {
                                 form.form.sync();
-                                self.modal.close();       
-                                
-                                // store
-                                if(form.model.ID) {
-                                    addressService.Put(form.model.ID, form.model).subscribe(null, (error: Error) => console.log('error in updating phone from modal - Put: ' + error));
-                                } else {
-                                    addressService.Post(form.model).subscribe(null, (error: Error) => console.error('error in posting phone from modal - Post: ', error));
+                                self.modal.close();                       
+                        
+                                if (form.saveenabled) {
+                                    console.log("=== LAGRER ===");
+                                    // store
+                                    if(form.model.ID) {
+                                        addressService.Put(form.model.ID, form.model).subscribe(null, (error: Error) => console.log('error in updating phone from modal - Put: ' + error));
+                                    } else {
+                                        addressService.Post(form.model).subscribe(null, (error: Error) => console.error('error in posting phone from modal - Post: ', error));
+                                    }                                    
                                 }
-                                                        
+
                                 self.Changed.emit(form.model);
-                            });
+                           });
                         });
+                        
+                        return false;
                     }
                 },
                 {
@@ -275,7 +276,10 @@ export class AddressModal {
                     method: () => {
                         self.modal.getContent().then(() => {
                             self.modal.close();
+                            self.Canceled.emit(true);
                         });
+                        
+                        return false;
                     }
                 }
             ]
