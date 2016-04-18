@@ -73,6 +73,11 @@ export class UniHttp {
 
     public usingBusinessDomain() {
         this.apiDomain = AppConfig.API_DOMAINS.BUSINESS;
+        return this;    
+    }
+
+    public usingInitDomain() {
+        this.apiDomain = AppConfig.API_DOMAINS.INIT;
         return this;
     }
 

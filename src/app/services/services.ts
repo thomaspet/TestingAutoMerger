@@ -28,4 +28,4 @@ export * from './shared/agazoneservice';
 export * from './sales/addressservice';
 export * from './sales/phoneservice';
 export * from './sales/emailservice';
-export * from './salary/payrollrunservice';
+export * from './salary/payrollrun/payrollrunservice';

@@ -9,7 +9,7 @@ export class FilterInactivePipe {
         if (!property[0]) {
             return value;
         } else {
-            return value.filter((user) => { return user.Status.Description !== property[1] });
+            return value.filter((user) => { return user.StatusCode === property[1] });
         }
     }
 }

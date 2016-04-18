@@ -56,15 +56,16 @@ export class QuoteList {
         var self = this;
 
         // Define columns to use in the table
-        var idCol = new UniTableColumn('ID', 'ID', 'number').setWidth('10%');
+        //var idCol = new UniTableColumn('ID', 'ID', 'number').setWidth('10%');
 
-        var quoteNumberCol = new UniTableColumn('QuoteNumber', 'Tilbudsnr', 'string');
+        var quoteNumberCol = new UniTableColumn('QuoteNumber', 'Tilbudsnr', 'string').setWidth('10%');
         // quoteNumber.setTemplate('#var quoteNumber; if(!QuoteNumber) {quoteNumber = ' - '}  # #= quoteNumber #');
 
-        var customeridCol = new UniTableColumn('CustomerID', 'KundeId', 'string');
+        //var customeridCol = new UniTableColumn('CustomerID', 'KundeId', 'string');
 
         var customerNumberCol = new UniTableColumn('Customer.CustomerNumber', 'Kundenr', 'string')
-            .setNullable(true);
+            .setNullable(true)
+            .setWidth('10%');
 
         var customerNameCol = new UniTableColumn('CustomerName', 'KundeNavn', 'string');
 
@@ -77,7 +78,7 @@ export class QuoteList {
             .setWidth('10%');
 
         var taxInclusiveAmountCol = new UniTableColumn('TaxInclusiveAmount', 'Totalsum', 'number')
-            .setWidth('15%')
+            .setWidth('10%')
             .setFormat('{0:n}')
             .setClass('column-align-right');
 
@@ -97,7 +98,7 @@ export class QuoteList {
             .setSelectCallback(selectCallback)
             .setExpand('Customer')
             .setPageSize(25)
-            .addColumns(idCol, quoteNumberCol, customeridCol, customerNumberCol, customerNameCol, quoteDateCol, validUntilDateCol, taxInclusiveAmountCol, statusCol)
+            .addColumns( quoteNumberCol, customerNumberCol, customerNameCol, quoteDateCol, validUntilDateCol, taxInclusiveAmountCol, statusCol)
             .setOrderBy('QuoteDate')
             .addCommands({
                 name: 'ContextMenu', text: '...', click: (function (event) {

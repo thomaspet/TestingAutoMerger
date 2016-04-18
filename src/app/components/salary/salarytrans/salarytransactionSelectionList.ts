@@ -1,28 +1,29 @@
-import {Component, ViewChild, OnInit} from 'angular2/core';
+import {Component, ViewChild, OnInit, Input} from 'angular2/core';
 import {UniTable, UniTableBuilder, UniTableColumn} from '../../../../framework/uniTable';
 import {SalaryTransactionEmployeeList} from './salarytransList';
 import {SalarytransFilter} from './salarytransFilter';
 import {UniHttp} from '../../../../framework/core/http/http';
 import {PayrollRun, Employee} from '../../../unientities';
-import {EmployeeService, PayrollRunService} from '../../../services/services';
+import {EmployeeService, PayrollrunService} from '../../../services/services';
 import {TabService} from '../../layout/navbar/tabstrip/tabService';
 import {Observable} from 'rxjs/Observable';
 declare var _
 
 @Component({
+    selector: 'salarytrans',
     templateUrl: 'app/components/salary/salarytrans/salarytransactionSelectionList.html',
     directives: [UniTable, SalaryTransactionEmployeeList, SalarytransFilter],
-    providers: [EmployeeService, PayrollRunService]
+    providers: [EmployeeService, PayrollrunService]
 })
 
 export class SalaryTransactionSelectionList implements OnInit {
     private salarytransSelectionTableConfig: UniTableBuilder;
     private selectedEmployeeID: number;
-    private selectedPayrollRunID: number;
-    private payrollRun: PayrollRun;
+    @Input() private selectedPayrollRunID: number;
+    // private payrollRun: PayrollRun;
     private bankaccountCol: UniTableColumn;
     private taxcardCol: UniTableColumn;
-    private payDate: any;
+    // private payDate: any;
     private employeeList: Employee[] = [];
     
     public busy: boolean;
@@ -34,17 +35,7 @@ export class SalaryTransactionSelectionList implements OnInit {
     }
     
     public ngOnInit() {
-        this.uniHttpService.asGET()
-        .usingBusinessDomain()
-        .withEndPoint('payrollrun/1')
-        .send()
-        .subscribe((response: PayrollRun) => {
-            this.payrollRun = response;
-            this.payDate = this.formatDate(this.payrollRun.PayDate);
-            this.selectedPayrollRunID = this.payrollRun.ID;
-            this.tableConfig();
-        });
-     
+        this.tableConfig();     
         this.tabSer.addTab({name: 'Transaksjoner', url: '/salary/salarytrans'});   
     }
     
@@ -136,24 +127,6 @@ export class SalaryTransactionSelectionList implements OnInit {
         if (index > 0) {
             this.selectedEmployeeID = this.employeeList[index - 1].ID;
         }
-    }
-    
-    public previousPayrollRun() {
-        // should be moved to payrollrun
-        /*this._payrollRunService.next(this.selectedPayrollRunID).subscribe((response: PayrollRun) => {
-            this.selectedEmployeeID = 0;
-            this.selectedPayrollRunID = response.ID;
-            this.status = _.find(this.payrollStatus, x => x.Code === response.StatusCode ? response.StatusCode : 0);
-        }, (error) => console.error(error));*/
-    }
-    
-    public nextPayrollRun() {
-        
-        /*this._payrollRunService.previous(this.selectedPayrollRunID).subscribe((response: PayrollRun) => {
-            this.selectedEmployeeID = 0;
-            this.selectedPayrollRunID = response.ID;
-            this.status = _.find(this.payrollStatus, x => x.Code === response.StatusCode ? response.StatusCode : 0);
-        }, (error) => console.error(error));*/
     }
     
     public changeFilter(filter: string) {
