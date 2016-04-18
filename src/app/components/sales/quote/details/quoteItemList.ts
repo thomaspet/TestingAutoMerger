@@ -80,8 +80,8 @@ export class QuoteItemList {
                                 rowModel.set('Product$PartName', item.PartName);                                
                                 rowModel.set('ItemText', item.Name);
                                 rowModel.set('Unit', item.Unit);
-                                rowModel.set('PriceExVat', item.PriceExVat);
-                                rowModel.set('PriceIncVat', item.PriceIncVat);                                
+                                rowModel.set('PriceIncVat', item.PriceIncVat);           
+                                rowModel.set('PriceExVat', item.PriceExVat);                                                     
                                 rowModel.set('VatTypeID', item.VatTypeID);
                                 rowModel.set('VatType$VatPercent', item.VatType != null ? item.VatType.VatPercent : null);
                                 rowModel.set('VatType', item.VatType);
@@ -148,9 +148,12 @@ export class QuoteItemList {
                 if ((item.NumberOfItems !== 0 || item.SumTotalExVat !== 0 || item.SumTotalIncVat !== 0)
                     || (item.DiscountPercent !== 0 || item.Discount !== 0)) {
                                         
-                    if (e.field === 'PriceExVat' || e.field === 'VatTypeID') {
+                    if (e.field === 'PriceExVat' || e.field === 'VatTypeID')  {
                         //Price is either inc or ex vat - set corresponding price depending - for now just assume it is PriceExVat                        
-                        item.PriceIncVat = (item.PriceExVat * (100 + item['VatType$VatPercent'])) / 100;
+                        let newPriceIncVat = (item.PriceExVat * (100 + item['VatType$VatPercent'])) / 100;
+                        if (!isNaN(newPriceIncVat)) { 
+                            item.PriceIncVat = (item.PriceExVat * (100 + item['VatType$VatPercent'])) / 100;       
+                        }              
                     }
                                 
                     //console.log('kalkulerer sumkolonner pga endring i ' + e.field);

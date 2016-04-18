@@ -26,6 +26,9 @@
     <uni-component-loader></uni-component-loader>
 
     <quote-item-list [quote]="quote" (ItemsUpdated)="recalcItemSums($event)" (ItemsLoaded)="recalcItemSums($event)"></quote-item-list>    
+    <section class="quote-items-summary-placeholder" *ngIf="!itemsSummaryData" aria-busy>
+        
+    </section>
     <section class="quote-items-summary" *ngIf="itemsSummaryData">        
         <section> 
             Avgiftsfritt<br/>
