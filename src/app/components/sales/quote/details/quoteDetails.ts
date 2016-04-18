@@ -368,7 +368,7 @@ export class QuoteDetails {
                 {
                     ComponentLayoutID: 3,
                     EntityType: "CustomerQuote",
-                    Property: "DeliveryDate",
+                    Property: "ValidUntilDate",
                     Placement: 1,
                     Hidden: false,
                     FieldType: 2,
