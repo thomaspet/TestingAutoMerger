@@ -93,7 +93,6 @@ export class SalaryTransactionEmployeeList implements OnInit {
             let [totals, employee, wagetype, employment] = response;
             this.employments = employment;
             this.wagetypes = wagetype;
-            console.log('Wagetypes: ' + JSON.stringify(this.wagetypes));
             this.createTableConfig();
             this.employeeTotals.push(totals);
             this.employee = employee;
@@ -227,8 +226,6 @@ export class SalaryTransactionEmployeeList implements OnInit {
             employmentDS.push({value: item.ID, text: item.JobName});
         });
         
-        console.log('wagetypeDS: ' + JSON.stringify(wagetypeDS));
-        
         // var wagetypeidCol = new UniTableColumn('Wagetype.WageTypeNumber', 'Lønnsart', 'string');
         var wagetypenameCol = new UniTableColumn('Text', 'Tekst', 'string');
         var fromdateCol = new UniTableColumn('FromDate', 'Fra dato', 'date');
@@ -304,7 +301,6 @@ export class SalaryTransactionEmployeeList implements OnInit {
         .setFilterable(false)
         .setColumnMenuVisible(false)
         .setSearchable(false)
-        .setChangeCallback((e, rowModel) => this.handleDataSourceChanges(e, rowModel))
         .addColumns(
             this.runIDcol,
             this.empIDcol,
@@ -321,14 +317,6 @@ export class SalaryTransactionEmployeeList implements OnInit {
             payoutCol
             )
             .addCommands('destroy');
-    }
-    
-    private handleDataSourceChanges(e, rowModel) {
-        var numberHasChanged: boolean = false;
-        console.log('handleDataSourceChanges: ' + JSON.stringify(e));
-        if (e.action === 'itemchange') {
-            console.log('item change');
-        }
     }
     
     private createTotalTableConfig() {
