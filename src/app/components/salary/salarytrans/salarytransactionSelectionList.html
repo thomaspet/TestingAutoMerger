@@ -1,11 +1,23 @@
-<section *ngIf="payrollRun" class="salarytrans-payrollrun-detail">
-    <h1>Lønnsutbetaling nr {{payrollRun.ID}}</h1>
-    <p>Utbetaling {{payrollRun.PayDate}} - Status:{{payrollRun.StatusID}}</p>
-</section>
 <section class="salarytrans-filter">
     <salarytrans-filter (filtStringChange)="changeFilter($event)"></salarytrans-filter>
 </section>
 <section class="splitview">
-    <nav class="splitview_list"><uni-table [config]="salarytransSelectionTableConfig"></uni-table></nav>
-    <main class="splitview_detail"><salary-transactions-employee *ngIf="selectedEmployeeID" [ansattID]="selectedEmployeeID" [payrollRunID]="selectedPayrollRunID"></salary-transactions-employee></main>
+    <nav class="splitview_list"><uni-table [config]="salarytransSelectionTableConfig" [attr.aria-busy]="busy"></uni-table></nav>
+    <main class="splitview_detail">
+        <salary-transactions-employee 
+            *ngIf="selectedEmployeeID" 
+            [ansattID]="selectedEmployeeID" 
+            [payrollRunID]="selectedPayrollRunID" 
+            (nextEmployee)="goToNextEmployee($id)"
+            (previousEmployee)="goToPreviousEmployee($id)"></salary-transactions-employee>
+    </main>
 </section>
+
+<!--<footer class="full-footer">
+    <section class="application">
+        <button class="good" (click)="saveRun($event)">Lagre lønnsavregning</button>
+        <section class="auto_save_info">
+            {{ savingInfo }}    
+        </section>
+    </section>
+</footer> -->

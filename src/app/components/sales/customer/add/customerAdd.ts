@@ -57,7 +57,7 @@ export class CustomerAdd {
         //this.customer.Email = searchResultItem.Email;
         this.customer.Web = searchResultItem.web;
         
-        this.formInstance.refresh(this.customer);
+        this.formInstance.Model = this.customer;
     }
     
     createCustomer() {        

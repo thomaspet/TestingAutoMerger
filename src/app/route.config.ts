@@ -1,7 +1,7 @@
 import {ComponentProxy} from '../framework/core';
 import {AsyncRoute} from 'angular2/router';
 
-export const Routes = [
+export const ROUTES = [
     new AsyncRoute({
         useAsDefault: true,
         path: '/',
@@ -45,12 +45,18 @@ export const Routes = [
         loader: () => ComponentProxy.LoadComponentAsync('UniAccounting', './app/components/accounting/accounting')
     }),
 
-	new AsyncRoute({
+    new AsyncRoute({
         path: '/products/...',
         name: 'Products',
         loader: () => ComponentProxy.LoadComponentAsync('Product', './app/components/common/product/product')
     }),
-    
+
+    new AsyncRoute({
+        path: '/confirm/...',
+        name: 'Confirm',
+        loader: () => ComponentProxy.LoadComponentAsync('Confirm', './app/components/login/confirmInvite')
+    }),
+
     /// ROUTES FOR TESTING POURPOSES
 
     new AsyncRoute({

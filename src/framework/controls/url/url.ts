@@ -1,4 +1,5 @@
 import {Component, Input} from "angular2/core";
+import {UniFieldBuilder} from "../../forms/builders/uniFieldBuilder";
 
 @Component({
     selector: "uni-url",
@@ -16,13 +17,17 @@ import {Component, Input} from "angular2/core";
 })
 export class UniUrlInput {
     @Input()
-    config: any;
+    config: UniFieldBuilder;
 
     constructor() {
     }
 
     ngOnInit() {
         this.config.fieldComponent = this;
+    }
+
+    ngAfterViewInit() {
+        this.config.ready.emit(this);
     }
 
     refresh(value: any): void {

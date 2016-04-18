@@ -73,7 +73,7 @@ export class CustomerDetails {
             });        
     }
     
-    createCustomer() {   
+    addCustomer() {   
         var c = new Customer();
         c.Info = new BusinessRelation(); 
         
@@ -109,14 +109,14 @@ export class CustomerDetails {
             this.projectService.GetAll(null),
             this.customerService.Get(this.CustomerID, ["Info", "Info.Phones", "Info.Addresses", "Info.Emails"]),
             this.phoneService.GetNewEntity(),
-            this.emailService.GetNewEntity()
-         //   this.addressService.GetNewEntity()
+            this.emailService.GetNewEntity(),
+            this.addressService.GetNewEntity([], "address")
         ).subscribe(response => {
             this.DropdownData = [response[0], response[1]];
             this.Customer = response[2];
             this.EmptyPhone = response[3];
             this.EmptyEmail = response[4];
-         //   this.EmptyAddress = response[5];
+            this.EmptyAddress = response[5];
             
             console.log("== CUSTOMER ==");
             console.log(this.Customer);
@@ -128,6 +128,9 @@ export class CustomerDetails {
     }
     
     addSearchInfo(selectedSearchInfo: SearchResultItem) {
+        console.log("== MODEL BEFORE ==");
+        console.log(this.Customer);
+        
         if (this.Customer != null) {
             this.Customer.Info.Name = selectedSearchInfo.navn;
             this.Customer.OrgNumber = selectedSearchInfo.orgnr;
@@ -137,37 +140,39 @@ export class CustomerDetails {
             var phone = this.phoneService.phoneFromSearch(selectedSearchInfo);
             var mobile = this.phoneService.mobileFromSearch(selectedSearchInfo);
             
-          //  Promise.all([businessaddress, postaladdress, phone, mobile]).then(result => {
-              Promise.all([businessaddress]).then(result => {
-                var businessaddress = result[0];
-             //   var postaladdress = result[1];
-             //   var phone = result[2];
-             //   var mobile = result[3];
-                
+            Promise.all([businessaddress, postaladdress, phone, mobile]).then(results => {
+               console.log("==RESULT==");
+               console.log(results); 
+               
+               var businessaddress = results[0];
+               var postaladdress = results[1];
+               var phone = results[2];
+               var mobile = results[3];
+               
                 if (businessaddress) {
-                    this.Customer.Info.Addresses.push(businessaddress);
+                    this.Customer.Info.Addresses.unshift(businessaddress);
+                    console.log("ADDING BUSINESSADDRESS");
+                    console.log(businessaddress);
                     this.Customer.Info.InvoiceAddressID = businessaddress.ID;
                 }
-         /*
+
                 if (!postaladdress) postaladdress = businessaddress;
                 if (postaladdress) {
-                    this.Customer.Info.Addresses.push(postaladdress);
+                    this.Customer.Info.Addresses.unshift(postaladdress);
                     this.Customer.Info.ShippingAddressID = postaladdress.ID;
-                }
-                
+                } 
+
                 if (phone) {
-                    this.Customer.Info.Phones.push(phone);
+                    this.Customer.Info.Phones.unshift(phone);
                     this.Customer.Info.DefaultPhoneID = phone.ID;
                 }
-                
+
                 if (mobile) {
                     this.Customer.Info.Phones.push(mobile);
-                } 
-                
-                */              
+                }                               
             });
-              
-            //this.formInstance.refresh(this.Customer);  
+                          
+//            this.formInstance.Model.Info = this.Customer.Info;
         } 
     }
     
@@ -470,19 +475,6 @@ export class CustomerDetails {
            setTimeout(() => {
                 self.formInstance = cmp.instance;   
                 
-                //subscribe to valueChanges of form to autosave data after X seconds
-                self.formInstance.form
-                    .valueChanges
-                    .debounceTime(3000)
-                    .subscribe(
-                        (value) =>  {                                                                                
-                            self.saveCustomer(true);                            
-                        },
-                        (err) => { 
-                            console.log('Feil oppsto:', err);
-                        }
-                    ); 
-                
                 //subscribe to valueChanges of Name input to autosearch external registries 
                 self.formInstance.controls["Info.Name"]
                     .valueChanges
@@ -494,31 +486,22 @@ export class CustomerDetails {
     }           
 
     saveCustomerManual(event: any) {        
-        this.saveCustomer(false);
+        this.saveCustomer();
     }
 
-    saveCustomer(autosave: boolean) {
-        this.formInstance.updateModel();
+    saveCustomer() {
+        this.formInstance.sync();
                         
-        if (!autosave) {    
-            if (this.Customer.StatusCode == null) {
-                //set status if it is a draft
-                this.Customer.StatusCode = 1;
-            } 
-            this.LastSavedInfo = 'Lagrer kundeinformasjon...';                
-        } else {
-           this.LastSavedInfo = 'Autolagrer kundeinformasjon...';
-        }                
+        if (this.Customer.StatusCode == null) {
+            //set status if it is a draft
+            this.Customer.StatusCode = 1;
+        } 
+        this.LastSavedInfo = 'Lagrer kundeinformasjon...';                
                             
         this.customerService.Put(this.Customer.ID, this.Customer)
             .subscribe(
-                (updatedValue) => {                    
-                    if (autosave) {
-                        this.LastSavedInfo = "Sist autolagret: " + (new Date()).toLocaleTimeString();
-                    } else {
-                        //redirect back to list?
-                        this.LastSavedInfo = "Sist lagret: " + (new Date()).toLocaleTimeString();                         
-                    }                                       
+                (updatedValue) => {  
+                    this.LastSavedInfo = "Sist lagret: " + (new Date()).toLocaleTimeString(); 
                 },
                 (err) => console.log('Feil oppsto ved lagring', err)
             );

@@ -74,7 +74,7 @@ export class SupplierDetails {
             });        
     }
     
-    createSupplier() {   
+    addSupplier() {   
         var c = new Supplier();
         c.Info = new BusinessRelation(); 
         
@@ -135,37 +135,28 @@ export class SupplierDetails {
             this.Supplier.Info.Name = selectedSearchInfo.navn;
             this.Supplier.OrgNumber = selectedSearchInfo.orgnr;
             
-            this.formInstance.refresh(this.Supplier); 
+            this.formInstance.Model = this.Supplier;
         } 
     }
     
     saveSupplierManual(event: any) {        
-        this.saveSupplier(false);
+        this.saveSupplier();
     }
 
-    saveSupplier(autosave: boolean) {
-        this.formInstance.updateModel();
+    saveSupplier() {
+        this.formInstance.sync();
                         
-        if (!autosave) {            
-            if (this.Supplier.StatusCode == null) {
-                //set status if it is a draft
-                this.Supplier.StatusCode = 1;
-            }
-               
-            this.LastSavedInfo = 'Lagrer informasjon...';                
-        } else {
-           this.LastSavedInfo = 'Autolagrer informasjon...';
-        }                
+        if (this.Supplier.StatusCode == null) {
+            //set status if it is a draft
+            this.Supplier.StatusCode = 1;
+        }
+            
+        this.LastSavedInfo = 'Lagrer informasjon...';                
                             
         this.supplierService.Put(this.Supplier.ID, this.Supplier)
             .subscribe(
                 (updatedValue) => {                    
-                    if (autosave) {
-                        this.LastSavedInfo = "Sist autolagret: " + (new Date()).toLocaleTimeString();
-                    } else {
-                        //redirect back to list?
-                        this.LastSavedInfo = "Sist lagret: " + (new Date()).toLocaleTimeString();                         
-                    }                                       
+                    this.LastSavedInfo = "Sist lagret: " + (new Date()).toLocaleTimeString(); 
                 },
                 (err) => console.log('Feil oppsto ved lagring', err)
             );
@@ -180,19 +171,6 @@ export class SupplierDetails {
            setTimeout(() => {
                 self.formInstance = cmp.instance;   
                 
-                //subscribe to valueChanges of form to autosave data after X seconds
-                self.formInstance.form
-                    .valueChanges
-                    .debounceTime(3000)
-                    .subscribe(
-                        (value) =>  {                                                                                
-                            self.saveSupplier(true);                            
-                        },
-                        (err) => { 
-                            console.log('Feil oppsto:', err);
-                        }
-                    ); 
-                
                 //subscribe to valueChanges of Name input to autosearch external registries 
                 self.formInstance.controls["Info.Name"]
                     .valueChanges
@@ -201,6 +179,13 @@ export class SupplierDetails {
                     .subscribe((data) => self.searchText = data);            
            });           
         });
+    }
+    
+    createFormConfig() {
+        var view: ComponentLayout = this.getComponentLayout();
+        
+        this.FormConfig = new UniFormLayoutBuilder().build(view, this.Supplier);
+        this.FormConfig.hideSubmitButton();
     }
     
     extendFormConfig() {
@@ -281,9 +266,8 @@ export class SupplierDetails {
    
     }      
     
-    createFormConfig() {   
-        // TODO get it from the API and move these to backend migrations   
-        var view: ComponentLayout = {
+    getComponentLayout(): ComponentLayout {   
+        return {
             Name: "Supplier",
             BaseEntity: "Supplier",
             StatusCode: 0,
@@ -493,8 +477,5 @@ export class SupplierDetails {
                 }
             ]               
         };   
-        
-        this.FormConfig = new UniFormLayoutBuilder().build(view, this.Supplier);
-        this.FormConfig.hideSubmitButton();
     }
 }

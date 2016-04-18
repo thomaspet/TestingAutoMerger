@@ -39,7 +39,7 @@ export class EmailForm {
             BaseEntity: "Email",
             StatusCode: 0,
             Deleted: false,
-            ID: 1,
+            ID: 3,
             CustomFields: null,
             Fields: [
                 {
@@ -117,6 +117,7 @@ export class EmailModalType {
     ngAfterViewInit() {
         var self = this;
         this.ucl.load(EmailForm).then((cmp: ComponentRef)=> {
+            cmp.instance.model = self.config.model;
             self.instance = new Promise((resolve)=> {
                 resolve(cmp.instance);
             });
@@ -138,6 +139,7 @@ export class EmailModal {
     modal: UniModal;
     
     @Output() Changed = new EventEmitter<Email>();
+    @Output() Canceled = new EventEmitter<boolean>();
 
     modalConfig: any = {};
     
@@ -155,7 +157,7 @@ export class EmailModal {
                     method: () => {
                         self.modal.getContent().then((content: EmailModalType)=> {
                             content.instance.then((form: EmailForm)=> {
-                                form.form.updateModel();
+                                form.form.sync();
                                 self.modal.close();       
                                 
                                 // store
@@ -168,6 +170,8 @@ export class EmailModal {
                                 self.Changed.emit(form.model);
                             });
                         });
+                        
+                        return false;
                     }
                 },
                 {
@@ -175,7 +179,10 @@ export class EmailModal {
                     method: () => {
                         self.modal.getContent().then(() => {
                             self.modal.close();
+                            self.Canceled.emit(true);
                         });
+                        
+                        return false;
                     }
                 }
             ]

@@ -14,11 +14,13 @@ export class AddressService extends BizHttp<Address> {
         this.DefaultOrderBy = null;
     }           
     
-    businessAddressFromSearch(selectedSearchInfo: SearchResultItem): Promise {     
+    businessAddressFromSearch(selectedSearchInfo: SearchResultItem): Promise<any> {     
+        var self = this;
+        
         if(selectedSearchInfo.forretningsadr == "" && selectedSearchInfo.forradrpostnr == "" && selectedSearchInfo.forradrpoststed == "" && selectedSearchInfo.forradrland == "") {
             return null;
         };
-        
+               
         return new Promise(resolve => {
             this.GetNewEntity([], "address").subscribe(address => {
                 address.AddressLine1 = selectedSearchInfo.forretningsadr;
@@ -26,16 +28,16 @@ export class AddressService extends BizHttp<Address> {
                 address.City = selectedSearchInfo.forradrpoststed;
                 address.Country = selectedSearchInfo.forradrland;           
                 
-                this.Post<Address>(address).subscribe(address => {
-                    console.log("===ADDRESS===");
-                    console.log(address);
-                    resolve(address);                 
+                self.Post(address).subscribe(address => {
+                   resolve(address); 
                 });
             });
         });        
     }
     
-    postalAddressFromSearch(selectedSearchInfo: SearchResultItem): Promise {
+    postalAddressFromSearch(selectedSearchInfo: SearchResultItem): Promise<any> {
+        var self = this;
+
         if(selectedSearchInfo.postadresse == "" && selectedSearchInfo.ppostnr == "" && selectedSearchInfo.ppoststed == "" && selectedSearchInfo.ppostland == "") {
             return null;
         };
@@ -47,8 +49,8 @@ export class AddressService extends BizHttp<Address> {
                 address.City = selectedSearchInfo.ppoststed;
                 address.Country = selectedSearchInfo.ppostland;
                 
-                this.Post<Address>(address).subscribe(address => {
-                    resolve(address);                 
+                self.Post(address).subscribe(address => {
+                   resolve(address); 
                 });
             }); 
         }); 

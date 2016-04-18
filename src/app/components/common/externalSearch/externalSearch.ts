@@ -81,7 +81,7 @@ export class SearchResultItem {
     postadresse: string;
     ppostnr: string;
     ppoststed: string;
-    ppostland: string;¨
+    ppostland: string;
     tlf_mobil: string;    
     tlf: string;
     url: string;

@@ -1,10 +1,10 @@
 <header class="quote_poster" *ngIf="quote">    
     <article class="poster_toolbar">
         <section>
-            <h1 *ngIf="quote">{{quote.Title}} <p>Tilbudsnr. {{quote.ID}}</p></h1>            
-            <p *ngIf="quote.StatusCode == null"><i>Kladd</i></p>            
+            <h1 *ngIf="quote">{{quote.CustomerName ? quote.CustomerName : quote.Customer ? quote.Customer.Info.Name : ''}}</h1>            
+            <p>Tilbudsnr. {{quote.QuoteNumber}} <span  *ngIf="!itemsSummaryData">. Netto kr {{quote.TaxExclusiveAmount}}</span> <span *ngIf="itemsSummaryData">. Netto kr {{itemsSummaryData.SumTotalExVat}}</span>. Status: {{ getStatusText() }}</p>
+            <p></p>
         </section>
-            
         <nav class="poster_toolbar_tools">
             <a (click)="previousQuote()"  class="previous">Forrige</a>
             <a (click)="nextQuote()"  class="next">Neste</a>
@@ -24,14 +24,48 @@
 
 <section class="quote-details application">
     <uni-component-loader></uni-component-loader>
-    <quote-item-list></quote-item-list>        
+
+    <quote-item-list [quote]="quote" (ItemsUpdated)="recalcItemSums($event)" (ItemsLoaded)="recalcItemSums($event)"></quote-item-list>    
+    <section class="quote-items-summary-placeholder" *ngIf="!itemsSummaryData" aria-busy>
+        
+    </section>
+    <section class="quote-items-summary" *ngIf="itemsSummaryData">        
+        <section> 
+            Avgiftsfritt<br/>
+            {{itemsSummaryData.SumNoVatBasis}}
+        </section>
+        <section> 
+            Avgiftsgrunnlag<br/>
+            {{itemsSummaryData.SumVatBasis}}
+        </section>
+        <section> 
+            Sum rabatt<br/>
+            {{itemsSummaryData.SumDiscount}}
+        </section>
+        <section> 
+            Nettosum<br/>
+            {{itemsSummaryData.SumTotalExVat}}
+        </section>
+        <section> 
+            Mva<br/>
+            {{itemsSummaryData.SumVat}}
+        </section>
+        <section> 
+            Øreavrunding<br/>
+            {{itemsSummaryData.DecimalRounding}}
+        </section>
+        <section> 
+            Totalsum<br/>
+            {{itemsSummaryData.SumTotalIncVat}}
+        </section>      
+    </section>
 </section>
 
 <footer class="full-footer">
     <section class="application">
-        <button class="good" (click)="saveProductManual($event)">Lagre tilbud</button>
+        <button class="good" (click)="saveQuoteManual($event)">Lagre tilbud</button>
         <section class="auto_save_info">
-            {{ LastSavedInfo }}    
+            {{ lastSavedInfo }}    
         </section>
     </section>
 </footer>

@@ -1,0 +1,23 @@
+﻿<div class="authentication_component">
+    <img src="../../../assets/uni-logo.png" alt="Uni Economy logo">
+    <p *ngIf="!validInvite">{{verificationCodeErrorMessage}}</p>
+    <section *ngIf="validInvite">
+        <h3>Opprett bruker:</h3>
+        <form class="confirm_invite_form">
+            <label>
+                Brukernavn:
+                <input type="text" [(ngModel)]="user.username" [ngClass]="{error: isInvalidUsername}" placeholder="Brukernavn" />
+            </label>
+            <label>
+                Passord:
+                <input type="password" [(ngModel)]="user.password" [ngClass]="{error: isInvalidPasswords || isPasswordMismatch}" placeholder="Passord" />
+            </label>
+            <label>
+                Gjenta Passord
+                <input type="password" [(ngModel)]="passwordRepeat.password" [ngClass]="{error: isInvalidPasswords || isPasswordMismatch}" placeholder="Gjenta passord" />
+                <small *ngIf="isInvalidPasswords || isInvalidUsername || isPasswordMismatch || isError" [ngClass]="{error: isError}">{{formErrorMessage}}</small>
+            </label>
+            <button class="c2a" (click)="confirmUser()" [attr.aria-busy]="working">Bekreft bruker</button>
+        </form>
+    </section>
+</div>

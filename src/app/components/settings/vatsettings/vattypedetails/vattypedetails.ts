@@ -88,8 +88,8 @@ export class VatTypeDetails {
             //TODO: Remove timeout, needed for now to give angular time to set up form after this.model has been set
             setTimeout(() => {
                 if (self.form != null)
-                    self.form.refresh(self.model);
-            }, 1000);
+                    self.form.Model = self.model;
+            }, 500);
         }
     }
 

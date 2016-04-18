@@ -1,6 +1,7 @@
-import {Component, Input, OnChanges, SimpleChange, ElementRef, OnDestroy} from 'angular2/core';
+import {Component, AfterViewInit, Input, OnChanges, SimpleChange, ElementRef, OnDestroy} from 'angular2/core';
 import {UniHttp} from '../core/http/http';
 import {UniTableBuilder} from './UniTableBuilder';
+import {UniTableColumnMenu} from './columnMenu';
 
 declare var jQuery;
 
@@ -9,8 +10,9 @@ enum directions { LEFT, RIGHT, UP, DOWN };
 @Component({
     selector: 'uni-table',
     templateUrl: 'framework/uniTable/uniTable.html',
+    directives: [UniTableColumnMenu]
 })
-export class UniTable implements OnChanges, OnDestroy {
+export class UniTable implements AfterViewInit, OnChanges, OnDestroy {
     @Input()
     private config: UniTableBuilder;
 
@@ -25,6 +27,30 @@ export class UniTable implements OnChanges, OnDestroy {
         this.nativeElement = jQuery(elementRef.nativeElement);
     }
     
+    // ======= Life-cycle hooks ======= //
+    public ngAfterViewInit() {
+        if (!this.table && this.config) {
+            this.setupAndCompile();
+        }
+    }
+    
+    public ngOnChanges(changes: {[propName: string]: SimpleChange}) {
+        var current = changes['config'].currentValue;
+        
+        if (!this.table && current) {
+            this.setupAndCompile();
+        }
+    }
+    
+   public ngOnDestroy() {
+       // Avoid duplicate tables
+       this.nativeElement.find('.k-grid').remove();
+       this.nativeElement.append('<table></table>');
+    }
+    
+    
+    // ======= Public functions ======= //
+    
     public refresh(data?: any) {
         if (data && !this.config.remoteData) {
             this.config.resource = data;
@@ -36,24 +62,48 @@ export class UniTable implements OnChanges, OnDestroy {
         this.config.filter = filter;
         this.table.dataSource.read();
     }
-
-    public ngOnChanges(changes: {[propName: string]: SimpleChange}) {
-        var current = changes['config'].currentValue;
+    
+    public updateConfig(config: UniTableBuilder) {
+        // Avoid duplicate tables in markup
+        this.nativeElement.find('.k-grid').remove();
+        this.nativeElement.append('<table></table>');
         
-        if (!this.table && current) {
-            this.setupAndCompile();
+        this.config = config;
+        
+        // Avoid duplicate commands columns when redrawing the kendo grid
+        // TODO: This shouldnt be needed when we implement context-menu
+        if (this.config.columns[this.config.columns.length - 1].command) {
+            this.config.columns.pop();
         }
+        
+        this.setupAndCompile();
     }
     
-    public ngAfterViewInit() {
-        if (!this.table && this.config) {
-            this.setupAndCompile();
-        }
+    public hideColumn(field: string): void {
+        this.table.hideColumn(field);
     }
-
+    
+    public showColumn(field: string): void {
+        this.table.showColumn(field);
+    }
+    
+    public getUnFlattendDataFromDataSource() {
+        
+        let realData = [];
+        
+        
+        let data = this.table.dataSource.data();
+        
+        for (var i = 0; i < data.length; i++) {
+            realData.push(data[i]);
+        }
+        
+        return this.unflattenData(realData);
+    }
+    
+    // ======= Helpers ======= //    
     private setupAndCompile() {
-
-        if (this.config.commands.length > 0) {
+        if (this.config.commands.length) {            
             this.config.columns.push({
                 command: this.config.commands
             });
@@ -109,8 +159,25 @@ export class UniTable implements OnChanges, OnDestroy {
         this.setupKeyNavigation();
     }
 
+    private getRowModel() {        
+        var row = jQuery(this.nativeElement).find('.k-grid-edit-row');
+        if (this.table) {       
+            return this.table.dataItem(row);
+        }
+        return null;
+    }
+
     // Create a datasource that works with local data
     private createLocalDataSource() {
+        
+        // Setup changecallback
+        this.tableConfig.dataSource.change = (e) => {
+            if (this.config.changeCallback) {
+                var rowModel = this.getRowModel();
+                this.config.changeCallback(e, rowModel);
+            }   
+        };
+        
         this.tableConfig.dataSource.transport = {
 
             read: (options) => {
@@ -227,6 +294,14 @@ export class UniTable implements OnChanges, OnDestroy {
         };
     }
     
+    private setColumnVisibility($event) {
+        if ($event.visible) {
+            this.table.showColumn($event.field);
+        } else {
+            this.table.hideColumn($event.field);
+        }
+    }
+    
     private flattenData(data) {
         let flattened = [];
         data.forEach((row) => {
@@ -328,7 +403,6 @@ export class UniTable implements OnChanges, OnDestroy {
     }
 
     private filterTable() {
-
         var filter = {
             logic: 'or',
             filters: [],
@@ -357,27 +431,6 @@ export class UniTable implements OnChanges, OnDestroy {
                 }
             }
         });
-
-        // for (var fieldName of Object.keys(fields)) {
-        //     let field = fields[fieldName];
-
-        //     // contains filter for text columns
-        //     if (field.type === 'string') {
-        //         filter.filters.push({
-        //             field: fieldName,
-        //             operator: 'contains',
-        //             value: this.filterString
-        //         });
-        //     }
-
-        //     // eq filter for number columns
-        //     if (field.type === 'number') {
-        //         var filterValue = parseInt(this.filterString);
-        //         if (!isNaN(filterValue)) {
-        //             filter.filters.push({field: fieldName, operator: 'eq', value: filterValue});
-        //         }
-        //     }
-        // }
 
         this.table.dataSource.filter(filter);
     }
@@ -431,12 +484,12 @@ export class UniTable implements OnChanges, OnDestroy {
 
             case directions.UP:
                 var prevRow = currentCell.parent('tr').prev('tr');
-                var nextCell = jQuery('td:eq(' + currentCell.index() + ')', prevRow);
+                nextCell = jQuery('td:eq(' + currentCell.index() + ')', prevRow);
                 break;
 
             case directions.DOWN:
                 var nextRow = currentCell.parent('tr').next('tr');
-                var nextCell = jQuery('td:eq(' + currentCell.index() + ')', nextRow);
+                nextCell = jQuery('td:eq(' + currentCell.index() + ')', nextRow);
                 break;
         }
 
@@ -446,12 +499,6 @@ export class UniTable implements OnChanges, OnDestroy {
             this.table.current(nextCell);
             this.table.editCell(nextCell);
         }
-    }
-
-    // Avoid duplicate uniTable when renavigating
-    public ngOnDestroy() {
-        this.nativeElement.find('.k-grid').remove();
-        this.nativeElement.append('<table></table>');
     }
 
 }

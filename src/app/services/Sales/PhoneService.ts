@@ -13,7 +13,9 @@ export class PhoneService extends BizHttp<Phone> {
         this.DefaultOrderBy = null;
     }
     
-    phoneFromSearch(selectedSearchInfo: SearchResultItem): Promise {
+    phoneFromSearch(selectedSearchInfo: SearchResultItem): Promise<any> {
+        var self = this;
+
         if(selectedSearchInfo.tlf == "") {
             return null;
         };
@@ -23,14 +25,16 @@ export class PhoneService extends BizHttp<Phone> {
                 phone.Number = selectedSearchInfo.tlf;
                 phone.Type = PhoneTypeEnum.PtPhone;
                             
-                this.Post<Phone>(phone).subscribe(phone => {
-                    resolve(phone);                 
+                self.Post(phone).subscribe(phone => {
+                   resolve(phone); 
                 });
             }); 
         });  
     }
     
-    mobileFromSearch(selectedSearchInfo: SearchResultItem): Promise {
+    mobileFromSearch(selectedSearchInfo: SearchResultItem): Promise<any> {
+        var self = this;
+        
         if(selectedSearchInfo.tlf_mobil == "") {
             return null;
         };
@@ -40,8 +44,8 @@ export class PhoneService extends BizHttp<Phone> {
                 phone.Number = selectedSearchInfo.tlf_mobil;
                 phone.Type = PhoneTypeEnum.PtMobile;
                         
-                this.Post<Phone>(phone).subscribe(phone => {
-                    resolve(phone);                 
+                self.Post(phone).subscribe(phone => {
+                   resolve(phone); 
                 });
             }); 
         });        

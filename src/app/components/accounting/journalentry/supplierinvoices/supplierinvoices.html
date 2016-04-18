@@ -1,9 +1,6 @@
 <h2>Leverandørfaktura</h2>
 <article>
-    <!--<button class="new" (click)="onCreateNew()">Ny</button>-->
-
-    <supplier-invoice-list (onSelect)="todo($event)"></supplier-invoice-list>
-
+    <supplier-invoice-list (onSelect)="invoiceSelected($event)"></supplier-invoice-list>
     <journal-entry-manual [SupplierInvoice]="selectedSupplierInvoice" *ngIf="selectedSupplierInvoice"></journal-entry-manual>
 </article>
 <router-outlet></router-outlet>
