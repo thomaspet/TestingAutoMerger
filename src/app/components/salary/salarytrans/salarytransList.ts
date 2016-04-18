@@ -16,9 +16,11 @@ import {UniFormBuilder, UniFieldBuilder, UniForm} from '../../../../framework/fo
 import {UniComponentLoader} from '../../../../framework/core';
 import {Observable} from 'rxjs/Observable';
 import {UniHttp} from '../../../../framework/core/http/http';
-import {Employee, FieldType, AGAZone, WageType} from '../../../unientities';
+import {Employee, FieldType, AGAZone, WageType, PayrollRun, Employment} from '../../../unientities';
 import {EmployeeService, AgaZoneService, WageTypeService} from '../../../services/services';
 import {UNI_CONTROL_DIRECTIVES} from '../../../../framework/controls';
+
+declare var _;
 
 @Component({
     selector: 'salary-transactions-employee',
@@ -41,7 +43,7 @@ export class SalaryTransactionEmployeeList implements OnInit {
     
     @ViewChild(UniComponentLoader) private uniCompLoader: UniComponentLoader;
     @Input() private ansattID: number;
-    @Input() private payrollRunID: number;
+    @Input() private payrollRun: PayrollRun;
     @Output()
     public nextEmployee: EventEmitter<any> = new EventEmitter<any>(true);
     @Output()
@@ -78,7 +80,7 @@ export class SalaryTransactionEmployeeList implements OnInit {
         
         
         Observable.forkJoin(
-            this.employeeService.getTotals(this.payrollRunID, this.ansattID),
+            this.employeeService.getTotals(this.payrollRun.ID, this.ansattID),
             this.employeeService.get(this.ansattID, ['BusinessRelationInfo, SubEntity.BusinessRelationInfo']),
             this._wageTypeService.GetAll(''),
             this._uniHttpService.asGET()
@@ -110,13 +112,13 @@ export class SalaryTransactionEmployeeList implements OnInit {
             // this.calculateTotals();
             
             Observable.forkJoin(            
-            this.employeeService.getTotals(this.payrollRunID, this.ansattID),
+            this.employeeService.getTotals(this.payrollRun.ID, this.ansattID),
             this.employeeService.get(this.ansattID, ['BusinessRelationInfo, SubEntity.BusinessRelationInfo'])
         ).subscribe((response: any) => {
             let [totals, emp] = response;
             this.employeeTotals[0] = totals;
             this.employee = emp;
-            this.runIDcol.defaultValue = this.payrollRunID;                
+            this.runIDcol.defaultValue = this.payrollRun.ID;                
             this.empIDcol.defaultValue = this.ansattID;  
             
             let tableConfig = this.salarytransEmployeeTableConfig;
@@ -164,11 +166,11 @@ export class SalaryTransactionEmployeeList implements OnInit {
     }
     
     private buildFilter() {
-        if (this.payrollRunID === undefined) {
+        if (this.payrollRun.ID === undefined) {
             return 'EmployeeNumber eq ' + this.ansattID;
         } else {
             return 'EmployeeNumber eq ' + this.ansattID 
-            + ' and PayrollRunID eq ' + this.payrollRunID;
+            + ' and PayrollRunID eq ' + this.payrollRun.ID;
         }       
         
     }
@@ -213,8 +215,16 @@ export class SalaryTransactionEmployeeList implements OnInit {
             {value: null, text: 'Ikke valgt'}
         ];
         
+        let employmentDS: {value: number, text: string}[] = [
+            {value: null, text: 'Ikke valgt'}
+        ]
+        
         this.wagetypes.forEach((item: WageType) => {
             wagetypeDS.push({value: item.WageTypeId, text: item.WageTypeId.toString()});
+        });
+        
+        this.employments.forEach((item: Employment) => {
+            employmentDS.push({value: item.ID, text: item.JobName});
         });
         
         console.log('wagetypeDS: ' + JSON.stringify(wagetypeDS));
@@ -228,16 +238,25 @@ export class SalaryTransactionEmployeeList implements OnInit {
         var sumCol = new UniTableColumn('Sum', 'Sum', 'number').setCustomEditor('readonlyeditor', null).setEditable(true);
         
         this.runIDcol = new UniTableColumn('PayrollRunID', 'Lønnsavregningsid' ).setHidden(true);
-        this.runIDcol.defaultValue = this.payrollRunID;
+        this.runIDcol.defaultValue = this.payrollRun.ID;
         this.empIDcol = new UniTableColumn('EmployeeID', 'AnsattID' ).setHidden(true);
         this.empIDcol.defaultValue = this.ansattID;
 
         var employmentidCol = new UniTableColumn('EmploymentID', 'Arbeidsforhold')         
-            .setTemplate((dataItem) => {
-                return this.getEmploymentName(dataItem.EmploymentID);
+            .setValues(employmentDS)
+            .setDefaultValue(null)                            
+            .setCustomEditor('dropdown', {
+                dataSource: employmentDS,
+                dataValueField: 'value',
+                dataTextField: 'text'
+            }, (item, rowModel) => {
+                rowModel.set('EmploymentID', item.value);
+                rowModel.set('Employment', _.find(this.employments, emp => emp.ID === item.value));
             });
         var accountCol = new UniTableColumn('Account', 'Konto', 'string');
-        var payoutCol = new UniTableColumn('Wagetype.Base_Payment', 'Utbetales', 'bool')
+        var payoutCol = new UniTableColumn('Wagetype$Base_Payment', 'Utbetales', 'bool')
+            .setCustomEditor('readonlyeditor', null)
+            .setEditable(true)
             .setTemplate((dataItem) => {
                 if (dataItem.Wagetype$Base_Payment) {
                     return 'Ja';
@@ -248,7 +267,6 @@ export class SalaryTransactionEmployeeList implements OnInit {
         var transtypeCol = new UniTableColumn('IsRecurringPost', 'Fast/Variabel post', 'bool')
         .setDefaultValue(false)
         .setTemplate((dataItem) => {
-            transtypeCol = new UniTableColumn('IsRecurringPost', 'Fast/Variabel post', 'bool');
             if (dataItem.IsRecurringPost) {
                 return 'Fast';
             } else {
@@ -264,20 +282,18 @@ export class SalaryTransactionEmployeeList implements OnInit {
                 dataValueField: 'value',
                 dataTextField: 'text'
             }, (item, rowModel) => {
-                let wagetype = this.wagetypes.find(wt => wt.WageTypeId === item.value);
-                console.log('setting fields');
+                let wagetype = _.find(this.wagetypes, wt => wt.WageTypeId === item.value);
                 rowModel.set('WageTypeNumber', wagetype.WageTypeId);
                 rowModel.set('WageTypeId', wagetype.ID);
                 rowModel.set('Wagetype', wagetype);
-                console.log('setting WageTypeName: ' + wagetype.WageTypeName);
                 rowModel.set('Text', wagetype.WageTypeName);
+                rowModel.set('FromDate', this.payrollRun.FromDate);
+                rowModel.set('ToDate', this.payrollRun.ToDate);
                 rowModel.set('Account', wagetype.AccountNumber);
                 rowModel.set('Amount', 1);
                 rowModel.set('Rate', wagetype.Rate);
-                console.log('rowModel.Rate: ' + JSON.stringify(rowModel.Rate));
-                console.log('rowModel.Amount: ' + JSON.stringify(rowModel.Amount));
                 rowModel.set('Sum', rowModel.Rate * rowModel.Amount);
-                console.log('rowModel.Sum: ' + JSON.stringify(rowModel.Sum));
+                rowModel.set('Wagetype$Base_Payment', wagetype.Base_Payment);
             });
         
         this.salarytransEmployeeTableConfig = new UniTableBuilder('salarytrans', true)
