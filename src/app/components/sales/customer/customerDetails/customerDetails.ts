@@ -145,46 +145,28 @@ export class CustomerDetails {
                             
                 if (postaladdress) {
                     this.Customer.Info.Addresses.unshift(postaladdress);
+                    this.Customer.Info.InvoiceAddress = postaladdress;
                 } 
 
                 if (businessaddress) {
                     this.Customer.Info.Addresses.unshift(businessaddress);
+                    this.Customer.Info.ShippingAddress = businessaddress;
+                } else if (postaladdress) {
+                    this.Customer.Info.ShippingAddress = postaladdress;
                 }
 
                 if (mobile) {
-                    this.Customer.Info.Phones.push(mobile);
+                    this.Customer.Info.Phones.unshift(mobile);
                 }
 
                 if (phone) {
                     this.Customer.Info.Phones.unshift(phone);
-                }
-                
-                if (this.Customer.Info.ID > 0) {
-                    this.businessRealtionService.Put(this.Customer.Info.ID, this.Customer.Info).subscribe(info => {
-                        self.setDefaultInfoID(info, businessaddress, postaladdress, phone);
-                    });
-                } else {
-                    this.businessRealtionService.Post(this.Customer.Info).subscribe(info => {
-                        self.setDefaultInfoID(info, businessaddress, postaladdress, phone);
-                    }); 
-                }              
+                    this.Customer.Info.DefaultPhone = phone;
+                } else if (mobile) {
+                    this.Customer.Info.DefaultPhone = mobile;
+                }                          
             });
         } 
-    }
-    
-    // TODO change to store phone, address by themself when its possible
-    setDefaultInfoID(info, businessaddress, postaladdress, phone) {
-        if (businessaddress) {
-            this.Customer.Info.InvoiceAddressID = info.Addresses[0].ID;
-        }
-
-        if (postaladdress) {
-            this.Customer.Info.ShippingAddressID = info.Addresses[businessaddress ? 1 : 0].ID;
-        }
-
-        if (phone) {
-            this.Customer.Info.DefaultPhoneID = info.Phones[0];
-        }        
     }
     
     createFormConfig() {   
