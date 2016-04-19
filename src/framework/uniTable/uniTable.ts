@@ -220,7 +220,6 @@ export class UniTable implements AfterViewInit, OnChanges, OnDestroy {
             
             read: (options) => {
                 var requestOptions = {
-                    returnResponseHeaders: true,
                     expand: this.config.expand,
                     filter: this.buildOdataFilter(options.data.filter)
                 };
@@ -242,7 +241,7 @@ export class UniTable implements AfterViewInit, OnChanges, OnDestroy {
                     .asGET()
                     .usingBusinessDomain()
                     .withEndPoint(this.config.resource.toString())
-                    .send(requestOptions)
+                    .send(requestOptions, true)
                     .subscribe(
                         (response) => {
                             this.totalRows = response.headers.get('count');
