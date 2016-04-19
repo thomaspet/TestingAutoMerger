@@ -202,7 +202,7 @@ export class CustomerDetails {
                 {
                     ComponentLayoutID: 3,
                     EntityType: "Customer",
-                    Property: "Orgnumber",
+                    Property: "OrgNumber",
                     Placement: 1,
                     Hidden: false,
                     FieldType: 10,
@@ -387,7 +387,7 @@ export class CustomerDetails {
     }
     
     extendFormConfig() {
-        var orgnumber: UniFieldBuilder = this.FormConfig.find('Orgnumber');
+        var orgnumber: UniFieldBuilder = this.FormConfig.find('OrgNumber');
         orgnumber.setKendoOptions({
             mask: '000 000 000',
             promptChar: '_'
@@ -421,6 +421,9 @@ export class CustomerDetails {
             .setModelDefaultField("DefaultPhoneID")
             .setPlaceholder(this.EmptyPhone)
             .setEditor(PhoneModal);     
+        phones.onSelect = (phone: Phone) => {
+            this.Customer.Info.DefaultPhone = phone;
+        };
 
         var emails: UniFieldBuilder = this.FormConfig.find('Emails');
         emails
@@ -432,7 +435,11 @@ export class CustomerDetails {
             .setModelField('Emails')
             .setModelDefaultField("DefaultEmailID")
             .setPlaceholder(this.EmptyEmail)
-            .setEditor(EmailModal);     
+            .setEditor(EmailModal);  
+        emails.onSelect = (email: Email) => {
+            this.Customer.Info.DefaultEmail = email;
+        };
+   
             
         var invoiceaddress: UniFieldBuilder = this.FormConfig.find('InvoiceAddress');
         invoiceaddress
@@ -445,6 +452,9 @@ export class CustomerDetails {
             .setModelDefaultField("InvoiceAddressID")
             .setPlaceholder(this.EmptyAddress)
             .setEditor(AddressModal);     
+        invoiceaddress.onSelect = (address: Address) => {
+            this.Customer.Info.InvoiceAddress = address;
+        };
 
         var shippingaddress: UniFieldBuilder = this.FormConfig.find('ShippingAddress');
         shippingaddress
@@ -457,6 +467,9 @@ export class CustomerDetails {
             .setModelDefaultField("ShippingAddressID")
             .setPlaceholder(this.EmptyAddress)
             .setEditor(AddressModal);           
+        shippingaddress.onSelect = (address: Address) => {
+            this.Customer.Info.ShippingAddress = address;
+        };
     }    
        
     loadForm() {       
