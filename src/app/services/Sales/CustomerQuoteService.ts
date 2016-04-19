@@ -24,7 +24,7 @@ export class CustomerQuoteService extends BizHttp<CustomerQuote> {
         return super.GetAction(currentID, 'previous');
     }
     
-    NewCustomerQuote()
+    newCustomerQuote()
     {       
         var q = new CustomerQuote();
         q.CreatedDate = moment().toDate();

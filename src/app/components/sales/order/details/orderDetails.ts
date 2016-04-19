@@ -173,9 +173,9 @@ export class OrderDetails {
     }
     
     addOrder() {
-        var q = new CustomerOrder();
+        var cq = this.customerOrderService.newCustomerOrder();
         
-        this.customerOrderService.Post(q)
+        this.customerOrderService.Post(cq)
             .subscribe(
                 (data) => {
                     this.router.navigateByUrl('/sales/order/details/' + data.ID);        

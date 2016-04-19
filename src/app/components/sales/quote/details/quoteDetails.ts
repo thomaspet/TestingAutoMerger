@@ -168,7 +168,7 @@ export class QuoteDetails {
     }
     
     addQuote() {
-        var q = this.customerQuoteService.NewCustomerQuote();          
+        var q = this.customerQuoteService.newCustomerQuote();          
         
         this.customerQuoteService.Post(q)
             .subscribe(

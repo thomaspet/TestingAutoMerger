@@ -24,19 +24,7 @@ export class OrderList {
     }
 
     public createOrder() {        
-        /*     
-        this.customerOrderService.GetNewEntity().subscribe((s)=> {
-            this.customerQouteService.Post(s)
-                .subscribe(
-                    (data) => {
-                        this.router.navigateByUrl('/order/details/' + data.ID);        
-                    },
-                    (err) => console.log('Error creating order: ', err)
-                );        
-        });    */
-        
-        /* OLD VERSION */
-        var cq = new CustomerOrder();
+        var cq = this.customerOrderService.newCustomerOrder();
 
         this.customerOrderService.Post(cq)
             .subscribe(
