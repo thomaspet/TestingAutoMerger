@@ -3,10 +3,10 @@ import {Router, RouteParams, RouterLink} from "angular2/router";
 import {Observable} from "rxjs/Observable";
 import "rxjs/add/observable/forkjoin";
 
-import {DepartementService, ProjectService, CustomerService, PhoneService, AddressService, EmailService} from "../../../../services/services";
+import {DepartementService, ProjectService, CustomerService, PhoneService, AddressService, EmailService, BusinessRelationService} from "../../../../services/services";
 import {ExternalSearch, SearchResultItem} from '../../../common/externalSearch/externalSearch';
 
-import {FieldType, FieldLayout, ComponentLayout, Customer, BusinessRelation, Email, Phone, Address} from "../../../../unientities";
+import {FieldType, FieldLayout, ComponentLayout, Customer, BusinessRelation, Email, Phone, Address, PhoneTypeEnum} from "../../../../unientities";
 import {UNI_CONTROL_DIRECTIVES} from "../../../../../framework/controls";
 import {UniFormBuilder} from "../../../../../framework/forms/builders/uniFormBuilder";
 import {UniFormLayoutBuilder} from "../../../../../framework/forms/builders/uniFormLayoutBuilder";
@@ -23,7 +23,7 @@ import {PhoneModal} from "../modals/phone/phone";
     selector: "customer-details",
     templateUrl: "app/components/sales/customer/customerDetails/customerDetails.html",    
     directives: [UniComponentLoader, RouterLink, AddressModal, EmailModal, PhoneModal, ExternalSearch],
-    providers: [DepartementService, ProjectService, CustomerService, PhoneService, AddressService, EmailService]
+    providers: [DepartementService, ProjectService, CustomerService, PhoneService, AddressService, EmailService, BusinessRelationService]
 })
 export class CustomerDetails {
             
@@ -51,7 +51,8 @@ export class CustomerDetails {
                 private params: RouteParams,
                 private phoneService: PhoneService,
                 private emailService: EmailService,
-                private addressService: AddressService
+                private addressService: AddressService,
+                private businessRealtionService: BusinessRelationService
                 ) {
                 
         var self = this;        
@@ -109,18 +110,15 @@ export class CustomerDetails {
             this.projectService.GetAll(null),
             this.customerService.Get(this.CustomerID, ["Info", "Info.Phones", "Info.Addresses", "Info.Emails"]),
             this.phoneService.GetNewEntity(),
-            this.emailService.GetNewEntity()
-         //   this.addressService.GetNewEntity()
+            this.emailService.GetNewEntity(),
+            this.addressService.GetNewEntity([], "address")
         ).subscribe(response => {
             this.DropdownData = [response[0], response[1]];
             this.Customer = response[2];
             this.EmptyPhone = response[3];
             this.EmptyEmail = response[4];
-         //   this.EmptyAddress = response[5];
-            
-            console.log("== CUSTOMER ==");
-            console.log(this.Customer);
-                                   
+            this.EmptyAddress = response[5];
+                                               
             this.createFormConfig();
             this.extendFormConfig();
             this.loadForm();                  
@@ -128,11 +126,46 @@ export class CustomerDetails {
     }
     
     addSearchInfo(selectedSearchInfo: SearchResultItem) {
+        var self = this;
+        
         if (this.Customer != null) {
             this.Customer.Info.Name = selectedSearchInfo.navn;
             this.Customer.OrgNumber = selectedSearchInfo.orgnr;
+   
+            var businessaddress = this.addressService.businessAddressFromSearch(selectedSearchInfo);
+            var postaladdress = this.addressService.postalAddressFromSearch(selectedSearchInfo);
+            var phone = this.phoneService.phoneFromSearch(selectedSearchInfo);
+            var mobile = this.phoneService.mobileFromSearch(selectedSearchInfo);
             
-            this.formInstance.Model = this.Customer;
+            Promise.all([businessaddress, postaladdress, phone, mobile]).then(results => {
+                var businessaddress = results[0];
+                var postaladdress = results[1];
+                var phone = results[2];
+                var mobile = results[3];
+                            
+                if (postaladdress) {
+                    this.Customer.Info.Addresses.unshift(postaladdress);
+                    this.Customer.Info.InvoiceAddress = postaladdress;
+                } 
+
+                if (businessaddress) {
+                    this.Customer.Info.Addresses.unshift(businessaddress);
+                    this.Customer.Info.ShippingAddress = businessaddress;
+                } else if (postaladdress) {
+                    this.Customer.Info.ShippingAddress = postaladdress;
+                }
+
+                if (mobile) {
+                    this.Customer.Info.Phones.unshift(mobile);
+                }
+
+                if (phone) {
+                    this.Customer.Info.Phones.unshift(phone);
+                    this.Customer.Info.DefaultPhone = phone;
+                } else if (mobile) {
+                    this.Customer.Info.DefaultPhone = mobile;
+                }                          
+            });
         } 
     }
     
