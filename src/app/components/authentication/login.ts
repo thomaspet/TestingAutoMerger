@@ -1,27 +1,27 @@
 import {Component} from 'angular2/core';
-import {Http, Headers} from 'angular2/http';
 import {Router, ROUTER_DIRECTIVES} from 'angular2/router';
 import {AuthService} from '../../../framework/core/authService';
-import {AppConfig} from '../../AppConfig';
 import {StaticRegisterService} from '../../services/staticregisterservice';
 
 declare var jQuery;
 
 @Component({
     selector: 'uni-login',
-    templateUrl: 'app/components/login/login.html',
+    templateUrl: 'app/components/authentication/login.html',
     directives: [ROUTER_DIRECTIVES]
 })
 export class Login {
     private credentials: { username: string, password: string };
     private working: boolean;
+    private loginSuccess: boolean  = false;
+    private errorMessage: string = '';
 
     constructor(private _authService: AuthService, private _router: Router, 
-                private _http: Http, private _staticRegisterService: StaticRegisterService) {
+                private _staticRegisterService: StaticRegisterService) {
         // initialize credentials to a valid login for testing purposes
         this.credentials = {
-            username: 'einar23',
-            password: 'SimplePass1'
+            username: '',
+            password: ''
         };
     }
 
@@ -29,24 +29,23 @@ export class Login {
         event.preventDefault();
         this.working = true;
         
-        let headers = new Headers({'Content-type': 'application/json'});
-        this._http.post(
-           AppConfig.LOGIN_URL, JSON.stringify(this.credentials), {headers: headers}
-        ).map(response => JSON.parse(response.json()))
-        .subscribe(
-            (response) => {
-                this._authService.setToken(response.access_token);
-                this._staticRegisterService.checkForStaticRegisterUpdate();
-                this.onAuthSuccess();
-            }, error => console.log(error)
-        );
-        
+        this._authService.authenticate(this.credentials)
+            .subscribe(
+                (response) => {
+                    this._authService.setToken(response.access_token);
+                    this.onAuthSuccess();
+                },
+                (error) => {
+                    this.working = false;
+                    this.errorMessage = 'Invalid username or password'; // TODO: This should come from backend (statusText)?
+                }
+            );        
     }
 
     private onAuthSuccess() {
         this.working = false;
+        this.loginSuccess = true;
         
-        console.log(this._authService.hasActiveCompany());
         // skip process of selecting a company if activeCompany exists in localStorage
         if (this._authService.hasActiveCompany()) {
             this.onCompanySelected();
@@ -55,18 +54,25 @@ export class Login {
         // setup and compile company dropdown        
         var dropdownConfig = {
             delay: 50,
-            dataTextField: 'name',
-            dataValueField: 'id',
-            dataSource: [
-                {id: 1, name: 'Unimicro AS'},
-                {id: 2, name: 'Google'},
-                {id: 3, name: 'Apple'},
-                {id: 4, name: 'Microsoft'},
-            ],
-            optionLabel: {id: -1, name: 'Select a company'},
+            dataTextField: 'Name',
+            dataValueField: 'ID',
+            optionLabel: {
+                Name: 'Select a company',
+                ID: -1
+            },
+            dataSource: {
+                transport: {
+                    read: (options) => {
+                        this._authService.getCompanies()
+                            .subscribe((response) => {
+                                options.success(response);
+                            });
+                    }
+                }
+            },
             select: (event: kendo.ui.DropDownListSelectEvent) => {
                 var company = (event.sender.dataItem(<any>event.item));
-                if (company.id >= 0) {
+                if (company.ID >= 0) {
                     this._authService.setActiveCompany(company);
                     this.onCompanySelected();
                 }
@@ -78,6 +84,7 @@ export class Login {
     }
 
     private onCompanySelected() {
+        this._staticRegisterService.checkForStaticRegisterUpdate();
         var url = localStorage.getItem('lastNavigationAttempt') || '/';
         localStorage.removeItem('lastNavigationAttempt');
         this._router.navigateByUrl(url);
