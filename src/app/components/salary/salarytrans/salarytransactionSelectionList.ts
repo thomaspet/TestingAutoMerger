@@ -25,7 +25,7 @@ export class SalaryTransactionSelectionList implements OnInit {
     private taxcardCol: UniTableColumn;
     // private payDate: any;
     private employeeList: Employee[] = [];
-    
+    @Input() private isEditable: boolean;
     public busy: boolean;
     @ViewChild(UniTable) private tables: UniTable;
     
@@ -55,12 +55,12 @@ export class SalaryTransactionSelectionList implements OnInit {
                 var employeenumberCol = new UniTableColumn('EmployeeNumber', '#', 'number').setWidth('10%');
                 var nameCol = new UniTableColumn('BusinessRelationInfo.Name', 'Navn', 'string');
                 var lockedCol = new UniTableColumn('', 'Synlig/låst', 'boolean')
-            .setClass('icon-column')
-            .setTemplate(
-                "#if(TaxTable === null || !BankAccounts.some(x => x.Active === true)) {#<span class='missing-info' role='presentation'>Visible</span>#} " +
-                "else {#<span role='presentation'></span>#}# "
-            )
-            .setWidth('2rem');
+                    .setClass('icon-column')
+                    .setTemplate(
+                        "#if(TaxTable === null || !BankAccounts.some(x => x.Active === true)) {#<span class='missing-info' role='presentation'>Visible</span>#} " +
+                        "else {#<span role='presentation'></span>#}# "
+                    )
+                    .setWidth('2rem');
                 this.bankaccountCol = new UniTableColumn('BankAccounts', 'Bankkonto')
                     .setHidden(true)
                     .setTemplate((dataItem) => {
@@ -71,20 +71,21 @@ export class SalaryTransactionSelectionList implements OnInit {
                 // var forpayoutCol = new UniTableColumn('Pay', 'Beløp til utbetaling', 'number');
                 var subEntityCol = new UniTableColumn('SubEntity.BusinessRelationInfo.Name', 'Virksomhet', 'string');
                 this.salarytransSelectionTableConfig = new UniTableBuilder(this.employeeList, false)
-                .setSelectCallback((selEmp) => {
-                    this.selectedEmployeeID = selEmp.ID;
-                })
-                .setColumnMenuVisible(false)
-                .setFilterable(false)
-                .addColumns(
-                    employeenumberCol,
-                    nameCol,
-                    this.bankaccountCol,
-                    this.taxcardCol,
-                    subEntityCol,
-                    lockedCol
-                    // forpayoutCol
-                );
+                    .setSelectCallback((selEmp) => {
+                        this.selectedEmployeeID = selEmp.ID;
+                    })
+                    .setColumnMenuVisible(false)
+                    .setFilterable(false)
+                    .setEditable(this.isEditable)
+                    .addColumns(
+                        employeenumberCol,
+                        nameCol,
+                        this.bankaccountCol,
+                        this.taxcardCol,
+                        subEntityCol,
+                        lockedCol
+                        // forpayoutCol
+                    );
             }
             this.busy = false;
             

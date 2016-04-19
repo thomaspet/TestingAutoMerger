@@ -13,6 +13,8 @@
             <a (click)="previousPayrollrun()" class="previous">Forrige</a>
             <a (click)="nextPayrollrun()" class="next">Neste</a>
             <a href="#/salary/payrollrun/0" class="new">Ny lønnsavregning</a>
+            <a (click)="runSettling()" class="run">Avregn</a>
+            <a (click)="resetSettling()" class="reset">Reset</a>
         </nav>
             
     </article>
@@ -21,5 +23,5 @@
     <uni-component-loader class="payrollrun_details"></uni-component-loader>
 </section>
 <section *ngIf="payrollrun">
-    <salarytrans [selectedPayrollRun]="payrollrun"></salarytrans>
+    <salarytrans [selectedPayrollRun]="payrollrun" [isEditable]="isEditable"></salarytrans>
 </section>

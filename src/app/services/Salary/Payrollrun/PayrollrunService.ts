@@ -26,6 +26,25 @@ export class PayrollrunService extends BizHttp<PayrollRun> {
             .send();
     }
     
+    public runSettling(ID: number) {
+        
+        console.log('relativeURL', this.relativeURL);
+        
+        return this.http
+            .asPUT()
+            .usingBusinessDomain()
+            .withEndPoint(this.relativeURL + '/' + ID + '?action=calculate')
+            .send();
+    }
+    
+    public resetSettling(ID: number) {
+        return this.http
+        .asDELETE()
+        .usingBusinessDomain()
+        .withEndPoint(this.relativeURL + '/' + ID + '?action=resetrun')
+        .send();
+    }
+    
     public layout(layoutID: string) {
         return Observable.fromArray([{
             Name: layoutID,

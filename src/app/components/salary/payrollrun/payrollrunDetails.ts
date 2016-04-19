@@ -21,6 +21,7 @@ export class PayrollrunDetails implements OnInit {
     private form: UniFormBuilder = new UniFormBuilder();
     @ViewChild(UniComponentLoader)
     private uniCmpLoader: UniComponentLoader;
+    private isEditable: boolean;
     
     constructor(private routeParams: RouteParams, private payrollrunService: PayrollrunService, private router: Router, private tabSer: TabService) {
         this.payrollrunID = +this.routeParams.get('id');
@@ -70,6 +71,49 @@ export class PayrollrunDetails implements OnInit {
                 this.payrollrunID = this.payrollrun.ID;
                 this.router.navigateByUrl('/salary/payrollrun/' + this.payrollrunID);
             }
+        });
+    }
+    
+    public runSettling() {
+        
+        console.log('ID run settling...', this.payrollrunID);
+        
+        this.payrollrunService.runSettling(this.payrollrunID)
+        .subscribe((response: PayrollRun) => {
+            
+            console.log('settling response', response);
+            
+            if (response) {
+                // status for payrollrun is higher than 'registered'
+                this.isEditable = false;
+            } else {
+                this.isEditable = true;
+            }
+            
+            console.log('isEditable', this.isEditable);
+            
+            this.form.editMode = this.isEditable;
+        });
+    }
+    
+    public resetSettling() {
+        console.log('ID reset settling...', this.payrollrunID);
+        
+        this.payrollrunService.resetSettling(this.payrollrunID)
+        .subscribe((response: PayrollRun) => {
+            
+            console.log('reset settling response', response);
+            
+            if (response) {
+                // status for payrollrun is higher than 'registered'
+                this.isEditable = false;
+            } else {
+                this.isEditable = true;
+            }
+            
+            console.log('isEditable', this.isEditable);
+            
+            this.form.editMode = this.isEditable;
         });
     }
 }
