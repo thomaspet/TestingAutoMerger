@@ -6,6 +6,7 @@ import {Observable} from 'rxjs/Observable';
 import {UniFormBuilder, UniFormLayoutBuilder, UniForm} from '../../../../framework/forms';
 import {UniComponentLoader} from '../../../../framework/core';
 import {SalaryTransactionSelectionList} from '../../salary/salarytrans/salarytransactionSelectionList';
+import {TabService} from '../../layout/navbar/tabstrip/tabService';
 
 @Component({
     selector: 'payrollrun-details',
@@ -21,7 +22,7 @@ export class PayrollrunDetails implements OnInit {
     @ViewChild(UniComponentLoader)
     private uniCmpLoader: UniComponentLoader;
     
-    constructor(private routeParams: RouteParams, private payrollrunService: PayrollrunService, private router: Router) {
+    constructor(private routeParams: RouteParams, private payrollrunService: PayrollrunService, private router: Router, private tabSer: TabService) {
         this.payrollrunID = +this.routeParams.get('id');
         if (this.payrollrunID === 0) {
             this.payrollrunID = 1;
@@ -47,6 +48,7 @@ export class PayrollrunDetails implements OnInit {
             }
             , error => console.log(error));
         }
+        this.tabSer.addTab({name: 'Lønnsavregninger', url: '/salary/payrollrun/1'});
     }
     
     public previousPayrollrun() {

@@ -36,7 +36,7 @@ export class SalaryTransactionSelectionList implements OnInit {
     
     public ngOnInit() {
         this.tableConfig();     
-        this.tabSer.addTab({name: 'Transaksjoner', url: '/salary/salarytrans'});   
+        // this.tabSer.addTab({name: 'Transaksjoner', url: '/salary/salarytrans'});
     }
     
     private tableConfig(update: boolean = false, filter = '') {
