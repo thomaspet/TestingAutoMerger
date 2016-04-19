@@ -33,14 +33,16 @@ export class UniCompanyDropdown implements AfterViewInit, OnDestroy {
 
         this.dropdownConfig = {
             delay: 50,
-            dataTextField: 'name',
-            dataValueField: 'id',
-            dataSource: [
-                {id: 1, name: 'Unimicro AS'},
-                {id: 2, name: 'Google'},
-                {id: 3, name: 'Apple'},
-                {id: 4, name: 'Microsoft'},
-            ],
+            dataTextField: 'Name',
+            dataValueField: 'ID',
+            dataSource: {
+                transport: {
+                    read: (options) => {
+                        this._authService.getCompanies()
+                            .subscribe(response => options.success(response));
+                    }
+                }
+            },
             select: (event: kendo.ui.DropDownListSelectEvent) => {
                 var item: any = event.item;
                 var dataItem = event.sender.dataItem(item.index());
