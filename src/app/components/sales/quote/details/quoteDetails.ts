@@ -154,14 +154,14 @@ export class QuoteDetails {
            
     nextQuote() {
         var self = this;
-        this.customerQuoteService.Next(this.quote.ID)
+        this.customerQuoteService.next(this.quote.ID)
             .subscribe((data) => {
                 this.router.navigateByUrl('/sales/quote/details/' + data.ID);
             });
     }
     
     previousQuote() {
-        this.customerQuoteService.Previous(this.quote.ID)
+        this.customerQuoteService.previous(this.quote.ID)
             .subscribe((data) => {
                 this.router.navigateByUrl('/sales/quote/details/' + data.ID);
             });        
@@ -245,8 +245,6 @@ export class QuoteDetails {
                dataSource: this.customers
             });
         customer.onSelect = function (customerID) {
-            console.log("Customer changed");
-            
             self.customerService.Get(customerID, ['Info', 'Info.Addresses']).subscribe((customer) => {
                 self.quote.Customer = customer;
                 self.addAddresses();           
@@ -454,7 +452,7 @@ export class QuoteDetails {
                     FieldType: 1,
                     ReadOnly: false,
                     LookupField: false,
-                    Label: "Prosjekt",
+                    Label: "Std. prosjekt på linje",
                     Description: "",
                     HelpText: "",
                     FieldSet: 0,
@@ -474,7 +472,7 @@ export class QuoteDetails {
                     FieldType: 1,
                     ReadOnly: false,
                     LookupField: false,
-                    Label: "Avdeling",
+                    Label: "Std. avdeling på linje",
                     Description: "",
                     HelpText: "",
                     FieldSet: 0,

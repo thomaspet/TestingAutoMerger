@@ -4,6 +4,8 @@ import {UniHttp} from '../../../framework/core/http/http';
 import {Observable} from "rxjs/Observable";
 import {OrderCalculationSummary} from '../../models/sales/OrderCalculationSummary'
 
+declare var moment;
+
 export class CustomerOrderService extends BizHttp<CustomerOrder> {
     
     constructor(http: UniHttp) {        
@@ -20,6 +22,15 @@ export class CustomerOrderService extends BizHttp<CustomerOrder> {
     previous(currentID: number): Observable<CustomerOrder>
     {
         return super.GetAction(currentID, 'previous');
+    }
+
+    newCustomerOrder()
+    {       
+        var o = new CustomerOrder();
+        o.CreatedDate = moment().toDate();
+        o.OrderDate = moment().toDate();
+  
+        return o;               
     }
 
     calculateOrderSummary(quoteItems: Array<CustomerOrderItem>): Observable<any> {        

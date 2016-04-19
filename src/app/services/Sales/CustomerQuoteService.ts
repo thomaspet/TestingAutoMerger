@@ -12,12 +12,12 @@ export class CustomerQuoteService extends BizHttp<CustomerQuote> {
         this.DefaultOrderBy = null;
     }    
             
-    Next(currentID: number): Observable<CustomerQuote>
+    next(currentID: number): Observable<CustomerQuote>
     {
         return super.GetAction(currentID, 'next');
     }
     
-    Previous(currentID: number): Observable<CustomerQuote>
+    previous(currentID: number): Observable<CustomerQuote>
     {
         return super.GetAction(currentID, 'previous');
     }
