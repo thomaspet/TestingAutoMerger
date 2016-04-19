@@ -21,28 +21,16 @@ export class QuoteList {
 
    
    
-    constructor(private uniHttpService: UniHttp, private router: Router, private customerQouteService: CustomerQuoteService) {
+    constructor(private uniHttpService: UniHttp, private router: Router, private customerQuoteService: CustomerQuoteService) {
         this.setupQuoteTable();
     }
 
 
 
     public createQuote() {        
-        /*     
-        this.customerQouteService.GetNewEntity().subscribe((s)=> {
-            this.customerQouteService.Post(s)
-                .subscribe(
-                    (data) => {
-                        this.router.navigateByUrl('/quote/details/' + data.ID);        
-                    },
-                    (err) => console.log('Error creating quote: ', err)
-                );        
-        });    */
-        
-        /* OLD VERSION */
-        var cq = new CustomerQuote();
+        var q = this.customerQuoteService.NewCustomerQuote();  
 
-        this.customerQouteService.Post(cq)
+        this.customerQuoteService.Post(q)
             .subscribe(
             (data) => {
                 console.log('Tilbud opprettet, id: ' + data.ID);
@@ -84,7 +72,7 @@ export class QuoteList {
 
         var statusCol = new UniTableColumn('StatusCode', 'Status', 'number').setWidth('15%');
         statusCol.setTemplate((dataItem) => {
-            return this.customerQouteService.getStatusText(dataItem.StatusCode);
+            return this.customerQuoteService.getStatusText(dataItem.StatusCode);
         });
 
         // Define callback function for row clicks
