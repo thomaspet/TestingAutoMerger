@@ -2,7 +2,9 @@ import {BizHttp} from '../../../framework/core/http/BizHttp';
 import {CustomerQuote, CustomerQuoteItem} from '../../unientities';
 import {UniHttp} from '../../../framework/core/http/http';
 import {Observable} from "rxjs/Observable";
-import {QuoteCalculationSummary} from '../../models/sales/QuoteCalculationSummary'
+import {QuoteCalculationSummary} from '../../models/sales/QuoteCalculationSummary';
+
+declare var moment;
 
 export class CustomerQuoteService extends BizHttp<CustomerQuote> {
     
@@ -20,6 +22,16 @@ export class CustomerQuoteService extends BizHttp<CustomerQuote> {
     previous(currentID: number): Observable<CustomerQuote>
     {
         return super.GetAction(currentID, 'previous');
+    }
+    
+    NewCustomerQuote()
+    {       
+        var q = new CustomerQuote();
+        q.CreatedDate = moment().toDate();
+        q.QuoteDate = moment().toDate();
+        q.ValidUntilDate = moment().add(1, 'month').toDate();
+
+        return q;               
     }
 
     calculateQuoteSummary(quoteItems: Array<CustomerQuoteItem>): Observable<any> {        
