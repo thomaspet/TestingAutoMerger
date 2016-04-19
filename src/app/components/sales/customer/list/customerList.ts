@@ -23,28 +23,13 @@ export class CustomerList {
     }
     
     createCustomer() {        
-        /*     
-        this.customerService.setRelativeUrl("customer"); // TODO: remove when its fixed
-        this.customerService.GetNewEntity(["Info"]).subscribe((c)=> {
-            console.log("CUSTOMER");
-            console.log(c);
-            this.customerService.Post(c)
-                .subscribe(
-                    (data) => {
-                        this.router.navigateByUrl('/customer/details/' + data.ID);        
-                    },
-                    (err) => console.log('Error creating customer: ', err)
-                );        
-        });    */
-        
-        /* OLD VERSION */
-                var c = new Customer();
+        var c = new Customer();
         c.Info = new BusinessRelation(); 
-        
+        c.Info.Name = "";
+    
         this.customerService.Post(c)
             .subscribe(
                 (data) => {
-                    console.log('Kunde opprettet, id: ' + data.ID);
                     this.router.navigateByUrl('/sales/customer/details/' + data.ID);        
                 },
                 (err) => console.log('Error creating customer: ', err)

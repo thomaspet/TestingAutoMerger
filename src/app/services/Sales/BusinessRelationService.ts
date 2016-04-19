@@ -2,6 +2,7 @@ import {BizHttp} from '../../../framework/core/http/BizHttp';
 import {Customer, BusinessRelation} from '../../unientities';
 import {UniHttp} from '../../../framework/core/http/http';
 import {Observable} from "rxjs/Observable";
+import {RequestMethod} from "angular2/http";
 
 export class BusinessRelationService extends BizHttp<BusinessRelation> {
     
@@ -12,12 +13,6 @@ export class BusinessRelationService extends BizHttp<BusinessRelation> {
     }       
     
     search(searchText: string): Observable<any> {
-        return this.Action(0, "s")
-        
-        return this.http
-            .asGET()
-            .usingBusinessDomain()
-            .withEndPoint('business-relations?action=search-data-hotel&searchText=' + searchText)
-            .send();
+        return this.Action(null, "search-data-hotel", "searchText=" + searchText, RequestMethod.Get);
     }
 }

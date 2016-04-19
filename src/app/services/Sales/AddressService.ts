@@ -28,9 +28,7 @@ export class AddressService extends BizHttp<Address> {
                 address.City = selectedSearchInfo.forradrpoststed;
                 address.Country = selectedSearchInfo.forradrland;           
                 
-                self.Post(address).subscribe(address => {
-                   resolve(address); 
-                });
+                resolve(address); 
             });
         });        
     }
@@ -49,9 +47,7 @@ export class AddressService extends BizHttp<Address> {
                 address.City = selectedSearchInfo.ppoststed;
                 address.Country = selectedSearchInfo.ppostland;
                 
-                self.Post(address).subscribe(address => {
-                   resolve(address); 
-                });
+                resolve(address); 
             }); 
         }); 
     }

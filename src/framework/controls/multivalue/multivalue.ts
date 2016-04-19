@@ -55,16 +55,12 @@ export class UniMultiValue {
     }
     
     //ngAfterViewInit() {
-    //          if (this.config.model[this.config.field].length == 0) {
+    //    if (this.config.model[this.config.field].length == 0) {
     //        this.config.model[this.config.field].push(this.placeholder());
-    //    }
- 
-//    }
+    //    } 
+    //}
         
     refresh(value: any): void {
-        console.log("== REFRESH INSIDE MULTIVALUE CALLED ==");
-        console.log(value);
-    //    this.config.model = value;
     }
     
     // What should happen when the user clicks

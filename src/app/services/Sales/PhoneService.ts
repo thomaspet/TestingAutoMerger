@@ -25,9 +25,7 @@ export class PhoneService extends BizHttp<Phone> {
                 phone.Number = selectedSearchInfo.tlf;
                 phone.Type = PhoneTypeEnum.PtPhone;
                             
-                self.Post(phone).subscribe(phone => {
-                   resolve(phone); 
-                });
+                resolve(phone); 
             }); 
         });  
     }
@@ -44,9 +42,7 @@ export class PhoneService extends BizHttp<Phone> {
                 phone.Number = selectedSearchInfo.tlf_mobil;
                 phone.Type = PhoneTypeEnum.PtMobile;
                         
-                self.Post(phone).subscribe(phone => {
-                   resolve(phone); 
-                });
+                resolve(phone); 
             }); 
         });        
     }        
