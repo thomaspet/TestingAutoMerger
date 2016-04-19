@@ -3,6 +3,7 @@ import {CustomerQuote, CustomerQuoteItem} from '../../unientities';
 import {UniHttp} from '../../../framework/core/http/http';
 import {Observable} from "rxjs/Observable";
 import {QuoteCalculationSummary} from '../../models/sales/QuoteCalculationSummary'
+import {moment} from "moment";
 
 export class CustomerQuoteService extends BizHttp<CustomerQuote> {
     
@@ -20,6 +21,27 @@ export class CustomerQuoteService extends BizHttp<CustomerQuote> {
     Previous(currentID: number): Observable<CustomerQuote>
     {
         return super.GetAction(currentID, 'previous');
+    }
+    
+    NewCustomerQuote()
+    {       
+        var q = new CustomerQuote();
+        q.CreatedDate = new Date();
+        q.ValidUntilDate = moment(new Date()).addMonth(1);
+        
+        console.log("==NEW QUOTE==");
+        console.log(q);
+        
+        /*   
+        this.customerQuoteService.Post(q)
+            .subscribe(
+                (data) => {
+                    this.router.navigateByUrl('/sales/quote/details/' + data.ID);        
+                },
+                (err) => console.log('Error creating quote: ', err)
+            );  
+        this.Post
+        */
     }
 
     calculateQuoteSummary(quoteItems: Array<CustomerQuoteItem>): Observable<any> {        

@@ -168,6 +168,7 @@ export class QuoteDetails {
     }
     
     addQuote() {
+        /*
         var q = new CustomerQuote();
         
         this.customerQuoteService.Post(q)
@@ -176,7 +177,10 @@ export class QuoteDetails {
                     this.router.navigateByUrl('/sales/quote/details/' + data.ID);        
                 },
                 (err) => console.log('Error creating quote: ', err)
-            );      
+            );
+        */
+        
+        this.customerQuoteService.NewCustomerQuote();          
     }
         
     createFormConfig() {   
