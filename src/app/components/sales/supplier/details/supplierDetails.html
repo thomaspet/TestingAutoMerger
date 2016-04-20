@@ -2,10 +2,10 @@
     
     <article class="poster_toolbar">
         <section>
-            <h1 *ngIf="Supplier && Supplier.ID > 0">{{Supplier.Info.Name}}
-                <p *ngIf="Supplier.StatusCode != null">Leverandørnr. {{Supplier.SupplierNumber}}</p>
-                <p *ngIf="Supplier.StatusCode == null"><i>Kladd</i></p>
-            </h1>
+            <h1 *ngIf="SupplierID > 0">{{Supplier.Info.Name}}</h1>
+            <p *ngIf="SupplierID > 0">Leverandørnr. {{Supplier.SupplierNumber}}</p>
+            <h1 *ngIf="SupplierID == 0">Ny leverandør</h1>
+            <p *ngIf="SupplierID == 0">&nbsp;</p>
         </section>
             
         <nav class="poster_toolbar_tools">
@@ -17,10 +17,10 @@
     
     <!-- Widget poster -->
     <section class="poster_overview">        
-        <uni-widget-poster [model]="Supplier" *ngIf="Supplier.StatusCode != null">
+        <uni-widget-poster [model]="Supplier" *ngIf="SupplierID > 0">
             ..future widgets..
         </uni-widget-poster>
-        <external-search [searchText]="searchText" (onSelect)="addSearchInfo($event)" *ngIf="Supplier.StatusCode == null"></external-search>
+        <external-search [searchText]="searchText" (onSelect)="addSearchInfo($event)" *ngIf="SupplierID == 0"></external-search>
     </section>
     
 </header>

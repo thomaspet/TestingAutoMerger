@@ -1,8 +1,10 @@
 <header class="product_poster" *ngIf="product">    
     <article class="poster_toolbar">
         <section>
-            <h1 *ngIf="product">{{product.Name}} <p>Produktnr. {{product.PartName}}</p></h1>            
-            <p *ngIf="product.StatusCode == null"><i>Kladd</i></p>            
+            <h1 *ngIf="productId > 0">{{product.Name}}</h1>
+            <p *ngIf="productId > 0">Produktnr. {{product.PartName}}</p>
+            <h1 *ngIf="productId == 0">Nytt produkt</h1>
+            <p *ngIf="productId == 0">&nbsp;</p>
         </section>
             
         <nav class="poster_toolbar_tools">
