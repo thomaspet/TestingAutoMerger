@@ -75,29 +75,7 @@ export class SupplierDetails {
     }
     
     addSupplier() {   
-        var c = new Supplier();
-        c.Info = new BusinessRelation(); 
-        
-        this.supplierService.Post(c)
-            .subscribe(
-                (data) => {
-                    this.router.navigateByUrl('/sales/supplier/details/' + data.ID);        
-                },
-                (err) => console.log('Error creating supplier: ', err)
-            );      
-
-        /* Using GetNewEntity not working        
-        this.customerService.setRelativeUrl("customer"); // TODO: remove when its fixed
-        this.customerService.GetNewEntity(["Info"]).subscribe((c)=> {
-            this.customerService.Post(c)
-                .subscribe(
-                    (data) => {
-                        this.router.navigateByUrl('/sales/customer/details/' + data.ID);        
-                    },
-                    (err) => console.log('Error creating customer: ', err)
-                );        
-        });
-        */
+        this.router.navigateByUrl('/sales/supplier/details/0');
     }
     
     isActive(instruction: any[]): boolean {
@@ -105,25 +83,29 @@ export class SupplierDetails {
     }
           
     ngOnInit() {
+        let expandOptions = ["Info", "Info.Phones", "Info.Addresses", "Info.Emails"];
+        
+        
         Observable.forkJoin(
             this.departementService.GetAll(null),
             this.projectService.GetAll(null),
-            this.supplierService.Get(this.SupplierID, ["Info", "Info.Phones", "Info.Addresses", "Info.Emails"]),
+            (
+                this.SupplierID > 0 ? 
+                    this.supplierService.Get(this.SupplierID, expandOptions) 
+                    : this.supplierService.GetNewEntity(expandOptions)
+            ),
             this.phoneService.GetNewEntity(),
             this.emailService.GetNewEntity(),
-            this.bankaccountService.GetAll("")
-          //  this.addressService.GetNewEntity()
+            this.bankaccountService.GetAll(""),
+            this.addressService.GetNewEntity(null, 'Address')
         ).subscribe(response => {
             this.DropdownData = [response[0], response[1]];
             this.Supplier = response[2];
             this.EmptyPhone = response[3];
             this.EmptyEmail = response[4];
             this.BankAccounts = response[5];
-         //   this.EmptyAddress = response[5];
+            this.EmptyAddress = response[5];
          
-            console.log("==SUPPLIER==");
-            console.log(this.Supplier);
-                       
             this.createFormConfig();
             this.extendFormConfig();
             this.loadForm();                  
@@ -145,21 +127,27 @@ export class SupplierDetails {
 
     saveSupplier() {
         this.formInstance.sync();
-                        
-        if (this.Supplier.StatusCode == null) {
-            //set status if it is a draft
-            this.Supplier.StatusCode = 1;
-        }
-            
+          
         this.LastSavedInfo = 'Lagrer informasjon...';                
-                            
-        this.supplierService.Put(this.Supplier.ID, this.Supplier)
-            .subscribe(
-                (updatedValue) => {                    
-                    this.LastSavedInfo = "Sist lagret: " + (new Date()).toLocaleTimeString(); 
-                },
-                (err) => console.log('Feil oppsto ved lagring', err)
-            );
+        
+        if (this.SupplierID > 0) { 
+            this.supplierService.Put(this.Supplier.ID, this.Supplier)
+                .subscribe(
+                    (updatedValue) => {  
+                        this.LastSavedInfo = "Sist lagret: " + (new Date()).toLocaleTimeString();
+                        this.Supplier = updatedValue;
+                    },
+                    (err) => console.log('Feil oppsto ved lagring', err)
+                );
+        } else {
+            this.supplierService.Post(this.Supplier)
+                .subscribe(
+                    (newSupplier) => {                        
+                        this.router.navigateByUrl('/sales/supplier/details/' + newSupplier.ID);
+                    },
+                    (err) => console.log('Feil oppsto ved lagring', err)
+                );
+        }
     }
     
     loadForm() {       

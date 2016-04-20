@@ -21,4 +21,8 @@ export class ProductService extends BizHttp<Product> {
             .withEndPoint(this.relativeURL + '?action=calculateprice')
             .send();     
     }
+    
+    getNewPartname(): Observable<string> {
+        return super.GetAction(null, 'getnewpartname');
+    }
 }

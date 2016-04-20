@@ -22,31 +22,8 @@ export class SupplierList {
         this.setupSupplierTable();
     }
     
-    createSupplier() {        
-        /*     
-        this.supplierService.setRelativeUrl("supplier"); // TODO: remove when its fixed
-        this.supplierService.GetNewEntity(["Info"]).subscribe((s)=> {
-            this.supplierService.Post(s)
-                .subscribe(
-                    (data) => {
-                        this.router.navigateByUrl('/supplier/details/' + data.ID);        
-                    },
-                    (err) => console.log('Error creating supplier: ', err)
-                );        
-        });    */
-        
-        /* OLD VERSION */
-        var c = new Supplier();
-        c.Info = new BusinessRelation(); 
-        
-        this.supplierService.Post(c)
-            .subscribe(
-                (data) => {
-                    console.log('Leverandør opprettet, id: ' + data.ID);
-                    this.router.navigateByUrl('/sales/supplier/details/' + data.ID);        
-                },
-                (err) => console.log('Error creating supplier: ', err)
-            );      
+    createSupplier() {
+        this.router.navigateByUrl('/sales/supplier/details/0');
     }
 
     setupSupplierTable() {
