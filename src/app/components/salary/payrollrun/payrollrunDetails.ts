@@ -32,7 +32,7 @@ export class PayrollrunDetails implements OnInit {
     
     public ngOnInit() {
         if (this.payrollrunID) {
-            
+            console.log('innom ngOnInit');
             Observable.forkJoin(
                 this.payrollrunService.Get<PayrollRun>(this.payrollrunID),
                 this.payrollrunService.layout('payrollrunDetailsForm')
@@ -45,6 +45,7 @@ export class PayrollrunDetails implements OnInit {
                     cmp.instance.config = this.form;
                 });
                 
+                this.setEditMode();
                 this.form.hideSubmitButton();
             }
             , error => console.log(error));
@@ -76,19 +77,36 @@ export class PayrollrunDetails implements OnInit {
     }
     
     public runSettling() {
-        
-        console.log('ID run settling...', this.payrollrunID);
-        
         this.payrollrunService.runSettling(this.payrollrunID)
-        .subscribe((response: PayrollRun) => {
+        .subscribe((bResponse: boolean) => {
             
-            console.log('settling response', response);
+            console.log('settling response', bResponse);
+            if (bResponse === true) {
+                this.payrollrunService.Get<PayrollRun>(this.payrollrunID)
+                .subscribe((response) => {
+                    this.payrollrun = response;
+                    this.setEditMode();
+                });
+            }
+        });
+    }
+    
+    public resetSettling() {
+        console.log('ID reset settling...', this.payrollrunID);
+        
+        this.payrollrunService.resetSettling(this.payrollrunID)
+        .subscribe((bResponse: boolean) => {
             
-            if (response) {
-                // status for payrollrun is higher than 'registered'
-                this.isEditable = false;
-            } else {
-                this.isEditable = true;
+            console.log('reset settling response', bResponse);
+            
+            if (bResponse === true) {
+                this.payrollrunService.Get<PayrollRun>(this.payrollrunID)
+                .subscribe((response) => {
+                    this.setEditMode();
+                });
+            //     this.isEditable = false;
+            // } else {
+            //     this.isEditable = true;
             }
             
             console.log('isEditable', this.isEditable);
@@ -97,24 +115,17 @@ export class PayrollrunDetails implements OnInit {
         });
     }
     
-    public resetSettling() {
-        console.log('ID reset settling...', this.payrollrunID);
+    private setEditMode() {
         
-        this.payrollrunService.resetSettling(this.payrollrunID)
-        .subscribe((response: PayrollRun) => {
-            
-            console.log('reset settling response', response);
-            
-            if (response) {
-                // status for payrollrun is higher than 'registered'
-                this.isEditable = false;
-            } else {
-                this.isEditable = true;
-            }
-            
-            console.log('isEditable', this.isEditable);
-            
-            this.form.editMode = this.isEditable;
-        });
+        console.log('payrullrundetails setEditMode, status input:', status);
+        
+        if (this.payrollrun.StatusCode > 0) {
+            this.isEditable = false;
+            this.form.readmode();
+        } else {
+            this.isEditable = true;
+            this.form.editmode();
+        }
+        console.log('isEditable', this.isEditable);
     }
 }

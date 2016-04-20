@@ -44,10 +44,9 @@ export class SalaryTransactionEmployeeList implements OnInit {
     @ViewChild(UniComponentLoader) private uniCompLoader: UniComponentLoader;
     @Input() private ansattID: number;
     @Input() private payrollRun: PayrollRun;
-    @Output()
-    public nextEmployee: EventEmitter<any> = new EventEmitter<any>(true);
-    @Output()
-    public previousEmployee: EventEmitter<any> = new EventEmitter<any>(true);
+    // @Input() private isEditable: boolean;
+    @Output() public nextEmployee: EventEmitter<any> = new EventEmitter<any>(true);
+    @Output() public previousEmployee: EventEmitter<any> = new EventEmitter<any>(true);
     @ViewChildren(UniTable) private tables: any;
     
     private busy: boolean;    
@@ -107,31 +106,32 @@ export class SalaryTransactionEmployeeList implements OnInit {
     
     public ngOnChanges() {
         this.busy = true;
-        if (this.tables && this.ansattID) {         
-            // this.calculateTotals();
-            
+        if (this.tables && this.ansattID) {
             Observable.forkJoin(            
             this.employeeService.getTotals(this.payrollRun.ID, this.ansattID),
             this.employeeService.get(this.ansattID, ['BusinessRelationInfo, SubEntity.BusinessRelationInfo'])
-        ).subscribe((response: any) => {
-            let [totals, emp] = response;
-            this.employeeTotals[0] = totals;
-            this.employee = emp;
-            this.runIDcol.defaultValue = this.payrollRun.ID;                
-            this.empIDcol.defaultValue = this.ansattID;  
-            
-            let tableConfig = this.salarytransEmployeeTableConfig;
-            let totalsConfig = this.salarytransEmployeeTotalsTableConfig;
-            tableConfig.schemaModel.fields['EmployeeID'].defaultValue = this.ansattID;
-            tableConfig.filter = this.buildFilter();
-            
-            this.tables.toArray()[0].updateConfig(tableConfig);
-            this.tables.toArray()[1].updateConfig(totalsConfig);  
-            
-            this.getAgaAndShowView(true);
-            
-        }, (error: any) => console.log(error));
-        }        
+            ).subscribe((response: any) => {
+                let [totals, emp] = response;
+                this.employeeTotals[0] = totals;
+                this.employee = emp;
+                this.runIDcol.defaultValue = this.payrollRun.ID;                
+                this.empIDcol.defaultValue = this.ansattID;  
+                
+                let tableConfig = this.salarytransEmployeeTableConfig;
+                let totalsConfig = this.salarytransEmployeeTotalsTableConfig;
+                tableConfig.schemaModel.fields['EmployeeID'].defaultValue = this.ansattID;
+                tableConfig.filter = this.buildFilter();
+                
+                this.tables.toArray()[0].updateConfig(tableConfig);
+                this.tables.toArray()[1].updateConfig(totalsConfig);  
+                
+                this.getAgaAndShowView(true);
+                
+                this.setEditMode();
+                
+            }, (error: any) => console.log(error));
+        }
+        console.log('saltranslist ngonchanges');
     }
     
     private getAgaAndShowView(update: boolean) {
@@ -207,6 +207,19 @@ export class SalaryTransactionEmployeeList implements OnInit {
         formBuilder.readmode();
         formBuilder.hideSubmitButton();
         this.form = formBuilder;
+    }
+    
+    private setEditMode() {
+        if (this.salarytransEmployeeTableConfig) {
+            console.log('translist ngonchanges, salarytransemptableconfig exist, payrollrun', this.payrollRun);
+            if (this.payrollRun.StatusCode > 0) {
+                this.salarytransEmployeeTableConfig.setEditable(false);
+                this.salarytransEmployeeTableConfig.setEditable(false).setToolbarOptions([]);
+            } else {
+                this.salarytransEmployeeTableConfig.setEditable(true);
+                this.salarytransEmployeeTableConfig.setEditable(true).setToolbarOptions(['create', 'cancel']);
+            }
+        }
     }
     
     private createTableConfig() {
@@ -297,7 +310,7 @@ export class SalaryTransactionEmployeeList implements OnInit {
         .setExpand('@Wagetype')
         .setFilter(this.buildFilter())
         .setPageable(false)
-        .setToolbarOptions(['create', 'cancel'])
+        // .setToolbarOptions(['create', 'cancel'])
         .setFilterable(false)
         .setColumnMenuVisible(false)
         .setSearchable(false)
@@ -317,6 +330,8 @@ export class SalaryTransactionEmployeeList implements OnInit {
             payoutCol
             )
             .addCommands('destroy');
+        
+        this.setEditMode();
     }
     
     private createTotalTableConfig() {
@@ -334,17 +349,17 @@ export class SalaryTransactionEmployeeList implements OnInit {
         .addColumns(percentCol, taxtableCol, paidCol, agaCol, basevacationCol);
     }
     
-    private getEmploymentName(employmentID: number) {
-        var name = '';
-        for (var i = 0; i < this.employments.length; i++) {
-            var employment = this.employments[i];
-            if (employment.ID === employmentID) {
-                name = employment.JobName;
-                break;
-            }
-        }
-        return name;
-    }
+    // private getEmploymentName(employmentID: number) {
+    //     var name = '';
+    //     for (var i = 0; i < this.employments.length; i++) {
+    //         var employment = this.employments[i];
+    //         if (employment.ID === employmentID) {
+    //             name = employment.JobName;
+    //             break;
+    //         }
+    //     }
+    //     return name;
+    // }
     
     private loadForm() {
         this.uniCompLoader.load(UniForm).then((cmp: ComponentRef) => {

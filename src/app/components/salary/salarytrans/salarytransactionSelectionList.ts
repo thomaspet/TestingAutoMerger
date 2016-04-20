@@ -1,4 +1,4 @@
-import {Component, ViewChild, OnInit, Input} from 'angular2/core';
+import {Component, ViewChild, OnInit, Input, Output} from 'angular2/core';
 import {UniTable, UniTableBuilder, UniTableColumn} from '../../../../framework/uniTable';
 import {SalaryTransactionEmployeeList} from './salarytransList';
 import {SalarytransFilter} from './salarytransFilter';
@@ -20,12 +20,10 @@ export class SalaryTransactionSelectionList implements OnInit {
     private salarytransSelectionTableConfig: UniTableBuilder;
     private selectedEmployeeID: number;
     @Input() private selectedPayrollRun: PayrollRun;
-    // private payrollRun: PayrollRun;
+    // @Output() private selPayrollrun: PayrollRun;
     private bankaccountCol: UniTableColumn;
     private taxcardCol: UniTableColumn;
-    // private payDate: any;
     private employeeList: Employee[] = [];
-    @Input() private isEditable: boolean;
     public busy: boolean;
     @ViewChild(UniTable) private tables: UniTable;
     
@@ -35,8 +33,11 @@ export class SalaryTransactionSelectionList implements OnInit {
     }
     
     public ngOnInit() {
-        this.tableConfig();     
-        // this.tabSer.addTab({name: 'Transaksjoner', url: '/salary/salarytrans'});
+        this.tableConfig();
+    }
+    
+    public ngOnChanges() {
+        console.log('saltransselection ngonchanges, selectedpayrollrun:', this.selectedPayrollRun);
     }
     
     private tableConfig(update: boolean = false, filter = '') {
@@ -76,7 +77,7 @@ export class SalaryTransactionSelectionList implements OnInit {
                     })
                     .setColumnMenuVisible(false)
                     .setFilterable(false)
-                    .setEditable(this.isEditable)
+                    .setEditable(false)
                     .addColumns(
                         employeenumberCol,
                         nameCol,
@@ -103,16 +104,16 @@ export class SalaryTransactionSelectionList implements OnInit {
         return bAccount;
     }
     
-    private formatDate(date) {
-        if (!date) {
-            return '';
-        }
-        date = new Date(date);
-        var day = date.getDate() < 10 ? '0' + date.getDate() : date.getDate();
-        var month = (date.getMonth() + 1) < 10 ? '0' + (date.getMonth() + 1) : (date.getMonth() + 1);
+    // private formatDate(date) {
+    //     if (!date) {
+    //         return '';
+    //     }
+    //     date = new Date(date);
+    //     var day = date.getDate() < 10 ? '0' + date.getDate() : date.getDate();
+    //     var month = (date.getMonth() + 1) < 10 ? '0' + (date.getMonth() + 1) : (date.getMonth() + 1);
         
-        return day + '.' + month + '.' + date.getFullYear();
-    }
+    //     return day + '.' + month + '.' + date.getFullYear();
+    // }
     
     
     
@@ -131,7 +132,7 @@ export class SalaryTransactionSelectionList implements OnInit {
     }
     
     public changeFilter(filter: string) {
-        //this.tables.updateFilter(filter);
+        // this.tables.updateFilter(filter);
         this.tableConfig(true, filter);
         this.selectedEmployeeID = 0;
     }
@@ -148,6 +149,6 @@ export class SalaryTransactionSelectionList implements OnInit {
         });
         
         this.savingInfo = 'Sist lagret: ' + (new Date()).toLocaleTimeString(); */
-        //this.tables.refresh(this.employeeList);
+        // this.tables.refresh(this.employeeList);
     }
 }
