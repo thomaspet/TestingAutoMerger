@@ -15,7 +15,7 @@ import {UniForm} from '../../../../../framework/forms/uniForm';
 import {UniFieldBuilder} from '../../../../../framework/forms/builders/uniFieldBuilder';
 import {UniComponentLoader} from '../../../../../framework/core/componentLoader';
 import {AddressModal} from '../../customer/modals/address/address';
-import {OrderCalculationSummary} from '../../../../models/sales/OrderCalculationSummary';
+import {TradeHeaderCalculationSummary} from '../../../../models/sales/TradeHeaderCalculationSummary';
 
 declare var _;
  
@@ -37,7 +37,7 @@ export class OrderDetails {
     order: CustomerOrder;
     lastSavedInfo: string;
     
-    itemsSummaryData: OrderCalculationSummary;
+    itemsSummaryData: TradeHeaderCalculationSummary;
     
     customers: Customer[];
     dropdownData: any;
