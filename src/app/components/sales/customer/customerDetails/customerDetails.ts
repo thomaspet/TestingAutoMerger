@@ -114,8 +114,12 @@ export class CustomerDetails {
         var self = this;
         
         if (this.Customer != null) {
+            console.log(selectedSearchInfo);
             this.Customer.Info.Name = selectedSearchInfo.navn;
             this.Customer.OrgNumber = selectedSearchInfo.orgnr;
+   
+            //KE: Uten denne virker adresse/telefon/email, men da virker ikke navn/orgnr. Samme motsatt - fÃ¥r exception hvis den tas med nÃ¥
+            //this.formInstance.Model = this.Customer;  
    
             var businessaddress = this.addressService.businessAddressFromSearch(selectedSearchInfo);
             var postaladdress = this.addressService.postalAddressFromSearch(selectedSearchInfo);
@@ -150,9 +154,6 @@ export class CustomerDetails {
                 } else if (mobile) {
                     this.Customer.Info.DefaultPhone = mobile;
                 }
-
-				//KE: Nødvendig nå?
-				//this.formInstance.Model = this.Customer;                          
             });
         } 
     }

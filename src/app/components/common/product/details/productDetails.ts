@@ -70,7 +70,7 @@ export class ProductDetails {
             subject = Observable.forkJoin(
                 this.productService.GetNewEntity(),
                 this.accountService.GetAll(null),
-                this.vatTypeService.GetAll(null),            
+                this.vatTypeService.GetAll(null),                  
                 this.productService.getNewPartname());      
         }
                  
@@ -78,8 +78,9 @@ export class ProductDetails {
             this.product = response[0];
             this.accounts = response[1];
             this.vatTypes = response[2];
-            if (response.length > 3) {                
-                this.product.PartName = response[3];
+            
+            if (response.length > 3 && response[3] !== null) {                      
+                this.product.PartName = response[3].PartNameSuggestion;
             }                
                                                         
             this.createFormConfig();
