@@ -74,7 +74,7 @@ export class OrderList {
             .setExpand('Customer')
             .setPageSize(25)
             .addColumns( orderNumberCol, customerNumberCol, customerNameCol, orderDateCol, taxInclusiveAmountCol, statusCol)
-            .setOrderBy('OrderDate')
+            .setOrderBy('OrderDate','desc')
             .addCommands({
                 name: 'ContextMenu', text: '...', click: (function (event) {
                     event.preventDefault();

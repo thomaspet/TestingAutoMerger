@@ -2,7 +2,7 @@ import {BizHttp} from '../../../framework/core/http/BizHttp';
 import {CustomerQuote, CustomerQuoteItem} from '../../unientities';
 import {UniHttp} from '../../../framework/core/http/http';
 import {Observable} from "rxjs/Observable";
-import {QuoteCalculationSummary} from '../../models/sales/QuoteCalculationSummary';
+import {TradeHeaderCalculationSummary} from '../../models/sales/TradeHeaderCalculationSummary';
 
 declare var moment;
 
