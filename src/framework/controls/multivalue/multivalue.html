@@ -1,4 +1,4 @@
-<section class="uni-multivalue-ng">{{label}}
+<section *ngIf="config.model" class="uni-multivalue-ng">{{label}}
     
     <input type="text" [(ngModel)]="config.model[config.field][index][config.kOptions.dataTextField]" [disabled]="config.editor">
     <button class="uni-multivalue-moreBtn" (click)="addOrDropdown()">Ny</button>

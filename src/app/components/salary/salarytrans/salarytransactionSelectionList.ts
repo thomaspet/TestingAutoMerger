@@ -4,22 +4,22 @@ import {SalaryTransactionEmployeeList} from './salarytransList';
 import {SalarytransFilter} from './salarytransFilter';
 import {UniHttp} from '../../../../framework/core/http/http';
 import {PayrollRun, Employee} from '../../../unientities';
-import {EmployeeService, PayrollrunService} from '../../../services/services';
+import {EmployeeService} from '../../../services/services';
 import {TabService} from '../../layout/navbar/tabstrip/tabService';
 import {Observable} from 'rxjs/Observable';
-declare var _
+declare var _;
 
 @Component({
     selector: 'salarytrans',
     templateUrl: 'app/components/salary/salarytrans/salarytransactionSelectionList.html',
     directives: [UniTable, SalaryTransactionEmployeeList, SalarytransFilter],
-    providers: [EmployeeService, PayrollrunService]
+    providers: [EmployeeService]
 })
 
 export class SalaryTransactionSelectionList implements OnInit {
     private salarytransSelectionTableConfig: UniTableBuilder;
     private selectedEmployeeID: number;
-    @Input() private selectedPayrollRunID: number;
+    @Input() private selectedPayrollRun: PayrollRun;
     // private payrollRun: PayrollRun;
     private bankaccountCol: UniTableColumn;
     private taxcardCol: UniTableColumn;
@@ -36,7 +36,7 @@ export class SalaryTransactionSelectionList implements OnInit {
     
     public ngOnInit() {
         this.tableConfig();     
-        this.tabSer.addTab({name: 'Transaksjoner', url: '/salary/salarytrans'});   
+        // this.tabSer.addTab({name: 'Transaksjoner', url: '/salary/salarytrans'});
     }
     
     private tableConfig(update: boolean = false, filter = '') {

@@ -169,5 +169,4 @@ export class BizHttp<T> {
                 return [layout, entity];
             });
     }
-
 }

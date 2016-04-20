@@ -3,10 +3,10 @@ import {Router, RouteParams, RouterLink} from "angular2/router";
 import {Observable} from "rxjs/Observable";
 import "rxjs/add/observable/forkjoin";
 
-import {DepartementService, ProjectService, CustomerService, PhoneService, AddressService, EmailService} from "../../../../services/services";
+import {DepartementService, ProjectService, CustomerService, PhoneService, AddressService, EmailService, BusinessRelationService} from "../../../../services/services";
 import {ExternalSearch, SearchResultItem} from '../../../common/externalSearch/externalSearch';
 
-import {FieldType, FieldLayout, ComponentLayout, Customer, BusinessRelation, Email, Phone, Address} from "../../../../unientities";
+import {FieldType, FieldLayout, ComponentLayout, Customer, BusinessRelation, Email, Phone, Address, PhoneTypeEnum} from "../../../../unientities";
 import {UNI_CONTROL_DIRECTIVES} from "../../../../../framework/controls";
 import {UniFormBuilder} from "../../../../../framework/forms/builders/uniFormBuilder";
 import {UniFormLayoutBuilder} from "../../../../../framework/forms/builders/uniFormLayoutBuilder";
@@ -23,7 +23,7 @@ import {PhoneModal} from "../modals/phone/phone";
     selector: "customer-details",
     templateUrl: "app/components/sales/customer/customerDetails/customerDetails.html",    
     directives: [UniComponentLoader, RouterLink, AddressModal, EmailModal, PhoneModal, ExternalSearch],
-    providers: [DepartementService, ProjectService, CustomerService, PhoneService, AddressService, EmailService]
+    providers: [DepartementService, ProjectService, CustomerService, PhoneService, AddressService, EmailService, BusinessRelationService]
 })
 export class CustomerDetails {
             
@@ -51,7 +51,8 @@ export class CustomerDetails {
                 private params: RouteParams,
                 private phoneService: PhoneService,
                 private emailService: EmailService,
-                private addressService: AddressService
+                private addressService: AddressService,
+                private businessRealtionService: BusinessRelationService
                 ) {
                 
         var self = this;        
@@ -102,7 +103,7 @@ export class CustomerDetails {
             this.EmptyPhone = response[3];
             this.EmptyEmail = response[4];
             this.EmptyAddress = response[5];
-                                   
+                                                           
             this.createFormConfig();
             this.extendFormConfig();
             this.loadForm();                  
@@ -110,11 +111,49 @@ export class CustomerDetails {
     }
     
     addSearchInfo(selectedSearchInfo: SearchResultItem) {
+        var self = this;
+        
         if (this.Customer != null) {
             this.Customer.Info.Name = selectedSearchInfo.navn;
             this.Customer.OrgNumber = selectedSearchInfo.orgnr;
+   
+            var businessaddress = this.addressService.businessAddressFromSearch(selectedSearchInfo);
+            var postaladdress = this.addressService.postalAddressFromSearch(selectedSearchInfo);
+            var phone = this.phoneService.phoneFromSearch(selectedSearchInfo);
+            var mobile = this.phoneService.mobileFromSearch(selectedSearchInfo);
             
-            this.formInstance.Model = this.Customer;
+            Promise.all([businessaddress, postaladdress, phone, mobile]).then(results => {
+                var businessaddress = results[0];
+                var postaladdress = results[1];
+                var phone = results[2];
+                var mobile = results[3];
+                            
+                if (postaladdress) {
+                    this.Customer.Info.Addresses.unshift(postaladdress);
+                    this.Customer.Info.InvoiceAddress = postaladdress;
+                } 
+
+                if (businessaddress) {
+                    this.Customer.Info.Addresses.unshift(businessaddress);
+                    this.Customer.Info.ShippingAddress = businessaddress;
+                } else if (postaladdress) {
+                    this.Customer.Info.ShippingAddress = postaladdress;
+                }
+
+                if (mobile) {
+                    this.Customer.Info.Phones.unshift(mobile);
+                }
+
+                if (phone) {
+                    this.Customer.Info.Phones.unshift(phone);
+                    this.Customer.Info.DefaultPhone = phone;
+                } else if (mobile) {
+                    this.Customer.Info.DefaultPhone = mobile;
+                }
+
+				//KE: Nødvendig nå?
+				//this.formInstance.Model = this.Customer;                          
+            });
         } 
     }
     
@@ -370,6 +409,9 @@ export class CustomerDetails {
             .setModelDefaultField("DefaultPhoneID")
             .setPlaceholder(this.EmptyPhone)
             .setEditor(PhoneModal);     
+        phones.onSelect = (phone: Phone) => {
+            this.Customer.Info.DefaultPhone = phone;
+        };
 
         var emails: UniFieldBuilder = this.FormConfig.find('Emails');
         emails
@@ -381,7 +423,11 @@ export class CustomerDetails {
             .setModelField('Emails')
             .setModelDefaultField("DefaultEmailID")
             .setPlaceholder(this.EmptyEmail)
-            .setEditor(EmailModal);     
+            .setEditor(EmailModal);  
+        emails.onSelect = (email: Email) => {
+            this.Customer.Info.DefaultEmail = email;
+        };
+   
             
         var invoiceaddress: UniFieldBuilder = this.FormConfig.find('InvoiceAddress');
         invoiceaddress
@@ -394,6 +440,9 @@ export class CustomerDetails {
             .setModelDefaultField("InvoiceAddressID")
             .setPlaceholder(this.EmptyAddress)
             .setEditor(AddressModal);     
+        invoiceaddress.onSelect = (address: Address) => {
+            this.Customer.Info.InvoiceAddress = address;
+        };
 
         var shippingaddress: UniFieldBuilder = this.FormConfig.find('ShippingAddress');
         shippingaddress
@@ -406,6 +455,9 @@ export class CustomerDetails {
             .setModelDefaultField("ShippingAddressID")
             .setPlaceholder(this.EmptyAddress)
             .setEditor(AddressModal);           
+        shippingaddress.onSelect = (address: Address) => {
+            this.Customer.Info.ShippingAddress = address;
+        };
     }    
        
     loadForm() {       
@@ -442,7 +494,7 @@ export class CustomerDetails {
             this.customerService.Put(this.Customer.ID, this.Customer)
                 .subscribe(
                     (updatedValue) => {  
-                        this.LastSavedInfo = "Sist lagret: " + (new Date()).toLocaleTimeString();
+                        this.LastSavedInfo = 'Sist lagret: ' + (new Date()).toLocaleTimeString();
                         this.Customer = updatedValue;
                     },
                     (err) => console.log('Feil oppsto ved lagring', err)
