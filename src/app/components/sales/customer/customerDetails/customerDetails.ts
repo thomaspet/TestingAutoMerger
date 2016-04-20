@@ -73,30 +73,8 @@ export class CustomerDetails {
             });        
     }
     
-    addCustomer() {   
-        var c = new Customer();
-        c.Info = new BusinessRelation(); 
-        
-        this.customerService.Post(c)
-            .subscribe(
-                (data) => {
-                    this.router.navigateByUrl('/sales/customer/details/' + data.ID);        
-                },
-                (err) => console.log('Error creating customer: ', err)
-            );      
-
-        /* Using GetNewEntity not working        
-        this.customerService.setRelativeUrl("customer"); // TODO: remove when its fixed
-        this.customerService.GetNewEntity(["Info"]).subscribe((c)=> {
-            this.customerService.Post(c)
-                .subscribe(
-                    (data) => {
-                        this.router.navigateByUrl('/sales/customer/details/' + data.ID);        
-                    },
-                    (err) => console.log('Error creating customer: ', err)
-                );        
-        });
-        */
+    addCustomer() {
+        this.router.navigateByUrl('/sales/customer/details/0');
     }
     
     isActive(instruction: any[]): boolean {
@@ -104,22 +82,26 @@ export class CustomerDetails {
     }
           
     ngOnInit() {
+        
+        let expandOptions = ["Info", "Info.Phones", "Info.Addresses", "Info.Emails"];
+        
         Observable.forkJoin(
             this.departementService.GetAll(null),
             this.projectService.GetAll(null),
-            this.customerService.Get(this.CustomerID, ["Info", "Info.Phones", "Info.Addresses", "Info.Emails"]),
+            (
+                this.CustomerID > 0 ? 
+                    this.customerService.Get(this.CustomerID, expandOptions) 
+                    : this.customerService.GetNewEntity(expandOptions)
+            ),            
             this.phoneService.GetNewEntity(),
-            this.emailService.GetNewEntity()
-         //   this.addressService.GetNewEntity()
+            this.emailService.GetNewEntity(),
+            this.addressService.GetNewEntity(null, 'Address')
         ).subscribe(response => {
             this.DropdownData = [response[0], response[1]];
             this.Customer = response[2];
             this.EmptyPhone = response[3];
             this.EmptyEmail = response[4];
-         //   this.EmptyAddress = response[5];
-            
-            console.log("== CUSTOMER ==");
-            console.log(this.Customer);
+            this.EmptyAddress = response[5];
                                    
             this.createFormConfig();
             this.extendFormConfig();
@@ -169,7 +151,7 @@ export class CustomerDetails {
                 {
                     ComponentLayoutID: 3,
                     EntityType: "Customer",
-                    Property: "Orgnumber",
+                    Property: "OrgNumber",
                     Placement: 1,
                     Hidden: false,
                     FieldType: 10,
@@ -354,7 +336,7 @@ export class CustomerDetails {
     }
     
     extendFormConfig() {
-        var orgnumber: UniFieldBuilder = this.FormConfig.find('Orgnumber');
+        var orgnumber: UniFieldBuilder = this.FormConfig.find('OrgNumber');
         orgnumber.setKendoOptions({
             mask: '000 000 000',
             promptChar: '_'
@@ -430,7 +412,7 @@ export class CustomerDetails {
         var self = this;
         return this.ucl.load(UniForm).then((cmp: ComponentRef) => {
            cmp.instance.config = self.FormConfig;
-           //cmp.instance.getEventEmitter().subscribe(this.onSubmit(this));
+           
            self.whenFormInstance = new Promise((resolve: Function) => resolve(cmp.instance));
            setTimeout(() => {
                 self.formInstance = cmp.instance;   
@@ -440,7 +422,9 @@ export class CustomerDetails {
                     .valueChanges
                     .debounceTime(300)
                     .distinctUntilChanged()
-                    .subscribe((data) => self.searchText = data);            
+                    .subscribe((data) => {                        
+                        self.searchText = data;
+                    });            
            });           
         });
     }           
@@ -451,19 +435,26 @@ export class CustomerDetails {
 
     saveCustomer() {
         this.formInstance.sync();
-                        
-        if (this.Customer.StatusCode == null) {
-            //set status if it is a draft
-            this.Customer.StatusCode = 1;
-        } 
+        
         this.LastSavedInfo = 'Lagrer kundeinformasjon...';                
                             
-        this.customerService.Put(this.Customer.ID, this.Customer)
-            .subscribe(
-                (updatedValue) => {  
-                    this.LastSavedInfo = "Sist lagret: " + (new Date()).toLocaleTimeString(); 
-                },
-                (err) => console.log('Feil oppsto ved lagring', err)
-            );
+        if (this.CustomerID > 0) { 
+            this.customerService.Put(this.Customer.ID, this.Customer)
+                .subscribe(
+                    (updatedValue) => {  
+                        this.LastSavedInfo = "Sist lagret: " + (new Date()).toLocaleTimeString();
+                        this.Customer = updatedValue;
+                    },
+                    (err) => console.log('Feil oppsto ved lagring', err)
+                );
+        } else {
+            this.customerService.Post(this.Customer)
+                .subscribe(
+                    (newCustomer) => {                        
+                        this.router.navigateByUrl('/sales/customer/details/' + newCustomer.ID);
+                    },
+                    (err) => console.log('Feil oppsto ved lagring', err)
+                );
+        }
     }
 }
