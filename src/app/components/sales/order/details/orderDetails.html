@@ -1,3 +1,5 @@
+<order-to-invoice-modal *ngIf="order"></order-to-invoice-modal>
+
 <header class="order_poster" *ngIf="order">    
     <article class="poster_toolbar">
         <section>
@@ -63,6 +65,7 @@
 
 <footer class="full-footer">
     <section class="application">
+        <button class="good" (click)="saveAndTransferToInvoice($event)">Lagre og overfør til faktura</button>
         <button class="good" (click)="saveOrderManual($event)">Lagre ordre</button>
         <section class="auto_save_info">
             {{ lastSavedInfo }}    

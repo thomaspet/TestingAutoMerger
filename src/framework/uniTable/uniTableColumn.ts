@@ -125,6 +125,10 @@ export class UniTableColumn {
             case 'readonlyeditor':
                 this.editor = this.controls.readonlyeditor(kendoOptions);
             break;
+            
+            case 'checkbox':
+                this.editor = this.controls.checkbox(kendoOptions, changeCallback);
+            break;
         }
         
         return this;

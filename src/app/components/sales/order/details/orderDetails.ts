@@ -5,6 +5,7 @@ import 'rxjs/add/observable/forkjoin';
 
 import {CustomerOrderService, CustomerOrderItemService, CustomerService, SupplierService, ProjectService, DepartementService, AddressService} from '../../../../services/services';
 import {OrderItemList} from './orderItemList';
+import {OrderToInvoiceModal} from '../modals/ordertoinvoice';
 
 import {FieldType, FieldLayout, ComponentLayout, CustomerOrder, CustomerOrderItem, Customer, Departement, Project, Address, BusinessRelation} from '../../../../unientities';
 import {UNI_CONTROL_DIRECTIVES} from '../../../../../framework/controls';
@@ -22,7 +23,7 @@ declare var _;
 @Component({
     selector: 'order-details',
     templateUrl: 'app/components/sales/order/details/orderDetails.html',    
-    directives: [UniComponentLoader, RouterLink, OrderItemList, AddressModal],
+    directives: [UniComponentLoader, RouterLink, OrderItemList, AddressModal, OrderToInvoiceModal],
     providers: [CustomerOrderService, CustomerOrderItemService, CustomerService, ProjectService, DepartementService, AddressService]
 })
 export class OrderDetails {
@@ -31,6 +32,9 @@ export class OrderDetails {
                   
     @ViewChild(UniComponentLoader)
     ucl: UniComponentLoader;
+    
+    @ViewChild(OrderToInvoiceModal)
+    oti: OrderToInvoiceModal;
     
     businessRelationInvoice: BusinessRelation;
     businessRelationShipping: BusinessRelation;
@@ -136,8 +140,16 @@ export class OrderDetails {
     saveOrderManual(event: any) {        
         this.saveOrder();
     }
+    
+    saveAndTransferToInvoice(event: any) {
+        //this.saveOrder(order => {
+        //    
+        //});
+        
+        this.oti.openModal(this.order);
+    }
 
-    saveOrder() {
+    saveOrder(cb = null) {
         this.formInstance.sync();        
         this.lastSavedInfo = 'Lagrer ordre...';
         
@@ -147,12 +159,13 @@ export class OrderDetails {
         this.customerOrderService.Put(this.order.ID, this.order)
             .subscribe(
                 (updatedValue) => {  
-                    this.lastSavedInfo = 'Sist lagret: ' + (new Date()).toLocaleTimeString();    
+                    this.lastSavedInfo = 'Sist lagret: ' + (new Date()).toLocaleTimeString();
+                    if (cb) cb(updatedValue);    
                 },
                 (err) => console.log('Feil oppsto ved lagring', err)
             );
-    }       
-    
+    }
+             
     getStatusText() {     
         return this.customerOrderService.getStatusText((this.order.StatusCode || '').toString());
     }
