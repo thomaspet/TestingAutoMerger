@@ -48,8 +48,9 @@ export class PayrollrunDetails implements OnInit {
                 this.form.hideSubmitButton();
             }
             , error => console.log(error));
+            
+            this.tabSer.addTab({name: 'Lønnsavregning #' + this.payrollrunID, url: '/salary/payrollrun/' + this.payrollrunID});
         }
-        this.tabSer.addTab({name: 'Lønnsavregninger', url: '/salary/payrollrun/1'});
     }
     
     public previousPayrollrun() {
