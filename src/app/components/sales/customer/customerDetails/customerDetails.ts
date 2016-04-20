@@ -74,30 +74,8 @@ export class CustomerDetails {
             });        
     }
     
-    addCustomer() {   
-        var c = new Customer();
-        c.Info = new BusinessRelation(); 
-        
-        this.customerService.Post(c)
-            .subscribe(
-                (data) => {
-                    this.router.navigateByUrl('/sales/customer/details/' + data.ID);        
-                },
-                (err) => console.log('Error creating customer: ', err)
-            );      
-
-        /* Using GetNewEntity not working        
-        this.customerService.setRelativeUrl("customer"); // TODO: remove when its fixed
-        this.customerService.GetNewEntity(["Info"]).subscribe((c)=> {
-            this.customerService.Post(c)
-                .subscribe(
-                    (data) => {
-                        this.router.navigateByUrl('/sales/customer/details/' + data.ID);        
-                    },
-                    (err) => console.log('Error creating customer: ', err)
-                );        
-        });
-        */
+    addCustomer() {
+        this.router.navigateByUrl('/sales/customer/details/0');
     }
     
     isActive(instruction: any[]): boolean {
@@ -105,20 +83,27 @@ export class CustomerDetails {
     }
           
     ngOnInit() {
+        
+        let expandOptions = ["Info", "Info.Phones", "Info.Addresses", "Info.Emails"];
+        
         Observable.forkJoin(
             this.departementService.GetAll(null),
             this.projectService.GetAll(null),
-            this.customerService.Get(this.CustomerID, ["Info", "Info.Phones", "Info.Addresses", "Info.Emails"]),
+            (
+                this.CustomerID > 0 ? 
+                    this.customerService.Get(this.CustomerID, expandOptions) 
+                    : this.customerService.GetNewEntity(expandOptions)
+            ),            
             this.phoneService.GetNewEntity(),
             this.emailService.GetNewEntity(),
-            this.addressService.GetNewEntity([], "address")
+            this.addressService.GetNewEntity(null, 'Address')
         ).subscribe(response => {
             this.DropdownData = [response[0], response[1]];
             this.Customer = response[2];
             this.EmptyPhone = response[3];
             this.EmptyEmail = response[4];
             this.EmptyAddress = response[5];
-                                               
+                                                           
             this.createFormConfig();
             this.extendFormConfig();
             this.loadForm();                  
@@ -129,8 +114,12 @@ export class CustomerDetails {
         var self = this;
         
         if (this.Customer != null) {
+            console.log(selectedSearchInfo);
             this.Customer.Info.Name = selectedSearchInfo.navn;
             this.Customer.OrgNumber = selectedSearchInfo.orgnr;
+   
+            //KE: Uten denne virker adresse/telefon/email, men da virker ikke navn/orgnr. Samme motsatt - får exception hvis den tas med nå
+            //this.formInstance.Model = this.Customer;  
    
             var businessaddress = this.addressService.businessAddressFromSearch(selectedSearchInfo);
             var postaladdress = this.addressService.postalAddressFromSearch(selectedSearchInfo);
@@ -164,7 +153,7 @@ export class CustomerDetails {
                     this.Customer.Info.DefaultPhone = phone;
                 } else if (mobile) {
                     this.Customer.Info.DefaultPhone = mobile;
-                }                          
+                }
             });
         } 
     }
@@ -476,7 +465,7 @@ export class CustomerDetails {
         var self = this;
         return this.ucl.load(UniForm).then((cmp: ComponentRef) => {
            cmp.instance.config = self.FormConfig;
-           //cmp.instance.getEventEmitter().subscribe(this.onSubmit(this));
+           
            self.whenFormInstance = new Promise((resolve: Function) => resolve(cmp.instance));
            setTimeout(() => {
                 self.formInstance = cmp.instance;   
@@ -486,7 +475,9 @@ export class CustomerDetails {
                     .valueChanges
                     .debounceTime(300)
                     .distinctUntilChanged()
-                    .subscribe((data) => self.searchText = data);            
+                    .subscribe((data) => {                        
+                        self.searchText = data;
+                    });            
            });           
         });
     }           
@@ -497,19 +488,26 @@ export class CustomerDetails {
 
     saveCustomer() {
         this.formInstance.sync();
-                        
-        if (this.Customer.StatusCode == null) {
-            //set status if it is a draft
-            this.Customer.StatusCode = 1;
-        } 
+        
         this.LastSavedInfo = 'Lagrer kundeinformasjon...';                
                             
-        this.customerService.Put(this.Customer.ID, this.Customer)
-            .subscribe(
-                (updatedValue) => {  
-                    this.LastSavedInfo = "Sist lagret: " + (new Date()).toLocaleTimeString(); 
-                },
-                (err) => console.log('Feil oppsto ved lagring', err)
-            );
+        if (this.CustomerID > 0) { 
+            this.customerService.Put(this.Customer.ID, this.Customer)
+                .subscribe(
+                    (updatedValue) => {  
+                        this.LastSavedInfo = 'Sist lagret: ' + (new Date()).toLocaleTimeString();
+                        this.Customer = updatedValue;
+                    },
+                    (err) => console.log('Feil oppsto ved lagring', err)
+                );
+        } else {
+            this.customerService.Post(this.Customer)
+                .subscribe(
+                    (newCustomer) => {                        
+                        this.router.navigateByUrl('/sales/customer/details/' + newCustomer.ID);
+                    },
+                    (err) => console.log('Feil oppsto ved lagring', err)
+                );
+        }
     }
 }

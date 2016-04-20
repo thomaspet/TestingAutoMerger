@@ -22,18 +22,8 @@ export class CustomerList {
         this.setupCustomerTable();
     }
     
-    createCustomer() {        
-        var c = new Customer();
-        c.Info = new BusinessRelation(); 
-        c.Info.Name = "";
-    
-        this.customerService.Post(c)
-            .subscribe(
-                (data) => {
-                    this.router.navigateByUrl('/sales/customer/details/' + data.ID);        
-                },
-                (err) => console.log('Error creating customer: ', err)
-            );      
+    createCustomer() {
+        this.router.navigateByUrl('/sales/customer/details/0');
     }
 
     setupCustomerTable() {
