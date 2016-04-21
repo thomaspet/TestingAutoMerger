@@ -113,10 +113,8 @@ export class SalaryTransactionEmployeeList implements OnInit {
                 tableConfig.filter = this.buildFilter();
                 
                 if (this.payrollRun.StatusCode > 0) {
-                    tableConfig.setEditable(false);
                     tableConfig.setEditable(false).setToolbarOptions([]);
                 } else {
-                    tableConfig.setEditable(true);
                     tableConfig.setEditable(true).setToolbarOptions(['create', 'cancel']);
                 }
                 
@@ -312,10 +310,8 @@ export class SalaryTransactionEmployeeList implements OnInit {
             .addCommands('destroy');
         
         if (this.payrollRun.StatusCode > 0) {
-            this.salarytransEmployeeTableConfig.setEditable(false);
             this.salarytransEmployeeTableConfig.setEditable(false).setToolbarOptions([]);
         } else {
-            this.salarytransEmployeeTableConfig.setEditable(true);
             this.salarytransEmployeeTableConfig.setEditable(true).setToolbarOptions(['create', 'cancel']);
         }
     }
