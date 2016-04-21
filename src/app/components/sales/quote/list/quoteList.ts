@@ -28,7 +28,7 @@ export class QuoteList {
 
 
     public createQuote() {        
-        var q = this.customerQuoteService.NewCustomerQuote();  
+        var q = this.customerQuoteService.newCustomerQuote();  
 
         this.customerQuoteService.Post(q)
             .subscribe(

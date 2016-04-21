@@ -25,6 +25,11 @@ const SALES_ROUTES = [
         path: "/invoice/...",
         name: "Invoice",
         loader: () => ComponentProxy.LoadComponentAsync("Invoice", "./app/components/sales/invoice/invoice")
+    }),
+    new AsyncRoute({
+        path: "/order/...",
+        name: "Order",
+        loader: () => ComponentProxy.LoadComponentAsync("Order", "./app/components/sales/order/order")
     })
 ];
 

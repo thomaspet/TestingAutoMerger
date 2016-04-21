@@ -33,11 +33,10 @@ export class HamburgerMenu {
                 componentListHeader: 'Utgående salg',
                 componentList: [
                     {componentName: 'Faktura', componentUrl: '/sales/invoice'},
-                    {componentName: 'Innbetaling', componentUrl: '/uniformdemo'},
-                    {componentName: 'Purring', componentUrl: '/kitchensink'},
-                    {componentName: 'Tilbud', componentUrl: '/sales/quote'},
                     {componentName: 'Kunder', componentUrl: '/sales'},
-                    {componentName: 'Leverandører', componentUrl: '/sales/supplier'},
+                    {componentName: 'Leverandører', componentUrl: '/sales/supplier'},                    
+                    {componentName: 'Tilbud', componentUrl: '/sales/quote'},                    
+                    {componentName: 'Ordre', componentUrl: '/sales/order'},
                     {componentName: 'Produkter', componentUrl: '/products'}                    
                 ]
             },
