@@ -99,21 +99,4 @@ export class UniTableControls {
             });
         }
     }
-    
-
-    public checkbox(kendoOptions, changeCallback?: (item: any, rowModel: any) => any) {
-        return (container, options) => { 
-        //    jQuery('<input type="checkbox" checked="' + (options.model[options.field] ? 'checked':'')  + '" />')
-        //        .appendTo(container);
-        
-            console.log("== YES INSIDE MAN ==");
-            console.log(container);
-            console.log(options);
-                    jQuery("<input type=\"checkbox\" checked=\"" + (options.model[options.field] ? "checked":"")  + " />")
-            .appendTo(container);  
-    
-        }
-        
-    } 
-
 }
