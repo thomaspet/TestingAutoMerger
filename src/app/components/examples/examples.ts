@@ -2,6 +2,7 @@ import {Component} from "angular2/core";
 import {RouteConfig, RouteDefinition, ROUTER_DIRECTIVES} from "angular2/router";
 import {UniTabs} from "../layout/uniTabs/uniTabs";
 import {UniFormDemo} from "./form/formDemo";
+import {XFormDemo} from "./form/xFormDemo";
 import {UniTableDemo} from "./table/tableDemo";
 import {UniTreelistDemo} from "./treelist/treelistDemo";
 import {UniModalDemo} from "./modal/modalDemo";
@@ -10,6 +11,7 @@ import {UniModalAdvancedDemo} from "./modal/advancedDemo";
 const CHILD_ROUTES = [
     {path: "/", redirectTo: ["./UniFormDemo"]},
     {path: "/form", component: UniFormDemo , as: "UniFormDemo"},
+    {path: "/xform", component: XFormDemo , as: "XFormDemo"},
     {path: "/table", component: UniTableDemo , as: "UniTableDemo"},
     {path: "/treelist", component: UniTreelistDemo , as: "UniTreelistDemo"},
     {path: "/modal", component: UniModalDemo  , as: "UniModalDemo"},
