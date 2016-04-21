@@ -26,6 +26,14 @@ export class PayrollrunService extends BizHttp<PayrollRun> {
             .send();
     }
     
+    public getPaymentList(ID: number) {
+        return this.http
+            .usingBusinessDomain()
+            .asGET()
+            .withEndPoint(this.relativeURL + '/' + ID)
+            .send({action: 'paymentlist'});
+    }
+    
     public layout(layoutID: string) {
         return Observable.fromArray([{
             Name: layoutID,
