@@ -32,7 +32,7 @@ export class HamburgerMenu {
                 componentListName: 'Salg',
                 componentListHeader: 'Utgående salg',
                 componentList: [
-                    {componentName: 'Faktura', componentUrl: '/kitchensink'},
+                    {componentName: 'Faktura', componentUrl: '/sales/invoice'},
                     {componentName: 'Innbetaling', componentUrl: '/uniformdemo'},
                     {componentName: 'Purring', componentUrl: '/kitchensink'},
                     {componentName: 'Tilbud', componentUrl: '/sales/quote'},
