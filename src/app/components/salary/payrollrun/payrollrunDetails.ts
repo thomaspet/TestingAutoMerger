@@ -32,7 +32,6 @@ export class PayrollrunDetails implements OnInit {
     
     public ngOnInit() {
         if (this.payrollrunID) {
-            console.log('innom ngOnInit');
             Observable.forkJoin(
                 this.payrollrunService.Get<PayrollRun>(this.payrollrunID),
                 this.payrollrunService.layout('payrollrunDetailsForm')
@@ -79,8 +78,6 @@ export class PayrollrunDetails implements OnInit {
     public runSettling() {
         this.payrollrunService.runSettling(this.payrollrunID)
         .subscribe((bResponse: boolean) => {
-            
-            console.log('settling response', bResponse);
             if (bResponse === true) {
                 this.payrollrunService.Get<PayrollRun>(this.payrollrunID)
                 .subscribe((response) => {
@@ -92,33 +89,19 @@ export class PayrollrunDetails implements OnInit {
     }
     
     public resetSettling() {
-        console.log('ID reset settling...', this.payrollrunID);
-        
         this.payrollrunService.resetSettling(this.payrollrunID)
         .subscribe((bResponse: boolean) => {
-            
-            console.log('reset settling response', bResponse);
-            
             if (bResponse === true) {
                 this.payrollrunService.Get<PayrollRun>(this.payrollrunID)
                 .subscribe((response) => {
                     this.setEditMode();
                 });
-            //     this.isEditable = false;
-            // } else {
-            //     this.isEditable = true;
             }
-            
-            console.log('isEditable', this.isEditable);
-            
             this.form.editMode = this.isEditable;
         });
     }
     
     private setEditMode() {
-        
-        console.log('payrullrundetails setEditMode, status input:', status);
-        
         if (this.payrollrun.StatusCode > 0) {
             this.isEditable = false;
             this.form.readmode();
@@ -126,6 +109,5 @@ export class PayrollrunDetails implements OnInit {
             this.isEditable = true;
             this.form.editmode();
         }
-        console.log('isEditable', this.isEditable);
     }
 }

@@ -27,9 +27,6 @@ export class PayrollrunService extends BizHttp<PayrollRun> {
     }
     
     public runSettling(ID: number) {
-        
-        console.log('relativeURL', this.relativeURL);
-        
         return this.http
             .asPUT()
             .usingBusinessDomain()

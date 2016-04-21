@@ -53,9 +53,6 @@ export class EmployeeService extends BizHttp<Employee> {
     }
     
     public getTotals(payrunID: number, employeeID: number = 0) {
-        
-        console.log('employeeservice get totals, payrunID: ', payrunID);
-        
         var params = '&payrun=' + payrunID;
         if (employeeID) {
             params += '&employee=' + employeeID;

@@ -1,4 +1,4 @@
-import {Component, ViewChild, OnInit, Input, Output} from 'angular2/core';
+import {Component, ViewChild, OnInit, Input} from 'angular2/core';
 import {UniTable, UniTableBuilder, UniTableColumn} from '../../../../framework/uniTable';
 import {SalaryTransactionEmployeeList} from './salarytransList';
 import {SalarytransFilter} from './salarytransFilter';
@@ -20,7 +20,6 @@ export class SalaryTransactionSelectionList implements OnInit {
     private salarytransSelectionTableConfig: UniTableBuilder;
     private selectedEmployeeID: number;
     @Input() private selectedPayrollRun: PayrollRun;
-    // @Output() private selPayrollrun: PayrollRun;
     private bankaccountCol: UniTableColumn;
     private taxcardCol: UniTableColumn;
     private employeeList: Employee[] = [];
@@ -34,10 +33,6 @@ export class SalaryTransactionSelectionList implements OnInit {
     
     public ngOnInit() {
         this.tableConfig();
-    }
-    
-    public ngOnChanges() {
-        console.log('saltransselection ngonchanges, selectedpayrollrun:', this.selectedPayrollRun);
     }
     
     private tableConfig(update: boolean = false, filter = '') {
@@ -115,8 +110,6 @@ export class SalaryTransactionSelectionList implements OnInit {
     //     return day + '.' + month + '.' + date.getFullYear();
     // }
     
-    
-    
     public goToNextEmployee(id) {
         var index = _.findIndex(this.employeeList, x => x.ID === this.selectedEmployeeID);
         if (index + 1 < this.employeeList.length) {
@@ -132,7 +125,6 @@ export class SalaryTransactionSelectionList implements OnInit {
     }
     
     public changeFilter(filter: string) {
-        // this.tables.updateFilter(filter);
         this.tableConfig(true, filter);
         this.selectedEmployeeID = 0;
     }
