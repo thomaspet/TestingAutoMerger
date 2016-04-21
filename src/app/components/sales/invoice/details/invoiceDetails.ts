@@ -139,7 +139,7 @@ export class InvoiceDetails {
 
     saveInvoice() {
         this.formInstance.sync();        
-        this.lastSavedInfo = 'Lagrer ordre...';
+        this.lastSavedInfo = 'Lagrer faktura...';
         
         console.log('TODO: Sett en fornuftig status - denne hører til tilbud!');        
         this.invoice.StatusCode = 40008;
@@ -229,6 +229,7 @@ export class InvoiceDetails {
 
         var shippingaddress: UniFieldBuilder = this.formConfig.find('ShippingAddress');
         shippingaddress
+            .hasLineBreak(true)
             .setKendoOptions({
                 dataTextField: 'AddressLine1',
                 dataValueField: 'ID'
@@ -362,7 +363,7 @@ export class InvoiceDetails {
                     FieldType: 2,
                     ReadOnly: false,
                     LookupField: false,
-                    Label: "Ordredato",
+                    Label: "Fakturadato",
                     Description: "",
                     HelpText: "",
                     FieldSet: 0,
@@ -370,26 +371,6 @@ export class InvoiceDetails {
                     Legend: "",
                     StatusCode: 0,
                     ID: 2,
-                    Deleted: false,
-                    CustomFields: null 
-                },
-                {
-                    ComponentLayoutID: 3,
-                    EntityType: "CustomerInvoice",
-                    Property: "DeliveryDate",
-                    Placement: 1,
-                    Hidden: false,
-                    FieldType: 2,
-                    ReadOnly: false,
-                    LookupField: false,
-                    Label: "Leveringsdato",
-                    Description: "",
-                    HelpText: "",
-                    FieldSet: 0,
-                    Section: 0,
-                    Legend: "",
-                    StatusCode: 0,
-                    ID: 3,
                     Deleted: false,
                     CustomFields: null 
                 },
@@ -410,6 +391,46 @@ export class InvoiceDetails {
                     Legend: "",
                     StatusCode: 0,
                     ID: 4,
+                    Deleted: false,
+                    CustomFields: null 
+                },
+                {
+                    ComponentLayoutID: 3,
+                    EntityType: "CustomerInvoice",
+                    Property: "PaymentDueDate",
+                    Placement: 1,
+                    Hidden: false,
+                    FieldType: 2,
+                    ReadOnly: false,
+                    LookupField: false,
+                    Label: "Forfallsdato",
+                    Description: "",
+                    HelpText: "",
+                    FieldSet: 0,
+                    Section: 0,
+                    Legend: "",
+                    StatusCode: 0,
+                    ID: 3,
+                    Deleted: false,
+                    CustomFields: null 
+                },
+                {
+                    ComponentLayoutID: 3,
+                    EntityType: "CustomerInvoice",
+                    Property: "DeliveryDate",
+                    Placement: 1,
+                    Hidden: false,
+                    FieldType: 2,
+                    ReadOnly: false,
+                    LookupField: false,
+                    Label: "Forfallsdato",
+                    Description: "",
+                    HelpText: "",
+                    FieldSet: 0,
+                    Section: 0,
+                    Legend: "",
+                    StatusCode: 0,
+                    ID: 3,
                     Deleted: false,
                     CustomFields: null 
                 },
@@ -471,7 +492,7 @@ export class InvoiceDetails {
                     StatusCode: 0,
                     ID: 7,
                     Deleted: false,
-                    CustomFields: null 
+                    CustomFields: null
                 },
                 {
                     ComponentLayoutID: 3,

@@ -223,6 +223,7 @@ export class QuoteDetails {
 
         var shippingaddress: UniFieldBuilder = this.formConfig.find('ShippingAddress');
         shippingaddress
+            .hasLineBreak(true)
             .setKendoOptions({
                 dataTextField: 'AddressLine1',
                 dataValueField: 'ID'

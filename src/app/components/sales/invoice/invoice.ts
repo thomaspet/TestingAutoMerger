@@ -31,7 +31,7 @@ export class Invoice {
     childRoutes: RouteDefinition[];
 
     constructor(public router: Router, private tabService: TabService) {
-        this.tabService.addTab({name: 'Ordre', url: '/sales/invoice'});
+        this.tabService.addTab({name: 'Faktura', url: '/sales/invoice'});
         this.childRoutes = ORDER_ROUTES;//.slice(0, ORDER_ROUTES.length - 1);
     }
 }
