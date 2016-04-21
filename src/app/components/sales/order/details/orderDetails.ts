@@ -1,40 +1,44 @@
-import {Component, ComponentRef, Input, Output, ViewChild, SimpleChange, EventEmitter} from "angular2/core";
-import {Router, RouteParams, RouterLink} from "angular2/router";
-import {Observable} from "rxjs/Observable";
-import "rxjs/add/observable/forkjoin";
+import {Component, ComponentRef, Input, Output, ViewChild, SimpleChange, EventEmitter} from 'angular2/core';
+import {Router, RouteParams, RouterLink} from 'angular2/router';
+import {Observable} from 'rxjs/Observable';
+import 'rxjs/add/observable/forkjoin';
 
-import {CustomerQuoteService, CustomerQuoteItemService, CustomerService, SupplierService, ProjectService, DepartementService, AddressService} from "../../../../services/services";
-import {QuoteItemList} from './quoteItemList';
+import {CustomerOrderService, CustomerOrderItemService, CustomerService, SupplierService, ProjectService, DepartementService, AddressService} from '../../../../services/services';
+import {OrderItemList} from './orderItemList';
+import {OrderToInvoiceModal} from '../modals/ordertoinvoice';
 
-import {FieldType, FieldLayout, ComponentLayout, CustomerQuote, CustomerQuoteItem, Customer, Departement, Project, Address, BusinessRelation} from "../../../../unientities";
-import {UNI_CONTROL_DIRECTIVES} from "../../../../../framework/controls";
-import {UniFormBuilder} from "../../../../../framework/forms/builders/uniFormBuilder";
-import {UniFormLayoutBuilder} from "../../../../../framework/forms/builders/uniFormLayoutBuilder";
-import {UniSectionBuilder} from "../../../../../framework/forms";
-import {UniForm} from "../../../../../framework/forms/uniForm";
-import {UniFieldBuilder} from "../../../../../framework/forms/builders/uniFieldBuilder";
-import {UniComponentLoader} from "../../../../../framework/core/componentLoader";
-import {AddressModal} from "../../customer/modals/address/address";
+import {FieldType, FieldLayout, ComponentLayout, CustomerOrder, CustomerOrderItem, Customer, Departement, Project, Address, BusinessRelation} from '../../../../unientities';
+import {UNI_CONTROL_DIRECTIVES} from '../../../../../framework/controls';
+import {UniFormBuilder} from '../../../../../framework/forms/builders/uniFormBuilder';
+import {UniFormLayoutBuilder} from '../../../../../framework/forms/builders/uniFormLayoutBuilder';
+import {UniSectionBuilder} from '../../../../../framework/forms';
+import {UniForm} from '../../../../../framework/forms/uniForm';
+import {UniFieldBuilder} from '../../../../../framework/forms/builders/uniFieldBuilder';
+import {UniComponentLoader} from '../../../../../framework/core/componentLoader';
+import {AddressModal} from '../../customer/modals/address/address';
 import {TradeHeaderCalculationSummary} from '../../../../models/sales/TradeHeaderCalculationSummary';
 
 declare var _;
  
 @Component({
-    selector: "quote-details",
-    templateUrl: "app/components/sales/quote/details/quoteDetails.html",    
-    directives: [UniComponentLoader, RouterLink, QuoteItemList, AddressModal],
-    providers: [CustomerQuoteService, CustomerQuoteItemService, CustomerService, ProjectService, DepartementService, AddressService]
+    selector: 'order-details',
+    templateUrl: 'app/components/sales/order/details/orderDetails.html',    
+    directives: [UniComponentLoader, RouterLink, OrderItemList, AddressModal, OrderToInvoiceModal],
+    providers: [CustomerOrderService, CustomerOrderItemService, CustomerService, ProjectService, DepartementService, AddressService]
 })
-export class QuoteDetails {
+export class OrderDetails {
             
-    @Input() QuoteID: any;
+    @Input() OrderID: any;
                   
     @ViewChild(UniComponentLoader)
     ucl: UniComponentLoader;
     
+    @ViewChild(OrderToInvoiceModal)
+    oti: OrderToInvoiceModal;
+    
     businessRelationInvoice: BusinessRelation;
     businessRelationShipping: BusinessRelation;
-    quote: CustomerQuote;
+    order: CustomerOrder;
     lastSavedInfo: string;
     
     itemsSummaryData: TradeHeaderCalculationSummary;
@@ -50,13 +54,14 @@ export class QuoteDetails {
     EmptyAddress: Address;
        
     constructor(private customerService: CustomerService, 
-                private customerQuoteService: CustomerQuoteService, 
-                private customerQuoteItemService: CustomerQuoteItemService,
+                private customerOrderService: CustomerOrderService, 
+                private customerOrderItemService: CustomerOrderItemService,
                 private departementService: DepartementService,
                 private projectService: ProjectService,
                 private addressService: AddressService, 
                 private router: Router, private params: RouteParams) {                
-        this.QuoteID = params.get("id");
+        this.OrderID = params.get('id');
+        console.log('orderdetails constructor');
     }
     
     isActive(instruction: any[]): boolean {
@@ -67,12 +72,12 @@ export class QuoteDetails {
         Observable.forkJoin(
             this.departementService.GetAll(null),
             this.projectService.GetAll(null),
-            this.customerQuoteService.Get(this.QuoteID, ['Dimensions','Items','Items.Product','Items.VatType', 'Customer', 'Customer.Info', 'Customer.Info.Addresses']),
+            this.customerOrderService.Get(this.OrderID, ['Dimensions','Items','Items.Product','Items.VatType', 'Customer', 'Customer.Info', 'Customer.Info.Addresses']),
             this.customerService.GetAll(null, ['Info'])
         //    this.addressService.GetNewEntity()
         ).subscribe(response => { 
                 this.dropdownData = [response[0], response[1]];
-                this.quote = response[2];
+                this.order = response[2];
                 this.customers = response[3];
             //    this.EmptyAddress = response[4];                
                 this.EmptyAddress = new Address();
@@ -85,9 +90,10 @@ export class QuoteDetails {
     }
         
     addAddresses() {
-        if (this.quote.Customer) {
-            this.businessRelationInvoice = _.cloneDeep(this.quote.Customer.Info);
-            this.businessRelationShipping = _.cloneDeep(this.quote.Customer.Info);         
+       
+        if (this.order.Customer) {
+            this.businessRelationInvoice = _.cloneDeep(this.order.Customer.Info);
+            this.businessRelationShipping = _.cloneDeep(this.order.Customer.Info);         
         } else {
             this.businessRelationInvoice = new BusinessRelation();
             this.businessRelationShipping = new BusinessRelation();
@@ -97,14 +103,15 @@ export class QuoteDetails {
         }           
                                     
         this.businessRelationInvoice.Addresses.unshift(this.invoiceToAddress());
-        this.businessRelationShipping.Addresses.unshift(this.shippingtoAddress());                    
+        this.businessRelationShipping.Addresses.unshift(this.shippingtoAddress());
+                           
     }    
         
     recalcTimeout: any;
     
-    recalcItemSums(quoteItems: any) {
-        this.quote.Items = quoteItems;
-        
+    recalcItemSums(orderItems: any) {
+        this.order.Items = orderItems;
+       /* 
         //do recalc after 2 second to avoid to much requests
         if (this.recalcTimeout) {
             clearTimeout(this.recalcTimeout);
@@ -112,7 +119,7 @@ export class QuoteDetails {
         
         this.recalcTimeout = setTimeout(() => {
             
-            quoteItems.forEach((x) => {
+            orderItems.forEach((x) => {
                 x.PriceIncVat = x.PriceIncVat ? x.PriceIncVat : 0;
                 x.PriceExVat = x.PriceExVat ? x.PriceExVat : 0;
                 x.CalculateGrossPriceBasedOnNetPrice = x.CalculateGrossPriceBasedOnNetPrice ? x.CalculateGrossPriceBasedOnNetPrice : false;
@@ -123,59 +130,70 @@ export class QuoteDetails {
                 x.SumTotalIncVat = x.SumTotalIncVat ? x.SumTotalIncVat : 0;  
             });
             
-            this.customerQuoteService.calculateQuoteSummary(quoteItems)
+            this.customerOrderService.calculateOrderSummary(orderItems)
             .subscribe((data) => this.itemsSummaryData = data,
                        (err) => console.log('Error when recalculating items:',err)); 
         }, 2000); 
-        
+        */
     }
     
-    saveQuoteManual(event: any) {        
-        this.saveQuote();
+    saveOrderManual(event: any) {        
+        this.saveOrder();
+    }
+    
+    saveAndTransferToInvoice(event: any) {
+        //this.saveOrder(order => {
+        //    
+        //});
+        
+        this.oti.openModal(this.order);
     }
 
-    saveQuote() {
+    saveOrder(cb = null) {
         this.formInstance.sync();        
-        this.lastSavedInfo = 'Lagrer tilbud...';
-        this.quote.StatusCode = 40008;
+        this.lastSavedInfo = 'Lagrer ordre...';
+        
+        console.log('TODO: Sett en fornuftig status - denne hører til tilbud!');        
+        this.order.StatusCode = 40008;
                 
-        this.customerQuoteService.Put(this.quote.ID, this.quote)
+        this.customerOrderService.Put(this.order.ID, this.order)
             .subscribe(
                 (updatedValue) => {  
-                    this.lastSavedInfo = "Sist lagret: " + (new Date()).toLocaleTimeString();    
+                    this.lastSavedInfo = 'Sist lagret: ' + (new Date()).toLocaleTimeString();
+                    if (cb) cb(updatedValue);    
                 },
                 (err) => console.log('Feil oppsto ved lagring', err)
             );
-    }       
-    
+    }
+             
     getStatusText() {     
-        return this.customerQuoteService.getStatusText((this.quote.StatusCode || "").toString());
+        return this.customerOrderService.getStatusText((this.order.StatusCode || '').toString());
     }
            
-    nextQuote() {
+    nextOrder() {
         var self = this;
-        this.customerQuoteService.next(this.quote.ID)
+        this.customerOrderService.next(this.order.ID)
             .subscribe((data) => {
-                this.router.navigateByUrl('/sales/quote/details/' + data.ID);
+                this.router.navigateByUrl('/sales/order/details/' + data.ID);
             });
     }
     
-    previousQuote() {
-        this.customerQuoteService.previous(this.quote.ID)
+    previousOrder() {
+        this.customerOrderService.previous(this.order.ID)
             .subscribe((data) => {
-                this.router.navigateByUrl('/sales/quote/details/' + data.ID);
+                this.router.navigateByUrl('/sales/order/details/' + data.ID);
             });        
     }
     
-    addQuote() {
-        var q = this.customerQuoteService.newCustomerQuote();          
+    addOrder() {
+        var cq = this.customerOrderService.newCustomerOrder();
         
-        this.customerQuoteService.Post(q)
+        this.customerOrderService.Post(cq)
             .subscribe(
                 (data) => {
-                    this.router.navigateByUrl('/sales/quote/details/' + data.ID);        
+                    this.router.navigateByUrl('/sales/order/details/' + data.ID);        
                 },
-                (err) => console.log('Error creating quote: ', err)
+                (err) => console.log('Error creating order: ', err)
             );      
     }
         
@@ -183,11 +201,12 @@ export class QuoteDetails {
         // TODO get it from the API and move these to backend migrations   
         var view: ComponentLayout = this.getComponentLayout();
         
-        this.formConfig = new UniFormLayoutBuilder().build(view, this.quote);
+        this.formConfig = new UniFormLayoutBuilder().build(view, this.order);
         this.formConfig.hideSubmitButton();        
     }
     
     extendFormConfig() {  
+        
         var self = this; 
         var departement: UniFieldBuilder = this.formConfig.find('Dimensions.DepartementID');         
         departement.setKendoOptions({
@@ -213,7 +232,7 @@ export class QuoteDetails {
             })
             .setModel(this.businessRelationInvoice)
             .setModelField('Addresses')
-          //  .setModelDefaultField("InvoiceAddressID")           
+          //  .setModelDefaultField('InvoiceAddressID')           
             .setPlaceholder(this.EmptyAddress)
             .setEditor(AddressModal);
         invoiceaddress.onSelect = (address: Address) => {
@@ -229,7 +248,7 @@ export class QuoteDetails {
             })
             .setModel(this.businessRelationShipping)
             .setModelField('Addresses')
-        //    .setModelDefaultField("ShippingAddressID")
+        //    .setModelDefaultField('ShippingAddressID')
             .setPlaceholder(this.EmptyAddress)
             .setEditor(AddressModal);   
         shippingaddress.onSelect = (address: Address) => {
@@ -245,8 +264,10 @@ export class QuoteDetails {
                dataSource: this.customers
             });
         customer.onSelect = function (customerID) {
+            console.log('Customer changed');
+            
             self.customerService.Get(customerID, ['Info', 'Info.Addresses']).subscribe((customer) => {
-                self.quote.Customer = customer;
+                self.order.Customer = customer;
                 self.addAddresses();           
                 invoiceaddress.refresh(self.businessRelationInvoice);
                 shippingaddress.refresh(self.businessRelationShipping);
@@ -255,6 +276,7 @@ export class QuoteDetails {
             
         var freeTextField: UniFieldBuilder = this.formConfig.find('FreeTxt');
         freeTextField.addClass('max-width'); 
+        
     }    
        
     loadForm() {       
@@ -268,56 +290,57 @@ export class QuoteDetails {
         });
     } 
     
+    
     invoiceToAddress(): Address {
         var a = new Address();
-        a.AddressLine1 = this.quote.InvoiceAddressLine1;
-        a.AddressLine2 = this.quote.InvoiceAddressLine2;
-        a.AddressLine3 = this.quote.ShippingAddressLine3;
-        a.PostalCode = this.quote.InvoicePostalCode;
-        a.City = this.quote.InvoiceCity;
-        a.Country = this.quote.InvoiceCountry;
-        a.CountryCode = this.quote.InvoiceCountryCode;
+        a.AddressLine1 = this.order.InvoiceAddressLine1;
+        a.AddressLine2 = this.order.InvoiceAddressLine2;
+        a.AddressLine3 = this.order.ShippingAddressLine3;
+        a.PostalCode = this.order.InvoicePostalCode;
+        a.City = this.order.InvoiceCity;
+        a.Country = this.order.InvoiceCountry;
+        a.CountryCode = this.order.InvoiceCountryCode;
                 
         return a;
     }
     
     shippingtoAddress(): Address {
         var a = new Address();
-        a.AddressLine1 = this.quote.ShippingAddressLine1;
-        a.AddressLine2 = this.quote.ShippingAddressLine2;
-        a.AddressLine3 = this.quote.ShippingAddressLine3;
-        a.PostalCode = this.quote.ShippingPostalCode;
-        a.City = this.quote.ShippingCity;
-        a.Country = this.quote.ShippingCountry;
-        a.CountryCode = this.quote.ShippingCountryCode;
+        a.AddressLine1 = this.order.ShippingAddressLine1;
+        a.AddressLine2 = this.order.ShippingAddressLine2;
+        a.AddressLine3 = this.order.ShippingAddressLine3;
+        a.PostalCode = this.order.ShippingPostalCode;
+        a.City = this.order.ShippingCity;
+        a.Country = this.order.ShippingCountry;
+        a.CountryCode = this.order.ShippingCountryCode;
                 
         return a;
     }
 
     addressToInvoice(a: Address) {
-        this.quote.InvoiceAddressLine1 = a.AddressLine1;
-        this.quote.InvoiceAddressLine2 = a.AddressLine2;
-        this.quote.ShippingAddressLine3 = a.AddressLine3;
-        this.quote.InvoicePostalCode = a.PostalCode;
-        this.quote.InvoiceCity = a.City;
-        this.quote.InvoiceCountry = a.Country;
-        this.quote.InvoiceCountryCode = a.CountryCode;     
+        this.order.InvoiceAddressLine1 = a.AddressLine1;
+        this.order.InvoiceAddressLine2 = a.AddressLine2;
+        this.order.ShippingAddressLine3 = a.AddressLine3;
+        this.order.InvoicePostalCode = a.PostalCode;
+        this.order.InvoiceCity = a.City;
+        this.order.InvoiceCountry = a.Country;
+        this.order.InvoiceCountryCode = a.CountryCode;     
     }    
 
     addressToShipping(a: Address) {
-        this.quote.ShippingAddressLine1 = a.AddressLine1;
-        this.quote.ShippingAddressLine2 = a.AddressLine2;
-        this.quote.ShippingAddressLine3 = a.AddressLine3;
-        this.quote.ShippingPostalCode = a.PostalCode;
-        this.quote.ShippingCity = a.City;
-        this.quote.ShippingCountry = a.Country;
-        this.quote.ShippingCountryCode = a.CountryCode;     
+        this.order.ShippingAddressLine1 = a.AddressLine1;
+        this.order.ShippingAddressLine2 = a.AddressLine2;
+        this.order.ShippingAddressLine3 = a.AddressLine3;
+        this.order.ShippingPostalCode = a.PostalCode;
+        this.order.ShippingCity = a.City;
+        this.order.ShippingCountry = a.Country;
+        this.order.ShippingCountryCode = a.CountryCode;     
     } 
     
     getComponentLayout(): ComponentLayout {
         return {
-            Name: "CustomerQuote",
-            BaseEntity: "CustomerQuote",
+            Name: "CustomerOrder",
+            BaseEntity: "CustomerOrder",
             StatusCode: 0,
             Deleted: false,
             ID: 1,
@@ -325,7 +348,7 @@ export class QuoteDetails {
             Fields: [
                 {
                     ComponentLayoutID: 3,
-                    EntityType: "CustomerQuote",
+                    EntityType: "CustomerOrder",
                     Property: "CustomerID",
                     Placement: 4,
                     Hidden: false,
@@ -345,14 +368,14 @@ export class QuoteDetails {
                 },
                 {
                     ComponentLayoutID: 3,
-                    EntityType: "CustomerQuote",
-                    Property: "QuoteDate",
+                    EntityType: "CustomerOrder",
+                    Property: "OrderDate",
                     Placement: 3,
                     Hidden: false,
                     FieldType: 2,
                     ReadOnly: false,
                     LookupField: false,
-                    Label: "Tilbudsdato",
+                    Label: "Ordredato",
                     Description: "",
                     HelpText: "",
                     FieldSet: 0,
@@ -365,14 +388,14 @@ export class QuoteDetails {
                 },
                 {
                     ComponentLayoutID: 3,
-                    EntityType: "CustomerQuote",
-                    Property: "ValidUntilDate",
+                    EntityType: "CustomerOrder",
+                    Property: "DeliveryDate",
                     Placement: 1,
                     Hidden: false,
                     FieldType: 2,
                     ReadOnly: false,
                     LookupField: false,
-                    Label: "Gyldig til dato",
+                    Label: "Leveringsdato",
                     Description: "",
                     HelpText: "",
                     FieldSet: 0,
@@ -385,7 +408,7 @@ export class QuoteDetails {
                 },
                 {
                     ComponentLayoutID: 3,
-                    EntityType: "CustomerQuote",
+                    EntityType: "CustomerOrder",
                     Property: "CreditDays",
                     Placement: 1,
                     Hidden: false,
@@ -485,7 +508,7 @@ export class QuoteDetails {
                 },
                 {
                     ComponentLayoutID: 3,
-                    EntityType: "CustomerQuote",
+                    EntityType: "CustomerOrder",
                     Property: "FreeTxt",
                     Placement: 1,
                     Hidden: false,
