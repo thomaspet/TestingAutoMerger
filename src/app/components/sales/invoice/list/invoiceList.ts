@@ -52,7 +52,7 @@ export class InvoiceList {
             .setFormat('{0: dd.MM.yyyy}')
             .setWidth('10%');
 
-        var dueDateCol = new UniTableColumn('DueDate', 'Forfallsdato', 'date')
+        var dueDateCol = new UniTableColumn('PaymentDueDate', 'Forfallsdato', 'date')
             .setFormat('{0: dd.MM.yyyy}')
             .setWidth('10%');
 
@@ -77,8 +77,8 @@ export class InvoiceList {
             .setSelectCallback(selectCallback)
             .setExpand('Customer')
             .setPageSize(25)
-            .addColumns( invoiceNumberCol, customerNumberCol, customerNameCol, invoiceDateCol, taxInclusiveAmountCol, statusCol)
-            .setOrderBy('InvoiceDate','desc')
+            .addColumns( invoiceNumberCol, customerNumberCol, customerNameCol, invoiceDateCol, dueDateCol, taxInclusiveAmountCol, statusCol)
+            .setOrderBy('PaymentDueDate','desc')
             .addCommands({
                 name: 'ContextMenu', text: '...', click: (function (event) {
                     event.preventDefault();
