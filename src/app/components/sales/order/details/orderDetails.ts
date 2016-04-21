@@ -513,7 +513,7 @@ export class OrderDetails {
                     Property: "FreeTxt",
                     Placement: 1,
                     Hidden: false,
-                    FieldType: 10,
+                    FieldType: 16,
                     ReadOnly: false,
                     LookupField: false,
                     Label: "",
