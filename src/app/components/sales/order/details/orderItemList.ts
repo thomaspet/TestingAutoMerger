@@ -7,7 +7,7 @@ import {ComponentInstruction, RouteParams, Router} from 'angular2/router';
 import {UniTable, UniTableBuilder, UniTableColumn} from '../../../../../framework/uniTable';
 import {UniHttp} from '../../../../../framework/core/http/http';
 
-import {ProductService, VatTypeService} from '../../../../services/services';
+import {ProductService, VatTypeService, CustomerOrderItemService} from '../../../../services/services';
 import {CustomerOrder, CustomerOrderItem, Product, VatType} from '../../../../unientities';
 
 declare var jQuery;
@@ -16,7 +16,7 @@ declare var jQuery;
     selector: 'order-item-list',
     templateUrl: 'app/components/sales/order/details/orderItemList.html',
     directives: [UniTable],
-    providers: [ProductService, VatTypeService]
+    providers: [ProductService, VatTypeService, CustomerOrderItemService]
 })
 export class OrderItemList {
     @Input() order: CustomerOrder; 
@@ -30,7 +30,7 @@ export class OrderItemList {
     vatTypes: VatType[];
     items: CustomerOrderItem[];
     
-    constructor(private uniHttpService: UniHttp, private router: Router, private productService: ProductService, private vatTypeService: VatTypeService) {
+    constructor(private uniHttpService: UniHttp, private router: Router, private productService: ProductService, private vatTypeService: VatTypeService, private customerOrderItemService: CustomerOrderItemService) {
                  
     }
     
@@ -110,6 +110,10 @@ export class OrderItemList {
         var sumTotalExVatCol = new UniTableColumn('SumTotalExVat', 'Netto', 'number').setCustomEditor('readonlyeditor', null).setEditable(true).setShowOnSmallScreen(false).setWidth('7%');
         var sumVatCol = new UniTableColumn('SumVat', 'Mva', 'number').setCustomEditor('readonlyeditor', null).setEditable(true).setShowOnSmallScreen(false).setWidth('7%');
         var sumTotalIncVatCol = new UniTableColumn('SumTotalIncVat', 'Sum ink. mva', 'number').setCustomEditor('readonlyeditor', null).setEditable(true).setShowOnSmallScreen(false);        
+        var statusCol = new UniTableColumn('StatusCode', 'Status', 'number').setWidth('10%');
+        statusCol.setTemplate((dataItem) => {
+            return this.customerOrderItemService.getStatusText(dataItem.StatusCode); 
+        });
         var smallScreenTemplateCol = new UniTableColumn('ID', 'Ordrelinjer', 'string')
             .setShowOnLargeScreen(false).setEditable(false)
             .setTemplate('<span>#:ItemText#</span>, <span>Antall: </span>#:NumberOfItems#, <span>Rabatt: </span>#:Discount#, <span>Sum ink. mva: </span>#:SumTotalIncVat#');
@@ -121,7 +125,7 @@ export class OrderItemList {
             .setPageable(false)
             .setToolbarOptions(['create'])
             .setChangeCallback((e, rowModel) => this.handleDataSourceChanges(e, rowModel))            
-            .addColumns(productIdCol, partnameCol, nameCol, unitCol, noOfItemsCol, priceCol, discountPercentCol, discountCol, vatTypeIdCol, vatTypeCol, sumTotalExVatCol, sumVatCol, sumTotalIncVatCol, smallScreenTemplateCol);       
+            .addColumns(productIdCol, partnameCol, nameCol, unitCol, noOfItemsCol, priceCol, discountPercentCol, discountCol, vatTypeIdCol, vatTypeCol, sumTotalExVatCol, sumVatCol, sumTotalIncVatCol, statusCol, smallScreenTemplateCol);       
     }    
     
     public handleDataSourceChanges(e, rowModel) {
