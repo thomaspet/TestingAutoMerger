@@ -36,6 +36,11 @@ var config = {
                 require.resolve('jwt-decode/build/jwt-decode.min.js') ,
                 require.resolve('lodash/lodash.min.js') ,
                 require.resolve('./kendo/js/kendo.all.min.js') ,
+                
+                ///MOMENT
+                require.resolve('moment/min/moment-with-locales.min.js') ,
+                require.resolve('moment/locale/en-gb.js') ,
+                require.resolve('moment/locale/nb.js') ,
 
 
                 ///ANGULAR 2.0
