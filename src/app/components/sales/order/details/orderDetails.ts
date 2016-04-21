@@ -111,7 +111,7 @@ export class OrderDetails {
     
     recalcItemSums(orderItems: any) {
         this.order.Items = orderItems;
-       /* 
+    
         //do recalc after 2 second to avoid to much requests
         if (this.recalcTimeout) {
             clearTimeout(this.recalcTimeout);
@@ -134,7 +134,6 @@ export class OrderDetails {
             .subscribe((data) => this.itemsSummaryData = data,
                        (err) => console.log('Error when recalculating items:',err)); 
         }, 2000); 
-        */
     }
     
     saveOrderManual(event: any) {        

@@ -107,7 +107,7 @@ export class InvoiceDetails {
     
     recalcItemSums(invoiceItems: any) {
         this.invoice.Items = invoiceItems;
-       /* 
+    
         //do recalc after 2 second to avoid to much requests
         if (this.recalcTimeout) {
             clearTimeout(this.recalcTimeout);
@@ -130,7 +130,6 @@ export class InvoiceDetails {
             .subscribe((data) => this.itemsSummaryData = data,
                        (err) => console.log('Error when recalculating items:',err)); 
         }, 2000); 
-        */
     }
     
     saveInvoiceManual(event: any) {        

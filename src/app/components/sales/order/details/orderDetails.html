@@ -28,8 +28,8 @@
     <uni-component-loader></uni-component-loader>
 
     <order-item-list [order]="order" (ItemsUpdated)="recalcItemSums($event)" (ItemsLoaded)="recalcItemSums($event)"></order-item-list>    
-    <section class="order-items-summary-placeholder" *ngIf="!itemsSummaryData">
-        Her kommer summering for ordrelinjer, service må på plass i backend først, og kode "ukommenteres" i componenten. Sett på attribut  aria-busy når det er klart
+    <section class="order-items-summary-placeholder" *ngIf="!itemsSummaryData" aria-busy>
+
     </section>
     <section class="order-items-summary" *ngIf="itemsSummaryData">        
         <section> 

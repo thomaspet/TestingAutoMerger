@@ -33,11 +33,11 @@ export class CustomerOrderService extends BizHttp<CustomerOrder> {
         return o;               
     }
 
-    calculateOrderSummary(quoteItems: Array<CustomerOrderItem>): Observable<any> {        
+    calculateOrderSummary(orderItems: Array<CustomerOrderItem>): Observable<any> {        
         return this.http 
             .asPOST()
             .usingBusinessDomain()
-            .withBody(quoteItems)
+            .withBody(orderItems)
             .withEndPoint(this.relativeURL + '?action=calculate-order-summary') 
             .send();
     } 

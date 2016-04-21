@@ -33,11 +33,11 @@ export class CustomerInvoiceService extends BizHttp<CustomerInvoice> {
         return i;               
     }
 
-    calculateInvoiceSummary(quoteItems: Array<CustomerInvoiceItem>): Observable<any> {        
+    calculateInvoiceSummary(invoiceItems: Array<CustomerInvoiceItem>): Observable<any> {        
         return this.http 
             .asPOST()
             .usingBusinessDomain()
-            .withBody(quoteItems)
+            .withBody(invoiceItems)
             .withEndPoint(this.relativeURL + '?action=calculate-invoice-summary') 
             .send();
     } 

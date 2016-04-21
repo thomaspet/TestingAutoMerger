@@ -26,8 +26,8 @@
     <uni-component-loader></uni-component-loader>
 
     <invoice-item-list [invoice]="invoice" (ItemsUpdated)="recalcItemSums($event)" (ItemsLoaded)="recalcItemSums($event)"></invoice-item-list>    
-    <section class="invoice-items-summary-placeholder" *ngIf="!itemsSummaryData">
-        Her kommer summering for fakturalinjer, service må på plass i backend først, og kode "ukommenteres" i componenten. Sett på attribut  aria-busy når det er klart
+    <section class="invoice-items-summary-placeholder" *ngIf="!itemsSummaryData" aria-busy>
+    
     </section>
     <section class="invoice-items-summary" *ngIf="itemsSummaryData">        
         <section> 
