@@ -47,6 +47,7 @@ export class QuoteDetails {
     businessRelationShipping: BusinessRelation;
     quote: CustomerQuote;
     lastSavedInfo: string;
+    statusText: string;
     
     itemsSummaryData: TradeHeaderCalculationSummary;
     
@@ -88,6 +89,7 @@ export class QuoteDetails {
             //    this.EmptyAddress = response[4];                
                 this.EmptyAddress = new Address();
                                     
+                this.updateStatusText();
                 this.addAddresses();                                                                               
                 this.createFormConfig();
                 this.extendFormConfig();
@@ -156,14 +158,16 @@ export class QuoteDetails {
         this.customerQuoteService.Put(this.quote.ID, this.quote)
             .subscribe(
                 (quote) => {  
-                    this.lastSavedInfo = "Sist lagret: " + (new Date()).toLocaleTimeString();    
+                    this.lastSavedInfo = "Sist lagret: " + (new Date()).toLocaleTimeString();  
+                    this.quote = quote;
+                    this.updateStatusText();  
                 },
                 (err) => console.log('Feil oppsto ved lagring', err)
             );
     }       
     
-    getStatusText() {     
-        return this.customerQuoteService.getStatusText((this.quote.StatusCode || "").toString());
+    updateStatusText() {     
+        this.statusText = this.customerQuoteService.getStatusText((this.quote.StatusCode || "").toString());
     }
            
     nextQuote() {

@@ -2,7 +2,7 @@
     <article class="poster_toolbar">
         <section>
             <h1 *ngIf="invoice">{{invoice.CustomerName ? invoice.CustomerName : invoice.Customer ? invoice.Customer.Info.Name : ''}}</h1>            
-            <p>Fakturanr. {{invoice.InvoiceNumber}} <span  *ngIf="!itemsSummaryData">. Netto kr {{invoice.TaxExclusiveAmount}}</span> <span *ngIf="itemsSummaryData">. Netto kr {{itemsSummaryData.SumTotalExVat}}</span>. Status: {{ getStatusText() }}</p>
+            <p>Fakturanr. {{invoice.InvoiceNumber}} <span  *ngIf="!itemsSummaryData">. Netto kr {{invoice.TaxExclusiveAmount}}</span> <span *ngIf="itemsSummaryData">. Netto kr {{itemsSummaryData.SumTotalExVat}}</span>. Status: {{ statusText }}</p>
             <p></p>
         </section>
         <nav class="poster_toolbar_tools">

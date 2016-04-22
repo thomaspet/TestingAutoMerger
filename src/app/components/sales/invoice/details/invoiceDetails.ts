@@ -43,7 +43,8 @@ export class InvoiceDetails {
     businessRelationShipping: BusinessRelation;
     invoice: CustomerInvoice;
     lastSavedInfo: string;
-    
+    statusText: string;
+
     itemsSummaryData: TradeHeaderCalculationSummary;
     
     customers: Customer[];
@@ -55,7 +56,7 @@ export class InvoiceDetails {
     whenFormInstance: Promise<UniForm>;
     
     EmptyAddress: Address;
-       
+           
     constructor(private customerService: CustomerService, 
                 private customerInvoiceService: CustomerInvoiceService, 
                 private customerInvoiceItemService: CustomerInvoiceItemService,
@@ -84,7 +85,8 @@ export class InvoiceDetails {
                 this.customers = response[3];
             //    this.EmptyAddress = response[4];                
                 this.EmptyAddress = new Address();
-                                    
+                
+                this.updateStatusText();                               
                 this.addAddresses();                                                                               
                 this.createFormConfig();
                 this.extendFormConfig();
@@ -154,14 +156,16 @@ export class InvoiceDetails {
         this.customerInvoiceService.Put(this.invoice.ID, this.invoice)
             .subscribe(
                 (invoice) => {  
-                    this.lastSavedInfo = 'Sist lagret: ' + (new Date()).toLocaleTimeString();    
+                    this.lastSavedInfo = 'Sist lagret: ' + (new Date()).toLocaleTimeString();
+                    this.invoice = invoice;
+                    this.updateStatusText();   
                 },
                 (err) => console.log('Feil oppsto ved lagring', err)
             );
     }       
     
-    getStatusText() {     
-        return this.customerInvoiceService.getStatusText((this.invoice.StatusCode || '').toString());
+    updateStatusText() {
+        this.statusText = this.customerInvoiceService.getStatusText((this.invoice.StatusCode || '').toString());
     }
            
     nextInvoice() {

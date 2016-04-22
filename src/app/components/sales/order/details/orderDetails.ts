@@ -51,6 +51,7 @@ export class OrderDetails {
     businessRelationShipping: BusinessRelation;
     order: CustomerOrder;
     lastSavedInfo: string;
+    statusText: string;
     
     itemsSummaryData: TradeHeaderCalculationSummary;
     
@@ -93,6 +94,7 @@ export class OrderDetails {
             //    this.EmptyAddress = response[4];                
                 this.EmptyAddress = new Address();
                                     
+                this.updateStatusText();
                 this.addAddresses();                                                                               
                 this.createFormConfig();
                 this.extendFormConfig();
@@ -171,14 +173,16 @@ export class OrderDetails {
             .subscribe(
                 (order) => {  
                     this.lastSavedInfo = 'Sist lagret: ' + (new Date()).toLocaleTimeString();
+                    this.order = order;
+                    this.updateStatusText();
                     if (cb) cb(order);    
                 },
                 (err) => console.log('Feil oppsto ved lagring', err)
             );
     }
              
-    getStatusText() {     
-        return this.customerOrderService.getStatusText((this.order.StatusCode || '').toString());
+    updateStatusText() {     
+        this.statusText = this.customerOrderService.getStatusText((this.order.StatusCode || '').toString());
     }
            
     nextOrder() {
