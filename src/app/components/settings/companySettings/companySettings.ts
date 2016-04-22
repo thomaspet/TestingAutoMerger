@@ -10,7 +10,8 @@ import {
 } from '../../../../framework/forms';
 import {UNI_CONTROL_DIRECTIVES} from '../../../../framework/controls';
 
-import {CompanySettingsDS} from '../../../data/companySettings';
+import {CompanySettingsService} from '../../../services/services';
+
 import {UniHttp} from '../../../../framework/core/http/http';
 import {
     SubEntity, 
@@ -31,8 +32,7 @@ declare var _;
 @Component({
     selector: 'settings',
     templateUrl: 'app/components/settings/companySettings/companySettings.html',
-    providers: [provide(CompanySettingsDS, { useClass: CompanySettingsDS }),
-                AgaZoneService],
+    providers: [CompanySettingsService, AgaZoneService],
     directives: [ROUTER_DIRECTIVES, NgFor, NgIf, UniForm]
 })
 
@@ -53,7 +53,7 @@ export class CompanySettings implements OnInit {
 
     // TODO Use service instead of Http, Use interfaces!!
     constructor(private routeParams: RouteParams,
-                private companySettingsDS: CompanySettingsDS, 
+                private companySettingsService: CompanySettingsService, 
                 private http: UniHttp,
                 private agaZoneService: AgaZoneService) {
 
@@ -66,13 +66,13 @@ export class CompanySettings implements OnInit {
     
     private getDataAndSetupForm() {
         Observable.forkJoin(
-            this.companySettingsDS.getCompanyTypes(),
-            this.companySettingsDS.getCurrencies(),
-            this.companySettingsDS.getPeriodSeries(),
-            this.companySettingsDS.getAccountGroupSets(),
-            this.companySettingsDS.getAccounts(),
-            this.companySettingsDS.get(this.id),
-            this.companySettingsDS.getSubEntities(),
+            this.companySettingsService.getCompanyTypes(),
+            this.companySettingsService.getCurrencies(),
+            this.companySettingsService.getPeriodSeries(),
+            this.companySettingsService.getAccountGroupSets(),
+            this.companySettingsService.getAccounts(),
+            this.companySettingsService.Get(2),
+            this.companySettingsService.getSubEntities(),
             this.agaZoneService.GetAll(''),
             this.agaZoneService.getAgaRules()
         ).subscribe(
@@ -84,7 +84,7 @@ export class CompanySettings implements OnInit {
                 });
                 filter = filter.slice(0, filter.length - 3);
                 
-                this.companySettingsDS.getMunicipalities(filter).subscribe(
+                this.companySettingsService.getMunicipalities(filter).subscribe(
                     (response) => {
                         this.companyTypes = dataset[0];
                         this.currencies = dataset[1];

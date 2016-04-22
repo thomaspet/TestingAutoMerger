@@ -31,3 +31,4 @@ export * from './sales/addressservice';
 export * from './sales/phoneservice';
 export * from './sales/emailservice';
 export * from './salary/payrollrun/payrollrunservice';
+export * from './companysettings/companysettingsservice';
