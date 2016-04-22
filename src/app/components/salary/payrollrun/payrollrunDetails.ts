@@ -22,6 +22,7 @@ export class PayrollrunDetails implements OnInit {
     @ViewChild(UniComponentLoader)
     private uniCmpLoader: UniComponentLoader;
     private isEditable: boolean;
+    private busy: boolean = false;
     
     constructor(private routeParams: RouteParams, private payrollrunService: PayrollrunService, private router: Router, private tabSer: TabService) {
         this.payrollrunID = +this.routeParams.get('id');
@@ -31,6 +32,7 @@ export class PayrollrunDetails implements OnInit {
     }
     
     public ngOnInit() {
+        this.busy = true;
         if (this.payrollrunID) {
             Observable.forkJoin(
                 this.payrollrunService.Get<PayrollRun>(this.payrollrunID),
@@ -46,10 +48,10 @@ export class PayrollrunDetails implements OnInit {
                 
                 this.setEditMode();
                 this.form.hideSubmitButton();
+                this.tabSer.addTab({name: 'Lønnsavregning #' + this.payrollrunID, url: '/salary/payrollrun/' + this.payrollrunID});
+                this.busy = false;
             }
             , error => console.log(error));
-            
-            this.tabSer.addTab({name: 'Lønnsavregning #' + this.payrollrunID, url: '/salary/payrollrun/' + this.payrollrunID});
         }
     }
     
@@ -76,6 +78,7 @@ export class PayrollrunDetails implements OnInit {
     }
     
     public runSettling() {
+        this.busy = true;
         this.payrollrunService.runSettling(this.payrollrunID)
         .subscribe((bResponse: boolean) => {
             if (bResponse === true) {
@@ -83,10 +86,15 @@ export class PayrollrunDetails implements OnInit {
                 .subscribe((response) => {
                     this.payrollrun = response;
                     this.setEditMode();
-                    this.router.navigateByUrl('/salary/payrollrun/paymentlist/' + this.payrollrun.ID);
+                    this.showPaymentList();
+                    this.busy = false;
                 });
             }
         });
+    }
+    
+    public showPaymentList() {
+        this.router.navigateByUrl('/salary/paymentlist/' + this.payrollrun.ID);
     }
     
     public resetSettling() {

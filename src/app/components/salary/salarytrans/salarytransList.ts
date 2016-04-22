@@ -97,7 +97,7 @@ export class SalaryTransactionEmployeeList implements OnInit {
     public ngOnChanges() {
         this.busy = true;
         if (this.tables && this.ansattID) {
-            Observable.forkJoin(            
+            Observable.forkJoin(
             this.employeeService.getTotals(this.payrollRun.ID, this.ansattID),
             this.employeeService.get(this.ansattID, ['BusinessRelationInfo, SubEntity.BusinessRelationInfo'])
             ).subscribe((response: any) => {

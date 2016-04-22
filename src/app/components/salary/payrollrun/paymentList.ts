@@ -1,12 +1,13 @@
 import {Component, OnInit} from 'angular2/core';
-import {RouteParams, Router} from 'angular2/router';
+import {RouteParams} from 'angular2/router';
 import {PayrollrunService} from '../../../services/services';
-import {FieldType} from '../../../unientities';
+// import {FieldType} from '../../../unientities';
 import {UniTable, UniTableBuilder, UniTableColumn} from '../../../../framework/uniTable';
-import {UniForm} from '../../../../framework/forms';
+// import {UniForm} from '../../../../framework/forms';
 import {TabService} from '../../layout/navbar/tabstrip/tabService';
+
 @Component({
-    selector: 'payrollrun-list',
+    selector: 'payrollrun-paymentlist',
     templateUrl: 'app/components/salary/payrollrun/paymentList.html',
     directives: [UniTable],
     providers: [PayrollrunService]
@@ -33,7 +34,7 @@ export class PaymentList implements OnInit {
         this.busy = true;
         this._payrollrunService.getPaymentList(this.payrollRunID).subscribe((response) => {
             this.paymentList.push(response);
-            console.log('response: ' + JSON.stringify(response));
+            // console.log('response: ' + JSON.stringify(response));
             this.paymentList[0].PayList.forEach((payLine) => {
                 this.empSum += payLine.NetPayment;
             });
@@ -43,7 +44,7 @@ export class PaymentList implements OnInit {
             this.buildTableConfigs();
             this.busy = false;
         });
-        this._tabService.addTab({name: 'Utbetalingsliste#' + this.payrollRunID, url: 'salary/paymentlist/' + this.payrollRunID});
+        this._tabService.addTab({name: 'Utbetalingsliste #' + this.payrollRunID, url: 'salary/paymentlist/' + this.payrollRunID});
     }
     
     public buildTableConfigs() {
