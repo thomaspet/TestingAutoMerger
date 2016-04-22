@@ -3,9 +3,8 @@ import {Control} from "angular2/common";
 import {Observable} from "rxjs/Observable";
 import {UniFieldBuilder} from "../../forms/builders/uniFieldBuilder";
 import {BizHttp} from "../../core/http/BizHttp";
-import {Employee} from "../../../app/unientities";
-import guid = kendo.guid;
 
+var guid = kendo.guid;
 declare var jQuery, _;
 
 export class UniAutocompleteConfig {
@@ -147,12 +146,11 @@ export class UniAutocomplete {
     }
     private _search(query: string) {
         if (this.source.constructor === Array) {
-            let containsString = (str: Employee) => this.options.template(str).toLowerCase().indexOf(query.toLowerCase()) >= 0;
+            let containsString = (obj: any) => this.options.template(obj).toLowerCase().indexOf(query.toLowerCase()) >= 0;
             return Observable.fromArray((<Array<any>>this.source).filter(containsString))
         }
         var filter = /^\d+$/.test(query) ? 'startswith' : 'contains';
-        return (<BizHttp<any>>this.source)
-            .GetAll(`filter=${filter}(${this.options.valueKey},'${query}')`);
+        return (<BizHttp<any>>this.source).GetAll(`filter=${filter}(${this.options.valueKey},'${query}')`);
     }
 
     // The UI handler for searching
