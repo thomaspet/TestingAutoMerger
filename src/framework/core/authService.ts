@@ -45,12 +45,11 @@ export class AuthService {
      * Returns an observable of the available companies for the authenticated user
      * @returns Observable
      */
-    public getCompanies(): Observable<any[]> {
+    public getCompanies(): Observable<any> {
         let url = AppConfig.BASE_URL + AppConfig.API_DOMAINS.INIT + 'companies';
         let headers = new Headers({'Authorization': 'Bearer ' + this.jwt});
         
-        return this.http.get(url, {headers: headers})
-            .map(response => response.json());
+        return this.http.get(url, {headers: headers});
     }
     
     public setToken(token: string) {
