@@ -21,13 +21,13 @@ declare var _;
 
 enum StatusCodeCustomerQuote
 {
-    Registered = 40002,
-    ShippedToCustomer = 40003,
-    CustomerAccepted = 40004,
-    TransferredToOrder = 40005,
-    TransferredToInvoice = 40006,
-    Completed = 40007,
-    Draft = 40008
+    Draft = 40101,
+    Registered = 40102,
+    ShippedToCustomer = 40103,
+    CustomerAccepted = 40104,
+    TransferredToOrder = 40105,
+    TransferredToInvoice = 40106,
+    Completed = 40107
 };
 
 @Component({

@@ -22,8 +22,8 @@ declare var _;
 // possible remove if we could get it from unitentities
 enum StatusCodeCustomerInvoice
 {
-    Invoiced = 42001,
-    Draft = 42002
+    Draft = 42001,
+    Invoiced = 42002
 };
  
 @Component({
