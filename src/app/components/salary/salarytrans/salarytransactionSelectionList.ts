@@ -20,12 +20,9 @@ export class SalaryTransactionSelectionList implements OnInit {
     private salarytransSelectionTableConfig: UniTableBuilder;
     private selectedEmployeeID: number;
     @Input() private selectedPayrollRun: PayrollRun;
-    // private payrollRun: PayrollRun;
     private bankaccountCol: UniTableColumn;
     private taxcardCol: UniTableColumn;
-    // private payDate: any;
     private employeeList: Employee[] = [];
-    
     public busy: boolean;
     @ViewChild(UniTable) private tables: UniTable;
     
@@ -35,8 +32,7 @@ export class SalaryTransactionSelectionList implements OnInit {
     }
     
     public ngOnInit() {
-        this.tableConfig();     
-        // this.tabSer.addTab({name: 'Transaksjoner', url: '/salary/salarytrans'});
+        this.tableConfig();
     }
     
     private tableConfig(update: boolean = false, filter = '') {
@@ -55,12 +51,12 @@ export class SalaryTransactionSelectionList implements OnInit {
                 var employeenumberCol = new UniTableColumn('EmployeeNumber', '#', 'number').setWidth('10%');
                 var nameCol = new UniTableColumn('BusinessRelationInfo.Name', 'Navn', 'string');
                 var lockedCol = new UniTableColumn('', 'Synlig/låst', 'boolean')
-            .setClass('icon-column')
-            .setTemplate(
-                "#if(TaxTable === null || !BankAccounts.some(x => x.Active === true)) {#<span class='missing-info' role='presentation'>Visible</span>#} " +
-                "else {#<span role='presentation'></span>#}# "
-            )
-            .setWidth('2rem');
+                    .setClass('icon-column')
+                    .setTemplate(
+                        "#if(TaxTable === null || !BankAccounts.some(x => x.Active === true)) {#<span class='missing-info' role='presentation'>Visible</span>#} " +
+                        "else {#<span role='presentation'></span>#}# "
+                    )
+                    .setWidth('2rem');
                 this.bankaccountCol = new UniTableColumn('BankAccounts', 'Bankkonto')
                     .setHidden(true)
                     .setTemplate((dataItem) => {
@@ -71,20 +67,21 @@ export class SalaryTransactionSelectionList implements OnInit {
                 // var forpayoutCol = new UniTableColumn('Pay', 'Beløp til utbetaling', 'number');
                 var subEntityCol = new UniTableColumn('SubEntity.BusinessRelationInfo.Name', 'Virksomhet', 'string');
                 this.salarytransSelectionTableConfig = new UniTableBuilder(this.employeeList, false)
-                .setSelectCallback((selEmp) => {
-                    this.selectedEmployeeID = selEmp.ID;
-                })
-                .setColumnMenuVisible(false)
-                .setFilterable(false)
-                .addColumns(
-                    employeenumberCol,
-                    nameCol,
-                    this.bankaccountCol,
-                    this.taxcardCol,
-                    subEntityCol,
-                    lockedCol
-                    // forpayoutCol
-                );
+                    .setSelectCallback((selEmp) => {
+                        this.selectedEmployeeID = selEmp.ID;
+                    })
+                    .setColumnMenuVisible(false)
+                    .setFilterable(false)
+                    .setEditable(false)
+                    .addColumns(
+                        employeenumberCol,
+                        nameCol,
+                        this.bankaccountCol,
+                        this.taxcardCol,
+                        subEntityCol,
+                        lockedCol
+                        // forpayoutCol
+                    );
             }
             this.busy = false;
             
@@ -102,18 +99,16 @@ export class SalaryTransactionSelectionList implements OnInit {
         return bAccount;
     }
     
-    private formatDate(date) {
-        if (!date) {
-            return '';
-        }
-        date = new Date(date);
-        var day = date.getDate() < 10 ? '0' + date.getDate() : date.getDate();
-        var month = (date.getMonth() + 1) < 10 ? '0' + (date.getMonth() + 1) : (date.getMonth() + 1);
+    // private formatDate(date) {
+    //     if (!date) {
+    //         return '';
+    //     }
+    //     date = new Date(date);
+    //     var day = date.getDate() < 10 ? '0' + date.getDate() : date.getDate();
+    //     var month = (date.getMonth() + 1) < 10 ? '0' + (date.getMonth() + 1) : (date.getMonth() + 1);
         
-        return day + '.' + month + '.' + date.getFullYear();
-    }
-    
-    
+    //     return day + '.' + month + '.' + date.getFullYear();
+    // }
     
     public goToNextEmployee(id) {
         var index = _.findIndex(this.employeeList, x => x.ID === this.selectedEmployeeID);
@@ -130,7 +125,6 @@ export class SalaryTransactionSelectionList implements OnInit {
     }
     
     public changeFilter(filter: string) {
-        //this.tables.updateFilter(filter);
         this.tableConfig(true, filter);
         this.selectedEmployeeID = 0;
     }
@@ -147,6 +141,6 @@ export class SalaryTransactionSelectionList implements OnInit {
         });
         
         this.savingInfo = 'Sist lagret: ' + (new Date()).toLocaleTimeString(); */
-        //this.tables.refresh(this.employeeList);
+        // this.tables.refresh(this.employeeList);
     }
 }

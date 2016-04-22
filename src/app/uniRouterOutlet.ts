@@ -23,7 +23,7 @@ export class UniRouterOutlet extends RouterOutlet {
 
     public activate(instruction: ComponentInstruction) {
         
-        if (!this.authService.isAuthenticated()) {
+        if (!this.authService.isAuthenticated() || !this.authService.hasActiveCompany()) {
             let parentInstruction = this.parentRouter.currentInstruction;
             let url = this.getCurrentRoute(parentInstruction);
             // let url = '/' + instruction.urlPath;

@@ -50,7 +50,23 @@ export class Login {
         if (this._authService.hasActiveCompany()) {
             this.onCompanySelected();
         }
-
+        
+        var companies;
+        this._authService.getCompanies()
+        .subscribe((response) => {
+            console.log(response);
+            this.working = false;
+            if (response.status !== 200) {
+                this.loginSuccess = false;
+                this.errorMessage = "Du har ingen selskaper. Midlertidig fix: gå til signup og lag ett.";
+                return;
+            }
+            
+            this.showCompanySelect(response.json());
+        });
+    }
+    
+    private showCompanySelect(companies) {
         // setup and compile company dropdown        
         var dropdownConfig = {
             delay: 50,
@@ -63,10 +79,7 @@ export class Login {
             dataSource: {
                 transport: {
                     read: (options) => {
-                        this._authService.getCompanies()
-                            .subscribe((response) => {
-                                options.success(response);
-                            });
+                        options.success(companies);
                     }
                 }
             },
@@ -82,6 +95,11 @@ export class Login {
         var element = jQuery('.company_select > select').first().show();
         element.kendoDropDownList(dropdownConfig);
     }
+    
+    private createCompany() {
+        
+    }
+    
 
     private onCompanySelected() {
         this._staticRegisterService.checkForStaticRegisterUpdate();

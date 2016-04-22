@@ -41,7 +41,7 @@ export class UniFieldBuilder {
     public editor: any;
     public placeholder: any;
     public ready: EventEmitter<any> = new EventEmitter<any>(true);
-
+    
     public static fromLayoutConfig(element: any, model: any): UniFieldBuilder {
         var ufb = new UniFieldBuilder();
 
@@ -63,6 +63,7 @@ export class UniFieldBuilder {
         ufb.type = UNI_CONTROL_DIRECTIVES[element.FieldType];
         ufb.lineBreak = element.hasLineBreak || false;
         ufb.syncValidators = element.Validators;
+
         if (element.kendoOptions !== undefined) {
             ufb.kOptions = element.kendoOptions;
         }

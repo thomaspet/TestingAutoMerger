@@ -30,6 +30,7 @@ export class UniHttp {
     private method: number;
     private body: any;
     private endPoint: string;
+    private debounceTime: number = 0;
 
     constructor(public http: Http, private authService: AuthService) {
         var headers = AppConfig.DEFAULT_HEADERS;

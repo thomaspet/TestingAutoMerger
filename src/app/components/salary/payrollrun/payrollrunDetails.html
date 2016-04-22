@@ -1,5 +1,5 @@
 <header class="poster">
-    <article class="poster_toolbar">
+    <article class="poster_toolbar" [attr.aria-busy]="busy">
         <div *ngIf="payrollrun">
             <h2 class="poster_toolbar_headline">{{payrollrun.Description}}
                 <p class="poster_toolbar_orgnr">
@@ -13,13 +13,16 @@
             <a (click)="previousPayrollrun()" class="previous">Forrige</a>
             <a (click)="nextPayrollrun()" class="next">Neste</a>
             <a href="#/salary/payrollrun/0" class="new">Ny lønnsavregning</a>
+            <a (click)="runSettling()">Avregn</a>
+            <a (click)="resetSettling()">Nullstill</a>
+            <a (click)="showPaymentList()">Utbetalingsliste</a>
         </nav>
             
     </article>
 </header>
-<section class="application">
+<section class="application" [attr.aria-busy]="busy">
     <uni-component-loader class="payrollrun_details"></uni-component-loader>
 </section>
-<section *ngIf="payrollrun">
+<section *ngIf="payrollrun" [attr.aria-busy]="busy">
     <salarytrans [selectedPayrollRun]="payrollrun"></salarytrans>
 </section>

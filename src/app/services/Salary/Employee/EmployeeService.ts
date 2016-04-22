@@ -5,7 +5,7 @@ import { Observable } from 'rxjs/Observable';
 
 export class EmployeeService extends BizHttp<Employee> {
     
-    private expandedProperties: any = [
+    public defaultExpand: any = [
         'BusinessRelationInfo.Addresses',
         'BusinessRelationInfo.Emails',
         'BusinessRelationInfo.Phones',
@@ -14,7 +14,7 @@ export class EmployeeService extends BizHttp<Employee> {
         'VacationRateEmployee',
         'SubEntity'
     ];
-    
+    public debounceTime = 500;
     public subEntities: Observable<any>;
     
     constructor(http: UniHttp) {
@@ -40,7 +40,7 @@ export class EmployeeService extends BizHttp<Employee> {
             if (expand) {
                 return this.Get(id, expand);
             }
-            return this.Get(id, this.expandedProperties);
+            return this.Get(id, this.defaultExpand);
         }
     }
 
@@ -53,7 +53,6 @@ export class EmployeeService extends BizHttp<Employee> {
     }
     
     public getTotals(payrunID: number, employeeID: number = 0) {
-        console.log('empID: ' + employeeID);
         var params = '&payrun=' + payrunID;
         if (employeeID) {
             params += '&employee=' + employeeID;
@@ -74,11 +73,11 @@ export class EmployeeService extends BizHttp<Employee> {
     }
     
     public getNext(id: number) {
-        return super.GetAction(id, 'next', 'expand:' + this.expandedProperties.join(','));
+        return super.GetAction(id, 'next', 'expand:' + this.defaultExpand.join(','));
     }
     
     public getPrevious(id: number) {
-        return super.GetAction(id, 'previous', 'expand:' + this.expandedProperties.join(','));
+        return super.GetAction(id, 'previous', 'expand:' + this.defaultExpand.join(','));
     }
     
     public layout(layoutID: string) {

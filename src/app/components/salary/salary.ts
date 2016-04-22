@@ -41,6 +41,11 @@ const SALARY_ROUTES = [
         name: 'PayrollrunDetails',
         loader: () => ComponentProxy.LoadComponentAsync('PayrollrunDetails', './app/components/salary/payrollrun/payrollrunDetails')
     }),
+    new AsyncRoute({
+        path: '/paymentlist/:id',
+        name: 'PaymentList',
+        loader: () => ComponentProxy.LoadComponentAsync('PaymentList', './app/components/salary/payrollrun/paymentList')
+    }),
     
 ];
 

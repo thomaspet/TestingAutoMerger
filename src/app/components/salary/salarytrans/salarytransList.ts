@@ -44,10 +44,8 @@ export class SalaryTransactionEmployeeList implements OnInit {
     @ViewChild(UniComponentLoader) private uniCompLoader: UniComponentLoader;
     @Input() private ansattID: number;
     @Input() private payrollRun: PayrollRun;
-    @Output()
-    public nextEmployee: EventEmitter<any> = new EventEmitter<any>(true);
-    @Output()
-    public previousEmployee: EventEmitter<any> = new EventEmitter<any>(true);
+    @Output() public nextEmployee: EventEmitter<any> = new EventEmitter<any>(true);
+    @Output() public previousEmployee: EventEmitter<any> = new EventEmitter<any>(true);
     @ViewChildren(UniTable) private tables: any;
     
     private busy: boolean;    
@@ -69,15 +67,6 @@ export class SalaryTransactionEmployeeList implements OnInit {
     
     public ngOnInit() {
         this.busy = true;
-        /*this._uniHttpService.asGET()
-        .usingBusinessDomain()
-        .withEndPoint('employments')
-        .send()
-        .subscribe((response) => {
-            this.employments = response;
-            this.createTableConfig();
-        });*/
-        
         
         Observable.forkJoin(
             this.employeeService.getTotals(this.payrollRun.ID, this.ansattID),
@@ -107,31 +96,35 @@ export class SalaryTransactionEmployeeList implements OnInit {
     
     public ngOnChanges() {
         this.busy = true;
-        if (this.tables && this.ansattID) {         
-            // this.calculateTotals();
-            
-            Observable.forkJoin(            
+        if (this.tables && this.ansattID) {
+            Observable.forkJoin(
             this.employeeService.getTotals(this.payrollRun.ID, this.ansattID),
             this.employeeService.get(this.ansattID, ['BusinessRelationInfo, SubEntity.BusinessRelationInfo'])
-        ).subscribe((response: any) => {
-            let [totals, emp] = response;
-            this.employeeTotals[0] = totals;
-            this.employee = emp;
-            this.runIDcol.defaultValue = this.payrollRun.ID;                
-            this.empIDcol.defaultValue = this.ansattID;  
-            
-            let tableConfig = this.salarytransEmployeeTableConfig;
-            let totalsConfig = this.salarytransEmployeeTotalsTableConfig;
-            tableConfig.schemaModel.fields['EmployeeID'].defaultValue = this.ansattID;
-            tableConfig.filter = this.buildFilter();
-            
-            this.tables.toArray()[0].updateConfig(tableConfig);
-            this.tables.toArray()[1].updateConfig(totalsConfig);  
-            
-            this.getAgaAndShowView(true);
-            
-        }, (error: any) => console.log(error));
-        }        
+            ).subscribe((response: any) => {
+                let [totals, emp] = response;
+                this.employeeTotals[0] = totals;
+                this.employee = emp;
+                this.runIDcol.defaultValue = this.payrollRun.ID;                
+                this.empIDcol.defaultValue = this.ansattID;  
+                
+                let tableConfig = this.salarytransEmployeeTableConfig;
+                let totalsConfig = this.salarytransEmployeeTotalsTableConfig;
+                tableConfig.schemaModel.fields['EmployeeID'].defaultValue = this.ansattID;
+                tableConfig.filter = this.buildFilter();
+                
+                if (this.payrollRun.StatusCode > 0) {
+                    tableConfig.setEditable(false).setToolbarOptions([]);
+                } else {
+                    tableConfig.setEditable(true).setToolbarOptions(['create', 'cancel']);
+                }
+                
+                this.tables.toArray()[0].updateConfig(tableConfig);
+                this.tables.toArray()[1].updateConfig(totalsConfig);  
+                
+                this.getAgaAndShowView(true);
+                
+            }, (error: any) => console.log(error));
+        }
     }
     
     private getAgaAndShowView(update: boolean) {
@@ -216,7 +209,7 @@ export class SalaryTransactionEmployeeList implements OnInit {
         
         let employmentDS: {value: number, text: string}[] = [
             {value: null, text: 'Ikke valgt'}
-        ]
+        ];
         
         this.wagetypes.forEach((item: WageType) => {
             wagetypeDS.push({value: item.WageTypeId, text: item.WageTypeId.toString()});
@@ -226,7 +219,6 @@ export class SalaryTransactionEmployeeList implements OnInit {
             employmentDS.push({value: item.ID, text: item.JobName});
         });
         
-        // var wagetypeidCol = new UniTableColumn('Wagetype.WageTypeNumber', 'Lønnsart', 'string');
         var wagetypenameCol = new UniTableColumn('Text', 'Tekst', 'string');
         var fromdateCol = new UniTableColumn('FromDate', 'Fra dato', 'date');
         var toDateCol = new UniTableColumn('ToDate', 'Til dato', 'date');
@@ -297,7 +289,6 @@ export class SalaryTransactionEmployeeList implements OnInit {
         .setExpand('@Wagetype')
         .setFilter(this.buildFilter())
         .setPageable(false)
-        .setToolbarOptions(['create', 'cancel'])
         .setFilterable(false)
         .setColumnMenuVisible(false)
         .setSearchable(false)
@@ -317,6 +308,12 @@ export class SalaryTransactionEmployeeList implements OnInit {
             payoutCol
             )
             .addCommands('destroy');
+        
+        if (this.payrollRun.StatusCode > 0) {
+            this.salarytransEmployeeTableConfig.setEditable(false).setToolbarOptions([]);
+        } else {
+            this.salarytransEmployeeTableConfig.setEditable(true).setToolbarOptions(['create', 'cancel']);
+        }
     }
     
     private createTotalTableConfig() {
@@ -332,18 +329,6 @@ export class SalaryTransactionEmployeeList implements OnInit {
         .setSearchable(false)
         .setPageable(false)
         .addColumns(percentCol, taxtableCol, paidCol, agaCol, basevacationCol);
-    }
-    
-    private getEmploymentName(employmentID: number) {
-        var name = '';
-        for (var i = 0; i < this.employments.length; i++) {
-            var employment = this.employments[i];
-            if (employment.ID === employmentID) {
-                name = employment.JobName;
-                break;
-            }
-        }
-        return name;
     }
     
     private loadForm() {
