@@ -15,7 +15,7 @@ import {UniForm} from "../../../../../framework/forms/uniForm";
 import {UniFieldBuilder} from "../../../../../framework/forms/builders/uniFieldBuilder";
 import {UniComponentLoader} from "../../../../../framework/core/componentLoader";
 import {AddressModal} from "../../customer/modals/address/address";
-import {QuoteCalculationSummary} from '../../../../models/sales/QuoteCalculationSummary';
+import {TradeHeaderCalculationSummary} from '../../../../models/sales/TradeHeaderCalculationSummary';
 
 declare var _;
  
@@ -37,7 +37,7 @@ export class QuoteDetails {
     quote: CustomerQuote;
     lastSavedInfo: string;
     
-    itemsSummaryData: QuoteCalculationSummary;
+    itemsSummaryData: TradeHeaderCalculationSummary;
     
     customers: Customer[];
     dropdownData: any;
@@ -154,21 +154,21 @@ export class QuoteDetails {
            
     nextQuote() {
         var self = this;
-        this.customerQuoteService.Next(this.quote.ID)
+        this.customerQuoteService.next(this.quote.ID)
             .subscribe((data) => {
                 this.router.navigateByUrl('/sales/quote/details/' + data.ID);
             });
     }
     
     previousQuote() {
-        this.customerQuoteService.Previous(this.quote.ID)
+        this.customerQuoteService.previous(this.quote.ID)
             .subscribe((data) => {
                 this.router.navigateByUrl('/sales/quote/details/' + data.ID);
             });        
     }
     
     addQuote() {
-        var q = this.customerQuoteService.NewCustomerQuote();          
+        var q = this.customerQuoteService.newCustomerQuote();          
         
         this.customerQuoteService.Post(q)
             .subscribe(
@@ -245,8 +245,6 @@ export class QuoteDetails {
                dataSource: this.customers
             });
         customer.onSelect = function (customerID) {
-            console.log("Customer changed");
-            
             self.customerService.Get(customerID, ['Info', 'Info.Addresses']).subscribe((customer) => {
                 self.quote.Customer = customer;
                 self.addAddresses();           
@@ -454,7 +452,7 @@ export class QuoteDetails {
                     FieldType: 1,
                     ReadOnly: false,
                     LookupField: false,
-                    Label: "Prosjekt",
+                    Label: "Std. prosjekt på linje",
                     Description: "",
                     HelpText: "",
                     FieldSet: 0,
@@ -474,7 +472,7 @@ export class QuoteDetails {
                     FieldType: 1,
                     ReadOnly: false,
                     LookupField: false,
-                    Label: "Avdeling",
+                    Label: "Std. avdeling på linje",
                     Description: "",
                     HelpText: "",
                     FieldSet: 0,

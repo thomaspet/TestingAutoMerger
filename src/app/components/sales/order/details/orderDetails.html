@@ -1,0 +1,74 @@
+<order-to-invoice-modal *ngIf="order"></order-to-invoice-modal>
+
+<header class="order_poster" *ngIf="order">    
+    <article class="poster_toolbar">
+        <section>
+            <h1 *ngIf="order">{{order.CustomerName ? order.CustomerName : order.Customer ? order.Customer.Info.Name : ''}}</h1>            
+            <p>Ordrenr. {{order.OrderNumber}} <span  *ngIf="!itemsSummaryData">. Netto kr {{order.TaxExclusiveAmount}}</span> <span *ngIf="itemsSummaryData">. Netto kr {{itemsSummaryData.SumTotalExVat}}</span>. Status: {{ getStatusText() }}</p>
+            <p></p>
+        </section>
+        <nav class="poster_toolbar_tools">
+            <a (click)="previousOrder()"  class="previous">Forrige</a>
+            <a (click)="nextOrder()"  class="next">Neste</a>
+            <a (click)="addOrder()"  class="new">Ny ordre</a>
+        </nav>         
+    </article>       
+    
+     <!-- Widget poster -->
+    <section class="poster_overview">        
+        <uni-widget-poster [model]="order">
+            <section class="application">
+                widgetdata kommer her...
+            </section>
+        </uni-widget-poster>        
+    </section> 
+</header>
+
+<section class="order-details application">
+    <uni-component-loader></uni-component-loader>
+
+    <order-item-list [order]="order" (ItemsUpdated)="recalcItemSums($event)" (ItemsLoaded)="recalcItemSums($event)"></order-item-list>    
+    <section class="order-items-summary-placeholder" *ngIf="!itemsSummaryData">
+        Her kommer summering for ordrelinjer, service må på plass i backend først, og kode "ukommenteres" i componenten. Sett på attribut  aria-busy når det er klart
+    </section>
+    <section class="order-items-summary" *ngIf="itemsSummaryData">        
+        <section> 
+            Avgiftsfritt<br/>
+            {{itemsSummaryData.SumNoVatBasis}}
+        </section>
+        <section> 
+            Avgiftsgrunnlag<br/>
+            {{itemsSummaryData.SumVatBasis}}
+        </section>
+        <section> 
+            Sum rabatt<br/>
+            {{itemsSummaryData.SumDiscount}}
+        </section>
+        <section> 
+            Nettosum<br/>
+            {{itemsSummaryData.SumTotalExVat}}
+        </section>
+        <section> 
+            Mva<br/>
+            {{itemsSummaryData.SumVat}}
+        </section>
+        <section> 
+            Øreavrunding<br/>
+            {{itemsSummaryData.DecimalRounding}}
+        </section>
+        <section> 
+            Totalsum<br/>
+            {{itemsSummaryData.SumTotalIncVat}}
+        </section>      
+    </section>
+</section>
+
+<footer class="full-footer">
+    <section class="application">
+        <button class="good" (click)="saveAndTransferToInvoice($event)">Lagre og overfør til faktura</button>
+        <button class="good" (click)="saveOrderManual($event)">Lagre ordre</button>
+        <section class="auto_save_info">
+            {{ lastSavedInfo }}    
+        </section>
+    </section>
+</footer>

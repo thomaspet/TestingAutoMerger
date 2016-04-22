@@ -1,0 +1,28 @@
+.autocomplete
+    position: relative
+    overflow: visible
+
+.autocomplete_input
+    box-sizing: border-box
+    height: 1.6667rem
+
+.autocomplete_results
+    @extend .k-popup.k-list-container
+    display: block
+    position: absolute
+    width: 100%
+    max-height: 15rem
+    overflow-x: auto
+    list-style: none
+    margin-top: 0rem
+
+    &[aria-expanded=false]
+        display: none
+
+.autocomplete_result
+    padding: .2rem 1rem
+
+    &[aria-selected=true]
+        font-weight: 400
+        background: $uni-color-C2A
+        color: $uni-color-negative
