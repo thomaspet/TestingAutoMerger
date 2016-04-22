@@ -19,7 +19,18 @@ import {AddressModal} from '../../customer/modals/address/address';
 import {TradeHeaderCalculationSummary} from '../../../../models/sales/TradeHeaderCalculationSummary';
 
 declare var _;
- 
+
+// possible remove if we could get it from unitentities
+enum StatusCodeCustomerOrder
+{
+    Registered = 41002,
+    ShippedToCustomer = 41003,
+    PartlyTransferredToInvoice = 41004,
+    TransferredToInvoice = 41005,
+    Completed = 41006,
+    Draft = 41007
+};
+     
 @Component({
     selector: 'order-details',
     templateUrl: 'app/components/sales/order/details/orderDetails.html',    
@@ -152,14 +163,15 @@ export class OrderDetails {
         this.formInstance.sync();        
         this.lastSavedInfo = 'Lagrer ordre...';
         
-        console.log('TODO: Sett en fornuftig status - denne hører til tilbud!');        
-        this.order.StatusCode = 40008;
+        if (this.order.StatusCode == null) {        
+            this.order.StatusCode = StatusCodeCustomerOrder.Draft; // TODO: remove done in presave soon
+        }
                 
         this.customerOrderService.Put(this.order.ID, this.order)
             .subscribe(
-                (updatedValue) => {  
+                (order) => {  
                     this.lastSavedInfo = 'Sist lagret: ' + (new Date()).toLocaleTimeString();
-                    if (cb) cb(updatedValue);    
+                    if (cb) cb(order);    
                 },
                 (err) => console.log('Feil oppsto ved lagring', err)
             );

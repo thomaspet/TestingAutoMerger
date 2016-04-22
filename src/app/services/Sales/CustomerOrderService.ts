@@ -43,9 +43,13 @@ export class CustomerOrderService extends BizHttp<CustomerOrder> {
     } 
 
     // TODO: To be retrieved from database schema shared.Status instead?
-    // TODO: Sett opp gyldige statuser her
     private statusTypes: Array<any> = [
-       
+        { Code: '41007', Text: 'Kladd' },
+        { Code: '41002', Text: 'Registrert' },
+        { Code: '41003', Text: 'Sendt til kunde' },
+        { Code: '41004', Text: 'Delvis overført til faktura' },
+        { Code: '41005', Text: 'Overført til faktura' },
+        { Code: '41006', Text: 'Avsluttet' }
     ];
 
     public getStatusText = (statusCode: string) => {

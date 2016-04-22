@@ -7,12 +7,18 @@ import {TradeHeaderCalculationSummary} from '../../models/sales/TradeHeaderCalcu
 declare var moment;
 
 export class CustomerInvoiceService extends BizHttp<CustomerInvoice> {
-    
+
     constructor(http: UniHttp) {        
         super(http);       
         this.relativeURL = CustomerInvoice.relativeUrl;
         this.DefaultOrderBy = null;
     }    
+    
+    // TODO: To be retrieved from database schema shared.Status instead?
+    private statusTypes: Array<any> = [
+        { Code: '42002', Text: 'Kladd' },
+        { Code: '42001', Text: 'Sendt til kunde' },
+    ];
             
     next(currentID: number): Observable<CustomerInvoice>
     {
@@ -41,12 +47,6 @@ export class CustomerInvoiceService extends BizHttp<CustomerInvoice> {
             .withEndPoint(this.relativeURL + '?action=calculate-invoice-summary') 
             .send();
     } 
-
-    // TODO: To be retrieved from database schema shared.Status instead?
-    // TODO: Sett opp gyldige statuser her
-    private statusTypes: Array<any> = [
-       
-    ];
 
     public getStatusText = (statusCode: string) => {
         var text = 'Udefinert';

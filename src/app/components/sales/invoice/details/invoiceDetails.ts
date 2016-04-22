@@ -18,6 +18,13 @@ import {AddressModal} from '../../customer/modals/address/address';
 import {TradeHeaderCalculationSummary} from '../../../../models/sales/TradeHeaderCalculationSummary';
 
 declare var _;
+
+// possible remove if we could get it from unitentities
+enum StatusCodeCustomerInvoice
+{
+    Invoiced = 42001,
+    Draft = 42002
+};
  
 @Component({
     selector: 'invoice-details',
@@ -140,12 +147,13 @@ export class InvoiceDetails {
         this.formInstance.sync();        
         this.lastSavedInfo = 'Lagrer faktura...';
         
-        console.log('TODO: Sett en fornuftig status - denne hører til tilbud!');        
-        this.invoice.StatusCode = 40008;
+        if (this.invoice.StatusCode == null) {        
+            this.invoice.StatusCode = StatusCodeCustomerInvoice.Draft; // TODO: remove when presave is ready
+        }
                 
         this.customerInvoiceService.Put(this.invoice.ID, this.invoice)
             .subscribe(
-                (updatedValue) => {  
+                (invoice) => {  
                     this.lastSavedInfo = 'Sist lagret: ' + (new Date()).toLocaleTimeString();    
                 },
                 (err) => console.log('Feil oppsto ved lagring', err)
@@ -253,11 +261,12 @@ export class InvoiceDetails {
         customer.onSelect = function (customerID) {
             console.log('Customer changed');
             
-            self.customerService.Get(customerID, ['Info', 'Info.Addresses']).subscribe((customer) => {
+            self.customerService.Get(customerID, ['Info', 'Info.Addresses']).subscribe((customer: Customer) => {
                 self.invoice.Customer = customer;
                 self.addAddresses();           
                 invoiceaddress.refresh(self.businessRelationInvoice);
                 shippingaddress.refresh(self.businessRelationShipping);
+                self.invoice.CustomerName = customer.Info.Name;
             });
         };
             
@@ -429,7 +438,7 @@ export class InvoiceDetails {
                     Section: 0,
                     Legend: "",
                     StatusCode: 0,
-                    ID: 3,
+                    ID: 4,
                     Deleted: false,
                     CustomFields: null 
                 },

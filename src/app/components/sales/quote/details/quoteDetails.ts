@@ -18,7 +18,18 @@ import {AddressModal} from "../../customer/modals/address/address";
 import {TradeHeaderCalculationSummary} from '../../../../models/sales/TradeHeaderCalculationSummary';
 
 declare var _;
- 
+
+enum StatusCodeCustomerQuote
+{
+    Registered = 40002,
+    ShippedToCustomer = 40003,
+    CustomerAccepted = 40004,
+    TransferredToOrder = 40005,
+    TransferredToInvoice = 40006,
+    Completed = 40007,
+    Draft = 40008
+};
+
 @Component({
     selector: "quote-details",
     templateUrl: "app/components/sales/quote/details/quoteDetails.html",    
@@ -137,11 +148,14 @@ export class QuoteDetails {
     saveQuote() {
         this.formInstance.sync();        
         this.lastSavedInfo = 'Lagrer tilbud...';
-        this.quote.StatusCode = 40008;
+        
+        if (this.quote.StatusCode == null) {         
+            this.quote.StatusCode = StatusCodeCustomerQuote.Draft; // TODO: remove when available in presave
+        }
                 
         this.customerQuoteService.Put(this.quote.ID, this.quote)
             .subscribe(
-                (updatedValue) => {  
+                (quote) => {  
                     this.lastSavedInfo = "Sist lagret: " + (new Date()).toLocaleTimeString();    
                 },
                 (err) => console.log('Feil oppsto ved lagring', err)
