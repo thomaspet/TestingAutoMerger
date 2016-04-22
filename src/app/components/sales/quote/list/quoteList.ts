@@ -21,28 +21,16 @@ export class QuoteList {
 
    
    
-    constructor(private uniHttpService: UniHttp, private router: Router, private customerQouteService: CustomerQuoteService) {
+    constructor(private uniHttpService: UniHttp, private router: Router, private customerQuoteService: CustomerQuoteService) {
         this.setupQuoteTable();
     }
 
 
 
     public createQuote() {        
-        /*     
-        this.customerQouteService.GetNewEntity().subscribe((s)=> {
-            this.customerQouteService.Post(s)
-                .subscribe(
-                    (data) => {
-                        this.router.navigateByUrl('/quote/details/' + data.ID);        
-                    },
-                    (err) => console.log('Error creating quote: ', err)
-                );        
-        });    */
-        
-        /* OLD VERSION */
-        var cq = new CustomerQuote();
+        var q = this.customerQuoteService.newCustomerQuote();  
 
-        this.customerQouteService.Post(cq)
+        this.customerQuoteService.Post(q)
             .subscribe(
             (data) => {
                 console.log('Tilbud opprettet, id: ' + data.ID);
@@ -56,15 +44,16 @@ export class QuoteList {
         var self = this;
 
         // Define columns to use in the table
-        var idCol = new UniTableColumn('ID', 'ID', 'number').setWidth('10%');
+        //var idCol = new UniTableColumn('ID', 'ID', 'number').setWidth('10%');
 
-        var quoteNumberCol = new UniTableColumn('QuoteNumber', 'Tilbudsnr', 'string');
+        var quoteNumberCol = new UniTableColumn('QuoteNumber', 'Tilbudsnr', 'string').setWidth('10%');
         // quoteNumber.setTemplate('#var quoteNumber; if(!QuoteNumber) {quoteNumber = ' - '}  # #= quoteNumber #');
 
-        var customeridCol = new UniTableColumn('CustomerID', 'KundeId', 'string');
+        //var customeridCol = new UniTableColumn('CustomerID', 'KundeId', 'string');
 
         var customerNumberCol = new UniTableColumn('Customer.CustomerNumber', 'Kundenr', 'string')
-            .setNullable(true);
+            .setNullable(true)
+            .setWidth('10%');
 
         var customerNameCol = new UniTableColumn('CustomerName', 'KundeNavn', 'string');
 
@@ -77,13 +66,13 @@ export class QuoteList {
             .setWidth('10%');
 
         var taxInclusiveAmountCol = new UniTableColumn('TaxInclusiveAmount', 'Totalsum', 'number')
-            .setWidth('15%')
+            .setWidth('10%')
             .setFormat('{0:n}')
             .setClass('column-align-right');
 
         var statusCol = new UniTableColumn('StatusCode', 'Status', 'number').setWidth('15%');
         statusCol.setTemplate((dataItem) => {
-            return this.customerQouteService.getStatusText(dataItem.StatusCode);
+            return this.customerQuoteService.getStatusText(dataItem.StatusCode);
         });
 
         // Define callback function for row clicks
@@ -97,7 +86,7 @@ export class QuoteList {
             .setSelectCallback(selectCallback)
             .setExpand('Customer')
             .setPageSize(25)
-            .addColumns(idCol, quoteNumberCol, customeridCol, customerNumberCol, customerNameCol, quoteDateCol, validUntilDateCol, taxInclusiveAmountCol, statusCol)
+            .addColumns( quoteNumberCol, customerNumberCol, customerNameCol, quoteDateCol, validUntilDateCol, taxInclusiveAmountCol, statusCol)
             .setOrderBy('QuoteDate')
             .addCommands({
                 name: 'ContextMenu', text: '...', click: (function (event) {

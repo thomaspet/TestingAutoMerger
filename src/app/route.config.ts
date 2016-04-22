@@ -12,13 +12,19 @@ export const ROUTES = [
     new AsyncRoute({
         path: '/login',
         name: 'Login',
-        loader: () => ComponentProxy.LoadComponentAsync('Login', './app/components/login/login')
+        loader: () => ComponentProxy.LoadComponentAsync('Login', './app/components/authentication/login')
     }),
 
     new AsyncRoute({
         path: '/signup',
         name: 'Signup',
-        loader: () => ComponentProxy.LoadComponentAsync('Signup', './app/components/login/signup')
+        loader: () => ComponentProxy.LoadComponentAsync('Signup', './app/components/authentication/signup')
+    }),
+    
+    new AsyncRoute({
+        path: '/reset-password',
+        name: 'ResetPassword',
+        loader: () => ComponentProxy.LoadComponentAsync('ResetPassword', './app/components/authentication/resetPassword')
     }),
 
     new AsyncRoute({
@@ -50,7 +56,13 @@ export const ROUTES = [
         name: 'Products',
         loader: () => ComponentProxy.LoadComponentAsync('Product', './app/components/common/product/product')
     }),
-    
+
+    new AsyncRoute({
+        path: '/confirm/...',
+        name: 'Confirm',
+        loader: () => ComponentProxy.LoadComponentAsync('Confirm', './app/components/login/confirmInvite')
+    }),
+
     /// ROUTES FOR TESTING POURPOSES
 
     new AsyncRoute({

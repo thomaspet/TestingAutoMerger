@@ -20,7 +20,6 @@ export interface IUniHttpRequest {
     orderBy?: string;
     top?: number;
     skip?: number;
-    returnResponseHeaders?: boolean;
 }
 
 @Injectable()
@@ -33,20 +32,19 @@ export class UniHttp {
     private endPoint: string;
     private debounceTime: number = 0;
 
-    constructor(public http: Http, authService: AuthService) {
+    constructor(public http: Http, private authService: AuthService) {
         var headers = AppConfig.DEFAULT_HEADERS;
-        this.headers = new Headers();
         this.appendHeaders(headers);
-        this.headers.append('authentication', 'Bearer ' + authService.getToken());
     }
 
     private appendHeaders(headers: any) {
+        this.headers = new Headers();
+        
         for (var header in headers) {
             if (headers.hasOwnProperty(header)) {
                 this.headers.append(header, AppConfig.DEFAULT_HEADERS[header]);
             }
         }
-        return this;
     }
 
     public getBaseUrl() {
@@ -74,6 +72,11 @@ export class UniHttp {
 
     public usingBusinessDomain() {
         this.apiDomain = AppConfig.API_DOMAINS.BUSINESS;
+        return this;    
+    }
+
+    public usingInitDomain() {
+        this.apiDomain = AppConfig.API_DOMAINS.INIT;
         return this;
     }
 
@@ -133,30 +136,42 @@ export class UniHttp {
         return this.http.request(new Request(options)).map((response: any) => response.json());
     }
     
-    public send(request?: IUniHttpRequest): Observable<any> {
-        request = request || {};
+    public send(request: IUniHttpRequest = {}, withoutJsonMap: boolean = false): Observable<any> {
+        let token = this.authService.getToken();
+        let activeCompany = this.authService.getActiveCompany();
+        
+        if (token && !this.headers.has('Authorization')) {
+            this.headers.append('Authorization', 'Bearer ' + token);
+        }
+        
+        if (activeCompany && !this.headers.has('CompanyKey')) {
+            this.headers.append('CompanyKey', activeCompany.Key);
+        }
+        
         var baseurl = request.baseUrl || this.baseUrl,
             apidomain = request.apiDomain || this.apiDomain,
             endpoint = request.endPoint || this.endPoint,
             method = request.method || this.method,
-            body = request.body || this.body
-            ;
+            body = request.body || this.body;
+        
         var url = baseurl + apidomain + endpoint;
         var options: any = {
             method: method,
             url: url,
             headers: this.headers
         };
+        
         if (this.body) {
             options.body = JSON.stringify(body);
         }
+        
         if (request) {
             options.search = UniHttp.buildUrlParams(request);
         }
         
         let req = this.http.request(new Request(options));
         
-        if (request.returnResponseHeaders) {            
+        if (withoutJsonMap) {            
             return req;
         }
         

@@ -1,0 +1,9 @@
+[Desktop Entry]
+Version=2015.2.2
+Name=Designer
+Comment=
+Exec=..\Builder\complete\samples\Trial\Samples\Nw.js\Designer\output\Designer\linux-x64\Designer
+Icon=..\Builder\complete\samples\Trial\Samples\Nw.js\Designer\output\Designer\linux-x64\Designer.png
+Terminal=false
+Type=Application
+Categories=Utility;Application;

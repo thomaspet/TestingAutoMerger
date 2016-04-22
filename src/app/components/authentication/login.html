@@ -1,0 +1,26 @@
+<article class="authentication-component">
+	<img src="../../../assets/uni-logo.png" alt="Uni Economy logo">
+    
+	<section [hidden]="loginSuccess">
+        <form (submit)="login($event)">
+            <input type="text" [disabled]="working" [(ngModel)]="credentials.username" placeholder="Username">
+            <input type="password" [disabled]="working" [(ngModel)]="credentials.password" placeholder="Password">
+            
+            <button class="c2a" [attr.aria-busy]="working" [disabled]="working">Sign in</button>
+        </form>
+        
+        <p *ngIf="!loginSuccess" style="color: red">{{errorMessage}}</p>
+        
+        <p *ngIf="!loginSuccess">
+            Don't have an account? <a [routerLink]="['Signup']">Signup</a><br>
+            Forgot password? <a [routerLink]="['ResetPassword']">Reset</a>
+        </p>
+    </section>
+    
+    
+    
+    <span [hidden]="!loginSuccess" class="company_select">
+        <select style="display: none;"></select> <!-- kendo dropdownlist will compile here -->        
+    </span>  
+	
+</article>

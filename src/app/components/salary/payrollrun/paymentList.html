@@ -1,0 +1,16 @@
+<article class="paymentList" [attr.aria-busy]="busy">
+    <h2>Utbetalingsliste</h2>
+    
+    <section class="payrollInfo">
+        <p>Utbetalingsdato: {{payDate | date: "MMddyy"}}</p>
+        <p>Lønnskjøring: {{payrollRunID}}</p>
+        <p>Fra konto: {{account}}</p>
+    </section>
+    
+    <uni-table [config]="paymentListEmp"></uni-table>
+    <p>Sum lønn: {{empSum}}</p>
+    <h3>Forskuddtrekk</h3>
+    <uni-table [config]="withholding"></uni-table>
+    <hr>
+    <p>Sum total: {{sum}}</p>
+</article>

@@ -1,4 +1,4 @@
-.authentication_component
+.authentication-component
     @include unigrid-flush(4)
     margin: 0 auto
 
@@ -11,6 +11,9 @@
             width: 100%
             margin: 0.5rem 0
             display: block
+                        
+            &.ng-invalid.ng-touched
+                @include uniTextInput($uni-color-Bad)
 
         button
             width: 100%

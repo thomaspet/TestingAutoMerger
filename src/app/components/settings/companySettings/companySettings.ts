@@ -60,7 +60,7 @@ export class CompanySettings implements OnInit {
     }
     
     public ngOnInit() {
-        this.id = JSON.parse(localStorage.getItem('activeCompany')).id;
+        this.id = JSON.parse(localStorage.getItem('activeCompany')).ID;
         this.getDataAndSetupForm();
     }
     

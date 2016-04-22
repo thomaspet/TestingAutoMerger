@@ -37,6 +37,15 @@ var config = {
                 require.resolve('lodash/lodash.min.js') ,
                 require.resolve('./kendo/js/kendo.all.min.js') ,
 
+                //STIMULSOFT
+                require.resolve('./stimulsoft/Js/stimulsoft.reports.js'),
+                require.resolve('./stimulsoft/Js/stimulsoft.viewer.js'),
+
+                ///MOMENT
+                require.resolve('moment/moment.js') ,
+                require.resolve('moment/locale/en-gb.js') ,
+                require.resolve('moment/locale/nb.js') ,
+
 
                 ///ANGULAR 2.0
                 require.resolve('systemjs/dist/system-polyfills.js') ,

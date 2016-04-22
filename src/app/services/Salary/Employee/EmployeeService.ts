@@ -21,7 +21,6 @@ export class EmployeeService extends BizHttp<Employee> {
         super(http);
         this.relativeURL = Employee.relativeUrl;
     }
-    
     public getEmployeeCategories(employeenumber: number) {
         return this.http
             .asGET()
@@ -34,12 +33,13 @@ export class EmployeeService extends BizHttp<Employee> {
             .send();
             // .send({expand: '', filter: 'EmployeeNumber eq ' + id});
     }
-
-    public get(id: number| string) {
-        
+    public get(id: number| string, expand: string[] = null) {    
         if (id === 0) {
             return this.GetNewEntity();
         }else {
+            if (expand) {
+                return this.Get(id, expand);
+            }
             return this.Get(id, this.defaultExpand);
         }
     }
@@ -52,12 +52,16 @@ export class EmployeeService extends BizHttp<Employee> {
             .send({expand: 'BusinessRelationInfo'});
     }
     
-    public getTotals(ansattID: number) {
+    public getTotals(payrunID: number, employeeID: number = 0) {
+        var params = '&payrun=' + payrunID;
+        if (employeeID) {
+            params += '&employee=' + employeeID;
+        }
         return this.http
             .asGET()
             .usingBusinessDomain()
             .withEndPoint('salarytrans')
-            .send({filter: 'EmployeeNumber eq ' + ansattID});
+            .send({action: 'Sums' + params});
     }
 
     public getEmployeeLeave() {
