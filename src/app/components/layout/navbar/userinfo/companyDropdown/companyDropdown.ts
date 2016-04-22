@@ -39,7 +39,7 @@ export class UniCompanyDropdown implements AfterViewInit, OnDestroy {
                 transport: {
                     read: (options) => {
                         this._authService.getCompanies()
-                            .subscribe(response => options.success(response));
+                            .subscribe(response => options.success(response.json()));
                     }
                 }
             },
