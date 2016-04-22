@@ -63,6 +63,11 @@ export const ROUTES = [
         loader: () => ComponentProxy.LoadComponentAsync('Confirm', './app/components/login/confirmInvite')
     }),
 
+    new AsyncRoute({
+        path: '/reports/...',
+        name: 'UniReports',
+        loader: () => ComponentProxy.LoadComponentAsync('UniReports', './app/components/reports/reports')
+    }),
     /// ROUTES FOR TESTING POURPOSES
 
     new AsyncRoute({

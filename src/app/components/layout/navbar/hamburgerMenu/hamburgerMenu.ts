@@ -61,7 +61,7 @@ export class HamburgerMenu {
                 componentListName: 'Rapporter',
                 componentListHeader: 'Oversikt på papir',
                 componentList: [
-                    {componentName: 'Rapportoversikt', componentUrl: '/'}
+                    {componentName: 'Rapportoversikt', componentUrl: '/reports'}
                 ]
             }
         ];
