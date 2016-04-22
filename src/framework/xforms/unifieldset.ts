@@ -10,10 +10,9 @@ declare var _; //lodash
         <fieldset>
             <legend *ngIf="config.legend">{{config.legend}}</legend>
             <template ngFor #field [ngForOf]="fields" #i="index">
-                <uni-field 
-                    *ngIf="isField(item)"
+                <uni-field
                     [controls]="controls"
-                    [fields]="item" 
+                    [field]="field" 
                     [model]="model">
                 </uni-field>
             </template>

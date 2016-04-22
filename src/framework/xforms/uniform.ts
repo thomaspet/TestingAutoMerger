@@ -24,7 +24,7 @@ declare var _; //lodash
                 <uni-field 
                     *ngIf="isField(item)"
                     [controls]="controls"
-                    [fields]="item" 
+                    [field]="item" 
                     [model]="model">
                 </uni-field>
                 <uni-field-set 
