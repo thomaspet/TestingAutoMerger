@@ -59,7 +59,7 @@ export class BizHttp<T> {
         let expandStr;
         if (expand) {
             expandStr = expand.join(',');
-        } else {
+        } else if (this.defaultExpand) {
             expandStr = this.defaultExpand.join(',');
         }
 
