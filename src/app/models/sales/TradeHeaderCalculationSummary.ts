@@ -1,4 +1,4 @@
-export class QuoteCalculationSummary {
+export class TradeHeaderCalculationSummary {
     public SumTotalIncVat: number;
     public SumTotalExVat: number;
     public SumVat: number;

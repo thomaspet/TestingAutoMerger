@@ -23,16 +23,7 @@ export class ProductList {
     }
     
     createProduct() { 
-        var p = new Product();
-        
-        this.productService.Post(p)
-            .subscribe(
-                (data) => {                    
-                    this.router.navigateByUrl('/products/details/' + data.ID);        
-                },
-                (err) => console.log('Error creating product: ', err)
-            );   
-            
+        this.router.navigateByUrl('/products/details/0');
     }
 
     getStatusText() {
