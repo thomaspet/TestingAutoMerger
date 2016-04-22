@@ -83,6 +83,7 @@ export class PayrollrunDetails implements OnInit {
                 .subscribe((response) => {
                     this.payrollrun = response;
                     this.setEditMode();
+                    this.router.navigateByUrl('/salary/payrollrun/paymentlist/' + this.payrollrun.ID);
                 });
             }
         });
