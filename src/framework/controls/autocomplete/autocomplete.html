@@ -1,0 +1,32 @@
+<div class="autocomplete">
+    <input
+        #query
+        class="autocomplete_input"
+        role="combobox"
+        aria-autocomplete="inline"
+        [attr.aria-owns]="'results-'+guid"
+        (blur)="choose(selected)"
+
+        *ngIf="config.control"
+        [ngFormControl]="config.control"
+        [readonly]="config.readonly"
+        [disabled]="config.disabled"
+    />
+
+    <ul class="autocomplete_results"
+        [id]="'results-' + guid"
+        role="listbox"
+        tabindex="-1"
+        [attr.aria-expanded]="isExpanded">
+
+    <li *ngFor="#result of results"
+        class="autocomplete_result"
+        role="option"
+        (mouseover)="selected = result"
+        (click)="choose(result)"
+        [attr.aria-selected]="selected === result">
+        {{template(result)}}
+    </li>
+
+    </ul>
+</div>
