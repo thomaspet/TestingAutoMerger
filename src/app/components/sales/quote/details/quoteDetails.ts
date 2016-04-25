@@ -18,7 +18,18 @@ import {AddressModal} from "../../customer/modals/address/address";
 import {TradeHeaderCalculationSummary} from '../../../../models/sales/TradeHeaderCalculationSummary';
 
 declare var _;
- 
+
+enum StatusCodeCustomerQuote
+{
+    Draft = 40101,
+    Registered = 40102,
+    ShippedToCustomer = 40103,
+    CustomerAccepted = 40104,
+    TransferredToOrder = 40105,
+    TransferredToInvoice = 40106,
+    Completed = 40107
+};
+
 @Component({
     selector: "quote-details",
     templateUrl: "app/components/sales/quote/details/quoteDetails.html",    
@@ -36,6 +47,7 @@ export class QuoteDetails {
     businessRelationShipping: BusinessRelation;
     quote: CustomerQuote;
     lastSavedInfo: string;
+    statusText: string;
     
     itemsSummaryData: TradeHeaderCalculationSummary;
     
@@ -77,6 +89,7 @@ export class QuoteDetails {
             //    this.EmptyAddress = response[4];                
                 this.EmptyAddress = new Address();
                                     
+                this.updateStatusText();
                 this.addAddresses();                                                                               
                 this.createFormConfig();
                 this.extendFormConfig();
@@ -137,19 +150,24 @@ export class QuoteDetails {
     saveQuote() {
         this.formInstance.sync();        
         this.lastSavedInfo = 'Lagrer tilbud...';
-        this.quote.StatusCode = 40008;
+        
+        if (this.quote.StatusCode == null) {         
+            this.quote.StatusCode = StatusCodeCustomerQuote.Draft; // TODO: remove when available in presave
+        }
                 
         this.customerQuoteService.Put(this.quote.ID, this.quote)
             .subscribe(
-                (updatedValue) => {  
-                    this.lastSavedInfo = "Sist lagret: " + (new Date()).toLocaleTimeString();    
+                (quote) => {  
+                    this.lastSavedInfo = "Sist lagret: " + (new Date()).toLocaleTimeString();  
+                    this.quote = quote;
+                    this.updateStatusText();  
                 },
                 (err) => console.log('Feil oppsto ved lagring', err)
             );
     }       
     
-    getStatusText() {     
-        return this.customerQuoteService.getStatusText((this.quote.StatusCode || "").toString());
+    updateStatusText() {     
+        this.statusText = this.customerQuoteService.getStatusText((this.quote.StatusCode || "").toString());
     }
            
     nextQuote() {
@@ -223,6 +241,7 @@ export class QuoteDetails {
 
         var shippingaddress: UniFieldBuilder = this.formConfig.find('ShippingAddress');
         shippingaddress
+            .hasLineBreak(true)
             .setKendoOptions({
                 dataTextField: 'AddressLine1',
                 dataValueField: 'ID'
@@ -489,7 +508,7 @@ export class QuoteDetails {
                     Property: "FreeTxt",
                     Placement: 1,
                     Hidden: false,
-                    FieldType: 10,
+                    FieldType: 16,
                     ReadOnly: false,
                     LookupField: false,
                     Label: "",

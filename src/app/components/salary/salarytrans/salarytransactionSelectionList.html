@@ -7,7 +7,7 @@
         <salary-transactions-employee 
             *ngIf="selectedEmployeeID" 
             [ansattID]="selectedEmployeeID" 
-            [payrollRun]="selectedPayrollRun" 
+            [payrollRun]="selectedPayrollRun"
             (nextEmployee)="goToNextEmployee($id)"
             (previousEmployee)="goToPreviousEmployee($id)"></salary-transactions-employee>
     </main>

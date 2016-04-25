@@ -36,9 +36,13 @@ var config = {
                 require.resolve('jwt-decode/build/jwt-decode.min.js') ,
                 require.resolve('lodash/lodash.min.js') ,
                 require.resolve('./kendo/js/kendo.all.min.js') ,
-                
+
+                //STIMULSOFT
+                require.resolve('./stimulsoft/Js/stimulsoft.reports.js'),
+                require.resolve('./stimulsoft/Js/stimulsoft.viewer.js'),
+
                 ///MOMENT
-                require.resolve('moment/min/moment-with-locales.min.js') ,
+                require.resolve('moment/moment.js') ,
                 require.resolve('moment/locale/en-gb.js') ,
                 require.resolve('moment/locale/nb.js') ,
 
@@ -115,9 +119,10 @@ gulp.task('clean' , function (done) {
 
 gulp.task('entities' , function (done) {
     var options = {
-        url: 'http://devapi.unieconomy.no/api/metadata/typescriptentities' ,
+        //url: 'http://localhost:27831/api/metadata/typescriptentities',
+        url: 'https://devapi-unieconomy.azurewebsites.net/api/metadata/typescriptentities' ,
         headers: {
-            'client': 'economytestas'
+            'client': 'andersas'
         }
     };
     var callback = function (error , response , body) {

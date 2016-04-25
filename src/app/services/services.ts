@@ -26,6 +26,8 @@ export * from './sales/customerquoteservice';
 export * from './sales/customerquoteitemservice';
 export * from './sales/customerorderservice';
 export * from './sales/customerorderitemservice';
+export * from './sales/customerinvoiceservice';
+export * from './sales/customerinvoiceitemservice'
 export * from './shared/agazoneservice';
 export * from './sales/addressservice';
 export * from './sales/phoneservice';
