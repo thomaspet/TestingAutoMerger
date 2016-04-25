@@ -10,7 +10,6 @@ import {
 } from '../../../../framework/forms';
 import {UNI_CONTROL_DIRECTIVES} from '../../../../framework/controls';
 
-import {CompanySettingsDS} from '../../../data/companySettings';
 import {UniHttp} from '../../../../framework/core/http/http';
 import {
     SubEntity, 
@@ -24,15 +23,14 @@ import {
     AGARate,
     Account
 } from '../../../unientities';
-import { AgaZoneService} from '../../../services/services';
+import {AgaZoneService, CompanySettingsService, CurrencyService, SubEntityService, AccountService, AccountGroupSetService, PeriodSeriesService, CompanyTypeService, MunicipalService} from '../../../services/services';
 
 declare var _;
 
 @Component({
     selector: 'settings',
     templateUrl: 'app/components/settings/companySettings/companySettings.html',
-    providers: [provide(CompanySettingsDS, { useClass: CompanySettingsDS }),
-                AgaZoneService],
+    providers: [CompanySettingsService, AgaZoneService, CurrencyService, SubEntityService, AccountService, AccountGroupSetService, PeriodSeriesService, CompanyTypeService, MunicipalService],
     directives: [ROUTER_DIRECTIVES, NgFor, NgIf, UniForm]
 })
 
@@ -50,30 +48,35 @@ export class CompanySettings implements OnInit {
     private municipals: Array<Municipal> = [];
     private accounts: Array<Account> = [];
     
-
     // TODO Use service instead of Http, Use interfaces!!
     constructor(private routeParams: RouteParams,
-                private companySettingsDS: CompanySettingsDS, 
                 private http: UniHttp,
-                private agaZoneService: AgaZoneService) {
+                private companySettingsService: CompanySettingsService, 
+                private agaZoneService: AgaZoneService,
+                private subentityService: SubEntityService,
+                private accountService: AccountService,
+                private currencyService: CurrencyService,
+                private accountGroupSetService: AccountGroupSetService,
+                private periodeSeriesService: PeriodSeriesService,
+                private companyTypeService: CompanyTypeService,
+                private municipalService: MunicipalService) {
 
     }
     
     public ngOnInit() {
-        this.id = JSON.parse(localStorage.getItem('activeCompany')).ID;
         this.getDataAndSetupForm();
     }
     
     private getDataAndSetupForm() {
         Observable.forkJoin(
-            this.companySettingsDS.getCompanyTypes(),
-            this.companySettingsDS.getCurrencies(),
-            this.companySettingsDS.getPeriodSeries(),
-            this.companySettingsDS.getAccountGroupSets(),
-            this.companySettingsDS.getAccounts(),
-            this.companySettingsDS.get(this.id),
-            this.companySettingsDS.getSubEntities(),
-            this.agaZoneService.GetAll(''),
+            this.companyTypeService.GetAll(null),
+            this.currencyService.GetAll(null),
+            this.periodeSeriesService.GetAll(null),
+            this.accountGroupSetService.GetAll(null),
+            this.accountService.GetAll(null),
+            this.companySettingsService.Get(1, ['Address','Emails','Phones']),
+            this.subentityService.GetAll(null, ['BusinessRelationInfo','BusinessRelationInfo.InvoiceAddress']),
+            this.agaZoneService.GetAll(null),
             this.agaZoneService.getAgaRules()
         ).subscribe(
             (dataset) => {
@@ -84,7 +87,7 @@ export class CompanySettings implements OnInit {
                 });
                 filter = filter.slice(0, filter.length - 3);
                 
-                this.companySettingsDS.getMunicipalities(filter).subscribe(
+                this.municipalService.GetAll(filter).subscribe(
                     (response) => {
                         this.companyTypes = dataset[0];
                         this.currencies = dataset[1];
@@ -96,6 +99,7 @@ export class CompanySettings implements OnInit {
                         this.agaZones = dataset[7];
                         this.agaRules = dataset[8];
                         this.municipals = response;
+       
                         this.buildForm();
                     }, 
                     error => console.log(error)
@@ -176,7 +180,7 @@ export class CompanySettings implements OnInit {
         officeMunicipalName.setModel(this.getMunicipality(this.company.OfficeMunicipalityNo))
             .setModelField('MunicipalityName')
             .setType(UNI_CONTROL_DIRECTIVES[FieldType.TEXT]);
-        
+       
         var officeMunicipality = new UniComboFieldBuilder();
         officeMunicipality.addUniElements(officeMunicipalNumber, officeMunicipalName);
         
