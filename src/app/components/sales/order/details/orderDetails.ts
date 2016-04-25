@@ -19,7 +19,17 @@ import {AddressModal} from '../../customer/modals/address/address';
 import {TradeHeaderCalculationSummary} from '../../../../models/sales/TradeHeaderCalculationSummary';
 
 declare var _;
- 
+
+// possible remove if we could get it from unitentities
+enum StatusCodeCustomerOrder
+{
+    Draft = 41001,
+    Registered = 41002,
+    PartlyTransferredToInvoice = 41003,
+    TransferredToInvoice = 41004,
+    Completed = 41005
+};
+     
 @Component({
     selector: 'order-details',
     templateUrl: 'app/components/sales/order/details/orderDetails.html',    
@@ -40,6 +50,7 @@ export class OrderDetails {
     businessRelationShipping: BusinessRelation;
     order: CustomerOrder;
     lastSavedInfo: string;
+    statusText: string;
     
     itemsSummaryData: TradeHeaderCalculationSummary;
     
@@ -82,6 +93,7 @@ export class OrderDetails {
             //    this.EmptyAddress = response[4];                
                 this.EmptyAddress = new Address();
                                     
+                this.updateStatusText();
                 this.addAddresses();                                                                               
                 this.createFormConfig();
                 this.extendFormConfig();
@@ -111,7 +123,7 @@ export class OrderDetails {
     
     recalcItemSums(orderItems: any) {
         this.order.Items = orderItems;
-       /* 
+    
         //do recalc after 2 second to avoid to much requests
         if (this.recalcTimeout) {
             clearTimeout(this.recalcTimeout);
@@ -134,7 +146,6 @@ export class OrderDetails {
             .subscribe((data) => this.itemsSummaryData = data,
                        (err) => console.log('Error when recalculating items:',err)); 
         }, 2000); 
-        */
     }
     
     saveOrderManual(event: any) {        
@@ -153,21 +164,24 @@ export class OrderDetails {
         this.formInstance.sync();        
         this.lastSavedInfo = 'Lagrer ordre...';
         
-        console.log('TODO: Sett en fornuftig status - denne hører til tilbud!');        
-        this.order.StatusCode = 40008;
+        if (this.order.StatusCode == null) {        
+            this.order.StatusCode = StatusCodeCustomerOrder.Draft; // TODO: remove done in presave soon
+        }
                 
         this.customerOrderService.Put(this.order.ID, this.order)
             .subscribe(
-                (updatedValue) => {  
+                (order) => {  
                     this.lastSavedInfo = 'Sist lagret: ' + (new Date()).toLocaleTimeString();
-                    if (cb) cb(updatedValue);    
+                    this.order = order;
+                    this.updateStatusText();
+                    if (cb) cb(order);    
                 },
                 (err) => console.log('Feil oppsto ved lagring', err)
             );
     }
              
-    getStatusText() {     
-        return this.customerOrderService.getStatusText((this.order.StatusCode || '').toString());
+    updateStatusText() {     
+        this.statusText = this.customerOrderService.getStatusText((this.order.StatusCode || '').toString());
     }
            
     nextOrder() {
@@ -242,6 +256,7 @@ export class OrderDetails {
 
         var shippingaddress: UniFieldBuilder = this.formConfig.find('ShippingAddress');
         shippingaddress
+            .hasLineBreak(true)
             .setKendoOptions({
                 dataTextField: 'AddressLine1',
                 dataValueField: 'ID'
@@ -512,7 +527,7 @@ export class OrderDetails {
                     Property: "FreeTxt",
                     Placement: 1,
                     Hidden: false,
-                    FieldType: 10,
+                    FieldType: 16,
                     ReadOnly: false,
                     LookupField: false,
                     Label: "",

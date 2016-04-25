@@ -36,6 +36,7 @@ export class HamburgerMenu {
                     {componentName: 'Leverandører', componentUrl: '/sales/supplier'},                    
                     {componentName: 'Tilbud', componentUrl: '/sales/quote'},                    
                     {componentName: 'Ordre', componentUrl: '/sales/order'},
+                    {componentName: 'Faktura', componentUrl: '/sales/invoice'},
                     {componentName: 'Produkter', componentUrl: '/products'}                    
                 ]
             },

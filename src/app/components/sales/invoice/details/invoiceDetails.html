@@ -1,22 +1,20 @@
-<order-to-invoice-modal *ngIf="order"></order-to-invoice-modal>
-
-<header class="order_poster" *ngIf="order">    
+<header class="invoice_poster" *ngIf="invoice">    
     <article class="poster_toolbar">
         <section>
-            <h1 *ngIf="order">{{order.CustomerName ? order.CustomerName : order.Customer ? order.Customer.Info.Name : ''}}</h1>            
-            <p>Ordrenr. {{order.OrderNumber}} <span  *ngIf="!itemsSummaryData">. Netto kr {{order.TaxExclusiveAmount}}</span> <span *ngIf="itemsSummaryData">. Netto kr {{itemsSummaryData.SumTotalExVat}}</span>. Status: {{ statusText }}</p>
+            <h1 *ngIf="invoice">{{invoice.CustomerName ? invoice.CustomerName : invoice.Customer ? invoice.Customer.Info.Name : ''}}</h1>            
+            <p>Fakturanr. {{invoice.InvoiceNumber}} <span  *ngIf="!itemsSummaryData">. Netto kr {{invoice.TaxExclusiveAmount}}</span> <span *ngIf="itemsSummaryData">. Netto kr {{itemsSummaryData.SumTotalExVat}}</span>. Status: {{ statusText }}</p>
             <p></p>
         </section>
         <nav class="poster_toolbar_tools">
-            <a (click)="previousOrder()"  class="previous">Forrige</a>
-            <a (click)="nextOrder()"  class="next">Neste</a>
-            <a (click)="addOrder()"  class="new">Ny ordre</a>
+            <a (click)="previousInvoice()"  class="previous">Forrige</a>
+            <a (click)="nextInvoice()"  class="next">Neste</a>
+            <a (click)="addInvoice()"  class="new">Ny ordre</a>
         </nav>         
     </article>       
     
      <!-- Widget poster -->
     <section class="poster_overview">        
-        <uni-widget-poster [model]="order">
+        <uni-widget-poster [model]="invoice">
             <section class="application">
                 widgetdata kommer her...
             </section>
@@ -24,14 +22,14 @@
     </section> 
 </header>
 
-<section class="order-details application">
+<section class="invoice-details application">
     <uni-component-loader></uni-component-loader>
 
-    <order-item-list [order]="order" (ItemsUpdated)="recalcItemSums($event)" (ItemsLoaded)="recalcItemSums($event)"></order-item-list>    
-    <section class="order-items-summary-placeholder" *ngIf="!itemsSummaryData" aria-busy>
-
+    <invoice-item-list [invoice]="invoice" (ItemsUpdated)="recalcItemSums($event)" (ItemsLoaded)="recalcItemSums($event)"></invoice-item-list>    
+    <section class="invoice-items-summary-placeholder" *ngIf="!itemsSummaryData" aria-busy>
+    
     </section>
-    <section class="order-items-summary" *ngIf="itemsSummaryData">        
+    <section class="invoice-items-summary" *ngIf="itemsSummaryData">        
         <section> 
             Avgiftsfritt<br/>
             {{itemsSummaryData.SumNoVatBasis}}
@@ -65,8 +63,7 @@
 
 <footer class="full-footer">
     <section class="application">
-        <button class="good" (click)="saveAndTransferToInvoice($event)">Lagre og overfør til faktura</button>
-        <button class="good" (click)="saveOrderManual($event)">Lagre ordre</button>
+        <button class="good" (click)="saveInvoiceManual($event)">Lagre faktura</button>
         <section class="auto_save_info">
             {{ lastSavedInfo }}    
         </section>
