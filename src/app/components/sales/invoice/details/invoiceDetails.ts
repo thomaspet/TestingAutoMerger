@@ -77,14 +77,13 @@ export class InvoiceDetails {
             this.departementService.GetAll(null),
             this.projectService.GetAll(null),
             this.customerInvoiceService.Get(this.InvoiceID, ['Dimensions','Items','Items.Product','Items.VatType', 'Customer', 'Customer.Info', 'Customer.Info.Addresses']),
-            this.customerService.GetAll(null, ['Info'])
-        //    this.addressService.GetNewEntity()
+            this.customerService.GetAll(null, ['Info']),
+            this.addressService.GetNewEntity(null, "address")
         ).subscribe(response => { 
                 this.dropdownData = [response[0], response[1]];
                 this.invoice = response[2];
                 this.customers = response[3];
-            //    this.EmptyAddress = response[4];                
-                this.EmptyAddress = new Address();
+                this.EmptyAddress = response[4];                
                 
                 this.updateStatusText();                               
                 this.addAddresses();                                                                               

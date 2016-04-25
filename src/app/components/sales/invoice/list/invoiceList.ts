@@ -29,7 +29,7 @@ export class InvoiceList {
         this.customerInvoiceService.Post(cq)
             .subscribe(
             (data) => {
-                console.log('Ordre opprettet, id: ' + data.ID);
+                console.log('Faktura opprettet, id: ' + data.ID);
                 this.router.navigateByUrl('/sales/invoice/details/' + data.ID);
             },
             (err) => console.log('Error creating invoice: ', err)

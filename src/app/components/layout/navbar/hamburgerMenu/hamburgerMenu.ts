@@ -32,7 +32,6 @@ export class HamburgerMenu {
                 componentListName: 'Salg',
                 componentListHeader: 'Utgående salg',
                 componentList: [
-                    {componentName: 'Faktura', componentUrl: '/sales/invoice'},
                     {componentName: 'Kunder', componentUrl: '/sales'},
                     {componentName: 'Leverandører', componentUrl: '/sales/supplier'},                    
                     {componentName: 'Tilbud', componentUrl: '/sales/quote'},                    
