@@ -157,6 +157,10 @@ export class OrderDetails {
         //    
         //});
         
+        this.oti.Changed.subscribe(items => {
+            console.log("== LINES TO TRANSFER ==");
+            console.log(items);            
+        });
         this.oti.openModal(this.order);
     }
 
