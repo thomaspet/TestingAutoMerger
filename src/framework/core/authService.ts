@@ -89,6 +89,12 @@ export class AuthService {
      * @returns {Boolean}
      */
     public isAuthenticated(): boolean {
+        // Hacky solution for using localhost backend
+        if (AppConfig.BASE_URL.indexOf('localhost') >= 0) {
+            return true;
+        }
+        
+        
         return (!!this.jwt && !!this.jwtDecoded && !this.expiredToken);
     }
     
@@ -97,6 +103,11 @@ export class AuthService {
      * @returns {Boolean}
      */
     public hasActiveCompany(): boolean {
+        // Hacky solution for using localhost backend
+        if (AppConfig.BASE_URL.indexOf('localhost') >= 0) {
+            return true;
+        }
+        
         return !!this.activeCompany;
     }
     
