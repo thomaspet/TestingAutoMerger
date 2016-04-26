@@ -143,24 +143,32 @@ export class QuoteDetails {
         
     }
     
+    saveQuoteTransition(event: any, transition: string) {
+        this.saveQuote((quote) => {
+            this.customerQuoteService.Transition(this.quote.ID, this.quote, transition).subscribe(() => {
+              console.log("== TRANSITION OK " + transition + " ==");
+              this.router.navigateByUrl('/sales/quote/details/' + this.quote.ID);           
+            }, (err) => {
+                console.log('Feil oppstod ved ' + transition + ' transition', err);
+            });
+        });          
+    }
+      
     saveQuoteManual(event: any) {        
         this.saveQuote();
     }
 
-    saveQuote() {
+    saveQuote(cb = null) {
         this.formInstance.sync();        
         this.lastSavedInfo = 'Lagrer tilbud...';
-        
-        if (this.quote.StatusCode == null) {         
-            this.quote.StatusCode = StatusCodeCustomerQuote.Draft; // TODO: remove when available in presave
-        }
-                
+ 
         this.customerQuoteService.Put(this.quote.ID, this.quote)
             .subscribe(
                 (quote) => {  
                     this.lastSavedInfo = "Sist lagret: " + (new Date()).toLocaleTimeString();  
                     this.quote = quote;
                     this.updateStatusText();  
+                    if (cb) cb(quote);
                 },
                 (err) => console.log('Feil oppsto ved lagring', err)
             );
@@ -264,8 +272,9 @@ export class QuoteDetails {
                dataSource: this.customers
             });
         customer.onSelect = function (customerID) {
-            self.customerService.Get(customerID, ['Info', 'Info.Addresses']).subscribe((customer) => {
+            self.customerService.Get(customerID, ['Info', 'Info.Addresses']).subscribe((customer: Customer) => {
                 self.quote.Customer = customer;
+                self.quote.CustomerName = customer.Info.Name;
                 self.addAddresses();           
                 invoiceaddress.refresh(self.businessRelationInvoice);
                 shippingaddress.refresh(self.businessRelationShipping);

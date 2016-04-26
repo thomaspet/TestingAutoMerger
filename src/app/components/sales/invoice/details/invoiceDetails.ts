@@ -83,7 +83,10 @@ export class InvoiceDetails {
                 this.dropdownData = [response[0], response[1]];
                 this.invoice = response[2];
                 this.customers = response[3];
-                this.EmptyAddress = response[4];                
+                this.EmptyAddress = response[4];   
+                
+                console.log("== GET INVOICE ==");
+                console.log(this.invoice);             
                 
                 this.updateStatusText();                               
                 this.addAddresses();                                                                               
@@ -151,6 +154,9 @@ export class InvoiceDetails {
         if (this.invoice.StatusCode == null) {        
             this.invoice.StatusCode = StatusCodeCustomerInvoice.Draft; // TODO: remove when presave is ready
         }
+        
+        console.log("== SAVE ==");
+        console.log(this.invoice);
                 
         this.customerInvoiceService.Put(this.invoice.ID, this.invoice)
             .subscribe(
