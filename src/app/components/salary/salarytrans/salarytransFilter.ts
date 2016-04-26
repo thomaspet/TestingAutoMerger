@@ -16,7 +16,7 @@ declare var jQuery;
                 <button *ngFor="#action of config.actions; #i=index" (click)="action.method()">
                     {{action.text}}
                 </button>
-                <button *ngIf="config.hasCancelButton" (click)="config.cancel()">Cancel</button>
+                <button *ngIf="config.hasCancelButton" (click)="config.cancel()">Avbryt</button>
             </footer>
         </article>
     `
@@ -106,7 +106,7 @@ export class SalarytransFilter {
     constructor() {
         var self = this;
         this.modalConfig = {
-            title: "Lønnspost filter",
+            title: "Lønnsavregning utvalg",
             value: "No value",
             hasCancelButton: true,
             cancel: () => {
@@ -114,7 +114,7 @@ export class SalarytransFilter {
             },
             actions: [
                 {
-                    text: "Accept",
+                    text: "OK",
                     method: () => {
                         self.modals[0].getContent().then((content) => {
                             self.filters = content.filters;

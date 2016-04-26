@@ -37,7 +37,7 @@ export class WagetypeDetail {
         this.wageService.getLayout('mock').subscribe((response: any) => {
             this.layout = response;
             this.wageService.getWageType(ID).subscribe((response : WageType) => {
-                console.log(response);
+                // console.log(response);
                 this.wageType = response;
                 
                 if(this.wageType.ID === 0){
@@ -74,7 +74,7 @@ export class WagetypeDetail {
                         (error: Error) => console.error('error in wagetypedetails.onSubmit - Put: ', error)
                     );
             } else {
-                console.log("we are now Posting");
+                // console.log("we are now Posting");
                 context.wageService.Post(context.wageType)
                     .subscribe(
                         (data: WageType) => {
