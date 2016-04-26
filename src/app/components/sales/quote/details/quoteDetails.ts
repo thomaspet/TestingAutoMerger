@@ -19,6 +19,7 @@ import {AddressModal} from "../../customer/modals/address/address";
 import {TradeHeaderCalculationSummary} from '../../../../models/sales/TradeHeaderCalculationSummary';
 
 declare var _;
+declare var moment;
 
 @Component({
     selector: "quote-details",
@@ -210,8 +211,9 @@ export class QuoteDetails {
         var self = this;
         
         var quotedate: UniFieldBuilder = this.formConfig.find('QuoteDate');
-        quotedate.onSelect = () => {
-          console.log("CHANGED DATE");  
+        quotedate.onChange = () => {
+          console.log("== CHANGED DATE ==");
+          this.quote.ValidUntilDate = moment(this.quote.QuoteDate).add(1, 'month').toDate();  
         };
          
         var departement: UniFieldBuilder = this.formConfig.find('Dimensions.DepartementID');         
