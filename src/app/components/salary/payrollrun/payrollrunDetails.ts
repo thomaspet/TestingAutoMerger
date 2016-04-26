@@ -18,6 +18,9 @@ import {TabService} from '../../layout/navbar/tabstrip/tabService';
 export class PayrollrunDetails implements OnInit {
     private payrollrun: PayrollRun;
     private payrollrunID: number;
+    private payDate: Date;
+    private payStatusTable: any[];
+    private payStatus: string;
     private form: UniFormBuilder = new UniFormBuilder();
     @ViewChild(UniComponentLoader)
     private uniCmpLoader: UniComponentLoader;
@@ -32,6 +35,16 @@ export class PayrollrunDetails implements OnInit {
     }
     
     public ngOnInit() {
+        this.payStatusTable = [
+            {ID: null, text: 'Opprettet'},
+            {ID: 0, text: 'Opprettet'},
+            {ID: 1, text: 'Avregnet'},
+            {ID: 2, text: 'Godkjent'},
+            {ID: 3, text: 'Sendt til utbetaling'},
+            {ID: 4, text: 'Utbetalt'},
+            {ID: 5, text: 'Bokført'},
+            {ID: 6, text: 'Slettet'}
+        ];
         this.busy = true;
         if (this.payrollrunID) {
             Observable.forkJoin(
@@ -40,6 +53,9 @@ export class PayrollrunDetails implements OnInit {
             ).subscribe((response: any) => {
                 var [payrollrun, layout] = response;
                 this.payrollrun = payrollrun;
+                this.payDate = new Date(this.payrollrun.PayDate.toString());
+                this.setStatus();
+                console.log('paydate: ' + JSON.stringify(this.payrollrun.PayDate));
                 this.form = new UniFormLayoutBuilder().build(layout, this.payrollrun);
                 
                 this.uniCmpLoader.load(UniForm).then((cmp: ComponentRef) => {
@@ -53,6 +69,11 @@ export class PayrollrunDetails implements OnInit {
             }
             , error => console.log(error));
         }
+    }
+    
+    private setStatus() {
+        var status = this.payStatusTable.find(x => x.ID === this.payrollrun.StatusCode);
+        this.payStatus = status.text;
     }
     
     public previousPayrollrun() {
