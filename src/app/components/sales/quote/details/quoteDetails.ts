@@ -7,6 +7,7 @@ import {CustomerQuoteService, CustomerQuoteItemService, CustomerService, Supplie
 import {QuoteItemList} from './quoteItemList';
 
 import {FieldType, FieldLayout, ComponentLayout, CustomerQuote, CustomerQuoteItem, Customer, Departement, Project, Address, BusinessRelation} from "../../../../unientities";
+import {StatusCodeCustomerQuote} from "../../../../unientities";
 import {UNI_CONTROL_DIRECTIVES} from "../../../../../framework/controls";
 import {UniFormBuilder} from "../../../../../framework/forms/builders/uniFormBuilder";
 import {UniFormLayoutBuilder} from "../../../../../framework/forms/builders/uniFormLayoutBuilder";
@@ -18,17 +19,6 @@ import {AddressModal} from "../../customer/modals/address/address";
 import {TradeHeaderCalculationSummary} from '../../../../models/sales/TradeHeaderCalculationSummary';
 
 declare var _;
-
-enum StatusCodeCustomerQuote
-{
-    Draft = 40101,
-    Registered = 40102,
-    ShippedToCustomer = 40103,
-    CustomerAccepted = 40104,
-    TransferredToOrder = 40105,
-    TransferredToInvoice = 40106,
-    Completed = 40107
-};
 
 @Component({
     selector: "quote-details",
@@ -162,6 +152,9 @@ export class QuoteDetails {
         this.formInstance.sync();        
         this.lastSavedInfo = 'Lagrer tilbud...';
  
+        console.log("== SAVE QUOTE ==");
+        console.log(this.quote);
+ 
         this.customerQuoteService.Put(this.quote.ID, this.quote)
             .subscribe(
                 (quote) => {  
@@ -214,7 +207,13 @@ export class QuoteDetails {
     }
     
     extendFormConfig() {  
-        var self = this; 
+        var self = this;
+        
+        var quotedate: UniFieldBuilder = this.formConfig.find('QuoteDate');
+        quotedate.onSelect = () => {
+          console.log("CHANGED DATE");  
+        };
+         
         var departement: UniFieldBuilder = this.formConfig.find('Dimensions.DepartementID');         
         departement.setKendoOptions({
             dataTextField: 'Name',
