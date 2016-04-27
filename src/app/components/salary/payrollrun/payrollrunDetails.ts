@@ -3,7 +3,7 @@ import {RouteParams, Router} from 'angular2/router';
 import {PayrollRun} from '../../../unientities';
 import {PayrollrunService} from '../../../services/services';
 import {Observable} from 'rxjs/Observable';
-import {UniFormBuilder, UniFormLayoutBuilder, UniForm} from '../../../../framework/forms';
+import {UniFormBuilder, UniFormLayoutBuilder, UniForm, UniField} from '../../../../framework/forms';
 import {UniComponentLoader} from '../../../../framework/core';
 import {SalaryTransactionSelectionList} from '../../salary/salarytrans/salarytransactionSelectionList';
 import {TabService} from '../../layout/navbar/tabstrip/tabService';
@@ -36,8 +36,7 @@ export class PayrollrunDetails implements OnInit {
     
     public ngOnInit() {
         this.payStatusTable = [
-            {ID: null, text: 'Opprettet'},
-            {ID: 0, text: 'Opprettet'},
+            {ID: 0 || null, text: 'Opprettet'},
             {ID: 1, text: 'Avregnet'},
             {ID: 2, text: 'Godkjent'},
             {ID: 3, text: 'Sendt til utbetaling'},
@@ -58,6 +57,9 @@ export class PayrollrunDetails implements OnInit {
                 console.log('paydate: ' + JSON.stringify(this.payrollrun.PayDate));
                 this.form = new UniFormLayoutBuilder().build(layout, this.payrollrun);
                 
+                var field: UniField = this.form.find('StatusCode');
+                field.config.setModel(this.setStatus());
+                
                 this.uniCmpLoader.load(UniForm).then((cmp: ComponentRef) => {
                     cmp.instance.config = this.form;
                 });
@@ -74,6 +76,7 @@ export class PayrollrunDetails implements OnInit {
     private setStatus() {
         var status = this.payStatusTable.find(x => x.ID === this.payrollrun.StatusCode);
         this.payStatus = status.text;
+        return status.text;
     }
     
     public previousPayrollrun() {

@@ -106,7 +106,7 @@ export class PayrollrunService extends BizHttp<PayrollRun> {
                 {
                     ComponentLayoutID: 1,
                     EntityType: 'Payrollrun',
-                    Property: '',
+                    Property: 'StatusCode',
                     Placement: 1,
                     Hidden: false,
                     FieldType: FieldType.TEXT,

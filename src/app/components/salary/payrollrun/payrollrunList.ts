@@ -14,16 +14,31 @@ import {PayrollrunService} from '../../../services/services';
 
 export class PayrollrunList implements OnInit {
     private payrollrunListConfig: any;
+    private payStatusTable: any[];
     
     constructor(private routr: Router, private tabSer: TabService, private payrollService: PayrollrunService) {
         
     }
     
     public ngOnInit() {
+        
+        this.payStatusTable = [
+            {ID: 0 || null, text: 'Opprettet'},
+            {ID: 1, text: 'Avregnet'},
+            {ID: 2, text: 'Godkjent'},
+            {ID: 3, text: 'Sendt til utbetaling'},
+            {ID: 4, text: 'Utbetalt'},
+            {ID: 5, text: 'Bokført'},
+            {ID: 6, text: 'Slettet'}
+        ];
+        
         var idCol = new UniTableColumn('ID', 'Nr', 'string')
         .setWidth('4rem');
         var nameCol = new UniTableColumn('Description', 'Navn', 'string');
-        var statusCol = new UniTableColumn('StatusCode', 'Status', 'string');
+        var statusCol = new UniTableColumn('StatusCode', 'Status', 'string').setTemplate((payrollRun) => {
+            var status = this.payStatusTable.find(x => x.ID === payrollRun.StatusCode);
+            return status.text;
+        });
         var paydateCol = new UniTableColumn('PayDate', 'Utbetalingsdato', 'date');
         var fromdateCol = new UniTableColumn('FromDate', 'Fra dato', 'date');
         var todateCol = new UniTableColumn('ToDate', 'Til dato', 'date');
