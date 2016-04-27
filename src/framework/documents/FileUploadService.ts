@@ -16,8 +16,9 @@ export class FileUploadService<T> {
     protected blob: string;
     protected entityType: string;
     protected entityID: number;
-    protected _statusText: string;
+    protected _statusText: string = '';
     protected slot: any;
+    protected slots: any[];
 
     public set statusText(statusText: string) {
         this._statusText = statusText;
@@ -30,25 +31,36 @@ export class FileUploadService<T> {
         return this.slot;
     }
 
+    public get Slots(): any {
+        return this.slots;
+    }
+
     constructor(protected $http: UniHttp, protected authService: AuthService) {
 
     }
 
-    // TODO: unientities should provide entity name so we can config http in contructor
-    public GetAll(entityId: number) {
-        return this.$http
+    public getSlots(entityId: number) {
+        var self = this;
+        var $getSlots = this.$http
             .asGET()
             .withDefaultHeaders()
             .withEndPoint(`files/${this.entityType}/${entityId}`)
             .send();
+        $getSlots.subscribe(response => {
+            self.slots = response;
+        });
+        return $getSlots;
     }
 
-    public remove(entityId: number, slotId: number) {
-        return this.$http
+    public remove(entityId: number, slot: any) {
+        var self = this;
+        var $remove = this.$http
             .asDELETE()
             .withDefaultHeaders()
-            .withEndPoint(`files/${this.entityType}/${entityId}/${slotId}`)
+            .withEndPoint(`files/${this.entityType}/${entityId}/${slot.ID}`)
             .send();
+        $remove.subscribe((response) => self.removeSlot(slot));
+        return $remove;
     }
 
     public download(entityId: number, slotId: number) {
@@ -66,21 +78,41 @@ export class FileUploadService<T> {
 
         var self = this;
 
-        return self.OpenSlot()
+        self.statusText = '';
+        return self.openSlot()
+            .then((response) => {
+                self.slot = response;
+                self.statusText = 'uploading file...';
+                return response;
+            })
             .then(self.uploadFile.bind(self))
+            .then((response) => {
+                self.statusText = 'finalizing file...';
+                return response;
+            })
             .then(self.finalizeFile.bind(self))
             .then((response) => {
                 self.statusText = 'file uploaded';
-                setTimeout((() => {
+                self.addSlot(self.slot);
+                setTimeout(() => {
                     self.statusText = '';
-                }).bind(self), 1000);
+                }, 1000);
             })
             .catch(error => {
                 self.statusText = error;
             });
     }
 
-    private OpenSlot() {
+    public addSlot(slot: any) {
+        this.slots = [].concat(this.slots, slot);
+    }
+
+    public removeSlot(slot: any) {
+        var index = this.Slots.indexOf(slot);
+        this.slots = this.Slots.slice(0, index).concat(this.Slots.slice(index + 1));
+    }
+
+    private openSlot() {
         var metadata: UniFile = new UniFile();
         metadata.Name = this.file.name;
         metadata.Description = this.file.name;
@@ -98,10 +130,6 @@ export class FileUploadService<T> {
 
     private uploadFile(metadata: any) {
         var self = this;
-
-        this.slot = metadata;
-        this.statusText = 'uploading file...';
-
         var fr: FileReader = new FileReader();
         fr.onloadend = (event) => {
             return new Promise((resolve, reject) => {
@@ -126,7 +154,6 @@ export class FileUploadService<T> {
     }
 
     private finalizeFile(response) {
-        this.statusText = 'Finalizing file...';
         return this.$http
             .withDefaultHeaders()
             .asPOST()

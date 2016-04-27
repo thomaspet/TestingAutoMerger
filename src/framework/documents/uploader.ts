@@ -3,7 +3,6 @@ import {FileUploadService} from './FileUploadService';
 
 @Component({
     selector: 'uni-document-uploader',
-    providers: [FileUploadService],
     template: `
         <input type="file" (change)="fileChangeEvent($event)" (mouseout)="checkEmptyFiles($event)"/>
         <button (click)="uploadFile()" [disabled]="!canUpload()">Upload</button>
@@ -12,7 +11,7 @@ import {FileUploadService} from './FileUploadService';
 export class UniDocumentUploader {
 
     @Input()
-    public uploader: FileUploadService<any>;
+    public service: FileUploadService<any>;
 
     @Input()
     public entity: any;
@@ -29,12 +28,12 @@ export class UniDocumentUploader {
             return;
         }
         var file = this.files[0]; // TODO: could we update more than one file at once???
-        this.uploader.upload(this.entity.ID, file)
+        this.service.upload(this.entity.ID, file)
             .then(this.manageResponse.bind(this));
     }
 
     public manageResponse(response) {
-        this.onFileUploaded.emit(this.uploader.Slot);
+        this.onFileUploaded.emit(this.service.Slot);
     }
 
     public fileChangeEvent(event: any) {

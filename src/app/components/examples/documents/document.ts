@@ -1,4 +1,4 @@
-import {Component, ViewChild} from 'angular2/core';
+import {Component, ChangeDetectionStrategy} from 'angular2/core';
 import {UniDocumentUploader, UniDocumentList} from '../../../../framework/documents/index';
 import {Employee} from '../../../unientities';
 import {EmployeeFileUploader} from './employeeUploader';
@@ -8,17 +8,17 @@ import {UniHttp} from '../../../../framework/core/http/http';
     selector: 'uni-document-demo',
     directives: [UniDocumentUploader, UniDocumentList],
     providers: [EmployeeFileUploader],
+    changeDetection: ChangeDetectionStrategy.OnPush,
     template: `
         <h1>Example with employee 1</h1>
-        
         <uni-document-uploader 
-            [uploader]="uploader" 
+            [service]="service" 
             [entity]="employee"
             (onFileUploaded)="onFileUploaded($event)"
         ></uni-document-uploader>
-        
+        <p class="error" style="min-height:40px"><span>{{service.statusText}}</span></p>
         <uni-document-list
-            [uploader]="uploader"
+            [service]="service"
             [entity]="employee"
             (onClickItem)="onClickItem($event)"
         >
@@ -26,21 +26,14 @@ import {UniHttp} from '../../../../framework/core/http/http';
     `
 })
 export class UniDocumentDemo {
-    @ViewChild(UniDocumentList) 
-    private listComponent: UniDocumentList;
     private employee: Employee;
-    
-    
-    
-    constructor(private $http: UniHttp, private uploader: EmployeeFileUploader) {
+    constructor(private $http: UniHttp, private service: EmployeeFileUploader) {
         this.employee = new Employee();
         this.employee.ID = 1;
     }
-
     public onFileUploaded(slot) {
-        this.listComponent.slotsList = [].concat(this.listComponent.slotsList, slot);
+        console.log('Do stuff when file is uploaded!');
     }
-    
     public onClickItem(url) {
         window.open(url, '_blank');
     }

@@ -6,8 +6,8 @@ import {FileUploadService} from './FileUploadService';
     selector: 'uni-document-list',
     directives: [CORE_DIRECTIVES, FORM_DIRECTIVES],
     template: `
-        <ul *ngIf="slotsList">
-            <li *ngFor="#slot of slotsList">
+        <ul *ngIf="service.Slots">
+            <li *ngFor="#slot of service.Slots">
                 <a (click)="open(slot)">{{slot.Name}}</a>
                 <button (click)="delete(slot)">Delete</button>
             </li>
@@ -17,7 +17,7 @@ import {FileUploadService} from './FileUploadService';
 export class UniDocumentList {
 
     @Input()
-    public uploader: FileUploadService<any>;
+    public service: FileUploadService<any>;
 
     @Input()
     public entity: any;
@@ -25,34 +25,22 @@ export class UniDocumentList {
     @Output()
     public onClickItem: EventEmitter<any> = new EventEmitter<any>(true);
 
-    public slotsList: any[];
-
     constructor() {
     }
 
     public ngOnInit() {
-        this.uploader.GetAll(this.entity.ID)
-            .subscribe((response) => {
-                return this.slotsList = response;
-            });
+        this.service.getSlots(this.entity.ID);
     }
 
     public open(slot) {
         var self = this;
-        this.uploader.download(this.entity.ID, slot.ID)
+        this.service.download(this.entity.ID, slot.ID)
             .subscribe((response) => {
                 self.onClickItem.emit(response);
             });
     }
 
     public delete(slot) {
-        this.uploader.remove(this.entity.ID, slot.ID).subscribe((response) => {
-            var index = this.slotsList.indexOf(slot);
-            this.slotsList = [
-                ...this.slotsList.slice(0, index),
-                ...this.slotsList.slice(index + 1)
-            ];
-        });
-
+        this.service.remove(this.entity.ID, slot);
     }
 }
