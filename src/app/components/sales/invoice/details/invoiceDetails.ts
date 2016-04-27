@@ -7,6 +7,7 @@ import {CustomerInvoiceService, CustomerInvoiceItemService, CustomerService, Sup
 import {InvoiceItemList} from './invoiceItemList';
 
 import {FieldType, FieldLayout, ComponentLayout, CustomerInvoice, CustomerInvoiceItem, Customer, Departement, Project, Address, BusinessRelation} from '../../../../unientities';
+import {StatusCodeCustomerInvoice} from '../../../../unientities';
 import {UNI_CONTROL_DIRECTIVES} from '../../../../../framework/controls';
 import {UniFormBuilder} from '../../../../../framework/forms/builders/uniFormBuilder';
 import {UniFormLayoutBuilder} from '../../../../../framework/forms/builders/uniFormLayoutBuilder';
@@ -18,13 +19,6 @@ import {AddressModal} from '../../customer/modals/address/address';
 import {TradeHeaderCalculationSummary} from '../../../../models/sales/TradeHeaderCalculationSummary';
 
 declare var _;
-
-// possible remove if we could get it from unitentities
-enum StatusCodeCustomerInvoice
-{
-    Draft = 42001,
-    Invoiced = 42002
-};
  
 @Component({
     selector: 'invoice-details',
@@ -83,7 +77,10 @@ export class InvoiceDetails {
                 this.dropdownData = [response[0], response[1]];
                 this.invoice = response[2];
                 this.customers = response[3];
-                this.EmptyAddress = response[4];                
+                this.EmptyAddress = response[4];   
+                
+                console.log("== GET INVOICE ==");
+                console.log(this.invoice);             
                 
                 this.updateStatusText();                               
                 this.addAddresses();                                                                               
@@ -140,17 +137,27 @@ export class InvoiceDetails {
         }, 2000); 
     }
     
+    saveInvoiceTransition(event: any, transition: string) {
+        this.saveInvoice((invoice) => {
+            this.customerInvoiceService.Transition(this.invoice.ID, this.invoice, transition).subscribe(() => {
+              console.log("== TRANSITION OK " + transition + " ==");
+              this.router.navigateByUrl('/sales/invoice/details/' + this.invoice.ID);           
+            }, (err) => {
+                console.log('Feil oppstod ved ' + transition + ' transition', err);
+            });
+        });          
+    }
+    
     saveInvoiceManual(event: any) {        
         this.saveInvoice();
     }
 
-    saveInvoice() {
+    saveInvoice(cb = null) {
         this.formInstance.sync();        
         this.lastSavedInfo = 'Lagrer faktura...';
         
-        if (this.invoice.StatusCode == null) {        
-            this.invoice.StatusCode = StatusCodeCustomerInvoice.Draft; // TODO: remove when presave is ready
-        }
+        console.log("== SAVE ==");
+        console.log(this.invoice);
                 
         this.customerInvoiceService.Put(this.invoice.ID, this.invoice)
             .subscribe(
@@ -158,6 +165,7 @@ export class InvoiceDetails {
                     this.lastSavedInfo = 'Sist lagret: ' + (new Date()).toLocaleTimeString();
                     this.invoice = invoice;
                     this.updateStatusText();   
+                    if (cb) cb(invoice);
                 },
                 (err) => console.log('Feil oppsto ved lagring', err)
             );

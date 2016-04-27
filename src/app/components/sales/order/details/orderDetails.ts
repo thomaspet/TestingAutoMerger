@@ -8,6 +8,7 @@ import {OrderItemList} from './orderItemList';
 import {OrderToInvoiceModal} from '../modals/ordertoinvoice';
 
 import {FieldType, FieldLayout, ComponentLayout, CustomerOrder, CustomerOrderItem, Customer, Departement, Project, Address, BusinessRelation} from '../../../../unientities';
+import {StatusCodeCustomerOrder} from '../../../../unientities';
 import {UNI_CONTROL_DIRECTIVES} from '../../../../../framework/controls';
 import {UniFormBuilder} from '../../../../../framework/forms/builders/uniFormBuilder';
 import {UniFormLayoutBuilder} from '../../../../../framework/forms/builders/uniFormLayoutBuilder';
@@ -19,16 +20,6 @@ import {AddressModal} from '../../customer/modals/address/address';
 import {TradeHeaderCalculationSummary} from '../../../../models/sales/TradeHeaderCalculationSummary';
 
 declare var _;
-
-// possible remove if we could get it from unitentities
-enum StatusCodeCustomerOrder
-{
-    Draft = 41001,
-    Registered = 41002,
-    PartlyTransferredToInvoice = 41003,
-    TransferredToInvoice = 41004,
-    Completed = 41005
-};
      
 @Component({
     selector: 'order-details',
@@ -87,12 +78,15 @@ export class OrderDetails {
             this.customerService.GetAll(null, ['Info'])
         //    this.addressService.GetNewEntity()
         ).subscribe(response => { 
+                console.log("== CUSTOMER GET ==");
+                console.log(response);                    
+            
                 this.dropdownData = [response[0], response[1]];
                 this.order = response[2];
                 this.customers = response[3];
             //    this.EmptyAddress = response[4];                
                 this.EmptyAddress = new Address();
-                                    
+                                                                        
                 this.updateStatusText();
                 this.addAddresses();                                                                               
                 this.createFormConfig();
@@ -163,14 +157,21 @@ export class OrderDetails {
         });
         this.oti.openModal(this.order);
     }
+    
+    saveOrderTransition(event: any, transition: string) {
+        this.saveOrder((order) => {
+            this.customerOrderService.Transition(this.order.ID, this.order, transition).subscribe(() => {
+              console.log("== TRANSITION OK " + transition + " ==");
+              this.router.navigateByUrl('/sales/order/details/' + this.order.ID);           
+            }, (err) => {
+                console.log('Feil oppstod ved ' + transition + ' transition', err);
+            });
+        });          
+    }
 
     saveOrder(cb = null) {
         this.formInstance.sync();        
         this.lastSavedInfo = 'Lagrer ordre...';
-        
-        if (this.order.StatusCode == null) {        
-            this.order.StatusCode = StatusCodeCustomerOrder.Draft; // TODO: remove done in presave soon
-        }
                 
         this.customerOrderService.Put(this.order.ID, this.order)
             .subscribe(
@@ -287,6 +288,7 @@ export class OrderDetails {
             
             self.customerService.Get(customerID, ['Info', 'Info.Addresses']).subscribe((customer) => {
                 self.order.Customer = customer;
+                self.order.CustomerName = customer.Info.Name;
                 self.addAddresses();           
                 invoiceaddress.refresh(self.businessRelationInvoice);
                 shippingaddress.refresh(self.businessRelationShipping);
