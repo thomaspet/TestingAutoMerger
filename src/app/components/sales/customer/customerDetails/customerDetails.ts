@@ -117,7 +117,7 @@ export class CustomerDetails {
             console.log(selectedSearchInfo);
             this.Customer.Info.Name = selectedSearchInfo.navn;
             this.Customer.OrgNumber = selectedSearchInfo.orgnr;
-   
+      
             //KE: Uten denne virker adresse/telefon/email, men da virker ikke navn/orgnr. Samme motsatt - får exception hvis den tas med nå
             //this.formInstance.Model = this.Customer;  
    

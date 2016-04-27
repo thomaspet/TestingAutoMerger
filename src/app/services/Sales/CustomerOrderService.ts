@@ -33,19 +33,22 @@ export class CustomerOrderService extends BizHttp<CustomerOrder> {
         return o;               
     }
 
-    calculateOrderSummary(quoteItems: Array<CustomerOrderItem>): Observable<any> {        
+    calculateOrderSummary(orderItems: Array<CustomerOrderItem>): Observable<any> {        
         return this.http 
             .asPOST()
             .usingBusinessDomain()
-            .withBody(quoteItems)
+            .withBody(orderItems)
             .withEndPoint(this.relativeURL + '?action=calculate-order-summary') 
             .send();
     } 
 
     // TODO: To be retrieved from database schema shared.Status instead?
-    // TODO: Sett opp gyldige statuser her
     private statusTypes: Array<any> = [
-       
+        { Code: '41001', Text: 'Kladd' },
+        { Code: '41002', Text: 'Registrert' },
+        { Code: '41003', Text: 'Delvis overført til faktura' },
+        { Code: '41004', Text: 'Overført til faktura' },
+        { Code: '41005', Text: 'Avsluttet' }
     ];
 
     public getStatusText = (statusCode: string) => {

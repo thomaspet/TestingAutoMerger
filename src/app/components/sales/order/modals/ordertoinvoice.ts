@@ -98,7 +98,7 @@ export class OrderToInvoiceModal {
     @ViewChild(UniModal)
     modal: UniModal;
     
-    @Output() Changed = new EventEmitter<CustomerOrder>();
+    @Output() Changed = new EventEmitter<CustomerOrderItem[]>();
     @Output() Canceled = new EventEmitter<boolean>();
 
     modalConfig: any = {};
@@ -128,9 +128,8 @@ export class OrderToInvoiceModal {
                     method: () => {
                         self.modal.getContent().then((content: OrderToInvoiceModalType)=> {
                             content.instance.then((table: OrderToInvoiceTable)=> {
-                                self.modal.close();                       
-                       
-                                self.Changed.emit(table.order);
+                                self.modal.close();   
+                                self.Changed.emit(table.order.Items);
                            });
                         });
                         

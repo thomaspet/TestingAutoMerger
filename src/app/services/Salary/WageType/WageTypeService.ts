@@ -10,32 +10,32 @@ import {Observable} from "rxjs/Observable";
 import "rxjs/Rx";
 
 let taxType: Array<any> = [
-    {ID: TaxType.Tax_None, Name: "None"},
-    {ID: TaxType.Tax_Table, Name: "TableTax"},
-    {ID: TaxType.Tax_Percent, Name: "PercentTax"},
+    {ID: TaxType.Tax_None, Name: "Ingen"},
+    {ID: TaxType.Tax_Table, Name: "Tabelltrekk"},
+    {ID: TaxType.Tax_Percent, Name: "Prosenttrekk"},
     {ID: TaxType.Tax_0, Name: "..."}
 ];
 
 let rateType: Array<any> = [
-    {ID: RateTypeColumn.none, Name: "None"},
-    {ID: RateTypeColumn.Employment, Name: "Employment"},
-    {ID: RateTypeColumn.Employee, Name: "Employee"},
-    {ID: RateTypeColumn.Salary_scale, Name: "Salary Scale"}
+    {ID: RateTypeColumn.none, Name: "Ingen"},
+    {ID: RateTypeColumn.Employment, Name: "Arbeidsforhold"},
+    {ID: RateTypeColumn.Employee, Name: "Ansatt"},
+    {ID: RateTypeColumn.Salary_scale, Name: "Regulativ"}
 ];
 
 let limitType: Array<any> = [
-    {ID: LimitType.None, Name: "None"},
-    {ID: LimitType.Amount, Name: "Amount"},
+    {ID: LimitType.None, Name: "Ingen"},
+    {ID: LimitType.Amount, Name: "Antall"},
     {ID: LimitType.Sum, Name: "Sum"}
 ];
 
 let stdWageType: Array<any> = [
-    {ID: StdWageType.None, Name: "None"},
-    {ID: StdWageType.TaxDrawTable, Name: "TableTax"},
-    {ID: StdWageType.TaxDrawPercent, Name: "PercentTax"},
-    {ID: StdWageType.HolidayPayWithTaxDeduction, Name: "Holidaypay with tax"},
-    {ID: StdWageType.HolidayPayThisYear, Name: "Holidaypay this year"},
-    {ID: StdWageType.HolidayPayLastYear, Name: "Holidaypay last year"},
+    {ID: StdWageType.None, Name: "Ingen"},
+    {ID: StdWageType.TaxDrawTable, Name: "Tabelltrekk"},
+    {ID: StdWageType.TaxDrawPercent, Name: "Prosenttrekk"},
+    {ID: StdWageType.HolidayPayWithTaxDeduction, Name: "Feriepenger med skattetrekk"},
+    {ID: StdWageType.HolidayPayThisYear, Name: "Feriepenger i år"},
+    {ID: StdWageType.HolidayPayLastYear, Name: "Feriepenger forrige år"},
 ];
 
 let layout = {
@@ -51,7 +51,7 @@ let layout = {
             FieldType: FieldType.TEXT,
             ReadOnly: true,
             LookupField: false,
-            Label: "Wagetype ID",
+            Label: "Nummer",
             Description: null,
             HelpText: null,
             FieldSet: 0,
@@ -75,7 +75,7 @@ let layout = {
             FieldType: FieldType.TEXT,
             ReadOnly: false,
             LookupField: false,
-            Label: "Wagetype Name",
+            Label: "Navn",
             Description: null,
             HelpText: null,
             FieldSet: 0,
@@ -99,7 +99,7 @@ let layout = {
             FieldType: FieldType.TEXT,
             ReadOnly: false,
             LookupField: false,
-            Label: "Description",
+            Label: "Beskrivelse",
             Description: null,
             HelpText: null,
             FieldSet: 0,
@@ -116,13 +116,13 @@ let layout = {
             FieldType: FieldType.CHECKBOX,
             ReadOnly: false,
             LookupField: false,
-            Label: "Employment Tax",
+            Label: "Skatt (tabell)",
             Description: null,
             HelpText: null,
             openByDefault: true,
             FieldSet: 0,
             Section: 1,
-            Legend: "SETTINGS",
+            Legend: "Med i grunnlag for",
             hasLineBreak: false,
             Validations: [
                 {
@@ -141,12 +141,12 @@ let layout = {
             FieldType: FieldType.CHECKBOX,
             ReadOnly: false,
             LookupField: false,
-            Label: "Is Payment",
+            Label: "Utbetaling",
             Description: null,
             HelpText: null,
             FieldSet: 0,
             Section: 1,
-            Legend: "SETTINGS",
+            Legend: "",
             hasLineBreak: false,
             Validations: [
                 {
@@ -166,7 +166,7 @@ let layout = {
             FieldType: FieldType.CHECKBOX,
             ReadOnly: false,
             LookupField: false,
-            Label: "Hide from paycheck",
+            Label: "Skjul på lønnslipp",
             Description: null,
             HelpText: null,
             FieldSet: 0,
@@ -190,7 +190,7 @@ let layout = {
             FieldType: FieldType.CHECKBOX,
             ReadOnly: false,
             LookupField: false,
-            Label: "Holiday",
+            Label: "Feriepenger",
             Description: null,
             HelpText: null,
             FieldSet: 0,
@@ -228,7 +228,7 @@ let layout = {
              {ID: 4, Name:"Holidaypay this year" },
              {ID: 5, Name:"Holidaypay last year" },
              ],*/
-            Label: "Standard Wagetype for",
+            Label: "Standard lønnsart for",
             Description: null,
             HelpText: null,
             FieldSet: 0,
@@ -252,7 +252,7 @@ let layout = {
             FieldType: FieldType.COMBOBOX,
             ReadOnly: false,
             LookupField: "Name",
-            Label: "Tax Type",
+            Label: "Type",
             Description: null,
             HelpText: null,
             FieldSet: 0,
@@ -281,7 +281,7 @@ let layout = {
             FieldType: FieldType.TEXT,
             ReadOnly: false,
             LookupField: false,
-            Label: "Account Number",
+            Label: "Hovedbokskonto",
             Description: null,
             HelpText: null,
             FieldSet: 0,

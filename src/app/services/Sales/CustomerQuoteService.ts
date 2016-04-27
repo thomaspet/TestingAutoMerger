@@ -12,7 +12,18 @@ export class CustomerQuoteService extends BizHttp<CustomerQuote> {
         super(http);       
         this.relativeURL = CustomerQuote.relativeUrl;
         this.DefaultOrderBy = null;
-    }    
+    }
+    
+    // TODO: To be retrieved from database schema shared.Status instead?
+    private statusTypes: Array<any> = [
+        { Code: '40101', Text: 'Kladd' },
+        { Code: '40102', Text: 'Registrert' },
+        { Code: '40103', Text: 'Sendt til kunde' },
+        { Code: '40104', Text: 'Kunde har godkjent' },
+        { Code: '40105', Text: 'Overført til ordre' },
+        { Code: '40106', Text: 'Overført til faktura' },
+        { Code: '40107', Text: 'Avsluttet' }
+    ];    
             
     next(currentID: number): Observable<CustomerQuote>
     {
@@ -42,18 +53,6 @@ export class CustomerQuoteService extends BizHttp<CustomerQuote> {
             .withEndPoint(this.relativeURL + '?action=calculate-quote-summary')
             .send();
     } 
-
-     // TODO: To be retrieved from database schema shared.Status instead?
-    private statusTypes: Array<any> = [
-        { Code: '40002', Text: 'Registrert' },
-        { Code: '40003', Text: 'Sendt til kunde' },
-        { Code: '40004', Text: 'Kunde har godkjent' },
-        { Code: '40005', Text: 'Overført til ordre' },
-        { Code: '40006', Text: 'Overført til faktura' },
-        { Code: '40007', Text: 'Avsluttet' },
-        { Code: '40008', Text: 'Kladd' },
-
-    ];
 
     public getStatusText = (statusCode: string) => {
         var text = 'Udefinert';
