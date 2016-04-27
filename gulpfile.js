@@ -119,8 +119,8 @@ gulp.task('clean' , function (done) {
 
 gulp.task('entities' , function (done) {
     var options = {
-        url: 'http://localhost:27831/api/metadata/typescriptentities',
-        //url: 'https://devapi-unieconomy.azurewebsites.net/api/metadata/typescriptentities' ,
+        //url: 'http://localhost:27831/api/metadata/typescriptentities',
+        url: 'https://devapi-unieconomy.azurewebsites.net/api/metadata/typescriptentities' ,
         headers: {
             'client': 'andersas'
         }
