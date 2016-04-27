@@ -15,19 +15,24 @@ export class RecurringPost implements OnInit {
     constructor(public injector: Injector, public routr: Router) {
         var routeParams = this.injector.parent.parent.get(RouteParams);
         this.employeeID = +routeParams.get('id');
-        console.log('ansattnr', this.employeeID);
     }
     
     public ngOnInit() {
         
-        // Arbeidsforhold, Lønnsartid, beskrivelse, RecuringPostValidTo/From, Antall, Sats, Sum
-        var wagetypeIDCol = new UniTableColumn('WageTypeID', 'Lønnsart', 'number');
         var employmentIDCol = new UniTableColumn('EmploymentID', 'Arbeidsforhold', 'number');
+        var wagetypeIDCol = new UniTableColumn('WageTypeID', 'Lønnsart', 'number');
         var descriptionCol = new UniTableColumn('Text', 'Beskrivelse', 'string');
+        var fromdateCol = new UniTableColumn('recurringPostValidFrom', 'Fra dato', 'date');
+        var todateCol = new UniTableColumn('recurringPostValidTo', 'Til dato', 'date');
+        var amountCol = new UniTableColumn('Amount', 'Antall', 'number');
+        var rateCol = new UniTableColumn('Rate', 'Sats', 'number');
+        var sumCol = new UniTableColumn('Sum', 'Sum', 'number');
         
         this.recurringpostListConfig = new UniTableBuilder('salarytrans', true)
         .setFilter(this.buildFilter())
-        .addColumns(wagetypeIDCol, employmentIDCol, descriptionCol);
+        .setColumnMenuVisible(false)
+        .setToolbarOptions(['create', 'cancel'])
+        .addColumns(employmentIDCol, wagetypeIDCol, descriptionCol, fromdateCol, todateCol, amountCol, rateCol, sumCol);
     }
     
     private buildFilter() {

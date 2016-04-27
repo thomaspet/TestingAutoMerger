@@ -1,10 +1,7 @@
 import {Component, Injector, ViewChild, ComponentRef, OnInit} from 'angular2/core';
 import {RouteParams, Router} from 'angular2/router';
 import {UniForm} from '../../../../../framework/forms/uniForm';
-import {
-    UniFormBuilder,
-    UniFormLayoutBuilder
-} from '../../../../../framework/forms';
+import {UniFormBuilder, UniFormLayoutBuilder} from '../../../../../framework/forms';
 import {UniComponentLoader} from '../../../../../framework/core';
 import {Observable} from 'rxjs/Observable';
 import 'rxjs/add/operator/merge';
@@ -80,7 +77,7 @@ export class PersonalDetails implements OnInit {
                 this.form = new UniFormLayoutBuilder().build(layout, this.employee);
                 this.uniCmpLoader.load(UniForm).then((cmp: ComponentRef) => {
                     cmp.instance.config = this.form;
-                    cmp.instance.getEventEmitter().subscribe(this.executeSubmit(this));
+                    // cmp.instance.getEventEmitter().subscribe(this.executeSubmit(this));
                     this.whenFormInstance = new Promise((resolve: Function) => {
                         resolve(cmp.instance);
                     });
