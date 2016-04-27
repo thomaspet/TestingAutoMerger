@@ -21,7 +21,7 @@ export class EmployeeList {
 
         var nameCol = new UniTableColumn('BusinessRelationInfo.Name', 'Navn', 'string');
 
-        var employmentDateCol = new UniTableColumn('EmploymentDate', 'Ansettelsedato', 'date')
+        var employmentDateCol = new UniTableColumn('EmploymentDate', 'Ansettelsesdato', 'date')
             .setFormat('{0: dd.MM.yyyy}')
             .setWidth('15%');
 
