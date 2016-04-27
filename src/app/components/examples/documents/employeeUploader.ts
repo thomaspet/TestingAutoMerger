@@ -6,8 +6,8 @@ import {AuthService} from '../../../../framework/core/authService';
 
 @Injectable()
 export class EmployeeFileUploader extends FileUploadService<Employee> {
-    constructor(protected $http: UniHttp, protected authService: AuthService) {
-        super($http, authService);
+    constructor(protected $http: UniHttp) {
+        super($http);
         this.entityType = Employee.entityType;
     }
 }

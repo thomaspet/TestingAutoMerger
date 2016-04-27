@@ -25,6 +25,9 @@ export class UniDocumentList {
     @Output()
     public onClickItem: EventEmitter<any> = new EventEmitter<any>(true);
 
+    @Output()
+    public onDeleteItem: EventEmitter<any> = new EventEmitter<any>(true);
+
     constructor() {
     }
 
@@ -35,12 +38,16 @@ export class UniDocumentList {
     public open(slot) {
         var self = this;
         this.service.download(this.entity.ID, slot.ID)
-            .subscribe((response) => {
+            .then((response) => {
                 self.onClickItem.emit(response);
             });
     }
 
     public delete(slot) {
-        this.service.remove(this.entity.ID, slot);
+        var self = this;
+        this.service.remove(this.entity.ID, slot)
+            .then((response) => {
+                self.onDeleteItem.emit(response);
+            });
     }
 }

@@ -1,6 +1,5 @@
 import {Injectable} from 'angular2/core';
 import {UniHttp} from '../core/http/http';
-import {AuthService} from '../core/authService';
 import {File as UniFile} from '../../app/unientities';
 export interface IFileMetaData {
     Name: string;
@@ -8,6 +7,8 @@ export interface IFileMetaData {
     // Space: string;
     // Pages: number;
 }
+
+declare var _; // lodash
 
 @Injectable()
 export class FileUploadService<T> {
@@ -35,7 +36,7 @@ export class FileUploadService<T> {
         return this.slots;
     }
 
-    constructor(protected $http: UniHttp, protected authService: AuthService) {
+    constructor(protected $http: UniHttp) {
 
     }
 
@@ -45,10 +46,12 @@ export class FileUploadService<T> {
             .asGET()
             .withDefaultHeaders()
             .withEndPoint(`files/${this.entityType}/${entityId}`)
-            .send();
-        $getSlots.subscribe(response => {
-            self.slots = response;
-        });
+            .send()
+            .toPromise()
+            .then(response => {
+                self.slots = response;
+                return response;
+            });
         return $getSlots;
     }
 
@@ -58,8 +61,11 @@ export class FileUploadService<T> {
             .asDELETE()
             .withDefaultHeaders()
             .withEndPoint(`files/${this.entityType}/${entityId}/${slot.ID}`)
-            .send();
-        $remove.subscribe((response) => self.removeSlot(slot));
+            .send()
+            .toPromise()
+            .then((response) => {
+                return self.removeSlot(slot);
+            });
         return $remove;
     }
 
@@ -68,7 +74,8 @@ export class FileUploadService<T> {
             .asGET()
             .withDefaultHeaders()
             .withEndPoint(`files/${this.entityType}/${entityId}/${slotId}?action=download`)
-            .send();
+            .send()
+            .toPromise();
     }
 
     public upload(entityID: number, file: File) {
@@ -94,9 +101,7 @@ export class FileUploadService<T> {
             .then((response) => {
                 self.statusText = 'file uploaded';
                 self.addSlot(self.slot);
-                setTimeout(() => {
-                    self.statusText = '';
-                }, 1000);
+                self.statusText = '';
             })
             .catch(error => {
                 self.statusText = error;
@@ -109,7 +114,9 @@ export class FileUploadService<T> {
 
     public removeSlot(slot: any) {
         var index = this.Slots.indexOf(slot);
+        var clone = _.clone(this.Slots[index]);
         this.slots = this.Slots.slice(0, index).concat(this.Slots.slice(index + 1));
+        return clone;
     }
 
     private openSlot() {
@@ -130,9 +137,10 @@ export class FileUploadService<T> {
 
     private uploadFile(metadata: any) {
         var self = this;
-        var fr: FileReader = new FileReader();
-        fr.onloadend = (event) => {
-            return new Promise((resolve, reject) => {
+        return new Promise((resolve, reject) => {
+            var fr: FileReader = new FileReader();
+            fr.readAsArrayBuffer(self.file);            
+            fr.onloadend = (event) => {
                 var r: XMLHttpRequest = new XMLHttpRequest();
                 r.open('PUT', metadata.UploadSlot, true);
                 r.setRequestHeader('contentType', 'multipart/form-data');
@@ -148,9 +156,8 @@ export class FileUploadService<T> {
                 r.onerror = (error) => reject(error);
                 var target: any = event.target;
                 r.send(target.result);
-            });
-        };
-        fr.readAsArrayBuffer(this.file);
+            };
+        });
     }
 
     private finalizeFile(response) {

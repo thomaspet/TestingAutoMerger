@@ -1,4 +1,4 @@
-import {Component, ChangeDetectionStrategy} from 'angular2/core';
+import {Component} from 'angular2/core';
 import {UniDocumentUploader, UniDocumentList} from '../../../../framework/documents/index';
 import {Employee} from '../../../unientities';
 import {EmployeeFileUploader} from './employeeUploader';
@@ -8,7 +8,6 @@ import {UniHttp} from '../../../../framework/core/http/http';
     selector: 'uni-document-demo',
     directives: [UniDocumentUploader, UniDocumentList],
     providers: [EmployeeFileUploader],
-    changeDetection: ChangeDetectionStrategy.OnPush,
     template: `
         <h1>Example with employee 1</h1>
         <uni-document-uploader 
@@ -21,6 +20,7 @@ import {UniHttp} from '../../../../framework/core/http/http';
             [service]="service"
             [entity]="employee"
             (onClickItem)="onClickItem($event)"
+            (onDeleteItem)="onDeleteItem($event)"
         >
         </uni-document-list>
     `
@@ -32,9 +32,12 @@ export class UniDocumentDemo {
         this.employee.ID = 1;
     }
     public onFileUploaded(slot) {
-        console.log('Do stuff when file is uploaded!');
+        console.log('Do stuff when file is uploaded!', slot);
     }
     public onClickItem(url) {
         window.open(url, '_blank');
+    }
+    public onDeleteItem(slot) {
+        console.log('Do stuff when file is deleted!', slot);
     }
 }
