@@ -226,7 +226,7 @@ export class SalaryTransactionEmployeeList implements OnInit {
         var amountCol = new UniTableColumn('Amount', 'Antall', 'number');
         var sumCol = new UniTableColumn('Sum', 'Sum', 'number').setCustomEditor('readonlyeditor', null).setEditable(true);
         
-        this.runIDcol = new UniTableColumn('PayrollRunID', 'Lønnsavregning id' ).setHidden(true);
+        this.runIDcol = new UniTableColumn('PayrollRunID', 'Lønnsavregningsid' ).setHidden(true);
         this.runIDcol.defaultValue = this.payrollRun.ID;
         this.empIDcol = new UniTableColumn('EmployeeID', 'AnsattID' ).setHidden(true);
         this.empIDcol.defaultValue = this.ansattID;

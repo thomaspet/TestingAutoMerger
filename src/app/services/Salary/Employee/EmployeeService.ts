@@ -656,7 +656,7 @@ export class EmployeeService extends BizHttp<Employee> {
                     FieldType: FieldType.TEXT,
                     ReadOnly: false,
                     LookupField: false,
-                    Label: 'Utstedelseland',
+                    Label: 'Utstedelsesland',
                     Description: null,
                     HelpText: null,
                     FieldSet: 1,
