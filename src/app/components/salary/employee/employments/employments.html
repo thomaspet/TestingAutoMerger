@@ -12,7 +12,7 @@
             </uni-checkbox>
 
             <h1>{{config.fields[1].model.JobName}}, {{config.fields[6].model.WorkPercent}}%</h1>
-            <p>{{formatDate(config.fields[2].model.StartDate)}} - {{formatDate(config.fields[3].model.EndDate) || 'inneværende'}}</p>
+            <p>{{formatDate(config.fields[2].model.StartDate)}} - {{formatDate(config.fields[3].model.EndDate) || 'Inneværende'}}</p>
 
         </header>
 
@@ -24,7 +24,7 @@
 
     <a class="uni-card_add" (click) = "addNewEmployment()">
 
-        <h1>Add employment</h1>
+        <h1>Legg til arbeidsforhold</h1>
     </a>
 
 </main>

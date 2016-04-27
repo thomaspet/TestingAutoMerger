@@ -35,7 +35,7 @@ export class EmployeeLeave {
         this.employments.forEach((employment: Employment) => {
             if (employment.ID === employmentID) {
                 jobName = employment.JobName;
-                console.log("Jobname: " + jobName);
+                // console.log("Jobname: " + jobName);
             }
         });
         return jobName;
@@ -48,15 +48,15 @@ export class EmployeeLeave {
             this.employments.push(employment);
         });
         filter = filter.slice(0, filter.length - 2);
-        console.log("EmployeeLeave filter: " + filter);
+        // console.log("EmployeeLeave filter: " + filter);
         return filter;
     }
 
     buildTableConfigs() {
         this.filter = this.buildFilterAndEmployments();
-        console.log("employments: " + this.employments);
+        // console.log("employments: " + this.employments);
 
-        var idCol = new UniTableColumn("ID", "Id", "number")
+        var idCol = new UniTableColumn("ID", "ID", "number")
             .setEditable(false)
             .setNullable(true);
 
@@ -66,7 +66,7 @@ export class EmployeeLeave {
         var toDateCol = new UniTableColumn("ToDate", "Sluttdato", "date")
             .setFormat("{0: dd.MM.yyyy}");
 
-        var leavePercentCol = new UniTableColumn("LeavePercent", "Andel permisjon", "number")
+        var leavePercentCol = new UniTableColumn("LeavePercent", "Prosent", "number")
             .setFormat("{0: #\\'%'}");
 
         var commentCol = new UniTableColumn("Description", "Kommentar", "string");
@@ -109,7 +109,7 @@ export class EmployeeLeave {
 
     constructor(private Injector: Injector, public employeeDS: EmployeeDS) {
         this.leaveTypes = [
-            {typeID: "0", text: "ikke satt"},
+            {typeID: "0", text: "Ikke satt"},
             {typeID: "1", text: "Permisjon"},
             {typeID: "2", text: "Permittering"}
         ];

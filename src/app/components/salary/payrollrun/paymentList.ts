@@ -51,7 +51,7 @@ export class PaymentList implements OnInit {
         
         var accountCol = new UniTableColumn('Account', 'Til konto', 'string');
         var nameCol = new UniTableColumn('EmployeeName', 'Navn', 'string');
-        var addressCol = new UniTableColumn('Address', 'adresse', 'string');
+        var addressCol = new UniTableColumn('Address', 'Adresse', 'string');
         var postalCodeCol = new UniTableColumn('PostalCode', 'Postnr', 'string').setWidth('10%');
         var cityCol = new UniTableColumn('City', 'Poststed', 'string');
         var paymentCol = new UniTableColumn('NetPayment', 'Beløp', 'number');
