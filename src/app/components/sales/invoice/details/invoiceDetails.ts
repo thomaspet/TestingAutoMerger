@@ -19,6 +19,7 @@ import {AddressModal} from '../../customer/modals/address/address';
 import {TradeHeaderCalculationSummary} from '../../../../models/sales/TradeHeaderCalculationSummary';
 
 declare var _;
+declare var moment;
  
 @Component({
     selector: 'invoice-details',
@@ -83,9 +84,6 @@ export class InvoiceDetails {
                 this.customers = response[3];
                 this.EmptyAddress = response[4];   
                 
-                console.log("== GET INVOICE ==");
-                console.log(this.invoice);             
-                
                 this.updateStatusText();                               
                 this.addAddresses();                                                                               
                 this.createFormConfig();
@@ -145,7 +143,12 @@ export class InvoiceDetails {
         this.saveInvoice((invoice) => {
             this.customerInvoiceService.Transition(this.invoice.ID, this.invoice, transition).subscribe(() => {
               console.log("== TRANSITION OK " + transition + " ==");
-              this.router.navigateByUrl('/sales/invoice/details/' + this.invoice.ID);           
+              this.router.navigateByUrl('/sales/invoice/details/' + this.invoice.ID);    
+              
+              this.customerInvoiceService.Get(invoice.ID, ['Dimensions','Items','Items.Product','Items.VatType', 'Customer', 'Customer.Info', 'Customer.Info.Addresses']).subscribe((invoice) => {
+                this.invoice = invoice;
+                this.updateStatusText();
+              });                    
             }, (err) => {
                 console.log('Feil oppstod ved ' + transition + ' transition', err);
                 this.log(err);
@@ -161,9 +164,6 @@ export class InvoiceDetails {
         this.formInstance.sync();        
         this.lastSavedInfo = 'Lagrer faktura...';
         
-        console.log("== SAVE ==");
-        console.log(this.invoice);
-                
         this.customerInvoiceService.Put(this.invoice.ID, this.invoice)
             .subscribe(
                 (invoice) => {  
@@ -224,6 +224,33 @@ export class InvoiceDetails {
     extendFormConfig() {  
         
         var self = this; 
+        
+        var paymentduedate: UniFieldBuilder = this.formConfig.find('PaymentDueDate');
+        paymentduedate.hasLineBreak(true);
+
+        var deliverydate: UniFieldBuilder = this.formConfig.find('DeliveryDate');
+        deliverydate.hasLineBreak(true);           
+        
+        // TODO remove .ready when functionality is available later on
+        var creditdays: UniFieldBuilder = this.formConfig.find('CreditDays');
+        creditdays.ready.subscribe((component)=>{
+            component.config.control.valueChanges.subscribe(days => {
+                if (days) {
+                    this.invoice.PaymentDueDate = moment(this.invoice.InvoiceDate).add(Number(days), 'days').toDate();
+                    paymentduedate.refresh(this.invoice.PaymentDueDate);                   
+                }
+            });
+        });
+        paymentduedate.ready.subscribe((compoent)=>{
+           compoent.config.control.valueChanges.subscribe(date => {
+              var newdays = moment(date || this.invoice.InvoiceDate).diff(this.invoice.InvoiceDate, 'days') + 1;   
+              if (newdays != this.invoice.CreditDays) {
+                  this.invoice.CreditDays = newdays;              
+                  creditdays.refresh(this.invoice.CreditDays);
+              }
+           });
+        });
+        
         var departement: UniFieldBuilder = this.formConfig.find('Dimensions.DepartementID');         
         departement.setKendoOptions({
             dataTextField: 'Name',
@@ -258,7 +285,6 @@ export class InvoiceDetails {
 
         var shippingaddress: UniFieldBuilder = this.formConfig.find('ShippingAddress');
         shippingaddress
-            .hasLineBreak(true)
             .setKendoOptions({
                 dataTextField: 'AddressLine1',
                 dataValueField: 'ID'
@@ -446,26 +472,6 @@ export class InvoiceDetails {
                 },
                 {
                     ComponentLayoutID: 3,
-                    EntityType: "CustomerInvoice",
-                    Property: "DeliveryDate",
-                    Placement: 1,
-                    Hidden: false,
-                    FieldType: 2,
-                    ReadOnly: false,
-                    LookupField: false,
-                    Label: "Leveringsdato",
-                    Description: "",
-                    HelpText: "",
-                    FieldSet: 0,
-                    Section: 0,
-                    Legend: "",
-                    StatusCode: 0,
-                    ID: 4,
-                    Deleted: false,
-                    CustomFields: null 
-                },
-                {
-                    ComponentLayoutID: 3,
                     EntityType: "BusinessRelation",
                     Property: "InvoiceAddress",
                     Placement: 1,
@@ -501,6 +507,26 @@ export class InvoiceDetails {
                     Legend: "",
                     StatusCode: 0,
                     ID: 6,
+                    Deleted: false,
+                    CustomFields: null 
+                },
+                {
+                    ComponentLayoutID: 3,
+                    EntityType: "CustomerInvoice",
+                    Property: "DeliveryDate",
+                    Placement: 1,
+                    Hidden: false,
+                    FieldType: 2,
+                    ReadOnly: false,
+                    LookupField: false,
+                    Label: "Leveringsdato",
+                    Description: "",
+                    HelpText: "",
+                    FieldSet: 0,
+                    Section: 0,
+                    Legend: "",
+                    StatusCode: 0,
+                    ID: 4,
                     Deleted: false,
                     CustomFields: null 
                 },

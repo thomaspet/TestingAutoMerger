@@ -63,7 +63,6 @@ export class OrderDetails {
                 private addressService: AddressService, 
                 private router: Router, private params: RouteParams) {                
         this.OrderID = params.get('id');
-        console.log('orderdetails constructor');
     }
     
     log(err) {
@@ -82,15 +81,12 @@ export class OrderDetails {
             this.customerService.GetAll(null, ['Info'])
         //    this.addressService.GetNewEntity()
         ).subscribe(response => { 
-                console.log("== CUSTOMER GET ==");
-                console.log(response);                    
-            
                 this.dropdownData = [response[0], response[1]];
                 this.order = response[2];
                 this.customers = response[3];
             //    this.EmptyAddress = response[4];                
                 this.EmptyAddress = new Address();
-                                                                        
+                                                   
                 this.updateStatusText();
                 this.addAddresses();                                                                               
                 this.createFormConfig();
@@ -159,8 +155,6 @@ export class OrderDetails {
             order.Items = items;
             
             this.customerOrderService.ActionWithBody(order.ID, order, "transfer-to-invoice").subscribe((invoice) => {
-                console.log("== TRANSFERED TO INVOICE ==");
-                console.log(invoice);
                 this.router.navigateByUrl('/sales/invoice/details/' + invoice.ID);
             }, (err) => {
                 console.log("== TRANSFER-TO-INVOICE FAILED ==");
@@ -177,13 +171,10 @@ export class OrderDetails {
         this.saveOrder((order) => {
             this.customerOrderService.Transition(this.order.ID, this.order, transition).subscribe((x) => {
               console.log("== TRANSITION OK " + transition + " ==");
-              console.log(x);
               
-              //this.router.navigateByUrl('/sales/order/details/' + this.order.ID);
               this.customerOrderService.Get(order.ID, ['Dimensions','Items','Items.Product','Items.VatType', 'Customer', 'Customer.Info', 'Customer.Info.Addresses']).subscribe((order) => {
                 this.order = order;
-                console.log("== UPDATED ==");
-                console.log(order);  
+                this.updateStatusText();
               });
             }, (err) => {
                 console.log('Feil oppstod ved ' + transition + ' transition', err);

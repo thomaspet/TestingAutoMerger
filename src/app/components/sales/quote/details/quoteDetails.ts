@@ -145,7 +145,11 @@ export class QuoteDetails {
         this.saveQuote((quote) => {
             this.customerQuoteService.Transition(this.quote.ID, this.quote, transition).subscribe(() => {
               console.log("== TRANSITION OK " + transition + " ==");
-              this.router.navigateByUrl('/sales/quote/details/' + this.quote.ID);           
+                     
+              this.customerQuoteService.Get(quote.ID, ['Dimensions','Items','Items.Product','Items.VatType', 'Customer', 'Customer.Info', 'Customer.Info.Addresses']).subscribe((quote) => {
+                this.quote = quote;
+                this.updateStatusText();
+              });                     
             }, (err) => {
                 console.log('Feil oppstod ved ' + transition + ' transition', err);
                 this.log(err);
@@ -160,9 +164,6 @@ export class QuoteDetails {
     saveQuote(cb = null) {
         this.formInstance.sync();        
         this.lastSavedInfo = 'Lagrer tilbud...';
- 
-        console.log("== SAVE QUOTE ==");
-        console.log(this.quote);
  
         this.customerQuoteService.Put(this.quote.ID, this.quote)
             .subscribe(
