@@ -64,6 +64,12 @@
 <footer class="full-footer">
     <section class="application">
         <button class="good" (click)="saveQuoteManual($event)">Lagre tilbud</button>
+        <button class="good" (click)="saveQuoteTransition($event, 'register')">Til register</button>
+        <button class="good" (click)="saveQuoteTransition($event, 'shipToCustomer')">Til shiptocustomer</button> 
+        <button class="good" (click)="saveQuoteTransition($event, 'customerAccept')">Til customeraccept</button>                       
+        <button class="good" (click)="saveQuoteTransition($event, 'toOrder')">Til toorder</button>        
+        <button class="good" (click)="saveQuoteTransition($event, 'toInvoice')">Til toinvoice</button>        
+        <button class="good" (click)="saveQuoteTransition($event, 'complete')">Til complete</button>        
         <section class="auto_save_info">
             {{ lastSavedInfo }}    
         </section>
