@@ -1,5 +1,6 @@
 import {BizHttp} from '../../../framework/core/http/BizHttp';
 import {CustomerQuote, CustomerQuoteItem} from '../../unientities';
+import {StatusCodeCustomerQuote} from '../../unientities';
 import {UniHttp} from '../../../framework/core/http/http';
 import {Observable} from "rxjs/Observable";
 import {TradeHeaderCalculationSummary} from '../../models/sales/TradeHeaderCalculationSummary';
@@ -16,13 +17,13 @@ export class CustomerQuoteService extends BizHttp<CustomerQuote> {
     
     // TODO: To be retrieved from database schema shared.Status instead?
     private statusTypes: Array<any> = [
-        { Code: '40101', Text: 'Kladd' },
-        { Code: '40102', Text: 'Registrert' },
-        { Code: '40103', Text: 'Sendt til kunde' },
-        { Code: '40104', Text: 'Kunde har godkjent' },
-        { Code: '40105', Text: 'Overført til ordre' },
-        { Code: '40106', Text: 'Overført til faktura' },
-        { Code: '40107', Text: 'Avsluttet' }
+        { Code: StatusCodeCustomerQuote.Draft, Text: 'Kladd' },
+        { Code: StatusCodeCustomerQuote.Registered, Text: 'Registrert' },
+        { Code: StatusCodeCustomerQuote.ShippedToCustomer, Text: 'Sendt til kunde' },
+        { Code: StatusCodeCustomerQuote.CustomerAccepted, Text: 'Kunde har godkjent' },
+        { Code: StatusCodeCustomerQuote.TransferredToOrder, Text: 'Overført til ordre' },
+        { Code: StatusCodeCustomerQuote.TransferredToInvoice, Text: 'Overført til faktura' },
+        { Code: StatusCodeCustomerQuote.Completed, Text: 'Avsluttet' }
     ];    
             
     next(currentID: number): Observable<CustomerQuote>

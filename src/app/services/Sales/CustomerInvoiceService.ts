@@ -1,5 +1,6 @@
 import {BizHttp} from '../../../framework/core/http/BizHttp';
 import {CustomerInvoice, CustomerInvoiceItem} from '../../unientities';
+import {StatusCodeCustomerInvoice} from '../../unientities';
 import {UniHttp} from '../../../framework/core/http/http';
 import {Observable} from "rxjs/Observable";
 import {TradeHeaderCalculationSummary} from '../../models/sales/TradeHeaderCalculationSummary'
@@ -16,8 +17,8 @@ export class CustomerInvoiceService extends BizHttp<CustomerInvoice> {
     
     // TODO: To be retrieved from database schema shared.Status instead?
     private statusTypes: Array<any> = [
-        { Code: '42002', Text: 'Kladd' },
-        { Code: '42001', Text: 'Sendt til kunde' },
+        { Code: StatusCodeCustomerInvoice.Draft, Text: 'Kladd' },
+        { Code: StatusCodeCustomerInvoice.Invoiced, Text: 'Fakturert' },
     ];
             
     next(currentID: number): Observable<CustomerInvoice>

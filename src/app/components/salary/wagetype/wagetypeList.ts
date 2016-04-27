@@ -25,9 +25,9 @@ export class WagetypeList implements OnInit {
         var idCol = new UniTableColumn("WageTypeId", "Nr", "number");
         idCol.setWidth("10rem");
 
-        var nameCol = new UniTableColumn("WageTypeName", "Name", "string");
+        var nameCol = new UniTableColumn("WageTypeName", "Navn", "string");
 
-        var descCol = new UniTableColumn("Description", "Description", "string");
+        var descCol = new UniTableColumn("Description", "Beskrivelse", "string");
 
         this.wagetypelistConfig = new UniTableBuilder("wagetypes", false)
             .setSelectCallback((selectedWagetype: WageType) => {

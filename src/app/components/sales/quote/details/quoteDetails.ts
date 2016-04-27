@@ -7,6 +7,7 @@ import {CustomerQuoteService, CustomerQuoteItemService, CustomerService, Supplie
 import {QuoteItemList} from './quoteItemList';
 
 import {FieldType, FieldLayout, ComponentLayout, CustomerQuote, CustomerQuoteItem, Customer, Departement, Project, Address, BusinessRelation} from "../../../../unientities";
+import {StatusCodeCustomerQuote} from "../../../../unientities";
 import {UNI_CONTROL_DIRECTIVES} from "../../../../../framework/controls";
 import {UniFormBuilder} from "../../../../../framework/forms/builders/uniFormBuilder";
 import {UniFormLayoutBuilder} from "../../../../../framework/forms/builders/uniFormLayoutBuilder";
@@ -18,17 +19,7 @@ import {AddressModal} from "../../customer/modals/address/address";
 import {TradeHeaderCalculationSummary} from '../../../../models/sales/TradeHeaderCalculationSummary';
 
 declare var _;
-
-enum StatusCodeCustomerQuote
-{
-    Draft = 40101,
-    Registered = 40102,
-    ShippedToCustomer = 40103,
-    CustomerAccepted = 40104,
-    TransferredToOrder = 40105,
-    TransferredToInvoice = 40106,
-    Completed = 40107
-};
+declare var moment;
 
 @Component({
     selector: "quote-details",
@@ -143,24 +134,35 @@ export class QuoteDetails {
         
     }
     
+    saveQuoteTransition(event: any, transition: string) {
+        this.saveQuote((quote) => {
+            this.customerQuoteService.Transition(this.quote.ID, this.quote, transition).subscribe(() => {
+              console.log("== TRANSITION OK " + transition + " ==");
+              this.router.navigateByUrl('/sales/quote/details/' + this.quote.ID);           
+            }, (err) => {
+                console.log('Feil oppstod ved ' + transition + ' transition', err);
+            });
+        });          
+    }
+      
     saveQuoteManual(event: any) {        
         this.saveQuote();
     }
 
-    saveQuote() {
+    saveQuote(cb = null) {
         this.formInstance.sync();        
         this.lastSavedInfo = 'Lagrer tilbud...';
-        
-        if (this.quote.StatusCode == null) {         
-            this.quote.StatusCode = StatusCodeCustomerQuote.Draft; // TODO: remove when available in presave
-        }
-                
+ 
+        console.log("== SAVE QUOTE ==");
+        console.log(this.quote);
+ 
         this.customerQuoteService.Put(this.quote.ID, this.quote)
             .subscribe(
                 (quote) => {  
                     this.lastSavedInfo = "Sist lagret: " + (new Date()).toLocaleTimeString();  
                     this.quote = quote;
                     this.updateStatusText();  
+                    if (cb) cb(quote);
                 },
                 (err) => console.log('Feil oppsto ved lagring', err)
             );
@@ -206,7 +208,14 @@ export class QuoteDetails {
     }
     
     extendFormConfig() {  
-        var self = this; 
+        var self = this;
+        
+        var quotedate: UniFieldBuilder = this.formConfig.find('QuoteDate');
+        quotedate.onChange = () => {
+          console.log("== CHANGED DATE ==");
+          this.quote.ValidUntilDate = moment(this.quote.QuoteDate).add(1, 'month').toDate();  
+        };
+         
         var departement: UniFieldBuilder = this.formConfig.find('Dimensions.DepartementID');         
         departement.setKendoOptions({
             dataTextField: 'Name',
@@ -264,8 +273,9 @@ export class QuoteDetails {
                dataSource: this.customers
             });
         customer.onSelect = function (customerID) {
-            self.customerService.Get(customerID, ['Info', 'Info.Addresses']).subscribe((customer) => {
+            self.customerService.Get(customerID, ['Info', 'Info.Addresses']).subscribe((customer: Customer) => {
                 self.quote.Customer = customer;
+                self.quote.CustomerName = customer.Info.Name;
                 self.addAddresses();           
                 invoiceaddress.refresh(self.businessRelationInvoice);
                 shippingaddress.refresh(self.businessRelationShipping);
