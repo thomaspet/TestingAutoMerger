@@ -34,7 +34,8 @@ export class AuthService {
      * @returns Observable
      */
     public authenticate(credentials: {username: string, password: string}): Observable<any> {
-        let url = AppConfig.BASE_URL + AppConfig.API_DOMAINS.INIT + 'sign-in';
+        let url = AppConfig.BASE_URL_INIT + AppConfig.API_DOMAINS.INIT + 'sign-in';
+        
         let headers = new Headers({'Content-Type': 'application/json'});
         
         return this.http.post(url, JSON.stringify(credentials), {headers: headers})
@@ -46,7 +47,7 @@ export class AuthService {
      * @returns Observable
      */
     public getCompanies(): Observable<any> {
-        let url = AppConfig.BASE_URL + AppConfig.API_DOMAINS.INIT + 'companies';
+        let url = AppConfig.BASE_URL_INIT + AppConfig.API_DOMAINS.INIT + 'companies';
         let headers = new Headers({'Authorization': 'Bearer ' + this.jwt});
         
         return this.http.get(url, {headers: headers});
