@@ -62,6 +62,10 @@ export class InvoiceDetails {
         console.log('invoicedetails constructor');
     }
     
+    log(err) {
+        alert(err._body);
+    }
+
     isActive(instruction: any[]): boolean {
         return this.router.isRouteActive(this.router.generate(instruction));
     }
@@ -144,6 +148,7 @@ export class InvoiceDetails {
               this.router.navigateByUrl('/sales/invoice/details/' + this.invoice.ID);           
             }, (err) => {
                 console.log('Feil oppstod ved ' + transition + ' transition', err);
+                this.log(err);
             });
         });          
     }
@@ -167,7 +172,10 @@ export class InvoiceDetails {
                     this.updateStatusText();   
                     if (cb) cb(invoice);
                 },
-                (err) => console.log('Feil oppsto ved lagring', err)
+                (err) => {
+                    console.log('Feil oppsto ved lagring', err);
+                    this.log(err);                    
+                } 
             );
     }       
     
@@ -198,7 +206,10 @@ export class InvoiceDetails {
                 (data) => {
                     this.router.navigateByUrl('/sales/invoice/details/' + data.ID);        
                 },
-                (err) => console.log('Error creating invoice: ', err)
+                (err) => { 
+                    console.log('Error creating invoice: ', err);
+                    this.log(err);
+                }
             );      
     }
         
