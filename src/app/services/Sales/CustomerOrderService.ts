@@ -24,14 +24,17 @@ export class CustomerOrderService extends BizHttp<CustomerOrder> {
     {
         return super.GetAction(currentID, 'previous');
     }
-
-    newCustomerOrder()
+    
+    newCustomerOrder(): Promise<CustomerOrder>
     {       
-        var o = new CustomerOrder();
-        o.CreatedDate = moment().toDate();
-        o.OrderDate = moment().toDate();
-  
-        return o;               
+        return new Promise(resolve => {
+            this.GetNewEntity([], CustomerOrder.entityType).subscribe(order => {
+                order.CreatedDate = moment().toDate();
+                order.OrderDate = moment().toDate();
+                   
+                resolve(order);                
+            });               
+        });
     }
 
     calculateOrderSummary(orderItems: Array<CustomerOrderItem>): Observable<any> {        
