@@ -1,5 +1,5 @@
-import {Component, Injector, ViewChild, ComponentRef, OnInit} from 'angular2/core';
-import {RouteParams, Router} from 'angular2/router';
+import {Component, ViewChild, ComponentRef, OnInit} from 'angular2/core';
+import {Router} from 'angular2/router';
 import {UniForm} from '../../../../../framework/forms/uniForm';
 import {
     UniFormBuilder,
@@ -10,6 +10,7 @@ import {Observable} from 'rxjs/Observable';
 import 'rxjs/add/operator/merge';
 import {OperationType, Operator, ValidationLevel, Employee} from '../../../../unientities';
 import {EmployeeService} from '../../../../services/services';
+import {ParamsService} from '../../../../services/ParamsService';
 declare var _;
 
 @Component({
@@ -34,12 +35,8 @@ export class PersonalDetails implements OnInit {
     private formInstance: UniForm;
     private whenFormInstance: Promise<UniForm>;
 
-    constructor(public injector: Injector,
-                public employeeService: EmployeeService,
-                public router: Router) {
-        // any way to get that in an easy way????
-        var routeParams = this.injector.parent.parent.get(RouteParams);
-        this.employeeID = +routeParams.get('id');
+    constructor(public employeeService: EmployeeService, public router: Router, params: ParamsService) {
+        this.employeeID = +params.get('EmployeeID');
     }
     
     public ngOnInit() {

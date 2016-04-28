@@ -40,10 +40,10 @@ export class EmployeeCategoryButtons implements OnInit {
     
     constructor(private employeeService: EmployeeService, 
                 private employeeCategoryService: EmployeeCategoryService) {
-        
+        var self = this;
         this.employeeCategoryService.GetAll('')
         .subscribe((response: any) => {
-            this.categories = response;
+            self.categories = response;
         });
     }
     
@@ -60,18 +60,19 @@ export class EmployeeCategoryButtons implements OnInit {
     };
     
     public ngOnInit() {
+        var self = this;
         this.employeeService.getEmployeeCategories(this.selectedEmployee.EmployeeNumber)
         .subscribe((response: any) => {
-            this.selectedEmployee.EmployeeCategories = response ? response : [];
+            self.selectedEmployee.EmployeeCategories = response ? response : [];
             
             // remove selected categories from available categories
-            var arrLength = this.selectedEmployee.EmployeeCategories ? this.selectedEmployee.EmployeeCategories.length : 0;
+            var arrLength = self.selectedEmployee.EmployeeCategories ? self.selectedEmployee.EmployeeCategories.length : 0;
             for (var selIndx = 0; selIndx < arrLength; selIndx++) {
-                var selCat = this.selectedEmployee.EmployeeCategories[selIndx];
-                for (var avIndx = this.categories.length - 1; avIndx >= 0; avIndx--) {
-                    var avCat = this.categories[avIndx];
+                var selCat = self.selectedEmployee.EmployeeCategories[selIndx];
+                for (var avIndx = self.categories.length - 1; avIndx >= 0; avIndx--) {
+                    var avCat = self.categories[avIndx];
                     if (avCat.Name === selCat.Name) {
-                        this.categories.splice(avIndx, 1);
+                        self.categories.splice(avIndx, 1);
                     }
                 }
             }

@@ -1,4 +1,4 @@
-﻿import {Component, Input, DynamicComponentLoader, ElementRef, OnInit} from "angular2/core";
+﻿import {Component, Input, DynamicComponentLoader, ViewContainerRef, OnInit} from "angular2/core";
 import {Http, Headers} from "angular2/http";
 import {UniTable} from "../uniTable";
 import {UniForm} from "../forms/uniForm";
@@ -6,7 +6,7 @@ import {TREE_LIST_TYPE} from "./treeList";
 
 @Component({
     selector: "tree-list-component-loader",
-    template: "<div #content></div>",
+    template: "",
     directives: [UniTable, UniForm]
 })
 
@@ -18,7 +18,7 @@ export class TreeListComponentLoader implements OnInit {
 
     compRef;
 
-    constructor(public dynamicComponentLoader: DynamicComponentLoader, public elementRef: ElementRef, public http: Http) {
+    constructor(public dynamicComponentLoader: DynamicComponentLoader, public container: ViewContainerRef, public http: Http) {
     }
 
     ngOnInit() {
@@ -28,7 +28,7 @@ export class TreeListComponentLoader implements OnInit {
         }
         switch (this.componentConfig.type) {
             case TREE_LIST_TYPE.TABLE:
-                this.dynamicComponentLoader.loadIntoLocation(UniTable, this.elementRef, "content")
+                this.dynamicComponentLoader.loadNextToLocation(UniTable, this.container)
                     .then((comp) => {
                         comp.instance.config = this.componentConfig.content;
                         this.compRef = comp;
@@ -36,7 +36,7 @@ export class TreeListComponentLoader implements OnInit {
                 break;
 
             case TREE_LIST_TYPE.FORM:
-                this.dynamicComponentLoader.loadIntoLocation(UniForm, this.elementRef, "content")
+                this.dynamicComponentLoader.loadNextToLocation(UniForm, this.container)
                     .then((comp) => {
                         this.compRef = comp;
                         comp.instance.fields = this.componentConfig.content.config();

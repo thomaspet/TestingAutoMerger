@@ -1,6 +1,5 @@
 import {
-    Component, EventEmitter, Input, Output, ChangeDetectionStrategy, ViewChildren,
-    TemplateRef, ViewChild, QueryList
+    Component, EventEmitter, Input, Output, ChangeDetectionStrategy, ViewChildren, QueryList
 } from "angular2/core";
 import {FORM_DIRECTIVES, FORM_PROVIDERS, ControlGroup, FormBuilder} from "angular2/common";
 import {FieldLayout} from "../../app/unientities";
@@ -8,7 +7,7 @@ import {UniField} from "./unifield";
 import {UniFieldSet} from "./unifieldset";
 import {UniSection} from "./unisection";
 
-declare var _; //lodash
+declare var _; // lodash
 
 /**
  * Form component that wraps form elements
@@ -50,7 +49,7 @@ export class UniForm {
     public config: any;
 
     @Input()
-    public fields: any[];
+    public fields: FieldLayout[];
 
     @Input()
     public model: any;
@@ -128,7 +127,7 @@ export class UniForm {
         let group = [], section = [], fieldset = [];
         let lastSection = 0, lastFieldSet = 0;
         this.fields.forEach((field: FieldLayout) => {
-            if (field.Section === 0 && field.FieldSet === 0) {//manage fields
+            if (field.Section === 0 && field.FieldSet === 0) {// manage fields
                 if (field.FieldSet !== lastFieldSet && fieldset.length > 0) {
                     group.push(fieldset);
                     fieldset = [];
@@ -141,7 +140,7 @@ export class UniForm {
                 lastFieldSet = field.FieldSet;
                 group.push(field);
             }
-            else if (field.Section === 0 && field.FieldSet > 0) {//manage fieldsets
+            else if (field.Section === 0 && field.FieldSet > 0) {// manage fieldsets
                 if (field.FieldSet !== lastFieldSet && fieldset.length > 0) {
                     group.push(fieldset);
                     fieldset = [];
@@ -158,10 +157,10 @@ export class UniForm {
                 section.push(field);
             }
         });
-        if (fieldset.length > 0) { //add fielsets to the last section or group
+        if (fieldset.length > 0) { // add fielsets to the last section or group
             group.push(fieldset);
         }
-        if (section.length > 0) { //add section to the group
+        if (section.length > 0) { // add section to the group
             group.push(section);
         }
         return group;

@@ -3,6 +3,7 @@ import {RouteParams} from "angular2/router";
 import {EmployeeDS} from "../../../../data/employee";
 import {UniTable, UniTableBuilder, UniTableColumn} from "../../../../../framework/uniTable";
 import {Employment} from "../../../../unientities";
+import {ParamsService} from '../../../../services/ParamsService';
 
 @Component({
     selector: "employee-leave",
@@ -98,7 +99,7 @@ export class EmployeeLeave {
 
     ngOnInit() {
 
-        let params = this.Injector.parent.parent.get(RouteParams);
+        let params = this.params.get('EmployeeID');
         this.employeeDS
             .get(params.get("id"))
             .subscribe((response: any) => {
@@ -107,7 +108,7 @@ export class EmployeeLeave {
             });
     }
 
-    constructor(private Injector: Injector, public employeeDS: EmployeeDS) {
+    constructor(private params: ParamsService, public employeeDS: EmployeeDS) {
         this.leaveTypes = [
             {typeID: "0", text: "Ikke satt"},
             {typeID: "1", text: "Permisjon"},

@@ -15,6 +15,7 @@ import {UniSectionBuilder} from '../../../../../framework/forms/builders/uniSect
 import {UniFieldBuilder} from '../../../../../framework/forms/builders/uniFieldBuilder';
 import {Employment, Employee} from '../../../../unientities';
 import {EmployeeService} from '../../../../services/services';
+import {ParamsService} from '../../../../services/ParamsService';
 
 declare var jQuery;
 
@@ -32,17 +33,8 @@ export class Hours {
     private employeeID: any;
     private formInstance: UniForm;
 
-    constructor(private _injector: Injector, public _employeeService: EmployeeService) {
-        // let params = Injector.parent.parent.get(RouteParams);
-        // employeeDS.get(params.get('id'))
-        // .subscribe(response => {
-        //     this.currentEmployee = response;
-        //     console.log(response);
-        //     this.buildGroupConfigs();
-        // },error => console.log(error));
-
-        let params = _injector.parent.parent.get(RouteParams);
-        this.employeeID = params.get('id');
+    constructor(private params: ParamsService, public _employeeService: EmployeeService) {
+        this.employeeID = params.get('EmployeeID');
     }
 
     public ngAfterViewInit() {

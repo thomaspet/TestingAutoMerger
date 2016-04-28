@@ -19,6 +19,7 @@ import {UniHttp} from '../../../../framework/core/http/http';
 import {Employee, FieldType, AGAZone, WageType, PayrollRun, Employment} from '../../../unientities';
 import {EmployeeService, AgaZoneService, WageTypeService} from '../../../services/services';
 import {UNI_CONTROL_DIRECTIVES} from '../../../../framework/controls';
+import {ParamsService} from '../../../services/ParamsService';
 
 declare var _;
 
@@ -54,14 +55,13 @@ export class SalaryTransactionEmployeeList implements OnInit {
     
     constructor(public employeeService: EmployeeService, 
                 private _agaZoneService: AgaZoneService, 
-                private _injector: Injector, 
+                private params: ParamsService, 
                 private _uniHttpService: UniHttp,
                 private _wageTypeService: WageTypeService) {
                     this.agaZone = new AGAZone();
                     this.busy = true;
                     if (!this.ansattID) {
-                        let params = this._injector.parent.parent.get(RouteParams);
-                        this.ansattID = params.get('id');
+                        this.ansattID = this.params.get('EmployeeID');
                     }
             }
     

@@ -10,6 +10,7 @@ import {
 } from '../../../../../framework/forms';
 import {Observable} from 'rxjs/Observable';
 import {UniElementFinder} from '../../../../../framework/forms/shared/UniElementFinder';
+import {ParamsService} from '../../../../services/ParamsService';
 
 declare var jQuery;
 
@@ -75,17 +76,16 @@ export class EmployeeEmployment {
 
     private subEntities: any;
 
-    constructor(private injector: Injector, 
+    constructor(private params: ParamsService, 
                 public employeeDS: EmployeeDS, 
                 public styrkcodesDS: STYRKCodesDS, 
                 public statReg: StaticRegisterService,
                 private _employmentService: EmploymentService) {
         
         this.styrks = this.statReg.getStaticRegisterDataset('styrk');
-        let params = injector.parent.parent.get(RouteParams);
         
         Observable.forkJoin(
-            employeeDS.get(params.get('id')),
+            employeeDS.get(params.get('EmployeeID')),
             employeeDS.getSubEntities()
         ).subscribe((response: any) => {
             let [employee, subEnt] = response;

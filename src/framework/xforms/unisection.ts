@@ -1,12 +1,12 @@
 import {Component, EventEmitter, Input, Output, ChangeDetectionStrategy} from "angular2/core";
-import {FORM_DIRECTIVES, FORM_PROVIDERS, ControlGroup, FormBuilder} from "angular2/common";
+import {FORM_DIRECTIVES, FORM_PROVIDERS, ControlGroup} from "angular2/common";
 import {FieldLayout} from "../../app/unientities";
 import {UniField} from "../xforms/unifield";
 import {UniFieldSet} from "../xforms/unifieldset";
 declare var _; //lodash
 
 @Component({
-    selector:'uni-section',
+    selector: 'uni-section',
     template: `
         <article class="collapsable" [ngClass]="{'-is-open':isOpen}">
             <h4 *ngIf="config.legend" (click)="toggle()">{{config.legend}}</h4>
@@ -28,16 +28,16 @@ declare var _; //lodash
             </div>
         </article>
     `,
-    directives: [FORM_DIRECTIVES, UniField,UniFieldSet],
+    directives: [FORM_DIRECTIVES, UniField, UniFieldSet],
     providers: [FORM_PROVIDERS],
     changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class UniSection {
     @Input()
-    public fields: any;
+    public fields: FieldLayout[];
 
     @Input()
-    public controls: any;
+    public controls: ControlGroup;
 
     @Input()
     public model: any;
@@ -46,10 +46,10 @@ export class UniSection {
     private groupedFields: any;
     private config: any = {};
     public isOpen: boolean = false;
-    constructor(){}
+    constructor() { }
 
     public ngOnChanges() {
-        if(this.fields && this.fields.length > 0) {
+        if (this.fields && this.fields.length > 0) {
             this.sectionId = this.fields[0].Section;
             this.config.legend = this.fields[0].Legend;
 
@@ -73,7 +73,7 @@ export class UniSection {
         let group = [], fieldset = [];
         let lastFieldSet = 0;
         this.fields.forEach((field: FieldLayout) => {
-            if (field.FieldSet === 0) {//manage fields
+            if (field.FieldSet === 0) {// manage fields
                 if (field.FieldSet !== lastFieldSet && fieldset.length > 0) {
                     group.push(fieldset);
                     fieldset = [];
@@ -81,7 +81,7 @@ export class UniSection {
                 lastFieldSet = field.FieldSet;
                 group.push(field);
             }
-            else if (field.FieldSet > 0) {//manage fieldsets
+            else if (field.FieldSet > 0) {// manage fieldsets
                 if (field.FieldSet !== lastFieldSet && fieldset.length > 0) {
                     group.push(fieldset);
                     fieldset = [];
@@ -90,7 +90,7 @@ export class UniSection {
                 fieldset.push(field);
             }
         });
-        if (fieldset.length > 0) { //add fielsets to the last group
+        if (fieldset.length > 0) { // add fielsets to the last group
             group.push(fieldset);
         }
         return group;

@@ -1,5 +1,5 @@
 import {Component, EventEmitter, Input, Output, ChangeDetectionStrategy} from "angular2/core";
-import {FORM_DIRECTIVES, FORM_PROVIDERS, ControlGroup, FormBuilder} from "angular2/common";
+import {FORM_DIRECTIVES, FORM_PROVIDERS, ControlGroup} from "angular2/common";
 import {FieldLayout} from "../../app/unientities";
 import {UniField} from "../xforms/unifield";
 declare var _; //lodash
@@ -25,10 +25,10 @@ declare var _; //lodash
 export class UniFieldSet {
 
     @Input()
-    public fields: any;
+    public fields: FieldLayout[];
 
     @Input()
-    public controls: any;
+    public controls: ControlGroup;
 
     @Input()
     public model: any;
