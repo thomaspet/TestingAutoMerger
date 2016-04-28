@@ -55,7 +55,6 @@ export class PayrollrunDetails implements OnInit {
                 this.payrollrun = payrollrun;
                 this.payDate = new Date(this.payrollrun.PayDate.toString());
                 this.setStatus();
-                console.log('paydate: ' + JSON.stringify(this.payrollrun.PayDate));
                 this.form = new UniFormLayoutBuilder().build(layout, this.payrollrun);
                 
                 

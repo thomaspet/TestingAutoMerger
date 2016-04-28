@@ -34,7 +34,6 @@ export class SalaryTransactionSelectionList implements OnInit {
     
     public ngOnInit() {
         this.tableConfig();
-        console.log('disableFilter: ' + this.disableFilter);
     }
     
     private tableConfig(update: boolean = false, filter = '') {
