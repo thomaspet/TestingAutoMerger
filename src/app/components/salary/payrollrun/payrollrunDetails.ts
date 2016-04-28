@@ -3,7 +3,7 @@ import {RouteParams, Router} from 'angular2/router';
 import {PayrollRun} from '../../../unientities';
 import {PayrollrunService} from '../../../services/services';
 import {Observable} from 'rxjs/Observable';
-import {UniFormBuilder, UniFormLayoutBuilder, UniForm, UniField} from '../../../../framework/forms';
+import {UniFormBuilder, UniFormLayoutBuilder, UniForm, UniFieldBuilder} from '../../../../framework/forms';
 import {UniComponentLoader} from '../../../../framework/core';
 import {SalaryTransactionSelectionList} from '../../salary/salarytrans/salarytransactionSelectionList';
 import {TabService} from '../../layout/navbar/tabstrip/tabService';
@@ -19,12 +19,13 @@ export class PayrollrunDetails implements OnInit {
     private payrollrun: PayrollRun;
     private payrollrunID: number;
     private payDate: Date;
-    private payStatusTable: any[];
+    private payStatusTable: any;
     private payStatus: string;
     private form: UniFormBuilder = new UniFormBuilder();
     @ViewChild(UniComponentLoader)
     private uniCmpLoader: UniComponentLoader;
     private isEditable: boolean;
+    private disableFilter: boolean;
     private busy: boolean = false;
     
     constructor(private routeParams: RouteParams, private payrollrunService: PayrollrunService, private router: Router, private tabSer: TabService) {
@@ -57,8 +58,7 @@ export class PayrollrunDetails implements OnInit {
                 console.log('paydate: ' + JSON.stringify(this.payrollrun.PayDate));
                 this.form = new UniFormLayoutBuilder().build(layout, this.payrollrun);
                 
-                var field: UniField = this.form.find('StatusCode');
-                field.config.setModel(this.setStatus());
+                
                 
                 this.uniCmpLoader.load(UniForm).then((cmp: ComponentRef) => {
                     cmp.instance.config = this.form;
@@ -137,10 +137,26 @@ export class PayrollrunDetails implements OnInit {
     private setEditMode() {
         if (this.payrollrun.StatusCode > 0) {
             this.isEditable = false;
+            this.disableFilter = true;
             this.form.readmode();
         } else {
             this.isEditable = true;
+            this.disableFilter = false;
             this.form.editmode();
         }
+        var recurringTransCheck: UniFieldBuilder = this.form.find('ExcludeRecurringPosts');
+        var noNegativePayCheck: UniFieldBuilder = this.form.find('1');
+        if (this.isEditable) {
+            recurringTransCheck.enable();
+            noNegativePayCheck.enable();
+        }else {
+            recurringTransCheck.disable();
+            noNegativePayCheck.disable();
+        }
+        
+        var statusCode: UniFieldBuilder = this.form.find('StatusCode');
+        var statusField = {StatusCode: this.setStatus() };
+        statusCode.setModel(statusField);
+        statusCode.readmode();
     }
 }

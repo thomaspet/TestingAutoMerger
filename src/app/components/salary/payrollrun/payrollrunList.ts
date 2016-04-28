@@ -14,7 +14,7 @@ import {PayrollrunService} from '../../../services/services';
 
 export class PayrollrunList implements OnInit {
     private payrollrunListConfig: any;
-    private payStatusTable: any[];
+    private payStatusTable: any;
     
     constructor(private routr: Router, private tabSer: TabService, private payrollService: PayrollrunService) {
         
@@ -32,11 +32,12 @@ export class PayrollrunList implements OnInit {
             {ID: 6, text: 'Slettet'}
         ];
         
+        
         var idCol = new UniTableColumn('ID', 'Nr', 'string')
         .setWidth('4rem');
         var nameCol = new UniTableColumn('Description', 'Navn', 'string');
         var statusCol = new UniTableColumn('StatusCode', 'Status', 'string').setTemplate((payrollRun) => {
-            var status = this.payStatusTable.find(x => x.ID === payrollRun.StatusCode);
+            var status = this.payStatusTable.find(x => x.ID == payrollRun.StatusCode);
             return status.text;
         });
         var paydateCol = new UniTableColumn('PayDate', 'Utbetalingsdato', 'date');

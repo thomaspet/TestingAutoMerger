@@ -285,7 +285,7 @@ export class PayrollrunService extends BizHttp<PayrollRun> {
                 {
                     ComponentLayoutID: 1,
                     EntityType: 'Payrollrun',
-                    Property: 'Description',
+                    Property: 'ExcludeRecurringPosts',
                     Placement: 3,
                     Hidden: false,
                     FieldType: FieldType.CHECKBOX,
