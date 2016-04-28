@@ -40,13 +40,9 @@ export class RecurringPost implements OnInit {
     
     private buildTableConfig() {
         var wagetypeIDCol = new UniTableColumn('WageTypeId', 'Lønnsart', 'number')
-            // .setValues(wagetypeDS)
             .setValues(this.wagetypes)
             .setDefaultValue(null)
             .setCustomEditor('dropdown', {
-                // dataSource: wagetypeDS,
-                // dataValueField: 'value',
-                // dataTextField: 'text'
                 dataSource: this.wagetypes,
                 dataValueField: 'WageTypeId',
                 dataTextField: 'WageTypeName'
@@ -58,6 +54,7 @@ export class RecurringPost implements OnInit {
                 rowModel.set('Rate', wagetype.Rate);
                 rowModel.set('Sum', rowModel.Amount * rowModel.Rate);
                 rowModel.set('Wagetype', wagetype);
+                rowModel.set('IsRecurringPost', true);
             });
         var descriptionCol = new UniTableColumn('Text', 'Beskrivelse', 'string');
         var employmentIDCol = new UniTableColumn('EmploymentID', 'Arbeidsforhold', 'number')
@@ -79,7 +76,7 @@ export class RecurringPost implements OnInit {
         this.recurringpostListConfig = new UniTableBuilder('salarytrans', true)
         .setFilter(this.buildFilter())
         .setColumnMenuVisible(false)
-        .setToolbarOptions(['create', 'cancel'])
+        .setToolbarOptions(['create', 'cancel', 'save'])
         .addColumns(wagetypeIDCol, descriptionCol, employmentIDCol, fromdateCol, todateCol, amountCol, rateCol, sumCol);
     }
     
