@@ -34,21 +34,31 @@ export class UniHttp {
 
     constructor(public http: Http, private authService: AuthService) {
         var headers = AppConfig.DEFAULT_HEADERS;
+        this.headers = new Headers();
         this.appendHeaders(headers);
     }
 
-    private appendHeaders(headers: any) {
-        this.headers = new Headers();
-        
+    public appendHeaders(headers: any) {
         for (var header in headers) {
             if (headers.hasOwnProperty(header)) {
-                this.headers.append(header, AppConfig.DEFAULT_HEADERS[header]);
+                this.headers.append(header, headers[header]);
             }
         }
     }
 
     public getBaseUrl() {
         return this.baseUrl;
+    }
+
+    public withNewHeaders() {
+        this.headers = new Headers();
+        return this;
+    }
+
+    public withDefaultHeaders() {
+        this.headers = new Headers();
+        this.appendHeaders(AppConfig.DEFAULT_HEADERS);
+        return this;
     }
 
     public withBaseUrl(url: string) {
@@ -72,7 +82,7 @@ export class UniHttp {
 
     public usingBusinessDomain() {
         this.apiDomain = AppConfig.API_DOMAINS.BUSINESS;
-        return this;    
+        return this;
     }
 
     public usingInitDomain() {
@@ -128,54 +138,62 @@ export class UniHttp {
     public sendToUrl(url: any) {
         var options: any = {
             method: this.method,
-            url: url
+            url: url,
+            headers: this.headers
         };
         if (this.body) {
-            options.body = JSON.stringify(this.body);
+            options.body = (this.body instanceof FormData) ? this.body : JSON.stringify(this.body);
         }
         return this.http.request(new Request(options)).map((response: any) => response.json());
     }
-    
+
     public send(request: IUniHttpRequest = {}, withoutJsonMap: boolean = false): Observable<any> {
         let token = this.authService.getToken();
         let activeCompany = this.authService.getActiveCompany();
-        
+
         if (token && !this.headers.has('Authorization')) {
             this.headers.append('Authorization', 'Bearer ' + token);
         }
-        
+
         if (activeCompany && !this.headers.has('CompanyKey')) {
             this.headers.append('CompanyKey', activeCompany.Key);
         }
-        
+
         var baseurl = request.baseUrl || this.baseUrl,
             apidomain = request.apiDomain || this.apiDomain,
             endpoint = request.endPoint || this.endPoint,
             method = request.method || this.method,
             body = request.body || this.body;
-        
+
         var url = baseurl + apidomain + endpoint;
         var options: any = {
             method: method,
             url: url,
             headers: this.headers
         };
-        
-        if (this.body) {
-            options.body = JSON.stringify(body);
+
+        if (body) {
+            options.body = (body instanceof FormData) ? body : JSON.stringify(body);
         }
-        
+
         if (request) {
             options.search = UniHttp.buildUrlParams(request);
         }
-        
+
         let req = this.http.request(new Request(options));
-        
-        if (withoutJsonMap) {            
+
+        if (withoutJsonMap) {
             return req;
         }
-        
-        return req.map(response => response.json());
+
+        return req.map(response => {
+            try {
+                var res = response.json();
+                return res;
+            } catch (e) {
+                return response;
+            }
+        });
     }
 
     public multipleRequests(requests: IUniHttpRequest[]) {

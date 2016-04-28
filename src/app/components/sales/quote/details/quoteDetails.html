@@ -1,7 +1,7 @@
 <header class="quote_poster" *ngIf="quote">    
     <article class="poster_toolbar">
         <section>
-            <h1 *ngIf="quote">{{quote.CustomerName ? quote.CustomerName : quote.Customer ? quote.Customer.Info.Name : ''}}</h1>            
+            <h1 *ngIf="quote">{{quote.Customer ? quote.Customer.Info.Name : quote.CustomerName}}</h1>            
             <p>Tilbudsnr. {{quote.QuoteNumber}} <span  *ngIf="!itemsSummaryData">. Netto kr {{quote.TaxExclusiveAmount}}</span> <span *ngIf="itemsSummaryData">. Netto kr {{itemsSummaryData.SumTotalExVat}}</span>. Status: {{ statusText }}</p>
             <p></p>
         </section>

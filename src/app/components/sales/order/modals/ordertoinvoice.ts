@@ -135,7 +135,21 @@ export class OrderToInvoiceModal {
                         
                         return false;
                     }
+                },                               {
+                    text: "Overføre første linje",
+                    class: "good",
+                    method: () => {
+                        self.modal.getContent().then((content: OrderToInvoiceModalType)=> {
+                            content.instance.then((table: OrderToInvoiceTable)=> {
+                                self.modal.close();   
+                                self.Changed.emit([table.order.Items[0]]);
+                           });
+                        });
+                        
+                        return false;
+                    }
                 }
+
             ]
         };
     }

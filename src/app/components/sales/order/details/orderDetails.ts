@@ -63,7 +63,10 @@ export class OrderDetails {
                 private addressService: AddressService, 
                 private router: Router, private params: RouteParams) {                
         this.OrderID = params.get('id');
-        console.log('orderdetails constructor');
+    }
+    
+    log(err) {
+        alert(err._body);
     }
     
     isActive(instruction: any[]): boolean {
@@ -78,15 +81,12 @@ export class OrderDetails {
             this.customerService.GetAll(null, ['Info'])
         //    this.addressService.GetNewEntity()
         ).subscribe(response => { 
-                console.log("== CUSTOMER GET ==");
-                console.log(response);                    
-            
                 this.dropdownData = [response[0], response[1]];
                 this.order = response[2];
                 this.customers = response[3];
             //    this.EmptyAddress = response[4];                
                 this.EmptyAddress = new Address();
-                                                                        
+                                                   
                 this.updateStatusText();
                 this.addAddresses();                                                                               
                 this.createFormConfig();
@@ -138,7 +138,10 @@ export class OrderDetails {
             
             this.customerOrderService.calculateOrderSummary(orderItems)
             .subscribe((data) => this.itemsSummaryData = data,
-                       (err) => console.log('Error when recalculating items:',err)); 
+                       (err) => { 
+                           console.log('Error when recalculating items:',err);
+                           this.log(err);
+                       })
         }, 2000); 
     }
     
@@ -147,24 +150,35 @@ export class OrderDetails {
     }
     
     saveAndTransferToInvoice(event: any) {
-        //this.saveOrder(order => {
-        //    
-        //});
-        
         this.oti.Changed.subscribe(items => {
-            console.log("== LINES TO TRANSFER ==");
-            console.log(items);            
+            var order : CustomerOrder = _.cloneDeep(this.order);
+            order.Items = items;
+            
+            this.customerOrderService.ActionWithBody(order.ID, order, "transfer-to-invoice").subscribe((invoice) => {
+                this.router.navigateByUrl('/sales/invoice/details/' + invoice.ID);
+            }, (err) => {
+                console.log("== TRANSFER-TO-INVOICE FAILED ==");
+                this.log(err);
+            });
         });
-        this.oti.openModal(this.order);
+
+        this.saveOrder(order => {
+            this.oti.openModal(this.order);            
+        });        
     }
     
     saveOrderTransition(event: any, transition: string) {
         this.saveOrder((order) => {
-            this.customerOrderService.Transition(this.order.ID, this.order, transition).subscribe(() => {
+            this.customerOrderService.Transition(this.order.ID, this.order, transition).subscribe((x) => {
               console.log("== TRANSITION OK " + transition + " ==");
-              this.router.navigateByUrl('/sales/order/details/' + this.order.ID);           
+              
+              this.customerOrderService.Get(order.ID, ['Dimensions','Items','Items.Product','Items.VatType', 'Customer', 'Customer.Info', 'Customer.Info.Addresses']).subscribe((order) => {
+                this.order = order;
+                this.updateStatusText();
+              });
             }, (err) => {
                 console.log('Feil oppstod ved ' + transition + ' transition', err);
+                this.log(err);
             });
         });          
     }
@@ -181,7 +195,10 @@ export class OrderDetails {
                     this.updateStatusText();
                     if (cb) cb(order);    
                 },
-                (err) => console.log('Feil oppsto ved lagring', err)
+                (err) => { 
+                    console.log('Feil oppsto ved lagring', err);
+                    this.log(err);
+                }
             );
     }
              
@@ -212,7 +229,10 @@ export class OrderDetails {
                 (data) => {
                     this.router.navigateByUrl('/sales/order/details/' + data.ID);        
                 },
-                (err) => console.log('Error creating order: ', err)
+                (err) => {
+                    console.log('Error creating order: ', err);
+                    this.log(err);
+                }
             );      
     }
         

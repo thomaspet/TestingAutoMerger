@@ -6,6 +6,7 @@ import {UniTableDemo} from "./table/tableDemo";
 import {UniTreelistDemo} from "./treelist/treelistDemo";
 import {UniModalDemo} from "./modal/modalDemo";
 import {UniModalAdvancedDemo} from "./modal/advancedDemo";
+import {UniDocumentDemo} from "./documents/document";
 
 const CHILD_ROUTES = [
     {path: "/", redirectTo: ["./UniFormDemo"]},
@@ -14,6 +15,7 @@ const CHILD_ROUTES = [
     {path: "/treelist", component: UniTreelistDemo , as: "UniTreelistDemo"},
     {path: "/modal", component: UniModalDemo  , as: "UniModalDemo"},
     {path: "/modal-advanced", component: UniModalAdvancedDemo  , as: "UniModalAdvancedDemo"},
+    {path: "/documents", component: UniDocumentDemo  , as: "UniDocumentDemo"},
 ];
 
 @RouteConfig(CHILD_ROUTES)

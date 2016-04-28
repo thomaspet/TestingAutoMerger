@@ -122,7 +122,7 @@ gulp.task('entities' , function (done) {
         //url: 'http://localhost:27831/api/metadata/typescriptentities',
         url: 'https://devapi-unieconomy.azurewebsites.net/api/metadata/typescriptentities' ,
         headers: {
-            'client': 'andersas'
+            'client': 'jorgeas'
         }
     };
     var callback = function (error , response , body) {
