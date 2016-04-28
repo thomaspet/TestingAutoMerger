@@ -20,7 +20,7 @@ export class SalaryTransactionSelectionList implements OnInit {
     private salarytransSelectionTableConfig: UniTableBuilder;
     private selectedEmployeeID: number;
     @Input() private selectedPayrollRun: PayrollRun;
-    @Input() private disableFilter: boolean;
+    private disableFilter: boolean;
     private bankaccountCol: UniTableColumn;
     private taxcardCol: UniTableColumn;
     private employeeList: Employee[] = [];
@@ -33,6 +33,7 @@ export class SalaryTransactionSelectionList implements OnInit {
     }
     
     public ngOnInit() {
+        this.selectedPayrollRun.StatusCode < 1 ? this.disableFilter = true : this.disableFilter = false;
         this.tableConfig();
     }
     

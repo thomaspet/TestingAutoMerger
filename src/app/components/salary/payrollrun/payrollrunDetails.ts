@@ -19,13 +19,11 @@ export class PayrollrunDetails implements OnInit {
     private payrollrun: PayrollRun;
     private payrollrunID: number;
     private payDate: Date;
-    private payStatusTable: any;
     private payStatus: string;
     private form: UniFormBuilder = new UniFormBuilder();
     @ViewChild(UniComponentLoader)
     private uniCmpLoader: UniComponentLoader;
     private isEditable: boolean;
-    private disableFilter: boolean;
     private busy: boolean = false;
     
     constructor(private routeParams: RouteParams, private payrollrunService: PayrollrunService, private router: Router, private tabSer: TabService) {
@@ -36,15 +34,6 @@ export class PayrollrunDetails implements OnInit {
     }
     
     public ngOnInit() {
-        this.payStatusTable = [
-            {ID: 0 || null, text: 'Opprettet'},
-            {ID: 1, text: 'Avregnet'},
-            {ID: 2, text: 'Godkjent'},
-            {ID: 3, text: 'Sendt til utbetaling'},
-            {ID: 4, text: 'Utbetalt'},
-            {ID: 5, text: 'Bokført'},
-            {ID: 6, text: 'Slettet'}
-        ];
         this.busy = true;
         if (this.payrollrunID) {
             Observable.forkJoin(
@@ -54,7 +43,6 @@ export class PayrollrunDetails implements OnInit {
                 var [payrollrun, layout] = response;
                 this.payrollrun = payrollrun;
                 this.payDate = new Date(this.payrollrun.PayDate.toString());
-                this.setStatus();
                 this.form = new UniFormLayoutBuilder().build(layout, this.payrollrun);
                 
                 
@@ -73,7 +61,7 @@ export class PayrollrunDetails implements OnInit {
     }
     
     private setStatus() {
-        var status = this.payStatusTable.find(x => x.ID === this.payrollrun.StatusCode);
+        var status = this.payrollrunService.getStatus(this.payrollrun);
         this.payStatus = status.text;
         return status.text;
     }
@@ -136,11 +124,9 @@ export class PayrollrunDetails implements OnInit {
     private setEditMode() {
         if (this.payrollrun.StatusCode > 0) {
             this.isEditable = false;
-            this.disableFilter = true;
             this.form.readmode();
         } else {
             this.isEditable = true;
-            this.disableFilter = false;
             this.form.editmode();
         }
         var recurringTransCheck: UniFieldBuilder = this.form.find('ExcludeRecurringPosts');
