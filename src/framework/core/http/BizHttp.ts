@@ -116,6 +116,15 @@ export class BizHttp<T> {
             .withEndPoint(this.relativeURL + '/' + (ID === null ? '' : ID) + '?action=' + actionName + (parameters === null ? '' : '&' + parameters))
             .send();
     }
+    
+    public ActionWithBody<T>(ID: number, entity: T, actionName: string, method: number = RequestMethod.Put): Observable<any> {
+        return this.http
+            .usingBusinessDomain()
+            .as(method)
+            .withBody(entity)
+            .withEndPoint(this.relativeURL + '/' + ID + '?action=' + actionName)
+            .send();
+    }
 
     public GetAction<T>(ID: number, actionName: string, parameters: string = null) {
         return this.Action(ID, actionName, parameters, RequestMethod.Get);    

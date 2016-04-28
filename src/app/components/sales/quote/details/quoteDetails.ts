@@ -61,7 +61,11 @@ export class QuoteDetails {
                 private router: Router, private params: RouteParams) {                
         this.QuoteID = params.get("id");
     }
-    
+
+    log(err) {
+        alert(err._body);
+    }
+
     isActive(instruction: any[]): boolean {
         return this.router.isRouteActive(this.router.generate(instruction));
     }
@@ -129,7 +133,10 @@ export class QuoteDetails {
             
             this.customerQuoteService.calculateQuoteSummary(quoteItems)
             .subscribe((data) => this.itemsSummaryData = data,
-                       (err) => console.log('Error when recalculating items:',err)); 
+                       (err) => {
+                           console.log('Error when recalculating items:',err)
+                           this.log(err);
+                       }); 
         }, 2000); 
         
     }
@@ -138,9 +145,14 @@ export class QuoteDetails {
         this.saveQuote((quote) => {
             this.customerQuoteService.Transition(this.quote.ID, this.quote, transition).subscribe(() => {
               console.log("== TRANSITION OK " + transition + " ==");
-              this.router.navigateByUrl('/sales/quote/details/' + this.quote.ID);           
+                     
+              this.customerQuoteService.Get(quote.ID, ['Dimensions','Items','Items.Product','Items.VatType', 'Customer', 'Customer.Info', 'Customer.Info.Addresses']).subscribe((quote) => {
+                this.quote = quote;
+                this.updateStatusText();
+              });                     
             }, (err) => {
                 console.log('Feil oppstod ved ' + transition + ' transition', err);
+                this.log(err);
             });
         });          
     }
@@ -153,9 +165,6 @@ export class QuoteDetails {
         this.formInstance.sync();        
         this.lastSavedInfo = 'Lagrer tilbud...';
  
-        console.log("== SAVE QUOTE ==");
-        console.log(this.quote);
- 
         this.customerQuoteService.Put(this.quote.ID, this.quote)
             .subscribe(
                 (quote) => {  
@@ -164,7 +173,10 @@ export class QuoteDetails {
                     this.updateStatusText();  
                     if (cb) cb(quote);
                 },
-                (err) => console.log('Feil oppsto ved lagring', err)
+                (err) => { 
+                    console.log('Feil oppsto ved lagring', err);
+                    this.log(err);
+                }
             );
     }       
     
@@ -195,7 +207,10 @@ export class QuoteDetails {
                 (data) => {
                     this.router.navigateByUrl('/sales/quote/details/' + data.ID);        
                 },
-                (err) => console.log('Error creating quote: ', err)
+                (err) => { 
+                    console.log('Error creating quote: ', err);
+                    this.log(err);
+                }
             );      
     }
         
