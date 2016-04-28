@@ -4,7 +4,7 @@
     <article class="poster_toolbar">
         <section>
             <h1 *ngIf="order">{{order.CustomerName ? order.CustomerName : order.Customer ? order.Customer.Info.Name : ''}}</h1>            
-            <p>Ordrenr. {{order.OrderNumber}} <span  *ngIf="!itemsSummaryData">. Netto kr {{order.TaxExclusiveAmount}}</span> <span *ngIf="itemsSummaryData">. Netto kr {{itemsSummaryData.SumTotalExVat}}</span>. Status: {{ getStatusText() }}</p>
+            <p>Ordrenr. {{order.OrderNumber}} <span  *ngIf="!itemsSummaryData">. Netto kr {{order.TaxExclusiveAmount}}</span> <span *ngIf="itemsSummaryData">. Netto kr {{itemsSummaryData.SumTotalExVat}}</span>. Status: {{ statusText }}</p>
             <p></p>
         </section>
         <nav class="poster_toolbar_tools">
@@ -28,8 +28,8 @@
     <uni-component-loader></uni-component-loader>
 
     <order-item-list [order]="order" (ItemsUpdated)="recalcItemSums($event)" (ItemsLoaded)="recalcItemSums($event)"></order-item-list>    
-    <section class="order-items-summary-placeholder" *ngIf="!itemsSummaryData">
-        Her kommer summering for ordrelinjer, service må på plass i backend først, og kode "ukommenteres" i componenten. Sett på attribut  aria-busy når det er klart
+    <section class="order-items-summary-placeholder" *ngIf="!itemsSummaryData" aria-busy>
+
     </section>
     <section class="order-items-summary" *ngIf="itemsSummaryData">        
         <section> 
@@ -66,6 +66,8 @@
 <footer class="full-footer">
     <section class="application">
         <button class="good" (click)="saveAndTransferToInvoice($event)">Lagre og overfør til faktura</button>
+        <button class="good" (click)="saveOrderTransition($event, 'register')">registrer</button>
+        <button class="good" (click)="saveOrderTransition($event, 'complete')">complete</button>
         <button class="good" (click)="saveOrderManual($event)">Lagre ordre</button>
         <section class="auto_save_info">
             {{ lastSavedInfo }}    

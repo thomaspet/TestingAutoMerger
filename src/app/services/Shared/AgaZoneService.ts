@@ -6,6 +6,7 @@ export class AgaZoneService extends BizHttp<AGAZone> {
     constructor(http: UniHttp) {
         super(http);
         this.relativeURL = AGAZone.relativeUrl;
+        this.DefaultOrderBy = null;
     }
     
     public getAgaRules() {

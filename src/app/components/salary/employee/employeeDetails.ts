@@ -37,27 +37,27 @@ const CHILD_ROUTES = [
     }),
     new AsyncRoute({
         path: '/employment',
-        name: 'Employment',
+        name: 'Arbeidsforhold',
         loader: () => ComponentProxy.LoadComponentAsync('EmployeeEmployment', './app/components/salary/employee/employments/employments')
     }),
-    new AsyncRoute({
-        path: '/salarytrans',
-        name: 'Lønnstranser',
-        loader: () => ComponentProxy.LoadComponentAsync('SalaryTransactionEmployeeList', './app/components/salary/salarytrans/salarytransList')
-    }),
-    new AsyncRoute({
-        path: '/hours',
-        name: 'Hours',
-        loader: () => ComponentProxy.LoadComponentAsync('Hours', './app/components/salary/employee/hours/hours')
-    }),
-    new AsyncRoute({
-        path: '/travel',
-        name: 'Travel',
-        loader: () => ComponentProxy.LoadComponentAsync('Travel', './app/components/salary/employee/travel/travel')
-    }),
+    // new AsyncRoute({
+    //     path: '/salarytrans',
+    //     name: 'Lønnstranser',
+    //     loader: () => ComponentProxy.LoadComponentAsync('SalaryTransactionEmployeeList', './app/components/salary/salarytrans/salarytransList')
+    // }),
+    // new AsyncRoute({
+    //     path: '/hours',
+    //     name: 'Hours',
+    //     loader: () => ComponentProxy.LoadComponentAsync('Hours', './app/components/salary/employee/hours/hours')
+    // }),
+    // new AsyncRoute({
+    //     path: '/travel',
+    //     name: 'Travel',
+    //     loader: () => ComponentProxy.LoadComponentAsync('Travel', './app/components/salary/employee/travel/travel')
+    // }),
     new AsyncRoute({
         path: '/employeeleave',
-        name: 'EmployeeLeave',
+        name: 'Fravær',
         loader: () => ComponentProxy.LoadComponentAsync('EmployeeLeave', './app/components/salary/employee/employeeLeave/employeeLeave')
     })
 ];

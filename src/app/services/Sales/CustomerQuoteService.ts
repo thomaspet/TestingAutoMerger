@@ -1,5 +1,6 @@
 import {BizHttp} from '../../../framework/core/http/BizHttp';
 import {CustomerQuote, CustomerQuoteItem} from '../../unientities';
+import {StatusCodeCustomerQuote} from '../../unientities';
 import {UniHttp} from '../../../framework/core/http/http';
 import {Observable} from "rxjs/Observable";
 import {TradeHeaderCalculationSummary} from '../../models/sales/TradeHeaderCalculationSummary';
@@ -12,7 +13,18 @@ export class CustomerQuoteService extends BizHttp<CustomerQuote> {
         super(http);       
         this.relativeURL = CustomerQuote.relativeUrl;
         this.DefaultOrderBy = null;
-    }    
+    }
+    
+    // TODO: To be retrieved from database schema shared.Status instead?
+    private statusTypes: Array<any> = [
+        { Code: StatusCodeCustomerQuote.Draft, Text: 'Kladd' },
+        { Code: StatusCodeCustomerQuote.Registered, Text: 'Registrert' },
+        { Code: StatusCodeCustomerQuote.ShippedToCustomer, Text: 'Sendt til kunde' },
+        { Code: StatusCodeCustomerQuote.CustomerAccepted, Text: 'Kunde har godkjent' },
+        { Code: StatusCodeCustomerQuote.TransferredToOrder, Text: 'Overført til ordre' },
+        { Code: StatusCodeCustomerQuote.TransferredToInvoice, Text: 'Overført til faktura' },
+        { Code: StatusCodeCustomerQuote.Completed, Text: 'Avsluttet' }
+    ];    
             
     next(currentID: number): Observable<CustomerQuote>
     {
@@ -42,18 +54,6 @@ export class CustomerQuoteService extends BizHttp<CustomerQuote> {
             .withEndPoint(this.relativeURL + '?action=calculate-quote-summary')
             .send();
     } 
-
-     // TODO: To be retrieved from database schema shared.Status instead?
-    private statusTypes: Array<any> = [
-        { Code: '40002', Text: 'Registrert' },
-        { Code: '40003', Text: 'Sendt til kunde' },
-        { Code: '40004', Text: 'Kunde har godkjent' },
-        { Code: '40005', Text: 'Overført til ordre' },
-        { Code: '40006', Text: 'Overført til faktura' },
-        { Code: '40007', Text: 'Avsluttet' },
-        { Code: '40008', Text: 'Kladd' },
-
-    ];
 
     public getStatusText = (statusCode: string) => {
         var text = 'Udefinert';

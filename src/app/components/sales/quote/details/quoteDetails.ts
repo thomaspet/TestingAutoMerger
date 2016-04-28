@@ -7,6 +7,7 @@ import {CustomerQuoteService, CustomerQuoteItemService, CustomerService, Supplie
 import {QuoteItemList} from './quoteItemList';
 
 import {FieldType, FieldLayout, ComponentLayout, CustomerQuote, CustomerQuoteItem, Customer, Departement, Project, Address, BusinessRelation} from "../../../../unientities";
+import {StatusCodeCustomerQuote} from "../../../../unientities";
 import {UNI_CONTROL_DIRECTIVES} from "../../../../../framework/controls";
 import {UniFormBuilder} from "../../../../../framework/forms/builders/uniFormBuilder";
 import {UniFormLayoutBuilder} from "../../../../../framework/forms/builders/uniFormLayoutBuilder";
@@ -18,7 +19,8 @@ import {AddressModal} from "../../customer/modals/address/address";
 import {TradeHeaderCalculationSummary} from '../../../../models/sales/TradeHeaderCalculationSummary';
 
 declare var _;
- 
+declare var moment;
+
 @Component({
     selector: "quote-details",
     templateUrl: "app/components/sales/quote/details/quoteDetails.html",    
@@ -36,6 +38,7 @@ export class QuoteDetails {
     businessRelationShipping: BusinessRelation;
     quote: CustomerQuote;
     lastSavedInfo: string;
+    statusText: string;
     
     itemsSummaryData: TradeHeaderCalculationSummary;
     
@@ -58,7 +61,11 @@ export class QuoteDetails {
                 private router: Router, private params: RouteParams) {                
         this.QuoteID = params.get("id");
     }
-    
+
+    log(err) {
+        alert(err._body);
+    }
+
     isActive(instruction: any[]): boolean {
         return this.router.isRouteActive(this.router.generate(instruction));
     }
@@ -77,6 +84,7 @@ export class QuoteDetails {
             //    this.EmptyAddress = response[4];                
                 this.EmptyAddress = new Address();
                                     
+                this.updateStatusText();
                 this.addAddresses();                                                                               
                 this.createFormConfig();
                 this.extendFormConfig();
@@ -125,31 +133,55 @@ export class QuoteDetails {
             
             this.customerQuoteService.calculateQuoteSummary(quoteItems)
             .subscribe((data) => this.itemsSummaryData = data,
-                       (err) => console.log('Error when recalculating items:',err)); 
+                       (err) => {
+                           console.log('Error when recalculating items:',err)
+                           this.log(err);
+                       }); 
         }, 2000); 
         
     }
     
+    saveQuoteTransition(event: any, transition: string) {
+        this.saveQuote((quote) => {
+            this.customerQuoteService.Transition(this.quote.ID, this.quote, transition).subscribe(() => {
+              console.log("== TRANSITION OK " + transition + " ==");
+                     
+              this.customerQuoteService.Get(quote.ID, ['Dimensions','Items','Items.Product','Items.VatType', 'Customer', 'Customer.Info', 'Customer.Info.Addresses']).subscribe((quote) => {
+                this.quote = quote;
+                this.updateStatusText();
+              });                     
+            }, (err) => {
+                console.log('Feil oppstod ved ' + transition + ' transition', err);
+                this.log(err);
+            });
+        });          
+    }
+      
     saveQuoteManual(event: any) {        
         this.saveQuote();
     }
 
-    saveQuote() {
+    saveQuote(cb = null) {
         this.formInstance.sync();        
         this.lastSavedInfo = 'Lagrer tilbud...';
-        this.quote.StatusCode = 40008;
-                
+ 
         this.customerQuoteService.Put(this.quote.ID, this.quote)
             .subscribe(
-                (updatedValue) => {  
-                    this.lastSavedInfo = "Sist lagret: " + (new Date()).toLocaleTimeString();    
+                (quote) => {  
+                    this.lastSavedInfo = "Sist lagret: " + (new Date()).toLocaleTimeString();  
+                    this.quote = quote;
+                    this.updateStatusText();  
+                    if (cb) cb(quote);
                 },
-                (err) => console.log('Feil oppsto ved lagring', err)
+                (err) => { 
+                    console.log('Feil oppsto ved lagring', err);
+                    this.log(err);
+                }
             );
     }       
     
-    getStatusText() {     
-        return this.customerQuoteService.getStatusText((this.quote.StatusCode || "").toString());
+    updateStatusText() {     
+        this.statusText = this.customerQuoteService.getStatusText((this.quote.StatusCode || "").toString());
     }
            
     nextQuote() {
@@ -175,7 +207,10 @@ export class QuoteDetails {
                 (data) => {
                     this.router.navigateByUrl('/sales/quote/details/' + data.ID);        
                 },
-                (err) => console.log('Error creating quote: ', err)
+                (err) => { 
+                    console.log('Error creating quote: ', err);
+                    this.log(err);
+                }
             );      
     }
         
@@ -188,7 +223,14 @@ export class QuoteDetails {
     }
     
     extendFormConfig() {  
-        var self = this; 
+        var self = this;
+        
+        var quotedate: UniFieldBuilder = this.formConfig.find('QuoteDate');
+        quotedate.onChange = () => {
+          console.log("== CHANGED DATE ==");
+          this.quote.ValidUntilDate = moment(this.quote.QuoteDate).add(1, 'month').toDate();  
+        };
+         
         var departement: UniFieldBuilder = this.formConfig.find('Dimensions.DepartementID');         
         departement.setKendoOptions({
             dataTextField: 'Name',
@@ -223,6 +265,7 @@ export class QuoteDetails {
 
         var shippingaddress: UniFieldBuilder = this.formConfig.find('ShippingAddress');
         shippingaddress
+            .hasLineBreak(true)
             .setKendoOptions({
                 dataTextField: 'AddressLine1',
                 dataValueField: 'ID'
@@ -245,8 +288,9 @@ export class QuoteDetails {
                dataSource: this.customers
             });
         customer.onSelect = function (customerID) {
-            self.customerService.Get(customerID, ['Info', 'Info.Addresses']).subscribe((customer) => {
+            self.customerService.Get(customerID, ['Info', 'Info.Addresses']).subscribe((customer: Customer) => {
                 self.quote.Customer = customer;
+                self.quote.CustomerName = customer.Info.Name;
                 self.addAddresses();           
                 invoiceaddress.refresh(self.businessRelationInvoice);
                 shippingaddress.refresh(self.businessRelationShipping);
@@ -489,7 +533,7 @@ export class QuoteDetails {
                     Property: "FreeTxt",
                     Placement: 1,
                     Hidden: false,
-                    FieldType: 10,
+                    FieldType: 16,
                     ReadOnly: false,
                     LookupField: false,
                     Label: "",

@@ -8,6 +8,7 @@ import {OrderItemList} from './orderItemList';
 import {OrderToInvoiceModal} from '../modals/ordertoinvoice';
 
 import {FieldType, FieldLayout, ComponentLayout, CustomerOrder, CustomerOrderItem, Customer, Departement, Project, Address, BusinessRelation} from '../../../../unientities';
+import {StatusCodeCustomerOrder} from '../../../../unientities';
 import {UNI_CONTROL_DIRECTIVES} from '../../../../../framework/controls';
 import {UniFormBuilder} from '../../../../../framework/forms/builders/uniFormBuilder';
 import {UniFormLayoutBuilder} from '../../../../../framework/forms/builders/uniFormLayoutBuilder';
@@ -19,7 +20,7 @@ import {AddressModal} from '../../customer/modals/address/address';
 import {TradeHeaderCalculationSummary} from '../../../../models/sales/TradeHeaderCalculationSummary';
 
 declare var _;
- 
+     
 @Component({
     selector: 'order-details',
     templateUrl: 'app/components/sales/order/details/orderDetails.html',    
@@ -40,6 +41,7 @@ export class OrderDetails {
     businessRelationShipping: BusinessRelation;
     order: CustomerOrder;
     lastSavedInfo: string;
+    statusText: string;
     
     itemsSummaryData: TradeHeaderCalculationSummary;
     
@@ -61,7 +63,10 @@ export class OrderDetails {
                 private addressService: AddressService, 
                 private router: Router, private params: RouteParams) {                
         this.OrderID = params.get('id');
-        console.log('orderdetails constructor');
+    }
+    
+    log(err) {
+        alert(err._body);
     }
     
     isActive(instruction: any[]): boolean {
@@ -81,7 +86,8 @@ export class OrderDetails {
                 this.customers = response[3];
             //    this.EmptyAddress = response[4];                
                 this.EmptyAddress = new Address();
-                                    
+                                                   
+                this.updateStatusText();
                 this.addAddresses();                                                                               
                 this.createFormConfig();
                 this.extendFormConfig();
@@ -111,7 +117,7 @@ export class OrderDetails {
     
     recalcItemSums(orderItems: any) {
         this.order.Items = orderItems;
-       /* 
+    
         //do recalc after 2 second to avoid to much requests
         if (this.recalcTimeout) {
             clearTimeout(this.recalcTimeout);
@@ -132,9 +138,11 @@ export class OrderDetails {
             
             this.customerOrderService.calculateOrderSummary(orderItems)
             .subscribe((data) => this.itemsSummaryData = data,
-                       (err) => console.log('Error when recalculating items:',err)); 
+                       (err) => { 
+                           console.log('Error when recalculating items:',err);
+                           this.log(err);
+                       })
         }, 2000); 
-        */
     }
     
     saveOrderManual(event: any) {        
@@ -142,32 +150,60 @@ export class OrderDetails {
     }
     
     saveAndTransferToInvoice(event: any) {
-        //this.saveOrder(order => {
-        //    
-        //});
-        
-        this.oti.openModal(this.order);
+        this.oti.Changed.subscribe(items => {
+            var order : CustomerOrder = _.cloneDeep(this.order);
+            order.Items = items;
+            
+            this.customerOrderService.ActionWithBody(order.ID, order, "transfer-to-invoice").subscribe((invoice) => {
+                this.router.navigateByUrl('/sales/invoice/details/' + invoice.ID);
+            }, (err) => {
+                console.log("== TRANSFER-TO-INVOICE FAILED ==");
+                this.log(err);
+            });
+        });
+
+        this.saveOrder(order => {
+            this.oti.openModal(this.order);            
+        });        
+    }
+    
+    saveOrderTransition(event: any, transition: string) {
+        this.saveOrder((order) => {
+            this.customerOrderService.Transition(this.order.ID, this.order, transition).subscribe((x) => {
+              console.log("== TRANSITION OK " + transition + " ==");
+              
+              this.customerOrderService.Get(order.ID, ['Dimensions','Items','Items.Product','Items.VatType', 'Customer', 'Customer.Info', 'Customer.Info.Addresses']).subscribe((order) => {
+                this.order = order;
+                this.updateStatusText();
+              });
+            }, (err) => {
+                console.log('Feil oppstod ved ' + transition + ' transition', err);
+                this.log(err);
+            });
+        });          
     }
 
     saveOrder(cb = null) {
         this.formInstance.sync();        
         this.lastSavedInfo = 'Lagrer ordre...';
-        
-        console.log('TODO: Sett en fornuftig status - denne hører til tilbud!');        
-        this.order.StatusCode = 40008;
                 
         this.customerOrderService.Put(this.order.ID, this.order)
             .subscribe(
-                (updatedValue) => {  
+                (order) => {  
                     this.lastSavedInfo = 'Sist lagret: ' + (new Date()).toLocaleTimeString();
-                    if (cb) cb(updatedValue);    
+                    this.order = order;
+                    this.updateStatusText();
+                    if (cb) cb(order);    
                 },
-                (err) => console.log('Feil oppsto ved lagring', err)
+                (err) => { 
+                    console.log('Feil oppsto ved lagring', err);
+                    this.log(err);
+                }
             );
     }
              
-    getStatusText() {     
-        return this.customerOrderService.getStatusText((this.order.StatusCode || '').toString());
+    updateStatusText() {     
+        this.statusText = this.customerOrderService.getStatusText((this.order.StatusCode || '').toString());
     }
            
     nextOrder() {
@@ -193,7 +229,10 @@ export class OrderDetails {
                 (data) => {
                     this.router.navigateByUrl('/sales/order/details/' + data.ID);        
                 },
-                (err) => console.log('Error creating order: ', err)
+                (err) => {
+                    console.log('Error creating order: ', err);
+                    this.log(err);
+                }
             );      
     }
         
@@ -242,6 +281,7 @@ export class OrderDetails {
 
         var shippingaddress: UniFieldBuilder = this.formConfig.find('ShippingAddress');
         shippingaddress
+            .hasLineBreak(true)
             .setKendoOptions({
                 dataTextField: 'AddressLine1',
                 dataValueField: 'ID'
@@ -268,6 +308,7 @@ export class OrderDetails {
             
             self.customerService.Get(customerID, ['Info', 'Info.Addresses']).subscribe((customer) => {
                 self.order.Customer = customer;
+                self.order.CustomerName = customer.Info.Name;
                 self.addAddresses();           
                 invoiceaddress.refresh(self.businessRelationInvoice);
                 shippingaddress.refresh(self.businessRelationShipping);
@@ -512,7 +553,7 @@ export class OrderDetails {
                     Property: "FreeTxt",
                     Placement: 1,
                     Hidden: false,
-                    FieldType: 10,
+                    FieldType: 16,
                     ReadOnly: false,
                     LookupField: false,
                     Label: "",

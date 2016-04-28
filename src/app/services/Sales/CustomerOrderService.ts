@@ -1,5 +1,6 @@
 import {BizHttp} from '../../../framework/core/http/BizHttp';
 import {CustomerOrder, CustomerOrderItem} from '../../unientities';
+import {StatusCodeCustomerOrder} from '../../unientities';
 import {UniHttp} from '../../../framework/core/http/http';
 import {Observable} from "rxjs/Observable";
 import {TradeHeaderCalculationSummary} from '../../models/sales/TradeHeaderCalculationSummary'
@@ -33,19 +34,22 @@ export class CustomerOrderService extends BizHttp<CustomerOrder> {
         return o;               
     }
 
-    calculateOrderSummary(quoteItems: Array<CustomerOrderItem>): Observable<any> {        
+    calculateOrderSummary(orderItems: Array<CustomerOrderItem>): Observable<any> {        
         return this.http 
             .asPOST()
             .usingBusinessDomain()
-            .withBody(quoteItems)
+            .withBody(orderItems)
             .withEndPoint(this.relativeURL + '?action=calculate-order-summary') 
             .send();
     } 
 
     // TODO: To be retrieved from database schema shared.Status instead?
-    // TODO: Sett opp gyldige statuser her
     private statusTypes: Array<any> = [
-       
+        { Code: StatusCodeCustomerOrder.Draft, Text: 'Kladd' },
+        { Code: StatusCodeCustomerOrder.Registered, Text: 'Registrert' },
+        { Code: StatusCodeCustomerOrder.PartlyTransferredToInvoice, Text: 'Delvis overført til faktura' },
+        { Code: StatusCodeCustomerOrder.TransferredToInvoice, Text: 'Overført til faktura' },
+        { Code: StatusCodeCustomerOrder.Completed, Text: 'Avsluttet' }
     ];
 
     public getStatusText = (statusCode: string) => {

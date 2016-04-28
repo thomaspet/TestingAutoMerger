@@ -1,0 +1,72 @@
+<header class="invoice_poster" *ngIf="invoice">    
+    <article class="poster_toolbar">
+        <section>
+            <h1 *ngIf="invoice">{{invoice.Customer ? invoice.Customer.Info.Name : invoice.CustomerName}}</h1>            
+            <p>Fakturanr. {{invoice.InvoiceNumber}} <span  *ngIf="!itemsSummaryData">. Netto kr {{invoice.TaxExclusiveAmount}}</span> <span *ngIf="itemsSummaryData">. Netto kr {{itemsSummaryData.SumTotalExVat}}</span>. Status: {{ statusText }}</p>
+            <p></p>
+        </section>
+        <nav class="poster_toolbar_tools">
+            <a (click)="previousInvoice()"  class="previous">Forrige</a>
+            <a (click)="nextInvoice()"  class="next">Neste</a>
+            <a (click)="addInvoice()"  class="new">Ny ordre</a>
+        </nav>         
+    </article>       
+    
+     <!-- Widget poster -->
+    <section class="poster_overview">        
+        <uni-widget-poster [model]="invoice">
+            <section class="application">
+                widgetdata kommer her...
+            </section>
+        </uni-widget-poster>        
+    </section> 
+</header>
+
+<section class="invoice-details application">
+    <uni-component-loader></uni-component-loader>
+
+    <invoice-item-list [invoice]="invoice" (ItemsUpdated)="recalcItemSums($event)" (ItemsLoaded)="recalcItemSums($event)"></invoice-item-list>    
+    <section class="invoice-items-summary-placeholder" *ngIf="!itemsSummaryData" aria-busy>
+    
+    </section>
+    <section class="invoice-items-summary" *ngIf="itemsSummaryData">        
+        <section> 
+            Avgiftsfritt<br/>
+            {{itemsSummaryData.SumNoVatBasis}}
+        </section>
+        <section> 
+            Avgiftsgrunnlag<br/>
+            {{itemsSummaryData.SumVatBasis}}
+        </section>
+        <section> 
+            Sum rabatt<br/>
+            {{itemsSummaryData.SumDiscount}}
+        </section>
+        <section> 
+            Nettosum<br/>
+            {{itemsSummaryData.SumTotalExVat}}
+        </section>
+        <section> 
+            Mva<br/>
+            {{itemsSummaryData.SumVat}}
+        </section>
+        <section> 
+            Øreavrunding<br/>
+            {{itemsSummaryData.DecimalRounding}}
+        </section>
+        <section> 
+            Totalsum<br/>
+            {{itemsSummaryData.SumTotalIncVat}}
+        </section>      
+    </section>
+</section>
+
+<footer class="full-footer">
+    <section class="application">
+        <button class="good" (click)="saveInvoiceManual($event)">Lagre faktura</button>
+        <button class="good" (click)="saveInvoiceTransition($event, 'invoice')">Fakturer</button>
+        <section class="auto_save_info">
+            {{ lastSavedInfo }}    
+        </section>
+    </section>
+</footer>
