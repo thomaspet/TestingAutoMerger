@@ -66,7 +66,7 @@ export class UniMultiValue {
     // What should happen when the user clicks
     // the button next to the input?
     addOrDropdown() {  
-        if (this.config.model[this.config.field].length <= 1) {
+        if (this.config.model[this.config.field].length == 0) {
             this.addValue();
         } else {
             this.activeMultival = !this.activeMultival;
@@ -84,12 +84,44 @@ export class UniMultiValue {
         return true;
     }
 
+    // Add a new, blank value to the array.
+    addValue(event = null) {
+        var self = this;
+        this.config.model[this.config.field].push(this.placeholder());
+        var index = this.config.model[this.config.field].length - 1;
+        
+        if (this.config.editor) { // Use custom editor
+            this.ucl.load(this.config.editor).then((cmp: ComponentRef)=> {
+                cmp.instance.modalConfig.isOpen = true;
+                cmp.instance.modalConfig.model = self.config.model[self.config.field][index];
+                
+                cmp.instance.Changed.subscribe((model: any) => {
+                    self.config.model[self.config.field][index] = model;
+                    self.editindex = null;
+                });                
+            });                        
+        } else {
+            this.editindex = this.config.model[this.config.field].length - 1;
+            
+            setTimeout(() => {
+                self.editinputs.first.nativeElement.focus();            
+            });            
+        }
+        
+        if (event) { event.stopPropagation(); }
+        
+        return false;
+    };
+
     // Set the "editing" flag to the passed value
     // and unset it for all others.
     edit(index, event) {
         var self = this;
+        index = index || 0;
  
         if (this.config.editor) { // Use custom editor
+            event.stopPropagation();
+            console.log("== EDITINDEX " + this.editindex + " EDIT NOW: " + index);
             this.ucl.load(this.config.editor).then((cmp: ComponentRef)=> {
                 cmp.instance.modalConfig.isOpen = true;
                 cmp.instance.modalConfig.model = this.config.model[this.config.field][index];
@@ -99,7 +131,7 @@ export class UniMultiValue {
                     self.editindex = null;
                     self.activeMultival = false;
                     if (self.config.onChange) {
-                        self.config.onChange(model);   
+                        self.config.onChange(model); 
                     }
                 });    
             });                       
@@ -157,6 +189,7 @@ export class UniMultiValue {
 
     // Set the passed value as the main one.
     setAsDefault(row, index) {
+        console.log("== setAsDefault " + index);
         this.index = index;
         this.config.model[this.config.defaultfield] = row[this.config.kOptions.dataValueField];
         this.activeMultival = false;  
@@ -165,35 +198,6 @@ export class UniMultiValue {
         } 
     };
     
-    // Add a new, blank value to the array.
-    addValue(event = null) {
-        var self = this;
-        this.config.model[this.config.field].push(this.placeholder());
-        var index = this.config.model[this.config.field].length - 1;
-        
-        if (this.config.editor) { // Use custom editor
-            this.ucl.load(this.config.editor).then((cmp: ComponentRef)=> {
-                cmp.instance.modalConfig.isOpen = true;
-                cmp.instance.modalConfig.model = self.config.model[self.config.field][index];
-                
-                cmp.instance.Changed.subscribe((model: any) => {
-                    self.config.model[self.config.field][index] = model;
-                    self.editindex = null;
-                });                
-            });                        
-        } else {
-            this.editindex = this.config.model[this.config.field].length - 1;
-            
-            setTimeout(() => {
-                self.editinputs.first.nativeElement.focus();            
-            });            
-        }
-        
-        if (event) { event.stopPropagation(); }
-        
-        return false;
-    };
-
     // Operations to be performed on enter or blur
     save(row, event) {
         this.editindex = null;
