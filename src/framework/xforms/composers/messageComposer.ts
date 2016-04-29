@@ -1,12 +1,12 @@
-import {FieldLayout} from "../../../app/unientities";
-import {UniValidator} from "../validators";
+import {FieldLayout} from '../../../app/unientities';
+import {UniValidator} from '../validators';
 
 /**
  * Compose an object of messages like:
  *
  *     {
- *         "messageID1": "errroMessage1",
- *         "messageID2": "errroMessage2",
+ *         'messageID1': 'errroMessage1',
+ *         'messageID2': 'errroMessage2',
  *         ...
  *     }
  */

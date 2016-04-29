@@ -1,8 +1,7 @@
-import {Control} from "angular2/common";
-import {Validators} from "angular2/common";
+import {Control} from 'angular2/common';
 
 export function required(value = null, key: string) {
-    "use strict";
+    'use strict';
     return function validator(c: Control): any {
         if (c.value === null || c.value === '' || c.value === undefined) {
             let error = {};

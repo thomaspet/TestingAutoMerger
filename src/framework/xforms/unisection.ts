@@ -1,9 +1,10 @@
-import {Component, Input, Output, EventEmitter, QueryList, ViewChildren, ChangeDetectorRef, ChangeDetectionStrategy, SimpleChange} from "angular2/core";
-import {FORM_DIRECTIVES, FORM_PROVIDERS, ControlGroup} from "angular2/common";
-import {FieldLayout} from "../../app/unientities";
-import {UniField} from "../xforms/unifield";
-import {UniFieldSet} from "../xforms/unifieldset";
-declare var _; //lodash
+import {Component, Input, Output, EventEmitter, QueryList, ViewChildren, ChangeDetectorRef, ChangeDetectionStrategy, SimpleChange} from 'angular2/core';
+import {FORM_DIRECTIVES, FORM_PROVIDERS, ControlGroup} from 'angular2/common';
+import {FieldLayout} from '../../app/unientities';
+import {UniField} from '../xforms/unifield';
+import {UniFieldSet} from '../xforms/unifieldset';
+
+declare var _; // lodash
 
 @Component({
     selector: 'uni-section',

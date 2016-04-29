@@ -1,7 +1,7 @@
-import {Control} from "angular2/common";
+import {Control} from 'angular2/common';
 
 export function contains(value: string, key: string) {
-    "use strict";
+    'use strict';
     return function validator(c: Control): any {
         if (c.value.indexOf(value) > -1) {
             return null;
@@ -13,7 +13,7 @@ export function contains(value: string, key: string) {
 }
 
 export function eqLenght(value: number, key: string) {
-    "use strict";
+    'use strict';
     return function validator(c: Control): any {
         if (c.value.length === value) {
             return null;
@@ -25,7 +25,7 @@ export function eqLenght(value: number, key: string) {
 }
 
 export function maxLenght(value: number, key: string) {
-    "use strict";
+    'use strict';
     return function validator(c: Control): any {
         if (c.value.length < value) {
             return null;
@@ -37,7 +37,7 @@ export function maxLenght(value: number, key: string) {
 }
 
 export function minLength(value: number, key: string) {
-    "use strict";
+    'use strict';
     return function validator(c: Control): any {
         if (c.value.length > value) {
             return null;
@@ -49,10 +49,10 @@ export function minLength(value: number, key: string) {
 }
 
 export function match(value: RegExp|string, key: string) {
-    "use strict";
+    'use strict';
     return function validator(c: Control): any {
         var re: RegExp;
-        if (typeof value === "string") {
+        if (typeof value === 'string') {
             re = new RegExp(value);
         }
         if (re.test(c.value)) {

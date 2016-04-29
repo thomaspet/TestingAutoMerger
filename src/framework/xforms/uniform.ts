@@ -1,11 +1,11 @@
 import {
     Component, EventEmitter, Input, Output, ViewChildren, QueryList, SimpleChange
-} from "angular2/core";
-import {FORM_DIRECTIVES, FORM_PROVIDERS, ControlGroup, FormBuilder} from "angular2/common";
-import {FieldLayout} from "../../app/unientities";
-import {UniField} from "./unifield";
-import {UniFieldSet} from "./unifieldset";
-import {UniSection} from "./unisection";
+} from 'angular2/core';
+import {FORM_DIRECTIVES, FORM_PROVIDERS, ControlGroup, FormBuilder} from 'angular2/common';
+import {FieldLayout} from '../../app/unientities';
+import {UniField} from './unifield';
+import {UniFieldSet} from './unifieldset';
+import {UniSection} from './unisection';
 
 declare var _; // lodash
 
@@ -13,7 +13,7 @@ declare var _; // lodash
  * Form component that wraps form elements
  */
 @Component({
-    selector: "uni-form",
+    selector: 'uni-form',
     directives: [FORM_DIRECTIVES, UniField, UniFieldSet, UniSection],
     providers: [FORM_PROVIDERS],
     template: `
@@ -71,12 +71,6 @@ export class UniForm {
     @ViewChildren(UniSection)
     public sectionElements: QueryList<UniSection>;
 
-    private controls: ControlGroup;
-
-    private _fields: { [propKey: string]: UniField } = {};
-
-    private groupedFields: any[];
-
     public get Fields(): { [propKey: string]: UniField } {
         if (this._fields) {
             return this._fields;
@@ -84,6 +78,10 @@ export class UniForm {
         // set fields
         return this._fields;
     }
+
+    private controls: ControlGroup;
+    private _fields: { [propKey: string]: UniField } = {};
+    private groupedFields: any[];
 
     constructor(private builder: FormBuilder) {
 

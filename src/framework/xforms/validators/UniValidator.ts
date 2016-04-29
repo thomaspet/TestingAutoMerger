@@ -1,4 +1,4 @@
-import {UniValidationOperators} from "../validators";
+import {UniValidationOperators} from '../validators';
 
 export class UniValidator {
     public EntityType: string;
