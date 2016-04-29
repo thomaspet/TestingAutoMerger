@@ -1,4 +1,4 @@
-import {Component, Input, Output, EventEmitter, ViewChildren, QueryList, SimpleChange, ChangeDetectionStrategy} from "angular2/core";
+import {Component, Input, Output, EventEmitter, ViewChildren, QueryList, SimpleChange, ChangeDetectionStrategy, ChangeDetectorRef} from "angular2/core";
 import {FORM_DIRECTIVES, FORM_PROVIDERS, ControlGroup} from "angular2/common";
 import {FieldLayout} from "../../app/unientities";
 import {UniField} from "../xforms/unifield";
@@ -43,7 +43,7 @@ export class UniFieldSet {
     public sectionId: number;
     public config: any;
 
-    constructor() { }
+    constructor(private cd: ChangeDetectorRef) { }
 
     public ngOnChanges(changes: { [propKey: string]: SimpleChange }) {
         if (changes['fields']) {
@@ -65,12 +65,26 @@ export class UniFieldSet {
                 ready++;
                 if (ready === fields.length) {
                     self.onReady.emit(this);
-                }        
+                }
             });
         });
     }
 
-    public getElement(property: string): UniField {
+    public readMode() {
+        this.fieldElements.forEach((f: UniField) => {
+            f.readMode();
+            this.cd.markForCheck();
+        });        
+    }
+
+    public editMode() {
+        this.fieldElements.forEach((f: UniField) => {
+            f.editMode();
+            this.cd.markForCheck();
+        });
+    }
+
+    public field(property: string): UniField {
         // look after fields
         var item: UniField[] = this.fieldElements.filter((cmp: UniField) => {
             return cmp.field.Property === property;

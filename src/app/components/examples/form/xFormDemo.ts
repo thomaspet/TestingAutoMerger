@@ -43,9 +43,6 @@ export class XFormDemo {
         this.config = {
             submitText: 'Enviar'
         };
-        setTimeout(() => {
-            this.api.get(2).toPromise().then((employee: any) => self.employee = employee);
-        }, 1000);
     }
 
     public submit(value) {
@@ -54,9 +51,16 @@ export class XFormDemo {
 
     public ready(value) {
         console.log('Ready:', value);
-        this.fields.forEach((element: FieldLayout) => {
-            console.log(element.Property, this.uniform.element(element.Property));
-        });
+        var self = this;
+        setTimeout(() => {
+            self.api.get(2).toPromise().then((employee: any) => self.employee = employee);
+        }, 1000);
+        setTimeout(() => {
+            self.uniform.readMode();
+        }, 2000);
+        setTimeout(() => {
+            self.uniform.editMode();
+        }, 4000);
     }
 
     public change(value) {

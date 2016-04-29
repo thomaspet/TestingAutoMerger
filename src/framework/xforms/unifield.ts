@@ -3,6 +3,9 @@ import {FORM_DIRECTIVES, FORM_PROVIDERS, ControlGroup, Control} from 'angular2/c
 import {FieldLayout} from '../../app/unientities';
 import {UniComponentLoader} from '../core/componentLoader';
 import {UNI_CONTROL_DIRECTIVES} from '../controls';
+import {MessageComposer} from './composers/messageComposer';
+import {ValidatorsComposer} from './composers/validatorsComposer';
+
 declare var _; // lodash
 
 @Component({
@@ -11,6 +14,7 @@ declare var _; // lodash
         <label ngForm *ngIf="isInput()" [class.error]="hasError()" [class]="buildClassString()" [class.-has-linebreak]="hasLineBreak()">
             <span>{{field.Label}}</span>
             <uni-component-loader [type]="ComponentType"></uni-component-loader>
+            <show-error [control]="component?.control" [messages]="messages"></show-error>
         </label>
     `,
     changeDetection: ChangeDetectionStrategy.OnPush,
@@ -37,9 +41,37 @@ export class UniField {
 
     public classes: (string | Function)[] = [];
 
-    public component: any;
+    public messages: {};
+
+    private component: any;
+
+    public get Component() { return this.component; }
 
     constructor(private ref: ChangeDetectorRef) {}
+
+    public setFocus() {
+        if (this.Component.setFocus) {
+            this.Component.setFocus();
+        }
+    }
+
+    public readMode() {
+        if (this.Component.readMode) {
+            this.Component.readMode();
+            this.ref.markForCheck();
+        }
+    }
+    
+    public editMode() {
+        if (this.Component.editMode) {
+            this.Component.editMode();
+            this.ref.markForCheck();
+        }
+    }
+
+    public addClass(name:string,value:any) {
+        this.classes[name] = value;
+    }
 
     public ngOnChanges(changes: { [propKey: string]: SimpleChange }) {
         if (this.ucl) {
@@ -55,8 +87,12 @@ export class UniField {
         var self = this;
         
         var value = _.get(this.model, this.field.Property);
-        var control = new Control(value);
         
+        this.messages = MessageComposer.composeMessages(this.field);
+        
+        var syncvalidators = ValidatorsComposer.composeSyncValidators(this.field);
+        var asyncvalidators = ValidatorsComposer.composeAsyncValidators(this.field);        
+        var control = new Control(value, syncvalidators, asyncvalidators);
         this.controls.addControl(this.field.Property, control);
         control.valueChanges.subscribe((newValue: any) => {
             if (control.valid) {
@@ -91,7 +127,10 @@ export class UniField {
         return this.field.FieldType === 9;
     }
     private hasError() {
-        // TODO: Should access to the component and check the control
+        if (this.Component) {
+            return !this.Component.control.valid;
+        }
+        return false;
     }
     private buildClassString() {
         // TODO: add classess

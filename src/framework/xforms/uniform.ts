@@ -73,13 +73,13 @@ export class UniForm {
 
     private controls: ControlGroup;
 
-    private _fields: { [propKey: string]: UniField};
+    private _fields: { [propKey: string]: UniField } = {};
 
     private groupedFields: any[];
 
-    public get Fields():  { [propKey: string]: UniField } {
+    public get Fields(): { [propKey: string]: UniField } {
         if (this._fields) {
-            return this._fields;    
+            return this._fields;
         }
         // set fields
         return this._fields;
@@ -109,7 +109,13 @@ export class UniForm {
         let fieldsets = this.fieldsetElements.toArray();
         let fields = this.fieldElements.toArray();
         let all = [].concat(fields, fieldsets, sections);
-        
+
+        // cache fields;
+        this.fields.forEach((field: FieldLayout) => {
+            this._fields[field.Property] = this.field(field.Property);
+        });
+
+        // emit ready when every component is ready
         all.forEach((item: any) => {
             item.onReady.subscribe(() => {
                 ready++;
@@ -118,6 +124,17 @@ export class UniForm {
                 }
             });
         });
+    }
+
+    public readMode() {
+        this.fieldElements.forEach((f) => f.readMode());
+        this.fieldsetElements.forEach((fs) => fs.readMode());
+        this.sectionElements.forEach((s) => s.readMode());
+    }
+    public editMode() {
+        this.fieldElements.forEach((f) => f.editMode());
+        this.fieldsetElements.forEach((fs) => fs.editMode());
+        this.sectionElements.forEach((s) => s.editMode());
     }
 
     public section(id: number) {
@@ -129,7 +146,30 @@ export class UniForm {
         }
     }
 
-    public element(property: string): UniField {
+    public fieldset(fieldsetId: number, sectionId?: number) {
+        if (!sectionId) {
+            var item: UniFieldSet[] = this.fieldsetElements.filter((fieldset: UniFieldSet) => {
+                return fieldset.fieldsetId === fieldsetId;
+            });
+            if (item.length > 0) {
+                return item[0];
+            }
+            return;
+        } else {
+            var section: UniSection = this.section(sectionId);
+            if (section) {
+                var fieldset: UniFieldSet[] = section.fieldsetElements.filter((fs: UniFieldSet) => {
+                    return fs.fieldsetId === fieldsetId;
+                });
+                if (fieldset.length > 0) {
+                    return fieldset[0];
+                }
+            }
+            return;
+        }
+    }
+
+    public field(property: string): UniField {
         // Look inside top level fields;
         var item: UniField[] = this.fieldElements.filter((cmp: UniField) => {
             return cmp.field.Property === property;
@@ -152,7 +192,7 @@ export class UniForm {
         // Look inside sections
         this.sectionElements.forEach((cmp: UniSection) => {
             if (!element) {
-                element = cmp.getElement(property);
+                element = cmp.field(property);
             }
         });
         if (element) {

@@ -76,7 +76,7 @@ export class UniSection {
         let fieldsets = this.fieldsetElements.toArray();
         let fields = this.fieldElements.toArray();
         let all = [].concat(fields, fieldsets);
-        
+
         all.forEach((item: any) => {
             item.onReady.subscribe(() => {
                 ready++;
@@ -90,6 +90,56 @@ export class UniSection {
     public toggle() {
         this.isOpen = !this.isOpen;
         this.cd.markForCheck();
+    }
+
+    public readMode() {
+        this.fieldsetElements.forEach((fs: UniFieldSet) => {
+            fs.readMode();    
+        });
+        this.fieldElements.forEach((f: UniField) => {
+            f.readMode();
+        });
+        this.cd.markForCheck();
+    }
+    
+    public editMode() {
+        this.fieldsetElements.forEach((fs: UniFieldSet) => {
+            fs.editMode();    
+        });
+        this.fieldElements.forEach((f: UniField) => {
+            f.editMode();
+        });
+        this.cd.markForCheck();
+    }
+    
+    public section(sectionId?: number) {
+        let fieldset: UniFieldSet[] = this.fieldsetElements.filter((fs: UniFieldSet) => {
+            return fs.sectionId === sectionId;
+        });
+        return fieldset.length > 0 ? fieldset[0] : undefined;
+    }
+
+    public field(property: string) {
+        // look into top lever fields
+        var item: UniField[] = this.fieldElements.filter((cmp: UniField) => {
+            return cmp.field.Property === property;
+        });
+        if (item.length > 0) {
+            return item[0];
+        }
+
+        // Look inside fieldsets
+        var element: UniField;
+        this.fieldsetElements.forEach((cmp: UniFieldSet) => {
+            if (!element) {
+                element = cmp.field(property);
+            }
+        });
+        if (element) {
+            return element;
+        }
+
+        return;
     }
 
     private isField(field: FieldLayout): boolean {
@@ -125,28 +175,5 @@ export class UniSection {
             group.push(fieldset);
         }
         return group;
-    }
-
-    public getElement(property: string) {
-        // look into top lever fields
-        var item: UniField[] = this.fieldElements.filter((cmp: UniField) => {
-            return cmp.field.Property === property;
-        });
-        if (item.length > 0) {
-            return item[0];
-        }
-
-        // Look inside fieldsets
-        var element: UniField;
-        this.fieldsetElements.forEach((cmp: UniFieldSet) => {
-            if (!element) {
-                element = cmp.getElement(property);
-            }
-        });
-        if (element) {
-            return element;
-        }
-
-        return;
     }
 }

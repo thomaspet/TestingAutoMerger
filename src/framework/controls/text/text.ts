@@ -27,7 +27,7 @@ export class UniTextInput {
 
     @Output()
     public onReady: EventEmitter<any> = new EventEmitter<any>(true);
-    public isReady = true;
+    public isReady: boolean = true;
     
     get OnValueChanges() {
         return this.control.valueChanges;
@@ -44,7 +44,15 @@ export class UniTextInput {
         jQuery(this.elementRef).focus();
         return this;
     }
+    
+    public editMode() {
+        this.field.ReadOnly = false;    
+    }
 
+    public readMode() {
+        this.field.ReadOnly = true;
+    }
+    
     public ngAfterViewInit() {
         this.onReady.emit(this);
         this.isReady = true;
