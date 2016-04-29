@@ -4,7 +4,7 @@
     <button class="uni-multivalue-moreBtn" (click)="addOrDropdown(inputVal)">Add</button>
 
     <ul class="uni-multivalue-values" [class.-is-active]="activeMultival">
-        <li *ngFor="#value of values" [class.-is-main]="value.main">
+        <li *ngFor="let value of values" [class.-is-main]="value.main">
 
             <div *ngIf="!value.timeout">
                 <div class="uni-multivalue_edit" *ngIf="value.editing">

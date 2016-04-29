@@ -11,7 +11,7 @@ declare var jQuery;
         <section class="poster_tags">
 
             <ul class="poster_tags_list">
-                <li *ngFor="#category of selectedEmployee.EmployeeCategories">{{category.Name}} 
+                <li *ngFor="let category of selectedEmployee.EmployeeCategories">{{category.Name}} 
                 <button class="remove" (click)="removeCategory(category)">Remove</button></li>
             </ul>
 
@@ -22,7 +22,7 @@ declare var jQuery;
                 [(ngModel)]="newTag" (keyup)="presentResults(newTag)" autofocus/>
 
                 <ul (click)="addingTags = false; newTag = ''" *ngIf="newTag">
-                    <li *ngFor="#result of results" (click)="addCategory(result.Name)">{{result.Name}}</li>
+                    <li *ngFor="let result of results" (click)="addCategory(result.Name)">{{result.Name}}</li>
                     <li class="poster_tags_addNew" (click)="addCategoryAndSave(newTag)">
                     Legg til <strong>‘{{newTag}}’</strong>…</li>
                 </ul>

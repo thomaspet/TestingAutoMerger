@@ -27,7 +27,7 @@
      <router-outlet></router-outlet>
 <uni-component-loader></uni-component-loader>
 
-    <section class="uni-card" *ngFor="#config of formCfg #index = index">
+    <section class="uni-card" *ngFor="let config of formCfg #index = index">
         <header class="uni-card_header">
             <h1>{{config.fields[0].model.WageTypeName}}</h1>
         </header>

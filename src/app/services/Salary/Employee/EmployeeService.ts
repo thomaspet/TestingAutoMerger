@@ -81,7 +81,7 @@ export class EmployeeService extends BizHttp<Employee> {
     }
     
     public layout(layoutID: string) {
-        return Observable.fromArray([{
+        return Observable.from([{
             Name: layoutID,
             BaseEntity: 'Employee',
             Fields: [

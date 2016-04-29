@@ -18,7 +18,7 @@ declare var _; // lodash
     providers: [FORM_PROVIDERS],
     template: `
         <form (submit)="submit($event)" [ngFormModel]="controls">
-            <template ngFor #item [ngForOf]="groupedFields" #i="index">
+            <template ngFor let-item [ngForOf]="groupedFields" let-i="index">
                 <uni-field 
                     *ngIf="isField(item)"
                     [controls]="controls"
@@ -73,7 +73,17 @@ export class UniForm {
 
     private controls: ControlGroup;
 
+    private _fields: { [propKey: string]: UniField};
+
     private groupedFields: any[];
+
+    public get Fields():  { [propKey: string]: UniField } {
+        if (this._fields) {
+            return this._fields;    
+        }
+        // set fields
+        return this._fields;
+    }
 
     constructor(private builder: FormBuilder) {
 
@@ -93,19 +103,33 @@ export class UniForm {
     }
 
     public ngAfterViewInit() {
-        this.onReady.emit(this);
+        let self = this;
+        let ready = 0;
+        let sections = this.sectionElements.toArray();
+        let fieldsets = this.fieldsetElements.toArray();
+        let fields = this.fieldElements.toArray();
+        let all = [].concat(fields, fieldsets, sections);
+        
+        all.forEach((item: any) => {
+            item.onReady.subscribe(() => {
+                ready++;
+                if (ready === all.length) {
+                    self.onReady.emit(self);
+                }
+            });
+        });
     }
 
-    public toggleSection(id: number) {
+    public section(id: number) {
         var item: UniSection[] = this.sectionElements.filter((section: UniSection) => {
             return section.sectionId === id;
         });
-        if (item.length === 1) {
-            item[0].toggle();
+        if (item.length > 0) {
+            return item[0];
         }
     }
 
-    public getElement(property: string): UniField {
+    public element(property: string): UniField {
         // Look inside top level fields;
         var item: UniField[] = this.fieldElements.filter((cmp: UniField) => {
             return cmp.field.Property === property;

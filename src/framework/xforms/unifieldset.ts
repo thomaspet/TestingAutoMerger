@@ -1,4 +1,4 @@
-import {Component, Input, ViewChildren, QueryList, SimpleChange, ChangeDetectionStrategy} from "angular2/core";
+import {Component, Input, Output, EventEmitter, ViewChildren, QueryList, SimpleChange, ChangeDetectionStrategy} from "angular2/core";
 import {FORM_DIRECTIVES, FORM_PROVIDERS, ControlGroup} from "angular2/common";
 import {FieldLayout} from "../../app/unientities";
 import {UniField} from "../xforms/unifield";
@@ -9,7 +9,7 @@ declare var _; //lodash
     template: `
         <fieldset>
             <legend *ngIf="config.legend">{{config.legend}}</legend>
-            <template ngFor #field [ngForOf]="fields" #i="index">
+            <template ngFor let-field [ngForOf]="fields" let-i="index">
                 <uni-field
                     [controls]="controls"
                     [field]="field" 
@@ -33,6 +33,9 @@ export class UniFieldSet {
     @Input()
     public model: any;
 
+    @Output()
+    public onReady: EventEmitter<UniFieldSet> = new EventEmitter<UniFieldSet>(true);
+
     @ViewChildren(UniField)
     public fieldElements: QueryList<UniField>;
 
@@ -51,6 +54,20 @@ export class UniFieldSet {
                 this.config.legend = this.fields[0].Legend;
             }
         }
+    }
+
+    public ngAfterViewInit() {
+        var self = this;
+        var ready = 0;
+        var fields = this.fieldElements.toArray();
+        fields.forEach((field: UniField) => {
+            field.onReady.subscribe((field: UniField) => {
+                ready++;
+                if (ready === fields.length) {
+                    self.onReady.emit(this);
+                }        
+            });
+        });
     }
 
     public getElement(property: string): UniField {

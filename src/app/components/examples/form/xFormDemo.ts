@@ -1,4 +1,4 @@
-import {Component} from "angular2/core";
+import {Component, ViewChild} from "angular2/core";
 import {EmployeeService} from "../../../services/Salary/Employee/EmployeeService";
 import {UniForm} from "../../../../framework/xforms/uniform";
 import {Employee} from "../../../unientities";
@@ -31,6 +31,9 @@ export class XFormDemo {
     public config: any = {};
     public fields: any[] = [];
 
+    @ViewChild(UniForm)
+    public uniform: UniForm;
+
     constructor(private api: EmployeeService) {
         let self = this;
         this.api.get(1).toPromise().then((employee: Employee) => self.employee = employee);
@@ -51,6 +54,9 @@ export class XFormDemo {
 
     public ready(value) {
         console.log('Ready:', value);
+        this.fields.forEach((element: FieldLayout) => {
+            console.log(element.Property, this.uniform.element(element.Property));
+        });
     }
 
     public change(value) {

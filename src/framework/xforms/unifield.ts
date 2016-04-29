@@ -1,4 +1,4 @@
-import {Component, Input, ViewChild, ChangeDetectorRef, ComponentRef, SimpleChange, ChangeDetectionStrategy} from 'angular2/core';
+import {Component, Input, Output, EventEmitter, ViewChild, ChangeDetectorRef, SimpleChange, ChangeDetectionStrategy} from 'angular2/core';
 import {FORM_DIRECTIVES, FORM_PROVIDERS, ControlGroup, Control} from 'angular2/common';
 import {FieldLayout} from '../../app/unientities';
 import {UniComponentLoader} from '../core/componentLoader';
@@ -26,6 +26,9 @@ export class UniField {
 
     @Input()
     public model: any;
+
+    @Output()
+    public onReady: EventEmitter<UniField> = new EventEmitter<UniField>(true);
 
     @ViewChild(UniComponentLoader)
     public ucl: UniComponentLoader;
@@ -64,6 +67,7 @@ export class UniField {
             this.component.field = self.field;
             this.component.control = control;
             this.component.model = self.model;
+            this.onReady.emit(this);
         } else {
             this.ucl.onLoad.subscribe((cmp) => {
                 cmp.field = self.field;
@@ -71,6 +75,7 @@ export class UniField {
                 cmp.model = self.model;
                 self.component = cmp;
                 self.ref.markForCheck(); // first time we say we should hydratate component
+                self.onReady.emit(self);
             });
         }
         

@@ -4,6 +4,7 @@ import {Router, RouteParams} from 'angular2/router';
 import {WageTypeService, EmploymentService} from '../../../../services/services';
 import {WageType} from '../../../../unientities';
 import {Observable} from 'rxjs/Observable';
+import {ParamsService} from '../../../../services/ParamsService';
 declare var _;
 
 @Component({
@@ -19,9 +20,13 @@ export class RecurringPost implements OnInit {
     private wagetypes: any[];
     private employments: any[];
     
-    constructor(public injector: Injector, public routr: Router, private wagetypeService: WageTypeService, private employmentService: EmploymentService) {
-        var routeParams = this.injector.parent.parent.get(RouteParams);
-        this.employeeID = +routeParams.get('id');
+    constructor(
+        private params: ParamsService, 
+        public routr: Router, 
+        private wagetypeService: WageTypeService, 
+        private employmentService: EmploymentService
+        ) {
+        this.employeeID = params.get('EmployeeID');
     }
     
     public ngOnInit() {

@@ -1,4 +1,4 @@
-import {Component, Input, QueryList, ViewChildren, ChangeDetectorRef, ChangeDetectionStrategy, SimpleChange} from "angular2/core";
+import {Component, Input, Output, EventEmitter, QueryList, ViewChildren, ChangeDetectorRef, ChangeDetectionStrategy, SimpleChange} from "angular2/core";
 import {FORM_DIRECTIVES, FORM_PROVIDERS, ControlGroup} from "angular2/common";
 import {FieldLayout} from "../../app/unientities";
 import {UniField} from "../xforms/unifield";
@@ -11,7 +11,7 @@ declare var _; //lodash
         <article class="collapsable" [ngClass]="{'-is-open':isOpen}">
             <h4 *ngIf="config.legend" (click)="toggle()">{{config.legend}}</h4>
             <div class="collapsable-content">
-                <template ngFor #item [ngForOf]="groupedFields" #i="index">
+                <template ngFor let-item [ngForOf]="groupedFields" let-i="index">
                     <uni-field 
                         *ngIf="isField(item)"
                         [controls]="controls"
@@ -42,16 +42,21 @@ export class UniSection {
     @Input()
     public model: any;
 
+    @Output()
+    public onReady: EventEmitter<UniSection> = new EventEmitter<UniSection>(true);
+
     @ViewChildren(UniField)
     public fieldElements: QueryList<UniField>;
 
-    @ViewChildren(UniField)
+    @ViewChildren(UniFieldSet)
     public fieldsetElements: QueryList<UniFieldSet>;
 
     public sectionId: number;
+    public isOpen: boolean = false;
+
     private groupedFields: any;
     private config: any = {};
-    public isOpen: boolean = false;
+
     constructor(private cd: ChangeDetectorRef) { }
 
     public ngOnChanges(changes: { [propKey: string]: SimpleChange }) {
@@ -63,6 +68,23 @@ export class UniSection {
             }
             this.groupedFields = this.groupFields();
         }
+    }
+
+    public ngAfterViewInit() {
+        let self = this;
+        let ready = 0;
+        let fieldsets = this.fieldsetElements.toArray();
+        let fields = this.fieldElements.toArray();
+        let all = [].concat(fields, fieldsets);
+        
+        all.forEach((item: any) => {
+            item.onReady.subscribe(() => {
+                ready++;
+                if (ready === all.length) {
+                    self.onReady.emit(self);
+                }
+            });
+        });
     }
 
     public toggle() {

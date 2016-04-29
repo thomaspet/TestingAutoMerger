@@ -7,7 +7,7 @@ import {FileUploadService} from './FileUploadService';
     directives: [CORE_DIRECTIVES, FORM_DIRECTIVES],
     template: `
         <ul *ngIf="service.Slots">
-            <li *ngFor="#slot of service.Slots">
+            <li *ngFor="let slot of service.Slots">
                 <a (click)="open(slot)">{{slot.Name}}</a>
                 <button (click)="delete(slot)">Delete</button>
             </li>

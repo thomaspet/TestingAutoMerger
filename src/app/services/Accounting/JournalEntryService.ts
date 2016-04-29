@@ -1,7 +1,7 @@
 import {Account, VatType, Dimensions} from '../../unientities';
 import {JournalEntryData} from '../../models/accounting/journalentrydata';
 import {Observable} from "rxjs/Observable";
-import "rxjs/add/observable/fromArray";
+import "rxjs/add/observable/from";
 import {BizHttp} from '../../../framework/core/http/BizHttp';
 import {JournalEntry} from '../../unientities';
 import {UniHttp} from '../../../framework/core/http/http';
@@ -46,7 +46,7 @@ export class JournalEntryService extends BizHttp<JournalEntry> {
     }      
     
     getAggregatedData() : Observable<any> {
-        return Observable.fromArray([[JournalEntryService.getSomeNewDataForMe(), JournalEntryService.getSomeNewDataForMe(), JournalEntryService.getSomeNewDataForMe()]]);
+        return Observable.from([[JournalEntryService.getSomeNewDataForMe(), JournalEntryService.getSomeNewDataForMe(), JournalEntryService.getSomeNewDataForMe()]]);
     }
     
     public static getSomeNewDataForMe() : JournalEntryData {
