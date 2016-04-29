@@ -205,18 +205,22 @@ export class InvoiceDetails {
                 console.log('Feil oppstod ved ' + transition + ' transition', err);
                 this.log(err);
             });
-        });          
+        }, transition);          
     }
     
     saveInvoiceManual(event: any) {        
         this.saveInvoice();
     }
 
-    saveInvoice(cb = null) {
+    saveInvoice(cb = null, transition = '') {
         this.formInstance.sync();        
         this.lastSavedInfo = 'Lagrer faktura...';
         this.invoice.TaxInclusiveAmount = -1; // TODO in AppFramework, does not save main entity if just items have changed
-        
+               
+        if (transition == 'invoice' && this.invoice.DeliveryDate == null) {
+            this.invoice.DeliveryDate = moment();
+        }
+
         this.customerInvoiceService.Put(this.invoice.ID, this.invoice)
             .subscribe(
                 (invoice: CustomerInvoice) => {  
