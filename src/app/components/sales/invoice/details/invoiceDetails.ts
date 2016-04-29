@@ -205,18 +205,22 @@ export class InvoiceDetails {
                 console.log('Feil oppstod ved ' + transition + ' transition', err);
                 this.log(err);
             });
-        });          
+        }, transition);          
     }
     
     saveInvoiceManual(event: any) {        
         this.saveInvoice();
     }
 
-    saveInvoice(cb = null) {
+    saveInvoice(cb = null, transition = '') {
         this.formInstance.sync();        
         this.lastSavedInfo = 'Lagrer faktura...';
         this.invoice.TaxInclusiveAmount = -1; // TODO in AppFramework, does not save main entity if just items have changed
-        
+               
+        if (transition == 'invoice' && this.invoice.DeliveryDate == null) {
+            this.invoice.DeliveryDate = moment();
+        }
+
         this.customerInvoiceService.Put(this.invoice.ID, this.invoice)
             .subscribe(
                 (invoice: CustomerInvoice) => {  
@@ -289,8 +293,8 @@ export class InvoiceDetails {
         var creditdays: UniFieldBuilder = this.formConfig.find('CreditDays');
         creditdays.ready.subscribe((component)=>{
             component.config.control.valueChanges.subscribe(days => {
-                if (days && Number(days) != 0) {
-                    this.invoice.PaymentDueDate = moment(this.invoice.InvoiceDate).add(Number(days), 'days').toDate();
+                if (days) {
+                    this.invoice.PaymentDueDate = moment(this.invoice.InvoiceDate).startOf('day').add(Number(days), 'days').toDate();
                     paymentduedate.refresh(this.invoice.PaymentDueDate);                   
                 }
             });
@@ -298,7 +302,7 @@ export class InvoiceDetails {
         paymentduedate.ready.subscribe((component)=>{
            component.config.control.valueChanges.subscribe(date => {
               if (date) {
-                var newdays = moment(date || this.invoice.InvoiceDate).diff(this.invoice.InvoiceDate, 'days');
+                var newdays = moment(date).startOf('day').diff(moment(this.invoice.InvoiceDate).startOf('day'), 'days');
                 if (newdays != this.invoice.CreditDays) {
                     this.invoice.CreditDays = newdays;              
                     creditdays.refresh(this.invoice.CreditDays);
