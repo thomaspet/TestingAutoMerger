@@ -5,6 +5,7 @@ import {Employee} from "../../../unientities";
 import {Observable} from "rxjs/Observable";
 import {NgIf} from "angular2/common";
 import {FieldLayout} from "../../../unientities";
+
 declare var _;
 
 @Component({
@@ -56,11 +57,18 @@ export class XFormDemo {
             self.api.get(2).toPromise().then((employee: any) => self.employee = employee);
         }, 1000);
         setTimeout(() => {
-            self.uniform.readMode();
+            self.uniform.section(1).toggle();
         }, 2000);
         setTimeout(() => {
-            self.uniform.editMode();
+            self.employee.BusinessRelationInfo.Name = 'Jorge Ferrando';
+            self.employee = _.cloneDeep(self.employee);
+        }, 3000);  
+        setTimeout(() => {
+            self.uniform.readMode();
         }, 4000);
+        setTimeout(() => {
+            self.uniform.editMode();
+        }, 5000);             
     }
 
     public change(value) {
