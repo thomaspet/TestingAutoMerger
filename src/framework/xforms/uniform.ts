@@ -182,7 +182,7 @@ export class UniForm {
         var element: UniField;
         this.fieldsetElements.forEach((cmp: UniFieldSet) => {
             if (!element) {
-                element = cmp.getElement(property);
+                element = cmp.field(property);
             }
         });
         if (element) {
