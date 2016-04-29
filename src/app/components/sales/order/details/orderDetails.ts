@@ -8,6 +8,7 @@ import {OrderItemList} from './orderItemList';
 import {OrderToInvoiceModal} from '../modals/ordertoinvoice';
 
 import {FieldType, FieldLayout, ComponentLayout, CustomerOrder, CustomerOrderItem, Customer, Departement, Project, Address, BusinessRelation} from '../../../../unientities';
+import {StatusCodeCustomerOrder} from '../../../../unientities';
 import {UNI_CONTROL_DIRECTIVES} from '../../../../../framework/controls';
 import {UniFormBuilder} from '../../../../../framework/forms/builders/uniFormBuilder';
 import {UniFormLayoutBuilder} from '../../../../../framework/forms/builders/uniFormLayoutBuilder';
@@ -19,16 +20,6 @@ import {AddressModal} from '../../customer/modals/address/address';
 import {TradeHeaderCalculationSummary} from '../../../../models/sales/TradeHeaderCalculationSummary';
 
 declare var _;
-
-// possible remove if we could get it from unitentities
-enum StatusCodeCustomerOrder
-{
-    Draft = 41001,
-    Registered = 41002,
-    PartlyTransferredToInvoice = 41003,
-    TransferredToInvoice = 41004,
-    Completed = 41005
-};
      
 @Component({
     selector: 'order-details',
@@ -72,7 +63,10 @@ export class OrderDetails {
                 private addressService: AddressService, 
                 private router: Router, private params: RouteParams) {                
         this.OrderID = params.get('id');
-        console.log('orderdetails constructor');
+    }
+    
+    log(err) {
+        alert(err._body);
     }
     
     isActive(instruction: any[]): boolean {
@@ -92,7 +86,7 @@ export class OrderDetails {
                 this.customers = response[3];
             //    this.EmptyAddress = response[4];                
                 this.EmptyAddress = new Address();
-                                    
+                                                                   
                 this.updateStatusText();
                 this.addAddresses();                                                                               
                 this.createFormConfig();
@@ -144,7 +138,10 @@ export class OrderDetails {
             
             this.customerOrderService.calculateOrderSummary(orderItems)
             .subscribe((data) => this.itemsSummaryData = data,
-                       (err) => console.log('Error when recalculating items:',err)); 
+                       (err) => { 
+                           console.log('Error when recalculating items:',err);
+                           this.log(err);
+                       })
         }, 2000); 
     }
     
@@ -153,24 +150,43 @@ export class OrderDetails {
     }
     
     saveAndTransferToInvoice(event: any) {
-        //this.saveOrder(order => {
-        //    
-        //});
-        
         this.oti.Changed.subscribe(items => {
-            console.log("== LINES TO TRANSFER ==");
-            console.log(items);            
+            var order : CustomerOrder = _.cloneDeep(this.order);
+            order.Items = items;
+            
+            this.customerOrderService.ActionWithBody(order.ID, order, "transfer-to-invoice").subscribe((invoice) => {
+                this.router.navigateByUrl('/sales/invoice/details/' + invoice.ID);
+            }, (err) => {
+                console.log("== TRANSFER-TO-INVOICE FAILED ==");
+                this.log(err);
+            });
         });
-        this.oti.openModal(this.order);
+
+        this.saveOrder(order => {
+            this.oti.openModal(this.order);            
+        });        
+    }
+    
+    saveOrderTransition(event: any, transition: string) {
+        this.saveOrder((order) => {
+            this.customerOrderService.Transition(this.order.ID, this.order, transition).subscribe((x) => {
+              console.log("== TRANSITION OK " + transition + " ==");
+              
+              this.customerOrderService.Get(order.ID, ['Dimensions','Items','Items.Product','Items.VatType', 'Customer', 'Customer.Info', 'Customer.Info.Addresses']).subscribe((order) => {
+                this.order = order;
+                this.updateStatusText();
+              });
+            }, (err) => {
+                console.log('Feil oppstod ved ' + transition + ' transition', err);
+                this.log(err);
+            });
+        });          
     }
 
     saveOrder(cb = null) {
         this.formInstance.sync();        
         this.lastSavedInfo = 'Lagrer ordre...';
-        
-        if (this.order.StatusCode == null) {        
-            this.order.StatusCode = StatusCodeCustomerOrder.Draft; // TODO: remove done in presave soon
-        }
+        this.order.TaxInclusiveAmount = -1; // TODO in AppFramework, does not save main entity if just items have changed
                 
         this.customerOrderService.Put(this.order.ID, this.order)
             .subscribe(
@@ -180,7 +196,10 @@ export class OrderDetails {
                     this.updateStatusText();
                     if (cb) cb(order);    
                 },
-                (err) => console.log('Feil oppsto ved lagring', err)
+                (err) => { 
+                    console.log('Feil oppsto ved lagring', err);
+                    this.log(err);
+                }
             );
     }
              
@@ -204,15 +223,18 @@ export class OrderDetails {
     }
     
     addOrder() {
-        var cq = this.customerOrderService.newCustomerOrder();
-        
-        this.customerOrderService.Post(cq)
-            .subscribe(
-                (data) => {
-                    this.router.navigateByUrl('/sales/order/details/' + data.ID);        
-                },
-                (err) => console.log('Error creating order: ', err)
-            );      
+        this.customerOrderService.newCustomerOrder().then(order => {
+            this.customerOrderService.Post(order)
+                .subscribe(
+                    (data) => {
+                        this.router.navigateByUrl('/sales/order/details/' + data.ID);        
+                    },
+                    (err) => { 
+                        console.log('Error creating order: ', err);
+                        this.log(err);
+                    }
+                );
+        });           
     }
         
     createFormConfig() {   
@@ -287,6 +309,7 @@ export class OrderDetails {
             
             self.customerService.Get(customerID, ['Info', 'Info.Addresses']).subscribe((customer) => {
                 self.order.Customer = customer;
+                self.order.CustomerName = customer.Info.Name;
                 self.addAddresses();           
                 invoiceaddress.refresh(self.businessRelationInvoice);
                 shippingaddress.refresh(self.businessRelationShipping);

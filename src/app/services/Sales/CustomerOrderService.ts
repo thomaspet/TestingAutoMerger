@@ -1,5 +1,6 @@
 import {BizHttp} from '../../../framework/core/http/BizHttp';
 import {CustomerOrder, CustomerOrderItem} from '../../unientities';
+import {StatusCodeCustomerOrder} from '../../unientities';
 import {UniHttp} from '../../../framework/core/http/http';
 import {Observable} from "rxjs/Observable";
 import {TradeHeaderCalculationSummary} from '../../models/sales/TradeHeaderCalculationSummary'
@@ -23,14 +24,17 @@ export class CustomerOrderService extends BizHttp<CustomerOrder> {
     {
         return super.GetAction(currentID, 'previous');
     }
-
-    newCustomerOrder()
+    
+    newCustomerOrder(): Promise<CustomerOrder>
     {       
-        var o = new CustomerOrder();
-        o.CreatedDate = moment().toDate();
-        o.OrderDate = moment().toDate();
-  
-        return o;               
+        return new Promise(resolve => {
+            this.GetNewEntity([], CustomerOrder.entityType).subscribe(order => {
+                order.CreatedDate = moment().toDate();
+                order.OrderDate = moment().toDate();
+                   
+                resolve(order);                
+            });               
+        });
     }
 
     calculateOrderSummary(orderItems: Array<CustomerOrderItem>): Observable<any> {        
@@ -44,11 +48,11 @@ export class CustomerOrderService extends BizHttp<CustomerOrder> {
 
     // TODO: To be retrieved from database schema shared.Status instead?
     private statusTypes: Array<any> = [
-        { Code: '41001', Text: 'Kladd' },
-        { Code: '41002', Text: 'Registrert' },
-        { Code: '41003', Text: 'Delvis overført til faktura' },
-        { Code: '41004', Text: 'Overført til faktura' },
-        { Code: '41005', Text: 'Avsluttet' }
+        { Code: StatusCodeCustomerOrder.Draft, Text: 'Kladd' },
+        { Code: StatusCodeCustomerOrder.Registered, Text: 'Registrert' },
+        { Code: StatusCodeCustomerOrder.PartlyTransferredToInvoice, Text: 'Delvis overført til faktura' },
+        { Code: StatusCodeCustomerOrder.TransferredToInvoice, Text: 'Overført til faktura' },
+        { Code: StatusCodeCustomerOrder.Completed, Text: 'Avsluttet' }
     ];
 
     public getStatusText = (statusCode: string) => {

@@ -1,7 +1,7 @@
 <header class="invoice_poster" *ngIf="invoice">    
     <article class="poster_toolbar">
         <section>
-            <h1 *ngIf="invoice">{{invoice.CustomerName ? invoice.CustomerName : invoice.Customer ? invoice.Customer.Info.Name : ''}}</h1>            
+            <h1 *ngIf="invoice">{{invoice.Customer ? invoice.Customer.Info.Name : invoice.CustomerName}}</h1>            
             <p>Fakturanr. {{invoice.InvoiceNumber}} <span  *ngIf="!itemsSummaryData">. Netto kr {{invoice.TaxExclusiveAmount}}</span> <span *ngIf="itemsSummaryData">. Netto kr {{itemsSummaryData.SumTotalExVat}}</span>. Status: {{ statusText }}</p>
             <p></p>
         </section>
@@ -64,6 +64,7 @@
 <footer class="full-footer">
     <section class="application">
         <button class="good" (click)="saveInvoiceManual($event)">Lagre faktura</button>
+        <button class="good" (click)="saveInvoiceTransition($event, 'invoice')">Fakturer</button>
         <section class="auto_save_info">
             {{ lastSavedInfo }}    
         </section>

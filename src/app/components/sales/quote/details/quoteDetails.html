@@ -1,7 +1,7 @@
 <header class="quote_poster" *ngIf="quote">    
     <article class="poster_toolbar">
         <section>
-            <h1 *ngIf="quote">{{quote.CustomerName ? quote.CustomerName : quote.Customer ? quote.Customer.Info.Name : ''}}</h1>            
+            <h1 *ngIf="quote">{{quote.Customer ? quote.Customer.Info.Name : quote.CustomerName}}</h1>            
             <p>Tilbudsnr. {{quote.QuoteNumber}} <span  *ngIf="!itemsSummaryData">. Netto kr {{quote.TaxExclusiveAmount}}</span> <span *ngIf="itemsSummaryData">. Netto kr {{itemsSummaryData.SumTotalExVat}}</span>. Status: {{ statusText }}</p>
             <p></p>
         </section>
@@ -64,6 +64,12 @@
 <footer class="full-footer">
     <section class="application">
         <button class="good" (click)="saveQuoteManual($event)">Lagre tilbud</button>
+        <button class="good" (click)="saveQuoteTransition($event, 'register')">Til register</button>
+        <button class="good" (click)="saveQuoteTransition($event, 'shipToCustomer')">Til shiptocustomer</button> 
+        <button class="good" (click)="saveQuoteTransition($event, 'customerAccept')">Til customeraccept</button>                       
+        <button class="good" (click)="saveQuoteTransition($event, 'toOrder')">Til toorder</button>        
+        <button class="good" (click)="saveQuoteTransition($event, 'toInvoice')">Til toinvoice</button>        
+        <button class="good" (click)="saveQuoteTransition($event, 'complete')">Til complete</button>        
         <section class="auto_save_info">
             {{ lastSavedInfo }}    
         </section>

@@ -22,18 +22,24 @@ export class OrderList {
     constructor(private uniHttpService: UniHttp, private router: Router, private customerOrderService: CustomerOrderService) {
         this.setupOrderTable();
     }
+    
+    log(err) {
+        alert(err._body);
+    }
 
-    public createOrder() {        
-        var cq = this.customerOrderService.newCustomerOrder();
-
-        this.customerOrderService.Post(cq)
-            .subscribe(
-            (data) => {
-                console.log('Ordre opprettet, id: ' + data.ID);
-                this.router.navigateByUrl('/sales/order/details/' + data.ID);
-            },
-            (err) => console.log('Error creating order: ', err)
-            );
+    createOrder() {
+        this.customerOrderService.newCustomerOrder().then(order => {
+            this.customerOrderService.Post(order)
+                .subscribe(
+                    (data) => {
+                        this.router.navigateByUrl('/sales/order/details/' + data.ID);        
+                    },
+                    (err) => { 
+                        console.log('Error creating order: ', err);
+                        this.log(err);
+                    }
+                );
+        });           
     }
 
     private setupOrderTable() {

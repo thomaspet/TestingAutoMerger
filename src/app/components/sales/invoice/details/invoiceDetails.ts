@@ -7,6 +7,7 @@ import {CustomerInvoiceService, CustomerInvoiceItemService, CustomerService, Sup
 import {InvoiceItemList} from './invoiceItemList';
 
 import {FieldType, FieldLayout, ComponentLayout, CustomerInvoice, CustomerInvoiceItem, Customer, Departement, Project, Address, BusinessRelation} from '../../../../unientities';
+import {StatusCodeCustomerInvoice} from '../../../../unientities';
 import {UNI_CONTROL_DIRECTIVES} from '../../../../../framework/controls';
 import {UniFormBuilder} from '../../../../../framework/forms/builders/uniFormBuilder';
 import {UniFormLayoutBuilder} from '../../../../../framework/forms/builders/uniFormLayoutBuilder';
@@ -18,13 +19,7 @@ import {AddressModal} from '../../customer/modals/address/address';
 import {TradeHeaderCalculationSummary} from '../../../../models/sales/TradeHeaderCalculationSummary';
 
 declare var _;
-
-// possible remove if we could get it from unitentities
-enum StatusCodeCustomerInvoice
-{
-    Draft = 42001,
-    Invoiced = 42002
-};
+declare var moment;
  
 @Component({
     selector: 'invoice-details',
@@ -68,6 +63,10 @@ export class InvoiceDetails {
         console.log('invoicedetails constructor');
     }
     
+    log(err) {
+        alert(err._body);
+    }
+
     isActive(instruction: any[]): boolean {
         return this.router.isRouteActive(this.router.generate(instruction));
     }
@@ -83,7 +82,7 @@ export class InvoiceDetails {
                 this.dropdownData = [response[0], response[1]];
                 this.invoice = response[2];
                 this.customers = response[3];
-                this.EmptyAddress = response[4];                
+                this.EmptyAddress = response[4];   
                 
                 this.updateStatusText();                               
                 this.addAddresses();                                                                               
@@ -140,26 +139,49 @@ export class InvoiceDetails {
         }, 2000); 
     }
     
+    saveInvoiceTransition(event: any, transition: string) {
+        this.saveInvoice((invoice) => {
+            this.customerInvoiceService.Transition(this.invoice.ID, this.invoice, transition).subscribe(() => {
+              console.log("== TRANSITION OK " + transition + " ==");
+              this.router.navigateByUrl('/sales/invoice/details/' + this.invoice.ID);    
+              
+              this.customerInvoiceService.Get(invoice.ID, ['Dimensions','Items','Items.Product','Items.VatType', 'Customer', 'Customer.Info', 'Customer.Info.Addresses']).subscribe((invoice) => {
+                this.invoice = invoice;
+                this.updateStatusText();
+              });                    
+            }, (err) => {
+                console.log('Feil oppstod ved ' + transition + ' transition', err);
+                this.log(err);
+            });
+        });          
+    }
+    
     saveInvoiceManual(event: any) {        
         this.saveInvoice();
     }
 
-    saveInvoice() {
+    saveInvoice(cb = null) {
         this.formInstance.sync();        
         this.lastSavedInfo = 'Lagrer faktura...';
+        this.invoice.TaxInclusiveAmount = -1; // TODO in AppFramework, does not save main entity if just items have changed
         
-        if (this.invoice.StatusCode == null) {        
-            this.invoice.StatusCode = StatusCodeCustomerInvoice.Draft; // TODO: remove when presave is ready
-        }
-                
         this.customerInvoiceService.Put(this.invoice.ID, this.invoice)
             .subscribe(
-                (invoice) => {  
+                (invoice: CustomerInvoice) => {  
                     this.lastSavedInfo = 'Sist lagret: ' + (new Date()).toLocaleTimeString();
                     this.invoice = invoice;
                     this.updateStatusText();   
+                    
+                    console.log("=== NEW INVOICE ===");
+                    console.log(invoice.CreditDays);
+                    console.log(invoice.PaymentDueDate);
+                    
+                    if (cb) cb(invoice);
                 },
-                (err) => console.log('Feil oppsto ved lagring', err)
+                (err) => {
+                    console.log('Feil oppsto ved lagring', err);
+                    this.log(err);                    
+                } 
             );
     }       
     
@@ -183,15 +205,18 @@ export class InvoiceDetails {
     }
     
     addInvoice() {
-        var cq = this.customerInvoiceService.newCustomerInvoice();
-        
-        this.customerInvoiceService.Post(cq)
-            .subscribe(
-                (data) => {
-                    this.router.navigateByUrl('/sales/invoice/details/' + data.ID);        
-                },
-                (err) => console.log('Error creating invoice: ', err)
-            );      
+        this.customerInvoiceService.newCustomerInvoice().then(invoice => {
+            this.customerInvoiceService.Post(invoice)
+                .subscribe(
+                    (data) => {
+                        this.router.navigateByUrl('/sales/invoice/details/' + data.ID);        
+                    },
+                    (err) => { 
+                        console.log('Error creating invoice: ', err);
+                        this.log(err);
+                    }
+                );
+        });           
     }
         
     createFormConfig() {   
@@ -205,6 +230,35 @@ export class InvoiceDetails {
     extendFormConfig() {  
         
         var self = this; 
+        
+        var paymentduedate: UniFieldBuilder = this.formConfig.find('PaymentDueDate');
+        paymentduedate.hasLineBreak(true);
+
+        var deliverydate: UniFieldBuilder = this.formConfig.find('DeliveryDate');
+        deliverydate.hasLineBreak(true);           
+        
+        // TODO remove .ready when functionality is available later on
+        var creditdays: UniFieldBuilder = this.formConfig.find('CreditDays');
+        creditdays.ready.subscribe((component)=>{
+            component.config.control.valueChanges.subscribe(days => {
+                if (days && Number(days) != 0) {
+                    this.invoice.PaymentDueDate = moment(this.invoice.InvoiceDate).add(Number(days), 'days').toDate();
+                    paymentduedate.refresh(this.invoice.PaymentDueDate);                   
+                }
+            });
+        });
+        paymentduedate.ready.subscribe((component)=>{
+           component.config.control.valueChanges.subscribe(date => {
+              if (date) {
+                var newdays = moment(date || this.invoice.InvoiceDate).diff(this.invoice.InvoiceDate, 'days');
+                if (newdays != this.invoice.CreditDays) {
+                    this.invoice.CreditDays = newdays;              
+                    creditdays.refresh(this.invoice.CreditDays);
+                }                  
+              }
+           });
+        });
+        
         var departement: UniFieldBuilder = this.formConfig.find('Dimensions.DepartementID');         
         departement.setKendoOptions({
             dataTextField: 'Name',
@@ -239,7 +293,6 @@ export class InvoiceDetails {
 
         var shippingaddress: UniFieldBuilder = this.formConfig.find('ShippingAddress');
         shippingaddress
-            .hasLineBreak(true)
             .setKendoOptions({
                 dataTextField: 'AddressLine1',
                 dataValueField: 'ID'
@@ -427,26 +480,6 @@ export class InvoiceDetails {
                 },
                 {
                     ComponentLayoutID: 3,
-                    EntityType: "CustomerInvoice",
-                    Property: "DeliveryDate",
-                    Placement: 1,
-                    Hidden: false,
-                    FieldType: 2,
-                    ReadOnly: false,
-                    LookupField: false,
-                    Label: "Leveringsdato",
-                    Description: "",
-                    HelpText: "",
-                    FieldSet: 0,
-                    Section: 0,
-                    Legend: "",
-                    StatusCode: 0,
-                    ID: 4,
-                    Deleted: false,
-                    CustomFields: null 
-                },
-                {
-                    ComponentLayoutID: 3,
                     EntityType: "BusinessRelation",
                     Property: "InvoiceAddress",
                     Placement: 1,
@@ -482,6 +515,26 @@ export class InvoiceDetails {
                     Legend: "",
                     StatusCode: 0,
                     ID: 6,
+                    Deleted: false,
+                    CustomFields: null 
+                },
+                {
+                    ComponentLayoutID: 3,
+                    EntityType: "CustomerInvoice",
+                    Property: "DeliveryDate",
+                    Placement: 1,
+                    Hidden: false,
+                    FieldType: 2,
+                    ReadOnly: false,
+                    LookupField: false,
+                    Label: "Leveringsdato",
+                    Description: "",
+                    HelpText: "",
+                    FieldSet: 0,
+                    Section: 0,
+                    Legend: "",
+                    StatusCode: 0,
+                    ID: 4,
                     Deleted: false,
                     CustomFields: null 
                 },

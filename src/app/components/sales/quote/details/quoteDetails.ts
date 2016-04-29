@@ -7,6 +7,7 @@ import {CustomerQuoteService, CustomerQuoteItemService, CustomerService, Supplie
 import {QuoteItemList} from './quoteItemList';
 
 import {FieldType, FieldLayout, ComponentLayout, CustomerQuote, CustomerQuoteItem, Customer, Departement, Project, Address, BusinessRelation} from "../../../../unientities";
+import {StatusCodeCustomerQuote} from "../../../../unientities";
 import {UNI_CONTROL_DIRECTIVES} from "../../../../../framework/controls";
 import {UniFormBuilder} from "../../../../../framework/forms/builders/uniFormBuilder";
 import {UniFormLayoutBuilder} from "../../../../../framework/forms/builders/uniFormLayoutBuilder";
@@ -18,17 +19,7 @@ import {AddressModal} from "../../customer/modals/address/address";
 import {TradeHeaderCalculationSummary} from '../../../../models/sales/TradeHeaderCalculationSummary';
 
 declare var _;
-
-enum StatusCodeCustomerQuote
-{
-    Draft = 40101,
-    Registered = 40102,
-    ShippedToCustomer = 40103,
-    CustomerAccepted = 40104,
-    TransferredToOrder = 40105,
-    TransferredToInvoice = 40106,
-    Completed = 40107
-};
+declare var moment;
 
 @Component({
     selector: "quote-details",
@@ -70,7 +61,11 @@ export class QuoteDetails {
                 private router: Router, private params: RouteParams) {                
         this.QuoteID = params.get("id");
     }
-    
+
+    log(err) {
+        alert(err._body);
+    }
+
     isActive(instruction: any[]): boolean {
         return this.router.isRouteActive(this.router.generate(instruction));
     }
@@ -88,7 +83,7 @@ export class QuoteDetails {
                 this.customers = response[3];
             //    this.EmptyAddress = response[4];                
                 this.EmptyAddress = new Address();
-                                    
+                
                 this.updateStatusText();
                 this.addAddresses();                                                                               
                 this.createFormConfig();
@@ -138,31 +133,51 @@ export class QuoteDetails {
             
             this.customerQuoteService.calculateQuoteSummary(quoteItems)
             .subscribe((data) => this.itemsSummaryData = data,
-                       (err) => console.log('Error when recalculating items:',err)); 
+                       (err) => {
+                           console.log('Error when recalculating items:',err)
+                           this.log(err);
+                       }); 
         }, 2000); 
         
     }
     
+    saveQuoteTransition(event: any, transition: string) {
+        this.saveQuote((quote) => {
+            this.customerQuoteService.Transition(this.quote.ID, this.quote, transition).subscribe(() => {
+              console.log("== TRANSITION OK " + transition + " ==");
+                     
+              this.customerQuoteService.Get(quote.ID, ['Dimensions','Items','Items.Product','Items.VatType', 'Customer', 'Customer.Info', 'Customer.Info.Addresses']).subscribe((quote) => {
+                this.quote = quote;
+                this.updateStatusText();
+              });                     
+            }, (err) => {
+                console.log('Feil oppstod ved ' + transition + ' transition', err);
+                this.log(err);
+            });
+        });          
+    }
+      
     saveQuoteManual(event: any) {        
         this.saveQuote();
     }
 
-    saveQuote() {
+    saveQuote(cb = null) {
         this.formInstance.sync();        
         this.lastSavedInfo = 'Lagrer tilbud...';
-        
-        if (this.quote.StatusCode == null) {         
-            this.quote.StatusCode = StatusCodeCustomerQuote.Draft; // TODO: remove when available in presave
-        }
-                
+        this.quote.TaxInclusiveAmount = -1; // TODO in AppFramework, does not save main entity if just items have changed
+         
         this.customerQuoteService.Put(this.quote.ID, this.quote)
             .subscribe(
                 (quote) => {  
                     this.lastSavedInfo = "Sist lagret: " + (new Date()).toLocaleTimeString();  
                     this.quote = quote;
                     this.updateStatusText();  
+                    if (cb) cb(quote);
                 },
-                (err) => console.log('Feil oppsto ved lagring', err)
+                (err) => { 
+                    console.log('Feil oppsto ved lagring', err);
+                    this.log(err);
+                }
             );
     }       
     
@@ -186,15 +201,18 @@ export class QuoteDetails {
     }
     
     addQuote() {
-        var q = this.customerQuoteService.newCustomerQuote();          
-        
-        this.customerQuoteService.Post(q)
-            .subscribe(
-                (data) => {
-                    this.router.navigateByUrl('/sales/quote/details/' + data.ID);        
-                },
-                (err) => console.log('Error creating quote: ', err)
-            );      
+        this.customerQuoteService.newCustomerQuote().then(quote => {
+            this.customerQuoteService.Post(quote)
+                .subscribe(
+                    (data) => {
+                        this.router.navigateByUrl('/sales/quote/details/' + data.ID);        
+                    },
+                    (err) => { 
+                        console.log('Error creating quote: ', err);
+                        this.log(err);
+                    }
+                );
+        });           
     }
         
     createFormConfig() {   
@@ -206,7 +224,14 @@ export class QuoteDetails {
     }
     
     extendFormConfig() {  
-        var self = this; 
+        var self = this;
+        
+        var quotedate: UniFieldBuilder = this.formConfig.find('QuoteDate');
+        quotedate.onChange = () => {
+          console.log("== CHANGED DATE ==");
+          this.quote.ValidUntilDate = moment(this.quote.QuoteDate).add(1, 'month').toDate();  
+        };
+         
         var departement: UniFieldBuilder = this.formConfig.find('Dimensions.DepartementID');         
         departement.setKendoOptions({
             dataTextField: 'Name',
@@ -264,8 +289,9 @@ export class QuoteDetails {
                dataSource: this.customers
             });
         customer.onSelect = function (customerID) {
-            self.customerService.Get(customerID, ['Info', 'Info.Addresses']).subscribe((customer) => {
+            self.customerService.Get(customerID, ['Info', 'Info.Addresses']).subscribe((customer: Customer) => {
                 self.quote.Customer = customer;
+                self.quote.CustomerName = customer.Info.Name;
                 self.addAddresses();           
                 invoiceaddress.refresh(self.businessRelationInvoice);
                 shippingaddress.refresh(self.businessRelationShipping);
@@ -273,7 +299,8 @@ export class QuoteDetails {
         };
             
         var freeTextField: UniFieldBuilder = this.formConfig.find('FreeTxt');
-        freeTextField.addClass('max-width'); 
+        freeTextField.addClass('max-width');
+        freeTextField.hasLineBreak(true);   
     }    
        
     loadForm() {       
@@ -343,7 +370,7 @@ export class QuoteDetails {
             CustomFields: null,
             Fields: [
                 {
-                    ComponentLayoutID: 3,
+                    ComponentLayoutID: 30,
                     EntityType: "CustomerQuote",
                     Property: "CustomerID",
                     Placement: 4,
@@ -363,10 +390,10 @@ export class QuoteDetails {
                     CustomFields: null 
                 },
                 {
-                    ComponentLayoutID: 3,
+                    ComponentLayoutID: 30,
                     EntityType: "CustomerQuote",
                     Property: "QuoteDate",
-                    Placement: 3,
+                    Placement: 30,
                     Hidden: false,
                     FieldType: 2,
                     ReadOnly: false,
@@ -383,7 +410,7 @@ export class QuoteDetails {
                     CustomFields: null 
                 },
                 {
-                    ComponentLayoutID: 3,
+                    ComponentLayoutID: 30,
                     EntityType: "CustomerQuote",
                     Property: "ValidUntilDate",
                     Placement: 1,
@@ -403,7 +430,7 @@ export class QuoteDetails {
                     CustomFields: null 
                 },
                 {
-                    ComponentLayoutID: 3,
+                    ComponentLayoutID: 30,
                     EntityType: "CustomerQuote",
                     Property: "CreditDays",
                     Placement: 1,
@@ -423,7 +450,7 @@ export class QuoteDetails {
                     CustomFields: null 
                 },
                 {
-                    ComponentLayoutID: 3,
+                    ComponentLayoutID: 30,
                     EntityType: "BusinessRelation",
                     Property: "InvoiceAddress",
                     Placement: 1,
@@ -443,7 +470,7 @@ export class QuoteDetails {
                     CustomFields: null 
                 },
                 {
-                    ComponentLayoutID: 3,
+                    ComponentLayoutID: 30,
                     EntityType: "BusinessRelation",
                     Property: "ShippingAddress",
                     Placement: 1,
@@ -463,7 +490,7 @@ export class QuoteDetails {
                     CustomFields: null 
                 },
                 {
-                    ComponentLayoutID: 3,
+                    ComponentLayoutID: 30,
                     EntityType: "Project",
                     Property: "Dimensions.ProjectID",
                     Placement: 4,
@@ -483,7 +510,7 @@ export class QuoteDetails {
                     CustomFields: null 
                 },
                 {
-                    ComponentLayoutID: 3,
+                    ComponentLayoutID: 30,
                     EntityType: "Departement",
                     Property: "Dimensions.DepartementID",
                     Placement: 4,
@@ -503,7 +530,7 @@ export class QuoteDetails {
                     CustomFields: null
                 },
                 {
-                    ComponentLayoutID: 3,
+                    ComponentLayoutID: 30,
                     EntityType: "CustomerQuote",
                     Property: "FreeTxt",
                     Placement: 1,
@@ -515,7 +542,7 @@ export class QuoteDetails {
                     Description: "",
                     HelpText: "",
                     FieldSet: 0,
-                    Section: 1,
+                    Section: 0,
                     Legend: "Fritekst",
                     StatusCode: 0,
                     ID: 9,

@@ -181,6 +181,7 @@ export class OrderItemList {
             console.log('Object added. Antall ordrelinjer nå: ' + e.sender._data.length); 
             
             var item = e.items[0];
+            item.NumberOfItems = 1; // TODO: what about comment lines
                                 
             /* PROBLEM: rowModel er ikke satt automatisk på ny - mulig det løser seg hvis man automatisk fokuserer på editor i første rad?
             rowModel.set('NumberOfItems', 0)
