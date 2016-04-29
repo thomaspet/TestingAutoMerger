@@ -83,7 +83,7 @@ export class QuoteDetails {
                 this.customers = response[3];
             //    this.EmptyAddress = response[4];                
                 this.EmptyAddress = new Address();
-                                    
+                
                 this.updateStatusText();
                 this.addAddresses();                                                                               
                 this.createFormConfig();
@@ -164,7 +164,8 @@ export class QuoteDetails {
     saveQuote(cb = null) {
         this.formInstance.sync();        
         this.lastSavedInfo = 'Lagrer tilbud...';
- 
+        this.quote.TaxInclusiveAmount = -1; // TODO in AppFramework, does not save main entity if just items have changed
+         
         this.customerQuoteService.Put(this.quote.ID, this.quote)
             .subscribe(
                 (quote) => {  
@@ -200,18 +201,18 @@ export class QuoteDetails {
     }
     
     addQuote() {
-        var q = this.customerQuoteService.newCustomerQuote();          
-        
-        this.customerQuoteService.Post(q)
-            .subscribe(
-                (data) => {
-                    this.router.navigateByUrl('/sales/quote/details/' + data.ID);        
-                },
-                (err) => { 
-                    console.log('Error creating quote: ', err);
-                    this.log(err);
-                }
-            );      
+        this.customerQuoteService.newCustomerQuote().then(quote => {
+            this.customerQuoteService.Post(quote)
+                .subscribe(
+                    (data) => {
+                        this.router.navigateByUrl('/sales/quote/details/' + data.ID);        
+                    },
+                    (err) => { 
+                        console.log('Error creating quote: ', err);
+                        this.log(err);
+                    }
+                );
+        });           
     }
         
     createFormConfig() {   
@@ -298,7 +299,8 @@ export class QuoteDetails {
         };
             
         var freeTextField: UniFieldBuilder = this.formConfig.find('FreeTxt');
-        freeTextField.addClass('max-width'); 
+        freeTextField.addClass('max-width');
+        freeTextField.hasLineBreak(true);   
     }    
        
     loadForm() {       
@@ -368,7 +370,7 @@ export class QuoteDetails {
             CustomFields: null,
             Fields: [
                 {
-                    ComponentLayoutID: 3,
+                    ComponentLayoutID: 30,
                     EntityType: "CustomerQuote",
                     Property: "CustomerID",
                     Placement: 4,
@@ -388,10 +390,10 @@ export class QuoteDetails {
                     CustomFields: null 
                 },
                 {
-                    ComponentLayoutID: 3,
+                    ComponentLayoutID: 30,
                     EntityType: "CustomerQuote",
                     Property: "QuoteDate",
-                    Placement: 3,
+                    Placement: 30,
                     Hidden: false,
                     FieldType: 2,
                     ReadOnly: false,
@@ -408,7 +410,7 @@ export class QuoteDetails {
                     CustomFields: null 
                 },
                 {
-                    ComponentLayoutID: 3,
+                    ComponentLayoutID: 30,
                     EntityType: "CustomerQuote",
                     Property: "ValidUntilDate",
                     Placement: 1,
@@ -428,7 +430,7 @@ export class QuoteDetails {
                     CustomFields: null 
                 },
                 {
-                    ComponentLayoutID: 3,
+                    ComponentLayoutID: 30,
                     EntityType: "CustomerQuote",
                     Property: "CreditDays",
                     Placement: 1,
@@ -448,7 +450,7 @@ export class QuoteDetails {
                     CustomFields: null 
                 },
                 {
-                    ComponentLayoutID: 3,
+                    ComponentLayoutID: 30,
                     EntityType: "BusinessRelation",
                     Property: "InvoiceAddress",
                     Placement: 1,
@@ -468,7 +470,7 @@ export class QuoteDetails {
                     CustomFields: null 
                 },
                 {
-                    ComponentLayoutID: 3,
+                    ComponentLayoutID: 30,
                     EntityType: "BusinessRelation",
                     Property: "ShippingAddress",
                     Placement: 1,
@@ -488,7 +490,7 @@ export class QuoteDetails {
                     CustomFields: null 
                 },
                 {
-                    ComponentLayoutID: 3,
+                    ComponentLayoutID: 30,
                     EntityType: "Project",
                     Property: "Dimensions.ProjectID",
                     Placement: 4,
@@ -508,7 +510,7 @@ export class QuoteDetails {
                     CustomFields: null 
                 },
                 {
-                    ComponentLayoutID: 3,
+                    ComponentLayoutID: 30,
                     EntityType: "Departement",
                     Property: "Dimensions.DepartementID",
                     Placement: 4,
@@ -528,7 +530,7 @@ export class QuoteDetails {
                     CustomFields: null
                 },
                 {
-                    ComponentLayoutID: 3,
+                    ComponentLayoutID: 30,
                     EntityType: "CustomerQuote",
                     Property: "FreeTxt",
                     Placement: 1,
@@ -540,7 +542,7 @@ export class QuoteDetails {
                     Description: "",
                     HelpText: "",
                     FieldSet: 0,
-                    Section: 1,
+                    Section: 0,
                     Legend: "Fritekst",
                     StatusCode: 0,
                     ID: 9,

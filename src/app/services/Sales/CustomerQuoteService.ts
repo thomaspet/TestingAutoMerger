@@ -36,14 +36,17 @@ export class CustomerQuoteService extends BizHttp<CustomerQuote> {
         return super.GetAction(currentID, 'previous');
     }
     
-    newCustomerQuote()
+    newCustomerQuote(): Promise<CustomerQuote>
     {       
-        var q = new CustomerQuote();
-        q.CreatedDate = moment().toDate();
-        q.QuoteDate = moment().toDate();
-        q.ValidUntilDate = moment().add(1, 'month').toDate();
-
-        return q;               
+        return new Promise(resolve => {
+            this.GetNewEntity([], CustomerQuote.entityType).subscribe(quote => {
+                quote.CreatedDate = moment().toDate();
+                quote.QuoteDate = moment().toDate();
+                quote.ValidUntilDate = moment().add(1, 'month').toDate();
+                
+                resolve(quote);                
+            });               
+        });
     }
 
     calculateQuoteSummary(quoteItems: Array<CustomerQuoteItem>): Observable<any> {        

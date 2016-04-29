@@ -1,10 +1,7 @@
 import {Component, ViewChild, ComponentRef, OnInit} from 'angular2/core';
 import {Router} from 'angular2/router';
 import {UniForm} from '../../../../../framework/forms/uniForm';
-import {
-    UniFormBuilder,
-    UniFormLayoutBuilder
-} from '../../../../../framework/forms';
+import {UniFormBuilder, UniFormLayoutBuilder} from '../../../../../framework/forms';
 import {UniComponentLoader} from '../../../../../framework/core';
 import {Observable} from 'rxjs/Observable';
 import 'rxjs/add/operator/merge';

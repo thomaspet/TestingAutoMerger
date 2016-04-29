@@ -23,17 +23,23 @@ export class InvoiceList {
         this.setupInvoiceTable();
     }
 
-    public createInvoice() {        
-        var cq = this.customerInvoiceService.newCustomerInvoice();
-
-        this.customerInvoiceService.Post(cq)
-            .subscribe(
-            (data) => {
-                console.log('Faktura opprettet, id: ' + data.ID);
-                this.router.navigateByUrl('/sales/invoice/details/' + data.ID);
-            },
-            (err) => console.log('Error creating invoice: ', err)
-            );
+    log(err) {
+        alert(err._body);
+    }
+    
+    createInvoice() {
+        this.customerInvoiceService.newCustomerInvoice().then(invoice => {
+            this.customerInvoiceService.Post(invoice)
+                .subscribe(
+                    (data) => {
+                        this.router.navigateByUrl('/sales/invoice/details/' + data.ID);        
+                    },
+                    (err) => { 
+                        console.log('Error creating invoice: ', err);
+                        this.log(err);
+                    }
+                );
+        });           
     }
 
     private setupInvoiceTable() {

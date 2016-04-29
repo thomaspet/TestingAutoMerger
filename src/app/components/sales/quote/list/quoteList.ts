@@ -25,19 +25,23 @@ export class QuoteList {
         this.setupQuoteTable();
     }
 
-
+    log(err) {
+        alert(err._body);
+    }
 
     public createQuote() {        
-        var q = this.customerQuoteService.newCustomerQuote();  
-
-        this.customerQuoteService.Post(q)
-            .subscribe(
-            (data) => {
-                console.log('Tilbud opprettet, id: ' + data.ID);
-                this.router.navigateByUrl('/sales/quote/details/' + data.ID);
-            },
-            (err) => console.log('Error creating quote: ', err)
-            );
+        this.customerQuoteService.newCustomerQuote().then(quote => {
+            this.customerQuoteService.Post(quote)
+                .subscribe(
+                    (data) => {
+                        this.router.navigateByUrl('/sales/quote/details/' + data.ID);        
+                    },
+                    (err) => { 
+                        console.log('Error creating quote: ', err);
+                        this.log(err);
+                    }
+                );
+        });  
     }
 
     private setupQuoteTable() {

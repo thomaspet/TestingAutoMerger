@@ -86,7 +86,7 @@ export class OrderDetails {
                 this.customers = response[3];
             //    this.EmptyAddress = response[4];                
                 this.EmptyAddress = new Address();
-                                                   
+                                                                   
                 this.updateStatusText();
                 this.addAddresses();                                                                               
                 this.createFormConfig();
@@ -186,6 +186,7 @@ export class OrderDetails {
     saveOrder(cb = null) {
         this.formInstance.sync();        
         this.lastSavedInfo = 'Lagrer ordre...';
+        this.order.TaxInclusiveAmount = -1; // TODO in AppFramework, does not save main entity if just items have changed
                 
         this.customerOrderService.Put(this.order.ID, this.order)
             .subscribe(
@@ -222,18 +223,18 @@ export class OrderDetails {
     }
     
     addOrder() {
-        var cq = this.customerOrderService.newCustomerOrder();
-        
-        this.customerOrderService.Post(cq)
-            .subscribe(
-                (data) => {
-                    this.router.navigateByUrl('/sales/order/details/' + data.ID);        
-                },
-                (err) => {
-                    console.log('Error creating order: ', err);
-                    this.log(err);
-                }
-            );      
+        this.customerOrderService.newCustomerOrder().then(order => {
+            this.customerOrderService.Post(order)
+                .subscribe(
+                    (data) => {
+                        this.router.navigateByUrl('/sales/order/details/' + data.ID);        
+                    },
+                    (err) => { 
+                        console.log('Error creating order: ', err);
+                        this.log(err);
+                    }
+                );
+        });           
     }
         
     createFormConfig() {   

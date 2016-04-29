@@ -163,13 +163,19 @@ export class InvoiceDetails {
     saveInvoice(cb = null) {
         this.formInstance.sync();        
         this.lastSavedInfo = 'Lagrer faktura...';
+        this.invoice.TaxInclusiveAmount = -1; // TODO in AppFramework, does not save main entity if just items have changed
         
         this.customerInvoiceService.Put(this.invoice.ID, this.invoice)
             .subscribe(
-                (invoice) => {  
+                (invoice: CustomerInvoice) => {  
                     this.lastSavedInfo = 'Sist lagret: ' + (new Date()).toLocaleTimeString();
                     this.invoice = invoice;
                     this.updateStatusText();   
+                    
+                    console.log("=== NEW INVOICE ===");
+                    console.log(invoice.CreditDays);
+                    console.log(invoice.PaymentDueDate);
+                    
                     if (cb) cb(invoice);
                 },
                 (err) => {
@@ -199,18 +205,18 @@ export class InvoiceDetails {
     }
     
     addInvoice() {
-        var cq = this.customerInvoiceService.newCustomerInvoice();
-        
-        this.customerInvoiceService.Post(cq)
-            .subscribe(
-                (data) => {
-                    this.router.navigateByUrl('/sales/invoice/details/' + data.ID);        
-                },
-                (err) => { 
-                    console.log('Error creating invoice: ', err);
-                    this.log(err);
-                }
-            );      
+        this.customerInvoiceService.newCustomerInvoice().then(invoice => {
+            this.customerInvoiceService.Post(invoice)
+                .subscribe(
+                    (data) => {
+                        this.router.navigateByUrl('/sales/invoice/details/' + data.ID);        
+                    },
+                    (err) => { 
+                        console.log('Error creating invoice: ', err);
+                        this.log(err);
+                    }
+                );
+        });           
     }
         
     createFormConfig() {   
@@ -235,18 +241,20 @@ export class InvoiceDetails {
         var creditdays: UniFieldBuilder = this.formConfig.find('CreditDays');
         creditdays.ready.subscribe((component)=>{
             component.config.control.valueChanges.subscribe(days => {
-                if (days) {
+                if (days && Number(days) != 0) {
                     this.invoice.PaymentDueDate = moment(this.invoice.InvoiceDate).add(Number(days), 'days').toDate();
                     paymentduedate.refresh(this.invoice.PaymentDueDate);                   
                 }
             });
         });
-        paymentduedate.ready.subscribe((compoent)=>{
-           compoent.config.control.valueChanges.subscribe(date => {
-              var newdays = moment(date || this.invoice.InvoiceDate).diff(this.invoice.InvoiceDate, 'days') + 1;   
-              if (newdays != this.invoice.CreditDays) {
-                  this.invoice.CreditDays = newdays;              
-                  creditdays.refresh(this.invoice.CreditDays);
+        paymentduedate.ready.subscribe((component)=>{
+           component.config.control.valueChanges.subscribe(date => {
+              if (date) {
+                var newdays = moment(date || this.invoice.InvoiceDate).diff(this.invoice.InvoiceDate, 'days');
+                if (newdays != this.invoice.CreditDays) {
+                    this.invoice.CreditDays = newdays;              
+                    creditdays.refresh(this.invoice.CreditDays);
+                }                  
               }
            });
         });
