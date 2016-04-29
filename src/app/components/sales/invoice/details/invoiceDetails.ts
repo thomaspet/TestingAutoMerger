@@ -293,8 +293,8 @@ export class InvoiceDetails {
         var creditdays: UniFieldBuilder = this.formConfig.find('CreditDays');
         creditdays.ready.subscribe((component)=>{
             component.config.control.valueChanges.subscribe(days => {
-                if (days && Number(days) != 0) {
-                    this.invoice.PaymentDueDate = moment(this.invoice.InvoiceDate).add(Number(days), 'days').toDate();
+                if (days) {
+                    this.invoice.PaymentDueDate = moment(this.invoice.InvoiceDate).startOf('day').add(Number(days), 'days').toDate();
                     paymentduedate.refresh(this.invoice.PaymentDueDate);                   
                 }
             });
@@ -302,7 +302,7 @@ export class InvoiceDetails {
         paymentduedate.ready.subscribe((component)=>{
            component.config.control.valueChanges.subscribe(date => {
               if (date) {
-                var newdays = moment(date || this.invoice.InvoiceDate).diff(this.invoice.InvoiceDate, 'days');
+                var newdays = moment(date).startOf('day').diff(moment(this.invoice.InvoiceDate).startOf('day'), 'days');
                 if (newdays != this.invoice.CreditDays) {
                     this.invoice.CreditDays = newdays;              
                     creditdays.refresh(this.invoice.CreditDays);
