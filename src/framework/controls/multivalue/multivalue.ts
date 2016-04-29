@@ -31,6 +31,7 @@ export class UniMultiValue {
     editindex: number = null;
     delindexes = [];
     timers = [];
+    initial = false;
     
     constructor(private el: ElementRef) {
         var self = this;
@@ -43,47 +44,38 @@ export class UniMultiValue {
                 self.editindex = null;
             }
         });    
-   }
+    }
     
     ngOnInit() {
         var list = this.config.model[this.config.field];
         if (list.length < 1) {
             this.config.model[this.config.field].push(this.placeholder());
+            this.initial = true;
         }
               
         this.config.fieldComponent = this;
     }
-    
-    //ngAfterViewInit() {
-    //    if (this.config.model[this.config.field].length == 0) {
-    //        this.config.model[this.config.field].push(this.placeholder());
-    //    } 
-    //}
-        
-    refresh(value: any): void {
+            
+    refresh(model: any): void {
+        this.config.model[this.config.field] = model[this.config.field];
+        this.initial = false;
+        this.editindex = null;
+        this.activeMultival = false;
+        this.index = 0;
     }
     
     // What should happen when the user clicks
     // the button next to the input?
     addOrDropdown() {  
-        if (this.config.model[this.config.field].length == 0) {
-            this.addValue();
+        if (this.initial) {
+            this.edit(0, null);
         } else {
             this.activeMultival = !this.activeMultival;
         }
         
         return false;
     };
-
-    editIfEditor(event) {
-        if (this.config.editor) {
-            this.edit(0, event);
-            return false;        
-        } 
-        
-        return true;
-    }
-
+    
     // Add a new, blank value to the array.
     addValue(event = null) {
         var self = this;
@@ -120,8 +112,6 @@ export class UniMultiValue {
         index = index || 0;
  
         if (this.config.editor) { // Use custom editor
-            event.stopPropagation();
-            console.log("== EDITINDEX " + this.editindex + " EDIT NOW: " + index);
             this.ucl.load(this.config.editor).then((cmp: ComponentRef)=> {
                 cmp.instance.modalConfig.isOpen = true;
                 cmp.instance.modalConfig.model = this.config.model[this.config.field][index];
@@ -130,6 +120,7 @@ export class UniMultiValue {
                     self.config.model[this.config.field][index] = model;
                     self.editindex = null;
                     self.activeMultival = false;
+                    self.initial = false;
                     if (self.config.onChange) {
                         self.config.onChange(model); 
                     }
@@ -137,13 +128,16 @@ export class UniMultiValue {
             });                       
         } else {
             this.editindex = index;
+            this.initial = false;
     
             setTimeout(() => {
                self.editinputs.first.nativeElement.focus();            
             });    
         }
-                
-        event.stopPropagation();
+       
+        if (event) {
+            event.stopPropagation();           
+        }         
   
         return false;
     };
@@ -175,6 +169,8 @@ export class UniMultiValue {
         }, 4000, row, index));
     
         event.stopPropagation();
+        
+        this.editindex = null;
 
         return false;
     };
@@ -189,7 +185,6 @@ export class UniMultiValue {
 
     // Set the passed value as the main one.
     setAsDefault(row, index) {
-        console.log("== setAsDefault " + index);
         this.index = index;
         this.config.model[this.config.defaultfield] = row[this.config.kOptions.dataValueField];
         this.activeMultival = false;  
