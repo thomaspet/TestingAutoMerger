@@ -1,5 +1,6 @@
 .poster_toolbar
     @include unigrid-flush(14)
+    @include clearfix
     margin: 0 auto
     padding: .3rem 1rem 0
     display: flex
@@ -60,6 +61,14 @@
             background-color: $uni-color-C2A
             background-image: unicon-edit($uni-color-negative)
 
+.poster_toolbar_extras
+    @include unigrid-flush(14)
+    margin: -1rem auto 0
+    text-align: right
+    button
+        @extend button.small
+        margin-left: 0
+
 input[type=search].poster_toolbar_search
     float: left
     width: 5rem
@@ -105,3 +114,4 @@ input[type=search].poster_toolbar_search
 
         .next
             right: 5rem
+
