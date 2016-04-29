@@ -77,7 +77,7 @@ export class PersonalDetails implements OnInit {
                 this.form = new UniFormLayoutBuilder().build(layout, this.employee);
                 this.uniCmpLoader.load(UniForm).then((cmp: ComponentRef) => {
                     cmp.instance.config = this.form;
-                    // cmp.instance.getEventEmitter().subscribe(this.executeSubmit(this));
+                    cmp.instance.getEventEmitter().subscribe(this.executeSubmit(this));
                     this.whenFormInstance = new Promise((resolve: Function) => {
                         resolve(cmp.instance);
                     });
