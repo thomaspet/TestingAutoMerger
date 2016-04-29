@@ -1,5 +1,5 @@
 import {
-    Component, EventEmitter, Input, Output, ChangeDetectionStrategy, ViewChildren, QueryList
+    Component, EventEmitter, Input, Output, ViewChildren, QueryList, SimpleChange
 } from "angular2/core";
 import {FORM_DIRECTIVES, FORM_PROVIDERS, ControlGroup, FormBuilder} from "angular2/common";
 import {FieldLayout} from "../../app/unientities";
@@ -16,7 +16,6 @@ declare var _; // lodash
     selector: "uni-form",
     directives: [FORM_DIRECTIVES, UniField, UniFieldSet, UniSection],
     providers: [FORM_PROVIDERS],
-    changeDetection: ChangeDetectionStrategy.OnPush,
     template: `
         <form (submit)="submit($event)" [ngFormModel]="controls">
             <template ngFor #item [ngForOf]="groupedFields" #i="index">
@@ -76,24 +75,24 @@ export class UniForm {
 
     private groupedFields: any[];
 
-    constructor(public builder: FormBuilder) {
+    constructor(private builder: FormBuilder) {
 
     }
 
-    public ngOnChanges() {
+    public ngOnChanges(changes: { [propKey: string]: SimpleChange }) {
         let self = this;
-        this.controls = this.builder.group({});
-        this.controls.valueChanges.subscribe(() => {
-            self.onChange.emit(self.model)
-        });
-        this.groupedFields = this.groupFields();
-
+        if (changes['model']) {
+            this.controls = this.builder.group({});
+            this.controls.valueChanges.subscribe(() => {
+                self.onChange.emit(self.model);
+            });
+        }
+        if (changes['fields']) {
+            this.groupedFields = this.groupFields();
+        }
     }
 
     public ngAfterViewInit() {
-
-        console.log(this.fieldElements, this.fieldsetElements, this.sectionElements);
-
         this.onReady.emit(this);
     }
 
@@ -104,6 +103,40 @@ export class UniForm {
         if (item.length === 1) {
             item[0].toggle();
         }
+    }
+
+    public getElement(property: string): UniField {
+        // Look inside top level fields;
+        var item: UniField[] = this.fieldElements.filter((cmp: UniField) => {
+            return cmp.field.Property === property;
+        });
+        if (item.length > 0) {
+            return item[0];
+        }
+
+        // Look inside fieldsets
+        var element: UniField;
+        this.fieldsetElements.forEach((cmp: UniFieldSet) => {
+            if (!element) {
+                element = cmp.getElement(property);
+            }
+        });
+        if (element) {
+            return element;
+        }
+
+        // Look inside sections
+        this.sectionElements.forEach((cmp: UniSection) => {
+            if (!element) {
+                element = cmp.getElement(property);
+            }
+        });
+        if (element) {
+            return element;
+        }
+
+        // nothing found
+        return;
     }
 
     private submit(event) {

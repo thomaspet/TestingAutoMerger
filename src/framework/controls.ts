@@ -1,5 +1,5 @@
-import {Type, CONST_EXPR} from "angular2/src/facade/lang";
-
+//import {CONST_EXPR} from "angular2/src/facade/lang";
+import {Type} from "angular2/core";
 import {UniAutocomplete} from "./controls/autocomplete/autocomplete";
 import {UniCheckboxInput} from "./controls/checkbox/checkbox";
 import {UniCombobox} from "./controls/combobox/combobox";
@@ -23,7 +23,7 @@ import {UniTextAreaInput} from "./controls/textarea/textarea";
  *
  * This array should have the same order as enum FieldType in app/unientities.ts
  */
-export const UNI_CONTROL_DIRECTIVES: Type[] = CONST_EXPR([
+export const UNI_CONTROL_DIRECTIVES: Type[] = [
     UniAutocomplete,
     UniCombobox,
     UniDatepicker,
@@ -41,4 +41,4 @@ export const UNI_CONTROL_DIRECTIVES: Type[] = CONST_EXPR([
     UniMultiValue,
     UniUrlInput,
     UniTextAreaInput
-]);
+];

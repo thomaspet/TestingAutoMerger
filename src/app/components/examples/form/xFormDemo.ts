@@ -4,7 +4,7 @@ import {UniForm} from "../../../../framework/xforms/uniform";
 import {Employee} from "../../../unientities";
 import {Observable} from "rxjs/Observable";
 import {NgIf} from "angular2/common";
-
+import {FieldLayout} from "../../../unientities";
 declare var _;
 
 @Component({
@@ -12,7 +12,7 @@ declare var _;
     directives: [UniForm, NgIf],
     providers: [EmployeeService],
     template: `
-        <uni-form 
+        <uni-form *ngIf="employee"
             
             [config]="config" 
             [fields]="fields" 
@@ -27,33 +27,33 @@ declare var _;
 })
 export class XFormDemo {
 
-    public employee: Observable<Employee>;
+    public employee: Employee;
     public config: any = {};
     public fields: any[] = [];
 
-    constructor(private Api: EmployeeService) {
+    constructor(private api: EmployeeService) {
         let self = this;
-        this.Api.get(1).toPromise().then((employee:any) => self.employee = employee);
-        this.Api.layout("EmployeeDetailsForm").toPromise().then((layout: any) => {
-            self.fields = layout.Fields;
+        this.api.get(1).toPromise().then((employee: Employee) => self.employee = employee);
+        this.api.layout('EmployeeDetailsForm').toPromise().then((layout: any) => {
+            self.fields = layout.Fields.filter((field: FieldLayout) => field.FieldType === 10);
         });
         this.config = {
-            submitText: "Enviar"
+            submitText: 'Enviar'
         };
-        setTimeout(()=>{
-            this.Api.get(1).toPromise().then((employee:any) => self.employee = employee);
-        },1000)
+        setTimeout(() => {
+            this.api.get(2).toPromise().then((employee: any) => self.employee = employee);
+        }, 1000);
     }
 
     public submit(value) {
-        console.log("Submit:", value);
+        console.log('Submit:', value);
     }
 
     public ready(value) {
-        console.log("Ready:", value);
+        console.log('Ready:', value);
     }
 
     public change(value) {
-        console.log("Change:", value);
+        console.log('Change:', value);
     }
 }

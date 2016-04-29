@@ -260,30 +260,6 @@ export class EmployeeService extends BizHttp<Employee> {
                 {
                     ComponentLayoutID: 1,
                     EntityType: 'Employee',
-                    Property: '',
-                    Placement: 7,
-                    Hidden: false,
-                    FieldType: FieldType.TEXT,
-                    ReadOnly: false,
-                    LookupField: false,
-                    Label: 'Overordnet',
-                    Description: null,
-                    HelpText: 'Ikke implementert enda',
-                    FieldSet: 0,
-                    Section: 0,
-                    Legend: '',
-                    IsLookUp: false,
-                    Validations: [
-                        {
-                            ErrorMessage: 'Required field',
-                            Level: 3,
-                            Operator: 'REQUIRED'
-                        }
-                    ]
-                },
-                {
-                    ComponentLayoutID: 1,
-                    EntityType: 'Employee',
                     Property: 'BusinessRelationInfo.Addresses[0].AddressLine1',
                     Placement: 1,
                     Hidden: false,

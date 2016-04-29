@@ -11,7 +11,7 @@ import {
 
 @Component({
     selector: 'uni-component-loader',
-    template: '',
+    template: '<div></div>',
 })
 export class UniComponentLoader {
 

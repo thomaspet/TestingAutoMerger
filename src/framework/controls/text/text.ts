@@ -1,23 +1,42 @@
-import {Component, Input, ElementRef} from 'angular2/core';
-import {UniFieldBuilder} from '../../forms/builders/uniFieldBuilder';
+import {Component, Input, Output, ElementRef, EventEmitter} from 'angular2/core';
+import {Control, FORM_DIRECTIVES} from 'angular2/common';
+import {FieldLayout} from '../../../app/unientities';
 
 declare var jQuery;
 
 @Component({
     selector: 'uni-text',
+    directives: [FORM_DIRECTIVES],
     template: `
-        <input
-            *ngIf="config.control"
+        <input *ngIf="control"
             type="text"
-            [ngFormControl]="config.control"
-            [readonly]="config.readonly"
-            [disabled]="config.disabled"
+            [ngFormControl]="control"
+            [readonly]="field?.ReadOnly"
         />
     `
 })
 export class UniTextInput {
     @Input()
-    public config: UniFieldBuilder;
+    public control: Control;
+
+    @Input()
+    public field: FieldLayout;
+
+    @Input()
+    public model: any;
+
+    @Output()
+    public onReady: EventEmitter<any> = new EventEmitter<any>(true);
+    public isReady = true;
+    
+    get OnValueChanges() {
+        return this.control.valueChanges;
+    }
+
+    get FormControl() {
+        return this.control;
+    }
+
     constructor(public elementRef: ElementRef) {
     }
 
@@ -26,16 +45,8 @@ export class UniTextInput {
         return this;
     }
 
-
-    public ngOnInit() {
-        this.config.fieldComponent = this;
-    }
-
     public ngAfterViewInit() {
-        this.config.ready.emit(this);
-    }
-
-    public refresh(value: any) {
-        this.config.control.updateValue(value, {});
+        this.onReady.emit(this);
+        this.isReady = true;
     }
 }

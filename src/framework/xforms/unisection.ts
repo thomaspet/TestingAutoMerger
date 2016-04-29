@@ -1,4 +1,4 @@
-import {Component, EventEmitter, Input, Output, ChangeDetectionStrategy} from "angular2/core";
+import {Component, Input, QueryList, ViewChildren, ChangeDetectorRef, ChangeDetectionStrategy, SimpleChange} from "angular2/core";
 import {FORM_DIRECTIVES, FORM_PROVIDERS, ControlGroup} from "angular2/common";
 import {FieldLayout} from "../../app/unientities";
 import {UniField} from "../xforms/unifield";
@@ -28,9 +28,9 @@ declare var _; //lodash
             </div>
         </article>
     `,
-    directives: [FORM_DIRECTIVES, UniField, UniFieldSet],
-    providers: [FORM_PROVIDERS],
     changeDetection: ChangeDetectionStrategy.OnPush,
+    directives: [FORM_DIRECTIVES, UniField, UniFieldSet],
+    providers: [FORM_PROVIDERS]
 })
 export class UniSection {
     @Input()
@@ -42,23 +42,32 @@ export class UniSection {
     @Input()
     public model: any;
 
+    @ViewChildren(UniField)
+    public fieldElements: QueryList<UniField>;
+
+    @ViewChildren(UniField)
+    public fieldsetElements: QueryList<UniFieldSet>;
+
     public sectionId: number;
     private groupedFields: any;
     private config: any = {};
     public isOpen: boolean = false;
-    constructor() { }
+    constructor(private cd: ChangeDetectorRef) { }
 
-    public ngOnChanges() {
-        if (this.fields && this.fields.length > 0) {
-            this.sectionId = this.fields[0].Section;
-            this.config.legend = this.fields[0].Legend;
+    public ngOnChanges(changes: { [propKey: string]: SimpleChange }) {
+        if (changes['fields']) {
+            if (this.fields && this.fields.length > 0) {
+                this.sectionId = this.fields[0].Section;
+                this.config.legend = this.fields[0].Legend;
 
+            }
+            this.groupedFields = this.groupFields();
         }
-        this.groupedFields = this.groupFields();
     }
 
     public toggle() {
         this.isOpen = !this.isOpen;
+        this.cd.markForCheck();
     }
 
     private isField(field: FieldLayout): boolean {
@@ -94,5 +103,28 @@ export class UniSection {
             group.push(fieldset);
         }
         return group;
+    }
+
+    public getElement(property: string) {
+        // look into top lever fields
+        var item: UniField[] = this.fieldElements.filter((cmp: UniField) => {
+            return cmp.field.Property === property;
+        });
+        if (item.length > 0) {
+            return item[0];
+        }
+
+        // Look inside fieldsets
+        var element: UniField;
+        this.fieldsetElements.forEach((cmp: UniFieldSet) => {
+            if (!element) {
+                element = cmp.getElement(property);
+            }
+        });
+        if (element) {
+            return element;
+        }
+
+        return;
     }
 }
