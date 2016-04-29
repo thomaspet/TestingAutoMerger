@@ -34,8 +34,10 @@ export class QuoteDetails {
     @ViewChild(UniComponentLoader)
     ucl: UniComponentLoader;
     
-    businessRelationInvoice: BusinessRelation;
-    businessRelationShipping: BusinessRelation;
+    businessRelationInvoice: BusinessRelation = new BusinessRelation();
+    businessRelationShipping: BusinessRelation = new BusinessRelation();
+    lastCustomerInfo: BusinessRelation;
+    
     quote: CustomerQuote;
     lastSavedInfo: string;
     statusText: string;
@@ -60,6 +62,8 @@ export class QuoteDetails {
                 private addressService: AddressService, 
                 private router: Router, private params: RouteParams) {                
         this.QuoteID = params.get("id");
+        this.businessRelationInvoice.Addresses = [];
+        this.businessRelationShipping.Addresses = [];
     }
 
     log(err) {
@@ -93,20 +97,68 @@ export class QuoteDetails {
     }
         
     addAddresses() {
+        var invoiceaddresses = this.businessRelationInvoice.Addresses ? this.businessRelationInvoice.Addresses : [];
+        var shippingaddresses = this.businessRelationShipping.Addresses ? this.businessRelationShipping.Addresses : [];
+        var firstinvoiceaddress = null;
+        var firstshippingaddress = null;
+                        
+        // remove addresses from last customer
+        if (this.lastCustomerInfo) {           
+            this.lastCustomerInfo.Addresses.forEach(a => {
+                invoiceaddresses.forEach((b, i) => {
+                    if (a.ID == b.ID) {
+                        delete invoiceaddresses[i];
+                        return;
+                    }    
+                });      
+                shippingaddresses.forEach((b, i) => {
+                    if (a.ID == b.ID) {
+                        delete shippingaddresses[i];
+                        return;
+                    }    
+                });      
+            });           
+        }
+        
+        // Add address from order if no addresses
+        if (invoiceaddresses.length == 0) {
+            var invoiceaddress = this.invoiceToAddress();
+            if (!this.isEmptyAddress(invoiceaddress)) {
+                firstinvoiceaddress = invoiceaddress; 
+            }            
+        } else {
+            console.log(invoiceaddresses);
+            firstinvoiceaddress = invoiceaddresses.shift();
+            console.log(invoiceaddresses);
+        }
+        
+        if (shippingaddresses.length == 0) {
+            var shippingaddress = this.shippingToAddress();
+            if (!this.isEmptyAddress(shippingaddress)) { 
+                firstshippingaddress = shippingaddress; 
+            }            
+        } else {
+            firstshippingaddress = shippingaddresses.shift();
+        }
+                    
+        // Add addresses from current customer
         if (this.quote.Customer) {
             this.businessRelationInvoice = _.cloneDeep(this.quote.Customer.Info);
-            this.businessRelationShipping = _.cloneDeep(this.quote.Customer.Info);         
-        } else {
-            this.businessRelationInvoice = new BusinessRelation();
-            this.businessRelationShipping = new BusinessRelation();
-            
-            this.businessRelationInvoice.Addresses = [];
-            this.businessRelationShipping.Addresses = [];
-        }           
-                                    
-        this.businessRelationInvoice.Addresses.unshift(this.invoiceToAddress());
-        this.businessRelationShipping.Addresses.unshift(this.shippingtoAddress());                    
-    }    
+            this.businessRelationShipping = _.cloneDeep(this.quote.Customer.Info);  
+            this.lastCustomerInfo = this.quote.Customer.Info;       
+        }
+        
+        if (!this.isEmptyAddress(firstinvoiceaddress)) {
+            this.businessRelationInvoice.Addresses.unshift(firstinvoiceaddress);
+        }
+        
+        if (!this.isEmptyAddress(firstshippingaddress)) {
+            this.businessRelationShipping.Addresses.unshift(firstshippingaddress);
+        }
+        
+        this.businessRelationInvoice.Addresses = this.businessRelationInvoice.Addresses.concat(invoiceaddresses);
+        this.businessRelationShipping.Addresses = this.businessRelationShipping.Addresses.concat(shippingaddresses);        
+    }      
         
     recalcTimeout: any;
     
@@ -293,6 +345,7 @@ export class QuoteDetails {
                 self.quote.Customer = customer;
                 self.quote.CustomerName = customer.Info.Name;
                 self.addAddresses();           
+                
                 invoiceaddress.refresh(self.businessRelationInvoice);
                 shippingaddress.refresh(self.businessRelationShipping);
             });
@@ -314,6 +367,17 @@ export class QuoteDetails {
         });
     } 
     
+    isEmptyAddress(address: Address): boolean {
+        if (address == null) return true;
+        return (address.AddressLine1 == null &&
+            address.AddressLine2 == null &&
+            address.AddressLine3 == null &&
+            address.PostalCode == null &&
+            address.City == null &&
+            address.Country == null &&
+            address.CountryCode == null);
+    }
+    
     invoiceToAddress(): Address {
         var a = new Address();
         a.AddressLine1 = this.quote.InvoiceAddressLine1;
@@ -327,7 +391,7 @@ export class QuoteDetails {
         return a;
     }
     
-    shippingtoAddress(): Address {
+    shippingToAddress(): Address {
         var a = new Address();
         a.AddressLine1 = this.quote.ShippingAddressLine1;
         a.AddressLine2 = this.quote.ShippingAddressLine2;

@@ -34,8 +34,10 @@ export class InvoiceDetails {
     @ViewChild(UniComponentLoader)
     ucl: UniComponentLoader;
     
-    businessRelationInvoice: BusinessRelation;
-    businessRelationShipping: BusinessRelation;
+    businessRelationInvoice: BusinessRelation = new BusinessRelation();
+    businessRelationShipping: BusinessRelation = new BusinessRelation();
+    lastCustomerInfo: BusinessRelation;
+    
     invoice: CustomerInvoice;
     lastSavedInfo: string;
     statusText: string;
@@ -60,7 +62,8 @@ export class InvoiceDetails {
                 private addressService: AddressService, 
                 private router: Router, private params: RouteParams) {                
         this.InvoiceID = params.get('id');
-        console.log('invoicedetails constructor');
+        this.businessRelationInvoice.Addresses = [];
+        this.businessRelationShipping.Addresses = [];
     }
     
     log(err) {
@@ -93,22 +96,67 @@ export class InvoiceDetails {
     }
         
     addAddresses() {
-       
+        var invoiceaddresses = this.businessRelationInvoice.Addresses ? this.businessRelationInvoice.Addresses : [];
+        var shippingaddresses = this.businessRelationShipping.Addresses ? this.businessRelationShipping.Addresses : [];
+        var firstinvoiceaddress = null;
+        var firstshippingaddress = null;
+                        
+        // remove addresses from last customer
+        if (this.lastCustomerInfo) {           
+            this.lastCustomerInfo.Addresses.forEach(a => {
+                invoiceaddresses.forEach((b, i) => {
+                    if (a.ID == b.ID) {
+                        delete invoiceaddresses[i];
+                        return;
+                    }    
+                });      
+                shippingaddresses.forEach((b, i) => {
+                    if (a.ID == b.ID) {
+                        delete shippingaddresses[i];
+                        return;
+                    }    
+                });      
+            });           
+        }
+        
+        // Add address from order if no addresses
+        if (invoiceaddresses.length == 0) {
+            var invoiceaddress = this.invoiceToAddress();
+            if (!this.isEmptyAddress(invoiceaddress)) {
+                firstinvoiceaddress = invoiceaddress; 
+            }            
+        } else {
+            firstinvoiceaddress = invoiceaddresses.shift();
+        }
+        
+        if (shippingaddresses.length == 0) {
+            var shippingaddress = this.shippingToAddress();
+            if (!this.isEmptyAddress(shippingaddress)) { 
+                firstshippingaddress = shippingaddress; 
+            }            
+        } else {
+            firstshippingaddress = shippingaddresses.shift();
+        }
+                    
+        // Add addresses from current customer
         if (this.invoice.Customer) {
             this.businessRelationInvoice = _.cloneDeep(this.invoice.Customer.Info);
-            this.businessRelationShipping = _.cloneDeep(this.invoice.Customer.Info);         
-        } else {
-            this.businessRelationInvoice = new BusinessRelation();
-            this.businessRelationShipping = new BusinessRelation();
-            
-            this.businessRelationInvoice.Addresses = [];
-            this.businessRelationShipping.Addresses = [];
-        }           
-                                    
-        this.businessRelationInvoice.Addresses.unshift(this.invoiceToAddress());
-        this.businessRelationShipping.Addresses.unshift(this.shippingtoAddress());
-                           
+            this.businessRelationShipping = _.cloneDeep(this.invoice.Customer.Info);  
+            this.lastCustomerInfo = this.invoice.Customer.Info;       
+        }
+        
+        if (!this.isEmptyAddress(firstinvoiceaddress)) {
+            this.businessRelationInvoice.Addresses.unshift(firstinvoiceaddress);
+        }
+        
+        if (!this.isEmptyAddress(firstshippingaddress)) {
+            this.businessRelationShipping.Addresses.unshift(firstshippingaddress);
+        }
+        
+        this.businessRelationInvoice.Addresses = this.businessRelationInvoice.Addresses.concat(invoiceaddresses);
+        this.businessRelationShipping.Addresses = this.businessRelationShipping.Addresses.concat(shippingaddresses);        
     }    
+   
         
     recalcTimeout: any;
     
@@ -135,7 +183,11 @@ export class InvoiceDetails {
             
             this.customerInvoiceService.calculateInvoiceSummary(invoiceItems)
             .subscribe((data) => this.itemsSummaryData = data,
-                       (err) => console.log('Error when recalculating items:',err)); 
+                       (err) => {
+                           console.log('Error when recalculating items:',err)
+                           this.log(err);    
+                       }
+            ); 
         }, 2000); 
     }
     
@@ -171,11 +223,7 @@ export class InvoiceDetails {
                     this.lastSavedInfo = 'Sist lagret: ' + (new Date()).toLocaleTimeString();
                     this.invoice = invoice;
                     this.updateStatusText();   
-                    
-                    console.log("=== NEW INVOICE ===");
-                    console.log(invoice.CreditDays);
-                    console.log(invoice.PaymentDueDate);
-                    
+                                       
                     if (cb) cb(invoice);
                 },
                 (err) => {
@@ -315,8 +363,6 @@ export class InvoiceDetails {
                dataSource: this.customers
             });
         customer.onSelect = function (customerID) {
-            console.log('Customer changed');
-            
             self.customerService.Get(customerID, ['Info', 'Info.Addresses']).subscribe((customer: Customer) => {
                 self.invoice.Customer = customer;
                 self.addAddresses();           
@@ -342,6 +388,16 @@ export class InvoiceDetails {
         });
     } 
     
+    isEmptyAddress(address: Address): boolean {
+        if (address == null) return true;
+        return (address.AddressLine1 == null &&
+            address.AddressLine2 == null &&
+            address.AddressLine3 == null &&
+            address.PostalCode == null &&
+            address.City == null &&
+            address.Country == null &&
+            address.CountryCode == null);
+    }
     
     invoiceToAddress(): Address {
         var a = new Address();
@@ -356,7 +412,7 @@ export class InvoiceDetails {
         return a;
     }
     
-    shippingtoAddress(): Address {
+    shippingToAddress(): Address {
         var a = new Address();
         a.AddressLine1 = this.invoice.ShippingAddressLine1;
         a.AddressLine2 = this.invoice.ShippingAddressLine2;
