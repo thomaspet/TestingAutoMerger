@@ -9,7 +9,7 @@ declare var _; // lodash
 @Component({
     selector: 'uni-section',
     template: `
-        <article class="collapsable" [ngClass]="{'-is-open':isOpen}">
+        <article class="collapsable" [ngClass]="{'-is-open':isOpen}" [hidden]="Hidden">
             <h4 *ngIf="config.legend" (click)="toggle()">{{config.legend}}</h4>
             <div class="collapsable-content">
                 <template ngFor let-item [ngForOf]="groupedFields" let-i="index">
@@ -62,6 +62,14 @@ export class UniSection {
     
     private totalFields: number;
     private readyFields: number;
+    
+    private hidden: boolean = false;
+    public get Hidden() { return this.hidden; }
+    
+    public set Hidden(value: boolean) {
+        this.hidden = value;
+        this.cd.markForCheck();
+    }
     
     constructor(private cd: ChangeDetectorRef) { }
 

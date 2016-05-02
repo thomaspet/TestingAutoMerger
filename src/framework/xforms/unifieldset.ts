@@ -7,7 +7,7 @@ declare var _; // lodash
 @Component({
     selector: 'uni-field-set',
     template: `
-        <fieldset>
+        <fieldset [hidden]="Hidden">
             <legend *ngIf="config.legend">{{config.legend}}</legend>
             <template ngFor let-field [ngForOf]="fields" let-i="index">
                 <uni-field
@@ -43,6 +43,14 @@ export class UniFieldSet {
     public fieldsetId: number;
     public sectionId: number;
     public config: any;
+
+    private hidden: boolean = false;
+    public get Hidden() { return this.hidden; }
+    
+    public set Hidden(value: boolean) {
+        this.hidden = value;
+        this.cd.markForCheck();
+    } 
 
     private readyFields: number;
     private totalFields: number;

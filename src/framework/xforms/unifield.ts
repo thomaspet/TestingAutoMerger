@@ -11,10 +11,17 @@ declare var _; // lodash
 @Component({
     selector: 'uni-field',
     template: `
-        <label ngForm *ngIf="isInput()" [class.error]="hasError()" [class]="buildClassString()" [class.-has-linebreak]="hasLineBreak()">
+        <label 
+            *ngIf="isInput()" 
+            [class.error]="hasError()" 
+            [class]="buildClassString()" 
+            [class.-has-linebreak]="hasLineBreak()"
+            [hidden]="Hidden">
+            
             <span>{{field.Label}}</span>
             <uni-component-loader [type]="ComponentType"></uni-component-loader>
             <show-error [control]="component?.control" [messages]="messages"></show-error>
+        
         </label>
     `,
     changeDetection: ChangeDetectionStrategy.OnPush,
@@ -46,9 +53,16 @@ export class UniField {
     private component: any;
 
     public get Component() { return this.component; }
-
+    
     constructor(private ref: ChangeDetectorRef) { }
-
+    
+    public get Hidden() { return this.field.Hidden; }
+    
+    public set Hidden(value: boolean) {
+        this.field.Hidden = value;
+        this.ref.markForCheck();
+    } 
+    
     public setFocus() {
         if (this.Component.setFocus) {
             this.Component.setFocus();

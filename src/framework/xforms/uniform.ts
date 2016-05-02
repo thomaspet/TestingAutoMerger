@@ -17,7 +17,7 @@ declare var _; // lodash
     directives: [FORM_DIRECTIVES, UniField, UniFieldSet, UniSection],
     providers: [FORM_PROVIDERS],
     template: `
-        <form (submit)="submit($event)" [ngFormModel]="controls">
+        <form (submit)="submit($event)" [ngFormModel]="controls" [hidden]="Hidden">
             <template ngFor let-item [ngForOf]="groupedFields" let-i="index">
                 <uni-field 
                     *ngIf="isField(item)"
@@ -88,6 +88,13 @@ export class UniForm {
 
     private readyFields: number;
     private totalFields: number;
+
+    private hidden: boolean = false;
+    public get Hidden() { return this.hidden; }
+    
+    public set Hidden(value: boolean) {
+        this.hidden = value;
+    }
 
     constructor(private builder: FormBuilder) {
 

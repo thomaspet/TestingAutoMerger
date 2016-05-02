@@ -68,7 +68,20 @@ export class XFormDemo {
         }, 4000);
         setTimeout(() => {
             self.uniform.editMode();
-        }, 5000);             
+        }, 5000); 
+        setTimeout(() => {
+            self.uniform.Hidden = true;
+        }, 6000); 
+        setTimeout(() => {
+            self.uniform.Hidden = false;
+        }, 7000); 
+        setTimeout(() => {
+            self.uniform.section(1).Hidden = true;
+        }, 8000); 
+        setTimeout(() => {
+            self.uniform.section(1).Hidden = false;
+        }, 9000); 
+                    
     }
 
     public change(value) {

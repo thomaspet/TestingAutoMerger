@@ -1,4 +1,5 @@
 import {Component, Input} from 'angular2/core';
+import {Control} from 'angular2/common';
 import {NgIf} from 'angular2/common';
 
 /**
@@ -14,10 +15,10 @@ import {NgIf} from 'angular2/common';
 export class ShowError {
 
     @Input()
-    public control;
+    public control: Control;
 
     @Input()
-    public messages;
+    public messages: any[];
 
     constructor() {
     }
