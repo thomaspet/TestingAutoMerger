@@ -222,8 +222,12 @@ export class SalaryTransactionEmployeeList implements OnInit {
         var wagetypenameCol = new UniTableColumn('Text', 'Tekst', 'string');
         var fromdateCol = new UniTableColumn('FromDate', 'Fra dato', 'date');
         var toDateCol = new UniTableColumn('ToDate', 'Til dato', 'date');
-        var rateCol = new UniTableColumn('Rate', 'Sats', 'number');
-        var amountCol = new UniTableColumn('Amount', 'Antall', 'number');
+        var rateCol = new UniTableColumn('Rate', 'Sats', 'number').setCustomEditor('numericeditor', { }, (item, rowModel) => {
+            rowModel.set('Sum', item * rowModel.Amount);
+            });
+        var amountCol = new UniTableColumn('Amount', 'Antall', 'number').setCustomEditor('numericeditor', { }, (item, rowModel) => {
+            rowModel.set('Sum', item * rowModel.Rate);
+        });
         var sumCol = new UniTableColumn('Sum', 'Sum', 'number').setCustomEditor('readonlyeditor', null).setEditable(true);
         
         this.runIDcol = new UniTableColumn('PayrollRunID', 'Lønnsavregningsid' ).setHidden(true);

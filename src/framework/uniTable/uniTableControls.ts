@@ -99,4 +99,19 @@ export class UniTableControls {
             });
         }
     }
+    
+    public numericEditor(kendoOptions, changeCallback?: (item: any, rowModel: any) => any) {
+        return (container, options) => {
+            jQuery('<input data-bind="value:' + options.field + '"/>')
+            .appendTo(container)
+            .kendoNumericTextBox(jQuery.extend(kendoOptions, {
+                value: options.model[options.field],
+                change: (event: kendo.ui.NumericTextBoxEvent) => {
+                    if (changeCallback) {
+                        changeCallback(event.sender.value(), this.getRowModel(container));
+                    }
+                }
+        }));
+    }
+}
 }
