@@ -33,7 +33,7 @@ export class SalaryTransactionSelectionList implements OnInit {
     }
     
     public ngOnInit() {
-        this.selectedPayrollRun.StatusCode < 1 ? this.disableFilter = true : this.disableFilter = false;
+        this.selectedPayrollRun.StatusCode < 1 ? this.disableFilter = false : this.disableFilter = true;
         this.tableConfig();
     }
     
