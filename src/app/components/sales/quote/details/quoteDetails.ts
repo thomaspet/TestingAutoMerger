@@ -606,7 +606,7 @@ export class QuoteDetails {
                     Description: "",
                     HelpText: "",
                     FieldSet: 0,
-                    Section: 0,
+                    Section: 1,
                     Legend: "Fritekst",
                     StatusCode: 0,
                     ID: 9,
