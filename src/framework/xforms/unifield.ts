@@ -47,7 +47,7 @@ export class UniField {
 
     public get Component() { return this.component; }
 
-    constructor(private ref: ChangeDetectorRef) {}
+    constructor(private ref: ChangeDetectorRef) { }
 
     public setFocus() {
         if (this.Component.setFocus) {
@@ -61,7 +61,7 @@ export class UniField {
             this.ref.markForCheck();
         }
     }
-    
+
     public editMode() {
         if (this.Component.editMode) {
             this.Component.editMode();
@@ -69,7 +69,7 @@ export class UniField {
         }
     }
 
-    public addClass(name:string,value:any) {
+    public addClass(name: string, value: any) {
         this.classes[name] = value;
     }
 
@@ -78,20 +78,20 @@ export class UniField {
             this.initComponent();
         }
     }
-    
+
     public ngAfterViewInit() {
         this.initComponent();
     }
 
     private initComponent() {
         var self = this;
-        
+
         var value = _.get(this.model, this.field.Property);
-        
+
         this.messages = MessageComposer.composeMessages(this.field);
-        
+
         var syncvalidators = ValidatorsComposer.composeSyncValidators(this.field);
-        var asyncvalidators = ValidatorsComposer.composeAsyncValidators(this.field);        
+        var asyncvalidators = ValidatorsComposer.composeAsyncValidators(this.field);
         var control = new Control(value, syncvalidators, asyncvalidators);
         this.controls.addControl(this.field.Property, control);
         control.valueChanges.subscribe((newValue: any) => {
@@ -114,7 +114,7 @@ export class UniField {
                 self.onReady.emit(self);
             });
         }
-        
+
     }
 
     private isInput() {

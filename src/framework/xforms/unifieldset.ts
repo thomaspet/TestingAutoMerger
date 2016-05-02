@@ -13,7 +13,8 @@ declare var _; // lodash
                 <uni-field
                     [controls]="controls"
                     [field]="field" 
-                    [model]="model">
+                    [model]="model"
+                    (onReady)="onReadyHandler($event)">
                 </uni-field>
             </template>
         </fieldset>
@@ -43,7 +44,12 @@ export class UniFieldSet {
     public sectionId: number;
     public config: any;
 
-    constructor(private cd: ChangeDetectorRef) { }
+    private readyFields: number;
+    private totalFields: number;
+
+    constructor(private cd: ChangeDetectorRef) { 
+        this.readyFields = 0;
+    }
 
     public ngOnChanges(changes: { [propKey: string]: SimpleChange }) {
         if (changes['fields']) {
@@ -57,17 +63,15 @@ export class UniFieldSet {
     }
 
     public ngAfterViewInit() {
-        var self = this;
-        var ready = 0;
-        var fields = this.fieldElements.toArray();
-        fields.forEach((field: UniField) => {
-            field.onReady.subscribe((field: UniField) => {
-                ready++;
-                if (ready === fields.length) {
-                    self.onReady.emit(this);
-                }
-            });
-        });
+        this.totalFields = this.fieldElements.toArray().length;
+        this.readyFields = 0;
+    }
+
+    public onReadyHandler(field: UniField) {
+        this.readyFields++;
+        if (this.readyFields === this.totalFields) {
+            this.onReady.emit(this);
+        }
     }
 
     public readMode() {

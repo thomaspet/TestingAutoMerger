@@ -17,13 +17,15 @@ declare var _; // lodash
                         *ngIf="isField(item)"
                         [controls]="controls"
                         [field]="item" 
-                        [model]="model">
+                        [model]="model"
+                        (onReady)="onReadyHandler($event)">
                     </uni-field>
                     <uni-field-set 
                         *ngIf="isFieldSet(item)" 
                         [controls]="controls"
                         [fields]="item" 
-                        [model]="model">                    
+                        [model]="model"
+                        (onReady)="onReadyHandler($event)">                    
                     </uni-field-set>
                 </template>
             </div>
@@ -57,7 +59,10 @@ export class UniSection {
 
     private groupedFields: any;
     private config: any = {};
-
+    
+    private totalFields: number;
+    private readyFields: number;
+    
     constructor(private cd: ChangeDetectorRef) { }
 
     public ngOnChanges(changes: { [propKey: string]: SimpleChange }) {
@@ -72,20 +77,18 @@ export class UniSection {
     }
 
     public ngAfterViewInit() {
-        let self = this;
-        let ready = 0;
         let fieldsets = this.fieldsetElements.toArray();
         let fields = this.fieldElements.toArray();
         let all = [].concat(fields, fieldsets);
+        this.totalFields = all.length;
+        this.readyFields = 0;
+    }
 
-        all.forEach((item: any) => {
-            item.onReady.subscribe(() => {
-                ready++;
-                if (ready === all.length) {
-                    self.onReady.emit(self);
-                }
-            });
-        });
+    public onReadyHandler(item: UniField|UniFieldSet) {
+        this.readyFields++;
+        if (this.readyFields === this.totalFields) {
+            this.onReady.emit(this);
+        }
     }
 
     public toggle() {

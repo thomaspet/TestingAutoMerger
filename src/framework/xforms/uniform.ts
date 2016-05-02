@@ -23,19 +23,22 @@ declare var _; // lodash
                     *ngIf="isField(item)"
                     [controls]="controls"
                     [field]="item" 
-                    [model]="model">
+                    [model]="model"
+                    (onReady)="onReadyHandler($event)">
                 </uni-field>
                 <uni-field-set 
                     *ngIf="isFieldSet(item)" 
                     [controls]="controls"
                     [fields]="item" 
-                    [model]="model">                    
+                    [model]="model"
+                    (onReady)="onReadyHandler($event)">                    
                 </uni-field-set>
                 <uni-section 
                     *ngIf="isSection(item)"
                     [controls]="controls"
                     [fields]="item" 
-                    [model]="model">                        
+                    [model]="model"
+                    (onReady)="onReadyHandler($event)">                        
                 </uni-section>
             </template>
             <button type="submit">{{config.submitText}}</button>
@@ -83,6 +86,9 @@ export class UniForm {
     private _fields: { [propKey: string]: UniField } = {};
     private groupedFields: any[];
 
+    private readyFields: number;
+    private totalFields: number;
+
     constructor(private builder: FormBuilder) {
 
     }
@@ -101,27 +107,25 @@ export class UniForm {
     }
 
     public ngAfterViewInit() {
-        let self = this;
-        let ready = 0;
         let sections = this.sectionElements.toArray();
         let fieldsets = this.fieldsetElements.toArray();
         let fields = this.fieldElements.toArray();
         let all = [].concat(fields, fieldsets, sections);
-
+        
         // cache fields;
         this.fields.forEach((field: FieldLayout) => {
             this._fields[field.Property] = this.field(field.Property);
         });
+        
+        this.totalFields = all.length;
+        this.readyFields = 0;
+    }
 
-        // emit ready when every component is ready
-        all.forEach((item: any) => {
-            item.onReady.subscribe(() => {
-                ready++;
-                if (ready === all.length) {
-                    self.onReady.emit(self);
-                }
-            });
-        });
+    public onReadyHandler(item: UniField|UniFieldSet|UniSection) {
+            this.readyFields++;
+            if (this.readyFields === this.totalFields) {
+                this.onReady.emit(this);
+            }
     }
 
     public readMode() {
