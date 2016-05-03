@@ -1,0 +1,37 @@
+dl.summary
+    display: flex
+    width: 100%
+    background: mix($uni-color-Good, $uni-color-negative, 10%)
+    flex-flow: row wrap
+    position: relative
+    border-top: pxToRem(3) double $uni-color-scale9
+    border-bottom: pxToRem(1) solid $uni-color-scale9
+
+    dt, dd
+        text-align: left
+        flex: 1
+        margin: 0
+        border-left: pxToRem(1) solid $uni-color-scale9
+        font-weight: 400
+
+        &:first-of-type
+            border-left: none
+    dt
+        order: 1
+        padding: .5rem 2rem 0
+        font-variant: small-caps
+        text-transform: lowercase
+        font-size: 1.2rem
+        overflow: hidden
+        text-overflow: ellipsis
+
+    dd
+        order: 3
+        padding: 0 2rem .7rem
+        line-height: 1.2
+
+    &:after
+        display: block
+        content: ''
+        order: 2
+        flex-basis: 100%
