@@ -21,16 +21,39 @@ import {
     FieldType, 
     AccountGroup,
     AGARate,
-    Account
+    Account,
+    CompanySalary
 } from '../../../unientities';
-import {AgaZoneService, CompanySettingsService, CurrencyService, SubEntityService, AccountService, AccountGroupSetService, PeriodSeriesService, CompanyTypeService, MunicipalService} from '../../../services/services';
+import {
+    AgaZoneService, 
+    CompanySettingsService, 
+    CurrencyService, 
+    SubEntityService, 
+    AccountService, 
+    AccountGroupSetService, 
+    PeriodSeriesService, 
+    CompanyTypeService, 
+    MunicipalService,
+    CompanySalaryService
+} from '../../../services/services';
 
 declare var _;
 
 @Component({
     selector: 'settings',
     templateUrl: 'app/components/settings/companySettings/companySettings.html',
-    providers: [CompanySettingsService, AgaZoneService, CurrencyService, SubEntityService, AccountService, AccountGroupSetService, PeriodSeriesService, CompanyTypeService, MunicipalService],
+    providers: [
+        CompanySettingsService, 
+        AgaZoneService, 
+        CurrencyService, 
+        SubEntityService, 
+        AccountService, 
+        AccountGroupSetService, 
+        PeriodSeriesService, 
+        CompanyTypeService, 
+        MunicipalService,
+        CompanySalaryService
+        ],
     directives: [ROUTER_DIRECTIVES, NgFor, NgIf, UniForm]
 })
 
@@ -47,6 +70,7 @@ export class CompanySettings implements OnInit {
     private agaRules: Array<AGARate> = [];
     private municipals: Array<Municipal> = [];
     private accounts: Array<Account> = [];
+    private companySalary: CompanySalary[] = [];
     
     // TODO Use service instead of Http, Use interfaces!!
     constructor(private routeParams: RouteParams,
@@ -59,7 +83,8 @@ export class CompanySettings implements OnInit {
                 private accountGroupSetService: AccountGroupSetService,
                 private periodeSeriesService: PeriodSeriesService,
                 private companyTypeService: CompanyTypeService,
-                private municipalService: MunicipalService) {
+                private municipalService: MunicipalService,
+                private companySalaryService: CompanySalaryService) {
 
     }
     
@@ -74,10 +99,11 @@ export class CompanySettings implements OnInit {
             this.periodeSeriesService.GetAll(null),
             this.accountGroupSetService.GetAll(null),
             this.accountService.GetAll(null),
-            this.companySettingsService.Get(1, ['Address','Emails','Phones']),
-            this.subentityService.GetAll(null, ['BusinessRelationInfo','BusinessRelationInfo.InvoiceAddress']),
+            this.companySettingsService.Get(1, ['Address', 'Emails', 'Phones']),
+            this.subentityService.GetAll(null, ['BusinessRelationInfo', 'BusinessRelationInfo.InvoiceAddress']),
             this.agaZoneService.GetAll(null),
-            this.agaZoneService.getAgaRules()
+            this.agaZoneService.getAgaRules(),
+            this.companySalaryService.GetAll('')
         ).subscribe(
             (dataset) => {
                 let filter: string = '';
@@ -98,6 +124,7 @@ export class CompanySettings implements OnInit {
                         this.subEntities = dataset[6];
                         this.agaZones = dataset[7];
                         this.agaRules = dataset[8];
+                        this.companySalary = dataset[9];
                         this.municipals = response;
        
                         this.buildForm();
@@ -185,7 +212,44 @@ export class CompanySettings implements OnInit {
         officeMunicipality.addUniElements(officeMunicipalNumber, officeMunicipalName);
         
         // *********************  Virksomhet og aga  ***************************/
-        var subEntitiesSection = new UniSectionBuilder('Virksomhet og aga');
+        var subEntitiesSection = new UniSectionBuilder('Virksomhet og arbeidsgiverafgift(aga)');
+        
+        var mainAccountAlocatedAga = new UniFieldBuilder();
+        mainAccountAlocatedAga
+            .setLabel('Konto avsatt aga')
+            .setModel(this.companySalary[0])
+            .setModelField('MainAccountAllocatedAGA')
+            .setType(UNI_CONTROL_DIRECTIVES[FieldType.TEXT]);
+            
+        var mainAccountCostAga = new UniFieldBuilder();
+        mainAccountCostAga
+            .setLabel('Konto kostnad aga')
+            .setModel(this.companySalary[0])
+            .setModelField('MainAccountCostAGA')
+            .setType(UNI_CONTROL_DIRECTIVES[FieldType.TEXT]);
+            
+        var mainAccountAllocatedAgaVacation = new UniFieldBuilder();
+        mainAccountAllocatedAgaVacation
+            .setLabel('Avsatt aga av feriepenger')
+            .setModel(this.companySalary[0])
+            .setModelField('MainAccountAllocatedAGAVacation')
+            .setType(UNI_CONTROL_DIRECTIVES[FieldType.TEXT]);
+            
+        var mainAccountCostAgaVacation = new UniFieldBuilder();
+        mainAccountCostAgaVacation
+            .setLabel('Kostnad aga feriepenger')
+            .setModel(this.companySalary[0])
+            .setModelField('MainAccountCostAGAVacation')
+            .setType(UNI_CONTROL_DIRECTIVES[FieldType.TEXT]);
+            
+        var freeAmount = new UniFieldBuilder();
+        freeAmount
+            .setLabel('Fribeløp')
+            .setModel(this.companySalary[0])
+            .setModelField('FreeAmount')
+            .setType(UNI_CONTROL_DIRECTIVES[FieldType.TEXT]);
+        
+        subEntitiesSection.addUniElements(mainAccountAlocatedAga, mainAccountCostAga, mainAccountAllocatedAgaVacation, mainAccountCostAgaVacation, freeAmount);
         this.subEntities.forEach(subEntity => {
             var municipal = this.getMunicipality(subEntity.MunicipalityNo);
             var agaZone: AGAZone = this.getAgaZone(subEntity.AgaZone);
@@ -279,7 +343,32 @@ export class CompanySettings implements OnInit {
             subEntitiesSection.addUniElement(subEntitySection);
         });
         
+        // *********************  Instillinger lønn  ***************************/
         
+        var salarySettings = new UniSectionBuilder('Innstillinger spesifikke for lønn (inneholder midlertidige felt)');
+        
+        var interrimRemit = new UniFieldBuilder();
+        interrimRemit
+            .setLabel('Mellomkonto remittering')
+            .setModel(this.companySalary[0])
+            .setModelField('InterrimRemitAccount')
+            .setType(UNI_CONTROL_DIRECTIVES[FieldType.TEXT]);
+        
+        var mainAccountAllocatedVacation = new UniFieldBuilder();
+        mainAccountAllocatedVacation
+            .setLabel('Balanse feriepenger')
+            .setModel(this.companySalary[0])
+            .setModelField('MainAccountAllocatedVacation')
+            .setType(UNI_CONTROL_DIRECTIVES[FieldType.TEXT]);
+        
+        var mainAccountCostVacation = new UniFieldBuilder();
+        mainAccountCostVacation
+            .setLabel('Resultat feriepenger')
+            .setModel(this.companySalary[0])
+            .setModelField('MainAccountCostVacation')
+            .setType(UNI_CONTROL_DIRECTIVES[FieldType.TEXT]);
+        
+        salarySettings.addUniElements(interrimRemit, mainAccountAllocatedVacation, mainAccountCostVacation);
         
         // ********************************************************************/
         // ********************  Selskapsoppsett    ***************************/
@@ -455,7 +544,8 @@ export class CompanySettings implements OnInit {
                                    phone, 
                                    email, 
                                    officeMunicipality, 
-                                   subEntitiesSection, 
+                                   subEntitiesSection,
+                                   salarySettings, 
                                    companySetup, 
                                    accountingSettings);
 
