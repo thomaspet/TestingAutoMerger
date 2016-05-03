@@ -107,7 +107,7 @@ export class CustomerDetails {
             this.EmptyPhone = response[3];
             this.EmptyEmail = response[4];
             this.EmptyAddress = response[5];
-                                                           
+            
             this.createFormConfig();
             this.extendFormConfig();
             this.loadForm();                  
@@ -254,7 +254,7 @@ export class CustomerDetails {
                 },
                 {
                     ComponentLayoutID: 3,
-                    EntityType: "Customer",
+                    EntityType: "BusinessRelation",
                     Property: "Emails",
                     Placement: 1,
                     Hidden: false,
@@ -274,7 +274,7 @@ export class CustomerDetails {
                 },
                 {
                     ComponentLayoutID: 3,
-                    EntityType: "Customer",
+                    EntityType: "BusinessRelation",
                     Property: "Phones",
                     Placement: 1,
                     Hidden: false,
@@ -411,11 +411,12 @@ export class CustomerDetails {
             })
             .setModel(this.Customer.Info)
             .setModelField('Phones')
-            .setModelDefaultField("DefaultPhoneID")
+            .setModelDefaultField('DefaultPhoneID')
             .setPlaceholder(this.EmptyPhone)
             .setEditor(PhoneModal);     
         phones.onSelect = (phone: Phone) => {
             this.Customer.Info.DefaultPhone = phone;
+            this.Customer.Info.DefaultPhoneID = null;
         };
 
         var emails: UniFieldBuilder = this.FormConfig.find('Emails');
@@ -426,11 +427,12 @@ export class CustomerDetails {
             })
             .setModel(this.Customer.Info)
             .setModelField('Emails')
-            .setModelDefaultField("DefaultEmailID")
+            .setModelDefaultField('DefaultEmailID')
             .setPlaceholder(this.EmptyEmail)
             .setEditor(EmailModal);  
         emails.onSelect = (email: Email) => {
             this.Customer.Info.DefaultEmail = email;
+            this.Customer.Info.DefaultEmailID = null;
         };
    
             
@@ -442,11 +444,12 @@ export class CustomerDetails {
             })
             .setModel(this.Customer.Info)
             .setModelField('Addresses')
-            .setModelDefaultField("InvoiceAddressID")
+            .setModelDefaultField('InvoiceAddressID') 
             .setPlaceholder(this.EmptyAddress)
             .setEditor(AddressModal);     
         invoiceaddress.onSelect = (address: Address) => {
             this.Customer.Info.InvoiceAddress = address;
+            this.Customer.Info.InvoiceAddressID = null;
         };
 
         var shippingaddress: UniFieldBuilder = this.FormConfig.find('ShippingAddress');
@@ -457,11 +460,12 @@ export class CustomerDetails {
             })
             .setModel(this.Customer.Info)
             .setModelField('Addresses')
-            .setModelDefaultField("ShippingAddressID")
+            .setModelDefaultField('ShippingAddressID') 
             .setPlaceholder(this.EmptyAddress)
             .setEditor(AddressModal);           
         shippingaddress.onSelect = (address: Address) => {
             this.Customer.Info.ShippingAddress = address;
+            this.Customer.Info.ShippingAddressID = null;
         };
     }    
        
@@ -491,16 +495,16 @@ export class CustomerDetails {
     }
 
     saveCustomer() {
-        this.formInstance.sync(); // TODO: this one caues multivalue to break, missing parts of model after calling it
-        this.LastSavedInfo = 'Lagrer kundeinformasjon...';                
+        //this.formInstance.sync(); // TODO: this one caues multivalue to break, missing parts of model after calling it
+        
+        this.LastSavedInfo = 'Lagrer kundeinformasjon...';                        
                             
         if (this.CustomerID > 0) { 
             this.customerService.Put(this.Customer.ID, this.Customer)
                 .subscribe(
                     (customer) => {  
                         this.LastSavedInfo = 'Sist lagret: ' + (new Date()).toLocaleTimeString();
-                        //this.Customer = customer;
-                        this.customerService.Get(this.Customer.ID, ["Info", "Info.Phones", "Info.Addresses", "Info.Emails"]).subscribe(customer => {
+                        this.customerService.Get(this.Customer.ID, ["Info", "Info.Phones", "Info.Addresses", "Info.Emails"]).subscribe(customer => {                          
                             this.Customer = customer;
                         });
                     },
