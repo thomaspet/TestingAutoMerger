@@ -1,3 +1,17 @@
+<section *ngIf="currentEmployment" [attr.aria-busy]="busy">
+    <uni-component-loader></uni-component-loader>
+</section>
+
+<!--<footer class="full-footer">
+    <section class="application">
+        <button class="good" (click)="saveEmployment($event)">Lagre arbeidsforhold</button>        
+        <section class="auto_save_info">
+            {{ lastSavedInfo }}
+        </section>
+    </section>
+</footer>-->
+
+<!--
 <main *ngIf="currentEmployee && formConfigs"
          class="employment_cardform">
 
@@ -27,4 +41,4 @@
         <h1>Legg til arbeidsforhold</h1>
     </a>
 
-</main>
+</main>-->
