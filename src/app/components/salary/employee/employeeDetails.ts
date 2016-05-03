@@ -26,9 +26,9 @@ const CHILD_ROUTES = [
         loader: () => ComponentProxy.LoadComponentAsync('PersonalDetails', './app/components/salary/employee/personalDetails/personalDetails')
     }),
     new AsyncRoute({
-        path: '/employment',
+        path: '/employmentList',
         name: 'Arbeidsforhold',
-        loader: () => ComponentProxy.LoadComponentAsync('EmployeeEmployment', './app/components/salary/employee/employments/employments')
+        loader: () => ComponentProxy.LoadComponentAsync('EmploymentList', './app/components/salary/employee/employments/employmentList')
     }),
     new AsyncRoute({
         path: '/salarytrans',
