@@ -10,11 +10,14 @@ import {UniFormLayoutBuilder} from "../../../../../../framework/forms/builders/u
 import {UniForm} from "../../../../../../framework/forms/uniForm";
 import {UniFieldBuilder} from "../../../../../../framework/forms/builders/uniFieldBuilder";
 import {UniComponentLoader} from "../../../../../../framework/core/componentLoader";
- 
+import {UniAutocompleteConfig} from "../../../../../../framework/controls/autocomplete/autocomplete";
+import {AccountService} from "../../../../../services/services";
+
 @Component({
     selector: 'journal-entry-simple-form',
     templateUrl: 'app/components/accounting/journalentry/components/journalentrysimple/journalentrysimpleform.html',
     directives: [UniComponentLoader],
+    providers: [AccountService]
 })
 export class JournalEntrySimpleForm {
     @Input()
@@ -41,7 +44,7 @@ export class JournalEntrySimpleForm {
     isEditMode: boolean;
     formInstance: UniForm;
         
-    constructor() {   
+    constructor(private accountService: AccountService) {   
         this.isLoaded = false;
         this.isEditMode = false;
         this.departements = [];
@@ -50,7 +53,7 @@ export class JournalEntrySimpleForm {
         this.accounts = [];
         this.JournalEntryLine = new JournalEntryData();
     }
-        
+            
     addJournalEntry(event: any) {        
         this.Created.emit(this.formInstance.Value);
         
@@ -65,6 +68,8 @@ export class JournalEntrySimpleForm {
             instance.Model = self.JournalEntryLine;
             console.log('refreshet formInstance, self.JournalEntryLine:', self.JournalEntryLine);
         });
+        
+        this.setFocusOnDebit();
         console.log('addJournalEntry kjørt');          
     }
     
@@ -98,10 +103,10 @@ export class JournalEntrySimpleForm {
                 {
                     ComponentLayoutID: 1,
                     EntityType: "JournalEntryLineDraft",
-                    Property: "JournalEntryNo",
+                    Property: "NewOrSame",
                     Placement: 1,
                     Hidden: false,
-                    FieldType: 6,
+                    FieldType: 1,
                     ReadOnly: false,
                     LookupField: false,
                     Label: "Bilagsnr",
@@ -141,7 +146,7 @@ export class JournalEntrySimpleForm {
                     Property: "DebitAccountID",
                     Placement: 4,
                     Hidden: false,
-                    FieldType: 1,
+                    FieldType: 0,
                     ReadOnly: false,
                     LookupField: false,
                     Label: "Debet",
@@ -152,26 +157,6 @@ export class JournalEntrySimpleForm {
                     Legend: "",
                     StatusCode: 0,
                     ID: 3,
-                    Deleted: false,
-                    CustomFields: null 
-                },
-                {
-                    ComponentLayoutID: 1,
-                    EntityType: "JournalEntryLineDraft",
-                    Property: "CreditAccountID",
-                    Placement: 4,
-                    Hidden: false,
-                    FieldType: 1,
-                    ReadOnly: false,
-                    LookupField: false,
-                    Label: "Kredit",
-                    Description: "",
-                    HelpText: "",
-                    FieldSet: 0,
-                    Section: 0,
-                    Legend: "",
-                    StatusCode: 0,
-                    ID: 4,
                     Deleted: false,
                     CustomFields: null 
                 },
@@ -191,7 +176,47 @@ export class JournalEntrySimpleForm {
                     Section: 0,
                     Legend: "",
                     StatusCode: 0,
+                    ID: 4,
+                    Deleted: false,
+                    CustomFields: null 
+                },
+                {
+                    ComponentLayoutID: 1,
+                    EntityType: "JournalEntryLineDraft",
+                    Property: "CreditAccountID",
+                    Placement: 4,
+                    Hidden: false,
+                    FieldType: 0,
+                    ReadOnly: false,
+                    LookupField: false,
+                    Label: "Kredit",
+                    Description: "",
+                    HelpText: "",
+                    FieldSet: 0,
+                    Section: 0,
+                    Legend: "",
+                    StatusCode: 0,
                     ID: 5,
+                    Deleted: false,
+                    CustomFields: null 
+                },
+                {
+                    ComponentLayoutID: 1,
+                    EntityType: "JournalEntryLineDraft",
+                    Property: "CreditVatTypeID",
+                    Placement: 4,
+                    Hidden: false,
+                    FieldType: 1,
+                    ReadOnly: false,
+                    LookupField: false,
+                    Label: "MVA",
+                    Description: "",
+                    HelpText: "",
+                    FieldSet: 0,
+                    Section: 0,
+                    Legend: "",
+                    StatusCode: 0,
+                    ID: 6,
                     Deleted: false,
                     CustomFields: null 
                 },
@@ -211,7 +236,7 @@ export class JournalEntrySimpleForm {
                     Section: 0,
                     Legend: "",
                     StatusCode: 0,
-                    ID: 6,
+                    ID: 7,
                     Deleted: false,
                     CustomFields: null 
                 },
@@ -231,7 +256,7 @@ export class JournalEntrySimpleForm {
                     Section: 0,
                     Legend: "",
                     StatusCode: 0,
-                    ID: 7,
+                    ID: 8,
                     Deleted: false,
                     CustomFields: null 
                 },
@@ -251,7 +276,7 @@ export class JournalEntrySimpleForm {
                     Section: 0,
                     Legend: "",
                     StatusCode: 0,
-                    ID: 8,
+                    ID: 9,
                     Deleted: false,
                     CustomFields: null 
                 },
@@ -271,7 +296,7 @@ export class JournalEntrySimpleForm {
                     Section: 0,
                     Legend: "",
                     StatusCode: 0,
-                    ID: 9,
+                    ID: 10,
                     Deleted: false,
                     CustomFields: null 
                 }
@@ -284,55 +309,84 @@ export class JournalEntrySimpleForm {
         this.loadForm();                      
     }
     
-    extendFormConfig() {
-        var journalEntryNo: UniFieldBuilder = this.FormConfig.find('JournalEntryNo');       
-        journalEntryNo.setKendoOptions({
-           format: "n0",
-           min: 1
-        });
-        journalEntryNo.addClass('small-field');
-        
+    extendFormConfig() {        
+        var neworsame: UniFieldBuilder = this.FormConfig.find('NewOrSame');  
         var departement: UniFieldBuilder = this.FormConfig.find('Dimensions.DepartementID');       
+        var project: UniFieldBuilder = this.FormConfig.find('Dimensions.ProjectID');
+        var debitvattype: UniFieldBuilder = this.FormConfig.find('DebitVatTypeID');
+        var debitaccount: UniFieldBuilder = this.FormConfig.find('DebitAccountID');
+        var creditaccount: UniFieldBuilder = this.FormConfig.find('CreditAccountID');
+        var creditvattype: UniFieldBuilder = this.FormConfig.find('CreditVatTypeID');
+        var description: UniFieldBuilder = this.FormConfig.find('Description');
+        var amount: UniFieldBuilder = this.FormConfig.find('Amount');
+                     
+        neworsame.setKendoOptions({
+           dataTextField: 'Name',
+           dataValueField: 'ID',
+           index: 0,
+           dataSource: [{ID: 0, Name: "Samme"},
+                        {ID: 1, Name: "Nytt"}]
+        });
+        
         departement.setKendoOptions({
             dataTextField: 'Name',
             dataValueField: 'ID',
             dataSource: this.departements
         });
         departement.addClass('large-field');
+        departement.onSelect = () => {
+        //    project.setFocus();
+        };
 
-        var project: UniFieldBuilder = this.FormConfig.find('Dimensions.ProjectID');
         project.setKendoOptions({
            dataTextField: 'Name',
            dataValueField: 'ID',
            dataSource: this.projects 
         });      
         project.addClass('large-field');
-        
-        var vattype: UniFieldBuilder = this.FormConfig.find('DebitVatTypeID');
-        vattype.setKendoOptions({
+        project.onSelect = () => {
+        //    description.setFocus();
+        }
+     
+        debitaccount.setKendoOptions(UniAutocompleteConfig.build({
+            valueKey: 'AccountNumber',
+            template: (obj:Account) => `${obj.AccountNumber} - ${obj.AccountName}`,
+            minLength: 2,
+            debounceTime: 300,
+            search: (query:string) => this.accountService.GetAll(`filter=startswith(AccountNumber,'${query}') or contains(AccountName,'${query}')`)
+        }));
+         
+        debitvattype.setKendoOptions({
            dataTextField: 'VatCode',
            dataValueField: 'ID',
            template: "${data.VatCode} (${ data.VatPercent }%)",
            dataSource: this.vattypes 
-        });      
-
-        var debitaccount: UniFieldBuilder = this.FormConfig.find('DebitAccountID');
-        debitaccount.setKendoOptions({
-           dataTextField: 'AccountNumber',
-           dataValueField: 'ID',
-           //template: "${data.AccountNumber} - ${data.AccountName}",
-           dataSource: this.accounts
-        });      
+        });
+        debitvattype.onSelect = () => {
+        //  creditaccount.setFocus();  
+        };
         
-        var creditaccount: UniFieldBuilder = this.FormConfig.find('CreditAccountID');
-        creditaccount.setKendoOptions({
-           dataTextField: 'AccountNumber',
+        creditaccount.setKendoOptions(UniAutocompleteConfig.build({
+            valueKey: 'AccountNumber',
+            template: (obj:Account) => `${obj.AccountNumber} - ${obj.AccountName}`,
+            minLength: 2,
+            debounceTime: 300,
+            search: (query:string) => this.accountService.GetAll(`filter=startswith(AccountNumber,'${query}') or contains(AccountName,'${query}')`)
+        }));
+        creditaccount.onChange = () => {
+            console.log("== CREDIT ACCOUNT SELECTED ==");
+            //console.log(account);
+        }
+        creditvattype.setKendoOptions({
+           dataTextField: 'VatCode',
            dataValueField: 'ID',
-           //template: "${data.AccountNumber} - ${data.AccountName}",
-           dataSource: this.accounts
-        }); 
+           template: "${data.VatCode} (${ data.VatPercent }%)",
+           dataSource: this.vattypes 
+        });
+        creditvattype.onSelect = () => {
+        //   amount.setFocus();  
+        };    
         
-        var description: UniFieldBuilder = this.FormConfig.find('Description');
         description.addClass('large-field');     
     }    
            
@@ -340,11 +394,28 @@ export class JournalEntrySimpleForm {
         var self = this;
         return this.UniCmpLoader.load(UniForm).then((cmp: ComponentRef) => {
             cmp.instance.config = self.FormConfig;
-            cmp.instance.ready.subscribe((instance:UniForm) => self.formInstance = cmp.instance);
+            cmp.instance.ready.subscribe((instance:UniForm) => {
+                self.formInstance = cmp.instance
+
+                // set focus on finanical date
+                var financialdate: UniFieldBuilder = cmp.instance.find('FinancialDate');
+                financialdate.setFocus();
+            });
         });
     }
     
     abortEditJournalEntry(event) {
         this.Aborted.emit(null);
-    }  
+    }
+    
+    emptyJournalEntry(event) {
+        this.JournalEntryLine = new JournalEntryData();
+        // TODO set new or same?
+        this.setFocusOnDebit();
+    }
+    
+    setFocusOnDebit() {
+        var debitaccount: UniFieldBuilder = this.formInstance.find('DebitAccountID');
+        debitaccount.setFocus(); 
+    }
 } 

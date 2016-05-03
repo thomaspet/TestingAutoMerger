@@ -18,11 +18,16 @@ declare var jQuery;
 export class UniTextInput {
     @Input()
     public config: UniFieldBuilder;
+    public nativeElement: any;
+    
     constructor(public elementRef: ElementRef) {
+        this.nativeElement = jQuery(this.elementRef.nativeElement);
     }
 
     public setFocus() {
-        jQuery(this.elementRef).focus();
+        this.nativeElement
+            .find('input')
+            .focus();
         return this;
     }
 

@@ -400,7 +400,7 @@ export class CustomerDetails {
             dataValueField: 'ID',
             dataSource: this.DropdownData[1]
         });      
-        project.addClass('large-field');    
+        project.addClass('large-field');
         
         // MultiValue       
         var phones: UniFieldBuilder = this.FormConfig.find('Phones');
