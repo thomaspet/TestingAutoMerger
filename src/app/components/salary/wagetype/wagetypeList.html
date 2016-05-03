@@ -1,7 +1,13 @@
-
-    
-    <div class="application wagetype">
-<h2>Lønnsarter</h2>
-<button (click) = "newWageType()">Ny lønnsart</button>
-<uni-table [config]="wagetypelistConfig"></uni-table>
-<div>
+<header class="poster">
+    <article class="poster_toolbar">
+        <div>
+            <h2 class="poster_toolbar_headline">Lønnsarter</h2>
+        </div>
+        <nav class="poster_toolbar_tools">
+            <a (click)="createWageType()" class="new">Ny lønnsart</a>
+        </nav>
+    </article>
+</header>
+<article class="application wagetype">
+    <uni-table [config]="wagetypelistConfig"></uni-table>
+</article>
