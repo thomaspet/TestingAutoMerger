@@ -34,8 +34,10 @@ export class InvoiceDetails {
     @ViewChild(UniComponentLoader)
     ucl: UniComponentLoader;
     
-    businessRelationInvoice: BusinessRelation;
-    businessRelationShipping: BusinessRelation;
+    businessRelationInvoice: BusinessRelation = new BusinessRelation();
+    businessRelationShipping: BusinessRelation = new BusinessRelation();
+    lastCustomerInfo: BusinessRelation;
+    
     invoice: CustomerInvoice;
     lastSavedInfo: string;
     statusText: string;
@@ -60,7 +62,8 @@ export class InvoiceDetails {
                 private addressService: AddressService, 
                 private router: Router, private params: RouteParams) {                
         this.InvoiceID = params.get('id');
-        console.log('invoicedetails constructor');
+        this.businessRelationInvoice.Addresses = [];
+        this.businessRelationShipping.Addresses = [];
     }
     
     log(err) {
@@ -93,22 +96,67 @@ export class InvoiceDetails {
     }
         
     addAddresses() {
-       
+        var invoiceaddresses = this.businessRelationInvoice.Addresses ? this.businessRelationInvoice.Addresses : [];
+        var shippingaddresses = this.businessRelationShipping.Addresses ? this.businessRelationShipping.Addresses : [];
+        var firstinvoiceaddress = null;
+        var firstshippingaddress = null;
+                        
+        // remove addresses from last customer
+        if (this.lastCustomerInfo) {           
+            this.lastCustomerInfo.Addresses.forEach(a => {
+                invoiceaddresses.forEach((b, i) => {
+                    if (a.ID == b.ID) {
+                        delete invoiceaddresses[i];
+                        return;
+                    }    
+                });      
+                shippingaddresses.forEach((b, i) => {
+                    if (a.ID == b.ID) {
+                        delete shippingaddresses[i];
+                        return;
+                    }    
+                });      
+            });           
+        }
+        
+        // Add address from order if no addresses
+        if (invoiceaddresses.length == 0) {
+            var invoiceaddress = this.invoiceToAddress();
+            if (!this.isEmptyAddress(invoiceaddress)) {
+                firstinvoiceaddress = invoiceaddress; 
+            }            
+        } else {
+            firstinvoiceaddress = invoiceaddresses.shift();
+        }
+        
+        if (shippingaddresses.length == 0) {
+            var shippingaddress = this.shippingToAddress();
+            if (!this.isEmptyAddress(shippingaddress)) { 
+                firstshippingaddress = shippingaddress; 
+            }            
+        } else {
+            firstshippingaddress = shippingaddresses.shift();
+        }
+                    
+        // Add addresses from current customer
         if (this.invoice.Customer) {
             this.businessRelationInvoice = _.cloneDeep(this.invoice.Customer.Info);
-            this.businessRelationShipping = _.cloneDeep(this.invoice.Customer.Info);         
-        } else {
-            this.businessRelationInvoice = new BusinessRelation();
-            this.businessRelationShipping = new BusinessRelation();
-            
-            this.businessRelationInvoice.Addresses = [];
-            this.businessRelationShipping.Addresses = [];
-        }           
-                                    
-        this.businessRelationInvoice.Addresses.unshift(this.invoiceToAddress());
-        this.businessRelationShipping.Addresses.unshift(this.shippingtoAddress());
-                           
+            this.businessRelationShipping = _.cloneDeep(this.invoice.Customer.Info);  
+            this.lastCustomerInfo = this.invoice.Customer.Info;       
+        }
+        
+        if (!this.isEmptyAddress(firstinvoiceaddress)) {
+            this.businessRelationInvoice.Addresses.unshift(firstinvoiceaddress);
+        }
+        
+        if (!this.isEmptyAddress(firstshippingaddress)) {
+            this.businessRelationShipping.Addresses.unshift(firstshippingaddress);
+        }
+        
+        this.businessRelationInvoice.Addresses = this.businessRelationInvoice.Addresses.concat(invoiceaddresses);
+        this.businessRelationShipping.Addresses = this.businessRelationShipping.Addresses.concat(shippingaddresses);        
     }    
+   
         
     recalcTimeout: any;
     
@@ -135,7 +183,11 @@ export class InvoiceDetails {
             
             this.customerInvoiceService.calculateInvoiceSummary(invoiceItems)
             .subscribe((data) => this.itemsSummaryData = data,
-                       (err) => console.log('Error when recalculating items:',err)); 
+                       (err) => {
+                           console.log('Error when recalculating items:',err)
+                           this.log(err);    
+                       }
+            ); 
         }, 2000); 
     }
     
@@ -153,23 +205,29 @@ export class InvoiceDetails {
                 console.log('Feil oppstod ved ' + transition + ' transition', err);
                 this.log(err);
             });
-        });          
+        }, transition);          
     }
     
     saveInvoiceManual(event: any) {        
         this.saveInvoice();
     }
 
-    saveInvoice(cb = null) {
+    saveInvoice(cb = null, transition = '') {
         this.formInstance.sync();        
         this.lastSavedInfo = 'Lagrer faktura...';
-        
+        this.invoice.TaxInclusiveAmount = -1; // TODO in AppFramework, does not save main entity if just items have changed
+               
+        if (transition == 'invoice' && this.invoice.DeliveryDate == null) {
+            this.invoice.DeliveryDate = moment();
+        }
+
         this.customerInvoiceService.Put(this.invoice.ID, this.invoice)
             .subscribe(
-                (invoice) => {  
+                (invoice: CustomerInvoice) => {  
                     this.lastSavedInfo = 'Sist lagret: ' + (new Date()).toLocaleTimeString();
                     this.invoice = invoice;
                     this.updateStatusText();   
+                                       
                     if (cb) cb(invoice);
                 },
                 (err) => {
@@ -199,18 +257,18 @@ export class InvoiceDetails {
     }
     
     addInvoice() {
-        var cq = this.customerInvoiceService.newCustomerInvoice();
-        
-        this.customerInvoiceService.Post(cq)
-            .subscribe(
-                (data) => {
-                    this.router.navigateByUrl('/sales/invoice/details/' + data.ID);        
-                },
-                (err) => { 
-                    console.log('Error creating invoice: ', err);
-                    this.log(err);
-                }
-            );      
+        this.customerInvoiceService.newCustomerInvoice().then(invoice => {
+            this.customerInvoiceService.Post(invoice)
+                .subscribe(
+                    (data) => {
+                        this.router.navigateByUrl('/sales/invoice/details/' + data.ID);        
+                    },
+                    (err) => { 
+                        console.log('Error creating invoice: ', err);
+                        this.log(err);
+                    }
+                );
+        });           
     }
         
     createFormConfig() {   
@@ -236,17 +294,19 @@ export class InvoiceDetails {
         creditdays.ready.subscribe((component)=>{
             component.config.control.valueChanges.subscribe(days => {
                 if (days) {
-                    this.invoice.PaymentDueDate = moment(this.invoice.InvoiceDate).add(Number(days), 'days').toDate();
+                    this.invoice.PaymentDueDate = moment(this.invoice.InvoiceDate).startOf('day').add(Number(days), 'days').toDate();
                     paymentduedate.refresh(this.invoice.PaymentDueDate);                   
                 }
             });
         });
-        paymentduedate.ready.subscribe((compoent)=>{
-           compoent.config.control.valueChanges.subscribe(date => {
-              var newdays = moment(date || this.invoice.InvoiceDate).diff(this.invoice.InvoiceDate, 'days') + 1;   
-              if (newdays != this.invoice.CreditDays) {
-                  this.invoice.CreditDays = newdays;              
-                  creditdays.refresh(this.invoice.CreditDays);
+        paymentduedate.ready.subscribe((component)=>{
+           component.config.control.valueChanges.subscribe(date => {
+              if (date) {
+                var newdays = moment(date).startOf('day').diff(moment(this.invoice.InvoiceDate).startOf('day'), 'days');
+                if (newdays != this.invoice.CreditDays) {
+                    this.invoice.CreditDays = newdays;              
+                    creditdays.refresh(this.invoice.CreditDays);
+                }                  
               }
            });
         });
@@ -307,8 +367,6 @@ export class InvoiceDetails {
                dataSource: this.customers
             });
         customer.onSelect = function (customerID) {
-            console.log('Customer changed');
-            
             self.customerService.Get(customerID, ['Info', 'Info.Addresses']).subscribe((customer: Customer) => {
                 self.invoice.Customer = customer;
                 self.addAddresses();           
@@ -334,6 +392,16 @@ export class InvoiceDetails {
         });
     } 
     
+    isEmptyAddress(address: Address): boolean {
+        if (address == null) return true;
+        return (address.AddressLine1 == null &&
+            address.AddressLine2 == null &&
+            address.AddressLine3 == null &&
+            address.PostalCode == null &&
+            address.City == null &&
+            address.Country == null &&
+            address.CountryCode == null);
+    }
     
     invoiceToAddress(): Address {
         var a = new Address();
@@ -348,7 +416,7 @@ export class InvoiceDetails {
         return a;
     }
     
-    shippingtoAddress(): Address {
+    shippingToAddress(): Address {
         var a = new Address();
         a.AddressLine1 = this.invoice.ShippingAddressLine1;
         a.AddressLine2 = this.invoice.ShippingAddressLine2;

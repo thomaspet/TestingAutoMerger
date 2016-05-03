@@ -125,6 +125,9 @@ export class UniTableColumn {
             case 'readonlyeditor':
                 this.editor = this.controls.readonlyeditor(kendoOptions);
             break;
+            case 'numericeditor':
+                this.editor = this.controls.numericEditor(kendoOptions, changeCallback);
+            break;
         }
         
         return this;

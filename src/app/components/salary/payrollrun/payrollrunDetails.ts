@@ -3,7 +3,7 @@ import {RouteParams, Router} from 'angular2/router';
 import {PayrollRun} from '../../../unientities';
 import {PayrollrunService} from '../../../services/services';
 import {Observable} from 'rxjs/Observable';
-import {UniFormBuilder, UniFormLayoutBuilder, UniForm} from '../../../../framework/forms';
+import {UniFormBuilder, UniFormLayoutBuilder, UniForm, UniFieldBuilder} from '../../../../framework/forms';
 import {UniComponentLoader} from '../../../../framework/core';
 import {SalaryTransactionSelectionList} from '../../salary/salarytrans/salarytransactionSelectionList';
 import {TabService} from '../../layout/navbar/tabstrip/tabService';
@@ -18,6 +18,8 @@ import {TabService} from '../../layout/navbar/tabstrip/tabService';
 export class PayrollrunDetails implements OnInit {
     private payrollrun: PayrollRun;
     private payrollrunID: number;
+    private payDate: Date;
+    private payStatus: string;
     private form: UniFormBuilder = new UniFormBuilder();
     @ViewChild(UniComponentLoader)
     private uniCmpLoader: UniComponentLoader;
@@ -40,7 +42,10 @@ export class PayrollrunDetails implements OnInit {
             ).subscribe((response: any) => {
                 var [payrollrun, layout] = response;
                 this.payrollrun = payrollrun;
+                this.payDate = new Date(this.payrollrun.PayDate.toString());
                 this.form = new UniFormLayoutBuilder().build(layout, this.payrollrun);
+                
+                
                 
                 this.uniCmpLoader.load(UniForm).then((cmp: ComponentRef) => {
                     cmp.instance.config = this.form;
@@ -53,6 +58,12 @@ export class PayrollrunDetails implements OnInit {
             }
             , error => console.log(error));
         }
+    }
+    
+    private setStatus() {
+        var status = this.payrollrunService.getStatus(this.payrollrun);
+        this.payStatus = status.text;
+        return status.text;
     }
     
     public previousPayrollrun() {
@@ -118,5 +129,19 @@ export class PayrollrunDetails implements OnInit {
             this.isEditable = true;
             this.form.editmode();
         }
+        var recurringTransCheck: UniFieldBuilder = this.form.find('ExcludeRecurringPosts');
+        var noNegativePayCheck: UniFieldBuilder = this.form.find('1');
+        if (this.isEditable) {
+            recurringTransCheck.enable();
+            noNegativePayCheck.enable();
+        }else {
+            recurringTransCheck.disable();
+            noNegativePayCheck.disable();
+        }
+        
+        var statusCode: UniFieldBuilder = this.form.find('StatusCode');
+        var statusField = {StatusCode: this.setStatus() };
+        statusCode.setModel(statusField);
+        statusCode.readmode();
     }
 }

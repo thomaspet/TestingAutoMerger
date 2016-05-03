@@ -87,13 +87,15 @@ export class SalarytransFilterContent {
                 <button (click)="removeFilter(filter)">{{ filter.name }}</button>
                 </li>
             </ul>
-            <button (click)="openModalFilter()">Legg til</button>
+            <button [disabled] = "isDisabled" (click)="openModalFilter()">Legg til</button>
             <uni-modal [type]="type" [config]="modalConfig"></uni-modal>
         </article>
     `
 })
 
 export class SalarytransFilter {
+    @Input()
+    private isDisabled;
     @ViewChildren(UniModal)
     modalElements: QueryList<UniModal>;
     modals: UniModal[];

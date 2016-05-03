@@ -20,10 +20,15 @@ export class PayrollrunList implements OnInit {
     }
     
     public ngOnInit() {
+        
+        
         var idCol = new UniTableColumn('ID', 'Nr', 'string')
         .setWidth('4rem');
         var nameCol = new UniTableColumn('Description', 'Navn', 'string');
-        var statusCol = new UniTableColumn('StatusCode', 'Status', 'string');
+        var statusCol = new UniTableColumn('StatusCode', 'Status', 'string').setTemplate((payrollRun) => {
+            var status = this.payrollService.getStatus(payrollRun);
+            return status.text;
+        });
         var paydateCol = new UniTableColumn('PayDate', 'Utbetalingsdato', 'date');
         var fromdateCol = new UniTableColumn('FromDate', 'Fra dato', 'date');
         var todateCol = new UniTableColumn('ToDate', 'Til dato', 'date');

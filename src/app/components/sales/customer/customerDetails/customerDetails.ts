@@ -59,6 +59,10 @@ export class CustomerDetails {
         this.CustomerID = params.get("id");            
     }
     
+    log(err) {
+        alert(err._body);
+    }
+    
     nextCustomer() {
         var self = this;
         this.customerService.NextCustomer(this.Customer.ID)
@@ -184,7 +188,7 @@ export class CustomerDetails {
                     Section: 0,
                     Legend: "",
                     StatusCode: 0,
-                    ID: 2,
+                    ID: 1,
                     Deleted: false,
                     CustomFields: null 
                 },
@@ -204,13 +208,13 @@ export class CustomerDetails {
                     Section: 0,
                     Legend: "",
                     StatusCode: 0,
-                    ID: 3,
+                    ID: 2,
                     Deleted: false,
                     CustomFields: null 
                 },
                 {
                     ComponentLayoutID: 3,
-                    EntityType: "Address",
+                    EntityType: "BusinessRelation",
                     Property: "InvoiceAddress",
                     Placement: 1,
                     Hidden: false,
@@ -224,13 +228,13 @@ export class CustomerDetails {
                     Section: 0,
                     Legend: "",
                     StatusCode: 0,
-                    ID: 4,
+                    ID: 3,
                     Deleted: false,
                     CustomFields: null 
                 },
                 {
                     ComponentLayoutID: 3,
-                    EntityType: "Address",
+                    EntityType: "BusinessRelation",
                     Property: "ShippingAddress",
                     Placement: 1,
                     Hidden: false,
@@ -244,7 +248,7 @@ export class CustomerDetails {
                     Section: 0,
                     Legend: "",
                     StatusCode: 0,
-                    ID: 5,
+                    ID: 4,
                     Deleted: false,
                     CustomFields: null 
                 },
@@ -324,7 +328,7 @@ export class CustomerDetails {
                     Section: 1,
                     Legend: "Betingelser",
                     StatusCode: 0,
-                    ID: 7,
+                    ID: 8,
                     Deleted: false,
                     CustomFields: null 
                 },
@@ -344,7 +348,7 @@ export class CustomerDetails {
                     Section: 2,
                     Legend: "Dimensjoner",
                     StatusCode: 0,
-                    ID: 8,
+                    ID: 9,
                     Deleted: false,
                     CustomFields: null 
                 },
@@ -364,7 +368,7 @@ export class CustomerDetails {
                     Section: 2,
                     Legend: "",
                     StatusCode: 0,
-                    ID: 9,
+                    ID: 10,
                     Deleted: false,
                     CustomFields: null
                 }
@@ -487,18 +491,23 @@ export class CustomerDetails {
     }
 
     saveCustomer() {
-        this.formInstance.sync();
-        
+        this.formInstance.sync(); // TODO: this one caues multivalue to break, missing parts of model after calling it
         this.LastSavedInfo = 'Lagrer kundeinformasjon...';                
                             
         if (this.CustomerID > 0) { 
             this.customerService.Put(this.Customer.ID, this.Customer)
                 .subscribe(
-                    (updatedValue) => {  
+                    (customer) => {  
                         this.LastSavedInfo = 'Sist lagret: ' + (new Date()).toLocaleTimeString();
-                        this.Customer = updatedValue;
+                        //this.Customer = customer;
+                        this.customerService.Get(this.Customer.ID, ["Info", "Info.Phones", "Info.Addresses", "Info.Emails"]).subscribe(customer => {
+                            this.Customer = customer;
+                        });
                     },
-                    (err) => console.log('Feil oppsto ved lagring', err)
+                    (err) => {
+                        console.log('Feil oppsto ved lagring', err);
+                        this.log(err);
+                    }
                 );
         } else {
             this.customerService.Post(this.Customer)
@@ -506,7 +515,10 @@ export class CustomerDetails {
                     (newCustomer) => {                        
                         this.router.navigateByUrl('/sales/customer/details/' + newCustomer.ID);
                     },
-                    (err) => console.log('Feil oppsto ved lagring', err)
+                    (err) => {
+                        console.log('Feil oppsto ved lagring', err);
+                        this.log(err);   
+                    }
                 );
         }
     }

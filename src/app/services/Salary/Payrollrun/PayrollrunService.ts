@@ -10,6 +10,20 @@ export class PayrollrunService extends BizHttp<PayrollRun> {
         this.relativeURL = PayrollRun.relativeUrl;
     }
     
+    private payStatusTable: any = [
+            {ID: 0 || null, text: 'Opprettet'},
+            {ID: 1, text: 'Avregnet'},
+            {ID: 2, text: 'Godkjent'},
+            {ID: 3, text: 'Sendt til utbetaling'},
+            {ID: 4, text: 'Utbetalt'},
+            {ID: 5, text: 'Bokført'},
+            {ID: 6, text: 'Slettet'}
+        ];
+        
+    public getStatus(payrollRun: PayrollRun) {
+        return this.payStatusTable.find(x => x.ID == payrollRun.StatusCode);
+    }
+    
     public getPrevious(ID: number) {
         return this.http
             .usingBusinessDomain()
@@ -106,7 +120,7 @@ export class PayrollrunService extends BizHttp<PayrollRun> {
                 {
                     ComponentLayoutID: 1,
                     EntityType: 'Payrollrun',
-                    Property: '',
+                    Property: 'StatusCode',
                     Placement: 1,
                     Hidden: false,
                     FieldType: FieldType.TEXT,
@@ -285,7 +299,7 @@ export class PayrollrunService extends BizHttp<PayrollRun> {
                 {
                     ComponentLayoutID: 1,
                     EntityType: 'Payrollrun',
-                    Property: 'Description',
+                    Property: 'ExcludeRecurringPosts',
                     Placement: 3,
                     Hidden: false,
                     FieldType: FieldType.CHECKBOX,

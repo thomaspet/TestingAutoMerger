@@ -1,10 +1,23 @@
-import {Component, Input, Output, EventEmitter} from 'angular2/core';
+import {Component, Input, Output, EventEmitter, ElementRef} from 'angular2/core';
 import {FileUploadService} from './FileUploadService';
+
+declare var jQuery;
 
 @Component({
     selector: 'uni-document-uploader',
     template: `
-        <input type="file" (change)="fileChangeEvent($event)" (mouseout)="checkEmptyFiles($event)"/>
+        <label class="upload" [ngClass]="{'-has-files': files}"> 
+        
+            <span *ngIf="!files || !files.length">
+                <strong>Choose file</strong> or drag to upload
+            </span>
+            
+            <span *ngIf="files && files.length">
+                <strong>{{files.length}}</strong> file<span *ngIf="files.length > 1">s</span> ready to upload
+            </span>
+            
+            <input type="file" (change)="fileChangeEvent($event)" (mouseout)="checkEmptyFiles($event)"/>            
+        </label>
         <button (click)="uploadFile()" [disabled]="!canUpload()">Upload</button>
     `
 })
@@ -20,8 +33,34 @@ export class UniDocumentUploader {
     public onFileUploaded: EventEmitter<any> = new EventEmitter<any>(true);
 
     private files: FileList;
+    private elem: any;
 
-    constructor() { }
+    constructor(public element: ElementRef) {
+        this.elem = element;
+    }
+
+    public ngAfterViewInit() {
+        // Using jQuery here, so we don't have to split the event listeners
+        let $el = jQuery(this.elem.nativeElement.querySelector('label'));
+        $el.on('drag dragstart dragend dragover dragenter dragleave drop', (event) => {
+            event.preventDefault();
+            event.stopPropagation();
+        });
+        $el.on('dragover dragenter', () => {
+            $el.addClass('-is-dragover');
+        });
+        $el.on('dragleave dragend drop', () => {
+            $el.removeClass('-is-dragover');
+        });
+        $el.on('drop', (event) => {
+            if (event.originalEvent.dataTransfer.files.length > 1) {
+                // TODO: Change if we start allowing multiple uploads
+                // We could also auto upload the files from here.
+                return;
+            }
+            this.files = event.originalEvent.dataTransfer.files;
+        });
+    }
 
     public uploadFile() {
         if (!this.files || this.files.length === 0) {
@@ -34,6 +73,7 @@ export class UniDocumentUploader {
 
     public manageResponse(response) {
         this.onFileUploaded.emit(this.service.Slot);
+        this.cleanInput();
     }
 
     public fileChangeEvent(event: any) {
@@ -47,11 +87,22 @@ export class UniDocumentUploader {
 
     public checkEmptyFiles(event: any) {
         if (event.target.files.length === 0) {
-            this.files = undefined;
+            this.cleanInput();
         }
     }
 
     public canUpload() {
         return (this.files !== undefined && this.files.length > 0);
     }
+
+    public clearFiles() {
+        this.files = undefined;
+    }
+
+    private cleanInput() {
+        this.files = undefined;
+        let $el = jQuery(this.elem.nativeElement.querySelector('input[type=file]'));
+        $el.val('');
+    }
+
 }

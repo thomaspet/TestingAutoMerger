@@ -34,7 +34,6 @@ export class PaymentList implements OnInit {
         this.busy = true;
         this._payrollrunService.getPaymentList(this.payrollRunID).subscribe((response) => {
             this.paymentList.push(response);
-            // console.log('response: ' + JSON.stringify(response));
             this.paymentList[0].PayList.forEach((payLine) => {
                 this.empSum += payLine.NetPayment;
             });

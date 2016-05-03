@@ -30,16 +30,19 @@ export class CustomerInvoiceService extends BizHttp<CustomerInvoice> {
     {
         return super.GetAction(currentID, 'previous');
     }
-
-    newCustomerInvoice()
-    {       
-        var i = new CustomerInvoice();
-        i.CreatedDate = moment().toDate();
-        i.InvoiceDate = moment().toDate();
   
-        return i;               
-    }
+    newCustomerInvoice(): Promise<CustomerInvoice>
+    {       
+        return new Promise(resolve => {
+            this.GetNewEntity([], CustomerInvoice.entityType).subscribe(invoice => {
+                invoice.CreatedDate = moment().toDate();
+                invoice.InvoiceDate = moment().toDate();
 
+                resolve(invoice);                
+            });               
+        });
+    }
+    
     calculateInvoiceSummary(invoiceItems: Array<CustomerInvoiceItem>): Observable<any> {        
         return this.http 
             .asPOST()
