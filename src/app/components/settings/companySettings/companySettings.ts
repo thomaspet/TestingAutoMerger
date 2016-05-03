@@ -212,7 +212,7 @@ export class CompanySettings implements OnInit {
         officeMunicipality.addUniElements(officeMunicipalNumber, officeMunicipalName);
         
         // *********************  Virksomhet og aga  ***************************/
-        var subEntitiesSection = new UniSectionBuilder('Virksomhet og arbeidsgiverafgift(aga)');
+        var subEntitiesSection = new UniSectionBuilder('Virksomhet og arbeidsgiveravgift(aga)');
         
         var mainAccountAlocatedAga = new UniFieldBuilder();
         mainAccountAlocatedAga
@@ -345,7 +345,7 @@ export class CompanySettings implements OnInit {
         
         // *********************  Instillinger lønn  ***************************/
         
-        var salarySettings = new UniSectionBuilder('Innstillinger spesifikke for lønn (inneholder midlertidige felt)');
+        var salarySettings = new UniSectionBuilder('Innstillinger spesifikke for lønn');
         
         var interrimRemit = new UniFieldBuilder();
         interrimRemit
