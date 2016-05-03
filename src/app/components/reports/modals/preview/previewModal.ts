@@ -85,10 +85,11 @@ export class PreviewModal {
     private onTemplateLoaded(template : string) {
         // for test purpose only:
         // hardcoded invoice id
-        this.customerInvoiceService.Get(1).subscribe(response => { 
-            this.reportWrapper.showReport(template, [response], this.modalConfig);
-            this.modal.open();        
-        });
+        this.customerInvoiceService.Get(2)
+            .subscribe(response => {
+                this.reportWrapper.showReport(template, [JSON.stringify(response)], this.modalConfig);
+                this.modal.open();        
+            });
     }
    
     private onError(err : string) {
