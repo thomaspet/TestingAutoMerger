@@ -57,7 +57,7 @@ export class JournalEntryService extends BizHttp<JournalEntry> {
         
         var data = new JournalEntryData();
         
-        data.JournalEntryNo = 1;
+        data.JournalEntryNo = "1-2016";
         data.Amount = Math.round(Math.random() * 10000);
         data.DebitAccountNumber = 4000;
         data.DebitAccount = {ID: 297, AccountNumber:4000, AccountName: "Varekjøp, høy sats"};

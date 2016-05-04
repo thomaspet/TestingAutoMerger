@@ -24,13 +24,15 @@ export class JournalEntrySimple {
     public journalEntryLines: Array<JournalEntryData>;
     public validationResult: any;
     public DropdownData: any;
+    public nextJournalNumber: string;
         
     constructor(private journalEntryService : JournalEntryService, 
                 private departementService: DepartementService,
                 private projectService: ProjectService, 
                 private vattypeService: VatTypeService,
                 private accountService: AccountService) {
-        this.journalEntryLines = new Array<JournalEntryData>();        
+        this.journalEntryLines = new Array<JournalEntryData>();       
+        this.nextJournalNumber = "14-2016"; 
     }
     
     ngOnInit() {
@@ -143,13 +145,14 @@ export class JournalEntrySimple {
     
     addDummyJournalEntry() {
         var newline = JournalEntryService.getSomeNewDataForMe();
-        newline.JournalEntryNo = Math.round((this.journalEntryLines.length/3) + 1);         
+        newline.JournalEntryNo = `${Math.round((this.journalEntryLines.length/3) + 1)}-2016`;         
         this.journalEntryLines.unshift(newline);
         
         this.validateJournalEntryData();
     }
         
-    setSelectedJournalEntryLine(selectedLine: JournalEntryData) {        
+    setSelectedJournalEntryLine(selectedLine: JournalEntryData) {
+        selectedLine.SameOrNew = "0";    
         this.selectedJournalEntryLine = selectedLine;
     }
     
@@ -167,7 +170,7 @@ export class JournalEntrySimple {
         updatedLine.CreditAccount = this.getAccount(updatedLine['CreditAccountID']);
         updatedLine.DebitVatType = this.getVatType(updatedLine['VatTypeID']);
         
-        updatedLine.FinancialDate = new Date(updatedLine['FinancialDate'].toString())
+        updatedLine.FinancialDate = new Date(updatedLine['FinancialDate'].toString());
                 
         return updatedLine;          
     }

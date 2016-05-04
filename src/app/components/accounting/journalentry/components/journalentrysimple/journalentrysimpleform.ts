@@ -13,6 +13,8 @@ import {UniComponentLoader} from "../../../../../../framework/core/componentLoad
 import {UniAutocompleteConfig} from "../../../../../../framework/controls/autocomplete/autocomplete";
 import {AccountService} from "../../../../../services/services";
 
+declare var _;
+
 @Component({
     selector: 'journal-entry-simple-form',
     templateUrl: 'app/components/accounting/journalentry/components/journalentrysimple/journalentrysimpleform.html',
@@ -25,6 +27,12 @@ export class JournalEntrySimpleForm {
     
     @Input()
     JournalEntryLine: JournalEntryData;
+    
+    @Input()
+    nextJournalNumber: string;
+    
+    @Input()
+    journalEntryLines: Array<JournalEntryData>;
                                 
     @Output() Created = new EventEmitter<any>();
     @Output() Aborted = new EventEmitter<any>();
@@ -53,29 +61,6 @@ export class JournalEntrySimpleForm {
         this.accounts = [];
         this.JournalEntryLine = new JournalEntryData();
     }
-            
-    addJournalEntry(event: any) {        
-        this.Created.emit(this.formInstance.Value);
-        
-        
-        var oldData = this.formInstance.Value;
-        this.JournalEntryLine = new JournalEntryData(); 
-        this.JournalEntryLine.JournalEntryNo = oldData.JournalEntryNo;
-        this.JournalEntryLine.FinancialDate = oldData.FinancialDate;      
-        
-        var self = this;
-        this.formInstance.ready.toPromise().then((instance: UniForm)=>{
-            instance.Model = self.JournalEntryLine;
-            console.log('refreshet formInstance, self.JournalEntryLine:', self.JournalEntryLine);
-        });
-        
-        this.setFocusOnDebit();
-        console.log('addJournalEntry kjørt');          
-    }
-    
-    editJournalEntry(event: any) {     
-        this.Updated.emit(this.formInstance.Value);
-    }
     
     ngOnChanges(changes: {[propName: string]: SimpleChange}) {         
         if (changes['DropdownData'] != null) {
@@ -89,8 +74,60 @@ export class JournalEntrySimpleForm {
             this.isEditMode = true;
         }
     }
+         
+    addJournalEntry(event: any) {        
+        var oldData: JournalEntryData = _.cloneDeep(this.formInstance.Value);              
+
+        // next or same journal entry number
+        if (oldData.SameOrNew == "1") {
+            var parts = this.nextJournalNumber.split('-');
+            var no = parseInt(parts[0]) + 1;
+            this.nextJournalNumber = `${no}-${parts[1]}`;
+        }
+
+        oldData.JournalEntryNo = this.nextJournalNumber;
+        this.Created.emit(oldData);
+                
+        this.JournalEntryLine = new JournalEntryData(); 
+        this.JournalEntryLine.FinancialDate = oldData.FinancialDate;
+        this.JournalEntryLine.SameOrNew = oldData.SameOrNew;      
         
+        var self = this;
+        this.formInstance.ready.toPromise().then((instance: UniForm)=>{
+            instance.Model = self.JournalEntryLine;
+            console.log('refreshet formInstance, self.JournalEntryLine:', self.JournalEntryLine);
+        });
+        
+        this.setFocusOnDebit();
+        console.log('addJournalEntry kjørt');          
+    }
+    
+    editJournalEntry(event: any) {     
+        var newData: JournalEntryData = this.formInstance.Value;
+        newData.JournalEntryNo = this.JournalEntryLine.JournalEntryNo;
+        
+        console.log("== NEW NO ==");
+        console.log(newData.SameOrNew);
+               
+        this.Updated.emit(newData);
+    }
+        
+    abortEditJournalEntry(event) {
+        this.Aborted.emit(null);
+    }
+    
+    emptyJournalEntry(event) {
+        this.JournalEntryLine = new JournalEntryData();
+        this.setFocusOnDebit();
+    }
+    
+    setFocusOnDebit() {
+        var debitaccount: UniFieldBuilder = this.formInstance.find('DebitAccountID');
+        debitaccount.setFocus(); 
+    }
+            
     ngAfterViewInit() {        
+        console.log("ngAfterViewINit");
         // TODO get it from the API and move these to backend migrations   
         var view: ComponentLayout = {
             Name: "ManualJournalEntryLineDraft",
@@ -103,7 +140,7 @@ export class JournalEntrySimpleForm {
                 {
                     ComponentLayoutID: 1,
                     EntityType: "JournalEntryLineDraft",
-                    Property: "NewOrSame",
+                    Property: "SameOrNew",
                     Placement: 1,
                     Hidden: false,
                     FieldType: 1,
@@ -309,8 +346,17 @@ export class JournalEntrySimpleForm {
         this.loadForm();                      
     }
     
+    findInArray(arr: Array<any>, id: string) {
+        var ret = false;
+        arr.forEach(l => {
+           if (l.ID == id) ret = true;
+        });
+        
+        return ret;
+    }
+    
     extendFormConfig() {        
-        var neworsame: UniFieldBuilder = this.FormConfig.find('NewOrSame');  
+        var sameornew: UniFieldBuilder = this.FormConfig.find('SameOrNew');  
         var departement: UniFieldBuilder = this.FormConfig.find('Dimensions.DepartementID');       
         var project: UniFieldBuilder = this.FormConfig.find('Dimensions.ProjectID');
         var debitvattype: UniFieldBuilder = this.FormConfig.find('DebitVatTypeID');
@@ -319,15 +365,35 @@ export class JournalEntrySimpleForm {
         var creditvattype: UniFieldBuilder = this.FormConfig.find('CreditVatTypeID');
         var description: UniFieldBuilder = this.FormConfig.find('Description');
         var amount: UniFieldBuilder = this.FormConfig.find('Amount');
-                     
-        neworsame.setKendoOptions({
+
+        var journalalternatives = new Array<any>();
+        var samealternative = {ID: "0", Name: "Samme"};
+        var newalternative = {ID: "1", Name: "Ny"}
+        var journalalternativesindex = 0;
+        if (this.journalEntryLines) {
+            this.journalEntryLines.forEach((l, i) => {   
+                console.log("CHECKING " + l.JournalEntryNo);
+                if (!this.findInArray(journalalternatives, l.JournalEntryNo)) {
+                    console.log("FOUND: " + l.JournalEntryNo);
+                    journalalternatives.push({ID: l.JournalEntryNo, Name: l.JournalEntryNo});
+                    if (l.JournalEntryNo == this.JournalEntryLine.JournalEntryNo) {
+                        journalalternativesindex = i;
+                    }                    
+                } 
+            });
+        } else {
+            journalalternatives.push(samealternative);
+        }
+        // new always last one
+        journalalternatives.push(newalternative);
+                             
+        sameornew.setKendoOptions({
            dataTextField: 'Name',
            dataValueField: 'ID',
-           index: 0,
-           dataSource: [{ID: 0, Name: "Samme"},
-                        {ID: 1, Name: "Nytt"}]
+           index: journalalternativesindex,
+           dataSource: journalalternatives
         });
-        
+
         departement.setKendoOptions({
             dataTextField: 'Name',
             dataValueField: 'ID',
@@ -402,20 +468,5 @@ export class JournalEntrySimpleForm {
                 financialdate.setFocus();
             });
         });
-    }
-    
-    abortEditJournalEntry(event) {
-        this.Aborted.emit(null);
-    }
-    
-    emptyJournalEntry(event) {
-        this.JournalEntryLine = new JournalEntryData();
-        // TODO set new or same?
-        this.setFocusOnDebit();
-    }
-    
-    setFocusOnDebit() {
-        var debitaccount: UniFieldBuilder = this.formInstance.find('DebitAccountID');
-        debitaccount.setFocus(); 
     }
 } 
