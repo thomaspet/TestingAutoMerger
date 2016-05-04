@@ -151,12 +151,12 @@ export class UniHttp {
         let token = this.authService.getToken();
         let activeCompany = this.authService.getActiveCompany();
 
-        if (token && !this.headers.has('Authorization')) {
-            this.headers.append('Authorization', 'Bearer ' + token);
+        if (token) {
+            this.headers.set('Authorization', 'Bearer ' + token);
         }
 
-        if (activeCompany && !this.headers.has('CompanyKey')) {
-            this.headers.append('CompanyKey', activeCompany.Key);
+        if (activeCompany) {
+            this.headers.set('CompanyKey', activeCompany.Key);
         }
 
         var baseurl = request.baseUrl || this.baseUrl,
