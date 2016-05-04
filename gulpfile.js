@@ -132,9 +132,14 @@ gulp.task('entities' , function (done) {
     request(options , callback);
 });
 
-gulp.task('rxjs' , ['entities'] , function () {
+gulp.task('rxjs' , ['web.config', 'entities'] , function () {
     return gulp.src('./node_modules/rxjs/**/*.js')
         .pipe(gulp.dest('./dist/lib/rxjs'));
+});
+
+gulp.task('web.config' , function () {
+    return gulp.src('./web.config')
+        .pipe(gulp.dest('./dist'));
 });
 
 gulp.task('build.dist.vendor.js' , ['rxjs'] , function () {
