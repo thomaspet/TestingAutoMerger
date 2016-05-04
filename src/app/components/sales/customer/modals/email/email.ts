@@ -54,7 +54,7 @@ export class EmailForm {
                     Label: "Epostadresse",
                     Description: "",
                     HelpText: "",
-                    FieldSet: 1,
+                    FieldSet: 0,
                     Section: 0,
                     Legend: "",
                     StatusCode: 0,
@@ -74,11 +74,11 @@ export class EmailForm {
                     Label: "Beskrivelse",
                     Description: "",
                     HelpText: "",
-                    FieldSet: 1,
+                    FieldSet: 0,
                     Section: 0,
                     Legend: "",
                     StatusCode: 0,
-                    ID: 1,
+                    ID: 2,
                     Deleted: false,
                     CustomFields: null 
                 } 
@@ -161,11 +161,11 @@ export class EmailModal {
                                 self.modal.close();       
                                 
                                 // store
-                                if(form.model.ID) {
-                                    emailService.Put(form.model.ID, form.model).subscribe(null, (error: Error) => console.log('error in updating phone from modal - Put: ' + error));
-                                } else {
-                                    emailService.Post(form.model).subscribe(null, (error: Error) => console.error('error in posting phone from modal - Post: ', error));
-                                }
+                                //if(form.model.ID) {
+                                //    emailService.Put(form.model.ID, form.model).subscribe(null, (error: Error) => console.log('error in updating phone from modal - Put: ' + error));
+                                //} else {
+                                //    emailService.Post(form.model).subscribe(null, (error: Error) => console.error('error in posting phone from modal - Post: ', error));
+                                //}
                                                         
                                 self.Changed.emit(form.model);
                             });

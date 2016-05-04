@@ -39,3 +39,4 @@ export * from './accounting/periodseriesservice';
 export * from './accounting/accountgroupsetservice';
 export * from './common/subentityservice';
 export * from './shared/municipalsservice';
+export * from './salary/companysalary/companysalaryservice';

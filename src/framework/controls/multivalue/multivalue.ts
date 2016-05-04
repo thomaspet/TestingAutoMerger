@@ -51,10 +51,8 @@ export class MultiValueItem {
 
         </section> 
     `,
-    directives: [NgIf, NgFor, UniComponentLoader],
-    inputs: ['values', 'label']
+    directives: [NgIf, NgFor, UniComponentLoader]
 })
-
 export class UniMultiValue {
     @Input()
     public control: Control;
@@ -94,7 +92,7 @@ export class UniMultiValue {
 
     constructor(private el: ElementRef) {
         var self = this;
-        this.element = el.nativeElement;
+        this.element = el.nativeElement;                                
         document.addEventListener('click', function (event) {
             var $el = jQuery(el.nativeElement);
             if (!jQuery(event.target).closest($el).length) {

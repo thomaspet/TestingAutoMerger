@@ -27,12 +27,15 @@ export class AddressForm {
     form: UniForm;
 
     model: Address;
-    saveenabled: boolean;
+    enableSave: boolean;
+    save: boolean;
     
     ngOnInit()
     {
-        this.createFormConfig();    
-        this.createCheckboxConfig();
+        this.createFormConfig();   
+        if (this.enableSave) {            
+            this.createCheckboxConfig();
+        }         
     }
     
     createCheckboxConfig() {
@@ -210,8 +213,10 @@ export class AddressModalType {
             
     ngAfterViewInit() {
         var self = this;
+        
         this.ucl.load(AddressForm).then((cmp: ComponentRef)=> {
             cmp.instance.model = self.config.model;
+            cmp.instance.enableSave = self.config.enableSave;
             self.instance = new Promise((resolve)=> {
                 resolve(cmp.instance);
             });
@@ -240,6 +245,7 @@ export class AddressModal {
 
     constructor(private addressService: AddressService) {
         var self = this;
+        
         this.modalConfig = {
             title: "Adresse",
             mode: null,
@@ -254,7 +260,7 @@ export class AddressModal {
                                 form.form.sync();
                                 self.modal.close();                       
                         
-                                if (form.saveenabled) {
+                                if (form.save) {
                                     console.log("=== LAGRER ===");
                                     // store
                                     if(form.model.ID) {
