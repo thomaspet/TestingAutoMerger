@@ -1,21 +1,41 @@
-import {Component, Input, ElementRef} from 'angular2/core';
-import {UniFieldBuilder} from '../../forms/builders/uniFieldBuilder';
+import {Component, Input, Output, ElementRef, EventEmitter} from 'angular2/core';
+import {Control, FORM_DIRECTIVES} from 'angular2/common';
+import {FieldLayout} from '../../../app/unientities';
 
-declare var jQuery;
+declare var jQuery, _;
 
 @Component({
     selector: 'uni-text-area',
+    directives: [FORM_DIRECTIVES],
     template: `
-        <textarea *ngIf="config.control"
-            [ngFormControl]="config.control"
-            [readonly]="config.readonly"
-            [disabled]="config.disabled"
+        <textarea *ngIf="control"
+            [ngFormControl]="control"
+            [readonly]="field?.ReadOnly"
         ></textarea>
     `
 })
 export class UniTextAreaInput {
     @Input()
-    public config: UniFieldBuilder;
+    public control: Control;
+
+    @Input()
+    public field: FieldLayout;
+
+    @Input()
+    public model: any;
+
+    @Output()
+    public onReady: EventEmitter<any> = new EventEmitter<any>(true);
+    public isReady: boolean = true;
+    
+    get OnValueChanges() {
+        return this.control.valueChanges;
+    }
+    
+    get FormControl() {
+        return this.control;
+    }
+    
     constructor(public elementRef: ElementRef) {
     }
 
@@ -24,16 +44,22 @@ export class UniTextAreaInput {
         return this;
     }
 
+    public editMode() {
+        this.field.ReadOnly = false;    
+    }
 
-    public ngOnInit() {
-        this.config.fieldComponent = this;
+    public readMode() {
+        this.field.ReadOnly = true;
     }
 
     public ngAfterViewInit() {
-        this.config.ready.emit(this);
-    }
-
-    public refresh(value: any) {
-        this.config.control.updateValue(value, {});
+        this.onReady.emit(this);
+        this.isReady = true;
+        var self = this;
+        this.control.valueChanges.subscribe((newValue: any) => {
+            if (self.control.valid) {
+                _.set(self.model, self.field.Property, newValue);
+            }
+        });
     }
 }

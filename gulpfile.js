@@ -35,6 +35,7 @@ var config = {
                 require.resolve('bootstrap/dist/js/bootstrap.min.js') ,
                 require.resolve('jwt-decode/build/jwt-decode.min.js') ,
                 require.resolve('lodash/lodash.min.js') ,
+                require.resolve('accounting/accounting.min.js') ,
                 require.resolve('./kendo/js/kendo.all.min.js') ,
 
                 //STIMULSOFT

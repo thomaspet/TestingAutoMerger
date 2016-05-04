@@ -31,7 +31,7 @@ declare var _; // lodash
             </div>
         </article>
     `,
-    changeDetection: ChangeDetectionStrategy.OnPush,
+    //changeDetection: ChangeDetectionStrategy.OnPush,
     directives: [FORM_DIRECTIVES, UniField, UniFieldSet],
     providers: [FORM_PROVIDERS]
 })
@@ -101,7 +101,7 @@ export class UniSection {
 
     public toggle() {
         this.isOpen = !this.isOpen;
-        this.cd.markForCheck();
+        // this.cd.markForCheck();
     }
 
     public readMode() {
@@ -111,7 +111,7 @@ export class UniSection {
         this.fieldElements.forEach((f: UniField) => {
             f.readMode();
         });
-        this.cd.markForCheck();
+        // this.cd.markForCheck();
     }
     
     public editMode() {
@@ -121,7 +121,7 @@ export class UniSection {
         this.fieldElements.forEach((f: UniField) => {
             f.editMode();
         });
-        this.cd.markForCheck();
+        // this.cd.markForCheck();
     }
     
     public section(sectionId?: number) {

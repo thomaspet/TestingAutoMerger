@@ -2,7 +2,7 @@ import {Component, Input, Output, ElementRef, EventEmitter} from 'angular2/core'
 import {Control, FORM_DIRECTIVES} from 'angular2/common';
 import {FieldLayout} from '../../../app/unientities';
 
-declare var jQuery;
+declare var jQuery, _;
 
 @Component({
     selector: 'uni-text',
@@ -28,7 +28,7 @@ export class UniTextInput {
     @Output()
     public onReady: EventEmitter<any> = new EventEmitter<any>(true);
     public isReady: boolean = true;
-    
+
     get OnValueChanges() {
         return this.control.valueChanges;
     }
@@ -44,17 +44,27 @@ export class UniTextInput {
         jQuery(this.elementRef).focus();
         return this;
     }
-    
+
     public editMode() {
-        this.field.ReadOnly = false;    
+        this.field.ReadOnly = false;
     }
 
     public readMode() {
         this.field.ReadOnly = true;
     }
-    
+
     public ngAfterViewInit() {
         this.onReady.emit(this);
         this.isReady = true;
+    }
+    public ngOnChanges(changes) {
+        if (changes['control']) {
+            var self = this;
+            this.control.valueChanges.subscribe((newValue: any) => {
+                if (self.control.valid) {
+                    _.set(self.model, self.field.Property, newValue);
+                }
+            });
+        }
     }
 }

@@ -1,48 +1,82 @@
-import {Component, Input} from "angular2/core";
-import {UniFieldBuilder} from "../../forms/builders/uniFieldBuilder";
+import {Component, Input, Output, ElementRef, EventEmitter} from 'angular2/core';
+import {Control, FORM_DIRECTIVES} from 'angular2/common';
+import {FieldLayout} from '../../../app/unientities';
+
+declare var jQuery, _;
 
 @Component({
-    selector: "uni-url",
+    selector: 'uni-url',
+    directives: [FORM_DIRECTIVES],
     template: `
         <input
             class="uni-url-input"
-            *ngIf="config.control"
+            *ngIf="control"
             type="url"
-            [ngFormControl]="config.control"
-            [readonly]="config.readonly"
-            [disabled]="config.disabled"
+            [ngFormControl]="control"
+            [readonly]="field?.ReadOnly"
         />
-        <button class="uni-url-openBtn" (click)="openUrl()" [disabled]="!validateURL(config.control.value)">...</button>
+        <button class="uni-url-openBtn" (click)="openUrl()" [disabled]="!validateURL(control.value)">...</button>
     `
 })
 export class UniUrlInput {
     @Input()
-    config: UniFieldBuilder;
+    public control: Control;
 
-    constructor() {
+    @Input()
+    public field: FieldLayout;
+
+    @Input()
+    public model: any;
+
+    @Output()
+    public onReady: EventEmitter<any> = new EventEmitter<any>(true);
+    public isReady: boolean = true;
+
+    get OnValueChanges() {
+        return this.control.valueChanges;
     }
 
-    ngOnInit() {
-        this.config.fieldComponent = this;
+    get FormControl() {
+        return this.control;
     }
 
-    ngAfterViewInit() {
-        this.config.ready.emit(this);
+    constructor(public elementRef: ElementRef) {
     }
 
-    refresh(value: any): void {
-        this.config.control.updateValue(value, {});
+    public setFocus() {
+        jQuery(this.elementRef).focus();
+        return this;
+    }
+
+    public editMode() {
+        this.field.ReadOnly = false;
+    }
+
+    public readMode() {
+        this.field.ReadOnly = true;
+    }
+
+    public ngAfterViewInit() {
+        this.onReady.emit(this);
+        this.isReady = true;
+        var self = this;
+        this.control.valueChanges.subscribe((newValue: any) => {
+            if (self.control.valid) {
+                _.set(self.model, self.field.Property, newValue);
+            }
+        });
+
     }
     
-    openUrl() {
-        var url = this.config.control.value || "";
+    public openUrl() {
+        var url = this.control.value || '';
         if (this.validateURL(url)) {
             var wintab = window.open(url, '_blank');
             wintab.focus();           
         }
     }
     
-    validateURL(url) {
+    public validateURL(url) {
         var urlregex = /^(https?|ftp):\/\/([a-zA-Z0-9.-]+(:[a-zA-Z0-9.&%$-]+)*@)*((25[0-5]|2[0-4][0-9]|1[0-9]{2}|[1-9][0-9]?)(\.(25[0-5]|2[0-4][0-9]|1[0-9]{2}|[1-9]?[0-9])){3}|([a-zA-Z0-9-]+\.)*[a-zA-Z0-9-]+\.(com|edu|gov|int|mil|net|org|biz|arpa|info|name|pro|aero|coop|museum|[a-zA-Z]{2}))(:[0-9]+)*(\/($|[a-zA-Z0-9.,?'\\+&%$#=~_-]+))*$/;
         return urlregex.test(url);
     }

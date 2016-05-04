@@ -19,7 +19,7 @@ declare var _; // lodash
             </template>
         </fieldset>
     `,
-    changeDetection: ChangeDetectionStrategy.OnPush,
+    // changeDetection: ChangeDetectionStrategy.OnPush,
     directives: [FORM_DIRECTIVES, UniField],
     providers: [FORM_PROVIDERS]
 })
@@ -85,14 +85,14 @@ export class UniFieldSet {
     public readMode() {
         this.fieldElements.forEach((f: UniField) => {
             f.readMode();
-            this.cd.markForCheck();
+            // this.cd.markForCheck();
         });        
     }
 
     public editMode() {
         this.fieldElements.forEach((f: UniField) => {
             f.editMode();
-            this.cd.markForCheck();
+            // this.cd.markForCheck();
         });
     }
 

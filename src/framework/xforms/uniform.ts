@@ -85,7 +85,9 @@ export class UniForm {
     private controls: ControlGroup;
     private _fields: { [propKey: string]: UniField } = {};
     private groupedFields: any[];
-
+    
+    private lastEmittedModel: any;
+    
     private readyFields: number;
     private totalFields: number;
 
@@ -104,7 +106,11 @@ export class UniForm {
         let self = this;
         if (changes['model']) {
             this.controls = this.builder.group({});
-            this.controls.valueChanges.subscribe(() => {
+            this.controls.valueChanges.subscribe((value) => {
+                if (_.isEqual(self.lastEmittedModel,self.model)) {
+                    return;
+                }
+                this.lastEmittedModel = self.model;
                 self.onChange.emit(self.model);
             });
         }

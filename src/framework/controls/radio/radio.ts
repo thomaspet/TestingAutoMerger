@@ -1,27 +1,45 @@
-import {Component, Input, ElementRef} from 'angular2/core';
+import {Component, Input, Output, ElementRef, EventEmitter} from 'angular2/core';
+import {Control, FORM_DIRECTIVES} from 'angular2/common';
+import {FieldLayout} from '../../../app/unientities';
 import {Guid} from '../guid';
-import {UniFieldBuilder} from '../../forms/builders/uniFieldBuilder';
 
-declare var jQuery;
+declare var jQuery, _;
 
 @Component({
     selector: 'uni-checkbox',
+    directives: [FORM_DIRECTIVES],
     template: `
-        <input
-            #cb
+        <input *ngIf="control"
             [attr.id]="guid"
             type="radio"
-            [ngFormControl]="config.control"
-            [readonly]="config.readonly"
-            [disabled]="config.disabled"
-            (change)="setFormValue(cb.checked)"
+            [ngFormControl]="control"
+            [readonly]="field?.ReadOnly"
         />
         <label [attr.for]="guid">{{config.label}}</label>
     `
 })
 export class UniRadioInput {
     @Input()
-    public config: UniFieldBuilder;
+    public control: Control;
+
+    @Input()
+    public field: FieldLayout;
+
+    @Input()
+    public model: any;
+
+    @Output()
+    public onReady: EventEmitter<any> = new EventEmitter<any>(true);
+    public isReady: boolean = true;
+
+    get OnValueChanges() {
+        return this.control.valueChanges;
+    }
+
+    get FormControl() {
+        return this.control;
+    }
+    
     public guid: string;
 
     constructor(public elementRef:ElementRef) {
@@ -32,20 +50,23 @@ export class UniRadioInput {
         jQuery(this.elementRef).find('input').first().focus();
         return this;
     }
-
-    public refresh(value: any): void {
-        this.setFormValue(value);
+    
+    public editMode() {
+        this.field.ReadOnly = false;
     }
 
-    public ngOnInit() {
-        this.config.fieldComponent = this;
+    public readMode() {
+        this.field.ReadOnly = true;
     }
-
+    
     public ngAfterViewInit() {
-        this.config.ready.emit(this);
-    }
-
-    public setFormValue(value: any): void {
-        this.config.control.updateValue(value, {});
+        this.onReady.emit(this);
+        this.isReady = true;
+        var self = this;
+        this.control.valueChanges.subscribe((newValue: any) => {
+            if (self.control.valid) {
+                _.set(self.model, self.field.Property, newValue);
+            }
+        });
     }
 }

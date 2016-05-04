@@ -12,7 +12,6 @@ import {UniNumericInput} from "./controls/numeric/numericInput";
 import {UniPasswordInput} from "./controls/password/password";
 import {UniTextInput} from "./controls/text/text";
 import {UniHyperlink} from "./controls/hyperlink/hyperlink";
-import {UniRadioGroup} from "./controls/radioGroup/uniRadioGroup";
 import {UniRadioInput} from "./controls/radio/radio";
 import {UniMultiValue} from "./controls/multivalue/multivalue";
 import {UniUrlInput} from "./controls/url/url";
@@ -33,7 +32,7 @@ export const UNI_CONTROL_DIRECTIVES: Type[] = [
     UniNumericInput,
     UniRadioInput,// uniRadio
     UniCheckboxInput,
-    UniRadioGroup,// uniRadioGroup
+    UniRadioInput,// uniRadioGroup
     UniTextInput,
     UniEmailInput,
     UniPasswordInput,

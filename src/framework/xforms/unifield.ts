@@ -1,4 +1,4 @@
-import {Component, Input, Output, EventEmitter, ViewChild, ChangeDetectorRef, SimpleChange, ChangeDetectionStrategy} from 'angular2/core';
+import {Component, Input, Output, EventEmitter, ViewChild, ChangeDetectorRef, SimpleChange, HostListener} from 'angular2/core';
 import {FORM_DIRECTIVES, FORM_PROVIDERS, ControlGroup, Control} from 'angular2/common';
 import {FieldLayout} from '../../app/unientities';
 import {UniComponentLoader} from '../core/componentLoader';
@@ -20,11 +20,10 @@ declare var _; // lodash
             
             <span>{{field.Label}}</span>
             <uni-component-loader [type]="ComponentType"></uni-component-loader>
-            <show-error [control]="component?.control" [messages]="messages"></show-error>
-        
+            <show-error *ngIf="component" [control]="component.control" [messages]="messages"></show-error>
         </label>
     `,
-    changeDetection: ChangeDetectionStrategy.OnPush,
+    // changeDetection: ChangeDetectionStrategy.OnPush,
     directives: [FORM_DIRECTIVES, UniComponentLoader],
     providers: [FORM_PROVIDERS],
 })
@@ -41,8 +40,18 @@ export class UniField {
     @Output()
     public onReady: EventEmitter<UniField> = new EventEmitter<UniField>(true);
 
+    @Output()
+    public onTab: EventEmitter<UniField> = new EventEmitter<UniField>(true);
+
     @ViewChild(UniComponentLoader)
     public ucl: UniComponentLoader;
+
+    @HostListener('keydown', ['$event'])
+    public onTabHandler(event) {
+        if (event.which === 9) {
+            this.onTab.emit(this);  
+        }      
+    }
 
     public get ComponentType() { return UNI_CONTROL_DIRECTIVES[this.field.FieldType]; }
 
@@ -53,16 +62,16 @@ export class UniField {
     private component: any;
 
     public get Component() { return this.component; }
-    
+
     constructor(private ref: ChangeDetectorRef) { }
-    
+
     public get Hidden() { return this.field.Hidden; }
-    
+
     public set Hidden(value: boolean) {
         this.field.Hidden = value;
         this.ref.markForCheck();
-    } 
-    
+    }
+
     public setFocus() {
         if (this.Component.setFocus) {
             this.Component.setFocus();
@@ -72,14 +81,14 @@ export class UniField {
     public readMode() {
         if (this.Component.readMode) {
             this.Component.readMode();
-            this.ref.markForCheck();
+            // this.ref.markForCheck();
         }
     }
 
     public editMode() {
         if (this.Component.editMode) {
             this.Component.editMode();
-            this.ref.markForCheck();
+            // this.ref.markForCheck();
         }
     }
 
@@ -108,11 +117,6 @@ export class UniField {
         var asyncvalidators = ValidatorsComposer.composeAsyncValidators(this.field);
         var control = new Control(value, syncvalidators, asyncvalidators);
         this.controls.addControl(this.field.Property, control);
-        control.valueChanges.subscribe((newValue: any) => {
-            if (control.valid) {
-                _.set(self.model, self.field.Property, newValue);
-            }
-        });
         if (this.component) {
             this.component.field = self.field;
             this.component.control = control;
@@ -124,7 +128,7 @@ export class UniField {
                 cmp.control = control;
                 cmp.model = self.model;
                 self.component = cmp;
-                self.ref.markForCheck(); // first time we say we should hydratate component
+                // self.ref.markForCheck(); // first time we say we should hydratate component
                 self.onReady.emit(self);
             });
         }

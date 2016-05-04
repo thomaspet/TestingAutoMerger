@@ -2,7 +2,6 @@ import {Component, Type, Input} from 'angular2/core';
 import {NgIf, NgForm} from 'angular2/common';
 import {UNI_CONTROL_DIRECTIVES} from '../controls';
 import {ShowError} from '../forms/showError';
-import {UniRadioGroup} from '../controls/radioGroup/uniRadioGroup';
 import {UniComponentLoader} from '../core/componentLoader';
 import {UniFieldBuilder} from './builders/uniFieldBuilder';
 import {UniGenericField} from './shared/UniGenericField';
@@ -15,7 +14,7 @@ declare var _;
  */
 @Component({
     selector: 'uni-field',
-    directives: [UniComponentLoader, ShowError, UniRadioGroup, NgIf, NgForm, UniCheckboxInput],
+    directives: [UniComponentLoader, ShowError, NgIf, NgForm, UniCheckboxInput],
     template: `
         <label ngForm *ngIf="isInput()" [class.error]="hasError()" [class]="buildClassString()" [class.-has-linebreak]="hasLineBreak()">
             <span>{{config.label}}</span>
@@ -23,7 +22,6 @@ declare var _;
             <show-error [control]="config.control" [messages]="config.errorMessages"></show-error>
         </label>
         <uni-checkbox *ngIf="isCheckbox()" [config]="config" [class.-has-linebreak]="hasLineBreak()"></uni-checkbox>
-        <uni-radio-group *ngIf="isRadioGroup()" [config]="config" [class.-has-linebreak]="hasLineBreak()"></uni-radio-group>
     `
 })
 export class UniField extends UniGenericField {

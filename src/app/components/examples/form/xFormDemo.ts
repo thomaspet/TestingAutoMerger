@@ -40,6 +40,60 @@ export class XFormDemo {
         this.api.get(1).toPromise().then((employee: Employee) => self.employee = employee);
         this.api.layout('EmployeeDetailsForm').toPromise().then((layout: any) => {
             self.fields = layout.Fields.filter((field: FieldLayout) => field.FieldType === 10);
+            var numericTest: FieldLayout = {
+                FieldSet: 0,
+                Section: 0,
+                FieldType: 6,
+                Label: 'Numeric Input test',
+                Property: 'NumericTestProperty',
+                ReadOnly: false,
+                Options: {}
+            };
+            var maskedTest: FieldLayout = {
+                FieldSet: 0,
+                Section: 0,
+                FieldType: 4,
+                Label: 'Masked Input test',
+                Property: 'MaskedTestProperty',
+                ReadOnly: false,
+                Options: {
+                    mask: '(000) 000-0000'
+                }
+            };
+            var multiValueTest: FieldLayout = {
+                FieldSet: 0,
+                Section: 0,
+                FieldType: 14,
+                Label: 'Multivalue',
+                Property: 'Employments',
+                ReadOnly: false,
+                Placeholder: "Add new employment",
+                Options: {
+                    valueProperty: 'JobName',
+                    defaultField: 'DefaultJobTest',
+                    editor: (item) => new Promise((resolve) => resolve(item));
+                }
+            };
+            var autocompleteTest: FieldLayout = {
+                FieldSet: 0,
+                Section: 0,
+                FieldType: 0,
+                Label: 'Autocomplete',
+                Property: 'AutocompleteTest',
+                ReadOnly: false,
+                Placeholder: "AUtocomplete",
+                Options: {
+                    source: [
+                        { id: 1, name: 'Jorge' },
+                        { id: 2, name: 'Frank' },
+                        { id: 3, name: 'Anders' },
+                    ],
+                    template: (obj) => `${obj.id} - ${obj.name}`, 
+                    valueProperty: 'name',
+                    debounceTime: 500,
+                }
+            };
+            self.fields = [numericTest, maskedTest, multiValueTest, autocompleteTest, ...self.fields];
         });
         this.config = {
             submitText: 'Enviar'
@@ -53,6 +107,7 @@ export class XFormDemo {
     public ready(value) {
         console.log('Ready:', value);
         var self = this;
+        //*
         setTimeout(() => {
             self.api.get(2).toPromise().then((employee: any) => self.employee = employee);
         }, 1000);
@@ -62,26 +117,30 @@ export class XFormDemo {
         setTimeout(() => {
             self.employee.BusinessRelationInfo.Name = 'Jorge Ferrando';
             self.employee = _.cloneDeep(self.employee);
-        }, 3000);  
+        }, 3000);
         setTimeout(() => {
             self.uniform.readMode();
         }, 4000);
         setTimeout(() => {
             self.uniform.editMode();
-        }, 5000); 
+        }, 5000);
         setTimeout(() => {
             self.uniform.Hidden = true;
-        }, 6000); 
+        }, 6000);
         setTimeout(() => {
             self.uniform.Hidden = false;
-        }, 7000); 
+        }, 7000);
         setTimeout(() => {
             self.uniform.section(1).Hidden = true;
-        }, 8000); 
+        }, 8000);
         setTimeout(() => {
             self.uniform.section(1).Hidden = false;
-        }, 9000); 
-                    
+        }, 9000);
+        setTimeout(() => {
+            self.uniform.Fields['Employments'].setFocus();
+        }, 10000);
+        // */
+
     }
 
     public change(value) {
