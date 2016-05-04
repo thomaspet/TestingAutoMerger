@@ -1,4 +1,4 @@
-import {Component, OnInit, ViewChild, Injector} from 'angular2/core';
+import {Component, OnInit, Injector} from 'angular2/core';
 import {RouteParams, Router} from 'angular2/router';
 import {UniTable, UniTableColumn, UniTableBuilder} from '../../../../../framework/uniTable';
 import {EmploymentService} from '../../../../services/services';
@@ -19,22 +19,29 @@ export class EmploymentList implements OnInit {
     private currentEmployeeID: number;
     private selectedEmployment: Employment;
     private busy: boolean;
+    private showEmploymentList: boolean = false;
     private employmentListConfig: any;
-    @ViewChild(UniTable) private tables: UniTable;
     
     constructor(private _employmentService: EmploymentService, private injector: Injector, private employeeDataSource: EmployeeDS, private router: Router) {
         let params = injector.parent.parent.get(RouteParams);
-        // console.log('params', params);
         this.currentEmployeeID = params.get('id');
     }
     
     public ngOnInit() {
         this.employeeDataSource.get(this.currentEmployeeID)
         .subscribe((response: any) => {
-            // console.log('response', response);
             this.currentEmployee = response;
-            this.setTableConfig();
-            // console.log('set tableconfig');
+            if (this.currentEmployee.Employments.length > 0) {
+                if (this.currentEmployee.Employments.length > 1) {
+                    this.showEmploymentList = true;
+                    this.setTableConfig();
+                }
+                this.currentEmployee.Employments.forEach(employment => {
+                    if (employment.Standard === true) {
+                        this.selectedEmployment = employment;
+                    }
+                });
+            }
         },
         (err) => {
             console.log('error getting employee', err);
@@ -46,6 +53,7 @@ export class EmploymentList implements OnInit {
         var idCol = new UniTableColumn('ID', 'Nr', 'number').setWidth('4rem');
         var nameCol = new UniTableColumn('JobName', 'Tittel', 'string');
         var styrkCol = new UniTableColumn('JobCode', 'Stillingskode', 'string');
+        // var stdCol = new UniTableColumn('Standard', 'Standard', 'number');
         
         this.employmentListConfig = new UniTableBuilder(this.currentEmployee.Employments, false)
             .setSelectCallback((selected: Employment) => {
@@ -53,7 +61,7 @@ export class EmploymentList implements OnInit {
         })
         .setColumnMenuVisible(false)
         .setPageable(false)
-        .addColumns(idCol, nameCol, styrkCol);
+        .addColumns(idCol, nameCol, styrkCol); // , stdCol);
         
         this.busy = false;
     }

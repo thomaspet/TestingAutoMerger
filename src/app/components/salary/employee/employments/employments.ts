@@ -1,12 +1,9 @@
-// import {RouteParams} from 'angular2/router';
 import {Component, Injector, Input, ViewChild, OnInit, ComponentRef} from 'angular2/core';
 import {EmployeeDS} from '../../../../data/employee';
 import {EmploymentService, StaticRegisterService} from '../../../../services/services';
-import {STYRKCodesDS} from '../../../../data/styrkCodes';
 import {UNI_CONTROL_DIRECTIVES} from '../../../../../framework/controls';
 import {FieldType, STYRKCode, Employee, Employment} from '../../../../unientities';
-import {UniForm, UniFormBuilder, UniFieldBuilder, UniSectionBuilder, UniFieldsetBuilder} from '../../../../../framework/forms';
-import {Observable} from 'rxjs/Observable';
+import {UniForm, UniFormBuilder, UniFieldBuilder, UniSectionBuilder} from '../../../../../framework/forms';
 import {UniElementFinder} from '../../../../../framework/forms/shared/UniElementFinder';
 import {UniComponentLoader} from '../../../../../framework/core';
 
@@ -58,7 +55,7 @@ export class EmployeeEmployment implements OnInit {
         {ID: 4, Name: '4 - Døgnkontinuerlig skiftarbeid'},
         {ID: 5, Name: '5 - 2 skiftarbeid'}
     ];
-
+    
     // private shipType: {ID: number, Name: string}[] = [
     //     {ID: 0, Name: 'Udefinert'},
     //     {ID: 1, Name: '1 - Annet'},
@@ -82,24 +79,11 @@ export class EmployeeEmployment implements OnInit {
     private subEntities: any;
 
     constructor(private injector: Injector, 
-                public employeeDS: EmployeeDS, 
-                public styrkcodesDS: STYRKCodesDS, 
+                public employeeDS: EmployeeDS,
                 public statReg: StaticRegisterService,
                 private _employmentService: EmploymentService) {
         
         this.styrks = this.statReg.getStaticRegisterDataset('styrk');
-        // let params = injector.parent.parent.get(RouteParams);
-        
-        // Observable.forkJoin(
-        //     // employeeDS.get(params.get('id')),
-        //     employeeDS.getSubEntities()
-        // ).subscribe((response: any) => {
-        //     let [subEnt] = response;
-        //     // this.currentEmployee = employee;
-        //     this.subEntities = subEnt;
-        //     // this.buildFormConfigs();
-            
-        // }, (error: any) => console.log(error));
     }
     
     public ngOnInit() {
@@ -107,21 +91,20 @@ export class EmployeeEmployment implements OnInit {
         .subscribe((response: any) => {
             this.subEntities = response;
             this.updateAndShowView();
-            // this.buildDetailConfig();
-            // this.loadForm();
         },
         (err: any) => {
             console.log('error getting subentities: ', err);
         });
     }
     
-    public ngOnChanges() {
-        this.busy = true;
-        console.log('changes detected in details', this.currentEmployment);
-        if (this.currentEmployment) {
-            setTimeout(() => {
-                this.updateAndShowView(true);
-            }, 100);
+    public ngOnChanges(valueChanges) {
+        this.busy = false;
+        if (valueChanges.currentEmployment.previousValue.ID !== undefined) {
+            if (this.currentEmployment) {
+                setTimeout(() => {
+                    this.updateAndShowView(true);
+                }, 100);
+            }
         }
     }
     
@@ -139,64 +122,54 @@ export class EmployeeEmployment implements OnInit {
     private buildDetailConfig() {
         this.formModel.employment = this.currentEmployment;
         var formbuilder = new UniFormBuilder();
-
-        // var jobCode = this
-        //     .buildField('Stillingskode', this.currentEmployment, 'JobCode', FieldType.AUTOCOMPLETE)
-        //     .setKendoOptions({
-        //         dataSource: this.styrks,
-        //         dataTextField: 'styrk',
-        //         dataValueField: 'styrk'
-        //     });
-        // jobCode.onSelect = (event: kendo.ui.AutoCompleteSelectEvent) => {
-        //     var item: any = event.item;
-        //     var dataItem = event.sender.dataItem(item.index());
-        //     // this.updateJobCodeFields(dataItem, formbuilder);
-        // };
-
-        // var jobName = this.buildField('Navn', this.currentEmployment, 'JobName', FieldType.AUTOCOMPLETE)
-        //     .setKendoOptions({
-        //         dataSource: this.styrks,
-        //         dataTextField: 'tittel',
-        //         dataValueField: 'tittel'
-        //     });
-        // jobName.onSelect = (event: kendo.ui.AutoCompleteSelectEvent) => {
-        //     var item: any = event.item;
-        //     var dataItem = event.sender.dataItem(item.index());
-        //     // this.updateJobCodeFields(dataItem, formbuilder);
-        // };
-        var jobCode = this.buildField('Stillingskode', this.formModel, 'employment.JobCode'
-            , FieldType.TEXT);
-        var jobName = this.buildField('Navn', this.formModel, 'employment.JobName'
-            , FieldType.TEXT);
-        var startDate = this.buildField('Startdato', this.formModel, 'employment.StartDate'
-            , FieldType.DATEPICKER);
-        var endDate = this.buildField('Sluttdato', this.formModel, 'employment.EndDate'
-            , FieldType.DATEPICKER);
-        var monthRate = this.buildField('Månedlønn', this.formModel, 'employment.MonthRate'
-            , FieldType.NUMERIC);
-        var hourRate = this.buildField('Timelønn', this.formModel, 'employment.HourRate', FieldType.NUMERIC);
-        var workPercent = this.buildField('Stillingprosent', this.formModel, 'employment.WorkPercent'
-            , FieldType.NUMERIC);
-
         
-        var subEntity = this.buildField('Lokasjon', this.currentEmployment.SubEntity.BusinessRelationInfo,
-            'Name', FieldType.COMBOBOX);
+        var jobCode = this.buildField('Stillingkode', this.formModel, 
+            'employment.JobCode', FieldType.AUTOCOMPLETE);
+        jobCode.setKendoOptions({
+            source: this.styrks,
+            valueKey: 'styrk',
+            template: (obj: any) => `${obj.styrk} - ${obj.tittel}`,
+            minLength: 2,
+            debounceTime: 300
+        });
+        jobCode.onSelect = (event: kendo.ui.AutoCompleteSelectEvent) => {
+            var item: any = event.item;
+            var dataItem = event.sender.dataItem(item.index());
+            this.updateJobCodeFields(dataItem, formbuilder);
+        };
+        
+        var jobName = this.buildField('Stillingnavn', this.formModel, 
+            'employment.JobName', FieldType.AUTOCOMPLETE);    
+        jobName.setKendoOptions({
+            source: this.styrks,
+            valueKey: 'tittel',
+            template: (obj: any) => `${obj.styrk} - ${obj.tittel}`,
+            minLength: 2,
+            debounceTime: 300
+        });
+        jobName.onSelect = (event: kendo.ui.AutoCompleteSelectEvent) => {
+            var item: any = event.item;
+            var dataItem = event.sender.dataItem(item.index());
+            this.updateJobCodeFields(dataItem, formbuilder);
+        };
+        
+        var standard = this.buildField('Standard', this.formModel, 'employment.Standard', FieldType.CHECKBOX);
+        var startDate = this.buildField('Startdato', this.formModel, 'employment.StartDate', FieldType.DATEPICKER);
+        var endDate = this.buildField('Sluttdato', this.formModel, 'employment.EndDate', FieldType.DATEPICKER);
+        var workPercent = this.buildField('Stillingprosent', this.formModel, 'employment.WorkPercent', FieldType.NUMERIC);
+        var subEntity = this.buildField('Virksomhet', this.currentEmployment.SubEntity.BusinessRelationInfo,
+            'employment.SubEntity.BusinessRelationInfo.Name', FieldType.COMBOBOX);
         subEntity.setKendoOptions({
             dataSource: this.subEntities,
             dataTextField: 'BusinessRelationInfo.Name',
             dataValueField: 'ID'
-        });
+        });    
+        var monthRate = this.buildField('Månedslønn', this.formModel, 'employment.MonthRate', FieldType.NUMERIC);
+        var hourRate = this.buildField('Timelønn', this.formModel, 'employment.HourRate', FieldType.NUMERIC);
+        
         var readgroup = this.buildGroupForm();
 
-        formbuilder.addUniElements( jobCode, 
-                                    jobName, 
-                                    startDate, 
-                                    endDate, 
-                                    monthRate, 
-                                    hourRate, 
-                                    workPercent, 
-                                    subEntity, 
-                                    readgroup);
+        formbuilder.addUniElements(jobCode, jobName, workPercent, standard, startDate, endDate, subEntity, monthRate, hourRate, readgroup);
         formbuilder.hideSubmitButton();
         
         this.form = formbuilder;
@@ -206,80 +179,57 @@ export class EmployeeEmployment implements OnInit {
         this.uniCompLoader.load(UniForm).then((cmp: ComponentRef) => {
             cmp.instance.config = this.form;
             this.whenFormInstance = new Promise((resolve: Function) => resolve(cmp.instance));
-            // setTimeout(() => {
-            //     this.whenFormInstance = cmp.instance;
-            // });
         });
     }
     
     private updateJobCodeFields(dataItem, formbuilder: UniFormBuilder) {
-        var fjn = <UniFieldBuilder>UniElementFinder.findUniFieldByPropertyName('JobName',
-            formbuilder.config());
-        console.log('dataItem', dataItem);
-        console.log('fjn', fjn);
+        var fjn = <UniFieldBuilder>UniElementFinder.findUniFieldByPropertyName('employment.JobName', formbuilder.config());
         fjn.control.updateValue(dataItem.tittel, {});
-        var fjc = <UniFieldBuilder>UniElementFinder.findUniFieldByPropertyName('JobCode', 
-            formbuilder.config());
-        console.log('fjc', fjc);
+        var fjc = <UniFieldBuilder>UniElementFinder.findUniFieldByPropertyName('employment.JobCode', formbuilder.config());
         fjc.control.updateValue(dataItem.styrk, {});
-        
     }
 
     private buildGroupForm() {
-        var groupBuilder = new UniSectionBuilder('Vis mer');
+        var groupBuilder = new UniSectionBuilder('A-meldingsinformasjon');
         if (this.currentEmployment.Standard === true) {
             groupBuilder.openByDefault(true);
         }
 
         // a-meldingsinfo
-        var ameldingSet = new UniFieldsetBuilder();
-        var tOfEmplnt = this.buildField('Arbeidsforhold', this.formModel, 'employment.TypeOfEmployment'
-            , FieldType.COMBOBOX);
+        var tOfEmplnt = this.buildField('Arbeidsforhold', this.formModel, 'employment.TypeOfEmployment', FieldType.COMBOBOX);
         tOfEmplnt.setKendoOptions({
             dataSource: this.typeOfEmployment,
             dataTextField: 'Name',
             dataValueField: 'ID'
         });
-        var renum = this.buildField('Avlønning', this.formModel, 'employment.RenumerationType'
-            , FieldType.COMBOBOX);
+        var renum = this.buildField('Avlønning', this.formModel, 'employment.RenumerationType', FieldType.COMBOBOX);
         renum.setKendoOptions({
             dataSource: this.renumerationType,
             dataTextField: 'Name',
             dataValueField: 'ID'
         });
-        var work = this.buildField('Arbeidstid', this.formModel, 'employment.WorkingHoursScheme'
-            , FieldType.COMBOBOX);
+        var work = this.buildField('Arbeidstid', this.formModel, 'employment.WorkingHoursScheme', FieldType.COMBOBOX);
         work.setKendoOptions({
             dataSource: this.workingHoursScheme,
             dataTextField: 'Name',
             dataValueField: 'ID'
         });
-        var hours = this.buildField('Standardtimer', this.formModel, 'employment.HoursPerWeek', FieldType.NUMERIC);
-        ameldingSet.addUniElements(hours, tOfEmplnt, renum, work);
+        var hours = this.buildField('Timer pr uke', this.formModel, 'employment.HoursPerWeek', FieldType.NUMERIC);
 
         // dates
-        var dateSet = new UniFieldsetBuilder();
-        var salary = this.buildField('Lønnsjustering', this.formModel, 'employment.LastSalaryChangeDate'
-            , FieldType.DATEPICKER);
-        var percent = this.buildField('Endret stillingprosent', this.formModel
-            , 'employment.LastWorkPercentChangeDate', FieldType.DATEPICKER);
-        var senority = this.buildField('Ansiennitet', this.formModel, 'employment.SeniorityDate'
-            , FieldType.DATEPICKER);
-        dateSet.addUniElements(salary, percent, senority);
-
+        var senority = this.buildField('Ansiennitet', this.formModel, 'employment.SeniorityDate', FieldType.DATEPICKER);
+        var salary = this.buildField('Lønnsjustering', this.formModel, 'employment.LastSalaryChangeDate', FieldType.DATEPICKER);
+        var percent = this.buildField('Sist endret %', this.formModel, 'employment.LastWorkPercentChangeDate', FieldType.DATEPICKER);
+        
         // annen lønnsinfo
-        var infoSet = new UniFieldsetBuilder();
-        var freerate = this.buildField('Fri sats', this.formModel, 'employment.UserDefinedRate'
-            , FieldType.NUMERIC);
-        var ledger = this.buildField('Hovedbokskonto', this.formModel, 'employment.LedgerAccount'
-            , FieldType.TEXT);
-        infoSet.addUniElements(freerate, ledger);
-
+        var freerate = this.buildField('Fri sats', this.formModel, 'employment.UserDefinedRate', FieldType.NUMERIC);
+        var ledger = this.buildField('Hovedbokskonto', this.formModel, 'employment.LedgerAccount', FieldType.TEXT);
+        
         // dimensjoner
         // prosjekt - ?
         // avdeling - ?
 
-        groupBuilder.addUniElements(ameldingSet, dateSet, infoSet);
+        groupBuilder.addUniElements(tOfEmplnt, renum, work, hours, senority, salary, percent, freerate, ledger);
 
         return groupBuilder;
     }
@@ -328,9 +278,7 @@ export class EmployeeEmployment implements OnInit {
     // }
     
     public addNewEmployment() {
-        console.log('addNewEmployment()');
         this._employmentService.GetNewEntity().subscribe((response: Employment) => {
-            console.log('response');
             var standardSubEntity = this.subEntities.find(newSubEntity => 
                     newSubEntity.SuperiorOrganizationID === null);
                     
