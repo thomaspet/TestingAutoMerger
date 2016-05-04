@@ -5,7 +5,9 @@ import "rxjs/add/observable/forkjoin";
 import {FieldType, VatType, VatCodeGroup, Account, Dimensions, SupplierInvoice} from "../../../../../unientities";
 import {VatTypeService, VatCodeGroupService, AccountService, JournalEntryService, JournalEntryLineService, DepartementService, ProjectService} from "../../../../../services/services";
 
+import {JournalEntrySimpleCalculationSummary} from '../../../../../models/accounting/JournalEntrySimpleCalculationSummary';
 import {JournalEntryData} from "../../../../../models/models";
+
 import {UNI_CONTROL_DIRECTIVES} from "../../../../../../framework/controls";
 import {UniForm, UniFormBuilder, UniFieldsetBuilder, UniFieldBuilder} from "../../../../../../framework/forms";
 
@@ -24,13 +26,22 @@ export class JournalEntrySimple {
     public journalEntryLines: Array<JournalEntryData>;
     public validationResult: any;
     public DropdownData: any;
-        
+
+    itemsSummaryData: JournalEntrySimpleCalculationSummary;
+    recalcTimeout: any;
+    private busy: boolean;
+
+       
     constructor(private journalEntryService : JournalEntryService, 
                 private departementService: DepartementService,
                 private projectService: ProjectService, 
                 private vattypeService: VatTypeService,
                 private accountService: AccountService) {
         this.journalEntryLines = new Array<JournalEntryData>();        
+    }
+
+    log(err) {
+        alert(err._body);
     }
     
     ngOnInit() {
@@ -178,6 +189,7 @@ export class JournalEntrySimple {
         this.journalEntryLines.unshift(journalEntryLine);
         
         this.validateJournalEntryData();
+        this.recalcItemSums();
     }
 
     editViewUpdated(journalEntryLine : JournalEntryData) { 
@@ -188,6 +200,48 @@ export class JournalEntrySimple {
         this.selectedJournalEntryLine = null;
         
         this.validateJournalEntryData();        
+    }
+
+    recalcItemSums() {
+        this.busy = true;
+
+        // do recalc after 2 second to avoid to much requests
+        if (this.recalcTimeout) {
+            clearTimeout(this.recalcTimeout);
+        }
+
+        this.recalcTimeout = setTimeout(() => {
+
+            this.journalEntryLines.forEach((x) => {
+                x.Amount = x.Amount ? x.Amount : 0;
+                x.DebitAccountID = x.DebitAccountID ? x.DebitAccountID : 0;
+                x.DebitVatTypeID = x.DebitVatTypeID ? x.DebitVatTypeID : 0;
+                x.CreditAccountID = x.CreditAccountID ? x.CreditAccountID : 0;
+                x.CreditVatTypeID = x.CreditVatTypeID ? x.CreditVatTypeID : 0;
+                //TODO ...?
+            });
+
+
+            //if (this.itemsSummaryData == null)
+            //    this.itemsSummaryData = new JournalEntrySimpleCalculationSummary();
+
+            //this.itemsSummaryData.SumDebet = 1 * this.journalEntryLines.length;
+            //this.itemsSummaryData.SumCredit = 1201;
+            //this.itemsSummaryData.Diff = 1202;
+            //this.itemsSummaryData.IncomingVat = 1203;
+            //this.itemsSummaryData.OutgoingVat = 1204;
+
+            this.journalEntryService.calculateJournalEntrySummary(this.journalEntryLines)
+                .subscribe((data) => {
+                    this.itemsSummaryData = data;
+                    this.busy = false;
+                },
+                (err) => {
+                    console.log('Error when recalculating journal entry summary:', err)
+                    this.log(err);
+                }
+                );
+        }, 2000);
     }
 }
 
