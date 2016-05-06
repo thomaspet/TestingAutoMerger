@@ -152,7 +152,6 @@ export class JournalEntrySimple {
     }
         
     setSelectedJournalEntryLine(selectedLine: JournalEntryData) {
-        selectedLine.SameOrNew = "0";    
         this.selectedJournalEntryLine = selectedLine;
     }
     

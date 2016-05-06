@@ -33,7 +33,7 @@ export class JournalEntrySimpleForm {
     
     @Input()
     journalEntryLines: Array<JournalEntryData>;
-                                
+    
     @Output() Created = new EventEmitter<any>();
     @Output() Aborted = new EventEmitter<any>();
     @Output() Updated = new EventEmitter<any>();
@@ -51,7 +51,7 @@ export class JournalEntrySimpleForm {
     isLoaded: boolean;
     isEditMode: boolean;
     formInstance: UniForm;
-        
+    
     constructor(private accountService: AccountService) {   
         this.isLoaded = false;
         this.isEditMode = false;
@@ -60,6 +60,7 @@ export class JournalEntrySimpleForm {
         this.vattypes = [];
         this.accounts = [];
         this.JournalEntryLine = new JournalEntryData();
+        this.JournalEntryLine.SameOrNew = "1"; // new by default
     }
     
     ngOnChanges(changes: {[propName: string]: SimpleChange}) {         
@@ -77,15 +78,16 @@ export class JournalEntrySimpleForm {
          
     addJournalEntry(event: any) {        
         var oldData: JournalEntryData = _.cloneDeep(this.formInstance.Value);              
-
-        // next or same journal entry number
+                
+        // next journal number?
         if (oldData.SameOrNew == "1") {
-            var parts = this.nextJournalNumber.split('-');
-            var no = parseInt(parts[0]) + 1;
-            this.nextJournalNumber = `${no}-${parts[1]}`;
+            oldData.JournalEntryNo = this.getNextJournalNumber();
+        } else {
+            var numbers = this.findJournalNumbers();
+            oldData.JournalEntryNo = `${numbers.last}-${numbers.year}`;        
         }
-
-        oldData.JournalEntryNo = this.nextJournalNumber;
+        
+        oldData.SameOrNew = oldData.JournalEntryNo;
         this.Created.emit(oldData);
                 
         this.JournalEntryLine = new JournalEntryData(); 
@@ -104,11 +106,13 @@ export class JournalEntrySimpleForm {
     
     editJournalEntry(event: any) {     
         var newData: JournalEntryData = this.formInstance.Value;
-        newData.JournalEntryNo = this.JournalEntryLine.JournalEntryNo;
         
-        console.log("== NEW NO ==");
-        console.log(newData.SameOrNew);
-               
+        if (newData.SameOrNew == "1") {
+            newData.JournalEntryNo = this.getNextJournalNumber();
+        } else {
+            newData.JournalEntryNo = newData.SameOrNew;
+        }
+
         this.Updated.emit(newData);
     }
         
@@ -121,13 +125,42 @@ export class JournalEntrySimpleForm {
         this.setFocusOnDebit();
     }
     
-    setFocusOnDebit() {
+    private setFocusOnDebit() {
         var debitaccount: UniFieldBuilder = this.formInstance.find('DebitAccountID');
         debitaccount.setFocus(); 
     }
+    
+    private getNextJournalNumber(): string {       
+        var numbers = this.findJournalNumbers();
+        return `${numbers.last + (this.journalEntryLines.length > 0 ? 1 : 0)}-${numbers.year}`;
+    }
+    
+    private findJournalNumbers() {
+        var first, last;
+        
+        if (this.journalEntryLines) {
+            this.journalEntryLines.forEach((l:JournalEntryData) => {   
+                var parts = l.JournalEntryNo.split('-');
+                var no = parseInt(parts[0]);
+                if (!first || no < first) first = no;
+                if (!last || no > last) last = no;
+            });            
+        }
+        
+        var parts = this.nextJournalNumber.split('-');
+        if (!first) {
+            first = parseInt(parts[0]);
+            last = first;
+        }
+        
+        return {
+            first: first,
+            last: last,
+            year: parts[1]
+        };
+    }
             
-    ngAfterViewInit() {        
-        console.log("ngAfterViewINit");
+    ngAfterViewInit() {  
         // TODO get it from the API and move these to backend migrations   
         var view: ComponentLayout = {
             Name: "ManualJournalEntryLineDraft",
@@ -345,16 +378,7 @@ export class JournalEntrySimpleForm {
         this.extendFormConfig();
         this.loadForm();                      
     }
-    
-    findInArray(arr: Array<any>, id: string) {
-        var ret = false;
-        arr.forEach(l => {
-           if (l.ID == id) ret = true;
-        });
         
-        return ret;
-    }
-    
     extendFormConfig() {        
         var sameornew: UniFieldBuilder = this.FormConfig.find('SameOrNew');  
         var departement: UniFieldBuilder = this.FormConfig.find('Dimensions.DepartementID');       
@@ -370,28 +394,30 @@ export class JournalEntrySimpleForm {
         var samealternative = {ID: "0", Name: "Samme"};
         var newalternative = {ID: "1", Name: "Ny"}
         var journalalternativesindex = 0;
-        if (this.journalEntryLines) {
-            this.journalEntryLines.forEach((l, i) => {   
-                console.log("CHECKING " + l.JournalEntryNo);
-                if (!this.findInArray(journalalternatives, l.JournalEntryNo)) {
-                    console.log("FOUND: " + l.JournalEntryNo);
-                    journalalternatives.push({ID: l.JournalEntryNo, Name: l.JournalEntryNo});
-                    if (l.JournalEntryNo == this.JournalEntryLine.JournalEntryNo) {
-                        journalalternativesindex = i;
-                    }                    
-                } 
-            });
+               
+        // add list of possible numbers from start to end
+        if (this.isEditMode) {
+            var range = this.findJournalNumbers();  
+            var current = parseInt(this.JournalEntryLine.JournalEntryNo.split('-')[0]);
+            for(var i = 0; i <= (range.last - range.first); i++) {
+                var jn = `${i+range.first}-${range.year}`;
+                journalalternatives.push({ID: jn, Name: jn});
+                if ((i+range.first) == current) { journalalternativesindex = i; } 
+            }
         } else {
             journalalternatives.push(samealternative);
+            journalalternativesindex = 1;
         }
+        
         // new always last one
         journalalternatives.push(newalternative);
                              
         sameornew.setKendoOptions({
+           autoBind: true,
            dataTextField: 'Name',
            dataValueField: 'ID',
-           index: journalalternativesindex,
-           dataSource: journalalternatives
+           dataSource: journalalternatives,
+           index: journalalternativesindex
         });
 
         departement.setKendoOptions({
