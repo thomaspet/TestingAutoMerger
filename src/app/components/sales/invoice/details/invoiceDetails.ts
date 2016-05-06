@@ -331,7 +331,8 @@ export class InvoiceDetails {
         invoiceaddress
             .setKendoOptions({
                 dataTextField: 'AddressLine1',
-                dataValueField: 'ID'
+                dataValueField: 'ID',
+                enableSave: true
             })
             .setModel(this.businessRelationInvoice)
             .setModelField('Addresses')
@@ -347,7 +348,8 @@ export class InvoiceDetails {
         shippingaddress
             .setKendoOptions({
                 dataTextField: 'AddressLine1',
-                dataValueField: 'ID'
+                dataValueField: 'ID',
+                enableSave: true
             })
             .setModel(this.businessRelationShipping)
             .setModelField('Addresses')
