@@ -11,6 +11,11 @@ const ACCOUNTING_ROUTES = [
         name: 'JournalEntry',
         loader: () => ComponentProxy.LoadComponentAsync('JournalEntry', './app/components/accounting/journalentry/journalentry')
     }),
+    new AsyncRoute({
+        path: '/transquery/...',
+        name: 'Transquery',
+        loader: () => ComponentProxy.LoadComponentAsync('Transquery', './app/components/accounting/transquery/transquery')
+    })
 ];
 
 @Component({
