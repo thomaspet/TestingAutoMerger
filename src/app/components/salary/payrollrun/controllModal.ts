@@ -1,5 +1,5 @@
 import {Component, Type, ViewChildren, QueryList, Injector, Input, Output, EventEmitter, AfterViewInit, OnInit} from 'angular2/core';
-import {RouteParams} from 'angular2/router';
+import {RouteParams, Router} from 'angular2/router';
 import {UniModal} from '../../../../framework/modals/modal';
 import {UniForm, UniFormBuilder, UniFieldBuilder} from '../../../../framework/forms';
 import {UniTable, UniTableBuilder, UniTableColumn} from '../../../../framework/unitable';
@@ -26,7 +26,8 @@ export class ControllModalContent implements OnInit {
     constructor(
         private _salaryTransactionService: SalaryTransactionService, 
         private _payrollRunService: PayrollrunService,
-        private _employeeService: EmployeeService) {
+        private _employeeService: EmployeeService,
+        private _router: Router) {
             
     }
     
@@ -119,7 +120,8 @@ export class ControllModalContent implements OnInit {
             var section: any = {
                 employeeInfo: {
                     name: payline.EmployeeName,
-                    payment: payline.NetPayment
+                    payment: payline.NetPayment,
+                    hasTaxInfo: payline.HasTaxInformation
                 },
                 salaryTransactions: new UniTableBuilder(salaryTranses, false)
                     .setColumnMenuVisible(false)
@@ -133,6 +135,11 @@ export class ControllModalContent implements OnInit {
         });
     }
     
+    public runSettling() {
+        this.busy = true;
+        return this._payrollRunService.runSettling(this.config.payrollRunID);
+    }
+    
     public refresh() {
         this.busy = true;
         this._payrollRunService.runSettling(this.config.payrollRunID, false).subscribe((response) => {
@@ -140,6 +147,11 @@ export class ControllModalContent implements OnInit {
                 this.setData(data, true);
             }, error => console.log(error));
         }, error => console.log(error));
+    }
+    
+    public showPaymentList() {
+        console.log('config: ' + JSON.stringify(this.config));
+        this._router.navigateByUrl('/salary/paymentlist/' + this.config.payrollRunID);
     }
     
     public toggleCollapsed(index: number) {
@@ -178,6 +190,18 @@ export class ControllModal implements AfterViewInit {
             cancel: () => {
                 self.modals[0].close();
             },
+            actions: [{
+                text: 'Avregn',
+                method: () => {
+                    self.modals[0].getContent().then((content: ControllModalContent) => {
+                        content.runSettling().subscribe((success) => {
+                            if (success) {
+                                content.showPaymentList();
+                            }
+                        });
+                    });
+                }
+            }],
             payrollRunID: self.payrollRunID
         };
     }
