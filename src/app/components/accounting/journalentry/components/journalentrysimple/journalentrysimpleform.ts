@@ -14,6 +14,7 @@ import {UniAutocompleteConfig} from "../../../../../../framework/controls/autoco
 import {AccountService} from "../../../../../services/services";
 
 declare var _;
+declare var jQuery;
 
 @Component({
     selector: 'journal-entry-simple-form',
@@ -97,11 +98,8 @@ export class JournalEntrySimpleForm {
         var self = this;
         this.formInstance.ready.toPromise().then((instance: UniForm)=>{
             instance.Model = self.JournalEntryLine;
-            console.log('refreshet formInstance, self.JournalEntryLine:', self.JournalEntryLine);
-        });
-        
-        this.setFocusOnDebit();
-        console.log('addJournalEntry kjørt');          
+            this.setFocusOnDebit();
+        });        
     }
     
     editJournalEntry(event: any) {     
@@ -121,8 +119,17 @@ export class JournalEntrySimpleForm {
     }
     
     emptyJournalEntry(event) {
+        var oldData: JournalEntryData = _.cloneDeep(this.formInstance.Value);              
+    
         this.JournalEntryLine = new JournalEntryData();
-        this.setFocusOnDebit();
+        this.JournalEntryLine.SameOrNew = oldData.SameOrNew;      
+        this.JournalEntryLine.FinancialDate = oldData.FinancialDate;    
+        
+        var self = this;
+        this.formInstance.ready.toPromise().then((instance: UniForm)=>{
+            instance.Model = self.JournalEntryLine;
+            self.setFocusOnDebit();
+        });
     }
     
     private setFocusOnDebit() {
@@ -381,6 +388,7 @@ export class JournalEntrySimpleForm {
         
     extendFormConfig() {        
         var sameornew: UniFieldBuilder = this.FormConfig.find('SameOrNew');  
+        var financialdate: UniFieldBuilder = this.FormConfig.find('FinancialDate');
         var departement: UniFieldBuilder = this.FormConfig.find('Dimensions.DepartementID');       
         var project: UniFieldBuilder = this.FormConfig.find('Dimensions.ProjectID');
         var debitvattype: UniFieldBuilder = this.FormConfig.find('DebitVatTypeID');
@@ -394,7 +402,58 @@ export class JournalEntrySimpleForm {
         var samealternative = {ID: "0", Name: "Samme"};
         var newalternative = {ID: "1", Name: "Ny"}
         var journalalternativesindex = 0;
-               
+           
+        // navigation
+        financialdate.onSelect = () => {
+            debitaccount.setFocus();  
+        };
+        
+        debitaccount.onSelect = (account: Account) => {
+            if (account && account.VatType) this.JournalEntryLine.DebitVatType = account.VatType;
+            creditaccount.setFocus();
+        }
+        
+        debitaccount.onTab = () => {
+            creditaccount.setFocus();
+        }
+        
+        debitvattype.onEnter = () => {
+            creditaccount.setFocus();
+        }
+        
+        creditaccount.onSelect = (account: Account) => {
+            if (account && account.VatType) this.JournalEntryLine.CreditVatType = account.VatType;
+            amount.setFocus();        
+        }
+        
+        creditaccount.onTab = () => {
+            amount.setFocus();
+        }
+        
+        creditaccount.onUnTab = () => {
+            debitaccount.setFocus();
+        }
+    
+        creditvattype.onEnter = () => {
+            amount.setFocus();
+        }
+        
+        amount.onEnter = () => {
+            departement.setFocus();
+        }
+        
+        amount.onUnTab = () => {
+            creditaccount.setFocus();
+        }
+        
+        departement.onEnter = () => {
+            project.setFocus();
+        }
+
+        project.onEnter = () => {
+            description.setFocus();
+        }
+                             
         // add list of possible numbers from start to end
         if (this.isEditMode) {
             var range = this.findJournalNumbers();  
@@ -419,16 +478,13 @@ export class JournalEntrySimpleForm {
            dataSource: journalalternatives,
            index: journalalternativesindex
         });
-
+        
         departement.setKendoOptions({
             dataTextField: 'Name',
             dataValueField: 'ID',
             dataSource: this.departements
         });
         departement.addClass('large-field');
-        departement.onSelect = () => {
-        //    project.setFocus();
-        };
 
         project.setKendoOptions({
            dataTextField: 'Name',
@@ -436,14 +492,11 @@ export class JournalEntrySimpleForm {
            dataSource: this.projects 
         });      
         project.addClass('large-field');
-        project.onSelect = () => {
-        //    description.setFocus();
-        }
      
         debitaccount.setKendoOptions(UniAutocompleteConfig.build({
             valueKey: 'AccountNumber',
             template: (obj:Account) => `${obj.AccountNumber} - ${obj.AccountName}`,
-            minLength: 2,
+            minLength: 1,
             debounceTime: 300,
             search: (query:string) => this.accountService.GetAll(`filter=startswith(AccountNumber,'${query}') or contains(AccountName,'${query}')`)
         }));
@@ -454,30 +507,21 @@ export class JournalEntrySimpleForm {
            template: "${data.VatCode} (${ data.VatPercent }%)",
            dataSource: this.vattypes 
         });
-        debitvattype.onSelect = () => {
-        //  creditaccount.setFocus();  
-        };
         
         creditaccount.setKendoOptions(UniAutocompleteConfig.build({
             valueKey: 'AccountNumber',
             template: (obj:Account) => `${obj.AccountNumber} - ${obj.AccountName}`,
-            minLength: 2,
+            minLength: 1,
             debounceTime: 300,
             search: (query:string) => this.accountService.GetAll(`filter=startswith(AccountNumber,'${query}') or contains(AccountName,'${query}')`)
         }));
-        creditaccount.onChange = () => {
-            console.log("== CREDIT ACCOUNT SELECTED ==");
-            //console.log(account);
-        }
+  
         creditvattype.setKendoOptions({
            dataTextField: 'VatCode',
            dataValueField: 'ID',
            template: "${data.VatCode} (${ data.VatPercent }%)",
            dataSource: this.vattypes 
         });
-        creditvattype.onSelect = () => {
-        //   amount.setFocus();  
-        };    
         
         description.addClass('large-field');     
     }    

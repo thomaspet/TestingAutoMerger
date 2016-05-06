@@ -63,8 +63,8 @@ export class UniDatepicker implements AfterViewInit, OnDestroy {
         options.format = options.format || 'dd.MM.yyyy';
         options.parseFormats = options.parseFormats || parseFormats;
 
+        var self = this;
         options.change = function () {
-
             var date = this.value();
 
             if (options.autocomplete && (date === null || date === undefined)) {
@@ -77,9 +77,13 @@ export class UniDatepicker implements AfterViewInit, OnDestroy {
             if (date) {
                 control.updateValue(kendo.toString(date, 'yyyy-MM-ddTHH:mm:ss'), {});
                 this.value(date);
+                
+                if (self.config.onSelect) {
+                    self.config.onSelect(date);
+                }
             } else {
                 control.updateValue(null, {});
-            }
+            }            
         };
         datepicker = this.nativeElement
             .find('input')
@@ -91,7 +95,11 @@ export class UniDatepicker implements AfterViewInit, OnDestroy {
         Observable.fromEvent(this.nativeElement, 'keyup')
             .subscribe(function (event: any) {
                 if (event.keyCode && event.keyCode === 13) {
+                    event.stopPropagation();
                     datepicker.trigger('change');
+                    if (self.config.onEnter) {
+                        self.config.onEnter();
+                    }   
                 }
             });
 

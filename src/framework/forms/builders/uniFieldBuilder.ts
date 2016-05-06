@@ -38,6 +38,9 @@ export class UniFieldBuilder {
     public onSelect: any;
     public clearOnSelect: any;
     public onChange: any;
+    public onEnter: any;
+    public onTab: any;
+    public onUnTab: any;
     public editor: any;
     public placeholder: any;
     public ready: EventEmitter<any> = new EventEmitter<any>(true);

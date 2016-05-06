@@ -62,7 +62,14 @@ export class Login {
                 return;
             }
             
-            this.showCompanySelect(response.json());
+            const companies = response.json();
+            
+            if (companies.length === 1) {
+                this._authService.setActiveCompany(companies[0]);
+                this.onCompanySelected();
+            } else {
+                this.showCompanySelect(companies);    
+            }
         });
     }
     
