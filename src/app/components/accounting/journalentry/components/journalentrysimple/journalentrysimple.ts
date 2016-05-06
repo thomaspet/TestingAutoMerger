@@ -1,4 +1,5 @@
 import {Component, Input, SimpleChange, OnInit, OnChanges} from 'angular2/core';
+import {Router} from 'angular2/router';
 import {Observable} from 'rxjs/Observable';
 import 'rxjs/add/observable/forkjoin';
 
@@ -29,10 +30,11 @@ export class JournalEntrySimple implements OnInit, OnChanges {
 
 
     constructor(private journalEntryService: JournalEntryService,
-                private departementService: DepartementService,
-                private projectService: ProjectService,
-                private vattypeService: VatTypeService,
-                private accountService: AccountService) {
+        private departementService: DepartementService,
+        private projectService: ProjectService,
+        private vattypeService: VatTypeService,
+        private accountService: AccountService,
+        private router: Router) {
         this.journalEntryLines = new Array<JournalEntryData>();
     }
 
@@ -125,9 +127,19 @@ export class JournalEntrySimple implements OnInit, OnChanges {
 
                 console.log(data);
                 this.journalEntryLines = data;
+
+                //TODO feedback til bruker ved lagring..
+                //TODO validate if journalEntry number has changed
+
+
+                //Empty list
+                this.journalEntryLines = new Array<JournalEntryData>();
+                this.recalcItemSums();
             },
-            err => console.log('error in postJournalEntryData: ', err)
-            );
+            err => {
+                console.log('error in postJournalEntryData: ', err);
+                this.log(err);
+            });
     }
 
     private saveDraftJournalEntryData() {
@@ -141,8 +153,10 @@ export class JournalEntrySimple implements OnInit, OnChanges {
                 this.validationResult = data;
                 console.log('valideringsresultat:', data);
             },
-            err => console.log('error int validateJournalEntryData:', err)
-            );
+            err => {
+                console.log('error int validateJournalEntryData:', err);
+                this.log(err);
+            });
     }
 
     private removeJournalEntryData() {
@@ -204,6 +218,11 @@ export class JournalEntrySimple implements OnInit, OnChanges {
 
     private recalcItemSums() {
         this.busy = true;
+        if (this.journalEntryLines.length <= 0) {
+            this.itemsSummaryData = null;
+            console.log('itemsSummaryData is set to null since no lines exist');
+            return;
+        }
 
         // do recalc after 2 second to avoid to much requests
         if (this.recalcTimeout) {
