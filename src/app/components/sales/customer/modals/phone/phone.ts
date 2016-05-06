@@ -32,12 +32,7 @@ export class PhoneForm {
         this.createFormConfig();      
         this.extendFormConfig();
     }
-    
-    ngAfterViewInit() {
-        console.log("===THE PHONE");
-        console.log(this.model);
-    }
-           
+               
     createFormConfig() {   
         // TODO get it from the API and move these to backend migrations   
         var view: ComponentLayout = {
@@ -200,11 +195,11 @@ export class PhoneModal {
                                 self.modal.close();                               
                                 
                                 // store
-                                if(form.model.ID) {
-                                    phoneService.Put(form.model.ID, form.model).subscribe(null, (error: Error) => console.log('error in updating phone from modal - Put: ' + error));
-                                } else {
-                                    phoneService.Post(form.model).subscribe(null, (error: Error) => console.error('error in posting phone from modal - Post: ', error));
-                                }
+                                //if(form.model.ID) {
+                                //    phoneService.Put(form.model.ID, form.model).subscribe(null, (error: Error) => console.log('error in updating phone from modal - Put: ' + error));
+                                //} else {
+                                //    phoneService.Post(form.model).subscribe(null, (error: Error) => console.error('error in posting phone from modal - Post: ', error));
+                                //}
                                 
                                 self.Changed.emit(form.model);
                             });
