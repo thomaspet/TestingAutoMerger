@@ -40,11 +40,11 @@ export class PayrollrunService extends BizHttp<PayrollRun> {
             .send();
     }
     
-    public runSettling(ID: number) {
+    public runSettling(ID: number, setCalculated: boolean = true) {
         return this.http
             .asPUT()
             .usingBusinessDomain()
-            .withEndPoint(this.relativeURL + '/' + ID + '?action=calculate')
+            .withEndPoint(this.relativeURL + '/' + ID + '?action=calculate&SetCalculated=' + setCalculated)
             .send();
     }
     

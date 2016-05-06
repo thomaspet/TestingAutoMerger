@@ -1,0 +1,13 @@
+<article class="modal-content" [attr.aria-busy]="busy">
+    <h1>Controll modal content</h1>
+    <section class="controll-heading-form">
+        <uni-form *ngIf="formConfig" [config] = "formConfig"></uni-form>
+    </section>
+    <section *ngIf = "payList">
+        <section *ngFor = "#payLine of payList #index = index">
+            <h4 (click) = "toggleCollapsed(index)">{{index + 1}}, {{payLine.employeeInfo.name}}, Netto utbetalt: {{payLine.employeeInfo.payment}}</h4>
+            <uni-table [config] = "payLine.salaryTransactions"></uni-table>
+        </section>
+    </section>
+    <footer><button *ngIf="config.hasCancelButton" (click)="config.cancel()">Avbryt</button></footer>
+</article>
