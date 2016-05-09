@@ -1,0 +1,43 @@
+.payrollControl
+    @extend .modal-content
+    text-align: left
+
+.payrollControl_header
+    @include clearfix
+    width: 100%
+    border-top: pxToRem(1) solid $uni-color-scale9
+    border-bottom: pxToRem(1) solid $uni-color-scale9
+    padding: 0 0 1rem
+
+    h3
+        text-align: left
+
+    uni-form
+        display: block
+        margin-left: -1rem
+        width: calc(100% + 2rem)
+
+.payrollControll_payee
+    &:before
+        display: inline-block
+        padding-left: 1rem
+        font-weight: 600
+        background: unicon-chevron-right($uni-color-scale5) left center no-repeat
+        background-size: .4rem
+
+    &.-is-expanded:before
+        background: unicon-chevron-down($uni-color-scale5) left center no-repeat
+        background-size: .7rem
+
+    h4
+        display: inline-block
+        margin: .5rem 0
+        cursor: pointer
+
+    .-is-missing-info
+        @extend %hideText
+        background: transparent unicon-warning($uni-color-Bad) top .2rem center no-repeat
+        background-size: 1rem
+        padding: 0.6rem
+        margin-right: 0.4rem
+
