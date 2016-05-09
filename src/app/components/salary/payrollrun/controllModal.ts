@@ -127,7 +127,7 @@ export class ControllModalContent implements OnInit {
                     .setColumnMenuVisible(false)
                     .setSearchable(false)
                     .setPageable(false),
-                collapsed: false
+                collapsed: true
             };
             section.salaryTransactions
                 .addColumns(wagetypeNumberCol, wagetypenameCol, accountCol, fromdateCol, toDateCol, amountCol, rateCol, sumCol);
