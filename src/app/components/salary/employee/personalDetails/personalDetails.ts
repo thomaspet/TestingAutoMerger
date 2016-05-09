@@ -13,16 +13,13 @@ declare var _;
     selector: 'employee-personal-details',
     directives: [UniComponentLoader],
     providers: [EmployeeService],
-    template: `
-        <article class='application usertest'>
-            <uni-component-loader></uni-component-loader>
-        </article>
-    `
+    templateUrl: 'app/components/salary/employee/personalDetails/personalDetails.html'
 })
 export class PersonalDetails implements OnInit {
 
     private form: UniFormBuilder = new UniFormBuilder();
     private employee: Employee;
+    private LastSavedInfo: string;
 
     @ViewChild(UniComponentLoader)
     private uniCmpLoader: UniComponentLoader;
@@ -75,12 +72,16 @@ export class PersonalDetails implements OnInit {
                 }];
                 this.employee = employee;
                 this.form = new UniFormLayoutBuilder().build(layout, this.employee);
+                this.form.hideSubmitButton();
+                
                 this.uniCmpLoader.load(UniForm).then((cmp: ComponentRef) => {
                     cmp.instance.config = this.form;
-                    cmp.instance.getEventEmitter().subscribe(this.executeSubmit(this));
+                    // cmp.instance.getEventEmitter().subscribe(this.executeSubmit(this));
                     this.whenFormInstance = new Promise((resolve: Function) => {
                         resolve(cmp.instance);
                     });
+                    // this.formInstance = cmp.instance;
+                    // this.formInstance.hideSubmitButton();
                 });
             }
             , (error: any) => console.error(error)
@@ -90,34 +91,66 @@ export class PersonalDetails implements OnInit {
     public isValid() {
         return this.formInstance && this.formInstance.form && this.formInstance.form.valid;
     }
-
-    private executeSubmit(context: PersonalDetails) {
-        return () => {
-            if (context.employee.ID) {
-                context.employeeService.Put(context.employee.ID, context.employee)
-                    .subscribe(
-                        (data: Employee) => {
-                            context.employee = data;
-                            context.whenFormInstance.then((instance: UniForm) => {
-                                instance.Model = context.employee;
-                            });
-                        },
-                        (error: Error) => {
-                            console.error('error in perosonaldetails.onSubmit - Put: ', error);
-                        }
-                    );
-            } else {
-                context.employeeService.Post(context.employee)
-                    .subscribe(
-                        (data: Employee) => {
-                            context.employee = data;
-                            this.router.navigateByUrl('/salary/employees/' + context.employee.ID);
-                        },
-                        (error: Error) => {
-                            console.error('error in personaldetails.onSubmit - Post: ', error);
-                        }
-                    );
-            }
-        };
+    
+    private saveEmployeeManual() {
+        this.saveEmployee();
     }
+    
+    private saveEmployee() {
+        console.log('save');
+        
+        this.formInstance.sync();
+        this.LastSavedInfo = 'Lagrer persondetaljer på den ansatte';
+        if (this.employee.ID > 0) {
+            this.employeeService.Put(this.employee.ID, this.employee)
+            .subscribe((response: Employee) => {
+                this.employee = response;
+                this.LastSavedInfo = 'Sist lagret: ' + (new Date()).toLocaleTimeString();
+                this.router.navigateByUrl('/salary/employees/' + this.employee.ID);
+            },
+            (err) => {
+                console.log('Feil ved oppdatering av ansatt', err);
+            });
+        } else {
+            this.employeeService.Post(this.employee)
+            .subscribe((response: Employee) => {
+                this.employee = response;
+                this.LastSavedInfo = 'Sist lagret: ' + (new Date()).toLocaleTimeString();
+                this.router.navigateByUrl('/salary/employees/' + this.employee.ID);
+            },
+            (err) => {
+                console.log('Feil oppsto ved lagring', err);
+            });
+        }
+    }
+
+    // private executeSubmit(context: PersonalDetails) {
+    //     return () => {
+    //         if (context.employee.ID) {
+    //             context.employeeService.Put(context.employee.ID, context.employee)
+    //                 .subscribe(
+    //                     (data: Employee) => {
+    //                         context.employee = data;
+    //                         context.whenFormInstance.then((instance: UniForm) => {
+    //                             instance.Model = context.employee;
+    //                         });
+    //                     },
+    //                     (error: Error) => {
+    //                         console.error('error in perosonaldetails.onSubmit - Put: ', error);
+    //                     }
+    //                 );
+    //         } else {
+    //             context.employeeService.Post(context.employee)
+    //                 .subscribe(
+    //                     (data: Employee) => {
+    //                         context.employee = data;
+    //                         this.router.navigateByUrl('/salary/employees/' + context.employee.ID);
+    //                     },
+    //                     (error: Error) => {
+    //                         console.error('error in personaldetails.onSubmit - Post: ', error);
+    //                     }
+    //                 );
+    //         }
+    //     };
+    // }
 }
