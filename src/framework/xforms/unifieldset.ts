@@ -1,5 +1,5 @@
-import {Component, Input, Output, EventEmitter, ViewChildren, QueryList, SimpleChange, ChangeDetectionStrategy, ChangeDetectorRef} from 'angular2/core';
-import {FORM_DIRECTIVES, FORM_PROVIDERS, ControlGroup} from 'angular2/common';
+import {Component, Input, Output, EventEmitter, ViewChildren, QueryList, SimpleChange, ChangeDetectionStrategy, ChangeDetectorRef} from '@angular/core';
+import {FORM_DIRECTIVES, FORM_PROVIDERS, ControlGroup} from '@angular/common';
 import {FieldLayout} from '../../app/unientities';
 import {UniField} from '../xforms/unifield';
 declare var _; // lodash

@@ -1,5 +1,5 @@
-import {Component, Input, Output, EventEmitter, ViewChild, ChangeDetectorRef, SimpleChange, HostListener} from 'angular2/core';
-import {FORM_DIRECTIVES, FORM_PROVIDERS, ControlGroup, Control} from 'angular2/common';
+import {Component, Input, Output, EventEmitter, ViewChild, ChangeDetectorRef, SimpleChange, HostListener} from '@angular/core';
+import {FORM_DIRECTIVES, FORM_PROVIDERS, ControlGroup, Control} from '@angular/common';
 import {FieldLayout} from '../../app/unientities';
 import {UniComponentLoader} from '../core/componentLoader';
 import {UNI_CONTROL_DIRECTIVES} from '../controls';

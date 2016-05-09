@@ -1,8 +1,8 @@
-import {EventEmitter} from "angular2/core";
+import {EventEmitter} from "@angular/core";
 import {UNI_CONTROL_DIRECTIVES} from "../../controls";
 import {UniField} from "./../uniField";
 import {UniTextInput} from "../../controls/text/text";
-import {Control} from "angular2/common";
+import {Control} from "@angular/common";
 
 declare var _;
 

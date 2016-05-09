@@ -7,15 +7,33 @@
 </section>
 
 <section class="journal-entry-simple-table-wrapper">
-    <journal-entry-simple-form [DropdownData]="DropdownData" tabindex="1" (Created)="newLineCreated($event)" *ngIf="DropdownData != null"></journal-entry-simple-form>
-    <section *ngIf="DropdownData == null" class="journal-entry-simple-form-loading-placeholder" [attr.aria-busy]="DropdownData == null" >
-    Laster...
+    <dl class="summary" *ngIf="itemsSummaryData" [attr.aria-busy]="busy">
+        <dt>Sum debet</dt>
+        <dd>{{itemsSummaryData.SumDebet}}</dd>
+
+        <dt>Sum kredit</dt>
+        <dd>{{itemsSummaryData.SumCredit}}</dd>
+
+        <dt>Differanse</dt>
+        <dd>{{itemsSummaryData.Differance}}</dd>
+
+        <dt>Inng.mva</dt>
+        <dd>{{itemsSummaryData.IncomingVat}}</dd>
+
+        <dt>Utg.mva</dt>
+        <dd>{{itemsSummaryData.OutgoingVat}}</dd>
+
+    </dl>
+
+    <journal-entry-simple-form [DropdownData]="dropdownData" tabindex="1" (Created)="newLineCreated($event)" *ngIf="dropdownData != null"></journal-entry-simple-form>
+    <section *ngIf="dropdownData == null" class="journal-entry-simple-form-loading-placeholder" [attr.aria-busy]="dropdownData == null">
+        Laster...
     </section>
     <table>
         <thead>
-             <tr>
-                <th>Nummer</th>
-                <th class="medium_col">Dato</th>                
+            <tr>
+                <th>Bilagsnr</th>
+                <th class="medium_col">Dato</th>
                 <th>Kontoer</th>
                 <th>Beløp</th>
                 <th>Fordeling</th>
@@ -24,16 +42,10 @@
             </tr>
         </thead>
         <tbody>
-            <template ngFor #line [ngForOf]="journalEntryLines" [ngForTrackBy]="trackByLines">        
+            <template ngFor #line [ngForOf]="journalEntryLines" [ngForTrackBy]="trackByLines">
                 <tr tabindex="2" (keyup.enter)="setSelectedJournalEntryLine(line)" class="journalentrysimple-itemline" (click)="setSelectedJournalEntryLine(line)" [class.journal-entry-row-selected]="selectedJournalEntryLine == line">
-                    <td class="journalentrysimple-multilineinfo">
-                        <dl>
-                            <dt>Bilagsnr</dt>
-                            <dd>{{line.JournalEntryNo}}</dd>
-                        </dl>
-                        <!--<div><label>Fakturanr:</label> {{line.SupplierInvoiceNo}}</div>-->
-                    </td>
-                    <td class="journalentrysimple-biginfo">{{line.FinancialDate != "0001-01-01T00:00:00" ? line.FinancialDate.toLocaleDateString() : ""}}</td>                    
+                    <td class="journalentrysimple_temporary"> {{line.JournalEntryNo}}</td>
+                    <td class="journalentrysimple-biginfo">{{line.FinancialDate != "0001-01-01T00:00:00" ? line.FinancialDate.toLocaleDateString() : ""}}</td>
                     <td class="journalentrysimple-multilineinfo">
                         <dl>
                             <dt>Debet</dt>
@@ -54,22 +66,21 @@
                         </dl>
                     </td>
                     <td>{{line.Description}}</td>
-                    <td class="action_menu">                    
-                    </td>
+                    <td class="action_menu"></td>
                 </tr>
                 <tr *ngIf="selectedJournalEntryLine == line">
                     <td colspan="7">
-                        <journal-entry-simple-form [DropdownData]="DropdownData" [JournalEntryLine]="selectedJournalEntryLine" (Updated)="editViewUpdated($event)" (Aborted)="abortEdit()"></journal-entry-simple-form>
-               		</td>
+                        <journal-entry-simple-form [DropdownData]="dropdownData" [JournalEntryLine]="selectedJournalEntryLine" (Updated)="editViewUpdated($event)" (Aborted)="abortEdit()"></journal-entry-simple-form>
+                    </td>
                 </tr>
-            </template>  
+            </template>
             <tr *ngIf="journalEntryLines.length == 0">
-                    <td colspan="7">
-                        Fyll inn data og trykk Legg til over for å legge inn en eller flere bilagslinjer
-               		</td>
-                </tr>              
+                <td colspan="7">
+                    Fyll inn data og trykk Legg til over for å legge inn en eller flere bilagslinjer
+                </td>
+            </tr>
         </tbody>
-    </table>    
+    </table>
 </section>
 <section class="journal-entry-simple-validation" *ngIf="validationResult">
     <h3 *ngIf="validationResult.Messages.length == 0">

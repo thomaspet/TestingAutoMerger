@@ -1,7 +1,7 @@
 import {
     Component, EventEmitter, Input, Output, ViewChildren, QueryList, SimpleChange
-} from 'angular2/core';
-import {FORM_DIRECTIVES, FORM_PROVIDERS, ControlGroup, FormBuilder} from 'angular2/common';
+} from '@angular/core';
+import {FORM_DIRECTIVES, FORM_PROVIDERS, ControlGroup, FormBuilder} from '@angular/common';
 import {FieldLayout} from '../../app/unientities';
 import {UniField} from './unifield';
 import {UniFieldSet} from './unifieldset';

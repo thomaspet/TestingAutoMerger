@@ -1,4 +1,4 @@
-import {Component, Input, OnInit} from "angular2/core";
+import {Component, Input, OnInit} from "@angular/core";
 import {UniTable, UniTableBuilder, UniTableColumn} from "../../../../../framework/uniTable";
 
 @Component({

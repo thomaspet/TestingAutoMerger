@@ -1,5 +1,5 @@
-import {Component, ViewChild, ComponentRef, OnInit} from 'angular2/core';
-import {Router} from 'angular2/router';
+import {Component, ViewChild, ComponentRef, OnInit} from '@angular/core';
+import {Router} from '@angular/router-deprecated';
 import {UniForm} from '../../../../../framework/forms/uniForm';
 import {UniFormBuilder, UniFormLayoutBuilder} from '../../../../../framework/forms';
 import {UniComponentLoader} from '../../../../../framework/core';
@@ -7,7 +7,7 @@ import {Observable} from 'rxjs/Observable';
 import 'rxjs/add/operator/merge';
 import {OperationType, Operator, ValidationLevel, Employee} from '../../../../unientities';
 import {EmployeeService} from '../../../../services/services';
-import {ParamsService} from '../../../../services/ParamsService';
+import {RootRouteParamsService} from '../../../../services/rootRouteParams';
 declare var _;
 
 @Component({
@@ -32,8 +32,11 @@ export class PersonalDetails implements OnInit {
     private formInstance: UniForm;
     private whenFormInstance: Promise<UniForm>;
 
-    constructor(public employeeService: EmployeeService, public router: Router, params: ParamsService) {
-        this.employeeID = +params.get('EmployeeID');
+    constructor(public rootRouteParams: RootRouteParamsService,
+                public employeeService: EmployeeService,
+                public router: Router) {
+        // any way to get that in an easy way????
+        this.employeeID = +rootRouteParams.params.get('id');
     }
     
     public ngOnInit() {
@@ -72,7 +75,7 @@ export class PersonalDetails implements OnInit {
                 }];
                 this.employee = employee;
                 this.form = new UniFormLayoutBuilder().build(layout, this.employee);
-                this.uniCmpLoader.load(UniForm).then((cmp: ComponentRef) => {
+                this.uniCmpLoader.load(UniForm).then((cmp: ComponentRef<any>) => {
                     cmp.instance.config = this.form;
                     cmp.instance.getEventEmitter().subscribe(this.executeSubmit(this));
                     this.whenFormInstance = new Promise((resolve: Function) => {

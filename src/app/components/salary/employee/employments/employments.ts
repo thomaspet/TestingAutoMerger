@@ -1,16 +1,16 @@
-import {RouteParams} from 'angular2/router';
-import {Component, Injector} from 'angular2/core';
+import {RouteParams} from '@angular/router-deprecated';
+import {Component} from '@angular/core';
 import {EmployeeDS} from '../../../../data/employee';
 import {EmploymentService, StaticRegisterService} from '../../../../services/services';
 import {STYRKCodesDS} from '../../../../data/styrkCodes';
 import {UNI_CONTROL_DIRECTIVES} from '../../../../../framework/controls';
-import {FieldType, STYRKCode, Employee, SubEntity, Employment} from '../../../../unientities';
+import {FieldType, STYRKCode, Employee, Employment} from '../../../../unientities';
 import {
     UniForm, UniFormBuilder, UniFieldBuilder, UniSectionBuilder, UniFieldsetBuilder
 } from '../../../../../framework/forms';
 import {Observable} from 'rxjs/Observable';
 import {UniElementFinder} from '../../../../../framework/forms/shared/UniElementFinder';
-import {ParamsService} from '../../../../services/ParamsService';
+import {RootRouteParamsService} from '../../../../services/rootRouteParams';
 
 declare var jQuery;
 
@@ -76,16 +76,17 @@ export class EmployeeEmployment {
 
     private subEntities: any;
 
-    constructor(private params: ParamsService, 
+    constructor(private rootRouteParams: RootRouteParamsService, 
                 public employeeDS: EmployeeDS, 
                 public styrkcodesDS: STYRKCodesDS, 
                 public statReg: StaticRegisterService,
                 private _employmentService: EmploymentService) {
         
         this.styrks = this.statReg.getStaticRegisterDataset('styrk');
+        let params = rootRouteParams.params;
         
         Observable.forkJoin(
-            employeeDS.get(params.get('EmployeeID')),
+            employeeDS.get(+params.get('id')),
             employeeDS.getSubEntities()
         ).subscribe((response: any) => {
             let [employee, subEnt] = response;

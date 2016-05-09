@@ -1,5 +1,5 @@
-import {Component, ViewChild, ViewChildren, Type, Input, QueryList, ComponentRef} from "angular2/core";
-import {NgIf, NgModel, NgFor} from "angular2/common";
+import {Component, ViewChild, ViewChildren, Type, Input, QueryList, ComponentRef} from "@angular/core";
+import {NgIf, NgModel, NgFor} from "@angular/common";
 import {UniModal} from "../../../../framework/modals/modal";
 import {UniComponentLoader} from "../../../../framework/core/componentLoader";
 import {UniForm} from "../../../../framework/forms/uniForm";
@@ -66,7 +66,7 @@ export class UniModalTest {
 
     ngAfterViewInit() {
         var self = this;
-        this.ucl.load(ReusableComponent).then((cmp: ComponentRef)=> {
+        this.ucl.load(ReusableComponent).then((cmp: ComponentRef<any>)=> {
             self.instance = new Promise((resolve)=> {
                 resolve(cmp.instance);
             });

@@ -1,5 +1,5 @@
-import {Component, Type, Input} from 'angular2/core';
-import {NgIf, NgForm} from 'angular2/common';
+import {Component, Type, Input} from '@angular/core';
+import {NgIf, NgForm} from '@angular/common';
 import {UNI_CONTROL_DIRECTIVES} from '../controls';
 import {ShowError} from '../forms/showError';
 import {UniComponentLoader} from '../core/componentLoader';

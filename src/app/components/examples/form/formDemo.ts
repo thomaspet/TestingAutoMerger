@@ -1,4 +1,4 @@
-import {Component, ComponentRef, ViewChild, HostBinding} from "angular2/core";
+import {Component, ComponentRef, ViewChild, HostBinding} from "@angular/core";
 import {
     Operator,
     OperationType,
@@ -95,7 +95,7 @@ export class UniFormDemo {
     }
 
     private loadForm() {
-        return this.UniCmpLoader.load(UniForm).then(((cmp: ComponentRef) => {
+        return this.UniCmpLoader.load(UniForm).then(((cmp: ComponentRef<any>) => {
             cmp.instance.config = this.FormConfig;
             cmp.instance.submit.subscribe(this.submit.bind(this));
             cmp.instance.ready.subscribe(((component: UniForm) => {

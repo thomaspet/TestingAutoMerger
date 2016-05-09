@@ -1,6 +1,6 @@
-import {Component, ViewChildren} from 'angular2/core';
+import {Component, ViewChildren} from '@angular/core';
 import {UniTable, UniTableBuilder, UniTableColumn} from '../../../../framework/uniTable';
-import {RouteParams} from 'angular2/router';
+import {RouteParams} from '@angular/router-deprecated';
 
 import {UniHttp} from '../../../../framework/core/http/http';
 declare var jQuery;

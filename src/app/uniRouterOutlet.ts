@@ -1,5 +1,5 @@
-import {Directive, Attribute, ViewContainerRef, DynamicComponentLoader} from 'angular2/core';
-import {Router, RouterOutlet, ComponentInstruction} from 'angular2/router';
+import {Directive, Attribute, ViewContainerRef, DynamicComponentLoader} from '@angular/core';
+import {Router, RouterOutlet, ComponentInstruction} from '@angular/router-deprecated';
 import {AuthService} from '../framework/core/authService';
 
 @Directive({
@@ -9,13 +9,12 @@ export class UniRouterOutlet extends RouterOutlet {
     private parentRouter: Router;
     private authService: AuthService;
 
-    constructor(viewContainerRef: ViewContainerRef,
+    constructor(view: ViewContainerRef,
                 loader: DynamicComponentLoader,
                 parentRouter: Router,
-                @Attribute('name')
-                    nameAttr: string,
+                @Attribute('name') name: string,
                 authService: AuthService) {
-        super(viewContainerRef, loader, parentRouter, nameAttr);
+        super(view, loader, parentRouter, name);
 
         this.parentRouter = parentRouter;
         this.authService = authService;

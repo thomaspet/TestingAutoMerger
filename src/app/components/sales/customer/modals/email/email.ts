@@ -1,5 +1,5 @@
-import {Component, ViewChildren, Type, Input, Output, QueryList, ViewChild, ComponentRef, EventEmitter} from "angular2/core";
-import {NgIf, NgModel, NgFor, NgClass} from "angular2/common";
+import {Component, ViewChildren, Type, Input, Output, QueryList, ViewChild, ComponentRef, EventEmitter} from "@angular/core";
+import {NgIf, NgModel, NgFor, NgClass} from "@angular/common";
 import {UniModal} from "../../../../../../framework/modals/modal";
 import {UniComponentLoader} from "../../../../../../framework/core/componentLoader";
 import {UniFormBuilder} from "../../../../../../framework/forms/builders/uniFormBuilder";
@@ -116,7 +116,7 @@ export class EmailModalType {
             
     ngAfterViewInit() {
         var self = this;
-        this.ucl.load(EmailForm).then((cmp: ComponentRef)=> {
+        this.ucl.load(EmailForm).then((cmp: ComponentRef<any>)=> {
             cmp.instance.model = self.config.model;
             self.instance = new Promise((resolve)=> {
                 resolve(cmp.instance);

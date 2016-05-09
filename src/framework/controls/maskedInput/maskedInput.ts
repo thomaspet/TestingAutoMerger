@@ -1,44 +1,20 @@
-import {Component, Input, Output, ElementRef, EventEmitter} from 'angular2/core';
-import {Control, FORM_DIRECTIVES} from 'angular2/common';
-import {FieldLayout} from '../../../app/unientities';
+import {Component, ElementRef, Input, AfterViewInit, OnDestroy} from '@angular/core';
+import {Control} from '@angular/common';
+import {InputTemplateString} from '../inputTemplateString';
+import {UniFieldBuilder} from '../../forms/builders/uniFieldBuilder';
 
 declare var jQuery, _;
 
 @Component({
     selector: 'uni-masked',
-    directives: [FORM_DIRECTIVES],
-    template: `
-            <input *ngIf="control"
-            type="text"
-            [ngFormControl]="control"
-            [readonly]="field?.ReadOnly"
-        />
-    `
+    template: InputTemplateString
 })
-export class UniMaskedInput {
+export class UniMaskedInput implements AfterViewInit, OnDestroy {
     @Input()
-    public control: Control;
+    public config: UniFieldBuilder;
+    public nativeElement: any;
+    public maskedInput: kendo.ui.MaskedTextBox;
 
-    @Input()
-    public field: FieldLayout;
-
-    @Input()
-    public model: any;
-
-    @Output()
-    public onReady: EventEmitter<any> = new EventEmitter<any>(true);
-    public isReady: boolean = true;
-
-    private nativeElement: any;
-    private maskedInput: any;
-
-    get OnValueChanges() {
-        return this.control.valueChanges;
-    }
-
-    get FormControl() {
-        return this.control;
-    }
     constructor(public elementRef: ElementRef) {
         this.nativeElement = jQuery(this.elementRef.nativeElement);
     }
@@ -51,67 +27,44 @@ export class UniMaskedInput {
         return this;
     }
 
-    public editMode() {
-        this.field.ReadOnly = false;
-    }
-
-    public readMode() {
-        this.field.ReadOnly = true;
+    public refresh(value) {
+        value = value || '';
+        this.maskedInput.value(value);
+        this.config.control.updateValue(value, {});
     }
 
     public ngAfterViewInit() {
+        this.config.fieldComponent = this;
         var maskedInput;
-        if (!this.field) {
-            this.ngOnChanges({
-                field: this.field
-            });
+
+        var control: Control = this.config.control;
+        var options: kendo.ui.MaskedTextBoxOptions = this.config.kOptions;
+
+        options.change = function () {
+            var val = this.value();
+            control.updateValue(this.raw(), {});
+            // to avoid mask disappearing in input field (due to control storing the raw string)
+            this.value(val);
+        };
+
+        maskedInput = this.nativeElement
+            .find('input')
+            .first()
+            .kendoMaskedTextBox(options)
+            .data('kendoMaskedTextBox');
+
+        this.maskedInput = maskedInput;
+
+        // init to control value
+        if (!_.isNil(control.value) && control.value.length > 0) {
+            maskedInput.value(control.value);
         }
-        
-        this.onReady.emit(this);
-    }
-
-    public ngOnChanges(changes) {
-        if (changes['field']) {
-            var maskedInput;
-            var control: Control = this.control;
-            var options: kendo.ui.MaskedTextBoxOptions = this.field.Options;
-
-            var self = this;
-            control.valueChanges.subscribe((newValue) => {
-                _.set(self.model, self.field.Property, newValue);
-            })
-
-            options.change = function () {
-                var val = this.value();
-                control.updateValue(this.raw(), {});
-                // to avoid mask disappearing in input field (due to control storing the raw string)
-                this.value(val);
-            };
-
-            maskedInput = this.nativeElement
-                .find('input')
-                .first()
-                .kendoMaskedTextBox(options)
-                .data('kendoMaskedTextBox');
-
-            this.maskedInput = maskedInput;
-
-            // init to control value
-            if (!_.isNil(control.value) && control.value.length > 0) {
-                maskedInput.value(control.value);
-            }    
-        }
+        this.config.ready.emit(this);
     }
 
     // remove kendo markup when component is destroyed to avoid duplicates
     public ngOnDestroy() {
         this.nativeElement.empty();
-        this.nativeElement.html(`
-            <input *ngIf="control"
-                type="text"
-                [ngFormControl]="control"
-                [readonly]="field?.ReadOnly"
-            />
-        `);
+        this.nativeElement.html(InputTemplateString);
     }
 }

@@ -1,24 +1,23 @@
-import {Component, provide, OnInit} from 'angular2/core';
+import {Component, provide, OnInit} from '@angular/core';
 import {
-    RouteConfig,
-    RouteDefinition,
-    RouteParams,
-    ROUTER_DIRECTIVES,
-    AsyncRoute,
-    Router } from 'angular2/router';
-
-import 'rxjs/add/operator/map';
-
+    RouteConfig, 
+    RouteDefinition, 
+    RouteParams, 
+    ROUTER_DIRECTIVES, 
+    AsyncRoute, 
+    Router} from '@angular/router-deprecated';
 import {UniTabs} from '../../layout/uniTabs/uniTabs';
 import {WidgetPoster} from '../../../../framework/widgetPoster/widgetPoster';
 import {EmployeeCategoryButtons} from './employeeCategoryButtons';
-
 import {EmployeeService} from '../../../services/services';
 import {Employee, BusinessRelation} from '../../../unientities';
 import {EmployeeDS} from '../../../data/employee';
 import {STYRKCodesDS} from '../../../data/styrkCodes';
 import {ComponentProxy} from '../../../../framework/core/componentProxy';
-import {ParamsService} from '../../../services/ParamsService';
+import {RootRouteParamsService} from '../../../services/rootRouteParams';
+
+import 'rxjs/add/operator/map';
+
 const CHILD_ROUTES = [
     new AsyncRoute({
         useAsDefault: true,
@@ -47,11 +46,11 @@ const CHILD_ROUTES = [
     selector: 'uni-employee-details',
     templateUrl: 'app/components/salary/employee/employeeDetails.html',
     providers: [
-        provide(EmployeeDS, { useClass: EmployeeDS })
-        , provide(STYRKCodesDS, { useClass: STYRKCodesDS }),
-        EmployeeService,
-        ParamsService
-    ],
+            provide(EmployeeDS, {useClass: EmployeeDS})
+            , provide(STYRKCodesDS, {useClass: STYRKCodesDS}),
+            EmployeeService,
+            , provide(RootRouteParamsService, {useClass: RootRouteParamsService})
+        ],
     directives: [ROUTER_DIRECTIVES, WidgetPoster, UniTabs, EmployeeCategoryButtons]
 })
 
@@ -64,56 +63,51 @@ export class EmployeeDetails implements OnInit {
     private businessRelation: BusinessRelation;
     private childRoutes: RouteDefinition[];
 
-    constructor(
-        private routeParams: RouteParams,
-        private _employeeService: EmployeeService,
-        private _router: Router,
-        private params: ParamsService
-        ) {
-
+    constructor(private routeParams: RouteParams,
+                private rootRouteParams: RootRouteParamsService,
+                private _employeeService: EmployeeService, 
+                private _router: Router) {
+                    
         this.childRoutes = CHILD_ROUTES;
         this.employee = new Employee();
         this.businessRelation = new BusinessRelation();
         this.employee.BusinessRelationInfo = this.businessRelation;
         this.url = '/salary/employees/';
         this.employeeID = +this.routeParams.get('id');
-        this.params.set('EmployeeID', this.employeeID);
+        this.rootRouteParams.params = this.routeParams;
     }
 
     public ngOnInit() {
-        var self = this;
         if (this.employeeID) {
             if (!this.isNextOrPrevious) {
                 this._employeeService.get(this.employeeID).subscribe((response: any) => {
-                    self.employee = response;
+                this.employee = response;
                 }, error => console.log(error));
             }
             this.isNextOrPrevious = false;
-        } else {
+        }else {
             this.businessRelation.Name = 'Ny Ansatt';
             this.employee.BusinessRelationInfo = this.businessRelation;
             this.employee.EmployeeNumber = 0;
         }
     }
-
+    
     public nextEmployee() {
-        var self = this;
         this._employeeService.getNext(this.employeeID).subscribe((response) => {
             if (response) {
-                self.employee = response;
-                self.isNextOrPrevious = true;
-                self._router.navigateByUrl(self.url + self.employee.ID);
+                this.employee = response;
+                this.isNextOrPrevious = true;
+                this._router.navigateByUrl(this.url + this.employee.ID);
             }
         });
     }
-
+    
     public previousEmployee() {
-        var self = this;
         this._employeeService.getPrevious(this.employeeID).subscribe((response) => {
             if (response) {
-                self.employee = response;
-                self.isNextOrPrevious = true;
-                self._router.navigateByUrl(self.url + self.employee.ID);
+                this.employee = response;
+                this.isNextOrPrevious = true;
+                this._router.navigateByUrl(this.url + this.employee.ID);
             }
         });
     }

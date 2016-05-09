@@ -1,4 +1,4 @@
-﻿import {Component, ViewChild} from "angular2/core";
+﻿import {Component, ViewChild} from "@angular/core";
 
 import {AccountList} from "./accountList/accountList";
 import {AccountDetails} from "./accountDetails/accountDetails";

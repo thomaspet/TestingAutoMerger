@@ -1,6 +1,6 @@
-import {Injectable, Inject} from 'angular2/core';
-import {Router} from 'angular2/router';
-import {Http, Headers} from 'angular2/http';
+import {Injectable, Inject} from '@angular/core';
+import {Router} from '@angular/router-deprecated';
+import {Http, Headers} from '@angular/http';
 import {Observable} from 'rxjs/Observable';
 import {AppConfig} from '../../app/AppConfig';
 import 'rxjs/add/operator/map';

@@ -1,4 +1,4 @@
-import {Validators} from 'angular2/common';
+import {Validators} from '@angular/common';
 import {UniValidator} from '../validators';
 import {FieldLayout} from '../../../app/unientities';
 /**

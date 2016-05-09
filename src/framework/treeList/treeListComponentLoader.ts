@@ -1,27 +1,25 @@
-﻿import {Component, Input, DynamicComponentLoader, ViewContainerRef, OnInit} from "angular2/core";
-import {Http, Headers} from "angular2/http";
+﻿import {Component, Input, DynamicComponentLoader, ViewContainerRef, OnInit} from "@angular/core";
+import {Http, Headers} from "@angular/http";
 import {UniTable} from "../uniTable";
 import {UniForm} from "../forms/uniForm";
 import {TREE_LIST_TYPE} from "./treeList";
 
 @Component({
-    selector: "tree-list-component-loader",
-    template: "",
+    selector: 'tree-list-component-loader',
+    template: '<div #content></div>',
     directives: [UniTable, UniForm]
 })
-
-//This could just be a component loader for reuse??
 export class TreeListComponentLoader implements OnInit {
 
     @Input()
-    componentConfig;
+    public componentConfig;
 
-    compRef;
+    public compRef;
 
     constructor(public dynamicComponentLoader: DynamicComponentLoader, public container: ViewContainerRef, public http: Http) {
     }
 
-    ngOnInit() {
+    public ngOnInit() {
 
         if (this.compRef) {
             this.compRef.dispose();
@@ -44,9 +42,8 @@ export class TreeListComponentLoader implements OnInit {
                     });
                 break;
             default:
-
-                //should create an error component
-                //load in error component if something went wrong
+                // should create an error component
+                // load in error component if something went wrong
                 console.log("Something went wrong in treeListComponentLoader");
                 break;
         }

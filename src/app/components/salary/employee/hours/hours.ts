@@ -1,5 +1,5 @@
-import {Component, Injector, ViewChild, ComponentRef} from 'angular2/core';
-import {RouteParams} from 'angular2/router';
+import {Component, Injector, ViewChild, ComponentRef} from '@angular/core';
+import {RouteParams} from '@angular/router-deprecated';
 
 import {UniForm} from '../../../../../framework/forms/uniForm';
 import {UNI_CONTROL_DIRECTIVES} from '../../../../../framework/controls';
@@ -15,7 +15,7 @@ import {UniSectionBuilder} from '../../../../../framework/forms/builders/uniSect
 import {UniFieldBuilder} from '../../../../../framework/forms/builders/uniFieldBuilder';
 import {Employment, Employee} from '../../../../unientities';
 import {EmployeeService} from '../../../../services/services';
-import {ParamsService} from '../../../../services/ParamsService';
+import {RootRouteParamsService} from '../../../../services/rootRouteParams';
 
 declare var jQuery;
 
@@ -33,8 +33,16 @@ export class Hours {
     private employeeID: any;
     private formInstance: UniForm;
 
-    constructor(private params: ParamsService, public _employeeService: EmployeeService) {
-        this.employeeID = params.get('EmployeeID');
+    constructor(private rootRouteParams: RootRouteParamsService, public _employeeService: EmployeeService) {
+        // let params = Injector.parent.parent.get(RouteParams);
+        // employeeDS.get(params.get('id'))
+        // .subscribe(response => {
+        //     this.currentEmployee = response;
+        //     console.log(response);
+        //     this.buildGroupConfigs();
+        // },error => console.log(error));
+
+        this.employeeID = +rootRouteParams.params.get('id');
     }
 
     public ngAfterViewInit() {
@@ -50,7 +58,7 @@ export class Hours {
                 self.form = self.buildGroupConfigs();
                 self.form.hideSubmitButton();
 
-                self.ucl.load(UniForm).then((cmp: ComponentRef) => {
+                self.ucl.load(UniForm).then((cmp: ComponentRef<any>) => {
                     cmp.instance.config = self.form;
                     setTimeout(() => {
                         self.formInstance = cmp.instance;

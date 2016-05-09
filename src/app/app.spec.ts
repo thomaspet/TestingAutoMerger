@@ -1,27 +1,27 @@
 ///<reference path="../../typings/main.d.ts"/>
-import { describe, it, expect, beforeEachProviders, beforeEach, inject} from 'angular2/testing';
-import { MockBackend, MockConnection} from 'angular2/http/testing';
-import {provide} from 'angular2/core';
-import {Http, Response, BaseRequestOptions, ResponseOptions} from 'angular2/http';
-import {Router, ROUTER_PRIMARY_COMPONENT} from 'angular2/router';
-import {Location} from 'angular2/platform/common';
+import { describe, it, expect, beforeEachProviders, beforeEach, inject} from '@angular/core/testing';
+import { MockBackend, MockConnection} from '@angular/http/testing';
+import {provide} from '@angular/core';
+import {Location} from '@angular/common';
+import {Http, Response, BaseRequestOptions, ResponseOptions} from '@angular/http';
+import {Router, ROUTER_PRIMARY_COMPONENT} from '@angular/router-deprecated';
+
 import {App} from './app';
 import {AuthService} from '../framework/core/authService';
 
-// NOT PUBLIC ANGULAR PACKAGES
-import {RouteRegistry} from 'angular2/src/router/route_registry';
-import { SpyLocation } from 'angular2/src/mock/location_mock';
-import {RootRouter} from 'angular2/src/router/router';
+//NOT PUBLIC ANGULAR PACKAGES
+import {RouteRegistry} from '@angular/router-deprecated';
+import { SpyLocation } from '@angular/common/testing';
 
 describe('App', () => {
     beforeEachProviders(() => [
-        // HOW TO INITIALIZE ROUTER
+        //HOW TO INITIALIZE ROUTER
         RouteRegistry,
         provide(Location, {useClass: SpyLocation}),
         provide(ROUTER_PRIMARY_COMPONENT, {useValue: App}),
-        provide(Router, {useClass: RootRouter}),
+        provide(Router, {useClass: Router}),
 
-        // HOW TO INITIALIZE HTTP SERVICE
+        //HOW TO INITIALIZE HTTP SERVICE
         AuthService,
         BaseRequestOptions,
         MockBackend,
@@ -33,7 +33,7 @@ describe('App', () => {
         })
     ]);
 
-    // HOW TO MOCK HTTP RESPONSE
+    //HOW TO MOCK HTTP RESPONSE
     beforeEach(inject([MockBackend], (backend: MockBackend) => {
         const baseResponse = new Response(new ResponseOptions({body: 'got response'}));
         backend.connections.subscribe((c: MockConnection) => c.mockRespond(baseResponse));

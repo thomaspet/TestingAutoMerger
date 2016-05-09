@@ -1,4 +1,4 @@
-import {Type} from "angular2/core";
+import {Type} from "@angular/core";
 import {UniFieldBuilder} from "./uniFieldBuilder";
 import {UniFieldsetBuilder} from "./uniFieldsetBuilder";
 import {UniSection} from "./../uniSection";

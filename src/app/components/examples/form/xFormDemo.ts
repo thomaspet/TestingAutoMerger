@@ -1,10 +1,9 @@
-import {Component, ViewChild} from "angular2/core";
-import {EmployeeService} from "../../../services/Salary/Employee/EmployeeService";
-import {UniForm} from "../../../../framework/xforms/uniform";
-import {Employee} from "../../../unientities";
-import {Observable} from "rxjs/Observable";
-import {NgIf} from "angular2/common";
-import {FieldLayout} from "../../../unientities";
+import {Component, ViewChild} from '@angular/core';
+import {EmployeeService} from '../../../services/Salary/Employee/EmployeeService';
+import {UniForm} from '../../../../framework/xforms/uniform';
+import {Employee} from '../../../unientities';
+import {NgIf} from '@angular/common';
+import {FieldLayout} from '../../../unientities';
 
 declare var _;
 
@@ -13,15 +12,15 @@ declare var _;
     directives: [UniForm, NgIf],
     providers: [EmployeeService],
     template: `
-        <uni-form *ngIf="employee"
+        <uni-form *ngIf='employee'
             
-            [config]="config" 
-            [fields]="fields" 
-            [model]="employee"
+            [config]='config' 
+            [fields]='fields' 
+            [model]='employee'
             
-            (onSubmit)="submit($event)"
-            (onChange)="change($event)"
-            (onReady)="ready($event)"        
+            (onSubmit)='submit($event)'
+            (onChange)='change($event)'
+            (onReady)='ready($event)'        
             
         ></uni-form>
     `
@@ -67,11 +66,11 @@ export class XFormDemo {
                 Label: 'Multivalue',
                 Property: 'Employments',
                 ReadOnly: false,
-                Placeholder: "Add new employment",
+                Placeholder: 'Add new employment',
                 Options: {
                     valueProperty: 'JobName',
                     defaultField: 'DefaultJobTest',
-                    editor: (item) => new Promise((resolve) => resolve(item));
+                    editor: (item) => new Promise((resolve) => resolve(item))
                 }
             };
             var autocompleteTest: FieldLayout = {
@@ -81,7 +80,7 @@ export class XFormDemo {
                 Label: 'Autocomplete',
                 Property: 'AutocompleteTest',
                 ReadOnly: false,
-                Placeholder: "AUtocomplete",
+                Placeholder: 'AUtocomplete',
                 Options: {
                     source: [
                         { id: 1, name: 'Jorge' },
