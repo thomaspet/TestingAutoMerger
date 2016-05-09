@@ -455,10 +455,10 @@ export class EmployeeService extends BizHttp<Employee> {
                 {
                     ComponentLayoutID: 1,
                     EntityType: 'Employee',
-                    Property: 'BusinessRelationInfo.Phones[0].Number',
+                    Property: 'BusinessRelationInfo.Phones',
                     Placement: 8,
                     Hidden: false,
-                    FieldType: FieldType.TEXT,
+                    FieldType: 14,
                     ReadOnly: false,
                     LookupField: false,
                     Label: 'Telefon',
