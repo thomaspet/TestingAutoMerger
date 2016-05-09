@@ -82,7 +82,7 @@ export class UniFieldBuilder {
         this.fieldType = UniField;
         return this;
     }
-
+    
     public setLabel(label: string) {
         this.label = label;
         return this;

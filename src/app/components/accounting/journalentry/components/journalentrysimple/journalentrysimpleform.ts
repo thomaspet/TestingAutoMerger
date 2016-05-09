@@ -35,6 +35,9 @@ export class JournalEntrySimpleForm {
     @Input()
     journalEntryLines: Array<JournalEntryData>;
     
+    @Input()
+    hideSameOrNew: boolean
+    
     @Output() Created = new EventEmitter<any>();
     @Output() Aborted = new EventEmitter<any>();
     @Output() Updated = new EventEmitter<any>();
@@ -62,10 +65,12 @@ export class JournalEntrySimpleForm {
         this.accounts = [];
         this.JournalEntryLine = new JournalEntryData();
         this.JournalEntryLine.SameOrNew = "1"; // new by default
+        this.hideSameOrNew = false;
     }
     
-    ngOnChanges(changes: {[propName: string]: SimpleChange}) {         
-        if (changes['DropdownData'] != null) {
+    ngOnChanges(changes: {[propName: string]: SimpleChange}) {     
+            
+        if (changes['DropdownData'] != null && this.DropdownData) {
             this.departements = this.DropdownData[0];
             this.projects = this.DropdownData[1];
             this.vattypes = this.DropdownData[2];
@@ -95,10 +100,11 @@ export class JournalEntrySimpleForm {
         this.JournalEntryLine.FinancialDate = oldData.FinancialDate;
         this.JournalEntryLine.SameOrNew = oldData.SameOrNew;      
         
+        this.setFocusOnDebit();
+        
         var self = this;
         this.formInstance.ready.toPromise().then((instance: UniForm)=>{
-            instance.Model = self.JournalEntryLine;
-            this.setFocusOnDebit();
+            instance.Model = self.JournalEntryLine;            
         });        
     }
     
@@ -124,11 +130,12 @@ export class JournalEntrySimpleForm {
         this.JournalEntryLine = new JournalEntryData();
         this.JournalEntryLine.SameOrNew = oldData.SameOrNew;      
         this.JournalEntryLine.FinancialDate = oldData.FinancialDate;    
+
+        this.setFocusOnDebit();
         
         var self = this;
         this.formInstance.ready.toPromise().then((instance: UniForm)=>{
             instance.Model = self.JournalEntryLine;
-            self.setFocusOnDebit();
         });
     }
     
@@ -402,6 +409,11 @@ export class JournalEntrySimpleForm {
         var samealternative = {ID: "0", Name: "Samme"};
         var newalternative = {ID: "1", Name: "Ny"}
         var journalalternativesindex = 0;
+        
+        // Hide SameOrNew?
+        if (this.hideSameOrNew) {
+            sameornew.hidden = true;
+        }
            
         // navigation
         financialdate.onSelect = () => {
@@ -498,7 +510,7 @@ export class JournalEntrySimpleForm {
             template: (obj:Account) => `${obj.AccountNumber} - ${obj.AccountName}`,
             minLength: 1,
             debounceTime: 300,
-            search: (query:string) => this.accountService.GetAll(`filter=startswith(AccountNumber,'${query}') or contains(AccountName,'${query}')`)
+            search: (query:string) => this.accountService.GetAll(`filter=startswith(AccountNumber,'${query}') or contains(AccountName,'${query}')`, ['VatType'])
         }));
          
         debitvattype.setKendoOptions({
@@ -513,7 +525,7 @@ export class JournalEntrySimpleForm {
             template: (obj:Account) => `${obj.AccountNumber} - ${obj.AccountName}`,
             minLength: 1,
             debounceTime: 300,
-            search: (query:string) => this.accountService.GetAll(`filter=startswith(AccountNumber,'${query}') or contains(AccountName,'${query}')`)
+            search: (query:string) => this.accountService.GetAll(`filter=startswith(AccountNumber,'${query}') or contains(AccountName,'${query}')`, ['VatType'])
         }));
   
         creditvattype.setKendoOptions({
