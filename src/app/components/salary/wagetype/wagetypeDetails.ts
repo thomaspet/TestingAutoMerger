@@ -1,5 +1,5 @@
-import {Component, provide, ViewChild, ComponentRef} from 'angular2/core';
-import {RouteParams, Router} from "angular2/router";
+import {Component, provide, ViewChild, ComponentRef} from '@angular/core';
+import {RouteParams, Router} from "@angular/router-deprecated";
 
 import { Observable } from "rxjs/Observable";
 
@@ -55,7 +55,7 @@ export class WagetypeDetail {
     }
     
     loadForm(){
-        this.uniCompLoader.load(UniForm).then((cmp: ComponentRef) => {
+        this.uniCompLoader.load(UniForm).then((cmp: ComponentRef<any>) => {
             cmp.instance.config = this.form;
             cmp.instance.getEventEmitter().subscribe(this.onSubmit(this));
             this.whenFormInstance = new Promise((resolve: Function) => resolve(cmp.instance));

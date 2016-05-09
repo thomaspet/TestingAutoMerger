@@ -1,5 +1,5 @@
-import {Component, OnInit, ViewChild, ComponentRef} from 'angular2/core';
-import {RouteParams, Router} from 'angular2/router';
+import {Component, OnInit, ViewChild, ComponentRef} from '@angular/core';
+import {RouteParams, Router} from '@angular/router-deprecated';
 import {PayrollRun} from '../../../unientities';
 import {PayrollrunService} from '../../../services/services';
 import {Observable} from 'rxjs/Observable';
@@ -50,7 +50,7 @@ export class PayrollrunDetails implements OnInit {
                 
                 
                 
-                this.uniCmpLoader.load(UniForm).then((cmp: ComponentRef) => {
+                this.uniCmpLoader.load(UniForm).then((cmp: ComponentRef<any>) => {
                     cmp.instance.config = this.form;
                 });
                 

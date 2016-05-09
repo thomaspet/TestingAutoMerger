@@ -1,5 +1,5 @@
-﻿import {Component} from 'angular2/core';
-import {NgFor, NgIf} from 'angular2/common';
+﻿import {Component} from '@angular/core';
+import {NgFor, NgIf} from '@angular/common';
 import {UniHttp} from '../../../../framework/core/http/http';
 import {OrderByPipe} from '../../../../framework/pipes/orderByPipe';
 import {Observable} from "rxjs/Observable";

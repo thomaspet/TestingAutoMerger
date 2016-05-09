@@ -1,5 +1,5 @@
-﻿import {Component, AfterViewInit, ElementRef} from "angular2/core";
-import {Router} from "angular2/router";
+﻿import {Component, AfterViewInit, ElementRef} from "@angular/core";
+import {Router} from "@angular/router-deprecated";
 import {Observable} from "rxjs/Observable";
 import "rxjs/add/observable/fromEvent";
 

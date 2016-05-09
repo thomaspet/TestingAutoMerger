@@ -1,8 +1,8 @@
 /// <reference path="../../kendo/typescript/kendo.all.d.ts" />
 /// <reference path="../../typings/main.d.ts" />
 
-import {Component} from 'angular2/core';
-import {Router, RouteConfig, ROUTER_DIRECTIVES, AsyncRoute} from 'angular2/router';
+import {Component} from '@angular/core';
+import {Router, RouteConfig, ROUTER_DIRECTIVES, AsyncRoute} from '@angular/router-deprecated';
 import {ROUTES} from './route.config';
 import {UniRouterOutlet} from './uniRouterOutlet';
 import {AuthService} from '../framework/core/authService';

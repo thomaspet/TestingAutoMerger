@@ -1,5 +1,5 @@
-import {Injectable, EventEmitter} from 'angular2/core';
-import {RequestMethod} from "angular2/http";
+import {Injectable, EventEmitter} from '@angular/core';
+import {RequestMethod} from "@angular/http";
 import {UniHttp} from './http';
 import {Observable} from 'rxjs/Observable';
 import "rxjs/add/operator/concatMap";

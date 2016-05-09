@@ -1,6 +1,6 @@
-import {Component} from "angular2/core";
+import {Component} from "@angular/core";
 import {UniComponentLoader} from "../core/componentLoader";
-import {Input} from "angular2/core";
+import {Input} from "@angular/core";
 import {UniElementBuilder} from "./interfaces";
 import {UniGenericField} from "./shared/UniGenericField";
 

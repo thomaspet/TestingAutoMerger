@@ -1,6 +1,4 @@
-import {CONST_EXPR} from 'angular2/src/facade/lang';
-
-export const AppConfig = CONST_EXPR({
+export const AppConfig = ({
     // Allow developers to work with localhost backend.
     // Let this stay as long we want to support local backend.
     // When removed, remember to change BASE_URL_INIT to BASE_URL in authService.ts.

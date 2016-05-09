@@ -1,4 +1,4 @@
-import {Component, Input, ElementRef} from 'angular2/core';
+import {Component, Input, ElementRef} from '@angular/core';
 import {UniFieldBuilder} from "../../forms/builders/uniFieldBuilder";
 
 declare var jQuery;
