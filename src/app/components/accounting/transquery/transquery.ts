@@ -6,7 +6,7 @@ import {UniTabs} from '../../layout/uniTabs/uniTabs';
 
 import {ComponentProxy} from "../../../../framework/core/componentProxy";
 
-const CUSTOMER_ROUTES = [
+const TRANSQUERY_ROUTES = [
     new AsyncRoute({
         useAsDefault: true,
         path: "/list",
@@ -20,13 +20,13 @@ const CUSTOMER_ROUTES = [
     templateUrl: "app/components/accounting/transquery/transquery.html",
     directives: [ROUTER_DIRECTIVES, UniTabs]
 })
-@RouteConfig(CUSTOMER_ROUTES)
+@RouteConfig(TRANSQUERY_ROUTES)
 export class Transquery {
 
     childRoutes: RouteDefinition[];
 
     constructor(public router: Router, private tabService: TabService) {
         this.tabService.addTab({name: "Forespørsel", url: "/accounting/transquery"});
-        this.childRoutes = CUSTOMER_ROUTES.slice(0, CUSTOMER_ROUTES.length - 1);
+        this.childRoutes = TRANSQUERY_ROUTES.slice(0, TRANSQUERY_ROUTES.length - 1);
     }
 }
