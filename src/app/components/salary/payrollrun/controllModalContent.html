@@ -1,13 +1,14 @@
 <article class="modal-content" [attr.aria-busy]="busy">
-    <h1>Controll modal content</h1>
+    <h1 *ngIf="payrollRun">Kontroll av {{payrollRun.ID}} - {{payrollRun.Description}}</h1>
     <section class="controll-heading-form">
+        <h3>Hovedtall for lønnsavregningen: </h3>
         <uni-form *ngIf="formConfig" [config] = "formConfig"></uni-form>
     </section>
-    <section *ngIf = "payList">
+    <section *ngIf="payList">
         <section *ngFor = "#payLine of payList #index = index">
             <h4 (click) = "toggleCollapsed(index)">
                 {{index + 1}}, {{payLine.employeeInfo.name}}, Netto utbetalt: {{payLine.employeeInfo.payment}}
-                <span title="Mangler skattekort" class = "payrollrun-controll-missing-info" *ngIf = "payLine.employeeInfo.hasTaxInfo"></span>
+                <span title="Mangler skattekort" class="payrollrun-controll-missing-info" *ngIf ="payLine.employeeInfo.hasTaxInfo"></span>
             </h4>
             <uni-table [config] = "payLine.salaryTransactions"></uni-table>
         </section>

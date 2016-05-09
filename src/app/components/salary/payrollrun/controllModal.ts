@@ -18,6 +18,7 @@ export class ControllModalContent implements OnInit {
     private busy: boolean;
     private formConfig: UniFormBuilder = null;
     private payList: {employeeInfo: any, salaryTransactions: UniTableBuilder, collapsed: boolean}[] = [];
+    private payrollRun: PayrollRun;
     @Input('config')
     private config: any;
     private transes: SalaryTransaction[];
@@ -40,16 +41,18 @@ export class ControllModalContent implements OnInit {
         return Observable.forkJoin(
             this._salaryTransactionService.GetAll('filter: PayrollRunID eq ' + this.config.payrollRunID),
             this._employeeService.getTotals(this.config.payrollRunID),
-            this._payrollRunService.getPaymentList(this.config.payrollRunID)
+            this._payrollRunService.getPaymentList(this.config.payrollRunID),
+            this._payrollRunService.Get(this.config.payrollRunID)
         );
     }
     
     public setData(response: any, refresh: boolean = false) {
         this.busy = true;
-        let [salaryTrans, sums, transPay] = response;
+        let [salaryTrans, sums, transPay, payrollrun] = response;
         this.transes = salaryTrans;
         this.model.sums = sums;
         this.model.salaryTransactionPay = transPay;
+        this.payrollRun = payrollrun;
         if (this.formConfig !== null) {
             this.formConfig.setModel(this.model);
         }else {
@@ -162,7 +165,6 @@ export class ControllModalContent implements OnInit {
 @Component({
     selector: 'controll-modal',
     directives: [UniModal],
-    providers: [PayrollrunService],
     template: `
         <button type="button" (click)="openModal()">kontroller</button>
         <uni-modal [type]="type" [config]="modalConfig"></uni-modal>
@@ -176,24 +178,23 @@ export class ControllModal implements AfterViewInit {
     private modalConfig: any = {};
     private type: Type = ControllModalContent;
     
-    constructor(public injector: Injector, private _payrollRunService: PayrollrunService) {
+    constructor(public injector: Injector) {
         
         if (!this.payrollRunID) {
             var routeParams = this.injector.parent.parent.get(RouteParams);
             this.payrollRunID = +routeParams.get('id');
         }
-        var self = this;
-        self.modalConfig = {
+        this.modalConfig = {
             title: 'Kontroll ',
             value: 'Ingen verdi',
             hasCancelButton: true,
             cancel: () => {
-                self.modals[0].close();
+                this.modals[0].close();
             },
             actions: [{
                 text: 'Avregn',
                 method: () => {
-                    self.modals[0].getContent().then((content: ControllModalContent) => {
+                    this.modals[0].getContent().then((content: ControllModalContent) => {
                         content.runSettling().subscribe((success) => {
                             if (success) {
                                 content.showPaymentList();
@@ -202,7 +203,7 @@ export class ControllModal implements AfterViewInit {
                     });
                 }
             }],
-            payrollRunID: self.payrollRunID
+            payrollRunID: this.payrollRunID
         };
     }
     
