@@ -78,7 +78,7 @@ export class EmployeeEmployment implements OnInit {
 
     private subEntities: any;
 
-    constructor(private rootRouteParams: RootRouteParamsService, 
+    constructor(private injector: Injector, 
                 public employeeDS: EmployeeDS,
                 public statReg: StaticRegisterService,
                 private _employmentService: EmploymentService) {
