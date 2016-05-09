@@ -7,13 +7,13 @@ import {UniFormBuilder, UniFormLayoutBuilder, UniForm, UniFieldBuilder} from '..
 import {UniComponentLoader} from '../../../../framework/core';
 import {SalaryTransactionSelectionList} from '../../salary/salarytrans/salarytransactionSelectionList';
 import {TabService} from '../../layout/navbar/tabstrip/tabService';
-import {ControllModal} from './controllmodal';
+import {ControlModal} from './controlmodal';
 
 @Component({
     selector: 'payrollrun-details',
     templateUrl: 'app/components/salary/payrollrun/payrollrunDetails.html',
     providers: [PayrollrunService],
-    directives: [UniComponentLoader, SalaryTransactionSelectionList, ControllModal]
+    directives: [UniComponentLoader, SalaryTransactionSelectionList, ControlModal]
 })
 
 export class PayrollrunDetails implements OnInit {
@@ -24,8 +24,8 @@ export class PayrollrunDetails implements OnInit {
     private form: UniFormBuilder = new UniFormBuilder();
     @ViewChild(UniComponentLoader)
     private uniCmpLoader: UniComponentLoader;
-    @ViewChild(ControllModal)
-    private controllModal: ControllModal;
+    @ViewChild(ControlModal)
+    private controlModal: ControlModal;
     private isEditable: boolean;
     private busy: boolean = false;
     
@@ -149,6 +149,6 @@ export class PayrollrunDetails implements OnInit {
     }
     
     public openModal() {
-        this.controllModal.openModal();
+        this.controlModal.openModal();
     }
 }

@@ -9,12 +9,12 @@ import {SalaryTransactionService, PayrollrunService, EmployeeService} from '../.
 import {Observable} from 'rxjs/Observable';
 
 @Component({
-    selector: 'controll-modal-content',
+    selector: 'control-modal-content',
     directives: [UniForm, UniTable],
     providers: [SalaryTransactionService, PayrollrunService, EmployeeService],
-    templateUrl: 'app/components/salary/payrollrun/controllmodalcontent.html'
+    templateUrl: 'app/components/salary/payrollrun/controlmodalcontent.html'
 })
-export class ControllModalContent implements OnInit {
+export class ControlModalContent implements OnInit {
     private busy: boolean;
     private formConfig: UniFormBuilder = null;
     private payList: {employeeInfo: any, salaryTransactions: UniTableBuilder, collapsed: boolean}[] = [];
@@ -163,20 +163,20 @@ export class ControllModalContent implements OnInit {
 }
 
 @Component({
-    selector: 'controll-modal',
+    selector: 'control-modal',
     directives: [UniModal],
     template: `
         <button type="button" (click)="openModal()">kontroller</button>
         <uni-modal [type]="type" [config]="modalConfig"></uni-modal>
     `
 })
-export class ControllModal implements AfterViewInit {
+export class ControlModal implements AfterViewInit {
     private payrollRunID: number;
     @ViewChildren(UniModal)
     private modalElements: QueryList<UniModal>;
     private modals: UniModal[];
     private modalConfig: any = {};
-    private type: Type = ControllModalContent;
+    private type: Type = ControlModalContent;
     
     constructor(public injector: Injector) {
         
@@ -194,7 +194,7 @@ export class ControllModal implements AfterViewInit {
             actions: [{
                 text: 'Avregn',
                 method: () => {
-                    this.modals[0].getContent().then((content: ControllModalContent) => {
+                    this.modals[0].getContent().then((content: ControlModalContent) => {
                         content.runSettling().subscribe((success) => {
                             if (success) {
                                 content.showPaymentList();
@@ -212,7 +212,7 @@ export class ControllModal implements AfterViewInit {
     }
     
     public openModal() {
-        this.modals[0].getContent().then((modalContent: ControllModalContent) => {
+        this.modals[0].getContent().then((modalContent: ControlModalContent) => {
             modalContent.refresh();
             this.modals[0].open();
         });
