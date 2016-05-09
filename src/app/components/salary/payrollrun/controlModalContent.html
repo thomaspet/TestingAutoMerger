@@ -1,22 +1,32 @@
-<article class="modal-content" [attr.aria-busy]="busy">
-    <h1 *ngIf="payrollRun">Kontroll av {{payrollRun.ID}} - {{payrollRun.Description}}</h1>
-    <section class="controll-heading-form">
+<article class="payrollControl" [attr.aria-busy]="busy">
+    <h1 *ngIf="payrollRun">Kontroll av lønnsavregning {{payrollRun.ID}} - {{payrollRun.Description}}</h1>
+
+    <header class="payrollControl_header">
         <h3>Hovedtall for lønnsavregningen: </h3>
-        <uni-form *ngIf="formConfig" [config] = "formConfig"></uni-form>
-    </section>
-    <section *ngIf="payList">
-        <section *ngFor = "#payLine of payList #index = index">
-            <h4 (click) = "toggleCollapsed(index)">
-                {{index + 1}}, {{payLine.employeeInfo.name}}, Netto utbetalt: {{payLine.employeeInfo.payment}}
-                <span title="Mangler skattekort" class="payrollrun-controll-missing-info" *ngIf ="payLine.employeeInfo.hasTaxInfo"></span>
+        <uni-form *ngIf="formConfig" [config]="formConfig"></uni-form>
+    </header>
+
+    <ol *ngIf="payList" class="payrollControl_payList">
+        <li *ngFor="#payLine of payList #index = index"
+            class="payrollControll_payee"
+            [ngClass]="{'-is-expanded':!payList[index].collapsed}">
+
+            <h4 (click)="toggleCollapsed(index)">{{payLine.employeeInfo.name}}, Netto utbetalt: {{payLine.employeeInfo.payment}}
+                <em title="Mangler skattekort" class="-is-missing-info" *ngIf="payLine.employeeInfo.hasTaxInfo">Mangler skattekort</em>
             </h4>
-            <uni-table [config] = "payLine.salaryTransactions"></uni-table>
-        </section>
-    </section>
-    <footer>
+
+            <uni-table [config]="payLine.salaryTransactions" *ngIf="!payList[index].collapsed"></uni-table>
+
+        </li>
+    </ol>
+
+    <footer class="payrollControl_footer">
+
         <button *ngFor="#action of config.actions; #i=index" (click)="action.method()">
             {{action.text}}
         </button>
+
         <button *ngIf="config.hasCancelButton" (click)="config.cancel()">Avbryt</button>
+
     </footer>
 </article>
