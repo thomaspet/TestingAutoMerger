@@ -1,4 +1,4 @@
-import {Component, AfterViewInit, Input, OnChanges, SimpleChange, ElementRef, OnDestroy} from 'angular2/core';
+import {Component, AfterViewInit, Input, OnChanges, SimpleChange, ElementRef, OnDestroy} from '@angular/core';
 import {UniHttp} from '../core/http/http';
 import {UniTableBuilder} from './UniTableBuilder';
 import {UniTableColumnMenu} from './columnMenu';

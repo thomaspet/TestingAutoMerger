@@ -1,4 +1,4 @@
-import {Component, Input} from "angular2/core";
+import {Component, Input} from "@angular/core";
 import {UniComponentLoader} from "../core/componentLoader";
 import {UniElementBuilder} from "./interfaces";
 import {UniFieldsetBuilder} from "./builders/uniFieldsetBuilder";

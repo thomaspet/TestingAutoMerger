@@ -1,5 +1,5 @@
-import {Component, Input, OnInit, ViewChild, ComponentRef} from 'angular2/core';
-import {Router, RouteParams, RouterLink} from 'angular2/router';
+import {Component, Input, OnInit, ViewChild, ComponentRef} from '@angular/core';
+import {Router, RouteParams, RouterLink} from '@angular/router-deprecated';
 
 import { Observable } from 'rxjs/Observable';
 
@@ -422,7 +422,7 @@ export class SupplierInvoiceDetail implements OnInit {
 
     private loadForm() {
         var self = this;
-        return this.uniCompLoader.load(UniForm).then((cmp: ComponentRef) => {
+        return this.uniCompLoader.load(UniForm).then((cmp: ComponentRef<any>) => {
             cmp.instance.config = self.formBuilder;
             cmp.instance.submit.subscribe(self.onSubmit.bind(self));
             self.whenFormInstance = new Promise((resolve: Function) => resolve(cmp.instance));

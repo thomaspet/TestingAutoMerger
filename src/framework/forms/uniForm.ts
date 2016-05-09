@@ -1,5 +1,5 @@
-import {Component, OnInit, EventEmitter, Input, Output} from "angular2/core";
-import {FORM_DIRECTIVES, FORM_PROVIDERS, ControlGroup, FormBuilder} from "angular2/common";
+import {Component, OnInit, EventEmitter, Input, Output} from "@angular/core";
+import {FORM_DIRECTIVES, FORM_PROVIDERS, ControlGroup, FormBuilder} from "@angular/common";
 import {UniField} from "./uniField";
 import {UniFieldBuilder} from "./builders/uniFieldBuilder";
 import {UniFieldset} from "./uniFieldset";

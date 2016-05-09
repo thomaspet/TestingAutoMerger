@@ -1,5 +1,5 @@
-﻿import {Injectable} from 'angular2/core';
-import {Http, Headers, URLSearchParams, Request, RequestMethod} from 'angular2/http';
+﻿import {Injectable} from '@angular/core';
+import {Http, Headers, URLSearchParams, Request, RequestMethod} from '@angular/http';
 import {Observable} from 'rxjs/Observable';
 import {AppConfig} from '../../../app/AppConfig';
 import {AuthService} from '../authService';

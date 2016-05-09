@@ -65,7 +65,7 @@ export class PayrollrunService extends BizHttp<PayrollRun> {
     }
     
     public layout(layoutID: string) {
-        return Observable.fromArray([{
+        return Observable.from([{
             Name: layoutID,
             BaseEntity: 'Payrollrun',
             Fields: [

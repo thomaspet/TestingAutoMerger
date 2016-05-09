@@ -1,5 +1,5 @@
 import {UniFieldBuilder} from "./uniFieldBuilder";
-import {Type} from "angular2/core";
+import {Type} from "@angular/core";
 import {UniComboField} from "./../uniComboField";
 import {UniGenericBuilder} from "../shared/UniGenericBuilder";
 
