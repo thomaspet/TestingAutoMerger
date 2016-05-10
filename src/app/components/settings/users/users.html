@@ -9,7 +9,7 @@
             <span class="user_invite_resend"></span>
             <span class="user_invite_revoke"></span>
         </li>
-        <li *ngFor="#user of users | sort: sortProperty | filter: hideInactive : 18">
+        <li *ngFor="let user of users | sort: sortProperty | filter: hideInactive : 18">
             <span itemprop="name" class="user_list_name">{{user.DisplayName}}</span>
             <span itemprop="email" class="user_list_email">{{user.Email}}</span>
             <span itemprop="status" class="user_list_status">{{user.StatusCode}}</span>
