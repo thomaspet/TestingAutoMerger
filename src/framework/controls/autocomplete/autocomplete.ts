@@ -146,7 +146,13 @@ export class UniAutocomplete {
     }
     private _search(query: string) {
         if (this.source.constructor === Array) {
-            let containsString = (obj: any) => this.options.template(obj).toLowerCase().indexOf(query.toLowerCase()) >= 0;
+            if (!query) {
+                return Observable.from(<any[]>this.source);
+            }
+            let containsString = (obj: any) => {
+                var template = this.options.template(obj);
+                return template.toLowerCase().indexOf(query.toLowerCase()) >= 0;
+            };
             return Observable.from((<Array<any>>this.source).filter(containsString))
         }
         var filter = /^\d+$/.test(query) ? 'startswith' : 'contains';
