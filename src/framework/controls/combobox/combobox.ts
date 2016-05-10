@@ -1,5 +1,5 @@
-import {Component, ElementRef, Input, AfterViewInit, OnDestroy} from 'angular2/core';
-import {Control} from 'angular2/common';
+import {Component, ElementRef, Input, AfterViewInit, OnDestroy} from '@angular/core';
+import {Control} from '@angular/common';
 import { Observable } from 'rxjs/Observable';
 import 'rxjs/observable/FromEventObservable';
 

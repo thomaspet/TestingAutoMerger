@@ -1,4 +1,4 @@
-import {Component, ComponentRef, Input, Output, ViewChild, SimpleChange, EventEmitter, OnChanges} from "angular2/core";
+import {Component, ComponentRef, Input, Output, ViewChild, SimpleChange, EventEmitter, OnChanges} from "@angular/core";
 import {Observable} from "rxjs/Observable";
 
 import {FieldType, FieldLayout, ComponentLayout, Departement, Project, VatType, VatCodeGroup, Account, JournalEntry, JournalEntryLine, JournalEntryLineDraft, Dimensions} from "../../../../../unientities";
@@ -550,7 +550,7 @@ export class JournalEntrySimpleForm implements OnChanges {
            
     loadForm() {       
         var self = this;
-        return this.uniCmpLoader.load(UniForm).then((cmp: ComponentRef) => {
+        return this.uniCmpLoader.load(UniForm).then((cmp: ComponentRef<any>) => {
             cmp.instance.config = self.formConfig;
             cmp.instance.ready.subscribe((instance:UniForm) => {
                 self.formInstance = cmp.instance
