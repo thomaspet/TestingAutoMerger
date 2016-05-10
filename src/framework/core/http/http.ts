@@ -158,6 +158,8 @@ export class UniHttp {
         if (activeCompany) {
             this.headers.set('CompanyKey', activeCompany.Key);
         }
+        
+        this.headers.set('Accept', 'application/json');
 
         var baseurl = request.baseUrl || this.baseUrl,
             apidomain = request.apiDomain || this.apiDomain,
