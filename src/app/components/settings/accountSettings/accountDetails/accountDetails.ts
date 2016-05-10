@@ -1,4 +1,4 @@
-import {Component, provide, Input, ViewChild, Output, EventEmitter, SimpleChange} from "angular2/core";
+import {Component, provide, Input, ViewChild, Output, EventEmitter, SimpleChange} from "@angular/core";
 import {Observable} from "rxjs/Observable";
 import "rxjs/add/observable/forkjoin";
 

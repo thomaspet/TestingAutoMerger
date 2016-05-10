@@ -1,7 +1,7 @@
 import {Account, VatType, Dimensions} from '../../unientities';
 import {JournalEntryData} from '../../models/accounting/journalentrydata';
 import {Observable} from "rxjs/Observable";
-import "rxjs/add/observable/fromArray";
+import "rxjs/add/observable/from";
 import {BizHttp} from '../../../framework/core/http/BizHttp';
 import {JournalEntry} from '../../unientities';
 import {UniHttp} from '../../../framework/core/http/http';
@@ -55,7 +55,7 @@ export class JournalEntryService extends BizHttp<JournalEntry> {
     }       
     
     getAggregatedData() : Observable<any> {
-        return Observable.fromArray([[JournalEntryService.getSomeNewDataForMe(), JournalEntryService.getSomeNewDataForMe(), JournalEntryService.getSomeNewDataForMe()]]);
+        return Observable.from([[JournalEntryService.getSomeNewDataForMe(), JournalEntryService.getSomeNewDataForMe(), JournalEntryService.getSomeNewDataForMe()]]);
     }
     
     public static getSomeNewDataForMe() : JournalEntryData {
@@ -66,7 +66,7 @@ export class JournalEntryService extends BizHttp<JournalEntry> {
         
         var data = new JournalEntryData();
         
-        data.JournalEntryNo = 1;
+        data.JournalEntryNo = "1-2016";
         data.Amount = Math.round(Math.random() * 10000);
         data.DebitAccountNumber = 4000;
         data.DebitAccount = {ID: 297, AccountNumber:4000, AccountName: "Varekjøp, høy sats"};

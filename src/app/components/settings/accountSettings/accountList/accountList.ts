@@ -1,5 +1,5 @@
-import {Component, Output, EventEmitter, ViewChild} from "angular2/core";
-import {Control} from "angular2/common";
+import {Component, Output, EventEmitter, ViewChild} from "@angular/core";
+import {Control} from "@angular/common";
 import {TreeList, TreeListItem, TREE_LIST_TYPE} from "../../../../../framework/treeList";
 import {UniTableBuilder, UniTableColumn} from "../../../../../framework/uniTable";
 import {UniDropdown} from "../../../../../framework/controls/dropdown/dropdown";

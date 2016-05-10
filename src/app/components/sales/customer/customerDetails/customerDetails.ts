@@ -1,48 +1,47 @@
-import {Component, ComponentRef, Input, Output, ViewChild, SimpleChange, EventEmitter} from "angular2/core";
-import {Router, RouteParams, RouterLink} from "angular2/router";
-import {Observable} from "rxjs/Observable";
-import "rxjs/add/observable/forkjoin";
+import {Component, ComponentRef, Input, ViewChild} from '@angular/core';
+import {Router, RouteParams, RouterLink} from '@angular/router-deprecated';
+import {Observable} from 'rxjs/Observable';
+import 'rxjs/add/observable/forkjoin';
 
-import {DepartementService, ProjectService, CustomerService, PhoneService, AddressService, EmailService, BusinessRelationService} from "../../../../services/services";
+import {DepartementService, ProjectService, CustomerService, PhoneService, AddressService, EmailService, BusinessRelationService} from '../../../../services/services';
 import {ExternalSearch, SearchResultItem} from '../../../common/externalSearch/externalSearch';
 
-import {FieldType, FieldLayout, ComponentLayout, Customer, BusinessRelation, Email, Phone, Address, PhoneTypeEnum} from "../../../../unientities";
-import {UNI_CONTROL_DIRECTIVES} from "../../../../../framework/controls";
-import {UniFormBuilder} from "../../../../../framework/forms/builders/uniFormBuilder";
-import {UniFormLayoutBuilder} from "../../../../../framework/forms/builders/uniFormLayoutBuilder";
-import {UniSectionBuilder} from "../../../../../framework/forms";
-import {UniForm} from "../../../../../framework/forms/uniForm";
-import {UniFieldBuilder} from "../../../../../framework/forms/builders/uniFieldBuilder";
-import {UniComponentLoader} from "../../../../../framework/core/componentLoader";
+import {ComponentLayout, Customer, Email, Phone, Address} from '../../../../unientities';
+import {UniFormBuilder} from '../../../../../framework/forms/builders/uniFormBuilder';
+import {UniFormLayoutBuilder} from '../../../../../framework/forms/builders/uniFormLayoutBuilder';
+import {UniForm} from '../../../../../framework/forms/uniForm';
+import {UniFieldBuilder} from '../../../../../framework/forms/builders/uniFieldBuilder';
+import {UniComponentLoader} from '../../../../../framework/core/componentLoader';
 
-import {AddressModal} from "../modals/address/address";
-import {EmailModal} from "../modals/email/email";
-import {PhoneModal} from "../modals/phone/phone";
+import {AddressModal} from '../modals/address/address';
+import {EmailModal} from '../modals/email/email';
+import {PhoneModal} from '../modals/phone/phone';
 
 @Component({
-    selector: "customer-details",
-    templateUrl: "app/components/sales/customer/customerDetails/customerDetails.html",    
+    selector: 'customer-details',
+    templateUrl: 'app/components/sales/customer/customerDetails/customerDetails.html',    
     directives: [UniComponentLoader, RouterLink, AddressModal, EmailModal, PhoneModal, ExternalSearch],
     providers: [DepartementService, ProjectService, CustomerService, PhoneService, AddressService, EmailService, BusinessRelationService]
 })
 export class CustomerDetails {
             
-    @Input() CustomerID: any;
+    @Input() 
+    public CustomerID: any;
                   
     @ViewChild(UniComponentLoader)
-    ucl: UniComponentLoader;    
+    public ucl: UniComponentLoader;    
 
-    FormConfig: UniFormBuilder;
-    formInstance: UniForm;
-    DropdownData: any;
-    Customer: Customer;
-    LastSavedInfo: string;
-    searchText: string;
-    EmptyPhone: Phone;
-    EmptyEmail: Email;
-    EmptyAddress: Address;
+    public FormConfig: UniFormBuilder;
+    public formInstance: UniForm;
+    public DropdownData: any;
+    public Customer: Customer;
+    public LastSavedInfo: string;
+    public searchText: string;
+    public EmptyPhone: Phone;
+    public EmptyEmail: Email;
+    public EmptyAddress: Address;
     
-    whenFormInstance: Promise<UniForm>;
+    public whenFormInstance: Promise<UniForm>;
 
     constructor(private departementService: DepartementService,
                 private projectService: ProjectService,
@@ -53,17 +52,15 @@ export class CustomerDetails {
                 private emailService: EmailService,
                 private addressService: AddressService,
                 private businessRealtionService: BusinessRelationService
-                ) {
-                
-        var self = this;        
-        this.CustomerID = params.get("id");            
+                ) {               
+        this.CustomerID = params.get('id');            
     }
     
-    log(err) {
+    public log(err) {
         alert(err._body);
     }
     
-    nextCustomer() {
+    public nextCustomer() {
         var self = this;
         this.customerService.NextCustomer(this.Customer.ID)
             .subscribe((data) => {
@@ -71,24 +68,24 @@ export class CustomerDetails {
             });
     }
     
-    previousCustomer() {
+    public previousCustomer() {
         this.customerService.PreviousCustomer(this.Customer.ID)
             .subscribe((data) => {
                 this.router.navigateByUrl('/sales/customer/details/' + data.ID);
             });        
     }
     
-    addCustomer() {
+    public addCustomer() {
         this.router.navigateByUrl('/sales/customer/details/0');
     }
     
-    isActive(instruction: any[]): boolean {
+    public isActive(instruction: any[]): boolean {
         return this.router.isRouteActive(this.router.generate(instruction));
     }
           
-    ngOnInit() {
+    public ngOnInit() {
         
-        let expandOptions = ["Info", "Info.Phones", "Info.Addresses", "Info.Emails"];
+        let expandOptions = ['Info', 'Info.Phones', 'Info.Addresses', 'Info.Emails'];
         
         Observable.forkJoin(
             this.departementService.GetAll(null),
@@ -114,7 +111,7 @@ export class CustomerDetails {
         });       
     }
     
-    addSearchInfo(selectedSearchInfo: SearchResultItem) {
+    public addSearchInfo(selectedSearchInfo: SearchResultItem) {
         var self = this;
         
         if (this.Customer != null) {
@@ -122,8 +119,8 @@ export class CustomerDetails {
             this.Customer.Info.Name = selectedSearchInfo.navn;
             this.Customer.OrgNumber = selectedSearchInfo.orgnr;
       
-            //KE: Uten denne virker adresse/telefon/email, men da virker ikke navn/orgnr. Samme motsatt - får exception hvis den tas med nå
-            //this.formInstance.Model = this.Customer;  
+            // KE: Uten denne virker adresse/telefon/email, men da virker ikke navn/orgnr. Samme motsatt - får exception hvis den tas med nå
+            // this.formInstance.Model = this.Customer;  
    
             var businessaddress = this.addressService.businessAddressFromSearch(selectedSearchInfo);
             var postaladdress = this.addressService.postalAddressFromSearch(selectedSearchInfo);
@@ -131,10 +128,10 @@ export class CustomerDetails {
             var mobile = this.phoneService.mobileFromSearch(selectedSearchInfo);
             
             Promise.all([businessaddress, postaladdress, phone, mobile]).then(results => {
-                var businessaddress = results[0];
-                var postaladdress = results[1];
-                var phone = results[2];
-                var mobile = results[3];
+                var businessaddress: any = results[0];
+                var postaladdress: any = results[1];
+                var phone: any = results[2];
+                var mobile: any = results[3];
                             
                 if (postaladdress) {
                     this.Customer.Info.Addresses.unshift(postaladdress);
@@ -162,11 +159,11 @@ export class CustomerDetails {
         } 
     }
     
-    createFormConfig() {   
+    public createFormConfig() {   
         // TODO get it from the API and move these to backend migrations   
         var view: ComponentLayout = {
-            Name: "Customer",
-            BaseEntity: "Customer",
+            Name: 'Customer',
+            BaseEntity: 'Customer',
             StatusCode: 0,
             Deleted: false,
             ID: 1,
@@ -174,19 +171,19 @@ export class CustomerDetails {
             Fields: [
                 {
                     ComponentLayoutID: 3,
-                    EntityType: "BusinessRelation",
-                    Property: "Info.Name",
+                    EntityType: 'BusinessRelation',
+                    Property: 'Info.Name',
                     Placement: 1,
                     Hidden: false,
                     FieldType: 10,
                     ReadOnly: false,
                     LookupField: false,
-                    Label: "Navn",
-                    Description: "",
-                    HelpText: "",
+                    Label: 'Navn',
+                    Description: '',
+                    HelpText: '',
                     FieldSet: 0,
                     Section: 0,
-                    Legend: "",
+                    Legend: '',
                     StatusCode: 0,
                     ID: 1,
                     Deleted: false,
@@ -194,19 +191,19 @@ export class CustomerDetails {
                 },
                 {
                     ComponentLayoutID: 3,
-                    EntityType: "Customer",
-                    Property: "OrgNumber",
+                    EntityType: 'Customer',
+                    Property: 'OrgNumber',
                     Placement: 1,
                     Hidden: false,
                     FieldType: 10,
                     ReadOnly: false,
                     LookupField: false,
-                    Label: "Organisasjonsnummer",
-                    Description: "",
-                    HelpText: "",
+                    Label: 'Organisasjonsnummer',
+                    Description: '',
+                    HelpText: '',
                     FieldSet: 0,
                     Section: 0,
-                    Legend: "",
+                    Legend: '',
                     StatusCode: 0,
                     ID: 2,
                     Deleted: false,
@@ -214,19 +211,19 @@ export class CustomerDetails {
                 },
                 {
                     ComponentLayoutID: 3,
-                    EntityType: "BusinessRelation",
-                    Property: "InvoiceAddress",
+                    EntityType: 'BusinessRelation',
+                    Property: 'InvoiceAddress',
                     Placement: 1,
                     Hidden: false,
                     FieldType: 14,
                     ReadOnly: false,
                     LookupField: false,
-                    Label: "Fakturaadresse",
-                    Description: "",
-                    HelpText: "",
+                    Label: 'Fakturaadresse',
+                    Description: '',
+                    HelpText: '',
                     FieldSet: 0,
                     Section: 0,
-                    Legend: "",
+                    Legend: '',
                     StatusCode: 0,
                     ID: 3,
                     Deleted: false,
@@ -234,19 +231,19 @@ export class CustomerDetails {
                 },
                 {
                     ComponentLayoutID: 3,
-                    EntityType: "BusinessRelation",
-                    Property: "ShippingAddress",
+                    EntityType: 'BusinessRelation',
+                    Property: 'ShippingAddress',
                     Placement: 1,
                     Hidden: false,
                     FieldType: 14,
                     ReadOnly: false,
                     LookupField: false,
-                    Label: "Leveringsadresse",
-                    Description: "",
-                    HelpText: "",
+                    Label: 'Leveringsadresse',
+                    Description: '',
+                    HelpText: '',
                     FieldSet: 0,
                     Section: 0,
-                    Legend: "",
+                    Legend: '',
                     StatusCode: 0,
                     ID: 4,
                     Deleted: false,
@@ -254,19 +251,19 @@ export class CustomerDetails {
                 },
                 {
                     ComponentLayoutID: 3,
-                    EntityType: "BusinessRelation",
-                    Property: "Emails",
+                    EntityType: 'BusinessRelation',
+                    Property: 'Emails',
                     Placement: 1,
                     Hidden: false,
                     FieldType: 14,
                     ReadOnly: false,
                     LookupField: false,
-                    Label: "E-post adresser",
-                    Description: "",
-                    HelpText: "",
+                    Label: 'E-post adresser',
+                    Description: '',
+                    HelpText: '',
                     FieldSet: 0,
                     Section: 0,
-                    Legend: "",
+                    Legend: '',
                     StatusCode: 0,
                     ID: 5,
                     Deleted: false,
@@ -274,19 +271,19 @@ export class CustomerDetails {
                 },
                 {
                     ComponentLayoutID: 3,
-                    EntityType: "BusinessRelation",
-                    Property: "Phones",
+                    EntityType: 'BusinessRelation',
+                    Property: 'Phones',
                     Placement: 1,
                     Hidden: false,
                     FieldType: 14,
                     ReadOnly: false,
                     LookupField: false,
-                    Label: "Telefonnumre",
-                    Description: "",
-                    HelpText: "",
+                    Label: 'Telefonnumre',
+                    Description: '',
+                    HelpText: '',
                     FieldSet: 0,
                     Section: 0,
-                    Legend: "",
+                    Legend: '',
                     StatusCode: 0,
                     ID: 6,
                     Deleted: false,
@@ -294,19 +291,19 @@ export class CustomerDetails {
                 },
                 {
                     ComponentLayoutID: 3,
-                    EntityType: "Customer",
-                    Property: "WebUrl",
+                    EntityType: 'Customer',
+                    Property: 'WebUrl',
                     Placement: 1,
                     Hidden: false,
                     FieldType: 15,
                     ReadOnly: false,
                     LookupField: false,
-                    Label: "Webadresse",
-                    Description: "",
-                    HelpText: "",
+                    Label: 'Webadresse',
+                    Description: '',
+                    HelpText: '',
                     FieldSet: 0,
                     Section: 0,
-                    Legend: "",
+                    Legend: '',
                     StatusCode: 0,
                     ID: 7,
                     Deleted: false,
@@ -314,19 +311,19 @@ export class CustomerDetails {
                 },
                 {
                     ComponentLayoutID: 3,
-                    EntityType: "Customer",
-                    Property: "CreditDays",
+                    EntityType: 'Customer',
+                    Property: 'CreditDays',
                     Placement: 1,
                     Hidden: false,
                     FieldType: 10,
                     ReadOnly: false,
                     LookupField: false,
-                    Label: "Kredittdager",
-                    Description: "",
-                    HelpText: "",
+                    Label: 'Kredittdager',
+                    Description: '',
+                    HelpText: '',
                     FieldSet: 0,
                     Section: 1,
-                    Legend: "Betingelser",
+                    Legend: 'Betingelser',
                     StatusCode: 0,
                     ID: 8,
                     Deleted: false,
@@ -334,19 +331,19 @@ export class CustomerDetails {
                 },
                 {
                     ComponentLayoutID: 3,
-                    EntityType: "Project",
-                    Property: "Dimensions.ProjectID",
+                    EntityType: 'Project',
+                    Property: 'Dimensions.ProjectID',
                     Placement: 4,
                     Hidden: false,
                     FieldType: 1,
                     ReadOnly: false,
                     LookupField: false,
-                    Label: "Prosjekt",
-                    Description: "",
-                    HelpText: "",
+                    Label: 'Prosjekt',
+                    Description: '',
+                    HelpText: '',
                     FieldSet: 0,
                     Section: 2,
-                    Legend: "Dimensjoner",
+                    Legend: 'Dimensjoner',
                     StatusCode: 0,
                     ID: 9,
                     Deleted: false,
@@ -354,19 +351,19 @@ export class CustomerDetails {
                 },
                 {
                     ComponentLayoutID: 3,
-                    EntityType: "Departement",
-                    Property: "Dimensions.DepartementID",
+                    EntityType: 'Departement',
+                    Property: 'Dimensions.DepartementID',
                     Placement: 4,
                     Hidden: false,
                     FieldType: 1,
                     ReadOnly: false,
                     LookupField: false,
-                    Label: "Avdeling",
-                    Description: "",
-                    HelpText: "",
+                    Label: 'Avdeling',
+                    Description: '',
+                    HelpText: '',
                     FieldSet: 0,
                     Section: 2,
-                    Legend: "",
+                    Legend: '',
                     StatusCode: 0,
                     ID: 10,
                     Deleted: false,
@@ -379,7 +376,7 @@ export class CustomerDetails {
         this.FormConfig.hideSubmitButton();
     }
     
-    extendFormConfig() {
+    public extendFormConfig() {
         var orgnumber: UniFieldBuilder = this.FormConfig.find('OrgNumber');
         orgnumber.setKendoOptions({
             mask: '000 000 000',
@@ -400,7 +397,7 @@ export class CustomerDetails {
             dataValueField: 'ID',
             dataSource: this.DropdownData[1]
         });      
-        project.addClass('large-field');    
+        project.addClass('large-field');
         
         // MultiValue       
         var phones: UniFieldBuilder = this.FormConfig.find('Phones');
@@ -469,17 +466,17 @@ export class CustomerDetails {
         };
     }    
        
-    loadForm() {       
+    public loadForm() {       
         var self = this;
-        return this.ucl.load(UniForm).then((cmp: ComponentRef) => {
+        return this.ucl.load(UniForm).then((cmp: ComponentRef<any>) => {
            cmp.instance.config = self.FormConfig;
            
            self.whenFormInstance = new Promise((resolve: Function) => resolve(cmp.instance));
            setTimeout(() => {
                 self.formInstance = cmp.instance;   
                 
-                //subscribe to valueChanges of Name input to autosearch external registries 
-                self.formInstance.controls["Info.Name"]
+                // subscribe to valueChanges of Name input to autosearch external registries 
+                self.formInstance.controls['Info.Name']
                     .valueChanges
                     .debounceTime(300)
                     .distinctUntilChanged()
@@ -490,12 +487,12 @@ export class CustomerDetails {
         });
     }           
 
-    saveCustomerManual(event: any) {        
+    public saveCustomerManual(event: any) {        
         this.saveCustomer();
     }
 
-    saveCustomer() {
-        //this.formInstance.sync(); // TODO: this one caues multivalue to break, missing parts of model after calling it
+    public saveCustomer() {
+        // this.formInstance.sync(); // TODO: this one caues multivalue to break, missing parts of model after calling it
         
         this.LastSavedInfo = 'Lagrer kundeinformasjon...';                        
                             
@@ -504,7 +501,7 @@ export class CustomerDetails {
                 .subscribe(
                     (customer) => {  
                         this.LastSavedInfo = 'Sist lagret: ' + (new Date()).toLocaleTimeString();
-                        this.customerService.Get(this.Customer.ID, ["Info", "Info.Phones", "Info.Addresses", "Info.Emails"]).subscribe(customer => {                          
+                        this.customerService.Get(this.Customer.ID, ['Info', 'Info.Phones', 'Info.Addresses', 'Info.Emails']).subscribe(customer => {                          
                             this.Customer = customer;
                         });
                     },

@@ -1,5 +1,5 @@
 import {ComponentProxy} from '../framework/core';
-import {AsyncRoute} from 'angular2/router';
+import {AsyncRoute} from '@angular/router-deprecated';
 
 export const ROUTES = [
     new AsyncRoute({
