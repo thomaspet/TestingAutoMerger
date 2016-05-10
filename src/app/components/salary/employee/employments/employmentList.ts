@@ -1,10 +1,11 @@
-import {Component, OnInit, Injector} from 'angular2/core';
-import {RouteParams, Router} from 'angular2/router';
+import {Component, OnInit, Injector} from '@angular/core';
+import {RouteParams, Router} from '@angular/router-deprecated';
 import {UniTable, UniTableColumn, UniTableBuilder} from '../../../../../framework/uniTable';
 import {EmploymentService} from '../../../../services/services';
 import {EmployeeDS} from '../../../../data/employee';
 import {Employee, Employment} from '../../../../unientities';
 import {EmployeeEmployment} from './employments';
+import {RootRouteParamsService} from '../../../../services/rootRouteParams';
 
 @Component({
     selector: 'employment-list',
@@ -22,9 +23,8 @@ export class EmploymentList implements OnInit {
     private showEmploymentList: boolean = false;
     private employmentListConfig: any;
     
-    constructor(private _employmentService: EmploymentService, private injector: Injector, private employeeDataSource: EmployeeDS, private router: Router) {
-        let params = injector.parent.parent.get(RouteParams);
-        this.currentEmployeeID = params.get('id');
+    constructor(private _employmentService: EmploymentService, private injector: Injector, private employeeDataSource: EmployeeDS, private router: Router, private rootRouteParams: RootRouteParamsService) {        
+        this.currentEmployeeID = +rootRouteParams.params.get('id');
     }
     
     public ngOnInit() {
