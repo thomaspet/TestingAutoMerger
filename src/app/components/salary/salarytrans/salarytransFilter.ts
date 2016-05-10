@@ -13,7 +13,7 @@ declare var jQuery;
             <h1 *ngIf="config.title">{{config.title}}</h1>
             <uni-form [config]="formConfig"></uni-form>
             <footer>
-                <button *ngFor="#action of config.actions; #i=index" (click)="action.method()">
+                <button *ngFor="let action of config.actions; let i=index" (click)="action.method()">
                     {{action.text}}
                 </button>
                 <button *ngIf="config.hasCancelButton" (click)="config.cancel()">Avbryt</button>
@@ -83,7 +83,7 @@ export class SalarytransFilterContent {
         <article class="buttonlist_component">
             <p id="button-list-label-id">Utvalg av ansatte, filtrert etter </p>
             <ul class="filter_buttonlist" aria-labelledby="button-list-label-id">
-                <li *ngFor="#filter of filters">
+                <li *ngFor="let filter of filters">
                 <button (click)="removeFilter(filter)">{{ filter.name }}</button>
                 </li>
             </ul>

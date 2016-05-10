@@ -1,5 +1,5 @@
 import {Component, ViewChild, ComponentRef, OnInit} from '@angular/core';
-import {Router} from '@angular/router';
+import {Router} from '@angular/router-deprecated';
 import {UniForm} from '../../../../../framework/forms/uniForm';
 import {UniFormBuilder, UniFormLayoutBuilder} from '../../../../../framework/forms';
 import {UniComponentLoader} from '../../../../../framework/core';
@@ -32,7 +32,6 @@ export class PersonalDetails implements OnInit {
     constructor(public rootRouteParams: RootRouteParamsService,
                 public employeeService: EmployeeService,
                 public router: Router) {
-        // any way to get that in an easy way????
         this.employeeID = +rootRouteParams.params.get('id');
     }
     
@@ -72,13 +71,15 @@ export class PersonalDetails implements OnInit {
                 }];
                 this.employee = employee;
                 this.form = new UniFormLayoutBuilder().build(layout, this.employee);
+                this.form.hideSubmitButton();
+                
                 this.uniCmpLoader.load(UniForm).then((cmp: ComponentRef<any>) => {
                     cmp.instance.config = this.form;
                     // cmp.instance.getEventEmitter().subscribe(this.executeSubmit(this));
                     this.whenFormInstance = new Promise((resolve: Function) => {
                         resolve(cmp.instance);
                     });
-                    // this.formInstance = cmp.instance;
+                    this.formInstance = cmp.instance;
                     // this.formInstance.hideSubmitButton();
                 });
             }
@@ -100,6 +101,7 @@ export class PersonalDetails implements OnInit {
         this.formInstance.sync();
         this.lastSavedInfo = 'Lagrer persondetaljer på den ansatte';
         if (this.employee.ID > 0) {
+            console.log('object to update', this.employee);
             this.employeeService.Put(this.employee.ID, this.employee)
             .subscribe((response: Employee) => {
                 this.employee = response;

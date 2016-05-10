@@ -16,7 +16,6 @@ export class EmployeeList {
 
     constructor(private router: Router, private tabSer: TabService) {
         
-        
         var idCol = new UniTableColumn('EmployeeNumber', 'Ansattnummer', 'number').setWidth('15%');
 
         var nameCol = new UniTableColumn('BusinessRelationInfo.Name', 'Navn', 'string');
