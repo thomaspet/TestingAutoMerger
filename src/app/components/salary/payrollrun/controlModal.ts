@@ -1,5 +1,5 @@
-import {Component, Type, ViewChildren, QueryList, Injector, Input, Output, EventEmitter, AfterViewInit, OnInit} from 'angular2/core';
-import {RouteParams, Router} from 'angular2/router';
+import {Component, Type, ViewChildren, QueryList, Injector, Input, AfterViewInit, OnInit} from '@angular/core';
+import {RouteParams, Router} from '@angular/router-deprecated';
 import {UniModal} from '../../../../framework/modals/modal';
 import {UniForm, UniFormBuilder, UniFieldBuilder} from '../../../../framework/forms';
 import {UniTable, UniTableBuilder, UniTableColumn} from '../../../../framework/unitable';
@@ -7,6 +7,7 @@ import {UNI_CONTROL_DIRECTIVES} from '../../../../framework/controls';
 import {FieldType, PayrollRun, SalaryTransaction} from '../../../../app/unientities';
 import {SalaryTransactionService, PayrollrunService, EmployeeService} from '../../../../app/services/services';
 import {Observable} from 'rxjs/Observable';
+import {RootRouteParamsService} from '../../../services/rootRouteParams';
 
 @Component({
     selector: 'control-modal-content',
@@ -145,7 +146,7 @@ export class ControlModalContent implements OnInit {
     
     public refresh() {
         this.busy = true;
-        this._payrollRunService.runSettling(this.config.payrollRunID, false).subscribe((response) => {
+        this._payrollRunService.controlPayroll(this.config.payrollRunID).subscribe((response) => {
             this.getData().subscribe((data) => {
                 this.setData(data, true);
             }, error => console.log(error));
@@ -178,11 +179,10 @@ export class ControlModal implements AfterViewInit {
     private modalConfig: any = {};
     private type: Type = ControlModalContent;
     
-    constructor(public injector: Injector) {
+    constructor(private rootRouteParams: RootRouteParamsService) {
         
         if (!this.payrollRunID) {
-            var routeParams = this.injector.parent.parent.get(RouteParams);
-            this.payrollRunID = +routeParams.get('id');
+            this.payrollRunID = +rootRouteParams.params.get('id');
         }
         this.modalConfig = {
             title: 'Kontroll ',

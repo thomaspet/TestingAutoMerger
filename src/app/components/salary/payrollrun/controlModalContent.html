@@ -7,7 +7,7 @@
     </header>
 
     <ol *ngIf="payList" class="payrollControl_payList">
-        <li *ngFor="#payLine of payList #index = index"
+        <li *ngFor="let payLine of payList; let index = index"
             class="payrollControll_payee"
             [ngClass]="{'-is-expanded':!payList[index].collapsed}">
 
