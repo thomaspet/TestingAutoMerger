@@ -9,6 +9,8 @@ import {JournalEntrySimpleCalculationSummary} from '../../../../../models/accoun
 import {JournalEntryData} from '../../../../../models/models';
 import {JournalEntrySimpleForm} from './journalentrysimpleform';
 
+declare var moment;
+
 @Component({
     selector: 'journal-entry-simple',
     templateUrl: 'app/components/accounting/journalentry/components/journalentrysimple/journalentrysimple.html',
@@ -53,13 +55,19 @@ export class JournalEntrySimple implements OnInit, OnChanges {
             this.journalEntryLines = new Array<JournalEntryData>();
         }
 
+        var journalentry: JournalEntryData = new JournalEntryData();
+        journalentry.FinancialDate = moment();
+
         Observable.forkJoin(
             this.departementService.GetAll(null),
             this.projectService.GetAll(null),
             this.vattypeService.GetAll(null),
-            this.accountService.GetAll(null)
+            this.accountService.GetAll(null),
+            this.journalEntryService.getNextJournalEntryNumber(journalentry)
         ).subscribe(response => {
             this.dropdownData = response;
+            console.log("NEXT..");
+            console.log(response[4]);
         });
     }
 
