@@ -11,7 +11,7 @@ interface IColumnVisibility {
     template: `
         <button class="column-menu-toggle" (click)="toggleMenu($event)">Column menu</button>
         <ul class="column-menu-dropdown" *ngIf="open">
-            <li *ngFor="#column of columnVisibility; #idx = index">
+            <li *ngFor="let column of columnVisibility; let idx = index">
                 <label>
                     <input type="checkbox"
                            [checked]="column.visible"

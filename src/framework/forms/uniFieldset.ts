@@ -14,7 +14,7 @@ declare var _;
     directives: [UniComponentLoader],
     template: `<fieldset [class]="buildClassString()">
         <legend *ngIf="config.legend">{{config.legend}}</legend>
-        <template ngFor #field [ngForOf]="config.fields" #i="index">
+        <template ngFor let-field [ngForOf]="config.fields" let i="index">
             <uni-component-loader
                 [type]="field.fieldType"
                 [config]="field">
