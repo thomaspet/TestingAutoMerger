@@ -6,12 +6,12 @@ import {UniFieldBuilder} from '../../forms/builders/uniFieldBuilder';
     template: `
         <fieldset *ngIf="config.control">
             <legend *ngIf="config.label">{{config.label}}</legend>
-            <template ngFor #item [ngForOf]="config.items" #i="index">
+            <template ngFor let-item [ngForOf]="config.items" let i="index">
                 <input
                 #rb
                 type="radio"
                 [value]="item"
-                [ngControl]="config.field"
+                [ngFormControl]="config.control"
                 [name]="config.field"
                 [readonly]="config.readonly"
                 [disabled]="config.disabled"
