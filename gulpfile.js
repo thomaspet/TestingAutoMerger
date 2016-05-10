@@ -234,6 +234,7 @@ gulp.task('build.dist.fill.index.template' , function () {
 
 gulp.task('build.dist' , function (done) {
     runSequence(
+        'entities',
         'build.dist.vendor.js' ,
         'build.dist.vendor.css' ,
         'build.dist.app' ,
