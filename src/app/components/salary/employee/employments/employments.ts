@@ -1,4 +1,4 @@
-import {Component, Injector, Input, ViewChild, OnInit, ComponentRef} from 'angular2/core';
+import {Component, Injector, Input, ViewChild, OnInit, ComponentRef} from '@angular/core';
 import {EmployeeDS} from '../../../../data/employee';
 import {EmploymentService, StaticRegisterService} from '../../../../services/services';
 import {UNI_CONTROL_DIRECTIVES} from '../../../../../framework/controls';
@@ -176,7 +176,7 @@ export class EmployeeEmployment implements OnInit {
     }
     
     private loadForm() {
-        this.uniCompLoader.load(UniForm).then((cmp: ComponentRef) => {
+        this.uniCompLoader.load(UniForm).then((cmp: ComponentRef<any>) => {
             cmp.instance.config = this.form;
             this.whenFormInstance = new Promise((resolve: Function) => resolve(cmp.instance));
         });
