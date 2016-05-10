@@ -1,7 +1,7 @@
-﻿import {Component, OnInit, provide} from 'angular2/core';
-import {RouteParams, ROUTER_DIRECTIVES} from 'angular2/router';
-import {NgFor, NgIf} from 'angular2/common';
-import {Headers} from 'angular2/http';
+﻿import {Component, OnInit, provide} from '@angular/core';
+import {RouteParams, ROUTER_DIRECTIVES} from '@angular/router-deprecated';
+import {NgFor, NgIf} from '@angular/common';
+import {Headers} from '@angular/http';
 import {Observable} from 'rxjs/Observable';
 import 'rxjs/add/observable/forkJoin';
 

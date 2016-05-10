@@ -1,4 +1,4 @@
-import {Component, ComponentRef, Input, Output, ViewChild, SimpleChange, EventEmitter} from "angular2/core";
+import {Component, ComponentRef, Input, Output, ViewChild, SimpleChange, EventEmitter} from "@angular/core";
 import {Observable} from "rxjs/Observable";
 
 import {FieldType, FieldLayout, ComponentLayout, Departement, Project, VatType, VatCodeGroup, Account, JournalEntry, JournalEntryLine, JournalEntryLineDraft, Dimensions} from "../../../../../unientities";
@@ -338,7 +338,7 @@ export class JournalEntrySimpleForm {
            
     loadForm() {       
         var self = this;
-        return this.UniCmpLoader.load(UniForm).then((cmp: ComponentRef) => {
+        return this.UniCmpLoader.load(UniForm).then((cmp: ComponentRef<any>) => {
             cmp.instance.config = self.FormConfig;
             cmp.instance.ready.subscribe((instance:UniForm) => self.formInstance = cmp.instance);
         });

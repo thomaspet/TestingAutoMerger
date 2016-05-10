@@ -1,4 +1,4 @@
-import {Component} from 'angular2/core';
+import {Component} from '@angular/core';
 import {VatTypeList} from './vattypeList/vatTypeList';
 import {VatTypeDetails} from './vattypedetails/vattypedetails';
 import {VatType} from '../../../unientities';

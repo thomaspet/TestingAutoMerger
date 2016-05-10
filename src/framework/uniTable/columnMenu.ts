@@ -1,4 +1,4 @@
-import {Component, AfterViewInit, Input, Output, EventEmitter} from 'angular2/core';
+import {Component, AfterViewInit, Input, Output, EventEmitter} from '@angular/core';
 
 interface IColumnVisibility {
     field: string;

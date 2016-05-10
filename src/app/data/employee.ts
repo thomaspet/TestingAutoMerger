@@ -1,57 +1,55 @@
-import {Injectable, Inject} from "angular2/core";
-import { Observable } from "rxjs/Observable";
-import {UniHttp} from "../../framework/core/http/http";
-import {FieldType} from "../unientities";
-import "rxjs/add/observable/fromArray";
+import {Injectable, Inject} from '@angular/core';
+import { Observable } from 'rxjs/Observable';
+import {UniHttp} from '../../framework/core/http/http';
 
 @Injectable()
 export class EmployeeDS {
 
-    expandedProperties = [
-        "BusinessRelationInfo.Addresses",
-        "BusinessRelationInfo.Emails",
-        "BusinessRelationInfo.Phones",
-        "Employments.SubEntity.BusinessRelationInfo",
-        "BankAccounts",
-        "VacationRateEmployee",
-        "SubEntity"
-    ].join(",");
+    public expandedProperties: string = [
+        'BusinessRelationInfo.Addresses',
+        'BusinessRelationInfo.Emails',
+        'BusinessRelationInfo.Phones',
+        'Employments.SubEntity.BusinessRelationInfo',
+        'BankAccounts',
+        'VacationRateEmployee',
+        'SubEntity'
+    ].join(',');
         
-    subEntities: Observable<any>;
+    public subEntities: Observable<any>;
 
     constructor(@Inject(UniHttp)
                 public http: UniHttp) {
     }
 
-    get(id: number|string) {
+    public get(id: number|string) {
         return this.http
             .asGET()
             .usingBusinessDomain()
-            .withEndPoint("employees/" + id)
+            .withEndPoint('employees/' + id)
             .send({expand: this.expandedProperties});
     }
 
-    getSubEntities() {
+    public getSubEntities() {
         return this.http
             .asGET()
             .usingBusinessDomain()
-            .withEndPoint("subentities")
-            .send({expand: "BusinessRelationInfo"});
+            .withEndPoint('subentities')
+            .send({expand: 'BusinessRelationInfo'});
     }
     
-    getTotals(ansattID:number) {
+    public getTotals(ansattID:number) {
         return this.http
             .asGET()
             .usingBusinessDomain()
-            .withEndPoint("salarytrans")
-            .send({filter: "EmployeeNumber eq " + ansattID});
+            .withEndPoint('salarytrans')
+            .send({filter: 'EmployeeNumber eq ' + ansattID});
     }
 
-    getEmployeeLeave() {
+    public getEmployeeLeave() {
         return this.http
             .asGET()
             .usingBusinessDomain()
-            .withEndPoint("EmployeeLeave")
+            .withEndPoint('EmployeeLeave')
             .send();
     }
 }

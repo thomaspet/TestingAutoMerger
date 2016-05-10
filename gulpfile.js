@@ -31,38 +31,44 @@ var config = {
         index: './src/index.template.html' ,
         vendor: {
             js: [
+                // 3RD PARTY LIBS
                 require.resolve('jquery/dist/jquery.min.js') ,
                 require.resolve('bootstrap/dist/js/bootstrap.min.js') ,
                 require.resolve('jwt-decode/build/jwt-decode.min.js') ,
                 require.resolve('lodash/lodash.min.js') ,
                 require.resolve('./kendo/js/kendo.all.min.js') ,
 
-                //STIMULSOFT
+                // STIMULSOFT
                 require.resolve('./stimulsoft/Js/stimulsoft.reports.js'),
                 require.resolve('./stimulsoft/Js/stimulsoft.viewer.js'),
 
-                ///MOMENT
+                /// MOMENT
                 require.resolve('moment/moment.js') ,
                 require.resolve('moment/locale/en-gb.js') ,
-                require.resolve('moment/locale/nb.js') ,
-
-
-                ///ANGULAR 2.0
-                require.resolve('systemjs/dist/system-polyfills.js') ,
-                require.resolve('reflect-metadata/Reflect.js') ,
-                require.resolve('es6-shim/es6-shim.min.js') ,
-
-                require.resolve('systemjs/dist/system.src.js') ,
-                require.resolve('angular2/bundles/angular2-polyfills.js') ,
-
-                require.resolve('./system.config.js') ,
-
-                require.resolve('rxjs/bundles/Rx.min.js') ,
-                require.resolve('angular2/bundles/angular2.dev.js') ,
-                require.resolve('angular2/bundles/router.min.js') ,
-                require.resolve('angular2/bundles/http.min.js') ,
+                require.resolve('moment/locale/nb.js'),
+                
+                // ANGULAR2 DEPENDENCIES
+                require.resolve('systemjs/dist/system-polyfills.js'),
+                require.resolve('es6-shim/es6-shim.js'),
+                require.resolve('reflect-metadata/Reflect.js'),
+                require.resolve('systemjs/dist/system.src.js'),
+                require.resolve('zone.js/dist/zone.js'),
             ] ,
-            rxjs: './node_modules/rxjs/**/*.js' ,
+            angular: [
+                // Angular specific barrels.
+                './node_modules/@angular/core',
+                './node_modules/@angular/common',
+                './node_modules/@angular/compiler',
+                './node_modules/@angular/http',
+                './node_modules/@angular/router',
+                './node_modules/@angular/router-deprecated',
+                './node_modules/@angular/platform-browser',
+                './node_modules/@angular/platform-browser-dynamic',
+
+                // Thirdparty barrels.
+                './node_modules/rxjs',
+            ],
+            //rxjs: './node_modules/rxjs/**/*.js' ,
             css: [
                 require.resolve('./kendo/styles/kendo.common.min.css')
             ]
@@ -71,6 +77,7 @@ var config = {
     dist: {
         index: './dist/index.html' ,
         folder: './dist' ,
+        angular2: './dist/angular2',
         assets: './dist/assets' ,
         maps: '.' ,
         appFiles: ['./dist/**/*.js' , './dist//**/*.css' , './dist/**/*.html'] ,
@@ -132,9 +139,22 @@ gulp.task('entities' , function (done) {
     request(options , callback);
 });
 
-gulp.task('rxjs' , ['web.config', 'entities'] , function () {
-    return gulp.src('./node_modules/rxjs/**/*.js')
-        .pipe(gulp.dest('./dist/lib/rxjs'));
+// gulp.task('rxjs' , ['web.config', 'entities'] , function () {
+//    return gulp.src('./node_modules/rxjs/**/*.js')
+//        .pipe(gulp.dest('./dist/lib/rxjs'));
+// });
+
+gulp.task('angular2', ['system.config'], function(done) {
+    config.src.vendor.angular.forEach((item) => {
+        var folders = item.split('/');
+        gulp.src(item+'/**/*').pipe(gulp.dest(config.dist.angular2+'/'+folders[folders.length-1]));    
+    });
+    return done();
+});
+
+gulp.task('system.config', function() {
+    return gulp.src('./system.config.js')
+        .pipe(gulp.dest(config.dist.folder));
 });
 
 gulp.task('web.config' , function () {
@@ -142,7 +162,7 @@ gulp.task('web.config' , function () {
         .pipe(gulp.dest('./dist'));
 });
 
-gulp.task('build.dist.vendor.js' , ['rxjs'] , function () {
+gulp.task('build.dist.vendor.js' , [/*'rxjs'*/ 'angular2'] , function () {
     return gulp.src(config.src.vendor.js)
         .pipe(plugins.plumber())
         .pipe(plugins.concat(config.dist.vendor.js))

@@ -1,4 +1,4 @@
-import {Component, ElementRef, Input, AfterViewInit, OnDestroy} from 'angular2/core';
+import {Component, ElementRef, Input, AfterViewInit, OnDestroy} from '@angular/core';
 import {InputTemplateString} from '../inputTemplateString';
 import {UniFieldBuilder} from '../../forms/builders/uniFieldBuilder';
 declare var jQuery;

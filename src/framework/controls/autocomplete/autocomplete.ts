@@ -1,5 +1,5 @@
-import {Component, Input, ElementRef, EventEmitter} from "angular2/core";
-import {Control} from "angular2/common";
+import {Component, Input, ElementRef, EventEmitter} from "@angular/core";
+import {Control} from "@angular/common";
 import {Observable} from "rxjs/Observable";
 import {UniFieldBuilder} from "../../forms/builders/uniFieldBuilder";
 import {BizHttp} from "../../core/http/BizHttp";
@@ -146,8 +146,14 @@ export class UniAutocomplete {
     }
     private _search(query: string) {
         if (this.source.constructor === Array) {
-            let containsString = (obj: any) => this.options.template(obj).toLowerCase().indexOf(query.toLowerCase()) >= 0;
-            return Observable.fromArray((<Array<any>>this.source).filter(containsString))
+            if (!query) {
+                return Observable.fromArray(<any[]>this.source);
+            }
+            let containsString = (obj: any) => {
+                var template = this.options.template(obj);
+                return template.toLowerCase().indexOf(query.toLowerCase()) >= 0;
+            };
+            return Observable.from((<Array<any>>this.source).filter(containsString))
         }
         var filter = /^\d+$/.test(query) ? 'startswith' : 'contains';
         return (<BizHttp<any>>this.source).GetAll(`filter=${filter}(${this.options.valueKey},'${query}')`);

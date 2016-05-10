@@ -1,5 +1,5 @@
-import {Component, ComponentRef, Input, Output, ViewChild, SimpleChange, EventEmitter} from "angular2/core";
-import {Router, RouteParams, RouterLink} from "angular2/router";
+import {Component, ComponentRef, Input, Output, ViewChild, SimpleChange, EventEmitter} from "@angular/core";
+import {Router, RouteParams, RouterLink} from "@angular/router-deprecated";
 import {Observable} from "rxjs/Observable";
 import "rxjs/add/observable/forkjoin";
 
@@ -360,7 +360,7 @@ export class QuoteDetails {
        
     loadForm() {       
         var self = this;
-        return this.ucl.load(UniForm).then((cmp: ComponentRef) => {
+        return this.ucl.load(UniForm).then((cmp: ComponentRef<any>) => {
            cmp.instance.config = self.formConfig;
            self.whenFormInstance = new Promise((resolve: Function) => resolve(cmp.instance));
            setTimeout(() => {

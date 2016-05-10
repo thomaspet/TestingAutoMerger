@@ -1,8 +1,8 @@
-import {Component, ComponentRef, ViewChild, ViewChildren, Input, Output, EventEmitter} from 'angular2/core';
+import {Component, ComponentRef, ViewChild, ViewChildren, Input, Output, EventEmitter} from '@angular/core';
 import {UniHttp} from '../../../../../framework/core/http/http';
 import {Observable} from "rxjs/Observable";
 import {ExternalSearch} from '../../../common/externalSearch/externalSearch';
-import {ComponentInstruction, RouteParams, Router} from 'angular2/router';
+import {ComponentInstruction, RouteParams, Router} from '@angular/router-deprecated';
 
 import {FieldType, FieldLayout, ComponentLayout, Customer, BusinessRelation} from "../../../../unientities";
 import {UNI_CONTROL_DIRECTIVES} from "../../../../../framework/controls";
@@ -77,7 +77,7 @@ export class CustomerAdd {
        
     loadForm() {       
         var self = this;
-        return this.UniCmpLoader.load(UniForm).then((cmp: ComponentRef) => {
+        return this.UniCmpLoader.load(UniForm).then((cmp: ComponentRef<any>) => {
            cmp.instance.config = self.FormConfig;
            setTimeout(() => {
                 self.formInstance = cmp.instance;

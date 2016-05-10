@@ -1,32 +1,22 @@
-import {Component, provide, OnInit} from 'angular2/core';
+import {Component, provide, OnInit} from '@angular/core';
 import {
     RouteConfig, 
     RouteDefinition, 
     RouteParams, 
     ROUTER_DIRECTIVES, 
     AsyncRoute, 
-    Router} 
-from 'angular2/router';
-
-import 'rxjs/add/operator/map';
-
-import {PersonalDetails} from './personalDetails/personalDetails';
-import {EmployeeEmployment} from './employments/employments';
-import {Hours} from './hours/hours';
-import {Travel} from './travel/travel';
-// import {SalaryTransactions} from './salaryTransactions/salaryTransactions';
-import {EmployeeLeave} from './employeeLeave/employeeLeave';
-
+    Router} from '@angular/router-deprecated';
 import {UniTabs} from '../../layout/uniTabs/uniTabs';
 import {WidgetPoster} from '../../../../framework/widgetPoster/widgetPoster';
 import {EmployeeCategoryButtons} from './employeeCategoryButtons';
-
 import {EmployeeService} from '../../../services/services';
 import {Employee, BusinessRelation} from '../../../unientities';
 import {EmployeeDS} from '../../../data/employee';
 import {STYRKCodesDS} from '../../../data/styrkCodes';
-import {SalaryTransactionEmployeeList} from '../salarytrans/salarytransList';
 import {ComponentProxy} from '../../../../framework/core/componentProxy';
+import {RootRouteParamsService} from '../../../services/rootRouteParams';
+
+import 'rxjs/add/operator/map';
 
 const CHILD_ROUTES = [
     new AsyncRoute({
@@ -36,9 +26,9 @@ const CHILD_ROUTES = [
         loader: () => ComponentProxy.LoadComponentAsync('PersonalDetails', './app/components/salary/employee/personalDetails/personalDetails')
     }),
     new AsyncRoute({
-        path: '/employment',
+        path: '/employmentList',
         name: 'Arbeidsforhold',
-        loader: () => ComponentProxy.LoadComponentAsync('EmployeeEmployment', './app/components/salary/employee/employments/employments')
+        loader: () => ComponentProxy.LoadComponentAsync('EmploymentList', './app/components/salary/employee/employments/employmentList')
     }),
     new AsyncRoute({
         path: '/salarytrans',
@@ -58,7 +48,8 @@ const CHILD_ROUTES = [
     providers: [
             provide(EmployeeDS, {useClass: EmployeeDS})
             , provide(STYRKCodesDS, {useClass: STYRKCodesDS}),
-            EmployeeService
+            EmployeeService,
+            , provide(RootRouteParamsService, {useClass: RootRouteParamsService})
         ],
     directives: [ROUTER_DIRECTIVES, WidgetPoster, UniTabs, EmployeeCategoryButtons]
 })
@@ -73,6 +64,7 @@ export class EmployeeDetails implements OnInit {
     private childRoutes: RouteDefinition[];
 
     constructor(private routeParams: RouteParams,
+                private rootRouteParams: RootRouteParamsService,
                 private _employeeService: EmployeeService, 
                 private _router: Router) {
                     
@@ -82,6 +74,7 @@ export class EmployeeDetails implements OnInit {
         this.employee.BusinessRelationInfo = this.businessRelation;
         this.url = '/salary/employees/';
         this.employeeID = +this.routeParams.get('id');
+        this.rootRouteParams.params = this.routeParams;
     }
 
     public ngOnInit() {
