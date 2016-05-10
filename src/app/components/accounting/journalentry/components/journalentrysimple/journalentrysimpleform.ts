@@ -81,7 +81,7 @@ export class JournalEntrySimpleForm implements OnChanges {
             this.accounts = this.dropdownData[3];  
         }
         
-        if (changes['JournalEntryLine'] != null) {
+        if (changes['journalEntryLine'] != null) {
             this.isEditMode = true;
         }
     }
@@ -90,7 +90,7 @@ export class JournalEntrySimpleForm implements OnChanges {
         var oldData: JournalEntryData = _.cloneDeep(this.formInstance.Value);              
                 
         // next journal number?
-        if (oldData.SameOrNew === "1") {
+        if (oldData.SameOrNew === "1" && !this.hideSameOrNew) {
             oldData.JournalEntryNo = this.getNextJournalNumber();
         } else {
             var numbers = this.findJournalNumbers();
