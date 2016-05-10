@@ -16,9 +16,10 @@ import {JournalEntrySimpleForm} from './journalentrysimpleform';
     providers: [JournalEntryService, DepartementService, ProjectService, VatTypeService, AccountService]
 })
 export class JournalEntrySimple implements OnInit, OnChanges {
-    @Input() public supplierInvoice: SupplierInvoice;
+    @Input() 
+    supplierInvoice: SupplierInvoice;
+    
     public selectedJournalEntryLine: JournalEntryData;
-
     public journalEntryLines: Array<JournalEntryData>;
     public validationResult: any;
     public dropdownData: any;

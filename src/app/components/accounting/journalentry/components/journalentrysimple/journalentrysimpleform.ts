@@ -1,4 +1,4 @@
-import {Component, ComponentRef, Input, Output, ViewChild, SimpleChange, EventEmitter} from "angular2/core";
+import {Component, ComponentRef, Input, Output, ViewChild, SimpleChange, EventEmitter, OnChanges} from "angular2/core";
 import {Observable} from "rxjs/Observable";
 
 import {FieldType, FieldLayout, ComponentLayout, Departement, Project, VatType, VatCodeGroup, Account, JournalEntry, JournalEntryLine, JournalEntryLineDraft, Dimensions} from "../../../../../unientities";
@@ -22,12 +22,12 @@ declare var jQuery;
     directives: [UniComponentLoader],
     providers: [AccountService]
 })
-export class JournalEntrySimpleForm {
+export class JournalEntrySimpleForm implements OnChanges {
     @Input()
-    DropdownData: any;
+    dropdownData: any;
     
     @Input()
-    JournalEntryLine: JournalEntryData;
+    journalEntryLine: JournalEntryData;
     
     @Input()
     nextJournalNumber: string;
@@ -38,14 +38,19 @@ export class JournalEntrySimpleForm {
     @Input()
     hideSameOrNew: boolean
     
-    @Output() Created = new EventEmitter<any>();
-    @Output() Aborted = new EventEmitter<any>();
-    @Output() Updated = new EventEmitter<any>();
+    @Output()
+    created = new EventEmitter<any>();
+
+    @Output() 
+    aborted = new EventEmitter<any>();
+    
+    @Output() 
+    updated = new EventEmitter<any>();
        
     @ViewChild(UniComponentLoader)
-    UniCmpLoader: UniComponentLoader;    
+    uniCmpLoader: UniComponentLoader;    
     
-    FormConfig: UniFormBuilder;
+    formConfig: UniFormBuilder;
     
     departements: Departement[];
     projects: Project[];
@@ -63,18 +68,17 @@ export class JournalEntrySimpleForm {
         this.projects = []; 
         this.vattypes = [];
         this.accounts = [];
-        this.JournalEntryLine = new JournalEntryData();
-        this.JournalEntryLine.SameOrNew = "1"; // new by default
+        this.journalEntryLine = new JournalEntryData();
+        this.journalEntryLine.SameOrNew = "1"; // new by default
         this.hideSameOrNew = false;
     }
     
-    ngOnChanges(changes: {[propName: string]: SimpleChange}) {     
-            
-        if (changes['DropdownData'] != null && this.DropdownData) {
-            this.departements = this.DropdownData[0];
-            this.projects = this.DropdownData[1];
-            this.vattypes = this.DropdownData[2];
-            this.accounts = this.DropdownData[3];  
+    ngOnChanges(changes: {[propName: string]: SimpleChange}) {                 
+        if (changes['dropdownData'] != null && this.dropdownData) {
+            this.departements = this.dropdownData[0];
+            this.projects = this.dropdownData[1];
+            this.vattypes = this.dropdownData[2];
+            this.accounts = this.dropdownData[3];  
         }
         
         if (changes['JournalEntryLine'] != null) {
@@ -86,7 +90,7 @@ export class JournalEntrySimpleForm {
         var oldData: JournalEntryData = _.cloneDeep(this.formInstance.Value);              
                 
         // next journal number?
-        if (oldData.SameOrNew == "1") {
+        if (oldData.SameOrNew === "1") {
             oldData.JournalEntryNo = this.getNextJournalNumber();
         } else {
             var numbers = this.findJournalNumbers();
@@ -94,48 +98,48 @@ export class JournalEntrySimpleForm {
         }
         
         oldData.SameOrNew = oldData.JournalEntryNo;
-        this.Created.emit(oldData);
+        this.created.emit(oldData);
                 
-        this.JournalEntryLine = new JournalEntryData(); 
-        this.JournalEntryLine.FinancialDate = oldData.FinancialDate;
-        this.JournalEntryLine.SameOrNew = oldData.SameOrNew;      
+        this.journalEntryLine = new JournalEntryData(); 
+        this.journalEntryLine.FinancialDate = oldData.FinancialDate;
+        this.journalEntryLine.SameOrNew = oldData.SameOrNew;      
         
         this.setFocusOnDebit();
         
         var self = this;
         this.formInstance.ready.toPromise().then((instance: UniForm)=>{
-            instance.Model = self.JournalEntryLine;            
+            instance.Model = self.journalEntryLine;            
         });        
     }
     
     editJournalEntry(event: any) {     
         var newData: JournalEntryData = this.formInstance.Value;
         
-        if (newData.SameOrNew == "1") {
+        if (newData.SameOrNew === "1") {
             newData.JournalEntryNo = this.getNextJournalNumber();
         } else {
             newData.JournalEntryNo = newData.SameOrNew;
         }
 
-        this.Updated.emit(newData);
+        this.updated.emit(newData);
     }
         
     abortEditJournalEntry(event) {
-        this.Aborted.emit(null);
+        this.aborted.emit(null);
     }
     
     emptyJournalEntry(event) {
         var oldData: JournalEntryData = _.cloneDeep(this.formInstance.Value);              
     
-        this.JournalEntryLine = new JournalEntryData();
-        this.JournalEntryLine.SameOrNew = oldData.SameOrNew;      
-        this.JournalEntryLine.FinancialDate = oldData.FinancialDate;    
+        this.journalEntryLine = new JournalEntryData();
+        this.journalEntryLine.SameOrNew = oldData.SameOrNew;      
+        this.journalEntryLine.FinancialDate = oldData.FinancialDate;    
 
         this.setFocusOnDebit();
         
         var self = this;
         this.formInstance.ready.toPromise().then((instance: UniForm)=>{
-            instance.Model = self.JournalEntryLine;
+            instance.Model = self.journalEntryLine;
         });
     }
     
@@ -146,7 +150,7 @@ export class JournalEntrySimpleForm {
     
     private getNextJournalNumber(): string {       
         var numbers = this.findJournalNumbers();
-        return `${numbers.last + (this.journalEntryLines.length > 0 ? 1 : 0)}-${numbers.year}`;
+        return `${numbers.last + (this.journalEntryLines.length ? 1 : 0)}-${numbers.year}`;
     }
     
     private findJournalNumbers() {
@@ -387,25 +391,25 @@ export class JournalEntrySimpleForm {
             ]               
         };   
         
-        this.FormConfig = new UniFormLayoutBuilder().build(view, this.JournalEntryLine);
-        this.FormConfig.hideSubmitButton();  
+        this.formConfig = new UniFormLayoutBuilder().build(view, this.journalEntryLine);
+        this.formConfig.hideSubmitButton();  
         this.extendFormConfig();
         this.loadForm();                      
     }
         
     extendFormConfig() {        
-        var sameornew: UniFieldBuilder = this.FormConfig.find('SameOrNew');  
-        var financialdate: UniFieldBuilder = this.FormConfig.find('FinancialDate');
-        var departement: UniFieldBuilder = this.FormConfig.find('Dimensions.DepartementID');       
-        var project: UniFieldBuilder = this.FormConfig.find('Dimensions.ProjectID');
-        var debitvattype: UniFieldBuilder = this.FormConfig.find('DebitVatTypeID');
-        var debitaccount: UniFieldBuilder = this.FormConfig.find('DebitAccountID');
-        var creditaccount: UniFieldBuilder = this.FormConfig.find('CreditAccountID');
-        var creditvattype: UniFieldBuilder = this.FormConfig.find('CreditVatTypeID');
-        var description: UniFieldBuilder = this.FormConfig.find('Description');
-        var amount: UniFieldBuilder = this.FormConfig.find('Amount');
+        var sameornew: UniFieldBuilder = this.formConfig.find('SameOrNew');  
+        var financialdate: UniFieldBuilder = this.formConfig.find('FinancialDate');
+        var departement: UniFieldBuilder = this.formConfig.find('Dimensions.DepartementID');       
+        var project: UniFieldBuilder = this.formConfig.find('Dimensions.ProjectID');
+        var debitvattype: UniFieldBuilder = this.formConfig.find('DebitVatTypeID');
+        var debitaccount: UniFieldBuilder = this.formConfig.find('DebitAccountID');
+        var creditaccount: UniFieldBuilder = this.formConfig.find('CreditAccountID');
+        var creditvattype: UniFieldBuilder = this.formConfig.find('CreditVatTypeID');
+        var description: UniFieldBuilder = this.formConfig.find('Description');
+        var amount: UniFieldBuilder = this.formConfig.find('Amount');
 
-        var journalalternatives = new Array<any>();
+        var journalalternatives = [];
         var samealternative = {ID: "0", Name: "Samme"};
         var newalternative = {ID: "1", Name: "Ny"}
         var journalalternativesindex = 0;
@@ -421,7 +425,10 @@ export class JournalEntrySimpleForm {
         };
         
         debitaccount.onSelect = (account: Account) => {
-            if (account && account.VatType) this.JournalEntryLine.DebitVatType = account.VatType;
+            if (account && account.VatType) {
+                this.journalEntryLine.DebitVatType = account.VatType;
+            }
+            
             creditaccount.setFocus();
         }
         
@@ -434,7 +441,10 @@ export class JournalEntrySimpleForm {
         }
         
         creditaccount.onSelect = (account: Account) => {
-            if (account && account.VatType) this.JournalEntryLine.CreditVatType = account.VatType;
+            if (account && account.VatType) {
+                this.journalEntryLine.CreditVatType = account.VatType;   
+            }
+            
             amount.setFocus();        
         }
         
@@ -469,11 +479,11 @@ export class JournalEntrySimpleForm {
         // add list of possible numbers from start to end
         if (this.isEditMode) {
             var range = this.findJournalNumbers();  
-            var current = parseInt(this.JournalEntryLine.JournalEntryNo.split('-')[0]);
+            var current = parseInt(this.journalEntryLine.JournalEntryNo.split('-')[0]);
             for(var i = 0; i <= (range.last - range.first); i++) {
                 var jn = `${i+range.first}-${range.year}`;
                 journalalternatives.push({ID: jn, Name: jn});
-                if ((i+range.first) == current) { journalalternativesindex = i; } 
+                if ((i+range.first) === current) { journalalternativesindex = i; } 
             }
         } else {
             journalalternatives.push(samealternative);
@@ -540,8 +550,8 @@ export class JournalEntrySimpleForm {
            
     loadForm() {       
         var self = this;
-        return this.UniCmpLoader.load(UniForm).then((cmp: ComponentRef) => {
-            cmp.instance.config = self.FormConfig;
+        return this.uniCmpLoader.load(UniForm).then((cmp: ComponentRef) => {
+            cmp.instance.config = self.formConfig;
             cmp.instance.ready.subscribe((instance:UniForm) => {
                 self.formInstance = cmp.instance
 

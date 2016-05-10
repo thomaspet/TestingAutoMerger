@@ -25,7 +25,7 @@
 
     </dl>
 
-    <journal-entry-simple-form [DropdownData]="dropdownData" tabindex="1" (Created)="newLineCreated($event)" *ngIf="dropdownData != null" [nextJournalNumber]="nextJournalNumber" [journalEntryLines]="journalEntryLines"></journal-entry-simple-form>
+    <journal-entry-simple-form [dropdownData]="dropdownData" tabindex="1" (created)="newLineCreated($event)" *ngIf="dropdownData != null" [nextJournalNumber]="nextJournalNumber" [journalEntryLines]="journalEntryLines"></journal-entry-simple-form>
     <section *ngIf="dropdownData == null" class="journal-entry-simple-form-loading-placeholder" [attr.aria-busy]="dropdownData == null">
         Laster...
     </section>
@@ -70,7 +70,7 @@
                 </tr>
                 <tr *ngIf="selectedJournalEntryLine == line">
                     <td colspan="7">
-                        <journal-entry-simple-form [DropdownData]="DropdownData" [JournalEntryLine]="selectedJournalEntryLine" (Updated)="editViewUpdated($event)" (Aborted)="abortEdit()" [nextJournalNumber]="nextJournalNumber" [journalEntryLines]="journalEntryLines"></journal-entry-simple-form>
+                        <journal-entry-simple-form [dropdownData]="dropdownData" [journalEntryLine]="selectedJournalEntryLine" (updated)="editViewUpdated($event)" (aborted)="abortEdit()" [nextJournalNumber]="nextJournalNumber" [journalEntryLines]="journalEntryLines"></journal-entry-simple-form>
                		</td>
                 </tr>
             </template>
