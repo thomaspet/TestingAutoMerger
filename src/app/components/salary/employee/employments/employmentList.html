@@ -3,8 +3,6 @@
         <uni-table *ngIf="showEmploymentList" [config]="employmentListConfig" [attr.aria-busy]="busy"></uni-table>
     </nav>
     <main class="splitview_detail">
-        <employment-details *ngIf="selectedEmployment"
-        [currentEmployment]="selectedEmployment"
-        [currentEmployee]="currentEmployee"></employment-details>
+        <employment-details *ngIf="selectedEmployment" [currentEmployment]="selectedEmployment" [currentEmployee]="currentEmployee"></employment-details>
     </main>
 </section>

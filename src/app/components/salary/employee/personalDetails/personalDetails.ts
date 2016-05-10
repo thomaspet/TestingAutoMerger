@@ -1,5 +1,5 @@
 import {Component, ViewChild, ComponentRef, OnInit} from '@angular/core';
-import {Router} from '@angular/router-deprecated';
+import {Router} from '@angular/router';
 import {UniForm} from '../../../../../framework/forms/uniForm';
 import {UniFormBuilder, UniFormLayoutBuilder} from '../../../../../framework/forms';
 import {UniComponentLoader} from '../../../../../framework/core';
