@@ -1,6 +1,6 @@
-import {Component} from 'angular2/core';
-import {RouteParams, ROUTER_DIRECTIVES} from 'angular2/router';
-import {Control, Validators, ControlGroup, FORM_DIRECTIVES} from 'angular2/common';
+import {Component} from '@angular/core';
+import {RouteParams, ROUTER_DIRECTIVES} from '@angular/router-deprecated';
+import {Control, Validators, ControlGroup, FORM_DIRECTIVES} from '@angular/common';
 import {passwordValidator} from './authValidators';
 import {UniHttp} from '../../../framework/core/http/http';
 

@@ -1,5 +1,5 @@
-import {Component, ViewChildren, Type, Input, Output, QueryList, ViewChild, ComponentRef, EventEmitter, SimpleChange} from "angular2/core";
-import {NgIf, NgModel, NgFor, NgClass} from "angular2/common";
+import {Component, ViewChildren, Type, Input, Output, QueryList, ViewChild, ComponentRef, EventEmitter, SimpleChange} from "@angular/core";
+import {NgIf, NgModel, NgFor, NgClass} from "@angular/common";
 import {UniModal} from "../../../../../framework/modals/modal";
 import {UniComponentLoader} from "../../../../../framework/core/componentLoader";
 import {UniFormBuilder} from "../../../../../framework/forms/builders/uniFormBuilder";
@@ -60,7 +60,7 @@ export class OrderToInvoiceTable {
             <h1 *ngIf="config.title">{{config.title}}</h1>
             <uni-component-loader></uni-component-loader>
             <footer>
-                <button *ngFor="#action of config.actions; #i=index" (click)="action.method()" [ngClass]="action.class">
+                <button *ngFor="let action of config.actions; let i=index" (click)="action.method()" [ngClass]="action.class">
                     {{action.text}}
                 </button>
             </footer>
@@ -76,7 +76,7 @@ export class OrderToInvoiceModalType {
     
     ngAfterViewInit() {
         var self = this;
-        this.ucl.load(OrderToInvoiceTable).then((cmp: ComponentRef)=> {
+        this.ucl.load(OrderToInvoiceTable).then((cmp: ComponentRef<any>)=> {
             cmp.instance.order = self.config.model;
             self.instance = new Promise((resolve)=> {
                 resolve(cmp.instance);

@@ -11,7 +11,7 @@
     </section>
     <section class="search-content">        
         <section class="search-result">
-            <article *ngFor="#item of searchResult" (click)="selectItem(item)" class="search-result-item">
+            <article *ngFor="let item of searchResult" (click)="selectItem(item)" class="search-result-item">
                 <section class="search-result-main-info">{{item.navn}}</section>
                 <section class="search-result-extra-info">Orgnr: {{item.orgnr}}, {{item.forradrpostnr + " " + item.forradrpoststed}}</section>
             </article>            

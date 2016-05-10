@@ -1,4 +1,4 @@
-import {Component, Type, ViewChildren, QueryList, Input, Output, EventEmitter} from "angular2/core";
+import {Component, Type, ViewChildren, QueryList, Input, Output, EventEmitter} from "@angular/core";
 import {UniModal} from "../../../../framework/modals/modal";
 import {UniForm, UniFormBuilder, UniFieldBuilder} from "../../../../framework/forms";
 import {UNI_CONTROL_DIRECTIVES} from "../../../../framework/controls";

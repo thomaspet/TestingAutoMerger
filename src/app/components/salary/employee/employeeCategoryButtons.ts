@@ -1,4 +1,4 @@
-import {Component, Input, OnInit} from 'angular2/core';
+import {Component, Input, OnInit} from '@angular/core';
 import {EmployeeCategory} from '../../../unientities';
 import {EmployeeService, EmployeeCategoryService} from '../../../services/services';
 

@@ -1,4 +1,4 @@
-import {Component, Input} from "angular2/core";
+import {Component, Input} from "@angular/core";
 import {UniComponentLoader} from "../core/componentLoader";
 import {UniElementBuilder} from "./interfaces";
 import {UniFieldsetBuilder} from "./builders/uniFieldsetBuilder";
@@ -14,7 +14,7 @@ declare var _;
     directives: [UniComponentLoader],
     template: `<fieldset [class]="buildClassString()">
         <legend *ngIf="config.legend">{{config.legend}}</legend>
-        <template ngFor #field [ngForOf]="config.fields" #i="index">
+        <template ngFor let-field [ngForOf]="config.fields" let i="index">
             <uni-component-loader
                 [type]="field.fieldType"
                 [config]="field">

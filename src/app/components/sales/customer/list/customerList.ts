@@ -1,6 +1,6 @@
-import {Component, ViewChildren} from 'angular2/core';
+import {Component, ViewChildren} from '@angular/core';
 import {UniTable, UniTableBuilder, UniTableColumn} from '../../../../../framework/uniTable';
-import {ComponentInstruction, RouteParams, Router} from 'angular2/router';
+import {ComponentInstruction, RouteParams, Router} from '@angular/router-deprecated';
 import {UniHttp} from '../../../../../framework/core/http/http';
 import {CustomerService} from "../../../../services/services";
 import {Customer, BusinessRelation} from "../../../../unientities";

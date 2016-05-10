@@ -1,5 +1,5 @@
-import {Component, OnInit, EventEmitter, Input, Output} from "angular2/core";
-import {FORM_DIRECTIVES, FORM_PROVIDERS, ControlGroup, FormBuilder} from "angular2/common";
+import {Component, OnInit, EventEmitter, Input, Output} from "@angular/core";
+import {FORM_DIRECTIVES, FORM_PROVIDERS, ControlGroup, FormBuilder} from "@angular/common";
 import {UniField} from "./uniField";
 import {UniFieldBuilder} from "./builders/uniFieldBuilder";
 import {UniFieldset} from "./uniFieldset";
@@ -24,7 +24,7 @@ declare var _; //lodash
     providers: [FORM_PROVIDERS],
     template: `
         <form (submit)="doSubmit()" [ngFormModel]="form" [class]="buildClassString()" [class.error]="hasErrors()">
-            <template ngFor #field [ngForOf]="getFields()" #i="index">
+            <template ngFor let-field [ngForOf]="getFields()" let i="index">
                 <uni-component-loader
                     [type]="field.fieldType"
                     [config]="field">
@@ -112,7 +112,7 @@ export class UniForm extends UniGenericField implements OnInit {
         return !this.form.valid;
     }
 
-    public getFields() {
+    public getFields() {        
         return this.config.fields;
     }
 

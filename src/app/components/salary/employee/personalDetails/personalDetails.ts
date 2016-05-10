@@ -1,5 +1,5 @@
-import {Component, Injector, ViewChild, ComponentRef, OnInit} from 'angular2/core';
-import {RouteParams, Router} from 'angular2/router';
+import {Component, ViewChild, ComponentRef, OnInit} from '@angular/core';
+import {Router} from '@angular/router-deprecated';
 import {UniForm} from '../../../../../framework/forms/uniForm';
 import {UniFormBuilder, UniFormLayoutBuilder, UniFieldBuilder} from '../../../../../framework/forms';
 import {UniComponentLoader} from '../../../../../framework/core';
@@ -10,6 +10,7 @@ import {EmployeeService, PhoneService, EmailService, AddressService} from '../..
 import {AddressModal} from '../../../sales/customer/modals/address/address';
 import {EmailModal} from '../../../sales/customer/modals/email/email';
 import {PhoneModal} from '../../../sales/customer/modals/phone/phone';
+import {RootRouteParamsService} from '../../../../services/rootRouteParams';
 declare var _;
 
 @Component({
@@ -38,15 +39,14 @@ export class PersonalDetails implements OnInit {
     private formInstance: UniForm;
     private whenFormInstance: Promise<UniForm>;
 
-    constructor(public injector: Injector,
+    constructor(public rootRouteParams: RootRouteParamsService,
                 public employeeService: EmployeeService,
                 public router: Router,
                 public phoneService: PhoneService,
                 public emailService: EmailService,
                 public addressService: AddressService) {
         // any way to get that in an easy way????
-        var routeParams = this.injector.parent.parent.get(RouteParams);
-        this.employeeID = +routeParams.get('id');
+        this.employeeID = +rootRouteParams.params.get('id');
     }
     
     public ngOnInit() {
@@ -91,8 +91,12 @@ export class PersonalDetails implements OnInit {
                 this.emptyEmail = emptyMail;
                 this.emptyAddress = emptyAddress;
                 this.form = new UniFormLayoutBuilder().build(layout, this.employee);
+<<<<<<< HEAD
                 this.extendFormConfig();
                 this.uniCmpLoader.load(UniForm).then((cmp: ComponentRef) => {
+=======
+                this.uniCmpLoader.load(UniForm).then((cmp: ComponentRef<any>) => {
+>>>>>>> develop
                     cmp.instance.config = this.form;
                     cmp.instance.getEventEmitter().subscribe(this.executeSubmit(this));
                     this.whenFormInstance = new Promise((resolve: Function) => {

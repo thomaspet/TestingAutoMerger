@@ -1,10 +1,10 @@
-import {Component} from "angular2/core";
-import {Input} from "angular2/core";
-import {Type} from "angular2/core";
-import {AfterViewInit} from "angular2/core";
+import {Component} from "@angular/core";
+import {Input} from "@angular/core";
+import {Type} from "@angular/core";
+import {AfterViewInit} from "@angular/core";
 import {UniComponentLoader} from "../core/componentLoader";
-import {ViewChild} from "angular2/core";
-import {ComponentRef} from "angular2/core";
+import {ViewChild} from "@angular/core";
+import {ComponentRef} from "@angular/core";
 
 @Component({
     selector: "uni-modal",
@@ -41,7 +41,7 @@ export class UniModal implements AfterViewInit {
 
     ngAfterViewInit() {
         var self = this;
-        this.unicmploader.load(this.componentType).then((cmp: ComponentRef) => {
+        this.unicmploader.load(this.componentType).then((cmp: ComponentRef<any>) => {
             this.component = new Promise((resolve) => {
                 cmp.instance.config = self.config;
                 self.isOpen = self.config.isOpen || false;

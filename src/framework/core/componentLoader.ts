@@ -1,4 +1,4 @@
-import {Component, DynamicComponentLoader, ElementRef, ComponentRef, Input, EventEmitter} from 'angular2/core';
+import {Component, DynamicComponentLoader, ViewContainerRef, ComponentRef, Input, EventEmitter} from '@angular/core';
 
 /**
  * Component Loader
@@ -8,27 +8,27 @@ import {Component, DynamicComponentLoader, ElementRef, ComponentRef, Input, Even
  * @Inputs
  *
  * type?: Type => Type (Class) of the element we want to load
- * loader?: (component:ComponentRef) => any|Promise<any>
+ * loader?: (component:ComponentRef<any>) => any|Promise<any>
  *      function that manages the component once is loaded
  * config?: any => Configuration object for the component
  */
 @Component({
     selector: 'uni-component-loader',
-    template: '<div #content></div>',
+    template: '<div></div>',
 })
 export class UniComponentLoader {
 
     @Input()
-    type: any;
+    public type: any;
 
     @Input()
-    loader: (cmp: ComponentRef) => any|Promise<any>|void;
+    public loader: (cmp: ComponentRef<any>) => any | Promise<any> | void;
 
     @Input()
-    config: any;
+    public config: any;
 
-    component: any;
-    constructor(public element: ElementRef, public dcl: DynamicComponentLoader) {
+    public component: any;
+    constructor(public container: ViewContainerRef , public dcl: DynamicComponentLoader) {
 
     }
 
@@ -36,22 +36,22 @@ export class UniComponentLoader {
      * Inits the object if parameters are passed
      * Nothing if component has no parameters
      */
-    ngOnInit() {
+    public ngOnInit() {
         var self = this;
         if (this.type && this.loader) {
             this.load(this.type).then(this.loader);
         } else if (this.type && this.config) {
-            this.dcl.loadIntoLocation(this.type, this.element, 'content')
-                .then((cmp: ComponentRef) => {
+            this.dcl.loadNextToLocation(this.type, this.container)
+                .then((cmp: ComponentRef<any>) => {
                     cmp.instance.config = self.config;
                     self.component = cmp.instance;
                     return cmp;
                 });
         } else if (this.type) {
-            this.dcl.loadIntoLocation(this.type, this.element, 'content').then((cmp:ComponentRef)=>{
+            this.dcl.loadNextToLocation(this.type, this.container).then((cmp: ComponentRef<any>) => {
                 self.component = cmp.instance;
                 return cmp;
-            });;
+            });
         }
     }
 
@@ -62,9 +62,9 @@ export class UniComponentLoader {
      * @param loader Function that can manage the component loaded
      * @returns {any} (optional) it can return nothing or a promise
      */
-    load(type: any) {
+    public load(type: any) {
         var self = this;
-        return this.dcl.loadIntoLocation(type, this.element, 'content').then((cmp:ComponentRef)=>{
+        return this.dcl.loadNextToLocation(type, this.container).then((cmp: ComponentRef<any>) => {
             self.component = cmp.instance;
             return cmp;
         });

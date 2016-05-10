@@ -1,5 +1,5 @@
-import {Component} from "angular2/core";
-import {CORE_DIRECTIVES} from "angular2/common";
+import {Component} from "@angular/core";
+import {CORE_DIRECTIVES} from "@angular/common";
 import {TabService} from "../layout/navbar/tabstrip/tabService";
 import {Multival} from "../usertest/multivalue";
 import {UniTabs} from "../layout/uniTabs/uniTabs";
@@ -8,7 +8,7 @@ import {EmployeeEmployment} from "../salary/employee/employments/employments";
 import {Hours} from "../salary/employee/hours/hours";
 import {Travel} from "../salary/employee/travel/travel";
 import {SalaryTransactions} from "../salary/employee/salaryTransactions/salaryTransactions";
-import {RouteConfig, RouteDefinition, ROUTER_DIRECTIVES} from "angular2/router";
+import {RouteConfig, RouteDefinition, ROUTER_DIRECTIVES} from "@angular/router-deprecated";
 import {UniAutocomplete} from "../../../framework/controls/autocomplete/autocomplete";
 
 const CHILD_ROUTES = [

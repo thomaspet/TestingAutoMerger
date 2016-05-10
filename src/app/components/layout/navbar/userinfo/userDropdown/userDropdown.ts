@@ -1,5 +1,5 @@
-import {Component, AfterViewInit} from 'angular2/core';
-import {Router} from 'angular2/router';
+import {Component, AfterViewInit} from '@angular/core';
+import {Router} from '@angular/router-deprecated';
 import {Observable} from 'rxjs/Observable';
 import {AuthService} from '../../../../../../framework/core/authService';
 import 'rxjs/add/observable/fromEvent';

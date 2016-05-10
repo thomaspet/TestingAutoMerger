@@ -1,5 +1,5 @@
 <ul class="treelist" role="tree">
-    <li *ngFor="#item of treeListItems" role="treeitem" [attr.aria-label]="item.title" [attr.aria-expanded]="item.expanded" class="treelist_item" [attr.id]="item.guid">
+    <li *ngFor="let item of treeListItems" role="treeitem" [attr.aria-label]="item.title" [attr.aria-expanded]="item.expanded" class="treelist_item" [attr.id]="item.guid">
 
         <h5 (click)="item.expanded = !item.expanded" class="treelist_headline" [attr.aria-controls]="item.guid">{{item.title}}</h5>
 

@@ -1,5 +1,5 @@
-import {Component, OnInit} from 'angular2/core';
-import {RouteParams} from 'angular2/router';
+import {Component, OnInit} from '@angular/core';
+import {RouteParams} from '@angular/router-deprecated';
 import {PayrollrunService} from '../../../services/services';
 // import {FieldType} from '../../../unientities';
 import {UniTable, UniTableBuilder, UniTableColumn} from '../../../../framework/uniTable';
