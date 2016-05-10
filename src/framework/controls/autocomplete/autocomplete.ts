@@ -147,7 +147,7 @@ export class UniAutocomplete {
     private _search(query: string) {
         if (this.source.constructor === Array) {
             if (!query) {
-                return Observable.fromArray(<any[]>this.source);
+                return Observable.from(<any[]>this.source);
             }
             let containsString = (obj: any) => {
                 var template = this.options.template(obj);

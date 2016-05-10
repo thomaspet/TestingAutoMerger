@@ -176,7 +176,7 @@ export class EmployeeEmployment implements OnInit {
     }
     
     private loadForm() {
-        this.uniCompLoader.load(UniForm).then((cmp: ComponentRef) => {
+        this.uniCompLoader.load(UniForm).then((cmp: ComponentRef<any>) => {
             cmp.instance.config = this.form;
             this.whenFormInstance = new Promise((resolve: Function) => resolve(cmp.instance));
         });
