@@ -64,7 +64,6 @@ export class JournalEntrySimple implements OnInit, OnChanges {
     }
 
     public ngOnChanges(changes: { [propName: string]: SimpleChange }) {
-
         if (this.supplierInvoice) {
             this.journalEntryService.getJournalEntryDataBySupplierInvoiceID(this.supplierInvoice.ID)
                 .subscribe(data => {
@@ -187,7 +186,7 @@ export class JournalEntrySimple implements OnInit, OnChanges {
 
     private newLineCreated(journalEntryLine: any) {
         journalEntryLine = this.parseJournalEntryData(journalEntryLine);
-
+      
         this.journalEntryLines.unshift(journalEntryLine);
 
         this.validateJournalEntryData();
@@ -216,11 +215,11 @@ export class JournalEntrySimple implements OnInit, OnChanges {
         this.recalcTimeout = setTimeout(() => {
 
             this.journalEntryLines.forEach((x) => {
-                x.Amount = x.Amount ? x.Amount : 0;
-                x.DebitAccountID = x.DebitAccountID ? x.DebitAccountID : 0;
-                x.DebitVatTypeID = x.DebitVatTypeID ? x.DebitVatTypeID : 0;
-                x.CreditAccountID = x.CreditAccountID ? x.CreditAccountID : 0;
-                x.CreditVatTypeID = x.CreditVatTypeID ? x.CreditVatTypeID : 0;
+                x.Amount = x.Amount || 0;
+                x.DebitAccountID = x.DebitAccountID || 0;
+                x.DebitVatTypeID = x.DebitVatTypeID || 0;
+                x.CreditAccountID = x.CreditAccountID || 0;
+                x.CreditVatTypeID = x.CreditVatTypeID || 0;
                 // TODO ...?
             });
 

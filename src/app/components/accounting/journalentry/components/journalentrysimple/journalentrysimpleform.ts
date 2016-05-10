@@ -86,7 +86,7 @@ export class JournalEntrySimpleForm implements OnChanges {
         }
     }
          
-    addJournalEntry(event: any) {        
+    addJournalEntry(event: any) {  
         var oldData: JournalEntryData = _.cloneDeep(this.formInstance.Value);              
                 
         // next journal number?
@@ -105,11 +105,11 @@ export class JournalEntrySimpleForm implements OnChanges {
         this.journalEntryLine.SameOrNew = oldData.SameOrNew;      
         
         this.setFocusOnDebit();
-        
+    
         var self = this;
         this.formInstance.ready.toPromise().then((instance: UniForm)=>{
             instance.Model = self.journalEntryLine;            
-        });        
+        });
     }
     
     editJournalEntry(event: any) {     
