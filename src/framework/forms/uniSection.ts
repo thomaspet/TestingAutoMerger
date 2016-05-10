@@ -17,7 +17,7 @@ declare var _;
         <article class="collapsable" [ngClass]="{'-is-open':config.collapsed}" [class]="buildClassString()">
             <h4 *ngIf="config.legend" (click)="toggleCollapsed()">{{config.legend}}</h4>
             <div class="collapsable-content">
-                <template ngFor #field [ngForOf]="config.fields" #i="index">
+                <template ngFor let-field [ngForOf]="config.fields" let i="index">
                     <uni-component-loader
                         [type]="field.fieldType"
                         [config]="field">

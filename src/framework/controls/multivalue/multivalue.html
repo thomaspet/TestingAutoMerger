@@ -3,7 +3,7 @@
     <button class="uni-multivalue-moreBtn" (click)="addOrDropdown()">Ny</button>
 
     <ul class="uni-multivalue-values" [class.-is-active]="activeMultival">
-        <template ngFor #row [ngForOf]="config.model[config.field]" #i = "index">
+        <template ngFor let-row [ngForOf]="config.model[config.field]" let i="index">
             <li *ngIf="row && !row.Deleted" [class.-is-main]="index == i">
 
                 <input *ngIf="!indelete(i) && editindex == i" #editinput class="uni-multivalue_edit" [(ngModel)]="row[config.kOptions.dataTextField]" (blur)="save(row, $event)" (keyup.enter)="save(row, $event)" type="text">
