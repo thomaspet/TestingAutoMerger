@@ -1,5 +1,5 @@
 import {Component, OnInit, Injector} from '@angular/core';
-import {RouteParams, Router} from '@angular/router-deprecated';
+import {Router} from '@angular/router-deprecated';
 import {UniTable, UniTableColumn, UniTableBuilder} from '../../../../../framework/uniTable';
 import {EmploymentService} from '../../../../services/services';
 import {EmployeeDS} from '../../../../data/employee';

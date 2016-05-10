@@ -20,7 +20,7 @@ export class PersonalDetails implements OnInit {
 
     private form: UniFormBuilder = new UniFormBuilder();
     private employee: Employee;
-    private LastSavedInfo: string;
+    private lastSavedInfo: string;
 
     @ViewChild(UniComponentLoader)
     private uniCmpLoader: UniComponentLoader;
@@ -90,7 +90,7 @@ export class PersonalDetails implements OnInit {
         return this.formInstance && this.formInstance.form && this.formInstance.form.valid;
     }
     
-    private saveEmployeeManual() {
+    public saveEmployeeManual() {
         this.saveEmployee();
     }
     
@@ -98,12 +98,12 @@ export class PersonalDetails implements OnInit {
         console.log('save');
         
         this.formInstance.sync();
-        this.LastSavedInfo = 'Lagrer persondetaljer på den ansatte';
+        this.lastSavedInfo = 'Lagrer persondetaljer på den ansatte';
         if (this.employee.ID > 0) {
             this.employeeService.Put(this.employee.ID, this.employee)
             .subscribe((response: Employee) => {
                 this.employee = response;
-                this.LastSavedInfo = 'Sist lagret: ' + (new Date()).toLocaleTimeString();
+                this.lastSavedInfo = 'Sist lagret: ' + (new Date()).toLocaleTimeString();
                 this.router.navigateByUrl('/salary/employees/' + this.employee.ID);
             },
             (err) => {
@@ -113,7 +113,7 @@ export class PersonalDetails implements OnInit {
             this.employeeService.Post(this.employee)
             .subscribe((response: Employee) => {
                 this.employee = response;
-                this.LastSavedInfo = 'Sist lagret: ' + (new Date()).toLocaleTimeString();
+                this.lastSavedInfo = 'Sist lagret: ' + (new Date()).toLocaleTimeString();
                 this.router.navigateByUrl('/salary/employees/' + this.employee.ID);
             },
             (err) => {

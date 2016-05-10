@@ -301,12 +301,12 @@ export class EmployeeEmployment implements OnInit {
     }
 
     // @fixme: Proper date formatting here…
-    private formatDate(date) {
-        if (!date) {
-            return '';
-        }
-        date = new Date(date);
-        return date.getDate() + '.' + (date.getMonth() + 1) + '.' + date.getFullYear();
-    }
+    // private formatDate(date) {
+    //     if (!date) {
+    //         return '';
+    //     }
+    //     date = new Date(date);
+    //     return date.getDate() + '.' + (date.getMonth() + 1) + '.' + date.getFullYear();
+    // }
 
 }
