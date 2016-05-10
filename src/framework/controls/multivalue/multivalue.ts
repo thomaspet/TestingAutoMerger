@@ -1,5 +1,5 @@
-import {Component, ComponentRef, ElementRef, Input, ViewChild, ViewChildren} from "angular2/core";
-import {NgIf, NgFor, NgModel} from "angular2/common";
+import {Component, ComponentRef, ElementRef, Input, ViewChild, ViewChildren} from "@angular/core";
+import {NgIf, NgFor, NgModel} from "@angular/common";
 import {UniFieldBuilder} from "../../forms/builders/uniFieldBuilder";
 import {UniComponentLoader} from '../../../framework/core/componentLoader';
 
@@ -99,7 +99,7 @@ export class UniMultiValue {
         var index = this.config.model[this.config.field].length - 1;
         
         if (this.config.editor) { // Use custom editor
-            this.ucl.load(this.config.editor).then((cmp: ComponentRef)=> {
+            this.ucl.load(this.config.editor).then((cmp: ComponentRef<any>)=> {
                 cmp.instance.modalConfig.isOpen = true;
                 cmp.instance.modalConfig.model = self.config.model[self.config.field][index];
                 cmp.instance.modalConfig.enableSave = self.config.kOptions.enableSave || false;
@@ -129,7 +129,7 @@ export class UniMultiValue {
         index = index || 0;
  
         if (this.config.editor) { // Use custom editor
-            this.ucl.load(this.config.editor).then((cmp: ComponentRef)=> {
+            this.ucl.load(this.config.editor).then((cmp: ComponentRef<any>)=> {
                 cmp.instance.modalConfig.isOpen = true;
                 cmp.instance.modalConfig.model = this.config.model[this.config.field][index];
                 cmp.instance.modalConfig.enableSave = self.config.kOptions.enableSave || false;

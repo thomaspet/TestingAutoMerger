@@ -1,5 +1,5 @@
-﻿import {Injectable} from 'angular2/core';
-import {Http, Headers, URLSearchParams, Request, RequestMethod} from 'angular2/http';
+﻿import {Injectable} from '@angular/core';
+import {Http, Headers, URLSearchParams, Request, RequestMethod} from '@angular/http';
 import {Observable} from 'rxjs/Observable';
 import {AppConfig} from '../../../app/AppConfig';
 import {AuthService} from '../authService';
@@ -158,6 +158,8 @@ export class UniHttp {
         if (activeCompany) {
             this.headers.set('CompanyKey', activeCompany.Key);
         }
+        
+        this.headers.set('Accept', 'application/json');
 
         var baseurl = request.baseUrl || this.baseUrl,
             apidomain = request.apiDomain || this.apiDomain,

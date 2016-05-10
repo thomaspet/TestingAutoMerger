@@ -1,4 +1,4 @@
-import {Component, Input, ViewChild} from "angular2/core";
+import {Component, Input, ViewChild} from "@angular/core";
 import {UniHttp} from "../../../../../framework/core/http/http";
 import {UniTable, UniTableBuilder, UniTableColumn} from "../../../../../framework/uniTable";
 import {Dimensions} from "../../../../unientities";

@@ -1,9 +1,10 @@
-import {Component, OnInit, Injector} from 'angular2/core';
+import {Component, OnInit, Injector} from '@angular/core';
 import {UniTable, UniTableBuilder, UniTableColumn} from '../../../../../framework/uniTable';
-import {Router, RouteParams} from 'angular2/router';
+import {Router, RouteParams} from '@angular/router-deprecated';
 import {WageTypeService, EmploymentService} from '../../../../services/services';
-import {WageType} from '../../../../unientities';
 import {Observable} from 'rxjs/Observable';
+import {RootRouteParamsService} from '../../../../services/rootRouteParams';
+
 declare var _;
 
 @Component({
@@ -19,9 +20,8 @@ export class RecurringPost implements OnInit {
     private wagetypes: any[];
     private employments: any[];
     
-    constructor(public injector: Injector, public routr: Router, private wagetypeService: WageTypeService, private employmentService: EmploymentService) {
-        var routeParams = this.injector.parent.parent.get(RouteParams);
-        this.employeeID = +routeParams.get('id');
+    constructor(public rootRouteParams: RootRouteParamsService, public routr: Router, private wagetypeService: WageTypeService, private employmentService: EmploymentService) {
+        this.employeeID = +this.rootRouteParams.params.get('id');
     }
     
     public ngOnInit() {

@@ -1,5 +1,5 @@
-import {Component, Output, EventEmitter, OnInit} from 'angular2/core';
-import {Router, RouteParams } from 'angular2/router';
+import {Component, Output, EventEmitter, OnInit} from '@angular/core';
+import {Router, RouteParams } from '@angular/router-deprecated';
 
 import {SupplierInvoiceService,  AccountService} from '../../../../services/services';
 
