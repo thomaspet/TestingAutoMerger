@@ -24,7 +24,7 @@ declare var _; //lodash
     providers: [FORM_PROVIDERS],
     template: `
         <form (submit)="doSubmit()" [ngFormModel]="form" [class]="buildClassString()" [class.error]="hasErrors()">
-            <template ngFor #field [ngForOf]="getFields()" let i="index">
+            <template ngFor let-field [ngForOf]="getFields()" let i="index">
                 <uni-component-loader
                     [type]="field.fieldType"
                     [config]="field">
@@ -112,7 +112,7 @@ export class UniForm extends UniGenericField implements OnInit {
         return !this.form.valid;
     }
 
-    public getFields() {
+    public getFields() {        
         return this.config.fields;
     }
 
