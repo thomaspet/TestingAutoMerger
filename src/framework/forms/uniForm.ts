@@ -24,7 +24,7 @@ declare var _; //lodash
     providers: [FORM_PROVIDERS],
     template: `
         <form (submit)="doSubmit()" [ngFormModel]="form" [class]="buildClassString()" [class.error]="hasErrors()">
-            <template ngFor #field [ngForOf]="getFields()" #i="index">
+            <template ngFor #field [ngForOf]="getFields()" let i="index">
                 <uni-component-loader
                     [type]="field.fieldType"
                     [config]="field">
