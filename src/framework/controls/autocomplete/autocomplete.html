@@ -20,7 +20,7 @@
         z-index="2000"
         [attr.aria-expanded]="isExpanded">
 
-    <li *ngFor="#result of results"
+    <li *ngFor="let result of results"
         class="autocomplete_result"
         role="option"
         (mouseover)="selected = result"
