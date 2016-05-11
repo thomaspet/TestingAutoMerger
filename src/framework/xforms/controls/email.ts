@@ -5,18 +5,18 @@ import {FieldLayout} from '../../../app/unientities';
 declare var jQuery, _; // jquery and lodash
 
 @Component({
-    selector: 'uni-password-input',
+    selector: 'uni-email-input',
     changeDetection: ChangeDetectionStrategy.OnPush,
     template: `
         <input
             *ngIf="control"
-            type="password"
+            type="email"
             [ngFormControl]="control"
             [readonly]="field?.ReadOnly"
         />
     `
 })
-export class UniPasswordInput {
+export class UniEmailInput {
     @Input()
     public field: FieldLayout;
 
@@ -27,7 +27,7 @@ export class UniPasswordInput {
     public control: Control;
 
     @Output()
-    public onReady: EventEmitter<UniPasswordInput> = new EventEmitter<UniPasswordInput>(true);
+    public onReady: EventEmitter<UniEmailInput> = new EventEmitter<UniEmailInput>(true);
     
     @Output()
     public onChange: EventEmitter<any> = new EventEmitter<any>(true);
