@@ -6,6 +6,6 @@ import {Component} from "@angular/core";
 })
 export class TimeEntry {    
     constructor() {
-  
+        console.log("TimeEntry (sub)view constructor");
     }
 }
