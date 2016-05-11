@@ -24,6 +24,12 @@ export class JournalEntryService extends BizHttp<JournalEntry> {
             .withBody(journalentry)
             .usingBusinessDomain()             
             .withEndPoint(this.relativeURL + '?action=nextjournalentrynumber')
+
+    getJournalEntryPeriodData(accountID: number): Observable<any> {
+        return this.http
+            .asGET()
+            .usingBusinessDomain()             
+            .withEndPoint(this.relativeURL + `?action=get-journal-entry-period-data&accountID=${accountID}`)
             .send();
     }
     
