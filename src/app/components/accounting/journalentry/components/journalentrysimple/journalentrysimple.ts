@@ -38,7 +38,6 @@ export class JournalEntrySimple implements OnInit, OnChanges {
                 private vattypeService: VatTypeService,
                 private accountService: AccountService) {
         this.journalEntryLines = new Array<JournalEntryData>();
-        this.nextJournalNumber = "14-2016"; 
     }
 
     private log(err) {
@@ -56,7 +55,7 @@ export class JournalEntrySimple implements OnInit, OnChanges {
         }
 
         var journalentry: JournalEntryData = new JournalEntryData();
-        journalentry.FinancialDate = moment();
+        journalentry.FinancialDate = moment().toDate();
 
         Observable.forkJoin(
             this.departementService.GetAll(null),
@@ -66,8 +65,9 @@ export class JournalEntrySimple implements OnInit, OnChanges {
             this.journalEntryService.getNextJournalEntryNumber(journalentry)
         ).subscribe(response => {
             this.dropdownData = response;
-            console.log("NEXT..");
-            console.log(response[4]);
+            this.nextJournalNumber = response[4];
+            console.log("== NEXT IS");
+            console.log(this.nextJournalNumber);
         });
     }
 
