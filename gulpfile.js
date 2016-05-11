@@ -42,7 +42,7 @@ var config = {
 
                 // STIMULSOFT
                 require.resolve('./stimulsoft/Js/stimulsoft.reports.js'),
-                require.resolve('./stimulsoft/Js/stimulsoft.viewer.js'),
+                //require.resolve('./stimulsoft/Js/stimulsoft.viewer.js'),
 
                 /// MOMENT
                 require.resolve('moment/moment.js'),
