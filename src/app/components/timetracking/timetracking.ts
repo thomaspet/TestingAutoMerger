@@ -8,14 +8,14 @@ rootView.addSubView(new View('timeentry', 'Timeføring', 'TimeEntry'));
 
 @Component({
     selector: 'uni-' + rootView.name,
-    template: `<h3>{{moduleInfo.label}}</h3>
+    template: `<h3>{{view.label}}</h3>
         <uni-router-outlet></uni-router-outlet>`,
     directives: [ROUTER_DIRECTIVES, UniRouterOutlet]
 })
 @RouteConfig(rootView.getSubRoutes())
 export class UniTimetracking {
-    public moduleInfo = rootView;
+    public view = rootView;
     constructor() {        
-        console.log("UniTimetracking view constructor");
+        //console.log("UniTimetracking view constructor");
     }
 }

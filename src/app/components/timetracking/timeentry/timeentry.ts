@@ -16,7 +16,7 @@ export class TimeEntry {
     public view = view;
 
     constructor(private router: Router, private tabService: TabService) {
-        console.log("TimeEntry path: " + view.path);
-        this.tabService.addTab({ name: view.label, url: view.path });
+        console.log("TimeEntry path: " + view.route);
+        this.tabService.addTab({ name: view.label, url: view.route });
     }
 }

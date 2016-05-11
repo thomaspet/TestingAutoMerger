@@ -5,10 +5,12 @@ export class View {
     public subViews: Array<View> = [];
     private routeName = '';
     public path = '';
+    public route = '';
     
     constructor(public name:string, public label:string, public className:string ) {
         this.routeName = this.name.substr(0,1).toUpperCase() + this.name.substr(1);
         this.path = '/' + name;
+        this.route = this.path;
     }
    
     getSubView(name:string) {
@@ -21,6 +23,7 @@ export class View {
     
     addSubView(view:View) {
         view.path = this.path + '/' + view.name + '/' + view.name;
+        view.route = this.route + '/' + view.name;
         this.subViews.push(view);
     }
     
