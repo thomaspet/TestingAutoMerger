@@ -259,7 +259,12 @@ export class UniAutocomplete {
         }
         this.lastValue = this.value;
         this.control.updateValue(this.value, {});
-        this.change$.emit(item);        
+        
+        if (this.config.onSelect) {
+            this.config.onSelect(item);
+        }
+
+        this.change$.emit(item);
     }
 
     private template(obj: any) {
