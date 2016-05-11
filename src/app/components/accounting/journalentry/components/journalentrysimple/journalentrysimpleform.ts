@@ -97,11 +97,7 @@ export class JournalEntrySimpleForm implements OnChanges {
             oldData.JournalEntryNo = `${numbers.last}-${numbers.year}`;        
         }
         
-        oldData.SameOrNew = oldData.JournalEntryNo;
-        
-        console.log("== NEW JOURNAL ENTRYLINE ==");
-        console.log(oldData);
-
+        oldData.SameOrNew = oldData.JournalEntryNo;        
         this.created.emit(oldData);
                 
         this.journalEntryLine = new JournalEntryData(); 
