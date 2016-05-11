@@ -12,14 +12,6 @@ export class View {
         this.path = '/' + name;
         this.route = this.path;
     }
-   
-    getSubView(name:string) {
-        for (var i=0; i<this.subViews.length;i++) {
-            if (this.subViews[i].name===name) {
-                 return this.subViews[i]; 
-            }
-        }
-    }
     
     addSubView(view:View) {
         view.path = this.path + '/' + view.name + '/' + view.name;
