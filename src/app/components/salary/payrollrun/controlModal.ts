@@ -159,7 +159,6 @@ export class ControlModalContent {
 @Component({
     selector: 'control-modal',
     directives: [UniModal],
-    providers: [],
     template: `
         <button type="button" (click)="openModal()">Kontroller</button>
         <uni-modal [type]="type" [config]="modalConfig"></uni-modal>
