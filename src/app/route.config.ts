@@ -63,6 +63,12 @@ export const ROUTES = [
         loader: () => ComponentProxy.LoadComponentAsync('Confirm', './app/components/login/confirmInvite')
     }),
 
+    new AsyncRoute({
+        path: '/timetracking',
+        name: 'Timetracking',
+        loader: () => ComponentProxy.LoadComponentAsync('UniTimetracking', './app/components/timetracking/timetracking')
+    }),
+
     /// ROUTES FOR TESTING POURPOSES
 
     new AsyncRoute({
