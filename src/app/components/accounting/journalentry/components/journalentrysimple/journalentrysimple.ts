@@ -132,7 +132,7 @@ export class JournalEntrySimple implements OnInit, OnChanges {
 
                 //TODO feedback til bruker ved lagring..
                 //TODO validate if journalEntry number has changed
-
+                alert('Lagring var vellykket');
 
                 //Empty list
                 this.journalEntryLines = new Array<JournalEntryData>();
