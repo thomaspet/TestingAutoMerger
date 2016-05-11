@@ -5,6 +5,8 @@ export * from './email';
 export * from './textarea';
 export * from './url';
 export * from './hyperlink';
+export * from './select';
+export * from './masked';
 
 import {UniTextInput}  from './text';
 import {UniNumericInput}  from './numeric';
@@ -13,14 +15,16 @@ import {UniEmailInput}  from './email';
 import {UniTextareaInput}  from './textarea';
 import {UniUrlInput}  from './url';
 import {UniHyperlinkInput}  from './hyperlink';
+import {UniSelectInput}  from './select';
+import {UniMaskedInput}  from './masked';
 
 export var CONTROLS = [
     undefined, // 0
     undefined, // 1
     undefined, // 2
     undefined, // 3
-    undefined, // 4
-    undefined, // 5
+    UniMaskedInput, // 4
+    UniSelectInput, // 5
     UniNumericInput, // 6
     undefined, // 7
     undefined, // 8
