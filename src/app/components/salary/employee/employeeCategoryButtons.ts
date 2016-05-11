@@ -1,6 +1,7 @@
 import {Component, Input, OnInit} from '@angular/core';
 import {EmployeeCategory} from '../../../unientities';
 import {EmployeeService, EmployeeCategoryService} from '../../../services/services';
+import {Observable} from 'rxjs/Observable';
 
 declare var jQuery;
 
@@ -41,10 +42,10 @@ export class EmployeeCategoryButtons implements OnInit {
     constructor(private employeeService: EmployeeService, 
                 private employeeCategoryService: EmployeeCategoryService) {
         
-        this.employeeCategoryService.GetAll('')
-        .subscribe((response: any) => {
-            this.categories = response;
-        });
+        // this.employeeCategoryService.GetAll('')
+        // .subscribe((response: any) => {
+        //     this.categories = response;
+        // });
     }
     
     private filterTags(tag: string) {
@@ -60,18 +61,25 @@ export class EmployeeCategoryButtons implements OnInit {
     };
     
     public ngOnInit() {
-        this.employeeService.getEmployeeCategories(this.selectedEmployee.EmployeeNumber)
+        Observable.forkJoin(
+            this.employeeService.getEmployeeCategories(this.selectedEmployee.EmployeeNumber),
+            this.employeeCategoryService.GetAll('')
+        )
         .subscribe((response: any) => {
-            this.selectedEmployee.EmployeeCategories = response ? response : [];
+            var [empCategories, allCategories] = response;
+            this.selectedEmployee.EmployeeCategories = empCategories ? empCategories : [];
+            this.categories = allCategories;
             
             // remove selected categories from available categories
-            var arrLength = this.selectedEmployee.EmployeeCategories ? this.selectedEmployee.EmployeeCategories.length : 0;
-            for (var selIndx = 0; selIndx < arrLength; selIndx++) {
-                var selCat = this.selectedEmployee.EmployeeCategories[selIndx];
-                for (var avIndx = this.categories.length - 1; avIndx >= 0; avIndx--) {
-                    var avCat = this.categories[avIndx];
-                    if (avCat.Name === selCat.Name) {
-                        this.categories.splice(avIndx, 1);
+            if (this.categories.length > 0) {
+                var arrLength = this.selectedEmployee.EmployeeCategories ? this.selectedEmployee.EmployeeCategories.length : 0;
+                for (var selIndx = 0; selIndx < arrLength; selIndx++) {
+                    var selCat = this.selectedEmployee.EmployeeCategories[selIndx];
+                    for (var avIndx = this.categories.length - 1; avIndx >= 0; avIndx--) {
+                        var avCat = this.categories[avIndx];
+                        if (avCat.Name === selCat.Name) {
+                            this.categories.splice(avIndx, 1);
+                        }
                     }
                 }
             }
