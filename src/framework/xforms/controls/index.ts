@@ -7,6 +7,7 @@ export * from './url';
 export * from './hyperlink';
 export * from './select';
 export * from './masked';
+export * from './date';
 
 import {UniTextInput}  from './text';
 import {UniNumericInput}  from './numeric';
@@ -17,11 +18,12 @@ import {UniUrlInput}  from './url';
 import {UniHyperlinkInput}  from './hyperlink';
 import {UniSelectInput}  from './select';
 import {UniMaskedInput}  from './masked';
+import {UniDateInput}  from './date';
 
 export var CONTROLS = [
     undefined, // 0
     undefined, // 1
-    undefined, // 2
+    UniDateInput, // 2
     undefined, // 3
     UniMaskedInput, // 4
     UniSelectInput, // 5
