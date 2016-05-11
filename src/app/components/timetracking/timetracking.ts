@@ -1,39 +1,20 @@
 import {Component} from "@angular/core";
 import {RouteConfig, ROUTER_DIRECTIVES} from "@angular/router-deprecated";
-import {ComponentProxy} from "../../../framework/core/componentProxy";
-import {AsyncRoute} from "@angular/router-deprecated";
 import {UniRouterOutlet} from "../../uniRouterOutlet";
+import {View} from "../../models/view/view";
 
-const moduleInfo = {
-    name: 'timetracking',
-    label: 'Timer'
-};
-
-export var views = {
-    baseFolder: './app/components/timetracking',
-    timeEntry: {
-        className: 'TimeEntry', label: 'Timeføring', name: 'timeentry', path: '/timeentry/timeentry'
-    }
-};
-
-var subroutes = [
-    new AsyncRoute({
-        useAsDefault: true,
-        path: '/' + views.timeEntry.name,
-        name: views.timeEntry.className,
-        loader: () => ComponentProxy.LoadComponentAsync(views.timeEntry.className, views.baseFolder + views.timeEntry.path )
-    }),
-];
+export var rootView = new View("timetracking", "Timer", "UniTimetracking");
+rootView.addSubView(new View('timeentry', 'Timeføring', 'TimeEntry'));
 
 @Component({
-    selector: 'uni-' + moduleInfo.name,
+    selector: 'uni-' + rootView.name,
     template: `<h3>{{moduleInfo.label}}</h3>
         <uni-router-outlet></uni-router-outlet>`,
     directives: [ROUTER_DIRECTIVES, UniRouterOutlet]
 })
-@RouteConfig(subroutes)
+@RouteConfig(rootView.getSubRoutes())
 export class UniTimetracking {
-    public moduleInfo = moduleInfo;
+    public moduleInfo = rootView;
     constructor() {        
         console.log("UniTimetracking view constructor");
     }
