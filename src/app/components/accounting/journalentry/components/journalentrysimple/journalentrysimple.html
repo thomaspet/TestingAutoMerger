@@ -42,7 +42,7 @@
             </tr>
         </thead>
         <tbody>
-            <template ngFor #line [ngForOf]="journalEntryLines" [ngForTrackBy]="trackByLines">
+            <template ngFor let-line [ngForOf]="journalEntryLines" [ngForTrackBy]="trackByLines">
                 <tr tabindex="2" (keyup.enter)="setSelectedJournalEntryLine(line)" class="journalentrysimple-itemline" (click)="setSelectedJournalEntryLine(line)" [class.journal-entry-row-selected]="selectedJournalEntryLine == line">
                     <td class="journalentrysimple_temporary"> {{line.JournalEntryNo}}</td>
                     <td class="journalentrysimple-biginfo">{{line.FinancialDate != "0001-01-01T00:00:00" ? line.FinancialDate.toLocaleDateString() : ""}}</td>
@@ -89,7 +89,7 @@
     <h3 *ngIf="validationResult.Messages.length > 0">
         Feil i validering:    
     </h3>    
-    <p *ngFor="#message of validationResult.Messages">
+    <p *ngFor="let message of validationResult.Messages">
         {{message.Message}}
     </p>
 </section>

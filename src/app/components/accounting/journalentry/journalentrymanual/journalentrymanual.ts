@@ -9,8 +9,7 @@ import {SupplierInvoice} from "../../../../unientities";
     directives: [JournalEntrySimple, JournalEntryProfessional]    
 })
 export class JournalEntryManual {    
-    @Input()
-    SupplierInvoice : SupplierInvoice;
+    @Input() SupplierInvoice : SupplierInvoice;
     
     public journalEntryMode : string;
   

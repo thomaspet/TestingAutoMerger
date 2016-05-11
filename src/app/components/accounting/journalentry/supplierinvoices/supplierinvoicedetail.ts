@@ -11,11 +11,12 @@ import {UniFieldBuilder} from '../../../../../framework/forms';
 import {UniComponentLoader} from '../../../../../framework/core/componentLoader';
 import {FieldType, ComponentLayout} from '../../../../unientities';
 import {SupplierInvoice, Supplier, BankAccount} from '../../../../unientities';
+import {JournalEntryManual} from '../journalentrymanual/journalentrymanual';
 
 @Component({
     selector: 'supplier-invoice-detail',
     templateUrl: 'app/components/accounting/journalentry/supplierinvoices/supplierinvoicedetail.html',
-    directives: [UniForm, UniComponentLoader, RouterLink],
+    directives: [UniForm, UniComponentLoader, RouterLink, JournalEntryManual],
     providers: [SupplierInvoiceService, SupplierService, BankAccountService]
 })
 export class SupplierInvoiceDetail implements OnInit {
@@ -138,47 +139,7 @@ export class SupplierInvoiceDetail implements OnInit {
             Deleted: false,
             ID: 1,
             CustomFields: null,
-            Fields: [
-                {
-                    ComponentLayoutID: 2,
-                    EntityType: 'SupplierInvoice',
-                    Property: 'ID',
-                    Placement: 1,
-                    Hidden: false,
-                    FieldType: FieldType.TEXT, //
-                    ReadOnly: true,
-                    LookupField: false,
-                    Label: 'ID', //
-                    Description: '',
-                    HelpText: '',
-                    FieldSet: 0, ///
-                    Section: 0, //
-                    Legend: '',
-                    StatusCode: 0,
-                    ID: 1,
-                    Deleted: false,
-                    CustomFields: null
-                },
-                {
-                    ComponentLayoutID: 2,
-                    EntityType: 'SupplierInvoice',
-                    Property: 'StatusCode',
-                    Placement: 1,
-                    Hidden: false,
-                    FieldType: FieldType.DROPDOWN, //
-                    ReadOnly: true,
-                    LookupField: false,
-                    Label: 'Status', //
-                    Description: '',
-                    HelpText: '',
-                    FieldSet: 0, ///
-                    Section: 0, //
-                    Legend: '',
-                    StatusCode: 0,
-                    ID: 1,
-                    Deleted: false,
-                    CustomFields: null
-                },
+            Fields: [     
                 {
                     ComponentLayoutID: 2,
                     EntityType: 'SupplierInvoice',
@@ -202,26 +163,6 @@ export class SupplierInvoiceDetail implements OnInit {
                 {
                     ComponentLayoutID: 2,
                     EntityType: 'SupplierInvoice',
-                    Property: 'InvoiceDate',
-                    Placement: 3,
-                    Hidden: false,
-                    FieldType: FieldType.DATEPICKER,
-                    ReadOnly: false,
-                    LookupField: false,
-                    Label: 'Fakturadato',
-                    Description: '',
-                    HelpText: '',
-                    FieldSet: 0,
-                    Section: 0,
-                    Legend: '',
-                    StatusCode: 0,
-                    ID: 3,
-                    Deleted: false,
-                    CustomFields: null
-                },
-                {
-                    ComponentLayoutID: 2,
-                    EntityType: 'SupplierInvoice',
                     Property: 'PaymentDueDate',
                     Placement: 4,
                     Hidden: false,
@@ -236,6 +177,26 @@ export class SupplierInvoiceDetail implements OnInit {
                     Legend: '',
                     StatusCode: 0,
                     ID: 4,
+                    Deleted: false,
+                    CustomFields: null
+                },
+                {
+                    ComponentLayoutID: 2,
+                    EntityType: 'SupplierInvoice',
+                    Property: 'InvoiceDate',
+                    Placement: 3,
+                    Hidden: false,
+                    FieldType: FieldType.DATEPICKER,
+                    ReadOnly: false,
+                    LookupField: false,
+                    Label: 'Fakturadato',
+                    Description: '',
+                    HelpText: '',
+                    FieldSet: 0,
+                    Section: 0,
+                    Legend: '',
+                    StatusCode: 0,
+                    ID: 3,
                     Deleted: false,
                     CustomFields: null
                 },
@@ -269,6 +230,26 @@ export class SupplierInvoiceDetail implements OnInit {
                     ReadOnly: false,
                     LookupField: false,
                     Label: 'Fakturanr',
+                    Description: '',
+                    HelpText: '',
+                    FieldSet: 0,
+                    Section: 0,
+                    Legend: '',
+                    StatusCode: 0,
+                    ID: 4,
+                    Deleted: false,
+                    CustomFields: null
+                },
+                {
+                    ComponentLayoutID: 2,
+                    EntityType: 'SupplierInvoice',
+                    Property: 'PaymentInformation',
+                    Placement: 4,
+                    Hidden: false,
+                    FieldType: FieldType.TEXT,
+                    ReadOnly: false,
+                    LookupField: false,
+                    Label: 'Bilagstekst',
                     Description: '',
                     HelpText: '',
                     FieldSet: 0,
@@ -322,46 +303,6 @@ export class SupplierInvoiceDetail implements OnInit {
                 {
                     ComponentLayoutID: 2,
                     EntityType: 'SupplierInvoice',
-                    Property: 'PaymentInformation',
-                    Placement: 4,
-                    Hidden: false,
-                    FieldType: FieldType.TEXT,
-                    ReadOnly: false,
-                    LookupField: false,
-                    Label: 'Bilagstekst',
-                    Description: '',
-                    HelpText: '',
-                    FieldSet: 0,
-                    Section: 0,
-                    Legend: '',
-                    StatusCode: 0,
-                    ID: 4,
-                    Deleted: false,
-                    CustomFields: null
-                },
-                {
-                    ComponentLayoutID: 2,
-                    EntityType: 'SupplierInvoice',
-                    Property: 'JournalEntryID',
-                    Placement: 4,
-                    Hidden: false,
-                    FieldType: FieldType.TEXT,
-                    ReadOnly: true,
-                    LookupField: false,
-                    Label: 'Bilagsnr',
-                    Description: '',
-                    HelpText: '',
-                    FieldSet: 0,
-                    Section: 0,
-                    Legend: '',
-                    StatusCode: 0,
-                    ID: 4,
-                    Deleted: false,
-                    CustomFields: null
-                },
-                {
-                    ComponentLayoutID: 2,
-                    EntityType: 'SupplierInvoice',
                     Property: 'FreeTxt',
                     Placement: 4,
                     Hidden: false,
@@ -383,7 +324,7 @@ export class SupplierInvoiceDetail implements OnInit {
         };
 
         this.formBuilder = new UniFormLayoutBuilder().build(view, this.supplierInvoice);
-        // this.formBuilder.hideSubmitButton();
+        this.formBuilder.hideSubmitButton();
         this.extendFormConfig();
         this.loadForm();
     }
@@ -397,27 +338,12 @@ export class SupplierInvoiceDetail implements OnInit {
             dataSource: this.suppliers
         });
 
-        var fieldStatus: UniFieldBuilder = this.formBuilder.find('StatusCode');
-        fieldStatus.setKendoOptions({
-            dataTextField: 'Text',
-            dataValueField: 'Code',
-            dataSource: this._supplierInvoiceService.StatusTypes
-        });
-
-        // TODO: Text control does not implement template.
-        //var fieldJournalEntry: UniFieldBuilder = this.formBuilder.find('JournalEntryID');
-        //fieldJournalEntry.setKendoOptions({
-        //    template: '${data.JournalEntryID} - ${data.JournalEntry.JournalEntryNumber}'
-        //});
-
         var fieldBank: UniFieldBuilder = this.formBuilder.find('BankAccount');
         fieldBank.setKendoOptions({
             dataTextField: 'AccountNumber',
             dataValueField: 'AccountNumber',
             dataSource: this.bankAccounts
         });
-
-
     }
 
     private loadForm() {

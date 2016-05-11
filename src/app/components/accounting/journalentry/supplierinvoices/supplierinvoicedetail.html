@@ -1,10 +1,9 @@
-<h2>Leverandørfaktura</h2>
 <header class="poster">
     <article class="poster_toolbar">
         <h2 class="poster_toolbar_headline">
-            <!--<p *ngIf="supplierInvoice != null && supplierInvoice.ID > 0">Leverandørnummer &nbsp;:&nbsp; {{supplierInvoice.Supplier.Info.Name}}</p>-->
-            <p *ngIf="supplierInvoice == null || supplierInvoice.ID == 0"><i>Ny faktura-registrering med smart bokføring.</i></p>
-            <!--<button *ngIf="supplierInvoice != null && supplierInvoice.JournalEntryID == null && supplierInvoice.ID > 0" (click)="onSmartBook()">Smart bokføring</button>-->
+            <!--<p *ngIf="supplierInvoice != null && supplierInvoice.ID > 0">Leverandï¿½rnummer &nbsp;:&nbsp; {{supplierInvoice.Supplier.Info.Name}}</p>-->
+            <p *ngIf="supplierInvoice == null || supplierInvoice.ID == 0"><i>Ny faktura-registrering med smart bokfÃ¸ring.</i></p>
+            <!--<button *ngIf="supplierInvoice != null && supplierInvoice.JournalEntryID == null && supplierInvoice.ID > 0" (click)="onSmartBook()">Smart bokfï¿½ring</button>-->
         </h2>
 
     </article>
@@ -15,21 +14,24 @@
 </header>
 
 
-<article class="supplier-invoice-detail-form">
-    <router-outlet></router-outlet>
+<article class="supplier-invoice-detail-form">    
     <uni-component-loader></uni-component-loader>
-    <!--<footer class="full-footer">
+    <footer class="full-footer">
         <section class="application">
-            <button class="good" (click)="save($event)">Lagre</button>
+            <button class="good" (click)="save($event)">Lagre leverandÃ¸rfaktura</button>
         </section>
-    </footer>-->
+    </footer>
 </article>
+
+<section class="supplier-invoice-detail-booking">
+    <journal-entry-manual [SupplierInvoice]="supplierInvoice" *ngIf="supplierInvoice && supplierInvoice.ID > 0"></journal-entry-manual>
+</section>
 
 <section class="supplier-invoice-detail-document">
     <h3>
         Faktura
     </h3>
-    <p>Fakturadokument kan vises her. Ikke implementert foreløpig. Avventer til dokumentsystem er på plass</p>
+    <p>Fakturadokument kan vises her. Ikke implementert forelÃ¸pig. Avventer til dokumentsystem er pÃ¥ plass</p>
     <p></p>
 </section>
 
