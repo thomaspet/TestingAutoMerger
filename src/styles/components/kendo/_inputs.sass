@@ -158,3 +158,10 @@ textarea.k-textbox,
 .k-textbox.k-multiselect-wrap
     box-sizing: border-box
     height: 1.6667rem
+
+// Readonly fields shouldn't have controls
+input[readonly] + .k-select
+    display: none
+
+.k-textbox, .k-autocomplete, .k-dropdown-wrap, .k-picker-wrap, .k-numeric-wrap
+    padding: 0 // God only knows why Kendo has this there to begin with.

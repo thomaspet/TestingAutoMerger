@@ -16,12 +16,14 @@ import {JournalEntrySimpleForm} from './journalentrysimpleform';
     providers: [JournalEntryService, DepartementService, ProjectService, VatTypeService, AccountService]
 })
 export class JournalEntrySimple implements OnInit, OnChanges {
-    @Input() public supplierInvoice: SupplierInvoice;
+    @Input() 
+    supplierInvoice: SupplierInvoice;
+    
     public selectedJournalEntryLine: JournalEntryData;
-
     public journalEntryLines: Array<JournalEntryData>;
     public validationResult: any;
     public dropdownData: any;
+    public nextJournalNumber: string;
 
     private itemsSummaryData: JournalEntrySimpleCalculationSummary;
     private recalcTimeout: any;
@@ -34,6 +36,7 @@ export class JournalEntrySimple implements OnInit, OnChanges {
                 private vattypeService: VatTypeService,
                 private accountService: AccountService) {
         this.journalEntryLines = new Array<JournalEntryData>();
+        this.nextJournalNumber = "14-2016"; 
     }
 
     private log(err) {
@@ -61,7 +64,6 @@ export class JournalEntrySimple implements OnInit, OnChanges {
     }
 
     public ngOnChanges(changes: { [propName: string]: SimpleChange }) {
-
         if (this.supplierInvoice) {
             this.journalEntryService.getJournalEntryDataBySupplierInvoiceID(this.supplierInvoice.ID)
                 .subscribe(data => {
@@ -153,7 +155,7 @@ export class JournalEntrySimple implements OnInit, OnChanges {
 
     private addDummyJournalEntry() {
         var newline = JournalEntryService.getSomeNewDataForMe();
-        newline.JournalEntryNo = Math.round((this.journalEntryLines.length / 3) + 1);
+        newline.JournalEntryNo = `${Math.round((this.journalEntryLines.length/3) + 1)}-2016`;         
         this.journalEntryLines.unshift(newline);
 
         this.validateJournalEntryData();
@@ -184,7 +186,7 @@ export class JournalEntrySimple implements OnInit, OnChanges {
 
     private newLineCreated(journalEntryLine: any) {
         journalEntryLine = this.parseJournalEntryData(journalEntryLine);
-
+      
         this.journalEntryLines.unshift(journalEntryLine);
 
         this.validateJournalEntryData();
@@ -213,11 +215,11 @@ export class JournalEntrySimple implements OnInit, OnChanges {
         this.recalcTimeout = setTimeout(() => {
 
             this.journalEntryLines.forEach((x) => {
-                x.Amount = x.Amount ? x.Amount : 0;
-                x.DebitAccountID = x.DebitAccountID ? x.DebitAccountID : 0;
-                x.DebitVatTypeID = x.DebitVatTypeID ? x.DebitVatTypeID : 0;
-                x.CreditAccountID = x.CreditAccountID ? x.CreditAccountID : 0;
-                x.CreditVatTypeID = x.CreditVatTypeID ? x.CreditVatTypeID : 0;
+                x.Amount = x.Amount || 0;
+                x.DebitAccountID = x.DebitAccountID || 0;
+                x.DebitVatTypeID = x.DebitVatTypeID || 0;
+                x.CreditAccountID = x.CreditAccountID || 0;
+                x.CreditVatTypeID = x.CreditVatTypeID || 0;
                 // TODO ...?
             });
 

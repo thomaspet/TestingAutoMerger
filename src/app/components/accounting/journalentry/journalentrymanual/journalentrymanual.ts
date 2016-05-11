@@ -15,7 +15,6 @@ export class JournalEntryManual {
     public journalEntryMode : string;
   
     constructor() {
-        
     }
     
     ngOnInit() {
