@@ -15,7 +15,7 @@ import {RootRouteParamsService} from '../../../services/rootRouteParams';
     providers: [SalaryTransactionService, PayrollrunService, EmployeeService],
     templateUrl: 'app/components/salary/payrollrun/controlmodalcontent.html'
 })
-export class ControlModalContent implements OnInit {
+export class ControlModalContent {
     private busy: boolean;
     private formConfig: UniFormBuilder = null;
     private payList: {employeeInfo: any, salaryTransactions: UniTableBuilder, collapsed: boolean}[] = [];
@@ -33,10 +33,6 @@ export class ControlModalContent implements OnInit {
             
     }
     
-    public ngOnInit() {
-        
-    }
-    
     public getData() {
         this.busy = true;
         return Observable.forkJoin(
@@ -47,7 +43,7 @@ export class ControlModalContent implements OnInit {
         );
     }
     
-    public setData(response: any, refresh: boolean = false) {
+    public setData(response: any) {
         this.busy = true;
         let [salaryTrans, sums, transPay, payrollrun] = response;
         this.transes = salaryTrans;
@@ -60,9 +56,7 @@ export class ControlModalContent implements OnInit {
             this.generateHeadingsForm();
         }
         this.generateTableConfigs();
-        if (refresh) {
-            this.busy = false;
-        }
+        this.busy = false;
     }
     
     private generateHeadingsForm() {
@@ -148,13 +142,12 @@ export class ControlModalContent implements OnInit {
         this.busy = true;
         this._payrollRunService.controlPayroll(this.config.payrollRunID).subscribe((response) => {
             this.getData().subscribe((data) => {
-                this.setData(data, true);
+                this.setData(data);
             }, error => console.log(error));
         }, error => console.log(error));
     }
     
     public showPaymentList() {
-        console.log('config: ' + JSON.stringify(this.config));
         this._router.navigateByUrl('/salary/paymentlist/' + this.config.payrollRunID);
     }
     
@@ -166,8 +159,9 @@ export class ControlModalContent implements OnInit {
 @Component({
     selector: 'control-modal',
     directives: [UniModal],
+    providers: [],
     template: `
-        <button type="button" (click)="openModal()">kontroller</button>
+        <button type="button" (click)="openModal()">Kontroller</button>
         <uni-modal [type]="type" [config]="modalConfig"></uni-modal>
     `
 })
