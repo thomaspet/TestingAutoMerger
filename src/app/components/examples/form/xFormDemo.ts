@@ -46,7 +46,9 @@ export class XFormDemo {
                 Label: 'Numeric Input test',
                 Property: 'NumericTestProperty',
                 ReadOnly: false,
-                Options: {}
+                Options: {
+                    step: 1
+                }
             };
             var maskedTest: FieldLayout = {
                 FieldSet: 0,
@@ -92,7 +94,12 @@ export class XFormDemo {
                     debounceTime: 500,
                 }
             };
-            self.fields = [numericTest, maskedTest, multiValueTest, autocompleteTest, ...self.fields];
+            self.fields = [
+                numericTest, 
+                // maskedTest, 
+                // multiValueTest, 
+                // autocompleteTest, 
+                ...self.fields];
         });
         this.config = {
             submitText: 'Enviar'
@@ -110,6 +117,7 @@ export class XFormDemo {
         setTimeout(() => {
             self.api.get(2).toPromise().then((employee: any) => self.employee = employee);
         }, 1000);
+        /*
         setTimeout(() => {
             self.uniform.section(1).toggle();
         }, 2000);
@@ -136,7 +144,7 @@ export class XFormDemo {
             self.uniform.section(1).Hidden = false;
         }, 9000);
         setTimeout(() => {
-            self.uniform.Fields['Employments'].setFocus();
+            self.uniform.Fields['Employments'].focus();
         }, 10000);
         // */
 

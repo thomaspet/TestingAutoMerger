@@ -6,7 +6,6 @@ import {FieldLayout} from '../../app/unientities';
 import {UniField} from './unifield';
 import {UniFieldSet} from './unifieldset';
 import {UniSection} from './unisection';
-
 declare var _; // lodash
 
 /**

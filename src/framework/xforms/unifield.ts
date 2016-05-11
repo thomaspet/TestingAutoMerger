@@ -1,8 +1,7 @@
-import {Component, Input, Output, EventEmitter, ViewChild, ChangeDetectorRef, SimpleChange, HostListener} from '@angular/core';
+import {Component, Input, Output, EventEmitter, ViewChild, ChangeDetectorRef, SimpleChange, HostListener, ChangeDetectionStrategy} from '@angular/core';
 import {FORM_DIRECTIVES, FORM_PROVIDERS, ControlGroup, Control} from '@angular/common';
 import {FieldLayout} from '../../app/unientities';
-import {UniComponentLoader} from '../core/componentLoader';
-import {UNI_CONTROL_DIRECTIVES} from '../controls';
+import {CONTROLS} from './controls/index';
 import {MessageComposer} from './composers/messageComposer';
 import {ValidatorsComposer} from './composers/validatorsComposer';
 
@@ -19,12 +18,20 @@ declare var _; // lodash
             [hidden]="Hidden">
             
             <span>{{field.Label}}</span>
-            <uni-component-loader [type]="ComponentType"></uni-component-loader>
+            
+            <uni-text-input #selectedComponent *ngIf="field?.FieldType === 10 && control" 
+                [control]="control" [field]="field" [model]="model" (onReady)="onReadyHandler($event)"
+            ></uni-text-input>
+            
+            <uni-numeric-input #selectedComponent *ngIf="field?.FieldType === 6 && control" 
+                [control]="control" [field]="field" [model]="model" (onReady)="onReadyHandler($event)"
+            ></uni-numeric-input>
+            
             <show-error *ngIf="component" [control]="component.control" [messages]="messages"></show-error>
         </label>
     `,
-    // changeDetection: ChangeDetectionStrategy.OnPush,
-    directives: [FORM_DIRECTIVES, UniComponentLoader],
+    changeDetection: ChangeDetectionStrategy.OnPush,
+    directives: [FORM_DIRECTIVES, CONTROLS[10], CONTROLS[6]],
     providers: [FORM_PROVIDERS],
 })
 export class UniField {
@@ -43,27 +50,21 @@ export class UniField {
     @Output()
     public onTab: EventEmitter<UniField> = new EventEmitter<UniField>(true);
 
-    @ViewChild(UniComponentLoader)
-    public ucl: UniComponentLoader;
-
     @HostListener('keydown', ['$event'])
     public onTabHandler(event) {
         if (event.which === 9) {
-            this.onTab.emit(this);  
-        }      
+            this.onTab.emit(this);
+        }
     }
-
-    public get ComponentType() { return UNI_CONTROL_DIRECTIVES[this.field.FieldType]; }
 
     public classes: (string | Function)[] = [];
 
     public messages: {};
 
+    @ViewChild('selectedComponent')
     private component: any;
 
     public get Component() { return this.component; }
-
-    constructor(private ref: ChangeDetectorRef) { }
 
     public get Hidden() { return this.field.Hidden; }
 
@@ -71,70 +72,52 @@ export class UniField {
         this.field.Hidden = value;
         this.ref.markForCheck();
     }
-
-    public setFocus() {
-        if (this.Component.setFocus) {
-            this.Component.setFocus();
+    
+    private control: Control;
+    
+    
+    constructor(private ref: ChangeDetectorRef) { }
+    
+    public focus() {
+        if (this.Component.focus) {
+            this.Component.focus();
         }
     }
 
     public readMode() {
         if (this.Component.readMode) {
             this.Component.readMode();
-            // this.ref.markForCheck();
+            this.ref.markForCheck();
         }
     }
 
     public editMode() {
         if (this.Component.editMode) {
             this.Component.editMode();
-            // this.ref.markForCheck();
+            this.ref.markForCheck();
         }
     }
 
     public addClass(name: string, value: any) {
         this.classes[name] = value;
     }
-
+    
     public ngOnChanges(changes: { [propKey: string]: SimpleChange }) {
-        if (this.ucl) {
-            this.initComponent();
+        if (changes['model']) {
+            var value = _.get(this.model, this.field.Property);
+            this.messages = MessageComposer.composeMessages(this.field);
+            var syncvalidators = ValidatorsComposer.composeSyncValidators(this.field);
+            var asyncvalidators = ValidatorsComposer.composeAsyncValidators(this.field);
+            var control = new Control(value, syncvalidators, asyncvalidators);
+            this.controls.addControl(this.field.Property, control);
+            this.control = control;
         }
     }
-
-    public ngAfterViewInit() {
-        this.initComponent();
+    
+    private onReadyHandler() {
+        this.onReady.emit(this);
     }
-
-    private initComponent() {
-        var self = this;
-
-        var value = _.get(this.model, this.field.Property);
-
-        this.messages = MessageComposer.composeMessages(this.field);
-
-        var syncvalidators = ValidatorsComposer.composeSyncValidators(this.field);
-        var asyncvalidators = ValidatorsComposer.composeAsyncValidators(this.field);
-        var control = new Control(value, syncvalidators, asyncvalidators);
-        this.controls.addControl(this.field.Property, control);
-        if (this.component) {
-            this.component.field = self.field;
-            this.component.control = control;
-            this.component.model = self.model;
-            this.onReady.emit(this);
-        } else {
-            this.ucl.onLoad.subscribe((cmp) => {
-                cmp.field = self.field;
-                cmp.control = control;
-                cmp.model = self.model;
-                self.component = cmp;
-                // self.ref.markForCheck(); // first time we say we should hydratate component
-                self.onReady.emit(self);
-            });
-        }
-
-    }
-
+    
     private isInput() {
         return !this.isCheckbox() && !this.isRadioGroup();
     }
