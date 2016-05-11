@@ -4,26 +4,37 @@ import {ComponentProxy} from "../../../framework/core/componentProxy";
 import {AsyncRoute} from "@angular/router-deprecated";
 import {UniRouterOutlet} from "../../uniRouterOutlet";
 
-const $BASE_FOLDER = "./app/components/timetracking/";
+const moduleInfo = {
+    name: 'timetracking',
+    label: 'Timer'
+};
 
-const TIMETRACKING_ROUTES = [
+export var views = {
+    baseFolder: './app/components/timetracking',
+    timeEntry: {
+        className: 'TimeEntry', label: 'Timeføring', name: 'timeentry', path: '/timeentry/timeentry'
+    }
+};
+
+var subroutes = [
     new AsyncRoute({
         useAsDefault: true,
-        path: '/timeentry',
-        name: 'TimeEntry',
-        loader: () => ComponentProxy.LoadComponentAsync('TimeEntry', $BASE_FOLDER + 'timeentry/timeentry')
+        path: '/' + views.timeEntry.name,
+        name: views.timeEntry.className,
+        loader: () => ComponentProxy.LoadComponentAsync(views.timeEntry.className, views.baseFolder + views.timeEntry.path )
     }),
 ];
 
 @Component({
-    selector: 'uni-timetracking',
-    template: `<h3>Timetracking</h3>
+    selector: 'uni-' + moduleInfo.name,
+    template: `<h3>{{moduleInfo.label}}</h3>
         <uni-router-outlet></uni-router-outlet>`,
     directives: [ROUTER_DIRECTIVES, UniRouterOutlet]
 })
-@RouteConfig(TIMETRACKING_ROUTES)
+@RouteConfig(subroutes)
 export class UniTimetracking {
-    constructor() {
+    public moduleInfo = moduleInfo;
+    constructor() {        
         console.log("UniTimetracking view constructor");
     }
 }
