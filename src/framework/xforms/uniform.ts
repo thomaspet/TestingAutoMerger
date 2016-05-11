@@ -23,21 +23,24 @@ declare var _; // lodash
                     [controls]="controls"
                     [field]="item" 
                     [model]="model"
-                    (onReady)="onReadyHandler($event)">
+                    (onReady)="onReadyHandler($event)"
+                    (onChange)="onChangeHandler($event)">
                 </uni-field>
                 <uni-field-set 
                     *ngIf="isFieldSet(item)" 
                     [controls]="controls"
                     [fields]="item" 
                     [model]="model"
-                    (onReady)="onReadyHandler($event)">                    
+                    (onReady)="onReadyHandler($event)"
+                    (onChange)="onChangeHandler($event)">                    
                 </uni-field-set>
                 <uni-section 
                     *ngIf="isSection(item)"
                     [controls]="controls"
                     [fields]="item" 
                     [model]="model"
-                    (onReady)="onReadyHandler($event)">                        
+                    (onReady)="onReadyHandler($event)"
+                    (onChange)="onChangeHandler($event)">                        
                 </uni-section>
             </template>
             <button type="submit">{{config.submitText}}</button>
@@ -84,15 +87,15 @@ export class UniForm {
     private controls: ControlGroup;
     private _fields: { [propKey: string]: UniField } = {};
     private groupedFields: any[];
-    
+
     private lastEmittedModel: any;
-    
+
     private readyFields: number;
     private totalFields: number;
 
     private hidden: boolean = false;
     public get Hidden() { return this.hidden; }
-    
+
     public set Hidden(value: boolean) {
         this.hidden = value;
     }
@@ -101,18 +104,11 @@ export class UniForm {
 
     }
 
+    public ngOnInit() {
+        this.controls = this.builder.group({});
+    }
+
     public ngOnChanges(changes: { [propKey: string]: SimpleChange }) {
-        let self = this;
-        if (changes['model']) {
-            this.controls = this.builder.group({});
-            this.controls.valueChanges.subscribe((value) => {
-                if (_.isEqual(self.lastEmittedModel,self.model)) {
-                    return;
-                }
-                this.lastEmittedModel = self.model;
-                self.onChange.emit(self.model);
-            });
-        }
         if (changes['fields']) {
             this.groupedFields = this.groupFields();
         }
@@ -123,22 +119,27 @@ export class UniForm {
         let fieldsets = this.fieldsetElements.toArray();
         let fields = this.fieldElements.toArray();
         let all = [].concat(fields, fieldsets, sections);
-        
+
         // cache fields;
         this.fields.forEach((field: FieldLayout) => {
             this._fields[field.Property] = this.field(field.Property);
         });
-        
+
         this.totalFields = all.length;
         this.readyFields = 0;
     }
 
-    public onReadyHandler(item: UniField|UniFieldSet|UniSection) {
-            this.readyFields++;
-            if (this.readyFields === this.totalFields) {
-                this.onReady.emit(this);
-            }
+    public onReadyHandler(item: UniField | UniFieldSet | UniSection) {
+        this.readyFields++;
+        if (this.readyFields === this.totalFields) {
+            this.onReady.emit(this);
+        }
     }
+
+    public onChangeHandler(model: any) {
+        this.onChange.emit(model);
+    }
+
 
     public readMode() {
         this.fieldElements.forEach((f) => f.readMode());

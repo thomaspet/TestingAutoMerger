@@ -1,8 +1,7 @@
 import {Component, Input, Output, ElementRef, EventEmitter, ChangeDetectionStrategy, ChangeDetectorRef} from '@angular/core';
 import {Control} from '@angular/common';
 import {FieldLayout} from '../../../app/unientities';
-
-declare var jQuery, _; // jquery and lodash
+declare var _; // lodash
 
 @Component({
     selector: 'uni-password-input',
@@ -13,6 +12,8 @@ declare var jQuery, _; // jquery and lodash
             type="password"
             [ngFormControl]="control"
             [readonly]="field?.ReadOnly"
+            [placeholder]="field?.Options?.placeholder ||''"
+            (blur)="blurHandler()"
         />
     `
 })
@@ -32,11 +33,13 @@ export class UniPasswordInput {
     @Output()
     public onChange: EventEmitter<any> = new EventEmitter<any>(true);
     
+    private lastControlValue: string;
+    
     constructor(public elementRef: ElementRef, private cd: ChangeDetectorRef) {
     }
 
     public focus() {
-        jQuery(this.elementRef).focus();
+        this.elementRef.nativeElement.children[0].focus();
         return this;
     }
 
@@ -49,20 +52,24 @@ export class UniPasswordInput {
         this.field.ReadOnly = false;
         this.cd.markForCheck();
     }
-
-
-
+    
     public ngOnChanges() {
-        var self = this;
-        this.control.valueChanges.subscribe((value) => {
-            if (self.control.valid) {
-                _.set(self.model, self.field.Property, value);
-                this.onChange.emit(self.model);
-            }    
-        });    
+        this.lastControlValue = this.control.value;
     }
-
+    
     public ngAfterViewInit() {
         this.onReady.emit(this);
+    }
+    
+    private blurHandler() {
+        var lodash = _;
+        if (this.lastControlValue === this.control.value) {
+            return;
+        }
+        if (this.control.valid) {
+            lodash.set(this.model, this.field.Property, this.control.value);
+            this.lastControlValue = this.control.value;
+            this.onChange.emit(this.model);
+        }
     }
 }

@@ -2,7 +2,7 @@ import {Component, Input, Output, ElementRef, EventEmitter, ChangeDetectionStrat
 import {Control} from '@angular/common';
 import {FieldLayout} from '../../../app/unientities';
 
-declare var jQuery, _, accounting; // jquery and lodash
+declare var _, accounting; // jquery and lodash
 
 @Component({
     selector: 'uni-numeric-input',
@@ -13,6 +13,8 @@ declare var jQuery, _, accounting; // jquery and lodash
             type="text"
             [ngFormControl]="control"
             [readonly]="field?.ReadOnly"
+            [placeholder]="field?.Options?.placeholder || ''"
+            
             (blur)="blurHandler($event)"
             (focus)="focusHandler($event)"
             (keyup)="keyUpHandler($event)"
@@ -36,11 +38,13 @@ export class UniNumericInput {
     @Output()
     public onChange: EventEmitter<UniNumericInput> = new EventEmitter<UniNumericInput>(true);
 
+    private lastControlValue: string;
+
     constructor(public elementRef: ElementRef, private cd: ChangeDetectorRef) {
     }
 
     public focus() {
-        jQuery(this.elementRef.nativeElement).focus();
+        this.elementRef.nativeElement.children[0].focus();
         return this;
     }
 
@@ -54,10 +58,9 @@ export class UniNumericInput {
         this.cd.markForCheck();
     }
 
-
-
     public ngOnChanges() {
         var self = this;
+        this.lastControlValue = this.control.value;
         this.initOptions();
     }
 
@@ -99,16 +102,16 @@ export class UniNumericInput {
     }
 
     private isSpecialAction(e: KeyboardEvent) {
-         var actions = 
+        var actions =
             // Allow: Ctrl+A
             (e.keyCode === 65 && e.ctrlKey === true) ||
-             // Allow: Ctrl+C
+            // Allow: Ctrl+C
             (e.keyCode === 67 && e.ctrlKey === true) ||
             // Allow: Ctrl+V
             (e.keyCode === 86 && e.ctrlKey === true) ||
-             // Allow: Ctrl+X
+            // Allow: Ctrl+X
             (e.keyCode === 88 && e.ctrlKey === true);
-         return actions;
+        return actions;
     }
 
     private isAllowedKey(keycode: number): boolean {
@@ -133,13 +136,18 @@ export class UniNumericInput {
 
     private blurHandler() {
         var options = this.field.Options;
+        if (this.lastControlValue === this.control.value) {
+            return;
+        }
         if (this.control.valid) {
+            this.lastControlValue = this.control.value;
             let value = accounting.unformat(this.control.value);
             let stringValue = accounting.formatNumber(value, options.decimals, options.thousands);
             this.control.updateValue(stringValue);
             _.set(this.model, this.field.Property, value);
             this.onChange.emit(this.model);
         } else {
+            this.lastControlValue = _.get(this.model, this.field.Property) + '';
             let stringValue = accounting.formatNumber(_.get(this.model, this.field.Property), options.decimals, options.thousands);
             this.control.updateValue(stringValue);
         }

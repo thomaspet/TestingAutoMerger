@@ -18,14 +18,16 @@ declare var _; // lodash
                         [controls]="controls"
                         [field]="item" 
                         [model]="model"
-                        (onReady)="onReadyHandler($event)">
+                        (onReady)="onReadyHandler($event)"
+                        (onChange)="onChangeHandler($event)">
                     </uni-field>
                     <uni-field-set 
                         *ngIf="isFieldSet(item)" 
                         [controls]="controls"
                         [fields]="item" 
                         [model]="model"
-                        (onReady)="onReadyHandler($event)">                    
+                        (onReady)="onReadyHandler($event)"
+                        (onChange)="onChangeHandler($event)">                    
                     </uni-field-set>
                 </template>
             </div>
@@ -48,6 +50,9 @@ export class UniSection {
     @Output()
     public onReady: EventEmitter<UniSection> = new EventEmitter<UniSection>(true);
 
+    @Output()
+    public onChange: EventEmitter<any> = new EventEmitter<any>(true);
+
     @ViewChildren(UniField)
     public fieldElements: QueryList<UniField>;
 
@@ -59,18 +64,18 @@ export class UniSection {
 
     private groupedFields: any;
     private config: any = {};
-    
+
     private totalFields: number;
     private readyFields: number;
-    
+
     private hidden: boolean = false;
     public get Hidden() { return this.hidden; }
-    
+
     public set Hidden(value: boolean) {
         this.hidden = value;
         this.cd.markForCheck();
     }
-    
+
     constructor(private cd: ChangeDetectorRef) { }
 
     public ngOnChanges(changes: { [propKey: string]: SimpleChange }) {
@@ -92,11 +97,15 @@ export class UniSection {
         this.readyFields = 0;
     }
 
-    public onReadyHandler(item: UniField|UniFieldSet) {
+    public onReadyHandler(item: UniField | UniFieldSet) {
         this.readyFields++;
         if (this.readyFields === this.totalFields) {
             this.onReady.emit(this);
         }
+    }
+
+    public onChangeHandler(model: any) {
+        this.onChange.emit(model);
     }
 
     public toggle() {
@@ -106,24 +115,24 @@ export class UniSection {
 
     public readMode() {
         this.fieldsetElements.forEach((fs: UniFieldSet) => {
-            fs.readMode();    
+            fs.readMode();
         });
         this.fieldElements.forEach((f: UniField) => {
             f.readMode();
         });
         this.cd.markForCheck();
     }
-    
+
     public editMode() {
         this.fieldsetElements.forEach((fs: UniFieldSet) => {
-            fs.editMode();    
+            fs.editMode();
         });
         this.fieldElements.forEach((f: UniField) => {
             f.editMode();
         });
         this.cd.markForCheck();
     }
-    
+
     public section(sectionId?: number) {
         let fieldset: UniFieldSet[] = this.fieldsetElements.filter((fs: UniFieldSet) => {
             return fs.sectionId === sectionId;

@@ -20,11 +20,11 @@ declare var _; // lodash
             <span>{{field.Label}}</span>
             
             <uni-text-input #selectedComponent *ngIf="field?.FieldType === 10 && control" 
-                [control]="control" [field]="field" [model]="model" (onReady)="onReadyHandler($event)"
+                [control]="control" [field]="field" [model]="model" (onReady)="onReadyHandler($event)" (onChange)="onChangeHandler($event)"
             ></uni-text-input>
             
             <uni-numeric-input #selectedComponent *ngIf="field?.FieldType === 6 && control" 
-                [control]="control" [field]="field" [model]="model" (onReady)="onReadyHandler($event)"
+                [control]="control" [field]="field" [model]="model" (onReady)="onReadyHandler($event)" (onChange)="onChangeHandler($event)"
             ></uni-numeric-input>
             
             <show-error *ngIf="component" [control]="component.control" [messages]="messages"></show-error>
@@ -46,6 +46,9 @@ export class UniField {
 
     @Output()
     public onReady: EventEmitter<UniField> = new EventEmitter<UniField>(true);
+
+    @Output()
+    public onChange: EventEmitter<any> = new EventEmitter<any>(true);
 
     @Output()
     public onTab: EventEmitter<UniField> = new EventEmitter<UniField>(true);
@@ -116,6 +119,10 @@ export class UniField {
     
     private onReadyHandler() {
         this.onReady.emit(this);
+    }
+    
+    private onChangeHandler(model) {
+        this.onChange.emit(model);
     }
     
     private isInput() {

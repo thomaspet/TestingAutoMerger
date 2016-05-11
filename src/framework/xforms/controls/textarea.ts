@@ -1,23 +1,25 @@
 import {Component, Input, Output, ElementRef, EventEmitter, ChangeDetectionStrategy, ChangeDetectorRef} from '@angular/core';
 import {Control} from '@angular/common';
 import {FieldLayout} from '../../../app/unientities';
+
 declare var _; // lodash
 
 @Component({
-    selector: 'uni-email-input',
+    selector: 'uni-textarea-input',
     changeDetection: ChangeDetectionStrategy.OnPush,
     template: `
-        <input
+        <textarea
             *ngIf="control"
-            type="email"
             [ngFormControl]="control"
             [readonly]="field?.ReadOnly"
-            [placeholder]="field?.Options?.placeholder ||''"
-            (blur)="blurHandler()"
-        />
+            [cols]="field?.Options?.cols || 100"
+            [rows]="field?.Options?.rows || 10"
+            [placeholder]="field?.Options?.placeholder"
+            (blur)="blurHandler($event)
+        ></textarea>
     `
 })
-export class UniEmailInput {
+export class UniTextInput {
     @Input()
     public field: FieldLayout;
 
@@ -28,7 +30,7 @@ export class UniEmailInput {
     public control: Control;
 
     @Output()
-    public onReady: EventEmitter<UniEmailInput> = new EventEmitter<UniEmailInput>(true);
+    public onReady: EventEmitter<UniTextInput> = new EventEmitter<UniTextInput>(true);
     
     @Output()
     public onChange: EventEmitter<any> = new EventEmitter<any>(true);

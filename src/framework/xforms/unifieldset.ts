@@ -14,7 +14,8 @@ declare var _; // lodash
                     [controls]="controls"
                     [field]="field" 
                     [model]="model"
-                    (onReady)="onReadyHandler($event)">
+                    (onReady)="onReadyHandler($event)"
+                    (onChange)="onChangeHandler($event)">
                 </uni-field>
             </template>
         </fieldset>
@@ -36,6 +37,9 @@ export class UniFieldSet {
 
     @Output()
     public onReady: EventEmitter<UniFieldSet> = new EventEmitter<UniFieldSet>(true);
+
+    @Output()
+    public onChange: EventEmitter<any> = new EventEmitter<any>(true);
 
     @ViewChildren(UniField)
     public fieldElements: QueryList<UniField>;
@@ -80,6 +84,10 @@ export class UniFieldSet {
         if (this.readyFields === this.totalFields) {
             this.onReady.emit(this);
         }
+    }
+    
+    public onChangeHandler(model: any) {
+        this.onChange.emit(model);
     }
 
     public readMode() {
