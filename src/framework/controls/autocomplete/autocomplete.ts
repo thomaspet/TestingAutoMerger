@@ -1,5 +1,5 @@
-import {Component, Input, ElementRef, EventEmitter} from "angular2/core";
-import {Control} from "angular2/common";
+import {Component, Input, ElementRef, EventEmitter} from "@angular/core";
+import {Control} from "@angular/common";
 import {Observable} from "rxjs/Observable";
 import {UniFieldBuilder} from "../../forms/builders/uniFieldBuilder";
 import {BizHttp} from "../../core/http/BizHttp";
@@ -76,14 +76,36 @@ export class UniAutocomplete {
             } else if (event.keyCode === 13 ||
                 event.keyCode === 9) {
                 // Enter or tab
-                this.choose(this.selected);
+                this.choose(this.selected);   
+                
+                if (event.keyCode === 9 && this.selected && this.config.onTab) {
+                    event.stopPropagation();
+                    this.config.onTab();
+                }
+ 
+                if (event.keyCode === 13 && this.selected && this.config.onSelect) {
+                    event.stopPropagation();
+                    this.config.onSelect(this.selected);
+                }               
             }
         });
 
         el.nativeElement.addEventListener('keydown', (event) => {
-            if(event.keyCode === 13) {
+            if (event.keyCode === 13) {
                 event.preventDefault();
                 event.stopPropagation();
+            }
+            
+            if (!event.shiftKey && event.keyCode === 9 && this.config.onTab) {
+                event.preventDefault();
+                event.stopPropagation();
+                this.config.onTab();
+            }
+            
+            if (event.shiftKey && event.keyCode === 9 && this.config.onUnTab) {
+                event.preventDefault();
+                event.stopPropagation();
+                this.config.onUnTab();                
             }
         });
 
@@ -94,7 +116,9 @@ export class UniAutocomplete {
     }
 
     public setFocus() {
-        jQuery(this.el.nativeElement).focus();
+        jQuery(this.el.nativeElement)
+            .find('input')
+            .focus();
         return this;
     }
 
@@ -146,8 +170,14 @@ export class UniAutocomplete {
     }
     private _search(query: string) {
         if (this.source.constructor === Array) {
-            let containsString = (obj: any) => this.options.template(obj).toLowerCase().indexOf(query.toLowerCase()) >= 0;
-            return Observable.fromArray((<Array<any>>this.source).filter(containsString))
+            if (!query) {
+                return Observable.from(<any[]>this.source);
+            }
+            let containsString = (obj: any) => {
+                var template = this.options.template(obj);
+                return template.toLowerCase().indexOf(query.toLowerCase()) >= 0;
+            };
+            return Observable.from((<Array<any>>this.source).filter(containsString))
         }
         var filter = /^\d+$/.test(query) ? 'startswith' : 'contains';
         return (<BizHttp<any>>this.source).GetAll(`filter=${filter}(${this.options.valueKey},'${query}')`);
@@ -229,7 +259,7 @@ export class UniAutocomplete {
         }
         this.lastValue = this.value;
         this.control.updateValue(this.value, {});
-        this.change$.emit(item);
+        this.change$.emit(item);        
     }
 
     private template(obj: any) {

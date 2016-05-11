@@ -1,5 +1,5 @@
-import {Component, ComponentRef, Input, Output, ViewChild, SimpleChange, EventEmitter} from 'angular2/core';
-import {Router, RouteParams, RouterLink} from 'angular2/router';
+import {Component, ComponentRef, Input, Output, ViewChild, SimpleChange, EventEmitter} from '@angular/core';
+import {Router, RouteParams, RouterLink} from '@angular/router-deprecated';
 import {Observable} from 'rxjs/Observable';
 import 'rxjs/add/observable/forkjoin';
 
@@ -318,7 +318,8 @@ export class OrderDetails {
         invoiceaddress
             .setKendoOptions({
                 dataTextField: 'AddressLine1',
-                dataValueField: 'ID'
+                dataValueField: 'ID',
+                enableSave: true
             })
             .setModel(this.businessRelationInvoice)
             .setModelField('Addresses')
@@ -335,7 +336,8 @@ export class OrderDetails {
             .hasLineBreak(true)
             .setKendoOptions({
                 dataTextField: 'AddressLine1',
-                dataValueField: 'ID'
+                dataValueField: 'ID',
+                enableSave: true
             })
             .setModel(this.businessRelationShipping)
             .setModelField('Addresses')
@@ -372,7 +374,7 @@ export class OrderDetails {
        
     loadForm() {       
         var self = this;
-        return this.ucl.load(UniForm).then((cmp: ComponentRef) => {
+        return this.ucl.load(UniForm).then((cmp: ComponentRef<any>) => {
            cmp.instance.config = self.formConfig;
            self.whenFormInstance = new Promise((resolve: Function) => resolve(cmp.instance));
            setTimeout(() => {

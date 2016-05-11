@@ -1,5 +1,5 @@
-import {Component, ViewChildren, Type, Input, Output, QueryList, ViewChild, ComponentRef, EventEmitter} from "angular2/core";
-import {NgIf, NgModel, NgFor, NgClass} from "angular2/common";
+import {Component, ViewChildren, Type, Input, Output, QueryList, ViewChild, ComponentRef, EventEmitter} from "@angular/core";
+import {NgIf, NgModel, NgFor, NgClass} from "@angular/common";
 import {UniModal} from "../../../../../../framework/modals/modal";
 import {UniComponentLoader} from "../../../../../../framework/core/componentLoader";
 import {UniFormBuilder} from "../../../../../../framework/forms/builders/uniFormBuilder";
@@ -27,12 +27,15 @@ export class AddressForm {
     form: UniForm;
 
     model: Address;
-    saveenabled: boolean;
+    enableSave: boolean;
+    save: boolean;
     
     ngOnInit()
     {
-        this.createFormConfig();    
-        this.createCheckboxConfig();
+        this.createFormConfig();   
+        if (this.enableSave) {            
+            this.createCheckboxConfig();
+        }         
     }
     
     createCheckboxConfig() {
@@ -210,8 +213,10 @@ export class AddressModalType {
             
     ngAfterViewInit() {
         var self = this;
-        this.ucl.load(AddressForm).then((cmp: ComponentRef)=> {
+        
+        this.ucl.load(AddressForm).then((cmp: ComponentRef<any>)=> {
             cmp.instance.model = self.config.model;
+            cmp.instance.enableSave = self.config.enableSave;
             self.instance = new Promise((resolve)=> {
                 resolve(cmp.instance);
             });
@@ -240,6 +245,7 @@ export class AddressModal {
 
     constructor(private addressService: AddressService) {
         var self = this;
+        
         this.modalConfig = {
             title: "Adresse",
             mode: null,
@@ -254,7 +260,7 @@ export class AddressModal {
                                 form.form.sync();
                                 self.modal.close();                       
                         
-                                if (form.saveenabled) {
+                                if (form.save) {
                                     console.log("=== LAGRER ===");
                                     // store
                                     if(form.model.ID) {

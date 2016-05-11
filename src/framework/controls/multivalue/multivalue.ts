@@ -1,5 +1,5 @@
-import {Component, ComponentRef, ElementRef, Input, ViewChild, ViewChildren} from "angular2/core";
-import {NgIf, NgFor} from "angular2/common";
+import {Component, ComponentRef, ElementRef, Input, ViewChild, ViewChildren} from "@angular/core";
+import {NgIf, NgFor, NgModel} from "@angular/common";
 import {UniFieldBuilder} from "../../forms/builders/uniFieldBuilder";
 import {UniComponentLoader} from '../../../framework/core/componentLoader';
 
@@ -9,7 +9,7 @@ declare var _;
 @Component({
     selector: "uni-multivalue",
     templateUrl: "framework/controls/multivalue/multivalue.html",
-    directives: [NgIf, NgFor, UniComponentLoader],
+    directives: [NgIf, NgFor, NgModel, UniComponentLoader],
     inputs: ["values", "label"]
 })
 
@@ -36,32 +36,48 @@ export class UniMultiValue {
     constructor(private el: ElementRef) {
         var self = this;
         this.element = el.nativeElement;
-                              
+                                     
         document.addEventListener("click", function (event) {
             var $el = jQuery(el.nativeElement);
             if (!jQuery(event.target).closest($el).length) {
                 self.activeMultival = false;
                 self.editindex = null;
             }
-        });    
+        });
     }
-    
+          
     ngOnInit() {
         var list = this.config.model[this.config.field];
         if (list.length < 1) {
             this.config.model[this.config.field].push(this.placeholder());
             this.initial = true;
         }
-              
         this.config.fieldComponent = this;
+        this.setDefault();
     }
-            
+
+    ngAfterViewInit() {
+        this.config.ready.emit(this);    
+    }
+           
     refresh(model: any): void {
         this.config.model[this.config.field] = model[this.config.field];
         this.initial = false;
         this.editindex = null;
         this.activeMultival = false;
-        this.index = 0;
+        this.setDefault();
+    }
+    
+    setDefault() {
+        if (this.config.model[this.config.field] == undefined) {
+            this.index = 0;
+        } else {
+            // Set default row    
+            var lookupID = this.config.model[this.config.defaultfield];
+            this.config.model[this.config.field].forEach((x, i) => {
+                if (x.ID == lookupID) this.index = i; 
+            });                        
+        }
     }
     
     // What should happen when the user clicks
@@ -83,9 +99,10 @@ export class UniMultiValue {
         var index = this.config.model[this.config.field].length - 1;
         
         if (this.config.editor) { // Use custom editor
-            this.ucl.load(this.config.editor).then((cmp: ComponentRef)=> {
+            this.ucl.load(this.config.editor).then((cmp: ComponentRef<any>)=> {
                 cmp.instance.modalConfig.isOpen = true;
                 cmp.instance.modalConfig.model = self.config.model[self.config.field][index];
+                cmp.instance.modalConfig.enableSave = self.config.kOptions.enableSave || false;
                 
                 cmp.instance.Changed.subscribe((model: any) => {
                     self.config.model[self.config.field][index] = model;
@@ -112,9 +129,10 @@ export class UniMultiValue {
         index = index || 0;
  
         if (this.config.editor) { // Use custom editor
-            this.ucl.load(this.config.editor).then((cmp: ComponentRef)=> {
+            this.ucl.load(this.config.editor).then((cmp: ComponentRef<any>)=> {
                 cmp.instance.modalConfig.isOpen = true;
                 cmp.instance.modalConfig.model = this.config.model[this.config.field][index];
+                cmp.instance.modalConfig.enableSave = self.config.kOptions.enableSave || false;
                         
                 cmp.instance.Changed.subscribe((model: any) => {
                     self.config.model[this.config.field][index] = model;
@@ -188,6 +206,7 @@ export class UniMultiValue {
         this.index = index;
         this.config.model[this.config.defaultfield] = row[this.config.kOptions.dataValueField];
         this.activeMultival = false;  
+ 
         if (this.config.onSelect) {
            this.config.onSelect(row);             
         } 

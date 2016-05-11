@@ -1,5 +1,5 @@
-import {Component, ViewChild, ViewChildren, Type, Input, QueryList} from "angular2/core";
-import {NgIf, NgModel, NgFor} from "angular2/common";
+import {Component, ViewChild, ViewChildren, Type, Input, QueryList} from "@angular/core";
+import {NgIf, NgModel, NgFor} from "@angular/common";
 import {UniModal} from "../../../../framework/modals/modal";
 import {EmailModal,PhoneModal,AddressModal} from "../../sales/customer/modals/modals";
 

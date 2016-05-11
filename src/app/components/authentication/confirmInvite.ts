@@ -1,6 +1,6 @@
-﻿import {Component} from 'angular2/core';
-import {Router, RouteParams} from 'angular2/router';
-import {NgIf, NgClass} from 'angular2/common';
+﻿import {Component} from '@angular/core';
+import {Router, RouteParams} from '@angular/router-deprecated';
+import {NgIf, NgClass} from '@angular/common';
 import {UniHttp} from '../../../framework/core/http/http';
 
 @Component({

@@ -1,4 +1,4 @@
-import {Component, Input} from "angular2/core";
+import {Component, Input} from "@angular/core";
 import {UniField} from "./uniField";
 import {UniFieldBuilder} from "./builders/uniFieldBuilder";
 import {UniGenericField} from "./shared/UniGenericField";
@@ -7,7 +7,7 @@ import {UniGenericField} from "./shared/UniGenericField";
     selector: 'uni-combo-field',
     directives: [UniField],
     template: `<legend *ngIf="config.legend">{{config.legend}}</legend>
-        <template ngFor #field [ngForOf]="config.fields" #i="index">
+        <template ngFor let-field [ngForOf]="config.fields" let i="index">
             <uni-field [config]="field" [ngClass]="field.classes" [class.error]="hasError(field)"></uni-field>
         </template>`,
 })

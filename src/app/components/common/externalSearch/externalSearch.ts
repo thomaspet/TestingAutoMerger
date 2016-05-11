@@ -1,4 +1,4 @@
-import {Component, ViewChildren, Input, Output, SimpleChange, EventEmitter} from 'angular2/core';
+import {Component, ViewChildren, Input, Output, SimpleChange, EventEmitter} from '@angular/core';
 import {UniHttp} from '../../../../framework/core/http/http';
 import {Observable} from "rxjs/Observable";
 import {BusinessRelationService} from "../../../services/services";

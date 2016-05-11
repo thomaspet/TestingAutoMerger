@@ -1,5 +1,5 @@
-import {Component, OnInit, ViewChild, ComponentRef} from 'angular2/core';
-import {RouteParams, Router} from 'angular2/router';
+import {Component, OnInit, ViewChild, ComponentRef, provide} from '@angular/core';
+import {RouteParams, Router} from '@angular/router-deprecated';
 import {PayrollRun} from '../../../unientities';
 import {PayrollrunService} from '../../../services/services';
 import {Observable} from 'rxjs/Observable';
@@ -7,12 +7,15 @@ import {UniFormBuilder, UniFormLayoutBuilder, UniForm, UniFieldBuilder} from '..
 import {UniComponentLoader} from '../../../../framework/core';
 import {SalaryTransactionSelectionList} from '../../salary/salarytrans/salarytransactionSelectionList';
 import {TabService} from '../../layout/navbar/tabstrip/tabService';
+import {ControlModal} from './controlmodal';
+import {RootRouteParamsService} from '../../../services/rootRouteParams';
+
 
 @Component({
     selector: 'payrollrun-details',
     templateUrl: 'app/components/salary/payrollrun/payrollrunDetails.html',
-    providers: [PayrollrunService],
-    directives: [UniComponentLoader, SalaryTransactionSelectionList]
+    providers: [PayrollrunService, provide(RootRouteParamsService, {useClass: RootRouteParamsService})],
+    directives: [UniComponentLoader, SalaryTransactionSelectionList, ControlModal]
 })
 
 export class PayrollrunDetails implements OnInit {
@@ -23,14 +26,17 @@ export class PayrollrunDetails implements OnInit {
     private form: UniFormBuilder = new UniFormBuilder();
     @ViewChild(UniComponentLoader)
     private uniCmpLoader: UniComponentLoader;
+    @ViewChild(ControlModal)
+    private controlModal: ControlModal;
     private isEditable: boolean;
     private busy: boolean = false;
     
-    constructor(private routeParams: RouteParams, private payrollrunService: PayrollrunService, private router: Router, private tabSer: TabService) {
+    constructor(private routeParams: RouteParams, private payrollrunService: PayrollrunService, private router: Router, private tabSer: TabService, private _rootRouteParamsService: RootRouteParamsService) {
         this.payrollrunID = +this.routeParams.get('id');
         if (this.payrollrunID === 0) {
             this.payrollrunID = 1;
         }
+        this._rootRouteParamsService.params = this.routeParams;
     }
     
     public ngOnInit() {
@@ -47,7 +53,7 @@ export class PayrollrunDetails implements OnInit {
                 
                 
                 
-                this.uniCmpLoader.load(UniForm).then((cmp: ComponentRef) => {
+                this.uniCmpLoader.load(UniForm).then((cmp: ComponentRef<any>) => {
                     cmp.instance.config = this.form;
                 });
                 
@@ -143,5 +149,9 @@ export class PayrollrunDetails implements OnInit {
         var statusField = {StatusCode: this.setStatus() };
         statusCode.setModel(statusField);
         statusCode.readmode();
+    }
+    
+    public openModal() {
+        this.controlModal.openModal();
     }
 }

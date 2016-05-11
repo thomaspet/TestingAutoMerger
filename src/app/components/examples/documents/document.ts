@@ -1,4 +1,4 @@
-import {Component} from 'angular2/core';
+import {Component} from '@angular/core';
 import {UniDocumentUploader, UniDocumentList} from '../../../../framework/documents/index';
 import {Employee} from '../../../unientities';
 import {EmployeeFileUploader} from './employeeUploader';

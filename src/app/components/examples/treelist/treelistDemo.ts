@@ -1,4 +1,4 @@
-import {Component, OnInit} from 'angular2/core';
+import {Component, OnInit} from '@angular/core';
 import {TreeList, TreeListItem, TREE_LIST_TYPE} from '../../../../framework/treeList';
 import {UniTableBuilder, UniTableColumn} from '../../../../framework/uniTable';
 
