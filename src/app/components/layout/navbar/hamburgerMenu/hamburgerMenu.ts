@@ -60,7 +60,8 @@ export class HamburgerMenu {
                 componentListName: 'Timer',
                 componentListHeader: 'Timer',
                 componentList: [
-                    {componentName: 'Timeføring', componentUrl: '/timetracking'}
+                    {componentName: 'Arbeider', componentUrl: '/timetracking/worker'},
+                    {componentName: 'Registrere timer', componentUrl: '/timetracking'}
                 ]
             },            
             {

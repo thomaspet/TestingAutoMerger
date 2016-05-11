@@ -14,8 +14,7 @@ view.addSubView(workerView);
 
 @Component({
     selector: 'uni-' + view.name,
-    template: `<h3>{{view.label}}</h3>
-        <uni-router-outlet></uni-router-outlet>`,
+    template: `<uni-router-outlet></uni-router-outlet>`,
     directives: [ROUTER_DIRECTIVES, UniRouterOutlet]
 })
 @RouteConfig(view.getSubRoutes())
