@@ -1,9 +1,10 @@
 <section class='application'>
-    <h3>{{view.label}}</h3>
+    <h3>Registrere timer : {{user.name}} (userid = {{user.id}}, email = {{user.email}})</h3>
     <header>
+        <h4>{{worker.ID}}</h4>
         <select>
-            <option>Ola Norman - 70% ledelse</option>
-            <option>Ola Norman - 30% vask/lunsj</option>
+            <option>{{user.name}} - 70% ledelse</option>
+            <option>{{user.name}} - 30% vask/lunsj</option>
         </select>
     </header>
     <table>
