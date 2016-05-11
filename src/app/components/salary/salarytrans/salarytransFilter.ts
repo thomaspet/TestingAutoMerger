@@ -1,12 +1,12 @@
-import {Component, Type, ViewChildren, QueryList, Input, Output, EventEmitter} from "@angular/core";
-import {UniModal} from "../../../../framework/modals/modal";
-import {UniForm, UniFormBuilder, UniFieldBuilder} from "../../../../framework/forms";
-import {UNI_CONTROL_DIRECTIVES} from "../../../../framework/controls";
-import {FieldType} from "../../../../app/unientities";
+import {Component, Type, ViewChildren, QueryList, Input, Output, EventEmitter} from '@angular/core';
+import {UniModal} from '../../../../framework/modals/modal';
+import {UniForm, UniFormBuilder, UniFieldBuilder} from '../../../../framework/forms';
+import {UNI_CONTROL_DIRECTIVES} from '../../../../framework/controls';
+import {FieldType} from '../../../../app/unientities';
 declare var jQuery;
 
 @Component({
-    selector: "salarytrans-filter-content",
+    selector: 'salarytrans-filter-content',
     directives: [UniForm],
     template: `
         <article class="modal-content">
@@ -38,7 +38,7 @@ export class SalarytransFilterContent {
         formBuild.hideSubmitButton();
         
         var activeField = new UniFieldBuilder()
-        .setLabel("Aktiv")
+        .setLabel('Aktiv')
         .setType(UNI_CONTROL_DIRECTIVES[FieldType.DROPDOWN])
         .setKendoOptions({
             dataSource: [
@@ -77,13 +77,13 @@ export class SalarytransFilterContent {
 }
 
 @Component({
-    selector: "salarytrans-filter",
+    selector: 'salarytrans-filter',
     directives: [UniModal],
     template: `
         <article class="buttonlist_component">
             <p id="button-list-label-id">Utvalg av ansatte, filtrert etter </p>
             <ul class="filter_buttonlist" aria-labelledby="button-list-label-id">
-                <li *ngFor="#filter of filters">
+                <li *ngFor="let filter of filters">
                 <button (click)="removeFilter(filter)">{{ filter.name }}</button>
                 </li>
             </ul>
@@ -108,15 +108,15 @@ export class SalarytransFilter {
     constructor() {
         var self = this;
         this.modalConfig = {
-            title: "Lønnsavregning utvalg",
-            value: "No value",
+            title: 'Lønnsavregning utvalg',
+            value: 'No value',
             hasCancelButton: true,
             cancel: () => {
                 self.modals[0].close();
             },
             actions: [
                 {
-                    text: "OK",
+                    text: 'OK',
                     method: () => {
                         self.modals[0].getContent().then((content) => {
                             self.filters = content.filters;
@@ -148,10 +148,10 @@ export class SalarytransFilter {
     
     //called when arriving from modal-component
     createResultFilterString() {
-        this.filterResultString = "";
+        this.filterResultString = '';
         this.filters.forEach((filter) => {
-            if(filter.filter !== "") {
-                this.filterResultString += filter.filter + " and ";
+            if(filter.filter !== '') {
+                this.filterResultString += filter.filter + ' and ';
             }
         });
         this.sliceAndEmit();
@@ -159,17 +159,17 @@ export class SalarytransFilter {
     
     //called when part of filter is removed
     updateFilterString() {
-        this.filterResultString = "";
+        this.filterResultString = '';
         for (var i = 0; i < this.filters.length; i++) {
             var element = this.filters[i];
-            this.filterResultString += element.filter + " and ";
+            this.filterResultString += element.filter + ' and ';
         }
         this.sliceAndEmit();
     }
     
-    //Remove last "and" from filter and fires event
+    //Remove last 'and' from filter and fires event
     sliceAndEmit() {
-        if(this.filterResultString !== "") {
+        if(this.filterResultString !== '') {
             this.filterResultString = this.filterResultString.slice(0,this.filterResultString.length -5);
         }
         this.filtStringChange.emit(this.filterResultString);
