@@ -76,14 +76,36 @@ export class UniAutocomplete {
             } else if (event.keyCode === 13 ||
                 event.keyCode === 9) {
                 // Enter or tab
-                this.choose(this.selected);
+                this.choose(this.selected);   
+                
+                if (event.keyCode === 9 && this.selected && this.config.onTab) {
+                    event.stopPropagation();
+                    this.config.onTab();
+                }
+ 
+                if (event.keyCode === 13 && this.selected && this.config.onSelect) {
+                    event.stopPropagation();
+                    this.config.onSelect(this.selected);
+                }               
             }
         });
 
         el.nativeElement.addEventListener('keydown', (event) => {
-            if(event.keyCode === 13) {
+            if (event.keyCode === 13) {
                 event.preventDefault();
                 event.stopPropagation();
+            }
+            
+            if (!event.shiftKey && event.keyCode === 9 && this.config.onTab) {
+                event.preventDefault();
+                event.stopPropagation();
+                this.config.onTab();
+            }
+            
+            if (event.shiftKey && event.keyCode === 9 && this.config.onUnTab) {
+                event.preventDefault();
+                event.stopPropagation();
+                this.config.onUnTab();                
             }
         });
 
@@ -94,7 +116,9 @@ export class UniAutocomplete {
     }
 
     public setFocus() {
-        jQuery(this.el.nativeElement).focus();
+        jQuery(this.el.nativeElement)
+            .find('input')
+            .focus();
         return this;
     }
 
@@ -235,7 +259,7 @@ export class UniAutocomplete {
         }
         this.lastValue = this.value;
         this.control.updateValue(this.value, {});
-        this.change$.emit(item);
+        this.change$.emit(item);        
     }
 
     private template(obj: any) {
