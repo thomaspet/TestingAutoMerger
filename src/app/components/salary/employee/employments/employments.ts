@@ -7,6 +7,7 @@ import {UniForm, UniFormBuilder, UniFieldBuilder, UniSectionBuilder} from '../..
 import {UniElementFinder} from '../../../../../framework/forms/shared/UniElementFinder';
 import {UniComponentLoader} from '../../../../../framework/core';
 
+
 declare var jQuery;
 
 @Component({
@@ -17,18 +18,20 @@ declare var jQuery;
 })
 
 export class EmployeeEmployment implements OnInit {
-    // private formConfigs: UniFormBuilder[];
     private styrks: STYRKCode[];
     
     @Input() private currentEmployment: Employment;
+    // @Output() private currentEmploymentChanges: EventEmitter<Employment> = new EventEmitter<Employment>();
     @Input() private currentEmployee: Employee;
     @ViewChild(UniComponentLoader) private uniCompLoader: UniComponentLoader;
     
     private form: UniFormBuilder = new UniFormBuilder();
     public formModel: any = {};
     private whenFormInstance: Promise<UniForm>;
+    private formInstance: UniForm;
     
     private busy: boolean;
+    private lastSavedInfo: string;
 
     private typeOfEmployment: {ID: number, Name: string}[] = [
         {ID: 0, Name: 'Ikke satt'},
@@ -85,6 +88,9 @@ export class EmployeeEmployment implements OnInit {
         
         this.styrks = this.statReg.getStaticRegisterDataset('styrk');
     }
+    
+    // form endres
+    // this.currentEmploymentChanges.emit({employment: this.currentEmployment});
     
     public ngOnInit() {
         this.employeeDS.getSubEntities()
@@ -179,6 +185,7 @@ export class EmployeeEmployment implements OnInit {
         this.uniCompLoader.load(UniForm).then((cmp: ComponentRef<any>) => {
             cmp.instance.config = this.form;
             this.whenFormInstance = new Promise((resolve: Function) => resolve(cmp.instance));
+            this.formInstance = cmp.instance;
         });
     }
     
@@ -245,37 +252,6 @@ export class EmployeeEmployment implements OnInit {
     public changeDefault(event, index) {
         console.log('Index when changing default: ' + index);
     }
-
-    // public onFormSubmit(index) {
-    //     console.log('onFormSubmit(event, index)');
-        
-    //     if (this.currentEmployee.Employments[index].ID) {
-    //         console.log('PUT');
-    //         this._employmentService.Put(this.currentEmployee.Employments[index].ID,
-    //             this.currentEmployee.Employments[index])
-    //             .subscribe(
-    //                 (data: Employment) => {
-    //                     this.currentEmployee.Employments[index] = data;
-    //                     this.buildFormConfigs();
-    //                 },
-    //                 (error: Error) => {
-    //                     console.error('error in personaldetails.onFormSubmit - Put: ', error);
-    //                 }
-    //             );
-    //     } else {
-    //         console.log('POST');
-    //         this._employmentService.Post(this.currentEmployee.Employments[index])
-    //             .subscribe(
-    //                 (data: Employment) => {
-    //                     this.currentEmployee.Employments[index] = data;
-    //                     this.buildFormConfigs();
-    //                 },
-    //                 (error: Error) => {
-    //                     console.error('error in personaldetails.onFormSubmit - Post: ', error);
-    //                 }
-    //             );
-    //     }
-    // }
     
     public addNewEmployment() {
         this._employmentService.GetNewEntity().subscribe((response: Employment) => {
@@ -299,14 +275,9 @@ export class EmployeeEmployment implements OnInit {
             // this.buildFormConfigs();
         });
     }
-
-    // @fixme: Proper date formatting here…
-    // private formatDate(date) {
-    //     if (!date) {
-    //         return '';
-    //     }
-    //     date = new Date(date);
-    //     return date.getDate() + '.' + (date.getMonth() + 1) + '.' + date.getFullYear();
-    // }
-
+    
+    public getCurrentEmployment() {
+        this.formInstance.sync();
+        return this.currentEmployment;
+    }
 }

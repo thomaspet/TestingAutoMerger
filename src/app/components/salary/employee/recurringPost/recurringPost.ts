@@ -19,6 +19,7 @@ export class RecurringPost implements OnInit {
     private employeeID: number;
     private wagetypes: any[];
     private employments: any[];
+    private lastSavedInfo: string;
     
     constructor(public rootRouteParams: RootRouteParamsService, public routr: Router, private wagetypeService: WageTypeService, private employmentService: EmploymentService) {
         this.employeeID = +this.rootRouteParams.params.get('id');
@@ -36,6 +37,15 @@ export class RecurringPost implements OnInit {
             this.buildTableConfig();
         });
         
+    }
+    
+    public saveRecurringpostManual() {
+        this.saveRecurringpost();
+    }
+    
+    public saveRecurringpost() {
+        console.log('save');
+        this.lastSavedInfo = 'Faste poster er lagret';
     }
     
     private buildTableConfig() {

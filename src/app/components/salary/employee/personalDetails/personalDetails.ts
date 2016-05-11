@@ -75,12 +75,10 @@ export class PersonalDetails implements OnInit {
                 
                 this.uniCmpLoader.load(UniForm).then((cmp: ComponentRef<any>) => {
                     cmp.instance.config = this.form;
-                    // cmp.instance.getEventEmitter().subscribe(this.executeSubmit(this));
                     this.whenFormInstance = new Promise((resolve: Function) => {
                         resolve(cmp.instance);
                     });
                     this.formInstance = cmp.instance;
-                    // this.formInstance.hideSubmitButton();
                 });
             }
             , (error: any) => console.error(error)
@@ -92,6 +90,7 @@ export class PersonalDetails implements OnInit {
     }
     
     public saveEmployeeManual() {
+        this.employee.BusinessRelationInfo.Addresses[0].AddressLine1 = this.employee.BusinessRelationInfo.Addresses[0].AddressLine1 + '123';
         this.saveEmployee();
     }
     
@@ -123,34 +122,4 @@ export class PersonalDetails implements OnInit {
             });
         }
     }
-
-    // private executeSubmit(context: PersonalDetails) {
-    //     return () => {
-    //         if (context.employee.ID) {
-    //             context.employeeService.Put(context.employee.ID, context.employee)
-    //                 .subscribe(
-    //                     (data: Employee) => {
-    //                         context.employee = data;
-    //                         context.whenFormInstance.then((instance: UniForm) => {
-    //                             instance.Model = context.employee;
-    //                         });
-    //                     },
-    //                     (error: Error) => {
-    //                         console.error('error in perosonaldetails.onSubmit - Put: ', error);
-    //                     }
-    //                 );
-    //         } else {
-    //             context.employeeService.Post(context.employee)
-    //                 .subscribe(
-    //                     (data: Employee) => {
-    //                         context.employee = data;
-    //                         this.router.navigateByUrl('/salary/employees/' + context.employee.ID);
-    //                     },
-    //                     (error: Error) => {
-    //                         console.error('error in personaldetails.onSubmit - Post: ', error);
-    //                     }
-    //                 );
-    //         }
-    //     };
-    // }
 }

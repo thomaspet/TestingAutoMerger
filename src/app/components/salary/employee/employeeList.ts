@@ -28,8 +28,8 @@ export class EmployeeList {
             .setExpand('BusinessRelationInfo')
             .setFilter('BusinessRelationID gt 0')
             .setSelectCallback((selectedEmployee: Employee) => {
-                router.navigate(['EmployeeDetails', {id: selectedEmployee.ID}])
-                      .then(result => console.log(result));
+                router.navigate(['EmployeeDetails', {id: selectedEmployee.ID}]);
+                      // .then(result => console.log(result));
             })
             .addColumns(idCol, nameCol, employmentDateCol);
         
