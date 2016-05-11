@@ -15,6 +15,7 @@ export class TimeEntry {
     view = view;
     user = {
         id: 0,
+        guid: '',
         name: '',
         email: ''
     };
@@ -25,10 +26,12 @@ export class TimeEntry {
         
         this.user.name = authService.jwtDecoded.unique_name;
         this.user.id = authService.jwtDecoded.userId;
+        this.user.guid = authService.jwtDecoded.nameid;
         this.initUser();
     }
     
-    ngAfterViewInit() {               
+    ngAfterViewInit() {
+                       
     }
     
     initUser() {
@@ -36,23 +39,35 @@ export class TimeEntry {
             this.initWorker(this.user.id);
             return;
         }
-        var route = "users/?select=id,email&filter=displayname eq '" + this.user.name + "'";
+        // todo: when authService includes userid this can be removed:
+        var route = "users";
+        var guid = this.user.guid;
         this.http.asGET().usingBusinessDomain()
         .withEndPoint(route).send().subscribe((result)=> {
             if (result.length>0) {
-                var item = result[0];
-                this.user.id = item.ID;
-                this.user.email = item.Email;
+                for (var i=0; i<result.length; i++) {
+                    var item = result[i];
+                    if (item.GlobalIdentity === guid) {
+                        this.user.id = item.ID;
+                        this.user.email = item.Email;
+                        this.initWorker(this.user.id);
+                        break;
+                    }
+                }
             } 
         });          
     }
     
     initWorker(userid:number) {
-        var route = "workers?action=create-worker-from-user&userid=" + userid;
-        this.http.asGET().usingBusinessDomain()
+        var route = "workers/?action=create-worker-from-user&userid=" + userid;
+        this.http.asPOST().usingBusinessDomain()
         .withEndPoint(route).send().subscribe((result:Worker)=> {
             this.worker = result;
         });
+    }
+    
+    initWorkRelations() {
+        
     }
     
 }

@@ -1,32 +1,42 @@
 <section class='application'>
     <h3>Registrere timer : {{user.name}} (userid = {{user.id}}, email = {{user.email}})</h3>
-    <header>
-        <h4>{{worker.ID}}</h4>
-        <select>
-            <option>{{user.name}} - 70% ledelse</option>
-            <option>{{user.name}} - 30% vask/lunsj</option>
-        </select>
-    </header>
-    <table>
-        <thead>
-            <tr>
-                <th>Beskrivelse</th>
-                <th>Start</th>
-                <th>Slutt</th>
-                <th>Dato</th>
-                <th>Aktivitet</th>
-                <th>Prosjekt</th>
-            </tr>
-        </thead>
-        <tbody>
-            <tr>
-                <td>Epost / henvendelser</td>
-                <td>08:15</td>
-                <td>09:00</td>
-                <td>22.mai (i dag)</td>
-                <td>Administrativt</td>
-                <td></td>
-            </tr>
-        </tbody>
-    </table>    
+    <article *ngIf="worker.ID">
+        <header>
+            <h4>Arbeider med ID = {{worker.ID}}</h4>
+            <select>
+                <option>{{user.name}} - 70% ledelse</option>
+                <option>{{user.name}} - 30% vask/lunsj</option>
+            </select>
+        </header>
+        <table style='width: 100%'>
+            <thead>
+                <tr>
+                    <th>Beskrivelse</th>
+                    <th>Start</th>
+                    <th>Slutt</th>
+                    <th>Dato</th>
+                    <th>Aktivitet</th>
+                    <th>Prosjekt</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>Epost / henvendelser</td>
+                    <td>08:15</td>
+                    <td>09:00</td>
+                    <td>22.mai (i dag)</td>
+                    <td>Administrativt</td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td>Møte med Olsen og Pettersen</td>
+                    <td>09:00</td>
+                    <td>11:30</td>
+                    <td>22.mai (i dag)</td>
+                    <td>Møte</td>
+                    <td>290031 - Jonh Olsen as</td>
+                </tr>                
+            </tbody>
+        </table>    
+    </article>
 </section>
