@@ -1,13 +1,16 @@
 export * from './text';
 export * from './numeric';
 export * from './password';
-export * from './email'
+export * from './email';
+export * from './textarea';
+export * from './url';
 
 import {UniTextInput}  from './text';
 import {UniNumericInput}  from './numeric';
 import {UniPasswordInput}  from './password';
 import {UniEmailInput}  from './email';
-
+import {UniTextareaInput}  from './textarea';
+import {UniUrlInput}  from './url';
 export var CONTROLS = [
     undefined, // 0
     undefined, // 1
@@ -24,6 +27,6 @@ export var CONTROLS = [
     UniPasswordInput, // 12
     undefined, // 13
     undefined, // 14    
-    undefined, // 15    
-    undefined, // 16            
+    UniUrlInput, // 15    
+    UniTextareaInput, // 16            
 ];
