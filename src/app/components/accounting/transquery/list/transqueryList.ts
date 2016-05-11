@@ -71,7 +71,6 @@ export class TransqueryList {
         };
         
         this.config = new UniFormLayoutBuilder().build(view, this);
-        //this.config.hideSubmitButton();  
         this.extendFormConfig();
         this.loadForm();  
     }
@@ -87,11 +86,13 @@ export class TransqueryList {
         })); 
         account.onSelect = (account) => {
             this.loadTableData(account);  
-        };
+        };     
     }
     
     loadTableData(account: Account) {
         var self = this;
+        this.account = account;
+        
         if (account) {
             this.journalEntryService.getJournalEntryPeriodData(account.ID).subscribe((data) => {
                 this.table.refresh(data);
