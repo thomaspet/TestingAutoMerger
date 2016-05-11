@@ -97,7 +97,7 @@ export class JournalEntrySimpleForm implements OnChanges {
             oldData.JournalEntryNo = `${numbers.last}-${numbers.year}`;        
         }
         
-        oldData.SameOrNew = oldData.JournalEntryNo;
+        oldData.SameOrNew = oldData.JournalEntryNo;        
         this.created.emit(oldData);
                 
         this.journalEntryLine = new JournalEntryData(); 
@@ -105,7 +105,7 @@ export class JournalEntrySimpleForm implements OnChanges {
         this.journalEntryLine.SameOrNew = oldData.SameOrNew;      
         
         this.setFocusOnDebit();
-    
+           
         var self = this;
         this.formInstance.ready.toPromise().then((instance: UniForm)=>{
             instance.Model = self.journalEntryLine;            
@@ -516,7 +516,7 @@ export class JournalEntrySimpleForm implements OnChanges {
         project.addClass('large-field');
      
         debitaccount.setKendoOptions(UniAutocompleteConfig.build({
-            valueKey: 'AccountNumber',
+            valueKey: 'ID',
             template: (obj:Account) => `${obj.AccountNumber} - ${obj.AccountName}`,
             minLength: 1,
             debounceTime: 300,
@@ -531,7 +531,7 @@ export class JournalEntrySimpleForm implements OnChanges {
         });
         
         creditaccount.setKendoOptions(UniAutocompleteConfig.build({
-            valueKey: 'AccountNumber',
+            valueKey: 'ID',
             template: (obj:Account) => `${obj.AccountNumber} - ${obj.AccountName}`,
             minLength: 1,
             debounceTime: 300,
