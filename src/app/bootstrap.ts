@@ -1,4 +1,5 @@
 /// <reference path="../../typings/browser/ambient/es6-shim/es6-shim.d.ts"/>
+///<reference path="../../node_modules/immutable/dist/immutable.d.ts"/>
 
 import {provide} from "@angular/core";
 import {HashLocationStrategy, LocationStrategy} from '@angular/common';

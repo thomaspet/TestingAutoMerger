@@ -48,6 +48,9 @@ var config = {
                 require.resolve('moment/moment.js'),
                 require.resolve('moment/locale/en-gb.js'),
                 require.resolve('moment/locale/nb.js'),
+                
+                // Unitable
+                require.resolve('immutable/dist/immutable.min.js'),
 
                 // ANGULAR2 DEPENDENCIES
                 require.resolve('systemjs/dist/system-polyfills.js'),
@@ -70,6 +73,7 @@ var config = {
                 // Thirdparty barrels.
                 './node_modules/rxjs',
             ],
+            
             //rxjs: './node_modules/rxjs/**/*.js' ,
             css: [
                 require.resolve('./kendo/styles/kendo.common.min.css')
@@ -80,6 +84,7 @@ var config = {
         index: './dist/index.html',
         folder: './dist',
         angular2: './dist/angular2',
+        unitable: './dist/unitable-ng2',
         assets: './dist/assets',
         maps: '.',
         appFiles: ['./dist/**/*.js', './dist//**/*.css', './dist/**/*.html'],
@@ -154,6 +159,14 @@ gulp.task('angular2', ['system.config'], function(done) {
     return done();
 });
 
+gulp.task('unitable', function() {
+   return gulp.src([
+       './node_modules/unitable-ng2/**/*',
+       '!./node_modules/unitable-ng2/node_modules/**/*'
+   ])
+   .pipe(gulp.dest(config.dist.unitable)); 
+});
+
 gulp.task('system.config', function() {
     return gulp.src('./system.config.js')
         .pipe(gulp.dest(config.dist.folder));
@@ -164,7 +177,7 @@ gulp.task('web.config', function() {
         .pipe(gulp.dest('./dist'));
 });
 
-gulp.task('build.dist.vendor.js', [ /*'rxjs'*/ 'angular2'], function() {
+gulp.task('build.dist.vendor.js', [ /*'rxjs'*/ 'angular2', 'unitable'], function() {
     return gulp.src(config.src.vendor.js)
         .pipe(plugins.plumber())
         .pipe(plugins.concat(config.dist.vendor.js))
