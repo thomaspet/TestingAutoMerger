@@ -1,11 +1,10 @@
 <section class='application'>
-    <h3>Registrere timer : {{user.name}} (userid = {{user.id}}, email = {{user.email}})</h3>
+    <h2>Registrere timer : {{user.name}} (userid = {{user.id}}, email = {{user.email}})</h2>
     <article *ngIf="worker.ID">
         <header>
-            <h4>Arbeider med ID = {{worker.ID}}</h4>
-            <select>
-                <option>{{user.name}} - 70% ledelse</option>
-                <option>{{user.name}} - 30% vask/lunsj</option>
+            <!--h4>Arbeider med ID = {{worker.ID}}</h4-->
+            <select *ngFor="let item of positions">
+                <option>{{item.Description}} - {{item.WorkPercentage}}% {{item.CompanyName}}</option>
             </select>
         </header>
         <table style='width: 100%'>
