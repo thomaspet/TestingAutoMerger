@@ -5,7 +5,7 @@ export class JournalEntryData {
     JournalEntryLineID: number;
     JournalEntryDraftLineID: number;
     
-    JournalEntryNo: number;
+    JournalEntryNo: string;
     SupplierInvoiceNo: string;
       
     Amount: number;
@@ -32,4 +32,6 @@ export class JournalEntryData {
     Dimensions: any;
     
     JournalEntryDraftIDs: number[];
+    
+    SameOrNew: string;
 }

@@ -11,11 +11,14 @@ import {SupplierInvoice} from "../../../../unientities";
 export class JournalEntryManual {    
     @Input()
     SupplierInvoice : SupplierInvoice;
+
+    @Input()
+    showHeader = true;
     
-    public journalEntryMode : string;
+    public journalEntryMode: string;
+
   
     constructor() {
-        
     }
     
     ngOnInit() {

@@ -260,20 +260,19 @@ export class EmployeeService extends BizHttp<Employee> {
                 {
                     ComponentLayoutID: 1,
                     EntityType: 'Employee',
-                    Property: 'BusinessRelationInfo.Addresses[0].AddressLine1',
-                    Placement: 1,
+                    Property: '',
+                    Placement: 7,
                     Hidden: false,
                     FieldType: FieldType.TEXT,
                     ReadOnly: false,
                     LookupField: false,
-                    Label: 'Adresse',
+                    Label: 'Overordnet',
                     Description: null,
-                    HelpText: null,
+                    HelpText: 'Ikke implementert enda',
                     FieldSet: 0,
-                    Section: 1,
-                    Legend: 'KONTAKTINFORMASJON',
+                    Section: 0,
+                    Legend: '',
                     IsLookUp: false,
-                    openByDefault: true,
                     Validations: [
                         {
                             ErrorMessage: 'Required field',
@@ -284,9 +283,34 @@ export class EmployeeService extends BizHttp<Employee> {
                 },
                 {
                     ComponentLayoutID: 1,
+                    EntityType: 'BusinessRelationInfo',
+                    Property: 'Addresses',
+                    Placement: 2,
+                    Hidden: false,
+                    FieldType: 14,
+                    ReadOnly: false,
+                    LookupField: false,
+                    Label: 'Adresse',
+                    Description: null,
+                    HelpText: null,
+                    FieldSet: 0,
+                    Section: 1,
+                    Legend: 'KONTAKTINFORMASJON',
+                    IsLookUp: false,
+                    openByDefault: true,
+                    /*Validations: [
+                        {
+                            ErrorMessage: 'Required field',
+                            Level: 3,
+                            Operator: 'REQUIRED'
+                        }
+                    ]*/
+                },
+                {
+                    ComponentLayoutID: 1,
                     EntityType: 'Employee',
                     Property: 'BusinessRelationInfo.Addresses[0].PostalCode',
-                    Placement: 2,
+                    Placement: 1,
                     Hidden: false,
                     FieldType: FieldType.TEXT,
                     ReadOnly: false,
@@ -382,11 +406,11 @@ export class EmployeeService extends BizHttp<Employee> {
                 },
                 {
                     ComponentLayoutID: 1,
-                    EntityType: 'Employee',
-                    Property: 'BusinessRelationInfo.Emails[0].EmailAddress',
+                    EntityType: 'BusinessRelationInfo',
+                    Property: 'Emails',
                     Placement: 6,
                     Hidden: false,
-                    FieldType: FieldType.TEXT,
+                    FieldType: 14,
                     ReadOnly: false,
                     LookupField: false,
                     Label: 'Epost',
@@ -396,13 +420,13 @@ export class EmployeeService extends BizHttp<Employee> {
                     Section: 1,
                     Legend: '',
                     IsLookUp: false,
-                    Validations: [
+                    /*Validations: [
                         {
                             ErrorMessage: 'Required field',
                             Level: 3,
                             Operator: 'REQUIRED'
                         }
-                    ]
+                    ]*/
                 },
                 {
                     ComponentLayoutID: 1,
@@ -430,11 +454,11 @@ export class EmployeeService extends BizHttp<Employee> {
                 },
                 {
                     ComponentLayoutID: 1,
-                    EntityType: 'Employee',
-                    Property: 'BusinessRelationInfo.Phones[0].Number',
+                    EntityType: 'BusinessRelationInfo',
+                    Property: 'Phones',
                     Placement: 8,
                     Hidden: false,
-                    FieldType: FieldType.TEXT,
+                    FieldType: 14,
                     ReadOnly: false,
                     LookupField: false,
                     Label: 'Telefon',
@@ -444,13 +468,13 @@ export class EmployeeService extends BizHttp<Employee> {
                     Section: 1,
                     Legend: '',
                     IsLookUp: false,
-                    Validations: [
+                    /*Validations: [
                         {
                             ErrorMessage: 'Required field',
                             Level: 3,
                             Operator: 'REQUIRED'
                         }
-                    ]
+                    ]*/
                 },
                 {
                     ComponentLayoutID: 1,

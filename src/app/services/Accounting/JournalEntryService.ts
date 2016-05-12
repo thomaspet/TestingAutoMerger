@@ -18,6 +18,22 @@ export class JournalEntryService extends BizHttp<JournalEntry> {
         this.DefaultOrderBy = null;
     }       
     
+    getNextJournalEntryNumber(journalentry: JournalEntryData): Observable<any> {
+        return this.http
+            .asPOST()
+            .withBody(journalentry)
+            .usingBusinessDomain()             
+            .withEndPoint(this.relativeURL + '?action=nextjournalentrynumber')
+            .send();
+    }
+
+    getJournalEntryPeriodData(accountID: number): Observable<any> {
+        return this.http
+            .asGET()
+            .usingBusinessDomain()             
+            .withEndPoint(this.relativeURL + `?action=get-journal-entry-period-data&accountID=${accountID}`)
+            .send();
+    }
     
     postJournalEntryData(journalDataEntries: Array<JournalEntryData>): Observable<any> {        
         return this.http
@@ -66,7 +82,7 @@ export class JournalEntryService extends BizHttp<JournalEntry> {
         
         var data = new JournalEntryData();
         
-        data.JournalEntryNo = 1;
+        data.JournalEntryNo = "1-2016";
         data.Amount = Math.round(Math.random() * 10000);
         data.DebitAccountNumber = 4000;
         data.DebitAccount = {ID: 297, AccountNumber:4000, AccountName: "Varekjøp, høy sats"};

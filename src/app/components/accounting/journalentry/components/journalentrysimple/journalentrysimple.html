@@ -1,31 +1,23 @@
-<section class="journal-entry-simple-form-buttonrow">
-    <button (click)="postJournalEntryData($event)">Lagre og bokfør</button>
-    <button (click)="saveDraftJournalEntryData($event)">Lagre som kladd</button>
-    <button (click)="removeJournalEntryData($event)">Forkast</button>
-    <button (click)="validateJournalEntryData($event)">Valider data</button>
-    <button (click)="addDummyJournalEntry($event)">Test</button>
-</section>
-
 <section class="journal-entry-simple-table-wrapper">
     <dl class="summary" *ngIf="itemsSummaryData" [attr.aria-busy]="busy">
         <dt>Sum debet</dt>
-        <dd>{{itemsSummaryData.SumDebet}}</dd>
+        <dd>Kr {{itemsSummaryData.SumDebet | number:'1.2-2'}}</dd>
 
         <dt>Sum kredit</dt>
-        <dd>{{itemsSummaryData.SumCredit}}</dd>
+        <dd>Kr {{itemsSummaryData.SumCredit | number:'1.2-2'}}</dd>
 
         <dt>Differanse</dt>
-        <dd>{{itemsSummaryData.Differance}}</dd>
+        <dd>Kr {{itemsSummaryData.Differance | number:'1.2-2'}}</dd>
 
         <dt>Inng.mva</dt>
-        <dd>{{itemsSummaryData.IncomingVat}}</dd>
+        <dd>Kr {{itemsSummaryData.IncomingVat | number:'1.2-2'}}</dd>
 
         <dt>Utg.mva</dt>
-        <dd>{{itemsSummaryData.OutgoingVat}}</dd>
+        <dd>Kr {{itemsSummaryData.OutgoingVat | number:'1.2-2'}}</dd>
 
     </dl>
 
-    <journal-entry-simple-form [DropdownData]="dropdownData" tabindex="1" (Created)="newLineCreated($event)" *ngIf="dropdownData != null"></journal-entry-simple-form>
+    <journal-entry-simple-form [dropdownData]="dropdownData" tabindex="1" (created)="newLineCreated($event)" *ngIf="dropdownData != null" [journalEntryLines]="journalEntryLines"></journal-entry-simple-form>
     <section *ngIf="dropdownData == null" class="journal-entry-simple-form-loading-placeholder" [attr.aria-busy]="dropdownData == null">
         Laster...
     </section>
@@ -42,9 +34,9 @@
             </tr>
         </thead>
         <tbody>
-            <template ngFor #line [ngForOf]="journalEntryLines" [ngForTrackBy]="trackByLines">
+            <template ngFor let-line [ngForOf]="journalEntryLines" [ngForTrackBy]="trackByLines">
                 <tr tabindex="2" (keyup.enter)="setSelectedJournalEntryLine(line)" class="journalentrysimple-itemline" (click)="setSelectedJournalEntryLine(line)" [class.journal-entry-row-selected]="selectedJournalEntryLine == line">
-                    <td class="journalentrysimple_temporary"> {{line.JournalEntryNo}}</td>
+                    <td class="journalentrysimple_temporary">{{line.JournalEntryNo}}</td>
                     <td class="journalentrysimple-biginfo">{{line.FinancialDate != "0001-01-01T00:00:00" ? line.FinancialDate.toLocaleDateString() : ""}}</td>
                     <td class="journalentrysimple-multilineinfo">
                         <dl>
@@ -70,8 +62,8 @@
                 </tr>
                 <tr *ngIf="selectedJournalEntryLine == line">
                     <td colspan="7">
-                        <journal-entry-simple-form [DropdownData]="dropdownData" [JournalEntryLine]="selectedJournalEntryLine" (Updated)="editViewUpdated($event)" (Aborted)="abortEdit()"></journal-entry-simple-form>
-                    </td>
+                        <journal-entry-simple-form [dropdownData]="dropdownData" [journalEntryLine]="selectedJournalEntryLine" (updated)="editViewUpdated($event)" (aborted)="abortEdit()" [journalEntryLines]="journalEntryLines"></journal-entry-simple-form>
+               		</td>
                 </tr>
             </template>
             <tr *ngIf="journalEntryLines.length == 0">
@@ -81,14 +73,21 @@
             </tr>
         </tbody>
     </table>
+    <section class="journal-entry-simple-form-buttonrow">
+        <button class="good" (click)="postJournalEntryData($event)">Lagre og bokfør</button>
+        <button class="good" (click)="removeJournalEntryData($event)">Forkast</button>
+        <!--<button class="good" (click)="validateJournalEntryData($event)">Valider data</button>-->
+        <button class="good" (click)="addDummyJournalEntry($event)">Test</button>
+    </section>
+
 </section>
 <section class="journal-entry-simple-validation" *ngIf="validationResult">
     <h3 *ngIf="validationResult.Messages.length == 0">
-        Ingen valideringsfeil!    
+        Ingen valideringsfeil!
     </h3>
     <h3 *ngIf="validationResult.Messages.length > 0">
-        Feil i validering:    
-    </h3>    
+        Feil i validering:
+    </h3>
     <p *ngFor="let message of validationResult.Messages">
         {{message.Message}}
     </p>
@@ -98,5 +97,6 @@
         Tips
     </h3>
     <p>Bruk Tab-knappen for å navigere til andre rader og trykk enter for å redigere de, eller klikk på raden du vil redigere med musen</p>
-    <p></p> 
+    <p></p>
 </section>
+
