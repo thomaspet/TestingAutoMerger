@@ -27,6 +27,10 @@ export class WorkerService extends BizHttp<Worker> {
         this.user.company = JSON.parse(localStorage.getItem('activeCompany')).Name;
     }
     
+    getWorkers(): Observable<Array<Worker>> {
+        return super.GetAll<Worker>('', ['info']);
+    }
+    
     getCurrentUserId(): Promise<number> {
          return new Promise(resolve => {
             if (this.user.id) {

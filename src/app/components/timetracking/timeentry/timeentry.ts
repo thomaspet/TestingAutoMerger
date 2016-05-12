@@ -2,9 +2,8 @@ import {Component, AfterViewInit} from "@angular/core";
 import {TabService} from '../../layout/navbar/tabstrip/tabService';
 import {View} from '../../../models/view/view';
 import {Worker, WorkRelation, WorkProfile, WorkItem} from '../../../unientities';
-import {Observable} from "rxjs/Observable";
 import {WorkerService} from '../../../services/TimeTracking/workerService';
-declare var moment;
+//import {UniTabs} from '../../layout/uniTabs/uniTabs';
 
 export var view = new View('timeentry', 'Registrere timer', 'TimeEntry');
 
@@ -24,20 +23,23 @@ export class TimeEntry {
 
     userName = '';
     worker: Worker = new Worker();
+    workers: Array<Worker> = [];
     workRelations: Array<WorkRelation> = [];
     profiles: Array<WorkProfile> = [];
     currentWorkRelation: WorkRelation;
     workItems: Array<WorkItem> = [];
     busy = true;
 
-    constructor(private tabService: TabService, private workerService:WorkerService) {
+    constructor(private tabService: TabService, private service:WorkerService) {
         this.tabService.addTab({ name: view.label, url: view.route });
-        this.userName = workerService.user.name;
+        this.userName = service.user.name;
         this.initUser();
     }
     
     ngAfterViewInit() {
-
+        this.service.getWorkers().subscribe((result:Array<Worker>)=>{
+            this.workers = result;
+        });
     }
     
     selectWorkRelation(relation:WorkRelation) {
@@ -47,20 +49,20 @@ export class TimeEntry {
     }
     
     initUser() {
-        this.workerService.getCurrentUserId().then((id:number)=> {
+        this.service.getCurrentUserId().then((id:number)=> {
             this.getWorker(id);
         });
     }
     
     getWorker(userid:number) {
-        this.workerService.getFromUser(userid).subscribe((result:Worker)=> {
+        this.service.getFromUser(userid).subscribe((result:Worker)=> {
             this.worker = result;
             this.getWorkRelations(this.worker.ID);
         });
     }
     
     getWorkRelations(workerId:number, autoCreate = true) {
-        var ws = this.workerService;
+        var ws = this.service;
         ws.getWorkRelations(workerId).subscribe((result:Array<WorkRelation>) => {
             if (result.length>0) {
                 this.workRelations = result;
@@ -81,7 +83,7 @@ export class TimeEntry {
     
     getWorkItems(workRelationID: number) {
         this.workItems.length = 0;
-        this.workerService.getWorkItems(workRelationID).then((result:Array<WorkItem>)=> {
+        this.service.getWorkItems(workRelationID).then((result:Array<WorkItem>)=> {
             this.workItems = result;
         });
     }
