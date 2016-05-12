@@ -32,7 +32,8 @@ export class TimeEntry {
         this.user.name = authService.jwtDecoded.unique_name;
         this.user.id = authService.jwtDecoded.userId;
         this.user.guid = authService.jwtDecoded.nameid;
-        this.user.company = authService.jwtDecoded.company;
+        this.user.company = JSON.parse(localStorage.getItem('activeCompany')).Name;
+        console.log(this.user.company);
         this.initUser();
     }
     
@@ -101,7 +102,7 @@ export class TimeEntry {
             WorkerID: workerId,
             CompanyName: this.user.company,
             WorkPercentage: 100,
-            Description: "Ansatt",
+            Description: workProfile.Name,
             StartDate: moment([moment().year(), moment().month, 1]).date(),
             IsActive: true,
             WorkProfileID: workProfile.ID
@@ -113,17 +114,17 @@ export class TimeEntry {
     
     // Internal helpers (less verbose)
     
-    private GET(route: string, cargo?:any ):Observable<any> {
+    private GET(route: string, params?:any ):Observable<any> {
         return this.http.asGET().usingBusinessDomain()
-        .withEndPoint(route).send(cargo);
+        .withEndPoint(route).send(params);
     }
-    private POST(route: string, cargo?:any, body?:any ):Observable<any> {
+    private POST(route: string, params?:any, body?:any ):Observable<any> {
         if (body) {
             return this.http.asPOST().usingBusinessDomain().withBody(body)
-            .withEndPoint(route).send(cargo);            
+            .withEndPoint(route).send(params);            
         } else {
             return this.http.asPOST().usingBusinessDomain()
-            .withEndPoint(route).send(cargo);
+            .withEndPoint(route).send(params);
         }        
     }    
     

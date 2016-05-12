@@ -4,7 +4,7 @@
         <header>
             <!--h4>Arbeider med ID = {{worker.ID}}</h4-->
             <select *ngFor="let item of positions">
-                <option>{{item.Description}} - {{item.WorkPercentage}}% {{item.CompanyName}}</option>
+                <option>{{item.CompanyName}} : {{item.WorkPercentage}}% - {{item.Description}}</option>
             </select>
         </header>
         <table style='width: 100%'>
