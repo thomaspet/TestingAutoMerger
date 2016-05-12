@@ -236,13 +236,12 @@ export class XFormDemo {
     public ready(value) {
         console.log('Ready:', value);
         var self = this;
-        //*
+        
         setTimeout(() => {
             self.api.get(2).toPromise().then((employee: any) => {
                 self.employee = employee;
             });
         }, 1000);
-        /*
         setTimeout(() => {
             self.uniform.section(1).toggle();
         }, 2000);
@@ -271,8 +270,6 @@ export class XFormDemo {
         setTimeout(() => {
             self.uniform.Fields['Employments'].focus();
         }, 10000);
-        // */
-
     }
 
     public change(value) {
