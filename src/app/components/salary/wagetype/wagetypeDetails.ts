@@ -1,16 +1,10 @@
-import {Component, provide, ViewChild, ComponentRef} from '@angular/core';
-import {RouteParams, Router} from "@angular/router-deprecated";
-
-import { Observable } from "rxjs/Observable";
-
-import {WageTypeService} from "../../../services/services";
-
-import {UniComponentLoader} from "../../../../framework/core";
-import {UniForm} from "../../../../framework/forms/uniForm";
-import {UniFormBuilder, UniFormLayoutBuilder} from "../../../../framework/forms";
-import {UniFieldBuilder} from '../../../../framework/forms/builders/uniFieldBuilder';
-
-import {WageType} from "../../../unientities";
+import {Component, ViewChild, ComponentRef, OnInit} from '@angular/core';
+import {RouteParams, Router} from '@angular/router-deprecated';
+import {WageTypeService} from '../../../services/services';
+import {UniComponentLoader} from '../../../../framework/core';
+import {UniForm} from '../../../../framework/forms/uniForm';
+import {UniFormBuilder, UniFormLayoutBuilder} from '../../../../framework/forms';
+import {WageType} from '../../../unientities';
 
 @Component({
     selector: 'wagetype-details',
@@ -18,72 +12,97 @@ import {WageType} from "../../../unientities";
     providers: [WageTypeService],
     directives: [UniComponentLoader, UniForm]
 })
-export class WagetypeDetail {
-    wageType: WageType;
-    layout;
-    formCfg: UniFormBuilder[];
+export class WagetypeDetail implements OnInit {
+    private wageType: WageType;
+    private layout: any;
+    private form: UniFormBuilder = new UniFormBuilder();
+    private whenFormInstance: Promise<UniForm>;
+    private formInstance: UniForm;
+    private lastSavedInfo: string;
 
-    form: UniFormBuilder = new UniFormBuilder();
-    whenFormInstance: Promise<UniForm>;
+    @ViewChild(UniComponentLoader) private uniCompLoader: UniComponentLoader;
 
-    @ViewChild(UniComponentLoader)  uniCompLoader: UniComponentLoader;
+    constructor(private routeparams: RouteParams, private router: Router, private wageService: WageTypeService) { }
 
-    constructor(private routeparams: RouteParams, private router: Router, private wageService: WageTypeService) {
-    }
-
-    ngOnInit() {
+    public ngOnInit() {
         let ID: number = +this.routeparams.get('id');
         
         this.wageService.getLayout('mock').subscribe((response: any) => {
             this.layout = response;
-            this.wageService.getWageType(ID).subscribe((response : WageType) => {
-                // console.log(response);
-                this.wageType = response;
+            this.wageService.getWageType(ID).subscribe((wagetypeResponse: WageType) => {
+                this.wageType = wagetypeResponse;
                 
-                if(this.wageType.ID === 0){
+                if (this.wageType.ID === 0) {
                     this.wageType.WageTypeId = null;
                     this.wageType.AccountNumber = null;
                 }
                 this.form = new UniFormLayoutBuilder().build(this.layout, this.wageType);
-                if(this.wageType.ID === 0){
+                if (this.wageType.ID === 0) {
                     this.form.find('WageTypeId').readonly = false;
                 }
-                
                 this.loadForm();
             });
         });
     }
     
-    loadForm(){
+    private loadForm() {
         this.uniCompLoader.load(UniForm).then((cmp: ComponentRef<any>) => {
             cmp.instance.config = this.form;
-            cmp.instance.getEventEmitter().subscribe(this.onSubmit(this));
             this.whenFormInstance = new Promise((resolve: Function) => resolve(cmp.instance));
+            setTimeout(() => {
+                this.formInstance = cmp.instance;
+                this.formInstance.hideSubmitButton();
+            });
         });
     }
-
-    onSubmit(context: WagetypeDetail) {
-        return () => {
-            if (context.wageType.ID) {
-                context.wageService.Put(context.wageType.ID, context.wageType)
-                    .subscribe(
-                        (data: WageType) => {
-                            context.wageType = data;
-                            context.whenFormInstance.then((instance: UniForm) => instance.Model = context.wageType);
-                        },
-                        (error: Error) => console.error('error in wagetypedetails.onSubmit - Put: ', error)
-                    );
-            } else {
-                // console.log("we are now Posting");
-                context.wageService.Post(context.wageType)
-                    .subscribe(
-                        (data: WageType) => {
-                            context.wageType = data;
-                            this.router.navigateByUrl("/salary/wagetypes/" + context.wageType.ID);
-                        },
-                        (error: Error) => console.error('error in wagetypedetails.onSubmit - Post: ', error)
-                    );
+    
+    public saveWagetypeManual(event: any) {
+        this.saveWagetype(event);
+    }
+    
+    public saveWagetype(event: any) {
+        this.formInstance.sync();
+        this.lastSavedInfo = 'Lagrer lønnsart';
+        if (this.wageType.ID > 0) {
+            this.wageService.Put(this.wageType.ID, this.wageType)
+            .subscribe((wagetype) => {
+                this.wageType = wagetype;
+                this.lastSavedInfo = 'Sist lagret: ' + (new Date()).toLocaleTimeString();
+                this.router.navigateByUrl('/salary/wagetypes/' + this.wageType.ID);
+            },
+            (err) => {
+                console.log('Feil ved oppdatering av lønnsart', err);
+            });
+        } else {
+            this.wageService.Post(this.wageType)
+            .subscribe((wagetype) => {
+                this.wageType = wagetype;
+                this.lastSavedInfo = 'Sist lagret: ' + (new Date()).toLocaleTimeString();
+                this.router.navigateByUrl('/salary/wagetypes/' + this.wageType.ID);
+            },
+            (err) => {
+                console.log('Feil ved lagring av lønnsart', err);
+            });
+        }
+    }
+    
+    public previousWagetype() {
+        this.wageService.getPrevious(this.wageType.ID)
+        .subscribe((response) => {
+            if (response) {
+                this.wageType = response;
+                this.router.navigateByUrl('/salary/wagetypes/' + this.wageType.ID);
             }
-        };
+        });
+    }
+    
+    public nextWagetype() {
+        this.wageService.getNext(this.wageType.ID)
+        .subscribe((response) => {
+            if (response) {
+                this.wageType = response;
+                this.router.navigateByUrl('/salary/wagetypes/' + this.wageType.ID);
+            }
+        });
     }
 }
