@@ -22,28 +22,12 @@
             <tbody *ngIf="currentWorkRelation">
                 <tr *ngFor="let item of workItems">
                     <td>{{item.Description}}</td>
-                    <td>{{item.StartTime}}</td>
-                    <td>{{item.EndTime}}</td>
-                    <td>{{item.Date}}</td>
-                    <td>{{item.Worktype.Name}}</td>
+                    <td>{{item.StartTime | date:'jj:mm'}}</td>
+                    <td>{{item.EndTime | date:'jjmm'}}</td>
+                    <td>{{item.Date | date:'dd.MM.yy'}}</td>
                     <td></td>
-                </tr>                
-                <tr>
-                    <td>Epost / henvendelser</td>
-                    <td>08:15</td>
-                    <td>09:00</td>
-                    <td>22.mai (i dag)</td>
-                    <td>Administrativt</td>
                     <td></td>
-                </tr>
-                <tr>
-                    <td>Møte med Olsen og Pettersen</td>
-                    <td>09:00</td>
-                    <td>11:30</td>
-                    <td>22.mai (i dag)</td>
-                    <td>Møte</td>
-                    <td>290031 - Jonh Olsen as</td>
-                </tr>                
+                </tr>                            
             </tbody>
         </table>    
     </section>

@@ -1,4 +1,5 @@
 import {Component, AfterViewInit} from "@angular/core";
+//import {DatePipe} from "@angular/common";
 import {TabService} from '../../layout/navbar/tabstrip/tabService';
 import {View} from '../../../models/view/view';
 import {AuthService} from '../../../../framework/core/authService';
@@ -14,10 +15,11 @@ export var view = new View('timeentry', 'Registrere timer', 'TimeEntry');
     templateUrl: 'app/components/timetracking/timeentry/timeentry.html', 
     styles: [`
             .title { font-size: 18pt; padding: 1em 1em 1em 0; }
-            .title strong { margin-right: 2em;}
-            .title select { display:inline-block; width: auto }
+            .title strong { margin-right: 1em;}
+            .title select { display:inline-block; width: auto; padding-left: 7px; padding-right: 7px; }
             .timeentriesTable { width: 100% }
-            `]
+            `],
+     //pipes: [DatePipe]
 })
 export class TimeEntry {    
     view = view;
@@ -130,6 +132,11 @@ export class TimeEntry {
     initWorkitems(workRelationID: number) {
         this.workItems.length = 0;
         this.GET('workitems', { filter: 'WorkRelationID eq ' + workRelationID}).subscribe((result: Array<WorkItem>)=>{
+            result.map((value: WorkItem) => {
+               value.StartTime = moment(value.StartTime).toDate(); 
+               value.EndTime = moment(value.EndTime).toDate();
+               value.Date = moment(value.Date).toDate();
+            });
             this.workItems = result;
         });
     }
