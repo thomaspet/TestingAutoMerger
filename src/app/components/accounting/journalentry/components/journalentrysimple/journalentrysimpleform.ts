@@ -104,12 +104,8 @@ export class JournalEntrySimpleForm implements OnChanges {
         this.journalEntryLine.FinancialDate = oldData.FinancialDate;
         this.journalEntryLine.SameOrNew = oldData.SameOrNew;      
         
+        this.formInstance.Model = this.journalEntryLine;
         this.setFocusOnDebit();
-           
-        var self = this;
-        this.formInstance.ready.toPromise().then((instance: UniForm)=>{
-            instance.Model = self.journalEntryLine;            
-        });
     }
     
     editJournalEntry(event: any) {     
@@ -133,14 +129,10 @@ export class JournalEntrySimpleForm implements OnChanges {
     
         this.journalEntryLine = new JournalEntryData();
         this.journalEntryLine.SameOrNew = oldData.SameOrNew;      
-        this.journalEntryLine.FinancialDate = oldData.FinancialDate;    
+        this.journalEntryLine.FinancialDate = oldData.FinancialDate;
 
-        this.setFocusOnDebit();
-        
-        var self = this;
-        this.formInstance.ready.toPromise().then((instance: UniForm)=>{
-            instance.Model = self.journalEntryLine;
-        });
+        this.formInstance.Model = this.journalEntryLine;
+        this.setFocusOnDebit();        
     }
     
     private setFocusOnDebit() {
@@ -427,8 +419,13 @@ export class JournalEntrySimpleForm implements OnChanges {
         debitaccount.onSelect = (account: Account) => {
             if (account && account.VatType) {
                 this.journalEntryLine.DebitVatType = account.VatType;
+                this.formInstance.Model = this.journalEntryLine;
             }
-            
+    
+            creditaccount.setFocus();
+        }
+        
+        debitaccount.onEnter = () => {
             creditaccount.setFocus();
         }
         
@@ -443,9 +440,14 @@ export class JournalEntrySimpleForm implements OnChanges {
         creditaccount.onSelect = (account: Account) => {
             if (account && account.VatType) {
                 this.journalEntryLine.CreditVatType = account.VatType;   
+                this.formInstance.Model = this.journalEntryLine;
             }
             
             amount.setFocus();        
+        }
+        
+        creditaccount.onEnter = () => {
+            amount.setFocus();
         }
         
         creditaccount.onTab = () => {
