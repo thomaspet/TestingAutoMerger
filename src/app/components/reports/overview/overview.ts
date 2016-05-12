@@ -1,6 +1,6 @@
-import {Component, ViewChild, ViewChildren, QueryList} from "angular2/core";
+import {Component, ViewChild, ViewChildren, QueryList} from "@angular/core";
 //import {Http, Headers} from 'angular2/http';
-import {RouteConfig, RouteDefinition, ROUTER_DIRECTIVES, Router, AsyncRoute} from "angular2/router";
+import {RouteConfig, RouteDefinition, ROUTER_DIRECTIVES, Router, AsyncRoute} from "@angular/router-deprecated";
 
 import {TabService} from "../../layout/navbar/tabstrip/tabService";
 import {UniTabs} from '../../layout/uniTabs/uniTabs';

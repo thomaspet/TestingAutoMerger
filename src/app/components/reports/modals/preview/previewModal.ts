@@ -1,6 +1,6 @@
-import {Component, ViewChild, Type, Input} from "angular2/core";
-import {NgIf, NgModel, NgFor, NgClass} from "angular2/common";
-import {Http, Headers} from 'angular2/http';
+import {Component, ViewChild, Type, Input} from "@angular/core";
+import {NgIf, NgModel, NgFor, NgClass} from "@angular/common";
+import {Http, Headers} from '@angular/http';
 import {UniModal} from "../../../../../framework/modals/modal";
 import {UniComponentLoader} from "../../../../../framework/core/componentLoader";
 import {StimulsoftReportWrapper} from "../../../../../framework/wrappers/reporting/reportWrapper";
