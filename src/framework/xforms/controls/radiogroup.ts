@@ -83,7 +83,9 @@ export class UniRadiogroupInput {
     
     public checkIt(item) {
         var itemValue = _.get(item, this.field.Options.valueProperty);
-        if (this.isChecked(item)) {
+        if (this.isChecked(item)) { // uncheck
+            _.set(this.model, this.field.Property, null);
+            this.onChange.emit(this.model);
             return;
         }
         _.set(this.model, this.field.Property, itemValue);

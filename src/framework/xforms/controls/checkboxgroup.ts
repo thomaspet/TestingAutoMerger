@@ -84,6 +84,8 @@ export class UniCheckboxgroupInput {
     public checkIt(item) {
         var itemValue = _.get(item, this.field.Options.valueProperty);
         if (this.isChecked(item)) {
+            _.set(this.model, this.field.Property, null);
+            this.onChange.emit(this.model);
             return;
         }
         _.set(this.model, this.field.Property, itemValue);
