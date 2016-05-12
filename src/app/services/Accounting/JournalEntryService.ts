@@ -18,6 +18,15 @@ export class JournalEntryService extends BizHttp<JournalEntry> {
         this.DefaultOrderBy = null;
     }       
     
+    getNextJournalEntryNumber(journalentry: JournalEntryData): Observable<any> {
+        return this.http
+            .asPOST()
+            .withBody(journalentry)
+            .usingBusinessDomain()             
+            .withEndPoint(this.relativeURL + '?action=nextjournalentrynumber')
+            .send();
+    }
+
     getJournalEntryPeriodData(accountID: number): Observable<any> {
         return this.http
             .asGET()

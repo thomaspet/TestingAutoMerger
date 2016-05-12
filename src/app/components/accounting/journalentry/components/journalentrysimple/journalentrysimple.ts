@@ -10,6 +10,8 @@ import {JournalEntrySimpleCalculationSummary} from '../../../../../models/accoun
 import {JournalEntryData} from '../../../../../models/models';
 import {JournalEntrySimpleForm} from './journalentrysimpleform';
 
+declare var moment;
+
 @Component({
     selector: 'journal-entry-simple',
     templateUrl: 'app/components/accounting/journalentry/components/journalentrysimple/journalentrysimple.html',
@@ -24,7 +26,6 @@ export class JournalEntrySimple implements OnInit, OnChanges {
     public journalEntryLines: Array<JournalEntryData>;
     public validationResult: any;
     public dropdownData: any;
-    public nextJournalNumber: string;
 
     private itemsSummaryData: JournalEntrySimpleCalculationSummary;
     private recalcTimeout: any;
@@ -38,7 +39,6 @@ export class JournalEntrySimple implements OnInit, OnChanges {
         private accountService: AccountService,
         private router: Router) {
         this.journalEntryLines = new Array<JournalEntryData>();
-        this.nextJournalNumber = '14-2016';
     }
 
     private log(err) {
@@ -130,8 +130,8 @@ export class JournalEntrySimple implements OnInit, OnChanges {
                 console.log(data);
 
                 // Validate if journalEntry number has changed
-                if (firstJournalEntry.JournalEntryNo != this.nextJournalNumber) {
-                    alert("Lagring var vellykket. Men merk at tildelt bilagsnummer startet på " +firstJournalEntry.JournalEntryNo + "  istedet for: " + this.nextJournalNumber);
+                if (firstJournalEntry.JournalEntryNo != this.journalEntryLines[0].JournalEntryNo) {
+                    alert("Lagring var vellykket. Men merk at tildelt bilagsnummer startet på " +firstJournalEntry.JournalEntryNo + "  istedet for: " + this.journalEntryLines[0].JournalEntryNo);
                 } else {
                     alert('Lagring var vellykket');
                 }
