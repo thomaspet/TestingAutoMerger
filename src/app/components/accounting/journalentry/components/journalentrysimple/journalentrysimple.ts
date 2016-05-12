@@ -17,6 +17,8 @@ import {JournalEntrySimpleForm} from './journalentrysimpleform';
 })
 export class JournalEntrySimple implements OnInit, OnChanges {
     @Input() public supplierInvoice: SupplierInvoice;
+    @Input() public runAsSubComponent : boolean = false;
+    
     public selectedJournalEntryLine: JournalEntryData;
 
     public journalEntryLines: Array<JournalEntryData>;

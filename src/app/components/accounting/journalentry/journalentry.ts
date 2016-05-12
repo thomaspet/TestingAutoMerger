@@ -22,14 +22,9 @@ const JOURNALENTRY_ROUTES = [
         loader: () => ComponentProxy.LoadComponentAsync('Payments', `${BASE_JOURNALENTRY}/payments/payments`)
     }),
     new AsyncRoute({
-        path: '/supplierinvoices',
-        name: 'Leverandørfaktura',
+        path: '/supplierinvoices/...',
+        name: 'SupplierInvoices',
         loader: () => ComponentProxy.LoadComponentAsync('SupplierInvoices', `${BASE_JOURNALENTRY}/supplierinvoices/supplierinvoices`)
-    }),
-    new AsyncRoute({
-        path: '/supplierinvoices/:id',
-        name: 'SupplierInvoiceDetail',
-        loader: () => ComponentProxy.LoadComponentAsync('SupplierInvoiceDetail', `${BASE_JOURNALENTRY}/supplierinvoices/supplierinvoicedetail`)
     })
 ];
 
@@ -47,6 +42,6 @@ export class JournalEntry {
         this.tabService.addTab({ name: 'Bilagsregistrering', url: '/accounting/journalentry/manual' });
 
         // Remove last route
-        this.childRoutes = JOURNALENTRY_ROUTES.slice(0, JOURNALENTRY_ROUTES.length - 1);
+        this.childRoutes = JOURNALENTRY_ROUTES.slice(0, JOURNALENTRY_ROUTES.length - 0);
     }
 }

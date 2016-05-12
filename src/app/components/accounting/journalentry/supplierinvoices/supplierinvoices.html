@@ -1,5 +1,1 @@
-<section class="application">
-    <h2>Leverandørfaktura</h2>
-    <supplier-invoice-list (onSelect)="invoiceSelected($event)" *ngIf="!selectedSupplierInvoice"></supplier-invoice-list>
-    <supplier-invoice-detail *ngIf="selectedSupplierInvoice" [invoiceId]="selectedSupplierInvoice.ID"></supplier-invoice-detail>    
-</section>
+<router-outlet></router-outlet>

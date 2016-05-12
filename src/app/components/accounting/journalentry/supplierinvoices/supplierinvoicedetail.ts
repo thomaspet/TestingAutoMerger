@@ -38,6 +38,7 @@ export class SupplierInvoiceDetail implements OnInit {
         private _bankAccountService: BankAccountService,
         private router: Router,
         private _routeParams: RouteParams) {
+            
         this.invoiceId = _routeParams.get('id');
     }
 
@@ -46,7 +47,7 @@ export class SupplierInvoiceDetail implements OnInit {
 
         let id = this.invoiceId;
 
-        if (id === null || typeof id === 'undefined' || isNaN(id)) {
+        if (id == 0) {
             Observable.forkJoin(
                 self._supplierInvoiceService.GetNewEntity(),
                 self._supplierService.GetAll(null, ['Info']),
@@ -75,33 +76,35 @@ export class SupplierInvoiceDetail implements OnInit {
         }
     }
 
-    private onSubmit() {
+    private save() {
         var self = this;
-
+        this.formInstance.sync();  
         if (self.supplierInvoice.ID > 0) {
             if (self.supplierInvoice.SupplierID !== 0) {
                 self.supplierInvoice.Supplier = null; // Needs to do this to avoid conflict between Supplier and SupplierID
             }
             self._supplierInvoiceService.Put(self.supplierInvoice.ID, self.supplierInvoice)
                 .subscribe((response: any) => {
-                    self.supplierInvoice = response;
-                    // alert(JSON.stringify(response));
-                    if (self.supplierInvoice.JournalEntryID === null || self.supplierInvoice.JournalEntryID === 0) {
-                        self.smartBooking(false);
-                    } else {
-                        self.router.navigateByUrl('/accounting/journalentry/supplierinvoices/');
-                    }
+                    //if (self.supplierInvoice.JournalEntryID === null || self.supplierInvoice.JournalEntryID === 0) {
+                    //    self.smartBooking(false);
+                    //} else {
+                    //
+                    //}
+                    
+                    self.router.navigateByUrl('/accounting/journalentry/supplierinvoices/details/' + self.supplierInvoice.ID);
                 },
                 (error: Error) => console.error('error in SupplierInvoiceDetail.onSubmit - Put: ', error));
         } else {
             // Following fields are required. For now hardcoded.
-            self.supplierInvoice.CreatedBy = 'TK';
+            self.supplierInvoice.CreatedBy = '-';
             self.supplierInvoice.CurrencyCode = 'NOK';
 
             self._supplierInvoiceService.Post(self.supplierInvoice)
                 .subscribe((result: SupplierInvoice) => {
-                    self.supplierInvoice = result;
-                    self.smartBooking(true);
+                    let newSupplierInvoice = result;
+                    //self.smartBooking(true);
+                    
+                    self.router.navigateByUrl('/accounting/journalentry/supplierinvoices/details/' + newSupplierInvoice.ID);
                 },
                 (error: Error) => console.error('error in SupplierInvoiceDetail.onSubmit - Post: ', error));
         }
@@ -112,7 +115,14 @@ export class SupplierInvoiceDetail implements OnInit {
     //    this.smartBooking(this, false);
     // }
 
-    private smartBooking(isNew: boolean) {
+
+    private book() {
+        
+        //save and run transition to booking
+        
+    }
+
+    private smartbook() {
         var self = this;
 
         if (self.supplierInvoice.ID === null) {
@@ -303,13 +313,13 @@ export class SupplierInvoiceDetail implements OnInit {
                 {
                     ComponentLayoutID: 2,
                     EntityType: 'SupplierInvoice',
-                    Property: 'FreeTxt',
+                    Property: 'PaymentInformation',
                     Placement: 4,
                     Hidden: false,
                     FieldType: FieldType.TEXT,
                     ReadOnly: false,
                     LookupField: false,
-                    Label: 'Merknad',
+                    Label: 'Betalingsinformasjon',
                     Description: '',
                     HelpText: '',
                     FieldSet: 0,
@@ -350,7 +360,9 @@ export class SupplierInvoiceDetail implements OnInit {
         var self = this;
         return this.uniCompLoader.load(UniForm).then((cmp: ComponentRef<any>) => {
             cmp.instance.config = self.formBuilder;
-            cmp.instance.submit.subscribe(self.onSubmit.bind(self));
+            //TODO: KE - usikker på om noe mer må gjøres her..
+            //cmp.instance.submit.subscribe(self.onSubmit.bind(self));
+            
             self.whenFormInstance = new Promise((resolve: Function) => resolve(cmp.instance));
             setTimeout(() => {
                 self.formInstance = cmp.instance;

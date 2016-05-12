@@ -1,33 +1,27 @@
 <header class="poster">
     <article class="poster_toolbar">
-        <h2 class="poster_toolbar_headline">
-            <!--<p *ngIf="supplierInvoice != null && supplierInvoice.ID > 0">Leverand�rnummer &nbsp;:&nbsp; {{supplierInvoice.Supplier.Info.Name}}</p>-->
-            <p *ngIf="supplierInvoice == null || supplierInvoice.ID == 0"><i>Ny faktura-registrering med smart bokføring.</i></p>
-            <!--<button *ngIf="supplierInvoice != null && supplierInvoice.JournalEntryID == null && supplierInvoice.ID > 0" (click)="onSmartBook()">Smart bokf�ring</button>-->
+        <span *ngIf="supplierInvoice != null && supplierInvoice.ID > 0">
+            <h2 class="poster_toolbar_headline">
+                Leverandørfakturanr {{supplierInvoice.InvoiceNumber}}, {{supplierInvoice.Supplier.Info.Name}}                                    
+            </h2>
+            <p *ngIf="supplierInvoice.JournalEntry != null">Bilagsnr {{supplierInvoice.JournalEntry.JournalEntryNumber}}</p>
+        </span>
+        <h2 class="poster_toolbar_headline" *ngIf="supplierInvoice == null || supplierInvoice.ID == 0">
+            Ny leverandørfaktura
+            <p>Ny faktura med smartbokføring</p>            
         </h2>
-
-    </article>
-    <!-- Widget poster -->
-    <section class="poster_overview">
-        <uni-widget-poster [model]="SupplierInvoice"></uni-widget-poster>
-    </section>
+    </article>    
 </header>
 
-
 <article class="supplier-invoice-detail-form">    
-    <uni-component-loader></uni-component-loader>
-    <footer class="full-footer">
-        <section class="application">
-            <button class="good" (click)="save($event)">Lagre leverandørfaktura</button>
-        </section>
-    </footer>
+    <uni-component-loader></uni-component-loader>    
 </article>
 
 <section class="supplier-invoice-detail-booking">
-    <journal-entry-manual [SupplierInvoice]="supplierInvoice" *ngIf="supplierInvoice && supplierInvoice.ID > 0"></journal-entry-manual>
+    <journal-entry-manual [supplierInvoice]="supplierInvoice" [runAsSubComponent]="true" *ngIf="supplierInvoice && supplierInvoice.ID > 0"></journal-entry-manual>
 </section>
 
-<section class="supplier-invoice-detail-document">
+<section class="supplier-invoice-detail-document" *ngIf="supplierInvoice && supplierInvoice.ID > 0">
     <h3>
         Faktura
     </h3>
@@ -35,4 +29,10 @@
     <p></p>
 </section>
 
-
+<footer class="full-footer">
+    <section class="application">
+        <button class="good" (click)="save($event)">Lagre leverandørfaktura</button>
+        <button class="good" (click)="book($event)">Bokfør leverandørfaktura</button>
+        <button (click)="smartbook($event)">Kjørt smartbokføring på ny</button>
+    </section>
+</footer>

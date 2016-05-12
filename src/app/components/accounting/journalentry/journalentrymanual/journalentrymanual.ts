@@ -9,7 +9,8 @@ import {SupplierInvoice} from "../../../../unientities";
     directives: [JournalEntrySimple, JournalEntryProfessional]    
 })
 export class JournalEntryManual {    
-    @Input() SupplierInvoice : SupplierInvoice;
+    @Input() supplierInvoice : SupplierInvoice;
+    @Input() runAsSubComponent : boolean = false;
     
     public journalEntryMode : string;
   
@@ -20,7 +21,7 @@ export class JournalEntryManual {
     ngOnInit() {
         this.journalEntryMode = "SIMPLE";
         
-        if (this.SupplierInvoice !== null) {
+        if (this.supplierInvoice !== null) {
             
         }
     }

@@ -1,4 +1,9 @@
-<section class="journal-entry-simple-form-buttonrow">
+<section>
+    <h2 *ngIf="!runAsSubComponent">
+        Bilagsregistrering
+    </h2>
+</section>
+<section class="journal-entry-simple-form-buttonrow" *ngIf="!runAsSubComponent">
     <button (click)="postJournalEntryData($event)">Lagre og bokfør</button>
     <button (click)="saveDraftJournalEntryData($event)">Lagre som kladd</button>
     <button (click)="removeJournalEntryData($event)">Forkast</button>
@@ -6,7 +11,7 @@
     <button (click)="addDummyJournalEntry($event)">Test</button>
 </section>
 
-<section class="journal-entry-simple-table-wrapper">
+<section class="journal-entry-simple-table-wrapper" [ngClass]="{runassubcomponent: runAsSubComponent}">
     <dl class="summary" *ngIf="itemsSummaryData" [attr.aria-busy]="busy">
         <dt>Sum debet</dt>
         <dd>{{itemsSummaryData.SumDebet}}</dd>
@@ -82,7 +87,8 @@
         </tbody>
     </table>
 </section>
-<section class="journal-entry-simple-validation" *ngIf="validationResult">
+<section class="journal-entry-simple-clearboth" *ngIf="runAsSubComponent"></section>
+<section class="journal-entry-simple-validation" *ngIf="validationResult" [ngClass]="{runassubcomponent: runAsSubComponent}">
     <h3 *ngIf="validationResult.Messages.length == 0">
         Ingen valideringsfeil!    
     </h3>
@@ -93,7 +99,7 @@
         {{message.Message}}
     </p>
 </section>
-<section class="journal-entry-simple-helper">
+<section class="journal-entry-simple-helper" [ngClass]="{runassubcomponent: runAsSubComponent}">
     <h3>
         Tips
     </h3>
