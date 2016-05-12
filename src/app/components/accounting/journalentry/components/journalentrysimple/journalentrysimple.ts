@@ -1,4 +1,5 @@
 import {Component, Input, SimpleChange, OnInit, OnChanges} from '@angular/core';
+import {Router} from '@angular/router-deprecated';
 import {Observable} from 'rxjs/Observable';
 import 'rxjs/add/observable/forkjoin';
 
@@ -18,14 +19,12 @@ declare var moment;
     providers: [JournalEntryService, DepartementService, ProjectService, VatTypeService, AccountService]
 })
 export class JournalEntrySimple implements OnInit, OnChanges {
-    @Input() 
-    supplierInvoice: SupplierInvoice;
-    
+    @Input() private supplierInvoice: SupplierInvoice;
+
     public selectedJournalEntryLine: JournalEntryData;
     public journalEntryLines: Array<JournalEntryData>;
     public validationResult: any;
     public dropdownData: any;
-    public nextJournalNumber: string;
 
     private itemsSummaryData: JournalEntrySimpleCalculationSummary;
     private recalcTimeout: any;
@@ -33,10 +32,11 @@ export class JournalEntrySimple implements OnInit, OnChanges {
 
 
     constructor(private journalEntryService: JournalEntryService,
-                private departementService: DepartementService,
-                private projectService: ProjectService,
-                private vattypeService: VatTypeService,
-                private accountService: AccountService) {
+        private departementService: DepartementService,
+        private projectService: ProjectService,
+        private vattypeService: VatTypeService,
+        private accountService: AccountService,
+        private router: Router) {
         this.journalEntryLines = new Array<JournalEntryData>();
     }
 
@@ -54,20 +54,13 @@ export class JournalEntrySimple implements OnInit, OnChanges {
             this.journalEntryLines = new Array<JournalEntryData>();
         }
 
-        var journalentry: JournalEntryData = new JournalEntryData();
-        journalentry.FinancialDate = moment().toDate();
-
         Observable.forkJoin(
             this.departementService.GetAll(null),
             this.projectService.GetAll(null),
             this.vattypeService.GetAll(null),
-            this.accountService.GetAll(null),
-            this.journalEntryService.getNextJournalEntryNumber(journalentry)
+            this.accountService.GetAll(null)
         ).subscribe(response => {
             this.dropdownData = response;
-            this.nextJournalNumber = response[4];
-            console.log("== NEXT IS");
-            console.log(this.nextJournalNumber);
         });
     }
 
@@ -131,17 +124,24 @@ export class JournalEntrySimple implements OnInit, OnChanges {
         this.journalEntryService.postJournalEntryData(this.journalEntryLines)
             .subscribe(
             data => {
-                data.forEach((row) => row.FinancialDate = new Date(row.FinancialDate));
-
+                var firstJournalEntry = data[0];
                 console.log(data);
-                this.journalEntryLines = data;
-            },
-            err => console.log('error in postJournalEntryData: ', err)
-            );
-    }
 
-    private saveDraftJournalEntryData() {
-        alert('Ikke implementert');
+                // Validate if journalEntry number has changed
+                if (firstJournalEntry.JournalEntryNo != this.journalEntryLines[0].JournalEntryNo) {
+                    alert("Lagring var vellykket. Men merk at tildelt bilagsnummer startet på " +firstJournalEntry.JournalEntryNo + "  istedet for: " + this.journalEntryLines[0].JournalEntryNo);
+                } else {
+                    alert('Lagring var vellykket');
+                }
+
+                //Empty list
+                this.journalEntryLines = new Array<JournalEntryData>();
+                this.recalcItemSums();
+            },
+            err => {
+                console.log('error in postJournalEntryData: ', err);
+                this.log(err);
+            });
     }
 
     private validateJournalEntryData() {
@@ -151,8 +151,10 @@ export class JournalEntrySimple implements OnInit, OnChanges {
                 this.validationResult = data;
                 console.log('valideringsresultat:', data);
             },
-            err => console.log('error int validateJournalEntryData:', err)
-            );
+            err => {
+                console.log('error int validateJournalEntryData:', err);
+                this.log(err);
+            });
     }
 
     private removeJournalEntryData() {
@@ -163,10 +165,11 @@ export class JournalEntrySimple implements OnInit, OnChanges {
 
     private addDummyJournalEntry() {
         var newline = JournalEntryService.getSomeNewDataForMe();
-        newline.JournalEntryNo = `${Math.round((this.journalEntryLines.length/3) + 1)}-2016`;         
+        newline.JournalEntryNo = `${Math.round((this.journalEntryLines.length / 3) + 1)}-2016`;
         this.journalEntryLines.unshift(newline);
 
         this.validateJournalEntryData();
+        this.recalcItemSums();
     }
 
     private setSelectedJournalEntryLine(selectedLine: JournalEntryData) {
@@ -194,7 +197,7 @@ export class JournalEntrySimple implements OnInit, OnChanges {
 
     private newLineCreated(journalEntryLine: any) {
         journalEntryLine = this.parseJournalEntryData(journalEntryLine);
-      
+
         this.journalEntryLines.unshift(journalEntryLine);
 
         this.validateJournalEntryData();
@@ -214,6 +217,11 @@ export class JournalEntrySimple implements OnInit, OnChanges {
 
     private recalcItemSums() {
         this.busy = true;
+        if (this.journalEntryLines.length <= 0) {
+            this.itemsSummaryData = null;
+            console.log('itemsSummaryData is set to null since no lines exist');
+            return;
+        }
 
         // do recalc after 2 second to avoid to much requests
         if (this.recalcTimeout) {
@@ -224,11 +232,6 @@ export class JournalEntrySimple implements OnInit, OnChanges {
 
             this.journalEntryLines.forEach((x) => {
                 x.Amount = x.Amount || 0;
-                x.DebitAccountID = x.DebitAccountID || 0;
-                x.DebitVatTypeID = x.DebitVatTypeID || 0;
-                x.CreditAccountID = x.CreditAccountID || 0;
-                x.CreditVatTypeID = x.CreditVatTypeID || 0;
-                // TODO ...?
             });
 
             this.journalEntryService.calculateJournalEntrySummary(this.journalEntryLines)
