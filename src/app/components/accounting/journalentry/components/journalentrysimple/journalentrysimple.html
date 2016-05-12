@@ -17,7 +17,7 @@
 
     </dl>
 
-    <journal-entry-simple-form [dropdownData]="dropdownData" tabindex="1" (created)="newLineCreated($event)" *ngIf="dropdownData != null" [nextJournalNumber]="nextJournalNumber" [journalEntryLines]="journalEntryLines"></journal-entry-simple-form>
+    <journal-entry-simple-form [dropdownData]="dropdownData" tabindex="1" (created)="newLineCreated($event)" *ngIf="dropdownData != null" [journalEntryLines]="journalEntryLines"></journal-entry-simple-form>
     <section *ngIf="dropdownData == null" class="journal-entry-simple-form-loading-placeholder" [attr.aria-busy]="dropdownData == null">
         Laster...
     </section>
@@ -36,7 +36,7 @@
         <tbody>
             <template ngFor let-line [ngForOf]="journalEntryLines" [ngForTrackBy]="trackByLines">
                 <tr tabindex="2" (keyup.enter)="setSelectedJournalEntryLine(line)" class="journalentrysimple-itemline" (click)="setSelectedJournalEntryLine(line)" [class.journal-entry-row-selected]="selectedJournalEntryLine == line">
-                    <td class="journalentrysimple_temporary"> {{line.JournalEntryNo}}</td>
+                    <td class="journalentrysimple_temporary">{{line.JournalEntryNo}}</td>
                     <td class="journalentrysimple-biginfo">{{line.FinancialDate != "0001-01-01T00:00:00" ? line.FinancialDate.toLocaleDateString() : ""}}</td>
                     <td class="journalentrysimple-multilineinfo">
                         <dl>
@@ -62,7 +62,7 @@
                 </tr>
                 <tr *ngIf="selectedJournalEntryLine == line">
                     <td colspan="7">
-                        <journal-entry-simple-form [dropdownData]="dropdownData" [journalEntryLine]="selectedJournalEntryLine" (updated)="editViewUpdated($event)" (aborted)="abortEdit()" [nextJournalNumber]="nextJournalNumber" [journalEntryLines]="journalEntryLines"></journal-entry-simple-form>
+                        <journal-entry-simple-form [dropdownData]="dropdownData" [journalEntryLine]="selectedJournalEntryLine" (updated)="editViewUpdated($event)" (aborted)="abortEdit()" [journalEntryLines]="journalEntryLines"></journal-entry-simple-form>
                		</td>
                 </tr>
             </template>
