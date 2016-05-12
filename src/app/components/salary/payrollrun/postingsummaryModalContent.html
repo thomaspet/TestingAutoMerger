@@ -1,0 +1,16 @@
+<article class="postingsummary" [attr.aria-busy="busy">
+    <h1 *ngIf="payrollrun">Konteringssammendrag for lønnsavregning {{payrollrun.ID}} - {{payrollrun.Description}}</h1>
+
+    <header class="postingsummary_header">
+        <h3>Kontering til regnskap</h3>
+        <uni-form *ngIf="headerConfig" [config]="headerConfig"></uni-form>
+    </header>
+
+
+    <footer class="postingsummary_footer">
+        <button *ngFor="let action of config.actions; let i = index" (click)="action.method()">
+            {{action.text}}
+        </button>
+        <button *ngIf="config.hasCancelButton" (click)="config.cancel()">Avbryt</button>
+    </footer>
+</article>
