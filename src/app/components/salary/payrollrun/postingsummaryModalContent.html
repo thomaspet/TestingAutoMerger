@@ -1,11 +1,16 @@
 <article class="postingsummary" [attr.aria-busy="busy">
-    <h1 *ngIf="payrollrun">Konteringssammendrag for lønnsavregning {{payrollrun.ID}} - {{payrollrun.Description}}</h1>
+    <h1 *ngIf="postingsummary">Konteringssammendrag for lønnsavregning {{postingsummary.PayrollRun.ID}} - {{postingsummary.PayrollRun.Description}}</h1>
 
     <header class="postingsummary_header">
         <h3>Kontering til regnskap</h3>
         <uni-form *ngIf="headerConfig" [config]="headerConfig"></uni-form>
     </header>
 
+    <uni-table *ngIf="!showReceipt"></uni-table>
+
+    <section *ngIf="showReceipt">
+        <p>Bilaget er bokført i ditt regnskap</p>
+    </section>
 
     <footer class="postingsummary_footer">
         <button *ngFor="let action of config.actions; let i = index" (click)="action.method()">

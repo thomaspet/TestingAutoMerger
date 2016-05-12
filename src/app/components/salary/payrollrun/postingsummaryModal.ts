@@ -1,6 +1,7 @@
-import { Component, AfterViewInit, QueryList } from '@angular/core';
+import { Component, AfterViewInit, QueryList, ViewChildren } from '@angular/core';
 import {UniModal} from '../../../../framework/modals/modal';
 import {RootRouteParamsService} from '../../../services/rootRouteParams';
+import {PostingsummaryModalContent} from './postingsummaryModalContent';
 
 @Component({
     selector: 'postingsummary-modal',
@@ -29,9 +30,9 @@ export class PostingsummaryModal implements AfterViewInit {
                 text: 'Bokfør',
                 method: () => {
                     this.modals[0].getContent().then((content: PostingsummaryModalContent) => {
-                        content.bokfor().subscribe((success) => {
+                        content.postTransactions().subscribe((success) => {
                             if (success) {
-                                content.showBokforResponse();
+                                content.showResponseReceipt();
                             }
                         });
                     });
