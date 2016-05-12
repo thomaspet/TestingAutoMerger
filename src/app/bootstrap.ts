@@ -1,17 +1,21 @@
-///<reference path="../../node_modules/angular2/typings/browser.d.ts"/>
+/// <reference path="../../typings/browser/ambient/es6-shim/es6-shim.d.ts"/>
 
-import {provide} from "angular2/core";
-import {bootstrap} from "angular2/platform/browser";
-import {HashLocationStrategy, LocationStrategy, ROUTER_PROVIDERS} from "angular2/router";
-import {HTTP_PROVIDERS} from "angular2/http";
+import {provide} from "@angular/core";
+import {HashLocationStrategy, LocationStrategy} from '@angular/common';
+import {bootstrap} from "@angular/platform-browser-dynamic";
+import {ROUTER_PROVIDERS} from "@angular/router-deprecated";
+import {HTTP_PROVIDERS} from "@angular/http";
 import {App} from "./app";
 import {UniHttp} from "../framework/core/http/http";
 import {UniState} from '../framework/core/UniState';
 
 bootstrap(App, [
+    // angular providers
     ROUTER_PROVIDERS,
     HTTP_PROVIDERS,
-    [UniHttp],
     provide(LocationStrategy, { useClass: HashLocationStrategy}),
+
+    // App providers
+    provide(UniHttp, {useClass: UniHttp}),
     provide(UniState, {useClass: UniState})
 ]);

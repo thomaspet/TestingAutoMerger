@@ -1,8 +1,8 @@
-import {EventEmitter} from "angular2/core";
+import {EventEmitter} from "@angular/core";
 import {UNI_CONTROL_DIRECTIVES} from "../../controls";
 import {UniField} from "./../uniField";
 import {UniTextInput} from "../../controls/text/text";
-import {Control} from "angular2/common";
+import {Control} from "@angular/common";
 
 declare var _;
 
@@ -38,6 +38,9 @@ export class UniFieldBuilder {
     public onSelect: any;
     public clearOnSelect: any;
     public onChange: any;
+    public onEnter: any;
+    public onTab: any;
+    public onUnTab: any;
     public editor: any;
     public placeholder: any;
     public ready: EventEmitter<any> = new EventEmitter<any>(true);
@@ -79,7 +82,7 @@ export class UniFieldBuilder {
         this.fieldType = UniField;
         return this;
     }
-
+    
     public setLabel(label: string) {
         this.label = label;
         return this;

@@ -1,4 +1,4 @@
-import {Component, Input, ElementRef} from 'angular2/core';
+import {Component, Input, ElementRef} from '@angular/core';
 import {UniFieldBuilder} from '../../forms/builders/uniFieldBuilder';
 
 declare var jQuery;
@@ -18,11 +18,16 @@ declare var jQuery;
 export class UniTextInput {
     @Input()
     public config: UniFieldBuilder;
+    public nativeElement: any;
+    
     constructor(public elementRef: ElementRef) {
+        this.nativeElement = jQuery(this.elementRef.nativeElement);
     }
 
     public setFocus() {
-        jQuery(this.elementRef).focus();
+        this.nativeElement
+            .find('input')
+            .focus();
         return this;
     }
 

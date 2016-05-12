@@ -1,5 +1,5 @@
-import {Component, ElementRef, Input, AfterViewInit, OnDestroy} from 'angular2/core';
-import {Control} from 'angular2/common';
+import {Component, ElementRef, Input, AfterViewInit, OnDestroy} from '@angular/core';
+import {Control} from '@angular/common';
 import { Observable } from 'rxjs/Observable';
 import 'rxjs/observable/FromEventObservable';
 
@@ -57,10 +57,9 @@ export class UniCombobox implements AfterViewInit, OnDestroy {
                 control.updateValue(newValue, {});
             }
 
-            if (self.config.onSelect) {
+            if (validSelection && self.config.onSelect) {
                 self.config.onSelect(newValue);
             }
-
         };
 
         var combobox = this.nativeElement
@@ -71,10 +70,20 @@ export class UniCombobox implements AfterViewInit, OnDestroy {
         this.combobox = combobox;
 
         // reset validSelection when the input text changes
-        Observable.fromEvent(combobox.input, 'keyup').subscribe(() => {
-            validSelection = false;
+        Observable.fromEvent(combobox.input, 'keyup').subscribe((event: any) => {
+            if (validSelection && event.keyCode && event.keyCode === 13 && self.config.onEnter) {
+                event.stopPropagation(); 
+                self.config.onEnter();
+            }
+            
+            if (event.keyCode && event.keyCode === 9 && self.config.onTab) {
+                event.stopPropagation();
+                self.config.onTab();
+            }
+            
+            validSelection = false;            
         });
-
+        
         if (control) {
             combobox.value(control.value);
         }

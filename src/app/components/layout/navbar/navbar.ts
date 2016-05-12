@@ -1,5 +1,5 @@
-import {Component} from 'angular2/core';
-import {AsyncRoute, ROUTER_DIRECTIVES} from 'angular2/router';
+import {Component} from '@angular/core';
+import {AsyncRoute, ROUTER_DIRECTIVES} from '@angular/router-deprecated';
 import {ROUTES} from '../../../route.config';
 
 import {HamburgerMenu} from './hamburgerMenu/hamburgerMenu';

@@ -1,4 +1,4 @@
-import {Component, Input, SimpleChange} from "angular2/core";
+import {Component, Input, SimpleChange} from "@angular/core";
 import {JournalEntrySimple} from '../components/journalentrysimple/journalentrysimple';
 import {JournalEntryProfessional} from '../components/journalentryprofessional/journalentryprofessional';
 import {SupplierInvoice} from "../../../../unientities";
@@ -11,11 +11,14 @@ import {SupplierInvoice} from "../../../../unientities";
 export class JournalEntryManual {    
     @Input()
     SupplierInvoice : SupplierInvoice;
+
+    @Input()
+    showHeader = true;
     
-    public journalEntryMode : string;
+    public journalEntryMode: string;
+
   
     constructor() {
-        
     }
     
     ngOnInit() {

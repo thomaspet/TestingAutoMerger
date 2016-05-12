@@ -1,4 +1,4 @@
-import {Component, Input, Output, EventEmitter, ElementRef} from 'angular2/core';
+import {Component, Input, Output, EventEmitter, ElementRef} from '@angular/core';
 import {FileUploadService} from './FileUploadService';
 
 declare var jQuery;
@@ -39,7 +39,7 @@ export class UniDocumentUploader {
         this.elem = element;
     }
 
-    public ngAfterViewInit(){
+    public ngAfterViewInit() {
         // Using jQuery here, so we don't have to split the event listeners
         let $el = jQuery(this.elem.nativeElement.querySelector('label'));
         $el.on('drag dragstart dragend dragover dragenter dragleave drop', (event) => {
@@ -73,6 +73,7 @@ export class UniDocumentUploader {
 
     public manageResponse(response) {
         this.onFileUploaded.emit(this.service.Slot);
+        this.cleanInput();
     }
 
     public fileChangeEvent(event: any) {
@@ -86,7 +87,7 @@ export class UniDocumentUploader {
 
     public checkEmptyFiles(event: any) {
         if (event.target.files.length === 0) {
-            this.files = undefined;
+            this.cleanInput();
         }
     }
 
@@ -96,6 +97,12 @@ export class UniDocumentUploader {
 
     public clearFiles() {
         this.files = undefined;
+    }
+
+    private cleanInput() {
+        this.files = undefined;
+        let $el = jQuery(this.elem.nativeElement.querySelector('input[type=file]'));
+        $el.val('');
     }
 
 }

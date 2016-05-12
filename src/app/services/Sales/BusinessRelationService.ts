@@ -2,7 +2,7 @@ import {BizHttp} from '../../../framework/core/http/BizHttp';
 import {Customer, BusinessRelation} from '../../unientities';
 import {UniHttp} from '../../../framework/core/http/http';
 import {Observable} from "rxjs/Observable";
-import {RequestMethod} from "angular2/http";
+import {RequestMethod} from "@angular/http";
 
 export class BusinessRelationService extends BizHttp<BusinessRelation> {
     

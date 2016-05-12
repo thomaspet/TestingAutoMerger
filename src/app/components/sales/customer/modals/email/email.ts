@@ -1,5 +1,5 @@
-import {Component, ViewChildren, Type, Input, Output, QueryList, ViewChild, ComponentRef, EventEmitter} from "angular2/core";
-import {NgIf, NgModel, NgFor, NgClass} from "angular2/common";
+import {Component, ViewChildren, Type, Input, Output, QueryList, ViewChild, ComponentRef, EventEmitter} from "@angular/core";
+import {NgIf, NgModel, NgFor, NgClass} from "@angular/common";
 import {UniModal} from "../../../../../../framework/modals/modal";
 import {UniComponentLoader} from "../../../../../../framework/core/componentLoader";
 import {UniFormBuilder} from "../../../../../../framework/forms/builders/uniFormBuilder";
@@ -54,7 +54,7 @@ export class EmailForm {
                     Label: "Epostadresse",
                     Description: "",
                     HelpText: "",
-                    FieldSet: 1,
+                    FieldSet: 0,
                     Section: 0,
                     Legend: "",
                     StatusCode: 0,
@@ -74,11 +74,11 @@ export class EmailForm {
                     Label: "Beskrivelse",
                     Description: "",
                     HelpText: "",
-                    FieldSet: 1,
+                    FieldSet: 0,
                     Section: 0,
                     Legend: "",
                     StatusCode: 0,
-                    ID: 1,
+                    ID: 2,
                     Deleted: false,
                     CustomFields: null 
                 } 
@@ -116,7 +116,7 @@ export class EmailModalType {
             
     ngAfterViewInit() {
         var self = this;
-        this.ucl.load(EmailForm).then((cmp: ComponentRef)=> {
+        this.ucl.load(EmailForm).then((cmp: ComponentRef<any>)=> {
             cmp.instance.model = self.config.model;
             self.instance = new Promise((resolve)=> {
                 resolve(cmp.instance);
@@ -161,11 +161,11 @@ export class EmailModal {
                                 self.modal.close();       
                                 
                                 // store
-                                if(form.model.ID) {
-                                    emailService.Put(form.model.ID, form.model).subscribe(null, (error: Error) => console.log('error in updating phone from modal - Put: ' + error));
-                                } else {
-                                    emailService.Post(form.model).subscribe(null, (error: Error) => console.error('error in posting phone from modal - Post: ', error));
-                                }
+                                //if(form.model.ID) {
+                                //    emailService.Put(form.model.ID, form.model).subscribe(null, (error: Error) => console.log('error in updating phone from modal - Put: ' + error));
+                                //} else {
+                                //    emailService.Post(form.model).subscribe(null, (error: Error) => console.error('error in posting phone from modal - Post: ', error));
+                                //}
                                                         
                                 self.Changed.emit(form.model);
                             });

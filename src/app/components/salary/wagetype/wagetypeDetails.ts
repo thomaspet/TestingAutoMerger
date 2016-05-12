@@ -1,10 +1,16 @@
-import {Component, ViewChild, ComponentRef, OnInit} from 'angular2/core';
-import {RouteParams, Router} from 'angular2/router';
-import {WageTypeService} from '../../../services/services';
-import {UniComponentLoader} from '../../../../framework/core';
-import {UniForm} from '../../../../framework/forms/uniForm';
-import {UniFormBuilder, UniFormLayoutBuilder} from '../../../../framework/forms';
-import {WageType} from '../../../unientities';
+import {Component, provide, ViewChild, ComponentRef} from '@angular/core';
+import {RouteParams, Router} from "@angular/router-deprecated";
+
+import { Observable } from "rxjs/Observable";
+
+import {WageTypeService} from "../../../services/services";
+
+import {UniComponentLoader} from "../../../../framework/core";
+import {UniForm} from "../../../../framework/forms/uniForm";
+import {UniFormBuilder, UniFormLayoutBuilder} from "../../../../framework/forms";
+import {UniFieldBuilder} from '../../../../framework/forms/builders/uniFieldBuilder';
+
+import {WageType} from "../../../unientities";
 
 @Component({
     selector: 'wagetype-details',
@@ -46,7 +52,7 @@ export class WagetypeDetail implements OnInit {
     }
     
     private loadForm() {
-        this.uniCompLoader.load(UniForm).then((cmp: ComponentRef) => {
+        this.uniCompLoader.load(UniForm).then((cmp: ComponentRef<any>) => {
             cmp.instance.config = this.form;
             this.whenFormInstance = new Promise((resolve: Function) => resolve(cmp.instance));
             setTimeout(() => {

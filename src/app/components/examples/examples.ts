@@ -1,5 +1,5 @@
-import {Component} from "angular2/core";
-import {RouteConfig, RouteDefinition, ROUTER_DIRECTIVES} from "angular2/router";
+import {Component} from "@angular/core";
+import {RouteConfig, RouteDefinition, ROUTER_DIRECTIVES} from "@angular/router-deprecated";
 import {UniTabs} from "../layout/uniTabs/uniTabs";
 import {UniFormDemo} from "./form/formDemo";
 import {UniTableDemo} from "./table/tableDemo";

@@ -1,4 +1,4 @@
-import {Injectable} from 'angular2/core';
+import {Injectable} from '@angular/core';
 import {UniHttp} from '../core/http/http';
 import {File as UniFile} from '../../app/unientities';
 export interface IFileMetaData {

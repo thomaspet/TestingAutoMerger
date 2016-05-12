@@ -1,4 +1,4 @@
-import {Injectable} from 'angular2/core';
+import {Injectable} from '@angular/core';
 import {FileUploadService} from '../../../../framework/documents/index';
 import {Employee} from '../../../unientities';
 import {UniHttp} from '../../../../framework/core/http/http';

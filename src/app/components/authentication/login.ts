@@ -1,5 +1,5 @@
-import {Component} from 'angular2/core';
-import {Router, ROUTER_DIRECTIVES} from 'angular2/router';
+import {Component} from '@angular/core';
+import {Router, ROUTER_DIRECTIVES} from '@angular/router-deprecated';
 import {AuthService} from '../../../framework/core/authService';
 import {StaticRegisterService} from '../../services/staticregisterservice';
 
@@ -62,7 +62,14 @@ export class Login {
                 return;
             }
             
-            this.showCompanySelect(response.json());
+            const companies = response.json();
+            
+            if (companies.length === 1) {
+                this._authService.setActiveCompany(companies[0]);
+                this.onCompanySelected();
+            } else {
+                this.showCompanySelect(companies);    
+            }
         });
     }
     

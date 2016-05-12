@@ -1,5 +1,5 @@
-﻿import {Injectable} from 'angular2/core';
-import {Http, Headers, URLSearchParams, Request, RequestMethod} from 'angular2/http';
+﻿import {Injectable} from '@angular/core';
+import {Http, Headers, URLSearchParams, Request, RequestMethod} from '@angular/http';
 import {Observable} from 'rxjs/Observable';
 import {AppConfig} from '../../../app/AppConfig';
 import {AuthService} from '../authService';
@@ -151,13 +151,15 @@ export class UniHttp {
         let token = this.authService.getToken();
         let activeCompany = this.authService.getActiveCompany();
 
-        if (token && !this.headers.has('Authorization')) {
-            this.headers.append('Authorization', 'Bearer ' + token);
+        if (token) {
+            this.headers.set('Authorization', 'Bearer ' + token);
         }
 
-        if (activeCompany && !this.headers.has('CompanyKey')) {
-            this.headers.append('CompanyKey', activeCompany.Key);
+        if (activeCompany) {
+            this.headers.set('CompanyKey', activeCompany.Key);
         }
+        
+        this.headers.set('Accept', 'application/json');
 
         var baseurl = request.baseUrl || this.baseUrl,
             apidomain = request.apiDomain || this.apiDomain,

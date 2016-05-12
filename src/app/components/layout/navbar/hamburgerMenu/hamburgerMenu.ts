@@ -1,6 +1,6 @@
-﻿import {Component, Host, ElementRef} from 'angular2/core';
-import {ROUTER_DIRECTIVES, Router, AsyncRoute} from 'angular2/router';
-import {NgFor, NgClass} from 'angular2/common';
+﻿import {Component, Host, ElementRef} from '@angular/core';
+import {ROUTER_DIRECTIVES, Router, AsyncRoute} from '@angular/router-deprecated';
+import {NgFor, NgClass} from '@angular/common';
 import {ROUTES} from '../../../../route.config';
 declare var jQuery;
 
@@ -44,7 +44,8 @@ export class HamburgerMenu {
                 componentListName: 'Regnskap',
                 componentListHeader: 'Orden i bøkene',
                 componentList: [
-                    {componentName: 'Bilagsføring', componentUrl: '/accounting'}                    
+                    {componentName: 'Bilagsføring', componentUrl: '/accounting'},
+                    {componentName: 'Forespørsel', componentUrl: '/accounting/transquery'}                   
                 ]
             },
             {
