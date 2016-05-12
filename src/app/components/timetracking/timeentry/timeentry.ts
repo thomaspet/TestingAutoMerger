@@ -12,6 +12,12 @@ export var view = new View('timeentry', 'Registrere timer', 'TimeEntry');
 @Component({
     selector: view.name,
     templateUrl: 'app/components/timetracking/timeentry/timeentry.html', 
+    styles: [`
+            .title { font-size: 18pt; padding: 1em 1em 1em 0; }
+            .title strong { margin-right: 2em;}
+            .title select { display:inline-block; width: auto }
+            .timeentriesTable { width: 100% }
+            `]
 })
 export class TimeEntry {    
     view = view;
@@ -23,8 +29,11 @@ export class TimeEntry {
         company: ''
     };
     worker: Worker = new Worker();
-    positions: Array<WorkRelation> = [];
+    workRelations: Array<WorkRelation> = [];
     profiles: Array<WorkProfile> = [];
+    currentWorkRelation: WorkRelation;
+    workItems: Array<WorkItem> = [];
+    busy = true;
 
     constructor(private tabService: TabService, authService: AuthService, private http:UniHttp) {
         this.tabService.addTab({ name: view.label, url: view.route });
@@ -33,12 +42,17 @@ export class TimeEntry {
         this.user.id = authService.jwtDecoded.userId;
         this.user.guid = authService.jwtDecoded.nameid;
         this.user.company = JSON.parse(localStorage.getItem('activeCompany')).Name;
-        console.log(this.user.company);
         this.initUser();
     }
     
     ngAfterViewInit() {
 
+    }
+    
+    selectWorkRelation(relation:WorkRelation) {
+        this.currentWorkRelation = relation;
+        this.busy = false;
+        this.initWorkitems(relation.ID);
     }
     
     initUser() {
@@ -76,7 +90,8 @@ export class TimeEntry {
         var route = "workrelations";
         this.GET(route, { filter:'workerid eq ' + workerId, expand: 'workprofile' } ).subscribe((result:Array<WorkRelation>) => {
             if (result.length>0) {
-                this.positions = result;
+                this.workRelations = result;
+                this.selectWorkRelation( result[0] );
             } else {
                 if (autoCreate) {
                     this.GET('workprofiles').subscribe((result: Array<WorkProfile>)=> {
@@ -109,6 +124,13 @@ export class TimeEntry {
         };        
         this.POST(route, undefined, rel).subscribe((result:WorkRelation) => {
             this.initWorkRelations(workerId, false);
+        });
+    }
+    
+    initWorkitems(workRelationID: number) {
+        this.workItems.length = 0;
+        this.GET('workitems', { filter: 'WorkRelationID eq ' + workRelationID}).subscribe((result: Array<WorkItem>)=>{
+            this.workItems = result;
         });
     }
     

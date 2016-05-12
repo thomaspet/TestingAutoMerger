@@ -2,7 +2,7 @@ import {Component} from "@angular/core";
 import {TabService} from '../../layout/navbar/tabstrip/tabService';
 import {View} from '../../../models/view/view';
 
-export var view = new View('worker', 'Arbeider', 'Worker');
+export var view = new View('worker', 'Timefører', 'Worker');
 
 @Component({
     selector: view.name,

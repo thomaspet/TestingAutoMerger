@@ -1,13 +1,14 @@
 <section class='application'>
-    <h2>Registrere timer : {{user.name}} (userid = {{user.id}}, email = {{user.email}})</h2>
-    <article *ngIf="worker.ID">
-        <header>
-            <!--h4>Arbeider med ID = {{worker.ID}}</h4-->
-            <select *ngFor="let item of positions">
-                <option>{{item.CompanyName}} : {{item.WorkPercentage}}% - {{item.Description}}</option>
-            </select>
-        </header>
-        <table style='width: 100%'>
+    
+    <header class="title">
+        <strong>Registrere timer for {{user.name}}</strong>
+        <select *ngFor="let item of workRelations">
+            <option>{{item.CompanyName}} : {{item.WorkPercentage}}% - {{item.Description}}</option>
+        </select>
+    </header>
+    
+    <section [attr.aria-busy]="busy" >
+        <table class='timeentriesTable'>
             <thead>
                 <tr>
                     <th>Beskrivelse</th>
@@ -18,7 +19,15 @@
                     <th>Prosjekt</th>
                 </tr>
             </thead>
-            <tbody>
+            <tbody *ngIf="currentWorkRelation">
+                <tr *ngFor="let item of workItems">
+                    <td>{{item.Description}}</td>
+                    <td>{{item.StartTime}}</td>
+                    <td>{{item.EndTime}}</td>
+                    <td>{{item.Date}}</td>
+                    <td>{{item.Worktype.Name}}</td>
+                    <td></td>
+                </tr>                
                 <tr>
                     <td>Epost / henvendelser</td>
                     <td>08:15</td>
@@ -37,5 +46,5 @@
                 </tr>                
             </tbody>
         </table>    
-    </article>
+    </section>
 </section>
