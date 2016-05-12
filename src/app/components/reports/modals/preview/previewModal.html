@@ -1,0 +1,10 @@
+<article class="modal-content report-preview-modal">
+    <h1 *ngIf="config.title">{{config.title}}</h1>
+    <div id="reportContainer" [innerHtml]="config.report">
+    </div>
+    <footer>
+        <button *ngFor="#action of config.actions; #i=index" (click)="action.method()">
+            {{action.text}}
+        </button>
+    </footer>
+</article>
