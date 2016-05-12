@@ -21,6 +21,11 @@ export class UniCombobox implements AfterViewInit, OnDestroy {
     
     constructor(private elementRef: ElementRef) {
         this.nativeElement = jQuery(this.elementRef.nativeElement);
+        elementRef.nativeElement.addEventListener('keyup', (event) => {
+           if (event.keyCode === 13) {
+               this.combobox.open();
+           } 
+        });
     }
 
     public refresh(value: any) {

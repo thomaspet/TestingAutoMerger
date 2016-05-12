@@ -94,6 +94,9 @@ export class UniAutocomplete {
             if (event.keyCode === 13) {
                 event.preventDefault();
                 event.stopPropagation();
+                if (this.config.onEnter) {
+                    this.config.onEnter();
+                }
             }
             
             if (!event.shiftKey && event.keyCode === 9 && this.config.onTab) {
