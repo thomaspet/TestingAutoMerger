@@ -1,18 +1,17 @@
 <header class="poster">
     <article class="poster_toolbar">
         <div *ngIf="wageType">
-            <h2 class="poster_toolbar_headline">{{wageType.WageTypeId}}&nbsp;-&nbsp;{{wageType.WageTypeName}}
-                 <p class="poster_toolbar_orgnr"></p>  
-            </h2>
+            <h2 class="poster_toolbar_headline">{{wageType.WageTypeName}}</h2>
         </div>
 
         <div class="poster_toolbar_tools">
-            <a href="#" class="previous">Forrige</a>
-            <a href="#" class="next">Neste</a>
+            <a (click)="previousWagetype()" class="previous">Forrige</a>
+            <a (click)="nextWagetype()" class="next">Neste</a>
             <a href="#/salary/wagetypes/0" class="new">Ny lønnsart</a>
         </div>
 
     </article>
+
     <!-- Widget poster -->
     <section class="poster_overview">
         <uni-widget-poster [model]="wageType"></uni-widget-poster>
@@ -20,18 +19,16 @@
 
 </header>
 
-
-<div class="application wagetype usertest">
+<section class="application wagetype usertest">
     <router-outlet></router-outlet>
     <uni-component-loader></uni-component-loader>
+</section>
 
-    <section class="uni-card" *ngFor="#config of formCfg #index = index">
-        <header class="uni-card_header">
-            <h1>{{config.fields[0].model.WageTypeName}}</h1>
-        </header>
-        <article class="uni-card_content">
-            <uni-form></uni-form>
-            <!-- <uni-form (uniFormSubmit)='onFormSubmit($event, index)' [config]='config'></uni-form> -->
-        </article>
+<footer class="full-footer">
+    <section class="application">
+        <button class="good" (click)="saveWagetypeManual($event)">Lagre lønnsart</button>
+        <section class="auto_save_info">
+            {{ lastSavedInfo }}
+        </section>
     </section>
-</div>
+</footer>

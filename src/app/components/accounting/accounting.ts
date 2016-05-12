@@ -1,7 +1,6 @@
 import {Component} from '@angular/core';
-import {RouteConfig, ROUTER_DIRECTIVES} from "@angular/router-deprecated";
+import {RouteConfig, ROUTER_DIRECTIVES, AsyncRoute} from "@angular/router-deprecated";
 import {ComponentProxy} from "../../../framework/core/componentProxy";
-import {AsyncRoute} from "@angular/router-deprecated";
 import {UniRouterOutlet} from "../../uniRouterOutlet";
 
 const ACCOUNTING_ROUTES = [
@@ -11,6 +10,11 @@ const ACCOUNTING_ROUTES = [
         name: 'JournalEntry',
         loader: () => ComponentProxy.LoadComponentAsync('JournalEntry', './app/components/accounting/journalentry/journalentry')
     }),
+    new AsyncRoute({
+        path: '/transquery/...',
+        name: 'Transquery',
+        loader: () => ComponentProxy.LoadComponentAsync('Transquery', './app/components/accounting/transquery/transquery')
+    })
 ];
 
 @Component({
