@@ -40,3 +40,4 @@ export * from './accounting/accountgroupsetservice';
 export * from './common/subentityservice';
 export * from './shared/municipalsservice';
 export * from './salary/companysalary/companysalaryservice';
+export * from './salary/salarytransaction/salarytransactionservice'

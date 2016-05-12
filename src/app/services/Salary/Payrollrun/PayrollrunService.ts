@@ -48,6 +48,14 @@ export class PayrollrunService extends BizHttp<PayrollRun> {
             .send();
     }
     
+    public controlPayroll(ID) {
+        return this.http
+            .asPUT()
+            .usingBusinessDomain()
+            .withEndPoint(this.relativeURL + '/' + ID + '?action=control')
+            .send();
+    }
+    
     public resetSettling(ID: number) {
         return this.http
         .asDELETE()

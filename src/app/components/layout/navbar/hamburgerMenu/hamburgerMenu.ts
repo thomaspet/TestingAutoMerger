@@ -44,7 +44,8 @@ export class HamburgerMenu {
                 componentListName: 'Regnskap',
                 componentListHeader: 'Orden i bøkene',
                 componentList: [
-                    {componentName: 'Bilagsføring', componentUrl: '/accounting'}                    
+                    {componentName: 'Bilagsføring', componentUrl: '/accounting'},
+                    {componentName: 'Forespørsel', componentUrl: '/accounting/transquery'}                   
                 ]
             },
             {
@@ -60,7 +61,7 @@ export class HamburgerMenu {
                 componentListName: 'Rapporter',
                 componentListHeader: 'Oversikt på papir',
                 componentList: [
-                    {componentName: 'Rapportoversikt', componentUrl: '/'}
+                    {componentName: 'Rapportoversikt', componentUrl: '/reports'}
                 ]
             }
         ];

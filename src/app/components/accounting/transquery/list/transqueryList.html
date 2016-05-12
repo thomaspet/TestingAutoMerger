@@ -1,0 +1,13 @@
+<header class="transquery_poster">    
+    <article class="poster_toolbar">
+        <section>
+            <h1 *ngIf="account">{{account.AccountNumber}} - {{account.AccountName}}</h1>
+            <p></p>       
+        </section>
+    </article>       
+</header>
+
+<section class="application">
+    <uni-component-loader></uni-component-loader>
+    <uni-table [config]="periodeTable"></uni-table>
+</section>
