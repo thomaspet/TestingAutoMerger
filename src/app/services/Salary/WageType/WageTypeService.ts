@@ -215,7 +215,7 @@ let layout = {
             ReadOnly: false,
             LookupField: 'Name',
             kendoOptions: {
-                dataSource: taxType,
+                dataSource: stdWageType,
                 dataTextField: 'Name',
                 dataValueField: 'ID'
             },
@@ -250,7 +250,7 @@ let layout = {
             Section: 1,
             Legend: '',
             kendoOptions: {
-                dataSource: stdWageType,
+                dataSource: taxType,
                 dataTextField: 'Name',
                 dataValueField: 'ID'
             },

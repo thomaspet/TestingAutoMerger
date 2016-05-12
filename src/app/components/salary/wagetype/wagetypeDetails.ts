@@ -1,16 +1,10 @@
-import {Component, provide, ViewChild, ComponentRef} from '@angular/core';
-import {RouteParams, Router} from "@angular/router-deprecated";
-
-import { Observable } from "rxjs/Observable";
-
-import {WageTypeService} from "../../../services/services";
-
-import {UniComponentLoader} from "../../../../framework/core";
-import {UniForm} from "../../../../framework/forms/uniForm";
-import {UniFormBuilder, UniFormLayoutBuilder} from "../../../../framework/forms";
-import {UniFieldBuilder} from '../../../../framework/forms/builders/uniFieldBuilder';
-
-import {WageType} from "../../../unientities";
+import {Component, ViewChild, ComponentRef, OnInit} from '@angular/core';
+import {RouteParams, Router} from '@angular/router-deprecated';
+import {WageTypeService} from '../../../services/services';
+import {UniComponentLoader} from '../../../../framework/core';
+import {UniForm} from '../../../../framework/forms/uniForm';
+import {UniFormBuilder, UniFormLayoutBuilder} from '../../../../framework/forms';
+import {WageType} from '../../../unientities';
 
 @Component({
     selector: 'wagetype-details',
@@ -62,11 +56,14 @@ export class WagetypeDetail implements OnInit {
         });
     }
     
+    public saveWagetypeManual(event: any) {
+        this.saveWagetype(event);
+    }
+    
     public saveWagetype(event: any) {
         this.formInstance.sync();
         this.lastSavedInfo = 'Lagrer lønnsart';
         if (this.wageType.ID > 0) {
-            console.log('wagetype to update', this.wageType);
             this.wageService.Put(this.wageType.ID, this.wageType)
             .subscribe((wagetype) => {
                 this.wageType = wagetype;
@@ -77,7 +74,6 @@ export class WagetypeDetail implements OnInit {
                 console.log('Feil ved oppdatering av lønnsart', err);
             });
         } else {
-            console.log('wagetype to save', this.wageType);
             this.wageService.Post(this.wageType)
             .subscribe((wagetype) => {
                 this.wageType = wagetype;
