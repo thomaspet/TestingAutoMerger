@@ -36,7 +36,6 @@ export class EmployeeLeave implements OnInit {
         this.employments.forEach((employment: Employment) => {
             if (employment.ID === employmentID) {
                 jobName = employment.JobName;
-                // console.log('Jobname: ' + jobName);
             }
         });
         return jobName;
@@ -68,14 +67,12 @@ export class EmployeeLeave implements OnInit {
             this.employments.push(employment);
         });
         filter = filter.slice(0, filter.length - 2);
-        // console.log('EmployeeLeave filter: ' + filter);
         return filter;
     }
 
     public buildTableConfigs() {
         this.filter = this.buildFilterAndEmployments();
-        // console.log('employments: ' + this.employments);
-
+        
         var idCol = new UniTableColumn('ID', 'ID', 'number')
             .setEditable(false)
             .setNullable(true);
@@ -121,7 +118,6 @@ export class EmployeeLeave implements OnInit {
     }
     
     public saveLeave() {
-        console.log('save leave');
         this.lastSavedInfo = 'Fravær lagret';
     }
 }

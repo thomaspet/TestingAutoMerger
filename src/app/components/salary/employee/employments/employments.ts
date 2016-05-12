@@ -21,17 +21,14 @@ export class EmployeeEmployment implements OnInit {
     private styrks: STYRKCode[];
     
     @Input() private currentEmployment: Employment;
-    // @Output() private currentEmploymentChanges: EventEmitter<Employment> = new EventEmitter<Employment>();
     @Input() private currentEmployee: Employee;
     @ViewChild(UniComponentLoader) private uniCompLoader: UniComponentLoader;
     
     private form: UniFormBuilder = new UniFormBuilder();
     public formModel: any = {};
     private whenFormInstance: Promise<UniForm>;
-    private formInstance: UniForm;
-    
+    private formInstance: UniForm;    
     private busy: boolean;
-    private lastSavedInfo: string;
 
     private typeOfEmployment: {ID: number, Name: string}[] = [
         {ID: 0, Name: 'Ikke satt'},
@@ -88,9 +85,6 @@ export class EmployeeEmployment implements OnInit {
         
         this.styrks = this.statReg.getStaticRegisterDataset('styrk');
     }
-    
-    // form endres
-    // this.currentEmploymentChanges.emit({employment: this.currentEmployment});
     
     public ngOnInit() {
         this.employeeDS.getSubEntities()

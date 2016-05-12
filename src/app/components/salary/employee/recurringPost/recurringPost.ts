@@ -44,7 +44,6 @@ export class RecurringPost implements OnInit {
     }
     
     public saveRecurringpost() {
-        console.log('save');
         this.lastSavedInfo = 'Faste poster er lagret';
     }
     

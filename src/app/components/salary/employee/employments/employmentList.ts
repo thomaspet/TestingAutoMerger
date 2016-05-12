@@ -55,15 +55,11 @@ export class EmploymentList implements OnInit {
     }
     
     public saveEmployment() {
-        console.log('save');
-        console.log('Originalt arbeidsforhold', this.selectedEmployment);
         var changedEmployment: Employment;
         changedEmployment = this.employmentDetails.getCurrentEmployment();
-        console.log('Endret arbeidsforhold', changedEmployment);
         
         this.lastSavedInfo = 'Lagrer arbeidsforhold...';
         if (changedEmployment.ID > 0) {
-            console.log('object to update', changedEmployment);
             this._employmentService.Put(changedEmployment.ID, changedEmployment)
             .subscribe((response: Employment) => {
                 this.selectedEmployment = response;

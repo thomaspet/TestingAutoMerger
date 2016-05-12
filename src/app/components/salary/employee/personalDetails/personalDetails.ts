@@ -113,11 +113,11 @@ export class PersonalDetails implements OnInit {
             .setModelField('Phones')
             .setModelDefaultField('DefaultPhoneID')
             .setPlaceholder(this.emptyPhone)
-            .setEditor(PhoneModal);     
-        phones.onSelect = (phone: Phone) => {
-            this.employee.BusinessRelationInfo.DefaultPhone = phone;
-            this.employee.BusinessRelationInfo.DefaultPhoneID = null;
-        };
+            .setEditor(PhoneModal)     
+            .onSelect = (phone: Phone) => {
+                this.employee.BusinessRelationInfo.DefaultPhone = phone;
+                this.employee.BusinessRelationInfo.DefaultPhoneID = null;
+            };
         
         var emails: UniFieldBuilder = this.form.find('Emails');
         emails
@@ -129,11 +129,11 @@ export class PersonalDetails implements OnInit {
             .setModelField('Emails')
             .setModelDefaultField('DefaultEmailID')
             .setPlaceholder(this.emptyEmail)
-            .setEditor(EmailModal);  
-        emails.onSelect = (email: Email) => {
-            this.employee.BusinessRelationInfo.DefaultEmail = email;
-            this.employee.BusinessRelationInfo.DefaultEmailID = null;
-        };
+            .setEditor(EmailModal)
+            .onSelect = (email: Email) => {
+                this.employee.BusinessRelationInfo.DefaultEmail = email;
+                this.employee.BusinessRelationInfo.DefaultEmailID = null;
+            };
         
         var address: UniFieldBuilder = this.form.find('Addresses');
         address
@@ -145,11 +145,11 @@ export class PersonalDetails implements OnInit {
             .setModelField('Addresses')
             .setModelDefaultField('InvoiceAddressID') 
             .setPlaceholder(this.emptyAddress)
-            .setEditor(AddressModal);     
-        address.onSelect = (addressValue: Address) => {
-            this.employee.BusinessRelationInfo.InvoiceAddress = addressValue;
-            this.employee.BusinessRelationInfo.InvoiceAddressID = null;
-        };
+            .setEditor(AddressModal)     
+            .onSelect = (addressValue: Address) => {
+                this.employee.BusinessRelationInfo.InvoiceAddress = addressValue;
+                this.employee.BusinessRelationInfo.InvoiceAddressID = null;
+            };
     }
 
     public isValid() {
@@ -157,17 +157,13 @@ export class PersonalDetails implements OnInit {
     }
     
     public saveEmployeeManual() {
-        this.employee.BusinessRelationInfo.Addresses[0].AddressLine1 = this.employee.BusinessRelationInfo.Addresses[0].AddressLine1 + '123';
         this.saveEmployee();
     }
     
     private saveEmployee() {
-        console.log('save');
-        
         this.formInstance.sync();
         this.lastSavedInfo = 'Lagrer persondetaljer på den ansatte';
         if (this.employee.ID > 0) {
-            console.log('object to update', this.employee);
             this.employeeService.Put(this.employee.ID, this.employee)
             .subscribe((response: Employee) => {
                 this.employee = response;
