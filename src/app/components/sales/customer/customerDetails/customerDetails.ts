@@ -1,4 +1,4 @@
-import {Component, ComponentRef, Input, ViewChild} from '@angular/core';
+import {Component, ComponentRef, Input, ViewChild, OnInit} from '@angular/core';
 import {Router, RouteParams, RouterLink} from '@angular/router-deprecated';
 import {Observable} from 'rxjs/Observable';
 import 'rxjs/add/observable/forkjoin';
@@ -23,7 +23,7 @@ import {PhoneModal} from '../modals/phone/phone';
     directives: [UniComponentLoader, RouterLink, AddressModal, EmailModal, PhoneModal, ExternalSearch],
     providers: [DepartementService, ProjectService, CustomerService, PhoneService, AddressService, EmailService, BusinessRelationService]
 })
-export class CustomerDetails {
+export class CustomerDetails implements OnInit{
             
     @Input() 
     public CustomerID: any;
@@ -110,7 +110,20 @@ export class CustomerDetails {
             this.loadForm();                  
         });       
     }
-    
+
+    //public ngAfterViewInit() {
+    //    var self = this;
+    //    this.customerService.GetLayout('CustomerDetailsForm').subscribe((results: any) => {
+    //        this.layout = response;
+
+    //        var view: ComponentLayout = results[0];
+    //        //var model: Employee = results[1];
+
+    //        self.startApp(view, model);
+    //    });
+    //}
+
+         
     public addSearchInfo(selectedSearchInfo: SearchResultItem) {
         var self = this;
         
