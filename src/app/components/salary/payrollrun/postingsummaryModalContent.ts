@@ -1,11 +1,12 @@
 import {Component, Input, OnInit} from '@angular/core';
 import {UniTable, UniTableBuilder, UniTableColumn} from '../../../../framework/unitable';
 import {UniForm, UniFormBuilder, UniFieldBuilder} from '../../../../framework/forms';
-import {PayrollRun, FieldType} from '../../../../app/unientities';
+import {FieldType} from '../../../../app/unientities';
 import {Router} from '@angular/router-deprecated';
 import {PayrollrunService} from '../../../../app/services/services';
 import {UNI_CONTROL_DIRECTIVES} from '../../../../framework/controls';
 import {Observable} from 'rxjs/Observable';
+import {Postingsummary} from '../../../models/models';
 
 @Component({
     selector: 'postingsummary-modal-content',
@@ -15,10 +16,12 @@ import {Observable} from 'rxjs/Observable';
 export class PostingsummaryModalContent implements OnInit {
     
     private busy: boolean;
+    private showReceipt: boolean = false;
     private headerConfig: UniFormBuilder = null;
+    // private receiptConfig: UniFormBuilder;
     @Input() private config: any;
-    private payrollrun: PayrollRun;
-    private model: {};
+    private postingsummary: Postingsummary;
+    // private receiptModel: {text: string, documentnumber: number, postingDate: Date};
     
     constructor(private routr: Router, private payrollService: PayrollrunService) {
         
@@ -26,7 +29,7 @@ export class PostingsummaryModalContent implements OnInit {
     
     public ngOnInit() {
         this.getData()
-        .subscribe((response) => {
+        .subscribe((response: Postingsummary) => {
             this.setData(response);
         }, (err) => {
             console.log(err);
@@ -36,21 +39,31 @@ export class PostingsummaryModalContent implements OnInit {
     public getData() {
         this.busy = true;
         return Observable.forkJoin(
-            this.payrollService.Get(this.config.payrollrunID)
+            this.payrollService.getPostingsummary(this.config.payrollrunID)
         );
     }
     
     public setData(response: any) {
-        let [payroll] = response;
-        this.payrollrun = payroll;
+        let [postsum] = response;
+        this.postingsummary = postsum;
         
         this.createHeaderConfig();
         
         this.busy = false;
     }
     
+    public postTransactions() {
+        console.log('see how invoice has used this. return observable');
+        return this.payrollService.postTransactions(this.config.payrollrunID);
+    }
+    
+    public showResponseReceipt() {
+        console.log('remove unitable and show uniform with receipt');
+        this.showReceipt = true;
+    }
+    
     private createHeaderConfig() {
-        var companyName = this.buildField('Firmanavn', this.model, 'companyname', FieldType.TEXT);
+        var companyName = this.buildField('Firmanavn', this.postingsummary.SubEntity.BusinessRelationInfo, 'Name', FieldType.TEXT);
         
         
         this.headerConfig = new UniFormBuilder();
