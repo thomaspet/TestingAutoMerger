@@ -78,7 +78,7 @@ export class UniAutocomplete {
                 // Enter or tab
                 this.choose(this.selected);   
                 
-                if (event.keyCode === 9 && this.selected && this.config.onTab) {
+                if (!event.shiftKey && event.keyCode === 9 && this.selected && this.config.onTab) {
                     event.stopPropagation();
                     this.config.onTab();
                 }
@@ -247,7 +247,7 @@ export class UniAutocomplete {
     }
 
     // Make a selection
-    private choose(item) {
+    private choose(item) {        
         this.isExpanded = false;
 
         if (item) {
@@ -257,13 +257,14 @@ export class UniAutocomplete {
             this.query = '';
             this.value = undefined;
         }
+        
+        if (this.value != this.lastValue && this.config.onSelect) {
+             this.config.onSelect(item);
+        }
+        
         this.lastValue = this.value;
         this.control.updateValue(this.value, {});
         
-        if (this.config.onSelect) {
-            this.config.onSelect(item);
-        }
-
         this.change$.emit(item);
     }
 
