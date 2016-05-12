@@ -35,7 +35,6 @@ const JOURNALENTRY_ROUTES = [
 })
 @RouteConfig(JOURNALENTRY_ROUTES)
 export class JournalEntry {
-
     private childRoutes: RouteDefinition[];
 
     constructor(public router: Router, private tabService: TabService) {

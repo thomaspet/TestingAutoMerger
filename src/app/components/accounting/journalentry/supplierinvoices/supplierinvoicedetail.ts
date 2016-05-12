@@ -3,7 +3,7 @@ import {Router, RouteParams, RouterLink} from '@angular/router-deprecated';
 
 import { Observable } from 'rxjs/Observable';
 
-import {SupplierInvoiceService, SupplierService, BankAccountService} from '../../../../services/services';
+import {SupplierInvoiceService, SupplierService, BankAccountService, JournalEntryService} from '../../../../services/services';
 
 import {UniForm} from '../../../../../framework/forms/uniForm';
 import {UniFormBuilder, UniFormLayoutBuilder} from '../../../../../framework/forms';
@@ -13,11 +13,12 @@ import {FieldType, ComponentLayout} from '../../../../unientities';
 import {SupplierInvoice, Supplier, BankAccount} from '../../../../unientities';
 import {JournalEntryManual} from '../journalentrymanual/journalentrymanual';
 
+
 @Component({
     selector: 'supplier-invoice-detail',
     templateUrl: 'app/components/accounting/journalentry/supplierinvoices/supplierinvoicedetail.html',
     directives: [UniForm, UniComponentLoader, RouterLink, JournalEntryManual],
-    providers: [SupplierInvoiceService, SupplierService, BankAccountService]
+    providers: [SupplierInvoiceService, SupplierService, BankAccountService, JournalEntryService]
 })
 export class SupplierInvoiceDetail implements OnInit {
     @Input() private invoiceId: any;
@@ -29,6 +30,7 @@ export class SupplierInvoiceDetail implements OnInit {
     private formInstance: UniForm;
 
     @ViewChild(UniComponentLoader) private uniCompLoader: UniComponentLoader;
+    @ViewChild(JournalEntryManual) private journalEntryManual: JournalEntryManual;
 
     private whenFormInstance: Promise<UniForm>;
 
@@ -36,6 +38,7 @@ export class SupplierInvoiceDetail implements OnInit {
         private _supplierInvoiceService: SupplierInvoiceService,
         private _supplierService: SupplierService,
         private _bankAccountService: BankAccountService,
+        private _journalEntryService: JournalEntryService,
         private router: Router,
         private _routeParams: RouteParams) {
             
@@ -43,101 +46,144 @@ export class SupplierInvoiceDetail implements OnInit {
     }
 
     public ngOnInit() {
-        var self = this;
+        this.loadFormAndData();
+    }
 
+    private refreshFormData(supplierInvoice: SupplierInvoice) {
+        this.invoiceId = supplierInvoice.ID;
+        
+        this._supplierInvoiceService
+            .Get(this.invoiceId, ['JournalEntry', 'Supplier.Info'])
+            .subscribe((res) => {
+                this.supplierInvoice = res;
+                this.formInstance.Model = this.supplierInvoice;
+            },
+            (err) => console.log('Error refreshing view: ', err));
+    }
+    private getStatusText() {
+        return this._supplierInvoiceService.getStatusText(this.supplierInvoice.StatusCode.toString());
+    }
+    private loadFormAndData() {
         let id = this.invoiceId;
 
         if (id == 0) {
             Observable.forkJoin(
-                self._supplierInvoiceService.GetNewEntity(),
-                self._supplierService.GetAll(null, ['Info']),
-                self._bankAccountService.GetAll(null)
+                this._supplierInvoiceService.GetNewEntity(),
+                this._supplierService.GetAll(null, ['Info']),
+                this._bankAccountService.GetAll(null)
             ).subscribe((response: any) => {
                 let [invoice, suppliers, bac] = response;
-                self.supplierInvoice = invoice;
-                self.suppliers = suppliers;
-                self.bankAccounts = bac;
+                this.supplierInvoice = invoice;
+                this.suppliers = suppliers;
+                this.bankAccounts = bac;
 
-                self.buildForm();
+                this.buildForm();
             }, error => console.log(error));
         } else {
             Observable.forkJoin(
-                self._supplierInvoiceService.Get(id, ['JournalEntry', 'Supplier.Info']),
-                self._supplierService.GetAll(null, ['Info']),
-                self._bankAccountService.GetAll(null)
+                this._supplierInvoiceService.Get(id, ['JournalEntry', 'Supplier.Info']),
+                this._supplierService.GetAll(null, ['Info']),
+                this._bankAccountService.GetAll(null)
             ).subscribe((response: any) => {
                 let [invoice, suppliers, bac] = response;
-                self.supplierInvoice = invoice;
-                self.suppliers = suppliers;
-                self.bankAccounts = bac;
-
-                self.buildForm();
+                this.supplierInvoice = invoice;
+                this.suppliers = suppliers;
+                this.bankAccounts = bac;
+                
+                this.buildForm();
             }, error => console.log(error));
         }
     }
 
-    private save() {
-        var self = this;
+    private save(runSmartBooking: boolean) {
+        
         this.formInstance.sync();  
-        if (self.supplierInvoice.ID > 0) {
-            if (self.supplierInvoice.SupplierID !== 0) {
-                self.supplierInvoice.Supplier = null; // Needs to do this to avoid conflict between Supplier and SupplierID
-            }
-            self._supplierInvoiceService.Put(self.supplierInvoice.ID, self.supplierInvoice)
+        if (this.supplierInvoice.ID > 0) {
+            
+            //save journalentrydata and supplierinvoice - these can be saved separatly here            
+            let journalEntryData = this.journalEntryManual.getJournalEntryData();        
+            this._journalEntryService
+                .saveJournalEntryData(journalEntryData)
+                .subscribe((res) => {                    
+                }, 
+                (err) => console.log('error saving journaldata:', err)
+            ); 
+                        
+            this._supplierInvoiceService.Put(this.supplierInvoice.ID, this.supplierInvoice)
                 .subscribe((response: any) => {
-                    //if (self.supplierInvoice.JournalEntryID === null || self.supplierInvoice.JournalEntryID === 0) {
-                    //    self.smartBooking(false);
-                    //} else {
-                    //
-                    //}
-                    
-                    self.router.navigateByUrl('/accounting/journalentry/supplierinvoices/details/' + self.supplierInvoice.ID);
+                    if (runSmartBooking) {
+                        this.runSmartBooking(this.supplierInvoice);
+                    } else {
+                        this.router.navigateByUrl('/accounting/journalentry/supplierinvoices/details/' + this.supplierInvoice.ID);
+                    }
                 },
-                (error: Error) => console.error('error in SupplierInvoiceDetail.onSubmit - Put: ', error));
+                (error: Error) => console.error('error in SupplierInvoiceDetail.onSubmit - Put: ', error)
+            );
         } else {
             // Following fields are required. For now hardcoded.
-            self.supplierInvoice.CreatedBy = '-';
-            self.supplierInvoice.CurrencyCode = 'NOK';
+            this.supplierInvoice.CreatedBy = '-';
+            this.supplierInvoice.CurrencyCode = 'NOK';
 
-            self._supplierInvoiceService.Post(self.supplierInvoice)
+            this._supplierInvoiceService.Post(this.supplierInvoice)
                 .subscribe((result: SupplierInvoice) => {
                     let newSupplierInvoice = result;
-                    //self.smartBooking(true);
                     
-                    self.router.navigateByUrl('/accounting/journalentry/supplierinvoices/details/' + newSupplierInvoice.ID);
+                    //always run smartbooking for new supplier invoices, ignore input parameter
+                    this.runSmartBooking(newSupplierInvoice);
                 },
                 (error: Error) => console.error('error in SupplierInvoiceDetail.onSubmit - Post: ', error));
         }
     };
 
-    // On hold
-    // onSmartBook() {
-    //    this.smartBooking(this, false);
-    // }
-
-
-    private book() {
-        
-        //save and run transition to booking
-        
+    private saveSupplierInvoice() {
+        this.save(false);
     }
 
-    private smartbook() {
-        var self = this;
+    private saveAndRunSmartBooking() {
+        this.save(true);
+    }
 
-        if (self.supplierInvoice.ID === null) {
+
+    private saveAndBook() {        
+        //save and run transition to booking        
+        let journalEntryData = this.journalEntryManual.getJournalEntryData();        
+        this._journalEntryService
+            .saveJournalEntryData(journalEntryData)
+            .subscribe((res) => {
+                console.log('JournalEntryData saved, saving supplierinvoice...')
+                this.formInstance.sync();  
+                this._supplierInvoiceService.Put(this.supplierInvoice.ID, this.supplierInvoice)
+                    .subscribe((res) => {
+                        console.log('Supplierinvoice saved, running booking transition...')
+                        this._supplierInvoiceService.Transition(this.supplierInvoice.ID, this.supplierInvoice, 'journal')
+                            .subscribe((res) => {
+                                console.log('Booking complete - redirect to refresh view');
+                                this.router.navigateByUrl('/accounting/journalentry/supplierinvoices/details/' + this.supplierInvoice.ID);
+                            },
+                            (err) => console.log('error running book transition', err)
+                        );
+                    },
+                    (err) => console.log('error saving supplierinvoice', err)
+                )
+            }, 
+            (err) => console.log('error saving journaldata:', err)
+        );      
+    }
+
+    private runSmartBooking(supplierInvoice: SupplierInvoice) {
+        
+        if (supplierInvoice.ID == 0) {
             console.error('Smart booking can not be performed since SupplierInvoice.ID is null');
             return;
         }
-        self._supplierInvoiceService.Action(self.supplierInvoice.ID, 'smartbooking')
+        
+        this._supplierInvoiceService.Action(supplierInvoice.ID, 'smartbooking')
             .subscribe(
-            (response: any) => {
-                self.router.navigateByUrl('/accounting/journalentry/supplierinvoices/');
-                // alert(JSON.stringify(response));
-            },
-            (error: any) => console.log(error)
+                (response: any) => {
+                    this.refreshFormData(supplierInvoice);
+                },
+                (error: any) => console.log('Error running smartbooking', error)       
             );
-
     }
 
     private buildForm() {        

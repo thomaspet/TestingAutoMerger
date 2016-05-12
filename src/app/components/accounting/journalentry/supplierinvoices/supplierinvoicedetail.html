@@ -4,9 +4,9 @@
             <h2 class="poster_toolbar_headline">
                 Leverandørfakturanr {{supplierInvoice.InvoiceNumber}}, {{supplierInvoice.Supplier.Info.Name}}                                    
             </h2>
-            <p *ngIf="supplierInvoice.JournalEntry != null">Bilagsnr {{supplierInvoice.JournalEntry.JournalEntryNumber}}</p>
+            <p *ngIf="supplierInvoice.JournalEntry != null">Status: {{getStatusText()}}, bilagsnr: {{supplierInvoice.JournalEntry.JournalEntryNumber != null ? supplierInvoice.JournalEntry.JournalEntryNumber : 'Bilag ikke bokført' }}</p>
         </span>
-        <h2 class="poster_toolbar_headline" *ngIf="supplierInvoice == null || supplierInvoice.ID == 0">
+        <h2 class="poster_toolbar_headline" *ngIf="invoiceId == 0">
             Ny leverandørfaktura
             <p>Ny faktura med smartbokføring</p>            
         </h2>
@@ -29,10 +29,8 @@
     <p></p>
 </section>
 
-<footer class="full-footer">
-    <section class="application">
-        <button class="good" (click)="save($event)">Lagre leverandørfaktura</button>
-        <button class="good" (click)="book($event)">Bokfør leverandørfaktura</button>
-        <button (click)="smartbook($event)">Kjørt smartbokføring på ny</button>
-    </section>
+<footer class="full-footer">    
+    <button class="good" (click)="saveSupplierInvoice($event)">Lagre leverandørfaktura</button>
+    <button class="good" (click)="saveAndBook($event)" *ngIf="supplierInvoice && supplierInvoice.ID > 0">Bokfør leverandørfaktura</button>
+    <button (click)="saveAndRunSmartBooking($event)" *ngIf="supplierInvoice && supplierInvoice.ID > 0">Kjør smartbokføring på ny</button>    
 </footer>
