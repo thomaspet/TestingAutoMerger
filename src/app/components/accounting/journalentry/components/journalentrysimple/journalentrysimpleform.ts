@@ -428,7 +428,11 @@ export class JournalEntrySimpleForm implements OnChanges {
             if (account && account.VatType) {
                 this.journalEntryLine.DebitVatType = account.VatType;
             }
-            
+    
+            creditaccount.setFocus();
+        }
+        
+        debitaccount.onEnter = () => {
             creditaccount.setFocus();
         }
         
@@ -446,6 +450,10 @@ export class JournalEntrySimpleForm implements OnChanges {
             }
             
             amount.setFocus();        
+        }
+        
+        creditaccount.onEnter = () => {
+            amount.setFocus();
         }
         
         creditaccount.onTab = () => {

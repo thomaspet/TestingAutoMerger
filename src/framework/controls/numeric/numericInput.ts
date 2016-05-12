@@ -22,6 +22,12 @@ export class UniNumericInput implements AfterViewInit, OnDestroy {
         this.nativeElement = jQuery(this.elementRef.nativeElement);
         
         elementRef.nativeElement.addEventListener('keydown', (event) => {
+            if (event.keyCode === 13 && this.config.onEnter) {
+                event.preventDefault();
+                event.stopPropagation();
+                this.config.onEnter();
+            } 
+            
             if (!event.shiftKey && event.keyCode === 9 && this.config.onTab) {
                 event.preventDefault();
                 event.stopPropagation();
