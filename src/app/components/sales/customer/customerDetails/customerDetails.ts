@@ -43,6 +43,8 @@ export class CustomerDetails implements OnInit{
     
     public whenFormInstance: Promise<UniForm>;
 
+    //private layout: any; //TK
+
     constructor(private departementService: DepartementService,
                 private projectService: ProjectService,
                 private customerService: CustomerService,
@@ -87,7 +89,7 @@ export class CustomerDetails implements OnInit{
         
         let expandOptions = ['Info', 'Info.Phones', 'Info.Addresses', 'Info.Emails'];
         
-        Observable.forkJoin(
+         Observable.forkJoin(
             this.departementService.GetAll(null),
             this.projectService.GetAll(null),
             (
@@ -105,23 +107,28 @@ export class CustomerDetails implements OnInit{
             this.EmptyEmail = response[4];
             this.EmptyAddress = response[5];
             
-            this.createFormConfig();
-            this.extendFormConfig();
-            this.loadForm();                  
+            //this.createFormConfig();
+            this.getLayout();
+                          
         });       
     }
 
-    //public ngAfterViewInit() {
-    //    var self = this;
-    //    this.customerService.GetLayout('CustomerDetailsForm').subscribe((results: any) => {
-    //        this.layout = response;
+    public getLayout() {
+        var self = this;
+        this.customerService.GetLayout('CustomerDetailsForm').subscribe((results: any) => {
+            //this.layout = results;
 
-    //        var view: ComponentLayout = results[0];
-    //        //var model: Employee = results[1];
+            var view: ComponentLayout = results;
+            //var model: Employee = results[1];
 
-    //        self.startApp(view, model);
-    //    });
-    //}
+            //self.startApp(view, model);
+            this.FormConfig = new UniFormLayoutBuilder().build(view, this.Customer);
+            this.FormConfig.hideSubmitButton();
+
+            this.extendFormConfig();
+            this.loadForm();   
+        });
+    }
 
          
     public addSearchInfo(selectedSearchInfo: SearchResultItem) {
