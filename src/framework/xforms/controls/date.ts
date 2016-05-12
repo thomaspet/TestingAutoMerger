@@ -44,7 +44,7 @@ export class UniDateInput {
     public onChange: EventEmitter<any> = new EventEmitter<any>(true);
     
     private lastControlValue: string;
-    
+    private datepicker: kendo.ui.kendoDatePicker;
     constructor(public elementRef: ElementRef, private cd: ChangeDetectorRef) {
     }
 
@@ -63,12 +63,17 @@ export class UniDateInput {
         this.cd.markForCheck();
     }
 
-    public ngOnChanges() {
-        this.lastControlValue = this.control.value;
+    public ngOnChanges(changes) {
+        if (changes['field']) {
+            this.lastControlValue = this.control.value;
+            if (this.datepicker) {
+                this.datepicker.value(_.get(this.model, this.field.Property));
+            }
+        }
     }
 
     public ngAfterViewInit() {
-        var options = this.field.Options;
+        var options = this.field.Options || {};
         var datepicker, self = this;
 
         if (options.autocomplete === undefined) {
@@ -90,14 +95,13 @@ export class UniDateInput {
             }
 
             if (date) {
-                self.control.updateValue(kendo.toString(date, 'yyyy-MM-ddTHH:mm:ss'), {});
                 this.value(date);
                 _.set(self.model, self.field.Property, date);
-                self.onChange.emit(this.model);
+                self.onChange.emit(self.model);
             } else {
                 self.control.updateValue(null, {});
-                _.set(self.model,self.field.Property,null);
-                self.onChange.emit(this.model);
+                _.set(self.model, self.field.Property, null);
+                self.onChange.emit(self.model);
             }
         };
         
@@ -120,7 +124,7 @@ export class UniDateInput {
             datepicker.trigger('change');
         });
 
-        datepicker.value(new Date(control.value));
+        datepicker.value(_.get(this.model, this.field.Property));
         this.datepicker = datepicker;
         this.onReady.emit(this);
     }

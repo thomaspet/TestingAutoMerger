@@ -7,7 +7,7 @@ declare var _; // jquery and lodash
     selector: 'uni-hyperlink-input',
     changeDetection: ChangeDetectionStrategy.OnPush,
     template: `
-        <a [href]="field?.Options?.url"
+        <a [href]="getValue()"
         >{{field?.Options?.description}}</a>
     `
 })
@@ -38,6 +38,10 @@ export class UniHyperlinkInput {
 
     public editMode() {
         return this;
+    }
+
+    public getValue() {
+        return _.get(this.model, this.Property) || '#';
     }
 
     public ngAfterViewInit() {

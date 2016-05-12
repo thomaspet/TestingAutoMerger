@@ -4,7 +4,7 @@ import {FieldLayout} from '../../../app/unientities';
 declare var _, jQuery; // jquery and lodash
 
 @Component({
-    selector: 'uni-text-input',
+    selector: 'uni-masked-input',
     changeDetection: ChangeDetectionStrategy.OnPush,
     template: `
         <input
@@ -38,7 +38,10 @@ export class UniMaskedInput {
     }
 
     public focus() {
-        this.elementRef.nativeElement.children[0].focus();
+        jQuery(this.elementRef.nativeElement)
+            .find('input')
+            .first()
+            .focus();
         return this;
     }
 
@@ -53,11 +56,13 @@ export class UniMaskedInput {
     }
 
     public ngOnChanges() {
-        this.maskedInput.value(this.control.value);
+        if (this.maskedInput) {
+            this.maskedInput.value(this.control.value);
+        }
     }
 
     public ngAfterViewInit() {
-        var maskedInput;
+        var maskedInput: kendo.ui.MaskedTextBox;
 
         var options: kendo.ui.MaskedTextBoxOptions = this.field.Options || {};
         var self = this;
@@ -70,8 +75,9 @@ export class UniMaskedInput {
             self.onChange.emit(self.model);
         };
 
-        maskedInput = this.elementRef.nativeElement
-            .children[0]
+        maskedInput = jQuery(this.elementRef.nativeElement)
+            .find('input')
+            .first()
             .kendoMaskedTextBox(options)
             .data('kendoMaskedTextBox');
 

@@ -3,7 +3,7 @@ import {EmployeeService} from '../../../services/Salary/Employee/EmployeeService
 import {UniForm} from '../../../../framework/xforms/uniform';
 import {Employee} from '../../../unientities';
 import {NgIf} from '@angular/common';
-import {FieldLayout} from '../../../unientities';
+import {FieldLayout, Employment} from '../../../unientities';
 
 declare var _;
 
@@ -70,9 +70,15 @@ export class XFormDemo {
                 ReadOnly: false,
                 Placeholder: 'Add new employment',
                 Options: {
-                    valueProperty: 'JobName',
-                    defaultField: 'DefaultJobTest',
-                    editor: (item) => new Promise((resolve) => resolve(item))
+                    entity: Employment,
+                    displayValue: 'JobName',
+                    linkProperty: 'ID',
+                    foreignProperty: 'DefaultJobTest',
+                    editor: (value) => new Promise((resolve) => {
+                        var x: Employment = new Employment();
+                        x.JobName = value;
+                        resolve(x);
+                    })
                 }
             };
             var autocompleteTest: FieldLayout = {
@@ -82,7 +88,7 @@ export class XFormDemo {
                 Label: 'Autocomplete',
                 Property: 'AutocompleteTest',
                 ReadOnly: false,
-                Placeholder: 'AUtocomplete',
+                Placeholder: 'Autocomplete',
                 Options: {
                     source: [
                         { id: 1, name: 'Jorge' },
@@ -90,15 +96,132 @@ export class XFormDemo {
                         { id: 3, name: 'Anders' },
                     ],
                     template: (obj) => `${obj.id} - ${obj.name}`, 
-                    valueProperty: 'name',
+                    displayProperty: 'name',
+                    valueProperty: 'id',
                     debounceTime: 500,
+                }
+            };
+            var emailTest: FieldLayout = {
+                FieldSet: 0,
+                Section: 0,
+                FieldType: 11,
+                Label: 'Email test',
+                Property: 'EmailTestProperty',
+                ReadOnly: false
+            };
+            var passwordTest: FieldLayout = {
+                FieldSet: 0,
+                Section: 0,
+                FieldType: 12,
+                Label: 'Password test',
+                Property: 'PasswodTestProperty',
+                ReadOnly: false
+            };
+            var textareaTest: FieldLayout = {
+                FieldSet: 0,
+                Section: 0,
+                FieldType: 16,
+                Label: 'Textarea test',
+                Property: 'TextareaTestProperty',
+                ReadOnly: false
+            };
+            var hyperlinkTest: FieldLayout = {
+                FieldSet: 0,
+                Section: 0,
+                FieldType: 13,
+                Label: 'Hyperlink test',
+                Property: 'HyperLinkProperty',
+                ReadOnly: false,
+                Options: {
+                    description: 'Open Link'
+                }
+            };
+            var urlTest: FieldLayout = {
+                FieldSet: 0,
+                Section: 0,
+                FieldType: 15,
+                Label: 'Url test',
+                Property: 'UrlProperty',
+                ReadOnly: false
+            };
+            var selectTest: FieldLayout = {
+                FieldSet: 0,
+                Section: 0,
+                FieldType: 3,
+                Label: 'Select',
+                Property: 'SelectTest',
+                ReadOnly: false,
+                Placeholder: 'Select',
+                Options: {
+                    source: [
+                        { id: 1, name: 'Jorge' },
+                        { id: 2, name: 'Frank' },
+                        { id: 3, name: 'Anders' },
+                    ],
+                    template: (obj) => `${obj.id} - ${obj.name}`, 
+                    valueProperty: 'id',
+                    debounceTime: 500,
+                }
+            };
+            var dateTest: FieldLayout = {
+                FieldSet: 0,
+                Section: 0,
+                FieldType: 2,
+                Label: 'Date',
+                Property: 'DateTest',
+                ReadOnly: false,
+                Placeholder: 'Select a date'    
+            };
+            var radiogroupTest: FieldLayout = {
+                FieldSet: 0,
+                Section: 0,
+                FieldType: 9,
+                Label: 'Radio Group',
+                Property: 'RadioGroupTest',
+                ReadOnly: false,
+                Placeholder: 'Select',
+                Options: {
+                    source: [
+                        { id: 1, name: 'Jorge' },
+                        { id: 2, name: 'Frank' },
+                        { id: 3, name: 'Anders' },
+                    ],
+                    labelProperty: 'name', 
+                    valueProperty: 'id'
+                }
+            };
+            var checkboxgroupTest: FieldLayout = {
+                FieldSet: 0,
+                Section: 0,
+                FieldType: 8,
+                Label: 'Checkbox Group',
+                Property: 'CheckboxGroupTest',
+                ReadOnly: false,
+                Placeholder: 'Select',
+                Options: {
+                    source: [
+                        { id: 1, name: 'Jorge' },
+                        { id: 2, name: 'Frank' },
+                        { id: 3, name: 'Anders' },
+                    ],
+                    labelProperty: 'name', 
+                    valueProperty: 'id'
                 }
             };
             self.fields = [
                 numericTest, 
-                // maskedTest, 
-                // multiValueTest, 
-                // autocompleteTest, 
+                maskedTest, 
+                multiValueTest, 
+                autocompleteTest, 
+                emailTest,
+                passwordTest,
+                hyperlinkTest,
+                urlTest,
+                textareaTest,
+                selectTest,
+                radiogroupTest,  
+                dateTest,   
+                checkboxgroupTest,       
                 ...self.fields];
         });
         this.config = {
@@ -115,7 +238,9 @@ export class XFormDemo {
         var self = this;
         //*
         setTimeout(() => {
-            self.api.get(2).toPromise().then((employee: any) => self.employee = employee);
+            self.api.get(2).toPromise().then((employee: any) => {
+                self.employee = employee;
+            });
         }, 1000);
         /*
         setTimeout(() => {

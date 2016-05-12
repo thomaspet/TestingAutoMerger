@@ -8,7 +8,9 @@ export * from './hyperlink';
 export * from './select';
 export * from './masked';
 export * from './date';
-export * from './autocomplete'
+export * from './autocomplete';
+export * from './multivalue';
+export * from './radiogroup';
 
 import {UniTextInput}  from './text';
 import {UniNumericInput}  from './numeric';
@@ -21,6 +23,9 @@ import {UniSelectInput}  from './select';
 import {UniMaskedInput}  from './masked';
 import {UniDateInput}  from './date';
 import {UniAutocompleteInput}  from './autocomplete';
+import {UniMultivalueInput}  from './multivalue';
+import {UniRadiogroupInput}  from './radiogroup';
+import {UniCheckboxgroupInput}  from './checkboxgroup';
 
 export var CONTROLS = [
     UniAutocompleteInput, // 0 - autocomplete
@@ -31,13 +36,13 @@ export var CONTROLS = [
     undefined, // 5 - multiselect - deprecated use multivalue 
     UniNumericInput, // 6 - numeric
     undefined, // 7 - radio 
-    undefined, // 8 - checkbox
-    undefined, // 9 - radio group
+    UniCheckboxgroupInput, // 8 - checkbox group
+    UniRadiogroupInput, // 9 - radio group
     UniTextInput, // 10 - text
     UniEmailInput, // 11 - email
     UniPasswordInput, // 12 - password
     UniHyperlinkInput, // 13 - link 
-    undefined, // 14 - multivalue
+    UniMultivalueInput, // 14 - multivalue
     UniUrlInput, // 15 -url
     UniTextareaInput, // 16 - textarea            
 ];

@@ -15,7 +15,7 @@ declare var _; // lodash
             [cols]="field?.Options?.cols || 100"
             [rows]="field?.Options?.rows || 10"
             [placeholder]="field?.Options?.placeholder"
-            (blur)="blurHandler($event)
+            (blur)="blurHandler($event)"
         ></textarea>
     `
 })

@@ -7,31 +7,84 @@ import {ValidatorsComposer} from './composers/validatorsComposer';
 
 declare var _; // lodash
 
+var VALID_CONTROLS = CONTROLS.filter((x, i) => {
+    return (
+        i === 0
+        || i === 2
+        || i === 3
+        || i === 4
+        || i === 6
+        || i === 8
+        || i === 9
+        || i === 10      
+        || i === 11
+        || i === 12
+        || i === 13
+        || i === 14
+        || i === 15
+        || i === 16
+    );
+});
+console.log(VALID_CONTROLS);
 @Component({
     selector: 'uni-field',
     template: `
         <label 
-            *ngIf="isInput()" 
             [class.error]="hasError()" 
             [class]="buildClassString()" 
             [class.-has-linebreak]="hasLineBreak()"
             [hidden]="Hidden">
             
-            <span>{{field.Label}}</span>
-            
-            <uni-text-input #selectedComponent *ngIf="field?.FieldType === 10 && control" 
+            <span>{{field?.Label}}</span>
+
+            <uni-autocomplete-input #selectedComponent *ngIf="field?.FieldType === 0 && control" 
                 [control]="control" [field]="field" [model]="model" (onReady)="onReadyHandler($event)" (onChange)="onChangeHandler($event)"
-            ></uni-text-input>
-            
+            ></uni-autocomplete-input>
+            <uni-date-input #selectedComponent *ngIf="field?.FieldType === 2 && control" 
+                [control]="control" [field]="field" [model]="model" (onReady)="onReadyHandler($event)" (onChange)="onChangeHandler($event)"
+            ></uni-date-input>
+            <uni-select-input #selectedComponent *ngIf="field?.FieldType === 3 && control" 
+                [control]="control" [field]="field" [model]="model" (onReady)="onReadyHandler($event)" (onChange)="onChangeHandler($event)"
+            ></uni-select-input>
+            <uni-masked-input #selectedComponent *ngIf="field?.FieldType === 4 && control" 
+                [control]="control" [field]="field" [model]="model" (onReady)="onReadyHandler($event)" (onChange)="onChangeHandler($event)"
+            ></uni-masked-input>
             <uni-numeric-input #selectedComponent *ngIf="field?.FieldType === 6 && control" 
                 [control]="control" [field]="field" [model]="model" (onReady)="onReadyHandler($event)" (onChange)="onChangeHandler($event)"
             ></uni-numeric-input>
+            <uni-checkboxgroup-input #selectedComponent *ngIf="field?.FieldType === 8 && control" 
+                [control]="control" [field]="field" [model]="model" (onReady)="onReadyHandler($event)" (onChange)="onChangeHandler($event)"
+            ></uni-checkboxgroup-input>
+            <uni-radiogroup-input #selectedComponent *ngIf="field?.FieldType === 9 && control" 
+                [control]="control" [field]="field" [model]="model" (onReady)="onReadyHandler($event)" (onChange)="onChangeHandler($event)"
+            ></uni-radiogroup-input>
+            <uni-text-input #selectedComponent *ngIf="field?.FieldType === 10 && control" 
+                [control]="control" [field]="field" [model]="model" (onReady)="onReadyHandler($event)" (onChange)="onChangeHandler($event)"
+            ></uni-text-input>
+            <uni-email-input #selectedComponent *ngIf="field?.FieldType === 11 && control" 
+                [control]="control" [field]="field" [model]="model" (onReady)="onReadyHandler($event)" (onChange)="onChangeHandler($event)"
+            ></uni-email-input>
+            <uni-password-input #selectedComponent *ngIf="field?.FieldType === 12 && control" 
+                [control]="control" [field]="field" [model]="model" (onReady)="onReadyHandler($event)" (onChange)="onChangeHandler($event)"
+            ></uni-password-input>
+            <uni-hyperlink-input #selectedComponent *ngIf="field?.FieldType === 13 && control" 
+                [control]="control" [field]="field" [model]="model" (onReady)="onReadyHandler($event)" (onChange)="onChangeHandler($event)"
+            ></uni-hyperlink-input>  
+            <uni-multivalue-input #selectedComponent *ngIf="field?.FieldType === 14 && control" 
+                [control]="control" [field]="field" [model]="model" (onReady)="onReadyHandler($event)" (onChange)="onChangeHandler($event)"
+            ></uni-multivalue-input>
+            <uni-url-input #selectedComponent *ngIf="field?.FieldType === 15 && control" 
+                [control]="control" [field]="field" [model]="model" (onReady)="onReadyHandler($event)" (onChange)="onChangeHandler($event)"
+            ></uni-url-input> 
+            <uni-textarea-input #selectedComponent *ngIf="field?.FieldType === 16 && control" 
+                [control]="control" [field]="field" [model]="model" (onReady)="onReadyHandler($event)" (onChange)="onChangeHandler($event)"
+            ></uni-textarea-input>                         
             
             <show-error *ngIf="component" [control]="component.control" [messages]="messages"></show-error>
         </label>
     `,
     changeDetection: ChangeDetectionStrategy.OnPush,
-    directives: [FORM_DIRECTIVES, CONTROLS[10], CONTROLS[6]],
+    directives: [FORM_DIRECTIVES, VALID_CONTROLS],
     providers: [FORM_PROVIDERS],
 })
 export class UniField {
@@ -75,12 +128,12 @@ export class UniField {
         this.field.Hidden = value;
         this.ref.markForCheck();
     }
-    
+
     private control: Control;
-    
-    
+
+
     constructor(private ref: ChangeDetectorRef) { }
-    
+
     public focus() {
         if (this.Component.focus) {
             this.Component.focus();
@@ -104,7 +157,7 @@ export class UniField {
     public addClass(name: string, value: any) {
         this.classes[name] = value;
     }
-    
+
     public ngOnChanges(changes: { [propKey: string]: SimpleChange }) {
         if (changes['model']) {
             var value = _.get(this.model, this.field.Property);
@@ -116,24 +169,15 @@ export class UniField {
             this.control = control;
         }
     }
-    
+
     private onReadyHandler() {
         this.onReady.emit(this);
     }
-    
+
     private onChangeHandler(model) {
         this.onChange.emit(model);
     }
     
-    private isInput() {
-        return !this.isCheckbox() && !this.isRadioGroup();
-    }
-    private isCheckbox() {
-        return this.field.FieldType === 8;
-    }
-    private isRadioGroup() {
-        return this.field.FieldType === 9;
-    }
     private hasError() {
         if (this.Component) {
             return !this.Component.control.valid;

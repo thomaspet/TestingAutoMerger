@@ -13,7 +13,7 @@ declare var _; // jquery and lodash
             type="url"
             [ngFormControl]="control"
             [readonly]="field?.ReadOnly"
-            [placeholder]="field?.Options?.placeholder || ''"
+            [placeholder]="field?.Placeholder || ''"
             (blur)="blurHandler()"
         />
         <button class="uni-url-openBtn" 

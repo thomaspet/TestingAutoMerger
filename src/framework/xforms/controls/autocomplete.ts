@@ -5,7 +5,7 @@ import {BizHttp} from '../../core/http/BizHttp';
 import {FieldLayout} from '../../../app/unientities';
 
 
-declare var _; // jquery and lodash
+declare var _, jQuery; // jquery and lodash
 var guid = kendo.guid;
 
 export class UniAutocompleteConfig {
@@ -39,7 +39,8 @@ export class UniAutocompleteConfig {
 
                 *ngIf="control"
                 [ngFormControl]="control"
-                [readonly]="field?,ReadOnly"
+                [readonly]="field?.ReadOnly"
+                [placeholder]="field?.Placeholder || ''"
             />
 
             <ul class="autocomplete_results"
@@ -48,14 +49,14 @@ export class UniAutocompleteConfig {
                 tabindex="-1"
                 [attr.aria-expanded]="isExpanded">
 
-            <li *ngFor="let result of results"
-                class="autocomplete_result"
-                role="option"
-                (mouseover)="selected = result"
-                (click)="choose(result)"
-                [attr.aria-selected]="selected === result">
-                {{template(result)}}
-            </li>
+                <li *ngFor="let result of results"
+                    class="autocomplete_result"
+                    role="option"
+                    (mouseover)="selected = result"
+                    (click)="choose(result)"
+                    [attr.aria-selected]="selected === result">
+                    {{template(result)}}
+                </li>
 
             </ul>
         </div>
@@ -86,6 +87,7 @@ export class UniAutocompleteInput {
     private selected: any;
     private results: any[];
     private query: string;
+    private value: string;
     
     constructor(public el: ElementRef, private cd: ChangeDetectorRef) {
         // Set a guid to use in DOM IDs etc.
@@ -122,7 +124,7 @@ export class UniAutocompleteInput {
         });
 
         el.nativeElement.addEventListener('keydown', (event) => {
-            if(event.keyCode === 13) {
+            if (event.keyCode === 13) {
                 event.preventDefault();
                 event.stopPropagation();
             }
@@ -131,7 +133,7 @@ export class UniAutocompleteInput {
     }
 
     public focus() {
-        jQuery(this.elementRef.nativeElement).find('input').first().focus();
+        jQuery(this.el.nativeElement).find('input').first().focus();
         return this;
     }
 
@@ -145,44 +147,43 @@ export class UniAutocompleteInput {
         this.cd.markForCheck();
     }
 
-    public ngOnChanges() {
-        if (changes['field']) {
+    public ngOnChanges(changes) {
+        if (changes['model']) {
             this.options = this.field.Options || {};
             this.source = this.options.source;
-        }
+            var self = this;
+
+            // Select item first time to init autocomplete values
+            // That means initial value should be in the result
+            // Values that are not in the source are not allowed
+            
+            this.search(_.get(this.model, this.options.valueKey))
+                .toPromise()
+                .then((x) => {
+                    if (x && x[0]) {
+                        this.selected = x[0];
+                        self.choose(x[0]);
+                    }
+                });
+
+            // Listen for changes in the input
+            this.control.valueChanges
+                .debounceTime(this.options.debounceTime || 0)
+                .distinctUntilChanged()
+                .filter(x => {
+                    return x !== undefined;
+                })
+                .filter((x: string) => {
+                    return x.length >= (self.options.minLength || 0);
+                })
+                .filter((x: string) => {
+                    return self.lastValue !== x;
+                })
+                .subscribe((value) => self.searchHandler(value));
+            }
     }
     
     public ngAfterViewInit() {
-        var self = this;
-
-        // Select item first time to init autocomplete values
-        // That means initial value should be in the result
-        // Values that are not in the source are not allowed
-        
-        this.search(_.get(this.model, options.valueKey))
-            .toPromise()
-            .then((x) => {
-                if (x && x[0]) {
-                    this.selected = x[0];
-                    self.choose(x[0]);
-                }
-            });
-
-        // Listen for changes in the input
-        this.control.valueChanges
-            .debounceTime(options.debounceTime || 0)
-            .distinctUntilChanged()
-            .filter(x => {
-                return x !== undefined;
-            })
-            .filter((x: string) => {
-                return x.length >= self.options.minLength;
-            })
-            .filter((x: string) => {
-                return self.lastValue !== x;
-            })
-            .subscribe((value) => self.searchHandler(value));
-
         this.onReady.emit(this);
     }
 
@@ -211,12 +212,14 @@ export class UniAutocompleteInput {
 
     // The UI handler for searching
     private searchHandler(query: any) {
+        var self = this;
         this.results = [];
 
         // Clean up if the search is cleared out
-        if (!query) {
+        if (!query && query !== '') {
             this.isExpanded = false;
             this.selected = undefined;
+            this.cd.markForCheck();
             return;
         }
 
@@ -225,14 +228,15 @@ export class UniAutocompleteInput {
             (result) => {
                 if (result.constructor === Array) {
                     if (result.length > 0) {
-                        this.selected = result[0];
+                        self.selected = result[0];
                     }
-                    this.results = result;
+                    self.results = result;
                 } else {
-                    this.selected = result;
-                    this.results.push(result);
+                    self.selected = result;
+                    self.results.push(result);
                 }
-                this.isExpanded = true;
+                self.isExpanded = true;
+                this.cd.markForCheck();
             },
             (err) => {
                 console.error(err);
@@ -277,14 +281,17 @@ export class UniAutocompleteInput {
         this.isExpanded = false;
 
         if (item) {
-            this.query = _.get(item, this.field.Options.valueKey);
-            this.value = _.get(item, this.field.Options.valueKey);
+            this.query = _.get(item, this.field.Options.displayProperty);
+            this.value = _.get(item, this.field.Options.valueProperty);
         } else {
             this.query = '';
             this.value = undefined;
         }
         this.lastValue = this.value;
-        this.control.updateValue(this.value, {});
+        this.control.updateValue(this.query, {});
+        if (_.get(this.model, this.field.Property) === this.value) {
+            return;
+        }
         _.set(this.model, this.field.Property, this.value);
         this.onChange.emit(this.model);
     }

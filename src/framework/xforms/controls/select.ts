@@ -7,8 +7,8 @@ declare var _; // jquery and lodash
     selector: 'uni-select-input',
     changeDetection: ChangeDetectionStrategy.OnPush,
     template: `
-        <select [readonly]="field?.ReadOnly" (change)="onChangeHandler($event)">
-            <option *ngFor="let item of items" [value]="getValue(item)">
+        <select [disabled]="field?.ReadOnly" (change)="onChangeHandler($event)">
+            <option *ngFor="let item of items" [value]="value(item)">
                 {{template(item)}}
             </option>
         </select>
@@ -50,13 +50,15 @@ export class UniSelectInput {
         this.cd.markForCheck();
     }
 
-    public ngOnChanges() {
-        if (this.field.Options.source.constructor === Array) {
-            this.items = this.field.Options.source;
-        } else if (this.field.Options.source.subscribe) {
-            this.field.Options.souce.subscribe(items => this.items = items);
-        } else if (typeof this.field.Optons.source === 'string') {
-            // TODO: manage lookup url;
+    public ngOnChanges(changes) {
+        if (changes['field']) {
+            if (this.field.Options.source.constructor === Array) {
+                this.items = this.field.Options.source;
+            } else if (this.field.Options.source.subscribe) {
+                this.field.Options.souce.subscribe(items => this.items = items);
+            } else if (typeof this.field.Options.source === 'string') {
+                // TODO: manage lookup url;
+            }
         }
     }
 
@@ -73,13 +75,10 @@ export class UniSelectInput {
         if (this.field.Options.template) {
             return this.field.Options.template(item);
         }
-        return item;
+        return _.get(item, this.field.Options.displayProperty);
     }
 
-    private getValue(item) {
-        if (this.field.Options.getValue) {
-            return this.field.Options.getValue(item);
-        }
-        return item;
+    private value(item) {
+        return _.get(item, this.field.Options.valueProperty);
     }
 }
