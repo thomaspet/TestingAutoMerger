@@ -65,13 +65,13 @@ export class QuoteItemList {
     
     private mapProductToQuoteItem(rowModel) {
         let product = rowModel['Product'];
-        rowModel['ProductID'] = product.ID;
-        rowModel['ItemText'] = product.Name;
-        rowModel['Unit'] = product.Unit;
-        rowModel['VatTypeID'] = product.VatTypeID;
-        rowModel['VatType'] = product.VatType;
-        rowModel['PriceExVat'] = product.PriceExVat;
-        rowModel['PriceIncVat'] = product.PriceIncVat;
+        rowModel.ProductID = product.ID;
+        rowModel.ItemText = product.Name;
+        rowModel.Unit = product.Unit;
+        rowModel.VatTypeID = product.VatTypeID;
+        rowModel.VatType = product.VatType;
+        rowModel.PriceExVat = product.PriceExVat;
+        rowModel.PriceIncVat = product.PriceIncVat;
     }
     
     private calculatePriceIncVat(rowModel) {
@@ -84,10 +84,10 @@ export class QuoteItemList {
         const discountExVat  = (rowModel['NumberOfItems'] * rowModel['PriceExVat'] * rowModel['DiscountPercent']) / 100;
         const discountIncVat = (rowModel['NumberOfItems'] * rowModel['PriceIncVat'] * rowModel['DiscountPercent']) / 100;
         
-        rowModel['Discount'] = discountExVat || 0;
-        rowModel['SumTotalExVat'] = (rowModel['NumberOfItems'] * rowModel['PriceExVat']) - discountExVat;
-        rowModel['SumTotalIncVat'] = (rowModel['NumberOfItems'] * rowModel['PriceIncVat']) - discountIncVat;
-        rowModel['SumVat'] = rowModel['SumTotalIncVat'] - rowModel['SumTotalExVat'];
+        rowModel.Discount = discountExVat || 0;
+        rowModel.SumTotalExVat = (rowModel.NumberOfItems * rowModel.PriceExVat) - discountExVat;
+        rowModel.SumTotalIncVat = (rowModel.NumberOfItems * rowModel.PriceIncVat) - discountIncVat;
+        rowModel.SumVat = rowModel.SumTotalIncVat - rowModel.SumTotalExVat;
     }
     
     private setupUniTable() {
@@ -139,7 +139,7 @@ export class QuoteItemList {
                 exVatCol, discountPercentCol, discountCol, vatTypeCol,
                 sumTotalExVatCol, sumVatCol, sumTotalIncVatCol 
             ])
-            .setMultiRowSelect(true)
+            .setMultiRowSelect(false)
             .setDefaultRowData({                
                 Product: null,
                 ProductID: null,
@@ -166,10 +166,8 @@ export class QuoteItemList {
     }     
     
     private rowChanged(event) {  
-        console.log('row changed, calculate sums');
-        
-        //TODO: Trenger ny versjon til NPM
-        //var tableData = this.table.getTableData();            
-        //this.ItemsUpdated.emit(tableData); 
+        console.log('row changed, calculate sums');        
+        var tableData = this.table.getTableData();            
+        this.ItemsUpdated.emit(tableData); 
     }
 }
