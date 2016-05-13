@@ -28,6 +28,7 @@ export class TransqueryList {
     private periodeTable: UniTableConfig;
     private account: any;
     private periods$: Observable<any>;
+    private isIncomingBalance: boolean;
 
     constructor(private router: Router, 
                 private accountService: AccountService, 
@@ -91,7 +92,10 @@ export class TransqueryList {
         this.account = account;
         
         if (account) {
-            this.periods$ = this.journalEntryService.getJournalEntryPeriodData(account.ID);            
+            this.periods$ = this.journalEntryService.getJournalEntryPeriodData(account.ID);
+            this.periods$.subscribe((data) => {
+               this.isIncomingBalance = data.find(period => period.PeriodNo == 0) != null; 
+            });
         }
     }
     
@@ -112,12 +116,11 @@ export class TransqueryList {
         let periodeCol = new UniTableColumn('PeriodName', 'Periode'); //.setWidth('60%');
         let lastYearCol = new UniTableColumn('PeriodSumYear1', `Regnskapsår ${year - 1}`)
             .setTemplate((period) => {
-                return "<b>test</b>";
-                //return `<a href="/#/accounting/transquery/details/${year - 1}/${period.PeriodNo}">${period.PeriodSumYear1}</a>`;
+                return `<a href="/#/accounting/transquery/detailsByAccountId/${this.account.ID}/year/${year - 1}/period/${period.PeriodNo}/isIncomingBalance/${this.isIncomingBalance}">${period.PeriodSumYear1}</a>`;
             });
         let thisYearCol = new UniTableColumn('PeriodSumYear2', `Regnskapsår ${year}`)            
             .setTemplate((period) => {
-                return `<a href="/#/accounting/transquery/details/${year}/${period.PeriodNo}">${period.PeriodSumYear2}</a>`;
+                return `<a href="/#/accounting/transquery/detailsByAccountId/${this.account.ID}/year/${year}/period/${period.PeriodNo}/isIncomingBalance/${this.isIncomingBalance}">${period.PeriodSumYear2}</a>`;
             });
         
         // Setup table
