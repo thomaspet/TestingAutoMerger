@@ -1,12 +1,14 @@
-<article class="postingsummary" [attr.aria-busy="busy">
-    <h1 *ngIf="postingsummary">Konteringssammendrag for lønnsavregning {{postingsummary.PayrollRun.ID}} - {{postingsummary.PayrollRun.Description}}</h1>
+<article class="postingsummary" [attr.aria-busy]="busy">
+    <h3 *ngIf="postingsummary">Konteringssammendrag for lønnsavregning {{postingsummary.PayrollRun.ID}} - {{postingsummary.PayrollRun.Description}}</h3>
 
     <header class="postingsummary_header">
-        <h3>Kontering til regnskap</h3>
+        <h4>Kontering til regnskap</h4>
         <uni-form *ngIf="headerConfig" [config]="headerConfig"></uni-form>
     </header>
 
-    <uni-table *ngIf="!showReceipt"></uni-table>
+    <uni-table *ngIf="!showReceipt" [config]="accountTableConfig"></uni-table>
+    <label>Kontrollsum totalt</label>
+    <uni-table *ngIf="!showReceipt" [config]="debcredTableConfig"></uni-table>
 
     <section *ngIf="showReceipt">
         <p>Bilaget er bokført i ditt regnskap</p>
