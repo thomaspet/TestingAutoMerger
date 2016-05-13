@@ -24,7 +24,7 @@ export class HamburgerMenu {
                 componentListName: 'Nøkkeltall',
                 componentListHeader: 'Alt om deres økonomi',
                 componentList: [
-                    {componentName: 'Nøkkeltall', componentUrl: '/'},                    
+                    {componentName: 'Nøkkeltall', componentUrl: '/'},
                     {componentName: 'Regnskap', componentUrl: '/accounting'}
                 ]
             },
@@ -33,11 +33,11 @@ export class HamburgerMenu {
                 componentListHeader: 'Utgående salg',
                 componentList: [
                     {componentName: 'Kunder', componentUrl: '/sales'},
-                    {componentName: 'Leverandører', componentUrl: '/sales/supplier'},                    
-                    {componentName: 'Tilbud', componentUrl: '/sales/quote'},                    
+                    {componentName: 'Leverandører', componentUrl: '/sales/supplier'},
+                    {componentName: 'Tilbud', componentUrl: '/sales/quote'},
                     {componentName: 'Ordre', componentUrl: '/sales/order'},
                     {componentName: 'Faktura', componentUrl: '/sales/invoice'},
-                    {componentName: 'Produkter', componentUrl: '/products'}                    
+                    {componentName: 'Produkter', componentUrl: '/products'}
                 ]
             },
             {
@@ -45,7 +45,8 @@ export class HamburgerMenu {
                 componentListHeader: 'Orden i bøkene',
                 componentList: [
                     {componentName: 'Bilagsføring', componentUrl: '/accounting'},
-                    {componentName: 'Forespørsel', componentUrl: '/accounting/transquery'}                   
+                    {componentName: 'Forespørsel på konto', componentUrl: '/accounting/transquery'},
+                    {componentName: 'Forespørsel på bilag', componentUrl: '/accounting/transquery/details'}
                 ]
             },
             {
@@ -70,7 +71,7 @@ export class HamburgerMenu {
     constructor(public router: Router, private elementRef: ElementRef) {
         this.availableComponents = HamburgerMenu.getAvailableComponents();
     }
-    
+
     public ngAfterViewInit() {
         jQuery('.listElement').mouseover(function() {
             jQuery(this).addClass('is-active');
@@ -79,18 +80,18 @@ export class HamburgerMenu {
     }
 
     private closeNavbar() {
-        jQuery('.navbar_hamburger').removeClass('is-active');   
+        jQuery('.navbar_hamburger').removeClass('is-active');
     }
 
     private onClick(event) {
         let target = jQuery(event.target);
-        
+
         // Close on clicks outside
         if (!target.parents(this.elementRef.nativeElement).length) {
             this.closeNavbar();
             return;
         }
-        
+
         if (target.hasClass('navbar_hamburger')) {
             target.toggleClass('is-active');
         }
