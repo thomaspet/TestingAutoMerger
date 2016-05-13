@@ -9,5 +9,5 @@
 
 <section class="application">
     <uni-component-loader></uni-component-loader>
-    <uni-table [config]="periodeTable"></uni-table>
+    <uni-table [resource]="periods$ | async" [config]="periodeTable"></uni-table>
 </section>
