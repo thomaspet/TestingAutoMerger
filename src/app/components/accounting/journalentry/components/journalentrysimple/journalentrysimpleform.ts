@@ -34,7 +34,7 @@ export class JournalEntrySimpleForm implements OnChanges {
     journalEntryLines: Array<JournalEntryData>;
     
     @Input()
-    hideSameOrNew: boolean
+    hideSameOrNew: boolean;
     
     @Output()
     created = new EventEmitter<any>();
@@ -71,8 +71,13 @@ export class JournalEntrySimpleForm implements OnChanges {
         this.vattypes = [];
         this.accounts = [];
         this.journalEntryLine = new JournalEntryData();
-        this.journalEntryLine.SameOrNew = this.SAME_OR_NEW_NEW;
         this.hideSameOrNew = false;        
+    }
+    
+    ngOnInit() {
+        if (!this.isEditMode) {           
+            this.journalEntryLine.SameOrNew = this.hideSameOrNew ? this.SAME_OR_NEW_SAME : this.SAME_OR_NEW_NEW;
+        }
     }
     
     ngOnChanges(changes: {[propName: string]: SimpleChange}) {                 
@@ -89,7 +94,7 @@ export class JournalEntrySimpleForm implements OnChanges {
     }
          
     addJournalEntry(event: any, journalEntryNumber: string = null) {  
-        if (this.journalEntryLines.length == 0 && journalEntryNumber == null) {
+        if (this.journalEntryLines.length == 0 && journalEntryNumber == null && !this.hideSameOrNew) {
             // New line fetch next journal entry number from server first
             var journalentrytoday: JournalEntryData = new JournalEntryData();
             journalentrytoday.FinancialDate = moment().toDate();
@@ -98,21 +103,29 @@ export class JournalEntrySimpleForm implements OnChanges {
             });            
         } else {
             var oldData: JournalEntryData = _.cloneDeep(this.formInstance.Value);              
-            var numbers = this.findJournalNumbersFromLines(journalEntryNumber);
+            var numbers = this.journalEntryService.findJournalNumbersFromLines(this.journalEntryLines, journalEntryNumber);
      
-            // next journal number?
-            if (oldData.SameOrNew === this.SAME_OR_NEW_NEW && !this.hideSameOrNew) {
-                oldData.JournalEntryNo = numbers.nextNumber;
-            } else {
-                oldData.JournalEntryNo = numbers.lastNumber;        
+            if (numbers) {
+                // next or same journal number?
+                if (oldData.SameOrNew === this.SAME_OR_NEW_NEW && !this.hideSameOrNew) {
+                    oldData.JournalEntryNo = numbers.nextNumber;
+                } else {
+                    oldData.JournalEntryNo = numbers.lastNumber;        
+                }
             }
             
+            var oldsameornew = oldData.SameOrNew;
             oldData.SameOrNew = oldData.JournalEntryNo;        
             this.created.emit(oldData);
                     
             this.journalEntryLine = new JournalEntryData(); 
             this.journalEntryLine.FinancialDate = oldData.FinancialDate;
-            this.journalEntryLine.SameOrNew = this.hideSameOrNew ? this.SAME_OR_NEW_SAME : this.SAME_OR_NEW_NEW;      
+            
+            if (this.hideSameOrNew) {
+                this.journalEntryLine.SameOrNew = this.SAME_OR_NEW_SAME;
+            } else {
+                this.journalEntryLine.SameOrNew = oldsameornew == this.SAME_OR_NEW_SAME ? this.SAME_OR_NEW_SAME : this.SAME_OR_NEW_NEW;
+            }
             
             this.formInstance.Model = this.journalEntryLine;
             this.setFocusOnDebit();
@@ -123,7 +136,7 @@ export class JournalEntrySimpleForm implements OnChanges {
         var newData: JournalEntryData = this.formInstance.Value;
         
         if (newData.SameOrNew === this.SAME_OR_NEW_NEW) {
-            var numbers = this.findJournalNumbersFromLines();
+            var numbers = this.journalEntryService.findJournalNumbersFromLines(this.journalEntryLines);
             newData.JournalEntryNo = numbers.nextNumber;
         } else {
             newData.JournalEntryNo = newData.SameOrNew;
@@ -151,40 +164,7 @@ export class JournalEntrySimpleForm implements OnChanges {
         var debitaccount: UniFieldBuilder = this.formInstance.find('DebitAccountID');
         debitaccount.setFocus(); 
     }
-    
-    private findJournalNumbersFromLines(nextJournalNumber: string = "") {
-        var first, last, year;
 
-        if (this.journalEntryLines && this.journalEntryLines.length) {
-            this.journalEntryLines.forEach((l:JournalEntryData, i) => {   
-                var parts = l.JournalEntryNo.split('-');
-                var no = parseInt(parts[0]);
-                if (!first || no < first) {
-                    first = no;   
-                }
-                if (!last || no > last) {
-                    last = no;
-                }
-                if (i == 0) { 
-                    year = parseInt(parts[1]);
-                }
-            });              
-        } else {
-            var parts = nextJournalNumber.split('-');
-            first = parseInt(parts[0]);
-            last = first;
-            year = parseInt(parts[1]);
-        }
-        
-        return {
-            first: first,
-            last: last,
-            year: year,
-            nextNumber: `${last + (this.journalEntryLines.length ? 1 : 0)}-${year}`,
-            lastNumber: `${last}-${year}`
-        };                       
-    }
-            
     ngAfterViewInit() {  
         // TODO get it from the API and move these to backend migrations   
         var view: ComponentLayout = {
@@ -494,8 +474,8 @@ export class JournalEntrySimpleForm implements OnChanges {
         }
                              
         // add list of possible numbers from start to end
-        if (this.isEditMode) {
-            var range = this.findJournalNumbersFromLines();  
+        if (this.isEditMode && !this.hideSameOrNew) {
+            var range = this.journalEntryService.findJournalNumbersFromLines(this.journalEntryLines);
             var current = parseInt(this.journalEntryLine.JournalEntryNo.split('-')[0]);
             for(var i = 0; i <= (range.last - range.first); i++) {
                 var jn = `${i+range.first}-${range.year}`;
