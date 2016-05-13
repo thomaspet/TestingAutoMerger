@@ -1,5 +1,5 @@
 <div *ngIf="journalEntryMode == 'SIMPLE'">
-    <journal-entry-simple [supplierInvoice]="supplierInvoice" [runAsSubComponent]="runAsSubComponent"></journal-entry-simple>
+    <journal-entry-simple [supplierInvoice]="supplierInvoice" [runAsSubComponent]="runAsSubComponent" [hideSameOrNew]="hideSameOrNew"></journal-entry-simple>
 </div>
 <div *ngIf="journalEntryMode == 'PROFFESIONAL'">
     <journal-entry-professional [supplierInvoice]="supplierInvoice" [runAsSubComponent]="runAsSubComponent"></journal-entry-professional>

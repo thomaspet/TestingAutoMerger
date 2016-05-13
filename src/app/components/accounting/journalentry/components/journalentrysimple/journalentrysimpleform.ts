@@ -155,7 +155,7 @@ export class JournalEntrySimpleForm implements OnChanges {
     private findJournalNumbersFromLines(nextJournalNumber: string = "") {
         var first, last, year;
 
-        if (this.journalEntryLines && this.journalEntryLines.length) {
+        if (this.journalEntryLines && this.journalEntryLines.length && !this.hideSameOrNew) {
             this.journalEntryLines.forEach((l:JournalEntryData, i) => {   
                 var parts = l.JournalEntryNo.split('-');
                 var no = parseInt(parts[0]);
@@ -169,11 +169,15 @@ export class JournalEntrySimpleForm implements OnChanges {
                     year = parseInt(parts[1]);
                 }
             });              
-        } else {
+        } else if(nextJournalNumber != "") {
             var parts = nextJournalNumber.split('-');
             first = parseInt(parts[0]);
             last = first;
             year = parseInt(parts[1]);
+        } else {
+            first = 1;
+            last = 1;
+            year = moment().year();
         }
         
         return {
@@ -494,8 +498,8 @@ export class JournalEntrySimpleForm implements OnChanges {
         }
                              
         // add list of possible numbers from start to end
-        if (this.isEditMode) {
-            var range = this.findJournalNumbersFromLines();  
+        if (this.isEditMode && !this.hideSameOrNew) {
+            var range = this.findJournalNumbersFromLines();
             var current = parseInt(this.journalEntryLine.JournalEntryNo.split('-')[0]);
             for(var i = 0; i <= (range.last - range.first); i++) {
                 var jn = `${i+range.first}-${range.year}`;

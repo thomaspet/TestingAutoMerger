@@ -23,7 +23,7 @@ const JOURNALENTRY_ROUTES = [
     }),
     new AsyncRoute({
         path: '/supplierinvoices/...',
-        name: 'SupplierInvoices',
+        name: 'Leverandørfaktura',
         loader: () => ComponentProxy.LoadComponentAsync('SupplierInvoices', `${BASE_JOURNALENTRY}/supplierinvoices/supplierinvoices`)
     })
 ];

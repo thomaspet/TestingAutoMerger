@@ -16,7 +16,7 @@ export class JournalEntryManual {
     @ViewChild(JournalEntrySimple) private journalEntrySimple: JournalEntrySimple;
     
     public journalEntryMode: string;
-
+    private hideSameOrNew: boolean = false;
   
     constructor() {
     }
@@ -25,7 +25,7 @@ export class JournalEntryManual {
         this.journalEntryMode = 'SIMPLE';
         
         if (this.supplierInvoice !== null) {
-            
+            this.hideSameOrNew = true;
         }
     }
     

@@ -21,6 +21,7 @@ declare var moment;
 export class JournalEntrySimple implements OnInit, OnChanges {
     @Input() public supplierInvoice: SupplierInvoice;
     @Input() public runAsSubComponent : boolean = false;
+    @Input() public hideSameOrNew : boolean = false;
 
     public selectedJournalEntryLine: JournalEntryData;
     public journalEntryLines: Array<JournalEntryData>;
