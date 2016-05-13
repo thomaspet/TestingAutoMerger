@@ -23,15 +23,15 @@ import {PhoneModal} from '../modals/phone/phone';
     directives: [UniComponentLoader, RouterLink, AddressModal, EmailModal, PhoneModal, ExternalSearch],
     providers: [DepartementService, ProjectService, CustomerService, PhoneService, AddressService, EmailService, BusinessRelationService]
 })
-export class CustomerDetails implements OnInit{
+export class CustomerDetails implements OnInit {
             
     @Input() 
-    public CustomerID: any;
+    public customerID: any;
                   
     @ViewChild(UniComponentLoader)
     public ucl: UniComponentLoader;    
 
-    public FormConfig: UniFormBuilder;
+    public formConfig: UniFormBuilder;
     public formInstance: UniForm;
     public DropdownData: any;
     public Customer: Customer;
@@ -40,10 +40,7 @@ export class CustomerDetails implements OnInit{
     public EmptyPhone: Phone;
     public EmptyEmail: Email;
     public EmptyAddress: Address;
-    
     public whenFormInstance: Promise<UniForm>;
-
-    //private layout: any; //TK
 
     constructor(private departementService: DepartementService,
                 private projectService: ProjectService,
@@ -55,7 +52,7 @@ export class CustomerDetails implements OnInit{
                 private addressService: AddressService,
                 private businessRealtionService: BusinessRelationService
                 ) {               
-        this.CustomerID = params.get('id');            
+        this.customerID = params.get('id');            
     }
     
     public log(err) {
@@ -93,8 +90,8 @@ export class CustomerDetails implements OnInit{
             this.departementService.GetAll(null),
             this.projectService.GetAll(null),
             (
-                this.CustomerID > 0 ? 
-                    this.customerService.Get(this.CustomerID, expandOptions) 
+                this.customerID > 0 ? 
+                    this.customerService.Get(this.customerID, expandOptions) 
                     : this.customerService.GetNewEntity(expandOptions)
             ),            
             this.phoneService.GetNewEntity(),
@@ -107,29 +104,22 @@ export class CustomerDetails implements OnInit{
             this.EmptyEmail = response[4];
             this.EmptyAddress = response[5];
             
-            //this.createFormConfig();
             this.getLayout();
-                          
         });       
     }
 
     public getLayout() {
         var self = this;
         this.customerService.GetLayout('CustomerDetailsForm').subscribe((results: any) => {
-            //this.layout = results;
+            var layout: ComponentLayout = results;
 
-            var view: ComponentLayout = results;
-            //var model: Employee = results[1];
-
-            //self.startApp(view, model);
-            this.FormConfig = new UniFormLayoutBuilder().build(view, this.Customer);
-            this.FormConfig.hideSubmitButton();
+            this.formConfig = new UniFormLayoutBuilder().build(layout, this.Customer);
+            this.formConfig.hideSubmitButton();
 
             this.extendFormConfig();
             this.loadForm();   
         });
     }
-
          
     public addSearchInfo(selectedSearchInfo: SearchResultItem) {
         var self = this;
@@ -179,231 +169,14 @@ export class CustomerDetails implements OnInit{
         } 
     }
     
-    public createFormConfig() {   
-        // TODO get it from the API and move these to backend migrations   
-        var view: ComponentLayout = {
-            Name: 'Customer',
-            BaseEntity: 'Customer',
-            StatusCode: 0,
-            Deleted: false,
-            ID: 1,
-            CustomFields: null,
-            Fields: [
-                {
-                    ComponentLayoutID: 3,
-                    EntityType: 'BusinessRelation',
-                    Property: 'Info.Name',
-                    Placement: 1,
-                    Hidden: false,
-                    FieldType: 10,
-                    ReadOnly: false,
-                    LookupField: false,
-                    Label: 'Navn',
-                    Description: '',
-                    HelpText: '',
-                    FieldSet: 0,
-                    Section: 0,
-                    Legend: '',
-                    StatusCode: 0,
-                    ID: 1,
-                    Deleted: false,
-                    CustomFields: null 
-                },
-                {
-                    ComponentLayoutID: 3,
-                    EntityType: 'Customer',
-                    Property: 'OrgNumber',
-                    Placement: 1,
-                    Hidden: false,
-                    FieldType: 10,
-                    ReadOnly: false,
-                    LookupField: false,
-                    Label: 'Organisasjonsnummer',
-                    Description: '',
-                    HelpText: '',
-                    FieldSet: 0,
-                    Section: 0,
-                    Legend: '',
-                    StatusCode: 0,
-                    ID: 2,
-                    Deleted: false,
-                    CustomFields: null 
-                },
-                {
-                    ComponentLayoutID: 3,
-                    EntityType: 'BusinessRelation',
-                    Property: 'InvoiceAddress',
-                    Placement: 1,
-                    Hidden: false,
-                    FieldType: 14,
-                    ReadOnly: false,
-                    LookupField: false,
-                    Label: 'Fakturaadresse',
-                    Description: '',
-                    HelpText: '',
-                    FieldSet: 0,
-                    Section: 0,
-                    Legend: '',
-                    StatusCode: 0,
-                    ID: 3,
-                    Deleted: false,
-                    CustomFields: null 
-                },
-                {
-                    ComponentLayoutID: 3,
-                    EntityType: 'BusinessRelation',
-                    Property: 'ShippingAddress',
-                    Placement: 1,
-                    Hidden: false,
-                    FieldType: 14,
-                    ReadOnly: false,
-                    LookupField: false,
-                    Label: 'Leveringsadresse',
-                    Description: '',
-                    HelpText: '',
-                    FieldSet: 0,
-                    Section: 0,
-                    Legend: '',
-                    StatusCode: 0,
-                    ID: 4,
-                    Deleted: false,
-                    CustomFields: null 
-                },
-                {
-                    ComponentLayoutID: 3,
-                    EntityType: 'BusinessRelation',
-                    Property: 'Emails',
-                    Placement: 1,
-                    Hidden: false,
-                    FieldType: 14,
-                    ReadOnly: false,
-                    LookupField: false,
-                    Label: 'E-post adresser',
-                    Description: '',
-                    HelpText: '',
-                    FieldSet: 0,
-                    Section: 0,
-                    Legend: '',
-                    StatusCode: 0,
-                    ID: 5,
-                    Deleted: false,
-                    CustomFields: null 
-                },
-                {
-                    ComponentLayoutID: 3,
-                    EntityType: 'BusinessRelation',
-                    Property: 'Phones',
-                    Placement: 1,
-                    Hidden: false,
-                    FieldType: 14,
-                    ReadOnly: false,
-                    LookupField: false,
-                    Label: 'Telefonnumre',
-                    Description: '',
-                    HelpText: '',
-                    FieldSet: 0,
-                    Section: 0,
-                    Legend: '',
-                    StatusCode: 0,
-                    ID: 6,
-                    Deleted: false,
-                    CustomFields: null 
-                },
-                {
-                    ComponentLayoutID: 3,
-                    EntityType: 'Customer',
-                    Property: 'WebUrl',
-                    Placement: 1,
-                    Hidden: false,
-                    FieldType: 15,
-                    ReadOnly: false,
-                    LookupField: false,
-                    Label: 'Webadresse',
-                    Description: '',
-                    HelpText: '',
-                    FieldSet: 0,
-                    Section: 0,
-                    Legend: '',
-                    StatusCode: 0,
-                    ID: 7,
-                    Deleted: false,
-                    CustomFields: null 
-                },
-                {
-                    ComponentLayoutID: 3,
-                    EntityType: 'Customer',
-                    Property: 'CreditDays',
-                    Placement: 1,
-                    Hidden: false,
-                    FieldType: 10,
-                    ReadOnly: false,
-                    LookupField: false,
-                    Label: 'Kredittdager',
-                    Description: '',
-                    HelpText: '',
-                    FieldSet: 0,
-                    Section: 1,
-                    Legend: 'Betingelser',
-                    StatusCode: 0,
-                    ID: 8,
-                    Deleted: false,
-                    CustomFields: null 
-                },
-                {
-                    ComponentLayoutID: 3,
-                    EntityType: 'Project',
-                    Property: 'Dimensions.ProjectID',
-                    Placement: 4,
-                    Hidden: false,
-                    FieldType: 1,
-                    ReadOnly: false,
-                    LookupField: false,
-                    Label: 'Prosjekt',
-                    Description: '',
-                    HelpText: '',
-                    FieldSet: 0,
-                    Section: 2,
-                    Legend: 'Dimensjoner',
-                    StatusCode: 0,
-                    ID: 9,
-                    Deleted: false,
-                    CustomFields: null 
-                },
-                {
-                    ComponentLayoutID: 3,
-                    EntityType: 'Departement',
-                    Property: 'Dimensions.DepartementID',
-                    Placement: 4,
-                    Hidden: false,
-                    FieldType: 1,
-                    ReadOnly: false,
-                    LookupField: false,
-                    Label: 'Avdeling',
-                    Description: '',
-                    HelpText: '',
-                    FieldSet: 0,
-                    Section: 2,
-                    Legend: '',
-                    StatusCode: 0,
-                    ID: 10,
-                    Deleted: false,
-                    CustomFields: null
-                }
-            ]               
-        };   
-        
-        this.FormConfig = new UniFormLayoutBuilder().build(view, this.Customer);
-        this.FormConfig.hideSubmitButton();
-    }
-    
     public extendFormConfig() {
-        var orgnumber: UniFieldBuilder = this.FormConfig.find('OrgNumber');
+        var orgnumber: UniFieldBuilder = this.formConfig.find('OrgNumber');
         orgnumber.setKendoOptions({
             mask: '000 000 000',
             promptChar: '_'
         });
                    
-        var departement: UniFieldBuilder = this.FormConfig.find('Dimensions.DepartementID');         
+        var departement: UniFieldBuilder = this.formConfig.find('Dimensions.DepartementID');         
         departement.setKendoOptions({
             dataTextField: 'Name',
             dataValueField: 'ID',
@@ -411,7 +184,7 @@ export class CustomerDetails implements OnInit{
         });
         departement.addClass('large-field');
 
-        var project: UniFieldBuilder = this.FormConfig.find('Dimensions.ProjectID');
+        var project: UniFieldBuilder = this.formConfig.find('Dimensions.ProjectID');
         project.setKendoOptions({
             dataTextField: 'Name',
             dataValueField: 'ID',
@@ -420,7 +193,7 @@ export class CustomerDetails implements OnInit{
         project.addClass('large-field');
         
         // MultiValue       
-        var phones: UniFieldBuilder = this.FormConfig.find('Phones');
+        var phones: UniFieldBuilder = this.formConfig.find('Phones');
         phones
             .setKendoOptions({
                 dataTextField: 'Number',
@@ -436,7 +209,7 @@ export class CustomerDetails implements OnInit{
             this.Customer.Info.DefaultPhoneID = null;
         };
 
-        var emails: UniFieldBuilder = this.FormConfig.find('Emails');
+        var emails: UniFieldBuilder = this.formConfig.find('Emails');
         emails
             .setKendoOptions({
                 dataTextField: 'EmailAddress',
@@ -453,7 +226,7 @@ export class CustomerDetails implements OnInit{
         };
    
             
-        var invoiceaddress: UniFieldBuilder = this.FormConfig.find('InvoiceAddress');
+        var invoiceaddress: UniFieldBuilder = this.formConfig.find('InvoiceAddress');
         invoiceaddress
             .setKendoOptions({
                 dataTextField: 'AddressLine1',
@@ -469,7 +242,7 @@ export class CustomerDetails implements OnInit{
             this.Customer.Info.InvoiceAddressID = null;
         };
 
-        var shippingaddress: UniFieldBuilder = this.FormConfig.find('ShippingAddress');
+        var shippingaddress: UniFieldBuilder = this.formConfig.find('ShippingAddress');
         shippingaddress
             .setKendoOptions({
                 dataTextField: 'AddressLine1',
@@ -489,7 +262,7 @@ export class CustomerDetails implements OnInit{
     public loadForm() {       
         var self = this;
         return this.ucl.load(UniForm).then((cmp: ComponentRef<any>) => {
-           cmp.instance.config = self.FormConfig;
+           cmp.instance.config = self.formConfig;
            
            self.whenFormInstance = new Promise((resolve: Function) => resolve(cmp.instance));
            setTimeout(() => {
@@ -516,7 +289,7 @@ export class CustomerDetails implements OnInit{
         
         this.LastSavedInfo = 'Lagrer kundeinformasjon...';                        
                             
-        if (this.CustomerID > 0) { 
+        if (this.customerID > 0) { 
             this.customerService.Put(this.Customer.ID, this.Customer)
                 .subscribe(
                     (customer) => {  
