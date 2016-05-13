@@ -1,32 +1,39 @@
-import {Component, Input, SimpleChange} from "@angular/core";
+import {Component, Input, SimpleChange, ViewChild} from '@angular/core';
 import {JournalEntrySimple} from '../components/journalentrysimple/journalentrysimple';
 import {JournalEntryProfessional} from '../components/journalentryprofessional/journalentryprofessional';
-import {SupplierInvoice} from "../../../../unientities";
+import {SupplierInvoice} from '../../../../unientities';
+import {JournalEntryData} from '../../../../models/models';
 
 @Component({
-    selector: "journal-entry-manual",
-    templateUrl: "app/components/accounting/journalentry/journalentrymanual/journalentrymanual.html",
+    selector: 'journal-entry-manual',
+    templateUrl: 'app/components/accounting/journalentry/journalentrymanual/journalentrymanual.html',
     directives: [JournalEntrySimple, JournalEntryProfessional]    
 })
 export class JournalEntryManual {    
     @Input()
-    SupplierInvoice : SupplierInvoice;
-
+    supplierInvoice : SupplierInvoice;
+    @Input() runAsSubComponent : boolean = false;
     @Input()
-    showHeader = true;
+    hideSameOrNew : boolean = false;
+    @ViewChild(JournalEntrySimple) private journalEntrySimple: JournalEntrySimple;
     
     public journalEntryMode: string;
-
   
     constructor() {
     }
     
     ngOnInit() {
-        this.journalEntryMode = "SIMPLE";
+        this.journalEntryMode = 'SIMPLE';
         
-        if (this.SupplierInvoice !== null) {
-            
+        if (this.supplierInvoice) {
+            this.hideSameOrNew = true;
         }
+    }
+    
+    getJournalEntryData(): Array<JournalEntryData> {
+        if (this.journalEntrySimple) {
+            return this.journalEntrySimple.journalEntryLines;
+        }   
     }
 
     ngOnChanges(changes: { [propName: string]: SimpleChange }) {

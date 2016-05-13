@@ -15,9 +15,17 @@
  * User Configuration.
  **********************************************************************************************/
 /** Map relative paths to URLs. */
-var map = {};
+var map = {
+	// 'unitable-ng2': 'dist/unitable-ng2',
+	// 'immutable': 'vendor/immutable'
+};
 /** User packages configuration. */
-var packages = {};
+var packages = {
+	'unitable-ng2': {
+		main: 'main',
+		defaultExtension: 'js'
+	}
+};
 ////////////////////////////////////////////////////////////////////////////////////////////////
 /***********************************************************************************************
  * Everything underneath this line is managed by the CLI.

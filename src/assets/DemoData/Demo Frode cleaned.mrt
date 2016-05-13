@@ -1,0 +1,972 @@
+{
+    "ReportVersion": "2016.1",
+    "ReportGuid": "0471093eeddd-a580-5e70-61a8002bef58",
+    "ReportName": "Demo",
+    "ReportAlias": "Demo",
+    "ReportCreated": "/Date(1489169403000+0100)/",
+    "ReportChanged": "/Date(1489169403000+0100)/",
+    "CalculationMode": "Interpretation",
+    "Dictionary": {
+        "DataSources": {
+            "0": {
+                "Ident": "StiDataTableSource",
+                "Name": "root",
+                "Alias": "root",
+                "Columns": {
+                    "0": {
+                        "Name": "CustomerID",
+                        "Index": -1,
+                        "NameInSource": "CustomerID",
+                        "Alias": "CustomerID",
+                        "Type": "System.Int32"
+                    },
+                    "1": {
+                        "Name": "CustomerName",
+                        "Index": -1,
+                        "NameInSource": "CustomerName",
+                        "Alias": "CustomerName",
+                        "Type": "System.String"
+                    }
+                },
+                "NameInSource": "DemoJsonData.root"
+            }
+        }
+    },
+    "Pages": {
+        "0": {
+            "Ident": "StiPage",
+            "Name": "Page1",
+            "Guid": "d746a80e-453d-9c72-7808-ee7af5719e29",
+            "Interaction": {
+                "Ident": "StiInteraction"
+            },
+            "Border": ";Black;2;;;;;solid:Black",
+            "Brush": "solid:Transparent",
+            "Components": {
+                "0": {
+                    "Ident": "StiDataBand",
+                    "Name": "StiDataBand1",
+                    "ClientRectangle": "0,0.4,749,7.6",
+                    "Interaction": {
+                        "Ident": "StiBandInteraction"
+                    },
+                    "Border": ";Black;;;;;;solid:Black",
+                    "Brush": "solid:Transparent",
+                    "Components": {
+                        "0": {
+                            "Ident": "StiImage",
+                            "Name": "Logo",
+                            "MinSize": "0,0",
+                            "MaxSize": "0,0",
+                            "ClientRectangle": "0.2,0.2,6.2,2.4",
+                            "Enabled": false,
+                            "Interaction": {
+                                "Ident": "StiInteraction"
+                            },
+                            "VertAlignment": "Center",
+                            "Border": ";125,121,116;;;;;;solid:Black",
+                            "Brush": "empty",
+                            "AspectRatio": true,
+                            "Image": ""
+                        },
+                        "1": {
+                            "Ident": "StiText",
+                            "Name": "Text3",
+                            "MinSize": "0,0",
+                            "MaxSize": "0,0",
+                            "ClientRectangle": "15.4,0,3.4,0.4",
+                            "Enabled": false,
+                            "Interaction": {
+                                "Ident": "StiInteraction"
+                            },
+                            "Text": {
+                                "Value": "Side {PageNumber} av {TotalPageCount}"
+                            },
+                            "HorAlignment": "Right",
+                            "Font": "Segoe UI;8.25;;",
+                            "Border": ";Black;;;;;;solid:Black",
+                            "Brush": "solid:Transparent",
+                            "TextBrush": "solid:Black"
+                        },
+                        "2": {
+                            "Ident": "StiText",
+                            "Name": "Text12",
+                            "MinSize": "0,0",
+                            "MaxSize": "0,0",
+                            "ClientRectangle": "0,6.2,9.8,0.8",
+                            "Interaction": {
+                                "Ident": "StiInteraction"
+                            },
+                            "Text": {
+                                "Value": "{root.Comments}"
+                            },
+                            "CanBreak": true,
+                            "Font": "Segoe UI Semibold;9.75;;",
+                            "Border": ";Black;;;;;;solid:Black",
+                            "Brush": "solid:Transparent",
+                            "TextBrush": "solid:Black"
+                        },
+                        "3": {
+                            "Ident": "StiText",
+                            "Name": "Text14",
+                            "MinSize": "0,0",
+                            "MaxSize": "0,0",
+                            "ClientRectangle": "11.8,7.2,2.6,0.4",
+                            "Interaction": {
+                                "Ident": "StiInteraction"
+                            },
+                            "Text": {
+                                "Value": "Pris"
+                            },
+                            "CanBreak": true,
+                            "HorAlignment": "Right",
+                            "Font": ";10;;",
+                            "Border": ";Black;;;;;;solid:Black",
+                            "Brush": "solid:Transparent",
+                            "TextBrush": "solid:Black"
+                        },
+                        "4": {
+                            "Ident": "StiText",
+                            "Name": "Text15",
+                            "MinSize": "0,0",
+                            "MaxSize": "0,0",
+                            "ClientRectangle": "0,7.2,2.6,0.4",
+                            "Interaction": {
+                                "Ident": "StiInteraction"
+                            },
+                            "Text": {
+                                "Value": "Produkt"
+                            },
+                            "CanBreak": true,
+                            "Font": ";10;;",
+                            "Border": ";Black;;;;;;solid:Black",
+                            "Brush": "solid:Transparent",
+                            "TextBrush": "solid:Black"
+                        },
+                        "5": {
+                            "Ident": "StiText",
+                            "Name": "Text19",
+                            "MinSize": "0,0",
+                            "MaxSize": "0,0",
+                            "ClientRectangle": "8.2,7.2,2.2,0.4",
+                            "Interaction": {
+                                "Ident": "StiInteraction"
+                            },
+                            "Text": {
+                                "Value": "Antall"
+                            },
+                            "CanBreak": true,
+                            "HorAlignment": "Right",
+                            "Font": ";10;;",
+                            "Border": ";Black;;;;;;solid:Black",
+                            "Brush": "solid:Transparent",
+                            "TextBrush": "solid:Black"
+                        },
+                        "6": {
+                            "Ident": "StiText",
+                            "Name": "Text20",
+                            "MinSize": "0,0",
+                            "MaxSize": "0,0",
+                            "ClientRectangle": "14.6,7.2,1,0.4",
+                            "Interaction": {
+                                "Ident": "StiInteraction"
+                            },
+                            "Text": {
+                                "Value": "%"
+                            },
+                            "CanBreak": true,
+                            "HorAlignment": "Right",
+                            "Font": ";10;;",
+                            "Border": ";Black;;;;;;solid:Black",
+                            "Brush": "solid:Transparent",
+                            "TextBrush": "solid:Black"
+                        },
+                        "7": {
+                            "Ident": "StiText",
+                            "Name": "Text21",
+                            "MinSize": "0,0",
+                            "MaxSize": "0,0",
+                            "ClientRectangle": "16.2,7.2,2.6,0.4",
+                            "Interaction": {
+                                "Ident": "StiInteraction"
+                            },
+                            "Text": {
+                                "Value": "Sum"
+                            },
+                            "CanBreak": true,
+                            "HorAlignment": "Right",
+                            "Font": ";10;;",
+                            "Border": ";Black;;;;;;solid:Black",
+                            "Brush": "solid:Transparent",
+                            "TextBrush": "solid:Black"
+                        },
+                        "8": {
+                            "Ident": "StiPanel",
+                            "Name": "pLabels",
+                            "MinSize": "0,0",
+                            "MaxSize": "0,0",
+                            "ClientRectangle": "12.4,3,2.2,4",
+                            "Interaction": {
+                                "Ident": "StiInteraction"
+                            },
+                            "Border": ";Black;;;;;;solid:Black",
+                            "Brush": "solid:Transparent",
+                            "Components": {
+                                "0": {
+                                    "Ident": "StiText",
+                                    "Name": "Text24",
+                                    "DockStyle": "Top",
+                                    "MinSize": "0,0",
+                                    "MaxSize": "0,0",
+                                    "ClientRectangle": "0,0,2.2,0.4",
+                                    "Interaction": {
+                                        "Ident": "StiInteraction"
+                                    },
+                                    "Text": {
+                                        "Value": "Fakturadato"
+                                    },
+                                    "CanBreak": true,
+                                    "Font": "Segoe UI;8.25;;",
+                                    "Border": ";Black;;;;;;solid:Black",
+                                    "Brush": "solid:Transparent",
+                                    "TextBrush": "solid:Black"
+                                },
+                                "1": {
+                                    "Ident": "StiText",
+                                    "Name": "Text76",
+                                    "DockStyle": "Top",
+                                    "MinSize": "0,0",
+                                    "MaxSize": "0,0",
+                                    "ClientRectangle": "0,0.4,2.2,0.4",
+                                    "Interaction": {
+                                        "Ident": "StiInteraction"
+                                    },
+                                    "Text": {
+                                        "Value": "Forfallsdato"
+                                    },
+                                    "CanBreak": true,
+                                    "Font": "Segoe UI;8.25;;",
+                                    "Border": ";Black;;;;;;solid:Black",
+                                    "Brush": "solid:Transparent",
+                                    "TextBrush": "solid:Black"
+                                },
+                                "2": {
+                                    "Ident": "StiText",
+                                    "Name": "Text25",
+                                    "DockStyle": "Top",
+                                    "MinSize": "0,0",
+                                    "MaxSize": "0,0",
+                                    "ClientRectangle": "0,0.8,2.2,0.4",
+                                    "Interaction": {
+                                        "Ident": "StiInteraction"
+                                    },
+                                    "Text": {
+                                        "Value": "Leveringsdato"
+                                    },
+                                    "CanBreak": true,
+                                    "Font": "Segoe UI;8.25;;",
+                                    "Border": ";Black;;;;;;solid:Black",
+                                    "Brush": "solid:Transparent",
+                                    "TextBrush": "solid:Black"
+                                },
+                                "3": {
+                                    "Ident": "StiText",
+                                    "Name": "Text81",
+                                    "CanShrink": true,
+                                    "DockStyle": "Top",
+                                    "MinSize": "0,0",
+                                    "MaxSize": "0,0",
+                                    "ClientRectangle": "0,1.2,2.2,0.4",
+                                    "Conditions": {
+                                        "0": {
+                                            "Ident": "StiCondition",
+                                            "Column": "root.Bankgiro",
+                                            "Enabled": false,
+                                            "TextColor": "Red",
+                                            "BorderSides": "None"
+                                        }
+                                    },
+                                    "Interaction": {
+                                        "Ident": "StiInteraction"
+                                    },
+                                    "Text": {
+                                        "Value": "Bankgiro"
+                                    },
+                                    "CanBreak": true,
+                                    "Font": "Segoe UI;8.25;;",
+                                    "Border": ";Black;;;;;;solid:Black",
+                                    "Brush": "solid:Transparent",
+                                    "TextBrush": "solid:Black"
+                                },
+                                "4": {
+                                    "Ident": "StiText",
+                                    "Name": "Text34",
+                                    "CanShrink": true,
+                                    "DockStyle": "Top",
+                                    "MinSize": "0,0",
+                                    "MaxSize": "0,0",
+                                    "ClientRectangle": "0,1.6,2.2,0.4",
+                                    "Interaction": {
+                                        "Ident": "StiInteraction"
+                                    },
+                                    "Text": {
+                                        "Value": "Vår ref."
+                                    },
+                                    "CanBreak": true,
+                                    "Font": "Segoe UI;8.25;;",
+                                    "Border": ";Black;;;;;;solid:Black",
+                                    "Brush": "solid:Transparent",
+                                    "TextBrush": "solid:Black"
+                                },
+                                "5": {
+                                    "Ident": "StiText",
+                                    "Name": "Text36",
+                                    "CanShrink": true,
+                                    "DockStyle": "Top",
+                                    "MinSize": "0,0",
+                                    "MaxSize": "0,0",
+                                    "ClientRectangle": "0,2,2.2,0.4",
+                                    "Conditions": {
+                                        "0": {
+                                            "Ident": "StiCondition",
+                                            "Column": "root.YourRef",
+                                            "Enabled": false,
+                                            "TextColor": "Red",
+                                            "Font": ";10;;",
+                                            "BorderSides": "None"
+                                        }
+                                    },
+                                    "Interaction": {
+                                        "Ident": "StiInteraction"
+                                    },
+                                    "Text": {
+                                        "Value": "Deres ref."
+                                    },
+                                    "CanBreak": true,
+                                    "Font": "Segoe UI;8.25;;",
+                                    "Border": ";Black;;;;;;solid:Black",
+                                    "Brush": "solid:Transparent",
+                                    "TextBrush": "solid:Black"
+                                },
+                                "6": {
+                                    "Ident": "StiText",
+                                    "Name": "Text56",
+                                    "CanShrink": true,
+                                    "DockStyle": "Top",
+                                    "MinSize": "0,0",
+                                    "MaxSize": "0,0",
+                                    "ClientRectangle": "0,2.4,2.2,0.4",
+                                    "Conditions": {
+                                        "0": {
+                                            "Ident": "StiCondition",
+                                            "Column": "root.Requisition",
+                                            "Enabled": false,
+                                            "TextColor": "Red",
+                                            "Font": ";10;;",
+                                            "BorderSides": "None"
+                                        }
+                                    },
+                                    "Interaction": {
+                                        "Ident": "StiInteraction"
+                                    },
+                                    "Text": {
+                                        "Value": "Rekvisisjon"
+                                    },
+                                    "CanBreak": true,
+                                    "Font": "Segoe UI;8.25;;",
+                                    "Border": ";Black;;;;;;solid:Black",
+                                    "Brush": "solid:Transparent",
+                                    "TextBrush": "solid:Black"
+                                },
+                                "7": {
+                                    "Ident": "StiText",
+                                    "Name": "Text59",
+                                    "CanShrink": true,
+                                    "DockStyle": "Top",
+                                    "MinSize": "0,0",
+                                    "MaxSize": "0,0",
+                                    "ClientRectangle": "0,2.8,2.2,0.4",
+                                    "Conditions": {
+                                        "0": {
+                                            "Ident": "StiCondition",
+                                            "Column": "root.deliveryterms",
+                                            "Enabled": false,
+                                            "TextColor": "Red",
+                                            "Font": ";10;;",
+                                            "BorderSides": "None"
+                                        }
+                                    },
+                                    "Interaction": {
+                                        "Ident": "StiInteraction"
+                                    },
+                                    "Text": {
+                                        "Value": "Levering"
+                                    },
+                                    "CanBreak": true,
+                                    "Font": "Segoe UI;8.25;;",
+                                    "Border": ";Black;;;;;;solid:Black",
+                                    "Brush": "solid:Transparent",
+                                    "TextBrush": "solid:Black"
+                                },
+                                "8": {
+                                    "Ident": "StiText",
+                                    "Name": "Text83",
+                                    "CanShrink": true,
+                                    "DockStyle": "Top",
+                                    "MinSize": "0,0",
+                                    "MaxSize": "0,0",
+                                    "ClientRectangle": "0,3.2,2.2,0.4",
+                                    "Conditions": {
+                                        "0": {
+                                            "Ident": "StiCondition",
+                                            "Column": "root.transport",
+                                            "Enabled": false,
+                                            "TextColor": "Red",
+                                            "Font": ";10;;",
+                                            "BorderSides": "None"
+                                        }
+                                    },
+                                    "Interaction": {
+                                        "Ident": "StiInteraction"
+                                    },
+                                    "Text": {
+                                        "Value": "Transport"
+                                    },
+                                    "CanBreak": true,
+                                    "Font": "Segoe UI;8.25;;",
+                                    "Border": ";Black;;;;;;solid:Black",
+                                    "Brush": "solid:Transparent",
+                                    "TextBrush": "solid:Black"
+                                },
+                                "9": {
+                                    "Ident": "StiText",
+                                    "Name": "Text85",
+                                    "CanShrink": true,
+                                    "DockStyle": "Top",
+                                    "MinSize": "0,0",
+                                    "MaxSize": "0,0",
+                                    "ClientRectangle": "0,3.6,2.2,0.4",
+                                    "Conditions": {
+                                        "0": {
+                                            "Ident": "StiCondition",
+                                            "Column": "root.transporter",
+                                            "Enabled": false,
+                                            "TextColor": "Red",
+                                            "Font": ";10;;",
+                                            "BorderSides": "None"
+                                        }
+                                    },
+                                    "Interaction": {
+                                        "Ident": "StiInteraction"
+                                    },
+                                    "Text": {
+                                        "Value": "Transportør"
+                                    },
+                                    "CanBreak": true,
+                                    "Font": "Segoe UI;8.25;;",
+                                    "Border": ";Black;;;;;;solid:Black",
+                                    "Brush": "solid:Transparent",
+                                    "TextBrush": "solid:Black"
+                                }
+                            },
+                            "CanBreak": false
+                        },
+                        "9": {
+                            "Ident": "StiPanel",
+                            "Name": "pFields",
+                            "MinSize": "0,0",
+                            "MaxSize": "0,0",
+                            "ClientRectangle": "14.8,3,4,4",
+                            "Interaction": {
+                                "Ident": "StiInteraction"
+                            },
+                            "Border": ";Black;;;;;;solid:Black",
+                            "Brush": "solid:Transparent",
+                            "Components": {
+                                "0": {
+                                    "Ident": "StiText",
+                                    "Name": "Text23",
+                                    "DockStyle": "Top",
+                                    "MinSize": "0,0",
+                                    "MaxSize": "0,0",
+                                    "ClientRectangle": "0,0,4,0.4",
+                                    "Interaction": {
+                                        "Ident": "StiInteraction"
+                                    },
+                                    "Text": {
+                                        "Value": "{root.InvoiceDate}"
+                                    },
+                                    "CanBreak": true,
+                                    "Font": "Segoe UI;8.25;;",
+                                    "Border": ";Black;;;;;;solid:Black",
+                                    "Brush": "solid:Transparent",
+                                    "TextBrush": "solid:Black"
+                                },
+                                "1": {
+                                    "Ident": "StiText",
+                                    "Name": "Text75",
+                                    "DockStyle": "Top",
+                                    "MinSize": "0,0",
+                                    "MaxSize": "0,0",
+                                    "ClientRectangle": "0,0.4,4,0.4",
+                                    "Interaction": {
+                                        "Ident": "StiInteraction"
+                                    },
+                                    "Text": {
+                                        "Value": "{root.DueDate}"
+                                    },
+                                    "CanBreak": true,
+                                    "Font": "Segoe UI;8.25;;",
+                                    "Border": ";Black;;;;;;solid:Black",
+                                    "Brush": "solid:Transparent",
+                                    "TextBrush": "solid:Black"
+                                },
+                                "2": {
+                                    "Ident": "StiText",
+                                    "Name": "Text26",
+                                    "DockStyle": "Top",
+                                    "MinSize": "0,0",
+                                    "MaxSize": "0,0",
+                                    "ClientRectangle": "0,0.8,4,0.4",
+                                    "Interaction": {
+                                        "Ident": "StiInteraction"
+                                    },
+                                    "Text": {
+                                        "Value": "{root.DeliveryDate}"
+                                    },
+                                    "CanBreak": true,
+                                    "Font": "Segoe UI;8.25;;",
+                                    "Border": ";Black;;;;;;solid:Black",
+                                    "Brush": "solid:Transparent",
+                                    "TextBrush": "solid:Black",
+                                    "TextFormat": {
+                                        "Ident": "StiCustomFormatService",
+                                        "StringFormat": "dd.MM.yyyy"
+                                    }
+                                },
+                                "3": {
+                                    "Ident": "StiText",
+                                    "Name": "Text80",
+                                    "CanShrink": true,
+                                    "DockStyle": "Top",
+                                    "MinSize": "0,0",
+                                    "MaxSize": "0,0",
+                                    "ClientRectangle": "0,1.2,4,0.4",
+                                    "Interaction": {
+                                        "Ident": "StiInteraction"
+                                    },
+                                    "Text": {
+                                        "Value": "{root.Bankgiro}"
+                                    },
+                                    "CanBreak": true,
+                                    "Font": "Segoe UI;8.25;;",
+                                    "Border": ";Black;;;;;;solid:Black",
+                                    "Brush": "solid:Transparent",
+                                    "TextBrush": "solid:Black"
+                                },
+                                "4": {
+                                    "Ident": "StiText",
+                                    "Name": "Text33",
+                                    "CanShrink": true,
+                                    "DockStyle": "Top",
+                                    "MinSize": "0,0",
+                                    "MaxSize": "0,0",
+                                    "ClientRectangle": "0,1.6,4,0.4",
+                                    "Conditions": {
+                                        "0": {
+                                            "Ident": "StiCondition",
+                                            "Column": "root.OurRef",
+                                            "TextColor": "Red",
+                                            "BorderSides": "None"
+                                        }
+                                    },
+                                    "Interaction": {
+                                        "Ident": "StiInteraction"
+                                    },
+                                    "Text": {
+                                        "Value": "{root.OurRef}"
+                                    },
+                                    "CanBreak": true,
+                                    "Font": "Segoe UI;8.25;;",
+                                    "Border": ";Black;;;;;;solid:Black",
+                                    "Brush": "solid:Transparent",
+                                    "TextBrush": "solid:Black"
+                                },
+                                "5": {
+                                    "Ident": "StiText",
+                                    "Name": "Text35",
+                                    "CanShrink": true,
+                                    "DockStyle": "Top",
+                                    "MinSize": "0,0",
+                                    "MaxSize": "0,0",
+                                    "ClientRectangle": "0,2,4,0.4",
+                                    "Conditions": {
+                                        "0": {
+                                            "Ident": "StiCondition",
+                                            "Column": "root.YourRef",
+                                            "Enabled": false,
+                                            "TextColor": "Red",
+                                            "BorderSides": "None"
+                                        }
+                                    },
+                                    "Interaction": {
+                                        "Ident": "StiInteraction"
+                                    },
+                                    "Text": {
+                                        "Value": "{root.YourRef}"
+                                    },
+                                    "CanBreak": true,
+                                    "Font": "Segoe UI;8.25;;",
+                                    "Border": ";Black;;;;;;solid:Black",
+                                    "Brush": "solid:Transparent",
+                                    "TextBrush": "solid:Black"
+                                },
+                                "6": {
+                                    "Ident": "StiText",
+                                    "Name": "Text55",
+                                    "CanShrink": true,
+                                    "DockStyle": "Top",
+                                    "MinSize": "0,0",
+                                    "MaxSize": "0,0",
+                                    "ClientRectangle": "0,2.4,4,0.4",
+                                    "Conditions": {
+                                        "0": {
+                                            "Ident": "StiCondition",
+                                            "Column": "root.Requisition",
+                                            "Enabled": false,
+                                            "TextColor": "Red",
+                                            "BorderSides": "None"
+                                        }
+                                    },
+                                    "Interaction": {
+                                        "Ident": "StiInteraction"
+                                    },
+                                    "Text": {
+                                        "Value": "{root.Requisition}"
+                                    },
+                                    "CanBreak": true,
+                                    "Font": "Segoe UI;8.25;;",
+                                    "Border": ";Black;;;;;;solid:Black",
+                                    "Brush": "solid:Transparent",
+                                    "TextBrush": "solid:Black"
+                                },
+                                "7": {
+                                    "Ident": "StiText",
+                                    "Name": "Text82",
+                                    "CanShrink": true,
+                                    "DockStyle": "Top",
+                                    "MinSize": "0,0",
+                                    "MaxSize": "0,0",
+                                    "ClientRectangle": "0,2.8,4,0.4",
+                                    "Conditions": {
+                                        "0": {
+                                            "Ident": "StiCondition",
+                                            "Column": "root.transport",
+                                            "Enabled": false,
+                                            "TextColor": "Red",
+                                            "BorderSides": "None"
+                                        }
+                                    },
+                                    "Interaction": {
+                                        "Ident": "StiInteraction"
+                                    },
+                                    "Text": {
+                                        "Value": "{root.deliveryterms}"
+                                    },
+                                    "CanBreak": true,
+                                    "Font": "Segoe UI;8.25;;",
+                                    "Border": ";Black;;;;;;solid:Black",
+                                    "Brush": "solid:Transparent",
+                                    "TextBrush": "solid:Black"
+                                },
+                                "8": {
+                                    "Ident": "StiText",
+                                    "Name": "Text84",
+                                    "CanShrink": true,
+                                    "DockStyle": "Top",
+                                    "MinSize": "0,0",
+                                    "MaxSize": "0,0",
+                                    "ClientRectangle": "0,3.2,4,0.4",
+                                    "Conditions": {
+                                        "0": {
+                                            "Ident": "StiCondition",
+                                            "Column": "root.transport",
+                                            "Enabled": false,
+                                            "TextColor": "Red",
+                                            "BorderSides": "None"
+                                        }
+                                    },
+                                    "Interaction": {
+                                        "Ident": "StiInteraction"
+                                    },
+                                    "Text": {
+                                        "Value": "{root.transport}"
+                                    },
+                                    "CanBreak": true,
+                                    "Font": "Segoe UI;8.25;;",
+                                    "Border": ";Black;;;;;;solid:Black",
+                                    "Brush": "solid:Transparent",
+                                    "TextBrush": "solid:Black"
+                                },
+                                "9": {
+                                    "Ident": "StiText",
+                                    "Name": "Text86",
+                                    "CanShrink": true,
+                                    "DockStyle": "Top",
+                                    "MinSize": "0,0",
+                                    "MaxSize": "0,0",
+                                    "ClientRectangle": "0,3.6,4,0.4",
+                                    "Conditions": {
+                                        "0": {
+                                            "Ident": "StiCondition",
+                                            "Column": "root.transporter",
+                                            "Enabled": false,
+                                            "TextColor": "Red",
+                                            "BorderSides": "None"
+                                        }
+                                    },
+                                    "Interaction": {
+                                        "Ident": "StiInteraction"
+                                    },
+                                    "Text": {
+                                        "Value": "{root.transporter}"
+                                    },
+                                    "CanBreak": true,
+                                    "Font": "Segoe UI;8.25;;",
+                                    "Border": ";Black;;;;;;solid:Black",
+                                    "Brush": "solid:Transparent",
+                                    "TextBrush": "solid:Black"
+                                }
+                            },
+                            "CanBreak": false
+                        },
+                        "10": {
+                            "Ident": "StiPanel",
+                            "Name": "pDelivery",
+                            "MinSize": "0,0",
+                            "MaxSize": "0,0",
+                            "ClientRectangle": "6.4,3,5.4,2.4",
+                            "Interaction": {
+                                "Ident": "StiInteraction"
+                            },
+                            "Border": ";Black;;;;;;solid:Black",
+                            "Brush": "solid:Transparent",
+                            "Components": {
+                                "0": {
+                                    "Ident": "StiText",
+                                    "Name": "Text57",
+                                    "MinSize": "0,0",
+                                    "MaxSize": "0,0",
+                                    "ClientRectangle": "0,0,5.4,0.4",
+                                    "Conditions": {
+                                        "0": {
+                                            "Ident": "StiCondition",
+                                            "Column": "root.DeliveryAddress",
+                                            "Enabled": false,
+                                            "TextColor": "Red",
+                                            "BorderSides": "None"
+                                        }
+                                    },
+                                    "Interaction": {
+                                        "Ident": "StiInteraction"
+                                    },
+                                    "Text": {
+                                        "Value": "Leveringsaddresse:"
+                                    },
+                                    "Font": "Segoe UI;8.25;;",
+                                    "Border": ";Black;;;;;;solid:Black",
+                                    "Brush": "solid:Transparent",
+                                    "TextBrush": "solid:Black"
+                                },
+                                "1": {
+                                    "Ident": "StiText",
+                                    "Name": "Text58",
+                                    "CanGrow": true,
+                                    "DockStyle": "Bottom",
+                                    "MinSize": "0,0",
+                                    "MaxSize": "0,0",
+                                    "ClientRectangle": "0,0.8,5.4,1.6",
+                                    "Interaction": {
+                                        "Ident": "StiInteraction"
+                                    },
+                                    "Text": {
+                                        "Value": "{root.DeliveryAddress}"
+                                    },
+                                    "Font": "Segoe UI;8.25;;",
+                                    "Border": ";Black;;;;;;solid:Black",
+                                    "Brush": "solid:Transparent",
+                                    "TextBrush": "solid:Black"
+                                }
+                            },
+                            "CanBreak": false
+                        },
+                        "11": {
+                            "Ident": "StiPanel",
+                            "Name": "Panel5",
+                            "MinSize": "0,0",
+                            "MaxSize": "0,0",
+                            "ClientRectangle": "0.2,2.8,5.6,2.8",
+                            "Interaction": {
+                                "Ident": "StiInteraction"
+                            },
+                            "Border": ";Black;;;;;;solid:Black",
+                            "Brush": "solid:Transparent",
+                            "Components": {
+                                "0": {
+                                    "Ident": "StiText",
+                                    "Name": "Text87",
+                                    "CanShrink": true,
+                                    "DockStyle": "Top",
+                                    "MinSize": "0,0",
+                                    "MaxSize": "0,0",
+                                    "ClientRectangle": "0,0,5.6,0.6",
+                                    "Interaction": {
+                                        "Ident": "StiInteraction"
+                                    },
+                                    "Text": {
+                                        "Value": "{root.CustomerID}"
+                                    },
+                                    "VertAlignment": "Center",
+                                    "Font": "Segoe UI;12;;",
+                                    "Border": ";Black;;;;;;solid:Black",
+                                    "Brush": "solid:Transparent",
+                                    "TextBrush": "solid:Black"
+                                },
+                                "1": {
+                                    "Ident": "StiText",
+                                    "Name": "Text90",
+                                    "CanShrink": true,
+                                    "DockStyle": "Top",
+                                    "MinSize": "0,0",
+                                    "MaxSize": "0,0",
+                                    "ClientRectangle": "0,0.6,5.6,0.4",
+                                    "Interaction": {
+                                        "Ident": "StiInteraction"
+                                    },
+                                    "Text": {
+                                        "Value": "{root.CustomerName}"
+                                    },
+                                    "Font": "Segoe UI;8.25;Bold;",
+                                    "Border": ";Black;2;;;;;solid:Black",
+                                    "Brush": "solid:Transparent",
+                                    "TextBrush": "solid:Black"
+                                },
+                                "2": {
+                                    "Ident": "StiText",
+                                    "Name": "Text89",
+                                    "CanShrink": true,
+                                    "DockStyle": "Top",
+                                    "MinSize": "0,0",
+                                    "MaxSize": "0,0",
+                                    "ClientRectangle": "0,1,5.6,0.4",
+                                    "Interaction": {
+                                        "Ident": "StiInteraction"
+                                    },
+                                    "Text": {
+                                        "Value": "{root.Address}"
+                                    },
+                                    "Font": "Segoe UI;8.25;;",
+                                    "Border": ";Black;2;;;;;solid:Black",
+                                    "Brush": "solid:Transparent",
+                                    "TextBrush": "solid:Black"
+                                },
+                                "3": {
+                                    "Ident": "StiText",
+                                    "Name": "Text91",
+                                    "CanShrink": true,
+                                    "DockStyle": "Top",
+                                    "MinSize": "0,0",
+                                    "MaxSize": "0,0",
+                                    "ClientRectangle": "0,1.4,5.6,0.4",
+                                    "Interaction": {
+                                        "Ident": "StiInteraction"
+                                    },
+                                    "Text": {
+                                        "Value": "{root.AddressLine2}"
+                                    },
+                                    "Font": "Segoe UI;8.25;;",
+                                    "Border": ";Black;2;;;;;solid:Black",
+                                    "Brush": "solid:Transparent",
+                                    "TextBrush": "solid:Black"
+                                },
+                                "4": {
+                                    "Ident": "StiText",
+                                    "Name": "Text93",
+                                    "CanShrink": true,
+                                    "DockStyle": "Top",
+                                    "MinSize": "0,0",
+                                    "MaxSize": "0,0",
+                                    "ClientRectangle": "0,1.8,5.6,0.4",
+                                    "Interaction": {
+                                        "Ident": "StiInteraction"
+                                    },
+                                    "Text": {
+                                        "Value": "{root.PstalCode} {root.City}"
+                                    },
+                                    "Font": "Segoe UI;8.25;;",
+                                    "Border": ";Black;2;;;;;solid:Black",
+                                    "Brush": "solid:Transparent",
+                                    "TextBrush": "solid:Black"
+                                },
+                                "5": {
+                                    "Ident": "StiText",
+                                    "Name": "Text94",
+                                    "CanShrink": true,
+                                    "DockStyle": "Top",
+                                    "MinSize": "0,0",
+                                    "MaxSize": "0,0",
+                                    "ClientRectangle": "0,2.2,5.6,0.4",
+                                    "Interaction": {
+                                        "Ident": "StiInteraction"
+                                    },
+                                    "Text": {
+                                        "Value": "{root.Country}"
+                                    },
+                                    "Font": "Segoe UI;8.25;;",
+                                    "Border": ";Black;2;;;;;solid:Black",
+                                    "Brush": "solid:Transparent",
+                                    "TextBrush": "solid:Black"
+                                }
+                            },
+                            "CanBreak": false
+                        },
+                        "12": {
+                            "Ident": "StiPanel",
+                            "Name": "pPhonestuff",
+                            "CanShrink": true,
+                            "MinSize": "0,0",
+                            "MaxSize": "0,0",
+                            "ClientRectangle": "6.4,0.4,12.4,1.6",
+                            "Interaction": {
+                                "Ident": "StiInteraction"
+                            },
+                            "Border": ";Black;;;;;;solid:Black",
+                            "Brush": "solid:Transparent",
+                            "Components": {
+                                "0": {
+                                    "Ident": "StiText",
+                                    "Name": "Text44",
+                                    "MinSize": "0,0",
+                                    "MaxSize": "0,0",
+                                    "ClientRectangle": "6,0.4,5.6,0.4",
+                                    "Linked": true,
+                                    "Interaction": {
+                                        "Ident": "StiInteraction"
+                                    },
+                                    "Border": ";Black;;;;;;solid:Black",
+                                    "Brush": "solid:Transparent",
+                                    "TextBrush": "solid:Black"
+                                }
+                            },
+                            "CanBreak": false
+                        }
+                    },
+                    "CanGrow": false
+                }
+            },
+            "Watermark": {
+                "TextBrush": "solid:50,0,0,0"
+            }
+        }
+    }
+}
