@@ -9,7 +9,7 @@ import {SupplierInvoice, StatusCategoryCode} from '../../../../unientities';
 declare var jQuery;
 
 @Component({
-    selector: 'supplier-invoice-list',
+    selector: 'supplier-invoice-list',    
     templateUrl: 'app/components/accounting/journalentry/supplierinvoices/supplierinvoicelist.html',
     providers: [SupplierInvoiceService, AccountService],
     directives: [UniTable]
@@ -26,8 +26,14 @@ export class SupplierInvoiceList implements OnInit {
         private accountService: AccountService,
         private _router: Router,
         routeParams: RouteParams) {
-        this._selectedId = 34;
+        
     }
+
+
+    createInvoice() {
+        this._router.navigateByUrl('/accounting/journalentry/supplierinvoices/details/0');
+    }
+
 
     // TODO: Needs to use this for now since the UniTable throws exception if value is null.
     private getJournalEntryNumber = (dataItem) => {
@@ -89,8 +95,7 @@ export class SupplierInvoiceList implements OnInit {
 
         // CALLBACKs
         var selectCallback = (selectedItem) => {
-            this.selectedSupplierInvoice = selectedItem;
-            this.onSelect.emit(selectedItem);
+            this._router.navigateByUrl('/accounting/journalentry/supplierinvoices/details/' + selectedItem.ID);                
         }
 
         this.supplierInvoiceTableCfg = new UniTableBuilder('SupplierInvoices', false)
@@ -118,29 +123,4 @@ export class SupplierInvoiceList implements OnInit {
         this.setupTableCfg();
     }
 
-    createNew() {
-
-        this._router.navigateByUrl("/accounting/journalentry/supplierinvoices/New");
-
-        // TODO?? When vlaidation for Draft status can be bypassed.
-        // this.supplierInvoiceService.GetNewEntity()
-        //    .subscribe(
-        //    (data) => {
-        //        this.PostSupplierInvoiceDraft(data);
-        //    },
-        //    (err) => console.log('Error creating new supplier invoice: ', err)
-        //    );
-    }
-    private PostSupplierInvoiceDraft(context: SupplierInvoice) {
-        context.StatusCode = StatusCategoryCode.Draft;
-
-        this.supplierInvoiceService.Post(context)
-            .subscribe(
-            (data) => {
-                this._router.navigateByUrl('/accounting/journalentry/supplierinvoices/' + data.ID);
-            },
-            (err) => console.log('Error creating new supplier invoice: ', err)
-            );
-
-    }
 }

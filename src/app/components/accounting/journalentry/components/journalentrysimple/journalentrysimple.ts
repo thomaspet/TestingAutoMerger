@@ -19,7 +19,9 @@ declare var moment;
     providers: [JournalEntryService, DepartementService, ProjectService, VatTypeService, AccountService]
 })
 export class JournalEntrySimple implements OnInit, OnChanges {
-    @Input() private supplierInvoice: SupplierInvoice;
+    @Input() public supplierInvoice: SupplierInvoice;
+    @Input() public runAsSubComponent : boolean = false;
+    @Input() public hideSameOrNew : boolean = false;
 
     public selectedJournalEntryLine: JournalEntryData;
     public journalEntryLines: Array<JournalEntryData>;
@@ -49,6 +51,7 @@ export class JournalEntrySimple implements OnInit, OnChanges {
             this.journalEntryService.getJournalEntryDataBySupplierInvoiceID(this.supplierInvoice.ID)
                 .subscribe(data => {
                     this.journalEntryLines = data;
+                    this.recalcItemSums(false);
                 });
         } else {
             this.journalEntryLines = new Array<JournalEntryData>();
@@ -245,7 +248,7 @@ export class JournalEntrySimple implements OnInit, OnChanges {
         this.recalcItemSums();
     }
 
-    private recalcItemSums() {
+    private recalcItemSums(doWait: boolean = true) {
         this.busy = true;
         if (this.journalEntryLines.length <= 0) {
             this.itemsSummaryData = null;
@@ -253,6 +256,10 @@ export class JournalEntrySimple implements OnInit, OnChanges {
             return;
         }
 
+        let timeout = 0;
+        if (doWait) {
+            timeout = 2000;
+        }
         // do recalc after 2 second to avoid to much requests
         if (this.recalcTimeout) {
             clearTimeout(this.recalcTimeout);
@@ -274,7 +281,7 @@ export class JournalEntrySimple implements OnInit, OnChanges {
                     this.log(err);
                 }
                 );
-        }, 2000);
+        }, timeout);
     }
 }
 
