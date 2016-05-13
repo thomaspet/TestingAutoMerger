@@ -113,7 +113,7 @@ export class TransqueryList {
         var year: number = moment().year();
  
         // Define columns to use in the table
-        let periodeCol = new UniTableColumn('PeriodName', 'Periode'); //.setWidth('60%');
+        let periodeCol = new UniTableColumn('PeriodName', 'Periode').setWidth('60%');
         let lastYearCol = new UniTableColumn('PeriodSumYear1', `Regnskapsår ${year - 1}`)
             .setTemplate((period) => {
                 return `<a href="/#/accounting/transquery/detailsByAccountId/${this.account.ID}/year/${year - 1}/period/${period.PeriodNo}/isIncomingBalance/${this.isIncomingBalance}">${period.PeriodSumYear1}</a>`;
