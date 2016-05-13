@@ -41,11 +41,7 @@ export class EmployeeCategoryButtons implements OnInit {
     
     constructor(private employeeService: EmployeeService, 
                 private employeeCategoryService: EmployeeCategoryService) {
-        
-        // this.employeeCategoryService.GetAll('')
-        // .subscribe((response: any) => {
-        //     this.categories = response;
-        // });
+                    
     }
     
     private filterTags(tag: string) {
@@ -66,17 +62,17 @@ export class EmployeeCategoryButtons implements OnInit {
             this.employeeCategoryService.GetAll('')
         )
         .subscribe((response: any) => {
-            var [empCategories, allCategories] = response;
+            let [empCategories, allCategories] = response;
             this.selectedEmployee.EmployeeCategories = empCategories ? empCategories : [];
             this.categories = allCategories;
             
             // remove selected categories from available categories
             if (this.categories.length > 0) {
-                var arrLength = this.selectedEmployee.EmployeeCategories ? this.selectedEmployee.EmployeeCategories.length : 0;
+                let arrLength = this.selectedEmployee.EmployeeCategories ? this.selectedEmployee.EmployeeCategories.length : 0;
                 for (var selIndx = 0; selIndx < arrLength; selIndx++) {
-                    var selCat = this.selectedEmployee.EmployeeCategories[selIndx];
+                    let selCat = this.selectedEmployee.EmployeeCategories[selIndx];
                     for (var avIndx = this.categories.length - 1; avIndx >= 0; avIndx--) {
-                        var avCat = this.categories[avIndx];
+                        let avCat = this.categories[avIndx];
                         if (avCat.Name === selCat.Name) {
                             this.categories.splice(avIndx, 1);
                         }
@@ -87,12 +83,12 @@ export class EmployeeCategoryButtons implements OnInit {
     }
     
     public addCategory(categoryName) {
-        var category = new EmployeeCategory();
+        let category = new EmployeeCategory();
         category.Name = categoryName;
         
         this.selectedEmployee.EmployeeCategories.push(category);
         
-        var indx = this.categories.map(function(e) {
+        let indx = this.categories.map(function(e) {
             return e.Name;
         }).indexOf(categoryName);
         if (indx > -1) {
@@ -102,7 +98,7 @@ export class EmployeeCategoryButtons implements OnInit {
     }
     
     public addCategoryAndSave(categoryName) {
-        var cat = this.addCategory(categoryName);
+        let cat = this.addCategory(categoryName);
         this.saveCategory(cat);
     }
     
