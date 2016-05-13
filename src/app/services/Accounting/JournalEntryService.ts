@@ -6,6 +6,8 @@ import {BizHttp} from '../../../framework/core/http/BizHttp';
 import {JournalEntry} from '../../unientities';
 import {UniHttp} from '../../../framework/core/http/http';
 
+declare var moment;
+
 export class JournalEntryService extends BizHttp<JournalEntry> {
     
     constructor(http: UniHttp) {        
@@ -41,6 +43,15 @@ export class JournalEntryService extends BizHttp<JournalEntry> {
             .usingBusinessDomain()
             .withBody(journalDataEntries)
             .withEndPoint(this.relativeURL + '?action=post-journal-entry-data')
+            .send();
+    }  
+    
+    saveJournalEntryData(journalDataEntries: Array<JournalEntryData>): Observable<any> {        
+        return this.http
+            .asPOST()
+            .usingBusinessDomain()
+            .withBody(journalDataEntries)
+            .withEndPoint(this.relativeURL + '?action=save-journal-entry-data')
             .send();
     }  
     
@@ -107,25 +118,31 @@ export class JournalEntryService extends BizHttp<JournalEntry> {
 
         if (journalEntryLines && journalEntryLines.length) {
             journalEntryLines.forEach((l: JournalEntryData, i) => {
-                var parts = l.JournalEntryNo.split('-');
-                var no = parseInt(parts[0]);
-                if (!first || no < first) {
-                    first = no;
-                }
-                if (!last || no > last) {
-                    last = no;
-                }
-                if (i == 0) {
-                    year = parseInt(parts[1]);
+                if (l.JournalEntryNo) {
+                    var parts = l.JournalEntryNo.split('-');
+                    var no = parseInt(parts[0]);
+                    if (!first || no < first) {
+                        first = no;
+                    }
+                    if (!last || no > last) {
+                        last = no;
+                    }
+                    if (i == 0) {
+                        year = parseInt(parts[1]);
+                    }                    
                 }
             });
-        } else {
+            
+            if (!first) {
+                return null;
+            }
+        } else if(nextJournalNumber != "") {
             var parts = nextJournalNumber.split('-');
             first = parseInt(parts[0]);
             last = first;
             year = parseInt(parts[1]);
         }
-
+           
         return {
             first: first,
             last: last,
