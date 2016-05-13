@@ -1,4 +1,6 @@
 <section class="journal-entry-simple-table-wrapper">
+    <journal-entry-simple-form [dropdownData]="dropdownData" tabindex="1" (created)="newLineCreated($event)" *ngIf="dropdownData != null" [journalEntryLines]="journalEntryLines"></journal-entry-simple-form>
+
     <dl class="summary" *ngIf="itemsSummaryData" [attr.aria-busy]="busy">
         <dt>Sum debet</dt>
         <dd>Kr {{itemsSummaryData.SumDebet | number:'1.2-2'}}</dd>
@@ -17,7 +19,6 @@
 
     </dl>
 
-    <journal-entry-simple-form [dropdownData]="dropdownData" tabindex="1" (created)="newLineCreated($event)" *ngIf="dropdownData != null" [journalEntryLines]="journalEntryLines"></journal-entry-simple-form>
     <section *ngIf="dropdownData == null" class="journal-entry-simple-form-loading-placeholder" [attr.aria-busy]="dropdownData == null">
         Laster...
     </section>
