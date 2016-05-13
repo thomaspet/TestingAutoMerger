@@ -125,6 +125,7 @@ export class TransqueryList {
         
         // Setup table
         this.periodeTable = new UniTableConfig(false, false)
-            .setColumns([periodeCol, lastYearCol, thisYearCol]);
+            .setColumns([periodeCol, lastYearCol, thisYearCol])
+            .setColumnMenuVisible(false);
     }
 }
