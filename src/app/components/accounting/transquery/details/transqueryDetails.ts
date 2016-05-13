@@ -1,9 +1,11 @@
 import {Component, OnInit} from '@angular/core';
 import {RouteParams} from '@angular/router-deprecated';
-import {UniTable, UniTableBuilder, UniTableColumn} from '../../../../../framework/uniTable';
+import {UniTable, UniTableColumn, UniTableConfig} from 'unitable-ng2/main';
 import {TransqueryDetailsCalculationsSummary} from '../../../../models/accounting/TransqueryDetailsCalculationsSummary';
 import {JournalEntryLineService} from '../../../../services/Accounting/JournalEntryLineService';
 import {TransqueryDetailSearchParamters} from './TransqueryDetailSearchParamters';
+import {Observable} from 'rxjs/Observable';
+import {JournalEntryLine} from '../../../../unientities';
 
 @Component({
     selector: 'transquery-details',
@@ -12,30 +14,23 @@ import {TransqueryDetailSearchParamters} from './TransqueryDetailSearchParamters
     providers: [JournalEntryLineService]
 })
 export class TransqueryDetails implements OnInit {
-    private uniTableConfig: UniTableBuilder;
     private summaryData: TransqueryDetailsCalculationsSummary;
     private searchParameters: TransqueryDetailSearchParamters;
+    private uniTableConfig: UniTableConfig;
+    private uniTableData: Observable<JournalEntryLine>;
 
     constructor(private routeParams: RouteParams, private journalEntryLineService: JournalEntryLineService) {}
 
     public ngOnInit() {
         this.searchParameters = this.getSearchParameters(this.routeParams);
         const odataFilter = this.generateOdataFilter(this.searchParameters);
-        if (this.searchParameters.accountId) {
-            this.journalEntryLineService
-                .getJournalEntryLineRequestSummary(odataFilter)
-                .subscribe(summary => this.summaryData = summary);
-
-            this.uniTableConfig = this.generateUniTableConfig(odataFilter);
-        } else if (this.searchParameters.journalEntryNumber) {
-            this.journalEntryLineService
-                .getJournalEntryLineRequestSummary(odataFilter)
-                .subscribe(summary => this.summaryData = summary);
-
-            this.uniTableConfig = this.generateUniTableConfig(odataFilter);
-        } else {
-            this.uniTableConfig = this.generateUniTableConfig();
-        }
+        this.journalEntryLineService
+            .getJournalEntryLineRequestSummary(odataFilter)
+            .subscribe(summary => this.summaryData = summary);
+        this.uniTableData = this.journalEntryLineService.GetAll(
+            `expand=VatType,Account&filter=${odataFilter}`
+        );
+        this.uniTableConfig = this.generateUniTableConfig();
     }
 
     private getSearchParameters(routeParams): TransqueryDetailSearchParamters {
@@ -46,27 +41,6 @@ export class TransqueryDetails implements OnInit {
         searchParams.isIncomingBalance = routeParams.get('isIncomingBalance') === 'true';
         searchParams.journalEntryNumber = routeParams.get('journalEntryNumber');
         return searchParams;
-    }
-
-    private generateUniTableConfig(odataFilter?: string): UniTableBuilder {
-        let queryText = 'journalentrylines?expand=VatType,Account';
-        if (odataFilter) {
-            queryText += `&filter=${odataFilter}`;
-        }
-        return new UniTableBuilder(queryText, false)
-            .setFilterable(false)
-            .setPageSize(25)
-            .addColumns(
-                new UniTableColumn('JournalEntryNumber', 'Bilagsnr', 'string')
-                    .setTemplate(`<a href="/\\#/accounting/transquery/detailsByJournalEntryNumber/#= JournalEntryNumber#/">#= JournalEntryNumber#</a>`),
-                new UniTableColumn('Account.AccountNumber', 'Kontonr', 'number'),
-                new UniTableColumn('Account.AccountName', 'Kontonavn', 'string'),
-                new UniTableColumn('FinancialDate', 'Regnskapsdato', 'string'),
-                new UniTableColumn('RegisteredDate', 'Bokføringsdato', 'string'),
-                new UniTableColumn('Description', 'Beskrivelse', 'string'),
-                new UniTableColumn('VatTypeID', 'Mvakode', 'string'),
-                new UniTableColumn('Amount', 'Beløp', 'string')
-            );
     }
 
     private generateOdataFilter(searchParameters: TransqueryDetailSearchParamters): string {
@@ -92,5 +66,26 @@ export class TransqueryDetails implements OnInit {
         } else {
             return '';
         }
+    }
+
+    private generateUniTableConfig(): UniTableConfig {
+        return new UniTableConfig(false, false)
+            .setColumnMenuVisible(false)
+            .setColumns([
+                    new UniTableColumn('JournalEntryNumber', 'Bilagsnr')
+                        .setTemplate((journalEntryLine) => {
+                            return `<a href="/#/accounting/transquery/detailsByJournalEntryNumber/${journalEntryLine.JournalEntryNumber}/">
+                                ${journalEntryLine.JournalEntryNumber}
+                            </a>`;
+                        }),
+                    new UniTableColumn('Account.AccountNumber', 'Kontonr'),
+                    new UniTableColumn('Account.AccountName', 'Kontonavn'),
+                    new UniTableColumn('FinancialDate', 'Regnskapsdato'),
+                    new UniTableColumn('RegisteredDate', 'Bokføringsdato'),
+                    new UniTableColumn('Description', 'Beskrivelse'),
+                    new UniTableColumn('VatTypeID', 'Mvakode'),
+                    new UniTableColumn('Amount', 'Beløp')
+                ]
+            );
     }
 }
