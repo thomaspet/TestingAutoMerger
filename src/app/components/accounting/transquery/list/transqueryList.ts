@@ -83,7 +83,7 @@ export class TransqueryList {
         })); 
         account.onSelect = (account) => {
             this.loadTableData(account);  
-        };     
+        };
     }
     
     loadTableData(account: Account) {
@@ -112,7 +112,8 @@ export class TransqueryList {
         let periodeCol = new UniTableColumn('PeriodName', 'Periode'); //.setWidth('60%');
         let lastYearCol = new UniTableColumn('PeriodSumYear1', `Regnskapsår ${year - 1}`)
             .setTemplate((period) => {
-                return `<a href="/#/accounting/transquery/details/${year - 1}/${period.PeriodNo}">${period.PeriodSumYear1}</a>`;
+                return "<b>test</b>";
+                //return `<a href="/#/accounting/transquery/details/${year - 1}/${period.PeriodNo}">${period.PeriodSumYear1}</a>`;
             });
         let thisYearCol = new UniTableColumn('PeriodSumYear2', `Regnskapsår ${year}`)            
             .setTemplate((period) => {
@@ -122,13 +123,5 @@ export class TransqueryList {
         // Setup table
         this.periodeTable = new UniTableConfig(false, false)
             .setColumns([periodeCol, lastYearCol, thisYearCol]);
-    /*    
-            .setFilterable(false)
-            .setColumnMenuVisible(false)
-            .setSearchable(false)
-            .setPageSize(14)
-            .setPageable(false)
-            .addColumns(periodeCol, lastYearCol, thisYearCol);            
-            */
     }
 }
