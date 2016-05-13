@@ -4,7 +4,6 @@ import {UniRouterOutlet} from "../../uniRouterOutlet";
 import {View} from "../../models/view/view";
 import {view as timeEntryView} from './timeentry/timeentry';
 import {view as workerView} from './worker/worker';
-import {WorkerService} from '../../services/timetracking/workerservice';
 
 // Main view (meta)
 export var view = new View("timetracking", "Timer", "UniTimetracking");
@@ -16,8 +15,7 @@ view.addSubView(workerView);
 @Component({
     selector: 'uni-' + view.name,
     template: `<uni-router-outlet></uni-router-outlet>`,
-    directives: [ROUTER_DIRECTIVES, UniRouterOutlet],
-    providers: [WorkerService]
+    directives: [ROUTER_DIRECTIVES, UniRouterOutlet]
 })
 @RouteConfig(view.getSubRoutes())
 export class UniTimetracking {

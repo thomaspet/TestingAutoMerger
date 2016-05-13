@@ -3,7 +3,7 @@ import {TabService} from '../../layout/navbar/tabstrip/tabService';
 import {View} from '../../../models/view/view';
 import {Worker, WorkRelation, WorkProfile, WorkItem} from '../../../unientities';
 import {WorkerService} from '../../../services/timetracking/workerservice';
-//import {UniTabs} from '../../layout/uniTabs/uniTabs';
+import {Editable} from '../utils/editable';
 
 export var view = new View('timeentry', 'Registrere timer', 'TimeEntry');
 
@@ -17,7 +17,8 @@ export var view = new View('timeentry', 'Registrere timer', 'TimeEntry');
             .timeentriesTable { width: 100% }
             .subcontainer { margin-top: 1em;}
             `],
-    //providers: [WorkerService]
+    directives: [Editable],
+    providers: [WorkerService]
 })
 export class TimeEntry {    
     view = view;

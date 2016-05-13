@@ -1,7 +1,6 @@
 import {Component} from "@angular/core";
 import {TabService} from '../../layout/navbar/tabstrip/tabService';
 import {View} from '../../../models/view/view';
-import {WorkerService} from '../../../services/timetracking/workerservice';
 import {Worker} from '../../../unientities';
 import {UniTable, UniTableBuilder, UniTableColumn} from '../../../../framework/uniTable';
 
@@ -9,14 +8,7 @@ export var view = new View('worker', 'Personer', 'WorkerListview');
 
 @Component({
     selector: view.name,
-    template: `<section class='application'>
-        <h2>{{view.label}}</h2>
-        <aside class='info'>
-            Personer er resurser som du kan føre timer mot. Normalt sett er bruker, ansatt og person den samme, men du kan i teorien føre timer for personer som ikke er hverken brukere eller ansatte.
-        </aside> 
-        <uni-table [config]="tableConfig"></uni-table>
-    </section>
-    `,
+    templateUrl: 'app/components/timetracking/worker/worker.html',
     directives: [UniTable]
 })
 export class WorkerListview {    
@@ -24,7 +16,7 @@ export class WorkerListview {
     
     private tableConfig: UniTableBuilder;
 
-    constructor(private tabService: TabService, private service: WorkerService) {
+    constructor(private tabService: TabService) {
         this.tabService.addTab({ name: view.label, url: view.route });
         this.tableConfig = this.createTableConfig();
     }
