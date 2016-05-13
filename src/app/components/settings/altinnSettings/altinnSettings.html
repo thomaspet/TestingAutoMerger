@@ -1,0 +1,4 @@
+<article *ngIf="formConfig" class="application">
+    <!--<uni-component-loader></uni-component-loader>-->
+    <uni-form class="altinn-settings-form" (submit)="onSubmit($event)" [config]="formConfig"></uni-form>
+</article>
