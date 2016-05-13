@@ -1,39 +1,74 @@
-import {Component, ViewChild, ViewChildren, QueryList} from "@angular/core";
-//import {Http, Headers} from 'angular2/http';
-import {RouteConfig, RouteDefinition, ROUTER_DIRECTIVES, Router, AsyncRoute} from "@angular/router-deprecated";
+import {Component, ViewChild} from '@angular/core';
+import {Observable} from 'rxjs/Observable';
 
-import {TabService} from "../../layout/navbar/tabstrip/tabService";
+import {TabService} from '../../layout/navbar/tabstrip/tabService';
 import {UniTabs} from '../../layout/uniTabs/uniTabs';
-import {UniModal} from "../../../../framework/modals/modal";
 
-import {ComponentProxy} from "../../../../framework/core/componentProxy";
+import {PreviewModal} from '../modals/preview/previewModal';
+import {ReportDefinition} from '../../../unientities';
+import {ReportDefinitionService} from '../../../services/reports/ReportDefinitionService';
 
-import {PreviewModal} from "../modals/preview/previewModal";
 
-const OVERVIEW_ROUTES = [];
+
+class ReportCategory {
+    public name: string;
+    public reports: Array<ReportDefinition>;
+}
 
 @Component({
-    selector: "uni-overview",
-    templateUrl: "app/components/reports/overview/overview.html",
-    directives: [ROUTER_DIRECTIVES, UniTabs, PreviewModal],
+    selector: 'uni-overview',
+    templateUrl: 'app/components/reports/overview/overview.html',
+    directives: [UniTabs, PreviewModal],
+    providers: [ReportDefinitionService]
 })
-@RouteConfig(OVERVIEW_ROUTES)
 export class Overview {
-    childRoutes: RouteDefinition[];
-    
     @ViewChild(PreviewModal)
-    previewModal : PreviewModal
+    private previewModal: PreviewModal;
     
-    constructor(public router: Router
-                , private tabService: TabService
-           ) {
-        this.tabService.addTab({name: "Rapportoversikt", url: "/reports/overview"});
-        this.childRoutes = OVERVIEW_ROUTES.slice(0, OVERVIEW_ROUTES.length - 1);
+    public reportCategories: Array<ReportCategory>;
+    
+    constructor(private tabService: TabService, private reportDefinitionService: ReportDefinitionService) {
+        this.tabService.addTab({name: 'Rapportoversikt', url: '/reports/overview'});
     }
     
-    public showReport(reportName : string)
-    {
+    
+    public showModalReportParameters(reportDefinition : ReportDefinition) {
+        
+    }
+    
+    public showReport(reportName : string) {
         this.previewModal.open();
     }
     
+    public ngOnInit() {
+        this.reportDefinitionService.GetAll<ReportDefinition>(null).subscribe(reports => {
+            this.reportCategories = new Array<ReportCategory>();
+            
+            for (var i = 0; i < reports.length; ++i) {
+                var reportCategory: ReportCategory = this.findCategory(reports[i].Category);
+                
+                if (reportCategory === null) {
+                    reportCategory = new ReportCategory();
+
+                    reportCategory.name = reports[i].Category;
+                    reportCategory.reports = new Array<ReportDefinition>();
+                    
+                    this.reportCategories.push(reportCategory);
+                }
+                reportCategory.reports.push(reports[i]);
+            }
+        });
+    }
+    
+    private findCategory(name: string) {
+        var found: ReportCategory = null;
+        var i: number = 0;
+        
+        while (i < this.reportCategories.length && found !== null) {
+            if (this.reportCategories[i].name === name) {
+                found = this.reportCategories[i];
+            }
+        }
+        return found;
+    }
 }
