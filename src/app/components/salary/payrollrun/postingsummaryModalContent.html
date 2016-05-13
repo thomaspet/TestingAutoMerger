@@ -6,9 +6,11 @@
         <uni-form *ngIf="headerConfig" [config]="headerConfig"></uni-form>
     </header>
 
-    <uni-table *ngIf="!showReceipt" [config]="accountTableConfig"></uni-table>
-    <label>Kontrollsum totalt</label>
-    <uni-table *ngIf="!showReceipt" [config]="debcredTableConfig"></uni-table>
+    <section *ngIf="!showReceipt">
+        <uni-table [config]="accountTableConfig"></uni-table>
+        <label>Kontrollsum totalt</label>
+        <uni-table [config]="debcredTableConfig"></uni-table>
+    </section>
 
     <section *ngIf="showReceipt">
         <p>Bilaget er bokført i ditt regnskap</p>
