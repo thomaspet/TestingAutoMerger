@@ -5,6 +5,5 @@
         <button (click)="emptyJournalEntry($event)">Tøm</button>
         <button *ngIf="isEditMode" (click)="editJournalEntry($event)">Oppdater</button>
         <button *ngIf="isEditMode" (click)="abortEditJournalEntry($event)">Avbryt</button>
-        <b>{{ hideSameOrNew }}</b>
     </section>
 </section>

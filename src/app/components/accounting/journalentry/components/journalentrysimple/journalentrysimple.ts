@@ -128,11 +128,14 @@ export class JournalEntrySimple implements OnInit, OnChanges {
             .subscribe(
             data => {
                 var firstJournalEntry = data[0];
-                console.log(data);
+                var lastJournalEntry = data[data.length - 1];
 
                 // Validate if journalEntry number has changed
-                if (firstJournalEntry.JournalEntryNo != this.journalEntryLines[0].JournalEntryNo) {
-                    alert("Lagring var vellykket. Men merk at tildelt bilagsnummer startet på " +firstJournalEntry.JournalEntryNo + "  istedet for: " + this.journalEntryLines[0].JournalEntryNo);
+                // TODO: Should maybe test all numbers?
+                var numbers = this.journalEntryService.findJournalNumbersFromLines(this.journalEntryLines);
+                if (firstJournalEntry.JournalEntryNo != numbers.firstNumber ||
+                    lastJournalEntry.JournalEntryNo != numbers.lastNumber) {
+                    alert("Lagring var vellykket. Men merk at tildelt bilagsnummer er " + firstJournalEntry.JournalEntryNo + " - " + lastJournalEntry.JournalEntryNo);
                 } else {
                     alert('Lagring var vellykket');
                 }
@@ -145,6 +148,33 @@ export class JournalEntrySimple implements OnInit, OnChanges {
                 console.log('error in postJournalEntryData: ', err);
                 this.log(err);
             });
+    }
+
+    private findFirstJournalNumberFromLines(firstNumer: string = "") {
+        var first, last, year;
+
+        if (this.journalEntryLines && this.journalEntryLines.length) {
+            this.journalEntryLines.forEach((l: JournalEntryData, i) => {
+                var parts = l.JournalEntryNo.split('-');
+                var no = parseInt(parts[0]);
+                if (!first || no < first) {
+                    first = no;
+                }
+                if (!last || no > last) {
+                    last = no;
+                }
+                if (i == 0) {
+                    year = parseInt(parts[1]);
+                }
+            });
+        }
+        return {
+            first: first,
+            last: last,
+            year: year,
+            nextNumber: `${last + (this.journalEntryLines.length ? 1 : 0)}-${year}`,
+            lastNumber: `${last}-${year}`
+        };
     }
 
     private validateJournalEntryData() {

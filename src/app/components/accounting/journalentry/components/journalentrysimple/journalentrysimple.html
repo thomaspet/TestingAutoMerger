@@ -1,4 +1,3 @@
-
 <section>
     <h2 *ngIf="!runAsSubComponent">
         Bilagsregistrering
@@ -6,6 +5,9 @@
 </section>
 <section class="journal-entry-simple-table-wrapper" [ngClass]="{runassubcomponent: runAsSubComponent}">
     
+<section class="journal-entry-simple-table-wrapper">
+    <journal-entry-simple-form [dropdownData]="dropdownData" tabindex="1" (created)="newLineCreated($event)" *ngIf="dropdownData != null" [journalEntryLines]="journalEntryLines" [hideSameOrNew]="hideSameOrNew"></journal-entry-simple-form>
+
     <dl class="summary" *ngIf="itemsSummaryData" [attr.aria-busy]="busy">
         <dt>Sum debet</dt>
         <dd>Kr {{itemsSummaryData.SumDebet | number:'1.2-2'}}</dd>
@@ -24,7 +26,6 @@
 
     </dl>
 
-    <journal-entry-simple-form [dropdownData]="dropdownData" tabindex="1" (created)="newLineCreated($event)" *ngIf="dropdownData != null" [journalEntryLines]="journalEntryLines" [hideSameOrNew]="hideSameOrNew"></journal-entry-simple-form>
     <section *ngIf="dropdownData == null" class="journal-entry-simple-form-loading-placeholder" [attr.aria-busy]="dropdownData == null">
         Laster...
     </section>
@@ -43,7 +44,7 @@
         <tbody>
             <template ngFor let-line [ngForOf]="journalEntryLines" [ngForTrackBy]="trackByLines">
                 <tr tabindex="2" (keyup.enter)="setSelectedJournalEntryLine(line)" class="journalentrysimple-itemline" (click)="setSelectedJournalEntryLine(line)" [class.journal-entry-row-selected]="selectedJournalEntryLine == line">
-                    <td class="journalentrysimple_temporary">{{line.JournalEntryNo}}</td>
+                    <td class="journalentrysimple_temporary">{{line.JournalEntryNo || "Ingen"}}</td>
                     <td class="journalentrysimple-biginfo">{{line.FinancialDate != "0001-01-01T00:00:00" ? line.FinancialDate.toLocaleDateString() : ""}}</td>
                     <td class="journalentrysimple-multilineinfo">
                         <dl>
@@ -107,4 +108,3 @@
     <p>Bruk Tab-knappen for å navigere til andre rader og trykk enter for å redigere de, eller klikk på raden du vil redigere med musen</p>
     <p></p>
 </section>
-

@@ -123,6 +123,7 @@ export class UniTableDemoNew {
                 
                 return '';
             })
+            .setWidth('100px')
             .setDisplayField('VatType.VatPercent')
             .setEditorOptions({
                 itemTemplate: (item) => {
@@ -148,6 +149,7 @@ export class UniTableDemoNew {
                 exVatCol, discountPercentCol, discountCol, vatTypeCol,
                 sumTotalExVatCol, sumVatCol, sumTotalIncVatCol 
             ])
+            .setColumnMenuVisible(true)
             .setMultiRowSelect(true)
             .setDefaultRowData({
                 // Please note: This object should usually come from api/metadata/<resource>/new

@@ -13,10 +13,11 @@ export class JournalEntryManual {
     @Input()
     supplierInvoice : SupplierInvoice;
     @Input() runAsSubComponent : boolean = false;
+    @Input()
+    hideSameOrNew : boolean = false;
     @ViewChild(JournalEntrySimple) private journalEntrySimple: JournalEntrySimple;
     
     public journalEntryMode: string;
-    private hideSameOrNew: boolean = false;
   
     constructor() {
     }
@@ -24,7 +25,7 @@ export class JournalEntryManual {
     ngOnInit() {
         this.journalEntryMode = 'SIMPLE';
         
-        if (this.supplierInvoice !== null) {
+        if (this.supplierInvoice) {
             this.hideSameOrNew = true;
         }
     }

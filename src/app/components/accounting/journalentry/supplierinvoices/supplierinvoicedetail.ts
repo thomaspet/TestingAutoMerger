@@ -48,6 +48,10 @@ export class SupplierInvoiceDetail implements OnInit {
     public ngOnInit() {
         this.loadFormAndData();
     }
+    
+    private log(err) {
+        alert(err._body);
+    }
 
     private refreshFormData(supplierInvoice: SupplierInvoice) {
         this.invoiceId = supplierInvoice.ID;
@@ -106,7 +110,10 @@ export class SupplierInvoiceDetail implements OnInit {
                 .saveJournalEntryData(journalEntryData)
                 .subscribe((res) => {                    
                 }, 
-                (err) => console.log('error saving journaldata:', err)
+                (err) => {
+                    console.log('error saving journaldata:', err);
+                    this.log(err);
+                }
             ); 
                         
             this._supplierInvoiceService.Put(this.supplierInvoice.ID, this.supplierInvoice)
@@ -117,7 +124,10 @@ export class SupplierInvoiceDetail implements OnInit {
                         this.router.navigateByUrl('/accounting/journalentry/supplierinvoices/details/' + this.supplierInvoice.ID);
                     }
                 },
-                (error: Error) => console.error('error in SupplierInvoiceDetail.onSubmit - Put: ', error)
+                (error: Error) => {
+                    console.error('error in SupplierInvoiceDetail.onSubmit - Put: ', error);
+                    this.log(error);
+                }
             );
         } else {
             // Following fields are required. For now hardcoded.
@@ -131,7 +141,11 @@ export class SupplierInvoiceDetail implements OnInit {
                     //always run smartbooking for new supplier invoices, ignore input parameter
                     this.runSmartBooking(newSupplierInvoice);
                 },
-                (error: Error) => console.error('error in SupplierInvoiceDetail.onSubmit - Post: ', error));
+                (error: Error) => {
+                    console.error('error in SupplierInvoiceDetail.onSubmit - Post: ', error);
+                    this.log(error);
+                }
+            );
         }
     };
 
@@ -160,13 +174,22 @@ export class SupplierInvoiceDetail implements OnInit {
                                 console.log('Booking complete - redirect to refresh view');
                                 this.router.navigateByUrl('/accounting/journalentry/supplierinvoices/details/' + this.supplierInvoice.ID);
                             },
-                            (err) => console.log('error running book transition', err)
+                            (err) => {
+                                console.log('error running book transition', err);
+                                this.log(err);
+                            }
                         );
                     },
-                    (err) => console.log('error saving supplierinvoice', err)
+                    (err) => {
+                        console.log('error saving supplierinvoice', err);
+                        this.log(err);
+                    }
                 )
             }, 
-            (err) => console.log('error saving journaldata:', err)
+            (err) => { 
+                console.log('error saving journaldata:', err);
+                this.log(err);
+            }
         );      
     }
 
