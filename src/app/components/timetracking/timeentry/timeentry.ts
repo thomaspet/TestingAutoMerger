@@ -2,7 +2,7 @@ import {Component, AfterViewInit} from "@angular/core";
 import {TabService} from '../../layout/navbar/tabstrip/tabService';
 import {View} from '../../../models/view/view';
 import {Worker, WorkRelation, WorkProfile, WorkItem} from '../../../unientities';
-import {WorkerService} from '../../../services/TimeTracking/workerService';
+import {WorkerService} from '../../../services/timetracking/workerservice';
 //import {UniTabs} from '../../layout/uniTabs/uniTabs';
 
 export var view = new View('timeentry', 'Registrere timer', 'TimeEntry');
@@ -15,8 +15,9 @@ export var view = new View('timeentry', 'Registrere timer', 'TimeEntry');
             .title strong { margin-right: 1em;}
             .title select { display:inline-block; width: auto; padding-left: 7px; padding-right: 7px; }
             .timeentriesTable { width: 100% }
+            .subcontainer { margin-top: 1em;}
             `],
-    providers: [WorkerService]
+    //providers: [WorkerService]
 })
 export class TimeEntry {    
     view = view;
@@ -29,6 +30,14 @@ export class TimeEntry {
     currentWorkRelation: WorkRelation;
     workItems: Array<WorkItem> = [];
     busy = true;
+    
+    tabs = [ { name: 'timeentry', label: 'Timer', isSelected: true },
+            { name: 'totals', label: 'Totaler' },
+            { name: 'flex', label: 'Fleksitid' },
+            { name: 'profiles', label: 'Arbeidsgivere' },
+            { name: 'vacation', label: 'Ferie' },
+            { name: 'offtime', label: 'Fravær' },
+            ];
 
     constructor(private tabService: TabService, private service:WorkerService) {
         this.tabService.addTab({ name: view.label, url: view.route });

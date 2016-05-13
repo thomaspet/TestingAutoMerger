@@ -1,21 +1,23 @@
 import {Component} from "@angular/core";
 import {TabService} from '../../layout/navbar/tabstrip/tabService';
 import {View} from '../../../models/view/view';
-import {WorkerService} from '../../../services/TimeTracking/workerService';
+import {WorkerService} from '../../../services/timetracking/workerservice';
 import {Worker} from '../../../unientities';
 import {UniTable, UniTableBuilder, UniTableColumn} from '../../../../framework/uniTable';
 
-export var view = new View('worker', 'Timefører', 'WorkerListview');
+export var view = new View('worker', 'Personer', 'WorkerListview');
 
 @Component({
     selector: view.name,
     template: `<section class='application'>
-        <h3>{{view.label}}</h3>
+        <h2>{{view.label}}</h2>
+        <aside class='info'>
+            Personer er resurser som du kan føre timer mot. Normalt sett er bruker, ansatt og person den samme, men du kan i teorien føre timer for personer som ikke er hverken brukere eller ansatte.
+        </aside> 
         <uni-table [config]="tableConfig"></uni-table>
     </section>
     `,
-    directives: [UniTable],
-    providers: [WorkerService]
+    directives: [UniTable]
 })
 export class WorkerListview {    
     public view = view;
@@ -33,6 +35,7 @@ export class WorkerListview {
         var c2 = new UniTableColumn('Info.Name', 'Navn', 'string');
 
         return new UniTableBuilder('workers?expand=Info', false)
+        .setToolbarOptions([])
         .setSelectCallback((item)=>{ this.onSelect(item); } )
         .setFilterable(false)
         .setPageSize(25)

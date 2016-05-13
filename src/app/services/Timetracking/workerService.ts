@@ -25,6 +25,9 @@ export class WorkerService extends BizHttp<Worker> {
         this.user.id = authService.jwtDecoded.userId;
         this.user.guid = authService.jwtDecoded.nameid;
         this.user.company = JSON.parse(localStorage.getItem('activeCompany')).Name;
+        
+        console.info('workerservice constructor loaded:');
+        
     }
     
     getWorkers(): Observable<Array<Worker>> {
@@ -70,7 +73,7 @@ export class WorkerService extends BizHttp<Worker> {
             CompanyName: this.user.company,
             WorkPercentage: 100,
             Description: profile.Name,
-            StartDate: moment([moment().year(), moment().month(), 1]).getDate(),
+            StartDate: moment([moment().year(), moment().month(), 1]).toDate(),
             IsActive: true,
             WorkProfileID: profile.ID
         };        
