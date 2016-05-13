@@ -1,0 +1,18 @@
+.postingsummary
+    @extend .modal-content
+    text-align: left
+
+.postingsummary_header
+    @include clearfix
+    width: 100%
+    border-top: pxToRem(1) solid $uni-color-scale9
+    border-bottom: pxToRem(1) solid $uni-color-scale9
+    padding: 0 0 1rem
+
+    h4
+        text-align: left
+
+    uni-form
+        display: block
+        margin-left: -1rem
+        width: calc(100% + 2rem)

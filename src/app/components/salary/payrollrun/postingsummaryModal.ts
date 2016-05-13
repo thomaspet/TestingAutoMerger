@@ -1,4 +1,4 @@
-import { Component, AfterViewInit, QueryList, ViewChildren } from '@angular/core';
+import { Component, AfterViewInit, QueryList, ViewChildren, Type } from '@angular/core';
 import {UniModal} from '../../../../framework/modals/modal';
 import {RootRouteParamsService} from '../../../services/rootRouteParams';
 import {PostingsummaryModalContent} from './postingsummaryModalContent';
@@ -14,6 +14,7 @@ export class PostingsummaryModal implements AfterViewInit {
     private modals: UniModal[];
     private modalConfig: any;
     private payrollrunID: number;
+    private type: Type = PostingsummaryModalContent;
     
     constructor(private rootRouteParams: RootRouteParamsService) {
         if (!this.payrollrunID) {

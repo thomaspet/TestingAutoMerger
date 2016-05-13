@@ -18,10 +18,10 @@ export class PostingsummaryModalContent implements OnInit {
     private busy: boolean;
     private showReceipt: boolean = false;
     private headerConfig: UniFormBuilder = null;
-    // private receiptConfig: UniFormBuilder;
+    private accountTableConfig: any;
+    private debcredTableConfig: any;
     @Input() private config: any;
     private postingsummary: Postingsummary;
-    // private receiptModel: {text: string, documentnumber: number, postingDate: Date};
     
     constructor(private routr: Router, private payrollService: PayrollrunService) {
         
@@ -30,6 +30,7 @@ export class PostingsummaryModalContent implements OnInit {
     public ngOnInit() {
         this.getData()
         .subscribe((response: Postingsummary) => {
+            console.log('response from getdata', response);
             this.setData(response);
         }, (err) => {
             console.log(err);
@@ -48,27 +49,53 @@ export class PostingsummaryModalContent implements OnInit {
         this.postingsummary = postsum;
         
         this.createHeaderConfig();
+        this.createTableConfig();
         
         this.busy = false;
     }
     
     public postTransactions() {
-        console.log('see how invoice has used this. return observable');
         return this.payrollService.postTransactions(this.config.payrollrunID);
     }
     
     public showResponseReceipt() {
-        console.log('remove unitable and show uniform with receipt');
         this.showReceipt = true;
     }
     
     private createHeaderConfig() {
-        var companyName = this.buildField('Firmanavn', this.postingsummary.SubEntity.BusinessRelationInfo, 'Name', FieldType.TEXT);
+        if (this.postingsummary) {
+            var companyName = this.buildField('Firmanavn', this.postingsummary.SubEntity.BusinessRelationInfo, 'Name', FieldType.TEXT);
+            var payrollinfo = this.buildField('Lønnsavregning', this.postingsummary.PayrollRun, 'ID', FieldType.TEXT);
+            var orgnumber = this.buildField('Orgnr', this.postingsummary.SubEntity, 'orgnumber', FieldType.TEXT);
+            var payDate = this.buildField('Utbetalt', this.postingsummary.PayrollRun, 'PayDate', FieldType.DATEPICKER);
+            
+            this.headerConfig = new UniFormBuilder();
+            this.headerConfig.addUniElements(companyName, payrollinfo, orgnumber, payDate).hideSubmitButton();
+            this.headerConfig.readmode();
+        }
+    }
+    
+    private createTableConfig() {
+        var nameCol = new UniTableColumn('Name', 'Navn', 'string');
+        var accountCol = new UniTableColumn('Account', 'Konto', 'number');
+        var sumCol = new UniTableColumn('Sum', 'Sum', 'number');
+        this.accountTableConfig = new UniTableBuilder(this.postingsummary.PostList, false)
+            .addColumns(accountCol, nameCol, sumCol)
+            .setColumnMenuVisible(false)
+            .setPageable(false)
+            .setSearchable(false);
         
-        
-        this.headerConfig = new UniFormBuilder();
-        this.headerConfig.addUniElements(companyName).hideSubmitButton();
-        this.headerConfig.readmode();
+        var debCol = new UniTableColumn('Debet', 'Debit', 'number');
+        var credCol = new UniTableColumn('Credit', 'Kredit', 'number');
+        var debcred: any[] = new Array();
+        var dc: {} = {Debet: this.postingsummary.Debet, Credit: this.postingsummary.Credit};
+        debcred.push(dc);
+        console.log('debcred array', debcred);
+        this.debcredTableConfig = new UniTableBuilder(debcred, false)
+            .setColumnMenuVisible(false)
+            .addColumns(debCol, credCol)
+            .setPageable(false)
+            .setSearchable(false);
     }
     
     private buildField(label: string, model: any, modelfield: string, type: number, index = null) {
