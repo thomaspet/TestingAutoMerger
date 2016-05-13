@@ -98,7 +98,7 @@ export class JournalEntrySimpleForm implements OnChanges {
             });            
         } else {
             var oldData: JournalEntryData = _.cloneDeep(this.formInstance.Value);              
-            var numbers = this.findJournalNumbersFromLines(journalEntryNumber);
+            var numbers = this.journalEntryService.findJournalNumbersFromLines(this.journalEntryLines, journalEntryNumber);
      
             // next journal number?
             if (oldData.SameOrNew === this.SAME_OR_NEW_NEW && !this.hideSameOrNew) {
@@ -123,7 +123,7 @@ export class JournalEntrySimpleForm implements OnChanges {
         var newData: JournalEntryData = this.formInstance.Value;
         
         if (newData.SameOrNew === this.SAME_OR_NEW_NEW) {
-            var numbers = this.findJournalNumbersFromLines();
+            var numbers = this.journalEntryService.findJournalNumbersFromLines(this.journalEntryLines);
             newData.JournalEntryNo = numbers.nextNumber;
         } else {
             newData.JournalEntryNo = newData.SameOrNew;
@@ -151,40 +151,7 @@ export class JournalEntrySimpleForm implements OnChanges {
         var debitaccount: UniFieldBuilder = this.formInstance.find('DebitAccountID');
         debitaccount.setFocus(); 
     }
-    
-    private findJournalNumbersFromLines(nextJournalNumber: string = "") {
-        var first, last, year;
-
-        if (this.journalEntryLines && this.journalEntryLines.length) {
-            this.journalEntryLines.forEach((l:JournalEntryData, i) => {   
-                var parts = l.JournalEntryNo.split('-');
-                var no = parseInt(parts[0]);
-                if (!first || no < first) {
-                    first = no;   
-                }
-                if (!last || no > last) {
-                    last = no;
-                }
-                if (i == 0) { 
-                    year = parseInt(parts[1]);
-                }
-            });              
-        } else {
-            var parts = nextJournalNumber.split('-');
-            first = parseInt(parts[0]);
-            last = first;
-            year = parseInt(parts[1]);
-        }
-        
-        return {
-            first: first,
-            last: last,
-            year: year,
-            nextNumber: `${last + (this.journalEntryLines.length ? 1 : 0)}-${year}`,
-            lastNumber: `${last}-${year}`
-        };                       
-    }
-            
+                
     ngAfterViewInit() {  
         // TODO get it from the API and move these to backend migrations   
         var view: ComponentLayout = {
@@ -495,7 +462,7 @@ export class JournalEntrySimpleForm implements OnChanges {
                              
         // add list of possible numbers from start to end
         if (this.isEditMode) {
-            var range = this.findJournalNumbersFromLines();  
+            var range = this.journalEntryService.findJournalNumbersFromLines(this.journalEntryLines);
             var current = parseInt(this.journalEntryLine.JournalEntryNo.split('-')[0]);
             for(var i = 0; i <= (range.last - range.first); i++) {
                 var jn = `${i+range.first}-${range.year}`;
