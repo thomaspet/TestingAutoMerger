@@ -3,7 +3,7 @@ import {TabService} from '../../layout/navbar/tabstrip/tabService';
 import {View} from '../../../models/view/view';
 import {Worker, WorkRelation, WorkProfile, WorkItem} from '../../../unientities';
 import {WorkerService} from '../../../services/timetracking/workerservice';
-import {Editable} from '../utils/editable';
+import {Editable} from '../utils/editable/editable';
 
 export var view = new View('timeentry', 'Registrere timer', 'TimeEntry');
 
