@@ -15,6 +15,15 @@ export interface IJQItem {
     parent():IJQItem;
     index():number;
     append(content:any);
+    find(filter?:any):IJQItem;
+    first(filter?:any):IJQItem;
+    last(filter?:any):IJQItem;
+    next(filter?:any):IJQItem;
+    prev(filter?:any):IJQItem;
+    parent(filter?:any):IJQItem;
+    children(filter?:any):IJQItem;
+    length:number;
+    eq(filter:any):IJQItem;
 }
 
 export interface IPos {
@@ -23,7 +32,8 @@ export interface IPos {
 }
 
 export interface IEditEvents {
-    finalizeEdit(value:any, position:IPos):boolean;
+    onEditChanged(value:any, position:IPos):boolean;
+    onEditKeydown(event:any);
 }
 
 export interface IRect {
@@ -40,6 +50,13 @@ export interface IEditor {
     move(pos:IRect);
     moveTo(cell:IJQItem);
     focus();
-    startEdit(value:any, cell:IJQItem);
+    startEdit(value:any, cell:IJQItem, pos: IPos);
     finalizeEdit(cancel:boolean);
 }
+
+export var Keys = {
+    ARROW_LEFT : 37, ARROW_UP : 38, ARROW_RIGHT : 39, ARROW_DOWN : 40,
+    ENTER : 13, ESC : 27, TAB : 9, F2 : 113, F3 : 114, F4 : 115, SPACE : 32,
+    CTRL : 17, SHIFT : 16,
+    HOME : 36, END : 35, INSERT : 45, DELETE : 46, PAGEUP : 33, PAGEDOWN : 34
+};
