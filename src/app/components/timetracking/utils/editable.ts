@@ -1,11 +1,12 @@
 import {Directive, AfterViewInit, Input, ElementRef, OnDestroy} from '@angular/core';
-declare var jQuery;
+declare var jQuery /*: JQueryStatic;*/
 
 const cloneCss = ['padding', 'padding-top', 'padding-bottom', 'padding-left', 'padding-right',
-					  'text-align', 'font', 'font-size', 'font-family', 'font-weight', 'color', 
-					  'border', 'border-top', 'border-bottom', 'border-left', 'border-right'];
+					  'text-align', 'font', 'font-size', 'font-family', 'font-weight', 'color'];
 
-interface Ijq {
+const editorTemplate = `<input style='position:absolute; display:none' type='text'></input>`;
+
+interface IJQItem {
     on(eventName:string, fx:Function);
     off(eventName:string, fx:Function);
     is(tagName:string):boolean;
@@ -25,34 +26,43 @@ interface Ijq {
     selector: '[editable]'
 })
 export class Editable implements AfterViewInit, OnDestroy {
+
     
     jqRoot: any;
     handlers = {
-        onClick: undefined,         
+        onClick: undefined,   
+        onResize: undefined      
     }
     state = {
-        active: <Ijq>undefined,
-        editor: <Ijq>undefined,
-        combo: <Ijq>undefined
+        active: <IJQItem>undefined,
+        editor: <IJQItem>undefined,
+        combo: <IJQItem>undefined,        
     }
     
     constructor(el:ElementRef) {
         this.jqRoot = jQuery(el.nativeElement);
         
-        this.handlers.onClick = (event) => {
-            this.startEdit(event);
-        };
+        this.handlers.onClick = (event) => { this.startEdit(event); };
+        this.handlers.onResize = (event) => { this.onResize(event); };
         
-        var ref = this.jqRoot.on('click', this.handlers.onClick);
+        this.jqRoot.on('click', this.handlers.onClick);
+        jQuery(window).on('resize', this.handlers.onResize );
     }
     
     public ngAfterViewInit() {
-        //console.info("afterViewInit(editable)");
     }
 
    public ngOnDestroy() {
-       //cleanup eventhandlers
+       //cleanup eventhandlers:
        this.jqRoot.off('click', this.handlers.onClick);
+       jQuery(window).off('resize', this.handlers.onResize);
+    }
+    
+    private onResize(event) {
+        if (!this.state.active) return;
+        if (!this.state.editor) return;
+        this.showEditor(this.state.editor, this.state.active);
+        console.info("resized..");
     }
     
     private startEdit(event) {
@@ -73,7 +83,7 @@ export class Editable implements AfterViewInit, OnDestroy {
         this.showEditor(editor, el);
     }
     
-    private showEditor(editor:Ijq, cell:Ijq) {
+    private showEditor(editor:IJQItem, cell:IJQItem) {
         var h = cell.outerHeight();
         var w = cell.outerWidth();
         editor.offset(cell.offset());
@@ -87,7 +97,7 @@ export class Editable implements AfterViewInit, OnDestroy {
     
     private makeEditor() {
         if (this.state.editor===undefined) {
-            this.state.editor = jQuery("<input style='position:absolute; display:none' type='text'></input>");
+            this.state.editor = <IJQItem>jQuery(editorTemplate);
             this.jqRoot.parent().append(this.state.editor);            
         }
         return this.state.editor;
