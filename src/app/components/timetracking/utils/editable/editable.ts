@@ -81,8 +81,11 @@ export class Editable implements AfterViewInit, OnDestroy {
     }
     
     private handleChange(value:any, pos:IPos):boolean {
-        console.log(`writing '${value}' to cell ${pos.col}, ${pos.row}'`);
-        this.current.active.text(value);
+        var p2 = this.getCellPosition(this.current.active);
+        if (p2.col === pos.col && p2.row === pos.row) {
+            //console.log(`writing '${value}' to cell ${p2.col}, ${p2.row} : evented from ${pos.col}, ${pos.row}'`);
+            this.current.active.text(value);
+        }
         return true;
     }
     

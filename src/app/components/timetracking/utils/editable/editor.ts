@@ -77,6 +77,7 @@ export class Editor implements IEditor {
         var txt = this.inputBox.val();
         if (txt !== this.originalValue) {
             this.editEvents.onEditChanged(txt, this.position);
+            this.originalValue = txt; 
         }
     }
     
