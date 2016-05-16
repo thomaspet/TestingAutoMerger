@@ -70,15 +70,19 @@ export class Editor implements IEditor {
         this.inputBox.focus();
     }
     
-    public finalizeEdit(cancel = false) {
+    public finalizeEdit(cancel = false):boolean {
         if (!(this.editEvents && this.editEvents.onEditChanged)) {
-            return;
+            return true;
         }
         var txt = this.inputBox.val();
         if (txt !== this.originalValue) {
-            this.editEvents.onEditChanged(txt, this.position);
-            this.originalValue = txt; 
+            if (this.editEvents.onEditChanged(txt, this.position)) {
+                this.originalValue = txt;
+            } else {
+                return false;
+            } 
         }
+        return true;
     }
     
     public onEditKeyDown(event) {

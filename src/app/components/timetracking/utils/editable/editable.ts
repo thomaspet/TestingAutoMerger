@@ -74,7 +74,6 @@ export class Editable implements AfterViewInit, OnDestroy {
             this.focusCell(el);
         }
         var txt = el.text();
-        //console.log(`reading '${txt}' from cell'`);
         this.createEditorIfMissing();
         this.current.editor.startEdit(txt, el, this.getCellPosition(el));
     }
@@ -104,25 +103,23 @@ export class Editable implements AfterViewInit, OnDestroy {
                 cancel: false 
             };
             
-            console.info(`before onChange: cancel = ${eventDetails.cancel}`);
-            
             if (this.config.events.onChange) {
                 this.config.events.onChange(eventDetails);
-                console.info(`after onChange: cancel = ${eventDetails.cancel}`);            
             }
             
             if (!eventDetails.cancel) {
                 this.current.active.text(value);
-                console.info(`emitting details: ${value}`);
                 this.onChange.emit(eventDetails);
+                return true;
             }
         }
-        return true;
+        return false;
     }
 
     private handleKeydown(event) {
         var candidate = this.getMovement(this.current.active, event);
         if (candidate.length > 0) {
+            if (!this.finalizeEdit()) { return; }
             this.startEdit({ target: candidate[0] });
             if (event) {
                 event.preventDefault();
@@ -132,8 +129,8 @@ export class Editable implements AfterViewInit, OnDestroy {
     }
 
     private finalizeEdit(cancel = false) {
-        if (!this.current.editor) return;
-        this.current.editor.finalizeEdit(cancel);
+        if (!this.current.editor) { return true; }
+        return this.current.editor.finalizeEdit(cancel);
     }
 
         

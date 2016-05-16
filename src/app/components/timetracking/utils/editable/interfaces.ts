@@ -69,7 +69,7 @@ export interface IEditor {
     moveTo(cell:IJQItem);
     focus();
     startEdit(value:any, cell:IJQItem, pos: IPos);
-    finalizeEdit(cancel:boolean);
+    finalizeEdit(cancel:boolean):boolean;
 }
 
 export var Keys = {
