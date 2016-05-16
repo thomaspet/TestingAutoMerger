@@ -1,7 +1,49 @@
 <h2 *ngIf="showHeader">Bilagsregistrering</h2>
-<div *ngIf="journalEntryMode == 'SIMPLE'">
-    <journal-entry-simple [supplierInvoice]="SupplierInvoice"></journal-entry-simple>
-</div>
 <div *ngIf="journalEntryMode == 'PROFFESIONAL'">
-    <journal-entry-professional></journal-entry-professional>
+    <journal-entry-professional (dataLoaded)="onDataLoaded($event)"></journal-entry-professional>
 </div>
+
+<dl class="summary" *ngIf="itemsSummaryData" [attr.aria-busy]="busy">
+    <dt>Sum debet</dt>
+    <dd>Kr {{itemsSummaryData.SumDebet | number:'1.2-2'}}</dd>
+
+    <dt>Sum kredit</dt>
+    <dd>Kr {{itemsSummaryData.SumCredit | number:'1.2-2'}}</dd>
+
+    <dt>Differanse</dt>
+    <dd>Kr {{itemsSummaryData.Differance | number:'1.2-2'}}</dd>
+
+    <dt>Inng.mva</dt>
+    <dd>Kr {{itemsSummaryData.IncomingVat | number:'1.2-2'}}</dd>
+
+    <dt>Utg.mva</dt>
+    <dd>Kr {{itemsSummaryData.OutgoingVat | number:'1.2-2'}}</dd>
+
+</dl>
+
+<div *ngIf="journalEntryMode == 'SIMPLE'">
+    <journal-entry-simple [supplierInvoice]="SupplierInvoice" (dataLoaded)="onDataLoaded($event)"></journal-entry-simple>
+</div>
+
+
+<section class="journal-entry-validation" *ngIf="validationResult">
+    <h3 *ngIf="validationResult.Messages.length == 0">
+        Ingen valideringsfeil!
+    </h3>
+    <h3 *ngIf="validationResult.Messages.length > 0">
+        Feil i validering:
+    </h3>
+    <p *ngFor="let message of validationResult.Messages">
+        {{message.Message}}
+    </p>
+</section>
+<section class="journal-entry-helper">
+    <h3>
+        Tips
+    </h3>
+    <p>Bruk Tab-knappen for å navigere til andre rader og trykk enter for å redigere de, eller klikk på raden du vil redigere med musen</p>
+    <p></p>
+</section>
+
+<button (click)="useProMode()" *ngIf="journalEntryMode == 'SIMPLE'">Proffregistrering</button>
+<button (click)="useSimpleMode()" *ngIf="journalEntryMode != 'SIMPLE'">Enkel registrering</button>

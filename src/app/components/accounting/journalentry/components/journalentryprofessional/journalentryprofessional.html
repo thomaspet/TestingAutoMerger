@@ -1,4 +1,6 @@
-<div class="journalentrytempbox">
-    Her kommer proff bilagsregistrering komponenten. Dette blir neppe implementert før etter 30.06.16<br/>
-    Må forskes litt på hvilken gridkomponent som skal brukes, se <a target="_blank" href="https://github.com/unimicro/AppFrontend/issues/187">https://github.com/unimicro/AppFrontend/issues/187</a>
-</div>
+<span *ngIf="journalEntryTable">    
+    <uni-table [resource]="items" 
+                [config]="journalEntryTable"
+                (rowChanged)="rowChanged($event)">
+    </uni-table>    
+</span>
