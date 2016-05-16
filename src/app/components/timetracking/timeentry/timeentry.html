@@ -16,7 +16,7 @@
     </div>
     
     <section [attr.aria-busy]="busy" class="subcontainer" >
-        <table class='timeentriesTable' editable (onChange)="onValueChange($event)" >
+        <table class='timeentriesTable' editable [config]="tableConfig" >
             <thead>
                 <tr>
                     <th>Beskrivelse</th>

@@ -1,3 +1,26 @@
+export interface IChangeEvent {
+    value:any;
+    col: number;
+    row: number;
+    cancel: boolean;
+    columnDefiniton?: ICol;
+}
+
+export interface ICol {
+    name: string;
+    label: string;
+    typeName: string;
+    width: number;
+    visible: boolean;
+    alignment: string;
+}
+
+
+export interface IPos {
+    col: number;
+    row: number;
+}
+
 export interface IJQItem {
     on(eventName:string, fx:Function);
     off(eventName:string, fx:Function);
@@ -24,11 +47,6 @@ export interface IJQItem {
     children(filter?:any):IJQItem;
     length:number;
     eq(filter:any):IJQItem;
-}
-
-export interface IPos {
-    col: number;
-    row: number;
 }
 
 export interface IEditEvents {

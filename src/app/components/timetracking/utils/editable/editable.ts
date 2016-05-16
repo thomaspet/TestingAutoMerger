@@ -1,14 +1,19 @@
 import {Directive, AfterViewInit, Input, ElementRef, OnDestroy, Output, EventEmitter} from '@angular/core';
-import {IJQItem, IPos, IEditor, Keys } from './interfaces';
+import {IJQItem, IPos, IEditor, Keys, IChangeEvent, ICol } from './interfaces';
 import {Editor} from './editor';
-declare var jQuery /*: JQueryStatic;*/
+declare var jQuery; /*: JQueryStatic;*/
 
-export interface IChangeEvent {
-    value:any;
-    col: number;
-    row: number;
-    cancel: boolean;
+export interface IConfig {
+    columns?: Array<ICol>;
+    events?: {
+        onInit?(controller: Editable )
+        onChange?(change:IChangeEvent);
+        onSelectionChange?(cell: IPos)
+    }
 }
+
+export {IChangeEvent, ICol, IPos} from './interfaces';
+
 
 @Directive({
     selector: '[editable]',
@@ -16,6 +21,7 @@ export interface IChangeEvent {
 })
 export class Editable implements AfterViewInit, OnDestroy {
 
+    @Input() config: IConfig;
     public onChange = new EventEmitter();
     private jqRoot: any;
     private handlers = {
@@ -41,21 +47,21 @@ export class Editable implements AfterViewInit, OnDestroy {
     public ngAfterViewInit() {
     }
 
-   public ngOnDestroy() {
-       //cleanup eventhandlers:
-       this.jqRoot.off('click', this.handlers.onClick);
-       jQuery(window).off('resize', this.handlers.onResize);
-       if (this.current.editor) {
+    public ngOnDestroy() {
+        //cleanup eventhandlers:
+        this.jqRoot.off('click', this.handlers.onClick);
+        jQuery(window).off('resize', this.handlers.onResize);
+        if (this.current.editor) {
             this.current.editor.destroy();
-       }
+        }
     }
-    
+
     private onResize(event) {
         if (!this.current.active) return;
         if (!this.current.editor) return;
         this.current.editor.moveTo(this.current.active);
     }
-    
+
     private startEdit(event) {
         var el = this.current.active;
         if (event && event.target) {
@@ -72,7 +78,7 @@ export class Editable implements AfterViewInit, OnDestroy {
         this.createEditorIfMissing();
         this.current.editor.startEdit(txt, el, this.getCellPosition(el));
     }
-    
+
     private createEditorIfMissing() {
         if (!this.current.editor) {
             this.current.editor = new Editor();
@@ -87,7 +93,7 @@ export class Editable implements AfterViewInit, OnDestroy {
             }
         }        
     }
-    
+
     private handleChange(value:any, pos:IPos):boolean {
         var p2 = this.getCellPosition(this.current.active);
         if (p2.col === pos.col && p2.row === pos.row) {
@@ -97,16 +103,23 @@ export class Editable implements AfterViewInit, OnDestroy {
                 row: pos.row, 
                 cancel: false 
             };
-            console.info(`emitting details: ${value}`);
-            this.onChange.emit(eventDetails);
-            console.info(`details emitted: cancel = ${eventDetails.cancel}`);
+            
+            console.info(`before onChange: cancel = ${eventDetails.cancel}`);
+            
+            if (this.config.events.onChange) {
+                this.config.events.onChange(eventDetails);
+                console.info(`after onChange: cancel = ${eventDetails.cancel}`);            
+            }
+            
             if (!eventDetails.cancel) {
                 this.current.active.text(value);
+                console.info(`emitting details: ${value}`);
+                this.onChange.emit(eventDetails);
             }
         }
         return true;
     }
-    
+
     private handleKeydown(event) {
         var candidate = this.getMovement(this.current.active, event);
         if (candidate.length > 0) {
@@ -117,12 +130,12 @@ export class Editable implements AfterViewInit, OnDestroy {
             }
         }        
     }
-    
+
     private finalizeEdit(cancel = false) {
         if (!this.current.editor) return;
         this.current.editor.finalizeEdit(cancel);
     }
-    
+
         
     private focusCell(cell:IJQItem) {
         if (!cell.attr('tabindex')) {
@@ -131,19 +144,19 @@ export class Editable implements AfterViewInit, OnDestroy {
         }
         cell.focus();
     }
-    
+
     private calcCellTabindex(cell:IJQItem) {
         var pos = this.getCellPosition(cell);
         return ((pos.row * 50) + pos.col) + 1000;
     }    
-    
+
     private getCellPosition(cell:IJQItem): IPos {
         return {
             row: cell.parent().index(),
             col: cell.index()
         };        
     }
-    
+
     private getMovement(element:IJQItem, event):IJQItem | Array<any> {
         var target:IJQItem;
         var keyCode = event.which;
