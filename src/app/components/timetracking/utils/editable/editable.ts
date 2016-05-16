@@ -100,7 +100,8 @@ export class Editable implements AfterViewInit, OnDestroy {
                 value: value, 
                 col: pos.col, 
                 row: pos.row, 
-                cancel: false 
+                cancel: false,
+                updateCell: true 
             };
             
             if (this.config.events.onChange) {
@@ -108,8 +109,11 @@ export class Editable implements AfterViewInit, OnDestroy {
             }
             
             if (!eventDetails.cancel) {
-                this.current.active.text(value);
-                this.onChange.emit(eventDetails);
+                if (eventDetails.updateCell) {
+                    console.info(`updating cell value with: ${eventDetails.value}`);
+                    this.current.active.text(eventDetails.value);
+                    this.onChange.emit(eventDetails);
+                }
                 return true;
             }
         }

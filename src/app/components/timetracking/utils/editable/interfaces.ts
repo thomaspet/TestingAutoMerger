@@ -3,6 +3,7 @@ export interface IChangeEvent {
     col: number;
     row: number;
     cancel: boolean;
+    updateCell: boolean;
     columnDefiniton?: ICol;
 }
 

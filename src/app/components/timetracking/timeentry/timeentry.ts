@@ -5,6 +5,8 @@ import {Worker, WorkRelation, WorkProfile, WorkItem} from '../../../unientities'
 import {WorkerService} from '../../../services/timetracking/workerservice';
 import {Editable, IChangeEvent, IConfig} from '../utils/editable/editable';
 
+declare var moment;
+
 export var view = new View('timeentry', 'Registrere timer', 'TimeEntry');
 
 @Component({
@@ -111,10 +113,18 @@ export class TimeEntry {
             case 0:
                 item.Description = event.value;
                 break;
+            case 1: //start                
+                item.StartTime = moment().hour(parseInt(event.value)).toDate();
+                item.EndTime = moment().hour(parseInt(event.value)).add(1,'h').toDate();
+                break;
+            case 2: //endtime
+                event.value = "Super";
+                return;
             default:
                 event.cancel = true;
                 break;
-        }       
+        }
+        event.updateCell = false; // we use databinding instead       
     }
     
 }
