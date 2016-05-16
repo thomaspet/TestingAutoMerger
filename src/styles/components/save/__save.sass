@@ -4,6 +4,86 @@ uni-save
     left: 0
     bottom: 0
     right: 0
-    background: transparentize($uni-color-scale9, .9)
-    -webkit-backdrop-filter: blur(1rem)
-    backdrop-filter: blur(1rem)
+    background: transparentize($uni-color-negative, .1)
+    -webkit-backdrop-filter: blur(.2rem)
+    backdrop-filter: blur(.2rem)
+    border-top: pxToRem(1) solid $uni-color-scale9
+
+    .uniSave
+        @include unigrid-flush(14)
+        @include clearfix
+        margin: 0 auto
+
+    .uniSave-status
+        float: left
+
+    .comboButton
+        float: right
+        margin: 1rem 0
+        position: relative
+
+        button
+            @extend button.good
+            margin: 0
+
+    button.comboButton_btn
+        display: block
+        float: left
+        border-top-right-radius: 0
+        border-bottom-right-radius: 0
+
+    button.comboButton_more
+        display: block
+        float: left
+        border-top-left-radius: 0
+        border-bottom-left-radius: 0
+        width: 2rem
+        padding: 0
+        overflow: hidden
+        text-indent: -99rem
+
+        &:before
+            width: 100%
+            height: 100%
+            display: block
+            content: ''
+            background: unicon-chevron-up($uni-color-negative) center center no-repeat
+            background-size: .5rem
+
+        &[aria-expanded=true]
+            @extend button.good:hover
+
+    .comboButton_moreList
+        position: absolute
+        display: block
+        background: $uni-color-negative
+        bottom: .7rem
+        right: 0
+        border-radius: pxToRem(3)
+        border: 1px solid $uni-color-scale8
+        box-shadow: 0 0 .6rem transparentize($uni-color-scale5, .7)
+
+        &:not([aria-expanded=true])
+            display: none
+
+        li
+            padding: .5rem 1rem
+            border-bottom: pxToRem(1) solid $uni-color-scale9
+            list-style: none
+            width: 15rem
+            cursor: pointer
+            overflow: hidden
+            white-space: nowrap
+            text-overflow: ellipsis
+
+            &:hover,
+            &:focus
+                background: $uni-color-C2A
+                color: $uni-color-negative
+
+            &[aria-disabled=true]
+                opacity: .5
+                cursor: default
+
+            &:last-of-type
+                border-bottom: none

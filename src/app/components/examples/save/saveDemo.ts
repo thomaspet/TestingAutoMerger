@@ -43,6 +43,18 @@ export class UniSaveDemo {
         {
             verb: 'Lagre og bokfør',
             callback: this.saveAndBank
+        },
+        {
+            verb: 'Lagre og dans',
+            callback: this.saveAndBank
+        },
+        {
+            verb: 'Lagre og synyg en sang',
+            callback: this.saveAndBank
+        },
+        {
+            verb: 'Lagre og bokfør',
+            callback: this.saveAndBank
         }
     ];
 
