@@ -3,7 +3,7 @@ import {TabService} from '../../layout/navbar/tabstrip/tabService';
 import {View} from '../../../models/view/view';
 import {Worker, WorkRelation, WorkProfile, WorkItem} from '../../../unientities';
 import {WorkerService} from '../../../services/timetracking/workerservice';
-import {Editable} from '../utils/editable/editable';
+import {Editable, IChangeEvent} from '../utils/editable/editable';
 
 export var view = new View('timeentry', 'Registrere timer', 'TimeEntry');
 
@@ -39,7 +39,7 @@ export class TimeEntry {
             { name: 'vacation', label: 'Ferie' },
             { name: 'offtime', label: 'Fravær' },
             ];
-
+            
     constructor(private tabService: TabService, private service:WorkerService) {
         this.tabService.addTab({ name: view.label, url: view.route });
         this.userName = service.user.name;
@@ -98,5 +98,17 @@ export class TimeEntry {
         });
     }
        
+    onValueChange(event: IChangeEvent ) {
+        console.log(`onValueChanged : ${event.value} (col: ${event.col}, row: ${event.row})` );
+        var item = this.workItems[event.row];
+        switch (event.col) {
+            case 0:
+                item.Description = event.value;
+                break;
+            default:
+                event.cancel = true;
+                break;
+        }       
+    }
     
 }

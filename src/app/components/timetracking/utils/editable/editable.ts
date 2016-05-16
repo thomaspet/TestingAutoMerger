@@ -1,21 +1,29 @@
-import {Directive, AfterViewInit, Input, ElementRef, OnDestroy } from '@angular/core';
+import {Directive, AfterViewInit, Input, ElementRef, OnDestroy, Output, EventEmitter} from '@angular/core';
 import {IJQItem, IPos, IEditor, Keys } from './interfaces';
 import {Editor} from './editor';
 declare var jQuery /*: JQueryStatic;*/
 
+export interface IChangeEvent {
+    value:any;
+    col: number;
+    row: number;
+    cancel: boolean;
+}
 
 @Directive({
-    selector: '[editable]'
+    selector: '[editable]',
+    outputs: ['onChange']
 })
 export class Editable implements AfterViewInit, OnDestroy {
 
-    jqRoot: any;
-    handlers = {
+    public onChange = new EventEmitter();
+    private jqRoot: any;
+    private handlers = {
         onClick: undefined,   
         onResize: undefined,
         editBlur: undefined      
     }
-    current = {
+    private current = {
         active: <IJQItem>undefined,
         editor: <IEditor>undefined       
     }
@@ -60,7 +68,7 @@ export class Editable implements AfterViewInit, OnDestroy {
             this.focusCell(el);
         }
         var txt = el.text();
-        console.log(`reading '${txt}' from cell'`);
+        //console.log(`reading '${txt}' from cell'`);
         this.createEditorIfMissing();
         this.current.editor.startEdit(txt, el, this.getCellPosition(el));
     }
@@ -83,8 +91,18 @@ export class Editable implements AfterViewInit, OnDestroy {
     private handleChange(value:any, pos:IPos):boolean {
         var p2 = this.getCellPosition(this.current.active);
         if (p2.col === pos.col && p2.row === pos.row) {
-            //console.log(`writing '${value}' to cell ${p2.col}, ${p2.row} : evented from ${pos.col}, ${pos.row}'`);
-            this.current.active.text(value);
+            var eventDetails: IChangeEvent = { 
+                value: value, 
+                col: pos.col, 
+                row: pos.row, 
+                cancel: false 
+            };
+            console.info(`emitting details: ${value}`);
+            this.onChange.emit(eventDetails);
+            console.info(`details emitted: cancel = ${eventDetails.cancel}`);
+            if (!eventDetails.cancel) {
+                this.current.active.text(value);
+            }
         }
         return true;
     }
