@@ -4,6 +4,7 @@ import {View} from '../../../models/view/view';
 import {Worker, WorkRelation, WorkProfile, WorkItem} from '../../../unientities';
 import {WorkerService} from '../../../services/timetracking/workerservice';
 import {Editable, IChangeEvent, IConfig} from '../utils/editable/editable';
+import {parseTime, addTime} from '../utils/utils';
 
 declare var moment;
 
@@ -44,7 +45,7 @@ export class TimeEntry {
             
     tableConfig: IConfig = {
         events: {
-            onChange: (event) => { this.onValueChange(event); }
+            beforeChange: (event) => { this.onBeforeChange(event); }
         }  
     };
             
@@ -106,25 +107,27 @@ export class TimeEntry {
         });
     }
        
-    onValueChange(event: IChangeEvent ) {
+    onBeforeChange(event: IChangeEvent ) {
         console.log(`onValueChanged : ${event.value} (col: ${event.col}, row: ${event.row})` );
         var item = this.workItems[event.row];
         switch (event.col) {
-            case 0:
+            case 0: // description
                 item.Description = event.value;
                 break;
-            case 1: //start                
-                item.StartTime = moment().hour(parseInt(event.value)).toDate();
-                item.EndTime = moment().hour(parseInt(event.value)).add(1,'h').toDate();
+            case 1: //starttime
+                item.StartTime = parseTime(event.value);
+				item.EndTime = addTime(item.StartTime, 30, 'minutes');
                 break;
             case 2: //endtime
-                event.value = "Super";
-                return;
+                item.EndTime = parseTime(event.value);
+                break;
             default:
                 event.cancel = true;
                 break;
         }
         event.updateCell = false; // we use databinding instead       
     }
+    
+    
     
 }

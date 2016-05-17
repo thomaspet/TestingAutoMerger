@@ -7,7 +7,7 @@ export interface IConfig {
     columns?: Array<ICol>;
     events?: {
         onInit?(controller: Editable )
-        onChange?(change:IChangeEvent);
+        beforeChange?(change:IChangeEvent);
         onSelectionChange?(cell: IPos)
     }
 }
@@ -104,8 +104,8 @@ export class Editable implements AfterViewInit, OnDestroy {
                 updateCell: true 
             };
             
-            if (this.config.events.onChange) {
-                this.config.events.onChange(eventDetails);
+            if (this.config.events.beforeChange) {
+                this.config.events.beforeChange(eventDetails);
             }
             
             if (!eventDetails.cancel) {
@@ -123,8 +123,14 @@ export class Editable implements AfterViewInit, OnDestroy {
     private handleKeydown(event) {
         var candidate = this.getMovement(this.current.active, event);
         if (candidate.length > 0) {
-            if (!this.finalizeEdit()) { return; }
-            this.startEdit({ target: candidate[0] });
+            if (this.finalizeEdit()) { 
+				
+			} else {
+				return; 
+			}
+			setTimeout(()=> {
+				this.startEdit({ target: candidate[0] });
+			});
             if (event) {
                 event.preventDefault();
                 event.stopPropagation();
