@@ -10,6 +10,21 @@ export function safeInt(value: any) {
 
 }
 
+export function parseDate(value:string, allowMacros = true): Date {
+	var d = 0;
+	var m = 0;
+	var y = 0;
+	
+	if (allowMacros) {
+		if (value==='*') return moment().toDate();
+	}
+
+	if (value.indexOf('/')>0) {
+		var parts = value.split('/');
+		
+	}
+}
+
 export function parseTime(value:string, allowMacros = true): Date {
     var h = 0;
     var m = 0;

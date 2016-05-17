@@ -45,7 +45,7 @@ export class TimeEntry {
             
     tableConfig: IConfig = {
         events: {
-            beforeChange: (event) => { this.onBeforeChange(event); }
+            onChange: (event) => { this.onChange(event); }
         }  
     };
             
@@ -104,11 +104,18 @@ export class TimeEntry {
         this.workItems.length = 0;
         this.service.getWorkItems(workRelationID).then((result:Array<WorkItem>)=> {
             this.workItems = result;
+			if (result.length===0) {
+				this.addNewRow();
+			}
         });
     }
+	
+	addNewRow() {
+		this.workItems.push(<WorkItem>{ Description: 'Fyll inn beskrivelse'});		
+	}
        
-    onBeforeChange(event: IChangeEvent ) {
-        console.log(`onValueChanged : ${event.value} (col: ${event.col}, row: ${event.row})` );
+    onChange(event: IChangeEvent ) {
+        //console.log(`onValueChanged : ${event.value} (col: ${event.col}, row: ${event.row})` );
         var item = this.workItems[event.row];
         switch (event.col) {
             case 0: // description
@@ -121,11 +128,22 @@ export class TimeEntry {
             case 2: //endtime
                 item.EndTime = parseTime(event.value);
                 break;
+			case 3: //date
+				item.Date = moment(event.value).toDate();
+				break;
             default:
                 event.cancel = true;
                 break;
         }
-        event.updateCell = false; // we use databinding instead       
+
+		// Ensure a new row at bottom?
+		if ((event.row === this.workItems.length-1) && (!event.cancel)) {
+			this.addNewRow();
+		}
+		
+		// we use databinding instead
+        event.updateCell = false;       
+		
     }
     
     

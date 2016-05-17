@@ -26,7 +26,7 @@ export class WorkerService extends BizHttp<Worker> {
         this.user.guid = authService.jwtDecoded.nameid;
         this.user.company = JSON.parse(localStorage.getItem('activeCompany')).Name;
         
-        console.info('workerservice constructor loaded:');
+        //console.info('workerservice constructor loaded:');
         
     }
     
