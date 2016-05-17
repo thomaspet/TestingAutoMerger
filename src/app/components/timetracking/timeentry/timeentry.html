@@ -10,7 +10,8 @@
     <div class="horizontal_nav">
         <ul>
             <li *ngFor="let tab of tabs">
-                <a [ngClass]="{'router-link-active': tab.isSelected}" >{{tab.label}}</a>   
+                <a [ngClass]="{'router-link-active': tab.isSelected}" >{{tab.label}}</a>
+                <span class='tabtip' *ngIf="tab.counter">({{tab.counter}})</span>   
             </li>
         </ul>    
     </div>

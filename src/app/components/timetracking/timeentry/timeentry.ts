@@ -19,6 +19,8 @@ export var view = new View('timeentry', 'Registrere timer', 'TimeEntry');
             .title select { display:inline-block; width: auto; padding-left: 7px; padding-right: 7px; }
             .timeentriesTable { width: 100% }
             .subcontainer { margin-top: 1em;}
+            .bubble { position: relative; border: 1px solid green; background-color: white; border-radius: 7px; margin: 3px; left: 85px; top: -44px; width: 20px;  }
+            .tabtip { color: #606060; margin-left: -15px; }
             `],
     directives: [Editable],
     providers: [WorkerService]
@@ -37,10 +39,10 @@ export class TimeEntry {
     
     tabs = [ { name: 'timeentry', label: 'Timer', isSelected: true },
             { name: 'totals', label: 'Totaler' },
-            { name: 'flex', label: 'Fleksitid' },
-            { name: 'profiles', label: 'Arbeidsgivere' },
-            { name: 'vacation', label: 'Ferie' },
-            { name: 'offtime', label: 'Fravær' },
+            { name: 'flex', label: 'Fleksitid', counter: 15 },
+            { name: 'profiles', label: 'Arbeidsgivere', counter: 1 },
+            { name: 'vacation', label: 'Ferie', counter: 22 },
+            { name: 'offtime', label: 'Fravær', counter: 4 },
             ];
             
     tableConfig: IConfig = {

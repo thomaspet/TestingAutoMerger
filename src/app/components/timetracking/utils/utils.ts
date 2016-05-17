@@ -105,7 +105,7 @@ function timeSerial(hour:number, minute:number): Date {
 
 function dateSerial(day:number, month = 0, year = 0): Date {
 	var d = new Date;	
-	var x = moment().date(day).month((month ? month -1 : 0) || d.getMonth() ).year( year || d.getFullYear() );
+	var x = moment().date(day).month(month ? month -1 : d.getMonth()).year( year || d.getFullYear() );
 	var y = x.toDate();
 	return y;
 }
