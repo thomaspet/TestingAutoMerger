@@ -3,8 +3,8 @@ import {TabService} from '../../layout/navbar/tabstrip/tabService';
 import {View} from '../../../models/view/view';
 import {Worker, WorkRelation, WorkProfile, WorkItem} from '../../../unientities';
 import {WorkerService} from '../../../services/timetracking/workerservice';
-import {Editable, IChangeEvent, IConfig} from '../utils/editable/editable';
-import {parseTime, addTime} from '../utils/utils';
+import {Editable, IChangeEvent, IConfig, Column} from '../utils/editable/editable';
+import {parseTime, addTime, parseDate} from '../utils/utils';
 
 declare var moment;
 
@@ -44,6 +44,14 @@ export class TimeEntry {
             ];
             
     tableConfig: IConfig = {
+        columns: [
+            new Column('Description'), 
+            new Column('StartTime', '', 'time'),
+            new Column('EndTime', '', 'time'),
+            new Column('Date','', 'date'),
+            new Column('WorkTypeID','', 'lookup'),
+            new Column('Project', '', 'lookup')
+            ],
         events: {
             onChange: (event) => { this.onChange(event); }
         }  
@@ -104,32 +112,29 @@ export class TimeEntry {
         this.workItems.length = 0;
         this.service.getWorkItems(workRelationID).then((result:Array<WorkItem>)=> {
             this.workItems = result;
-			if (result.length===0) {
-				this.addNewRow();
-			}
+            this.addNewRow();
         });
     }
 	
-	addNewRow() {
-		this.workItems.push(<WorkItem>{ Description: 'Fyll inn beskrivelse'});		
+	addNewRow(text = 'Fyll inn beskrivelse') {
+        this.workItems.push(<WorkItem>{ Description: text});		
 	}
        
     onChange(event: IChangeEvent ) {
-        //console.log(`onValueChanged : ${event.value} (col: ${event.col}, row: ${event.row})` );
         var item = this.workItems[event.row];
-        switch (event.col) {
-            case 0: // description
+        switch (event.columnDefiniton.name) {
+            case 'Description':
                 item.Description = event.value;
                 break;
-            case 1: //starttime
+            case 'StartTime': 
                 item.StartTime = parseTime(event.value);
 				item.EndTime = addTime(item.StartTime, 30, 'minutes');
                 break;
-            case 2: //endtime
+            case 'EndTime':
                 item.EndTime = parseTime(event.value);
                 break;
-			case 3: //date
-				item.Date = moment(event.value).toDate();
+			case 'Date':
+				item.Date = parseDate(event.value);
 				break;
             default:
                 event.cancel = true;
@@ -137,8 +142,8 @@ export class TimeEntry {
         }
 
 		// Ensure a new row at bottom?
-		if ((event.row === this.workItems.length-1) && (!event.cancel)) {
-			this.addNewRow();
+		if ((event.row === this.workItems.length-1) && (!event.cancel)) {			
+            this.addNewRow();
 		}
 		
 		// we use databinding instead

@@ -12,7 +12,7 @@ export interface IConfig {
     }
 }
 
-export {IChangeEvent, ICol, IPos} from './interfaces';
+export {IChangeEvent, ICol, IPos, Column} from './interfaces';
 
 
 @Directive({

@@ -9,13 +9,12 @@ export interface IChangeEvent {
 
 export interface ICol {
     name: string;
-    label: string;
-    typeName: string;
-    width: number;
-    visible: boolean;
-    alignment: string;
+    label?: string;
+    typeName?: string;
+    width?: number;
+    visible?: boolean;
+    alignment?: string;
 }
-
 
 export interface IPos {
     col: number;
@@ -79,3 +78,13 @@ export var Keys = {
     CTRL : 17, SHIFT : 16,
     HOME : 36, END : 35, INSERT : 45, DELETE : 46, PAGEUP : 33, PAGEDOWN : 34
 };
+
+export class Column implements ICol {
+    label:string;
+    visible = true;
+    typeName:string;
+    constructor(public name:string, label = '', typeName = 'text') {
+        this.label = label || name;
+        this.typeName = typeName; 
+    }
+}
