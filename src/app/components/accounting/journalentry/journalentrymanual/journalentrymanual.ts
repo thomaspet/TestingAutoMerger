@@ -54,7 +54,6 @@ export class JournalEntryManual {
     
     setupSubscriptions() {
         setTimeout(() => {
-            console.log('setupSubscriptions');
             if (this.journalEntryProfessional)
                 this.journalEntryProfessional.dataChanged.debounceTime(2000).subscribe((values) => this.onDataChanged(values));
             
@@ -67,7 +66,6 @@ export class JournalEntryManual {
     
     private onDataChanged(data: JournalEntryData[]) {
         //this.busy = true;
-        console.log('ondatachanged data: ', data);        
         if (data.length <= 0) {
             this.itemsSummaryData = null;
             console.log('itemsSummaryData is set to null since no lines exist');

@@ -5,6 +5,7 @@ import {UniHttp} from '../../../../../framework/core/http/http';
 import {CustomerQuoteService} from '../../../../services/services';
 import {CustomerQuote} from '../../../../unientities';
 import {Http, URLSearchParams} from '@angular/http';
+import {AsyncPipe} from '@angular/common';
 
 declare var jQuery;
 
@@ -12,7 +13,8 @@ declare var jQuery;
     selector: 'quote-list',
     templateUrl: 'app/components/sales/quote/list/quoteList.html',
     directives: [UniTable],
-    providers: [CustomerQuoteService]
+    providers: [CustomerQuoteService],
+    pipes: [AsyncPipe]
 })
 export class QuoteList {
     @ViewChild(UniTable) public table: any;
@@ -46,7 +48,6 @@ export class QuoteList {
     }
 
     private onRowSelected (event) {
-        console.log('navigate', event);
         this.router.navigateByUrl('/sales/quote/details/' + event.rowModel.ID);
     };
 
@@ -56,38 +57,20 @@ export class QuoteList {
         this.lookupFunction = (urlParams: URLSearchParams) => {
             let params = urlParams;
             
-            if (!params.get('top')) {
-                params.set('top', '100');
-            }
-            
-            if (!params.get('expand')) {
-                params.set('expand', 'Customer');
-            }
-            
-            return this.http.get('http://devapi.unieconomy.no/api/biz/quotes', {search: params});
+            if (params == null)
+                params = new URLSearchParams();
+                        
+            return this.customerQuoteService.GetAllByUrlSearchParams(params);
         };
 
-        // Define columns to use in the table
-        //var idCol = new UniTableColumn('ID', 'ID', 'number').setWidth('10%');
-
-        var quoteNumberCol = new UniTableColumn('QuoteNumber', 'Tilbudsnr', UniTableColumnType.Text).setWidth('10%');
-        // quoteNumber.setTemplate('#var quoteNumber; if(!QuoteNumber) {quoteNumber = ' - '}  # #= quoteNumber #');
-
-        //var customeridCol = new UniTableColumn('CustomerID', 'KundeId', 'string');
-
-        var customerNumberCol = new UniTableColumn('Customer.CustomerNumber', 'Kundenr', UniTableColumnType.Text)            
+        // Define columns to use in the table        
+        var quoteNumberCol = new UniTableColumn('QuoteNumber', 'Tilbudsnr', UniTableColumnType.Text)
             .setWidth('10%');
-
+            
+        var customerNumberCol = new UniTableColumn('Customer.CustomerNumber', 'Kundenr', UniTableColumnType.Text).setWidth('10%');
         var customerNameCol = new UniTableColumn('CustomerName', 'Kunde', UniTableColumnType.Text);
-
-        var quoteDateCol = new UniTableColumn('QuoteDate', 'Tilbudsdato', UniTableColumnType.Date)
-            //.setFormat('{0: dd.MM.yyyy}')
-            .setWidth('10%');
-
-        var validUntilDateCol = new UniTableColumn('ValidUntilDate', 'Gyldighetsdato', UniTableColumnType.Date)
-            //.setFormat('{0: dd.MM.yyyy}')
-            .setWidth('10%');
-
+        var quoteDateCol = new UniTableColumn('QuoteDate', 'Tilbudsdato', UniTableColumnType.Date).setWidth('10%');
+        var validUntilDateCol = new UniTableColumn('ValidUntilDate', 'Gyldighetsdato', UniTableColumnType.Date).setWidth('10%');
         var taxInclusiveAmountCol = new UniTableColumn('TaxInclusiveAmount', 'Totalsum', UniTableColumnType.Number)
             .setWidth('10%')
             .setFormat('{0:n}')
@@ -99,41 +82,10 @@ export class QuoteList {
         });
 
         // Setup table
-        this.quoteTable = new UniTableConfig(false, true, 20)
-            //.setFilterable(false)            
-            //.setExpand('Customer')
+        this.quoteTable = new UniTableConfig(false, true, 20)            
             .setPageSize(25)
             .setColumns([quoteNumberCol, customerNumberCol, customerNameCol, quoteDateCol, validUntilDateCol, taxInclusiveAmountCol, statusCol]);
-            //.setOrderBy('QuoteDate')
-            /*.addCommands({
-                name: 'ContextMenu', text: '...', click: (function (event) {
-                    event.preventDefault();
-                    var dataItem = this.dataItem(jQuery(event.currentTarget).closest('tr'));
-
-                    if (dataItem !== null && dataItem.ID !== null) {
-                        self.selectedquote = dataItem;
-                        alert('Kontekst meny er under utvikling.');
-                    }
-                    else {
-                        console.log('Error in selecting the SupplierInvoices');
-                    }
-                })
-            });*/
-
-        // TODO context menu:        
-        //.addCommands({
-        //    name: 'ContextMenu', text: '...', click: (function (event) {
-        //        event.preventDefault();
-        //        var dataItem = this.dataItem(jQuery(event.currentTarget).closest('tr'));
-
-        //        if (dataItem !== null && dataItem.ID !== null) {
-        //            self.selectedSupplierInvoice = dataItem;
-        //            self._router.navigateByUrl('/accounting/journalentry/supplierinvoices/' + dataItem.ID);
-        //        }
-        //        else
-        //            console.log('Error in selecting the SupplierInvoices');
-        //    })
-        //});
-                               
+            
+        //TODO: Add contextmenuitems                       
     }
 }
