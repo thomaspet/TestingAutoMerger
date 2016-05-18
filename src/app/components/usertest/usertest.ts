@@ -5,18 +5,12 @@ import {Multival} from "../usertest/multivalue";
 import {UniTabs} from "../layout/uniTabs/uniTabs";
 import {PersonalDetails} from "../salary/employee/personalDetails/personalDetails";
 import {EmployeeEmployment} from "../salary/employee/employments/employments";
-import {Hours} from "../salary/employee/hours/hours";
-import {Travel} from "../salary/employee/travel/travel";
-import {SalaryTransactions} from "../salary/employee/salaryTransactions/salaryTransactions";
 import {RouteConfig, RouteDefinition, ROUTER_DIRECTIVES} from "@angular/router-deprecated";
 import {UniAutocomplete} from "../../../framework/controls/autocomplete/autocomplete";
 
 const CHILD_ROUTES = [
     {path: "/", component: PersonalDetails, as: "Personopplysninger"},
     {path: "/employment", component: EmployeeEmployment, as: "Stillinger"},
-    {path: "/salarytransactions", component: SalaryTransactions, as: "Lønnsposter"},
-    {path: "/hours", component: Hours, as: "Timer"},
-    {path: "/travel", component: Travel, as: "Reise"},
 ];
 
 @Component({

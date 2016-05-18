@@ -11,16 +11,17 @@ import {UniForm} from "../../../../../../framework/forms/uniForm";
 import {UniFieldBuilder} from "../../../../../../framework/forms/builders/uniFieldBuilder";
 import {UniComponentLoader} from "../../../../../../framework/core/componentLoader";
 import {UniAutocompleteConfig} from "../../../../../../framework/controls/autocomplete/autocomplete";
-import {AccountService} from "../../../../../services/services";
+import {AccountService, JournalEntryService} from "../../../../../services/services";
 
 declare var _;
 declare var jQuery;
+declare var moment;
 
 @Component({
     selector: 'journal-entry-simple-form',
     templateUrl: 'app/components/accounting/journalentry/components/journalentrysimple/journalentrysimpleform.html',
     directives: [UniComponentLoader],
-    providers: [AccountService]
+    providers: [AccountService, JournalEntryService]
 })
 export class JournalEntrySimpleForm implements OnChanges {
     @Input()
@@ -28,15 +29,12 @@ export class JournalEntrySimpleForm implements OnChanges {
     
     @Input()
     journalEntryLine: JournalEntryData;
-    
-    @Input()
-    nextJournalNumber: string;
-    
+       
     @Input()
     journalEntryLines: Array<JournalEntryData>;
     
     @Input()
-    hideSameOrNew: boolean
+    hideSameOrNew: boolean;
     
     @Output()
     created = new EventEmitter<any>();
@@ -61,7 +59,11 @@ export class JournalEntrySimpleForm implements OnChanges {
     isEditMode: boolean;
     formInstance: UniForm;
     
-    constructor(private accountService: AccountService) {   
+    SAME_OR_NEW_SAME: string = "0";
+    SAME_OR_NEW_NEW: string = "1";
+    
+    constructor(private accountService: AccountService,
+                private journalEntryService: JournalEntryService) {   
         this.isLoaded = false;
         this.isEditMode = false;
         this.departements = [];
@@ -69,8 +71,13 @@ export class JournalEntrySimpleForm implements OnChanges {
         this.vattypes = [];
         this.accounts = [];
         this.journalEntryLine = new JournalEntryData();
-        this.journalEntryLine.SameOrNew = "1"; // new by default
-        this.hideSameOrNew = false;
+        this.hideSameOrNew = false;        
+    }
+    
+    ngOnInit() {
+        if (!this.isEditMode) {           
+            this.journalEntryLine.SameOrNew = this.hideSameOrNew ? this.SAME_OR_NEW_SAME : this.SAME_OR_NEW_NEW;
+        }
     }
     
     ngOnChanges(changes: {[propName: string]: SimpleChange}) {                 
@@ -86,37 +93,51 @@ export class JournalEntrySimpleForm implements OnChanges {
         }
     }
          
-    addJournalEntry(event: any) {  
-        var oldData: JournalEntryData = _.cloneDeep(this.formInstance.Value);              
-                
-        // next journal number?
-        if (oldData.SameOrNew === "1" && !this.hideSameOrNew) {
-            oldData.JournalEntryNo = this.getNextJournalNumber();
+    addJournalEntry(event: any, journalEntryNumber: string = null) {  
+        if (this.journalEntryLines.length == 0 && journalEntryNumber == null && !this.hideSameOrNew) {
+            // New line fetch next journal entry number from server first
+            var journalentrytoday: JournalEntryData = new JournalEntryData();
+            journalentrytoday.FinancialDate = moment().toDate();
+            this.journalEntryService.getNextJournalEntryNumber(journalentrytoday).subscribe((next) => {
+                this.addJournalEntry(event, next);
+            });            
         } else {
-            var numbers = this.findJournalNumbers();
-            oldData.JournalEntryNo = `${numbers.last}-${numbers.year}`;        
-        }
-        
-        oldData.SameOrNew = oldData.JournalEntryNo;
-        this.created.emit(oldData);
-                
-        this.journalEntryLine = new JournalEntryData(); 
-        this.journalEntryLine.FinancialDate = oldData.FinancialDate;
-        this.journalEntryLine.SameOrNew = oldData.SameOrNew;      
-        
-        this.setFocusOnDebit();
-    
-        var self = this;
-        this.formInstance.ready.toPromise().then((instance: UniForm)=>{
-            instance.Model = self.journalEntryLine;            
-        });
+            var oldData: JournalEntryData = _.cloneDeep(this.formInstance.Value);              
+            var numbers = this.journalEntryService.findJournalNumbersFromLines(this.journalEntryLines, journalEntryNumber);
+     
+            if (numbers) {
+                // next or same journal number?
+                if (oldData.SameOrNew === this.SAME_OR_NEW_NEW && !this.hideSameOrNew) {
+                    oldData.JournalEntryNo = numbers.nextNumber;
+                } else {
+                    oldData.JournalEntryNo = numbers.lastNumber;        
+                }
+            }
+            
+            var oldsameornew = oldData.SameOrNew;
+            oldData.SameOrNew = oldData.JournalEntryNo;        
+            this.created.emit(oldData);
+                    
+            this.journalEntryLine = new JournalEntryData(); 
+            this.journalEntryLine.FinancialDate = oldData.FinancialDate;
+            
+            if (this.hideSameOrNew) {
+                this.journalEntryLine.SameOrNew = this.SAME_OR_NEW_SAME;
+            } else {
+                this.journalEntryLine.SameOrNew = oldsameornew == this.SAME_OR_NEW_SAME ? this.SAME_OR_NEW_SAME : this.SAME_OR_NEW_NEW;
+            }
+            
+            this.formInstance.Model = this.journalEntryLine;
+            this.setFocusOnDebit();
+        }                
     }
     
     editJournalEntry(event: any) {     
         var newData: JournalEntryData = this.formInstance.Value;
         
-        if (newData.SameOrNew === "1") {
-            newData.JournalEntryNo = this.getNextJournalNumber();
+        if (newData.SameOrNew === this.SAME_OR_NEW_NEW) {
+            var numbers = this.journalEntryService.findJournalNumbersFromLines(this.journalEntryLines);
+            newData.JournalEntryNo = numbers.nextNumber;
         } else {
             newData.JournalEntryNo = newData.SameOrNew;
         }
@@ -133,51 +154,17 @@ export class JournalEntrySimpleForm implements OnChanges {
     
         this.journalEntryLine = new JournalEntryData();
         this.journalEntryLine.SameOrNew = oldData.SameOrNew;      
-        this.journalEntryLine.FinancialDate = oldData.FinancialDate;    
+        this.journalEntryLine.FinancialDate = oldData.FinancialDate;
 
-        this.setFocusOnDebit();
-        
-        var self = this;
-        this.formInstance.ready.toPromise().then((instance: UniForm)=>{
-            instance.Model = self.journalEntryLine;
-        });
+        this.formInstance.Model = this.journalEntryLine;
+        this.setFocusOnDebit();        
     }
     
     private setFocusOnDebit() {
         var debitaccount: UniFieldBuilder = this.formInstance.find('DebitAccountID');
         debitaccount.setFocus(); 
     }
-    
-    private getNextJournalNumber(): string {       
-        var numbers = this.findJournalNumbers();
-        return `${numbers.last + (this.journalEntryLines.length ? 1 : 0)}-${numbers.year}`;
-    }
-    
-    private findJournalNumbers() {
-        var first, last;
-        
-        if (this.journalEntryLines) {
-            this.journalEntryLines.forEach((l:JournalEntryData) => {   
-                var parts = l.JournalEntryNo.split('-');
-                var no = parseInt(parts[0]);
-                if (!first || no < first) first = no;
-                if (!last || no > last) last = no;
-            });            
-        }
-        
-        var parts = this.nextJournalNumber.split('-');
-        if (!first) {
-            first = parseInt(parts[0]);
-            last = first;
-        }
-        
-        return {
-            first: first,
-            last: last,
-            year: parts[1]
-        };
-    }
-            
+
     ngAfterViewInit() {  
         // TODO get it from the API and move these to backend migrations   
         var view: ComponentLayout = {
@@ -410,8 +397,8 @@ export class JournalEntrySimpleForm implements OnChanges {
         var amount: UniFieldBuilder = this.formConfig.find('Amount');
 
         var journalalternatives = [];
-        var samealternative = {ID: "0", Name: "Samme"};
-        var newalternative = {ID: "1", Name: "Ny"}
+        var samealternative = {ID: this.SAME_OR_NEW_SAME, Name: "Samme"};
+        var newalternative = {ID: this.SAME_OR_NEW_NEW, Name: "Ny"}
         var journalalternativesindex = 0;
         
         // Hide SameOrNew?
@@ -427,8 +414,13 @@ export class JournalEntrySimpleForm implements OnChanges {
         debitaccount.onSelect = (account: Account) => {
             if (account && account.VatType) {
                 this.journalEntryLine.DebitVatType = account.VatType;
+                this.formInstance.Model = this.journalEntryLine;
             }
-            
+    
+            creditaccount.setFocus();
+        }
+        
+        debitaccount.onEnter = () => {
             creditaccount.setFocus();
         }
         
@@ -443,9 +435,14 @@ export class JournalEntrySimpleForm implements OnChanges {
         creditaccount.onSelect = (account: Account) => {
             if (account && account.VatType) {
                 this.journalEntryLine.CreditVatType = account.VatType;   
+                this.formInstance.Model = this.journalEntryLine;
             }
             
             amount.setFocus();        
+        }
+        
+        creditaccount.onEnter = () => {
+            amount.setFocus();
         }
         
         creditaccount.onTab = () => {
@@ -477,8 +474,8 @@ export class JournalEntrySimpleForm implements OnChanges {
         }
                              
         // add list of possible numbers from start to end
-        if (this.isEditMode) {
-            var range = this.findJournalNumbers();  
+        if (this.isEditMode && !this.hideSameOrNew) {
+            var range = this.journalEntryService.findJournalNumbersFromLines(this.journalEntryLines);
             var current = parseInt(this.journalEntryLine.JournalEntryNo.split('-')[0]);
             for(var i = 0; i <= (range.last - range.first); i++) {
                 var jn = `${i+range.first}-${range.year}`;
@@ -516,7 +513,7 @@ export class JournalEntrySimpleForm implements OnChanges {
         project.addClass('large-field');
      
         debitaccount.setKendoOptions(UniAutocompleteConfig.build({
-            valueKey: 'AccountNumber',
+            valueKey: 'ID',
             template: (obj:Account) => `${obj.AccountNumber} - ${obj.AccountName}`,
             minLength: 1,
             debounceTime: 300,
@@ -531,7 +528,7 @@ export class JournalEntrySimpleForm implements OnChanges {
         });
         
         creditaccount.setKendoOptions(UniAutocompleteConfig.build({
-            valueKey: 'AccountNumber',
+            valueKey: 'ID',
             template: (obj:Account) => `${obj.AccountNumber} - ${obj.AccountName}`,
             minLength: 1,
             debounceTime: 300,

@@ -1,4 +1,5 @@
 import {Component, Input, SimpleChange, OnInit, OnChanges} from '@angular/core';
+import {Router} from '@angular/router-deprecated';
 import {Observable} from 'rxjs/Observable';
 import 'rxjs/add/observable/forkjoin';
 
@@ -9,6 +10,8 @@ import {JournalEntrySimpleCalculationSummary} from '../../../../../models/accoun
 import {JournalEntryData} from '../../../../../models/models';
 import {JournalEntrySimpleForm} from './journalentrysimpleform';
 
+declare var moment;
+
 @Component({
     selector: 'journal-entry-simple',
     templateUrl: 'app/components/accounting/journalentry/components/journalentrysimple/journalentrysimple.html',
@@ -16,14 +19,14 @@ import {JournalEntrySimpleForm} from './journalentrysimpleform';
     providers: [JournalEntryService, DepartementService, ProjectService, VatTypeService, AccountService]
 })
 export class JournalEntrySimple implements OnInit, OnChanges {
-    @Input() 
-    supplierInvoice: SupplierInvoice;
-    
+    @Input() public supplierInvoice: SupplierInvoice;
+    @Input() public runAsSubComponent : boolean = false;
+    @Input() public hideSameOrNew : boolean = false;
+
     public selectedJournalEntryLine: JournalEntryData;
     public journalEntryLines: Array<JournalEntryData>;
     public validationResult: any;
     public dropdownData: any;
-    public nextJournalNumber: string;
 
     private itemsSummaryData: JournalEntrySimpleCalculationSummary;
     private recalcTimeout: any;
@@ -31,12 +34,12 @@ export class JournalEntrySimple implements OnInit, OnChanges {
 
 
     constructor(private journalEntryService: JournalEntryService,
-                private departementService: DepartementService,
-                private projectService: ProjectService,
-                private vattypeService: VatTypeService,
-                private accountService: AccountService) {
+        private departementService: DepartementService,
+        private projectService: ProjectService,
+        private vattypeService: VatTypeService,
+        private accountService: AccountService,
+        private router: Router) {
         this.journalEntryLines = new Array<JournalEntryData>();
-        this.nextJournalNumber = "14-2016"; 
     }
 
     private log(err) {
@@ -48,6 +51,7 @@ export class JournalEntrySimple implements OnInit, OnChanges {
             this.journalEntryService.getJournalEntryDataBySupplierInvoiceID(this.supplierInvoice.ID)
                 .subscribe(data => {
                     this.journalEntryLines = data;
+                    this.recalcItemSums(false);
                 });
         } else {
             this.journalEntryLines = new Array<JournalEntryData>();
@@ -123,17 +127,54 @@ export class JournalEntrySimple implements OnInit, OnChanges {
         this.journalEntryService.postJournalEntryData(this.journalEntryLines)
             .subscribe(
             data => {
-                data.forEach((row) => row.FinancialDate = new Date(row.FinancialDate));
+                var firstJournalEntry = data[0];
+                var lastJournalEntry = data[data.length - 1];
 
-                console.log(data);
-                this.journalEntryLines = data;
+                // Validate if journalEntry number has changed
+                // TODO: Should maybe test all numbers?
+                var numbers = this.journalEntryService.findJournalNumbersFromLines(this.journalEntryLines);
+                if (firstJournalEntry.JournalEntryNo != numbers.firstNumber ||
+                    lastJournalEntry.JournalEntryNo != numbers.lastNumber) {
+                    alert("Lagring var vellykket. Men merk at tildelt bilagsnummer er " + firstJournalEntry.JournalEntryNo + " - " + lastJournalEntry.JournalEntryNo);
+                } else {
+                    alert('Lagring var vellykket');
+                }
+
+                //Empty list
+                this.journalEntryLines = new Array<JournalEntryData>();
+                this.recalcItemSums();
             },
-            err => console.log('error in postJournalEntryData: ', err)
-            );
+            err => {
+                console.log('error in postJournalEntryData: ', err);
+                this.log(err);
+            });
     }
 
-    private saveDraftJournalEntryData() {
-        alert('Ikke implementert');
+    private findFirstJournalNumberFromLines(firstNumer: string = "") {
+        var first, last, year;
+
+        if (this.journalEntryLines && this.journalEntryLines.length) {
+            this.journalEntryLines.forEach((l: JournalEntryData, i) => {
+                var parts = l.JournalEntryNo.split('-');
+                var no = parseInt(parts[0]);
+                if (!first || no < first) {
+                    first = no;
+                }
+                if (!last || no > last) {
+                    last = no;
+                }
+                if (i == 0) {
+                    year = parseInt(parts[1]);
+                }
+            });
+        }
+        return {
+            first: first,
+            last: last,
+            year: year,
+            nextNumber: `${last + (this.journalEntryLines.length ? 1 : 0)}-${year}`,
+            lastNumber: `${last}-${year}`
+        };
     }
 
     private validateJournalEntryData() {
@@ -143,8 +184,10 @@ export class JournalEntrySimple implements OnInit, OnChanges {
                 this.validationResult = data;
                 console.log('valideringsresultat:', data);
             },
-            err => console.log('error int validateJournalEntryData:', err)
-            );
+            err => {
+                console.log('error int validateJournalEntryData:', err);
+                this.log(err);
+            });
     }
 
     private removeJournalEntryData() {
@@ -155,10 +198,11 @@ export class JournalEntrySimple implements OnInit, OnChanges {
 
     private addDummyJournalEntry() {
         var newline = JournalEntryService.getSomeNewDataForMe();
-        newline.JournalEntryNo = `${Math.round((this.journalEntryLines.length/3) + 1)}-2016`;         
+        newline.JournalEntryNo = `${Math.round((this.journalEntryLines.length / 3) + 1)}-2016`;
         this.journalEntryLines.unshift(newline);
 
         this.validateJournalEntryData();
+        this.recalcItemSums();
     }
 
     private setSelectedJournalEntryLine(selectedLine: JournalEntryData) {
@@ -186,7 +230,7 @@ export class JournalEntrySimple implements OnInit, OnChanges {
 
     private newLineCreated(journalEntryLine: any) {
         journalEntryLine = this.parseJournalEntryData(journalEntryLine);
-      
+
         this.journalEntryLines.unshift(journalEntryLine);
 
         this.validateJournalEntryData();
@@ -204,9 +248,18 @@ export class JournalEntrySimple implements OnInit, OnChanges {
         this.recalcItemSums();
     }
 
-    private recalcItemSums() {
+    private recalcItemSums(doWait: boolean = true) {
         this.busy = true;
+        if (this.journalEntryLines.length <= 0) {
+            this.itemsSummaryData = null;
+            console.log('itemsSummaryData is set to null since no lines exist');
+            return;
+        }
 
+        let timeout = 0;
+        if (doWait) {
+            timeout = 2000;
+        }
         // do recalc after 2 second to avoid to much requests
         if (this.recalcTimeout) {
             clearTimeout(this.recalcTimeout);
@@ -216,11 +269,6 @@ export class JournalEntrySimple implements OnInit, OnChanges {
 
             this.journalEntryLines.forEach((x) => {
                 x.Amount = x.Amount || 0;
-                x.DebitAccountID = x.DebitAccountID || 0;
-                x.DebitVatTypeID = x.DebitVatTypeID || 0;
-                x.CreditAccountID = x.CreditAccountID || 0;
-                x.CreditVatTypeID = x.CreditVatTypeID || 0;
-                // TODO ...?
             });
 
             this.journalEntryService.calculateJournalEntrySummary(this.journalEntryLines)
@@ -233,7 +281,7 @@ export class JournalEntrySimple implements OnInit, OnChanges {
                     this.log(err);
                 }
                 );
-        }, 2000);
+        }, timeout);
     }
 }
 
