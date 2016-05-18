@@ -16,7 +16,6 @@ export class EmployeeList {
 
     constructor(private router: Router, private tabSer: TabService) {
         
-        
         var idCol = new UniTableColumn('EmployeeNumber', 'Ansattnummer', 'number').setWidth('15%');
 
         var nameCol = new UniTableColumn('BusinessRelationInfo.Name', 'Navn', 'string');
@@ -29,8 +28,8 @@ export class EmployeeList {
             .setExpand('BusinessRelationInfo')
             .setFilter('BusinessRelationID gt 0')
             .setSelectCallback((selectedEmployee: Employee) => {
-                router.navigate(['EmployeeDetails', {id: selectedEmployee.ID}])
-                      .then(result => console.log(result));
+                router.navigate(['EmployeeDetails', {id: selectedEmployee.ID}]);
+                      // .then(result => console.log(result));
             })
             .addColumns(idCol, nameCol, employmentDateCol);
         

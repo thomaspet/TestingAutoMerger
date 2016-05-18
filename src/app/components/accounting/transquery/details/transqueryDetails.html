@@ -1,0 +1,18 @@
+<section class="application">
+    <uni-component-loader></uni-component-loader>
+    <uni-table [config]="uniTableConfig"></uni-table>
+
+    <dl class="summary" *ngIf="summaryData" [attr.aria-busy]="busy">
+        <dt>Saldo</dt>
+        <dd>{{summaryData.SumBalance}}</dd>
+
+        <dt>Sum debet</dt>
+        <dd>{{summaryData.SumDebet}}</dd>
+
+        <dt>Sum kreditt</dt>
+        <dd>{{summaryData.SumCredit}}</dd>
+
+        <dt>Sum reskontro</dt>
+        <dd>{{summaryData.SumLedger}}</dd>
+    </dl>
+</section>

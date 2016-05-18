@@ -125,7 +125,7 @@ export class CustomerDetails implements OnInit {
         var self = this;
         
         if (this.Customer != null) {
-            console.log(selectedSearchInfo);
+            
             this.Customer.Info.Name = selectedSearchInfo.navn;
             this.Customer.OrgNumber = selectedSearchInfo.orgnr;
       

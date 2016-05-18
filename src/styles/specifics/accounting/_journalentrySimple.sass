@@ -80,18 +80,27 @@ journal-entry-simple .action_menu
     float: left
     margin-top: 10rem
 
+.journal-entry-simple-table-wrapper.runassubcomponent
+    width: 100% !important
+
 .journal-entry-simple-validation
     @include unigrid(4, 2, 2, 1)
-    float: right
+    float: left
     background-color: transparentize($uni-color-scale9, .5)
     padding-left: 1rem
     padding-right: 1rem
     padding-bottom: 1rem
     margin-bottom: 2rem !important
 
+.journal-entry-simple-validation.runassubcomponent
+    width: calc(50% - 2rem) !important
+    
 .journal-entry-simple-helper
     @extend .journal-entry-simple-validation
 
+.journal-entry-simple-helper.runassubcomponent
+    width: calc(50% - 2rem) !important
+    
 .journal-entry-simple-form-buttonrow
     width: 100%
     margin-top: 1rem
@@ -110,6 +119,8 @@ journal-entry-simple .action_menu
     background-color: transparentize($uni-color-scale9, .5)
     font-size: 0.8rem
     min-height: 7rem
+    display: inline-block
+    width: 100%
 
     .button-group
         float: left
@@ -144,5 +155,8 @@ journal-entry-simple .action_menu
     height: 7rem
     width: 100%
 
+.journal-entry-simple-clearboth
+    clear: both
+    
 .journal-entry-simple-table-wrapper .summary[aria-busy=true]
     height: 4rem

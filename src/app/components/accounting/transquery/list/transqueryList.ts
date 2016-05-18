@@ -1,5 +1,5 @@
 import {Component, ViewChildren, ViewChild, Input, ComponentRef} from '@angular/core';
-import {UniTable, UniTableBuilder, UniTableColumn} from '../../../../../framework/uniTable';
+import {UniTable, UniTableColumn, UniTableColumnType, UniTableConfig} from 'unitable-ng2/main';
 import {UniFormBuilder, UniFieldBuilder, UniForm} from '../../../../../framework/forms';
 import {UniAutocomplete, UniAutocompleteConfig} from '../../../../../framework/controls/autocomplete/autocomplete';
 import {UniFormLayoutBuilder} from "../../../../../framework/forms/builders/uniFormLayoutBuilder";
@@ -8,6 +8,7 @@ import {UniHttp} from '../../../../../framework/core/http/http';
 import {AccountService, JournalEntryService} from '../../../../services/services';
 import {Customer, BusinessRelation, Account, ComponentLayout} from '../../../../unientities';
 import {UniComponentLoader} from '../../../../../framework/core/componentLoader';
+import {Observable} from 'rxjs/Observable';
 
 declare var jQuery;
 declare var moment;
@@ -21,17 +22,14 @@ declare var moment;
 export class TransqueryList {
     @ViewChild(UniComponentLoader)
     uniCmpLoader: UniComponentLoader;
-    
-    @ViewChild(UniTable)
-    table: UniTable;
-    
-    config: UniFormBuilder;
-    
-    periodeTable: UniTableBuilder;
-    periodes = [];
-    account: any;
-    formInstance: UniForm;
- 
+        
+    private config: UniFormBuilder;
+    private formInstance: UniForm;
+    private periodeTable: UniTableConfig;
+    private account: any;
+    private periods$: Observable<any>;
+    private isIncomingBalance: boolean;
+
     constructor(private router: Router, 
                 private accountService: AccountService, 
                 private journalEntryService: JournalEntryService) {
@@ -86,7 +84,7 @@ export class TransqueryList {
         })); 
         account.onSelect = (account) => {
             this.loadTableData(account);  
-        };     
+        };
     }
     
     loadTableData(account: Account) {
@@ -94,9 +92,10 @@ export class TransqueryList {
         this.account = account;
         
         if (account) {
-            this.journalEntryService.getJournalEntryPeriodData(account.ID).subscribe((data) => {
-                this.table.refresh(data);
-            });            
+            this.periods$ = this.journalEntryService.getJournalEntryPeriodData(account.ID);
+            this.periods$.subscribe((data) => {
+               this.isIncomingBalance = data.find(period => period.PeriodNo == 0) != null; 
+            });
         }
     }
     
@@ -114,20 +113,19 @@ export class TransqueryList {
         var year: number = moment().year();
  
         // Define columns to use in the table
-        var periodeCol = new UniTableColumn('PeriodName', 'Periode', 'string').setWidth('60%');
-        var lastYearCol = new UniTableColumn('PeriodSumYear1', `Regnskapsår ${year - 1}`, 'string');
-        var thisYearCol = new UniTableColumn('PeriodSumYear2', `Regnskapsår ${year}`, 'string');
+        let periodeCol = new UniTableColumn('PeriodName', 'Periode').setWidth('60%');
+        let lastYearCol = new UniTableColumn('PeriodSumYear1', `Regnskapsår ${year - 1}`)
+            .setTemplate((period) => {
+                return `<a href="/#/accounting/transquery/detailsByAccountId/${this.account.ID}/year/${year - 1}/period/${period.PeriodNo}/isIncomingBalance/${this.isIncomingBalance}">${period.PeriodSumYear1}</a>`;
+            });
+        let thisYearCol = new UniTableColumn('PeriodSumYear2', `Regnskapsår ${year}`)            
+            .setTemplate((period) => {
+                return `<a href="/#/accounting/transquery/detailsByAccountId/${this.account.ID}/year/${year}/period/${period.PeriodNo}/isIncomingBalance/${this.isIncomingBalance}">${period.PeriodSumYear2}</a>`;
+            });
         
-        lastYearCol.setTemplate(`<a href="/\\#/accounting/transquery/details/${year - 1}/#= PeriodNo#">#= PeriodSumYear1#</a>`);
-        thisYearCol.setTemplate(`<a href="/\\#/accounting/transquery/details/${year}/#= PeriodNo#">#= PeriodSumYear2#</a>`);
-                          
         // Setup table
-        this.periodeTable = new UniTableBuilder(this.periodes, false)
-            .setFilterable(false)
-            .setColumnMenuVisible(false)
-            .setSearchable(false)
-            .setPageSize(14)
-            .setPageable(false)
-            .addColumns(periodeCol, lastYearCol, thisYearCol);            
+        this.periodeTable = new UniTableConfig(false, false)
+            .setColumns([periodeCol, lastYearCol, thisYearCol])
+            .setColumnMenuVisible(false);
     }
 }
