@@ -1,4 +1,13 @@
+<h2 class="application">Altinn Systempålogging</h2>
 <article *ngIf="formConfig" class="application">
     <!--<uni-component-loader></uni-component-loader>-->
-    <uni-form class="altinn-settings-form" (submit)="onSubmit($event)" [config]="formConfig"></uni-form>
+    <uni-form [config]="formConfig"></uni-form>
 </article>
+<footer class="full-footer">
+    <section class="application">
+        <button class="good" (click)="saveAltinn($event)">Lagre altinn</button>
+        <section class="auto_save_info">
+            {{ lastSavedInfo }}
+        </section>
+    </section>
+</footer>

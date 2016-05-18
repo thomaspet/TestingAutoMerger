@@ -18,6 +18,7 @@ export class AltinnSettings implements OnInit {
     //private formInstance: UniForm;
 
     //@ViewChild(UniComponentLoader) private uniCompLoader: UniComponentLoader;
+    @ViewChild(UniForm) private formInstance: UniForm;
     
     constructor(private _altinnService: AltinnService) {
         
@@ -25,6 +26,11 @@ export class AltinnSettings implements OnInit {
     
     public ngOnInit() {
         this.getData();
+        /*this.formInstance.ready.subscribe(() => {
+            this.formInstance.submit.subscribe((event) => {
+                this.saveAltinn(event);
+            });
+        });*/
     }
     
     private getData() {
@@ -35,7 +41,7 @@ export class AltinnSettings implements OnInit {
                 this.setFormConfig();
             }else {
                 this._altinnService.GetNewEntity().subscribe((newAltinn: Altinn) => {
-                    this.altinn = newAltinn;
+                    this.altinn = new Altinn();
                     console.log('altinn: ' + JSON.stringify(this.altinn));
                     if (this.formConfig !== null) {
                         this.formConfig.setModel(this.altinn);
@@ -68,7 +74,7 @@ export class AltinnSettings implements OnInit {
                     LookupField: false,
                     Label: 'ID fra Altinn',
                     Description: 'Description',
-                    HelpText: 'HelpText',
+                    HelpText: 'Tall, Id fås av altinn ved oppsett av datasystem (minst 6 tegn)',
                     FieldSet: 0,
                     Section: 0,
                     Legend: 'Legend',
@@ -89,7 +95,7 @@ export class AltinnSettings implements OnInit {
                     LookupField: false,
                     Label: 'Passord',
                     Description: '',
-                    HelpText: '',
+                    HelpText: 'Samme passord som ble satt opp i altinn ved oppsett datasystem',
                     FieldSet: 0,
                     Section: 0,
                     Legend: '',
@@ -110,7 +116,7 @@ export class AltinnSettings implements OnInit {
                     LookupField: false,
                     Label: 'Foretrukket språk',
                     Description: '',
-                    HelpText: '',
+                    HelpText: 'Her kan en velge det foretrukne språket for dette firmaet for altinn(nynorsk, bokmål, samisk, engelsk)',
                     FieldSet: 0,
                     Section: 0,
                     Legend: '',
@@ -129,19 +135,24 @@ export class AltinnSettings implements OnInit {
         };   
         
         this.formConfig = new UniFormLayoutBuilder().build(view, this.altinn);
+        // this.formConfig.hideSubmitButton();
         console.log('set form config: ' + JSON.stringify(this.formConfig));
     }
     
-    public onSubmit(event) {
+    public saveAltinn(event) {
+        this.formInstance.sync();
         console.log('submitting');
         if (this.altinn.ID) {
+            console.log('put');
             this._altinnService.Put(this.altinn.ID, this.altinn).subscribe((response: Altinn) => {
                 this.altinn = response;
             }, error => console.log(error));
         }else {
+            console.log('Post');
             this._altinnService.Post(this.altinn).subscribe((response: Altinn) => {
                 this.altinn = response;
             }, error => console.log(error));
         }
+        console.log('Submitted');
     }
 }
