@@ -1,15 +1,33 @@
 import {BizHttp} from '../../../framework/core/http/BizHttp';
 import {JournalEntryLine} from '../../unientities';
 import {UniHttp} from '../../../framework/core/http/http';
+import {Observable} from 'rxjs/Observable';
+import {TransqueryDetailsCalculationsSummary} from '../../models/accounting/TransqueryDetailsCalculationsSummary'
+import {PeriodDates} from '../../models/accounting/PeriodDates';
+
+declare const moment: any;
 
 export class JournalEntryLineService extends BizHttp<JournalEntryLine> {
-    
-    constructor(http: UniHttp) {        
+
+    constructor(http: UniHttp) {
         super(http);
-        
+
         this.relativeURL = JournalEntryLine.relativeUrl;
-        
-        //set this property if you want a default sort order from the API
+
+        // set this property if you want a default sort order from the API
         this.DefaultOrderBy = null;
-    }       
+    }
+    
+    public getJournalEntryLineRequestSummary(odataFilter: string): Observable<TransqueryDetailsCalculationsSummary> {
+        return super.GetAction(null, `get-journal-entry-period-data&odatafilter=${odataFilter}`);
+    }
+
+    public periodNumberToPeriodDates(period: number, year: number): PeriodDates {
+        const format = 'YYYY-MM-DD';
+        const periodDates = new PeriodDates();
+        const firstDay = moment([year, period - 1, 1]);
+        periodDates.firstDayOfPeriod = firstDay.format(format);
+        periodDates.lastDayOfPeriod = firstDay.endOf('month').format(format);
+        return periodDates;
+    }
 }

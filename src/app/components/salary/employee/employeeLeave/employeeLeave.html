@@ -1,1 +1,10 @@
 <uni-table *ngIf="dataConfig" [config]="dataConfig"></uni-table>
+
+<footer class="full-footer">
+    <section class="application">
+        <button class="good" (click)="saveLeaveManual($event)">Lagre fravær</button>
+        <section class="auto_save_info">
+            {{ lastSavedInfo }}
+        </section>
+    </section>
+</footer>
