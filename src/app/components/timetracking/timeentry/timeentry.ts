@@ -19,8 +19,8 @@ export var view = new View('timeentry', 'Registrere timer', 'TimeEntry');
             .title select { display:inline-block; width: auto; padding-left: 7px; padding-right: 7px; }
             .timeentriesTable { width: 100% }
             .subcontainer { margin-top: 1em;}
-            .bubble { position: relative; border: 1px solid green; background-color: white; border-radius: 7px; margin: 3px; left: 85px; top: -44px; width: 20px;  }
             .tabtip { color: #606060; margin-left: -15px; }
+            .busy { padding: 7px; color: green; font-size: 14pt; }
             `],
     directives: [Editable],
     providers: [WorkerService]
@@ -73,7 +73,6 @@ export class TimeEntry {
     
     selectWorkRelation(relation:WorkRelation) {
         this.currentWorkRelation = relation;
-        this.busy = false;
         this.getWorkItems(relation.ID);
     }
     
@@ -115,6 +114,7 @@ export class TimeEntry {
         this.service.getWorkItems(workRelationID).then((result:Array<WorkItem>)=> {
             this.workItems = result;
             this.addNewRow();
+            this.busy = false;
         });
     }
 	
@@ -137,7 +137,7 @@ export class TimeEntry {
                 break;
 			case 'Date':
 				item.Date = parseDate(event.value);
-				break;
+				break;            
             default:
                 event.cancel = true;
                 break;

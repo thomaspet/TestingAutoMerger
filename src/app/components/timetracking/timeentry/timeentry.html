@@ -17,6 +17,9 @@
     </div>
     
     <section [attr.aria-busy]="busy" class="subcontainer" >
+        
+        <aside class='busy' *ngIf='busy'>Vent litt... stiller klokker og spisser blyanter..</aside>
+    
         <table class='timeentriesTable' editable [config]="tableConfig" >
             <thead>
                 <tr>
