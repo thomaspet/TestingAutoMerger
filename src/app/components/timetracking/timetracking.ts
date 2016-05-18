@@ -1,9 +1,11 @@
 import {Component} from "@angular/core";
 import {RouteConfig, ROUTER_DIRECTIVES} from "@angular/router-deprecated";
 import {UniRouterOutlet} from "../../uniRouterOutlet";
+
 import {View} from "../../models/view/view";
 import {view as timeEntryView} from './timeentry/timeentry';
 import {view as workerView} from './worker/worker';
+import {view as workTypeView} from './worktype/worktype';
 
 // Main view (meta)
 export var view = new View("timetracking", "Timer", "UniTimetracking");
@@ -11,6 +13,7 @@ export var view = new View("timetracking", "Timer", "UniTimetracking");
 // Add subviews (meta)
 view.addSubView(timeEntryView);
 view.addSubView(workerView);
+view.addSubView(workTypeView);
 
 @Component({
     selector: 'uni-' + view.name,
