@@ -89,11 +89,23 @@ export class QuoteDetails {
                 this.EmptyAddress = new Address();
                 
                 this.updateStatusText();
-                this.addAddresses();                                                                               
-                this.createFormConfig();
-                this.extendFormConfig();
-                this.loadForm();                
+                this.addAddresses();   
+            
+                this.getLayout();
             });       
+    }
+
+    public getLayout() {
+        var self = this;
+        this.customerQuoteService.GetLayout('CustomerQuoteDetailsForm').subscribe((results: any) => {
+            var layout: ComponentLayout = results;
+
+            this.formConfig = new UniFormLayoutBuilder().build(layout, this.quote);
+            this.formConfig.hideSubmitButton();
+
+            this.extendFormConfig();
+            this.loadForm();
+        });
     }
         
     addAddresses() {
@@ -267,13 +279,13 @@ export class QuoteDetails {
         });           
     }
         
-    createFormConfig() {   
-        // TODO get it from the API and move these to backend migrations   
-        var view: ComponentLayout = this.getComponentLayout();
+    //createFormConfig() {   
+    //    // TODO get it from the API and move these to backend migrations   
+    //    var view: ComponentLayout = this.getComponentLayout();
         
-        this.formConfig = new UniFormLayoutBuilder().build(view, this.quote);
-        this.formConfig.hideSubmitButton();        
-    }
+    //    this.formConfig = new UniFormLayoutBuilder().build(view, this.quote);
+    //    this.formConfig.hideSubmitButton();        
+    //}
     
     extendFormConfig() {  
         var self = this;
@@ -425,197 +437,4 @@ export class QuoteDetails {
         this.quote.ShippingCountry = a.Country;
         this.quote.ShippingCountryCode = a.CountryCode;     
     } 
-    
-    getComponentLayout(): ComponentLayout {
-        return {
-            Name: "CustomerQuote",
-            BaseEntity: "CustomerQuote",
-            StatusCode: 0,
-            Deleted: false,
-            ID: 1,
-            CustomFields: null,
-            Fields: [
-                {
-                    ComponentLayoutID: 30,
-                    EntityType: "CustomerQuote",
-                    Property: "CustomerID",
-                    Placement: 4,
-                    Hidden: false,
-                    FieldType: 1,
-                    ReadOnly: false,
-                    LookupField: false,
-                    Label: "Kunde",
-                    Description: "",
-                    HelpText: "",
-                    FieldSet: 0,
-                    Section: 0,
-                    Legend: "",
-                    StatusCode: 0,
-                    ID: 1,
-                    Deleted: false,
-                    CustomFields: null 
-                },
-                {
-                    ComponentLayoutID: 30,
-                    EntityType: "CustomerQuote",
-                    Property: "QuoteDate",
-                    Placement: 30,
-                    Hidden: false,
-                    FieldType: 2,
-                    ReadOnly: false,
-                    LookupField: false,
-                    Label: "Tilbudsdato",
-                    Description: "",
-                    HelpText: "",
-                    FieldSet: 0,
-                    Section: 0,
-                    Legend: "",
-                    StatusCode: 0,
-                    ID: 2,
-                    Deleted: false,
-                    CustomFields: null 
-                },
-                {
-                    ComponentLayoutID: 30,
-                    EntityType: "CustomerQuote",
-                    Property: "ValidUntilDate",
-                    Placement: 1,
-                    Hidden: false,
-                    FieldType: 2,
-                    ReadOnly: false,
-                    LookupField: false,
-                    Label: "Gyldig til dato",
-                    Description: "",
-                    HelpText: "",
-                    FieldSet: 0,
-                    Section: 0,
-                    Legend: "",
-                    StatusCode: 0,
-                    ID: 3,
-                    Deleted: false,
-                    CustomFields: null 
-                },
-                {
-                    ComponentLayoutID: 30,
-                    EntityType: "CustomerQuote",
-                    Property: "CreditDays",
-                    Placement: 1,
-                    Hidden: false,
-                    FieldType: 10,
-                    ReadOnly: false,
-                    LookupField: false,
-                    Label: "Kredittdager",
-                    Description: "",
-                    HelpText: "",
-                    FieldSet: 0,
-                    Section: 0,
-                    Legend: "",
-                    StatusCode: 0,
-                    ID: 4,
-                    Deleted: false,
-                    CustomFields: null 
-                },
-                {
-                    ComponentLayoutID: 30,
-                    EntityType: "BusinessRelation",
-                    Property: "InvoiceAddress",
-                    Placement: 1,
-                    Hidden: false,
-                    FieldType: 14,
-                    ReadOnly: false,
-                    LookupField: false,
-                    Label: "Fakturaadresse",
-                    Description: "",
-                    HelpText: "",
-                    FieldSet: 0,
-                    Section: 0,
-                    Legend: "",
-                    StatusCode: 0,
-                    ID: 5,
-                    Deleted: false,
-                    CustomFields: null 
-                },
-                {
-                    ComponentLayoutID: 30,
-                    EntityType: "BusinessRelation",
-                    Property: "ShippingAddress",
-                    Placement: 1,
-                    Hidden: false,
-                    FieldType: 14,
-                    ReadOnly: false,
-                    LookupField: false,
-                    Label: "Leveringsadresse",
-                    Description: "",
-                    HelpText: "",
-                    FieldSet: 0,
-                    Section: 0,
-                    Legend: "",
-                    StatusCode: 0,
-                    ID: 6,
-                    Deleted: false,
-                    CustomFields: null 
-                },
-                {
-                    ComponentLayoutID: 30,
-                    EntityType: "Project",
-                    Property: "Dimensions.ProjectID",
-                    Placement: 4,
-                    Hidden: false,
-                    FieldType: 1,
-                    ReadOnly: false,
-                    LookupField: false,
-                    Label: "Std. prosjekt på linje",
-                    Description: "",
-                    HelpText: "",
-                    FieldSet: 0,
-                    Section: 0,
-                    Legend: "",
-                    StatusCode: 0,
-                    ID: 7,
-                    Deleted: false,
-                    CustomFields: null 
-                },
-                {
-                    ComponentLayoutID: 30,
-                    EntityType: "Departement",
-                    Property: "Dimensions.DepartementID",
-                    Placement: 4,
-                    Hidden: false,
-                    FieldType: 1,
-                    ReadOnly: false,
-                    LookupField: false,
-                    Label: "Std. avdeling på linje",
-                    Description: "",
-                    HelpText: "",
-                    FieldSet: 0,
-                    Section: 0,
-                    Legend: "",
-                    StatusCode: 0,
-                    ID: 8,
-                    Deleted: false,
-                    CustomFields: null
-                },
-                {
-                    ComponentLayoutID: 30,
-                    EntityType: "CustomerQuote",
-                    Property: "FreeTxt",
-                    Placement: 1,
-                    Hidden: false,
-                    FieldType: 16,
-                    ReadOnly: false,
-                    LookupField: false,
-                    Label: "",
-                    Description: "",
-                    HelpText: "",
-                    FieldSet: 0,
-                    Section: 1,
-                    Legend: "Fritekst",
-                    StatusCode: 0,
-                    ID: 9,
-                    Deleted: false,
-                    CustomFields: null
-                }
-            ]
-        };
-    }
 }

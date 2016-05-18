@@ -7,7 +7,8 @@ import {UniFormBuilder, UniFormLayoutBuilder, UniForm, UniFieldBuilder} from '..
 import {UniComponentLoader} from '../../../../framework/core';
 import {SalaryTransactionSelectionList} from '../../salary/salarytrans/salarytransactionSelectionList';
 import {TabService} from '../../layout/navbar/tabstrip/tabService';
-import {ControlModal} from './controlmodal';
+import {ControlModal} from './controlModal';
+import {PostingsummaryModal} from './postingsummaryModal';
 import {RootRouteParamsService} from '../../../services/rootRouteParams';
 
 
@@ -15,7 +16,7 @@ import {RootRouteParamsService} from '../../../services/rootRouteParams';
     selector: 'payrollrun-details',
     templateUrl: 'app/components/salary/payrollrun/payrollrunDetails.html',
     providers: [PayrollrunService, provide(RootRouteParamsService, {useClass: RootRouteParamsService})],
-    directives: [UniComponentLoader, SalaryTransactionSelectionList, ControlModal]
+    directives: [UniComponentLoader, SalaryTransactionSelectionList, ControlModal, PostingsummaryModal]
 })
 
 export class PayrollrunDetails implements OnInit {

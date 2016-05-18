@@ -1,6 +1,7 @@
 import {Component, Input, OnInit} from '@angular/core';
 import {EmployeeCategory} from '../../../unientities';
 import {EmployeeService, EmployeeCategoryService} from '../../../services/services';
+import {Observable} from 'rxjs/Observable';
 
 declare var jQuery;
 
@@ -40,11 +41,7 @@ export class EmployeeCategoryButtons implements OnInit {
     
     constructor(private employeeService: EmployeeService, 
                 private employeeCategoryService: EmployeeCategoryService) {
-        var self = this;
-        this.employeeCategoryService.GetAll('')
-        .subscribe((response: any) => {
-            self.categories = response;
-        });
+                    
     }
     
     private filterTags(tag: string) {
@@ -60,19 +57,25 @@ export class EmployeeCategoryButtons implements OnInit {
     };
     
     public ngOnInit() {
-        var self = this;
-        this.employeeService.getEmployeeCategories(this.selectedEmployee.EmployeeNumber)
+        Observable.forkJoin(
+            this.employeeService.getEmployeeCategories(this.selectedEmployee.EmployeeNumber),
+            this.employeeCategoryService.GetAll('')
+        )
         .subscribe((response: any) => {
-            self.selectedEmployee.EmployeeCategories = response ? response : [];
+            let [empCategories, allCategories] = response;
+            this.selectedEmployee.EmployeeCategories = empCategories ? empCategories : [];
+            this.categories = allCategories;
             
             // remove selected categories from available categories
-            var arrLength = self.selectedEmployee.EmployeeCategories ? self.selectedEmployee.EmployeeCategories.length : 0;
-            for (var selIndx = 0; selIndx < arrLength; selIndx++) {
-                var selCat = self.selectedEmployee.EmployeeCategories[selIndx];
-                for (var avIndx = self.categories.length - 1; avIndx >= 0; avIndx--) {
-                    var avCat = self.categories[avIndx];
-                    if (avCat.Name === selCat.Name) {
-                        self.categories.splice(avIndx, 1);
+            if (this.categories.length > 0) {
+                let arrLength = this.selectedEmployee.EmployeeCategories ? this.selectedEmployee.EmployeeCategories.length : 0;
+                for (var selIndx = 0; selIndx < arrLength; selIndx++) {
+                    let selCat = this.selectedEmployee.EmployeeCategories[selIndx];
+                    for (var avIndx = this.categories.length - 1; avIndx >= 0; avIndx--) {
+                        let avCat = this.categories[avIndx];
+                        if (avCat.Name === selCat.Name) {
+                            this.categories.splice(avIndx, 1);
+                        }
                     }
                 }
             }
@@ -80,12 +83,12 @@ export class EmployeeCategoryButtons implements OnInit {
     }
     
     public addCategory(categoryName) {
-        var category = new EmployeeCategory();
+        let category = new EmployeeCategory();
         category.Name = categoryName;
         
         this.selectedEmployee.EmployeeCategories.push(category);
         
-        var indx = this.categories.map(function(e) {
+        let indx = this.categories.map(function(e) {
             return e.Name;
         }).indexOf(categoryName);
         if (indx > -1) {
@@ -95,7 +98,7 @@ export class EmployeeCategoryButtons implements OnInit {
     }
     
     public addCategoryAndSave(categoryName) {
-        var cat = this.addCategory(categoryName);
+        let cat = this.addCategory(categoryName);
         this.saveCategory(cat);
     }
     

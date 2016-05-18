@@ -1,23 +1,24 @@
-import {Component, Injector} from '@angular/core';
+import {Component, OnInit} from '@angular/core';
 import {RouteParams} from '@angular/router-deprecated';
 import {EmployeeDS} from '../../../../data/employee';
 import {UniTable, UniTableBuilder, UniTableColumn} from '../../../../../framework/uniTable';
-import {Employment} from '../../../../unientities';
+import {Employment, Employee} from '../../../../unientities';
+import {RootRouteParamsService} from '../../../../services/rootRouteParams';
 
 @Component({
     selector: 'employee-leave',
     templateUrl: 'app/components/salary/employee/employeeLeave/employeeLeave.html',
     directives: [UniTable]
 })
-export class EmployeeLeave {
+export class EmployeeLeave implements OnInit {
 
-    public currentEmployee: any;
-    public employments: Array<any>;
-    public filter;
-
-    public leaveTypes: Array<any>;
-
-    public dataConfig: any;
+    private currentEmployee: Employee;
+    private employments: Array<any>;
+    private filter: any;
+    private leaveTypes: Array<any>;
+    private employeeID: number;
+    private dataConfig: any;
+    private lastSavedInfo: string;
 
     public getLeaveTypeText = (typeID: string) => {
         var text = '';
@@ -35,12 +36,30 @@ export class EmployeeLeave {
         this.employments.forEach((employment: Employment) => {
             if (employment.ID === employmentID) {
                 jobName = employment.JobName;
-                // console.log('Jobname: ' + jobName);
             }
         });
         return jobName;
     };
-
+    
+    constructor(private routeParams: RouteParams, public employeeDS: EmployeeDS, private rootRouteParams: RootRouteParamsService) {
+        this.leaveTypes = [
+            {typeID: '0', text: 'Ikke satt'},
+            {typeID: '1', text: 'Permisjon'},
+            {typeID: '2', text: 'Permittering'}
+        ];
+        this.employments = new Array();
+        this.employeeID = +rootRouteParams.params.get('id');
+    }
+    
+    public ngOnInit() {
+        this.employeeDS
+            .get(this.employeeID)
+            .subscribe((response: any) => {
+                this.currentEmployee = response;
+                this.buildTableConfigs();
+            });
+    }
+    
     public buildFilterAndEmployments() {
         var filter = '';
         this.currentEmployee.Employments.forEach((employment: Employment) => {
@@ -48,14 +67,12 @@ export class EmployeeLeave {
             this.employments.push(employment);
         });
         filter = filter.slice(0, filter.length - 2);
-        // console.log('EmployeeLeave filter: ' + filter);
         return filter;
     }
 
     public buildTableConfigs() {
         this.filter = this.buildFilterAndEmployments();
-        // console.log('employments: ' + this.employments);
-
+        
         var idCol = new UniTableColumn('ID', 'ID', 'number')
             .setEditable(false)
             .setNullable(true);
@@ -83,7 +100,7 @@ export class EmployeeLeave {
 
         var employmentIDCol = new UniTableColumn('EmploymentID', 'Arbeidsforhold', '')
             .setTemplate((dataItem) => {
-                return this.getEmploymentJobName(dataItem.EmploymentID)
+                return this.getEmploymentJobName(dataItem.EmploymentID);
             })
             .setCustomEditor('dropdown', {
                 dataSource: this.employments,
@@ -95,26 +112,12 @@ export class EmployeeLeave {
             .setFilter(this.filter)
             .addColumns(idCol, fromDateCol, toDateCol, leavePercentCol, leaveTypeCol, employmentIDCol, commentCol);
     }
-
-    public ngOnInit() {
-
-        console.log(this.routeParams);
-        let params = this.routeParams;
-        this.employeeDS
-            .get(params.get('id'))
-            .subscribe((response: any) => {
-                this.currentEmployee = response;
-                this.buildTableConfigs();
-            });
+    
+    public saveLeaveManual() {
+        this.saveLeave();
     }
-
-    constructor(private routeParams: RouteParams, public employeeDS: EmployeeDS) {
-        this.leaveTypes = [
-            {typeID: '0', text: 'Ikke satt'},
-            {typeID: '1', text: 'Permisjon'},
-            {typeID: '2', text: 'Permittering'}
-        ];
-        this.employments = new Array();
-
+    
+    public saveLeave() {
+        this.lastSavedInfo = 'Fravær lagret';
     }
 }

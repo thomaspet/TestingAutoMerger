@@ -13,7 +13,7 @@ declare var jQuery;
             <h1 *ngIf="config.title">{{config.title}}</h1>
             <uni-form [config]="formConfig"></uni-form>
             <footer>
-                <button *ngFor="let action of config.actions; #i=index" (click)="action.method()">
+                <button *ngFor="let action of config.actions; let i=index" (click)="action.method()">
                     {{action.text}}
                 </button>
                 <button *ngIf="config.hasCancelButton" (click)="config.cancel()">Avbryt</button>

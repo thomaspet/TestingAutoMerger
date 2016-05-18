@@ -3,8 +3,16 @@
         <uni-table *ngIf="showEmploymentList" [config]="employmentListConfig" [attr.aria-busy]="busy"></uni-table>
     </nav>
     <main class="splitview_detail">
-        <employment-details *ngIf="selectedEmployment"
-        [currentEmployment]="selectedEmployment"
-        [currentEmployee]="currentEmployee"></employment-details>
+        <!--<employment-details *ngIf="selectedEmployment" [currentEmployment]="selectedEmployment" [currentEmployee]="currentEmployee" (currentEmploymentChanges)="updateCurrentEmployment($event)"></employment-details>-->
+        <employment-details *ngIf="selectedEmployment" [currentEmployment]="selectedEmployment" [currentEmployee]="currentEmployee"></employment-details>
     </main>
 </section>
+
+<footer class="full-footer">
+    <section class="application">
+        <button class="good" (click)="saveEmploymentManual($event)">Lagre arbeidsforhold</button>
+        <section class="auto_save_info">
+            {{ lastSavedInfo }}
+        </section>
+    </section>
+</footer>
