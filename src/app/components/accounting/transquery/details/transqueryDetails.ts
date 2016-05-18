@@ -4,8 +4,7 @@ import {UniTable, UniTableColumn, UniTableConfig} from 'unitable-ng2/main';
 import {TransqueryDetailsCalculationsSummary} from '../../../../models/accounting/TransqueryDetailsCalculationsSummary';
 import {JournalEntryLineService} from '../../../../services/Accounting/JournalEntryLineService';
 import {TransqueryDetailSearchParamters} from './TransqueryDetailSearchParamters';
-import {Observable} from 'rxjs/Observable';
-import {JournalEntryLine} from '../../../../unientities';
+import {URLSearchParams} from '@angular/http';
 
 @Component({
     selector: 'transquery-details',
@@ -15,22 +14,26 @@ import {JournalEntryLine} from '../../../../unientities';
 })
 export class TransqueryDetails implements OnInit {
     private summaryData: TransqueryDetailsCalculationsSummary;
-    private searchParameters: TransqueryDetailSearchParamters;
     private uniTableConfig: UniTableConfig;
-    private uniTableData: Observable<JournalEntryLine>;
+    private lookupFunction: (urlParams: URLSearchParams) => any;
 
-    constructor(private routeParams: RouteParams, private journalEntryLineService: JournalEntryLineService) {}
+    constructor(private routeParams: RouteParams, private journalEntryLineService: JournalEntryLineService) {
+    }
 
     public ngOnInit() {
-        this.searchParameters = this.getSearchParameters(this.routeParams);
-        const odataFilter = this.generateOdataFilter(this.searchParameters);
+        const searchParameters = this.getSearchParameters(this.routeParams);
+        const odataFilter = this.generateOdataFilter(searchParameters);
         this.journalEntryLineService
             .getJournalEntryLineRequestSummary(odataFilter)
             .subscribe(summary => this.summaryData = summary);
-        this.uniTableData = this.journalEntryLineService.GetAll(
-            `expand=VatType,Account&filter=${odataFilter}`
-        );
+
         this.uniTableConfig = this.generateUniTableConfig();
+        this.lookupFunction = (urlParams: URLSearchParams) => {
+            urlParams = urlParams || new URLSearchParams();
+            urlParams.set('filter', odataFilter);
+            urlParams.set('expand', 'VatType,Account');
+            return this.journalEntryLineService.GetAllByUrlSearchParams(urlParams);
+        };
     }
 
     private getSearchParameters(routeParams): TransqueryDetailSearchParamters {
@@ -61,8 +64,8 @@ export class TransqueryDetails implements OnInit {
                     .periodNumberToPeriodDates(searchParameters.period, searchParameters.year);
                 return `${accountSearch} and FinancialDate ge '${periodDates.firstDayOfPeriod}' and FinancialDate le '${periodDates.lastDayOfPeriod}'`;
             }
-        } else if (this.searchParameters.journalEntryNumber) {
-            return `JournalEntryNumber eq '${this.searchParameters.journalEntryNumber}'`;
+        } else if (searchParameters.journalEntryNumber) {
+            return `JournalEntryNumber eq '${searchParameters.journalEntryNumber}'`;
         } else {
             return '';
         }
@@ -70,6 +73,8 @@ export class TransqueryDetails implements OnInit {
 
     private generateUniTableConfig(): UniTableConfig {
         return new UniTableConfig(false, false)
+            .setPageable(true)
+            .setPageSize(15)
             .setColumnMenuVisible(false)
             .setColumns([
                     new UniTableColumn('JournalEntryNumber', 'Bilagsnr')
@@ -83,7 +88,7 @@ export class TransqueryDetails implements OnInit {
                     new UniTableColumn('FinancialDate', 'Regnskapsdato'),
                     new UniTableColumn('RegisteredDate', 'Bokføringsdato'),
                     new UniTableColumn('Description', 'Beskrivelse'),
-                    new UniTableColumn('VatTypeID', 'Mvakode'),
+                    new UniTableColumn('VatType.VatCode', 'Mvakode'),
                     new UniTableColumn('Amount', 'Beløp')
                 ]
             );
