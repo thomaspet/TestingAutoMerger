@@ -52,8 +52,6 @@ export class QuoteList {
     };
 
     private setupQuoteTable() {
-        var self = this;
-
         this.lookupFunction = (urlParams: URLSearchParams) => {
             let params = urlParams;
             
@@ -82,7 +80,7 @@ export class QuoteList {
         });
 
         // Setup table
-        this.quoteTable = new UniTableConfig(false, true, 20)            
+        this.quoteTable = new UniTableConfig(false, true)            
             .setPageSize(25)
             .setColumns([quoteNumberCol, customerNumberCol, customerNameCol, quoteDateCol, validUntilDateCol, taxInclusiveAmountCol, statusCol]);
             

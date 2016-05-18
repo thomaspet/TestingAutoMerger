@@ -49,7 +49,7 @@ export class BizHttp<T> {
     }
 
     public GetAllByUrlSearchParams<T>(params: URLSearchParams): Observable<any> {
-        if (params.get('orderby') && this.DefaultOrderBy !== null) {
+        if (!params.get('orderby') && this.DefaultOrderBy !== null) {
             params.set('orderby', this.DefaultOrderBy);            
         }
         
