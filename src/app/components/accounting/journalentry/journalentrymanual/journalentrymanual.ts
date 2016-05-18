@@ -1,59 +1,73 @@
-import {Component, Input, SimpleChange, ViewChild} from "@angular/core";
+import {Component, Input, SimpleChange, ViewChild} from '@angular/core';
 import {JournalEntrySimple} from '../components/journalentrysimple/journalentrysimple';
 import {JournalEntryProfessional} from '../components/journalentryprofessional/journalentryprofessional';
-import {SupplierInvoice} from "../../../../unientities";
+import {SupplierInvoice} from '../../../../unientities';
 import {JournalEntryData} from '../../../../models/models';
 import {JournalEntrySimpleCalculationSummary} from '../../../../models/accounting/JournalEntrySimpleCalculationSummary';
 import {JournalEntryService} from '../../../../services/services';
 
 @Component({
-    selector: "journal-entry-manual",
-    templateUrl: "app/components/accounting/journalentry/journalentrymanual/journalentrymanual.html",
+    selector: 'journal-entry-manual',
+    templateUrl: 'app/components/accounting/journalentry/journalentrymanual/journalentrymanual.html',
     directives: [JournalEntrySimple, JournalEntryProfessional],
     providers: [JournalEntryService]    
 })
 export class JournalEntryManual {    
     @Input()
-    SupplierInvoice : SupplierInvoice;
-
+    supplierInvoice : SupplierInvoice;
+    @Input() runAsSubComponent : boolean = false;
     @Input()
-    showHeader = true;
-    
-    @ViewChild(JournalEntrySimple) journalEntrySimple: JournalEntrySimple;
+    hideSameOrNew : boolean = false;
+    @ViewChild(JournalEntrySimple) private journalEntrySimple: JournalEntrySimple;
     @ViewChild(JournalEntryProfessional) journalEntryProfessional: JournalEntryProfessional;
-    
-    public journalEntryMode: string;
+    @Input() public journalEntryMode: string;
     private itemsSummaryData: JournalEntrySimpleCalculationSummary;
     public validationResult: any;
     
     constructor(private journalEntryService: JournalEntryService) {
+  
     }
     
     ngOnInit() {
-        //this.journalEntryMode = "SIMPLE";
-        this.journalEntryMode = 'PROFFESIONAL';
+        this.journalEntryMode = "SIMPLE";
         
-        if (this.SupplierInvoice !== null) {
-            
+        if (this.supplierInvoice) {
+            this.hideSameOrNew = true;
         }
+        
+        this.setupSubscriptions();
+    }
+    
+    getJournalEntryData(): Array<JournalEntryData> {
+        if (this.journalEntrySimple) {
+            return this.journalEntrySimple.journalEntryLines;
+        }   
     }
 
     ngOnChanges(changes: { [propName: string]: SimpleChange }) {
-        
+        this.setupSubscriptions();
     }
     
     ngAfterViewInit() {
-        if (this.journalEntrySimple) {
-            this.journalEntrySimple.dataChanged.debounceTime(2000).subscribe((values) => this.onDataChanged(values));
-        }
-        if (this.journalEntryProfessional) {
-            this.journalEntryProfessional.dataChanged.debounceTime(2000).subscribe((values) => this.onDataChanged(values))
-        }
+        
     }
+    
+    setupSubscriptions() {
+        setTimeout(() => {
+            console.log('setupSubscriptions');
+            if (this.journalEntryProfessional)
+                this.journalEntryProfessional.dataChanged.debounceTime(2000).subscribe((values) => this.onDataChanged(values));
+            
+            if (this.journalEntrySimple)
+                this.journalEntrySimple.dataChanged.debounceTime(2000).subscribe((values) => this.onDataChanged(values));  
+        });
+    }
+    
+    
     
     private onDataChanged(data: JournalEntryData[]) {
         //this.busy = true;
-                
+        console.log('ondatachanged data: ', data);        
         if (data.length <= 0) {
             this.itemsSummaryData = null;
             console.log('itemsSummaryData is set to null since no lines exist');
@@ -99,12 +113,34 @@ export class JournalEntryManual {
             });
     }
     
+    private postJournalEntryData(event) {
+        if (this.journalEntrySimple)
+            this.journalEntrySimple.postJournalEntryData();
+        else if (this.journalEntryProfessional)
+            this.journalEntryProfessional.postJournalEntryData();
+    }
+    
+    private addDummyJournalEntry(event) {
+        if (this.journalEntrySimple)
+            this.journalEntrySimple.addDummyJournalEntry();
+        else if (this.journalEntryProfessional)
+            this.journalEntryProfessional.addDummyJournalEntry();
+    }
+    
+    private removeJournalEntryData(event) {
+        if (this.journalEntrySimple)
+            this.journalEntrySimple.removeJournalEntryData();
+        else if (this.journalEntryProfessional)
+            this.journalEntryProfessional.removeJournalEntryData();
+    }
+    
     useSimpleMode() {
         this.journalEntryMode = 'SIMPLE';
+        this.setupSubscriptions();
     }
     
     useProMode() {
         this.journalEntryMode = 'PROFFESIONAL';
-        
+        this.setupSubscriptions();
     }
 }

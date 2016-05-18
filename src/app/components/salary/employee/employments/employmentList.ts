@@ -1,5 +1,5 @@
-import {Component, OnInit, Injector} from '@angular/core';
-import {RouteParams, Router} from '@angular/router-deprecated';
+import {Component, OnInit, Injector, ViewChild} from '@angular/core';
+import {Router} from '@angular/router-deprecated';
 import {UniTable, UniTableColumn, UniTableBuilder} from '../../../../../framework/uniTable';
 import {EmploymentService} from '../../../../services/services';
 import {EmployeeDS} from '../../../../data/employee';
@@ -22,6 +22,8 @@ export class EmploymentList implements OnInit {
     private busy: boolean;
     private showEmploymentList: boolean = false;
     private employmentListConfig: any;
+    private lastSavedInfo: string;
+    @ViewChild(EmployeeEmployment) private employmentDetails: EmployeeEmployment;
     
     constructor(private _employmentService: EmploymentService, private injector: Injector, private employeeDataSource: EmployeeDS, private router: Router, private rootRouteParams: RootRouteParamsService) {        
         this.currentEmployeeID = +rootRouteParams.params.get('id');
@@ -48,12 +50,41 @@ export class EmploymentList implements OnInit {
         });
     }
     
+    public saveEmploymentManual() {
+        this.saveEmployment();
+    }
+    
+    public saveEmployment() {
+        var changedEmployment: Employment;
+        changedEmployment = this.employmentDetails.getCurrentEmployment();
+        
+        this.lastSavedInfo = 'Lagrer arbeidsforhold...';
+        if (changedEmployment.ID > 0) {
+            this._employmentService.Put(changedEmployment.ID, changedEmployment)
+            .subscribe((response: Employment) => {
+                this.selectedEmployment = response;
+                this.lastSavedInfo = 'Sist lagret: ' + (new Date()).toLocaleTimeString();
+            },
+            (err) => {
+                console.log('Feil ved oppdatering av arbeidsforhold', err);
+            });
+        } else {
+            this._employmentService.Post(changedEmployment)
+            .subscribe((response: Employment) => {
+                this.selectedEmployment = response;
+                this.lastSavedInfo = 'Sist lagret: ' + (new Date()).toLocaleTimeString();
+            },
+            (err) => {
+                console.log('Feil oppsto ved lagring', err);
+            });
+        }
+    }
+    
     private setTableConfig() {
         this.busy = true;
         var idCol = new UniTableColumn('ID', 'Nr', 'number').setWidth('4rem');
         var nameCol = new UniTableColumn('JobName', 'Tittel', 'string');
         var styrkCol = new UniTableColumn('JobCode', 'Stillingskode', 'string');
-        // var stdCol = new UniTableColumn('Standard', 'Standard', 'number');
         
         this.employmentListConfig = new UniTableBuilder(this.currentEmployee.Employments, false)
             .setSelectCallback((selected: Employment) => {
@@ -61,7 +92,7 @@ export class EmploymentList implements OnInit {
         })
         .setColumnMenuVisible(false)
         .setPageable(false)
-        .addColumns(idCol, nameCol, styrkCol); // , stdCol);
+        .addColumns(idCol, nameCol, styrkCol);
         
         this.busy = false;
     }

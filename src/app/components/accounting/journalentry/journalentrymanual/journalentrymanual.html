@@ -1,9 +1,13 @@
-<h2 *ngIf="showHeader">Bilagsregistrering</h2>
+<section *ngIf="!runAsSubComponent" class="journal-entry-manual-header">
+    <h2>
+        Bilagsregistrering
+    </h2>
+</section>
 <div *ngIf="journalEntryMode == 'PROFFESIONAL'">
-    <journal-entry-professional (dataLoaded)="onDataLoaded($event)"></journal-entry-professional>
+    <journal-entry-professional (dataLoaded)="onDataLoaded($event)" [runAsSubComponent]="runAsSubComponent"></journal-entry-professional>
 </div>
 
-<dl class="summary" *ngIf="itemsSummaryData" [attr.aria-busy]="busy">
+<dl class="summary journal-entry-manual-summary" *ngIf="itemsSummaryData" [attr.aria-busy]="busy">
     <dt>Sum debet</dt>
     <dd>Kr {{itemsSummaryData.SumDebet | number:'1.2-2'}}</dd>
 
@@ -22,11 +26,10 @@
 </dl>
 
 <div *ngIf="journalEntryMode == 'SIMPLE'">
-    <journal-entry-simple [supplierInvoice]="SupplierInvoice" (dataLoaded)="onDataLoaded($event)"></journal-entry-simple>
+    <journal-entry-simple [supplierInvoice]="supplierInvoice" [runAsSubComponent]="runAsSubComponent" [hideSameOrNew]="hideSameOrNew" (dataLoaded)="onDataLoaded($event)"></journal-entry-simple>
 </div>
 
-
-<section class="journal-entry-validation" *ngIf="validationResult">
+<section class="journal-entry-validation" *ngIf="validationResult" [ngClass]="{simplemode: journalEntryMode == 'SIMPLE', promode: journalEntryMode != 'SIMPLE', runassubcomponent: runAsSubComponent}">
     <h3 *ngIf="validationResult.Messages.length == 0">
         Ingen valideringsfeil!
     </h3>
@@ -37,7 +40,7 @@
         {{message.Message}}
     </p>
 </section>
-<section class="journal-entry-helper">
+<section class="journal-entry-helper" [ngClass]="{simplemode: journalEntryMode == 'SIMPLE', promode: journalEntryMode != 'SIMPLE', runassubcomponent: runAsSubComponent}">
     <h3>
         Tips
     </h3>
@@ -45,5 +48,12 @@
     <p></p>
 </section>
 
-<button (click)="useProMode()" *ngIf="journalEntryMode == 'SIMPLE'">Proffregistrering</button>
-<button (click)="useSimpleMode()" *ngIf="journalEntryMode != 'SIMPLE'">Enkel registrering</button>
+<footer class="full-footer" *ngIf="!runAsSubComponent">
+    <button class="good" (click)="postJournalEntryData($event)">Lagre og bokfør</button>
+    <button (click)="removeJournalEntryData($event)">Forkast</button>
+    <!--<button class="good" (click)="validateJournalEntryData($event)">Valider data</button>-->
+    <button (click)="addDummyJournalEntry($event)">Test</button>
+    <button (click)="useProMode()" *ngIf="journalEntryMode == 'SIMPLE'">Proffregistrering</button>
+    <button (click)="useSimpleMode()" *ngIf="journalEntryMode != 'SIMPLE'">Enkel registrering</button>
+</footer>
+

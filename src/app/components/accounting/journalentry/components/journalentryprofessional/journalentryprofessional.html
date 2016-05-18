@@ -1,5 +1,5 @@
 <span *ngIf="journalEntryTable">    
-    <uni-table [resource]="items" 
+    <uni-table [resource]="journalEntryLines" 
                 [config]="journalEntryTable"
                 (rowChanged)="rowChanged($event)">
     </uni-table>    

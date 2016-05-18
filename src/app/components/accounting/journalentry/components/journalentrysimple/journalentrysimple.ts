@@ -18,7 +18,9 @@ declare var moment;
     providers: [DepartementService, ProjectService, VatTypeService, AccountService]
 })
 export class JournalEntrySimple implements OnInit, OnChanges {
-    @Input() private supplierInvoice: SupplierInvoice;
+    @Input() public supplierInvoice: SupplierInvoice;
+    @Input() public runAsSubComponent : boolean = false;
+    @Input() public hideSameOrNew : boolean = false;
     @Output() dataChanged: EventEmitter<JournalEntryData[]> = new EventEmitter<JournalEntryData[]>();
     @Output() dataLoaded: EventEmitter<JournalEntryData[]> = new EventEmitter<JournalEntryData[]>();
     
@@ -44,7 +46,7 @@ export class JournalEntrySimple implements OnInit, OnChanges {
             this.journalEntryService.getJournalEntryDataBySupplierInvoiceID(this.supplierInvoice.ID)
                 .subscribe(data => {
                     this.journalEntryLines = data;
-                    this.dataLoaded.emit(data);                    
+                    this.dataLoaded.emit(data);   
                 });
         } else {
             this.journalEntryLines = new Array<JournalEntryData>();
@@ -117,16 +119,19 @@ export class JournalEntrySimple implements OnInit, OnChanges {
         return (line && line.Dimensions && line.Dimensions.ProjectID) ? line.Dimensions.ProjectID.toString() : '';
     }
 
-    private postJournalEntryData() {
+    public postJournalEntryData() {
         this.journalEntryService.postJournalEntryData(this.journalEntryLines)
             .subscribe(
             data => {
                 var firstJournalEntry = data[0];
-                console.log(data);
+                var lastJournalEntry = data[data.length - 1];
 
                 // Validate if journalEntry number has changed
-                if (firstJournalEntry.JournalEntryNo != this.journalEntryLines[0].JournalEntryNo) {
-                    alert("Lagring var vellykket. Men merk at tildelt bilagsnummer startet på " +firstJournalEntry.JournalEntryNo + "  istedet for: " + this.journalEntryLines[0].JournalEntryNo);
+                // TODO: Should maybe test all numbers?
+                var numbers = this.journalEntryService.findJournalNumbersFromLines(this.journalEntryLines);
+                if (firstJournalEntry.JournalEntryNo != numbers.firstNumber ||
+                    lastJournalEntry.JournalEntryNo != numbers.lastNumber) {
+                    alert("Lagring var vellykket. Men merk at tildelt bilagsnummer er " + firstJournalEntry.JournalEntryNo + " - " + lastJournalEntry.JournalEntryNo);
                 } else {
                     alert('Lagring var vellykket');
                 }
@@ -142,13 +147,40 @@ export class JournalEntrySimple implements OnInit, OnChanges {
             });
     }
 
-    private removeJournalEntryData() {
+    private findFirstJournalNumberFromLines(firstNumer: string = "") {
+        var first, last, year;
+
+        if (this.journalEntryLines && this.journalEntryLines.length) {
+            this.journalEntryLines.forEach((l: JournalEntryData, i) => {
+                var parts = l.JournalEntryNo.split('-');
+                var no = parseInt(parts[0]);
+                if (!first || no < first) {
+                    first = no;
+                }
+                if (!last || no > last) {
+                    last = no;
+                }
+                if (i == 0) {
+                    year = parseInt(parts[1]);
+                }
+            });
+        }
+        return {
+            first: first,
+            last: last,
+            year: year,
+            nextNumber: `${last + (this.journalEntryLines.length ? 1 : 0)}-${year}`,
+            lastNumber: `${last}-${year}`
+        };
+    }
+
+    public removeJournalEntryData() {
         if (confirm('Er du sikker på at du vil forkaste alle endringene dine?')) {
             this.journalEntryLines = new Array<JournalEntryData>();
         }
     }
 
-    private addDummyJournalEntry() {
+    public addDummyJournalEntry() {
         var newline = JournalEntryService.getSomeNewDataForMe();
         newline.JournalEntryNo = `${Math.round((this.journalEntryLines.length / 3) + 1)}-2016`;
         this.journalEntryLines.unshift(newline);
@@ -194,8 +226,8 @@ export class JournalEntrySimple implements OnInit, OnChanges {
         var currentRow = this.journalEntryLines.indexOf(this.selectedJournalEntryLine);
         this.journalEntryLines[currentRow] = journalEntryLine;
         this.selectedJournalEntryLine = null;
+
         
         this.dataChanged.emit(this.journalEntryLines);
-    }    
+    }
 }
-
