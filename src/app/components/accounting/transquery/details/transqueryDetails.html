@@ -1,6 +1,6 @@
 <section class="application">
     <uni-component-loader></uni-component-loader>
-    <uni-table [config]="uniTableConfig"></uni-table>
+    <uni-table [resource]="lookupFunction" [config]="uniTableConfig"></uni-table>
 
     <dl class="summary" *ngIf="summaryData" [attr.aria-busy]="busy">
         <dt>Saldo</dt>

@@ -31,7 +31,7 @@ export class UniHttp {
     private body: any;
     private endPoint: string;
     private debounceTime: number = 0;
-
+    
     constructor(public http: Http, private authService: AuthService) {
         var headers = AppConfig.DEFAULT_HEADERS;
         this.headers = new Headers();
@@ -129,7 +129,7 @@ export class UniHttp {
         this.body = body;
         return this;
     }
-
+    
     public withEndPoint(endPoint: string) {
         this.endPoint = endPoint;
         return this;
@@ -147,7 +147,7 @@ export class UniHttp {
         return this.http.request(new Request(options)).map((response: any) => response.json());
     }
 
-    public send(request: IUniHttpRequest = {}, withoutJsonMap: boolean = false): Observable<any> {
+    public send(request: IUniHttpRequest = {}, withoutJsonMap: boolean = false, searchParams: URLSearchParams = null): Observable<any> {
         let token = this.authService.getToken();
         let activeCompany = this.authService.getActiveCompany();
 
@@ -177,8 +177,11 @@ export class UniHttp {
         if (body) {
             options.body = (body instanceof FormData) ? body : JSON.stringify(body);
         }
-
-        if (request) {
+        
+        if (searchParams != null) {
+            options.search = searchParams;
+        }
+        else if (request) {
             options.search = UniHttp.buildUrlParams(request);
         }
 

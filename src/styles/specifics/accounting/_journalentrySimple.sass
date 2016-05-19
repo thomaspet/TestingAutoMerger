@@ -82,24 +82,6 @@ journal-entry-simple .action_menu
 
 .journal-entry-simple-table-wrapper.runassubcomponent
     width: 100% !important
-
-.journal-entry-simple-validation
-    @include unigrid(4, 2, 2, 1)
-    float: left
-    background-color: transparentize($uni-color-scale9, .5)
-    padding-left: 1rem
-    padding-right: 1rem
-    padding-bottom: 1rem
-    margin-bottom: 2rem !important
-
-.journal-entry-simple-validation.runassubcomponent
-    width: calc(50% - 2rem) !important
-    
-.journal-entry-simple-helper
-    @extend .journal-entry-simple-validation
-
-.journal-entry-simple-helper.runassubcomponent
-    width: calc(50% - 2rem) !important
     
 .journal-entry-simple-form-buttonrow
     width: 100%
@@ -154,6 +136,11 @@ journal-entry-simple .action_menu
     background-color: transparentize($uni-color-scale9, .8)
     height: 7rem
     width: 100%
+
+
+journal-entry-simple .small-validation    
+    @include unigrid(4, 2, 2, 1)
+    float: left 
 
 .journal-entry-simple-clearboth
     clear: both
