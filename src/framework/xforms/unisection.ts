@@ -1,6 +1,6 @@
 import {Component, Input, Output, EventEmitter, QueryList, ViewChildren, ChangeDetectorRef, ChangeDetectionStrategy, SimpleChange} from '@angular/core';
 import {FORM_DIRECTIVES, FORM_PROVIDERS, ControlGroup} from '@angular/common';
-import {FieldLayout} from '../../app/unientities';
+import {UniFieldLayout} from './unifieldlayout';
 import {UniField} from '../xforms/unifield';
 import {UniFieldSet} from '../xforms/unifieldset';
 
@@ -39,7 +39,7 @@ declare var _; // lodash
 })
 export class UniSection {
     @Input()
-    public fields: FieldLayout[];
+    public fields: UniFieldLayout[];
 
     @Input()
     public controls: ControlGroup;
@@ -163,18 +163,18 @@ export class UniSection {
         return;
     }
 
-    private isField(field: FieldLayout): boolean {
+    private isField(field: UniFieldLayout): boolean {
         return !_.isArray(field);
     }
 
-    private isFieldSet(field: FieldLayout): boolean {
+    private isFieldSet(field: UniFieldLayout): boolean {
         return _.isArray(field);
     }
 
     private groupFields() {
         let group = [], fieldset = [];
         let lastFieldSet = 0;
-        this.fields.forEach((field: FieldLayout) => {
+        this.fields.forEach((field: UniFieldLayout) => {
             if (field.FieldSet === 0) {// manage fields
                 if (field.FieldSet !== lastFieldSet && fieldset.length > 0) {
                     group.push(fieldset);

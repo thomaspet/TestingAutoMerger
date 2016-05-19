@@ -1,6 +1,6 @@
 import {Component, Input, Output, ElementRef, EventEmitter, ChangeDetectionStrategy, ChangeDetectorRef} from '@angular/core';
 import {Control} from '@angular/common';
-import {FieldLayout} from '../../../app/unientities';
+import {UniFieldLayout} from '../unifieldlayout';
 
 declare var _; // lodash
 
@@ -21,7 +21,7 @@ declare var _; // lodash
 })
 export class UniTextareaInput {
     @Input()
-    public field: FieldLayout;
+    public field: UniFieldLayout;
 
     @Input()
     public model: any;

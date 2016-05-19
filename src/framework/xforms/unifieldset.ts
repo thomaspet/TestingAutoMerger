@@ -1,6 +1,6 @@
 import {Component, Input, Output, EventEmitter, ViewChildren, QueryList, SimpleChange, ChangeDetectionStrategy, ChangeDetectorRef} from '@angular/core';
 import {FORM_DIRECTIVES, FORM_PROVIDERS, ControlGroup} from '@angular/common';
-import {FieldLayout} from '../../app/unientities';
+import {UniFieldLayout} from './unifieldlayout';
 import {UniField} from '../xforms/unifield';
 declare var _; // lodash
 
@@ -27,7 +27,7 @@ declare var _; // lodash
 export class UniFieldSet {
 
     @Input()
-    public fields: FieldLayout[];
+    public fields: UniFieldLayout[];
 
     @Input()
     public controls: ControlGroup;

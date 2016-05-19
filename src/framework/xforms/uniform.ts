@@ -3,6 +3,7 @@ import {
 } from '@angular/core';
 import {FORM_DIRECTIVES, FORM_PROVIDERS, ControlGroup, FormBuilder} from '@angular/common';
 import {FieldLayout} from '../../app/unientities';
+import {UniFieldLayout} from './unifieldlayout';
 import {UniField} from './unifield';
 import {UniFieldSet} from './unifieldset';
 import {UniSection} from './unisection';
@@ -88,8 +89,6 @@ export class UniForm {
     private _fields: { [propKey: string]: UniField } = {};
     private groupedFields: any[];
 
-    private lastEmittedModel: any;
-
     private readyFields: number;
     private totalFields: number;
 
@@ -121,7 +120,7 @@ export class UniForm {
         let all = [].concat(fields, fieldsets, sections);
 
         // cache fields;
-        this.fields.forEach((field: FieldLayout) => {
+        this.fields.forEach((field: UniFieldLayout) => {
             this._fields[field.Property] = this.field(field.Property);
         });
 
@@ -223,22 +222,23 @@ export class UniForm {
         this.onSubmit.emit(this.model);
     }
 
-    private isField(field: FieldLayout): boolean {
+    private isField(field: UniFieldLayout): boolean {
         return !_.isArray(field) && field.Section === 0 && field.FieldSet === 0;
     }
 
-    private isFieldSet(field: FieldLayout): boolean {
+    private isFieldSet(field: UniFieldLayout): boolean {
         return _.isArray(field) && field[0].Section === 0 && field.FieldSet > 0;
     }
 
-    private isSection(field: FieldLayout): boolean {
+    private isSection(field: UniFieldLayout): boolean {
         return _.isArray(field) && field[0].Section > 0;
     }
 
     private groupFields() {
         let group = [], section = [], fieldset = [];
         let lastSection = 0, lastFieldSet = 0;
-        this.fields.forEach((field: FieldLayout) => {
+        this.fields.forEach((x: UniFieldLayout) => {
+            let field = new UniFieldLayout(x);
             if (field.Section === 0 && field.FieldSet === 0) {// manage fields
                 if (field.FieldSet !== lastFieldSet && fieldset.length > 0) {
                     group.push(fieldset);
@@ -251,16 +251,14 @@ export class UniForm {
                 lastSection = field.Section;
                 lastFieldSet = field.FieldSet;
                 group.push(field);
-            }
-            else if (field.Section === 0 && field.FieldSet > 0) {// manage fieldsets
+            } else if (field.Section === 0 && field.FieldSet > 0) {// manage fieldsets
                 if (field.FieldSet !== lastFieldSet && fieldset.length > 0) {
                     group.push(fieldset);
                     fieldset = [];
                 }
                 lastFieldSet = field.FieldSet;
                 fieldset.push(field);
-            }
-            else if (field.Section > 0) {// manage sections
+            } else if (field.Section > 0) {// manage sections
                 if (field.Section !== lastSection && section.length > 0) {
                     group.push(section);
                     section = [];

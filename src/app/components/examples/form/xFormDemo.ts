@@ -1,10 +1,10 @@
 import {Component, ViewChild} from '@angular/core';
 import {EmployeeService} from '../../../services/Salary/Employee/EmployeeService';
 import {UniForm} from '../../../../framework/xforms/uniform';
-import {Employee} from '../../../unientities';
+import {Employee, FieldLayout} from '../../../unientities';
 import {NgIf} from '@angular/common';
-import {FieldLayout, Employment} from '../../../unientities';
-
+import {Employment} from '../../../unientities';
+import {UniFieldLayout} from '../../../../framework/xforms/unifieldlayout';
 declare var _;
 
 @Component({
@@ -46,9 +46,9 @@ export class XFormDemo {
                 Label: 'Numeric Input test',
                 Property: 'NumericTestProperty',
                 ReadOnly: false,
-                Options: {
+                Options: JSON.stringify({
                     step: 1
-                }
+                })
             };
             var maskedTest: FieldLayout = {
                 FieldSet: 0,
@@ -57,9 +57,9 @@ export class XFormDemo {
                 Label: 'Masked Input test',
                 Property: 'MaskedTestProperty',
                 ReadOnly: false,
-                Options: {
+                Options: JSON.stringify({
                     mask: '(000) 000-0000'
-                }
+                })
             };
             var multiValueTest: FieldLayout = {
                 FieldSet: 0,
@@ -69,7 +69,7 @@ export class XFormDemo {
                 Property: 'Employments',
                 ReadOnly: false,
                 Placeholder: 'Add new employment',
-                Options: {
+                Options: JSON.stringify({
                     entity: Employment,
                     displayValue: 'JobName',
                     linkProperty: 'ID',
@@ -79,7 +79,7 @@ export class XFormDemo {
                         x.JobName = value;
                         resolve(x);
                     })
-                }
+                })
             };
             var autocompleteTest: FieldLayout = {
                 FieldSet: 0,
@@ -89,7 +89,7 @@ export class XFormDemo {
                 Property: 'AutocompleteTest',
                 ReadOnly: false,
                 Placeholder: 'Autocomplete',
-                Options: {
+                Options: JSON.stringify({
                     source: [
                         { id: 1, name: 'Jorge' },
                         { id: 2, name: 'Frank' },
@@ -99,7 +99,7 @@ export class XFormDemo {
                     displayProperty: 'name',
                     valueProperty: 'id',
                     debounceTime: 500,
-                }
+                })
             };
             var emailTest: FieldLayout = {
                 FieldSet: 0,
@@ -132,9 +132,9 @@ export class XFormDemo {
                 Label: 'Hyperlink test',
                 Property: 'HyperLinkProperty',
                 ReadOnly: false,
-                Options: {
+                Options: JSON.stringify({
                     description: 'Open Link'
-                }
+                })
             };
             var urlTest: FieldLayout = {
                 FieldSet: 0,
@@ -152,7 +152,7 @@ export class XFormDemo {
                 Property: 'SelectTest',
                 ReadOnly: false,
                 Placeholder: 'Select',
-                Options: {
+                Options: JSON.stringify({
                     source: [
                         { id: 1, name: 'Jorge' },
                         { id: 2, name: 'Frank' },
@@ -161,7 +161,7 @@ export class XFormDemo {
                     template: (obj) => `${obj.id} - ${obj.name}`, 
                     valueProperty: 'id',
                     debounceTime: 500,
-                }
+                })
             };
             var dateTest: FieldLayout = {
                 FieldSet: 0,
@@ -180,7 +180,7 @@ export class XFormDemo {
                 Property: 'RadioGroupTest',
                 ReadOnly: false,
                 Placeholder: 'Select',
-                Options: {
+                Options: JSON.stringify({
                     source: [
                         { id: 1, name: 'Jorge' },
                         { id: 2, name: 'Frank' },
@@ -188,7 +188,7 @@ export class XFormDemo {
                     ],
                     labelProperty: 'name', 
                     valueProperty: 'id'
-                }
+                })
             };
             var checkboxgroupTest: FieldLayout = {
                 FieldSet: 0,
@@ -198,7 +198,7 @@ export class XFormDemo {
                 Property: 'CheckboxGroupTest',
                 ReadOnly: false,
                 Placeholder: 'Select',
-                Options: {
+                Options: JSON.stringify({
                     source: [
                         { id: 1, name: 'Jorge' },
                         { id: 2, name: 'Frank' },
@@ -206,7 +206,7 @@ export class XFormDemo {
                     ],
                     labelProperty: 'name', 
                     valueProperty: 'id'
-                }
+                })
             };
             self.fields = [
                 numericTest, 

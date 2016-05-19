@@ -1,6 +1,6 @@
 import {Component, Input, Output, ElementRef, EventEmitter, ChangeDetectionStrategy, ChangeDetectorRef, ViewChild} from '@angular/core';
 import {Control} from '@angular/common';
-import {FieldLayout} from '../../../app/unientities';
+import {UniFieldLayout} from '../unifieldlayout';
 import {UniComponentLoader} from '../../core/componentLoader';
 
 declare var _, jQuery; // jquery and lodash
@@ -61,7 +61,7 @@ declare var _, jQuery; // jquery and lodash
 })
 export class UniMultivalueInput {
     @Input()
-    public field: FieldLayout;
+    public field: UniFieldLayout;
 
     @Input()
     public model: any;

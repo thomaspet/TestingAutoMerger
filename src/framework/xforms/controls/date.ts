@@ -1,10 +1,10 @@
 import {Component, Input, Output, ElementRef, EventEmitter, ChangeDetectionStrategy, ChangeDetectorRef} from '@angular/core';
 import {Control} from '@angular/common';
-import {FieldLayout} from '../../../app/unientities';
+import {UniFieldLayout} from '../unifieldlayout';
 import {autocompleteDate} from '../shared/autocompleteDate';
 import {Observable} from 'rxjs/Rx';
 
-declare var jQuery, _; // jquery and lodash
+declare var jQuery, _, kendo; // jquery and lodash
 
 var parseFormats = [
     'dd-MM-yyyy',
@@ -29,7 +29,7 @@ var parseFormats = [
 })
 export class UniDateInput {
     @Input()
-    public field: FieldLayout;
+    public field: UniFieldLayout;
 
     @Input()
     public model: any;
@@ -44,7 +44,7 @@ export class UniDateInput {
     public onChange: EventEmitter<any> = new EventEmitter<any>(true);
     
     private lastControlValue: string;
-    private datepicker: kendo.ui.kendoDatePicker;
+    private datepicker: any;
     constructor(public elementRef: ElementRef, private cd: ChangeDetectorRef) {
     }
 

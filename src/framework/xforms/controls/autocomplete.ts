@@ -2,7 +2,7 @@ import {Component, Input, Output, ElementRef, EventEmitter, ChangeDetectionStrat
 import {Control} from '@angular/common';
 import {Observable} from 'rxjs/Observable';
 import {BizHttp} from '../../core/http/BizHttp';
-import {FieldLayout} from '../../../app/unientities';
+import {UniFieldLayout} from '../unifieldlayout';
 
 
 declare var _, jQuery; // jquery and lodash
@@ -64,7 +64,7 @@ export class UniAutocompleteConfig {
 })
 export class UniAutocompleteInput {
     @Input()
-    public field: FieldLayout;
+    public field: UniFieldLayout;
 
     @Input()
     public model: any;

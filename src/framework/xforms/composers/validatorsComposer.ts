@@ -1,17 +1,17 @@
 import {Validators} from '@angular/common';
 import {UniValidator} from '../validators';
-import {FieldLayout} from '../../../app/unientities';
+import {UniFieldLayout} from '../unifieldlayout';
 /**
  * Join (or Compose) Validators of a UniFieldBuilder
  */
 export class ValidatorsComposer {
 
-    public static composeSyncValidators(c: FieldLayout) {
+    public static composeSyncValidators(c: UniFieldLayout) {
         let validators = ValidatorsComposer.joinValidators(c.SyncValidators);
         return Validators.compose(validators);
     }
 
-    public static composeAsyncValidators(c: FieldLayout) {
+    public static composeAsyncValidators(c: UniFieldLayout) {
         let validators = ValidatorsComposer.joinValidators(c.AsyncValidators);
         return Validators.composeAsync(validators);
     }

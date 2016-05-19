@@ -1,6 +1,6 @@
 import {Component, Input, Output, ElementRef, EventEmitter, ChangeDetectionStrategy, ChangeDetectorRef} from '@angular/core';
 import {Control} from '@angular/common';
-import {FieldLayout} from '../../../app/unientities';
+import {UniFieldLayout} from '../unifieldlayout';
 declare var _; // jquery and lodash
 
 @Component({
@@ -19,7 +19,7 @@ declare var _; // jquery and lodash
 })
 export class UniTextInput {
     @Input()
-    public field: FieldLayout;
+    public field: UniFieldLayout;
 
     @Input()
     public model: any;

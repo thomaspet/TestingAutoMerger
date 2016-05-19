@@ -1,6 +1,6 @@
 import {Component, Input, Output, EventEmitter, ChangeDetectionStrategy} from '@angular/core';
 import {Control} from '@angular/common';
-import {FieldLayout} from '../../../app/unientities';
+import {UniFieldLayout} from '../unifieldlayout';
 declare var _; // jquery and lodash
 
 @Component({
@@ -13,7 +13,7 @@ declare var _; // jquery and lodash
 })
 export class UniHyperlinkInput {
     @Input()
-    public field: FieldLayout;
+    public field: UniFieldLayout;
 
     @Input()
     public model: any;
@@ -41,7 +41,7 @@ export class UniHyperlinkInput {
     }
 
     public getValue() {
-        return _.get(this.model, this.Property) || '#';
+        return _.get(this.model, this.field.Property) || '#';
     }
 
     public ngAfterViewInit() {

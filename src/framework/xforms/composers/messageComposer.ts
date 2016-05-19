@@ -1,4 +1,4 @@
-import {FieldLayout} from '../../../app/unientities';
+import {UniFieldLayout} from '../unifieldlayout';
 import {UniValidator} from '../validators';
 
 /**
@@ -12,7 +12,7 @@ import {UniValidator} from '../validators';
  */
 export class MessageComposer {
 
-    public static composeMessages(fieldConfig: FieldLayout) {
+    public static composeMessages(fieldConfig: UniFieldLayout) {
         let messages = {};
         MessageComposer.assignMessages(fieldConfig.AsyncValidators, messages);
         MessageComposer.assignMessages(fieldConfig.SyncValidators, messages);

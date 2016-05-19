@@ -1,6 +1,6 @@
 import {Component, Input, Output, EventEmitter, ViewChild, ChangeDetectorRef, SimpleChange, HostListener, ChangeDetectionStrategy} from '@angular/core';
 import {FORM_DIRECTIVES, FORM_PROVIDERS, ControlGroup, Control} from '@angular/common';
-import {FieldLayout} from '../../app/unientities';
+import {UniFieldLayout} from './unifieldlayout';
 import {CONTROLS} from './controls/index';
 import {MessageComposer} from './composers/messageComposer';
 import {ValidatorsComposer} from './composers/validatorsComposer';
@@ -92,7 +92,7 @@ export class UniField {
     public controls: ControlGroup;
 
     @Input()
-    public field: FieldLayout;
+    public field: UniFieldLayout;
 
     @Input()
     public model: any;
