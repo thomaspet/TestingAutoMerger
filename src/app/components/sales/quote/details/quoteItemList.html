@@ -1,3 +1,6 @@
-<span *ngIf="quote">
-    <uni-table [config]="quoteItemTable"></uni-table>
+<span *ngIf="quote && quoteItemTable">    
+    <uni-table [resource]="items" 
+                   [config]="quoteItemTable"
+                   (rowChanged)="rowChanged($event)">
+        </uni-table>
 </span>

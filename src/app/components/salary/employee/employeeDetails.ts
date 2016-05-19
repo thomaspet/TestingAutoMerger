@@ -46,10 +46,10 @@ const CHILD_ROUTES = [
     selector: 'uni-employee-details',
     templateUrl: 'app/components/salary/employee/employeeDetails.html',
     providers: [
-            provide(EmployeeDS, {useClass: EmployeeDS})
-            , provide(STYRKCodesDS, {useClass: STYRKCodesDS}),
+            provide(EmployeeDS, {useClass: EmployeeDS}), 
+            provide(STYRKCodesDS, {useClass: STYRKCodesDS}),
             EmployeeService,
-            , provide(RootRouteParamsService, {useClass: RootRouteParamsService})
+            provide(RootRouteParamsService, {useClass: RootRouteParamsService})
         ],
     directives: [ROUTER_DIRECTIVES, WidgetPoster, UniTabs, EmployeeCategoryButtons]
 })
