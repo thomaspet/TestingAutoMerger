@@ -2,6 +2,7 @@ import {Component, Input, Output, EventEmitter, ViewChildren, QueryList, SimpleC
 import {FORM_DIRECTIVES, FORM_PROVIDERS, ControlGroup} from '@angular/common';
 import {UniFieldLayout} from './unifieldlayout';
 import {UniField} from '../xforms/unifield';
+import {UniCombo} from '../xforms/unicombo';
 declare var _; // lodash
 
 @Component({
@@ -9,8 +10,17 @@ declare var _; // lodash
     template: `
         <fieldset [hidden]="Hidden">
             <legend *ngIf="config.legend">{{config.legend}}</legend>
-            <template ngFor let-field [ngForOf]="fields" let-i="index">
+            <template ngFor let-field [ngForOf]="groupedFields" let-i="index">
+                <uni-combo-field
+                    *ngIf="isCombo(field)"
+                    [controls]="controls"
+                    [field]="field" 
+                    [model]="model"
+                    (onReady)="onReadyHandler($event)"
+                    (onChange)="onChangeHandler($event)">
+                </uni-combo-field>
                 <uni-field
+                    *ngIf="isField(field)"
                     [controls]="controls"
                     [field]="field" 
                     [model]="model"
@@ -21,7 +31,7 @@ declare var _; // lodash
         </fieldset>
     `,
     changeDetection: ChangeDetectionStrategy.OnPush,
-    directives: [FORM_DIRECTIVES, UniField],
+    directives: [FORM_DIRECTIVES, UniField, UniCombo],
     providers: [FORM_PROVIDERS]
 })
 export class UniFieldSet {
@@ -44,8 +54,14 @@ export class UniFieldSet {
     @ViewChildren(UniField)
     public fieldElements: QueryList<UniField>;
 
+    @ViewChildren(UniCombo)
+    public comboElements: QueryList<UniCombo>;
+
     public fieldsetId: number;
     public sectionId: number;
+    public comboId: number;
+    
+    private groupedFields: any;
     public config: any;
 
     private hidden: boolean = false;
@@ -58,7 +74,7 @@ export class UniFieldSet {
 
     private readyFields: number;
     private totalFields: number;
-
+    
     constructor(private cd: ChangeDetectorRef) { 
         this.readyFields = 0;
     }
@@ -68,14 +84,19 @@ export class UniFieldSet {
             if (this.fields && this.fields.length > 0) {
                 this.sectionId = this.fields[0].Section;
                 this.fieldsetId = this.fields[0].FieldSet;
+                this.comboId = this.fields[0].Combo;
+                
                 this.config = {};
                 this.config.legend = this.fields[0].Legend;
             }
+            this.groupedFields = this.groupFields();
         }
     }
 
     public ngAfterViewInit() {
-        this.totalFields = this.fieldElements.toArray().length;
+        let fields = this.fieldElements.toArray().length;
+        let combos = this.comboElements.toArray().length;
+        this.totalFields = [].concat(fields, combos).length;
         this.readyFields = 0;
     }
 
@@ -93,15 +114,21 @@ export class UniFieldSet {
     public readMode() {
         this.fieldElements.forEach((f: UniField) => {
             f.readMode();
-            this.cd.markForCheck();
-        });        
+        }); 
+        this.comboElements.forEach((f: UniField) => {
+            f.readMode();
+        }); 
+        this.cd.markForCheck();       
     }
 
     public editMode() {
         this.fieldElements.forEach((f: UniField) => {
             f.editMode();
-            this.cd.markForCheck();
         });
+        this.comboElements.forEach((f: UniField) => {
+            f.editMode();
+        }); 
+        this.cd.markForCheck();
     }
 
     public field(property: string): UniField {
@@ -113,7 +140,50 @@ export class UniFieldSet {
             return item[0];
         }
 
+        // Look inside combos
+        var element: UniField;
+        this.comboElements.forEach((cmp: UniCombo) => {
+            if (!element) {
+                element = cmp.field(property);
+            }
+        });
+        if (element) {
+            return element;
+        }
+
         // nothing found
         return;
+    }
+    
+    private isField(field: UniFieldLayout): boolean {
+        return !_.isArray(field);
+    }
+    private isCombo(field: UniFieldLayout): boolean {
+        return _.isArray(field) && field[0].Combo > 0;
+    }
+    
+    private groupFields() {
+        let group = [], combo = [];
+        let lastCombo = 0;
+        let closeGroups = (field) => {
+            if (field.Combo !== lastCombo && combo.length > 0) { // close last combo
+                group.push(combo);
+                combo = [];
+            }
+            lastCombo = field.Combo;     
+        };
+        this.fields.forEach((field: UniFieldLayout) => {
+            if (field.Combo === 0) {// manage fields
+                closeGroups(field);
+                group.push(field);
+            } else if (field.Combo > 0) { // manage combo
+                closeGroups(field);
+                combo.push(field);
+            }
+        });
+        if (combo.length > 0) { // add combo to the last group
+            group.push(combo);
+        }
+        return group;
     }
 }

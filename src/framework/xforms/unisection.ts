@@ -2,6 +2,7 @@ import {Component, Input, Output, EventEmitter, QueryList, ViewChildren, ChangeD
 import {FORM_DIRECTIVES, FORM_PROVIDERS, ControlGroup} from '@angular/common';
 import {UniFieldLayout} from './unifieldlayout';
 import {UniField} from '../xforms/unifield';
+import {UniCombo} from './unicombo';
 import {UniFieldSet} from '../xforms/unifieldset';
 
 declare var _; // lodash
@@ -21,6 +22,14 @@ declare var _; // lodash
                         (onReady)="onReadyHandler($event)"
                         (onChange)="onChangeHandler($event)">
                     </uni-field>
+                    <uni-field 
+                        *ngIf="isCombo(item)"
+                        [controls]="controls"
+                        [field]="item" 
+                        [model]="model"
+                        (onReady)="onReadyHandler($event)"
+                        (onChange)="onChangeHandler($event)">
+                    </uni-field>
                     <uni-field-set 
                         *ngIf="isFieldSet(item)" 
                         [controls]="controls"
@@ -34,7 +43,7 @@ declare var _; // lodash
         </article>
     `,
     changeDetection: ChangeDetectionStrategy.OnPush,
-    directives: [FORM_DIRECTIVES, UniField, UniFieldSet],
+    directives: [FORM_DIRECTIVES, UniField, UniCombo, UniFieldSet],
     providers: [FORM_PROVIDERS]
 })
 export class UniSection {
@@ -58,6 +67,9 @@ export class UniSection {
 
     @ViewChildren(UniFieldSet)
     public fieldsetElements: QueryList<UniFieldSet>;
+
+    @ViewChildren(UniCombo)
+    public comboElements: QueryList<UniCombo>;
 
     public sectionId: number;
     public isOpen: boolean = false;
@@ -92,7 +104,8 @@ export class UniSection {
     public ngAfterViewInit() {
         let fieldsets = this.fieldsetElements.toArray();
         let fields = this.fieldElements.toArray();
-        let all = [].concat(fields, fieldsets);
+        let combos = this.comboElements.toArray();
+        let all = [].concat(fields, combos, fieldsets);
         this.totalFields = all.length;
         this.readyFields = 0;
     }
@@ -107,15 +120,13 @@ export class UniSection {
     public onChangeHandler(model: any) {
         this.onChange.emit(model);
     }
-
-    public toggle() {
-        this.isOpen = !this.isOpen;
-        this.cd.markForCheck();
-    }
-
+    
     public readMode() {
         this.fieldsetElements.forEach((fs: UniFieldSet) => {
             fs.readMode();
+        });
+        this.comboElements.forEach((f: UniField) => {
+            f.readMode();
         });
         this.fieldElements.forEach((f: UniField) => {
             f.readMode();
@@ -126,6 +137,9 @@ export class UniSection {
     public editMode() {
         this.fieldsetElements.forEach((fs: UniFieldSet) => {
             fs.editMode();
+        });
+        this.comboElements.forEach((f: UniField) => {
+            f.editMode();
         });
         this.fieldElements.forEach((f: UniField) => {
             f.editMode();
@@ -149,8 +163,18 @@ export class UniSection {
             return item[0];
         }
 
-        // Look inside fieldsets
+        // Look inside combos
         var element: UniField;
+        this.comboElements.forEach((cmp: UniCombo) => {
+            if (!element) {
+                element = cmp.field(property);
+            }
+        });
+        if (element) {
+            return element;
+        }
+
+        // Look inside fieldsets
         this.fieldsetElements.forEach((cmp: UniFieldSet) => {
             if (!element) {
                 element = cmp.field(property);
@@ -166,31 +190,43 @@ export class UniSection {
     private isField(field: UniFieldLayout): boolean {
         return !_.isArray(field);
     }
-
+    private isCombo(field: UniFieldLayout): boolean {
+        return _.isArray(field) && field[0].FieldSet === 0 && field[0].Combo > 0;
+    }
     private isFieldSet(field: UniFieldLayout): boolean {
-        return _.isArray(field);
+        return _.isArray(field) && field[0].FieldSet > 0;
     }
 
     private groupFields() {
-        let group = [], fieldset = [];
-        let lastFieldSet = 0;
+        let group = [], fieldset = [], combo = [];
+        let lastFieldSet = 0, lastCombo = 0;
+        let closeGroups = (field) => {
+            if (field.Combo !== lastCombo && combo.length > 0) { // close last combo
+                group.push(combo);
+                combo = [];
+            }
+            if (field.FieldSet !== lastFieldSet && fieldset.length > 0) { // close last fieldset
+                group.push(fieldset);
+                fieldset = [];
+            }
+            lastCombo = field.Combo;
+            lastFieldSet = field.FieldSet;     
+        };
         this.fields.forEach((field: UniFieldLayout) => {
-            if (field.FieldSet === 0) {// manage fields
-                if (field.FieldSet !== lastFieldSet && fieldset.length > 0) {
-                    group.push(fieldset);
-                    fieldset = [];
-                }
-                lastFieldSet = field.FieldSet;
+            if (field.FieldSet === 0 && field.Combo === 0) {// manage fields
+                closeGroups(field);
                 group.push(field);
-            } else if (field.FieldSet > 0) {// manage fieldsets
-                if (field.FieldSet !== lastFieldSet && fieldset.length > 0) {
-                    group.push(fieldset);
-                    fieldset = [];
-                }
-                lastFieldSet = field.FieldSet;
+            } else if (field.FieldSet === 0 && field.Combo > 0) { // manage combo
+                closeGroups(field);
+                combo.push(field);
+            }else if (field.FieldSet > 0) {// manage fieldsets
+                closeGroups(field);
                 fieldset.push(field);
             }
         });
+        if (combo.length > 0) { // add combo to the last group
+            group.push(combo);
+        }
         if (fieldset.length > 0) { // add fielsets to the last group
             group.push(fieldset);
         }

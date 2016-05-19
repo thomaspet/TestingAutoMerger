@@ -5,6 +5,7 @@ import {FORM_DIRECTIVES, FORM_PROVIDERS, ControlGroup, FormBuilder} from '@angul
 import {FieldLayout} from '../../app/unientities';
 import {UniFieldLayout} from './unifieldlayout';
 import {UniField} from './unifield';
+import {UniCombo} from './unicombo';
 import {UniFieldSet} from './unifieldset';
 import {UniSection} from './unisection';
 declare var _; // lodash
@@ -14,7 +15,7 @@ declare var _; // lodash
  */
 @Component({
     selector: 'uni-form',
-    directives: [FORM_DIRECTIVES, UniField, UniFieldSet, UniSection],
+    directives: [FORM_DIRECTIVES, UniField, UniCombo, UniFieldSet, UniSection],
     providers: [FORM_PROVIDERS],
     template: `
         <form (submit)="submit($event)" [ngFormModel]="controls" [hidden]="Hidden">
@@ -27,6 +28,14 @@ declare var _; // lodash
                     (onReady)="onReadyHandler($event)"
                     (onChange)="onChangeHandler($event)">
                 </uni-field>
+                <uni-combo-field 
+                    *ngIf="isCombo(item)"
+                    [controls]="controls"
+                    [field]="item" 
+                    [model]="model"
+                    (onReady)="onReadyHandler($event)"
+                    (onChange)="onChangeHandler($event)">
+                </uni-combo-field>
                 <uni-field-set 
                     *ngIf="isFieldSet(item)" 
                     [controls]="controls"
@@ -225,6 +234,10 @@ export class UniForm {
     private isField(field: UniFieldLayout): boolean {
         return !_.isArray(field) && field.Section === 0 && field.FieldSet === 0;
     }
+    
+    private isCombo(field: UniFieldLayout): boolean {
+        return _.isArray(field) && field[0].Section === 0 && field[0].FieldSet === 0 && field[0].Combo > 0;
+    }
 
     private isFieldSet(field: UniFieldLayout): boolean {
         return _.isArray(field) && field[0].Section === 0 && field.FieldSet > 0;
@@ -235,39 +248,45 @@ export class UniForm {
     }
 
     private groupFields() {
-        let group = [], section = [], fieldset = [];
-        let lastSection = 0, lastFieldSet = 0;
+        let group = [], section = [], fieldset = [], combo = [];
+        let lastSection = 0, lastFieldSet = 0, lastCombo = 0;
+        let closeGroups = (field) => {
+            if (field.Combo !== lastCombo && combo.length > 0) { // close last combo
+                group.push(combo);
+                combo = [];
+            }
+            if (field.FieldSet !== lastFieldSet && fieldset.length > 0) { // close last fieldset
+                group.push(fieldset);
+                fieldset = [];
+            }
+            if (field.Section !== lastSection && section.length > 0) { // close last section
+                group.push(section);
+                section = [];
+            }   
+            lastCombo = field.Combo;
+            lastSection = field.Section;
+            lastFieldSet = field.FieldSet;     
+        };
         this.fields.forEach((x: UniFieldLayout) => {
             let field = new UniFieldLayout(x);
-            if (field.Section === 0 && field.FieldSet === 0) {// manage fields
-                if (field.FieldSet !== lastFieldSet && fieldset.length > 0) {
-                    group.push(fieldset);
-                    fieldset = [];
-                }
-                if (field.Section !== lastSection && section.length > 0) {
-                    group.push(section);
-                    section = [];
-                }
-                lastSection = field.Section;
-                lastFieldSet = field.FieldSet;
+            if (field.Section === 0 && field.FieldSet === 0 && field.Combo === 0) { // manage fields
+                closeGroups(field);
                 group.push(field);
-            } else if (field.Section === 0 && field.FieldSet > 0) {// manage fieldsets
-                if (field.FieldSet !== lastFieldSet && fieldset.length > 0) {
-                    group.push(fieldset);
-                    fieldset = [];
-                }
-                lastFieldSet = field.FieldSet;
+            } else if (field.Section === 0 && field.FielSet === 0 && field.Combo > 0) { // manage combo
+                closeGroups(field);
+                combo.push(field);
+            } else if (field.Section === 0 && field.FieldSet > 0) { // manage fieldsets
+                closeGroups(field);
                 fieldset.push(field);
-            } else if (field.Section > 0) {// manage sections
-                if (field.Section !== lastSection && section.length > 0) {
-                    group.push(section);
-                    section = [];
-                }
-                lastSection = field.Section;
+            } else if (field.Section > 0) { // manage sections
+                closeGroups(field);
                 section.push(field);
             }
         });
-        if (fieldset.length > 0) { // add fielsets to the last section or group
+        if (combo.length > 0) { // add combo to the group
+            group.push(combo);
+        }
+        if (fieldset.length > 0) { // add fielsets to the group
             group.push(fieldset);
         }
         if (section.length > 0) { // add section to the group
