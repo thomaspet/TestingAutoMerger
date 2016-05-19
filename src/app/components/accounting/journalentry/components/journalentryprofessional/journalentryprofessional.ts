@@ -176,7 +176,7 @@ export class JournalEntryProfessional {
                 }
             });
         
-        let creditVatTypeCol = new UniTableColumn('CreditVatType', 'Debet MVA', UniTableColumnType.Lookup)
+        let creditVatTypeCol = new UniTableColumn('CreditVatType', 'Kredit MVA', UniTableColumnType.Lookup)
             .setWidth("8%")
             .setTemplate((rowModel) => {
                 if (rowModel.CreditVatType) {
