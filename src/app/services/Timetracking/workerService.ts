@@ -1,6 +1,6 @@
 import {Injectable} from '@angular/core';
 import {BizHttp} from '../../../framework/core/http/BizHttp';
-import {Worker, WorkRelation, WorkProfile, WorkItem, User} from '../../unientities';
+import {Worker, WorkRelation, WorkProfile, WorkItem, User, WorkType} from '../../unientities';
 import {UniHttp} from '../../../framework/core/http/http';
 import {Observable, ObservableInput} from "rxjs/Observable";
 import {AuthService} from '../../../framework/core/authService';
@@ -95,6 +95,10 @@ export class WorkerService extends BizHttp<Worker> {
                 resolve(result);
             });              
         });
+    }
+    
+    getWorkTypes(): Observable<Array<WorkType>> {
+        return this.GET('worktypes');
     }
     
    
