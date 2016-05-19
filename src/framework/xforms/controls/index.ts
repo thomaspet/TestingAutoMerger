@@ -11,6 +11,9 @@ export * from './date';
 export * from './autocomplete';
 export * from './multivalue';
 export * from './radiogroup';
+export * from './checkboxgroup';
+export * from './checkbox';
+export * from './radio';
 
 import {UniTextInput}  from './text';
 import {UniNumericInput}  from './numeric';
@@ -26,6 +29,8 @@ import {UniAutocompleteInput}  from './autocomplete';
 import {UniMultivalueInput}  from './multivalue';
 import {UniRadiogroupInput}  from './radiogroup';
 import {UniCheckboxgroupInput}  from './checkboxgroup';
+import {UniCheckboxInput}  from './checkbox';
+import {UniRadioInput}  from './radio';
 
 export var CONTROLS = [
     UniAutocompleteInput, // 0 - autocomplete
@@ -33,9 +38,9 @@ export var CONTROLS = [
     UniDateInput, // 2
     UniSelectInput, // 3 - dropdown - deprecated
     UniMaskedInput, // 4
-    undefined, // 5 - multiselect - deprecated use multivalue 
+    UniCheckboxInput, // 5 - multiselect - deprecated use multivalue 
     UniNumericInput, // 6 - numeric
-    undefined, // 7 - radio 
+    UniRadioInput, // 7 - radio 
     UniCheckboxgroupInput, // 8 - checkbox group
     UniRadiogroupInput, // 9 - radio group
     UniTextInput, // 10 - text
