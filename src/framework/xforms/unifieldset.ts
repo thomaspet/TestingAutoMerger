@@ -115,7 +115,7 @@ export class UniFieldSet {
         this.fieldElements.forEach((f: UniField) => {
             f.readMode();
         }); 
-        this.comboElements.forEach((f: UniField) => {
+        this.comboElements.forEach((f: UniCombo) => {
             f.readMode();
         }); 
         this.cd.markForCheck();       
@@ -125,7 +125,7 @@ export class UniFieldSet {
         this.fieldElements.forEach((f: UniField) => {
             f.editMode();
         });
-        this.comboElements.forEach((f: UniField) => {
+        this.comboElements.forEach((f: UniCombo) => {
             f.editMode();
         }); 
         this.cd.markForCheck();

@@ -17,7 +17,7 @@ declare var _; // jquery and lodash
             <label (click)="checkIt()">{{field?.Label}}</label>
     `
 })
-export class UniCheckboxInput {
+export class UniRadioInput {
     @Input()
     public field: UniFieldLayout;
 
@@ -28,7 +28,7 @@ export class UniCheckboxInput {
     public control: Control;
 
     @Output()
-    public onReady: EventEmitter<UniCheckboxgroupInput> = new EventEmitter<UniCheckboxgroupInput>(true);
+    public onReady: EventEmitter<UniRadioInput> = new EventEmitter<UniRadioInput>(true);
     
     @Output()
     public onChange: EventEmitter<any> = new EventEmitter<any>(true);
@@ -63,7 +63,7 @@ export class UniCheckboxInput {
         this.onChange.emit(this.model);
     }
     
-    public isChecked(item) {
+    public isChecked() {
         var modelValue = _.get(this.model, this.field.Property);
         return modelValue; 
     }

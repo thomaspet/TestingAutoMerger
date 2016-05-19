@@ -90,6 +90,11 @@ export class UniSection {
 
     constructor(private cd: ChangeDetectorRef) { }
 
+    public toggle() {
+        this.isOpen = !this.isOpen;
+        this.cd.markForCheck();
+    }
+
     public ngOnChanges(changes: { [propKey: string]: SimpleChange }) {
         if (changes['fields']) {
             if (this.fields && this.fields.length > 0) {
@@ -125,7 +130,7 @@ export class UniSection {
         this.fieldsetElements.forEach((fs: UniFieldSet) => {
             fs.readMode();
         });
-        this.comboElements.forEach((f: UniField) => {
+        this.comboElements.forEach((f: UniCombo) => {
             f.readMode();
         });
         this.fieldElements.forEach((f: UniField) => {
@@ -138,7 +143,7 @@ export class UniSection {
         this.fieldsetElements.forEach((fs: UniFieldSet) => {
             fs.editMode();
         });
-        this.comboElements.forEach((f: UniField) => {
+        this.comboElements.forEach((f: UniCombo) => {
             f.editMode();
         });
         this.fieldElements.forEach((f: UniField) => {

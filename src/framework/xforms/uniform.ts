@@ -272,7 +272,7 @@ export class UniForm {
             if (field.Section === 0 && field.FieldSet === 0 && field.Combo === 0) { // manage fields
                 closeGroups(field);
                 group.push(field);
-            } else if (field.Section === 0 && field.FielSet === 0 && field.Combo > 0) { // manage combo
+            } else if (field.Section === 0 && field.FieldSet === 0 && field.Combo > 0) { // manage combo
                 closeGroups(field);
                 combo.push(field);
             } else if (field.Section === 0 && field.FieldSet > 0) { // manage fieldsets

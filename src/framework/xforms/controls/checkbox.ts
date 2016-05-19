@@ -28,7 +28,7 @@ export class UniCheckboxInput {
     public control: Control;
 
     @Output()
-    public onReady: EventEmitter<UniCheckboxgroupInput> = new EventEmitter<UniCheckboxgroupInput>(true);
+    public onReady: EventEmitter<UniCheckboxInput> = new EventEmitter<UniCheckboxInput>(true);
     
     @Output()
     public onChange: EventEmitter<any> = new EventEmitter<any>(true);
@@ -61,7 +61,7 @@ export class UniCheckboxInput {
         this.onChange.emit(this.model);
     }
     
-    public isChecked(item) {
+    public isChecked() {
         var modelValue = _.get(this.model, this.field.Property);
         return modelValue; 
     }

@@ -9,7 +9,7 @@ declare var _; // lodash
     selector: 'uni-combo-field',
     changeDetection: ChangeDetectionStrategy.OnPush,
     directives: [FORM_DIRECTIVES, UniField],
-    providers: [FORM_PROVIDERS]
+    providers: [FORM_PROVIDERS],
     template: `<legend *ngIf="config.legend">{{config.legend}}</legend>
         <template ngFor let-field [ngForOf]="fields" let i="index">
             <uni-field
@@ -32,7 +32,7 @@ export class UniCombo {
     public model: any;
 
     @Output()
-    public onReady: EventEmitter<UniFieldSet> = new EventEmitter<UniFieldSet>(true);
+    public onReady: EventEmitter<UniCombo> = new EventEmitter<UniCombo>(true);
 
     @Output()
     public onChange: EventEmitter<any> = new EventEmitter<any>(true);
