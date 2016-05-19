@@ -8,7 +8,7 @@ export class ReportDefinitionService extends BizHttp<ReportDefinition>{
         super(http);
         
         this.relativeURL = ReportDefinition.relativeUrl;
-        this.DefaultOrderBy = 'Cathegory';
+        this.DefaultOrderBy = 'Category';
     }
   
 }

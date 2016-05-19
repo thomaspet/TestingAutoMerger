@@ -6,6 +6,9 @@ export class ReportDefinitionParameterService extends BizHttp<ReportDefinitionPa
     
     constructor(http: UniHttp) {
         super(http);
+        
+        this.relativeURL = ReportDefinitionParameter.relativeUrl;
+        this.DefaultOrderBy = 'ID';
     }
    
 }

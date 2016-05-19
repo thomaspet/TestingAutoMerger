@@ -1,14 +1,12 @@
 import {Component, ViewChild} from '@angular/core';
-import {Observable} from 'rxjs/Observable';
 
 import {TabService} from '../../layout/navbar/tabstrip/tabService';
 import {UniTabs} from '../../layout/uniTabs/uniTabs';
-
-import {PreviewModal} from '../modals/preview/previewModal';
 import {ReportDefinition} from '../../../unientities';
-import {ReportDefinitionService} from '../../../services/reports/ReportDefinitionService';
+import {ReportDefinitionService} from '../../../services/services';
 
-
+import {ParameterModal} from '../modals/parameter/parameterModal';
+import {PreviewModal} from '../modals/preview/previewModal';
 
 class ReportCategory {
     public name: string;
@@ -18,12 +16,15 @@ class ReportCategory {
 @Component({
     selector: 'uni-overview',
     templateUrl: 'app/components/reports/overview/overview.html',
-    directives: [UniTabs, PreviewModal],
+    directives: [UniTabs, PreviewModal, ParameterModal],
     providers: [ReportDefinitionService]
 })
 export class Overview {
+    @ViewChild(ParameterModal)
+    private parameterModal: ParameterModal;
     @ViewChild(PreviewModal)
     private previewModal: PreviewModal;
+
     
     public reportCategories: Array<ReportCategory>;
     
@@ -32,12 +33,8 @@ export class Overview {
     }
     
     
-    public showModalReportParameters(reportDefinition : ReportDefinition) {
-        
-    }
-    
-    public showReport(reportName : string) {
-        this.previewModal.open();
+    public showModalReportParameters(report: ReportDefinition) {
+        this.parameterModal.open(report);        
     }
     
     public ngOnInit() {
