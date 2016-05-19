@@ -7,11 +7,13 @@ import {view as timeEntryView} from './timeentry/timeentry';
 import {view as workerView} from './worker/worker';
 import {view as workTypeView} from './worktype/worktype';
 import {view as workProfileView} from './workprofile/workprofile';
+import {view as regTimeView} from './regtime/regtime';
 
 // Main view (meta)
 export var view = new View("timetracking", "Timer", "UniTimetracking");
 
 // Add subviews (meta)
+view.addSubView(regTimeView);
 view.addSubView(timeEntryView);
 view.addSubView(workerView);
 view.addSubView(workTypeView);

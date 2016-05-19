@@ -15,7 +15,7 @@ export var view = new View('timeentry', 'Registrere timer', 'TimeEntry');
     templateUrl: 'app/components/timetracking/timeentry/timeentry.html', 
     styles: [`
             .title { font-size: 18pt; padding: 1em 1em 1em 0; }
-            .title strong { margin-right: 1em;}
+            .title span { margin-right: 1em;}
             .title select { display:inline-block; width: auto; padding-left: 7px; padding-right: 7px; }
             .timeentriesTable { width: 100% }
             .subcontainer { margin-top: 1em;}
