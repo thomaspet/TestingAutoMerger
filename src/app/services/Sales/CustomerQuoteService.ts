@@ -13,6 +13,7 @@ export class CustomerQuoteService extends BizHttp<CustomerQuote> {
         super(http);       
         this.relativeURL = CustomerQuote.relativeUrl;
         this.DefaultOrderBy = null;
+        this.defaultExpand = ['Customer'];
     }
     
     // TODO: To be retrieved from database schema shared.Status instead?
