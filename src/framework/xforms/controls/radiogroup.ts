@@ -40,7 +40,6 @@ export class UniRadiogroupInput {
     private items: any[] = [];
     
     constructor(public elementRef: ElementRef, private cd: ChangeDetectorRef) {
-        console.log('constructor runs');
     }
 
     public focus() {

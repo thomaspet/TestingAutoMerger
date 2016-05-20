@@ -4,7 +4,7 @@ import {UniFieldLayout} from '../unifieldlayout';
 import {autocompleteDate} from '../shared/autocompleteDate';
 import {Observable} from 'rxjs/Rx';
 
-declare var jQuery, _, kendo; // jquery and lodash
+declare var jQuery, _, kendo, moment; // jquery and lodash
 
 var parseFormats = [
     'dd-MM-yyyy',
@@ -64,10 +64,12 @@ export class UniDateInput {
     }
 
     public ngOnChanges(changes) {
-        if (changes['field']) {
+        if (changes['field'] || changes['model']) {
             this.lastControlValue = this.control.value;
-            if (this.datepicker) {
-                this.datepicker.value(_.get(this.model, this.field.Property));
+            let value = _.get(this.model, this.field.Property);
+            let options = this.field.Options || {};
+            if (value) {
+                this.control.updateValue(moment(value).format('DD.MM.YYYY'));    
             }
         }
     }

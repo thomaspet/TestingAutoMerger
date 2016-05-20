@@ -116,7 +116,6 @@ export class UniSection {
     }
 
     public onReadyHandler(item: UniField | UniFieldSet) {
-        console.log(this.config.legend, item);
         this.readyFields++;
         if (this.readyFields === this.totalFields) {
             this.onReady.emit(this);

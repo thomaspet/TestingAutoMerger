@@ -40,7 +40,6 @@ export class UniCheckboxgroupInput {
     private items: any[] = [];
     private selectedItems: any[] = [];
     constructor(public elementRef: ElementRef, private cd: ChangeDetectorRef) {
-        console.log('constructor runs');
     }
 
     public focus() {
