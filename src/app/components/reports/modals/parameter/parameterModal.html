@@ -1,8 +1,9 @@
 <article class="modal-content report-parameter-modal">
-    <h1 *ngIf="config.title">{{config.title}}</h1> hello
-    <!--    <div style="white-space:nowrap" *ngFor="let parameter of parameters">
+    <h1 *ngIf="config.title">{{config.title}}</h1>
+    <div style="white-space:nowrap" *ngFor="let parameter of config.parameters">
         <h4> {{ parameter.Label }} </h4>
-    </div>-->
+        <!--<input type="text"></input>-->
+    </div>
     <footer>
         <button *ngFor="let action of config.actions; let i=index" (click)="action.method()">
             {{action.text}}

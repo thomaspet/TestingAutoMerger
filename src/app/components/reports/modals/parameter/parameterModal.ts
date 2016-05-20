@@ -17,7 +17,7 @@ import {ReportDefinitionParameterService} from '../../../../services/services';
 export class ReportparameterModalType {
     @Input('config')
     private config;
-    
+
     constructor() {
         
     }
@@ -45,8 +45,8 @@ export class ParameterModal {
     public modalConfig: any = {};
     public type: Type = ReportparameterModalType;
     
-    public parameters: ReportDefinitionParameter;
-
+    public parameters : any;
+    
     constructor(private reportDefinitionParameterService: ReportDefinitionParameterService,
                 private http: Http)
     {
@@ -54,7 +54,7 @@ export class ParameterModal {
         this.modalConfig = {
             title: 'Parametre',
             model: null,
-            report: null,
+            parameters: null,
 
             actions: [
                 {
@@ -79,7 +79,7 @@ export class ParameterModal {
         this.modalConfig.title = report.Name;
 
         this.reportDefinitionParameterService.GetAll('ReportDefinitionId=' + report.ID).subscribe(params => {
-            this.parameters = params;
+            this.modalConfig.parameters = params;
             this.modal.open();        
         });
         
