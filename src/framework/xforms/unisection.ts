@@ -22,14 +22,14 @@ declare var _; // lodash
                         (onReady)="onReadyHandler($event)"
                         (onChange)="onChangeHandler($event)">
                     </uni-field>
-                    <uni-field 
+                    <uni-combo-field 
                         *ngIf="isCombo(item)"
                         [controls]="controls"
                         [field]="item" 
                         [model]="model"
                         (onReady)="onReadyHandler($event)"
                         (onChange)="onChangeHandler($event)">
-                    </uni-field>
+                    </uni-combo-field>
                     <uni-field-set 
                         *ngIf="isFieldSet(item)" 
                         [controls]="controls"
@@ -116,6 +116,7 @@ export class UniSection {
     }
 
     public onReadyHandler(item: UniField | UniFieldSet) {
+        console.log(this.config.legend, item);
         this.readyFields++;
         if (this.readyFields === this.totalFields) {
             this.onReady.emit(this);
@@ -218,10 +219,10 @@ export class UniSection {
             lastFieldSet = field.FieldSet;     
         };
         this.fields.forEach((field: UniFieldLayout) => {
-            if (field.FieldSet === 0 && field.Combo === 0) {// manage fields
+            if (!field.FieldSet && !field.Combo) {// manage fields
                 closeGroups(field);
                 group.push(field);
-            } else if (field.FieldSet === 0 && field.Combo > 0) { // manage combo
+            } else if (!field.FieldSet && field.Combo > 0) { // manage combo
                 closeGroups(field);
                 combo.push(field);
             }else if (field.FieldSet > 0) {// manage fieldsets

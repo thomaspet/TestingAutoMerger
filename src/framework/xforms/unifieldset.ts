@@ -87,15 +87,15 @@ export class UniFieldSet {
                 this.comboId = this.fields[0].Combo;
                 
                 this.config = {};
-                this.config.legend = this.fields[0].Legend;
+                this.config.legend = this.fields[0].FieldsetLegend;
             }
             this.groupedFields = this.groupFields();
         }
     }
 
     public ngAfterViewInit() {
-        let fields = this.fieldElements.toArray().length;
-        let combos = this.comboElements.toArray().length;
+        let fields = this.fieldElements.toArray();
+        let combos = this.comboElements.toArray();
         this.totalFields = [].concat(fields, combos).length;
         this.readyFields = 0;
     }
@@ -173,7 +173,7 @@ export class UniFieldSet {
             lastCombo = field.Combo;     
         };
         this.fields.forEach((field: UniFieldLayout) => {
-            if (field.Combo === 0) {// manage fields
+            if (!field.Combo) {// manage fields
                 closeGroups(field);
                 group.push(field);
             } else if (field.Combo > 0) { // manage combo

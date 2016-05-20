@@ -14,7 +14,9 @@ var VALID_CONTROLS = CONTROLS.filter((x, i) => {
         || i === 2
         || i === 3
         || i === 4
+        || i === 5
         || i === 6
+        || i === 7
         || i === 8
         || i === 9
         || i === 10      
@@ -50,9 +52,15 @@ console.log(VALID_CONTROLS);
             <uni-masked-input #selectedComponent *ngIf="field?.FieldType === 4 && control" 
                 [control]="control" [field]="field" [model]="model" (onReady)="onReadyHandler($event)" (onChange)="onChangeHandler($event)"
             ></uni-masked-input>
+            <uni-checkbox-input #selectedComponent *ngIf="field?.FieldType === 5 && control" 
+                [control]="control" [field]="field" [model]="model" (onReady)="onReadyHandler($event)" (onChange)="onChangeHandler($event)"
+            ></uni-checkbox-input>
             <uni-numeric-input #selectedComponent *ngIf="field?.FieldType === 6 && control" 
                 [control]="control" [field]="field" [model]="model" (onReady)="onReadyHandler($event)" (onChange)="onChangeHandler($event)"
             ></uni-numeric-input>
+            <uni-radio-input #selectedComponent *ngIf="field?.FieldType === 7 && control" 
+                [control]="control" [field]="field" [model]="model" (onReady)="onReadyHandler($event)" (onChange)="onChangeHandler($event)"
+            ></uni-radio-input>
             <uni-checkboxgroup-input #selectedComponent *ngIf="field?.FieldType === 8 && control" 
                 [control]="control" [field]="field" [model]="model" (onReady)="onReadyHandler($event)" (onChange)="onChangeHandler($event)"
             ></uni-checkboxgroup-input>

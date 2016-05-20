@@ -137,7 +137,7 @@ export class UniForm {
         this.readyFields = 0;
     }
 
-    public onReadyHandler(item: UniField | UniFieldSet | UniSection) {
+    public onReadyHandler(item: UniField | UniCombo | UniFieldSet | UniSection) {
         this.readyFields++;
         if (this.readyFields === this.totalFields) {
             this.onReady.emit(this);
@@ -282,13 +282,13 @@ export class UniForm {
         
         this.fields.forEach((x: UniFieldLayout) => {
             let field = new UniFieldLayout(x);
-            if (field.Section === 0 && field.FieldSet === 0 && field.Combo === 0) { // manage fields
+            if (!field.Section && !field.FieldSet && !field.Combo) { // manage fields
                 closeGroups(field);
                 group.push(field);
-            } else if (field.Section === 0 && field.FieldSet === 0 && field.Combo > 0) { // manage combo
+            } else if (!field.Section && !field.FieldSet && field.Combo > 0) { // manage combo
                 closeGroups(field);
                 combo.push(field);
-            } else if (field.Section === 0 && field.FieldSet > 0) { // manage fieldsets
+            } else if (!field.Section && field.FieldSet > 0) { // manage fieldsets
                 closeGroups(field);
                 fieldset.push(field);
             } else if (field.Section > 0) { // manage sections
