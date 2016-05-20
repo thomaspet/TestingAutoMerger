@@ -15,29 +15,30 @@ declare var jQuery;
     template: `
         <footer class="uniSave">
             <p class="uniSave-status">{{status}}</p>
-            
+
             <div role="group" class="comboButton">
-                <button class="comboButton_btn" 
-                        type="button" 
-                        (click)="onSave(mainAction)" 
-                        [attr.aria-busy]="mainAction.busy"
-                        [disabled]="mainAction.disabled">{{mainAction.verb}}</button>
-                <button class="comboButton_more" 
-                        (click)="open = !open" 
-                        aria-owns="saveActionMenu" 
+                <button class="comboButton_btn"
+                        type="button"
+                        (click)="onSave(mainAction())"
+                        [attr.aria-busy]="mainAction().busy"
+                        [disabled]="mainAction().disabled">{{mainAction().verb}}</button>
+                <button class="comboButton_more"
+                        (click)="open = !open"
+                        aria-owns="saveActionMenu"
                         [attr.aria-expanded]="open"
                         [disabled]="mainAction.disabled">More options</button>
-                
+
                 <ul class="comboButton_moreList" [attr.aria-expanded]="open" role="menu" id="saveActionMenu">
-                    <li *ngFor="let action of actions" 
-                        (click)="onSave(action)" 
+                    <li *ngFor="let action of actions"
+                        (click)="onSave(action)"
                         role="menuitem"
                         [attr.aria-disabled]="action.disabled"
-                        [title]="action.verb">{{action.verb}}</li>
+                        [title]="action.verb"
+                        [attr.aria-hidden]="action.main">{{action.verb}}</li>
                 </ul>
             </div>
-            
-            
+
+
         </footer>
     `
 })
@@ -50,7 +51,6 @@ export class UniSave {
     @Output() public save: EventEmitter<any> = new EventEmitter();
 
     private open: boolean;
-    private mainAction: IUniSaveAction;
 
     constructor(public el: ElementRef) {
         // Add event listeners for dismissing the dropdown (-up?)
@@ -68,17 +68,14 @@ export class UniSave {
         });
     }
 
-    public ngOnInit() {
-        if (!this.mainAction) {
-            this.mainAction = this.actions[0];
-            this.actions.splice(0, 1);
-        }
+    private mainAction() {
+        let _declaredMain = this.actions.filter(action => action.main);
 
-        this.actions.forEach(action => {
-            if (action.main) {
-                this.mainAction = action;
-            }
-        });
+        if (_declaredMain.length) {
+            return _declaredMain[0]
+        } else {
+            return this.actions[0];
+        }
     }
 
     public onSave(action) {
