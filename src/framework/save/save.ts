@@ -72,7 +72,7 @@ export class UniSave {
         let _declaredMain = this.actions.filter(action => action.main);
 
         if (_declaredMain.length) {
-            return _declaredMain[0]
+            return _declaredMain[0];
         } else {
             return this.actions[0];
         }
