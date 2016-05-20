@@ -38,10 +38,11 @@ export class XFormDemo {
         let self = this;
         this.api.get(1).toPromise().then((employee: Employee) => self.employee = employee);
         this.api.layout('EmployeeDetailsForm').toPromise().then((layout: any) => {
-            self.fields = layout.Fields.filter((field: FieldLayout) => field.FieldType === 10);
+            self.fields = layout.Fields;
             var numericTest: FieldLayout = {
                 FieldSet: 0,
                 Section: 0,
+                Combo: 0,
                 FieldType: 6,
                 Label: 'Numeric Input test',
                 Property: 'NumericTestProperty',
@@ -53,6 +54,7 @@ export class XFormDemo {
             var maskedTest: FieldLayout = {
                 FieldSet: 0,
                 Section: 0,
+                Combo: 0,
                 FieldType: 4,
                 Label: 'Masked Input test',
                 Property: 'MaskedTestProperty',
@@ -64,6 +66,7 @@ export class XFormDemo {
             var multiValueTest: FieldLayout = {
                 FieldSet: 0,
                 Section: 0,
+                Combo: 0,
                 FieldType: 14,
                 Label: 'Multivalue',
                 Property: 'Employments',
@@ -84,6 +87,7 @@ export class XFormDemo {
             var autocompleteTest: FieldLayout = {
                 FieldSet: 0,
                 Section: 0,
+                Combo: 0,
                 FieldType: 0,
                 Label: 'Autocomplete',
                 Property: 'AutocompleteTest',
@@ -104,6 +108,7 @@ export class XFormDemo {
             var emailTest: FieldLayout = {
                 FieldSet: 0,
                 Section: 0,
+                Combo: 0,
                 FieldType: 11,
                 Label: 'Email test',
                 Property: 'EmailTestProperty',
@@ -112,6 +117,7 @@ export class XFormDemo {
             var passwordTest: FieldLayout = {
                 FieldSet: 0,
                 Section: 0,
+                Combo: 0,
                 FieldType: 12,
                 Label: 'Password test',
                 Property: 'PasswodTestProperty',
@@ -120,6 +126,7 @@ export class XFormDemo {
             var textareaTest: FieldLayout = {
                 FieldSet: 0,
                 Section: 0,
+                Combo: 0,
                 FieldType: 16,
                 Label: 'Textarea test',
                 Property: 'TextareaTestProperty',
@@ -128,6 +135,7 @@ export class XFormDemo {
             var hyperlinkTest: FieldLayout = {
                 FieldSet: 0,
                 Section: 0,
+                Combo: 0,
                 FieldType: 13,
                 Label: 'Hyperlink test',
                 Property: 'HyperLinkProperty',
@@ -139,6 +147,7 @@ export class XFormDemo {
             var urlTest: FieldLayout = {
                 FieldSet: 0,
                 Section: 0,
+                Combo: 0,
                 FieldType: 15,
                 Label: 'Url test',
                 Property: 'UrlProperty',
@@ -147,6 +156,7 @@ export class XFormDemo {
             var selectTest: FieldLayout = {
                 FieldSet: 0,
                 Section: 0,
+                Combo: 0,
                 FieldType: 3,
                 Label: 'Select',
                 Property: 'SelectTest',
@@ -160,12 +170,14 @@ export class XFormDemo {
                     ],
                     template: (obj) => `${obj.id} - ${obj.name}`, 
                     valueProperty: 'id',
+                    displayProperty: 'name',
                     debounceTime: 500,
                 })
             };
             var dateTest: FieldLayout = {
                 FieldSet: 0,
                 Section: 0,
+                Combo: 0,
                 FieldType: 2,
                 Label: 'Date',
                 Property: 'DateTest',
@@ -175,6 +187,7 @@ export class XFormDemo {
             var radiogroupTest: FieldLayout = {
                 FieldSet: 0,
                 Section: 0,
+                Combo: 0,
                 FieldType: 9,
                 Label: 'Radio Group',
                 Property: 'RadioGroupTest',
@@ -193,6 +206,7 @@ export class XFormDemo {
             var checkboxgroupTest: FieldLayout = {
                 FieldSet: 0,
                 Section: 0,
+                Combo: 0,
                 FieldType: 8,
                 Label: 'Checkbox Group',
                 Property: 'CheckboxGroupTest',

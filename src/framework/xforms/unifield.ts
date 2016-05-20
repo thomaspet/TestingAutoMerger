@@ -2,6 +2,7 @@ import {Component, Input, Output, EventEmitter, ViewChild, ChangeDetectorRef, Si
 import {FORM_DIRECTIVES, FORM_PROVIDERS, ControlGroup, Control} from '@angular/common';
 import {UniFieldLayout} from './unifieldlayout';
 import {CONTROLS} from './controls/index';
+import {ShowError} from './showError';
 import {MessageComposer} from './composers/messageComposer';
 import {ValidatorsComposer} from './composers/validatorsComposer';
 
@@ -80,11 +81,11 @@ console.log(VALID_CONTROLS);
                 [control]="control" [field]="field" [model]="model" (onReady)="onReadyHandler($event)" (onChange)="onChangeHandler($event)"
             ></uni-textarea-input>                         
             
-            <show-error *ngIf="component" [control]="component.control" [messages]="messages"></show-error>
+            <show-error [control]="control" [messages]="messages"></show-error>
         </label>
     `,
     changeDetection: ChangeDetectionStrategy.OnPush,
-    directives: [FORM_DIRECTIVES, VALID_CONTROLS],
+    directives: [FORM_DIRECTIVES, VALID_CONTROLS, ShowError],
     providers: [FORM_PROVIDERS],
 })
 export class UniField {
@@ -184,6 +185,7 @@ export class UniField {
         }
         return false;
     }
+    
     private buildClassString() {
         // TODO: add classess
         var classes = [];

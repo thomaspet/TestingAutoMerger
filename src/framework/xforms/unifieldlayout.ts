@@ -8,9 +8,14 @@ export class UniFieldLayout extends FieldLayout {
     
     constructor(field: FieldLayout) {
         super();
-        this.Options = JSON.parse(field.Options);
+        this.SyncValidators = field.Validations;
+        if (!field.Options) {
+            this.Options = {};
+        } else {
+            this.Options = JSON.parse(field.Options);    
+        }
         for (var prop in field) {
-            if (field.hasOwnProperty(prop)) {
+            if (field.hasOwnProperty(prop) && prop !== 'Options') {
                 this[prop] = field[prop];
             }
         }

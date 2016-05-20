@@ -53,7 +53,7 @@ declare var _; // lodash
                     (onChange)="onChangeHandler($event)">                        
                 </uni-section>
             </template>
-            <button type="submit">{{config.submitText}}</button>
+            <button type="submit" [disabled]="!controls.valid">{{config.submitText}}</button>
         </form>
     `
 })
@@ -145,6 +145,17 @@ export class UniForm {
     }
 
     public onChangeHandler(model: any) {
+        var invalids = []
+        var controls = this.controls.controls;
+        for(var prop in controls) {
+            if (controls.hasOwnProperty(prop)) {
+                if (!controls[prop].valid) {
+                    invalids.push(prop);
+                }
+                    
+            }    
+        }
+        console.log(invalids.join(', '));
         this.onChange.emit(model);
     }
 
@@ -250,6 +261,7 @@ export class UniForm {
     private groupFields() {
         let group = [], section = [], fieldset = [], combo = [];
         let lastSection = 0, lastFieldSet = 0, lastCombo = 0;
+        
         let closeGroups = (field) => {
             if (field.Combo !== lastCombo && combo.length > 0) { // close last combo
                 group.push(combo);
@@ -267,6 +279,7 @@ export class UniForm {
             lastSection = field.Section;
             lastFieldSet = field.FieldSet;     
         };
+        
         this.fields.forEach((x: UniFieldLayout) => {
             let field = new UniFieldLayout(x);
             if (field.Section === 0 && field.FieldSet === 0 && field.Combo === 0) { // manage fields

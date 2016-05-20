@@ -50,7 +50,7 @@ export class ReusableComponent {
             <h1 *ngIf="config.title">{{config.title}}</h1>
             <uni-component-loader></uni-component-loader>
             <footer>
-                <button *ngFor="let action of config.actions; #i=index" (click)="action.method()">
+                <button *ngFor="let action of config.actions; let i=index" (click)="action.method()">
                     {{action.text}}
                 </button>
             </footer>
