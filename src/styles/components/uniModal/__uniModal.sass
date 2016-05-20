@@ -53,9 +53,10 @@ dialog.uniModal
 
     uni-component-loader
         width: 100%
+        display: none
 
     .modal-content
-        @include unigrid-flush(10)
+        width: 62.5vw
         margin: 0 auto
         background: $uni-color-negative
         box-shadow: 0 0 2rem transparentize($uni-color-positive, .9)
@@ -64,6 +65,9 @@ dialog.uniModal
         border-radius: pxToRem(5)
         max-height: 90vh
         overflow: auto
+
+        @media(small)
+            width: 95cw
 
         h1
             @extend h2
