@@ -284,6 +284,10 @@ export class XFormDemo {
         setTimeout(() => {
             self.uniform.Fields['Employments'].focus();
         }, 10000);
+        
+        self.uniform.Fields['NumericTestProperty'].onTab.subscribe((element) => {
+            self.uniform.Fields['UrlProperty'].focus();
+        });
     }
 
     public change(value) {

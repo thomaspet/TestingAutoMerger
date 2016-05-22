@@ -31,7 +31,7 @@ declare var _; // lodash
                 <uni-combo-field 
                     *ngIf="isCombo(item)"
                     [controls]="controls"
-                    [field]="item" 
+                    [fields]="item" 
                     [model]="model"
                     (onReady)="onReadyHandler($event)"
                     (onChange)="onChangeHandler($event)">
@@ -243,15 +243,15 @@ export class UniForm {
     }
 
     private isField(field: UniFieldLayout): boolean {
-        return !_.isArray(field) && field.Section === 0 && field.FieldSet === 0;
+        return !_.isArray(field);
     }
     
     private isCombo(field: UniFieldLayout): boolean {
-        return _.isArray(field) && field[0].Section === 0 && field[0].FieldSet === 0 && field[0].Combo > 0;
+        return _.isArray(field) && !field[0].Section && !field[0].FieldSet && field[0].Combo > 0;
     }
 
     private isFieldSet(field: UniFieldLayout): boolean {
-        return _.isArray(field) && field[0].Section === 0 && field.FieldSet > 0;
+        return _.isArray(field) && !field[0].Section && field.FieldSet > 0;
     }
 
     private isSection(field: UniFieldLayout): boolean {

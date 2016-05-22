@@ -105,7 +105,7 @@ export class EmployeeService extends BizHttp<Employee> {
                     Combo: null,
                     Legend: '',
                     hasLineBreak: false,
-                    Combo: 0,
+                     
                     Validations: [
                         {
                             ErrorMessage: 'Required field',
@@ -116,7 +116,7 @@ export class EmployeeService extends BizHttp<Employee> {
                 },
                 {
                     ComponentLayoutID: 1,
-                    Combo: 0,
+                     
                     EntityType: 'Employee',
                     Property: 'SocialSecurityNumber',
                     Placement: 2,
@@ -144,7 +144,7 @@ export class EmployeeService extends BizHttp<Employee> {
                 },
                 {
                     ComponentLayoutID: 1,
-                    Combo: 0,
+                     
                     EntityType: 'Employee',
                     Property: 'BirthDate',
                     Placement: 3,
@@ -172,7 +172,7 @@ export class EmployeeService extends BizHttp<Employee> {
                 },
                 {
                     ComponentLayoutID: 1,
-                    Combo: 0,
+                     
                     EntityType: 'Employee',
                     Property: 'Sex',
                     Placement: 4,
@@ -186,7 +186,6 @@ export class EmployeeService extends BizHttp<Employee> {
                     FieldSet: 0,
                     Section: 0,
                     Placeholder: null,
-                    Options: null,
                     LineBreak: null,
                     Combo: null,
                     Legend: '',
@@ -210,7 +209,7 @@ export class EmployeeService extends BizHttp<Employee> {
                 },
                 {
                     ComponentLayoutID: 1,
-                    Combo: 0,
+                     
                     EntityType: 'Employee',
                     Property: 'BankAccounts[0].AccountNumber',
                     Placement: 5,
@@ -224,7 +223,6 @@ export class EmployeeService extends BizHttp<Employee> {
                     FieldSet: 0,
                     Section: 0,
                     Placeholder: null,
-                    Options: null,
                     LineBreak: null,
                     Combo: null,
                     Legend: '',
@@ -248,7 +246,7 @@ export class EmployeeService extends BizHttp<Employee> {
                 },
                 {
                     ComponentLayoutID: 1,
-                    Combo: 0,
+                     
                     EntityType: 'Employee',
                     Property: 'SubEntityID',
                     Placement: 6,
@@ -262,7 +260,6 @@ export class EmployeeService extends BizHttp<Employee> {
                     FieldSet: 0,
                     Section: 0,
                     Placeholder: null,
-                    Options: null,
                     LineBreak: null,
                     Combo: null,
                     Legend: '',
@@ -287,7 +284,7 @@ export class EmployeeService extends BizHttp<Employee> {
                 },
                 {
                     ComponentLayoutID: 1,
-                    Combo: 0,
+                     
                     EntityType: 'Employee',
                     Property: '',
                     Placement: 7,
@@ -316,7 +313,7 @@ export class EmployeeService extends BizHttp<Employee> {
                 },
                 {
                     ComponentLayoutID: 1,
-                    Combo: 0,
+                     
                     EntityType: 'BusinessRelationInfo',
                     Property: 'Addresses',
                     Placement: 2,
@@ -346,7 +343,7 @@ export class EmployeeService extends BizHttp<Employee> {
                 },
                 {
                     ComponentLayoutID: 1,
-                    Combo: 0,
+                     
                     EntityType: 'Employee',
                     Property: 'BusinessRelationInfo.Addresses[0].PostalCode',
                     Placement: 1,
@@ -374,7 +371,7 @@ export class EmployeeService extends BizHttp<Employee> {
                 },
                 {
                     ComponentLayoutID: 1,
-                    Combo: 0,
+                     
                     EntityType: 'Employee',
                     Property: 'BusinessRelationInfo.Addresses[0].City',
                     Placement: 3,
@@ -404,7 +401,7 @@ export class EmployeeService extends BizHttp<Employee> {
                 },
                 {
                     ComponentLayoutID: 1,
-                    Combo: 0,
+                     
                     EntityType: 'Employee',
                     Property: 'BusinessRelationInfo.Addresses[0].CountryCode',
                     Placement: 4,
@@ -433,7 +430,7 @@ export class EmployeeService extends BizHttp<Employee> {
                 },
                 {
                     ComponentLayoutID: 1,
-                    Combo: 0,
+                     
                     EntityType: 'Employee',
                     Property: 'BusinessRelationInfo.Addresses[0].Country',
                     Placement: 5,
@@ -463,7 +460,7 @@ export class EmployeeService extends BizHttp<Employee> {
                 },
                 {
                     ComponentLayoutID: 1,
-                    Combo: 0,
+                     
                     EntityType: 'BusinessRelationInfo',
                     Property: 'Emails',
                     Placement: 6,
@@ -492,7 +489,7 @@ export class EmployeeService extends BizHttp<Employee> {
                 },
                 {
                     ComponentLayoutID: 1,
-                    Combo: 0,
+                     
                     EntityType: 'Employee',
                     Property: 'BusinessRelationInfo.Phones[0].LandCode',
                     Placement: 7,
@@ -521,7 +518,7 @@ export class EmployeeService extends BizHttp<Employee> {
                 },
                 {
                     ComponentLayoutID: 1,
-                    Combo: 0,
+                     
                     EntityType: 'BusinessRelationInfo',
                     Property: 'Phones',
                     Placement: 8,
@@ -550,7 +547,7 @@ export class EmployeeService extends BizHttp<Employee> {
                 },
                 {
                     ComponentLayoutID: 1,
-                    Combo: 0,
+                     
                     EntityType: 'Employee',
                     Property: 'TaxTable',
                     Placement: 1,
@@ -580,7 +577,7 @@ export class EmployeeService extends BizHttp<Employee> {
                 },
                 {
                     ComponentLayoutID: 1,
-                    Combo: 0,
+                     
                     EntityType: 'Employee',
                     Property: 'TaxPercentage',
                     Placement: 2,
@@ -609,7 +606,7 @@ export class EmployeeService extends BizHttp<Employee> {
                 },
                 {
                     ComponentLayoutID: 1,
-                    Combo: 0,
+                     
                     EntityType: 'Employee',
                     Property: 'NonTaxableAmount',
                     Placement: 3,
@@ -638,7 +635,7 @@ export class EmployeeService extends BizHttp<Employee> {
                 },
                 {
                     ComponentLayoutID: 1,
-                    Combo: 0,
+                     
                     EntityType: 'Employee',
                     Property: 'NotMainEmployer',
                     Placement: 4,
@@ -661,7 +658,7 @@ export class EmployeeService extends BizHttp<Employee> {
                 },
                 {
                     ComponentLayoutID: 1,
-                    Combo: 0,
+                     
                     EntityType: 'Employee',
                     Property: 'MunicipalityNo',
                     Placement: 5,
@@ -690,7 +687,7 @@ export class EmployeeService extends BizHttp<Employee> {
                 },
                 {
                     ComponentLayoutID: 1,
-                    Combo: 0,
+                     
                     EntityType: 'Employee',
                     Property: 'InternationalID',
                     Placement: 1,
@@ -735,11 +732,10 @@ export class EmployeeService extends BizHttp<Employee> {
                     Placeholder: null,
                     Options: null,
                     LineBreak: null,
-                    Combo: null,
                     Legend: null,
                     FieldsetLegend: null,
                     IsLookUp: false,
-                    Combo: 0,
+                     
                     Validations: [
                         {
                             ErrorMessage: 'Required field',
@@ -765,11 +761,10 @@ export class EmployeeService extends BizHttp<Employee> {
                     Placeholder: null,
                     Options: null,
                     LineBreak: null,
-                    Combo: null,
                     Legend: null,
                     FieldsetLegend: null,
                     IsLookUp: false,
-                    Combo: 0,
+                     
                     Validations: [
                         {
                             ErrorMessage: 'Required field',
@@ -800,7 +795,7 @@ export class EmployeeService extends BizHttp<Employee> {
                     FieldsetLegend: 'Internasjonal bankkonto',
                     IsLookUp: false,
                     openByDefault: true,
-                    Combo: 0,
+                     
                     Validations: [
                         {
                             ErrorMessage: 'Required field',

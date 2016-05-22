@@ -1,7 +1,7 @@
 import {Component, Input, Output, ElementRef, EventEmitter, ChangeDetectionStrategy, ChangeDetectorRef} from '@angular/core';
 import {Control} from '@angular/common';
 import {UniFieldLayout} from '../unifieldlayout';
-declare var _; // jquery and lodash
+declare var _,jQuery; // jquery and lodash
 
 @Component({
     selector: 'uni-url-input',
@@ -43,7 +43,7 @@ export class UniUrlInput {
     }
 
     public focus() {
-        this.elementRef.nativeElement.focus();
+        jQuery(this.elementRef.nativeElement).find('input').first().focus();
         return this;
     }
 

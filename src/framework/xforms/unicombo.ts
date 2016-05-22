@@ -10,7 +10,7 @@ declare var _; // lodash
     changeDetection: ChangeDetectionStrategy.OnPush,
     directives: [FORM_DIRECTIVES, UniField],
     providers: [FORM_PROVIDERS],
-    template: `<legend *ngIf="config.legend">{{config.legend}}</legend>
+    template: `<legend *ngIf="config?.legend">{{config?.legend}}</legend>
         <template ngFor let-field [ngForOf]="fields" let i="index">
             <uni-field
                 [controls]="controls"
