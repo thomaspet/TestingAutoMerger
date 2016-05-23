@@ -17,11 +17,11 @@ export class BizHttp<T> {
     protected relativeURL: string;
 
     public GetRelativeUrl(): string {
-        return this.relativeURL;
+        return this.RelativeURL;
     }
 
     public setRelativeUrl(relativeurl: string) {
-        this.relativeURL = relativeurl;
+        this.RelativeURL = relativeurl;
     }
 
     constructor(protected http: UniHttp) {
@@ -42,7 +42,7 @@ export class BizHttp<T> {
         return this.http
             .usingBusinessDomain()
             .asGET()
-            .withEndPoint(this.relativeURL + '/' + ID)
+            .withEndPoint(this.RelativeURL + '/' + ID)
             .send({
                 expand: expandStr
             });
@@ -60,7 +60,7 @@ export class BizHttp<T> {
         return this.http
             .usingBusinessDomain()
             .asGET()            
-            .withEndPoint(this.relativeURL)            
+            .withEndPoint(this.RelativeURL)            
             .send({}, true, params);        
     }
 
@@ -83,7 +83,7 @@ export class BizHttp<T> {
         return this.http
             .usingBusinessDomain()
             .asGET()
-            .withEndPoint(this.relativeURL + (query ? '?' + query : ''))
+            .withEndPoint(this.RelativeURL + (query ? '?' + query : ''))
             .send({
                 expand: expandStr
             });
@@ -94,7 +94,7 @@ export class BizHttp<T> {
             .usingBusinessDomain()
             .asPOST()
             .withBody(entity)
-            .withEndPoint(this.relativeURL)
+            .withEndPoint(this.RelativeURL)
             .send();
     }
 
@@ -103,7 +103,7 @@ export class BizHttp<T> {
             .usingBusinessDomain()
             .asPUT()
             .withBody(entity)
-            .withEndPoint(this.relativeURL + '/' + ID)
+            .withEndPoint(this.RelativeURL + '/' + ID)
             .send();
     }
 
@@ -113,7 +113,7 @@ export class BizHttp<T> {
         this.http
             .usingBusinessDomain()
             .asDELETE()
-            .withEndPoint(this.relativeURL + '/' + ID)
+            .withEndPoint(this.RelativeURL + '/' + ID)
             .send();
     }
 
@@ -122,7 +122,7 @@ export class BizHttp<T> {
             .usingBusinessDomain()
             .asPOST()
             .withBody(entity)
-            .withEndPoint(this.relativeURL + '/' + ID + '?action=' + transitionName)
+            .withEndPoint(this.RelativeURL + '/' + ID + '?action=' + transitionName)
             .send();
     }
      
@@ -130,7 +130,7 @@ export class BizHttp<T> {
         return this.http
             .usingBusinessDomain()
             .as(method)
-            .withEndPoint(this.relativeURL + '/' + (ID === null ? '' : ID) + '?action=' + actionName + (parameters === null ? '' : '&' + parameters))
+            .withEndPoint(this.RelativeURL + '/' + (ID === null ? '' : ID) + '?action=' + actionName + (parameters === null ? '' : '&' + parameters))
             .send();
     }
     
@@ -139,7 +139,7 @@ export class BizHttp<T> {
             .usingBusinessDomain()
             .as(method)
             .withBody(entity)
-            .withEndPoint(this.relativeURL + '/' + ID + '?action=' + actionName)
+            .withEndPoint(this.RelativeURL + '/' + ID + '?action=' + actionName)
             .send();
     }
 
@@ -159,15 +159,15 @@ export class BizHttp<T> {
         return this.Action(ID, actionName, parameters, RequestMethod.Delete);    
     }
 
-    GetNewEntity(expand?: string[], entityname: string = null) {
+    public GetNewEntity(expand?: string[], entityname: string = null) {
         let expandStr;
         if (expand) {
             expandStr = expand.join(',');
         }
 
         //TODO. Needs a more robust way to handle the Singular Url needed for this request.
-        //let relativeUrlSingular = this.relativeURL.slice(0, this.relativeURL.length - 1); 
-        let relativeUrlSingular = entityname != null ? entityname : this.relativeURL.slice(0, this.relativeURL.length - 1);
+        //let relativeUrlSingular = this.RelativeURL.slice(0, this.RelativeURL.length - 1); 
+        let relativeUrlSingular = entityname != null ? entityname : this.RelativeURL.slice(0, this.RelativeURL.length - 1);
         return this.http
             .usingMetadataDomain()
             .asGET()
@@ -177,8 +177,8 @@ export class BizHttp<T> {
             });
     }
 
-    GetLayout(ID: string) {
-        var endPoint = ["layout", ID].join("/");
+    public GetLayout(ID: string) {
+        var endPoint = ['layout', ID].join('/');
         return this.http
             .usingMetadataDomain()
             .asGET()

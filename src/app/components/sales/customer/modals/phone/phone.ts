@@ -162,7 +162,7 @@ export class PhoneForm {
             <h1 *ngIf="config.title">{{config.title}}</h1>
             <uni-component-loader></uni-component-loader>
             <footer>
-                <button *ngFor="#action of config.actions; #i=index" (click)="action.method()" [ngClass]="action.class">
+                <button *ngFor="let action of config.actions; let i=index" (click)="action.method()" [ngClass]="action.class">
                     {{action.text}}
                 </button>
             </footer>
