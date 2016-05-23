@@ -29,13 +29,10 @@ export class AltinnService extends BizHttp<Altinn> {
     }
 
     public sendTaxRequest(employees: Employee[]) {
-        console.log('sending tax request');
         let employeeSSN: string[] = [];
         employees.forEach((employee: Employee) => {
             employeeSSN.push(employee.SocialSecurityNumber);
         });
-        console.log('sendTaxRequest 1');
-        console.log('sendTaxRequest 2');
         let body: any = {
             callType: 'Warn',
             askType: 'FILE_AND_CHANGED',
@@ -53,7 +50,7 @@ export class AltinnService extends BizHttp<Altinn> {
         
         return this.http
             .asPOST()
-            .withBody(JSON.stringify(body))
+            .withBody(body)
             .send({baseUrl: AppConfig.BASE_URL_INTEGRATION, apiDomain: AppConfig.INTEGRATION_DOMAINS.ALTINN, endPoint: 'form/RF-1211'});
     }
 

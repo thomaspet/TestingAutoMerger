@@ -15,6 +15,7 @@ import {EmployeeDS} from '../../../data/employee';
 import {STYRKCodesDS} from '../../../data/styrkCodes';
 import {ComponentProxy} from '../../../../framework/core/componentProxy';
 import {RootRouteParamsService} from '../../../services/rootRouteParams';
+import {TaxRequestModal} from './modals/taxRequestModal';
 
 import 'rxjs/add/operator/map';
 
@@ -51,7 +52,7 @@ const CHILD_ROUTES = [
             EmployeeService,
             provide(RootRouteParamsService, {useClass: RootRouteParamsService})
         ],
-    directives: [ROUTER_DIRECTIVES, WidgetPoster, UniTabs, EmployeeCategoryButtons]
+    directives: [ROUTER_DIRECTIVES, WidgetPoster, UniTabs, EmployeeCategoryButtons, TaxRequestModal]
 })
 
 @RouteConfig(CHILD_ROUTES)

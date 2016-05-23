@@ -1,4 +1,4 @@
-import {Component, Type, ViewChild, Input, AfterViewInit} from '@angular/core';
+import {Component, Type, ViewChild, Input} from '@angular/core';
 import {Router} from '@angular/router-deprecated';
 import {UniModal} from '../../../../../framework/modals/modal';
 import {UniForm, UniFormBuilder, UniFieldBuilder} from '../../../../../framework/forms';
@@ -12,10 +12,14 @@ import {RootRouteParamsService} from '../../../../services/rootRouteParams';
     selector: 'tax-request-modal-content',
     directives: [],
     providers: [],
-    templateUrl: 'app/components/salary/employee/modals/'
+    templateUrl: 'app/components/salary/employee/modals/taxrequestmodalcontent.html'
 })
 export class TaxRequestModalContent {
-    
+    @Input('config')
+    private config: any;
+    constructor() {
+        
+    }
 }
 
 @Component({
@@ -23,11 +27,11 @@ export class TaxRequestModalContent {
     directives: [UniModal],
     template: `
         <button type="button" (click)="openModal()">Send forespørsel om skattekort</button>
-        <uni-modal [type]="type" [config]="modalConfig"></uni-modal>
+        <uni-modal [type]="type" [config]="config"></uni-modal>
     `
 })
 export class TaxRequestModal {
-    public type: TaxRequestModalContent;
+    public type: Type = TaxRequestModalContent;
     public config: any = {};
     @ViewChild(UniModal)
     private modal: UniModal;
@@ -44,5 +48,11 @@ export class TaxRequestModal {
                 this.modal.close();
             }
         };
+    }
+    
+    public openModal() {
+        this.modal.getContent().then((modalContent: TaxRequestModalContent) => {
+            this.modal.open();
+        });
     }
 }
