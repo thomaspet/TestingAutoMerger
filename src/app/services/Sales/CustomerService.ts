@@ -8,7 +8,7 @@ export class CustomerService extends BizHttp<Customer> {
     constructor(http: UniHttp) {        
         super(http);
         
-        this.relativeURL = Customer.relativeUrl;
+        this.relativeURL = Customer.RelativeUrl;
                 
         this.DefaultOrderBy = "Info.Name";
         

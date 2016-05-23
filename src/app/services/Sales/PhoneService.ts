@@ -8,7 +8,7 @@ export class PhoneService extends BizHttp<Phone> {
     constructor(http: UniHttp) {        
         super(http);
         
-        this.relativeURL = "phones"; //TODO: missing Phone.relativeUrl;
+        this.relativeURL = "phones"; //TODO: missing Phone.RelativeUrl;
                 
         this.DefaultOrderBy = null;
     }

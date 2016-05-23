@@ -8,6 +8,6 @@ import {AuthService} from '../../../../framework/core/authService';
 export class EmployeeFileUploader extends FileUploadService<Employee> {
     constructor(protected $http: UniHttp) {
         super($http);
-        this.entityType = Employee.entityType;
+        this.entityType = Employee.EntityType;
     }
 }

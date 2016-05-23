@@ -40,6 +40,10 @@ export class PhoneForm {
             Name: "Phone",
             BaseEntity: "Phone",
             Deleted: false,
+            CreatedAt: null,
+            UpdatedAt: null,
+            CreatedBy: null,
+            UpdatedBy: null,
             ID: 1,
             CustomFields: null,
             Fields: [
@@ -65,6 +69,10 @@ export class PhoneForm {
                     StatusCode: 0,
                     ID: 1,
                     Deleted: false,
+                    CreatedAt: null,
+                    UpdatedAt: null,
+                    CreatedBy: null,
+                    UpdatedBy: null,
                     CustomFields: null 
                 },
                 {
@@ -89,6 +97,10 @@ export class PhoneForm {
                     StatusCode: 0,
                     ID: 1,
                     Deleted: false,
+                    CreatedAt: null,
+                    UpdatedAt: null,
+                    CreatedBy: null,
+                    UpdatedBy: null,
                     CustomFields: null 
                 },
                 {
@@ -113,6 +125,10 @@ export class PhoneForm {
                     StatusCode: 0,
                     ID: 1,
                     Deleted: false,
+                    CreatedAt: null,
+                    UpdatedAt: null,
+                    CreatedBy: null,
+                    UpdatedBy: null,
                     CustomFields: null 
                 }  
             ]               

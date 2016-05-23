@@ -56,6 +56,10 @@ export class AddressForm {
             Name: "Address",
             BaseEntity: "Address",
             Deleted: false,
+            CreatedAt: null,
+            UpdatedAt: null,
+            CreatedBy: null,
+            UpdatedBy: null,
             ID: 2,
             CustomFields: null,
             Fields: [
@@ -81,6 +85,10 @@ export class AddressForm {
                     StatusCode: 0,
                     ID: 1,
                     Deleted: false,
+                    CreatedAt: null,
+                    UpdatedAt: null,
+                    CreatedBy: null,
+                    UpdatedBy: null,
                     CustomFields: null 
                 },
                 {
@@ -105,6 +113,10 @@ export class AddressForm {
                     StatusCode: 0,
                     ID: 1,
                     Deleted: false,
+                    CreatedAt: null,
+                    UpdatedAt: null,
+                    CreatedBy: null,
+                    UpdatedBy: null,
                     CustomFields: null 
                 },
                 {
@@ -129,6 +141,10 @@ export class AddressForm {
                     StatusCode: 0,
                     ID: 1,
                     Deleted: false,
+                    CreatedAt: null,
+                    UpdatedAt: null,
+                    CreatedBy: null,
+                    UpdatedBy: null,
                     CustomFields: null 
                 },
                 {
@@ -153,6 +169,10 @@ export class AddressForm {
                     StatusCode: 0,
                     ID: 1,
                     Deleted: false,
+                    CreatedAt: null,
+                    UpdatedAt: null,
+                    CreatedBy: null,
+                    UpdatedBy: null,
                     CustomFields: null 
                 },
                 {
@@ -177,6 +197,10 @@ export class AddressForm {
                     StatusCode: 0,
                     ID: 1,
                     Deleted: false,
+                    CreatedAt: null,
+                    UpdatedAt: null,
+                    CreatedBy: null,
+                    UpdatedBy: null,
                     CustomFields: null 
                 },
                 {
@@ -201,6 +225,10 @@ export class AddressForm {
                     StatusCode: 0,
                     ID: 1,
                     Deleted: false,
+                    CreatedAt: null,
+                    UpdatedAt: null,
+                    CreatedBy: null,
+                    UpdatedBy: null,
                     CustomFields: null 
                 }
             ]               

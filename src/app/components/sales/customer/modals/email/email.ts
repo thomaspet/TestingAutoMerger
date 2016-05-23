@@ -39,6 +39,10 @@ export class EmailForm {
             BaseEntity: "Email",
             StatusCode: 0,
             Deleted: false,
+            CreatedAt: null,
+            UpdatedAt: null,
+            CreatedBy: null,
+            UpdatedBy: null,
             ID: 3,
             CustomFields: null,
             Fields: [
@@ -64,6 +68,10 @@ export class EmailForm {
                     StatusCode: 0,
                     ID: 1,
                     Deleted: false,
+                    CreatedAt: null,
+                    UpdatedAt: null,
+                    CreatedBy: null,
+                    UpdatedBy: null,
                     CustomFields: null 
                 },
                 {
@@ -88,6 +96,10 @@ export class EmailForm {
                     StatusCode: 0,
                     ID: 2,
                     Deleted: false,
+                    CreatedAt: null,
+                    UpdatedAt: null,
+                    CreatedBy: null,
+                    UpdatedBy: null,
                     CustomFields: null 
                 } 
             ]               

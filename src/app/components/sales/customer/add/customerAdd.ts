@@ -97,6 +97,10 @@ export class CustomerAdd {
             BaseEntity: "Customer",
             StatusCode: 0,
             Deleted: false,
+            CreatedAt: null,
+            UpdatedAt: null,
+            CreatedBy: null,
+            UpdatedBy: null,
             ID: 1,
             CustomFields: null,
             Fields: [                
@@ -122,6 +126,10 @@ export class CustomerAdd {
                     StatusCode: 0,
                     ID: 2,
                     Deleted: false,
+                    CreatedAt: null,
+                    UpdatedAt: null,
+                    CreatedBy: null,
+                    UpdatedBy: null,
                     CustomFields: null 
                 },
                 {
@@ -146,6 +154,10 @@ export class CustomerAdd {
                     StatusCode: 0,
                     ID: 3,
                     Deleted: false,
+                    CreatedAt: null,
+                    UpdatedAt: null,
+                    CreatedBy: null,
+                    UpdatedBy: null,
                     CustomFields: null 
                 },
                 {
@@ -170,6 +182,10 @@ export class CustomerAdd {
                     StatusCode: 0,
                     ID: 4,
                     Deleted: false,
+                    CreatedAt: null,
+                    UpdatedAt: null,
+                    CreatedBy: null,
+                    UpdatedBy: null,
                     CustomFields: null 
                 },
                 {
@@ -194,6 +210,10 @@ export class CustomerAdd {
                     StatusCode: 0,
                     ID: 5,
                     Deleted: false,
+                    CreatedAt: null,
+                    UpdatedAt: null,
+                    CreatedBy: null,
+                    UpdatedBy: null,
                     CustomFields: null 
                 },
                 {
@@ -218,6 +238,10 @@ export class CustomerAdd {
                     StatusCode: 0,
                     ID: 5,
                     Deleted: false,
+                    CreatedAt: null,
+                    UpdatedAt: null,
+                    CreatedBy: null,
+                    UpdatedBy: null,
                     CustomFields: null 
                 },
                 {
@@ -242,6 +266,10 @@ export class CustomerAdd {
                     StatusCode: 0,
                     ID: 5,
                     Deleted: false,
+                    CreatedAt: null,
+                    UpdatedAt: null,
+                    CreatedBy: null,
+                    UpdatedBy: null,
                     CustomFields: null 
                 },
                 {
@@ -266,6 +294,10 @@ export class CustomerAdd {
                     StatusCode: 0,
                     ID: 6,
                     Deleted: false,
+                    CreatedAt: null,
+                    UpdatedAt: null,
+                    CreatedBy: null,
+                    UpdatedBy: null,
                     CustomFields: null 
                 },
                 {
@@ -290,6 +322,10 @@ export class CustomerAdd {
                     StatusCode: 0,
                     ID: 6,
                     Deleted: false,
+                    CreatedAt: null,
+                    UpdatedAt: null,
+                    CreatedBy: null,
+                    UpdatedBy: null,
                     CustomFields: null 
                 }
             ]               

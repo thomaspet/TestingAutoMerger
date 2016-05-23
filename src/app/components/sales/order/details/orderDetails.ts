@@ -446,6 +446,10 @@ export class OrderDetails {
             BaseEntity: "CustomerOrder",
             StatusCode: 0,
             Deleted: false,
+            CreatedAt: null,
+            UpdatedAt: null,
+            CreatedBy: null,
+            UpdatedBy: null,
             ID: 1,
             CustomFields: null,
             Fields: [
@@ -471,6 +475,10 @@ export class OrderDetails {
                     StatusCode: 0,
                     ID: 1,
                     Deleted: false,
+                    CreatedAt: null,
+                    UpdatedAt: null,
+                    CreatedBy: null,
+                    UpdatedBy: null,
                     CustomFields: null 
                 },
                 {
@@ -495,6 +503,10 @@ export class OrderDetails {
                     StatusCode: 0,
                     ID: 2,
                     Deleted: false,
+                    CreatedAt: null,
+                    UpdatedAt: null,
+                    CreatedBy: null,
+                    UpdatedBy: null,
                     CustomFields: null 
                 },
                 {
@@ -519,6 +531,10 @@ export class OrderDetails {
                     StatusCode: 0,
                     ID: 3,
                     Deleted: false,
+                    CreatedAt: null,
+                    UpdatedAt: null,
+                    CreatedBy: null,
+                    UpdatedBy: null,
                     CustomFields: null 
                 },
                 {
@@ -543,6 +559,10 @@ export class OrderDetails {
                     StatusCode: 0,
                     ID: 4,
                     Deleted: false,
+                    CreatedAt: null,
+                    UpdatedAt: null,
+                    CreatedBy: null,
+                    UpdatedBy: null,
                     CustomFields: null 
                 },
                 {
@@ -567,6 +587,10 @@ export class OrderDetails {
                     StatusCode: 0,
                     ID: 5,
                     Deleted: false,
+                    CreatedAt: null,
+                    UpdatedAt: null,
+                    CreatedBy: null,
+                    UpdatedBy: null,
                     CustomFields: null 
                 },
                 {
@@ -591,6 +615,10 @@ export class OrderDetails {
                     StatusCode: 0,
                     ID: 6,
                     Deleted: false,
+                    CreatedAt: null,
+                    UpdatedAt: null,
+                    CreatedBy: null,
+                    UpdatedBy: null,
                     CustomFields: null 
                 },
                 {
@@ -615,6 +643,10 @@ export class OrderDetails {
                     StatusCode: 0,
                     ID: 7,
                     Deleted: false,
+                    CreatedAt: null,
+                    UpdatedAt: null,
+                    CreatedBy: null,
+                    UpdatedBy: null,
                     CustomFields: null 
                 },
                 {
@@ -639,6 +671,10 @@ export class OrderDetails {
                     StatusCode: 0,
                     ID: 8,
                     Deleted: false,
+                    CreatedAt: null,
+                    UpdatedAt: null,
+                    CreatedBy: null,
+                    UpdatedBy: null,
                     CustomFields: null
                 },
                 {
@@ -663,6 +699,10 @@ export class OrderDetails {
                     StatusCode: 0,
                     ID: 9,
                     Deleted: false,
+                    CreatedAt: null,
+                    UpdatedAt: null,
+                    CreatedBy: null,
+                    UpdatedBy: null,
                     CustomFields: null
                 }
             ]
