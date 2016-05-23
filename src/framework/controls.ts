@@ -22,21 +22,21 @@ import {Type} from '@angular/core';
  * This array should have the same order as enum FieldType in app/unientities.ts
  */
 export const UNI_CONTROL_DIRECTIVES: Type[] = ([
-    UniAutocomplete,
-    UniCombobox,
-    UniDatepicker,
-    UniDropdown,
-    UniMaskedInput,
-    UniMultiSelect,
-    UniNumericInput,
-    UniRadioInput,// uniRadio
-    UniCheckboxInput,
-    UniRadioGroup,// uniRadioGroup
-    UniTextInput,
-    UniEmailInput,
-    UniPasswordInput,
-    UniHyperlink,
-    UniMultiValue,
-    UniUrlInput,
-    UniTextAreaInput
+    UniAutocomplete, // 0
+    UniCombobox, // 1
+    UniDatepicker, // 2
+    UniDropdown, // 3
+    UniMaskedInput, // 4
+    UniMultiSelect, // 5
+    UniNumericInput, // 6
+    UniRadioInput,// 7 -uniRadio
+    UniCheckboxInput, // 8
+    UniRadioGroup, // 9 - uniRadioGroup
+    UniTextInput, // 10
+    UniEmailInput, // 11
+    UniPasswordInput, // 12
+    UniHyperlink, // 13
+    UniMultiValue, // 14
+    UniUrlInput, // 15
+    UniTextAreaInput // 16
 ]);

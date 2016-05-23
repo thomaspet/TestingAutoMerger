@@ -12,7 +12,7 @@ export class JournalEntryLineService extends BizHttp<JournalEntryLine> {
     constructor(http: UniHttp) {
         super(http);
 
-        this.relativeURL = JournalEntryLine.relativeUrl;
+        this.relativeURL = JournalEntryLine.RelativeUrl;
 
         // set this property if you want a default sort order from the API
         this.DefaultOrderBy = null;

@@ -42,6 +42,10 @@ export class TransqueryList {
             BaseEntity: "Account",
             StatusCode: 0,
             Deleted: false,
+            CreatedAt: null,
+            UpdatedAt: null,
+            CreatedBy: null,
+            UpdatedBy: null,
             ID: 1,
             CustomFields: null,
             Fields: [
@@ -67,6 +71,10 @@ export class TransqueryList {
                     StatusCode: 0,
                     ID: 1,
                     Deleted: false,
+                    CreatedAt: null,
+                    UpdatedAt: null,
+                    CreatedBy: null,
+                    UpdatedBy: null,
                     CustomFields: null 
                 }
             ]

@@ -1,43 +1,44 @@
-import {Component, ComponentRef, ElementRef, Input, ViewChild, ViewChildren} from "@angular/core";
-import {NgIf, NgFor, NgModel} from "@angular/common";
-import {UniFieldBuilder} from "../../forms/builders/uniFieldBuilder";
+import {Component, ComponentRef, ElementRef, Input, ViewChild, ViewChildren} from '@angular/core';
+import {NgIf, NgFor, NgModel} from '@angular/common';
+import {UniFieldBuilder} from '../../forms/builders/uniFieldBuilder';
 import {UniComponentLoader} from '../../../framework/core/componentLoader';
 
 declare var jQuery;
 declare var _;
 
 @Component({
-    selector: "uni-multivalue",
-    templateUrl: "framework/controls/multivalue/multivalue.html",
+    selector: 'uni-multivalue',
+    templateUrl: 'framework/controls/multivalue/multivalue.html',
     directives: [NgIf, NgFor, NgModel, UniComponentLoader],
-    inputs: ["values", "label"]
+    inputs: ['values', 'label']
 })
 
 export class UniMultiValue {
     @Input()
-    config: UniFieldBuilder;
+    public config: UniFieldBuilder;
 
     @ViewChild(UniComponentLoader)
-    ucl: UniComponentLoader;
-    modalinstance: Promise<any>;
+    public ucl: UniComponentLoader;
+    public modalinstance: Promise<any>;
     
-    @ViewChildren('editinput') editinputs;
+    @ViewChildren('editinput') 
+    public editinputs: any;
 
-    activeMultival: boolean;
-    element;
-    successMessage;
+    public activeMultival: boolean;
+    public element: any;
+    public successMessage: any;
     
-    index: number = 0;
-    editindex: number = null;
-    delindexes = [];
-    timers = [];
-    initial = false;
+    public index: number = 0;
+    public editindex: number = null;
+    public delindexes: any[] = [];
+    public timers: any[] = [];
+    public initial: boolean = false;
     
     constructor(private el: ElementRef) {
         var self = this;
         this.element = el.nativeElement;
                                      
-        document.addEventListener("click", function (event) {
+        document.addEventListener('click', function (event) {
             var $el = jQuery(el.nativeElement);
             if (!jQuery(event.target).closest($el).length) {
                 self.activeMultival = false;
@@ -46,7 +47,7 @@ export class UniMultiValue {
         });
     }
           
-    ngOnInit() {
+    public ngOnInit() {
         var list = this.config.model[this.config.field];
         if (list.length < 1) {
             this.config.model[this.config.field].push(this.placeholder());
@@ -56,11 +57,11 @@ export class UniMultiValue {
         this.setDefault();
     }
 
-    ngAfterViewInit() {
+    public ngAfterViewInit() {
         this.config.ready.emit(this);    
     }
            
-    refresh(model: any): void {
+    public refresh(model: any): void {
         this.config.model[this.config.field] = model[this.config.field];
         this.initial = false;
         this.editindex = null;
@@ -68,7 +69,7 @@ export class UniMultiValue {
         this.setDefault();
     }
     
-    setDefault() {
+    public setDefault() {
         if (this.config.model[this.config.field] == undefined) {
             this.index = 0;
         } else {
@@ -82,7 +83,7 @@ export class UniMultiValue {
     
     // What should happen when the user clicks
     // the button next to the input?
-    addOrDropdown() {  
+    public addOrDropdown() {  
         if (this.initial) {
             this.edit(0, null);
         } else {
@@ -93,7 +94,7 @@ export class UniMultiValue {
     };
     
     // Add a new, blank value to the array.
-    addValue(event = null) {
+    public addValue(event = null) {
         var self = this;
         this.config.model[this.config.field].push(this.placeholder());
         var index = this.config.model[this.config.field].length - 1;
@@ -122,9 +123,9 @@ export class UniMultiValue {
         return false;
     };
 
-    // Set the "editing" flag to the passed value
+    // Set the 'editing' flag to the passed value
     // and unset it for all others.
-    edit(index, event) {
+    public edit(index, event) {
         var self = this;
         index = index || 0;
  
@@ -160,12 +161,12 @@ export class UniMultiValue {
         return false;
     };
 
-    indelete(index) {
+    public indelete(index) {
         var delidx = this.delindexes.indexOf(index);
         return delidx > -1;
     }
     
-    remdelete(index, cleartimer) {
+    public remdelete(index, cleartimer) {
          var delidx = this.delindexes.indexOf(index);
          if (delidx > -1) {
             this.delindexes.splice(delidx, 1);
@@ -175,7 +176,7 @@ export class UniMultiValue {
     }
 
     // Prepares the value for delete.
-    del(row, index, event) {
+    public del(row, index, event) {
         var self = this;
         
         this.delindexes.push(index);
@@ -194,7 +195,7 @@ export class UniMultiValue {
     };
 
     // Undo delete
-    putBack(row, index, event) {
+    public putBack(row, index, event) {
         this.remdelete(index, true);
         event.stopPropagation();
         
@@ -202,7 +203,7 @@ export class UniMultiValue {
     };
 
     // Set the passed value as the main one.
-    setAsDefault(row, index) {
+    public setAsDefault(row, index) {
         this.index = index;
         this.config.model[this.config.defaultfield] = row[this.config.kOptions.dataValueField];
         this.activeMultival = false;  
@@ -213,13 +214,13 @@ export class UniMultiValue {
     };
     
     // Operations to be performed on enter or blur
-    save(row, event) {
+    public save(row, event) {
         this.editindex = null;
                 
         return false;
     };
     
-    placeholder() {
+    public placeholder() {
         return _.cloneDeep(this.config.placeholder);
     }
 }

@@ -7,7 +7,7 @@ export class ProjectService extends BizHttp<Project> {
     constructor(http: UniHttp) {        
         super(http);
         
-        this.relativeURL = Project.relativeUrl;       
+        this.relativeURL = Project.RelativeUrl;       
         this.DefaultOrderBy = null;
     }       
 }

@@ -1,4 +1,4 @@
-import {Component, DynamicComponentLoader, ViewContainerRef, ComponentRef, Input, EventEmitter} from '@angular/core';
+import {Component, DynamicComponentLoader, ViewContainerRef, ComponentRef, Input, Output, EventEmitter} from '@angular/core';
 
 /**
  * Component Loader
@@ -27,8 +27,12 @@ export class UniComponentLoader {
     @Input()
     public config: any;
 
+    @Output()
+    public onLoad: EventEmitter<any> = new EventEmitter<any>(true);
+
     public component: any;
-    constructor(public container: ViewContainerRef , public dcl: DynamicComponentLoader) {
+
+    constructor(public container: ViewContainerRef, public dcl: DynamicComponentLoader) {
 
     }
 
@@ -39,17 +43,19 @@ export class UniComponentLoader {
     public ngOnInit() {
         var self = this;
         if (this.type && this.loader) {
-            this.load(this.type).then(this.loader);
+            this.load(this.type).then(this.loader).then((cmp) => { this.onLoad.emit(cmp); });
         } else if (this.type && this.config) {
             this.dcl.loadNextToLocation(this.type, this.container)
                 .then((cmp: ComponentRef<any>) => {
                     cmp.instance.config = self.config;
                     self.component = cmp.instance;
+                    self.onLoad.emit(cmp.instance);
                     return cmp;
                 });
         } else if (this.type) {
             this.dcl.loadNextToLocation(this.type, this.container).then((cmp: ComponentRef<any>) => {
                 self.component = cmp.instance;
+                self.onLoad.emit(cmp.instance);
                 return cmp;
             });
         }
@@ -66,6 +72,7 @@ export class UniComponentLoader {
         var self = this;
         return this.dcl.loadNextToLocation(type, this.container).then((cmp: ComponentRef<any>) => {
             self.component = cmp.instance;
+            self.onLoad.emit(cmp.instance);
             return cmp;
         });
     }

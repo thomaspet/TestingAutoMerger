@@ -34,11 +34,12 @@ var config = {
         vendor: {
             js: [
                 // 3RD PARTY LIBS
-                require.resolve('jquery/dist/jquery.min.js'),
-                require.resolve('bootstrap/dist/js/bootstrap.min.js'),
-                require.resolve('jwt-decode/build/jwt-decode.min.js'),
-                require.resolve('lodash/lodash.min.js'),
-                require.resolve('./kendo/js/kendo.all.min.js'),
+                require.resolve('jquery/dist/jquery.min.js') ,
+                require.resolve('bootstrap/dist/js/bootstrap.min.js') ,
+                require.resolve('jwt-decode/build/jwt-decode.min.js') ,
+                require.resolve('lodash/lodash.min.js') ,
+                require.resolve('accounting/accounting.min.js') ,
+                require.resolve('./kendo/js/kendo.all.min.js') ,
 
                 // STIMULSOFT
                 require.resolve('./stimulsoft/Js/stimulsoft.reports.js'),

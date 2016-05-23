@@ -11,7 +11,7 @@ export class CustomerOrderService extends BizHttp<CustomerOrder> {
     
     constructor(http: UniHttp) {        
         super(http);       
-        this.relativeURL = CustomerOrder.relativeUrl;
+        this.relativeURL = CustomerOrder.RelativeUrl;
         this.DefaultOrderBy = null;
     }    
             
@@ -28,7 +28,7 @@ export class CustomerOrderService extends BizHttp<CustomerOrder> {
     newCustomerOrder(): Promise<CustomerOrder>
     {       
         return new Promise(resolve => {
-            this.GetNewEntity([], CustomerOrder.entityType).subscribe(order => {
+            this.GetNewEntity([], CustomerOrder.EntityType).subscribe(order => {
                 order.CreatedDate = moment().toDate();
                 order.OrderDate = moment().toDate();
                    

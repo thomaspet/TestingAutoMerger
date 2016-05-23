@@ -7,7 +7,7 @@ export class DepartementService extends BizHttp<Departement> {
     constructor(http: UniHttp) {        
         super(http);
         
-        this.relativeURL = Departement.relativeUrl;
+        this.relativeURL = Departement.RelativeUrl;
         this.DefaultOrderBy = null;
     }       
 }

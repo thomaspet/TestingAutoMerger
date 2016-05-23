@@ -136,6 +136,10 @@ export class UniFormDemo {
                 Description: 'privat mobiltelefon',
                 Type: 150102,
                 Deleted: false,
+                CreatedAt: null,
+                UpdatedAt: null,
+                CreatedBy: null,
+                UpdatedBy: null,
                 CustomFields: null,
                 BusinessRelationID: 1,
                 StatusCode: 0
@@ -147,6 +151,10 @@ export class UniFormDemo {
                 Description: 'fax',
                 Type: 150103,
                 Deleted: false,
+                CreatedAt: null,
+                UpdatedAt: null,
+                CreatedBy: null,
+                UpdatedBy: null,
                 CustomFields: null,
                 BusinessRelationID: 1,
                 StatusCode: 0
