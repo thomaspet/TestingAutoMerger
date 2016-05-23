@@ -7,7 +7,7 @@ export class PeriodSeriesService extends BizHttp<PeriodSeries> {
     constructor(http: UniHttp) {        
         super(http);
         
-        this.relativeURL = PeriodSeries.relativeUrl;
+        this.relativeURL = PeriodSeries.RelativeUrl;
         this.DefaultOrderBy = null;
     }       
 }

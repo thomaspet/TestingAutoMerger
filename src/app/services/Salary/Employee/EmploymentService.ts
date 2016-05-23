@@ -6,7 +6,7 @@ export class EmploymentService extends BizHttp<Employment> {
 
     constructor(http: UniHttp) {
         super(http);
-        this.relativeURL = Employment.relativeUrl;
+        this.relativeURL = Employment.RelativeUrl;
     }
 
 }

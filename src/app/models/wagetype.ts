@@ -41,6 +41,10 @@ export class WageTypeModel implements WageType {
 	StatusCode: number = null;
 	ID: number = 0;
 	Deleted: boolean = false;
+	CreatedAt: Date;
+	UpdatedAt: Date;
+	CreatedBy: string;
+	UpdatedBy: string;
 	CustomFields: any = {};
     SupplementaryInformations: Array<WageTypeSupplement> = null;
     CustomValues: any = {};

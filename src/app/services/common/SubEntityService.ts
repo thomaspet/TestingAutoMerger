@@ -7,7 +7,7 @@ export class SubEntityService extends BizHttp<SubEntity> {
     constructor(http: UniHttp) {        
         super(http);
         
-        this.relativeURL = SubEntity.relativeUrl;
+        this.relativeURL = SubEntity.RelativeUrl;
         this.DefaultOrderBy = null;
     }
     

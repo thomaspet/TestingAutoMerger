@@ -8,7 +8,7 @@ export class ProductService extends BizHttp<Product> {
     constructor(http: UniHttp) {
         super(http);
 
-        this.relativeURL = Product.relativeUrl;
+        this.relativeURL = Product.RelativeUrl;
 
         this.DefaultOrderBy = 'PartName';
     }   

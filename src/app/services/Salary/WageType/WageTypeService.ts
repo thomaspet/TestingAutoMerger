@@ -336,7 +336,7 @@ export class WageTypeService extends BizHttp<WageType> {
 
     constructor(http: UniHttp) {
         super(http);
-        this.relativeURL = WageType.relativeUrl;
+        this.relativeURL = WageType.RelativeUrl;
     }
 
     public getSubEntities() {
