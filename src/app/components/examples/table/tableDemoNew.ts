@@ -265,6 +265,4 @@ export class UniTableDemoNew {
             .setSearchable(true)
             .setColumns([jobCodeCol, jobNameCol, hoursPerWeekCol]);
     }
-    
-    private onRowSelect(rowSelected)
 }
