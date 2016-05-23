@@ -1,7 +1,7 @@
-import {required} from "./input";
-import {contains, match, maxLenght, minLength, eqLenght} from "./string";
-import {equalTo, notEqualTo, greaterEqualThan, greaterThan, lowerEqualThan, lowerThan} from "./logic";
-import {isDate, isDateGreaterThan, isDateGreaterThanEqual, isDateLowerThan, isDateLowerThanEqual} from "./date";
+import {required} from './input';
+import {contains, match, maxLenght, minLength, eqLenght} from './string';
+import {equalTo, notEqualTo, greaterEqualThan, greaterThan, lowerEqualThan, lowerThan} from './logic';
+import {isDate, isDateGreaterThan, isDateGreaterThanEqual, isDateLowerThan, isDateLowerThanEqual} from './date';
 
 export * from './UniValidator';
 
@@ -12,47 +12,47 @@ export interface IValidationItem {
 
 export var UniValidationOperators: IValidationItem[] = [
     {
-        name: "lowerThan",
+        name: 'lowerThan',
         validator: lowerThan
     },
     {
-        name: "greaterThan",
+        name: 'greaterThan',
         validator: greaterThan
     },
     {
-        name: "lowerEqualThan",
+        name: 'lowerEqualThan',
         validator: lowerEqualThan
     },
     {
-        name: "greaterEqualThan",
+        name: 'greaterEqualThan',
         validator: greaterEqualThan
     },
     {
-        name: "minLength",
+        name: 'minLength',
         validator: minLength
     },
     {
-        name: "maxLenght",
+        name: 'maxLenght',
         validator: maxLenght
     },
     {
-        name: "eqLenght",
+        name: 'eqLenght',
         validator: eqLenght
     },
     {
-        name: "required",
+        name: 'required',
         validator: required
     },
     {
-        name: "equalTo",
+        name: 'equalTo',
         validator: equalTo
     },
     {
-        name: "notEqualTo",
+        name: 'notEqualTo',
         validator: notEqualTo
     },
     {
-        name: "match",
+        name: 'match',
         validator: match
     }
     //match,

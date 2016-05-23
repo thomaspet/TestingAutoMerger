@@ -1,8 +1,8 @@
 import {Component, Input, Output, EventEmitter, ViewChildren, QueryList, SimpleChange, ChangeDetectionStrategy, ChangeDetectorRef} from '@angular/core';
 import {FORM_DIRECTIVES, FORM_PROVIDERS, ControlGroup} from '@angular/common';
 import {UniFieldLayout} from './unifieldlayout';
-import {UniField} from '../xforms/unifield';
-import {UniCombo} from '../xforms/unicombo';
+import {UniField} from './unifield';
+import {UniCombo} from './unicombo';
 declare var _; // lodash
 
 @Component({

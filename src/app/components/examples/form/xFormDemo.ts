@@ -1,6 +1,6 @@
 import {Component, ViewChild} from '@angular/core';
 import {EmployeeService} from '../../../services/Salary/Employee/EmployeeService';
-import {UniForm} from '../../../../framework/xforms/uniform';
+import {UniForm} from '../../../../framework/uniform';
 import {Employee, FieldLayout} from '../../../unientities';
 import {NgIf} from '@angular/common';
 import {Employment} from '../../../unientities';
