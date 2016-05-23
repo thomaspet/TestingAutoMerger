@@ -74,7 +74,7 @@ export class PersonalDetails implements OnInit {
             //this.subEntityService.getMainOrganization()
         ).subscribe(
             (response: any) => {
-                console.log('got response on data');
+                console.log('got response on data: ' + JSON.stringify(response));
                 var [employee, layout, emptyPhone, emptyMail, emptyAddress] = response;
                 layout.Fields[0].Validators = [{
                     'EntityType': 'BusinessRelation',
@@ -97,13 +97,17 @@ export class PersonalDetails implements OnInit {
                 this.form.hideSubmitButton();
                 console.log('3');
                 this.extendFormConfig();
-                console.log('4');
+                
                 this.uniCmpLoader.load(UniForm).then((cmp: ComponentRef<any>) => {
+                    console.log('7');
                     cmp.instance.config = this.form;
+                    console.log('8');
                     this.whenFormInstance = new Promise((resolve: Function) => {
                         resolve(cmp.instance);
                     });
+                    console.log('9');
                     this.formInstance = cmp.instance;
+                    console.log('10');
                 });
                 console.log('sending tax request');
                 this.altinnService.sendTaxRequest([this.employee]).subscribe((altinnResponse) => {
@@ -115,6 +119,7 @@ export class PersonalDetails implements OnInit {
     }
     
     private extendFormConfig() {
+        console.log('4');
         var phones: UniFieldBuilder = this.form.find('Phones');
         phones
             .setKendoOptions({
@@ -130,7 +135,7 @@ export class PersonalDetails implements OnInit {
                 this.employee.BusinessRelationInfo.DefaultPhone = phone;
                 this.employee.BusinessRelationInfo.DefaultPhoneID = null;
             };
-        
+        console.log('5');
         var emails: UniFieldBuilder = this.form.find('Emails');
         emails
             .setKendoOptions({
@@ -146,7 +151,7 @@ export class PersonalDetails implements OnInit {
                 this.employee.BusinessRelationInfo.DefaultEmail = email;
                 this.employee.BusinessRelationInfo.DefaultEmailID = null;
             };
-        
+        console.log('6');
         var address: UniFieldBuilder = this.form.find('Addresses');
         address
             .setKendoOptions({

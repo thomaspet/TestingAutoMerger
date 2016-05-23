@@ -3,6 +3,7 @@ import {Altinn, FieldType, Employee, SubEntity} from '../../unientities';
 import {UniHttp} from '../../../framework/core/http/http';
 import { Observable } from 'rxjs/Observable';
 import { SubEntityService } from '../services';
+import {AppConfig} from '../../../app/AppConfig';
 
 export class AltinnService extends BizHttp<Altinn> {
     private altinnHeaders: any = {
@@ -10,16 +11,10 @@ export class AltinnService extends BizHttp<Altinn> {
         'syspassword': 'uni12345',
         'lang': '1033',
         'orgno': '910142763',
-        /*'Authorization': 'Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJuYW1laWQiOiI2NmJiODkwMy0xYzdkLTQ4YzUtYjE4MC1hOWFiZjU3NzQyYjQiLCJ1bmlxdWVfbmFtZSI6ImJlbiIsImh0dHA6Ly9zY2hlbWFzLm1pY3Jvc29mdC5jb20vYWNjZXNzY29udHJvbHNlcnZpY2UvMjAxMC8wNy9jbGFpbXMvaWRlbnRpdHlwcm92aWRlciI6IkFTUC5ORVQgSWRlbnRpdHkiLCJBc3BOZXQuSWRlbnRpdHkuU2VjdXJpdHlTdGFtcCI6IjgxZWU1NWE0LTFiZjYtNDg5Mi05ZDY5LTRlNjhlOTRhN2ZiNiIsInJvbGUiOiJVc2VyIiwiaXNzIjoiaHR0cHM6Ly9pZGVudGl0eS51bmllY29ub215Lm5vIiwiYXVkIjoiNDE0ZTE5MjdhMzg4NGY2OGFiYzc5ZjcyODM4MzdmZDEiLCJleHAiOjE0NjE1Mjc0NTQsIm5iZiI6MTQ2MTQ0MTA1NH0.tAkRm7EZXf7H8eUBrkh05ZzjPIPY1r7d1FRkIOn5gAE',
-        */
-        'Content-Type': 'application/json',
         'Cache-Control': 'no-cache'
     };
 
     private subEntityService: SubEntityService;
-
-    private BASE_URL: string = 'http://localhost:17100/';
-    private API_DOMAIN: string = 'api/altinn/';
 
     public languages: any = [
         { ID: '1044' || null, text: 'Norsk(bokmål)' },
@@ -53,13 +48,13 @@ export class AltinnService extends BizHttp<Altinn> {
             },
             request: employeeSSN
         };
-        console.log('sending tax request with body: ' + body);
+        console.log('sending tax request with body: ' + JSON.stringify(body));
         this.http.withHeaders(this.altinnHeaders);
         
         return this.http
             .asPOST()
             .withBody(JSON.stringify(body))
-            .send({baseUrl: this.BASE_URL, apiDomain: this.API_DOMAIN, endPoint: 'form/RF-1211'})
+            .send({baseUrl: AppConfig.BASE_URL_INTEGRATION, apiDomain: AppConfig.INTEGRATION_DOMAINS.ALTINN, endPoint: 'form/RF-1211'});
     }
 
     public getLayout() {

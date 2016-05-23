@@ -1,5 +1,5 @@
-import {Component, Type, ViewChildren, QueryList, Injector, Input, AfterViewInit, OnInit} from '@angular/core';
-import {RouteParams, Router} from '@angular/router-deprecated';
+import {Component, Type, ViewChildren, QueryList, Input, AfterViewInit} from '@angular/core';
+import {Router} from '@angular/router-deprecated';
 import {UniModal} from '../../../../framework/modals/modal';
 import {UniForm, UniFormBuilder, UniFieldBuilder} from '../../../../framework/forms';
 import {UniTable, UniTableBuilder, UniTableColumn} from '../../../../framework/unitable';
