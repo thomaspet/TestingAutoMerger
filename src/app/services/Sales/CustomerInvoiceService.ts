@@ -11,7 +11,7 @@ export class CustomerInvoiceService extends BizHttp<CustomerInvoice> {
 
     constructor(http: UniHttp) {        
         super(http);       
-        this.relativeURL = CustomerInvoice.relativeUrl;
+        this.relativeURL = CustomerInvoice.RelativeUrl;
         this.DefaultOrderBy = null;
     }    
     

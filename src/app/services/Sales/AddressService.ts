@@ -8,7 +8,7 @@ export class AddressService extends BizHttp<Address> {
     constructor(http: UniHttp) {        
         super(http);
         
-        this.relativeURL = 'addresses'; // TODO: missing Address.relativeUrl;
+        this.relativeURL = 'addresses'; // TODO: missing Address.RelativeUrl;
                 
         this.DefaultOrderBy = null;
     }           

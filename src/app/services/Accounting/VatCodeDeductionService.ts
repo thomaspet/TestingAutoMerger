@@ -9,7 +9,7 @@ export class VatCodeDeductionService extends BizHttp<VatCodeDeduction> {
         super(http);
         
         //TODO: should resolve this from configuration based on type (IVatType)? Frank is working on something..
-        this.relativeURL = VatCodeDeduction.relativeUrl;
+        this.relativeURL = VatCodeDeduction.RelativeUrl;
         
         //set this property if you want a default sort order from the API
         this.DefaultOrderBy = null;
