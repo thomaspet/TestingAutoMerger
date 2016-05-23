@@ -9,7 +9,7 @@ export class BankAccountService extends BizHttp<BankAccount> {
         super(http);
         
         //TODO: should resolve this from configuration based on type (ISupplierInvoice)? Frank is working on something..
-        this.relativeURL = BankAccount.relativeUrl;
+        this.relativeURL = BankAccount.RelativeUrl;
         
         //set this property if you want a default sort order from the API
         this.DefaultOrderBy = null;

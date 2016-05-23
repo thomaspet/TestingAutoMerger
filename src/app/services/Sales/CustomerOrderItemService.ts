@@ -8,7 +8,7 @@ export class CustomerOrderItemService extends BizHttp<CustomerOrderItem> {
     
     constructor(http: UniHttp) {        
         super(http);       
-        this.relativeURL = "orderitems";// CustomerOrderItem.relativeUrl;
+        this.relativeURL = "orderitems";// CustomerOrderItem.RelativeUrl;
         this.DefaultOrderBy = null;
     }
     

@@ -7,7 +7,7 @@ export class PayrollrunService extends BizHttp<PayrollRun> {
     
     constructor(http: UniHttp) {
         super(http);
-        this.relativeURL = PayrollRun.relativeUrl;
+        this.relativeURL = PayrollRun.RelativeUrl;
     }
     
     private payStatusTable: any = [

@@ -9,7 +9,7 @@ export class SupplierService extends BizHttp<Supplier> {
         super(http);
         
         //TODO: should resolve this from configuration based on type (IVatType)? Frank is working on something..
-        this.relativeURL = Supplier.relativeUrl;
+        this.relativeURL = Supplier.RelativeUrl;
         
         //set this property if you want a default sort order from the API
         this.DefaultOrderBy = null;
