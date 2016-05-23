@@ -21,6 +21,10 @@ export class AltinnService extends BizHttp<Altinn> {
             Name: 'Altinn',
             BaseEntity: 'Altinn',
             Deleted: false,
+            CreatedAt: null,
+            UpdatedAt: null,
+            CreatedBy: null,
+            UpdatedBy: null,
             ID: 1,
             CustomFields: null,
             Fields: [
@@ -46,6 +50,10 @@ export class AltinnService extends BizHttp<Altinn> {
                     Legend: 'Legend',
                     StatusCode: 0,
                     Deleted: false,
+                    CreatedAt: null,
+                    UpdatedAt: null,
+                    CreatedBy: null,
+                    UpdatedBy: null,
                     CustomFields: null,
                     hasLineBreak: true
                 },
@@ -71,6 +79,10 @@ export class AltinnService extends BizHttp<Altinn> {
                     Legend: '',
                     StatusCode: 0,
                     Deleted: false,
+                    CreatedAt: null,
+                    UpdatedAt: null,
+                    CreatedBy: null,
+                    UpdatedBy: null,
                     CustomFields: null,
                     hasLineBreak: true
                 },
@@ -96,6 +108,10 @@ export class AltinnService extends BizHttp<Altinn> {
                     Legend: '',
                     StatusCode: 0,
                     Deleted: false,
+                    CreatedAt: null,
+                    UpdatedAt: null,
+                    CreatedBy: null,
+                    UpdatedBy: null,
                     CustomFields: null,
                     kendoOptions: {
                         dataSource: this.languages,
