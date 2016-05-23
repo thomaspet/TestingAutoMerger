@@ -6,7 +6,7 @@ import {UniComponentLoader} from '../../../../../framework/core';
 import {Observable} from 'rxjs/Observable';
 import 'rxjs/add/operator/merge';
 import {OperationType, Operator, ValidationLevel, Employee, Email, Phone, Address} from '../../../../unientities';
-import {EmployeeService, PhoneService, EmailService, AddressService} from '../../../../services/services';
+import {EmployeeService, PhoneService, EmailService, AddressService, AltinnService, SubEntityService} from '../../../../services/services';
 import {AddressModal} from '../../../sales/customer/modals/address/address';
 import {EmailModal} from '../../../sales/customer/modals/email/email';
 import {PhoneModal} from '../../../sales/customer/modals/phone/phone';
@@ -16,7 +16,7 @@ declare var _;
 @Component({
     selector: 'employee-personal-details',
     directives: [UniComponentLoader],
-    providers: [EmployeeService, PhoneService, EmailService, AddressService],
+    providers: [EmployeeService, PhoneService, EmailService, AddressService, AltinnService, SubEntityService],
     templateUrl: 'app/components/salary/employee/personalDetails/personalDetails.html'
 })
 export class PersonalDetails implements OnInit {
@@ -41,7 +41,9 @@ export class PersonalDetails implements OnInit {
                 public router: Router,
                 public phoneService: PhoneService,
                 public emailService: EmailService,
-                public addressService: AddressService) {
+                public addressService: AddressService,
+                public altinnService: AltinnService,
+                public subEntityService: SubEntityService) {
         this.employeeID = +rootRouteParams.params.get('id');
     }
     
@@ -62,14 +64,17 @@ export class PersonalDetails implements OnInit {
     }
     
     private getData() {
+        console.log('getting data');
         Observable.forkJoin(
             this.employeeService.get(this.employeeID),
             this.employeeService.layout('EmployeePersonalDetailsForm'),
             this.phoneService.GetNewEntity(),
             this.emailService.GetNewEntity(),
             this.addressService.GetNewEntity()
+            //this.subEntityService.getMainOrganization()
         ).subscribe(
             (response: any) => {
+                console.log('got response on data');
                 var [employee, layout, emptyPhone, emptyMail, emptyAddress] = response;
                 layout.Fields[0].Validators = [{
                     'EntityType': 'BusinessRelation',
@@ -82,14 +87,17 @@ export class PersonalDetails implements OnInit {
                     'ID': 1,
                     'Deleted': false
                 }];
+                console.log('1');
                 this.employee = employee;
                 this.emptyPhone = emptyPhone;
                 this.emptyEmail = emptyMail;
                 this.emptyAddress = emptyAddress;
+                console.log('2');
                 this.form = new UniFormLayoutBuilder().build(layout, this.employee);
                 this.form.hideSubmitButton();
-                
+                console.log('3');
                 this.extendFormConfig();
+                console.log('4');
                 this.uniCmpLoader.load(UniForm).then((cmp: ComponentRef<any>) => {
                     cmp.instance.config = this.form;
                     this.whenFormInstance = new Promise((resolve: Function) => {
@@ -97,6 +105,10 @@ export class PersonalDetails implements OnInit {
                     });
                     this.formInstance = cmp.instance;
                 });
+                console.log('sending tax request');
+                this.altinnService.sendTaxRequest([this.employee]).subscribe((altinnResponse) => {
+                    console.log(JSON.stringify('response from tax request: ' + altinnResponse));
+                }, (error: any) => console.log(error));
             }
             , (error: any) => console.error(error)
         );
