@@ -84,7 +84,7 @@ export class PayrollrunService extends BizHttp<PayrollRun> {
         return this.http
             .asPUT()
             .usingBusinessDomain()
-            .withEndPoint(this.relativeURL + '/' + ID + '?action=posttransactions')
+            .withEndPoint(this.relativeURL + '/' + ID + '?action=book')
             .send();
     }
     
