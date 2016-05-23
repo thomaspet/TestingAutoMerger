@@ -5,7 +5,7 @@ import {AGAZone} from '../../unientities';
 export class AgaZoneService extends BizHttp<AGAZone> {
     constructor(http: UniHttp) {
         super(http);
-        this.relativeURL = AGAZone.relativeUrl;
+        this.relativeURL = AGAZone.RelativeUrl;
         this.DefaultOrderBy = null;
     }
     

@@ -6,6 +6,6 @@ export class CompanySalaryService extends BizHttp<CompanySalary> {
 
     constructor(http: UniHttp) {
         super(http);
-        this.relativeURL = CompanySalary.relativeUrl;
+        this.relativeURL = CompanySalary.RelativeUrl;
     }
 }
