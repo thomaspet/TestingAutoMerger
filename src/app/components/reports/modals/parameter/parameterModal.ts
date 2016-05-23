@@ -58,7 +58,16 @@ export class ParameterModal {
 
             actions: [
                 {
-                    text: 'Lukk',
+                    text: 'Ok',
+                    method: () => {
+                        self.modal.getContent().then(() => {
+                            self.modal.close();
+                        });
+                        return false;
+                    }
+                },
+                {
+                    text: 'Avbryt',
                     method: () => {
                         self.modal.getContent().then(() => {
                             self.modal.close();
@@ -89,6 +98,7 @@ export class ParameterModal {
             err => this.onError("Cannot load report template."));*/
     }
    
+       
     private onTemplateLoaded(template : string) {
         // for test purpose only:
         // hardcoded invoice id

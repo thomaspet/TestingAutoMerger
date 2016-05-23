@@ -2,7 +2,7 @@
     <h1 *ngIf="config.title">{{config.title}}</h1>
     <div style="white-space:nowrap" *ngFor="let parameter of config.parameters">
         <h4> {{ parameter.Label }} </h4>
-        <!--<input type="text"></input>-->
+        <input type="text" />
     </div>
     <footer>
         <button *ngFor="let action of config.actions; let i=index" (click)="action.method()">
