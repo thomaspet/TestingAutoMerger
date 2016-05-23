@@ -32,7 +32,6 @@ export class PostingsummaryModalContent implements OnInit {
     public ngOnInit() {
         this.getData()
         .subscribe((response: Postingsummary) => {
-            console.log('response from getdata', response);
             this.setData(response);
         }, (err) => {
             console.log(err);
@@ -62,9 +61,8 @@ export class PostingsummaryModalContent implements OnInit {
     
     public showResponseReceipt(successResponse: any) {
         this.showReceipt = true;
-        console.log('successResponse', successResponse);
-        this.journalNumber = successResponse[0].ID;
-        this.journalNumber = successResponse[0].RegisteredDate;
+        this.journalNumber = successResponse[0].JournalEntryNumber;
+        this.journalDate = successResponse[0].FinancialDate;
     }
     
     private createHeaderConfig() {
@@ -95,7 +93,6 @@ export class PostingsummaryModalContent implements OnInit {
         var debcred: any[] = new Array();
         var dc: {} = {Debet: this.postingsummary.Debet, Credit: this.postingsummary.Credit};
         debcred.push(dc);
-        console.log('debcred array', debcred);
         this.debcredTableConfig = new UniTableBuilder(debcred, false)
             .setColumnMenuVisible(false)
             .addColumns(debCol, credCol)

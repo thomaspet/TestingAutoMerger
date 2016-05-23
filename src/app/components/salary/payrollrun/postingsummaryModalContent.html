@@ -14,18 +14,17 @@
 
     <section *ngIf="showReceipt">
         <p>Bilaget er bokført i ditt regnskap</p>
-        <p>
-            Bilagsnummer {{journalNumber}} Dato {{journalDate}}
-        </p>
-
-
+        <p>Bilagsnummer {{journalNumber}}</p>
+        <p>Dato {{journalDate}}</p>
     </section>
 
     <footer class="postingsummary_footer">
-        <button *ngFor="let action of config.actions; let i = index" (click)="action.method()">
-            {{action.text}}
-        </button>
-        <button *ngIf="config.hasCancelButton" (click)="config.cancel()">Avbryt</button>
+        <section *ngIf="!showReceipt">
+            <button *ngFor="let action of config.actions; let i = index" (click)="action.method()">
+                {{action.text}}
+            </button>
+            <button *ngIf="config.hasCancelButton" (click)="config.cancel()">Avbryt</button>
+        </section>
         <button *ngIf="showReceipt" (click)="config.cancel()">OK</button>
     </footer>
 </article>
