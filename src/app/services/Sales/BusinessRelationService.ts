@@ -8,7 +8,7 @@ export class BusinessRelationService extends BizHttp<BusinessRelation> {
     
     constructor(http: UniHttp) {        
         super(http);       
-        this.relativeURL = BusinessRelation.relativeUrl;
+        this.relativeURL = BusinessRelation.RelativeUrl;
         this.DefaultOrderBy = null;
     }       
     

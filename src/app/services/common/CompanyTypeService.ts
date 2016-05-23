@@ -7,7 +7,7 @@ export class CompanyTypeService extends BizHttp<CompanyType> {
     constructor(http: UniHttp) {        
         super(http);
         
-        this.relativeURL = CompanyType.relativeUrl;
+        this.relativeURL = CompanyType.RelativeUrl;
         this.DefaultOrderBy = null;
     }       
 }

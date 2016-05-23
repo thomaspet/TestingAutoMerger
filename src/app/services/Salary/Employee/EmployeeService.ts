@@ -19,7 +19,7 @@ export class EmployeeService extends BizHttp<Employee> {
     
     constructor(http: UniHttp) {
         super(http);
-        this.relativeURL = Employee.relativeUrl;
+        this.relativeURL = Employee.RelativeUrl;
     }
     public getEmployeeCategories(employeenumber: number) {
         return this.http

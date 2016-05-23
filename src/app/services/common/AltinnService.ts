@@ -12,7 +12,7 @@ export class AltinnService extends BizHttp<Altinn> {
         ];
     constructor(http: UniHttp) {
         super(http);
-        this.relativeURL = Altinn.relativeUrl;
+        this.relativeURL = Altinn.RelativeUrl;
     }
     
     public getLayout() {

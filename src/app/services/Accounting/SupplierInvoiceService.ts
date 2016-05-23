@@ -9,7 +9,7 @@ export class SupplierInvoiceService extends BizHttp<SupplierInvoice> {
         super(http);
         
         //TODO: should resolve this from configuration based on type (ISupplierInvoice)? Frank is working on something..
-        this.relativeURL = SupplierInvoice.relativeUrl;
+        this.relativeURL = SupplierInvoice.RelativeUrl;
         
         //set this property if you want a default sort order from the API
         this.DefaultOrderBy = null;
@@ -22,7 +22,7 @@ export class SupplierInvoiceService extends BizHttp<SupplierInvoice> {
         { Code: '10001', Text: 'Kladd' },
         { Code: '20000', Text: 'Pending' },
         { Code: '30000', Text: 'Active' },
-        { Code: '40000', Text: 'Fullført' },
+        { Code: '40000', Text: 'Fullfï¿½rt' },
         { Code: '50000', Text: 'InActive' },
         { Code: '60000', Text: 'Deviation' },
         { Code: '70000', Text: 'Error' },
@@ -31,7 +31,7 @@ export class SupplierInvoiceService extends BizHttp<SupplierInvoice> {
         { Code: '2', Text: 'For godkjenning' },
         { Code: '30002', Text: 'For godkjenning' },
         { Code: '30003', Text: 'Godkjent' },
-        { Code: '30004', Text: 'Bokført' },
+        { Code: '30004', Text: 'Bokfï¿½rt' },
         { Code: '30005', Text: 'Til betaling' },
         { Code: '30006', Text: 'Delvis betalt' },
         { Code: '30007', Text: 'Betalt' },
