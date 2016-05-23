@@ -22,6 +22,8 @@ export class PostingsummaryModalContent implements OnInit {
     private debcredTableConfig: any;
     @Input() private config: any;
     private postingsummary: Postingsummary;
+    private journalNumber: string;
+    private journalDate: Date;
     
     constructor(private routr: Router, private payrollService: PayrollrunService) {
         
@@ -58,8 +60,11 @@ export class PostingsummaryModalContent implements OnInit {
         return this.payrollService.postTransactions(this.config.payrollrunID);
     }
     
-    public showResponseReceipt() {
+    public showResponseReceipt(successResponse: any) {
         this.showReceipt = true;
+        console.log('successResponse', successResponse);
+        this.journalNumber = successResponse[0].ID;
+        this.journalNumber = successResponse[0].RegisteredDate;
     }
     
     private createHeaderConfig() {

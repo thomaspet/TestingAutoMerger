@@ -1,7 +1,7 @@
 <article class="postingsummary" [attr.aria-busy]="busy">
     <h3 *ngIf="postingsummary">Konteringssammendrag for lønnsavregning {{postingsummary.PayrollRun.ID}} - {{postingsummary.PayrollRun.Description}}</h3>
 
-    <header class="postingsummary_header">
+    <header class="postingsummary_header" *ngIf="!showReceipt">
         <h4>Kontering til regnskap</h4>
         <uni-form *ngIf="headerConfig" [config]="headerConfig"></uni-form>
     </header>
@@ -14,6 +14,11 @@
 
     <section *ngIf="showReceipt">
         <p>Bilaget er bokført i ditt regnskap</p>
+        <p>
+            Bilagsnummer {{journalNumber}} Dato {{journalDate}}
+        </p>
+
+
     </section>
 
     <footer class="postingsummary_footer">
@@ -21,5 +26,6 @@
             {{action.text}}
         </button>
         <button *ngIf="config.hasCancelButton" (click)="config.cancel()">Avbryt</button>
+        <button *ngIf="showReceipt" (click)="config.cancel()">OK</button>
     </footer>
 </article>
