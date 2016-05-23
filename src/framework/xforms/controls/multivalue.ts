@@ -154,6 +154,7 @@ export class UniMultivalueInput {
         }
         _.set(this.model, foreignProperty, lp);
         this.onChange.emit(this.model);
+        this.listVisible = true;
     }
     
     private showDisplayValue(row) {
@@ -173,12 +174,14 @@ export class UniMultivalueInput {
             _.set(this.model, this.field.Property, this.rows);
             this.currentValue = '';
             this.onChange.emit(this.model);
+            this.listVisible = true;
         } else {
             this.field.Options.editor(this.currentValue).then(newEntity => {
                 self.rows = [].concat(self.rows, newEntity);
                 self.currentValue = '';
                 _.set(self.model, self.field.Property, self.rows);
-                self.onChange.emit(self.model);        
+                self.onChange.emit(self.model);
+                self.listVisible = true;        
             });
         }
     }

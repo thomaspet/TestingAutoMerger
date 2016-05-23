@@ -52,7 +52,11 @@ export class UniSelectInput {
 
     public ngOnChanges(changes) {
         if (changes['field']) {
-            if (this.field.Options.source.constructor === Array) {
+            if (!this.field.Options) {
+                this.items = [];  
+            } else if (!this.field.Options.source) {
+                this.items = [];    
+            } else if (this.field.Options.source.constructor === Array) {
                 this.items = this.field.Options.source;
             } else if (this.field.Options.source.subscribe) {
                 this.field.Options.souce.subscribe(items => this.items = items);

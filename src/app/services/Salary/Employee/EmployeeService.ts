@@ -19,7 +19,7 @@ export class EmployeeService extends BizHttp<Employee> {
     
     constructor(http: UniHttp) {
         super(http);
-        this.relativeURL = Employee.relativeUrl;
+        this.RelativeURL = Employee.RelativeUrl;
     }
     public getEmployeeCategories(employeenumber: number) {
         return this.http
@@ -27,7 +27,7 @@ export class EmployeeService extends BizHttp<Employee> {
             .usingBusinessDomain()
             // .withEndPoint('employeecategories')
             .withEndPoint(
-                this.relativeURL 
+                this.RelativeURL 
                 + '?action=get-employee-categories&EmployeeNumber=' 
                 + employeenumber)
             .send();
@@ -270,7 +270,7 @@ export class EmployeeService extends BizHttp<Employee> {
                             { id: 1, name: 'Kvinne' },
                             { id: 2, name: 'Mann' }
                         ],
-                        template: (obj) => `${obj.id} - ${obj.BusinessRelationInfo.Name}`,
+                        template: (obj) => `${obj.id} - ${obj.name}`,
                         dataValueField: 'ID',
                         displayProperty: 'name'
                     },
@@ -809,10 +809,7 @@ export class EmployeeService extends BizHttp<Employee> {
                  Add fields for
                  --------SPESIALINNSTILLINGER FOR DEN ANSATTE----
                  */
-            ].map(x => {
-                x.Options = JSON.stringify(x.Options);
-                return x;
-            })
+            ]
         }]);
     }
 

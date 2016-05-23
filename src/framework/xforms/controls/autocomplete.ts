@@ -196,6 +196,9 @@ export class UniAutocompleteInput {
         
     }
     private _search(query: string) {
+        if (!this.source) {
+            return Observable.from([]);
+        }
         if (this.source.constructor === Array) {
             if (!query) {
                 return Observable.from(<any[]>this.source);
