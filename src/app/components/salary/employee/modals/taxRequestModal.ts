@@ -2,7 +2,7 @@ import {Component, Type, ViewChild, Input} from '@angular/core';
 import {NgIf} from '@angular/common';
 import {Router} from '@angular/router-deprecated';
 import {UniModal} from '../../../../../framework/modals/modal';
-import {UniForm} from '../../../../../framework/forms';
+import {UniForm} from '../../../../../framework/uniform';
 import {UniTable, UniTableBuilder, UniTableColumn} from '../../../../../framework/unitable';
 import {FieldLayout} from '../../../../../app/unientities';
 import {AltinnService, EmployeeService} from '../../../../../app/services/services';
