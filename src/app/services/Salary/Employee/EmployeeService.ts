@@ -14,12 +14,12 @@ export class EmployeeService extends BizHttp<Employee> {
         'VacationRateEmployee',
         'SubEntity'
     ];
-    public debounceTime = 500;
+    public debounceTime: number = 500;
     public subEntities: Observable<any>;
     
     constructor(http: UniHttp) {
         super(http);
-        this.RelativeURL = Employee.RelativeUrl;
+        this.relativeURL = Employee.RelativeUrl;
     }
     public getEmployeeCategories(employeenumber: number) {
         return this.http
@@ -27,7 +27,7 @@ export class EmployeeService extends BizHttp<Employee> {
             .usingBusinessDomain()
             // .withEndPoint('employeecategories')
             .withEndPoint(
-                this.RelativeURL 
+                this.relativeURL 
                 + '?action=get-employee-categories&EmployeeNumber=' 
                 + employeenumber)
             .send();
@@ -265,7 +265,7 @@ export class EmployeeService extends BizHttp<Employee> {
                     Legend: '',
                     IsLookUp: false,
                     Options: {
-                        //source: this.subEntities,
+                        // source: this.subEntities,
                         source: [
                             { id: 1, name: 'Kvinne' },
                             { id: 2, name: 'Mann' }

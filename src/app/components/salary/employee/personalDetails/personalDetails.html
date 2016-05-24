@@ -1,6 +1,10 @@
-<article class='application usertest'>
-    <uni-component-loader></uni-component-loader>
+<article class="application">
+    <uni-form *ngIf="employee" [config]="config" [fields]="fields" [model]="employee" (onSubmit)="saveEmployeeManual($event)" (onChange)="change($event)" (onReady)="ready($event)"></uni-form>
 </article>
+
+<!--<article class='application usertest'>
+    <uni-component-loader></uni-component-loader>
+</article>-->
 
 <footer class="full-footer">
     <section class="application">
