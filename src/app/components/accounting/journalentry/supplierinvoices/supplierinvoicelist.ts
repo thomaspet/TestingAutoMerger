@@ -93,13 +93,25 @@ export class SupplierInvoiceList implements OnInit {
             .setFormat("{0:n}");
         // .setFormat("{0: #,###.##}"); //TODO decide what/how format is set for the different field types
 
+        var restAmountCol = new UniTableColumn('RestAmount', 'Restbeløp', 'number')
+            .setEditable(false)
+            .setNullable(false)
+            .setClass('column-align-right')
+            .setFormat('{0:n}');
+
+        var creditedAmountCol = new UniTableColumn('CreditedAmount', 'Kreditert', 'number')
+            .setEditable(false)
+            .setNullable(false)
+            .setClass('column-align-right')
+            .setFormat('{0:n}');
+      
         // CALLBACKs
         var selectCallback = (selectedItem) => {
             this._router.navigateByUrl('/accounting/journalentry/supplierinvoices/details/' + selectedItem.ID);                
         }
 
         this.supplierInvoiceTableCfg = new UniTableBuilder('SupplierInvoices', false)
-            .addColumns(idCol, statusTextCol, journalEntryCol, supplierNrCol, supplierNameCol, invoiceDateCol, paymentDueDateCol, invoiceIDCol, taxInclusiveAmountCol)
+            .addColumns(idCol, statusTextCol, journalEntryCol, supplierNrCol, supplierNameCol, invoiceDateCol, paymentDueDateCol, invoiceIDCol, taxInclusiveAmountCol, restAmountCol, creditedAmountCol)
             .setSelectCallback(selectCallback)
             .setExpand("JournalEntry, Supplier.Info")
             .setPageSize(5)
