@@ -111,7 +111,12 @@ export class TimeEntry {
     
     getWorkItems(workRelationID: number) {
         this.workItems.length = 0;
-        this.service.getWorkItems(workRelationID).then((result:Array<WorkItem>)=> {
+        this.service.getWorkItems(workRelationID).subscribe((result:Array<WorkItem>)=> {
+            result.map((value: WorkItem) => {
+                value.StartTime = moment(value.StartTime).toDate(); 
+                value.EndTime = moment(value.EndTime).toDate();
+                value.Date = moment(value.Date).toDate();
+            });                            
             this.workItems = result;
             this.addNewRow();
             this.busy = false;

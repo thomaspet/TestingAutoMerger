@@ -80,24 +80,15 @@ export class WorkerService extends BizHttp<Worker> {
         return this.POST(route, undefined, rel);
     }
     
-    getWorkProfiles(): Observable<Array<WorkProfile>> {
+    getWorkProfiles(): Observable<WorkProfile[]> {
         return this.GET('workprofiles');
     }
     
-    getWorkItems(workRelationID: number): Promise<Array<WorkItem>> {
-       return new Promise<Array<WorkItem>>((resolve)=> {
-            this.GET('workitems', { filter: 'WorkRelationID eq ' + workRelationID}).subscribe((result: Array<WorkItem>)=>{
-                result.map((value: WorkItem) => {
-                    value.StartTime = moment(value.StartTime).toDate(); 
-                    value.EndTime = moment(value.EndTime).toDate();
-                    value.Date = moment(value.Date).toDate();
-                });
-                resolve(result);
-            });              
-        });
+    getWorkItems(workRelationID: number): Observable<WorkItem[]> {
+        return this.GET('workitems', { filter: 'WorkRelationID eq ' + workRelationID, expand: 'WorkType' });
     }
     
-    getWorkTypes(): Observable<Array<WorkType>> {
+    getWorkTypes(): Observable<WorkType[]> {
         return this.GET('worktypes');
     }
     

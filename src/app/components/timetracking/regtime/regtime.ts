@@ -40,6 +40,13 @@ export class RegisterTime {
         this.initServiceValues();        
     }
     
+    public onGetItemsClick() {
+        console.log("fetching data:");
+        this.service.getWorkItems(3).subscribe((list:WorkItem[])=>{
+            console.log("data here!", list);
+        });        
+    }
+    
     defaultType():WorkType {
         var t = new WorkType();
         t.ID = 1;
@@ -59,12 +66,11 @@ export class RegisterTime {
         var row = {
             Description: text,
             Date: new Date(),
-            StartTime: moment().hours(8).toDate(),
+            StartTime: moment().hours(8).minutes(0).toDate(),
             EndTime: new Date(),
             WorkTypeID: workType.ID,
             Worktype: workType
         };
-        debugger;
         this.tableData.push(row);
 	}    
     
@@ -100,7 +106,6 @@ export class RegisterTime {
         var newRow = event.rowModel;
 
         if (event.field === 'Worktype') {
-            debugger;
             newRow.WorkTypeID = newRow.WorkType ? newRow.WorkType.ID : 0;            
             console.log(event.fielt, event);
         }
