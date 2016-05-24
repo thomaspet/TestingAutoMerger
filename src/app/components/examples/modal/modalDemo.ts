@@ -11,7 +11,7 @@ import {EmailModal,PhoneModal,AddressModal} from "../../sales/customer/modals/mo
             <h1 *ngIf="config.title">{{config.title}}</h1>
             <input type="text" [(ngModel)]="tempValue"/>
             <footer>
-                <button *ngFor="#action of config.actions; #i=index" (click)="action.method()">
+                <button *ngFor="let action of config.actions; let i=index" (click)="action.method()">
                     {{action.text}}
                 </button>
             </footer>

@@ -39,6 +39,10 @@ export class EmailForm {
             BaseEntity: "Email",
             StatusCode: 0,
             Deleted: false,
+            CreatedAt: null,
+            UpdatedAt: null,
+            CreatedBy: null,
+            UpdatedBy: null,
             ID: 3,
             CustomFields: null,
             Fields: [
@@ -56,10 +60,18 @@ export class EmailForm {
                     HelpText: "",
                     FieldSet: 0,
                     Section: 0,
+                    Placeholder: null,
+                    Options: null,
+                    LineBreak: null,
+                    Combo: null,
                     Legend: "",
                     StatusCode: 0,
                     ID: 1,
                     Deleted: false,
+                    CreatedAt: null,
+                    UpdatedAt: null,
+                    CreatedBy: null,
+                    UpdatedBy: null,
                     CustomFields: null 
                 },
                 {
@@ -76,10 +88,18 @@ export class EmailForm {
                     HelpText: "",
                     FieldSet: 0,
                     Section: 0,
+                    Placeholder: null,
+                    Options: null,
+                    LineBreak: null,
+                    Combo: null,
                     Legend: "",
                     StatusCode: 0,
                     ID: 2,
                     Deleted: false,
+                    CreatedAt: null,
+                    UpdatedAt: null,
+                    CreatedBy: null,
+                    UpdatedBy: null,
                     CustomFields: null 
                 } 
             ]               
@@ -100,7 +120,7 @@ export class EmailForm {
             <h1 *ngIf="config.title">{{config.title}}</h1>
             <uni-component-loader></uni-component-loader>
             <footer>
-                <button *ngFor="#action of config.actions; #i=index" (click)="action.method()" [ngClass]="action.class">
+                <button *ngFor="let action of config.actions; let i=index" (click)="action.method()" [ngClass]="action.class">
                     {{action.text}}
                 </button>
             </footer>

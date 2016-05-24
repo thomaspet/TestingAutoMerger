@@ -11,8 +11,9 @@ export class CustomerQuoteService extends BizHttp<CustomerQuote> {
     
     constructor(http: UniHttp) {        
         super(http);       
-        this.relativeURL = CustomerQuote.relativeUrl;
+        this.relativeURL = CustomerQuote.RelativeUrl;
         this.DefaultOrderBy = null;
+        this.defaultExpand = ['Customer'];
     }
     
     // TODO: To be retrieved from database schema shared.Status instead?
@@ -39,7 +40,7 @@ export class CustomerQuoteService extends BizHttp<CustomerQuote> {
     newCustomerQuote(): Promise<CustomerQuote>
     {       
         return new Promise(resolve => {
-            this.GetNewEntity([], CustomerQuote.entityType).subscribe(quote => {
+            this.GetNewEntity([], CustomerQuote.EntityType).subscribe(quote => {
                 quote.CreatedDate = moment().toDate();
                 quote.QuoteDate = moment().toDate();
                 quote.ValidUntilDate = moment().add(1, 'month').toDate();

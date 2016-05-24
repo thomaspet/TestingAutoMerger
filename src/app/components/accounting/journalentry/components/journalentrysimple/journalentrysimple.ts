@@ -1,4 +1,4 @@
-import {Component, Input, SimpleChange, OnInit, OnChanges} from '@angular/core';
+import {Component, Input, SimpleChange, OnInit, OnChanges, Output, EventEmitter} from '@angular/core';
 import {Router} from '@angular/router-deprecated';
 import {Observable} from 'rxjs/Observable';
 import 'rxjs/add/observable/forkjoin';
@@ -6,7 +6,6 @@ import 'rxjs/add/observable/forkjoin';
 import {VatType, Account, Dimensions, SupplierInvoice} from '../../../../../unientities';
 import {VatTypeService, AccountService, JournalEntryService, DepartementService, ProjectService} from '../../../../../services/services';
 
-import {JournalEntrySimpleCalculationSummary} from '../../../../../models/accounting/JournalEntrySimpleCalculationSummary';
 import {JournalEntryData} from '../../../../../models/models';
 import {JournalEntrySimpleForm} from './journalentrysimpleform';
 
@@ -16,22 +15,18 @@ declare var moment;
     selector: 'journal-entry-simple',
     templateUrl: 'app/components/accounting/journalentry/components/journalentrysimple/journalentrysimple.html',
     directives: [JournalEntrySimpleForm],
-    providers: [JournalEntryService, DepartementService, ProjectService, VatTypeService, AccountService]
+    providers: [DepartementService, ProjectService, VatTypeService, AccountService]
 })
 export class JournalEntrySimple implements OnInit, OnChanges {
     @Input() public supplierInvoice: SupplierInvoice;
     @Input() public runAsSubComponent : boolean = false;
     @Input() public hideSameOrNew : boolean = false;
-
+    @Output() dataChanged: EventEmitter<JournalEntryData[]> = new EventEmitter<JournalEntryData[]>();
+    @Output() dataLoaded: EventEmitter<JournalEntryData[]> = new EventEmitter<JournalEntryData[]>();
+    
     public selectedJournalEntryLine: JournalEntryData;
     public journalEntryLines: Array<JournalEntryData>;
-    public validationResult: any;
     public dropdownData: any;
-
-    private itemsSummaryData: JournalEntrySimpleCalculationSummary;
-    private recalcTimeout: any;
-    private busy: boolean;
-
 
     constructor(private journalEntryService: JournalEntryService,
         private departementService: DepartementService,
@@ -51,10 +46,11 @@ export class JournalEntrySimple implements OnInit, OnChanges {
             this.journalEntryService.getJournalEntryDataBySupplierInvoiceID(this.supplierInvoice.ID)
                 .subscribe(data => {
                     this.journalEntryLines = data;
-                    this.recalcItemSums(false);
+                    this.dataLoaded.emit(data);   
                 });
         } else {
             this.journalEntryLines = new Array<JournalEntryData>();
+            this.dataLoaded.emit(this.journalEntryLines);
         }
 
         Observable.forkJoin(
@@ -123,7 +119,7 @@ export class JournalEntrySimple implements OnInit, OnChanges {
         return (line && line.Dimensions && line.Dimensions.ProjectID) ? line.Dimensions.ProjectID.toString() : '';
     }
 
-    private postJournalEntryData() {
+    public postJournalEntryData() {
         this.journalEntryService.postJournalEntryData(this.journalEntryLines)
             .subscribe(
             data => {
@@ -142,7 +138,8 @@ export class JournalEntrySimple implements OnInit, OnChanges {
 
                 //Empty list
                 this.journalEntryLines = new Array<JournalEntryData>();
-                this.recalcItemSums();
+                
+                this.dataChanged.emit(this.journalEntryLines);
             },
             err => {
                 console.log('error in postJournalEntryData: ', err);
@@ -177,32 +174,19 @@ export class JournalEntrySimple implements OnInit, OnChanges {
         };
     }
 
-    private validateJournalEntryData() {
-        this.journalEntryService.validateJournalEntryData(this.journalEntryLines)
-            .subscribe(
-            data => {
-                this.validationResult = data;
-                console.log('valideringsresultat:', data);
-            },
-            err => {
-                console.log('error int validateJournalEntryData:', err);
-                this.log(err);
-            });
-    }
-
-    private removeJournalEntryData() {
+    public removeJournalEntryData() {
         if (confirm('Er du sikker på at du vil forkaste alle endringene dine?')) {
             this.journalEntryLines = new Array<JournalEntryData>();
         }
     }
 
-    private addDummyJournalEntry() {
+    public addDummyJournalEntry() {
         var newline = JournalEntryService.getSomeNewDataForMe();
         newline.JournalEntryNo = `${Math.round((this.journalEntryLines.length / 3) + 1)}-2016`;
         this.journalEntryLines.unshift(newline);
 
-        this.validateJournalEntryData();
-        this.recalcItemSums();
+        
+        this.dataChanged.emit(this.journalEntryLines);
     }
 
     private setSelectedJournalEntryLine(selectedLine: JournalEntryData) {
@@ -233,8 +217,7 @@ export class JournalEntrySimple implements OnInit, OnChanges {
 
         this.journalEntryLines.unshift(journalEntryLine);
 
-        this.validateJournalEntryData();
-        this.recalcItemSums();
+        this.dataChanged.emit(this.journalEntryLines);
     }
 
     private editViewUpdated(journalEntryLine: JournalEntryData) {
@@ -244,44 +227,7 @@ export class JournalEntrySimple implements OnInit, OnChanges {
         this.journalEntryLines[currentRow] = journalEntryLine;
         this.selectedJournalEntryLine = null;
 
-        this.validateJournalEntryData();
-        this.recalcItemSums();
-    }
-
-    private recalcItemSums(doWait: boolean = true) {
-        this.busy = true;
-        if (this.journalEntryLines.length <= 0) {
-            this.itemsSummaryData = null;
-            console.log('itemsSummaryData is set to null since no lines exist');
-            return;
-        }
-
-        let timeout = 0;
-        if (doWait) {
-            timeout = 2000;
-        }
-        // do recalc after 2 second to avoid to much requests
-        if (this.recalcTimeout) {
-            clearTimeout(this.recalcTimeout);
-        }
-
-        this.recalcTimeout = setTimeout(() => {
-
-            this.journalEntryLines.forEach((x) => {
-                x.Amount = x.Amount || 0;
-            });
-
-            this.journalEntryService.calculateJournalEntrySummary(this.journalEntryLines)
-                .subscribe((data) => {
-                    this.itemsSummaryData = data;
-                    this.busy = false;
-                },
-                (err) => {
-                    console.log('Error when recalculating journal entry summary:', err);
-                    this.log(err);
-                }
-                );
-        }, timeout);
+        
+        this.dataChanged.emit(this.journalEntryLines);
     }
 }
-

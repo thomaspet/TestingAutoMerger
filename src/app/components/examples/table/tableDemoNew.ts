@@ -1,6 +1,7 @@
 import {Component, ViewChildren, QueryList} from '@angular/core';
 import {AsyncPipe} from '@angular/common';
 import {UniHttp} from '../../../../framework/core/http/http';
+import {Http, URLSearchParams} from '@angular/http';
 import {UniTable, UniTableColumn, UniTableColumnType, UniTableConfig} from 'unitable-ng2/main';
 import {Observable} from 'rxjs/Observable';
 import 'rxjs/add/operator/map';
@@ -8,7 +9,7 @@ import 'rxjs/add/operator/map';
 @Component({
     selector: 'unitable-demo',
     template: `    
-        <h4>DemoTable1</h4>
+        <h4>DemoTable1 (lookup, context menu, column menu)</h4>
         <span>Antall rader valgt: {{rowSelectionCount}}</span>
         <uni-table [resource]="quoteItems$ | async" 
                    [config]="demoTable1" 
@@ -17,9 +18,15 @@ import 'rxjs/add/operator/map';
         
         <br><br>
         
-        <h4>DemoTable2</h4>
+        <h4>DemoTable2 (date editors)</h4>
         <uni-table [resource]="employments$ | async"
                    [config]="demoTable2">
+        </uni-table>
+        
+        <h4>DemoTable3 (row-select, search)</h4>
+        <uni-table [resource]="employmentLookup"
+                   [config]="demoTable3"
+                   (rowSelected)="rowSelected($event)">
         </uni-table>
     `,
     directives: [UniTable],
@@ -30,14 +37,19 @@ export class UniTableDemoNew {
     private tables: QueryList<UniTable>;
     
     private rowSelectionCount: number;
+    
     private quoteItems$: Observable<any>;
     private employments$: Observable<any>;
+    private employmentLookup: (urlParams: URLSearchParams) => any;
+    
     private demoTable1: UniTableConfig;
     private demoTable2: UniTableConfig;
+    private demoTable3: UniTableConfig;
     
-    constructor(private http: UniHttp) {
+    constructor(private http: Http, private uniHttp: UniHttp) {
         this.buildDemoTable1();
         this.buildDemoTable2();
+        this.buildDemoTable3();
     }
     
     private onRowSelectionChange(event) {
@@ -45,8 +57,17 @@ export class UniTableDemoNew {
         this.rowSelectionCount = this.tables.toArray()[0].getSelectedRows().size;
     }
     
+    private rowSelected(event) {
+        console.log('Row selected', event);
+    }
+    
     private mapProductToQuoteItem(rowModel) {
         let product = rowModel['Product'];
+        // Avoid null-reference 
+        if (!product) {
+            return;
+        }
+        
         rowModel['ProductID'] = product.ID;
         rowModel['ItemText'] = product.Name;
         rowModel['Unit'] = product.Unit;
@@ -73,7 +94,8 @@ export class UniTableDemoNew {
     }
     
     private buildDemoTable1() {
-        this.quoteItems$ = this.http.asGET()
+        // Data
+        this.quoteItems$ = this.uniHttp.asGET()
             .usingBusinessDomain()
             .withEndPoint('quoteitems')
             .send({
@@ -81,6 +103,29 @@ export class UniTableDemoNew {
                 expand: 'Product.VatType'
             });
         
+        // Context menu
+        let contextMenuItems = [];
+        contextMenuItems.push({
+            label: 'Delete',
+            action: (rowModel) => {
+                window.alert('Delete action');
+                // console.log('Delete action called. RowModel:', rowModel);
+            },
+            disabled: (rowModel) => {
+                // This is were we would check _links to see if the user has access to this operation etc.
+                return rowModel['Deleted']; 
+            }
+        });
+        
+        contextMenuItems.push({
+            label: 'Transfer to invoice',
+            action: (rowModel) => {
+                window.alert('Transfer to invoice action');
+            }
+            // TODO: check _links to see if user has access to operation etc.
+        });
+        
+        // Columns
         let productCol = new UniTableColumn('Product', 'Produkt', UniTableColumnType.Lookup)
             .setDisplayField('Product.PartName')
             .setEditorOptions({
@@ -88,7 +133,7 @@ export class UniTableDemoNew {
                     return (selectedItem.PartName + ' - ' + selectedItem.Name);
                 },
                 lookupFunction: (searchValue) => {
-                    return this.http.asGET()
+                    return this.uniHttp.asGET()
                         .usingBusinessDomain()
                         .withEndPoint('products')
                         .send({
@@ -130,7 +175,7 @@ export class UniTableDemoNew {
                     return (item.VatCode + ': ' + item.Name + ' - ' + item.VatPercent + '%');
                 },
                 lookupFunction: (searchValue) => {
-                    return this.http.asGET()
+                    return this.uniHttp.asGET()
                         .usingBusinessDomain()
                         .withEndPoint('vattypes')
                         .send({
@@ -149,6 +194,7 @@ export class UniTableDemoNew {
                 exVatCol, discountPercentCol, discountCol, vatTypeCol,
                 sumTotalExVatCol, sumVatCol, sumTotalIncVatCol 
             ])
+            .setContextMenuItems(contextMenuItems)
             .setColumnMenuVisible(true)
             .setMultiRowSelect(true)
             .setDefaultRowData({
@@ -182,7 +228,7 @@ export class UniTableDemoNew {
     }
     
     private buildDemoTable2() {
-        this.employments$ = this.http.asGET()
+        this.employments$ = this.uniHttp.asGET()
             .usingBusinessDomain()
             .withEndPoint('employments')
             .send({top: 10});
@@ -201,4 +247,22 @@ export class UniTableDemoNew {
             });
     }
     
+    private buildDemoTable3() {
+        this.employmentLookup = (urlParams: URLSearchParams) => {
+            return this.http.get('http://devapi.unieconomy.no/api/biz/employments', {search: urlParams});
+        };
+        
+        let jobCodeCol = new UniTableColumn('JobCode', 'Job code')
+            .setFilterOperator('startswith');
+            
+        let jobNameCol = new UniTableColumn('JobName', 'Job name')
+            .setFilterOperator('contains');
+            
+        let hoursPerWeekCol = new UniTableColumn('HoursPerWeek', 'Hours per week')
+            .setFilterOperator('eq');
+        
+        this.demoTable3 = new UniTableConfig(false, true, 10)
+            .setSearchable(true)
+            .setColumns([jobCodeCol, jobNameCol, hoursPerWeekCol]);
+    }
 }

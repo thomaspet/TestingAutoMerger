@@ -119,7 +119,7 @@ export class SupplierInvoiceDetail implements OnInit {
             this._supplierInvoiceService.Put(this.supplierInvoice.ID, this.supplierInvoice)
                 .subscribe((response: any) => {
                     if (runSmartBooking) {
-                        this.runSmartBooking(this.supplierInvoice);
+                        this.runSmartBooking(this.supplierInvoice, false);
                     } else {
                         this.router.navigateByUrl('/accounting/journalentry/supplierinvoices/details/' + this.supplierInvoice.ID);
                     }
@@ -139,7 +139,7 @@ export class SupplierInvoiceDetail implements OnInit {
                     let newSupplierInvoice = result;
                     
                     //always run smartbooking for new supplier invoices, ignore input parameter
-                    this.runSmartBooking(newSupplierInvoice);
+                    this.runSmartBooking(newSupplierInvoice, true);
                 },
                 (error: Error) => {
                     console.error('error in SupplierInvoiceDetail.onSubmit - Post: ', error);
@@ -156,8 +156,7 @@ export class SupplierInvoiceDetail implements OnInit {
     private saveAndRunSmartBooking() {
         this.save(true);
     }
-
-
+    
     private saveAndBook() {        
         //save and run transition to booking        
         let journalEntryData = this.journalEntryManual.getJournalEntryData();        
@@ -193,7 +192,7 @@ export class SupplierInvoiceDetail implements OnInit {
         );      
     }
 
-    private runSmartBooking(supplierInvoice: SupplierInvoice) {
+    private runSmartBooking(supplierInvoice: SupplierInvoice, redirectAfter: boolean) {
         
         if (supplierInvoice.ID == 0) {
             console.error('Smart booking can not be performed since SupplierInvoice.ID is null');
@@ -203,7 +202,12 @@ export class SupplierInvoiceDetail implements OnInit {
         this._supplierInvoiceService.Action(supplierInvoice.ID, 'smartbooking')
             .subscribe(
                 (response: any) => {
-                    this.refreshFormData(supplierInvoice);
+                    if (redirectAfter) {
+                        this.router.navigateByUrl('/accounting/journalentry/supplierinvoices/details/' + supplierInvoice.ID);        
+                    }
+                    else {
+                        this.refreshFormData(supplierInvoice);
+                    }
                 },
                 (error: any) => console.log('Error running smartbooking', error)       
             );
@@ -216,6 +220,10 @@ export class SupplierInvoiceDetail implements OnInit {
             BaseEntity: 'SupplierInvoice',
             StatusCode: 0,
             Deleted: false,
+            CreatedAt: null,
+            UpdatedAt: null,
+            CreatedBy: null,
+            UpdatedBy: null,
             ID: 1,
             CustomFields: null,
             Fields: [     
@@ -233,10 +241,18 @@ export class SupplierInvoiceDetail implements OnInit {
                     HelpText: '',
                     FieldSet: 0,
                     Section: 0,
+                    Placeholder: null,
+                    Options: null,
+                    LineBreak: null,
+                    Combo: null,
                     Legend: '',
                     StatusCode: 0,
                     ID: 2,
                     Deleted: false,
+                    CreatedAt: null,
+                    UpdatedAt: null,
+                    CreatedBy: null,
+                    UpdatedBy: null,
                     CustomFields: null
                 },
                 {
@@ -253,10 +269,18 @@ export class SupplierInvoiceDetail implements OnInit {
                     HelpText: '',
                     FieldSet: 0,
                     Section: 0,
+                    Placeholder: null,
+                    Options: null,
+                    LineBreak: null,
+                    Combo: null,
                     Legend: '',
                     StatusCode: 0,
                     ID: 4,
                     Deleted: false,
+                    CreatedAt: null,
+                    UpdatedAt: null,
+                    CreatedBy: null,
+                    UpdatedBy: null,
                     CustomFields: null
                 },
                 {
@@ -273,10 +297,18 @@ export class SupplierInvoiceDetail implements OnInit {
                     HelpText: '',
                     FieldSet: 0,
                     Section: 0,
+                    Placeholder: null,
+                    Options: null,
+                    LineBreak: null,
+                    Combo: null,
                     Legend: '',
                     StatusCode: 0,
                     ID: 3,
                     Deleted: false,
+                    CreatedAt: null,
+                    UpdatedAt: null,
+                    CreatedBy: null,
+                    UpdatedBy: null,
                     CustomFields: null
                 },
                 {
@@ -293,10 +325,18 @@ export class SupplierInvoiceDetail implements OnInit {
                     HelpText: '',
                     FieldSet: 0,
                     Section: 0,
+                    Placeholder: null,
+                    Options: null,
+                    LineBreak: null,
+                    Combo: null,
                     Legend: '',
                     StatusCode: 0,
                     ID: 4,
                     Deleted: false,
+                    CreatedAt: null,
+                    UpdatedAt: null,
+                    CreatedBy: null,
+                    UpdatedBy: null,
                     CustomFields: null
                 },
                 {
@@ -313,10 +353,18 @@ export class SupplierInvoiceDetail implements OnInit {
                     HelpText: '',
                     FieldSet: 0,
                     Section: 0,
+                    Placeholder: null,
+                    Options: null,
+                    LineBreak: null,
+                    Combo: null,
                     Legend: '',
                     StatusCode: 0,
                     ID: 4,
                     Deleted: false,
+                    CreatedAt: null,
+                    UpdatedAt: null,
+                    CreatedBy: null,
+                    UpdatedBy: null,
                     CustomFields: null
                 },
                 {
@@ -333,10 +381,18 @@ export class SupplierInvoiceDetail implements OnInit {
                     HelpText: '',
                     FieldSet: 0,
                     Section: 0,
+                    Placeholder: null,
+                    Options: null,
+                    LineBreak: null,
+                    Combo: null,
                     Legend: '',
                     StatusCode: 0,
                     ID: 4,
                     Deleted: false,
+                    CreatedAt: null,
+                    UpdatedAt: null,
+                    CreatedBy: null,
+                    UpdatedBy: null,
                     CustomFields: null
                 },
                 {
@@ -353,10 +409,18 @@ export class SupplierInvoiceDetail implements OnInit {
                     HelpText: '',
                     FieldSet: 0,
                     Section: 0,
+                    Placeholder: null,
+                    Options: null,
+                    LineBreak: null,
+                    Combo: null,
                     Legend: '',
                     StatusCode: 0,
                     ID: 2,
                     Deleted: false,
+                    CreatedAt: null,
+                    UpdatedAt: null,
+                    CreatedBy: null,
+                    UpdatedBy: null,
                     CustomFields: null
                 },
                 {
@@ -373,10 +437,18 @@ export class SupplierInvoiceDetail implements OnInit {
                     HelpText: '',
                     FieldSet: 0,
                     Section: 0,
+                    Placeholder: null,
+                    Options: null,
+                    LineBreak: null,
+                    Combo: null,
                     Legend: '',
                     StatusCode: 0,
                     ID: 4,
                     Deleted: false,
+                    CreatedAt: null,
+                    UpdatedAt: null,
+                    CreatedBy: null,
+                    UpdatedBy: null,
                     CustomFields: null
                 },
                 {
@@ -393,10 +465,18 @@ export class SupplierInvoiceDetail implements OnInit {
                     HelpText: '',
                     FieldSet: 0,
                     Section: 0,
+                    Placeholder: null,
+                    Options: null,
+                    LineBreak: null,
+                    Combo: null,
                     Legend: '',
                     StatusCode: 0,
                     ID: 4,
                     Deleted: false,
+                    CreatedAt: null,
+                    UpdatedAt: null,
+                    CreatedBy: null,
+                    UpdatedBy: null,
                     CustomFields: null
                 }
             ]

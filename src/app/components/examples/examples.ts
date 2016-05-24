@@ -2,6 +2,7 @@ import {Component} from "@angular/core";
 import {RouteConfig, RouteDefinition, ROUTER_DIRECTIVES} from "@angular/router-deprecated";
 import {UniTabs} from "../layout/uniTabs/uniTabs";
 import {UniFormDemo} from "./form/formDemo";
+import {XFormDemo} from "./form/xFormDemo";
 import {UniTableDemo} from "./table/tableDemo";
 import {UniTableDemoNew} from './table/tableDemoNew';
 import {UniTreelistDemo} from "./treelist/treelistDemo";
@@ -13,6 +14,7 @@ import {UniSaveDemo} from "./save/saveDemo";
 const CHILD_ROUTES = [
     {path: "/", redirectTo: ["./UniFormDemo"]},
     {path: "/form", component: UniFormDemo , as: "UniFormDemo"},
+    {path: "/xform", component: XFormDemo , as: "XFormDemo"},
     {path: "/table", component: UniTableDemo , as: "UniTableDemo"},
     {path: "/tablenew", component: UniTableDemoNew, as: "UniTableDemoNew"},
     {path: "/treelist", component: UniTreelistDemo , as: "UniTreelistDemo"},

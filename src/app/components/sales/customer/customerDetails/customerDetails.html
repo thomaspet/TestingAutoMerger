@@ -4,8 +4,8 @@
         <section>
             <h1 *ngIf="Customer && Customer.ID > 0">{{Customer.Info.Name}}</h1>
             <p *ngIf="Customer && Customer.ID > 0">Kundenr. {{Customer.CustomerNumber}}</p>
-            <h1 *ngIf="CustomerID == 0">Ny kunde</h1>
-            <p *ngIf="CustomerID == 0">&nbsp;</p>
+            <h1 *ngIf="customerID == 0">Ny kunde</h1>
+            <p *ngIf="customerID == 0">&nbsp;</p>
         </section>
             
         <nav class="poster_toolbar_tools">

@@ -1,4 +1,5 @@
 import {Injectable, EventEmitter} from '@angular/core';
+import {URLSearchParams} from '@angular/http'
 import {RequestMethod} from "@angular/http";
 import {UniHttp} from './http';
 import {Observable} from 'rxjs/Observable';
@@ -45,6 +46,22 @@ export class BizHttp<T> {
             .send({
                 expand: expandStr
             });
+    }
+
+    public GetAllByUrlSearchParams<T>(params: URLSearchParams): Observable<any> {
+        if (!params.get('orderby') && this.DefaultOrderBy !== null) {
+            params.set('orderby', this.DefaultOrderBy);            
+        }
+        
+        if (!params.get('expand') && this.defaultExpand) {
+            params.set('expand', this.defaultExpand.join())
+        }
+                
+        return this.http
+            .usingBusinessDomain()
+            .asGET()            
+            .withEndPoint(this.relativeURL)
+            .send({}, true, params);        
     }
 
     public GetAll<T>(query: string, expand?: string[]): Observable<any> {
@@ -142,7 +159,7 @@ export class BizHttp<T> {
         return this.Action(ID, actionName, parameters, RequestMethod.Delete);    
     }
 
-    GetNewEntity(expand?: string[], entityname: string = null) {
+    public GetNewEntity(expand?: string[], entityname: string = null) {
         let expandStr;
         if (expand) {
             expandStr = expand.join(',');
@@ -160,8 +177,8 @@ export class BizHttp<T> {
             });
     }
 
-    GetLayout(ID: string) {
-        var endPoint = ["layout", ID].join("/");
+    public GetLayout(ID: string) {
+        var endPoint = ['layout', ID].join('/');
         return this.http
             .usingMetadataDomain()
             .asGET()

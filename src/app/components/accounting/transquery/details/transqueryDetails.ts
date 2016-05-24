@@ -1,9 +1,10 @@
 import {Component, OnInit} from '@angular/core';
 import {RouteParams} from '@angular/router-deprecated';
-import {UniTable, UniTableBuilder, UniTableColumn} from '../../../../../framework/uniTable';
+import {UniTable, UniTableColumn, UniTableConfig} from 'unitable-ng2/main';
 import {TransqueryDetailsCalculationsSummary} from '../../../../models/accounting/TransqueryDetailsCalculationsSummary';
 import {JournalEntryLineService} from '../../../../services/Accounting/JournalEntryLineService';
 import {TransqueryDetailSearchParamters} from './TransqueryDetailSearchParamters';
+import {URLSearchParams} from '@angular/http';
 
 @Component({
     selector: 'transquery-details',
@@ -12,30 +13,27 @@ import {TransqueryDetailSearchParamters} from './TransqueryDetailSearchParamters
     providers: [JournalEntryLineService]
 })
 export class TransqueryDetails implements OnInit {
-    private uniTableConfig: UniTableBuilder;
     private summaryData: TransqueryDetailsCalculationsSummary;
-    private searchParameters: TransqueryDetailSearchParamters;
+    private uniTableConfig: UniTableConfig;
+    private lookupFunction: (urlParams: URLSearchParams) => any;
 
-    constructor(private routeParams: RouteParams, private journalEntryLineService: JournalEntryLineService) {}
+    constructor(private routeParams: RouteParams, private journalEntryLineService: JournalEntryLineService) {
+    }
 
     public ngOnInit() {
-        this.searchParameters = this.getSearchParameters(this.routeParams);
-        const odataFilter = this.generateOdataFilter(this.searchParameters);
-        if (this.searchParameters.accountId) {
-            this.journalEntryLineService
-                .getJournalEntryLineRequestSummary(odataFilter)
-                .subscribe(summary => this.summaryData = summary);
+        const searchParameters = this.getSearchParameters(this.routeParams);
+        const odataFilter = this.generateOdataFilter(searchParameters);
+        this.journalEntryLineService
+            .getJournalEntryLineRequestSummary(odataFilter)
+            .subscribe(summary => this.summaryData = summary);
 
-            this.uniTableConfig = this.generateUniTableConfig(odataFilter);
-        } else if (this.searchParameters.journalEntryNumber) {
-            this.journalEntryLineService
-                .getJournalEntryLineRequestSummary(odataFilter)
-                .subscribe(summary => this.summaryData = summary);
-
-            this.uniTableConfig = this.generateUniTableConfig(odataFilter);
-        } else {
-            this.uniTableConfig = this.generateUniTableConfig();
-        }
+        this.uniTableConfig = this.generateUniTableConfig();
+        this.lookupFunction = (urlParams: URLSearchParams) => {
+            urlParams = urlParams || new URLSearchParams();
+            urlParams.set('filter', odataFilter);
+            urlParams.set('expand', 'VatType,Account');
+            return this.journalEntryLineService.GetAllByUrlSearchParams(urlParams);
+        };
     }
 
     private getSearchParameters(routeParams): TransqueryDetailSearchParamters {
@@ -46,27 +44,6 @@ export class TransqueryDetails implements OnInit {
         searchParams.isIncomingBalance = routeParams.get('isIncomingBalance') === 'true';
         searchParams.journalEntryNumber = routeParams.get('journalEntryNumber');
         return searchParams;
-    }
-
-    private generateUniTableConfig(odataFilter?: string): UniTableBuilder {
-        let queryText = 'journalentrylines?expand=VatType,Account';
-        if (odataFilter) {
-            queryText += `&filter=${odataFilter}`;
-        }
-        return new UniTableBuilder(queryText, false)
-            .setFilterable(false)
-            .setPageSize(25)
-            .addColumns(
-                new UniTableColumn('JournalEntryNumber', 'Bilagsnr', 'string')
-                    .setTemplate(`<a href="/\\#/accounting/transquery/detailsByJournalEntryNumber/#= JournalEntryNumber#/">#= JournalEntryNumber#</a>`),
-                new UniTableColumn('Account.AccountNumber', 'Kontonr', 'number'),
-                new UniTableColumn('Account.AccountName', 'Kontonavn', 'string'),
-                new UniTableColumn('FinancialDate', 'Regnskapsdato', 'string'),
-                new UniTableColumn('RegisteredDate', 'Bokføringsdato', 'string'),
-                new UniTableColumn('Description', 'Beskrivelse', 'string'),
-                new UniTableColumn('VatTypeID', 'Mvakode', 'string'),
-                new UniTableColumn('Amount', 'Beløp', 'string')
-            );
     }
 
     private generateOdataFilter(searchParameters: TransqueryDetailSearchParamters): string {
@@ -87,10 +64,33 @@ export class TransqueryDetails implements OnInit {
                     .periodNumberToPeriodDates(searchParameters.period, searchParameters.year);
                 return `${accountSearch} and FinancialDate ge '${periodDates.firstDayOfPeriod}' and FinancialDate le '${periodDates.lastDayOfPeriod}'`;
             }
-        } else if (this.searchParameters.journalEntryNumber) {
-            return `JournalEntryNumber eq '${this.searchParameters.journalEntryNumber}'`;
+        } else if (searchParameters.journalEntryNumber) {
+            return `JournalEntryNumber eq '${searchParameters.journalEntryNumber}'`;
         } else {
             return '';
         }
+    }
+
+    private generateUniTableConfig(): UniTableConfig {
+        return new UniTableConfig(false, false)
+            .setPageable(true)
+            .setPageSize(15)
+            .setColumnMenuVisible(false)
+            .setColumns([
+                    new UniTableColumn('JournalEntryNumber', 'Bilagsnr')
+                        .setTemplate((journalEntryLine) => {
+                            return `<a href="/#/accounting/transquery/detailsByJournalEntryNumber/${journalEntryLine.JournalEntryNumber}/">
+                                ${journalEntryLine.JournalEntryNumber}
+                            </a>`;
+                        }),
+                    new UniTableColumn('Account.AccountNumber', 'Kontonr'),
+                    new UniTableColumn('Account.AccountName', 'Kontonavn'),
+                    new UniTableColumn('FinancialDate', 'Regnskapsdato'),
+                    new UniTableColumn('RegisteredDate', 'Bokføringsdato'),
+                    new UniTableColumn('Description', 'Beskrivelse'),
+                    new UniTableColumn('VatType.VatCode', 'Mvakode'),
+                    new UniTableColumn('Amount', 'Beløp')
+                ]
+            );
     }
 }
