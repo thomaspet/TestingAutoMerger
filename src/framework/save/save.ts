@@ -11,7 +11,12 @@ export interface IUniSaveAction {
     selector: 'uni-save',
     template: `
         <footer class="uniSave">
-            <p *ngIf="status" class="uniSave-status">{{status.message}} <small>{{status.when}}</small></p>
+            <p *ngIf="status" class="uniSave-status">
+                {{status.message}}
+                <time [attr.datetime]="status.when">
+                    {{fromNow()}}
+                </time>
+            </p>
 
             <div role="group" class="comboButton">
                 <button class="comboButton_btn"
@@ -34,8 +39,6 @@ export interface IUniSaveAction {
                         [attr.aria-hidden]="action.main">{{action.label}}</li>
                 </ul>
             </div>
-
-
         </footer>
     `,
     host: {
@@ -51,7 +54,7 @@ export class UniSave {
 
     private open: boolean = false;
     private busy: boolean = false;
-    private status: {message: string, when: string};
+    private status: {message: string, when: Date};
 
     constructor() {
         document.addEventListener('keyup', (event) => {
@@ -90,9 +93,13 @@ export class UniSave {
         if (statusMessage.length) {
             this.status = {
                 message: statusMessage,
-                when: moment(new Date()).fromNow()
+                when: new Date()
             };
         }
         this.busy = false;
+    }
+    
+    private fromNow() {
+        return moment(this.status.when).fromNow();
     }
 }
