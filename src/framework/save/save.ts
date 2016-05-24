@@ -8,8 +8,6 @@ export interface IUniSaveAction {
     disabled?: boolean;
 }
 
-declare var jQuery;
-
 @Component({
     selector: 'uni-save',
     template: `
@@ -40,7 +38,11 @@ declare var jQuery;
 
 
         </footer>
-    `
+    `,
+    host: {
+        '(click)': 'onClick($event)',
+        '(document:click)': 'offClick()'
+    }
 })
 
 
@@ -53,19 +55,19 @@ export class UniSave {
     private open: boolean;
 
     constructor(public el: ElementRef) {
-        // Add event listeners for dismissing the dropdown (-up?)
-        document.addEventListener('click', (event) => {
-            let $el = jQuery('uni-save .comboButton');
-            if (!jQuery(event.target).closest($el).length) {
-                event.stopPropagation();
-                this.open = false;
-            }
-        });
         document.addEventListener('keyup', (event) => {
             if (event.keyCode === 27) {
                 this.open = false;
             }
         });
+    }
+
+    private onClick(event) {
+        event.stopPropagation();
+    }
+    
+    private offClick() {
+        this.open = false;    
     }
 
     private mainAction() {
