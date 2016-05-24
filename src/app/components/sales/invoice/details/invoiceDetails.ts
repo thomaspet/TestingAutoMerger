@@ -30,6 +30,7 @@ declare var moment;
 export class InvoiceDetails {
             
     @Input() InvoiceID: any;
+    @Input() public runAsCreditNote: boolean = false;
                   
     @ViewChild(UniComponentLoader)
     ucl: UniComponentLoader;
@@ -190,7 +191,7 @@ export class InvoiceDetails {
             ); 
         }, 2000); 
     }
-    
+   
     saveInvoiceTransition(event: any, transition: string) {
         this.saveInvoice((invoice) => {
             this.customerInvoiceService.Transition(this.invoice.ID, this.invoice, transition).subscribe(() => {

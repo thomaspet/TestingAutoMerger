@@ -1,9 +1,11 @@
 import {Component, ViewChildren} from '@angular/core';
-import {UniTable, UniTableBuilder, UniTableColumn} from '../../../../../framework/uniTable';
+import {UniTable, UniTableColumn, UniTableColumnType, UniTableConfig} from 'unitable-ng2/main';
 import {Router} from '@angular/router-deprecated';
 import {UniHttp} from '../../../../../framework/core/http/http';
 import {CustomerInvoiceService} from '../../../../services/services';
 import {CustomerInvoice} from '../../../../unientities';
+import {Http, URLSearchParams} from '@angular/http';
+import {AsyncPipe} from '@angular/common';
 
 declare var jQuery;
 
@@ -11,94 +13,112 @@ declare var jQuery;
     selector: 'invoice-list',
     templateUrl: 'app/components/sales/invoice/list/invoiceList.html',
     directives: [UniTable],
-    providers: [CustomerInvoiceService]
+    providers: [CustomerInvoiceService],
+    pipes: [AsyncPipe]
 })
-export class InvoiceList {
-    @ViewChildren(UniTable) public tables: any;
 
-    private invoiceTable: UniTableBuilder;
+export class InvoiceList {
+    @ViewChildren(UniTable) public table: any;
+
+    private invoiceTable: UniTableConfig;
     private selectedinvoice: CustomerInvoice;
-   
-    constructor(private uniHttpService: UniHttp, private router: Router, private customerInvoiceService: CustomerInvoiceService) {
+    private lookupFunction: (urlParams: URLSearchParams) => any;
+
+    constructor(private uniHttpService: UniHttp,
+        private router: Router,
+        private customerInvoiceService: CustomerInvoiceService,
+        private http: Http) {
         this.setupInvoiceTable();
     }
 
     log(err) {
         alert(err._body);
     }
-    
+
     createInvoice() {
         this.customerInvoiceService.newCustomerInvoice().then(invoice => {
             this.customerInvoiceService.Post(invoice)
                 .subscribe(
-                    (data) => {
-                        this.router.navigateByUrl('/sales/invoice/details/' + data.ID);        
-                    },
-                    (err) => { 
-                        console.log('Error creating invoice: ', err);
-                        this.log(err);
-                    }
+                (data) => {
+                    this.router.navigateByUrl('/sales/invoice/details/' + data.ID);
+                },
+                (err) => {
+                    console.log('Error creating invoice: ', err);
+                    this.log(err);
+                }
                 );
-        });           
+        });
     }
 
+    private onRowSelected(event) {
+        this.router.navigateByUrl('/sales/invoice/details/' + event.rowModel.ID);
+    };
+
     private setupInvoiceTable() {
+        this.lookupFunction = (urlParams: URLSearchParams) => {
+            let params = urlParams;
+
+            if (params == null)
+                params = new URLSearchParams();
+
+            return this.customerInvoiceService.GetAllByUrlSearchParams(params);
+        };
+
         var self = this;
 
         // Define columns to use in the table
-        var invoiceNumberCol = new UniTableColumn('InvoiceNumber', 'Fakturanr', 'string').setWidth('10%');
-       
-        var customerNumberCol = new UniTableColumn('Customer.CustomerNumber', 'Kundenr', 'string')
-            .setNullable(true)
-            .setWidth('10%');
+        var invoiceNumberCol = new UniTableColumn('InvoiceNumber', 'Fakturanr', UniTableColumnType.Text).setWidth('10%');
+        var customerNumberCol = new UniTableColumn('Customer.CustomerNumber', 'Kundenr', UniTableColumnType.Text).setWidth('10%');
+        var customerNameCol = new UniTableColumn('CustomerName', 'Kunde', UniTableColumnType.Text);
 
-        var customerNameCol = new UniTableColumn('CustomerName', 'Kunde', 'string');
+        var invoiceDateCol = new UniTableColumn('InvoiceDate', 'Fakturadato', UniTableColumnType.Date).setWidth('10%');
+        var dueDateCol = new UniTableColumn('PaymentDueDate', 'Forfallsdato', UniTableColumnType.Date).setWidth('10%');
 
-        var invoiceDateCol = new UniTableColumn('InvoiceDate', 'Fakturadato', 'date')
-            .setFormat('{0: dd.MM.yyyy}')
-            .setWidth('10%');
-
-        var dueDateCol = new UniTableColumn('PaymentDueDate', 'Forfallsdato', 'date')
-            .setFormat('{0: dd.MM.yyyy}')
-            .setWidth('10%');
-
-        var taxInclusiveAmountCol = new UniTableColumn('TaxInclusiveAmount', 'Totalsum', 'number')
+        var taxInclusiveAmountCol = new UniTableColumn('TaxInclusiveAmount', 'Totalsum', UniTableColumnType.Number)
             .setWidth('10%')
             .setFormat('{0:n}')
-            .setClass('column-align-right');
+            .setCls('column-align-right');
 
-        var statusCol = new UniTableColumn('StatusCode', 'Status', 'number').setWidth('15%');
+        var statusCol = new UniTableColumn('StatusCode', 'Status', UniTableColumnType.Number).setWidth('15%');
         statusCol.setTemplate((dataItem) => {
-            return this.customerInvoiceService.getStatusText(dataItem.StatusCode); 
+            return this.customerInvoiceService.getStatusText(dataItem.StatusCode);
         });
 
-        // Define callback function for row clicks
-        var selectCallback = (selectedItem) => {
-            this.router.navigateByUrl('/sales/invoice/details/' + selectedItem.ID);
-        };
-
         // Setup table
-        this.invoiceTable = new UniTableBuilder('invoices', false)
-            .setFilterable(false)
-            .setSelectCallback(selectCallback)
-            .setExpand('Customer')
+        this.invoiceTable = new UniTableConfig(false, true)
             .setPageSize(25)
-            .addColumns( invoiceNumberCol, customerNumberCol, customerNameCol, invoiceDateCol, dueDateCol, taxInclusiveAmountCol, statusCol)
-            .setOrderBy('PaymentDueDate','desc')
-            .addCommands({
-                name: 'ContextMenu', text: '...', click: (function (event) {
-                    event.preventDefault();
-                    var dataItem = this.dataItem(jQuery(event.currentTarget).closest('tr'));
+            .setColumns([invoiceNumberCol, customerNumberCol, customerNameCol, invoiceDateCol, dueDateCol, taxInclusiveAmountCol, statusCol]);
 
-                    if (dataItem !== null && dataItem.ID !== null) {
-                        self.selectedinvoice = dataItem;
-                        alert('Kontekst meny er under utvikling.');
-                    }
-                    else {
-                        console.log('Error in selecting the SupplierInvoices');
-                    }
-                })
-            });
-                               
+        //TODO: Add contextmenuitems   
+
+
+        //// Define callback function for row clicks
+        //var selectCallback = (selectedItem) => {
+        //    this.router.navigateByUrl('/sales/invoice/details/' + selectedItem.ID);
+        //};
+
+        //// Setup table
+        //this.invoiceTable = new UniTableBuilder('invoices', false)
+        //    .setFilterable(false)
+        //    .setSelectCallback(selectCallback)
+        //    .setExpand('Customer')
+        //    .setPageSize(25)
+        //    .addColumns(invoiceNumberCol, customerNumberCol, customerNameCol, invoiceDateCol, dueDateCol, taxInclusiveAmountCol, statusCol)
+        //    .setOrderBy('PaymentDueDate', 'desc')
+        //    .addCommands({
+        //        name: 'ContextMenu', text: '...', click: (function (event) {
+        //            event.preventDefault();
+        //            var dataItem = this.dataItem(jQuery(event.currentTarget).closest('tr'));
+
+        //            if (dataItem !== null && dataItem.ID !== null) {
+        //                self.selectedinvoice = dataItem;
+        //                alert('Kontekst meny er under utvikling.');
+        //            }
+        //            else {
+        //                console.log('Error in selecting the SupplierInvoices');
+        //            }
+        //        })
+        //    });
+
     }
 }
