@@ -1,10 +1,9 @@
-import {Component, Input, Output, EventEmitter, ElementRef} from '@angular/core';
+import {Component, Input, Output, EventEmitter} from '@angular/core';
 
 export interface IUniSaveAction {
-    verb: string;
-    callback: any;
+    label: string;
+    action: (done: (statusMessage?: string) => any) => void;
     main?: boolean;
-    busy?: boolean;
     disabled?: boolean;
 }
 
@@ -12,14 +11,14 @@ export interface IUniSaveAction {
     selector: 'uni-save',
     template: `
         <footer class="uniSave">
-            <p class="uniSave-status">{{status}}</p>
+            <p *ngIf="status" class="uniSave-status">{{status.message}} <small>{{status.when}}</small></p>
 
             <div role="group" class="comboButton">
                 <button class="comboButton_btn"
                         type="button"
                         (click)="onSave(mainAction())"
-                        [attr.aria-busy]="mainAction().busy"
-                        [disabled]="mainAction().disabled">{{mainAction().verb}}</button>
+                        [attr.aria-busy]="busy"
+                        [disabled]="mainAction().disabled">{{mainAction().label}}</button>
                 <button class="comboButton_more"
                         (click)="open = !open"
                         aria-owns="saveActionMenu"
@@ -31,8 +30,8 @@ export interface IUniSaveAction {
                         (click)="onSave(action)"
                         role="menuitem"
                         [attr.aria-disabled]="action.disabled"
-                        [title]="action.verb"
-                        [attr.aria-hidden]="action.main">{{action.verb}}</li>
+                        [title]="action.label"
+                        [attr.aria-hidden]="action.main">{{action.label}}</li>
                 </ul>
             </div>
 
@@ -47,21 +46,21 @@ export interface IUniSaveAction {
 
 
 export class UniSave {
-
     @Input() public actions: IUniSaveAction[];
-    @Input() public status: string;
     @Output() public save: EventEmitter<any> = new EventEmitter();
 
-    private open: boolean;
+    private open: boolean = false;
+    private busy: boolean = false;
+    private status: {message: string, when: string};
 
-    constructor(public el: ElementRef) {
+    constructor() {
         document.addEventListener('keyup', (event) => {
             if (event.keyCode === 27) {
                 this.open = false;
             }
         });
     }
-
+    
     private onClick(event) {
         event.stopPropagation();
     }
@@ -82,8 +81,18 @@ export class UniSave {
 
     public onSave(action) {
         this.open = false;
-        this.save.emit(action);
+        this.busy = true;
+        this.status = undefined;
+        action.action(this.onSaveCompleted.bind(this));
     }
-
-
+    
+    public onSaveCompleted(statusMessage?: string) {
+        if (statusMessage.length) {
+            this.status = {
+                message: statusMessage,
+                when: moment(new Date()).fromNow()
+            };
+        }
+        this.busy = false;
+    }
 }
