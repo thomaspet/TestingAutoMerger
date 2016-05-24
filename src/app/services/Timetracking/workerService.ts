@@ -3,6 +3,7 @@ import {BizHttp} from '../../../framework/core/http/BizHttp';
 import {Worker, WorkRelation, WorkProfile, WorkItem, User, WorkType} from '../../unientities';
 import {UniHttp} from '../../../framework/core/http/http';
 import {Observable, ObservableInput} from "rxjs/Observable";
+import "rxjs/add/operator/switchMap";
 import {AuthService} from '../../../framework/core/authService';
 declare var moment;
 
@@ -26,8 +27,26 @@ export class WorkerService extends BizHttp<Worker> {
         this.user.guid = authService.jwtDecoded.nameid;
         this.user.company = JSON.parse(localStorage.getItem('activeCompany')).Name;
         
-        //console.info('workerservice constructor loaded:');
-        
+    }
+    
+    initFromUser(id:number):Observable<any> {
+        return this.getWorkerFromUser(id).switchMap((worker:Worker) => {
+            return this.initFromWorker(worker.ID);
+        });
+    }
+    
+    initFromWorker(workerId:number):Observable<any> {
+        return this.getWorkRelations(workerId).switchMap((list:WorkRelation[])=>{
+            // Try to create initial workrelation for this worker
+            if ((!list) || list.length===0) {
+                this.getWorkProfiles().switchMap((profiles:WorkProfile[])=>{
+                    return this.createInitialWorkRelation(workerId, profiles[0]).map((item:WorkRelation)=>{
+                        return [item]; 
+                    });
+                })
+            }
+            return [list];
+        });
     }
     
     getWorkers(): Observable<Array<Worker>> {
@@ -58,11 +77,11 @@ export class WorkerService extends BizHttp<Worker> {
         });
     }
     
-    getFromUser(userid:number): Observable<Worker> {
+    getWorkerFromUser(userid:number): Observable<Worker> {
         return super.PostAction<Worker>(null, "create-worker-from-user", 'userid=' + userid);
     }
     
-    getWorkRelations(workerId:number): Observable<Array<WorkRelation>> {
+    getWorkRelations(workerId:number): Observable<WorkRelation[]> {
         return this.GET("workrelations", { filter: 'workerid eq ' + workerId, expand: 'workprofile'});
     }    
     

@@ -83,7 +83,7 @@ export class TimeEntry {
     }
     
     getWorker(userid:number) {
-        this.service.getFromUser(userid).subscribe((result:Worker)=> {
+        this.service.getWorkerFromUser(userid).subscribe((result:Worker)=> {
             this.worker = result;
             this.getWorkRelations(this.worker.ID);
         });

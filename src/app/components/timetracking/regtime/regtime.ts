@@ -14,15 +14,23 @@ declare var moment;
     selector: view.name,
     templateUrl: 'app/components/timetracking/regtime/regtime.html',
     directives: [NewTable], 
-    styles: [`.tabtip { color: #606060; margin-left: -15px; }`],
+    styles: ['.title { font-size: 18pt; padding: 1em 1em 1em 0; }',
+            '.title span { margin-right: 1em;}',
+            '.title select { display:inline-block; width: auto; padding-left: 7px; padding-right: 7px; }',
+            '.tabtip { color: #606060; margin-left: -15px; }'
+            ],
     providers: [WorkerService]
 })
 export class RegisterTime {    
     public view = view;
     
+    private busy = true;
+    private userName = '';
     private tableConfig: UniTableConfig;
     private tableData:Array<any> = [];
     private worktypes:Array<WorkType> = [];
+    private workRelations: Array<WorkRelation> = [];    
+    private currentWorkRelation: WorkRelation;
     
     tabs = [ { name: 'timeentry', label: 'Timer', isSelected: true },
             { name: 'totals', label: 'Totaler' },
@@ -34,16 +42,17 @@ export class RegisterTime {
 
     constructor(private tabService: TabService, private service:WorkerService) {
         this.tabService.addTab({ name: view.label, url: view.route });
-        this.addNewRow();
+        this.userName = service.user.name;
+        //this.addNewRow();
         this.tableConfig = this.createTableConfig();
-        
         this.initServiceValues();        
     }
     
-    public onGetItemsClick() {
-        console.log("fetching data:");
-        this.service.getWorkItems(3).subscribe((list:WorkItem[])=>{
-            console.log("data here!", list);
+    loadItems(workRelationID:number) {
+        this.service.getWorkItems(workRelationID).subscribe((list:WorkItem[])=>{
+            this.busy = false;
+            this.tableData = list;
+            this.tableConfig = this.createTableConfig();
         });        
     }
     
@@ -55,11 +64,25 @@ export class RegisterTime {
     }
     
     initServiceValues() {
+        
+        this.service.getCurrentUserId().then((id:number)=>{
+            console.log('got the user:' + id);
+            this.service.initFromUser(id).subscribe((items:WorkRelation[])=>{
+                this.workRelations = items;
+                this.selectWorkRelation(items[0]);
+            });
+        });
+        
         this.service.getWorkTypes().subscribe((result:Array<WorkType>)=>{
             this.worktypes = result;
             console.log('list returned from service', this.worktypes.length);
         });        
     }
+    
+    selectWorkRelation(relation:WorkRelation) {
+        this.currentWorkRelation = relation;
+        this.loadItems(relation.ID);
+    }    
     
 	addNewRow(text = 'Fyll inn beskrivelse') {
         var workType = this.defaultType();
@@ -74,15 +97,15 @@ export class RegisterTime {
         this.tableData.push(row);
 	}    
     
-    getWorkType(id:number): WorkType {
+    getWorkTypeByID(id:number): WorkType {
         var tp = this.worktypes.find((item:WorkType)=> {
            return item.ID === id;  
         });     
         return tp || this.defaultType();
     }
     
-    findWorkType(txt:string):Observable<any> {
-        var list = this.worktypes || [this.getWorkType(1)]; 
+    filterWorkTypes(txt:string):Observable<any> {
+        var list = this.worktypes || [this.getWorkTypeByID(1)]; 
         var lcaseText = txt.toLowerCase();
         var sublist = list.filter((item:WorkType)=>
             { return (item.ID.toString() == txt || item.Name.toLowerCase().indexOf(lcaseText)>=0); } );
@@ -96,7 +119,7 @@ export class RegisterTime {
             this.createTimeColumn('StartTime', 'Fra kl.'),
             this.createTimeColumn('EndTime', 'Til kl.'),
             new UniTableColumn('Date', 'Dato', UniTableColumnType.Date, true),            
-            this.createLookupColumn('Worktype', 'Type arbeid', 'Worktype', (txt) => this.findWorkType(txt))                      
+            this.createLookupColumn('Worktype', 'Type arbeid', 'Worktype', (txt) => this.filterWorkTypes(txt))                      
         ];
 
         return new UniTableConfig(true, true, 25).setColumns(cols).setChangeCallback((event)=>this.onEditChange(event));
