@@ -2,10 +2,9 @@ import {Component, Type, ViewChild, Input} from '@angular/core';
 import {NgIf} from '@angular/common';
 import {Router} from '@angular/router-deprecated';
 import {UniModal} from '../../../../../framework/modals/modal';
-import {UniForm, UniFormBuilder, UniFieldBuilder} from '../../../../../framework/forms';
+import {UniForm} from '../../../../../framework/forms';
 import {UniTable, UniTableBuilder, UniTableColumn} from '../../../../../framework/unitable';
-import {UNI_CONTROL_DIRECTIVES} from '../../../../../framework/controls';
-import {FieldType, PayrollRun, SalaryTransaction, FieldLayout} from '../../../../../app/unientities';
+import {FieldLayout} from '../../../../../app/unientities';
 import {AltinnService, EmployeeService} from '../../../../../app/services/services';
 import {Observable} from 'rxjs/Observable';
 import {RootRouteParamsService} from '../../../../services/rootRouteParams';
@@ -14,7 +13,7 @@ declare var _;
 @Component({
     selector: 'tax-request-modal-content',
     directives: [UniForm, NgIf],
-    providers: [],
+    providers: [AltinnService],
     templateUrl: 'app/components/salary/employee/modals/taxrequestmodalcontent.html'
 })
 export class TaxRequestModalContent {
@@ -22,13 +21,14 @@ export class TaxRequestModalContent {
     private config: any;
     
     public model: {formChoice: number} = { formChoice: 1 };
-    public fields: any[] = [];
+    public fields: FieldLayout[] = [];
     public formConfig: any = {};
     
     @ViewChild(UniForm)
     public uniform: UniForm;
     
-    constructor() {
+    constructor(private _altinnService: AltinnService) {
+        console.log('modal constructor 1');
         var singleEmpChoice: FieldLayout = {
             FieldSet: 0,
             Section: 0,
@@ -47,10 +47,12 @@ export class TaxRequestModalContent {
                 valueProperty: 'id'
             }
         };
-        this.fields = [singleEmpChoice, ...this.fields];
+        this.fields = [singleEmpChoice, ... this.fields];
+        console.log('modal constructor 2 fields: ' + JSON.stringify(this.fields));
         this.formConfig = {
             submitText: 'Enviar'
         };
+        console.log('modal constructor 3');
         
     }
     
