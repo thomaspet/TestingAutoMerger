@@ -33,7 +33,7 @@ export class PostingsummaryModal implements AfterViewInit {
                     this.modals[0].getContent().then((content: PostingsummaryModalContent) => {
                         content.postTransactions().subscribe((success) => {
                             if (success) {
-                                content.showResponseReceipt();
+                                content.showResponseReceipt(success);
                             }
                         });
                     });
