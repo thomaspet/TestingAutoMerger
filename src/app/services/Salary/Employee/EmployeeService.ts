@@ -105,16 +105,18 @@ export class EmployeeService extends BizHttp<Employee> {
                     Combo: null,
                     Legend: '',
                     hasLineBreak: false,
+                     
                     Validations: [
                         {
                             ErrorMessage: 'Required field',
                             Level: 3,
-                            Operator: 'REQUIRED'
+                            Operator: 7 // required
                         }
                     ]
                 },
                 {
                     ComponentLayoutID: 1,
+                     
                     EntityType: 'Employee',
                     Property: 'SocialSecurityNumber',
                     Placement: 2,
@@ -134,20 +136,15 @@ export class EmployeeService extends BizHttp<Employee> {
                     Legend: '',
                     Validations: [
                         {
-                            Value: '000000 00000',
-                            ErrorMessage: 'Social Security Number should fit the pattern',
-                            Operator: 'MASKED',
-                            Level: 3
-                        },
-                        {
                             ErrorMessage: 'Required field',
                             Level: 3,
-                            Operator: 'REQUIRED'
+                            Operator: 7 // required
                         }
                     ]
                 },
                 {
                     ComponentLayoutID: 1,
+                     
                     EntityType: 'Employee',
                     Property: 'BirthDate',
                     Placement: 3,
@@ -167,19 +164,15 @@ export class EmployeeService extends BizHttp<Employee> {
                     Legend: '',
                     Validations: [
                         {
-                            ErrorMessage: 'should be a valid date',
-                            Operator: 'DATE',
-                            Level: 3
-                        },
-                        {
                             ErrorMessage: 'Required field',
                             Level: 3,
-                            Operator: 'REQUIRED'
+                            Operator: 7 // required
                         }
                     ]
                 },
                 {
                     ComponentLayoutID: 1,
+                     
                     EntityType: 'Employee',
                     Property: 'Sex',
                     Placement: 4,
@@ -193,15 +186,18 @@ export class EmployeeService extends BizHttp<Employee> {
                     FieldSet: 0,
                     Section: 0,
                     Placeholder: null,
-                    Options: null,
                     LineBreak: null,
                     Combo: null,
                     Legend: '',
                     IsLookUp: true,
-                    kendoOptions: {
-                        dataSource: [{ID: 1, Name: 'Kvinne'}, {ID: 2, Name: 'Mann'}],
-                        dataTextField: 'Name',
-                        dataValueField: 'ID'
+                    Options: {
+                        source: [
+                            { id: 1, name: 'Kvinne' },
+                            { id: 2, name: 'Mann' }
+                        ],
+                        template: (obj) => `${obj.id} - ${obj.name}`, 
+                        valueProperty: 'id',
+                        displayProperty: 'name'
                     },
                     Validations: [
                         {
@@ -213,6 +209,7 @@ export class EmployeeService extends BizHttp<Employee> {
                 },
                 {
                     ComponentLayoutID: 1,
+                     
                     EntityType: 'Employee',
                     Property: 'BankAccounts[0].AccountNumber',
                     Placement: 5,
@@ -226,17 +223,16 @@ export class EmployeeService extends BizHttp<Employee> {
                     FieldSet: 0,
                     Section: 0,
                     Placeholder: null,
-                    Options: null,
                     LineBreak: null,
                     Combo: null,
                     Legend: '',
                     IsLookUp: false,
-                    kendoOptions: {
+                    Options: {
                         mask: '0000 00 00000'
                     },
                     Validations: [
                         {
-                            Value: '^/%d{11}/$',
+                            Value: '^\\d{11}$',
                             ErrorMessage: 'Accountnumber should fit the pattern',
                             Operator: Operator.RegExp,
                             Level: 3
@@ -250,6 +246,7 @@ export class EmployeeService extends BizHttp<Employee> {
                 },
                 {
                     ComponentLayoutID: 1,
+                     
                     EntityType: 'Employee',
                     Property: 'SubEntityID',
                     Placement: 6,
@@ -263,26 +260,31 @@ export class EmployeeService extends BizHttp<Employee> {
                     FieldSet: 0,
                     Section: 0,
                     Placeholder: null,
-                    Options: null,
                     LineBreak: null,
                     Combo: null,
                     Legend: '',
                     IsLookUp: false,
-                    kendoOptions: {
-                        dataSource: this.subEntities,
-                        dataTextField: 'BusinessRelationInfo.Name',
-                        dataValueField: 'ID'
+                    Options: {
+                        //source: this.subEntities,
+                        source: [
+                            { id: 1, name: 'Kvinne' },
+                            { id: 2, name: 'Mann' }
+                        ],
+                        template: (obj) => `${obj.id} - ${obj.name}`,
+                        dataValueField: 'ID',
+                        displayProperty: 'name'
                     },
                     Validations: [
                         {
                             ErrorMessage: 'Required field',
                             Level: 3,
-                            Operator: 'REQUIRED'
+                            Operator: 7 // required
                         }
                     ]
                 },
                 {
                     ComponentLayoutID: 1,
+                     
                     EntityType: 'Employee',
                     Property: '',
                     Placement: 7,
@@ -305,12 +307,13 @@ export class EmployeeService extends BizHttp<Employee> {
                         {
                             ErrorMessage: 'Required field',
                             Level: 3,
-                            Operator: 'REQUIRED'
+                            Operator: 7 // required
                         }
                     ]
                 },
                 {
                     ComponentLayoutID: 1,
+                     
                     EntityType: 'BusinessRelationInfo',
                     Property: 'Addresses',
                     Placement: 2,
@@ -334,12 +337,13 @@ export class EmployeeService extends BizHttp<Employee> {
                         {
                             ErrorMessage: 'Required field',
                             Level: 3,
-                            Operator: 'REQUIRED'
+                            Operator: 7 // required
                         }
                     ]*/
                 },
                 {
                     ComponentLayoutID: 1,
+                     
                     EntityType: 'Employee',
                     Property: 'BusinessRelationInfo.Addresses[0].PostalCode',
                     Placement: 1,
@@ -352,22 +356,22 @@ export class EmployeeService extends BizHttp<Employee> {
                     HelpText: null,
                     FieldSet: 0,
                     Section: 1,
-                    Placeholder: null,
+                    Legend: 'KONTAKTINFORMASJON',
+                    Placeholder: '',
                     Options: null,
                     LineBreak: null,
-                    Combo: null,
-                    Legend: '',
                     IsLookUp: false,
                     Validations: [
                         {
                             ErrorMessage: 'Required field',
                             Level: 3,
-                            Operator: 'REQUIRED'
+                            Operator: 7 // required
                         }
                     ]
                 },
                 {
                     ComponentLayoutID: 1,
+                     
                     EntityType: 'Employee',
                     Property: 'BusinessRelationInfo.Addresses[0].City',
                     Placement: 3,
@@ -391,12 +395,13 @@ export class EmployeeService extends BizHttp<Employee> {
                         {
                             ErrorMessage: 'Required field',
                             Level: 3,
-                            Operator: 'REQUIRED'
+                            Operator: 7 // required
                         }
                     ]
                 },
                 {
                     ComponentLayoutID: 1,
+                     
                     EntityType: 'Employee',
                     Property: 'BusinessRelationInfo.Addresses[0].CountryCode',
                     Placement: 4,
@@ -419,12 +424,13 @@ export class EmployeeService extends BizHttp<Employee> {
                         {
                             ErrorMessage: 'Required field',
                             Level: 3,
-                            Operator: 'REQUIRED'
+                            Operator: 7 // required
                         }
                     ]
                 },
                 {
                     ComponentLayoutID: 1,
+                     
                     EntityType: 'Employee',
                     Property: 'BusinessRelationInfo.Addresses[0].Country',
                     Placement: 5,
@@ -448,12 +454,13 @@ export class EmployeeService extends BizHttp<Employee> {
                         {
                             ErrorMessage: 'Required field',
                             Level: 3,
-                            Operator: 'REQUIRED'
+                            Operator: 7 // required
                         }
                     ]
                 },
                 {
                     ComponentLayoutID: 1,
+                     
                     EntityType: 'BusinessRelationInfo',
                     Property: 'Emails',
                     Placement: 6,
@@ -476,12 +483,13 @@ export class EmployeeService extends BizHttp<Employee> {
                         {
                             ErrorMessage: 'Required field',
                             Level: 3,
-                            Operator: 'REQUIRED'
+                            Operator: 7 // required
                         }
                     ]*/
                 },
                 {
                     ComponentLayoutID: 1,
+                     
                     EntityType: 'Employee',
                     Property: 'BusinessRelationInfo.Phones[0].LandCode',
                     Placement: 7,
@@ -504,12 +512,13 @@ export class EmployeeService extends BizHttp<Employee> {
                         {
                             ErrorMessage: 'Required field',
                             Level: 3,
-                            Operator: 'REQUIRED'
+                            Operator: 7 // required
                         }
                     ]
                 },
                 {
                     ComponentLayoutID: 1,
+                     
                     EntityType: 'BusinessRelationInfo',
                     Property: 'Phones',
                     Placement: 8,
@@ -532,12 +541,13 @@ export class EmployeeService extends BizHttp<Employee> {
                         {
                             ErrorMessage: 'Required field',
                             Level: 3,
-                            Operator: 'REQUIRED'
+                            Operator: 7 // required
                         }
                     ]*/
                 },
                 {
                     ComponentLayoutID: 1,
+                     
                     EntityType: 'Employee',
                     Property: 'TaxTable',
                     Placement: 1,
@@ -561,12 +571,13 @@ export class EmployeeService extends BizHttp<Employee> {
                         {
                             ErrorMessage: 'Required field',
                             Level: 3,
-                            Operator: 'REQUIRED'
+                            Operator: 7 // required
                         }
                     ]
                 },
                 {
                     ComponentLayoutID: 1,
+                     
                     EntityType: 'Employee',
                     Property: 'TaxPercentage',
                     Placement: 2,
@@ -589,12 +600,13 @@ export class EmployeeService extends BizHttp<Employee> {
                         {
                             ErrorMessage: 'Required field',
                             Level: 3,
-                            Operator: 'REQUIRED'
+                            Operator: 7 // required
                         }
                     ]
                 },
                 {
                     ComponentLayoutID: 1,
+                     
                     EntityType: 'Employee',
                     Property: 'NonTaxableAmount',
                     Placement: 3,
@@ -617,17 +629,18 @@ export class EmployeeService extends BizHttp<Employee> {
                         {
                             ErrorMessage: 'Required field',
                             Level: 3,
-                            Operator: 'REQUIRED'
+                            Operator: 7 // required
                         }
                     ]
                 },
                 {
                     ComponentLayoutID: 1,
+                     
                     EntityType: 'Employee',
                     Property: 'NotMainEmployer',
                     Placement: 4,
                     Hidden: false,
-                    FieldType: FieldType.CHECKBOX,
+                    FieldType: 5,
                     ReadOnly: false,
                     LookupField: false,
                     Label: 'Biarbeidsgiver',
@@ -641,16 +654,11 @@ export class EmployeeService extends BizHttp<Employee> {
                     Combo: null,
                     Legend: '',
                     IsLookUp: false,
-                    Validations: [
-                        {
-                            ErrorMessage: 'Required field',
-                            Level: 3,
-                            Operator: 'REQUIRED'
-                        }
-                    ]
+                    Validations: []
                 },
                 {
                     ComponentLayoutID: 1,
+                     
                     EntityType: 'Employee',
                     Property: 'MunicipalityNo',
                     Placement: 5,
@@ -673,12 +681,13 @@ export class EmployeeService extends BizHttp<Employee> {
                         {
                             ErrorMessage: 'Required field',
                             Level: 3,
-                            Operator: 'REQUIRED'
+                            Operator: 7 // required
                         }
                     ]
                 },
                 {
                     ComponentLayoutID: 1,
+                     
                     EntityType: 'Employee',
                     Property: 'InternationalID',
                     Placement: 1,
@@ -702,7 +711,7 @@ export class EmployeeService extends BizHttp<Employee> {
                         {
                             ErrorMessage: 'Required field',
                             Level: 3,
-                            Operator: 'REQUIRED'
+                            Operator: 7 // required
                         }
                     ]
                 },
@@ -723,15 +732,15 @@ export class EmployeeService extends BizHttp<Employee> {
                     Placeholder: null,
                     Options: null,
                     LineBreak: null,
-                    Combo: null,
                     Legend: null,
                     FieldsetLegend: null,
                     IsLookUp: false,
+                     
                     Validations: [
                         {
                             ErrorMessage: 'Required field',
                             Level: 3,
-                            Operator: 'REQUIRED'
+                            Operator: 7 // required
                         }
                     ]
                 },
@@ -752,15 +761,15 @@ export class EmployeeService extends BizHttp<Employee> {
                     Placeholder: null,
                     Options: null,
                     LineBreak: null,
-                    Combo: null,
                     Legend: null,
                     FieldsetLegend: null,
                     IsLookUp: false,
+                     
                     Validations: [
                         {
                             ErrorMessage: 'Required field',
                             Level: 3,
-                            Operator: 'REQUIRED'
+                            Operator: 7 // required
                         }
                     ]
                 },
@@ -786,11 +795,12 @@ export class EmployeeService extends BizHttp<Employee> {
                     FieldsetLegend: 'Internasjonal bankkonto',
                     IsLookUp: false,
                     openByDefault: true,
+                     
                     Validations: [
                         {
                             ErrorMessage: 'Required field',
                             Level: 3,
-                            Operator: 'REQUIRED'
+                            Operator: 7 // required
                         }
                     ]
                 }
