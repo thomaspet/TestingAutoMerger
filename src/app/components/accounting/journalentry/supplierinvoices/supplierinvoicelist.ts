@@ -83,6 +83,16 @@ export class SupplierInvoiceList implements OnInit {
 
         const taxInclusiveAmountCol = new UniTableColumn('TaxInclusiveAmount', 'Beløp')
             .setCls('supplier-invoice-table-amount'); // TODO decide what/how format is set for the different field types
+            
+        var restAmountCol = new UniTableColumn('RestAmount', 'Restbeløp')
+            .setType(UniTableColumnType.Number)
+            .setCls('column-align-right')
+            .setFormat('{0:n}');
+
+        var creditedAmountCol = new UniTableColumn('CreditedAmount', 'Kreditert')
+            .setType(UniTableColumnType.Number)
+            .setCls('column-align-right')
+            .setFormat('{0:n}');
 
         return new UniTableConfig(false, true)
             .setColumns([
@@ -95,7 +105,9 @@ export class SupplierInvoiceList implements OnInit {
                 invoiceIDCol,
                 bankAccount,
                 paymentIdOrName,
-                taxInclusiveAmountCol
+                taxInclusiveAmountCol,
+                restAmountCol, 
+                creditedAmountCol
             ])
             .setPageSize(15);
     }
