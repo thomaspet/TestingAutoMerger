@@ -1,19 +1,15 @@
 <header class="invoice_poster" *ngIf="invoice">
-    <section *ngIf="!runAsCreditNote" class="invoice-detail-header">
-        <h2>
-            Faktura
-        </h2>
-    </section>
-    <section *ngIf="runAsCreditNote" class="invoice-detail-header">
-        <h2>
-            Kreditnota
-        </h2>
-    </section>
-
     <article class="poster_toolbar">
         <section>
             <h1 *ngIf="invoice">{{invoice.Customer ? invoice.Customer.Info.Name : invoice.CustomerName}}</h1>
-            <p>Fakturanr. {{invoice.InvoiceNumber}} <span *ngIf="!itemsSummaryData">. Netto kr {{invoice.TaxExclusiveAmount}}</span> <span *ngIf="itemsSummaryData">. Netto kr {{itemsSummaryData.SumTotalExVat}}</span>. Status: {{ statusText }}</p>
+            <p>
+                {{invoice.InvoiceType == 0 ? 'Fakturanr. ' : 'Kreditnota.' }}
+                {{invoice.InvoiceNumber}}
+                <span *ngIf="!itemsSummaryData">. Netto kr {{invoice.TaxExclusiveAmount}}</span>
+                <span *ngIf="itemsSummaryData">. Netto kr {{itemsSummaryData.SumTotalExVat}}</span>
+                . Status: {{ statusText }}
+                <span *ngIf="invoice.InvoiceType == 1">. Kreditering av faktura nr.{{invoice.InvoiceReference ? invoice.InvoiceReference.InvoiceNumber : 'ukjent'}} </span>
+            </p>
             <p></p>
         </section>
         <nav class="poster_toolbar_tools">
@@ -59,7 +55,7 @@
 
 <footer class="full-footer">
     <section class="application">
-        <button class="good" (click)="saveInvoiceManual($event)">Lagre faktura</button>
+        <button class="good" (click)="saveInvoiceManual($event)">Lagre</button>
         <button class="good" (click)="saveInvoiceTransition($event, 'invoice')">Fakturer</button>
         <section class="auto_save_info">
             {{ lastSavedInfo }}

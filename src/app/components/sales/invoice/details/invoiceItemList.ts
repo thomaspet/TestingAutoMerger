@@ -20,7 +20,6 @@ declare var jQuery;
 })
 export class InvoiceItemList {
     @Input() invoice: CustomerInvoice;
-    @Input() public runAsCreditNote: boolean = false;
     @ViewChild(UniTable) table: UniTable;
     @Output() ItemsUpdated = new EventEmitter<any>();
     @Output() ItemsLoaded = new EventEmitter<any>();

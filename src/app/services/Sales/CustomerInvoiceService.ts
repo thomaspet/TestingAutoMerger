@@ -19,6 +19,8 @@ export class CustomerInvoiceService extends BizHttp<CustomerInvoice> {
     private statusTypes: Array<any> = [
         { Code: StatusCodeCustomerInvoice.Draft, Text: 'Kladd' },
         { Code: StatusCodeCustomerInvoice.Invoiced, Text: 'Fakturert' },
+        { Code: StatusCodeCustomerInvoice.PartlyPaid, Text: 'Delbetalt' },
+        { Code: StatusCodeCustomerInvoice.Paid, Text: 'Betalt' },
     ];
             
     next(currentID: number): Observable<CustomerInvoice>
@@ -50,6 +52,10 @@ export class CustomerInvoiceService extends BizHttp<CustomerInvoice> {
             .withBody(invoiceItems)
             .withEndPoint(this.relativeURL + '?action=calculate-invoice-summary') 
             .send();
+    } 
+
+    public createCreditNoteFromInvoice(currentInvoiceID: number): Observable<any> {
+        return super.PutAction(currentInvoiceID, 'create-credit-invoice');
     } 
 
     public getStatusText = (statusCode: string) => {

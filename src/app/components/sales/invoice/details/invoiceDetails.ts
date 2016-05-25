@@ -30,7 +30,6 @@ declare var moment;
 export class InvoiceDetails {
             
     @Input() InvoiceID: any;
-    @Input() public runAsCreditNote: boolean = false;
                   
     @ViewChild(UniComponentLoader)
     ucl: UniComponentLoader;
@@ -52,8 +51,8 @@ export class InvoiceDetails {
     formInstance: UniForm;
     
     whenFormInstance: Promise<UniForm>;
-    
     EmptyAddress: Address;
+    invoiceReference: CustomerInvoice;
            
     constructor(private customerService: CustomerService, 
                 private customerInvoiceService: CustomerInvoiceService, 
@@ -79,7 +78,7 @@ export class InvoiceDetails {
         Observable.forkJoin(
             this.departementService.GetAll(null),
             this.projectService.GetAll(null),
-            this.customerInvoiceService.Get(this.InvoiceID, ['Dimensions','Items','Items.Product','Items.VatType', 'Customer', 'Customer.Info', 'Customer.Info.Addresses']),
+            this.customerInvoiceService.Get(this.InvoiceID, ['Dimensions', 'Items', 'Items.Product', 'Items.VatType', 'Customer', 'Customer.Info', 'Customer.Info.Addresses', 'InvoiceReference']),
             this.customerService.GetAll(null, ['Info']),
             this.addressService.GetNewEntity(null, "address")
         ).subscribe(response => { 
@@ -87,6 +86,7 @@ export class InvoiceDetails {
                 this.invoice = response[2];
                 this.customers = response[3];
                 this.EmptyAddress = response[4];   
+                this.invoiceReference = response[5];   
                 
                 this.updateStatusText();                               
                 this.addAddresses();                                                                               
