@@ -1,0 +1,57 @@
+.simpleTable
+    width: 100%
+
+    th
+        text-align: left
+        border-bottom: pxToRem(1) solid $uni-color-scale9
+        font-weight: normal
+
+    td
+        border-bottom: .1rem solid $uni-color-scale9
+        whitespace: nowrap
+        overflow-x: hidden
+
+    tr:hover
+        background-color: transparentize($uni-color-scale9, .5)
+
+    tr[aria-selected=true]
+        opacity: .5
+
+    .-isTemporary
+        color: $uni-color-scale7
+
+    .-isImportant
+        font-size: 1.4rem
+
+    // @todo We'll get proper classes for these in UniGrid
+    .-isSmallWidth
+        width: 2rem
+
+    .-isMediumWidth
+        min-width: 8rem
+        width: 8rem
+
+.simpleTable_actionMenu
+    font-size: 0
+    height: 1rem
+    width: 1rem
+    background: unicon-more($uni-color-scale6) no-repeat center center
+    background-size: .8rem
+
+.simpleTable_multiline
+    font-size: 0.75rem
+
+    dl, dt, dd
+        margin: 0
+        display: inline-block
+        float: left
+
+    dt
+        color: $uni-color-scale4
+        padding-right: .5rem
+        clear: left
+
+        &:after
+            content: ':'
+
+
