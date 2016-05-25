@@ -3,6 +3,7 @@ import {AsyncPipe} from '@angular/common';
 import {UniHttp} from '../../../../framework/core/http/http';
 import {Http, URLSearchParams} from '@angular/http';
 import {UniTable, UniTableColumn, UniTableColumnType, UniTableConfig} from 'unitable-ng2/main';
+import {TableBuilder} from '../../../../framework/uniTable/tableBuilder';
 import {Observable} from 'rxjs/Observable';
 import 'rxjs/add/operator/map';
 
@@ -50,6 +51,7 @@ export class UniTableDemoNew {
         this.buildDemoTable1();
         this.buildDemoTable2();
         this.buildDemoTable3();
+        this.testLayoutTable();
     }
     
     private onRowSelectionChange(event) {
@@ -264,5 +266,65 @@ export class UniTableDemoNew {
         this.demoTable3 = new UniTableConfig(false, true, 10)
             .setSearchable(true)
             .setColumns([jobCodeCol, jobNameCol, hoursPerWeekCol]);
+    }
+    
+    private testLayoutTable() {
+        const mockedColumnLayout = [
+            {
+                Property: 'Product',
+                Label: 'Produkt',
+                FieldType: 0,
+                DisplayField: 'Product.PartName',
+                Options: {
+                    Cls: 'fooclass',
+                    HeaderCls: 'barclass',
+                    FilterOperator: 'startswith'
+                }
+            },
+            {
+                Property: 'ItemText',
+                Label: 'Tekst'
+            },
+            {
+                Property: 'Discount',
+                Label: 'Rabatt',
+                FieldType: 6,
+                Options: {
+                    Editable: false
+                }
+            }
+        ];
+        
+        let tableConfig = new TableBuilder(true, true, 10)
+            .setColumnsFromLayout(JSON.stringify(mockedColumnLayout));
+        
+        tableConfig.setColumnProperties('Product', {
+            editorOptions: {
+                minLength: 0,
+                itemTemplate: (selectedItem) => {
+                    return (selectedItem.PartName + ' - ' + selectedItem.Name);
+                },
+                lookupFunction: (searchValue) => {
+                    return this.uniHttp.asGET()
+                        .usingBusinessDomain()
+                        .withEndPoint('products')
+                        .send({
+                            expand: 'VatType',
+                            filter: `contains(PartName,'${searchValue}') or contains(Name,'${searchValue}')`
+                        });
+                }  
+            }        
+        });
+        
+        tableConfig.setColumnProperties('Discount', {
+            conditionalCls: (rowModel) => {
+                if (rowModel['Discount'] < 0) {
+                    return 'someClass';
+                }
+            }
+        });
+            
+        console.log(tableConfig);
+        // this.demoTable1 = tableConfig;        
     }
 }
