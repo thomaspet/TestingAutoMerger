@@ -19,7 +19,7 @@ export class EmployeeService extends BizHttp<Employee> {
     
     constructor(http: UniHttp) {
         super(http);
-        this.RelativeURL = Employee.RelativeUrl;
+        this.relativeURL = Employee.RelativeUrl;
     }
     public getEmployeeCategories(employeenumber: number) {
         return this.http
@@ -27,7 +27,7 @@ export class EmployeeService extends BizHttp<Employee> {
             .usingBusinessDomain()
             // .withEndPoint('employeecategories')
             .withEndPoint(
-                this.RelativeURL 
+                this.relativeURL 
                 + '?action=get-employee-categories&EmployeeNumber=' 
                 + employeenumber)
             .send();
