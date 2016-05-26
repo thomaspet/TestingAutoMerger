@@ -66,10 +66,6 @@ export class CustomerInvoiceService extends BizHttp<CustomerInvoice> {
         return super.PutAction(currentInvoiceID, 'create-credit-draft-invoice');
     } 
 
-    public payInvoiceInvoice(invoiceData: InvoiceData): Observable<any> {
-        return super.PutAction(currentInvoiceID, 'create-credit-draft-invoice');
-    } 
-
     public getStatusText = (statusCode: string, invoiceType: number) => {
         var text = 'Udefinert';
 

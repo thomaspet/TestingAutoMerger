@@ -25,7 +25,7 @@ export class InvoiceList {
     private invoiceTable: UniTableConfig;
     private selectedinvoice: CustomerInvoice;
     private lookupFunction: (urlParams: URLSearchParams) => any;
-    private invoicePayment: InvoiceData;
+    private invoicePayment = new InvoiceData();
 
     constructor(private uniHttpService: UniHttp,
         private router: Router,
@@ -128,7 +128,7 @@ export class InvoiceList {
         contextMenuItems.push({
             label: 'Registrer betaling',
             action: (rowModel) => {
-                alert('Fakturer action - Under construction');
+                alert('Registrer betaling action - Under construction');
 
                 this.invoicePayment.Amount = rowModel.RestAmount;
                 this.invoicePayment.PaymentDate = new Date();
@@ -137,7 +137,33 @@ export class InvoiceList {
                     //TODO: Decide what to do here
                     //this.router.navigateByUrl('/sales/invoice/details/' + invoice.ID);
                     //
-                    alert('Fakturer er betalt. BilagsID' + journalEntry.ID);
+                    alert('Fakturer er delbetalt. Bilagsnummer: ' + journalEntry.JournalEntryNumber);
+                }, (err) => {
+                    console.log('Error registering payment: ', err);
+                    this.log(err);
+                });
+            },
+            disabled: (rowModel) => {
+                //Possible to pay only if status = Invoiced || PartlyPaid
+                if (rowModel.StatusCode == StatusCodeCustomerInvoice.Invoiced ||
+                    rowModel.StatusCode == StatusCodeCustomerInvoice.PartlyPaid)
+                    return false;
+                else
+                    return true;
+            }
+        });
+
+        //TOBE removed when dialog for payment is ready
+        contextMenuItems.push({
+            label: 'Registrer delbetaling',
+            action: (rowModel) => {
+                alert('Registrer delbetaling action - Under construction');
+
+                this.invoicePayment.Amount = rowModel.RestAmount*0.1;
+                this.invoicePayment.PaymentDate = new Date();
+
+                this.customerInvoiceService.ActionWithBody(rowModel.ID, this.invoicePayment, "payInvoice").subscribe((journalEntry) => {
+                    alert('Fakturer er delbetalt. Bilagsnummer: ' + journalEntry.JournalEntryNumber);
                 }, (err) => {
                     console.log('Error registering payment: ', err);
                     this.log(err);

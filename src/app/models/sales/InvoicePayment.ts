@@ -1,4 +1,4 @@
 export class InvoiceData {
-    Amount: number;
-    PaymentDate: Date;
+    Amount: number=0;
+    PaymentDate: Date = new Date();
 }
