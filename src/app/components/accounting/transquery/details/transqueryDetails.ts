@@ -23,14 +23,16 @@ export class TransqueryDetails implements OnInit {
     public ngOnInit() {
         const searchParameters = this.getSearchParameters(this.routeParams);
         const odataFilter = this.generateOdataFilter(searchParameters);
-        this.journalEntryLineService
-            .getJournalEntryLineRequestSummary(odataFilter)
-            .subscribe(summary => this.summaryData = summary);
+        if (odataFilter) {
+            this.journalEntryLineService
+                .getJournalEntryLineRequestSummary(odataFilter)
+                .subscribe(summary => this.summaryData = summary);
+        }
 
         this.uniTableConfig = this.generateUniTableConfig();
         this.lookupFunction = (urlParams: URLSearchParams) => {
             urlParams = urlParams || new URLSearchParams();
-            urlParams.set('filter', odataFilter);
+            urlParams.set('filter', this.mergeFilters(urlParams.get('filter'), odataFilter));
             urlParams.set('expand', 'VatType,Account');
             return this.journalEntryLineService.GetAllByUrlSearchParams(urlParams);
         };
@@ -76,21 +78,41 @@ export class TransqueryDetails implements OnInit {
             .setPageable(true)
             .setPageSize(15)
             .setColumnMenuVisible(false)
+            .setSearchable(true)
             .setColumns([
-                    new UniTableColumn('JournalEntryNumber', 'Bilagsnr')
-                        .setTemplate((journalEntryLine) => {
-                            return `<a href="/#/accounting/transquery/detailsByJournalEntryNumber/${journalEntryLine.JournalEntryNumber}/">
+                new UniTableColumn('JournalEntryNumber', 'Bilagsnr')
+                    .setTemplate((journalEntryLine) => {
+                        return `<a href="/#/accounting/transquery/detailsByJournalEntryNumber/${journalEntryLine.JournalEntryNumber}/">
                                 ${journalEntryLine.JournalEntryNumber}
                             </a>`;
-                        }),
-                    new UniTableColumn('Account.AccountNumber', 'Kontonr'),
-                    new UniTableColumn('Account.AccountName', 'Kontonavn'),
-                    new UniTableColumn('FinancialDate', 'Regnskapsdato'),
-                    new UniTableColumn('RegisteredDate', 'Bokføringsdato'),
-                    new UniTableColumn('Description', 'Beskrivelse'),
-                    new UniTableColumn('VatType.VatCode', 'Mvakode'),
-                    new UniTableColumn('Amount', 'Beløp')
-                ]
-            );
+                    })
+                    .setFilterOperator('contains'),
+                new UniTableColumn('Account.AccountNumber', 'Kontonr')
+                    .setFilterOperator('contains'),
+                new UniTableColumn('Account.AccountName', 'Kontonavn')
+                    .setFilterOperator('contains'),
+                new UniTableColumn('FinancialDate', 'Regnskapsdato')
+                    .setFilterOperator('contains'),
+                new UniTableColumn('RegisteredDate', 'Bokføringsdato')
+                    .setFilterOperator('contains'),
+                new UniTableColumn('Description', 'Beskrivelse')
+                    .setFilterOperator('contains'),
+                new UniTableColumn('VatType.VatCode', 'Mvakode')
+                    .setFilterOperator('contains'),
+                new UniTableColumn('Amount', 'Beløp')
+                    .setFilterOperator('contains')
+            ]);
+    }
+
+    private mergeFilters(...filters: string[]): string {
+        let finalFilter = '';
+        for (const filter of filters) {
+            if (!finalFilter) {
+                finalFilter = filter;
+            } else {
+                finalFilter += ' and ' + filter;
+            }
+        }
+        return finalFilter;
     }
 }
