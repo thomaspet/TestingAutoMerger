@@ -6,7 +6,7 @@ import 'rxjs/add/observable/forkjoin';
 import {CustomerInvoiceService, CustomerInvoiceItemService, CustomerService, SupplierService, ProjectService, DepartementService, AddressService} from '../../../../services/services';
 import {InvoiceItemList} from './invoiceItemList';
 
-import {FieldType, FieldLayout, ComponentLayout, CustomerInvoice, CustomerInvoiceItem, Customer, Departement, Project, Address, BusinessRelation} from '../../../../unientities';
+import {FieldType, FieldLayout, ComponentLayout, CustomerInvoice, CustomerInvoiceItem, Customer, Dimensions, Departement, Project, Address, BusinessRelation} from '../../../../unientities';
 import {StatusCodeCustomerInvoice} from '../../../../unientities';
 import {UNI_CONTROL_DIRECTIVES} from '../../../../../framework/controls';
 import {UniFormBuilder} from '../../../../../framework/forms/builders/uniFormBuilder';
@@ -53,6 +53,7 @@ export class InvoiceDetails {
     whenFormInstance: Promise<UniForm>;
     EmptyAddress: Address;
     invoiceReference: CustomerInvoice;
+    invoiceButtonText:string = "Fakturer";
            
     constructor(private customerService: CustomerService, 
                 private customerInvoiceService: CustomerInvoiceService, 
@@ -87,13 +88,15 @@ export class InvoiceDetails {
                 this.customers = response[3];
                 this.EmptyAddress = response[4];   
                 this.invoiceReference = response[5];   
-                
-                this.updateStatusText();                               
+
+                if (this.invoice.InvoiceType == 1)
+                    this.invoiceButtonText = "Krediter";
+                this.updateStatusText(); 
                 this.addAddresses();                                                                               
                 this.createFormConfig();
                 this.extendFormConfig();
                 this.loadForm();                
-            });       
+            });    
     }
         
     addAddresses() {
@@ -222,6 +225,11 @@ export class InvoiceDetails {
             this.invoice.DeliveryDate = moment();
         }
 
+        if (this.invoice.DimensionsID === 0) {
+            this.invoice.Dimensions = new Dimensions();
+            this.invoice.Dimensions["_createguid"] = this.customerInvoiceService.getNewGuid();
+        }
+
         this.customerInvoiceService.Put(this.invoice.ID, this.invoice)
             .subscribe(
                 (invoice: CustomerInvoice) => {  
@@ -239,7 +247,7 @@ export class InvoiceDetails {
     }       
     
     updateStatusText() {
-        this.statusText = this.customerInvoiceService.getStatusText((this.invoice.StatusCode || '').toString());
+        this.statusText = this.customerInvoiceService.getStatusText((this.invoice.StatusCode || '').toString(), this.invoice.InvoiceType);
     }
            
     nextInvoice() {

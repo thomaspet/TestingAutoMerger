@@ -1,4 +1,4 @@
-import {Component, ViewChild, Input, Output, EventEmitter} from '@angular/core';
+import {Component, ViewChild, Input, Output, EventEmitter, OnInit} from '@angular/core';
 import {Control} from '@angular/common';
 import {Observable} from 'rxjs/Observable';
 import 'rxjs/add/observable/forkjoin';
@@ -18,7 +18,7 @@ declare var jQuery;
     directives: [UniTable],
     providers: [ProductService, VatTypeService]
 })
-export class InvoiceItemList {
+export class InvoiceItemList implements OnInit{
     @Input() invoice: CustomerInvoice;
     @ViewChild(UniTable) table: UniTable;
     @Output() ItemsUpdated = new EventEmitter<any>();
@@ -143,10 +143,12 @@ export class InvoiceItemList {
             ])
             .setMultiRowSelect(false)
             .setDefaultRowData({
+                ID:0,
                 Product: null,
                 ProductID: null,
                 ItemText: '',
                 Unit: '',
+                Dimensions: { ID: 0 },
                 NumberOfItems: null,
                 PriceExVat: null,
                 Discount: null,
@@ -154,6 +156,13 @@ export class InvoiceItemList {
             })
             .setChangeCallback((event) => {
                 var newRow = event.rowModel;
+
+                // Set GUID if item is new
+                // See: https://unimicro.atlassian.net/wiki/display/AD/Complex+PUT
+                if (newRow.ID === 0) {
+                    newRow._createguid = this.customerInvoiceItemService.getNewGuid();
+                    newRow.Dimensions._createguid = this.customerInvoiceItemService.getNewGuid();
+                }
 
                 if (event.field === 'Product') {
                     this.mapProductToInvoiceItem(newRow);
@@ -167,21 +176,8 @@ export class InvoiceItemList {
             });
 
     }
-
     private rowChanged(event) {
         console.log('row changed, calculate sums');
-
-        ////Set GUID if item is to be created, e.g ID <=0
-        ////See: https://unimicro.atlassian.net/wiki/display/AD/Complex+PUT
-
-
-        ////
-        //var tableData = this.table.getTableData();
-
-        //tableData.forEach((x) => {
-        //    if (x.ID <= 0)
-        //        x._createguid = '32174298-de1e-4333-b905-a4b759f3887e';
-        //});
         var tableData = this.table.getTableData();
         this.ItemsUpdated.emit(tableData);
     }

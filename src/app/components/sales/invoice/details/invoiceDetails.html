@@ -56,7 +56,7 @@
 <footer class="full-footer">
     <section class="application">
         <button class="good" (click)="saveInvoiceManual($event)">Lagre</button>
-        <button class="good" (click)="saveInvoiceTransition($event, 'invoice')">Fakturer</button>
+        <button class="good" (click)="saveInvoiceTransition($event, 'invoice')">{{invoiceButtonText}}</button>
         <section class="auto_save_info">
             {{ lastSavedInfo }}
         </section>

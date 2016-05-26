@@ -1,6 +1,7 @@
 import {BizHttp} from '../../../framework/core/http/BizHttp';
 import {CustomerInvoice, CustomerInvoiceItem} from '../../unientities';
 import {StatusCodeCustomerInvoice} from '../../unientities';
+import {InvoiceData} from '../../models/sales/InvoicePayment';
 import {UniHttp} from '../../../framework/core/http/http';
 import {Observable} from "rxjs/Observable";
 import {TradeHeaderCalculationSummary} from '../../models/sales/TradeHeaderCalculationSummary'
@@ -19,6 +20,13 @@ export class CustomerInvoiceService extends BizHttp<CustomerInvoice> {
     private statusTypes: Array<any> = [
         { Code: StatusCodeCustomerInvoice.Draft, Text: 'Kladd' },
         { Code: StatusCodeCustomerInvoice.Invoiced, Text: 'Fakturert' },
+        { Code: StatusCodeCustomerInvoice.PartlyPaid, Text: 'Delbetalt' },
+        { Code: StatusCodeCustomerInvoice.Paid, Text: 'Betalt' },
+    ];
+
+    private statusTypesCredit: Array<any> = [
+        { Code: StatusCodeCustomerInvoice.Draft, Text: 'Kladd(Kreditnota)' },
+        { Code: StatusCodeCustomerInvoice.Invoiced, Text: 'Kreditert' },
         { Code: StatusCodeCustomerInvoice.PartlyPaid, Text: 'Delbetalt' },
         { Code: StatusCodeCustomerInvoice.Paid, Text: 'Betalt' },
     ];
@@ -55,17 +63,33 @@ export class CustomerInvoiceService extends BizHttp<CustomerInvoice> {
     } 
 
     public createCreditNoteFromInvoice(currentInvoiceID: number): Observable<any> {
-        return super.PutAction(currentInvoiceID, 'create-credit-invoice');
+        return super.PutAction(currentInvoiceID, 'create-credit-draft-invoice');
     } 
 
-    public getStatusText = (statusCode: string) => {
+    public payInvoiceInvoice(invoiceData: InvoiceData): Observable<any> {
+        return super.PutAction(currentInvoiceID, 'create-credit-draft-invoice');
+    } 
+
+    public getStatusText = (statusCode: string, invoiceType: number) => {
         var text = 'Udefinert';
-        this.statusTypes.forEach((status) => {
-            if (status.Code == statusCode) {
-                text = status.Text;
-                return;
-            }
-        });
+
+        //TODO use enum for invoiceType
+        if (invoiceType == 0) {
+            this.statusTypes.forEach((status) => {
+                if (status.Code == statusCode) {
+                    text = status.Text;
+                    return;
+                }
+            });
+        }
+        else {
+            this.statusTypesCredit.forEach((status) => {
+                if (status.Code == statusCode) {
+                    text = status.Text;
+                    return;
+                }
+            });
+        }
         return text;
     };    
 }

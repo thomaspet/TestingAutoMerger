@@ -3,9 +3,11 @@ import {UniTable, UniTableColumn, UniTableColumnType, UniTableConfig} from 'unit
 import {Router} from '@angular/router-deprecated';
 import {UniHttp} from '../../../../../framework/core/http/http';
 import {CustomerInvoiceService} from '../../../../services/services';
-import {CustomerInvoice} from '../../../../unientities';
+import {CustomerInvoice, StatusCodeCustomerInvoice} from '../../../../unientities';
 import {Http, URLSearchParams} from '@angular/http';
 import {AsyncPipe} from '@angular/common';
+
+import {InvoiceData} from '../../../../models/sales/InvoicePayment';
 
 declare var jQuery;
 
@@ -23,6 +25,7 @@ export class InvoiceList {
     private invoiceTable: UniTableConfig;
     private selectedinvoice: CustomerInvoice;
     private lookupFunction: (urlParams: URLSearchParams) => any;
+    private invoicePayment: InvoiceData;
 
     constructor(private uniHttpService: UniHttp,
         private router: Router,
@@ -69,16 +72,13 @@ export class InvoiceList {
         contextMenuItems.push({
             label: 'Rediger',
             action: (rowModel) => {
-                this.log('Rediger action');
                 this.router.navigateByUrl(`/sales/invoice/details/${rowModel.ID}`);
-                // console.log('Delete action called. RowModel:', rowModel);
             }
         });
 
         contextMenuItems.push({
             label: 'Krediter',
             action: (rowModel) => {
-                this.log('Krediter action');
                 this.customerInvoiceService.createCreditNoteFromInvoice(rowModel.ID)
                     .subscribe((data) => {
                         this.router.navigateByUrl('/sales/invoice/details/' + data.ID);
@@ -87,18 +87,23 @@ export class InvoiceList {
                         console.log('Error creating credit note: ', err);
                         this.log(err);
                     }
-                );
+                    );
             },
             disabled: (rowModel) => {
-                // This is were we would check _links to see if the user has access to this operation etc.
-                return false;
+                //Possible to credit only if status = Invoiced || PartlyPaid || Paid
+                if (rowModel.StatusCode == StatusCodeCustomerInvoice.Invoiced ||
+                    rowModel.StatusCode == StatusCodeCustomerInvoice.PartlyPaid ||
+                    rowModel.StatusCode == StatusCodeCustomerInvoice.Paid)
+                    return false;
+                else
+                    return true;
             }
         });
 
         contextMenuItems.push({
             label: 'Slett',
             action: (rowModel) => {
-                this.log('Delete action');
+                alert('Delete action - Under construction');
             },
             disabled: (rowModel) => {
                 return rowModel['Deleted'];
@@ -113,12 +118,48 @@ export class InvoiceList {
         contextMenuItems.push({
             label: 'Fakturer',
             action: (rowModel) => {
-                this.log('Fakturer action');
+                alert('Fakturer action - Under construction');
             },
             disabled: (rowModel) => {
                 return !rowModel._links.invoice;
             }
         });
+
+        contextMenuItems.push({
+            label: 'Registrer betaling',
+            action: (rowModel) => {
+                alert('Fakturer action - Under construction');
+
+                this.invoicePayment.Amount = rowModel.RestAmount;
+                this.invoicePayment.PaymentDate = new Date();
+
+                this.customerInvoiceService.ActionWithBody(rowModel.ID, this.invoicePayment, "payInvoice").subscribe((journalEntry) => {
+                    //TODO: Decide what to do here
+                    //this.router.navigateByUrl('/sales/invoice/details/' + invoice.ID);
+                    //
+                    alert('Fakturer er betalt. BilagsID' + journalEntry.ID);
+                }, (err) => {
+                    console.log('Error registering payment: ', err);
+                    this.log(err);
+                });
+            },
+            disabled: (rowModel) => {
+                //Possible to pay only if status = Invoiced || PartlyPaid
+                if (rowModel.StatusCode == StatusCodeCustomerInvoice.Invoiced ||
+                    rowModel.StatusCode == StatusCodeCustomerInvoice.PartlyPaid)
+                    return false;
+                else
+                    return true;
+            }
+        });
+
+        contextMenuItems.push({
+            label: 'Skriv ut',
+            action: (rowModel) => {
+                alert('Skriv ut action - Under construction');
+            }
+        });
+
 
         var self = this;
 
@@ -140,55 +181,60 @@ export class InvoiceList {
             .setFormat('{0:n}')
             .setCls('column-align-right');
 
+        var creditedAmountCol = new UniTableColumn('CreditedAmount', 'Kreditert', UniTableColumnType.Number)
+            .setWidth('10%')
+            .setFormat('{0:n}')
+            .setCls('column-align-right');
+
         var statusCol = new UniTableColumn('StatusCode', 'Status', UniTableColumnType.Number).setWidth('15%');
         statusCol.setTemplate((dataItem) => {
-            return this.customerInvoiceService.getStatusText(dataItem.StatusCode);
+            return this.customerInvoiceService.getStatusText(dataItem.StatusCode, dataItem.InvoiceType);
         });
 
         // Setup table
         this.invoiceTable = new UniTableConfig(false, true)
             .setPageSize(25)
             .setColumns([invoiceNumberCol, customerNumberCol, customerNameCol, invoiceDateCol, dueDateCol,
-                taxInclusiveAmountCol, restAmountCol, statusCol])
+                taxInclusiveAmountCol, restAmountCol, creditedAmountCol, statusCol])
             .setContextMenuItems(contextMenuItems);
 
-            //.setContextMenuItems([
-            //    {
-            //        label: 'Rediger',
-            //        action: invoice => this.router.navigateByUrl(`/sales/invoice/details/${invoice.ID}`)
-            //    },
-            //    {
-            //        label: 'Krediter',
-            //        action: window.alert('Tildel invoice action')
-            //        //disabled: supplierInvoice => supplierInvoice._links.assign //TODO
-            //    },
-            //    {
-            //        label: 'Slett',
-            //        action: window.alert('Slett invoice action')
-            //        //disabled: supplierInvoice => supplierInvoice._links.assign //TODO
-            //    },
-            //    {
-            //        label: '---------------'
-            //    },
-            //    {
-            //        label: 'Fakturer',
-            //        action: window.alert('Fakturer invoice action')
-            //        //disabled: supplierInvoice => supplierInvoice._links.assign //TODO
-            //    },
-            //    {
-            //        label: 'Registerer betaling',
-            //        action: window.alert('Registerer betaling invoice action')
-            //        //action: supplierInvoice => this.registerPaymentModal.openModal()
-            //    },
-            //    {
-            //        label: '---------------'
-            //    },
-            //    {
-            //        label: 'Skriv ut',
-            //        action: window.alert('Skriv ut invoice action')
-            //        //disabled: supplierInvoice => supplierInvoice._links.assign //TODO
-            //    }
-            //]);
+        //.setContextMenuItems([
+        //    {
+        //        label: 'Rediger',
+        //        action: invoice => this.router.navigateByUrl(`/sales/invoice/details/${invoice.ID}`)
+        //    },
+        //    {
+        //        label: 'Krediter',
+        //        action: window.alert('Tildel invoice action')
+        //        //disabled: supplierInvoice => supplierInvoice._links.assign //TODO
+        //    },
+        //    {
+        //        label: 'Slett',
+        //        action: window.alert('Slett invoice action')
+        //        //disabled: supplierInvoice => supplierInvoice._links.assign //TODO
+        //    },
+        //    {
+        //        label: '---------------'
+        //    },
+        //    {
+        //        label: 'Fakturer',
+        //        action: window.alert('Fakturer invoice action')
+        //        //disabled: supplierInvoice => supplierInvoice._links.assign //TODO
+        //    },
+        //    {
+        //        label: 'Registerer betaling',
+        //        action: window.alert('Registerer betaling invoice action')
+        //        //action: supplierInvoice => this.registerPaymentModal.openModal()
+        //    },
+        //    {
+        //        label: '---------------'
+        //    },
+        //    {
+        //        label: 'Skriv ut',
+        //        action: window.alert('Skriv ut invoice action')
+        //        //disabled: supplierInvoice => supplierInvoice._links.assign //TODO
+        //    }
+        //]);
 
 
         //// Define callback function for row clicks
