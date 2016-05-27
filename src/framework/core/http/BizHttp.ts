@@ -17,11 +17,11 @@ export class BizHttp<T> {
     protected relativeURL: string;
 
     public GetRelativeUrl(): string {
-        return this.RelativeURL;
+        return this.relativeURL;
     }
 
     public setRelativeUrl(relativeurl: string) {
-        this.RelativeURL = relativeurl;
+        this.relativeURL = relativeurl;
     }
 
     constructor(protected http: UniHttp) {
@@ -42,7 +42,7 @@ export class BizHttp<T> {
         return this.http
             .usingBusinessDomain()
             .asGET()
-            .withEndPoint(this.RelativeURL + '/' + ID)
+            .withEndPoint(this.relativeURL + '/' + ID)
             .send({
                 expand: expandStr
             });
@@ -60,7 +60,7 @@ export class BizHttp<T> {
         return this.http
             .usingBusinessDomain()
             .asGET()            
-            .withEndPoint(this.RelativeURL)            
+            .withEndPoint(this.relativeURL)
             .send({}, true, params);        
     }
 
@@ -83,7 +83,7 @@ export class BizHttp<T> {
         return this.http
             .usingBusinessDomain()
             .asGET()
-            .withEndPoint(this.RelativeURL + (query ? '?' + query : ''))
+            .withEndPoint(this.relativeURL + (query ? '?' + query : ''))
             .send({
                 expand: expandStr
             });
@@ -94,7 +94,7 @@ export class BizHttp<T> {
             .usingBusinessDomain()
             .asPOST()
             .withBody(entity)
-            .withEndPoint(this.RelativeURL)
+            .withEndPoint(this.relativeURL)
             .send();
     }
 
@@ -103,7 +103,7 @@ export class BizHttp<T> {
             .usingBusinessDomain()
             .asPUT()
             .withBody(entity)
-            .withEndPoint(this.RelativeURL + '/' + ID)
+            .withEndPoint(this.relativeURL + '/' + ID)
             .send();
     }
 
@@ -113,7 +113,7 @@ export class BizHttp<T> {
         this.http
             .usingBusinessDomain()
             .asDELETE()
-            .withEndPoint(this.RelativeURL + '/' + ID)
+            .withEndPoint(this.relativeURL + '/' + ID)
             .send();
     }
 
@@ -122,7 +122,7 @@ export class BizHttp<T> {
             .usingBusinessDomain()
             .asPOST()
             .withBody(entity)
-            .withEndPoint(this.RelativeURL + '/' + ID + '?action=' + transitionName)
+            .withEndPoint(this.relativeURL + '/' + ID + '?action=' + transitionName)
             .send();
     }
      
@@ -130,7 +130,7 @@ export class BizHttp<T> {
         return this.http
             .usingBusinessDomain()
             .as(method)
-            .withEndPoint(this.RelativeURL + '/' + (ID === null ? '' : ID) + '?action=' + actionName + (parameters === null ? '' : '&' + parameters))
+            .withEndPoint(this.relativeURL + '/' + (ID === null ? '' : ID) + '?action=' + actionName + (parameters === null ? '' : '&' + parameters))
             .send();
     }
     
@@ -139,7 +139,7 @@ export class BizHttp<T> {
             .usingBusinessDomain()
             .as(method)
             .withBody(entity)
-            .withEndPoint(this.RelativeURL + '/' + ID + '?action=' + actionName)
+            .withEndPoint(this.relativeURL + '/' + ID + '?action=' + actionName)
             .send();
     }
 
@@ -166,8 +166,8 @@ export class BizHttp<T> {
         }
 
         //TODO. Needs a more robust way to handle the Singular Url needed for this request.
-        //let relativeUrlSingular = this.RelativeURL.slice(0, this.RelativeURL.length - 1); 
-        let relativeUrlSingular = entityname != null ? entityname : this.RelativeURL.slice(0, this.RelativeURL.length - 1);
+        //let relativeUrlSingular = this.relativeURL.slice(0, this.relativeURL.length - 1); 
+        let relativeUrlSingular = entityname != null ? entityname : this.relativeURL.slice(0, this.relativeURL.length - 1);
         return this.http
             .usingMetadataDomain()
             .asGET()
@@ -196,5 +196,9 @@ export class BizHttp<T> {
             .map((entity: any) => {
                 return [layout, entity];
             });
+    }
+    
+    public getNewGuid(): string {
+        return(""+1e7+-1e3+-4e3+-8e3+-1e11).replace(/1|0/g,function(){return(0|Math.random()*16).toString(16)});
     }
 }
