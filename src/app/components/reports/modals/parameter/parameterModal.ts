@@ -5,14 +5,14 @@ import {Http} from '@angular/http';
 import {UniModal} from '../../../../../framework/modals/modal';
 import {UniComponentLoader} from '../../../../../framework/core/componentLoader';
 import {ReportDefinition} from '../../../../unientities';
-import {ReportDefinitionParameter} from '../../../../unientities';
 
 import {ReportDefinitionParameterService} from '../../../../services/services';
+import {PreviewModal} from '../preview/previewModal';
 
 @Component({
     selector: 'report-parameter-modal-type',
     directives: [NgIf, NgModel, NgFor, NgClass, UniComponentLoader],
-    templateUrl: 'app/components/reports/modals/parameter/parameterModal.html',
+    templateUrl: 'app/components/reports/modals/parameter/parameterModal.html'
 })
 export class ReportparameterModalType {
     @Input('config')
@@ -21,14 +21,7 @@ export class ReportparameterModalType {
     constructor() {
         
     }
-    
-            
-    ngAfterViewInit() {
-    
-    }
 }
-
-
 
 @Component({
     selector: 'report-parameter-modal',
@@ -40,12 +33,12 @@ export class ReportparameterModalType {
 })
 export class ParameterModal {
     @ViewChild(UniModal)
-    modal: UniModal;
+    private modal: UniModal;
     
     public modalConfig: any = {};
     public type: Type = ReportparameterModalType;
     
-    public parameters : any;
+    private previewModal: PreviewModal;
     
     constructor(private reportDefinitionParameterService: ReportDefinitionParameterService,
                 private http: Http)
@@ -54,7 +47,7 @@ export class ParameterModal {
         this.modalConfig = {
             title: 'Parametre',
             model: null,
-            parameters: null,
+            report: new Object(),
 
             actions: [
                 {
@@ -62,6 +55,7 @@ export class ParameterModal {
                     method: () => {
                         self.modal.getContent().then(() => {
                             self.modal.close();
+                            this.previewModal.open(this.modalConfig.report);
                         });
                         return false;
                     }
@@ -79,37 +73,15 @@ export class ParameterModal {
         };
     }
 
-    ngAfterViewInit() {
-
-    }
-    
-    public open(report: ReportDefinition)
+    public open(report: ReportDefinition, previewModal: PreviewModal)
     {
         this.modalConfig.title = report.Name;
+        this.modalConfig.report = report;
+        this.previewModal = previewModal;
 
         this.reportDefinitionParameterService.GetAll('ReportDefinitionId=' + report.ID).subscribe(params => {
-            this.modalConfig.parameters = params;
+            this.modalConfig.report.parameters = params;
             this.modal.open();        
         });
-        
-        /*this.http.get('/assets/ReportTemplates/' + report.TemplateLinkId) 
-            .map(res => res.text())
-            .subscribe(template => this.onTemplateLoaded(template),
-            err => this.onError("Cannot load report template."));*/
-    }
-   
-       
-    private onTemplateLoaded(template : string) {
-        // for test purpose only:
-        // hardcoded invoice id
- /*       this.customerInvoiceService.Get(2)
-            .subscribe(response => {
-                this.reportWrapper.showReport(template, [JSON.stringify(response)], this.modalConfig);
-                this.modal.open();        
-            });*/
-    }
-   
-    private onError(err : string) {
-        alert(err)
     }
 }

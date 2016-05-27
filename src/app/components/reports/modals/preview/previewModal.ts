@@ -1,60 +1,52 @@
-import {Component, ViewChild, Type, Input} from "@angular/core";
-import {NgIf, NgModel, NgFor, NgClass} from "@angular/common";
-import {Http, Headers} from '@angular/http';
-import {UniModal} from "../../../../../framework/modals/modal";
-import {UniComponentLoader} from "../../../../../framework/core/componentLoader";
-import {StimulsoftReportWrapper} from "../../../../../framework/wrappers/reporting/reportWrapper";
-import {Observable} from 'rxjs/Observable';
+import {Component, ViewChild, Type, Input} from '@angular/core';
+import {NgIf, NgModel, NgFor, NgClass} from '@angular/common';
+import {Http} from '@angular/http';
+
+import {ReportDefinition} from '../../../../unientities';
+import {UniModal} from '../../../../../framework/modals/modal';
+import {UniComponentLoader} from '../../../../../framework/core/componentLoader';
+import {ReportDefinitionService} from '../../../../services/services';
 
 @Component({
-    selector: "report-preview-modal-type",
+    selector: 'report-preview-modal-type',
     directives: [NgIf, NgModel, NgFor, NgClass, UniComponentLoader],
-    templateUrl: "app/components/reports/modals/preview/previewModal.html",
+    templateUrl: 'app/components/reports/modals/preview/previewModal.html',
 })
 export class ReportPreviewModalType {
     @Input('config')
-    config;
+    private config;
     
     constructor() {
         
     }
-    
-            
-    ngAfterViewInit() {
-    
-    }
 }
 
-
-
 @Component({
-    selector: "report-preview-modal",
+    selector: 'report-preview-modal',
     directives: [UniModal],
     template: `
         <uni-modal [type]="type" [config]="modalConfig"></uni-modal>
     `,
-    providers: [StimulsoftReportWrapper/*, CustomerInvoiceService*/]
+    providers: [ReportDefinitionService]
 })
 export class PreviewModal {
     @ViewChild(UniModal)
     modal: UniModal;
     
     public modalConfig: any = {};
-    type: Type = ReportPreviewModalType;
+    public type: Type = ReportPreviewModalType;
 
-    constructor(public reportWrapper: StimulsoftReportWrapper,
-                //private customerInvoiceService: CustomerInvoiceService,
+    constructor(private reportDefinitionService: ReportDefinitionService,
                 private http: Http)
     {
         var self = this;
         this.modalConfig = {
-            title: "Forhåndsvisning",
+            title: 'Forhåndsvisning',
             model: null,
-            report: null,
 
             actions: [
                 {
-                    text: "Lukk",
+                    text: 'Lukk',
                     method: () => {
                         self.modal.getContent().then(() => {
                             self.modal.close();
@@ -66,23 +58,18 @@ export class PreviewModal {
         };
     }
 
-    ngAfterViewInit() {
-
-    }
-    
-    public open()
+    public open(report: ReportDefinition)
     {
-        // @TMP:
-        // In the version deadlined 06.30.2016 embedded report types are supported only.
-        // Template files are stored on front end side.
-
-        this.http.get('/assets/ReportTemplates/Demo.mrt') 
-            .map(res => res.text())
-            .subscribe(template => this.onTemplateLoaded(template),
-            err => this.onError("Cannot load report template."));
+        this.modalConfig.title = report.Name;
+        this.reportDefinitionService.generateReportHtml(report, this);
+        this.modal.open();
     }
    
-    private onTemplateLoaded(template : string) {
+    private onTemplateLoaded(template: string, report: ReportDefinition) {
+        //this.reportDefinitionDataSourceService.GetAll('ReportDefinitionId=' + report.ID)
+          //      .subscribe(dataSources => onDataSourcesLoaded(template, report, dataSources) );
+
+        
         // for test purpose only:
         // hardcoded invoice id
         /*this.customerInvoiceService.Get(2)
@@ -91,6 +78,16 @@ export class PreviewModal {
                 this.modal.open();        
             });*/
     }
+  
+ 
+/*    private resolvePlaceholders(report: ReportDefinition) {
+        var urls: string[] = [];
+        
+        for (var param in report.parameters) {
+            alert(param.Name);
+        }
+        return urls;
+    }*/
    
     private onError(err : string) {
         alert(err)

@@ -7,6 +7,7 @@ import {ReportDefinitionService} from '../../../services/services';
 
 import {ParameterModal} from '../modals/parameter/parameterModal';
 import {PreviewModal} from '../modals/preview/previewModal';
+import {Report} from '../../../models/reports/report';
 
 class ReportCategory {
     public name: string;
@@ -34,7 +35,7 @@ export class Overview {
     
     
     public showModalReportParameters(report: ReportDefinition) {
-        this.parameterModal.open(report);        
+        this.parameterModal.open(report, this.previewModal);
     }
     
     public ngOnInit() {
@@ -48,7 +49,7 @@ export class Overview {
                     reportCategory = new ReportCategory();
 
                     reportCategory.name = reports[i].Category;
-                    reportCategory.reports = new Array<ReportDefinition>();
+                    reportCategory.reports = new Array<Report>();
                     
                     this.reportCategories.push(reportCategory);
                 }

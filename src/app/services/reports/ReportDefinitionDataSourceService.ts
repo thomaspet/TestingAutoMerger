@@ -7,7 +7,7 @@ export class ReportDefinitionDataSourceService extends BizHttp<ReportDefinitionD
     constructor(http: UniHttp) {
         super(http);
         
-        this.relativeURL = ReportDefinitionDataSource.relativeUrl;
+        this.RelativeURL = ReportDefinitionDataSource.RelativeUrl;
         this.DefaultOrderBy = 'ID';
     }
    
