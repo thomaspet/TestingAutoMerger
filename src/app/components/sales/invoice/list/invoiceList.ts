@@ -136,8 +136,7 @@ export class InvoiceList {
                 this.customerInvoiceService.ActionWithBody(rowModel.ID, this.invoicePayment, "payInvoice").subscribe((journalEntry) => {
                     //TODO: Decide what to do here
                     //this.router.navigateByUrl('/sales/invoice/details/' + invoice.ID);
-                    //
-                    alert('Fakturer er delbetalt. Bilagsnummer: ' + journalEntry.JournalEntryNumber);
+                    alert('Fakturer er betalt. Bilagsnummer: ' + journalEntry.JournalEntryNumber);
                 }, (err) => {
                     console.log('Error registering payment: ', err);
                     this.log(err);
@@ -223,73 +222,5 @@ export class InvoiceList {
             .setColumns([invoiceNumberCol, customerNumberCol, customerNameCol, invoiceDateCol, dueDateCol,
                 taxInclusiveAmountCol, restAmountCol, creditedAmountCol, statusCol])
             .setContextMenuItems(contextMenuItems);
-
-        //.setContextMenuItems([
-        //    {
-        //        label: 'Rediger',
-        //        action: invoice => this.router.navigateByUrl(`/sales/invoice/details/${invoice.ID}`)
-        //    },
-        //    {
-        //        label: 'Krediter',
-        //        action: window.alert('Tildel invoice action')
-        //        //disabled: supplierInvoice => supplierInvoice._links.assign //TODO
-        //    },
-        //    {
-        //        label: 'Slett',
-        //        action: window.alert('Slett invoice action')
-        //        //disabled: supplierInvoice => supplierInvoice._links.assign //TODO
-        //    },
-        //    {
-        //        label: '---------------'
-        //    },
-        //    {
-        //        label: 'Fakturer',
-        //        action: window.alert('Fakturer invoice action')
-        //        //disabled: supplierInvoice => supplierInvoice._links.assign //TODO
-        //    },
-        //    {
-        //        label: 'Registerer betaling',
-        //        action: window.alert('Registerer betaling invoice action')
-        //        //action: supplierInvoice => this.registerPaymentModal.openModal()
-        //    },
-        //    {
-        //        label: '---------------'
-        //    },
-        //    {
-        //        label: 'Skriv ut',
-        //        action: window.alert('Skriv ut invoice action')
-        //        //disabled: supplierInvoice => supplierInvoice._links.assign //TODO
-        //    }
-        //]);
-
-
-        //// Define callback function for row clicks
-        //var selectCallback = (selectedItem) => {
-        //    this.router.navigateByUrl('/sales/invoice/details/' + selectedItem.ID);
-        //};
-
-        //// Setup table
-        //this.invoiceTable = new UniTableBuilder('invoices', false)
-        //    .setFilterable(false)
-        //    .setSelectCallback(selectCallback)
-        //    .setExpand('Customer')
-        //    .setPageSize(25)
-        //    .addColumns(invoiceNumberCol, customerNumberCol, customerNameCol, invoiceDateCol, dueDateCol, taxInclusiveAmountCol, statusCol)
-        //    .setOrderBy('PaymentDueDate', 'desc')
-        //    .addCommands({
-        //        name: 'ContextMenu', text: '...', click: (function (event) {
-        //            event.preventDefault();
-        //            var dataItem = this.dataItem(jQuery(event.currentTarget).closest('tr'));
-
-        //            if (dataItem !== null && dataItem.ID !== null) {
-        //                self.selectedinvoice = dataItem;
-        //                alert('Kontekst meny er under utvikling.');
-        //            }
-        //            else {
-        //                console.log('Error in selecting the SupplierInvoices');
-        //            }
-        //        })
-        //    });
-
     }
 }

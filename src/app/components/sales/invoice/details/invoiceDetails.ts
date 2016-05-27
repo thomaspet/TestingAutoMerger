@@ -1,12 +1,12 @@
-import {Component, ComponentRef, Input, Output, ViewChild, SimpleChange, EventEmitter} from '@angular/core';
+import {Component, ComponentRef, Input, ViewChild} from '@angular/core';
 import {Router, RouteParams, RouterLink} from '@angular/router-deprecated';
 import {Observable} from 'rxjs/Observable';
 import 'rxjs/add/observable/forkjoin';
 
-import {CustomerInvoiceService, CustomerInvoiceItemService, CustomerService, SupplierService, ProjectService, DepartementService, AddressService} from '../../../../services/services';
+import {CustomerInvoiceService, CustomerInvoiceItemService, CustomerService, ProjectService, DepartementService, AddressService} from '../../../../services/services';
 import {InvoiceItemList} from './invoiceItemList';
 
-import {FieldType, FieldLayout, ComponentLayout, CustomerInvoice, CustomerInvoiceItem, Customer, Dimensions, Departement, Project, Address, BusinessRelation} from '../../../../unientities';
+import {ComponentLayout, CustomerInvoice, Customer, Dimensions, Departement, Project, Address, BusinessRelation} from '../../../../unientities';
 import {StatusCodeCustomerInvoice} from '../../../../unientities';
 import {UNI_CONTROL_DIRECTIVES} from '../../../../../framework/controls';
 import {UniFormBuilder} from '../../../../../framework/forms/builders/uniFormBuilder';
