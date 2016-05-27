@@ -2,13 +2,15 @@ import {Injectable} from '@angular/core';
 import {BizHttp} from '../../../framework/core/http/BizHttp';
 import {Worker, WorkRelation, WorkProfile, WorkItem, User, WorkType} from '../../unientities';
 import {UniHttp} from '../../../framework/core/http/http';
-import {Observable, ObservableInput} from "rxjs/Observable";
-import "rxjs/add/operator/switchMap";
+import {Observable} from "rxjs/Rx";
 import {AuthService} from '../../../framework/core/authService';
 declare var moment;
 
 @Injectable()
 export class WorkerService extends BizHttp<Worker> {
+            
+    static cache:any = {};
+    
     user = {
         id: 0,
         guid: '',
@@ -29,23 +31,39 @@ export class WorkerService extends BizHttp<Worker> {
         
     }
     
-    initFromUser(id:number):Observable<any> {
+    cacheGet(name:string) {
+        var item = WorkerService.cache[name];
+        console.log(name + ' ' + (item ? 'found' : 'not') + ' in cache' );
+        return item; 
+    }
+    
+    inCache(name:string) {
+        return WorkerService.cache.hasOwnProperty(name);
+    }
+    
+    cacheSet(name:string, value:any) {
+        console.log("adding " + name + " to cache");
+        WorkerService.cache[name] = value;
+        console.log(name + ": inCache = " + this.inCache(name) );
+    }
+    
+    getRelationsForUser(id:number):Observable<any> {
         return this.getWorkerFromUser(id).switchMap((worker:Worker) => {
-            return this.initFromWorker(worker.ID);
+            return this.getRelationsForWorker(worker.ID);
         });
     }
     
-    initFromWorker(workerId:number):Observable<any> {
-        return this.getWorkRelations(workerId).switchMap((list:WorkRelation[])=>{
+    getRelationsForWorker(workerId:number):Observable<WorkRelation[]> {  
+        return this.getWorkRelations(workerId).flatMap((list:WorkRelation[])=>{
             // Try to create initial workrelation for this worker
             if ((!list) || list.length===0) {
-                this.getWorkProfiles().switchMap((profiles:WorkProfile[])=>{
+                this.getWorkProfiles().flatMap((profiles:WorkProfile[])=>{
                     return this.createInitialWorkRelation(workerId, profiles[0]).map((item:WorkRelation)=>{
-                        return [item]; 
+                        return Observable.of([item]); 
                     });
                 })
             }
-            return [list];
+            return Observable.of(list);
         });
     }
     

@@ -19,6 +19,8 @@
     <br/>
 
     <section  [attr.aria-busy]="busy" >
+        
+        <button (click)="onReloadClick()">Reload</button>
 
         <uni-table [resource]="tableData" [config]="tableConfig"></uni-table>
     

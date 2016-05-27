@@ -43,9 +43,12 @@ export class RegisterTime {
     constructor(private tabService: TabService, private service:WorkerService) {
         this.tabService.addTab({ name: view.label, url: view.route });
         this.userName = service.user.name;
-        //this.addNewRow();
         this.tableConfig = this.createTableConfig();
         this.initServiceValues();        
+    }
+    
+    onReloadClick() {
+        this.initServiceValues();
     }
     
     loadItems(workRelationID:number) {
@@ -64,10 +67,9 @@ export class RegisterTime {
     }
     
     initServiceValues() {
-        
+                
         this.service.getCurrentUserId().then((id:number)=>{
-            console.log('got the user:' + id);
-            this.service.initFromUser(id).subscribe((items:WorkRelation[])=>{
+            this.service.getRelationsForUser(id).subscribe((items:WorkRelation[])=>{
                 this.workRelations = items;
                 this.selectWorkRelation(items[0]);
             });
@@ -75,7 +77,6 @@ export class RegisterTime {
         
         this.service.getWorkTypes().subscribe((result:Array<WorkType>)=>{
             this.worktypes = result;
-            console.log('list returned from service', this.worktypes.length);
         });        
     }
     
@@ -152,7 +153,7 @@ export class RegisterTime {
     }
     
     createLookupColumn(name:string, label: string, expandCol:string, lookupFn?: any, expandKey = 'ID', expandLabel = 'Name'): UniTableColumn {
-        console.log(`${expandCol}.${expandLabel}`);
+        //console.log(`${expandCol}.${expandLabel}`);
         var col = new UniTableColumn(name, label, UniTableColumnType.Lookup)
             .setDisplayField(`${expandCol}.${expandLabel}`)
             .setEditorOptions({
