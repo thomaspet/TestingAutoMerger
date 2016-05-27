@@ -1,9 +1,9 @@
-<section class="journal-entry-simple-form">
+<section class="journalEntrySimple_form">
     <uni-component-loader></uni-component-loader>
-    <section class="button-group">
+    <fieldset class="journalEntrySimple_form_buttons">
         <button *ngIf="!isEditMode" (click)="addJournalEntry($event)">Legg til</button>
         <button (click)="emptyJournalEntry($event)">Tøm</button>
         <button *ngIf="isEditMode" (click)="editJournalEntry($event)">Oppdater</button>
         <button *ngIf="isEditMode" (click)="abortEditJournalEntry($event)">Avbryt</button>
-    </section>
+    </fieldset>
 </section>

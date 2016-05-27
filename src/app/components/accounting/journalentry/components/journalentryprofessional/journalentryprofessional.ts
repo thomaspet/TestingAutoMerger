@@ -120,7 +120,8 @@ export class JournalEntryProfessional {
         
         let financialDateCol = new UniTableColumn('FinancialDate', 'Dato', UniTableColumnType.Date).setWidth("7%");        
         
-        let debitAccountCol = new UniTableColumn('DebitAccount', 'Debet', UniTableColumnType.Lookup)            
+        let debitAccountCol = new UniTableColumn('DebitAccount', 'Debet', UniTableColumnType.Lookup)
+            .setDisplayField('DebitAccount.AccountNumber')            
             .setTemplate((rowModel) => {
                 if (rowModel.DebitAccount) {
                     let account = rowModel.DebitAccount;
@@ -159,6 +160,7 @@ export class JournalEntryProfessional {
             });
         
         let creditAccountCol = new UniTableColumn('CreditAccount', 'Debet', UniTableColumnType.Lookup)
+            .setDisplayField('CreditAccount.AccountNumber')  
             .setTemplate((rowModel) => {
                 if (rowModel.CreditAccount) {
                     let account = rowModel.CreditAccount;

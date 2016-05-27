@@ -1,5 +1,9 @@
 <section class="application">    
     <h2>Leverandørfaktura</h2>
     <button (click)="createInvoice()">Ny leverandørfaktura</button>
-    <uni-table [config]="supplierInvoiceTableCfg"></uni-table>
+    <uni-table
+            [resource]="lookupFunction"
+            [config]="supplierInvoiceTableCfg"
+            (rowSelected)="onLineClick($event.rowModel)"
+    ></uni-table>
 </section>

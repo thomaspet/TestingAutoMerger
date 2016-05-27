@@ -71,6 +71,18 @@ export class InvoiceList {
         statusCol.setTemplate((dataItem) => {
             return this.customerInvoiceService.getStatusText(dataItem.StatusCode); 
         });
+        
+        var restAmountCol = new UniTableColumn('RestAmount', 'Restbeløp', 'number')
+            .setEditable(false)
+            .setNullable(false)
+            .setClass('column-align-right')
+            .setFormat('{0:n}');
+
+        var creditedAmountCol = new UniTableColumn('CreditedAmount', 'Kreditert', 'number')
+            .setEditable(false)
+            .setNullable(false)
+            .setClass('column-align-right')
+            .setFormat('{0:n}');
 
         // Define callback function for row clicks
         var selectCallback = (selectedItem) => {
@@ -83,7 +95,7 @@ export class InvoiceList {
             .setSelectCallback(selectCallback)
             .setExpand('Customer')
             .setPageSize(25)
-            .addColumns( invoiceNumberCol, customerNumberCol, customerNameCol, invoiceDateCol, dueDateCol, taxInclusiveAmountCol, statusCol)
+            .addColumns( invoiceNumberCol, customerNumberCol, customerNameCol, invoiceDateCol, dueDateCol, taxInclusiveAmountCol, restAmountCol, creditedAmountCol, statusCol)
             .setOrderBy('PaymentDueDate','desc')
             .addCommands({
                 name: 'ContextMenu', text: '...', click: (function (event) {

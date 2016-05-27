@@ -1,10 +1,21 @@
-<section class="journal-entry-simple-table-wrapper" [ngClass]="{runassubcomponent: runAsSubComponent}">
-    
-    <journal-entry-simple-form [dropdownData]="dropdownData" tabindex="1" (created)="newLineCreated($event)" *ngIf="dropdownData != null" [journalEntryLines]="journalEntryLines" [hideSameOrNew]="hideSameOrNew"></journal-entry-simple-form>
-    <section *ngIf="dropdownData == null" class="journal-entry-simple-form-loading-placeholder" [attr.aria-busy]="dropdownData == null">
-        Laster...
+<section class="journalEntrySimple" [ngClass]="{runassubcomponent: runAsSubComponent}">
+
+    <journal-entry-simple-form
+        [dropdownData]="dropdownData"
+        tabindex="0"
+        (created)="newLineCreated($event)"
+        *ngIf="dropdownData !== null"
+        [journalEntryLines]="journalEntryLines"
+        [hideSameOrNew]="hideSameOrNew">
+    </journal-entry-simple-form>
+
+    <section *ngIf="dropdownData === null"
+        class="journalEntrySimple_formLoadingPlaceholder"
+        [attr.aria-busy]="dropdownData == null">
     </section>
-    <table>
+
+    <table class="simpleTable">
+
         <thead>
             <tr>
                 <th>Bilagsnr</th>
@@ -16,12 +27,24 @@
                 <th class="small_col"></th>
             </tr>
         </thead>
+
         <tbody>
-            <template ngFor let-line [ngForOf]="journalEntryLines" [ngForTrackBy]="trackByLines">
-                <tr tabindex="2" (keyup.enter)="setSelectedJournalEntryLine(line)" class="journalentrysimple-itemline" (click)="setSelectedJournalEntryLine(line)" [class.journal-entry-row-selected]="selectedJournalEntryLine == line">
-                    <td class="journalentrysimple_temporary">{{line.JournalEntryNo || "Ingen"}}</td>
-                    <td class="journalentrysimple-biginfo">{{line.FinancialDate != "0001-01-01T00:00:00" ? line.FinancialDate.toLocaleDateString() : ""}}</td>
-                    <td class="journalentrysimple-multilineinfo">
+            <template ngFor let-line
+                [ngForOf]="journalEntryLines"
+                [ngForTrackBy]="trackByLines">
+
+                <tr tabindex="0"
+                    (keyup.enter)="setSelectedJournalEntryLine(line)"
+                    (click)="setSelectedJournalEntryLine(line)"
+                    [attr.aria-selected]="selectedJournalEntryLine === line">
+
+                    <td class="-isTemporary">
+                        {{line.JournalEntryNo || "Ingen"}}
+                    </td>
+                    <td class="-isImportant">
+                        {{line.FinancialDate != "0001-01-01T00:00:00" ? line.FinancialDate.toLocaleDateString() : ""}}
+                    </td>
+                    <td class="simpleTable_multiline">
                         <dl>
                             <dt>Debet</dt>
                             <dd>{{line.DebitAccount ? line.DebitAccount.AccountNumber + " - " + line.DebitAccount.AccountName : ""}}</dd>
@@ -30,8 +53,10 @@
                             <dd>{{line.CreditAccount ? line.CreditAccount.AccountNumber + " - " + line.CreditAccount.AccountName : ""}}</dd>
                         </dl>
                     </td>
-                    <td class="journalentrysimple-biginfo">{{line.Amount | number:'1.2-2'}}</td>
-                    <td class="journalentrysimple-multilineinfo">
+                    <td class="-isImportant">
+                        {{line.Amount | number:'1.2-2'}}
+                    </td>
+                    <td class="simpleTable_multiline">
                         <dl>
                             <dt>Avdeling</dt>
                             <dd>{{getDepartmentName(line)}}</dd>
@@ -41,22 +66,31 @@
                         </dl>
                     </td>
                     <td>{{line.Description}}</td>
-                    <td class="action_menu"></td>
+                    <td class="simpleTable_actionMenu"></td>
                 </tr>
                 <tr *ngIf="selectedJournalEntryLine == line">
                     <td colspan="7">
-                        <journal-entry-simple-form [dropdownData]="dropdownData" [journalEntryLine]="selectedJournalEntryLine" (updated)="editViewUpdated($event)" (aborted)="abortEdit()" [journalEntryLines]="journalEntryLines" [hideSameOrNew]="hideSameOrNew"></journal-entry-simple-form>
+                        <journal-entry-simple-form
+                            [dropdownData]="dropdownData"
+                            [journalEntryLine]="selectedJournalEntryLine"
+                            (updated)="editViewUpdated($event)"
+                            (aborted)="abortEdit()"
+                            [journalEntryLines]="journalEntryLines"
+                            [hideSameOrNew]="hideSameOrNew">
+                        </journal-entry-simple-form>
                		</td>
                 </tr>
             </template>
+
             <tr *ngIf="journalEntryLines.length == 0">
                 <td colspan="7">
                     Fyll inn data og trykk Legg til over for å legge inn en eller flere bilagslinjer
                 </td>
             </tr>
+
         </tbody>
     </table>
-   
+
 
 </section>
 

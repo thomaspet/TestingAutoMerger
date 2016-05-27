@@ -6,7 +6,7 @@ import "rxjs/add/observable/forkjoin";
 import {CustomerQuoteService, CustomerQuoteItemService, CustomerService, SupplierService, ProjectService, DepartementService, AddressService} from "../../../../services/services";
 import {QuoteItemList} from './quoteItemList';
 
-import {FieldType, FieldLayout, ComponentLayout, CustomerQuote, CustomerQuoteItem, Customer, Departement, Project, Address, BusinessRelation} from "../../../../unientities";
+import {FieldType, FieldLayout, ComponentLayout, CustomerQuote, CustomerQuoteItem, Customer, Dimensions, Departement, Project, Address, BusinessRelation} from "../../../../unientities";
 import {StatusCodeCustomerQuote} from "../../../../unientities";
 import {UNI_CONTROL_DIRECTIVES} from "../../../../../framework/controls";
 import {UniFormBuilder} from "../../../../../framework/forms/builders/uniFormBuilder";
@@ -229,6 +229,11 @@ export class QuoteDetails {
         this.formInstance.sync();        
         this.lastSavedInfo = 'Lagrer tilbud...';
         this.quote.TaxInclusiveAmount = -1; // TODO in AppFramework, does not save main entity if just items have changed
+        
+        if (this.quote.DimensionsID === 0) {
+            this.quote.Dimensions = new Dimensions();             
+            this.quote.Dimensions["_createguid"] = this.customerQuoteService.getNewGuid();
+        }
          
         this.customerQuoteService.Put(this.quote.ID, this.quote)
             .subscribe(
