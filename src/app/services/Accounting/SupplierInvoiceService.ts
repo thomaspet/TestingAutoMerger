@@ -22,7 +22,7 @@ export class SupplierInvoiceService extends BizHttp<SupplierInvoice> {
         { Code: '10001', Text: 'Kladd' },
         { Code: '20000', Text: 'Pending' },
         { Code: '30000', Text: 'Active' },
-        { Code: '40000', Text: 'Fullf�rt' },
+        { Code: '40000', Text: 'Fullført' },
         { Code: '50000', Text: 'InActive' },
         { Code: '60000', Text: 'Deviation' },
         { Code: '70000', Text: 'Error' },
@@ -46,5 +46,5 @@ export class SupplierInvoiceService extends BizHttp<SupplierInvoice> {
             }
         });
         return text;
-    }
+    };
 }
