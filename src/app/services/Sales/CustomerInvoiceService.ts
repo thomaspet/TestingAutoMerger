@@ -14,6 +14,7 @@ export class CustomerInvoiceService extends BizHttp<CustomerInvoice> {
         super(http);       
         this.relativeURL = CustomerInvoice.RelativeUrl;
         this.DefaultOrderBy = null;
+        this.defaultExpand = ['Customer'];
     }    
     
     // TODO: To be retrieved from database schema shared.Status instead?
