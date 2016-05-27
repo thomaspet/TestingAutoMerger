@@ -5,7 +5,7 @@ import {Observable} from "rxjs/Observable";
 import {FieldLayout, Departement, Project, VatType, VatCodeGroup, Account, JournalEntry, JournalEntryLine, JournalEntryLineDraft, Dimensions} from "../../../../../unientities";
 import {JournalEntryData} from "../../../../../models/models";
 
-import {UniForm} from '../../../../../../framework/uniform';
+import {UniForm, UniField} from '../../../../../../framework/uniform';
 import {UniAutocompleteConfig} from "../../../../../../framework/controls/autocomplete/autocomplete";
 import {AccountService, JournalEntryService} from "../../../../../services/services";
 
@@ -54,10 +54,15 @@ export class JournalEntrySimpleForm implements OnChanges {
     
     isLoaded: boolean;
     isEditMode: boolean;
+    journalalternatives = [];
+    journalalternativesindex = 0;
     
     SAME_OR_NEW_SAME: string = "0";
     SAME_OR_NEW_NEW: string = "1";
     
+    sameAlternative = {ID: this.SAME_OR_NEW_SAME, Name: "Samme"};
+    newAlternative = {ID: this.SAME_OR_NEW_NEW, Name: "Ny"}
+  
     constructor(private accountService: AccountService,
                 private journalEntryService: JournalEntryService) {   
         this.isLoaded = false;
@@ -69,6 +74,8 @@ export class JournalEntrySimpleForm implements OnChanges {
         this.journalEntryLine = new JournalEntryData();
         this.hideSameOrNew = false;      
         
+        this.setupSameNewAlternatives();
+        
         let self = this;
         //this.journalEntryService.layout('JournalEntryLineForm').toPromise().then((layout: any) => {
         //    self.fields = layout.Fields;
@@ -77,7 +84,7 @@ export class JournalEntrySimpleForm implements OnChanges {
                 EntityType: "JournalEntryLineDraft",
                 Property: "SameOrNew",
                 Placement: 1,
-                Hidden: false,
+                Hidden: self.hideSameOrNew,
                 FieldType: 3,
                 ReadOnly: false,
                 LookupField: false,
@@ -87,7 +94,14 @@ export class JournalEntrySimpleForm implements OnChanges {
                 FieldSet: 0,
                 Section: 0,
                 Placeholder: null,
-                Options: null,
+                Options: {
+                    source: self.journalalternatives,
+                    template: (obj) => `${obj.Name}`,
+                    valueProperty: 'ID',
+                    displayProperty: 'Name',
+                    debounceTime: 500,
+                    index: self.journalalternativesindex,
+                },
                 LineBreak: null,
                 Combo: null,
                 Legend: "",
@@ -115,7 +129,11 @@ export class JournalEntrySimpleForm implements OnChanges {
                 FieldSet: 0,
                 Section: 0,
                 Placeholder: null,
-                Options: null,
+                Options: {
+                    onSelect: () => {
+                        self.form.Fields['DebetAccountID'].focus();
+                    } 
+                },
                 LineBreak: null,
                 Combo: null,
                 Legend: "",
@@ -143,7 +161,28 @@ export class JournalEntrySimpleForm implements OnChanges {
                 FieldSet: 0,
                 Section: 0,
                 Placeholder: null,
-                Options: null,
+                Options: {                  
+                    displayProperty: 'AccountName',
+                    valueProperty: 'ID',
+                    template: (obj:Account) => `${obj.AccountNumber} - ${obj.AccountName}`,
+                    minLength: 1,
+                    debounceTime: 300,
+                    search: (query:string) => self.accountService.GetAll(`filter=startswith(AccountNumber,'${query}') or contains(AccountName,'${query}')`, ['VatType']),
+                    onSelect: (account: Account) => {
+                        if (account && account.VatType) {
+                            self.journalEntryLine.DebitVatType = account.VatType;
+                            self.journalEntryLine = _.deepClone(self.journalEntryLine);
+                        }   
+    
+                        self.form.Fields['CreditAccountID'].focus();
+                    },
+                    onEnter: () => {
+                        self.form.Fields['CreditAccountID'].focus();
+                    },
+                    onTab: () => {                        
+                        self.form.Fields['CreditAccountID'].focus();
+                    }             
+                },
                 LineBreak: null,
                 Combo: null,
                 Legend: "",
@@ -171,7 +210,15 @@ export class JournalEntrySimpleForm implements OnChanges {
                 FieldSet: 0,
                 Section: 0,
                 Placeholder: null,
-                Options: null,
+                Options: {
+                    displayProperty: 'VatCode',
+                    valueProperty: 'ID',
+                    template: "${data.VatCode} (${ data.VatPercent }%)",
+                    source: self.vattypes,
+                    onEnter: () => {
+                        self.form.Fields['CreditAccountID'].focus();
+                    }   
+                },
                 LineBreak: null,
                 Combo: null,
                 Legend: "",
@@ -199,7 +246,31 @@ export class JournalEntrySimpleForm implements OnChanges {
                 FieldSet: 0,
                 Section: 0,
                 Placeholder: null,
-                Options: null,
+                Options: {
+                    valueProperty: 'ID',
+                    displayProperty: 'AccountName',
+                    template: (obj:Account) => `${obj.AccountNumber} - ${obj.AccountName}`,
+                    minLength: 1,
+                    debounceTime: 300,
+                    search: (query:string) => self.accountService.GetAll(`filter=startswith(AccountNumber,'${query}') or contains(AccountName,'${query}')`, ['VatType']),
+                    onSelect: (account: Account) => {
+                        if (account && account.VatType) {
+                            this.journalEntryLine.CreditVatType = account.VatType;   
+                            this.journalEntryLine = _.deepClone(this.journalEntryLine);
+                        }
+                        
+                        self.form.Fields['Amount'].focus();
+                    },
+                    onEnter: () => {
+                        self.form.Fields['Amount'].focus();
+                    },
+                    onTab: () => {
+                        self.form.Fields['Amount'].focus();                       
+                    },
+                    onUnTab: () => {
+                        self.form.Fields['DebetAccountID'].focus();
+                    }   
+                },
                 LineBreak: null,
                 Combo: null,
                 Legend: "",
@@ -227,7 +298,15 @@ export class JournalEntrySimpleForm implements OnChanges {
                 FieldSet: 0,
                 Section: 0,
                 Placeholder: null,
-                Options: null,
+                Options: {
+                    displayProperty: 'VatCode',
+                    valueProperty: 'ID',
+                    template: "${data.VatCode} (${ data.VatPercent }%)",
+                    source: this.vattypes,
+                    onEnter: () => {
+                        self.form.Fields['Amount'].focus();
+                    }   
+                },
                 LineBreak: null,
                 Combo: null,
                 Legend: "",
@@ -255,7 +334,15 @@ export class JournalEntrySimpleForm implements OnChanges {
                 FieldSet: 0,
                 Section: 0,
                 Placeholder: null,
-                Options: null,
+                Options: {
+                    onEnter: () => {
+                        self.form.Fields['Dimensions.DepartementID'].focus();
+                    },
+                    onUnTab: () => {
+                        self.form.Fields['CreditAccountID'].focus();
+                    },
+                    step: 1
+                },
                 LineBreak: null,
                 Combo: null,
                 Legend: "",
@@ -283,7 +370,16 @@ export class JournalEntrySimpleForm implements OnChanges {
                 FieldSet: 0,
                 Section: 0,
                 Placeholder: null,
-                Options: null,
+                Options: {
+                    source: self.departements,
+                    template: (obj) => `${obj.name}`,
+                    valueProperty: 'ID',
+                    displayProperty: 'Name',
+                    debounceTime: 500,
+                    onEnter: () => {
+                        self.form.Fields['Dimensions.ProjectID'].focus();
+                    }
+                },
                 LineBreak: null,
                 Combo: null,
                 Legend: "",
@@ -311,7 +407,16 @@ export class JournalEntrySimpleForm implements OnChanges {
                 FieldSet: 0,
                 Section: 0,
                 Placeholder: null,
-                Options: null,
+                Options: {
+                    source: self.projects,
+                    template: (obj) => `${obj.name}`,
+                    valueProperty: 'ID',
+                    displayProperty: 'Name',
+                    debounceTime: 500,
+                    onEnter: () => {
+                        self.form.Fields['Description'].focus();
+                    }
+                },
                 LineBreak: null,
                 Combo: null,
                 Legend: "",
@@ -351,13 +456,33 @@ export class JournalEntrySimpleForm implements OnChanges {
                 CreatedBy: null,
                 UpdatedBy: null,
                 CustomFields: null 
-            }];
+            }
+            ];
         //}); 
                 
         this.config = {
-            submitText: 'Legg till ja'
+            submitText: '' // TODO remove and use disable subit when available in new UniForm
         };
 
+    }
+    
+    setupSameNewAlternatives() {        
+        // add list of possible numbers from start to end
+        if (this.isEditMode && !this.hideSameOrNew) {
+            var range = this.journalEntryService.findJournalNumbersFromLines(this.journalEntryLines);
+            var current = parseInt(this.journalEntryLine.JournalEntryNo.split('-')[0]);
+            for(var i = 0; i <= (range.last - range.first); i++) {
+                var jn = `${i+range.first}-${range.year}`;
+                this.journalalternatives.push({ID: jn, Name: jn});
+                if ((i+range.first) === current) { this.journalalternativesindex = i; } 
+            }
+        } else {
+            this.journalalternatives.push(this.sameAlternative);
+            this.journalalternativesindex = 1;
+        }
+        
+        // new always last one
+        this.journalalternatives.push(this.newAlternative);
     }
     
     ngOnInit() {
@@ -388,8 +513,8 @@ export class JournalEntrySimpleForm implements OnChanges {
     }  
     
     public ready(line) {
-        console.log('Ready:', line);
-        //this.extendFormConfig();
+        console.log('Ready:', line);        
+        this.form.Fields['FinancialDate'].focus();
     }
          
     addJournalEntry(event: any, journalEntryNumber: string = null) {  
@@ -401,7 +526,7 @@ export class JournalEntrySimpleForm implements OnChanges {
                 this.addJournalEntry(event, next);
             });            
         } else {
-            var oldData: JournalEntryData = _.cloneDeep(this.form.model);              
+            var oldData: JournalEntryData = _.cloneDeep(this.journalEntryLine);              
             var numbers = this.journalEntryService.findJournalNumbersFromLines(this.journalEntryLines, journalEntryNumber);
      
             if (numbers) {
@@ -426,22 +551,19 @@ export class JournalEntrySimpleForm implements OnChanges {
                 this.journalEntryLine.SameOrNew = oldsameornew == this.SAME_OR_NEW_SAME ? this.SAME_OR_NEW_SAME : this.SAME_OR_NEW_NEW;
             }
             
-            this.form.model = this.journalEntryLine;
             this.setFocusOnDebit();
         }                
     }
     
     editJournalEntry(event: any) {     
-        var newData: JournalEntryData = this.form.model;
-        
-        if (newData.SameOrNew === this.SAME_OR_NEW_NEW) {
+        if (this.journalEntryLine.SameOrNew === this.SAME_OR_NEW_NEW) {
             var numbers = this.journalEntryService.findJournalNumbersFromLines(this.journalEntryLines);
-            newData.JournalEntryNo = numbers.nextNumber;
+            this.journalEntryLine.JournalEntryNo = numbers.nextNumber;
         } else {
-            newData.JournalEntryNo = newData.SameOrNew;
+            this.journalEntryLine.JournalEntryNo = this.journalEntryLine.SameOrNew;
         }
 
-        this.updated.emit(newData);
+        this.updated.emit(this.journalEntryLine);
     }
         
     abortEditJournalEntry(event) {
@@ -449,181 +571,16 @@ export class JournalEntrySimpleForm implements OnChanges {
     }
     
     emptyJournalEntry(event) {
-        var oldData: JournalEntryData = _.cloneDeep(this.form.model);              
+        var oldData: JournalEntryData = _.cloneDeep(this.journalEntryLine);              
     
         this.journalEntryLine = new JournalEntryData();
         this.journalEntryLine.SameOrNew = oldData.SameOrNew;      
         this.journalEntryLine.FinancialDate = oldData.FinancialDate;
 
-        this.form.model = this.journalEntryLine;
         this.setFocusOnDebit();        
     }
     
     private setFocusOnDebit() {
-        this.form['DebitAccountID'].setFocus();
-    }
-
-    extendFormConfig() {        
-        var sameornew = this.form['SameOrNew'];  
-        var financialdate = this.form['FinancialDate'];
-        var departement = this.form['Dimensions.DepartementID'];       
-        var project = this.form['Dimensions.ProjectID'];
-        var debitvattype = this.form['DebitVatTypeID'];
-        var debitaccount  = this.form['DebitAccountID'];
-        var creditaccount = this.form['CreditAccountID'];
-        var creditvattype = this.form['CreditVatTypeID'];
-        var description = this.form['Description'];
-        var amount = this.form['Amount'];
-
-        var journalalternatives = [];
-        var samealternative = {ID: this.SAME_OR_NEW_SAME, Name: "Samme"};
-        var newalternative = {ID: this.SAME_OR_NEW_NEW, Name: "Ny"}
-        var journalalternativesindex = 0;
-        
-        // Hide SameOrNew?
-        if (this.hideSameOrNew) {
-            sameornew.hidden = true;
-        }
-        
-        // navigation
-        financialdate.onSelect = () => {
-            debitaccount.setFocus();  
-        };
-        
-        debitaccount.onSelect = (account: Account) => {
-            if (account && account.VatType) {
-                this.journalEntryLine.DebitVatType = account.VatType;
-                this.form.model = this.journalEntryLine;
-            }
-    
-            creditaccount.setFocus();
-        }
-        
-        debitaccount.onEnter = () => {
-            creditaccount.setFocus();
-        }
-        
-        debitaccount.onTab = () => {
-            creditaccount.setFocus();
-        }
-        
-        debitvattype.onEnter = () => {
-            creditaccount.setFocus();
-        }
-        
-        creditaccount.onSelect = (account: Account) => {
-            if (account && account.VatType) {
-                this.journalEntryLine.CreditVatType = account.VatType;   
-                this.form.model = this.journalEntryLine;
-            }
-            
-            amount.setFocus();        
-        }
-        
-        creditaccount.onEnter = () => {
-            amount.setFocus();
-        }
-        
-        creditaccount.onTab = () => {
-            amount.setFocus();
-        }
-        
-        creditaccount.onUnTab = () => {
-            debitaccount.setFocus();
-        }
-    
-        creditvattype.onEnter = () => {
-            amount.setFocus();
-        }
-        
-        amount.onEnter = () => {
-            departement.setFocus();
-        }
-        
-        amount.onUnTab = () => {
-            creditaccount.setFocus();
-        }
-        
-        departement.onEnter = () => {
-            project.setFocus();
-        }
-
-        project.onEnter = () => {
-            description.setFocus();
-        }
-                             
-        // add list of possible numbers from start to end
-        if (this.isEditMode && !this.hideSameOrNew) {
-            var range = this.journalEntryService.findJournalNumbersFromLines(this.journalEntryLines);
-            var current = parseInt(this.journalEntryLine.JournalEntryNo.split('-')[0]);
-            for(var i = 0; i <= (range.last - range.first); i++) {
-                var jn = `${i+range.first}-${range.year}`;
-                journalalternatives.push({ID: jn, Name: jn});
-                if ((i+range.first) === current) { journalalternativesindex = i; } 
-            }
-        } else {
-            journalalternatives.push(samealternative);
-            journalalternativesindex = 1;
-        }
-        
-        // new always last one
-        journalalternatives.push(newalternative);
-                             
-        sameornew.setKendoOptions({
-           autoBind: true,
-           dataTextField: 'Name',
-           dataValueField: 'ID',
-           dataSource: journalalternatives,
-           index: journalalternativesindex
-        });
-        
-        departement.setKendoOptions({
-            dataTextField: 'Name',
-            dataValueField: 'ID',
-            dataSource: this.departements
-        });
-        departement.addClass('large-field');
-
-        project.setKendoOptions({
-           dataTextField: 'Name',
-           dataValueField: 'ID',
-           dataSource: this.projects 
-        });      
-        project.addClass('large-field');
-     
-        debitaccount.setKendoOptions(UniAutocompleteConfig.build({
-            valueKey: 'ID',
-            template: (obj:Account) => `${obj.AccountNumber} - ${obj.AccountName}`,
-            minLength: 1,
-            debounceTime: 300,
-            search: (query:string) => this.accountService.GetAll(`filter=startswith(AccountNumber,'${query}') or contains(AccountName,'${query}')`, ['VatType'])
-        }));
-         
-        debitvattype.setKendoOptions({
-           dataTextField: 'VatCode',
-           dataValueField: 'ID',
-           template: "${data.VatCode} (${ data.VatPercent }%)",
-           dataSource: this.vattypes 
-        });
-        
-        creditaccount.setKendoOptions(UniAutocompleteConfig.build({
-            valueKey: 'ID',
-            template: (obj:Account) => `${obj.AccountNumber} - ${obj.AccountName}`,
-            minLength: 1,
-            debounceTime: 300,
-            search: (query:string) => this.accountService.GetAll(`filter=startswith(AccountNumber,'${query}') or contains(AccountName,'${query}')`, ['VatType'])
-        }));
-  
-        creditvattype.setKendoOptions({
-           dataTextField: 'VatCode',
-           dataValueField: 'ID',
-           template: "${data.VatCode} (${ data.VatPercent }%)",
-           dataSource: this.vattypes 
-        });
-        
-        description.addClass('large-field');   
-        
-        // set default field
-        this.form['FinancialDate'].setFocus();
-    }           
+        this.form.Fields['DebitAccountID'].focus();
+    }       
 } 
