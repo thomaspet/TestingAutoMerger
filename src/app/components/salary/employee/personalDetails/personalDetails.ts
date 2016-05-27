@@ -11,11 +11,13 @@ import {AddressModal} from '../../../sales/customer/modals/address/address';
 import {EmailModal} from '../../../sales/customer/modals/email/email';
 import {PhoneModal} from '../../../sales/customer/modals/phone/phone';
 import {RootRouteParamsService} from '../../../../services/rootRouteParams';
+import {UniSave, IUniSaveAction} from '../../../../../framework/save/save';
+
 declare var _;
 
 @Component({
     selector: 'employee-personal-details',
-    directives: [UniForm],
+    directives: [UniForm, UniSave],
     providers: [EmployeeService, PhoneService, EmailService, AddressService],
     templateUrl: 'app/components/salary/employee/personalDetails/personalDetails.html'
 })
@@ -35,11 +37,20 @@ export class PersonalDetails implements OnInit {
 
     // @ViewChild(UniComponentLoader)
     // private uniCmpLoader: UniComponentLoader;
-
+    
     private employeeID: any;
     // private formInstance: UniForm;
     // private whenFormInstance: Promise<UniForm>;
-
+    
+    private saveactions: IUniSaveAction[] = [
+        {
+            label: 'Lagre',
+            action: this.saveEmployee,
+            main: true,
+            disabled: true
+        }
+    ];
+    
     constructor(public rootRouteParams: RootRouteParamsService,
                 public employeeService: EmployeeService,
                 public router: Router,
@@ -186,16 +197,19 @@ export class PersonalDetails implements OnInit {
     
     public change(value) {
         console.log('uniform changed', value);
+        this.saveactions[0].disabled = false;
     }
     
-    public saveEmployeeManual() {
-        this.saveEmployee();
+    public saveEmployeeManual(done) {
+        console.log('save manually', done);
+        this.saveEmployee(done);
     }
     
-    private saveEmployee() {
+    private saveEmployee(done) {
         // this.formInstance.sync();
         console.log('employee to save', this.employee);
-        this.lastSavedInfo = 'Lagrer persondetaljer på den ansatte';
+        //this.lastSavedInfo = 'Lagrer persondetaljer på den ansatte';
+        done('Lagrer persondetaljer på den ansatte');
         if (this.employee.ID > 0) {
             this.employeeService.Put(this.employee.ID, this.employee)
             .subscribe((response: Employee) => {
