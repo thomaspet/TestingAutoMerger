@@ -1,4 +1,4 @@
-import {Component, ComponentRef, Input, Output, ViewChild, SimpleChange, EventEmitter, OnChanges} from "@angular/core";
+import {Component, Input, Output, ViewChild, SimpleChange, EventEmitter, OnChanges} from "@angular/core";
 import {NgIf} from "@angular/common";
 import {Observable} from "rxjs/Observable";
 
@@ -42,7 +42,7 @@ export class JournalEntrySimpleForm implements OnChanges {
     updated = new EventEmitter<any>();
        
     @ViewChild(UniForm)
-    public formInstance: UniForm; 
+    public form: UniForm; 
     
     public config: any = {};
     public fields: any[] = [];
@@ -72,13 +72,13 @@ export class JournalEntrySimpleForm implements OnChanges {
         let self = this;
         //this.journalEntryService.layout('JournalEntryLineForm').toPromise().then((layout: any) => {
         //    self.fields = layout.Fields;
-            
+              
             self.fields = [{
                 EntityType: "JournalEntryLineDraft",
                 Property: "SameOrNew",
                 Placement: 1,
                 Hidden: false,
-                FieldType: 1,
+                FieldType: 3,
                 ReadOnly: false,
                 LookupField: false,
                 Label: "Bilagsnr",
@@ -162,7 +162,7 @@ export class JournalEntrySimpleForm implements OnChanges {
                 Property: "DebitVatTypeID",
                 Placement: 4,
                 Hidden: false,
-                FieldType: 1,
+                FieldType: 3,
                 ReadOnly: false,
                 LookupField: false,
                 Label: "MVA",
@@ -218,7 +218,7 @@ export class JournalEntrySimpleForm implements OnChanges {
                 Property: "CreditVatTypeID",
                 Placement: 4,
                 Hidden: false,
-                FieldType: 1,
+                FieldType: 3,
                 ReadOnly: false,
                 LookupField: false,
                 Label: "MVA",
@@ -274,7 +274,7 @@ export class JournalEntrySimpleForm implements OnChanges {
                 Property: "Dimensions.DepartementID",
                 Placement: 4,
                 Hidden: false,
-                FieldType: 1,
+                FieldType: 3,
                 ReadOnly: false,
                 LookupField: false,
                 Label: "Avdeling",
@@ -302,7 +302,7 @@ export class JournalEntrySimpleForm implements OnChanges {
                 Property: "Dimensions.ProjectID",
                 Placement: 4,
                 Hidden: false,
-                FieldType: 1,
+                FieldType: 3,
                 ReadOnly: false,
                 LookupField: false,
                 Label: "Prosjekt",
@@ -353,7 +353,7 @@ export class JournalEntrySimpleForm implements OnChanges {
                 CustomFields: null 
             }];
         //}); 
-        
+                
         this.config = {
             submitText: 'Legg till ja'
         };
@@ -363,13 +363,9 @@ export class JournalEntrySimpleForm implements OnChanges {
     ngOnInit() {
         if (!this.isEditMode) {           
             this.journalEntryLine.SameOrNew = this.hideSameOrNew ? this.SAME_OR_NEW_SAME : this.SAME_OR_NEW_NEW;
-        }
+        } 
     }
-    
-    ngAfterViewInit() {
-    //    this.extendFormConfig();
-    }
-        
+            
     ngOnChanges(changes: {[propName: string]: SimpleChange}) {                 
         if (changes['dropdownData'] != null && this.dropdownData) {
             this.departements = this.dropdownData[0];
@@ -383,16 +379,17 @@ export class JournalEntrySimpleForm implements OnChanges {
         }
     }
     
-    public submit(value) {
-        console.log('Submit it now:' + value);
+    public submit(line) {
+        console.log('Submit: ', line);
     }
       
-    public change(value) {
-        
+    public change(line) {
+        console.log('Change: ', line);
     }  
     
-    public ready(value) {
-        console.log('Ready:', value);
+    public ready(line) {
+        console.log('Ready:', line);
+        //this.extendFormConfig();
     }
          
     addJournalEntry(event: any, journalEntryNumber: string = null) {  
@@ -404,7 +401,7 @@ export class JournalEntrySimpleForm implements OnChanges {
                 this.addJournalEntry(event, next);
             });            
         } else {
-            var oldData: JournalEntryData = _.cloneDeep(this.formInstance.model);              
+            var oldData: JournalEntryData = _.cloneDeep(this.form.model);              
             var numbers = this.journalEntryService.findJournalNumbersFromLines(this.journalEntryLines, journalEntryNumber);
      
             if (numbers) {
@@ -429,13 +426,13 @@ export class JournalEntrySimpleForm implements OnChanges {
                 this.journalEntryLine.SameOrNew = oldsameornew == this.SAME_OR_NEW_SAME ? this.SAME_OR_NEW_SAME : this.SAME_OR_NEW_NEW;
             }
             
-            this.formInstance.model = this.journalEntryLine;
+            this.form.model = this.journalEntryLine;
             this.setFocusOnDebit();
         }                
     }
     
     editJournalEntry(event: any) {     
-        var newData: JournalEntryData = this.formInstance.model;
+        var newData: JournalEntryData = this.form.model;
         
         if (newData.SameOrNew === this.SAME_OR_NEW_NEW) {
             var numbers = this.journalEntryService.findJournalNumbersFromLines(this.journalEntryLines);
@@ -452,31 +449,31 @@ export class JournalEntrySimpleForm implements OnChanges {
     }
     
     emptyJournalEntry(event) {
-        var oldData: JournalEntryData = _.cloneDeep(this.formInstance.model);              
+        var oldData: JournalEntryData = _.cloneDeep(this.form.model);              
     
         this.journalEntryLine = new JournalEntryData();
         this.journalEntryLine.SameOrNew = oldData.SameOrNew;      
         this.journalEntryLine.FinancialDate = oldData.FinancialDate;
 
-        this.formInstance.model = this.journalEntryLine;
+        this.form.model = this.journalEntryLine;
         this.setFocusOnDebit();        
     }
     
     private setFocusOnDebit() {
-        this.formInstance['DebitAccountID'].setFocus();
+        this.form['DebitAccountID'].setFocus();
     }
 
     extendFormConfig() {        
-        var sameornew = this.formInstance['SameOrNew'];  
-        var financialdate = this.formInstance['FinancialDate'];
-        var departement = this.formInstance['Dimensions.DepartementID'];       
-        var project = this.formInstance['Dimensions.ProjectID'];
-        var debitvattype = this.formInstance['DebitVatTypeID'];
-        var debitaccount  = this.formInstance['DebitAccountID'];
-        var creditaccount = this.formInstance['CreditAccountID'];
-        var creditvattype = this.formInstance['CreditVatTypeID'];
-        var description = this.formInstance['Description'];
-        var amount = this.formInstance['Amount'];
+        var sameornew = this.form['SameOrNew'];  
+        var financialdate = this.form['FinancialDate'];
+        var departement = this.form['Dimensions.DepartementID'];       
+        var project = this.form['Dimensions.ProjectID'];
+        var debitvattype = this.form['DebitVatTypeID'];
+        var debitaccount  = this.form['DebitAccountID'];
+        var creditaccount = this.form['CreditAccountID'];
+        var creditvattype = this.form['CreditVatTypeID'];
+        var description = this.form['Description'];
+        var amount = this.form['Amount'];
 
         var journalalternatives = [];
         var samealternative = {ID: this.SAME_OR_NEW_SAME, Name: "Samme"};
@@ -496,7 +493,7 @@ export class JournalEntrySimpleForm implements OnChanges {
         debitaccount.onSelect = (account: Account) => {
             if (account && account.VatType) {
                 this.journalEntryLine.DebitVatType = account.VatType;
-                this.formInstance.model = this.journalEntryLine;
+                this.form.model = this.journalEntryLine;
             }
     
             creditaccount.setFocus();
@@ -517,7 +514,7 @@ export class JournalEntrySimpleForm implements OnChanges {
         creditaccount.onSelect = (account: Account) => {
             if (account && account.VatType) {
                 this.journalEntryLine.CreditVatType = account.VatType;   
-                this.formInstance.model = this.journalEntryLine;
+                this.form.model = this.journalEntryLine;
             }
             
             amount.setFocus();        
@@ -627,6 +624,6 @@ export class JournalEntrySimpleForm implements OnChanges {
         description.addClass('large-field');   
         
         // set default field
-        this.formInstance['FinancialDate'].setFocus();
+        this.form['FinancialDate'].setFocus();
     }           
 } 
