@@ -24,8 +24,12 @@ export class JournalEntryData {
     
     Description: string;
     
-    FinancialDate: Date;  
-    
+    FinancialDate: Date;
+      
+    CustomerInvoiceID: number;
+    SupplierInvoiceID: number;
+    InvoiceNumber: string;
+
     CurrencyID: number;
     CurrencyCode: string;
         

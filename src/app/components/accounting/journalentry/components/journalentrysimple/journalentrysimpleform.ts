@@ -7,7 +7,7 @@ import {JournalEntryData} from "../../../../../models/models";
 
 import {UniForm} from '../../../../../../framework/uniform';
 import {UniAutocompleteConfig} from "../../../../../../framework/controls/autocomplete/autocomplete";
-import {AccountService, JournalEntryService} from "../../../../../services/services";
+import {AccountService, JournalEntryService, CustomerInvoiceService} from "../../../../../services/services";
 
 declare var _;
 declare var jQuery;
@@ -17,7 +17,7 @@ declare var moment;
     selector: 'journal-entry-simple-form',
     templateUrl: 'app/components/accounting/journalentry/components/journalentrysimple/journalentrysimpleform.html',
     directives: [UniForm, NgIf],
-    providers: [AccountService, JournalEntryService]
+    providers: [AccountService, JournalEntryService, CustomerInvoiceService]
 })
 export class JournalEntrySimpleForm implements OnChanges {
     @Input()
@@ -59,7 +59,8 @@ export class JournalEntrySimpleForm implements OnChanges {
     SAME_OR_NEW_NEW: string = "1";
     
     constructor(private accountService: AccountService,
-                private journalEntryService: JournalEntryService) {   
+                private journalEntryService: JournalEntryService,
+                private customerInvoiceService: CustomerInvoiceService) {   
         this.isLoaded = false;
         this.isEditMode = false;
         this.departements = [];
@@ -127,7 +128,35 @@ export class JournalEntrySimpleForm implements OnChanges {
                 CreatedBy: null,
                 UpdatedBy: null,
                 CustomFields: null
-            }, 
+            },             
+            {
+                ComponentLayoutID: 1,
+                EntityType: "JournalEntryLineDraft",
+                Property: "InvoiceNumber",
+                Placement: 11,
+                Hidden: false,
+                FieldType: 10,
+                ReadOnly: false,
+                LookupField: false,
+                Label: "Fakturanr",
+                Description: "Fakturanr",
+                HelpText: "",
+                FieldSet: 0,
+                Section: 0,
+                Placeholder: null,
+                Options: null,
+                LineBreak: null,
+                Combo: null,
+                Legend: "",
+                StatusCode: 0,
+                ID: 10,
+                Deleted: false,
+                CreatedAt: null,
+                UpdatedAt: null,
+                CreatedBy: null,
+                UpdatedBy: null,
+                CustomFields: null 
+            },
             {
                 ComponentLayoutID: 1,
                 EntityType: "JournalEntryLineDraft",
@@ -477,7 +506,8 @@ export class JournalEntrySimpleForm implements OnChanges {
         var creditvattype = this.formInstance['CreditVatTypeID'];
         var description = this.formInstance['Description'];
         var amount = this.formInstance['Amount'];
-
+        var invoiceNumber = this.formInstance['InvoiceNumber'];
+        
         var journalalternatives = [];
         var samealternative = {ID: this.SAME_OR_NEW_SAME, Name: "Samme"};
         var newalternative = {ID: this.SAME_OR_NEW_NEW, Name: "Ny"}
@@ -512,6 +542,34 @@ export class JournalEntrySimpleForm implements OnChanges {
         
         debitvattype.onEnter = () => {
             creditaccount.setFocus();
+        }
+        
+        invoiceNumber.onEnter = () => {
+            console.log('invoicenumber: ' + this.journalEntryLine.InvoiceNumber);
+            if (this.journalEntryLine.InvoiceNumber && this.journalEntryLine.InvoiceNumber !== '') {
+                this.customerInvoiceService.getInvoiceByInvoiceNumber(this.journalEntryLine.InvoiceNumber)
+                    .subscribe((data) => {
+                            if (data && data.JournalEntry && data.JournalEntry.Lines) {
+                                for (let i = 0; i < data.JournalEntry.Lines.length; i++) {
+                                    let line = data.JournalEntry.Lines[i];
+                                    
+                                    if (line.Account.UsePostPost) {                                        
+                                        this.journalEntryLine.CreditAccount = line.Account;
+                                        this.journalEntryLine.CreditAccountID = line.AccountID;
+                                        this.journalEntryLine.Amount = line.RestAmount;
+                                        
+                                        break;                                        
+                                    }
+                                }    
+                            }
+                            
+                            debitaccount.setFocus();                        
+                        },
+                        (err) => console.log('Error retrieving information about invoice')
+                    );    
+            } else {
+                debitaccount.setFocus();
+            }            
         }
         
         creditaccount.onSelect = (account: Account) => {
