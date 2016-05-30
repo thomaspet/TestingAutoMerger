@@ -43,6 +43,7 @@ export class TransqueryDetails implements OnInit {
         searchParams.period = Number(routeParams.get('period'));
         searchParams.isIncomingBalance = routeParams.get('isIncomingBalance') === 'true';
         searchParams.journalEntryNumber = routeParams.get('journalEntryNumber');
+        searchParams.accountID = routeParams.get('accountID');        
         return searchParams;
     }
 
@@ -66,6 +67,8 @@ export class TransqueryDetails implements OnInit {
             }
         } else if (searchParameters.journalEntryNumber) {
             return `JournalEntryNumber eq '${searchParameters.journalEntryNumber}'`;
+        } else if (searchParameters.accountID) {
+            return `Account.ID eq '${searchParameters.accountID}'`;
         } else {
             return '';
         }
@@ -83,7 +86,12 @@ export class TransqueryDetails implements OnInit {
                                 ${journalEntryLine.JournalEntryNumber}
                             </a>`;
                         }),
-                    new UniTableColumn('Account.AccountNumber', 'Kontonr'),
+                    new UniTableColumn('Account.AccountNumber', 'Kontonr')
+                        .setTemplate((journalEntryLine) => {
+                            return `<a href="/#/accounting/transquery/detailsByAccountID/${journalEntryLine.AccountID}/">
+                                ${journalEntryLine.Account.AccountNumber}
+                            </a>`;
+                        }),
                     new UniTableColumn('Account.AccountName', 'Kontonavn'),
                     new UniTableColumn('FinancialDate', 'Regnskapsdato'),
                     new UniTableColumn('RegisteredDate', 'Bokføringsdato'),
