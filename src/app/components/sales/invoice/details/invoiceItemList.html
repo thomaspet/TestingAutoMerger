@@ -1,3 +1,6 @@
-<span *ngIf="invoice">
-    <uni-table [config]="invoiceItemTable"></uni-table>
+<span *ngIf="invoice && invoiceItemTable">
+    <uni-table [resource]="items"
+               [config]="invoiceItemTable"
+               (rowChanged)="rowChanged($event)">
+    </uni-table>
 </span>

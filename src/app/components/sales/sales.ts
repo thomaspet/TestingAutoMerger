@@ -9,27 +9,27 @@ const SALES_ROUTES = [
         useAsDefault: true,
         path: "/customer/...",
         name: "Customer",
-        loader: () => ComponentProxy.LoadComponentAsync("Customer", "./app/components/sales/customer/customer")
+        loader: () => ComponentProxy.LoadComponentAsync("Customer", "src/app/components/sales/customer/customer")
     }),
     new AsyncRoute({        
         path: "/supplier/...",
         name: "Supplier",
-        loader: () => ComponentProxy.LoadComponentAsync("Supplier", "./app/components/sales/supplier/supplier")
+        loader: () => ComponentProxy.LoadComponentAsync("Supplier", "src/app/components/sales/supplier/supplier")
     }),
     new AsyncRoute({        
         path: "/quote/...",
         name: "Quote",
-        loader: () => ComponentProxy.LoadComponentAsync("Quote", "./app/components/sales/quote/quote")
+        loader: () => ComponentProxy.LoadComponentAsync("Quote", "src/app/components/sales/quote/quote")
     }),
     new AsyncRoute({        
         path: "/invoice/...",
         name: "Invoice",
-        loader: () => ComponentProxy.LoadComponentAsync("Invoice", "./app/components/sales/invoice/invoice")
+        loader: () => ComponentProxy.LoadComponentAsync("Invoice", "src/app/components/sales/invoice/invoice")
     }),
     new AsyncRoute({
         path: "/order/...",
         name: "Order",
-        loader: () => ComponentProxy.LoadComponentAsync("Order", "./app/components/sales/order/order")
+        loader: () => ComponentProxy.LoadComponentAsync("Order", "src/app/components/sales/order/order")
     })
 ];
 

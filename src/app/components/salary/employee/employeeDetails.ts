@@ -24,22 +24,22 @@ const CHILD_ROUTES = [
         useAsDefault: true,
         path: '/personal-details',
         name: 'Detaljer',
-        loader: () => ComponentProxy.LoadComponentAsync('PersonalDetails', './app/components/salary/employee/personalDetails/personalDetails')
+        loader: () => ComponentProxy.LoadComponentAsync('PersonalDetails', 'src/app/components/salary/employee/personalDetails/personalDetails')
     }),
     new AsyncRoute({
         path: '/employmentList',
         name: 'Arbeidsforhold',
-        loader: () => ComponentProxy.LoadComponentAsync('EmploymentList', './app/components/salary/employee/employments/employmentList')
+        loader: () => ComponentProxy.LoadComponentAsync('EmploymentList', 'src/app/components/salary/employee/employments/employmentList')
     }),
     new AsyncRoute({
         path: '/salarytrans',
         name: 'Faste poster',
-        loader: () => ComponentProxy.LoadComponentAsync('RecurringPost', './app/components/salary/employee/recurringPost/recurringPost')
+        loader: () => ComponentProxy.LoadComponentAsync('RecurringPost', 'src/app/components/salary/employee/recurringPost/recurringPost')
     }),
     new AsyncRoute({
         path: '/employeeleave',
         name: 'Fravær',
-        loader: () => ComponentProxy.LoadComponentAsync('EmployeeLeave', './app/components/salary/employee/employeeLeave/employeeLeave')
+        loader: () => ComponentProxy.LoadComponentAsync('EmployeeLeave', 'src/app/components/salary/employee/employeeLeave/employeeLeave')
     })
 ];
 
