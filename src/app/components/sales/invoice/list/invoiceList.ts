@@ -228,6 +228,6 @@ export class InvoiceList {
             .setPageSize(25)
             .setColumns([invoiceNumberCol, customerNumberCol, customerNameCol, invoiceDateCol, dueDateCol,
                 taxInclusiveAmountCol, restAmountCol, creditedAmountCol, statusCol])
-            .setContextMenuItems(contextMenuItems);
+            .setContextMenu(contextMenuItems);
     }
 }
