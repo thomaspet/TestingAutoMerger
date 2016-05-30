@@ -11,17 +11,17 @@ const CUSTOMER_ROUTES = [
         useAsDefault: true,
         path: "/list",
         name: "CustomerList",
-        loader: () => ComponentProxy.LoadComponentAsync("CustomerList", "./app/components/sales/customer/list/customerList")
+        loader: () => ComponentProxy.LoadComponentAsync("CustomerList", "src/app/components/sales/customer/list/customerList")
     }),
     new AsyncRoute({
         path: "/add",
         name: "CustomerAdd",
-        loader: () => ComponentProxy.LoadComponentAsync("CustomerAdd", "./app/components/sales/customer/add/customerAdd")
+        loader: () => ComponentProxy.LoadComponentAsync("CustomerAdd", "src/app/components/sales/customer/add/customerAdd")
     }),
     new AsyncRoute({
         path: "/details/:id",
         name: "CustomerDetails",
-        loader: () => ComponentProxy.LoadComponentAsync("CustomerDetails", "./app/components/sales/customer/customerDetails/customerDetails")
+        loader: () => ComponentProxy.LoadComponentAsync("CustomerDetails", "src/app/components/sales/customer/customerDetails/customerDetails")
     })    
 ];
 
