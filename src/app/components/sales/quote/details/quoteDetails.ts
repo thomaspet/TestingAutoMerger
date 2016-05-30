@@ -1,7 +1,7 @@
 import {Component, ComponentRef, Input, Output, ViewChild, SimpleChange, EventEmitter} from "@angular/core";
 import {Router, RouteParams, RouterLink} from "@angular/router-deprecated";
 import {Observable} from "rxjs/Observable";
-import "rxjs/add/observable/forkjoin";
+import "rxjs/add/observable/forkJoin";
 
 import {CustomerQuoteService, CustomerQuoteItemService, CustomerService, SupplierService, ProjectService, DepartementService, AddressService} from "../../../../services/services";
 import {QuoteItemList} from './quoteItemList';
