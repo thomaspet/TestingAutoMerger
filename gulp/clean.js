@@ -18,7 +18,7 @@ gulp.task('clean.css', function() {
 });
 
 gulp.task('clean.html', function() {
-    var htmlfiles = ['./dist/**/*.html'];
+    var htmlfiles = ['./dist/app/**/*.html','./dist/framework/**/*.html'];
     return del(htmlfiles);
 });
 
