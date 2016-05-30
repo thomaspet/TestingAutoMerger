@@ -26,7 +26,7 @@
     @else
       // If we don't have a $kind, assume max-width
       @if $kind==false
-        $kind:max-width
+        $kind: max-width
 
       @media only screen and (#{$kind}: $size)
         @content
@@ -41,7 +41,7 @@
 
     // If we don't get a kind, assume max-width
     @if $kind==false
-      $kind:max-width
+      $kind: max-width
 
     @media only screen and (#{$kind}: $size)
       @content

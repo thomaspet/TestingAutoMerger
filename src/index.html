@@ -10,7 +10,7 @@
     <meta http-equiv="x-ua-compatible" content="chrome=1,ie=edge">
     <meta name="robots" content="noindex,nofollow">
     <!--[if (gt IE 9)|!(IE)]><!-->
-    <base href="/"/>
+    <base href="/" />
     <!--<![endif]-->
     <title>Uni Economy</title>
 
@@ -34,10 +34,10 @@
 
     <!-- APPLE PLATFORM TAGS
      ------------------------------------------------------------------------->
-    <meta name="viewport" content="user-scalable=no, width=device-width"/>
+    <meta name="viewport" content="user-scalable=no, width=device-width" />
     <meta name="apple-mobile-web-app-title" content="Economy">
-    <meta name="apple-mobile-web-app-capable" content="yes"/>
-    <meta name="apple-touch-fullscreen" content="yes"/>
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-touch-fullscreen" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="default">
     <meta name="format-detection" content="telephone=no">
 
@@ -46,8 +46,7 @@
      ------------------------------------------------------------------------->
     <link rel="alternate" type="application/rss+xml" title="RSS" href="">
     <link rel="alternate" type="application/atom+xml" title="Atom 0.3" href="">
-    <meta name="msapplication-notification"
-          content="frequency=30;
+    <meta name="msapplication-notification" content="frequency=30;
                    polling-uri=.xml;
                    polling-uri2=.xml;
                    polling-uri3=.xml">
@@ -79,7 +78,7 @@
      ------------------------------------------------------------------------->
     <meta name="msapplication-TileColor" content="#1492d5">
     <meta name="msapplication-TileImage" content="assets/apple-touch-icon-precomposed-144.png">
-    <meta name="msapplication-config" content="assets/browserconfig.xml"/>
+    <meta name="msapplication-config" content="assets/browserconfig.xml" />
 
 
     <!-- EXTERNAL PROFILES
@@ -89,23 +88,25 @@
 
     <!-- EXTERNAL PROFILES
      ------------------------------------------------------------------------->
-    <link rel="stylesheet" href="vendor.css?v=<%=VERSION%>">
-    <link rel="stylesheet" href="main.css?v=<%=VERSION%>">
+    <link rel="stylesheet" href="main.min.css?v=<%= version %>">
 
 
     <!-- SCRIPTS
      ------------------------------------------------------------------------->
-    <script src="vendor.js?v=<%=VERSION%>"></script>
+    <script src="vendors.bundle.js?v=<%= version %>"></script>
+    <script src="app.bundle.js?v=<%= version %>"></script>
     <script>
-        System.import('system.config.js').then(function () {
-            System.import('./app/bootstrap');
+        System.import('system.config.js').then(function() {
+            System.import('src/app/bootstrap');
         }).catch(console.error.bind(console));
     </script>
 
 </head>
+
 <body>
 
-<uni-app>Loading...</uni-app>
+    <uni-app>Loading...</uni-app>
 
 </body>
+
 </html>

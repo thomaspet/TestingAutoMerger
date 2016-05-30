@@ -1,11 +1,8 @@
 ﻿import {Injectable} from '@angular/core';
 import {Http, Headers, URLSearchParams, Request, RequestMethod} from '@angular/http';
-import {Observable} from 'rxjs/Observable';
+import {Observable} from 'rxjs/Rx';
 import {AppConfig} from '../../../app/AppConfig';
 import {AuthService} from '../authService';
-import 'rxjs/add/operator/map';
-import 'rxjs/add/observable/forkjoin';
-import 'rxjs/add/observable/from';
 
 export interface IUniHttpRequest {
     baseUrl?: string;
