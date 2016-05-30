@@ -31,6 +31,7 @@ export class WorkerService extends BizHttp<Worker> {
         
     }
     
+    /*
     cacheGet(name:string) {
         var item = WorkerService.cache[name];
         console.log(name + ' ' + (item ? 'found' : 'not') + ' in cache' );
@@ -46,9 +47,11 @@ export class WorkerService extends BizHttp<Worker> {
         WorkerService.cache[name] = value;
         console.log(name + ": inCache = " + this.inCache(name) );
     }
+    */
     
-    getRelationsForUser(id:number):Observable<any> {
-        return this.getWorkerFromUser(id).switchMap((worker:Worker) => {
+    getRelationsForUser(id:number):Observable<WorkRelation[]> {
+        var obs = this.getWorkerFromUser(id);
+        return obs.flatMap((worker:Worker) => {
             return this.getRelationsForWorker(worker.ID);
         });
     }
@@ -57,8 +60,8 @@ export class WorkerService extends BizHttp<Worker> {
         return this.getWorkRelations(workerId).flatMap((list:WorkRelation[])=>{
             // Try to create initial workrelation for this worker
             if ((!list) || list.length===0) {
-                this.getWorkProfiles().flatMap((profiles:WorkProfile[])=>{
-                    return this.createInitialWorkRelation(workerId, profiles[0]).map((item:WorkRelation)=>{
+                return this.getWorkProfiles().flatMap((profiles:WorkProfile[]) => {
+                    return this.createInitialWorkRelation(workerId, profiles[0]).flatMap((item:WorkRelation)=>{
                         return Observable.of([item]); 
                     });
                 })

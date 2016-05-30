@@ -3,8 +3,9 @@ import {TabService} from '../../layout/navbar/tabstrip/tabService';
 import {View} from '../../../models/view/view';
 import {Worker, WorkRelation, WorkProfile, WorkItem, WorkType} from '../../../unientities';
 import {UniTable as NewTable, UniTableColumn, UniTableConfig, UniTableColumnType} from 'unitable-ng2/main';
-import {Observable} from 'rxjs/Observable';
+import {Observable} from 'rxjs/Rx';
 import {WorkerService} from '../../../services/timetracking/workerservice';
+import {TimesheetService, TimeSheet} from '../../../services/timetracking/timesheetservice';
 
 export var view = new View('regtime', 'Timeregistrering', 'RegisterTime');
 
@@ -19,7 +20,7 @@ declare var moment;
             '.title select { display:inline-block; width: auto; padding-left: 7px; padding-right: 7px; }',
             '.tabtip { color: #606060; margin-left: -15px; }'
             ],
-    providers: [WorkerService]
+    providers: [WorkerService, TimesheetService]
 })
 export class RegisterTime {    
     public view = view;
@@ -27,10 +28,9 @@ export class RegisterTime {
     private busy = true;
     private userName = '';
     private tableConfig: UniTableConfig;
-    private tableData:Array<any> = [];
-    private worktypes:Array<WorkType> = [];
-    private workRelations: Array<WorkRelation> = [];    
-    private currentWorkRelation: WorkRelation;
+    private worktypes:Array<WorkType> = [];  
+    
+    private timeSheet: TimeSheet = new TimeSheet();
     
     tabs = [ { name: 'timeentry', label: 'Timer', isSelected: true },
             { name: 'totals', label: 'Totaler' },
@@ -40,23 +40,29 @@ export class RegisterTime {
             { name: 'offtime', label: 'Fravær', counter: 4 },
             ];    
 
-    constructor(private tabService: TabService, private service:WorkerService) {
+    constructor(private tabService: TabService, private workerService:WorkerService, private timesheetService: TimesheetService) {
         this.tabService.addTab({ name: view.label, url: view.route });
-        this.userName = service.user.name;
+        this.userName = workerService.user.name;
         this.tableConfig = this.createTableConfig();
+        this.timesheetService.initService(workerService);
         this.initServiceValues();        
     }
     
     onReloadClick() {
+        this.busy = true;
         this.initServiceValues();
     }
     
-    loadItems(workRelationID:number) {
-        this.service.getWorkItems(workRelationID).subscribe((list:WorkItem[])=>{
-            this.busy = false;
-            this.tableData = list;
-            this.tableConfig = this.createTableConfig();
-        });        
+    loadItems() {
+        if (this.timeSheet.currentRelation && this.timeSheet.currentRelation.ID) {
+            this.timeSheet.loadItems().subscribe((itemCount:number)=>{
+                this.busy = false;
+                console.log("got " + itemCount + " workitems");
+                this.tableConfig = this.createTableConfig();
+            })    
+        } else {
+            console.log("Current worker/user has no workrelations!");
+        }
     }
     
     defaultType():WorkType {
@@ -67,22 +73,20 @@ export class RegisterTime {
     }
     
     initServiceValues() {
-                
-        this.service.getCurrentUserId().then((id:number)=>{
-            this.service.getRelationsForUser(id).subscribe((items:WorkRelation[])=>{
-                this.workRelations = items;
-                this.selectWorkRelation(items[0]);
-            });
+        
+        this.timesheetService.initUser().subscribe((ts:TimeSheet) => {
+            this.timeSheet = ts;
+            this.selectWorkRelation(ts.currentRelation);
         });
         
-        this.service.getWorkTypes().subscribe((result:Array<WorkType>)=>{
+        this.workerService.getWorkTypes().subscribe((result:Array<WorkType>)=>{
             this.worktypes = result;
         });        
     }
     
     selectWorkRelation(relation:WorkRelation) {
-        this.currentWorkRelation = relation;
-        this.loadItems(relation.ID);
+        this.timeSheet.currentRelation = relation;
+        this.loadItems();
     }    
     
 	addNewRow(text = 'Fyll inn beskrivelse') {
@@ -95,7 +99,7 @@ export class RegisterTime {
             WorkTypeID: workType.ID,
             Worktype: workType
         };
-        this.tableData.push(row);
+        this.timeSheet.items.push(row);
 	}    
     
     getWorkTypeByID(id:number): WorkType {

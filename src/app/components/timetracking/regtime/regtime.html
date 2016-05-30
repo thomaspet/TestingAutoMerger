@@ -2,7 +2,7 @@
     
     <header class="title">
         <span>Registrere timer for {{userName}}</span>
-        <select *ngFor="let item of workRelations">
+        <select *ngFor="let item of timeSheet.workRelations">
             <option>{{item.CompanyName}} : {{item.WorkPercentage}}% - {{item.Description}}</option>
         </select>
     </header>
@@ -18,11 +18,11 @@
     
     <br/>
 
-    <section  [attr.aria-busy]="busy" >
+    <section [attr.aria-busy]="busy" >
         
         <button (click)="onReloadClick()">Reload</button>
 
-        <uni-table [resource]="tableData" [config]="tableConfig"></uni-table>
+        <uni-table [resource]="timeSheet.items" [config]="tableConfig"></uni-table>
     
     </section>
 
