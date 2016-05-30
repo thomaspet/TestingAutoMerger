@@ -10,12 +10,12 @@ const INVOICE_ROUTES = [
         useAsDefault: true,      
         path: "/list",
         name: "SupplierInvoiceList", 
-        loader: () => ComponentProxy.LoadComponentAsync("SupplierInvoiceList", "./app/components/accounting/journalentry/supplierinvoices/supplierinvoicelist")
+        loader: () => ComponentProxy.LoadComponentAsync("SupplierInvoiceList", "src/app/components/accounting/journalentry/supplierinvoices/supplierinvoicelist")
     }),
     new AsyncRoute({
         path: "/details/:id",
         name: "SupplierInvoiceDetail",
-        loader: () => ComponentProxy.LoadComponentAsync("SupplierInvoiceDetail", "./app/components/accounting/journalentry/supplierinvoices/supplierinvoicedetail")
+        loader: () => ComponentProxy.LoadComponentAsync("SupplierInvoiceDetail", "src/app/components/accounting/journalentry/supplierinvoices/supplierinvoicedetail")
     })
 ];
 
