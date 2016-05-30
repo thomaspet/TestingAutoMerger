@@ -8,7 +8,7 @@ declare var _; // jquery and lodash
     changeDetection: ChangeDetectionStrategy.OnPush,
     template: `
         <select [disabled]="field?.ReadOnly" (change)="onChangeHandler($event)">
-            <option *ngFor="let item of items" [value]="value(item)">
+            <option *ngFor="let item of items" [value]="value(item)" [selected]="selected(item)">
                 {{template(item)}}
             </option>
         </select>
@@ -73,6 +73,10 @@ export class UniSelectInput {
     private onChangeHandler($event) {
         _.set(this.model, this.field.Property, $event.target.value);
         this.onChange.emit(this.model);
+    }
+
+    private selected(item) {
+        return this.value(item) === _.get(this.model, this.field.Property);
     }
 
     private template(item) {
