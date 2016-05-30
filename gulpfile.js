@@ -61,7 +61,7 @@ require('./gulp/watch');
 var runSequence = require('run-sequence');
 var gulp = require('gulp');
 
-gulp.task('build', function(done) {
+gulp.task('build.watch', function(done) {
     runSequence(
         'clean.all', [
             'index.html',
@@ -74,7 +74,7 @@ gulp.task('build', function(done) {
     );
 });
 
-gulp.task('build.watch', function(done) {
+gulp.task('build', function(done) {
     runSequence(
         'clean.all', [
             'index.html',
