@@ -13,6 +13,12 @@ declare var _;
 declare var jQuery;
 declare var moment;
 
+export enum JournalEntryMode {
+    Manual,
+    Supplier,
+    Payment
+}
+
 @Component({
     selector: 'journal-entry-simple-form',
     templateUrl: 'app/components/accounting/journalentry/components/journalentrysimple/journalentrysimpleform.html',
@@ -30,7 +36,7 @@ export class JournalEntrySimpleForm implements OnChanges {
     journalEntryLines: Array<JournalEntryData>;
     
     @Input()
-    hideSameOrNew: boolean;
+    mode: number = JournalEntryMode.Manual;
     
     @Output()
     created = new EventEmitter<any>();
@@ -72,19 +78,27 @@ export class JournalEntrySimpleForm implements OnChanges {
         this.vattypes = [];
         this.accounts = [];
         this.journalEntryLine = new JournalEntryData();
-        this.hideSameOrNew = false;      
+    }
+    
+    ngOnInit() {    
+        if (!this.isEditMode) {           
+            this.journalEntryLine.SameOrNew = this.mode == JournalEntryMode.Supplier ? this.SAME_OR_NEW_SAME : this.SAME_OR_NEW_NEW;
+        } 
         
         this.setupSameNewAlternatives();
         
         let self = this;
         //this.journalEntryService.layout('JournalEntryLineForm').toPromise().then((layout: any) => {
         //    self.fields = layout.Fields;
+        
+        console.log("== VATYPES BEFORE SETUP ==");
+        console.log(this.vattypes);
               
             self.fields = [{
                 EntityType: "JournalEntryLineDraft",
                 Property: "SameOrNew",
                 Placement: 1,
-                Hidden: self.hideSameOrNew,
+                Hidden: self.mode == JournalEntryMode.Supplier,
                 FieldType: 3,
                 ReadOnly: false,
                 LookupField: false,
@@ -96,7 +110,7 @@ export class JournalEntrySimpleForm implements OnChanges {
                 Placeholder: null,
                 Options: {
                     source: self.journalalternatives,
-                    template: (obj) => `${obj.Name}`,
+                    template: (alternative) => `${alternative.Name}`,
                     valueProperty: 'ID',
                     displayProperty: 'Name',
                     debounceTime: 500,
@@ -164,7 +178,7 @@ export class JournalEntrySimpleForm implements OnChanges {
                 Options: {                  
                     displayProperty: 'AccountName',
                     valueProperty: 'ID',
-                    template: (obj:Account) => `${obj.AccountNumber} - ${obj.AccountName}`,
+                    template: (account:Account) => `${account.AccountNumber} - ${account.AccountName}`,
                     minLength: 1,
                     debounceTime: 300,
                     search: (query:string) => self.accountService.GetAll(`filter=startswith(AccountNumber,'${query}') or contains(AccountName,'${query}')`, ['VatType']),
@@ -212,8 +226,7 @@ export class JournalEntrySimpleForm implements OnChanges {
                 Placeholder: null,
                 Options: {
                     displayProperty: 'VatCode',
-                    valueProperty: 'ID',
-                    template: "${data.VatCode} (${ data.VatPercent }%)",
+                    template: (vattype:VatType) =>  `${vattype.VatCode} (${ vattype.VatPercent }%)`,
                     source: self.vattypes,
                     onEnter: () => {
                         self.form.Fields['CreditAccountID'].focus();
@@ -249,7 +262,7 @@ export class JournalEntrySimpleForm implements OnChanges {
                 Options: {
                     valueProperty: 'ID',
                     displayProperty: 'AccountName',
-                    template: (obj:Account) => `${obj.AccountNumber} - ${obj.AccountName}`,
+                    template: (account:Account) => `${account.AccountNumber} - ${account.AccountName}`,
                     minLength: 1,
                     debounceTime: 300,
                     search: (query:string) => self.accountService.GetAll(`filter=startswith(AccountNumber,'${query}') or contains(AccountName,'${query}')`, ['VatType']),
@@ -301,8 +314,8 @@ export class JournalEntrySimpleForm implements OnChanges {
                 Options: {
                     displayProperty: 'VatCode',
                     valueProperty: 'ID',
-                    template: "${data.VatCode} (${ data.VatPercent }%)",
-                    source: this.vattypes,
+                    template: (vattype:VatType) => `${vattype.VatCode} (${ vattype.VatPercent }%)`,
+                    source: self.vattypes,
                     onEnter: () => {
                         self.form.Fields['Amount'].focus();
                     }   
@@ -372,7 +385,7 @@ export class JournalEntrySimpleForm implements OnChanges {
                 Placeholder: null,
                 Options: {
                     source: self.departements,
-                    template: (obj) => `${obj.name}`,
+                    template: (departement) => `${departement.name}`,
                     valueProperty: 'ID',
                     displayProperty: 'Name',
                     debounceTime: 500,
@@ -409,7 +422,7 @@ export class JournalEntrySimpleForm implements OnChanges {
                 Placeholder: null,
                 Options: {
                     source: self.projects,
-                    template: (obj) => `${obj.name}`,
+                    template: (project) => `${project.name}`,
                     valueProperty: 'ID',
                     displayProperty: 'Name',
                     debounceTime: 500,
@@ -466,9 +479,11 @@ export class JournalEntrySimpleForm implements OnChanges {
 
     }
     
-    setupSameNewAlternatives() {        
+    setupSameNewAlternatives() {      
+        this.journalalternatives = [];
+        
         // add list of possible numbers from start to end
-        if (this.isEditMode && !this.hideSameOrNew) {
+        if (this.isEditMode && this.mode != JournalEntryMode.Supplier && this.journalEntryLines.length > 0) {
             var range = this.journalEntryService.findJournalNumbersFromLines(this.journalEntryLines);
             var current = parseInt(this.journalEntryLine.JournalEntryNo.split('-')[0]);
             for(var i = 0; i <= (range.last - range.first); i++) {
@@ -484,19 +499,13 @@ export class JournalEntrySimpleForm implements OnChanges {
         // new always last one
         this.journalalternatives.push(this.newAlternative);
     }
-    
-    ngOnInit() {
-        if (!this.isEditMode) {           
-            this.journalEntryLine.SameOrNew = this.hideSameOrNew ? this.SAME_OR_NEW_SAME : this.SAME_OR_NEW_NEW;
-        } 
-    }
-            
-    ngOnChanges(changes: {[propName: string]: SimpleChange}) {                 
+                
+    ngOnChanges(changes: {[propName: string]: SimpleChange}) {  
         if (changes['dropdownData'] != null && this.dropdownData) {
             this.departements = this.dropdownData[0];
             this.projects = this.dropdownData[1];
             this.vattypes = this.dropdownData[2];
-            this.accounts = this.dropdownData[3];  
+            this.accounts = this.dropdownData[3]; 
         }
         
         if (changes['journalEntryLine'] != null) {
@@ -518,7 +527,7 @@ export class JournalEntrySimpleForm implements OnChanges {
     }
          
     addJournalEntry(event: any, journalEntryNumber: string = null) {  
-        if (this.journalEntryLines.length == 0 && journalEntryNumber == null && !this.hideSameOrNew) {
+        if (this.journalEntryLines.length == 0 && journalEntryNumber == null && this.mode != JournalEntryMode.Supplier) {
             // New line fetch next journal entry number from server first
             var journalentrytoday: JournalEntryData = new JournalEntryData();
             journalentrytoday.FinancialDate = moment().toDate();
@@ -531,7 +540,7 @@ export class JournalEntrySimpleForm implements OnChanges {
      
             if (numbers) {
                 // next or same journal number?
-                if (oldData.SameOrNew === this.SAME_OR_NEW_NEW && !this.hideSameOrNew) {
+                if (oldData.SameOrNew === this.SAME_OR_NEW_NEW && this.mode != JournalEntryMode.Supplier) {
                     oldData.JournalEntryNo = numbers.nextNumber;
                 } else {
                     oldData.JournalEntryNo = numbers.lastNumber;        
@@ -545,12 +554,13 @@ export class JournalEntrySimpleForm implements OnChanges {
             this.journalEntryLine = new JournalEntryData(); 
             this.journalEntryLine.FinancialDate = oldData.FinancialDate;
             
-            if (this.hideSameOrNew) {
+            if (this.mode == JournalEntryMode.Supplier) {
                 this.journalEntryLine.SameOrNew = this.SAME_OR_NEW_SAME;
             } else {
                 this.journalEntryLine.SameOrNew = oldsameornew == this.SAME_OR_NEW_SAME ? this.SAME_OR_NEW_SAME : this.SAME_OR_NEW_NEW;
             }
             
+            this.setupSameNewAlternatives();
             this.setFocusOnDebit();
         }                
     }
