@@ -166,7 +166,7 @@ export class JournalEntrySimpleForm implements OnChanges {
                 EntityType: "JournalEntryLineDraft",
                 Property: "InvoiceNumber",
                 Placement: 11,
-                Hidden: false,
+                Hidden: self.mode != JournalEntryMode.Payment,
                 FieldType: 10,
                 ReadOnly: false,
                 LookupField: false,
@@ -176,34 +176,7 @@ export class JournalEntrySimpleForm implements OnChanges {
                 FieldSet: 0,
                 Section: 0,
                 Placeholder: null,
-				Options: {
-                    onEnter: () => {
-                        console.log('invoicenumber: ' + this.journalEntryLine.InvoiceNumber);
-                        if (this.journalEntryLine.InvoiceNumber && this.journalEntryLine.InvoiceNumber !== '') {
-                            this.customerInvoiceService.getInvoiceByInvoiceNumber(this.journalEntryLine.InvoiceNumber)
-                                .subscribe((data) => {
-                                        if (data && data.JournalEntry && data.JournalEntry.Lines) {
-                                            for (let i = 0; i < data.JournalEntry.Lines.length; i++) {
-                                                let line = data.JournalEntry.Lines[i];
-                                                
-                                                if (line.Account.UsePostPost) {                                        
-                                                    this.journalEntryLine.CreditAccount = line.Account;
-                                                    this.journalEntryLine.CreditAccountID = line.AccountID;
-                                                    this.journalEntryLine.Amount = line.RestAmount;
-                                                    
-                                                    break;                                        
-                                                }
-                                            }    
-                                        }
-                                        
-                                        this.form.Fields['Debitaccount'].focus();                        
-                                    },
-                                    (err) => console.log('Error retrieving information about invoice')
-                                );    
-                        } else {
-                            this.form.Fields['Debitaccount'].focus();
-                        }            
-                    }
+				Options: {                   
 				},
                 LineBreak: null,
                 Combo: null,
@@ -271,7 +244,7 @@ export class JournalEntrySimpleForm implements OnChanges {
                 EntityType: "JournalEntryLineDraft",
                 Property: "DebitVatTypeID",
                 Placement: 4,
-                Hidden: false,
+                Hidden: self.mode == JournalEntryMode.Payment,
                 FieldType: 3,
                 ReadOnly: false,
                 LookupField: false,
@@ -358,7 +331,7 @@ export class JournalEntrySimpleForm implements OnChanges {
                 EntityType: "JournalEntryLineDraft",
                 Property: "CreditVatTypeID",
                 Placement: 4,
-                Hidden: false,
+                Hidden: self.mode == JournalEntryMode.Payment,
                 FieldType: 3,
                 ReadOnly: false,
                 LookupField: false,
@@ -430,7 +403,7 @@ export class JournalEntrySimpleForm implements OnChanges {
                 EntityType: "JournalEntryLineDraft",
                 Property: "Dimensions.DepartementID",
                 Placement: 4,
-                Hidden: false,
+                Hidden: self.mode == JournalEntryMode.Payment,
                 FieldType: 3,
                 ReadOnly: false,
                 LookupField: false,
@@ -467,7 +440,7 @@ export class JournalEntrySimpleForm implements OnChanges {
                 EntityType: "JournalEntryLineDraft",
                 Property: "Dimensions.ProjectID",
                 Placement: 4,
-                Hidden: false,
+                Hidden: self.mode == JournalEntryMode.Payment,
                 FieldType: 3,
                 ReadOnly: false,
                 LookupField: false,
@@ -581,6 +554,33 @@ export class JournalEntrySimpleForm implements OnChanges {
     public ready(line) {
         console.log('Ready:', line);        
         this.form.Fields['FinancialDate'].focus();
+        
+        this.form.Fields['InvoiceNumber'].onTab.subscribe((data) => {                        
+                        if (this.journalEntryLine.InvoiceNumber && this.journalEntryLine.InvoiceNumber !== '') {
+                            this.customerInvoiceService.getInvoiceByInvoiceNumber(this.journalEntryLine.InvoiceNumber)
+                                .subscribe((data) => {
+                                        if (data && data.length > 0) {                                            
+                                            let invoice = data[0];
+                                            if (invoice && invoice.JournalEntry && invoice.JournalEntry.Lines) {
+                                                for (let i = 0; i < invoice.JournalEntry.Lines.length; i++) {
+                                                    let line = invoice.JournalEntry.Lines[i];
+                                                    
+                                                    if (line.Account.UsePostPost) {                                        
+                                                        this.journalEntryLine.CreditAccount = line.Account;
+                                                        this.journalEntryLine.CreditAccountID = line.AccountID;
+                                                        this.journalEntryLine.Amount = line.RestAmount;
+                                                        
+                                                        this.journalEntryLine = _.cloneDeep(this.journalEntryLine);                                                    
+                                                        break;                                        
+                                                    }
+                                                }    
+                                            }
+                                        }                                                                
+                                    },
+                                    (err) => console.log('Error retrieving information about invoice')
+                                );    
+                        }          
+                    });
     }
          
     addJournalEntry(event: any, journalEntryNumber: string = null) {  

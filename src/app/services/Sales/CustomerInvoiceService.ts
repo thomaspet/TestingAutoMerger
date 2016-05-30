@@ -53,7 +53,7 @@ export class CustomerInvoiceService extends BizHttp<CustomerInvoice> {
     } 
 
     getInvoiceByInvoiceNumber(invoiceNumber: string): Observable<any> {        
-        return this.GetAll("InvoiceNumber eq " + invoiceNumber, "JournalEntry,JournalEntry.Lines,JournalEntry.Lines.Account");
+        return this.GetAll('filter=InvoiceNumber eq ' + invoiceNumber, ['JournalEntry','JournalEntry.Lines','JournalEntry.Lines.Account']);
     }
 
     public getStatusText = (statusCode: string) => {
