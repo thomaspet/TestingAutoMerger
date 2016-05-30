@@ -1,8 +1,7 @@
 import {Component, ViewChild, Input, Output, EventEmitter, OnInit} from '@angular/core';
-import {Control} from '@angular/common';
 import {Observable} from 'rxjs/Observable';
 import 'rxjs/add/observable/forkjoin';
-import {ComponentInstruction, RouteParams, Router} from '@angular/router-deprecated';
+import {Router} from '@angular/router-deprecated';
 
 import {UniTable, UniTableColumn, UniTableColumnType, UniTableConfig} from 'unitable-ng2/main';
 import {UniHttp} from '../../../../../framework/core/http/http';
@@ -18,17 +17,17 @@ declare var jQuery;
     directives: [UniTable],
     providers: [ProductService, VatTypeService]
 })
-export class InvoiceItemList implements OnInit{
-    @Input() invoice: CustomerInvoice;
-    @ViewChild(UniTable) table: UniTable;
-    @Output() ItemsUpdated = new EventEmitter<any>();
-    @Output() ItemsLoaded = new EventEmitter<any>();
+export class InvoiceItemList implements OnInit {
+    @Input() public invoice: CustomerInvoice;
+    @ViewChild(UniTable) public table: UniTable;
+    @Output() public itemsUpdated = new EventEmitter<any>();
+    @Output() public itemsLoaded = new EventEmitter<any>();
 
-    invoiceItemTable: UniTableBuilder;
+    public invoiceItemTable: UniTableConfig;
 
-    products: Product[];
-    vatTypes: VatType[];
-    items: CustomerInvoiceItem[];
+    public products: Product[];
+    public vatTypes: VatType[];
+    public items: CustomerInvoiceItem[];
 
     constructor(private uniHttpService: UniHttp,
         private router: Router,
@@ -37,15 +36,15 @@ export class InvoiceItemList implements OnInit{
         private vatTypeService: VatTypeService) {
     }
 
-    ngOnInit() {
+    public ngOnInit() {
         this.setupInvoiceItemTable();
     }
 
-    ngOnChanges() {
+    public ngOnChanges() {
         this.setupInvoiceItemTable();
     }
 
-    setupInvoiceItemTable() {
+    private setupInvoiceItemTable() {
         if (this.invoice) {
             this.items = this.invoice.Items;
 
@@ -59,7 +58,7 @@ export class InvoiceItemList implements OnInit{
 
                     this.setupUniTable();
 
-                    this.ItemsLoaded.emit(this.items);
+                    this.itemsLoaded.emit(this.items);
                 },
                 (err) => console.log('Error retrieving data: ', err)
                 );
@@ -143,7 +142,7 @@ export class InvoiceItemList implements OnInit{
             ])
             .setMultiRowSelect(false)
             .setDefaultRowData({
-                ID:0,
+                ID: 0,
                 Product: null,
                 ProductID: null,
                 ItemText: '',
@@ -179,6 +178,6 @@ export class InvoiceItemList implements OnInit{
     private rowChanged(event) {
         console.log('row changed, calculate sums');
         var tableData = this.table.getTableData();
-        this.ItemsUpdated.emit(tableData);
+        this.itemsUpdated.emit(tableData);
     }
 }

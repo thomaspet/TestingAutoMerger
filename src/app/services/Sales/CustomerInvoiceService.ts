@@ -1,7 +1,6 @@
 import {BizHttp} from '../../../framework/core/http/BizHttp';
 import {CustomerInvoice, CustomerInvoiceItem} from '../../unientities';
 import {StatusCodeCustomerInvoice} from '../../unientities';
-import {InvoiceData} from '../../models/sales/InvoicePayment';
 import {UniHttp} from '../../../framework/core/http/http';
 import {Observable} from "rxjs/Observable";
 import {TradeHeaderCalculationSummary} from '../../models/sales/TradeHeaderCalculationSummary'

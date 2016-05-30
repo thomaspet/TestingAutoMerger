@@ -50,7 +50,7 @@
         <dd>Kr. {{itemsSummaryData.SumTotalIncVat}}</dd>
     </dl>
 
-    <invoice-item-list [invoice]="invoice" (ItemsUpdated)="recalcItemSums($event)" (ItemsLoaded)="recalcItemSums($event)"></invoice-item-list>
+    <invoice-item-list [invoice]="invoice" (itemsUpdated)="recalcItemSums($event)" (itemsLoaded)="recalcItemSums($event)"></invoice-item-list>
 </section>
 
 <footer class="full-footer">

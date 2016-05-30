@@ -3,11 +3,11 @@ import {UniTable, UniTableColumn, UniTableColumnType, UniTableConfig} from 'unit
 import {Router} from '@angular/router-deprecated';
 import {UniHttp} from '../../../../../framework/core/http/http';
 import {CustomerInvoiceService} from '../../../../services/services';
-import {CustomerInvoice, StatusCodeCustomerInvoice} from '../../../../unientities';
+import {StatusCodeCustomerInvoice} from '../../../../unientities';
 import {Http, URLSearchParams} from '@angular/http';
 import {AsyncPipe} from '@angular/common';
 
-import {InvoiceData} from '../../../../models/sales/InvoicePayment';
+import {InvoicePaymentData} from '../../../../models/sales/InvoicePaymentData';
 
 declare var jQuery;
 
@@ -23,9 +23,8 @@ export class InvoiceList {
     @ViewChildren(UniTable) public table: any;
 
     private invoiceTable: UniTableConfig;
-    private selectedinvoice: CustomerInvoice;
     private lookupFunction: (urlParams: URLSearchParams) => any;
-    private invoicePayment = new InvoiceData();
+    private invoicePaymentData: InvoicePaymentData = new InvoicePaymentData();
 
     constructor(private uniHttpService: UniHttp,
         private router: Router,
@@ -34,11 +33,11 @@ export class InvoiceList {
         this.setupInvoiceTable();
     }
 
-    log(err) {
+    private log(err) {
         alert(err._body);
     }
 
-    createInvoice() {
+    public createInvoice() {
         this.customerInvoiceService.newCustomerInvoice().then(invoice => {
             this.customerInvoiceService.Post(invoice)
                 .subscribe(
@@ -53,16 +52,13 @@ export class InvoiceList {
         });
     }
 
-    private onRowSelected(event) {
-        this.router.navigateByUrl('/sales/invoice/details/' + event.rowModel.ID);
-    };
-
     private setupInvoiceTable() {
         this.lookupFunction = (urlParams: URLSearchParams) => {
             let params = urlParams;
 
-            if (params == null)
+            if (params == null) {
                 params = new URLSearchParams();
+            }
 
             return this.customerInvoiceService.GetAllByUrlSearchParams(params);
         };
@@ -90,13 +86,14 @@ export class InvoiceList {
                     );
             },
             disabled: (rowModel) => {
-                //Possible to credit only if status = Invoiced || PartlyPaid || Paid
+                // Possible to credit only if status = Invoiced || PartlyPaid || Paid
                 if (rowModel.StatusCode == StatusCodeCustomerInvoice.Invoiced ||
                     rowModel.StatusCode == StatusCodeCustomerInvoice.PartlyPaid ||
-                    rowModel.StatusCode == StatusCodeCustomerInvoice.Paid)
+                    rowModel.StatusCode == StatusCodeCustomerInvoice.Paid) {
                     return false;
-                else
+                } else {
                     return true;
+                }
             }
         });
 
@@ -114,14 +111,23 @@ export class InvoiceList {
             label: '-------------',
         });
 
-
         contextMenuItems.push({
             label: 'Fakturer',
             action: (rowModel) => {
-                alert('Fakturer action - Under construction');
+                alert('Fakturer action');
+
+                this.customerInvoiceService.Transition(rowModel.ID, rowModel, 'invoice').subscribe(() => {
+                    console.log('== Invoice TRANSITION OK ==');
+                    // this.router.navigateByUrl('/sales/invoice/list'); //How to refresh?
+                    alert('Fakturert OK');
+                    this.table.refresh();
+                }, (err) => {
+                    console.log('Error fakturerer: ', err);
+                    this.log(err);
+                });
             },
             disabled: (rowModel) => {
-                return !rowModel._links.invoice;
+                return !rowModel._links.transitions.invoice;
             }
         });
 
@@ -130,12 +136,12 @@ export class InvoiceList {
             action: (rowModel) => {
                 alert('Registrer betaling action - Under construction');
 
-                this.invoicePayment.Amount = rowModel.RestAmount;
-                this.invoicePayment.PaymentDate = new Date();
+                this.invoicePaymentData.Amount = rowModel.RestAmount;
+                this.invoicePaymentData.PaymentDate = new Date();
 
-                this.customerInvoiceService.ActionWithBody(rowModel.ID, this.invoicePayment, "payInvoice").subscribe((journalEntry) => {
-                    //TODO: Decide what to do here
-                    //this.router.navigateByUrl('/sales/invoice/details/' + invoice.ID);
+                this.customerInvoiceService.ActionWithBody(rowModel.ID, this.invoicePaymentData, 'payInvoice').subscribe((journalEntry) => {
+                    // TODO: Decide what to do here
+                    // this.router.navigateByUrl('/sales/invoice/details/' + invoice.ID);
                     alert('Fakturer er betalt. Bilagsnummer: ' + journalEntry.JournalEntryNumber);
                 }, (err) => {
                     console.log('Error registering payment: ', err);
@@ -143,25 +149,26 @@ export class InvoiceList {
                 });
             },
             disabled: (rowModel) => {
-                //Possible to pay only if status = Invoiced || PartlyPaid
+                // Possible to pay only if status = Invoiced || PartlyPaid
                 if (rowModel.StatusCode == StatusCodeCustomerInvoice.Invoiced ||
-                    rowModel.StatusCode == StatusCodeCustomerInvoice.PartlyPaid)
+                    rowModel.StatusCode == StatusCodeCustomerInvoice.PartlyPaid) {
                     return false;
-                else
+                } else {
                     return true;
+                }
             }
         });
 
-        //TOBE removed when dialog for payment is ready
+        // TOBE removed when dialog for payment is ready
         contextMenuItems.push({
             label: 'Registrer delbetaling',
             action: (rowModel) => {
                 alert('Registrer delbetaling action - Under construction');
 
-                this.invoicePayment.Amount = rowModel.RestAmount*0.1;
-                this.invoicePayment.PaymentDate = new Date();
+                this.invoicePaymentData.Amount = rowModel.RestAmount * 0.1;
+                this.invoicePaymentData.PaymentDate = new Date();
 
-                this.customerInvoiceService.ActionWithBody(rowModel.ID, this.invoicePayment, "payInvoice").subscribe((journalEntry) => {
+                this.customerInvoiceService.ActionWithBody(rowModel.ID, this.invoicePaymentData, 'payInvoice').subscribe((journalEntry) => {
                     alert('Fakturer er delbetalt. Bilagsnummer: ' + journalEntry.JournalEntryNumber);
                 }, (err) => {
                     console.log('Error registering payment: ', err);
@@ -169,12 +176,13 @@ export class InvoiceList {
                 });
             },
             disabled: (rowModel) => {
-                //Possible to pay only if status = Invoiced || PartlyPaid
+                // Possible to pay only if status = Invoiced || PartlyPaid
                 if (rowModel.StatusCode == StatusCodeCustomerInvoice.Invoiced ||
-                    rowModel.StatusCode == StatusCodeCustomerInvoice.PartlyPaid)
+                    rowModel.StatusCode == StatusCodeCustomerInvoice.PartlyPaid) {
                     return false;
-                else
+                } else {
                     return true;
+                }
             }
         });
 
@@ -184,9 +192,6 @@ export class InvoiceList {
                 alert('Skriv ut action - Under construction');
             }
         });
-
-
-        var self = this;
 
         // Define columns to use in the table
         var invoiceNumberCol = new UniTableColumn('InvoiceNumber', 'Fakturanr', UniTableColumnType.Text).setWidth('10%');
