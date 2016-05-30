@@ -75,7 +75,7 @@ export class TransqueryDetails implements OnInit {
         return new UniTableConfig(false, false)
             .setPageable(true)
             .setPageSize(15)
-            .setColumnMenuVisible(false)
+            .setColumnMenuVisible(true)
             .setColumns([
                     new UniTableColumn('JournalEntryNumber', 'Bilagsnr')
                         .setTemplate((journalEntryLine) => {
@@ -89,7 +89,10 @@ export class TransqueryDetails implements OnInit {
                     new UniTableColumn('RegisteredDate', 'Bokføringsdato'),
                     new UniTableColumn('Description', 'Beskrivelse'),
                     new UniTableColumn('VatType.VatCode', 'Mvakode'),
-                    new UniTableColumn('Amount', 'Beløp')
+                    new UniTableColumn('Amount', 'Beløp'),
+                    new UniTableColumn('RestAmount', 'Restbeløp'),
+                    new UniTableColumn('StatusCode', 'Status')
+                        .setTemplate((rowModel) => {return this.journalEntryLineService.getStatusText(rowModel.StatusCode);})
                 ]
             );
     }
