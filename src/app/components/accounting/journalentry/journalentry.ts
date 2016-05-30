@@ -7,7 +7,7 @@ import {AsyncRoute} from '@angular/router-deprecated';
 import {TabService} from '../../layout/navbar/tabstrip/tabService';
 import {UniTabs} from '../../layout/uniTabs/uniTabs';
 
-const BASE_JOURNALENTRY = './app/components/accounting/journalentry';
+const BASE_JOURNALENTRY = 'src/app/components/accounting/journalentry';
 
 const JOURNALENTRY_ROUTES = [
     new AsyncRoute({
