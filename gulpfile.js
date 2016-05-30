@@ -53,6 +53,11 @@ require('./gulp/assets');
  */
 require('./gulp/templates');
 
+/**
+ *  watch for different files
+ */
+require('./gulp/watch');
+
 var runSequence = require('run-sequence');
 var gulp = require('gulp');
 
@@ -64,7 +69,20 @@ gulp.task('build', function(done) {
             'unitable',
             'templates',
             'assets',
-            'system.config'
+            'system.config',
+        ], 'watch', done
+    );
+});
+
+gulp.task('build.watch', function(done) {
+    runSequence(
+        'clean.all', [
+            'index.html',
+            'angular2',
+            'unitable',
+            'templates',
+            'assets',
+            'system.config',
         ], done
-    )
+    );
 });

@@ -28,5 +28,5 @@ gulp.task('clean.assets', function() {
 });
 
 gulp.task('clean.all', function() {
-    return del(['./dist']);
+    return del(['./dist/**/*']);
 });
