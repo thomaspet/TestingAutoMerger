@@ -19,16 +19,19 @@
 
 </header>
 
-<section class="application wagetype usertest">
-    <router-outlet></router-outlet>
-    <uni-component-loader></uni-component-loader>
+<section class="application wagetype">
+    <!--<router-outlet></router-outlet>-->
+    <!--<uni-component-loader></uni-component-loader>-->
+    <uni-form [config]="config" [fields]="fields" [model]="wageType" (onSubmit)="saveWagetype($event)" (onChange)="change($event)" (onReady)="ready($event)"></uni-form>
 </section>
 
-<footer class="full-footer">
+<uni-save [actions]="saveactions"></uni-save>
+
+<!--<footer class="full-footer">
     <section class="application">
         <button class="good" (click)="saveWagetypeManual($event)">Lagre lønnsart</button>
         <section class="auto_save_info">
             {{ lastSavedInfo }}
         </section>
     </section>
-</footer>
+</footer>-->

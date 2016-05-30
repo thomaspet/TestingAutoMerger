@@ -2,7 +2,7 @@ import {Component, ViewChild, ComponentRef, OnInit} from '@angular/core';
 import {Router} from '@angular/router-deprecated';
 import {UniForm} from '../../../../../framework/uniform';
 // import {UniFormBuilder, UniFormLayoutBuilder, UniFieldBuilder} from '../../../../../framework/forms';
-import {UniComponentLoader} from '../../../../../framework/core';
+// import {UniComponentLoader} from '../../../../../framework/core';
 import {Observable} from 'rxjs/Observable';
 import 'rxjs/add/operator/merge';
 import {OperationType, Operator, ValidationLevel, Employee, Email, Phone, Address, FieldLayout} from '../../../../unientities';
@@ -45,7 +45,7 @@ export class PersonalDetails implements OnInit {
     private saveactions: IUniSaveAction[] = [
         {
             label: 'Lagre',
-            action: this.saveEmployee,
+            action: this.saveEmployee.bind(this),
             main: true,
             disabled: true
         }
@@ -137,54 +137,56 @@ export class PersonalDetails implements OnInit {
     }
     
     private extendFormConfig() {
-        // var phones: any = this.fields.find('Phones');
-        // var phn: FieldLayout = this.uniform.find('Phones');
-        // phones
-        //     .setKendoOptions({
-        //         dataTextField: 'Number',
-        //         dataValueField: 'ID'
-        //     })
-        //     .setModel(this.employee.BusinessRelationInfo)
-        //     .setModelField('Phones')
-        //     .setModelDefaultField('DefaultPhoneID')
-        //     .setPlaceholder(this.emptyPhone)
-        //     .setEditor(PhoneModal)     
-        //     .onSelect = (phone: Phone) => {
-        //         this.employee.BusinessRelationInfo.DefaultPhone = phone;
-        //         this.employee.BusinessRelationInfo.DefaultPhoneID = null;
-        //     };
+        var phones: any = this.fields.find('Phones');
+        var phn: FieldLayout = this.uniform.find('Phones');
+        phones
+            .setKendoOptions({
+                dataTextField: 'Number',
+                dataValueField: 'ID'
+            })
+            .setModel(this.employee.BusinessRelationInfo)
+            .setModelField('Phones')
+            .setModelDefaultField('DefaultPhoneID')
+            .setPlaceholder(this.emptyPhone)
+            .setEditor(PhoneModal)     
+            .onSelect = (phone: Phone) => {
+                this.employee.BusinessRelationInfo.DefaultPhone = phone;
+                this.employee.BusinessRelationInfo.DefaultPhoneID = null;
+            };
         
-        // var emails: UniFieldBuilder = this.form.find('Emails');
-        // emails
-        //     .setKendoOptions({
-        //         dataTextField: 'EmailAddress',
-        //         dataValueField: 'ID'
-        //     })
-        //     .setModel(this.employee.BusinessRelationInfo)
-        //     .setModelField('Emails')
-        //     .setModelDefaultField('DefaultEmailID')
-        //     .setPlaceholder(this.emptyEmail)
-        //     .setEditor(EmailModal)
-        //     .onSelect = (email: Email) => {
-        //         this.employee.BusinessRelationInfo.DefaultEmail = email;
-        //         this.employee.BusinessRelationInfo.DefaultEmailID = null;
-        //     };
+        var emails: any = this.fields.find('Emails');
+        var emls: FieldLayout = this.uniform.find('Emails');
+        emails
+            .setKendoOptions({
+                dataTextField: 'EmailAddress',
+                dataValueField: 'ID'
+            })
+            .setModel(this.employee.BusinessRelationInfo)
+            .setModelField('Emails')
+            .setModelDefaultField('DefaultEmailID')
+            .setPlaceholder(this.emptyEmail)
+            .setEditor(EmailModal)
+            .onSelect = (email: Email) => {
+                this.employee.BusinessRelationInfo.DefaultEmail = email;
+                this.employee.BusinessRelationInfo.DefaultEmailID = null;
+            };
         
-        // var address: UniFieldBuilder = this.form.find('Addresses');
-        // address
-        //     .setKendoOptions({
-        //         dataTextField: 'AddressLine1',
-        //         dataValueField: 'ID'
-        //     })
-        //     .setModel(this.employee.BusinessRelationInfo)
-        //     .setModelField('Addresses')
-        //     .setModelDefaultField('InvoiceAddressID') 
-        //     .setPlaceholder(this.emptyAddress)
-        //     .setEditor(AddressModal)     
-        //     .onSelect = (addressValue: Address) => {
-        //         this.employee.BusinessRelationInfo.InvoiceAddress = addressValue;
-        //         this.employee.BusinessRelationInfo.InvoiceAddressID = null;
-        //     };
+        var address: any = this.fields.find('Addresses');
+        var addrs: FieldLayout = this.uniform.find('Addresses');
+        address
+            .setKendoOptions({
+                dataTextField: 'AddressLine1',
+                dataValueField: 'ID'
+            })
+            .setModel(this.employee.BusinessRelationInfo)
+            .setModelField('Addresses')
+            .setModelDefaultField('InvoiceAddressID') 
+            .setPlaceholder(this.emptyAddress)
+            .setEditor(AddressModal)     
+            .onSelect = (addressValue: Address) => {
+                this.employee.BusinessRelationInfo.InvoiceAddress = addressValue;
+                this.employee.BusinessRelationInfo.InvoiceAddressID = null;
+            };
     }
 
     // public isValid() {
@@ -208,13 +210,13 @@ export class PersonalDetails implements OnInit {
     private saveEmployee(done) {
         // this.formInstance.sync();
         console.log('employee to save', this.employee);
-        //this.lastSavedInfo = 'Lagrer persondetaljer på den ansatte';
+        // this.lastSavedInfo = 'Lagrer persondetaljer på den ansatte';
         done('Lagrer persondetaljer på den ansatte');
         if (this.employee.ID > 0) {
             this.employeeService.Put(this.employee.ID, this.employee)
             .subscribe((response: Employee) => {
                 this.employee = response;
-                this.lastSavedInfo = 'Sist lagret: ' + (new Date()).toLocaleTimeString();
+                done('Sist lagret: '); // + (new Date()).toLocaleTimeString();
                 this.router.navigateByUrl('/salary/employees/' + this.employee.ID);
             },
             (err) => {
@@ -224,7 +226,7 @@ export class PersonalDetails implements OnInit {
             this.employeeService.Post(this.employee)
             .subscribe((response: Employee) => {
                 this.employee = response;
-                this.lastSavedInfo = 'Sist lagret: ' + (new Date()).toLocaleTimeString();
+                done('Sist lagret: '); // + (new Date()).toLocaleTimeString();
                 this.router.navigateByUrl('/salary/employees/' + this.employee.ID);
             },
             (err) => {

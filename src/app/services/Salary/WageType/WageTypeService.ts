@@ -38,299 +38,7 @@ let stdWageType: Array<any> = [
     {ID: StdWageType.HolidayPayLastYear, Name: 'Feriepenger forrige år'},
 ];
 
-let layout = {
-    Name: 'MockWagTypeLayout',
-    BaseEntity: 'wagetype',
-    Fields: [
-        {
-            ComponentLayoutID: 1,
-            EntityType: 'wagetype',
-            Property: 'WageTypeId',
-            Placement: 1,
-            Hidden: false,
-            FieldType: FieldType.TEXT,
-            ReadOnly: true,
-            LookupField: false,
-            Label: 'Nummer',
-            Description: null,
-            HelpText: null,
-            FieldSet: 0,
-            Section: 0,
-            Placeholder: null,
-            Options: null,
-            LineBreak: null,
-            Combo: null,
-            Legend: '',
-            hasLineBreak: false,
-            Validations: [
-                {
-                    ErrorMessage: 'Required field',
-                    Level: 3,
-                    Operator: 'REQUIRED'
-                }
-            ]
-        },
-        {
-            ComponentLayoutID: 1,
-            EntityType: 'wagetype',
-            Property: 'WageTypeName',
-            Placement: 1,
-            Hidden: false,
-            FieldType: FieldType.TEXT,
-            ReadOnly: false,
-            LookupField: false,
-            Label: 'Navn',
-            Description: null,
-            HelpText: null,
-            FieldSet: 0,
-            Section: 0,
-            Placeholder: null,
-            Options: null,
-            LineBreak: null,
-            Combo: null,
-            Legend: '',
-            hasLineBreak: false,
-            Validations: [
-                {
-                    ErrorMessage: 'Required field',
-                    Level: 3,
-                    Operator: 'REQUIRED'
-                }
-            ]
-        },
-        {
-            ComponentLayoutID: 1,
-            EntityType: 'wagetype',
-            Property: 'Description',
-            Placement: 1,
-            Hidden: false,
-            FieldType: FieldType.TEXT,
-            ReadOnly: false,
-            LookupField: false,
-            Label: 'Beskrivelse',
-            Description: null,
-            HelpText: null,
-            FieldSet: 0,
-            Section: 0,
-            Placeholder: null,
-            Options: null,
-            LineBreak: null,
-            Combo: null,
-            Legend: '',
-            hasLineBreak: false
-        },
-        {
-            ComponentLayoutID: 1,
-            EntityType: 'wagetype',
-            Property: 'Base_EmploymentTax',
-            Placement: 1,
-            Hidden: false,
-            FieldType: FieldType.CHECKBOX,
-            ReadOnly: false,
-            LookupField: false,
-            Label: 'Skatt (tabell)',
-            Description: null,
-            HelpText: null,
-            openByDefault: true,
-            FieldSet: 0,
-            Section: 1,
-            Placeholder: null,
-            Options: null,
-            LineBreak: null,
-            Combo: null,
-            Legend: 'Med i grunnlag for',
-            hasLineBreak: false,
-            Validations: [
-                {
-                    ErrorMessage: 'Required field',
-                    Level: 3,
-                    Operator: 'REQUIRED'
-                }
-            ]
-        },
-        {
-            ComponentLayoutID: 1,
-            EntityType: 'wagetype',
-            Property: 'Base_Payment',
-            Placement: 1,
-            Hidden: false,
-            FieldType: FieldType.CHECKBOX,
-            ReadOnly: false,
-            LookupField: false,
-            Label: 'Utbetaling',
-            Description: null,
-            HelpText: null,
-            FieldSet: 0,
-            Section: 1,
-            Placeholder: null,
-            Options: null,
-            LineBreak: null,
-            Combo: null,
-            Legend: '',
-            hasLineBreak: false,
-            Validations: [
-                {
-                    ErrorMessage: 'Required field',
-                    Level: 3,
-                    Operator: 'REQUIRED'
-                }
-            ]
-        }
-        ,
-        {
-            ComponentLayoutID: 1,
-            EntityType: 'wagetype',
-            Property: 'HideFromPaycheck',
-            Placement: 1,
-            Hidden: false,
-            FieldType: FieldType.CHECKBOX,
-            ReadOnly: false,
-            LookupField: false,
-            Label: 'Skjul på lønnslipp',
-            Description: null,
-            HelpText: null,
-            FieldSet: 0,
-            Section: 1,
-            Placeholder: null,
-            Options: null,
-            LineBreak: null,
-            Combo: null,
-            Legend: '',
-            hasLineBreak: false,
-            Validations: [
-                {
-                    ErrorMessage: 'Required field',
-                    Level: 3,
-                    Operator: 'REQUIRED'
-                }
-            ]
-        },
-        {
-            ComponentLayoutID: 1,
-            EntityType: 'wagetype',
-            Property: 'Base_Vacation',
-            Placement: 1,
-            Hidden: false,
-            FieldType: FieldType.CHECKBOX,
-            ReadOnly: false,
-            LookupField: false,
-            Label: 'Feriepenger',
-            Description: null,
-            HelpText: null,
-            FieldSet: 0,
-            Section: 1,
-            Placeholder: null,
-            Options: null,
-            LineBreak: null,
-            Combo: null,
-            Legend: '',
-            hasLineBreak: false,
-            Validations: [
-                {
-                    ErrorMessage: 'Required field',
-                    Level: 3,
-                    Operator: 'REQUIRED'
-                }
-            ]
-        },
-        {
-            ComponentLayoutID: 1,
-            EntityType: 'wagetype',
-            Property: 'StandardWageTypeFor',
-            Placement: 1,
-            Hidden: false,
-            FieldType: FieldType.COMBOBOX,
-            ReadOnly: false,
-            LookupField: 'Name',
-            kendoOptions: {
-                dataSource: stdWageType,
-                dataTextField: 'Name',
-                dataValueField: 'ID'
-            },
-            Label: 'Standard lønnsart for',
-            Description: null,
-            HelpText: null,
-            FieldSet: 0,
-            Section: 1,
-            Placeholder: null,
-            Options: null,
-            LineBreak: null,
-            Combo: null,
-            Legend: '',
-            hasLineBreak: false,
-            Validations: [
-                {
-                    ErrorMessage: 'Required field',
-                    Level: 3,
-                    Operator: 'REQUIRED'
-                }
-            ]
-        }
-        , {
-            ComponentLayoutID: 1,
-            EntityType: 'wagetype',
-            Property: 'taxtype',
-            Placement: 1,
-            Hidden: false,
-            FieldType: FieldType.COMBOBOX,
-            ReadOnly: false,
-            LookupField: 'Name',
-            Label: 'Type',
-            Description: null,
-            HelpText: null,
-            FieldSet: 0,
-            Section: 1,
-            Placeholder: null,
-            Options: null,
-            LineBreak: null,
-            Combo: null,
-            Legend: '',
-            kendoOptions: {
-                dataSource: taxType,
-                dataTextField: 'Name',
-                dataValueField: 'ID'
-            },
-            hasLineBreak: false,
-            Validations: [
-                {
-                    ErrorMessage: 'Required field',
-                    Level: 3,
-                    Operator: 'REQUIRED'
-                }
-            ]
-        }
-        , {
-            ComponentLayoutID: 1,
-            EntityType: 'wagetype',
-            Property: 'AccountNumber',
-            Placement: 1,
-            Hidden: false,
-            FieldType: FieldType.TEXT,
-            ReadOnly: false,
-            LookupField: false,
-            Label: 'Hovedbokskonto',
-            Description: null,
-            HelpText: null,
-            FieldSet: 0,
-            Section: 1,
-            Placeholder: null,
-            Options: null,
-            LineBreak: null,
-            Combo: null,
-            Legend: '',
-            hasLineBreak: false,
-            Validations: [
-                {
-                    ErrorMessage: 'Required field',
-                    Level: 3,
-                    Operator: 'REQUIRED'
-                }
-            ]
-        }
 
-    ]
-
-};
 
 export class WageTypeService extends BizHttp<WageType> {
 
@@ -371,21 +79,320 @@ export class WageTypeService extends BizHttp<WageType> {
         return super.GetAction(ID, 'next');
     }
     
-    // mocks layout request
-    public getLayout(ID: string) {
-        return Observable.of(layout);
-    }
+    public layout(layoutID: string) {
+        return Observable.from([{
+            Name: layoutID,
+            BaseEntity: 'wagetype',
+            Fields: [
+                {
+                    ComponentLayoutID: 1,
+                    EntityType: 'wagetype',
+                    Property: 'WageTypeId',
+                    Placement: 1,
+                    Hidden: false,
+                    FieldType: FieldType.TEXT,
+                    ReadOnly: true,
+                    LookupField: false,
+                    Label: 'Nummer',
+                    Description: null,
+                    HelpText: null,
+                    FieldSet: 0,
+                    Section: 0,
+                    Placeholder: null,
+                    Options: null,
+                    LineBreak: null,
+                    Combo: null,
+                    Legend: '',
+                    hasLineBreak: false,
+                    // Validations: [
+                    //     {
+                    //         ErrorMessage: 'Required field',
+                    //         Level: 3,
+                    //         Operator: 'REQUIRED'
+                    //     }
+                    // ]
+                },
+                {
+                    ComponentLayoutID: 1,
+                    EntityType: 'wagetype',
+                    Property: 'WageTypeName',
+                    Placement: 1,
+                    Hidden: false,
+                    FieldType: FieldType.TEXT,
+                    ReadOnly: false,
+                    LookupField: false,
+                    Label: 'Navn',
+                    Description: null,
+                    HelpText: null,
+                    FieldSet: 0,
+                    Section: 0,
+                    Placeholder: null,
+                    Options: null,
+                    LineBreak: null,
+                    Combo: null,
+                    Legend: '',
+                    hasLineBreak: false,
+                    // Validations: [
+                    //     {
+                    //         ErrorMessage: 'Required field',
+                    //         Level: 3,
+                    //         Operator: 'REQUIRED'
+                    //     }
+                    // ]
+                },
+                {
+                    ComponentLayoutID: 1,
+                    EntityType: 'wagetype',
+                    Property: 'Description',
+                    Placement: 1,
+                    Hidden: false,
+                    FieldType: FieldType.TEXT,
+                    ReadOnly: false,
+                    LookupField: false,
+                    Label: 'Beskrivelse',
+                    Description: null,
+                    HelpText: null,
+                    FieldSet: 0,
+                    Section: 0,
+                    Placeholder: null,
+                    Options: null,
+                    LineBreak: null,
+                    Combo: null,
+                    Legend: '',
+                    hasLineBreak: false
+                },
+                {
+                    ComponentLayoutID: 1,
+                    EntityType: 'wagetype',
+                    Property: 'Base_EmploymentTax',
+                    Placement: 1,
+                    Hidden: false,
+                    FieldType: FieldType.CHECKBOX,
+                    ReadOnly: false,
+                    LookupField: false,
+                    Label: null,
+                    Description: null,
+                    HelpText: null,
+                    openByDefault: true,
+                    FieldSet: 0,
+                    Section: 1,
+                    Placeholder: null,
+                    Options: {
+                        source: [
+                            {id: 1, name: 'Skatt (tabell)'}
+                        ],
+                        labelProperty: 'name',
+                        valueProperty: 'id'
+                    },
+                    LineBreak: null,
+                    Combo: null,
+                    Legend: 'Med i grunnlag for',
+                    hasLineBreak: false,
+                    // Validations: [
+                    //     {
+                    //         ErrorMessage: 'Required field',
+                    //         Level: 3,
+                    //         Operator: 'REQUIRED'
+                    //     }
+                    // ]
+                },
+                {
+                    ComponentLayoutID: 1,
+                    EntityType: 'wagetype',
+                    Property: 'Base_Payment',
+                    Placement: 1,
+                    Hidden: false,
+                    FieldType: FieldType.CHECKBOX,
+                    ReadOnly: false,
+                    LookupField: false,
+                    Label: 'Utbetaling',
+                    Description: null,
+                    HelpText: null,
+                    FieldSet: 0,
+                    Section: 1,
+                    Placeholder: null,
+                    Options: null,
+                    LineBreak: null,
+                    Combo: null,
+                    Legend: '',
+                    hasLineBreak: false,
+                    // Validations: [
+                    //     {
+                    //         ErrorMessage: 'Required field',
+                    //         Level: 3,
+                    //         Operator: 'REQUIRED'
+                    //     }
+                    // ]
+                }
+                ,
+                {
+                    ComponentLayoutID: 1,
+                    EntityType: 'wagetype',
+                    Property: 'HideFromPaycheck',
+                    Placement: 1,
+                    Hidden: false,
+                    FieldType: FieldType.CHECKBOX,
+                    ReadOnly: false,
+                    LookupField: false,
+                    Label: 'Skjul på lønnslipp',
+                    Description: null,
+                    HelpText: null,
+                    FieldSet: 0,
+                    Section: 1,
+                    Placeholder: null,
+                    Options: null,
+                    LineBreak: null,
+                    Combo: null,
+                    Legend: '',
+                    hasLineBreak: false,
+                    // Validations: [
+                    //     {
+                    //         ErrorMessage: 'Required field',
+                    //         Level: 3,
+                    //         Operator: 'REQUIRED'
+                    //     }
+                    // ]
+                },
+                {
+                    ComponentLayoutID: 1,
+                    EntityType: 'wagetype',
+                    Property: 'Base_Vacation',
+                    Placement: 1,
+                    Hidden: false,
+                    FieldType: FieldType.CHECKBOX,
+                    ReadOnly: false,
+                    LookupField: false,
+                    Label: 'Feriepenger',
+                    Description: null,
+                    HelpText: null,
+                    FieldSet: 0,
+                    Section: 1,
+                    Placeholder: null,
+                    Options: null,
+                    LineBreak: null,
+                    Combo: null,
+                    Legend: '',
+                    hasLineBreak: false,
+                    // Validations: [
+                    //     {
+                    //         ErrorMessage: 'Required field',
+                    //         Level: 3,
+                    //         Operator: 'REQUIRED'
+                    //     }
+                    // ]
+                },
+                {
+                    ComponentLayoutID: 1,
+                    EntityType: 'wagetype',
+                    Property: 'StandardWageTypeFor',
+                    Placement: 1,
+                    Hidden: false,
+                    FieldType: FieldType.DROPDOWN,
+                    ReadOnly: false,
+                    LookupField: 'Name',
+                    Options: {
+                        source: stdWageType,
+                        displayProperty: 'Name',
+                        valueProperty: 'ID'
+                    },
+                    Label: 'Standard lønnsart for',
+                    Description: null,
+                    HelpText: null,
+                    FieldSet: 0,
+                    Section: 1,
+                    Placeholder: null,
+                    LineBreak: null,
+                    Combo: null,
+                    Legend: '',
+                    hasLineBreak: false,
+                    // Validations: [
+                    //     {
+                    //         ErrorMessage: 'Required field',
+                    //         Level: 3,
+                    //         Operator: 'REQUIRED'
+                    //     }
+                    // ]
+                }
+                , {
+                    ComponentLayoutID: 1,
+                    EntityType: 'wagetype',
+                    Property: 'taxtype',
+                    Placement: 1,
+                    Hidden: false,
+                    FieldType: FieldType.DROPDOWN,
+                    ReadOnly: false,
+                    LookupField: 'Name',
+                    Label: 'Type',
+                    Description: null,
+                    HelpText: null,
+                    FieldSet: 0,
+                    Section: 1,
+                    Placeholder: null,
+                    LineBreak: null,
+                    Combo: null,
+                    Legend: '',
+                    Options: {
+                        source: taxType,
+                        displayProperty: 'Name',
+                        valueProperty: 'ID'
+                    },
+                    hasLineBreak: false,
+                    // Validations: [
+                    //     {
+                    //         ErrorMessage: 'Required field',
+                    //         Level: 3,
+                    //         Operator: 'REQUIRED'
+                    //     }
+                    // ]
+                }
+                , {
+                    ComponentLayoutID: 1,
+                    EntityType: 'wagetype',
+                    Property: 'AccountNumber',
+                    Placement: 1,
+                    Hidden: false,
+                    FieldType: FieldType.TEXT,
+                    ReadOnly: false,
+                    LookupField: false,
+                    Label: 'Hovedbokskonto',
+                    Description: null,
+                    HelpText: null,
+                    FieldSet: 0,
+                    Section: 1,
+                    Placeholder: null,
+                    Options: null,
+                    LineBreak: null,
+                    Combo: null,
+                    Legend: '',
+                    hasLineBreak: false,
+                    // Validations: [
+                    //     {
+                    //         ErrorMessage: 'Required field',
+                    //         Level: 3,
+                    //         Operator: 'REQUIRED'
+                    //     }
+                    // ]
+                }
 
-    // mocked with layout request
-    public getLayoutAndEntity(layoutID: string, entityID: number) {
-        var layout, self = this;
-        return this.GetLayout(layoutID)
-            .concatMap((data: any) => {
-                layout = data;
-                return self.Get(entityID, data.Expands);
-            })
-            .map((entity: any) => {
-                return [layout, entity];
-            });
-    }
+            ]
+        }]);
+    };
+    
+    // // mocks layout request
+    // public getLayout(ID: string) {
+    //     return Observable.of(layout(ID));
+    // }
+
+    // // mocked with layout request
+    // public getLayoutAndEntity(layoutID: string, entityID: number) {
+    //     var layout, self = this;
+    //     return this.GetLayout(layoutID)
+    //         .concatMap((data: any) => {
+    //             layout = data;
+    //             return self.Get(entityID, data.Expands);
+    //         })
+    //         .map((entity: any) => {
+    //             return [layout, entity];
+    //         });
+    // }
 }
