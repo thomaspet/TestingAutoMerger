@@ -52,7 +52,7 @@ const CHILD_ROUTES = [
             EmployeeService,
             provide(RootRouteParamsService, {useClass: RootRouteParamsService})
         ],
-    directives: [ROUTER_DIRECTIVES, WidgetPoster, UniTabs, EmployeeCategoryButtons, TaxRequestModal]
+    directives: [ROUTER_DIRECTIVES, WidgetPoster, UniTabs, EmployeeCategoryButtons]
 })
 
 @RouteConfig(CHILD_ROUTES)

@@ -1,9 +1,11 @@
-<article class="modal-content">
-    <h1>Tax request modal content</h1>
-    <section>
-        <uni-form *ngIf="model" [config]="formConfig" [fields]="fields" [model]="model" (onSubmit)="submit($event)" (onChange)="change($event)" (onReady)="ready($event)"></uni-form>
-    </section>
+<article class="modal-content" [attr.aria-busy]="busy">
+    <h1>{{title}}</h1>
+
+    <uni-form *ngIf="model" [config]="formConfig" [fields]="fields" [model]="model" (onChange)="change($event)" (onReady)="ready($event)"></uni-form>
+    <p>{{error}}</p>
     <footer>
-        <button *ngIf="config.hasCancelButton" (click)="config.cancel()">Avbryt</button>
+        <!--<button *ngIf="sendAltinnVisible" (click)="config.action[0].method()">{{config.action[0].text}}</button>-->
+        <button *ngIf="sendAltinnVisible" (click)="submit()">Send altinn</button>
+        <button *ngIf="config.hasCancelButton" (click)="config.cancel()">{{exitButton}}</button>
     </footer>
 </article>

@@ -11,11 +11,12 @@ import {AddressModal} from '../../../sales/customer/modals/address/address';
 import {EmailModal} from '../../../sales/customer/modals/email/email';
 import {PhoneModal} from '../../../sales/customer/modals/phone/phone';
 import {RootRouteParamsService} from '../../../../services/rootRouteParams';
+import {TaxRequestModal} from '../modals/taxRequestModal';
 declare var _;
 
 @Component({
     selector: 'employee-personal-details',
-    directives: [UniComponentLoader],
+    directives: [UniComponentLoader, TaxRequestModal],
     providers: [EmployeeService, PhoneService, EmailService, AddressService, AltinnService, SubEntityService],
     templateUrl: 'app/components/salary/employee/personalDetails/personalDetails.html'
 })
@@ -64,17 +65,14 @@ export class PersonalDetails implements OnInit {
     }
     
     private getData() {
-        console.log('get data');
         Observable.forkJoin(
             this.employeeService.get(this.employeeID),
             this.employeeService.layout('EmployeePersonalDetailsForm'),
             this.phoneService.GetNewEntity(),
             this.emailService.GetNewEntity(),
             this.addressService.GetNewEntity()
-            //this.subEntityService.getMainOrganization()
         ).subscribe(
             (response: any) => {
-                console.log('gets data');
                 var [employee, layout, emptyPhone, emptyMail, emptyAddress] = response;
                 layout.Fields[0].Validators = [{
                     'EntityType': 'BusinessRelation',
@@ -87,29 +85,22 @@ export class PersonalDetails implements OnInit {
                     'ID': 1,
                     'Deleted': false
                 }];
-                console.log('gets data2');
                 this.employee = employee;
                 this.emptyPhone = emptyPhone;
                 this.emptyEmail = emptyMail;
                 this.emptyAddress = emptyAddress;
                 this.form = new UniFormLayoutBuilder().build(layout, this.employee);
                 this.form.hideSubmitButton();
-                console.log('gets data3');
                 this.extendFormConfig();
                 
-                console.log('sending tax request');
-                this.altinnService.sendTaxRequest([this.employee]).subscribe((altinnResponse) => {
-                    console.log(JSON.stringify('response from tax request: ' + JSON.stringify(altinnResponse)));
-                }, (error: any) => console.log(error));
-                
-                /*this.uniCmpLoader.load(UniForm).then((cmp: ComponentRef<any>) => {
+                this.uniCmpLoader.load(UniForm).then((cmp: ComponentRef<any>) => {
                     
                     cmp.instance.config = this.form;
                     this.whenFormInstance = new Promise((resolve: Function) => {
                         resolve(cmp.instance);
                     });
                     this.formInstance = cmp.instance;
-                });*/
+                });
                 
             }
             , (error: any) => console.error(error)

@@ -1,20 +1,11 @@
 import {BizHttp} from '../../../framework/core/http/BizHttp';
-import {Altinn, FieldType, Employee, SubEntity} from '../../unientities';
+import {Altinn, FieldType, AltinnReceipt} from '../../unientities';
 import {UniHttp} from '../../../framework/core/http/http';
 import { Observable } from 'rxjs/Observable';
 import { SubEntityService } from '../services';
 import {AppConfig} from '../../../app/AppConfig';
 
 export class AltinnService extends BizHttp<Altinn> {
-    private altinnHeaders: any = {
-        'sysusername': '1440',
-        'syspassword': 'uni12345',
-        'lang': '1033',
-        'orgno': '910142763',
-        'Cache-Control': 'no-cache'
-    };
-
-    private subEntityService: SubEntityService;
 
     public languages: any = [
         { ID: '1044' || null, text: 'Norsk(bokmål)' },
@@ -22,36 +13,16 @@ export class AltinnService extends BizHttp<Altinn> {
         { ID: '1033', text: 'English' },
         { ID: '1083', text: 'Samisk' },
     ];
-    constructor(http: UniHttp, subEntityService: SubEntityService) {
+    
+    constructor(http: UniHttp, private subEntityService: SubEntityService) {
         super(http);
-        this.subEntityService = subEntityService;
         this.relativeURL = Altinn.RelativeUrl;
     }
-
-    public sendTaxRequest(employees: Employee[]) {
-        let employeeSSN: string[] = [];
-        employees.forEach((employee: Employee) => {
-            employeeSSN.push(employee.SocialSecurityNumber);
-        });
-        let body: any = {
-            callType: 'Warn',
-            askType: 'FILE_AND_CHANGED',
-            contactInfo: {
-                orgno: '910142763',
-                orgname: 'Jubel AS',
-                contact: 'Robben S.Vindel',
-                contactemail: 'svindel@svindel.com',
-                contactphone: '99886655'
-            },
-            request: employeeSSN
-        };
-        console.log('sending tax request with body: ' + JSON.stringify(body));
-        this.http.withHeaders(this.altinnHeaders);
-        
-        return this.http
-            .asPOST()
-            .withBody(body)
-            .send({baseUrl: AppConfig.BASE_URL_INTEGRATION, apiDomain: AppConfig.INTEGRATION_DOMAINS.ALTINN, endPoint: 'form/RF-1211'});
+    
+    public sendTaxRequestAction(option: number, empId: number = 0): Observable<AltinnReceipt> {
+        console.log('Option: ' + option);
+        console.log('empId: ' + empId);
+        return this.PostAction(1, 'sendtaxrequest', 'option=' + option + '&empId=' + empId);
     }
 
     public getLayout() {
