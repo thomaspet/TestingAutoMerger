@@ -10,6 +10,7 @@ import {AsyncPipe} from '@angular/common';
 import {InvoicePaymentData} from '../../../../models/sales/InvoicePaymentData';
 
 declare var jQuery;
+declare var moment;
 
 @Component({
     selector: 'invoice-list',
@@ -118,15 +119,16 @@ export class InvoiceList {
 
                 this.customerInvoiceService.Transition(rowModel.ID, rowModel, 'invoice').subscribe(() => {
                     console.log('== Invoice TRANSITION OK ==');
-                    // this.router.navigateByUrl('/sales/invoice/list'); //How to refresh?
                     alert('Fakturert OK');
-                    this.table.refresh();
+
+                    //this.table.refresh(); //TODO Refresh and collect data. Not yet implemented fot uniTable
                 }, (err) => {
                     console.log('Error fakturerer: ', err);
                     this.log(err);
                 });
             },
             disabled: (rowModel) => {
+                if (rowModel.TaxInclusiveAmount == 0) return true; //Must have saved at minimum 1 item related to the invoice
                 return !rowModel._links.transitions.invoice;
             }
         });
