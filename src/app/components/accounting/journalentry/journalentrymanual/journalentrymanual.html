@@ -1,13 +1,25 @@
-<section *ngIf="!runAsSubComponent" class="journal-entry-manual-header">
-    <h2>
-        Bilagsregistrering
-    </h2>
-</section>
-<div *ngIf="journalEntryMode == 'PROFFESIONAL'">
-    <journal-entry-professional (dataLoaded)="onDataLoaded($event)" [runAsSubComponent]="runAsSubComponent"></journal-entry-professional>
-</div>
+<p *ngIf="validationResult && validationResult.Messages.length > 0">
+    <strong class="journalEntry_validation validation error"
+        *ngFor="let message of validationResult.Messages"
+        [ngClass]="{
+            simplemode: journalEntryMode === 'SIMPLE',
+            promode: journalEntryMode != 'SIMPLE',
+            runassubcomponent: runAsSubComponent
+        }">
+            {{message.Message}}
+    </strong>
+</p>
 
-<dl class="summary journal-entry-manual-summary" *ngIf="itemsSummaryData" [attr.aria-busy]="busy">
+<journal-entry-professional
+    (dataLoaded)="onDataLoaded($event)"
+    [runAsSubComponent]="runAsSubComponent"
+    *ngIf="journalEntryMode == 'PROFFESIONAL'">
+</journal-entry-professional>
+
+<dl class="summary journalEntry_summary"
+    *ngIf="itemsSummaryData"
+    [attr.aria-busy]="busy">
+
     <dt>Sum debet</dt>
     <dd>Kr {{itemsSummaryData.SumDebet | number:'1.2-2'}}</dd>
 
@@ -25,28 +37,13 @@
 
 </dl>
 
-<div *ngIf="journalEntryMode == 'SIMPLE'">
-    <journal-entry-simple [supplierInvoice]="supplierInvoice" [runAsSubComponent]="runAsSubComponent" [hideSameOrNew]="hideSameOrNew" (dataLoaded)="onDataLoaded($event)"></journal-entry-simple>
-</div>
-
-<section class="journal-entry-validation" *ngIf="validationResult" [ngClass]="{simplemode: journalEntryMode == 'SIMPLE', promode: journalEntryMode != 'SIMPLE', runassubcomponent: runAsSubComponent}">
-    <h3 *ngIf="validationResult.Messages.length == 0">
-        Ingen valideringsfeil!
-    </h3>
-    <h3 *ngIf="validationResult.Messages.length > 0">
-        Feil i validering:
-    </h3>
-    <p *ngFor="let message of validationResult.Messages">
-        {{message.Message}}
-    </p>
-</section>
-<section class="journal-entry-helper" [ngClass]="{simplemode: journalEntryMode == 'SIMPLE', promode: journalEntryMode != 'SIMPLE', runassubcomponent: runAsSubComponent}">
-    <h3>
-        Tips
-    </h3>
-    <p>Bruk Tab-knappen for å navigere til andre rader og trykk enter for å redigere de, eller klikk på raden du vil redigere med musen</p>
-    <p></p>
-</section>
+<journal-entry-simple
+    [supplierInvoice]="supplierInvoice"
+    [runAsSubComponent]="runAsSubComponent"
+    [hideSameOrNew]="hideSameOrNew"
+    (dataLoaded)="onDataLoaded($event)"
+    *ngIf="journalEntryMode == 'SIMPLE'">
+</journal-entry-simple>
 
 <footer class="full-footer" *ngIf="!runAsSubComponent">
     <button class="good" (click)="postJournalEntryData($event)">Lagre og bokfør</button>
