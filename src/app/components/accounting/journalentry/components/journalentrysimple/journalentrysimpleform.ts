@@ -91,10 +91,7 @@ export class JournalEntrySimpleForm implements OnChanges {
         let self = this;
         //this.journalEntryService.layout('JournalEntryLineForm').toPromise().then((layout: any) => {
         //    self.fields = layout.Fields;
-        
-        console.log("== VATYPES BEFORE SETUP ==");
-        console.log(this.vattypes);
-              
+                     
             self.fields = [{
                 EntityType: "JournalEntryLineDraft",
                 Property: "SameOrNew",
@@ -255,9 +252,11 @@ export class JournalEntrySimpleForm implements OnChanges {
                 Section: 0,
                 Placeholder: null,
                 Options: {
-                    displayProperty: 'VatCode',
-                    template: (vattype:VatType) =>  `${vattype.VatCode} (${ vattype.VatPercent }%)`,
                     source: self.vattypes,
+                    displayProperty: 'VatCode',
+                    valueProperty: 'ID',
+                    template: (vattype:VatType) =>  `${vattype.VatCode} (${ vattype.VatPercent }%)`,
+                    debounceTime: 500,
                     onEnter: () => {
                         self.form.Fields['CreditAccountID'].focus();
                     }   
@@ -346,6 +345,7 @@ export class JournalEntrySimpleForm implements OnChanges {
                     valueProperty: 'ID',
                     template: (vattype:VatType) => `${vattype.VatCode} (${ vattype.VatPercent }%)`,
                     source: self.vattypes,
+                    debounceTime: 500,
                     onEnter: () => {
                         self.form.Fields['Amount'].focus();
                     }   
@@ -415,7 +415,7 @@ export class JournalEntrySimpleForm implements OnChanges {
                 Placeholder: null,
                 Options: {
                     source: self.departements,
-                    template: (departement) => `${departement.name}`,
+                    template: (departement) => `${departement.Name}`,
                     valueProperty: 'ID',
                     displayProperty: 'Name',
                     debounceTime: 500,
@@ -452,7 +452,7 @@ export class JournalEntrySimpleForm implements OnChanges {
                 Placeholder: null,
                 Options: {
                     source: self.projects,
-                    template: (project) => `${project.name}`,
+                    template: (project) => `${project.Name}`,
                     valueProperty: 'ID',
                     displayProperty: 'Name',
                     debounceTime: 500,
@@ -536,6 +536,15 @@ export class JournalEntrySimpleForm implements OnChanges {
             this.projects = this.dropdownData[1];
             this.vattypes = this.dropdownData[2];
             this.accounts = this.dropdownData[3]; 
+            
+            // Refresh sources 
+            this.fields[2].Options.source = this.accounts;
+            this.fields[3].Options.source = this.vattypes;
+            this.fields[4].Options.source = this.accounts;
+            this.fields[5].Options.source = this.vattypes;
+            this.fields[7].Options.source = this.departements;
+            this.fields[8].Options.source = this.projects;
+            this.fields = _.cloneDeep(this.fields);
         }
         
         if (changes['journalEntryLine'] != null) {
