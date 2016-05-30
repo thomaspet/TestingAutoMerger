@@ -1,5 +1,5 @@
 import {Component, ViewChildren} from '@angular/core';
-import {UniTable, UniTableColumn, UniTableColumnType, UniTableConfig} from 'unitable-ng2/main';
+import {UniTable, UniTableColumn, UniTableColumnType, UniTableConfig, IContextMenuItem} from 'unitable-ng2/main';
 import {Router} from '@angular/router-deprecated';
 import {UniHttp} from '../../../../../framework/core/http/http';
 import {CustomerInvoiceService} from '../../../../services/services';
@@ -65,7 +65,7 @@ export class InvoiceList {
         };
 
         // Context menu
-        let contextMenuItems = [];
+        let contextMenuItems: IContextMenuItem[] = [];
         contextMenuItems.push({
             label: 'Rediger',
             action: (rowModel) => {
@@ -110,6 +110,7 @@ export class InvoiceList {
 
         contextMenuItems.push({
             label: '-------------',
+            action: () => {}
         });
 
         contextMenuItems.push({
