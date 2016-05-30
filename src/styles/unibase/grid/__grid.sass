@@ -31,7 +31,7 @@ $unigrid-gutters: ('small': 1rem, 'medium': 1rem, 'large': 1rem, 'huge': 1rem)
 /// @param {String} $size - One of the enumerated size classes in $unigrid-sizes
 /// @returns {Length}
 @function unigrid-colWidth($size)
-  @return 100vw / map-get($unigrid-columns, #{$size})
+  @return 100% / map-get($unigrid-columns, #{$size})
 
 /// Helper function that returns the average column count, based on the previous
 /// count, and the current size class
