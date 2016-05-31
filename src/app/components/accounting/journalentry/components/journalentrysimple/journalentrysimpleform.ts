@@ -141,11 +141,7 @@ export class JournalEntrySimpleForm implements OnChanges {
                 FieldSet: 0,
                 Section: 0,
                 Placeholder: null,
-                Options: {
-                    onSelect: () => {
-                        self.form.Fields['DebetAccountID'].focus();
-                    } 
-                },
+                Options: null,
                 LineBreak: null,
                 Combo: null,
                 Legend: "",
@@ -210,6 +206,7 @@ export class JournalEntrySimpleForm implements OnChanges {
                     debounceTime: 300,
                     search: (query:string) => self.accountService.GetAll(`filter=startswith(AccountNumber,'${query}') or contains(AccountName,'${query}')`, ['VatType']),
                     onSelect: (account: Account) => {
+                        console.log("OnSelect==");
                         if (account && account.VatType) {
                             self.journalEntryLine.DebitVatType = account.VatType;
                             self.journalEntryLine = _.deepClone(self.journalEntryLine);
@@ -506,7 +503,15 @@ export class JournalEntrySimpleForm implements OnChanges {
         this.config = {
             submitText: '' // TODO remove and use disable subit when available in new UniForm
         };
-
+    }
+    
+    focusAfterFinancialDate() {
+        if (this.mode != JournalEntryMode.Payment) {
+            console.log("=== SETTING FOCUS ===");
+            this.form.Fields['DebitAccountID'].focus();
+        } else {
+            this.form.Fields['InvoiceNumber'].focus();                            
+        }
     }
     
     setupSameNewAlternatives() {      
@@ -536,14 +541,14 @@ export class JournalEntrySimpleForm implements OnChanges {
             this.projects = this.dropdownData[1];
             this.vattypes = this.dropdownData[2];
             this.accounts = this.dropdownData[3]; 
-            
+                                                        
             // Refresh sources 
-            this.fields[2].Options.source = this.accounts;
-            this.fields[3].Options.source = this.vattypes;
-            this.fields[4].Options.source = this.accounts;
-            this.fields[5].Options.source = this.vattypes;
-            this.fields[7].Options.source = this.departements;
-            this.fields[8].Options.source = this.projects;
+            this.fields[3].Options.source = this.accounts;
+            this.fields[4].Options.source = this.vattypes;
+            this.fields[5].Options.source = this.accounts;
+            this.fields[6].Options.source = this.vattypes;
+            this.fields[8].Options.source = this.departements;
+            this.fields[9].Options.source = this.projects;
             this.fields = _.cloneDeep(this.fields);
         }
         
@@ -557,13 +562,25 @@ export class JournalEntrySimpleForm implements OnChanges {
     }
       
     public change(line) {
-        console.log('Change: ', line);
+    //    console.log('Change: ', line);
     }  
     
     public ready(line) {
         console.log('Ready:', line);        
         this.form.Fields['FinancialDate'].focus();
+      
+        // FinancialDate changed
+        this.form.Fields['FinancialDate'].onChange.subscribe(() => {
+            console.log("== onChange FinancialDate");
+            this.focusAfterFinancialDate();
+        });
         
+        // DebitAccountID
+        this.form.Fields['DebitAccountID'].onTab.subscribe(() => {
+           console.log("== onTab DebitAccountID"); 
+        });
+        
+        // Invoice tabbing
         this.form.Fields['InvoiceNumber'].onTab.subscribe((data) => {                        
                         if (this.journalEntryLine.InvoiceNumber && this.journalEntryLine.InvoiceNumber !== '') {
                             this.customerInvoiceService.getInvoiceByInvoiceNumber(this.journalEntryLine.InvoiceNumber)
