@@ -1,7 +1,7 @@
 import {Component, ComponentRef, Input, ViewChild, OnInit} from '@angular/core';
 import {Router, RouteParams, RouterLink} from '@angular/router-deprecated';
 import {Observable} from 'rxjs/Observable';
-import 'rxjs/add/observable/forkjoin';
+import 'rxjs/add/observable/forkJoin';
 
 import {DepartementService, ProjectService, CustomerService, PhoneService, AddressService, EmailService, BusinessRelationService} from '../../../../services/services';
 import {ExternalSearch, SearchResultItem} from '../../../common/externalSearch/externalSearch';
