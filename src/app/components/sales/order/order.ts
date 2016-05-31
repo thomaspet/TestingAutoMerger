@@ -11,12 +11,12 @@ const ORDER_ROUTES = [
         useAsDefault: true,
         path: '/list',
         name: 'OrderList',
-        loader: () => ComponentProxy.LoadComponentAsync('OrderList', 'src/app/components/sales/order/list/orderList')
+        loader: () => ComponentProxy.LoadComponentAsync('OrderList','app/components/sales/order/list/orderList')
     }),    
     new AsyncRoute({
         path: '/details/:id',
         name: 'OrderDetails',
-        loader: () => ComponentProxy.LoadComponentAsync('OrderDetails', 'src/app/components/sales/order/details/orderDetails')
+        loader: () => ComponentProxy.LoadComponentAsync('OrderDetails','app/components/sales/order/details/orderDetails')
     })    
 ];
 

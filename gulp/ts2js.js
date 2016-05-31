@@ -22,5 +22,5 @@ gulp.task('ts2js.dev', plugins.shell.task(['tsc'],{ignoreErrors:true}));
 
 gulp.task('ts-source', function() {
     return gulp.src(SRC + '/**/*.ts')
-        .pipe(gulp.dest(DIST+'/source/src'));
+        .pipe(gulp.dest(DIST+'/src'));
 });

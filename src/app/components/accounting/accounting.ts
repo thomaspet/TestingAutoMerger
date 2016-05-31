@@ -8,12 +8,12 @@ const ACCOUNTING_ROUTES = [
         useAsDefault: true,
         path: '/journalentry/...',
         name: 'JournalEntry',
-        loader: () => ComponentProxy.LoadComponentAsync('JournalEntry', 'src/app/components/accounting/journalentry/journalentry')
+        loader: () => ComponentProxy.LoadComponentAsync('JournalEntry','app/components/accounting/journalentry/journalentry')
     }),
     new AsyncRoute({
         path: '/transquery/...',
         name: 'Transquery',
-        loader: () => ComponentProxy.LoadComponentAsync('Transquery', 'src/app/components/accounting/transquery/transquery')
+        loader: () => ComponentProxy.LoadComponentAsync('Transquery','app/components/accounting/transquery/transquery')
     })
 ];
 

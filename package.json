@@ -4,7 +4,7 @@
   "scripts": {
     "start": "gulp build.dev.watch",
     "serve": "gulp serve",
-    "buid.dev": "build.dev",
+    "buid.dev": "gulp build.dev",
     "build": "gulp build",
     "clean": "rimraf dist/**/*",
     "test": "gulp serve.tests",
