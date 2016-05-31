@@ -8,7 +8,7 @@ var DIST = process.env.DIST_FOLDER || './dist';
 var tsproject = plugins.typescript.createProject('tsconfig.json');
 
 gulp.task('ts2js', function() {
-    return gulp.src([SRC + '/**/*.ts'])
+    return tsproject.src()
         .pipe(plugins.plumber())
         .pipe(plugins.sourcemaps.init())
         .pipe(plugins.typescript(tsproject))
@@ -16,4 +16,11 @@ gulp.task('ts2js', function() {
         .pipe(plugins.uglify())
         .pipe(plugins.sourcemaps.write('.'))
         .pipe(gulp.dest(DIST));
+});
+
+gulp.task('ts2js.dev', plugins.shell.task(['tsc'],{ignoreErrors:true}));
+
+gulp.task('ts-source', function() {
+    return gulp.src(SRC + '/**/*.ts')
+        .pipe(gulp.dest(DIST+'/source/src'));
 });

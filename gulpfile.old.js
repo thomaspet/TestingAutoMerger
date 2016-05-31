@@ -245,7 +245,7 @@ gulp.task('build.dist.copy.from.src.index.template', function() {
 gulp.task('build.dist.fill.index.template', function() {
     return gulp.src(config.dist.index)
         .pipe(plugins.template({
-            VERSION: VERSION
+            version: VERSION
         }))
         .pipe(gulp.dest(config.dist.folder));
 });
