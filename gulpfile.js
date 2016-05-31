@@ -58,31 +58,28 @@ require('./gulp/templates');
  */
 require('./gulp/watch');
 
+/**
+ *  copy webconfig
+ */
+require('./gulp/web-config');
+
 var runSequence = require('run-sequence');
 var gulp = require('gulp');
 
+var tasks = [
+    'index.html',
+    'angular2',
+    'unitable',
+    'templates',
+    'assets',
+    'web.config',
+    'system.config'
+];
+
 gulp.task('build.watch', function(done) {
-    runSequence(
-        'clean.all', [
-            'index.html',
-            'angular2',
-            'unitable',
-            'templates',
-            'assets',
-            'system.config',
-        ], 'watch', done
-    );
+    runSequence('clean.all', tasks, 'watch', done);
 });
 
 gulp.task('build', function(done) {
-    runSequence(
-        'clean.all', [
-            'index.html',
-            'angular2',
-            'unitable',
-            'templates',
-            'assets',
-            'system.config',
-        ], done
-    );
+    runSequence('clean.all', tasks, done);
 });
