@@ -2,9 +2,11 @@
   "name": "angular2-unieconomy-frontend",
   "version": "0.0.1",
   "scripts": {
-    "start": "opn http://localhost:3000 & gulp build.watch.and.serve",
-    "build": "gulp clean & gulp build.dist",
-    "clean": "rimraf dist",
+    "start": "gulp build.dev.watch",
+    "serve": "gulp serve",
+    "buid.dev": "gulp build.dev",
+    "build": "gulp build",
+    "clean": "rimraf dist/**/*",
     "test": "gulp serve.tests",
     "lint": "gulp tslint"
   },
