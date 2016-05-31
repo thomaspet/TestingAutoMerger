@@ -1,7 +1,7 @@
 import {Component, Input, ViewChild, SimpleChange} from "@angular/core";
 
 import {Observable} from "rxjs/Observable";
-import "rxjs/add/observable/forkjoin";
+import "rxjs/add/observable/forkJoin";
 
 import {UNI_CONTROL_DIRECTIVES} from "../../../../../framework/controls";
 import {FieldType} from "../../../../unientities";

@@ -13,12 +13,22 @@ export class CustomerInvoiceService extends BizHttp<CustomerInvoice> {
         super(http);       
         this.relativeURL = CustomerInvoice.RelativeUrl;
         this.DefaultOrderBy = null;
+        this.defaultExpand = ['Customer'];
     }    
     
     // TODO: To be retrieved from database schema shared.Status instead?
     private statusTypes: Array<any> = [
         { Code: StatusCodeCustomerInvoice.Draft, Text: 'Kladd' },
         { Code: StatusCodeCustomerInvoice.Invoiced, Text: 'Fakturert' },
+        { Code: StatusCodeCustomerInvoice.PartlyPaid, Text: 'Delbetalt' },
+        { Code: StatusCodeCustomerInvoice.Paid, Text: 'Betalt' },
+    ];
+
+    private statusTypesCredit: Array<any> = [
+        { Code: StatusCodeCustomerInvoice.Draft, Text: 'Kladd(Kreditnota)' },
+        { Code: StatusCodeCustomerInvoice.Invoiced, Text: 'Kreditert' },
+        { Code: StatusCodeCustomerInvoice.PartlyPaid, Text: 'Delbetalt' },
+        { Code: StatusCodeCustomerInvoice.Paid, Text: 'Betalt' },
     ];
             
     next(currentID: number): Observable<CustomerInvoice>
@@ -56,14 +66,30 @@ export class CustomerInvoiceService extends BizHttp<CustomerInvoice> {
         return this.GetAll('filter=InvoiceNumber eq ' + invoiceNumber, ['JournalEntry','JournalEntry.Lines','JournalEntry.Lines.Account']);
     }
 
-    public getStatusText = (statusCode: string) => {
+    public createCreditNoteFromInvoice(currentInvoiceID: number): Observable<any> {
+        return super.PutAction(currentInvoiceID, 'create-credit-draft-invoice');
+    } 
+
+    public getStatusText = (statusCode: string, invoiceType: number) => {
         var text = 'Udefinert';
-        this.statusTypes.forEach((status) => {
-            if (status.Code == statusCode) {
-                text = status.Text;
-                return;
-            }
-        });
+
+        //TODO use enum for invoiceType
+        if (invoiceType == 0) {
+            this.statusTypes.forEach((status) => {
+                if (status.Code == statusCode) {
+                    text = status.Text;
+                    return;
+                }
+            });
+        }
+        else {
+            this.statusTypesCredit.forEach((status) => {
+                if (status.Code == statusCode) {
+                    text = status.Text;
+                    return;
+                }
+            });
+        }
         return text;
     };    
 }

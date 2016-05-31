@@ -1,4 +1,3 @@
-///<reference path="../../typings/main.d.ts"/>
 import { describe, it, expect, beforeEachProviders, beforeEach, inject} from '@angular/core/testing';
 import { MockBackend, MockConnection} from '@angular/http/testing';
 import {provide} from '@angular/core';

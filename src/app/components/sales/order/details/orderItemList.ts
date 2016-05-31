@@ -1,7 +1,7 @@
 import {Component, ViewChild, Input, Output, EventEmitter} from '@angular/core';
 import {Control} from '@angular/common';
 import {Observable} from 'rxjs/Observable';
-import 'rxjs/add/observable/forkjoin';
+import 'rxjs/add/observable/forkJoin';
 import {ComponentInstruction, RouteParams, Router} from '@angular/router-deprecated';
 
 import {UniTable, UniTableBuilder, UniTableColumn} from '../../../../../framework/uniTable';
