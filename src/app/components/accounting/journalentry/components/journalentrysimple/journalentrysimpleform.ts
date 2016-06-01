@@ -79,6 +79,8 @@ export class JournalEntrySimpleForm implements OnChanges {
         this.vattypes = [];
         this.accounts = [];
         this.journalEntryLine = new JournalEntryData();
+        
+        this.setupFields();
     }
     
     ngOnInit() {    
@@ -87,7 +89,10 @@ export class JournalEntrySimpleForm implements OnChanges {
         } 
         
         this.setupSameNewAlternatives();
-        
+        //this.setupFields();
+    }
+    
+    private setupFields() {    
         let self = this;
         //this.journalEntryService.layout('JournalEntryLineForm').toPromise().then((layout: any) => {
         //    self.fields = layout.Fields;
@@ -204,22 +209,7 @@ export class JournalEntrySimpleForm implements OnChanges {
                     template: (account:Account) => `${account.AccountNumber} - ${account.AccountName}`,
                     minLength: 1,
                     debounceTime: 300,
-                    search: (query:string) => self.accountService.GetAll(`filter=startswith(AccountNumber,'${query}') or contains(AccountName,'${query}')`, ['VatType']),
-                    onSelect: (account: Account) => {
-                        console.log("OnSelect==");
-                        if (account && account.VatType) {
-                            self.journalEntryLine.DebitVatType = account.VatType;
-                            self.journalEntryLine = _.deepClone(self.journalEntryLine);
-                        }   
-    
-                        self.form.Fields['CreditAccountID'].focus();
-                    },
-                    onEnter: () => {
-                        self.form.Fields['CreditAccountID'].focus();
-                    },
-                    onTab: () => {                        
-                        self.form.Fields['CreditAccountID'].focus();
-                    }             
+                    search: (query:string) => self.accountService.GetAll(`filter=startswith(AccountNumber,'${query}') or contains(AccountName,'${query}')`, ['VatType'])           
                 },
                 LineBreak: null,
                 Combo: null,
@@ -253,10 +243,7 @@ export class JournalEntrySimpleForm implements OnChanges {
                     displayProperty: 'VatCode',
                     valueProperty: 'ID',
                     template: (vattype:VatType) =>  `${vattype.VatCode} (${ vattype.VatPercent }%)`,
-                    debounceTime: 500,
-                    onEnter: () => {
-                        self.form.Fields['CreditAccountID'].focus();
-                    }   
+                    debounceTime: 500
                 },
                 LineBreak: null,
                 Combo: null,
@@ -291,24 +278,7 @@ export class JournalEntrySimpleForm implements OnChanges {
                     template: (account:Account) => `${account.AccountNumber} - ${account.AccountName}`,
                     minLength: 1,
                     debounceTime: 300,
-                    search: (query:string) => self.accountService.GetAll(`filter=startswith(AccountNumber,'${query}') or contains(AccountName,'${query}')`, ['VatType']),
-                    onSelect: (account: Account) => {
-                        if (account && account.VatType) {
-                            this.journalEntryLine.CreditVatType = account.VatType;   
-                            this.journalEntryLine = _.deepClone(this.journalEntryLine);
-                        }
-                        
-                        self.form.Fields['Amount'].focus();
-                    },
-                    onEnter: () => {
-                        self.form.Fields['Amount'].focus();
-                    },
-                    onTab: () => {
-                        self.form.Fields['Amount'].focus();                       
-                    },
-                    onUnTab: () => {
-                        self.form.Fields['DebetAccountID'].focus();
-                    }   
+                    search: (query:string) => self.accountService.GetAll(`filter=startswith(AccountNumber,'${query}') or contains(AccountName,'${query}')`, ['VatType'])   
                 },
                 LineBreak: null,
                 Combo: null,
@@ -342,10 +312,7 @@ export class JournalEntrySimpleForm implements OnChanges {
                     valueProperty: 'ID',
                     template: (vattype:VatType) => `${vattype.VatCode} (${ vattype.VatPercent }%)`,
                     source: self.vattypes,
-                    debounceTime: 500,
-                    onEnter: () => {
-                        self.form.Fields['Amount'].focus();
-                    }   
+                    debounceTime: 500 
                 },
                 LineBreak: null,
                 Combo: null,
@@ -375,12 +342,6 @@ export class JournalEntrySimpleForm implements OnChanges {
                 Section: 0,
                 Placeholder: null,
                 Options: {
-                    onEnter: () => {
-                        self.form.Fields['Dimensions.DepartementID'].focus();
-                    },
-                    onUnTab: () => {
-                        self.form.Fields['CreditAccountID'].focus();
-                    },
                     step: 1
                 },
                 LineBreak: null,
@@ -415,10 +376,7 @@ export class JournalEntrySimpleForm implements OnChanges {
                     template: (departement) => `${departement.Name}`,
                     valueProperty: 'ID',
                     displayProperty: 'Name',
-                    debounceTime: 500,
-                    onEnter: () => {
-                        self.form.Fields['Dimensions.ProjectID'].focus();
-                    }
+                    debounceTime: 500
                 },
                 LineBreak: null,
                 Combo: null,
@@ -452,10 +410,7 @@ export class JournalEntrySimpleForm implements OnChanges {
                     template: (project) => `${project.Name}`,
                     valueProperty: 'ID',
                     displayProperty: 'Name',
-                    debounceTime: 500,
-                    onEnter: () => {
-                        self.form.Fields['Description'].focus();
-                    }
+                    debounceTime: 500
                 },
                 LineBreak: null,
                 Combo: null,
@@ -533,6 +488,10 @@ export class JournalEntrySimpleForm implements OnChanges {
         
         // new always last one
         this.journalalternatives.push(this.newAlternative);
+        
+        // Update source
+        this.fields[0].Options.source = this.journalalternatives;
+        this.fields = _.cloneDeep(this.fields);
     }
                 
     ngOnChanges(changes: {[propName: string]: SimpleChange}) {  
@@ -577,9 +536,69 @@ export class JournalEntrySimpleForm implements OnChanges {
         
         // DebitAccountID
         this.form.Fields['DebitAccountID'].onTab.subscribe(() => {
-           console.log("== onTab DebitAccountID"); 
+           this.form.Fields['CreditAccountID'].focus()
         });
         
+        /* TODO: onUnTab / onSelect / onEnter missing
+        
+        this.form.Fields['DebitAccountID'].onEnter.subscribe(() => {
+           this.form.Fields['CreditAccountID'].focus()           
+        });
+        
+        this.form.Fields['DebitAccountID'].onSelect.subscribe((account:Account) => {
+            console.log("OnSelect==");
+            if (account && account.VatType) {
+                this.journalEntryLine.DebitVatType = account.VatType;
+                this.journalEntryLine = _.deepClone(this.journalEntryLine);
+            }   
+    
+            this.form.Fields['CreditAccountID'].focus();
+        });
+        
+        this.form.Fields['DebitVatTypeID'].onEnter.subscribe(() => {
+            this.form.Fields['CreditAccountID'].focus();
+        });
+        
+        this.form.Fields['CreditAccountID'].onSelect.subscribe((account:Account) => {
+                if (account && account.VatType) {
+                    this.journalEntryLine.CreditVatType = account.VatType;   
+                    this.journalEntryLine = _.deepClone(this.journalEntryLine);
+                }
+                
+                this.form.Fields['Amount'].focus();
+        });
+        */
+
+        this.form.Fields['CreditAccountID'].onTab.subscribe(() => {
+            this.form.Fields['Amount'].focus();
+        });
+        
+        /*
+        this.form.Fields['CreditAccountID'].onUnTab.subscribe(() => {
+            this.form.Fields['DebetAccountID'].focus();
+        });
+        
+        this.form.Fields['CreditVatTypeID'].onEnter.subscribe(() => {
+           this.form.Fields['Amount'].focus(); 
+        });
+        
+        this.form.Fields['Amount'].onEnter.subscribe(() => {
+           this.form.Fields['Dimensions.DepartementID'].focus(); 
+        });
+
+        this.form.Fields['Amount'].onUnTab.subscribe(() => {
+            this.form.Fields['CreditAccountID'].focus();
+        });
+        
+        this.form.Fields['Dimensions.DepartementID'].onEnter.subscribe(() => {
+            this.form.Fields['Dimensions.ProjectID'].focus();
+        });
+        
+        this.form.Fields['Dimensions.ProjectID'].onEnter.subscribe(() => {
+           this.form.Fields['Description'].focus(); 
+        });
+        */
+                
         // Invoice tabbing
         this.form.Fields['InvoiceNumber'].onTab.subscribe((data) => {                        
                         if (this.journalEntryLine.InvoiceNumber && this.journalEntryLine.InvoiceNumber !== '') {

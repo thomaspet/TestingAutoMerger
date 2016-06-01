@@ -52,15 +52,15 @@ barrels.forEach(function(barrelName) {
         main: 'index'
     };
 });
-cliSystemConfigPackages["app"] = {
-    "defaultExtension": "js"
-};
-cliSystemConfigPackages["framework"] = {
-    "defaultExtension": "js"
-};
-// cliSystemConfigPackages["rxjs"] = {
-//      "defaultExtension": "js"
+// cliSystemConfigPackages["app"] = {
+//     "defaultExtension": "js"
 // };
+// cliSystemConfigPackages["framework"] = {
+//     "defaultExtension": "js"
+// };
+// // cliSystemConfigPackages["rxjs"] = {
+// //      "defaultExtension": "js"
+// // };
 
 // Apply the CLI SystemJS configuration.
 System.config({
