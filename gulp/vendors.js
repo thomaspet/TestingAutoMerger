@@ -3,7 +3,7 @@ var plugins = require('gulp-load-plugins')({
     lazy: true
 });
 
-var files = [
+var jsFiles = [
     // 3RD PARTY LIBS
     require.resolve('jquery/dist/jquery.min.js'),
     require.resolve('bootstrap/dist/js/bootstrap.min.js'),
@@ -33,8 +33,20 @@ var files = [
     require.resolve('rxjs/bundles/Rx.min.js')
 ];
 
-gulp.task('vendors', function() {
-    gulp.src(files)
+var cssFiles = [
+    require.resolve('../kendo/styles/kendo.common.min.css')
+];
+
+gulp.task('vendors',['vendors.js','vendors.css'])
+
+gulp.task('vendors.js', function() {
+    gulp.src(jsFiles)
         .pipe(plugins.concat('vendors.bundle.js'))
+        .pipe(gulp.dest('./dist'))
+});
+
+gulp.task('vendors.css', function() {
+    gulp.src(cssFiles)
+        .pipe(plugins.concat('vendors.bundle.css'))
         .pipe(gulp.dest('./dist'))
 });

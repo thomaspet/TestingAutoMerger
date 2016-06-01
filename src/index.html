@@ -88,6 +88,7 @@
 
     <!-- EXTERNAL PROFILES
      ------------------------------------------------------------------------->
+    <link rel="stylesheet" href="vendors.bundle.css?v=<%= version %>">
     <link rel="stylesheet" href="main.min.css?v=<%= version %>">
 
 
@@ -97,7 +98,7 @@
     <script src="app.bundle.js?v=<%= version %>"></script>
     <script>
         System.import('system.config.js').then(function() {
-            System.import('src/app/bootstrap');
+            System.import('app/bootstrap');
         }).catch(console.error.bind(console));
     </script>
 
