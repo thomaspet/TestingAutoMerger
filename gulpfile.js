@@ -92,15 +92,15 @@ var tasks = {
 };
 
 gulp.task('build', function(done) {
-    runSequence('clean.all', tasks.prod, done);
+    runSequence(tasks.prod, done);
 });
 
 gulp.task('build.dev', function(done) {
-    runSequence('clean.all', tasks.dev, done);
+    runSequence(tasks.dev, done);
 });
 
 gulp.task('build.dev.watch', function(done) {
-    runSequence('clean.all', tasks.dev, 'watch', done);
+    runSequence(tasks.dev, 'watch', done);
 });
 
 gulp.task('serve', function() {

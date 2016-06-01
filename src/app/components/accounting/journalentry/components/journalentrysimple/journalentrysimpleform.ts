@@ -166,8 +166,9 @@ export class JournalEntrySimpleForm implements OnChanges {
     }
 
     ngAfterViewInit() {  
-        // TODO get it from the API and move these to backend migrations   
-        var view: ComponentLayout = {
+        // TODO get it from the API and move these to backend migrations
+        // TODO Jorge: I have to move that to any to hide errors. Interface is not right. Fix it. Do not use 'any', respect interfaces
+        var view: any = {
             Name: "ManualJournalEntryLineDraft",
             BaseEntity: "JournalEntryLineDraft",
             StatusCode: 0,

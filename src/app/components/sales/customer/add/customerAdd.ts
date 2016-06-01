@@ -90,8 +90,9 @@ export class CustomerAdd {
         });       
         
     }  
-    
-    setupFormConfig(): ComponentLayout {
+
+    // TODO: update to 'ComponentLayout' respecting the interface
+    setupFormConfig(): any {
         return {
             Name: "Customer",
             BaseEntity: "Customer",
