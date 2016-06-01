@@ -87,7 +87,7 @@ export class UniFieldSet {
                 this.comboId = this.fields[0].Combo;
                 
                 this.config = {};
-                this.config.legend = this.fields[0].FieldsetLegend;
+                this.config.legend = this.fields[0].Legend;
             }
             this.groupedFields = this.groupFields();
         }

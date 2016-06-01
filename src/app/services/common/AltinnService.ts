@@ -21,9 +21,7 @@ export class AltinnService extends BizHttp<Altinn> {
         this.relativeURL = Altinn.RelativeUrl;
     }
     
-    public sendTaxRequestAction(option: number, empId: number = 0): Observable<AltinnReceipt> {
-        console.log('Option: ' + option);
-        console.log('empId: ' + empId);
+    public sendTaxRequestAction(option: string, empId: number = 0): Observable<AltinnReceipt> {
         return this.PostAction(1, 'sendtaxrequest', 'option=' + option + '&empId=' + empId);
     }
 

@@ -439,8 +439,9 @@ export class OrderDetails {
         this.order.ShippingCountry = a.Country;
         this.order.ShippingCountryCode = a.CountryCode;     
     } 
-    
-    getComponentLayout(): ComponentLayout {
+
+    // TODO: change to 'ComponentLayout' when object respects the interface
+    getComponentLayout(): any {
         return {
             Name: "CustomerOrder",
             BaseEntity: "CustomerOrder",

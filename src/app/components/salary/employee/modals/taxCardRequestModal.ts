@@ -9,12 +9,12 @@ import {RootRouteParamsService} from '../../../../services/rootRouteParams';
 
 declare var _;
 @Component({
-    selector: 'tax-request-modal-content',
+    selector: 'tax-card-request-modal-content',
     directives: [UniForm, NgIf],
     providers: [AltinnService, EmployeeService],
-    templateUrl: 'app/components/salary/employee/modals/taxrequestmodalcontent.html'
+    templateUrl: 'app/components/salary/employee/modals/taxcardrequestmodalcontent.html'
 })
-export class TaxRequestModalContent {
+export class TaxCardRequestModalContent {
     public title: string = '';
     public exitButton: string = '';
     public busy: boolean;
@@ -45,7 +45,7 @@ export class TaxRequestModalContent {
         this.exitButton = 'Avbryt';
         this.error = '';
         this.model = { singleEmpChoice: 1, multiEmpChoice: 1 };
-        var singleChoice: FieldLayout = {
+        var singleChoice: any = {
             FieldSet: 0,
             Section: 0,
             Combo: 0,
@@ -55,14 +55,14 @@ export class TaxRequestModalContent {
             Placeholder: 'Select',
             Options: {
                 source: [
-                    { id: 1, text: 'Kun for valgt ansatt (den du står på)' },
+                    { id: 1, text: 'Gjeldende ansatt' },
                     { id: 2, text: 'For flere ansatte' }
                 ],
                 labelProperty: 'text',
                 valueProperty: 'id'
             }
         };
-        var multipleChoice: FieldLayout = {
+        var multipleChoice: any = {
             FieldSet: 0,
             Section: 0,
             Combo: 0,
@@ -89,17 +89,17 @@ export class TaxRequestModalContent {
         if (this.model.singleEmpChoice === 2) {
             switch (this.model.multiEmpChoice) {
                 case 1:
-                    this.taxRequest(1);
+                    this.taxRequest('ALL_EMPS');
                     break;
                 case 2:
-                    this.taxRequest(2);
+                    this.taxRequest('ACTIVE_EMPS');
                     break;
                 case 3:
-                    this.taxRequest(3);
+                    this.taxRequest('CHANGED_ONLY');
                     break;
             }
         } else {
-            this.taxRequest(0, this.config.employeeID);
+            this.taxRequest('SINGLE_EMP', this.config.employeeID);
         }
     }
 
@@ -111,33 +111,27 @@ export class TaxRequestModalContent {
             if (response.ErrorText) {
                 this.title = 'Feil angående Altinn forespørsel';
                 this.error = 'feilmelding fra altinn: ' + response.ErrorText;
-                this.exitButton = 'OK';
-                this.busy = false;
             } else {
                 this.title = 'Skatteforespørsel er sendt';
-                this.exitButton = 'OK';
-                this.busy = false;
             }
-
-            console.log('response from taxRequestAction: ' + JSON.stringify(response));
+            this.exitButton = 'OK';
+            this.busy = false;
         },
             error => console.log(error));
     }
 
     public ready(value) {
-        console.log('Form ready');
+        
     }
 
     public change(value) {
         this.uniform.Hidden = false;
         if (this.model.singleEmpChoice === 2) {
             this.fields[1].Hidden = false;
-            this.fields = _.cloneDeep(this.fields);
         } else {
             this.fields[1].Hidden = true;
-            this.fields = _.cloneDeep(this.fields);
         }
-
+        this.fields = _.cloneDeep(this.fields);
     }
 
     public close() {
@@ -148,15 +142,15 @@ export class TaxRequestModalContent {
 }
 
 @Component({
-    selector: 'tax-request-modal',
+    selector: 'tax-card-request-modal',
     directives: [UniModal],
     template: `
         <button type="button" (click)="openModal()">Send forespørsel om skattekort</button>
         <uni-modal [type]="type" [config]="config"></uni-modal>
     `
 })
-export class TaxRequestModal {
-    public type: Type = TaxRequestModalContent;
+export class TaxCardRequestModal {
+    public type: Type = TaxCardRequestModalContent;
     public config: any = {};
     @ViewChild(UniModal)
     private modal: UniModal;
@@ -169,7 +163,7 @@ export class TaxRequestModal {
         this.config = {
             hasCancelButton: true,
             cancel: () => {
-                this.modal.getContent().then((component: TaxRequestModalContent) => {
+                this.modal.getContent().then((component: TaxCardRequestModalContent) => {
                     this.modal.close();
                     component.close();
                 });
@@ -180,7 +174,7 @@ export class TaxRequestModal {
 }
 
     public openModal() {
-    this.modal.getContent().then((modalContent: TaxRequestModalContent) => {
+    this.modal.getContent().then((modalContent: TaxCardRequestModalContent) => {
         this.modal.open();
     });
 }
