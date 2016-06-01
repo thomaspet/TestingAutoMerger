@@ -6,6 +6,7 @@ import {UniTable as NewTable, UniTableColumn, UniTableConfig, UniTableColumnType
 import {Observable} from 'rxjs/Rx';
 import {WorkerService} from '../../../services/timetracking/workerservice';
 import {TimesheetService, TimeSheet} from '../../../services/timetracking/timesheetservice';
+import {UniSave, IUniSaveAction} from '../../../../framework/save/save';
 
 export var view = new View('regtime', 'Timeregistrering', 'RegisterTime');
 
@@ -14,7 +15,7 @@ declare var moment;
 @Component({
     selector: view.name,
     templateUrl: 'app/components/timetracking/regtime/regtime.html',
-    directives: [NewTable], 
+    directives: [NewTable, UniSave], 
     styles: ['.title { font-size: 18pt; padding: 1em 1em 1em 0; }',
             '.title span { margin-right: 1em;}',
             '.title select { display:inline-block; width: auto; padding-left: 7px; padding-right: 7px; }',
@@ -34,11 +35,16 @@ export class RegisterTime {
     
     tabs = [ { name: 'timeentry', label: 'Timer', isSelected: true },
             { name: 'totals', label: 'Totaler' },
-            { name: 'flex', label: 'Fleksitid', counter: 15 },
+            { name: 'flex', label: 'Fleksitid', counter: 12 },
             { name: 'profiles', label: 'Arbeidsgivere', counter: 1 },
             { name: 'vacation', label: 'Ferie', counter: 22 },
             { name: 'offtime', label: 'Fravær', counter: 4 },
             ];    
+            
+    private actions: IUniSaveAction[] = [ 
+            { label: 'Lagre', action: (done)=>this.save(done), main: true, disabled: false },
+            { label: 'Test', action: (done)=> { this.save(done); }, main: true, disabled: true } 
+        ];            
 
     constructor(private tabService: TabService, private workerService:WorkerService, private timesheetService: TimesheetService) {
         this.tabService.addTab({ name: view.label, url: view.route });
@@ -51,6 +57,12 @@ export class RegisterTime {
     onReloadClick() {
         this.busy = true;
         this.initServiceValues();
+    }
+    
+    save(done) {
+        this.timeSheet.save().subscribe((result:number)=>{
+            done(result + " poster ble lagret ok");    
+        });
     }
     
     loadItems() {
@@ -133,12 +145,15 @@ export class RegisterTime {
     onEditChange(event) {
         var newRow = event.rowModel;
 
+        //debugger;
         if (event.field === 'Worktype') {
             newRow.WorkTypeID = newRow.WorkType ? newRow.WorkType.ID : 0;            
             console.log(event.fielt, event);
         }
         
-        if (event.field)
+        this.timeSheet.setItemValue(event.field, newRow[event.field], newRow._rowId);
+        
+        //if (event.field)
 
         return newRow; 
     }

@@ -128,6 +128,13 @@ export class WorkerService extends BizHttp<Worker> {
         return this.GET('workitems', { filter: 'WorkRelationID eq ' + workRelationID, expand: 'WorkType' });
     }
     
+    saveWorkItem(item:WorkItem) : Observable<WorkItem> {
+        if (item.ID) {
+            return this.PUT('workitems/' + item.ID, undefined, item );
+        }
+        return this.POST('workitems', undefined, item );
+    }
+    
     getWorkTypes(): Observable<WorkType[]> {
         return this.GET('worktypes');
     }
@@ -147,6 +154,15 @@ export class WorkerService extends BizHttp<Worker> {
             return this.http.asPOST().usingBusinessDomain()
             .withEndPoint(route).send(params);
         }        
-    } 
+    }
+    private PUT(route: string, params?:any, body?:any ):Observable<any> {
+        if (body) {
+            return this.http.asPUT().usingBusinessDomain().withBody(body)
+            .withEndPoint(route).send(params);            
+        } else {
+            return this.http.asPUT().usingBusinessDomain()
+            .withEndPoint(route).send(params);
+        }        
+    }      
     
 }

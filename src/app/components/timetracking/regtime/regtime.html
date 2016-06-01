@@ -20,10 +20,12 @@
 
     <section [attr.aria-busy]="busy" >
         
-        <button (click)="onReloadClick()">Reload</button>
+        <button (click)="onReloadClick()">Reloaded</button>
 
         <uni-table [resource]="timeSheet.items" [config]="tableConfig"></uni-table>
     
     </section>
+    
+    <uni-save [actions]="actions"></uni-save>
 
 </section>
