@@ -15,13 +15,19 @@ export class AltinnSettings implements OnInit {
     private altinn: Altinn;
     
     @ViewChild(UniForm) private formInstance: UniForm;
+    
+    public loginErr: string;
 
     constructor(private _altinnService: AltinnService) {
-
+           this.loginErr = '';
     }
 
     public ngOnInit() {
         this.getData();
+    }
+
+    public check()    {
+        alert('hei');   
     }
 
     private getData() {

@@ -1,9 +1,11 @@
 import {BizHttp} from '../../../framework/core/http/BizHttp';
 import {Altinn, FieldType, AltinnReceipt} from '../../unientities';
 import {UniHttp} from '../../../framework/core/http/http';
-import { Observable } from 'rxjs/Observable';
-import { SubEntityService } from '../services';
+import {Observable } from 'rxjs/Observable';
+import {SubEntityService } from '../services';
 import {AppConfig} from '../../../app/AppConfig';
+import {IntegrationServerCaller} from './IntegrationServerCaller';
+
 
 export class AltinnService extends BizHttp<Altinn> {
 
@@ -14,7 +16,7 @@ export class AltinnService extends BizHttp<Altinn> {
         { ID: '1083', text: 'Samisk' },
     ];
     
-    constructor(http: UniHttp, private subEntityService: SubEntityService) {
+    constructor(http: UniHttp, private subEntityService: SubEntityService, private integrate : IntegrationServerCaller) {
         super(http);
         this.relativeURL = Altinn.RelativeUrl;
     }
@@ -23,6 +25,11 @@ export class AltinnService extends BizHttp<Altinn> {
         console.log('Option: ' + option);
         console.log('empId: ' + empId);
         return this.PostAction(1, 'sendtaxrequest', 'option=' + option + '&empId=' + empId);
+    }
+
+    public checkSystemUser(altinn: Altinn)
+    {
+        this.integrate.checkSystemLogin(altinn.SystemID, altinn.SystemPw, altinn.Language);        
     }
 
     public getLayout() {
@@ -129,7 +136,7 @@ export class AltinnService extends BizHttp<Altinn> {
                         dataValueField: 'ID'
                     },
                     hasLineBreak: true
-                }
+                }                
             ]
         }]);
     }
