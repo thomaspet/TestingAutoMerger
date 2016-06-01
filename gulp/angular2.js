@@ -5,7 +5,7 @@ var plugins = require('gulp-load-plugins')({
 
 gulp.task('angular2', function() {
     return gulp.src([
-            './node_modules/@angular/**/*'
+            './node_modules/@angular/**/*.js'
         ], {
             base: './node_modules'
         })

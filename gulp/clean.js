@@ -2,29 +2,36 @@ var gulp = require('gulp');
 var del = require('del');
 
 gulp.task('clean.js', function() {
-    var jsfiles = [
+    const files = [
         './dist/app*.bundle.js',
         './dist/app*.bundle.js.map'
     ];
-    return del(jsfiles);
+    return del(files);
+});
+
+gulp.task('clean.source', function() {
+    const files = [
+        './dist/src/**/*'
+    ];
+    return del(files);
 });
 
 gulp.task('clean.css', function() {
-    var cssfiles = [
+    const files = [
         './dist/main*.css',
         './dist/main*.css.map'
     ];
-    return del(cssfiles);
+    return del(files);
 });
 
 gulp.task('clean.html', function() {
-    var htmlfiles = ['./dist/app/**/*.html','./dist/framework/**/*.html'];
-    return del(htmlfiles);
+    const files = ['./dist/app/**/*.html','./dist/framework/**/*.html'];
+    return del(files);
 });
 
 gulp.task('clean.assets', function() {
-    var assets = ['./dist/assets/**/*'];
-    return del(htmlfiles);
+    var files = ['./dist/assets/**/*'];
+    return del(files);
 });
 
 gulp.task('clean.all', function() {
