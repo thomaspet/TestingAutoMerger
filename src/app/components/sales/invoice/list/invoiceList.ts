@@ -1,4 +1,4 @@
-import {Component, ViewChildren} from '@angular/core';
+import {Component, ViewChildren, ViewChild} from '@angular/core';
 import {UniTable, UniTableColumn, UniTableColumnType, UniTableConfig, IContextMenuItem} from 'unitable-ng2/main';
 import {Router} from '@angular/router-deprecated';
 import {UniHttp} from '../../../../../framework/core/http/http';
@@ -8,6 +8,7 @@ import {Http, URLSearchParams} from '@angular/http';
 import {AsyncPipe} from '@angular/common';
 
 import {InvoicePaymentData} from '../../../../models/sales/InvoicePaymentData';
+import {RegisterPaymentModal} from '../../../common/modals/registerPaymentModal';
 
 declare var jQuery;
 declare var moment;
@@ -15,7 +16,7 @@ declare var moment;
 @Component({
     selector: 'invoice-list',
     templateUrl: 'app/components/sales/invoice/list/invoiceList.html',
-    directives: [UniTable],
+    directives: [UniTable, RegisterPaymentModal],
     providers: [CustomerInvoiceService],
     pipes: [AsyncPipe]
 })
@@ -25,7 +26,9 @@ export class InvoiceList {
 
     private invoiceTable: UniTableConfig;
     private lookupFunction: (urlParams: URLSearchParams) => any;
-    private invoicePaymentData: InvoicePaymentData = new InvoicePaymentData();
+
+    @ViewChild(RegisterPaymentModal)
+    private registerPaymentModal: RegisterPaymentModal;
 
     constructor(private uniHttpService: UniHttp,
         private router: Router,
@@ -50,6 +53,18 @@ export class InvoiceList {
                     this.log(err);
                 }
                 );
+        });
+    }
+
+    public onRegisteredPayment(modalData: any) {
+
+        this.customerInvoiceService.ActionWithBody(modalData.id, modalData.invoice, 'payInvoice').subscribe((journalEntry) => {
+            // TODO: Decide what to do here. Popup message or navigate to journalentry ??
+            // this.router.navigateByUrl('/sales/invoice/details/' + invoice.ID);
+            alert('Fakturer er betalt. Bilagsnummer: ' + journalEntry.JournalEntryNumber);
+        }, (err) => {
+            console.log('Error registering payment: ', err);
+            this.log(err);
         });
     }
 
@@ -122,7 +137,7 @@ export class InvoiceList {
                     console.log('== Invoice TRANSITION OK ==');
                     alert('Fakturert OK');
 
-                    //this.table.refresh(); //TODO Refresh and collect data. Not yet implemented fot uniTable
+                    // this.table.refresh(); //TODO Refresh and collect data. Not yet implemented fot uniTable
                 }, (err) => {
                     console.log('Error fakturerer: ', err);
                     this.log(err);
@@ -137,55 +152,16 @@ export class InvoiceList {
         contextMenuItems.push({
             label: 'Registrer betaling',
             action: (rowModel) => {
-                alert('Registrer betaling action - Under construction');
+                const title = `Register betaling, Faktura ${rowModel.InvoiceNumber || ''}, ${rowModel.CustomerName || ''}`;
+                const invoiceData: InvoicePaymentData = {
+                    Amount: rowModel.RestAmount,
+                    PaymentDate: new Date()
+                };
 
-                this.invoicePaymentData.Amount = rowModel.RestAmount;
-                this.invoicePaymentData.PaymentDate = new Date();
-
-                this.customerInvoiceService.ActionWithBody(rowModel.ID, this.invoicePaymentData, 'payInvoice').subscribe((journalEntry) => {
-                    // TODO: Decide what to do here
-                    // this.router.navigateByUrl('/sales/invoice/details/' + invoice.ID);
-                    alert('Fakturer er betalt. Bilagsnummer: ' + journalEntry.JournalEntryNumber);
-                }, (err) => {
-                    console.log('Error registering payment: ', err);
-                    this.log(err);
-                });
+                this.registerPaymentModal.openModal(rowModel.ID, title, invoiceData);
             },
             disabled: (rowModel) => {
-                // Possible to pay only if status = Invoiced || PartlyPaid
-                if (rowModel.StatusCode == StatusCodeCustomerInvoice.Invoiced ||
-                    rowModel.StatusCode == StatusCodeCustomerInvoice.PartlyPaid) {
-                    return false;
-                } else {
-                    return true;
-                }
-            }
-        });
-
-        // TOBE removed when dialog for payment is ready
-        contextMenuItems.push({
-            label: 'Registrer delbetaling',
-            action: (rowModel) => {
-                alert('Registrer delbetaling action - Under construction');
-
-                this.invoicePaymentData.Amount = rowModel.RestAmount * 0.1;
-                this.invoicePaymentData.PaymentDate = new Date();
-
-                this.customerInvoiceService.ActionWithBody(rowModel.ID, this.invoicePaymentData, 'payInvoice').subscribe((journalEntry) => {
-                    alert('Fakturer er delbetalt. Bilagsnummer: ' + journalEntry.JournalEntryNumber);
-                }, (err) => {
-                    console.log('Error registering payment: ', err);
-                    this.log(err);
-                });
-            },
-            disabled: (rowModel) => {
-                // Possible to pay only if status = Invoiced || PartlyPaid
-                if (rowModel.StatusCode == StatusCodeCustomerInvoice.Invoiced ||
-                    rowModel.StatusCode == StatusCodeCustomerInvoice.PartlyPaid) {
-                    return false;
-                } else {
-                    return true;
-                }
+                return !rowModel._links.transitions.pay;
             }
         });
 
