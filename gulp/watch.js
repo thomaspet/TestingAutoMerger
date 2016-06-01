@@ -5,7 +5,7 @@ var gulp = require('gulp');
 var runSequence = require('run-sequence');
 
 gulp.task('watch.ts', function(done){
-    return runSequence('clean.js', 'ts2js', done);
+    return runSequence(['clean.js', 'clean.source'], 'ts2js.dev', 'ts-source', done);
 });
 
 gulp.task('watch.sass', function(done){

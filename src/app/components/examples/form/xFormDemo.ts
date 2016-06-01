@@ -39,188 +39,183 @@ export class XFormDemo {
         this.api.get(1).toPromise().then((employee: Employee) => self.employee = employee);
         this.api.layout('EmployeeDetailsForm').toPromise().then((layout: any) => {
             self.fields = layout.Fields;
-            var numericTest: FieldLayout = {
-                FieldSet: 0,
-                Section: 0,
-                Combo: 0,
-                FieldType: 6,
-                Label: 'Numeric Input test',
-                Property: 'NumericTestProperty',
-                ReadOnly: false,
-                Options: {
-                    step: 1
-                }
+            var numericTest = new FieldLayout();
+            numericTest.FieldSet = 0;
+            numericTest.Section = 0;
+            numericTest.Combo = 0;
+            numericTest.FieldType = 6;
+            numericTest.Label = 'Numeric Input test';
+            numericTest.Property = 'NumericTestProperty';
+            numericTest.ReadOnly = false;
+            numericTest.Options = {
+                step: 1
             };
-            var maskedTest: FieldLayout = {
-                FieldSet: 0,
-                Section: 0,
-                Combo: 0,
-                FieldType: 4,
-                Label: 'Masked Input test',
-                Property: 'MaskedTestProperty',
-                ReadOnly: false,
-                Options: {
-                    mask: '(000) 000-0000'
-                }
+            var maskedTest = new FieldLayout();
+            maskedTest.FieldSet = 0;
+            maskedTest.Section = 0;
+            maskedTest.Combo = 0;
+            maskedTest.FieldType = 4;
+            maskedTest.Label = 'Masked Input test';
+            maskedTest.Property = 'MaskedTestProperty';
+            maskedTest.ReadOnly = false;
+            maskedTest.Options = {
+                mask: '(000) 000-0000'
             };
-            var multiValueTest: FieldLayout = {
-                FieldSet: 0,
-                Section: 0,
-                Combo: 0,
-                FieldType: 14,
-                Label: 'Multivalue',
-                Property: 'Employments',
-                ReadOnly: false,
-                Placeholder: 'Add new employment',
-                Options: {
-                    entity: Employment,
-                    displayValue: 'JobName',
-                    linkProperty: 'ID',
-                    foreignProperty: 'DefaultJobTest',
-                    editor: (value) => new Promise((resolve) => {
-                        var x: Employment = new Employment();
-                        x.JobName = value;
-                        resolve(x);
-                    })
-                }
+            var multiValueTest = new FieldLayout();
+            multiValueTest.FieldSet = 0;
+            multiValueTest.Section = 0;
+            multiValueTest.Combo = 0;
+            multiValueTest.FieldType = 14;
+            multiValueTest.Label = 'Multivalue';
+            multiValueTest.Property = 'Employments';
+            multiValueTest.ReadOnly = false;
+            multiValueTest.Placeholder = 'Add new employment';
+            multiValueTest.Options = {
+                entity: Employment,
+                displayValue: 'JobName',
+                linkProperty: 'ID',
+                foreignProperty: 'DefaultJobTest',
+                editor: (value) => new Promise((resolve) => {
+                    var x: Employment = new Employment();
+                    x.JobName = value;
+                    resolve(x);
+                })
             };
-            var autocompleteTest: FieldLayout = {
-                FieldSet: 0,
-                Section: 0,
-                Combo: 0,
-                FieldType: 0,
-                Label: 'Autocomplete',
-                Property: 'AutocompleteTest',
-                ReadOnly: false,
-                Placeholder: 'Autocomplete',
-                Options: {
-                    source: [
-                        { id: 1, name: 'Jorge' },
-                        { id: 2, name: 'Frank' },
-                        { id: 3, name: 'Anders' },
-                    ],
-                    template: (obj) => `${obj.id} - ${obj.name}`, 
-                    displayProperty: 'name',
-                    valueProperty: 'id',
-                    debounceTime: 500,
-                }
+            var autocompleteTest = new FieldLayout();
+            autocompleteTest.FieldSet = 0;
+            autocompleteTest.Section = 0;
+            autocompleteTest.Combo = 0;
+            autocompleteTest.FieldType = 0;
+            autocompleteTest.Label = 'Autocomplete';
+            autocompleteTest.Property = 'AutocompleteTest';
+            autocompleteTest.ReadOnly = false;
+            autocompleteTest.Placeholder = 'Autocomplete';
+            autocompleteTest.Options = {
+                source: [
+                    { id: 1, name: 'Jorge' },
+                    { id: 2, name: 'Frank' },
+                    { id: 3, name: 'Anders' },
+                ],
+                template: (obj) => `${obj.id} - ${obj.name}`, 
+                displayProperty: 'name',
+                valueProperty: 'id',
+                debounceTime: 500,
             };
-            var emailTest: FieldLayout = {
-                FieldSet: 0,
-                Section: 0,
-                Combo: 0,
-                FieldType: 11,
-                Label: 'Email test',
-                Property: 'EmailTestProperty',
-                ReadOnly: false
+            
+            var emailTest = new FieldLayout ();
+            emailTest.FieldSet = 0;
+            emailTest.Section = 0;
+            emailTest.Combo = 0;
+            emailTest.FieldType = 11;
+            emailTest.Label = 'Email test';
+            emailTest.Property = 'EmailTestProperty';
+            emailTest.ReadOnly = false;
+            
+            var passwordTest = new FieldLayout();
+            passwordTest.FieldSet = 0;
+            passwordTest.Section = 0;
+            passwordTest.Combo = 0;
+            passwordTest.FieldType = 12;
+            passwordTest.Label = 'Password test';
+            passwordTest.Property = 'PasswodTestProperty';
+            passwordTest.ReadOnly = false;
+            
+            var textareaTest = new FieldLayout();
+            textareaTest.FieldSet = 0;
+            textareaTest.Section = 0;
+            textareaTest.Combo = 0;
+            textareaTest.FieldType = 16;
+            textareaTest.Label = 'Textarea test';
+            textareaTest.Property = 'TextareaTestProperty';
+            textareaTest.ReadOnly = false;
+            
+            var hyperlinkTest = new FieldLayout();
+            hyperlinkTest.FieldSet = 0;
+            hyperlinkTest.Section = 0;
+            hyperlinkTest.Combo = 0;
+            hyperlinkTest.FieldType = 13;
+            hyperlinkTest.Label = 'Hyperlink test';
+            hyperlinkTest.Property = 'HyperLinkProperty';
+            hyperlinkTest.ReadOnly = false;
+            hyperlinkTest.Options = {
+                description: 'Open Link'
             };
-            var passwordTest: FieldLayout = {
-                FieldSet: 0,
-                Section: 0,
-                Combo: 0,
-                FieldType: 12,
-                Label: 'Password test',
-                Property: 'PasswodTestProperty',
-                ReadOnly: false
+            
+            var urlTest = new FieldLayout();
+            urlTest.FieldSet = 0;
+            urlTest.Section = 0;
+            urlTest.Combo = 0;
+            urlTest.FieldType = 15;
+            urlTest.Label = 'Url test';
+            urlTest.Property = 'UrlProperty';
+            urlTest.ReadOnly = false;
+            
+            var selectTest = new FieldLayout();
+            selectTest.FieldSet = 0;
+            selectTest.Section = 0;
+            selectTest.Combo = 0;
+            selectTest.FieldType = 3;
+            selectTest.Label = 'Select';
+            selectTest.Property = 'SelectTest';
+            selectTest.ReadOnly = false;
+            selectTest.Placeholder = 'Select';
+            selectTest.Options = {
+                source: [
+                    { id: 1, name: 'Jorge' },
+                    { id: 2, name: 'Frank' },
+                    { id: 3, name: 'Anders' },
+                ],
+                template: (obj) => `${obj.id} - ${obj.name}`, 
+                valueProperty: 'id',
+                displayProperty: 'name',
+                debounceTime: 500,
             };
-            var textareaTest: FieldLayout = {
-                FieldSet: 0,
-                Section: 0,
-                Combo: 0,
-                FieldType: 16,
-                Label: 'Textarea test',
-                Property: 'TextareaTestProperty',
-                ReadOnly: false
+            
+            var dateTest = new FieldLayout();
+            dateTest.FieldSet = 0;
+            dateTest.Section = 0;
+            dateTest.Combo = 0;
+            dateTest.FieldType = 2;
+            dateTest.Label = 'Date';
+            dateTest.Property = 'DateTest';
+            dateTest.ReadOnly = false;
+            dateTest.Placeholder = 'Select a date';
+            
+            var radiogroupTest = new  FieldLayout();
+            radiogroupTest.FieldSet = 0;
+            radiogroupTest.Section = 0;
+            radiogroupTest.Combo = 0;
+            radiogroupTest.FieldType = 9;
+            radiogroupTest.Label = 'Radio Group';
+            radiogroupTest.Property = 'RadioGroupTest';
+            radiogroupTest.ReadOnly = false;
+            radiogroupTest.Placeholder = 'Select';
+            radiogroupTest.Options = {
+                source: [
+                    { id: 1, name: 'Jorge' },
+                    { id: 2, name: 'Frank' },
+                    { id: 3, name: 'Anders' },
+                ],
+                labelProperty: 'name', 
+                valueProperty: 'id'
             };
-            var hyperlinkTest: FieldLayout = {
-                FieldSet: 0,
-                Section: 0,
-                Combo: 0,
-                FieldType: 13,
-                Label: 'Hyperlink test',
-                Property: 'HyperLinkProperty',
-                ReadOnly: false,
-                Options: {
-                    description: 'Open Link'
-                }
-            };
-            var urlTest: FieldLayout = {
-                FieldSet: 0,
-                Section: 0,
-                Combo: 0,
-                FieldType: 15,
-                Label: 'Url test',
-                Property: 'UrlProperty',
-                ReadOnly: false
-            };
-            var selectTest: FieldLayout = {
-                FieldSet: 0,
-                Section: 0,
-                Combo: 0,
-                FieldType: 3,
-                Label: 'Select',
-                Property: 'SelectTest',
-                ReadOnly: false,
-                Placeholder: 'Select',
-                Options: {
-                    source: [
-                        { id: 1, name: 'Jorge' },
-                        { id: 2, name: 'Frank' },
-                        { id: 3, name: 'Anders' },
-                    ],
-                    template: (obj) => `${obj.id} - ${obj.name}`, 
-                    valueProperty: 'id',
-                    displayProperty: 'name',
-                    debounceTime: 500,
-                }
-            };
-            var dateTest: FieldLayout = {
-                FieldSet: 0,
-                Section: 0,
-                Combo: 0,
-                FieldType: 2,
-                Label: 'Date',
-                Property: 'DateTest',
-                ReadOnly: false,
-                Placeholder: 'Select a date'    
-            };
-            var radiogroupTest: FieldLayout = {
-                FieldSet: 0,
-                Section: 0,
-                Combo: 0,
-                FieldType: 9,
-                Label: 'Radio Group',
-                Property: 'RadioGroupTest',
-                ReadOnly: false,
-                Placeholder: 'Select',
-                Options: {
-                    source: [
-                        { id: 1, name: 'Jorge' },
-                        { id: 2, name: 'Frank' },
-                        { id: 3, name: 'Anders' },
-                    ],
-                    labelProperty: 'name', 
-                    valueProperty: 'id'
-                }
-            };
-            var checkboxgroupTest: FieldLayout = {
-                FieldSet: 0,
-                Section: 0,
-                Combo: 0,
-                FieldType: 8,
-                Label: 'Checkbox Group',
-                Property: 'CheckboxGroupTest',
-                ReadOnly: false,
-                Placeholder: 'Select',
-                Options: {
-                    source: [
-                        { id: 1, name: 'Jorge' },
-                        { id: 2, name: 'Frank' },
-                        { id: 3, name: 'Anders' },
-                    ],
-                    labelProperty: 'name', 
-                    valueProperty: 'id'
-                }
+            var checkboxgroupTest = new FieldLayout();
+            checkboxgroupTest.FieldSet = 0;
+            checkboxgroupTest.Section = 0;
+            checkboxgroupTest.Combo = 0;
+            checkboxgroupTest.FieldType = 8;
+            checkboxgroupTest.Label = 'Checkbox Group';
+            checkboxgroupTest.Property = 'CheckboxGroupTest';
+            checkboxgroupTest.ReadOnly = false;
+            checkboxgroupTest.Placeholder = 'Select';
+            checkboxgroupTest.Options = {
+                source: [
+                    { id: 1, name: 'Jorge' },
+                    { id: 2, name: 'Frank' },
+                    { id: 3, name: 'Anders' },
+                ],
+                labelProperty: 'name', 
+                valueProperty: 'id'
             };
             self.fields = [
                 numericTest, 

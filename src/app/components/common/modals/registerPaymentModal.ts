@@ -4,6 +4,7 @@ import {UniModal} from '../../../../framework/modals/modal';
 import {UniComponentLoader} from '../../../../framework/core/componentLoader';
 import {UniForm, } from '../../../../framework/uniForm';
 import {InvoicePaymentData} from '../../../models/sales/InvoicePaymentData';
+import {FieldLayout} from "../../../unientities";
 
 @Component({
     selector: 'register-payment-form',
@@ -27,7 +28,8 @@ export class RegisterPaymentForm {
     @Output()
     public formSubmitted: EventEmitter<InvoicePaymentData> = new EventEmitter<InvoicePaymentData>();
 
-    public fields: FieldLayout;
+    // TODO: Jorge: I have to use any to hide errors. Don't use any. Use FieldLayout, but respect interface
+    public fields: any[];
     public model: InvoicePaymentData = new InvoicePaymentData();
     public config: any;
 
@@ -112,7 +114,7 @@ export class RegisterPaymentModal {
     public modal: UniModal;
     
     @Output()
-    public changed: EventEmitter<InvoicePaymentData> = new EventEmitter<InvoicePaymentData>();
+    public changed: EventEmitter<any> = new EventEmitter<any>();
     @Output()
     public canceled: EventEmitter<boolean> = new EventEmitter<boolean>();
 
@@ -134,6 +136,7 @@ export class RegisterPaymentModal {
                         self.modal.getContent().then((content: RegisterPaymentModalType) => {
                             content.instance.then((form: RegisterPaymentForm) => {
                                 self.modal.close();
+                                // TODO: changed emitter emits any because emitted object is not InvoicePaymentData
                                 self.changed.emit({
                                     id: self.invoiceID,
                                     invoice: form.model

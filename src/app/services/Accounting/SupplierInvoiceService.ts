@@ -1,8 +1,6 @@
 import {BizHttp} from '../../../framework/core/http/BizHttp';
 import {SupplierInvoice} from '../../unientities';
 import {UniHttp} from '../../../framework/core/http/http';
-import {Observable} from 'rxjs/Observable';
-import {InvoiceData} from '../../components/accounting/journalentry/supplierinvoices/InvoiceData';
 import {InvoicePaymentData} from '../../models/sales/InvoicePaymentData';
 
 export class SupplierInvoiceService extends BizHttp<SupplierInvoice> {
