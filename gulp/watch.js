@@ -5,15 +5,15 @@ var gulp = require('gulp');
 var runSequence = require('run-sequence');
 
 gulp.task('watch.ts', function(done){
-    return runSequence('clean.js', 'ts2js', done);
+    return runSequence('ts2js.dev', 'ts-source', done);
 });
 
 gulp.task('watch.sass', function(done){
-    return runSequence('clean.css', 'sass2css', done);
+    return runSequence('sass2css', done);
 });
 
 gulp.task('watch.html', function(done){
-    return runSequence('clean.html', 'templates', done);
+    return runSequence('templates', done);
 });
 
 gulp.task('watch', function() {

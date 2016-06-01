@@ -1,3 +1,9 @@
+var gulp = require('gulp');
+var runSequence = require('run-sequence');
+var plugins = require('gulp-load-plugins')({
+    lazy: true
+});
+
 /**
  *  Download uni entities form server
  */
@@ -58,31 +64,49 @@ require('./gulp/templates');
  */
 require('./gulp/watch');
 
-var runSequence = require('run-sequence');
-var gulp = require('gulp');
+/**
+ *  copy webconfig
+ */
+require('./gulp/web-config');
 
-gulp.task('build.watch', function(done) {
-    runSequence(
-        'clean.all', [
-            'index.html',
-            'angular2',
-            'unitable',
-            'templates',
-            'assets',
-            'system.config',
-        ], 'watch', done
-    );
-});
+var tasks = {
+    prod: [
+        'index.html',
+        'angular2',
+        'unitable',
+        'templates',
+        'assets',
+        'web.config',
+        'system.config'
+    ],
+    dev: [
+        'index.html.dev',
+        'angular2',
+        'unitable',
+        'templates',
+        'assets',
+        'web.config',
+        'system.config',
+        'ts-source'
+    ]
+};
 
 gulp.task('build', function(done) {
-    runSequence(
-        'clean.all', [
-            'index.html',
-            'angular2',
-            'unitable',
-            'templates',
-            'assets',
-            'system.config',
-        ], done
-    );
+    runSequence(tasks.prod, done);
+});
+
+gulp.task('build.dev', function(done) {
+    runSequence(tasks.dev, done);
+});
+
+gulp.task('build.dev.watch', function(done) {
+    runSequence(tasks.dev, 'watch', done);
+});
+
+gulp.task('serve', function() {
+    return plugins.connect.server({
+        //livereload: true ,
+        root: 'dist',
+        port: 3000
+    });
 });

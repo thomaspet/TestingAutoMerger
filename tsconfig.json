@@ -5,9 +5,9 @@
         "module": "system",
         "moduleResolution": "node",
         "noImplicitAny": false,
-        "outDir": "dist",
-        "out": "bundle.js",
-        "rootDir": "src",
+        "outDir": "./dist",
+        "outFile": "./dist/app.bundle.js",
+        "rootDir": "./src",
         "sourceMap": true,
         "target": "es5",
         "removeComments": false,
@@ -17,6 +17,7 @@
         "node_modules",
         "typings/main",
         "typings/main.d.ts",
-        "kendo/typescript/"
+        "kendo/typescript/",
+        "dist"
     ]
 }

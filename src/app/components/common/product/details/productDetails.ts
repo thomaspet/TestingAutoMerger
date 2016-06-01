@@ -240,8 +240,9 @@ export class ProductDetails {
            });
         });
     } 
-    
-    getComponentLayout(): ComponentLayout {
+
+    // TODO: return ComponentLayout when the object respects the interface
+    getComponentLayout(): any {
         return {
             Name: "Product",
             BaseEntity: "Product",
