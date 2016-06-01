@@ -167,7 +167,7 @@ export class WageTypeService extends BizHttp<WageType> {
                     Property: 'Base_EmploymentTax',
                     Placement: 1,
                     Hidden: false,
-                    FieldType: FieldType.CHECKBOX,
+                    FieldType: 5,
                     ReadOnly: false,
                     LookupField: false,
                     Label: null,
@@ -177,13 +177,7 @@ export class WageTypeService extends BizHttp<WageType> {
                     FieldSet: 0,
                     Section: 1,
                     Placeholder: null,
-                    Options: {
-                        source: [
-                            {id: 1, name: 'Skatt (tabell)'}
-                        ],
-                        labelProperty: 'name',
-                        valueProperty: 'id'
-                    },
+                    Options: null,
                     LineBreak: null,
                     Combo: null,
                     Legend: 'Med i grunnlag for',
