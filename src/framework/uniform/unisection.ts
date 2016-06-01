@@ -99,7 +99,7 @@ export class UniSection {
         if (changes['fields']) {
             if (this.fields && this.fields.length > 0) {
                 this.sectionId = this.fields[0].Section;
-                this.config.legend = this.fields[0].Legend;
+                this.config.legend = this.fields[0].Sectionheader;
 
             }
             this.groupedFields = this.groupFields();
