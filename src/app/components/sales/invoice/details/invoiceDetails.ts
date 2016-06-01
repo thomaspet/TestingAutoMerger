@@ -3,7 +3,7 @@ import {Router, RouteParams, RouterLink} from '@angular/router-deprecated';
 import {Observable} from 'rxjs/Observable';
 import 'rxjs/add/observable/forkJoin';
 
-import {CustomerInvoiceService, CustomerInvoiceItemService, CustomerService, ProjectService, DepartementService, AddressService} from '../../../../services/services';
+import {CustomerInvoiceService, CustomerInvoiceItemService, CustomerService, ProjectService, DepartementService, AddressService, ReportService} from '../../../../services/services';
 import {InvoiceItemList} from './invoiceItemList';
 
 import {ComponentLayout, CustomerInvoice, Customer, Dimensions, Address, BusinessRelation} from '../../../../unientities';
@@ -14,6 +14,8 @@ import {UniFieldBuilder} from '../../../../../framework/forms/builders/uniFieldB
 import {UniComponentLoader} from '../../../../../framework/core/componentLoader';
 import {AddressModal} from '../../customer/modals/address/address';
 import {TradeHeaderCalculationSummary} from '../../../../models/sales/TradeHeaderCalculationSummary';
+import {StimulsoftReportWrapper} from "../../../../../framework/wrappers/reporting/reportWrapper";
+import {Http} from '@angular/http';
 
 declare var _;
 declare var moment;
@@ -22,7 +24,7 @@ declare var moment;
     selector: 'invoice-details',
     templateUrl: 'app/components/sales/invoice/details/invoiceDetails.html',
     directives: [UniComponentLoader, RouterLink, InvoiceItemList, AddressModal],
-    providers: [CustomerInvoiceService, CustomerInvoiceItemService, CustomerService, ProjectService, DepartementService, AddressService]
+    providers: [CustomerInvoiceService, CustomerInvoiceItemService, CustomerService, ProjectService, DepartementService, AddressService, StimulsoftReportWrapper, ReportService]
 })
 export class InvoiceDetails implements OnInit {
 
@@ -58,6 +60,9 @@ export class InvoiceDetails implements OnInit {
         private departementService: DepartementService,
         private projectService: ProjectService,
         private addressService: AddressService,
+        private report: StimulsoftReportWrapper,
+        private http: Http,
+        private reportService: ReportService,
         private router: Router, private params: RouteParams) {
         this.invoiceID = params.get('id');
         this.businessRelationInvoice.Addresses = [];
@@ -274,6 +279,18 @@ export class InvoiceDetails implements OnInit {
                 }
                 );
         });
+    }
+    
+    private printInvoice() {
+       // TODO: 1. Get .mrt id from report definition 2. get .mrt from server
+       //this.reportService.getReportDefinitionByName('Invoice').subscribe(definitions => {
+            this.http.get('/assets/DemoData/Demo.mrt') 
+                .map(res => res.text())
+                .subscribe(template => {
+                    this.report.printReport(template, [JSON.stringify(this.invoice)], false);                            
+                });
+        //    
+        //});                    
     }
 
     private createFormConfig() {   

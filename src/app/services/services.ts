@@ -42,3 +42,4 @@ export * from './shared/municipalsservice';
 export * from './salary/companysalary/companysalaryservice';
 export * from './salary/salarytransaction/salarytransactionservice'
 export * from './common/AltinnService';
+export * from './common/reportservice';

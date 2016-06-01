@@ -2,12 +2,13 @@ import {Component, ViewChildren} from '@angular/core';
 import {UniTable, UniTableColumn, UniTableColumnType, UniTableConfig, IContextMenuItem} from 'unitable-ng2/main';
 import {Router} from '@angular/router-deprecated';
 import {UniHttp} from '../../../../../framework/core/http/http';
-import {CustomerInvoiceService} from '../../../../services/services';
-import {StatusCodeCustomerInvoice} from '../../../../unientities';
+import {CustomerInvoiceService,ReportService} from '../../../../services/services';
+import {StatusCodeCustomerInvoice,CustomerInvoice} from '../../../../unientities';
 import {Http, URLSearchParams} from '@angular/http';
 import {AsyncPipe} from '@angular/common';
 
 import {InvoicePaymentData} from '../../../../models/sales/InvoicePaymentData';
+import {StimulsoftReportWrapper} from "../../../../../framework/wrappers/reporting/reportWrapper";
 
 declare var jQuery;
 declare var moment;
@@ -16,7 +17,7 @@ declare var moment;
     selector: 'invoice-list',
     templateUrl: 'app/components/sales/invoice/list/invoiceList.html',
     directives: [UniTable],
-    providers: [CustomerInvoiceService],
+    providers: [CustomerInvoiceService,ReportService,StimulsoftReportWrapper],
     pipes: [AsyncPipe]
 })
 
@@ -30,7 +31,9 @@ export class InvoiceList {
     constructor(private uniHttpService: UniHttp,
         private router: Router,
         private customerInvoiceService: CustomerInvoiceService,
-        private http: Http) {
+        private http: Http,
+        private report: StimulsoftReportWrapper,
+        private reportDefinitionService: ReportService) {
         this.setupInvoiceTable();
     }
 
@@ -191,8 +194,16 @@ export class InvoiceList {
 
         contextMenuItems.push({
             label: 'Skriv ut',
-            action: (rowModel) => {
-                alert('Skriv ut action - Under construction');
+            action: (invoice: CustomerInvoice) => {
+                // TODO: 1. Get .mrt id from report definition 2. get .mrt from server
+                //this.reportService.getReportDefinitionByName('Invoice').subscribe(definitions => {
+                    this.http.get('/assets/DemoData/Demo.mrt') 
+                        .map(res => res.text())
+                        .subscribe(template => {
+                            this.report.printReport(template, [JSON.stringify(invoice)], false);                            
+                        });
+                //    
+                //});                
             }
         });
 
@@ -230,5 +241,9 @@ export class InvoiceList {
             .setColumns([invoiceNumberCol, customerNumberCol, customerNameCol, invoiceDateCol, dueDateCol,
                 taxInclusiveAmountCol, restAmountCol, creditedAmountCol, statusCol])
             .setContextMenu(contextMenuItems);
-    }
+    }  
+    
+    private onRowSelected(event) {
+        this.router.navigateByUrl(`/sales/invoice/details/${event.rowModel.ID}`);
+    }  
 }
