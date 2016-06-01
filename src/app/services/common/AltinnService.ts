@@ -19,8 +19,6 @@ export class AltinnService extends BizHttp<Altinn> {
     }
     
     public sendTaxRequestAction(option: string, empId: number = 0): Observable<AltinnReceipt> {
-        console.log('Option: ' + option);
-        console.log('empId: ' + empId);
         return this.PostAction(1, 'sendtaxrequest', 'option=' + option + '&empId=' + empId);
     }
 
