@@ -2,17 +2,4 @@
     <uni-form *ngIf="employee" [config]="config" [fields]="fields" [model]="employee" (onSubmit)="saveEmployeeManual($event)" (onChange)="change($event)" (onReady)="ready($event)"></uni-form>
 </article>
 
-<!--<article class='application usertest'>
-    <uni-component-loader></uni-component-loader>
-</article>-->
 <uni-save [actions]="saveactions"></uni-save>
-
-<!--<footer class="full-footer">
-    <section class="application">
-        
-        <!--<button class="good" (click)="saveEmployeeManual($event)">Lagre ansatt</button>
-        <section class="auto_save_info">
-            {{ lastSavedInfo }}
-        </section>
-    </section>
-</footer>-->

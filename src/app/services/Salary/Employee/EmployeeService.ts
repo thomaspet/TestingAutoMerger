@@ -531,19 +531,12 @@ export class EmployeeService extends BizHttp<Employee> {
                     HelpText: null,
                     FieldSet: 0,
                     Section: 1,
-                    Placeholder: null,
+                    Placeholder: 'Legg til telefon',
                     Options: null,
                     LineBreak: null,
                     Combo: null,
                     Legend: '',
-                    IsLookUp: false,
-                    /*Validations: [
-                        {
-                            ErrorMessage: 'Required field',
-                            Level: 3,
-                            Operator: 7 // required
-                        }
-                    ]*/
+                    IsLookUp: false
                 },
                 {
                     ComponentLayoutID: 1,

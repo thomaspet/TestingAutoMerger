@@ -1,7 +1,5 @@
 <section *ngIf="currentEmployment" [attr.aria-busy]="busy">
-    <!--<uni-component-loader></uni-component-loader>-->
     <uni-form *ngIf="currentEmployment" [config]="config" [fields]="fields" [model]="currentEmployment" (onSubmit)="saveEmployment($event)" (onChange)="change($event)" (onReady)="ready($event)"></uni-form>
-
 </section>
 
 <uni-save [actions]="saveactions"></uni-save>
