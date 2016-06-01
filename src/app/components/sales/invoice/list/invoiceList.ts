@@ -10,9 +10,6 @@ import {AsyncPipe} from '@angular/common';
 import {InvoicePaymentData} from '../../../../models/sales/InvoicePaymentData';
 import {RegisterPaymentModal} from '../../../common/modals/registerPaymentModal';
 
-declare var jQuery;
-declare var moment;
-
 @Component({
     selector: 'invoice-list',
     templateUrl: 'app/components/sales/invoice/list/invoiceList.html',
