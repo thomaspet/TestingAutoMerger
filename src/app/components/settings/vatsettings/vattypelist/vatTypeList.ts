@@ -1,6 +1,6 @@
 import {Component, ViewChild, Output, EventEmitter} from '@angular/core';
 import {Observable} from 'rxjs/Observable';
-import "rxjs/add/observable/forkjoin";
+import "rxjs/add/observable/forkJoin";
 
 import {VatType, VatCodeGroup} from '../../../../unientities';
 import {VatTypeService, VatCodeGroupService} from '../../../../services/services';

@@ -1,7 +1,7 @@
 import {BizHttp} from '../../../framework/core/http/BizHttp';
 import {SupplierInvoice} from '../../unientities';
 import {UniHttp} from '../../../framework/core/http/http';
-import {Observable} from 'rxjs/Observable';
+import {InvoicePaymentData} from '../../models/sales/InvoicePaymentData';
 
 export class SupplierInvoiceService extends BizHttp<SupplierInvoice> {
 
@@ -47,4 +47,37 @@ export class SupplierInvoiceService extends BizHttp<SupplierInvoice> {
         });
         return text;
     };
+
+    public assign(supplierInvoiceId: number) {
+        return this.http
+            .asPOST()
+            .usingBusinessDomain()
+            .withEndPoint(`${this.relativeURL}/${supplierInvoiceId}?action=assign`)
+            .send();
+    }
+
+    public journal(supplierInvoiceId: number) {
+        return this.http
+            .asPOST()
+            .usingBusinessDomain()
+            .withEndPoint(`${this.relativeURL}/${supplierInvoiceId}?action=journal`)
+            .send();
+    }
+
+    public sendForPayment(supplierInvoiceId: number) {
+        return this.http
+            .asPOST()
+            .usingBusinessDomain()
+            .withEndPoint(`${this.relativeURL}/${supplierInvoiceId}`)
+            .send();
+    }
+
+    public payinvoice(supplierInvoiceId: number, supplierInvoiceData: InvoicePaymentData) {
+        return this.http
+            .asPUT()
+            .withBody(supplierInvoiceData)
+            .usingBusinessDomain()
+            .withEndPoint(`${this.relativeURL}/${supplierInvoiceId}?action=payInvoice`)
+            .send();
+    }
 }

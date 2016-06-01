@@ -1,4 +1,5 @@
 <section class="application">
     <h4>Faktura</h4><button (click)="createInvoice()">Ny faktura</button>
-    <uni-table [config]="invoiceTable"></uni-table>
+    <uni-table [resource]="lookupFunction" [config]="invoiceTable" (rowSelected)="onRowSelected($event)"></uni-table>
 </section>
+<register-payment-modal (changed)="onRegisteredPayment($event)"></register-payment-modal>

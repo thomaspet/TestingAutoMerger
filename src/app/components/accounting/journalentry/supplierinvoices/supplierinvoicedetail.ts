@@ -215,7 +215,8 @@ export class SupplierInvoiceDetail implements OnInit {
 
     private buildForm() {        
         // TODO get it from the API and move these to backend migrations   
-        var view: ComponentLayout = {
+        // TODO set to 'ComponentLayout' when the object respects the interface
+        var view: any = {
             Name: 'SupplierInvoiceDetail',
             BaseEntity: 'SupplierInvoice',
             StatusCode: 0,

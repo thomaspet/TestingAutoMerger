@@ -50,8 +50,9 @@ export class AddressForm {
     }
  
     createFormConfig() {   
-        // TODO get it from the API and move these to backend migrations   
-        var view: ComponentLayout = {
+        // TODO get it from the API and move these to backend migrations
+        // TODO: turn to 'ComponentLayout when the object respects the interface
+        var view: any = {
             StatusCode: 0,
             Name: "Address",
             BaseEntity: "Address",

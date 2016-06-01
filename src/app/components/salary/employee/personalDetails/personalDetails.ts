@@ -4,19 +4,20 @@ import {UniForm} from '../../../../../framework/uniform';
 import {Observable} from 'rxjs/Observable';
 import 'rxjs/add/operator/merge';
 import {OperationType, Operator, ValidationLevel, Employee, Email, Phone, Address, FieldLayout, BusinessRelation} from '../../../../unientities';
-import {EmployeeService, PhoneService, EmailService, AddressService} from '../../../../services/services';
+import {EmployeeService, PhoneService, EmailService, AddressService, AltinnService, SubEntityService} from '../../../../services/services';
 import {AddressModal} from '../../../sales/customer/modals/address/address';
 import {EmailModal} from '../../../sales/customer/modals/email/email';
 import {PhoneModal} from '../../../sales/customer/modals/phone/phone';
 import {RootRouteParamsService} from '../../../../services/rootRouteParams';
 import {UniSave, IUniSaveAction} from '../../../../../framework/save/save';
 
+import {TaxCardRequestModal} from '../modals/taxCardRequestModal';
 declare var _;
 
 @Component({
     selector: 'employee-personal-details',
-    directives: [UniForm, UniSave],
-    providers: [EmployeeService, PhoneService, EmailService, AddressService],
+    directives: [UniForm, UniSave, TaxCardRequestModal],
+    providers: [EmployeeService, PhoneService, EmailService, AddressService, AltinnService, SubEntityService],
     templateUrl: 'app/components/salary/employee/personalDetails/personalDetails.html'
 })
 export class PersonalDetails {
@@ -47,8 +48,9 @@ export class PersonalDetails {
                 public router: Router,
                 public phoneService: PhoneService,
                 public emailService: EmailService,
-                public addressService: AddressService) {
-                    
+                public addressService: AddressService,
+                public altinnService: AltinnService,
+                public subEntityService: SubEntityService) {
         this.employeeID = +rootRouteParams.params.get('id');
         
         if (this.employeeService.subEntities) {

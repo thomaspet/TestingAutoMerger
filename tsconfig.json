@@ -1,17 +1,23 @@
 {
-  "compilerOptions": {
-    "emitDecoratorMetadata": true,
-    "experimentalDecorators": true,
-    "module": "system",
-    "moduleResolution": "node",
-    "noImplicitAny": false,
-    "outDir": "dist",
-    "rootDir": "src",
-    "sourceMap": true,
-    "target": "es5"
-  },
-  "exclude": [
-    "node_modules/tsc/bin/typescript.d.ts",
-    "kendo/typescript/"
-  ]
+    "compilerOptions": {
+        "emitDecoratorMetadata": true,
+        "experimentalDecorators": true,
+        "module": "system",
+        "moduleResolution": "node",
+        "noImplicitAny": false,
+        "outDir": "./dist",
+        "outFile": "./dist/app.bundle.js",
+        "rootDir": "./src",
+        "sourceMap": true,
+        "target": "es5",
+        "removeComments": false,
+        "suppressImplicitAnyIndexErrors": true
+    },
+    "exclude": [
+        "node_modules",
+        "typings/main",
+        "typings/main.d.ts",
+        "kendo/typescript/",
+        "dist"
+    ]
 }

@@ -107,10 +107,10 @@ export class BizHttp<T> {
             .send();
     }
 
-    public Remove<T>(ID: number, entity: T): void {
+    public Remove<T>(ID: number, entity: T): Observable<any> {
         // maybe not neccessary to include entity as parameter?
         // could be useful for validating if entity could be deleted?
-        this.http
+        return this.http
             .usingBusinessDomain()
             .asDELETE()
             .withEndPoint(this.relativeURL + '/' + ID)
