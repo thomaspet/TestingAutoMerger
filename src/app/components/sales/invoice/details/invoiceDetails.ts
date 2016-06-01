@@ -473,7 +473,8 @@ export class InvoiceDetails implements OnInit {
         this.invoice.ShippingCountryCode = a.CountryCode;
     }
 
-    private  getComponentLayout(): ComponentLayout {
+    // TODO: update to 'ComponentLayout' when the object respect interface
+    private  getComponentLayout(): any {
         return {
             Name: 'CustomerInvoice',
             BaseEntity: 'CustomerInvoice',
