@@ -144,17 +144,9 @@ export class RegisterTime {
     
     onEditChange(event) {
         var newRow = event.rowModel;
-
-        //debugger;
-        if (event.field === 'Worktype') {
-            newRow.WorkTypeID = newRow.WorkType ? newRow.WorkType.ID : 0;            
-            console.log(event.fielt, event);
-        }
         
-        this.timeSheet.setItemValue(event.field, newRow[event.field], newRow._rowId);
-        
-        //if (event.field)
-
+        newRow.ID = this.timeSheet.setItemValue(event.field, newRow[event.field], newRow.ID);
+ 
         return newRow; 
     }
     

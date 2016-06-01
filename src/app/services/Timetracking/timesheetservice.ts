@@ -23,7 +23,8 @@ export class TimeSheet {
         return this.ts.saveWorkItems(this.items);
     }
     
-    setItemValue(name:string, value:any, rowIndex:number):boolean {
+    setItemValue(name:string, value:any, ID:number):number {
+        var rowIndex = this.findRow(ID);
         var item:WorkItem = this.items[rowIndex];
         switch (name) {
             case "Date":
@@ -39,7 +40,25 @@ export class TimeSheet {
         }
         item[name] = value;
         item["changeFlag"] = true;
+        return item.ID;
     }    
+    
+    private findRow(ID:number):number {
+        if (!ID) {
+            var id = -(this.items.length + 1);
+            var item:any = { ID: id }
+            this.items.push(item);
+            debugger;
+            
+            return this.items.length - 1;
+        }
+        for (var i=0; i<this.items.length; i++) {
+            if (this.items[i].ID===ID) {
+                return i;
+            }
+        }
+        return -1;
+    }
 }
 
 @Injectable()
