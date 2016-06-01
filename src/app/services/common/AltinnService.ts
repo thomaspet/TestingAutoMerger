@@ -3,7 +3,6 @@ import {Altinn, FieldType, AltinnReceipt} from '../../unientities';
 import {UniHttp} from '../../../framework/core/http/http';
 import { Observable } from 'rxjs/Observable';
 import { SubEntityService } from '../services';
-import {AppConfig} from '../../../app/AppConfig';
 
 export class AltinnService extends BizHttp<Altinn> {
 
@@ -19,7 +18,7 @@ export class AltinnService extends BizHttp<Altinn> {
         this.relativeURL = Altinn.RelativeUrl;
     }
     
-    public sendTaxRequestAction(option: number, empId: number = 0): Observable<AltinnReceipt> {
+    public sendTaxRequestAction(option: string, empId: number = 0): Observable<AltinnReceipt> {
         console.log('Option: ' + option);
         console.log('empId: ' + empId);
         return this.PostAction(1, 'sendtaxrequest', 'option=' + option + '&empId=' + empId);

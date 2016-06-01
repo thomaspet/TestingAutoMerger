@@ -89,17 +89,17 @@ export class TaxRequestModalContent {
         if (this.model.singleEmpChoice === 2) {
             switch (this.model.multiEmpChoice) {
                 case 1:
-                    this.taxRequest(1);
+                    this.taxRequest('ALL_EMPS');
                     break;
                 case 2:
-                    this.taxRequest(2);
+                    this.taxRequest('ACTIVE_EMPS');
                     break;
                 case 3:
-                    this.taxRequest(3);
+                    this.taxRequest('CHANGED_ONLY');
                     break;
             }
         } else {
-            this.taxRequest(0, this.config.employeeID);
+            this.taxRequest('SINGLE_EMP', this.config.employeeID);
         }
     }
 
