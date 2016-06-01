@@ -1,20 +1,30 @@
 import {BizHttp} from '../../../framework/core/http/BizHttp';
-import {Altinn, FieldType} from '../../unientities';
+import {Altinn, FieldType, AltinnReceipt} from '../../unientities';
 import {UniHttp} from '../../../framework/core/http/http';
 import { Observable } from 'rxjs/Observable';
+import { SubEntityService } from '../services';
+import {AppConfig} from '../../../app/AppConfig';
 
 export class AltinnService extends BizHttp<Altinn> {
+
     public languages: any = [
-            {ID: '1044' || null, text: 'Norsk(bokmål)'},
-            {ID: '2068', text: 'Norsk(nynorsk)'},
-            {ID: '1033', text: 'English'},
-            {ID: '1083', text: 'Samisk'},
-        ];
-    constructor(http: UniHttp) {
+        { ID: '1044' || null, text: 'Norsk(bokmål)' },
+        { ID: '2068', text: 'Norsk(nynorsk)' },
+        { ID: '1033', text: 'English' },
+        { ID: '1083', text: 'Samisk' },
+    ];
+    
+    constructor(http: UniHttp, private subEntityService: SubEntityService) {
         super(http);
         this.relativeURL = Altinn.RelativeUrl;
     }
     
+    public sendTaxRequestAction(option: number, empId: number = 0): Observable<AltinnReceipt> {
+        console.log('Option: ' + option);
+        console.log('empId: ' + empId);
+        return this.PostAction(1, 'sendtaxrequest', 'option=' + option + '&empId=' + empId);
+    }
+
     public getLayout() {
         return Observable.from([{
             StatusCode: 0,
@@ -120,7 +130,7 @@ export class AltinnService extends BizHttp<Altinn> {
                     },
                     hasLineBreak: true
                 }
-            ]               
+            ]
         }]);
     }
 }

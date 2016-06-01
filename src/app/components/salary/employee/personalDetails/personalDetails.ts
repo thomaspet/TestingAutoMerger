@@ -6,17 +6,18 @@ import {UniComponentLoader} from '../../../../../framework/core';
 import {Observable} from 'rxjs/Observable';
 import 'rxjs/add/operator/merge';
 import {OperationType, Operator, ValidationLevel, Employee, Email, Phone, Address} from '../../../../unientities';
-import {EmployeeService, PhoneService, EmailService, AddressService} from '../../../../services/services';
+import {EmployeeService, PhoneService, EmailService, AddressService, AltinnService, SubEntityService} from '../../../../services/services';
 import {AddressModal} from '../../../sales/customer/modals/address/address';
 import {EmailModal} from '../../../sales/customer/modals/email/email';
 import {PhoneModal} from '../../../sales/customer/modals/phone/phone';
 import {RootRouteParamsService} from '../../../../services/rootRouteParams';
+import {TaxRequestModal} from '../modals/taxRequestModal';
 declare var _;
 
 @Component({
     selector: 'employee-personal-details',
-    directives: [UniComponentLoader],
-    providers: [EmployeeService, PhoneService, EmailService, AddressService],
+    directives: [UniComponentLoader, TaxRequestModal],
+    providers: [EmployeeService, PhoneService, EmailService, AddressService, AltinnService, SubEntityService],
     templateUrl: 'app/components/salary/employee/personalDetails/personalDetails.html'
 })
 export class PersonalDetails implements OnInit {
@@ -41,7 +42,9 @@ export class PersonalDetails implements OnInit {
                 public router: Router,
                 public phoneService: PhoneService,
                 public emailService: EmailService,
-                public addressService: AddressService) {
+                public addressService: AddressService,
+                public altinnService: AltinnService,
+                public subEntityService: SubEntityService) {
         this.employeeID = +rootRouteParams.params.get('id');
     }
     
@@ -88,15 +91,17 @@ export class PersonalDetails implements OnInit {
                 this.emptyAddress = emptyAddress;
                 this.form = new UniFormLayoutBuilder().build(layout, this.employee);
                 this.form.hideSubmitButton();
-                
                 this.extendFormConfig();
+                
                 this.uniCmpLoader.load(UniForm).then((cmp: ComponentRef<any>) => {
+                    
                     cmp.instance.config = this.form;
                     this.whenFormInstance = new Promise((resolve: Function) => {
                         resolve(cmp.instance);
                     });
                     this.formInstance = cmp.instance;
                 });
+                
             }
             , (error: any) => console.error(error)
         );
@@ -118,7 +123,6 @@ export class PersonalDetails implements OnInit {
                 this.employee.BusinessRelationInfo.DefaultPhone = phone;
                 this.employee.BusinessRelationInfo.DefaultPhoneID = null;
             };
-        
         var emails: UniFieldBuilder = this.form.find('Emails');
         emails
             .setKendoOptions({
@@ -134,7 +138,6 @@ export class PersonalDetails implements OnInit {
                 this.employee.BusinessRelationInfo.DefaultEmail = email;
                 this.employee.BusinessRelationInfo.DefaultEmailID = null;
             };
-        
         var address: UniFieldBuilder = this.form.find('Addresses');
         address
             .setKendoOptions({
