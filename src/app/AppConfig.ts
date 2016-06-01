@@ -7,12 +7,19 @@ export const AppConfig = ({
     // Swap between these BASE_URL's depending on whether you want to use local og remote backend
     // BASE_URL: 'http://localhost:27831',
     BASE_URL: 'https://devapi-unieconomy.azurewebsites.net',
+    
+    BASE_URL_INTEGRATION: 'http://localhost:17100/',
 
     API_DOMAINS: {
         INIT: '/api/init/',
         BUSINESS: '/api/biz/',
         METADATA: '/api/metadata/',
     },
+    
+    INTEGRATION_DOMAINS: {
+        ALTINN: '/api/altinn/'
+    },
+    
     DEFAULT_HEADERS: {
         'Content-Type': 'application/json',
         'Client': 'economytestas'

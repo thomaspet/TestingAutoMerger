@@ -9,5 +9,9 @@ export class SubEntityService extends BizHttp<SubEntity> {
         
         this.relativeURL = SubEntity.RelativeUrl;
         this.DefaultOrderBy = null;
+    }
+    
+    public getMainOrganization() {
+        return this.GetAll('SuperiorOrganization eq 0 or SuperiorOrganization eq null', ['BusinessRelationInfo']);
     }       
 }
