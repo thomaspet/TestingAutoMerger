@@ -3,7 +3,6 @@ import {RouteParams, Router} from '@angular/router-deprecated';
 import {WageTypeService} from '../../../services/services';
 import {UniComponentLoader} from '../../../../framework/core';
 import {UniForm} from '../../../../framework/uniForm';
-// import {UniFormBuilder, UniFormLayoutBuilder} from '../../../../framework/forms';
 import {WageType} from '../../../unientities';
 import {UniSave, IUniSaveAction} from '../../../../framework/save/save';
 import {Observable} from 'rxjs/Observable';
@@ -17,11 +16,6 @@ import {Observable} from 'rxjs/Observable';
 export class WagetypeDetail {
     private wageType: WageType;
     private wagetypeID: number;
-    // private layout: any;
-    // private form: UniFormBuilder = new UniFormBuilder();
-    // private whenFormInstance: Promise<UniForm>;
-    // private formInstance: UniForm;
-    // private lastSavedInfo: string;
     private saveactions: IUniSaveAction[] = [
         {
             label: 'Lagre lønnsart',
@@ -33,13 +27,11 @@ export class WagetypeDetail {
     public config: any = {};
     public fields: any[] = [];
     @ViewChild(UniForm) public uniform: UniForm;
-    // @ViewChild(UniComponentLoader) private uniCompLoader: UniComponentLoader;
-
+    
     constructor(private routeparams: RouteParams, private router: Router, private wageService: WageTypeService) {
         this.config = {
             submitText: 'Lagre lønnsart'
         };
-        
         this.wagetypeID = +this.routeparams.get('id');
         this.getLayoutAndData();
     }
@@ -62,41 +54,6 @@ export class WagetypeDetail {
             }
         );
     }
-    
-    // public ngOnInit() {
-    //     this.wageService.getLayout('mock').subscribe((response: any) => {
-    //         this.layout = response;
-    //         this.wageService.getWageType(this.wagetypeID).subscribe((wagetypeResponse: WageType) => {
-    //             this.wageType = wagetypeResponse;
-                
-    //             if (this.wageType.ID === 0) {
-    //                 this.wageType.WageTypeId = null;
-    //                 this.wageType.AccountNumber = null;
-    //             }
-    //             this.form = new UniFormLayoutBuilder().build(this.layout, this.wageType);
-    //             if (this.wageType.ID === 0) {
-    //                 this.form.find('WageTypeId').readonly = false;
-    //             }
-    //             this.loadForm();
-    //         });
-    //     });
-    // }
-    
-    // private loadForm() {
-    //     // this.uniCompLoader.load(UniForm).then((cmp: ComponentRef<any>) => {
-    //     //     cmp.instance.config = this.form;
-    //     //     this.whenFormInstance = new Promise((resolve: Function) => resolve(cmp.instance));
-    //     //     setTimeout(() => {
-    //     //         this.formInstance = cmp.instance;
-    //     //         this.formInstance.hideSubmitButton();
-    //     //     });
-    //     // });
-    // }
-    
-    // public saveWagetypeManual(event: any) {
-    //     this.saveWagetype(event);
-    // }
-    
     public ready(value) {
         console.log('form ready', value);
     }
@@ -107,14 +64,12 @@ export class WagetypeDetail {
     }
     
     public saveWagetype(done) {
-        // this.formInstance.sync();
-        // this.lastSavedInfo = 'Lagrer lønnsart';
         done('Lagrer lønnsart');
         if (this.wageType.ID > 0) {
             this.wageService.Put(this.wageType.ID, this.wageType)
             .subscribe((wagetype) => {
                 this.wageType = wagetype;
-                done('Sist lagret: '); // + (new Date()).toLocaleTimeString());
+                done('Sist lagret: ');
                 this.router.navigateByUrl('/salary/wagetypes/' + this.wageType.ID);
             },
             (err) => {
@@ -124,7 +79,7 @@ export class WagetypeDetail {
             this.wageService.Post(this.wageType)
             .subscribe((wagetype) => {
                 this.wageType = wagetype;
-                done('Sist lagret: '); // + (new Date()).toLocaleTimeString();
+                done('Sist lagret: ');
                 this.router.navigateByUrl('/salary/wagetypes/' + this.wageType.ID);
             },
             (err) => {
