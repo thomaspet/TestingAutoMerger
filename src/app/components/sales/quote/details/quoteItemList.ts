@@ -1,7 +1,7 @@
 import {Component, ViewChild, Input, Output, EventEmitter} from '@angular/core';
 import {Control} from '@angular/common';
 import {Observable} from 'rxjs/Observable';
-import 'rxjs/add/observable/forkjoin';
+import 'rxjs/add/observable/forkJoin';
 import {ComponentInstruction, RouteParams, Router} from '@angular/router-deprecated';
 
 import {UniTable, UniTableColumn, UniTableColumnType, UniTableConfig} from 'unitable-ng2/main';
@@ -140,11 +140,13 @@ export class QuoteItemList {
                 sumTotalExVatCol, sumVatCol, sumTotalIncVatCol 
             ])
             .setMultiRowSelect(false)
-            .setDefaultRowData({                
+            .setDefaultRowData({
+                ID: 0,                
                 Product: null,
                 ProductID: null,
                 ItemText: '',
                 Unit: '',
+                Dimensions: {ID:0},
                 NumberOfItems: null,
                 PriceExVat: null,
                 Discount: null,
@@ -152,6 +154,11 @@ export class QuoteItemList {
             })
             .setChangeCallback((event) => {
                 var newRow = event.rowModel;
+                
+                if (newRow.ID === 0) {
+                    newRow._createguid = this.customerQuoteItemService.getNewGuid();
+                    newRow.Dimensions._createguid = this.customerQuoteItemService.getNewGuid();
+                }
                 
                 if (event.field === 'Product') {
                     this.mapProductToQuoteItem(newRow);

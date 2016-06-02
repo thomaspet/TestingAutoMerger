@@ -1,7 +1,7 @@
 import {Component, ComponentRef, Input, Output, ViewChild, SimpleChange, EventEmitter} from "@angular/core";
 import {Router, RouteParams, RouterLink} from "@angular/router-deprecated";
 import {Observable} from "rxjs/Observable";
-import "rxjs/add/observable/forkjoin";
+import "rxjs/add/observable/forkJoin";
 
 import {DepartementService, ProjectService, SupplierService, PhoneService, AddressService, EmailService, BankAccountService} from "../../../../services/services";
 import {ExternalSearch, SearchResultItem} from '../../../common/externalSearch/externalSearch';
@@ -252,9 +252,10 @@ export class SupplierDetails {
         bankaccount
             .setKendoOptions({dataSource: this.BankAccounts, dataValueField: "ID", dataTextField: "AccountNumber"});
    
-    }      
-    
-    getComponentLayout(): ComponentLayout {   
+    }
+
+    // TODO: change to 'ComponentLayout' when object respects the interface
+    getComponentLayout(): any {
         return {
             Name: "Supplier",
             BaseEntity: "Supplier",

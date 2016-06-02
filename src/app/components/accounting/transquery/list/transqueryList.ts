@@ -37,7 +37,8 @@ export class TransqueryList {
     }
     
     ngAfterViewInit() {
-        var view: ComponentLayout = {
+        // TODO: change to 'ComponentLayout' when the object respects the interface
+        var view: any = {
             Name: "TransqueryList",
             BaseEntity: "Account",
             StatusCode: 0,

@@ -107,10 +107,10 @@ export class BizHttp<T> {
             .send();
     }
 
-    public Remove<T>(ID: number, entity: T): void {
+    public Remove<T>(ID: number, entity: T): Observable<any> {
         // maybe not neccessary to include entity as parameter?
         // could be useful for validating if entity could be deleted?
-        this.http
+        return this.http
             .usingBusinessDomain()
             .asDELETE()
             .withEndPoint(this.relativeURL + '/' + ID)
@@ -196,5 +196,9 @@ export class BizHttp<T> {
             .map((entity: any) => {
                 return [layout, entity];
             });
+    }
+    
+    public getNewGuid(): string {
+        return(""+1e7+-1e3+-4e3+-8e3+-1e11).replace(/1|0/g,function(){return(0|Math.random()*16).toString(16)});
     }
 }

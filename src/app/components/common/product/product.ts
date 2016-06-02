@@ -13,13 +13,13 @@ const CHILD_ROUTES = [
         useAsDefault: true, 
         path: '/list',
         name: 'ProductList',
-        loader: () => ComponentProxy.LoadComponentAsync("ProductList", "./app/components/common/product/list/productList")
+        loader: () => ComponentProxy.LoadComponentAsync("ProductList", "app/components/common/product/list/productList")
     }),
     
     new AsyncRoute({    
         path: '/details/:id',
         name: 'Details',
-        loader: () => ComponentProxy.LoadComponentAsync("ProductDetails", "./app/components/common/product/details/productDetails")
+        loader: () => ComponentProxy.LoadComponentAsync("ProductDetails", "app/components/common/product/details/productDetails")
     })       
 ]
 @Component({

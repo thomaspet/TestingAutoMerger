@@ -1,7 +1,7 @@
 import {BizHttp} from '../../../framework/core/http/BizHttp';
 import {SupplierInvoice} from '../../unientities';
 import {UniHttp} from '../../../framework/core/http/http';
-import {Observable} from 'rxjs/Observable';
+import {InvoicePaymentData} from '../../models/sales/InvoicePaymentData';
 
 export class SupplierInvoiceService extends BizHttp<SupplierInvoice> {
 
@@ -22,7 +22,7 @@ export class SupplierInvoiceService extends BizHttp<SupplierInvoice> {
         { Code: '10001', Text: 'Kladd' },
         { Code: '20000', Text: 'Pending' },
         { Code: '30000', Text: 'Active' },
-        { Code: '40000', Text: 'Fullf�rt' },
+        { Code: '40000', Text: 'Fullført' },
         { Code: '50000', Text: 'InActive' },
         { Code: '60000', Text: 'Deviation' },
         { Code: '70000', Text: 'Error' },
@@ -46,5 +46,38 @@ export class SupplierInvoiceService extends BizHttp<SupplierInvoice> {
             }
         });
         return text;
+    };
+
+    public assign(supplierInvoiceId: number) {
+        return this.http
+            .asPOST()
+            .usingBusinessDomain()
+            .withEndPoint(`${this.relativeURL}/${supplierInvoiceId}?action=assign`)
+            .send();
+    }
+
+    public journal(supplierInvoiceId: number) {
+        return this.http
+            .asPOST()
+            .usingBusinessDomain()
+            .withEndPoint(`${this.relativeURL}/${supplierInvoiceId}?action=journal`)
+            .send();
+    }
+
+    public sendForPayment(supplierInvoiceId: number) {
+        return this.http
+            .asPOST()
+            .usingBusinessDomain()
+            .withEndPoint(`${this.relativeURL}/${supplierInvoiceId}`)
+            .send();
+    }
+
+    public payinvoice(supplierInvoiceId: number, supplierInvoiceData: InvoicePaymentData) {
+        return this.http
+            .asPUT()
+            .withBody(supplierInvoiceData)
+            .usingBusinessDomain()
+            .withEndPoint(`${this.relativeURL}/${supplierInvoiceId}?action=payInvoice`)
+            .send();
     }
 }

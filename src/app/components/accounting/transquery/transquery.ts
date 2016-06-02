@@ -9,22 +9,22 @@ const TRANSQUERY_ROUTES = [
         useAsDefault: true,
         path: '/list',
         name: 'TransqueryList',
-        loader: () => ComponentProxy.LoadComponentAsync('TransqueryList', './app/components/accounting/transquery/list/transqueryList')
+        loader: () => ComponentProxy.LoadComponentAsync('TransqueryList','app/components/accounting/transquery/list/transqueryList')
     }),
     new AsyncRoute({
-        path: "/details",
-        name: "TransqueryDetails",
-        loader: () => ComponentProxy.LoadComponentAsync("TransqueryDetails", "./app/components/accounting/transquery/details/transqueryDetails")
+        path: '/details',
+        name: 'TransqueryDetails',
+        loader: () => ComponentProxy.LoadComponentAsync('TransqueryDetails','app/components/accounting/transquery/details/transqueryDetails')
     }),
     new AsyncRoute({
-        path: "/detailsByAccountId/:accountId/year/:year/period/:period/isIncomingBalance/:isIncomingBalance",
-        name: "TransqueryDetails",
-        loader: () => ComponentProxy.LoadComponentAsync("TransqueryDetails", "./app/components/accounting/transquery/details/transqueryDetails")
+        path: '/detailsByAccountId/:accountId/year/:year/period/:period/isIncomingBalance/:isIncomingBalance',
+        name: 'TransqueryDetails',
+        loader: () => ComponentProxy.LoadComponentAsync('TransqueryDetails','app/components/accounting/transquery/details/transqueryDetails')
     }),
     new AsyncRoute({
-        path: "/detailsByJournalEntryNumber/:journalEntryNumber",
-        name: "TransqueryDetails",
-        loader: () => ComponentProxy.LoadComponentAsync("TransqueryDetails", "./app/components/accounting/transquery/details/transqueryDetails")
+        path: '/detailsByJournalEntryNumber/:journalEntryNumber',
+        name: 'TransqueryDetails',
+        loader: () => ComponentProxy.LoadComponentAsync('TransqueryDetails','app/components/accounting/transquery/details/transqueryDetails')
     })
 ];
 

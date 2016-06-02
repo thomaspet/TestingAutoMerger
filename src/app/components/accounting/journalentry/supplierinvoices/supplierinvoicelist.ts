@@ -1,126 +1,168 @@
-import {Component, Output, EventEmitter, OnInit} from '@angular/core';
-import {Router, RouteParams } from '@angular/router-deprecated';
+import {Component, ViewChild, OnInit} from '@angular/core';
+import {Router} from '@angular/router-deprecated';
 
-import {SupplierInvoiceService,  AccountService} from '../../../../services/services';
+import {SupplierInvoiceService, AccountService} from '../../../../services/services';
 
-import {UniTable, UniTableBuilder, UniTableColumn} from '../../../../../framework/uniTable';
-import {SupplierInvoice, StatusCategoryCode} from '../../../../unientities';
+import {UniTable, UniTableColumn, UniTableColumnType, UniTableConfig} from 'unitable-ng2/main';
+import {URLSearchParams} from '@angular/http';
+import {Observable} from 'rxjs/Rx';
+import {RegisterPaymentModal} from '../../../common/modals/registerPaymentModal';
+import {InvoicePaymentData} from '../../../../models/sales/InvoicePaymentData';
 
-declare var jQuery;
+declare const moment;
+
 
 @Component({
     selector: 'supplier-invoice-list',    
     templateUrl: 'app/components/accounting/journalentry/supplierinvoices/supplierinvoicelist.html',
     providers: [SupplierInvoiceService, AccountService],
-    directives: [UniTable]
+    directives: [UniTable, RegisterPaymentModal]
 })
 export class SupplierInvoiceList implements OnInit {
-    @Output() private onSelect = new EventEmitter<SupplierInvoice>();
-    private selectedSupplierInvoice: SupplierInvoice;
+    private lookupFunction: (urlParams: URLSearchParams) => Observable<any>;
 
-    private supplierInvoiceTableCfg;
-    private _selectedId: number;
+    private DATE_FORMAT: string = 'DD.MM.YYYY';
+
+    @ViewChild(RegisterPaymentModal)
+    private registerPaymentModal: RegisterPaymentModal;
+
+    private supplierInvoiceTableCfg: UniTableConfig;
 
     constructor(
         private supplierInvoiceService: SupplierInvoiceService,
-        private accountService: AccountService,
-        private _router: Router,
-        routeParams: RouteParams) {
-        
+        private router: Router
+    ) {}
+
+    public ngOnInit() {
+        this.supplierInvoiceTableCfg = this.setupTableCfg();
+        this.lookupFunction = (urlParams: URLSearchParams) => {
+            urlParams = urlParams || new URLSearchParams();
+            urlParams.set('expand', 'JournalEntry,Supplier.Info');
+            return this.supplierInvoiceService.GetAllByUrlSearchParams(urlParams);
+        };
     }
 
-
-    createInvoice() {
-        this._router.navigateByUrl('/accounting/journalentry/supplierinvoices/details/0');
+    public onLineClick(selectedItem) {
+        this.router.navigateByUrl('/accounting/journalentry/supplierinvoices/details/' + selectedItem.ID);
     }
 
-
-    // TODO: Needs to use this for now since the UniTable throws exception if value is null.
-    private getJournalEntryNumber = (dataItem) => {
-        if (dataItem.JournalEntryID == null) return 'BilagsID=null';
-        if (dataItem.JournalEntry == null) return 'Bilag=null';
-        if (dataItem.JournalEntry.JournalEntryNumber == null) return 'Kladdebilag';
-
-        return dataItem.JournalEntry.JournalEntryNumber;
+    public createInvoice() {
+        this.router.navigateByUrl('/accounting/journalentry/supplierinvoices/details/0');
     }
 
-    private setupTableCfg() {
-        var self = this;
+    public onRegisteredPayment(modalData: any) {
+        this.supplierInvoiceService
+            .payinvoice(modalData.id, modalData.invoice)
+            .subscribe(() => alert('Invoice payment registered successfully'), error => alert(`An error occurred: ${error}`));
+    }
 
-        var idCol = new UniTableColumn('ID', 'Id', 'number')
-            .setEditable(false)
-            .setNullable(true)
-            .setWidth('4'); // Ser ikke ut til å virke
-
-        var statusTextCol = new UniTableColumn('StatusCode', 'Status', 'string')
+    private setupTableCfg(): UniTableConfig {
+        const statusTextCol = new UniTableColumn('StatusCode', 'Status')
             .setTemplate((dataItem) => {
                 return this.supplierInvoiceService.getStatusText(dataItem.StatusCode);
-            })
-            .setEditable(false)
-            .setNullable(true);
-
-        var journalEntryCol = new UniTableColumn('JournalEntryID', 'Bilagsnr', 'string')
-            .setTemplate((dataItem) => {
-                return this.getJournalEntryNumber(dataItem);
-            })
-            .setEditable(false)
-            .setNullable(true);
-
-        var supplierNrCol = new UniTableColumn('Supplier.SupplierNumber', 'Lev. id', 'string')
-            .setEditable(false)
-            .setNullable(true);
-
-        // TODO: Test if the code handle if Supplier++ is not provided...
-        var supplierNameCol = new UniTableColumn('Supplier.Info.Name', 'Lev. navn', 'string')
-            .setEditable(false)
-            .setNullable(true);
-
-        var invoiceDateCol = new UniTableColumn('InvoiceDate', 'Fakturadato', 'date')
-            .setFormat("{0: dd.MM.yyyy}");
-
-        var paymentDueDateCol = new UniTableColumn('PaymentDueDate', 'Forfallsdato', 'date')
-            .setClass("supplier-invoice-table-payment-overdue") //TODO: Set only if date is expired.
-            .setFormat("{0: dd.MM.yyyy}");
-
-        var invoiceIDCol = new UniTableColumn('InvoiceID', 'Fakturanr', 'number')
-            .setEditable(false)
-            .setNullable(true);
-
-        var taxInclusiveAmountCol = new UniTableColumn('TaxInclusiveAmount', 'Beløp', 'number')
-            .setEditable(false)
-            .setNullable(true)
-            .setClass("supplier-invoice-table-amount")
-            .setFormat("{0:n}");
-        // .setFormat("{0: #,###.##}"); //TODO decide what/how format is set for the different field types
-
-        // CALLBACKs
-        var selectCallback = (selectedItem) => {
-            this._router.navigateByUrl('/accounting/journalentry/supplierinvoices/details/' + selectedItem.ID);                
-        }
-
-        this.supplierInvoiceTableCfg = new UniTableBuilder('SupplierInvoices', false)
-            .addColumns(idCol, statusTextCol, journalEntryCol, supplierNrCol, supplierNameCol, invoiceDateCol, paymentDueDateCol, invoiceIDCol, taxInclusiveAmountCol)
-            .setSelectCallback(selectCallback)
-            .setExpand("JournalEntry, Supplier.Info")
-            .setPageSize(5)
-            .setFilterable(true)
-            .addCommands({
-                name: 'ContextMenu', text: '...', click: (function (event) {
-                    event.preventDefault();
-                    var dataItem = this.dataItem(jQuery(event.currentTarget).closest("tr"));
-
-                    if (dataItem !== null && dataItem.ID !== null) {
-                        self.selectedSupplierInvoice = dataItem;
-                        self._router.navigateByUrl("/accounting/journalentry/supplierinvoices/" + dataItem.ID);
-                    }
-                    else
-                        console.log("Error in selecting the SupplierInvoices");
-                })
             });
-    }
 
-    ngOnInit() {
-        this.setupTableCfg();
-    }
+        const journalEntryCol = new UniTableColumn('JournalEntry.JournalEntryNumber', 'Bilagsnr')
+            .setTemplate(journalEntry => {
+                if (journalEntry.JournalEntry && journalEntry.JournalEntry.JournalEntryNumber) {
+                    return `<a href="#/accounting/transquery/detailsByJournalEntryNumber/${journalEntry.JournalEntry.JournalEntryNumber}">
+                                ${journalEntry.JournalEntry.JournalEntryNumber}
+                            </a>`;
+                }
+            });
 
+        const supplierNrCol = new UniTableColumn('Supplier.SupplierNumber', 'Lev.nr');
+
+        const supplierNameCol = new UniTableColumn('Supplier.Info.Name', 'Navn');
+
+        const invoiceDateCol = new UniTableColumn('InvoiceDate', 'Fakturadato')
+            .setType(UniTableColumnType.Date)
+            .setFormat(this.DATE_FORMAT);
+
+        const invoiceIDCol = new UniTableColumn('InvoiceNumber', 'Fakturanr');
+
+        const bankAccount = new UniTableColumn('BankAccount', 'Bankkontonr');
+
+        const paymentDueDateCol = new UniTableColumn('PaymentDueDate', 'Forfallsdato')
+            .setType(UniTableColumnType.Date)
+            .setConditionalCls(journalEntry =>
+                moment(journalEntry.PaymentDueDate).isBefore(moment()) ? 'supplier-invoice-table-payment-overdue' : ''
+            )
+            .setFormat(this.DATE_FORMAT);
+
+        const paymentIdOrName = new UniTableColumn('ID' /*not important,overridden by template*/, 'KID / Melding')
+            .setTemplate((journalEntry) => journalEntry.PaymentInformation || journalEntry.PaymentID);
+
+        const taxInclusiveAmountCol = new UniTableColumn('TaxInclusiveAmount', 'Beløp')
+            .setCls('supplier-invoice-table-amount'); // TODO decide what/how format is set for the different field types
+
+        const restAmountCol = new UniTableColumn('RestAmount', 'Restbeløp')
+            .setType(UniTableColumnType.Number)
+            .setCls('column-align-right')
+            .setFormat('{0:n}');
+
+        const creditedAmountCol = new UniTableColumn('CreditedAmount', 'Kreditert')
+            .setType(UniTableColumnType.Number)
+            .setCls('column-align-right')
+            .setFormat('{0:n}');
+
+        return new UniTableConfig(false, true)
+            .setColumns([
+                statusTextCol,
+                journalEntryCol,
+                supplierNrCol,
+                supplierNameCol,
+                invoiceDateCol,
+                paymentDueDateCol,
+                invoiceIDCol,
+                bankAccount,
+                paymentIdOrName,
+                taxInclusiveAmountCol,
+                restAmountCol,
+                creditedAmountCol
+            ])
+            .setPageSize(15)
+            .setContextMenu([
+                {
+                    label: 'Rediger',
+                    action: supplierInvoice => this.router.navigateByUrl(`/accounting/journalentry/supplierinvoices/details/${supplierInvoice.ID}`)
+                },
+                {
+                    label: 'Tildel',
+                    action: supplierInvoice => this.supplierInvoiceService.assign(supplierInvoice.ID)
+                        .subscribe(() => alert('Successful'), error => alert(`An error occurred: ${error}`)),
+                    disabled: supplierInvoice => !supplierInvoice._links.actions.assign
+                },
+                {
+                    label: 'Bokfør',
+                    action: supplierInvoice => this.supplierInvoiceService.journal(supplierInvoice.ID)
+                        .subscribe(() => alert('Successful'), error => alert(`An error occurred: ${error}`)),
+                    disabled: supplierInvoice => !supplierInvoice._links.actions.journal
+                },
+                {
+                    label: 'Registerer betaling',
+                    action: supplierInvoice => {
+                        const title = `Register betaling, Faktura ${supplierInvoice.InvoiceNumber || ''}, ${supplierInvoice.InvoiceRecieverName || ''}`;
+                        const invoiceData: InvoicePaymentData = {
+                            Amount: supplierInvoice.TaxInclusiveAmount,
+                            PaymentDate: new Date()
+                        };
+                        this.registerPaymentModal.openModal(supplierInvoice.SupplierID, title, invoiceData);
+                    },
+                    disabled: supplierInvoice => !supplierInvoice._links.actions.payInvoice
+                },
+                {
+                    label: 'Send til betaling',
+                    action: supplierInvoice => this.supplierInvoiceService.sendForPayment(supplierInvoice.ID)
+                        .subscribe(() => alert('Successful'), error => alert(`An error occurred: ${error}`)),
+                    disabled: supplierInvoice => !supplierInvoice._links.actions.sendForPayment
+                },
+                {
+                    label: 'Slett',
+                    action: supplierInvoice => this.supplierInvoiceService.Remove(supplierInvoice.ID, supplierInvoice)
+                        .subscribe(() => alert('Successful'), error => alert(`An error occurred: ${error}`)),
+                    disabled: supplierInvoice => !supplierInvoice._links.actions.delete
+                }
+            ]);
+    }
 }

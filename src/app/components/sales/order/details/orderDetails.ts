@@ -1,7 +1,7 @@
 import {Component, ComponentRef, Input, Output, ViewChild, SimpleChange, EventEmitter} from '@angular/core';
 import {Router, RouteParams, RouterLink} from '@angular/router-deprecated';
 import {Observable} from 'rxjs/Observable';
-import 'rxjs/add/observable/forkjoin';
+import 'rxjs/add/observable/forkJoin';
 
 import {CustomerOrderService, CustomerOrderItemService, CustomerService, SupplierService, ProjectService, DepartementService, AddressService} from '../../../../services/services';
 import {OrderItemList} from './orderItemList';
@@ -439,8 +439,9 @@ export class OrderDetails {
         this.order.ShippingCountry = a.Country;
         this.order.ShippingCountryCode = a.CountryCode;     
     } 
-    
-    getComponentLayout(): ComponentLayout {
+
+    // TODO: change to 'ComponentLayout' when object respects the interface
+    getComponentLayout(): any {
         return {
             Name: "CustomerOrder",
             BaseEntity: "CustomerOrder",

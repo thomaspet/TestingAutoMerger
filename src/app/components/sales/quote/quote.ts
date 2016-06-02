@@ -11,12 +11,12 @@ const QUOTE_ROUTES = [
         useAsDefault: true,
         path: "/list",
         name: "QuoteList",
-        loader: () => ComponentProxy.LoadComponentAsync("QuoteList", "./app/components/sales/quote/list/quoteList")
+        loader: () => ComponentProxy.LoadComponentAsync("QuoteList", "app/components/sales/quote/list/quoteList")
     }),    
     new AsyncRoute({
         path: "/details/:id",
         name: "QuoteDetails",
-        loader: () => ComponentProxy.LoadComponentAsync("QuoteDetails", "./app/components/sales/quote/details/quoteDetails")
+        loader: () => ComponentProxy.LoadComponentAsync("QuoteDetails", "app/components/sales/quote/details/quoteDetails")
     })    
 ];
 

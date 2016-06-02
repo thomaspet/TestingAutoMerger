@@ -53,7 +53,7 @@ declare var _; // lodash
                     (onChange)="onChangeHandler($event)">                        
                 </uni-section>
             </template>
-            <button type="submit" [disabled]="!controls.valid">{{config.submitText}}</button>
+            <button *ngIf="config.submitText" type="submit" [disabled]="!controls.valid">{{config.submitText}}</button>
         </form>
     `
 })

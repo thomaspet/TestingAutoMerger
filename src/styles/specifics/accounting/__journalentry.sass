@@ -3,17 +3,16 @@
 @import 'payments'
 @import 'supplierInvoices'
 
-th
-    text-align: left
-    border-bottom: pxToRem(1) solid $uni-color-scale9
-    font-weight: normal
+journal-entry > h1
+    display: block
+    @include unigrid-flush(14)
+    margin: 0 auto
 
-.journal-entry-manual-header
-    @include unigrid(16)
-
-.journalentrymodeselector
-    @include unigrid(4)
-    float: right
+// Set general layout for the application view
+journal-entry-manual:not(.runassubcomponent)
+    display: block
+    @include unigrid-flush(14)
+    margin: 0 auto
 
 .journalentrytempbox
     border: pxToRem(1) solid $uni-color-scale9
@@ -31,7 +30,7 @@ th
     width: calc(100% - 2rem) !important
     margin-left: 1rem
     margin-right: 1rem
-    
+
 .journal-entry-validation
     width: calc(45%) - 2rem
     float: left
@@ -46,14 +45,14 @@ th
 
 .journal-entry-helper.simplemode
     @include unigrid(4, 2, 2)
-    
+
 
 .journal-entry-validation.simplemode
     @include unigrid(4, 2, 2)
 
 .journal-entry-helper.promode
     @include unigrid(8, 4, 2)
-    
+
 
 .journal-entry-validation.promode
     @include unigrid(8, 4, 2)

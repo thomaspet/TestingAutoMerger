@@ -1,5 +1,7 @@
 import {Component, Input, Output, EventEmitter} from '@angular/core';
 
+declare var moment;
+
 export interface IUniSaveAction {
     label: string;
     action: (done: (statusMessage?: string) => any) => void;

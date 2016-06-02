@@ -19,7 +19,7 @@ import 'rxjs/add/operator/map';
         
         <br><br>
         
-        <h4>DemoTable2 (date editors)</h4>
+        <h4>DemoTable2 (date editors, single item contextmenu)</h4>
         <uni-table [resource]="employments$ | async"
                    [config]="demoTable2">
         </uni-table>
@@ -196,7 +196,7 @@ export class UniTableDemoNew {
                 exVatCol, discountPercentCol, discountCol, vatTypeCol,
                 sumTotalExVatCol, sumVatCol, sumTotalIncVatCol 
             ])
-            .setContextMenuItems(contextMenuItems)
+            .setContextMenu(contextMenuItems)
             .setColumnMenuVisible(true)
             .setMultiRowSelect(true)
             .setDefaultRowData({
@@ -230,6 +230,13 @@ export class UniTableDemoNew {
     }
     
     private buildDemoTable2() {
+        let contextMenuItem = {
+            label: 'Delete',
+            action: () => {
+                window.alert('Delete action called');
+            }
+        };
+        
         this.employments$ = this.uniHttp.asGET()
             .usingBusinessDomain()
             .withEndPoint('employments')
@@ -240,6 +247,9 @@ export class UniTableDemoNew {
         let endDateCol = new UniTableColumn('EndDate', 'End date', UniTableColumnType.Date);
         
         this.demoTable2 = new UniTableConfig()
+            // When showDropdownOnSingleItems is set to false unitable will skip the "..." dropdown
+            // and only show the menu item if (number of items === 1)
+            .setContextMenu([contextMenuItem], false)
             .setColumns([jobNameCol, startDateCol, endDateCol])
             .setChangeCallback((event) => {
                 console.log('Change in tableConfig2: ', event); 
@@ -250,6 +260,19 @@ export class UniTableDemoNew {
     }
     
     private buildDemoTable3() {
+        // For readability in the demo. These can be set right in the setter functions if  you want
+        let hoursFilter = {
+            field: 'HoursPerWeek',
+            operator: 'eq',
+            value: 37.5
+        };
+        
+        let jobCodeFilter = {
+            field: 'JobCode',
+            operator: 'startswith',
+            value: '213'
+        };
+        
         this.employmentLookup = (urlParams: URLSearchParams) => {
             return this.http.get('http://devapi.unieconomy.no/api/biz/employments', {search: urlParams});
         };
@@ -259,13 +282,36 @@ export class UniTableDemoNew {
             
         let jobNameCol = new UniTableColumn('JobName', 'Job name')
             .setFilterOperator('contains');
-            
-        let hoursPerWeekCol = new UniTableColumn('HoursPerWeek', 'Hours per week')
+        
+        // Setting column type to number here is important. This will stop unitable from trying to filter
+        // number columns by string inputs in basic search (which would result in an error from backend)
+        let hoursPerWeekCol = new UniTableColumn('HoursPerWeek', 'Hours per week', UniTableColumnType.Number)
             .setFilterOperator('eq');
         
         this.demoTable3 = new UniTableConfig(false, true, 10)
+            .setFilters([hoursFilter])
             .setSearchable(true)
             .setColumns([jobCodeCol, jobNameCol, hoursPerWeekCol]);
+    
+        // Setting/removing search filters after table init
+        setTimeout(() => {
+            this.tables.last.setFilters([jobCodeFilter]);
+            
+            // This operation will update the filter already set in config.
+            // Unitable is instructed to update filters with the same field and operator.
+            // If field or operator is different the filter will be added instead.
+            // This allows you to set multiple filters on the same column as long as operator is different.
+            // E.g. (HoursPerWeek gt 30) and (HoursPerWeek lt 40);
+            this.tables.last.setFilters([{
+                field: 'HoursPerWeek',
+                operator: 'eq',
+                value: 40
+            }]);
+            
+            // Delete filters for a given column. Will delete any filters matching the field value given.
+            this.tables.last.removeFilter('HoursPerWeek');
+        }, 2000);
+        
     }
     
     private testLayoutTable() {

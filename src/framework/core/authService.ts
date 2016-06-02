@@ -1,4 +1,4 @@
-import {Injectable, Inject} from '@angular/core';
+import {Injectable, Inject, Output, EventEmitter} from '@angular/core';
 import {Router} from '@angular/router-deprecated';
 import {Http, Headers} from '@angular/http';
 import {Observable} from 'rxjs/Observable';
@@ -9,10 +9,14 @@ declare var jwt_decode: (token: string) => any; // node_modules/jwt_decode
 
 @Injectable()
 export class AuthService {
+    @Output()
+    public requestAuthentication$: EventEmitter<any> = new EventEmitter();
+    
     public jwt: string;
     public jwtDecoded: any;
     public activeCompany: any;
     public expiredToken: boolean;
+    public lastTokenUpdate: Date;
 
     constructor(@Inject(Router) private router: Router, @Inject(Http) private http: Http) {
         this.activeCompany = JSON.parse(localStorage.getItem('activeCompany')) || undefined;
@@ -39,7 +43,14 @@ export class AuthService {
         let headers = new Headers({'Content-Type': 'application/json', 'Accept': 'application/json'});
         
         return this.http.post(url, JSON.stringify(credentials), {headers: headers})
-            .map(response => response.json());
+            .switchMap((response) => {
+                if (response.status === 200) {
+                    this.setToken(response.json().access_token);
+                    this.lastTokenUpdate = new Date();
+                }
+                
+                return Observable.from([response.json()]);
+            });
     }
     
     /**
@@ -64,7 +75,7 @@ export class AuthService {
      * Returns web token or redirects to /login if user is not authenticated
      * @returns {String}
      */
-    public getToken(): string {       
+    public getToken(): string {
         return this.jwt;
     }
     
@@ -141,5 +152,4 @@ export class AuthService {
         expires.setUTCSeconds(decodedToken.exp);
         return (expires.valueOf() < new Date().valueOf() + (offsetSeconds * 1000));
     }
-
 }
