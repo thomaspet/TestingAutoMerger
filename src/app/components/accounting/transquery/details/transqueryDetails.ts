@@ -1,10 +1,12 @@
 import {Component, OnInit} from '@angular/core';
 import {RouteParams} from '@angular/router-deprecated';
-import {UniTable, UniTableColumn, UniTableConfig} from 'unitable-ng2/main';
+import {UniTable, UniTableColumn, UniTableConfig, UniTableColumnType, ITableFilter} from 'unitable-ng2/main';
 import {TransqueryDetailsCalculationsSummary} from '../../../../models/accounting/TransqueryDetailsCalculationsSummary';
 import {JournalEntryLineService} from '../../../../services/Accounting/JournalEntryLineService';
 import {TransqueryDetailSearchParamters} from './TransqueryDetailSearchParamters';
 import {URLSearchParams} from '@angular/http';
+import {Observable} from 'rxjs/Rx';
+import {JournalEntryLine} from '../../../../unientities';
 
 @Component({
     selector: 'transquery-details',
@@ -22,25 +24,20 @@ export class TransqueryDetails implements OnInit {
 
     public ngOnInit() {
         const searchParameters = this.getSearchParameters(this.routeParams);
-        const odataFilter = this.generateOdataFilter(searchParameters);
-        if (odataFilter) {
-            this.journalEntryLineService
-                .getJournalEntryLineRequestSummary(odataFilter)
-                .subscribe(summary => this.summaryData = summary);
-        }
+        const unitableFilter = this.generateUnitableFilters(searchParameters);
+        this.uniTableConfig = this.generateUniTableConfig(unitableFilter);
+        this.lookupFunction = (urlParams: URLSearchParams) => this.getTableData(urlParams);
+    }
 
-        this.uniTableConfig = this.generateUniTableConfig();
-        this.lookupFunction = (urlParams: URLSearchParams) => {
-            urlParams = urlParams || new URLSearchParams();
-            urlParams.set('filter', this.mergeFilters(urlParams.get('filter'), odataFilter));
-            urlParams.set('expand', 'VatType,Account');
-            return this.journalEntryLineService.GetAllByUrlSearchParams(urlParams);
-        };
+    private getTableData(urlParams: URLSearchParams): Observable<JournalEntryLine[]> {
+        urlParams = urlParams || new URLSearchParams();
+        urlParams.set('expand', 'VatType,Account');
+        return this.journalEntryLineService.GetAllByUrlSearchParams(urlParams);
     }
 
     private getSearchParameters(routeParams): TransqueryDetailSearchParamters {
         const searchParams = new TransqueryDetailSearchParamters();
-        searchParams.accountId = Number(routeParams.get('accountId'));
+        searchParams.accountNumber = Number(routeParams.get('accountNumber'));
         searchParams.year = Number(routeParams.get('year'));
         searchParams.period = Number(routeParams.get('period'));
         searchParams.isIncomingBalance = routeParams.get('isIncomingBalance') === 'true';
@@ -48,37 +45,50 @@ export class TransqueryDetails implements OnInit {
         return searchParams;
     }
 
-    private generateOdataFilter(searchParameters: TransqueryDetailSearchParamters): string {
-        const accountYear = `01.01.${searchParameters.year}`;
-        const nextAccountYear = `01.01.${searchParameters.year + 1}`;
-        if (searchParameters.accountId) {
-            const accountSearch = 'Account.ID eq ' + searchParameters.accountId;
+    public onFiltersChange(filter: string) {
+        if (filter) {
+            this.journalEntryLineService
+                .getJournalEntryLineRequestSummary(filter)
+                .subscribe(summary => this.summaryData = summary);
+        } else {
+            this.summaryData = null;
+        }
+    }
+
+    private generateUnitableFilters(searchParameters: TransqueryDetailSearchParamters): ITableFilter[] {
+        const filter: ITableFilter[] = [];
+        if (searchParameters.accountNumber) {
+            const accountYear = `01.01.${searchParameters.year}`;
+            const nextAccountYear = `01.01.${searchParameters.year + 1}`;
+            filter.push({field: 'Account.AccountNumber', operator: 'eq', value: searchParameters.accountNumber});
             if (searchParameters.period === 0) {
-                return `${accountSearch} and FinancialDate lt '${accountYear}'`;
+                filter.push({field: 'FinancialDate', operator: 'lt', value: accountYear});
             } else if (searchParameters.period === 13) {
                 if (searchParameters.isIncomingBalance) {
-                    return `${accountSearch} and FinancialDate lt '${nextAccountYear}'`;
+                    filter.push({field: 'FinancialDate', operator: 'lt', value: nextAccountYear});
                 } else {
-                    return `${accountSearch} and FinancialDate ge '${accountYear}' and FinancialDate lt '${nextAccountYear}'`;
+                    filter.push({field: 'FinancialDate', operator: 'ge', value: accountYear});
+                    filter.push({field: 'FinancialDate', operator: 'lt', value: nextAccountYear});
                 }
             } else {
                 const periodDates = this.journalEntryLineService
                     .periodNumberToPeriodDates(searchParameters.period, searchParameters.year);
-                return `${accountSearch} and FinancialDate ge '${periodDates.firstDayOfPeriod}' and FinancialDate le '${periodDates.lastDayOfPeriod}'`;
+                filter.push({field: 'FinancialDate', operator: 'ge', value: periodDates.firstDayOfPeriod});
+                filter.push({field: 'FinancialDate', operator: 'le', value: periodDates.lastDayOfPeriod});
             }
         } else if (searchParameters.journalEntryNumber) {
-            return `JournalEntryNumber eq '${searchParameters.journalEntryNumber}'`;
-        } else {
-            return '';
+            filter.push({field: 'JournalEntryNumber', operator: 'eq', value: searchParameters.journalEntryNumber});
         }
+        return filter;
     }
 
-    private generateUniTableConfig(): UniTableConfig {
+    private generateUniTableConfig(unitableFilter: ITableFilter[]): UniTableConfig {
         return new UniTableConfig(false, false)
             .setPageable(true)
             .setPageSize(15)
             .setColumnMenuVisible(false)
             .setSearchable(true)
+            .setFilters(unitableFilter)
             .setColumns([
                 new UniTableColumn('JournalEntryNumber', 'Bilagsnr')
                     .setTemplate((journalEntryLine) => {
@@ -92,27 +102,20 @@ export class TransqueryDetails implements OnInit {
                 new UniTableColumn('Account.AccountName', 'Kontonavn')
                     .setFilterOperator('contains'),
                 new UniTableColumn('FinancialDate', 'Regnskapsdato')
-                    .setFilterOperator('contains'),
+                    .setFilterOperator('contains')
+                    .setType(UniTableColumnType.Date)
+                    .setFormat('DD.MM.YYYY'),
                 new UniTableColumn('RegisteredDate', 'Bokføringsdato')
-                    .setFilterOperator('contains'),
+                    .setFilterOperator('contains')
+                    .setType(UniTableColumnType.Date)
+                    .setFormat('DD.MM.YYYY'),
                 new UniTableColumn('Description', 'Beskrivelse')
                     .setFilterOperator('contains'),
                 new UniTableColumn('VatType.VatCode', 'Mvakode')
                     .setFilterOperator('contains'),
                 new UniTableColumn('Amount', 'Beløp')
+                    .setType(UniTableColumnType.Number)
                     .setFilterOperator('contains')
             ]);
-    }
-
-    private mergeFilters(...filters: string[]): string {
-        let finalFilter = '';
-        for (const filter of filters) {
-            if (!finalFilter) {
-                finalFilter = filter;
-            } else {
-                finalFilter += ' and ' + filter;
-            }
-        }
-        return finalFilter;
     }
 }
