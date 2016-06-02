@@ -4,7 +4,6 @@ export class TableBuilder extends UniTableConfig {
     
     constructor(editable?: boolean, pageable?: boolean, pageSize?: number) {
         super(editable, pageable, pageSize);
-        console.log(this);
     }    
     
     // Map layout system's FieldType to UniTableColumnType
@@ -30,7 +29,7 @@ export class TableBuilder extends UniTableConfig {
         let layoutColumns = JSON.parse(jsonLayout);
         
         layoutColumns.forEach((col) => {
-            let newCol = new UniTableColumn(col.Property, col.Label, this.mapFieldType(col.FieldType)); // todo: map type?
+            let newCol = new UniTableColumn(col.Property, col.Label, this.mapFieldType(col.FieldType));
             
             newCol.displayField = col.DisplayField || undefined;
             

@@ -315,7 +315,8 @@ export class UniTableDemoNew {
     }
     
     private testLayoutTable() {
-        const mockedColumnLayout = [
+        // This would come from layout system
+        const mockedColumnLayout = JSON.stringify([
             {
                 Property: 'Product',
                 Label: 'Produkt',
@@ -339,11 +340,12 @@ export class UniTableDemoNew {
                     Editable: false
                 }
             }
-        ];
+        ]);
         
         let tableConfig = new TableBuilder(true, true, 10)
-            .setColumnsFromLayout(JSON.stringify(mockedColumnLayout));
+            .setColumnsFromLayout(mockedColumnLayout);
         
+        // Set extra properties on 'Product' col
         tableConfig.setColumnProperties('Product', {
             editorOptions: {
                 minLength: 0,
@@ -362,6 +364,7 @@ export class UniTableDemoNew {
             }        
         });
         
+        // Set extra properties on 'Discount' col
         tableConfig.setColumnProperties('Discount', {
             conditionalCls: (rowModel) => {
                 if (rowModel['Discount'] < 0) {
