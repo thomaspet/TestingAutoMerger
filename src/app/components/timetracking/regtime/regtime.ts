@@ -3,9 +3,9 @@ import {TabService} from '../../layout/navbar/tabstrip/tabService';
 import {View} from '../../../models/view/view';
 import {Worker, WorkRelation, WorkProfile, WorkItem, WorkType} from '../../../unientities';
 import {UniTable as NewTable, UniTableColumn, UniTableConfig, UniTableColumnType} from 'unitable-ng2/main';
-import {Observable} from 'rxjs/Rx';
+import {Observable, Observer} from 'rxjs/Rx';
 import {WorkerService} from '../../../services/timetracking/workerservice';
-import {TimesheetService, TimeSheet} from '../../../services/timetracking/timesheetservice';
+import {TimesheetService, TimeSheet, ValueItem} from '../../../services/timetracking/timesheetservice';
 import {UniSave, IUniSaveAction} from '../../../../framework/save/save';
 
 export var view = new View('regtime', 'Timeregistrering', 'RegisterTime');
@@ -55,8 +55,36 @@ export class RegisterTime {
     }
     
     onReloadClick() {
+        /*
         this.busy = true;
-        this.initServiceValues();
+        //this.initServiceValues();
+        
+        var list = [1,2,3];
+        
+        var handlers: Array<Observable<any>> = [];
+        
+        list.forEach((value:number)=>{
+            var n = Math.floor(Math.random()*3000);
+            console.log("each " + value + " (" + n + " milliseconds)");
+            setTimeout(function() {
+                console.log("timeout " + value);
+                //observer.next(value);    
+            }, n);                
+        });
+        
+        source.subscribe((item:number)=>{
+           console.log("next " + item); 
+        }, (err)=>{
+            console.error("err:" + err);
+        }, ()=>{
+            console.log("done!");
+            this.busy = false;
+        });
+        
+        source.finally((result)=>{
+            console.log("completed!",  result);
+        });
+        */
     }
     
     save(done) {
@@ -144,10 +172,13 @@ export class RegisterTime {
     
     onEditChange(event) {
         var newRow = event.rowModel;
-        
-        newRow.ID = this.timeSheet.setItemValue(event.field, newRow[event.field], newRow.ID);
+        var change = new ValueItem(event.field, newRow[event.field], newRow.ID, newRow);        
+        if (this.timeSheet.setItemValue(change)) {
+            newRow.ID = change.ID;
+            newRow[event.field] = change.value;
+            return newRow; 
+        }
  
-        return newRow; 
     }
     
     // UniTable helperes:

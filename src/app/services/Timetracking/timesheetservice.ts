@@ -4,6 +4,11 @@ import {WorkerService} from './workerService';
 import {Observable} from "rxjs/Rx";
 import {parseTime, addTime, parseDate} from '../../components/timetracking/utils/utils';
 
+export class ValueItem {
+    cancel = false;
+    constructor(public name:string, public value:any, public ID = 0, public rowItem?:any) { }
+}
+
 export class TimeSheet {
     constructor(private ts?:TimesheetService) { }
     currentRelation: WorkRelation;
@@ -11,7 +16,7 @@ export class TimeSheet {
     
     loadItems():Observable<number> {
         var obs = this.ts.getWorkItems(this.currentRelation.ID);
-        return obs.flatMap((items:WorkItem[]) => {
+        return <Observable<number>>obs.flatMap((items:WorkItem[]) => {
             this.items = items; 
             return Observable.of(items.length);
         });
@@ -23,33 +28,33 @@ export class TimeSheet {
         return this.ts.saveWorkItems(this.items);
     }
     
-    setItemValue(name:string, value:any, ID:number):number {
-        var rowIndex = this.findRow(ID);
+    setItemValue(change: ValueItem):boolean {
+        var rowIndex = this.findRow(change.ID);
         var item:WorkItem = this.items[rowIndex];
-        switch (name) {
+        switch (change.name) {
             case "Date":
-                value = parseDate(value);
+                change.value = parseDate(change.value);
                 break;
             case "EndTime":
             case "StartTime":
-                value = parseTime(value);
+                change.value = parseTime(change.value);
                 break;
             case "Worktype":
-                item.WorkTypeID = value.ID;
+                item.WorkTypeID = change.value.ID;
                 break;                
         }
-        item[name] = value;
+        debugger;
+        item[change.name] = change.value;
         item["changeFlag"] = true;
-        return item.ID;
+        change.ID = item.ID;
+        return true;
     }    
     
     private findRow(ID:number):number {
         if (!ID) {
             var id = -(this.items.length + 1);
             var item:any = { ID: id }
-            this.items.push(item);
-            debugger;
-            
+            this.items.push(item);            
             return this.items.length - 1;
         }
         for (var i=0; i<this.items.length; i++) {

@@ -10,10 +10,15 @@ export function safeInt(value: any) {
 
 }
 
-export function parseDate(value:string, allowMacros = true): Date {
+export function parseDate(value:any, allowMacros = true): Date {
 	var d = 0;
 	var m = 0;
 	var y = 0;
+	
+	if (typeof value === 'object' && value.getMonth) {
+		return value;
+	}
+	
 	if (allowMacros) {
 		if (value==='*') return moment().toDate();
 	}
@@ -22,6 +27,15 @@ export function parseDate(value:string, allowMacros = true): Date {
 		var parts = value.split('/');
 		if (parts.length===3) {
 			return moment(value, 'MM/DD/YY').toDate();
+		}
+	}
+	
+	if (value.indexOf('.')>0) {
+		switch (value.split('.').length) {
+			case 3:
+				return moment(value, 'DD.MM.YYYY');
+			case 2:
+				return moment(value, 'DD.MM');
 		}
 	}
 	
