@@ -1,11 +1,12 @@
 import {Component, ViewChild} from '@angular/core';
-import {UniTable, UniTableColumn, UniTableColumnType, UniTableConfig} from 'unitable-ng2/main';
+import {UniTable, UniTableColumn, UniTableColumnType, UniTableConfig, IContextMenuItem} from 'unitable-ng2/main';
 import {Router} from '@angular/router-deprecated';
 import {UniHttp} from '../../../../../framework/core/http/http';
 import {CustomerQuoteService} from '../../../../services/services';
 import {CustomerQuote} from '../../../../unientities';
 import {Http, URLSearchParams} from '@angular/http';
 import {AsyncPipe} from '@angular/common';
+import {StimulsoftReportWrapper} from "../../../../../framework/wrappers/reporting/reportWrapper";
 
 declare var jQuery;
 
@@ -13,7 +14,7 @@ declare var jQuery;
     selector: 'quote-list',
     templateUrl: 'app/components/sales/quote/list/quoteList.html',
     directives: [UniTable],
-    providers: [CustomerQuoteService],
+    providers: [CustomerQuoteService,StimulsoftReportWrapper],
     pipes: [AsyncPipe]
 })
 export class QuoteList {
@@ -24,7 +25,7 @@ export class QuoteList {
     private lookupFunction: (urlParams: URLSearchParams) => any;
    
    
-    constructor(private uniHttpService: UniHttp, private router: Router, private customerQuoteService: CustomerQuoteService, private http: Http) {
+    constructor(private uniHttpService: UniHttp, private router: Router, private customerQuoteService: CustomerQuoteService, private http: Http, private report: StimulsoftReportWrapper) {
         this.setupQuoteTable();
     }
 
@@ -60,6 +61,35 @@ export class QuoteList {
                         
             return this.customerQuoteService.GetAllByUrlSearchParams(params);
         };
+        
+        // Context menu
+        let contextMenuItems: IContextMenuItem[] = [];
+        contextMenuItems.push({
+            label: 'Rediger',
+            action: (quote: CustomerQuote) => {
+                this.router.navigateByUrl(`/sales/quote/details/${quote.ID}`);
+            }
+        });
+        
+        contextMenuItems.push({
+            label: '-------------',
+            action: () => {}
+        });
+
+        contextMenuItems.push({
+            label: 'Skriv ut',
+            action: (quote: CustomerQuote) => {
+                // TODO: 1. Get .mrt id from report definition 2. get .mrt from server
+                //this.reportService.getReportDefinitionByName('Qupte').subscribe(definitions => {
+                    this.http.get('/assets/DemoData/Demo.mrt') 
+                        .map(res => res.text())
+                        .subscribe(template => {
+                            this.report.printReport(template, [JSON.stringify(quote)], false);                            
+                        });
+                //    
+                //}); 
+            }
+        });
 
         // Define columns to use in the table        
         var quoteNumberCol = new UniTableColumn('QuoteNumber', 'Tilbudsnr', UniTableColumnType.Text)
@@ -82,7 +112,8 @@ export class QuoteList {
         // Setup table
         this.quoteTable = new UniTableConfig(false, true)            
             .setPageSize(25)
-            .setColumns([quoteNumberCol, customerNumberCol, customerNameCol, quoteDateCol, validUntilDateCol, taxInclusiveAmountCol, statusCol]);
+            .setColumns([quoteNumberCol, customerNumberCol, customerNameCol, quoteDateCol, validUntilDateCol, taxInclusiveAmountCol, statusCol])
+            .setContextMenu(contextMenuItems);
             
         //TODO: Add contextmenuitems                       
     }

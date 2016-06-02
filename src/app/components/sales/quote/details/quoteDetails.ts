@@ -17,6 +17,8 @@ import {UniFieldBuilder} from "../../../../../framework/forms/builders/uniFieldB
 import {UniComponentLoader} from "../../../../../framework/core/componentLoader";
 import {AddressModal} from "../../customer/modals/address/address";
 import {TradeHeaderCalculationSummary} from '../../../../models/sales/TradeHeaderCalculationSummary';
+import {StimulsoftReportWrapper} from "../../../../../framework/wrappers/reporting/reportWrapper";
+import {Http} from '@angular/http';
 
 declare var _;
 declare var moment;
@@ -25,7 +27,7 @@ declare var moment;
     selector: "quote-details",
     templateUrl: "app/components/sales/quote/details/quoteDetails.html",    
     directives: [UniComponentLoader, RouterLink, QuoteItemList, AddressModal],
-    providers: [CustomerQuoteService, CustomerQuoteItemService, CustomerService, ProjectService, DepartementService, AddressService]
+    providers: [CustomerQuoteService, CustomerQuoteItemService, CustomerService, ProjectService, DepartementService, AddressService, StimulsoftReportWrapper]
 })
 export class QuoteDetails {
             
@@ -59,7 +61,9 @@ export class QuoteDetails {
                 private customerQuoteItemService: CustomerQuoteItemService,
                 private departementService: DepartementService,
                 private projectService: ProjectService,
-                private addressService: AddressService, 
+                private addressService: AddressService,
+                private report: StimulsoftReportWrapper,
+                private http: Http,
                 private router: Router, private params: RouteParams) {                
         this.QuoteID = params.get("id");
         this.businessRelationInvoice.Addresses = [];
@@ -282,6 +286,18 @@ export class QuoteDetails {
                     }
                 );
         });           
+    }
+    
+    printQuote() {
+       // TODO: 1. Get .mrt id from report definition 2. get .mrt from server
+       //this.reportService.getReportDefinitionByName('Quote').subscribe(definitions => {
+            this.http.get('/assets/DemoData/Demo.mrt') 
+                .map(res => res.text())
+                .subscribe(template => {
+                    this.report.printReport(template, [JSON.stringify(this.quote)], false);                            
+                });
+        //    
+        //});   
     }
         
     //createFormConfig() {   
