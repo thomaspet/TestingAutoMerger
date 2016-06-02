@@ -8,7 +8,7 @@ export class UniFieldLayout extends FieldLayout {
     
     constructor(field: FieldLayout) {
         super();
-        this.SyncValidators = field.Validations;
+        this.SyncValidators = field.Validators;
         for (var prop in field) {
             if (field.hasOwnProperty(prop)) {
                 if (prop === 'Options') {
