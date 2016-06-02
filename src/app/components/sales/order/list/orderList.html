@@ -1,4 +1,4 @@
 <section class="application">
     <h4>Ordre</h4><button (click)="createOrder()">Ny ordre</button>
-    <uni-table [config]="orderTable"></uni-table>
+    <uni-table [resource]="lookupFunction" [config]="orderTable" (rowSelected)="onRowSelected($event)"></uni-table>
 </section>

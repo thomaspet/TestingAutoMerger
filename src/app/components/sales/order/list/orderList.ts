@@ -1,9 +1,11 @@
 import {Component, ViewChildren} from '@angular/core';
-import {UniTable, UniTableBuilder, UniTableColumn} from '../../../../../framework/uniTable';
+import {UniTable, UniTableColumn, UniTableColumnType, UniTableConfig, IContextMenuItem} from 'unitable-ng2/main';
 import {Router} from '@angular/router-deprecated';
 import {UniHttp} from '../../../../../framework/core/http/http';
 import {CustomerOrderService} from '../../../../services/services';
 import {CustomerOrder} from '../../../../unientities';
+import {StimulsoftReportWrapper} from "../../../../../framework/wrappers/reporting/reportWrapper";
+import {Http, URLSearchParams} from '@angular/http';
 
 declare var jQuery;
 
@@ -11,15 +13,16 @@ declare var jQuery;
     selector: 'order-list',
     templateUrl: 'app/components/sales/order/list/orderList.html',
     directives: [UniTable],
-    providers: [CustomerOrderService]
+    providers: [CustomerOrderService,StimulsoftReportWrapper]
 })
 export class OrderList {
     @ViewChildren(UniTable) public tables: any;
 
-    private orderTable: UniTableBuilder;
+    private orderTable: UniTableConfig;
     private selectedorder: CustomerOrder;
+    private lookupFunction: (urlParams: URLSearchParams) => any;
    
-    constructor(private uniHttpService: UniHttp, private router: Router, private customerOrderService: CustomerOrderService) {
+    constructor(private uniHttpService: UniHttp, private router: Router, private customerOrderService: CustomerOrderService, private http: Http, private report: StimulsoftReportWrapper) {
         this.setupOrderTable();
     }
     
@@ -43,58 +46,75 @@ export class OrderList {
     }
 
     private setupOrderTable() {
-        var self = this;
+        this.lookupFunction = (urlParams: URLSearchParams) => {
+            let params = urlParams || new URLSearchParams();
+            
+            // TODO: order by 'OrderDate','desc'
+            // TODO: expand = Customer
+         
+            return this.customerOrderService.GetAllByUrlSearchParams(params);
+        }
+        
+        // Context menu
+        let contextMenuItems: IContextMenuItem[] = [];
+        contextMenuItems.push({
+            label: 'Rediger',
+            action: (order: CustomerOrder) => {
+                this.router.navigateByUrl(`/sales/order/details/${order.ID}`);
+            }
+        });
+        
+        contextMenuItems.push({
+            label: '-------------',
+            action: () => {}
+        });
 
+        contextMenuItems.push({
+            label: 'Skriv ut',
+            action: (order: CustomerOrder) => {
+                // TODO: 1. Get .mrt id from report definition 2. get .mrt from server
+                //this.reportService.getReportDefinitionByName('Order').subscribe(definitions => {
+                    this.http.get('/assets/DemoData/Demo.mrt') 
+                        .map(res => res.text())
+                        .subscribe(template => {
+                            this.report.printReport(template, [JSON.stringify(order)], false);                            
+                        });
+                //    
+                //});                
+            }
+        });
+        
         // Define columns to use in the table
-        var orderNumberCol = new UniTableColumn('OrderNumber', 'Ordrenr', 'string').setWidth('10%');
+        var orderNumberCol = new UniTableColumn('OrderNumber', 'Ordrenr', UniTableColumnType.Text).setWidth('10%');
        
-        var customerNumberCol = new UniTableColumn('Customer.CustomerNumber', 'Kundenr', 'string')
-            .setNullable(true)
+        var customerNumberCol = new UniTableColumn('Customer.CustomerNumber', 'Kundenr', UniTableColumnType.Text)
+            //.setNullable(true)
             .setWidth('10%');
 
-        var customerNameCol = new UniTableColumn('CustomerName', 'Kunde', 'string');
+        var customerNameCol = new UniTableColumn('CustomerName', 'Kunde', UniTableColumnType.Text);
 
-        var orderDateCol = new UniTableColumn('OrderDate', 'Ordredato', 'date')
+        var orderDateCol = new UniTableColumn('OrderDate', 'Ordredato', UniTableColumnType.Date)
             .setFormat('{0: dd.MM.yyyy}')
             .setWidth('10%');
 
-        var taxInclusiveAmountCol = new UniTableColumn('TaxInclusiveAmount', 'Totalsum', 'number')
+        var taxInclusiveAmountCol = new UniTableColumn('TaxInclusiveAmount', 'Totalsum', UniTableColumnType.Number)
             .setWidth('10%')
             .setFormat('{0:n}')
-            .setClass('column-align-right');
+            .setCls('column-align-right');
 
-        var statusCol = new UniTableColumn('StatusCode', 'Status', 'number').setWidth('15%');
+        var statusCol = new UniTableColumn('StatusCode', 'Status', UniTableColumnType.Number).setWidth('15%');
         statusCol.setTemplate((dataItem) => {
             return this.customerOrderService.getStatusText(dataItem.StatusCode); 
         });
 
-        // Define callback function for row clicks
-        var selectCallback = (selectedItem) => {
-            this.router.navigateByUrl('/sales/order/details/' + selectedItem.ID);
-        };
-
         // Setup table
-        this.orderTable = new UniTableBuilder('orders', false)
-            .setFilterable(false)
-            .setSelectCallback(selectCallback)
-            .setExpand('Customer')
+        this.orderTable = new UniTableConfig(false, false)
             .setPageSize(25)
-            .addColumns( orderNumberCol, customerNumberCol, customerNameCol, orderDateCol, taxInclusiveAmountCol, statusCol)
-            .setOrderBy('OrderDate','desc')
-            .addCommands({
-                name: 'ContextMenu', text: '...', click: (function (event) {
-                    event.preventDefault();
-                    var dataItem = this.dataItem(jQuery(event.currentTarget).closest('tr'));
-
-                    if (dataItem !== null && dataItem.ID !== null) {
-                        self.selectedorder = dataItem;
-                        alert('Kontekst meny er under utvikling.');
-                    }
-                    else {
-                        console.log('Error in selecting the SupplierInvoices');
-                    }
-                })
-            });
-                               
+            .setColumns([orderNumberCol, customerNumberCol, customerNameCol, orderDateCol, taxInclusiveAmountCol, statusCol])
+            .setContextMenu(contextMenuItems);
+    }
+    
+    private onRowSelected(event) {
+        this.router.navigateByUrl(`/sales/order/details/${event.rowModel.ID}`);
     }
 }
