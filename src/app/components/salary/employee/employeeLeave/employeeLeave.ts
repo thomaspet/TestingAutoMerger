@@ -3,7 +3,7 @@ import {RouteParams} from '@angular/router-deprecated';
 import {EmployeeDS} from '../../../../data/employee';
 import {Employment, Employee} from '../../../../unientities';
 import {RootRouteParamsService} from '../../../../services/rootRouteParams';
-import {UniTable, UniTableConfig, UniTableColumnType, UniTableColumn} from 'unitable-ng2/main';
+import {UniTable, UniTableConfig, UniTableColumnType, UniTableColumn, ITableFilter} from 'unitable-ng2/main';
 import {UniSave, IUniSaveAction} from '../../../../../framework/save/save';
 import {AsyncPipe} from '@angular/common';
 import {UniHttp} from '../../../../../framework/core/http/http';
@@ -45,13 +45,21 @@ export class EmployeeLeave implements OnInit {
     }
     
     public ngOnInit() {
+        this.buildTableConfig();
+        
         this.employeeDS
             .get(this.employeeID)
             .subscribe((response: any) => {
                 this.currentEmployee = response;
-                console.log('current employee', response);
                 this.employments = this.currentEmployee.Employments;
-                this.buildTableConfig();
+                
+                let filter = this.buildFilter();
+                this.permisions$ = this.uniHttp.asGET()
+                .usingBusinessDomain()
+                .withEndPoint('employeeleave')
+                .send({
+                    filter: filter
+                });
             });
     }
     
@@ -61,23 +69,11 @@ export class EmployeeLeave implements OnInit {
             filter += ' EmploymentID eq ' + employment.ID + ' or';
         });
         filter = filter.slice(0, filter.length - 2);
-        console.log('filter', filter);
+        
         return filter;
     }
 
     public buildTableConfig() {
-        let filter = this.buildFilter();
-        this.permisions$ = this.uniHttp.asGET()
-        .usingBusinessDomain()
-        .withEndPoint('employeeleave')
-        .send({
-            filter: filter
-        });
-        
-        this.permisions$.subscribe((response) => {
-            console.log('permisjoner', response);
-        });
-        
         var idCol = new UniTableColumn('ID', 'ID', UniTableColumnType.Number, false);
         var fromDateCol = new UniTableColumn('FromDate', 'Startdato', UniTableColumnType.Date);
         var toDateCol = new UniTableColumn('ToDate', 'Sluttdato', UniTableColumnType.Date);

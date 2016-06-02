@@ -90,10 +90,6 @@ export class RecurringPost implements OnInit {
             filter: `EmployeeNumber eq ${this.employeeID} and IsRecurringPost eq true`
         });
         
-        this.recurringItems$.subscribe((response) => {
-            console.log('recurringposts', response);
-        });
-        
         var wagetypeCol = new UniTableColumn('WageType', 'Lønnsart', UniTableColumnType.Lookup)
             .setTemplate((dataItem) => {
                 return this.getWagetypeName(dataItem.WageTypeNumber);
