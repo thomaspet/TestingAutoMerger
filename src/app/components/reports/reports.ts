@@ -9,7 +9,7 @@ const REPORTS_ROUTES = [
         useAsDefault: true,
         path: "/overview",
         name: "Overview",
-        loader: () => ComponentProxy.LoadComponentAsync("Overview", "app/components/reports/overview/overview")
+            loader: () => ComponentProxy.LoadComponentAsync("Overview", "app/components/reports/overview/overview")
         })
 ];
 

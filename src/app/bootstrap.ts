@@ -9,6 +9,8 @@ import {HTTP_PROVIDERS} from "@angular/http";
 import {App} from "./app";
 import {UniHttp} from "../framework/core/http/http";
 import {UniState} from '../framework/core/UniState';
+import {REPORT_PROVIDERS} from "./services/reports/index";
+import {AuthService} from "../framework/core/authService";
 
 bootstrap(App, [
     // angular providers
@@ -17,6 +19,9 @@ bootstrap(App, [
     provide(LocationStrategy, { useClass: HashLocationStrategy}),
 
     // App providers
+    //
+    REPORT_PROVIDERS,
     provide(UniHttp, {useClass: UniHttp}),
+    provide(AuthService, {useClass: AuthService}),
     provide(UniState, {useClass: UniState})
 ]);

@@ -1,4 +1,5 @@
 import {Http} from '@angular/http';
+import {Injectable} from '@angular/core';
 import {Observable} from 'rxjs/Observable';
 
 import {UniHttp} from '../../../framework/core/http/http';
@@ -20,15 +21,17 @@ class Report extends ReportDefinition {
     public templateJson: string;
 }
 
+@Injectable()
 export class ReportDefinitionService extends BizHttp<ReportDefinition>{
     private report: Report;
     private target: any;
-    
-    constructor(private angHttp: Http,
-                private reportDefinitionDataSourceService: ReportDefinitionDataSourceService, 
-                http: UniHttp) {
-        super(http);
-        
+    private baseHttp: Http;
+    constructor(
+        public uniHttp: UniHttp,
+        public reportDefinitionDataSourceService: ReportDefinitionDataSourceService) {
+
+        super(uniHttp);
+        this.baseHttp = this.uniHttp.http;
         this.relativeURL = ReportDefinition.RelativeUrl;
         this.DefaultOrderBy = 'Category';
     }
@@ -38,7 +41,7 @@ export class ReportDefinitionService extends BizHttp<ReportDefinition>{
         this.target = target;
         
         // get template
-        this.angHttp.get('/assets/ReportTemplates/' + report.TemplateLinkId) 
+        this.baseHttp.get('/assets/ReportTemplates/' + report.TemplateLinkId)
             .map(res => res.text())
             .subscribe(template => {
                 this.report.templateJson = template;
