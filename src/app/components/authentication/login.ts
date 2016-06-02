@@ -32,7 +32,6 @@ export class Login {
         this._authService.authenticate(this.credentials)
             .subscribe(
                 (response) => {
-                    this._authService.setToken(response.access_token);
                     this.onAuthSuccess();
                 },
                 (error) => {
@@ -49,12 +48,12 @@ export class Login {
         // skip process of selecting a company if activeCompany exists in localStorage
         if (this._authService.hasActiveCompany()) {
             this.onCompanySelected();
+            return;
         }
         
         var companies;
         this._authService.getCompanies()
         .subscribe((response) => {
-            console.log(response);
             this.working = false;
             if (response.status !== 200) {
                 this.loginSuccess = false;
@@ -102,11 +101,6 @@ export class Login {
         var element = jQuery('.company_select > select').first().show();
         element.kendoDropDownList(dropdownConfig);
     }
-    
-    private createCompany() {
-        
-    }
-    
 
     private onCompanySelected() {
         this._staticRegisterService.checkForStaticRegisterUpdate();
