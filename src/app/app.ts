@@ -40,8 +40,8 @@ export class LoginModal {
     private working: boolean = false;
     private errorMessage: string = '';
     
-    private username: string = 'urrang';
-    private password: string = 'Simplepass1';
+    private username: string = '';
+    private password: string = '';
     
     constructor(private authService: AuthService) {} 
     
