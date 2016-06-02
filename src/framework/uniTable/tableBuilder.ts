@@ -39,7 +39,7 @@ export class TableBuilder extends UniTableConfig {
                 newCol.format = col.Options.Format || undefined;
                 newCol.width = col.Options.Width || undefined;
                 newCol.filterOperator = col.Options.FilterOperator || 'contains';
-                
+                newCol.editorOptions = col.Options.EditorOptions || undefined;
                 
                 if (col.Options.Editable === false) {
                     newCol.editable = false;
@@ -67,9 +67,7 @@ export class TableBuilder extends UniTableConfig {
     public setColumnProperties(columnField: string, properties: Object) {
         this.columns.forEach((col) => {
             if (col.field === columnField) {
-                Object.keys(properties).forEach((key) => {
-                    col[key] = properties[key];
-                });                
+                jQuery.extend(true, col, properties);
             }
         });
         
