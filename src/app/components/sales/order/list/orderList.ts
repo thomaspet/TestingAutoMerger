@@ -47,10 +47,9 @@ export class OrderList {
 
     private setupOrderTable() {
         this.lookupFunction = (urlParams: URLSearchParams) => {
-            let params = urlParams || new URLSearchParams();
-            
-            // TODO: order by 'OrderDate','desc'
-            // TODO: expand = Customer
+            let params = urlParams || new URLSearchParams();           
+            params.set('expand', 'Customer');
+            params.set('orderby', 'OrderDate desc');
          
             return this.customerOrderService.GetAllByUrlSearchParams(params);
         }
@@ -86,16 +85,9 @@ export class OrderList {
         
         // Define columns to use in the table
         var orderNumberCol = new UniTableColumn('OrderNumber', 'Ordrenr', UniTableColumnType.Text).setWidth('10%');
-       
-        var customerNumberCol = new UniTableColumn('Customer.CustomerNumber', 'Kundenr', UniTableColumnType.Text)
-            //.setNullable(true)
-            .setWidth('10%');
-
+        var customerNumberCol = new UniTableColumn('Customer.CustomerNumber', 'Kundenr', UniTableColumnType.Text).setWidth('10%');
         var customerNameCol = new UniTableColumn('CustomerName', 'Kunde', UniTableColumnType.Text);
-
-        var orderDateCol = new UniTableColumn('OrderDate', 'Ordredato', UniTableColumnType.Date)
-            .setFormat('{0: dd.MM.yyyy}')
-            .setWidth('10%');
+        var orderDateCol = new UniTableColumn('OrderDate', 'Ordredato', UniTableColumnType.Date).setWidth('10%');
 
         var taxInclusiveAmountCol = new UniTableColumn('TaxInclusiveAmount', 'Totalsum', UniTableColumnType.Number)
             .setWidth('10%')
