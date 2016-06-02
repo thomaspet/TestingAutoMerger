@@ -22,7 +22,7 @@ declare var _;
 export class RecurringPost implements OnInit {
     private recurringpostListConfig: UniTableConfig;
     private employeeID: number;
-    private wagetypes: any[];
+    private wagetypes: WageType[];
     private employments: Employment[];
     private recurringItems$: Observable<any>;
     private recurringPosts: SalaryTransaction[];
@@ -52,7 +52,6 @@ export class RecurringPost implements OnInit {
             this.wagetypes = wagetypes;
             this.employments = employments;
         });
-        
     }
     
     public saveRecurringpost(done) {
@@ -65,22 +64,18 @@ export class RecurringPost implements OnInit {
             if (recurringpost.ID > 0) {
                 this.salarytransService.Put(recurringpost.ID, recurringpost)
                 .subscribe((response: SalaryTransaction) => {
-                    let updatedRecurringpost = response;
-                    console.log('oppdatert fast post', updatedRecurringpost);
                     done('Sist lagret: ');
                 },
                 (err) => {
-                    console.log('Feil ved oppdatering av fast post', err);
+                    done('Feil ved oppdatering av fast post', err);
                 });
             } else {
                 this.salarytransService.Post(recurringpost)
                 .subscribe((response: SalaryTransaction) => {
-                    let savedRecurringpost = response;
-                    console.log('lagret fast post', savedRecurringpost);
                     done('Sist lagret: ');
                 },
                 (err) => {
-                    console.log('Feil ved lagring av fast post', err);
+                    done('Feil ved lagring av fast post', err);
                 });
             }
         });
@@ -100,8 +95,9 @@ export class RecurringPost implements OnInit {
         });
         
         var wagetypeCol = new UniTableColumn('WageType', 'Lønnsart', UniTableColumnType.Lookup)
-            .setDisplayField('WageTypeNumber')
-            // .setDisplayField('WageType.WageTypeName')
+            .setTemplate((dataItem) => {
+                return this.getWagetypeName(dataItem.WageTypeNumber);
+            })
             .setEditorOptions({
                 itemTemplate: (selectedItem) => {
                     return (selectedItem.WageTypeId + ' - ' + selectedItem.WageTypeName);
@@ -120,8 +116,9 @@ export class RecurringPost implements OnInit {
         var descriptionCol = new UniTableColumn('Text', 'Beskrivelse', UniTableColumnType.Text);
         
         var employmentIDCol = new UniTableColumn('Employment', 'Arbeidsforhold', UniTableColumnType.Lookup)
-            // .setDisplayField('Employment.JobName')
-            .setDisplayField('EmploymentID')
+            .setTemplate((dataItem) => {
+                return this.getEmploymentJobName(dataItem.EmploymentID);
+            })
             .setEditorOptions({
                 itemTemplate: (selectedItem) => {
                     return (selectedItem.ID + ' - ' + selectedItem.JobName);
@@ -150,7 +147,6 @@ export class RecurringPost implements OnInit {
         ])
         .setChangeCallback((event) => {
             let row = event.rowModel;
-            console.log('event', event);
             
             if (event.field === 'WageType') {
                 this.mapWagetypeToRecurrinpost(row);
@@ -164,7 +160,6 @@ export class RecurringPost implements OnInit {
                 this.calcItem(row);
             }
             
-            console.log('row to be returned to table', row);
             return row;
         });
     }
@@ -191,14 +186,35 @@ export class RecurringPost implements OnInit {
     }
     
     private calcItem(rowModel) {
-        console.log('rowModel to calc', rowModel);
         let sum = rowModel['Amount'] * rowModel['Rate'];
         rowModel['Sum'] = sum; // .toFixed(2);
     }
     
+    private getEmploymentJobName(employmentID: number) {
+        var jobName = '';
+
+        this.employments.forEach((employment: Employment) => {
+            if (employment.ID === employmentID) {
+                jobName = employment.JobName;
+            }
+        });
+        return jobName;
+    }
+    
+    private getWagetypeName(wagetypeNumber: number) {
+        var wagetypeName = '';
+         
+        this.wagetypes.forEach((wagetype: WageType) => {
+            if (wagetype.WageTypeId === wagetypeNumber) {
+                wagetypeName = wagetype.WageTypeName;
+            }
+        });
+        
+        return wagetypeName;
+    }
+    
     private rowChanged(event) {
         this.recurringPosts = this.table.getTableData();
-        console.log('changed data', this.recurringPosts);
         this.saveactions[0].disabled = false;
     }
 }

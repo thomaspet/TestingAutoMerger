@@ -102,7 +102,7 @@ export class WageTypeService extends BizHttp<WageType> {
                     Options: null,
                     LineBreak: null,
                     Combo: null,
-                    Legend: '',
+                    Sectionheader: '',
                     hasLineBreak: false,
                     // Validations: [
                     //     {
@@ -130,7 +130,7 @@ export class WageTypeService extends BizHttp<WageType> {
                     Options: null,
                     LineBreak: null,
                     Combo: null,
-                    Legend: '',
+                    Sectionheader: '',
                     hasLineBreak: false,
                     // Validations: [
                     //     {
@@ -158,7 +158,7 @@ export class WageTypeService extends BizHttp<WageType> {
                     Options: null,
                     LineBreak: null,
                     Combo: null,
-                    Legend: '',
+                    Sectionheader: '',
                     hasLineBreak: false
                 },
                 {
@@ -180,7 +180,7 @@ export class WageTypeService extends BizHttp<WageType> {
                     Options: null,
                     LineBreak: null,
                     Combo: null,
-                    Legend: 'Med i grunnlag for',
+                    Sectionheader: 'Med i grunnlag for',
                     hasLineBreak: false,
                     // Validations: [
                     //     {
@@ -208,7 +208,7 @@ export class WageTypeService extends BizHttp<WageType> {
                     Options: null,
                     LineBreak: null,
                     Combo: null,
-                    Legend: '',
+                    Sectionheader: '',
                     hasLineBreak: false,
                     // Validations: [
                     //     {
@@ -237,7 +237,7 @@ export class WageTypeService extends BizHttp<WageType> {
                     Options: null,
                     LineBreak: null,
                     Combo: null,
-                    Legend: '',
+                    Sectionheader: '',
                     hasLineBreak: false,
                     // Validations: [
                     //     {
@@ -265,7 +265,7 @@ export class WageTypeService extends BizHttp<WageType> {
                     Options: null,
                     LineBreak: null,
                     Combo: null,
-                    Legend: '',
+                    Sectionheader: '',
                     hasLineBreak: false,
                     // Validations: [
                     //     {
@@ -297,7 +297,7 @@ export class WageTypeService extends BizHttp<WageType> {
                     Placeholder: null,
                     LineBreak: null,
                     Combo: null,
-                    Legend: '',
+                    Sectionheader: '',
                     hasLineBreak: false,
                     // Validations: [
                     //     {
@@ -324,7 +324,7 @@ export class WageTypeService extends BizHttp<WageType> {
                     Placeholder: null,
                     LineBreak: null,
                     Combo: null,
-                    Legend: '',
+                    Sectionheader: '',
                     Options: {
                         source: taxType,
                         displayProperty: 'Name',
@@ -357,7 +357,7 @@ export class WageTypeService extends BizHttp<WageType> {
                     Options: null,
                     LineBreak: null,
                     Combo: null,
-                    Legend: '',
+                    Sectionheader: '',
                     hasLineBreak: false,
                     // Validations: [
                     //     {

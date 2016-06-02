@@ -35,7 +35,7 @@ export class EmploymentService extends BizHttp<Employment> {
                     Options: null,
                     LineBreak: null,
                     Combo: null,
-                    Legend: '',
+                    Sectionheader: '',
                 },
                 {
                     ComponentLayoutID: 1,
@@ -55,7 +55,7 @@ export class EmploymentService extends BizHttp<Employment> {
                     Options: null,
                     LineBreak: null,
                     Combo: null,
-                    Legend: '',
+                    Sectionheader: '',
                     Validations: [
                         {
                             ErrorMessage: 'Required field',
@@ -81,7 +81,7 @@ export class EmploymentService extends BizHttp<Employment> {
                 //     Placeholder: null,
                 //     LineBreak: null,
                 //     Combo: null,
-                //     Legend: '',
+                //     Sectionheader: '',
                 //     IsLookUp: false,
                 // },
                 {
@@ -101,7 +101,7 @@ export class EmploymentService extends BizHttp<Employment> {
                     Placeholder: null,
                     LineBreak: null,
                     Combo: null,
-                    Legend: '',
+                    Sectionheader: '',
                     IsLookUp: false,
                 },
                 {
@@ -121,7 +121,7 @@ export class EmploymentService extends BizHttp<Employment> {
                     Placeholder: null,
                     LineBreak: null,
                     Combo: null,
-                    Legend: '',
+                    Sectionheader: '',
                     IsLookUp: false,
                 },
                 {
@@ -141,7 +141,7 @@ export class EmploymentService extends BizHttp<Employment> {
                     Placeholder: null,
                     LineBreak: null,
                     Combo: null,
-                    Legend: '',
+                    Sectionheader: '',
                     IsLookUp: false,
                     Options: {
                         source: this.subEntities, 
@@ -167,7 +167,7 @@ export class EmploymentService extends BizHttp<Employment> {
                     Options: null,
                     LineBreak: null,
                     Combo: null,
-                    Legend: '',
+                    Sectionheader: '',
                     IsLookUp: false,
                 },
                 {
@@ -184,7 +184,7 @@ export class EmploymentService extends BizHttp<Employment> {
                     HelpText: null,
                     FieldSet: 0,
                     Section: 0,
-                    Legend: '',
+                    Sectionheader: '',
                     Placeholder: '',
                     Options: null,
                     LineBreak: null,
@@ -222,7 +222,7 @@ export class EmploymentService extends BizHttp<Employment> {
                 //     },
                 //     LineBreak: null,
                 //     Combo: null,
-                //     Legend: 'A-meldingsinformasjon',
+                //     Sectionheader: 'A-meldingsinformasjon',
                 //     IsLookUp: false,
                 //     hasLineBreak: true,
                 //     Validations: [
@@ -255,7 +255,7 @@ export class EmploymentService extends BizHttp<Employment> {
                 //     },
                 //     LineBreak: null,
                 //     Combo: null,
-                //     Legend: '',
+                //     Sectionheader: '',
                 //     IsLookUp: false,
                 //     Validations: [
                 //         {
@@ -287,7 +287,7 @@ export class EmploymentService extends BizHttp<Employment> {
                 //     },
                 //     LineBreak: null,
                 //     Combo: null,
-                //     Legend: '',
+                //     Sectionheader: '',
                 //     IsLookUp: false,
                 //     hasLineBreak: true,
                 //     Validations: [
@@ -316,7 +316,7 @@ export class EmploymentService extends BizHttp<Employment> {
                     Options: null,
                     LineBreak: null,
                     Combo: null,
-                    Legend: '',
+                    Sectionheader: '',
                     IsLookUp: false,
                     /*Validations: [
                         {
@@ -345,7 +345,7 @@ export class EmploymentService extends BizHttp<Employment> {
                     Options: null,
                     LineBreak: null,
                     Combo: null,
-                    Legend: '',
+                    Sectionheader: '',
                     IsLookUp: false,
                     // Validations: [
                     //     {
@@ -373,7 +373,7 @@ export class EmploymentService extends BizHttp<Employment> {
                     Options: null,
                     LineBreak: null,
                     Combo: null,
-                    Legend: '',
+                    Sectionheader: '',
                     IsLookUp: false,
                     /*Validations: [
                         {
@@ -401,7 +401,7 @@ export class EmploymentService extends BizHttp<Employment> {
                     Options: null,
                     LineBreak: null,
                     Combo: null,
-                    Legend: '',
+                    Sectionheader: '',
                     IsLookUp: false,
                     openByDefault: true,
                     // Validations: [
@@ -430,7 +430,7 @@ export class EmploymentService extends BizHttp<Employment> {
                     Options: null,
                     LineBreak: null,
                     Combo: null,
-                    Legend: '',
+                    Sectionheader: '',
                     IsLookUp: false,
                     // Validations: [
                     //     {
@@ -458,7 +458,7 @@ export class EmploymentService extends BizHttp<Employment> {
                     Options: null,
                     LineBreak: null,
                     Combo: null,
-                    Legend: '',
+                    Sectionheader: '',
                     IsLookUp: false,
                     // Validations: [
                     //     {

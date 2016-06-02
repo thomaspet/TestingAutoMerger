@@ -103,7 +103,7 @@ export class EmployeeService extends BizHttp<Employee> {
                     Options: null,
                     LineBreak: null,
                     Combo: null,
-                    Legend: '',
+                    Sectionheader: '',
                     hasLineBreak: false,
                      
                     Validations: [
@@ -133,7 +133,7 @@ export class EmployeeService extends BizHttp<Employee> {
                     Options: null,
                     LineBreak: null,
                     Combo: null,
-                    Legend: '',
+                    Sectionheader: '',
                     Validations: [
                         {
                             ErrorMessage: 'Required field',
@@ -161,7 +161,7 @@ export class EmployeeService extends BizHttp<Employee> {
                     Options: null,
                     LineBreak: null,
                     Combo: null,
-                    Legend: '',
+                    Sectionheader: '',
                     Validations: [
                         {
                             ErrorMessage: 'Required field',
@@ -188,7 +188,7 @@ export class EmployeeService extends BizHttp<Employee> {
                     Placeholder: null,
                     LineBreak: null,
                     Combo: null,
-                    Legend: '',
+                    Sectionheader: '',
                     IsLookUp: true,
                     Options: {
                         source: [
@@ -225,7 +225,7 @@ export class EmployeeService extends BizHttp<Employee> {
                     Placeholder: null,
                     LineBreak: null,
                     Combo: null,
-                    Legend: '',
+                    Sectionheader: '',
                     IsLookUp: false,
                     Options: {
                         mask: '0000 00 00000'
@@ -262,7 +262,7 @@ export class EmployeeService extends BizHttp<Employee> {
                     Placeholder: null,
                     LineBreak: null,
                     Combo: null,
-                    Legend: '',
+                    Sectionheader: '',
                     IsLookUp: false,
                     Options: {
                         // source: this.subEntities,
@@ -301,7 +301,7 @@ export class EmployeeService extends BizHttp<Employee> {
                     Options: null,
                     LineBreak: null,
                     Combo: null,
-                    Legend: '',
+                    Sectionheader: '',
                     IsLookUp: false,
                     Validations: [
                         {
@@ -330,7 +330,7 @@ export class EmployeeService extends BizHttp<Employee> {
                     Options: null,
                     LineBreak: null,
                     Combo: null,
-                    Legend: 'KONTAKTINFORMASJON',
+                    Sectionheader: 'KONTAKTINFORMASJON',
                     IsLookUp: false,
                     openByDefault: true,
                     /*Validations: [
@@ -356,7 +356,7 @@ export class EmployeeService extends BizHttp<Employee> {
                     HelpText: null,
                     FieldSet: 0,
                     Section: 1,
-                    Legend: 'KONTAKTINFORMASJON',
+                    Sectionheader: 'KONTAKTINFORMASJON',
                     Placeholder: '',
                     Options: null,
                     LineBreak: null,
@@ -388,7 +388,7 @@ export class EmployeeService extends BizHttp<Employee> {
                     Options: null,
                     LineBreak: null,
                     Combo: null,
-                    Legend: '',
+                    Sectionheader: '',
                     IsLookUp: false,
                     hasLineBreak: true,
                     Validations: [
@@ -418,7 +418,7 @@ export class EmployeeService extends BizHttp<Employee> {
                     Options: null,
                     LineBreak: null,
                     Combo: null,
-                    Legend: '',
+                    Sectionheader: '',
                     IsLookUp: false,
                     Validations: [
                         {
@@ -447,7 +447,7 @@ export class EmployeeService extends BizHttp<Employee> {
                     Options: null,
                     LineBreak: null,
                     Combo: null,
-                    Legend: '',
+                    Sectionheader: '',
                     IsLookUp: false,
                     hasLineBreak: true,
                     Validations: [
@@ -477,7 +477,7 @@ export class EmployeeService extends BizHttp<Employee> {
                     Options: null,
                     LineBreak: null,
                     Combo: null,
-                    Legend: '',
+                    Sectionheader: '',
                     IsLookUp: false,
                     /*Validations: [
                         {
@@ -506,7 +506,7 @@ export class EmployeeService extends BizHttp<Employee> {
                     Options: null,
                     LineBreak: null,
                     Combo: null,
-                    Legend: '',
+                    Sectionheader: '',
                     IsLookUp: false,
                     Validations: [
                         {
@@ -535,7 +535,7 @@ export class EmployeeService extends BizHttp<Employee> {
                     Options: null,
                     LineBreak: null,
                     Combo: null,
-                    Legend: '',
+                    Sectionheader: '',
                     IsLookUp: false
                 },
                 {
@@ -557,7 +557,7 @@ export class EmployeeService extends BizHttp<Employee> {
                     Options: null,
                     LineBreak: null,
                     Combo: null,
-                    Legend: 'SKATTEKORT',
+                    Sectionheader: 'SKATTEKORT',
                     IsLookUp: false,
                     openByDefault: true,
                     Validations: [
@@ -587,7 +587,7 @@ export class EmployeeService extends BizHttp<Employee> {
                     Options: null,
                     LineBreak: null,
                     Combo: null,
-                    Legend: '',
+                    Sectionheader: '',
                     IsLookUp: false,
                     Validations: [
                         {
@@ -616,7 +616,7 @@ export class EmployeeService extends BizHttp<Employee> {
                     Options: null,
                     LineBreak: null,
                     Combo: null,
-                    Legend: '',
+                    Sectionheader: '',
                     IsLookUp: false,
                     Validations: [
                         {
@@ -645,7 +645,7 @@ export class EmployeeService extends BizHttp<Employee> {
                     Options: null,
                     LineBreak: null,
                     Combo: null,
-                    Legend: '',
+                    Sectionheader: '',
                     IsLookUp: false,
                     Validations: []
                 },
@@ -668,7 +668,7 @@ export class EmployeeService extends BizHttp<Employee> {
                     Options: null,
                     LineBreak: null,
                     Combo: null,
-                    Legend: '',
+                    Sectionheader: '',
                     IsLookUp: false,
                     Validations: [
                         {
