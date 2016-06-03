@@ -27,8 +27,11 @@
 
 </header>
 <section class="application" [attr.aria-busy]="busy">
-    <uni-component-loader class="payrollrun_details"></uni-component-loader>
+    <!--<uni-component-loader class="payrollrun_details"></uni-component-loader>-->
+    <uni-form [config]="config" [fields]="fields" [model]="payrollrun" (onChange)="change($event)" (onReady)="ready($event)"></uni-form>
 </section>
 <section *ngIf="payrollrun" [attr.aria-busy]="busy">
     <salarytrans [selectedPayrollRun]="payrollrun"></salarytrans>
 </section>
+
+<uni-save [actions]="saveactions"></uni-save>
