@@ -3,7 +3,7 @@
     <uni-table 
         [resource]="lookupFunction" 
         [config]="invoiceTable" 
-        (rowSelected)="onRowSelected($event)"
+        (rowSelected)="onRowSelected($event.rowModel)"
         (filtersChange)="onFiltersChange($event.filter)">
     </uni-table>
     <dl class="summary" *ngIf="summaryData" [attr.aria-busy]="busy">

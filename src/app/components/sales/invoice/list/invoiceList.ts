@@ -1,4 +1,4 @@
-import {Component, ViewChildren, ViewChild} from '@angular/core';
+import {Component, ViewChildren, ViewChild, OnInit} from '@angular/core';
 import {UniTable, UniTableColumn, UniTableColumnType, UniTableConfig, IContextMenuItem} from 'unitable-ng2/main';
 import {Router} from '@angular/router-deprecated';
 import {UniHttp} from '../../../../../framework/core/http/http';
@@ -20,7 +20,7 @@ import {RegisterPaymentModal} from '../../../common/modals/registerPaymentModal'
     pipes: [AsyncPipe]
 })
 
-export class InvoiceList {
+export class InvoiceList implements OnInit {
     @ViewChildren(UniTable) public table: any;
 
     private invoiceTable: UniTableConfig;
@@ -35,11 +35,16 @@ export class InvoiceList {
                 private router: Router,
                 private customerInvoiceService: CustomerInvoiceService,
                 private http: Http) {
-        this.setupInvoiceTable();
+       
     }
 
     private log(err) {
         alert(err._body);
+    }
+    
+    public ngOnInit() {
+        this.setupInvoiceTable();
+        this.onFiltersChange('');
     }
 
     public createInvoice() {
@@ -67,6 +72,10 @@ export class InvoiceList {
             console.log('Error registering payment: ', err);
             this.log(err);
         });
+    }
+
+    public onRowSelected(item) {
+        this.router.navigateByUrl(`/sales/invoice/details/${item.ID}`);
     }
 
     private setupInvoiceTable() {
@@ -216,19 +225,15 @@ export class InvoiceList {
             .setContextMenu(contextMenuItems);
     }
     
-    public onFiltersChange(filter: string) {
-        if (filter) {
-            this.customerInvoiceService
-                .getInvoiceSummary(filter)
-                .subscribe((summary) => {
-                    this.summaryData = summary;
-                },
-                (err) => { 
-                    console.log('Error retrieving summarydata:', err);
-                    this.summaryData = null;
-                });
-        } else {
-            this.summaryData = null;
-        }
+    public onFiltersChange(filter: string) {        
+        this.customerInvoiceService
+            .getInvoiceSummary(filter)
+            .subscribe((summary) => {
+                this.summaryData = summary;
+            },
+            (err) => { 
+                console.log('Error retrieving summarydata:', err);
+                this.summaryData = null;
+            });
     }
 }
