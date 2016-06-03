@@ -4,6 +4,7 @@ import {EmploymentService, StaticRegisterService} from '../../../../services/ser
 import {FieldType, STYRKCode, Employee, Employment, FieldLayout} from '../../../../unientities';
 import {UniSave, IUniSaveAction} from '../../../../../framework/save/save';
 import {UniForm} from '../../../../../framework/uniform';
+import {UniFieldLayout} from '../../../../../framework/uniform/index';
 
 declare var jQuery;
 
@@ -91,7 +92,7 @@ export class EmployeeEmployment {
         this.styrks = this.statReg.getStaticRegisterDataset('styrk');
         
         this.config = {
-            submitText: 'Lagre arbeidsforholdet'
+            submitText: ''
         };
         
         if (this._employmentService.subEntities) {
@@ -117,110 +118,104 @@ export class EmployeeEmployment {
         .subscribe((layout: any) => {
             this.fields = layout.Fields;
             
-            var autocompleteJobcode: FieldLayout = {
-                ComponentLayoutID: 1,
-                EntityType: 'Employment',
-                Property: 'JobCode',
-                Placement: 1,
-                Hidden: false,
-                LookupField: false,
-                Description: null,
-                HelpText: null,
-                FieldSet: 0,
-                Section: 0,
-                Combo: 0,
-                FieldType: 0,
-                Label: 'Stillingskode',
-                ReadOnly: false,
-                Placeholder: 'Stillingskode',
-                Options: {
-                    source: this.styrks,
-                    template: (obj) => `${obj.styrk} - ${obj.tittel}`, 
-                    displayProperty: 'styrk',
-                    valueProperty: 'styrk',
-                    debounceTime: 500,
-                }
+            var autocompleteJobcode = new UniFieldLayout();
+            autocompleteJobcode.EntityType = 'Employment';
+            autocompleteJobcode.Property = 'JobCode';
+            autocompleteJobcode.Placement = 1;
+            autocompleteJobcode.Hidden = false;
+            autocompleteJobcode.LookupField = false;
+            autocompleteJobcode.Description = null;
+            autocompleteJobcode.HelpText = null;
+            autocompleteJobcode.FieldSet = 0;
+            autocompleteJobcode.Section = 0;
+            autocompleteJobcode.Combo = 0;
+            autocompleteJobcode.FieldType = 0;
+            autocompleteJobcode.Label = 'Stillingskode';
+            autocompleteJobcode.ReadOnly = false;
+            autocompleteJobcode.Placeholder = 'Stillingskode';
+            autocompleteJobcode.Options = {
+                source: this.styrks,
+                template: (obj) => `${obj.styrk} - ${obj.tittel}`, 
+                displayProperty: 'styrk',
+                valueProperty: 'styrk',
+                debounceTime: 500,
             };
             
             this.fields = [autocompleteJobcode, ...this.fields];
             
             this._employmentService.layoutSection('EmploymentDetailsSection')
             .subscribe((layoutSection: any) => {
-                var typeEmployment: FieldLayout = {
-                    ComponentLayoutID: 1,
-                    EntityType: 'Employment',
-                    Property: 'TypeOfEmployment',
-                    Placement: 3,
-                    Hidden: false,
-                    FieldType: FieldType.DROPDOWN,
-                    ReadOnly: false,
-                    LookupField: false,
-                    Label: 'Arbeidsforhold',
-                    Description: null,
-                    HelpText: null,
-                    FieldSet: 0,
-                    Section: 1,
-                    Placeholder: null,
-                    Options: {
-                        source: this.typeOfEmployment, 
-                        valueProperty: 'ID',
-                        displayProperty: 'Name'
-                    },
-                    LineBreak: null,
-                    Combo: null,
-                    Legend: 'A-meldingsinformasjon'
-                };
                 
-                var renumType: FieldLayout = {
-                    ComponentLayoutID: 1,
-                    EntityType: 'Employment',
-                    Property: 'RenumerationType',
-                    Placement: 4,
-                    Hidden: false,
-                    FieldType: FieldType.DROPDOWN,
-                    ReadOnly: false,
-                    LookupField: false,
-                    Label: 'Avlønningstype',
-                    Description: null,
-                    HelpText: null,
-                    FieldSet: 0,
-                    Section: 1,
-                    Placeholder: null,
-                    Options: {
-                        source: this.renumerationType, 
-                        valueProperty: 'ID',
-                        displayProperty: 'Name'
-                    },
-                    LineBreak: null,
-                    Combo: null,
-                    Legend: ''
+                var typeEmployment = new UniFieldLayout();
+                typeEmployment.ComponentLayoutID = 1;
+                typeEmployment.EntityType = 'Employment';
+                typeEmployment.Property = 'TypeOfEmployment';
+                typeEmployment.Placement = 3;
+                typeEmployment.Hidden = false;
+                typeEmployment.FieldType = FieldType.DROPDOWN;
+                typeEmployment.ReadOnly = false;
+                typeEmployment.LookupField = false;
+                typeEmployment.Label = 'Arbeidsforhold';
+                typeEmployment.Description = null;
+                typeEmployment.HelpText = null;
+                typeEmployment.FieldSet = 0;
+                typeEmployment.Section = 1;
+                typeEmployment.Placeholder = null;
+                typeEmployment.Options = {
+                    source: this.typeOfEmployment, 
+                    valueProperty: 'ID',
+                    displayProperty: 'Name'
                 };
+                typeEmployment.LineBreak = null;
+                typeEmployment.Combo = null;
+                typeEmployment.Legend = 'A-meldingsinformasjon';
                 
-                var workHour: FieldLayout = {
-                    ComponentLayoutID: 1,
-                    EntityType: 'Employment',
-                    Property: 'WorkingHoursScheme',
-                    Placement: 5,
-                    Hidden: false,
-                    FieldType: FieldType.DROPDOWN,
-                    ReadOnly: false,
-                    LookupField: false,
-                    Label: 'Arbeidstid',
-                    Description: null,
-                    HelpText: null,
-                    FieldSet: 0,
-                    Section: 1,
-                    Placeholder: null,
-                    Options: {
-                        source: this.workingHoursScheme, 
-                        valueProperty: 'ID',
-                        displayProperty: 'Name'
-                    },
-                    LineBreak: null,
-                    Combo: null,
-                    Legend: ''
-
+                var renumType = new UniFieldLayout();
+                renumType.EntityType = 'Employment';
+                renumType.Property = 'RenumerationType';
+                renumType.Placement = 4;
+                renumType.Hidden = false;
+                renumType.FieldType = FieldType.DROPDOWN;
+                renumType.ReadOnly = false;
+                renumType.LookupField = false;
+                renumType.Label = 'Avlønningstype';
+                renumType.Description = null;
+                renumType.HelpText = null;
+                renumType.FieldSet = 0;
+                renumType.Section = 1;
+                renumType.Placeholder = null;
+                renumType.Options = {
+                    source: this.renumerationType, 
+                    valueProperty: 'ID',
+                    displayProperty: 'Name'
                 };
+                renumType.LineBreak = null;
+                renumType.Combo = null;
+                renumType.Legend = '';
+                
+                var workHour = new UniFieldLayout();
+                workHour.EntityType = 'Employment';
+                workHour.Property = 'WorkingHoursScheme';
+                workHour.Placement = 5;
+                workHour.Hidden = false;
+                workHour.FieldType = FieldType.DROPDOWN;
+                workHour.ReadOnly = false;
+                workHour.LookupField = false;
+                workHour.Label = 'Arbeidstid';
+                workHour.Description = null;
+                workHour.HelpText = null;
+                workHour.FieldSet = 0;
+                workHour.Section = 1;
+                workHour.Placeholder = null;
+                workHour.Options = {
+                    source: this.workingHoursScheme, 
+                    valueProperty: 'ID',
+                    displayProperty: 'Name'
+                };
+                workHour.LineBreak = null;
+                workHour.Combo = null;
+                workHour.Legend = '';
+                    
                 this.fields = [...this.fields, typeEmployment, renumType, workHour, ...layoutSection.Fields];
                 this.busy = false;
             });

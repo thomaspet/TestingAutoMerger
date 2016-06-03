@@ -43,6 +43,8 @@ export class RecurringPost implements OnInit {
     }
     
     public ngOnInit() {
+        this.buildTableConfig();
+        
         Observable.forkJoin(
             this.wagetypeService.GetAll(''),
             this.employmentService.GetAll('filter=EmployeeID eq ' + this.employeeID)
@@ -51,6 +53,13 @@ export class RecurringPost implements OnInit {
             let [wagetypes, employments] = response;
             this.wagetypes = wagetypes;
             this.employments = employments;
+            
+            this.recurringItems$ = this.uniHttp.asGET()
+            .usingBusinessDomain()
+            .withEndPoint('salarytrans')
+            .send({
+                filter: `EmployeeNumber eq ${this.employeeID} and IsRecurringPost eq true`
+            });
         });
     }
     
@@ -83,13 +92,6 @@ export class RecurringPost implements OnInit {
     }
     
     private buildTableConfig() {
-        this.recurringItems$ = this.uniHttp.asGET()
-        .usingBusinessDomain()
-        .withEndPoint('salarytrans')
-        .send({
-            filter: `EmployeeNumber eq ${this.employeeID} and IsRecurringPost eq true`
-        });
-        
         var wagetypeCol = new UniTableColumn('WageType', 'Lønnsart', UniTableColumnType.Lookup)
             .setTemplate((dataItem) => {
                 return this.getWagetypeName(dataItem.WageTypeNumber);

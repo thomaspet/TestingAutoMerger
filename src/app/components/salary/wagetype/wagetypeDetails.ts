@@ -30,7 +30,7 @@ export class WagetypeDetail {
     
     constructor(private routeparams: RouteParams, private router: Router, private wageService: WageTypeService) {
         this.config = {
-            submitText: 'Lagre lønnsart'
+            submitText: ''
         };
         this.wagetypeID = +this.routeparams.get('id');
         this.getLayoutAndData();

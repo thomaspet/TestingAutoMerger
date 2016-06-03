@@ -3,15 +3,16 @@ import {Router} from '@angular/router-deprecated';
 import {UniForm} from '../../../../../framework/uniform';
 import {Observable} from 'rxjs/Observable';
 import 'rxjs/add/operator/merge';
-import {OperationType, Operator, ValidationLevel, Employee, Email, Phone, Address, FieldLayout, BusinessRelation} from '../../../../unientities';
+import {OperationType, Operator, ValidationLevel, Employee, Email, Phone, Address, BusinessRelation} from '../../../../unientities';
 import {EmployeeService, PhoneService, EmailService, AddressService, AltinnService, SubEntityService} from '../../../../services/services';
 import {AddressModal} from '../../../sales/customer/modals/address/address';
 import {EmailModal} from '../../../sales/customer/modals/email/email';
 import {PhoneModal} from '../../../sales/customer/modals/phone/phone';
 import {RootRouteParamsService} from '../../../../services/rootRouteParams';
 import {UniSave, IUniSaveAction} from '../../../../../framework/save/save';
-
+import {UniFieldLayout} from '../../../../../framework/uniform/index';
 import {TaxCardRequestModal} from '../modals/taxCardRequestModal';
+
 declare var _;
 
 @Component({
@@ -94,46 +95,37 @@ export class PersonalDetails {
                 this.emptyAddress = emptyAddress;
                 this.fields = layout.Fields;
                 this.config = {
-                    submitText: 'Lagre ansatt'
+                    submitText: ''
                 };
                 
-                // this.extendFormConfig();
+                this.extendFormConfig();
             }
             , (error: any) => console.error(error)
         );
     }
     
-    private find(name: string) {
-        var items = this.fields.filter((item) => {
-            return item.Property === name;
-        });
-        
-        return items[0];
-    }
-    
     private extendFormConfig() {
         
-        let multiValuePhone: FieldLayout = {
-            ComponentLayoutID: 1,
-            FieldSet: 0,
-            Section: 0,
-            Combo: 0,
-            FieldType: 14,
-            Label: 'Telefon',
-            Property: 'BusinessRelationInfo.Phones',
-            ReadOnly: false,
-            Placeholder: 'Legg til telefon',
-            Options: {
-                entity: Phone,
-                displayValue: 'Number',
-                linkProperty: 'BusinessRelationInfo.DefaultPhoneID',
-                foreignProperty: 'BusinessRelationInfo.DefaultPhone',
-                editor: (value) => new Promise((resolve) => {
-                    var x: BusinessRelation = new BusinessRelation();
-                    x.Name = value;
-                    resolve(x);
-                })
-            }
+        var multiValuePhone = new UniFieldLayout();
+        multiValuePhone.FieldSet = 0;
+        multiValuePhone.Section = 0;
+        multiValuePhone.Combo = 0;
+        multiValuePhone.FieldType = 14;
+        multiValuePhone.Label = 'Telefon';
+        multiValuePhone.Property = 'BusinessRelationInfo.Phones';
+        multiValuePhone.ReadOnly = false;
+        multiValuePhone.Placeholder = 'Legg til telefon';
+        multiValuePhone.Options = {
+            entity: Phone,
+            displayValue: 'Number',
+            linkProperty: 'BusinessRelationInfo.DefaultPhoneID',
+            foreignProperty: 'BusinessRelationInfo.DefaultPhone',
+            // editor: (value) => new Promise((resolve) => {
+            //     var x: BusinessRelation = new BusinessRelation();
+            //     x.Name = value;
+            //     resolve(x);
+            // })
+            editor: (PhoneModal)
         };
         
         // var phones: any = this.fields.find('Phones');
@@ -202,7 +194,6 @@ export class PersonalDetails {
     }
     
     private saveEmployee(done) {
-        console.log('employee to save', this.employee);
         done('Lagrer persondetaljer');
         if (this.employee.ID > 0) {
             this.employeeService.Put(this.employee.ID, this.employee)
