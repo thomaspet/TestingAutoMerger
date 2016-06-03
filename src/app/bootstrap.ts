@@ -11,6 +11,7 @@ import {UniHttp} from "../framework/core/http/http";
 import {UniState} from '../framework/core/UniState';
 import {REPORT_PROVIDERS} from "./services/reports/index";
 import {AuthService} from "../framework/core/authService";
+import {IntegrationServerCaller} from './services/common/IntegrationServerCaller';
 
 bootstrap(App, [
     // angular providers
@@ -22,6 +23,9 @@ bootstrap(App, [
     //
     REPORT_PROVIDERS,
     provide(UniHttp, {useClass: UniHttp}),
-    provide(AuthService, {useClass: AuthService}),
-    provide(UniState, {useClass: UniState})
+    provide(UniState, {useClass: UniState}),
+    
+    // Services
+    provide(IntegrationServerCaller , { useClass: IntegrationServerCaller })
+    
 ]);

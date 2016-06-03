@@ -1,4 +1,4 @@
-import {Injectable, Inject} from '@angular/core';
+import {Injectable, Inject, Output, EventEmitter} from '@angular/core';
 import {Router} from '@angular/router-deprecated';
 import {Http, Headers} from '@angular/http';
 import {Observable} from 'rxjs/Observable';
@@ -9,10 +9,15 @@ declare var jwt_decode: (token: string) => any; // node_modules/jwt_decode
 
 @Injectable()
 export class AuthService {
+    @Output()
+    public requestAuthentication$: EventEmitter<any> = new EventEmitter();
+    
     public jwt: string;
     public jwtDecoded: any;
     public activeCompany: any;
     public expiredToken: boolean;
+    public companySettings : any;
+    public lastTokenUpdate: Date;
 
     constructor(@Inject(Router) private router: Router, @Inject(Http) private http: Http) {
         this.activeCompany = JSON.parse(localStorage.getItem('activeCompany')) || undefined;
@@ -39,7 +44,14 @@ export class AuthService {
         let headers = new Headers({'Content-Type': 'application/json', 'Accept': 'application/json'});
         
         return this.http.post(url, JSON.stringify(credentials), {headers: headers})
-            .map(response => response.json());
+            .switchMap((response) => {
+                if (response.status === 200) {
+                    this.setToken(response.json().access_token);
+                    this.lastTokenUpdate = new Date();
+                }
+                
+                return Observable.from([response.json()]);
+            });
     }
     
     /**
@@ -49,6 +61,13 @@ export class AuthService {
     public getCompanies(): Observable<any> {
         let url = AppConfig.BASE_URL_INIT + AppConfig.API_DOMAINS.INIT + 'companies';
         let headers = new Headers({'Authorization': 'Bearer ' + this.jwt, 'Accept': 'application/json'});
+        
+        return this.http.get(url, {headers: headers});
+    }
+    
+    public getCompanySettings(companykey:string) : Observable<any> {
+        let url = AppConfig.BASE_URL + AppConfig.API_DOMAINS.BUSINESS + 'companysettings';
+        let headers = new Headers({'Authorization': 'Bearer ' + this.jwt, 'Accept': 'application/json', 'CompanyKey' :companykey});
         
         return this.http.get(url, {headers: headers});
     }
@@ -64,7 +83,7 @@ export class AuthService {
      * Returns web token or redirects to /login if user is not authenticated
      * @returns {String}
      */
-    public getToken(): string {       
+    public getToken(): string {
         return this.jwt;
     }
     
@@ -74,7 +93,17 @@ export class AuthService {
      */
     public setActiveCompany(activeCompany: any): void {
         localStorage.setItem('activeCompany', JSON.stringify(activeCompany));
-        this.activeCompany = activeCompany;
+        this.activeCompany = activeCompany;       
+            
+        if(this.hasActiveCompany())
+        {            
+            //store company settings
+            this.getCompanySettings(activeCompany.Key).subscribe((response:any) => {
+                this.companySettings = JSON.parse(response._body)[0];
+                localStorage.setItem('companySettings', JSON.stringify(this.companySettings));          
+                
+            }, error => console.log(error));
+        }
     }
     
     /**
@@ -141,5 +170,4 @@ export class AuthService {
         expires.setUTCSeconds(decodedToken.exp);
         return (expires.valueOf() < new Date().valueOf() + (offsetSeconds * 1000));
     }
-
 }

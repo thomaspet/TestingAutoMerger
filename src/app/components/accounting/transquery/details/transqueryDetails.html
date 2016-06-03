@@ -1,6 +1,10 @@
 <section class="application">
     <uni-component-loader></uni-component-loader>
-    <uni-table [resource]="lookupFunction" [config]="uniTableConfig"></uni-table>
+    <uni-table
+            [resource]="lookupFunction"
+            [config]="uniTableConfig"
+            (filtersChange)="onFiltersChange($event.filter)"
+    ></uni-table>
 
     <dl class="summary" *ngIf="summaryData" [attr.aria-busy]="busy">
         <dt>Sum debet</dt>
