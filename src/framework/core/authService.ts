@@ -16,6 +16,7 @@ export class AuthService {
     public jwtDecoded: any;
     public activeCompany: any;
     public expiredToken: boolean;
+    public companySettings : any;
     public lastTokenUpdate: Date;
 
     constructor(@Inject(Router) private router: Router, @Inject(Http) private http: Http) {
@@ -64,6 +65,13 @@ export class AuthService {
         return this.http.get(url, {headers: headers});
     }
     
+    public getCompanySettings(companykey:string) : Observable<any> {
+        let url = AppConfig.BASE_URL + AppConfig.API_DOMAINS.BUSINESS + 'companysettings';
+        let headers = new Headers({'Authorization': 'Bearer ' + this.jwt, 'Accept': 'application/json', 'CompanyKey' :companykey});
+        
+        return this.http.get(url, {headers: headers});
+    }
+    
     public setToken(token: string) {
         this.jwt = token;
         localStorage.setItem('jwt', this.jwt);
@@ -85,7 +93,17 @@ export class AuthService {
      */
     public setActiveCompany(activeCompany: any): void {
         localStorage.setItem('activeCompany', JSON.stringify(activeCompany));
-        this.activeCompany = activeCompany;
+        this.activeCompany = activeCompany;       
+            
+        if(this.hasActiveCompany())
+        {            
+            //store company settings
+            this.getCompanySettings(activeCompany.Key).subscribe((response:any) => {
+                this.companySettings = JSON.parse(response._body)[0];
+                localStorage.setItem('companySettings', JSON.stringify(this.companySettings));          
+                
+            }, error => console.log(error));
+        }
     }
     
     /**

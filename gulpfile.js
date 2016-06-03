@@ -102,11 +102,3 @@ gulp.task('build.dev', function(done) {
 gulp.task('build.dev.watch', function(done) {
     runSequence(tasks.dev, 'watch', done);
 });
-
-gulp.task('serve', function() {
-    return plugins.connect.server({
-        //livereload: true ,
-        root: 'dist',
-        port: 3000
-    });
-});
