@@ -80,4 +80,12 @@ export class SupplierInvoiceService extends BizHttp<SupplierInvoice> {
             .withEndPoint(`${this.relativeURL}/${supplierInvoiceId}?action=payInvoice`)
             .send();
     }
+    
+    public getInvoiceSummary(odatafilter: string): Observable<any> {        
+        return this.http 
+            .asGET()
+            .usingBusinessDomain()            
+            .withEndPoint(this.relativeURL + '?action=get-supplier-invoice-summary&odataFilter=' + odatafilter) 
+            .send();
+    } 
 }

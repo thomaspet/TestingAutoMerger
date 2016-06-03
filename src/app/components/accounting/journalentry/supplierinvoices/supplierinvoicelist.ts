@@ -8,6 +8,8 @@ import {URLSearchParams} from '@angular/http';
 import {Observable} from 'rxjs/Rx';
 import {RegisterPaymentModal} from '../../../common/modals/registerPaymentModal';
 import {InvoicePaymentData} from '../../../../models/sales/InvoicePaymentData';
+import {InvoiceSummary} from '../../../../models/accounting/InvoiceSummary';
+
 
 declare const moment;
 
@@ -27,7 +29,8 @@ export class SupplierInvoiceList implements OnInit {
     private registerPaymentModal: RegisterPaymentModal;
 
     private supplierInvoiceTableCfg: UniTableConfig;
-
+    private summaryData: InvoiceSummary;
+    
     constructor(
         private supplierInvoiceService: SupplierInvoiceService,
         private router: Router
@@ -40,6 +43,8 @@ export class SupplierInvoiceList implements OnInit {
             urlParams.set('expand', 'JournalEntry,Supplier.Info');
             return this.supplierInvoiceService.GetAllByUrlSearchParams(urlParams);
         };
+        
+        this.onFiltersChange('');
     }
 
     public onLineClick(selectedItem) {
@@ -57,12 +62,12 @@ export class SupplierInvoiceList implements OnInit {
     }
 
     private setupTableCfg(): UniTableConfig {
-        const statusTextCol = new UniTableColumn('StatusCode', 'Status')
+        const statusTextCol = new UniTableColumn('StatusCode', 'Status', UniTableColumnType.Number)
             .setTemplate((dataItem) => {
                 return this.supplierInvoiceService.getStatusText(dataItem.StatusCode);
             });
 
-        const journalEntryCol = new UniTableColumn('JournalEntry.JournalEntryNumber', 'Bilagsnr')
+        const journalEntryCol = new UniTableColumn('JournalEntry.JournalEntryNumber', 'Bilagsnr', UniTableColumnType.Number)
             .setTemplate(journalEntry => {
                 if (journalEntry.JournalEntry && journalEntry.JournalEntry.JournalEntryNumber) {
                     return `<a href="#/accounting/transquery/detailsByJournalEntryNumber/${journalEntry.JournalEntry.JournalEntryNumber}">
@@ -71,20 +76,18 @@ export class SupplierInvoiceList implements OnInit {
                 }
             });
 
-        const supplierNrCol = new UniTableColumn('Supplier.SupplierNumber', 'Lev.nr');
+        const supplierNrCol = new UniTableColumn('Supplier.SupplierNumber', 'Lev.nr', UniTableColumnType.Number);
 
-        const supplierNameCol = new UniTableColumn('Supplier.Info.Name', 'Navn');
+        const supplierNameCol = new UniTableColumn('Supplier.Info.Name', 'Navn', UniTableColumnType.Text);
 
-        const invoiceDateCol = new UniTableColumn('InvoiceDate', 'Fakturadato')
-            .setType(UniTableColumnType.Date)
+        const invoiceDateCol = new UniTableColumn('InvoiceDate', 'Fakturadato', UniTableColumnType.Date)            
             .setFormat(this.DATE_FORMAT);
 
-        const invoiceIDCol = new UniTableColumn('InvoiceNumber', 'Fakturanr');
+        const invoiceIDCol = new UniTableColumn('InvoiceNumber', 'Fakturanr', UniTableColumnType.Number);
 
-        const bankAccount = new UniTableColumn('BankAccount', 'Bankkontonr');
+        const bankAccount = new UniTableColumn('BankAccount', 'Bankkontonr', UniTableColumnType.Text);
 
-        const paymentDueDateCol = new UniTableColumn('PaymentDueDate', 'Forfallsdato')
-            .setType(UniTableColumnType.Date)
+        const paymentDueDateCol = new UniTableColumn('PaymentDueDate', 'Forfallsdato', UniTableColumnType.Date)            
             .setConditionalCls(journalEntry =>
                 moment(journalEntry.PaymentDueDate).isBefore(moment()) ? 'supplier-invoice-table-payment-overdue' : ''
             )
@@ -96,13 +99,11 @@ export class SupplierInvoiceList implements OnInit {
         const taxInclusiveAmountCol = new UniTableColumn('TaxInclusiveAmount', 'Beløp')
             .setCls('supplier-invoice-table-amount'); // TODO decide what/how format is set for the different field types
 
-        const restAmountCol = new UniTableColumn('RestAmount', 'Restbeløp')
-            .setType(UniTableColumnType.Number)
+        const restAmountCol = new UniTableColumn('RestAmount', 'Restbeløp', UniTableColumnType.Number)            
             .setCls('column-align-right')
             .setFormat('{0:n}');
 
-        const creditedAmountCol = new UniTableColumn('CreditedAmount', 'Kreditert')
-            .setType(UniTableColumnType.Number)
+        const creditedAmountCol = new UniTableColumn('CreditedAmount', 'Kreditert', UniTableColumnType.Number)            
             .setCls('column-align-right')
             .setFormat('{0:n}');
 
@@ -122,6 +123,7 @@ export class SupplierInvoiceList implements OnInit {
                 creditedAmountCol
             ])
             .setPageSize(15)
+            .setSearchable(true)            
             .setContextMenu([
                 {
                     label: 'Rediger',
@@ -164,5 +166,17 @@ export class SupplierInvoiceList implements OnInit {
                     disabled: supplierInvoice => !supplierInvoice._links.actions.delete
                 }
             ]);
+    }
+    
+    public onFiltersChange(filter: string) {
+        this.supplierInvoiceService
+            .getInvoiceSummary(filter)
+            .subscribe((summary) => {
+                this.summaryData = summary;
+            },
+            (err) => { 
+                console.log('Error retrieving summarydata:', err);
+                this.summaryData = null;
+            });
     }
 }
