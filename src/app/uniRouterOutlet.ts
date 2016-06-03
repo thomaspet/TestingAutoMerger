@@ -25,7 +25,6 @@ export class UniRouterOutlet extends RouterOutlet {
         if (!this.authService.isAuthenticated() || !this.authService.hasActiveCompany()) {
             let parentInstruction = this.parentRouter.currentInstruction;
             let url = this.getCurrentRoute(parentInstruction);
-            // let url = '/' + instruction.urlPath;
                   
             if (url !== '/login' && url !== '/signup' && url !== '/reset-password') {
                 // Add url to last navigation attempt if it doesnt already exist

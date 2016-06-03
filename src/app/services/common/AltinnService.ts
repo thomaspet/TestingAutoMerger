@@ -1,10 +1,13 @@
 import {BizHttp} from '../../../framework/core/http/BizHttp';
 import {Altinn, FieldType, AltinnReceipt} from '../../unientities';
 import {UniHttp} from '../../../framework/core/http/http';
-import { Observable } from 'rxjs/Observable';
-import { SubEntityService } from '../services';
-import {AppConfig} from '../../AppConfig';
+import {Observable } from 'rxjs/Observable';
+import {SubEntityService } from '../services';
+import {AppConfig} from '../../../app/AppConfig';
+import {IntegrationServerCaller} from './IntegrationServerCaller';
+import {Injectable, EventEmitter} from '@angular/core';
 
+//@Injectable()
 export class AltinnService extends BizHttp<Altinn> {
 
     public languages: any = [
@@ -13,38 +16,27 @@ export class AltinnService extends BizHttp<Altinn> {
         { ID: '1033', text: 'English' },
         { ID: '1083', text: 'Samisk' },
     ];
-    
     public loginTypes: any = [
         { ID: 1, text: 'AltinnPin'},
         { ID: 2, text: 'SMSPin'},
         { ID: 3, text: 'TaxPin'}
     ];
+    private inServer: IntegrationServerCaller;
     
-    constructor(http: UniHttp, private subEntityService: SubEntityService) {
+    constructor(http: UniHttp, private subEntityService: SubEntityService, private integrate: IntegrationServerCaller) {
         super(http);
         this.relativeURL = Altinn.RelativeUrl;
+        this.inServer = integrate;
     }
     
     public sendTaxRequestAction(option: string, empId: number = 0): Observable<AltinnReceipt> {
         return this.PostAction(1, 'sendtaxrequest', 'option=' + option + '&empId=' + empId);
     }
     
-    public getCorrespondence(receiptID: number, altinn: Altinn) {
-        
-        this.http.withHeaders(JSON.stringify({
-            sysusername: altinn.SystemID,
-            syspassword: altinn.SystemPw,
-            lang: altinn.Language,
-            orgno: '910142763',
-            userID: '15125801371',
-            userPass: 'ajhhs',
-            authmethod: 'AltinnPin',
-            pin: localStorage.getItem('AltinnPin')
-        }));
-        return this.http
-                   .asGET()
-                   .sendToUrl(AppConfig.BASE_URL_INTEGRATION + AppConfig.INTEGRATION_DOMAINS.ALTINN + 'receipt/' + receiptID + '/correspondence');
+    public getCorrespondence(receiptID: number, altinn: Altinn, orgnumber: string) {
+        return this.inServer.getAltinnCorrespondence(altinn, orgnumber, receiptID);
     }
+
 
     public getLayout() {
         return Observable.from([{
@@ -150,7 +142,7 @@ export class AltinnService extends BizHttp<Altinn> {
                         dataValueField: 'ID'
                     },
                     hasLineBreak: true
-                }
+                }                
             ]
         }]);
     }

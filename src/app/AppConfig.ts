@@ -8,7 +8,8 @@ export const AppConfig = ({
     // BASE_URL: 'http://localhost:27831',
     BASE_URL: 'https://devapi-unieconomy.azurewebsites.net',
     
-    BASE_URL_INTEGRATION: 'http://localhost:17100/',
+    //BASE_URL_INTEGRATION: 'http://localhost:17100/',
+    BASE_URL_INTEGRATION: 'http://devintegrations-unieconomy.azurewebsites.net/', 
 
     API_DOMAINS: {
         INIT: '/api/init/',
