@@ -1,3 +1,5 @@
+export {ChangeMap} from './changeMap';
+
 declare var moment;
 
 export function safeInt(value: any) {

@@ -128,6 +128,10 @@ export class WorkerService extends BizHttp<Worker> {
         return this.GET('workitems', { filter: 'WorkRelationID eq ' + workRelationID, expand: 'WorkType' });
     }
     
+    getWorkItemById(id:number): Observable<WorkItem> {
+        return this.GET('workitems/' + id, { expand: 'WorkType'});
+    }
+    
     saveWorkItem(item:WorkItem) : Observable<WorkItem> {
         if (item.ID) {
             return this.PUT('workitems/' + item.ID, undefined, item );

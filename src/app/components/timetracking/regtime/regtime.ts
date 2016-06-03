@@ -42,8 +42,7 @@ export class RegisterTime {
             ];    
             
     private actions: IUniSaveAction[] = [ 
-            { label: 'Lagre', action: (done)=>this.save(done), main: true, disabled: false },
-            { label: 'Test', action: (done)=> { this.save(done); }, main: true, disabled: true } 
+            { label: 'Lagre', action: (done)=>this.save(done), main: true, disabled: true }
         ];            
 
     constructor(private tabService: TabService, private workerService:WorkerService, private timesheetService: TimesheetService) {
@@ -55,41 +54,49 @@ export class RegisterTime {
     }
     
     onReloadClick() {
-        /*
         this.busy = true;
-        //this.initServiceValues();
-        
-        var list = [1,2,3];
-        
-        var handlers: Array<Observable<any>> = [];
-        
-        list.forEach((value:number)=>{
-            var n = Math.floor(Math.random()*3000);
-            console.log("each " + value + " (" + n + " milliseconds)");
-            setTimeout(function() {
-                console.log("timeout " + value);
-                //observer.next(value);    
-            }, n);                
-        });
-        
-        source.subscribe((item:number)=>{
-           console.log("next " + item); 
+        this.initServiceValues();
+        /*
+        this.testMultipleCalls().subscribe((item)=>{
+            console.info('external workitem: ' + item.ID + ' - ' + item.Description,  item);
         }, (err)=>{
-            console.error("err:" + err);
-        }, ()=>{
-            console.log("done!");
             this.busy = false;
-        });
-        
-        source.finally((result)=>{
-            console.log("completed!",  result);
+            console.log('Error:', err);
+        }, ()=>{
+            this.busy = false;    
+            console.info('All completed !');
         });
         */
+            
+    }
+        
+    testMultipleCalls() {
+        var list = [1,2,3];
+        
+        var source = Observable.from(list).flatMap((item:number)=>{
+                return this.workerService.getWorkItemById(item);
+            }).share();
+        source.subscribe((item:WorkItem)=>{
+            console.info("internal item: " + item.ID, item);
+        });
+        return source;
     }
     
     save(done) {
-        this.timeSheet.save().subscribe((result:number)=>{
-            done(result + " poster ble lagret ok");    
+        this.busy = true;
+        var counter = 0;
+        this.timeSheet.saveItems().subscribe((item:WorkItem)=>{            
+            debugger;
+            counter++;                
+        }, (err)=>{
+            debugger;
+            done('Unable to save:' + err.statusText);
+            alert(err.statusText);
+            this.busy = false;            
+        }, ()=>{
+            debugger;
+            done(counter + " poster ble lagret ok");
+            this.busy = false;
         });
     }
     
@@ -97,8 +104,8 @@ export class RegisterTime {
         if (this.timeSheet.currentRelation && this.timeSheet.currentRelation.ID) {
             this.timeSheet.loadItems().subscribe((itemCount:number)=>{
                 this.busy = false;
-                console.log("got " + itemCount + " workitems");
                 this.tableConfig = this.createTableConfig();
+                this.actions[0].disabled = true;
             })    
         } else {
             console.log("Current worker/user has no workrelations!");
@@ -171,9 +178,13 @@ export class RegisterTime {
     }
     
     onEditChange(event) {
+        //debugger;
+        //console.log("rowid:" + event.rowModel._rowId);
+        
         var newRow = event.rowModel;
         var change = new ValueItem(event.field, newRow[event.field], newRow.ID, newRow);        
         if (this.timeSheet.setItemValue(change)) {
+            this.actions[0].disabled = false;
             newRow.ID = change.ID;
             newRow[event.field] = change.value;
             return newRow; 

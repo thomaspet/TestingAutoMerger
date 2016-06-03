@@ -1,8 +1,8 @@
 import {Injectable, Inject, Component} from '@angular/core';
 import {WorkItem, Worker, WorkRelation, WorkProfile} from '../../unientities';
 import {WorkerService} from './workerService';
-import {Observable} from "rxjs/Rx";
-import {parseTime, addTime, parseDate} from '../../components/timetracking/utils/utils';
+import {Observable, Observer} from "rxjs/Rx";
+import {parseTime, addTime, parseDate, ChangeMap} from '../../components/timetracking/utils/utils';
 
 export class ValueItem {
     cancel = false;
@@ -13,8 +13,10 @@ export class TimeSheet {
     constructor(private ts?:TimesheetService) { }
     currentRelation: WorkRelation;
     items: Array<WorkItem | any> = [];
+    changeMap = new ChangeMap();
     
     loadItems():Observable<number> {
+        this.changeMap.clear();
         var obs = this.ts.getWorkItems(this.currentRelation.ID);
         return <Observable<number>>obs.flatMap((items:WorkItem[]) => {
             this.items = items; 
@@ -22,10 +24,25 @@ export class TimeSheet {
         });
     }
     
-    save():Observable<number> {
-        var toSave: Array<WorkItem> = [];
+    unsavedItems():Array<WorkItem> {
+        return this.changeMap.getValues();
+    }
+    
+    saveItems(unsavedOnly = true):Observable<WorkItem> {
         debugger;
-        return this.ts.saveWorkItems(this.items);
+        var toSave: Array<WorkItem>;
+        if (unsavedOnly) {
+            toSave = this.unsavedItems();
+        } else {
+            toSave = this.items;
+        }
+        var obs = this.ts.saveWorkItems(toSave);
+        return obs.map((result:{ original: WorkItem, saved: WorkItem})=>{
+            debugger;
+            this.changeMap.remove(result.original.ID);
+            return result.saved;
+        });
+        //return obs;
     }
     
     setItemValue(change: ValueItem):boolean {
@@ -43,10 +60,13 @@ export class TimeSheet {
                 item.WorkTypeID = change.value.ID;
                 break;                
         }
-        debugger;
+        //debugger;
+        if (!item.WorkRelationID) {
+            item.WorkRelationID = this.currentRelation.ID;
+        }
         item[change.name] = change.value;
-        item["changeFlag"] = true;
         change.ID = item.ID;
+        this.changeMap.add(change.ID, item);
         return true;
     }    
     
@@ -105,13 +125,18 @@ export class TimesheetService {
         return this.workerService.getWorkItems(workRelationID);
     }
     
-    public saveWorkItems(items:WorkItem[]): Observable<number> {
-        /*
-        return Observable.of(items).map((item:WorkItem)=>{
-            return this.workerService.saveWorkItem(item);    
-        }).merge();
-        */
-        return null;
+    public saveWorkItems(items:WorkItem[]): Observable<{ original:WorkItem, saved:WorkItem }> {
+        return Observable.from(items).flatMap((item:WorkItem)=>{
+            debugger;
+            var originalId = item.ID;
+            item.ID = item.ID < 0 ? 0 : item.ID;
+            var result = this.workerService.saveWorkItem(item).map((savedItem:WorkItem)=>{
+                item.ID = originalId;
+                return { original: item, saved: savedItem }; 
+            });
+            return result;
+        });
+        
     }
     
 }
