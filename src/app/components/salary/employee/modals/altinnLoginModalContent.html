@@ -1,0 +1,9 @@
+<article class="modal-content" [attr.aria-busy]="busy">
+    <h1>Personlig pålogging Altinn</h1>
+    <p *ngIf="login">{{altinnMessage}}</p>
+    <p *ngIf="!login">Skattekort er hentet og klart</p>
+    <uni-form *ngIf="model && login" [config]="formConfig" [fields]="fields" [model]="model"></uni-form>
+    <footer>
+        <button *ngIf="config.hasCancelButton" (click)="config.cancel()">Avbryt</button>
+    </footer>
+</article>
