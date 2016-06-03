@@ -10,8 +10,8 @@ import {App} from "./app";
 import {UniHttp} from "../framework/core/http/http";
 import {UniState} from '../framework/core/UniState';
 import {REPORT_PROVIDERS} from "./services/reports/index";
-import {AuthService} from "../framework/core/authService";
 import {IntegrationServerCaller} from './services/common/IntegrationServerCaller';
+import {AuthService} from './../framework/core/authService'
 
 bootstrap(App, [
     // angular providers
@@ -26,6 +26,6 @@ bootstrap(App, [
     provide(UniState, {useClass: UniState}),
     
     // Services
-    provide(IntegrationServerCaller , { useClass: IntegrationServerCaller })
-    
+    provide(IntegrationServerCaller , { useClass: IntegrationServerCaller }),
+    provide(AuthService, {useClass: AuthService})
 ]);

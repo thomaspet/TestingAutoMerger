@@ -62,7 +62,7 @@ export class Overview {
         var found: ReportCategory = null;
         var i: number = 0;
         
-        while (i < this.reportCategories.length && found !== null) {
+        while (i < this.reportCategories.length && found === null) {
             if (this.reportCategories[i].name === name) {
                 found = this.reportCategories[i];
             }
