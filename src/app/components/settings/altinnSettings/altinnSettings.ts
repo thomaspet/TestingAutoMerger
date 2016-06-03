@@ -38,10 +38,9 @@ export class AltinnSettings implements OnInit {
                 
         
         this.integrate.checkSystemLogin(Company.OrganizationNumber, this.altinn.SystemID, this.altinn.SystemPw, this.altinn.Language).subscribe((response) => {            
-            if(response !== true){
-                console.log(response); //'alright');
+            if(response !== true){                
                 this.loginErr = 'Failed to log in with given credentials'; 
-            }        
+            }
             else{
                 this.loginErr = 'Login ok';
             }
