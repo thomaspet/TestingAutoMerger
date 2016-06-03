@@ -1,133 +1,228 @@
 import {Component, Type, ViewChild, Input, Output, EventEmitter} from '@angular/core';
 import {UniModal} from '../../../../../framework/modals/modal';
-import {UniForm} from '../../../../../framework/uniform';
-import {FieldLayout, AltinnReceipt, FieldType} from '../../../../../app/unientities';
-import {AltinnService, EmployeeService} from '../../../../../app/services/services';
+import {UniForm, UniFieldLayout} from '../../../../../framework/uniform';
+import {Observable} from 'rxjs/Observable';
+import {Altinn, FieldType, CompanySettings} from '../../../../../app/unientities';
+import {AltinnService, CompanySettingsService} from '../../../../../app/services/services';
 
 declare var _; // lodash
 
 @Component({
     selector: 'altinn-login-modal-content',
     directives: [UniForm],
-    providers: [AltinnService, EmployeeService],
+    providers: [AltinnService, CompanySettingsService],
     templateUrl: 'app/components/salary/employee/modals/altinnloginmodalcontent.html'
 })
-export class AltinnLoginContentModal {
+export class AltinnLoginModalContent {
     @Input()
-    public config: any = {};
+    public config: {cancel: any};
     
-    public model: {username: string, password: string, pin: string, preferredLogin: string, timeStamp: string};
+    private altinn: Altinn;
+    private companySettings: CompanySettings;
     
-    public atLogin: boolean;
-    public busy: boolean; 
+    private receiptID: number;
     
-    public fields: FieldLayout[] = [];
+    public model: {username: string, password: string, pin: string, preferredLogin: string, timeStamp: Date};
+    
+    public atLogin: boolean = true;
+    public busy: boolean = true; 
+    public altinnMessage: string;
+    public closeBtnLabel: string;
+    
+    public fields: any[] = [];
     public formConfig: any = {};
     
-    constructor(private _altinnService: AltinnService) {
-        this.model = localStorage.getItem('AltinnUserData');
+    constructor(private _altinnService: AltinnService, private _companySettingsService: CompanySettingsService) {
         
-        var username: any = {
-            FieldSet: 0,
-            Section: 0,
-            Combo: 0,
-            FieldType: FieldType.TEXT,
-            Hidden: false,
-            Property: 'username',
-            ReadOnly: false,
-            Placeholder: null,
-            Label: 'BrukerID altinn',
-            LineBreak: true
-        };
+        Observable.forkJoin(
+            this._altinnService.GetAll('top:1'),
+            this._companySettingsService.GetAll('top:1'),
+            this._altinnService.sendTaxRequestAction('SINGLE_EMP', 1) // test for now, must change this in #598
+            ).subscribe((response: any) => {
+                console.log('response from requests in modal');
+            
+                let [altinnResponse, companySettingsResponse, altinnReceipt] = response;
+                this.receiptID = altinnReceipt.ReceiptID;
+                this.altinn = altinnResponse[0];
+                this.companySettings = companySettingsResponse[0];
+            });
         
-        var password: any = {
-            FieldSet: 0,
-            Section: 0,
-            Combo: 0,
-            FieldType: FieldType.PASSWORD,
-            Hidden: false,
-            Property: 'password',
-            ReadOnly: false,
-            Placeholder: null,
-            Label: 'Passord BrukerID altinn',
-            LineBreak: true
-        };
+        console.log('login modal content');
         
-        var pinChoice: any = {
-            FieldSet: 0,
-            Section: 0,
-            Combo: 0,
-            FieldType: FieldType.DROPDOWN,
-            Hidden: false,
-            Property: 'preferredLogin',
-            ReadOnly: false,
-            Label: 'Gyldige pinvalg',
-            Options: {
-                source: this._altinnService.loginTypes,
-                valueProperty: 'text',
-                displayProperty: 'text',
-                debounceTime: 500,
-            },
-            LineBreak: true
-        };
+        this.createForm();
         
-        var pincode: any = {
-            FieldSet: 0,
-            Section: 0,
-            Combo: 0,
-            FieldType: FieldType.TEXT,
-            Hidden: false,
-            Property: 'pin',
-            ReadOnly: false,
-            Placeholder: null,
-            Label: 'Pinkode',
-            LineBreak: true
+        this.resetData();
+    }
+    
+    private createForm() {
+        var username: UniFieldLayout = new UniFieldLayout();
+        username.FieldSet = 0;
+        username.Section = 0;
+        username.Combo = 0;
+        username.FieldType = FieldType.TEXT;
+        username.Hidden = false;
+        username.Property = 'username';
+        username.ReadOnly = false;
+        username.Placeholder = null;
+        username.Label = 'BrukerID altinn';
+        username.LineBreak = true;
+        
+        var password: UniFieldLayout = new UniFieldLayout();
+        password.FieldSet = 0;
+        password.Section = 0;
+        password.Combo = 0;
+        password.FieldType = FieldType.PASSWORD;
+        password.Hidden = false;
+        password.Property = 'password';
+        password.ReadOnly = false;
+        password.Placeholder = null;
+        password.Label = 'Passord BrukerID altinn';
+        password.LineBreak = true;
+        
+        var pinChoice: UniFieldLayout = new UniFieldLayout();
+        
+        pinChoice.FieldSet = 0;
+        pinChoice.Section = 0;
+        pinChoice.Combo = 0;
+        pinChoice.FieldType = FieldType.DROPDOWN;
+        pinChoice.Hidden = false;
+        pinChoice.Property = 'preferredLogin';
+        pinChoice.ReadOnly = false;
+        pinChoice.Label = 'Gyldige pinvalg';
+        pinChoice.Options = {
+            source: this._altinnService.loginTypes,
+            valueProperty: 'text',
+            displayProperty: 'text',
+            debounceTime: 500,
         };
+        pinChoice.LineBreak = true;
+        
+        var pincode: UniFieldLayout = new UniFieldLayout();
+        
+        pincode.FieldSet = 0;
+        pincode.Section = 0;
+        pincode.Combo = 0;
+        pincode.FieldType = FieldType.TEXT;
+        pincode.Hidden = false;
+        pincode.Property = 'pin';
+        pincode.ReadOnly = false;
+        pincode.Placeholder = null;
+        pincode.Label = 'Pinkode';
+        pincode.LineBreak = true;
         
         this.fields = [username, password, pinChoice, pincode];
     }
     
+    public resetData() {
+        console.log('resetting data');
+        this.getFromCache();
+        this.closeBtnLabel = 'Avbryt';
+        this.fields[0].Hidden = false;
+        this.fields[1].Hidden = false;
+        this.fields[2].Hidden = false;
+        this.fields[3].Hidden = true;
+        this.fields = _.cloneDeep(this.fields);
+        this.busy = true;
+        this.atLogin = true;
+        console.log('data has been reset');
+    }
+    
+    private getFromCache() {
+        this.model = localStorage.getItem('AltinnUserData');
+        if (!this.model) {
+            this.model =  {
+                username: '',
+                password: '',
+                pin: '',
+                preferredLogin: '',
+                timeStamp: null
+            }
+        }
+    }
+    
     private cacheLoginData() {
+        console.log('caching data');
         localStorage.setItem('AltinnUserData', JSON.stringify(this.model));
+    }
+    
+    public openLogin(receiptID: number) {
+        console.log('opening modal content');
+        console.log('date.now: ', Date.now());
+        console.log('this.model: ', JSON.stringify(this.model));
+        this.receiptID = receiptID;
+        if ((this.model !== null && this.model.timeStamp && Date.now() - this.model.timeStamp.getMilliseconds() < Date.UTC(1970, 1, 1, 0, 30))) {
+            console.log('calling integration service');
+            this._altinnService.getCorrespondence(this.receiptID, this.altinn, this.companySettings.OrganizationNumber).subscribe((response) => {
+                if (response.Correspondence) {
+                    // TODO: call backend action with login when AppFramework/#1353 is ready
+                    this.atLogin = false;
+                    this.closeBtnLabel = 'OK';
+                }
+                this.busy = false;
+            });
+        }
+        console.log('end of openLogin()');
+    }
+    
+    public getCorrespondence() {
+        console.log('getCorrespondence()');
+        this.cacheLoginData();
+        this._altinnService.getCorrespondence(this.receiptID, this.altinn, this.companySettings.OrganizationNumber).subscribe((response) => {
+            if (response.authChall.Status === 0) {
+                this.altinnMessage = response.authChall.Message;
+                this.setupPin();
+            }
+            this.busy = false;
+        });
+    }
+    
+    public setupPin() {
+        this.fields[0].Hidden = true;
+        this.fields[1].Hidden = true;
+        this.fields[2].Hidden = true;
+        this.fields[3].Hidden = false;
     }
 }
 @Component({
     selector: 'altinn-login-modal',
     directives: [UniModal],
-    providers: [AltinnService],
+    providers: [AltinnService, CompanySettingsService],
     template: `
         <uni-modal [type]="type" [config]="config"></uni-modal>
+        <button *ngIf="showButton" (click)="openLogin()">Test innlogging</button>
     `
 })
 export class AltinnLoginModal {
-    public config: any = {};
-    public type: Type = AltinnLoginContentModal;
+    public config: {cancel: () => void};
+    public type: Type = AltinnLoginModalContent;
+    
+    private testReceiptID: number;
+    
+    @Input()
+    public showButton: boolean;
     
     @ViewChild(UniModal)
-    public modal: UniModal;
+    private modal: UniModal;
     
-    @Output()
-    public onLoggedIn: EventEmitter<any> = new EventEmitter(true);
-    constructor(private _altinnService: AltinnService) {
+    constructor(private _altinnService: AltinnService, private _companySettingsService: CompanySettingsService) {
+        console.log('login modal');
         this.config = {
             cancel: () => {
-                this.modal.getContent().then((component: AltinnLoginContentModal) => {
+                this.modal.getContent().then((component: AltinnLoginModalContent) => {
+                    component.resetData();
                     this.modal.close();
                 });
-            }
+            },
         };
     }
     
-    public getCorrespondence(receiptID: number) {
-        this._altinnService.GetAll('top:1').subscribe((altinn) => {
-            this.config.altinn = altinn;
-            this.config = _.cloneDeep(this.config);
-            this._altinnService.getCorrespondence(receiptID, altinn).subscribe((response) => {
-                if (response.authChall) {
-                    this.modal.open();
-                }
-            });
-        });
-        
+    public openLogin() {
+        console.log('openLogin()');
+        this.modal.getContent().then((component: AltinnLoginModalContent) => {
+            console.log('Got content from modal');
+            this.modal.open();
+            component.openLogin(this.testReceiptID);
+            
+        }, (error) => console.log('error: ' + error));
     }
 }

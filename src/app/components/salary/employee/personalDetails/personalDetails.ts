@@ -11,12 +11,12 @@ import {AddressModal} from '../../../sales/customer/modals/address/address';
 import {EmailModal} from '../../../sales/customer/modals/email/email';
 import {PhoneModal} from '../../../sales/customer/modals/phone/phone';
 import {RootRouteParamsService} from '../../../../services/rootRouteParams';
-import {TaxCardRequestModal} from '../modals/taxCardRequestModal';
+import {TaxCardRequestModal, AltinnLoginModal} from '../employeeModals';
 declare var _;
 
 @Component({
     selector: 'employee-personal-details',
-    directives: [UniComponentLoader, TaxCardRequestModal],
+    directives: [UniComponentLoader, TaxCardRequestModal, AltinnLoginModal],
     providers: [EmployeeService, PhoneService, EmailService, AddressService, AltinnService, SubEntityService],
     templateUrl: 'app/components/salary/employee/personalDetails/personalDetails.html'
 })
