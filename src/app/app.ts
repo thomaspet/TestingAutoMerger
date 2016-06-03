@@ -35,7 +35,6 @@ import {StaticRegisterService} from './services/staticregisterservice';
 })
 export class LoginModal {
     private onAuthenticated: (token) => any;
-    
     public isOpen: boolean = false;
     private working: boolean = false;
     private errorMessage: string = '';
@@ -44,8 +43,7 @@ export class LoginModal {
     private password: string = '';
     
     constructor(private authService: AuthService) {} 
-    
-    
+
     private authenticate() {
         this.working = true;
         this.errorMessage = '';
