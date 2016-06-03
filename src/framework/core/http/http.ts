@@ -41,6 +41,7 @@ export class UniHttp {
                 this.headers.append(header, headers[header]);
             }
         }
+        return this;
     }
 
     public getBaseUrl() {

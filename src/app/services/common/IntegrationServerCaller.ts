@@ -3,30 +3,25 @@ import {URLSearchParams} from '@angular/http'
 import {RequestMethod} from "@angular/http";
 import {UniHttp} from "../../../framework/core/http/http";
 import {Observable} from 'rxjs/Observable';
-import "rxjs/add/operator/concatMap";
 import {AppConfig} from '../../../app/AppConfig';
 
+
 @Injectable()
-export class IntegrationServerCaller 
-{    
-    private intHttp;
- 
-    constructor(protected http: UniHttp) {
-            let intHttp = http;
+export class IntegrationServerCaller {    
+    
+    constructor(protected http : UniHttp) {
+                
     }
     
     
-    public checkSystemLogin(orgno: string, sysuser:string, syspw:string, lang:number){
-        
-        var activeCompany = JSON.parse(localStorage.getItem('activeCompany'));
-        console.log(JSON.stringify(activeCompany));
-                
-        // return this.intHttp.withHeader('sysusername', sysuser).
-        // withHeader('syspassword', syspw).
-        // withHeader('lang', lang).
-        // withHeader('orgno', orgno).
-        // asGET().
-        // send({baseurl: AppConfig.BASE_URL_INTEGRATION, apiDomain: AppConfig.INTEGRATION_DOMAINS, endPoint: '/testsystem'});                
+    public checkSystemLogin(orgno: string, sysuser:string, syspw:string, lang:string) : Observable<any> {
+        return this.http.withNewHeaders().
+        withHeaders( {'sysusername': sysuser,
+            'syspassword': syspw,
+            'lang': lang,
+            'orgno': orgno}).
+            asGET().
+            send({baseUrl: AppConfig.BASE_URL_INTEGRATION, apiDomain: AppConfig.INTEGRATION_DOMAINS.ALTINN, endPoint: '/testsystem'});
     }
     
     

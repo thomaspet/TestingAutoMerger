@@ -5,8 +5,9 @@ import {Observable } from 'rxjs/Observable';
 import {SubEntityService } from '../services';
 import {AppConfig} from '../../../app/AppConfig';
 import {IntegrationServerCaller} from './IntegrationServerCaller';
+import {Injectable, EventEmitter} from '@angular/core';
 
-
+//@Injectable()
 export class AltinnService extends BizHttp<Altinn> {
 
     public languages: any = [
@@ -16,19 +17,18 @@ export class AltinnService extends BizHttp<Altinn> {
         { ID: '1083', text: 'Samisk' },
     ];
     
-    constructor(http: UniHttp, private subEntityService: SubEntityService, private integrate : IntegrationServerCaller) {
+    private inServer : any;
+    
+    constructor(http: UniHttp, private subEntityService: SubEntityService, private integrate: IntegrationServerCaller) {
         super(http);
         this.relativeURL = Altinn.RelativeUrl;
+        this.inServer = integrate;
     }
     
     public sendTaxRequestAction(option: string, empId: number = 0): Observable<AltinnReceipt> {
         return this.PostAction(1, 'sendtaxrequest', 'option=' + option + '&empId=' + empId);
     }
 
-    public checkSystemUser(altinn: Altinn)
-    {
-        this.integrate.checkSystemLogin(altinn.SystemID, altinn.SystemPw, altinn.Language);        
-    }
 
     public getLayout() {
         return Observable.from([{
