@@ -1,6 +1,6 @@
 import {Component, Input, Output, ElementRef, EventEmitter, ChangeDetectionStrategy, ChangeDetectorRef, ViewChild} from '@angular/core';
 import {Control} from '@angular/common';
-import {UniFieldLayout} from '../unifieldlayout';
+import {UniFieldLayout} from '../interfaces';
 import {UniComponentLoader} from '../../core/componentLoader';
 
 declare var _, jQuery; // jquery and lodash

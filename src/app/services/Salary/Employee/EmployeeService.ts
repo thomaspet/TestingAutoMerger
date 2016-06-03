@@ -330,7 +330,7 @@ export class EmployeeService extends BizHttp<Employee> {
                     Options: null,
                     LineBreak: null,
                     Combo: null,
-                    Legend: 'KONTAKTINFORMASJON',
+                    Sectionheader: 'KONTAKTINFORMASJON',
                     IsLookUp: false,
                     openByDefault: true,
                     /*Validations: [
@@ -356,7 +356,7 @@ export class EmployeeService extends BizHttp<Employee> {
                     HelpText: null,
                     FieldSet: 0,
                     Section: 1,
-                    Legend: 'KONTAKTINFORMASJON',
+                    Sectionheader: 'KONTAKTINFORMASJON',
                     Placeholder: '',
                     Options: null,
                     LineBreak: null,
@@ -564,7 +564,7 @@ export class EmployeeService extends BizHttp<Employee> {
                     Options: null,
                     LineBreak: null,
                     Combo: null,
-                    Legend: 'SKATTEKORT',
+                    Sectionheader: 'SKATTEKORT',
                     IsLookUp: false,
                     openByDefault: true,
                     Validations: [
@@ -704,8 +704,8 @@ export class EmployeeService extends BizHttp<Employee> {
                     Options: null,
                     LineBreak: null,
                     Combo: null,
-                    Legend: 'INTERNASJONAL ID/BANK',
-                    FieldsetLegend: 'Internasjonal ID',
+                    Sectionheader: 'INTERNASJONAL ID/BANK',
+                    Legend: 'Internasjonal ID',
                     IsLookUp: false,
                     Validations: [
                         {
@@ -732,8 +732,8 @@ export class EmployeeService extends BizHttp<Employee> {
                     Placeholder: null,
                     Options: null,
                     LineBreak: null,
+                    Sectionheader: null,
                     Legend: null,
-                    FieldsetLegend: null,
                     IsLookUp: false,
                      
                     Validations: [
@@ -761,8 +761,8 @@ export class EmployeeService extends BizHttp<Employee> {
                     Placeholder: null,
                     Options: null,
                     LineBreak: null,
+                    Sectionheader: null,
                     Legend: null,
-                    FieldsetLegend: null,
                     IsLookUp: false,
                      
                     Validations: [
@@ -791,8 +791,8 @@ export class EmployeeService extends BizHttp<Employee> {
                     Options: null,
                     LineBreak: null,
                     Combo: null,
-                    Legend: null,
-                    FieldsetLegend: 'Internasjonal bankkonto',
+                    Sectionheader: null,
+                    Legend: 'Internasjonal bankkonto',
                     IsLookUp: false,
                     openByDefault: true,
                      
