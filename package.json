@@ -74,7 +74,6 @@
     "opn-cli": "^1.0.0",
     "phantomjs": "^1.9.18",
     "request": "^2.69.0",
-    "rimraf": "^2.4.3",
     "run-sequence": "^1.1.4",
     "sass-convert": "^0.5.2",
     "sassdoc": "^2.1.20",
