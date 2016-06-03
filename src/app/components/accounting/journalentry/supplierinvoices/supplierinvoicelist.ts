@@ -98,7 +98,7 @@ export class SupplierInvoiceList implements OnInit {
             .setFormat(this.DATE_FORMAT);
 
         const paymentIdOrName = new UniTableColumn('PaymentID' /*not important,overridden by template*/, 'KID / Melding')
-            .setFilterOperator('eq')
+            .setFilterOperator('contains')
             .setTemplate((journalEntry) => journalEntry.PaymentInformation || journalEntry.PaymentID);
 
         const taxInclusiveAmountCol = new UniTableColumn('TaxInclusiveAmount', 'Beløp')
