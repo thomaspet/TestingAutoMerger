@@ -63,11 +63,13 @@ export class SupplierInvoiceList implements OnInit {
 
     private setupTableCfg(): UniTableConfig {
         const statusTextCol = new UniTableColumn('StatusCode', 'Status', UniTableColumnType.Number)
+            .setFilterable(false)
             .setTemplate((dataItem) => {
                 return this.supplierInvoiceService.getStatusText(dataItem.StatusCode);
             });
 
         const journalEntryCol = new UniTableColumn('JournalEntry.JournalEntryNumber', 'Bilagsnr', UniTableColumnType.Number)
+            .setFilterOperator('startswith')
             .setTemplate(journalEntry => {
                 if (journalEntry.JournalEntry && journalEntry.JournalEntry.JournalEntryNumber) {
                     return `<a href="#/accounting/transquery/detailsByJournalEntryNumber/${journalEntry.JournalEntry.JournalEntryNumber}">
@@ -76,34 +78,40 @@ export class SupplierInvoiceList implements OnInit {
                 }
             });
 
-        const supplierNrCol = new UniTableColumn('Supplier.SupplierNumber', 'Lev.nr', UniTableColumnType.Number);
+        const supplierNrCol = new UniTableColumn('Supplier.SupplierNumber', 'Lev.nr', UniTableColumnType.Number).setFilterOperator('startswith');
 
-        const supplierNameCol = new UniTableColumn('Supplier.Info.Name', 'Navn', UniTableColumnType.Text);
+        const supplierNameCol = new UniTableColumn('Supplier.Info.Name', 'Navn', UniTableColumnType.Text).setFilterOperator('contains');
 
-        const invoiceDateCol = new UniTableColumn('InvoiceDate', 'Fakturadato', UniTableColumnType.Date)            
+        const invoiceDateCol = new UniTableColumn('InvoiceDate', 'Fakturadato', UniTableColumnType.Date)
+            .setFilterOperator('eq')            
             .setFormat(this.DATE_FORMAT);
 
-        const invoiceIDCol = new UniTableColumn('InvoiceNumber', 'Fakturanr', UniTableColumnType.Number);
+        const invoiceIDCol = new UniTableColumn('InvoiceNumber', 'Fakturanr', UniTableColumnType.Number).setFilterOperator('startswith');
 
-        const bankAccount = new UniTableColumn('BankAccount', 'Bankkontonr', UniTableColumnType.Text);
+        const bankAccount = new UniTableColumn('BankAccount', 'Bankkontonr', UniTableColumnType.Text).setFilterOperator('contains');
 
-        const paymentDueDateCol = new UniTableColumn('PaymentDueDate', 'Forfallsdato', UniTableColumnType.Date)            
+        const paymentDueDateCol = new UniTableColumn('PaymentDueDate', 'Forfallsdato', UniTableColumnType.Date)
+            .setFilterOperator('eq')            
             .setConditionalCls(journalEntry =>
                 moment(journalEntry.PaymentDueDate).isBefore(moment()) ? 'supplier-invoice-table-payment-overdue' : ''
             )
             .setFormat(this.DATE_FORMAT);
 
-        const paymentIdOrName = new UniTableColumn('ID' /*not important,overridden by template*/, 'KID / Melding')
+        const paymentIdOrName = new UniTableColumn('PaymentID' /*not important,overridden by template*/, 'KID / Melding')
+            .setFilterOperator('eq')
             .setTemplate((journalEntry) => journalEntry.PaymentInformation || journalEntry.PaymentID);
 
         const taxInclusiveAmountCol = new UniTableColumn('TaxInclusiveAmount', 'Beløp')
+            .setFilterOperator('eq')
             .setCls('supplier-invoice-table-amount'); // TODO decide what/how format is set for the different field types
 
-        const restAmountCol = new UniTableColumn('RestAmount', 'Restbeløp', UniTableColumnType.Number)            
+        const restAmountCol = new UniTableColumn('RestAmount', 'Restbeløp', UniTableColumnType.Number)
+            .setFilterOperator('eq')            
             .setCls('column-align-right')
             .setFormat('{0:n}');
 
-        const creditedAmountCol = new UniTableColumn('CreditedAmount', 'Kreditert', UniTableColumnType.Number)            
+        const creditedAmountCol = new UniTableColumn('CreditedAmount', 'Kreditert', UniTableColumnType.Number)
+            .setFilterOperator('eq')            
             .setCls('column-align-right')
             .setFormat('{0:n}');
 

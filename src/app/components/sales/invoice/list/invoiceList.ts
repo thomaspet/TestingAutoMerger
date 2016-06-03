@@ -190,31 +190,33 @@ export class InvoiceList implements OnInit {
         var customerNumberCol = new UniTableColumn('Customer.CustomerNumber', 'Kundenr', UniTableColumnType.Text).setWidth('10%').setFilterOperator('contains');
         var customerNameCol = new UniTableColumn('CustomerName', 'Kundenavn', UniTableColumnType.Text).setFilterOperator('contains');
 
-        var invoiceDateCol = new UniTableColumn('InvoiceDate', 'Fakturadato', UniTableColumnType.Date).setWidth('10%');
-        var dueDateCol = new UniTableColumn('PaymentDueDate', 'Forfallsdato', UniTableColumnType.Date).setWidth('10%');
+        var invoiceDateCol = new UniTableColumn('InvoiceDate', 'Fakturadato', UniTableColumnType.Date).setWidth('10%').setFilterOperator('eq');
+        var dueDateCol = new UniTableColumn('PaymentDueDate', 'Forfallsdato', UniTableColumnType.Date).setWidth('10%').setFilterOperator('eq');
 
         var taxInclusiveAmountCol = new UniTableColumn('TaxInclusiveAmount', 'Totalsum', UniTableColumnType.Number)
             .setWidth('10%')
-            .setFilterOperator('contains')
+            .setFilterOperator('eq')
             .setFormat('{0:n}')
             .setCls('column-align-right');
 
         var restAmountCol = new UniTableColumn('RestAmount', 'Restsum', UniTableColumnType.Number)
             .setWidth('10%')
-            .setFilterOperator('contains')
+            .setFilterOperator('eq')
             .setFormat('{0:n}')
             .setCls('column-align-right');
 
         var creditedAmountCol = new UniTableColumn('CreditedAmount', 'Kreditert', UniTableColumnType.Number)
             .setWidth('10%')
-            .setFilterOperator('contains')
+            .setFilterOperator('eq')
             .setFormat('{0:n}')
             .setCls('column-align-right');
 
-        var statusCol = new UniTableColumn('StatusCode', 'Status', UniTableColumnType.Number).setWidth('15%');
-        statusCol.setTemplate((dataItem) => {
-            return this.customerInvoiceService.getStatusText(dataItem.StatusCode, dataItem.InvoiceType);
-        });
+        var statusCol = new UniTableColumn('StatusCode', 'Status', UniTableColumnType.Number)
+            .setWidth('15%')
+            .setFilterable(false)
+            .setTemplate((dataItem) => {
+                return this.customerInvoiceService.getStatusText(dataItem.StatusCode, dataItem.InvoiceType);
+            });
 
         // Setup table
         this.invoiceTable = new UniTableConfig(false, true)
