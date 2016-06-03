@@ -70,7 +70,7 @@ export class EmploymentService extends BizHttp<Employment> {
                 //     Property: 'Standard',
                 //     Placement: 4,
                 //     Hidden: false,
-                //     FieldType: FieldType.CHECKBOX,
+                //     FieldType: FieldType.CHECKBOX, -should be 5
                 //     ReadOnly: false,
                 //     LookupField: false,
                 //     Label: 'Standard',

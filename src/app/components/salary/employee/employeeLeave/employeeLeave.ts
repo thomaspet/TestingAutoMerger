@@ -3,16 +3,18 @@ import {RouteParams} from '@angular/router-deprecated';
 import {EmployeeDS} from '../../../../data/employee';
 import {Employment, Employee} from '../../../../unientities';
 import {RootRouteParamsService} from '../../../../services/rootRouteParams';
-import {UniTable, UniTableConfig, UniTableColumnType, UniTableColumn, ITableFilter} from 'unitable-ng2/main';
+import {UniTable, UniTableConfig, UniTableColumnType, UniTableColumn} from 'unitable-ng2/main';
 import {UniSave, IUniSaveAction} from '../../../../../framework/save/save';
 import {AsyncPipe} from '@angular/common';
 import {UniHttp} from '../../../../../framework/core/http/http';
 import {Observable} from 'rxjs/Observable';
+import {EmployeeLeaveService} from '../../../../services/services';
 
 @Component({
     selector: 'employee-permision',
     templateUrl: 'app/components/salary/employee/employeeLeave/employeeLeave.html',
     directives: [UniTable, UniSave],
+    providers: [EmployeeLeaveService],
     pipes: [AsyncPipe]
 })
 export class EmployeeLeave implements OnInit {
@@ -40,7 +42,7 @@ export class EmployeeLeave implements OnInit {
         }
     ];
     
-    constructor(private routeParams: RouteParams, public employeeDS: EmployeeDS, private rootRouteParams: RootRouteParamsService, private uniHttp: UniHttp) {
+    constructor(private routeParams: RouteParams, public employeeDS: EmployeeDS, private rootRouteParams: RootRouteParamsService, private uniHttp: UniHttp, private employeeleaveService: EmployeeLeaveService) {
         this.employeeID = +rootRouteParams.params.get('id');
     }
     
@@ -74,7 +76,7 @@ export class EmployeeLeave implements OnInit {
     }
 
     public buildTableConfig() {
-        var idCol = new UniTableColumn('ID', 'ID', UniTableColumnType.Number, false);
+        // var idCol = new UniTableColumn('ID', 'ID', UniTableColumnType.Number, false);
         var fromDateCol = new UniTableColumn('FromDate', 'Startdato', UniTableColumnType.Date);
         var toDateCol = new UniTableColumn('ToDate', 'Sluttdato', UniTableColumnType.Date);
         var leavePercentCol = new UniTableColumn('LeavePercent', 'Prosent', UniTableColumnType.Number)
@@ -120,7 +122,8 @@ export class EmployeeLeave implements OnInit {
 
         this.permisionTableConfig = new UniTableConfig()
             .setColumns([
-                idCol, fromDateCol, toDateCol, leavePercentCol, 
+                // idCol, 
+                fromDateCol, toDateCol, leavePercentCol, 
                 leaveTypeCol, employmentIDCol, commentCol
             ])
             .setChangeCallback((event) => {
@@ -130,12 +133,39 @@ export class EmployeeLeave implements OnInit {
                     this.mapEmploymentToPermision(row);
                 }
                 
+                if (event.field === 'LeaveType') {
+                    this.mapLeavetypeToPermision(row);
+                }
+                
                 return row;
             });
     }
     
     public saveLeave(done) {
-        done('Fravær lagret');
+        done('Lagrer permisjoner');
+        this.permisionsChanged.forEach(permisionItem => {
+            
+            console.log('permisjonsItem', permisionItem);
+            
+            if (permisionItem.ID > 0) {
+                this.employeeleaveService.Put(permisionItem.ID, permisionItem)
+                .subscribe((response: EmployeeLeave) => {
+                    done('Sist lagret: ');
+                },
+                (err) => {
+                    done('Feil ved oppdatering av permisjon', err);
+                });
+            } else {
+                this.employeeleaveService.Post(permisionItem)
+                .subscribe((response: EmployeeLeave) => {
+                    done('Sist lagret: ');
+                },
+                (err) => {
+                    done('Feil ved lagring av permisjon', err);
+                });
+            }
+        });
+        done('Permisjoner lagret: ');
     }
     
     private mapEmploymentToPermision(rowModel) {
@@ -144,6 +174,14 @@ export class EmployeeLeave implements OnInit {
             return;
         }
         rowModel['EmploymentID'] = employment.ID;
+    }
+    
+    private mapLeavetypeToPermision(rowModel) {
+        let leavetype = rowModel['LeaveType'];
+        if (!leavetype) {
+            return;
+        }
+        rowModel['LeaveType'] = leavetype.typeID;
     }
     
     private getLeaveTypeText(typeID: string) {
