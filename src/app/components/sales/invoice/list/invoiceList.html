@@ -1,5 +1,18 @@
 <section class="application">
     <h4>Faktura</h4><button (click)="createInvoice()">Ny faktura</button>
-    <uni-table [resource]="lookupFunction" [config]="invoiceTable" (rowSelected)="onRowSelected($event)"></uni-table>
+    <uni-table 
+        [resource]="lookupFunction" 
+        [config]="invoiceTable" 
+        (rowSelected)="onRowSelected($event)"
+        (filtersChange)="onFiltersChange($event.filter)">
+    </uni-table>
+    <dl class="summary" *ngIf="summaryData" [attr.aria-busy]="busy">
+        <dt>Totalsum</dt>
+        <dd>Kr. {{summaryData.SumTotalAmount}}</dd>
+        <dt>Restsum</dt>
+        <dd>Kr. {{summaryData.SumRestAmount}}</dd>
+        <dt>Sum kreditert</dt>
+        <dd>Kr. {{summaryData.SumCreditedAmount}}</dd>        
+    </dl>
 </section>
 <register-payment-modal (changed)="onRegisteredPayment($event)"></register-payment-modal>

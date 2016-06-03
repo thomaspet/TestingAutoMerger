@@ -4,6 +4,7 @@ import {StatusCodeCustomerInvoice} from '../../unientities';
 import {UniHttp} from '../../../framework/core/http/http';
 import {Observable} from "rxjs/Observable";
 import {TradeHeaderCalculationSummary} from '../../models/sales/TradeHeaderCalculationSummary'
+import {InvoiceSummary} from '../../models/accounting/InvoiceSummary';
 
 declare var moment;
 
@@ -59,6 +60,14 @@ export class CustomerInvoiceService extends BizHttp<CustomerInvoice> {
             .usingBusinessDomain()
             .withBody(invoiceItems)
             .withEndPoint(this.relativeURL + '?action=calculate-invoice-summary') 
+            .send();
+    } 
+
+    getInvoiceSummary(odatafilter: string): Observable<any> {        
+        return this.http 
+            .asGET()
+            .usingBusinessDomain()            
+            .withEndPoint(this.relativeURL + '?action=get-customer-invoice-summary&odataFilter='+odatafilter) 
             .send();
     } 
 
