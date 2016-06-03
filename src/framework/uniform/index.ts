@@ -6,3 +6,4 @@ export * from './unifield';
 export * from './unifieldlayout';
 export * from './validators';
 export * from './showError';
+export * from './interfaces';
