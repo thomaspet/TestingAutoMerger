@@ -62,35 +62,8 @@ export class PreviewModal {
     public open(report: ReportDefinition)
     {
         this.modalConfig.title = report.Name;
-        this.reportDefinitionService.generateReportHtml(report, this);
+        this.modalConfig.report = null;
+        this.reportDefinitionService.generateReportHtml(report, this.modalConfig);
         this.modal.open();
-    }
-   
-    private onTemplateLoaded(template: string, report: ReportDefinition) {
-        //this.reportDefinitionDataSourceService.GetAll('ReportDefinitionId=' + report.ID)
-          //      .subscribe(dataSources => onDataSourcesLoaded(template, report, dataSources) );
-
-        
-        // for test purpose only:
-        // hardcoded invoice id
-        /*this.customerInvoiceService.Get(2)
-            .subscribe(response => {
-                this.reportWrapper.showReport(template, [JSON.stringify(response)], this.modalConfig);
-                this.modal.open();        
-            });*/
-    }
-  
- 
-/*    private resolvePlaceholders(report: ReportDefinition) {
-        var urls: string[] = [];
-        
-        for (var param in report.parameters) {
-            alert(param.Name);
-        }
-        return urls;
-    }*/
-   
-    private onError(err : string) {
-        alert(err)
     }
 }
