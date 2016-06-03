@@ -6,9 +6,7 @@
     "serve": "lite-server -c bs.config.json",
     "buid.dev": "gulp build.dev",
     "build": "gulp build",
-    "clean": "rimraf dist/**/*",
-    "test": "gulp serve.tests",
-    "lint": "gulp tslint"
+    "clean": "gulp clean.all"
   },
   "dependencies": {
     "@angular/common": "2.0.0-rc.1",
