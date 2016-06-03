@@ -4,16 +4,10 @@ declare var window;
 export class ComponentProxy {
 
     static LoadComponentAsync(name,path){
-        if (!window.TEST_MODE) {
-            return System.import(path)
-                .then(c => {
-                    console.log(c);
-                    return c[name]
-                });
-        } else {
-            var newpath = path.replace('.',"./src");
-            return System.import(newpath).then(c => c[name]);
-        }
+        return System.import(path)
+            .then(c => {
+                return c[name]
+            });
     }
 
 }
