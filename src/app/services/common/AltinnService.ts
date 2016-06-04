@@ -1,9 +1,13 @@
 import {BizHttp} from '../../../framework/core/http/BizHttp';
 import {Altinn, FieldType, AltinnReceipt} from '../../unientities';
 import {UniHttp} from '../../../framework/core/http/http';
-import { Observable } from 'rxjs/Observable';
-import { SubEntityService } from '../services';
+import {Observable } from 'rxjs/Observable';
+import {SubEntityService } from '../services';
+import {AppConfig} from '../../../app/AppConfig';
+import {IntegrationServerCaller} from './IntegrationServerCaller';
+import {Injectable, EventEmitter} from '@angular/core';
 
+//@Injectable()
 export class AltinnService extends BizHttp<Altinn> {
 
     public languages: any = [
@@ -13,14 +17,18 @@ export class AltinnService extends BizHttp<Altinn> {
         { ID: '1083', text: 'Samisk' },
     ];
     
-    constructor(http: UniHttp, private subEntityService: SubEntityService) {
+    private inServer : any;
+    
+    constructor(http: UniHttp, private subEntityService: SubEntityService, private integrate: IntegrationServerCaller) {
         super(http);
         this.relativeURL = Altinn.RelativeUrl;
+        this.inServer = integrate;
     }
     
     public sendTaxRequestAction(option: string, empId: number = 0): Observable<AltinnReceipt> {
         return this.PostAction(1, 'sendtaxrequest', 'option=' + option + '&empId=' + empId);
     }
+
 
     public getLayout() {
         return Observable.from([{
@@ -126,7 +134,7 @@ export class AltinnService extends BizHttp<Altinn> {
                         dataValueField: 'ID'
                     },
                     hasLineBreak: true
-                }
+                }                
             ]
         }]);
     }

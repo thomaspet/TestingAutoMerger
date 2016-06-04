@@ -1,36 +1,202 @@
-import {Component, OnInit} from '@angular/core';
+import {Component, OnInit, ViewChild} from '@angular/core';
 import {RouteParams} from '@angular/router-deprecated';
 import {EmployeeDS} from '../../../../data/employee';
-import {UniTable, UniTableBuilder, UniTableColumn} from '../../../../../framework/uniTable';
 import {Employment, Employee} from '../../../../unientities';
 import {RootRouteParamsService} from '../../../../services/rootRouteParams';
+import {UniTable, UniTableConfig, UniTableColumnType, UniTableColumn} from 'unitable-ng2/main';
+import {UniSave, IUniSaveAction} from '../../../../../framework/save/save';
+import {AsyncPipe} from '@angular/common';
+import {UniHttp} from '../../../../../framework/core/http/http';
+import {Observable} from 'rxjs/Observable';
+import {EmployeeLeaveService} from '../../../../services/services';
 
 @Component({
-    selector: 'employee-leave',
+    selector: 'employee-permision',
     templateUrl: 'app/components/salary/employee/employeeLeave/employeeLeave.html',
-    directives: [UniTable]
+    directives: [UniTable, UniSave],
+    providers: [EmployeeLeaveService],
+    pipes: [AsyncPipe]
 })
 export class EmployeeLeave implements OnInit {
 
     private currentEmployee: Employee;
-    private employments: Array<any>;
-    private filter: any;
-    private leaveTypes: Array<any>;
+    private employments: Employment[];
     private employeeID: number;
-    private dataConfig: any;
-    private lastSavedInfo: string;
+    private permisionTableConfig: UniTableConfig;
+    private permisions$: Observable<any>;
+    private permisionsChanged: any[];
+    @ViewChild(UniTable) private table: UniTable;
+    
+    private leaveTypes: any[] = [
+        {typeID: '0', text: 'Ikke satt'},
+        {typeID: '1', text: 'Permisjon'},
+        {typeID: '2', text: 'Permittering'}
+    ];
+    
+    private saveactions: IUniSaveAction[] = [
+        {
+            label: 'Lagre permisjoner',
+            action: this.saveLeave.bind(this),
+            main: true,
+            disabled: true
+        }
+    ];
+    
+    constructor(private routeParams: RouteParams, public employeeDS: EmployeeDS, private rootRouteParams: RootRouteParamsService, private uniHttp: UniHttp, private employeeleaveService: EmployeeLeaveService) {
+        this.employeeID = +rootRouteParams.params.get('id');
+    }
+    
+    public ngOnInit() {
+        this.buildTableConfig();
+        
+        this.employeeDS
+            .get(this.employeeID)
+            .subscribe((response: any) => {
+                this.currentEmployee = response;
+                this.employments = this.currentEmployee.Employments;
+                
+                let filter = this.buildFilter();
+                this.permisions$ = this.uniHttp.asGET()
+                .usingBusinessDomain()
+                .withEndPoint('employeeleave')
+                .send({
+                    filter: filter
+                });
+            });
+    }
+    
+    public buildFilter() {
+        var filter = '';
+        this.employments.forEach((employment: Employment) => {
+            filter += ' EmploymentID eq ' + employment.ID + ' or';
+        });
+        filter = filter.slice(0, filter.length - 2);
+        
+        return filter;
+    }
 
-    public getLeaveTypeText = (typeID: string) => {
+    public buildTableConfig() {
+        // var idCol = new UniTableColumn('ID', 'ID', UniTableColumnType.Number, false);
+        var fromDateCol = new UniTableColumn('FromDate', 'Startdato', UniTableColumnType.Date);
+        var toDateCol = new UniTableColumn('ToDate', 'Sluttdato', UniTableColumnType.Date);
+        var leavePercentCol = new UniTableColumn('LeavePercent', 'Prosent', UniTableColumnType.Number)
+            .setFormat(`{0: #\\'%'}`);
+        var commentCol = new UniTableColumn('Description', 'Kommentar', UniTableColumnType.Text);
+        var leaveTypeCol = new UniTableColumn('LeaveType', 'Type', UniTableColumnType.Lookup)
+            .setTemplate((dataItem) => {
+                return this.getLeaveTypeText(dataItem.LeaveType);
+            })
+            .setEditorOptions({
+                itemTemplate: (selectedItem) => {
+                    return (selectedItem.typeID + ' - ' + selectedItem.text);
+                },
+                lookupFunction: (searchValue) => {
+                    let matching: any[] = [];
+                    this.leaveTypes.forEach(leavetype => {
+                        if (leavetype.text.toLowerCase().indexOf(searchValue) > -1) {
+                            matching.push(leavetype);
+                        }
+                    });
+                    return matching;
+                }
+            });
+
+        var employmentIDCol = new UniTableColumn('Employment', 'Arbeidsforhold', UniTableColumnType.Lookup)
+            .setTemplate((dataItem) => {
+                return this.getEmploymentJobName(dataItem.EmploymentID);
+            })
+            .setEditorOptions({
+                itemTemplate: (selectedItem) => {
+                    return (selectedItem.ID + ' - ' + selectedItem.JobName);
+                },
+                lookupFunction: (searchValue) => {
+                    let matching: Employment[] = [];
+                    this.employments.forEach(employment => {
+                        if (employment.JobName.toLowerCase().indexOf(searchValue) > -1) {
+                            matching.push(employment);
+                        }
+                    });
+                    return matching;
+                }
+            });
+
+        this.permisionTableConfig = new UniTableConfig()
+            .setColumns([
+                // idCol, 
+                fromDateCol, toDateCol, leavePercentCol, 
+                leaveTypeCol, employmentIDCol, commentCol
+            ])
+            .setChangeCallback((event) => {
+                let row = event.rowModel;
+                
+                if (event.field === 'Employment') {
+                    this.mapEmploymentToPermision(row);
+                }
+                
+                if (event.field === 'LeaveType') {
+                    this.mapLeavetypeToPermision(row);
+                }
+                
+                return row;
+            });
+    }
+    
+    public saveLeave(done) {
+        done('Lagrer permisjoner');
+        this.permisionsChanged.forEach(permisionItem => {
+            
+            console.log('permisjonsItem', permisionItem);
+            
+            if (permisionItem.ID > 0) {
+                this.employeeleaveService.Put(permisionItem.ID, permisionItem)
+                .subscribe((response: EmployeeLeave) => {
+                    done('Sist lagret: ');
+                },
+                (err) => {
+                    done('Feil ved oppdatering av permisjon', err);
+                });
+            } else {
+                this.employeeleaveService.Post(permisionItem)
+                .subscribe((response: EmployeeLeave) => {
+                    done('Sist lagret: ');
+                },
+                (err) => {
+                    done('Feil ved lagring av permisjon', err);
+                });
+            }
+        });
+        done('Permisjoner lagret: ');
+    }
+    
+    private mapEmploymentToPermision(rowModel) {
+        let employment = rowModel['Employment'];
+        if (!employment) {
+            return;
+        }
+        rowModel['EmploymentID'] = employment.ID;
+    }
+    
+    private mapLeavetypeToPermision(rowModel) {
+        let leavetype = rowModel['LeaveType'];
+        if (!leavetype) {
+            return;
+        }
+        rowModel['LeaveType'] = leavetype.typeID;
+    }
+    
+    private getLeaveTypeText(typeID: string) {
         var text = '';
+        
         this.leaveTypes.forEach((leaveType) => {
             if (leaveType.typeID === typeID) {
                 text = leaveType.text;
             }
         });
+        
         return text;
-    };
+    }
 
-    public getEmploymentJobName = (employmentID: number) => {
+    private getEmploymentJobName(employmentID: number) {
         var jobName = '';
 
         this.employments.forEach((employment: Employment) => {
@@ -38,86 +204,12 @@ export class EmployeeLeave implements OnInit {
                 jobName = employment.JobName;
             }
         });
-        return jobName;
-    };
-    
-    constructor(private routeParams: RouteParams, public employeeDS: EmployeeDS, private rootRouteParams: RootRouteParamsService) {
-        this.leaveTypes = [
-            {typeID: '0', text: 'Ikke satt'},
-            {typeID: '1', text: 'Permisjon'},
-            {typeID: '2', text: 'Permittering'}
-        ];
-        this.employments = new Array();
-        this.employeeID = +rootRouteParams.params.get('id');
-    }
-    
-    public ngOnInit() {
-        this.employeeDS
-            .get(this.employeeID)
-            .subscribe((response: any) => {
-                this.currentEmployee = response;
-                this.buildTableConfigs();
-            });
-    }
-    
-    public buildFilterAndEmployments() {
-        var filter = '';
-        this.currentEmployee.Employments.forEach((employment: Employment) => {
-            filter += ' EmploymentID eq ' + employment.ID + ' or';
-            this.employments.push(employment);
-        });
-        filter = filter.slice(0, filter.length - 2);
-        return filter;
-    }
-
-    public buildTableConfigs() {
-        this.filter = this.buildFilterAndEmployments();
         
-        var idCol = new UniTableColumn('ID', 'ID', 'number')
-            .setEditable(false)
-            .setNullable(true);
-
-        var fromDateCol = new UniTableColumn('FromDate', 'Startdato', 'date')
-            .setFormat('{0: dd.MM.yyyy}');
-
-        var toDateCol = new UniTableColumn('ToDate', 'Sluttdato', 'date')
-            .setFormat('{0: dd.MM.yyyy}');
-
-        var leavePercentCol = new UniTableColumn('LeavePercent', 'Prosent', 'number')
-            .setFormat(`{0: #\\'%'}`);
-
-        var commentCol = new UniTableColumn('Description', 'Kommentar', 'string');
-
-        var leaveTypeCol = new UniTableColumn('LeaveType', 'Type', 'string')
-            .setTemplate((dataItem) => {
-                return this.getLeaveTypeText(dataItem.LeaveType);
-            })
-            .setCustomEditor('dropdown', {
-                dataSource: this.leaveTypes,
-                dataValueField: 'typeID',
-                dataTextField: 'text'
-            });
-
-        var employmentIDCol = new UniTableColumn('EmploymentID', 'Arbeidsforhold', '')
-            .setTemplate((dataItem) => {
-                return this.getEmploymentJobName(dataItem.EmploymentID);
-            })
-            .setCustomEditor('dropdown', {
-                dataSource: this.employments,
-                dataValueField: 'ID',
-                dataTextField: 'JobName'
-            });
-
-        this.dataConfig = new UniTableBuilder('EmployeeLeave', true)
-            .setFilter(this.filter)
-            .addColumns(idCol, fromDateCol, toDateCol, leavePercentCol, leaveTypeCol, employmentIDCol, commentCol);
+        return jobName;
     }
     
-    public saveLeaveManual() {
-        this.saveLeave();
-    }
-    
-    public saveLeave() {
-        this.lastSavedInfo = 'Fravær lagret';
+    private rowChanged(event) {
+        this.permisionsChanged = this.table.getTableData();
+        this.saveactions[0].disabled = false;
     }
 }

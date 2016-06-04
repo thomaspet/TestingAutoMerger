@@ -17,7 +17,7 @@ const TRANSQUERY_ROUTES = [
         loader: () => ComponentProxy.LoadComponentAsync('TransqueryDetails','app/components/accounting/transquery/details/transqueryDetails')
     }),
     new AsyncRoute({
-        path: '/detailsByAccountId/:accountId/year/:year/period/:period/isIncomingBalance/:isIncomingBalance',
+        path: '/detailsByAccountNumber/:accountNumber/year/:year/period/:period/isIncomingBalance/:isIncomingBalance',
         name: 'TransqueryDetails',
         loader: () => ComponentProxy.LoadComponentAsync('TransqueryDetails','app/components/accounting/transquery/details/transqueryDetails')
     }),

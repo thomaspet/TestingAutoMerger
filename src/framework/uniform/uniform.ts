@@ -3,7 +3,7 @@ import {
 } from '@angular/core';
 import {FORM_DIRECTIVES, FORM_PROVIDERS, ControlGroup, FormBuilder} from '@angular/common';
 import {FieldLayout} from '../../app/unientities';
-import {UniFieldLayout} from './unifieldlayout';
+import {UniFieldLayout} from './interfaces';
 import {UniField} from './unifield';
 import {UniCombo} from './unicombo';
 import {UniFieldSet} from './unifieldset';
@@ -280,8 +280,7 @@ export class UniForm {
             lastFieldSet = field.FieldSet;     
         };
         
-        this.fields.forEach((x: UniFieldLayout) => {
-            let field = new UniFieldLayout(x);
+        this.fields.forEach((field: UniFieldLayout) => {
             if (!field.Section && !field.FieldSet && !field.Combo) { // manage fields
                 closeGroups(field);
                 group.push(field);

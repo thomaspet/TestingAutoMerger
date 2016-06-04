@@ -30,7 +30,7 @@ export class RegisterTime {
     private userName = '';
     private tableConfig: UniTableConfig;
     private worktypes:Array<WorkType> = [];  
-    
+    private workRelations:Array<WorkRelation> = [];
     private timeSheet: TimeSheet = new TimeSheet();
     
     tabs = [ { name: 'timeentry', label: 'Timer', isSelected: true },
@@ -55,31 +55,7 @@ export class RegisterTime {
     
     onReloadClick() {
         this.busy = true;
-        this.initServiceValues();
-        /*
-        this.testMultipleCalls().subscribe((item)=>{
-            console.info('external workitem: ' + item.ID + ' - ' + item.Description,  item);
-        }, (err)=>{
-            this.busy = false;
-            console.log('Error:', err);
-        }, ()=>{
-            this.busy = false;    
-            console.info('All completed !');
-        });
-        */
-            
-    }
-        
-    testMultipleCalls() {
-        var list = [1,2,3];
-        
-        var source = Observable.from(list).flatMap((item:number)=>{
-                return this.workerService.getWorkItemById(item);
-            }).share();
-        source.subscribe((item:WorkItem)=>{
-            console.info("internal item: " + item.ID, item);
-        });
-        return source;
+        this.initServiceValues();            
     }
     
     save(done) {
@@ -89,7 +65,6 @@ export class RegisterTime {
             debugger;
             counter++;                
         }, (err)=>{
-            debugger;
             done('Unable to save:' + err.statusText);
             alert(err.statusText);
             this.busy = false;            
@@ -124,11 +99,13 @@ export class RegisterTime {
         this.timesheetService.initUser().subscribe((ts:TimeSheet) => {
             this.timeSheet = ts;
             this.selectWorkRelation(ts.currentRelation);
+            this.workRelations = this.timesheetService.workRelations;
         });
         
         this.workerService.getWorkTypes().subscribe((result:Array<WorkType>)=>{
             this.worktypes = result;
-        });        
+        });   
+        
     }
     
     selectWorkRelation(relation:WorkRelation) {
@@ -136,6 +113,7 @@ export class RegisterTime {
         this.loadItems();
     }    
     
+    /*
 	addNewRow(text = 'Fyll inn beskrivelse') {
         var workType = this.defaultType();
         var row = {
@@ -148,6 +126,7 @@ export class RegisterTime {
         };
         this.timeSheet.items.push(row);
 	}    
+    */
     
     getWorkTypeByID(id:number): WorkType {
         var tp = this.worktypes.find((item:WorkType)=> {

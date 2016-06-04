@@ -1,6 +1,6 @@
 import {Component, Input, Output, EventEmitter, ViewChild, ChangeDetectorRef, SimpleChange, HostListener, ChangeDetectionStrategy} from '@angular/core';
 import {FORM_DIRECTIVES, FORM_PROVIDERS, ControlGroup, Control} from '@angular/common';
-import {UniFieldLayout} from './unifieldlayout';
+import {UniFieldLayout} from './interfaces';
 import {CONTROLS} from './controls/index';
 import {ShowError} from './showError';
 import {MessageComposer} from './composers/messageComposer';
