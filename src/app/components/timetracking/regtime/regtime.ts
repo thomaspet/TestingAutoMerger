@@ -62,14 +62,14 @@ export class RegisterTime {
         this.busy = true;
         var counter = 0;
         this.timeSheet.saveItems().subscribe((item:WorkItem)=>{            
-            debugger;
+            //debugger;
             counter++;                
         }, (err)=>{
             done('Unable to save:' + err.statusText);
             alert(err.statusText);
             this.busy = false;            
         }, ()=>{
-            debugger;
+            //debugger;
             done(counter + " poster ble lagret ok");
             this.busy = false;
         });
@@ -86,13 +86,7 @@ export class RegisterTime {
             console.log("Current worker/user has no workrelations!");
         }
     }
-    
-    defaultType():WorkType {
-        var t = new WorkType();
-        t.ID = 1;
-        t.Name = 'Diverse..';
-        return t;
-    }
+
     
     initServiceValues() {
         
@@ -112,31 +106,9 @@ export class RegisterTime {
         this.timeSheet.currentRelation = relation;
         this.loadItems();
     }    
-    
-    /*
-	addNewRow(text = 'Fyll inn beskrivelse') {
-        var workType = this.defaultType();
-        var row = {
-            Description: text,
-            Date: new Date(),
-            StartTime: moment().hours(8).minutes(0).toDate(),
-            EndTime: new Date(),
-            WorkTypeID: workType.ID,
-            Worktype: workType
-        };
-        this.timeSheet.items.push(row);
-	}    
-    */
-    
-    getWorkTypeByID(id:number): WorkType {
-        var tp = this.worktypes.find((item:WorkType)=> {
-           return item.ID === id;  
-        });     
-        return tp || this.defaultType();
-    }
-    
+       
     filterWorkTypes(txt:string):Observable<any> {
-        var list = this.worktypes || [this.getWorkTypeByID(1)]; 
+        var list = this.worktypes;  
         var lcaseText = txt.toLowerCase();
         var sublist = list.filter((item:WorkType)=>
             { return (item.ID.toString() == txt || item.Name.toLowerCase().indexOf(lcaseText)>=0); } );
@@ -157,8 +129,6 @@ export class RegisterTime {
     }
     
     onEditChange(event) {
-        //debugger;
-        //console.log("rowid:" + event.rowModel._rowId);
         
         var newRow = event.rowModel;
         var change = new ValueItem(event.field, newRow[event.field], newRow.ID, newRow);        

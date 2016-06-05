@@ -69,7 +69,12 @@ export function parseDate(value:any, allowMacros = true): Date {
 		
 }
 
-export function parseTime(value:string, allowMacros = true): Date {
+export function parseTimeToIso(value:string, allowMacros = true, date?:Date): string {
+	var value:string = moment(parseTime(value, allowMacros, date)).format();
+	return value.substr(0, value.length-6); 
+}
+
+export function parseTime(value:string, allowMacros = true, date?:Date): Date {
     var h = 0;
     var m = 0;
     
@@ -108,15 +113,15 @@ export function parseTime(value:string, allowMacros = true): Date {
         }
     }
     
-    return timeSerial(h,m);
+    return timeSerial(h,m, date);
 }
 
 export function addTime(value:Date, amount:number, addType = 'hours') {
 	return moment(value).add(amount, addType).toDate();
 }
 
-function timeSerial(hour:number, minute:number): Date {
-    return moment().hour(hour).minute(minute).toDate();
+function timeSerial(hour:number, minute:number, date?:Date): Date {
+    return moment(date).hour(hour).minute(minute).second(0).toDate();
 }
 
 function dateSerial(day:number, month = 0, year = 0): Date {
