@@ -17,6 +17,8 @@ export function parseDate(value:any, allowMacros = true): Date {
 	var m = 0;
 	var y = 0;
 	
+	if (value === null) return moment().toDate();
+	
 	if (typeof value === 'object' && value.getMonth) {
 		return value;
 	}

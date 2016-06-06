@@ -10,8 +10,6 @@ declare var moment;
 @Injectable()
 export class WorkerService extends BizHttp<Worker> {
             
-    static cache:any = {};
-    
     user = {
         id: 0,
         guid: '',
@@ -32,23 +30,6 @@ export class WorkerService extends BizHttp<Worker> {
         
     }
     
-    /*
-    cacheGet(name:string) {
-        var item = WorkerService.cache[name];
-        console.log(name + ' ' + (item ? 'found' : 'not') + ' in cache' );
-        return item; 
-    }
-    
-    inCache(name:string) {
-        return WorkerService.cache.hasOwnProperty(name);
-    }
-    
-    cacheSet(name:string, value:any) {
-        console.log("adding " + name + " to cache");
-        WorkerService.cache[name] = value;
-        console.log(name + ": inCache = " + this.inCache(name) );
-    }
-    */
     
     getRelationsForUser(id:number):Observable<WorkRelation[]> {
         var obs = this.getWorkerFromUser(id);
@@ -138,6 +119,21 @@ export class WorkerService extends BizHttp<Worker> {
             return this.PUT('workitems/' + item.ID, undefined, item );
         }
         return this.POST('workitems', undefined, item );
+        /*
+        var obs = this.POST('workitems', undefined, item );
+        var ret = obs.share();
+        obs.subscribe((item:any)=> {
+            debugger;
+            console.log("success!");
+        }, (err)=>{
+            debugger;
+            console.error("error", err);
+        }, ()=> {
+            debugger;
+            console.log("finally");
+        }
+        return ret;
+        */
     }
     
     getWorkTypes(): Observable<WorkType[]> {

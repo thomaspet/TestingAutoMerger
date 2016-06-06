@@ -6,8 +6,7 @@ import {parseTime, toIso, addTime, parseDate, ChangeMap} from '../../components/
 declare var moment;
 
 export class ValueItem {
-    cancel = false;
-    constructor(public name:string, public value:any, public ID = 0, public rowItem?:any) { }
+    constructor(public name:string, public value:any, public rowIndex?:number) { }
 }
 
 export class TimeSheet {
@@ -30,7 +29,6 @@ export class TimeSheet {
     }
     
     saveItems(unsavedOnly = true):Observable<WorkItem> {
-        //debugger;
         var toSave: Array<WorkItem>;
         if (unsavedOnly) {
             toSave = this.unsavedItems();
@@ -45,8 +43,7 @@ export class TimeSheet {
     }
     
     setItemValue(change: ValueItem):boolean {
-        var rowIndex = this.findRow(change.ID);
-        var item:WorkItem = this.items[rowIndex];
+        var item:WorkItem = this.getRowByIndex(change.rowIndex); 
         switch (change.name) {
             case "Date":
                 change.value = toIso(parseDate(change.value));
@@ -59,30 +56,20 @@ export class TimeSheet {
                 item.WorkTypeID = change.value.ID;
                 break;                
         }
-        //debugger;
-        if (!item.WorkRelationID) {
-            item.WorkRelationID = this.currentRelation.ID;
-        }
         item[change.name] = change.value;
-        change.ID = item.ID;
-        this.changeMap.add(change.ID, item);
+        this.changeMap.add(change.rowIndex, item);
         return true;
     }    
     
-    private findRow(ID:number):number {
-        if (!ID) {
-            var id = -(this.items.length + 1);
-            var item:any = { ID: id }
-            this.items.push(item);            
-            return this.items.length - 1;
+    private getRowByIndex(index:number, createIfMissing = true):any {
+        if (index >= this.items.length) {
+            if (!createIfMissing) return;
+            this.items.push({ID:0});
+            return this.items[this.items.length-1];
         }
-        for (var i=0; i<this.items.length; i++) {
-            if (this.items[i].ID===ID) {
-                return i;
-            }
-        }
-        return -1;
+        return this.items[index];
     }
+    
 }
 
 @Injectable()

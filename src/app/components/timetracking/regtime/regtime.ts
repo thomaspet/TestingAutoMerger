@@ -62,16 +62,18 @@ export class RegisterTime {
         this.busy = true;
         var counter = 0;
         this.timeSheet.saveItems().subscribe((item:WorkItem)=>{            
-            //debugger;
             counter++;                
         }, (err)=>{
-            done('Unable to save:' + err.statusText);
+            debugger;
+            done('Feil ved lagring:' + err.statusText);
             alert(err.statusText);
             this.busy = false;            
         }, ()=>{
             //debugger;
-            done(counter + " poster ble lagret ok");
-            this.busy = false;
+            this.flagUnsavedChanged(true);
+            done(counter + " poster ble lagret.");
+            this.loadItems();
+            //this.busy = false;
         });
     }
     
@@ -83,7 +85,7 @@ export class RegisterTime {
                 this.actions[0].disabled = true;
             })    
         } else {
-            console.log("Current worker/user has no workrelations!");
+            alert("Current worker/user has no workrelations!");
         }
     }
 
@@ -98,6 +100,8 @@ export class RegisterTime {
         
         this.workerService.getWorkTypes().subscribe((result:Array<WorkType>)=>{
             this.worktypes = result;
+        }, (err)=>{
+            console.log("errors in getworktypes!");
         });   
         
     }
@@ -131,14 +135,18 @@ export class RegisterTime {
     onEditChange(event) {
         
         var newRow = event.rowModel;
-        var change = new ValueItem(event.field, newRow[event.field], newRow.ID, newRow);        
-        if (this.timeSheet.setItemValue(change)) {
-            this.actions[0].disabled = false;
-            newRow.ID = change.ID;
+        var change = new ValueItem(event.field, newRow[event.field], event.originalIndex);        
+        if (this.timeSheet.setItemValue(change)) {             
+            this.flagUnsavedChanged();
             newRow[event.field] = change.value;
+            //console.log('changes', this.timeSheet.unsavedItems());
             return newRow; 
         }
  
+    }
+    
+    flagUnsavedChanged(reset = false) {
+        this.actions[0].disabled = reset;
     }
     
     // UniTable helperes:
