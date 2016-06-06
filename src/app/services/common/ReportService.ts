@@ -18,49 +18,48 @@ export class ReportService extends BizHttp<ReportDefinition> {
         var template, self = this;
         return this.getReportTemplate(name)
             .concatMap((data: any) => {
-                let [tmpl, rdID] = data;
+                let [tmpl, rd] = data;
                 template = tmpl;
-                return self.getReportDataFromSources(rdID, inputparams);
+                return self.getReportDataFromSources(rd, inputparams);
             })
             .map((data: any) => {
+                console.log("=== ENDING DATA ==");
+                console.log(data);
                 return [template, [JSON.stringify(data)]];
             });
     }
     
     private getReportTemplate(name : string) : Observable<any> {
-        var params = new URLSearchParams();
-        params.set('filter', `Name eq '${name}'`);
-        
-        return this.GetAllByUrlSearchParams(params).concatMap((results : Array<ReportDefinition>) => {
-            var rd = results[0];
-            // TODO: hack just now when not every report definition is done at backend
-            if (rd == null) {
-                rd = new ReportDefinition();
-                rd.ID = 1;
-                rd.TemplateLinkId = "CustomerInvoiceWithoutGiro.mrt";
-            }
-            return this.http.http.get(`/assets/reports/${rd.TemplateLinkId}`).map(res => [res.text(), rd.ID]);        
+        // TODO: later on use ['ReportDefinitionDataSource'] for expand
+        return this.GetAll<ReportDefinition>(`filter=Name eq '${name}'`).concatMap((rds : Array<ReportDefinition>) => {  
+            return this.http.http.get(`/assets/reports/${rds[0].TemplateLinkId}`).map(res => [res.text(), rds[0]]);        
         });
     }   
    
-    private getReportDataFromSources(rdID : number, inputparams : any) : Observable<any> {
+    private getReportDataFromSources(rd : ReportDefinition, inputparams : any) : Observable<any> {
         var self = this;
-        var params = new URLSearchParams();
-        params.set('filter', `ReportDefinitionId eq ${rdID}`);
  
-        return this.datasource.GetAllByUrlSearchParams(params).map((sources : Array<ReportDefinitionDataSource>) => {
-            var dataset = [];
-            console.log("== SOURCES ==");
-            sources.forEach((source : ReportDefinitionDataSource) => {
-                source = new ReportDefinitionDataSource();
-                source.DataSourceUrl = "/api/biz/invoices/{Id}?expand=Dimensions,Items,Items.Product,Items.VatType,Customer,Customer.Info,Customer.Info.Addresses,InvoiceReference";
-                dataset.push(self.getReportData(source, inputparams));
+        this.relativeURL = ReportDefinitionDataSource.RelativeUrl;
+        return this.GetAll<ReportDefinitionDataSource>(`filter=ReportDefinitionId eq ${rd.ID}`).map((sources : Array<ReportDefinitionDataSource>) => {
+            //var dataset = [];
+            //sources.forEach((source : ReportDefinitionDataSource) => {
+            //    dataset.push(self.getReportData(source, inputparams));             
+            //});
+            
+            //return Observable.forkJoin(dataset).map((data) => {
+            //   console.log("==2=====");
+            //   console.log(data);
+            //   return JSON.stringify(data); 
+            //});
+            self.getReportData(sources[1], inputparams).subscribe(data => {
+               console.log("yessssssss");
+               console.log(data._body);
+                
             });
-            return dataset;
         });      
     }
    
     private getReportData(source: ReportDefinitionDataSource, inputparams : any) : Observable<any> {
-        return this.http.asGET().usingEmptyDomain().withEndPoint(source.DataSourceUrl.replace('{Id}', inputparams.Id.toString())).send();     
+        return this.http.asGET().usingEmptyDomain().withEndPoint(source.DataSourceUrl.replace('{Id}', inputparams.Id.toString())).send({}, true);     
     }
 }

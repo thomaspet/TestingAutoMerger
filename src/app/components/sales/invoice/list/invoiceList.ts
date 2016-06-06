@@ -179,8 +179,10 @@ export class InvoiceList implements OnInit {
         contextMenuItems.push({
             label: 'Skriv ut',
             action: (invoice: CustomerInvoice) => {
-                this.reportService.getReportTemplateAndData('Fakturablankett uten giro', {Id: invoice.ID}).subscribe((response: any[]) => {
+                this.reportService.getReportTemplateAndData('Faktura Uten Giro', {Id: invoice.ID}).subscribe((response: any[]) => {
                    let [template, data] = response;
+                   console.log("== REPORT DATA ==");
+                   console.log(data);
                    this.report.printReport(template, data, false);
                 });
             }
@@ -214,6 +216,7 @@ export class InvoiceList implements OnInit {
 
         var statusCol = new UniTableColumn('StatusCode', 'Status', UniTableColumnType.Number)
             .setWidth('15%')
+            .setFilterable(false)
             .setTemplate((dataItem) => {
                 return this.customerInvoiceService.getStatusText(dataItem.StatusCode, dataItem.InvoiceType);
             });
