@@ -2,8 +2,7 @@ import {BizHttp} from '../../../framework/core/http/BizHttp';
 import {CustomerInvoice, CustomerInvoiceItem} from '../../unientities';
 import {StatusCodeCustomerInvoice} from '../../unientities';
 import {UniHttp} from '../../../framework/core/http/http';
-import {Observable} from "rxjs/Observable";
-import {TradeHeaderCalculationSummary} from '../../models/sales/TradeHeaderCalculationSummary'
+import {Observable} from 'rxjs/Observable';
 
 declare var moment;
 
@@ -31,17 +30,17 @@ export class CustomerInvoiceService extends BizHttp<CustomerInvoice> {
         { Code: StatusCodeCustomerInvoice.Paid, Text: 'Betalt' },
     ];
             
-    next(currentID: number): Observable<CustomerInvoice>
+    public next(currentID: number): Observable<CustomerInvoice>
     {
         return super.GetAction(currentID, 'next');
     }
     
-    previous(currentID: number): Observable<CustomerInvoice>
+    public previous(currentID: number): Observable<CustomerInvoice>
     {
         return super.GetAction(currentID, 'previous');
     }
   
-    newCustomerInvoice(): Promise<CustomerInvoice>
+    public newCustomerInvoice(): Promise<CustomerInvoice>
     {       
         return new Promise(resolve => {
             this.GetNewEntity([], CustomerInvoice.EntityType).subscribe(invoice => {
@@ -53,7 +52,7 @@ export class CustomerInvoiceService extends BizHttp<CustomerInvoice> {
         });
     }
     
-    calculateInvoiceSummary(invoiceItems: Array<CustomerInvoiceItem>): Observable<any> {        
+    public calculateInvoiceSummary(invoiceItems: Array<CustomerInvoiceItem>): Observable<any> {        
         return this.http 
             .asPOST()
             .usingBusinessDomain()
@@ -62,9 +61,17 @@ export class CustomerInvoiceService extends BizHttp<CustomerInvoice> {
             .send();
     } 
 
-    getInvoiceByInvoiceNumber(invoiceNumber: string): Observable<any> {        
+    public getInvoiceByInvoiceNumber(invoiceNumber: string): Observable<any> {        
         return this.GetAll('filter=InvoiceNumber eq ' + invoiceNumber, ['JournalEntry','JournalEntry.Lines','JournalEntry.Lines.Account']);
     }
+
+    public getInvoiceSummary(odatafilter: string): Observable<any> {        
+        return this.http 
+            .asGET()
+            .usingBusinessDomain()            
+            .withEndPoint(this.relativeURL + '?action=get-customer-invoice-summary&odataFilter=' + odatafilter) 
+            .send();
+    } 
 
     public createCreditNoteFromInvoice(currentInvoiceID: number): Observable<any> {
         return super.PutAction(currentInvoiceID, 'create-credit-draft-invoice');
@@ -73,18 +80,17 @@ export class CustomerInvoiceService extends BizHttp<CustomerInvoice> {
     public getStatusText = (statusCode: string, invoiceType: number) => {
         var text = 'Udefinert';
 
-        //TODO use enum for invoiceType
-        if (invoiceType == 0) {
+        // TODO use enum for invoiceType
+        if (invoiceType === 0) {
             this.statusTypes.forEach((status) => {
-                if (status.Code == statusCode) {
+                if (status.Code === statusCode) {
                     text = status.Text;
                     return;
                 }
             });
-        }
-        else {
+        } else {
             this.statusTypesCredit.forEach((status) => {
-                if (status.Code == statusCode) {
+                if (status.Code === statusCode) {
                     text = status.Text;
                     return;
                 }

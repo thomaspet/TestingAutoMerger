@@ -1,6 +1,6 @@
 import {Component, Input, Output, EventEmitter, QueryList, ViewChildren, ChangeDetectorRef, ChangeDetectionStrategy, SimpleChange} from '@angular/core';
 import {FORM_DIRECTIVES, FORM_PROVIDERS, ControlGroup} from '@angular/common';
-import {UniFieldLayout} from './unifieldlayout';
+import {UniFieldLayout} from './interfaces';
 import {UniField} from './unifield';
 import {UniCombo} from './unicombo';
 import {UniFieldSet} from './unifieldset';
@@ -99,7 +99,7 @@ export class UniSection {
         if (changes['fields']) {
             if (this.fields && this.fields.length > 0) {
                 this.sectionId = this.fields[0].Section;
-                this.config.legend = this.fields[0].Legend;
+                this.config.legend = this.fields[0].Sectionheader;
 
             }
             this.groupedFields = this.groupFields();

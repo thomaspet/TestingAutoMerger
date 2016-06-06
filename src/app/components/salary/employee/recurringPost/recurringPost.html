@@ -1,12 +1,6 @@
 <article class="application">
-    <uni-table [config]="recurringpostListConfig"></uni-table>
+    <uni-table [resource]="recurringItems$ | async" [config]="recurringpostListConfig" (rowChanged)="rowChanged($event)">
+    </uni-table>
 </article>
 
-<footer class="full-footer">
-    <section class="application">
-        <button class="good" (click)="saveRecurringpostManual($event)">Lagre faste poster</button>
-        <section class="auto_save_info">
-            {{ lastSavedInfo }}
-        </section>
-    </section>
-</footer>
+<uni-save [actions]="saveactions"></uni-save>

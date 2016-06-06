@@ -1,4 +1,4 @@
-import {UniFieldLayout} from '../unifieldlayout';
+import {UniFieldLayout} from '../interfaces';
 import {UniValidator} from '../validators';
 
 /**

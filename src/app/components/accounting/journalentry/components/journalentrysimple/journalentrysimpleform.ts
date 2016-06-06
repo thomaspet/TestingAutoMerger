@@ -50,8 +50,8 @@ export class JournalEntrySimpleForm implements OnChanges {
     @ViewChild(UniForm)
     public form: UniForm; 
     
-    public config: any = {};
-    public fields: any[] = [];
+    config: any = {};
+    fields: any[] = [];
    
     departements: Departement[];
     projects: Project[];
@@ -78,9 +78,7 @@ export class JournalEntrySimpleForm implements OnChanges {
         this.projects = []; 
         this.vattypes = [];
         this.accounts = [];
-        this.journalEntryLine = new JournalEntryData();
-        
-        this.setupFields();
+        this.journalEntryLine = new JournalEntryData();        
     }
     
     ngOnInit() {    
@@ -88,8 +86,8 @@ export class JournalEntrySimpleForm implements OnChanges {
             this.journalEntryLine.SameOrNew = this.mode == JournalEntryMode.Supplier ? this.SAME_OR_NEW_SAME : this.SAME_OR_NEW_NEW;
         } 
         
-        this.setupSameNewAlternatives();
-        //this.setupFields();
+        this.setupFields();
+        this.setupSameNewAlternatives();    
     }
     
     private setupFields() {    
@@ -456,13 +454,11 @@ export class JournalEntrySimpleForm implements OnChanges {
         //}); 
                 
         this.config = {
-            submitText: '' // TODO remove and use disable subit when available in new UniForm
         };
     }
     
     focusAfterFinancialDate() {
         if (this.mode != JournalEntryMode.Payment) {
-            console.log("=== SETTING FOCUS ===");
             this.form.Fields['DebitAccountID'].focus();
         } else {
             this.form.Fields['InvoiceNumber'].focus();                            
@@ -517,20 +513,16 @@ export class JournalEntrySimpleForm implements OnChanges {
     }
     
     public submit(line) {
-        console.log('Submit: ', line);
     }
       
     public change(line) {
-    //    console.log('Change: ', line);
     }  
     
     public ready(line) {
-        console.log('Ready:', line);        
         this.form.Fields['FinancialDate'].focus();
       
         // FinancialDate changed
         this.form.Fields['FinancialDate'].onChange.subscribe(() => {
-            console.log("== onChange FinancialDate");
             this.focusAfterFinancialDate();
         });
         
@@ -546,7 +538,6 @@ export class JournalEntrySimpleForm implements OnChanges {
         });
         
         this.form.Fields['DebitAccountID'].onSelect.subscribe((account:Account) => {
-            console.log("OnSelect==");
             if (account && account.VatType) {
                 this.journalEntryLine.DebitVatType = account.VatType;
                 this.journalEntryLine = _.deepClone(this.journalEntryLine);

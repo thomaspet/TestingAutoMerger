@@ -1,9 +1,9 @@
-import {Injectable, EventEmitter} from '@angular/core';
-import {URLSearchParams} from '@angular/http'
-import {RequestMethod} from "@angular/http";
+import {Injectable} from '@angular/core';
+import {URLSearchParams} from '@angular/http';
+import {RequestMethod} from '@angular/http';
 import {UniHttp} from './http';
 import {Observable} from 'rxjs/Observable';
-import "rxjs/add/operator/concatMap";
+import 'rxjs/add/operator/concatMap';
 
 @Injectable()
 export class BizHttp<T> {
@@ -12,7 +12,7 @@ export class BizHttp<T> {
     protected LogAll: boolean;
     protected DefaultOrderBy: string;
     protected defaultExpand: string[];
-    protected debounceTime:number = 500;
+    protected debounceTime: number = 500;
     // should be found based on type of T. Set in childclass constructor now
     protected relativeURL: string;
 
@@ -54,7 +54,7 @@ export class BizHttp<T> {
         }
         
         if (!params.get('expand') && this.defaultExpand) {
-            params.set('expand', this.defaultExpand.join())
+            params.set('expand', this.defaultExpand.join());
         }
                 
         return this.http
@@ -107,10 +107,10 @@ export class BizHttp<T> {
             .send();
     }
 
-    public Remove<T>(ID: number, entity: T): void {
+    public Remove<T>(ID: number, entity: T): Observable<any> {
         // maybe not neccessary to include entity as parameter?
         // could be useful for validating if entity could be deleted?
-        this.http
+        return this.http
             .usingBusinessDomain()
             .asDELETE()
             .withEndPoint(this.relativeURL + '/' + ID)
@@ -165,8 +165,8 @@ export class BizHttp<T> {
             expandStr = expand.join(',');
         }
 
-        //TODO. Needs a more robust way to handle the Singular Url needed for this request.
-        //let relativeUrlSingular = this.relativeURL.slice(0, this.relativeURL.length - 1); 
+        // TODO. Needs a more robust way to handle the Singular Url needed for this request.
+        // let relativeUrlSingular = this.relativeURL.slice(0, this.relativeURL.length - 1); 
         let relativeUrlSingular = entityname != null ? entityname : this.relativeURL.slice(0, this.relativeURL.length - 1);
         return this.http
             .usingMetadataDomain()

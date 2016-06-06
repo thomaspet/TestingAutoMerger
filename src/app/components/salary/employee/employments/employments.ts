@@ -1,37 +1,43 @@
-import {Component, Injector, Input, ViewChild, OnInit, ComponentRef} from '@angular/core';
+import {Component, Injector, Input, ViewChild} from '@angular/core';
 import {EmployeeDS} from '../../../../data/employee';
 import {EmploymentService, StaticRegisterService} from '../../../../services/services';
-import {UNI_CONTROL_DIRECTIVES} from '../../../../../framework/controls';
-import {FieldType, STYRKCode, Employee, Employment} from '../../../../unientities';
-import {UniForm, UniFormBuilder, UniFieldBuilder, UniSectionBuilder} from '../../../../../framework/forms';
-import {UniElementFinder} from '../../../../../framework/forms/shared/UniElementFinder';
-import {UniComponentLoader} from '../../../../../framework/core';
-
+import {FieldType, STYRKCode, Employee, Employment, FieldLayout} from '../../../../unientities';
+import {UniSave, IUniSaveAction} from '../../../../../framework/save/save';
+import {UniForm} from '../../../../../framework/uniform';
+import {UniFieldLayout} from '../../../../../framework/uniform/index';
 
 declare var jQuery;
 
 @Component({
     selector: 'employment-details',
-    directives: [UniForm, UniComponentLoader],
+    directives: [UniForm, UniSave],
     providers: [EmploymentService],
     templateUrl: 'app/components/salary/employee/employments/employments.html'
 })
 
-export class EmployeeEmployment implements OnInit {
+export class EmployeeEmployment {
     private styrks: STYRKCode[];
     
+    public config: any = {};
+    public fields: any[] = [];
+    @ViewChild(UniForm) public uniform: UniForm;
+
     @Input() private currentEmployment: Employment;
     @Input() private currentEmployee: Employee;
-    @ViewChild(UniComponentLoader) private uniCompLoader: UniComponentLoader;
-    
-    private form: UniFormBuilder = new UniFormBuilder();
-    public formModel: any = {};
-    private whenFormInstance: Promise<UniForm>;
-    private formInstance: UniForm;    
+      
     private busy: boolean;
+    
+    private saveactions: IUniSaveAction[] = [
+        {
+            label: 'Lagre arbeidsforhold',
+            action: this.saveEmployment.bind(this),
+            main: true,
+            disabled: true
+        }
+    ];
 
     private typeOfEmployment: {ID: number, Name: string}[] = [
-        {ID: 0, Name: 'Ikke satt'},
+        {ID: 0, Name: 'Ikke valgt'},
         {ID: 1, Name: '1 - Ordinært arbeidsforhold'},
         {ID: 2, Name: '2 - Maritimt arbeidsforhold'},
         {ID: 3, Name: '3 - Frilanser, oppdragstager, honorar'},
@@ -39,7 +45,7 @@ export class EmployeeEmployment implements OnInit {
     ];
 
     private renumerationType: {ID: number, Name: string}[] = [
-        {ID: 0, Name: 'Udefinert'},
+        {ID: 0, Name: 'Ikke valgt'},
         {ID: 1, Name: '1 - Fast lønnet'},
         {ID: 2, Name: '2 - Timelønnet'},
         {ID: 3, Name: '3 - Provisjonslønnet'},
@@ -48,7 +54,7 @@ export class EmployeeEmployment implements OnInit {
     ];
 
     private workingHoursScheme: {ID: number, Name: string}[] = [
-        {ID: 0, Name: 'Udefinert'},
+        {ID: 0, Name: 'Ikke valgt'},
         {ID: 1, Name: '1 - Ikke skiftarbeid'},
         {ID: 2, Name: '2 - Arbeid offshore'},
         {ID: 3, Name: '3 - Helkontinuerlig skiftarbeid'},
@@ -84,16 +90,135 @@ export class EmployeeEmployment implements OnInit {
                 private _employmentService: EmploymentService) {
         
         this.styrks = this.statReg.getStaticRegisterDataset('styrk');
+        
+        this.config = {
+            submitText: ''
+        };
+        
+        if (this._employmentService.subEntities) {
+            this.refreshDatafromModel();
+        } else {
+            this.cacheSubentitiesAndRefreshData();
+        }
     }
     
-    public ngOnInit() {
-        this.employeeDS.getSubEntities()
-        .subscribe((response: any) => {
-            this.subEntities = response;
-            this.updateAndShowView();
+    private cacheSubentitiesAndRefreshData() {
+        this.employeeDS.getSubEntities().subscribe((response: any) => {
+            this._employmentService.subEntities = response;
+            this.refreshDatafromModel();
         },
         (err: any) => {
             console.log('error getting subentities: ', err);
+        });
+    }
+    
+    private refreshDatafromModel() {
+        console.log('employment', this.currentEmployment);
+        this._employmentService.layout('EmploymentDetails')
+        .subscribe((layout: any) => {
+            this.fields = layout.Fields;
+            
+            var autocompleteJobcode = new UniFieldLayout();
+            autocompleteJobcode.EntityType = 'Employment';
+            autocompleteJobcode.Property = 'JobCode';
+            autocompleteJobcode.Placement = 1;
+            autocompleteJobcode.Hidden = false;
+            autocompleteJobcode.LookupField = false;
+            autocompleteJobcode.Description = null;
+            autocompleteJobcode.HelpText = null;
+            autocompleteJobcode.FieldSet = 0;
+            autocompleteJobcode.Section = 0;
+            autocompleteJobcode.Combo = 0;
+            autocompleteJobcode.FieldType = 0;
+            autocompleteJobcode.Label = 'Stillingskode';
+            autocompleteJobcode.ReadOnly = false;
+            autocompleteJobcode.Placeholder = 'Stillingskode';
+            autocompleteJobcode.Options = {
+                source: this.styrks,
+                template: (obj) => `${obj.styrk} - ${obj.tittel}`, 
+                displayProperty: 'styrk',
+                valueProperty: 'styrk',
+                debounceTime: 500,
+            };
+            
+            this.fields = [autocompleteJobcode, ...this.fields];
+            
+            this._employmentService.layoutSection('EmploymentDetailsSection')
+            .subscribe((layoutSection: any) => {
+                
+                var typeEmployment = new UniFieldLayout();
+                typeEmployment.ComponentLayoutID = 1;
+                typeEmployment.EntityType = 'Employment';
+                typeEmployment.Property = 'TypeOfEmployment';
+                typeEmployment.Placement = 3;
+                typeEmployment.Hidden = false;
+                typeEmployment.FieldType = FieldType.DROPDOWN;
+                typeEmployment.ReadOnly = false;
+                typeEmployment.LookupField = false;
+                typeEmployment.Label = 'Arbeidsforhold';
+                typeEmployment.Description = null;
+                typeEmployment.HelpText = null;
+                typeEmployment.FieldSet = 0;
+                typeEmployment.Section = 1;
+                typeEmployment.Placeholder = null;
+                typeEmployment.Options = {
+                    source: this.typeOfEmployment, 
+                    valueProperty: 'ID',
+                    displayProperty: 'Name'
+                };
+                typeEmployment.LineBreak = null;
+                typeEmployment.Combo = null;
+                typeEmployment.Legend = 'A-meldingsinformasjon';
+                
+                var renumType = new UniFieldLayout();
+                renumType.EntityType = 'Employment';
+                renumType.Property = 'RenumerationType';
+                renumType.Placement = 4;
+                renumType.Hidden = false;
+                renumType.FieldType = FieldType.DROPDOWN;
+                renumType.ReadOnly = false;
+                renumType.LookupField = false;
+                renumType.Label = 'Avlønningstype';
+                renumType.Description = null;
+                renumType.HelpText = null;
+                renumType.FieldSet = 0;
+                renumType.Section = 1;
+                renumType.Placeholder = null;
+                renumType.Options = {
+                    source: this.renumerationType, 
+                    valueProperty: 'ID',
+                    displayProperty: 'Name'
+                };
+                renumType.LineBreak = null;
+                renumType.Combo = null;
+                renumType.Legend = '';
+                
+                var workHour = new UniFieldLayout();
+                workHour.EntityType = 'Employment';
+                workHour.Property = 'WorkingHoursScheme';
+                workHour.Placement = 5;
+                workHour.Hidden = false;
+                workHour.FieldType = FieldType.DROPDOWN;
+                workHour.ReadOnly = false;
+                workHour.LookupField = false;
+                workHour.Label = 'Arbeidstid';
+                workHour.Description = null;
+                workHour.HelpText = null;
+                workHour.FieldSet = 0;
+                workHour.Section = 1;
+                workHour.Placeholder = null;
+                workHour.Options = {
+                    source: this.workingHoursScheme, 
+                    valueProperty: 'ID',
+                    displayProperty: 'Name'
+                };
+                workHour.LineBreak = null;
+                workHour.Combo = null;
+                workHour.Legend = '';
+                    
+                this.fields = [...this.fields, typeEmployment, renumType, workHour, ...layoutSection.Fields];
+                this.busy = false;
+            });
         });
     }
     
@@ -101,148 +226,43 @@ export class EmployeeEmployment implements OnInit {
         this.busy = false;
         if (valueChanges.currentEmployment.previousValue.ID !== undefined) {
             if (this.currentEmployment) {
-                setTimeout(() => {
-                    this.updateAndShowView(true);
-                }, 100);
+                this.refreshDatafromModel();
             }
         }
     }
     
-    private updateAndShowView(update: boolean = false) {
-        if (update) {
-            this.formModel.employment = this.currentEmployment;
-            this.whenFormInstance.then((instance: UniForm) => instance.Model = this.formModel);
+    public ready(value) {
+        console.log('form ready', value);
+    }
+    
+    public change(value) {
+        console.log('uniform changed', value);
+        this.saveactions[0].disabled = false;
+    }
+    
+    public saveEmployment(done) {
+        done('Lagrer arbeidsforhold');
+        if (this.currentEmployment.ID > 0) {
+            this._employmentService.Put(this.currentEmployment.ID, this.currentEmployment)
+            .subscribe((response: Employment) => {
+                this.currentEmployment = response;
+                done('Sist lagret: ');
+            },
+            (err) => {
+                console.log('Feil ved oppdatering av arbeidsforhold', err);
+            });
         } else {
-            this.buildDetailConfig();
-            this.loadForm();
+            this._employmentService.Post(this.currentEmployment)
+            .subscribe((response: Employment) => {
+                this.currentEmployment = response;
+                done('Sist lagret: ');
+            },
+            (err) => {
+                console.log('Feil oppsto ved lagring', err);
+            });
         }
-        this.busy = false;
     }
     
-    private buildDetailConfig() {
-        this.formModel.employment = this.currentEmployment;
-        var formbuilder = new UniFormBuilder();
-        
-        var jobCode = this.buildField('Stillingkode', this.formModel, 
-            'employment.JobCode', FieldType.AUTOCOMPLETE);
-        jobCode.setKendoOptions({
-            source: this.styrks,
-            valueKey: 'styrk',
-            template: (obj: any) => `${obj.styrk} - ${obj.tittel}`,
-            minLength: 2,
-            debounceTime: 300
-        });
-        jobCode.onSelect = (event: kendo.ui.AutoCompleteSelectEvent) => {
-            var item: any = event.item;
-            var dataItem = event.sender.dataItem(item.index());
-            this.updateJobCodeFields(dataItem, formbuilder);
-        };
-        
-        var jobName = this.buildField('Stillingnavn', this.formModel, 
-            'employment.JobName', FieldType.AUTOCOMPLETE);    
-        jobName.setKendoOptions({
-            source: this.styrks,
-            valueKey: 'tittel',
-            template: (obj: any) => `${obj.styrk} - ${obj.tittel}`,
-            minLength: 2,
-            debounceTime: 300
-        });
-        jobName.onSelect = (event: kendo.ui.AutoCompleteSelectEvent) => {
-            var item: any = event.item;
-            var dataItem = event.sender.dataItem(item.index());
-            this.updateJobCodeFields(dataItem, formbuilder);
-        };
-        
-        var standard = this.buildField('Standard', this.formModel, 'employment.Standard', FieldType.CHECKBOX);
-        var startDate = this.buildField('Startdato', this.formModel, 'employment.StartDate', FieldType.DATEPICKER);
-        var endDate = this.buildField('Sluttdato', this.formModel, 'employment.EndDate', FieldType.DATEPICKER);
-        var workPercent = this.buildField('Stillingprosent', this.formModel, 'employment.WorkPercent', FieldType.NUMERIC);
-        var subEntity = this.buildField('Virksomhet', this.currentEmployment.SubEntity.BusinessRelationInfo,
-            'employment.SubEntity.BusinessRelationInfo.Name', FieldType.COMBOBOX);
-        subEntity.setKendoOptions({
-            dataSource: this.subEntities,
-            dataTextField: 'BusinessRelationInfo.Name',
-            dataValueField: 'ID'
-        });    
-        var monthRate = this.buildField('Månedslønn', this.formModel, 'employment.MonthRate', FieldType.NUMERIC);
-        var hourRate = this.buildField('Timelønn', this.formModel, 'employment.HourRate', FieldType.NUMERIC);
-        
-        var readgroup = this.buildGroupForm();
-
-        formbuilder.addUniElements(jobCode, jobName, workPercent, standard, startDate, endDate, subEntity, monthRate, hourRate, readgroup);
-        formbuilder.hideSubmitButton();
-        
-        this.form = formbuilder;
-    }
-    
-    private loadForm() {
-        this.uniCompLoader.load(UniForm).then((cmp: ComponentRef<any>) => {
-            cmp.instance.config = this.form;
-            this.whenFormInstance = new Promise((resolve: Function) => resolve(cmp.instance));
-            this.formInstance = cmp.instance;
-        });
-    }
-    
-    private updateJobCodeFields(dataItem, formbuilder: UniFormBuilder) {
-        var fjn = <UniFieldBuilder>UniElementFinder.findUniFieldByPropertyName('employment.JobName', formbuilder.config());
-        fjn.control.updateValue(dataItem.tittel, {});
-        var fjc = <UniFieldBuilder>UniElementFinder.findUniFieldByPropertyName('employment.JobCode', formbuilder.config());
-        fjc.control.updateValue(dataItem.styrk, {});
-    }
-
-    private buildGroupForm() {
-        var groupBuilder = new UniSectionBuilder('A-meldingsinformasjon');
-        if (this.currentEmployment.Standard === true) {
-            groupBuilder.openByDefault(true);
-        }
-
-        // a-meldingsinfo
-        var tOfEmplnt = this.buildField('Arbeidsforhold', this.formModel, 'employment.TypeOfEmployment', FieldType.COMBOBOX);
-        tOfEmplnt.setKendoOptions({
-            dataSource: this.typeOfEmployment,
-            dataTextField: 'Name',
-            dataValueField: 'ID'
-        });
-        var renum = this.buildField('Avlønning', this.formModel, 'employment.RenumerationType', FieldType.COMBOBOX);
-        renum.setKendoOptions({
-            dataSource: this.renumerationType,
-            dataTextField: 'Name',
-            dataValueField: 'ID'
-        });
-        var work = this.buildField('Arbeidstid', this.formModel, 'employment.WorkingHoursScheme', FieldType.COMBOBOX);
-        work.setKendoOptions({
-            dataSource: this.workingHoursScheme,
-            dataTextField: 'Name',
-            dataValueField: 'ID'
-        });
-        var hours = this.buildField('Timer pr uke', this.formModel, 'employment.HoursPerWeek', FieldType.NUMERIC);
-
-        // dates
-        var senority = this.buildField('Ansiennitet', this.formModel, 'employment.SeniorityDate', FieldType.DATEPICKER);
-        var salary = this.buildField('Lønnsjustering', this.formModel, 'employment.LastSalaryChangeDate', FieldType.DATEPICKER);
-        var percent = this.buildField('Sist endret %', this.formModel, 'employment.LastWorkPercentChangeDate', FieldType.DATEPICKER);
-        
-        // annen lønnsinfo
-        var freerate = this.buildField('Fri sats', this.formModel, 'employment.UserDefinedRate', FieldType.NUMERIC);
-        var ledger = this.buildField('Hovedbokskonto', this.formModel, 'employment.LedgerAccount', FieldType.TEXT);
-        
-        // dimensjoner
-        // prosjekt - ?
-        // avdeling - ?
-
-        groupBuilder.addUniElements(tOfEmplnt, renum, work, hours, senority, salary, percent, freerate, ledger);
-
-        return groupBuilder;
-    }
-
-    private buildField(label: string, model: any, modelfield: string, type: number, index = null) {
-        return new UniFieldBuilder()
-            .setLabel(label)
-            .setModel(model)
-            .setModelField(modelfield)
-            .setType(UNI_CONTROL_DIRECTIVES[type]);
-    }
-
     public changeDefault(event, index) {
         console.log('Index when changing default: ' + index);
     }
@@ -266,12 +286,6 @@ export class EmployeeEmployment implements OnInit {
             newEmployment.SubEntity = standardSubEntity;
             
             this.currentEmployee.Employments.push(response);
-            // this.buildFormConfigs();
         });
-    }
-    
-    public getCurrentEmployment() {
-        this.formInstance.sync();
-        return this.currentEmployment;
     }
 }

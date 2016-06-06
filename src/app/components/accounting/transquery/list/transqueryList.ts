@@ -37,7 +37,8 @@ export class TransqueryList {
     }
     
     ngAfterViewInit() {
-        var view: ComponentLayout = {
+        // TODO: change to 'ComponentLayout' when the object respects the interface
+        var view: any = {
             Name: "TransqueryList",
             BaseEntity: "Account",
             StatusCode: 0,
@@ -128,11 +129,11 @@ export class TransqueryList {
         let periodeCol = new UniTableColumn('PeriodName', 'Periode').setWidth('60%');
         let lastYearCol = new UniTableColumn('PeriodSumYear1', `Regnskapsår ${year - 1}`)
             .setTemplate((period) => {
-                return `<a href="/#/accounting/transquery/detailsByAccountId/${this.account.ID}/year/${year - 1}/period/${period.PeriodNo}/isIncomingBalance/${this.isIncomingBalance}">${period.PeriodSumYear1}</a>`;
+                return `<a href="/#/accounting/transquery/detailsByAccountNumber/${this.account.AccountNumber}/year/${year - 1}/period/${period.PeriodNo}/isIncomingBalance/${this.isIncomingBalance}">${period.PeriodSumYear1}</a>`;
             });
         let thisYearCol = new UniTableColumn('PeriodSumYear2', `Regnskapsår ${year}`)            
             .setTemplate((period) => {
-                return `<a href="/#/accounting/transquery/detailsByAccountId/${this.account.ID}/year/${year}/period/${period.PeriodNo}/isIncomingBalance/${this.isIncomingBalance}">${period.PeriodSumYear2}</a>`;
+                return `<a href="/#/accounting/transquery/detailsByAccountNumber/${this.account.AccountNumber}/year/${year}/period/${period.PeriodNo}/isIncomingBalance/${this.isIncomingBalance}">${period.PeriodSumYear2}</a>`;
             });
         
         // Setup table

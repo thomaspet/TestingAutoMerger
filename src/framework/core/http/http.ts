@@ -1,4 +1,4 @@
-﻿import {Injectable} from '@angular/core';
+﻿import {Injectable, EventEmitter} from '@angular/core';
 import {Http, Headers, URLSearchParams, Request, RequestMethod} from '@angular/http';
 import {Observable} from 'rxjs/Rx';
 import {AppConfig} from '../../../app/AppConfig';
@@ -27,7 +27,9 @@ export class UniHttp {
     private method: number;
     private body: any;
     private endPoint: string;
-    private debounceTime: number = 0;
+    
+    private lastReAuthentication: Date;
+    private reAuthenticated$: EventEmitter<any> = new EventEmitter();
     
     constructor(public http: Http, private authService: AuthService) {
         var headers = AppConfig.DEFAULT_HEADERS;
@@ -41,6 +43,7 @@ export class UniHttp {
                 this.headers.append(header, headers[header]);
             }
         }
+        return this;
     }
 
     public getBaseUrl() {
@@ -175,25 +178,32 @@ export class UniHttp {
             options.body = (body instanceof FormData) ? body : JSON.stringify(body);
         }
         
-        if (searchParams != null) {
+        if (searchParams) {
             options.search = searchParams;
-        }
-        else if (request) {
+        } else if (request) {
             options.search = UniHttp.buildUrlParams(request);
         }
 
-        let req = this.http.request(new Request(options));
+        
+        return this.http.request(new Request(options))
+        .retryWhen(errors => errors.switchMap(err => {
+            if (err.status === 401 && (!this.authService.lastTokenUpdate || (new Date().getMinutes() - this.authService.lastTokenUpdate.getMinutes()) > 1)) {
+                this.lastReAuthentication = new Date();
+                this.authService.requestAuthentication$.emit({
+                    onAuthenticated: (newToken) => {
+                        this.headers.set('Authorization', 'Bearer ' + newToken);
+                        this.reAuthenticated$.emit(true);
+                    }
+                });
+            }
 
-        if (withoutJsonMap) {
-            return req;
-        }
-
-        return req.map(response => {
-            try {
-                var res = response.json();
-                return res;
-            } catch (e) {
-                return response;
+            return this.reAuthenticated$;
+        }))
+        .switchMap((response) => {
+            if (withoutJsonMap) {
+                return Observable.from([response]);
+            } else {
+                return Observable.from([response.json()]);
             }
         });
     }

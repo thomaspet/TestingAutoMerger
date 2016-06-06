@@ -252,9 +252,10 @@ export class SupplierDetails {
         bankaccount
             .setKendoOptions({dataSource: this.BankAccounts, dataValueField: "ID", dataTextField: "AccountNumber"});
    
-    }      
-    
-    getComponentLayout(): ComponentLayout {   
+    }
+
+    // TODO: change to 'ComponentLayout' when object respects the interface
+    getComponentLayout(): any {
         return {
             Name: "Supplier",
             BaseEntity: "Supplier",
