@@ -5,7 +5,6 @@
 /// @author Jørgen Arnor Gårdsø Lom
 ////
 
-
 // Configuration
 // ============================================================================
 
@@ -21,6 +20,8 @@ $unigrid-columns: ('huge': 16, 'large': 8, 'medium': 4, 'small': 1)
 /// In our default configuration, this is constant at 1rem.
 /// @type {Map}
 $unigrid-gutters: ('small': 1rem, 'medium': 1rem, 'large': 1rem, 'huge': 1rem)
+
+
 
 
 // Helper functions
@@ -42,9 +43,26 @@ $unigrid-gutters: ('small': 1rem, 'medium': 1rem, 'large': 1rem, 'huge': 1rem)
   @return round(($prev-columncount / map-get($unigrid-columns, $prev-size))*map-get($unigrid-columns, $size))
 
 
+// Placeholders
+// ============================================================================
+/// We set up a few extendable placeholders, for each configuration of the grid.
+/// These will be what the `unigrid-query` routes to, so we don't duplicate our
+/// media queries for each element we size up using the unigrid.
+@each $sz in map-keys($unigrid-columns)
+  @include media($sz)
+    %unigrid-hide-#{$sz}
+      display: none
+
+    @for $col from 1 through map-get($unigrid-columns, $sz)
+      %unigrid-#{$sz}-#{$col}
+        width: calc(#{(unigrid-colWidth($sz) * $col)} - #{map-get($unigrid-gutters, $sz) * 2})
+        margin: auto map-get($unigrid-gutters, $sz)
+
+      %unigrid-flush-#{$sz}-#{$col}
+        width: #{(unigrid-colWidth($sz) * $col)}
+
 // Mixins
 // ============================================================================
-
 /// The UniGrid media query mixin. This is the mixin that the main UniGrid mixin
 /// and the classes uses to generate the styles for each breakpoint.
 /// @param {String} $sizeclass - Which size class should we target?
@@ -54,16 +72,13 @@ $unigrid-gutters: ('small': 1rem, 'medium': 1rem, 'large': 1rem, 'huge': 1rem)
 /// @require {variable} $column-count
 /// @output A media query, using the media-mixin.
 @mixin unigrid-query($sizeclass, $column-count, $flush:false)
-  @include media($sizeclass)
-    &
-      @if $column-count
-        @if $flush
-          width: #{(unigrid-colWidth($sizeclass) * $column-count)}
-        @else
-          width: calc(#{(unigrid-colWidth($sizeclass) * $column-count)} - #{map-get($unigrid-gutters, $sizeclass) * 2})
-          margin: auto map-get($unigrid-gutters, $sizeclass)
-      @else
-        display: none
+  @if $column-count
+    @if $flush
+      @extend %unigrid-flush-#{$sizeclass}-#{$column-count}
+    @else
+      @extend %unigrid-#{$sizeclass}-#{$column-count}
+  @else
+    @extend %unigrid-hide-#{$sizeclass}
 
 
 /// The main UniGrid-mixin.
@@ -82,15 +97,15 @@ $unigrid-gutters: ('small': 1rem, 'medium': 1rem, 'large': 1rem, 'huge': 1rem)
   $vars: $huge-cols, $large-cols, $medium-cols, $small-cols
   @for $i from 1 through length($vars)
     $column-count: false
-    @if nth($vars, $i)==0
+    @if nth($vars, $i) == 0
       $column-count: 1
     @else
       $column-count: nth($vars, $i)
     @for $size-index from 1 through length($unigrid-columns)
       $sizeclasses: map-keys($unigrid-columns)
       $sizeclass: nth($sizeclasses, $i)
-
-      @include unigrid-query($sizeclass, $column-count, $flush)
+      &
+        @include unigrid-query($sizeclass, $column-count, $flush)
 
 /// Flush implementation of the UniGrid. Does not include margins.
 /// Shorthand for the `unigrid`-mixin, with the $flush-variable set to true.
