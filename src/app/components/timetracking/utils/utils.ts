@@ -69,9 +69,12 @@ export function parseDate(value:any, allowMacros = true): Date {
 		
 }
 
-export function parseTimeToIso(value:string, allowMacros = true, date?:Date): string {
-	var value:string = moment(parseTime(value, allowMacros, date)).format();
-	return value.substr(0, value.length-6); 
+export function toIso(date:Date, includeTime = false):string {
+	var value:string = moment(date).format();
+	if (includeTime) {
+		return value.substr(0, value.length-6);
+	}
+	return value.substr(0,10);	
 }
 
 export function parseTime(value:string, allowMacros = true, date?:Date): Date {

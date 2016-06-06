@@ -4,6 +4,7 @@ import {Worker, WorkRelation, WorkProfile, WorkItem, User, WorkType} from '../..
 import {UniHttp} from '../../../framework/core/http/http';
 import {Observable} from "rxjs/Rx";
 import {AuthService} from '../../../framework/core/authService';
+import {URLSearchParams} from '@angular/http'
 declare var moment;
 
 @Injectable()
@@ -125,7 +126,7 @@ export class WorkerService extends BizHttp<Worker> {
     }
     
     getWorkItems(workRelationID: number): Observable<WorkItem[]> {
-        return this.GET('workitems', { filter: 'WorkRelationID eq ' + workRelationID, expand: 'WorkType' });
+        return this.GET('workitems', { filter: 'WorkRelationID eq ' + workRelationID, expand: 'WorkType', orderBy: 'StartTime' });
     }
     
     getWorkItemById(id:number): Observable<WorkItem> {

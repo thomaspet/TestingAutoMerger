@@ -2,7 +2,8 @@ import {Injectable, Inject, Component} from '@angular/core';
 import {WorkItem, Worker, WorkRelation, WorkProfile} from '../../unientities';
 import {WorkerService} from './workerService';
 import {Observable, Observer} from "rxjs/Rx";
-import {parseTimeToIso, addTime, parseDate, ChangeMap} from '../../components/timetracking/utils/utils';
+import {parseTime, toIso, addTime, parseDate, ChangeMap} from '../../components/timetracking/utils/utils';
+declare var moment;
 
 export class ValueItem {
     cancel = false;
@@ -48,11 +49,11 @@ export class TimeSheet {
         var item:WorkItem = this.items[rowIndex];
         switch (change.name) {
             case "Date":
-                change.value = parseDate(change.value);
+                change.value = toIso(parseDate(change.value));
                 break;
             case "EndTime":
             case "StartTime":
-                change.value = parseTimeToIso(change.value, true, item.Date);
+                change.value = toIso(parseTime(change.value, true, item.Date),true);
                 break;
             case "Worktype":
                 item.WorkTypeID = change.value.ID;
@@ -105,7 +106,7 @@ export class TimesheetService {
         } else {
            return this.workerService.getRelationsForUser(userid).flatMap((list:WorkRelation[])=>{
                var first = list[0];
-               var ts = this.NewTimeSheet(first);
+               var ts = this.newTimeSheet(first);
                this.workRelations = list;
                return Observable.of(ts);
            });
@@ -113,7 +114,7 @@ export class TimesheetService {
     }
 
     
-    public NewTimeSheet(workRelation:WorkRelation): TimeSheet {
+    public newTimeSheet(workRelation:WorkRelation): TimeSheet {
         var ts = new TimeSheet(this);
         ts.currentRelation = workRelation;
         return ts;
@@ -125,9 +126,9 @@ export class TimesheetService {
     
     public saveWorkItems(items:WorkItem[]): Observable<{ original:WorkItem, saved:WorkItem }> {
         return Observable.from(items).flatMap((item:WorkItem)=>{
-            //debugger;
             var originalId = item.ID;
             item.ID = item.ID < 0 ? 0 : item.ID;
+            this.preSaveWorkItem(item);
             var result = this.workerService.saveWorkItem(item).map((savedItem:WorkItem)=>{
                 item.ID = originalId;
                 return { original: item, saved: savedItem }; 
@@ -135,6 +136,21 @@ export class TimesheetService {
             return result;
         });
         
+    }
+    
+    private preSaveWorkItem(item:any): boolean {
+        
+        // ensure item.StartTime and item.EndTime has same date as item.Date
+        if (item.Date) {
+            var dt = moment(item.Date);
+            if (item.StartTime) {
+                item.StartTime = toIso(moment(item.StartTime).year(dt.year()).month(dt.month()).date(dt.date()), true);
+            }
+            if (item.EndTime) {
+                item.EndTime = toIso(moment(item.EndTime).year(dt.year()).month(dt.month()).date(dt.date()), true);
+            }    
+        }
+        return true;
     }
     
 }
