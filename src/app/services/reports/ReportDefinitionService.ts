@@ -87,9 +87,9 @@ export class ReportDefinitionService extends BizHttp<ReportDefinition>{
         // create http requests
         let observableBatch = [];
         
-        for (var ds of this.report.dataSources) {
-            let url: string = (<ReportDataSource>ds).DataSourceUrl;
-            
+        for (let ds of this.report.dataSources) {
+            let url: string = ds.DataSourceUrl;
+
             url = url.replace(AppConfig.API_DOMAINS.BUSINESS, '');
             
             observableBatch.push(
@@ -121,12 +121,9 @@ export class ReportDefinitionService extends BizHttp<ReportDefinition>{
     
     private resolvePlaceholders() {
         // resolve placeholders in data source source URLs
-        for (var p of this.report.parameters) {
-            var parameter = <ReportParameter>p;        
-            
-            for (var ds of this.report.dataSources) {
-                var datasSource = <ReportDataSource>ds;
-                var searchString = '{' + parameter.Name + '}';
+        for (let parameter of this.report.parameters) {
+            for (let datasSource of this.report.dataSources) {
+                let searchString = '{' + parameter.Name + '}';
                 
                 datasSource.DataSourceUrl = datasSource.DataSourceUrl.replace(new RegExp(searchString, 'g'), parameter.value);
             }

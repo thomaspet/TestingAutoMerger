@@ -42,8 +42,8 @@ export class Overview {
         this.reportDefinitionService.GetAll<ReportDefinition>(null).subscribe(reports => {
             this.reportCategories = new Array<ReportCategory>();
             
-            for (var i = 0; i < reports.length; ++i) {
-                var reportCategory: ReportCategory = this.findCategory(reports[i].Category);
+            for (let i = 0; i < reports.length; ++i) {
+                let reportCategory: ReportCategory = this.findCategory(reports[i].Category);
                 
                 if (reportCategory === null) {
                     reportCategory = new ReportCategory();
@@ -59,8 +59,8 @@ export class Overview {
     }
     
     private findCategory(name: string) {
-        var found: ReportCategory = null;
-        var i: number = 0;
+        let found: ReportCategory = null;
+        let i: number = 0;
         
         while (i < this.reportCategories.length && found === null) {
             if (this.reportCategories[i].name === name) {

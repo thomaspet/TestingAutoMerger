@@ -41,7 +41,6 @@ export class PreviewModal {
     constructor(private reportDefinitionService: ReportDefinitionService,
                 private http: Http)
     {
-        var self = this;
         this.modalConfig = {
             title: 'Forhåndsvisning',
             model: null,
@@ -50,17 +49,17 @@ export class PreviewModal {
                 {
                     text: 'Skriv ut',
                     method: () => {
-                        self.modal.getContent().then(() => {
+                        this.modal.getContent().then(() => {
                             this.reportDefinitionService.generateReportPdf(this.reportDefinition);
-                            self.modal.close();
+                            this.modal.close();
                         });
                     }
                 },
                 {
                     text: 'Lukk',
                     method: () => {
-                        self.modal.getContent().then(() => {
-                            self.modal.close();
+                        this.modal.getContent().then(() => {
+                            this.modal.close();
                         });
                     }
                 }
