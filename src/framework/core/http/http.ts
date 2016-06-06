@@ -38,10 +38,8 @@ export class UniHttp {
     }
 
     public appendHeaders(headers: any) {
-        for (var header in headers) {
-            if (headers.hasOwnProperty(header)) {
-                this.headers.append(header, headers[header]);
-            }
+        for (var key in headers) {
+            this.headers.set(key, headers[key])
         }
         return this;
     }
@@ -67,7 +65,7 @@ export class UniHttp {
     }
 
     public withHeader(name: string, value: any) {
-        this.headers.append(name, value);
+        this.headers.set(name, value);
         return this;
     }
 
@@ -195,17 +193,20 @@ export class UniHttp {
                         this.reAuthenticated$.emit(true);
                     }
                 });
-            }
-
-            return this.reAuthenticated$;
-        }))
-        .switchMap((response) => {
-            if (withoutJsonMap) {
-                return Observable.from([response]);
+                
+                return this.reAuthenticated$;
             } else {
-                return Observable.from([response.json()]);
+                return Observable.throw(err);                
             }
-        });
+        }))
+        .switchMap(
+            (response) => {
+                if (withoutJsonMap) {
+                    return Observable.from([response]);
+                } else {
+                    return Observable.from([response.json()]);
+                }
+            });
     }
 
     public multipleRequests(requests: IUniHttpRequest[]) {

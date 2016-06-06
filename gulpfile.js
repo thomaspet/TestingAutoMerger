@@ -71,6 +71,7 @@ require('./gulp/web-config');
 
 var tasks = {
     prod: [
+        'entities',
         'index.html',
         'angular2',
         'unitable',
