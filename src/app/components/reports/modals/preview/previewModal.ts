@@ -6,7 +6,6 @@ import {ReportDefinition} from '../../../../unientities';
 import {UniModal} from '../../../../../framework/modals/modal';
 import {UniComponentLoader} from '../../../../../framework/core/componentLoader';
 import {ReportDefinitionService} from '../../../../services/services';
-import {Report} from "../../../../models/reports/report";
 
 @Component({
     selector: 'report-preview-modal-type',
@@ -32,7 +31,7 @@ export class ReportPreviewModalType {
 })
 export class PreviewModal {
     @ViewChild(UniModal)
-    modal: UniModal;
+    private modal: UniModal;
     
     public modalConfig: any = {};
     public type: Type = ReportPreviewModalType;
