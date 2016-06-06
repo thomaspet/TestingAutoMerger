@@ -13,6 +13,7 @@ export * from './accounting/BankAccountService';
 export * from './salary/employee/employeeservice';
 export * from './salary/employee/employmentservice';
 export * from './salary/employee/employeecategoryservice';
+export * from './salary/employee/employeeleaveservice';
 export * from './staticregisterservice';
 export * from './salary/wagetype/wagetypeservice'
 export * from './common/departementservice';

@@ -1,4 +1,4 @@
-import {Component, ViewChildren, ViewChild} from '@angular/core';
+import {Component, ViewChildren, ViewChild, OnInit} from '@angular/core';
 import {UniTable, UniTableColumn, UniTableColumnType, UniTableConfig, IContextMenuItem} from 'unitable-ng2/main';
 import {Router} from '@angular/router-deprecated';
 import {UniHttp} from '../../../../../framework/core/http/http';
@@ -7,6 +7,8 @@ import {StatusCodeCustomerInvoice,CustomerInvoice} from '../../../../unientities
 import {URLSearchParams} from '@angular/http';
 import {AsyncPipe} from '@angular/common';
 import {InvoicePaymentData} from '../../../../models/sales/InvoicePaymentData';
+import {InvoiceSummary} from '../../../../models/accounting/InvoiceSummary';
+
 import {RegisterPaymentModal} from '../../../common/modals/registerPaymentModal';
 import {StimulsoftReportWrapper} from "../../../../../framework/wrappers/reporting/reportWrapper";
 
@@ -18,7 +20,7 @@ import {StimulsoftReportWrapper} from "../../../../../framework/wrappers/reporti
     pipes: [AsyncPipe]
 })
 
-export class InvoiceList {
+export class InvoiceList implements OnInit {
     @ViewChildren(UniTable) public table: any;
 
     private invoiceTable: UniTableConfig;
@@ -27,16 +29,24 @@ export class InvoiceList {
     @ViewChild(RegisterPaymentModal)
     private registerPaymentModal: RegisterPaymentModal;
 
+    private summaryData: InvoiceSummary;
+
     constructor(private uniHttpService: UniHttp,
-        private router: Router,
-        private customerInvoiceService: CustomerInvoiceService,
-        private report: StimulsoftReportWrapper,
-        private reportService: ReportService) {
+                private router: Router,
+                private customerInvoiceService: CustomerInvoiceService,
+                private report: StimulsoftReportWrapper,
+                private reportService: ReportService) {
+
         this.setupInvoiceTable();
     }
 
     private log(err) {
         alert(err._body);
+    }
+    
+    public ngOnInit() {
+        this.setupInvoiceTable();
+        this.onFiltersChange('');
     }
 
     public createInvoice() {
@@ -50,7 +60,7 @@ export class InvoiceList {
                     console.log('Error creating invoice: ', err);
                     this.log(err);
                 }
-                );
+            );
         });
     }
 
@@ -70,7 +80,7 @@ export class InvoiceList {
         this.lookupFunction = (urlParams: URLSearchParams) => {
             let params = urlParams;
 
-            if (params == null) {
+            if (params === null) {
                 params = new URLSearchParams();
             }
 
@@ -101,9 +111,9 @@ export class InvoiceList {
             },
             disabled: (rowModel) => {
                 // Possible to credit only if status = Invoiced || PartlyPaid || Paid
-                if (rowModel.StatusCode == StatusCodeCustomerInvoice.Invoiced ||
-                    rowModel.StatusCode == StatusCodeCustomerInvoice.PartlyPaid ||
-                    rowModel.StatusCode == StatusCodeCustomerInvoice.Paid) {
+                if (rowModel.StatusCode === StatusCodeCustomerInvoice.Invoiced ||
+                    rowModel.StatusCode === StatusCodeCustomerInvoice.PartlyPaid ||
+                    rowModel.StatusCode === StatusCodeCustomerInvoice.Paid) {
                     return false;
                 } else {
                     return true;
@@ -142,7 +152,10 @@ export class InvoiceList {
                 });
             },
             disabled: (rowModel) => {
-                if (rowModel.TaxInclusiveAmount == 0) return true; //Must have saved at minimum 1 item related to the invoice
+                if (rowModel.TaxInclusiveAmount === 0) {
+                    // Must have saved at minimum 1 item related to the invoice 
+                    return true; 
+                }
                 return !rowModel._links.transitions.invoice;
             }
         });
@@ -174,42 +187,59 @@ export class InvoiceList {
         });
 
         // Define columns to use in the table
-        var invoiceNumberCol = new UniTableColumn('InvoiceNumber', 'Fakturanr', UniTableColumnType.Text).setWidth('10%');
-        var customerNumberCol = new UniTableColumn('Customer.CustomerNumber', 'Kundenr', UniTableColumnType.Text).setWidth('10%');
-        var customerNameCol = new UniTableColumn('CustomerName', 'Kundenavn', UniTableColumnType.Text);
+        var invoiceNumberCol = new UniTableColumn('InvoiceNumber', 'Fakturanr', UniTableColumnType.Text).setWidth('10%').setFilterOperator('contains');
+        var customerNumberCol = new UniTableColumn('Customer.CustomerNumber', 'Kundenr', UniTableColumnType.Text).setWidth('10%').setFilterOperator('contains');
+        var customerNameCol = new UniTableColumn('CustomerName', 'Kundenavn', UniTableColumnType.Text).setFilterOperator('contains');
 
-        var invoiceDateCol = new UniTableColumn('InvoiceDate', 'Fakturadato', UniTableColumnType.Date).setWidth('10%');
-        var dueDateCol = new UniTableColumn('PaymentDueDate', 'Forfallsdato', UniTableColumnType.Date).setWidth('10%');
+        var invoiceDateCol = new UniTableColumn('InvoiceDate', 'Fakturadato', UniTableColumnType.Date).setWidth('10%').setFilterOperator('eq');
+        var dueDateCol = new UniTableColumn('PaymentDueDate', 'Forfallsdato', UniTableColumnType.Date).setWidth('10%').setFilterOperator('eq');
 
         var taxInclusiveAmountCol = new UniTableColumn('TaxInclusiveAmount', 'Totalsum', UniTableColumnType.Number)
             .setWidth('10%')
+            .setFilterOperator('eq')
             .setFormat('{0:n}')
             .setCls('column-align-right');
 
         var restAmountCol = new UniTableColumn('RestAmount', 'Restsum', UniTableColumnType.Number)
             .setWidth('10%')
+            .setFilterOperator('eq')
             .setFormat('{0:n}')
             .setCls('column-align-right');
 
         var creditedAmountCol = new UniTableColumn('CreditedAmount', 'Kreditert', UniTableColumnType.Number)
             .setWidth('10%')
+            .setFilterOperator('eq')
             .setFormat('{0:n}')
             .setCls('column-align-right');
 
-        var statusCol = new UniTableColumn('StatusCode', 'Status', UniTableColumnType.Number).setWidth('15%');
-        statusCol.setTemplate((dataItem) => {
-            return this.customerInvoiceService.getStatusText(dataItem.StatusCode, dataItem.InvoiceType);
-        });
+        var statusCol = new UniTableColumn('StatusCode', 'Status', UniTableColumnType.Number)
+            .setWidth('15%')
+            .setTemplate((dataItem) => {
+                return this.customerInvoiceService.getStatusText(dataItem.StatusCode, dataItem.InvoiceType);
+            });
 
         // Setup table
         this.invoiceTable = new UniTableConfig(false, true)
             .setPageSize(25)
+            .setSearchable(true)
             .setColumns([invoiceNumberCol, customerNumberCol, customerNameCol, invoiceDateCol, dueDateCol,
                 taxInclusiveAmountCol, restAmountCol, creditedAmountCol, statusCol])
             .setContextMenu(contextMenuItems);
     }  
     
-    private onRowSelected(event) {
-        this.router.navigateByUrl(`/sales/invoice/details/${event.rowModel.ID}`);
-    }  
+    private onRowSelected(item) {
+        this.router.navigateByUrl(`/sales/invoice/details/${item.rowModel.ID}`);
+    }
+    
+    public onFiltersChange(filter: string) {        
+        this.customerInvoiceService
+            .getInvoiceSummary(filter)
+            .subscribe((summary) => {
+                this.summaryData = summary;
+            },
+            (err) => { 
+                console.log('Error retrieving summarydata:', err);
+                this.summaryData = null;
+            });
+    }
 }

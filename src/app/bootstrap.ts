@@ -9,6 +9,7 @@ import {HTTP_PROVIDERS} from "@angular/http";
 import {App} from "./app";
 import {UniHttp} from "../framework/core/http/http";
 import {UniState} from '../framework/core/UniState';
+import {IntegrationServerCaller} from './services/common/IntegrationServerCaller';
 
 bootstrap(App, [
     // angular providers
@@ -18,5 +19,9 @@ bootstrap(App, [
 
     // App providers
     provide(UniHttp, {useClass: UniHttp}),
-    provide(UniState, {useClass: UniState})
+    provide(UniState, {useClass: UniState}),
+    
+    // Services
+    provide(IntegrationServerCaller , { useClass: IntegrationServerCaller })
+    
 ]);

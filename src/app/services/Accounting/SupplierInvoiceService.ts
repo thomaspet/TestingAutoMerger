@@ -2,20 +2,21 @@ import {BizHttp} from '../../../framework/core/http/BizHttp';
 import {SupplierInvoice} from '../../unientities';
 import {UniHttp} from '../../../framework/core/http/http';
 import {InvoicePaymentData} from '../../models/sales/InvoicePaymentData';
+import {Observable} from 'rxjs/Observable';
 
 export class SupplierInvoiceService extends BizHttp<SupplierInvoice> {
 
     constructor(http: UniHttp) {
         super(http);
         
-        //TODO: should resolve this from configuration based on type (ISupplierInvoice)? Frank is working on something..
+        // TODO: should resolve this from configuration based on type (ISupplierInvoice)? Frank is working on something..
         this.relativeURL = SupplierInvoice.RelativeUrl;
         
-        //set this property if you want a default sort order from the API
+        // set this property if you want a default sort order from the API
         this.DefaultOrderBy = null;
     }
 
-    //TODO: To be retrieved from database schema shared.Status instead?
+    // TODO: To be retrieved from database schema shared.Status instead?
     public StatusTypes: Array<any> = [
         { Code: '1', Text: 'Kladd' },
         { Code: '10000', Text: 'Kladd' },
@@ -80,4 +81,12 @@ export class SupplierInvoiceService extends BizHttp<SupplierInvoice> {
             .withEndPoint(`${this.relativeURL}/${supplierInvoiceId}?action=payInvoice`)
             .send();
     }
+    
+    public getInvoiceSummary(odatafilter: string): Observable<any> {        
+        return this.http 
+            .asGET()
+            .usingBusinessDomain()            
+            .withEndPoint(this.relativeURL + '?action=get-supplier-invoice-summary&odataFilter=' + odatafilter) 
+            .send();
+    } 
 }

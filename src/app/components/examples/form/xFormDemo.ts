@@ -1,9 +1,9 @@
 import {Component, ViewChild} from '@angular/core';
 import {EmployeeService} from '../../../services/Salary/Employee/EmployeeService';
 import {UniForm} from '../../../../framework/uniform';
-import {Employee, FieldLayout} from '../../../unientities';
+import {UniFieldLayout} from '../../../../framework/uniform/index';
 import {NgIf} from '@angular/common';
-import {Employment} from '../../../unientities';
+import {Employee, Employment} from '../../../unientities';
 
 declare var _;
 
@@ -39,7 +39,7 @@ export class XFormDemo {
         this.api.get(1).toPromise().then((employee: Employee) => self.employee = employee);
         this.api.layout('EmployeeDetailsForm').toPromise().then((layout: any) => {
             self.fields = layout.Fields;
-            var numericTest = new FieldLayout();
+            var numericTest = new UniFieldLayout();
             numericTest.FieldSet = 0;
             numericTest.Section = 0;
             numericTest.Combo = 0;
@@ -50,7 +50,7 @@ export class XFormDemo {
             numericTest.Options = {
                 step: 1
             };
-            var maskedTest = new FieldLayout();
+            var maskedTest = new UniFieldLayout();
             maskedTest.FieldSet = 0;
             maskedTest.Section = 0;
             maskedTest.Combo = 0;
@@ -61,7 +61,7 @@ export class XFormDemo {
             maskedTest.Options = {
                 mask: '(000) 000-0000'
             };
-            var multiValueTest = new FieldLayout();
+            var multiValueTest = new UniFieldLayout();
             multiValueTest.FieldSet = 0;
             multiValueTest.Section = 0;
             multiValueTest.Combo = 0;
@@ -81,7 +81,7 @@ export class XFormDemo {
                     resolve(x);
                 })
             };
-            var autocompleteTest = new FieldLayout();
+            var autocompleteTest = new UniFieldLayout();
             autocompleteTest.FieldSet = 0;
             autocompleteTest.Section = 0;
             autocompleteTest.Combo = 0;
@@ -102,7 +102,7 @@ export class XFormDemo {
                 debounceTime: 500,
             };
             
-            var emailTest = new FieldLayout ();
+            var emailTest = new UniFieldLayout();
             emailTest.FieldSet = 0;
             emailTest.Section = 0;
             emailTest.Combo = 0;
@@ -111,7 +111,7 @@ export class XFormDemo {
             emailTest.Property = 'EmailTestProperty';
             emailTest.ReadOnly = false;
             
-            var passwordTest = new FieldLayout();
+            var passwordTest = new UniFieldLayout();
             passwordTest.FieldSet = 0;
             passwordTest.Section = 0;
             passwordTest.Combo = 0;
@@ -120,7 +120,7 @@ export class XFormDemo {
             passwordTest.Property = 'PasswodTestProperty';
             passwordTest.ReadOnly = false;
             
-            var textareaTest = new FieldLayout();
+            var textareaTest = new UniFieldLayout();
             textareaTest.FieldSet = 0;
             textareaTest.Section = 0;
             textareaTest.Combo = 0;
@@ -129,7 +129,7 @@ export class XFormDemo {
             textareaTest.Property = 'TextareaTestProperty';
             textareaTest.ReadOnly = false;
             
-            var hyperlinkTest = new FieldLayout();
+            var hyperlinkTest = new UniFieldLayout();
             hyperlinkTest.FieldSet = 0;
             hyperlinkTest.Section = 0;
             hyperlinkTest.Combo = 0;
@@ -141,7 +141,7 @@ export class XFormDemo {
                 description: 'Open Link'
             };
             
-            var urlTest = new FieldLayout();
+            var urlTest = new UniFieldLayout();
             urlTest.FieldSet = 0;
             urlTest.Section = 0;
             urlTest.Combo = 0;
@@ -150,7 +150,7 @@ export class XFormDemo {
             urlTest.Property = 'UrlProperty';
             urlTest.ReadOnly = false;
             
-            var selectTest = new FieldLayout();
+            var selectTest = new UniFieldLayout();
             selectTest.FieldSet = 0;
             selectTest.Section = 0;
             selectTest.Combo = 0;
@@ -171,7 +171,7 @@ export class XFormDemo {
                 debounceTime: 500,
             };
             
-            var dateTest = new FieldLayout();
+            var dateTest = new UniFieldLayout();
             dateTest.FieldSet = 0;
             dateTest.Section = 0;
             dateTest.Combo = 0;
@@ -181,7 +181,7 @@ export class XFormDemo {
             dateTest.ReadOnly = false;
             dateTest.Placeholder = 'Select a date';
             
-            var radiogroupTest = new  FieldLayout();
+            var radiogroupTest = new UniFieldLayout();
             radiogroupTest.FieldSet = 0;
             radiogroupTest.Section = 0;
             radiogroupTest.Combo = 0;
@@ -199,7 +199,7 @@ export class XFormDemo {
                 labelProperty: 'name', 
                 valueProperty: 'id'
             };
-            var checkboxgroupTest = new FieldLayout();
+            var checkboxgroupTest = new UniFieldLayout();
             checkboxgroupTest.FieldSet = 0;
             checkboxgroupTest.Section = 0;
             checkboxgroupTest.Combo = 0;
