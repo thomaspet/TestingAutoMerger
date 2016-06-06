@@ -1,41 +1,20 @@
 ﻿import {Component, OnInit, provide} from '@angular/core';
 import {RouteParams, ROUTER_DIRECTIVES} from '@angular/router-deprecated';
-import {NgFor, NgIf} from '@angular/common';
-import {Headers} from '@angular/http';
 import {Observable} from 'rxjs/Observable';
 import 'rxjs/add/observable/forkJoin';
+import {UniSave, IUniSaveAction} from '../../../../framework/save/save';
 
-import {
-    UniFieldBuilder, UniFormBuilder, UniForm, UniSectionBuilder, UniComboFieldBuilder
-} from '../../../../framework/forms';
-import {UNI_CONTROL_DIRECTIVES} from '../../../../framework/controls';
+
+import {UniForm} from '../../../../framework/uniform';
+import {UniFieldLayout} from '../../../../framework/uniform/index';
+
+//import {UniFieldBuilder, UniFormBuilder, UniForm, UniSectionBuilder, UniComboFieldBuilder} from '../../../../framework/forms';
+//import {UNI_CONTROL_DIRECTIVES} from '../../../../framework/controls';
 
 import {UniHttp} from '../../../../framework/core/http/http';
-import {
-    SubEntity, 
-    AGAZone, 
-    Municipal, 
-    CompanyType, 
-    PeriodSeries, 
-    Currency, 
-    FieldType, 
-    AccountGroup,
-    AGARate,
-    Account,
-    CompanySalary
-} from '../../../unientities';
-import {
-    AgaZoneService, 
-    CompanySettingsService, 
-    CurrencyService, 
-    SubEntityService, 
-    AccountService, 
-    AccountGroupSetService, 
-    PeriodSeriesService, 
-    CompanyTypeService, 
-    MunicipalService,
-    CompanySalaryService
-} from '../../../services/services';
+import {SubEntity, AGAZone, Municipal, CompanyType, PeriodSeries, Currency, FieldType, AccountGroup, AGARate, Account, CompanySalary} from '../../../unientities';
+import {AgaZoneService, CompanySettingsService, CurrencyService, SubEntityService, AccountService, AccountGroupSetService, PeriodSeriesService,
+    CompanyTypeService, MunicipalService, CompanySalaryService} from '../../../services/services';
 
 declare var _;
 
@@ -54,13 +33,14 @@ declare var _;
         MunicipalService,
         CompanySalaryService
         ],
-    directives: [ROUTER_DIRECTIVES, NgFor, NgIf, UniForm]
+    directives: [ROUTER_DIRECTIVES, UniForm, UniSave]
 })
 
 export class CompanySettings implements OnInit {
     private id: any;
-    private form: any;
+    //private form: any;
     private company: any;
+    
     private subEntities: Array<SubEntity> = [];
     private companyTypes: Array<CompanyType> = [];
     private currencies: Array<Currency> = [];
@@ -71,6 +51,18 @@ export class CompanySettings implements OnInit {
     private municipals: Array<Municipal> = [];
     private accounts: Array<Account> = [];
     private companySalary: CompanySalary[] = [];
+
+    public config: any = {};
+    public fields: any[] = [];
+
+    private saveactions: IUniSaveAction[] = [
+        {
+            label: 'Lagre',
+            action: this.saveSettings.bind(this),
+            main: true,
+            disabled: false
+        }
+    ];
     
     // TODO Use service instead of Http, Use interfaces!!
     constructor(private routeParams: RouteParams,
@@ -86,10 +78,20 @@ export class CompanySettings implements OnInit {
                 private municipalService: MunicipalService,
                 private companySalaryService: CompanySalaryService) {
 
+
+
     }
     
     public ngOnInit() {
         this.getDataAndSetupForm();
+    }
+    
+    private dataChange(event) {
+        console.log('dataChange', event);
+    }
+    
+    private formReady(event) {
+        console.log('dataChange', event);
     }
     
     private getDataAndSetupForm() {
@@ -138,34 +140,227 @@ export class CompanySettings implements OnInit {
 
     private buildForm() {
 
-        var formBuilder = new UniFormBuilder();
+        this.config = {
+            submitText: 'Dont click me'
+        };
 
-        var companyName = new UniFieldBuilder();
-        companyName.setLabel('Firmanavn')
-            .setModel(this.company)
-            .setModelField('CompanyName')
-            .setType(UNI_CONTROL_DIRECTIVES[FieldType.TEXT]);
+        this.fields = [
+                {
+                    ComponentLayoutID: 1,
+                    EntityType: 'CompanySettings',
+                    Property: 'CompanyName',
+                    Placement: 1,
+                    Hidden: false,
+                    FieldType: FieldType.TEXT,
+                    ReadOnly: false,
+                    LookupField: false,
+                    Label: 'Firmanavn',
+                    Description: null,
+                    HelpText: null,
+                    FieldSet: 0,
+                    Section: 0,
+                    Placeholder: null,
+                    Options: null,
+                    LineBreak: null,
+                    Combo: null,
+                    Sectionheader: '',
+                    hasLineBreak: false,                     
+                    Validations: []
+                },
+                {
+                    ComponentLayoutID: 1,
+                    EntityType: 'CompanySettings',
+                    Property: 'OrganizationNumber',
+                    Placement: 1,
+                    Hidden: false,
+                    FieldType: FieldType.TEXT,
+                    ReadOnly: false,
+                    LookupField: false,
+                    Label: 'Orgnr',
+                    Description: null,
+                    HelpText: null,
+                    FieldSet: 0,
+                    Section: 0,
+                    Placeholder: null,
+                    Options: null,
+                    LineBreak: null,
+                    Combo: null,
+                    Sectionheader: '',
+                    hasLineBreak: false,                     
+                    Validations: []
+                },
+                {
+                    ComponentLayoutID: 1,
+                    EntityType: 'CompanySettings',
+                    Property: 'WebAddress',
+                    Placement: 1,
+                    Hidden: false,
+                    FieldType: FieldType.URL,
+                    ReadOnly: false,
+                    LookupField: false,
+                    Label: 'Web',
+                    Description: null,
+                    HelpText: null,
+                    FieldSet: 0,
+                    Section: 0,
+                    Placeholder: null,
+                    Options: null,
+                    LineBreak: null,
+                    Combo: null,
+                    Sectionheader: '',
+                    hasLineBreak: false,                     
+                    Validations: []
+                },
+                {
+                    ComponentLayoutID: 1,
+                     
+                    EntityType: 'CompanySettings',
+                    Property: 'Address[0].AddressLine1',
+                    Placement: 2,
+                    Hidden: false,
+                    FieldType: FieldType.TEXT,
+                    ReadOnly: false,
+                    LookupField: false,
+                    Label: 'Adresse',
+                    Description: null,
+                    HelpText: null,
+                    FieldSet: 0,
+                    Section: 0,
+                    Placeholder: null,
+                    Options: null,
+                    LineBreak: null,
+                    Combo: null,
+                    Sectionheader: '',
+                    IsLookUp: false,
+                    openByDefault: true,
+                    Validations: []
+                },
+                {
+                    ComponentLayoutID: 1,
+                     
+                    EntityType: 'CompanySettings',
+                    Property: 'Address[0].PostalCode',
+                    Placement: 1,
+                    Hidden: false,
+                    FieldType: FieldType.TEXT,
+                    ReadOnly: false,
+                    LookupField: false,
+                    Label: 'Postnummer',
+                    Description: null,
+                    HelpText: null,
+                    FieldSet: 0,
+                    Section: 0,
+                    Sectionheader: '',
+                    Placeholder: '',
+                    Options: null,
+                    LineBreak: null,
+                    IsLookUp: false,
+                    Validations: []
+                },
+                {
+                    ComponentLayoutID: 1,
+                     
+                    EntityType: 'CompanySettings',
+                    Property: 'Address[0].City',
+                    Placement: 3,
+                    Hidden: false,
+                    FieldType: FieldType.TEXT,
+                    ReadOnly: false,
+                    LookupField: false,
+                    Label: 'Poststed',
+                    Description: null,
+                    HelpText: null,
+                    FieldSet: 0,
+                    Section: 0,
+                    Placeholder: null,
+                    Options: null,
+                    LineBreak: null,
+                    Combo: null,
+                    Sectionheader: '',
+                    IsLookUp: false,
+                    hasLineBreak: true,
+                    Validations: []
+                },
+                {
+                    ComponentLayoutID: 1,
+                     
+                    EntityType: 'CompanySettings',
+                    Property: 'Address[0].CountryCode',
+                    Placement: 4,
+                    Hidden: false,
+                    FieldType: FieldType.TEXT,
+                    ReadOnly: false,
+                    LookupField: false,
+                    Label: 'Landskode (land)',
+                    Description: null,
+                    HelpText: null,
+                    FieldSet: 0,
+                    Section: 0,
+                    Placeholder: null,
+                    Options: null,
+                    LineBreak: null,
+                    Combo: null,
+                    Sectionheader: '',
+                    IsLookUp: false,
+                    Validations: []
+                },
+                {
+                    ComponentLayoutID: 1,
+                     
+                    EntityType: 'CompanySettings',
+                    Property: 'Address[0].Country',
+                    Placement: 5,
+                    Hidden: false,
+                    FieldType: FieldType.TEXT,
+                    ReadOnly: false,
+                    LookupField: false,
+                    Label: 'Land',
+                    Description: null,
+                    HelpText: null,
+                    FieldSet: 0,
+                    Section: 0,
+                    Placeholder: null,
+                    Options: null,
+                    LineBreak: null,
+                    Combo: null,
+                    Sectionheader: '',
+                    IsLookUp: false,
+                    hasLineBreak: true,
+                    Validations: []
+                },
+                {
+                    ComponentLayoutID: 1,
+                     
+                    EntityType: 'CompanySettings',
+                    Property: 'Email',
+                    Placement: 2,
+                    Hidden: false,
+                    FieldType: 14,
+                    ReadOnly: false,
+                    LookupField: false,
+                    Label: 'Epost',
+                    Description: null,
+                    HelpText: null,
+                    FieldSet: 0,
+                    Section: 1,
+                    Placeholder: null,
+                    Options: null,
+                    LineBreak: null,
+                    Combo: null,
+                    Sectionheader: '',
+                    IsLookUp: false,
+                    Validations: []
+                }
+        ];
 
-        var orgNr = new UniFieldBuilder();
-        orgNr.setLabel('Orgnr.')
-            .setModel(this.company)
-            .setModelField('OrganizationNumber')
-            .setType(UNI_CONTROL_DIRECTIVES[FieldType.TEXT]);
 
-        var web = new UniFieldBuilder();
-        web.setLabel('Web')
-            .setModel(this.company)
-            .setModelField('WebAddress')
-            .setType(UNI_CONTROL_DIRECTIVES[FieldType.TEXT]);
 
+/*
+       
 
         // TODO
         // Contact information should be styled according to standard - when this is ready.
-        var street = new UniFieldBuilder();
-        street.setLabel('Adresse')
-            .setModel(this.company.Address[0])
-            .setModelField('AddressLine1')
-            .setType(UNI_CONTROL_DIRECTIVES[FieldType.TEXT]);
+       
 
         var street2 = new UniFieldBuilder();
         street2.setLabel('Adresse 2')
@@ -211,7 +406,7 @@ export class CompanySettings implements OnInit {
         var officeMunicipality = new UniComboFieldBuilder();
         officeMunicipality.addUniElements(officeMunicipalNumber, officeMunicipalName);
         
-        // *********************  Virksomhet og aga  ***************************/
+        // *********************  Virksomhet og aga  ***************************
         var subEntitiesSection = new UniSectionBuilder('Virksomhet og arbeidsgiveravgift(aga)');
         
         var mainAccountAlocatedAga = new UniFieldBuilder();
@@ -343,7 +538,7 @@ export class CompanySettings implements OnInit {
             subEntitiesSection.addUniElement(subEntitySection);
         });
         
-        // *********************  Instillinger lønn  ***************************/
+        // *********************  Instillinger lønn  ***************************
         
         var salarySettings = new UniSectionBuilder('Innstillinger spesifikke for lønn');
         
@@ -370,8 +565,8 @@ export class CompanySettings implements OnInit {
         
         salarySettings.addUniElements(interrimRemit, mainAccountAllocatedVacation, mainAccountCostVacation);
         
-        // ********************************************************************/
-        // ********************  Selskapsoppsett    ***************************/
+        // ********************************************************************
+        // ********************  Selskapsoppsett    ***************************
         var companySetup = new UniSectionBuilder('Selskapsoppsett');
 
         var companyReg = new UniFieldBuilder();
@@ -454,8 +649,8 @@ export class CompanySettings implements OnInit {
                                     customerAccount, 
                                     creditDays);
 
-        // ********************************************************************/
-        // *********************  Regnskapsinnstillinger    *******************/
+        // ********************************************************************
+        // *********************  Regnskapsinnstillinger    *******************
         var accountingSettings = new UniSectionBuilder('Regnskapsinnstillinger');
 
         var periodSeriesAccount = new UniFieldBuilder();
@@ -552,8 +747,9 @@ export class CompanySettings implements OnInit {
         this.form = formBuilder;
     }
 
-    /********************************************************************/
-    /*********************  Form Builder    *******************/
+    /********************************************************************
+    /*********************  Form Builder    *******************
+    */
     
     private getAgaZone(id: number) {
         // lodash find
@@ -564,43 +760,33 @@ export class CompanySettings implements OnInit {
         return _.find(this.municipals, object => object.MunicipalityNo === municipalityNumber);
     }
     
-    public onSubmit(value) {
-        console.log('onSubmit called');
-
-        var self = this;
-
+    public saveSettings(value) {        
+        
         console.log('LAGRE id: ' + this.id);
-        this.http
-            .asPUT()
-            .withEndPoint('companysettings/' + self.company.ID)
-            .withBody(self.company)
-            .send().subscribe(
-            (response) => {
-                console.log('LAGRET Firmainnstillinger ' + self.company.ID);
-                // this.uniSaved.emit(this.company); //TODO according to account...
-            },
-            (error) => {
-                console.log('OPPDATERING FEILET');
-                console.log(error._body);
-            }
+        this.companySettingsService
+            .Put(this.company.ID, this.company)
+            .subscribe(
+                (response) => {
+                    console.log('LAGRET Firmainnstillinger ' + this.company.ID);
+                    // this.uniSaved.emit(this.company); //TODO according to account...
+                },
+                (error) => {
+                    console.log('OPPDATERING FEILET');
+                    console.log(error._body);
+                }
             );
     }
 
     //#region Test data
     public syncAS() {
         console.log('SYNKRONISER KONTOPLAN');
-        this.http
-            .asPUT()
-            .usingBusinessDomain()
-            .withEndPoint('accounts')
-            .send({
-                'action': 'synchronize-ns4102-as'
-            })
+        this.accountService
+            .PutAction(0, 'synchronize-ns4102-as')            
             .subscribe(
-            (response: any) => {
-                alert('Kontoplan synkronisert for AS');
-            },
-            (error: any) => console.log(error)
+                (response: any) => {
+                    alert('Kontoplan synkronisert for AS');
+                },
+                (error: any) => console.log(error)
             );
     }
 
