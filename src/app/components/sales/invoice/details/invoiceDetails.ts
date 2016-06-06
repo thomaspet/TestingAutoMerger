@@ -282,15 +282,10 @@ export class InvoiceDetails implements OnInit {
     }
     
     private printInvoice() {
-       // TODO: 1. Get .mrt id from report definition 2. get .mrt from server
-       //this.reportService.getReportDefinitionByName('Invoice').subscribe(definitions => {
-            this.http.get('/assets/DemoData/Demo.mrt') 
-                .map(res => res.text())
-                .subscribe(template => {
-                    this.report.printReport(template, [JSON.stringify(this.invoice)], false);                            
-                });
-        //    
-        //});                    
+        this.reportService.getReportTemplateAndData('Fakturablankett uten giro', {Id: this.invoice.ID}).subscribe((response: any[]) => {
+            let [template, data] = response;
+            this.report.printReport(template, data, false);
+        });                   
     }
 
     private createFormConfig() {   

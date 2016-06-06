@@ -4,11 +4,11 @@ import {Router} from '@angular/router-deprecated';
 import {UniHttp} from '../../../../../framework/core/http/http';
 import {CustomerInvoiceService,ReportService} from '../../../../services/services';
 import {StatusCodeCustomerInvoice,CustomerInvoice} from '../../../../unientities';
-import {Http, URLSearchParams} from '@angular/http';
+import {URLSearchParams} from '@angular/http';
 import {AsyncPipe} from '@angular/common';
 import {InvoicePaymentData} from '../../../../models/sales/InvoicePaymentData';
-import {StimulsoftReportWrapper} from "../../../../../framework/wrappers/reporting/reportWrapper";
 import {RegisterPaymentModal} from '../../../common/modals/registerPaymentModal';
+import {StimulsoftReportWrapper} from "../../../../../framework/wrappers/reporting/reportWrapper";
 
 @Component({
     selector: 'invoice-list',
@@ -30,9 +30,8 @@ export class InvoiceList {
     constructor(private uniHttpService: UniHttp,
         private router: Router,
         private customerInvoiceService: CustomerInvoiceService,
-        private http: Http,
         private report: StimulsoftReportWrapper,
-        private reportDefinitionService: ReportService) {
+        private reportService: ReportService) {
         this.setupInvoiceTable();
     }
 
@@ -167,15 +166,10 @@ export class InvoiceList {
         contextMenuItems.push({
             label: 'Skriv ut',
             action: (invoice: CustomerInvoice) => {
-                // TODO: 1. Get .mrt id from report definition 2. get .mrt from server
-                //this.reportService.getReportDefinitionByName('Invoice').subscribe(definitions => {
-                    this.http.get('/assets/DemoData/Demo.mrt') 
-                        .map(res => res.text())
-                        .subscribe(template => {
-                            this.report.printReport(template, [JSON.stringify(invoice)], false);                            
-                        });
-                //    
-                //});                
+                this.reportService.getReportTemplateAndData('Fakturablankett uten giro', {Id: invoice.ID}).subscribe((response: any[]) => {
+                   let [template, data] = response;
+                   this.report.printReport(template, data, false);
+                });
             }
         });
 
