@@ -57,7 +57,6 @@ export class ParameterModal {
                             self.modal.close();
                             this.previewModal.open(this.modalConfig.report);
                         });
-                        return false;
                     }
                 },
                 {
@@ -66,7 +65,6 @@ export class ParameterModal {
                         self.modal.getContent().then(() => {
                             self.modal.close();
                         });
-                        return false;
                     }
                 }
             ]

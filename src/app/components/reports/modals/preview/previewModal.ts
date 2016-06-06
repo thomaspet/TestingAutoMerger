@@ -36,6 +36,8 @@ export class PreviewModal {
     
     public modalConfig: any = {};
     public type: Type = ReportPreviewModalType;
+    
+    private reportDefinition: ReportDefinition;
 
     constructor(private reportDefinitionService: ReportDefinitionService,
                 private http: Http)
@@ -47,22 +49,30 @@ export class PreviewModal {
 
             actions: [
                 {
+                    text: 'Skriv ut',
+                    method: () => {
+                        self.modal.getContent().then(() => {
+                            this.reportDefinitionService.generateReportPdf(this.reportDefinition);
+                            self.modal.close();
+                        });
+                    }
+                },
+                {
                     text: 'Lukk',
                     method: () => {
                         self.modal.getContent().then(() => {
                             self.modal.close();
                         });
-                        return false;
                     }
                 }
             ]
         };
     }
 
-    public open(report: ReportDefinition)
-    {
+    public open(report: ReportDefinition) {
         this.modalConfig.title = report.Name;
         this.modalConfig.report = null;
+        this.reportDefinition = report;
         this.reportDefinitionService.generateReportHtml(report, this.modalConfig);
         this.modal.open();
     }

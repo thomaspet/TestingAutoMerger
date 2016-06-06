@@ -28,6 +28,7 @@ export class ReportDefinitionService extends BizHttp<ReportDefinition>{
     private report: Report;
     private target: any;
     private baseHttp: Http;
+    private format: string;
     
     constructor(
         private uniHttp: UniHttp,
@@ -41,11 +42,24 @@ export class ReportDefinitionService extends BizHttp<ReportDefinition>{
     }
 
     public generateReportHtml(report: ReportDefinition, target: any) {
+        this.format = 'html';
         this.report = <Report>report;
         this.target = target;
-        
+       
+        this.generateReport();
+    }
+
+    public generateReportPdf(report: ReportDefinition) {
+        this.format = 'pdf';
+        this.report = <Report>report;
+       
+        this.generateReport();
+    }
+           
+
+    private generateReport() {
         // get template
-        this.baseHttp.get('/assets/ReportTemplates/' + report.TemplateLinkId)
+        this.baseHttp.get('/assets/ReportTemplates/' + this.report.TemplateLinkId)
             .map(res => res.text())
             .subscribe(template => {
                 this.report.templateJson = template;
@@ -55,7 +69,7 @@ export class ReportDefinitionService extends BizHttp<ReportDefinition>{
             );
     }  
     
-    public onTemplateLoaded() {
+    private onTemplateLoaded() {
         // get data source URLs 
         this.reportDefinitionDataSourceService.GetAll<ReportDataSource>('ReportDefinitionId=' + this.report.ID)
               .subscribe(dataSources => {
@@ -66,7 +80,7 @@ export class ReportDefinitionService extends BizHttp<ReportDefinition>{
               );
     }
 
-    public onDataSourcesLoaded() {
+    private onDataSourcesLoaded() {
         // resolve placeholders first
         this.resolvePlaceholders();
 
@@ -98,7 +112,11 @@ export class ReportDefinitionService extends BizHttp<ReportDefinition>{
             dataSources.push(JSON.stringify(dataSource));
         }
         
-        this.reportGenerator.showReport(this.report.templateJson, dataSources, this.target);
+        if (this.format === 'html') {
+            this.reportGenerator.showReport(this.report.templateJson, dataSources, this.target);
+        } else if (this.format === 'pdf') {
+            this.reportGenerator.printReport(this.report.templateJson, dataSources, true);
+        }
     }
     
     private resolvePlaceholders() {
