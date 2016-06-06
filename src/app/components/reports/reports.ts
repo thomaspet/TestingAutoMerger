@@ -1,15 +1,15 @@
-import {Component} from "@angular/core";
-import {RouteConfig, ROUTER_DIRECTIVES} from "@angular/router-deprecated";
-import {ComponentProxy} from "../../../framework/core/componentProxy";
-import {AsyncRoute} from "@angular/router-deprecated";
-import {UniRouterOutlet} from "../../uniRouterOutlet";
+import {Component} from '@angular/core';
+import {RouteConfig, ROUTER_DIRECTIVES} from '@angular/router-deprecated';
+import {ComponentProxy} from '../../../framework/core/componentProxy';
+import {AsyncRoute} from '@angular/router-deprecated';
+import {UniRouterOutlet} from '../../uniRouterOutlet';
 
 const REPORTS_ROUTES = [
         new AsyncRoute({
         useAsDefault: true,
-        path: "/overview",
-        name: "Overview",
-            loader: () => ComponentProxy.LoadComponentAsync("Overview", "app/components/reports/overview/overview")
+        path: '/overview',
+        name: 'Overview',
+            loader: () => ComponentProxy.LoadComponentAsync('Overview', 'app/components/reports/overview/overview')
         })
 ];
 
