@@ -5,23 +5,23 @@ import { Observable } from 'rxjs/Observable';
 
 export class PayrollrunService extends BizHttp<PayrollRun> {
     
+    private payStatusTable: any = [
+        {ID: 0 || null, text: 'Opprettet'},
+        {ID: 1, text: 'Avregnet'},
+        {ID: 2, text: 'Godkjent'},
+        {ID: 3, text: 'Sendt til utbetaling'},
+        {ID: 4, text: 'Utbetalt'},
+        {ID: 5, text: 'Bokført'},
+        {ID: 6, text: 'Slettet'}
+    ];
+    
     constructor(http: UniHttp) {
         super(http);
         this.relativeURL = PayrollRun.RelativeUrl;
     }
-    
-    private payStatusTable: any = [
-            {ID: 0 || null, text: 'Opprettet'},
-            {ID: 1, text: 'Avregnet'},
-            {ID: 2, text: 'Godkjent'},
-            {ID: 3, text: 'Sendt til utbetaling'},
-            {ID: 4, text: 'Utbetalt'},
-            {ID: 5, text: 'Bokført'},
-            {ID: 6, text: 'Slettet'}
-        ];
-        
+      
     public getStatus(payrollRun: PayrollRun) {
-        return this.payStatusTable.find(x => x.ID == payrollRun.StatusCode);
+        return this.payStatusTable.find(x => x.ID === payrollRun.StatusCode);
     }
     
     public getPrevious(ID: number) {
@@ -88,6 +88,16 @@ export class PayrollrunService extends BizHttp<PayrollRun> {
             .send();
     }
     
+    public getEmptyPayrollrunDates() {
+        var dates: Date[] = [];
+        
+        dates.push(this.getFirstDayOfNextMonth());
+        dates.push(this.getLastDayOfNextMonth());
+        dates.push(this.getPaydateOfNextMonth());
+        
+        return dates;
+    }
+    
     public layout(layoutID: string) {
         return Observable.from([{
             Name: layoutID,
@@ -111,7 +121,7 @@ export class PayrollrunService extends BizHttp<PayrollRun> {
                     Options: null,
                     LineBreak: null,
                     Combo: null,
-                    Legend: 'Detaljer',
+                    Sectionheader: 'DETALJER',
                     hasLineBreak: false,
                     Validations: [
                         {
@@ -274,7 +284,7 @@ export class PayrollrunService extends BizHttp<PayrollRun> {
                     EntityType: 'Payrollrun',
                     Property: '',
                     Placement: 3,
-                    Hidden: false,
+                    Hidden: true,
                     FieldType: FieldType.DROPDOWN,
                     ReadOnly: false,
                     LookupField: false,
@@ -284,17 +294,16 @@ export class PayrollrunService extends BizHttp<PayrollRun> {
                     FieldSet: 0,
                     Section: 1,
                     Placeholder: null,
-                    Options: null,
                     LineBreak: null,
                     Combo: null,
                     Legend: '',
-                    kendoOptions: {
-                        dataSource: [
+                    Options: {
+                        source: [
                             {Indx: 0, Name: 'Ordinært skattetrekk'}, 
                             {Indx: 1, Name: 'Halv skatt'},
                             {Indx: 2, Name: 'Ingen skattetrekk'}],
-                        dataTextField: 'Name',
-                        dataValueField: 'Indx'
+                        displayProperty: 'Name',
+                        valueProperty: 'Indx'
                     },
                     Validations: [
                         {
@@ -314,7 +323,7 @@ export class PayrollrunService extends BizHttp<PayrollRun> {
                     EntityType: 'Payrollrun',
                     Property: '',
                     Placement: 3,
-                    Hidden: false,
+                    Hidden: true,
                     FieldType: FieldType.DROPDOWN,
                     ReadOnly: false,
                     LookupField: false,
@@ -324,20 +333,19 @@ export class PayrollrunService extends BizHttp<PayrollRun> {
                     FieldSet: 0,
                     Section: 1,
                     Placeholder: null,
-                    Options: null,
                     LineBreak: null,
                     Combo: null,
                     Legend: '',
                     hasLineBreak: true,
-                    kendoOptions: {
-                        dataSource: [
+                    Options: {
+                        source: [
                             {Indx: 0, Name: 'Vanlig'}, 
                             {Indx: 1, Name: 'Ferielønn (+1/26)'},
                             {Indx: 2, Name: 'Ferielønn (-1/26)'},
                             {Indx: 1, Name: 'Ferielønn (-4/26)'},
                             {Indx: 2, Name: 'Ferielønn (-3/22)'}],
-                        dataTextField: 'Name',
-                        dataValueField: 'Indx'
+                        displayProperty: 'Name',
+                        valueProperty: 'Indx'
                     },
                     Validations: [
                         {
@@ -390,7 +398,7 @@ export class PayrollrunService extends BizHttp<PayrollRun> {
                     EntityType: 'Payrollrun',
                     Property: '1',
                     Placement: 4,
-                    Hidden: false,
+                    Hidden: true,
                     FieldType: 5, // FieldType.CHECKBOX,
                     ReadOnly: true,
                     LookupField: false,
@@ -421,7 +429,7 @@ export class PayrollrunService extends BizHttp<PayrollRun> {
                 {
                     ComponentLayoutID: 1,
                     EntityType: 'Payrollrun',
-                    Property: 'Description',
+                    Property: 'FreeText',
                     Placement: 3,
                     Hidden: false,
                     FieldType: FieldType.TEXT,
@@ -441,4 +449,22 @@ export class PayrollrunService extends BizHttp<PayrollRun> {
             ]
         }]);
     }
+    
+    private getFirstDayOfNextMonth() {
+        var date = new Date();
+        var firstDay = new Date(date.getFullYear(), date.getMonth() + 1, 1);
+        return firstDay;
+    }
+    
+    private getLastDayOfNextMonth() {
+        var date = new Date();
+        var lastDay = new Date(date.getFullYear(), date.getMonth() + 2, 0);
+        return lastDay;
+    }
+    
+    private getPaydateOfNextMonth() {
+        var date = new Date();
+        var firstDay = new Date(date.getFullYear(), date.getMonth() + 1, 15);
+        return firstDay;
+    } 
 }
