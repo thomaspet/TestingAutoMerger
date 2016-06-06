@@ -33,7 +33,7 @@ export class AltinnLoginModalContent {
     public formConfig: any = {};
     
     constructor(private _altinnService: AltinnService, private _companySettingsService: CompanySettingsService, private _inserver: IntegrationServerCaller, private _altinnReceiptService: AltinnReceiptService) {
-        console.log('modal content constructor');
+        
         Observable.forkJoin(
             this._altinnService.GetAll('top:1'),
             this._companySettingsService.GetAll('top:1'),
@@ -202,7 +202,6 @@ export class AltinnLoginModal {
     private modal: UniModal;
     
     constructor(private _altinnService: AltinnService, private _companySettingsService: CompanySettingsService) {
-        console.log('altinn login modal constructor');
         this.config = {
             cancel: () => {
                 this.modal.getContent().then((component: AltinnLoginModalContent) => {
