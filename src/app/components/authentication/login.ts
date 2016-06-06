@@ -1,7 +1,6 @@
 import {Component} from '@angular/core';
 import {Router, ROUTER_DIRECTIVES} from '@angular/router-deprecated';
 import {AuthService} from '../../../framework/core/authService';
-import {StaticRegisterService} from '../../services/staticregisterservice';
 
 declare var jQuery;
 
@@ -16,9 +15,7 @@ export class Login {
     private loginSuccess: boolean  = false;
     private errorMessage: string = '';
 
-    constructor(private _authService: AuthService, private _router: Router, 
-                private _staticRegisterService: StaticRegisterService) {
-        // initialize credentials to a valid login for testing purposes
+    constructor(private _authService: AuthService, private _router: Router) {
         this.credentials = {
             username: '',
             password: ''
@@ -106,9 +103,5 @@ export class Login {
         var url = localStorage.getItem('lastNavigationAttempt') || '/';
         localStorage.removeItem('lastNavigationAttempt');
         this._router.navigateByUrl(url);
-        
-        setTimeout(() => {
-            this._staticRegisterService.checkForStaticRegisterUpdate();
-        });
     }
 }
