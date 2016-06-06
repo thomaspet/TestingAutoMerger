@@ -195,17 +195,20 @@ export class UniHttp {
                         this.reAuthenticated$.emit(true);
                     }
                 });
-            }
-
-            return this.reAuthenticated$;
-        }))
-        .switchMap((response) => {
-            if (withoutJsonMap) {
-                return Observable.from([response]);
+                
+                return this.reAuthenticated$;
             } else {
-                return Observable.from([response.json()]);
+                return Observable.throw(err);                
             }
-        });
+        }))
+        .switchMap(
+            (response) => {
+                if (withoutJsonMap) {
+                    return Observable.from([response]);
+                } else {
+                    return Observable.from([response.json()]);
+                }
+            });
     }
 
     public multipleRequests(requests: IUniHttpRequest[]) {

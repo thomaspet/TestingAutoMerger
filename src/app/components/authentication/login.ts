@@ -103,9 +103,12 @@ export class Login {
     }
 
     private onCompanySelected() {
-        this._staticRegisterService.checkForStaticRegisterUpdate();
         var url = localStorage.getItem('lastNavigationAttempt') || '/';
         localStorage.removeItem('lastNavigationAttempt');
         this._router.navigateByUrl(url);
+        
+        setTimeout(() => {
+            this._staticRegisterService.checkForStaticRegisterUpdate();
+        });
     }
 }
