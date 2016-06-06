@@ -58,7 +58,7 @@ export class UniCompanyDropdown implements AfterViewInit, OnDestroy {
 
         var container = jQuery('#companySelect');
         var dropdown = container.kendoDropDownList(this.dropdownConfig).data('kendoDropDownList');
-        dropdown.value(this.activeCompany.id);
+        dropdown.value(this.activeCompany.ID);
     }
 
     private companySelected(selectedCompany): void {
