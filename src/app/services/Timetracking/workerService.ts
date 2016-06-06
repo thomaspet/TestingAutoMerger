@@ -119,21 +119,6 @@ export class WorkerService extends BizHttp<Worker> {
             return this.PUT('workitems/' + item.ID, undefined, item );
         }
         return this.POST('workitems', undefined, item );
-        /*
-        var obs = this.POST('workitems', undefined, item );
-        var ret = obs.share();
-        obs.subscribe((item:any)=> {
-            debugger;
-            console.log("success!");
-        }, (err)=>{
-            debugger;
-            console.error("error", err);
-        }, ()=> {
-            debugger;
-            console.log("finally");
-        }
-        return ret;
-        */
     }
     
     getWorkTypes(): Observable<WorkType[]> {

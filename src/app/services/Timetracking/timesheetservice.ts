@@ -57,6 +57,9 @@ export class TimeSheet {
                 break;                
         }
         item[change.name] = change.value;
+        if (!item.WorkRelationID) {
+            item.WorkRelationID = this.currentRelation.ID
+        }
         this.changeMap.add(change.rowIndex, item);
         return true;
     }    

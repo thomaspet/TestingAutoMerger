@@ -1,8 +1,8 @@
-import {Component} from "@angular/core";
+import {Component, ViewChild} from "@angular/core";
 import {TabService} from '../../layout/navbar/tabstrip/tabService';
 import {View} from '../../../models/view/view';
 import {Worker, WorkRelation, WorkProfile, WorkItem, WorkType} from '../../../unientities';
-import {UniTable as NewTable, UniTableColumn, UniTableConfig, UniTableColumnType} from 'unitable-ng2/main';
+import {UniTable, UniTableColumn, UniTableConfig, UniTableColumnType, IContextMenuItem} from 'unitable-ng2/main';
 import {Observable, Observer} from 'rxjs/Rx';
 import {WorkerService} from '../../../services/timetracking/workerservice';
 import {TimesheetService, TimeSheet, ValueItem} from '../../../services/timetracking/timesheetservice';
@@ -15,7 +15,7 @@ declare var moment;
 @Component({
     selector: view.name,
     templateUrl: 'app/components/timetracking/regtime/regtime.html',
-    directives: [NewTable, UniSave], 
+    directives: [UniTable, UniSave], 
     styles: ['.title { font-size: 18pt; padding: 1em 1em 1em 0; }',
             '.title span { margin-right: 1em;}',
             '.title select { display:inline-block; width: auto; padding-left: 7px; padding-right: 7px; }',
@@ -25,6 +25,7 @@ declare var moment;
 })
 export class RegisterTime {    
     public view = view;
+    @ViewChild(UniTable) private dataTable:UniTable; 
     
     private busy = true;
     private userName = '';
@@ -122,6 +123,7 @@ export class RegisterTime {
     createTableConfig():UniTableConfig {        
         
         var cols = [
+            //new UniTableColumn('ID', 'ID', UniTableColumnType.Number, false),
             new UniTableColumn('Description', 'Beskrivelse', UniTableColumnType.Text, true).setWidth('40vw'),
             this.createTimeColumn('StartTime', 'Fra kl.'),
             this.createTimeColumn('EndTime', 'Til kl.'),
@@ -129,7 +131,19 @@ export class RegisterTime {
             this.createLookupColumn('Worktype', 'Type arbeid', 'Worktype', (txt) => this.filterWorkTypes(txt))                      
         ];
 
-        return new UniTableConfig(true, true, 25).setColumns(cols).setChangeCallback((event)=>this.onEditChange(event));
+        var ctx: Array<IContextMenuItem> = [];
+        ctx.push({
+            label: 'Slett post',
+            action: (rowModel) => {
+                //this.workerService
+                //this.dataTable.removeRow(event.ori)
+            },
+            disabled: (rowModel) => {
+                return false;
+            }
+        });
+
+        return new UniTableConfig(true, true, 25).setColumns(cols).setChangeCallback((event)=>this.onEditChange(event)).setContextMenu(ctx);
     }
     
     onEditChange(event) {
