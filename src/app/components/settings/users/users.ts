@@ -1,141 +1,150 @@
 ﻿import {Component} from '@angular/core';
-import {NgFor, NgIf} from '@angular/common';
+import {NgFor, NgIf, ControlGroup, Control, Validators} from '@angular/common';
 import {UniHttp} from '../../../../framework/core/http/http';
 import {OrderByPipe} from '../../../../framework/pipes/orderByPipe';
 import {Observable} from "rxjs/Observable";
 import {FilterInactivePipe} from '../../../../framework/pipes/filterInactivePipe';
-
-declare var jQuery;
+import {UniTable, UniTableConfig, UniTableColumn, IContextMenuItem} from 'unitable-ng2/main';
 
 @Component({
     selector: 'uni-users',
     pipes: [OrderByPipe, FilterInactivePipe],
     templateUrl: 'app/components/settings/users/users.html',
-    directives: [NgFor, NgIf]
+    directives: [NgFor, NgIf, UniTable]
 })
-
 export class Users {
-    newUser;
-    users: Array<any>;
-    inviteLink: string;
-    errorMessage: string;
-    invalidInviteInfo: boolean = false;
-    isPostUserActive: boolean = false;
-    hideInactive: boolean = false;
-    sortProperty: string;
-    inviteErrorMessage: string;
-    showInviteErrormessage: boolean = false;
+    // New user Form 
+    private newUserForm: ControlGroup;
+    private errorMessage: string;
+    
+    // Users table
+    private users: any[];
+    private tableConfig: UniTableConfig;
+    
+    // Misc
+    private isBusy: boolean = false;
+    private hideInactive: boolean = false; 
 
     constructor(private http: UniHttp) {
-        this.newUser = {};
-        this.newUser.CompanyId = JSON.parse(localStorage.getItem('activeCompany')).id;
-        this.getUserTableData();
-
+        this.newUserForm = new ControlGroup({
+            DisplayName: new Control('', Validators.required),
+            Email: new Control('', this.isInvalidEmail)
+        });
+        
+        this.errorMessage = '';
+        
+        this.users = [];
+        
+        this.setupUserTable();
+        this.refreshUsers();
     }
-
-    //Gets the list of users
-    getUserTableData() {
+    
+    private setupUserTable() {
+        const nameCol = new UniTableColumn('DisplayName', 'Navn');
+        const emailCol = new UniTableColumn('Email', 'Epost');
+        const statusCol = new UniTableColumn('StatusCode', 'Status')
+            .setTemplate(rowModel => this.getStatusCodeText(rowModel['StatusCode']));
+        
+        const contextMenuItems: IContextMenuItem[] = [
+            {
+                label: 'Send ny invitasjon',
+                action: rowModel => this.resendInvite(rowModel),
+                disabled: (rowModel) => {
+                    return (rowModel['StatusCode'] === 110001);
+                }
+            },
+            {
+                label: 'Fjern rettigheter',
+                action: rowModel => this.revokeUser(rowModel),
+                disabled: (rowModel) => {
+                    return (rowModel['StatusCode'] !== 110001)
+                }
+            }
+        ]
+        
+        this.tableConfig = new UniTableConfig(false, true, 25)
+            .setColumns([nameCol, emailCol, statusCol])
+            .setContextMenu(contextMenuItems);
+    }
+    
+    private refreshUsers() {
         this.http
             .asGET()
             .usingBusinessDomain()
             .withEndPoint("users")
             .send()
+            .subscribe(response => this.users = response);
+    }
+
+    private sendInvite(user?) {
+        let companyId = JSON.parse(localStorage.getItem('activeCompany')).id;
+        
+        let newUser = user || this.newUserForm.value;
+        
+        this.isBusy = true;
+        console.log('sending invite');
+        
+        this.http.asPOST()
+            .usingBusinessDomain()
+            .withEndPoint('user-verifications')
+            .withBody({
+                Email: newUser.Email,
+                DisplayName: newUser.DisplayName,
+                CompanyId: companyId
+            })
+            .send()
             .subscribe(
-            (users) => { this.users = users; console.log(users);},
-                (error) => { /*Error handling*/ console.log(error); }
+                (data) => {
+                    this.isBusy = false;
+                    this.refreshUsers();
+                },
+                (error) => {
+                    this.isBusy = false;                        
+                    this.errorMessage = 'Noe gikk galt med invitasjonen. Prøv igjen.';
+                }
             );
     }
 
-    //Invites new user
-    inviteNewUser() {
-        if (this.validateEmail(this.newUser.Email) && this.newUser.DisplayName !== '' && this.newUser.DisplayName !== undefined) {
-            this.isPostUserActive = true;
-            this.invalidInviteInfo = false;
-            console.log(this.newUser);
-            this.http
-                .asPOST()
-                .usingBusinessDomain()
-                .withEndPoint('user-verifications')
-                .withBody(this.newUser)
-                .send()
-                .subscribe(
-                (data) => {
-                    //Localhost as default for dev *TODO*
-                    this.inviteLink = 'http://localhost:3000/#/confirm/' + data.VerificationCode;
-                    this.newUser.DisplayName = '';
-                    this.newUser.Email = '';
-                    this.getUserTableData();
-                    this.isPostUserActive = false;
-                    jQuery('.users_invite_link').slideDown(500);
-                },
-                (error) => {
-                    console.log(error);
-                    console.log(error.body);
-                    this.isPostUserActive = false;
-                    this.showInviteErrormessage = true;
-                    //Get message from response???
-                    //QUICKFIX 
-                    this.inviteErrorMessage = 'Noe gikk galt med invitasjonen. Prøv igjen.';
-                    setTimeout(() => {
-                        this.showInviteErrormessage = false;       
-                    }, 5000)
-                }
-                )
-        } else {
-            this.invalidInviteInfo = true;
-            this.errorMessage = 'Vennligst oppgi et navn og en gyldig epostaddresse.';
-        }
-    }
-
-    //Creates a new user-verification object and code for the user, and sends out a new email
-    resendInvite(user) {
-        //If user is inactive
-        if (user.StatusID === 19) {
-            this.http
-                .asPOST()
+    private resendInvite(user) {
+        // If user is inactive
+        if (user.StatusID === 110002) {
+            this.http.asPOST()
                 .usingBusinessDomain()
                 .withEndPoint('users/' + user.ID)
-                .send({ action: 'activate' })
-                .subscribe(
-                    (data) => { this.getUserTableData(); console.log(data) },
-                    (error) => { console.log(error) }
-                )
+                .send({action: 'activate'})
+                .subscribe(response => this.refreshUsers());
         }
-        //If user has not responded to invite
+        // If user has not responded to invite
         else {
-            this.newUser.DisplayName = user.DisplayName;
-            this.newUser.Email = user.Email;
-            this.inviteNewUser();
+            this.sendInvite(user);
         }
     }
 
-    //Revokes the rights of the user
-    revokeInvite(user) {
-        console.log(user.DisplayName + '\'s rights have been revoked..');
-
+    private revokeUser(user) {
         this.http
             .asPOST()
             .usingBusinessDomain()
             .withEndPoint('users/' + user.ID)
             .send({ action: 'inactivate' })
-            .subscribe(
-                (data) => { this.getUserTableData() },
-                (error) => { console.log(error) }
-            )
+            .subscribe(response => this.refreshUsers());
     }
-
-    //Regex to check valididation of email
-    validateEmail(email) {
-        return /[^\s@]+@[^\s@]+\.[^\s@]+/.test(email);
-    }
-
-    //Sets the property of which the list is sorted by
-    sortList(sortValue) {
-        if (sortValue === this.sortProperty) {
-            var tempstring = '-' + this.sortProperty;
-            this.sortProperty = tempstring;
-        } else {
-            this.sortProperty = sortValue;
+    
+    private getStatusCodeText(statusCode: number): string {
+        switch (statusCode) {
+            case 110000: return 'Invitert';
+            case 110001: return 'Aktiv';
+            case 110002: return 'Inaktiv';
+            default: return 'Ingen status';
         }
+    }
+    
+    private isInvalidEmail(control: Control) {
+        let testResult = /^[-a-z0-9~!$%^&*_=+}{\'?]+(\.[-a-z0-9~!$%^&*_=+}{\'?]+)*@([a-z0-9_][-a-z0-9_]*(\.[-a-z0-9_]+)*\.(aero|arpa|biz|com|coop|edu|gov|info|int|mil|museum|name|net|org|pro|travel|mobi|[a-z][a-z])|([0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}))(:[0-9]{1,5})?$/i.test(control.value);
+        
+        if (!testResult) {
+            return {'isInvalidEmail': true}
+        }
+        
+        return null;
     }
 }
