@@ -182,21 +182,28 @@ export class UniHttp {
             options.search = UniHttp.buildUrlParams(request);
         }
 
-        
         return this.http.request(new Request(options))
         .retryWhen(errors => errors.switchMap(err => {
-            if (err.status === 401 && (!this.authService.lastTokenUpdate || (new Date().getMinutes() - this.authService.lastTokenUpdate.getMinutes()) > 1)) {
-                this.lastReAuthentication = new Date();
-                this.authService.requestAuthentication$.emit({
-                    onAuthenticated: (newToken) => {
-                        this.headers.set('Authorization', 'Bearer ' + newToken);
-                        this.reAuthenticated$.emit(true);
-                    }
-                });
+            if (err.status === 401) {
+                if (!this.authService.isAuthenticated() 
+                    || !this.authService.lastTokenUpdate 
+                    || (new Date().getMinutes() - this.authService.lastTokenUpdate.getMinutes()) > 1) {
+                    
+                    this.lastReAuthentication = new Date();
+                    this.authService.requestAuthentication$.emit({
+                        onAuthenticated: (newToken) => {
+                            this.headers.set('Authorization', 'Bearer ' + newToken);
+                            this.reAuthenticated$.emit(true);
+                        }
+                    });
                 
-                return this.reAuthenticated$;
+                    return this.reAuthenticated$;
+                } else {
+                    return Observable.timer(500);
+                }
+                    
             } else {
-                return Observable.throw(err);                
+                    return Observable.throw(err);                
             }
         }))
         .switchMap(
