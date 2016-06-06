@@ -213,6 +213,7 @@ export class InvoiceList implements OnInit {
 
         var statusCol = new UniTableColumn('StatusCode', 'Status', UniTableColumnType.Number)
             .setWidth('15%')
+            .setFilterable(false)
             .setTemplate((dataItem) => {
                 return this.customerInvoiceService.getStatusText(dataItem.StatusCode, dataItem.InvoiceType);
             });

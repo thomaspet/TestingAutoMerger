@@ -22,7 +22,7 @@ export enum JournalEntryMode {
 @Component({
     selector: 'journal-entry-simple-form',
     templateUrl: 'app/components/accounting/journalentry/components/journalentrysimple/journalentrysimpleform.html',
-    directives: [UniForm, NgIf],
+    directives: [UniForm],
     providers: [AccountService, JournalEntryService, CustomerInvoiceService]
 })
 export class JournalEntrySimpleForm implements OnChanges {
@@ -78,13 +78,13 @@ export class JournalEntrySimpleForm implements OnChanges {
         this.projects = []; 
         this.vattypes = [];
         this.accounts = [];
-        this.journalEntryLine = new JournalEntryData();        
+        this.journalEntryLine = new JournalEntryData();
     }
     
     ngOnInit() {    
         if (!this.isEditMode) {           
             this.journalEntryLine.SameOrNew = this.mode == JournalEntryMode.Supplier ? this.SAME_OR_NEW_SAME : this.SAME_OR_NEW_NEW;
-        } 
+        }
         
         this.setupFields();
         this.setupSameNewAlternatives();    
@@ -491,11 +491,18 @@ export class JournalEntrySimpleForm implements OnChanges {
     }
                 
     ngOnChanges(changes: {[propName: string]: SimpleChange}) {  
+        if (this.fields.length == 0) {
+            this.setupFields();
+        }
+        
         if (changes['dropdownData'] != null && this.dropdownData) {
             this.departements = this.dropdownData[0];
             this.projects = this.dropdownData[1];
             this.vattypes = this.dropdownData[2];
             this.accounts = this.dropdownData[3]; 
+            
+            console.log("== FIELDS ==");
+            console.log(this.fields);
                                                         
             // Refresh sources 
             this.fields[3].Options.source = this.accounts;
