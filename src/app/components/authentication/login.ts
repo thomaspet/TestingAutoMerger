@@ -1,6 +1,7 @@
 import {Component} from '@angular/core';
 import {Router, ROUTER_DIRECTIVES} from '@angular/router-deprecated';
 import {AuthService} from '../../../framework/core/authService';
+import {UniHttp} from '../../../framework/core/http/http';
 
 declare var jQuery;
 
@@ -15,7 +16,7 @@ export class Login {
     private loginSuccess: boolean  = false;
     private errorMessage: string = '';
 
-    constructor(private _authService: AuthService, private _router: Router) {
+    constructor(private _authService: AuthService, private _router: Router, private http: UniHttp) {
         this.credentials = {
             username: '',
             password: ''
@@ -49,24 +50,27 @@ export class Login {
         }
         
         var companies;
-        this._authService.getCompanies()
-        .subscribe((response) => {
-            this.working = false;
-            if (response.status !== 200) {
-                this.loginSuccess = false;
-                this.errorMessage = "Du har ingen selskaper. Midlertidig fix: gå til signup og lag ett.";
-                return;
-            }
-            
-            const companies = response.json();
-            
-            if (companies.length === 1) {
-                this._authService.setActiveCompany(companies[0]);
-                this.onCompanySelected();
-            } else {
-                this.showCompanySelect(companies);    
-            }
-        });
+        this.http.asGET()
+            .usingInitDomain()
+            .withEndPoint('companies')
+            .send({}, true)
+            .subscribe(response => {
+                this.working = false;
+                
+                if (response.status !== 200) {
+                    this.loginSuccess = false;
+                    this.errorMessage = "Du har ingen selskaper. Midlertidig fix: gå til signup og lag ett.";
+                    return;
+                }
+                
+                const companies = response.json();
+                if (companies.length === 1) {
+                    this._authService.setActiveCompany(companies[0]);
+                    this.onCompanySelected();
+                } else {
+                    this.showCompanySelect(companies);    
+                }
+            });
     }
     
     private showCompanySelect(companies) {

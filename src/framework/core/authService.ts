@@ -25,9 +25,7 @@ export class AuthService {
     public companySettings : any;
     public lastTokenUpdate: Date;
 
-    constructor(@Inject(Router) private router: Router,
-                @Inject(Http) private http: Http) {
-                    
+    constructor(@Inject(Router) private router: Router, @Inject(Http) private http: Http) {           
         this.activeCompany = JSON.parse(localStorage.getItem('activeCompany')) || undefined;
         this.jwt = localStorage.getItem('jwt') || undefined;
         this.jwtDecoded = this.decodeToken(this.jwt);
@@ -56,7 +54,11 @@ export class AuthService {
         return this.http.post(url, JSON.stringify(credentials), {headers: headers})
             .switchMap((response) => {
                 if (response.status === 200) {
-                    this.setToken(response.json().access_token);
+                    this.jwt = response.json().access_token;
+                    this.jwtDecoded = this.decodeToken(this.jwt);
+                    localStorage.setItem('jwt', this.jwt);
+                    
+                    this.expiredToken = false;
                     this.lastTokenUpdate = new Date();
                     
                     this.emitAuthenticationStatus();
@@ -64,31 +66,6 @@ export class AuthService {
                 
                 return Observable.from([response.json()]);
             });
-    }
-    
-    /**
-     * Returns an observable of the available companies for the authenticated user
-     * @returns Observable
-     */
-    public getCompanies(): Observable<any> {
-        let url = AppConfig.BASE_URL_INIT + AppConfig.API_DOMAINS.INIT + 'companies';
-        let headers = new Headers({'Authorization': 'Bearer ' + this.jwt, 'Accept': 'application/json'});
-        
-        return this.http.get(url, {headers: headers});
-    }
-    
-    public getCompanySettings(companykey:string) : Observable<any> {        
-        let url = AppConfig.BASE_URL + AppConfig.API_DOMAINS.BUSINESS + 'companysettings';
-        let headers = new Headers({'Authorization': 'Bearer ' + this.jwt, 'Accept': 'application/json', 'CompanyKey' : companykey});
-        
-        return this.http.get(url, {headers: headers});
-    }
-    
-    public setToken(token: string) {
-        this.jwt = token;
-        localStorage.setItem('jwt', this.jwt);
-        this.jwtDecoded = this.decodeToken(this.jwt);
-        this.expiredToken = false;
     }
     
     /**
