@@ -39,7 +39,25 @@ export class StimulsoftReportWrapper {
             var report = this.generateReport(template, reportData);
             
             if (report) {
-                report.print(showPreview);
+                //report.print(showPreview);
+                
+                var settings = new Stimulsoft.Report.Export.StiPdfExportSettings();
+                // Create an PDF service instance.
+                var service = new Stimulsoft.Report.Export.StiPdfExportService();
+
+                // Create a MemoryStream object.
+                var stream = new Stimulsoft.System.IO.MemoryStream();
+                // Export PDF using MemoryStream.
+                service.exportTo(report, stream, settings);
+
+                // Get PDF data from MemoryStream object
+                var data = stream.toArray();
+                // Get report file name
+                var fileName = (report.reportAlias === null || report.reportAlias.length == 0)  ? report.reportName : report.reportAlias;
+                // Save data to file
+                var obj: any = Object;
+                
+                obj.saveAs(data, fileName + '.pdf', 'application/pdf');
             }
         }
     }

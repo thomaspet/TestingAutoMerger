@@ -2,63 +2,65 @@ import {Component, ViewChild, Type, Input} from '@angular/core';
 import {NgIf, NgModel, NgFor, NgClass} from '@angular/common';
 import {Http} from '@angular/http';
 
-import {ReportDefinition} from '../../../../unientities';
 import {UniModal} from '../../../../../framework/modals/modal';
 import {UniComponentLoader} from '../../../../../framework/core/componentLoader';
-import {ReportDefinitionService} from '../../../../services/services';
-import {Report} from "../../../../models/reports/report";
+import {ReportDefinition} from '../../../../unientities';
+
+import {ReportDefinitionParameterService} from '../../../../services/services';
+import {PreviewModal} from '../preview/previewModal';
 
 @Component({
-    selector: 'report-preview-modal-type',
+    selector: 'report-parameter-modal-type',
     directives: [NgIf, NgModel, NgFor, NgClass, UniComponentLoader],
-    templateUrl: 'app/components/reports/modals/preview/previewModal.html',
+    templateUrl: 'app/components/reports/modals/parameter/parameterModal.html'
 })
-export class ReportPreviewModalType {
+export class ReportparameterModalType {
     @Input('config')
     private config;
-    
+
     constructor() {
         
     }
 }
 
 @Component({
-    selector: 'report-preview-modal',
+    selector: 'report-parameter-modal',
     directives: [UniModal],
     template: `
         <uni-modal [type]="type" [config]="modalConfig"></uni-modal>
     `,
-    providers: [ReportDefinitionService]
+    providers: [ReportDefinitionParameterService]
 })
-export class PreviewModal {
+export class ParameterModal {
     @ViewChild(UniModal)
-    modal: UniModal;
+    private modal: UniModal;
     
     public modalConfig: any = {};
-    public type: Type = ReportPreviewModalType;
+    public type: Type = ReportparameterModalType;
     
-    private reportDefinition: ReportDefinition;
-
-    constructor(private reportDefinitionService: ReportDefinitionService,
+    private previewModal: PreviewModal;
+    
+    constructor(private reportDefinitionParameterService: ReportDefinitionParameterService,
                 private http: Http)
     {
         var self = this;
         this.modalConfig = {
-            title: 'Forhåndsvisning',
+            title: 'Parametre',
             model: null,
+            report: new Object(),
 
             actions: [
                 {
-                    text: 'Skriv ut',
+                    text: 'Ok',
                     method: () => {
                         self.modal.getContent().then(() => {
-                            this.reportDefinitionService.generateReportPdf(this.reportDefinition);
                             self.modal.close();
+                            this.previewModal.open(this.modalConfig.report);
                         });
                     }
                 },
                 {
-                    text: 'Lukk',
+                    text: 'Avbryt',
                     method: () => {
                         self.modal.getContent().then(() => {
                             self.modal.close();
@@ -69,11 +71,15 @@ export class PreviewModal {
         };
     }
 
-    public open(report: ReportDefinition) {
+    public open(report: ReportDefinition, previewModal: PreviewModal)
+    {
         this.modalConfig.title = report.Name;
-        this.modalConfig.report = null;
-        this.reportDefinition = report;
-        this.reportDefinitionService.generateReportHtml(report, this.modalConfig);
-        this.modal.open();
+        this.modalConfig.report = report;
+        this.previewModal = previewModal;
+
+        this.reportDefinitionParameterService.GetAll('ReportDefinitionId=' + report.ID).subscribe(params => {
+            this.modalConfig.report.parameters = params;
+            this.modal.open();        
+        });
     }
 }
