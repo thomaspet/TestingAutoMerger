@@ -3,11 +3,10 @@ import {Altinn, FieldType, AltinnReceipt} from '../../unientities';
 import {UniHttp} from '../../../framework/core/http/http';
 import {Observable } from 'rxjs/Observable';
 import {SubEntityService } from '../services';
-import {AppConfig} from '../../../app/AppConfig';
 import {IntegrationServerCaller} from './IntegrationServerCaller';
-import {Injectable, EventEmitter} from '@angular/core';
+import {Injectable} from '@angular/core';
 
-//@Injectable()
+// @Injectable()
 export class AltinnService extends BizHttp<Altinn> {
 
     public languages: any = [
@@ -16,7 +15,7 @@ export class AltinnService extends BizHttp<Altinn> {
         { ID: '1033', text: 'English' },
         { ID: '1083', text: 'Samisk' },
     ];
-    public loginTypes: any = [
+    public loginTypes: {ID: number, text: string}[] = [
         { ID: 1, text: 'AltinnPin'},
         { ID: 2, text: 'SMSPin'},
         { ID: 3, text: 'TaxPin'}
@@ -31,10 +30,6 @@ export class AltinnService extends BizHttp<Altinn> {
     
     public sendTaxRequestAction(option: string, empId: number = 0): Observable<AltinnReceipt> {
         return this.PostAction(1, 'sendtaxrequest', 'option=' + option + '&empId=' + empId);
-    }
-    
-    public getCorrespondence(receiptID: number, altinn: Altinn, orgnumber: string) {
-        return this.inServer.getAltinnCorrespondence(altinn, orgnumber, receiptID);
     }
 
 

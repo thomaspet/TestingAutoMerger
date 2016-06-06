@@ -1,16 +1,16 @@
-import {Component, Type, ViewChild, Input, Output, EventEmitter} from '@angular/core';
+import {Component, Type, ViewChild, Input} from '@angular/core';
 import {UniModal} from '../../../../../framework/modals/modal';
 import {UniForm, UniFieldLayout} from '../../../../../framework/uniform';
 import {Observable} from 'rxjs/Observable';
 import {Altinn, FieldType, CompanySettings} from '../../../../../app/unientities';
-import {AltinnService, CompanySettingsService} from '../../../../../app/services/services';
+import {AltinnService, CompanySettingsService, IntegrationServerCaller, AltinnReceiptService} from '../../../../../app/services/services';
 
 declare var _; // lodash
 
 @Component({
     selector: 'altinn-login-modal-content',
     directives: [UniForm],
-    providers: [AltinnService, CompanySettingsService],
+    providers: [AltinnService, CompanySettingsService, IntegrationServerCaller, AltinnReceiptService],
     templateUrl: 'app/components/salary/employee/modals/altinnloginmodalcontent.html'
 })
 export class AltinnLoginModalContent {
@@ -32,26 +32,23 @@ export class AltinnLoginModalContent {
     public fields: any[] = [];
     public formConfig: any = {};
     
-    constructor(private _altinnService: AltinnService, private _companySettingsService: CompanySettingsService) {
-        
+    constructor(private _altinnService: AltinnService, private _companySettingsService: CompanySettingsService, private _inserver: IntegrationServerCaller, private _altinnReceiptService: AltinnReceiptService) {
+        console.log('modal content constructor');
         Observable.forkJoin(
             this._altinnService.GetAll('top:1'),
             this._companySettingsService.GetAll('top:1'),
-            this._altinnService.sendTaxRequestAction('SINGLE_EMP', 1) // test for now, must change this in #598
+            this._altinnReceiptService.GetAll('top:1') // test for now, must change this in #598
             ).subscribe((response: any) => {
-                console.log('response from requests in modal');
-            
                 let [altinnResponse, companySettingsResponse, altinnReceipt] = response;
-                this.receiptID = altinnReceipt.ReceiptID;
+                this.receiptID = altinnReceipt[0].ReceiptID;
                 this.altinn = altinnResponse[0];
                 this.companySettings = companySettingsResponse[0];
+                this.resetData();
             });
-        
-        console.log('login modal content');
         
         this.createForm();
         
-        this.resetData();
+        
     }
     
     private createForm() {
@@ -114,7 +111,6 @@ export class AltinnLoginModalContent {
     }
     
     public resetData() {
-        console.log('resetting data');
         this.getFromCache();
         this.closeBtnLabel = 'Avbryt';
         this.fields[0].Hidden = false;
@@ -124,56 +120,58 @@ export class AltinnLoginModalContent {
         this.fields = _.cloneDeep(this.fields);
         this.busy = true;
         this.atLogin = true;
-        console.log('data has been reset');
     }
     
     private getFromCache() {
-        this.model = localStorage.getItem('AltinnUserData');
+        this.model = JSON.parse(localStorage.getItem('AltinnUserData'));
         if (!this.model) {
             this.model =  {
                 username: '',
                 password: '',
                 pin: '',
-                preferredLogin: '',
+                preferredLogin: this._altinnService.loginTypes.find(x => x.ID === this.altinn.PreferredLogin).text,
                 timeStamp: null
-            }
+            };
         }
+        this.model = _.cloneDeep(this.model);
     }
     
     private cacheLoginData() {
-        console.log('caching data');
         localStorage.setItem('AltinnUserData', JSON.stringify(this.model));
     }
     
-    public openLogin(receiptID: number) {
-        console.log('opening modal content');
-        console.log('date.now: ', Date.now());
-        console.log('this.model: ', JSON.stringify(this.model));
-        this.receiptID = receiptID;
-        if ((this.model !== null && this.model.timeStamp && Date.now() - this.model.timeStamp.getMilliseconds() < Date.UTC(1970, 1, 1, 0, 30))) {
-            console.log('calling integration service');
-            this._altinnService.getCorrespondence(this.receiptID, this.altinn, this.companySettings.OrganizationNumber).subscribe((response) => {
-                if (response.Correspondence) {
-                    // TODO: call backend action with login when AppFramework/#1353 is ready
-                    this.atLogin = false;
-                    this.closeBtnLabel = 'OK';
-                }
-                this.busy = false;
-            });
-        }
-        console.log('end of openLogin()');
+    public openLogin() {
+        this.getAltinnCorrespondence(true);
     }
     
     public getCorrespondence() {
-        console.log('getCorrespondence()');
+        this.model.timeStamp = new Date();
         this.cacheLoginData();
-        this._altinnService.getCorrespondence(this.receiptID, this.altinn, this.companySettings.OrganizationNumber).subscribe((response) => {
-            if (response.authChall.Status === 0) {
-                this.altinnMessage = response.authChall.Message;
-                this.setupPin();
-            }
+        this.getAltinnCorrespondence();
+    }
+    
+    private getAltinnCorrespondence(openingLogin = false) {
+        if (this.model !== null) {
+            this._inserver.getAltinnCorrespondence(this.altinn, this.companySettings.OrganizationNumber, this.receiptID).subscribe((response) => {
+                if (response.authChall && !openingLogin) {
+                    if (response.authChall.Status === 0) {
+                        this.altinnMessage = response.authChall.Message;
+                        this.setupPin();
+                    }
+                }else if (response.correspondence) {
+                    // TODO: call backend action with login when AppFramework/#1353 is ready
+                    this.atLogin = false;
+                    this.closeBtnLabel = 'OK';
+                }else if (!response.requireAuthentication) {
+                    this.model.pin = '';
+                    this.model = _.cloneDeep(this.model);
+                }
+            
+                this.busy = false;
+            });
+        } else {
             this.busy = false;
-        });
+        }
     }
     
     public setupPin() {
@@ -181,6 +179,7 @@ export class AltinnLoginModalContent {
         this.fields[1].Hidden = true;
         this.fields[2].Hidden = true;
         this.fields[3].Hidden = false;
+        this.fields = _.cloneDeep(this.fields);
     }
 }
 @Component({
@@ -196,8 +195,6 @@ export class AltinnLoginModal {
     public config: {cancel: () => void};
     public type: Type = AltinnLoginModalContent;
     
-    private testReceiptID: number;
-    
     @Input()
     public showButton: boolean;
     
@@ -205,7 +202,7 @@ export class AltinnLoginModal {
     private modal: UniModal;
     
     constructor(private _altinnService: AltinnService, private _companySettingsService: CompanySettingsService) {
-        console.log('login modal');
+        console.log('altinn login modal constructor');
         this.config = {
             cancel: () => {
                 this.modal.getContent().then((component: AltinnLoginModalContent) => {
@@ -217,11 +214,9 @@ export class AltinnLoginModal {
     }
     
     public openLogin() {
-        console.log('openLogin()');
         this.modal.getContent().then((component: AltinnLoginModalContent) => {
-            console.log('Got content from modal');
             this.modal.open();
-            component.openLogin(this.testReceiptID);
+            component.openLogin();
             
         }, (error) => console.log('error: ' + error));
     }
