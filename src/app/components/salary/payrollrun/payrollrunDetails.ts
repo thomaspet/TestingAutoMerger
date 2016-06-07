@@ -61,7 +61,6 @@ export class PayrollrunDetails implements OnInit {
                 this.payDate = new Date(this.payrollrun.PayDate.toString());
                 
                 this.fields = layout.Fields;
-                console.log('payrollrun', this.payrollrun);
                 
                 this.config = {
                     submitText: ''

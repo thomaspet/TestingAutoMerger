@@ -21,7 +21,7 @@ export class PayrollrunService extends BizHttp<PayrollRun> {
     }
       
     public getStatus(payrollRun: PayrollRun) {
-        return this.payStatusTable.find(x => x.ID === payrollRun.StatusCode);
+        return this.payStatusTable.find(x => x.ID == payrollRun.StatusCode);
     }
     
     public getPrevious(ID: number) {
