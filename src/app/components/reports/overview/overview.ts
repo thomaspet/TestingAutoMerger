@@ -42,31 +42,19 @@ export class Overview {
         this.reportDefinitionService.GetAll<ReportDefinition>(null).subscribe(reports => {
             this.reportCategories = new Array<ReportCategory>();
             
-            for (let i = 0; i < reports.length; ++i) {
-                let reportCategory: ReportCategory = this.findCategory(reports[i].Category);
+            for (const report of reports) {
+                let reportCategory: ReportCategory = this.reportCategories.find(category => category.name === report.Category);
                 
-                if (reportCategory === null) {
+                if (typeof reportCategory === 'undefined') {
                     reportCategory = new ReportCategory();
 
-                    reportCategory.name = reports[i].Category;
+                    reportCategory.name = report.Category;
                     reportCategory.reports = new Array<Report>();
                     
                     this.reportCategories.push(reportCategory);
                 }
-                reportCategory.reports.push(reports[i]);
+                reportCategory.reports.push(report);
             }
         });
-    }
-    
-    private findCategory(name: string) {
-        let found: ReportCategory = null;
-        let i: number = 0;
-        
-        while (i < this.reportCategories.length && found === null) {
-            if (this.reportCategories[i].name === name) {
-                found = this.reportCategories[i];
-            }
-        }
-        return found;
     }
 }

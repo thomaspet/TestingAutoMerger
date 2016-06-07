@@ -71,7 +71,7 @@ export class ReportDefinitionService extends BizHttp<ReportDefinition>{
     
     private onTemplateLoaded() {
         // get data source URLs 
-        this.reportDefinitionDataSourceService.GetAll<ReportDataSource>('ReportDefinitionId=' + this.report.ID)
+        this.reportDefinitionDataSourceService.GetAll<ReportDataSource>('ReportDefinitionId eq ' + this.report.ID)
               .subscribe(dataSources => {
                   this.report.dataSources = dataSources;
                   this.onDataSourcesLoaded(); 
@@ -87,7 +87,7 @@ export class ReportDefinitionService extends BizHttp<ReportDefinition>{
         // create http requests
         let observableBatch = [];
         
-        for (let ds of this.report.dataSources) {
+        for (const ds of this.report.dataSources) {
             let url: string = ds.DataSourceUrl;
 
             url = url.replace(AppConfig.API_DOMAINS.BUSINESS, '');
@@ -108,7 +108,7 @@ export class ReportDefinitionService extends BizHttp<ReportDefinition>{
     private onDataFetched(data: any) {
         let dataSources = [];
         
-        for (let dataSource of data) {
+        for (const dataSource of data) {
             dataSources.push(JSON.stringify(dataSource));
         }
         
@@ -121,9 +121,9 @@ export class ReportDefinitionService extends BizHttp<ReportDefinition>{
     
     private resolvePlaceholders() {
         // resolve placeholders in data source source URLs
-        for (let parameter of this.report.parameters) {
-            for (let datasSource of this.report.dataSources) {
-                let searchString = '{' + parameter.Name + '}';
+        for (const parameter of this.report.parameters) {
+            for (const datasSource of this.report.dataSources) {
+                const searchString = '{' + parameter.Name + '}';
                 
                 datasSource.DataSourceUrl = datasSource.DataSourceUrl.replace(new RegExp(searchString, 'g'), parameter.value);
             }
