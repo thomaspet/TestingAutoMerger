@@ -58,9 +58,9 @@ export const ROUTES = [
     }),
 
     new AsyncRoute({
-        path: '/confirm/...',
-        name: 'Confirm',
-        loader: () => ComponentProxy.LoadComponentAsync('Confirm','app/components/login/confirmInvite')
+        path: '/confirm/:guid',
+        name: 'ConfirmInvite',
+        loader: () => ComponentProxy.LoadComponentAsync('ConfirmInvite','app/components/authentication/confirmInvite')
     }),
 
     new AsyncRoute({

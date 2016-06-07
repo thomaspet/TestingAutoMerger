@@ -33,7 +33,7 @@ export class ReportService extends BizHttp<ReportDefinition> {
     private getReportTemplate(name : string) : Observable<any> {
         // TODO: later on use ['ReportDefinitionDataSource'] for expand
         return this.GetAll<ReportDefinition>(`filter=Name eq '${name}'`).concatMap((rds : Array<ReportDefinition>) => {  
-            return this.http.http.get(`/assets/reports/${rds[0].TemplateLinkId}`).map(res => [res.text(), rds[0]]);        
+            return this.http.http.get(`/assets/ReportTemplates/${rds[0].TemplateLinkId}`).map(res => [res.text(), rds[0]]);        
         });
     }   
    

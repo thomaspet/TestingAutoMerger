@@ -1,4 +1,5 @@
 import {UniTableConfig, UniTableColumn, UniTableColumnType} from 'unitable-ng2/main';
+declare var jQuery;
 
 export class TableBuilder extends UniTableConfig {
     

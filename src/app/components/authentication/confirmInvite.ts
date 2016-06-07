@@ -1,114 +1,98 @@
 ﻿import {Component} from '@angular/core';
 import {Router, RouteParams} from '@angular/router-deprecated';
-import {NgIf, NgClass} from '@angular/common';
+import {NgIf, NgClass, ControlGroup, Control, Validators} from '@angular/common';
 import {UniHttp} from '../../../framework/core/http/http';
+import {passwordValidator} from './authValidators';
 
 @Component({
     selector: 'uni-confirm-invite',
-    templateUrl: 'app/components/login/confirmInvite.html',
+    templateUrl: 'app/components/authentication/confirmInvite.html',
     directives: [NgIf, NgClass]
 })
 
-export class Confirm {
+export class ConfirmInvite {    
+    private confirmInviteForm: ControlGroup;
+    private passwordsMatching: boolean = false;
+    private errorMessage: string = '';
+    private validInvite: boolean = false;
+    private isWorking: boolean = false;
 
-    user;
-    verificationCode: string;
-    passwordRepeat = { password: '' };
-    isInvalidPasswords: boolean = false;
-    isPasswordMismatch: boolean = false;
-    isInvalidUsername: boolean = false;
-    isError: boolean = false;
-    validInvite: boolean = true;
-    working: boolean = false;
-    formErrorMessage: string;
-    verificationCodeErrorMessage: string;
+    private verificationCode: string;
 
-    constructor(private uniHttp: UniHttp, private param: RouteParams, private router: Router) {
-        this.user = {};
-        if (param.get('guid')) {
-            this.verificationCode = param.get('guid');
+    private isError: boolean = false;
+    private working: boolean = false;
+    private formErrorMessage: string;
+    
+    
+    private verificationCodeErrorMessage: string = '';
 
+    constructor(private uniHttp: UniHttp, private routeParams: RouteParams, private router: Router) {
+        this.verificationCode = routeParams.get('guid');
+        
+        let passwordValidators = Validators.compose([
+            passwordValidator,
+            Validators.required,
+            Validators.minLength(8),
+            Validators.maxLength(16)
+        ]);
+        
+        this.confirmInviteForm = new ControlGroup({
+            username: new Control('', Validators.required),
+            password: new Control('', passwordValidators),
+            confirmPassword: new Control('', passwordValidators)
+        });
+        
+        this.confirmInviteForm.controls['password'].valueChanges.subscribe((value) => {
+            this.passwordsMatching = (value === this.confirmInviteForm.controls['confirmPassword'].value);
+        });
+                    
+        this.confirmInviteForm.controls['confirmPassword'].valueChanges.subscribe((value) => {
+            this.passwordsMatching = (value === this.confirmInviteForm.controls['password'].value);
+        });
+        
+        if (this.verificationCode) {
             //Gets the full user-verification object to see if it is valid
-            this.uniHttp
-                .asGET()
+            this.uniHttp.asGET()
                 .usingInitDomain()  
                 .withEndPoint('user-verification/' + this.verificationCode)
-                .send()
+                .send() 
                 .subscribe(
-                (data) => {
-
-                    //Checks that the verifcationobject is valid and is not already confirmed
-                    if (data.ExpirationDate && data.StatusCode === 1) {
-                        if (new Date(data.ExpirationDate) > new Date()) {
+                    (response) => {
+                        if (response.StatusCode === 0 && response.ExpirationDate && Date.parse(response.ExpirationDate) > Date.now()) {
                             this.validInvite = true;
                         } else {
-                            this.verificationCodeErrorMessage = 'Denne invitasjonen har utgått og er ikke lenger gyldig..'
-                            this.validInvite = false;
-                        } 
-                    } else {
-                        this.verificationCodeErrorMessage = 'Dette er ikke en gyldig kode.'
-                        this.validInvite = false;
+                            this.errorMessage = 'Invitasjonen har utgått eller er ikke gyldig. Vennligst be administrator invitere deg på nytt.'
+                        }
+                    },
+                    (error) => {
+                        this.errorMessage = 'Invitasjonen har utgått eller er ikke gyldig. Vennligst be administrator invitere deg på nytt.'
                     }
-                },
-                (error) => {
-                    this.verificationCodeErrorMessage = 'Dette er ikke en gyldig kode.'
-                    this.validInvite = false;
-                }
-            )
-
-        } else {
-            //If this happends, the application crashed because the Router requries id..
+                );
         }
     }
 
     //Put to user-verification to confirm user
-    confirmUser() {
-        this.formErrorMessage = '';
-        this.isError = false; 
-        if (this.isValidUser()) {
-            this.working = true;
-            console.log(this.user);
-            this.uniHttp
-                .asPUT()
-                .usingInitDomain()
-                .withEndPoint('user-verification/' + this.verificationCode + '/')
-                .withHeader('Content-Type', 'application/json')
-                .withBody(this.user)
-                .send({ action: 'confirm-invite' })
-                .subscribe(
+    private submitUser() {       
+        const username = this.confirmInviteForm.controls['username'].value;
+        const password = this.confirmInviteForm.controls['password'].value;
+        
+        this.isWorking = true;     
+        
+        this.uniHttp.asPUT()
+            .usingInitDomain()
+            .withEndPoint('user-verification/' + this.verificationCode + '/')
+            .withHeader('Content-Type', 'application/json')
+            .withBody({UserName: username, Password: password})
+            .send({action: 'confirm-invite'})
+            .subscribe(
                 (data) => {
-                    this.working = false;
+                    this.isWorking = false;
                     this.router.navigateByUrl('/login');
                 },
                 (error) => {
-                    this.formErrorMessage = 'Noe gikk galt ved verifiseringen. Prøv igjen';
-                    this.isError = true;
-                    this.working = false;
+                    this.errorMessage = 'Noe gikk galt ved verifiseringen. Vennligst prøv igjen';
+                    this.isWorking = false;
                 }
-                )
-        }
-    }
-
-    //Checks if form input fields are all valid
-    isValidUser() {
-        //Username should not be empty or undefined
-        if (this.user.username === undefined || this.user.username === '') {
-            this.formErrorMessage += 'Ugyldig brukernavn..';
-            this.isInvalidUsername = true;
-        } else { this.isInvalidUsername = false; }
-
-        //Passwords should have 8-16 characters and should contain big and small letters, and at least 1 number
-        if (!/(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,16}/g.test(this.user.password)) {
-            this.formErrorMessage += ' Passord må være mellom 8-16 tegn, store og små bokstaver og minst 1 tall..';
-            this.isInvalidPasswords = true;
-        } else { this.isInvalidPasswords = false; }
-
-        //Passwords should not be empty, and should match
-        if (this.passwordRepeat.password === '' || this.user.password === '' || (this.user.password !== this.passwordRepeat.password)) {
-            this.formErrorMessage += ' Ulike passord..';
-            this.isPasswordMismatch = true;
-        } else { this.isPasswordMismatch = false; }
-
-        return (!this.isInvalidUsername && !this.isInvalidPasswords && !this.isPasswordMismatch);
+            );
     }
 }
