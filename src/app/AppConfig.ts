@@ -2,6 +2,7 @@ export const AppConfig = ({
     // Allow developers to work with localhost backend.
     // Let this stay as long we want to support local backend.
     // When removed, remember to change BASE_URL_INIT to BASE_URL in authService.ts.
+    // and stop switching between BASE_URL/BASE_URL_INIT in UniHttp usingFooDomain() functions
     BASE_URL_INIT: 'https://devapi-unieconomy.azurewebsites.net',
     
     // Swap between these BASE_URL's depending on whether you want to use local og remote backend

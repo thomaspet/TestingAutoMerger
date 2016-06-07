@@ -71,7 +71,7 @@ export class ReportDefinitionService extends BizHttp<ReportDefinition>{
     
     private onTemplateLoaded() {
         // get data source URLs 
-        this.reportDefinitionDataSourceService.GetAll<ReportDataSource>('ReportDefinitionId=' + this.report.ID)
+        this.reportDefinitionDataSourceService.GetAll<ReportDataSource>('ReportDefinitionId eq ' + this.report.ID)
               .subscribe(dataSources => {
                   this.report.dataSources = dataSources;
                   this.onDataSourcesLoaded(); 
@@ -87,9 +87,9 @@ export class ReportDefinitionService extends BizHttp<ReportDefinition>{
         // create http requests
         let observableBatch = [];
         
-        for (var ds of this.report.dataSources) {
-            let url: string = (<ReportDataSource>ds).DataSourceUrl;
-            
+        for (const ds of this.report.dataSources) {
+            let url: string = ds.DataSourceUrl;
+
             url = url.replace(AppConfig.API_DOMAINS.BUSINESS, '');
             
             observableBatch.push(
@@ -108,7 +108,7 @@ export class ReportDefinitionService extends BizHttp<ReportDefinition>{
     private onDataFetched(data: any) {
         let dataSources = [];
         
-        for (let dataSource of data) {
+        for (const dataSource of data) {
             dataSources.push(JSON.stringify(dataSource));
         }
         
@@ -121,12 +121,9 @@ export class ReportDefinitionService extends BizHttp<ReportDefinition>{
     
     private resolvePlaceholders() {
         // resolve placeholders in data source source URLs
-        for (var p of this.report.parameters) {
-            var parameter = <ReportParameter>p;        
-            
-            for (var ds of this.report.dataSources) {
-                var datasSource = <ReportDataSource>ds;
-                var searchString = '{' + parameter.Name + '}';
+        for (const parameter of this.report.parameters) {
+            for (const datasSource of this.report.dataSources) {
+                const searchString = '{' + parameter.Name + '}';
                 
                 datasSource.DataSourceUrl = datasSource.DataSourceUrl.replace(new RegExp(searchString, 'g'), parameter.value);
             }

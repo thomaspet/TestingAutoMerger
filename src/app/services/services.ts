@@ -46,3 +46,5 @@ export * from './reports/ReportDefinitionService';
 export * from './reports/ReportDefinitionParameterService';
 export * from './reports/ReportDefinitionDataSourceService';
 export * from './common/AltinnService';
+export * from './common/IntegrationServerCaller';
+export * from './common/AltinnReceiptService';

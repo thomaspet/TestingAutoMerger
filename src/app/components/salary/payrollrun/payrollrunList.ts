@@ -45,10 +45,16 @@ export class PayrollrunList implements OnInit {
     
     public createPayrollrun() {
         var createdPayrollrun = new PayrollRun();
+        var dates: any[] = this.payrollService.getEmptyPayrollrunDates();
+        createdPayrollrun.FromDate = dates[0];
+        createdPayrollrun.ToDate = dates[1];
+        createdPayrollrun.PayDate = dates[2];
         this.payrollService.Post(createdPayrollrun)
         .subscribe((response) => {
+            
             this.routr.navigateByUrl('/salary/payrollrun/' + response.ID);
         },
         (err) => console.log('Error creating payrollrun: ', err));
     }
+    
 }
