@@ -121,8 +121,8 @@ export class WorkerService extends BizHttp<Worker> {
         return this.POST('workitems', undefined, item );
     }
 
-    deleteWorkitem(id:number): Observable<boolean> {
-        return this.http.asDELETE().usingBusinessDomain().withEndPoint('workitems/' + id).send();
+    deleteWorkitem(id:number): Observable<WorkItem> {
+        return this.http.asDELETE().usingBusinessDomain().withEndPoint('workitems/' + id).send(undefined, true);
     }
     
     getWorkTypes(): Observable<WorkType[]> {

@@ -32,8 +32,7 @@ export class ChangeMap {
                     this.items[i].key--;
                 }
             }
-        }
-        this.remove(key);
+        }        
     }
 
     getRemovables(): Array<any> {

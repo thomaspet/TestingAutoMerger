@@ -35,9 +35,12 @@ export class TimeSheet {
         } else {
             toSave = this.items;
         }
-        var obs = this.ts.saveWorkItems(toSave);
+
+        var obs = this.ts.saveWorkItems(toSave, this.changeMap.getRemovables());
         return obs.map((result:{ original: WorkItem, saved: WorkItem})=>{
-            this.changeMap.remove(result.original.ID);
+            if (!result.saved) {
+                this.changeMap.removables.remove(result.original.ID);
+            }            
             return result.saved;
         });
     }
@@ -65,7 +68,10 @@ export class TimeSheet {
     }    
     
     removeRow(index:number) {
-        this.changeMap.addRemove(index, this.getRowByIndex(index), true);
+        var item = this.getRowByIndex(index);
+        if (item.ID>0) {
+            this.changeMap.addRemove(item.ID, item, true);
+        }
         this.items.splice(index,1);
     }
 
@@ -119,17 +125,30 @@ export class TimesheetService {
         return this.workerService.getWorkItems(workRelationID);
     }
     
-    public saveWorkItems(items:WorkItem[]): Observable<{ original:WorkItem, saved:WorkItem }> {
-        return Observable.from(items).flatMap((item:WorkItem)=>{
+    public saveWorkItems(items:WorkItem[], deletables?:WorkItem[]): Observable<{ original:WorkItem, saved:WorkItem }> {
+        
+        var obsSave = Observable.from(items).flatMap((item:WorkItem)=>{
             var originalId = item.ID;
             item.ID = item.ID < 0 ? 0 : item.ID;
             this.preSaveWorkItem(item);
-            var result = this.workerService.saveWorkItem(item).map((savedItem:WorkItem)=>{
+            return this.workerService.saveWorkItem(item).map((savedItem:WorkItem)=>{
                 item.ID = originalId;
                 return { original: item, saved: savedItem }; 
             });
-            return result;
         });
+
+        if (deletables) {
+            let obsDel = Observable.from(deletables).flatMap( (item:WorkItem) => {                
+                console.log('sending delete for ' + item.ID);
+                return this.workerService.deleteWorkitem(item.ID).map((event)=>{
+                    console.log('delete completed for ' + item.ID);
+                    return { original: item, saved: null };
+                });
+            });
+            return items.length>0 ? Observable.merge(obsSave, obsDel) : obsDel;
+        }
+
+        return obsSave;
         
     }
     

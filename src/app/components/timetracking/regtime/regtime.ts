@@ -65,8 +65,12 @@ export class RegisterTime {
         this.timeSheet.saveItems().subscribe((item:WorkItem)=>{            
             counter++;                
         }, (err)=>{
-            done('Feil ved lagring:' + err.statusText);
-            alert(err.statusText);
+            var msg:string = err._body || err.statusText;
+            if (msg.indexOf('"Message":')>0) {
+                msg = msg.substr(msg.indexOf('"Message":') + 12, 80) + "..";
+            }
+            done('Feil ved lagring: ' + msg);
+            alert(msg);
             this.busy = false;            
         }, ()=>{
             //debugger;
@@ -122,7 +126,7 @@ export class RegisterTime {
     createTableConfig():UniTableConfig {        
         
         var cols = [
-            //new UniTableColumn('ID', 'ID', UniTableColumnType.Number, false),
+            //new UniTableColumn('ID', 'ID', UniTableColumnType.Number, false).setVisible(false),
             new UniTableColumn('Description', 'Beskrivelse', UniTableColumnType.Text, true).setWidth('40vw'),
             this.createTimeColumn('StartTime', 'Fra kl.'),
             this.createTimeColumn('EndTime', 'Til kl.'),
@@ -135,11 +139,12 @@ export class RegisterTime {
             label: 'Slett post',
             action: (rowModel) => {
                 var rowIndex = rowModel._originalIndex;
-                this.timeSheet.removeRow(rowIndex);
-                this.dataTable.removeRow(rowIndex);
-                console.info('removables:', this.timeSheet.changeMap.getRemovables());
-                if (rowModel.ID) {
-                    this.flagUnsavedChanged();
+                if (rowIndex>=0) {
+                    this.timeSheet.removeRow(rowIndex);
+                    this.dataTable.removeRow(rowIndex);
+                    if (rowModel.ID) {
+                        this.flagUnsavedChanged();
+                    }
                 }
             },
             disabled: (rowModel) => {
