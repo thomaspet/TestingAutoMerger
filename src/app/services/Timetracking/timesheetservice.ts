@@ -64,6 +64,11 @@ export class TimeSheet {
         return true;
     }    
     
+    removeRow(index:number) {
+        this.changeMap.addRemove(index, this.getRowByIndex(index), true);
+        this.items.splice(index,1);
+    }
+
     private getRowByIndex(index:number, createIfMissing = true):any {
         if (index >= this.items.length) {
             if (!createIfMissing) return;

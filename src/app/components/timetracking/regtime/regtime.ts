@@ -65,7 +65,6 @@ export class RegisterTime {
         this.timeSheet.saveItems().subscribe((item:WorkItem)=>{            
             counter++;                
         }, (err)=>{
-            debugger;
             done('Feil ved lagring:' + err.statusText);
             alert(err.statusText);
             this.busy = false;            
@@ -135,15 +134,20 @@ export class RegisterTime {
         ctx.push({
             label: 'Slett post',
             action: (rowModel) => {
-                //this.workerService
-                //this.dataTable.removeRow(event.ori)
+                var rowIndex = rowModel._originalIndex;
+                this.timeSheet.removeRow(rowIndex);
+                this.dataTable.removeRow(rowIndex);
+                console.info('removables:', this.timeSheet.changeMap.getRemovables());
+                if (rowModel.ID) {
+                    this.flagUnsavedChanged();
+                }
             },
             disabled: (rowModel) => {
                 return false;
             }
         });
 
-        return new UniTableConfig(true, true, 25).setColumns(cols).setChangeCallback((event)=>this.onEditChange(event)).setContextMenu(ctx);
+        return new UniTableConfig(true, true, 25).setColumns(cols).setChangeCallback((event)=>this.onEditChange(event)).setContextMenu(ctx).setFilters([]);
     }
     
     onEditChange(event) {

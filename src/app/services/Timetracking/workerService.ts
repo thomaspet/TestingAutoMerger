@@ -120,6 +120,10 @@ export class WorkerService extends BizHttp<Worker> {
         }
         return this.POST('workitems', undefined, item );
     }
+
+    deleteWorkitem(id:number): Observable<boolean> {
+        return this.http.asDELETE().usingBusinessDomain().withEndPoint('workitems/' + id).send();
+    }
     
     getWorkTypes(): Observable<WorkType[]> {
         return this.GET('worktypes');

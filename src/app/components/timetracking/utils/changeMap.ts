@@ -1,6 +1,7 @@
 export class ChangeMap {
     
     items = [];
+    removables:ChangeMap;
     
     clear() {
         this.items.length = 0;
@@ -20,6 +21,24 @@ export class ChangeMap {
         } else {
             this.items.push({key:key, value: value }); // add
         }
+    }
+
+    addRemove(key:any, value:any, adjustDownOtherKeys = false) {
+        this.removables = this.removables || new ChangeMap();
+        this.removables.add(key, value);
+        if (adjustDownOtherKeys) {
+            for (var i=0; i<this.items.length; i++) {
+                if (this.items[i].key > key) {
+                    this.items[i].key--;
+                }
+            }
+        }
+        this.remove(key);
+    }
+
+    getRemovables(): Array<any> {
+        if (!this.removables) return [];
+        return this.removables.getValues();        
     }
     
     getValues(): Array<any> {
