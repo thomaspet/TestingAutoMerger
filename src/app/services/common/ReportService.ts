@@ -22,10 +22,11 @@ export class ReportService extends BizHttp<ReportDefinition> {
                 template = tmpl;
                 return self.getReportDataFromSources(rd, inputparams);
             })
-            .map((data: any) => {
-                console.log("=== ENDING DATA ==");
-                console.log(data);
-                return [template, [JSON.stringify(data)]];
+            .concatMap((data) => {
+              return data;  
+            })
+            .map((data) => {
+                return [template, data];
             });
     }
     
@@ -41,25 +42,18 @@ export class ReportService extends BizHttp<ReportDefinition> {
  
         this.relativeURL = ReportDefinitionDataSource.RelativeUrl;
         return this.GetAll<ReportDefinitionDataSource>(`filter=ReportDefinitionId eq ${rd.ID}`).map((sources : Array<ReportDefinitionDataSource>) => {
-            //var dataset = [];
-            //sources.forEach((source : ReportDefinitionDataSource) => {
-            //    dataset.push(self.getReportData(source, inputparams));             
-            //});
-            
-            //return Observable.forkJoin(dataset).map((data) => {
-            //   console.log("==2=====");
-            //   console.log(data);
-            //   return JSON.stringify(data); 
-            //});
-            self.getReportData(sources[1], inputparams).subscribe(data => {
-               console.log("yessssssss");
-               console.log(data._body);
-                
+            var dataset = [];
+            sources.forEach((source : ReportDefinitionDataSource) => {
+                dataset.push(self.getReportData(source, inputparams));             
             });
+            
+            return Observable.forkJoin(dataset);
         });      
     }
    
     private getReportData(source: ReportDefinitionDataSource, inputparams : any) : Observable<any> {
-        return this.http.asGET().usingEmptyDomain().withEndPoint(source.DataSourceUrl.replace('{Id}', inputparams.Id.toString())).send({}, true);     
+        return this.http.asGET().usingEmptyDomain().withEndPoint(source.DataSourceUrl.replace('{Id}', inputparams.Id.toString())).send({}, true).map((data) => {
+            return data._body;
+        });
     }
 }

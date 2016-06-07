@@ -181,9 +181,7 @@ export class InvoiceList implements OnInit {
             action: (invoice: CustomerInvoice) => {
                 this.reportService.getReportTemplateAndData('Faktura Uten Giro', {Id: invoice.ID}).subscribe((response: any[]) => {
                    let [template, data] = response;
-                   console.log("== REPORT DATA ==");
-                   console.log(data);
-                   this.report.printReport(template, data, false);
+                   this.report.printReport(template, data, false);                      
                 });
             }
         });
@@ -231,7 +229,7 @@ export class InvoiceList implements OnInit {
     }  
     
     private onRowSelected(item) {
-        this.router.navigateByUrl(`/sales/invoice/details/${item.rowModel.ID}`);
+        this.router.navigateByUrl(`/sales/invoice/details/${item.ID}`);
     }
     
     public onFiltersChange(filter: string) {        

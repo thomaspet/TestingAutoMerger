@@ -282,10 +282,10 @@ export class InvoiceDetails implements OnInit {
     }
     
     private printInvoice() {
-        this.reportService.getReportTemplateAndData('Fakturablankett uten giro', {Id: this.invoice.ID}).subscribe((response: any[]) => {
+        this.reportService.getReportTemplateAndData('Faktura Uten Giro', {Id: this.invoice.ID}).subscribe((response: any[]) => {
             let [template, data] = response;
-            this.report.printReport(template, data, false);
-        });                   
+            this.report.printReport(template, data, false);                      
+        });               
     }
 
     private createFormConfig() {   
