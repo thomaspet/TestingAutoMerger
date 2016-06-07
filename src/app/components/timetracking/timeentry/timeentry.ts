@@ -5,6 +5,9 @@ import {Worker, WorkRelation, WorkProfile, WorkItem} from '../../../unientities'
 import {WorkerService} from '../../../services/timetracking/workerservice';
 import {Editable, IChangeEvent, IConfig, Column} from '../utils/editable/editable';
 import {parseTime, addTime, parseDate} from '../utils/utils';
+import {TimesheetService, TimeSheet, ValueItem} from '../../../services/timetracking/timesheetservice';
+import {IsoTimePipe} from '../utils/isotime';
+import {UniSave, IUniSaveAction} from '../../../../framework/save/save';
 
 declare var moment;
 
@@ -17,25 +20,28 @@ export var view = new View('timeentry', 'Registrere timer', 'TimeEntry');
             .title { font-size: 18pt; padding: 1em 1em 1em 0; }
             .title span { margin-right: 1em;}
             .title select { display:inline-block; width: auto; padding-left: 7px; padding-right: 7px; }
-            .timeentriesTable { width: 100% }
+            .timeentriesTable { width: 100%; border-collapse: collapse } 
+            .timeentriesTable th { text-align:left; border-bottom: 1px solid #c0c0c0; } 
+            .timeentriesTable tr { height: 1.5em;}
+            .timeentriesTable td { padding: 4px 4px 1px 4px; border-bottom: 1px solid #d0d0d0; border-left: 1px solid #d0d0d0; }
             .subcontainer { margin-top: 1em;}
             .tabtip { color: #606060; margin-left: -15px; }
             .busy { padding: 7px; color: green; font-size: 14pt; }
             `],
-    directives: [Editable],
-    providers: [WorkerService]
+    directives: [Editable, UniSave],
+    providers: [WorkerService, TimesheetService],
+    pipes: [IsoTimePipe]
 })
 export class TimeEntry {    
     view = view;
-
-    userName = '';
-    worker: Worker = new Worker();
-    workers: Array<Worker> = [];
-    workRelations: Array<WorkRelation> = [];
-    profiles: Array<WorkProfile> = [];
-    currentWorkRelation: WorkRelation;
-    workItems: Array<WorkItem> = [];
     busy = true;
+    userName = '';
+    workRelations: Array<WorkRelation> = [];
+    private timeSheet: TimeSheet = new TimeSheet();
+
+    private actions: IUniSaveAction[] = [ 
+            { label: 'Lagre endringer', action: (done)=>this.save(done), main: true, disabled: true }
+        ];   
     
     tabs = [ { name: 'timeentry', label: 'Timer', isSelected: true },
             { name: 'totals', label: 'Totaler' },
@@ -59,99 +65,73 @@ export class TimeEntry {
         }  
     };
             
-    constructor(private tabService: TabService, private service:WorkerService) {
+    constructor(private tabService: TabService, private service:WorkerService, private timesheetService:TimesheetService) {
         this.tabService.addTab({ name: view.label, url: view.route });
         this.userName = service.user.name;
         this.initUser();
     }
     
     ngAfterViewInit() {
-        this.service.getWorkers().subscribe((result:Array<Worker>)=>{
-            this.workers = result;
-        });
-    }
-    
-    selectWorkRelation(relation:WorkRelation) {
-        this.currentWorkRelation = relation;
-        this.getWorkItems(relation.ID);
+
     }
     
     initUser() {
-        this.service.getCurrentUserId().then((id:number)=> {
-            this.getWorker(id);
-        });
+        this.timesheetService.initService(this.service);
+        this.timesheetService.initUser().subscribe((ts:TimeSheet)=>{
+            this.workRelations = this.timesheetService.workRelations;
+            this.timeSheet = ts;
+            this.loadItems();
+        })
     }
     
-    getWorker(userid:number) {
-        this.service.getWorkerFromUser(userid).subscribe((result:Worker)=> {
-            this.worker = result;
-            this.getWorkRelations(this.worker.ID);
-        });
+    loadItems() {
+        if (this.timeSheet.currentRelation && this.timeSheet.currentRelation.ID) {
+            this.timeSheet.loadItems().subscribe((itemCount:number)=>{
+                this.timeSheet.ensureRowCount(itemCount + 1);
+                this.flagUnsavedChanged(true);
+                this.busy = false;
+            })    
+        } else {
+            alert("Current worker/user has no workrelations!");
+        }
     }
-    
-    getWorkRelations(workerId:number, autoCreate = true) {
-        var ws = this.service;
-        ws.getWorkRelations(workerId).subscribe((result:Array<WorkRelation>) => {
-            if (result.length>0) {
-                this.workRelations = result;
-                this.selectWorkRelation( result[0] );
-            } else {
-                if (autoCreate) {
-                    ws.getWorkProfiles().subscribe((result: Array<WorkProfile>)=> {
-                        if (result.length>0) {
-                            ws.createInitialWorkRelation(workerId, result[0]).subscribe((result:WorkRelation)=>{
-                                this.getWorkRelations(workerId, false);
-                            });
-                        }    
-                    });
-                }                
+
+    save(done) {
+        this.busy = true;
+        var counter = 0;
+        this.timeSheet.saveItems().subscribe((item:WorkItem)=>{            
+            counter++;                
+        }, (err)=>{
+            var msg:string = err._body || err.statusText;
+            if (msg.indexOf('"Message":')>0) {
+                msg = msg.substr(msg.indexOf('"Message":') + 12, 80) + "..";
             }
+            done('Feil ved lagring: ' + msg);
+            alert(msg);
+            this.busy = false;            
+        }, ()=>{
+            this.flagUnsavedChanged(true);
+            done(counter + " poster ble lagret.");
+            this.loadItems();
         });
     }
-    
-    getWorkItems(workRelationID: number) {
-        this.workItems.length = 0;
-        this.service.getWorkItems(workRelationID).subscribe((result:Array<WorkItem>)=> {
-            result.map((value: WorkItem) => {
-                value.StartTime = moment(value.StartTime).toDate(); 
-                value.EndTime = moment(value.EndTime).toDate();
-                value.Date = moment(value.Date).toDate();
-            });                            
-            this.workItems = result;
-            this.addNewRow();
-            this.busy = false;
-        });
+
+    flagUnsavedChanged(reset = false) {
+        this.actions[0].disabled = reset;
     }
-	
-	addNewRow(text = 'Fyll inn beskrivelse') {
-        this.workItems.push(<WorkItem>{ Description: text});		
-	}
        
     onChange(event: IChangeEvent ) {
-        var item = this.workItems[event.row];
-        switch (event.columnDefiniton.name) {
-            case 'Description':
-                item.Description = event.value;
-                break;
-            case 'StartTime': 
-                item.StartTime = parseTime(event.value);
-				item.EndTime = addTime(item.StartTime, 30, 'minutes');
-                break;
-            case 'EndTime':
-                item.EndTime = parseTime(event.value);
-                break;
-			case 'Date':
-				item.Date = parseDate(event.value);
-				break;            
-            default:
-                event.cancel = true;
-                break;
+
+        // Update value via timesheet
+        if (!this.timeSheet.setItemValue(new ValueItem(event.columnDefiniton.name, event.value, event.row))) {
+            event.cancel = true;
+            return;
         }
 
+        this.flagUnsavedChanged();
+
 		// Ensure a new row at bottom?
-		if ((event.row === this.workItems.length-1) && (!event.cancel)) {			
-            this.addNewRow();
-		}
+		this.timeSheet.ensureRowCount(event.row + 2);
 		
 		// we use databinding instead
         event.updateCell = false;       

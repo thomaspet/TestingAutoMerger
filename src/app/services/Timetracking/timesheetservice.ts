@@ -75,6 +75,16 @@ export class TimeSheet {
         this.items.splice(index,1);
     }
 
+    ensureRowCount(rows:number) {
+        var n = this.items.length;
+        for (var i=n; i<rows; i++)
+            this.addRow();
+    }
+
+    addRow() {
+        this.items.push({ID:0});
+    }
+
     private getRowByIndex(index:number, createIfMissing = true):any {
         if (index >= this.items.length) {
             if (!createIfMissing) return;
