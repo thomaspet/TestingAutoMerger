@@ -38,10 +38,8 @@ export class UniHttp {
     }
 
     public appendHeaders(headers: any) {
-        for (var header in headers) {
-            if (headers.hasOwnProperty(header)) {
-                this.headers.append(header, headers[header]);
-            }
+        for (var key in headers) {
+            this.headers.set(key, headers[key])
         }
         return this;
     }
@@ -67,7 +65,7 @@ export class UniHttp {
     }
 
     public withHeader(name: string, value: any) {
-        this.headers.append(name, value);
+        this.headers.set(name, value);
         return this;
     }
 
@@ -184,28 +182,38 @@ export class UniHttp {
             options.search = UniHttp.buildUrlParams(request);
         }
 
-        
         return this.http.request(new Request(options))
         .retryWhen(errors => errors.switchMap(err => {
-            if (err.status === 401 && (!this.authService.lastTokenUpdate || (new Date().getMinutes() - this.authService.lastTokenUpdate.getMinutes()) > 1)) {
-                this.lastReAuthentication = new Date();
-                this.authService.requestAuthentication$.emit({
-                    onAuthenticated: (newToken) => {
-                        this.headers.set('Authorization', 'Bearer ' + newToken);
-                        this.reAuthenticated$.emit(true);
-                    }
-                });
-            }
-
-            return this.reAuthenticated$;
-        }))
-        .switchMap((response) => {
-            if (withoutJsonMap) {
-                return Observable.from([response]);
+            if (err.status === 401) {
+                if (!this.authService.isAuthenticated() 
+                    || !this.authService.lastTokenUpdate 
+                    || (new Date().getMinutes() - this.authService.lastTokenUpdate.getMinutes()) > 1) {
+                    
+                    this.lastReAuthentication = new Date();
+                    this.authService.requestAuthentication$.emit({
+                        onAuthenticated: (newToken) => {
+                            this.headers.set('Authorization', 'Bearer ' + newToken);
+                            this.reAuthenticated$.emit(true);
+                        }
+                    });
+                
+                    return this.reAuthenticated$;
+                } else {
+                    return Observable.timer(500);
+                }
+                    
             } else {
-                return Observable.from([response.json()]);
+                    return Observable.throw(err);                
             }
-        });
+        }))
+        .switchMap(
+            (response) => {
+                if (withoutJsonMap) {
+                    return Observable.from([response]);
+                } else {
+                    return Observable.from([response.json()]);
+                }
+            });
     }
 
     public multipleRequests(requests: IUniHttpRequest[]) {

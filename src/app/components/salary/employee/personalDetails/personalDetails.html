@@ -1,5 +1,6 @@
 <article class="application">
     <tax-card-request-modal></tax-card-request-modal>
+    <altinn-login-modal [showButton]="true"></altinn-login-modal>
     <uni-form *ngIf="employee" [config]="config" [fields]="fields" [model]="employee" (onSubmit)="saveEmployeeManual($event)" (onChange)="change($event)" (onReady)="ready($event)"></uni-form>
 </article>
 

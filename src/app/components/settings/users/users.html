@@ -1,41 +1,16 @@
-﻿<section class="users_list_section">
-    <h3>Brukere</h3>
-    <input type="checkbox" id="check1" [(ngModel)]="hideInactive"/> <label for="check1"> Hide inactive </label>
-    <ul itemprop="userlist" *ngIf="users">
-        <li>
-            <span class="user_list_name user_list_header" (click)="sortList('DisplayName')">Navn</span>
-            <span class="user_list_email user_list_header" (click)="sortList('Email')">Epost</span>
-            <span class="user_list_status user_list_header" (click)="sortList('StatusCode')">Status</span>
-            <span class="user_invite_resend"></span>
-            <span class="user_invite_revoke"></span>
-        </li>
-        <li *ngFor="let user of users | sort: sortProperty | filter: hideInactive : 18">
-            <span itemprop="name" class="user_list_name">{{user.DisplayName}}</span>
-            <span itemprop="email" class="user_list_email">{{user.Email}}</span>
-            <span itemprop="status" class="user_list_status">{{user.StatusCode}}</span>
-            <span class="user_invite_resend"><p *ngIf="user.StatusCode != 18" (click)="resendInvite(user)">Resend</p></span>
-            <span class="user_invite_revoke"><p *ngIf="user.StatusCode != 110002" (click)="revokeInvite(user)">Revoke</p></span>
-        </li>
-    </ul>
-</section>
+﻿<h3>Legg til bruker</h3>
+<form [ngFormModel]="newUserForm" (ngSubmit)="sendInvite()" #f="ngForm">
+    <label>
+        Navn
+        <input type="text" ngControl="DisplayName">
+    </label>
+    <label>
+        Epost
+        <input type="email" ngControl="Email">
+    </label>
+    <button [disabled]="!f.form.valid" type="submit" class="c2a">Inviter</button>
+</form>
+<small>{{errorMessage}}</small>
 
-<section class="users_invite">
-    <h3>Legg til bruker:</h3>
-    <section>
-        <input type="text" [(ngModel)]="newUser.DisplayName" placeholder="Navn" />
-        <input type="email" [(ngModel)]="newUser.Email" placeholder="Epostadresse" />
-        <button (click)="inviteNewUser()" [attr.aria-busy]="isPostUserActive" class="c2a">Inviter</button>
-    </section>
-    <small *ngIf="invalidInviteInfo">{{errorMessage}}</small>
-</section>
-
-<section class="users_invite users_invite_link">
-    <h3>Invitasjon direktelink:</h3>
-    <section>
-        <p>{{inviteLink}}</p>
-    </section>
-</section>
-
-<section class="users_invite users_invite_error" *ngIf="showInviteErrormessage">
-    <h3 style="color:red">{{inviteErrorMessage}}</h3>
-</section>
+<h3>Brukere</h3>
+<uni-table [config]="tableConfig" [resource]="users"></uni-table>
