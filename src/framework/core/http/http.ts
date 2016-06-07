@@ -74,16 +74,19 @@ export class UniHttp {
     }
 
     public usingMetadataDomain() {
+        this.baseUrl = AppConfig.BASE_URL;
         this.apiDomain = AppConfig.API_DOMAINS.METADATA;
         return this;
     }
 
     public usingBusinessDomain() {
+        this.baseUrl = AppConfig.BASE_URL;
         this.apiDomain = AppConfig.API_DOMAINS.BUSINESS;
         return this;
     }
 
     public usingInitDomain() {
+        this.baseUrl = AppConfig.BASE_URL_INIT;
         this.apiDomain = AppConfig.API_DOMAINS.INIT;
         return this;
     }
