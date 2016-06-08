@@ -51,14 +51,12 @@ export class OrderList {
 
     private setupOrderTable() {
         this.lookupFunction = (urlParams: URLSearchParams) => {
-            console.log("==2");
-            console.log(urlParams);
             let params = urlParams || new URLSearchParams();     
             params.set('expand', 'Customer');
-            if (urlParams == null) {
+            if (!params.has('orderby')) {
                 params.set('orderby', 'OrderDate desc');                
             }
-         
+          
             return this.customerOrderService.GetAllByUrlSearchParams(params);
         }
         
@@ -86,17 +84,19 @@ export class OrderList {
         });
         
         // Define columns to use in the table
-        var orderNumberCol = new UniTableColumn('OrderNumber', 'Ordrenr', UniTableColumnType.Text).setWidth('10%');
-        var customerNumberCol = new UniTableColumn('Customer.CustomerNumber', 'Kundenr', UniTableColumnType.Text).setWidth('10%');
-        var customerNameCol = new UniTableColumn('CustomerName', 'Kunde', UniTableColumnType.Text);
-        var orderDateCol = new UniTableColumn('OrderDate', 'Ordredato', UniTableColumnType.Date).setWidth('10%');
+        var orderNumberCol = new UniTableColumn('OrderNumber', 'Ordrenr', UniTableColumnType.Text).setWidth('10%').setFilterOperator('contains');
+        var customerNumberCol = new UniTableColumn('Customer.CustomerNumber', 'Kundenr', UniTableColumnType.Text).setWidth('10%').setFilterOperator('contains');
+        var customerNameCol = new UniTableColumn('CustomerName', 'Kunde', UniTableColumnType.Text).setFilterOperator('contains');
+        var orderDateCol = new UniTableColumn('OrderDate', 'Ordredato', UniTableColumnType.Date).setWidth('10%').setFilterOperator('eq');
 
         var taxInclusiveAmountCol = new UniTableColumn('TaxInclusiveAmount', 'Totalsum', UniTableColumnType.Number)
             .setWidth('10%')
+            .setFilterOperator('eq')
             .setFormat('{0:n}')
             .setCls('column-align-right');
 
         var statusCol = new UniTableColumn('StatusCode', 'Status', UniTableColumnType.Number).setWidth('15%');
+        statusCol.setFilterable(false);
         statusCol.setTemplate((dataItem) => {
             return this.customerOrderService.getStatusText(dataItem.StatusCode); 
         });

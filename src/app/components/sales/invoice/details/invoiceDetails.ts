@@ -307,8 +307,12 @@ export class InvoiceDetails implements OnInit {
     private saveAndPrint(done) {
         this.saveInvoice((invoice) => {
             this.reportDefinitionService.getReportByName('Faktura Uten Giro').subscribe((report) => {
-                this.previewModal.openWithId(report, invoice.ID);
-                done("Utskrift");                    
+                if (report) {
+                    this.previewModal.openWithId(report, invoice.ID);
+                    done('Utskrift');                                        
+                } else {
+                    done('Rapport mangler');
+                }
             });
         });
     }

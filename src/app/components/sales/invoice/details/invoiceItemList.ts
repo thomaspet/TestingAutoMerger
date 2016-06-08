@@ -64,6 +64,8 @@ export class InvoiceItemList implements OnInit {
 
     private mapProductToInvoiceItem(rowModel) {
         let product = rowModel['Product'];
+        if (product === null) return;
+
         rowModel.ProductID = product.ID;
         rowModel.ItemText = product.Name;
         rowModel.Unit = product.Unit;
@@ -173,6 +175,7 @@ export class InvoiceItemList implements OnInit {
             });
 
     }
+    
     private rowChanged(event) {
         console.log('row changed, calculate sums');
         var tableData = this.table.getTableData();

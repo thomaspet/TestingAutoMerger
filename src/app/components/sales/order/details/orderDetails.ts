@@ -7,7 +7,7 @@ import {CustomerOrderService, CustomerOrderItemService, CustomerService, Supplie
 import {OrderItemList} from './orderItemList';
 import {OrderToInvoiceModal} from '../modals/ordertoinvoice';
 
-import {FieldType, FieldLayout, ComponentLayout, CustomerOrder, CustomerOrderItem, Customer, Departement, Project, Address, BusinessRelation} from '../../../../unientities';
+import {FieldType, FieldLayout, ComponentLayout, CustomerOrder, CustomerOrderItem, Customer, Dimensions, Departement, Project, Address, BusinessRelation} from '../../../../unientities';
 import {StatusCodeCustomerOrder} from '../../../../unientities';
 import {UNI_CONTROL_DIRECTIVES} from '../../../../../framework/controls';
 import {UniFormBuilder} from '../../../../../framework/forms/builders/uniFormBuilder';
@@ -31,10 +31,10 @@ declare var _;
 })
 export class OrderDetails {
             
-    @Input() OrderID: any;
+    @Input() public OrderID: any;
                   
     @ViewChild(UniComponentLoader)
-    ucl: UniComponentLoader;
+    public ucl: UniComponentLoader;
     
     @ViewChild(OrderToInvoiceModal)
     oti: OrderToInvoiceModal;
@@ -42,25 +42,26 @@ export class OrderDetails {
     @ViewChild(PreviewModal)
     private previewModal: PreviewModal;
 
-    businessRelationInvoice: BusinessRelation = new BusinessRelation();
-    businessRelationShipping: BusinessRelation = new BusinessRelation();
-    lastCustomerInfo: BusinessRelation;
+    private businessRelationInvoice: BusinessRelation = new BusinessRelation();
+    private businessRelationShipping: BusinessRelation = new BusinessRelation();
+    private lastCustomerInfo: BusinessRelation;
         
-    order: CustomerOrder;
-    lastSavedInfo: string;
-    statusText: string;
+    private order: CustomerOrder;
+    private lastSavedInfo: string;
+    private statusText: string;
     
-    itemsSummaryData: TradeHeaderCalculationSummary;
+    private itemsSummaryData: TradeHeaderCalculationSummary;
     
-    customers: Customer[];
-    dropdownData: any;
+    private customers: Customer[];
+    private dropdownData: any;
    
-    formConfig: UniFormBuilder;
-    formInstance: UniForm;
+    private formConfig: UniFormBuilder;
+    private formInstance: UniForm;
     
-    whenFormInstance: Promise<UniForm>;
+    private whenFormInstance: Promise<UniForm>;
     
-    EmptyAddress: Address;
+    private emptyAddress: Address;
+    private recalcTimeout: any;
        
     private actions: IUniSaveAction[] = [
         {
@@ -124,7 +125,7 @@ export class OrderDetails {
                 this.order = response[2];
                 this.customers = response[3];
             //    this.EmptyAddress = response[4];                
-                this.EmptyAddress = new Address();
+                this.emptyAddress = new Address();
                                                                    
                 this.updateStatusText();
                 this.addAddresses();                                                                               
@@ -195,10 +196,8 @@ export class OrderDetails {
         this.businessRelationInvoice.Addresses = this.businessRelationInvoice.Addresses.concat(invoiceaddresses);
         this.businessRelationShipping.Addresses = this.businessRelationShipping.Addresses.concat(shippingaddresses);        
     }    
-        
-    recalcTimeout: any;
-    
-    recalcItemSums(orderItems: any) {
+            
+    private recalcItemSums(orderItems: any) {
         this.order.Items = orderItems;
     
         //do recalc after 2 second to avoid to much requests
@@ -228,8 +227,8 @@ export class OrderDetails {
         }, 2000); 
     }
     
-    saveOrderManual(event: any) {        
-        this.saveOrder();
+    saveOrderManual(done: any) {        
+        this.saveOrder(done);
     }
     
     saveAndTransferToInvoice(done: any) {
@@ -271,7 +270,12 @@ export class OrderDetails {
         this.formInstance.sync();        
         this.lastSavedInfo = 'Lagrer ordre...';
         this.order.TaxInclusiveAmount = -1; // TODO in AppFramework, does not save main entity if just items have changed
-                        
+                       
+        if (this.order.DimensionsID === 0) {
+            this.order.Dimensions = new Dimensions();             
+            this.order.Dimensions["_createguid"] = this.customerOrderService.getNewGuid();
+        }
+               
         this.customerOrderService.Put(this.order.ID, this.order)
             .subscribe(
                 (order) => {  
@@ -324,8 +328,12 @@ export class OrderDetails {
     private saveAndPrint(done) {
         this.saveOrder((order) => {
             this.reportDefinitionService.getReportByName('Ordre').subscribe((report) => {
-                this.previewModal.openWithId(report, order.ID);
-                done("Utskrift");                    
+                if (report) {
+                    this.previewModal.openWithId(report, order.ID);
+                    done('Utskrift');                                
+                } else {
+                    done('Rapport mangler');
+                }
             });
         });
     }
@@ -367,7 +375,7 @@ export class OrderDetails {
             .setModel(this.businessRelationInvoice)
             .setModelField('Addresses')
           //  .setModelDefaultField('InvoiceAddressID')           
-            .setPlaceholder(this.EmptyAddress)
+            .setPlaceholder(this.emptyAddress)
             .setEditor(AddressModal);
         invoiceaddress.onSelect = (address: Address) => {
             this.addressToInvoice(address);
@@ -385,7 +393,7 @@ export class OrderDetails {
             .setModel(this.businessRelationShipping)
             .setModelField('Addresses')
         //    .setModelDefaultField('ShippingAddressID')
-            .setPlaceholder(this.EmptyAddress)
+            .setPlaceholder(this.emptyAddress)
             .setEditor(AddressModal);   
         shippingaddress.onSelect = (address: Address) => {
             this.addressToShipping(address);

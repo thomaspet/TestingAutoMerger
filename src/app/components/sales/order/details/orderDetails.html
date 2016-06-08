@@ -27,40 +27,26 @@
 <section class="order-details application">
     <uni-component-loader></uni-component-loader>
 
-    <order-item-list [order]="order" (ItemsUpdated)="recalcItemSums($event)" (ItemsLoaded)="recalcItemSums($event)"></order-item-list>    
+    <order-item-list [order]="order" (itemsUpdated)="recalcItemSums($event)" (itemsLoaded)="recalcItemSums($event)"></order-item-list>    
     <section class="order-items-summary-placeholder" *ngIf="!itemsSummaryData" aria-busy>
 
     </section>
-    <section class="order-items-summary" *ngIf="itemsSummaryData">        
-        <section> 
-            Avgiftsfritt<br/>
-            {{itemsSummaryData.SumNoVatBasis}}
-        </section>
-        <section> 
-            Avgiftsgrunnlag<br/>
-            {{itemsSummaryData.SumVatBasis}}
-        </section>
-        <section> 
-            Sum rabatt<br/>
-            {{itemsSummaryData.SumDiscount}}
-        </section>
-        <section> 
-            Nettosum<br/>
-            {{itemsSummaryData.SumTotalExVat}}
-        </section>
-        <section> 
-            Mva<br/>
-            {{itemsSummaryData.SumVat}}
-        </section>
-        <section> 
-            Øreavrunding<br/>
-            {{itemsSummaryData.DecimalRounding}}
-        </section>
-        <section> 
-            Totalsum<br/>
-            {{itemsSummaryData.SumTotalIncVat}}
-        </section>      
-    </section>
+    <dl class="summary" *ngIf="itemsSummaryData" [attr.aria-busy]="busy">
+        <dt>Avgiftsfritt</dt>
+        <dd>Kr. {{itemsSummaryData.SumNoVatBasis}}</dd>        
+        <dt>Avgiftsgrunnlag</dt>
+        <dd>Kr. {{itemsSummaryData.SumVatBasis}}</dd>        
+        <dt>Sum rabatt</dt>
+        <dd>Kr. {{itemsSummaryData.SumDiscount}}</dd>        
+        <dt>Nettosum</dt>
+        <dd>Kr. {{itemsSummaryData.SumTotalExVat}}</dd>        
+        <dt>Mva</dt>
+        <dd>Kr. {{itemsSummaryData.SumVat}}</dd>        
+        <dt>Øreavrunding</dt>
+        <dd>Kr. {{itemsSummaryData.DecimalRounding}}</dd>        
+        <dt>Totalsum</dt>
+        <dd>Kr. {{itemsSummaryData.SumTotalIncVat}}</dd>            
+    </dl>     
 </section>
 
 <report-preview-modal></report-preview-modal>

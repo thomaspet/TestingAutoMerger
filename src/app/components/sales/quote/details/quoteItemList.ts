@@ -29,8 +29,11 @@ export class QuoteItemList {
     vatTypes: VatType[];
     items: CustomerQuoteItem[];
     
-    constructor(private router: Router, private customerQuoteItemService: CustomerQuoteItemService, private productService: ProductService, private vatTypeService: VatTypeService) {
-                 
+    constructor(
+        private router: Router, 
+        private customerQuoteItemService: CustomerQuoteItemService, 
+        private productService: ProductService, 
+        private vatTypeService: VatTypeService) {                 
     }
     
     ngOnInit() {
@@ -64,6 +67,8 @@ export class QuoteItemList {
     
     private mapProductToQuoteItem(rowModel) {
         let product = rowModel['Product'];
+        if (product === null) return;
+
         rowModel.ProductID = product.ID;
         rowModel.ItemText = product.Name;
         rowModel.Unit = product.Unit;

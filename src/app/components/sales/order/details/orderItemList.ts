@@ -65,6 +65,8 @@ export class OrderItemList {
     
     private mapProductToInvoiceItem(rowModel) {
         let product = rowModel['Product'];
+        if (product === null) return;
+        
         rowModel.ProductID = product.ID;
         rowModel.ItemText = product.Name;
         rowModel.Unit = product.Unit;
@@ -135,22 +137,22 @@ export class OrderItemList {
         statusCol.setTemplate((dataItem) => {
             return this.customerOrderItemService.getStatusText(dataItem.StatusCode); 
         });
-        var smallScreenTemplateCol = new UniTableColumn('ID', 'Ordrelinjer', UniTableColumnType.Text)
+        //var smallScreenTemplateCol = new UniTableColumn('ID', 'Ordrelinjer', UniTableColumnType.Text)
         //    .setShowOnLargeScreen(false).setEditable(false)
-            .setTemplate((rowModel) => {
-                return `<span>${rowModel.ItemText}</span>, <span>Antall: </span>${rowModel.NumberOfItems}, <span>Rabatt: </span>${rowModel.Discount}, <span>Sum ink. mva: </span>${rowModel.SumTotalIncVat}`;        
-            }); 
+        //    .setTemplate((rowModel) => {
+        //        return `<span>${rowModel.ItemText}</span>, <span>Antall: </span>${rowModel.NumberOfItems}, <span>Rabatt: </span>${rowModel.Discount}, <span>Sum ink. mva: </span>${rowModel.SumTotalIncVat}`;        
+        //    }); 
+            
         // Setup table        
         this.orderItemTable = new UniTableConfig()   
             .setColumns([
                 productCol, itemTextCol, unitCol, numItemsCol,
                 exVatCol, discountPercentCol, discountCol, vatTypeCol,
                 sumTotalExVatCol, sumVatCol, sumTotalIncVatCol,
-                statusCol, smallScreenTemplateCol
+                statusCol //,smallScreenTemplateCol
             ])     
             .setMultiRowSelect(false)    
-            .setSearchable(false)
-                        .setDefaultRowData({
+            .setDefaultRowData({
                 ID: 0,
                 Product: null,
                 ProductID: null,
