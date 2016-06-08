@@ -101,17 +101,6 @@ export class SalaryTransactionSelectionList implements OnInit {
         return bAccount;
     }
     
-    // private formatDate(date) {
-    //     if (!date) {
-    //         return '';
-    //     }
-    //     date = new Date(date);
-    //     var day = date.getDate() < 10 ? '0' + date.getDate() : date.getDate();
-    //     var month = (date.getMonth() + 1) < 10 ? '0' + (date.getMonth() + 1) : (date.getMonth() + 1);
-        
-    //     return day + '.' + month + '.' + date.getFullYear();
-    // }
-    
     public goToNextEmployee(id) {
         var index = _.findIndex(this.employeeList, x => x.ID === this.selectedEmployeeID);
         if (index + 1 < this.employeeList.length) {
@@ -132,17 +121,5 @@ export class SalaryTransactionSelectionList implements OnInit {
     }
     
     public saveRun(event: any) {
-        /*var saveRequest;
-        if (this.payrollRun.ID) {
-            saveRequest = this._payrollRunService.Put(this.payrollRun.ID, this.payrollRun);
-        }else {
-            saveRequest = this._payrollRunService.Post(this.payrollRun);
-        }
-        saveRequest.subscribe((response) => {
-            // TODO save transes
-        });
-        
-        this.savingInfo = 'Sist lagret: ' + (new Date()).toLocaleTimeString(); */
-        // this.tables.refresh(this.employeeList);
     }
 }

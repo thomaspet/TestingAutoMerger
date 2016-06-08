@@ -156,6 +156,14 @@ export class SalaryTransactionEmployeeList implements OnInit {
         
     }
 
+    public isDirty() {
+        let isDirty = false;
+        if (this.salarytransChanged.length > 0) {
+            isDirty = true;
+        }
+        return isDirty;
+    }
+
     private getAgaAndShowView(update: boolean) {
         if (this.employee.SubEntity) {
             this._agaZoneService
