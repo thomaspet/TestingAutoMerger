@@ -5,7 +5,7 @@ import {Http} from '@angular/http';
 import {ReportDefinition} from '../../../../unientities';
 import {UniModal} from '../../../../../framework/modals/modal';
 import {UniComponentLoader} from '../../../../../framework/core/componentLoader';
-import {ReportDefinitionService} from '../../../../services/services';
+import {ReportDefinitionService,Report,ReportParameter} from '../../../../services/services';
 
 @Component({
     selector: 'report-preview-modal-type',
@@ -41,7 +41,6 @@ export class PreviewModal {
     constructor(private reportDefinitionService: ReportDefinitionService,
                 private http: Http)
     {
-        var self = this;
         this.modalConfig = {
             title: 'Forhåndsvisning',
             model: null,
@@ -50,25 +49,34 @@ export class PreviewModal {
                 {
                     text: 'Skriv ut',
                     method: () => {
-                        self.modal.getContent().then(() => {
+                        this.modal.getContent().then(() => {
                             this.reportDefinitionService.generateReportPdf(this.reportDefinition);
-                            self.modal.close();
+                            this.modal.close();
                         });
                     }
                 },
                 {
                     text: 'Lukk',
                     method: () => {
-                        self.modal.getContent().then(() => {
-                            self.modal.close();
+                        this.modal.getContent().then(() => {
+                            this.modal.close();
                         });
                     }
                 }
             ]
         };
     }
+    
+    public openWithId(report: Report, id: number) {
+        var idparam = new ReportParameter();
+        idparam.Name = "Id";
+        idparam.value = id.toString();
+        report.parameters = [idparam];
 
-    public open(report: ReportDefinition) {
+        this.open(report);
+    }
+
+    public open(report: Report) {
         this.modalConfig.title = report.Name;
         this.modalConfig.report = null;
         this.reportDefinition = report;

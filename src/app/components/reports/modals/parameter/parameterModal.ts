@@ -43,7 +43,6 @@ export class ParameterModal {
     constructor(private reportDefinitionParameterService: ReportDefinitionParameterService,
                 private http: Http)
     {
-        var self = this;
         this.modalConfig = {
             title: 'Parametre',
             model: null,
@@ -53,8 +52,8 @@ export class ParameterModal {
                 {
                     text: 'Ok',
                     method: () => {
-                        self.modal.getContent().then(() => {
-                            self.modal.close();
+                        this.modal.getContent().then(() => {
+                            this.modal.close();
                             this.previewModal.open(this.modalConfig.report);
                         });
                     }
@@ -62,8 +61,8 @@ export class ParameterModal {
                 {
                     text: 'Avbryt',
                     method: () => {
-                        self.modal.getContent().then(() => {
-                            self.modal.close();
+                        this.modal.getContent().then(() => {
+                            this.modal.close();
                         });
                     }
                 }
@@ -77,7 +76,7 @@ export class ParameterModal {
         this.modalConfig.report = report;
         this.previewModal = previewModal;
 
-        this.reportDefinitionParameterService.GetAll('ReportDefinitionId=' + report.ID).subscribe(params => {
+        this.reportDefinitionParameterService.GetAll('filter=ReportDefinitionId eq ' + report.ID).subscribe(params => {
             this.modalConfig.report.parameters = params;
             this.modal.open();        
         });

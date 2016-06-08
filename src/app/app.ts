@@ -11,13 +11,11 @@ import {UniHttp} from '../framework/core/http/http';
 import {StaticRegisterService} from './services/staticregisterservice';
 import {LoginModal} from './components/authentication/loginModal';
 
-import {CompanySettingsService} from './services/common/CompanySettingsService';
-
 @Component({
     selector: 'uni-app',
     templateUrl: './app/app.html',
     directives: [ROUTER_DIRECTIVES, UniRouterOutlet, UniNavbar, LoginModal],
-    providers: [AuthService, TabService, UniHttp, StaticRegisterService, CompanySettingsService]
+    providers: [AuthService, TabService, UniHttp, StaticRegisterService]
 })
 @RouteConfig(ROUTES)
 export class App {
@@ -28,9 +26,8 @@ export class App {
     
     public routes: AsyncRoute[] = ROUTES;
     
-    constructor(private authService: AuthService, router: Router, private http: UniHttp,
-                private staticRegisterService: StaticRegisterService,
-                private companySettingsService: CompanySettingsService) {
+    constructor(private authService: AuthService, private http: UniHttp,
+                private staticRegisterService: StaticRegisterService) {
         
         // Open login modal if authService requests re-authentication during runtime
         authService.requestAuthentication$.subscribe((event) => {

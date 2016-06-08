@@ -63,7 +63,6 @@ export class SupplierInvoiceList implements OnInit {
 
     private setupTableCfg(): UniTableConfig {
         const statusTextCol = new UniTableColumn('StatusCode', 'Status', UniTableColumnType.Number)
-            .setFilterable(false)
             .setTemplate((dataItem) => {
                 return this.supplierInvoiceService.getStatusText(dataItem.StatusCode);
             });
