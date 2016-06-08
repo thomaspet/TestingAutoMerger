@@ -235,7 +235,9 @@ export class InvoiceDetails implements OnInit {
     }
 
     private saveInvoiceManual(done) {
-        this.saveInvoice();
+        this.saveInvoice((invoice => {
+            done("Lagret");
+        }));
     }
 
     private saveInvoice(cb = null, transition = '') {
@@ -306,7 +308,8 @@ export class InvoiceDetails implements OnInit {
     private saveAndPrint(done) {
         this.saveInvoice((invoice) => {
             this.reportDefinitionService.getReportByName('Faktura Uten Giro').subscribe((report) => {
-                this.previewModal.openWithId(report, invoice.ID);                    
+                this.previewModal.openWithId(report, invoice.ID);
+                done("Utskrift");                    
             });
         });
     }

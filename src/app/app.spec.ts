@@ -7,6 +7,8 @@ import {Router, ROUTER_PRIMARY_COMPONENT} from '@angular/router-deprecated';
 
 import {App} from './app';
 import {AuthService} from '../framework/core/authService';
+import {UniHttp} from '../framework/core/http/http';
+import {StaticRegisterService} from './services/staticregisterservice';
 
 //NOT PUBLIC ANGULAR PACKAGES
 import {RouteRegistry} from '@angular/router-deprecated';
@@ -39,8 +41,8 @@ describe('App', () => {
     }));
 
     //TEST
-    it('is initialized', inject([AuthService, Router], (authService: AuthService, router: Router) => {
-        var app: App = new App(authService, router);
+    it('is initialized', inject([AuthService, Http, StaticRegisterService], (authService: AuthService, http: UniHttp, staticRegisterService: StaticRegisterService) => {
+        var app: App = new App(authService, http, staticRegisterService);
         expect(app.routes).toBeDefined();
     }));
 });
