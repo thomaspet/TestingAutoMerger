@@ -5,7 +5,7 @@ import {Http} from '@angular/http';
 import {ReportDefinition} from '../../../../unientities';
 import {UniModal} from '../../../../../framework/modals/modal';
 import {UniComponentLoader} from '../../../../../framework/core/componentLoader';
-import {ReportDefinitionService} from '../../../../services/services';
+import {ReportDefinitionService,Report,ReportParameter} from '../../../../services/services';
 
 @Component({
     selector: 'report-preview-modal-type',
@@ -66,8 +66,17 @@ export class PreviewModal {
             ]
         };
     }
+    
+    public openWithId(report: Report, id: number) {
+        var idparam = new ReportParameter();
+        idparam.Name = "Id";
+        idparam.value = id.toString();
+        report.parameters = [idparam];
 
-    public open(report: ReportDefinition) {
+        this.open(report);
+    }
+
+    public open(report: Report) {
         this.modalConfig.title = report.Name;
         this.modalConfig.report = null;
         this.reportDefinition = report;

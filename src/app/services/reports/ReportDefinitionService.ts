@@ -9,7 +9,7 @@ import {StimulsoftReportWrapper} from '../../../framework/wrappers/reporting/rep
 import {ReportDefinition, ReportDefinitionParameter, ReportDefinitionDataSource} from '../../unientities';
 import {ReportDefinitionDataSourceService} from '../../services/services';
 
-class ReportParameter extends ReportDefinitionParameter {
+export class ReportParameter extends ReportDefinitionParameter {
     public value: string;
 }
 
@@ -17,7 +17,7 @@ class ReportDataSource extends ReportDefinitionDataSource {
     
 }
 
-class Report extends ReportDefinition {
+export class Report extends ReportDefinition {
     public parameters: ReportParameter[];
     public dataSources: ReportDataSource[];
     public templateJson: string;
@@ -39,6 +39,12 @@ export class ReportDefinitionService extends BizHttp<ReportDefinition>{
         this.baseHttp = this.uniHttp.http;
         this.relativeURL = ReportDefinition.RelativeUrl;
         this.DefaultOrderBy = 'Category';
+    }
+    
+    public getReportByName(name: string) : Observable<any> {
+        return this.GetAll(`filter=Name eq '${name}'`).map((reports) => {
+           return reports[0]; 
+        });
     }
 
     public generateReportHtml(report: ReportDefinition, target: any) {
@@ -71,7 +77,7 @@ export class ReportDefinitionService extends BizHttp<ReportDefinition>{
     
     private onTemplateLoaded() {
         // get data source URLs 
-        this.reportDefinitionDataSourceService.GetAll<ReportDataSource>('ReportDefinitionId eq ' + this.report.ID)
+        this.reportDefinitionDataSourceService.GetAll<ReportDataSource>(`filter=ReportDefinitionId eq ${this.report.ID}`)
               .subscribe(dataSources => {
                   this.report.dataSources = dataSources;
                   this.onDataSourcesLoaded(); 
