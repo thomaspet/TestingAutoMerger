@@ -1,31 +1,50 @@
-import {Component, OnInit, Injector} from '@angular/core';
-import {UniTable, UniTableBuilder, UniTableColumn} from '../../../../../framework/uniTable';
-import {Router, RouteParams} from '@angular/router-deprecated';
-import {WageTypeService, EmploymentService} from '../../../../services/services';
+import {Component, OnInit, ViewChild} from '@angular/core';
+import {Router} from '@angular/router-deprecated';
+import {WageTypeService, EmploymentService, SalaryTransactionService} from '../../../../services/services';
 import {Observable} from 'rxjs/Observable';
 import {RootRouteParamsService} from '../../../../services/rootRouteParams';
+import {UniSave, IUniSaveAction} from '../../../../../framework/save/save';
+import {UniTable, UniTableColumn, UniTableColumnType, UniTableConfig} from 'unitable-ng2/main';
+import {Employment, SalaryTransaction, WageType} from '../../../../unientities';
+import {AsyncPipe} from '@angular/common';
+import {UniHttp} from '../../../../../framework/core/http/http';
 
 declare var _;
 
 @Component({
     selector: 'reccuringpost-list',
     templateUrl: 'app/components/salary/employee/recurringPost/recurringPost.html',
-    directives: [UniTable],
-    providers: [WageTypeService, EmploymentService]
+    directives: [UniTable, UniSave],
+    providers: [WageTypeService, EmploymentService, SalaryTransactionService],
+    pipes: [AsyncPipe]
 })
 
 export class RecurringPost implements OnInit {
-    private recurringpostListConfig: any;
+    private recurringpostListConfig: UniTableConfig;
     private employeeID: number;
-    private wagetypes: any[];
-    private employments: any[];
-    private lastSavedInfo: string;
+    private wagetypes: WageType[];
+    private employments: Employment[];
+    private recurringItems$: Observable<any>;
+    private recurringPosts: SalaryTransaction[];
+    @ViewChild(UniTable) private table: UniTable;
     
-    constructor(public rootRouteParams: RootRouteParamsService, public routr: Router, private wagetypeService: WageTypeService, private employmentService: EmploymentService) {
+    private saveactions: IUniSaveAction[] = [
+        {
+            label: 'Lagre faste poster',
+            action: this.saveRecurringpost.bind(this),
+            main: true,
+            disabled: true
+        }
+    ];
+    
+    constructor(public rootRouteParams: RootRouteParamsService, public routr: Router, private wagetypeService: WageTypeService, private employmentService: EmploymentService, private uniHttp: UniHttp, private salarytransService: SalaryTransactionService) {
         this.employeeID = +this.rootRouteParams.params.get('id');
+        this.buildTableConfig();
     }
     
     public ngOnInit() {
+        this.buildTableConfig();
+        
         Observable.forkJoin(
             this.wagetypeService.GetAll(''),
             this.employmentService.GetAll('filter=EmployeeID eq ' + this.employeeID)
@@ -34,64 +53,166 @@ export class RecurringPost implements OnInit {
             let [wagetypes, employments] = response;
             this.wagetypes = wagetypes;
             this.employments = employments;
-            this.buildTableConfig();
+            
+            this.recurringItems$ = this.uniHttp.asGET()
+            .usingBusinessDomain()
+            .withEndPoint('salarytrans')
+            .send({
+                filter: `EmployeeNumber eq ${this.employeeID} and IsRecurringPost eq true`
+            });
         });
-        
     }
     
-    public saveRecurringpostManual() {
-        this.saveRecurringpost();
-    }
-    
-    public saveRecurringpost() {
-        this.lastSavedInfo = 'Faste poster er lagret';
+    public saveRecurringpost(done) {
+        done('Lagrer faste poster');
+        this.recurringPosts.forEach(recurringpost => {
+            recurringpost.IsRecurringPost = true;
+            recurringpost.EmployeeID = this.employeeID;
+            recurringpost.EmployeeNumber = this.employeeID;
+            
+            if (recurringpost.ID > 0) {
+                this.salarytransService.Put(recurringpost.ID, recurringpost)
+                .subscribe((response: SalaryTransaction) => {
+                    done('Sist lagret: ');
+                },
+                (err) => {
+                    done('Feil ved oppdatering av fast post', err);
+                });
+            } else {
+                this.salarytransService.Post(recurringpost)
+                .subscribe((response: SalaryTransaction) => {
+                    done('Sist lagret: ');
+                },
+                (err) => {
+                    done('Feil ved lagring av fast post', err);
+                });
+            }
+        });
+        done('Faste poster lagret: ');
     }
     
     private buildTableConfig() {
-        var wagetypeIDCol = new UniTableColumn('WageTypeId', 'Lønnsart', 'number')
-            .setValues(this.wagetypes)
-            .setDefaultValue(null)
-            .setCustomEditor('dropdown', {
-                dataSource: this.wagetypes,
-                dataValueField: 'WageTypeId',
-                dataTextField: 'WageTypeName'
-            }, (item, rowModel) => {
-                let wagetype = _.find(this.wagetypes, wt => wt.WageTypeId === item.WageTypeId);
-                rowModel.set('WageTypeId', wagetype.WageTypeId);
-                rowModel.set('Text', wagetype.WageTypeName);
-                rowModel.set('Amount', 1);
-                rowModel.set('Rate', wagetype.Rate);
-                rowModel.set('Sum', rowModel.Amount * rowModel.Rate);
-                rowModel.set('Wagetype', wagetype);
-                rowModel.set('IsRecurringPost', true);
+        var wagetypeCol = new UniTableColumn('WageType', 'Lønnsart', UniTableColumnType.Lookup)
+            .setTemplate((dataItem) => {
+                return this.getWagetypeName(dataItem.WageTypeNumber);
+            })
+            .setEditorOptions({
+                itemTemplate: (selectedItem) => {
+                    return (selectedItem.WageTypeId + ' - ' + selectedItem.WageTypeName);
+                },
+                lookupFunction: (searchValue) => {
+                    let matching: WageType[] = [];
+                    this.wagetypes.forEach(wagetype => {
+                        if (wagetype.WageTypeName.toLowerCase().indexOf(searchValue) > -1) {
+                            matching.push(wagetype);
+                        }
+                    });
+                    return matching;
+                }
             });
-        var descriptionCol = new UniTableColumn('Text', 'Beskrivelse', 'string');
-        var employmentIDCol = new UniTableColumn('EmploymentID', 'Arbeidsforhold', 'number')
-            .setValues(this.employments)
-            .setDefaultValue(null)
-            .setCustomEditor('dropdown', {
-                dataSource: this.employments,
-                dataValueField: 'ID',
-                dataTextField: 'JobName'
-            }, (item, rowModel) => {
-                rowModel.set('EmploymentID', item.ID);
-            });
-        var fromdateCol = new UniTableColumn('recurringPostValidFrom', 'Fra dato', 'date');
-        var todateCol = new UniTableColumn('recurringPostValidTo', 'Til dato', 'date');
-        var amountCol = new UniTableColumn('Amount', 'Antall', 'number');
-        var rateCol = new UniTableColumn('Rate', 'Sats', 'number');
-        var sumCol = new UniTableColumn('Sum', 'Sum', 'number');
+            
+        var descriptionCol = new UniTableColumn('Text', 'Beskrivelse', UniTableColumnType.Text);
         
-        this.recurringpostListConfig = new UniTableBuilder('salarytrans', true)
-        .setFilter(this.buildFilter())
-        .setColumnMenuVisible(false)
-        .setToolbarOptions(['create', 'cancel', 'save'])
-        .addColumns(wagetypeIDCol, descriptionCol, employmentIDCol, fromdateCol, todateCol, amountCol, rateCol, sumCol);
+        var employmentIDCol = new UniTableColumn('Employment', 'Arbeidsforhold', UniTableColumnType.Lookup)
+            .setTemplate((dataItem) => {
+                return this.getEmploymentJobName(dataItem.EmploymentID);
+            })
+            .setEditorOptions({
+                itemTemplate: (selectedItem) => {
+                    return (selectedItem.ID + ' - ' + selectedItem.JobName);
+                },
+                lookupFunction: (searchValue) => {
+                    let matching: Employment[] = [];
+                    this.employments.forEach(employment => {
+                        if (employment.JobName.toLowerCase().indexOf(searchValue) > -1) {
+                            matching.push(employment);
+                        }
+                    });
+                    return matching;
+                }
+            });
+            
+        var fromdateCol = new UniTableColumn('recurringPostValidFrom', 'Fra dato', UniTableColumnType.Date);
+        var todateCol = new UniTableColumn('recurringPostValidTo', 'Til dato', UniTableColumnType.Date);
+        var amountCol = new UniTableColumn('Amount', 'Antall', UniTableColumnType.Number);
+        var rateCol = new UniTableColumn('Rate', 'Sats', UniTableColumnType.Number);
+        var sumCol = new UniTableColumn('Sum', 'Sum', UniTableColumnType.Number);
+        
+        this.recurringpostListConfig = new UniTableConfig()
+        .setColumns([
+            wagetypeCol, descriptionCol, employmentIDCol, fromdateCol, todateCol, 
+            amountCol, rateCol, sumCol
+        ])
+        .setChangeCallback((event) => {
+            let row = event.rowModel;
+            
+            if (event.field === 'WageType') {
+                this.mapWagetypeToRecurrinpost(row);
+            }
+            
+            if (event.field === 'Employment') {
+                this.mapEmploymentToRecurringpost(row);
+            }
+            
+            if (event.field === 'Amount' || event.field === 'Rate') {
+                this.calcItem(row);
+            }
+            
+            return row;
+        });
     }
     
-    private buildFilter() {
-        var filter = 'EmployeeNumber eq ' + this.employeeID;
-        filter += ' and IsRecurringPost eq true';
-        return filter;
+    private mapWagetypeToRecurrinpost(rowModel) {
+        let wagetype = rowModel['WageType'];
+        if (!wagetype) {
+            return;
+        }
+        rowModel['Text'] = wagetype.Description;
+        rowModel['Account'] = wagetype.AccountNumber;
+        rowModel['WageTypeNumber'] = wagetype.WageTypeId;
+        rowModel['Amount'] = 1;
+        rowModel['Rate'] = wagetype.Rate;
+        this.calcItem(rowModel);
+    }
+    
+    private mapEmploymentToRecurringpost(rowModel) {
+        let employment = rowModel['Employment'];
+        if (!employment) {
+            return;
+        }
+        rowModel['EmploymentID'] = employment.ID;
+    }
+    
+    private calcItem(rowModel) {
+        let sum = rowModel['Amount'] * rowModel['Rate'];
+        rowModel['Sum'] = sum; // .toFixed(2);
+    }
+    
+    private getEmploymentJobName(employmentID: number) {
+        var jobName = '';
+
+        this.employments.forEach((employment: Employment) => {
+            if (employment.ID === employmentID) {
+                jobName = employment.JobName;
+            }
+        });
+        return jobName;
+    }
+    
+    private getWagetypeName(wagetypeNumber: number) {
+        var wagetypeName = '';
+         
+        this.wagetypes.forEach((wagetype: WageType) => {
+            if (wagetype.WageTypeId === wagetypeNumber) {
+                wagetypeName = wagetype.WageTypeName;
+            }
+        });
+        
+        return wagetypeName;
+    }
+    
+    private rowChanged(event) {
+        this.recurringPosts = this.table.getTableData();
+        this.saveactions[0].disabled = false;
     }
 }

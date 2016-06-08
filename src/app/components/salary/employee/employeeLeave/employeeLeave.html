@@ -1,10 +1,5 @@
-<uni-table *ngIf="dataConfig" [config]="dataConfig"></uni-table>
+<article class="application">
+    <uni-table [resource]="permisions$ | async" [config]="permisionTableConfig" (rowChanged)="rowChanged($event)"></uni-table>
+</article>
 
-<footer class="full-footer">
-    <section class="application">
-        <button class="good" (click)="saveLeaveManual($event)">Lagre fravær</button>
-        <section class="auto_save_info">
-            {{ lastSavedInfo }}
-        </section>
-    </section>
-</footer>
+<uni-save [actions]="saveactions"></uni-save>

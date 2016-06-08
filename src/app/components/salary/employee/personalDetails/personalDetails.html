@@ -1,13 +1,7 @@
-<article class='application usertest'>
+<article class="application">
     <tax-card-request-modal></tax-card-request-modal>
-    <uni-component-loader></uni-component-loader>
+    <altinn-login-modal [showButton]="true"></altinn-login-modal>
+    <uni-form *ngIf="employee" [config]="config" [fields]="fields" [model]="employee" (onSubmit)="saveEmployeeManual($event)" (onChange)="change($event)" (onReady)="ready($event)"></uni-form>
 </article>
 
-<footer class="full-footer">
-    <section class="application">
-        <button class="good" (click)="saveEmployeeManual($event)">Lagre ansatt</button>
-        <section class="auto_save_info">
-            {{ lastSavedInfo }}
-        </section>
-    </section>
-</footer>
+<uni-save [actions]="saveactions"></uni-save>

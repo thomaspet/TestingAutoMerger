@@ -1,20 +1,31 @@
-import {Injectable, Inject} from '@angular/core';
+import {Injectable, Inject, Output, EventEmitter} from '@angular/core';
 import {Router} from '@angular/router-deprecated';
 import {Http, Headers} from '@angular/http';
 import {Observable} from 'rxjs/Observable';
 import {AppConfig} from '../../app/AppConfig';
+
+import {StaticRegisterService} from '../../app/services/staticregisterservice';
+
 import 'rxjs/add/operator/map';
 
 declare var jwt_decode: (token: string) => any; // node_modules/jwt_decode
 
 @Injectable()
 export class AuthService {
+    @Output()
+    public authenticationStatus$: EventEmitter<any> = new EventEmitter();
+    
+    @Output()
+    public requestAuthentication$: EventEmitter<any> = new EventEmitter();
+    
     public jwt: string;
     public jwtDecoded: any;
     public activeCompany: any;
     public expiredToken: boolean;
+    public companySettings : any;
+    public lastTokenUpdate: Date;
 
-    constructor(@Inject(Router) private router: Router, @Inject(Http) private http: Http) {
+    constructor(@Inject(Router) private router: Router, @Inject(Http) private http: Http) {           
         this.activeCompany = JSON.parse(localStorage.getItem('activeCompany')) || undefined;
         this.jwt = localStorage.getItem('jwt') || undefined;
         this.jwtDecoded = this.decodeToken(this.jwt);
@@ -26,6 +37,8 @@ export class AuthService {
         setInterval(() => {
             this.expiredToken = this.isTokenExpired(this.jwt, 30);
         }, 25000);
+        
+        this.emitAuthenticationStatus();
     }
     
     /**
@@ -39,32 +52,27 @@ export class AuthService {
         let headers = new Headers({'Content-Type': 'application/json', 'Accept': 'application/json'});
         
         return this.http.post(url, JSON.stringify(credentials), {headers: headers})
-            .map(response => response.json());
-    }
-    
-    /**
-     * Returns an observable of the available companies for the authenticated user
-     * @returns Observable
-     */
-    public getCompanies(): Observable<any> {
-        let url = AppConfig.BASE_URL_INIT + AppConfig.API_DOMAINS.INIT + 'companies';
-        let headers = new Headers({'Authorization': 'Bearer ' + this.jwt, 'Accept': 'application/json'});
-        
-        return this.http.get(url, {headers: headers});
-    }
-    
-    public setToken(token: string) {
-        this.jwt = token;
-        localStorage.setItem('jwt', this.jwt);
-        this.jwtDecoded = this.decodeToken(this.jwt);
-        this.expiredToken = false;
+            .switchMap((response) => {
+                if (response.status === 200) {
+                    this.jwt = response.json().access_token;
+                    this.jwtDecoded = this.decodeToken(this.jwt);
+                    localStorage.setItem('jwt', this.jwt);
+                    
+                    this.expiredToken = false;
+                    this.lastTokenUpdate = new Date();
+                    
+                    this.emitAuthenticationStatus();
+                }
+                
+                return Observable.from([response.json()]);
+            });
     }
     
     /**
      * Returns web token or redirects to /login if user is not authenticated
      * @returns {String}
      */
-    public getToken(): string {       
+    public getToken(): string {
         return this.jwt;
     }
     
@@ -75,6 +83,8 @@ export class AuthService {
     public setActiveCompany(activeCompany: any): void {
         localStorage.setItem('activeCompany', JSON.stringify(activeCompany));
         this.activeCompany = activeCompany;
+        
+        this.emitAuthenticationStatus();    
     }
     
     /**
@@ -110,6 +120,7 @@ export class AuthService {
         this.jwt = undefined;
         this.jwtDecoded = undefined;
         this.activeCompany = undefined;
+        this.authenticationStatus$.emit(false);
         
         this.router.navigate(['Login']);
     }
@@ -141,5 +152,17 @@ export class AuthService {
         expires.setUTCSeconds(decodedToken.exp);
         return (expires.valueOf() < new Date().valueOf() + (offsetSeconds * 1000));
     }
-
+    
+    private emitAuthenticationStatus() {
+        // Timeout to push emit to the back of the call stack
+        // this allows app.ts to set up before we emit
+        // (when emitting from constructor)
+        setTimeout(() => {
+            if (this.isAuthenticated() && this.hasActiveCompany()) {
+                this.authenticationStatus$.emit(true);
+            } else {
+                this.authenticationStatus$.emit(false);
+            }    
+        });
+    }
 }
