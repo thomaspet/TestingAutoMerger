@@ -51,9 +51,13 @@ export class OrderList {
 
     private setupOrderTable() {
         this.lookupFunction = (urlParams: URLSearchParams) => {
-            let params = urlParams || new URLSearchParams();           
+            console.log("==2");
+            console.log(urlParams);
+            let params = urlParams || new URLSearchParams();     
             params.set('expand', 'Customer');
-            params.set('orderby', 'OrderDate desc');
+            if (urlParams == null) {
+                params.set('orderby', 'OrderDate desc');                
+            }
          
             return this.customerOrderService.GetAllByUrlSearchParams(params);
         }
@@ -98,8 +102,9 @@ export class OrderList {
         });
 
         // Setup table
-        this.orderTable = new UniTableConfig(false, false)
+        this.orderTable = new UniTableConfig(false, true)
             .setPageSize(25)
+            .setSearchable(true)
             .setColumns([orderNumberCol, customerNumberCol, customerNameCol, orderDateCol, taxInclusiveAmountCol, statusCol])
             .setContextMenu(contextMenuItems);
     }

@@ -165,9 +165,7 @@ export class OrderDetails {
                 firstinvoiceaddress = invoiceaddress; 
             }            
         } else {
-            console.log(invoiceaddresses);
             firstinvoiceaddress = invoiceaddresses.shift();
-            console.log(invoiceaddresses);
         }
         
         if (shippingaddresses.length == 0) {
