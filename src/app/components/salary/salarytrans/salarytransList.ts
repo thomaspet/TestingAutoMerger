@@ -4,7 +4,7 @@ import {UniComponentLoader} from '../../../../framework/core';
 import {Observable} from 'rxjs/Observable';
 import {UniHttp} from '../../../../framework/core/http/http';
 import {Employee, FieldType, AGAZone, WageType, PayrollRun, Employment} from '../../../unientities';
-import {EmployeeService, AgaZoneService, WageTypeService} from '../../../services/services';
+import {EmployeeService, AgaZoneService, WageTypeService, SalaryTransactionService} from '../../../services/services';
 import {RootRouteParamsService} from '../../../services/rootRouteParams';
 import {UniSave, IUniSaveAction} from '../../../../framework/save/save';
 import {AsyncPipe} from '@angular/common';
@@ -18,7 +18,7 @@ declare var _;
     selector: 'salary-transactions-employee',
     templateUrl: 'app/components/salary/salarytrans/salarytransList.html',
     directives: [UniTable, UniComponentLoader, UniSave, UniForm],
-    providers: [EmployeeService, AgaZoneService, WageTypeService],
+    providers: [EmployeeService, AgaZoneService, WageTypeService, SalaryTransactionService],
     pipes: [AsyncPipe]
 })
 
@@ -40,14 +40,11 @@ export class SalaryTransactionEmployeeList implements OnInit {
     @Input() private payrollRun: PayrollRun;
     @Output() public nextEmployee: EventEmitter<any> = new EventEmitter<any>(true);
     @Output() public previousEmployee: EventEmitter<any> = new EventEmitter<any>(true);
-    @ViewChildren(UniTable) private tables: any;
+    @ViewChildren(UniTable) public tables: any;
 
     private busy: boolean;
-    private runIDcol: UniTableColumn;
-    private empIDcol: UniTableColumn;
-    private salarytransChanged: any[];
+    private salarytransChanged: any[] = [];
     private salarytransItems$: Observable<any>;
-    private salarytransTotals$: Observable<any>;
     private saveactions: IUniSaveAction[] = [
         {
             label: 'Lagre lønnsposter',
@@ -62,7 +59,8 @@ export class SalaryTransactionEmployeeList implements OnInit {
         private _agaZoneService: AgaZoneService,
         private rootRouteParams: RootRouteParamsService,
         private _uniHttpService: UniHttp,
-        private _wageTypeService: WageTypeService) {
+        private _wageTypeService: WageTypeService,
+        private salarytransService: SalaryTransactionService) {
         
         this.config = {
             submitText: ''
@@ -78,7 +76,6 @@ export class SalaryTransactionEmployeeList implements OnInit {
         this.createTotalTableConfig();
 
         Observable.forkJoin(
-            // this.employeeService.getTotals(this.payrollRun.ID, this.employeeID),
             this.employeeService.get(this.employeeID, ['BusinessRelationInfo, SubEntity.BusinessRelationInfo']),
             this._wageTypeService.GetAll(''),
             this._uniHttpService.asGET()
@@ -89,9 +86,6 @@ export class SalaryTransactionEmployeeList implements OnInit {
             let [employee, wagetype, employment] = response;
             this.employments = employment;
             this.wagetypes = wagetype;
-            
-            // this.employeeTotals.push(totals);
-            // console.log('totals array', totals);
             this.employee = employee;
             this.setUnitableSource();
             
@@ -104,29 +98,9 @@ export class SalaryTransactionEmployeeList implements OnInit {
     public ngOnChanges() {
         this.busy = true;
         if (this.tables && this.employeeID) {
-            Observable.forkJoin(
-                this.employeeService.getTotals(this.payrollRun.ID, this.employeeID),
-                this.employeeService.get(this.employeeID, ['BusinessRelationInfo, SubEntity.BusinessRelationInfo'])
-            ).subscribe((response: any) => {
-                let [totals, emp] = response;
-                this.employeeTotals[0] = totals;
-                this.employee = emp;
-                // this.runIDcol.defaultValue = this.payrollRun.ID;
-                // this.empIDcol.defaultValue = this.employeeID;
-
-                // let tableConfig: UniTableConfig = this.salarytransEmployeeTableConfig;
-                // let totalsConfig: UniTableConfig = this.salarytransEmployeeTotalsTableConfig;
-                // tableConfig.schemaModel.fields['EmployeeID'].defaultValue = this.employeeID;
-                // tableConfig.setFilters() = this.buildFilter();
-
-                // if (this.payrollRun.StatusCode > 0) {
-                //     tableConfig.setEditable(false).setToolbarOptions([]);
-                // } else {
-                //     tableConfig.setEditable(true).setToolbarOptions(['create', 'cancel']);
-                // }
-
-                // this.tables.toArray()[0].updateConfig(tableConfig);
-                // this.tables.toArray()[1].updateConfig(totalsConfig);
+            this.employeeService.get(this.employeeID, ['BusinessRelationInfo, SubEntity.BusinessRelationInfo'])
+            .subscribe((response: any) => {
+                this.employee = response;
                 this.setUnitableSource();
                 this.getAgaAndShowView(true);
 
@@ -143,16 +117,43 @@ export class SalaryTransactionEmployeeList implements OnInit {
     }
 
     public saveSalarytrans(done) {
-        console.log('lagring...');
-        done('Lagring er enda ikkje på plass, men det kommer snart..');
+        done('Lagrer lønnsposter');
+        let saveItems: any[] = this.salarytransChanged;
+
+        saveItems.forEach(salaryitem => {
+            salaryitem.EmployeeID = this.employeeID;
+            salaryitem.EmployeeNumber = this.employeeID;
+            salaryitem.PayrollRunID = this.payrollRun.ID;
+
+            if (salaryitem.ID > 0) {
+                this.salarytransService.Put(salaryitem.ID, salaryitem)
+                .subscribe((response: any) => {
+                    done('Sist lagret: ');
+                    this.salarytransChanged = [];
+                },
+                (err) => {
+                    done('Feil ved oppdatering av lønnspost', err);
+                });
+            } else {
+                this.salarytransService.Post(salaryitem)
+                .subscribe((response: any) => {
+                    done('Sist lagret: ');
+                    this.salarytransChanged = [];
+                },
+                (err) => {
+                    done('Feil ved lagring av lønnspost', err);
+                });
+            }
+        });
+        done('Lønnsposter lagret: ');
     }
 
     public ready(value) {
-        console.log('form ready', value);
+        
     }
     
     public change(value) {
-        console.log('uniform changed', value);
+        
     }
 
     private getAgaAndShowView(update: boolean) {
@@ -190,7 +191,6 @@ export class SalaryTransactionEmployeeList implements OnInit {
             return 'EmployeeNumber eq ' + this.employeeID
                 + ' and PayrollRunID eq ' + this.payrollRun.ID;
         }
-
     }
 
     private createHeadingForm() {
@@ -225,42 +225,13 @@ export class SalaryTransactionEmployeeList implements OnInit {
     }
 
     private createTableConfig() {
-        // let wagetypeDS: { value: number, text: string }[] = [
-        //     { value: null, text: 'Ikke valgt' }
-        // ];
-
-        // let employmentDS: { value: number, text: string }[] = [
-        //     { value: null, text: 'Ikke valgt' }
-        // ];
-
-        // this.wagetypes.forEach((item: WageType) => {
-        //     wagetypeDS.push({ value: item.WageTypeId, text: item.WageTypeId.toString() });
-        // });
-
-        // this.employments.forEach((item: Employment) => {
-        //     employmentDS.push({ value: item.ID, text: item.JobName });
-        // });
-
         var wagetypenameCol = new UniTableColumn('Text', 'Tekst', UniTableColumnType.Text);
         var fromdateCol = new UniTableColumn('FromDate', 'Fra dato', UniTableColumnType.Date);
         var toDateCol = new UniTableColumn('ToDate', 'Til dato', UniTableColumnType.Date);
         var rateCol = new UniTableColumn('Rate', 'Sats', UniTableColumnType.Number);
-            // .setCustomEditor('numericeditor', {}, (item, rowModel) => {
-            // rowModel.set('Sum', item * rowModel.Amount);
-        // });
         var amountCol = new UniTableColumn('Amount', 'Antall', UniTableColumnType.Number);
-            // .setCustomEditor('numericeditor', {}, (item, rowModel) => {
-            // rowModel.set('Sum', item * rowModel.Rate);
-        // });
         var sumCol = new UniTableColumn('Sum', 'Sum', UniTableColumnType.Number);
-            // .setCustomEditor('readonlyeditor', null).setEditable(true);
-
-        this.runIDcol = new UniTableColumn('PayrollRunID', 'Lønnsavregningsid'); // .setHidden(true);
-        // this.runIDcol.defaultValue = this.payrollRun.ID;
-        this.empIDcol = new UniTableColumn('EmployeeID', 'AnsattID'); // .setHidden(true);
-        // this.empIDcol.defaultValue = this.employeeID;
-
-        var employmentidCol = new UniTableColumn('EmploymentLookup', 'Arbeidsforhold')
+        var employmentidCol = new UniTableColumn('Employment', 'Arbeidsforhold', UniTableColumnType.Lookup)
             .setTemplate((dataItem) => {
                 return this.getEmploymentJobName(dataItem.EmploymentID);
             })
@@ -278,20 +249,8 @@ export class SalaryTransactionEmployeeList implements OnInit {
                     return matching;
                 }
             });
-            // .setValues(employmentDS)
-            // .setDefaultValue(null)
-            // .setCustomEditor('dropdown', {
-            //     dataSource: employmentDS,
-            //     dataValueField: 'value',
-            //     dataTextField: 'text'
-            // }, (item, rowModel) => {
-            //     rowModel.set('EmploymentID', item.value);
-            //     rowModel.set('Employment', _.find(this.employments, emp => emp.ID === item.value));
-            // });
         var accountCol = new UniTableColumn('Account', 'Konto', UniTableColumnType.Text);
         var payoutCol = new UniTableColumn('Wagetype$Base_Payment', 'Utbetales', UniTableColumnType.Number)
-            // .setCustomEditor('readonlyeditor', null)
-            // .setEditable(true)
             .setTemplate((dataItem) => {
                 if (dataItem.Wagetype$Base_Payment) {
                     return 'Ja';
@@ -300,7 +259,6 @@ export class SalaryTransactionEmployeeList implements OnInit {
                 }
             });
         var transtypeCol = new UniTableColumn('IsRecurringPost', 'Fast/Variabel post', UniTableColumnType.Number)
-            // .setDefaultValue(false)
             .setTemplate((dataItem) => {
                 if (dataItem.IsRecurringPost) {
                     return 'Fast';
@@ -309,7 +267,7 @@ export class SalaryTransactionEmployeeList implements OnInit {
                 }
             });
 
-        var wageTypeCol = new UniTableColumn('WageTypeNumber', 'Lønnsart', UniTableColumnType.Number)
+        var wageTypeCol = new UniTableColumn('WageTypeNumber', 'Lønnsart', UniTableColumnType.Lookup)
             .setTemplate((dataItem) => {
                 return this.getWagetypeName(dataItem.WageTypeNumber);
             })
@@ -329,14 +287,7 @@ export class SalaryTransactionEmployeeList implements OnInit {
             });
 
         this.salarytransEmployeeTableConfig = new UniTableConfig()
-            // .setExpand('@Wagetype')
-            // .setFilter(this.buildFilter())
-            // .setPageable(false)
-            // .setFilterable(false)
-            // .setColumnMenuVisible(false)
-            // .setSearchable(false)
             .setColumns([
-                // this.runIDcol, this.empIDcol, 
                 wageTypeCol, wagetypenameCol, employmentidCol,
                 fromdateCol, toDateCol, accountCol, amountCol, rateCol, sumCol,
                 transtypeCol, payoutCol
@@ -344,12 +295,14 @@ export class SalaryTransactionEmployeeList implements OnInit {
             .setPageable(false)
             .setChangeCallback((event) => {
                 let row = event.rowModel;
+                console.log('changecallback row', row);
 
-                if (event.field === 'WageType') {
+                if (event.field === 'WageTypeNumber') {
                     this.mapWagetypeToTrans(row);
                 }
                 
-                if (event.field === 'EmploymentLookup') {
+                if (event.field === 'Employment') {
+
                     this.mapEmploymentToTrans(row);
                 }
                 
@@ -359,13 +312,6 @@ export class SalaryTransactionEmployeeList implements OnInit {
 
                 return row;
             });
-            // .addCommands('destroy');
-
-        // if (this.payrollRun.StatusCode > 0) {
-        //     this.salarytransEmployeeTableConfig.setEditable(false).setToolbarOptions([]);
-        // } else {
-        //     this.salarytransEmployeeTableConfig.setEditable(true).setToolbarOptions(['create', 'cancel']);
-        // }
     }
 
     private createTotalTableConfig() {
@@ -382,16 +328,10 @@ export class SalaryTransactionEmployeeList implements OnInit {
         .setEditable(false)
         .setPageable(false)
         .setSearchable(false);
-        // this.salarytransEmployeeTotalsTableConfig = new UniTableBuilder(this.employeeTotals, false)
-        //     .setFilterable(false)
-        //     .setColumnMenuVisible(false)
-        //     .setSearchable(false)
-        //     .setPageable(false)
-        //     .addColumns(percentCol, taxtableCol, paidCol, agaCol, basevacationCol);
     }
 
     private mapWagetypeToTrans(rowModel) {
-        let wagetype: WageType = rowModel['WageType'];
+        let wagetype: WageType = rowModel['WageTypeNumber'];
         if (!wagetype) {
             return;
         }
@@ -413,6 +353,7 @@ export class SalaryTransactionEmployeeList implements OnInit {
         if (!employment) {
             return;
         }
+        console.log('mapemployment', employment);
         rowModel['EmploymentID'] = employment.ID;
     }
     
@@ -423,7 +364,6 @@ export class SalaryTransactionEmployeeList implements OnInit {
 
     private setUnitableSource() {
         var filter = this.buildFilter();
-        console.log('filter', filter);
 
         this.salarytransItems$ = this._uniHttpService.asGET()
             .usingBusinessDomain()
@@ -433,27 +373,9 @@ export class SalaryTransactionEmployeeList implements OnInit {
                 expand: '@Wagetype'
             });
 
-        this._uniHttpService.asGET()
-        .usingBusinessDomain()
-        .withEndPoint('salarytrans')
-        .send({
-            filter: filter,
-            expand: '@Wagetype'
-        }).subscribe((response) => {
-            console.log('resourcedata', response);
-        });
-        
-        this.salarytransTotals$ = this.employeeService.getTotals(this.payrollRun.ID, this.employeeID);
-        
-
-
         this.employeeService.getTotals(this.payrollRun.ID, this.employeeID)
         .subscribe((response) => {
-            response._links = {};
-            this.employeeTotals[0] = response;
-
-            console.log('salarytotalresource', response);
-            console.log('employeetotals', JSON.stringify(this.employeeTotals));
+            this.employeeTotals = [response];
         });
     }
 
@@ -481,7 +403,22 @@ export class SalaryTransactionEmployeeList implements OnInit {
     }
 
     private rowChanged(event) {
-        this.salarytransChanged = this.tables[0].getTableData();
+        let row = event.rowModel;
+
+        if (this.salarytransChanged.length > 0) {
+            for (var i = 0; i < this.salarytransChanged.length; i++) {
+                var salaryItem = this.salarytransChanged[i];
+                if (row.ID === salaryItem.ID) {
+                    this.salarytransChanged[i] = row;
+                    break;
+                } else {
+                    this.salarytransChanged.push(row);
+                }
+            }
+        } else {
+            this.salarytransChanged.push(row);
+        }
+        
         this.saveactions[0].disabled = false;
     }
 }
