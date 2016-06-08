@@ -2,21 +2,21 @@ import {Component, ViewChildren, ViewChild, OnInit} from '@angular/core';
 import {UniTable, UniTableColumn, UniTableColumnType, UniTableConfig, IContextMenuItem} from 'unitable-ng2/main';
 import {Router} from '@angular/router-deprecated';
 import {UniHttp} from '../../../../../framework/core/http/http';
-import {CustomerInvoiceService} from '../../../../services/services';
-import {StatusCodeCustomerInvoice} from '../../../../unientities';
-import {Http, URLSearchParams} from '@angular/http';
+import {CustomerInvoiceService,ReportDefinitionService} from '../../../../services/services';
+import {StatusCodeCustomerInvoice,CustomerInvoice} from '../../../../unientities';
+import {URLSearchParams} from '@angular/http';
 import {AsyncPipe} from '@angular/common';
-
 import {InvoicePaymentData} from '../../../../models/sales/InvoicePaymentData';
 import {InvoiceSummary} from '../../../../models/accounting/InvoiceSummary';
 
 import {RegisterPaymentModal} from '../../../common/modals/registerPaymentModal';
+import {PreviewModal} from '../../../reports/modals/preview/previewModal';
 
 @Component({
     selector: 'invoice-list',
     templateUrl: 'app/components/sales/invoice/list/invoiceList.html',
-    directives: [UniTable, RegisterPaymentModal],
-    providers: [CustomerInvoiceService],
+    directives: [UniTable,RegisterPaymentModal,PreviewModal],
+    providers: [CustomerInvoiceService,ReportDefinitionService],
     pipes: [AsyncPipe]
 })
 
@@ -28,14 +28,18 @@ export class InvoiceList implements OnInit {
 
     @ViewChild(RegisterPaymentModal)
     private registerPaymentModal: RegisterPaymentModal;
+    
+    @ViewChild(PreviewModal)
+    private previewModal: PreviewModal;
 
     private summaryData: InvoiceSummary;
 
     constructor(private uniHttpService: UniHttp,
                 private router: Router,
                 private customerInvoiceService: CustomerInvoiceService,
-                private http: Http) {
-       
+                private reportDefinitionService: ReportDefinitionService) {
+
+        this.setupInvoiceTable();
     }
 
     private log(err) {
@@ -72,10 +76,6 @@ export class InvoiceList implements OnInit {
             console.log('Error registering payment: ', err);
             this.log(err);
         });
-    }
-
-    public onRowSelected(item) {
-        this.router.navigateByUrl(`/sales/invoice/details/${item.ID}`);
     }
 
     private setupInvoiceTable() {
@@ -180,8 +180,10 @@ export class InvoiceList implements OnInit {
 
         contextMenuItems.push({
             label: 'Skriv ut',
-            action: (rowModel) => {
-                alert('Skriv ut action - Under construction');
+            action: (invoice: CustomerInvoice) => {
+                this.reportDefinitionService.getReportByName('Faktura Uten Giro').subscribe((report) => {
+                    this.previewModal.openWithId(report, invoice.ID);                    
+                });
             }
         });
 
@@ -225,6 +227,10 @@ export class InvoiceList implements OnInit {
             .setColumns([invoiceNumberCol, customerNumberCol, customerNameCol, invoiceDateCol, dueDateCol,
                 taxInclusiveAmountCol, restAmountCol, creditedAmountCol, statusCol])
             .setContextMenu(contextMenuItems);
+    }  
+    
+    private onRowSelected(item) {
+        this.router.navigateByUrl(`/sales/invoice/details/${item.ID}`);
     }
     
     public onFiltersChange(filter: string) {        

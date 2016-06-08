@@ -1,0 +1,9 @@
+<section *ngIf="pageCount > 1">
+    <button class="c2a" [disabled]="imageId === 0" (click)="prev()">prev</button>
+    <button class="c2a" (click)="next()">next</button>
+</section>
+
+<picture *ngIf="imgUrl.length">
+    <source [attr.srcset]="imgUrl2x" media="(-webkit-min-device-pixel-radio: 2), (min-resolution: 192dpi)">
+    <img [attr.src]="imgUrl" alt="">
+</picture>
