@@ -8,7 +8,6 @@
             <p></p>
         </section>
         <nav class="poster_toolbar_tools">
-            <a (click)="printOrder()" class="print">Utskrift</a>
             <a (click)="previousOrder()"  class="previous">Forrige</a>
             <a (click)="nextOrder()"  class="next">Neste</a>
             <a (click)="addOrder()"  class="new">Ny ordre</a>
@@ -64,12 +63,11 @@
     </section>
 </section>
 
+<report-preview-modal></report-preview-modal>
+
 <footer class="full-footer">
     <section class="application">
-        <button class="good" (click)="saveOrderManual($event)">Lagre ordre</button>
-        <button class="good" (click)="saveAndTransferToInvoice($event)">Lagre og overfør til faktura</button>
-        <button class="good" (click)="saveOrderTransition($event, 'register')">registrer</button>
-        <button class="good" (click)="saveOrderTransition($event, 'complete')">complete</button>
+        <uni-save [actions]="actions"></uni-save>
         <section class="auto_save_info">
             {{ lastSavedInfo }}    
         </section>

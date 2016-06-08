@@ -1,28 +1,32 @@
-import {Component, ViewChildren} from '@angular/core';
+import {Component, ViewChildren, ViewChild} from '@angular/core';
 import {UniTable, UniTableColumn, UniTableColumnType, UniTableConfig, IContextMenuItem} from 'unitable-ng2/main';
 import {Router} from '@angular/router-deprecated';
-import {UniHttp} from '../../../../../framework/core/http/http';
-import {CustomerOrderService} from '../../../../services/services';
+import {CustomerOrderService,ReportDefinitionService} from '../../../../services/services';
 import {CustomerOrder} from '../../../../unientities';
-import {StimulsoftReportWrapper} from "../../../../../framework/wrappers/reporting/reportWrapper";
-import {Http, URLSearchParams} from '@angular/http';
+import {URLSearchParams} from '@angular/http';
+import {PreviewModal} from '../../../reports/modals/preview/previewModal';
 
 declare var jQuery;
 
 @Component({
     selector: 'order-list',
     templateUrl: 'app/components/sales/order/list/orderList.html',
-    directives: [UniTable],
-    providers: [CustomerOrderService,StimulsoftReportWrapper]
+    directives: [UniTable,PreviewModal],
+    providers: [CustomerOrderService,ReportDefinitionService]
 })
 export class OrderList {
     @ViewChildren(UniTable) public tables: any;
+
+    @ViewChild(PreviewModal)
+    private previewModal: PreviewModal;
 
     private orderTable: UniTableConfig;
     private selectedorder: CustomerOrder;
     private lookupFunction: (urlParams: URLSearchParams) => any;
    
-    constructor(private uniHttpService: UniHttp, private router: Router, private customerOrderService: CustomerOrderService, private http: Http, private report: StimulsoftReportWrapper) {
+    constructor(private router: Router, 
+                private customerOrderService: CustomerOrderService, 
+                private reportDefinitionService: ReportDefinitionService) {
         this.setupOrderTable();
     }
     
@@ -71,15 +75,9 @@ export class OrderList {
         contextMenuItems.push({
             label: 'Skriv ut',
             action: (order: CustomerOrder) => {
-                // TODO: 1. Get .mrt id from report definition 2. get .mrt from server
-                //this.reportService.getReportDefinitionByName('Order').subscribe(definitions => {
-                    this.http.get('/assets/DemoData/Demo.mrt') 
-                        .map(res => res.text())
-                        .subscribe(template => {
-                            this.report.printReport(template, [JSON.stringify(order)], false);                            
-                        });
-                //    
-                //});                
+                this.reportDefinitionService.getReportByName('Ordre').subscribe((report) => {
+                    this.previewModal.openWithId(report, order.ID);
+                });
             }
         });
         

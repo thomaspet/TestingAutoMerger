@@ -3,7 +3,7 @@ import {Router, RouteParams, RouterLink} from '@angular/router-deprecated';
 import {Observable} from 'rxjs/Observable';
 import 'rxjs/add/observable/forkJoin';
 
-import {CustomerOrderService, CustomerOrderItemService, CustomerService, SupplierService, ProjectService, DepartementService, AddressService} from '../../../../services/services';
+import {CustomerOrderService, CustomerOrderItemService, CustomerService, SupplierService, ProjectService, DepartementService, AddressService, ReportDefinitionService} from '../../../../services/services';
 import {OrderItemList} from './orderItemList';
 import {OrderToInvoiceModal} from '../modals/ordertoinvoice';
 
@@ -18,16 +18,16 @@ import {UniFieldBuilder} from '../../../../../framework/forms/builders/uniFieldB
 import {UniComponentLoader} from '../../../../../framework/core/componentLoader';
 import {AddressModal} from '../../customer/modals/address/address';
 import {TradeHeaderCalculationSummary} from '../../../../models/sales/TradeHeaderCalculationSummary';
-import {StimulsoftReportWrapper} from "../../../../../framework/wrappers/reporting/reportWrapper";
-import {Http} from '@angular/http';
+import {UniSave, IUniSaveAction} from '../../../../../framework/save/save';
+import {PreviewModal} from '../../../reports/modals/preview/previewModal';
 
 declare var _;
      
 @Component({
     selector: 'order-details',
     templateUrl: 'app/components/sales/order/details/orderDetails.html',    
-    directives: [UniComponentLoader, RouterLink, OrderItemList, AddressModal, OrderToInvoiceModal],
-    providers: [CustomerOrderService, CustomerOrderItemService, CustomerService, ProjectService, DepartementService, AddressService, StimulsoftReportWrapper]
+    directives: [UniComponentLoader, RouterLink, OrderItemList, AddressModal, OrderToInvoiceModal, UniSave, PreviewModal],
+    providers: [CustomerOrderService, CustomerOrderItemService, CustomerService, ProjectService, DepartementService, AddressService, ReportDefinitionService]
 })
 export class OrderDetails {
             
@@ -39,6 +39,9 @@ export class OrderDetails {
     @ViewChild(OrderToInvoiceModal)
     oti: OrderToInvoiceModal;
     
+    @ViewChild(PreviewModal)
+    private previewModal: PreviewModal;
+
     businessRelationInvoice: BusinessRelation = new BusinessRelation();
     businessRelationShipping: BusinessRelation = new BusinessRelation();
     lastCustomerInfo: BusinessRelation;
@@ -59,14 +62,42 @@ export class OrderDetails {
     
     EmptyAddress: Address;
        
+    private actions: IUniSaveAction[] = [
+        {
+            label: 'Lagre ordre',
+            action: (done) => this.saveOrderManual(done),
+            main: true,
+            disabled: false
+        },
+        {
+            label: 'Lagre og skriv ut',
+            action: (done) => this.saveAndPrint(done),
+            disabled: false  
+        },
+        {
+            label: 'Lagre og overfør til faktura',
+            action: (done) => this.saveAndTransferToInvoice(done),
+            disabled: false
+        },
+        {
+            label: 'registrer',
+            action: (done) => this.saveOrderTransition(done, 'register'),
+            disabled: false
+        },
+        {
+            label: 'complete',
+            action: (done) => this.saveOrderTransition(done, 'complete'),
+            disabled: false
+        }
+    ];   
+       
     constructor(private customerService: CustomerService, 
                 private customerOrderService: CustomerOrderService, 
                 private customerOrderItemService: CustomerOrderItemService,
                 private departementService: DepartementService,
                 private projectService: ProjectService,
                 private addressService: AddressService,
-                private report: StimulsoftReportWrapper,
-                private http: Http,
+                private reportDefinitionService: ReportDefinitionService,
                 private router: Router, private params: RouteParams) {                
         this.OrderID = params.get('id');
         this.businessRelationInvoice.Addresses = [];
@@ -203,7 +234,7 @@ export class OrderDetails {
         this.saveOrder();
     }
     
-    saveAndTransferToInvoice(event: any) {
+    saveAndTransferToInvoice(done: any) {
         this.oti.Changed.subscribe(items => {
             var order : CustomerOrder = _.cloneDeep(this.order);
             order.Items = items;
@@ -221,10 +252,11 @@ export class OrderDetails {
         });        
     }
     
-    saveOrderTransition(event: any, transition: string) {
+    saveOrderTransition(done: any, transition: string) {
         this.saveOrder((order) => {
             this.customerOrderService.Transition(this.order.ID, this.order, transition).subscribe((x) => {
               console.log("== TRANSITION OK " + transition + " ==");
+              done("Lagret");
               
               this.customerOrderService.Get(order.ID, ['Dimensions','Items','Items.Product','Items.VatType', 'Customer', 'Customer.Info', 'Customer.Info.Addresses']).subscribe((order) => {
                 this.order = order;
@@ -291,16 +323,13 @@ export class OrderDetails {
         });           
     }
     
-    printOrder() {
-       // TODO: 1. Get .mrt id from report definition 2. get .mrt from server
-       //this.reportService.getReportDefinitionByName('Order').subscribe(definitions => {
-            this.http.get('/assets/DemoData/Demo.mrt')
-                .map(res => res.text())
-                .subscribe(template => {
-                    this.report.printReport(template, [JSON.stringify(this.order)], false);                            
-                });
-        //    
-        //});
+    private saveAndPrint(done) {
+        this.saveOrder((order) => {
+            this.reportDefinitionService.getReportByName('Ordre').subscribe((report) => {
+                this.previewModal.openWithId(report, order.ID);
+                done("Utskrift");                    
+            });
+        });
     }
         
     createFormConfig() {   
