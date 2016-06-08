@@ -15,12 +15,7 @@ declare var moment;
 @Component({
     selector: view.name,
     templateUrl: 'app/components/timetracking/regtime/regtime.html',
-    directives: [UniTable, UniSave], 
-    styles: ['.title { font-size: 18pt; padding: 1em 1em 1em 0; }',
-            '.title span { margin-right: 1em;}',
-            '.title select { display:inline-block; width: auto; padding-left: 7px; padding-right: 7px; }',
-            '.tabtip { color: #606060; margin-left: -15px; }'
-            ],
+    directives: [UniTable, UniSave],
     providers: [WorkerService, TimesheetService]
 })
 export class RegisterTime {    
@@ -54,30 +49,19 @@ export class RegisterTime {
         this.initServiceValues();        
     }
     
-    onReloadClick() {
-        this.busy = true;
-        this.initServiceValues();            
-    }
-    
     save(done) {
         this.busy = true;
         var counter = 0;
         this.timeSheet.saveItems().subscribe((item:WorkItem)=>{            
             counter++;                
         }, (err)=>{
-            var msg:string = err._body || err.statusText;
-            if (msg.indexOf('"Message":')>0) {
-                msg = msg.substr(msg.indexOf('"Message":') + 12, 80) + "..";
-            }
+            var msg = this.showErrMsg(err._body || err.statusText, true);
             done('Feil ved lagring: ' + msg);
-            alert(msg);
             this.busy = false;            
         }, ()=>{
-            //debugger;
             this.flagUnsavedChanged(true);
             done(counter + " poster ble lagret.");
             this.loadItems();
-            //this.busy = false;
         });
     }
     
@@ -89,7 +73,7 @@ export class RegisterTime {
                 this.actions[0].disabled = true;
             })    
         } else {
-            alert("Current worker/user has no workrelations!");
+            this.showErrMsg("Current worker/user has no workrelations!");
         }
     }
 
@@ -98,23 +82,18 @@ export class RegisterTime {
         
         this.timesheetService.initUser().subscribe((ts:TimeSheet) => {
             this.timeSheet = ts;
-            this.selectWorkRelation(ts.currentRelation);
+            this.loadItems();
             this.workRelations = this.timesheetService.workRelations;
         });
         
         this.workerService.getWorkTypes().subscribe((result:Array<WorkType>)=>{
             this.worktypes = result;
         }, (err)=>{
-            console.log("errors in getworktypes!");
+            this.showErrMsg("errors in getworktypes!");
         });   
         
     }
     
-    selectWorkRelation(relation:WorkRelation) {
-        this.timeSheet.currentRelation = relation;
-        this.loadItems();
-    }    
-       
     filterWorkTypes(txt:string):Observable<any> {
         var list = this.worktypes;  
         var lcaseText = txt.toLowerCase();
@@ -126,12 +105,11 @@ export class RegisterTime {
     createTableConfig():UniTableConfig {        
         
         var cols = [
-            //new UniTableColumn('ID', 'ID', UniTableColumnType.Number, false).setVisible(false),
-            new UniTableColumn('Description', 'Beskrivelse', UniTableColumnType.Text, true).setWidth('40vw'),
+            new UniTableColumn('Date', 'Dato', UniTableColumnType.Date, true),            
             this.createTimeColumn('StartTime', 'Fra kl.'),
             this.createTimeColumn('EndTime', 'Til kl.'),
-            new UniTableColumn('Date', 'Dato', UniTableColumnType.Date, true),            
-            this.createLookupColumn('Worktype', 'Type arbeid', 'Worktype', (txt) => this.filterWorkTypes(txt))                      
+            this.createLookupColumn('Worktype', 'Type arbeid', 'Worktype', (txt) => this.filterWorkTypes(txt)),                      
+            new UniTableColumn('Description', 'Beskrivelse', UniTableColumnType.Text, true).setWidth('40vw')
         ];
 
         var ctx: Array<IContextMenuItem> = [];
@@ -162,7 +140,6 @@ export class RegisterTime {
         if (this.timeSheet.setItemValue(change)) {             
             this.flagUnsavedChanged();
             newRow[event.field] = change.value;
-            //console.log('changes', this.timeSheet.unsavedItems());
             return newRow; 
         }
  
@@ -171,6 +148,17 @@ export class RegisterTime {
     flagUnsavedChanged(reset = false) {
         this.actions[0].disabled = reset;
     }
+
+    showErrMsg(msg:string, lookForMsg = false):string {
+        var txt = msg;
+        if (lookForMsg) {
+            if (msg.indexOf('"Message":')>0) {
+                txt = msg.substr(msg.indexOf('"Message":') + 12, 80) + "..";
+            }
+        }
+        alert(txt);
+        return txt;
+    } 
     
     // UniTable helperes:
     
@@ -186,7 +174,6 @@ export class RegisterTime {
     }
     
     createLookupColumn(name:string, label: string, expandCol:string, lookupFn?: any, expandKey = 'ID', expandLabel = 'Name'): UniTableColumn {
-        //console.log(`${expandCol}.${expandLabel}`);
         var col = new UniTableColumn(name, label, UniTableColumnType.Lookup)
             .setDisplayField(`${expandCol}.${expandLabel}`)
             .setEditorOptions({

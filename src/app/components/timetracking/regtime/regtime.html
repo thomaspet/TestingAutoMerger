@@ -1,6 +1,6 @@
-<section class='application'>
+<section class='application regtimecontainer'>
     
-    <header class="title">
+    <header class="regtimetitle">
         <span>Registrere timer for {{userName}}</span>
         <select *ngFor="let item of workRelations">
             <option>{{item.CompanyName}} : {{item.WorkPercentage}}% - {{item.Description}}</option>
@@ -11,7 +11,7 @@
         <ul>
             <li *ngFor="let tab of tabs">
                 <a [ngClass]="{'router-link-active': tab.isSelected}" >{{tab.label}}</a>
-                <span class='tabtip' *ngIf="tab.counter">({{tab.counter}})</span>   
+                <span class='regtimetabtip' *ngIf="tab.counter">({{tab.counter}})</span>   
             </li>
         </ul>    
     </aside>
@@ -20,8 +20,6 @@
 
     <section [attr.aria-busy]="busy" >
         
-        <button (click)="onReloadClick()">Oppdater</button>
-
         <uni-table [resource]="timeSheet.items" [config]="tableConfig"></uni-table>
     
     </section>

@@ -9,7 +9,6 @@ export function safeInt(value: any) {
         return 0;
     }
     return tmp;
-
 }
 
 export function parseDate(value:any, allowMacros = true): Date {
