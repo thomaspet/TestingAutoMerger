@@ -2,7 +2,7 @@ import {Component, ViewChildren, ViewChild, OnInit} from '@angular/core';
 import {UniTable, UniTableColumn, UniTableColumnType, UniTableConfig, IContextMenuItem} from 'unitable-ng2/main';
 import {Router} from '@angular/router-deprecated';
 import {UniHttp} from '../../../../../framework/core/http/http';
-import {CustomerInvoiceService,ReportService,ReportDefinitionService,ReportParameter} from '../../../../services/services';
+import {CustomerInvoiceService,ReportDefinitionService} from '../../../../services/services';
 import {StatusCodeCustomerInvoice,CustomerInvoice} from '../../../../unientities';
 import {URLSearchParams} from '@angular/http';
 import {AsyncPipe} from '@angular/common';
@@ -10,14 +10,13 @@ import {InvoicePaymentData} from '../../../../models/sales/InvoicePaymentData';
 import {InvoiceSummary} from '../../../../models/accounting/InvoiceSummary';
 
 import {RegisterPaymentModal} from '../../../common/modals/registerPaymentModal';
-import {StimulsoftReportWrapper} from "../../../../../framework/wrappers/reporting/reportWrapper";
 import {PreviewModal} from '../../../reports/modals/preview/previewModal';
 
 @Component({
     selector: 'invoice-list',
     templateUrl: 'app/components/sales/invoice/list/invoiceList.html',
-    directives: [UniTable, RegisterPaymentModal, PreviewModal],
-    providers: [CustomerInvoiceService,ReportService,StimulsoftReportWrapper,ReportDefinitionService],
+    directives: [UniTable,RegisterPaymentModal,PreviewModal],
+    providers: [CustomerInvoiceService,ReportDefinitionService],
     pipes: [AsyncPipe]
 })
 
@@ -38,8 +37,6 @@ export class InvoiceList implements OnInit {
     constructor(private uniHttpService: UniHttp,
                 private router: Router,
                 private customerInvoiceService: CustomerInvoiceService,
-                private report: StimulsoftReportWrapper,
-                private reportService: ReportService,
                 private reportDefinitionService: ReportDefinitionService) {
 
         this.setupInvoiceTable();
@@ -184,26 +181,8 @@ export class InvoiceList implements OnInit {
         contextMenuItems.push({
             label: 'Skriv ut',
             action: (invoice: CustomerInvoice) => {
-                //this.reportService.getReportTemplateAndData('Faktura Uten Giro', {Id: invoice.ID}).subscribe((response: any[]) => {
-                //   let [template, data] = response;
-                //   this.report.printReport(template, data, false);                      
-                //});
-                
-                this.reportDefinitionService.GetAll("filter=Name eq 'Faktura Uten Giro'").subscribe((reports) => {
-                   var report = reports[0];
-                 
-                   var idparam = new ReportParameter();
-                   idparam.Name = "Id";
-                   idparam.value = invoice.ID;
-                   report.parameters = [idparam];
-
-                   this.previewModal.open(report);
-
-                  console.log("== REPORT ==");
-                   console.log(report);
- 
-       
-                   //this.reportDefinitionService.generateReportPdf(report[0]);                    
+                this.reportDefinitionService.getReportByName('Faktura Uten Giro').subscribe((report) => {
+                    this.previewModal.openWithId(report, invoice.ID);                    
                 });
             }
         });

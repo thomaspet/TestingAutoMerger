@@ -13,7 +13,6 @@
             <p></p>
         </section>
         <nav class="poster_toolbar_tools">
-            <a (click)="printInvoice()" class="print">Utskrift</a>
             <a (click)="previousInvoice()" class="previous">Forrige</a>
             <a (click)="nextInvoice()" class="next">Neste</a>
             <a (click)="addInvoice()" class="new">Ny ordre</a>
@@ -54,10 +53,11 @@
     <invoice-item-list [invoice]="invoice" (itemsUpdated)="recalcItemSums($event)" (itemsLoaded)="recalcItemSums($event)"></invoice-item-list>
 </section>
 
+<report-preview-modal></report-preview-modal>
+
 <footer class="full-footer">
     <section class="application">
-        <button class="good" (click)="saveInvoiceManual($event)">Lagre</button>
-        <button class="good" (click)="saveInvoiceTransition($event, 'invoice')">{{invoiceButtonText}}</button>
+        <uni-save [actions]="actions"></uni-save>
         <section class="auto_save_info">
             {{ lastSavedInfo }}
         </section>

@@ -17,7 +17,7 @@ class ReportDataSource extends ReportDefinitionDataSource {
     
 }
 
-class Report extends ReportDefinition {
+export class Report extends ReportDefinition {
     public parameters: ReportParameter[];
     public dataSources: ReportDataSource[];
     public templateJson: string;
@@ -39,6 +39,12 @@ export class ReportDefinitionService extends BizHttp<ReportDefinition>{
         this.baseHttp = this.uniHttp.http;
         this.relativeURL = ReportDefinition.RelativeUrl;
         this.DefaultOrderBy = 'Category';
+    }
+    
+    public getReportByName(name: string) : Observable<any> {
+        return this.GetAll(`filter=Name eq '${name}'`).map((reports) => {
+           return reports[0]; 
+        });
     }
 
     public generateReportHtml(report: ReportDefinition, target: any) {

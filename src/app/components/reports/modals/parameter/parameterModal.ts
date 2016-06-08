@@ -77,7 +77,7 @@ export class ParameterModal {
         this.modalConfig.report = report;
         this.previewModal = previewModal;
 
-        this.reportDefinitionParameterService.GetAll('ReportDefinitionId=' + report.ID).subscribe(params => {
+        this.reportDefinitionParameterService.GetAll('filter=ReportDefinitionId eq ' + report.ID).subscribe(params => {
             this.modalConfig.report.parameters = params;
             this.modal.open();        
         });

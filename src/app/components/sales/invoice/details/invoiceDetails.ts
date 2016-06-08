@@ -3,7 +3,7 @@ import {Router, RouteParams, RouterLink} from '@angular/router-deprecated';
 import {Observable} from 'rxjs/Observable';
 import 'rxjs/add/observable/forkJoin';
 
-import {CustomerInvoiceService, CustomerInvoiceItemService, CustomerService, ProjectService, DepartementService, AddressService, ReportService} from '../../../../services/services';
+import {CustomerInvoiceService, CustomerInvoiceItemService, CustomerService, ProjectService, DepartementService, AddressService, ReportDefinitionService, ReportParameter} from '../../../../services/services';
 import {InvoiceItemList} from './invoiceItemList';
 
 import {ComponentLayout, CustomerInvoice, Customer, Dimensions, Address, BusinessRelation} from '../../../../unientities';
@@ -14,8 +14,8 @@ import {UniFieldBuilder} from '../../../../../framework/forms/builders/uniFieldB
 import {UniComponentLoader} from '../../../../../framework/core/componentLoader';
 import {AddressModal} from '../../customer/modals/address/address';
 import {TradeHeaderCalculationSummary} from '../../../../models/sales/TradeHeaderCalculationSummary';
-import {StimulsoftReportWrapper} from "../../../../../framework/wrappers/reporting/reportWrapper";
-import {Http} from '@angular/http';
+import {UniSave, IUniSaveAction} from '../../../../../framework/save/save';
+import {PreviewModal} from '../../../reports/modals/preview/previewModal';
 
 declare var _;
 declare var moment;
@@ -23,14 +23,18 @@ declare var moment;
 @Component({
     selector: 'invoice-details',
     templateUrl: 'app/components/sales/invoice/details/invoiceDetails.html',
-    directives: [UniComponentLoader, RouterLink, InvoiceItemList, AddressModal],
-    providers: [CustomerInvoiceService, CustomerInvoiceItemService, CustomerService, ProjectService, DepartementService, AddressService, StimulsoftReportWrapper, ReportService]
+    directives: [UniComponentLoader, RouterLink, InvoiceItemList, AddressModal, UniSave, PreviewModal],
+    providers: [CustomerInvoiceService, CustomerInvoiceItemService, CustomerService, ProjectService, DepartementService, AddressService, ReportDefinitionService]
 })
 export class InvoiceDetails implements OnInit {
 
     @Input() public invoiceID: any;
 
-    @ViewChild(UniComponentLoader) public ucl: UniComponentLoader;
+    @ViewChild(UniComponentLoader) 
+    public ucl: UniComponentLoader;
+    
+    @ViewChild(PreviewModal)
+    private previewModal: PreviewModal;
 
     private businessRelationInvoice: BusinessRelation = new BusinessRelation();
     private businessRelationShipping: BusinessRelation = new BusinessRelation();
@@ -53,6 +57,25 @@ export class InvoiceDetails implements OnInit {
     private invoiceReference: CustomerInvoice;
     private invoiceButtonText: string = 'Fakturer';
     private recalcTimeout: any;
+    
+    private actions: IUniSaveAction[] = [
+        {
+            label: 'Lagre',
+            action: (done) => this.saveInvoiceManual(done),
+            main: true,
+            disabled: false
+        },
+        {
+            label: 'Lagre og skriv ut',
+            action: (done) => this.saveAndPrint(done),
+            disabled: false  
+        },
+        {
+            label: this.invoiceButtonText,
+            action: (done) => this.saveInvoiceTransition(done),
+            disabled: false
+        }   
+    ];
 
     constructor(private customerService: CustomerService,
         private customerInvoiceService: CustomerInvoiceService,
@@ -60,9 +83,7 @@ export class InvoiceDetails implements OnInit {
         private departementService: DepartementService,
         private projectService: ProjectService,
         private addressService: AddressService,
-        private report: StimulsoftReportWrapper,
-        private http: Http,
-        private reportService: ReportService,
+        private reportDefinitionService: ReportDefinitionService,
         private router: Router, private params: RouteParams) {
         this.invoiceID = params.get('id');
         this.businessRelationInvoice.Addresses = [];
@@ -194,8 +215,9 @@ export class InvoiceDetails implements OnInit {
                 );
         }, 2000);
     }
-
-    private saveInvoiceTransition(event: any, transition: string) {
+    
+    private saveInvoiceTransition(done) {
+        let transition = 'invoice';
         this.saveInvoice((invoice) => {
             this.customerInvoiceService.Transition(this.invoice.ID, this.invoice, transition).subscribe(() => {
                 console.log('== TRANSITION OK ' + transition + ' ==');
@@ -212,7 +234,7 @@ export class InvoiceDetails implements OnInit {
         }, transition);
     }
 
-    private saveInvoiceManual(event: any) {
+    private saveInvoiceManual(done) {
         this.saveInvoice();
     }
 
@@ -281,11 +303,12 @@ export class InvoiceDetails implements OnInit {
         });
     }
     
-    private printInvoice() {
-        this.reportService.getReportTemplateAndData('Faktura Uten Giro', {Id: this.invoice.ID}).subscribe((response: any[]) => {
-            let [template, data] = response;
-            this.report.printReport(template, data, false);                      
-        });               
+    private saveAndPrint(done) {
+        this.saveInvoice((invoice) => {
+            this.reportDefinitionService.getReportByName('Faktura Uten Giro').subscribe((report) => {
+                this.previewModal.openWithId(report, invoice.ID);                    
+            });
+        });
     }
 
     private createFormConfig() {   
