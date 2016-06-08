@@ -303,7 +303,6 @@ export class SalaryTransactionEmployeeList implements OnInit {
             .setPageable(false)
             .setChangeCallback((event) => {
                 let row = event.rowModel;
-                console.log('changecallback row', row);
 
                 if (event.field === 'WageTypeNumber') {
                     this.mapWagetypeToTrans(row);
@@ -361,7 +360,6 @@ export class SalaryTransactionEmployeeList implements OnInit {
         if (!employment) {
             return;
         }
-        console.log('mapemployment', employment);
         rowModel['EmploymentID'] = employment.ID;
     }
     
