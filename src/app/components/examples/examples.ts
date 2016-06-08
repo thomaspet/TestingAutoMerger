@@ -10,6 +10,7 @@ import {UniModalDemo} from "./modal/modalDemo";
 import {UniModalAdvancedDemo} from "./modal/advancedDemo";
 import {UniDocumentDemo} from "./documents/document";
 import {UniSaveDemo} from "./save/saveDemo";
+import {ImageDemo} from './image/imageDemo';
 
 const CHILD_ROUTES = [
     {path: "/", redirectTo: ["./UniFormDemo"]},
@@ -17,6 +18,7 @@ const CHILD_ROUTES = [
     {path: "/xform", component: XFormDemo , as: "XFormDemo"},
     {path: "/table", component: UniTableDemo , as: "UniTableDemo"},
     {path: "/tablenew", component: UniTableDemoNew, as: "UniTableDemoNew"},
+    {path: '/image', component: ImageDemo, as: 'ImageDemo'},
     {path: "/treelist", component: UniTreelistDemo , as: "UniTreelistDemo"},
     {path: "/modal", component: UniModalDemo  , as: "UniModalDemo"},
     {path: "/modal-advanced", component: UniModalAdvancedDemo  , as: "UniModalAdvancedDemo"},
