@@ -2,10 +2,7 @@ import {Component, ViewChild, Input, Output, EventEmitter, OnInit} from '@angula
 import {Observable} from 'rxjs/Observable';
 import 'rxjs/add/observable/forkJoin';
 import {Router} from '@angular/router-deprecated';
-
 import {UniTable, UniTableColumn, UniTableColumnType, UniTableConfig} from 'unitable-ng2/main';
-import {UniHttp} from '../../../../../framework/core/http/http';
-
 import {ProductService, VatTypeService, CustomerInvoiceItemService} from '../../../../services/services';
 import {CustomerInvoice, CustomerInvoiceItem, Product, VatType} from '../../../../unientities';
 
@@ -29,7 +26,7 @@ export class InvoiceItemList implements OnInit {
     public vatTypes: VatType[];
     public items: CustomerInvoiceItem[];
 
-    constructor(private uniHttpService: UniHttp,
+    constructor(
         private router: Router,
         private customerInvoiceItemService: CustomerInvoiceItemService,
         private productService: ProductService,
@@ -75,6 +72,7 @@ export class InvoiceItemList implements OnInit {
         rowModel.PriceExVat = product.PriceExVat;
         rowModel.PriceIncVat = product.PriceIncVat;
     }
+
     private calculatePriceIncVat(rowModel) {
         let vatType = rowModel['VatType'] || { VatPercent: 0 };
         let priceExVat = rowModel['PriceExVat'] || 0;

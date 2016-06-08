@@ -5,7 +5,6 @@ import 'rxjs/add/observable/forkJoin';
 import {ComponentInstruction, RouteParams, Router} from '@angular/router-deprecated';
 
 import {UniTable, UniTableColumn, UniTableColumnType, UniTableConfig} from 'unitable-ng2/main';
-import {UniHttp} from '../../../../../framework/core/http/http';
 
 import {ProductService, VatTypeService, CustomerQuoteItemService} from '../../../../services/services';
 import {CustomerQuote, CustomerQuoteItem, Product, VatType} from '../../../../unientities';
@@ -30,7 +29,7 @@ export class QuoteItemList {
     vatTypes: VatType[];
     items: CustomerQuoteItem[];
     
-    constructor(private uniHttpService: UniHttp, private router: Router, private customerQuoteItemService: CustomerQuoteItemService, private productService: ProductService, private vatTypeService: VatTypeService) {
+    constructor(private router: Router, private customerQuoteItemService: CustomerQuoteItemService, private productService: ProductService, private vatTypeService: VatTypeService) {
                  
     }
     
