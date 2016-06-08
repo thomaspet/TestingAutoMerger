@@ -1,17 +1,22 @@
 <header class="detail_header">
-    
+
     <section *ngIf="employee" class="detail_header_info">
-        <h1>{{employee.BusinessRelationInfo.Name}}</h1>
-        <uni-component-loader class="detail_header_info_tableForm"></uni-component-loader>
+        <h1>{{employee.ID}} - {{employee.BusinessRelationInfo.Name}}</h1>
+        <!--<uni-component-loader class="detail_header_info_tableForm"></uni-component-loader>-->
+        <uni-form *ngIf="employee" class="detail_header_info_tableForm" [config]="config" [fields]="fields" [model]="formModel" (onChange)="change($event)" (onReady)="ready($event)"></uni-form>
     </section>
 
     <nav class="detail_header_navigation">
         <a (click)="getPrevious()" class="previous">Forrige</a>
         <a (click)="getNext()" class="next">Neste</a>
     </nav>
-            
+
 </header>
 <section [attr.aria-busy]="busy" class="detail_tables">
-    <uni-table [config]="salarytransEmployeeTableConfig" class="maintable"></uni-table>
-    <uni-table [config]="salarytransEmployeeTotalsTableConfig" class="summarytable"></uni-table>
+    <uni-table [resource]="salarytransItems$ | async" [config]="salarytransEmployeeTableConfig" (rowChanged)="rowChanged($event)" class="maintable"></uni-table>
+    <!--<uni-table [resource]="salarytransTotals$ | async" [config]="salarytransEmployeeTotalsTableConfig"></uni-table>-->
+    <!--class="summarytable"-->
+    <uni-table [resource]="employeeTotals" [config]="salarytransEmployeeTotalsTableConfig"></uni-table>
 </section>
+
+<uni-save [actions]="saveactions"></uni-save>
