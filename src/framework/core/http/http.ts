@@ -1,4 +1,4 @@
-﻿import {Injectable} from '@angular/core';
+﻿import {Injectable, EventEmitter} from '@angular/core';
 import {Http, Headers, URLSearchParams, Request, RequestMethod} from '@angular/http';
 import {Observable} from 'rxjs/Rx';
 import {AppConfig} from '../../../app/AppConfig';
@@ -27,7 +27,9 @@ export class UniHttp {
     private method: number;
     private body: any;
     private endPoint: string;
-    private debounceTime: number = 0;
+    
+    private lastReAuthentication: Date;
+    private reAuthenticated$: EventEmitter<any> = new EventEmitter();
     
     constructor(public http: Http, private authService: AuthService) {
         var headers = AppConfig.DEFAULT_HEADERS;
@@ -36,11 +38,10 @@ export class UniHttp {
     }
 
     public appendHeaders(headers: any) {
-        for (var header in headers) {
-            if (headers.hasOwnProperty(header)) {
-                this.headers.append(header, headers[header]);
-            }
+        for (var key in headers) {
+            this.headers.set(key, headers[key])
         }
+        return this;
     }
 
     public getBaseUrl() {
@@ -64,7 +65,7 @@ export class UniHttp {
     }
 
     public withHeader(name: string, value: any) {
-        this.headers.append(name, value);
+        this.headers.set(name, value);
         return this;
     }
 
@@ -73,17 +74,25 @@ export class UniHttp {
     }
 
     public usingMetadataDomain() {
+        this.baseUrl = AppConfig.BASE_URL;
         this.apiDomain = AppConfig.API_DOMAINS.METADATA;
         return this;
     }
 
     public usingBusinessDomain() {
+        this.baseUrl = AppConfig.BASE_URL;
         this.apiDomain = AppConfig.API_DOMAINS.BUSINESS;
         return this;
     }
 
     public usingInitDomain() {
+        this.baseUrl = AppConfig.BASE_URL_INIT;
         this.apiDomain = AppConfig.API_DOMAINS.INIT;
+        return this;
+    }
+    
+    public usingEmptyDomain() {
+        this.apiDomain = "";
         return this;
     }
 
@@ -175,27 +184,44 @@ export class UniHttp {
             options.body = (body instanceof FormData) ? body : JSON.stringify(body);
         }
         
-        if (searchParams != null) {
+        if (searchParams) {
             options.search = searchParams;
-        }
-        else if (request) {
+        } else if (request) {
             options.search = UniHttp.buildUrlParams(request);
         }
 
-        let req = this.http.request(new Request(options));
-
-        if (withoutJsonMap) {
-            return req;
-        }
-
-        return req.map(response => {
-            try {
-                var res = response.json();
-                return res;
-            } catch (e) {
-                return response;
+        return this.http.request(new Request(options))
+        .retryWhen(errors => errors.switchMap(err => {
+            if (err.status === 401) {
+                if (!this.authService.isAuthenticated() 
+                    || !this.authService.lastTokenUpdate 
+                    || (new Date().getMinutes() - this.authService.lastTokenUpdate.getMinutes()) > 1) {
+                    
+                    this.lastReAuthentication = new Date();
+                    this.authService.requestAuthentication$.emit({
+                        onAuthenticated: (newToken) => {
+                            this.headers.set('Authorization', 'Bearer ' + newToken);
+                            this.reAuthenticated$.emit(true);
+                        }
+                    });
+                
+                    return this.reAuthenticated$;
+                } else {
+                    return Observable.timer(500);
+                }
+                    
+            } else {
+                    return Observable.throw(err);                
             }
-        });
+        }))
+        .switchMap(
+            (response) => {
+                if (withoutJsonMap) {
+                    return Observable.from([response]);
+                } else {
+                    return Observable.from([response.json()]);
+                }
+            });
     }
 
     public multipleRequests(requests: IUniHttpRequest[]) {

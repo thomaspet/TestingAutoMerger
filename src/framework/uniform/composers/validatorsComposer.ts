@@ -1,6 +1,6 @@
 import {Validators} from '@angular/common';
 import {UniValidator} from '../validators';
-import {UniFieldLayout} from '../unifieldlayout';
+import {UniFieldLayout} from '../interfaces';
 /**
  * Join (or Compose) Validators of a UniFieldBuilder
  */

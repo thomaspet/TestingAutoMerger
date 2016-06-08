@@ -1,6 +1,6 @@
 import {Component, Input, Output, ElementRef, EventEmitter, ChangeDetectionStrategy, ChangeDetectorRef} from '@angular/core';
 import {Control} from '@angular/common';
-import {UniFieldLayout} from '../unifieldlayout';
+import {UniFieldLayout} from '../interfaces';
 import {autocompleteDate} from '../shared/autocompleteDate';
 import {Observable} from 'rxjs/Rx';
 

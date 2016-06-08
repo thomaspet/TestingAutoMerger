@@ -1,13 +1,16 @@
 import {Component, OnInit, ViewChild} from '@angular/core';
 import {UniFormBuilder, UniForm, UniFormLayoutBuilder} from '../../../../framework/forms';
 import {AltinnService} from '../../../services/services';
+
 import {Altinn} from '../../../unientities';
 import {Observable} from 'rxjs/Observable';
+import {IntegrationServerCaller} from '../../../services/common/IntegrationServerCaller';
+
 
 @Component({
     selector: 'altinn-settings',
     templateUrl: 'app/components/settings/altinnSettings/altinnSettings.html',
-    providers: [AltinnService],
+    providers: [AltinnService, IntegrationServerCaller],
     directives: [UniForm]
 })
 export class AltinnSettings implements OnInit {
@@ -15,13 +18,36 @@ export class AltinnSettings implements OnInit {
     private altinn: Altinn;
     
     @ViewChild(UniForm) private formInstance: UniForm;
+    
+    public loginErr: string;
 
-    constructor(private _altinnService: AltinnService) {
-
+    constructor(private _altinnService: AltinnService, private integrate: IntegrationServerCaller) {
+           this.loginErr = '';
     }
 
     public ngOnInit() {
         this.getData();
+    }
+
+    public check()  {
+        this.loginErr = '';
+        this.formInstance.sync();
+        
+        if(this.altinn == undefined) this.altinn = new Altinn();
+        let Company = JSON.parse(localStorage.getItem('companySettings'));      
+                
+        
+        this.integrate.checkSystemLogin(Company.OrganizationNumber, this.altinn.SystemID, this.altinn.SystemPw, this.altinn.Language).subscribe((response) => {            
+            if(response !== true){                
+                this.loginErr = 'Failed to log in with given credentials'; 
+            }
+            else{
+                this.loginErr = 'Login ok';
+            }
+         }, (err) => {
+             this.loginErr = err;
+         });               
+
     }
 
     private getData() {
@@ -35,7 +61,7 @@ export class AltinnSettings implements OnInit {
                 } else {
                     this._altinnService.GetNewEntity().subscribe((newAltinn: Altinn) => {
                         this.altinn = new Altinn();
-                        console.log('altinn: ' + JSON.stringify(this.altinn));
+                        //console.log('altinn: ' + JSON.stringify(this.altinn));
                         if (this.formConfig !== null) {
                             this.formConfig.setModel(this.altinn);
                         } else {
@@ -56,10 +82,12 @@ export class AltinnSettings implements OnInit {
         if (this.altinn.ID) {
             this._altinnService.Put(this.altinn.ID, this.altinn).subscribe((response: Altinn) => {
                 this.altinn = response;
+                this.check();
             }, error => console.log(error));
         } else {
             this._altinnService.Post(this.altinn).subscribe((response: Altinn) => {
                 this.altinn = response;
+                this.check();
             }, error => console.log(error));
         }
     }

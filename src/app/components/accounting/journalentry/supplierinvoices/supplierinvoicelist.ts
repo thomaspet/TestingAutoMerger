@@ -8,6 +8,8 @@ import {URLSearchParams} from '@angular/http';
 import {Observable} from 'rxjs/Rx';
 import {RegisterPaymentModal} from '../../../common/modals/registerPaymentModal';
 import {InvoicePaymentData} from '../../../../models/sales/InvoicePaymentData';
+import {InvoiceSummary} from '../../../../models/accounting/InvoiceSummary';
+
 
 declare const moment;
 
@@ -27,7 +29,8 @@ export class SupplierInvoiceList implements OnInit {
     private registerPaymentModal: RegisterPaymentModal;
 
     private supplierInvoiceTableCfg: UniTableConfig;
-
+    private summaryData: InvoiceSummary;
+    
     constructor(
         private supplierInvoiceService: SupplierInvoiceService,
         private router: Router
@@ -40,6 +43,8 @@ export class SupplierInvoiceList implements OnInit {
             urlParams.set('expand', 'JournalEntry,Supplier.Info');
             return this.supplierInvoiceService.GetAllByUrlSearchParams(urlParams);
         };
+        
+        this.onFiltersChange('');
     }
 
     public onLineClick(selectedItem) {
@@ -57,12 +62,13 @@ export class SupplierInvoiceList implements OnInit {
     }
 
     private setupTableCfg(): UniTableConfig {
-        const statusTextCol = new UniTableColumn('StatusCode', 'Status')
+        const statusTextCol = new UniTableColumn('StatusCode', 'Status', UniTableColumnType.Number)
             .setTemplate((dataItem) => {
                 return this.supplierInvoiceService.getStatusText(dataItem.StatusCode);
             });
 
-        const journalEntryCol = new UniTableColumn('JournalEntry.JournalEntryNumber', 'Bilagsnr')
+        const journalEntryCol = new UniTableColumn('JournalEntry.JournalEntryNumber', 'Bilagsnr', UniTableColumnType.Number)
+            .setFilterOperator('startswith')
             .setTemplate(journalEntry => {
                 if (journalEntry.JournalEntry && journalEntry.JournalEntry.JournalEntryNumber) {
                     return `<a href="#/accounting/transquery/detailsByJournalEntryNumber/${journalEntry.JournalEntry.JournalEntryNumber}">
@@ -71,38 +77,40 @@ export class SupplierInvoiceList implements OnInit {
                 }
             });
 
-        const supplierNrCol = new UniTableColumn('Supplier.SupplierNumber', 'Lev.nr');
+        const supplierNrCol = new UniTableColumn('Supplier.SupplierNumber', 'Lev.nr', UniTableColumnType.Number).setFilterOperator('startswith');
 
-        const supplierNameCol = new UniTableColumn('Supplier.Info.Name', 'Navn');
+        const supplierNameCol = new UniTableColumn('Supplier.Info.Name', 'Navn', UniTableColumnType.Text).setFilterOperator('contains');
 
-        const invoiceDateCol = new UniTableColumn('InvoiceDate', 'Fakturadato')
-            .setType(UniTableColumnType.Date)
+        const invoiceDateCol = new UniTableColumn('InvoiceDate', 'Fakturadato', UniTableColumnType.Date)
+            .setFilterOperator('eq')            
             .setFormat(this.DATE_FORMAT);
 
-        const invoiceIDCol = new UniTableColumn('InvoiceNumber', 'Fakturanr');
+        const invoiceIDCol = new UniTableColumn('InvoiceNumber', 'Fakturanr', UniTableColumnType.Number).setFilterOperator('startswith');
 
-        const bankAccount = new UniTableColumn('BankAccount', 'Bankkontonr');
+        const bankAccount = new UniTableColumn('BankAccount', 'Bankkontonr', UniTableColumnType.Text).setFilterOperator('contains');
 
-        const paymentDueDateCol = new UniTableColumn('PaymentDueDate', 'Forfallsdato')
-            .setType(UniTableColumnType.Date)
+        const paymentDueDateCol = new UniTableColumn('PaymentDueDate', 'Forfallsdato', UniTableColumnType.Date)
+            .setFilterOperator('eq')            
             .setConditionalCls(journalEntry =>
                 moment(journalEntry.PaymentDueDate).isBefore(moment()) ? 'supplier-invoice-table-payment-overdue' : ''
             )
             .setFormat(this.DATE_FORMAT);
 
-        const paymentIdOrName = new UniTableColumn('ID' /*not important,overridden by template*/, 'KID / Melding')
+        const paymentIdOrName = new UniTableColumn('PaymentID' /*not important,overridden by template*/, 'KID / Melding')
+            .setFilterOperator('contains')
             .setTemplate((journalEntry) => journalEntry.PaymentInformation || journalEntry.PaymentID);
 
         const taxInclusiveAmountCol = new UniTableColumn('TaxInclusiveAmount', 'Beløp')
+            .setFilterOperator('eq')
             .setCls('supplier-invoice-table-amount'); // TODO decide what/how format is set for the different field types
 
-        const restAmountCol = new UniTableColumn('RestAmount', 'Restbeløp')
-            .setType(UniTableColumnType.Number)
+        const restAmountCol = new UniTableColumn('RestAmount', 'Restbeløp', UniTableColumnType.Number)
+            .setFilterOperator('eq')            
             .setCls('column-align-right')
             .setFormat('{0:n}');
 
-        const creditedAmountCol = new UniTableColumn('CreditedAmount', 'Kreditert')
-            .setType(UniTableColumnType.Number)
+        const creditedAmountCol = new UniTableColumn('CreditedAmount', 'Kreditert', UniTableColumnType.Number)
+            .setFilterOperator('eq')            
             .setCls('column-align-right')
             .setFormat('{0:n}');
 
@@ -122,6 +130,7 @@ export class SupplierInvoiceList implements OnInit {
                 creditedAmountCol
             ])
             .setPageSize(15)
+            .setSearchable(true)            
             .setContextMenu([
                 {
                     label: 'Rediger',
@@ -164,5 +173,17 @@ export class SupplierInvoiceList implements OnInit {
                     disabled: supplierInvoice => !supplierInvoice._links.actions.delete
                 }
             ]);
+    }
+    
+    public onFiltersChange(filter: string) {
+        this.supplierInvoiceService
+            .getInvoiceSummary(filter)
+            .subscribe((summary) => {
+                this.summaryData = summary;
+            },
+            (err) => { 
+                console.log('Error retrieving summarydata:', err);
+                this.summaryData = null;
+            });
     }
 }

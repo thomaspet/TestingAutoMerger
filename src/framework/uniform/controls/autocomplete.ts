@@ -2,10 +2,10 @@ import {Component, Input, Output, ElementRef, EventEmitter, ChangeDetectionStrat
 import {Control} from '@angular/common';
 import {Observable} from 'rxjs/Observable';
 import {BizHttp} from '../../core/http/BizHttp';
-import {UniFieldLayout} from '../unifieldlayout';
+import {UniFieldLayout} from '../interfaces';
 
 
-declare var _, jQuery; // jquery and lodash
+declare var _, jQuery, kendo; // jquery and lodash
 var guid = kendo.guid;
 
 export class UniAutocompleteConfig {
