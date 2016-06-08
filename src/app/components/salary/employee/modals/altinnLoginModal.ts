@@ -34,21 +34,17 @@ export class AltinnLoginModalContent {
     
     constructor(private _altinnService: AltinnService, private _companySettingsService: CompanySettingsService, private _inserver: IntegrationServerCaller, private _altinnReceiptService: AltinnReceiptService) {
         
+        this.companySettings = JSON.parse(localStorage.getItem('companySettings'));
+
         Observable.forkJoin(
-            this._altinnService.GetAll('top:1'),
-            this._companySettingsService.GetAll('top:1'),
-            this._altinnReceiptService.GetAll('top:1') // test for now, must change this in #598
+            this._altinnService.GetAll('top:1')
             ).subscribe((response: any) => {
-                let [altinnResponse, companySettingsResponse, altinnReceipt] = response;
-                this.receiptID = altinnReceipt[0].ReceiptID;
+                let [altinnResponse] = response;
                 this.altinn = altinnResponse[0];
-                this.companySettings = companySettingsResponse[0];
                 this.resetData();
             });
-        
+
         this.createForm();
-        
-        
     }
     
     private createForm() {
@@ -140,7 +136,8 @@ export class AltinnLoginModalContent {
         localStorage.setItem('AltinnUserData', JSON.stringify(this.model));
     }
     
-    public openLogin() {
+    public openLogin(receiptID: number) {
+        this.receiptID = receiptID;
         this.getAltinnCorrespondence(true);
     }
     
@@ -188,15 +185,11 @@ export class AltinnLoginModalContent {
     providers: [AltinnService, CompanySettingsService],
     template: `
         <uni-modal [type]="type" [config]="config"></uni-modal>
-        <button *ngIf="showButton" (click)="openLogin()">Test innlogging</button>
     `
 })
 export class AltinnLoginModal {
     public config: {cancel: () => void};
     public type: Type = AltinnLoginModalContent;
-    
-    @Input()
-    public showButton: boolean;
     
     @ViewChild(UniModal)
     private modal: UniModal;
@@ -212,10 +205,10 @@ export class AltinnLoginModal {
         };
     }
     
-    public openLogin() {
+    public openLogin(receiptID: number) {
         this.modal.getContent().then((component: AltinnLoginModalContent) => {
             this.modal.open();
-            component.openLogin();
+            component.openLogin(receiptID);
             
         }, (error) => console.log('error: ' + error));
     }

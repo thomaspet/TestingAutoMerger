@@ -9,14 +9,14 @@ import {AddressModal} from '../../../sales/customer/modals/address/address';
 import {EmailModal} from '../../../sales/customer/modals/email/email';
 import {PhoneModal} from '../../../sales/customer/modals/phone/phone';
 import {RootRouteParamsService} from '../../../../services/rootRouteParams';
-import {TaxCardRequestModal, AltinnLoginModal} from '../employeeModals';
+import {TaxCardRequestModal, AltinnLoginModal, ReadTaxCardModal} from '../employeeModals';
 import {UniSave, IUniSaveAction} from '../../../../../framework/save/save';
 import {UniFieldLayout} from '../../../../../framework/uniform/index';
 declare var _;
 
 @Component({
     selector: 'employee-personal-details',
-    directives: [UniForm, UniSave, TaxCardRequestModal, AltinnLoginModal],
+    directives: [UniForm, UniSave, TaxCardRequestModal, AltinnLoginModal, ReadTaxCardModal],
     providers: [EmployeeService, PhoneService, EmailService, AddressService, AltinnService, SubEntityService],
     templateUrl: 'app/components/salary/employee/personalDetails/personalDetails.html'
 })
@@ -25,7 +25,9 @@ export class PersonalDetails {
     public config: any = {};
     public fields: any[] = [];
     @ViewChild(UniForm) public uniform: UniForm;
-    
+
+    @ViewChild(ReadTaxCardModal) public taxCardModal: ReadTaxCardModal;
+
     private employee: Employee;
     
     private emptyPhone: Phone;
@@ -215,5 +217,9 @@ export class PersonalDetails {
                 console.log('Feil ved lagring', err);
             });
         }
+    }
+
+    public openReadTaxCardModal() {
+        this.taxCardModal.openModal();
     }
 }
