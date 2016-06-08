@@ -8,9 +8,6 @@ import {UniSave, IUniSaveAction} from '../../../../framework/save/save';
 import {UniForm} from '../../../../framework/uniform';
 import {UniFieldLayout} from '../../../../framework/uniform/index';
 
-//import {UniFieldBuilder, UniFormBuilder, UniForm, UniSectionBuilder, UniComboFieldBuilder} from '../../../../framework/forms';
-//import {UNI_CONTROL_DIRECTIVES} from '../../../../framework/controls';
-
 import {UniHttp} from '../../../../framework/core/http/http';
 import {SubEntity, AGAZone, Municipal, CompanyType, PeriodSeries, Currency, FieldType, AccountGroup, AGARate, Account, CompanySalary} from '../../../unientities';
 import {AgaZoneService, CompanySettingsService, CurrencyService, SubEntityService, AccountService, AccountGroupSetService, PeriodSeriesService,
@@ -195,7 +192,7 @@ export class CompanySettings implements OnInit {
                     Property: 'WebAddress',
                     Placement: 1,
                     Hidden: false,
-                    FieldType: FieldType.URL,
+                    FieldType: FieldType.TEXT,
                     ReadOnly: false,
                     LookupField: false,
                     Label: 'Web',
@@ -222,6 +219,30 @@ export class CompanySettings implements OnInit {
                     ReadOnly: false,
                     LookupField: false,
                     Label: 'Adresse',
+                    Description: null,
+                    HelpText: null,
+                    FieldSet: 0,
+                    Section: 0,
+                    Placeholder: null,
+                    Options: null,
+                    LineBreak: null,
+                    Combo: null,
+                    Sectionheader: '',
+                    IsLookUp: false,
+                    openByDefault: true,
+                    Validations: []
+                },
+                {
+                    ComponentLayoutID: 1,
+                     
+                    EntityType: 'CompanySettings',
+                    Property: 'Address[0].AddressLine2',
+                    Placement: 2,
+                    Hidden: false,
+                    FieldType: FieldType.TEXT,
+                    ReadOnly: false,
+                    LookupField: false,
+                    Label: 'Adresse 2',
                     Description: null,
                     HelpText: null,
                     FieldSet: 0,
@@ -332,10 +353,10 @@ export class CompanySettings implements OnInit {
                     ComponentLayoutID: 1,
                      
                     EntityType: 'CompanySettings',
-                    Property: 'Email',
+                    Property: 'Emails[0].EmailAddress',
                     Placement: 2,
                     Hidden: false,
-                    FieldType: 14,
+                    FieldType: FieldType.TEXT,
                     ReadOnly: false,
                     LookupField: false,
                     Label: 'Epost',
@@ -350,197 +371,360 @@ export class CompanySettings implements OnInit {
                     Sectionheader: '',
                     IsLookUp: false,
                     Validations: []
+                },
+                {
+                    ComponentLayoutID: 1,
+                     
+                    EntityType: 'CompanySettings',
+                    Property: 'Phones[0].EmailAddress',
+                    Placement: 2,
+                    Hidden: false,
+                    FieldType: FieldType.TEXT,
+                    ReadOnly: false,
+                    LookupField: false,
+                    Label: 'Epost',
+                    Description: null,
+                    HelpText: null,
+                    FieldSet: 0,
+                    Section: 1,
+                    Placeholder: null,
+                    Options: null,
+                    LineBreak: null,
+                    Combo: null,
+                    Sectionheader: '',
+                    IsLookUp: false,
+                    Validations: []
+                },
+                {
+                    ComponentLayoutID: 1,
+                    EntityType: 'CompanySettings',
+                    Property: 'OfficeMunicipalityNo',
+                    Placement: 1,
+                    Hidden: false,
+                    FieldType: FieldType.TEXT,
+                    ReadOnly: false,
+                    LookupField: false,
+                    Label: 'Kontorkommunenr',
+                    Description: null,
+                    HelpText: null,
+                    FieldSet: 0,
+                    Section: 0,
+                    Placeholder: null,
+                    Options: null,
+                    LineBreak: null,
+                    Combo: null,
+                    Sectionheader: '',
+                    hasLineBreak: false,                     
+                    Validations: []
+                },
+                {
+                    ComponentLayoutID: 1,
+                    EntityType: 'CompanySettings',
+                    Property: 'MunicipalityName',
+                    Placement: 1,
+                    Hidden: false,
+                    FieldType: FieldType.TEXT,
+                    ReadOnly: false,
+                    LookupField: false,
+                    Label: 'Kontorkommunenavn',
+                    Description: null,
+                    HelpText: null,
+                    FieldSet: 0,
+                    Section: 0,
+                    Placeholder: null,
+                    Options: null,
+                    LineBreak: null,
+                    Combo: null,
+                    Sectionheader: '',
+                    hasLineBreak: false,                     
+                    Validations: []
+                },
+                {
+                    ComponentLayoutID: 1,
+                    EntityType: 'CompanySettings',
+                    Property: 'CompanyRegistered',
+                    Placement: 1,
+                    Hidden: false,
+                    FieldType: FieldType.MULTISELECT,
+                    ReadOnly: false,
+                    LookupField: false,
+                    Label: 'Foretaksregistert',
+                    Description: null,
+                    HelpText: null,
+                    FieldSet: 0,
+                    Section: 1,
+                    Placeholder: null,
+                    Options: null,
+                    LineBreak: null,
+                    Combo: null,
+                    Sectionheader: 'Selskapsoppsett',
+                    hasLineBreak: false,                     
+                    Validations: []
+                },
+                {
+                    ComponentLayoutID: 1,
+                    EntityType: 'CompanySettings',
+                    Property: 'TaxMandatory',
+                    Placement: 1,
+                    Hidden: false,
+                    FieldType: FieldType.MULTISELECT,
+                    ReadOnly: false,
+                    LookupField: false,
+                    Label: 'Mva-pliktig',
+                    Description: null,
+                    HelpText: null,
+                    FieldSet: 0,
+                    Section: 1,
+                    Placeholder: null,
+                    Options: null,
+                    LineBreak: null,
+                    Combo: null,
+                    Sectionheader: 'Selskapsoppsett',
+                    hasLineBreak: false,                     
+                    Validations: []
+                },                
+                {
+                    ComponentLayoutID: 1,
+                    EntityType: 'CompanySettings',
+                    Property: 'CompanyTypeID',
+                    Placement: 1,
+                    Hidden: false,
+                    FieldType: FieldType.DROPDOWN,
+                    ReadOnly: false,
+                    LookupField: false,
+                    Label: 'Firmatype',
+                    Description: null,
+                    HelpText: null,
+                    FieldSet: 0,
+                    Section: 1,
+                    Placeholder: null,
+                    Options: {
+                        source: this.companyTypes,
+                        valueProperty: 'ID',
+                        displayProperty: 'FullName',                        
+                        debounceTime: 200
+                    },
+                    LineBreak: null,
+                    Combo: null,
+                    Sectionheader: 'Selskapsoppsett',
+                    hasLineBreak: false,                     
+                    Validations: []
+                },
+                {
+                    ComponentLayoutID: 1,
+                    EntityType: 'CompanySettings',
+                    Property: 'BaseCurrency',
+                    Placement: 1,
+                    Hidden: false,
+                    FieldType: FieldType.DROPDOWN,
+                    ReadOnly: false,
+                    LookupField: false,
+                    Label: 'Valuta',
+                    Description: null,
+                    HelpText: null,
+                    FieldSet: 0,
+                    Section: 1,
+                    Placeholder: null,
+                    Options: {                        
+                        source: this.currencies,                        
+                        valueProperty: 'Code',
+                        displayProperty: 'Code',
+                        debounceTime: 200
+                    },
+                    LineBreak: null,
+                    Combo: null,
+                    Sectionheader: 'Selskapsoppsett',
+                    hasLineBreak: false,                     
+                    Validations: []
+                },
+                {
+                    ComponentLayoutID: 1,
+                    EntityType: 'CompanySettings',
+                    Property: 'SupplierAccountID',
+                    Placement: 1,
+                    Hidden: false,
+                    FieldType: FieldType.AUTOCOMPLETE,
+                    ReadOnly: false,
+                    LookupField: false,
+                    Label: 'Leverandørreskontro samlekonto',
+                    Description: null,
+                    HelpText: null,
+                    FieldSet: 0,
+                    Section: 1,
+                    Placeholder: null,
+                    Options: {                        
+                        source: this.accounts,
+                        valueProperty: 'ID',
+                        displayProperty: 'AccountNumber',                        
+                        debounceTime: 200,
+                        template: (obj) => `${obj.AccountNumber} - ${obj.AccountName}`    
+                    },
+                    LineBreak: null,
+                    Combo: null,
+                    Sectionheader: 'Selskapsoppsett',
+                    hasLineBreak: false,                     
+                    Validations: []
+                },
+                {
+                    ComponentLayoutID: 1,
+                    EntityType: 'CompanySettings',
+                    Property: 'CustomerAccountID',
+                    Placement: 1,
+                    Hidden: false,
+                    FieldType: FieldType.AUTOCOMPLETE,
+                    ReadOnly: false,
+                    LookupField: false,
+                    Label: 'Kundereskontro samlekonto',
+                    Description: null,
+                    HelpText: null,
+                    FieldSet: 0,
+                    Section: 1,
+                    Placeholder: null,
+                    Options: {
+                        source: this.accounts,
+                        valueProperty: 'ID',
+                        displayProperty: 'AccountNumber',                        
+                        debounceTime: 200,
+                        template: (obj) => `${obj.AccountNumber} - ${obj.AccountName}`                           
+                    },
+                    LineBreak: null,
+                    Combo: null,
+                    Sectionheader: 'Selskapsoppsett',
+                    hasLineBreak: false,                     
+                    Validations: []
+                },
+                {
+                    ComponentLayoutID: 1,
+                    EntityType: 'CompanySettings',
+                    Property: 'CustomerCreditDays',
+                    Placement: 1,
+                    Hidden: false,
+                    FieldType: FieldType.TEXT,
+                    ReadOnly: false,
+                    LookupField: false,
+                    Label: 'Kredittdager',
+                    Description: null,
+                    HelpText: null,
+                    FieldSet: 0,
+                    Section: 1,
+                    Placeholder: null,
+                    Options: null,
+                    LineBreak: null,
+                    Combo: null,
+                    Sectionheader: '',
+                    hasLineBreak: false,                     
+                    Validations: []
+                },
+                {
+                    ComponentLayoutID: 1,
+                    EntityType: 'CompanySettings',
+                    Property: 'PeriodSeriesAccountID',
+                    Placement: 1,
+                    Hidden: false,
+                    FieldType: FieldType.DROPDOWN,
+                    ReadOnly: false,
+                    LookupField: false,
+                    Label: 'Regnskapsperioder',
+                    Description: null,
+                    HelpText: null,
+                    FieldSet: 0,
+                    Section: 1,
+                    Placeholder: null,
+                    Options: {
+                        source: this.periodSeries.filter((value) => value.SeriesType == 1),
+                        valueProperty: 'ID',
+                        displayProperty: 'Name',                        
+                        debounceTime: 200
+                    },
+                    LineBreak: null,
+                    Combo: null,
+                    Sectionheader: 'Selskapsoppsett',
+                    hasLineBreak: false,                     
+                    Validations: []
+                },
+                {
+                    ComponentLayoutID: 1,
+                    EntityType: 'CompanySettings',
+                    Property: 'PeriodSeriesVatID',
+                    Placement: 1,
+                    Hidden: false,
+                    FieldType: FieldType.DROPDOWN,
+                    ReadOnly: false,
+                    LookupField: false,
+                    Label: 'Mva perioder',
+                    Description: null,
+                    HelpText: null,
+                    FieldSet: 0,
+                    Section: 1,
+                    Placeholder: null,
+                    Options: {                        
+                        source: this.periodSeries.filter((value) => value.SeriesType == 0),
+                        valueProperty: 'ID',
+                        displayProperty: 'Name',                        
+                        debounceTime: 200
+                    },
+                    LineBreak: null,
+                    Combo: null,
+                    Sectionheader: 'Selskapsoppsett',
+                    hasLineBreak: false,                     
+                    Validations: []
+                },
+                {
+                    ComponentLayoutID: 1,
+                    EntityType: 'CompanySettings',
+                    Property: 'AccountGroupSetID',
+                    Placement: 1,
+                    Hidden: false,
+                    FieldType: FieldType.DROPDOWN,
+                    ReadOnly: false,
+                    LookupField: false,
+                    Label: 'Kontogruppeinndeling',
+                    Description: null,
+                    HelpText: null,
+                    FieldSet: 0,
+                    Section: 1,
+                    Placeholder: null,
+                    Options: {
+                        source: this.accountGroupSets,
+                        valueProperty: 'ID',
+                        displayProperty: 'Name',                        
+                        debounceTime: 200                        
+                    },
+                    LineBreak: null,
+                    Combo: null,
+                    Sectionheader: 'Selskapsoppsett',
+                    hasLineBreak: false,                     
+                    Validations: []
+                },
+                {
+                    ComponentLayoutID: 1,
+                    EntityType: 'CompanySalary',
+                    Property: 'InterrimRemitAccount',
+                    Placement: 1,
+                    Hidden: false,
+                    FieldType: FieldType.TEXT,
+                    ReadOnly: false,
+                    LookupField: false,
+                    Label: 'Mellomkonto remittering',
+                    Description: null,
+                    HelpText: null,
+                    FieldSet: 0,
+                    Section: 1,
+                    Placeholder: null,
+                    Options: null,
+                    LineBreak: null,
+                    Combo: null,
+                    Sectionheader: '',
+                    hasLineBreak: false,                     
+                    Validations: []
                 }
         ];
 
 
 
 /*
-       
+      
 
-        // TODO
-        // Contact information should be styled according to standard - when this is ready.
-       
-
-        var street2 = new UniFieldBuilder();
-        street2.setLabel('Adresse 2')
-            .setModel(this.company.Address[0])
-            .setModelField('AddressLine2')
-            .setType(UNI_CONTROL_DIRECTIVES[FieldType.TEXT]);
-
-        var postNumber = new UniFieldBuilder();
-        postNumber.setLabel('Postnr')
-            .setModel(this.company.Address[0])
-            .setModelField('PostalCode')
-            .setType(UNI_CONTROL_DIRECTIVES[FieldType.TEXT]);
-
-        var place = new UniFieldBuilder();
-        place.setLabel('Sted')
-            .setModel(this.company.Address[0])
-            .setModelField('City')
-            .setType(UNI_CONTROL_DIRECTIVES[FieldType.TEXT]);
-
-        var phone = new UniFieldBuilder();
-        phone.setLabel('Telefon')
-            .setModel(this.company.Phones[0])
-            .setModelField('Number')
-            .setType(UNI_CONTROL_DIRECTIVES[FieldType.TEXT]);
-
-        var email = new UniFieldBuilder();
-        email.setLabel('Epost')
-            .setModel(this.company.Emails[0])
-            .setModelField('EmailAddress')
-            .setType(UNI_CONTROL_DIRECTIVES[FieldType.EMAIL]);
-        
-        var officeMunicipalNumber = new UniFieldBuilder();
-        officeMunicipalNumber.setModel(this.company)
-            .setLabel('Kontorkommunenr/navn')
-            .setModelField('OfficeMunicipalityNo')
-            .setType(UNI_CONTROL_DIRECTIVES[FieldType.TEXT]);
-                
-        var officeMunicipalName = new UniFieldBuilder();
-        officeMunicipalName.setModel(this.getMunicipality(this.company.OfficeMunicipalityNo))
-            .setModelField('MunicipalityName')
-            .setType(UNI_CONTROL_DIRECTIVES[FieldType.TEXT]);
-       
-        var officeMunicipality = new UniComboFieldBuilder();
-        officeMunicipality.addUniElements(officeMunicipalNumber, officeMunicipalName);
-        
-        // *********************  Virksomhet og aga  ***************************
-        var subEntitiesSection = new UniSectionBuilder('Virksomhet og arbeidsgiveravgift(aga)');
-        
-        var mainAccountAlocatedAga = new UniFieldBuilder();
-        mainAccountAlocatedAga
-            .setLabel('Konto avsatt aga')
-            .setModel(this.companySalary[0])
-            .setModelField('MainAccountAllocatedAGA')
-            .setType(UNI_CONTROL_DIRECTIVES[FieldType.TEXT]);
-            
-        var mainAccountCostAga = new UniFieldBuilder();
-        mainAccountCostAga
-            .setLabel('Konto kostnad aga')
-            .setModel(this.companySalary[0])
-            .setModelField('MainAccountCostAGA')
-            .setType(UNI_CONTROL_DIRECTIVES[FieldType.TEXT]);
-            
-        var mainAccountAllocatedAgaVacation = new UniFieldBuilder();
-        mainAccountAllocatedAgaVacation
-            .setLabel('Avsatt aga av feriepenger')
-            .setModel(this.companySalary[0])
-            .setModelField('MainAccountAllocatedAGAVacation')
-            .setType(UNI_CONTROL_DIRECTIVES[FieldType.TEXT]);
-            
-        var mainAccountCostAgaVacation = new UniFieldBuilder();
-        mainAccountCostAgaVacation
-            .setLabel('Kostnad aga feriepenger')
-            .setModel(this.companySalary[0])
-            .setModelField('MainAccountCostAGAVacation')
-            .setType(UNI_CONTROL_DIRECTIVES[FieldType.TEXT]);
-            
-        var freeAmount = new UniFieldBuilder();
-        freeAmount
-            .setLabel('Fribeløp')
-            .setModel(this.companySalary[0])
-            .setModelField('FreeAmount')
-            .setType(UNI_CONTROL_DIRECTIVES[FieldType.TEXT]);
-        
-        subEntitiesSection.addUniElements(mainAccountAlocatedAga, mainAccountCostAga, mainAccountAllocatedAgaVacation, mainAccountCostAgaVacation, freeAmount);
-        this.subEntities.forEach(subEntity => {
-            var municipal = this.getMunicipality(subEntity.MunicipalityNo);
-            var agaZone: AGAZone = this.getAgaZone(subEntity.AgaZone);
-            var agaRule = _.find(this.agaRules, x => x.sectorID === subEntity.AgaRule);
-            var agaZoneName = '';
-            var agaRuleName = '';
-            if (agaZone) { agaZoneName = ', Sone ' + agaZone.ZoneName; }
-            if (agaRule) { agaRuleName = ', ' + agaRule.sector; }
-            var subEntitySection = new UniSectionBuilder(subEntity.BusinessRelationInfo.Name + 
-                ', ' + subEntity.OrgNumber + 
-                ', ' + subEntity.MunicipalityNo + '-' + municipal.MunicipalityName +
-                agaZoneName + 
-                agaRuleName );
-            
-            var subEntityName = new UniFieldBuilder();
-            subEntityName.setLabel('Virksomhet navn')
-                .setModel(subEntity)
-                .setModelField('BusinessRelationInfo.Name')
-                .setType(UNI_CONTROL_DIRECTIVES[FieldType.TEXT]);
-            
-            var subEntityOrgNumber = new UniFieldBuilder();
-            subEntityOrgNumber.setLabel('Orgnr for virksomheten')
-                .setModel(subEntity)
-                .setModelField('OrgNumber')
-                .setType(UNI_CONTROL_DIRECTIVES[FieldType.TEXT]);
-            
-            var subEntityAddress = new UniFieldBuilder();
-            subEntityAddress.setLabel('Gateadr')
-                .setModel(subEntity)
-                .setModelField('BusinessRelationInfo.InvoiceAddress.AddressLine1')
-                .setType(UNI_CONTROL_DIRECTIVES[FieldType.TEXT]);
-            
-            var subEntityPostnr = new UniFieldBuilder();
-            subEntityPostnr.setLabel('Postnr/Sted')
-                .setModel(subEntity)
-                .setModelField('BusinessRelationInfo.InvoiceAddress.PostalCode')
-                .setType(UNI_CONTROL_DIRECTIVES[FieldType.TEXT]);
-            var subEntityCity = new UniFieldBuilder();
-            subEntityCity
-                .setModel(subEntity)
-                .setModelField('BusinessRelationInfo.InvoiceAddress.City')
-                .setType(UNI_CONTROL_DIRECTIVES[FieldType.TEXT]);
-            var subEntityLocation = new UniComboFieldBuilder();
-            subEntityLocation.addUniElements(subEntityPostnr, subEntityCity);
-                
-            var subEntityMunicipalNumber = new UniFieldBuilder();
-            subEntityMunicipalNumber.setModel(subEntity)
-                .setLabel('Kommunenr/Navn')
-                .setModelField('MunicipalityNo')
-                .setType(UNI_CONTROL_DIRECTIVES[FieldType.TEXT]);
-                
-            var subEntityMunicipalName = new UniFieldBuilder();
-            subEntityMunicipalName.setModel(municipal)
-                .setModelField('MunicipalityName')
-                .setType(UNI_CONTROL_DIRECTIVES[FieldType.TEXT]);
-            
-            var subEntityMunicipality = new UniComboFieldBuilder();
-            subEntityMunicipality.addUniElements(subEntityMunicipalNumber, subEntityMunicipalName);
-            
-            
-            var subEntityAgaZone = new UniFieldBuilder();
-            subEntityAgaZone.setLabel('Sone')
-                .setModel(subEntity)
-                .setModelField('AgaZone')
-                .setType(UNI_CONTROL_DIRECTIVES[FieldType.DROPDOWN])
-                .setKendoOptions({
-                    dataSource: this.agaZones,
-                    dataTextField: 'ZoneName',
-                    dataValueField: 'ID',
-                });
-            
-            var subEntityAgaRule = new UniFieldBuilder();
-            subEntityAgaRule.setLabel('Beregningsregel AGA')
-                .setModel(subEntity)
-                .setModelField('AgaRule')
-                .setType(UNI_CONTROL_DIRECTIVES[FieldType.DROPDOWN])
-                .setKendoOptions({
-                    dataSource: this.agaRules,
-                    dataTextField: 'Sector',
-                    dataValueField: 'SectorID',
-                });
-            
-            subEntitySection.addUniElements(subEntityName,
-                                            subEntityOrgNumber, 
-                                            subEntityAddress, 
-                                            subEntityLocation, 
-                                            subEntityMunicipality, 
-                                            subEntityAgaZone, 
-                                            subEntityAgaRule);
-                                            
-            subEntitiesSection.addUniElement(subEntitySection);
-        });
-        
-        // *********************  Instillinger lønn  ***************************
-        
-        var salarySettings = new UniSectionBuilder('Innstillinger spesifikke for lønn');
         
         var interrimRemit = new UniFieldBuilder();
         interrimRemit
@@ -548,155 +732,11 @@ export class CompanySettings implements OnInit {
             .setModel(this.companySalary[0])
             .setModelField('InterrimRemitAccount')
             .setType(UNI_CONTROL_DIRECTIVES[FieldType.TEXT]);
-        
-        var mainAccountAllocatedVacation = new UniFieldBuilder();
-        mainAccountAllocatedVacation
-            .setLabel('Balanse feriepenger')
-            .setModel(this.companySalary[0])
-            .setModelField('MainAccountAllocatedVacation')
-            .setType(UNI_CONTROL_DIRECTIVES[FieldType.TEXT]);
-        
-        var mainAccountCostVacation = new UniFieldBuilder();
-        mainAccountCostVacation
-            .setLabel('Resultat feriepenger')
-            .setModel(this.companySalary[0])
-            .setModelField('MainAccountCostVacation')
-            .setType(UNI_CONTROL_DIRECTIVES[FieldType.TEXT]);
-        
-        salarySettings.addUniElements(interrimRemit, mainAccountAllocatedVacation, mainAccountCostVacation);
-        
-        // ********************************************************************
-        // ********************  Selskapsoppsett    ***************************
-        var companySetup = new UniSectionBuilder('Selskapsoppsett');
-
-        var companyReg = new UniFieldBuilder();
-        companyReg.setLabel('Foretaksregister')
-            .setModel(this.company)
-            .setModelField('CompanyRegistered')
-            .setType(UNI_CONTROL_DIRECTIVES[FieldType.CHECKBOX]);
-
-        var taxMandatory = new UniFieldBuilder();
-        taxMandatory.setLabel('Mva-pliktig')
-            .setModel(this.company)
-            .setModelField('TaxMandatory')
-            .setType(UNI_CONTROL_DIRECTIVES[FieldType.CHECKBOX])
-            .hasLineBreak(true);
-
-        var companyType = new UniFieldBuilder();
-        companyType.setLabel('Firmatype')
-            .setModel(this.company)
-            .setModelField('CompanyTypeID')
-            .setType(UNI_CONTROL_DIRECTIVES[FieldType.DROPDOWN])
-            .setKendoOptions({
-                dataSource: this.companyTypes,
-                dataTextField: 'FullName',
-                dataValueField: 'ID',
-                index: this.currencies.indexOf(this.company.CompanyTypeID)
-            });
-
-        var companyCurrency = new UniFieldBuilder();
-        companyCurrency.setLabel('Valuta')
-            .setModel(this.company)
-            .setModelField('BaseCurrency')
-            .setType(UNI_CONTROL_DIRECTIVES[FieldType.DROPDOWN])
-            .setKendoOptions({
-                dataSource: this.currencies,
-                dataTextField: 'Code',
-                dataValueField: 'Code',
-                index: this.currencies.indexOf(this.company.BaseCurrency)
-            })
-            .hasLineBreak(true);
-
-        // TODO
-
-        var supplierAccount = new UniFieldBuilder();
-        supplierAccount.setLabel('Leverandør-konto')
-            .setModel(this.company)
-            .setModelField('SupplierAccountID')
-            .setType(UNI_CONTROL_DIRECTIVES[FieldType.DROPDOWN])
-            .setKendoOptions({
-                dataSource: this.accounts,
-                dataTextField: 'AccountNumber',
-                dataValueField: 'ID',
-                index: this.currencies.indexOf(this.company.SupplierAccountID)
-            });
-
-        var customerAccount = new UniFieldBuilder();
-        customerAccount.setLabel('Kunde-Konto')
-            .setModel(this.company)
-            .setModelField('CustomerAccountID')
-            .setType(UNI_CONTROL_DIRECTIVES[FieldType.DROPDOWN])
-            .setKendoOptions({
-                dataSource: this.accounts,
-                dataTextField: 'AccountNumber',
-                dataValueField: 'ID',
-                index: this.currencies.indexOf(this.company.CustomerAccountID)
-            })
-            .hasLineBreak(true);
-
-        var creditDays = new UniFieldBuilder();
-        creditDays.setLabel('Kredittdager')
-            .setModel(this.company)
-            .setModelField('CustomerCreditDays')
-            .setType(UNI_CONTROL_DIRECTIVES[FieldType.TEXT]);
-
-
-        companySetup.addUniElements(companyReg, 
-                                    taxMandatory, 
-                                    companyType, 
-                                    companyCurrency, 
-                                    supplierAccount, 
-                                    customerAccount, 
-                                    creditDays);
-
-        // ********************************************************************
-        // *********************  Regnskapsinnstillinger    *******************
-        var accountingSettings = new UniSectionBuilder('Regnskapsinnstillinger');
-
-        var periodSeriesAccount = new UniFieldBuilder();
-        periodSeriesAccount.setLabel('Regnskapsperioder')
-            .setModel(this.company)
-            .setModelField('PeriodSeriesAccountID')
-            .setType(UNI_CONTROL_DIRECTIVES[FieldType.DROPDOWN])
-            .setKendoOptions({
-                dataSource: new kendo.data.DataSource({
-                    data: this.periodSeries,
-                    filter: { field: 'SeriesType', operator: 'eq', value: '1' }
-                }),
-                dataTextField: 'Name',
-                dataValueField: 'ID',
-                index: this.periodSeries.indexOf(this.company.PeriodSeriesAccountID)
-            });
-
-        var periodSeriesVat = new UniFieldBuilder();
-        periodSeriesVat.setLabel('Mva perioder')
-            .setModel(this.company)
-            .setModelField('PeriodSeriesVatID')
-            .setType(UNI_CONTROL_DIRECTIVES[FieldType.DROPDOWN])
-            .setKendoOptions({
-                dataSource: new kendo.data.DataSource({
-                    data: this.periodSeries,
-                    filter: { field: 'SeriesType', operator: 'eq', value: '0' }
-                }),
-                dataTextField: 'Name',
-                dataValueField: 'ID',
-                index: this.periodSeries.indexOf(this.company.PeriodSeriesVatID)
-            });
-
-        var accountGroupSet = new UniFieldBuilder();
-        accountGroupSet.setLabel('Kontogruppeinndeling')
-            .setModel(this.company)
-            .setModelField('AccountGroupSetID')
-            .setType(UNI_CONTROL_DIRECTIVES[FieldType.DROPDOWN])
-            .setKendoOptions({
-                dataSource: this.accountGroupSets,
-                dataTextField: 'Name',
-                dataValueField: 'ID',
-                index: this.periodSeries.indexOf(this.company.AccountGroupSetID)
-            })
-            .hasLineBreak(true);
-
-
+      
+      
+      
+        /*
+        KE: Fjernet foreløpig, disse skal sannsynligvis inn et annet sted, men brukes ikke PT
         if (this.company.AccountingLockedDate !== null) {
             this.company.AccountingLockedDate = new Date(this.company.AccountingLockedDate);
         }
@@ -725,26 +765,8 @@ export class CompanySettings implements OnInit {
             .setModelField('ForceSupplierInvoiceApproval')
             .setType(UNI_CONTROL_DIRECTIVES[FieldType.CHECKBOX]);
 
-        accountingSettings.addUniElements(
-            periodSeriesAccount, periodSeriesVat, accountGroupSet, 
-            accountingLockedDate, vatLockedDate, forceSupplierInvoiceApproval);
-
-        formBuilder.addUniElements(companyName, 
-                                   orgNr, 
-                                   web, 
-                                   street, 
-                                   street2,
-                                   postNumber, 
-                                   place, 
-                                   phone, 
-                                   email, 
-                                   officeMunicipality, 
-                                   subEntitiesSection,
-                                   salarySettings, 
-                                   companySetup, 
-                                   accountingSettings);
-
-        this.form = formBuilder;
+        
+        */
     }
 
     /********************************************************************
