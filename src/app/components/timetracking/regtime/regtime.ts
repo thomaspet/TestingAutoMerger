@@ -45,7 +45,6 @@ export class RegisterTime {
         this.tabService.addTab({ name: view.label, url: view.route });
         this.userName = workerService.user.name;
         this.tableConfig = this.createTableConfig();
-        this.timesheetService.initService(workerService);
         this.initServiceValues();        
     }
     

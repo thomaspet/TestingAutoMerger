@@ -66,7 +66,7 @@ export const ROUTES = [
     new AsyncRoute({
         path: '/timetracking/...',
         name: 'Timetracking',
-        loader: () => ComponentProxy.LoadComponentAsync('UniTimetracking', './app/components/timetracking/timetracking')
+        loader: () => ComponentProxy.LoadComponentAsync('UniTimetracking', 'app/components/timetracking/timetracking')
     }),
 
     new AsyncRoute({

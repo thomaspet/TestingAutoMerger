@@ -99,16 +99,9 @@ export class TimeSheet {
 @Injectable()
 export class TimesheetService {
     
-    private workerService:WorkerService;
     public workRelations:Array<WorkRelation>;
     
-    constructor() {} 
-
-    // Requires "manual" init of workerservice since angular2 cant import it directly 
-    // since a service can not declare local service providers.
-    initService(ws:WorkerService) {
-        this.workerService = ws;
-    }
+    constructor(private workerService:WorkerService) {} 
 
     initUser(userid=0): Observable<TimeSheet> {
         if (userid===0) {
