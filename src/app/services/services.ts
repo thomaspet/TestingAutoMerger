@@ -42,4 +42,9 @@ export * from './common/subentityservice';
 export * from './shared/municipalsservice';
 export * from './salary/companysalary/companysalaryservice';
 export * from './salary/salarytransaction/salarytransactionservice'
+export * from './reports/ReportDefinitionService';
+export * from './reports/ReportDefinitionParameterService';
+export * from './reports/ReportDefinitionDataSourceService';
 export * from './common/AltinnService';
+export * from './common/IntegrationServerCaller';
+export * from './common/AltinnReceiptService';

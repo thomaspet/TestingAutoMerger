@@ -1,1 +1,6 @@
-<uni-table *ngIf="order" [config]="orderItemTable"></uni-table>
+<span *ngIf="order && orderItemTable">
+    <uni-table [resource]="items"
+               [config]="orderItemTable"
+               (rowChanged)="rowChanged($event)">
+    </uni-table>
+</span>

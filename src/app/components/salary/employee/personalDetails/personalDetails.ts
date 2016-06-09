@@ -9,15 +9,14 @@ import {AddressModal} from '../../../sales/customer/modals/address/address';
 import {EmailModal} from '../../../sales/customer/modals/email/email';
 import {PhoneModal} from '../../../sales/customer/modals/phone/phone';
 import {RootRouteParamsService} from '../../../../services/rootRouteParams';
+import {TaxCardRequestModal, AltinnLoginModal} from '../employeeModals';
 import {UniSave, IUniSaveAction} from '../../../../../framework/save/save';
 import {UniFieldLayout} from '../../../../../framework/uniform/index';
-import {TaxCardRequestModal} from '../modals/taxCardRequestModal';
-
 declare var _;
 
 @Component({
     selector: 'employee-personal-details',
-    directives: [UniForm, UniSave, TaxCardRequestModal],
+    directives: [UniForm, UniSave, TaxCardRequestModal, AltinnLoginModal],
     providers: [EmployeeService, PhoneService, EmailService, AddressService, AltinnService, SubEntityService],
     templateUrl: 'app/components/salary/employee/personalDetails/personalDetails.html'
 })

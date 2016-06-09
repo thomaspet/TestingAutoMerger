@@ -2,9 +2,8 @@ import {Component, Type, ViewChild, Input} from '@angular/core';
 import {NgIf} from '@angular/common';
 import {UniModal} from '../../../../../framework/modals/modal';
 import {UniForm} from '../../../../../framework/uniform';
-import {FieldLayout, Employee, AltinnReceipt} from '../../../../../app/unientities';
+import {FieldLayout, AltinnReceipt} from '../../../../../app/unientities';
 import {AltinnService, EmployeeService} from '../../../../../app/services/services';
-import {Observable} from 'rxjs/Observable';
 import {RootRouteParamsService} from '../../../../services/rootRouteParams';
 
 declare var _;

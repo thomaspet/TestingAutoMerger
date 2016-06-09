@@ -1,23 +1,27 @@
-﻿<div class="authentication_component">
+﻿<article class="authentication-component">
     <img src="../../../assets/uni-logo.png" alt="Uni Economy logo">
-    <p *ngIf="!validInvite">{{verificationCodeErrorMessage}}</p>
-    <section *ngIf="validInvite">
-        <h3>Opprett bruker:</h3>
-        <form class="confirm_invite_form">
-            <label>
-                Brukernavn:
-                <input type="text" [(ngModel)]="user.username" [ngClass]="{error: isInvalidUsername}" placeholder="Brukernavn" />
-            </label>
-            <label>
-                Passord:
-                <input type="password" [(ngModel)]="user.password" [ngClass]="{error: isInvalidPasswords || isPasswordMismatch}" placeholder="Passord" />
-            </label>
-            <label>
-                Gjenta Passord
-                <input type="password" [(ngModel)]="passwordRepeat.password" [ngClass]="{error: isInvalidPasswords || isPasswordMismatch}" placeholder="Gjenta passord" />
-                <small *ngIf="isInvalidPasswords || isInvalidUsername || isPasswordMismatch || isError" [ngClass]="{error: isError}">{{formErrorMessage}}</small>
-            </label>
-            <button class="c2a" (click)="confirmUser()" [attr.aria-busy]="working">Bekreft bruker</button>
-        </form>
-    </section>
-</div>
+    <p style="color: red">{{errorMessage}}</p>
+
+    <form *ngIf="validInvite" [ngFormModel]="confirmInviteForm" (ngSubmit)="submitUser()" #f="ngForm">
+        <label>
+            Brukernavn
+            <input type="text" ngControl="username">
+        </label>
+        <label>
+            Passord
+            <input type="password" ngControl="password">
+        </label>
+        <label>
+            Bekreft passord
+            <input type="password" ngControl="confirmPassword">
+        </label>
+        <button type="submit" class="c2a" [attr.aria-busy]="working" 
+                                        [disabled]="!f.form.valid || !passwordsMatching">
+            Opprett bruker
+        </button>
+        <p *ngIf="!f.form.valid">Passord må bestå av mellom 8 og 16 tegn.</p>
+        <p *ngIf="!f.form.valid">Passord må inneholde 3 av 4 av: <br>
+            Stor bokstav, liten bokstav, nummer, symbol.</p>
+        <p *ngIf="f.form.valid && !passwordsMatching">Passord må være like</p>
+    </form>
+</article>

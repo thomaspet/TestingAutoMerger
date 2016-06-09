@@ -1,98 +1,86 @@
-import {Component, ViewChild, Type, Input} from "@angular/core";
-import {NgIf, NgModel, NgFor, NgClass} from "@angular/common";
-import {Http, Headers} from '@angular/http';
-import {UniModal} from "../../../../../framework/modals/modal";
-import {UniComponentLoader} from "../../../../../framework/core/componentLoader";
-import {StimulsoftReportWrapper} from "../../../../../framework/wrappers/reporting/reportWrapper";
-import {CustomerInvoiceService, CustomerInvoiceItemService, CustomerService, SupplierService, ProjectService, DepartementService, AddressService} from '../../../../services/services';
-import {Observable} from 'rxjs/Observable';
+import {Component, ViewChild, Type, Input} from '@angular/core';
+import {NgIf, NgModel, NgFor, NgClass} from '@angular/common';
+import {Http} from '@angular/http';
+
+import {ReportDefinition} from '../../../../unientities';
+import {UniModal} from '../../../../../framework/modals/modal';
+import {UniComponentLoader} from '../../../../../framework/core/componentLoader';
+import {ReportDefinitionService,Report,ReportParameter} from '../../../../services/services';
 
 @Component({
-    selector: "report-preview-modal-type",
+    selector: 'report-preview-modal-type',
     directives: [NgIf, NgModel, NgFor, NgClass, UniComponentLoader],
-    templateUrl: "app/components/reports/modals/preview/previewModal.html",
+    templateUrl: 'app/components/reports/modals/preview/previewModal.html',
 })
 export class ReportPreviewModalType {
     @Input('config')
-    config;
+    private config;
     
     constructor() {
         
     }
-    
-            
-    ngAfterViewInit() {
-    
-    }
 }
 
-
-
 @Component({
-    selector: "report-preview-modal",
+    selector: 'report-preview-modal',
     directives: [UniModal],
     template: `
         <uni-modal [type]="type" [config]="modalConfig"></uni-modal>
     `,
-    providers: [StimulsoftReportWrapper, CustomerInvoiceService]
+    providers: [ReportDefinitionService]
 })
 export class PreviewModal {
     @ViewChild(UniModal)
-    modal: UniModal;
+    private modal: UniModal;
     
     public modalConfig: any = {};
-    type: Type = ReportPreviewModalType;
+    public type: Type = ReportPreviewModalType;
+    
+    private reportDefinition: ReportDefinition;
 
-    constructor(public reportWrapper: StimulsoftReportWrapper,
-                private customerInvoiceService: CustomerInvoiceService,
+    constructor(private reportDefinitionService: ReportDefinitionService,
                 private http: Http)
     {
-        var self = this;
         this.modalConfig = {
-            title: "Forhåndsvisning",
+            title: 'Forhåndsvisning',
             model: null,
-            report: null,
 
             actions: [
                 {
-                    text: "Lukk",
+                    text: 'Skriv ut',
                     method: () => {
-                        self.modal.getContent().then(() => {
-                            self.modal.close();
+                        this.modal.getContent().then(() => {
+                            this.reportDefinitionService.generateReportPdf(this.reportDefinition);
+                            this.modal.close();
                         });
-                        return false;
+                    }
+                },
+                {
+                    text: 'Lukk',
+                    method: () => {
+                        this.modal.getContent().then(() => {
+                            this.modal.close();
+                        });
                     }
                 }
             ]
         };
     }
-
-    ngAfterViewInit() {
-
-    }
     
-    public open()
-    {
-        // for test purpose only
-        // @TODO: implement and use API resource
-        
-        this.http.get('/assets/DemoData/Demo.mrt') 
-            .map(res => res.text())
-            .subscribe(template => this.onTemplateLoaded(template),
-            err => this.onError("Cannot load report template."));
+    public openWithId(report: Report, id: number) {
+        var idparam = new ReportParameter();
+        idparam.Name = "Id";
+        idparam.value = id.toString();
+        report.parameters = [idparam];
+
+        this.open(report);
     }
-   
-    private onTemplateLoaded(template : string) {
-        // for test purpose only:
-        // hardcoded invoice id
-        this.customerInvoiceService.Get(2)
-            .subscribe(response => {
-                this.reportWrapper.showReport(template, [JSON.stringify(response)], this.modalConfig);
-                this.modal.open();        
-            });
-    }
-   
-    private onError(err : string) {
-        alert(err)
+
+    public open(report: Report) {
+        this.modalConfig.title = report.Name;
+        this.modalConfig.report = null;
+        this.reportDefinition = report;
+        this.reportDefinitionService.generateReportHtml(report, this.modalConfig);
+        this.modal.open();
     }
 }
