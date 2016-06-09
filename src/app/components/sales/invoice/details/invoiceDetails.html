@@ -53,10 +53,11 @@
     <invoice-item-list [invoice]="invoice" (itemsUpdated)="recalcItemSums($event)" (itemsLoaded)="recalcItemSums($event)"></invoice-item-list>
 </section>
 
+<report-preview-modal></report-preview-modal>
+
 <footer class="full-footer">
     <section class="application">
-        <button class="good" (click)="saveInvoiceManual($event)">Lagre</button>
-        <button class="good" (click)="saveInvoiceTransition($event, 'invoice')">{{invoiceButtonText}}</button>
+        <uni-save [actions]="actions"></uni-save>
         <section class="auto_save_info">
             {{ lastSavedInfo }}
         </section>
