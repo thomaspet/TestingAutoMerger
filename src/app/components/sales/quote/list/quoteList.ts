@@ -1,30 +1,36 @@
 import {Component, ViewChild} from '@angular/core';
-import {UniTable, UniTableColumn, UniTableColumnType, UniTableConfig} from 'unitable-ng2/main';
+import {UniTable, UniTableColumn, UniTableColumnType, UniTableConfig, IContextMenuItem} from 'unitable-ng2/main';
 import {Router} from '@angular/router-deprecated';
 import {UniHttp} from '../../../../../framework/core/http/http';
-import {CustomerQuoteService} from '../../../../services/services';
+import {CustomerQuoteService,ReportDefinitionService} from '../../../../services/services';
 import {CustomerQuote} from '../../../../unientities';
 import {Http, URLSearchParams} from '@angular/http';
 import {AsyncPipe} from '@angular/common';
+import {PreviewModal} from '../../../reports/modals/preview/previewModal';
 
 declare var jQuery;
 
 @Component({
     selector: 'quote-list',
     templateUrl: 'app/components/sales/quote/list/quoteList.html',
-    directives: [UniTable],
-    providers: [CustomerQuoteService],
+    directives: [UniTable,PreviewModal],
+    providers: [CustomerQuoteService,ReportDefinitionService],
     pipes: [AsyncPipe]
 })
 export class QuoteList {
     @ViewChild(UniTable) public table: any;
+
+    @ViewChild(PreviewModal)
+    private previewModal: PreviewModal;
 
     private quoteTable: UniTableConfig;
     private selectedquote: CustomerQuote;
     private lookupFunction: (urlParams: URLSearchParams) => any;
    
    
-    constructor(private uniHttpService: UniHttp, private router: Router, private customerQuoteService: CustomerQuoteService, private http: Http) {
+    constructor(private router: Router, 
+                private customerQuoteService: CustomerQuoteService, 
+                private reportDefinitionService: ReportDefinitionService) {
         this.setupQuoteTable();
     }
 
@@ -60,6 +66,29 @@ export class QuoteList {
                         
             return this.customerQuoteService.GetAllByUrlSearchParams(params);
         };
+        
+        // Context menu
+        let contextMenuItems: IContextMenuItem[] = [];
+        contextMenuItems.push({
+            label: 'Rediger',
+            action: (quote: CustomerQuote) => {
+                this.router.navigateByUrl(`/sales/quote/details/${quote.ID}`);
+            }
+        });
+        
+        contextMenuItems.push({
+            label: '-------------',
+            action: () => {}
+        });
+
+        contextMenuItems.push({
+            label: 'Skriv ut',
+            action: (quote: CustomerQuote) => {
+                this.reportDefinitionService.getReportByName('Tilbud').subscribe((report) => {
+                    this.previewModal.openWithId(report, quote.ID);                    
+                });
+            }
+        });
 
         // Define columns to use in the table        
         var quoteNumberCol = new UniTableColumn('QuoteNumber', 'Tilbudsnr', UniTableColumnType.Text)
@@ -82,7 +111,8 @@ export class QuoteList {
         // Setup table
         this.quoteTable = new UniTableConfig(false, true)            
             .setPageSize(25)
-            .setColumns([quoteNumberCol, customerNumberCol, customerNameCol, quoteDateCol, validUntilDateCol, taxInclusiveAmountCol, statusCol]);
+            .setColumns([quoteNumberCol, customerNumberCol, customerNameCol, quoteDateCol, validUntilDateCol, taxInclusiveAmountCol, statusCol])
+            .setContextMenu(contextMenuItems);
             
         //TODO: Add contextmenuitems                       
     }
