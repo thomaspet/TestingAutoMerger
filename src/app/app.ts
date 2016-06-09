@@ -9,67 +9,7 @@ import {TabService} from './components/layout/navbar/tabstrip/tabService';
 import {UniNavbar} from './components/layout/navbar/navbar';
 import {UniHttp} from '../framework/core/http/http';
 import {StaticRegisterService} from './services/staticregisterservice';
-
-// Login modal
-@Component({
-    selector: 'login-modal',
-    template: `
-        <dialog class="uniModal" *ngIf="isOpen">
-            <article class="modal-content authentication-component">
-                <img src="../assets/uni-logo.png" alt="Uni Economy logo">
-                
-                <form (submit)="authenticate()">
-                    <input type="text" [disabled]="working" [(ngModel)]="username" placeholder="Brukernavn">
-                    <input type="password" [disabled]="working" [(ngModel)]="password" placeholder="Passord">
-                    
-                    <button class="c2a" [attr.aria-busy]="working" [disabled]="working">Logg inn</button>
-                </form>
-
-                <p>{{errorMessage}}</p>
-            </article>
-        </dialog>
-    `,
-    styles: [
-        'form { width: 20rem; margin: 0 auto; }'
-    ]
-})
-export class LoginModal {
-    private onAuthenticated: (token) => any;
-    public isOpen: boolean = false;
-    private working: boolean = false;
-    private errorMessage: string = '';
-    
-    private username: string = '';
-    private password: string = '';
-    
-    constructor(private authService: AuthService) {} 
-
-    private authenticate() {
-        this.working = true;
-        this.errorMessage = '';
-        
-        this.authService.authenticate({
-            username: this.username,
-            password: this.password
-        }).subscribe(
-            (response) => {
-                this.onAuthenticated(response.access_token);
-                this.working = false;
-                this.isOpen = false;
-            },
-            (error) => {
-                this.working = false;
-                this.errorMessage = 'Noe gikk galt. Vennligst sjekk brukernavn og passord, og prøv igjen.'; 
-            }
-        );
-    }
-    
-    public open(onAuthenticated: () => any) {        
-        this.onAuthenticated = onAuthenticated;
-        this.isOpen = true;
-    }
-    
-}
+import {LoginModal} from './components/authentication/loginModal';
 
 @Component({
     selector: 'uni-app',
@@ -79,16 +19,42 @@ export class LoginModal {
 })
 @RouteConfig(ROUTES)
 export class App {
+    private isAuthenticated: boolean = false;
+    
     @ViewChild(LoginModal)
     private loginModal: LoginModal;
     
     public routes: AsyncRoute[] = ROUTES;
     
-    constructor(private authService: AuthService, router: Router) {
+    constructor(private authService: AuthService, private http: UniHttp,
+                private staticRegisterService: StaticRegisterService) {
+        
+        // Open login modal if authService requests re-authentication during runtime
         authService.requestAuthentication$.subscribe((event) => {
             if (!this.loginModal.isOpen) {
                 this.loginModal.open(event.onAuthenticated);
             }
         });
+        
+        // Subscribe to event fired when user has authenticated
+        // Anything you want to GET on startup should be put here
+        // preferably through a service 
+        authService.authenticationStatus$.subscribe((isAuthenticated) => {
+            this.isAuthenticated = isAuthenticated;
+            
+            if (isAuthenticated) {
+                this.getCompanySettings();
+                this.staticRegisterService.checkForStaticRegisterUpdate();
+            }
+        });
     }
+    
+    private getCompanySettings() {
+        this.http.asGET()
+            .usingBusinessDomain()
+            .withEndPoint('companysettings')
+            .send()
+            .subscribe(response => localStorage.setItem('companySettings', JSON.stringify(response[0])));
+    }
+    
 }

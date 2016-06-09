@@ -63,7 +63,7 @@ export class UniForm {
     public config: any;
 
     @Input()
-    public fields: FieldLayout[];
+    public fields: UniFieldLayout[];
 
     @Input()
     public model: any;
