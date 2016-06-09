@@ -228,6 +228,7 @@ export class InvoiceDetails implements OnInit {
                 });
             }, (err) => {
                 console.log('Feil oppstod ved ' + transition + ' transition', err);
+                done('Feilet');
                 this.log(err);
             });
         }, transition);

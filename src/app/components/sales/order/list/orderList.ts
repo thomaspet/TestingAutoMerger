@@ -78,7 +78,9 @@ export class OrderList {
             label: 'Skriv ut',
             action: (order: CustomerOrder) => {
                 this.reportDefinitionService.getReportByName('Ordre').subscribe((report) => {
-                    this.previewModal.openWithId(report, order.ID);
+                    if (report) {
+                        this.previewModal.openWithId(report, order.ID);                        
+                    }
                 });
             }
         });

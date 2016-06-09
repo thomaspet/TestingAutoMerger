@@ -261,6 +261,7 @@ export class OrderDetails {
               });
             }, (err) => {
                 console.log('Feil oppstod ved ' + transition + ' transition', err);
+                done('Feilet');
                 this.log(err);
             });
         });          

@@ -181,9 +181,11 @@ export class InvoiceList implements OnInit {
             label: 'Skriv ut',
             action: (invoice: CustomerInvoice) => {
                 this.reportDefinitionService.getReportByName('Faktura Uten Giro').subscribe((report) => {
-                    this.previewModal.openWithId(report, invoice.ID);    
-                    //report.parameters = [{Name: 'Id', value: invoice.ID}]; // TEST DOWNLOAD
-                    //this.reportDefinitionService.generateReportPdf(report);                
+                    if (report) {
+                        this.previewModal.openWithId(report, invoice.ID);    
+                        //report.parameters = [{Name: 'Id', value: invoice.ID}]; // TEST DOWNLOAD
+                        //this.reportDefinitionService.generateReportPdf(report);                                        
+                    }
                 });
             }
         });
