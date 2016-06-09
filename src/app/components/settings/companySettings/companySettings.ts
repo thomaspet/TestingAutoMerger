@@ -1,17 +1,14 @@
-﻿import {Component, OnInit, provide} from '@angular/core';
+﻿import {Component, OnInit, ViewChild} from '@angular/core';
 import {RouteParams, ROUTER_DIRECTIVES} from '@angular/router-deprecated';
 import {Observable} from 'rxjs/Observable';
 import 'rxjs/add/observable/forkJoin';
 import {UniSave, IUniSaveAction} from '../../../../framework/save/save';
 
-
 import {UniForm} from '../../../../framework/uniform';
 import {UniFieldLayout} from '../../../../framework/uniform/index';
 
-import {UniHttp} from '../../../../framework/core/http/http';
-import {SubEntity, AGAZone, Municipal, CompanyType, PeriodSeries, Currency, FieldType, AccountGroup, AGARate, Account, CompanySalary} from '../../../unientities';
-import {AgaZoneService, CompanySettingsService, CurrencyService, SubEntityService, AccountService, AccountGroupSetService, PeriodSeriesService,
-    CompanyTypeService, MunicipalService, CompanySalaryService} from '../../../services/services';
+import {CompanyType, PeriodSeries, Currency, FieldType, AccountGroup, Account} from '../../../unientities';
+import {CompanySettingsService, CurrencyService, VatTypeService, AccountService, AccountGroupSetService, PeriodSeriesService, CompanyTypeService, MunicipalService} from '../../../services/services';
 
 declare var _;
 
@@ -20,42 +17,35 @@ declare var _;
     templateUrl: 'app/components/settings/companySettings/companySettings.html',
     providers: [
         CompanySettingsService, 
-        AgaZoneService, 
         CurrencyService, 
-        SubEntityService, 
         AccountService, 
         AccountGroupSetService, 
-        PeriodSeriesService, 
-        CompanyTypeService, 
-        MunicipalService,
-        CompanySalaryService
-        ],
+        PeriodSeriesService,
+        VatTypeService,
+        CompanyTypeService,
+        MunicipalService 
+    ],
     directives: [ROUTER_DIRECTIVES, UniForm, UniSave]
 })
 
 export class CompanySettings implements OnInit {
-    private id: any;
-    //private form: any;
+    public @ViewChild(UniForm) form: UniForm;
+        
     private company: any;
     
-    private subEntities: Array<SubEntity> = [];
     private companyTypes: Array<CompanyType> = [];
     private currencies: Array<Currency> = [];
     private periodSeries: Array<PeriodSeries> = [];
     private accountGroupSets: Array<AccountGroup> = [];
-    private agaZones: Array<AGAZone> = [];
-    private agaRules: Array<AGARate> = [];
-    private municipals: Array<Municipal> = [];
-    private accounts: Array<Account> = [];
-    private companySalary: CompanySalary[] = [];
-
+    private accounts: Array<Account> = [];    
+    
     public config: any = {};
     public fields: any[] = [];
 
     private saveactions: IUniSaveAction[] = [
         {
             label: 'Lagre',
-            action: this.saveSettings.bind(this),
+            action: (event) => this.saveSettings(event),
             main: true,
             disabled: false
         }
@@ -63,34 +53,20 @@ export class CompanySettings implements OnInit {
     
     // TODO Use service instead of Http, Use interfaces!!
     constructor(private routeParams: RouteParams,
-                private http: UniHttp,
                 private companySettingsService: CompanySettingsService, 
-                private agaZoneService: AgaZoneService,
-                private subentityService: SubEntityService,
                 private accountService: AccountService,
                 private currencyService: CurrencyService,
                 private accountGroupSetService: AccountGroupSetService,
                 private periodeSeriesService: PeriodSeriesService,
                 private companyTypeService: CompanyTypeService,
-                private municipalService: MunicipalService,
-                private companySalaryService: CompanySalaryService) {
-
-
-
+                private vatTypeService: VatTypeService,
+                private municipalService: MunicipalService) {
     }
     
     public ngOnInit() {
         this.getDataAndSetupForm();
     }
-    
-    private dataChange(event) {
-        console.log('dataChange', event);
-    }
-    
-    private formReady(event) {
-        console.log('dataChange', event);
-    }
-    
+        
     private getDataAndSetupForm() {
         Observable.forkJoin(
             this.companyTypeService.GetAll(null),
@@ -98,48 +74,61 @@ export class CompanySettings implements OnInit {
             this.periodeSeriesService.GetAll(null),
             this.accountGroupSetService.GetAll(null),
             this.accountService.GetAll(null),
-            this.companySettingsService.Get(1, ['Address', 'Emails', 'Phones']),
-            this.subentityService.GetAll(null, ['BusinessRelationInfo', 'BusinessRelationInfo.InvoiceAddress']),
-            this.agaZoneService.GetAll(null),
-            this.agaZoneService.getAgaRules(),
-            this.companySalaryService.GetAll('')
+            this.companySettingsService.Get(1, ['Address', 'Emails', 'Phones'])            
         ).subscribe(
-            (dataset) => {
-                let filter: string = '';
-                
-                dataset[6].forEach((element) => {
-                    filter += 'MunicipalityNo eq ' + element.MunicipalityNo + ' or ';
-                });
-                filter = filter.slice(0, filter.length - 3);
-                
-                this.municipalService.GetAll(filter).subscribe(
-                    (response) => {
-                        this.companyTypes = dataset[0];
-                        this.currencies = dataset[1];
-                        this.periodSeries = dataset[2];
-                        this.accountGroupSets = dataset[3];
-                        this.accounts = dataset[4];
-                        this.company = dataset[5];
-                        this.subEntities = dataset[6];
-                        this.agaZones = dataset[7];
-                        this.agaRules = dataset[8];
-                        this.companySalary = dataset[9];
-                        this.municipals = response;
-       
-                        this.buildForm();
-                    }, 
-                    error => console.log(error)
-                );
+            (dataset) => {            
+                this.companyTypes = dataset[0];
+                this.currencies = dataset[1];
+                this.periodSeries = dataset[2];
+                this.accountGroupSets = dataset[3];
+                this.accounts = dataset[4];
+                this.company = dataset[5];
+        
+                this.buildForm();
+                 
+                setTimeout(() => {
+                    this.form.onReady.subscribe((event) => {
+                        this.updateMunicipalityName();
+                                                
+                        this.form.Fields['OfficeMunicipalityNo']
+                            .onChange
+                            .subscribe((value) => {
+                               this.updateMunicipalityName(); 
+                            });
+                        });
+                });   
+                                
             },
-            error => console.log(error)
+            error => alert('Feil ved henting av data')
         );
+    }
+
+
+    public saveSettings(value) {
+        this.companySettingsService
+            .Put(this.company.ID, this.company)
+            .subscribe(
+                (response) => {
+                },
+                (error) => {                    
+                    alert('Feil oppsto ved lagring:' + error);
+                }
+            );
+    }
+
+    private updateMunicipalityName() {
+        this.municipalService.GetAll(`filter=MunicipalityNo eq '${this.company.OfficeMunicipalityNo}'`)
+            .subscribe((data) => {
+                if (data != null && data.length > 0) {
+                    this.company.MunicipalityName = data[0].MunicipalityName;
+                    this.company = _.cloneDeep(this.company); 
+                }
+            });
     }
 
     private buildForm() {
 
-        this.config = {
-            submitText: 'Dont click me'
-        };
+        this.config = {};
 
         this.fields = [
                 {
@@ -350,8 +339,7 @@ export class CompanySettings implements OnInit {
                     Validations: []
                 },
                 {
-                    ComponentLayoutID: 1,
-                     
+                    ComponentLayoutID: 1,                     
                     EntityType: 'CompanySettings',
                     Property: 'Emails[0].EmailAddress',
                     Placement: 2,
@@ -363,7 +351,7 @@ export class CompanySettings implements OnInit {
                     Description: null,
                     HelpText: null,
                     FieldSet: 0,
-                    Section: 1,
+                    Section: 0,
                     Placeholder: null,
                     Options: null,
                     LineBreak: null,
@@ -373,20 +361,19 @@ export class CompanySettings implements OnInit {
                     Validations: []
                 },
                 {
-                    ComponentLayoutID: 1,
-                     
+                    ComponentLayoutID: 1,                     
                     EntityType: 'CompanySettings',
-                    Property: 'Phones[0].EmailAddress',
+                    Property: 'Phones[0].Number',
                     Placement: 2,
                     Hidden: false,
                     FieldType: FieldType.TEXT,
                     ReadOnly: false,
                     LookupField: false,
-                    Label: 'Epost',
+                    Label: 'Telefon',
                     Description: null,
                     HelpText: null,
                     FieldSet: 0,
-                    Section: 1,
+                    Section: 0,
                     Placeholder: null,
                     Options: null,
                     LineBreak: null,
@@ -508,7 +495,7 @@ export class CompanySettings implements OnInit {
                     Combo: null,
                     Sectionheader: 'Selskapsoppsett',
                     hasLineBreak: false,                     
-                    Validations: []
+                    Validations: []                    
                 },
                 {
                     ComponentLayoutID: 1,
@@ -695,48 +682,11 @@ export class CompanySettings implements OnInit {
                     Sectionheader: 'Selskapsoppsett',
                     hasLineBreak: false,                     
                     Validations: []
-                },
-                {
-                    ComponentLayoutID: 1,
-                    EntityType: 'CompanySalary',
-                    Property: 'InterrimRemitAccount',
-                    Placement: 1,
-                    Hidden: false,
-                    FieldType: FieldType.TEXT,
-                    ReadOnly: false,
-                    LookupField: false,
-                    Label: 'Mellomkonto remittering',
-                    Description: null,
-                    HelpText: null,
-                    FieldSet: 0,
-                    Section: 1,
-                    Placeholder: null,
-                    Options: null,
-                    LineBreak: null,
-                    Combo: null,
-                    Sectionheader: '',
-                    hasLineBreak: false,                     
-                    Validations: []
                 }
         ];
-
-
-
-/*
-      
-
-        
-        var interrimRemit = new UniFieldBuilder();
-        interrimRemit
-            .setLabel('Mellomkonto remittering')
-            .setModel(this.companySalary[0])
-            .setModelField('InterrimRemitAccount')
-            .setType(UNI_CONTROL_DIRECTIVES[FieldType.TEXT]);
-      
-      
       
         /*
-        KE: Fjernet foreløpig, disse skal sannsynligvis inn et annet sted, men brukes ikke PT
+        KE 08062016: Fjernet foreløpig, disse skal sannsynligvis inn et annet sted, men brukes ikke PT
         if (this.company.AccountingLockedDate !== null) {
             this.company.AccountingLockedDate = new Date(this.company.AccountingLockedDate);
         }
@@ -764,39 +714,7 @@ export class CompanySettings implements OnInit {
             .setModel(this.company)
             .setModelField('ForceSupplierInvoiceApproval')
             .setType(UNI_CONTROL_DIRECTIVES[FieldType.CHECKBOX]);
-
-        
         */
-    }
-
-    /********************************************************************
-    /*********************  Form Builder    *******************
-    */
-    
-    private getAgaZone(id: number) {
-        // lodash find
-        return _.find(this.agaZones, object => object.ID === id);
-    }
-    
-    private getMunicipality(municipalityNumber) {
-        return _.find(this.municipals, object => object.MunicipalityNo === municipalityNumber);
-    }
-    
-    public saveSettings(value) {        
-        
-        console.log('LAGRE id: ' + this.id);
-        this.companySettingsService
-            .Put(this.company.ID, this.company)
-            .subscribe(
-                (response) => {
-                    console.log('LAGRET Firmainnstillinger ' + this.company.ID);
-                    // this.uniSaved.emit(this.company); //TODO according to account...
-                },
-                (error) => {
-                    console.log('OPPDATERING FEILET');
-                    console.log(error._body);
-                }
-            );
     }
 
     //#region Test data
@@ -814,30 +732,24 @@ export class CompanySettings implements OnInit {
 
     public syncVat() {
         console.log('SYNKRONISER MVA');
-        this.http
-            .asPUT()
-            .usingBusinessDomain()
-            .withEndPoint('vattypes')
-            .send({ 'action': 'synchronize' })
+        this.vatTypeService
+            .PutAction(0, 'synchronize')
             .subscribe(
-            (response: any) => {
-                alert('VatTypes synkronisert');
-            },
-            (error: any) => console.log(error)
+                (response: any) => {
+                    alert('VatTypes synkronisert');
+                },
+                (error: any) => console.log(error)
             );
     }
 
     public syncCurrency() {
         console.log('LAST NED VALUTA');
-        this.http
-            .asGET()
-            .withEndPoint('currencies')
-            .send({ action: 'download-from-norgesbank' })
+        this.currencyService.GetAction(0, 'download-from-norgesbank')
             .subscribe(
-            (response: any) => {
-                alert('Valuta lasted ned');
-            },
-            (error: any) => console.log(error)
+                (response: any) => {
+                    alert('Valuta lasted ned');
+                },
+                (error: any) => console.log(error)
             );
     }
 

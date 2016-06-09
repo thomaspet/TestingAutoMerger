@@ -1,15 +1,11 @@
 ﻿<h2>Firmainnstillinger</h2>
 <article *ngIf="company">    
-    <uni-form class="companySettings"
-            
+    <uni-form class="companySettings"            
             [config]='config' 
             [fields]='fields' 
             [model]='company'
-                        
-            (onChange)='dataChange($event)'
-            (onReady)='formReady($event)'        
-            
-        ></uni-form>
+            (ready)="formReady()">
+    </uni-form>
 </article>
 
 <section>

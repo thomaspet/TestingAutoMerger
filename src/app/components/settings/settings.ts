@@ -24,27 +24,20 @@ const CHILD_ROUTES = [
         loader: () => ComponentProxy.LoadComponentAsync('CompanySettings','app/components/settings/companySettings/companySettings')
     }),
     new AsyncRoute({
-        path: '/accounts',
-        name: 'Kontoer',
-        loader: () => ComponentProxy.LoadComponentAsync('AccountSettings','app/components/settings/accountSettings/accountSettings')
-    }),
-    new AsyncRoute({
-        path: '/vat',
-        name: 'VAT',
-        loader: () => ComponentProxy.LoadComponentAsync('VatSettings','app/components/settings/vatSettings/vatSettings')
+        path: '/agaandsubentities',
+        name: 'AGA og virksomheter',
+        loader: () => ComponentProxy.LoadComponentAsync('AgaAndSubEntitySettings','app/components/settings/agaAndSubEntitySettings/agaAndSubEntitySettings')
     }),
     new AsyncRoute({
         path: '/user',
         name: 'Brukerinnstillinger',
         loader: () => ComponentProxy.LoadComponentAsync('UserSettings','app/components/settings/userSettings/userSettings')
     }),
-
     new AsyncRoute({
         path: '/users',
         name: 'Brukere og roller',
         loader: () => ComponentProxy.LoadComponentAsync('Users','app/components/settings/users/users')
-    }),
-    
+    }),    
     new AsyncRoute({
         path: '/altinn',
         name: 'Altinn',

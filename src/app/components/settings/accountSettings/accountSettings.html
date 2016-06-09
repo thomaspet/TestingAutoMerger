@@ -1,10 +1,12 @@
-﻿<section class="splitview">
-
-    <nav class="splitview_list">
-        <account-list (uniAccountChange)="changeAccount($event)"></account-list>
-    </nav>
-    <main class="splitview_detail">
-        <account-details (uniSaved)="accountSaved($event)" [account]="account"></account-details>
-    </main>
-
+﻿<section class=" application">    
+    <h1>Kontoinnstillinger</h1>
+    
+    <section class="splitview">
+        <nav class="splitview_list">
+            <account-list (uniAccountChange)="changeAccount($event)"></account-list>
+        </nav>
+        <main class="splitview_detail">
+            <account-details (uniSaved)="accountSaved($event)" [account]="account"></account-details>
+        </main>
+    </section>
 </section>
