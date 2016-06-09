@@ -73,7 +73,7 @@ export class CustomerInvoiceService extends BizHttp<CustomerInvoice> {
         return super.PutAction(currentInvoiceID, 'create-credit-draft-invoice');
     } 
 
-    public getStatusText = (statusCode: string, invoiceType: number) => {
+    public getStatusText = (statusCode: number, invoiceType: number) => {
         var text = 'Udefinert';
 
         // TODO use enum for invoiceType

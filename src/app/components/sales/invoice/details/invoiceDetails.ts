@@ -3,10 +3,13 @@ import {Router, RouteParams, RouterLink} from '@angular/router-deprecated';
 import {Observable} from 'rxjs/Observable';
 import 'rxjs/add/observable/forkJoin';
 
-import {CustomerInvoiceService, CustomerInvoiceItemService, CustomerService, ProjectService, DepartementService, AddressService, ReportDefinitionService} from '../../../../services/services';
+import {CustomerInvoiceService, CustomerInvoiceItemService, CustomerService} from '../../../../services/services';
+import {ProjectService, DepartementService, AddressService, ReportDefinitionService} from '../../../../services/services';
+
 import {InvoiceItemList} from './invoiceItemList';
 
 import {ComponentLayout, CustomerInvoice, Customer, Dimensions, Address, BusinessRelation} from '../../../../unientities';
+import {StatusCodeCustomerInvoice} from '../../../../unientities';
 import {UniFormBuilder} from '../../../../../framework/forms/builders/uniFormBuilder';
 import {UniFormLayoutBuilder} from '../../../../../framework/forms/builders/uniFormLayoutBuilder';
 import {UniForm} from '../../../../../framework/forms/uniForm';
@@ -30,9 +33,9 @@ export class InvoiceDetails implements OnInit {
 
     @Input() public invoiceID: any;
 
-    @ViewChild(UniComponentLoader) 
+    @ViewChild(UniComponentLoader)
     public ucl: UniComponentLoader;
-    
+
     @ViewChild(PreviewModal)
     private previewModal: PreviewModal;
 
@@ -57,25 +60,8 @@ export class InvoiceDetails implements OnInit {
     private invoiceReference: CustomerInvoice;
     private invoiceButtonText: string = 'Fakturer';
     private recalcTimeout: any;
-    
-    private actions: IUniSaveAction[] = [
-        {
-            label: 'Lagre',
-            action: (done) => this.saveInvoiceManual(done),
-            main: true,
-            disabled: false
-        },
-        {
-            label: 'Lagre og skriv ut',
-            action: (done) => this.saveAndPrint(done),
-            disabled: false  
-        },
-        {
-            label: this.invoiceButtonText,
-            action: (done) => this.saveInvoiceTransition(done, 'invoice'),
-            disabled: false
-        }   
-    ];
+
+    private actions: IUniSaveAction[] = [];
 
     constructor(private customerService: CustomerService,
         private customerInvoiceService: CustomerInvoiceService,
@@ -117,9 +103,50 @@ export class InvoiceDetails implements OnInit {
             }
             this.updateStatusText();
             this.addAddresses();
+            this.pushSaveActions();
             this.createFormConfig();
             this.extendFormConfig();
             this.loadForm();
+        });
+    }
+
+    private pushSaveActions() {
+        //private actions: IUniSaveAction[] = [
+        this.actions.push({
+            label: 'Lagre',
+            action: (done) => this.saveInvoiceManual(done),
+            main: true,
+            disabled: false
+        });
+
+        this.actions.push({
+            label: this.invoiceButtonText, //Fakturer eller Lagre
+            action: (done) => this.saveInvoiceTransition(done, 'invoice'),
+            disabled: !this.IsinvoiceActionAvailable()
+        });
+
+        this.actions.push({
+            label: 'Lagre og skriv ut',
+            action: (done) => this.saveAndPrint(done),
+            disabled: false
+        });
+
+        this.actions.push({
+            label: 'Registrer betaling',
+            action: (done) => {
+                alert('Registrer betaling  - Under construction');
+                done();
+            },
+            disabled: false
+        });
+
+        this.actions.push({
+            label: 'Slett',
+            action: (done) => {
+                alert('Slett  - Under construction');
+                done();
+            },
+            disabled: true
         });
     }
 
@@ -128,7 +155,7 @@ export class InvoiceDetails implements OnInit {
         var shippingaddresses = this.businessRelationShipping.Addresses ? this.businessRelationShipping.Addresses : [];
         var firstinvoiceaddress = null;
         var firstshippingaddress = null;
-                        
+
         // remove addresses from last customer
         if (this.lastCustomerInfo) {
             this.lastCustomerInfo.Addresses.forEach(a => {
@@ -146,7 +173,7 @@ export class InvoiceDetails implements OnInit {
                 });
             });
         }
-        
+
         // Add address from order if no addresses
         if (invoiceaddresses.length == 0) {
             var invoiceaddress = this.invoiceToAddress();
@@ -165,7 +192,7 @@ export class InvoiceDetails implements OnInit {
         } else {
             firstshippingaddress = shippingaddresses.shift();
         }
-                    
+
         // Add addresses from current customer
         if (this.invoice.Customer) {
             this.businessRelationInvoice = _.cloneDeep(this.invoice.Customer.Info);
@@ -187,7 +214,7 @@ export class InvoiceDetails implements OnInit {
 
     private recalcItemSums(invoiceItems: any) {
         this.invoice.Items = invoiceItems;
-    
+
         // do recalc after 2 second to avoid to much requests
         if (this.recalcTimeout) {
             clearTimeout(this.recalcTimeout);
@@ -215,7 +242,7 @@ export class InvoiceDetails implements OnInit {
                 );
         }, 2000);
     }
-    
+
     private saveInvoiceTransition(done: any, transition: string) {
         this.saveInvoice((invoice) => {
             this.customerInvoiceService.Transition(this.invoice.ID, this.invoice, transition).subscribe(() => {
@@ -226,6 +253,7 @@ export class InvoiceDetails implements OnInit {
                     this.invoice = invoice;
                     this.updateStatusText();
                 });
+                done();
             }, (err) => {
                 console.log('Feil oppstod ved ' + transition + ' transition', err);
                 done('Feilet');
@@ -244,7 +272,7 @@ export class InvoiceDetails implements OnInit {
         this.formInstance.sync();
         this.lastSavedInfo = 'Lagrer faktura...';
         this.invoice.TaxInclusiveAmount = -1; // TODO in AppFramework, does not save main entity if just items have changed
-               
+
         if (transition == 'invoice' && this.invoice.DeliveryDate == null) {
             this.invoice.DeliveryDate = moment();
         }
@@ -273,7 +301,20 @@ export class InvoiceDetails implements OnInit {
     }
 
     private updateStatusText() {
-        this.statusText = this.customerInvoiceService.getStatusText((this.invoice.StatusCode || '').toString(), this.invoice.InvoiceType);
+        //this.statusText = this.customerInvoiceService.getStatusText((this.invoice.StatusCode || '').toString(), this.invoice.InvoiceType);
+        this.statusText = this.customerInvoiceService.getStatusText(this.invoice.StatusCode, this.invoice.InvoiceType);
+    }
+
+    private IsinvoiceActionAvailable() {
+        //if (this.invoice.TaxExclusiveAmount === 0) {
+        //    return false;
+        //}
+        //return this.invoice._links.transitions.invoice; //Links available??
+        //if (this.invoice.StatusCode === StatusCodeCustomerInvoice.Draft) {
+        //    return true;
+        //}
+
+        return false;
     }
 
     private nextInvoice() {
@@ -304,13 +345,13 @@ export class InvoiceDetails implements OnInit {
                 );
         });
     }
-    
+
     private saveAndPrint(done) {
         this.saveInvoice((invoice) => {
             this.reportDefinitionService.getReportByName('Faktura Uten Giro').subscribe((report) => {
                 if (report) {
                     this.previewModal.openWithId(report, invoice.ID);
-                    done('Utskrift');                                        
+                    done('Utskrift');
                 } else {
                     done('Rapport mangler');
                 }
@@ -318,7 +359,7 @@ export class InvoiceDetails implements OnInit {
         });
     }
 
-    private createFormConfig() {   
+    private createFormConfig() {
         // TODO get it from the API and move these to backend migrations   
         var view: ComponentLayout = this.getComponentLayout();
 
@@ -334,8 +375,8 @@ export class InvoiceDetails implements OnInit {
         paymentduedate.hasLineBreak(true);
 
         var deliverydate: UniFieldBuilder = this.formConfig.find('DeliveryDate');
-        deliverydate.hasLineBreak(true);           
-        
+        deliverydate.hasLineBreak(true);
+
         // TODO remove .ready when functionality is available later on
         var creditdays: UniFieldBuilder = this.formConfig.find('CreditDays');
         creditdays.ready.subscribe((component) => {
@@ -499,7 +540,7 @@ export class InvoiceDetails implements OnInit {
     }
 
     // TODO: update to 'ComponentLayout' when the object respect interface
-    private  getComponentLayout(): any {
+    private getComponentLayout(): any {
         return {
             Name: 'CustomerInvoice',
             BaseEntity: 'CustomerInvoice',
