@@ -7,7 +7,7 @@ import {VatType, Account, Dimensions, SupplierInvoice} from '../../../../../unie
 import {VatTypeService, AccountService, JournalEntryService, DepartementService, ProjectService} from '../../../../../services/services';
 
 import {JournalEntryData} from '../../../../../models/models';
-import {JournalEntrySimpleForm} from './journalentrysimpleform';
+import {JournalEntrySimpleForm,JournalEntryMode} from './journalentrysimpleform';
 
 declare var moment;
 
@@ -20,7 +20,7 @@ declare var moment;
 export class JournalEntrySimple implements OnInit, OnChanges {
     @Input() public supplierInvoice: SupplierInvoice;
     @Input() public runAsSubComponent : boolean = false;
-    @Input() public hideSameOrNew : boolean = false;
+    @Input() public mode : number = JournalEntryMode.Manual;
     @Output() dataChanged: EventEmitter<JournalEntryData[]> = new EventEmitter<JournalEntryData[]>();
     @Output() dataLoaded: EventEmitter<JournalEntryData[]> = new EventEmitter<JournalEntryData[]>();
     
@@ -206,8 +206,10 @@ export class JournalEntrySimple implements OnInit, OnChanges {
         updatedLine.DebitAccount = this.getAccount(updatedLine['DebitAccountID']);
         updatedLine.CreditAccount = this.getAccount(updatedLine['CreditAccountID']);
         updatedLine.DebitVatType = this.getVatType(updatedLine['VatTypeID']);
-
-        updatedLine.FinancialDate = new Date(updatedLine['FinancialDate'].toString());
+        
+        if (updatedLine['FinancialDate']) {
+            updatedLine.FinancialDate = new Date(updatedLine['FinancialDate'].toString());           
+        }
 
         return updatedLine;
     }

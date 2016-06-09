@@ -5,6 +5,7 @@ import {SupplierInvoice} from '../../../../unientities';
 import {JournalEntryData} from '../../../../models/models';
 import {JournalEntrySimpleCalculationSummary} from '../../../../models/accounting/JournalEntrySimpleCalculationSummary';
 import {JournalEntryService} from '../../../../services/services';
+import {JournalEntryMode} from '../components/journalentrysimple/journalentrysimpleform';
 
 @Component({
     selector: 'journal-entry-manual',
@@ -17,7 +18,7 @@ export class JournalEntryManual {
     supplierInvoice : SupplierInvoice;
     @Input() runAsSubComponent : boolean = false;
     @Input()
-    hideSameOrNew : boolean = false;
+    mode : number = JournalEntryMode.Manual;
     @ViewChild(JournalEntrySimple) private journalEntrySimple: JournalEntrySimple;
     @ViewChild(JournalEntryProfessional) journalEntryProfessional: JournalEntryProfessional;
     @Input() public journalEntryMode: string;
@@ -32,7 +33,7 @@ export class JournalEntryManual {
         this.journalEntryMode = "SIMPLE";
         
         if (this.supplierInvoice) {
-            this.hideSameOrNew = true;
+            this.mode = JournalEntryMode.Supplier;
         }
         
         this.setupSubscriptions();
