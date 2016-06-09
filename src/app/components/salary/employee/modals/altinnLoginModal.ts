@@ -40,7 +40,9 @@ export class AltinnLoginModalContent {
             this._altinnReceiptService.GetAll('top:1') // test for now, must change this in #598
             ).subscribe((response: any) => {
                 let [altinnResponse, companySettingsResponse, altinnReceipt] = response;
-                this.receiptID = altinnReceipt[0].ReceiptID;
+                if (altinnReceipt[0]) {
+                    this.receiptID = altinnReceipt[0].ReceiptID;
+                }
                 this.altinn = altinnResponse[0];
                 this.companySettings = companySettingsResponse[0];
                 this.resetData();

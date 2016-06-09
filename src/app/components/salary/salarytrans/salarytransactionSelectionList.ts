@@ -26,6 +26,7 @@ export class SalaryTransactionSelectionList implements OnInit {
     private employeeList: Employee[] = [];
     public busy: boolean;
     @ViewChild(UniTable) private tables: UniTable;
+    @ViewChild(SalaryTransactionEmployeeList) private salarytransList: SalaryTransactionEmployeeList;
     
     constructor(private uniHttpService: UniHttp,
                 private tabSer: TabService,
@@ -70,7 +71,11 @@ export class SalaryTransactionSelectionList implements OnInit {
                 var subEntityCol = new UniTableColumn('SubEntity.BusinessRelationInfo.Name', 'Virksomhet', 'string');
                 this.salarytransSelectionTableConfig = new UniTableBuilder(this.employeeList, false)
                     .setSelectCallback((selEmp) => {
-                        this.selectedEmployeeID = selEmp.ID;
+                        console.log('selectcallback');
+                        if (!this.salarytransList.isDirty()) {
+                            console.log('is not dirty, set employee');
+                            this.selectedEmployeeID = selEmp.ID;
+                        }
                     })
                     .setColumnMenuVisible(false)
                     .setFilterable(false)
