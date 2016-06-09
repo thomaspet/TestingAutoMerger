@@ -104,13 +104,15 @@ export class CompanySettings implements OnInit {
     }
 
 
-    public saveSettings(value) {
+    public saveSettings(complete) {
         this.companySettingsService
             .Put(this.company.ID, this.company)
             .subscribe(
                 (response) => {
+                    complete('Innstillinger lagret');
                 },
                 (error) => {                    
+                    complete('Feil oppsto ved lagring');
                     alert('Feil oppsto ved lagring:' + error);
                 }
             );
