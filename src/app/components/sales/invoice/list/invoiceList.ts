@@ -8,7 +8,6 @@ import {URLSearchParams} from '@angular/http';
 import {AsyncPipe} from '@angular/common';
 import {InvoicePaymentData} from '../../../../models/sales/InvoicePaymentData';
 import {InvoiceSummary} from '../../../../models/accounting/InvoiceSummary';
-
 import {RegisterPaymentModal} from '../../../common/modals/registerPaymentModal';
 import {PreviewModal} from '../../../reports/modals/preview/previewModal';
 
@@ -182,7 +181,11 @@ export class InvoiceList implements OnInit {
             label: 'Skriv ut',
             action: (invoice: CustomerInvoice) => {
                 this.reportDefinitionService.getReportByName('Faktura Uten Giro').subscribe((report) => {
-                    this.previewModal.openWithId(report, invoice.ID);                    
+                    if (report) {
+                        this.previewModal.openWithId(report, invoice.ID);    
+                        //report.parameters = [{Name: 'Id', value: invoice.ID}]; // TEST DOWNLOAD
+                        //this.reportDefinitionService.generateReportPdf(report);                                        
+                    }
                 });
             }
         });

@@ -85,7 +85,9 @@ export class QuoteList {
             label: 'Skriv ut',
             action: (quote: CustomerQuote) => {
                 this.reportDefinitionService.getReportByName('Tilbud').subscribe((report) => {
-                    this.previewModal.openWithId(report, quote.ID);                    
+                    if (report) {
+                        this.previewModal.openWithId(report, quote.ID);                    
+                    }
                 });
             }
         });

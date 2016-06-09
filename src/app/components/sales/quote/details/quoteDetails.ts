@@ -263,6 +263,7 @@ export class QuoteDetails {
               });                     
             }, (err) => {
                 console.log('Feil oppstod ved ' + transition + ' transition', err);
+                done('Feilet');
                 this.log(err);
             });
         });          
@@ -334,8 +335,12 @@ export class QuoteDetails {
     private saveAndPrint(done) {
         this.saveQuote((quote) => {
             this.reportDefinitionService.getReportByName('Tilbud').subscribe((report) => {
-                this.previewModal.openWithId(report, quote.ID);
-                done("Utskrift");                    
+                if (report) {
+                    this.previewModal.openWithId(report, quote.ID);
+                    done("Utskrift");                     
+                } else {
+                    done('Rapport mangler');
+                }                
             });
         });
     }
