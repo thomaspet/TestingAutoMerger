@@ -2,10 +2,8 @@ import {Component, ComponentRef, Input, Output, ViewChild, SimpleChange, EventEm
 import {Router, RouteParams, RouterLink} from "@angular/router-deprecated";
 import {Observable} from "rxjs/Observable";
 import "rxjs/add/observable/forkJoin";
-
-import {CustomerQuoteService, CustomerQuoteItemService, CustomerService, SupplierService, ProjectService, DepartementService, AddressService} from "../../../../services/services";
+import {CustomerQuoteService, CustomerQuoteItemService, CustomerService, SupplierService, ProjectService, DepartementService, AddressService, ReportDefinitionService} from "../../../../services/services";
 import {QuoteItemList} from './quoteItemList';
-
 import {FieldType, FieldLayout, ComponentLayout, CustomerQuote, CustomerQuoteItem, Customer, Dimensions, Departement, Project, Address, BusinessRelation} from "../../../../unientities";
 import {StatusCodeCustomerQuote} from "../../../../unientities";
 import {UNI_CONTROL_DIRECTIVES} from "../../../../../framework/controls";
@@ -17,6 +15,8 @@ import {UniFieldBuilder} from "../../../../../framework/forms/builders/uniFieldB
 import {UniComponentLoader} from "../../../../../framework/core/componentLoader";
 import {AddressModal} from "../../customer/modals/address/address";
 import {TradeHeaderCalculationSummary} from '../../../../models/sales/TradeHeaderCalculationSummary';
+import {UniSave, IUniSaveAction} from '../../../../../framework/save/save';
+import {PreviewModal} from '../../../reports/modals/preview/previewModal';
 
 declare var _;
 declare var moment;
@@ -24,8 +24,8 @@ declare var moment;
 @Component({
     selector: "quote-details",
     templateUrl: "app/components/sales/quote/details/quoteDetails.html",    
-    directives: [UniComponentLoader, RouterLink, QuoteItemList, AddressModal],
-    providers: [CustomerQuoteService, CustomerQuoteItemService, CustomerService, ProjectService, DepartementService, AddressService]
+    directives: [UniComponentLoader, RouterLink, QuoteItemList, AddressModal, UniSave, PreviewModal],
+    providers: [CustomerQuoteService, CustomerQuoteItemService, CustomerService, ProjectService, DepartementService, AddressService, ReportDefinitionService]
 })
 export class QuoteDetails {
             
@@ -33,7 +33,10 @@ export class QuoteDetails {
                   
     @ViewChild(UniComponentLoader)
     ucl: UniComponentLoader;
-    
+
+    @ViewChild(PreviewModal)
+    private previewModal: PreviewModal;
+
     businessRelationInvoice: BusinessRelation = new BusinessRelation();
     businessRelationShipping: BusinessRelation = new BusinessRelation();
     lastCustomerInfo: BusinessRelation;
@@ -53,13 +56,58 @@ export class QuoteDetails {
     whenFormInstance: Promise<UniForm>;
     
     EmptyAddress: Address;
+    
+    private actions: IUniSaveAction[] = [
+        {
+            label: 'Lagre',
+            action: (done) => this.saveQuoteManual(done),
+            main: true,
+            disabled: false
+        },
+        {
+            label: 'Lagre og skriv ut',
+            action: (done) => this.saveAndPrint(done),
+            disabled: false  
+        },
+        {
+            label: 'Til register',
+            action: (done) => this.saveQuoteTransition(done, 'register'),
+            disabled: false
+        },
+        {
+            label: 'Til shiptocustomer',
+            action: (done) => this.saveQuoteTransition(done, 'shipToCustomer'),
+            disabled: false
+        },
+        {
+            label: 'Til customeraccept',
+            action: (done) => this.saveQuoteTransition(done, 'customerAccept'),
+            disabled: false
+        },
+        {
+            label: 'Til toorder',
+            action: (done) => this.saveQuoteTransition(done, 'toOrder'),
+            disabled: false
+        },
+        {
+            label: 'Til toinvoice',
+            action: (done) => this.saveQuoteTransition(done, 'toInvoice'),
+            disabled: false
+        },
+        {
+            label: 'Til tocomplete',
+            action: (done) => this.saveQuoteTransition(done, 'complete'),
+            disabled: false
+        }   
+    ];
        
     constructor(private customerService: CustomerService, 
                 private customerQuoteService: CustomerQuoteService, 
                 private customerQuoteItemService: CustomerQuoteItemService,
                 private departementService: DepartementService,
                 private projectService: ProjectService,
-                private addressService: AddressService, 
+                private addressService: AddressService,
+                private reportDefinitionService: ReportDefinitionService,
                 private router: Router, private params: RouteParams) {                
         this.QuoteID = params.get("id");
         this.businessRelationInvoice.Addresses = [];
@@ -139,9 +187,7 @@ export class QuoteDetails {
                 firstinvoiceaddress = invoiceaddress; 
             }            
         } else {
-            console.log(invoiceaddresses);
             firstinvoiceaddress = invoiceaddresses.shift();
-            console.log(invoiceaddresses);
         }
         
         if (shippingaddresses.length == 0) {
@@ -205,10 +251,11 @@ export class QuoteDetails {
         
     }
     
-    saveQuoteTransition(event: any, transition: string) {
+    saveQuoteTransition(done: any, transition: string) {
         this.saveQuote((quote) => {
             this.customerQuoteService.Transition(this.quote.ID, this.quote, transition).subscribe(() => {
               console.log("== TRANSITION OK " + transition + " ==");
+              done('Lagret');
                      
               this.customerQuoteService.Get(quote.ID, ['Dimensions','Items','Items.Product','Items.VatType', 'Customer', 'Customer.Info', 'Customer.Info.Addresses']).subscribe((quote) => {
                 this.quote = quote;
@@ -216,12 +263,13 @@ export class QuoteDetails {
               });                     
             }, (err) => {
                 console.log('Feil oppstod ved ' + transition + ' transition', err);
+                done('Feilet');
                 this.log(err);
             });
         });          
     }
       
-    saveQuoteManual(event: any) {        
+    saveQuoteManual(done: any) {        
         this.saveQuote();
     }
 
@@ -282,6 +330,19 @@ export class QuoteDetails {
                     }
                 );
         });           
+    }
+    
+    private saveAndPrint(done) {
+        this.saveQuote((quote) => {
+            this.reportDefinitionService.getReportByName('Tilbud').subscribe((report) => {
+                if (report) {
+                    this.previewModal.openWithId(report, quote.ID);
+                    done("Utskrift");                     
+                } else {
+                    done('Rapport mangler');
+                }                
+            });
+        });
     }
         
     //createFormConfig() {   

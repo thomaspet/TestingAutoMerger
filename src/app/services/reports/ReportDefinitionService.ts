@@ -94,9 +94,8 @@ export class ReportDefinitionService extends BizHttp<ReportDefinition>{
         let observableBatch = [];
         
         for (const ds of this.report.dataSources) {
-            let url: string = ds.DataSourceUrl;
-
-            url = url.replace(AppConfig.API_DOMAINS.BUSINESS, '');
+            let url: string = ds.DataSourceUrl;   
+            url = url.replace(AppConfig.API_DOMAINS.BUSINESS, '');      
             
             observableBatch.push(
                 this.http

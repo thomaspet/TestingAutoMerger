@@ -3,11 +3,11 @@ import {Router, RouteParams, RouterLink} from '@angular/router-deprecated';
 import {Observable} from 'rxjs/Observable';
 import 'rxjs/add/observable/forkJoin';
 
-import {CustomerOrderService, CustomerOrderItemService, CustomerService, SupplierService, ProjectService, DepartementService, AddressService} from '../../../../services/services';
+import {CustomerOrderService, CustomerOrderItemService, CustomerService, SupplierService, ProjectService, DepartementService, AddressService, ReportDefinitionService} from '../../../../services/services';
 import {OrderItemList} from './orderItemList';
 import {OrderToInvoiceModal} from '../modals/ordertoinvoice';
 
-import {FieldType, FieldLayout, ComponentLayout, CustomerOrder, CustomerOrderItem, Customer, Departement, Project, Address, BusinessRelation} from '../../../../unientities';
+import {FieldType, FieldLayout, ComponentLayout, CustomerOrder, CustomerOrderItem, Customer, Dimensions, Departement, Project, Address, BusinessRelation} from '../../../../unientities';
 import {StatusCodeCustomerOrder} from '../../../../unientities';
 import {UNI_CONTROL_DIRECTIVES} from '../../../../../framework/controls';
 import {UniFormBuilder} from '../../../../../framework/forms/builders/uniFormBuilder';
@@ -18,51 +18,87 @@ import {UniFieldBuilder} from '../../../../../framework/forms/builders/uniFieldB
 import {UniComponentLoader} from '../../../../../framework/core/componentLoader';
 import {AddressModal} from '../../customer/modals/address/address';
 import {TradeHeaderCalculationSummary} from '../../../../models/sales/TradeHeaderCalculationSummary';
+import {UniSave, IUniSaveAction} from '../../../../../framework/save/save';
+import {PreviewModal} from '../../../reports/modals/preview/previewModal';
 
 declare var _;
      
 @Component({
     selector: 'order-details',
     templateUrl: 'app/components/sales/order/details/orderDetails.html',    
-    directives: [UniComponentLoader, RouterLink, OrderItemList, AddressModal, OrderToInvoiceModal],
-    providers: [CustomerOrderService, CustomerOrderItemService, CustomerService, ProjectService, DepartementService, AddressService]
+    directives: [UniComponentLoader, RouterLink, OrderItemList, AddressModal, OrderToInvoiceModal, UniSave, PreviewModal],
+    providers: [CustomerOrderService, CustomerOrderItemService, CustomerService, ProjectService, DepartementService, AddressService, ReportDefinitionService]
 })
 export class OrderDetails {
             
-    @Input() OrderID: any;
+    @Input() public OrderID: any;
                   
     @ViewChild(UniComponentLoader)
-    ucl: UniComponentLoader;
+    public ucl: UniComponentLoader;
     
     @ViewChild(OrderToInvoiceModal)
     oti: OrderToInvoiceModal;
     
-    businessRelationInvoice: BusinessRelation = new BusinessRelation();
-    businessRelationShipping: BusinessRelation = new BusinessRelation();
-    lastCustomerInfo: BusinessRelation;
+    @ViewChild(PreviewModal)
+    private previewModal: PreviewModal;
+
+    private businessRelationInvoice: BusinessRelation = new BusinessRelation();
+    private businessRelationShipping: BusinessRelation = new BusinessRelation();
+    private lastCustomerInfo: BusinessRelation;
         
-    order: CustomerOrder;
-    lastSavedInfo: string;
-    statusText: string;
+    private order: CustomerOrder;
+    private lastSavedInfo: string;
+    private statusText: string;
     
-    itemsSummaryData: TradeHeaderCalculationSummary;
+    private itemsSummaryData: TradeHeaderCalculationSummary;
     
-    customers: Customer[];
-    dropdownData: any;
+    private customers: Customer[];
+    private dropdownData: any;
    
-    formConfig: UniFormBuilder;
-    formInstance: UniForm;
+    private formConfig: UniFormBuilder;
+    private formInstance: UniForm;
     
-    whenFormInstance: Promise<UniForm>;
+    private whenFormInstance: Promise<UniForm>;
     
-    EmptyAddress: Address;
+    private emptyAddress: Address;
+    private recalcTimeout: any;
+       
+    private actions: IUniSaveAction[] = [
+        {
+            label: 'Lagre ordre',
+            action: (done) => this.saveOrderManual(done),
+            main: true,
+            disabled: false
+        },
+        {
+            label: 'Lagre og skriv ut',
+            action: (done) => this.saveAndPrint(done),
+            disabled: false  
+        },
+        {
+            label: 'Lagre og overfør til faktura',
+            action: (done) => this.saveAndTransferToInvoice(done),
+            disabled: false
+        },
+        {
+            label: 'registrer',
+            action: (done) => this.saveOrderTransition(done, 'register'),
+            disabled: false
+        },
+        {
+            label: 'complete',
+            action: (done) => this.saveOrderTransition(done, 'complete'),
+            disabled: false
+        }
+    ];   
        
     constructor(private customerService: CustomerService, 
                 private customerOrderService: CustomerOrderService, 
                 private customerOrderItemService: CustomerOrderItemService,
                 private departementService: DepartementService,
                 private projectService: ProjectService,
-                private addressService: AddressService, 
+                private addressService: AddressService,
+                private reportDefinitionService: ReportDefinitionService,
                 private router: Router, private params: RouteParams) {                
         this.OrderID = params.get('id');
         this.businessRelationInvoice.Addresses = [];
@@ -89,7 +125,7 @@ export class OrderDetails {
                 this.order = response[2];
                 this.customers = response[3];
             //    this.EmptyAddress = response[4];                
-                this.EmptyAddress = new Address();
+                this.emptyAddress = new Address();
                                                                    
                 this.updateStatusText();
                 this.addAddresses();                                                                               
@@ -130,9 +166,7 @@ export class OrderDetails {
                 firstinvoiceaddress = invoiceaddress; 
             }            
         } else {
-            console.log(invoiceaddresses);
             firstinvoiceaddress = invoiceaddresses.shift();
-            console.log(invoiceaddresses);
         }
         
         if (shippingaddresses.length == 0) {
@@ -162,10 +196,8 @@ export class OrderDetails {
         this.businessRelationInvoice.Addresses = this.businessRelationInvoice.Addresses.concat(invoiceaddresses);
         this.businessRelationShipping.Addresses = this.businessRelationShipping.Addresses.concat(shippingaddresses);        
     }    
-        
-    recalcTimeout: any;
-    
-    recalcItemSums(orderItems: any) {
+            
+    private recalcItemSums(orderItems: any) {
         this.order.Items = orderItems;
     
         //do recalc after 2 second to avoid to much requests
@@ -195,11 +227,11 @@ export class OrderDetails {
         }, 2000); 
     }
     
-    saveOrderManual(event: any) {        
-        this.saveOrder();
+    saveOrderManual(done: any) {        
+        this.saveOrder(done);
     }
     
-    saveAndTransferToInvoice(event: any) {
+    saveAndTransferToInvoice(done: any) {
         this.oti.Changed.subscribe(items => {
             var order : CustomerOrder = _.cloneDeep(this.order);
             order.Items = items;
@@ -217,10 +249,11 @@ export class OrderDetails {
         });        
     }
     
-    saveOrderTransition(event: any, transition: string) {
+    saveOrderTransition(done: any, transition: string) {
         this.saveOrder((order) => {
             this.customerOrderService.Transition(this.order.ID, this.order, transition).subscribe((x) => {
               console.log("== TRANSITION OK " + transition + " ==");
+              done("Lagret");
               
               this.customerOrderService.Get(order.ID, ['Dimensions','Items','Items.Product','Items.VatType', 'Customer', 'Customer.Info', 'Customer.Info.Addresses']).subscribe((order) => {
                 this.order = order;
@@ -228,6 +261,7 @@ export class OrderDetails {
               });
             }, (err) => {
                 console.log('Feil oppstod ved ' + transition + ' transition', err);
+                done('Feilet');
                 this.log(err);
             });
         });          
@@ -237,7 +271,12 @@ export class OrderDetails {
         this.formInstance.sync();        
         this.lastSavedInfo = 'Lagrer ordre...';
         this.order.TaxInclusiveAmount = -1; // TODO in AppFramework, does not save main entity if just items have changed
-                        
+                       
+        if (this.order.DimensionsID === 0) {
+            this.order.Dimensions = new Dimensions();             
+            this.order.Dimensions["_createguid"] = this.customerOrderService.getNewGuid();
+        }
+               
         this.customerOrderService.Put(this.order.ID, this.order)
             .subscribe(
                 (order) => {  
@@ -286,6 +325,19 @@ export class OrderDetails {
                 );
         });           
     }
+    
+    private saveAndPrint(done) {
+        this.saveOrder((order) => {
+            this.reportDefinitionService.getReportByName('Ordre').subscribe((report) => {
+                if (report) {
+                    this.previewModal.openWithId(report, order.ID);
+                    done('Utskrift');                                
+                } else {
+                    done('Rapport mangler');
+                }
+            });
+        });
+    }
         
     createFormConfig() {   
         // TODO get it from the API and move these to backend migrations   
@@ -324,7 +376,7 @@ export class OrderDetails {
             .setModel(this.businessRelationInvoice)
             .setModelField('Addresses')
           //  .setModelDefaultField('InvoiceAddressID')           
-            .setPlaceholder(this.EmptyAddress)
+            .setPlaceholder(this.emptyAddress)
             .setEditor(AddressModal);
         invoiceaddress.onSelect = (address: Address) => {
             this.addressToInvoice(address);
@@ -342,7 +394,7 @@ export class OrderDetails {
             .setModel(this.businessRelationShipping)
             .setModelField('Addresses')
         //    .setModelDefaultField('ShippingAddressID')
-            .setPlaceholder(this.EmptyAddress)
+            .setPlaceholder(this.emptyAddress)
             .setEditor(AddressModal);   
         shippingaddress.onSelect = (address: Address) => {
             this.addressToShipping(address);
