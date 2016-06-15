@@ -26,7 +26,8 @@ export class SalaryTransactionSelectionList implements OnInit {
     private employeeList: Employee[] = [];
     public busy: boolean;
     @ViewChild(UniTable) private tables: UniTable;
-    @ViewChild(SalaryTransactionEmployeeList) private salarytransList: SalaryTransactionEmployeeList;
+    // @ViewChild(SalaryTransactionEmployeeList) private salarytransList: SalaryTransactionEmployeeList;
+    // private disableEmployeeList: boolean;
     
     constructor(private uniHttpService: UniHttp,
                 private tabSer: TabService,
@@ -71,11 +72,11 @@ export class SalaryTransactionSelectionList implements OnInit {
                 var subEntityCol = new UniTableColumn('SubEntity.BusinessRelationInfo.Name', 'Virksomhet', 'string');
                 this.salarytransSelectionTableConfig = new UniTableBuilder(this.employeeList, false)
                     .setSelectCallback((selEmp) => {
-                        console.log('selectcallback');
-                        if (!this.salarytransList.isDirty()) {
-                            console.log('is not dirty, set employee');
+                        // console.log('selectcallback');
+                        // if (!this.selectedEmployeeID || !this.salarytransList.isDirty()) {
+                            // console.log('is not dirty, set employee');
                             this.selectedEmployeeID = selEmp.ID;
-                        }
+                        // }
                     })
                     .setColumnMenuVisible(false)
                     .setFilterable(false)
@@ -91,7 +92,7 @@ export class SalaryTransactionSelectionList implements OnInit {
                     );
             }
             this.busy = false;
-            
+            // this.disableEmployeeList = false;
         });
     }
     
@@ -124,6 +125,12 @@ export class SalaryTransactionSelectionList implements OnInit {
         this.tableConfig(true, filter);
         this.selectedEmployeeID = 0;
     }
+
+    // public salarytransAdded(event) {
+    //     console.log('selection disable employee', event);
+    //     // this.disableEmployeeList = event;
+    //     this.disableEmployeeList = true;
+    // }
     
     public saveRun(event: any) {
     }
