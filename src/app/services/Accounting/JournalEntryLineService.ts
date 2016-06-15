@@ -30,4 +30,22 @@ export class JournalEntryLineService extends BizHttp<JournalEntryLine> {
         periodDates.lastDayOfPeriod = firstDay.endOf('month').format(format);
         return periodDates;
     }
+    
+    
+    public StatusTypes: Array<any> = [
+        { Code: '31001', Text: 'Åpen' },
+        { Code: '31002', Text: 'Delmerket' },
+        { Code: '31003', Text: 'Merket' }
+    ];
+
+    public getStatusText = (StatusCode: string) => {
+        var text = '';
+        this.StatusTypes.forEach((status) => {
+            if (status.Code == StatusCode) {
+                text = status.Text;
+                return;
+            }
+        });
+        return text;
+    };
 }

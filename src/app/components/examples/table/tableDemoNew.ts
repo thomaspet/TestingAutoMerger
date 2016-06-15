@@ -12,7 +12,7 @@ import 'rxjs/add/operator/map';
     template: `    
         <h4>DemoTable1 (lookup, context menu, column menu)</h4>
         <span>Antall rader valgt: {{rowSelectionCount}}</span>
-        <uni-table [resource]="quoteItems$ | async" 
+        <uni-table [resource]="quoteItems" 
                    [config]="demoTable1" 
                    (rowSelectionChanged)="onRowSelectionChange($event)">
         </uni-table>
@@ -39,7 +39,7 @@ export class UniTableDemoNew {
     
     private rowSelectionCount: number;
     
-    private quoteItems$: Observable<any>;
+    private quoteItems: any[];
     private employments$: Observable<any>;
     private employmentLookup: (urlParams: URLSearchParams) => any;
     
@@ -97,21 +97,32 @@ export class UniTableDemoNew {
     
     private buildDemoTable1() {
         // Data
-        this.quoteItems$ = this.uniHttp.asGET()
+        // this.quoteItems$ = this.uniHttp.asGET()
+        //     .usingBusinessDomain()
+        //     .withEndPoint('quoteitems')
+        //     .send({
+        //         top: 100,
+        //         expand: 'Product.VatType'
+        //     });
+        this.uniHttp.asGET()
             .usingBusinessDomain()
             .withEndPoint('quoteitems')
             .send({
                 top: 100,
                 expand: 'Product.VatType'
-            });
+            })
+            .subscribe(response => this.quoteItems = response);
         
         // Context menu
         let contextMenuItems = [];
         contextMenuItems.push({
             label: 'Delete',
             action: (rowModel) => {
-                window.alert('Delete action');
-                // console.log('Delete action called. RowModel:', rowModel);
+                console.log('Delete action called. RowModel:', rowModel);
+                let rowIndex = rowModel['_originalIndex'];
+                
+                this.quoteItems.splice(rowIndex, 1);
+                this.tables.first.removeRow(rowIndex);
             },
             disabled: (rowModel) => {
                 // This is were we would check _links to see if the user has access to this operation etc.

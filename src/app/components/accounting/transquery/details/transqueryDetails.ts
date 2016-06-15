@@ -42,6 +42,7 @@ export class TransqueryDetails implements OnInit {
         searchParams.period = Number(routeParams.get('period'));
         searchParams.isIncomingBalance = routeParams.get('isIncomingBalance') === 'true';
         searchParams.journalEntryNumber = routeParams.get('journalEntryNumber');
+        searchParams.accountID = routeParams.get('accountID');        
         return searchParams;
     }
 
@@ -78,6 +79,8 @@ export class TransqueryDetails implements OnInit {
             }
         } else if (searchParameters.journalEntryNumber) {
             filter.push({field: 'JournalEntryNumber', operator: 'eq', value: searchParameters.journalEntryNumber});
+        } else if (searchParameters.accountID) {
+            filter.push({field: 'Account.ID', operator: 'eq', value: searchParameters.accountID});       
         }
         return filter;
     }
@@ -98,6 +101,11 @@ export class TransqueryDetails implements OnInit {
                     })
                     .setFilterOperator('contains'),
                 new UniTableColumn('Account.AccountNumber', 'Kontonr')
+                    .setTemplate((journalEntryLine) => {
+                        return `<a href="/#/accounting/transquery/detailsByAccountID/${journalEntryLine.AccountID}/">
+                                ${journalEntryLine.Account.AccountNumber}
+                            </a>`;
+                    })
                     .setFilterOperator('contains'),
                 new UniTableColumn('Account.AccountName', 'Kontonavn')
                     .setFilterOperator('contains'),

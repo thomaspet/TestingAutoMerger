@@ -40,7 +40,7 @@
 <journal-entry-simple
     [supplierInvoice]="supplierInvoice"
     [runAsSubComponent]="runAsSubComponent"
-    [hideSameOrNew]="hideSameOrNew"
+    [mode]="mode"
     (dataLoaded)="onDataLoaded($event)"
     *ngIf="journalEntryMode == 'SIMPLE'">
 </journal-entry-simple>
