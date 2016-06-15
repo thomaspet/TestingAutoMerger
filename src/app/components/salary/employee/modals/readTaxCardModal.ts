@@ -12,6 +12,7 @@ declare var _; // lodash
     selector: 'read-tax-card-modal-content',
     directives: [UniTable, AltinnLoginModal],
     providers: [AltinnReceiptService],
+    pipes: [AsyncPipe],
     templateUrl: 'app/components/salary/employee/modals/readtaxcardmodalcontent.html'
 })
 export class ReadTaxCardModalContent {
@@ -45,19 +46,22 @@ export class ReadTaxCardModalContent {
             .setColumns([
                 titleColumn, dateSendtColumn, receiptIDColumn, signatureColumn, isReadColumn
             ])
-            .setContextMenu([contextMenuItem], true) // set to false when fixed
+            .setContextMenu([contextMenuItem], false)
             .setEditable(false)
             .setPageSize(10);
 
     }
 
     private readTaxCard( receiptID: number) {
-        console.log('reading tax card using receiptID: ', receiptID);
         this.loginModal.openLogin(receiptID);
     }
 
     public openModal() {
-        this.altinnReceipts$ = this._altinnReceiptService.GetAll('');
+        this.altinnReceipts$ = this._altinnReceiptService.GetAll('orderBy=ID DESC');
+        this.altinnReceipts$ = _.cloneDeep(this.altinnReceipts$);
+    }
+
+    public updateReceipts() {
         this.altinnReceipts$ = _.cloneDeep(this.altinnReceipts$);
     }
 }
