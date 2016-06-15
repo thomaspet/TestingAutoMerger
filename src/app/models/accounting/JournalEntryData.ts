@@ -23,8 +23,12 @@ export class JournalEntryData {
     CreditVatType: VatType;
 
     Description: string;
-
+    
     FinancialDate: Date;
+      
+    CustomerInvoiceID: number;
+    SupplierInvoiceID: number;
+    InvoiceNumber: string;
 
     CurrencyID: number;
     CurrencyCode: string;
