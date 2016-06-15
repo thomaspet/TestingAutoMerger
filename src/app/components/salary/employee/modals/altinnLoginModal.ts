@@ -134,7 +134,12 @@ export class AltinnLoginModalContent {
 
     private getAltinnCorrespondence(openingLogin = false) {
         if (this.model !== null) {
+            if (openingLogin && this.model.pin === '') {
+                this.model.pin = 'wrongpin';
+                this.cacheLoginData();
+            }
             this._inserver.getAltinnCorrespondence(this.altinn, this.companySettings.OrganizationNumber, this.receiptID).subscribe((response) => {
+                console.log('response altinn: ' + JSON.stringify(response));
                 if (response.authChall && !openingLogin) {
                     if (response.authChall.Status === 0) {
                         this.altinnMessage = response.authChall.Message;
@@ -159,7 +164,7 @@ export class AltinnLoginModalContent {
                         this.busy = false;
                     });
 
-                } else if (response.requiresAuthentication || response.message !== '') {
+                } else if ((response.requiresAuthentication || response.Message) && response.Message.indexOf(this.receiptID) === -1) {
                     this.altinnMessage = openingLogin ? '' : 'Feil brukernavn/passord/pin';
                     this.model.pin = '';
                     this.model = _.cloneDeep(this.model);
