@@ -61,7 +61,8 @@ export class InvoiceDetails implements OnInit {
     private invoiceButtonText: string = 'Fakturer';
     private recalcTimeout: any;
 
-    private actions: IUniSaveAction[] = [];
+    //private actions: IUniSaveAction[] = [];
+    private actions: IUniSaveAction[];
 
     constructor(private customerService: CustomerService,
         private customerInvoiceService: CustomerInvoiceService,
@@ -111,6 +112,7 @@ export class InvoiceDetails implements OnInit {
     }
 
     private pushSaveActions() {
+        this.actions = [];
         //private actions: IUniSaveAction[] = [
         this.actions.push({
             label: 'Lagre',
