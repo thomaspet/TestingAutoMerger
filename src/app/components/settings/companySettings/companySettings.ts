@@ -29,7 +29,7 @@ declare var _;
 })
 
 export class CompanySettings implements OnInit {
-    public @ViewChild(UniForm) form: UniForm;
+    @ViewChild(UniForm) public form: UniForm;
         
     private company: any;
     
