@@ -1,27 +1,29 @@
-import {Component, ComponentRef, Input, Output, ViewChild, SimpleChange, EventEmitter, OnChanges} from "@angular/core";
+import {Component, Input, Output, ViewChild, SimpleChange, EventEmitter, OnChanges} from "@angular/core";
+import {NgIf} from "@angular/common";
 import {Observable} from "rxjs/Observable";
 
-import {FieldType, FieldLayout, ComponentLayout, Departement, Project, VatType, VatCodeGroup, Account, JournalEntry, JournalEntryLine, JournalEntryLineDraft, Dimensions} from "../../../../../unientities";
+import {FieldLayout, Departement, Project, VatType, VatCodeGroup, Account, JournalEntry, JournalEntryLine, JournalEntryLineDraft, Dimensions} from "../../../../../unientities";
 import {JournalEntryData} from "../../../../../models/models";
 
-import {UNI_CONTROL_DIRECTIVES} from "../../../../../../framework/controls";
-import {UniFormBuilder} from "../../../../../../framework/forms/builders/uniFormBuilder";
-import {UniFormLayoutBuilder} from "../../../../../../framework/forms/builders/uniFormLayoutBuilder";
-import {UniForm} from "../../../../../../framework/forms/uniForm";
-import {UniFieldBuilder} from "../../../../../../framework/forms/builders/uniFieldBuilder";
-import {UniComponentLoader} from "../../../../../../framework/core/componentLoader";
+import {UniForm, UniField, UniFieldLayout} from '../../../../../../framework/uniform';
 import {UniAutocompleteConfig} from "../../../../../../framework/controls/autocomplete/autocomplete";
-import {AccountService, JournalEntryService} from "../../../../../services/services";
+import {AccountService, JournalEntryService, CustomerInvoiceService} from "../../../../../services/services";
 
 declare var _;
 declare var jQuery;
 declare var moment;
 
+export enum JournalEntryMode {
+    Manual,
+    Supplier,
+    Payment
+}
+
 @Component({
     selector: 'journal-entry-simple-form',
     templateUrl: 'app/components/accounting/journalentry/components/journalentrysimple/journalentrysimpleform.html',
-    directives: [UniComponentLoader],
-    providers: [AccountService, JournalEntryService]
+    directives: [UniForm],
+    providers: [AccountService, JournalEntryService, CustomerInvoiceService]
 })
 export class JournalEntrySimpleForm implements OnChanges {
     @Input()
@@ -34,7 +36,7 @@ export class JournalEntrySimpleForm implements OnChanges {
     journalEntryLines: Array<JournalEntryData>;
     
     @Input()
-    hideSameOrNew: boolean;
+    mode: number = JournalEntryMode.Manual;
     
     @Output()
     created = new EventEmitter<any>();
@@ -45,11 +47,12 @@ export class JournalEntrySimpleForm implements OnChanges {
     @Output() 
     updated = new EventEmitter<any>();
        
-    @ViewChild(UniComponentLoader)
-    uniCmpLoader: UniComponentLoader;    
+    @ViewChild(UniForm)
+    public form: UniForm; 
     
-    formConfig: UniFormBuilder;
-    
+    config: any = {};
+    fields: any[] = [];
+   
     departements: Departement[];
     projects: Project[];
     vattypes: VatType[];
@@ -57,13 +60,18 @@ export class JournalEntrySimpleForm implements OnChanges {
     
     isLoaded: boolean;
     isEditMode: boolean;
-    formInstance: UniForm;
+    journalalternatives = [];
+    journalalternativesindex = 0;
     
     SAME_OR_NEW_SAME: string = "0";
     SAME_OR_NEW_NEW: string = "1";
     
+    sameAlternative = {ID: this.SAME_OR_NEW_SAME, Name: "Samme"};
+    newAlternative = {ID: this.SAME_OR_NEW_NEW, Name: "Ny"}
+  
     constructor(private accountService: AccountService,
-                private journalEntryService: JournalEntryService) {   
+                private journalEntryService: JournalEntryService,
+                private customerInvoiceService: CustomerInvoiceService) {   
         this.isLoaded = false;
         this.isEditMode = false;
         this.departements = [];
@@ -71,30 +79,364 @@ export class JournalEntrySimpleForm implements OnChanges {
         this.vattypes = [];
         this.accounts = [];
         this.journalEntryLine = new JournalEntryData();
-        this.hideSameOrNew = false;        
     }
     
-    ngOnInit() {
+    ngOnInit() {    
         if (!this.isEditMode) {           
-            this.journalEntryLine.SameOrNew = this.hideSameOrNew ? this.SAME_OR_NEW_SAME : this.SAME_OR_NEW_NEW;
+            this.journalEntryLine.SameOrNew = this.mode == JournalEntryMode.Supplier ? this.SAME_OR_NEW_SAME : this.SAME_OR_NEW_NEW;
+        }
+        
+        this.setupFields();
+        this.setupSameNewAlternatives();    
+    }
+    
+    private setupFields() {    
+        let self = this;
+        //this.journalEntryService.layout('JournalEntryLineForm').toPromise().then((layout: any) => {
+        //    self.fields = layout.Fields;
+            
+            var sameOrNewAlternative = new UniFieldLayout();
+            sameOrNewAlternative.FieldSet = 0;
+            sameOrNewAlternative.Section = 0;
+            sameOrNewAlternative.Combo = 0;
+            sameOrNewAlternative.FieldType = 3;
+            sameOrNewAlternative.Label = 'Bilagsnr';
+            sameOrNewAlternative.Property = 'SameOrNew';
+            sameOrNewAlternative.ReadOnly = false;
+            sameOrNewAlternative.Hidden = self.mode == JournalEntryMode.Supplier; 
+            sameOrNewAlternative.Options = {
+                source: self.journalalternatives,
+                template: (alternative) => `${alternative.Name}`,
+                valueProperty: 'ID',
+                displayProperty: 'Name',
+                debounceTime: 500,
+                index: self.journalalternativesindex,
+            };          
+            
+            var finanicalDate = new UniFieldLayout();
+            finanicalDate.FieldSet = 0;
+            finanicalDate.Section = 0;
+            finanicalDate.Combo = 0;
+            finanicalDate.FieldType = 2;
+            finanicalDate.Label = 'Dato';
+            finanicalDate.Property = 'FinancialDate';
+            finanicalDate.ReadOnly = false;
+                
+            var invoiceNumber = new UniFieldLayout();
+            invoiceNumber.FieldSet = 0;
+            invoiceNumber.Section = 0;
+            invoiceNumber.Combo = 0;
+            invoiceNumber.FieldType = 10;
+            invoiceNumber.Label = 'Fakturanr';
+            invoiceNumber.Property = 'InvoiceNumber';
+            invoiceNumber.ReadOnly = false;
+            invoiceNumber.Hidden = self.mode != JournalEntryMode.Payment;
+     
+            var debitAccount = new UniFieldLayout();            
+            debitAccount.FieldSet = 0;
+            debitAccount.Section = 0;
+            debitAccount.Combo = 0;
+            debitAccount.FieldType = 0;
+            debitAccount.Label = 'Debet';
+            debitAccount.Property = 'DebitAccountID';
+            debitAccount.ReadOnly = false;
+            debitAccount.Options = {                  
+                displayProperty: 'AccountName',
+                valueProperty: 'ID',
+                template: (account:Account) => `${account.AccountNumber} - ${account.AccountName}`,
+                minLength: 1,
+                debounceTime: 300,
+                search: (query:string) => self.accountService.GetAll(`filter=startswith(AccountNumber,'${query}') or contains(AccountName,'${query}')`, ['VatType'])           
+            };
+
+            var debitVat = new UniFieldLayout();            
+            debitVat.FieldSet = 0;
+            debitVat.Section = 0;
+            debitVat.Combo = 0;
+            debitVat.FieldType = 3;
+            debitVat.Label = 'MVA';
+            debitVat.Property = 'DebitVatTypeID';
+            debitVat.ReadOnly = false;
+            debitVat.Hidden = self.mode == JournalEntryMode.Payment;   
+            debitVat.Options = {                  
+                source: self.vattypes,
+                displayProperty: 'VatCode',
+                valueProperty: 'ID',
+                template: (vattype:VatType) =>  `${vattype.VatCode} (${ vattype.VatPercent }%)`,
+                debounceTime: 500
+            };
+        
+            var creditAccount = new UniFieldLayout();            
+            creditAccount.FieldSet = 0;
+            creditAccount.Section = 0;
+            creditAccount.Combo = 0;
+            creditAccount.FieldType = 0;
+            creditAccount.Label = 'Kredit';
+            creditAccount.Property = 'CreditAccountID';
+            creditAccount.ReadOnly = false;
+            creditAccount.Options = {                  
+                displayProperty: 'AccountName',
+                valueProperty: 'ID',
+                template: (account:Account) => `${account.AccountNumber} - ${account.AccountName}`,
+                minLength: 1,
+                debounceTime: 300,
+                search: (query:string) => self.accountService.GetAll(`filter=startswith(AccountNumber,'${query}') or contains(AccountName,'${query}')`, ['VatType'])           
+            };
+            
+            var creditVat = new UniFieldLayout();            
+            creditVat.FieldSet = 0;
+            creditVat.Section = 0;
+            creditVat.Combo = 0;
+            creditVat.FieldType = 3;
+            creditVat.Label = 'MVA';
+            creditVat.Property = 'CreditVatTypeID';
+            creditVat.ReadOnly = false;
+            creditVat.Hidden = self.mode == JournalEntryMode.Payment;   
+            creditVat.Options = {                  
+                source: self.vattypes,
+                displayProperty: 'VatCode',
+                valueProperty: 'ID',
+                template: (vattype:VatType) =>  `${vattype.VatCode} (${ vattype.VatPercent }%)`,
+                debounceTime: 500
+            };
+            
+            var amount = new UniFieldLayout();
+            amount.FieldSet = 0;
+            amount.Section = 0;
+            amount.Combo = 0;
+            amount.FieldType = 6;
+            amount.Label = 'Beløp';
+            amount.Property = 'Amount';
+            amount.ReadOnly = false;
+            amount.Options = {
+                step: 1
+            };
+     
+            var departement = new UniFieldLayout();            
+            departement.FieldSet = 0;
+            departement.Section = 0;
+            departement.Combo = 0;
+            departement.FieldType = 3;
+            departement.Label = 'Avdeling';
+            departement.Property = 'Dimensions.DepartementID';
+            departement.ReadOnly = false;
+            departement.Hidden = self.mode == JournalEntryMode.Payment;   
+            departement.Options = {                  
+                source: self.departements,
+                template: (departement) => `${departement.Name}`,
+                valueProperty: 'ID',
+                displayProperty: 'Name',
+                debounceTime: 500
+            };
+
+            var project = new UniFieldLayout();            
+            project.FieldSet = 0;
+            project.Section = 0;
+            project.Combo = 0;
+            project.FieldType = 3;
+            project.Label = 'Prosjekt';
+            project.Property = 'Dimensions.ProjectID';
+            project.ReadOnly = false;
+            project.Hidden = self.mode == JournalEntryMode.Payment;   
+            project.Options = {                  
+                source: self.projects,
+                template: (project) => `${project.Name}`,
+                valueProperty: 'ID',
+                displayProperty: 'Name',
+                debounceTime: 500
+            };
+            
+            var description = new UniFieldLayout();
+            description.FieldSet = 0;
+            description.Section = 0;
+            description.Combo = 0;
+            description.FieldType = 10;
+            description.Label = 'Beskrivelse av føring';
+            description.Property = 'Description';
+            description.ReadOnly = false;
+       
+            self.fields = [sameOrNewAlternative, finanicalDate, invoiceNumber,
+                           debitAccount, debitVat, creditAccount, creditVat,
+                           amount, departement, project], description;
+         
+        //}); 
+                
+        this.config = {
+        };
+    }
+    
+    focusAfterFinancialDate() {
+        if (this.mode != JournalEntryMode.Payment) {
+            this.form.Fields['DebitAccountID'].focus();
+        } else {
+            this.form.Fields['InvoiceNumber'].focus();                            
         }
     }
     
-    ngOnChanges(changes: {[propName: string]: SimpleChange}) {                 
+    setupSameNewAlternatives() {      
+        this.journalalternatives = [];
+        
+        // add list of possible numbers from start to end
+        if (this.isEditMode && this.mode != JournalEntryMode.Supplier && this.journalEntryLines.length > 0) {
+            var range = this.journalEntryService.findJournalNumbersFromLines(this.journalEntryLines);
+            var current = parseInt(this.journalEntryLine.JournalEntryNo.split('-')[0]);
+            for(var i = 0; i <= (range.last - range.first); i++) {
+                var jn = `${i+range.first}-${range.year}`;
+                this.journalalternatives.push({ID: jn, Name: jn});
+                if ((i+range.first) === current) { this.journalalternativesindex = i; } 
+            }
+        } else {
+            this.journalalternatives.push(this.sameAlternative);
+            this.journalalternativesindex = 1;
+        }
+        
+        // new always last one
+        this.journalalternatives.push(this.newAlternative);
+        
+        // Update source
+        this.fields[0].Options.source = this.journalalternatives;
+        this.fields = _.cloneDeep(this.fields);
+    }
+                
+    ngOnChanges(changes: {[propName: string]: SimpleChange}) {  
+        if (this.fields.length == 0) {
+            this.setupFields();
+        }
+        
         if (changes['dropdownData'] != null && this.dropdownData) {
             this.departements = this.dropdownData[0];
             this.projects = this.dropdownData[1];
             this.vattypes = this.dropdownData[2];
-            this.accounts = this.dropdownData[3];  
+            this.accounts = this.dropdownData[3]; 
+            
+            // Refresh sources 
+            this.fields[3].Options.source = this.accounts;
+            this.fields[4].Options.source = this.vattypes;
+            this.fields[5].Options.source = this.accounts;
+            this.fields[6].Options.source = this.vattypes;
+            this.fields[8].Options.source = this.departements;
+            this.fields[9].Options.source = this.projects;
+            this.fields = _.cloneDeep(this.fields);
         }
         
         if (changes['journalEntryLine'] != null) {
             this.isEditMode = true;
         }
     }
+    
+    public submit(line) {
+    }
+      
+    public change(line) {
+    }  
+    
+    public ready(line) {
+        var self = this;
+             
+        this.form.Fields['FinancialDate'].focus();
+      
+        // FinancialDate changed
+        self.form.Fields['FinancialDate'].onChange.subscribe(() => {
+            self.focusAfterFinancialDate();
+        });
+        
+        // DebitAccountID
+        self.form.Fields['DebitAccountID'].onTab.subscribe(() => {
+           self.form.Fields['CreditAccountID'].focus()
+        });
+        
+        /* TODO: onUnTab / onSelect / onEnter missing
+        
+        self.form.Fields['DebitAccountID'].onEnter.subscribe(() => {
+           self.form.Fields['CreditAccountID'].focus()           
+        });
+        
+        self.form.Fields['DebitAccountID'].onSelect.subscribe((account:Account) => {
+            if (account && account.VatType) {
+                self.journalEntryLine.DebitVatType = account.VatType;
+                self.journalEntryLine = _.deepClone(this.journalEntryLine);
+            }   
+    
+            self.form.Fields['CreditAccountID'].focus();
+        });
+        
+        self.form.Fields['DebitVatTypeID'].onEnter.subscribe(() => {
+            self.form.Fields['CreditAccountID'].focus();
+        });
+        
+        self.form.Fields['CreditAccountID'].onSelect.subscribe((account:Account) => {
+                if (account && account.VatType) {
+                    self.journalEntryLine.CreditVatType = account.VatType;   
+                    self.journalEntryLine = _.deepClone(this.journalEntryLine);
+                }
+                
+                self.form.Fields['Amount'].focus();
+        });
+
+        self.form.Fields['CreditAccountID'].onUnTab.subscribe(() => {
+            self.form.Fields['DebetAccountID'].focus();
+        });
+        
+        self.form.Fields['CreditVatTypeID'].onEnter.subscribe(() => {
+           self.form.Fields['Amount'].focus(); 
+        });
+        
+        */
+        
+        self.form.Fields['Amount'].onTab.subscribe(() => {
+           self.form.Fields['Dimensions.DepartementID'].focus(); 
+        });
+        
+        /*
+        self.form.Fields['Amount'].onEnter.subscribe(() => {
+           self.form.Fields['Dimensions.DepartementID'].focus(); 
+        });
+
+        self.form.Fields['Amount'].onUnTab.subscribe(() => {
+            self.form.Fields['CreditAccountID'].focus();
+        });
+        
+        self.form.Fields['Dimensions.DepartementID'].onEnter.subscribe(() => {
+            self.form.Fields['Dimensions.ProjectID'].focus();
+        });
+        
+        self.form.Fields['Dimensions.ProjectID'].onEnter.subscribe(() => {
+           self.form.Fields['Description'].focus(); 
+        });
+        */
+                
+        // Invoice tabbing
+        self.form.Fields['InvoiceNumber'].onTab.subscribe((data) => {    
+            console.log("===== INVOICENUMBER ======");                    
+            if (self.journalEntryLine.InvoiceNumber && self.journalEntryLine.InvoiceNumber !== '') {
+                self.customerInvoiceService.getInvoiceByInvoiceNumber(self.journalEntryLine.InvoiceNumber)
+                    .subscribe((data) => {
+                            if (data && data.length > 0) {                                            
+                                let invoice = data[0];
+                                if (invoice && invoice.JournalEntry && invoice.JournalEntry.Lines) {
+                                    for (let i = 0; i < invoice.JournalEntry.Lines.length; i++) {
+                                        let line = invoice.JournalEntry.Lines[i];
+                                        
+                                        if (line.Account.UsePostPost) {                                        
+                                            self.journalEntryLine.CreditAccount = line.Account;
+                                            self.journalEntryLine.CreditAccountID = line.AccountID;
+                                            self.journalEntryLine.Amount = line.RestAmount;
+                                            
+                                            self.journalEntryLine = _.cloneDeep(self.journalEntryLine);                                                    
+                                            break;                                        
+                                        }
+                                    }    
+                                }
+                            }                                                                
+                        },
+                        (err) => console.log('Error retrieving information about invoice')
+                    );    
+            }          
+        });
+    }
          
     addJournalEntry(event: any, journalEntryNumber: string = null) {  
-        if (this.journalEntryLines.length == 0 && journalEntryNumber == null && !this.hideSameOrNew) {
+        if (this.journalEntryLines.length == 0 && journalEntryNumber == null && this.mode != JournalEntryMode.Supplier) {
             // New line fetch next journal entry number from server first
             var journalentrytoday: JournalEntryData = new JournalEntryData();
             journalentrytoday.FinancialDate = moment().toDate();
@@ -102,12 +444,12 @@ export class JournalEntrySimpleForm implements OnChanges {
                 this.addJournalEntry(event, next);
             });            
         } else {
-            var oldData: JournalEntryData = _.cloneDeep(this.formInstance.Value);              
+            var oldData: JournalEntryData = _.cloneDeep(this.journalEntryLine);              
             var numbers = this.journalEntryService.findJournalNumbersFromLines(this.journalEntryLines, journalEntryNumber);
      
             if (numbers) {
                 // next or same journal number?
-                if (oldData.SameOrNew === this.SAME_OR_NEW_NEW && !this.hideSameOrNew) {
+                if (oldData.SameOrNew === this.SAME_OR_NEW_NEW && this.mode != JournalEntryMode.Supplier) {
                     oldData.JournalEntryNo = numbers.nextNumber;
                 } else {
                     oldData.JournalEntryNo = numbers.lastNumber;        
@@ -121,28 +463,26 @@ export class JournalEntrySimpleForm implements OnChanges {
             this.journalEntryLine = new JournalEntryData(); 
             this.journalEntryLine.FinancialDate = oldData.FinancialDate;
             
-            if (this.hideSameOrNew) {
+            if (this.mode == JournalEntryMode.Supplier) {
                 this.journalEntryLine.SameOrNew = this.SAME_OR_NEW_SAME;
             } else {
                 this.journalEntryLine.SameOrNew = oldsameornew == this.SAME_OR_NEW_SAME ? this.SAME_OR_NEW_SAME : this.SAME_OR_NEW_NEW;
             }
             
-            this.formInstance.Model = this.journalEntryLine;
+            this.setupSameNewAlternatives();
             this.setFocusOnDebit();
         }                
     }
     
     editJournalEntry(event: any) {     
-        var newData: JournalEntryData = this.formInstance.Value;
-        
-        if (newData.SameOrNew === this.SAME_OR_NEW_NEW) {
+        if (this.journalEntryLine.SameOrNew === this.SAME_OR_NEW_NEW) {
             var numbers = this.journalEntryService.findJournalNumbersFromLines(this.journalEntryLines);
-            newData.JournalEntryNo = numbers.nextNumber;
+            this.journalEntryLine.JournalEntryNo = numbers.nextNumber;
         } else {
-            newData.JournalEntryNo = newData.SameOrNew;
+            this.journalEntryLine.JournalEntryNo = this.journalEntryLine.SameOrNew;
         }
 
-        this.updated.emit(newData);
+        this.updated.emit(this.journalEntryLine);
     }
         
     abortEditJournalEntry(event) {
@@ -150,497 +490,16 @@ export class JournalEntrySimpleForm implements OnChanges {
     }
     
     emptyJournalEntry(event) {
-        var oldData: JournalEntryData = _.cloneDeep(this.formInstance.Value);              
+        var oldData: JournalEntryData = _.cloneDeep(this.journalEntryLine);              
     
         this.journalEntryLine = new JournalEntryData();
         this.journalEntryLine.SameOrNew = oldData.SameOrNew;      
         this.journalEntryLine.FinancialDate = oldData.FinancialDate;
 
-        this.formInstance.Model = this.journalEntryLine;
         this.setFocusOnDebit();        
     }
     
     private setFocusOnDebit() {
-        var debitaccount: UniFieldBuilder = this.formInstance.find('DebitAccountID');
-        debitaccount.setFocus(); 
-    }
-
-    ngAfterViewInit() {  
-        // TODO get it from the API and move these to backend migrations
-        // TODO Jorge: I have to move that to any to hide errors. Interface is not right. Fix it. Do not use 'any', respect interfaces
-        var view: any = {
-            Name: "ManualJournalEntryLineDraft",
-            BaseEntity: "JournalEntryLineDraft",
-            StatusCode: 0,
-            Deleted: false,
-            CreatedAt: null,
-            UpdatedAt: null,
-            CreatedBy: null,
-            UpdatedBy: null,
-            ID: 1,
-            CustomFields: null,
-            Fields: [
-                {
-                    ComponentLayoutID: 1,
-                    EntityType: "JournalEntryLineDraft",
-                    Property: "SameOrNew",
-                    Placement: 1,
-                    Hidden: false,
-                    FieldType: 1,
-                    ReadOnly: false,
-                    LookupField: false,
-                    Label: "Bilagsnr",
-                    Description: "",
-                    HelpText: "",
-                    FieldSet: 0,
-                    Section: 0,
-                    Placeholder: null,
-                    Options: null,
-                    LineBreak: null,
-                    Combo: null,
-                    Legend: "",
-                    StatusCode: 0,
-                    ID: 1,
-                    Deleted: false,
-                    CreatedAt: null,
-                    UpdatedAt: null,
-                    CreatedBy: null,
-                    UpdatedBy: null,
-                    CustomFields: null 
-                },
-                {
-                    ComponentLayoutID: 1,
-                    EntityType: "JournalEntryLineDraft",
-                    Property: "FinancialDate",
-                    Placement: 3,
-                    Hidden: false,
-                    FieldType: 2,
-                    ReadOnly: false,
-                    LookupField: false,
-                    Label: "Dato",
-                    Description: "",
-                    HelpText: "",
-                    FieldSet: 0,
-                    Section: 0,
-                    Placeholder: null,
-                    Options: null,
-                    LineBreak: null,
-                    Combo: null,
-                    Legend: "",
-                    StatusCode: 0,
-                    ID: 2,
-                    Deleted: false,
-                    CreatedAt: null,
-                    UpdatedAt: null,
-                    CreatedBy: null,
-                    UpdatedBy: null,
-                    CustomFields: null 
-                },
-                {
-                    ComponentLayoutID: 1,
-                    EntityType: "JournalEntryLineDraft",
-                    Property: "DebitAccountID",
-                    Placement: 4,
-                    Hidden: false,
-                    FieldType: 0,
-                    ReadOnly: false,
-                    LookupField: false,
-                    Label: "Debet",
-                    Description: "",
-                    HelpText: "",
-                    FieldSet: 0,
-                    Section: 0,
-                    Placeholder: null,
-                    Options: null,
-                    LineBreak: null,
-                    Combo: null,
-                    Legend: "",
-                    StatusCode: 0,
-                    ID: 3,
-                    Deleted: false,
-                    CreatedAt: null,
-                    UpdatedAt: null,
-                    CreatedBy: null,
-                    UpdatedBy: null,
-                    CustomFields: null 
-                },
-                {
-                    ComponentLayoutID: 1,
-                    EntityType: "JournalEntryLineDraft",
-                    Property: "DebitVatTypeID",
-                    Placement: 4,
-                    Hidden: false,
-                    FieldType: 1,
-                    ReadOnly: false,
-                    LookupField: false,
-                    Label: "MVA",
-                    Description: "",
-                    HelpText: "",
-                    FieldSet: 0,
-                    Section: 0,
-                    Placeholder: null,
-                    Options: null,
-                    LineBreak: null,
-                    Combo: null,
-                    Legend: "",
-                    StatusCode: 0,
-                    ID: 4,
-                    Deleted: false,
-                    CreatedAt: null,
-                    UpdatedAt: null,
-                    CreatedBy: null,
-                    UpdatedBy: null,
-                    CustomFields: null 
-                },
-                {
-                    ComponentLayoutID: 1,
-                    EntityType: "JournalEntryLineDraft",
-                    Property: "CreditAccountID",
-                    Placement: 4,
-                    Hidden: false,
-                    FieldType: 0,
-                    ReadOnly: false,
-                    LookupField: false,
-                    Label: "Kredit",
-                    Description: "",
-                    HelpText: "",
-                    FieldSet: 0,
-                    Section: 0,
-                    Placeholder: null,
-                    Options: null,
-                    LineBreak: null,
-                    Combo: null,
-                    Legend: "",
-                    StatusCode: 0,
-                    ID: 5,
-                    Deleted: false,
-                    CreatedAt: null,
-                    UpdatedAt: null,
-                    CreatedBy: null,
-                    UpdatedBy: null,
-                    CustomFields: null 
-                },
-                {
-                    ComponentLayoutID: 1,
-                    EntityType: "JournalEntryLineDraft",
-                    Property: "CreditVatTypeID",
-                    Placement: 4,
-                    Hidden: false,
-                    FieldType: 1,
-                    ReadOnly: false,
-                    LookupField: false,
-                    Label: "MVA",
-                    Description: "",
-                    HelpText: "",
-                    FieldSet: 0,
-                    Section: 0,
-                    Placeholder: null,
-                    Options: null,
-                    LineBreak: null,
-                    Combo: null,
-                    Legend: "",
-                    StatusCode: 0,
-                    ID: 6,
-                    Deleted: false,
-                    CreatedAt: null,
-                    UpdatedAt: null,
-                    CreatedBy: null,
-                    UpdatedBy: null,
-                    CustomFields: null 
-                },
-                {
-                    ComponentLayoutID: 1,
-                    EntityType: "JournalEntryLineDraft",
-                    Property: "Amount",
-                    Placement: 2,
-                    Hidden: false,
-                    FieldType: 6,
-                    ReadOnly: false,
-                    LookupField: false,
-                    Label: "Beløp",
-                    Description: "",
-                    HelpText: "",
-                    FieldSet: 0,
-                    Section: 0,
-                    Placeholder: null,
-                    Options: null,
-                    LineBreak: null,
-                    Combo: null,
-                    Legend: "",
-                    StatusCode: 0,
-                    ID: 7,
-                    Deleted: false,
-                    CreatedAt: null,
-                    UpdatedAt: null,
-                    CreatedBy: null,
-                    UpdatedBy: null,
-                    CustomFields: null 
-                },
-                {
-                    ComponentLayoutID: 1,
-                    EntityType: "JournalEntryLineDraft",
-                    Property: "Dimensions.DepartementID",
-                    Placement: 4,
-                    Hidden: false,
-                    FieldType: 1,
-                    ReadOnly: false,
-                    LookupField: false,
-                    Label: "Avdeling",
-                    Description: "",
-                    HelpText: "",
-                    FieldSet: 0,
-                    Section: 0,
-                    Placeholder: null,
-                    Options: null,
-                    LineBreak: null,
-                    Combo: null,
-                    Legend: "",
-                    StatusCode: 0,
-                    ID: 8,
-                    Deleted: false,
-                    CreatedAt: null,
-                    UpdatedAt: null,
-                    CreatedBy: null,
-                    UpdatedBy: null,
-                    CustomFields: null 
-                },
-                {
-                    ComponentLayoutID: 1,
-                    EntityType: "JournalEntryLineDraft",
-                    Property: "Dimensions.ProjectID",
-                    Placement: 4,
-                    Hidden: false,
-                    FieldType: 1,
-                    ReadOnly: false,
-                    LookupField: false,
-                    Label: "Prosjekt",
-                    Description: "",
-                    HelpText: "",
-                    FieldSet: 0,
-                    Section: 0,
-                    Placeholder: null,
-                    Options: null,
-                    LineBreak: null,
-                    Combo: null,
-                    Legend: "",
-                    StatusCode: 0,
-                    ID: 9,
-                    Deleted: false,
-                    CreatedAt: null,
-                    UpdatedAt: null,
-                    CreatedBy: null,
-                    UpdatedBy: null,
-                    CustomFields: null 
-                },
-                {
-                    ComponentLayoutID: 1,
-                    EntityType: "JournalEntryLineDraft",
-                    Property: "Description",
-                    Placement: 11,
-                    Hidden: false,
-                    FieldType: 10,
-                    ReadOnly: false,
-                    LookupField: false,
-                    Label: "Beskrivelse",
-                    Description: "Beskrivelse av føring",
-                    HelpText: "",
-                    FieldSet: 0,
-                    Section: 0,
-                    Placeholder: null,
-                    Options: null,
-                    LineBreak: null,
-                    Combo: null,
-                    Legend: "",
-                    StatusCode: 0,
-                    ID: 10,
-                    Deleted: false,
-                    CreatedAt: null,
-                    UpdatedAt: null,
-                    CreatedBy: null,
-                    UpdatedBy: null,
-                    CustomFields: null 
-                }
-            ]               
-        };   
-        
-        this.formConfig = new UniFormLayoutBuilder().build(view, this.journalEntryLine);
-        this.formConfig.hideSubmitButton();  
-        this.extendFormConfig();
-        this.loadForm();                      
-    }
-        
-    extendFormConfig() {        
-        var sameornew: UniFieldBuilder = this.formConfig.find('SameOrNew');  
-        var financialdate: UniFieldBuilder = this.formConfig.find('FinancialDate');
-        var departement: UniFieldBuilder = this.formConfig.find('Dimensions.DepartementID');       
-        var project: UniFieldBuilder = this.formConfig.find('Dimensions.ProjectID');
-        var debitvattype: UniFieldBuilder = this.formConfig.find('DebitVatTypeID');
-        var debitaccount: UniFieldBuilder = this.formConfig.find('DebitAccountID');
-        var creditaccount: UniFieldBuilder = this.formConfig.find('CreditAccountID');
-        var creditvattype: UniFieldBuilder = this.formConfig.find('CreditVatTypeID');
-        var description: UniFieldBuilder = this.formConfig.find('Description');
-        var amount: UniFieldBuilder = this.formConfig.find('Amount');
-
-        var journalalternatives = [];
-        var samealternative = {ID: this.SAME_OR_NEW_SAME, Name: "Samme"};
-        var newalternative = {ID: this.SAME_OR_NEW_NEW, Name: "Ny"}
-        var journalalternativesindex = 0;
-        
-        // Hide SameOrNew?
-        if (this.hideSameOrNew) {
-            sameornew.hidden = true;
-        }
-           
-        // navigation
-        financialdate.onSelect = () => {
-            debitaccount.setFocus();  
-        };
-        
-        debitaccount.onSelect = (account: Account) => {
-            if (account && account.VatType) {
-                this.journalEntryLine.DebitVatType = account.VatType;
-                this.formInstance.Model = this.journalEntryLine;
-            }
-    
-            creditaccount.setFocus();
-        }
-        
-        debitaccount.onEnter = () => {
-            creditaccount.setFocus();
-        }
-        
-        debitaccount.onTab = () => {
-            creditaccount.setFocus();
-        }
-        
-        debitvattype.onEnter = () => {
-            creditaccount.setFocus();
-        }
-        
-        creditaccount.onSelect = (account: Account) => {
-            if (account && account.VatType) {
-                this.journalEntryLine.CreditVatType = account.VatType;   
-                this.formInstance.Model = this.journalEntryLine;
-            }
-            
-            amount.setFocus();        
-        }
-        
-        creditaccount.onEnter = () => {
-            amount.setFocus();
-        }
-        
-        creditaccount.onTab = () => {
-            amount.setFocus();
-        }
-        
-        creditaccount.onUnTab = () => {
-            debitaccount.setFocus();
-        }
-    
-        creditvattype.onEnter = () => {
-            amount.setFocus();
-        }
-        
-        amount.onEnter = () => {
-            departement.setFocus();
-        }
-        
-        amount.onUnTab = () => {
-            creditaccount.setFocus();
-        }
-        
-        departement.onEnter = () => {
-            project.setFocus();
-        }
-
-        project.onEnter = () => {
-            description.setFocus();
-        }
-                             
-        // add list of possible numbers from start to end
-        if (this.isEditMode && !this.hideSameOrNew) {
-            var range = this.journalEntryService.findJournalNumbersFromLines(this.journalEntryLines);
-            var current = parseInt(this.journalEntryLine.JournalEntryNo.split('-')[0]);
-            for(var i = 0; i <= (range.last - range.first); i++) {
-                var jn = `${i+range.first}-${range.year}`;
-                journalalternatives.push({ID: jn, Name: jn});
-                if ((i+range.first) === current) { journalalternativesindex = i; } 
-            }
-        } else {
-            journalalternatives.push(samealternative);
-            journalalternativesindex = 1;
-        }
-        
-        // new always last one
-        journalalternatives.push(newalternative);
-                             
-        sameornew.setKendoOptions({
-           autoBind: true,
-           dataTextField: 'Name',
-           dataValueField: 'ID',
-           dataSource: journalalternatives,
-           index: journalalternativesindex
-        });
-        
-        departement.setKendoOptions({
-            dataTextField: 'Name',
-            dataValueField: 'ID',
-            dataSource: this.departements
-        });
-        departement.addClass('large-field');
-
-        project.setKendoOptions({
-           dataTextField: 'Name',
-           dataValueField: 'ID',
-           dataSource: this.projects 
-        });      
-        project.addClass('large-field');
-     
-        debitaccount.setKendoOptions(UniAutocompleteConfig.build({
-            valueKey: 'ID',
-            template: (obj:Account) => `${obj.AccountNumber} - ${obj.AccountName}`,
-            minLength: 1,
-            debounceTime: 300,
-            search: (query:string) => this.accountService.GetAll(`filter=startswith(AccountNumber,'${query}') or contains(AccountName,'${query}')`, ['VatType'])
-        }));
-         
-        debitvattype.setKendoOptions({
-           dataTextField: 'VatCode',
-           dataValueField: 'ID',
-           template: "${data.VatCode} (${ data.VatPercent }%)",
-           dataSource: this.vattypes 
-        });
-        
-        creditaccount.setKendoOptions(UniAutocompleteConfig.build({
-            valueKey: 'ID',
-            template: (obj:Account) => `${obj.AccountNumber} - ${obj.AccountName}`,
-            minLength: 1,
-            debounceTime: 300,
-            search: (query:string) => this.accountService.GetAll(`filter=startswith(AccountNumber,'${query}') or contains(AccountName,'${query}')`, ['VatType'])
-        }));
-  
-        creditvattype.setKendoOptions({
-           dataTextField: 'VatCode',
-           dataValueField: 'ID',
-           template: "${data.VatCode} (${ data.VatPercent }%)",
-           dataSource: this.vattypes 
-        });
-        
-        description.addClass('large-field');     
-    }    
-           
-    loadForm() {       
-        var self = this;
-        return this.uniCmpLoader.load(UniForm).then((cmp: ComponentRef<any>) => {
-            cmp.instance.config = self.formConfig;
-            cmp.instance.ready.subscribe((instance:UniForm) => {
-                self.formInstance = cmp.instance
-
-                // set focus on finanical date
-                var financialdate: UniFieldBuilder = cmp.instance.find('FinancialDate');
-                financialdate.setFocus();
-            });
-        });
-    }
+        this.form.Fields['DebitAccountID'].focus();
+    }       
 } 

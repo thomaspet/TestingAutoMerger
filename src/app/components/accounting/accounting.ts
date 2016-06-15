@@ -15,6 +15,18 @@ const ACCOUNTING_ROUTES = [
         name: 'Transquery',
         loader: () => ComponentProxy.LoadComponentAsync('Transquery','app/components/accounting/transquery/transquery')
     })
+    ,
+    new AsyncRoute({
+        path: '/accountsettings',
+        name: 'AccountSettings',
+        loader: () => ComponentProxy.LoadComponentAsync('AccountSettings','app/components/settings/accountSettings/accountSettings')
+    })
+    ,
+    new AsyncRoute({
+        path: '/vatsettings',
+        name: 'VatSettings',
+        loader: () => ComponentProxy.LoadComponentAsync('VatSettings','app/components/settings/vatSettings/vatSettings')
+    })
 ];
 
 @Component({

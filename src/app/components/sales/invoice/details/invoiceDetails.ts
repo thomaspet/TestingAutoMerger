@@ -3,7 +3,7 @@ import {Router, RouteParams, RouterLink} from '@angular/router-deprecated';
 import {Observable} from 'rxjs/Observable';
 import 'rxjs/add/observable/forkJoin';
 
-import {CustomerInvoiceService, CustomerInvoiceItemService, CustomerService, ProjectService, DepartementService, AddressService, ReportDefinitionService, ReportParameter} from '../../../../services/services';
+import {CustomerInvoiceService, CustomerInvoiceItemService, CustomerService, ProjectService, DepartementService, AddressService, ReportDefinitionService} from '../../../../services/services';
 import {InvoiceItemList} from './invoiceItemList';
 
 import {ComponentLayout, CustomerInvoice, Customer, Dimensions, Address, BusinessRelation} from '../../../../unientities';
@@ -72,7 +72,7 @@ export class InvoiceDetails implements OnInit {
         },
         {
             label: this.invoiceButtonText,
-            action: (done) => this.saveInvoiceTransition(done),
+            action: (done) => this.saveInvoiceTransition(done, 'invoice'),
             disabled: false
         }   
     ];
@@ -216,8 +216,7 @@ export class InvoiceDetails implements OnInit {
         }, 2000);
     }
     
-    private saveInvoiceTransition(done) {
-        let transition = 'invoice';
+    private saveInvoiceTransition(done: any, transition: string) {
         this.saveInvoice((invoice) => {
             this.customerInvoiceService.Transition(this.invoice.ID, this.invoice, transition).subscribe(() => {
                 console.log('== TRANSITION OK ' + transition + ' ==');
@@ -229,6 +228,7 @@ export class InvoiceDetails implements OnInit {
                 });
             }, (err) => {
                 console.log('Feil oppstod ved ' + transition + ' transition', err);
+                done('Feilet');
                 this.log(err);
             });
         }, transition);
@@ -308,8 +308,12 @@ export class InvoiceDetails implements OnInit {
     private saveAndPrint(done) {
         this.saveInvoice((invoice) => {
             this.reportDefinitionService.getReportByName('Faktura Uten Giro').subscribe((report) => {
-                this.previewModal.openWithId(report, invoice.ID);
-                done("Utskrift");                    
+                if (report) {
+                    this.previewModal.openWithId(report, invoice.ID);
+                    done('Utskrift');                                        
+                } else {
+                    done('Rapport mangler');
+                }
             });
         });
     }

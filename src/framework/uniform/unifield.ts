@@ -138,7 +138,7 @@ export class UniField {
         this.ref.markForCheck();
     }
 
-    private control: Control;
+    public control: Control;
 
 
     constructor(private ref: ChangeDetectorRef) { }

@@ -46,7 +46,9 @@ export class HamburgerMenu {
                 componentList: [
                     {componentName: 'Bilagsføring', componentUrl: '/accounting'},
                     {componentName: 'Forespørsel på konto', componentUrl: '/accounting/transquery'},
-                    {componentName: 'Forespørsel på bilag', componentUrl: '/accounting/transquery/details'}
+                    {componentName: 'Forespørsel på bilag', componentUrl: '/accounting/transquery/details'},
+                    {componentName: 'Kontoinnstillinger', componentUrl: '/accounting/accountsettings'},
+                    {componentName: 'MVA innstillinger', componentUrl: '/accounting/vatsettings'},
                 ]
             },
             {
@@ -58,6 +60,16 @@ export class HamburgerMenu {
                     {componentName: 'Lønnsavregninger', componentUrl: '/salary/payrollrun'}
                 ]
             },
+            {
+                componentListName: 'Timer',
+                componentListHeader: 'Timer',
+                componentList: [
+                    {componentName: 'Stillingsmaler', componentUrl: '/timetracking/workprofile'},                    
+                    {componentName: 'Personer', componentUrl: '/timetracking/worker'},
+                    {componentName: 'Timearter', componentUrl: '/timetracking/worktype'},                    
+                    {componentName: 'Registrere timer', componentUrl: '/timetracking'}
+                ]
+            },            
             {
                 componentListName: 'Rapporter',
                 componentListHeader: 'Oversikt på papir',

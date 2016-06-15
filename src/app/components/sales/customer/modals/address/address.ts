@@ -1,254 +1,216 @@
-import {Component, ViewChildren, Type, Input, Output, QueryList, ViewChild, ComponentRef, EventEmitter} from "@angular/core";
-import {NgIf, NgModel, NgFor, NgClass} from "@angular/common";
-import {UniModal} from "../../../../../../framework/modals/modal";
-import {UniComponentLoader} from "../../../../../../framework/core/componentLoader";
-import {UniFormBuilder} from "../../../../../../framework/forms/builders/uniFormBuilder";
-import {UniForm} from "../../../../../../framework/forms/uniForm";
-import {UNI_CONTROL_DIRECTIVES} from "../../../../../../framework/controls";
-import {UniFieldBuilder} from "../../../../../../framework/forms/builders/uniFieldBuilder";
-import {FieldType, ComponentLayout, Address} from "../../../../../unientities";
-import {UniFormLayoutBuilder} from "../../../../../../framework/forms/builders/uniFormLayoutBuilder";
-import {AddressService} from "../../../../../services/services";
+import {Component, ViewChildren, Type, Input, Output, QueryList, ViewChild, ComponentRef, EventEmitter} from '@angular/core';
+import {UniModal} from '../../../../../../framework/modals/modal';
+import {UniForm, UniFieldLayout} from '../../../../../../framework/uniform';
+import {FieldType, Address} from '../../../../../unientities';
+import {AddressService} from '../../../../../services/services';
 
 // Reusable address form
 @Component({
     selector: 'address-form',
-    directives: [UniForm,NgIf],
+    directives: [UniForm],
     template: `
-        <uni-form *ngIf="config" [config]="config">
+        <uni-form *ngIf="config" [config]="config" [fields]="fields" [model]="model">
         </uni-form>
     `
 })
 export class AddressForm {
-    config: UniFormBuilder;
-    checkboxconfig: UniFieldBuilder;
-
-    @ViewChild(UniForm)
-    form: UniForm;
-
-    model: Address;
-    enableSave: boolean;
-    save: boolean;
+    @Input() public model: Address;
+    @ViewChild(UniForm) public form: UniForm;
     
-    ngOnInit()
-    {
-        this.createFormConfig();   
-        if (this.enableSave) {            
-            this.createCheckboxConfig();
-        }         
-    }
+    private enableSave: boolean;
+    private save: boolean;
     
-    createCheckboxConfig() {
-        this.checkboxconfig = new UniFieldBuilder()
-        this.checkboxconfig
-            .setLabel("Lagre på kundekort")
-            .setModel(this)
-            .setType(UNI_CONTROL_DIRECTIVES[FieldType.CHECKBOX])
-            .setModelField("saveenabled");
-            
-        this.config.addUniElement(this.checkboxconfig);
+    private config: any = {};
+    private fields: any[] = [];
+       
+    public ngOnInit() {
+        this.setupForm();      
     }
  
-    createFormConfig() {   
+    private setupForm() {   
         // TODO get it from the API and move these to backend migrations
         // TODO: turn to 'ComponentLayout when the object respects the interface
-        var view: any = {
-            StatusCode: 0,
-            Name: "Address",
-            BaseEntity: "Address",
-            Deleted: false,
-            CreatedAt: null,
-            UpdatedAt: null,
-            CreatedBy: null,
-            UpdatedBy: null,
-            ID: 2,
-            CustomFields: null,
-            Fields: [
-                {
-                    ComponentLayoutID: 1,
-                    EntityType: "Address",
-                    Property: "AddressLine1",
-                    Placement: 1,
-                    Hidden: false,
-                    FieldType: 10,
-                    ReadOnly: false,
-                    LookupField: false,
-                    Label: "Adresse",
-                    Description: "",
-                    HelpText: "",
-                    FieldSet: 0,
-                    Section: 0,
-                    Placeholder: null,
-                    Options: null,
-                    LineBreak: null,
-                    Combo: null,
-                    Legend: "",
-                    StatusCode: 0,
-                    ID: 1,
-                    Deleted: false,
-                    CreatedAt: null,
-                    UpdatedAt: null,
-                    CreatedBy: null,
-                    UpdatedBy: null,
-                    CustomFields: null 
-                },
-                {
-                    ComponentLayoutID: 1,
-                    EntityType: "Address",
-                    Property: "AddressLine2",
-                    Placement: 1,
-                    Hidden: false,
-                    FieldType: 10,
-                    ReadOnly: false,
-                    LookupField: false,
-                    Label: "Adresse2",
-                    Description: "",
-                    HelpText: "",
-                    FieldSet: 0,
-                    Section: 0,
-                    Placeholder: null,
-                    Options: null,
-                    LineBreak: null,
-                    Combo: null,
-                    Legend: "",
-                    StatusCode: 0,
-                    ID: 1,
-                    Deleted: false,
-                    CreatedAt: null,
-                    UpdatedAt: null,
-                    CreatedBy: null,
-                    UpdatedBy: null,
-                    CustomFields: null 
-                },
-                {
-                    ComponentLayoutID: 1,
-                    EntityType: "Address",
-                    Property: "AddressLine3",
-                    Placement: 1,
-                    Hidden: false,
-                    FieldType: 10,
-                    ReadOnly: false,
-                    LookupField: false,
-                    Label: "Adresse3",
-                    Description: "",
-                    HelpText: "",
-                    FieldSet: 0,
-                    Section: 0,
-                    Placeholder: null,
-                    Options: null,
-                    LineBreak: null,
-                    Combo: null,
-                    Legend: "",
-                    StatusCode: 0,
-                    ID: 1,
-                    Deleted: false,
-                    CreatedAt: null,
-                    UpdatedAt: null,
-                    CreatedBy: null,
-                    UpdatedBy: null,
-                    CustomFields: null 
-                },
-                {
-                    ComponentLayoutID: 1,
-                    EntityType: "Address",
-                    Property: "PostalCode",
-                    Placement: 1,
-                    Hidden: false,
-                    FieldType: 10,
-                    ReadOnly: false,
-                    LookupField: false,
-                    Label: "Postnr",
-                    Description: "",
-                    HelpText: "",
-                    FieldSet: 0,
-                    Section: 0,
-                    Placeholder: null,
-                    Options: null,
-                    LineBreak: null,
-                    Combo: null,
-                    Legend: "",
-                    StatusCode: 0,
-                    ID: 1,
-                    Deleted: false,
-                    CreatedAt: null,
-                    UpdatedAt: null,
-                    CreatedBy: null,
-                    UpdatedBy: null,
-                    CustomFields: null 
-                },
-                {
-                    ComponentLayoutID: 1,
-                    EntityType: "Address",
-                    Property: "City",
-                    Placement: 1,
-                    Hidden: false,
-                    FieldType: 10,
-                    ReadOnly: false,
-                    LookupField: false,
-                    Label: "Poststed",
-                    Description: "",
-                    HelpText: "",
-                    FieldSet: 0,
-                    Section: 0,
-                    Placeholder: null,
-                    Options: null,
-                    LineBreak: null,
-                    Combo: null,
-                    Legend: "",
-                    StatusCode: 0,
-                    ID: 1,
-                    Deleted: false,
-                    CreatedAt: null,
-                    UpdatedAt: null,
-                    CreatedBy: null,
-                    UpdatedBy: null,
-                    CustomFields: null 
-                },
-                {
-                    ComponentLayoutID: 1,
-                    EntityType: "Address",
-                    Property: "CountryCode",
-                    Placement: 1,
-                    Hidden: false,
-                    FieldType: 10,
-                    ReadOnly: false,
-                    LookupField: false,
-                    Label: "Landkode",
-                    Description: "",
-                    HelpText: "",
-                    FieldSet: 0,
-                    Section: 0,
-                    Placeholder: null,
-                    Options: null,
-                    LineBreak: null,
-                    Combo: null,
-                    Legend: "",
-                    StatusCode: 0,
-                    ID: 1,
-                    Deleted: false,
-                    CreatedAt: null,
-                    UpdatedAt: null,
-                    CreatedBy: null,
-                    UpdatedBy: null,
-                    CustomFields: null 
-                }
-            ]               
-        };   
-        
-        this.config = new UniFormLayoutBuilder().build(view, this.model);
-        this.config.hideSubmitButton();
+        this.fields = [            
+            {
+                ComponentLayoutID: 1,
+                EntityType: 'Address',
+                Property: 'AddressLine1',
+                Placement: 1,
+                Hidden: false,
+                FieldType: 10,
+                ReadOnly: false,
+                LookupField: false,
+                Label: 'Adresse',
+                Description: '',
+                HelpText: '',
+                FieldSet: 0,
+                Section: 0,
+                Placeholder: null,
+                Options: null,
+                LineBreak: null,
+                Combo: null,
+                Legend: '',
+                StatusCode: 0,
+                ID: 1,
+                Deleted: false,
+                CreatedAt: null,
+                UpdatedAt: null,
+                CreatedBy: null,
+                UpdatedBy: null,
+                CustomFields: null 
+            },
+            {
+                ComponentLayoutID: 1,
+                EntityType: 'Address',
+                Property: 'AddressLine2',
+                Placement: 1,
+                Hidden: false,
+                FieldType: 10,
+                ReadOnly: false,
+                LookupField: false,
+                Label: 'Adresse2',
+                Description: '',
+                HelpText: '',
+                FieldSet: 0,
+                Section: 0,
+                Placeholder: null,
+                Options: null,
+                LineBreak: null,
+                Combo: null,
+                Legend: '',
+                StatusCode: 0,
+                ID: 1,
+                Deleted: false,
+                CreatedAt: null,
+                UpdatedAt: null,
+                CreatedBy: null,
+                UpdatedBy: null,
+                CustomFields: null 
+            },
+            {
+                ComponentLayoutID: 1,
+                EntityType: 'Address',
+                Property: 'AddressLine3',
+                Placement: 1,
+                Hidden: false,
+                FieldType: 10,
+                ReadOnly: false,
+                LookupField: false,
+                Label: 'Adresse3',
+                Description: '',
+                HelpText: '',
+                FieldSet: 0,
+                Section: 0,
+                Placeholder: null,
+                Options: null,
+                LineBreak: null,
+                Combo: null,
+                Legend: '',
+                StatusCode: 0,
+                ID: 1,
+                Deleted: false,
+                CreatedAt: null,
+                UpdatedAt: null,
+                CreatedBy: null,
+                UpdatedBy: null,
+                CustomFields: null 
+            },
+            {
+                ComponentLayoutID: 1,
+                EntityType: 'Address',
+                Property: 'PostalCode',
+                Placement: 1,
+                Hidden: false,
+                FieldType: 10,
+                ReadOnly: false,
+                LookupField: false,
+                Label: 'Postnr',
+                Description: '',
+                HelpText: '',
+                FieldSet: 0,
+                Section: 0,
+                Placeholder: null,
+                Options: null,
+                LineBreak: null,
+                Combo: null,
+                Legend: '',
+                StatusCode: 0,
+                ID: 1,
+                Deleted: false,
+                CreatedAt: null,
+                UpdatedAt: null,
+                CreatedBy: null,
+                UpdatedBy: null,
+                CustomFields: null 
+            },
+            {
+                ComponentLayoutID: 1,
+                EntityType: 'Address',
+                Property: 'City',
+                Placement: 1,
+                Hidden: false,
+                FieldType: 10,
+                ReadOnly: false,
+                LookupField: false,
+                Label: 'Poststed',
+                Description: '',
+                HelpText: '',
+                FieldSet: 0,
+                Section: 0,
+                Placeholder: null,
+                Options: null,
+                LineBreak: null,
+                Combo: null,
+                Legend: '',
+                StatusCode: 0,
+                ID: 1,
+                Deleted: false,
+                CreatedAt: null,
+                UpdatedAt: null,
+                CreatedBy: null,
+                UpdatedBy: null,
+                CustomFields: null 
+            },
+            {
+                ComponentLayoutID: 1,
+                EntityType: 'Address',
+                Property: 'CountryCode',
+                Placement: 1,
+                Hidden: false,
+                FieldType: 10,
+                ReadOnly: false,
+                LookupField: false,
+                Label: 'Landkode',
+                Description: '',
+                HelpText: '',
+                FieldSet: 0,
+                Section: 0,
+                Placeholder: null,
+                Options: null,
+                LineBreak: null,
+                Combo: null,
+                Legend: '',
+                StatusCode: 0,
+                ID: 1,
+                Deleted: false,
+                CreatedAt: null,
+                UpdatedAt: null,
+                CreatedBy: null,
+                UpdatedBy: null,
+                CustomFields: null 
+            }
+        ];
     }
-
 }
 
 // address modal type
 @Component({
-    selector: "address-modal-type",
-    directives: [NgIf, NgModel, NgFor, NgClass, UniComponentLoader],
+    selector: 'address-modal-type',
+    directives: [AddressForm],
     template: `
         <article class="modal-content address-modal">
             <h1 *ngIf="config.title">{{config.title}}</h1>
-            <uni-component-loader></uni-component-loader>
+            <address-form [model]="config.model"></address-form>
             <footer>
                 <button *ngFor="let action of config.actions; let i=index" (click)="action.method()" [ngClass]="action.class">
                     {{action.text}}
@@ -258,28 +220,13 @@ export class AddressForm {
     `
 })
 export class AddressModalType {
-    @Input('config')
-    config;
-    @ViewChild(UniComponentLoader)
-    ucl: UniComponentLoader;
-    instance: Promise<AddressForm>;
-            
-    ngAfterViewInit() {
-        var self = this;
-        
-        this.ucl.load(AddressForm).then((cmp: ComponentRef<any>)=> {
-            cmp.instance.model = self.config.model;
-            cmp.instance.enableSave = self.config.enableSave;
-            self.instance = new Promise((resolve)=> {
-                resolve(cmp.instance);
-            });
-        });
-    }
+    @Input() public config: any;
+    @ViewChild(AddressForm) public form: AddressForm;    
 }
 
 // address modal
 @Component({
-    selector: "address-modal",
+    selector: 'address-modal',
     template: `
         <uni-modal [type]="type" [config]="modalConfig"></uni-modal>
     `,
@@ -287,57 +234,38 @@ export class AddressModalType {
     providers: [AddressService]
 })
 export class AddressModal {
-    @ViewChild(UniModal)
-    modal: UniModal;
+    @Input() public address: Address;    
+    @ViewChild(UniModal) public modal: UniModal;
     
-    @Output() Changed = new EventEmitter<Address>();
-    @Output() Canceled = new EventEmitter<boolean>();
+    @Output() public Changed = new EventEmitter<Address>();
+    @Output() public Canceled = new EventEmitter<boolean>();
 
-    modalConfig: any = {};
-    type: Type = AddressModalType;
+    private modalConfig: any = {};
+    private type: Type = AddressModalType;
 
-    constructor(private addressService: AddressService) {
-        var self = this;
-        
+    constructor(private addressService: AddressService) {        
+    }
+    
+    public ngOnInit() {    
         this.modalConfig = {
-            title: "Adresse",
+            title: 'Adresse',
             mode: null,
          
             actions: [
                 {
-                    text: "Lagre adresse",
-                    class: "good",
-                    method: () => {
-                        self.modal.getContent().then((content: AddressModalType)=> {
-                            content.instance.then((form: AddressForm)=> {
-                                form.form.sync();
-                                self.modal.close();                       
-                        
-                                if (form.save) {
-                                    console.log("=== LAGRER ===");
-                                    // store
-                                    if(form.model.ID) {
-                                        addressService.Put(form.model.ID, form.model).subscribe(null, (error: Error) => console.log('error in updating phone from modal - Put: ' + error));
-                                    } else {
-                                        addressService.Post(form.model).subscribe(null, (error: Error) => console.error('error in posting phone from modal - Post: ', error));
-                                    }                                    
-                                }
-
-                                self.Changed.emit(form.model);
-                           });
-                        });
-                        
+                    text: 'Lagre adresse',
+                    class: 'good',
+                    method: () => {                    
+                        this.modal.close();
+                        this.Changed.emit(this.modalConfig.model);                        
                         return false;
                     }
                 },
                 {
-                    text: "Angre",
+                    text: 'Angre',
                     method: () => {
-                        self.modal.getContent().then(() => {
-                            self.modal.close();
-                            self.Canceled.emit(true);
-                        });
-                        
+                        this.modal.close();
+                        this.Canceled.emit(true);                    
                         return false;
                     }
                 }
@@ -345,7 +273,8 @@ export class AddressModal {
         };
     }
 
-    openModal() {
+    public openModal(address: Address) {  
+        this.modalConfig.model = address;    
         this.modal.open();
     }
 }
