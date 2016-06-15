@@ -22,9 +22,14 @@ const TRANSQUERY_ROUTES = [
         loader: () => ComponentProxy.LoadComponentAsync('TransqueryDetails','app/components/accounting/transquery/details/transqueryDetails')
     }),
     new AsyncRoute({
-        path: '/detailsByJournalEntryNumber/:journalEntryNumber',
-        name: 'TransqueryDetails',
-        loader: () => ComponentProxy.LoadComponentAsync('TransqueryDetails','app/components/accounting/transquery/details/transqueryDetails')
+        path: "/detailsByJournalEntryNumber/:journalEntryNumber",
+        name: "TransqueryDetails",
+        loader: () => ComponentProxy.LoadComponentAsync("TransqueryDetails", "./app/components/accounting/transquery/details/transqueryDetails")
+    }),
+    new AsyncRoute({
+        path: "/detailsByAccountID/:accountID",
+        name: "TransqueryDetails",
+        loader: () => ComponentProxy.LoadComponentAsync("TransqueryDetails", "./app/components/accounting/transquery/details/transqueryDetails")
     })
 ];
 

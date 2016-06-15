@@ -4,4 +4,5 @@ export class TransqueryDetailSearchParamters {
     public period: number;
     public isIncomingBalance: boolean;
     public journalEntryNumber: number;
+    public accountID: number;
 }

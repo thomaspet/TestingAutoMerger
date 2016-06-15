@@ -1,167 +1,146 @@
-import {Component, ViewChildren, Type, Input, Output, QueryList, ViewChild, ComponentRef, EventEmitter} from "@angular/core";
-import {NgIf, NgModel, NgFor, NgClass} from "@angular/common";
-import {UniModal} from "../../../../../../framework/modals/modal";
-import {UniComponentLoader} from "../../../../../../framework/core/componentLoader";
-import {UniFormBuilder} from "../../../../../../framework/forms/builders/uniFormBuilder";
-import {UniForm} from "../../../../../../framework/forms/uniForm";
-import {UNI_CONTROL_DIRECTIVES} from "../../../../../../framework/controls";
-import {UniFieldBuilder} from "../../../../../../framework/forms/builders/uniFieldBuilder";
-import {FieldType, ComponentLayout, Phone, PhoneTypeEnum} from "../../../../../unientities";
-import {UniFormLayoutBuilder} from "../../../../../../framework/forms/builders/uniFormLayoutBuilder";
-import {PhoneService} from "../../../../../services/services";
+import {Component, ViewChildren, Type, Input, Output, QueryList, ViewChild, ComponentRef, EventEmitter} from '@angular/core';
+import {UniModal} from '../../../../../../framework/modals/modal';
+import {UniForm, UniFieldLayout} from '../../../../../../framework/uniform';
+import {Phone, PhoneTypeEnum} from '../../../../../unientities';
+import {PhoneService} from '../../../../../services/services';
 
 // Reusable address form
 @Component({
     selector: 'phone-form',
-    directives: [UniForm,NgIf],
+    directives: [UniForm],
     template: `
-        <uni-form *ngIf="config" [config]="config">
+        <uni-form *ngIf="config" [config]="config" [fields]="fields" [model]="model">
         </uni-form>
     `
 })
 export class PhoneForm {
-    config: UniFormBuilder;
-
-    @ViewChild(UniForm)
-    form: UniForm;
-
-    model: Phone;
-    
-    ngOnInit()
-    {
-        this.createFormConfig();      
-        this.extendFormConfig();
+    @Input() public model: Phone;
+    @ViewChild(UniForm) public form: UniForm;
+    private config: any = {};
+    private fields: any[] = [];
+       
+    public ngOnInit() {
+        this.setupForm();
+        
+        setTimeout(() => {
+            this.extendFormConfig();
+        });      
     }
                
-    createFormConfig() {   
+    private setupForm() {   
         // TODO get it from the API and move these to backend migrations
         // TODO: turn to 'ComponentLayout when the object respects the interface
-        var view: any = {
-            StatusCode: 0,
-            Name: "Phone",
-            BaseEntity: "Phone",
-            Deleted: false,
-            CreatedAt: null,
-            UpdatedAt: null,
-            CreatedBy: null,
-            UpdatedBy: null,
-            ID: 1,
-            CustomFields: null,
-            Fields: [
-                {
-                    ComponentLayoutID: 1,
-                    EntityType: "Phone",
-                    Property: "Number",
-                    Placement: 1,
-                    Hidden: false,
-                    FieldType: 10,
-                    ReadOnly: false,
-                    LookupField: false,
-                    Label: "Telefonnr",
-                    Description: "",
-                    HelpText: "",
-                    FieldSet: 0,
-                    Section: 0,
-                    Placeholder: null,
-                    Options: null,
-                    LineBreak: null,
-                    Combo: null,
-                    Legend: "",
-                    StatusCode: 0,
-                    ID: 1,
-                    Deleted: false,
-                    CreatedAt: null,
-                    UpdatedAt: null,
-                    CreatedBy: null,
-                    UpdatedBy: null,
-                    CustomFields: null 
-                },
-                {
-                    ComponentLayoutID: 1,
-                    EntityType: "Phone",
-                    Property: "Description",
-                    Placement: 1,
-                    Hidden: false,
-                    FieldType: 10,
-                    ReadOnly: false,
-                    LookupField: false,
-                    Label: "Beskrivelse",
-                    Description: "",
-                    HelpText: "",
-                    FieldSet: 0,
-                    Section: 0,
-                    Placeholder: null,
-                    Options: null,
-                    LineBreak: null,
-                    Combo: null,
-                    Legend: "",
-                    StatusCode: 0,
-                    ID: 1,
-                    Deleted: false,
-                    CreatedAt: null,
-                    UpdatedAt: null,
-                    CreatedBy: null,
-                    UpdatedBy: null,
-                    CustomFields: null 
-                },
-                {
-                    ComponentLayoutID: 1,
-                    EntityType: "Phone",
-                    Property: "Type",
-                    Placement: 1,
-                    Hidden: false,
-                    FieldType: 1,
-                    ReadOnly: false,
-                    LookupField: false,
-                    Label: "Type",
-                    Description: "",
-                    HelpText: "",
-                    FieldSet: 0,
-                    Section: 0,
-                    Placeholder: null,
-                    Options: null,
-                    LineBreak: null,
-                    Combo: null,
-                    Legend: "",
-                    StatusCode: 0,
-                    ID: 1,
-                    Deleted: false,
-                    CreatedAt: null,
-                    UpdatedAt: null,
-                    CreatedBy: null,
-                    UpdatedBy: null,
-                    CustomFields: null 
-                }  
-            ]               
-        };   
-        
-        this.config = new UniFormLayoutBuilder().build(view, this.model);
-        this.config.hideSubmitButton();
+       this.fields = [
+            {
+                ComponentLayoutID: 1,
+                EntityType: 'Phone',
+                Property: 'Number',
+                Placement: 1,
+                Hidden: false,
+                FieldType: 10,
+                ReadOnly: false,
+                LookupField: false,
+                Label: 'Telefonnr',
+                Description: '',
+                HelpText: '',
+                FieldSet: 0,
+                Section: 0,
+                Placeholder: null,
+                Options: null,
+                LineBreak: null,
+                Combo: null,
+                Legend: '',
+                StatusCode: 0,
+                ID: 1,
+                Deleted: false,
+                CreatedAt: null,
+                UpdatedAt: null,
+                CreatedBy: null,
+                UpdatedBy: null,
+                CustomFields: null 
+            },
+            {
+                ComponentLayoutID: 1,
+                EntityType: 'Phone',
+                Property: 'Description',
+                Placement: 1,
+                Hidden: false,
+                FieldType: 10,
+                ReadOnly: false,
+                LookupField: false,
+                Label: 'Beskrivelse',
+                Description: '',
+                HelpText: '',
+                FieldSet: 0,
+                Section: 0,
+                Placeholder: null,
+                Options: null,
+                LineBreak: null,
+                Combo: null,
+                Legend: '',
+                StatusCode: 0,
+                ID: 1,
+                Deleted: false,
+                CreatedAt: null,
+                UpdatedAt: null,
+                CreatedBy: null,
+                UpdatedBy: null,
+                CustomFields: null 
+            },
+            {
+                ComponentLayoutID: 1,
+                EntityType: 'Phone',
+                Property: 'Type',
+                Placement: 1,
+                Hidden: false,
+                FieldType: 3,
+                ReadOnly: false,
+                LookupField: false,
+                Label: 'Type',
+                Description: '',
+                HelpText: '',
+                FieldSet: 0,
+                Section: 0,
+                Placeholder: null,
+                Options: null,
+                LineBreak: null,
+                Combo: null,
+                Legend: '',
+                StatusCode: 0,
+                ID: 1,
+                Deleted: false,
+                CreatedAt: null,
+                UpdatedAt: null,
+                CreatedBy: null,
+                UpdatedBy: null,
+                CustomFields: null 
+            }  
+        ];
     }
 
-    extendFormConfig() {
-        var project: UniFieldBuilder = this.config.find('Type');
-        project.setKendoOptions({
-            dataTextField: 'Name',
-            dataValueField: 'ID',
-            dataSource: [
-                {ID: 150101, Name: "Telefon"},
-                {ID: 150102, Name: "Mobil" },
-                {ID: 150103, Name: "Fax"}
-            ]
-        });      
-        project.addClass('large-field');            
+    private extendFormConfig() {
+        var typeField: UniFieldLayout = this.fields.find(x => x.Property === 'Type');
+           
+        typeField.Options = {
+            source:  [
+                {ID: 150101, Name: 'Telefon'},
+                {ID: 150102, Name: 'Mobil' },
+                {ID: 150103, Name: 'Fax'}
+            ],
+            valueProperty: 'ID',
+            displayProperty: 'Name'
+        };         
     }   
 }
 
 // phone modal type
 @Component({
-    selector: "phone-modal-type",
-    directives: [NgIf, NgModel, NgFor, NgClass, UniComponentLoader],
+    selector: 'phone-modal-type',
+    directives: [PhoneForm],
     template: `
         <article class="modal-content phone-modal">
             <h1 *ngIf="config.title">{{config.title}}</h1>
-            <uni-component-loader></uni-component-loader>
+            <phone-form [model]="config.model"></phone-form>
             <footer>
                 <button *ngFor="let action of config.actions; let i=index" (click)="action.method()" [ngClass]="action.class">
                     {{action.text}}
@@ -171,26 +150,13 @@ export class PhoneForm {
     `
 })
 export class PhoneModalType {
-    @Input('config')
-    config;
-    @ViewChild(UniComponentLoader)
-    ucl: UniComponentLoader;
-    instance: Promise<PhoneForm>;
-            
-    ngAfterViewInit() {
-        var self = this;
-        this.ucl.load(PhoneForm).then((cmp: ComponentRef<any>)=> {
-            cmp.instance.model = self.config.model;
-            self.instance = new Promise((resolve)=> {
-                resolve(cmp.instance);
-            });
-        });
-    }
+    @Input() public config: any;
+    @ViewChild(PhoneForm) public form: PhoneForm;
 }
 
 // phone modal
 @Component({
-    selector: "phone-modal",
+    selector: 'phone-modal',
     template: `
         <uni-modal [type]="type" [config]="modalConfig"></uni-modal>
     `,
@@ -198,61 +164,47 @@ export class PhoneModalType {
     providers: [PhoneService]
 })
 export class PhoneModal {
-    @ViewChild(UniModal)
-    modal: UniModal;
+    @Input() public phone: Phone;    
+    @ViewChild(UniModal) public modal: UniModal;
     
-    @Output() Changed = new EventEmitter<Phone>();
-    @Output() Canceled = new EventEmitter<boolean>();
+    @Output() public Changed = new EventEmitter<Phone>();
+    @Output() public Canceled = new EventEmitter<boolean>();
     
-    modalConfig: any = {};
-    type: Type = PhoneModalType;
+    private modalConfig: any = {};
+    private type: Type = PhoneModalType;
 
     constructor(private phoneService: PhoneService) {
-        var self = this;
+    }
+    
+    public ngOnInit() {
         this.modalConfig = {
-            title: "Telefonnummer",
+            title: 'Telefonnummer',
             model: null,
 
             actions: [
                 {
-                    text: "Lagre nummer",
-                    class: "good",
-                    method: () => {
-                        self.modal.getContent().then((content: PhoneModalType)=> {
-                            content.instance.then((form: PhoneForm)=> {
-                                form.form.sync();
-                                self.modal.close();                               
-                                
-                                // store
-                                //if(form.model.ID) {
-                                //    phoneService.Put(form.model.ID, form.model).subscribe(null, (error: Error) => console.log('error in updating phone from modal - Put: ' + error));
-                                //} else {
-                                //    phoneService.Post(form.model).subscribe(null, (error: Error) => console.error('error in posting phone from modal - Post: ', error));
-                                //}
-                                
-                                self.Changed.emit(form.model);
-                            });
-                        });
-                        
+                    text: 'Lagre nummer',
+                    class: 'good',
+                     method: () => {                        
+                        this.modal.close();                                                
+                        this.Changed.emit(this.modalConfig.model);
                         return false;
-                    }
+                    }                    
                 },
                 {
-                    text: "Angre",
+                    text: 'Angre',
                     method: () => {
-                        self.modal.getContent().then(() => {
-                            self.modal.close();
-                            self.Canceled.emit(true);
-                        });
-                        
+                        this.modal.close();
+                        this.Canceled.emit(true);
                         return false;
                     }
                 }
             ]
         };
     }
-
-    openModal() {
+    
+    public openModal(phone: Phone) {  
+        this.modalConfig.model = phone;    
         this.modal.open();
     }
 }

@@ -7,12 +7,12 @@ declare var _, jQuery; // jquery and lodash
 
 @Component({
     selector: 'uni-multivalue-input',
-    changeDetection: ChangeDetectionStrategy.OnPush,
     template: `
         <section class="uni-multivalue-ng">
-            <input type="text" [(ngModel)]="currentValue" [readonly]="field?.ReadOnly" [placeholder]="field?.Placeholder || ''">
+            <input type="text" [(ngModel)]="currentValue" [readonly]="field?.ReadOnly" [disabled]="field?.Options?.editor" [placeholder]="field?.Placeholder || ''"  (click)="showDropdown($event)">
+            
             <button class="uni-multivalue-moreBtn" (click)="showDropdown($event)">Ny</button>
-
+ 
             <ul class="uni-multivalue-values" [class.-is-active]="listIsVisible">
                 <template ngFor let-row [ngForOf]="rows" let-i = "index">
                     <li [class.-is-main]="isSelected(row)">
@@ -116,13 +116,26 @@ export class UniMultivalueInput {
         
         // update default option
         if (this.field.Options.foreignProperty) {
-            this.rows = _.get(this.model, this.field.Property);
+            if (this.field.Options.listProperty) {
+                this.rows = _.get(this.model, this.field.Options.listProperty);
+            } else {
+                this.rows = _.get(this.model, this.field.Property);
+            }
+            
             var foreignValue = _.get(this.model, this.field.Options.foreignProperty);
-            this.rows.forEach((row) => {
-                if (_.get(row, this.field.Options.linkProperty) === foreignValue) {
-                    this.setAsDefault(row);
-                }    
-            });
+            
+            if (this.rows) {
+                this.rows.forEach((row) => {
+                    let id = _.get(row, this.field.Options.linkProperty);
+                    if (id === foreignValue) {
+                        this.setAsDefault(row);
+                    }    
+                });
+            }
+            
+            if (this.field.Options.onChange) {
+                this.onChange.subscribe(value => this.field.Options.onChange(this.defaultRow));
+            }
         }
     }
 
@@ -141,7 +154,14 @@ export class UniMultivalueInput {
     }
     
     private setAsDefault(row) {
-        this.defaultRow = row;
+        this.listIsVisible = false;
+        
+        let oldProperty = _.get(this.model, this.field.Property);         
+        
+        _.set(this.model, this.field.Property, row);
+        this.defaultRow = row;        
+        this.currentValue = this.showDisplayValue(row);
+        
         if (!this.field.Options.foreignProperty) {
             return;
         }
@@ -149,12 +169,14 @@ export class UniMultivalueInput {
         var linkProperty = this.field.Options.linkProperty;
         var fp = _.get(this.model, foreignProperty);
         var lp = _.get(row, linkProperty);
-        if (fp === lp) {
+        if (fp === lp && oldProperty === row) {
             return; // no emit changes since it is not updated;
         }
+        
         _.set(this.model, foreignProperty, lp);
-        this.onChange.emit(this.model);
-        this.listIsVisible = true;
+        this.onChange.emit(this.model);        
+                
+        this.cd.markForCheck();
     }
     
     private showDisplayValue(row) {
@@ -174,14 +196,18 @@ export class UniMultivalueInput {
             _.set(this.model, this.field.Property, this.rows);
             this.currentValue = '';
             this.onChange.emit(this.model);
-            this.listIsVisible = true;
-        } else {
-            this.field.Options.editor(this.currentValue).then(newEntity => {
-                self.rows = [].concat(self.rows, newEntity);
+        } else {            
+            this.field.Options.editor(null).then(newEntity => {
+                self.rows = [].concat(self.rows, newEntity);                
                 self.currentValue = '';
-                _.set(self.model, self.field.Property, self.rows);
-                self.onChange.emit(self.model);
-                self.listIsVisible = true;        
+                if (self.field.Options.listProperty) {
+                    _.set(self.model, self.field.Options.listProperty, self.rows);
+                } else {
+                    _.set(self.model, self.field.Property, self.rows);
+                }
+                self.setAsDefault(newEntity);
+                
+                self.onChange.emit(self.model);                        
             });
         }
     }
@@ -191,7 +217,7 @@ export class UniMultivalueInput {
         this.rows.forEach(x => x.mode = 0);
         $event.preventDefault();
         if (this.field.Options.editor) {
-            this.field.Options.editor(this.showDisplayValue(row)).then(editedEntity => {
+            this.field.Options.editor(row).then(editedEntity => {
                 var index = self.rows.indexOf(row);
                 var part1 = self.rows.slice(0, index);
                 var part2 = self.rows.slice(index + 1);
@@ -200,9 +226,17 @@ export class UniMultivalueInput {
                     editedEntity,
                     ...part2
                 ];
-                _.set(self.model, self.field.Property, self.rows);
+                
+                if (self.field.Options.listProperty) {
+                    _.set(self.model, self.field.Options.listProperty, self.rows);
+                } else {
+                    _.set(self.model, self.field.Property, self.rows);
+                }
+                
                 self.onChange.emit(self.model);
-                self.listIsVisible = true;            
+                self.listIsVisible = false;          
+                
+                this.cd.markForCheck();  
             });
         } else {
             this.tempValue = this.showDisplayValue(row);

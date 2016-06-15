@@ -61,6 +61,10 @@ export class CustomerInvoiceService extends BizHttp<CustomerInvoice> {
             .send();
     } 
 
+    public getInvoiceByInvoiceNumber(invoiceNumber: string): Observable<any> {        
+        return this.GetAll('filter=InvoiceNumber eq ' + invoiceNumber, ['JournalEntry','JournalEntry.Lines','JournalEntry.Lines.Account']);
+    }
+
     public getInvoiceSummary(odatafilter: string): Observable<any> {        
         return this.http 
             .asGET()

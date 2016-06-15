@@ -1,8 +1,12 @@
 ﻿<h2>Firmainnstillinger</h2>
-<article *ngIf="company">
-    <uni-form class="companySettings" (uniFormSubmit)='onSubmit($event)' [config]='form'></uni-form>
+<article *ngIf="company">    
+    <uni-form class="companySettings"            
+            [config]="config" 
+            [fields]="fields" 
+            [model]="company"
+            (ready)="formReady()">
+    </uni-form>
 </article>
-<section class="error" *ngIf="error" style="background-color: #fbe4e1; color:#a90000; padding: 5px;"><strong>Ops!</strong> Noe gikk galt. Lukk innstillinger og prøv igjen</section>
 
 <section>
     <br />
@@ -11,3 +15,5 @@
     <button (click)="syncVat()">Synkroniser mva</button>
     <button (click)="syncCurrency()">Last ned valuta</button>
 </section>
+
+<uni-save [actions]="saveactions"></uni-save>
