@@ -41,7 +41,7 @@ export class SalaryTransactionEmployeeList implements OnInit {
     @Output() public nextEmployee: EventEmitter<any> = new EventEmitter<any>(true);
     @Output() public previousEmployee: EventEmitter<any> = new EventEmitter<any>(true);
     @ViewChildren(UniTable) public tables: any;
-    // @Output() public salarytransesAdded: EventEmitter<any> = new EventEmitter<any>();
+    @Output() public salarytransesAdded: EventEmitter<any> = new EventEmitter<any>();
 
     private busy: boolean;
     private salarytransChanged: any[] = [];
@@ -131,6 +131,8 @@ export class SalaryTransactionEmployeeList implements OnInit {
                 .subscribe((response: any) => {
                     done('Sist lagret: ');
                     this.salarytransChanged = [];
+                    this.saveactions[0].disabled = true;
+                    this.salarytransesAdded.emit(false);
                 },
                 (err) => {
                     done('Feil ved oppdatering av lønnspost', err);
@@ -140,6 +142,8 @@ export class SalaryTransactionEmployeeList implements OnInit {
                 .subscribe((response: any) => {
                     done('Sist lagret: ');
                     this.salarytransChanged = [];
+                    this.saveactions[0].disabled = true;
+                    this.salarytransesAdded.emit(false);
                 },
                 (err) => {
                     done('Feil ved lagring av lønnspost', err);
@@ -158,7 +162,6 @@ export class SalaryTransactionEmployeeList implements OnInit {
     }
 
     public isDirty() {
-        // console.log('changed array', this.salarytransChanged);
         return (this.salarytransChanged.length > 0);
     }
 
@@ -422,7 +425,7 @@ export class SalaryTransactionEmployeeList implements OnInit {
         } else {
             this.salarytransChanged.push(row);
         }
-        // this.salarytransesAdded.emit(true);
+        this.salarytransesAdded.emit(true);
         this.saveactions[0].disabled = false;
     }
 }
