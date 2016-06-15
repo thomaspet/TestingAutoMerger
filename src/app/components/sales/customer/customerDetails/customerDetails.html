@@ -1,9 +1,9 @@
-<header class="customer_poster" *ngIf="Customer">
+<header class="customer_poster" *ngIf="customer">
     
     <article class="poster_toolbar">
         <section>
-            <h1 *ngIf="Customer && Customer.ID > 0">{{Customer.Info.Name}}</h1>
-            <p *ngIf="Customer && Customer.ID > 0">Kundenr. {{Customer.CustomerNumber}}</p>
+            <h1 *ngIf="customer && customer.ID > 0">{{customer.Info.Name}}</h1>
+            <p *ngIf="customer && customer.ID > 0">Kundenr. {{customer.CustomerNumber}}</p>
             <h1 *ngIf="customerID == 0">Ny kunde</h1>
             <p *ngIf="customerID == 0">&nbsp;</p>
         </section>
@@ -16,26 +16,32 @@
     </article>
     
     <!-- Widget poster -->
-    <section class="poster_overview">        
-        <uni-widget-poster [model]="Customer" *ngIf="Customer && Customer.ID > 0">
-            ..future widgets..
-        </uni-widget-poster>
-        <external-search [searchText]="searchText" (onSelect)="addSearchInfo($event)" *ngIf="Customer && Customer.ID == 0"></external-search>
+    <section class="poster_overview">
+        <section class="application">        
+            <uni-widget-poster [model]="customer" *ngIf="customer && customer.ID > 0">
+                ..future widgets..
+            </uni-widget-poster>
+        </section>
+        <external-search [searchText]="searchText" (onSelect)="addSearchInfo($event)" *ngIf="customer && customer.ID == 0"></external-search>
     </section>
     
 </header>
 
 <section class="customer-details application">
-    <uni-component-loader></uni-component-loader>
+    <uni-form *ngIf='customer'            
+        [config]="config" 
+        [fields]="fields" 
+        [model]="customer"                
+        (onChange)="change($event)">
+    </uni-form>
     
-    <uni-multival [label]="'E-post'" [values]="email"></uni-multival>
+    <email-modal></email-modal>
+    <phone-modal></phone-modal>
+    <address-modal></address-modal>
 </section>
 
 <footer class="full-footer">
     <section class="application">
-        <button class="good" (click)="saveCustomerManual($event)">Lagre kunde</button>
-        <section class="auto_save_info">
-            {{ LastSavedInfo }}    
-        </section>
+        <uni-save [actions]="saveactions"></uni-save> 
     </section>
 </footer>

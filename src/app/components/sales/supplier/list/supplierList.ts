@@ -1,9 +1,8 @@
-import {Component, ViewChildren} from '@angular/core';
-import {UniTable, UniTableBuilder, UniTableColumn} from '../../../../../framework/uniTable';
-import {ComponentInstruction, RouteParams, Router} from '@angular/router-deprecated';
-import {UniHttp} from '../../../../../framework/core/http/http';
-import {SupplierService} from "../../../../services/services";
-import {Supplier, BusinessRelation} from "../../../../unientities";
+import {Component} from '@angular/core';
+import {URLSearchParams} from '@angular/http';
+import {Router} from '@angular/router-deprecated';
+import {UniTable, UniTableColumn, UniTableColumnType, UniTableConfig} from 'unitable-ng2/main';
+import {SupplierService} from '../../../../services/services';
 
 declare var jQuery;
 
@@ -14,34 +13,44 @@ declare var jQuery;
     providers: [SupplierService]
 })
 export class SupplierList {
-    @ViewChildren(UniTable) tables: any;
     
-    supplierTable: UniTableBuilder;
- 
-    constructor(private uniHttpService: UniHttp, private router: Router, private supplierService: SupplierService) {
+    private supplierTable: UniTableConfig;
+    private lookupFunction: (urlParams: URLSearchParams) => any;
+    
+    constructor(private router: Router, private supplierService: SupplierService) {
         this.setupSupplierTable();
     }
     
-    createSupplier() {
+    private createSupplier() {
         this.router.navigateByUrl('/sales/supplier/details/0');
     }
 
-    setupSupplierTable() {
-        // Define columns to use in the table
-        var numberCol = new UniTableColumn('SupplierNumber', 'Leverandørnr', 'number').setWidth('15%');
-        var nameCol = new UniTableColumn('Info.Name', 'Navn', 'string');
-        var orgNoCol = new UniTableColumn('Orgnumber', 'Orgnr', 'string').setWidth('15%');
-                
-        // Define callback function for row clicks
-        var selectCallback = (selectedItem) => {
-            this.router.navigateByUrl('/sales/supplier/details/' + selectedItem.ID);
-        }
+    private onRowSelected (event) {
+        this.router.navigateByUrl('/sales/supplier/details/' + event.rowModel.ID);
+    };
 
+    private setupSupplierTable() {
+        
+        this.lookupFunction = (urlParams: URLSearchParams) => {
+            let params = urlParams;
+            
+            if (params === null) {
+                params = new URLSearchParams();
+            }
+            
+            params.set('expand', 'Info');
+            
+            return this.supplierService.GetAllByUrlSearchParams(params);
+        };
+        
+        // Define columns to use in the table
+        var numberCol = new UniTableColumn('SupplierNumber', 'Leverandørnr', UniTableColumnType.Text).setWidth('15%').setFilterOperator('contains');
+        var nameCol = new UniTableColumn('Info.Name', 'Navn', UniTableColumnType.Text).setFilterOperator('contains');
+        var orgNoCol = new UniTableColumn('Orgnumber', 'Orgnr', UniTableColumnType.Text).setWidth('15%').setFilterOperator('contains');
+         
         // Setup table
-        this.supplierTable = new UniTableBuilder('suppliers?expand=Info', false)
-            .setSelectCallback(selectCallback)
-            .setFilterable(false)
-            .setPageSize(25)
-            .addColumns(numberCol, nameCol, orgNoCol);            
+        this.supplierTable = new UniTableConfig(false, true, 25)            
+            .setSearchable(true)            
+            .setColumns([numberCol, nameCol, orgNoCol]);
     }
 }
