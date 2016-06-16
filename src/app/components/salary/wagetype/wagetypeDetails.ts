@@ -1,7 +1,6 @@
 import {Component, ViewChild} from '@angular/core';
 import {RouteParams, Router} from '@angular/router-deprecated';
 import {WageTypeService} from '../../../services/services';
-import {UniComponentLoader} from '../../../../framework/core';
 import {UniForm} from '../../../../framework/uniForm';
 import {WageType} from '../../../unientities';
 import {UniSave, IUniSaveAction} from '../../../../framework/save/save';
@@ -11,7 +10,7 @@ import {Observable} from 'rxjs/Observable';
     selector: 'wagetype-details',
     templateUrl: 'app/components/salary/wagetype/wagetypedetails.html',
     providers: [WageTypeService],
-    directives: [UniComponentLoader, UniForm, UniSave]
+    directives: [UniForm, UniSave]
 })
 export class WagetypeDetail {
     private wageType: WageType;
