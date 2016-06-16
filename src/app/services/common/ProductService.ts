@@ -36,4 +36,14 @@ export class ProductService extends BizHttp<Product> {
         
         return statusText;
     }
+    
+    public next(currentID: number): Observable<Product>
+    {
+        return super.GetAction(currentID, 'next');
+    }
+    
+    public previous(currentID: number): Observable<Product>
+    {
+        return super.GetAction(currentID, 'previous');
+    }
 }

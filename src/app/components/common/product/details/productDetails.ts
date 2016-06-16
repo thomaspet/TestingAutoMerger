@@ -148,11 +148,21 @@ export class ProductDetails {
     }
     
     private previousProduct() {
-        
+        this.productService.previous(this.product.ID)
+            .subscribe((data) => {
+                if (data) {
+                    this.router.navigateByUrl('/products/details/' + data.ID);
+                }
+            });
     }
     
     private nextProduct() {
-        
+        this.productService.next(this.product.ID)
+            .subscribe((data) => {
+                if (data) {
+                    this.router.navigateByUrl('/products/details/' + data.ID);
+                }
+            });
     }
     
     private addProduct() {
