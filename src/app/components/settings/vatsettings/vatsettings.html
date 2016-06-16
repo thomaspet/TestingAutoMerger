@@ -1,6 +1,9 @@
-<div class="vatList">
-    <vattype-list (uniVatTypeChange)="changeVatType($event)"></vattype-list>
-</div>
-<div class="vatDetails">
-    <vattype-details [VatType]="vatType"></vattype-details>
-</div>
+<section class="application">
+    <h1>MVA innstillinger</h1>
+    <div class="vatList">
+        <vattype-list (uniVatTypeChange)="changeVatType($event)"></vattype-list>
+    </div>
+    <div class="vatDetails">
+        <vattype-details [VatType]="vatType"></vattype-details>
+    </div>
+</section>
