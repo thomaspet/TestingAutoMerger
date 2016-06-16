@@ -1,9 +1,9 @@
-import {Component, ViewChildren} from '@angular/core';
-import {UniTable, UniTableBuilder, UniTableColumn} from '../../../../../framework/uniTable';
-import {ComponentInstruction, RouteParams, Router} from '@angular/router-deprecated';
+import {Component} from '@angular/core';
+import {URLSearchParams} from '@angular/http';
+import {UniTable, UniTableColumn, UniTableColumnType, UniTableConfig} from 'unitable-ng2/main';
+import {Router} from '@angular/router-deprecated';
 import {UniHttp} from '../../../../../framework/core/http/http';
-import {ProductService} from "../../../../services/services";
-import {Product} from "../../../../unientities";
+import {ProductService} from '../../../../services/services';
 
 declare var jQuery;
 
@@ -13,46 +13,49 @@ declare var jQuery;
     directives: [UniTable],
     providers: [ProductService]
 })
-export class ProductList {
-    @ViewChildren(UniTable) tables: any;
+export class ProductList {        
+    private productTable: UniTableConfig;
+    private lookupFunction: (urlParams: URLSearchParams) => any;
     
-    productTable: UniTableBuilder;
- 
     constructor(private uniHttpService: UniHttp, private router: Router, private productService: ProductService) {
         this.setupProductTable();
     }
     
-    createProduct() { 
+    private createProduct() { 
         this.router.navigateByUrl('/products/details/0');
     }
 
-    getStatusText() {
-        return "foo";
-    }
+    private onRowSelected (event) {
+        this.router.navigateByUrl('/products/details/' + event.rowModel.ID);
+    };
 
-    setupProductTable() {
+    private setupProductTable() {
+        
+        this.lookupFunction = (urlParams: URLSearchParams) => {
+            let params = urlParams;
+            
+            if (params === null) {
+                params = new URLSearchParams();
+            }
+                        
+            return this.productService.GetAllByUrlSearchParams(params);
+        };
+        
         // Define columns to use in the table
-        var partNameCol = new UniTableColumn('PartName', 'Produktnr', 'string').setWidth('15%');
-        var nameCol = new UniTableColumn('Name', 'Navn', 'string');
-        var priceCol = new UniTableColumn('PriceIncVat', 'Utpris inkl. mva', 'number')
+        var partNameCol = new UniTableColumn('PartName', 'Produktnr',  UniTableColumnType.Text).setWidth('15%').setFilterOperator('contains');
+        var nameCol = new UniTableColumn('Name', 'Navn',  UniTableColumnType.Text).setFilterOperator('contains');
+        var priceExVatCol = new UniTableColumn('PriceExVat', 'Utpris eks. mva',  UniTableColumnType.Number).setFilterOperator('eq')
                             .setWidth('15%')
                             .setFormat('{0:n}')
-                            .setClass('column-align-right');
-        var statusCol = new UniTableColumn('StatusCode', 'Status', 'number').setWidth('15%');
-        statusCol.setTemplate("#var statusText; if(!StatusCode) {statusText = 'Kladd'} else {statusText = 'Aktiv'} # #= statusText #");
-        
-                
-                
-        // Define callback function for row clicks
-        var selectCallback = (selectedItem) => {            
-            this.router.navigateByUrl('/products/details/' + selectedItem.ID);
-        }
-
+                            .setCls('column-align-right');
+        var priceIncVatCol = new UniTableColumn('PriceIncVat', 'Utpris inkl. mva',  UniTableColumnType.Number).setFilterOperator('eq')
+                            .setWidth('15%')
+                            .setFormat('{0:n}')
+                            .setCls('column-align-right');
+                                    
         // Setup table
-        this.productTable = new UniTableBuilder('products', false)
-            .setSelectCallback(selectCallback)
-            .setFilterable(false)
-            .setPageSize(25)
-            .addColumns(partNameCol, nameCol, priceCol, statusCol);            
+        this.productTable = new UniTableConfig(false, true, 25)            
+            .setSearchable(true)            
+            .setColumns([partNameCol, nameCol, priceExVatCol, priceIncVatCol]);
     }
 }

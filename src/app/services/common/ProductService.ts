@@ -13,7 +13,7 @@ export class ProductService extends BizHttp<Product> {
         this.DefaultOrderBy = 'PartName';
     }   
         
-    calculatePrice(product: Product): Observable<any> {        
+    public calculatePrice(product: Product): Observable<any> {        
         return this.http
             .usingBusinessDomain()
             .asPOST()
@@ -22,7 +22,18 @@ export class ProductService extends BizHttp<Product> {
             .send();     
     }
     
-    getNewPartname(): Observable<string> {
+    public getNewPartname(): Observable<string> {
         return super.GetAction(null, 'getnewpartname');
+    }
+    
+    public getStatusText(statusCode: number): string {
+        let statusText = ''; 
+        if (!statusCode) {
+            statusText = 'Kladd';
+        } else {
+            statusText = 'Aktiv';
+        }
+        
+        return statusText;
     }
 }
