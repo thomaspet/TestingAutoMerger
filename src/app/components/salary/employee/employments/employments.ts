@@ -105,6 +105,7 @@ export class EmployeeEmployment {
     private cacheSubentitiesAndRefreshData() {
         this.employeeDS.getSubEntities().subscribe((response: any) => {
             this._employmentService.subEntities = response;
+            console.log('subentitites', response);
             this.refreshDatafromModel();
         },
         (err: any) => {
@@ -242,9 +243,11 @@ export class EmployeeEmployment {
     
     public saveEmployment(done) {
         done('Lagrer arbeidsforhold');
+        console.log('arbeidsforhold å lagre', this.currentEmployment);
         if (this.currentEmployment.ID > 0) {
             this._employmentService.Put(this.currentEmployment.ID, this.currentEmployment)
             .subscribe((response: Employment) => {
+                console.log('arbeidsforhold som vart lagret', response);
                 this.currentEmployment = response;
                 done('Sist lagret: ');
             },
