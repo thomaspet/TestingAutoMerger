@@ -45,6 +45,7 @@ export class FileUploadService<T> {
         var $getSlots = this.$http
             .asGET()
             .withDefaultHeaders()
+            .usingBusinessDomain()
             .withEndPoint(`files/${this.entityType}/${entityId}`)
             .send()
             .toPromise()
@@ -60,6 +61,7 @@ export class FileUploadService<T> {
         var $remove = this.$http
             .asDELETE()
             .withDefaultHeaders()
+            .usingBusinessDomain()
             .withEndPoint(`files/${this.entityType}/${entityId}/${slot.ID}`)
             .send()
             .toPromise()
@@ -73,6 +75,7 @@ export class FileUploadService<T> {
         return this.$http
             .asGET()
             .withDefaultHeaders()
+            .usingBusinessDomain()
             .withEndPoint(`files/${this.entityType}/${entityId}/${slotId}?action=download`)
             .send()
             .toPromise();
@@ -127,6 +130,7 @@ export class FileUploadService<T> {
         this.statusText = 'opening slot...';
         return this.$http
             .asPOST()
+            .usingBusinessDomain()
             .withEndPoint(`files/${this.entityType}/${this.entityID}`)
             .withBody(metadata)
             .send()
@@ -148,6 +152,7 @@ export class FileUploadService<T> {
                 r.setRequestHeader('Accept', '*/*');
                 r.setRequestHeader('ContentLength', self.file.size.toString());
                 r.onreadystatechange = () => {
+                    debugger;
                     if (r.readyState === 4 || r.status === 201) {
                         resolve(metadata);
                     }
@@ -162,8 +167,9 @@ export class FileUploadService<T> {
 
     private finalizeFile(response) {
         return this.$http
-            .withDefaultHeaders()
+            .withDefaultHeaders()            
             .asPOST()
+            .usingBusinessDomain()
             .withEndPoint(`files/${this.entityType}/${this.entityID}/${this.slot.ID}?action=finalize`)
             .send()
             .toPromise()
