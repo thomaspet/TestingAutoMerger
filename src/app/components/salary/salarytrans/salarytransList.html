@@ -1,5 +1,5 @@
 <header class="detail_header">
-    <section *ngIf="employee" class="detail_header_info">
+    <section *ngIf="employee" [attr.aria-busy]="busy" class="detail_header_info">
         <h1>{{employee.ID}} - {{employee.BusinessRelationInfo.Name}}</h1>
         <uni-form *ngIf="employee" class="detail_header_info_tableForm" [config]="config" [fields]="fields" [model]="formModel" (onChange)="change($event)" (onReady)="ready($event)"></uni-form>
     </section>

@@ -119,8 +119,8 @@ export class SalaryTransactionSelectionList implements OnInit {
         this.selectedEmployeeID = 0;
     }
 
-    public salarytransAdded(event) {
-        this.disableEmployeeList = event;
+    public salarytransAdded(disableList) {
+        this.disableEmployeeList = disableList;
     }
     
     public saveRun(event: any) {

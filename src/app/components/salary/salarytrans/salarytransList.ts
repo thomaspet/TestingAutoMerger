@@ -161,7 +161,7 @@ export class SalaryTransactionEmployeeList implements OnInit {
         
     }
 
-    public isDirty() {
+    public isDirty(): boolean {
         return (this.salarytransChanged.length > 0);
     }
 
