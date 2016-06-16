@@ -1,4 +1,4 @@
-import {Component, ViewChildren, ViewChild, OnInit} from '@angular/core';
+import {Component, ViewChild, OnInit} from '@angular/core';
 import {UniTable, UniTableColumn, UniTableColumnType, UniTableConfig, IContextMenuItem} from 'unitable-ng2/main';
 import {Router} from '@angular/router-deprecated';
 import {UniHttp} from '../../../../../framework/core/http/http';
@@ -20,8 +20,6 @@ import {PreviewModal} from '../../../reports/modals/preview/previewModal';
 })
 
 export class InvoiceList implements OnInit {
-    @ViewChildren(UniTable) public table: any;
-
     private invoiceTable: UniTableConfig;
     private lookupFunction: (urlParams: URLSearchParams) => any;
 
@@ -70,7 +68,7 @@ export class InvoiceList implements OnInit {
         this.customerInvoiceService.ActionWithBody(modalData.id, modalData.invoice, 'payInvoice').subscribe((journalEntry) => {
             // TODO: Decide what to do here. Popup message or navigate to journalentry ??
             // this.router.navigateByUrl('/sales/invoice/details/' + invoice.ID);
-            alert('Fakturer er betalt. Bilagsnummer: ' + journalEntry.JournalEntryNumber);
+            alert('Faktura er betalt. Bilagsnummer: ' + journalEntry.JournalEntryNumber);
         }, (err) => {
             console.log('Error registering payment: ', err);
             this.log(err);

@@ -30,7 +30,13 @@
 </header>
 
 <section class="invoice-details application">
-    <uni-component-loader></uni-component-loader>
+    <uni-form *ngIf='invoice'
+              [config]="config"
+              [fields]="fields"
+              [model]="invoice"
+              (onChange)="change($event)"
+              (onReady)="ready($event)">
+    </uni-form>
 
     <section class="invoice-items-summary-placeholder" *ngIf="!itemsSummaryData" aria-busy></section>
     <dl class="summary" *ngIf="itemsSummaryData" [attr.aria-busy]="busy">
@@ -58,8 +64,5 @@
 <footer class="full-footer">
     <section class="application" *ngIf="actions">
         <uni-save [actions]="actions"></uni-save>
-        <section class="auto_save_info">
-            {{ lastSavedInfo }}
-        </section>
     </section>
 </footer>

@@ -155,6 +155,7 @@ export class InvoiceItemList implements OnInit {
             })
             .setChangeCallback((event) => {
                 var newRow = event.rowModel;
+                newRow.NumberOfItems = 1;
 
                 // Set GUID if item is new
                 // See: https://unimicro.atlassian.net/wiki/display/AD/Complex+PUT
