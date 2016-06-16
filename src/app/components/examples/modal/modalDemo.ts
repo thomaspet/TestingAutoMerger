@@ -1,11 +1,10 @@
 import {Component, ViewChild, ViewChildren, Type, Input, QueryList} from "@angular/core";
-import {NgIf, NgModel, NgFor} from "@angular/common";
 import {UniModal} from "../../../../framework/modals/modal";
 import {EmailModal,PhoneModal,AddressModal} from "../../sales/customer/modals/modals";
+import {Email, Address, Phone} from '../../../unientities';
 
 @Component({
     selector: "uni-modal-test",
-    directives: [NgIf, NgModel, NgFor],
     template: `
         <article class="modal-content">
             <h1 *ngIf="config.title">{{config.title}}</h1>
@@ -125,15 +124,18 @@ export class UniModalDemo {
         this.modals[1].open();
     }
     
-    openEmailModal() {
-        this.email.openModal();
+    private openEmailModal() {
+        let email: Email = new Email();
+        this.email.openModal(email);
     }
     
-    openPhoneModal() {
-        this.phone.openModal();
+    private openPhoneModal() {
+        let phone: Phone = new Phone();
+        this.phone.openModal(phone);
     }
     
-    openAddressModal() {
-        this.address.openModal();
+    private openAddressModal() {
+        let address: Address = new Address();
+        this.address.openModal(address);
     }
 }

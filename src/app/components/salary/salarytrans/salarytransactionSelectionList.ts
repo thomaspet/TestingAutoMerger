@@ -26,6 +26,7 @@ export class SalaryTransactionSelectionList implements OnInit {
     private employeeList: Employee[] = [];
     public busy: boolean;
     @ViewChild(UniTable) private tables: UniTable;
+    private disableEmployeeList: boolean;
     
     constructor(private uniHttpService: UniHttp,
                 private tabSer: TabService,
@@ -66,7 +67,6 @@ export class SalaryTransactionSelectionList implements OnInit {
                     });
             
                 this.taxcardCol = new UniTableColumn('TaxTable', 'Skattekort', 'string').setHidden(true);
-                // var forpayoutCol = new UniTableColumn('Pay', 'Beløp til utbetaling', 'number');
                 var subEntityCol = new UniTableColumn('SubEntity.BusinessRelationInfo.Name', 'Virksomhet', 'string');
                 this.salarytransSelectionTableConfig = new UniTableBuilder(this.employeeList, false)
                     .setSelectCallback((selEmp) => {
@@ -82,11 +82,10 @@ export class SalaryTransactionSelectionList implements OnInit {
                         this.taxcardCol,
                         subEntityCol,
                         lockedCol
-                        // forpayoutCol
                     );
             }
             this.busy = false;
-            
+            this.disableEmployeeList = false;
         });
     }
     
@@ -100,17 +99,6 @@ export class SalaryTransactionSelectionList implements OnInit {
         }
         return bAccount;
     }
-    
-    // private formatDate(date) {
-    //     if (!date) {
-    //         return '';
-    //     }
-    //     date = new Date(date);
-    //     var day = date.getDate() < 10 ? '0' + date.getDate() : date.getDate();
-    //     var month = (date.getMonth() + 1) < 10 ? '0' + (date.getMonth() + 1) : (date.getMonth() + 1);
-        
-    //     return day + '.' + month + '.' + date.getFullYear();
-    // }
     
     public goToNextEmployee(id) {
         var index = _.findIndex(this.employeeList, x => x.ID === this.selectedEmployeeID);
@@ -130,19 +118,11 @@ export class SalaryTransactionSelectionList implements OnInit {
         this.tableConfig(true, filter);
         this.selectedEmployeeID = 0;
     }
+
+    public salarytransAdded(disableList) {
+        this.disableEmployeeList = disableList;
+    }
     
     public saveRun(event: any) {
-        /*var saveRequest;
-        if (this.payrollRun.ID) {
-            saveRequest = this._payrollRunService.Put(this.payrollRun.ID, this.payrollRun);
-        }else {
-            saveRequest = this._payrollRunService.Post(this.payrollRun);
-        }
-        saveRequest.subscribe((response) => {
-            // TODO save transes
-        });
-        
-        this.savingInfo = 'Sist lagret: ' + (new Date()).toLocaleTimeString(); */
-        // this.tables.refresh(this.employeeList);
     }
 }

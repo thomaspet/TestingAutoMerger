@@ -1,7 +1,8 @@
-import {Component, ViewChildren} from '@angular/core';
-import {UniTable, UniTableBuilder, UniTableColumn} from '../../../../../framework/uniTable';
-import {ComponentInstruction, RouteParams, Router} from '@angular/router-deprecated';
+import {Component, ViewChild} from '@angular/core';
+import {UniTable, UniTableColumn, UniTableColumnType, UniTableConfig} from 'unitable-ng2/main';
+import {Router} from '@angular/router-deprecated';
 import {UniHttp} from '../../../../../framework/core/http/http';
+import {URLSearchParams} from '@angular/http';
 import {CustomerService} from "../../../../services/services";
 import {Customer, BusinessRelation} from "../../../../unientities";
 
@@ -14,34 +15,44 @@ declare var jQuery;
     providers: [CustomerService]
 })
 export class CustomerList {
-    @ViewChildren(UniTable) tables: any;
+    @ViewChild(UniTable) table: any;
     
-    customerTable: UniTableBuilder;
+    private customerTable: UniTableConfig;
+    private lookupFunction: (urlParams: URLSearchParams) => any;
  
     constructor(private uniHttpService: UniHttp, private router: Router, private customerService: CustomerService) {
         this.setupCustomerTable();
     }
     
-    createCustomer() {
+    private createCustomer() {
         this.router.navigateByUrl('/sales/customer/details/0');
     }
 
-    setupCustomerTable() {
-        // Define columns to use in the table
-        var numberCol = new UniTableColumn('CustomerNumber', 'Kundenr', 'number').setWidth('15%');
-        var nameCol = new UniTableColumn('Info.Name', 'Navn', 'string');
-        var orgNoCol = new UniTableColumn('Orgnumber', 'Orgnr', 'string').setWidth('15%');
-                
-        // Define callback function for row clicks
-        var selectCallback = (selectedItem) => {
-            this.router.navigateByUrl('/sales/customer/details/' + selectedItem.ID);
-        }
+    private onRowSelected (event) {
+        this.router.navigateByUrl('/sales/customer/details/' + event.rowModel.ID);
+    };
 
+    private setupCustomerTable() {
+        
+        this.lookupFunction = (urlParams: URLSearchParams) => {
+            let params = urlParams;
+            
+            if (params === null) {
+                params = new URLSearchParams();
+            }
+            
+            return this.customerService.GetAllByUrlSearchParams(params);
+        };
+        
+        // Define columns to use in the table
+        var numberCol = new UniTableColumn('CustomerNumber', 'Kundenr', UniTableColumnType.Text).setWidth('15%').setFilterOperator('contains');
+        var nameCol = new UniTableColumn('Info.Name', 'Navn', UniTableColumnType.Text).setFilterOperator('contains');
+        var orgNoCol = new UniTableColumn('Orgnumber', 'Orgnr', UniTableColumnType.Text).setWidth('15%').setFilterOperator('contains');
+         
         // Setup table
-        this.customerTable = new UniTableBuilder('customers?expand=Info', false)
-            .setSelectCallback(selectCallback)
-            .setFilterable(false)
-            .setPageSize(25)
-            .addColumns(numberCol, nameCol, orgNoCol);            
+        this.customerTable = new UniTableConfig(false, true, 25)            
+            .setSearchable(true)            
+            .setColumns([numberCol, nameCol, orgNoCol]);   
+                     
     }
 }

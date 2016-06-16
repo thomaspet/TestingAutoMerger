@@ -40,7 +40,6 @@ export class AltinnLoginModalContent {
             this.altinn = altinnResponse[0];
             this.resetData();
         });
-
         this.createForm();
     }
 
