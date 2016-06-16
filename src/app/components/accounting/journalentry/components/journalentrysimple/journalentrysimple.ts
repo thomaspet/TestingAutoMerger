@@ -45,6 +45,10 @@ export class JournalEntrySimple implements OnInit, OnChanges {
         if (this.supplierInvoice) {
             this.journalEntryService.getJournalEntryDataBySupplierInvoiceID(this.supplierInvoice.ID)
                 .subscribe(data => {
+                    for(var line in data) {
+                        data[line].FinancialDate = new Date(data[line].FinancialDate);
+                    }
+
                     this.journalEntryLines = data;
                     this.dataLoaded.emit(data);   
                 });
@@ -67,6 +71,9 @@ export class JournalEntrySimple implements OnInit, OnChanges {
         if (this.supplierInvoice) {
             this.journalEntryService.getJournalEntryDataBySupplierInvoiceID(this.supplierInvoice.ID)
                 .subscribe(data => {
+                    for(var line in data) {
+                        data[line].FinancialDate = new Date(data[line].FinancialDate);
+                    }
                     this.journalEntryLines = data;
                 });
         } else {
@@ -207,8 +214,8 @@ export class JournalEntrySimple implements OnInit, OnChanges {
         updatedLine.CreditAccount = this.getAccount(updatedLine['CreditAccountID']);
         updatedLine.DebitVatType = this.getVatType(updatedLine['VatTypeID']);
         
-        if (updatedLine['FinancialDate']) {
-            updatedLine.FinancialDate = new Date(updatedLine['FinancialDate'].toString());           
+        if (updatedLine['FinancialDate'] && typeof updatedLine['FinancialDate'] == 'string') {
+            updatedLine.FinancialDate = new Date(updatedLine['FinancialDate'].toString());         
         }
 
         return updatedLine;

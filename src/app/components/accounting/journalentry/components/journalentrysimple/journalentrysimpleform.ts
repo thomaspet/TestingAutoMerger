@@ -481,7 +481,7 @@ export class JournalEntrySimpleForm implements OnChanges {
         } else {
             this.journalEntryLine.JournalEntryNo = this.journalEntryLine.SameOrNew;
         }
-
+        
         this.updated.emit(this.journalEntryLine);
     }
         
