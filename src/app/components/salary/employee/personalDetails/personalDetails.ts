@@ -27,6 +27,7 @@ export class PersonalDetails {
     @ViewChild(UniForm) public uniform: UniForm;
 
     @ViewChild(ReadTaxCardModal) public taxCardModal: ReadTaxCardModal;
+    @ViewChild(TaxCardRequestModal) public taxCardRequestModal: TaxCardRequestModal;
 
     private employee: Employee;
     
@@ -221,5 +222,9 @@ export class PersonalDetails {
 
     public openReadTaxCardModal() {
         this.taxCardModal.openModal();
+    }
+
+    public openTaxCardRequestModal() {
+        this.taxCardRequestModal.openModal();
     }
 }

@@ -144,7 +144,6 @@ export class TaxCardRequestModalContent {
     selector: 'tax-card-request-modal',
     directives: [UniModal],
     template: `
-        <button type="button" (click)="openModal()">Send forespørsel om skattekort</button>
         <uni-modal [type]="type" [config]="config"></uni-modal>
     `
 })

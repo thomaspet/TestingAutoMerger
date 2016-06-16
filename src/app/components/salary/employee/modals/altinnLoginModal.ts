@@ -138,7 +138,6 @@ export class AltinnLoginModalContent {
                 this.cacheLoginData();
             }
             this._inserver.getAltinnCorrespondence(this.altinn, this.companySettings.OrganizationNumber, this.receiptID).subscribe((response) => {
-                console.log('response altinn: ' + JSON.stringify(response));
                 if (response.authChall && !openingLogin) {
                     if (response.authChall.Status === 0) {
                         this.altinnMessage = response.authChall.Message;
