@@ -192,9 +192,8 @@ export class ProductDetails {
         let typeField: UniFieldLayout = this.fields.find(x => x.Property === 'Type');       
         typeField.Options = {
             displayProperty: 'TypeName',
-            valueProperty: 'ID',
-            dataValueField: 'ID',     
-            dataSource: this.productTypes
+            valueProperty: 'ID',     
+            source: this.productTypes
         };
         
         this.priceExVat =  this.fields.find(x => x.Property === 'PriceExVat');
@@ -205,6 +204,7 @@ export class ProductDetails {
     }
     
     private setupSubscriptions(event) {        
+        
         this.form.field('Description').addClass('max-width', true);
         
         this.form.field('VatTypeID') 
@@ -541,7 +541,7 @@ export class ProductDetails {
                     Property: 'Description',
                     Placement: 4,
                     Hidden: false,
-                    FieldType: 10,
+                    FieldType: 16,
                     ReadOnly: false,
                     LookupField: false,
                     Label: 'Beskrivelse',
