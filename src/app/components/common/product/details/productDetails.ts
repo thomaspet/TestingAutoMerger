@@ -206,20 +206,33 @@ export class ProductDetails {
     private setupSubscriptions(event) {        
         
         this.form.field('Description').addClass('max-width', true);
+        // clone product to force update of uniform to reflect class
+        this.product = _.cloneDeep(this.product);
         
         this.form.field('VatTypeID') 
                 .onChange              
                 .subscribe((data) => {
-                    if(this.product.VatTypeID != data) {
-                        //recalculate when vattype changes also
-                        this.calculateAndUpdatePrice();
+                    // recalculate when vattype changes also
+                    this.calculateAndUpdatePrice();                    
+                });
+                
+        this.form.field('AccountID') 
+                .onChange              
+                .subscribe((data) => {
+                    if (this.product.AccountID) {
+                        // set vattypeid based on account
+                        let account = this.accounts.find(x => x.ID === data.AccountID);
+                        if (account !== null && account.VatTypeID !== null) {
+                            this.product.VatTypeID = account.VatTypeID;
+                            this.product = _.cloneDeep(this.product);  
+                        }
                     }
                 });
 
         this.form.field('PriceExVat')
             .onChange
             .subscribe((data) => {
-                if (!this.product.CalculateGrossPriceBasedOnNetPrice && this.product.PriceExVat !== data) {
+                if (!this.product.CalculateGrossPriceBasedOnNetPrice) {
                     this.calculateAndUpdatePrice();
                 }
             });
@@ -227,7 +240,7 @@ export class ProductDetails {
         this.form.field('PriceIncVat')
             .onChange            
             .subscribe((data) => {
-                if (this.product.CalculateGrossPriceBasedOnNetPrice && this.product.PriceIncVat !== data) {
+                if (this.product.CalculateGrossPriceBasedOnNetPrice) {
                     this.calculateAndUpdatePrice();
                 }
             });
@@ -235,9 +248,7 @@ export class ProductDetails {
         this.form.field('CalculateGrossPriceBasedOnNetPrice')
             .onChange            
             .subscribe((value) => {
-                if (this.product.CalculateGrossPriceBasedOnNetPrice !== value) {
-                    this.showHidePriceFields(value);
-                }
+                this.showHidePriceFields(value);
             });
     }
     
@@ -398,6 +409,34 @@ export class ProductDetails {
                 {
                     ComponentLayoutID: 1,
                     EntityType: 'Product',
+                    Property: 'AccountID',
+                    Placement: 4,
+                    Hidden: false,
+                    FieldType: 0,
+                    ReadOnly: false,
+                    LookupField: false,
+                    Label: 'Hovedbokskonto',
+                    Description: '',
+                    HelpText: '',
+                    FieldSet: 0,
+                    Section: 0,
+                    Placeholder: null,
+                    Options: null,
+                    LineBreak: null,
+                    Combo: null,
+                    Legend: '',
+                    StatusCode: 0,
+                    ID: 5,
+                    Deleted: false,
+                    CreatedAt: null,
+                    UpdatedAt: null,
+                    CreatedBy: null,
+                    UpdatedBy: null,
+                    CustomFields: null 
+                },
+                {
+                    ComponentLayoutID: 1,
+                    EntityType: 'Product',
                     Property: 'VatTypeID',
                     Placement: 4,
                     Hidden: false,
@@ -506,35 +545,7 @@ export class ProductDetails {
                     CreatedBy: null,
                     UpdatedBy: null,
                     CustomFields: null 
-                },
-                {
-                    ComponentLayoutID: 1,
-                    EntityType: 'Product',
-                    Property: 'AccountID',
-                    Placement: 4,
-                    Hidden: false,
-                    FieldType: 0,
-                    ReadOnly: false,
-                    LookupField: false,
-                    Label: 'Hovedbokskonto',
-                    Description: '',
-                    HelpText: '',
-                    FieldSet: 0,
-                    Section: 0,
-                    Placeholder: null,
-                    Options: null,
-                    LineBreak: null,
-                    Combo: null,
-                    Legend: '',
-                    StatusCode: 0,
-                    ID: 5,
-                    Deleted: false,
-                    CreatedAt: null,
-                    UpdatedAt: null,
-                    CreatedBy: null,
-                    UpdatedBy: null,
-                    CustomFields: null 
-                },
+                },                
                 {
                     ComponentLayoutID: 3,
                     EntityType: 'Product',
