@@ -90,18 +90,23 @@ export class InvoiceDetails implements OnInit {
     private nextInvoice() {
         this.customerInvoiceService.next(this.invoice.ID)
             .subscribe((data) => {
-                this.router.navigateByUrl('/sales/invoice/details/' + data.ID);
+                if (data) {
+                    this.router.navigateByUrl('/sales/invoice/details/' + data.ID);
+                }
             });
     }
 
     private previousInvoice() {
         this.customerInvoiceService.previous(this.invoice.ID)
             .subscribe((data) => {
-                this.router.navigateByUrl('/sales/invoice/details/' + data.ID);
+                if (data) {
+                    this.router.navigateByUrl('/sales/invoice/details/' + data.ID);
+                }
             });
     }
 
     private addInvoice() {
+        //TODO sjekk denne...
         this.customerInvoiceService.newCustomerInvoice().then(invoice => {
             this.customerInvoiceService.Post(invoice)
                 .subscribe(
@@ -172,34 +177,25 @@ export class InvoiceDetails implements OnInit {
                     this.invoice = _.cloneDeep(this.invoice);
                 }
             });
-    }
-    //var creditdays: UniFieldBuilder = this.formConfig.find('CreditDays');
-    //creditdays.ready.subscribe((component) => {
-    //    component.config.control.valueChanges.subscribe(days => {
-    //        if (days) {
-    //            this.invoice.PaymentDueDate = moment(this.invoice.InvoiceDate).startOf('day').add(Number(days), 'days').toDate();
-    //            paymentduedate.refresh(this.invoice.PaymentDueDate);
-    //        }
-    //    });
-    //});
 
-    //paymentduedate.ready.subscribe((component) => {
-    //    component.config.control.valueChanges.subscribe(date => {
-    //        if (date) {
-    //            var newdays = moment(date).startOf('day').diff(moment(this.invoice.InvoiceDate).startOf('day'), 'days');
-    //            if (newdays != this.invoice.CreditDays) {
-    //                this.invoice.CreditDays = newdays;
-    //                creditdays.refresh(this.invoice.CreditDays);
-    //            }
-    //        }
-    //    });
-    //});
+        this.form.field('PaymentDueDate')
+            .onChange
+            .subscribe((data) => {
+                if (data.PaymentDueDate) {
+                    var newdays = moment(data.PaymentDueDate).startOf('day').diff(moment(this.invoice.InvoiceDate).startOf('day'), 'days');
+                    if (newdays != this.invoice.CreditDays) {
+                        this.invoice.CreditDays = newdays;
+                        this.invoice = _.cloneDeep(this.invoice);
+                    }
+                }
+            });
+    }
 
     public ngOnInit() {
         this.getLayoutAndData();
     }
 
-    public getLayoutAndData() {
+    private getLayoutAndData() {
         this.fields = this.getComponentLayout().Fields;
 
         Observable.forkJoin(
@@ -602,6 +598,7 @@ export class InvoiceDetails implements OnInit {
     private updateStatusText() {
         //this.statusText = this.customerInvoiceService.getStatusText((this.invoice.StatusCode || '').toString(), this.invoice.InvoiceType);
         this.statusText = this.customerInvoiceService.getStatusText(this.invoice.StatusCode, this.invoice.InvoiceType);
+        //if(TODO...
     }
 
     private IsinvoiceActionDisable() {
