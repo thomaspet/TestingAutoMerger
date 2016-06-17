@@ -9,7 +9,7 @@ export class StimulsoftReportWrapper {
         
     }
             
-    public showReport(template : string, reportData : string[], caller : any)
+    public showReport(template: string, reportData: Object, caller : any)
     {
         if (template && reportData && caller)
         {
@@ -32,7 +32,7 @@ export class StimulsoftReportWrapper {
         }
     }
 
-    public printReport(template: string, reportData: string[], showPreview: boolean) {
+    public printReport(template: string, reportData: Object, showPreview: boolean) {
         
         if (template && reportData) {
             const report = this.generateReport(template, reportData);
@@ -60,21 +60,18 @@ export class StimulsoftReportWrapper {
     }
 
     // these functions should be private in typescript
-    private generateReport(template : string, reportData : string[]) : any {
+    private generateReport(template: string, reportData: Object) : any {
         // load template
         const report = new Stimulsoft.Report.StiReport();
         report.load(template);
 
         // remove connections specified in the template file
         report.dictionary.databases.clear();
-
-        // load report data
-        for (let i = 0; i < reportData.length; ++i) {
-            const dataSet = new Stimulsoft.System.Data.DataSet('Data' + i);
-
-            dataSet.readJson(reportData[i]);
-            report.regData('Data' + i, 'Data' + i, dataSet);
-        }
+        
+        const dataSet = new Stimulsoft.System.Data.DataSet('Data');    
+        dataSet.readJson(reportData);
+        report.regData('Data', 'Data', dataSet);
+              
         // render
         report.render();
         return report;
