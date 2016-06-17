@@ -28,7 +28,6 @@ var VALID_CONTROLS = CONTROLS.filter((x, i) => {
         || i === 16
     );
 });
-console.log(VALID_CONTROLS);
 @Component({
     selector: 'uni-field',
     template: `
@@ -37,7 +36,6 @@ console.log(VALID_CONTROLS);
             [class]="buildClassString()" 
             [class.-has-linebreak]="hasLineBreak()"
             [hidden]="Hidden">
-            
             <span>{{field?.Label}}</span>
 
             <uni-autocomplete-input #selectedComponent *ngIf="field?.FieldType === 0 && control" 
@@ -96,7 +94,7 @@ console.log(VALID_CONTROLS);
     directives: [FORM_DIRECTIVES, VALID_CONTROLS, ShowError],
     providers: [FORM_PROVIDERS],
 })
-export class UniField {
+export class UniField {    
     @Input()
     public controls: ControlGroup;
 
