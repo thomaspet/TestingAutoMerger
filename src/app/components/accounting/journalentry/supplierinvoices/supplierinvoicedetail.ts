@@ -105,7 +105,9 @@ export class SupplierInvoiceDetail implements OnInit {
         if (this.supplierInvoice.ID > 0) {
             
             //save journalentrydata and supplierinvoice - these can be saved separatly here            
-            let journalEntryData = this.journalEntryManual.getJournalEntryData();        
+            let journalEntryData = this.journalEntryManual.getJournalEntryData(); 
+            console.log("== journalentrydata ==");
+            console.log(journalEntryData);       
             this._journalEntryService
                 .saveJournalEntryData(journalEntryData)
                 .subscribe((res) => {                    
