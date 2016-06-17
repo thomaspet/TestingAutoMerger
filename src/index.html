@@ -90,8 +90,11 @@
      ------------------------------------------------------------------------->
     <link rel="stylesheet" href="vendors.bundle.css?v=<%= version %>">
     <link rel="stylesheet" href="main.min.css?v=<%= version %>">
+</head>
 
+<body>
 
+    <uni-app>Loading...</uni-app>
     <!-- SCRIPTS
      ------------------------------------------------------------------------->
     <script src="vendors.bundle.js?v=<%= version %>"></script>
@@ -101,13 +104,6 @@
             System.import('app/bootstrap');
         }).catch(console.error.bind(console));
     </script>
-
-</head>
-
-<body>
-
-    <uni-app>Loading...</uni-app>
-
 </body>
 
 </html>

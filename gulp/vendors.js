@@ -12,10 +12,6 @@ var jsFiles = [
     require.resolve('accounting/accounting.min.js'),
     require.resolve('../kendo/js/kendo.all.min.js'),
 
-    // STIMULSOFT
-    require.resolve('../stimulsoft/Js/stimulsoft.reports.js'),
-    //require.resolve('./stimulsoft/Js/stimulsoft.viewer.js'),
-
     /// MOMENT
     require.resolve('moment/moment.js'),
     require.resolve('moment/locale/en-gb.js'),
@@ -37,7 +33,7 @@ var cssFiles = [
     require.resolve('../kendo/styles/kendo.common.min.css')
 ];
 
-gulp.task('vendors',['vendors.js','vendors.css'])
+gulp.task('vendors', ['vendors.js', 'vendors.css'])
 
 gulp.task('vendors.js', function() {
     gulp.src(jsFiles)
