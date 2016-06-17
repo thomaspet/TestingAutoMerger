@@ -49,12 +49,19 @@ export class BizHttp<T> {
     }
 
     public GetAllByUrlSearchParams<T>(params: URLSearchParams): Observable<any> {
+        // use default orderby for service if no orderby is specified
         if (!params.get('orderby') && this.DefaultOrderBy !== null) {
             params.set('orderby', this.DefaultOrderBy);            
         }
         
+        // use default expands for service if no expand is specified
         if (!params.get('expand') && this.defaultExpand) {
             params.set('expand', this.defaultExpand.join());
+        }
+        
+        // remove empty filters, causes problem on backend
+        if (params.get('filter') === '') {
+            params.delete('filter');
         }
                 
         return this.http
