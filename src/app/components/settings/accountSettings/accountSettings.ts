@@ -21,6 +21,6 @@ export class AccountSettings {
     }
 
     accountSaved(account) {
-        this.accountlist.refresh(account);
+        this.accountlist.refresh();
     }
 }
