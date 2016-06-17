@@ -152,7 +152,7 @@ export class InvoiceDetails implements OnInit {
             //    shippingaddress.refresh(self.businessRelationShipping);
             this.invoice.CustomerName = customer.Info.Name;
             this.invoice = _.cloneDeep(this.invoice);
-        }
+        });
     }
 
     //        self.invoice.Customer = customer;
@@ -165,6 +165,14 @@ export class InvoiceDetails implements OnInit {
     public ready(event) {
         this.form.field('FreeTxt').addClass('max-width', true);
         this.setupSubscriptions(null);
+
+
+        if (this.invoice.StatusCode === StatusCodeCustomerInvoice.Draft) {
+            this.form.editMode();
+        }
+        else {
+            this.form.readMode();
+        }
     }
 
     private setupSubscriptions(event) {
@@ -408,9 +416,9 @@ export class InvoiceDetails implements OnInit {
         });
 
         this.actions.push({
-            label: this.invoiceButtonText, //Fakturer eller Lagre
+            label: this.invoiceButtonText, //Fakturer eller Krediter
             action: (done) => this.saveInvoiceTransition(done, 'invoice'),
-            disabled: this.IsinvoiceActionDisable()
+            disabled: this.IsinvoiceActionDisabled()
         });
 
         this.actions.push({
@@ -421,19 +429,13 @@ export class InvoiceDetails implements OnInit {
 
         this.actions.push({
             label: 'Registrer betaling',
-            action: (done) => {
-                alert('Registrer betaling  - Under construction');
-                done();
-            },
-            disabled: false
+            action: (done) => this.payInvoice(done),
+            disabled: this.IsPayActionDisabled()
         });
 
         this.actions.push({
             label: 'Slett',
-            action: (done) => {
-                alert('Slett  - Under construction');
-                done();
-            },
+            action: (done) => this.deleteInvoice(done),
             disabled: true
         });
     }
@@ -601,7 +603,7 @@ export class InvoiceDetails implements OnInit {
         //if(TODO...
     }
 
-    private IsinvoiceActionDisable() {
+    private IsinvoiceActionDisabled() {
 
         if ((this.invoice.TaxExclusiveAmount === 0) &&
             ((this.itemsSummaryData == null) || (this.itemsSummaryData.SumTotalIncVat === 0))) {
@@ -614,6 +616,14 @@ export class InvoiceDetails implements OnInit {
         }
         return true;
     }
+    private IsPayActionDisabled() {
+        if (this.invoice.StatusCode === StatusCodeCustomerInvoice.Invoiced ||
+            this.invoice.StatusCode === StatusCodeCustomerInvoice.PartlyPaid) {
+            return false;
+        }
+        return true;
+    }
+
 
     private saveAndPrint(done) {
         this.saveInvoice((invoice) => {
@@ -626,6 +636,16 @@ export class InvoiceDetails implements OnInit {
                 }
             });
         });
+    }
+
+    private payInvoice(done) {
+        alert('Registrer betaling  - Under construction');
+        done('Betal faktura');
+    }
+
+    private deleteInvoice(done) {
+        alert('Slett  - Under construction');
+        done('Slett faktura');
     }
 
     private isEmptyAddress(address: Address): boolean {

@@ -2,8 +2,8 @@ import {Component, ViewChild, OnInit} from '@angular/core';
 import {UniTable, UniTableColumn, UniTableColumnType, UniTableConfig, IContextMenuItem} from 'unitable-ng2/main';
 import {Router} from '@angular/router-deprecated';
 import {UniHttp} from '../../../../../framework/core/http/http';
-import {CustomerInvoiceService,ReportDefinitionService} from '../../../../services/services';
-import {StatusCodeCustomerInvoice,CustomerInvoice} from '../../../../unientities';
+import {CustomerInvoiceService, ReportDefinitionService} from '../../../../services/services';
+import {StatusCodeCustomerInvoice, CustomerInvoice} from '../../../../unientities';
 import {URLSearchParams} from '@angular/http';
 import {AsyncPipe} from '@angular/common';
 import {InvoicePaymentData} from '../../../../models/sales/InvoicePaymentData';
@@ -14,8 +14,8 @@ import {PreviewModal} from '../../../reports/modals/preview/previewModal';
 @Component({
     selector: 'invoice-list',
     templateUrl: 'app/components/sales/invoice/list/invoiceList.html',
-    directives: [UniTable,RegisterPaymentModal,PreviewModal],
-    providers: [CustomerInvoiceService,ReportDefinitionService],
+    directives: [UniTable, RegisterPaymentModal, PreviewModal],
+    providers: [CustomerInvoiceService, ReportDefinitionService],
     pipes: [AsyncPipe]
 })
 
@@ -69,6 +69,9 @@ export class InvoiceList implements OnInit {
             // TODO: Decide what to do here. Popup message or navigate to journalentry ??
             // this.router.navigateByUrl('/sales/invoice/details/' + invoice.ID);
             alert('Faktura er betalt. Bilagsnummer: ' + journalEntry.JournalEntryNumber);
+
+            // TODO refresh table:
+            // this.invoiceTable.refreshTableData();
         }, (err) => {
             console.log('Error registering payment: ', err);
             this.log(err);
@@ -109,7 +112,6 @@ export class InvoiceList implements OnInit {
                     );
             },
             disabled: (rowModel) => {
-                // Possible to credit only if status = Invoiced || PartlyPaid || Paid
                 if (rowModel.StatusCode === StatusCodeCustomerInvoice.Invoiced ||
                     rowModel.StatusCode === StatusCodeCustomerInvoice.PartlyPaid ||
                     rowModel.StatusCode === StatusCodeCustomerInvoice.Paid) {
@@ -144,7 +146,7 @@ export class InvoiceList implements OnInit {
                     console.log('== Invoice TRANSITION OK ==');
                     alert('Fakturert OK');
 
-                    // this.table.refresh(); //TODO Refresh and collect data. Not yet implemented fot uniTable
+                    // this.table.refresh(); //TODO Refresh and collect data. Not yet implemented for uniTable
                 }, (err) => {
                     console.log('Error fakturerer: ', err);
                     this.log(err);
@@ -181,8 +183,8 @@ export class InvoiceList implements OnInit {
                 this.reportDefinitionService.getReportByName('Faktura Uten Giro').subscribe((report) => {
                     if (report) {
                         this.previewModal.openWithId(report, invoice.ID);    
-                        //report.parameters = [{Name: 'Id', value: invoice.ID}]; // TEST DOWNLOAD
-                        //this.reportDefinitionService.generateReportPdf(report);                                        
+                        // report.parameters = [{Name: 'Id', value: invoice.ID}]; // TEST DOWNLOAD
+                        // this.reportDefinitionService.generateReportPdf(report);                                        
                     }
                 });
             }
