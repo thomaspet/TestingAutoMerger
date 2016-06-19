@@ -1,1 +1,62 @@
-<p>This is the dashboard</p>
+<header class="dashboard_welcome"
+        *ngIf="!welcomeHidden">
+
+    <h1>Velkommen til Uni&nbsp;Economy</h1>
+
+    <p>Uni Economy er morgendagens økonomisystem fra Uni Micro. Like enkelt å bruke som alltid, tilgjengelig overalt, sikkert, og fullstendig integrert i din arbeidsflyt.</p>
+    <p>Du prøver nå en meget tidlig versjon av systemet, og du vil trolig møte noen feil. <br>Ser du noe, si noe – gi veldig gjerne beskjed til en voksen (prosjektleder) når du ser bugs. 🐛</p>
+
+    <button (click)="hideWelcome()">
+            God kål!
+    </button>
+
+</header>
+
+
+<article class="dashboard_mainFigures">
+
+
+
+    <figure id="debetGraph" class="dashboard_mainFigures_debet"></figure>
+    <figure id="creditGraph" class="dashboard_mainFigures_credit"></figure>
+
+</article>
+
+
+<figure class="dashboard_chart_medium">
+    <canvas id="revenue"></canvas>
+    <figcaption>Omsetning siste måned: 300.000,-</figcaption>
+</figure>
+
+<ol class="dashboard_list recent">
+    <li>
+        <strong>Christina Olsen</strong>
+        behandlet
+        <strong>bilag 123</strong>
+        <time>for 4 minutter siden</time>
+    </li>
+    <li>
+        <strong>Ebba Løset</strong>
+        behandlet
+        <strong>faktura 12</strong>
+        <time>for en time siden</time>
+    </li>
+    <li>
+        <strong>Dina Martinsen</strong>
+        behandlet
+        <strong>ordre 193</strong>
+        <time>for tre timer siden</time>
+    </li>
+    <li>
+        <strong>Ida Wergeland</strong>
+        behandlet
+        <strong>tilbud 87</strong>
+        <time>i går</time>
+    </li>
+    <li>
+        <strong>Tora Thorsen</strong>
+        behandlet
+        <strong>lønnskjøring 3</strong>
+        <time>i går</time>
+    </li>
+</ol>
