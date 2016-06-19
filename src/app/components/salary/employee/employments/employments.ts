@@ -105,7 +105,6 @@ export class EmployeeEmployment {
     private cacheSubentitiesAndRefreshData() {
         this.employeeDS.getSubEntities().subscribe((response: any) => {
             this._employmentService.subEntities = response;
-            console.log('subentitites', response);
             this.refreshDatafromModel();
         },
         (err: any) => {
@@ -114,7 +113,6 @@ export class EmployeeEmployment {
     }
     
     private refreshDatafromModel() {
-        console.log('employment', this.currentEmployment);
         this._employmentService.layout('EmploymentDetails')
         .subscribe((layout: any) => {
             this.fields = layout.Fields;
@@ -233,21 +231,18 @@ export class EmployeeEmployment {
     }
     
     public ready(value) {
-        console.log('form ready', value);
+        // console.log('form ready', value);
     }
     
     public change(value) {
-        console.log('uniform changed', value);
         this.saveactions[0].disabled = false;
     }
     
     public saveEmployment(done) {
         done('Lagrer arbeidsforhold');
-        console.log('arbeidsforhold å lagre', this.currentEmployment);
         if (this.currentEmployment.ID > 0) {
             this._employmentService.Put(this.currentEmployment.ID, this.currentEmployment)
             .subscribe((response: Employment) => {
-                console.log('arbeidsforhold som vart lagret', response);
                 this.currentEmployment = response;
                 done('Sist lagret: ');
             },
