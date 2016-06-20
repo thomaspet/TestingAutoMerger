@@ -19,7 +19,7 @@
     <aside class="regtime_filters">
         <ul>
             <li *ngFor="let filter of filters">
-                <a [ngClass]="{'router-link-active': filter.isSelected}" >{{filter.label}}</a> 
+                <a (click)="onFilterClick(filter)" [ngClass]="{'router-link-active': filter.isSelected}" >{{filter.label}}</a> 
             </li>
         </ul>    
     </aside>

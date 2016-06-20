@@ -101,6 +101,11 @@ export class RegisterTime {
         });   
         
     }
+
+    onFilterClick(filter: {name:string, isSelected:boolean }) {
+        this.filters.forEach((value:any) => value.isSelected = false);
+        filter.isSelected = true;
+    }
     
     filterWorkTypes(txt:string):Observable<any> {
         var list = this.worktypes;  
