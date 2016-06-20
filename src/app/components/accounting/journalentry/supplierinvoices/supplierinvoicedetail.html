@@ -14,7 +14,15 @@
 </header>
 
 <article class="supplier-invoice-detail-form">    
-    <uni-component-loader></uni-component-loader>    
+    <uni-form *ngIf='supplierInvoice'
+        [config]='config'
+        [fields]='fields'
+        [model]='supplierInvoice'
+        
+        (onSubmit)='submit($event)'
+        (onChange)='change($event)'
+        (onReady)='ready($event)'>
+    </uni-form> 
 </article>
 
 <section class="supplier-invoice-detail-booking">
@@ -32,7 +40,5 @@
 </section>
 
 <footer class="full-footer">    
-    <button class="good" (click)="saveSupplierInvoice($event)">Lagre leverandørfaktura</button>
-    <button class="good" (click)="saveAndBook($event)" *ngIf="supplierInvoice && supplierInvoice.ID > 0">Bokfør leverandørfaktura</button>
-    <button (click)="saveAndRunSmartBooking($event)" *ngIf="supplierInvoice && supplierInvoice.ID > 0">Kjør smartbokføring på ny</button>    
+    <uni-save [actions]="actions"></uni-save>
 </footer>
