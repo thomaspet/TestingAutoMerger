@@ -126,8 +126,8 @@ export class EmploymentService extends BizHttp<Employment> {
                 },
                 {
                     ComponentLayoutID: 1,
-                    EntityType: 'Employment.SubEntity.BusinessRelationInfo',
-                    Property: 'Name',
+                    EntityType: 'Employment',
+                    Property: 'SubEntityID',
                     Placement: 7,
                     Hidden: false,
                     FieldType: FieldType.DROPDOWN,
@@ -145,7 +145,7 @@ export class EmploymentService extends BizHttp<Employment> {
                     IsLookUp: false,
                     Options: {
                         source: this.subEntities, 
-                        valueProperty: 'BusinessRelationInfo.ID',
+                        valueProperty: 'ID',
                         displayProperty: 'BusinessRelationInfo.Name'
                     },
                 },

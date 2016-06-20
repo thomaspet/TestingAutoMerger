@@ -90,24 +90,21 @@
      ------------------------------------------------------------------------->
     <link rel="stylesheet" href="vendors.bundle.css?v=<%= version %>">
     <link rel="stylesheet" href="main.min.css?v=<%= version %>">
-
-
-    <!-- SCRIPTS
-     ------------------------------------------------------------------------->
-    <script src="vendors.bundle.js?v=<%= version %>"></script>
-    <script src="app.bundle.js?v=<%= version %>"></script>
-    <script>
-        System.import('system.config.js').then(function() {
-            System.import('app/bootstrap');
-        }).catch(console.error.bind(console));
-    </script>
-
 </head>
 
 <body>
 
     <uni-app>Loading...</uni-app>
-
+    <!-- SCRIPTS
+     ------------------------------------------------------------------------->
+    <script src="vendors.bundle.js?v=<%= version %>"></script>
+    <script src="app.bundle.js?v=<%= version %>"></script>
+    <script>
+        window.ENV = '<%= environment %>';
+        System.import('system.config.js').then(function() {
+            System.import('app/bootstrap');
+        }).catch(console.error.bind(console));
+    </script>
 </body>
 
 </html>

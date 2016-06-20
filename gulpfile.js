@@ -50,6 +50,11 @@ require('./gulp/system-config');
 require('./gulp/unitable');
 
 /**
+ * copy stimulsoft to dist folder
+ */
+require('./gulp/stimulsoft');
+
+/**
  *  copy assets to dist folder
  */
 require('./gulp/assets');
@@ -75,6 +80,7 @@ var tasks = {
         'index.html',
         'angular2',
         'unitable',
+        'stimulsoft',
         'templates',
         'assets',
         'web.config',
@@ -84,6 +90,7 @@ var tasks = {
         'index.html.dev',
         'angular2',
         'unitable',
+        'stimulsoft',
         'templates',
         'assets',
         'web.config',
