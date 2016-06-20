@@ -7,6 +7,7 @@ import {Observable, Observer} from 'rxjs/Rx';
 import {WorkerService, ItemInterval} from '../../../services/timetracking/workerservice';
 import {TimesheetService, TimeSheet, ValueItem} from '../../../services/timetracking/timesheetservice';
 import {UniSave, IUniSaveAction} from '../../../../framework/save/save';
+import {CanDeactivate, ComponentInstruction} from '@angular/router-deprecated';
 
 export var view = new View('regtime', 'Timeregistrering', 'RegisterTime');
 
@@ -25,7 +26,7 @@ interface IFilter {
     directives: [UniTable, UniSave],
     providers: [WorkerService, TimesheetService]
 })
-export class RegisterTime {    
+export class RegisterTime implements CanDeactivate {    
     public view = view;
     @ViewChild(UniTable) private dataTable:UniTable; 
     
@@ -65,20 +66,37 @@ export class RegisterTime {
         this.currentFilter = this.filters[0];
         this.initServiceValues();        
     }
+
+    routerCanDeactivate(next: ComponentInstruction, prev: ComponentInstruction):any {
+        if (this.hasUnsavedChanges()) {
+            if (confirm('Lagre endringer før du fortsetter?')) {
+                return this.saveData();
+            }
+        }
+        return true;
+    }
     
-    save(done) {
-        this.busy = true;
-        var counter = 0;
-        this.timeSheet.saveItems().subscribe((item:WorkItem)=>{            
-            counter++;                
-        }, (err)=>{
-            var msg = this.showErrMsg(err._body || err.statusText, true);
-            done('Feil ved lagring: ' + msg);
-            this.busy = false;            
-        }, ()=>{
-            this.flagUnsavedChanged(true);
-            done(counter + " poster ble lagret.");
-            this.loadItems();
+    save(done?:any) {
+        this.saveData(done);
+    }
+
+    saveData(done?:any) {
+        return new Promise((resolve, reject)=>{
+            this.busy = true;
+            var counter = 0;
+            this.timeSheet.saveItems().subscribe((item:WorkItem)=>{            
+                counter++;                
+            }, (err)=>{
+                var msg = this.showErrMsg(err._body || err.statusText, true);
+                if (done) { done('Feil ved lagring: ' + msg); }
+                this.busy = false;
+                resolve(false);                   
+            }, ()=> {
+                this.flagUnsavedChanged(true);
+                if (done) { done(counter + " poster ble lagret."); }
+                this.loadItems();
+                resolve(true);
+            });
         });
     }
     
@@ -172,6 +190,10 @@ export class RegisterTime {
     
     flagUnsavedChanged(reset = false) {
         this.actions[0].disabled = reset;
+    }
+
+    hasUnsavedChanges():boolean {
+        return !this.actions[0].disabled;
     }
 
     showErrMsg(msg:string, lookForMsg = false):string {
