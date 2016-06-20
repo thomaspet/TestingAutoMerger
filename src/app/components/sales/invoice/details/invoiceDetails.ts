@@ -1,4 +1,4 @@
-import {Component, ComponentRef, Input, ViewChild, OnInit} from '@angular/core';
+import {Component, Input, ViewChild, OnInit} from '@angular/core';
 import {Router, RouteParams, RouterLink} from '@angular/router-deprecated';
 import {Observable} from 'rxjs/Observable';
 import 'rxjs/add/observable/forkJoin';
@@ -7,12 +7,12 @@ import {CustomerInvoiceService, CustomerInvoiceItemService, CustomerService} fro
 import {ProjectService, DepartementService, AddressService, ReportDefinitionService} from '../../../../services/services';
 
 import {UniSave, IUniSaveAction} from '../../../../../framework/save/save';
-import {UniForm, UniField, UniFieldLayout} from '../../../../../framework/uniform';
+import {UniForm, UniFieldLayout} from '../../../../../framework/uniform';
 
 
 import {InvoiceItemList} from './invoiceItemList';
 
-import {ComponentLayout, CustomerInvoice, Customer, Dimensions, Address, BusinessRelation} from '../../../../unientities';
+import {CustomerInvoice, Customer, Dimensions, Address, BusinessRelation} from '../../../../unientities';
 import {StatusCodeCustomerInvoice, FieldType} from '../../../../unientities';
 
 import {AddressModal} from '../../customer/modals/address/address';
@@ -46,7 +46,6 @@ export class InvoiceDetails implements OnInit {
     private lastCustomerInfo: BusinessRelation;
 
     private invoice: CustomerInvoice;
-    //private lastSavedInfo: string;
     private statusText: string;
 
     private itemsSummaryData: TradeHeaderCalculationSummary;
@@ -54,19 +53,10 @@ export class InvoiceDetails implements OnInit {
     private customers: Customer[];
     private dropdownData: any;
 
-    //private formConfig: UniFormBuilder;
-    //private formInstance: UniForm;
-
-    //private whenFormInstance: Promise<UniForm>;
     private emptyAddress: Address;
     private invoiceReference: CustomerInvoice;
     private invoiceButtonText: string = 'Fakturer';
     private recalcTimeout: any;
-
-    //Temp variable to detect changes
-    //private currentCustomerID: number = null;
-
-    //private actions: IUniSaveAction[] = [];
     private actions: IUniSaveAction[];
 
     constructor(private customerService: CustomerService,
@@ -106,7 +96,6 @@ export class InvoiceDetails implements OnInit {
     }
 
     private addInvoice() {
-        //TODO sjekk denne...
         this.customerInvoiceService.newCustomerInvoice().then(invoice => {
             this.customerInvoiceService.Post(invoice)
                 .subscribe(
@@ -125,42 +114,7 @@ export class InvoiceDetails implements OnInit {
         return this.router.isRouteActive(this.router.generate(instruction));
     }
 
-    private change(value: CustomerInvoice) {
-        //console.log('Change:', value);
-        //TODO needs to update specific based on what value has changed. Not supported pr. 16.06.2016
-
-        //if (value.CustomerID != this.currentCustomerID) {
-        //    this.onChangeCustomer();
-        //    this.currentCustomerID = value.CustomerID;
-        //}
-
-        //this.form.field('CreditDays')
-        //    .onReady
-        //    .subscribe((days) => {
-        //        if (days) {
-        //            this.invoice.PaymentDueDate = moment(this.invoice.InvoiceDate).startOf('day').add(Number(days), 'days').toDate();
-        //            this.invoice = _.cloneDeep(this.invoice);
-        //        }
-        //    });
-    }
-
-    private onChangeCustomer() {
-        this.customerService.Get(this.invoice.CustomerID, ['Info', 'Info.Addresses']).subscribe((customer: Customer) => {
-            this.invoice.Customer = customer;
-            this.addAddresses();
-            //this.invoice.invoiceaddress = .refresh(self.businessRelationInvoice);
-            //    shippingaddress.refresh(self.businessRelationShipping);
-            this.invoice.CustomerName = customer.Info.Name;
-            this.invoice = _.cloneDeep(this.invoice);
-        });
-    }
-
-    //        self.invoice.Customer = customer;
-    //        self.addAddresses();
-    //        invoiceaddress.refresh(self.businessRelationInvoice);
-    //        shippingaddress.refresh(self.businessRelationShipping);
-    //        self.invoice.CustomerName = customer.Info.Name;
-
+    private change(value: CustomerInvoice) { }
 
     public ready(event) {
         this.form.field('FreeTxt').addClass('max-width', true);
@@ -169,13 +123,28 @@ export class InvoiceDetails implements OnInit {
 
         if (this.invoice.StatusCode === StatusCodeCustomerInvoice.Draft) {
             this.form.editMode();
-        }
-        else {
+        } else {
             this.form.readMode();
+        }
+
+        if (this.invoice.PaymentDueDate === null) {
+            this.invoice.PaymentDueDate = moment(this.invoice.InvoiceDate).startOf('day').add(Number(this.invoice.CreditDays), 'days').toDate();
         }
     }
 
     private setupSubscriptions(event) {
+        this.form.field('CustomerID')
+            .onChange
+            .subscribe((data) => {
+                if (data) {
+                    this.customerService.Get(this.invoice.CustomerID, ['Info', 'Info.Addresses']).subscribe((customer: Customer) => {
+                        this.invoice.Customer = customer;
+                        this.addAddresses();
+                        this.invoice.CustomerName = customer.Info.Name;
+                        this.invoice = _.cloneDeep(this.invoice);
+                    });
+                }
+            });
 
         this.form.field('CreditDays')
             .onChange
@@ -191,7 +160,7 @@ export class InvoiceDetails implements OnInit {
             .subscribe((data) => {
                 if (data.PaymentDueDate) {
                     var newdays = moment(data.PaymentDueDate).startOf('day').diff(moment(this.invoice.InvoiceDate).startOf('day'), 'days');
-                    if (newdays != this.invoice.CreditDays) {
+                    if (newdays !== this.invoice.CreditDays) {
                         this.invoice.CreditDays = newdays;
                         this.invoice = _.cloneDeep(this.invoice);
                     }
@@ -219,12 +188,12 @@ export class InvoiceDetails implements OnInit {
             this.emptyAddress = response[4];
             this.invoiceReference = response[5];
 
-            //Add a blank item in the dropdown controls
+            // Add a blank item in the dropdown controls
             this.dropdownData[0].unshift(null);
             this.dropdownData[1].unshift(null);
             this.customers.unshift(null);
 
-            if (this.invoice.InvoiceType == 1) {
+            if (this.invoice.InvoiceType === 1) {
                 this.invoiceButtonText = 'Krediter';
             }
             this.updateStatusText();
@@ -232,9 +201,6 @@ export class InvoiceDetails implements OnInit {
             this.updateSaveActions();
             this.extendFormConfig();
 
-            //setTimeout(() => {
-            //    this.ready();
-            //});
         }, (err) => {
             console.log('Error retrieving data: ', err);
             alert('En feil oppsto ved henting av data: ' + JSON.stringify(err));
@@ -244,35 +210,7 @@ export class InvoiceDetails implements OnInit {
 
 
     private extendFormConfig() {
-        var paymentduedate: UniFieldLayout = this.fields.find(x => x.Property === 'PaymentDueDate');
-        //TK TODO?? paymentduedate.hasLineBreak(true);
-
-        var deliverydate: UniFieldLayout = this.fields.find(x => x.Property === 'DeliveryDate');
-        //TK TODO?? deliverydate.hasLineBreak(true);
-
-        // TODO remove .ready when functionality is available later on
-
-        //TK TODO::
-        //var creditdays: UniFieldBuilder = this.formConfig.find('CreditDays');
-        //creditdays.ready.subscribe((component) => {
-        //    component.config.control.valueChanges.subscribe(days => {
-        //        if (days) {
-        //            this.invoice.PaymentDueDate = moment(this.invoice.InvoiceDate).startOf('day').add(Number(days), 'days').toDate();
-        //            paymentduedate.refresh(this.invoice.PaymentDueDate);
-        //        }
-        //    });
-        //});
-        //paymentduedate.ready.subscribe((component) => {
-        //    component.config.control.valueChanges.subscribe(date => {
-        //        if (date) {
-        //            var newdays = moment(date).startOf('day').diff(moment(this.invoice.InvoiceDate).startOf('day'), 'days');
-        //            if (newdays != this.invoice.CreditDays) {
-        //                this.invoice.CreditDays = newdays;
-        //                creditdays.refresh(this.invoice.CreditDays);
-        //            }
-        //        }
-        //    });
-        //});
+        // TODO Insert line breaks were needed 
 
         var departement: UniFieldLayout = this.fields.find(x => x.Property === 'Dimensions.DepartementID');
         departement.Options = {
@@ -293,7 +231,7 @@ export class InvoiceDetails implements OnInit {
 
         var invoiceaddress: UniFieldLayout = this.fields.find(x => x.Property === 'InvoiceAddress');
 
-        //TODO: Gjennomgang med Kjetil
+        // TODO: Gjennomgang med Kjetil
         invoiceaddress.Options = {
             entity: Address,
             listProperty: 'Customer.Info.Addresses',
@@ -318,8 +256,8 @@ export class InvoiceDetails implements OnInit {
             }
         };
 
-        //var invoiceaddress: UniFieldBuilder = this.formConfig.find('InvoiceAddress');
-        //invoiceaddress
+        // var invoiceaddress: UniFieldBuilder = this.formConfig.find('InvoiceAddress');
+        // invoiceaddress
         //    .setKendoOptions({
         //        dataTextField: 'AddressLine1',
         //        dataValueField: 'ID',
@@ -330,10 +268,10 @@ export class InvoiceDetails implements OnInit {
         //    //  .setModelDefaultField('InvoiceAddressID')           
         //    .setPlaceholder(this.emptyAddress)
         //    .setEditor(AddressModal);
-        //invoiceaddress.onSelect = (address: Address) => {
+        // invoiceaddress.onSelect = (address: Address) => {
         //    this.addressToInvoice(address);
         //    this.businessRelationInvoice.Addresses[0] = address;
-        //};
+        // };
 
         var shippingaddress: UniFieldLayout = this.fields.find(x => x.Property === 'ShippingAddress');
         shippingaddress.Options = {
@@ -359,9 +297,9 @@ export class InvoiceDetails implements OnInit {
                 return displayVal;
             }
         };
-        //TK TODO: 
-        //var shippingaddress: UniFieldBuilder = this.formConfig.find('ShippingAddress');
-        //shippingaddress
+        // TK TODO: 
+        // var shippingaddress: UniFieldBuilder = this.formConfig.find('ShippingAddress');
+        // shippingaddress
         //    .setKendoOptions({
         //        dataTextField: 'AddressLine1',
         //        dataValueField: 'ID',
@@ -372,10 +310,10 @@ export class InvoiceDetails implements OnInit {
         //    //    .setModelDefaultField('ShippingAddressID')
         //    .setPlaceholder(this.emptyAddress)
         //    .setEditor(AddressModal);
-        //shippingaddress.onSelect = (address: Address) => {
+        // shippingaddress.onSelect = (address: Address) => {
         //    this.addressToShipping(address);
         //    this.businessRelationShipping.Addresses[0] = address;
-        //};
+        // };
 
         var customer: UniFieldLayout = this.fields.find(x => x.Property === 'CustomerID');
         customer.Options = {
@@ -384,25 +322,6 @@ export class InvoiceDetails implements OnInit {
             displayProperty: 'Info.Name',
             debounceTime: 200
         };
-
-        //var customer: UniFieldBuilder = this.formConfig.find('CustomerID');
-        //customer
-        //    .setKendoOptions({
-        //        dataTextField: 'Info.Name',
-        //        dataValueField: 'ID',
-        //        dataSource: this.customers
-        //    });
-
-        //TK TODO??
-        //customer.onSelect = function (customerID) {
-        //    self.customerService.Get(customerID, ['Info', 'Info.Addresses']).subscribe((customer: Customer) => {
-        //        self.invoice.Customer = customer;
-        //        self.addAddresses();
-        //        invoiceaddress.refresh(self.businessRelationInvoice);
-        //        shippingaddress.refresh(self.businessRelationShipping);
-        //        self.invoice.CustomerName = customer.Info.Name;
-        //    });
-        //};
     }
 
     private updateSaveActions() {
@@ -542,12 +461,14 @@ export class InvoiceDetails implements OnInit {
                 console.log('== TRANSITION OK ' + transition + ' ==');
                 this.router.navigateByUrl('/sales/invoice/details/' + this.invoice.ID);
 
-                this.customerInvoiceService.Get(invoice.ID, ['Dimensions', 'Items', 'Items.Product', 'Items.VatType', 'Customer', 'Customer.Info', 'Customer.Info.Addresses']).subscribe((invoice) => {
-                    this.invoice = invoice;
-                    this.updateStatusText();
-                    this.updateSaveActions();
-                });
-                done();
+                this.customerInvoiceService.Get(invoice.ID, ['Dimensions', 'Items', 'Items.Product', 'Items.VatType', 'Customer',
+                    'Customer.Info', 'Customer.Info.Addresses']).subscribe((data) => {
+                        this.invoice = data;
+                        this.updateStatusText();
+                        this.updateSaveActions();
+                        this.ready(null);
+                    });
+                done('Fakturert');
             }, (err) => {
                 console.log('Feil oppstod ved ' + transition + ' transition', err);
                 done('Feilet');
@@ -558,13 +479,11 @@ export class InvoiceDetails implements OnInit {
 
     private saveInvoiceManual(done) {
         this.saveInvoice((invoice => {
-            done("Lagret");
+            done('Lagret');
         }));
     }
 
     private saveInvoice(cb = null, transition = '') {
-        //this.formInstance.sync();
-        //this.lastSavedInfo = 'Lagrer faktura...';
         this.invoice.TaxInclusiveAmount = -1; // TODO in AppFramework, does not save main entity if just items have changed
 
         if (transition == 'invoice' && this.invoice.DeliveryDate == null) {
@@ -576,12 +495,9 @@ export class InvoiceDetails implements OnInit {
             this.invoice.Dimensions['_createguid'] = this.customerInvoiceService.getNewGuid();
         }
 
-        //TK TODO : According to customer
-
         this.customerInvoiceService.Put(this.invoice.ID, this.invoice)
             .subscribe(
             (invoice: CustomerInvoice) => {
-                //this.lastSavedInfo = 'Sist lagret: ' + (new Date()).toLocaleTimeString();
                 this.invoice = invoice;
                 this.updateStatusText();
                 this.updateSaveActions();
@@ -598,19 +514,14 @@ export class InvoiceDetails implements OnInit {
     }
 
     private updateStatusText() {
-        //this.statusText = this.customerInvoiceService.getStatusText((this.invoice.StatusCode || '').toString(), this.invoice.InvoiceType);
         this.statusText = this.customerInvoiceService.getStatusText(this.invoice.StatusCode, this.invoice.InvoiceType);
-        //if(TODO...
     }
 
     private IsinvoiceActionDisabled() {
-
         if ((this.invoice.TaxExclusiveAmount === 0) &&
             ((this.itemsSummaryData == null) || (this.itemsSummaryData.SumTotalIncVat === 0))) {
             return true;
         }
-
-        //return this.invoice._links.transitions.invoice; //Links available??
         if (this.invoice.StatusCode === StatusCodeCustomerInvoice.Draft) {
             return false;
         }
@@ -640,12 +551,12 @@ export class InvoiceDetails implements OnInit {
 
     private payInvoice(done) {
         alert('Registrer betaling  - Under construction');
-        done('Betal faktura');
+        done('Betalt faktura');
     }
 
     private deleteInvoice(done) {
         alert('Slett  - Under construction');
-        done('Slett faktura');
+        done('Slettet faktura');
     }
 
     private isEmptyAddress(address: Address): boolean {
@@ -917,7 +828,7 @@ export class InvoiceDetails implements OnInit {
                     CustomFields: null
                 },
                 {
-                    //Vår referanse
+                    // Vår referanse
                     ComponentLayoutID: 3,
                     EntityType: 'CustomerInvoice',
                     Property: 'OurReference',
@@ -946,7 +857,7 @@ export class InvoiceDetails implements OnInit {
                     CustomFields: null
                 },
                 {
-                    //Deres referanse
+                    // Deres referanse
                     ComponentLayoutID: 3,
                     EntityType: 'CustomerInvoice',
                     Property: 'YourReference',
@@ -975,7 +886,7 @@ export class InvoiceDetails implements OnInit {
                     CustomFields: null
                 },
                 {
-                    //Rekvisisjon
+                    // Rekvisisjon
                     ComponentLayoutID: 3,
                     EntityType: 'CustomerInvoice',
                     Property: 'Requisition',

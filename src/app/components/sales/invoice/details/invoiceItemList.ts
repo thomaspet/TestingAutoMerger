@@ -4,7 +4,7 @@ import 'rxjs/add/observable/forkJoin';
 import {Router} from '@angular/router-deprecated';
 import {UniTable, UniTableColumn, UniTableColumnType, UniTableConfig} from 'unitable-ng2/main';
 import {ProductService, VatTypeService, CustomerInvoiceItemService} from '../../../../services/services';
-import {CustomerInvoice, CustomerInvoiceItem, Product, VatType} from '../../../../unientities';
+import {CustomerInvoice, CustomerInvoiceItem, Product, VatType, StatusCodeCustomerInvoice} from '../../../../unientities';
 
 declare var jQuery;
 
@@ -64,7 +64,9 @@ export class InvoiceItemList implements OnInit {
 
     private mapProductToInvoiceItem(rowModel) {
         let product = rowModel['Product'];
-        if (product === null) return;
+        if (product === null) {
+            return;
+        }
 
         rowModel.ProductID = product.ID;
         rowModel.ItemText = product.Name;
@@ -134,7 +136,9 @@ export class InvoiceItemList implements OnInit {
         let sumVatCol = new UniTableColumn('SumVat', 'Mva', UniTableColumnType.Number, false);
         let sumTotalIncVatCol = new UniTableColumn('SumTotalIncVat', 'Sum ink. mva', UniTableColumnType.Number, false);
 
-        this.invoiceItemTable = new UniTableConfig()
+        let editable = this.invoice.StatusCode === StatusCodeCustomerInvoice.Draft;
+
+        this.invoiceItemTable = new UniTableConfig(editable)
             .setColumns([
                 productCol, itemTextCol, unitCol, numItemsCol,
                 exVatCol, discountPercentCol, discountCol, vatTypeCol,
@@ -155,28 +159,31 @@ export class InvoiceItemList implements OnInit {
             })
             .setChangeCallback((event) => {
                 var newRow = event.rowModel;
-                newRow.NumberOfItems = 1;
 
                 // Set GUID if item is new
                 // See: https://unimicro.atlassian.net/wiki/display/AD/Complex+PUT
                 if (newRow.ID === 0) {
                     newRow._createguid = this.customerInvoiceItemService.getNewGuid();
                     newRow.Dimensions._createguid = this.customerInvoiceItemService.getNewGuid();
-                }
 
+                    // Default antall for ny rad
+                    if (newRow.NumberOfItems === null) {
+                        newRow.NumberOfItems = 1;
+                    }
+                }
                 if (event.field === 'Product') {
                     this.mapProductToInvoiceItem(newRow);
                 }
 
                 this.calculatePriceIncVat(newRow);
                 this.calculateDiscount(newRow);
-                
+
                 // Return the updated row to the table
                 return newRow;
             });
 
     }
-    
+
     private rowChanged(event) {
         console.log('row changed, calculate sums');
         var tableData = this.table.getTableData();

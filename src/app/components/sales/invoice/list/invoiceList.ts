@@ -25,16 +25,17 @@ export class InvoiceList implements OnInit {
 
     @ViewChild(RegisterPaymentModal)
     private registerPaymentModal: RegisterPaymentModal;
-    
-    @ViewChild(PreviewModal)
-    private previewModal: PreviewModal;
+
+    @ViewChild(PreviewModal) private previewModal: PreviewModal;
+
+    @ViewChild(UniTable) private table: UniTable;
 
     private summaryData: InvoiceSummary;
 
     constructor(private uniHttpService: UniHttp,
-                private router: Router,
-                private customerInvoiceService: CustomerInvoiceService,
-                private reportDefinitionService: ReportDefinitionService) {
+        private router: Router,
+        private customerInvoiceService: CustomerInvoiceService,
+        private reportDefinitionService: ReportDefinitionService) {
 
         this.setupInvoiceTable();
     }
@@ -42,7 +43,7 @@ export class InvoiceList implements OnInit {
     private log(err) {
         alert(err._body);
     }
-    
+
     public ngOnInit() {
         this.setupInvoiceTable();
         this.onFiltersChange('');
@@ -59,7 +60,7 @@ export class InvoiceList implements OnInit {
                     console.log('Error creating invoice: ', err);
                     this.log(err);
                 }
-            );
+                );
         });
     }
 
@@ -69,9 +70,7 @@ export class InvoiceList implements OnInit {
             // TODO: Decide what to do here. Popup message or navigate to journalentry ??
             // this.router.navigateByUrl('/sales/invoice/details/' + invoice.ID);
             alert('Faktura er betalt. Bilagsnummer: ' + journalEntry.JournalEntryNumber);
-
-            // TODO refresh table:
-            // this.invoiceTable.refreshTableData();
+            this.table.refreshTableData();
         }, (err) => {
             console.log('Error registering payment: ', err);
             this.log(err);
@@ -134,19 +133,16 @@ export class InvoiceList implements OnInit {
 
         contextMenuItems.push({
             label: '-------------',
-            action: () => {}
+            action: () => { }
         });
 
         contextMenuItems.push({
             label: 'Fakturer',
             action: (rowModel) => {
-                alert('Fakturer action');
-
                 this.customerInvoiceService.Transition(rowModel.ID, rowModel, 'invoice').subscribe(() => {
                     console.log('== Invoice TRANSITION OK ==');
                     alert('Fakturert OK');
-
-                    // this.table.refresh(); //TODO Refresh and collect data. Not yet implemented for uniTable
+                    this.table.refreshTableData();
                 }, (err) => {
                     console.log('Error fakturerer: ', err);
                     this.log(err);
@@ -155,7 +151,7 @@ export class InvoiceList implements OnInit {
             disabled: (rowModel) => {
                 if (rowModel.TaxInclusiveAmount === 0) {
                     // Must have saved at minimum 1 item related to the invoice 
-                    return true; 
+                    return true;
                 }
                 return !rowModel._links.transitions.invoice;
             }
@@ -172,9 +168,25 @@ export class InvoiceList implements OnInit {
 
                 this.registerPaymentModal.openModal(rowModel.ID, title, invoiceData);
             },
+
+            //TODO: Benytt denne når _links fungerer
+            //disabled: (rowModel) => {
+            //    return !rowModel._links.transitions.pay;
+            //    }
+
             disabled: (rowModel) => {
-                return !rowModel._links.transitions.pay;
+                if (rowModel.StatusCode === StatusCodeCustomerInvoice.Invoiced ||
+                    rowModel.StatusCode === StatusCodeCustomerInvoice.PartlyPaid) {
+                    return false;
+                } else {
+                    return true;
+                }
             }
+        });
+
+        contextMenuItems.push({
+            label: '-------------',
+            action: () => { }
         });
 
         contextMenuItems.push({
@@ -182,7 +194,7 @@ export class InvoiceList implements OnInit {
             action: (invoice: CustomerInvoice) => {
                 this.reportDefinitionService.getReportByName('Faktura Uten Giro').subscribe((report) => {
                     if (report) {
-                        this.previewModal.openWithId(report, invoice.ID);    
+                        this.previewModal.openWithId(report, invoice.ID);
                         // report.parameters = [{Name: 'Id', value: invoice.ID}]; // TEST DOWNLOAD
                         // this.reportDefinitionService.generateReportPdf(report);                                        
                     }
@@ -230,19 +242,19 @@ export class InvoiceList implements OnInit {
             .setColumns([invoiceNumberCol, customerNumberCol, customerNameCol, invoiceDateCol, dueDateCol,
                 taxInclusiveAmountCol, restAmountCol, creditedAmountCol, statusCol])
             .setContextMenu(contextMenuItems);
-    }  
-    
+    }
+
     private onRowSelected(item) {
         this.router.navigateByUrl(`/sales/invoice/details/${item.ID}`);
     }
-    
-    public onFiltersChange(filter: string) {        
+
+    public onFiltersChange(filter: string) {
         this.customerInvoiceService
             .getInvoiceSummary(filter)
             .subscribe((summary) => {
                 this.summaryData = summary;
             },
-            (err) => { 
+            (err) => {
                 console.log('Error retrieving summarydata:', err);
                 this.summaryData = null;
             });

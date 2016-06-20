@@ -723,7 +723,7 @@ export class CompanySettings implements OnInit {
     public syncAS() {
         console.log('SYNKRONISER KONTOPLAN');
         this.accountService
-            .PutAction(0, 'synchronize-ns4102-as')            
+            .PutAction(null, 'synchronize-ns4102-as')            
             .subscribe(
                 (response: any) => {
                     alert('Kontoplan synkronisert for AS');
@@ -735,7 +735,7 @@ export class CompanySettings implements OnInit {
     public syncVat() {
         console.log('SYNKRONISER MVA');
         this.vatTypeService
-            .PutAction(0, 'synchronize')
+            .PutAction(null, 'synchronize')
             .subscribe(
                 (response: any) => {
                     alert('VatTypes synkronisert');
