@@ -20,7 +20,16 @@ export interface IUniSaveAction {
                 </time>
             </p>
 
-            <div role="group" class="comboButton">
+            <div *ngIf="actions.length === 1" class="singleButton">
+                <button *ngIf="actions.length === 1"
+                        (click)="onSave(actions[0])"
+                        [attr.aria-busy]="busy"
+                        [disabled]="actions[0].disabled">
+                    {{actions[0].label}}
+                </button>
+            </div>
+
+            <div *ngIf="actions.length > 1" role="group" class="comboButton">
                 <button class="comboButton_btn"
                         type="button"
                         (click)="onSave(mainAction())"
@@ -45,11 +54,10 @@ export interface IUniSaveAction {
     `,
     host: {
         '(click)': 'onClick($event)',
-        '(document:click)': 'offClick()'
+        '(document:click)': 'offClick()',
+        '(keydown.esc)': 'escapePressed()'
     }
 })
-
-
 export class UniSave {
     @Input() public actions: IUniSaveAction[];
     @Output() public save: EventEmitter<any> = new EventEmitter();
@@ -58,14 +66,10 @@ export class UniSave {
     private busy: boolean = false;
     private status: {message: string, when: Date};
 
-    constructor() {
-        document.addEventListener('keyup', (event) => {
-            if (event.keyCode === 27) {
-                this.open = false;
-            }
-        });
+    private escapePressed() {
+        this.open = false;
     }
-    
+
     private onClick(event) {
         event.stopPropagation();
     }
