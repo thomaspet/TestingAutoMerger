@@ -1,4 +1,4 @@
-﻿<nav class="navbar_hamburger">
+﻿<nav class="navbar_hamburger" [ngClass]="{'is-active': open}">
     <ul class="navbar_menu">
         <li *ngFor="let componentList of availableComponents; let i = index" class="listElement" [ngClass]="{true:'is-active', false:''}[i==0]">
             {{componentList.componentListName}}
