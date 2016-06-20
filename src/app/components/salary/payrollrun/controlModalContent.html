@@ -3,19 +3,17 @@
 
     <header class="payrollControl_header">
         <h3>Hovedtall for lønnsavregningen: </h3>
-        <uni-form *ngIf="formConfig" [config]="formConfig"></uni-form>
+        <uni-form [config]="formConfig" [fields]="fields" [model]="model"></uni-form>
     </header>
 
     <ol *ngIf="payList" class="payrollControl_payList">
-        <li *ngFor="let payLine of payList; let index = index"
-            class="payrollControll_payee"
-            [ngClass]="{'-is-expanded':!payList[index].collapsed}">
+        <li *ngFor="let payLine of payList; let index = index" class="payrollControll_payee" [ngClass]="{'-is-expanded':!payList[index].collapsed}">
 
             <h4 (click)="toggleCollapsed(index)">{{payLine.employeeInfo.name}}, Netto utbetalt: {{payLine.employeeInfo.payment}}
                 <em title="Mangler skattekort" class="-is-missing-info" *ngIf="!payLine.employeeInfo.hasTaxInfo"></em>
             </h4>
 
-            <uni-table [config]="payLine.salaryTransactions" *ngIf="!payList[index].collapsed"></uni-table>
+            <uni-table [resource]="payLine.paymentLine" [config]="tableConfig" *ngIf="!payList[index].collapsed"></uni-table>
 
         </li>
     </ol>
