@@ -68,20 +68,11 @@ export class RegisterTime implements CanDeactivate {
     }
 
     routerCanDeactivate(next: ComponentInstruction, prev: ComponentInstruction):any {
-        if (this.hasUnsavedChanges()) {
-            if (confirm('Lagre endringer før du fortsetter?')) {
-                return this.saveData();
-            }
-        }
-        return true;
-    }
-    
-    save(done?:any) {
-        this.saveData(done);
+        return this.checkSave();
     }
 
-    saveData(done?:any) {
-        return new Promise((resolve, reject)=>{
+    save(done?:any) {
+        return new Promise((resolve, reject) => {
             this.busy = true;
             var counter = 0;
             this.timeSheet.saveItems().subscribe((item:WorkItem)=>{            
@@ -97,6 +88,24 @@ export class RegisterTime implements CanDeactivate {
                 this.loadItems();
                 resolve(true);
             });
+        });
+    }
+
+    checkSave():Promise<boolean> {
+        return new Promise((resolve, reject) => {
+            if (this.hasUnsavedChanges()) {
+                if (confirm('Lagre endringer før du fortsetter?')) {
+                    this.save().then((success:boolean) => {
+                        if (success) {
+                            resolve(true);
+                        } else {
+                            reject();
+                        }
+                    });
+                    return;
+                }
+            } 
+            resolve(true);
         });
     }
     
@@ -130,11 +139,13 @@ export class RegisterTime implements CanDeactivate {
     }
 
     onFilterClick(filter: IFilter) {
-        this.filters.forEach((value:any) => value.isSelected = false);        
-        filter.isSelected = true;
-        this.currentFilter = filter;
-        this.busy = true;
-        this.loadItems();
+        this.checkSave().then(() => {
+            this.filters.forEach((value:any) => value.isSelected = false);        
+            filter.isSelected = true;
+            this.currentFilter = filter;
+            this.busy = true;
+            this.loadItems();
+        });
     }
     
     filterWorkTypes(txt:string):Observable<any> {
