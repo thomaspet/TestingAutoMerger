@@ -36,9 +36,18 @@ export class RegisterTime {
             { name: 'vacation', label: 'Ferie', counter: 22 },
             { name: 'offtime', label: 'Fravær', counter: 4 },
             ];    
+
+    filters = [
+        { name: 'today', label: 'I dag', isSelected: true},
+        { name: 'week', label: 'Denne uke'},
+        { name: 'month', label: 'Denne måned'},
+        { name: 'months', label: 'Siste 2 måneder'},
+        { name: 'year', label: 'Dette år'},
+        { name: 'all', label: 'Alt'}
+    ];
             
     private actions: IUniSaveAction[] = [ 
-            { label: 'Lagre', action: (done)=>this.save(done), main: true, disabled: true }
+            { label: 'Lagre', action: (done) => this.save(done), main: true, disabled: true }
         ];            
 
     constructor(private tabService: TabService, private workerService:WorkerService, private timesheetService: TimesheetService) {
