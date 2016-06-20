@@ -5,6 +5,7 @@ import {Observable } from 'rxjs/Observable';
 import {SubEntityService } from '../services';
 import {IntegrationServerCaller} from './IntegrationServerCaller';
 import {Injectable} from '@angular/core';
+import {TaxCardReading} from '../../models/models';
 
 // @Injectable()
 export class AltinnService extends BizHttp<Altinn> {
@@ -30,6 +31,10 @@ export class AltinnService extends BizHttp<Altinn> {
     
     public sendTaxRequestAction(option: string, empId: number = 0): Observable<AltinnReceipt> {
         return this.PostAction(1, 'sendtaxrequest', 'option=' + option + '&empId=' + empId);
+    }
+    
+    public readTaxCard(taxCardReading: TaxCardReading) {
+        return this.http.usingBusinessDomain().withEndPoint('taxcardreader').asPOST().withBody(taxCardReading).send();
     }
 
 

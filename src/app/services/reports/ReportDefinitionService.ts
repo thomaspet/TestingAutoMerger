@@ -111,10 +111,12 @@ export class ReportDefinitionService extends BizHttp<ReportDefinition>{
     }
     
     private onDataFetched(data: any) {
-        let dataSources = [];
-        
-        for (const dataSource of data) {
-            dataSources.push(JSON.stringify(dataSource));
+        let dataSources = {};
+            
+        let i = 0;
+        for (let i = 0; i < data.length; i++) {
+            let name = this.report.dataSources[i].Name;
+            dataSources[name] = data[i];            
         }
         
         if (this.format === 'html') {

@@ -39,6 +39,7 @@ export class TaxCardRequestModalContent {
     }
 
     private initialize() {
+        this.busy = true;
         this.sendAltinnVisible = true;
         this.title = 'Send forespørsel om skattekort';
         this.exitButton = 'Avbryt';
@@ -106,7 +107,7 @@ export class TaxCardRequestModalContent {
         this.busy = true;
         this.uniform.Hidden = true;
         this.sendAltinnVisible = false;
-        this._altinnService.sendTaxRequestAction(option, empId).subscribe((response: AltinnReceipt) => {
+        this._altinnService.sendTaxRequestAction(option, empId).subscribe((response: AltinnReceipt) => { // TODO: remove orgnumber when we switch over from test altinn
             if (response.ErrorText) {
                 this.title = 'Feil angående Altinn forespørsel';
                 this.error = 'feilmelding fra altinn: ' + response.ErrorText;
@@ -134,7 +135,6 @@ export class TaxCardRequestModalContent {
     }
 
     public close() {
-        this.busy = true;
         this.initialize();
         this.uniform.Hidden = false;
     }
@@ -144,7 +144,6 @@ export class TaxCardRequestModalContent {
     selector: 'tax-card-request-modal',
     directives: [UniModal],
     template: `
-        <button type="button" (click)="openModal()">Send forespørsel om skattekort</button>
         <uni-modal [type]="type" [config]="config"></uni-modal>
     `
 })
@@ -158,7 +157,6 @@ export class TaxCardRequestModal {
 
     constructor(private rootRouteParams: RootRouteParamsService) {
         this.employeeID = +rootRouteParams.params.get('id');
-        var self = this;
         this.config = {
             hasCancelButton: true,
             cancel: () => {
@@ -169,14 +167,14 @@ export class TaxCardRequestModal {
 
             },
             employeeID: this.employeeID
-    };
-}
+        };
+    }
 
     public openModal() {
     this.modal.getContent().then((modalContent: TaxCardRequestModalContent) => {
         this.modal.open();
     });
-}
+    }
 
 
 }

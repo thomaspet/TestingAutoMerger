@@ -42,7 +42,7 @@
                         {{line.JournalEntryNo || "Ingen"}}
                     </td>
                     <td class="-isImportant">
-                        {{line.FinancialDate != '0001-01-01T00:00:00' && line.FinancialDate != null && line.FinancialDate.toISOString() != '0001-01-01T00:00:00.000Z' ? line.FinancialDate.toLocaleDateString() : ""}}
+                        {{getFinancialDateString(line)}}
                     </td>
                     <td class="simpleTable_multiline">
                         <dl>
