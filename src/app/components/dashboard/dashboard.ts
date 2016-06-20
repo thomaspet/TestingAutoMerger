@@ -1,6 +1,7 @@
 import {Component} from '@angular/core';
 import {TabService} from '../layout/navbar/tabstrip/tabService';
 declare var Chart;
+declare var moment;
 
 @Component({
   selector: 'uni-dashboard',
@@ -12,16 +13,10 @@ export class Dashboard {
 
     constructor(private tabService: TabService) {
         this.tabService.addTab({name: 'Dashboard', url: '/'});
-
-        let data = this.generateRandomGraphData(10);
-        console.log(data);
-
+        Chart.defaults.global.maintainAspectRatio = false;
     }
 
     public ngAfterViewInit() {
-
-        Chart.defaults.global.maintainAspectRatio = false;
-
         let revCanvas = document.getElementById('revenue');
         let revChart = new Chart(revCanvas, {
             type: 'line',
@@ -30,6 +25,24 @@ export class Dashboard {
                 datasets: [{
                     data: [12, 19, 3, 5, 2, 3]
                 }]
+            }
+        });
+
+        let debetCanvas = document.getElementById('debetGraph');
+        let debetChart = new Chart(debetCanvas, {
+            type: 'line',
+            data: {
+                datasets: [{
+                    data: this.generateRandomGraphData(75, 175000, 10000, 750),
+                    lineTension: 0
+                }]
+            },
+            options: {
+                scales: {
+                    xAxes: [{
+                        type: 'time'
+                    }]
+                }
             }
         });
 
@@ -45,9 +58,9 @@ export class Dashboard {
     }
 
     public generateRandomGraphData(
-        numberOfDataPoints = 75,
+        numberOfDataPoints = 10,
         startValue = 175000,
-        maxValueVariance = 10000,
+        maxValueVariance = 1000,
         trend = 0,
         startDate = new Date(2016, 1, 1),
         endDate = new Date()
@@ -55,18 +68,24 @@ export class Dashboard {
 
         let _data = [];
 
+        // Add random dates
         for (var index = 0; index < numberOfDataPoints; index++) {
+            _data.push({x: this.generateRandomDateTime(startDate, endDate)});
+        }
 
+        // Sort the dates
+        _data.sort((a, b) => {
+            return a.x - b.x;
+        });
+
+        // Add values
+        _data.forEach((datapoint, index) => {
             let _currentMin = startValue - maxValueVariance + (trend * index);
             let _currentMax = startValue + maxValueVariance + (trend * index);
+            let _currentVal = Math.floor(Math.random() * (_currentMax - _currentMin + 1)) + _currentMin;
+            datapoint.y = _currentVal;
+        });
 
-            console.log('min ' + _currentMin + '. Max: ' + _currentMax);
-
-            _data.push({
-                x: this.generateRandomDateTime(startDate, endDate),
-                value: Math.floor(Math.random() * (_currentMax - _currentMin + 1)) + _currentMin
-            });
-        }
         return _data;
     }
 
