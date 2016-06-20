@@ -451,34 +451,6 @@ export class SupplierInvoiceDetail implements OnInit {
                     CreatedBy: null,
                     UpdatedBy: null,
                     CustomFields: null
-                },
-                {
-                    ComponentLayoutID: 2,
-                    EntityType: 'SupplierInvoice',
-                    Property: 'PaymentInformation',
-                    Placement: 4,
-                    Hidden: false,
-                    FieldType: FieldType.TEXT,
-                    ReadOnly: false,
-                    LookupField: false,
-                    Label: 'Betalingsinformasjon',
-                    Description: '',
-                    HelpText: '',
-                    FieldSet: 0,
-                    Section: 0,
-                    Placeholder: null,
-                    Options: null,
-                    LineBreak: null,
-                    Combo: null,
-                    Legend: '',
-                    StatusCode: 0,
-                    ID: 4,
-                    Deleted: false,
-                    CreatedAt: null,
-                    UpdatedAt: null,
-                    CreatedBy: null,
-                    UpdatedBy: null,
-                    CustomFields: null
                 }
             ]
         };

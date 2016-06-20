@@ -213,8 +213,8 @@ export class JournalEntrySimple implements OnInit, OnChanges {
         updatedLine.CreditAccount = this.getAccount(updatedLine['CreditAccountID']);
         updatedLine.DebitVatType = this.getVatType(updatedLine['VatTypeID']);
         
-        if (updatedLine['FinancialDate']) {
-            updatedLine.FinancialDate = new Date(updatedLine['FinancialDate'].toString());           
+        if (updatedLine['FinancialDate'] && typeof updatedLine['FinancialDate'] == 'string') {
+            updatedLine.FinancialDate = new Date(updatedLine['FinancialDate'].toString());         
         }
         
         if (this.supplierInvoice) {
