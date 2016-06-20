@@ -45,6 +45,9 @@ export class JournalEntrySimple implements OnInit, OnChanges {
         if (this.supplierInvoice) {
             this.journalEntryService.getJournalEntryDataBySupplierInvoiceID(this.supplierInvoice.ID)
                 .subscribe(data => {
+                    for(var line in data) {
+                       data[line].FinancialDate = new Date(data[line].FinancialDate);
+                    }
                     this.journalEntryLines = data;
                     this.dataLoaded.emit(data);   
                 });
@@ -67,6 +70,9 @@ export class JournalEntrySimple implements OnInit, OnChanges {
         if (this.supplierInvoice) {
             this.journalEntryService.getJournalEntryDataBySupplierInvoiceID(this.supplierInvoice.ID)
                 .subscribe(data => {
+                    for(var line in data) {
+                       data[line].FinancialDate = new Date(data[line].FinancialDate);
+                    }
                     this.journalEntryLines = data;
                 });
         } else {
@@ -210,7 +216,11 @@ export class JournalEntrySimple implements OnInit, OnChanges {
         if (updatedLine['FinancialDate']) {
             updatedLine.FinancialDate = new Date(updatedLine['FinancialDate'].toString());           
         }
-
+        
+        if (this.supplierInvoice) {
+            updatedLine.JournalEntryID = this.supplierInvoice.JournalEntryID;
+        }
+        
         return updatedLine;
     }
 
@@ -231,5 +241,9 @@ export class JournalEntrySimple implements OnInit, OnChanges {
 
         
         this.dataChanged.emit(this.journalEntryLines);
+    }
+    
+    private getFinancialDateString(line : JournalEntryData) : string {
+        return line.FinancialDate != null && line.FinancialDate.toISOString() != '0001-01-01T00:00:00.000Z' ? line.FinancialDate.toLocaleDateString() : "";
     }
 }
