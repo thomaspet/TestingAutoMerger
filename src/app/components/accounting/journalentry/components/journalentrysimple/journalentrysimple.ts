@@ -242,4 +242,8 @@ export class JournalEntrySimple implements OnInit, OnChanges {
         
         this.dataChanged.emit(this.journalEntryLines);
     }
+    
+    private getFinancialDateString(line : JournalEntryData) : string {
+        return line.FinancialDate != null && line.FinancialDate.toISOString() != '0001-01-01T00:00:00.000Z' ? line.FinancialDate.toLocaleDateString() : "";
+    }
 }
