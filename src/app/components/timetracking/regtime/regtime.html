@@ -16,6 +16,7 @@
         </ul>    
     </aside>
 
+
     <aside class="regtime_filters">
         <ul>
             <li *ngFor="let filter of filters">
@@ -25,7 +26,7 @@
     </aside>
 
     <section [attr.aria-busy]="busy" >
-        
+
         <uni-table [resource]="timeSheet.items" [config]="tableConfig"></uni-table>
     
     </section>

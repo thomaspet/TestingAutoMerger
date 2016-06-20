@@ -4,13 +4,20 @@ import {View} from '../../../models/view/view';
 import {Worker, WorkRelation, WorkProfile, WorkItem, WorkType} from '../../../unientities';
 import {UniTable, UniTableColumn, UniTableConfig, UniTableColumnType, IContextMenuItem} from 'unitable-ng2/main';
 import {Observable, Observer} from 'rxjs/Rx';
-import {WorkerService} from '../../../services/timetracking/workerservice';
+import {WorkerService, ItemInterval} from '../../../services/timetracking/workerservice';
 import {TimesheetService, TimeSheet, ValueItem} from '../../../services/timetracking/timesheetservice';
 import {UniSave, IUniSaveAction} from '../../../../framework/save/save';
 
 export var view = new View('regtime', 'Timeregistrering', 'RegisterTime');
 
 declare var moment;
+
+interface IFilter {
+    name: string;
+    label: string;
+    isSelected?: boolean;
+    interval: ItemInterval;
+}
 
 @Component({
     selector: view.name,
@@ -28,6 +35,7 @@ export class RegisterTime {
     private worktypes:Array<WorkType> = [];  
     private workRelations:Array<WorkRelation> = [];
     private timeSheet: TimeSheet = new TimeSheet();
+    private currentFilter: { name:string, interval: ItemInterval };
     
     tabs = [ { name: 'timeentry', label: 'Timer', isSelected: true },
             { name: 'totals', label: 'Totaler' },
@@ -37,13 +45,13 @@ export class RegisterTime {
             { name: 'offtime', label: 'Fravær', counter: 4 },
             ];    
 
-    filters = [
-        { name: 'today', label: 'I dag', isSelected: true},
-        { name: 'week', label: 'Denne uke'},
-        { name: 'month', label: 'Denne måned'},
-        { name: 'months', label: 'Siste 2 måneder'},
-        { name: 'year', label: 'Dette år'},
-        { name: 'all', label: 'Alt'}
+    filters: Array<IFilter> = [
+        { name: 'today', label: 'I dag', isSelected: true, interval: ItemInterval.today },
+        { name: 'week', label: 'Denne uke', interval: ItemInterval.thisWeek},
+        { name: 'month', label: 'Denne måned', interval: ItemInterval.thisMonth},
+        { name: 'months', label: 'Siste 2 måneder', interval: ItemInterval.lastTwoMonths},
+        { name: 'year', label: 'Dette år', interval: ItemInterval.thisYear},
+        { name: 'all', label: 'Alt', interval: ItemInterval.all}
     ];
             
     private actions: IUniSaveAction[] = [ 
@@ -54,6 +62,7 @@ export class RegisterTime {
         this.tabService.addTab({ name: view.label, url: view.route });
         this.userName = workerService.user.name;
         this.tableConfig = this.createTableConfig();
+        this.currentFilter = this.filters[0];
         this.initServiceValues();        
     }
     
@@ -75,7 +84,7 @@ export class RegisterTime {
     
     loadItems() {
         if (this.timeSheet.currentRelation && this.timeSheet.currentRelation.ID) {
-            this.timeSheet.loadItems().subscribe((itemCount:number)=>{
+            this.timeSheet.loadItems(this.currentFilter.interval).subscribe((itemCount:number)=>{
                 this.busy = false;
                 this.tableConfig = this.createTableConfig();
                 this.actions[0].disabled = true;
@@ -102,9 +111,12 @@ export class RegisterTime {
         
     }
 
-    onFilterClick(filter: {name:string, isSelected:boolean }) {
-        this.filters.forEach((value:any) => value.isSelected = false);
+    onFilterClick(filter: IFilter) {
+        this.filters.forEach((value:any) => value.isSelected = false);        
         filter.isSelected = true;
+        this.currentFilter = filter;
+        this.busy = true;
+        this.loadItems();
     }
     
     filterWorkTypes(txt:string):Observable<any> {

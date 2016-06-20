@@ -1,6 +1,6 @@
 import {Injectable, Inject, Component} from '@angular/core';
 import {WorkItem, Worker, WorkRelation, WorkProfile} from '../../unientities';
-import {WorkerService} from './workerService';
+import {WorkerService, ItemInterval} from './workerService';
 import {Observable, Observer} from "rxjs/Rx";
 import {parseTime, toIso, addTime, parseDate, ChangeMap} from '../../components/timetracking/utils/utils';
 declare var moment;
@@ -15,9 +15,9 @@ export class TimeSheet {
     items: Array<WorkItem | any> = [];
     changeMap = new ChangeMap();
     
-    loadItems():Observable<number> {
+    loadItems(interval?:ItemInterval):Observable<number> {
         this.changeMap.clear();
-        var obs = this.ts.getWorkItems(this.currentRelation.ID);
+        var obs = this.ts.getWorkItems(this.currentRelation.ID, interval);
         return <Observable<number>>obs.flatMap((items:WorkItem[]) => {
             this.items = items; 
             return Observable.of(items.length);
@@ -124,8 +124,8 @@ export class TimesheetService {
         return ts;
     }
     
-    public getWorkItems(workRelationID:number): Observable<WorkItem[]> {
-        return this.workerService.getWorkItems(workRelationID);
+    public getWorkItems(workRelationID:number, interval?:ItemInterval): Observable<WorkItem[]> {
+        return this.workerService.getWorkItems(workRelationID, interval);
     }
     
     public saveWorkItems(items:WorkItem[], deletables?:WorkItem[]): Observable<{ original:WorkItem, saved:WorkItem }> {
