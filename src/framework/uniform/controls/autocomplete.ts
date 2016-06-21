@@ -92,8 +92,6 @@ export class UniAutocompleteInput {
     private options: any;
     private source: BizHttp<any> | Array<any>;
     private lastValue: any;
-    private selected: any;
-    private results: any[];
     private query: string;
     private value: string;
 
@@ -117,7 +115,7 @@ export class UniAutocompleteInput {
         // Perform initial lookup to get display value
         this.getInitialDisplayValue(this.control.value)
             .subscribe(result => {
-                const displayValue = _.get(result[0], this.field.Options.displayProperty)
+                const displayValue = _.get(result[0], this.field.Options.displayProperty);
                 this.control.updateValue(displayValue || '', {emitEvent: false});
             });
 
