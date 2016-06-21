@@ -4,13 +4,21 @@ import {View} from '../../../models/view/view';
 import {Worker, WorkRelation, WorkProfile, WorkItem, WorkType} from '../../../unientities';
 import {UniTable, UniTableColumn, UniTableConfig, UniTableColumnType, IContextMenuItem} from 'unitable-ng2/main';
 import {Observable, Observer} from 'rxjs/Rx';
-import {WorkerService} from '../../../services/timetracking/workerservice';
+import {WorkerService, ItemInterval} from '../../../services/timetracking/workerservice';
 import {TimesheetService, TimeSheet, ValueItem} from '../../../services/timetracking/timesheetservice';
 import {UniSave, IUniSaveAction} from '../../../../framework/save/save';
+import {CanDeactivate, ComponentInstruction} from '@angular/router-deprecated';
 
 export var view = new View('regtime', 'Timeregistrering', 'RegisterTime');
 
 declare var moment;
+
+interface IFilter {
+    name: string;
+    label: string;
+    isSelected?: boolean;
+    interval: ItemInterval;
+}
 
 @Component({
     selector: view.name,
@@ -18,7 +26,7 @@ declare var moment;
     directives: [UniTable, UniSave],
     providers: [WorkerService, TimesheetService]
 })
-export class RegisterTime {    
+export class RegisterTime implements CanDeactivate {    
     public view = view;
     @ViewChild(UniTable) private dataTable:UniTable; 
     
@@ -28,6 +36,7 @@ export class RegisterTime {
     private worktypes:Array<WorkType> = [];  
     private workRelations:Array<WorkRelation> = [];
     private timeSheet: TimeSheet = new TimeSheet();
+    private currentFilter: { name:string, interval: ItemInterval };
     
     tabs = [ { name: 'timeentry', label: 'Timer', isSelected: true },
             { name: 'totals', label: 'Totaler' },
@@ -36,37 +45,73 @@ export class RegisterTime {
             { name: 'vacation', label: 'Ferie', counter: 22 },
             { name: 'offtime', label: 'Fravær', counter: 4 },
             ];    
+
+    filters: Array<IFilter> = [
+        { name: 'today', label: 'I dag', isSelected: true, interval: ItemInterval.today },
+        { name: 'week', label: 'Denne uke', interval: ItemInterval.thisWeek},
+        { name: 'month', label: 'Denne måned', interval: ItemInterval.thisMonth},
+        { name: 'months', label: 'Siste 2 måneder', interval: ItemInterval.lastTwoMonths},
+        { name: 'year', label: 'Dette år', interval: ItemInterval.thisYear},
+        { name: 'all', label: 'Alt', interval: ItemInterval.all}
+    ];
             
     private actions: IUniSaveAction[] = [ 
-            { label: 'Lagre', action: (done)=>this.save(done), main: true, disabled: true }
+            { label: 'Lagre', action: (done) => this.save(done), main: true, disabled: true }
         ];            
 
     constructor(private tabService: TabService, private workerService:WorkerService, private timesheetService: TimesheetService) {
         this.tabService.addTab({ name: view.label, url: view.route });
         this.userName = workerService.user.name;
         this.tableConfig = this.createTableConfig();
+        this.currentFilter = this.filters[0];
         this.initServiceValues();        
     }
-    
-    save(done) {
-        this.busy = true;
-        var counter = 0;
-        this.timeSheet.saveItems().subscribe((item:WorkItem)=>{            
-            counter++;                
-        }, (err)=>{
-            var msg = this.showErrMsg(err._body || err.statusText, true);
-            done('Feil ved lagring: ' + msg);
-            this.busy = false;            
-        }, ()=>{
-            this.flagUnsavedChanged(true);
-            done(counter + " poster ble lagret.");
-            this.loadItems();
+
+    routerCanDeactivate(next: ComponentInstruction, prev: ComponentInstruction):any {
+        return this.checkSave();
+    }
+
+    save(done?:any) {
+        return new Promise((resolve, reject) => {
+            this.busy = true;
+            var counter = 0;
+            this.timeSheet.saveItems().subscribe((item:WorkItem)=>{            
+                counter++;                
+            }, (err)=>{
+                var msg = this.showErrMsg(err._body || err.statusText, true);
+                if (done) { done('Feil ved lagring: ' + msg); }
+                this.busy = false;
+                resolve(false);                   
+            }, ()=> {
+                this.flagUnsavedChanged(true);
+                if (done) { done(counter + " poster ble lagret."); }
+                this.loadItems();
+                resolve(true);
+            });
+        });
+    }
+
+    checkSave():Promise<boolean> {
+        return new Promise((resolve, reject) => {
+            if (this.hasUnsavedChanges()) {
+                if (confirm('Lagre endringer før du fortsetter?')) {
+                    this.save().then((success:boolean) => {
+                        if (success) {
+                            resolve(true);
+                        } else {
+                            reject();
+                        }
+                    });
+                    return;
+                }
+            } 
+            resolve(true);
         });
     }
     
     loadItems() {
         if (this.timeSheet.currentRelation && this.timeSheet.currentRelation.ID) {
-            this.timeSheet.loadItems().subscribe((itemCount:number)=>{
+            this.timeSheet.loadItems(this.currentFilter.interval).subscribe((itemCount:number)=>{
                 this.busy = false;
                 this.tableConfig = this.createTableConfig();
                 this.actions[0].disabled = true;
@@ -91,6 +136,16 @@ export class RegisterTime {
             this.showErrMsg("errors in getworktypes!");
         });   
         
+    }
+
+    onFilterClick(filter: IFilter) {
+        this.checkSave().then(() => {
+            this.filters.forEach((value:any) => value.isSelected = false);        
+            filter.isSelected = true;
+            this.currentFilter = filter;
+            this.busy = true;
+            this.loadItems();
+        });
     }
     
     filterWorkTypes(txt:string):Observable<any> {
@@ -146,6 +201,10 @@ export class RegisterTime {
     
     flagUnsavedChanged(reset = false) {
         this.actions[0].disabled = reset;
+    }
+
+    hasUnsavedChanges():boolean {
+        return !this.actions[0].disabled;
     }
 
     showErrMsg(msg:string, lookForMsg = false):string {
