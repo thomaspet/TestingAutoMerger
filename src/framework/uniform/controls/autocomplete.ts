@@ -123,7 +123,7 @@ export class UniAutocompleteInput {
             .debounceTime(this.options.debounceTime || 250)
             .filter((input: string) => {
                 this.lookupResults = [];
-                return (this.control.dirty && input.length >= (this.options.minLength || 1));
+                return (this.control.dirty && input.length >= (this.options.minLength || 0));
             })
             .switchMap((input: string) => {
                 this.busy = true;
