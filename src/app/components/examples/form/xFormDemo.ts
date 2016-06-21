@@ -47,6 +47,7 @@ export class XFormDemo {
             numericTest.Label = 'Numeric Input test';
             numericTest.Property = 'NumericTestProperty';
             numericTest.ReadOnly = false;
+            numericTest.LineBreak = true;
             numericTest.Options = {
                 step: 1
             };
