@@ -1,10 +1,12 @@
 import {Component, ViewChild} from '@angular/core';
 import {RouteParams, Router} from '@angular/router-deprecated';
 import {WageTypeService} from '../../../services/services';
-import {UniForm} from '../../../../framework/uniForm';
+import {UniForm, UniFieldLayout} from '../../../../framework/uniForm';
 import {WageType} from '../../../unientities';
 import {UniSave, IUniSaveAction} from '../../../../framework/save/save';
 import {Observable} from 'rxjs/Observable';
+
+declare var _; // lodash
 
 @Component({
     selector: 'wagetype-details',
@@ -28,9 +30,6 @@ export class WagetypeDetail {
     @ViewChild(UniForm) public uniform: UniForm;
     
     constructor(private routeparams: RouteParams, private router: Router, private wageService: WageTypeService) {
-        this.config = {
-            submitText: ''
-        };
         this.wagetypeID = +this.routeparams.get('id');
         this.getLayoutAndData();
     }
@@ -44,21 +43,39 @@ export class WagetypeDetail {
                 let [wagetype, layout] = response;
                 
                 this.wageType = wagetype;
+
                 if (this.wageType.ID === 0) {
                     this.wageType.WageTypeId = null;
                     this.wageType.AccountNumber = null;
                 }
                 
                 this.fields = layout.Fields;
+
+                this.config = {
+                    submitText: ''
+                };
+                this.toggleAccountNumberBalanceHidden();
             }
         );
     }
+
+    private toggleAccountNumberBalanceHidden() {
+        let accountNumberBalance: UniFieldLayout = this.findByProperty(this.fields, 'AccountNumber_balance');
+        if (accountNumberBalance.Hidden !== this.wageType.Base_Payment) {
+            accountNumberBalance.Hidden = this.wageType.Base_Payment;
+            this.fields = _.cloneDeep(this.fields);
+            setTimeout(() => {
+                this.uniform.section(1).toggle();
+            }, 100);
+        }
+    }
+
     public ready(value) {
-        console.log('form ready', value);
+        
     }
     
     public change(value) {
-        console.log('uniform changed', value);
+        this.toggleAccountNumberBalanceHidden();
         this.saveactions[0].disabled = false;
     }
     
@@ -85,6 +102,11 @@ export class WagetypeDetail {
                 console.log('Feil ved lagring av lønnsart', err);
             });
         }
+    }
+
+    private findByProperty(fields, name) {
+        var field = fields.find((fld) => fld.Property === name);
+        return field; 
     }
     
     public previousWagetype() {

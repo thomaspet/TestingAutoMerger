@@ -13,7 +13,7 @@ let taxType: Array<any> = [
     {ID: TaxType.Tax_None, Name: 'Ingen'},
     {ID: TaxType.Tax_Table, Name: 'Tabelltrekk'},
     {ID: TaxType.Tax_Percent, Name: 'Prosenttrekk'},
-    {ID: TaxType.Tax_0, Name: '...'}
+    {ID: TaxType.Tax_0, Name: 'Trekkplikt uten skattetrekk'}
 ];
 
 // let rateType: Array<any> = [
@@ -174,7 +174,7 @@ export class WageTypeService extends BizHttp<WageType> {
                     Property: 'Base_Vacation',
                     Placement: 1,
                     Hidden: false,
-                    FieldType: FieldType.MULTISELECT,
+                    FieldType: 5,
                     ReadOnly: false,
                     LookupField: false,
                     Label: 'Grunnlag Feriepenger',
@@ -202,7 +202,7 @@ export class WageTypeService extends BizHttp<WageType> {
                     Property: 'Base_EmploymentTax',
                     Placement: 1,
                     Hidden: false,
-                    FieldType: FieldType.MULTISELECT,
+                    FieldType: 5,
                     ReadOnly: false,
                     LookupField: false,
                     Label: 'Grunnlag aga',
@@ -230,7 +230,7 @@ export class WageTypeService extends BizHttp<WageType> {
                     Property: 'Base_div1',
                     Placement: 1,
                     Hidden: false,
-                    FieldType: FieldType.MULTISELECT,
+                    FieldType: 5,
                     ReadOnly: false,
                     LookupField: false,
                     Label: 'Grunnlag pensjon',
@@ -258,7 +258,7 @@ export class WageTypeService extends BizHttp<WageType> {
                     Property: 'Base_Payment',
                     Placement: 1,
                     Hidden: false,
-                    FieldType: FieldType.MULTISELECT,
+                    FieldType: 5,
                     ReadOnly: false,
                     LookupField: false,
                     Label: 'Utbetales',
@@ -300,8 +300,10 @@ export class WageTypeService extends BizHttp<WageType> {
                     Sectionheader: '',
                     Options: {
                         source: taxType,
+                        template: (obj) => obj.Name,
                         displayProperty: 'Name',
-                        valueProperty: 'ID'
+                        valueProperty: 'ID',
+                        debounceTime: 500
                     },
                     hasLineBreak: false,
                     // Validations: [
@@ -350,7 +352,7 @@ export class WageTypeService extends BizHttp<WageType> {
                     Property: 'HideFromPaycheck',
                     Placement: 1,
                     Hidden: false,
-                    FieldType: FieldType.MULTISELECT,
+                    FieldType: 5,
                     ReadOnly: false,
                     LookupField: false,
                     Label: 'Skjul på lønnslipp',
