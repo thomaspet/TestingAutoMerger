@@ -151,7 +151,7 @@ export class SupplierInvoiceList implements OnInit {
                 {
                     label: 'Registerer betaling',
                     action: supplierInvoice => {
-                        const title = `Register betaling, Faktura ${supplierInvoice.InvoiceNumber || ''}, ${supplierInvoice.InvoiceRecieverName || ''}`;
+                        const title = `Register betaling${supplierInvoice.InvoiceNumber ? ', Faktura ' + supplierInvoice.InvoiceNumber : ''}${supplierInvoice.InvoiceRecieverName ? ', ' + supplierInvoice.InvoiceRecieverName : ''}`;
                         const invoiceData: InvoicePaymentData = {
                             Amount: supplierInvoice.TaxInclusiveAmount,
                             PaymentDate: new Date()

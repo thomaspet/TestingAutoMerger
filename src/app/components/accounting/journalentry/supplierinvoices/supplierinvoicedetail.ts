@@ -1,7 +1,7 @@
 import {Component, Input, OnInit, ViewChild, ComponentRef} from '@angular/core';
 import {Router, RouteParams, RouterLink} from '@angular/router-deprecated';
 
-import { Observable } from 'rxjs/Observable';
+import {Observable} from 'rxjs/Observable';
 
 import {SupplierInvoiceService, SupplierService, BankAccountService, JournalEntryService} from '../../../../services/services';
 
@@ -91,7 +91,7 @@ export class SupplierInvoiceDetail implements OnInit {
             (err) => console.log('Error refreshing view: ', err));
     }
     private getStatusText() {
-        return this._supplierInvoiceService.getStatusText(this.supplierInvoice.StatusCode.toString());
+        return this._supplierInvoiceService.getStatusText((this.supplierInvoice.StatusCode || '').toString());
     }
     private loadFormAndData() {
         let id = this.invoiceId;
@@ -363,5 +363,16 @@ export class SupplierInvoiceDetail implements OnInit {
     
     private onFileUploaded(slot) {
         this.previewId = slot.ID;
+    }
+    
+    private submit(data) {      
+    }
+    
+    private change(data) {
+        
+    }
+    
+    private ready(data) {
+        
     }
 }

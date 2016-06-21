@@ -4,7 +4,9 @@
             <h2 class="poster_toolbar_headline">
                 Leverandørfakturanr {{supplierInvoice.InvoiceNumber}}, {{supplierInvoice.Supplier.Info.Name}}                                    
             </h2>
-            <p *ngIf="supplierInvoice.JournalEntry != null">Status: {{getStatusText()}}, bilagsnr: {{supplierInvoice.JournalEntry.JournalEntryNumber != null ? supplierInvoice.JournalEntry.JournalEntryNumber : 'Bilag ikke bokført' }}</p>
+            <p>
+                Status: {{getStatusText()}}<span *ngIf="supplierInvoice.JournalEntry != null">, bilagsnr: {{supplierInvoice.JournalEntry.JournalEntryNumber != null ? supplierInvoice.JournalEntry.JournalEntryNumber : 'Bilag ikke bokført' }}</span>
+            </p>
         </span>
         <h2 class="poster_toolbar_headline" *ngIf="invoiceId == 0">
             Ny leverandørfaktura
