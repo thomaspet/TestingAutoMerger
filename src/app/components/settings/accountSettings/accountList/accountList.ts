@@ -30,9 +30,7 @@ export class AccountList {
         this.uniAccountChange.emit(event.rowModel.ID);
     };
 
-    public refresh(account: Account) {
-        console.log('DO REFRESH OF TABLE');
-        console.log(account);
+    public refresh() {
         this.table.refreshTableData();
     }
 
@@ -66,7 +64,8 @@ export class AccountList {
             .setFilterOperator('contains');
 
 
-        let vatTypeCol = new UniTableColumn('VatType.VatCode', 'Mvakode/sats', UniTableColumnType.Text)
+        let vatTypeCol = new UniTableColumn('VatType.VatCode', 'Mva', UniTableColumnType.Text)
+            .setWidth('7rem')
             .setTemplate((account: Account) => {
                 if (account.VatType !== null) {
                     return account.VatType.VatCode + ' - ' + account.VatType.VatPercent + '%';
@@ -79,16 +78,24 @@ export class AccountList {
         let lockedCol = new UniTableColumn('', 'Synlig/låst',  UniTableColumnType.Text)
             .setFilterable(false)
             .setCls('icon-column')
-            /*.setTemplate('#if(Visible) {#<span class='is-visible' role='presentation'>Visible</span>#} ' +
-                'else {#<span class='is-hidden' role='presentation'>Hidden</span>#}# ' +
-                '#if(Locked) {#<span class='is-locked' role='presentation'>Locked</span>#} ' +
-                'else {#<span class='is-unlocked' role='presentation'>Unlocked</span>#}#'
-            )*/
+            .setTemplate((rowModel: Account) => {
+                let iconsHtml = '';
+                if (rowModel.Visible) {
+                    iconsHtml += '<span class="is-visible" role="presentation">Visible</span>';
+                } else {
+                    iconsHtml += '<span class="is-hidden" role="presentation">Hidden</span>';
+                } 
+                if (rowModel.Locked) {
+                    iconsHtml += '<span class="is-locked" role="presentation">Locked</span>';
+                } else {
+                    iconsHtml += '<span class="is-unlocked" role="presentation">Unlocked</span>';
+                }
+                return iconsHtml;
+            })
             .setWidth('5rem');
-        
-         
+                 
         // Setup table
-        this.accountTable = new UniTableConfig(false, true, 50)            
+        this.accountTable = new UniTableConfig(false, true, 25)            
             .setSearchable(true)            
             .setColumns([accountNumberCol, accountNameCol, accountGroupNameCol, vatTypeCol, lockedCol]);
     }
