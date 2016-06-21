@@ -70,13 +70,13 @@ export class ResetPassword {
             .subscribe(
                 (response) => {
                     if (response.status === 200) {
-                        this.successMessage = 'Please check your inbox.';
+                        this.successMessage = 'Vennligst sjekk innboksen din.';
                         this.working = false;
                     }
                 },
                 (error) => {
                     if (error.status === 404) {
-                        this.errorMessage = 'Email not found.';
+                        this.errorMessage = 'Epost finnes ikke.';
                     }
                     this.working = false;
                 }
@@ -104,7 +104,7 @@ export class ResetPassword {
                         this.working = false;
                     }
                 },
-                error => this.errorMessage = 'Something went wrong'
+                error => this.errorMessage = 'Noe gikk galt.'
             );
                         
     }

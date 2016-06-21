@@ -2,27 +2,62 @@
     <img src="../../../assets/uni-logo.png" alt="Uni Economy logo">
     
     <form *ngIf="emailForm" [ngFormModel]="emailForm" (ngSubmit)="checkEmail()" #f="ngForm">
-        <input type="email" ngControl="Email" placeholder="Email" [disabled]="detailsForm || working">
-        <button type="submit" class="c2a" *ngIf="!detailsForm" [attr.aria-busy]="working" [disabled]="!f.form.valid">Check email</button>
+        <label>
+            Epost
+            <input type="email" ngControl="Email" placeholder="Epost" [disabled]="detailsForm || working">
+        </label>
+        <button type="submit" class="c2a" *ngIf="!detailsForm" [attr.aria-busy]="working" [disabled]="!f.form.valid">Sjekk epost</button>
     </form>
     
     <section *ngIf="detailsForm">
         <form *ngIf="!existingUser" [ngFormModel]="detailsForm" (ngSubmit)="submitDetails()" #f="ngForm">
-            <input type="text" ngControl="CompanyName" placeholder="Company name">
-            <input type="text" ngControl="Name" placeholder="Full name" [disabled]="existingUser">
-            <input type="text" ngControl="UserName" placeholder="Username" [disabled]="existingUser">
-            <input type="password" ngControl="Password" placeholder="Password" [disabled]="existingUser">
-            <input type="password" ngControl="ConfirmPassword" placeholder="Confirm password" [disabled]="existingUser">
-            <button type="submit" class="c2a" [attr.aria-busy]="working" [disabled]="!f.form.valid || !passwordsMatching">Sign up</button>
+            <label>
+                Firmanavn
+                <input type="text" ngControl="CompanyName" placeholder="Firmanavn">
+            </label>
+            
+            <label>
+                Fullt navn
+                <input type="text" ngControl="Name" placeholder="Fullt navn">
+            </label>
+
+            <label>
+                Brukernavn
+                <input type="text" ngControl="UserName" placeholder="Brukernavn">
+            </label>
+
+            <label>
+                Passord
+                <input type="password" ngControl="Password" placeholder="Passord">
+            </label>
+
+            <label>
+                Bekreft passord
+                <input type="password" ngControl="ConfirmPassword" placeholder="Bekreft passord">
+            </label>
+            
+            <label>
+                <input type="checkbox" [(ngModel)]="isTest">
+                Inkluder testdata
+            </label>
+            <button type="submit" class="c2a" [attr.aria-busy]="working" [disabled]="!f.form.valid || !passwordsMatching">Registrer</button>
         </form>
         
         <form *ngIf="existingUser" [ngFormModel]="detailsForm" (ngSubmit)="submitDetails()" #f="ngForm">
-            <input type="text" ngControl="CompanyName" placeholder="Company name">
-            <button type="submit" class="c2a" [attr.aria-busy]="working" [disabled]="!f.form.valid">Add company</button>
+            <label>
+                Firmanavn
+                <input type="text" ngControl="CompanyName" placeholder="Firmanavn">
+            </label>
+            
+            <label>
+                <input type="checkbox" [(ngModel)]="isTest">
+                Inkluder testdata
+            </label>
+            <button type="submit" class="c2a" [attr.aria-busy]="working" [disabled]="!f.form.valid">Legg til selskap</button>
         </form>
-    </section>   
-    
+    </section>
+
     <p style="color: red">{{errorMessage}}</p>
-    <p *ngIf="!success">Already have an account? <a [routerLink]="['Login']">Log in</a></p>
-    <p *ngIf="success">Success. <a [routerLink]="['Login']">Go to login</a></p>
+    <p *ngIf="!success">Har du allerede en konto? <a [routerLink]="['Login']">Logg inn</a></p>
+    <p *ngIf="success">Vi setter nå opp kontoen din. En epost blir automatisk sendt ut når alt er klart.</p>
 </section>

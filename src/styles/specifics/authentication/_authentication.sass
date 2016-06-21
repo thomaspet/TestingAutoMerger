@@ -7,18 +7,27 @@
         margin: 2rem auto 3rem auto
 
     form
-        input, label
+        
+        label
             width: 100%
-            margin: 0.5rem 0
-            display: block
-                        
-            &.ng-invalid.ng-touched
-                @include uniTextInput($uni-color-Bad)
+            display: inline-block
+            margin: .5rem 0
+
+            input
+                margin-top: .5rem
+                display: block
+
+                &.ng-invalid.ng-touched
+                    @include uniTextInput($uni-color-Bad)
+
+            input[type=checkbox]
+                display: inline-block
+                width: 2rem
 
         button
-            width: 100%
+            width: 100% 
             padding: 0
-            margin: 0
+            margin: .5rem 0
 
         .company_select
             margin: .5rem auto

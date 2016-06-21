@@ -12,6 +12,7 @@ import {passwordValidator} from './authValidators';
 export class Signup {
     private emailForm: ControlGroup = undefined;
     private detailsForm: ControlGroup = undefined;
+    private isTest: boolean = false;
     
     private passwordsMatching: boolean = false;
     
@@ -87,12 +88,12 @@ export class Signup {
         
         body['Email'] = this.emailForm.controls['Email'].value;
         body['CompanyName'] = controls['CompanyName'].value;
+        body['IsTest'] = this.isTest;
         
         if (!this.existingUser) {
             body['Name'] = controls['Name'].value;
             body['UserName'] = controls['UserName'].value;
             body['Password'] = controls['Password'].value;
-            body['IsTest'] = true;
         }
         
         this._http.asPOST()
