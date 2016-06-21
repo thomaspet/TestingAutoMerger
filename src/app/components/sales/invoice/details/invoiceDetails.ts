@@ -231,7 +231,7 @@ export class InvoiceDetails implements OnInit {
 
         var invoiceaddress: UniFieldLayout = this.fields.find(x => x.Property === 'InvoiceAddress');
 
-        // TODO: Gjennomgang med Kjetil
+        // TODO:
         invoiceaddress.Options = {
             entity: Address,
             listProperty: 'Customer.Info.Addresses',

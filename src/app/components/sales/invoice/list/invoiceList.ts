@@ -85,6 +85,10 @@ export class InvoiceList implements OnInit {
                 params = new URLSearchParams();
             }
 
+            if (params.get('orderby') === null) {
+                params.set('orderby', 'PaymentDueDate');
+            }
+
             return this.customerInvoiceService.GetAllByUrlSearchParams(params);
         };
 

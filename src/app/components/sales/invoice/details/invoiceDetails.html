@@ -37,6 +37,8 @@
               (onChange)="change($event)"
               (onReady)="ready($event)">
     </uni-form>
+    <address-modal></address-modal>
+
     <invoice-item-list [invoice]="invoice" (itemsUpdated)="recalcItemSums($event)" (itemsLoaded)="recalcItemSums($event)"></invoice-item-list>
 
     <section class="invoice-items-summary-placeholder" *ngIf="!itemsSummaryData" aria-busy></section>
