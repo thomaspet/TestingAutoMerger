@@ -30,11 +30,13 @@ var VALID_CONTROLS = CONTROLS.filter((x, i) => {
 });
 @Component({
     selector: 'uni-field',
+    host: {
+        '[class.-has-linebreak]': 'hasLineBreak()'
+    },
     template: `
         <label 
             [class.error]="hasError()" 
             [class]="buildClassString()" 
-            [class.-has-linebreak]="hasLineBreak()"
             [hidden]="Hidden">
             <span>{{field?.Label}}</span>
 
