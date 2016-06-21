@@ -1,12 +1,17 @@
-import {Component, Input, Output, ElementRef, EventEmitter, ChangeDetectionStrategy, ChangeDetectorRef} from '@angular/core';
+import {Component, Input, Output, EventEmitter, ViewChild, ElementRef, ChangeDetectorRef, ChangeDetectionStrategy, Renderer} from '@angular/core';
 import {Control} from '@angular/common';
 import {Observable} from 'rxjs/Observable';
+
 import {BizHttp} from '../../core/http/BizHttp';
 import {UniFieldLayout} from '../interfaces';
 
+import 'rxjs/add/observable/of';
+import 'rxjs/add/operator/debounceTime';
+import 'rxjs/add/operator/distinctUntilChanged';
+import 'rxjs/add/operator/switchMap';
+import 'rxjs/add/operator/filter';
 
-declare var _, jQuery, kendo; // jquery and lodash
-var guid = kendo.guid;
+declare var _; // lodash
 
 export class UniAutocompleteConfig {
     public source: BizHttp<any>|any[];
@@ -23,118 +28,123 @@ export class UniAutocompleteConfig {
     constructor() { }
 }
 
-
 @Component({
     selector: 'uni-autocomplete-input',
-    changeDetection: ChangeDetectionStrategy.OnPush,
     template: `
         <div class="autocomplete">
-            <input
-                #query
-                class="autocomplete_input"
-                role="combobox"
-                aria-autocomplete="inline"
-                [attr.aria-owns]="'results-'+guid"
-                (blur)="choose(selected)"
-
+            <input #query
                 *ngIf="control"
                 [ngFormControl]="control"
                 [readonly]="field?.ReadOnly"
                 [placeholder]="field?.Placeholder || ''"
+                
+                (blur)="confirmSelection()"
+                (keypress)="onKeyPress()"
+                (keydown)="onKeyDown($event)"
+                
+                class="autocomplete_input"
+                role="combobox"
+                aria-autocomplete="inline"
+                [attr.aria-owns]="'results-'+guid"
             />
 
-            <ul class="autocomplete_results"
+            <ul #list 
+                class="autocomplete_results"
                 [id]="'results-' + guid"
                 role="listbox"
                 tabindex="-1"
                 [attr.aria-expanded]="isExpanded">
 
-                <li *ngFor="let result of results"
+                <li *ngFor="let item of lookupResults; let idx = index"
                     class="autocomplete_result"
                     role="option"
-                    (mouseover)="selected = result"
-                    (click)="choose(result)"
-                    [attr.aria-selected]="selected === result">
-                    {{template(result)}}
+                    (mouseover)="onMouseover(idx)"
+                    (click)="confirmSelection()"
+                    [attr.aria-selected]="selectedIndex === idx">
+                    {{template(item)}}
                 </li>
-
             </ul>
         </div>
-    `
+    `,
+    changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class UniAutocompleteInput {
+    @ViewChild('list')  private list: ElementRef;
+    @ViewChild('query') private inputElement: ElementRef;
+    
     @Input()
-    public field: UniFieldLayout;
+    private field: UniFieldLayout;    
+    
+    @Input()
+    private model: any;
 
     @Input()
-    public model: any;
-
-    @Input()
-    public control: Control;
-
+    private control: Control;
+    
     @Output()
     public onReady: EventEmitter<UniAutocompleteInput> = new EventEmitter<UniAutocompleteInput>(true);
     
     @Output()
     public onChange: EventEmitter<any> = new EventEmitter<any>(true);
-    
-    // State vars
+
+    // state vars
     private guid: string;
     private options: any;
-    private source: BizHttp<any>|Array<any>;
+    private source: BizHttp<any> | Array<any>;
     private lastValue: any;
-    private isExpanded: boolean = false;
-    private selected: any;
-    private results: any[];
     private query: string;
     private value: string;
+
     
-    constructor(public el: ElementRef, private cd: ChangeDetectorRef) {
-        // Set a guid to use in DOM IDs etc.
-        this.guid = guid();
+    private busy: boolean = false;
+    private selectedIndex: any;
+    private lookupResults: any[] = [];
+    private isExpanded: boolean;
+    private focusPositionTop: number = 0;
+    
+    constructor(private renderer: Renderer, private cd: ChangeDetectorRef) {
+        this.guid = 'autocomplete-' + performance.now();
+    }
 
-        // Add event listeners for dismissing the dropdown
-        let $el = jQuery(el.nativeElement);
-        document.addEventListener('click', (event) => {
-            if (!jQuery(event.target).closest($el).length) {
-                event.stopPropagation();
-                this.isExpanded = false;
-            }
-        });
-        document.addEventListener('keyup', (event) => {
-            // Escape to dismiss
-            if (event.keyCode === 27) {
-                this.isExpanded = false;
-            }
-        });
+    public ngOnChanges(changes) {
+        if (changes['model']) {
+            this.options = this.field.Options || {};
+            this.source = this.options.source;
+        }
+        
+        // Perform initial lookup to get display value
+        this.getInitialDisplayValue(this.control.value)
+            .subscribe(result => {
+                const displayValue = _.get(result[0], this.field.Options.displayProperty);
+                this.control.updateValue(displayValue || '', {emitEvent: false});
+            });
 
-        // And for navigating within the dropdown
-        el.nativeElement.addEventListener('keyup', (event) => {
-            if (event.keyCode === 38) {
-                // Arrow up
-                this.moveSelection(-1);
-            } else if (event.keyCode === 40) {
-                // Arrow down
-                this.moveSelection(1);
-            } else if (event.keyCode === 13 ||
-                event.keyCode === 9) {
-                // Enter or tab
-                this.choose(this.selected);
-            }
-        });
+        this.control.valueChanges
+            .debounceTime(this.options.debounceTime || 250)
+            .filter((input: string) => {
+                this.lookupResults = [];
+                return (this.control.dirty && input.length >= (this.options.minLength || 0));
+            })
+            .switchMap((input: string) => {
+                this.busy = true;
+                return this.search(input);
+            })
+            .subscribe((items: any[]) => {
+                this.selectedIndex = 0;
+                this.lookupResults = items;
+                this.isExpanded = true;
+                this.busy = false;
+                this.cd.markForCheck();
+            });
+    }
 
-        el.nativeElement.addEventListener('keydown', (event) => {
-            if (event.keyCode === 13) {
-                event.preventDefault();
-                event.stopPropagation();
-            }
-        });
 
+    public ngAfterViewInit() {
+        this.onReady.emit(this);
     }
 
     public focus() {
-        jQuery(this.el.nativeElement).find('input').first().focus();
-        return this;
+        this.renderer.invokeElementMethod(this.inputElement.nativeElement, 'focus', []);
     }
 
     public readMode() {
@@ -147,158 +157,6 @@ export class UniAutocompleteInput {
         this.cd.markForCheck();
     }
 
-    public ngOnChanges(changes) {
-        if (changes['model']) {
-            this.options = this.field.Options || {};
-            this.source = this.options.source;
-            var self = this;
-
-            // Select item first time to init autocomplete values
-            // That means initial value should be in the result
-            // Values that are not in the source are not allowed
-            
-            this.search(_.get(this.model, this.options.valueKey))
-                .toPromise()
-                .then((x) => {
-                    if (x && x[0]) {
-                        this.selected = x[0];
-                        self.choose(x[0]);
-                    }
-                });
-
-            // Listen for changes in the input
-            this.control.valueChanges
-                .debounceTime(this.options.debounceTime || 0)
-                .distinctUntilChanged()
-                .filter(x => {
-                    return x !== undefined;
-                })
-                .filter((x: string) => {
-                    return x.length >= (self.options.minLength || 0);
-                })
-                .filter((x: string) => {
-                    return self.lastValue !== x;
-                })
-                .subscribe((value) => self.searchHandler(value));
-            }
-    }
-    
-    public ngAfterViewInit() {
-        this.onReady.emit(this);
-    }
-
-    // Replace this with the call to server
-    private search(query: string) {
-        if (this.options.search) {
-            return this.options.search(query);    
-        }
-        return this._search(query);
-        
-    }
-    private _search(query: string) {
-        if (!this.source) {
-            return Observable.from([]);
-        }
-        if (this.source.constructor === Array) {
-            if (!query) {
-                return Observable.from(<any[]>this.source);
-            }
-            let containsString = (obj: any) => {
-                var template = this.template(obj);
-                return template.toLowerCase().indexOf(query.toLowerCase()) >= 0;
-            };
-            return Observable.from((<Array<any>>this.source).filter(containsString));
-        }
-        var filter = /^\d+$/.test(query) ? 'startswith' : 'contains';
-        return (<BizHttp<any>>this.source).GetAll(`filter=${filter}(${this.options.valueKey},'${query}')`);
-    }
-
-    // The UI handler for searching
-    private searchHandler(query: any) {
-        var self = this;
-        this.results = [];
-
-        // Clean up if the search is cleared out
-        if (!query && query !== '') {
-            this.isExpanded = false;
-            this.selected = undefined;
-            this.cd.markForCheck();
-            return;
-        }
-
-        // Kick off the search function
-        this.search(query).subscribe(
-            (result) => {
-                if (result.constructor === Array) {
-                    if (result.length > 0) {
-                        self.selected = result[0];
-                    }
-                    self.results = result;
-                } else {
-                    self.selected = result;
-                    self.results.push(result);
-                }
-                self.isExpanded = true;
-                this.cd.markForCheck();
-            },
-            (err) => {
-                console.error(err);
-            }
-        );
-    }
-
-    // Keyboard navigation within list
-    private moveSelection(moveBy) {
-        // If we have no results to traverse, return out
-        if (!this.results) {
-            return;
-        }
-
-        // If we have no current selection
-        if (!this.selected && moveBy >= 0) {
-            // If we move down without a selection, start at the top
-            return this.selected = this.results[0];
-        } else if (!this.selected && moveBy < 0) {
-            // If we move up without a selection, start at the bottom
-            return this.selected = this.results[this.results.length - 1];
-        }
-
-        // If we have a selection already
-        let currentIndex = this.results.indexOf(this.selected);
-
-        if (currentIndex < 0 ||
-            currentIndex + moveBy >= this.results.length) {
-            // If the selected result is no longer a result, or if we wrap around,
-            // then we go to the first item
-            this.selected = this.results[0];
-        } else if (currentIndex + moveBy < 0) {
-            // Wrap around the other way
-            this.selected = this.results[this.results.length - 1];
-        } else {
-            this.selected = this.results[currentIndex + moveBy];
-        }
-    }
-
-    // Make a selection
-    private choose(item) {
-        this.isExpanded = false;
-
-        if (item) {
-            this.query = _.get(item, this.field.Options.displayProperty);
-            this.value = _.get(item, this.field.Options.valueProperty);
-        } else {
-            this.query = '';
-            this.value = undefined;
-        }
-        this.lastValue = this.value;
-        this.control.updateValue(this.query, {});
-        if (_.get(this.model, this.field.Property) === this.value) {
-            return;
-        }
-        _.set(this.model, this.field.Property, this.value);
-        this.onChange.emit(this.model);
-    }
-
     private template(obj: any) {
         if (!this.field.Options.template) {
             return _.get(obj, this.options.displayProperty);
@@ -306,4 +164,149 @@ export class UniAutocompleteInput {
             return this.options.template(obj);
         }
     }
+
+    private getInitialDisplayValue(value): Observable<any> {
+        if (this.options.search) {
+            return this.options.search(value);
+        }
+
+        if (!this.source) {
+            return Observable.of([]);
+        }
+
+        if (Array.isArray(this.source)) {
+            return Observable.of([(<any[]> this.source).find((item) => {
+                return _.get(item, this.field.Options.valueProperty) === value;
+            })]);
+        } else {
+            return (<BizHttp<any>> this.source).GetAll(`filter=${this.field.Options.valueProperty} eq ${value}`);
+        }
+    }
+
+    private search(query: string): Observable<any> {
+        if (this.options.search) {
+            return this.options.search(query);
+        }
+
+        if (!this.source) {
+            return Observable.of([]);
+        }
+
+        // Local search
+        if (Array.isArray(this.source)) {
+            let filteredResults = (<Array<any>> this.source).filter((item) => {
+                return this.template(item).toLowerCase().indexOf(query.toLowerCase()) >= 0;
+            });
+            return Observable.of(filteredResults);
+        }
+        // Remote search
+        else {
+            const operator = /^\d+$/.test(query) ? 'startswith' : 'contains';
+            return (<BizHttp<any>> this.source).GetAll(`filter=${operator}(${this.field.Options.displayProperty},'${query}')`);
+        }
+    }
+
+    private confirmSelection() {
+        this.isExpanded = false;
+        this.cd.markForCheck();
+        this.focusPositionTop = 0;
+                
+        // Wait for response 
+        // (allows us to still select result[0] when user tabs out before lookup is finished)
+        if (this.busy) {
+            setTimeout(() => {
+                this.confirmSelection();
+            }, 200);
+            
+            return;
+        }
+
+        if (!this.control.value || !this.lookupResults.length) {
+            this.query = '';
+            this.value = null;
+        } else {
+            let selectedItem = this.lookupResults[this.selectedIndex];
+            this.query = _.get(selectedItem, this.field.Options.displayProperty);
+            this.value = _.get(selectedItem, this.field.Options.valueProperty);
+        }
+
+        this.control.updateValue(this.query, {emitEvent: false});
+
+        if (this.lastValue !== this.value) {
+            this.lastValue = this.value;
+            _.set(this.model, this.field.Property, this.value);
+            this.onChange.emit(this.model);
+        }
+    }
+    
+    private onMouseover(index) {
+        if (index < this.selectedIndex) {
+            for (let i = index; i < this.selectedIndex; i++) {
+                this.focusPositionTop -= this.list.nativeElement.children[i].clientHeight; 
+            }
+        } else if (index > this.selectedIndex) {
+            for (let i = this.selectedIndex; i < index; i++) {
+                this.focusPositionTop += this.list.nativeElement.children[i].clientHeight;
+            }
+        }
+        
+        this.selectedIndex = index;
+    }
+    
+    private onKeyPress() {
+        this.busy = true;
+    }
+
+    private onKeyDown(event) {        
+        var prevItem = undefined;
+        var currItem = undefined;
+        var overflow = 0;
+        
+        switch (event.keyCode) {
+            case 13:
+                this.confirmSelection();
+            break;
+            case 27:
+                this.control.updateValue(this.query, {emitEvent: false});
+                this.isExpanded = false;
+                this.cd.markForCheck();
+            break;
+            case 38:
+                if (this.selectedIndex !== 0) {
+                    this.selectedIndex--;
+                    
+                    currItem = this.list.nativeElement.children[this.selectedIndex];
+                    if (currItem) {
+                        this.focusPositionTop -= currItem.clientHeight;
+                        
+                        overflow = this.focusPositionTop - this.list.nativeElement.scrollTop;
+                                                
+                        if (overflow < 0) {
+                            this.list.nativeElement.scrollTop += overflow;
+                        }
+                    }
+                }            
+                
+            break;
+            case 40:
+                if (this.selectedIndex !== (this.lookupResults.length - 1)) {
+                    this.selectedIndex++;
+                    
+                    prevItem = this.list.nativeElement.children[this.selectedIndex - 1];
+                    currItem = this.list.nativeElement.children[this.selectedIndex];
+                    
+                    if (prevItem && currItem) {
+                        this.focusPositionTop += prevItem.clientHeight;
+                        
+                        overflow = (this.focusPositionTop + currItem.clientHeight) - 
+                                (this.list.nativeElement.clientHeight + this.list.nativeElement.scrollTop);
+                        
+                        if (overflow > 0) {
+                            this.list.nativeElement.scrollTop += overflow;
+                        }
+                    }   
+                }
+            break;
+        }
+    }    
 }
