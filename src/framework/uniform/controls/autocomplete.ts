@@ -279,9 +279,6 @@ export class UniAutocompleteInput {
                     if (currItem) {
                         this.focusPositionTop -= currItem.clientHeight;
                         
-                        overflow = (this.focusPositionTop + currItem.clientHeight) - 
-                                (this.list.nativeElement.clientHeight + this.list.nativeElement.scrollTop);
-                        
                         overflow = this.focusPositionTop - this.list.nativeElement.scrollTop;
                                                 
                         if (overflow < 0) {
