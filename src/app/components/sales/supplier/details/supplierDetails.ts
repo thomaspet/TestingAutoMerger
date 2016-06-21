@@ -266,7 +266,15 @@ export class SupplierDetails {
                 this.addressModal.Changed.subscribe(modalval => {                                       
                     resolve(modalval);    
                 });               
-            })        
+            }),
+            display: (address: Address) => {
+                let displayVal = '';
+                if (address.AddressLine1 !== null && address.AddressLine1 !== '') {
+                    displayVal += address.AddressLine1 + ', ';  
+                }                
+                displayVal += address.PostalCode + ' ' + address.City; 
+                return displayVal;                                
+            }         
         };
         
         var emails: UniFieldLayout = this.fields.find(x => x.Property === 'Info.DefaultEmail');
@@ -309,8 +317,15 @@ export class SupplierDetails {
                 this.addressModal.Changed.subscribe(modalval => {                                       
                     resolve(modalval);    
                 });               
-            }) 
-                       
+            }),
+            display: (address: Address) => {
+                let displayVal = '';
+                if (address.AddressLine1 !== null && address.AddressLine1 !== '') {
+                    displayVal += address.AddressLine1 + ', ';  
+                }                
+                displayVal += address.PostalCode + ' ' + address.City; 
+                return displayVal;                                
+            }          
         };
     }   
     
