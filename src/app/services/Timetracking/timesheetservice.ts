@@ -1,8 +1,9 @@
 import {Injectable, Inject, Component} from '@angular/core';
-import {WorkItem, Worker, WorkRelation, WorkProfile} from '../../unientities';
+import {WorkItem, Worker, WorkRelation, WorkProfile, Dimensions} from '../../unientities';
 import {WorkerService, ItemInterval} from './workerService';
 import {Observable, Observer} from "rxjs/Rx";
 import {parseTime, toIso, addTime, parseDate, ChangeMap} from '../../components/timetracking/utils/utils';
+import {Dimension} from '../common/dimensionservice';
 declare var moment;
 
 export class ValueItem {
@@ -38,7 +39,10 @@ export class TimeSheet {
 
         var obs = this.ts.saveWorkItems(toSave, this.changeMap.getRemovables());
         return obs.map((result:{ original: WorkItem, saved: WorkItem})=>{
-            if (!result.saved) {
+            if (result.saved) {
+                var item:any = result.original;
+                this.changeMap.remove(item._rowIndex);
+            } else {
                 this.changeMap.removables.remove(result.original.ID);
             }            
             return result.saved;
@@ -46,7 +50,8 @@ export class TimeSheet {
     }
     
     setItemValue(change: ValueItem):boolean {
-        var item:WorkItem = this.getRowByIndex(change.rowIndex); 
+        var item:WorkItem = this.getRowByIndex(change.rowIndex);
+        var ignore = false; 
         switch (change.name) {
             case "Date":
                 change.value = toIso(parseDate(change.value));
@@ -57,9 +62,18 @@ export class TimeSheet {
                 break;
             case "Worktype":
                 item.WorkTypeID = change.value.ID;
-                break;                
+                break;       
+            case "Dimensions.ProjectID":
+                if (change.value) {
+                    item.Dimensions = item.Dimensions || new Dimension();
+                    Dimension.setProject(item.Dimensions, change.value);
+                }
+                ignore = true;
+                break;         
         }
-        item[change.name] = change.value;
+        if (!ignore) {
+            item[change.name] = change.value;
+        }
         if (!item.WorkRelationID) {
             item.WorkRelationID = this.currentRelation.ID
         }

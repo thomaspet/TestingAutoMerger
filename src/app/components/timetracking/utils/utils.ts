@@ -11,6 +11,26 @@ export function safeInt(value: any) {
     return tmp;
 }
 
+//<summary>
+// example: setDeepValue(row, 'dimension.projectid', 123) 
+//</summary>
+export function setDeepValue(item:any, name:string, value:any) {
+	var parts = name.split('.');
+	if (parts.length===1) {
+		item[name] = value.ID ? value.ID : value;
+		return;
+	}
+	for (var i=0; i<parts.length; i++) {
+		var name = parts[i];
+		var sub = parts.join('.').substr(name.length + 1);
+		var subItem = item[name] || {};
+		if (!item[name]) {
+			item[name] = subItem;
+		}
+		setDeepValue(subItem, sub, value);
+	}
+}
+
 export function parseDate(value:any, allowMacros = true): Date {
 	var d = 0;
 	var m = 0;
