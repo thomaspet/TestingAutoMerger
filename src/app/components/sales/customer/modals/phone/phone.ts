@@ -21,10 +21,7 @@ export class PhoneForm {
        
     public ngOnInit() {
         this.setupForm();
-        
-        setTimeout(() => {
-            this.extendFormConfig();
-        });      
+        this.extendFormConfig();
     }
                
     private setupForm() {   

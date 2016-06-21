@@ -15,11 +15,18 @@
             </li>
         </ul>    
     </aside>
-    
-    <br/>
+
+
+    <aside class="regtime_filters">
+        <ul>
+            <li *ngFor="let filter of filters">
+                <a (click)="onFilterClick(filter)" [ngClass]="{'router-link-active': filter.isSelected}" >{{filter.label}}</a> 
+            </li>
+        </ul>    
+    </aside>
 
     <section [attr.aria-busy]="busy" >
-        
+
         <uni-table [resource]="timeSheet.items" [config]="tableConfig"></uni-table>
     
     </section>

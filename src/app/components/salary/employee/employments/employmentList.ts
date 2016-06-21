@@ -41,6 +41,13 @@ export class EmploymentList implements OnInit {
                         this.selectedEmployment = employment;
                     }
                 });
+            } else {
+                // no employments, lets create an emtpy object to show
+                let newEmployment = new Employment();
+                newEmployment.Standard = true;
+                newEmployment.EmployeeNumber = this.currentEmployee.EmployeeNumber;
+                newEmployment.EmployeeID = this.currentEmployee.ID;
+                this.selectedEmployment = newEmployment;
             }
         },
         (err) => {

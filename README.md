@@ -20,9 +20,9 @@ Uni Economy Angular2 version
 
 1. `npm install`
 
-1. Run the TypeScript compiler and watch for changes `npm run tsc`
+1. Run the TypeScript compiler and watch for changes `npm start`
 
-1. Open 2nd terminal and launch the app in the browser `npm start`
+1. Open 2nd terminal and launch the app in the browser `npm run serve`
 
 ## Notes
 

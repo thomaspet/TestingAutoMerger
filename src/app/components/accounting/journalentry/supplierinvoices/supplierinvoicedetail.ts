@@ -9,16 +9,17 @@ import {UniForm} from '../../../../../framework/forms/uniForm';
 import {UniFormBuilder, UniFormLayoutBuilder} from '../../../../../framework/forms';
 import {UniFieldBuilder} from '../../../../../framework/forms';
 import {UniComponentLoader} from '../../../../../framework/core/componentLoader';
-import {FieldType, ComponentLayout} from '../../../../unientities';
-import {SupplierInvoice, Supplier, BankAccount} from '../../../../unientities';
+import {FieldType, ComponentLayout, SupplierInvoice, Supplier, BankAccount} from '../../../../unientities';
 import {JournalEntryManual} from '../journalentrymanual/journalentrymanual';
-
+import {UniDocumentUploader} from '../../../../../framework/documents/index';
+import {SupplierInvoiceFileUploader} from './supplierinvoiceuploader';
+import {UniImage, UniImageSize} from '../../../../../framework/uniImage/uniImage';
 
 @Component({
     selector: 'supplier-invoice-detail',
     templateUrl: 'app/components/accounting/journalentry/supplierinvoices/supplierinvoicedetail.html',
-    directives: [UniForm, UniComponentLoader, RouterLink, JournalEntryManual],
-    providers: [SupplierInvoiceService, SupplierService, BankAccountService, JournalEntryService]
+    directives: [UniForm, UniComponentLoader, RouterLink, JournalEntryManual, UniDocumentUploader, UniImage],
+    providers: [SupplierInvoiceService, SupplierService, BankAccountService, JournalEntryService, SupplierInvoiceFileUploader]
 })
 export class SupplierInvoiceDetail implements OnInit {
     @Input() private invoiceId: any;
@@ -28,6 +29,9 @@ export class SupplierInvoiceDetail implements OnInit {
 
     private formBuilder: UniFormBuilder;
     private formInstance: UniForm;
+    
+    private previewId: number;
+    private previewSize: UniImageSize;
 
     @ViewChild(UniComponentLoader) private uniCompLoader: UniComponentLoader;
     @ViewChild(JournalEntryManual) private journalEntryManual: JournalEntryManual;
@@ -39,10 +43,13 @@ export class SupplierInvoiceDetail implements OnInit {
         private _supplierService: SupplierService,
         private _bankAccountService: BankAccountService,
         private _journalEntryService: JournalEntryService,
+        private fileuploader: SupplierInvoiceFileUploader,
         private router: Router,
         private _routeParams: RouteParams) {
             
         this.invoiceId = _routeParams.get('id');
+        this.previewId = 0;
+        this.previewSize = UniImageSize.medium;
     }
 
     public ngOnInit() {
@@ -105,7 +112,7 @@ export class SupplierInvoiceDetail implements OnInit {
         if (this.supplierInvoice.ID > 0) {
             
             //save journalentrydata and supplierinvoice - these can be saved separatly here            
-            let journalEntryData = this.journalEntryManual.getJournalEntryData();        
+            let journalEntryData = this.journalEntryManual.getJournalEntryData(); 
             this._journalEntryService
                 .saveJournalEntryData(journalEntryData)
                 .subscribe((res) => {                    
@@ -213,7 +220,17 @@ export class SupplierInvoiceDetail implements OnInit {
             );
     }
 
-    private buildForm() {        
+    private buildForm() {         
+        let self = this;         
+        this.fileuploader.getSlots(this.supplierInvoice.ID).then((data) => {
+            if (data && data.length) {
+                self.previewId = data[0].ID;
+                console.log("== SETTING PREVIEW ID ==", self.previewId);
+            } else {
+                self.previewId = -1;
+            }    
+        });
+                       
         // TODO get it from the API and move these to backend migrations   
         // TODO set to 'ComponentLayout' when the object respects the interface
         var view: any = {
@@ -451,34 +468,6 @@ export class SupplierInvoiceDetail implements OnInit {
                     CreatedBy: null,
                     UpdatedBy: null,
                     CustomFields: null
-                },
-                {
-                    ComponentLayoutID: 2,
-                    EntityType: 'SupplierInvoice',
-                    Property: 'PaymentInformation',
-                    Placement: 4,
-                    Hidden: false,
-                    FieldType: FieldType.TEXT,
-                    ReadOnly: false,
-                    LookupField: false,
-                    Label: 'Betalingsinformasjon',
-                    Description: '',
-                    HelpText: '',
-                    FieldSet: 0,
-                    Section: 0,
-                    Placeholder: null,
-                    Options: null,
-                    LineBreak: null,
-                    Combo: null,
-                    Legend: '',
-                    StatusCode: 0,
-                    ID: 4,
-                    Deleted: false,
-                    CreatedAt: null,
-                    UpdatedAt: null,
-                    CreatedBy: null,
-                    UpdatedBy: null,
-                    CustomFields: null
                 }
             ]
         };
@@ -518,5 +507,9 @@ export class SupplierInvoiceDetail implements OnInit {
                 self.formInstance = cmp.instance;
             });
         });
+    }
+    
+    private onFileUploaded(slot) {
+        this.previewId = slot.ID;
     }
 }
