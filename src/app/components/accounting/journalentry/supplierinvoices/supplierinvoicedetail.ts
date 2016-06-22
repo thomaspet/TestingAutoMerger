@@ -7,7 +7,7 @@ import {SupplierInvoiceService, SupplierService, BankAccountService, JournalEntr
 
 import {UniForm, UniFieldLayout} from '../../../../../framework/uniform/index';
 import {UniComponentLoader} from '../../../../../framework/core/componentLoader';
-import {FieldType, ComponentLayout, SupplierInvoice, Supplier, BankAccount} from '../../../../unientities';
+import {FieldType, ComponentLayout, SupplierInvoice, Supplier, BankAccount, StatusCodeSupplierInvoice} from '../../../../unientities';
 import {JournalEntryManual} from '../journalentrymanual/journalentrymanual';
 import {UniDocumentUploader} from '../../../../../framework/documents/index';
 import {SupplierInvoiceFileUploader} from './supplierinvoiceuploader';
@@ -25,6 +25,7 @@ export class SupplierInvoiceDetail implements OnInit {
     private supplierInvoice: SupplierInvoice;
     private suppliers: Supplier[];
     private bankAccounts: BankAccount[];
+    private errors;
 
     private previewId: number;
     private previewSize: UniImageSize;
@@ -69,14 +70,21 @@ export class SupplierInvoiceDetail implements OnInit {
         this.previewSize = UniImageSize.medium;
     }
 
+    private setError(error) {
+        console.log("== ERROR ==", error);
+        var messages = error._body ? JSON.parse(error._body) : error;
+        if (messages) {
+            this.errors = messages.Messages ? messages.Messages : [messages];
+            setInterval(() => {
+                this.errors = null;
+            }, 5000);            
+        }
+    }
+
     public ngOnInit() {
         this.loadFormAndData();
     }
     
-    private log(err) {
-        alert(err._body);
-    }
-
     private refreshFormData(supplierInvoice: SupplierInvoice) {
         this.invoiceId = supplierInvoice.ID;
         
@@ -88,7 +96,10 @@ export class SupplierInvoiceDetail implements OnInit {
                 this.actions[1].disabled = !(this.supplierInvoice && this.supplierInvoice.ID > 0);
                 this.actions[1].disabled = !(this.supplierInvoice && this.supplierInvoice.ID > 0);                
             },
-            (err) => console.log('Error refreshing view: ', err));
+            (error) => {
+                this.setError(error);
+            }
+        );
     }
     private getStatusText() {
         return this._supplierInvoiceService.getStatusText((this.supplierInvoice.StatusCode || '').toString());
@@ -111,7 +122,9 @@ export class SupplierInvoiceDetail implements OnInit {
                 this.actions[2].disabled = true;
 
                 this.buildForm();
-            }, error => console.log(error));
+            }, (error) => {
+                this.setError(error);
+            });
         } else {
             Observable.forkJoin(
                 this._supplierInvoiceService.Get(id, ['JournalEntry', 'Supplier.Info']),
@@ -123,46 +136,41 @@ export class SupplierInvoiceDetail implements OnInit {
                 this.suppliers = suppliers;
                 this.bankAccounts = bac;
                 
-                this.actions[1].disabled = false;
-                this.actions[2].disabled = false;
+                this.actions[0].disabled = this.supplierInvoice.StatusCode == StatusCodeSupplierInvoice.Journaled;                
+                this.actions[1].disabled = this.supplierInvoice.StatusCode >= StatusCodeSupplierInvoice.Journaled;
+                this.actions[2].disabled = this.supplierInvoice.StatusCode >= StatusCodeSupplierInvoice.Journaled;
                 
                 this.buildForm();
-            }, error => console.log(error));
+            }, (error) => {
+                this.setError(error);
+            });
         }
     }
 
     private save(runSmartBooking: boolean, done) {
+        if ((this.supplierInvoice.PaymentID || '').trim().length == 0 && (this.supplierInvoice.PaymentInformation || '').trim().length == 0) {
+            this.setError({Message: 'KID eller melding må være fyllt ut.'});
+            done('Ikke lagret');
+            return;
+        }
         
         if (this.supplierInvoice.ID > 0) {
             
-            //save journalentrydata and supplierinvoice - these can be saved separatly here            
-            let journalEntryData = this.journalEntryManual.getJournalEntryData(); 
-            this._journalEntryService
-                .saveJournalEntryData(journalEntryData)
-                .subscribe((res) => {                    
-                }, 
-                (err) => {
-                    done('Feilet i lagring av bilagsdata');
-                    console.log('error saving journaldata:', err);
-                    this.log(err);
-                }
-            ); 
-                        
-            this._supplierInvoiceService.Put(this.supplierInvoice.ID, this.supplierInvoice)
-                .subscribe((response: any) => {
-                    if (runSmartBooking) {
-                        this.runSmartBooking(this.supplierInvoice, false, done);
-                    } else {
-                        done('Lagret');
-                        this.router.navigateByUrl('/accounting/journalentry/supplierinvoices/details/' + this.supplierInvoice.ID);
-                    }
-                },
-                (error: Error) => {
-                    done('Feilet i lagring');
-                    console.error('error in SupplierInvoiceDetail.onSubmit - Put: ', error);
-                    this.log(error);
-                }
-            );
+            let journalEntryData = this.journalEntryManual.getJournalEntryData();             
+            Observable.forkJoin(
+                this._journalEntryService.saveJournalEntryData(journalEntryData),
+                this._supplierInvoiceService.Put(this.supplierInvoice.ID, this.supplierInvoice)     
+            ).subscribe((response: any) => {
+                if (runSmartBooking) {
+                    this.runSmartBooking(this.supplierInvoice, false, done);
+                } else {
+                    done('Lagret');
+                    this.router.navigateByUrl('/accounting/journalentry/supplierinvoices/details/' + this.supplierInvoice.ID);
+                }            
+            }, (error) => {
+                this.setError(error);
+                done('Lagring feilet');
+            });
         } else {
             // Following fields are required. For now hardcoded.
             this.supplierInvoice.CreatedBy = '-';
@@ -175,10 +183,9 @@ export class SupplierInvoiceDetail implements OnInit {
                     //always run smartbooking for new supplier invoices, ignore input parameter
                     this.runSmartBooking(newSupplierInvoice, true, done);
                 },
-                (error: Error) => {
-                    done('Feilet i lagring');
-                    console.error('error in SupplierInvoiceDetail.onSubmit - Post: ', error);
-                    this.log(error);
+                (error) => {
+                    this.setError(error);
+                    done('Lagring feilet');
                 }
             );
         }
@@ -194,40 +201,41 @@ export class SupplierInvoiceDetail implements OnInit {
     
     private saveAndBook(done) {        
         //save and run transition to booking        
-        let journalEntryData = this.journalEntryManual.getJournalEntryData();        
+        let journalEntryData = this.journalEntryManual.getJournalEntryData();             
+        let sum = journalEntryData.map((line) => line.Amount).reduce((a, b) => a + b);
+        
         this._journalEntryService
             .saveJournalEntryData(journalEntryData)
             .subscribe((res) => {
-                console.log('JournalEntryData saved, saving supplierinvoice...')
                 this._supplierInvoiceService.Put(this.supplierInvoice.ID, this.supplierInvoice)
                     .subscribe((res) => {
-                        console.log('Supplierinvoice saved, running booking transition...')
-                        this._supplierInvoiceService.Transition(this.supplierInvoice.ID, this.supplierInvoice, 'journal')
-                            .subscribe((res) => {
-                                done("Lagret");
-                                console.log('Booking complete - redirect to refresh view');
-                                this.router.navigateByUrl('/accounting/journalentry/supplierinvoices/details/' + this.supplierInvoice.ID);
-                            },
-                            (err) => {
-                                done('Overgang feilet');
-                                console.log('error running book transition', err);
-                                this.log(err);
-                            }
-                        );
+                        if (sum != this.supplierInvoice.TaxInclusiveAmount) {
+                            this.setError({Message: 'Sum bilagsbeløp er ulik leverandørfakturabeløp'});
+                            done('Bokføring feilet');
+                        } else {
+                            this._supplierInvoiceService.Transition(this.supplierInvoice.ID, this.supplierInvoice, 'journal')
+                                .subscribe((res) => {
+                                    done("Lagret");
+                                    this.router.navigateByUrl('/accounting/journalentry/supplierinvoices/details/' + this.supplierInvoice.ID);
+                                },
+                                (error) => {
+                                    this.setError(error);
+                                    done('Lagring feilet');
+                                }
+                            );                            
+                        }
                     },
-                    (err) => {
-                        done('Feilet i lagring');
-                        console.log('error saving supplierinvoice', err);
-                        this.log(err);
+                    (error) => {
+                        this.setError(error);
+                        done('Lagring feilet');
                     }
                 )
             }, 
-            (err) => { 
-                done('Feilet i lagring av bilagsdata');
-                console.log('error saving journaldata:', err);
-                this.log(err);
+            (error) => { 
+                this.setError(error);
+                done('Lagring feilet');
             }
-        );      
+        );
     }
 
     private runSmartBooking(supplierInvoice: SupplierInvoice, redirectAfter: boolean, done) {
@@ -249,9 +257,9 @@ export class SupplierInvoiceDetail implements OnInit {
                         this.refreshFormData(supplierInvoice);
                     }
                 },
-                (error: any) => {
+                (error) => {
+                    this.setError(error);
                     done('Feilet i smartbokføring');
-                    console.log('Error running smartbooking', error)
                 }       
             );
     }
@@ -320,16 +328,7 @@ export class SupplierInvoiceDetail implements OnInit {
         invoiceNumber.Label = 'Fakturanr';
         invoiceNumber.Property = 'InvoiceNumber';
         invoiceNumber.ReadOnly = false;
-        
-        var paymentInformation = new UniFieldLayout();
-        paymentInformation.FieldSet = 0;
-        paymentInformation.Section = 0;
-        paymentInformation.Combo = 0;
-        paymentInformation.FieldType = 10;
-        paymentInformation.Label = 'Bilagstekst';
-        paymentInformation.Property = 'PaymentInformation';
-        paymentInformation.ReadOnly = false;        
-        
+                
         var bankAccount = new UniFieldLayout();
         bankAccount.FieldSet = 0;
         bankAccount.Section = 0;
@@ -353,9 +352,19 @@ export class SupplierInvoiceDetail implements OnInit {
         paymentID.Label = 'KID';
         paymentID.Property = 'PaymentID';
         paymentID.ReadOnly = false;
-        
-        self.fields = [supplierName, paymentDueDate, invoiceDate, taxInclusiveAmount, invoiceNumber, paymentInformation,
-                       bankAccount, paymentID];
+        //paymentID.LineBreak = true; // TODO issue #724   
+      
+        var paymentInformation = new UniFieldLayout();
+        paymentInformation.FieldSet = 0;
+        paymentInformation.Section = 0;
+        paymentInformation.Combo = 0;
+        paymentInformation.FieldType = 10;
+        paymentInformation.Label = 'Melding til bruker';
+        paymentInformation.Property = 'PaymentInformation';
+        paymentInformation.ReadOnly = false;
+                  
+        self.fields = [supplierName, paymentDueDate, invoiceDate, taxInclusiveAmount, invoiceNumber, 
+                       bankAccount, paymentID, paymentInformation];
         
         this.config = {            
         };
@@ -363,16 +372,5 @@ export class SupplierInvoiceDetail implements OnInit {
     
     private onFileUploaded(slot) {
         this.previewId = slot.ID;
-    }
-    
-    private submit(data) {      
-    }
-    
-    private change(data) {
-        
-    }
-    
-    private ready(data) {
-        
-    }
+    }    
 }

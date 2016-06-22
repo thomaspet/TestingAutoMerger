@@ -1,5 +1,5 @@
 <section class="application">
-    <h4>Faktura</h4><button (click)="createInvoice()">Ny faktura</button>
+    <h2>Faktura</h2><button class="new-button" (click)="createInvoice()">Ny faktura</button>
     <uni-table 
         [resource]="lookupFunction" 
         [config]="invoiceTable" 

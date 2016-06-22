@@ -211,7 +211,7 @@ export class JournalEntrySimpleForm implements OnChanges {
             amount.Options = {
                 step: 1
             };
-     
+                 
             var departement = new UniFieldLayout();            
             departement.FieldSet = 0;
             departement.Section = 0;
@@ -304,10 +304,10 @@ export class JournalEntrySimpleForm implements OnChanges {
         }
         
         if (changes['dropdownData'] != null && this.dropdownData) {
-            this.departements = this.dropdownData[0];
-            this.projects = this.dropdownData[1];
+            this.departements = this.dropdownData[0].unshift({ID: 0, DepartementManagerName: '', Name: '', Description: '', StatusCode: null, Deleted: false, CreatedAt: null, UpdatedAt: null, CreatedBy: ''});
+            this.projects = this.dropdownData[1].unshift({ID: 0, Name: '', StatusCode: null, Deleted: false, CreatedAt: null, UpdatedAt: null, CreatedBy: null});
             this.vattypes = this.dropdownData[2];
-            this.accounts = this.dropdownData[3]; 
+            this.accounts = this.dropdownData[3];
             
             // Refresh sources 
             this.fields[3].Options.source = this.accounts;

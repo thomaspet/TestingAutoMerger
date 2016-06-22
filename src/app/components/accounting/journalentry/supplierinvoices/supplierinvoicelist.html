@@ -1,6 +1,10 @@
 <section class="application">    
-    <h2>Leverandørfaktura</h2>
-    <button (click)="createInvoice()">Ny leverandørfaktura</button>
+    <h2>Leverandørfaktura</h2><button class="new-button" (click)="createInvoice()">Ny leverandørfaktura</button>
+    <p class="error validation" *ngIf="errors && errors.length > 0">
+        <span *ngFor="let error of errors">
+                {{error.Message}}
+        </span>
+    </p>
     <uni-table
             [resource]="lookupFunction"
             [config]="supplierInvoiceTableCfg"

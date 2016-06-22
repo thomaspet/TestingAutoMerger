@@ -1,4 +1,4 @@
-<header class="poster">
+<header class="poster">    
     <article class="poster_toolbar">
         <span *ngIf="supplierInvoice != null && supplierInvoice.ID > 0">
             <h2 class="poster_toolbar_headline">
@@ -16,14 +16,16 @@
 </header>
 
 <article class="supplier-invoice-detail-form">    
+    <p class="error validation" *ngIf="errors && errors.length > 0">
+        <span *ngFor="let error of errors">
+                {{error.Message}}
+        </span>
+    </p>
+
     <uni-form *ngIf='supplierInvoice'
         [config]='config'
         [fields]='fields'
-        [model]='supplierInvoice'
-        
-        (onSubmit)='submit($event)'
-        (onChange)='change($event)'
-        (onReady)='ready($event)'>
+        [model]='supplierInvoice'>
     </uni-form> 
 </article>
 
@@ -38,7 +40,7 @@
     [service]="fileuploader" 
     [entity]="supplierInvoice"
     (onFileUploaded)="onFileUploaded($event)"></uni-document-uploader>
-    <p class="error" style="min-height:40px"><span>{{fileuploader.statusText}}</span></p>              
+    <p class="error"><span>{{fileuploader.statusText}}</span></p>              
 </section>
 
 <footer class="full-footer">    
