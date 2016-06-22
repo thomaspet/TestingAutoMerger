@@ -1,6 +1,7 @@
-import {Component, OnInit, Injector} from '@angular/core';
+import {Component, OnInit} from '@angular/core';
 import {Router} from '@angular/router-deprecated';
-import {UniTable, UniTableColumn, UniTableBuilder} from '../../../../../framework/uniTable';
+import {UniTable, UniTableConfig, UniTableColumnType, UniTableColumn} from 'unitable-ng2/main';
+import {Observable} from 'rxjs/Observable';
 import {EmploymentService} from '../../../../services/services';
 import {EmployeeDS} from '../../../../data/employee';
 import {Employee, Employment} from '../../../../unientities';
@@ -21,13 +22,15 @@ export class EmploymentList implements OnInit {
     private selectedEmployment: Employment;
     private busy: boolean;
     private showEmploymentList: boolean = false;
-    private employmentListConfig: any;
+    private employmentListConfig: UniTableConfig;
+    private employments$: Observable<Employment>;
     
-    constructor(private _employmentService: EmploymentService, private injector: Injector, private employeeDataSource: EmployeeDS, private router: Router, private rootRouteParams: RootRouteParamsService) {        
+    constructor(private _employmentService: EmploymentService, private employeeDataSource: EmployeeDS, private router: Router, private rootRouteParams: RootRouteParamsService) {        
         this.currentEmployeeID = +rootRouteParams.params.get('id');
     }
     
     public ngOnInit() {
+        this.refreshList();
         this.employeeDataSource.get(this.currentEmployeeID)
         .subscribe((response: any) => {
             this.currentEmployee = response;
@@ -57,18 +60,21 @@ export class EmploymentList implements OnInit {
     
     private setTableConfig() {
         this.busy = true;
-        var idCol = new UniTableColumn('ID', 'Nr', 'number').setWidth('4rem');
-        var nameCol = new UniTableColumn('JobName', 'Tittel', 'string');
-        var styrkCol = new UniTableColumn('JobCode', 'Stillingskode', 'string');
+        var nameCol = new UniTableColumn('JobName', 'Stillingsnavn', UniTableColumnType.Text).setWidth('8%');
+        var styrkCol = new UniTableColumn('JobCode', 'Stillingskode', UniTableColumnType.Text).setWidth('5%');
         
-        this.employmentListConfig = new UniTableBuilder(this.currentEmployee.Employments, false)
-            .setSelectCallback((selected: Employment) => {
-            this.selectedEmployment = selected;
-        })
-        .setColumnMenuVisible(false)
-        .setPageable(false)
-        .addColumns(idCol, nameCol, styrkCol);
+        this.employmentListConfig = new UniTableConfig(false)
+        .setColumns([styrkCol, nameCol])
+        .setPageable(false);
         
         this.busy = false;
+    }
+
+    public refreshList() {
+        this.employments$ = this._employmentService.GetAll('filter=EmployeeID eq ' + this.currentEmployeeID);
+    }
+
+    public rowSelected(event) {
+        this.selectedEmployment = event.rowModel;
     }
 }

@@ -1,4 +1,4 @@
-import {Component, Injector, Input, ViewChild} from '@angular/core';
+import {Component, Injector, Input, Output, EventEmitter, ViewChild} from '@angular/core';
 import {EmployeeDS} from '../../../../data/employee';
 import {EmploymentService, StaticRegisterService} from '../../../../services/services';
 import {FieldType, STYRKCode, Employee, Employment, FieldLayout} from '../../../../unientities';
@@ -24,7 +24,9 @@ export class EmployeeEmployment {
 
     @Input() private currentEmployment: Employment;
     @Input() private currentEmployee: Employee;
-      
+
+    @Output() private refreshList: EventEmitter<any> = new EventEmitter<any>(true);
+
     private busy: boolean;
     
     private saveactions: IUniSaveAction[] = [
@@ -33,6 +35,12 @@ export class EmployeeEmployment {
             action: this.saveEmployment.bind(this),
             main: true,
             disabled: true
+        },
+        {
+            label: 'Nytt arbeidsforhold',
+            action: this.addNewEmployment.bind(this),
+            main: false,
+            disabled: false
         }
     ];
 
@@ -243,6 +251,7 @@ export class EmployeeEmployment {
         if (this.currentEmployment.ID > 0) {
             this._employmentService.Put(this.currentEmployment.ID, this.currentEmployment)
             .subscribe((response: Employment) => {
+                this.refreshList.emit(true);
                 this.currentEmployment = response;
                 done('Sist lagret: ');
             },
@@ -253,6 +262,7 @@ export class EmployeeEmployment {
             this._employmentService.Post(this.currentEmployment)
             .subscribe((response: Employment) => {
                 this.currentEmployment = response;
+                this.refreshList.emit(true);
                 done('Sist lagret: ');
             },
             (err) => {
@@ -265,10 +275,10 @@ export class EmployeeEmployment {
         console.log('Index when changing default: ' + index);
     }
     
-    public addNewEmployment() {
+    public addNewEmployment(done) {
         this._employmentService.GetNewEntity().subscribe((response: Employment) => {
-            var standardSubEntity = this.subEntities.find(newSubEntity => 
-                    newSubEntity.SuperiorOrganizationID === null);
+            /*var standardSubEntity = this.subEntities.find(newSubEntity => 
+                    newSubEntity.SuperiorOrganizationID === null);*/
                     
             var newEmployment = response;
             newEmployment.EmployeeNumber = this.currentEmployee.EmployeeNumber;
@@ -280,10 +290,12 @@ export class EmployeeEmployment {
             newEmployment.LastSalaryChangeDate = new Date();
             newEmployment.LastWorkPercentChangeDate = new Date();
             newEmployment.SeniorityDate = new Date();
-            newEmployment.SubEntityID = standardSubEntity.ID;
-            newEmployment.SubEntity = standardSubEntity;
+            // newEmployment.SubEntityID = standardSubEntity.ID;
+            // newEmployment.SubEntity = standardSubEntity;
             
-            this.currentEmployee.Employments.push(response);
+            this.currentEmployment = newEmployment;
+
+            done('');
         });
     }
 }

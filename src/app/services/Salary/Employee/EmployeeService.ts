@@ -9,6 +9,9 @@ export class EmployeeService extends BizHttp<Employee> {
         'BusinessRelationInfo.Addresses',
         'BusinessRelationInfo.Emails',
         'BusinessRelationInfo.Phones',
+        'BusinessRelationInfo.DefaultPhone',
+        'BusinessRelationInfo.InvoiceAddress',
+        'BusinessRelationInfo.DefaultEmail',
         'Employments.SubEntity.BusinessRelationInfo',
         'BankAccounts',
         'VacationRateEmployee',
@@ -267,7 +270,8 @@ export class EmployeeService extends BizHttp<Employee> {
                     Options: {
                         source: this.subEntities, 
                         valueProperty: 'ID',
-                        displayProperty: 'BusinessRelationInfo.Name'
+                        displayProperty: 'BusinessRelationInfo.Name',
+                        debounceTime: 200
                     },
                     Validations: [
                         {
@@ -309,8 +313,8 @@ export class EmployeeService extends BizHttp<Employee> {
                 {
                     ComponentLayoutID: 1,
                      
-                    EntityType: 'BusinessRelationInfo',
-                    Property: 'InvoiceAddress',
+                    EntityType: 'BusinessRelation',
+                    Property: 'BusinessRelationInfo.InvoiceAddress',
                     Placement: 2,
                     Hidden: false,
                     FieldType: 14,
@@ -332,8 +336,8 @@ export class EmployeeService extends BizHttp<Employee> {
                 {
                     ComponentLayoutID: 1,
                      
-                    EntityType: 'BusinessRelationInfo',
-                    Property: 'InvoiceAddress.CountryCode',
+                    EntityType: 'BusinessRelation',
+                    Property: 'BusinessRelationInfo.InvoiceAddress.CountryCode',
                     Placement: 4,
                     Hidden: false,
                     FieldType: FieldType.TEXT,
@@ -361,8 +365,8 @@ export class EmployeeService extends BizHttp<Employee> {
                 {
                     ComponentLayoutID: 1,
                      
-                    EntityType: 'BusinessRelationInfo',
-                    Property: 'InvoiceAddress.Country',
+                    EntityType: 'BusinessRelation',
+                    Property: 'BusinessRelationInfo.InvoiceAddress.Country',
                     Placement: 5,
                     Hidden: false,
                     FieldType: FieldType.TEXT,
@@ -391,8 +395,8 @@ export class EmployeeService extends BizHttp<Employee> {
                 {
                     ComponentLayoutID: 1,
                      
-                    EntityType: 'BusinessRelationInfo',
-                    Property: 'DefaultEmail',
+                    EntityType: 'BusinessRelation',
+                    Property: 'BusinessRelationInfo.DefaultEmail',
                     Placement: 6,
                     Hidden: false,
                     FieldType: 14,
@@ -413,8 +417,8 @@ export class EmployeeService extends BizHttp<Employee> {
                 {
                     ComponentLayoutID: 1,
                      
-                    EntityType: 'BusinessRelationInfo',
-                    Property: 'DefaultPhone.LandCode',
+                    EntityType: 'BusinessRelation',
+                    Property: 'BusinessRelationInfo.DefaultPhone.CountryCode',
                     Placement: 7,
                     Hidden: false,
                     FieldType: FieldType.TEXT,
@@ -442,8 +446,8 @@ export class EmployeeService extends BizHttp<Employee> {
                 {
                     ComponentLayoutID: 1,
                      
-                    EntityType: 'BusinessRelationInfo',
-                    Property: 'DefaultPhone',
+                    EntityType: 'BusinessRelation',
+                    Property: 'BusinessRelationInfo.DefaultPhone',
                     Placement: 8,
                     Hidden: false,
                     FieldType: 14,
