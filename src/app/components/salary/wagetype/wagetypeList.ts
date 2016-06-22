@@ -18,7 +18,7 @@ import {TabService} from '../../layout/navbar/tabstrip/tabService';
 })
 export class WagetypeList implements OnInit {
 
-    private tableConfig: any;
+    private tableConfig: UniTableConfig;
     private wageTypes$: Observable<WageType>;
 
     constructor(private _router: Router, private tabSer: TabService, private _wageTypeService: WageTypeService) {
