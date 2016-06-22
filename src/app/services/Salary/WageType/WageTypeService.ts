@@ -13,7 +13,7 @@ let taxType: Array<any> = [
     {ID: TaxType.Tax_None, Name: 'Ingen'},
     {ID: TaxType.Tax_Table, Name: 'Tabelltrekk'},
     {ID: TaxType.Tax_Percent, Name: 'Prosenttrekk'},
-    {ID: TaxType.Tax_0, Name: '...'}
+    {ID: TaxType.Tax_0, Name: 'Trekkplikt uten skattetrekk'}
 ];
 
 // let rateType: Array<any> = [
@@ -90,10 +90,10 @@ export class WageTypeService extends BizHttp<WageType> {
                     Property: 'WageTypeId',
                     Placement: 1,
                     Hidden: false,
-                    FieldType: FieldType.TEXT,
+                    FieldType: FieldType.NUMERIC,
                     ReadOnly: true,
                     LookupField: false,
-                    Label: 'Nummer',
+                    Label: 'Nr',
                     Description: null,
                     HelpText: null,
                     FieldSet: 0,
@@ -143,96 +143,17 @@ export class WageTypeService extends BizHttp<WageType> {
                 {
                     ComponentLayoutID: 1,
                     EntityType: 'wagetype',
-                    Property: 'Description',
+                    Property: 'AccountNumber',
                     Placement: 1,
                     Hidden: false,
-                    FieldType: FieldType.TEXT,
+                    FieldType: FieldType.NUMERIC,
                     ReadOnly: false,
                     LookupField: false,
-                    Label: 'Beskrivelse',
+                    Label: 'Hovedbokskonto',
                     Description: null,
                     HelpText: null,
                     FieldSet: 0,
                     Section: 0,
-                    Placeholder: null,
-                    Options: null,
-                    LineBreak: null,
-                    Combo: null,
-                    Sectionheader: '',
-                    hasLineBreak: false
-                },
-                {
-                    ComponentLayoutID: 1,
-                    EntityType: 'wagetype',
-                    Property: 'Base_EmploymentTax',
-                    Placement: 1,
-                    Hidden: false,
-                    FieldType: 5,
-                    ReadOnly: false,
-                    LookupField: false,
-                    Label: 'Skatt (tabell)',
-                    Description: null,
-                    HelpText: null,
-                    openByDefault: true,
-                    FieldSet: 0,
-                    Section: 1,
-                    Placeholder: null,
-                    Options: null,
-                    LineBreak: null,
-                    Combo: null,
-                    Sectionheader: 'Med i grunnlag for',
-                    hasLineBreak: false,
-                    // Validations: [
-                    //     {
-                    //         ErrorMessage: 'Required field',
-                    //         Level: 3,
-                    //         Operator: 'REQUIRED'
-                    //     }
-                    // ]
-                },
-                {
-                    ComponentLayoutID: 1,
-                    EntityType: 'wagetype',
-                    Property: 'Base_Payment',
-                    Placement: 1,
-                    Hidden: false,
-                    FieldType: 5,
-                    ReadOnly: false,
-                    LookupField: false,
-                    Label: 'Utbetaling',
-                    Description: null,
-                    HelpText: null,
-                    FieldSet: 0,
-                    Section: 1,
-                    Placeholder: null,
-                    Options: null,
-                    LineBreak: null,
-                    Combo: null,
-                    Sectionheader: '',
-                    hasLineBreak: false,
-                    // Validations: [
-                    //     {
-                    //         ErrorMessage: 'Required field',
-                    //         Level: 3,
-                    //         Operator: 'REQUIRED'
-                    //     }
-                    // ]
-                }
-                ,
-                {
-                    ComponentLayoutID: 1,
-                    EntityType: 'wagetype',
-                    Property: 'HideFromPaycheck',
-                    Placement: 1,
-                    Hidden: false,
-                    FieldType: 5,
-                    ReadOnly: false,
-                    LookupField: false,
-                    Label: 'Skjul på lønnslipp',
-                    Description: null,
-                    HelpText: null,
-                    FieldSet: 0,
-                    Section: 1,
                     Placeholder: null,
                     Options: null,
                     LineBreak: null,
@@ -256,7 +177,35 @@ export class WageTypeService extends BizHttp<WageType> {
                     FieldType: 5,
                     ReadOnly: false,
                     LookupField: false,
-                    Label: 'Feriepenger',
+                    Label: 'Grunnlag Feriepenger',
+                    Description: null,
+                    HelpText: null,
+                    FieldSet: 0,
+                    Section: 1,
+                    Placeholder: null,
+                    Options: null,
+                    LineBreak: null,
+                    Combo: null,
+                    Sectionheader: 'Innstillinger lønnsart',
+                    hasLineBreak: false,
+                    // Validations: [
+                    //     {
+                    //         ErrorMessage: 'Required field',
+                    //         Level: 3,
+                    //         Operator: 'REQUIRED'
+                    //     }
+                    // ]
+                },
+                {
+                    ComponentLayoutID: 1,
+                    EntityType: 'wagetype',
+                    Property: 'Base_EmploymentTax',
+                    Placement: 1,
+                    Hidden: false,
+                    FieldType: 5,
+                    ReadOnly: false,
+                    LookupField: false,
+                    Label: 'Grunnlag aga',
                     Description: null,
                     HelpText: null,
                     FieldSet: 0,
@@ -266,6 +215,96 @@ export class WageTypeService extends BizHttp<WageType> {
                     LineBreak: null,
                     Combo: null,
                     Sectionheader: '',
+                    hasLineBreak: false,
+                    // Validations: [
+                    //     {
+                    //         ErrorMessage: 'Required field',
+                    //         Level: 3,
+                    //         Operator: 'REQUIRED'
+                    //     }
+                    // ]
+                },
+                {
+                    ComponentLayoutID: 1,
+                    EntityType: 'wagetype',
+                    Property: 'Base_div1',
+                    Placement: 1,
+                    Hidden: false,
+                    FieldType: 5,
+                    ReadOnly: false,
+                    LookupField: false,
+                    Label: 'Grunnlag pensjon',
+                    Description: null,
+                    HelpText: null,
+                    FieldSet: 0,
+                    Section: 1,
+                    Placeholder: null,
+                    Options: null,
+                    LineBreak: null,
+                    Combo: null,
+                    Sectionheader: '',
+                    hasLineBreak: false,
+                    // Validations: [
+                    //     {
+                    //         ErrorMessage: 'Required field',
+                    //         Level: 3,
+                    //         Operator: 'REQUIRED'
+                    //     }
+                    // ]
+                },
+                {
+                    ComponentLayoutID: 1,
+                    EntityType: 'wagetype',
+                    Property: 'Base_Payment',
+                    Placement: 1,
+                    Hidden: false,
+                    FieldType: 5,
+                    ReadOnly: false,
+                    LookupField: false,
+                    Label: 'Utbetales',
+                    Description: null,
+                    HelpText: null,
+                    FieldSet: 0,
+                    Section: 1,
+                    Placeholder: null,
+                    Options: null,
+                    LineBreak: null,
+                    Combo: null,
+                    Sectionheader: '',
+                    hasLineBreak: false,
+                    // Validations: [
+                    //     {
+                    //         ErrorMessage: 'Required field',
+                    //         Level: 3,
+                    //         Operator: 'REQUIRED'
+                    //     }
+                    // ]
+                }, 
+                {
+                    ComponentLayoutID: 1,
+                    EntityType: 'wagetype',
+                    Property: 'taxtype',
+                    Placement: 1,
+                    Hidden: false,
+                    FieldType: FieldType.DROPDOWN,
+                    ReadOnly: false,
+                    LookupField: 'Name',
+                    Label: 'Type skattetrekk',
+                    Description: null,
+                    HelpText: null,
+                    FieldSet: 0,
+                    Section: 1,
+                    Placeholder: null,
+                    LineBreak: null,
+                    Combo: null,
+                    Sectionheader: '',
+                    Options: {
+                        source: taxType,
+                        template: (obj) => obj.Name,
+                        displayProperty: 'Name',
+                        valueProperty: 'ID',
+                        debounceTime: 500
+                    },
                     hasLineBreak: false,
                     // Validations: [
                     //     {
@@ -306,49 +345,17 @@ export class WageTypeService extends BizHttp<WageType> {
                     //         Operator: 'REQUIRED'
                     //     }
                     // ]
-                }
-                , {
+                },
+                {
                     ComponentLayoutID: 1,
                     EntityType: 'wagetype',
-                    Property: 'taxtype',
+                    Property: 'HideFromPaycheck',
                     Placement: 1,
                     Hidden: false,
-                    FieldType: FieldType.DROPDOWN,
-                    ReadOnly: false,
-                    LookupField: 'Name',
-                    Label: 'Type',
-                    Description: null,
-                    HelpText: null,
-                    FieldSet: 0,
-                    Section: 1,
-                    Placeholder: null,
-                    LineBreak: null,
-                    Combo: null,
-                    Sectionheader: '',
-                    Options: {
-                        source: taxType,
-                        displayProperty: 'Name',
-                        valueProperty: 'ID'
-                    },
-                    hasLineBreak: false,
-                    // Validations: [
-                    //     {
-                    //         ErrorMessage: 'Required field',
-                    //         Level: 3,
-                    //         Operator: 'REQUIRED'
-                    //     }
-                    // ]
-                }
-                , {
-                    ComponentLayoutID: 1,
-                    EntityType: 'wagetype',
-                    Property: 'AccountNumber',
-                    Placement: 1,
-                    Hidden: false,
-                    FieldType: FieldType.TEXT,
+                    FieldType: 5,
                     ReadOnly: false,
                     LookupField: false,
-                    Label: 'Hovedbokskonto',
+                    Label: 'Skjul på lønnslipp',
                     Description: null,
                     HelpText: null,
                     FieldSet: 0,
@@ -366,7 +373,37 @@ export class WageTypeService extends BizHttp<WageType> {
                     //         Operator: 'REQUIRED'
                     //     }
                     // ]
-                }
+                },
+                {
+                    ComponentLayoutID: 1,
+                    EntityType: 'wagetype',
+                    Property: 'AccountNumber_balance',
+                    Placement: 1,
+                    Hidden: false,
+                    FieldType: FieldType.NUMERIC,
+                    ReadOnly: false,
+                    LookupField: false,
+                    Label: 'Motkonto kredit',
+                    Description: null,
+                    HelpText: null,
+                    FieldSet: 0,
+                    Section: 1,
+                    Placeholder: null,
+                    Options: null,
+                    LineBreak: null,
+                    Combo: null,
+                    Sectionheader: '',
+                    hasLineBreak: false,
+                    // Validations: [
+                    //     {
+                    //         ErrorMessage: 'Required field',
+                    //         Level: 3,
+                    //         Operator: 'REQUIRED'
+                    //     }
+                    // ]
+                }, 
+                
+                
 
             ]
         }]);

@@ -1,26 +1,27 @@
-﻿import {Component, ViewChild} from "@angular/core";
+﻿import {Component, ViewChild} from '@angular/core';
 
-import {AccountList} from "./accountList/accountList";
-import {AccountDetails} from "./accountDetails/accountDetails";
-import {UniHttp} from "../../../../framework/core/http/http";
+import {AccountList} from './accountList/accountList';
+import {AccountDetails} from './accountDetails/accountDetails';
+import {Account} from '../../../unientities';
 
 @Component({
-    selector: "account-settings",
-    templateUrl: "app/components/settings/accountSettings/accountSettings.html",
+    selector: 'account-settings',
+    templateUrl: 'app/components/settings/accountSettings/accountSettings.html',
     directives: [AccountList, AccountDetails]
 })
-export class AccountSettings {
-    account = 0;
-    @ViewChild(AccountList) accountlist: AccountList;
+export class AccountSettings {    
+    @ViewChild(AccountList) private accountlist: AccountList;
 
-    constructor(private http: UniHttp) {
+    private accountID: number = 0;
+
+    constructor() {
     }
 
-    changeAccount(account) {
-        this.account = account;
+    private changeAccount(accountID: number) {
+        this.accountID = accountID;
     }
 
-    accountSaved(account) {
-        this.accountlist.refresh(account);
+    private accountSaved(account: Account) {
+        this.accountlist.refresh();
     }
 }

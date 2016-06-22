@@ -183,7 +183,7 @@ export class CompanySettings implements OnInit {
                     Property: 'WebAddress',
                     Placement: 1,
                     Hidden: false,
-                    FieldType: FieldType.TEXT,
+                    FieldType: FieldType.URL,
                     ReadOnly: false,
                     LookupField: false,
                     Label: 'Web',
@@ -620,7 +620,7 @@ export class CompanySettings implements OnInit {
                     Section: 1,
                     Placeholder: null,
                     Options: {
-                        source: this.periodSeries.filter((value) => value.SeriesType == 1),
+                        source: this.periodSeries.filter((value) => value.SeriesType === 1),
                         valueProperty: 'ID',
                         displayProperty: 'Name',                        
                         debounceTime: 200
@@ -647,7 +647,7 @@ export class CompanySettings implements OnInit {
                     Section: 1,
                     Placeholder: null,
                     Options: {                        
-                        source: this.periodSeries.filter((value) => value.SeriesType == 0),
+                        source: this.periodSeries.filter((value) => value.SeriesType === 0),
                         valueProperty: 'ID',
                         displayProperty: 'Name',                        
                         debounceTime: 200
@@ -746,7 +746,7 @@ export class CompanySettings implements OnInit {
 
     public syncCurrency() {
         console.log('LAST NED VALUTA');
-        this.currencyService.GetAction(0, 'download-from-norgesbank')
+        this.currencyService.GetAction(null, 'download-from-norgesbank')
             .subscribe(
                 (response: any) => {
                     alert('Valuta lasted ned');

@@ -271,9 +271,13 @@ export class CustomerDetails implements OnInit {
                     resolve(modalval);    
                 });               
             }),
-            display: (address: Address) => {                
-                let displayVal = address.AddressLine1 + ', ' + address.PostalCode + ' ' + address.City;
-                return displayVal;                  
+            display: (address: Address) => {
+                let displayVal = '';
+                if (address.AddressLine1 !== null && address.AddressLine1 !== '') {
+                    displayVal += address.AddressLine1 + ', ';  
+                }                
+                displayVal += address.PostalCode + ' ' + address.City; 
+                return displayVal;                                
             }         
         };
         
@@ -319,8 +323,12 @@ export class CustomerDetails implements OnInit {
                 });               
             }),
             display: (address: Address) => {                
-                let displayVal = address.AddressLine1 + ', ' + address.PostalCode + ' ' + address.City;
-                return displayVal;                  
+                let displayVal = '';
+                if (address.AddressLine1 !== null && address.AddressLine1 !== '') {
+                    displayVal += address.AddressLine1 + ', ';  
+                }                
+                displayVal += address.PostalCode + ' ' + address.City; 
+                return displayVal;                 
             }                        
         };
     }    

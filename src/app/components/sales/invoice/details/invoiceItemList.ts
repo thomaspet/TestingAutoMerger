@@ -52,6 +52,7 @@ export class InvoiceItemList implements OnInit {
                 (data) => {
                     this.products = data[0];
                     this.vatTypes = data[1];
+                    // Add a blank item in the dropdown controls
 
                     this.setupUniTable();
 
@@ -138,6 +139,8 @@ export class InvoiceItemList implements OnInit {
 
         let editable = this.invoice.StatusCode === StatusCodeCustomerInvoice.Draft;
 
+
+        //Table
         this.invoiceItemTable = new UniTableConfig(editable)
             .setColumns([
                 productCol, itemTextCol, unitCol, numItemsCol,
@@ -155,7 +158,8 @@ export class InvoiceItemList implements OnInit {
                 NumberOfItems: null,
                 PriceExVat: null,
                 Discount: null,
-                DiscountPercent: null
+                DiscountPercent: null,
+                Project: {ID:0}
             })
             .setChangeCallback((event) => {
                 var newRow = event.rowModel;

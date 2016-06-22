@@ -96,7 +96,7 @@ export class HamburgerMenu {
 
     private onClick(event) {
         event.stopPropagation();
-        if (event.srcElement.tagName === 'NAV') {
+        if (event.target.tagName === 'NAV') {
             this.open = !this.open;
         }
     }

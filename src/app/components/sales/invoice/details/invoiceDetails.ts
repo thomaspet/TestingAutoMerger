@@ -83,7 +83,12 @@ export class InvoiceDetails implements OnInit {
                 if (data) {
                     this.router.navigateByUrl('/sales/invoice/details/' + data.ID);
                 }
-            });
+            },
+            (err) => {
+                console.log('Error getting next invoice: ', err);
+                alert('Ikke flere faktura etter denne');
+            }
+            );
     }
 
     private previousInvoice() {
@@ -92,7 +97,12 @@ export class InvoiceDetails implements OnInit {
                 if (data) {
                     this.router.navigateByUrl('/sales/invoice/details/' + data.ID);
                 }
-            });
+            },
+            (err) => {
+                console.log('Error getting previous invoice: ', err);
+                alert('Ikke flere faktura før denne');
+            }
+            );
     }
 
     private addInvoice() {
@@ -141,6 +151,11 @@ export class InvoiceDetails implements OnInit {
                         this.invoice.Customer = customer;
                         this.addAddresses();
                         this.invoice.CustomerName = customer.Info.Name;
+                        if (customer.CreditDays !== null) {
+                            this.invoice.CreditDays = customer.CreditDays;
+                            this.invoice.PaymentDueDate = moment(this.invoice.InvoiceDate).startOf('day').add(Number(data.CreditDays), 'days').toDate();
+                        }
+
                         this.invoice = _.cloneDeep(this.invoice);
                     });
                 }
@@ -211,6 +226,7 @@ export class InvoiceDetails implements OnInit {
 
     private extendFormConfig() {
         // TODO Insert line breaks were needed 
+
 
         var departement: UniFieldLayout = this.fields.find(x => x.Property === 'Dimensions.DepartementID');
         departement.Options = {
@@ -331,7 +347,7 @@ export class InvoiceDetails implements OnInit {
             label: 'Lagre',
             action: (done) => this.saveInvoiceManual(done),
             main: true,
-            disabled: false
+            disabled: (this.invoice.StatusCode !== StatusCodeCustomerInvoice.Draft)
         });
 
         this.actions.push({
