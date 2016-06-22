@@ -70,9 +70,15 @@ export class UniUrlInput {
         if (this.lastControlValue === this.control.value) {
             return;
         }
-        if (this.validateURL(this.control.value)) {
-            lodash.set(this.model, this.field.Property, this.control.value);
-            this.lastControlValue = this.control.value;
+        
+        let newUrl = this.control.value;
+        if (!newUrl.startsWith('http://') && !newUrl.startsWith('https://')) {
+            newUrl = 'http://' + newUrl;
+        }
+        
+        if (this.validateURL(newUrl)) {
+            lodash.set(this.model, this.field.Property, newUrl);
+            this.lastControlValue = newUrl;
             this.onChange.emit(this.model);
         }
     }
