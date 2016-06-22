@@ -1,6 +1,6 @@
 <ol class="navbar_tabs">
-    <li *ngFor="let tab of tabService.tabs" (click)="activateTab(tab)">
+    <li *ngFor="let tab of tabService.tabs; let i = index" (click)="activateTab(tab, i)" [ngClass]="{'active-tab-class': tab.active, '': !tab.active}">
         {{tab.name}}
-        <span class="close" (click)="closeTab(tab)"></span>
+        <span class="close" (click)="closeTab(tab, i)"></span>
     </li>
 </ol>
