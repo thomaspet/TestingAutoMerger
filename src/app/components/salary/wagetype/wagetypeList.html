@@ -9,5 +9,5 @@
     </article>
 </header>
 <article class="application wagetype">
-    <uni-table [config]="wagetypelistConfig"></uni-table>
+    <uni-table [resource]="wageTypes$ | async" [config]="tableConfig" (rowSelected)="rowSelected($event)"></uni-table>
 </article>
