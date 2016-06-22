@@ -104,7 +104,6 @@ export class ControlModalContent {
         calculatedAga.ReadOnly = true;
         
         this.fields = [withholdingField, baseVacationPay, baseAga, netPayment, calculatedVacationPay, calculatedAga];
-        console.log('fields: ', JSON.stringify(this.fields));
     }
     
     private generateTableConfigs() {
@@ -127,8 +126,7 @@ export class ControlModalContent {
             this.model.salaryTransactionPay.PayList.forEach((payline: SalaryTransactionPayLine) => {
                 
                 let salaryTranses = this.transes.filter(x => x.EmployeeNumber === payline.EmployeeNumber && x.PayrollRunID === this.config.payrollRunID);
-                let section: {employeeInfo: {name: string, payment: number, hasTaxInfo: boolean}, paymentLines: SalaryTransaction[], collapsed: boolean} = 
-                {
+                let section: {employeeInfo: {name: string, payment: number, hasTaxInfo: boolean}, paymentLines: SalaryTransaction[], collapsed: boolean} = {
                     employeeInfo: {
                         name: payline.EmployeeName,
                         payment: payline.NetPayment,
@@ -185,7 +183,7 @@ export class ControlModal implements AfterViewInit {
     private modalElements: QueryList<UniModal>;
     private modals: UniModal[];
     private modalConfig: {hasCancelButton: boolean, cancel: any, actions: {text: string, method: any}[], payrollRunID: number};
-    private type: Type = ControlModalContent;
+    public type: Type = ControlModalContent;
     
     constructor(private rootRouteParams: RootRouteParamsService) {
         
@@ -215,7 +213,6 @@ export class ControlModal implements AfterViewInit {
             }],
             payrollRunID: this.payrollRunID
         };
-        console.log('modalConfig: ', JSON.stringify(this.modalConfig));
     }
     
     public ngAfterViewInit() {
