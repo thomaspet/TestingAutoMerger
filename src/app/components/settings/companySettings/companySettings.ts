@@ -68,6 +68,8 @@ export class CompanySettings implements OnInit {
     }
         
     private getDataAndSetupForm() {
+        this.getFormLayout();
+        
         Observable.forkJoin(
             this.companyTypeService.GetAll(null),
             this.currencyService.GetAll(null),
@@ -84,7 +86,7 @@ export class CompanySettings implements OnInit {
                 this.accounts = dataset[4];
                 this.company = dataset[5];
         
-                this.buildForm();
+                this.extendFormConfig();
                  
                 setTimeout(() => {
                     this.form.onReady.subscribe((event) => {
@@ -105,6 +107,23 @@ export class CompanySettings implements OnInit {
 
 
     public saveSettings(complete) {
+        
+        if (this.company.Address.length > 0 && !this.company.Address[0].ID) {
+            this.company.Address[0].ID = 0;
+            this.company.Address[0]._createguid = this.companySettingsService.getNewGuid();
+            this.company.Address[0].BusinessRelationID = 0;
+        }
+        
+        if (this.company.Emails.length > 0 && !this.company.Emails[0].ID) {
+            this.company.Emails[0].ID = 0;
+            this.company.Emails[0]._createguid = this.companySettingsService.getNewGuid();
+        }
+        
+        if (this.company.Phones.length > 0 && !this.company.Phones[0].ID) {
+            this.company.Phones[0].ID = 0;
+            this.company.Phones[0]._createguid = this.companySettingsService.getNewGuid();
+        }
+        
         this.companySettingsService
             .Put(this.company.ID, this.company)
             .subscribe(
@@ -113,7 +132,7 @@ export class CompanySettings implements OnInit {
                 },
                 (error) => {                    
                     complete('Feil oppsto ved lagring');
-                    alert('Feil oppsto ved lagring:' + error);
+                    alert('Feil oppsto ved lagring:' + JSON.stringify(error.json()));
                 }
             );
     }
@@ -127,8 +146,72 @@ export class CompanySettings implements OnInit {
                 }
             });
     }
+    
+    private extendFormConfig() {
+        this.accountGroupSets.unshift(null);
+        let accountGroupSetID: UniFieldLayout = this.fields.find(x => x.Property === 'AccountGroupSetID');
+        accountGroupSetID.Options = {
+            source: this.accountGroupSets,
+            valueProperty: 'ID',
+            displayProperty: 'Name',                        
+            debounceTime: 200                        
+        };
+        
+        this.companyTypes.unshift(null);
+        let companyTypeID: UniFieldLayout = this.fields.find(x => x.Property === 'CompanyTypeID');
+        companyTypeID.Options = {
+            source: this.companyTypes,
+            valueProperty: 'ID',
+            displayProperty: 'FullName',                        
+            debounceTime: 200
+        };
+        
+        this.currencies.unshift(null);
+        let baseCurrency: UniFieldLayout = this.fields.find(x => x.Property === 'BaseCurrency');
+        baseCurrency.Options = {                        
+            source: this.currencies,                        
+            valueProperty: 'Code',
+            displayProperty: 'Code',
+            debounceTime: 200
+        };
+        
+        let supplierAccountID: UniFieldLayout = this.fields.find(x => x.Property === 'SupplierAccountID');
+        supplierAccountID.Options = {                        
+            source: this.accounts,
+            valueProperty: 'ID',
+            displayProperty: 'AccountNumber',                        
+            debounceTime: 200,
+            template: (obj) => `${obj.AccountNumber} - ${obj.AccountName}`    
+        };
+        
+        let customerAccountID: UniFieldLayout = this.fields.find(x => x.Property === 'CustomerAccountID');
+        customerAccountID.Options = {                        
+            source: this.accounts,
+            valueProperty: 'ID',
+            displayProperty: 'AccountNumber',                        
+            debounceTime: 200,
+            template: (obj) => `${obj.AccountNumber} - ${obj.AccountName}`    
+        };
+        
+        let periodSeriesAccountID: UniFieldLayout = this.fields.find(x => x.Property === 'PeriodSeriesAccountID');
+        periodSeriesAccountID.Options = {
+            source: this.periodSeries.filter((value) => value.SeriesType == 1),                        
+            valueProperty: 'ID',
+            displayProperty: 'Name',                        
+            debounceTime: 200
+        };
+        
+        let periodSeriesVatID: UniFieldLayout = this.fields.find(x => x.Property === 'PeriodSeriesVatID');
+        periodSeriesVatID.Options = {
+            source: this.periodSeries.filter((value) => value.SeriesType == 0),                        
+            valueProperty: 'ID',
+            displayProperty: 'Name',                        
+            debounceTime: 200
+        };
+    }
+    
 
-    private buildForm() {
+    private getFormLayout() {
 
         this.config = {};
 
@@ -487,12 +570,7 @@ export class CompanySettings implements OnInit {
                     FieldSet: 0,
                     Section: 1,
                     Placeholder: null,
-                    Options: {
-                        source: this.companyTypes,
-                        valueProperty: 'ID',
-                        displayProperty: 'FullName',                        
-                        debounceTime: 200
-                    },
+                    Options: null,
                     LineBreak: null,
                     Combo: null,
                     Sectionheader: 'Selskapsoppsett',
@@ -514,12 +592,7 @@ export class CompanySettings implements OnInit {
                     FieldSet: 0,
                     Section: 1,
                     Placeholder: null,
-                    Options: {                        
-                        source: this.currencies,                        
-                        valueProperty: 'Code',
-                        displayProperty: 'Code',
-                        debounceTime: 200
-                    },
+                    Options: null,
                     LineBreak: null,
                     Combo: null,
                     Sectionheader: 'Selskapsoppsett',
@@ -541,13 +614,7 @@ export class CompanySettings implements OnInit {
                     FieldSet: 0,
                     Section: 1,
                     Placeholder: null,
-                    Options: {                        
-                        source: this.accounts,
-                        valueProperty: 'ID',
-                        displayProperty: 'AccountNumber',                        
-                        debounceTime: 200,
-                        template: (obj) => `${obj.AccountNumber} - ${obj.AccountName}`    
-                    },
+                    Options: null,
                     LineBreak: null,
                     Combo: null,
                     Sectionheader: 'Selskapsoppsett',
@@ -569,13 +636,7 @@ export class CompanySettings implements OnInit {
                     FieldSet: 0,
                     Section: 1,
                     Placeholder: null,
-                    Options: {
-                        source: this.accounts,
-                        valueProperty: 'ID',
-                        displayProperty: 'AccountNumber',                        
-                        debounceTime: 200,
-                        template: (obj) => `${obj.AccountNumber} - ${obj.AccountName}`                           
-                    },
+                    Options: null,
                     LineBreak: null,
                     Combo: null,
                     Sectionheader: 'Selskapsoppsett',
@@ -619,12 +680,7 @@ export class CompanySettings implements OnInit {
                     FieldSet: 0,
                     Section: 1,
                     Placeholder: null,
-                    Options: {
-                        source: this.periodSeries.filter((value) => value.SeriesType === 1),
-                        valueProperty: 'ID',
-                        displayProperty: 'Name',                        
-                        debounceTime: 200
-                    },
+                    Options: null,
                     LineBreak: null,
                     Combo: null,
                     Sectionheader: 'Selskapsoppsett',
@@ -646,12 +702,7 @@ export class CompanySettings implements OnInit {
                     FieldSet: 0,
                     Section: 1,
                     Placeholder: null,
-                    Options: {                        
-                        source: this.periodSeries.filter((value) => value.SeriesType === 0),
-                        valueProperty: 'ID',
-                        displayProperty: 'Name',                        
-                        debounceTime: 200
-                    },
+                    Options: null,
                     LineBreak: null,
                     Combo: null,
                     Sectionheader: 'Selskapsoppsett',
@@ -673,12 +724,7 @@ export class CompanySettings implements OnInit {
                     FieldSet: 0,
                     Section: 1,
                     Placeholder: null,
-                    Options: {
-                        source: this.accountGroupSets,
-                        valueProperty: 'ID',
-                        displayProperty: 'Name',                        
-                        debounceTime: 200                        
-                    },
+                    Options: null,
                     LineBreak: null,
                     Combo: null,
                     Sectionheader: 'Selskapsoppsett',
