@@ -4,6 +4,6 @@
         <vattype-list (uniVatTypeChange)="changeVatType($event)"></vattype-list>
     </div>
     <div class="vatDetails">
-        <vattype-details [VatType]="vatType"></vattype-details>
+        <vattype-details [vatType]="vatType" (vatTypeSaved)="vatTypeSaved($event)"></vattype-details>
     </div>
 </section>

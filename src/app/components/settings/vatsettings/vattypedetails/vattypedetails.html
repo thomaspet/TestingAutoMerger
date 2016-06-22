@@ -1,4 +1,10 @@
-<div *ngIf="model">
-    <h2>Detaljer</h2>
-    <uni-form (uniFormSubmit)="onSubmit($event)" [config]="config"></uni-form>
+<div *ngIf="vatType">
+    <h2>Detaljer</h2>    
+    <uni-form            
+        [config]="config" 
+        [fields]="fields" 
+        [model]="vatType"                
+        (onChange)="change($event)">
+    </uni-form>
+    <button (click)="saveVatType()" class="good">Lagre mvakode</button>    
 </div>

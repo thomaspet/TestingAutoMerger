@@ -1,4 +1,4 @@
-import {Component} from '@angular/core';
+import {Component, ViewChild} from '@angular/core';
 import {VatTypeList} from './vattypeList/vatTypeList';
 import {VatTypeDetails} from './vattypedetails/vattypedetails';
 import {VatType} from '../../../unientities';
@@ -9,11 +9,17 @@ import {VatType} from '../../../unientities';
     directives: [VatTypeList, VatTypeDetails]
 })
 export class VatSettings {
+    @ViewChild(VatTypeList) private vatTypeList: VatTypeList;
 
-    vatType: VatType;
+    private vatType: VatType;
 
-    changeVatType(vatType) {
+    public changeVatType(vatType) {
         this.vatType = vatType;
     }
+    
+    private vatTypeSaved(vatType: VatType) {
+        this.vatTypeList.refresh();
+    }
 }
+
     
