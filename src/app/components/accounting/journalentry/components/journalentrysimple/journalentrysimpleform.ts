@@ -304,11 +304,17 @@ export class JournalEntrySimpleForm implements OnChanges {
         }
         
         if (changes['dropdownData'] != null && this.dropdownData) {
-            this.departements = this.dropdownData[0].unshift({ID: 0, DepartementManagerName: '', Name: '', Description: '', StatusCode: null, Deleted: false, CreatedAt: null, UpdatedAt: null, CreatedBy: ''});
-            this.projects = this.dropdownData[1].unshift({ID: 0, Name: '', StatusCode: null, Deleted: false, CreatedAt: null, UpdatedAt: null, CreatedBy: null});
+            this.departements = this.dropdownData[0];
+            this.projects = this.dropdownData[1]
             this.vattypes = this.dropdownData[2];
             this.accounts = this.dropdownData[3];
             
+            // Add empty element to top of dropdown
+            var departement = new Departement(); departement.Name = '';            
+            var project = new Project(); project.Name = '';
+            this.departements.unshift(departement);
+            this.projects.unshift(project);
+                          
             // Refresh sources 
             this.fields[3].Options.source = this.accounts;
             this.fields[4].Options.source = this.vattypes;
@@ -407,7 +413,6 @@ export class JournalEntrySimpleForm implements OnChanges {
                 
         // Invoice tabbing
         self.form.Fields['InvoiceNumber'].onTab.subscribe((data) => {    
-            console.log("===== INVOICENUMBER ======");                    
             if (self.journalEntryLine.InvoiceNumber && self.journalEntryLine.InvoiceNumber !== '') {
                 self.customerInvoiceService.getInvoiceByInvoiceNumber(self.journalEntryLine.InvoiceNumber)
                     .subscribe((data) => {
@@ -445,17 +450,19 @@ export class JournalEntrySimpleForm implements OnChanges {
             });            
         } else {
             var oldData: JournalEntryData = _.cloneDeep(this.journalEntryLine);              
-            var numbers = this.journalEntryService.findJournalNumbersFromLines(this.journalEntryLines, journalEntryNumber);
-     
-            if (numbers) {
-                // next or same journal number?
-                if (oldData.SameOrNew === this.SAME_OR_NEW_NEW && this.mode != JournalEntryMode.Supplier) {
-                    oldData.JournalEntryNo = numbers.nextNumber;
-                } else {
-                    oldData.JournalEntryNo = numbers.lastNumber;        
+            
+            if (this.mode != JournalEntryMode.Supplier) {
+                var numbers = this.journalEntryService.findJournalNumbersFromLines(this.journalEntryLines, journalEntryNumber);            
+                if (numbers) {
+                    // next or same journal number?
+                    if (oldData.SameOrNew === this.SAME_OR_NEW_NEW && this.mode != JournalEntryMode.Supplier) {
+                        oldData.JournalEntryNo = numbers.nextNumber;
+                    } else {
+                        oldData.JournalEntryNo = numbers.lastNumber;        
+                    }
                 }
             }
-            
+                 
             var oldsameornew = oldData.SameOrNew;
             oldData.SameOrNew = oldData.JournalEntryNo;        
             this.created.emit(oldData);

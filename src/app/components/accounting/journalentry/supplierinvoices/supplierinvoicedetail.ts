@@ -93,8 +93,9 @@ export class SupplierInvoiceDetail implements OnInit {
             .subscribe((res) => {
                 this.supplierInvoice = res;
               
-                this.actions[1].disabled = !(this.supplierInvoice && this.supplierInvoice.ID > 0);
-                this.actions[1].disabled = !(this.supplierInvoice && this.supplierInvoice.ID > 0);                
+                this.actions[0].disabled = this.supplierInvoice.StatusCode == StatusCodeSupplierInvoice.Journaled;                
+                this.actions[1].disabled = this.supplierInvoice.StatusCode >= StatusCodeSupplierInvoice.Journaled;
+                this.actions[2].disabled = this.supplierInvoice.StatusCode >= StatusCodeSupplierInvoice.Journaled;               
             },
             (error) => {
                 this.setError(error);
@@ -117,7 +118,7 @@ export class SupplierInvoiceDetail implements OnInit {
                 this.supplierInvoice = invoice;
                 this.suppliers = suppliers;
                 this.bankAccounts = bac;
-
+                
                 this.actions[1].disabled = true;
                 this.actions[2].disabled = true;
 
@@ -154,9 +155,9 @@ export class SupplierInvoiceDetail implements OnInit {
             return;
         }
         
-        if (this.supplierInvoice.ID > 0) {
+        if (this.supplierInvoice.ID > 0) {            
+            let journalEntryData = this.journalEntryManual.getJournalEntryData();  
             
-            let journalEntryData = this.journalEntryManual.getJournalEntryData();             
             Observable.forkJoin(
                 this._journalEntryService.saveJournalEntryData(journalEntryData),
                 this._supplierInvoiceService.Put(this.supplierInvoice.ID, this.supplierInvoice)     
@@ -202,25 +203,25 @@ export class SupplierInvoiceDetail implements OnInit {
     private saveAndBook(done) {        
         //save and run transition to booking        
         let journalEntryData = this.journalEntryManual.getJournalEntryData();             
-        let sum = journalEntryData.map((line) => line.Amount).reduce((a, b) => a + b);
         
         this._journalEntryService
             .saveJournalEntryData(journalEntryData)
             .subscribe((res) => {
                 this._supplierInvoiceService.Put(this.supplierInvoice.ID, this.supplierInvoice)
                     .subscribe((res) => {
+                        let sum = journalEntryData.map((line) => line.Amount).reduce((a, b) => a + b);
                         if (sum != this.supplierInvoice.TaxInclusiveAmount) {
                             this.setError({Message: 'Sum bilagsbeløp er ulik leverandørfakturabeløp'});
                             done('Bokføring feilet');
                         } else {
                             this._supplierInvoiceService.Transition(this.supplierInvoice.ID, this.supplierInvoice, 'journal')
                                 .subscribe((res) => {
-                                    done("Lagret");
-                                    this.router.navigateByUrl('/accounting/journalentry/supplierinvoices/details/' + this.supplierInvoice.ID);
+                                    done("Bokført");
+                                    this.refreshFormData(this.supplierInvoice);
                                 },
                                 (error) => {
                                     this.setError(error);
-                                    done('Lagring feilet');
+                                    done('Bokføring feilet');
                                 }
                             );                            
                         }
