@@ -113,7 +113,6 @@ export class EmployeeEmployment {
     }
     
     private refreshDatafromModel() {
-        console.log('employment', this.currentEmployment);
         this._employmentService.layout('EmploymentDetails')
         .subscribe((layout: any) => {
             this.fields = layout.Fields;
@@ -232,11 +231,10 @@ export class EmployeeEmployment {
     }
     
     public ready(value) {
-        console.log('form ready', value);
+        // console.log('form ready', value);
     }
     
     public change(value) {
-        console.log('uniform changed', value);
         this.saveactions[0].disabled = false;
     }
     

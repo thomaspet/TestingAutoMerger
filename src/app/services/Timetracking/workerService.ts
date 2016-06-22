@@ -5,7 +5,18 @@ import {UniHttp} from '../../../framework/core/http/http';
 import {Observable} from "rxjs/Rx";
 import {AuthService} from '../../../framework/core/authService';
 import {URLSearchParams} from '@angular/http'
+import {toIso, addTime} from '../../components/timetracking/utils/utils';
+
 declare var moment;
+
+export enum ItemInterval {
+    all = 0,
+    today = 1,
+    thisWeek = 2,
+    thisMonth = 3,
+    lastTwoMonths = 4,
+    thisYear = 5
+}
 
 @Injectable()
 export class WorkerService extends BizHttp<Worker> {
@@ -106,8 +117,31 @@ export class WorkerService extends BizHttp<Worker> {
         return this.GET('workprofiles');
     }
     
-    getWorkItems(workRelationID: number): Observable<WorkItem[]> {
-        return this.GET('workitems', { filter: 'WorkRelationID eq ' + workRelationID, expand: 'WorkType', orderBy: 'StartTime' });
+    getWorkItems(workRelationID: number, interval: ItemInterval = ItemInterval.all): Observable<WorkItem[]> {
+        var filter = 'WorkRelationID eq ' + workRelationID;
+        var intervalFilter = "";
+        switch (interval) {
+            case ItemInterval.today:
+                intervalFilter = "date eq '" + toIso(new Date()) + "'";
+                break;
+            case ItemInterval.thisWeek:
+                intervalFilter = "date ge '" + toIso(moment().startOf("week").toDate()) + "' and date le '" + toIso(moment().endOf("week").toDate()) + "'";
+                break;
+            case ItemInterval.thisMonth:
+                intervalFilter = "date ge '" + toIso(moment().startOf("month").toDate()) + "' and date le '" + toIso(moment().endOf("month").toDate()) + "'";
+                break;
+            case ItemInterval.lastTwoMonths:
+                intervalFilter = "date ge '" + toIso(moment().add(-1,'month').startOf("month").toDate()) + "' and date le '" + toIso(moment().endOf("month").toDate()) + "'";
+                break;
+            case ItemInterval.thisYear:
+                intervalFilter = "date ge '" + toIso(moment().startOf("year").toDate()) + "' and date le '" + toIso(moment().endOf("year").toDate()) + "'";
+                break;
+            
+        }
+        if (intervalFilter.length>0) {
+            filter += " and ( " + intervalFilter + " )";
+        }
+        return this.GET('workitems', { filter: filter, expand: 'WorkType', orderBy: 'StartTime' });
     }
     
     getWorkItemById(id:number): Observable<WorkItem> {

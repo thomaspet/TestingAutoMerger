@@ -6,7 +6,7 @@
             <account-list (uniAccountChange)="changeAccount($event)"></account-list>
         </nav>
         <main class="splitview_detail">
-            <account-details (uniSaved)="accountSaved($event)" [account]="account"></account-details>
+            <account-details (accountSaved)="accountSaved($event)" [accountID]="accountID"></account-details>
         </main>
     </section>
 </section>

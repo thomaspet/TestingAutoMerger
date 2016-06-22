@@ -26,14 +26,17 @@
 </header>
 
 <section class="product-details application">
-    <uni-component-loader></uni-component-loader>        
+    <uni-form *ngIf='product'            
+        [config]="config" 
+        [fields]="fields" 
+        [model]="product"                
+        (onChange)="change($event)"
+        (onReady)="ready($event)">
+    </uni-form>        
 </section>
 
 <footer class="full-footer">
     <section class="application">
-        <button class="good" (click)="saveProductManual($event)">Lagre produkt</button>
-        <section class="auto_save_info">
-            {{ LastSavedInfo }}    
-        </section>
+        <uni-save [actions]="saveactions"></uni-save> 
     </section>
 </footer>

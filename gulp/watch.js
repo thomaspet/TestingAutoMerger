@@ -18,6 +18,6 @@ gulp.task('watch.html', function(done){
 
 gulp.task('watch', function() {
     gulp.watch('./src/**/*.ts', ['watch.ts']);
-    gulp.watch('./src/styles/*.sass', ['watch.sass']);
+    gulp.watch('./src/styles/**/*.sass', ['watch.sass']);
     gulp.watch('./src/**/*.html', ['watch.html']);
 });

@@ -1,7 +1,7 @@
 /// <reference path="../../typings/browser/ambient/es6-shim/es6-shim.d.ts"/>
 ///<reference path="../../node_modules/immutable/dist/immutable.d.ts"/>
 
-import {provide} from "@angular/core";
+import {provide, enableProdMode} from "@angular/core";
 import {HashLocationStrategy, LocationStrategy} from '@angular/common';
 import {bootstrap} from "@angular/platform-browser-dynamic";
 import {ROUTER_PROVIDERS} from "@angular/router-deprecated";
@@ -12,6 +12,11 @@ import {UniState} from '../framework/core/UniState';
 import {REPORT_PROVIDERS} from "./services/reports/index";
 import {IntegrationServerCaller} from './services/common/IntegrationServerCaller';
 import {AuthService} from './../framework/core/authService'
+
+declare var window;
+if(window.ENV === 'production') {
+    enableProdMode();
+}
 
 bootstrap(App, [
     // angular providers

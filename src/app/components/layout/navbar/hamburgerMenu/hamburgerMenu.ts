@@ -9,10 +9,13 @@ declare var jQuery;
     templateUrl: 'app/components/layout/navbar/hamburgerMenu/hamburgerMenu.html',
     directives: [ROUTER_DIRECTIVES, NgFor, NgClass],
     host: {
-        '(document:click)': 'onClick($event)'
+        '(click)': 'onClick($event)',
+        '(document:click)': 'offClick()'
     }
 })
 export class HamburgerMenu {
+    private open: boolean = false;
+
     public routes: AsyncRoute[] = ROUTES;
     public availableComponents: Array<any>;
 
@@ -91,26 +94,19 @@ export class HamburgerMenu {
         });
     }
 
-    private closeNavbar() {
-        jQuery('.navbar_hamburger').removeClass('is-active');
+    private onClick(event) {
+        event.stopPropagation();
+        if (event.target.tagName === 'NAV') {
+            this.open = !this.open;
+        }
     }
 
-    private onClick(event) {
-        let target = jQuery(event.target);
-
-        // Close on clicks outside
-        if (!target.parents(this.elementRef.nativeElement).length) {
-            this.closeNavbar();
-            return;
-        }
-
-        if (target.hasClass('navbar_hamburger')) {
-            target.toggleClass('is-active');
-        }
+    private offClick() {
+        this.open = false;
     }
 
     private navigate(url: string): void {
-        this.closeNavbar();
+        this.open = false;
         this.router.navigateByUrl(url);
     }
 }
