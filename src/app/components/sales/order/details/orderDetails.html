@@ -25,12 +25,19 @@
 </header>
 
 <section class="order-details application">
-    <uni-component-loader></uni-component-loader>
+    <uni-form *ngIf='order'
+              [config]="config"
+              [fields]="fields"
+              [model]="order"
+              (onChange)="change($event)"
+              (onReady)="ready($event)">
+    </uni-form>
+    <address-modal></address-modal>
+
 
     <order-item-list [order]="order" (itemsUpdated)="recalcItemSums($event)" (itemsLoaded)="recalcItemSums($event)"></order-item-list>    
-    <section class="order-items-summary-placeholder" *ngIf="!itemsSummaryData" aria-busy>
+    <section class="order-items-summary-placeholder" *ngIf="!itemsSummaryData" aria-busy> </section>
 
-    </section>
     <dl class="summary" *ngIf="itemsSummaryData" [attr.aria-busy]="busy">
         <dt>Avgiftsfritt</dt>
         <dd>Kr. {{itemsSummaryData.SumNoVatBasis}}</dd>        
@@ -52,10 +59,7 @@
 <report-preview-modal></report-preview-modal>
 
 <footer class="full-footer">
-    <section class="application">
+    <section class="application" *ngIf="actions">
         <uni-save [actions]="actions"></uni-save>
-        <section class="auto_save_info">
-            {{ lastSavedInfo }}    
-        </section>
     </section>
 </footer>

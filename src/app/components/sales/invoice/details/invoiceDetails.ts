@@ -20,6 +20,9 @@ import {TradeHeaderCalculationSummary} from '../../../../models/sales/TradeHeade
 
 import {PreviewModal} from '../../../reports/modals/preview/previewModal';
 
+import {InvoicePaymentData} from '../../../../models/sales/InvoicePaymentData';
+import {RegisterPaymentModal} from '../../../common/modals/registerPaymentModal';
+
 declare var _;
 declare var moment;
 
@@ -27,7 +30,7 @@ declare var moment;
 @Component({
     selector: 'invoice-details',
     templateUrl: 'app/components/sales/invoice/details/invoiceDetails.html',
-    directives: [RouterLink, InvoiceItemList, AddressModal, UniForm, UniSave, PreviewModal],
+    directives: [RouterLink, InvoiceItemList, AddressModal, UniForm, UniSave, PreviewModal, RegisterPaymentModal],
     providers: [CustomerInvoiceService, CustomerInvoiceItemService, CustomerService, ProjectService, DepartementService, AddressService, ReportDefinitionService]
 })
 export class InvoiceDetails implements OnInit {
@@ -37,6 +40,9 @@ export class InvoiceDetails implements OnInit {
     @ViewChild(AddressModal) public addressModal: AddressModal;
 
     @ViewChild(PreviewModal) private previewModal: PreviewModal;
+
+    @ViewChild(RegisterPaymentModal) private registerPaymentModal: RegisterPaymentModal;
+
 
     private config: any = {};
     private fields: any[] = [];
@@ -566,8 +572,50 @@ export class InvoiceDetails implements OnInit {
     }
 
     private payInvoice(done) {
-        alert('Registrer betaling  - Under construction');
-        done('Betalt faktura');
+        const title = `Register betaling, Faktura ${this.invoice.InvoiceNumber || ''}, ${this.invoice.CustomerName || ''}`;
+
+        const invoiceData: InvoicePaymentData = {
+            Amount: this.invoice.RestAmount,
+            PaymentDate: new Date()
+        };
+
+        this.registerPaymentModal.openModal(this.invoice.ID, title, invoiceData);
+        done('');
+    }
+
+    //private saveInvoiceTransition(done: any, transition: string) {
+    //    this.saveInvoice((invoice) => {
+    //        this.customerInvoiceService.Transition(this.invoice.ID, this.invoice, transition).subscribe(() => {
+    //            console.log('== TRANSITION OK ' + transition + ' ==');
+    //            this.router.navigateByUrl('/sales/invoice/details/' + this.invoice.ID);
+
+    //            this.customerInvoiceService.Get(invoice.ID, ['Dimensions', 'Items', 'Items.Product', 'Items.VatType', 'Customer',
+    //                'Customer.Info', 'Customer.Info.Addresses']).subscribe((data) => {
+    //                    this.invoice = data;
+    //                    this.updateStatusText();
+    //                    this.updateSaveActions();
+    //                    this.ready(null);
+    //                });
+    //            done('Fakturert');
+    //        }, (err) => {
+    //            console.log('Feil oppstod ved ' + transition + ' transition', err);
+    //            done('Feilet');
+    //            this.log(err);
+    //        });
+    //    }, transition);
+    //}
+
+    public onRegisteredPayment(modalData: any) {
+
+        this.customerInvoiceService.ActionWithBody(modalData.id, modalData.invoice, 'payInvoice').subscribe((journalEntry) => {
+            // TODO: Decide what to do here. Popup message or navigate to journalentry ??
+            // this.router.navigateByUrl('/sales/invoice/details/' + invoice.ID);
+            alert('Faktura er betalt. Bilagsnummer: ' + journalEntry.JournalEntryNumber);
+
+        }, (err) => {
+            console.log('Error registering payment: ', err);
+            this.log(err);
+        });
     }
 
     private deleteInvoice(done) {
@@ -631,8 +679,7 @@ export class InvoiceDetails implements OnInit {
         this.invoice.ShippingCountry = a.Country;
         this.invoice.ShippingCountryCode = a.CountryCode;
     }
-
-    // TODO: update to 'ComponentLayout' when the object respect interface
+    
     private getComponentLayout(): any {
 
         return {
