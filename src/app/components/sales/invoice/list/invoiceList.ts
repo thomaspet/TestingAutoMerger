@@ -85,9 +85,9 @@ export class InvoiceList implements OnInit {
                 params = new URLSearchParams();
             }
 
-            //if (params.get('orderby') === null) {
-            //    params.set('orderby', 'PaymentDueDate');
-            //}
+            if (params.get('orderby') === null) {
+                params.set('orderby', 'PaymentDueDate');
+            }
 
             return this.customerInvoiceService.GetAllByUrlSearchParams(params);
         };
@@ -101,6 +101,7 @@ export class InvoiceList implements OnInit {
             }
         });
 
+        // TODO Foreløpig kun tilgjengelig for type Faktura, ikke for Kreditnota
         contextMenuItems.push({
             label: 'Krediter',
             action: (rowModel) => {
@@ -115,6 +116,10 @@ export class InvoiceList implements OnInit {
                     );
             },
             disabled: (rowModel) => {
+                if (rowModel.InvoiceType === 1) {
+                    return true;
+                }
+
                 if (rowModel.StatusCode === StatusCodeCustomerInvoice.Invoiced ||
                     rowModel.StatusCode === StatusCodeCustomerInvoice.PartlyPaid ||
                     rowModel.StatusCode === StatusCodeCustomerInvoice.Paid) {
@@ -140,6 +145,7 @@ export class InvoiceList implements OnInit {
             action: () => { }
         });
 
+        //Type er FAKTURA
         contextMenuItems.push({
             label: 'Fakturer',
             action: (rowModel) => {
@@ -153,7 +159,29 @@ export class InvoiceList implements OnInit {
                 });
             },
             disabled: (rowModel) => {
-                if (rowModel.TaxInclusiveAmount === 0) {
+                if (rowModel.TaxInclusiveAmount === 0 || rowModel.InvoiceType === 1) {
+                    // Must have saved at minimum 1 item related to the invoice 
+                    return true;
+                }
+                return !rowModel._links.transitions.invoice;
+            }
+        });
+
+        //Type er KREDITNOTA
+        contextMenuItems.push({
+            label: 'Krediter kreditnota',
+            action: (rowModel) => {
+                this.customerInvoiceService.Transition(rowModel.ID, rowModel, 'invoice').subscribe(() => {
+                    console.log('== kreditnota Kreditert OK ==');
+                    alert('Kreditnota kreditert  OK');
+                    this.table.refreshTableData();
+                }, (err) => {
+                    console.log('Error fakturerer: ', err);
+                    this.log(err);
+                });
+            },
+            disabled: (rowModel) => {
+                if (rowModel.TaxInclusiveAmount === 0 || rowModel.InvoiceType === 0) {
                     // Must have saved at minimum 1 item related to the invoice 
                     return true;
                 }
