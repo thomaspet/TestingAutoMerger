@@ -7,6 +7,7 @@ import {FieldType, PayrollRun, SalaryTransaction} from '../../../../app/unientit
 import {SalaryTransactionService, PayrollrunService, EmployeeService} from '../../../../app/services/services';
 import {Observable} from 'rxjs/Observable';
 import {RootRouteParamsService} from '../../../services/rootRouteParams';
+import {SalaryTransactionPay, SalaryTransactionPayLine, SalaryTransactionSums} from '../../../models/models';
 
 declare var _; // lodash
 
@@ -19,12 +20,12 @@ declare var _; // lodash
 export class ControlModalContent {
     private busy: boolean;
     public formConfig: any = {};
-    public payList: {employeeInfo: any, paymentLine: any, collapsed: boolean}[] = null;
+    public payList: {employeeInfo: {name: string, payment: number, hasTaxInfo: boolean}, paymentLines: SalaryTransaction[], collapsed: boolean}[] = null;
     private payrollRun: PayrollRun;
     @Input('config')
-    private config: any;
+    private config: {hasCancelButton: boolean, cancel: any, actions: {text: string, method: any}[], payrollRunID: number};
     private transes: SalaryTransaction[];
-    private model: {sums: any, salaryTransactionPay: any} = {sums: null, salaryTransactionPay: null};
+    private model: {sums: SalaryTransactionSums, salaryTransactionPay: SalaryTransactionPay} = {sums: null, salaryTransactionPay: null};
     public tableConfig: UniTableConfig;
     public fields: UniFieldLayout[] = [];
     
@@ -123,16 +124,17 @@ export class ControlModalContent {
                     .setEditable(false)
                     .setPageable(false);
         if (this.model.salaryTransactionPay.PayList) {
-            this.model.salaryTransactionPay.PayList.forEach((payline) => {
+            this.model.salaryTransactionPay.PayList.forEach((payline: SalaryTransactionPayLine) => {
                 
-                var salaryTranses = this.transes.filter(x => x.EmployeeNumber === payline.EmployeeNumber && x.PayrollRunID === this.config.payrollRunID);
-                var section: any = {
+                let salaryTranses = this.transes.filter(x => x.EmployeeNumber === payline.EmployeeNumber && x.PayrollRunID === this.config.payrollRunID);
+                let section: {employeeInfo: {name: string, payment: number, hasTaxInfo: boolean}, paymentLines: SalaryTransaction[], collapsed: boolean} = 
+                {
                     employeeInfo: {
                         name: payline.EmployeeName,
                         payment: payline.NetPayment,
                         hasTaxInfo: payline.HasTaxInformation
                     },
-                    paymentLine: salaryTranses,
+                    paymentLines: salaryTranses,
                     collapsed: true
                 };
                 this.payList.push(section);
@@ -182,7 +184,7 @@ export class ControlModal implements AfterViewInit {
     @ViewChildren(UniModal)
     private modalElements: QueryList<UniModal>;
     private modals: UniModal[];
-    private modalConfig: any = {};
+    private modalConfig: {hasCancelButton: boolean, cancel: any, actions: {text: string, method: any}[], payrollRunID: number};
     private type: Type = ControlModalContent;
     
     constructor(private rootRouteParams: RootRouteParamsService) {
@@ -192,8 +194,6 @@ export class ControlModal implements AfterViewInit {
             this.payrollRunID = +rootRouteParams.params.get('id');
         }
         this.modalConfig = {
-            title: 'Kontroll ',
-            value: 'Ingen verdi',
             hasCancelButton: true,
             cancel: () => {
                 this.modals[0].getContent().then((component: ControlModalContent) => {

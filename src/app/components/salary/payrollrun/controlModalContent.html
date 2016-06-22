@@ -13,7 +13,7 @@
                 <em title="Mangler skattekort" class="-is-missing-info" *ngIf="!payLine.employeeInfo.hasTaxInfo"></em>
             </h4>
 
-            <uni-table [resource]="payLine.paymentLine" [config]="tableConfig" *ngIf="!payList[index].collapsed"></uni-table>
+            <uni-table [resource]="payLine.paymentLines" [config]="tableConfig" *ngIf="!payList[index].collapsed"></uni-table>
 
         </li>
     </ol>
