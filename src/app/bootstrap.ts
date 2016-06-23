@@ -11,7 +11,8 @@ import {UniHttp} from "../framework/core/http/http";
 import {UniState} from '../framework/core/UniState';
 import {REPORT_PROVIDERS} from "./services/reports/index";
 import {IntegrationServerCaller} from './services/common/IntegrationServerCaller';
-import {AuthService} from './../framework/core/authService'
+import {AuthService} from './../framework/core/authService';
+import {AccountService, VatTypeService, CurrencyService} from './services/services';
 
 declare var window;
 if(window.ENV === 'production') {
@@ -27,10 +28,13 @@ bootstrap(App, [
     // App providers
     //
     REPORT_PROVIDERS,
+    provide(AuthService, {useClass: AuthService}),
     provide(UniHttp, {useClass: UniHttp}),
     provide(UniState, {useClass: UniState}),
     
     // Services
-    provide(IntegrationServerCaller , { useClass: IntegrationServerCaller }),
-    provide(AuthService, {useClass: AuthService})
+    provide(AccountService, {useClass: AccountService}),
+    provide(VatTypeService, {useClass: VatTypeService}),
+    provide(CurrencyService, {useClass: CurrencyService}),
+    provide(IntegrationServerCaller , { useClass: IntegrationServerCaller })
 ]);

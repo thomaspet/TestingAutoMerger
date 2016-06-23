@@ -7,7 +7,7 @@ declare var jQuery;
 
 @Component({
     selector: 'uni-login',
-    templateUrl: 'app/components/authentication/login.html',
+    templateUrl: 'app/components/init/login.html',
     directives: [ROUTER_DIRECTIVES]
 })
 export class Login {
@@ -34,7 +34,7 @@ export class Login {
                 },
                 (error) => {
                     this.working = false;
-                    this.errorMessage = 'Invalid username or password'; // TODO: This should come from backend (statusText)?
+                    this.errorMessage = 'Noe gikk galt. Vennligst sjekk brukernavn og passord, og prøv igjen.'; // TODO: This should come from backend (statusText)?
                 }
             );        
     }
@@ -49,7 +49,6 @@ export class Login {
             return;
         }
         
-        var companies;
         this.http.asGET()
             .usingInitDomain()
             .withEndPoint('companies')
@@ -59,7 +58,7 @@ export class Login {
                 
                 if (response.status !== 200) {
                     this.loginSuccess = false;
-                    this.errorMessage = "Du har ingen selskaper. Midlertidig fix: gå til signup og lag ett.";
+                    this.errorMessage = 'Du har ingen selskaper. Midlertidig fix: gå til signup og lag ett.';
                     return;
                 }
                 
@@ -80,7 +79,7 @@ export class Login {
             dataTextField: 'Name',
             dataValueField: 'ID',
             optionLabel: {
-                Name: 'Select a company',
+                Name: 'Velg et selskap',
                 ID: -1
             },
             dataSource: {
@@ -104,6 +103,12 @@ export class Login {
     }
 
     private onCompanySelected() {
+        
+
+        this.navigate();
+    }
+
+    private navigate() {
         var url = localStorage.getItem('lastNavigationAttempt') || '/';
         localStorage.removeItem('lastNavigationAttempt');
         this._router.navigateByUrl(url);

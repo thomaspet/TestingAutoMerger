@@ -6,7 +6,7 @@ import {passwordValidator} from './authValidators';
 
 @Component({
     selector: 'uni-confirm-invite',
-    templateUrl: 'app/components/authentication/confirmInvite.html',
+    templateUrl: 'app/components/init/confirmInvite.html',
     directives: [NgIf, NgClass]
 })
 
