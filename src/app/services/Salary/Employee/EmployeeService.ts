@@ -5,17 +5,12 @@ import { Observable } from 'rxjs/Observable';
 
 export class EmployeeService extends BizHttp<Employee> {
     
-    public defaultExpand: any = [
+    private defaultExpands: any = [
         'BusinessRelationInfo.Addresses',
         'BusinessRelationInfo.Emails',
         'BusinessRelationInfo.Phones',
-        'BusinessRelationInfo.DefaultPhone',
-        'BusinessRelationInfo.InvoiceAddress',
-        'BusinessRelationInfo.DefaultEmail',
-        'Employments.SubEntity.BusinessRelationInfo',
-        'BankAccounts',
-        'VacationRateEmployee',
-        'SubEntity'
+        'Employments',
+        'BankAccounts'
     ];
     public debounceTime: number = 500;
     public subEntities: Observable<any>;
@@ -23,6 +18,7 @@ export class EmployeeService extends BizHttp<Employee> {
     constructor(http: UniHttp) {
         super(http);
         this.relativeURL = Employee.RelativeUrl;
+        this.defaultExpand = ['BusinessRelationInfo'];
     }
     public getEmployeeCategories(employeenumber: number) {
         return this.http
@@ -38,12 +34,15 @@ export class EmployeeService extends BizHttp<Employee> {
     }
     public get(id: number| string, expand: string[] = null) {    
         if (id === 0) {
-            return this.GetNewEntity();
+            if (expand) {
+                return this.GetNewEntity(expand);
+            }
+            return this.GetNewEntity(this.defaultExpands);
         }else {
             if (expand) {
                 return this.Get(id, expand);
             }
-            return this.Get(id, this.defaultExpand);
+            return this.Get(id, this.defaultExpands);
         }
     }
 
@@ -75,12 +74,22 @@ export class EmployeeService extends BizHttp<Employee> {
             .send();
     }
     
-    public getNext(id: number) {
-        return super.GetAction(id, 'next', 'expand:' + this.defaultExpand.join(','));
+    public getNext(id: number, expand: string[] = null) {
+        if (expand) {
+            return super.GetAction(id, 'next', 'expand:' + this.expand.join(','));
+        } else {
+            return super.GetAction(id, 'next', 'expand:' + this.defaultExpands.join(','));
+        }
+        
     }
     
-    public getPrevious(id: number) {
-        return super.GetAction(id, 'previous', 'expand:' + this.defaultExpand.join(','));
+    public getPrevious(id: number, expand: string[] = null) {
+        if (expand) {
+            return super.GetAction(id, 'previous', 'expand:' + expand.join(','));
+        } else {
+            return super.GetAction(id, 'previous', 'expand:' + this.defaultExpands.join(','));
+        }
+        
     }
     
     public layout(layoutID: string) {
@@ -133,7 +142,9 @@ export class EmployeeService extends BizHttp<Employee> {
                     FieldSet: 0,
                     Section: 0,
                     Placeholder: null,
-                    Options: null,
+                    Options: {
+                        mask: '000000 00000'
+                    },
                     LineBreak: null,
                     Combo: null,
                     Sectionheader: '',
@@ -325,72 +336,13 @@ export class EmployeeService extends BizHttp<Employee> {
                     HelpText: null,
                     FieldSet: 0,
                     Section: 1,
-                    Placeholder: null,
+                    Placeholder: 'Legg til adresse',
                     Options: null,
                     LineBreak: null,
                     Combo: null,
                     Sectionheader: 'KONTAKTINFORMASJON',
                     IsLookUp: false,
                     openByDefault: true
-                },
-                {
-                    ComponentLayoutID: 1,
-                     
-                    EntityType: 'BusinessRelation',
-                    Property: 'BusinessRelationInfo.InvoiceAddress.CountryCode',
-                    Placement: 4,
-                    Hidden: false,
-                    FieldType: FieldType.TEXT,
-                    ReadOnly: false,
-                    LookupField: false,
-                    Label: 'Landskode (land)',
-                    Description: null,
-                    HelpText: null,
-                    FieldSet: 0,
-                    Section: 1,
-                    Placeholder: null,
-                    Options: null,
-                    LineBreak: null,
-                    Combo: null,
-                    Sectionheader: '',
-                    IsLookUp: false,
-                    Validations: [
-                        {
-                            ErrorMessage: 'Required field',
-                            Level: 3,
-                            Operator: 7 // required
-                        }
-                    ]
-                },
-                {
-                    ComponentLayoutID: 1,
-                     
-                    EntityType: 'BusinessRelation',
-                    Property: 'BusinessRelationInfo.InvoiceAddress.Country',
-                    Placement: 5,
-                    Hidden: false,
-                    FieldType: FieldType.TEXT,
-                    ReadOnly: false,
-                    LookupField: false,
-                    Label: 'Land',
-                    Description: null,
-                    HelpText: null,
-                    FieldSet: 0,
-                    Section: 1,
-                    Placeholder: null,
-                    Options: null,
-                    LineBreak: null,
-                    Combo: null,
-                    Sectionheader: '',
-                    IsLookUp: false,
-                    hasLineBreak: true,
-                    Validations: [
-                        {
-                            ErrorMessage: 'Required field',
-                            Level: 3,
-                            Operator: 7 // required
-                        }
-                    ]
                 },
                 {
                     ComponentLayoutID: 1,
@@ -413,35 +365,6 @@ export class EmployeeService extends BizHttp<Employee> {
                     Combo: null,
                     Sectionheader: '',
                     IsLookUp: false
-                },
-                {
-                    ComponentLayoutID: 1,
-                     
-                    EntityType: 'BusinessRelation',
-                    Property: 'BusinessRelationInfo.DefaultPhone.CountryCode',
-                    Placement: 7,
-                    Hidden: false,
-                    FieldType: FieldType.TEXT,
-                    ReadOnly: false,
-                    LookupField: false,
-                    Label: 'Landskode (tlf)',
-                    Description: null,
-                    HelpText: null,
-                    FieldSet: 0,
-                    Section: 1,
-                    Placeholder: null,
-                    Options: null,
-                    LineBreak: null,
-                    Combo: null,
-                    Sectionheader: '',
-                    IsLookUp: false,
-                    Validations: [
-                        {
-                            ErrorMessage: 'Required field',
-                            Level: 3,
-                            Operator: 7 // required
-                        }
-                    ]
                 },
                 {
                     ComponentLayoutID: 1,

@@ -21,6 +21,13 @@ declare var _;
     templateUrl: 'app/components/salary/employee/personalDetails/personalDetails.html'
 })
 export class PersonalDetails {
+
+    public expands: any = [
+        'BusinessRelationInfo.Addresses',
+        'BusinessRelationInfo.Emails',
+        'BusinessRelationInfo.Phones',
+        'BankAccounts',
+    ];
     
     public config: any = {};
     public fields: any[] = [];
@@ -34,7 +41,7 @@ export class PersonalDetails {
     @ViewChild(AddressModal) public addressModal: AddressModal;
 
     private employee: Employee;
-    private employeeID: any;
+    private employeeID: number;
     
     private saveactions: IUniSaveAction[] = [
         {
@@ -71,11 +78,12 @@ export class PersonalDetails {
     
     private getData() {
         Observable.forkJoin(
-            this.employeeService.get(this.employeeID),
+            this.employeeService.get(this.employeeID, this.expands),
             this.employeeService.layout('EmployeePersonalDetailsForm')
         ).subscribe(
             (response: any) => {
                 var [employee, layout] = response;
+                console.log('employee: ', employee);
                 console.log('businessRelationInfo: ', employee.BusinessRelationInfo);
                 layout.Fields[0].Validators = [{
                     'EntityType': 'BusinessRelation',
@@ -122,7 +130,14 @@ export class PersonalDetails {
                 this.phoneModal.Changed.subscribe(modalval => {
                     resolve(modalval);    
                 }); 
-            })
+            }),
+            display: (phone: Phone) => {
+                let displayVal = '';
+                if (phone.Number) {
+                    displayVal = (phone.CountryCode && phone.Number.substr(0, 3) !== phone.CountryCode ? phone.CountryCode + ' ' : '') + phone.Number;
+                }
+                return displayVal;
+            }
         };
         
         let multiValueEmail: UniFieldLayout = this.findByProperty(this.fields, 'BusinessRelationInfo.DefaultEmail');
@@ -164,15 +179,13 @@ export class PersonalDetails {
                 this.addressModal.openModal(value);
 
                 this.addressModal.Changed.subscribe(modalval => {
-                    if (!modalval.CountryCode) {
 
-                    }
                     resolve(modalval);
                 });
             }),
             display: (address: Address) => {
                                 
-                let displayVal = (address.AddressLine1 ? address.AddressLine1 + ', ' : '') + (address.PostalCode || '') + ' ' + (address.City || '');
+                let displayVal = (address.AddressLine1 ? address.AddressLine1 + ', ' : '') + (address.PostalCode || '') + ' ' + (address.City || '') + (address.CountryCode ? ', ' + address.CountryCode : '');
                 return displayVal;                  
             }  
         };
@@ -189,11 +202,13 @@ export class PersonalDetails {
         console.log('form ready', value);
         this.uniform.section(1).toggle();
         this.uniform.section(2).toggle();
+        this.saveactions[0].disabled = true;
     }
     
     public change(value) {
         console.log('uniform changed', value);
         console.log('SubEntityID: ', this.employee.SubEntityID);
+        this.employee = _.cloneDeep(this.employee);
         this.saveactions[0].disabled = false;
     }
     
@@ -201,7 +216,6 @@ export class PersonalDetails {
 
         this.employee.BusinessRelationInfo.Emails.forEach(email => {
             if (email.ID === 0) {
-                email.BusinessRelationID = this.employee.BusinessRelationID;
                 email['_createguid'] = this.employeeService.getNewGuid();
             }
         });
@@ -212,7 +226,6 @@ export class PersonalDetails {
         
         this.employee.BusinessRelationInfo.Phones.forEach(phone => {
             if (phone.ID === 0) {
-                phone.BusinessRelationID = this.employee.BusinessRelationID;
                 phone['_createguid'] = this.employeeService.getNewGuid();
             }
         });
@@ -223,7 +236,6 @@ export class PersonalDetails {
         
         this.employee.BusinessRelationInfo.Addresses.forEach(address => {
             if (address.ID === 0) {
-                address.BusinessRelationID = this.employee.BusinessRelationID;
                 address['_createguid'] = this.employeeService.getNewGuid();
             }
         });
@@ -243,17 +255,13 @@ export class PersonalDetails {
         if (this.employee.BusinessRelationInfo.InvoiceAddress === null && this.employee.BusinessRelationInfo.InvoiceAddressID === 0) {
             this.employee.BusinessRelationInfo.InvoiceAddressID = null;
         }
-
-        this.employee.SubEntity = null;
-
-
         console.log('on save SubEntityID: ', this.employee.SubEntityID);
         done('Lagrer persondetaljer');
         if (this.employee.ID > 0) {
             this.employeeService.Put(this.employee.ID, this.employee)
             .subscribe((response: Employee) => {
                 done('Sist lagret: ');
-                this.employeeService.get(this.employee.ID).subscribe((emp: Employee) => {
+                this.employeeService.get(this.employee.ID, this.expands).subscribe((emp: Employee) => {
                     this.employee = emp;
                 });
                 this.router.navigateByUrl('/salary/employees/' + this.employee.ID);

@@ -1,11 +1,57 @@
 import {BizHttp} from '../../../../framework/core/http/BizHttp';
 import {UniHttp} from '../../../../framework/core/http/http';
-import {Employment, FieldType} from '../../../unientities';
+import {Employment, FieldType, TypeOfEmployment, RenumerationType, WorkingHoursScheme} from '../../../unientities';
 import { Observable } from 'rxjs/Observable';
 
 export class EmploymentService extends BizHttp<Employment> {
     
     public subEntities: Observable<any>;
+
+    private typeOfEmployment: {ID: number, Name: string}[] = [
+        {ID: 0, Name: 'Ikke valgt'},
+        {ID: TypeOfEmployment.OrdinaryEmployment, Name: '1 - Ordinært arbeidsforhold'},
+        {ID: TypeOfEmployment.MaritimeEmployment, Name: '2 - Maritimt arbeidsforhold'},
+        {ID: TypeOfEmployment.FrilancerContratorFeeRecipient, Name: '3 - Frilanser, oppdragstager, honorar'},
+        {ID: TypeOfEmployment.PensionOrOtherNonEmployedBenefits, Name: '4 - Pensjon og annet uten ansettelse'}
+    ];
+
+    private renumerationType: {ID: number, Name: string}[] = [
+        {ID: 0, Name: 'Ikke valgt'},
+        {ID: RenumerationType.Salaried, Name: '1 - Fast lønnet'},
+        {ID: RenumerationType.HourlyPaid, Name: '2 - Timelønnet'},
+        {ID: RenumerationType.PaidOnCommission, Name: '3 - Provisjonslønnet'},
+        {ID: RenumerationType.Fees, Name: '4 - Honorar'},
+        {ID: RenumerationType.Piecework, Name: '5 - Akkord'}
+    ];
+
+    private workingHoursScheme: {ID: number, Name: string}[] = [
+        {ID: 0, Name: 'Ikke valgt'},
+        {ID: WorkingHoursScheme.NonShift, Name: '1 - Ikke skiftarbeid'},
+        {ID: WorkingHoursScheme.OffshoreWork, Name: '2 - Arbeid offshore'},
+        {ID: WorkingHoursScheme.SemiContinousShiftAndRotaWork, Name: '3 - Helkontinuerlig skiftarbeid'},
+        {ID: WorkingHoursScheme.ContinuousShiftAndOtherSchemes, Name: '4 - Døgnkontinuerlig skiftarbeid'},
+        {ID: WorkingHoursScheme.ShiftWork, Name: '5 - skiftarbeid'}
+    ];
+    
+    // private shipType: {ID: number, Name: string}[] = [
+    //     {ID: 0, Name: 'Udefinert'},
+    //     {ID: 1, Name: '1 - Annet'},
+    //     {ID: 2, Name: '2 - Boreplattform'},
+    //     {ID: 3, Name: '3 - Turist'}
+    // ];
+
+    // private shipReg: {ID: number, Name: string}[] = [
+    //     {ID: 0, Name: 'Udefinert'},
+    //     {ID: 1, Name: '1 - Norsk Internasjonalt skipsregister'},
+    //     {ID: 2, Name: '2 - Norsk ordinært skipsregister'},
+    //     {ID: 3, Name: '3 - Utenlandsk skipsregister'}
+    // ];
+
+    // private tradeArea: {ID: number, Name: string}[] = [
+    //     {ID: 0, Name: 'Udefinert'},
+    //     {ID: 1, Name: '1 - Innenriks'},
+    //     {ID: 2, Name: '2 - Utenriks'}
+    // ];
     
     constructor(http: UniHttp) {
         super(http);
@@ -17,6 +63,26 @@ export class EmploymentService extends BizHttp<Employment> {
             Name: layoutID,
             BaseEntity: 'Employment',
             Fields: [
+                {
+                    ComponentLayoutID: 1,
+                    EntityType: 'Employment',
+                    Property: 'JobCode',
+                    Placement: 1,
+                    Hidden: false,
+                    FieldType: FieldType.AUTOCOMPLETE,
+                    ReadOnly: false,
+                    LookupField: false,
+                    Label: 'Stillingskode',
+                    Description: null,
+                    HelpText: null,
+                    FieldSet: 0,
+                    Section: 0,
+                    Placeholder: 'Stillingskode',
+                    Options: null,
+                    LineBreak: null,
+                    Combo: null,
+                    Sectionheader: '',
+                }
                 {
                     ComponentLayoutID: 1,
                     EntityType: 'Employment',
@@ -64,26 +130,26 @@ export class EmploymentService extends BizHttp<Employment> {
                         }
                     ]
                 },
-                // {
-                //     ComponentLayoutID: 1,
-                //     EntityType: 'Employment',
-                //     Property: 'Standard',
-                //     Placement: 4,
-                //     Hidden: false,
-                //     FieldType: FieldType.CHECKBOX, -should be 5
-                //     ReadOnly: false,
-                //     LookupField: false,
-                //     Label: 'Standard',
-                //     Description: null,
-                //     HelpText: null,
-                //     FieldSet: 0,
-                //     Section: 0,
-                //     Placeholder: null,
-                //     LineBreak: null,
-                //     Combo: null,
-                //     Sectionheader: '',
-                //     IsLookUp: false,
-                // },
+                {
+                     ComponentLayoutID: 1,
+                     EntityType: 'Employment',
+                     Property: 'Standard',
+                     Placement: 4,
+                     Hidden: false,
+                     FieldType: 5
+                     ReadOnly: false,
+                     LookupField: false,
+                     Label: 'Standard',
+                     Description: null,
+                     HelpText: null,
+                     FieldSet: 0,
+                     Section: 0,
+                     Placeholder: null,
+                     LineBreak: null,
+                     Combo: null,
+                     Sectionheader: '',
+                     IsLookUp: false,
+                },
                 {
                     ComponentLayoutID: 1,
                     EntityType: 'Employment',
@@ -190,114 +256,104 @@ export class EmploymentService extends BizHttp<Employment> {
                     LineBreak: null,
                     IsLookUp: false,
                 },
-                
-            ]
-        }]);
-    }
-    
-    public layoutSection(layoutID: string) {
-        return Observable.from([{
-            Name: layoutID,
-            BaseEntity: 'Employment',
-            Fields: [
-                // {
-                //     ComponentLayoutID: 1,
-                //     EntityType: 'Employment',
-                //     Property: 'TypeOfEmployment',
-                //     Placement: 3,
-                //     Hidden: false,
-                //     FieldType: FieldType.COMBOBOX,
-                //     ReadOnly: false,
-                //     LookupField: false,
-                //     Label: 'Arbeidsforhold',
-                //     Description: null,
-                //     HelpText: null,
-                //     FieldSet: 0,
-                //     Section: 1,
-                //     Placeholder: null,
-                //     Options: {
-                //         source: this.typeofEmployment, 
-                //         valueProperty: 'ID',
-                //         displayProperty: 'Name'
-                //     },
-                //     LineBreak: null,
-                //     Combo: null,
-                //     Sectionheader: 'A-meldingsinformasjon',
-                //     IsLookUp: false,
-                //     hasLineBreak: true,
-                //     Validations: [
-                //         {
-                //             ErrorMessage: 'Required field',
-                //             Level: 3,
-                //             Operator: 7 // required
-                //         }
-                //     ]
-                // },
-                // {
-                //     ComponentLayoutID: 1,
-                //     EntityType: 'Employment',
-                //     Property: 'RenumerationType',
-                //     Placement: 4,
-                //     Hidden: false,
-                //     FieldType: FieldType.COMBOBOX,
-                //     ReadOnly: false,
-                //     LookupField: false,
-                //     Label: 'Avlønningstype',
-                //     Description: null,
-                //     HelpText: null,
-                //     FieldSet: 0,
-                //     Section: 1,
-                //     Placeholder: null,
-                //     Options: {
-                //         source: this.renumertaionType, 
-                //         valueProperty: 'ID',
-                //         displayProperty: 'Name'
-                //     },
-                //     LineBreak: null,
-                //     Combo: null,
-                //     Sectionheader: '',
-                //     IsLookUp: false,
-                //     Validations: [
-                //         {
-                //             ErrorMessage: 'Required field',
-                //             Level: 3,
-                //             Operator: 7 // required
-                //         }
-                //     ]
-                // },
-                // {
-                //     ComponentLayoutID: 1,
-                //     EntityType: 'Employment',
-                //     Property: 'WorkingHoursScheme',
-                //     Placement: 5,
-                //     Hidden: false,
-                //     FieldType: FieldType.COMBOBOX,
-                //     ReadOnly: false,
-                //     LookupField: false,
-                //     Label: 'Arbeidstid',
-                //     Description: null,
-                //     HelpText: null,
-                //     FieldSet: 0,
-                //     Section: 1,
-                //     Placeholder: null,
-                //     Options: {
-                //         source: this.workingHoursScheme, 
-                //         valueProperty: 'ID',
-                //         displayProperty: 'Name'
-                //     },
-                //     LineBreak: null,
-                //     Combo: null,
-                //     Sectionheader: '',
-                //     IsLookUp: false,
-                //     hasLineBreak: true,
-                //     Validations: [
-                //         {
-                //             ErrorMessage: 'Required field',
-                //             Level: 3,
-                //             Operator: 7 // required
-                //         }
-                //     ]
-                // },
+                {
+                    ComponentLayoutID: 1,
+                    EntityType: 'Employment',
+                    Property: 'TypeOfEmployment',
+                    Placement: 3,
+                    Hidden: false,
+                    FieldType: FieldType.DROPDOWN,
+                    ReadOnly: false,
+                    LookupField: false,
+                    Label: 'Arbeidsforhold',
+                    Description: null,
+                    HelpText: null,
+                    FieldSet: 0,
+                    Section: 1,
+                    Placeholder: null,
+                    Options: {
+                        source: this.typeOfEmployment, 
+                        valueProperty: 'ID',
+                        displayProperty: 'Name'
+                    },
+                    LineBreak: null,
+                    Combo: null,
+                    Sectionheader: 'A-meldingsinformasjon',
+                    IsLookUp: false,
+                    hasLineBreak: true,
+                    Validations: [
+                        {
+                            ErrorMessage: 'Required field',
+                            Level: 3,
+                            Operator: 7 // required
+                        }
+                    ]
+                },
+                {
+                    ComponentLayoutID: 1,
+                    EntityType: 'Employment',
+                    Property: 'RenumerationType',
+                    Placement: 4,
+                    Hidden: false,
+                    FieldType: FieldType.DROPDOWN,
+                    ReadOnly: false,
+                    LookupField: false,
+                    Label: 'Avlønningstype',
+                    Description: null,
+                    HelpText: null,
+                    FieldSet: 0,
+                    Section: 1,
+                    Placeholder: null,
+                    Options: {
+                        source: this.renumerationType, 
+                        valueProperty: 'ID',
+                        displayProperty: 'Name'
+                    },
+                    LineBreak: null,
+                    Combo: null,
+                    Sectionheader: '',
+                    IsLookUp: false,
+                    Validations: [
+                        {
+                            ErrorMessage: 'Required field',
+                            Level: 3,
+                            Operator: 7 // required
+                        }
+                    ]
+                },
+                {
+                    ComponentLayoutID: 1,
+                    EntityType: 'Employment',
+                    Property: 'WorkingHoursScheme',
+                    Placement: 5,
+                    Hidden: false,
+                    FieldType: FieldType.DROPDOWN,
+                    ReadOnly: false,
+                    LookupField: false,
+                    Label: 'Arbeidstid',
+                    Description: null,
+                    HelpText: null,
+                    FieldSet: 0,
+                    Section: 1,
+                    Placeholder: null,
+                    Options: {
+                        source: this.workingHoursScheme, 
+                        valueProperty: 'ID',
+                        displayProperty: 'Name'
+                    },
+                    LineBreak: null,
+                    Combo: null,
+                    Sectionheader: '',
+                    IsLookUp: false,
+                    hasLineBreak: true,
+                    Validations: [
+                        {
+                            ErrorMessage: 'Required field',
+                            Level: 3,
+                            Operator: 7 // required
+                        }
+                    ]
+                },
                 {
                     ComponentLayoutID: 1,
                     EntityType: 'Employment',
@@ -316,7 +372,7 @@ export class EmploymentService extends BizHttp<Employment> {
                     Options: null,
                     LineBreak: null,
                     Combo: null,
-                    Sectionheader: '',
+                    Sectionheader: 'A-meldingsinformasjon',
                     IsLookUp: false,
                     /*Validations: [
                         {
