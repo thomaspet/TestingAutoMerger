@@ -25,12 +25,17 @@
     <uni-form *ngIf='supplierInvoice'
         [config]='config'
         [fields]='fields'
-        [model]='supplierInvoice'>
+        [model]='supplierInvoice'
+        (onReady)="ready($event)">
     </uni-form> 
 </article>
 
+<register-payment-modal
+    (changed)="onRegisteredPayment($event)"
+></register-payment-modal>
+
 <section class="supplier-invoice-detail-booking">
-    <journal-entry-manual [supplierInvoice]="supplierInvoice" [runAsSubComponent]="true" *ngIf="supplierInvoice && supplierInvoice.ID > 0"></journal-entry-manual>
+    <journal-entry-manual [supplierInvoice]="supplierInvoice" [runAsSubComponent]="true" [disabled]="disabled" *ngIf="supplierInvoice && supplierInvoice.ID > 0"></journal-entry-manual>
 </section>
 
 <section class="supplier-invoice-detail-document" *ngIf="supplierInvoice && supplierInvoice.ID > 0">

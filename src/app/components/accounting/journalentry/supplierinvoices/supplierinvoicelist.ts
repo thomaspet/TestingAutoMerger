@@ -163,7 +163,7 @@ export class SupplierInvoiceList implements OnInit {
                     disabled: supplierInvoice => !supplierInvoice._links.actions.journal
                 },
                 {
-                    label: 'Registerer betaling',
+                    label: 'Registere betaling',
                     action: supplierInvoice => {
                         const title = `Register betaling${supplierInvoice.InvoiceNumber ? ', Faktura ' + supplierInvoice.InvoiceNumber : ''}${supplierInvoice.InvoiceRecieverName ? ', ' + supplierInvoice.InvoiceRecieverName : ''}`;
                         const invoiceData: InvoicePaymentData = {

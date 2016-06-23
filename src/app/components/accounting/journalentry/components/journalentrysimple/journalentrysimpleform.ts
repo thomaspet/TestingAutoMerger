@@ -38,6 +38,9 @@ export class JournalEntrySimpleForm implements OnChanges {
     @Input()
     mode: number = JournalEntryMode.Manual;
     
+    @Input()
+    disabled: boolean = false;
+    
     @Output()
     created = new EventEmitter<any>();
 
@@ -338,6 +341,12 @@ export class JournalEntrySimpleForm implements OnChanges {
     
     public ready(line) {
         var self = this;
+        
+        if (!this.disabled) {
+            this.form.editMode();
+        } else {
+            this.form.readMode();
+        }
              
         this.form.Fields['FinancialDate'].focus();
       

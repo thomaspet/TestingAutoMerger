@@ -13,11 +13,15 @@ import {UniDocumentUploader} from '../../../../../framework/documents/index';
 import {SupplierInvoiceFileUploader} from './supplierinvoiceuploader';
 import {UniImage, UniImageSize} from '../../../../../framework/uniImage/uniImage';
 import {UniSave, IUniSaveAction} from '../../../../../framework/save/save';
+import {InvoicePaymentData} from '../../../../models/sales/InvoicePaymentData';
+import {RegisterPaymentModal} from '../../../common/modals/registerPaymentModal';
+
+declare var moment;
 
 @Component({
     selector: 'supplier-invoice-detail',
     templateUrl: 'app/components/accounting/journalentry/supplierinvoices/supplierinvoicedetail.html',
-    directives: [UniForm, UniComponentLoader, RouterLink, JournalEntryManual, UniDocumentUploader, UniImage, UniSave],
+    directives: [UniForm, UniComponentLoader, RouterLink, JournalEntryManual, UniDocumentUploader, UniImage, UniSave, RegisterPaymentModal],
     providers: [SupplierInvoiceService, SupplierService, BankAccountService, JournalEntryService, SupplierInvoiceFileUploader]
 })
 export class SupplierInvoiceDetail implements OnInit {
@@ -26,6 +30,7 @@ export class SupplierInvoiceDetail implements OnInit {
     private suppliers: Supplier[];
     private bankAccounts: BankAccount[];
     private errors;
+    private disabled: boolean = false;
 
     private previewId: number;
     private previewSize: UniImageSize;
@@ -33,6 +38,7 @@ export class SupplierInvoiceDetail implements OnInit {
     @ViewChild(UniComponentLoader) private uniCompLoader: UniComponentLoader;
     @ViewChild(JournalEntryManual) private journalEntryManual: JournalEntryManual;
     @ViewChild(UniForm) private form: UniForm;
+    @ViewChild(RegisterPaymentModal) private registerPaymentModal: RegisterPaymentModal;
 
     config: any = {};
     fields: any[] = [];
@@ -53,8 +59,13 @@ export class SupplierInvoiceDetail implements OnInit {
             label: 'Kjør smartbokføring på ny',
             action: (done) => this.saveAndRunSmartBooking(done),
             disabled: true
+        },
+        {
+            label: 'Registrer betaling',
+            action: (done) => this.registerPayment(done),
+            disabled: true
         }
-    ]
+    ];
 
     constructor(
         private _supplierInvoiceService: SupplierInvoiceService,
@@ -92,10 +103,7 @@ export class SupplierInvoiceDetail implements OnInit {
             .Get(this.invoiceId, ['JournalEntry', 'Supplier.Info'])
             .subscribe((res) => {
                 this.supplierInvoice = res;
-              
-                this.actions[0].disabled = this.supplierInvoice.StatusCode == StatusCodeSupplierInvoice.Journaled;                
-                this.actions[1].disabled = this.supplierInvoice.StatusCode >= StatusCodeSupplierInvoice.Journaled;
-                this.actions[2].disabled = this.supplierInvoice.StatusCode >= StatusCodeSupplierInvoice.Journaled;               
+                this.setActionsDisabled();          
             },
             (error) => {
                 this.setError(error);
@@ -137,15 +145,20 @@ export class SupplierInvoiceDetail implements OnInit {
                 this.suppliers = suppliers;
                 this.bankAccounts = bac;
                 
-                this.actions[0].disabled = this.supplierInvoice.StatusCode == StatusCodeSupplierInvoice.Journaled;                
-                this.actions[1].disabled = this.supplierInvoice.StatusCode >= StatusCodeSupplierInvoice.Journaled;
-                this.actions[2].disabled = this.supplierInvoice.StatusCode >= StatusCodeSupplierInvoice.Journaled;
-                
+                this.setActionsDisabled();
+        
                 this.buildForm();
             }, (error) => {
                 this.setError(error);
             });
         }
+    }
+    
+    private setActionsDisabled() {
+        this.actions[0].disabled = this.supplierInvoice.StatusCode == StatusCodeSupplierInvoice.Journaled;                
+        this.actions[1].disabled = this.supplierInvoice.StatusCode >= StatusCodeSupplierInvoice.Journaled;
+        this.actions[2].disabled = this.supplierInvoice.StatusCode >= StatusCodeSupplierInvoice.Journaled;
+        this.actions[3].disabled = this.supplierInvoice.StatusCode == 10001 || this.supplierInvoice.StatusCode == StatusCodeSupplierInvoice.Payed; // TODO: missing Draft status in StatusCodeSupplierInvoice
     }
 
     private save(runSmartBooking: boolean, done) {
@@ -202,8 +215,15 @@ export class SupplierInvoiceDetail implements OnInit {
     
     private saveAndBook(done) {        
         //save and run transition to booking        
-        let journalEntryData = this.journalEntryManual.getJournalEntryData();             
+        let journalEntryData = this.journalEntryManual.getJournalEntryData();
         
+        // set date today if date is default value / empty
+        journalEntryData.forEach((line) => {
+            if (line.FinancialDate.toISOString() == '0001-01-01T00:00:00.000Z') {                
+                line.FinancialDate = new Date(); 
+            }           
+        });
+                
         this._journalEntryService
             .saveJournalEntryData(journalEntryData)
             .subscribe((res) => {
@@ -334,16 +354,16 @@ export class SupplierInvoiceDetail implements OnInit {
         bankAccount.FieldSet = 0;
         bankAccount.Section = 0;
         bankAccount.Combo = 0;
-        bankAccount.FieldType = 3;
+        bankAccount.FieldType = 10;
         bankAccount.Label = 'Lev. kontonummer';
         bankAccount.Property = 'BankAccount';
         bankAccount.ReadOnly = false;
-        bankAccount.Options = {                  
-            source: this.bankAccounts,
-            valueProperty: 'AccountNumber',
-            displayProperty: 'AccountNumber',
-            debounceTime: 500
-        };
+        //bankAccount.Options = {  // TODO: later on when using BankAccount                
+        //    source: this.bankAccounts,
+        //    valueProperty: 'AccountNumber',
+        //    displayProperty: 'AccountNumber',
+        //    debounceTime: 500
+        //};
         
         var paymentID = new UniFieldLayout();
         paymentID.FieldSet = 0;
@@ -374,4 +394,31 @@ export class SupplierInvoiceDetail implements OnInit {
     private onFileUploaded(slot) {
         this.previewId = slot.ID;
     }    
+    
+    private ready(event) {
+        if (this.supplierInvoice.StatusCode < StatusCodeSupplierInvoice.Journaled) {
+            this.form.editMode();
+            this.disabled = false;
+        } else {
+            this.form.readMode();
+            this.disabled = true;
+        }
+    }
+    
+    private registerPayment(done) {
+        const title = `Register betaling${this.supplierInvoice.InvoiceNumber ? ', Faktura ' + this.supplierInvoice.InvoiceNumber : ''}${this.supplierInvoice.InvoiceRecieverName ? ', ' + this.supplierInvoice.InvoiceRecieverName : ''}`;
+        const invoiceData: InvoicePaymentData = {
+            Amount: this.supplierInvoice.TaxInclusiveAmount,
+            PaymentDate: new Date()
+        };
+        this.registerPaymentModal.openModal(this.supplierInvoice.SupplierID, title, invoiceData);
+    }
+    
+    public onRegisteredPayment(modalData: any) {
+        this._supplierInvoiceService
+            .payinvoice(modalData.id, modalData.invoice)
+            .subscribe(() => alert('Invoice payment registered successfully'), (error) => {
+                this.setError(error);
+            });
+    }
 }
