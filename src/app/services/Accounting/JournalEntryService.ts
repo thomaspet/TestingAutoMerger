@@ -136,7 +136,7 @@ export class JournalEntryService extends BizHttp<JournalEntry> {
             if (!first) {
                 return null;
             }
-        } else if(nextJournalNumber != "") {
+        } else if(nextJournalNumber && nextJournalNumber.length) {
             var parts = nextJournalNumber.split('-');
             first = parseInt(parts[0]);
             last = first;

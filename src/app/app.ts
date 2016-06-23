@@ -9,12 +9,13 @@ import {TabService} from './components/layout/navbar/tabstrip/tabService';
 import {UniNavbar} from './components/layout/navbar/navbar';
 import {UniHttp} from '../framework/core/http/http';
 import {StaticRegisterService} from './services/staticregisterservice';
-import {LoginModal} from './components/authentication/loginModal';
+import {LoginModal} from './components/init/loginModal';
+import {CompanySyncModal} from './components/init/companySyncModal';
 
 @Component({
     selector: 'uni-app',
     templateUrl: './app/app.html',
-    directives: [ROUTER_DIRECTIVES, UniRouterOutlet, UniNavbar, LoginModal],
+    directives: [ROUTER_DIRECTIVES, UniRouterOutlet, UniNavbar, LoginModal, CompanySyncModal],
     providers: [AuthService, TabService, UniHttp, StaticRegisterService]
 })
 @RouteConfig(ROUTES)
@@ -24,6 +25,9 @@ export class App {
     @ViewChild(LoginModal)
     private loginModal: LoginModal;
     
+    @ViewChild(CompanySyncModal)
+    private companySyncModal: CompanySyncModal;
+
     public routes: AsyncRoute[] = ROUTES;
     
     constructor(private authService: AuthService, private http: UniHttp,
@@ -34,6 +38,20 @@ export class App {
             if (!this.loginModal.isOpen) {
                 this.loginModal.open(event.onAuthenticated);
             }
+        });
+
+        // Check if selected company needs to be initialized
+        authService.companyChanged$.subscribe((event) => {
+            this.http.asGET()
+                .usingBusinessDomain()
+                .withEndPoint('companysettings?action=exists')
+                .send()
+                .subscribe((isActive: boolean) => {
+                    // TODO: Switch to !isActive after testing!
+                    if (!isActive) {
+                        this.companySyncModal.open();
+                    }
+                });
         });
         
         // Subscribe to event fired when user has authenticated
