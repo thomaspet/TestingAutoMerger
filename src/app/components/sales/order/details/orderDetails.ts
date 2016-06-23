@@ -29,7 +29,8 @@ declare var _;
     selector: 'order-details',
     templateUrl: 'app/components/sales/order/details/orderDetails.html',
     directives: [RouterLink, OrderItemList, AddressModal, UniForm, OrderToInvoiceModal, UniSave, PreviewModal],
-    providers: [CustomerOrderService, CustomerOrderItemService, CustomerService, ProjectService, DepartementService, AddressService, ReportDefinitionService]
+    providers: [CustomerOrderService, CustomerOrderItemService, CustomerService,
+                ProjectService, DepartementService, AddressService, ReportDefinitionService]
 })
 export class OrderDetails {
 
@@ -169,14 +170,18 @@ export class OrderDetails {
             this.departementService.GetAll(null),
             this.projectService.GetAll(null),
             this.customerOrderService.Get(this.OrderID, ['Dimensions', 'Items', 'Items.Product', 'Items.VatType', 'Customer', 'Customer.Info', 'Customer.Info.Addresses']),
-            this.customerService.GetAll(null, ['Info'])
-            //    this.addressService.GetNewEntity()
+            this.customerService.GetAll(null, ['Info']),
+            this.addressService.GetNewEntity(null, 'address')
         ).subscribe(response => {
             this.dropdownData = [response[0], response[1]];
             this.order = response[2];
             this.customers = response[3];
-            //    this.EmptyAddress = response[4];                
-            this.emptyAddress = new Address();
+            this.emptyAddress = response[4];
+
+            // Add a blank item in the dropdown controls
+            this.dropdownData[0].unshift(null);
+            this.dropdownData[1].unshift(null);
+            this.customers.unshift(null);
 
             this.updateStatusText();
             this.addAddresses();
@@ -349,7 +354,7 @@ export class OrderDetails {
             label: 'Lagre',
             action: (done) => this.saveOrderManual(done),
             main: true,
-            disabled: false
+            disabled: this.IsSaveDisabled()
         });
 
         this.actions.push({
@@ -361,18 +366,41 @@ export class OrderDetails {
         this.actions.push({
             label: 'Lagre og overfør til faktura',
             action: (done) => this.saveAndTransferToInvoice(done),
-            disabled: false
+            disabled: this.IsTransferToInvoiceDisabled()
         });
         this.actions.push({
-            label: 'registrer',
+            label: 'Registrer',
             action: (done) => this.saveOrderTransition(done, 'register'),
-            disabled: false
+            disabled: (this.order.StatusCode !== StatusCodeCustomerOrder.Draft)
         });
         this.actions.push({
-            label: 'Complete',
+            label: 'Avslutt',
             action: (done) => this.saveOrderTransition(done, 'complete'),
-            disabled: false
+            disabled: this.IsTransferToCompleteDisabled()
         });
+    }
+
+    private IsTransferToInvoiceDisabled() {
+        if (this.order.StatusCode === StatusCodeCustomerOrder.Registered ||
+            this.order.StatusCode === StatusCodeCustomerOrder.PartlyTransferredToInvoice) {
+            return false;
+        }
+        return true;
+    }
+    private IsTransferToCompleteDisabled() {
+        if (this.order.StatusCode === StatusCodeCustomerOrder.Registered ||
+            this.order.StatusCode === StatusCodeCustomerOrder.PartlyTransferredToInvoice) {
+            return false;
+        }
+        return true;
+    }
+    private IsSaveDisabled() {
+        if (this.order.StatusCode === StatusCodeCustomerOrder.Draft ||
+            this.order.StatusCode === StatusCodeCustomerOrder.Registered ||
+            this.order.StatusCode === StatusCodeCustomerOrder.PartlyTransferredToInvoice) {
+            return false;
+        }
+        return true;
     }
 
     private addAddresses() {
@@ -459,7 +487,10 @@ export class OrderDetails {
             });
 
             this.customerOrderService.calculateOrderSummary(orderItems)
-                .subscribe((data) => this.itemsSummaryData = data,
+                .subscribe((data) => {
+                    this.itemsSummaryData = data;
+                    this.updateSaveActions();
+                },
                 (err) => {
                     console.log('Error when recalculating items:', err);
                     this.log(err);
@@ -480,12 +511,12 @@ export class OrderDetails {
 
             this.customerOrderService.ActionWithBody(order.ID, order, "transfer-to-invoice").subscribe((invoice) => {
                 this.router.navigateByUrl('/sales/invoice/details/' + invoice.ID);
-                done('Overført til Fakturera');
+                done('Overført til faktura');
             }, (err) => {
                 console.log("== TRANSFER-TO-INVOICE FAILED ==");
                 done('Feilet');
                 this.log(err);
-                });
+            });
         });
 
         this.saveOrder(order => {
@@ -502,6 +533,8 @@ export class OrderDetails {
                 this.customerOrderService.Get(order.ID, ['Dimensions', 'Items', 'Items.Product', 'Items.VatType', 'Customer', 'Customer.Info', 'Customer.Info.Addresses']).subscribe((order) => {
                     this.order = order;
                     this.updateStatusText();
+                    this.updateSaveActions();
+                    this.ready(null);
                 });
             }, (err) => {
                 console.log('Feil oppstod ved ' + transition + ' transition', err);

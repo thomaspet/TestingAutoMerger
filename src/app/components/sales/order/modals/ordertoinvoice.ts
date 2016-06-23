@@ -1,22 +1,24 @@
 import {Component, ViewChildren, Type, Input, Output, QueryList, ViewChild, ComponentRef, EventEmitter, SimpleChange} from "@angular/core";
 import {NgIf, NgModel, NgFor, NgClass} from "@angular/common";
+import {Observable} from 'rxjs/Observable';
 
 import {UniModal} from "../../../../../framework/modals/modal";
-
 import {UniTable, UniTableColumn, UniTableColumnType, UniTableConfig, IContextMenuItem} from 'unitable-ng2/main';
 import {UniForm, UniFieldLayout} from '../../../../../framework/uniform';
 
-import {FieldType, ComponentLayout, Address} from "../../../../unientities";
+import {CustomerOrderService, ProductService} from '../../../../services/services';
+import {FieldType, ComponentLayout, Address, StatusCodeCustomerOrderItem} from "../../../../unientities";
 import {CustomerOrder, CustomerOrderItem, Product, VatType} from '../../../../unientities';
 
 @Component({
     selector: 'order-to-invoice-table',
-    directives: [UniTable, NgIf],
+    directives: [UniTable],
+    providers: [ProductService],
     template: `
     <span *ngIf="order && orderItemTable">
-        <uni-table [resource]="items"
-               [config]="orderItemTable"
-               (rowChanged)="rowChanged($event)">
+        <uni-table  [resource]="order.Items"
+                    [config]="orderItemTable"
+                    (rowSelectionChanged)="onRowSelectionChange($event)">
         </uni-table>
     </span>
     `
@@ -25,33 +27,45 @@ export class OrderToInvoiceTable {
     @ViewChild(UniTable) public table: UniTable;
     @Input() public order: CustomerOrder;
 
+    public selectedItems: CustomerOrderItem[];
+
+    private products: Product[];
     private orderItemTable: UniTableConfig;
+
+    constructor(
+        private productService: ProductService) {
+    }
 
     public ngOnInit() {
         console.log('OrderToInvoiceTable.ngOnInit()');
+        //this.setupInvoiceItemTable();
+        this.selectedItems = [];
         this.setupUniTable();
     }
 
     private setupUniTable() {
-        let productNrCol = new UniTableColumn('Product', 'Produktnr', UniTableColumnType.Text)
-            .setDisplayField('Product.PartName');
-        let productNameCol = new UniTableColumn('Product', 'Produktnavn', UniTableColumnType.Text)
-            .setDisplayField('Product.Name');
+        console.log('setupUniTable()');
+        var productNrCol = new UniTableColumn('Product.PartName', 'Produktnr', UniTableColumnType.Text);
+        var productNameCol = new UniTableColumn('Product.Name', 'Produktnavn', UniTableColumnType.Text);
         let numItemsCol = new UniTableColumn('NumberOfItems', 'Antall', UniTableColumnType.Number);
 
         // Setup table        
-        this.orderItemTable = new UniTableConfig()
+        this.orderItemTable = new UniTableConfig(false, true, 10)
             .setColumns([
                 productNrCol, productNameCol, numItemsCol
             ])
             .setMultiRowSelect(true);
+    }
+
+    private onRowSelectionChange(event) {
+        this.selectedItems = this.table.getSelectedRows();
     }
 }
 
 // order-to-invoice modal type
 @Component({
     selector: "order-to-invoice-modal-type",
-    directives: [NgIf, NgModel, NgFor, NgClass],
+    directives: [OrderToInvoiceTable],
     template: `
         <article class="modal-content address-modal">
             <h1 *ngIf="config.title">{{config.title}}</h1>
@@ -67,7 +81,7 @@ export class OrderToInvoiceTable {
     `
 })
 export class OrderToInvoiceModalType {
-    @Input('config') public config;
+    @Input() public config: any;
     @ViewChild(OrderToInvoiceTable) public form: OrderToInvoiceTable;
 
     public ngOnInit() {
@@ -81,7 +95,8 @@ export class OrderToInvoiceModalType {
     template: `
         <uni-modal [type]="type" [config]="modalConfig"></uni-modal>
     `,
-    directives: [UniModal]
+    directives: [UniModal],
+    providers: [CustomerOrderService]
 })
 export class OrderToInvoiceModal {
     @Input() public order: CustomerOrder;
@@ -93,7 +108,7 @@ export class OrderToInvoiceModal {
     private modalConfig: any = {};
     private type: Type = OrderToInvoiceModalType;
 
-    constructor() {
+    constructor(private customerOrderService: CustomerOrderService) {
         var self = this;
         this.modalConfig = {
             title: "",
@@ -112,21 +127,18 @@ export class OrderToInvoiceModal {
                     }
                 },
                 {
-                    text: "Overføre til faktura",
+                    text: "Overfør til faktura",
                     class: "good",
                     method: () => {
-                        self.modal.close();
-                        self.Changed.emit(this.modalConfig.model.Items);
-                        return false;
-                    }
-                },
-                {
-                    text: "Overføre første linje",
-                    class: "good",
-                    method: () => {
-                        self.modal.close();
-                        self.Changed.emit(this.modalConfig.model.Items[0]);
-                        return false;
+                        self.modal.getContent().then((content: OrderToInvoiceModalType) => {
+                            // TODO sjekk om 1 eller flere linjer markert??
+                            var s = content.form.selectedItems;
+                            console.log('Antall items valgt: ' + content.form.selectedItems.length);
+                            self.modalConfig.model.Items = content.form.selectedItems;
+                            self.modal.close();
+                            self.Changed.emit(self.modalConfig.model.Items);
+                            return false;
+                        });
                     }
                 }
             ]
@@ -134,8 +146,35 @@ export class OrderToInvoiceModal {
     }
 
     public openModal(order: CustomerOrder) {
-        this.modalConfig.model = order;
-        this.modal.open();
+        console.log('order id: ' + order.ID);
+        this.getData(order);
+    }
 
+    private getData(order: CustomerOrder) {
+        Observable.forkJoin(
+            this.customerOrderService.Get(order.ID, ['Items', 'Items.Product'])
+        ).subscribe(
+            (data) => {
+
+                // Show only items in state 'Registered'. According to status flow for items
+                let itemsInRegisteredState: CustomerOrderItem[] = [];
+
+                for (let i = 0; i < data[0].Items.length; i++) {
+                    let line = data[0].Items[i];
+
+                    if (line.StatusCode === StatusCodeCustomerOrderItem.Registered) {
+                        itemsInRegisteredState.push(line);
+                    }
+                }
+
+                data[0].Items = itemsInRegisteredState;
+                console.log('getData() items: ' + data[0].Items.lenght);
+
+                console.log('getData()' + data[0]);
+                this.modalConfig.model = data[0];
+                this.modal.open();
+            },
+            (err) => console.log('Error retrieving data: ', err)
+            );
     }
 }

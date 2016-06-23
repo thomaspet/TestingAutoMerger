@@ -51,7 +51,7 @@ export class OrderList {
     private setupOrderTable() {
         this.lookupFunction = (urlParams: URLSearchParams) => {
             let params = urlParams || new URLSearchParams();
-            params.set('expand', 'Customer');
+            params.set('expand', 'Customer, Items');
 
             if (!params.has('orderby')) {
                 params.set('orderby', 'OrderDate desc');
@@ -78,7 +78,7 @@ export class OrderList {
         });
 
         contextMenuItems.push({
-            label: 'Overfør til faktura',
+            label: 'Overfør hele ordren til faktura',
             action: (order: CustomerOrder) => {
                 this.customerOrderService.ActionWithBody(order.ID, order, "transfer-to-invoice").subscribe((invoice) => {
                     console.log('== order ACTION OK ==');
@@ -90,17 +90,20 @@ export class OrderList {
                 });
             },
             disabled: (rowModel) => {
-                return !rowModel._links.transitions.transfertoInvoice;
+                return !rowModel._links.transitions.transferToInvoice;
             }
         });
 
 
         contextMenuItems.push({
-            label: 'Fullfør',
+            label: 'Avslutt',
             action: (order: CustomerOrder) => {
+
+
+
                 this.customerOrderService.Transition(order.ID, order, "complete").subscribe((invoice) => {
                     console.log('== order Transistion OK ==');
-                    alert('Overgang til -fullført- OK');
+                    alert('Overgang til -Avslutt- OK');
                     this.table.refreshTableData();
                 }, (err) => {
                     console.log("== TRANSFER-TO-COMPLETED FAILED ==");

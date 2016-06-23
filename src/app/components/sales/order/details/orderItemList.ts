@@ -172,6 +172,12 @@ export class OrderItemList {
                 if (newRow.ID === 0) {
                     newRow._createguid = this.customerOrderItemService.getNewGuid();
                     newRow.Dimensions._createguid = this.customerOrderItemService.getNewGuid();
+
+
+                    // Default antall for ny rad
+                    if (newRow.NumberOfItems === null) {
+                        newRow.NumberOfItems = 1;
+                    }
                 }
 
                 if (event.field === 'Product') {
