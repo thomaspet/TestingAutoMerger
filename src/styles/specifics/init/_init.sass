@@ -7,7 +7,7 @@
         margin: 2rem auto 3rem auto
 
     form
-        
+
         label
             width: 100%
             display: inline-block
@@ -18,14 +18,14 @@
                 display: block
 
                 &.ng-invalid.ng-touched
-                    @include uniTextInput($uni-color-Bad)
+                    @extend input[type=text].error
 
             input[type=checkbox]
                 display: inline-block
                 width: 2rem
 
         button
-            width: 100% 
+            width: 100%
             padding: 0
             margin: .5rem 0
 
@@ -58,7 +58,7 @@ ul.progress-list
             border-right: .1rem solid transparent
             animation: spinner 600ms linear infinite
             -webkit-animation: spinner 600ms linear infinite
-    
+
         &[aria-busy=false]:before
             content: ''
             display: inline-block

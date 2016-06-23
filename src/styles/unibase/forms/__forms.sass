@@ -1,10 +1,13 @@
-@import 'inputs'
+@import 'labels'
+@import 'textInputs'
 @import 'checkboxes'
 @import 'formSection'
 
-label.-has-linebreak, uni-checkbox-input.-has-linebreak label
+uni-form
+    box-sizing: border-box
+
+label.-has-linebreak, uni-checkbox.-has-linebreak label
     float: none
-// For wrapped elements
 
 label.-has-linebreak + *, uni-checkbox-input.-has-linebreak label + *
     clear: left
