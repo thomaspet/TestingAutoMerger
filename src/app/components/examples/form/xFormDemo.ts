@@ -76,9 +76,14 @@ export class XFormDemo {
                 linkProperty: 'ID',
                 foreignProperty: 'DefaultJobTest',
                 editor: (value) => new Promise((resolve) => {
-                    var x: Employment = new Employment();
-                    x.JobName = value;
-                    resolve(x);
+                    if(_.isObject(value) && value.hasOwnProperty('JobName')) {
+                        resolve(value);
+                    } else {
+                        var x: Employment = new Employment();
+                        x.ID = _.toSafeInteger(performance.now());
+                        x.JobName = 'New Job';
+                        resolve(x);
+                    }
                 })
             };
             var autocompleteTest = new UniFieldLayout();
