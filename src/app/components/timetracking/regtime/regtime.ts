@@ -158,7 +158,7 @@ export class RegisterTime implements CanDeactivate {
     }
 
     filterDimensions(route:string, txt:string):Observable<any> {
-        var list = [{ID: 1, Description: 'Testproject'}, {ID:2, Description:'Economy project'}]
+        var list = [{ID: 1, Name: 'Testproject'}, {ID:2, Name:'Economy project'}]
         return Observable.from([list]);
     }
     

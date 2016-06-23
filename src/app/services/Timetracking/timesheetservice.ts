@@ -7,7 +7,7 @@ import {Dimension} from '../common/dimensionservice';
 declare var moment;
 
 export class ValueItem {
-    constructor(public name:string, public value:any, public rowIndex?:number) { }
+    constructor(public name:string, public value:any, public rowIndex?:number, public lookupValue?:any) { }
 }
 
 export class TimeSheet {
@@ -63,10 +63,14 @@ export class TimeSheet {
             case "Worktype":
                 item.WorkTypeID = change.value.ID;
                 break;       
+            case "WorkTypeID":
+                item.Worktype = change.lookupValue || item.Worktype;
+                break;
             case "Dimensions.ProjectID":
                 if (change.value) {
                     item.Dimensions = item.Dimensions || new Dimension();
                     Dimension.setProject(item.Dimensions, change.value);
+                    item.Dimensions.Project = change.lookupValue || item.Dimensions.Project;
                 }
                 ignore = true;
                 break;         

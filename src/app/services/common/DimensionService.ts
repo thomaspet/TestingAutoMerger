@@ -16,21 +16,25 @@ export class Dimension extends Dimensions {
         dim._createguid = createGuid();
     }
 
-    public static setProject(dim:any, project:{ ID:number, Description?:string}) {
-        if (!dim._createguid) Dimension.setNewGuid(dim);
-        dim.ProjectID = project.ID;
-        dim.Project = new Project();
-        dim.Project.ID = project.ID;
-        dim.Project.Description = project.Description;
+    public static setProject(dim:any, value: any) {
+        Dimension.setValue(dim, value, 'Project');
     }
 
-    public static setDepartment(dim:any, department:{ ID:number, Description?:string}) {
-        if (!dim._createguid) Dimension.setNewGuid(dim);
-        dim.DepartementID = department.ID;
-        dim.Departement = new Departement();
-        dim.Departement.ID = department.ID;
-        dim.Departement.Description = department.Description;
+    public static setDepartment(dim:any, value:any) {
+        Dimension.setValue(dim, value, 'Departement');
     }
+
+    private static setValue(dim:any, value:any, pfx = "Project") {
+        var p1 = pfx + "ID";
+        if (!dim._createguid) Dimension.setNewGuid(dim);
+        if (typeof value === 'object') {
+            dim[p1] = value.ID;
+            dim[pfx] = { ID:value.ID, Name: value.Name};
+        } else {
+            dim[p1] = value;
+        }
+    }
+
 
 
 }
