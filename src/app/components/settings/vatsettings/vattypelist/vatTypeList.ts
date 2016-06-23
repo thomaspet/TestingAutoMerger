@@ -41,8 +41,8 @@ export class VatTypeList {
                 params = new URLSearchParams();
             }
             
-            if (!params.get('orderBy')) {
-                params.set('orderBy', 'VatCode');
+            if (!params.get('orderby')) {
+                params.set('orderby', 'VatCode');
             }
             
             params.set('expand', 'VatCodeGroup,IncomingAccount,OutgoingAccount');

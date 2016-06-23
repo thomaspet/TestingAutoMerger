@@ -13,7 +13,7 @@ import {UniSave, IUniSaveAction} from '../../../../framework/save/save';
 })
 export class AccountSettings {    
     @ViewChild(AccountList) private accountlist: AccountList;
-    @ViewChild(AccountList) private accountDetails: AccountDetails;
+    @ViewChild(AccountDetails) private accountDetails: AccountDetails;
 
     private accountID: number = 0;
     private hasChanges: boolean = false;
@@ -21,7 +21,7 @@ export class AccountSettings {
     private saveactions: IUniSaveAction[] = [
         {
             label: 'Lagre',
-            action: (event) => this.saveSettings(event),
+            action: (completeEvent) => this.saveSettings(completeEvent),
             main: true,
             disabled: false
         }
@@ -57,7 +57,7 @@ export class AccountSettings {
         this.hasChanges = false;        
     }
     
-    private saveSettings(event) {
-        this.accountDetails.saveAccount();        
+    private saveSettings(completeEvent) {        
+        this.accountDetails.saveAccount(completeEvent);        
     }
 }

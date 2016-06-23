@@ -19,7 +19,7 @@ export class VatSettings {
     private saveactions: IUniSaveAction[] = [
         {
             label: 'Lagre',
-            action: (event) => this.saveSettings(event),
+            action: (completeEvent) => this.saveSettings(completeEvent),
             main: true,
             disabled: false
         }
@@ -52,8 +52,8 @@ export class VatSettings {
         this.hasChanges = true;
     }
     
-    private saveSettings(event) {
-        this.vatTypeDetails.saveVatType();        
+    private saveSettings(completeEvent) {
+        this.vatTypeDetails.saveVatType(completeEvent);        
     }
 }
 

@@ -102,15 +102,17 @@ export class AccountDetails {
     }
     
     
-    public saveAccount() {        
+    public saveAccount(completeEvent: any): void {         
         if (this.account.ID > 0) {            
             this.accountService
                 .Put(this.account.ID, this.account)
                 .subscribe(
                     (response) => {
+                        completeEvent('Lagret');
                         this.accountSaved.emit(this.account);
                     },
                     (err) => {
+                        completeEvent('Feil ved lagring');
                         console.log('Save failed: ', err);
                         alert('Feil ved lagring: ' + JSON.stringify(err));                        
                     }
@@ -120,9 +122,11 @@ export class AccountDetails {
                 .Post(this.account)
                 .subscribe(
                     (response) => {
+                        completeEvent('Lagret');
                         this.accountSaved.emit(this.account);
                     },
                     (err) => {
+                        completeEvent('Feil ved lagring');
                         console.log('Save failed: ', err);     
                         alert('Feil ved lagring: ' + JSON.stringify(err));                   
                     }

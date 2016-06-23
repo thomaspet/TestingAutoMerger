@@ -74,29 +74,33 @@ export class VatTypeDetails {
     }
 */
 
-    public saveVatType(): void {        
+    public saveVatType(completeEvent): void {        
         if (this.vatType.ID > 0) {
             this.vatTypeService.Put(this.vatType.ID, this.vatType)
                 .subscribe(
                     data => {
+                        completeEvent('Lagret');
                         this.vatType = data;
                         this.vatTypeSaved.emit(this.vatType);
                     },
                     error => {
+                        completeEvent('Feil ved lagring');
                         console.log('error in vatdetails.onSubmit: ', error);
-                        alert('Feil ved lagring: ' + JSON.stringify(error));
+                        alert('Feil ved lagring: ' + JSON.stringify(error.json()));
                     }
                 );
         } else {
             this.vatTypeService.Post(this.vatType)
                 .subscribe(
                     data => {
+                        completeEvent('Lagret');
                         this.vatType = data;
                         this.vatTypeSaved.emit(this.vatType);
                     },
                     error => {
+                        completeEvent('Feil ved lagring');
                         console.log('error in vatdetails.onSubmit: ', error);
-                        alert('Feil ved lagring: ' + JSON.stringify(error));
+                        alert('Feil ved lagring: ' + JSON.stringify(error.json()));
                     }
                 );
         }
