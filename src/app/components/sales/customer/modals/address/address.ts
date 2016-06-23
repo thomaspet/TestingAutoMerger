@@ -262,7 +262,7 @@ export class AddressModal {
                     }
                 },
                 {
-                    text: 'Angre',
+                    text: 'Avbryt',
                     method: () => {
                         this.modal.close();
                         this.Canceled.emit(true);                    

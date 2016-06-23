@@ -22,11 +22,12 @@ export class JournalEntryManual {
     @ViewChild(JournalEntrySimple) private journalEntrySimple: JournalEntrySimple;
     @ViewChild(JournalEntryProfessional) journalEntryProfessional: JournalEntryProfessional;
     @Input() public journalEntryMode: string;
+    @Input() 
+    disabled : boolean = false;
     private itemsSummaryData: JournalEntrySimpleCalculationSummary;
     public validationResult: any;
     
     constructor(private journalEntryService: JournalEntryService) {
-  
     }
     
     ngOnInit() {
