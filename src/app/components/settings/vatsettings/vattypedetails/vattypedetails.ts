@@ -19,7 +19,8 @@ import {VatTypeService, VatCodeGroupService, AccountService} from '../../../../s
 export class VatTypeDetails {
     @Input() public vatType: VatType;
     @Output() public vatTypeSaved: EventEmitter<VatType> = new EventEmitter<VatType>();
-
+    @Output() public onChange: EventEmitter<VatType> = new EventEmitter<VatType>();
+    
     @ViewChild(UniForm) private form: UniForm;
 
     private config: any = {};
@@ -38,7 +39,7 @@ export class VatTypeDetails {
     }
 
     private change(event) {
-        
+        this.onChange.emit(this.vatType);
     }
 
     private getLayoutAndData() {        
@@ -73,7 +74,7 @@ export class VatTypeDetails {
     }
 */
 
-    private saveVatType(): void {        
+    public saveVatType(): void {        
         if (this.vatType.ID > 0) {
             this.vatTypeService.Put(this.vatType.ID, this.vatType)
                 .subscribe(
@@ -102,6 +103,7 @@ export class VatTypeDetails {
     }
 
     private extendFormConfig() {
+        this.vatcodegroups.unshift(null);
         let vattype: UniFieldLayout = this.fields.find(x => x.Property === 'VatCodeGroupID');
         vattype.Options =  {
             source: this.vatcodegroups,

@@ -1,9 +1,13 @@
 <section class="application">
     <h1>MVA innstillinger</h1>
-    <div class="vatList">
-        <vattype-list (uniVatTypeChange)="changeVatType($event)"></vattype-list>
-    </div>
-    <div class="vatDetails">
-        <vattype-details [vatType]="vatType" (vatTypeSaved)="vatTypeSaved($event)"></vattype-details>
-    </div>
+    <section class="splitview">
+        <nav class="splitview_list">    
+            <vattype-list (uniVatTypeChange)="changeVatType($event)"></vattype-list>
+        </nav>
+        <main class="splitview_detail">    
+            <vattype-details [vatType]="vatType" (vatTypeSaved)="vatTypeSaved($event)" (onChange)="change($event)"></vattype-details>
+        </main>
+    </section>
 </section>
+<div style="height: 70px">&nbsp;</div>
+<uni-save [actions]="saveactions"></uni-save>

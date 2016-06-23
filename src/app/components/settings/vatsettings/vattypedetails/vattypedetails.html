@@ -1,10 +1,11 @@
-<div *ngIf="vatType">
-    <h2>Detaljer</h2>    
+<div *ngIf="vatType">        
     <uni-form            
         [config]="config" 
         [fields]="fields" 
         [model]="vatType"                
         (onChange)="change($event)">
-    </uni-form>
-    <button (click)="saveVatType()" class="good">Lagre mvakode</button>    
+    </uni-form> 
+</div>
+<div *ngIf="!vatType">
+    Velg en mvakode i listen til venstre for å se detaljer om mvakoden
 </div>
