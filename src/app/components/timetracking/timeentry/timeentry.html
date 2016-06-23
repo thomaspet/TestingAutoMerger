@@ -11,7 +11,7 @@
         <ul>
             <li *ngFor="let tab of tabs">
                 <a [ngClass]="{'router-link-active': tab.isSelected}" >{{tab.label}}</a>
-                <span class='tabtip' *ngIf="tab.counter">({{tab.counter}})</span>   
+                <span class='regtimetabtip' *ngIf="tab.counter">({{tab.counter}})</span>   
             </li>
         </ul>    
     </aside>
@@ -37,20 +37,26 @@
                     <th>Dato</th>
                     <th>Aktivitet</th>
                     <th>Prosjekt</th>
+                    <th>Ordrenr.</th>
                 </tr>
             </thead>
             <tbody *ngIf="timeSheet.currentRelation">
-                <tr *ngFor="let item of timeSheet.items">
+                <tr *ngFor="let item of timeSheet.items" [class.alternateRow]="item._alternate">
                     <td>{{item.Description}}</td>
                     <td>{{item.StartTime | isotime:'HH:mm'}}</td>
                     <td>{{item.EndTime | isotime:'HH:mm'}}</td>
-                    <td>{{item.Date | isotime:'DD.MM.YY'}}</td>
-                    <td>{{item.Worktype ? item.Worktype.Name : ''}}</td>
-                    <td>{{item.Dimensions ? item.Dimensions.Project ? item.Dimensions.Project.Name : item.Dimensions.ProjectID : ''}}</td>
+                    <td >{{item.Date | isotime:'DD.MM.YY'}}</td>
+                    <td>{{item.Worktype ? item.Worktype.ID + ' - ' + item.Worktype.Name : ''}}</td>
+                    <td>{{item.Dimensions ? item.Dimensions.Project ? item.Dimensions.Project.ID + ' - ' + item.Dimensions.Project.Name : item.Dimensions.ProjectID : ''}}</td>
+                    <td>{{item.CustomerOrderID}}</td>
                 </tr>                            
             </tbody>
         </table>    
     </section>
+
+    <footer>
+        <h4>Totalsum: {{timeSheet.totals.Minutes | min2hours}}</h4>
+    </footer>
 
     <uni-save [actions]="actions"></uni-save>
 

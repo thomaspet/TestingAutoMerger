@@ -58,8 +58,10 @@ export class Editable implements AfterViewInit, OnDestroy {
     }
 
     public closeEditor(cancel=true) {
-        if (this.current.editor)
+        if (this.current.editor) {
             this.current.editor.close(cancel);
+            this.current.editor.destroy();
+        }
     }
 
     private onResize() {
@@ -127,7 +129,7 @@ export class Editable implements AfterViewInit, OnDestroy {
                     setTimeout(()=> { this.onResize(); });
                 }, (reason)=>{
                     console.log("err:" + reason);
-                    cell.css('background-color','#ffe0c0');
+                    cell.css('background-color','#ffe0e0');
                 });
             }
             

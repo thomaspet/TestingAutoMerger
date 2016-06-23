@@ -32,6 +32,7 @@ export interface IJQItem {
     val(value?:string):string;
     show();
     hide();
+    remove();
     attr(name:string, value?:any);
     focus();
     outerHeight(value?:number):number;

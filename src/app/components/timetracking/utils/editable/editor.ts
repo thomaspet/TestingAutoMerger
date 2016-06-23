@@ -20,8 +20,12 @@ export class Editor implements IEditor {
     }
         
     public destroy() {
-        this.inputBox.off('blur', this.handlers.editBlur);
-        this.inputBox.off('keydown', this.handlers.editKeydown);
+        if (this.inputBox) {
+            this.inputBox.off('blur', this.handlers.editBlur);
+            this.inputBox.off('keydown', this.handlers.editKeydown);
+            this.inputBox.remove();
+            this.inputBox = undefined;
+        }
     }
     
     public create(owner:IJQItem):IJQItem {
@@ -55,8 +59,7 @@ export class Editor implements IEditor {
         this.moveTo(cell);
         if (!this.inputBox.is(":visible")) {
             this.inputBox.show();
-            console.log("moving cell again!");
-            this.moveTo(cell);
+            setTimeout(()=>this.moveTo(cell),10);
         }
         this.inputBox.select();
     }

@@ -10,3 +10,20 @@ export class IsoTimePipe implements PipeTransform {
         return moment(value).format(format || 'DD.MM.YYYY');
     }
 }
+
+@Pipe({
+  name: 'min2hours'
+})
+export class MinutesToHoursPipe implements PipeTransform {
+    public transform(value: any, format?:string) {
+        if (!value) return '';
+        var minutes = parseInt(value);
+        if (minutes===0) return;
+        var ret = "";
+        if (minutes>=60) {
+            ret = Math.floor(minutes / 60) + ' timer';
+            minutes = minutes % 60;
+        }
+        return ret + (minutes!==0 ? ' og ' + minutes + ' minutter' : '');
+    }
+}

@@ -6,7 +6,7 @@ import {WorkerService, ItemInterval} from '../../../services/timetracking/worker
 import {Editable, IChangeEvent, IConfig, Column} from '../utils/editable/editable';
 import {parseTime, addTime, parseDate} from '../utils/utils';
 import {TimesheetService, TimeSheet, ValueItem} from '../../../services/timetracking/timesheetservice';
-import {IsoTimePipe} from '../utils/isotime';
+import {IsoTimePipe, MinutesToHoursPipe} from '../utils/isotime';
 import {UniSave, IUniSaveAction} from '../../../../framework/save/save';
 import {CanDeactivate, ComponentInstruction} from '@angular/router-deprecated';
 import {Lookupservice} from '../utils/lookup';
@@ -26,20 +26,20 @@ interface IFilter {
     selector: view.name,
     templateUrl: 'app/components/timetracking/timeentry/timeentry.html', 
     styles: [`
-            .title { font-size: 18pt; padding: 1em 1em 1em 0; }
+            .title { font-size: 14pt; padding: 1em 1em 1em 0; }
             .title span { margin-right: 1em;}
             .title select { display:inline-block; width: auto; padding-left: 7px; padding-right: 7px; }
             .timeentriesTable { width: 100%; border-collapse: collapse } 
             .timeentriesTable th { text-align:left; border-bottom: 1px solid #c0c0c0; } 
-            .timeentriesTable tr { height: 1.5em;}
+            .timeentriesTable tr { height: 1.8em;}
             .timeentriesTable td { padding: 4px 4px 1px 4px; border-bottom: 1px solid #d0d0d0; border-left: 1px solid #d0d0d0; }
+            .alternateRow { background-color: #e4e4e4;}
             .subcontainer { margin-top: 1em;}
-            .tabtip { color: #606060; margin-left: -15px; }
             .busy { padding: 7px; color: green; font-size: 14pt; }
             `],
     directives: [Editable, UniSave],
     providers: [WorkerService, TimesheetService, Lookupservice],
-    pipes: [IsoTimePipe]
+    pipes: [IsoTimePipe, MinutesToHoursPipe]
 })
 export class TimeEntry {    
     view = view;
@@ -79,7 +79,8 @@ export class TimeEntry {
             new Column('EndTime', '', 'time'),
             new Column('Date','', 'date'),
             new Column('WorkTypeID','', 'int', 'worktypes'),
-            new Column('Dimensions.ProjectID', '', 'int', 'projects')
+            new Column('Dimensions.ProjectID', '', 'int', 'projects'),
+            new Column('CustomerOrderID', 'Ordre', 'int', 'orders')
             ],
         events: {
             onChange: (event) => { return this.onChange(event); },
