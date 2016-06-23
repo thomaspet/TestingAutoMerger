@@ -1,0 +1,55 @@
+unitable-pagination
+  @include clearfix
+  display: block
+  margin: 1rem 0
+
+  ul
+    list-style: none
+
+    ul
+      display: block
+      float: left
+
+    li
+      display: block
+      float: left
+
+  ul, li, button
+    margin: 0
+    padding: 0
+    display: block
+
+  button,
+  button[disabled]:hover,
+  button[disabled]:focus
+    background: $uni-color-scale9
+    box-shadow: none
+    border: pxToRem(1) solid $uni-color-scale7
+    height: 2rem
+
+  .pagination_next,
+  .pagination_prev
+    background: no-repeat center center
+    background-size: .6rem .6rem
+    font-size: 0
+    width: 2rem
+
+  .pagination_prev
+    background-image: unicon-prev-page($uni-color-scale7)
+    margin-right: .5rem
+
+  .pagination_next
+    background-image: unicon-next-page($uni-color-scale7)
+    margin-left: .5rem
+
+  .pagination_page
+    padding: 0 .5rem
+
+    &.-is-active
+      border-color: $uni-color-C2A
+      background: $uni-color-negative
+
+  input[type=number]
+  &::-webkit-inner-spin-button, &::-webkit-outer-spin-button
+    -webkit-appearance: none
+    margin: 0
