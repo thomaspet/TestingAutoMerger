@@ -57,6 +57,7 @@ export class EmploymentList implements OnInit {
         },
         (err) => {
             console.log('error getting employee', err);
+            this.log(err);
         });
     }
     
@@ -86,5 +87,9 @@ export class EmploymentList implements OnInit {
 
     public rowSelected(event) {
         this.selectedEmployment = event.rowModel;
+    }
+
+    public log(err) {
+        alert(err._body);
     }
 }

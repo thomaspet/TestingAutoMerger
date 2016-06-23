@@ -64,6 +64,7 @@ export class EmployeeEmployment {
         },
         (err: any) => {
             console.log('error getting subentities: ', err);
+            this.log(err);
         });
     }
     
@@ -87,7 +88,6 @@ export class EmployeeEmployment {
     }
     
     public ngOnChanges(valueChanges) {
-        console.log('current employment: ', this.currentEmployment);
         this.busy = false;
         if (valueChanges.currentEmployment.previousValue.ID !== undefined) {
             if (this.currentEmployment) {
@@ -97,7 +97,6 @@ export class EmployeeEmployment {
     }
     
     public ready(value) {
-        console.log('form ready', value);
     }
     
     public change(value) {
@@ -120,6 +119,7 @@ export class EmployeeEmployment {
             },
             (err) => {
                 console.log('Feil ved oppdatering av arbeidsforhold', err);
+                this.log(err);
             });
         } else {
             this._employmentService.Post(this.currentEmployment)
@@ -130,12 +130,9 @@ export class EmployeeEmployment {
             },
             (err) => {
                 console.log('Feil oppsto ved lagring', err);
+                this.log(err);
             });
         }
-    }
-    
-    public changeDefault(event, index) {
-        console.log('Index when changing default: ' + index);
     }
     
     public addNewEmployment() {
@@ -154,5 +151,9 @@ export class EmployeeEmployment {
             
             this.currentEmployment = newEmployment;
         });
+    }
+
+    public log(err) {
+        alert(err._body);
     }
 }

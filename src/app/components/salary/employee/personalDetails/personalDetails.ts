@@ -83,8 +83,6 @@ export class PersonalDetails {
         ).subscribe(
             (response: any) => {
                 var [employee, layout] = response;
-                console.log('employee: ', employee);
-                console.log('businessRelationInfo: ', employee.BusinessRelationInfo);
                 layout.Fields[0].Validators = [{
                     'EntityType': 'BusinessRelation',
                     'PropertyName': 'BusinessRelationInfo.Name',
@@ -104,7 +102,10 @@ export class PersonalDetails {
                 
                 this.extendFormConfig();
             }
-            , (error: any) => console.error(error)
+            , (error: any) => {
+                console.error(error);
+                this.log(error);
+            }
         );
     }
 
@@ -199,15 +200,12 @@ export class PersonalDetails {
     }
     
     public ready(value) {
-        console.log('form ready', value);
         this.uniform.section(1).toggle();
         this.uniform.section(2).toggle();
         this.saveactions[0].disabled = true;
     }
     
     public change(value) {
-        console.log('uniform changed', value);
-        console.log('SubEntityID: ', this.employee.SubEntityID);
         this.employee = _.cloneDeep(this.employee);
         this.saveactions[0].disabled = false;
     }
@@ -255,7 +253,7 @@ export class PersonalDetails {
         if (this.employee.BusinessRelationInfo.InvoiceAddress === null && this.employee.BusinessRelationInfo.InvoiceAddressID === 0) {
             this.employee.BusinessRelationInfo.InvoiceAddressID = null;
         }
-        console.log('on save SubEntityID: ', this.employee.SubEntityID);
+
         done('Lagrer persondetaljer');
         if (this.employee.ID > 0) {
             this.employeeService.Put(this.employee.ID, this.employee)
@@ -263,11 +261,16 @@ export class PersonalDetails {
                 done('Sist lagret: ');
                 this.employeeService.get(this.employee.ID, this.expands).subscribe((emp: Employee) => {
                     this.employee = emp;
+                },
+                (err) => {
+                    console.log('Feil ved lagring av ansatt', err);
+                    this.log(err);
                 });
+
                 this.router.navigateByUrl('/salary/employees/' + this.employee.ID);
             },
             (err) => {
-                done('Feil ved lagring');
+                done('Feil ved lagring', err);
                 console.log('Feil ved oppdatering av ansatt', err);
                 this.log(err);
             });
@@ -279,8 +282,8 @@ export class PersonalDetails {
                 this.router.navigateByUrl('/salary/employees/' + this.employee.ID);
             },
             (err) => {
-                done('Feil ved lagring');
-                console.log('Feil ved lagring', err);
+                done('Feil ved lagring', err);
+                console.log('Feil ved lagring av ansatt', err);
                 this.log(err);
             });
         }
