@@ -3,6 +3,7 @@
 import {AccountList} from './accountList/accountList';
 import {AccountDetails} from './accountDetails/accountDetails';
 import {Account} from '../../../unientities';
+import {TabService} from '../../layout/navbar/tabstrip/tabService';
 
 @Component({
     selector: 'account-settings',
@@ -14,7 +15,8 @@ export class AccountSettings {
 
     private accountID: number = 0;
 
-    constructor() {
+    constructor(private tabService: TabService) {
+        this.tabService.addTab({ name: 'Kontoinstillinger', url: '/accounting/accountsettings', moduleID: 10, active: true })
     }
 
     private changeAccount(accountID: number) {

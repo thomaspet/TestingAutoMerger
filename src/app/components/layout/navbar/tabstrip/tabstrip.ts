@@ -7,6 +7,7 @@ export interface IUniTab {
     url: string;
     name: string;
     active?: boolean;
+    moduleID?: number;
 }
 
 @Component({

@@ -16,6 +16,7 @@ import {AddressModal} from '../../customer/modals/address/address';
 import {TradeHeaderCalculationSummary} from '../../../../models/sales/TradeHeaderCalculationSummary';
 import {UniSave, IUniSaveAction} from '../../../../../framework/save/save';
 import {PreviewModal} from '../../../reports/modals/preview/previewModal';
+import {TabService} from '../../../layout/navbar/tabstrip/tabService';
 
 declare var _;
 declare var moment;
@@ -84,10 +85,12 @@ export class InvoiceDetails implements OnInit {
         private projectService: ProjectService,
         private addressService: AddressService,
         private reportDefinitionService: ReportDefinitionService,
-        private router: Router, private params: RouteParams) {
+        private router: Router, private params: RouteParams,
+        private tabService: TabService) {
         this.invoiceID = params.get('id');
         this.businessRelationInvoice.Addresses = [];
         this.businessRelationShipping.Addresses = [];
+        this.tabService.addTab({ url: '/sales/invoice/details/' + this.invoiceID, name: 'Fakturanr. ' + this.invoiceID, active: true, moduleID: 5 }); 
     }
 
     private log(err) {

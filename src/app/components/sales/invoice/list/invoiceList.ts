@@ -10,6 +10,7 @@ import {InvoicePaymentData} from '../../../../models/sales/InvoicePaymentData';
 import {InvoiceSummary} from '../../../../models/accounting/InvoiceSummary';
 import {RegisterPaymentModal} from '../../../common/modals/registerPaymentModal';
 import {PreviewModal} from '../../../reports/modals/preview/previewModal';
+import {TabService} from '../../../layout/navbar/tabstrip/tabService';
 
 @Component({
     selector: 'invoice-list',
@@ -36,8 +37,10 @@ export class InvoiceList implements OnInit {
     constructor(private uniHttpService: UniHttp,
                 private router: Router,
                 private customerInvoiceService: CustomerInvoiceService,
-                private reportDefinitionService: ReportDefinitionService) {
-
+                private reportDefinitionService: ReportDefinitionService,
+                private tabService: TabService
+    ) {
+        this.tabService.addTab({ name: "Faktura", url: "/sales/invoice", active: true, moduleID: 5 });
         this.setupInvoiceTable();
     }
 

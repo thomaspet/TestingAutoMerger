@@ -15,7 +15,7 @@ export class WagetypeList implements OnInit {
     private wagetypelistConfig: any;
 
     constructor(private _router: Router, private tabSer: TabService) {
-        this.tabSer.addTab({name: 'Lønnsarter', url: 'salary/wagetypes' });
+        this.tabSer.addTab({ name: 'Lønnsarter', url: 'salary/wagetypes', moduleID: 13, active: true });
     }
 
     public ngOnInit() {
