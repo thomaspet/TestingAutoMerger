@@ -20,6 +20,7 @@ import {VatTypeService, CurrencyService, AccountService} from '../../../../servi
 export class AccountDetails {
     @Input() public accountID: number;
     @Output() public accountSaved: EventEmitter<Account> = new EventEmitter<Account>();
+    @Output() public onChange: EventEmitter<Account> = new EventEmitter<Account>();
     @ViewChild(UniForm) private form: UniForm;
     
     private account: Account = null;
