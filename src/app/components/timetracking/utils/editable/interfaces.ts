@@ -75,6 +75,7 @@ export interface IEditor {
     startEdit(value:any, cell:IJQItem, pos: IPos);
     setValue(value:any);
     finalizeEdit(cancel:boolean):boolean;
+    hasChanges():boolean;
 }
 
 export var Keys = {

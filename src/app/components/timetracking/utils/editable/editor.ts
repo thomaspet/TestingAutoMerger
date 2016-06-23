@@ -63,6 +63,7 @@ export class Editor implements IEditor {
 
     public setValue(value:any) {
         if (!this.inputBox) return;
+        this.originalValue = value;
         this.inputBox.val(value);
         if (this.inputBox.is(":visible")) {
             this.inputBox.select();
@@ -78,6 +79,13 @@ export class Editor implements IEditor {
     
     public focus() {
         this.inputBox.focus();
+    }
+
+    public hasChanges():boolean {
+        if (!this.inputBox) return false;
+        var txt = this.inputBox.val();
+        var changes = txt !== this.originalValue;
+        return changes;
     }
     
     public finalizeEdit(cancel = false):boolean {

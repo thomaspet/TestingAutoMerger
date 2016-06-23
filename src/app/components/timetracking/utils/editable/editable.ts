@@ -31,14 +31,14 @@ export class Editable implements AfterViewInit, OnDestroy {
     }
     private current = {
         active: <IJQItem>undefined,
-        editor: <IEditor>undefined       
+        editor: <IEditor>undefined
     }
     
     constructor(el:ElementRef) {
         this.jqRoot = jQuery(el.nativeElement);
         
         this.handlers.onClick = (event) => { this.startEdit(event); };
-        this.handlers.onResize = (event) => { this.onResize(event); };
+        this.handlers.onResize = (event) => { this.onResize(); };
         
         this.jqRoot.on('click', this.handlers.onClick);
         jQuery(window).on('resize', this.handlers.onResize );
@@ -167,7 +167,10 @@ export class Editable implements AfterViewInit, OnDestroy {
 
     private finalizeEdit(cancel = false) {
         if (!this.current.editor) { return true; }
-        return this.current.editor.finalizeEdit(cancel);
+        if (!this.current.editor.hasChanges()) { console.log('no changes!'); return true; }
+        if (this.current.editor.finalizeEdit(cancel)) {
+            return true;
+        }
     }
 
         

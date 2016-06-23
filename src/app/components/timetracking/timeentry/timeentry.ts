@@ -159,6 +159,7 @@ export class TimeEntry {
         // lookup value?
         if (event.columnDefiniton && event.columnDefiniton.route) {
             var p = new Promise((resolve, reject)=>{
+                
                 this.lookup.getSingle<any>(event.columnDefiniton.route, event.value).subscribe( (item:any) => {
                     event.lookupValue = item;
                     this.updateChange(event);
