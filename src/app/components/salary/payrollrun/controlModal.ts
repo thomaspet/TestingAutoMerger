@@ -1,13 +1,15 @@
 import {Component, Type, ViewChildren, QueryList, Input, AfterViewInit} from '@angular/core';
 import {Router} from '@angular/router-deprecated';
 import {UniModal} from '../../../../framework/modals/modal';
-import {UniForm, UniFormBuilder, UniFieldBuilder} from '../../../../framework/forms';
-import {UniTable, UniTableBuilder, UniTableColumn} from '../../../../framework/unitable';
-import {UNI_CONTROL_DIRECTIVES} from '../../../../framework/controls';
+import {UniForm, UniFieldLayout} from '../../../../framework/uniform';
+import {UniTable, UniTableConfig, UniTableColumnType, UniTableColumn} from 'unitable-ng2/main';
 import {FieldType, PayrollRun, SalaryTransaction} from '../../../../app/unientities';
 import {SalaryTransactionService, PayrollrunService, EmployeeService} from '../../../../app/services/services';
 import {Observable} from 'rxjs/Observable';
 import {RootRouteParamsService} from '../../../services/rootRouteParams';
+import {SalaryTransactionPay, SalaryTransactionPayLine, SalaryTransactionSums} from '../../../models/models';
+
+declare var _; // lodash
 
 @Component({
     selector: 'control-modal-content',
@@ -17,20 +19,22 @@ import {RootRouteParamsService} from '../../../services/rootRouteParams';
 })
 export class ControlModalContent {
     private busy: boolean;
-    private formConfig: UniFormBuilder = null;
-    private payList: {employeeInfo: any, salaryTransactions: UniTableBuilder, collapsed: boolean}[] = [];
+    public formConfig: any = {};
+    public payList: {employeeInfo: {name: string, payment: number, hasTaxInfo: boolean}, paymentLines: SalaryTransaction[], collapsed: boolean}[] = null;
     private payrollRun: PayrollRun;
     @Input('config')
-    private config: any;
+    private config: {hasCancelButton: boolean, cancel: any, actions: {text: string, method: any}[], payrollRunID: number};
     private transes: SalaryTransaction[];
-    private model: {sums: any, salaryTransactionPay: any} = {sums: null, salaryTransactionPay: null};
+    private model: {sums: SalaryTransactionSums, salaryTransactionPay: SalaryTransactionPay} = {sums: null, salaryTransactionPay: null};
+    public tableConfig: UniTableConfig;
+    public fields: UniFieldLayout[] = [];
     
     constructor(
         private _salaryTransactionService: SalaryTransactionService, 
         private _payrollRunService: PayrollrunService,
         private _employeeService: EmployeeService,
         private _router: Router) {
-            
+        this.generateHeadingsForm();
     }
     
     public getData() {
@@ -47,90 +51,94 @@ export class ControlModalContent {
         this.busy = true;
         let [salaryTrans, sums, transPay, payrollrun] = response;
         this.transes = salaryTrans;
+        this.transes = _.cloneDeep(this.transes);
+
         this.model.sums = sums;
         this.model.salaryTransactionPay = transPay;
+        this.model = _.cloneDeep(this.model);
+
         this.payrollRun = payrollrun;
-        if (this.formConfig !== null) {
-            this.formConfig.setModel(this.model);
-        }else {
-            this.generateHeadingsForm();
-        }
+        this.payrollRun = _.cloneDeep(this.payrollRun);
+        
         this.generateTableConfigs();
         this.busy = false;
     }
     
     private generateHeadingsForm() {
-        var withholdingField = new UniFieldBuilder();
-        withholdingField.setLabel('Beregnet forskuddstrekk')
-            .setModel(this.model)
-            .setModelField('salaryTransactionPay.Withholding')
-            .setType(UNI_CONTROL_DIRECTIVES[FieldType.NUMERIC]);
+        var withholdingField = new UniFieldLayout();
+        withholdingField.FieldType = FieldType.NUMERIC;
+        withholdingField.Property = 'salaryTransactionPay.Withholding';
+        withholdingField.Label = 'Beregnet forskuddstrekk';
+        withholdingField.ReadOnly = true;
         
-        var baseVacationPay = new UniFieldBuilder();
-        baseVacationPay.setLabel('Feriepengegrunnlag')
-            .setModel(this.model)
-            .setModelField('sums.baseVacation')
-            .setType(UNI_CONTROL_DIRECTIVES[FieldType.NUMERIC]);
-            
-        var baseAga = new UniFieldBuilder();
-        baseAga.setLabel('Arbeidsgiveravgift grunnlag')
-            .setModel(this.model)
-            .setModelField('sums.baseAGA')
-            .setType(UNI_CONTROL_DIRECTIVES[FieldType.NUMERIC]);
+        var baseVacationPay: UniFieldLayout = new UniFieldLayout();
+        baseVacationPay.FieldType = FieldType.NUMERIC;
+        baseVacationPay.Property = 'sums.baseVacation';
+        baseVacationPay.Label = 'Feriepengegrunnlag';
+        baseVacationPay.ReadOnly = true;
+ 
+        var baseAga = new UniFieldLayout();
+        baseAga.FieldType = FieldType.NUMERIC;
+        baseAga.Property = 'sums.baseAGA';
+        baseAga.Label = 'Arbeidsgiveravgift grunnlag';
+        baseAga.ReadOnly = true;
+        baseAga.LineBreak = true;
         
-        var netPayment = new UniFieldBuilder();
-        netPayment.setLabel('Sum til utbetaling')
-            .setModel(this.model)
-            .setModelField('sums.netPayment')
-            .setType(UNI_CONTROL_DIRECTIVES[FieldType.NUMERIC]);
-            
-        var calculatedVacationPay = new UniFieldBuilder();
-        calculatedVacationPay.setLabel('Beregnet feriepenger')
-            .setModel(this.model)
-            .setModelField('sums.calculatedVacationPay')
-            .setType(UNI_CONTROL_DIRECTIVES[FieldType.NUMERIC]);
         
-        var calculatedAga = new UniFieldBuilder();
-        calculatedAga.setLabel('Beregnet arbeidsgiveravgift')
-            .setModel(this.model)
-            .setModelField('sums.calculatedAGA')
-            .setType(UNI_CONTROL_DIRECTIVES[FieldType.NUMERIC]);
+        var netPayment = new UniFieldLayout();
+        netPayment.FieldType = FieldType.NUMERIC;
+        netPayment.Property = 'sums.netPayment';
+        netPayment.Label = 'Sum til utbetaling';
+        netPayment.ReadOnly = true;
+
+        var calculatedVacationPay = new UniFieldLayout();
+        calculatedVacationPay.FieldType = FieldType.NUMERIC;
+        calculatedVacationPay.Property = 'sums.calculatedVacationPay';
+        calculatedVacationPay.Label = 'Beregnet feriepenger';
+        calculatedVacationPay.ReadOnly = true;
         
-        this.formConfig = new UniFormBuilder();
-        this.formConfig
-            .addUniElements(withholdingField, baseVacationPay, baseAga, netPayment, calculatedVacationPay, calculatedAga)
-            .hideSubmitButton();
-        this.formConfig.readmode();
+        var calculatedAga = new UniFieldLayout();
+        calculatedAga.FieldType = FieldType.NUMERIC;
+        calculatedAga.Property = 'sums.calculatedAGA';
+        calculatedAga.Label = 'Beregnet arbeidsgiveravgift';
+        calculatedAga.ReadOnly = true;
+        
+        this.fields = [withholdingField, baseVacationPay, baseAga, netPayment, calculatedVacationPay, calculatedAga];
     }
     
     private generateTableConfigs() {
+
         this.payList = [];
-        var wagetypeNumberCol = new UniTableColumn('WageTypeNumber', 'Lønnsart', 'number');
-        var wagetypenameCol = new UniTableColumn('Text', 'Navn', 'string');
-        var fromdateCol = new UniTableColumn('FromDate', 'Fra dato', 'date');
-        var toDateCol = new UniTableColumn('ToDate', 'Til dato', 'date');
-        var accountCol = new UniTableColumn('Account', 'Konto', 'string');
-        var rateCol = new UniTableColumn('Rate', 'Sats', 'number');
-        var amountCol = new UniTableColumn('Amount', 'Antall', 'number');
-        var sumCol = new UniTableColumn('Sum', 'Sum', 'number');
-        this.model.salaryTransactionPay.PayList.forEach((payline) => {
-            var salaryTranses = this.transes.filter(x => x.EmployeeNumber === payline.EmployeeNumber && x.PayrollRunID === this.config.payrollRunID);
-            var section: any = {
-                employeeInfo: {
-                    name: payline.EmployeeName,
-                    payment: payline.NetPayment,
-                    hasTaxInfo: payline.HasTaxInformation
-                },
-                salaryTransactions: new UniTableBuilder(salaryTranses, false)
-                    .setColumnMenuVisible(false)
-                    .setSearchable(false)
-                    .setPageable(false),
-                collapsed: true
-            };
-            section.salaryTransactions
-                .addColumns(wagetypeNumberCol, wagetypenameCol, accountCol, fromdateCol, toDateCol, amountCol, rateCol, sumCol);
-            this.payList.push(section);
-        });
+        let wagetypeNumberCol = new UniTableColumn('WageTypeNumber', 'Lønnsart', UniTableColumnType.Number);
+        let wagetypenameCol = new UniTableColumn('Text', 'Navn', UniTableColumnType.Text);
+        let fromdateCol = new UniTableColumn('FromDate', 'Fra dato', UniTableColumnType.Date);
+        let toDateCol = new UniTableColumn('ToDate', 'Til dato', UniTableColumnType.Date);
+        let accountCol = new UniTableColumn('Account', 'Konto', UniTableColumnType.Text);
+        let rateCol = new UniTableColumn('Rate', 'Sats', UniTableColumnType.Number);
+        let amountCol = new UniTableColumn('Amount', 'Antall', UniTableColumnType.Number);
+        let sumCol = new UniTableColumn('Sum', 'Sum', UniTableColumnType.Number);
+
+        this.tableConfig = new UniTableConfig()
+                    .setColumns([wagetypeNumberCol, wagetypenameCol, accountCol, fromdateCol, toDateCol, amountCol, rateCol, sumCol])
+                    .setEditable(false)
+                    .setPageable(false);
+        if (this.model.salaryTransactionPay.PayList) {
+            this.model.salaryTransactionPay.PayList.forEach((payline: SalaryTransactionPayLine) => {
+                
+                let salaryTranses = this.transes.filter(x => x.EmployeeNumber === payline.EmployeeNumber && x.PayrollRunID === this.config.payrollRunID);
+                let section: {employeeInfo: {name: string, payment: number, hasTaxInfo: boolean}, paymentLines: SalaryTransaction[], collapsed: boolean} = {
+                    employeeInfo: {
+                        name: payline.EmployeeName,
+                        payment: payline.NetPayment,
+                        hasTaxInfo: payline.HasTaxInformation
+                    },
+                    paymentLines: salaryTranses,
+                    collapsed: true
+                };
+                this.payList.push(section);
+            });
+        }            
+        
     }
     
     public runSettling() {
@@ -154,6 +162,11 @@ export class ControlModalContent {
     public toggleCollapsed(index: number) {
         this.payList[index].collapsed = !this.payList[index].collapsed;
     }
+    public closeAll() {
+        this.payList.forEach((line) => {
+            line.collapsed = true;
+        });
+    }
 }
 
 @Component({
@@ -169,19 +182,21 @@ export class ControlModal implements AfterViewInit {
     @ViewChildren(UniModal)
     private modalElements: QueryList<UniModal>;
     private modals: UniModal[];
-    private modalConfig: any = {};
-    private type: Type = ControlModalContent;
+    private modalConfig: {hasCancelButton: boolean, cancel: any, actions: {text: string, method: any}[], payrollRunID: number};
+    public type: Type = ControlModalContent;
     
     constructor(private rootRouteParams: RootRouteParamsService) {
+        
         
         if (!this.payrollRunID) {
             this.payrollRunID = +rootRouteParams.params.get('id');
         }
         this.modalConfig = {
-            title: 'Kontroll ',
-            value: 'Ingen verdi',
             hasCancelButton: true,
             cancel: () => {
+                this.modals[0].getContent().then((component: ControlModalContent) => {
+                    component.closeAll();
+                });
                 this.modals[0].close();
             },
             actions: [{
