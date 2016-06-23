@@ -1,7 +1,7 @@
-import {Component, Input, Output, ElementRef, EventEmitter, ChangeDetectorRef, ViewChild, Renderer} from '@angular/core';
+import {Component, Input, Output, ElementRef, EventEmitter, ChangeDetectorRef, ViewChild, Renderer, HostListener} from '@angular/core';
 import {Control} from '@angular/common';
 import {UniFieldLayout} from '../interfaces';
-declare var _, jQuery; // jquery and lodash
+declare var _; // lodash
 
 @Component({
     selector: 'uni-multivalue-input',
@@ -83,17 +83,7 @@ export class UniMultivalueInput {
     private defaultRow: any;
     
     constructor(public renderer: Renderer, public el: ElementRef, private cd: ChangeDetectorRef) {
-        var self = this;
 
-        // we need to polyfill 'closest' to remove jquery from here
-        // TODO: remove jQuery
-
-        this.renderer.listenGlobal('document', 'click', (event) => {
-            var $el = jQuery(el.nativeElement);
-            if (!jQuery(event.target).closest($el).length) {
-                self.listIsVisible = false;
-            }
-        });
     }
 
     public focus() {
@@ -143,7 +133,17 @@ export class UniMultivalueInput {
     public ngAfterViewInit() {
         this.onReady.emit(this);
     }
-    
+
+    @HostListener('click', ['$event'])
+    private onClick(event) {
+        event.stopPropagation();
+    }
+
+    @HostListener('document:click')
+    private offClick() {
+        this.listIsVisible = false;
+    }
+
     private showDropdown(event) {
         event.preventDefault();
         event.stopPropagation();
