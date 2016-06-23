@@ -21,6 +21,7 @@ export class JournalEntrySimple implements OnInit, OnChanges {
     @Input() public supplierInvoice: SupplierInvoice;
     @Input() public runAsSubComponent : boolean = false;
     @Input() public mode : number = JournalEntryMode.Manual;
+    @Input() public disabled : boolean = false;
     @Output() dataChanged: EventEmitter<JournalEntryData[]> = new EventEmitter<JournalEntryData[]>();
     @Output() dataLoaded: EventEmitter<JournalEntryData[]> = new EventEmitter<JournalEntryData[]>();
     
