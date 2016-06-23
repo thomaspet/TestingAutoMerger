@@ -9,8 +9,8 @@ import {TabService} from './components/layout/navbar/tabstrip/tabService';
 import {UniNavbar} from './components/layout/navbar/navbar';
 import {UniHttp} from '../framework/core/http/http';
 import {StaticRegisterService} from './services/staticregisterservice';
-import {LoginModal} from './components/authentication/loginModal';
-import {CompanySyncModal} from './components/authentication/companySyncModal';
+import {LoginModal} from './components/init/loginModal';
+import {CompanySyncModal} from './components/init/companySyncModal';
 
 @Component({
     selector: 'uni-app',

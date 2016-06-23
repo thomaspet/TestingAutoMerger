@@ -6,7 +6,7 @@ import {UniHttp} from '../../../framework/core/http/http';
 
 @Component({
     selector: 'uni-reset-password',
-    templateUrl: 'app/components/authentication/resetPassword.html',
+    templateUrl: 'app/components/init/resetPassword.html',
     directives: [FORM_DIRECTIVES, ROUTER_DIRECTIVES],
 })
 export class ResetPassword {

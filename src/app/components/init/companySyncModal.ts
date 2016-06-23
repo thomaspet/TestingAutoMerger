@@ -2,7 +2,7 @@ import {Component} from '@angular/core';
 import {Observable} from 'rxjs/Observable';
 import {UniHttp} from '../../../framework/core/http/http';
 
-interface SyncAction {
+interface ISyncAction {
     label: string;
     request: () => Observable<any>;
     busy?: boolean;
@@ -26,7 +26,7 @@ interface SyncAction {
 })
 export class CompanySyncModal {
     private isOpen: boolean = false;
-    private actions: SyncAction[];
+    private actions: ISyncAction[];
     private completionCount: number = 0;
 
     constructor(private http: UniHttp) {

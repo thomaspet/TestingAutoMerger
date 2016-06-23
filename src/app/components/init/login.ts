@@ -7,7 +7,7 @@ declare var jQuery;
 
 @Component({
     selector: 'uni-login',
-    templateUrl: 'app/components/authentication/login.html',
+    templateUrl: 'app/components/init/login.html',
     directives: [ROUTER_DIRECTIVES]
 })
 export class Login {

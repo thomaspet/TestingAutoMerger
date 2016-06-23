@@ -6,7 +6,7 @@ import {passwordValidator} from './authValidators';
 
 @Component({
     selector: 'uni-signup',
-    templateUrl: 'app/components/authentication/signup.html',
+    templateUrl: 'app/components/init/signup.html',
     directives: [ROUTER_DIRECTIVES, FORM_DIRECTIVES]
 })
 export class Signup {
