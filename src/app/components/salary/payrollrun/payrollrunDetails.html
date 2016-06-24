@@ -27,7 +27,7 @@
 
 </header>
 <section class="application" [attr.aria-busy]="busy">
-    <uni-form *ngIf="payrollrun" [config]="config" [fields]="fields" [model]="payrollrun" (onChange)="change($event)" (onReady)="ready($event)"></uni-form>
+    <uni-form *ngIf="payrollrun" [config]="config" [fields]="fields" [model]="model" (onChange)="change($event)" (onReady)="ready($event)"></uni-form>
 </section>
 <section *ngIf="formIsReady">
     <section [attr.aria-busy]="busy">

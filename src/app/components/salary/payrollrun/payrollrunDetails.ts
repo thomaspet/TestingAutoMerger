@@ -27,6 +27,7 @@ export class PayrollrunDetails implements OnInit {
     @ViewChild(UniForm) public uniform: UniForm;
     
     private payrollrun: PayrollRun;
+    private model: {payrollrun: PayrollRun, statusCode: string} = {payrollrun: null, statusCode: null};
     private payrollrunID: number;
     private payDate: Date;
     private payStatus: string;
@@ -57,6 +58,8 @@ export class PayrollrunDetails implements OnInit {
                 this.payrollrunService.layout('payrollrunDetailsForm')
             ).subscribe((response: any) => {
                 var [payrollrun, layout] = response;
+                this.model.payrollrun = payrollrun;
+                this.model.statusCode = this.setStatus();
                 this.payrollrun = payrollrun;
                 this.payDate = new Date(this.payrollrun.PayDate.toString());
                 
@@ -73,7 +76,7 @@ export class PayrollrunDetails implements OnInit {
     }
     
     private setStatus() {
-        var status = this.payrollrunService.getStatus(this.payrollrun);
+        var status = this.payrollrunService.getStatus(this.model.payrollrun);
         this.payStatus = status.text;
         return status.text;
     }
@@ -144,10 +147,10 @@ export class PayrollrunDetails implements OnInit {
         } else {
             this.isEditable = true;
             this.uniform.editMode();
-            var idField: UniFieldLayout = this.findByProperty(this.fields, 'ID');
+            var idField: UniFieldLayout = this.findByProperty(this.fields, 'payrollrun.ID');
             idField.ReadOnly = true;
         }
-        var recurringTransCheck: UniFieldLayout = this.findByProperty(this.fields, 'ExcludeRecurringPosts');
+        var recurringTransCheck: UniFieldLayout = this.findByProperty(this.fields, 'payrollrun.ExcludeRecurringPosts');
         var noNegativePayCheck: UniFieldLayout = this.findByProperty(this.fields, '1');
         if (this.isEditable) {
             recurringTransCheck.ReadOnly = false;
@@ -157,10 +160,9 @@ export class PayrollrunDetails implements OnInit {
             noNegativePayCheck.ReadOnly = true;
         }
         
-        var statusCode: UniFieldLayout = this.findByProperty(this.fields, 'StatusCode');
-        statusCode.StatusCode = this.setStatus();
+        var statusCode: UniFieldLayout = this.findByProperty(this.fields, 'statusCode');
+        this.setStatus(); 
         statusCode.ReadOnly = true;
-        
         this.fields = _.cloneDeep(this.fields);
     }
     

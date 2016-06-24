@@ -1,11 +1,13 @@
-<header class="poster">
-    <article class="poster_toolbar">
-        <h2 class="poster_toolbar_headline">Lønnsavregninger</h2>
-        <nav class="poster_toolbar_tools">
-            <a (click)="createPayrollrun()" class="new">Ny lønnsavregning</a>
-        </nav>
-    </article>
-</header>
-<article class="application">
-    <uni-table [config]="payrollrunListConfig"></uni-table>
+<article [attr.aria-busy]="busy">
+    <header class="poster">
+        <article class="poster_toolbar">
+            <h2 class="poster_toolbar_headline">Lønnsavregninger</h2>
+            <nav class="poster_toolbar_tools">
+                <a (click)="createPayrollrun()" class="new">Ny lønnsavregning</a>
+            </nav>
+        </article>
+    </header>
+    <section class="application">
+        <uni-table [resource]="payrollRuns$ | async" [config]="payrollrunListConfig" (rowSelected)="rowSelected($event)"></uni-table>
+    </section>
 </article>

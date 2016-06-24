@@ -217,6 +217,7 @@ export class SalaryTransactionEmployeeList implements OnInit {
         subEntity.Property = 'employee.SubEntity.BusinessRelationInfo.Name';
         subEntity.FieldType = FieldType.TEXT;
         subEntity.ReadOnly = true;
+        subEntity.LineBreak = true;
 
         var tableTax = new UniFieldLayout();
         tableTax.Label = 'Tabelltrekk';
