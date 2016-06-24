@@ -30,6 +30,7 @@ export class SupplierInvoiceService extends BizHttp<SupplierInvoice> {
         { Code: '90000', Text: 'Deleted' },
 
         { Code: '2', Text: 'For godkjenning' },
+        { Code: '30001', Text: 'Kladd'},
         { Code: '30002', Text: 'For godkjenning' },
         { Code: '30003', Text: 'Godkjent' },
         { Code: '30004', Text: 'Bokført' },
