@@ -14,6 +14,7 @@ import {ComponentLayout, Customer, Email, Phone, Address} from '../../../../unie
 import {AddressModal} from '../modals/address/address';
 import {EmailModal} from '../modals/email/email';
 import {PhoneModal} from '../modals/phone/phone';
+import {TabService} from "../../../layout/navbar/tabstrip/tabService";
 
 declare var _; // lodash
 
@@ -59,9 +60,11 @@ export class CustomerDetails implements OnInit {
                 private phoneService: PhoneService,
                 private emailService: EmailService,
                 private addressService: AddressService,
-                private businessRealtionService: BusinessRelationService
+                private businessRealtionService: BusinessRelationService,
+                private tabService: TabService
                 ) {               
-        this.customerID = params.get('id');            
+        this.customerID = params.get('id');
+        this.tabService.addTab({ url: '/sales/customer/details/' + this.customerID, name: 'Kundenr. ' + this.customerID, active: true, moduleID: 1 });       
     }
     
     public log(err) {

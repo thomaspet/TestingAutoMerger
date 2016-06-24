@@ -14,7 +14,7 @@ import {TabService} from '../../layout/navbar/tabstrip/tabService';
 export class EmployeeList {
     private employeeTableConfig: UniTableBuilder;
 
-    constructor(private router: Router, private tabSer: TabService) {
+    constructor(private router: Router, private tabService: TabService) {
         
         var idCol = new UniTableColumn('EmployeeNumber', 'Ansattnummer', 'number').setWidth('15%');
 
@@ -32,8 +32,8 @@ export class EmployeeList {
                       // .then(result => console.log(result));
             })
             .addColumns(idCol, nameCol, employmentDateCol);
-        
-        this.tabSer.addTab({name: 'Ansatte', url: '/salary/employees'});
+
+        this.tabService.addTab({ name: 'Ansatte', url: '/salary/employees', moduleID: 12, active: true });
     }
     
     public newEmployee() {

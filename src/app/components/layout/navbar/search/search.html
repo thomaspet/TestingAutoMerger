@@ -1,3 +1,32 @@
 <nav class="navbar_search">
-	<input type="search"> <!-- kendo autocomplete will compile here -->
+	<div >
+
+		<input #searchInput
+			   class="search_input"
+			   type="search"
+			   placeholder="Søk etter tema eller funksjon"
+			   aria.autocomplete="inline"
+			   role="combobox"
+			   (blur)="close()"
+			   (keydown)="onKeyDown($event)"
+			   [ngFormControl]="inputControl"
+		/>
+
+		<ul #resultList
+			class="search_results"
+			role="listbox"
+			tabindex="-1"
+			[attr.aria-expanded]="isExpanded">
+			
+			<li role="option"
+				class="autocomplete_result"
+				[attr.aria-selected]="selectedIndex === idx"
+				(mouseover)="onMouseover(idx)"
+				(click)="confirmSelection()"
+				*ngFor="let result of searchResults; let idx = index">
+				{{result.componentName}}
+			</li>
+
+		</ul>
+	</div>
 </nav>

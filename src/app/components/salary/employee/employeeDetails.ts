@@ -15,6 +15,7 @@ import {EmployeeDS} from '../../../data/employee';
 import {STYRKCodesDS} from '../../../data/styrkCodes';
 import {ComponentProxy} from '../../../../framework/core/componentProxy';
 import {RootRouteParamsService} from '../../../services/rootRouteParams';
+import {TabService} from '../../layout/navbar/tabstrip/tabService';
 
 import 'rxjs/add/operator/map';
 
@@ -65,8 +66,9 @@ export class EmployeeDetails implements OnInit {
 
     constructor(private routeParams: RouteParams,
                 private rootRouteParams: RootRouteParamsService,
-                private _employeeService: EmployeeService, 
-                private _router: Router) {
+                private _employeeService: EmployeeService,
+                private _router: Router,
+                private tabService: TabService) {
                     
         this.childRoutes = CHILD_ROUTES;
         this.employee = new Employee();
@@ -75,6 +77,7 @@ export class EmployeeDetails implements OnInit {
         this.url = '/salary/employees/';
         this.employeeID = +this.routeParams.get('id');
         this.rootRouteParams.params = this.routeParams;
+        this.tabService.addTab({ name: 'Ansattnr. ' + this.employeeID, url: '/salary/employees/' + this.employeeID, moduleID: 12, active: true });
     }
 
     public ngOnInit() {

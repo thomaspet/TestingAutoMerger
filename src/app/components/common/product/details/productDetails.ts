@@ -8,6 +8,7 @@ import {ProductService, AccountService, VatTypeService} from '../../../../servic
 import {FieldType, FieldLayout, ComponentLayout, Product, Account, VatType} from '../../../../unientities';
 import {UniSave, IUniSaveAction} from '../../../../../framework/save/save';
 import {UniForm, UniField, UniFieldLayout} from '../../../../../framework/uniform';
+import {TabService} from "../../../layout/navbar/tabstrip/tabService";
 
 declare var _; // lodash
 
@@ -39,8 +40,9 @@ export class ProductDetails {
     private vatTypeField: UniField;
     private calculateGrossPriceBasedOnNetPriceField: UniField;
            
-    constructor(private productService: ProductService, private accountService: AccountService, private vatTypeService: VatTypeService, private router: Router, private params: RouteParams) {                
+    constructor(private productService: ProductService, private accountService: AccountService, private vatTypeService: VatTypeService, private router: Router, private params: RouteParams, private tabService: TabService) {                
         this.productId = params.get('id');
+        this.tabService.addTab({ name: "Produktnr. " + this.productId, url: "/products/details/" + this.productId, active: true, moduleID: 6 });
     }
     
     private isActive(instruction: any[]): boolean {
