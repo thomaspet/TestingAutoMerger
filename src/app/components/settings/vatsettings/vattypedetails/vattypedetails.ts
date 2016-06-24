@@ -1,33 +1,32 @@
-import {Component, Input, ViewChild, SimpleChange} from "@angular/core";
+import {Component, Input, ViewChild, Output, EventEmitter, SimpleChange} from '@angular/core';
 
-import {Observable} from "rxjs/Observable";
-import "rxjs/add/observable/forkJoin";
+import {Observable} from 'rxjs/Observable';
+import 'rxjs/add/observable/forkJoin';
 
-import {UNI_CONTROL_DIRECTIVES} from "../../../../../framework/controls";
-import {FieldType} from "../../../../unientities";
-import {UniForm, UniFormBuilder, UniFieldsetBuilder, UniFieldBuilder} from "../../../../../framework/forms";
+import {FieldType} from '../../../../unientities';
+import {UniForm, UniFieldLayout} from '../../../../../framework/uniform';
 
-import {VatType, VatCodeGroup, Account} from "../../../../unientities";
-import {VatTypeService, VatCodeGroupService, AccountService} from "../../../../services/services";
+import {VatType, VatCodeGroup, Account} from '../../../../unientities';
+import {VatTypeService, VatCodeGroupService, AccountService} from '../../../../services/services';
 
 
 @Component({
-    selector: "vattype-details",
-    templateUrl: "app/components/settings/vatSettings/vattypedetails/vattypedetails.html",
+    selector: 'vattype-details',
+    templateUrl: 'app/components/settings/vatSettings/vattypedetails/vattypedetails.html',
     directives: [UniForm],
     providers: [VatTypeService, AccountService, VatCodeGroupService]
 })
 export class VatTypeDetails {
-    @Input()
-    VatType: VatType;
+    @Input() public vatType: VatType;
+    @Output() public vatTypeSaved: EventEmitter<VatType> = new EventEmitter<VatType>();
+    @Output() public onChange: EventEmitter<VatType> = new EventEmitter<VatType>();
+    
+    @ViewChild(UniForm) private form: UniForm;
 
-    @ViewChild(UniForm)
-    form: UniForm;
-
-    config = new UniFormBuilder();
-    model: VatType;
-    accounts: Account[];
-    vatcodegroups: VatCodeGroup[];
+    private config: any = {};
+    private fields: any[] = [];   
+    private accounts: Account[];
+    private vatcodegroups: VatCodeGroup[];
 
     constructor(private vatTypeService: VatTypeService,
                 private accountService: AccountService,
@@ -35,12 +34,17 @@ export class VatTypeDetails {
 
     }
 
-    ngOnInit() {
+    public ngOnInit() {
+        this.getLayoutAndData();
+    }
 
-        if (this.VatType != null) {
-            this.model = this.VatType;
-        }
+    private change(event) {
+        this.onChange.emit(this.vatType);
+    }
 
+    private getLayoutAndData() {        
+        this.fields = this.getComponentLayout().Fields;
+                    
         Observable.forkJoin(
             this.accountService.GetAll(null),
             this.vatCodeGroupService.GetAll(null)
@@ -49,37 +53,13 @@ export class VatTypeDetails {
                 this.accounts = response[0];
                 this.vatcodegroups = response[1];
 
-                this.buildForm();
-            });
-
-
-        /*
-
-         //KJETIL EK: Koden under fungerer kun hvis this.accounts har verdi før this.model.
-         //Noe med angular lifecycles som er problemet sannsynligvis. Bør vurdere å endre i uniform
-
-         this.vatTypeService.Get(2)
-         .subscribe(
-         data => {
-         this.model = data;
-         console.log("modell hentet");
-         this.refreshForm();
-         },
-         error => console.log("error in vatdetails.ngOnInit.vatTypeService.Get: " + error)
-         );
-
-         this.accountService.GetAll(null)    //.delay(1000)
-         .subscribe(
-         data => {
-         this.accounts = data;
-         console.log("accounts hentet");
-         this.refreshForm();
-         },
-         error => console.log("error in vatdetails.ngOnInit.accountService.GetAll: " + error)
-         )
-         */
+                this.extendFormConfig();                           
+            },
+            (error) => console.log(error)
+        );
     }
 
+/*
     ngOnChanges(changes: {[propName: string]: SimpleChange}) {
         if (this.VatType != null) {
             this.model = this.VatType;            
@@ -92,146 +72,421 @@ export class VatTypeDetails {
             }, 500);
         }
     }
+*/
 
-    onSubmit(value) {
-        if (this.model.ID > 0) {
-            this.vatTypeService.Put(this.model.ID, this.model)
+    public saveVatType(completeEvent): void {        
+        if (this.vatType.ID > 0) {
+            this.vatTypeService.Put(this.vatType.ID, this.vatType)
                 .subscribe(
-                    data => this.model = data,
-                    error => console.log("error in vatdetails.onSubmit: ", error)
+                    data => {
+                        completeEvent('Lagret');
+                        this.vatType = data;
+                        this.vatTypeSaved.emit(this.vatType);
+                    },
+                    error => {
+                        completeEvent('Feil ved lagring');
+                        console.log('error in vatdetails.onSubmit: ', error);
+                        alert('Feil ved lagring: ' + JSON.stringify(error.json()));
+                    }
                 );
         } else {
-            this.vatTypeService.Post(this.model)
+            this.vatTypeService.Post(this.vatType)
                 .subscribe(
-                    data => this.model = data,
-                    error => console.log("error in vatdetails.onSubmit: ", error)
+                    data => {
+                        completeEvent('Lagret');
+                        this.vatType = data;
+                        this.vatTypeSaved.emit(this.vatType);
+                    },
+                    error => {
+                        completeEvent('Feil ved lagring');
+                        console.log('error in vatdetails.onSubmit: ', error);
+                        alert('Feil ved lagring: ' + JSON.stringify(error.json()));
+                    }
                 );
         }
     }
 
-    buildForm() {
-
-        var vatCodeGroup = new UniFieldBuilder();
-        vatCodeGroup.setLabel("Gruppe")
-            .setModel(this.model)
-            .setModelField("VatCodeGroupID")
-            .setType(UNI_CONTROL_DIRECTIVES[FieldType.DROPDOWN])
-            .setKendoOptions({
-                dataSource: this.vatcodegroups,
-                dataValueField: "ID",
-                dataTextField: "Name",
-                filter: "Contains"
-            });
-
-        var vatCode = new UniFieldBuilder();
-        vatCode.setLabel("MVA kode.")
-            .setModel(this.model)
-            .setModelField("VatCode")
-            .setType(UNI_CONTROL_DIRECTIVES[FieldType.TEXT]);
-
-        var vatAlias = new UniFieldBuilder();
-        vatAlias.setLabel("Alias")
-            .setModel(this.model)
-            .setModelField("Alias")
-            .setType(UNI_CONTROL_DIRECTIVES[FieldType.TEXT]);
-
-        var vatName = new UniFieldBuilder();
-        vatName.setLabel("Navn")
-            .setModel(this.model)
-            .setModelField("Name")
-            .setType(UNI_CONTROL_DIRECTIVES[FieldType.TEXT]);
-
-        var vatPercentage = new UniFieldBuilder();
-        vatPercentage.setLabel("Sats (prosent)")
-            .setModel(this.model)
-            .setModelField("VatPercent")
-            .setType(UNI_CONTROL_DIRECTIVES[FieldType.NUMERIC]);
-
-        var vatDateFrom = new UniFieldBuilder();
-        vatDateFrom.setLabel("Dato fra")
-            .setModel(this.model)
-            .setModelField("ValidFrom")
-            .setKendoOptions({
-                autocomplete:false
-            })
-            .setType(UNI_CONTROL_DIRECTIVES[FieldType.DATEPICKER]);
-
-        var vatDateTo = new UniFieldBuilder();
-        vatDateTo.setLabel("Dato til")
-            .setModel(this.model)
-            .setModelField("ValidTo")
-            .setKendoOptions({
-                autocomplete:false
-            })
-            .setType(UNI_CONTROL_DIRECTIVES[FieldType.DATEPICKER]);
-
-        var vatAccountOut = new UniFieldBuilder();
-        vatAccountOut.setLabel("Utg. konto")
-            .setModel(this.model)
-            .setModelField("OutgoingAccountID")
-            .setType(UNI_CONTROL_DIRECTIVES[FieldType.DROPDOWN])
-            .setKendoOptions({
-                dataSource: this.accounts,
-                dataValueField: "ID",
-                dataTextField: "AccountName",
-                filter: "Contains",
-                template: "<span>#:AccountNumber# - #:AccountName#</span>",
-                valueTemplate: "<span>#: data.ID > 0 ? data.AccountNumber : \"\"# - #:AccountName#</span>"
-            });
-
-        var vatAccountIn = new UniFieldBuilder();
-        vatAccountIn.setLabel("Inng. konto")
-            .setModel(this.model)
-            .setModelField("IncomingAccountID")
-            .setType(UNI_CONTROL_DIRECTIVES[FieldType.DROPDOWN])
-            .setKendoOptions({
-                dataSource: this.accounts,
-                dataValueField: "ID",
-                dataTextField: "AccountName",
-                filter: "Contains",
-                template: "<span>#:AccountNumber# - #:AccountName#</span>",
-                valueTemplate: "<span>#: data.ID > 0 ? data.AccountNumber : \"\"# - #:AccountName#</span>"
-            });
-
-        var outputVat = new UniFieldBuilder();
-        outputVat.setLabel("Utgående MVA")
-            .setModel(this.model)
-            .setModelField("OutputVat")
-            .setType(UNI_CONTROL_DIRECTIVES[FieldType.CHECKBOX]);
-
-        var vatAvailable = new UniFieldBuilder();
-        vatAvailable.setLabel("Tilgjengelig i moduler")
-            .setModel(this.model)
-            .setModelField("AvailableInModules")
-            .setType(UNI_CONTROL_DIRECTIVES[FieldType.CHECKBOX]);
-
-        var vatLocked = new UniFieldBuilder();
-        vatLocked.setLabel("Sperret")
-            .setModel(this.model)
-            .setModelField("Locked")
-            .setType(UNI_CONTROL_DIRECTIVES[FieldType.CHECKBOX]);
-
-        var vatVisible = new UniFieldBuilder();
-        vatVisible.setLabel("Synlig")
-            .setModel(this.model)
-            .setModelField("Visible")
-            .setType(UNI_CONTROL_DIRECTIVES[FieldType.CHECKBOX]);
-
-        var systemSet = new UniFieldsetBuilder();
-        systemSet.addUniElements(outputVat, vatAvailable, vatLocked, vatVisible);
-
-        this.config.addUniElements(
-            vatCodeGroup,
-            vatCode,
-            vatAlias,
-            vatName,
-            vatPercentage,
-            vatDateFrom,
-            vatDateTo,
-            vatAccountOut,
-            vatAccountIn,
-            systemSet
-        );
-
+    private extendFormConfig() {
+        this.vatcodegroups.unshift(null);
+        let vattype: UniFieldLayout = this.fields.find(x => x.Property === 'VatCodeGroupID');
+        vattype.Options =  {
+            source: this.vatcodegroups,
+            valueProperty: 'ID',
+            displayProperty: 'Name',                        
+            debounceTime: 200
+        };
+        
+        let outgoingAccountID: UniFieldLayout = this.fields.find(x => x.Property === 'OutgoingAccountID');
+        outgoingAccountID.Options =  {
+            source: this.accounts,
+            displayProperty: 'AccountNumber',
+            valueProperty: 'ID',
+            debounceTime: 200,
+            template: (account: Account) => `${account.AccountNumber} ${account.AccountName }`
+        };
+        
+        let incomingAccountID: UniFieldLayout = this.fields.find(x => x.Property === 'IncomingAccountID');
+        incomingAccountID.Options =  {
+            source: this.accounts,
+            displayProperty: 'AccountNumber',
+            valueProperty: 'ID',
+            debounceTime: 200,
+            template: (account: Account) => `${account.AccountNumber} ${account.AccountName }`
+        };
+    }
+    
+    
+    private getComponentLayout(): any {
+        return {
+            Name: 'VatTypeDetails',
+            BaseEntity: 'VatType',
+            StatusCode: 0,
+            Deleted: false,
+            CreatedAt: null,
+            UpdatedAt: null,
+            CreatedBy: null,
+            UpdatedBy: null,
+            ID: 1,
+            CustomFields: null,
+            Fields: [
+                 {
+                    ComponentLayoutID: 3,
+                    EntityType: 'VatType',
+                    Property: 'VatCodeGroupID',
+                    Placement: 4,
+                    Hidden: false,
+                    FieldType: 3,
+                    ReadOnly: false,
+                    LookupField: false,
+                    Label: 'Gruppe',
+                    Description: '',
+                    HelpText: '',
+                    FieldSet: 0,
+                    Section: 0,
+                    Sectionheader: null,
+                    Placeholder: null,
+                    Options: null,
+                    LineBreak: null,
+                    Combo: null,
+                    Legend: null,
+                    StatusCode: 0,
+                    ID: 10,
+                    Deleted: false,
+                    CreatedAt: null,
+                    UpdatedAt: null,
+                    CreatedBy: null,
+                    UpdatedBy: null,
+                    CustomFields: null  
+                },            
+                {
+                    ComponentLayoutID: 3,
+                    EntityType: 'VatType',
+                    Property: 'VatCode',
+                    Placement: 1,
+                    Hidden: false,
+                    FieldType: FieldType.TEXT,
+                    ReadOnly: false,
+                    LookupField: false,
+                    Label: 'Mvakode',
+                    Description: '',
+                    HelpText: '',
+                    FieldSet: 0,
+                    Section: 0,
+                    Placeholder: null,
+                    Options: null,
+                    LineBreak: null,
+                    Combo: null,
+                    Legend: '',
+                    StatusCode: 0,
+                    ID: 2,
+                    Deleted: false,
+                    CreatedAt: null,
+                    UpdatedAt: null,
+                    CreatedBy: null,
+                    UpdatedBy: null,
+                    CustomFields: null 
+                },
+                {
+                    ComponentLayoutID: 3,
+                    EntityType: 'VatType',
+                    Property: 'Alias',
+                    Placement: 1,
+                    Hidden: false,
+                    FieldType: FieldType.TEXT,
+                    ReadOnly: false,
+                    LookupField: false,
+                    Label: 'Alias',
+                    Description: '',
+                    HelpText: '',
+                    FieldSet: 0,
+                    Section: 0,
+                    Placeholder: null,
+                    Options: null,
+                    LineBreak: null,
+                    Combo: null,
+                    Legend: '',
+                    StatusCode: 0,
+                    ID: 3,
+                    Deleted: false,
+                    CreatedAt: null,
+                    UpdatedAt: null,
+                    CreatedBy: null,
+                    UpdatedBy: null,
+                    CustomFields: null 
+                },
+                {
+                    ComponentLayoutID: 3,
+                    EntityType: 'VatType',
+                    Property: 'Name',
+                    Placement: 1,
+                    Hidden: false,
+                    FieldType: FieldType.TEXT,
+                    ReadOnly: false,
+                    LookupField: false,
+                    Label: 'Navn',
+                    Description: '',
+                    HelpText: '',
+                    FieldSet: 0,
+                    Section: 0,
+                    Placeholder: null,
+                    Options: null,
+                    LineBreak: null,
+                    Combo: null,
+                    Legend: '',
+                    StatusCode: 0,
+                    ID: 3,
+                    Deleted: false,
+                    CreatedAt: null,
+                    UpdatedAt: null,
+                    CreatedBy: null,
+                    UpdatedBy: null,
+                    CustomFields: null 
+                },
+                {
+                    ComponentLayoutID: 3,
+                    EntityType: 'VatType',
+                    Property: 'VatPercent',
+                    Placement: 1,
+                    Hidden: false,
+                    FieldType: FieldType.TEXT,
+                    ReadOnly: false,
+                    LookupField: false,
+                    Label: 'Sats (prosent)',
+                    Description: '',
+                    HelpText: '',
+                    FieldSet: 0,
+                    Section: 0,
+                    Placeholder: null,
+                    Options: null,
+                    LineBreak: null,
+                    Combo: null,
+                    Legend: '',
+                    StatusCode: 0,
+                    ID: 3,
+                    Deleted: false,
+                    CreatedAt: null,
+                    UpdatedAt: null,
+                    CreatedBy: null,
+                    UpdatedBy: null,
+                    CustomFields: null 
+                },
+                {
+                    ComponentLayoutID: 3,
+                    EntityType: 'VatType',
+                    Property: 'ValidFrom',
+                    Placement: 1,
+                    Hidden: false,
+                    FieldType: FieldType.DATEPICKER,
+                    ReadOnly: false,
+                    LookupField: false,
+                    Label: 'Gyldig fra',
+                    Description: '',
+                    HelpText: '',
+                    FieldSet: 0,
+                    Section: 0,
+                    Placeholder: null,
+                    Options: null,
+                    LineBreak: null,
+                    Combo: null,
+                    Legend: '',
+                    StatusCode: 0,
+                    ID: 3,
+                    Deleted: false,
+                    CreatedAt: null,
+                    UpdatedAt: null,
+                    CreatedBy: null,
+                    UpdatedBy: null,
+                    CustomFields: null 
+                },
+                {
+                    ComponentLayoutID: 3,
+                    EntityType: 'VatType',
+                    Property: 'ValidTo',
+                    Placement: 1,
+                    Hidden: false,
+                    FieldType: FieldType.DATEPICKER,
+                    ReadOnly: false,
+                    LookupField: false,
+                    Label: 'Gyldig til',
+                    Description: '',
+                    HelpText: '',
+                    FieldSet: 0,
+                    Section: 0,
+                    Placeholder: null,
+                    Options: null,
+                    LineBreak: null,
+                    Combo: null,
+                    Legend: '',
+                    StatusCode: 0,
+                    ID: 3,
+                    Deleted: false,
+                    CreatedAt: null,
+                    UpdatedAt: null,
+                    CreatedBy: null,
+                    UpdatedBy: null,
+                    CustomFields: null 
+                },
+                {
+                    ComponentLayoutID: 1,
+                    EntityType: 'VatType',
+                    Property: 'OutgoingAccountID',
+                    Placement: 4,
+                    Hidden: false,
+                    FieldType: 0,
+                    ReadOnly: false,
+                    LookupField: false,
+                    Label: 'Utg. konto',
+                    Description: '',
+                    HelpText: '',
+                    FieldSet: 0,
+                    Section: 0,
+                    Placeholder: null,
+                    Options: null,
+                    LineBreak: null,
+                    Combo: null,
+                    Legend: '',
+                    StatusCode: 0,
+                    ID: 5,
+                    Deleted: false,
+                    CreatedAt: null,
+                    UpdatedAt: null,
+                    CreatedBy: null,
+                    UpdatedBy: null,
+                    CustomFields: null 
+                },
+                {
+                    ComponentLayoutID: 1,
+                    EntityType: 'VatType',
+                    Property: 'IncomingAccountID',
+                    Placement: 4,
+                    Hidden: false,
+                    FieldType: 0,
+                    ReadOnly: false,
+                    LookupField: false,
+                    Label: 'Inng. konto',
+                    Description: '',
+                    HelpText: '',
+                    FieldSet: 0,
+                    Section: 0,
+                    Placeholder: null,
+                    Options: null,
+                    LineBreak: null,
+                    Combo: null,
+                    Legend: '',
+                    StatusCode: 0,
+                    ID: 5,
+                    Deleted: false,
+                    CreatedAt: null,
+                    UpdatedAt: null,
+                    CreatedBy: null,
+                    UpdatedBy: null,
+                    CustomFields: null 
+                },                
+                {
+                    ComponentLayoutID: 3,
+                    EntityType: 'VatType',
+                    Property: 'AvailableInModules',
+                    Placement: 1,
+                    Hidden: false,
+                    FieldType: 5,
+                    ReadOnly: false,
+                    LookupField: false,
+                    Label: 'Tilgjengelig i moduler',
+                    Description: '',
+                    HelpText: '',
+                    FieldSet: 0,
+                    Section: 0,
+                    Placeholder: null,
+                    Options: null,
+                    LineBreak: null,
+                    Combo: null,
+                    Legend: '',
+                    StatusCode: 0,
+                    ID: 2,
+                    Deleted: false,
+                    CreatedAt: null,
+                    UpdatedAt: null,
+                    CreatedBy: null,
+                    UpdatedBy: null,
+                    CustomFields: null 
+                },                
+                {
+                    ComponentLayoutID: 3,
+                    EntityType: 'VatType',
+                    Property: 'Locked',
+                    Placement: 1,
+                    Hidden: false,
+                    FieldType: 5,
+                    ReadOnly: false,
+                    LookupField: false,
+                    Label: 'Sperret',
+                    Description: '',
+                    HelpText: '',
+                    FieldSet: 0,
+                    Section: 0,
+                    Placeholder: null,
+                    Options: null,
+                    LineBreak: null,
+                    Combo: null,
+                    Legend: '',
+                    StatusCode: 0,
+                    ID: 2,
+                    Deleted: false,
+                    CreatedAt: null,
+                    UpdatedAt: null,
+                    CreatedBy: null,
+                    UpdatedBy: null,
+                    CustomFields: null 
+                },                
+                {
+                    ComponentLayoutID: 3,
+                    EntityType: 'VatType',
+                    Property: 'Visible',
+                    Placement: 1,
+                    Hidden: false,
+                    FieldType: 5,
+                    ReadOnly: false,
+                    LookupField: false,
+                    Label: 'Synlig',
+                    Description: '',
+                    HelpText: '',
+                    FieldSet: 0,
+                    Section: 0,
+                    Placeholder: null,
+                    Options: null,
+                    LineBreak: null,
+                    Combo: null,
+                    Legend: '',
+                    StatusCode: 0,
+                    ID: 2,
+                    Deleted: false,
+                    CreatedAt: null,
+                    UpdatedAt: null,
+                    CreatedBy: null,
+                    UpdatedBy: null,
+                    CustomFields: null 
+                }
+            ]
+        };
     }
 }

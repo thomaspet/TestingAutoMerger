@@ -1,4 +1,1 @@
-<h2>Momskodegrupper</h2>
-<div>
-    <uni-tree-list [treeListItems]="vatCodeGroupListItems"></uni-tree-list>
-</div>
+<uni-table [resource]="lookupFunction" [config]="vatTableConfig" (rowSelected)="onRowSelected($event)"></uni-table>

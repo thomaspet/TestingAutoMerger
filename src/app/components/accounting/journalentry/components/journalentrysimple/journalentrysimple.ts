@@ -82,6 +82,7 @@ export class JournalEntrySimple implements OnInit, OnChanges {
     }
 
     private getDepartmentName(line: JournalEntryData): string {
+        if (line && line.Dimensions && !line.Dimensions.DepartementID) { return ''; }
         if (this.dropdownData && line && line.Dimensions) {
 
             var dep = this.dropdownData[0].find((d) => d.ID == line.Dimensions.DepartementID);
@@ -116,6 +117,7 @@ export class JournalEntrySimple implements OnInit, OnChanges {
     }
 
     private getProjectName(line: JournalEntryData): string {
+        if (line && line.Dimensions && !line.Dimensions.ProjectID) { return ''; }
         if (this.dropdownData && line && line.Dimensions) {
             var project = this.dropdownData[1].find((d) => d.ID == line.Dimensions.ProjectID);
             if (project != null) {
