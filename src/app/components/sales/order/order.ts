@@ -10,12 +10,12 @@ const ORDER_ROUTES = [
         useAsDefault: true,
         path: '/list',
         name: 'OrderList',
-        loader: () => ComponentProxy.LoadComponentAsync('OrderList','app/components/sales/order/list/orderList')
+        loader: () => ComponentProxy.LoadComponentAsync('OrderList', 'app/components/sales/order/list/orderList')
     }),    
     new AsyncRoute({
         path: '/details/:id',
         name: 'OrderDetails',
-        loader: () => ComponentProxy.LoadComponentAsync('OrderDetails','app/components/sales/order/details/orderDetails')
+        loader: () => ComponentProxy.LoadComponentAsync('OrderDetails', 'app/components/sales/order/details/orderDetails')
     })    
 ];
 
@@ -27,9 +27,9 @@ const ORDER_ROUTES = [
 @RouteConfig(ORDER_ROUTES)
 export class Order {
 
-    childRoutes: RouteDefinition[];
+    private childRoutes: RouteDefinition[];
 
     constructor(public router: Router) {
-        this.childRoutes = ORDER_ROUTES;//.slice(0, ORDER_ROUTES.length - 1);
+        this.childRoutes = ORDER_ROUTES; // .slice(0, ORDER_ROUTES.length - 1);
     }
 }

@@ -56,7 +56,7 @@ export class CustomerOrderService extends BizHttp<CustomerOrder> {
     ];
 
     public getStatusText = (statusCode: string) => {
-        var text = 'Udefinert';
+        var text = '';
         this.statusTypes.forEach((status) => {
             if (status.Code == statusCode) {
                 text = status.Text;

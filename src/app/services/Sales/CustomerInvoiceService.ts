@@ -78,7 +78,7 @@ export class CustomerInvoiceService extends BizHttp<CustomerInvoice> {
     } 
 
     public getStatusText = (statusCode: number, invoiceType: number) => {
-        var text = 'Udefinert';
+        var text = '';
 
         // TODO use enum for invoiceType
         if (invoiceType === 0) {
