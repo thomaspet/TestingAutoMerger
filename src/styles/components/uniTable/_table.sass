@@ -70,6 +70,33 @@ unitable-editor .autocomplete_input
     @extend %unitable-selected-cell
 
 
+.unitable_autocomplete_results
+    background: $uni-color-negative
+    border: pxToRem(1) solid $uni-color-scale8
+    box-shadow: 0 0 1rem transparentize($uni-color-positive, .8)
+    border-radius: pxToRem(3)
+    box-sizing: border-box
+    display: block
+    position: absolute
+    width: 100%
+    min-width: 20rem
+    max-height: 15rem
+    overflow-x: auto
+    list-style: none
+    margin-top: 2rem
+    z-index: 999
+
+    &[aria-expanded=false]
+        visibility: hidden
+
+.unitable_autocomplete_result
+    padding: .2rem 1rem
+
+    &[aria-selected=true]
+        font-weight: 400
+        background: $uni-color-C2A
+        color: $uni-color-negative
+
 unitable-contextmenu
     width: 0
     height: 0
