@@ -25,6 +25,11 @@ export class TabService {
         return this._tabs.length;
     }
 
+    /**
+     * TO FIND WHAT MODULEID YOU SHOULD USE, GO TO
+     * https://unimicro.atlassian.net/wiki/pages/viewpage.action?spaceKey=AD&title=TabService
+     */
+
     public addTab(newTab: IUniTab) {
         var duplicate = false;
         var moduleCheck = { index: 0, exists: false}
