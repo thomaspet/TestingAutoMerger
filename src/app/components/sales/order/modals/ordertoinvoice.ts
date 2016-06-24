@@ -1,14 +1,12 @@
-import {Component, ViewChildren, Type, Input, Output, QueryList, ViewChild, ComponentRef, EventEmitter, SimpleChange} from "@angular/core";
-import {NgIf, NgModel, NgFor, NgClass} from "@angular/common";
+import {Component, Type, Input, Output, ViewChild, EventEmitter} from '@angular/core';
 import {Observable} from 'rxjs/Observable';
 
-import {UniModal} from "../../../../../framework/modals/modal";
-import {UniTable, UniTableColumn, UniTableColumnType, UniTableConfig, IContextMenuItem} from 'unitable-ng2/main';
-import {UniForm, UniFieldLayout} from '../../../../../framework/uniform';
+import {UniModal} from '../../../../../framework/modals/modal';
+import {UniTable, UniTableColumn, UniTableColumnType, UniTableConfig} from 'unitable-ng2/main';
 
 import {CustomerOrderService, ProductService} from '../../../../services/services';
-import {FieldType, ComponentLayout, Address, StatusCodeCustomerOrderItem} from "../../../../unientities";
-import {CustomerOrder, CustomerOrderItem, Product, VatType} from '../../../../unientities';
+import {StatusCodeCustomerOrderItem} from '../../../../unientities';
+import {CustomerOrder, CustomerOrderItem} from '../../../../unientities';
 
 @Component({
     selector: 'order-to-invoice-table',
@@ -26,10 +24,7 @@ import {CustomerOrder, CustomerOrderItem, Product, VatType} from '../../../../un
 export class OrderToInvoiceTable {
     @ViewChild(UniTable) public table: UniTable;
     @Input() public order: CustomerOrder;
-
     public selectedItems: CustomerOrderItem[];
-
-    private products: Product[];
     private orderItemTable: UniTableConfig;
 
     constructor(
@@ -37,14 +32,11 @@ export class OrderToInvoiceTable {
     }
 
     public ngOnInit() {
-        console.log('OrderToInvoiceTable.ngOnInit()');
-        //this.setupInvoiceItemTable();
         this.selectedItems = [];
         this.setupUniTable();
     }
 
     private setupUniTable() {
-        console.log('setupUniTable()');
         var productNrCol = new UniTableColumn('Product.PartName', 'Produktnr', UniTableColumnType.Text);
         var productNameCol = new UniTableColumn('Product.Name', 'Produktnavn', UniTableColumnType.Text);
         let numItemsCol = new UniTableColumn('NumberOfItems', 'Antall', UniTableColumnType.Number);
@@ -64,7 +56,7 @@ export class OrderToInvoiceTable {
 
 // order-to-invoice modal type
 @Component({
-    selector: "order-to-invoice-modal-type",
+    selector: 'order-to-invoice-modal-type',
     directives: [OrderToInvoiceTable],
     template: `
         <article class="modal-content address-modal">
@@ -83,15 +75,11 @@ export class OrderToInvoiceTable {
 export class OrderToInvoiceModalType {
     @Input() public config: any;
     @ViewChild(OrderToInvoiceTable) public form: OrderToInvoiceTable;
-
-    public ngOnInit() {
-        console.log('OrderToInvoiceModalType.ngOnInit()');
-    }
 }
 
 // order to invoice modal
 @Component({
-    selector: "order-to-invoice-modal",
+    selector: 'order-to-invoice-modal',
     template: `
         <uni-modal [type]="type" [config]="modalConfig"></uni-modal>
     `,
@@ -102,8 +90,8 @@ export class OrderToInvoiceModal {
     @Input() public order: CustomerOrder;
     @ViewChild(UniModal) public modal: UniModal;
 
-    @Output() public Changed = new EventEmitter<CustomerOrderItem[]>();
-    @Output() public Canceled = new EventEmitter<boolean>();
+    @Output() public changed: EventEmitter<CustomerOrderItem[]>= new EventEmitter<CustomerOrderItem[]>();
+    @Output() public canceled: EventEmitter<boolean> = new EventEmitter<boolean>();
 
     private modalConfig: any = {};
     private type: Type = OrderToInvoiceModalType;
@@ -111,32 +99,29 @@ export class OrderToInvoiceModal {
     constructor(private customerOrderService: CustomerOrderService) {
         var self = this;
         this.modalConfig = {
-            title: "",
+            title: '',
             mode: null,
 
             actions: [
                 {
-                    text: "Avbryt",
+                    text: 'Avbryt',
                     method: () => {
                         self.modal.getContent().then(() => {
                             self.modal.close();
-                            self.Canceled.emit(true);
+                            self.canceled.emit(true);
                         });
 
                         return false;
                     }
                 },
                 {
-                    text: "Overfør til faktura",
-                    class: "good",
+                    text: 'Overfør til faktura',
+                    class: 'good',
                     method: () => {
                         self.modal.getContent().then((content: OrderToInvoiceModalType) => {
-                            // TODO sjekk om 1 eller flere linjer markert??
-                            var s = content.form.selectedItems;
-                            console.log('Antall items valgt: ' + content.form.selectedItems.length);
                             self.modalConfig.model.Items = content.form.selectedItems;
                             self.modal.close();
-                            self.Changed.emit(self.modalConfig.model.Items);
+                            self.changed.emit(self.modalConfig.model.Items);
                             return false;
                         });
                     }
@@ -146,16 +131,10 @@ export class OrderToInvoiceModal {
     }
 
     public openModal(order: CustomerOrder) {
-        console.log('order id: ' + order.ID);
-        this.getData(order);
-    }
-
-    private getData(order: CustomerOrder) {
         Observable.forkJoin(
             this.customerOrderService.Get(order.ID, ['Items', 'Items.Product'])
         ).subscribe(
             (data) => {
-
                 // Show only items in state 'Registered'. According to status flow for items
                 let itemsInRegisteredState: CustomerOrderItem[] = [];
 
@@ -168,9 +147,7 @@ export class OrderToInvoiceModal {
                 }
 
                 data[0].Items = itemsInRegisteredState;
-                console.log('getData() items: ' + data[0].Items.lenght);
 
-                console.log('getData()' + data[0]);
                 this.modalConfig.model = data[0];
                 this.modal.open();
             },

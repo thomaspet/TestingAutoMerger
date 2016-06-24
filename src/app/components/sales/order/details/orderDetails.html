@@ -3,7 +3,7 @@
 <header class="order_poster" *ngIf="order">    
     <article class="poster_toolbar">
         <section>
-            <h1 *ngIf="order">{{order.CustomerName ? order.CustomerName : order.Customer ? order.Customer.Info.Name : ''}}</h1>            
+            <h1 *ngIf="order">{{order.Customer ? (order.Customer.CustomerNumber + ' - ' + order.Customer.Info.Name) : order.CustomerName}}</h1>
             <p>Ordrenr. {{order.OrderNumber}} <span  *ngIf="!itemsSummaryData">. Netto kr {{order.TaxExclusiveAmount}}</span> <span *ngIf="itemsSummaryData">. Netto kr {{itemsSummaryData.SumTotalExVat}}</span>. Status: {{ statusText }}</p>
             <p></p>
         </section>

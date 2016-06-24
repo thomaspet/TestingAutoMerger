@@ -1,9 +1,9 @@
-import {Component, ComponentRef, Input, ViewChild, EventEmitter} from '@angular/core';
+import {Component, Input, ViewChild} from '@angular/core';
 import {Router, RouteParams, RouterLink} from '@angular/router-deprecated';
 import {Observable} from 'rxjs/Observable';
 import 'rxjs/add/observable/forkJoin';
 
-import {CustomerOrderService, CustomerOrderItemService, CustomerService, SupplierService, } from '../../../../services/services';
+import {CustomerOrderService, CustomerOrderItemService, CustomerService} from '../../../../services/services';
 import {ProjectService, DepartementService, AddressService, ReportDefinitionService} from '../../../../services/services';
 
 import {UniSave, IUniSaveAction} from '../../../../../framework/save/save';
@@ -11,14 +11,12 @@ import {UniForm, UniFieldLayout} from '../../../../../framework/uniform';
 
 import {OrderItemList} from './orderItemList';
 
-import {FieldType, FieldLayout, ComponentLayout, CustomerOrder, CustomerOrderItem, Customer} from '../../../../unientities';
-import {Dimensions, Departement, Project, Address, BusinessRelation} from '../../../../unientities';
+import {FieldType, CustomerOrder, Customer} from '../../../../unientities';
+import {Dimensions, Address, BusinessRelation} from '../../../../unientities';
 import {StatusCodeCustomerOrder} from '../../../../unientities';
 
 import {AddressModal} from '../../customer/modals/address/address';
 import {OrderToInvoiceModal} from '../modals/ordertoinvoice';
-
-import {UNI_CONTROL_DIRECTIVES} from '../../../../../framework/controls';
 
 import {TradeHeaderCalculationSummary} from '../../../../models/sales/TradeHeaderCalculationSummary';
 import {PreviewModal} from '../../../reports/modals/preview/previewModal';
@@ -30,11 +28,11 @@ declare var _;
     templateUrl: 'app/components/sales/order/details/orderDetails.html',
     directives: [RouterLink, OrderItemList, AddressModal, UniForm, OrderToInvoiceModal, UniSave, PreviewModal],
     providers: [CustomerOrderService, CustomerOrderItemService, CustomerService,
-                ProjectService, DepartementService, AddressService, ReportDefinitionService]
+        ProjectService, DepartementService, AddressService, ReportDefinitionService]
 })
 export class OrderDetails {
 
-    @Input() public OrderID: any;
+    @Input() public orderID: any;
     @ViewChild(UniForm) public form: UniForm;
     @ViewChild(OrderToInvoiceModal) private oti: OrderToInvoiceModal;
     @ViewChild(AddressModal) public addressModal: AddressModal;
@@ -70,7 +68,7 @@ export class OrderDetails {
         private reportDefinitionService: ReportDefinitionService,
         private router: Router, private params: RouteParams) {
 
-        this.OrderID = params.get('id');
+        this.orderID = params.get('id');
         this.businessRelationInvoice.Addresses = [];
         this.businessRelationShipping.Addresses = [];
     }
@@ -79,8 +77,7 @@ export class OrderDetails {
         alert(err._body);
     }
 
-    nextOrder() {
-        var self = this;
+    private nextOrder() {
         this.customerOrderService.next(this.order.ID)
             .subscribe((data) => {
                 if (data) {
@@ -94,7 +91,7 @@ export class OrderDetails {
             );
     }
 
-    previousOrder() {
+    private previousOrder() {
         this.customerOrderService.previous(this.order.ID)
             .subscribe((data) => {
                 if (data) {
@@ -108,7 +105,7 @@ export class OrderDetails {
             );
     }
 
-    addOrder() {
+    private addOrder() {
         this.customerOrderService.newCustomerOrder().then(order => {
             this.customerOrderService.Post(order)
                 .subscribe(
@@ -131,15 +128,7 @@ export class OrderDetails {
 
     public ready(event) {
         this.form.field('FreeTxt').addClass('max-width', true);
-
         this.setupSubscriptions(null);
-
-        //TODO?
-        //if (this.invoice.StatusCode === StatusCodeCustomerInvoice.Draft) {
-        //    this.form.editMode();
-        //} else {
-        //    this.form.readMode();
-        //}
     }
 
     private setupSubscriptions(event) {
@@ -158,7 +147,7 @@ export class OrderDetails {
             });
     }
 
-    ngOnInit() {
+    private ngOnInit() {
         this.getLayoutAndData();
 
     }
@@ -169,7 +158,8 @@ export class OrderDetails {
         Observable.forkJoin(
             this.departementService.GetAll(null),
             this.projectService.GetAll(null),
-            this.customerOrderService.Get(this.OrderID, ['Dimensions', 'Items', 'Items.Product', 'Items.VatType', 'Customer', 'Customer.Info', 'Customer.Info.Addresses']),
+            this.customerOrderService.Get(this.orderID, ['Dimensions', 'Items', 'Items.Product',
+                'Items.VatType', 'Customer', 'Customer.Info', 'Customer.Info.Addresses']),
             this.customerService.GetAll(null, ['Info']),
             this.addressService.GetNewEntity(null, 'address')
         ).subscribe(response => {
@@ -204,14 +194,6 @@ export class OrderDetails {
             debounceTime: 200
         };
 
-        //var departement: UniFieldBuilder = this.formConfig.find('Dimensions.DepartementID');
-        //departement.setKendoOptions({
-        //    dataTextField: 'Name',
-        //    dataValueField: 'ID',
-        //    dataSource: this.dropdownData[0]
-        //});
-        //departement.addClass('large-field');
-
         var project: UniFieldLayout = this.fields.find(x => x.Property === 'Dimensions.ProjectID');
         project.Options = {
             source: this.dropdownData[1],
@@ -219,13 +201,6 @@ export class OrderDetails {
             displayProperty: 'Name',
             debounceTime: 200
         };
-        //var project: UniFieldBuilder = this.formConfig.find('Dimensions.ProjectID');
-        //project.setKendoOptions({
-        //    dataTextField: 'Name',
-        //    dataValueField: 'ID',
-        //    dataSource: this.dropdownData[1]
-        //});
-        //project.addClass('large-field');
 
         var invoiceaddress: UniFieldLayout = this.fields.find(x => x.Property === 'InvoiceAddress');
 
@@ -255,8 +230,8 @@ export class OrderDetails {
         };
 
 
-        //var invoiceaddress: UniFieldBuilder = this.formConfig.find('InvoiceAddress');
-        //invoiceaddress
+        // var invoiceaddress: UniFieldBuilder = this.formConfig.find('InvoiceAddress');
+        // invoiceaddress
         //    .setKendoOptions({
         //        dataTextField: 'AddressLine1',
         //        dataValueField: 'ID',
@@ -267,10 +242,10 @@ export class OrderDetails {
         //    //  .setModelDefaultField('InvoiceAddressID')           
         //    .setPlaceholder(this.emptyAddress)
         //    .setEditor(AddressModal);
-        //invoiceaddress.onSelect = (address: Address) => {
+        // invoiceaddress.onSelect = (address: Address) => {
         //    this.addressToInvoice(address);
         //    this.businessRelationInvoice.Addresses[0] = address;
-        //};
+        // };
 
         var shippingaddress: UniFieldLayout = this.fields.find(x => x.Property === 'ShippingAddress');
         shippingaddress.Options = {
@@ -297,8 +272,8 @@ export class OrderDetails {
             }
         };
 
-        //var shippingaddress: UniFieldBuilder = this.formConfig.find('ShippingAddress');
-        //shippingaddress
+        // var shippingaddress: UniFieldBuilder = this.formConfig.find('ShippingAddress');
+        // shippingaddress
         //    .hasLineBreak(true)
         //    .setKendoOptions({
         //        dataTextField: 'AddressLine1',
@@ -310,10 +285,10 @@ export class OrderDetails {
         //    //    .setModelDefaultField('ShippingAddressID')
         //    .setPlaceholder(this.emptyAddress)
         //    .setEditor(AddressModal);
-        //shippingaddress.onSelect = (address: Address) => {
+        // shippingaddress.onSelect = (address: Address) => {
         //    this.addressToShipping(address);
         //    this.businessRelationShipping.Addresses[0] = address;
-        //};
+        // };
 
         var customer: UniFieldLayout = this.fields.find(x => x.Property === 'CustomerID');
         customer.Options = {
@@ -322,29 +297,6 @@ export class OrderDetails {
             displayProperty: 'Info.Name',
             debounceTime: 200
         };
-
-
-        //var customer: UniFieldBuilder = this.formConfig.find('CustomerID');
-        //customer
-        //    .setKendoOptions({
-        //        dataTextField: 'Info.Name',
-        //        dataValueField: 'ID',
-        //        dataSource: this.customers
-        //    });
-        //customer.onSelect = function (customerID) {
-        //    self.customerService.Get(customerID, ['Info', 'Info.Addresses']).subscribe((customer) => {
-        //        self.order.Customer = customer;
-        //        self.order.CustomerName = customer.Info.Name;
-        //        self.addAddresses();
-
-        //        invoiceaddress.refresh(self.businessRelationInvoice);
-        //        shippingaddress.refresh(self.businessRelationShipping);
-        //    });
-        //};
-
-        //var freeTextField: UniFieldBuilder = this.formConfig.find('FreeTxt');
-        //freeTextField.addClass('max-width');
-
     }
 
     private updateSaveActions() {
@@ -378,6 +330,12 @@ export class OrderDetails {
             action: (done) => this.saveOrderTransition(done, 'complete'),
             disabled: this.IsTransferToCompleteDisabled()
         });
+
+        this.actions.push({
+            label: 'Slett',
+            action: (done) => this.deleteOrder(done),
+            disabled: true
+        });
     }
 
     private IsTransferToInvoiceDisabled() {
@@ -401,6 +359,11 @@ export class OrderDetails {
             return false;
         }
         return true;
+    }
+
+    private deleteOrder(done) {
+        alert('Slett  - Under construction');
+        done('Slett ordre avbrutt');
     }
 
     private addAddresses() {
@@ -468,7 +431,7 @@ export class OrderDetails {
     private recalcItemSums(orderItems: any) {
         this.order.Items = orderItems;
 
-        //do recalc after 2 second to avoid to much requests
+        // do recalc after 2 second to avoid to much requests
         if (this.recalcTimeout) {
             clearTimeout(this.recalcTimeout);
         }
@@ -494,7 +457,7 @@ export class OrderDetails {
                 (err) => {
                     console.log('Error when recalculating items:', err);
                     this.log(err);
-                })
+                });
         }, 2000);
     }
 
@@ -505,37 +468,45 @@ export class OrderDetails {
     }
 
     private saveAndTransferToInvoice(done: any) {
-        this.oti.Changed.subscribe(items => {
+        this.oti.changed.subscribe(items => {
+            //Do not transfer to invoice if no items 
+            if (items.length === 0) {
+                alert('Kan ikke overføre en ordre uten linjer');
+                return;
+            }
+
             var order: CustomerOrder = _.cloneDeep(this.order);
             order.Items = items;
 
-            this.customerOrderService.ActionWithBody(order.ID, order, "transfer-to-invoice").subscribe((invoice) => {
+            this.customerOrderService.ActionWithBody(order.ID, order, 'transfer-to-invoice').subscribe((invoice) => {
                 this.router.navigateByUrl('/sales/invoice/details/' + invoice.ID);
-                done('Overført til faktura');
+                done('Lagret og overført til faktura');
             }, (err) => {
-                console.log("== TRANSFER-TO-INVOICE FAILED ==");
-                done('Feilet');
+                console.log('== TRANSFER-TO-INVOICE FAILED ==');
+                done('Feilet i overføring til faktura');
                 this.log(err);
             });
         });
 
         this.saveOrder(order => {
             this.oti.openModal(this.order);
+            done('Lagret');
         });
     }
 
     private saveOrderTransition(done: any, transition: string) {
         this.saveOrder((order) => {
             this.customerOrderService.Transition(this.order.ID, this.order, transition).subscribe((x) => {
-                console.log("== TRANSITION OK " + transition + " ==");
-                done("Lagret");
+                console.log('== TRANSITION OK ' + transition + ' ==');
+                done('Lagret');
 
-                this.customerOrderService.Get(order.ID, ['Dimensions', 'Items', 'Items.Product', 'Items.VatType', 'Customer', 'Customer.Info', 'Customer.Info.Addresses']).subscribe((order) => {
-                    this.order = order;
-                    this.updateStatusText();
-                    this.updateSaveActions();
-                    this.ready(null);
-                });
+                this.customerOrderService.Get(order.ID, ['Dimensions', 'Items', 'Items.Product',
+                    'Items.VatType', 'Customer', 'Customer.Info', 'Customer.Info.Addresses']).subscribe((data) => {
+                        this.order = data;
+                        this.updateStatusText();
+                        this.updateSaveActions();
+                        this.ready(null);
+                    });
             }, (err) => {
                 console.log('Feil oppstod ved ' + transition + ' transition', err);
                 done('Feilet');
@@ -549,7 +520,7 @@ export class OrderDetails {
 
         if (this.order.DimensionsID === 0) {
             this.order.Dimensions = new Dimensions();
-            this.order.Dimensions["_createguid"] = this.customerOrderService.getNewGuid();
+            this.order.Dimensions['_createguid'] = this.customerOrderService.getNewGuid();
         }
 
         this.customerOrderService.Put(this.order.ID, this.order)
@@ -570,7 +541,7 @@ export class OrderDetails {
             );
     }
 
-    updateStatusText() {
+    private updateStatusText() {
         this.statusText = this.customerOrderService.getStatusText((this.order.StatusCode || '').toString());
     }
 
@@ -579,7 +550,7 @@ export class OrderDetails {
             this.reportDefinitionService.getReportByName('Ordre').subscribe((report) => {
                 if (report) {
                     this.previewModal.openWithId(report, order.ID);
-                    done('Utskrift');
+                    done('Utskrift startet');
                 } else {
                     done('Rapport mangler');
                 }
@@ -588,7 +559,9 @@ export class OrderDetails {
     }
 
     private isEmptyAddress(address: Address): boolean {
-        if (address == null) return true;
+        if (address == null) {
+            return true;
+        }
         return (address.AddressLine1 == null &&
             address.AddressLine2 == null &&
             address.AddressLine3 == null &&
@@ -646,8 +619,8 @@ export class OrderDetails {
 
     private getComponentLayout(): any {
         return {
-            Name: "CustomerOrder",
-            BaseEntity: "CustomerOrder",
+            Name: 'CustomerOrder',
+            BaseEntity: 'CustomerOrder',
             StatusCode: 0,
             Deleted: false,
             CreatedAt: null,
@@ -659,23 +632,23 @@ export class OrderDetails {
             Fields: [
                 {
                     ComponentLayoutID: 3,
-                    EntityType: "CustomerOrder",
-                    Property: "CustomerID",
+                    EntityType: 'CustomerOrder',
+                    Property: 'CustomerID',
                     Placement: 4,
                     Hidden: false,
                     FieldType: FieldType.DROPDOWN,
                     ReadOnly: false,
                     LookupField: false,
-                    Label: "Kunde",
-                    Description: "",
-                    HelpText: "",
+                    Label: 'Kunde',
+                    Description: '',
+                    HelpText: '',
                     FieldSet: 0,
                     Section: 0,
                     Placeholder: null,
                     Options: null,
                     LineBreak: null,
                     Combo: null,
-                    Legend: "",
+                    Legend: '',
                     StatusCode: 0,
                     ID: 1,
                     Deleted: false,
@@ -687,23 +660,23 @@ export class OrderDetails {
                 },
                 {
                     ComponentLayoutID: 3,
-                    EntityType: "CustomerOrder",
-                    Property: "OrderDate",
+                    EntityType: 'CustomerOrder',
+                    Property: 'OrderDate',
                     Placement: 3,
                     Hidden: false,
                     FieldType: FieldType.DATEPICKER,
                     ReadOnly: false,
                     LookupField: false,
-                    Label: "Ordredato",
-                    Description: "",
-                    HelpText: "",
+                    Label: 'Ordredato',
+                    Description: '',
+                    HelpText: '',
                     FieldSet: 0,
                     Section: 0,
                     Placeholder: null,
                     Options: null,
                     LineBreak: null,
                     Combo: null,
-                    Legend: "",
+                    Legend: '',
                     StatusCode: 0,
                     ID: 2,
                     Deleted: false,
@@ -715,23 +688,23 @@ export class OrderDetails {
                 },
                 {
                     ComponentLayoutID: 3,
-                    EntityType: "CustomerOrder",
-                    Property: "DeliveryDate",
+                    EntityType: 'CustomerOrder',
+                    Property: 'DeliveryDate',
                     Placement: 1,
                     Hidden: false,
                     FieldType: FieldType.DATEPICKER,
                     ReadOnly: false,
                     LookupField: false,
-                    Label: "Leveringsdato",
-                    Description: "",
-                    HelpText: "",
+                    Label: 'Leveringsdato',
+                    Description: '',
+                    HelpText: '',
                     FieldSet: 0,
                     Section: 0,
                     Placeholder: null,
                     Options: null,
                     LineBreak: null,
                     Combo: null,
-                    Legend: "",
+                    Legend: '',
                     StatusCode: 0,
                     ID: 3,
                     Deleted: false,
@@ -743,23 +716,23 @@ export class OrderDetails {
                 },
                 {
                     ComponentLayoutID: 3,
-                    EntityType: "CustomerOrder",
-                    Property: "CreditDays",
+                    EntityType: 'CustomerOrder',
+                    Property: 'CreditDays',
                     Placement: 1,
                     Hidden: false,
                     FieldType: FieldType.TEXT,
                     ReadOnly: false,
                     LookupField: false,
-                    Label: "Kredittdager",
-                    Description: "",
-                    HelpText: "",
+                    Label: 'Kredittdager',
+                    Description: '',
+                    HelpText: '',
                     FieldSet: 0,
                     Section: 0,
                     Placeholder: null,
                     Options: null,
                     LineBreak: null,
                     Combo: null,
-                    Legend: "",
+                    Legend: '',
                     StatusCode: 0,
                     ID: 4,
                     Deleted: false,
@@ -771,23 +744,23 @@ export class OrderDetails {
                 },
                 {
                     ComponentLayoutID: 3,
-                    EntityType: "BusinessRelation",
-                    Property: "InvoiceAddress",
+                    EntityType: 'BusinessRelation',
+                    Property: 'InvoiceAddress',
                     Placement: 1,
                     Hidden: false,
                     FieldType: FieldType.MULTIVALUE,
                     ReadOnly: false,
                     LookupField: false,
-                    Label: "Fakturaadresse",
-                    Description: "",
-                    HelpText: "",
+                    Label: 'Fakturaadresse',
+                    Description: '',
+                    HelpText: '',
                     FieldSet: 0,
                     Section: 0,
                     Placeholder: null,
                     Options: null,
                     LineBreak: null,
                     Combo: null,
-                    Legend: "",
+                    Legend: '',
                     StatusCode: 0,
                     ID: 5,
                     Deleted: false,
@@ -799,23 +772,23 @@ export class OrderDetails {
                 },
                 {
                     ComponentLayoutID: 3,
-                    EntityType: "BusinessRelation",
-                    Property: "ShippingAddress",
+                    EntityType: 'BusinessRelation',
+                    Property: 'ShippingAddress',
                     Placement: 1,
                     Hidden: false,
                     FieldType: FieldType.MULTIVALUE,
                     ReadOnly: false,
                     LookupField: false,
-                    Label: "Leveringsadresse",
-                    Description: "",
-                    HelpText: "",
+                    Label: 'Leveringsadresse',
+                    Description: '',
+                    HelpText: '',
                     FieldSet: 0,
                     Section: 0,
                     Placeholder: null,
                     Options: null,
                     LineBreak: null,
                     Combo: null,
-                    Legend: "",
+                    Legend: '',
                     StatusCode: 0,
                     ID: 6,
                     Deleted: false,
@@ -914,25 +887,25 @@ export class OrderDetails {
                 },
                 {
                     ComponentLayoutID: 3,
-                    EntityType: "Project",
-                    Property: "Dimensions.ProjectID",
+                    EntityType: 'Project',
+                    Property: 'Dimensions.ProjectID',
                     Placement: 4,
                     Hidden: false,
                     FieldType: FieldType.DROPDOWN,
                     ReadOnly: false,
                     LookupField: false,
-                    Label: "Std. prosjekt på linje",
-                    Description: "",
-                    HelpText: "",
+                    Label: 'Std. prosjekt på linje',
+                    Description: '',
+                    HelpText: '',
                     FieldSet: 0,
                     Section: 0,
                     Placeholder: null,
                     Options: null,
                     LineBreak: null,
                     Combo: null,
-                    Legend: "",
+                    Legend: '',
                     StatusCode: 0,
-                    ID: 7,
+                    ID: 20,
                     Deleted: false,
                     CreatedAt: null,
                     UpdatedAt: null,
@@ -942,25 +915,25 @@ export class OrderDetails {
                 },
                 {
                     ComponentLayoutID: 3,
-                    EntityType: "Departement",
-                    Property: "Dimensions.DepartementID",
+                    EntityType: 'Departement',
+                    Property: 'Dimensions.DepartementID',
                     Placement: 4,
                     Hidden: false,
                     FieldType: FieldType.DROPDOWN,
                     ReadOnly: false,
                     LookupField: false,
-                    Label: "Std. avdeling på linje",
-                    Description: "",
-                    HelpText: "",
+                    Label: 'Std. avdeling på linje',
+                    Description: '',
+                    HelpText: '',
                     FieldSet: 0,
                     Section: 0,
                     Placeholder: null,
                     Options: null,
                     LineBreak: null,
                     Combo: null,
-                    Legend: "",
+                    Legend: '',
                     StatusCode: 0,
-                    ID: 8,
+                    ID: 21,
                     Deleted: false,
                     CreatedAt: null,
                     UpdatedAt: null,
@@ -970,25 +943,26 @@ export class OrderDetails {
                 },
                 {
                     ComponentLayoutID: 3,
-                    EntityType: "CustomerOrder",
-                    Property: "FreeTxt",
+                    EntityType: 'CustomerOrder',
+                    Property: 'FreeTxt',
                     Placement: 1,
                     Hidden: false,
                     FieldType: FieldType.TEXTAREA,
                     ReadOnly: false,
                     LookupField: false,
-                    Label: "",
-                    Description: "",
-                    HelpText: "",
+                    Label: '',
+                    Description: '',
+                    HelpText: '',
                     FieldSet: 0,
                     Section: 1,
+                    Sectionheader: 'Fritekst',
                     Placeholder: null,
                     Options: null,
                     LineBreak: null,
                     Combo: null,
-                    Legend: "Fritekst",
+                    Legend: 'Fritekst',
                     StatusCode: 0,
-                    ID: 9,
+                    ID: 30,
                     Deleted: false,
                     CreatedAt: null,
                     UpdatedAt: null,

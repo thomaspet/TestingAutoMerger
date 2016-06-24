@@ -620,7 +620,7 @@ export class InvoiceDetails implements OnInit {
 
     private deleteInvoice(done) {
         alert('Slett  - Under construction');
-        done('Slettet faktura');
+        done('Slett faktura avbrutt');
     }
 
     private isEmptyAddress(address: Address): boolean {

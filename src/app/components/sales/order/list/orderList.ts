@@ -1,4 +1,4 @@
-import {Component, ViewChildren, ViewChild} from '@angular/core';
+import {Component, ViewChild} from '@angular/core';
 import {UniTable, UniTableColumn, UniTableColumnType, UniTableConfig, IContextMenuItem} from 'unitable-ng2/main';
 import {Router} from '@angular/router-deprecated';
 import {CustomerOrderService, ReportDefinitionService} from '../../../../services/services';
@@ -20,12 +20,12 @@ export class OrderList {
     @ViewChild(UniTable) private table: UniTable;
 
     private orderTable: UniTableConfig;
-    private selectedorder: CustomerOrder;
     private lookupFunction: (urlParams: URLSearchParams) => any;
 
     constructor(private router: Router,
         private customerOrderService: CustomerOrderService,
         private reportDefinitionService: ReportDefinitionService) {
+
         this.setupOrderTable();
     }
 
@@ -58,7 +58,7 @@ export class OrderList {
             }
 
             return this.customerOrderService.GetAllByUrlSearchParams(params);
-        }
+        };
 
         // Context menu
         let contextMenuItems: IContextMenuItem[] = [];
@@ -74,39 +74,40 @@ export class OrderList {
 
         contextMenuItems.push({
             label: '-------------',
-            action: () => {}
+            action: () => { }
         });
 
-        contextMenuItems.push({
-            label: 'Overfør hele ordren til faktura',
-            action: (order: CustomerOrder) => {
-                this.customerOrderService.ActionWithBody(order.ID, order, "transfer-to-invoice").subscribe((invoice) => {
-                    console.log('== order ACTION OK ==');
-                    alert('Overført til Faktura OK');
-                    this.table.refreshTableData();
-                }, (err) => {
-                    console.log("== TRANSFER-TO-INVOICE FAILED ==");
-                    this.log(err);
-                });
-            },
-            disabled: (rowModel) => {
-                return !rowModel._links.transitions.transferToInvoice;
-            }
-        });
+        // TODO?
+        // contextMenuItems.push({
+        //    label: 'Overfør til faktura',
+        //    action: (order: CustomerOrder) => {
+
+        //        //TODO?
+        //        //this.customerOrderService.ActionWithBody(order.ID, order, 'transfer-to-invoice').subscribe((invoice) => {
+        //        //    console.log('== order ACTION OK ==');
+        //        //    alert('Overført til Faktura OK');
+        //        //    //this.table.refreshTableData();
+        //        //    this.router.navigateByUrl('/sales/invoice/details/' + invoice.ID);
+        //        //}, (err) => {
+        //        //    console.log('== TRANSFER-TO-INVOICE FAILED ==');
+        //        //    this.log(err);
+        //        //});
+        //    },
+        //    disabled: (rowModel) => {
+        //        return !rowModel._links.transitions.transferToInvoice;
+        //    }
+        // });
 
 
         contextMenuItems.push({
             label: 'Avslutt',
             action: (order: CustomerOrder) => {
-
-
-
-                this.customerOrderService.Transition(order.ID, order, "complete").subscribe((invoice) => {
+                this.customerOrderService.Transition(order.ID, order, 'complete').subscribe(() => {
                     console.log('== order Transistion OK ==');
                     alert('Overgang til -Avslutt- OK');
                     this.table.refreshTableData();
                 }, (err) => {
-                    console.log("== TRANSFER-TO-COMPLETED FAILED ==");
+                    console.log('== TRANSFER-TO-COMPLETED FAILED ==');
                     this.log(err);
                 });
             },
