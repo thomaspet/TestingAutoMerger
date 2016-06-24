@@ -38,6 +38,9 @@ export class JournalEntrySimpleForm implements OnChanges {
     @Input()
     mode: number = JournalEntryMode.Manual;
     
+    @Input()
+    disabled: boolean = false;
+    
     @Output()
     created = new EventEmitter<any>();
 
@@ -211,7 +214,7 @@ export class JournalEntrySimpleForm implements OnChanges {
             amount.Options = {
                 step: 1
             };
-     
+                 
             var departement = new UniFieldLayout();            
             departement.FieldSet = 0;
             departement.Section = 0;
@@ -223,7 +226,7 @@ export class JournalEntrySimpleForm implements OnChanges {
             departement.Hidden = self.mode == JournalEntryMode.Payment;   
             departement.Options = {                  
                 source: self.departements,
-                template: (departement) => `${departement.Name}`,
+                template: (departement) => `${departement ? departement.Name : ''}`,
                 valueProperty: 'ID',
                 displayProperty: 'Name',
                 debounceTime: 500
@@ -240,7 +243,7 @@ export class JournalEntrySimpleForm implements OnChanges {
             project.Hidden = self.mode == JournalEntryMode.Payment;   
             project.Options = {                  
                 source: self.projects,
-                template: (project) => `${project.Name}`,
+                template: (project) => `${project ? project.Name : ''}`,
                 valueProperty: 'ID',
                 displayProperty: 'Name',
                 debounceTime: 500
@@ -257,7 +260,7 @@ export class JournalEntrySimpleForm implements OnChanges {
        
             self.fields = [sameOrNewAlternative, finanicalDate, invoiceNumber,
                            debitAccount, debitVat, creditAccount, creditVat,
-                           amount, departement, project], description;
+                           amount, departement, project, description];
          
         //}); 
                 
@@ -305,10 +308,14 @@ export class JournalEntrySimpleForm implements OnChanges {
         
         if (changes['dropdownData'] != null && this.dropdownData) {
             this.departements = this.dropdownData[0];
-            this.projects = this.dropdownData[1];
+            this.projects = this.dropdownData[1]
             this.vattypes = this.dropdownData[2];
-            this.accounts = this.dropdownData[3]; 
+            this.accounts = this.dropdownData[3];
             
+            // Add empty element to top of dropdown
+            this.departements.unshift(null);
+            this.projects.unshift(null);
+                          
             // Refresh sources 
             this.fields[3].Options.source = this.accounts;
             this.fields[4].Options.source = this.vattypes;
@@ -332,6 +339,12 @@ export class JournalEntrySimpleForm implements OnChanges {
     
     public ready(line) {
         var self = this;
+        
+        if (!this.disabled) {
+            this.form.editMode();
+        } else {
+            this.form.readMode();
+        }
              
         this.form.Fields['FinancialDate'].focus();
       
@@ -407,7 +420,6 @@ export class JournalEntrySimpleForm implements OnChanges {
                 
         // Invoice tabbing
         self.form.Fields['InvoiceNumber'].onTab.subscribe((data) => {    
-            console.log("===== INVOICENUMBER ======");                    
             if (self.journalEntryLine.InvoiceNumber && self.journalEntryLine.InvoiceNumber !== '') {
                 self.customerInvoiceService.getInvoiceByInvoiceNumber(self.journalEntryLine.InvoiceNumber)
                     .subscribe((data) => {
@@ -445,17 +457,19 @@ export class JournalEntrySimpleForm implements OnChanges {
             });            
         } else {
             var oldData: JournalEntryData = _.cloneDeep(this.journalEntryLine);              
-            var numbers = this.journalEntryService.findJournalNumbersFromLines(this.journalEntryLines, journalEntryNumber);
-     
-            if (numbers) {
-                // next or same journal number?
-                if (oldData.SameOrNew === this.SAME_OR_NEW_NEW && this.mode != JournalEntryMode.Supplier) {
-                    oldData.JournalEntryNo = numbers.nextNumber;
-                } else {
-                    oldData.JournalEntryNo = numbers.lastNumber;        
+            
+            if (this.mode != JournalEntryMode.Supplier) {
+                var numbers = this.journalEntryService.findJournalNumbersFromLines(this.journalEntryLines, journalEntryNumber);            
+                if (numbers) {
+                    // next or same journal number?
+                    if (oldData.SameOrNew === this.SAME_OR_NEW_NEW && this.mode != JournalEntryMode.Supplier) {
+                        oldData.JournalEntryNo = numbers.nextNumber;
+                    } else {
+                        oldData.JournalEntryNo = numbers.lastNumber;        
+                    }
                 }
             }
-            
+                 
             var oldsameornew = oldData.SameOrNew;
             oldData.SameOrNew = oldData.JournalEntryNo;        
             this.created.emit(oldData);

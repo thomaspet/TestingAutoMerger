@@ -39,8 +39,8 @@ export class PayrollrunList implements OnInit {
             })
             .setOrderBy('ID', 'asc')
             .addColumns(idCol, nameCol, statusCol, paydateCol, fromdateCol, todateCol);
-        
-        this.tabSer.addTab({name: 'Lønnsavregninger', url: 'salary/payrollrun'});
+
+        this.tabSer.addTab({ name: 'Lønnsavregninger', url: 'salary/payrollrun', moduleID: 14, active: true });
     }
     
     public createPayrollrun() {

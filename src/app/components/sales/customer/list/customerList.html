@@ -1,4 +1,4 @@
 <section class="application">
-    <h4>Kunder</h4><button (click)="createCustomer()">Ny kunde</button>    
+    <h2>Kunder</h2><button class="new-button" (click)="createCustomer()">Ny kunde</button>    
     <uni-table [resource]="lookupFunction" [config]="customerTable" (rowSelected)="onRowSelected($event)"></uni-table>
 </section>

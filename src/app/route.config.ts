@@ -12,19 +12,19 @@ export const ROUTES = [
     new AsyncRoute({
         path: '/login',
         name: 'Login',
-        loader: () => ComponentProxy.LoadComponentAsync('Login','app/components/authentication/login')
+        loader: () => ComponentProxy.LoadComponentAsync('Login','app/components/init/login')
     }),
 
     new AsyncRoute({
         path: '/signup',
         name: 'Signup',
-        loader: () => ComponentProxy.LoadComponentAsync('Signup','app/components/authentication/signup')
+        loader: () => ComponentProxy.LoadComponentAsync('Signup','app/components/init/signup')
     }),
     
     new AsyncRoute({
         path: '/reset-password',
         name: 'ResetPassword',
-        loader: () => ComponentProxy.LoadComponentAsync('ResetPassword','app/components/authentication/resetPassword')
+        loader: () => ComponentProxy.LoadComponentAsync('ResetPassword','app/components/init/resetPassword')
     }),
 
     new AsyncRoute({
@@ -60,7 +60,7 @@ export const ROUTES = [
     new AsyncRoute({
         path: '/confirm/:guid',
         name: 'ConfirmInvite',
-        loader: () => ComponentProxy.LoadComponentAsync('ConfirmInvite','app/components/authentication/confirmInvite')
+        loader: () => ComponentProxy.LoadComponentAsync('ConfirmInvite','app/components/init/confirmInvite')
     }),
 
     new AsyncRoute({

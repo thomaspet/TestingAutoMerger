@@ -1,8 +1,11 @@
-<div *ngIf="config && model">
-    <uni-form (uniFormSubmit)="onSubmit($event)" [config]="config"></uni-form>
-    <dimension-list [dimensions]="model.Dimensions"></dimension-list>
-    <account-group-list [account]="model.ID"></account-group-list>
+<div *ngIf="config && account">
+     <uni-form            
+        [config]="config" 
+        [fields]="fields" 
+        [model]="account"                
+        (onChange)="change($event)">
+    </uni-form>
 </div>
-<div *ngIf="!config || !model">
-    Velg en konto i treet til venstre for å vise detaljer om kontoen 
+<div *ngIf="!config || !account">
+    Velg en konto i tabellen til venstre for å vise detaljer om kontoen 
 </div>

@@ -16,6 +16,9 @@ export class AuthService {
     public authenticationStatus$: EventEmitter<any> = new EventEmitter();
     
     @Output()
+    public companyChanged$: EventEmitter<any> = new EventEmitter();
+
+    @Output()
     public requestAuthentication$: EventEmitter<any> = new EventEmitter();
     
     public jwt: string;
@@ -84,6 +87,7 @@ export class AuthService {
         localStorage.setItem('activeCompany', JSON.stringify(activeCompany));
         this.activeCompany = activeCompany;
         
+        this.companyChanged$.next(true);
         this.emitAuthenticationStatus();    
     }
     

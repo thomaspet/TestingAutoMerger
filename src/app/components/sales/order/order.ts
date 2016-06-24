@@ -1,7 +1,6 @@
 import {Component} from '@angular/core';
 import {RouteConfig, RouteDefinition, ROUTER_DIRECTIVES, Router, AsyncRoute} from '@angular/router-deprecated';
 
-import {TabService} from '../../layout/navbar/tabstrip/tabService';
 import {UniTabs} from '../../layout/uniTabs/uniTabs';
 
 import {ComponentProxy} from '../../../../framework/core/componentProxy';
@@ -30,8 +29,7 @@ export class Order {
 
     childRoutes: RouteDefinition[];
 
-    constructor(public router: Router, private tabService: TabService) {
-        this.tabService.addTab({name: 'Ordre', url: '/sales/order'});
+    constructor(public router: Router) {
         this.childRoutes = ORDER_ROUTES;//.slice(0, ORDER_ROUTES.length - 1);
     }
 }

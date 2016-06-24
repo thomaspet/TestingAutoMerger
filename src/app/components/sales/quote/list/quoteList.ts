@@ -7,6 +7,7 @@ import {CustomerQuote} from '../../../../unientities';
 import {Http, URLSearchParams} from '@angular/http';
 import {AsyncPipe} from '@angular/common';
 import {PreviewModal} from '../../../reports/modals/preview/previewModal';
+import {TabService} from '../../../layout/navbar/tabstrip/tabService';
 
 declare var jQuery;
 
@@ -30,7 +31,9 @@ export class QuoteList {
    
     constructor(private router: Router, 
                 private customerQuoteService: CustomerQuoteService, 
-                private reportDefinitionService: ReportDefinitionService) {
+                private reportDefinitionService: ReportDefinitionService,
+                private tabService: TabService) {
+        this.tabService.addTab({ name: "Tilbud", url: "/sales/quote", active: true, moduleID: 3 }); 
         this.setupQuoteTable();
     }
 

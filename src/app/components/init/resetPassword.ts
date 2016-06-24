@@ -6,7 +6,7 @@ import {UniHttp} from '../../../framework/core/http/http';
 
 @Component({
     selector: 'uni-reset-password',
-    templateUrl: 'app/components/authentication/resetPassword.html',
+    templateUrl: 'app/components/init/resetPassword.html',
     directives: [FORM_DIRECTIVES, ROUTER_DIRECTIVES],
 })
 export class ResetPassword {
@@ -70,13 +70,13 @@ export class ResetPassword {
             .subscribe(
                 (response) => {
                     if (response.status === 200) {
-                        this.successMessage = 'Please check your inbox.';
+                        this.successMessage = 'Vennligst sjekk innboksen din.';
                         this.working = false;
                     }
                 },
                 (error) => {
                     if (error.status === 404) {
-                        this.errorMessage = 'Email not found.';
+                        this.errorMessage = 'Epost finnes ikke.';
                     }
                     this.working = false;
                 }
@@ -104,7 +104,7 @@ export class ResetPassword {
                         this.working = false;
                     }
                 },
-                error => this.errorMessage = 'Something went wrong'
+                error => this.errorMessage = 'Noe gikk galt.'
             );
                         
     }

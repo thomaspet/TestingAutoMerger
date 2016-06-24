@@ -4,6 +4,7 @@ import {UniTable, UniTableColumn, UniTableColumnType, UniTableConfig} from 'unit
 import {Router} from '@angular/router-deprecated';
 import {UniHttp} from '../../../../../framework/core/http/http';
 import {ProductService} from '../../../../services/services';
+import {TabService} from "../../../layout/navbar/tabstrip/tabService";
 
 declare var jQuery;
 
@@ -17,8 +18,9 @@ export class ProductList {
     private productTable: UniTableConfig;
     private lookupFunction: (urlParams: URLSearchParams) => any;
     
-    constructor(private uniHttpService: UniHttp, private router: Router, private productService: ProductService) {
+    constructor(private uniHttpService: UniHttp, private router: Router, private productService: ProductService, private tabService: TabService) {
         this.setupProductTable();
+        this.tabService.addTab({ name: "Produkter", url: "/products/list/", active: true, moduleID: 6 });
     }
     
     private createProduct() { 

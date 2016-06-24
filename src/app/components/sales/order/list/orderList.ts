@@ -5,6 +5,7 @@ import {CustomerOrderService,ReportDefinitionService} from '../../../../services
 import {CustomerOrder} from '../../../../unientities';
 import {URLSearchParams} from '@angular/http';
 import {PreviewModal} from '../../../reports/modals/preview/previewModal';
+import {TabService} from '../../../layout/navbar/tabstrip/tabService';
 
 declare var jQuery;
 
@@ -26,7 +27,9 @@ export class OrderList {
    
     constructor(private router: Router, 
                 private customerOrderService: CustomerOrderService, 
-                private reportDefinitionService: ReportDefinitionService) {
+                private reportDefinitionService: ReportDefinitionService,
+                private tabService: TabService) {
+        this.tabService.addTab({ name: 'Ordre', url: '/sales/order', moduleID: 4, active: true });
         this.setupOrderTable();
     }
     

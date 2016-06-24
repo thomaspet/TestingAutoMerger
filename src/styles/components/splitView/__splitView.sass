@@ -13,9 +13,12 @@
     align-self: flex-start
 
 .splitview_list
-    @extend %detaillist
+    @extend %detaillist    
     min-width: 15rem
     max-width: 33%
+
+    input[type=search]
+        display: block !important
 
     @include media(small)
         width: 100%

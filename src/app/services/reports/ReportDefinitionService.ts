@@ -1,5 +1,5 @@
 import {Http} from '@angular/http';
-import {Injectable} from '@angular/core';
+import {Injectable, Inject} from '@angular/core';
 import {Observable} from 'rxjs/Observable';
 
 import {AppConfig} from '../../../app/AppConfig';
@@ -32,7 +32,7 @@ export class ReportDefinitionService extends BizHttp<ReportDefinition>{
     
     constructor(
         private uniHttp: UniHttp,
-        private reportDefinitionDataSourceService: ReportDefinitionDataSourceService,
+        @Inject(ReportDefinitionDataSourceService) private reportDefinitionDataSourceService: ReportDefinitionDataSourceService,
         private reportGenerator: StimulsoftReportWrapper) {
 
         super(uniHttp);

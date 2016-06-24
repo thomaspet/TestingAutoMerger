@@ -8,7 +8,7 @@ import {Employee, Employment} from '../../../unientities';
 declare var _;
 
 @Component({
-    selector: 'uni-form-demo',
+    selector: 'uni-form-demo-2',
     directives: [UniForm, NgIf],
     providers: [EmployeeService],
     template: `
@@ -77,9 +77,14 @@ export class XFormDemo {
                 linkProperty: 'ID',
                 foreignProperty: 'DefaultJobTest',
                 editor: (value) => new Promise((resolve) => {
-                    var x: Employment = new Employment();
-                    x.JobName = value;
-                    resolve(x);
+                    if(_.isObject(value) && value.hasOwnProperty('JobName')) {
+                        resolve(value);
+                    } else {
+                        var x: Employment = new Employment();
+                        x.ID = _.toSafeInteger(performance.now());
+                        x.JobName = 'New Job';
+                        resolve(x);
+                    }
                 })
             };
             var autocompleteTest = new UniFieldLayout();

@@ -30,7 +30,7 @@ export class Overview {
     public reportCategories: Array<ReportCategory>;
     
     constructor(private tabService: TabService, private reportDefinitionService: ReportDefinitionService) {
-        this.tabService.addTab({name: 'Rapportoversikt', url: '/reports/overview'});
+        this.tabService.addTab({ name: 'Rapportoversikt', url: '/reports/overview', moduleID: 19, active: true });
     }
     
     
