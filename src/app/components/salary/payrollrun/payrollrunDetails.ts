@@ -48,6 +48,7 @@ export class PayrollrunDetails implements OnInit {
     constructor(private routeParams: RouteParams, private payrollrunService: PayrollrunService, private router: Router, private tabSer: TabService, private _rootRouteParamsService: RootRouteParamsService) {
         this.payrollrunID = +this.routeParams.get('id');
         this._rootRouteParamsService.params = this.routeParams;
+        this.tabSer.addTab({ name: 'Lønnsavregning ' + this.payrollrunID, url: 'salary/payrollrun/' + this.payrollrunID, moduleID: 14, active: true });
     }
     
     public ngOnInit() {

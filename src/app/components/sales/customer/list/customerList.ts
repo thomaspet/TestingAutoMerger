@@ -5,6 +5,7 @@ import {UniHttp} from '../../../../../framework/core/http/http';
 import {URLSearchParams} from '@angular/http';
 import {CustomerService} from "../../../../services/services";
 import {Customer, BusinessRelation} from "../../../../unientities";
+import {TabService} from "../../../layout/navbar/tabstrip/tabService";
 
 declare var jQuery;
 
@@ -20,7 +21,8 @@ export class CustomerList {
     private customerTable: UniTableConfig;
     private lookupFunction: (urlParams: URLSearchParams) => any;
  
-    constructor(private uniHttpService: UniHttp, private router: Router, private customerService: CustomerService) {
+    constructor(private uniHttpService: UniHttp, private router: Router, private customerService: CustomerService, private tabService: TabService) {
+        this.tabService.addTab({ name: "Kunder", url: "/sales/customer", moduleID: 1, active: true });
         this.setupCustomerTable();
     }
     
@@ -28,7 +30,7 @@ export class CustomerList {
         this.router.navigateByUrl('/sales/customer/details/0');
     }
 
-    private onRowSelected (event) {
+    private onRowSelected(event) {
         this.router.navigateByUrl('/sales/customer/details/' + event.rowModel.ID);
     };
 

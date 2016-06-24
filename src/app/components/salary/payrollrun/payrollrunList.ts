@@ -40,8 +40,8 @@ export class PayrollrunList implements OnInit {
         
         this.payrollrunListConfig = new UniTableConfig(false)
             .setColumns([idCol, nameCol, statusCol, paydateCol, fromdateCol, todateCol]);
-        
-        this.tabSer.addTab({name: 'Lønnsavregninger', url: 'salary/payrollrun'});
+
+        this.tabSer.addTab({ name: 'Lønnsavregninger', url: 'salary/payrollrun', moduleID: 14, active: true });
     }
     
     public createPayrollrun() {

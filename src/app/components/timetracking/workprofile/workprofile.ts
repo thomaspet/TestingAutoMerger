@@ -17,7 +17,7 @@ export class WorkprofileListview {
     private tableConfig: UniTableBuilder;
 
     constructor(private tabService: TabService) {
-        this.tabService.addTab({ name: view.label, url: view.route });
+        this.tabService.addTab({ name: view.label, url: view.route, moduleID: 15, active: true });
         this.tableConfig = this.createTableConfig();
     }
     

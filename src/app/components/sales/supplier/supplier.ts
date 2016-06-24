@@ -31,7 +31,7 @@ export class Supplier {
     childRoutes: RouteDefinition[];
 
     constructor(public router: Router, private tabService: TabService) {
-        this.tabService.addTab({name: "Leverandører", url: "/sales/supplier"});
+        //this.tabService.addTab({name: "Leverandører", url: "/sales/supplier"});
         this.childRoutes = SUPPLIER_ROUTES.slice(0, SUPPLIER_ROUTES.length - 1);
     }
 }

@@ -5,6 +5,7 @@ import {UniForm, UniFieldLayout} from '../../../../framework/uniForm';
 import {WageType} from '../../../unientities';
 import {UniSave, IUniSaveAction} from '../../../../framework/save/save';
 import {Observable} from 'rxjs/Observable';
+import {TabService} from '../../layout/navbar/tabstrip/tabService';
 
 declare var _; // lodash
 
@@ -29,9 +30,15 @@ export class WagetypeDetail {
     public fields: any[] = [];
     @ViewChild(UniForm) public uniform: UniForm;
     
-    constructor(private routeparams: RouteParams, private router: Router, private wageService: WageTypeService) {
+    constructor(private routeparams: RouteParams, private router: Router, private wageService: WageTypeService, private tabService: TabService) {
+
+        this.config = {
+            submitText: ''
+        };
         this.wagetypeID = +this.routeparams.get('id');
         this.getLayoutAndData();
+        //WageTypeID is not correct!! Needs to be sorted out
+        this.tabService.addTab({ name: 'Lønnsartnr. ' + this.wagetypeID, url: 'salary/wagetypes/' + this.wagetypeID, moduleID: 13, active: true });
     }
     
     private getLayoutAndData() {
