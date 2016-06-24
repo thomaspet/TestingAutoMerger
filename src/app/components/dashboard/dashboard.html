@@ -1,16 +1,53 @@
-<header class="dashboard_welcome"
-        *ngIf="!welcomeHidden">
+<section class="chart_section">
 
-    <h1>Velkommen til Uni&nbsp;Economy</h1>
+    <!--WELCOME MESSAGE-->
+    <header class="dashboard_welcome" *ngIf="!welcomeHidden">
 
-    <p>Uni Economy er morgendagens økonomisystem fra Uni Micro. Like enkelt å bruke som alltid, tilgjengelig overalt, sikkert, og fullstendig integrert i din arbeidsflyt.</p>
-    <p>Du prøver nå en meget tidlig versjon av systemet, og du vil trolig møte noen feil. <br>Ser du noe, si noe – gi veldig gjerne beskjed til en voksen (prosjektleder) når du ser bugs. 🐛</p>
+        <h1>Velkommen til Uni&nbsp;Economy</h1>
 
-    <button (click)="hideWelcome()">
+        <p>Uni Economy er morgendagens økonomisystem fra Uni Micro. Like enkelt å bruke som alltid, tilgjengelig overalt, sikkert, og fullstendig integrert i din arbeidsflyt.</p>
+        <p>Du prøver nå en meget tidlig versjon av systemet, og du vil trolig møte noen feil. <br>Ser du noe, si noe – gi veldig gjerne beskjed til en voksen (prosjektleder) når du ser bugs. 🐛</p>
+
+        <button (click)="hideWelcome()">
             God kål!
-    </button>
+        </button>
 
-</header>
+    </header>
+
+    <!--INVOICED CHART-->
+    <figure class="dashboard_chart_card">
+        <h2>Fakturert<time>, siste 4 måned</time>(eks moms)</h2>
+        <canvas id="invoicedChart" class=""></canvas>
+    </figure>
+
+    <!--TRANSACTIONS LIST -->
+    <figure class="dashboard_chart_card" *ngIf="transactionList">
+        <h2>Siste transaksjoner</h2>
+        <ol class="dashboard_list recent">
+            <li *ngFor="let trans of transactionList">
+                <strong>{{trans.user}}</strong>
+                {{trans.action}}
+                <strong>{{trans.module}}</strong>
+                <time>{{trans.time}}</time>
+            </li> 
+        </ol>
+    </figure>
+
+    <!--OPERATING PROFIT/LOSS CHART-->
+    <figure class="dashboard_chart_card">
+        <h2>Driftsresultater</h2>
+        <canvas id="operating_chart" class=""></canvas>
+    </figure>
+
+    <!--ASSETS CHART-->
+    <figure class="dashboard_chart_card">
+        <h2>Eiendeler</h2>
+        <canvas id="assets_chart" class=""></canvas>
+    </figure>
+
+</section>
+
+
 
 
 <article class="dashboard_mainFigures dashboard_card">

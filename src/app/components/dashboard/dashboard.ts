@@ -10,10 +10,43 @@ declare var moment;
 export class Dashboard {
 
     public welcomeHidden: boolean = localStorage.getItem('welcomeHidden');
+    public transactionList;
 
     constructor(private tabService: TabService) {
-        this.tabService.addTab({name: 'Dashboard', url: '/'});
+        this.tabService.addTab({ name: 'Dashboard', url: '/', active: true, moduleID: 0 });
         Chart.defaults.global.maintainAspectRatio = false;
+        this.transactionList = [
+            {
+                user: 'Bruce Wayne',
+                action: 'endret',
+                module: 'faktura #154',
+                time: 'for 2 timer siden'
+            },
+            {
+                user: 'Slade Wilson',
+                action: 'opprettet',
+                module: 'bilag #5',
+                time: 'for 8 timer siden'
+            },
+            {
+                user: 'Oliver Queen',
+                action: 'endret',
+                module: 'Ordre #154',
+                time: 'for 2 minutter siden'
+            },
+            {
+                user: 'Edward Nigma',
+                action: 'slettet',
+                module: 'ordre #94',
+                time: 'for 1 dag siden'
+            },
+            {
+                user: 'Harvey Dent',
+                action: 'opprettet',
+                module: 'faktura #155',
+                time: 'for 4 timer siden'
+            }
+        ]
     }
 
     public ngAfterViewInit() {
@@ -45,6 +78,54 @@ export class Dashboard {
                 }
             }
         });
+
+        let invoicedChart = document.getElementById('invoicedChart');
+        let iChart = new Chart(invoicedChart, {
+            type: 'bar',
+            data: {
+                labels: ["March", "April", "May", "June"],
+                datasets: [
+                    {
+                        label: 'Fakturert',
+                        data: [125000, 154000, 235000, 500000]
+                    }
+                ]
+            }
+        });
+
+        let operating_chart = document.getElementById('operating_chart');
+        let oChart = new Chart(operating_chart, {
+            type: 'line',
+            data: {
+                labels: ['2013', '2014', '2015', '2016'],
+                datasets: [{
+                    label: 'Driftsresultat',
+                    data: [2125000, 3154000, 6235000, 9500000],
+                    lineTension: 0
+                }]
+            },
+            options: {
+                scales: {
+                    xAxes: [{
+                        type: 'time'
+                    }]
+                }
+            }
+        });
+
+        let assets_chart = document.getElementById('assets_chart');
+        let aChart = new Chart(assets_chart, {
+            type: 'pie',
+            
+            data: {
+                labels: ['Kontanter og bankinnskudd', 'Kortsiktige fordringer', 'Anleggsmidler', 'Varelager', 'Andre omløpsmidler'],
+                datasets: [
+                    {
+                        data: [250000, 350000, 200000, 500000, 410000]
+                    }
+                ]
+            }
+        })
 
     }
 
