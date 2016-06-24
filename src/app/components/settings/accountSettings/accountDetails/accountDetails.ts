@@ -2,7 +2,6 @@ import {Component, provide, Input, ViewChild, Output, EventEmitter, SimpleChange
 import {Observable} from 'rxjs/Observable';
 import 'rxjs/add/observable/forkJoin';
 
-
 import {FieldType} from '../../../../unientities';
 import {UniForm, UniFieldLayout} from '../../../../../framework/uniform';
 
@@ -21,6 +20,7 @@ import {VatTypeService, CurrencyService, AccountService} from '../../../../servi
 export class AccountDetails {
     @Input() public accountID: number;
     @Output() public accountSaved: EventEmitter<Account> = new EventEmitter<Account>();
+    @Output() public onChange: EventEmitter<Account> = new EventEmitter<Account>();
     @ViewChild(UniForm) private form: UniForm;
     
     private account: Account = null;
@@ -102,15 +102,17 @@ export class AccountDetails {
     }
     
     
-    public saveAccount() {        
+    public saveAccount(completeEvent: any): void {         
         if (this.account.ID > 0) {            
             this.accountService
                 .Put(this.account.ID, this.account)
                 .subscribe(
                     (response) => {
+                        completeEvent('Lagret');
                         this.accountSaved.emit(this.account);
                     },
                     (err) => {
+                        completeEvent('Feil ved lagring');
                         console.log('Save failed: ', err);
                         alert('Feil ved lagring: ' + JSON.stringify(err));                        
                     }
@@ -120,9 +122,11 @@ export class AccountDetails {
                 .Post(this.account)
                 .subscribe(
                     (response) => {
+                        completeEvent('Lagret');
                         this.accountSaved.emit(this.account);
                     },
                     (err) => {
+                        completeEvent('Feil ved lagring');
                         console.log('Save failed: ', err);     
                         alert('Feil ved lagring: ' + JSON.stringify(err));                   
                     }
@@ -130,28 +134,11 @@ export class AccountDetails {
         }
     }
     
-    public buildForm() {
-      
-     /*   var numSerie = new UniFieldBuilder();
-        numSerie.setLabel('Nummerserie')
-            .setModelField('SubAccountNumberSeriesID')
-            .setType(UNI_CONTROL_DIRECTIVES[FieldType.HYPERLINK])
-            .setDescription('kunder')
-            .setUrl('http://localhost/customer');
-*/
-        //
-        // checkbox settings
-        //
-
-    }
-
-    
-    
     // TODO: change to 'ComponentLayout' when object respects the interface
     private getComponentLayout(): any {
         return {
-            Name: 'Supplier',
-            BaseEntity: 'Supplier',
+            Name: 'AccountDetails',
+            BaseEntity: 'Account',
             StatusCode: 0,
             Deleted: false,
             CreatedAt: null,
