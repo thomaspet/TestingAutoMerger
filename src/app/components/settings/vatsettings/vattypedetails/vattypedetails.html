@@ -1,4 +1,11 @@
-<div *ngIf="model">
-    <h2>Detaljer</h2>
-    <uni-form (uniFormSubmit)="onSubmit($event)" [config]="config"></uni-form>
+<div *ngIf="vatType">        
+    <uni-form            
+        [config]="config" 
+        [fields]="fields" 
+        [model]="vatType"                
+        (onChange)="change($event)">
+    </uni-form> 
+</div>
+<div *ngIf="!vatType">
+    Velg en mvakode i listen til venstre for å se detaljer om mvakoden
 </div>

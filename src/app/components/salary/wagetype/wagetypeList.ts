@@ -1,39 +1,49 @@
 import {Component, OnInit} from '@angular/core';
+import {AsyncPipe} from '@angular/common';
 import {Router } from '@angular/router-deprecated';
 
-import {UniTable, UniTableBuilder, UniTableColumn} from '../../../../framework/uniTable';
+import {UniTable, UniTableConfig, UniTableColumnType, UniTableColumn} from 'unitable-ng2/main';
+import {WageTypeService} from '../../../services/services';
+import {Observable} from 'rxjs/Observable';
+
 import {WageType} from '../../../unientities';
 import {TabService} from '../../layout/navbar/tabstrip/tabService';
 
 @Component({
     selector: 'wagetypes',
     templateUrl: 'app/components/salary/wagetype/wagetypeList.html',
-    directives: [UniTable]
+    directives: [UniTable],
+    providers: [WageTypeService],
+    pipes: [AsyncPipe]
 })
 export class WagetypeList implements OnInit {
 
-    private wagetypelistConfig: any;
+    private tableConfig: UniTableConfig;
+    private wageTypes$: Observable<WageType>;
 
-    constructor(private _router: Router, private tabSer: TabService) {
+    constructor(private _router: Router, private tabSer: TabService, private _wageTypeService: WageTypeService) {
         this.tabSer.addTab({ name: 'Lønnsarter', url: 'salary/wagetypes', moduleID: 13, active: true });
     }
 
     public ngOnInit() {
 
-        var idCol = new UniTableColumn('WageTypeId', 'Nr', 'number');
+        this.wageTypes$ = this._wageTypeService.GetAll('WageTypeId ASC');
+
+        let idCol = new UniTableColumn('WageTypeId', 'Nr', UniTableColumnType.Number);
         idCol.setWidth('10rem');
 
-        var nameCol = new UniTableColumn('WageTypeName', 'Navn', 'string');
+        var nameCol = new UniTableColumn('WageTypeName', 'Navn', UniTableColumnType.Text);
 
-        var descCol = new UniTableColumn('Description', 'Beskrivelse', 'string');
+        var descCol = new UniTableColumn('Description', 'Beskrivelse', UniTableColumnType.Text);
 
-        this.wagetypelistConfig = new UniTableBuilder('wagetypes', false)
-            .setSelectCallback((selectedWagetype: WageType) => {
+        this.tableConfig = new UniTableConfig()
+            .setColumns([idCol, nameCol, descCol])
+            .setEditable(false)
+            .setPageSize(15);
+    }
 
-                this._router.navigateByUrl('/salary/wagetypes/' + selectedWagetype.ID);
-            })
-            .setOrderBy('WageTypeId', 'asc')
-            .addColumns(idCol, nameCol, descCol);
+    public rowSelected(event) {
+        this._router.navigateByUrl('/salary/wagetypes/' + event.rowModel.ID);
     }
     
     public createWageType() {

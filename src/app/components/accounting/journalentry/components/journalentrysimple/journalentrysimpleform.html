@@ -9,9 +9,9 @@
         (onReady)='ready($event)'>
     </uni-form>
     <fieldset class="journalEntrySimple_form_buttons">
-        <button *ngIf="!isEditMode" (click)="addJournalEntry($event)">Legg til</button>
-        <button (click)="emptyJournalEntry($event)">Tøm</button>
-        <button *ngIf="isEditMode" (click)="editJournalEntry($event)">Oppdater</button>
-        <button *ngIf="isEditMode" (click)="abortEditJournalEntry($event)">Avbryt</button>
+        <button *ngIf="!isEditMode" (click)="addJournalEntry($event)" [disabled]="disabled">Legg til</button>
+        <button (click)="emptyJournalEntry($event)" [disabled]="disabled">Tøm</button>
+        <button *ngIf="isEditMode" (click)="editJournalEntry($event)" [disabled]="disabled">Oppdater</button>
+        <button *ngIf="isEditMode" (click)="abortEditJournalEntry($event)" [disabled]="disabled">Avbryt</button>
     </fieldset>
 </section>

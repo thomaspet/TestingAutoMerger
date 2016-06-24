@@ -9,9 +9,16 @@ import {AuthService} from '../../../framework/core/authService';
                 <img src="../assets/uni-logo.png" alt="Uni Economy logo">
                 
                 <form (submit)="authenticate()">
-                    <input type="text" [disabled]="working" [(ngModel)]="username" placeholder="Brukernavn">
-                    <input type="password" [disabled]="working" [(ngModel)]="password" placeholder="Passord">
-                    
+                    <label>
+                        Brukernavn
+                        <input type="text" [disabled]="working" [(ngModel)]="username" placeholder="Brukernavn">
+                    </label>
+
+                    <label>
+                        Passord
+                        <input type="password" [disabled]="working" [(ngModel)]="password" placeholder="Passord">
+                    </label>
+
                     <button class="c2a" [attr.aria-busy]="working" [disabled]="working">Logg inn</button>
                 </form>
 

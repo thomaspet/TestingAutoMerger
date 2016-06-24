@@ -1,6 +1,7 @@
 <uni-navbar *ngIf="isAuthenticated"></uni-navbar>
 
 <login-modal (authenticated)="onUserAuthenticated()"></login-modal>
+<company-sync-modal></company-sync-modal>
 
 <main>
     <uni-router-outlet></uni-router-outlet>

@@ -13,6 +13,7 @@
 <journal-entry-professional
     (dataLoaded)="onDataLoaded($event)"
     [runAsSubComponent]="runAsSubComponent"
+    [disabled]="disabled"
     *ngIf="journalEntryMode == 'PROFFESIONAL'">
 </journal-entry-professional>
 
@@ -41,6 +42,7 @@
     [supplierInvoice]="supplierInvoice"
     [runAsSubComponent]="runAsSubComponent"
     [mode]="mode"
+    [disabled]="disabled"
     (dataLoaded)="onDataLoaded($event)"
     *ngIf="journalEntryMode == 'SIMPLE'">
 </journal-entry-simple>

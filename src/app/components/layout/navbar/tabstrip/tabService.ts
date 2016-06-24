@@ -17,15 +17,15 @@ export class TabService {
         });
     }
 
-    get tabs(): Array<IUniTab> {
+    public get tabs(): Array<IUniTab> {
         return this._tabs;
     }
 
-    length(): number {
+    public length(): number {
         return this._tabs.length;
     }
 
-    addTab(newTab: IUniTab) {
+    public addTab(newTab: IUniTab) {
         var duplicate = false;
         var moduleCheck = { index: 0, exists: false}
         this._tabs.forEach((tab, i) => {
@@ -68,14 +68,14 @@ export class TabService {
     }
 
     //Sets tab active based on name
-    setTabActive(index: number) {
+    public setTabActive(index: number) {
         this._tabs[index].active = true;
         this.currentActiveTab = this._tabs[index];
         this.currentActiveIndex = index;
     }
 
     //Removes tab and returns the new tab to be activated
-    removeTab(tabToRemove: IUniTab, index: number): IUniTab {
+    public removeTab(tabToRemove: IUniTab, index: number): IUniTab {
         this._tabs.splice(index, 1);
         localStorage.setItem("navbarTabs", JSON.stringify(this._tabs));
         this.currentActiveIndex = this._tabs.length - 1;
