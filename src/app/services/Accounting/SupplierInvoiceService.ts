@@ -30,13 +30,13 @@ export class SupplierInvoiceService extends BizHttp<SupplierInvoice> {
         { Code: '90000', Text: 'Deleted' },
 
         { Code: '2', Text: 'For godkjenning' },
-        { Code: '30001', Text: 'Kladd'},
-        { Code: '30002', Text: 'For godkjenning' },
-        { Code: '30003', Text: 'Godkjent' },
-        { Code: '30004', Text: 'Bokført' },
-        { Code: '30005', Text: 'Til betaling' },
-        { Code: '30006', Text: 'Delvis betalt' },
-        { Code: '30007', Text: 'Betalt' },
+        { Code: '30101', Text: 'Kladd'},
+        { Code: '30102', Text: 'For godkjenning' },
+        { Code: '30103', Text: 'Godkjent' },
+        { Code: '30104', Text: 'Bokført' },
+        { Code: '30105', Text: 'Til betaling' },
+        { Code: '30106', Text: 'Delvis betalt' },
+        { Code: '30107', Text: 'Betalt' },
     ];
 
     public getStatusText = (StatusCode: string) => {

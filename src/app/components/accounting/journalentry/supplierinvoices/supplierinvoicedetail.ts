@@ -158,7 +158,7 @@ export class SupplierInvoiceDetail implements OnInit {
         this.actions[0].disabled = this.supplierInvoice.StatusCode == StatusCodeSupplierInvoice.Journaled;                
         this.actions[1].disabled = this.supplierInvoice.StatusCode >= StatusCodeSupplierInvoice.Journaled;
         this.actions[2].disabled = this.supplierInvoice.StatusCode >= StatusCodeSupplierInvoice.Journaled;
-        this.actions[3].disabled = this.supplierInvoice.StatusCode == 30001 || this.supplierInvoice.StatusCode == 10001 || this.supplierInvoice.StatusCode == StatusCodeSupplierInvoice.Payed; // TODO: change to StatusCodeSupplierInvoice.Draft 
+        this.actions[3].disabled = this.supplierInvoice.StatusCode == StatusCodeSupplierInvoice.Draft || this.supplierInvoice.StatusCode == StatusCodeSupplierInvoice.Payed; 
     }
 
     private save(runSmartBooking: boolean, done) {
