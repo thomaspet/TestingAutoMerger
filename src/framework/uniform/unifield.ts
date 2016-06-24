@@ -36,7 +36,7 @@ var VALID_CONTROLS = CONTROLS.filter((x, i) => {
             [class]="buildClassString()" 
             [class.-has-linebreak]="hasLineBreak()"
             [hidden]="Hidden">
-            <span>{{field?.Label}}</span>
+            <span [hidden]="!isInput(field?.FieldType)">{{field?.Label}}</span>
 
             <uni-autocomplete-input #selectedComponent *ngIf="field?.FieldType === 0 && control" 
                 [control]="control" [field]="field" [model]="model" (onReady)="onReadyHandler($event)" (onChange)="onChangeHandler($event)"
@@ -193,7 +193,6 @@ export class UniField {
     }
     
     private buildClassString() {
-        // TODO: add classess
         var classes = [];
         var cls = this.classes;
         for (var cl in cls) {
@@ -213,6 +212,11 @@ export class UniField {
     }
     private hasLineBreak() {
         return this.field.LineBreak;
+    }
+
+    private isInput(type) {
+        const notInputs = [5,7];
+        return notInputs.indexOf(type) === -1;
     }
 }
 

@@ -1,0 +1,71 @@
+.authentication-component
+    @include unigrid-flush(4)
+    margin: 0 auto
+
+    img
+        display: block
+        margin: 2rem auto 3rem auto
+
+    form
+        
+        label
+            width: 100%
+            display: inline-block
+            margin: .5rem 0
+
+            input
+                margin-top: .5rem
+                display: block
+
+                &.ng-invalid.ng-touched
+                    @include uniTextInput($uni-color-Bad)
+
+            input[type=checkbox]
+                display: inline-block
+                width: 2rem
+
+        button
+            width: 100% 
+            padding: 0
+            margin: .5rem 0
+
+        .company_select
+            margin: .5rem auto
+            display: block
+
+            .k-input
+                height: 2rem
+                display: block
+
+    p
+        text-align: center
+
+ul.progress-list
+    list-style: none
+
+    li
+        margin-top: 1rem
+
+        &[aria-busy=true]:before
+            content: ''
+            display: inline-block
+            height: 1rem
+            width: 1rem
+            margin-right: .5rem
+            position: relative
+            border-radius: 50%
+            border-top: .1rem solid $uni-color-scale7
+            border-right: .1rem solid transparent
+            animation: spinner 600ms linear infinite
+            -webkit-animation: spinner 600ms linear infinite
+    
+        &[aria-busy=false]:before
+            content: ''
+            display: inline-block
+            height: 1rem
+            width: .5rem
+            margin: 0 .5rem 0 .5rem
+            position: relative
+            border-bottom: .1rem solid $uni-color-scale7
+            border-right: .1rem solid $uni-color-scale7
+            transform: rotate(45deg)

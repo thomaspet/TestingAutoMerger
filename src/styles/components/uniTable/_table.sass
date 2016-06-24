@@ -1,0 +1,108 @@
+$cellpadding: pxToRem(5) pxToRem(10)
+
+%unitable-selected-cell
+    box-shadow: inset 0 0 0 pxToRem(2) $uni-color-C2A
+    padding: $cellpadding
+    margin: pxToRem(1)
+    min-height: calc(1.5rem + #{pxToRem(10)})
+
+uni-table
+    *
+        border-color: transparent
+
+    input[type=checkbox]
+        display: block
+
+    td, th
+        padding: $cellpadding
+        border-left: pxToRem(1) solid $uni-color-scale9
+        height: calc(1.5rem + #{pxToRem(10)})
+        white-space: nowrap
+        overflow: hidden
+        text-overflow: ellipsis
+
+        &:first-of-type
+            border-left: none
+
+    tr
+        border-bottom: pxToRem(1) solid $uni-color-scale9
+
+        &:nth-of-type(odd)
+            background: mix($uni-color-scale9, $uni-color-negative, 50%)
+
+        &:hover
+            background: mix($uni-color-C2A, $uni-color-negative, 15%)
+
+    th
+        background: $uni-color-negative
+        border-bottom: pxToRem(1) solid $uni-color-scale8
+        margin-bottom: pxToRem(-1)
+        color: $uni-color-positive
+        font-weight: 600
+
+        a:link
+            color: $uni-color-positive
+
+        &.issortedasc,
+        &.issorteddesc
+            &:after
+                display: inline-block
+                float: right
+                font-size: .8rem
+                color: $uni-color-scale5
+                padding-top: .2rem
+                height: 1rem
+
+        &.issortedasc:after
+            content: '\25B2'
+
+        &.issorteddesc:after
+            content: '\25BC'
+
+    table.editable-table td:focus
+        @extend %unitable-selected-cell
+
+    table:not(.editable-table) tr
+        cursor: pointer
+
+unitable-editor input,
+.autocomplete_input
+    @extend %unitable-selected-cell
+
+
+unitable-contextmenu
+    width: 0
+    height: 0
+
+    ul
+        position: absolute
+        z-index: 100
+
+        margin: 0
+        padding: 0
+        border-top-left-radius: 3px
+        border-bottom-left-radius: 3px
+        list-style: none
+
+        background: #fff
+        -webkit-box-shadow: 0 0 5px rgba(0, 0, 0, 0.15);
+        -moz-box-shadow: 0 0 5px rgba(0, 0, 0, 0.15);
+        box-shadow: 0 0 5px rgba(0, 0, 0, 0.15);
+
+        &.hidden
+            display: none
+
+        li
+
+            padding: 5px 10px
+            min-width: 5rem
+            text-align: center
+            cursor: pointer
+            -webkit-transition: all 0.2s;
+            -moz-transition: all 0.2s;
+            -ms-transition: all 0.2s;
+            -o-transition: all 0.2s;
+            transition: all 0.2s;
+
+            &:hover
+                background: mix($uni-color-C2A, $uni-color-negative, 15%)
