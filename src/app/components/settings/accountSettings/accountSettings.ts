@@ -3,6 +3,7 @@
 import {AccountList} from './accountList/accountList';
 import {AccountDetails} from './accountDetails/accountDetails';
 import {Account} from '../../../unientities';
+import {TabService} from '../../layout/navbar/tabstrip/tabService';
 
 import {UniSave, IUniSaveAction} from '../../../../framework/save/save';
 
@@ -16,6 +17,7 @@ export class AccountSettings {
     @ViewChild(AccountDetails) private accountDetails: AccountDetails;
 
     private accountID: number = 0;
+
     private hasChanges: boolean = false;
     
     private saveactions: IUniSaveAction[] = [
@@ -27,7 +29,8 @@ export class AccountSettings {
         }
     ];
     
-    constructor() {
+    constructor(private tabService: TabService) {
+        this.tabService.addTab({ name: 'Kontoinstillinger', url: '/accounting/accountsettings', moduleID: 10, active: true });
     }
 
     private changeAccount(accountID: number) {

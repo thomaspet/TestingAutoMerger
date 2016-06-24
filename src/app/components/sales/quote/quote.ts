@@ -31,7 +31,6 @@ export class Quote {
     childRoutes: RouteDefinition[];
 
     constructor(public router: Router, private tabService: TabService) {
-        this.tabService.addTab({name: "Tilbud", url: "/sales/quote"});
         this.childRoutes = QUOTE_ROUTES.slice(0, QUOTE_ROUTES.length - 1);
     }
 }

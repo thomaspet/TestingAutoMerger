@@ -36,7 +36,6 @@ export class Customer {
     childRoutes: RouteDefinition[];
 
     constructor(public router: Router, private tabService: TabService) {
-        this.tabService.addTab({name: "Kunder", url: "/sales/customer"});
         this.childRoutes = CUSTOMER_ROUTES.slice(0, CUSTOMER_ROUTES.length - 1);
     }
 }

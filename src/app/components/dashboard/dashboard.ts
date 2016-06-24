@@ -8,6 +8,6 @@ import {TabService} from '../layout/navbar/tabstrip/tabService';
 export class Dashboard {
 
     constructor(private tabService: TabService) {
-        this.tabService.addTab({name: 'Dashboard', url: '/'});
+        this.tabService.addTab({ name: 'Dashboard', url: '/', active: true, moduleID: 0});
     }
 }
