@@ -207,8 +207,6 @@ export class OrderDetails {
         };
 
         var invoiceaddress: UniFieldLayout = this.fields.find(x => x.Property === 'InvoiceAddress');
-
-        // TODO:
         invoiceaddress.Options = {
             entity: Address,
             listProperty: 'Customer.Info.Addresses',

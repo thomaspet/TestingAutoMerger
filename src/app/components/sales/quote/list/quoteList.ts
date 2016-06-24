@@ -82,6 +82,62 @@ export class QuoteList {
         });
 
         contextMenuItems.push({
+            label: 'Overfør til ordre',
+            action: (quote: CustomerQuote) => {
+                this.customerQuoteService.Transition(quote.ID, quote, 'toOrder').subscribe(() => {
+                    console.log('== Quote Transistion OK ==');
+                    alert('-- Overført til ordre-- OK');
+                    this.table.refreshTableData();
+                }, (err) => {
+                    console.log('== TRANSFER-TO-COMPLETED FAILED ==');
+                    this.log(err);
+                });
+            },
+            disabled: (rowModel) => {
+                return !rowModel._links.transitions.toOrder;
+            }
+        });
+
+        contextMenuItems.push({
+            label: 'Overfør til faktura',
+            action: (quote: CustomerQuote) => {
+                this.customerQuoteService.Transition(quote.ID, quote, 'toInvoice').subscribe(() => {
+                    console.log('== Quote Transistion OK ==');
+                    alert('-- Overført til faktura-- OK');
+                    this.table.refreshTableData();
+                }, (err) => {
+                    console.log('== TRANSFER-TO-COMPLETED FAILED ==');
+                    this.log(err);
+                });
+            },
+            disabled: (rowModel) => {
+                return !rowModel._links.transitions.toInvoice;
+            }
+        });
+
+        contextMenuItems.push({
+            label: 'Avslutt',
+            action: (quote: CustomerQuote) => {
+                this.customerQuoteService.Transition(quote.ID, quote, 'complete').subscribe(() => {
+                    console.log('== Quote Transistion OK ==');
+                    alert('Overgang til -Avslutt- OK');
+                    this.table.refreshTableData();
+                }, (err) => {
+                    console.log('== TRANSFER-TO-COMPLETED FAILED ==');
+                    this.log(err);
+                });
+            },
+            disabled: (rowModel) => {
+                return !rowModel._links.transitions.complete;
+            }
+        });
+
+        contextMenuItems.push({
+            label: '-------------',
+            action: () => { }
+        });
+
+        contextMenuItems.push({
             label: 'Skriv ut',
             action: (quote: CustomerQuote) => {
                 this.reportDefinitionService.getReportByName('Tilbud').subscribe((report) => {

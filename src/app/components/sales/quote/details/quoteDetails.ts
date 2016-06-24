@@ -3,21 +3,23 @@ import {Router, RouteParams, RouterLink} from '@angular/router-deprecated';
 import {Observable} from 'rxjs/Observable';
 import 'rxjs/add/observable/forkJoin';
 
-import {CustomerQuoteService, CustomerQuoteItemService, CustomerService,
-    ProjectService, DepartementService, AddressService, ReportDefinitionService} from '../../../../services/services';
+import {CustomerQuoteService, CustomerQuoteItemService, CustomerService} from '../../../../services/services';
+import {ProjectService, DepartementService, AddressService, ReportDefinitionService} from '../../../../services/services';
+
 
 import {UniSave, IUniSaveAction} from '../../../../../framework/save/save';
 import {UniForm, UniFieldLayout} from '../../../../../framework/uniform';
 
 import {QuoteItemList} from './quoteItemList';
-import {FieldType, CustomerQuote,
-    Customer, Dimensions, Address, BusinessRelation} from '../../../../unientities';
+
+import {FieldType, CustomerQuote, Customer} from '../../../../unientities';
+import {Dimensions, Address, BusinessRelation} from '../../../../unientities';
 
 import {AddressModal} from '../../customer/modals/address/address';
 import {TradeHeaderCalculationSummary} from '../../../../models/sales/TradeHeaderCalculationSummary';
 
 import {PreviewModal} from '../../../reports/modals/preview/previewModal';
-import {TabService} from '../../../layout/navbar/tabstrip/tabService'; 
+import {TabService} from '../../../layout/navbar/tabstrip/tabService';
 
 declare var _;
 declare var moment;
@@ -25,7 +27,7 @@ declare var moment;
 @Component({
     selector: 'quote-details',
     templateUrl: 'app/components/sales/quote/details/quoteDetails.html',
-    directives: [RouterLink, QuoteItemList, AddressModal, UniSave, PreviewModal],
+    directives: [RouterLink, QuoteItemList, AddressModal, UniForm, UniSave, PreviewModal],
     providers: [CustomerQuoteService, CustomerQuoteItemService, CustomerService,
         ProjectService, DepartementService, AddressService, ReportDefinitionService]
 })
@@ -304,7 +306,7 @@ export class QuoteDetails {
     }
 
     private updateSaveActions() {
-        this.actions = []; 
+        this.actions = [];
 
         this.actions.push({
             label: 'Lagre',
@@ -313,47 +315,47 @@ export class QuoteDetails {
             disabled: false
         });
 
-        //this.actions.push({
-        //    label: 'Lagre og skriv ut',
-        //    action: (done) => this.saveAndPrint(done),
-        //    disabled: false
-        //});
+        this.actions.push({
+            label: 'Lagre og skriv ut',
+            action: (done) => this.saveAndPrint(done),
+            disabled: false
+        });
 
-        //this.actions.push({
-        //    label: 'Til register',
-        //    action: (done) => this.saveQuoteTransition(done, 'register'),
-        //    disabled: false
+        this.actions.push({
+            label: 'Til register',
+            action: (done) => this.saveQuoteTransition(done, 'register'),
+            disabled: false
 
-        //});
-        //this.actions.push({
-        //    label: 'Til shiptocustomer',
-        //    action: (done) => this.saveQuoteTransition(done, 'shipToCustomer'),
-        //    disabled: false
-        //});
-        //this.actions.push({
-        //    label: 'Til customeraccept',
-        //    action: (done) => this.saveQuoteTransition(done, 'customerAccept'),
-        //    disabled: false
-        //});
+        });
+        this.actions.push({
+            label: 'Til shiptocustomer',
+            action: (done) => this.saveQuoteTransition(done, 'shipToCustomer'),
+            disabled: false
+        });
+        this.actions.push({
+            label: 'Til customeraccept',
+            action: (done) => this.saveQuoteTransition(done, 'customerAccept'),
+            disabled: false
+        });
 
-        //this.actions.push({
-        //    label: 'Til toorder',
-        //    action: (done) => this.saveQuoteTransition(done, 'toOrder'),
-        //    disabled: false
+        this.actions.push({
+            label: 'Til toorder',
+            action: (done) => this.saveQuoteTransition(done, 'toOrder'),
+            disabled: false
 
-        //});
-        //this.actions.push({
-        //    label: 'Til toinvoice',
-        //    action: (done) => this.saveQuoteTransition(done, 'toInvoice'),
-        //    disabled: false
+        });
+        this.actions.push({
+            label: 'Til toinvoice',
+            action: (done) => this.saveQuoteTransition(done, 'toInvoice'),
+            disabled: false
 
-        //});
-        //this.actions.push({
-        //    label: 'Til tocomplete',
-        //    action: (done) => this.saveQuoteTransition(done, 'complete'),
-        //    disabled: false
+        });
+        this.actions.push({
+            label: 'Til tocomplete',
+            action: (done) => this.saveQuoteTransition(done, 'complete'),
+            disabled: false
 
-        //});
+        });
     }
 
 
@@ -464,7 +466,7 @@ export class QuoteDetails {
         this.saveQuote((quote) => {
             this.customerQuoteService.Transition(this.quote.ID, this.quote, transition).subscribe(() => {
                 console.log('== TRANSITION OK ' + transition + ' ==');
-                done('Lagret');
+                done(transition);
 
                 this.customerQuoteService.Get(quote.ID, ['Dimensions', 'Items', 'Items.Product', 'Items.VatType', 'Customer', 'Customer.Info', 'Customer.Info.Addresses']).subscribe((quote) => {
                     this.quote = quote;

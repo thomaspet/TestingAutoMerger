@@ -3,6 +3,7 @@ import {Observable} from 'rxjs/Observable';
 import 'rxjs/add/observable/forkJoin';
 import {Router} from '@angular/router-deprecated';
 import {UniTable, UniTableColumn, UniTableColumnType, UniTableConfig} from 'unitable-ng2/main';
+
 import {ProductService, VatTypeService, CustomerInvoiceItemService} from '../../../../services/services';
 import {CustomerInvoice, CustomerInvoiceItem, Product, VatType, StatusCodeCustomerInvoice} from '../../../../unientities';
 
@@ -17,8 +18,8 @@ declare var jQuery;
 export class InvoiceItemList implements OnInit {
     @Input() public invoice: CustomerInvoice;
     @ViewChild(UniTable) public table: UniTable;
-    @Output() public itemsUpdated = new EventEmitter<any>();
-    @Output() public itemsLoaded = new EventEmitter<any>();
+    @Output() public itemsUpdated: EventEmitter<any> = new EventEmitter<any>();
+    @Output() public itemsLoaded: EventEmitter<any> = new EventEmitter<any>();
 
     public invoiceItemTable: UniTableConfig;
 

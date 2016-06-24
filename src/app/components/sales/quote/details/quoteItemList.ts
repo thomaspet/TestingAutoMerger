@@ -1,9 +1,7 @@
 import {Component, ViewChild, Input, Output, EventEmitter} from '@angular/core';
-import {Control} from '@angular/common';
 import {Observable} from 'rxjs/Observable';
 import 'rxjs/add/observable/forkJoin';
-import {ComponentInstruction, RouteParams, Router} from '@angular/router-deprecated';
-
+import {Router} from '@angular/router-deprecated';
 import {UniTable, UniTableColumn, UniTableColumnType, UniTableConfig} from 'unitable-ng2/main';
 
 import {ProductService, VatTypeService, CustomerQuoteItemService} from '../../../../services/services';
@@ -18,16 +16,16 @@ declare var jQuery;
     providers: [ProductService, VatTypeService]
 })
 export class QuoteItemList {
-    @Input() quote: CustomerQuote; 
-    @ViewChild(UniTable) table: UniTable;
-    @Output() ItemsUpdated = new EventEmitter<any>();
-    @Output() ItemsLoaded = new EventEmitter<any>();
+    @Input() public quote: CustomerQuote; 
+    @ViewChild(UniTable) public table: UniTable;
+    @Output() public ItemsUpdated: EventEmitter<any> = new EventEmitter<any>();
+    @Output() public ItemsLoaded: EventEmitter<any> = new EventEmitter<any>();
     
-    quoteItemTable: UniTableConfig;
+    public quoteItemTable: UniTableConfig;
     
-    products: Product[];
-    vatTypes: VatType[];
-    items: CustomerQuoteItem[];
+    public products: Product[];
+    public vatTypes: VatType[];
+    public items: CustomerQuoteItem[];
     
     constructor(
         private router: Router, 
@@ -36,7 +34,7 @@ export class QuoteItemList {
         private vatTypeService: VatTypeService) {                 
     }
     
-    ngOnInit() {
+    public ngOnInit() {
         this.setupQuoteItemTable();
     }
     
@@ -154,7 +152,8 @@ export class QuoteItemList {
                 NumberOfItems: null,
                 PriceExVat: null,
                 Discount: null,
-                DiscountPercent: null 
+                DiscountPercent: null,
+                Project: { ID: 0 } 
             })
             .setChangeCallback((event) => {
                 var newRow = event.rowModel;
@@ -162,6 +161,11 @@ export class QuoteItemList {
                 if (newRow.ID === 0) {
                     newRow._createguid = this.customerQuoteItemService.getNewGuid();
                     newRow.Dimensions._createguid = this.customerQuoteItemService.getNewGuid();
+
+                    // Default antall for ny rad
+                    if (newRow.NumberOfItems === null) {
+                        newRow.NumberOfItems = 1;
+                    }
                 }
                 
                 if (event.field === 'Product') {
