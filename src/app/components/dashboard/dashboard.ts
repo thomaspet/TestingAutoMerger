@@ -10,38 +10,40 @@ declare var moment;
 export class Dashboard {
 
     public welcomeHidden: boolean = localStorage.getItem('welcomeHidden');
+    public chartDataLoaded: boolean = localStorage.getItem('chartDataLoaded');
     public transactionList;
 
     constructor(private tabService: TabService) {
         this.tabService.addTab({ name: 'Dashboard', url: '/', active: true, moduleID: 0 });
         Chart.defaults.global.maintainAspectRatio = false;
+        this.welcomeHidden = false;
         this.transactionList = [
             {
-                user: 'Bruce Wayne',
+                user: 'Knut Knutsen',
                 action: 'endret',
                 module: 'faktura #154',
                 time: 'for 2 timer siden'
             },
             {
-                user: 'Slade Wilson',
+                user: 'Hans Hansen',
                 action: 'opprettet',
                 module: 'bilag #5',
                 time: 'for 8 timer siden'
             },
             {
-                user: 'Oliver Queen',
+                user: 'Jens Jensen',
                 action: 'endret',
                 module: 'Ordre #154',
                 time: 'for 2 minutter siden'
             },
             {
-                user: 'Edward Nigma',
+                user: 'Petter Pettersen',
                 action: 'slettet',
                 module: 'ordre #94',
                 time: 'for 1 dag siden'
             },
             {
-                user: 'Harvey Dent',
+                user: 'Anders Andersen',
                 action: 'opprettet',
                 module: 'faktura #155',
                 time: 'for 4 timer siden'
@@ -50,34 +52,6 @@ export class Dashboard {
     }
 
     public ngAfterViewInit() {
-        let revCanvas = document.getElementById('revenue');
-        let revChart = new Chart(revCanvas, {
-            type: 'line',
-            data: {
-                labels: ['Red', 'Blue', 'Yellow', 'Green', 'Purple', 'Orange'],
-                datasets: [{
-                    data: [12, 19, 3, 5, 2, 3]
-                }]
-            }
-        });
-
-        let debetCanvas = document.getElementById('debetGraph');
-        let debetChart = new Chart(debetCanvas, {
-            type: 'line',
-            data: {
-                datasets: [{
-                    data: this.generateRandomGraphData(75, 175000, 10000, 750),
-                    lineTension: 0
-                }]
-            },
-            options: {
-                scales: {
-                    xAxes: [{
-                        type: 'time'
-                    }]
-                }
-            }
-        });
 
         let invoicedChart = document.getElementById('invoicedChart');
         let iChart = new Chart(invoicedChart, {
@@ -87,6 +61,8 @@ export class Dashboard {
                 datasets: [
                     {
                         label: 'Fakturert',
+                        backgroundColor: '#7293cb',
+                        borderColor: '#396bb1',
                         data: [125000, 154000, 235000, 500000]
                     }
                 ]
@@ -100,32 +76,34 @@ export class Dashboard {
                 labels: ['2013', '2014', '2015', '2016'],
                 datasets: [{
                     label: 'Driftsresultat',
-                    data: [2125000, 3154000, 6235000, 9500000],
-                    lineTension: 0
+                    backgroundColor: '#7293cb',
+                    borderColor: '#396bb1',
+                    data: [2125000, 3154000, 6235000, 4000000]
                 }]
-            },
-            options: {
-                scales: {
-                    xAxes: [{
-                        type: 'time'
-                    }]
-                }
             }
         });
+        var labels = ['Kontanter og bankinnskudd', 'Kortsiktige fordringer', 'Anleggsmidler', 'Varelager', 'Andre midler'];
+        var data = {
+            data: [250000, 350000, 200000, 500000, 410000],
+            backgroundColor: ['#7293cb', '#e1974c', '#84ba5b', '#d35e60', '#808585']
+        }
+        this.chartGenerator('assets_chart', 'pie', data, labels)
 
-        let assets_chart = document.getElementById('assets_chart');
-        let aChart = new Chart(assets_chart, {
-            type: 'pie',
+        //let assets_chart = document.getElementById('assets_chart');
+        //let aChart = new Chart(assets_chart, {
+        //    type: 'pie',
             
-            data: {
-                labels: ['Kontanter og bankinnskudd', 'Kortsiktige fordringer', 'Anleggsmidler', 'Varelager', 'Andre omløpsmidler'],
-                datasets: [
-                    {
-                        data: [250000, 350000, 200000, 500000, 410000]
-                    }
-                ]
-            }
-        })
+        //    data: {
+        //        labels: ['Kontanter og bankinnskudd', 'Kortsiktige fordringer', 'Anleggsmidler', 'Varelager', 'Andre omløpsmidler'],
+        //        datasets: [
+        //            {
+        //                data: [250000, 350000, 200000, 500000, 410000],
+        //                backgroundColor: ['#7293cb', '#e1974c', '#84ba5b', '#d35e60', '#808585'],
+        //                position: 'top'
+        //            }
+        //        ]
+        //    }
+        //})
 
     }
 
@@ -134,40 +112,23 @@ export class Dashboard {
         localStorage.setItem('welcomeHidden', 'true');
     }
 
-    public generateRandomDateTime(start, end){
-        return new Date(start.getTime() + Math.random() * (end.getTime() - start.getTime()));
+    private buildChartData() {
+        //TODO
     }
 
-    public generateRandomGraphData(
-        numberOfDataPoints = 10,
-        startValue = 175000,
-        maxValueVariance = 1000,
-        trend = 0,
-        startDate = new Date(2016, 1, 1),
-        endDate = new Date()
-    ) {
-
-        let _data = [];
-
-        // Add random dates
-        for (var index = 0; index < numberOfDataPoints; index++) {
-            _data.push({x: this.generateRandomDateTime(startDate, endDate)});
-        }
-
-        // Sort the dates
-        _data.sort((a, b) => {
-            return a.x - b.x;
+    private chartGenerator(elementID: string, chartType: string, chartData: any, labels: any[]) {
+        let myElement = document.getElementById(elementID);
+        let myChart = new Chart(myElement, {
+            type: chartType,
+            data: {
+                labels: labels,
+                datasets: [
+                    {
+                        data: chartData.data,
+                        backgroundColor: chartData.backgroundColor
+                    }
+                ]
+            }
         });
-
-        // Add values
-        _data.forEach((datapoint, index) => {
-            let _currentMin = startValue - maxValueVariance + (trend * index);
-            let _currentMax = startValue + maxValueVariance + (trend * index);
-            let _currentVal = Math.floor(Math.random() * (_currentMax - _currentMin + 1)) + _currentMin;
-            datapoint.y = _currentVal;
-        });
-
-        return _data;
     }
-
 }

@@ -17,18 +17,18 @@
     <!--INVOICED CHART-->
     <figure class="dashboard_chart_card">
         <h2>Fakturert<time>, siste 4 måned</time>(eks moms)</h2>
-        <canvas id="invoicedChart" class=""></canvas>
+        <canvas id="invoicedChart" style="height: 233px; max-height: 233px" class=""></canvas>
     </figure>
 
     <!--TRANSACTIONS LIST -->
     <figure class="dashboard_chart_card" *ngIf="transactionList">
         <h2>Siste transaksjoner</h2>
         <ol class="dashboard_list recent">
-            <li *ngFor="let trans of transactionList">
+            <li *ngFor="let trans of transactionList" style="font-size:0.8rem">
                 <strong>{{trans.user}}</strong>
                 {{trans.action}}
-                <strong>{{trans.module}}</strong>
-                <time>{{trans.time}}</time>
+                <strong><a style="color:#7293cb">{{trans.module}}</a></strong>
+                <time style="float: right; margin: 0">{{trans.time}}</time>
             </li> 
         </ol>
     </figure>
@@ -36,61 +36,13 @@
     <!--OPERATING PROFIT/LOSS CHART-->
     <figure class="dashboard_chart_card">
         <h2>Driftsresultater</h2>
-        <canvas id="operating_chart" class=""></canvas>
+        <canvas id="operating_chart" style="height: 233px; max-height: 233px"  class=""></canvas>
     </figure>
 
     <!--ASSETS CHART-->
     <figure class="dashboard_chart_card">
         <h2>Eiendeler</h2>
-        <canvas id="assets_chart" class=""></canvas>
+        <canvas id="assets_chart" style="height: 233px; max-height: 233px"  class=""></canvas>
     </figure>
 
 </section>
-
-
-
-
-<article class="dashboard_mainFigures dashboard_card">
-    <h2>Frosker<time>, siste måned</time></h2>
-    <canvas id="debetGraph" class="dashboard_mainFigures_debet"></canvas>
-</article>
-
-
-<figure class="dashboard_chart_medium dashboard_card">
-    <figcaption>Omsetning siste måned</figcaption>
-
-    <canvas id="revenue"></canvas>
-</figure>
-
-<ol class="dashboard_list recent">
-    <li>
-        <strong>Christina Olsen</strong>
-        behandlet
-        <strong>bilag 123</strong>
-        <time>for 4 minutter siden</time>
-    </li>
-    <li>
-        <strong>Ebba Løset</strong>
-        behandlet
-        <strong>faktura 12</strong>
-        <time>for en time siden</time>
-    </li>
-    <li>
-        <strong>Dina Martinsen</strong>
-        behandlet
-        <strong>ordre 193</strong>
-        <time>for tre timer siden</time>
-    </li>
-    <li>
-        <strong>Ida Wergeland</strong>
-        behandlet
-        <strong>tilbud 87</strong>
-        <time>i går</time>
-    </li>
-    <li>
-        <strong>Tora Thorsen</strong>
-        behandlet
-        <strong>lønnskjøring 3</strong>
-        <time>i går</time>
-    </li>
-</ol>
