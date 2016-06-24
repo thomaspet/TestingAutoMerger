@@ -16,7 +16,7 @@ import {UniSectionBuilder} from '../../../../../framework/forms';
 import {UniForm} from '../../../../../framework/forms/uniForm';
 import {UniFieldBuilder} from '../../../../../framework/forms/builders/uniFieldBuilder';
 import {UniComponentLoader} from '../../../../../framework/core/componentLoader';
-import {AddressModal} from '../../customer/modals/address/address';
+import {AddressModal} from '../../../common/modals/modals';
 import {TradeHeaderCalculationSummary} from '../../../../models/sales/TradeHeaderCalculationSummary';
 import {UniSave, IUniSaveAction} from '../../../../../framework/save/save';
 import {PreviewModal} from '../../../reports/modals/preview/previewModal';

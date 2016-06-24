@@ -15,7 +15,7 @@ import {InvoiceItemList} from './invoiceItemList';
 import {CustomerInvoice, Customer, Dimensions, Address, BusinessRelation} from '../../../../unientities';
 import {StatusCodeCustomerInvoice, FieldType} from '../../../../unientities';
 
-import {AddressModal} from '../../customer/modals/address/address';
+import {AddressModal} from '../../../common/modals/modals';
 import {TradeHeaderCalculationSummary} from '../../../../models/sales/TradeHeaderCalculationSummary';
 
 import {PreviewModal} from '../../../reports/modals/preview/previewModal';

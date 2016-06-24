@@ -1,8 +1,8 @@
 import {Component, ViewChildren, Type, Input, Output, QueryList, ViewChild, ComponentRef, EventEmitter} from '@angular/core';
-import {UniModal} from '../../../../../../framework/modals/modal';
-import {UniForm, UniFieldLayout} from '../../../../../../framework/uniform';
-import {Phone, PhoneTypeEnum} from '../../../../../unientities';
-import {PhoneService} from '../../../../../services/services';
+import {UniModal} from '../../../../framework/modals/modal';
+import {UniForm, UniFieldLayout} from '../../../../framework/uniform';
+import {Phone, PhoneTypeEnum} from '../../../unientities';
+import {PhoneService} from '../../../services/services';
 
 // Reusable address form
 @Component({

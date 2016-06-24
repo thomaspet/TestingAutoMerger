@@ -10,10 +10,7 @@ import {Supplier, Email, Phone, Address} from '../../../../unientities';
 import {UniSave, IUniSaveAction} from '../../../../../framework/save/save';
 import {UniForm, UniFieldLayout} from '../../../../../framework/uniform';
 import {TabService} from '../../../layout/navbar/tabstrip/tabService';
-
-import {AddressModal} from '../../customer/modals/address/address';
-import {EmailModal} from '../../customer/modals/email/email';
-import {PhoneModal} from '../../customer/modals/phone/phone';
+import {AddressModal, EmailModal, PhoneModal} from '../../../common/modals/modals';
 
 declare var _; // lodash
 

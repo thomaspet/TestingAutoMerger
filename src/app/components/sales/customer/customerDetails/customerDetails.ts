@@ -11,9 +11,7 @@ import {UniForm, UniField, UniFieldLayout} from '../../../../../framework/unifor
 
 import {ComponentLayout, Customer, Email, Phone, Address} from '../../../../unientities';
 
-import {AddressModal} from '../modals/address/address';
-import {EmailModal} from '../modals/email/email';
-import {PhoneModal} from '../modals/phone/phone';
+import {AddressModal, EmailModal, PhoneModal} from '../../../common/modals/modals';
 import {TabService} from "../../../layout/navbar/tabstrip/tabService";
 
 declare var _; // lodash
