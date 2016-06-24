@@ -1,5 +1,10 @@
 <section class="application">
     <h2>Tilbud</h2><button class="new-button" (click)="createQuote()">Nytt tilbud</button>
-    <uni-table [resource]="lookupFunction" [config]="quoteTable" (rowSelected)="onRowSelected($event)"></uni-table>
+    <uni-table 
+               [resource]="lookupFunction" 
+               [config]="quoteTable" 
+               (rowSelected)="onRowSelected($event)">
+
+    </uni-table>
 </section>
 <report-preview-modal></report-preview-modal>
