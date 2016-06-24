@@ -145,6 +145,10 @@ export class OrderDetails {
                         this.addAddresses();
                         this.order.CustomerName = customer.Info.Name;
 
+                        if (customer.CreditDays !== null) {
+                            this.order.CreditDays = customer.CreditDays;
+                        }
+
                         this.order = _.cloneDeep(this.order);
                     });
                 }
