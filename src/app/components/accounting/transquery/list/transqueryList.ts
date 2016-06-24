@@ -9,6 +9,7 @@ import {AccountService, JournalEntryService} from '../../../../services/services
 import {Customer, BusinessRelation, Account, ComponentLayout} from '../../../../unientities';
 import {UniComponentLoader} from '../../../../../framework/core/componentLoader';
 import {Observable} from 'rxjs/Observable';
+import {TabService} from '../../../layout/navbar/tabstrip/tabService';
 
 declare var jQuery;
 declare var moment;
@@ -32,8 +33,10 @@ export class TransqueryList {
 
     constructor(private router: Router, 
                 private accountService: AccountService, 
-                private journalEntryService: JournalEntryService) {
-        this.setupPeriodeTable();   
+                private journalEntryService: JournalEntryService,
+                private tabService: TabService) {
+        this.setupPeriodeTable();
+        this.tabService.addTab({ name: 'Forspørsel konto', url: '/accounting/transquery/list', moduleID: 8, active: true });
     }
     
     ngAfterViewInit() {

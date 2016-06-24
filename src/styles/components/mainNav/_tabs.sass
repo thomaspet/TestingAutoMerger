@@ -35,6 +35,17 @@
         white-space: nowrap
         display: inline-block
 
+        &.router-tab-active,
+        &.router-tab-active:hover,
+        &.router-tab-active:focus
+            background: $uni-color-negative
+            color: $navbarBackground
+
+            .close
+                border: pxToRem(1) solid mix($uni-color-C2A, $navbarBackground, 70%)
+                background-image: unicon-close($uni-color-negative), linear-gradient(to top, mix($uni-color-C2A, $navbarBackground, 50%) 0, mix($uni-color-C2A, $navbarBackground, 60%) 100%)
+                opacity: .8
+
         &:first-of-type
             border-left: none
 

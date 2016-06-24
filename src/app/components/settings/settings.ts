@@ -56,7 +56,7 @@ export class Settings {
     private childRoutes: RouteDefinition[];
 
     constructor(public router: Router, private tabService: TabService) {
-        this.tabService.addTab({ name: 'Settings', url: '/settings/company' });
+        this.tabService.addTab({ name: 'Settings', url: '/settings/company', moduleID: 20, active: true });
         this.childRoutes = CHILD_ROUTES; // we dont want the redirect route in our navigation
     }
 }

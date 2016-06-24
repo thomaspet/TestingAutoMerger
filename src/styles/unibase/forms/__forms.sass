@@ -1,16 +1,18 @@
-@import 'inputs'
+@import 'labels'
+@import 'textInputs'
 @import 'checkboxes'
 @import 'formSection'
 
-label.-has-linebreak, uni-checkbox-input.-has-linebreak label
-    float: none
-// For wrapped elements
+uni-form
+    box-sizing: border-box
 
-label.-has-linebreak + *, uni-checkbox-input.-has-linebreak label + *
+label.-has-linebreak, uni-checkbox.-has-linebreak label
+    float: none
+
+uni-field.-has-linebreak + *,
+uni-checkbox.-has-linebreak label + *
     clear: left
     display: block !important
-    &:after
-        content: '\00200B'
 
 fieldset
     border-width: 0

@@ -3,6 +3,7 @@ import {URLSearchParams} from '@angular/http';
 import {Router} from '@angular/router-deprecated';
 import {UniTable, UniTableColumn, UniTableColumnType, UniTableConfig} from 'unitable-ng2/main';
 import {SupplierService} from '../../../../services/services';
+import {TabService} from '../../../layout/navbar/tabstrip/tabService';
 
 declare var jQuery;
 
@@ -17,7 +18,8 @@ export class SupplierList {
     private supplierTable: UniTableConfig;
     private lookupFunction: (urlParams: URLSearchParams) => any;
     
-    constructor(private router: Router, private supplierService: SupplierService) {
+    constructor(private router: Router, private supplierService: SupplierService, private tabService: TabService) {
+        this.tabService.addTab({ name: "Leverandører", url: "/sales/supplier", active: true, moduleID: 2 });    
         this.setupSupplierTable();
     }
     
