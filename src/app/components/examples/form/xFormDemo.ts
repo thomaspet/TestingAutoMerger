@@ -223,6 +223,20 @@ export class XFormDemo {
                 labelProperty: 'name', 
                 valueProperty: 'id'
             };
+
+            var buttonTest = new UniFieldLayout();
+            buttonTest.FieldSet = 0;
+            buttonTest.Section = 0;
+            buttonTest.Combo = 0;
+            buttonTest.FieldType = 1;
+            buttonTest.Label = 'Click here!';
+            buttonTest.ReadOnly = false;
+            buttonTest.Options = {
+                click: (event) => {
+                    alert('clicked!');
+                }
+            };
+
             self.fields = [
                 numericTest, 
                 maskedTest, 
@@ -236,7 +250,8 @@ export class XFormDemo {
                 selectTest,
                 radiogroupTest,  
                 dateTest,   
-                checkboxgroupTest,       
+                checkboxgroupTest,
+                buttonTest,
                 ...self.fields];
         });
         this.config = {
