@@ -13,6 +13,7 @@ import 'rxjs/add/operator/filter';
 
 declare var _; // lodash
 
+
 export class UniAutocompleteConfig {
     public source: BizHttp<any>|any[];
     public valueKey: string;
@@ -101,7 +102,7 @@ export class UniAutocompleteInput {
     private lookupResults: any[] = [];
     private isExpanded: boolean;
     private focusPositionTop: number = 0;
-    
+
     constructor(private renderer: Renderer, private cd: ChangeDetectorRef) {
         this.guid = 'autocomplete-' + performance.now();
     }
