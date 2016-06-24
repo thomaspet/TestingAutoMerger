@@ -28,6 +28,8 @@ export class PaymentList implements OnInit {
     
     constructor(private _routeParams: RouteParams, private _payrollrunService: PayrollrunService, private _tabService: TabService) {
         this.payrollRunID = +_routeParams.get('id');
+        //Dummy moduleID, going to be removed!
+        this._tabService.addTab({ name: 'Utbetalingsliste #' + this.payrollRunID, url: 'salary/paymentlist/' + this.payrollRunID, moduleID: 997, active: true });
     }
     
     public ngOnInit() {
@@ -43,7 +45,7 @@ export class PaymentList implements OnInit {
             this.buildTableConfigs();
             this.busy = false;
         });
-        this._tabService.addTab({name: 'Utbetalingsliste #' + this.payrollRunID, url: 'salary/paymentlist/' + this.payrollRunID});
+
     }
     
     public buildTableConfigs() {

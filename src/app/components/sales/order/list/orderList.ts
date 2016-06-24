@@ -5,6 +5,7 @@ import {CustomerOrderService, ReportDefinitionService} from '../../../../service
 import {CustomerOrder} from '../../../../unientities';
 import {URLSearchParams} from '@angular/http';
 import {PreviewModal} from '../../../reports/modals/preview/previewModal';
+import {TabService} from '../../../layout/navbar/tabstrip/tabService';
 
 declare var jQuery;
 
@@ -21,11 +22,14 @@ export class OrderList {
 
     private orderTable: UniTableConfig;
     private lookupFunction: (urlParams: URLSearchParams) => any;
+   
+   
+    constructor(private router: Router, 
+                private customerOrderService: CustomerOrderService, 
+                private reportDefinitionService: ReportDefinitionService,
+                private tabService: TabService) {
 
-    constructor(private router: Router,
-        private customerOrderService: CustomerOrderService,
-        private reportDefinitionService: ReportDefinitionService) {
-
+        this.tabService.addTab({ name: 'Ordre', url: '/sales/order', moduleID: 4, active: true });
         this.setupOrderTable();
     }
 

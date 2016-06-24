@@ -33,7 +33,7 @@ export class Product {
     childRoutes: RouteDefinition[]; 
     
     constructor(public router: Router, private tabService: TabService) {
-        this.tabService.addTab({name: "Produkt", url: "/products"});
+        //this.tabService.addTab({name: "Produkt", url: "/products"});
         this.childRoutes = CHILD_ROUTES.slice(0, CHILD_ROUTES.length - 1);;    
     }
 }
