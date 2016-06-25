@@ -3,7 +3,7 @@ import {Router, RouteParams, RouterLink} from '@angular/router-deprecated';
 import {Observable} from 'rxjs/Observable';
 import 'rxjs/add/observable/forkJoin';
 
-import {CustomerOrderService, CustomerOrderItemService, CustomerService} from '../../../../services/services';
+import {CustomerOrderService, CustomerOrderItemService, CustomerService, BusinessRelationService} from '../../../../services/services';
 import {ProjectService, DepartementService, AddressService, ReportDefinitionService} from '../../../../services/services';
 
 import {UniSave, IUniSaveAction} from '../../../../../framework/save/save';
@@ -23,11 +23,18 @@ import {TabService} from '../../../layout/navbar/tabstrip/tabService';
 
 declare var _;
 
+class CustomerOrderExt extends CustomerOrder {
+    public _InvoiceAddress: Address;
+    public _InvoiceAddresses: Array<Address>;
+    public _ShippingAddress: Address;
+    public _ShippingAddresses: Array<Address>;
+}
+
 @Component({
     selector: 'order-details',
     templateUrl: 'app/components/sales/order/details/orderDetails.html',
     directives: [RouterLink, OrderItemList, AddressModal, UniForm, OrderToInvoiceModal, UniSave, PreviewModal],
-    providers: [CustomerOrderService, CustomerOrderItemService, CustomerService,
+    providers: [CustomerOrderService, CustomerOrderItemService, CustomerService, BusinessRelationService,
         ProjectService, DepartementService, AddressService, ReportDefinitionService]
 })
 export class OrderDetails {
@@ -41,11 +48,9 @@ export class OrderDetails {
     private config: any = {};
     private fields: any[] = [];
 
-    private businessRelationInvoice: BusinessRelation = new BusinessRelation();
-    private businessRelationShipping: BusinessRelation = new BusinessRelation();
     private lastCustomerInfo: BusinessRelation;
 
-    private order: CustomerOrder;
+    private order: CustomerOrderExt;
     private statusText: string;
 
     private itemsSummaryData: TradeHeaderCalculationSummary;
@@ -66,13 +71,12 @@ export class OrderDetails {
         private projectService: ProjectService,
         private addressService: AddressService,
         private reportDefinitionService: ReportDefinitionService,
+        private businessRelationService: BusinessRelationService,
         private router: Router,
         private params: RouteParams,
         private tabService: TabService) {
 
         this.orderID = params.get('id');
-        this.businessRelationInvoice.Addresses = [];
-        this.businessRelationShipping.Addresses = [];
         this.tabService.addTab({ url: '/sales/order/details/' + this.orderID, name: 'Ordrenr. ' + this.orderID, active: true, moduleID: 4 }); 
     }
 
@@ -192,6 +196,7 @@ export class OrderDetails {
     }
 
     private extendFormConfig() {
+        let self = this;
 
         var departement: UniFieldLayout = this.fields.find(x => x.Property === 'Dimensions.DepartementID');
         departement.Options = {
@@ -209,25 +214,27 @@ export class OrderDetails {
             debounceTime: 200
         };
 
-        var invoiceaddress: UniFieldLayout = this.fields.find(x => x.Property === 'InvoiceAddress');
+        var invoiceaddress: UniFieldLayout = this.fields.find(x => x.Property === '_InvoiceAddress');
 
-        // TODO:
         invoiceaddress.Options = {
             entity: Address,
-            listProperty: 'Customer.Info.Addresses',
+            listProperty: '_InvoiceAddresses',
             displayValue: 'AddressLine1',
             linkProperty: 'ID',
-            foreignProperty: 'Customer.Info.InvoiceAddressID',
+            foreignProperty: '_InvoiceAddresses.InvoiceAddressID',
             editor: (value) => new Promise((resolve) => {
                 if (!value) {
                     value = new Address();
-                    value.ID = 0;
+                    value.ID = 0;                   
                 }
 
-                this.addressModal.openModal(value);
+                this.addressModal.openModal(value, !!!this.order.CustomerID);
 
-                this.addressModal.Changed.subscribe(modalval => {
-                    resolve(modalval);
+                this.addressModal.Changed.subscribe(address => {
+                    this.order._InvoiceAddress = address;
+                    this.order = _.cloneDeep(this.order);
+                    if (address._question) { self.saveAddressOnCustomer(address); }
+                    resolve(address);
                 });
             }),
             display: (address: Address) => {
@@ -236,31 +243,13 @@ export class OrderDetails {
             }
         };
 
-
-        // var invoiceaddress: UniFieldBuilder = this.formConfig.find('InvoiceAddress');
-        // invoiceaddress
-        //    .setKendoOptions({
-        //        dataTextField: 'AddressLine1',
-        //        dataValueField: 'ID',
-        //        enableSave: true
-        //    })
-        //    .setModel(this.businessRelationInvoice)
-        //    .setModelField('Addresses')
-        //    //  .setModelDefaultField('InvoiceAddressID')           
-        //    .setPlaceholder(this.emptyAddress)
-        //    .setEditor(AddressModal);
-        // invoiceaddress.onSelect = (address: Address) => {
-        //    this.addressToInvoice(address);
-        //    this.businessRelationInvoice.Addresses[0] = address;
-        // };
-
-        var shippingaddress: UniFieldLayout = this.fields.find(x => x.Property === 'ShippingAddress');
+        var shippingaddress: UniFieldLayout = this.fields.find(x => x.Property === '_ShippingAddress');
         shippingaddress.Options = {
             entity: Address,
-            listProperty: 'Customer.Info.Addresses',
+            listProperty: '_ShippingAddresses',
             displayValue: 'AddressLine1',
             linkProperty: 'ID',
-            foreignProperty: 'Customer.Info.ShippingAddressID',
+            foreignProperty: '_ShippingAddresses.ShippingAddressID',
             editor: (value) => new Promise((resolve) => {
                 if (!value) {
                     value = new Address();
@@ -269,8 +258,11 @@ export class OrderDetails {
 
                 this.addressModal.openModal(value);
 
-                this.addressModal.Changed.subscribe(modalval => {
-                    resolve(modalval);
+                this.addressModal.Changed.subscribe(address => {
+                    this.order._ShippingAddress = address;
+                    this.order = _.cloneDeep(this.order);
+                    if (address._question) { self.saveAddressOnCustomer(address); }
+                    resolve(address);
                 });
             }),
             display: (address: Address) => {
@@ -278,24 +270,6 @@ export class OrderDetails {
                 return displayVal;
             }
         };
-
-        // var shippingaddress: UniFieldBuilder = this.formConfig.find('ShippingAddress');
-        // shippingaddress
-        //    .hasLineBreak(true)
-        //    .setKendoOptions({
-        //        dataTextField: 'AddressLine1',
-        //        dataValueField: 'ID',
-        //        enableSave: true
-        //    })
-        //    .setModel(this.businessRelationShipping)
-        //    .setModelField('Addresses')
-        //    //    .setModelDefaultField('ShippingAddressID')
-        //    .setPlaceholder(this.emptyAddress)
-        //    .setEditor(AddressModal);
-        // shippingaddress.onSelect = (address: Address) => {
-        //    this.addressToShipping(address);
-        //    this.businessRelationShipping.Addresses[0] = address;
-        // };
 
         var customer: UniFieldLayout = this.fields.find(x => x.Property === 'CustomerID');
         customer.Options = {
@@ -304,6 +278,23 @@ export class OrderDetails {
             displayProperty: 'Info.Name',
             debounceTime: 200
         };
+    }
+
+    private saveAddressOnCustomer(address: Address) {
+        if (!address.ID || address.ID == 0) {
+            address['_createguid'] = this.addressService.getNewGuid();
+            console.log("== SAVE NEW ADDRESS ==", address);
+            this.order.Customer.Info.Addresses.push(address);
+            this.businessRelationService.Put(this.order.Customer.Info.ID, this.order.Customer.Info).subscribe((res) => {
+                this.order.Customer.Info = res;
+                this.addAddresses();
+            });
+        } else {
+            console.log("== SAVE EXISTING ADDRESS ==", address.ID);
+            this.addressService.Put(address.ID, address).subscribe((res) => {
+                console.log("== ADDRESS SAVED ==", res);
+            });
+        }
     }
 
     private updateSaveActions() {
@@ -375,8 +366,8 @@ export class OrderDetails {
     }
 
     private addAddresses() {
-        var invoiceaddresses = this.businessRelationInvoice.Addresses ? this.businessRelationInvoice.Addresses : [];
-        var shippingaddresses = this.businessRelationShipping.Addresses ? this.businessRelationShipping.Addresses : [];
+        var invoiceaddresses = this.order._InvoiceAddresses || [];
+        var shippingaddresses = this.order._ShippingAddresses || [];
         var firstinvoiceaddress = null;
         var firstshippingaddress = null;
 
@@ -419,21 +410,21 @@ export class OrderDetails {
 
         // Add addresses from current customer
         if (this.order.Customer) {
-            this.businessRelationInvoice = _.cloneDeep(this.order.Customer.Info);
-            this.businessRelationShipping = _.cloneDeep(this.order.Customer.Info);
+            this.order._InvoiceAddresses = _.cloneDeep(this.order.Customer.Info.Addresses);
+            this.order._ShippingAddresses = _.cloneDeep(this.order.Customer.Info.Addresses);
             this.lastCustomerInfo = this.order.Customer.Info;
         }
 
         if (!this.isEmptyAddress(firstinvoiceaddress)) {
-            this.businessRelationInvoice.Addresses.unshift(firstinvoiceaddress);
+            this.order._InvoiceAddresses.unshift(firstinvoiceaddress);
         }
 
         if (!this.isEmptyAddress(firstshippingaddress)) {
-            this.businessRelationShipping.Addresses.unshift(firstshippingaddress);
+            this.order._ShippingAddresses.unshift(firstshippingaddress);
         }
 
-        this.businessRelationInvoice.Addresses = this.businessRelationInvoice.Addresses.concat(invoiceaddresses);
-        this.businessRelationShipping.Addresses = this.businessRelationShipping.Addresses.concat(shippingaddresses);
+        this.order._InvoiceAddresses = this.order._InvoiceAddresses ? this.order._InvoiceAddresses.concat(invoiceaddresses) : invoiceaddresses;
+        this.order._ShippingAddresses = this.order._ShippingAddresses ? this.order._ShippingAddresses.concat(shippingaddresses) : shippingaddresses;
     }
 
     private recalcItemSums(orderItems: any) {
@@ -470,9 +461,9 @@ export class OrderDetails {
     }
 
     private saveOrderManual(done: any) {
-        this.saveOrder((invoice => {
+        this.saveOrder((order) => {
             done('Lagret');
-        }));
+        });
     }
 
     private saveAndTransferToInvoice(done: any) {
@@ -524,6 +515,10 @@ export class OrderDetails {
     }
 
     private saveOrder(cb = null) {
+        // Transform addresses
+        this.addressToInvoice(this.order._InvoiceAddress);
+        this.addressToShipping(this.order._ShippingAddress);
+
         this.order.TaxInclusiveAmount = -1; // TODO in AppFramework, does not save main entity if just items have changed
 
         if (this.order.DimensionsID === 0) {
@@ -534,13 +529,17 @@ export class OrderDetails {
         this.customerOrderService.Put(this.order.ID, this.order)
             .subscribe(
             (order) => {
-                this.order = order;
-                this.updateStatusText();
-                this.updateSaveActions();
+                this.customerOrderService.Get(this.orderID, ['Dimensions', 'Items', 'Items.Product',
+                'Items.VatType', 'Customer', 'Customer.Info', 'Customer.Info.Addresses']).subscribe((order) => {
+                    this.order = order;
+                    this.addAddresses();
+                    this.updateStatusText();
+                    this.updateSaveActions();
 
-                if (cb) {
-                    cb(order);
-                }
+                    if (cb) {
+                        cb(order);
+                    }
+                });
             },
             (err) => {
                 console.log('Feil oppsto ved lagring', err);
@@ -606,6 +605,7 @@ export class OrderDetails {
     }
 
     private addressToInvoice(a: Address) {
+        a = a || new Address();
         this.order.InvoiceAddressLine1 = a.AddressLine1;
         this.order.InvoiceAddressLine2 = a.AddressLine2;
         this.order.ShippingAddressLine3 = a.AddressLine3;
@@ -616,6 +616,7 @@ export class OrderDetails {
     }
 
     private addressToShipping(a: Address) {
+        a = a || new Address();
         this.order.ShippingAddressLine1 = a.AddressLine1;
         this.order.ShippingAddressLine2 = a.AddressLine2;
         this.order.ShippingAddressLine3 = a.AddressLine3;
@@ -752,8 +753,8 @@ export class OrderDetails {
                 },
                 {
                     ComponentLayoutID: 3,
-                    EntityType: 'BusinessRelation',
-                    Property: 'InvoiceAddress',
+                    EntityType: 'Address',
+                    Property: '_InvoiceAddress',
                     Placement: 1,
                     Hidden: false,
                     FieldType: FieldType.MULTIVALUE,
@@ -780,8 +781,8 @@ export class OrderDetails {
                 },
                 {
                     ComponentLayoutID: 3,
-                    EntityType: 'BusinessRelation',
-                    Property: 'ShippingAddress',
+                    EntityType: 'Address',
+                    Property: '_ShippingAddress',
                     Placement: 1,
                     Hidden: false,
                     FieldType: FieldType.MULTIVALUE,

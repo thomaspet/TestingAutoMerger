@@ -32,8 +32,7 @@
               (onChange)="change($event)"
               (onReady)="ready($event)">
     </uni-form>
-    <address-modal></address-modal>
-
+    <address-modal question="Lagre på kundekort?"></address-modal>
 
     <order-item-list [order]="order" (itemsUpdated)="recalcItemSums($event)" (itemsLoaded)="recalcItemSums($event)"></order-item-list>    
     <section class="order-items-summary-placeholder" *ngIf="!itemsSummaryData" aria-busy> </section>
