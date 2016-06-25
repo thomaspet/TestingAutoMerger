@@ -102,7 +102,7 @@ export class QuoteDetails {
             },
             (err) => {
                 console.log('Error getting previous quote: ', err);
-                alert('Ikke flere tilbud før denne');
+                alert('Ikke flere tilbud fï¿½r denne');
             }
             );
     }
@@ -335,13 +335,13 @@ export class QuoteDetails {
         // TODO: Add a actions for shipToCustomer,customerAccept
 
         this.actions.push({
-            label: 'Lagre og overfør til ordre',
+            label: 'Lagre og overfï¿½r til ordre',
             action: (done) => this.saveQuoteTransition(done, 'toOrder'),
             disabled: this.IsTransferToOrderDisabled()
 
         });
         this.actions.push({
-            label: 'Lagre og overfør til faktura',
+            label: 'Lagre og overfï¿½r til faktura',
             action: (done) => this.saveQuoteTransition(done, 'toInvoice'),
             disabled: this.IsTransferToInvoiceDisabled()
 
@@ -804,7 +804,7 @@ export class QuoteDetails {
                     CustomFields: null
                 },
                 {
-                    // Vår referanse
+                    // VÃ¥r referanse
                     ComponentLayoutID: 3,
                     EntityType: 'CustomerInvoice',
                     Property: 'OurReference',
@@ -813,7 +813,7 @@ export class QuoteDetails {
                     FieldType: FieldType.TEXT,
                     ReadOnly: false,
                     LookupField: false,
-                    Label: 'Vår referanse',
+                    Label: 'VÃ¥r referanse',
                     Description: '',
                     HelpText: '',
                     FieldSet: 0,
@@ -899,7 +899,7 @@ export class QuoteDetails {
                     FieldType: FieldType.DROPDOWN,
                     ReadOnly: false,
                     LookupField: false,
-                    Label: 'Std. prosjekt på linje',
+                    Label: 'Std. prosjekt pÃ¥ linje',
                     Description: '',
                     HelpText: '',
                     FieldSet: 0,
@@ -927,7 +927,7 @@ export class QuoteDetails {
                     FieldType: FieldType.DROPDOWN,
                     ReadOnly: false,
                     LookupField: false,
-                    Label: 'Std. avdeling på linje',
+                    Label: 'Std. avdeling pÃ¥ linje',
                     Description: '',
                     HelpText: '',
                     FieldSet: 0,
