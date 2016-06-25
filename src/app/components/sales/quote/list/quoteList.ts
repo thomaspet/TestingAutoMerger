@@ -103,7 +103,7 @@ export class QuoteList {
             action: (quote: CustomerQuote) => {
                 this.customerQuoteService.Transition(quote.ID, quote, 'toInvoice').subscribe(() => {
                     console.log('== Quote Transistion OK ==');
-                    alert('-- Overf�rt til faktura-- OK');
+                    alert('-- Overført til faktura-- OK');
                     this.table.refreshTableData();
                 }, (err) => {
                     console.log('== TRANSFER-TO-COMPLETED FAILED ==');
