@@ -335,13 +335,13 @@ export class QuoteDetails {
         // TODO: Add a actions for shipToCustomer,customerAccept
 
         this.actions.push({
-            label: 'Lagre og overf�r til ordre',
+            label: 'Lagre og overfør til ordre',
             action: (done) => this.saveQuoteTransition(done, 'toOrder'),
             disabled: this.IsTransferToOrderDisabled()
 
         });
         this.actions.push({
-            label: 'Lagre og overf�r til faktura',
+            label: 'Lagre og overfør til faktura',
             action: (done) => this.saveQuoteTransition(done, 'toInvoice'),
             disabled: this.IsTransferToInvoiceDisabled()
 

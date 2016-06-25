@@ -82,11 +82,11 @@ export class QuoteList {
         });
 
         contextMenuItems.push({
-            label: 'Overfør til ordre',
+            label: 'OverfÃ¸r til ordre',
             action: (quote: CustomerQuote) => {
                 this.customerQuoteService.Transition(quote.ID, quote, 'toOrder').subscribe(() => {
                     console.log('== Quote Transistion OK ==');
-                    alert('-- Overført til ordre-- OK');
+                    alert('-- OverfÃ¸rt til ordre-- OK');
                     this.table.refreshTableData();
                 }, (err) => {
                     console.log('== TRANSFER-TO-COMPLETED FAILED ==');
@@ -99,11 +99,11 @@ export class QuoteList {
         });
 
         contextMenuItems.push({
-            label: 'Overfør til faktura',
+            label: 'OverfÃ¸r til faktura',
             action: (quote: CustomerQuote) => {
                 this.customerQuoteService.Transition(quote.ID, quote, 'toInvoice').subscribe(() => {
                     console.log('== Quote Transistion OK ==');
-                    alert('-- Overført til faktura-- OK');
+                    alert('-- Overfï¿½rt til faktura-- OK');
                     this.table.refreshTableData();
                 }, (err) => {
                     console.log('== TRANSFER-TO-COMPLETED FAILED ==');
