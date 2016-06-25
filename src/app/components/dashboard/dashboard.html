@@ -24,10 +24,10 @@
     <figure class="dashboard_chart_card" *ngIf="transactionList">
         <h2>Siste transaksjoner</h2>
         <ol class="dashboard_list recent">
-            <li *ngFor="let trans of transactionList" style="font-size:0.8rem">
-                <strong>{{trans.user}}</strong>
-                {{trans.action}}
-                <strong><a style="color:#7293cb">{{trans.module}}</a></strong>
+            <li *ngFor="let trans of transactionList; let i = index;" style="font-size:0.8rem">
+                <strong>{{trans.DisplayName}}</strong>
+                endret <!--Should be dynamic-->
+                <strong><a style="color:#7293cb; cursor: pointer;" (click)="lastTransactionsClicked(i)">{{trans.module}}</a></strong>
                 <time style="float: right; margin: 0">{{trans.time}}</time>
             </li> 
         </ol>
