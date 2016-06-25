@@ -49,7 +49,7 @@ export class OrderToInvoiceTable {
             .setMultiRowSelect(true);
     }
 
-    private onRowSelectionChange(event) {
+    public onRowSelectionChange(event) {
         this.selectedItems = this.table.getSelectedRows();
     }
 }
@@ -94,7 +94,7 @@ export class OrderToInvoiceModal {
     @Output() public canceled: EventEmitter<boolean> = new EventEmitter<boolean>();
 
     private modalConfig: any = {};
-    private type: Type = OrderToInvoiceModalType;
+    public type: Type = OrderToInvoiceModalType;
 
     constructor(private customerOrderService: CustomerOrderService) {
         var self = this;

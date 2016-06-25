@@ -141,7 +141,7 @@ export class InvoiceItemList implements OnInit {
         let editable = this.invoice.StatusCode === StatusCodeCustomerInvoice.Draft;
 
 
-        //Table
+        // Table
         this.invoiceItemTable = new UniTableConfig(editable)
             .setColumns([
                 productCol, itemTextCol, unitCol, numItemsCol,
@@ -160,7 +160,7 @@ export class InvoiceItemList implements OnInit {
                 PriceExVat: null,
                 Discount: null,
                 DiscountPercent: null,
-                Project: {ID:0}
+                Project: {ID: 0}
             })
             .setChangeCallback((event) => {
                 var newRow = event.rowModel;
@@ -189,7 +189,7 @@ export class InvoiceItemList implements OnInit {
 
     }
 
-    private rowChanged(event) {
+    public rowChanged(event) {
         console.log('row changed, calculate sums');
         var tableData = this.table.getTableData();
         this.itemsUpdated.emit(tableData);

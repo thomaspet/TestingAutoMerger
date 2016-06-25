@@ -33,7 +33,7 @@
     <address-modal></address-modal>
 
 
-    <quote-item-list [quote]="quote" (ItemsUpdated)="recalcItemSums($event)" (ItemsLoaded)="recalcItemSums($event)"></quote-item-list>    
+    <quote-item-list [quote]="quote" (itemsUpdated)="recalcItemSums($event)" (itemsLoaded)="recalcItemSums($event)"></quote-item-list>    
     <section class="quote-items-summary-placeholder" *ngIf="!itemsSummaryData" aria-busy>
         
     </section>

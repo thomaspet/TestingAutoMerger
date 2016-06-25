@@ -14,6 +14,7 @@ import {QuoteItemList} from './quoteItemList';
 
 import {FieldType, CustomerQuote, Customer} from '../../../../unientities';
 import {Dimensions, Address, BusinessRelation} from '../../../../unientities';
+import {StatusCodeCustomerQuote} from '../../../../unientities';
 
 import {AddressModal} from '../../customer/modals/address/address';
 import {TradeHeaderCalculationSummary} from '../../../../models/sales/TradeHeaderCalculationSummary';
@@ -32,13 +33,13 @@ declare var moment;
         ProjectService, DepartementService, AddressService, ReportDefinitionService]
 })
 export class QuoteDetails {
-    @Input() public QuoteID: any;
+    @Input() public quoteID: any;
     @ViewChild(UniForm) public form: UniForm;
     @ViewChild(AddressModal) public addressModal: AddressModal;
     @ViewChild(PreviewModal) private previewModal: PreviewModal;
 
-    private config: any = {};
-    private fields: any[] = [];
+    public config: any = {};
+    public fields: any[] = [];
 
     private businessRelationInvoice: BusinessRelation = new BusinessRelation();
     private businessRelationShipping: BusinessRelation = new BusinessRelation();
@@ -67,10 +68,10 @@ export class QuoteDetails {
         private router: Router, private params: RouteParams,
         private tabService: TabService) {
 
-        this.QuoteID = params.get('id');
+        this.quoteID = params.get('id');
         this.businessRelationInvoice.Addresses = [];
         this.businessRelationShipping.Addresses = [];
-        this.tabService.addTab({ url: '/sales/quote/details/' + this.QuoteID, name: 'Tilbudsnr. ' + this.QuoteID, active: true, moduleID: 3 });
+        this.tabService.addTab({ url: '/sales/quote/details/' + this.quoteID, name: 'Tilbudsnr. ' + this.quoteID, active: true, moduleID: 3 });
     }
 
 
@@ -78,7 +79,7 @@ export class QuoteDetails {
         alert(err._body);
     }
 
-    private nextQuote() {
+    public nextQuote() {
         this.customerQuoteService.next(this.quote.ID)
             .subscribe((data) => {
                 if (data) {
@@ -92,7 +93,7 @@ export class QuoteDetails {
             );
     }
 
-    private previousQuote() {
+    public previousQuote() {
         this.customerQuoteService.previous(this.quote.ID)
             .subscribe((data) => {
                 if (data) {
@@ -106,7 +107,7 @@ export class QuoteDetails {
             );
     }
 
-    private addQuote() {
+    public addQuote() {
         this.customerQuoteService.newCustomerQuote().then(quote => {
             this.customerQuoteService.Post(quote)
                 .subscribe(
@@ -121,11 +122,11 @@ export class QuoteDetails {
         });
     }
 
-    private isActive(instruction: any[]): boolean {
+    public isActive(instruction: any[]): boolean {
         return this.router.isRouteActive(this.router.generate(instruction));
     }
 
-    private change(value: CustomerQuote) { }
+    public change(value: CustomerQuote) { }
 
     public ready(event) {
         this.form.field('FreeTxt').addClass('max-width', true);
@@ -141,6 +142,10 @@ export class QuoteDetails {
                         this.quote.Customer = customer;
                         this.addAddresses();
                         this.quote.CustomerName = customer.Info.Name;
+
+                        if (customer.CreditDays !== null) {
+                            this.quote.CreditDays = customer.CreditDays;
+                        }
 
                         this.quote = _.cloneDeep(this.quote);
                     });
@@ -158,7 +163,7 @@ export class QuoteDetails {
             });
     }
 
-    private ngOnInit() {
+    public ngOnInit() {
         this.getLayoutAndData();
     }
 
@@ -168,7 +173,7 @@ export class QuoteDetails {
         Observable.forkJoin(
             this.departementService.GetAll(null),
             this.projectService.GetAll(null),
-            this.customerQuoteService.Get(this.QuoteID, ['Dimensions', 'Items', 'Items.Product', 'Items.VatType',
+            this.customerQuoteService.Get(this.quoteID, ['Dimensions', 'Items', 'Items.Product', 'Items.VatType',
                 'Customer', 'Customer.Info', 'Customer.Info.Addresses']),
             this.customerService.GetAll(null, ['Info']),
             this.addressService.GetNewEntity(null, 'address')
@@ -177,7 +182,6 @@ export class QuoteDetails {
             this.quote = response[2];
             this.customers = response[3];
             this.emptyAddress = response[4];
-            //this.emptyAddress = new Address();
 
             // Add a blank item in the dropdown controls
             this.dropdownData[0].unshift(null);
@@ -236,8 +240,8 @@ export class QuoteDetails {
             }
         };
 
-        //var invoiceaddress: UniFieldBuilder = this.formConfig.find('InvoiceAddress');
-        //invoiceaddress
+        // var invoiceaddress: UniFieldBuilder = this.formConfig.find('InvoiceAddress');
+        // invoiceaddress
         //    .setKendoOptions({
         //        dataTextField: 'AddressLine1',
         //        dataValueField: 'ID',
@@ -248,10 +252,10 @@ export class QuoteDetails {
         //    //  .setModelDefaultField('InvoiceAddressID')           
         //    .setPlaceholder(this.EmptyAddress)
         //    .setEditor(AddressModal);
-        //invoiceaddress.onSelect = (address: Address) => {
+        // invoiceaddress.onSelect = (address: Address) => {
         //    this.addressToInvoice(address);
         //    this.businessRelationInvoice.Addresses[0] = address;
-        //};
+        // };
 
         var shippingaddress: UniFieldLayout = this.fields.find(x => x.Property === 'ShippingAddress');
         shippingaddress.Options = {
@@ -278,8 +282,8 @@ export class QuoteDetails {
             }
         };
 
-        //var shippingaddress: UniFieldBuilder = this.formConfig.find('ShippingAddress');
-        //shippingaddress
+        // var shippingaddress: UniFieldBuilder = this.formConfig.find('ShippingAddress');
+        // shippingaddress
         //    .hasLineBreak(true)
         //    .setKendoOptions({
         //        dataTextField: 'AddressLine1',
@@ -291,10 +295,10 @@ export class QuoteDetails {
         //    //    .setModelDefaultField('ShippingAddressID')
         //    .setPlaceholder(this.EmptyAddress)
         //    .setEditor(AddressModal);
-        //shippingaddress.onSelect = (address: Address) => {
+        // shippingaddress.onSelect = (address: Address) => {
         //    this.addressToShipping(address);
         //    this.businessRelationShipping.Addresses[0] = address;
-        //};
+        // };
 
         var customer: UniFieldLayout = this.fields.find(x => x.Property === 'CustomerID');
         customer.Options = {
@@ -322,42 +326,71 @@ export class QuoteDetails {
         });
 
         this.actions.push({
-            label: 'Til register',
+            label: 'Registrer',
             action: (done) => this.saveQuoteTransition(done, 'register'),
-            disabled: false
+            disabled: (this.quote.StatusCode !== StatusCodeCustomerQuote.Draft)
 
         });
-        this.actions.push({
-            label: 'Til shiptocustomer',
-            action: (done) => this.saveQuoteTransition(done, 'shipToCustomer'),
-            disabled: false
-        });
-        this.actions.push({
-            label: 'Til customeraccept',
-            action: (done) => this.saveQuoteTransition(done, 'customerAccept'),
-            disabled: false
-        });
+
+        // TODO: Add a actions for shipToCustomer,customerAccept
 
         this.actions.push({
-            label: 'Til toorder',
+            label: 'Lagre og overfør til ordre',
             action: (done) => this.saveQuoteTransition(done, 'toOrder'),
-            disabled: false
+            disabled: this.IsTransferToOrderDisabled()
 
         });
         this.actions.push({
-            label: 'Til toinvoice',
+            label: 'Lagre og overfør til faktura',
             action: (done) => this.saveQuoteTransition(done, 'toInvoice'),
-            disabled: false
+            disabled: this.IsTransferToInvoiceDisabled()
 
         });
         this.actions.push({
-            label: 'Til tocomplete',
+            label: 'Avslutt tilbud',
             action: (done) => this.saveQuoteTransition(done, 'complete'),
-            disabled: false
+            disabled: this.IsTransferToCompleteDisabled()
 
+        });
+
+        this.actions.push({
+            label: 'Slett',
+            action: (done) => this.deleteQuote(done),
+            disabled: true
         });
     }
 
+    private IsTransferToOrderDisabled() {
+        if (this.quote.StatusCode === StatusCodeCustomerQuote.Registered ||
+            this.quote.StatusCode === StatusCodeCustomerQuote.ShippedToCustomer ||
+            this.quote.StatusCode === StatusCodeCustomerQuote.CustomerAccepted) {
+            return false;
+        }
+        return true;
+    }
+    private IsTransferToInvoiceDisabled() {
+        if (this.quote.StatusCode === StatusCodeCustomerQuote.Registered ||
+            this.quote.StatusCode === StatusCodeCustomerQuote.ShippedToCustomer ||
+            this.quote.StatusCode === StatusCodeCustomerQuote.CustomerAccepted ||
+            this.quote.StatusCode === StatusCodeCustomerQuote.TransferredToOrder) {
+            return false;
+        }
+        return true;
+    }
+    private IsTransferToCompleteDisabled() {
+        if (this.quote.StatusCode === StatusCodeCustomerQuote.Registered ||
+            this.quote.StatusCode === StatusCodeCustomerQuote.ShippedToCustomer ||
+            this.quote.StatusCode === StatusCodeCustomerQuote.CustomerAccepted ||
+            this.quote.StatusCode === StatusCodeCustomerQuote.TransferredToOrder) {
+            return false;
+        }
+        return true;
+    }
+
+    private deleteQuote(done) {
+        alert('Slett  - Under construction');
+        done('Slett tilbud avbrutt');
+    }
 
     private addAddresses() {
         var invoiceaddresses = this.businessRelationInvoice.Addresses ? this.businessRelationInvoice.Addresses : [];
@@ -422,10 +455,10 @@ export class QuoteDetails {
     }
 
 
-    private recalcItemSums(quoteItems: any) {
+    public recalcItemSums(quoteItems: any) {
         this.quote.Items = quoteItems;
 
-        //do recalc after 2 second to avoid to much requests
+        // Do recalc after 2 second to avoid to much requests
         if (this.recalcTimeout) {
             clearTimeout(this.recalcTimeout);
         }
@@ -449,18 +482,20 @@ export class QuoteDetails {
                     this.updateSaveActions();
                 },
                 (err) => {
-                    console.log('Error when recalculating items:', err)
+                    console.log('Error when recalculating items:', err);
                     this.log(err);
                 });
         }, 2000);
-
     }
 
     private saveQuoteManual(done: any) {
-        this.saveQuote();
-        done('Lagret');
-    }
+        this.saveQuote((quote => {
+            done('Lagret');
+        }));
 
+        //this.saveQuote();
+        //done('Lagret');
+    }
 
     private saveQuoteTransition(done: any, transition: string) {
         this.saveQuote((quote) => {
@@ -468,12 +503,13 @@ export class QuoteDetails {
                 console.log('== TRANSITION OK ' + transition + ' ==');
                 done(transition);
 
-                this.customerQuoteService.Get(quote.ID, ['Dimensions', 'Items', 'Items.Product', 'Items.VatType', 'Customer', 'Customer.Info', 'Customer.Info.Addresses']).subscribe((quote) => {
-                    this.quote = quote;
-                    this.updateStatusText();
-                    this.updateSaveActions();
-                    this.ready(null);
-                });
+                this.customerQuoteService.Get(quote.ID, ['Dimensions', 'Items', 'Items.Product', 'Items.VatType',
+                    'Customer', 'Customer.Info', 'Customer.Info.Addresses']).subscribe((data) => {
+                        this.quote = data;
+                        this.updateStatusText();
+                        this.updateSaveActions();
+                        this.ready(null);
+                    });
             }, (err) => {
                 console.log('Feil oppstod ved ' + transition + ' transition', err);
                 done('Feilet');
@@ -529,7 +565,9 @@ export class QuoteDetails {
     }
 
     private isEmptyAddress(address: Address): boolean {
-        if (address == null) return true;
+        if (address == null) {
+            return true;
+        }
         return (address.AddressLine1 == null &&
             address.AddressLine2 == null &&
             address.AddressLine3 == null &&
@@ -565,7 +603,7 @@ export class QuoteDetails {
         return a;
     }
 
-    private addressToInvoice(a: Address) {
+    public addressToInvoice(a: Address) {
         this.quote.InvoiceAddressLine1 = a.AddressLine1;
         this.quote.InvoiceAddressLine2 = a.AddressLine2;
         this.quote.ShippingAddressLine3 = a.AddressLine3;
@@ -575,7 +613,7 @@ export class QuoteDetails {
         this.quote.InvoiceCountryCode = a.CountryCode;
     }
 
-    private addressToShipping(a: Address) {
+    public addressToShipping(a: Address) {
         this.quote.ShippingAddressLine1 = a.AddressLine1;
         this.quote.ShippingAddressLine2 = a.AddressLine2;
         this.quote.ShippingAddressLine3 = a.AddressLine3;

@@ -2,7 +2,9 @@ import {Component, ViewChild, Input, Output, EventEmitter} from '@angular/core';
 import {Observable} from 'rxjs/Observable';
 import 'rxjs/add/observable/forkJoin';
 import {Router} from '@angular/router-deprecated';
+
 import {UniTable, UniTableColumn, UniTableColumnType, UniTableConfig} from 'unitable-ng2/main';
+
 import {ProductService, VatTypeService, CustomerOrderItemService} from '../../../../services/services';
 import {CustomerOrder, CustomerOrderItem, Product, VatType} from '../../../../unientities';
 
@@ -133,7 +135,8 @@ export class OrderItemList {
         let sumVatCol = new UniTableColumn('SumVat', 'Mva', UniTableColumnType.Number, false);
         let sumTotalIncVatCol = new UniTableColumn('SumTotalIncVat', 'Sum ink. mva', UniTableColumnType.Number, false);
 
-        var statusCol = new UniTableColumn('StatusCode', 'Status', UniTableColumnType.Number).setWidth('10%');
+        var statusCol = new UniTableColumn('StatusCode', 'Status', UniTableColumnType.Number, false)
+            .setWidth('10%');
         statusCol.setTemplate((dataItem) => {
             return this.customerOrderItemService.getStatusText(dataItem.StatusCode); 
         });
@@ -188,7 +191,7 @@ export class OrderItemList {
             
     }    
     
-    private rowChanged(event) {
+    public rowChanged(event) {
         console.log('row changed, calculate sums');
         var tableData = this.table.getTableData();
         this.itemsUpdated.emit(tableData);

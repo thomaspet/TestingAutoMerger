@@ -1,11 +1,11 @@
 import {Component, ViewChild} from '@angular/core';
 import {UniTable, UniTableColumn, UniTableColumnType, UniTableConfig, IContextMenuItem} from 'unitable-ng2/main';
 import {Router} from '@angular/router-deprecated';
-import {UniHttp} from '../../../../../framework/core/http/http';
+import {URLSearchParams} from '@angular/http';
+
 import {CustomerQuoteService, ReportDefinitionService} from '../../../../services/services';
 import {CustomerQuote} from '../../../../unientities';
-import {Http, URLSearchParams} from '@angular/http';
-import {AsyncPipe} from '@angular/common';
+
 import {PreviewModal} from '../../../reports/modals/preview/previewModal';
 import {TabService} from '../../../layout/navbar/tabstrip/tabService';
 
@@ -15,15 +15,13 @@ declare var jQuery;
     selector: 'quote-list',
     templateUrl: 'app/components/sales/quote/list/quoteList.html',
     directives: [UniTable, PreviewModal],
-    providers: [CustomerQuoteService, ReportDefinitionService],
-    pipes: [AsyncPipe]
+    providers: [CustomerQuoteService, ReportDefinitionService]
 })
 export class QuoteList {
     @ViewChild(PreviewModal) private previewModal: PreviewModal;
     @ViewChild(UniTable) public table: UniTable;
 
     private quoteTable: UniTableConfig;
-    private selectedquote: CustomerQuote;
     private lookupFunction: (urlParams: URLSearchParams) => any;
 
 
@@ -31,11 +29,12 @@ export class QuoteList {
         private customerQuoteService: CustomerQuoteService,
         private reportDefinitionService: ReportDefinitionService,
         private tabService: TabService) {
-        this.tabService.addTab({ name: "Tilbud", url: "/sales/quote", active: true, moduleID: 3 });
+
+        this.tabService.addTab({ name: 'Tilbud', url: '/sales/quote', active: true, moduleID: 3 });
         this.setupQuoteTable();
     }
 
-    log(err) {
+    private log(err) {
         alert(err._body);
     }
 
@@ -56,10 +55,11 @@ export class QuoteList {
 
     private setupQuoteTable() {
         this.lookupFunction = (urlParams: URLSearchParams) => {
-            let params = urlParams;
+            let params = urlParams || new URLSearchParams();
 
-            if (params == null)
-                params = new URLSearchParams();
+            if (!params.has('orderby')) {
+                params.set('orderby', 'QuoteDate desc');
+            }
 
             return this.customerQuoteService.GetAllByUrlSearchParams(params);
         };
@@ -154,7 +154,6 @@ export class QuoteList {
         // Define columns to use in the table        
         var quoteNumberCol = new UniTableColumn('QuoteNumber', 'Tilbudsnr', UniTableColumnType.Text)
             .setWidth('10%');
-
         var customerNumberCol = new UniTableColumn('Customer.CustomerNumber', 'Kundenr', UniTableColumnType.Text).setWidth('10%');
         var customerNameCol = new UniTableColumn('CustomerName', 'Kunde', UniTableColumnType.Text);
         var quoteDateCol = new UniTableColumn('QuoteDate', 'Tilbudsdato', UniTableColumnType.Date).setWidth('10%');
@@ -176,8 +175,7 @@ export class QuoteList {
             .setContextMenu(contextMenuItems);
     }
 
-    private onRowSelected(event) {
+    public onRowSelected(event) {
         this.router.navigateByUrl('/sales/quote/details/' + event.rowModel.ID);
     };
-
 }

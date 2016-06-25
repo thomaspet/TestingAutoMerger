@@ -1,9 +1,11 @@
 import {Component, ViewChild} from '@angular/core';
 import {UniTable, UniTableColumn, UniTableColumnType, UniTableConfig, IContextMenuItem} from 'unitable-ng2/main';
 import {Router} from '@angular/router-deprecated';
+import {URLSearchParams} from '@angular/http';
+
 import {CustomerOrderService, ReportDefinitionService} from '../../../../services/services';
 import {CustomerOrder} from '../../../../unientities';
-import {URLSearchParams} from '@angular/http';
+
 import {PreviewModal} from '../../../reports/modals/preview/previewModal';
 import {TabService} from '../../../layout/navbar/tabstrip/tabService';
 
@@ -102,7 +104,6 @@ export class OrderList {
         //    }
         // });
 
-
         contextMenuItems.push({
             label: 'Avslutt',
             action: (order: CustomerOrder) => {
@@ -165,7 +166,7 @@ export class OrderList {
             .setContextMenu(contextMenuItems);
     }
 
-    private onRowSelected(event) {
+    public onRowSelected(event) {
         this.router.navigateByUrl(`/sales/order/details/${event.rowModel.ID}`);
     }
 }

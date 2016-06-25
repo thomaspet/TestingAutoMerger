@@ -1,7 +1,8 @@
-import {Component, ViewChild, Input, Output, EventEmitter} from '@angular/core';
+import {Component, ViewChild, Input, Output, EventEmitter, OnInit} from '@angular/core';
 import {Observable} from 'rxjs/Observable';
 import 'rxjs/add/observable/forkJoin';
 import {Router} from '@angular/router-deprecated';
+
 import {UniTable, UniTableColumn, UniTableColumnType, UniTableConfig} from 'unitable-ng2/main';
 
 import {ProductService, VatTypeService, CustomerQuoteItemService} from '../../../../services/services';
@@ -15,11 +16,11 @@ declare var jQuery;
     directives: [UniTable],
     providers: [ProductService, VatTypeService]
 })
-export class QuoteItemList {
+export class QuoteItemList implements OnInit{
     @Input() public quote: CustomerQuote; 
     @ViewChild(UniTable) public table: UniTable;
-    @Output() public ItemsUpdated: EventEmitter<any> = new EventEmitter<any>();
-    @Output() public ItemsLoaded: EventEmitter<any> = new EventEmitter<any>();
+    @Output() public itemsUpdated: EventEmitter<any> = new EventEmitter<any>();
+    @Output() public itemsLoaded: EventEmitter<any> = new EventEmitter<any>();
     
     public quoteItemTable: UniTableConfig;
     
@@ -38,11 +39,11 @@ export class QuoteItemList {
         this.setupQuoteItemTable();
     }
     
-    ngOnChanges() {
+    public ngOnChanges() {
         this.setupQuoteItemTable();        
     }
     
-    setupQuoteItemTable() {
+    private setupQuoteItemTable() {
         if (this.quote) {
             this.items = this.quote.Items;
                         
@@ -56,7 +57,7 @@ export class QuoteItemList {
                     
                     this.setupUniTable();
                     
-                    this.ItemsLoaded.emit(this.items);
+                    this.itemsLoaded.emit(this.items);
                 },
                 (err) => console.log('Error retrieving data: ', err)
             );            
@@ -65,7 +66,9 @@ export class QuoteItemList {
     
     private mapProductToQuoteItem(rowModel) {
         let product = rowModel['Product'];
-        if (product === null) return;
+        if (product === null) {
+            return;
+        }
 
         rowModel.ProductID = product.ID;
         rowModel.ItemText = product.Name;
@@ -93,7 +96,6 @@ export class QuoteItemList {
     }
     
     private setupUniTable() {
-        
         let productCol = new UniTableColumn('Product', 'Produkt', UniTableColumnType.Lookup)
             .setDisplayField('Product.PartName')
             .setEditorOptions({
@@ -148,7 +150,7 @@ export class QuoteItemList {
                 ProductID: null,
                 ItemText: '',
                 Unit: '',
-                Dimensions: {ID:0},
+                Dimensions: {ID: 0},
                 NumberOfItems: null,
                 PriceExVat: null,
                 Discount: null,
@@ -180,9 +182,9 @@ export class QuoteItemList {
             }); 
     }     
     
-    private rowChanged(event) {  
+    public rowChanged(event) {  
         console.log('row changed, calculate sums');        
         var tableData = this.table.getTableData();            
-        this.ItemsUpdated.emit(tableData); 
+        this.itemsUpdated.emit(tableData); 
     }
 }
