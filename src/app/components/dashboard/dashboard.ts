@@ -1,12 +1,21 @@
 import {Component} from '@angular/core';
 import {TabService} from '../layout/navbar/tabstrip/tabService';
+import {ChartDataService} from '../../services/Dashboard/ChartDataService';
 declare var Chart;
 declare var moment;
+
+export interface IChartDataSet {
+    label: string;
+    backgroundColor: string[] | string;
+    borderColor: any; //String or null
+    data: number[];
+}
 
 @Component({
   selector: 'uni-dashboard',
   templateUrl: 'app/components/dashboard/dashboard.html',
 })
+
 export class Dashboard {
 
     public welcomeHidden: boolean = localStorage.getItem('welcomeHidden');
@@ -53,57 +62,35 @@ export class Dashboard {
 
     public ngAfterViewInit() {
 
-        let invoicedChart = document.getElementById('invoicedChart');
-        let iChart = new Chart(invoicedChart, {
-            type: 'bar',
-            data: {
-                labels: ["March", "April", "May", "June"],
-                datasets: [
-                    {
-                        label: 'Fakturert',
-                        backgroundColor: '#7293cb',
-                        borderColor: '#396bb1',
-                        data: [125000, 154000, 235000, 500000]
-                    }
-                ]
-            }
-        });
+        //INVOICED CHART
+        var labels = ["March", "April", "May", "June"];
+        var data: IChartDataSet = {
+            data: [125000, 154000, 235000, 500000],
+            label: 'Fakturert',
+            backgroundColor: ['#7293cb'],
+            borderColor: '#396bb1',
+        }
+        this.chartGenerator('invoicedChart', 'bar', data, labels)
 
-        let operating_chart = document.getElementById('operating_chart');
-        let oChart = new Chart(operating_chart, {
-            type: 'line',
-            data: {
-                labels: ['2013', '2014', '2015', '2016'],
-                datasets: [{
-                    label: 'Driftsresultat',
-                    backgroundColor: '#7293cb',
-                    borderColor: '#396bb1',
-                    data: [2125000, 3154000, 6235000, 4000000]
-                }]
-            }
-        });
-        var labels = ['Kontanter og bankinnskudd', 'Kortsiktige fordringer', 'Anleggsmidler', 'Varelager', 'Andre midler'];
-        var data = {
+        //OPERATING PROFIT/LOSS CHART
+        labels = ['2013', '2014', '2015', '2016'];
+        data = {
+            label: 'Driftsresultat',
+            backgroundColor: '#7293cb',
+            borderColor: '#396bb1',
+            data: [2125000, 3154000, 6235000, 4000000]
+        } 
+        this.chartGenerator('operating_chart', 'line', data, labels)
+
+        //ASSETS CHART
+        labels = ['Kontanter og bankinnskudd', 'Kortsiktige fordringer', 'Anleggsmidler', 'Varelager', 'Andre midler'];
+        data = {
             data: [250000, 350000, 200000, 500000, 410000],
-            backgroundColor: ['#7293cb', '#e1974c', '#84ba5b', '#d35e60', '#808585']
+            label: '',
+            backgroundColor: ['#7293cb', '#e1974c', '#84ba5b', '#d35e60', '#808585'],
+            borderColor: null
         }
         this.chartGenerator('assets_chart', 'pie', data, labels)
-
-        //let assets_chart = document.getElementById('assets_chart');
-        //let aChart = new Chart(assets_chart, {
-        //    type: 'pie',
-            
-        //    data: {
-        //        labels: ['Kontanter og bankinnskudd', 'Kortsiktige fordringer', 'Anleggsmidler', 'Varelager', 'Andre omløpsmidler'],
-        //        datasets: [
-        //            {
-        //                data: [250000, 350000, 200000, 500000, 410000],
-        //                backgroundColor: ['#7293cb', '#e1974c', '#84ba5b', '#d35e60', '#808585'],
-        //                position: 'top'
-        //            }
-        //        ]
-        //    }
-        //})
 
     }
 
@@ -112,8 +99,13 @@ export class Dashboard {
         localStorage.setItem('welcomeHidden', 'true');
     }
 
-    private buildChartData() {
-        //TODO
+    private buildChartData(rawData): IChartDataSet {
+        return {
+            label: 'Driftsresultat',
+            backgroundColor: '#7293cb',
+            borderColor: '#396bb1',
+            data: [2125000, 3154000, 6235000, 4000000]
+        }
     }
 
     private chartGenerator(elementID: string, chartType: string, chartData: any, labels: any[]) {
@@ -125,7 +117,9 @@ export class Dashboard {
                 datasets: [
                     {
                         data: chartData.data,
-                        backgroundColor: chartData.backgroundColor
+                        backgroundColor: chartData.backgroundColor,
+                        label: chartData.label,
+                        borderColor: chartData.borderColor
                     }
                 ]
             }
