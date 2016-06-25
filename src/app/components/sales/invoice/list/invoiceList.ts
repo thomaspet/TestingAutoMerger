@@ -148,7 +148,7 @@ export class InvoiceList implements OnInit {
             action: () => { }
         });
 
-        //Type er FAKTURA
+        // Type er FAKTURA
         contextMenuItems.push({
             label: 'Fakturer',
             action: (rowModel) => {
@@ -170,7 +170,7 @@ export class InvoiceList implements OnInit {
             }
         });
 
-        //Type er KREDITNOTA
+        // Type er KREDITNOTA
         contextMenuItems.push({
             label: 'Krediter kreditnota',
             action: (rowModel) => {
@@ -204,8 +204,8 @@ export class InvoiceList implements OnInit {
                 this.registerPaymentModal.openModal(rowModel.ID, title, invoiceData);
             },
 
-            //TODO: Benytt denne når _links fungerer
-            //disabled: (rowModel) => {
+            // TODO: Benytt denne når _links fungerer
+            // disabled: (rowModel) => {
             //    return !rowModel._links.transitions.pay;
             //    }
 
