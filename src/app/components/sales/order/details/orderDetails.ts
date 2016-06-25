@@ -48,8 +48,6 @@ export class OrderDetails {
     private config: any = {};
     private fields: any[] = [];
 
-    private lastCustomerInfo: BusinessRelation;
-
     private order: CustomerOrderExt;
     private statusText: string;
 
@@ -144,8 +142,10 @@ export class OrderDetails {
             .subscribe((data) => {
                 if (data) {
                     this.customerService.Get(this.order.CustomerID, ['Info', 'Info.Addresses']).subscribe((customer: Customer) => {
+                        let previousAddresses = this.order.Customer ? this.order.Customer.Info.Addresses : null;
                         this.order.Customer = customer;
-                        this.addAddresses();
+                        this.addressService.setAddresses(this.order, previousAddresses);
+                
                         this.order.CustomerName = customer.Info.Name;
 
                         if (customer.CreditDays !== null) {
@@ -185,7 +185,8 @@ export class OrderDetails {
             this.customers.unshift(null);
 
             this.updateStatusText();
-            this.addAddresses();
+            this.addressService.setAddresses(this.order);
+
             this.updateSaveActions();
             this.extendFormConfig();
 
@@ -221,7 +222,7 @@ export class OrderDetails {
             listProperty: '_InvoiceAddresses',
             displayValue: 'AddressLine1',
             linkProperty: 'ID',
-            foreignProperty: '_InvoiceAddresses.InvoiceAddressID',
+            foreignProperty: '_InvoiceAddressesID',
             editor: (value) => new Promise((resolve) => {
                 if (!value) {
                     value = new Address();
@@ -238,6 +239,7 @@ export class OrderDetails {
                 });
             }),
             display: (address: Address) => {
+                if (address == null) { return ''; }
                 let displayVal = address.AddressLine1 + ', ' + address.PostalCode + ' ' + address.City;
                 return displayVal;
             }
@@ -249,7 +251,7 @@ export class OrderDetails {
             listProperty: '_ShippingAddresses',
             displayValue: 'AddressLine1',
             linkProperty: 'ID',
-            foreignProperty: '_ShippingAddresses.ShippingAddressID',
+            foreignProperty: '_ShippingAddressID',
             editor: (value) => new Promise((resolve) => {
                 if (!value) {
                     value = new Address();
@@ -266,6 +268,7 @@ export class OrderDetails {
                 });
             }),
             display: (address: Address) => {
+                if (address == null) { return ''; }
                 let displayVal = address.AddressLine1 + ', ' + address.PostalCode + ' ' + address.City;
                 return displayVal;
             }
@@ -287,7 +290,7 @@ export class OrderDetails {
             this.order.Customer.Info.Addresses.push(address);
             this.businessRelationService.Put(this.order.Customer.Info.ID, this.order.Customer.Info).subscribe((res) => {
                 this.order.Customer.Info = res;
-                this.addAddresses();
+                this.addressService.setAddresses(this.order);
             });
         } else {
             console.log("== SAVE EXISTING ADDRESS ==", address.ID);
@@ -363,68 +366,6 @@ export class OrderDetails {
     private deleteOrder(done) {
         alert('Slett  - Under construction');
         done('Slett ordre avbrutt');
-    }
-
-    private addAddresses() {
-        var invoiceaddresses = this.order._InvoiceAddresses || [];
-        var shippingaddresses = this.order._ShippingAddresses || [];
-        var firstinvoiceaddress = null;
-        var firstshippingaddress = null;
-
-        // remove addresses from last customer
-        if (this.lastCustomerInfo) {
-            this.lastCustomerInfo.Addresses.forEach(a => {
-                invoiceaddresses.forEach((b, i) => {
-                    if (a.ID == b.ID) {
-                        delete invoiceaddresses[i];
-                        return;
-                    }
-                });
-                shippingaddresses.forEach((b, i) => {
-                    if (a.ID == b.ID) {
-                        delete shippingaddresses[i];
-                        return;
-                    }
-                });
-            });
-        }
-
-        // Add address from order if no addresses
-        if (invoiceaddresses.length == 0) {
-            var invoiceaddress = this.invoiceToAddress();
-            if (!this.isEmptyAddress(invoiceaddress)) {
-                firstinvoiceaddress = invoiceaddress;
-            }
-        } else {
-            firstinvoiceaddress = invoiceaddresses.shift();
-        }
-
-        if (shippingaddresses.length == 0) {
-            var shippingaddress = this.shippingToAddress();
-            if (!this.isEmptyAddress(shippingaddress)) {
-                firstshippingaddress = shippingaddress;
-            }
-        } else {
-            firstshippingaddress = shippingaddresses.shift();
-        }
-
-        // Add addresses from current customer
-        if (this.order.Customer) {
-            this.order._InvoiceAddresses = _.cloneDeep(this.order.Customer.Info.Addresses);
-            this.order._ShippingAddresses = _.cloneDeep(this.order.Customer.Info.Addresses);
-            this.lastCustomerInfo = this.order.Customer.Info;
-        }
-
-        if (!this.isEmptyAddress(firstinvoiceaddress)) {
-            this.order._InvoiceAddresses.unshift(firstinvoiceaddress);
-        }
-
-        if (!this.isEmptyAddress(firstshippingaddress)) {
-            this.order._ShippingAddresses.unshift(firstshippingaddress);
-        }
-
-        this.order._InvoiceAddresses = this.order._InvoiceAddresses ? this.order._InvoiceAddresses.concat(invoiceaddresses) : invoiceaddresses;
-        this.order._ShippingAddresses = this.order._ShippingAddresses ? this.order._ShippingAddresses.concat(shippingaddresses) : shippingaddresses;
     }
 
     private recalcItemSums(orderItems: any) {
@@ -515,9 +456,9 @@ export class OrderDetails {
     }
 
     private saveOrder(cb = null) {
-        // Transform addresses
-        this.addressToInvoice(this.order._InvoiceAddress);
-        this.addressToShipping(this.order._ShippingAddress);
+        // Transform addresses to flat
+        this.addressService.addressToInvoice(this.order, this.order._InvoiceAddress);
+        this.addressService.addressToShipping(this.order, this.order._ShippingAddress);
 
         this.order.TaxInclusiveAmount = -1; // TODO in AppFramework, does not save main entity if just items have changed
 
@@ -532,7 +473,7 @@ export class OrderDetails {
                 this.customerOrderService.Get(this.orderID, ['Dimensions', 'Items', 'Items.Product',
                 'Items.VatType', 'Customer', 'Customer.Info', 'Customer.Info.Addresses']).subscribe((order) => {
                     this.order = order;
-                    this.addAddresses();
+                    this.addressService.setAddresses(this.order);
                     this.updateStatusText();
                     this.updateSaveActions();
 
@@ -563,67 +504,6 @@ export class OrderDetails {
                 }
             });
         });
-    }
-
-    private isEmptyAddress(address: Address): boolean {
-        if (address == null) {
-            return true;
-        }
-        return (address.AddressLine1 == null &&
-            address.AddressLine2 == null &&
-            address.AddressLine3 == null &&
-            address.PostalCode == null &&
-            address.City == null &&
-            address.Country == null &&
-            address.CountryCode == null);
-    }
-
-    private invoiceToAddress(): Address {
-        var a = new Address();
-        a.AddressLine1 = this.order.InvoiceAddressLine1;
-        a.AddressLine2 = this.order.InvoiceAddressLine2;
-        a.AddressLine3 = this.order.ShippingAddressLine3;
-        a.PostalCode = this.order.InvoicePostalCode;
-        a.City = this.order.InvoiceCity;
-        a.Country = this.order.InvoiceCountry;
-        a.CountryCode = this.order.InvoiceCountryCode;
-
-        return a;
-    }
-
-    private shippingToAddress(): Address {
-        var a = new Address();
-        a.AddressLine1 = this.order.ShippingAddressLine1;
-        a.AddressLine2 = this.order.ShippingAddressLine2;
-        a.AddressLine3 = this.order.ShippingAddressLine3;
-        a.PostalCode = this.order.ShippingPostalCode;
-        a.City = this.order.ShippingCity;
-        a.Country = this.order.ShippingCountry;
-        a.CountryCode = this.order.ShippingCountryCode;
-
-        return a;
-    }
-
-    private addressToInvoice(a: Address) {
-        a = a || new Address();
-        this.order.InvoiceAddressLine1 = a.AddressLine1;
-        this.order.InvoiceAddressLine2 = a.AddressLine2;
-        this.order.ShippingAddressLine3 = a.AddressLine3;
-        this.order.InvoicePostalCode = a.PostalCode;
-        this.order.InvoiceCity = a.City;
-        this.order.InvoiceCountry = a.Country;
-        this.order.InvoiceCountryCode = a.CountryCode;
-    }
-
-    private addressToShipping(a: Address) {
-        a = a || new Address();
-        this.order.ShippingAddressLine1 = a.AddressLine1;
-        this.order.ShippingAddressLine2 = a.AddressLine2;
-        this.order.ShippingAddressLine3 = a.AddressLine3;
-        this.order.ShippingPostalCode = a.PostalCode;
-        this.order.ShippingCity = a.City;
-        this.order.ShippingCountry = a.Country;
-        this.order.ShippingCountryCode = a.CountryCode;
     }
 
     private getComponentLayout(): any {
