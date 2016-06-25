@@ -260,3 +260,6 @@ src/app/unientities.ts
 
 #remove coverage
 coverage
+
+#dist zip
+dist.zip
