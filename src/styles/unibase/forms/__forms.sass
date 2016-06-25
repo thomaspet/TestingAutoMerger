@@ -3,8 +3,24 @@
 @import 'checkboxes'
 @import 'formSection'
 @import 'fieldset'
+@import 'comboField'
 @import 'select'
 @import 'validation'
 
-uni-form
-    box-sizing: border-box
+uni-form form
+        width: 100%
+        display: flex
+        flex-wrap: wrap
+
+        *
+            box-sizing: border-box
+
+        uni-field
+            @include unigrid(4,2,2)
+            display: inline-block
+            padding-bottom: 1rem
+            border: 2px solid red
+            margin-top: 0
+
+uni-button-input button
+    margin: 1rem 0
