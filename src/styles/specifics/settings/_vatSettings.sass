@@ -1,27 +1,26 @@
-.vatList
-    @include unigrid(12)
-    float: left
+vat-settings
+    .splitview_list
+        min-width: 66%
+        max-width: 66%
 
-.vatDetails
-    @include unigrid(4)
-    float: left
+        @include media(small)
+            width: 100%
 
-.vatDetails label
-    width: 100%
+    .splitview_detail
+        max-width: 33%
+        min-width: 33%
 
-.vatDetails fieldset
-    width: 100%
-    background: inherit
-    margin: 0
-
-
+vattype-details
+    uni-form 
+        label
+            width: 90%
+            float: left
+    
 vattype-details
     uni-checkbox        
         label
             min-height: 0px    
     
-
-
 .is-locked:before
     content: ''
     display: inline-block

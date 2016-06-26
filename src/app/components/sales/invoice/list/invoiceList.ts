@@ -1,50 +1,52 @@
-import {Component, ViewChildren, ViewChild, OnInit} from '@angular/core';
+import {Component, ViewChild, OnInit} from '@angular/core';
 import {UniTable, UniTableColumn, UniTableColumnType, UniTableConfig, IContextMenuItem} from 'unitable-ng2/main';
 import {Router} from '@angular/router-deprecated';
 import {UniHttp} from '../../../../../framework/core/http/http';
-import {CustomerInvoiceService,ReportDefinitionService} from '../../../../services/services';
-import {StatusCodeCustomerInvoice,CustomerInvoice} from '../../../../unientities';
+import {CustomerInvoiceService, ReportDefinitionService} from '../../../../services/services';
+import {StatusCodeCustomerInvoice, CustomerInvoice} from '../../../../unientities';
 import {URLSearchParams} from '@angular/http';
 import {AsyncPipe} from '@angular/common';
 import {InvoicePaymentData} from '../../../../models/sales/InvoicePaymentData';
 import {InvoiceSummary} from '../../../../models/accounting/InvoiceSummary';
 import {RegisterPaymentModal} from '../../../common/modals/registerPaymentModal';
 import {PreviewModal} from '../../../reports/modals/preview/previewModal';
+import {TabService} from '../../../layout/navbar/tabstrip/tabService';
 
 @Component({
     selector: 'invoice-list',
     templateUrl: 'app/components/sales/invoice/list/invoiceList.html',
-    directives: [UniTable,RegisterPaymentModal,PreviewModal],
-    providers: [CustomerInvoiceService,ReportDefinitionService],
+    directives: [UniTable, RegisterPaymentModal, PreviewModal],
+    providers: [CustomerInvoiceService, ReportDefinitionService],
     pipes: [AsyncPipe]
 })
 
 export class InvoiceList implements OnInit {
-    @ViewChildren(UniTable) public table: any;
-
     private invoiceTable: UniTableConfig;
     private lookupFunction: (urlParams: URLSearchParams) => any;
 
     @ViewChild(RegisterPaymentModal)
     private registerPaymentModal: RegisterPaymentModal;
-    
-    @ViewChild(PreviewModal)
-    private previewModal: PreviewModal;
+
+    @ViewChild(PreviewModal) private previewModal: PreviewModal;
+
+    @ViewChild(UniTable) private table: UniTable;
 
     private summaryData: InvoiceSummary;
 
     constructor(private uniHttpService: UniHttp,
-                private router: Router,
-                private customerInvoiceService: CustomerInvoiceService,
-                private reportDefinitionService: ReportDefinitionService) {
+        private router: Router,
+        private customerInvoiceService: CustomerInvoiceService,
+        private reportDefinitionService: ReportDefinitionService,
+        private tabService: TabService) {
 
         this.setupInvoiceTable();
+        this.tabService.addTab({ url: '/sales/invoice/list', name: 'Faktura', active: true, moduleID: 5 });
     }
 
     private log(err) {
         alert(err._body);
     }
-    
+
     public ngOnInit() {
         this.setupInvoiceTable();
         this.onFiltersChange('');
@@ -61,7 +63,7 @@ export class InvoiceList implements OnInit {
                     console.log('Error creating invoice: ', err);
                     this.log(err);
                 }
-            );
+                );
         });
     }
 
@@ -70,7 +72,8 @@ export class InvoiceList implements OnInit {
         this.customerInvoiceService.ActionWithBody(modalData.id, modalData.invoice, 'payInvoice').subscribe((journalEntry) => {
             // TODO: Decide what to do here. Popup message or navigate to journalentry ??
             // this.router.navigateByUrl('/sales/invoice/details/' + invoice.ID);
-            alert('Fakturer er betalt. Bilagsnummer: ' + journalEntry.JournalEntryNumber);
+            alert('Faktura er betalt. Bilagsnummer: ' + journalEntry.JournalEntryNumber);
+            this.table.refreshTableData();
         }, (err) => {
             console.log('Error registering payment: ', err);
             this.log(err);
@@ -85,6 +88,10 @@ export class InvoiceList implements OnInit {
                 params = new URLSearchParams();
             }
 
+            if (params.get('orderby') === null) {
+                params.set('orderby', 'PaymentDueDate');
+            }
+
             return this.customerInvoiceService.GetAllByUrlSearchParams(params);
         };
 
@@ -97,6 +104,7 @@ export class InvoiceList implements OnInit {
             }
         });
 
+        // TODO Foreløpig kun tilgjengelig for type Faktura, ikke for Kreditnota
         contextMenuItems.push({
             label: 'Krediter',
             action: (rowModel) => {
@@ -111,7 +119,10 @@ export class InvoiceList implements OnInit {
                     );
             },
             disabled: (rowModel) => {
-                // Possible to credit only if status = Invoiced || PartlyPaid || Paid
+                if (rowModel.InvoiceType === 1) {
+                    return true;
+                }
+
                 if (rowModel.StatusCode === StatusCodeCustomerInvoice.Invoiced ||
                     rowModel.StatusCode === StatusCodeCustomerInvoice.PartlyPaid ||
                     rowModel.StatusCode === StatusCodeCustomerInvoice.Paid) {
@@ -134,28 +145,48 @@ export class InvoiceList implements OnInit {
 
         contextMenuItems.push({
             label: '-------------',
-            action: () => {}
+            action: () => { }
         });
 
+        // Type er FAKTURA
         contextMenuItems.push({
             label: 'Fakturer',
             action: (rowModel) => {
-                alert('Fakturer action');
-
                 this.customerInvoiceService.Transition(rowModel.ID, rowModel, 'invoice').subscribe(() => {
                     console.log('== Invoice TRANSITION OK ==');
                     alert('Fakturert OK');
-
-                    // this.table.refresh(); //TODO Refresh and collect data. Not yet implemented fot uniTable
+                    this.table.refreshTableData();
                 }, (err) => {
                     console.log('Error fakturerer: ', err);
                     this.log(err);
                 });
             },
             disabled: (rowModel) => {
-                if (rowModel.TaxInclusiveAmount === 0) {
+                if (rowModel.TaxInclusiveAmount === 0 || rowModel.InvoiceType === 1) {
                     // Must have saved at minimum 1 item related to the invoice 
-                    return true; 
+                    return true;
+                }
+                return !rowModel._links.transitions.invoice;
+            }
+        });
+
+        // Type er KREDITNOTA
+        contextMenuItems.push({
+            label: 'Krediter kreditnota',
+            action: (rowModel) => {
+                this.customerInvoiceService.Transition(rowModel.ID, rowModel, 'invoice').subscribe(() => {
+                    console.log('== kreditnota Kreditert OK ==');
+                    alert('Kreditnota kreditert  OK');
+                    this.table.refreshTableData();
+                }, (err) => {
+                    console.log('Error fakturerer: ', err);
+                    this.log(err);
+                });
+            },
+            disabled: (rowModel) => {
+                if (rowModel.TaxInclusiveAmount === 0 || rowModel.InvoiceType === 0) {
+                    // Must have saved at minimum 1 item related to the invoice 
+                    return true;
                 }
                 return !rowModel._links.transitions.invoice;
             }
@@ -172,9 +203,25 @@ export class InvoiceList implements OnInit {
 
                 this.registerPaymentModal.openModal(rowModel.ID, title, invoiceData);
             },
+
+            // TODO: Benytt denne når _links fungerer
+            // disabled: (rowModel) => {
+            //    return !rowModel._links.transitions.pay;
+            //    }
+
             disabled: (rowModel) => {
-                return !rowModel._links.transitions.pay;
+                if (rowModel.StatusCode === StatusCodeCustomerInvoice.Invoiced ||
+                    rowModel.StatusCode === StatusCodeCustomerInvoice.PartlyPaid) {
+                    return false;
+                } else {
+                    return true;
+                }
             }
+        });
+
+        contextMenuItems.push({
+            label: '-------------',
+            action: () => { }
         });
 
         contextMenuItems.push({
@@ -182,9 +229,9 @@ export class InvoiceList implements OnInit {
             action: (invoice: CustomerInvoice) => {
                 this.reportDefinitionService.getReportByName('Faktura Uten Giro').subscribe((report) => {
                     if (report) {
-                        this.previewModal.openWithId(report, invoice.ID);    
-                        //report.parameters = [{Name: 'Id', value: invoice.ID}]; // TEST DOWNLOAD
-                        //this.reportDefinitionService.generateReportPdf(report);                                        
+                        this.previewModal.openWithId(report, invoice.ID);
+                        // report.parameters = [{Name: 'Id', value: invoice.ID}]; // TEST DOWNLOAD
+                        // this.reportDefinitionService.generateReportPdf(report);                                        
                     }
                 });
             }
@@ -230,19 +277,19 @@ export class InvoiceList implements OnInit {
             .setColumns([invoiceNumberCol, customerNumberCol, customerNameCol, invoiceDateCol, dueDateCol,
                 taxInclusiveAmountCol, restAmountCol, creditedAmountCol, statusCol])
             .setContextMenu(contextMenuItems);
-    }  
-    
-    private onRowSelected(item) {
+    }
+
+    public onRowSelected(item) {
         this.router.navigateByUrl(`/sales/invoice/details/${item.ID}`);
     }
-    
-    public onFiltersChange(filter: string) {        
+
+    public onFiltersChange(filter: string) {
         this.customerInvoiceService
             .getInvoiceSummary(filter)
             .subscribe((summary) => {
                 this.summaryData = summary;
             },
-            (err) => { 
+            (err) => {
                 console.log('Error retrieving summarydata:', err);
                 this.summaryData = null;
             });

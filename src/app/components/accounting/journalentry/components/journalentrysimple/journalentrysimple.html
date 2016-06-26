@@ -6,7 +6,8 @@
         (created)="newLineCreated($event)"
         *ngIf="dropdownData !== null"
         [journalEntryLines]="journalEntryLines"
-        [mode]="mode">
+        [mode]="mode"
+        [disabled]="disabled">
     </journal-entry-simple-form>
 
     <section *ngIf="dropdownData === null"
@@ -76,7 +77,8 @@
                             (updated)="editViewUpdated($event)"
                             (aborted)="abortEdit()"
                             [journalEntryLines]="journalEntryLines"
-                            [mode]="mode">
+                            [mode]="mode"
+                            [disabled]="disabled">
                         </journal-entry-simple-form>
                		</td>
                 </tr>

@@ -8,39 +8,24 @@ import {ValidatorsComposer} from './composers/validatorsComposer';
 
 declare var _; // lodash
 
-var VALID_CONTROLS = CONTROLS.filter((x, i) => {
-    return (
-        i === 0
-        || i === 2
-        || i === 3
-        || i === 4
-        || i === 5
-        || i === 6
-        || i === 7
-        || i === 8
-        || i === 9
-        || i === 10      
-        || i === 11
-        || i === 12
-        || i === 13
-        || i === 14
-        || i === 15
-        || i === 16
-    );
-});
 @Component({
     selector: 'uni-field',
+    host: {
+        '[class.-has-linebreak]': 'hasLineBreak()'
+    },
     template: `
         <label 
             [class.error]="hasError()" 
             [class]="buildClassString()" 
-            [class.-has-linebreak]="hasLineBreak()"
             [hidden]="Hidden">
-            <span>{{field?.Label}}</span>
+            <span [hidden]="!isInput(field?.FieldType)">{{field?.Label}}</span>
 
             <uni-autocomplete-input #selectedComponent *ngIf="field?.FieldType === 0 && control" 
                 [control]="control" [field]="field" [model]="model" (onReady)="onReadyHandler($event)" (onChange)="onChangeHandler($event)"
             ></uni-autocomplete-input>
+            <uni-button-input #selectedComponent *ngIf="field?.FieldType === 1 && control" 
+                [control]="control" [field]="field" [model]="model" (onReady)="onReadyHandler($event)" (onChange)="onChangeHandler($event)"
+            ></uni-button-input>
             <uni-date-input #selectedComponent *ngIf="field?.FieldType === 2 && control" 
                 [control]="control" [field]="field" [model]="model" (onReady)="onReadyHandler($event)" (onChange)="onChangeHandler($event)"
             ></uni-date-input>
@@ -91,7 +76,7 @@ var VALID_CONTROLS = CONTROLS.filter((x, i) => {
         </label>
     `,
     changeDetection: ChangeDetectionStrategy.OnPush,
-    directives: [FORM_DIRECTIVES, VALID_CONTROLS, ShowError],
+    directives: [FORM_DIRECTIVES, CONTROLS, ShowError],
     providers: [FORM_PROVIDERS],
 })
 export class UniField {    
@@ -193,7 +178,6 @@ export class UniField {
     }
     
     private buildClassString() {
-        // TODO: add classess
         var classes = [];
         var cls = this.classes;
         for (var cl in cls) {
@@ -213,6 +197,11 @@ export class UniField {
     }
     private hasLineBreak() {
         return this.field.LineBreak;
+    }
+
+    private isInput(type) {
+        const notInputs = [1, 5, 7];
+        return notInputs.indexOf(type) === -1;
     }
 }
 

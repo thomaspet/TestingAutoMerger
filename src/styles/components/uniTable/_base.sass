@@ -1,0 +1,64 @@
+uni-table
+    display: inline-block
+    box-sizing: border-box
+    width: 100%
+
+    *
+        box-sizing: border-box
+
+    table
+        width: 100%
+        border-collapse: collapse
+        position: relative
+        table-layout: fixed;
+
+    input
+        border: 0
+        margin: 0
+
+    th
+        text-align: left
+        cursor: pointer
+
+    td:focus
+        outline: none
+
+    .select-column
+        overflow: visible
+        text-overflow: clip
+        width: pxToRem(32)
+
+unitable-editor
+    width: 0
+    height: 0
+
+    span
+        margin: 0
+        padding: 0
+        position: absolute
+
+        input,
+        unitable-textinput
+            z-index: 100
+            position: absolute
+
+            width: 100%
+            height: 100%
+
+            &:focus
+                outline: none
+
+unitable-editor span.hidden
+    display: none
+
+
+.table-button
+    background: none
+    border: none
+    padding: 0
+    cursor: pointer
+    box-shadow: none
+    line-height: 0
+    margin: 0
+
+

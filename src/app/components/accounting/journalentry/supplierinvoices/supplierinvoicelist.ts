@@ -24,6 +24,7 @@ export class SupplierInvoiceList implements OnInit {
     private lookupFunction: (urlParams: URLSearchParams) => Observable<any>;
 
     private DATE_FORMAT: string = 'DD.MM.YYYY';
+    private errors;
 
     @ViewChild(RegisterPaymentModal)
     private registerPaymentModal: RegisterPaymentModal;
@@ -35,6 +36,17 @@ export class SupplierInvoiceList implements OnInit {
         private supplierInvoiceService: SupplierInvoiceService,
         private router: Router
     ) {}
+    
+    private setError(error) {
+        console.log("== ERROR ==", error);
+        var messages = error._body ? JSON.parse(error._body) : error;
+        if (messages) {
+            this.errors = messages.Messages ? messages.Messages : [messages];
+            setInterval(() => {
+                this.errors = null;
+            }, 5000);            
+        }
+    }
 
     public ngOnInit() {
         this.supplierInvoiceTableCfg = this.setupTableCfg();
@@ -58,7 +70,9 @@ export class SupplierInvoiceList implements OnInit {
     public onRegisteredPayment(modalData: any) {
         this.supplierInvoiceService
             .payinvoice(modalData.id, modalData.invoice)
-            .subscribe(() => alert('Invoice payment registered successfully'), error => alert(`An error occurred: ${error}`));
+            .subscribe(() => alert('Invoice payment registered successfully'), (error) => {
+                this.setError(error);
+            });
     }
 
     private setupTableCfg(): UniTableConfig {
@@ -149,9 +163,9 @@ export class SupplierInvoiceList implements OnInit {
                     disabled: supplierInvoice => !supplierInvoice._links.actions.journal
                 },
                 {
-                    label: 'Registerer betaling',
+                    label: 'Registere betaling',
                     action: supplierInvoice => {
-                        const title = `Register betaling, Faktura ${supplierInvoice.InvoiceNumber || ''}, ${supplierInvoice.InvoiceRecieverName || ''}`;
+                        const title = `Register betaling${supplierInvoice.InvoiceNumber ? ', Faktura ' + supplierInvoice.InvoiceNumber : ''}${supplierInvoice.InvoiceRecieverName ? ', ' + supplierInvoice.InvoiceRecieverName : ''}`;
                         const invoiceData: InvoicePaymentData = {
                             Amount: supplierInvoice.TaxInclusiveAmount,
                             PaymentDate: new Date()

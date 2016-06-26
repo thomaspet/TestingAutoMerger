@@ -1,0 +1,103 @@
+// What color should our placeholder text be?
+$uni-placeholder-text-color: $uni-color-scale5
+
+// This helper mixin provide color variants for error,
+// warning and success states of our inputs
+@mixin uniTextInputVariants($color)
+    border-color: $color
+    background: transparentize($color, .9)
+
+    &:focus
+        border-color: $color
+        box-shadow: 0 0 pxToRem(5) transparentize($color, .5)
+
+    &[disabled]
+        background: transparentize($uni-color-scale9, .4)
+
+// Styling all our text-based inputs. Should you need to style something as a
+// text input, you should probably consider either putting it in here, or
+// @extend input[type=text].
+input[type=email],
+input[type=number],
+input[type=password],
+input[type=search],
+input[type=tel],
+input[type=text],
+input[type=url],
+input[type=color],
+input[type=date],
+input[type=datetime],
+input[type=datetime-local],
+input[type=month],
+input[type=time],
+input[type=week],
+input,
+.k-input
+    display: inline-block
+    height: 1.6rem
+    padding: pxToRem(3) pxToRem(5)
+    background-color: #fff
+    background-image: none
+    border: pxToRem(1) solid $uni-color-scale7
+    border-radius: pxToRem(3)
+    transition: box-shadow .3s ease
+    overflow: hidden
+    text-overflow: ellipsis
+
+    &:focus
+        outline: none
+        border-color: $uni-color-C2A
+
+    &[disabled],
+    &[readonly]
+        background-color: mix($uni-color-scale9, $uni-color-negative, 50%)
+        cursor: normal
+        border-radius: pxToRem(3)
+        border-right: pxToRem(1) solid $uni-color-scale7
+
+    &[required]
+        box-shadow: 0 0 0 pxToRem(1) $uni-color-negative, 0 0 0 pxToRem(2) $uni-color-scale9
+
+    &::-webkit-input-placeholder
+        color: $uni-placeholder-text-color
+
+    &:-moz-placeholder
+        color: $uni-placeholder-text-color
+
+    &::-moz-placeholder
+        color: $uni-placeholder-text-color
+
+    &:-ms-input-placeholder
+        color: $uni-placeholder-text-color
+
+    &:placeholder
+        color: $uni-placeholder-text-color
+
+
+    &.success
+        @include uniTextInputVariants($uni-color-Good)
+
+    &.warning
+        @include uniTextInputVariants($uni-color-Warn)
+
+    &.error
+        @include uniTextInputVariants($uni-color-Bad)
+
+// Some extra styling for search inputs
+input[type=search]
+    background-image: unicon-search($uni-color-scale8)
+    background-repeat: no-repeat
+    background-position: center right .5rem
+    background-size: 1rem
+    box-sizing: content-box
+    padding-right: 2rem
+
+textarea
+    @extend input
+    width: 100%
+    min-height: 5rem
+
+    &[readonly]
+        font-weight: 400
+        border: none
+        background: mix($uni-color-negative, $uni-color-scale9, 50%)

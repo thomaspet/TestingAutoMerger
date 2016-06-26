@@ -1,9 +1,7 @@
-import {Component, Input, Output, ElementRef, EventEmitter, ChangeDetectionStrategy, ChangeDetectorRef, ViewChild} from '@angular/core';
+import {Component, Input, Output, ElementRef, EventEmitter, ChangeDetectorRef, ViewChild, Renderer, HostListener} from '@angular/core';
 import {Control} from '@angular/common';
 import {UniFieldLayout} from '../interfaces';
-import {UniComponentLoader} from '../../core/componentLoader';
-
-declare var _, jQuery; // jquery and lodash
+declare var _; // lodash
 
 @Component({
     selector: 'uni-multivalue-input',
@@ -11,7 +9,7 @@ declare var _, jQuery; // jquery and lodash
         <section class="uni-multivalue-ng">
             <input type="text" [(ngModel)]="currentValue" [readonly]="field?.ReadOnly" [disabled]="field?.Options?.editor" [placeholder]="field?.Placeholder || ''"  (click)="showDropdown($event)">
             
-            <button class="uni-multivalue-moreBtn" (click)="showDropdown($event)">Ny</button>
+            <button #openbtn class="uni-multivalue-moreBtn" (click)="showDropdown($event)">Ny</button>
  
             <ul class="uni-multivalue-values" [class.-is-active]="listIsVisible">
                 <template ngFor let-row [ngForOf]="rows" let-i = "index">
@@ -74,7 +72,9 @@ export class UniMultivalueInput {
     
     @Output()
     public onChange: EventEmitter<any> = new EventEmitter<any>(true);
-   
+
+    @ViewChild('openbtn')
+    private inputElement: ElementRef;
    
     private listIsVisible: boolean = false;
     private currentValue: string = '';
@@ -82,21 +82,12 @@ export class UniMultivalueInput {
     private rows: any[] = [];
     private defaultRow: any;
     
-    constructor(public el: ElementRef, private cd: ChangeDetectorRef) {
-        var self = this;                                     
-        document.addEventListener('click', function (event) {
-            var $el = jQuery(el.nativeElement);
-            if (!jQuery(event.target).closest($el).length) {
-                self.listIsVisible = false;
-            }
-        });
+    constructor(public renderer: Renderer, public el: ElementRef, private cd: ChangeDetectorRef) {
+
     }
 
     public focus() {
-        jQuery(this.el.nativeElement)
-            .find('input')
-            .first()
-            .focus();
+        this.renderer.invokeElementMethod(this.inputElement.nativeElement, 'focus', []);
         this.cd.markForCheck();
         return this;
     }
@@ -142,11 +133,23 @@ export class UniMultivalueInput {
     public ngAfterViewInit() {
         this.onReady.emit(this);
     }
-    
+
+    @HostListener('click', ['$event'])
+    private onClick(event) {
+        event.stopPropagation();
+    }
+
+    @HostListener('document:click')
+    private offClick() {
+        this.listIsVisible = false;
+    }
+
     private showDropdown(event) {
         event.preventDefault();
         event.stopPropagation();
-        this.listIsVisible = !this.listIsVisible;
+        if (document.activeElement === event.target) {
+            this.listIsVisible = !this.listIsVisible;
+        }
     }
     
     private isSelected(row) {
@@ -241,7 +244,9 @@ export class UniMultivalueInput {
         } else {
             this.tempValue = this.showDisplayValue(row);
             row.mode = 1;
-            setTimeout(() => jQuery($event.path[2].children[0]).focus(), 200);
+            setTimeout(() => {
+                this.renderer.invokeElementMethod($event.path[2].children[0], 'focus', [])
+            }, 200);
             this.listIsVisible = true;
         }
     }

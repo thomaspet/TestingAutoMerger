@@ -1,75 +1,34 @@
-.formSection
+.collapsable[hidden]
+    display: none
+
+.collapsable
+    @include clearfix
     width: 100%
-    display: flex
-    flex-wrap: wrap
+    display: inline-block
 
-    %label
-        @include unigrid(2, 2)
-        margin: 1rem 0
-
-    label
-        @extend %label
-
-        input
-            width: 100%
-
-        &.half
-            @include unigrid(1, 1)
-
-        &.double
-            @include unigrid(4, 4)
-
-    fieldset
-        @extend %label
-        background: mix($uni-color-negative, $uni-color-scale9, 70%)
-        border-radius: .3rem
-        padding: .5rem 0 1rem
-
-        &.unmarked
-            background: transparent
-
-            label
-                margin: 0
-
-        legend
-            background: $uni-color-negative
-            padding-right: .5rem
-            border-radius: pxToRem(3)
-
-        label
-            width: calc(100% - 2.1rem)
-            margin: 0 1rem
-            display: inline-block
-
-            &.half
-                width: calc(50% - 2.1rem)
-
-.formSection-collapsable
-    clear: both
-
-    h4
-        color: $uni-color-scale5
-        font-size: 1rem
-        text-transform: uppercase
-        padding-top: 1rem
-        padding-bottom: .2rem
-        border-bottom: .2rem solid $uni-color-scale9
+    & > h4
+        @include clearfix
+        margin-top: 2.5rem
+        margin-bottom: 1rem
+        border-bottom: pxToRem(1) solid $uni-color-scale7
+        padding-left: 1.5rem
+        background: unicon-chevron-right($uni-color-scale2) no-repeat left .2rem bottom .4rem
+        background-size: .3rem
+        font-weight: 400
+        color: $uni-color-scale2
         cursor: pointer
 
-        &:before
-            content: '\25BA'
-            display: inline-block
-            margin-right: 1rem
-            color: $uni-color-scale6
+    & > .collapsable-content
+        display: none
 
     &.-is-open
-        h4:before
-            content: '\25BC'
+        & > h4
+            background: unicon-chevron-down($uni-color-scale2) no-repeat left .2rem bottom .65rem
+            background-size: .5rem
 
-        & > h4 + .collapsable-content
-            @include clearfix
+        & > .collapsable-content
             display: block
 
-    & > h4 + .collapsable-content
-        display: none
-        padding-top: 1rem
+        .collapsable
+            margin: 0 1rem
+            width: calc(100% - 2rem)

@@ -1,7 +1,6 @@
 import {Component} from '@angular/core';
 import {RouteConfig, RouteDefinition, ROUTER_DIRECTIVES, Router, AsyncRoute} from '@angular/router-deprecated';
 
-import {TabService} from '../../layout/navbar/tabstrip/tabService';
 import {UniTabs} from '../../layout/uniTabs/uniTabs';
 
 import {ComponentProxy} from '../../../../framework/core/componentProxy';
@@ -11,12 +10,12 @@ const ORDER_ROUTES = [
         useAsDefault: true,
         path: '/list',
         name: 'OrderList',
-        loader: () => ComponentProxy.LoadComponentAsync('OrderList','app/components/sales/order/list/orderList')
+        loader: () => ComponentProxy.LoadComponentAsync('OrderList', 'app/components/sales/order/list/orderList')
     }),    
     new AsyncRoute({
         path: '/details/:id',
         name: 'OrderDetails',
-        loader: () => ComponentProxy.LoadComponentAsync('OrderDetails','app/components/sales/order/details/orderDetails')
+        loader: () => ComponentProxy.LoadComponentAsync('OrderDetails', 'app/components/sales/order/details/orderDetails')
     })    
 ];
 
@@ -28,10 +27,9 @@ const ORDER_ROUTES = [
 @RouteConfig(ORDER_ROUTES)
 export class Order {
 
-    childRoutes: RouteDefinition[];
+    private childRoutes: RouteDefinition[];
 
-    constructor(public router: Router, private tabService: TabService) {
-        this.tabService.addTab({name: 'Ordre', url: '/sales/order'});
-        this.childRoutes = ORDER_ROUTES;//.slice(0, ORDER_ROUTES.length - 1);
+    constructor(public router: Router) {
+        this.childRoutes = ORDER_ROUTES; // .slice(0, ORDER_ROUTES.length - 1);
     }
 }

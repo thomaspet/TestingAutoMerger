@@ -60,8 +60,8 @@ export class RegisterTime implements CanDeactivate {
             { label: 'Lagre', action: (done) => this.save(done), main: true, disabled: true }
         ];            
 
-    constructor(private tabService: TabService, private workerService:WorkerService, private timesheetService: TimesheetService) {
-        this.tabService.addTab({ name: view.label, url: view.route });
+    constructor(private tabService: TabService, private workerService: WorkerService, private timesheetService: TimesheetService) {
+        this.tabService.addTab({ name: view.label, url: view.route, moduleID: 18, active: true });
         this.userName = workerService.user.name;
         this.tableConfig = this.createTableConfig();
         this.currentFilter = this.filters[0];

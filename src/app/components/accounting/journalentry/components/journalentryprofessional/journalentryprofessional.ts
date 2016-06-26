@@ -19,6 +19,7 @@ import {JournalEntryData} from '../../../../../models/models';
 export class JournalEntryProfessional {    
     @Input() public supplierInvoice: SupplierInvoice;
     @Input() public runAsSubComponent : boolean = false;
+    @Input() public disabled : boolean = false;
     
     @ViewChild(UniTable) table: UniTable;   
     journalEntryTable: UniTableConfig;

@@ -1,204 +1,462 @@
-import {Component, provide, Input, ViewChild, Output, EventEmitter, SimpleChange} from "@angular/core";
-import {Observable} from "rxjs/Observable";
-import "rxjs/add/observable/forkJoin";
+import {Component, provide, Input, ViewChild, Output, EventEmitter, SimpleChange} from '@angular/core';
+import {Observable} from 'rxjs/Observable';
+import 'rxjs/add/observable/forkJoin';
 
+import {FieldType} from '../../../../unientities';
+import {UniForm, UniFieldLayout} from '../../../../../framework/uniform';
 
-import {UNI_CONTROL_DIRECTIVES} from "../../../../../framework/controls";
-import {FieldType} from "../../../../unientities";
-import {UniForm, UniFormBuilder, UniFieldsetBuilder, UniFieldBuilder} from "../../../../../framework/forms";
-import {UniComboFieldBuilder} from "../../../../../framework/forms/builders/uniComboFieldBuilder";
+import {DimensionList} from '../dimensionList/dimensionList';
+import {AccountGroupList} from '../accountGroupList/accountGroupList';
 
-import {DimensionList} from "../dimensionList/dimensionList";
-import {AccountGroupList} from "../accountGroupList/accountGroupList";
-
-import {Account} from "../../../../unientities";
-import {VatTypeService, CurrencyService, AccountService} from "../../../../services/services";
+import {Account, Currency, VatType} from '../../../../unientities';
+import {VatTypeService, CurrencyService, AccountService} from '../../../../services/services';
 
 @Component({
-    selector: "account-details",
-    templateUrl: "app/components/settings/accountSettings/accountDetails/accountDetails.html",
+    selector: 'account-details',
+    templateUrl: 'app/components/settings/accountSettings/accountDetails/accountDetails.html',
     directives: [DimensionList, AccountGroupList, UniForm],
     providers: [AccountService, CurrencyService, VatTypeService]
 })
 export class AccountDetails {
-    @Input() account;
-    @Output() uniSaved = new EventEmitter<Account>();
-    @ViewChild(UniForm) form: UniForm;
-    config: any;
-    model: Account = null;
-    currencies: Array<any> = [];
-    vattypes: Array<any> = [];
-
+    @Input() public accountID: number;
+    @Output() public accountSaved: EventEmitter<Account> = new EventEmitter<Account>();
+    @Output() public onChange: EventEmitter<Account> = new EventEmitter<Account>();
+    @ViewChild(UniForm) private form: UniForm;
+    
+    private account: Account = null;
+    private currencies: Array<any> = [];
+    private vattypes: Array<any> = [];
+    private config: any = {};
+    private fields: any[] = [];
+    
     constructor(private accountService: AccountService, private currencyService: CurrencyService, private vatTypeService: VatTypeService) {
     }
    
-    ngOnInit() {
-
-        //if (this.account != null && this.account > 0) {            
-        //}
-
-        Observable.forkJoin(
-                this.currencyService.GetAll(null),
-                this.vatTypeService.GetAll(null)   
-            ).subscribe(
-                    (dataset) => {
-                        this.currencies = dataset[0];
-                        this.vattypes = dataset[1];                        
-                        this.buildForm();                        
-                    },
-                    (error) => console.log(error)
-                );
+    public ngOnInit() {
+        this.getLayoutAndData();
     }
 
-
-    ngOnChanges(changes: {[propName: string]: SimpleChange}) {
-        if (changes['account'].currentValue == '0')
-            return;
-        
-        this.update();        
-    }
-    
-    update() {        
-        var self = this;        
-        this.accountService
-            .Get(this.account, ['Alias','Currency','AccountGroup','Dimensions','Dimensions.Project','Dimensions.Region','Dimensions.Responsible','Dimensions.Departement'])            
-            .subscribe(
-                (dataset) => {
-                    self.model = dataset;
+    private getLayoutAndData() {        
+        this.fields = this.getComponentLayout().Fields;
                     
-                    setTimeout(() => {
-                        if (self.form != null)
-                            self.form.Model = self.model;
-                    });                    
+        Observable.forkJoin(
+            this.currencyService.GetAll(null),
+            this.vatTypeService.GetAll(null)   
+         ).subscribe(
+                (dataset) => {
+                    this.currencies = dataset[0];
+                    this.vattypes = dataset[1];
+                    
+                    this.extendFormConfig();                           
                 },
                 (error) => console.log(error)
-            )
+            );
+    }
+
+    public ngOnChanges(changes: {[propName: string]: SimpleChange}) {
+        if (changes['accountID'].currentValue === '0') {
+            return;
+        }
+        
+        this.getData();        
     }
     
-    buildForm() {
-        var fb = new UniFormBuilder();
-
-        //
-        // main fields
-        //
-
-        var accountNumber = new UniFieldBuilder();
-        accountNumber.setLabel("Kontonr./navn")
-            .setModel(this.model)
-            .setModelField("AccountNumber")
-            .setType(UNI_CONTROL_DIRECTIVES[FieldType.TEXT]);
-
-        var accountName = new UniFieldBuilder();        
-        accountName.setModel(this.model)
-            .setModelField("AccountName")
-            .addClass('small-combo-field')
-            .setType(UNI_CONTROL_DIRECTIVES[FieldType.TEXT]);
-
-        var accountCombo = new UniComboFieldBuilder();
-        accountCombo.addClass("combo");
-        accountCombo.addUniElements(accountNumber, accountName);
-
-        var accountAlias = new UniFieldBuilder();
-        accountAlias.setLabel("Alias")
-            .setModel(this.model)
-            .setModelField("alias")
-            .setType(UNI_CONTROL_DIRECTIVES[FieldType.TEXT]);
-
-        var currency = new UniFieldBuilder();
-        currency.setLabel("Valuta")
-            .setModel(this.model)
-            .setModelField("CurrencyID")
-            .setType(UNI_CONTROL_DIRECTIVES[FieldType.DROPDOWN])
-            .setKendoOptions({dataSource: this.currencies, dataValueField: "ID", dataTextField: "Code"});
-
-        var vatType = new UniFieldBuilder();
-        vatType.setLabel("Moms")
-            .setModel(this.model)
-            .setModelField("vattype")
-            .setType(UNI_CONTROL_DIRECTIVES[FieldType.DROPDOWN])
-            .setKendoOptions({dataSource: this.vattypes, dataValueField: "ID", dataTextField: "Name"});
-
-        var numSerie = new UniFieldBuilder();
-        numSerie.setLabel("Nummerserie")
-            .setModelField("SubAccountNumberSeriesID")
-            .setType(UNI_CONTROL_DIRECTIVES[FieldType.HYPERLINK])
-            .setDescription("kunder")
-            .setUrl("http://localhost/customer");
-
-        fb.addUniElements(accountCombo, accountAlias, currency, vatType, numSerie);
-
-        //
-        // checkbox settings
-        //
-
-        var checkSystemAccount = new UniFieldBuilder();
-        checkSystemAccount.setLabel("Systemkonto")
-            .setModel(this.model)
-            .setModelField("SystemAccount")
-            .setType(UNI_CONTROL_DIRECTIVES[FieldType.CHECKBOX]);
-
-        var checkPostPost = new UniFieldBuilder();
-        checkPostPost.setLabel("PostPost")
-            .setModel(this.model)
-            .setModelField("UsePostPost")
-            .setType(UNI_CONTROL_DIRECTIVES[FieldType.CHECKBOX]);
-
-        var checkDeductionPercent = new UniFieldBuilder();
-        checkDeductionPercent.setLabel("Forholdsvismoms")
-            .setModel(this.model)
-            .setModelField("UseDeductionPercent")
-            .setType(UNI_CONTROL_DIRECTIVES[FieldType.CHECKBOX]);
-
-        var checkLockManualPosts = new UniFieldBuilder();
-        checkLockManualPosts.setLabel("Sperre manuelle poster") 
-            .setModel(this.model)
-            .setModelField("LockManualPosts")
-            .setType(UNI_CONTROL_DIRECTIVES[FieldType.CHECKBOX]);
-
-        var checkLocked = new UniFieldBuilder();
-        checkLocked.setLabel("Sperret")
-            .setModel(this.model)
-            .setModelField("Locked")
-            .setType(UNI_CONTROL_DIRECTIVES[FieldType.CHECKBOX]);
-
-        var checkVisible = new UniFieldBuilder();
-        checkVisible.setLabel("Synlig")
-            .setModel(this.model)
-            .setModelField("Visible")
-            .setType(UNI_CONTROL_DIRECTIVES[FieldType.CHECKBOX]);
-
-        var systemSet = new UniFieldsetBuilder();
-        systemSet.addUniElements(checkSystemAccount, checkPostPost, checkDeductionPercent, checkLockManualPosts, checkLocked, checkVisible);
-
-        fb.addUniElement(systemSet);
-
-        this.config = fb;
+    private change(event) {
+        
     }
-
-    onSubmit(value) {
-        var self = this;
-        if (this.model.ID > 0) {            
+    
+    private extendFormConfig() {
+        
+        let currency: UniFieldLayout = this.fields.find(x => x.Property === 'CurrencyID');
+        currency.Options = {
+            source: this.currencies,
+            valueProperty: 'ID',
+            displayProperty: 'Code',                        
+            debounceTime: 200
+        };
+        
+        let vattype: UniFieldLayout = this.fields.find(x => x.Property === 'VatTypeID');
+        vattype.Options = {
+            source: this.vattypes,
+            valueProperty: 'ID',
+            displayProperty: 'VatCode',                        
+            debounceTime: 200,
+            template: (vatType: VatType) => `${vatType.VatCode} (${ vatType.VatPercent }%)`
+        };
+        
+    }
+    
+    public getData() {
+        if (this.accountID) {                 
             this.accountService
-                .Put(self.model.ID, self.model)
+                .Get(this.accountID, ['Alias', 'Currency', 'AccountGroup', 'Dimensions', 'Dimensions.Project', 'Dimensions.Region', 'Dimensions.Responsible', 'Dimensions.Departement'])            
+                .subscribe(
+                    (dataset) => {
+                        this.account = dataset;                    
+                    },
+                    (error) => {
+                        console.log(error);
+                    }
+                );
+        }
+    }
+    
+    
+    public saveAccount(completeEvent: any): void {         
+        if (this.account.ID > 0) {            
+            this.accountService
+                .Put(this.account.ID, this.account)
                 .subscribe(
                     (response) => {
-                        this.uniSaved.emit(this.model);
+                        completeEvent('Lagret');
+                        this.accountSaved.emit(this.account);
                     },
                     (err) => {
-                        console.log('Save failed: ', err);                        
+                        completeEvent('Feil ved lagring');
+                        console.log('Save failed: ', err);
+                        alert('Feil ved lagring: ' + JSON.stringify(err));                        
                     }
                 );
         } else {
             this.accountService
-                .Post(self.model)
+                .Post(this.account)
                 .subscribe(
                     (response) => {
-                        this.uniSaved.emit(this.model);
+                        completeEvent('Lagret');
+                        this.accountSaved.emit(this.account);
                     },
                     (err) => {
-                        console.log('Save failed: ', err);                        
+                        completeEvent('Feil ved lagring');
+                        console.log('Save failed: ', err);     
+                        alert('Feil ved lagring: ' + JSON.stringify(err));                   
                     }
                 );
         }
+    }
+    
+    // TODO: change to 'ComponentLayout' when object respects the interface
+    private getComponentLayout(): any {
+        return {
+            Name: 'AccountDetails',
+            BaseEntity: 'Account',
+            StatusCode: 0,
+            Deleted: false,
+            CreatedAt: null,
+            UpdatedAt: null,
+            CreatedBy: null,
+            UpdatedBy: null,
+            ID: 1,
+            CustomFields: null,
+            Fields: [
+                {
+                    ComponentLayoutID: 3,
+                    EntityType: 'Account',
+                    Property: 'AccountNumber',
+                    Placement: 1,
+                    Hidden: false,
+                    FieldType: 10,
+                    ReadOnly: false,
+                    LookupField: false,
+                    Label: 'Kontonr',
+                    Description: '',
+                    HelpText: '',
+                    FieldSet: 0,
+                    Section: 0,
+                    Placeholder: null,
+                    Options: null,
+                    LineBreak: null,
+                    Combo: null,
+                    Legend: '',
+                    StatusCode: 0,
+                    ID: 2,
+                    Deleted: false,
+                    CreatedAt: null,
+                    UpdatedAt: null,
+                    CreatedBy: null,
+                    UpdatedBy: null,
+                    CustomFields: null 
+                },
+                {
+                    ComponentLayoutID: 3,
+                    EntityType: 'Account',
+                    Property: 'AccountName',
+                    Placement: 1,
+                    Hidden: false,
+                    FieldType: 10,
+                    ReadOnly: false,
+                    LookupField: false,
+                    Label: 'Kontonavn',
+                    Description: '',
+                    HelpText: '',
+                    FieldSet: 0,
+                    Section: 0,
+                    Placeholder: null,
+                    Options: null,
+                    LineBreak: null,
+                    Combo: null,
+                    Legend: '',
+                    StatusCode: 0,
+                    ID: 3,
+                    Deleted: false,
+                    CreatedAt: null,
+                    UpdatedAt: null,
+                    CreatedBy: null,
+                    UpdatedBy: null,
+                    CustomFields: null 
+                },
+                {
+                    ComponentLayoutID: 3,
+                    EntityType: 'Account',
+                    Property: 'Alias',
+                    Placement: 1,
+                    Hidden: false,
+                    FieldType: 10,
+                    ReadOnly: false,
+                    LookupField: false,
+                    Label: 'Alias',
+                    Description: '',
+                    HelpText: '',
+                    FieldSet: 0,
+                    Section: 0,
+                    Placeholder: null,
+                    Options: null,
+                    LineBreak: null,
+                    Combo: null,
+                    Legend: '',
+                    StatusCode: 0,
+                    ID: 4,
+                    Deleted: false,
+                    CreatedAt: null,
+                    UpdatedAt: null,
+                    CreatedBy: null,
+                    UpdatedBy: null,
+                    CustomFields: null 
+                },
+                {
+                    ComponentLayoutID: 3,
+                    EntityType: 'Account',
+                    Property: 'CurrencyID',
+                    Placement: 1,
+                    Hidden: false,
+                    FieldType: 3,
+                    ReadOnly: false,
+                    LookupField: false,
+                    Label: 'Valuta',
+                    Description: '',
+                    HelpText: '',
+                    FieldSet: 0,
+                    Section: 0,
+                    Placeholder: null,
+                    Options: null,
+                    LineBreak: null,
+                    Combo: null,
+                    Legend: '',
+                    StatusCode: 0,
+                    ID: 5,
+                    Deleted: false,
+                    CreatedAt: null,
+                    UpdatedAt: null,
+                    CreatedBy: null,
+                    UpdatedBy: null,
+                    CustomFields: null 
+                },
+                {
+                    ComponentLayoutID: 3,
+                    EntityType: 'Account',
+                    Property: 'VatTypeID',
+                    Placement: 1,
+                    Hidden: false,
+                    FieldType: 0,
+                    ReadOnly: false,
+                    LookupField: false,
+                    Label: 'Mvakode',
+                    Description: '',
+                    HelpText: '',
+                    FieldSet: 0,
+                    Section: 0,
+                    Placeholder: null,
+                    Options: null,
+                    LineBreak: null,
+                    Combo: null,
+                    Legend: '',
+                    StatusCode: 0,
+                    ID: 5,
+                    Deleted: false,
+                    CreatedAt: null,
+                    UpdatedAt: null,
+                    CreatedBy: null,
+                    UpdatedBy: null,
+                    CustomFields: null 
+                },
+                {
+                    ComponentLayoutID: 3,
+                    EntityType: 'Account',
+                    Property: 'SystemAccount',
+                    Placement: 1,
+                    Hidden: false,
+                    FieldType: 5,
+                    ReadOnly: false,
+                    LookupField: false,
+                    Label: 'Systemkonto',
+                    Description: '',
+                    HelpText: '',
+                    FieldSet: 0,
+                    Section: 0,
+                    Placeholder: null,
+                    Options: null,
+                    LineBreak: null,
+                    Combo: null,
+                    Legend: '',
+                    StatusCode: 0,
+                    ID: 2,
+                    Deleted: false,
+                    CreatedAt: null,
+                    UpdatedAt: null,
+                    CreatedBy: null,
+                    UpdatedBy: null,
+                    CustomFields: null 
+                },
+                {
+                    ComponentLayoutID: 3,
+                    EntityType: 'Account',
+                    Property: 'UsePostPost',
+                    Placement: 1,
+                    Hidden: false,
+                    FieldType: 5,
+                    ReadOnly: false,
+                    LookupField: false,
+                    Label: 'PostPost',
+                    Description: '',
+                    HelpText: '',
+                    FieldSet: 0,
+                    Section: 0,
+                    Placeholder: null,
+                    Options: null,
+                    LineBreak: null,
+                    Combo: null,
+                    Legend: '',
+                    StatusCode: 0,
+                    ID: 2,
+                    Deleted: false,
+                    CreatedAt: null,
+                    UpdatedAt: null,
+                    CreatedBy: null,
+                    UpdatedBy: null,
+                    CustomFields: null 
+                },
+                {
+                    ComponentLayoutID: 3,
+                    EntityType: 'Account',
+                    Property: 'UseDeductionPercent',
+                    Placement: 1,
+                    Hidden: false,
+                    FieldType: 5,
+                    ReadOnly: false,
+                    LookupField: false,
+                    Label: 'Forholdsvismoms',
+                    Description: '',
+                    HelpText: '',
+                    FieldSet: 0,
+                    Section: 0,
+                    Placeholder: null,
+                    Options: null,
+                    LineBreak: null,
+                    Combo: null,
+                    Legend: '',
+                    StatusCode: 0,
+                    ID: 2,
+                    Deleted: false,
+                    CreatedAt: null,
+                    UpdatedAt: null,
+                    CreatedBy: null,
+                    UpdatedBy: null,
+                    CustomFields: null 
+                },
+                {
+                    ComponentLayoutID: 3,
+                    EntityType: 'Account',
+                    Property: 'LockManualPosts',
+                    Placement: 1,
+                    Hidden: false,
+                    FieldType: 5,
+                    ReadOnly: false,
+                    LookupField: false,
+                    Label: 'Sperre manuelle poster',
+                    Description: '',
+                    HelpText: '',
+                    FieldSet: 0,
+                    Section: 0,
+                    Placeholder: null,
+                    Options: null,
+                    LineBreak: null,
+                    Combo: null,
+                    Legend: '',
+                    StatusCode: 0,
+                    ID: 2,
+                    Deleted: false,
+                    CreatedAt: null,
+                    UpdatedAt: null,
+                    CreatedBy: null,
+                    UpdatedBy: null,
+                    CustomFields: null 
+                },
+                {
+                    ComponentLayoutID: 3,
+                    EntityType: 'Account',
+                    Property: 'Locked',
+                    Placement: 1,
+                    Hidden: false,
+                    FieldType: 5,
+                    ReadOnly: false,
+                    LookupField: false,
+                    Label: 'Sperret',
+                    Description: '',
+                    HelpText: '',
+                    FieldSet: 0,
+                    Section: 0,
+                    Placeholder: null,
+                    Options: null,
+                    LineBreak: null,
+                    Combo: null,
+                    Legend: '',
+                    StatusCode: 0,
+                    ID: 2,
+                    Deleted: false,
+                    CreatedAt: null,
+                    UpdatedAt: null,
+                    CreatedBy: null,
+                    UpdatedBy: null,
+                    CustomFields: null 
+                },
+                {
+                    ComponentLayoutID: 3,
+                    EntityType: 'Account',
+                    Property: 'Visible',
+                    Placement: 1,
+                    Hidden: false,
+                    FieldType: 5,
+                    ReadOnly: false,
+                    LookupField: false,
+                    Label: 'Synlig',
+                    Description: '',
+                    HelpText: '',
+                    FieldSet: 0,
+                    Section: 0,
+                    Placeholder: null,
+                    Options: null,
+                    LineBreak: null,
+                    Combo: null,
+                    Legend: '',
+                    StatusCode: 0,
+                    ID: 2,
+                    Deleted: false,
+                    CreatedAt: null,
+                    UpdatedAt: null,
+                    CreatedBy: null,
+                    UpdatedBy: null,
+                    CustomFields: null 
+                }
+            ]          
+        };   
     }
 }

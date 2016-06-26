@@ -1,142 +1,102 @@
-import {Component, Output, EventEmitter, ViewChild} from "@angular/core";
-import {Control} from "@angular/common";
-import {TreeList, TreeListItem, TREE_LIST_TYPE} from "../../../../../framework/treeList";
-import {UniTableBuilder, UniTableColumn} from "../../../../../framework/uniTable";
-import {UniDropdown} from "../../../../../framework/controls/dropdown/dropdown";
-import {Account} from "../../../../unientities";
-
-import {AccountGroupService} from "../../../../services/services";
-
-enum SETTINGS_ADD_NEW {
-    ACCOUNTGROUP, // 0
-    ACCOUNT
-}
+import {Component, Output, EventEmitter, ViewChild} from '@angular/core';
+import {UniTable, UniTableColumn, UniTableColumnType, UniTableConfig} from 'unitable-ng2/main';
+import {URLSearchParams} from '@angular/http';
+import {Account} from '../../../../unientities';
+import {AccountService} from '../../../../services/services';
 
 declare var _;
 
 @Component({
-    selector: "account-list",
-    templateUrl: "app/components/settings/accountSettings/accountList/accountList.html",
-    directives: [TreeList, UniDropdown],
-    providers: [AccountGroupService]
+    selector: 'account-list',
+    templateUrl: 'app/components/settings/accountSettings/accountList/accountList.html',
+    directives: [UniTable],
+    providers: [AccountService]
 })
 export class AccountList {
-    @Output()
-    uniAccountChange = new EventEmitter<number>();
-    @ViewChild(TreeList)
-    treeList: TreeList;
-
-    accountListItems: TreeListItem[] = [];
-    accountgroups;
-    config;
-    addDropdownControl = new Control(-1);
-
-    constructor(private accountGroupService: AccountGroupService) {
+    @Output() public uniAccountChange: EventEmitter<number> = new EventEmitter<number>();
+    @ViewChild(UniTable) private table: UniTable;
+    private accountTable: UniTableConfig;
+    private lookupFunction: (urlParams: URLSearchParams) => any;
+    
+    constructor(private accountService: AccountService) {
         
-        /*
-        KE 13042016: Fjernet midlertidig - har uansett ingen funksjon per i dag, og gjør nå at hele viewet krasjer
+    }
+
+    public ngOnInit() {
+        this.setupTable();
+    }
+
+    private onRowSelected (event) {
+        this.uniAccountChange.emit(event.rowModel.ID);
+    };
+
+    public refresh() {
+        this.table.refreshTableData();
+    }
+
+    private setupTable() {
         
-        var kendoDropdownConfig = {
-            delay: 50,
-            dataTextField: "name",
-            dataValueField: "action",
-            dataSource: [
-                //     {action: SETTINGS_ADD_NEW.ACCOUNTGROUP, name: "Ny kontogruppe"},
-                {action: SETTINGS_ADD_NEW.ACCOUNT, name: "Ny hovedbokskonto"},
-            ],
-            optionLabel: {action: -1, name: "Select an action"}
-        };
-
-        this.config = {
-            control: this.addDropdownControl,
-            kOptions: kendoDropdownConfig,
-            onChange: (event) => {
-                var result = (event.sender.dataItem(<any>event.item));
-                switch (result.action) {
-                    case SETTINGS_ADD_NEW.ACCOUNT:
-                        this.uniAccountChange.emit(0);
-                        break;
-                    default:
-                        break;
-                }
-
-                event.sender.value("");
+        this.lookupFunction = (urlParams: URLSearchParams) => {
+            let params = urlParams;
+            
+            if (params === null) {
+                params = new URLSearchParams();
             }
             
-        };*/
-    }
-
-    refresh(account: Account) {
-        console.log("DO REFRESH OF TABLE");
-        console.log(account);
-        // this.treeList.refresh();
-    }
-
-    loopAccountGroups(parentgroup: any, id: number|string) {
-        
-         var accountNumberCol = new UniTableColumn("AccountNumber", "Kontonr", "number")
-                    .setWidth("5rem");
-
-        var accountNameCol = new UniTableColumn("AccountName", "Kontonavn", "string");
-
-        var vatTypeCol = new UniTableColumn("VatType", "Mvakode/sats", "string")
-            .setTemplate("# if(VatType != null) {# #= VatType.Name# - #= VatType.VatPercent#% #} else {# Ikke definert #}#");
-
-        var lockedCol = new UniTableColumn("", "Synlig/låst", "boolean")
-            .setClass("icon-column")
-            .setTemplate("#if(Visible) {#<span class='is-visible' role='presentation'>Visible</span>#} " +
-                "else {#<span class='is-hidden' role='presentation'>Hidden</span>#}# " +
-                "#if(Locked) {#<span class='is-locked' role='presentation'>Locked</span>#} " +
-                "else {#<span class='is-unlocked' role='presentation'>Unlocked</span>#}#"
-            )
-            .setWidth("5rem");
-        
-        this.accountgroups.forEach((accountgroup: any) => {
-            if (accountgroup.MainGroupID === id) {
-                var group = new TreeListItem(accountgroup.Name)
-                    .setType(TREE_LIST_TYPE.LIST);
-
-                if (parentgroup == null) {
-                    this.accountListItems.push(group);
-                } else {
-                    parentgroup.addTreeListItem(group);
-                }               
-
-                var tableConfig = new UniTableBuilder("accounts", false)
-                    .setExpand("VatType")
-                    .setFilter("AccountGroupID eq " + accountgroup.ID)
-                    .setOrderBy('AccountNumber')
-                    .setPageSize(100)
-                    .setPageable(false)
-                    .addColumns(accountNumberCol, accountNameCol, vatTypeCol, lockedCol)
-                    .setSelectCallback((account: Account) => {
-                        this.uniAccountChange.emit(account.ID);
-                    })
-                    .setColumnMenuVisible(false);
-
-                var list = new TreeListItem()
-                    .setType(TREE_LIST_TYPE.TABLE)
-                    .setContent(tableConfig);
-
-                group.addTreeListItem(list);
-                this.loopAccountGroups(group, accountgroup.ID);
+            if (!params.get('orderby')) {
+                params.set('orderby', 'AccountNumber');
             }
-        });
-    }
+            
+            params.set('expand', 'AccountGroup,VatType');
+            
+            return this.accountService.GetAllByUrlSearchParams(params);
+        };
+        
+        // Define columns to use in the table
+        let accountNumberCol = new UniTableColumn('AccountNumber', 'Kontonr',  UniTableColumnType.Number)
+            .setWidth('5rem')
+            .setFilterOperator('eq');
 
-    ngOnInit() {
-        this.accountGroupService
-            .GetAll(null)
-            .subscribe(
-                (dataset: any) => {
-                    this.accountgroups = dataset;
-                    this.loopAccountGroups(null, null);
-                },
-                (error: any) => console.log('Error retrieving accountgroups: ', error)
-            );
-    }
+        let accountNameCol = new UniTableColumn('AccountName', 'Kontonavn',  UniTableColumnType.Text)
+            .setFilterOperator('contains');
 
-    showHide() {
-        this.treeList.showHideAll();
+        let accountGroupNameCol = new UniTableColumn('AccountGroup.Name', 'Gruppe',  UniTableColumnType.Text)
+            .setFilterOperator('contains');
+
+
+        let vatTypeCol = new UniTableColumn('VatType.VatCode', 'Mva', UniTableColumnType.Text)
+            .setWidth('7rem')
+            .setTemplate((account: Account) => {
+                if (account.VatType !== null) {
+                    return account.VatType.VatCode + ' - ' + account.VatType.VatPercent + '%';
+                } else {
+                    return '';
+                }   
+            })
+            .setFilterable(false);
+
+        let lockedCol = new UniTableColumn('Visible', 'Synlig/låst',  UniTableColumnType.Text)
+            .setFilterable(false)
+            .setCls('icon-column')
+            .setTemplate((rowModel: Account) => {
+                let iconsHtml = '';
+                if (rowModel.Visible) {
+                    iconsHtml += '<span class="is-visible" role="presentation">Visible</span>';
+                } else {
+                    iconsHtml += '<span class="is-hidden" role="presentation">Hidden</span>';
+                } 
+                if (rowModel.Locked) {
+                    iconsHtml += '<span class="is-locked" role="presentation">Locked</span>';
+                } else {
+                    iconsHtml += '<span class="is-unlocked" role="presentation">Unlocked</span>';
+                }
+                return iconsHtml;
+            })
+            .setWidth('5rem');
+                 
+        // Setup table
+        this.accountTable = new UniTableConfig(false, true, 25)            
+            .setSearchable(true)            
+            .setColumns([accountNumberCol, accountNameCol, accountGroupNameCol, vatTypeCol, lockedCol]);
     }
 }

@@ -43,7 +43,7 @@ export class Transquery {
     private childRoutes: RouteDefinition[];
 
     constructor(public router: Router, private tabService: TabService) {
-        this.tabService.addTab({name: 'Forespørsel', url: '/accounting/transquery'});
+        //this.tabService.addTab({name: 'Forespørsel', url: '/accounting/transquery'});
         this.childRoutes = TRANSQUERY_ROUTES.slice(0, TRANSQUERY_ROUTES.length - 1);
     }
 }

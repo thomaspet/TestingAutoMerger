@@ -3,6 +3,13 @@
 
 // It should be emptied out regularly by an experienced Sass developer.
 
+.appLoading
+  @extend h1
+  display: block
+  text-align: center
+  width: 100vw
+  margin-top: calc(45vh - 1.5rem)
+
 kitchensink label
   @include unigrid-flush(5)
 
@@ -66,3 +73,7 @@ uni-document-demo
 
   h1
     @extend h2
+
+.new-button
+  float: right
+  margin: -3.5rem auto

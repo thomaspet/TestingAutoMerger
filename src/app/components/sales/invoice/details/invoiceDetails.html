@@ -1,7 +1,7 @@
 <header class="invoice_poster" *ngIf="invoice">
     <article class="poster_toolbar">
         <section>
-            <h1 *ngIf="invoice">{{invoice.Customer ? invoice.Customer.Info.Name : invoice.CustomerName}}</h1>
+            <h1 *ngIf="invoice">{{invoice.Customer ? (invoice.Customer.CustomerNumber + ' - ' + invoice.Customer.Info.Name) : invoice.CustomerName}}</h1>
             <p>
                 {{invoice.InvoiceType == 0 ? 'Fakturanr. ' : 'Kreditnota.' }}
                 {{invoice.InvoiceNumber}}
@@ -30,7 +30,16 @@
 </header>
 
 <section class="invoice-details application">
-    <uni-component-loader></uni-component-loader>
+    <uni-form *ngIf='invoice'
+              [config]="config"
+              [fields]="fields"
+              [model]="invoice"
+              (onChange)="change($event)"
+              (onReady)="ready($event)">
+    </uni-form>
+    <address-modal></address-modal>
+
+    <invoice-item-list [invoice]="invoice" (itemsUpdated)="recalcItemSums($event)" (itemsLoaded)="recalcItemSums($event)"></invoice-item-list>
 
     <section class="invoice-items-summary-placeholder" *ngIf="!itemsSummaryData" aria-busy></section>
     <dl class="summary" *ngIf="itemsSummaryData" [attr.aria-busy]="busy">
@@ -49,17 +58,13 @@
         <dt>Totalsum</dt>
         <dd>Kr. {{itemsSummaryData.SumTotalIncVat}}</dd>
     </dl>
-
-    <invoice-item-list [invoice]="invoice" (itemsUpdated)="recalcItemSums($event)" (itemsLoaded)="recalcItemSums($event)"></invoice-item-list>
 </section>
 
 <report-preview-modal></report-preview-modal>
+<register-payment-modal (changed)="onRegisteredPayment($event)"></register-payment-modal>
 
 <footer class="full-footer">
-    <section class="application">
+    <section class="application" *ngIf="actions">
         <uni-save [actions]="actions"></uni-save>
-        <section class="auto_save_info">
-            {{ lastSavedInfo }}
-        </section>
     </section>
 </footer>

@@ -1,10 +1,12 @@
-<header class="poster">
+<header class="poster">    
     <article class="poster_toolbar">
         <span *ngIf="supplierInvoice != null && supplierInvoice.ID > 0">
             <h2 class="poster_toolbar_headline">
                 Leverandørfakturanr {{supplierInvoice.InvoiceNumber}}, {{supplierInvoice.Supplier.Info.Name}}                                    
             </h2>
-            <p *ngIf="supplierInvoice.JournalEntry != null">Status: {{getStatusText()}}, bilagsnr: {{supplierInvoice.JournalEntry.JournalEntryNumber != null ? supplierInvoice.JournalEntry.JournalEntryNumber : 'Bilag ikke bokført' }}</p>
+            <p>
+                Status: {{getStatusText()}}<span *ngIf="supplierInvoice.JournalEntry != null">, bilagsnr: {{supplierInvoice.JournalEntry.JournalEntryNumber != null ? supplierInvoice.JournalEntry.JournalEntryNumber : 'Bilag ikke bokført' }}</span>
+            </p>
         </span>
         <h2 class="poster_toolbar_headline" *ngIf="invoiceId == 0">
             Ny leverandørfaktura
@@ -14,11 +16,26 @@
 </header>
 
 <article class="supplier-invoice-detail-form">    
-    <uni-component-loader></uni-component-loader>    
+    <p class="error validation" *ngIf="errors && errors.length > 0">
+        <span *ngFor="let error of errors">
+                {{error.Message}}
+        </span>
+    </p>
+
+    <uni-form *ngIf='supplierInvoice'
+        [config]='config'
+        [fields]='fields'
+        [model]='supplierInvoice'
+        (onReady)="ready($event)">
+    </uni-form> 
 </article>
 
+<register-payment-modal
+    (changed)="onRegisteredPayment($event)"
+></register-payment-modal>
+
 <section class="supplier-invoice-detail-booking">
-    <journal-entry-manual [supplierInvoice]="supplierInvoice" [runAsSubComponent]="true" *ngIf="supplierInvoice && supplierInvoice.ID > 0"></journal-entry-manual>
+    <journal-entry-manual [supplierInvoice]="supplierInvoice" [runAsSubComponent]="true" [disabled]="disabled" *ngIf="supplierInvoice && supplierInvoice.ID > 0"></journal-entry-manual>
 </section>
 
 <section class="supplier-invoice-detail-document" *ngIf="supplierInvoice && supplierInvoice.ID > 0">
@@ -28,11 +45,9 @@
     [service]="fileuploader" 
     [entity]="supplierInvoice"
     (onFileUploaded)="onFileUploaded($event)"></uni-document-uploader>
-    <p class="error" style="min-height:40px"><span>{{fileuploader.statusText}}</span></p>              
+    <p class="error"><span>{{fileuploader.statusText}}</span></p>              
 </section>
 
 <footer class="full-footer">    
-    <button class="good" (click)="saveSupplierInvoice($event)">Lagre leverandørfaktura</button>
-    <button class="good" (click)="saveAndBook($event)" *ngIf="supplierInvoice && supplierInvoice.ID > 0">Bokfør leverandørfaktura</button>
-    <button (click)="saveAndRunSmartBooking($event)" *ngIf="supplierInvoice && supplierInvoice.ID > 0">Kjør smartbokføring på ny</button>    
+    <uni-save [actions]="actions"></uni-save>
 </footer>

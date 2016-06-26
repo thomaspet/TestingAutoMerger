@@ -9,6 +9,7 @@ import {ExternalSearch, SearchResultItem} from '../../../common/externalSearch/e
 import {Supplier, Email, Phone, Address} from '../../../../unientities';
 import {UniSave, IUniSaveAction} from '../../../../../framework/save/save';
 import {UniForm, UniFieldLayout} from '../../../../../framework/uniform';
+import {TabService} from '../../../layout/navbar/tabstrip/tabService';
 
 import {AddressModal} from '../../customer/modals/address/address';
 import {EmailModal} from '../../customer/modals/email/email';
@@ -60,10 +61,12 @@ export class SupplierDetails {
                 private phoneService: PhoneService,
                 private emailService: EmailService,
                 private addressService: AddressService,
-                private bankaccountService: BankAccountService
+                private bankaccountService: BankAccountService,
+                private tabService: TabService
                 ) {
                 
-        this.supplierID = params.get('id');        
+        this.supplierID = params.get('id');
+        this.tabService.addTab({ url: '/sales/supplier/details/' + this.supplierID, name: 'Leverandørnr. ' + this.supplierID, active: true, moduleID: 2 });         
     }
     
     public nextSupplier() {
@@ -266,7 +269,15 @@ export class SupplierDetails {
                 this.addressModal.Changed.subscribe(modalval => {                                       
                     resolve(modalval);    
                 });               
-            })        
+            }),
+            display: (address: Address) => {
+                let displayVal = '';
+                if (address.AddressLine1 !== null && address.AddressLine1 !== '') {
+                    displayVal += address.AddressLine1 + ', ';  
+                }                
+                displayVal += address.PostalCode + ' ' + address.City; 
+                return displayVal;                                
+            }         
         };
         
         var emails: UniFieldLayout = this.fields.find(x => x.Property === 'Info.DefaultEmail');
@@ -309,8 +320,15 @@ export class SupplierDetails {
                 this.addressModal.Changed.subscribe(modalval => {                                       
                     resolve(modalval);    
                 });               
-            }) 
-                       
+            }),
+            display: (address: Address) => {
+                let displayVal = '';
+                if (address.AddressLine1 !== null && address.AddressLine1 !== '') {
+                    displayVal += address.AddressLine1 + ', ';  
+                }                
+                displayVal += address.PostalCode + ' ' + address.City; 
+                return displayVal;                                
+            }          
         };
     }   
     
