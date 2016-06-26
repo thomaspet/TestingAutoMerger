@@ -16,8 +16,14 @@
 
     <!--INVOICED CHART-->
     <figure class="dashboard_chart_card">
-        <h2>Fakturert<time>, siste 4 måned</time>(eks moms)</h2>
+        <h2>Fakturert pr måned</h2>
         <canvas id="invoicedChart" style="height: 233px; max-height: 233px" class=""></canvas>
+    </figure>
+
+    <!--ORDRE CHART-->
+    <figure class="dashboard_chart_card">
+        <h2>Ordre pr måned</h2>
+        <canvas id="ordre_chart" style="height: 233px; max-height: 233px" class=""></canvas>
     </figure>
 
     <!--TRANSACTIONS LIST -->
@@ -39,10 +45,40 @@
         <canvas id="operating_chart" style="height: 233px; max-height: 233px"  class=""></canvas>
     </figure>
 
+    <!--PAYROLL CHART-->
+    <figure class="dashboard_chart_card" style="margin-top: 16px">
+        <h2>Utbetaling lønn per lønnsavregning</h2>
+        <canvas id="payroll_chart" style="height: 233px; max-height: 233px" class=""></canvas>
+    </figure>
+
     <!--ASSETS CHART-->
-    <figure class="dashboard_chart_card">
+    <figure class="dashboard_chart_card" style="margin-top: 16px">
         <h2>Eiendeler</h2>
         <canvas id="assets_chart" style="height: 233px; max-height: 233px"  class=""></canvas>
+    </figure>
+
+    <!--MY TRANSACTIONS LIST -->
+    <figure class="dashboard_chart_card" *ngIf="myTransactionList" style="margin-top: 16px">
+        <h2>Dine siste transaksjoner</h2>
+        <ol class="dashboard_list recent">
+            <li *ngFor="let myTrans of myTransactionList; let i = index;" style="font-size:0.8rem">
+                <strong>Du</strong>
+                endret <!--Should be dynamic-->
+                <strong><a style="color:#7293cb; cursor: pointer;" (click)="lastTransactionsClicked(i)">{{myTrans.module}}</a></strong>
+                <time style="float: right; margin: 0">{{myTrans.time}}</time>
+            </li>
+        </ol>
+    </figure>
+
+    <!--MY TRANSACTIONS LIST -->
+    <figure class="dashboard_chart_card" *ngIf="journalEntryList" style="margin-top: 16px">
+        <h2>Siste bilag</h2>
+        <ol class="dashboard_list recent">
+            <li *ngFor="let entry of journalEntryList; let i = index;" style="font-size:0.8rem">
+                <strong><a style="color:#7293cb; cursor: pointer;" (click)="widgetListItemClicked(entry.url)">Bilag {{ entry.JournalEntryNumber}}</a></strong>
+                <time style="float: right; margin: 0">{{entry.time}}</time>
+            </li>
+        </ol>
     </figure>
 
 </section>

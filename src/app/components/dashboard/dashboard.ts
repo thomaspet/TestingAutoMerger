@@ -27,6 +27,8 @@ export class Dashboard {
     public welcomeHidden: boolean = localStorage.getItem('welcomeHidden');
     public chartDataLoaded: boolean = localStorage.getItem('chartDataLoaded');
     public transactionList = [];
+    public myTransactionList = [];
+    public journalEntryList = [];
     public data;
     public user: any;
     public months: string[] = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
@@ -36,21 +38,6 @@ export class Dashboard {
         Chart.defaults.global.maintainAspectRatio = false;
         this.welcomeHidden = false;
 
-            //Needs check to see if it is already loaded.. No need to load user more then once
-        if (true) {
-            this.getMyUserInfo().subscribe(
-                (data) =>  {
-                    this.user = data;
-                    this.getMyTransactions()
-                        .subscribe(
-                        (data) => { console.log(data); },
-                        (error) => { console.log(error) }
-                        )
-                },
-                error => console.log(error) //Error handling
-            )
-        }
-        
     }
 
     public ngAfterViewInit() {
@@ -78,7 +65,6 @@ export class Dashboard {
         this.chartGenerator('operating_chart', data);
 
         //ASSETS CHART
-        
         data = {
             data: [250000, 350000, 200000, 500000, 410000],
             labels: ['Kontanter og bankinnskudd', 'Kortsiktige fordringer', 'Anleggsmidler', 'Varelager', 'Andre midler'],
@@ -87,20 +73,64 @@ export class Dashboard {
             backgroundColor: ['#7293cb', '#e1974c', '#84ba5b', '#d35e60', '#808585'],
             borderColor: null
         }
-        this.chartGenerator('assets_chart', data)
+        this.chartGenerator('assets_chart', data);
 
-        this.getTransactions()
-            .subscribe(
-            data => this.generateTransactionsArray(data),
-            error => console.log(error)
-        );
+        //PAYROLL CHART
+        data = {
+            data: [2560000, 2720000, 2528000, 1950000, 2400000],
+            labels: ['January', 'February', 'March', 'April', 'May'],
+            chartType: 'bar',
+            label: '',
+            backgroundColor: ['#7293cb', '#e1974c', '#84ba5b', '#d35e60', '#808585'],
+            borderColor: null
+        }
+        this.chartGenerator('payroll_chart', data);
+
+        //ORDRE CHART
+        //data = {
+        //    data: [32000, 36000, 29500, 40000],
+        //    labels: ['March', 'April', 'May', 'June'],
+        //    chartType: 'bar',
+        //    label: '',
+        //    backgroundColor: ['#7293cb', '#e1974c', '#84ba5b', '#d35e60'],
+        //    borderColor: null
+        //}
+        //this.chartGenerator('ordre_chart', data)
+
+        //this.getTransactions()
+        //    .subscribe(
+        //    data => this.generateTransactionsArray(data),
+        //    error => console.log(error)
+        //    );
 
         this.getInvoicedData()
             .subscribe(
-            data => this.chartGenerator('invoicedChart', this.invoicedChartData(data)),
+            data => this.chartGenerator('invoicedChart', this.invoicedChartData(data[0].Data, 'Fakturert', '#7293cb', '#396bb1')),
             error => console.log(error)
+            )
+
+        this.getMyUserInfo().subscribe(
+            (data) => {
+                this.user = data;
+                this.getMyTransactions()
+                    .subscribe(
+                    (data) => { console.log(data); },
+                    (error) => { console.log(error) }
+                    )
+            },
+            error => console.log(error) //Error handling
         )
-        
+
+        this.getOrdreData().subscribe(
+            (data) => { this.chartGenerator('ordre_chart', this.invoicedChartData(data[0].Data, 'Fakturert', '#84ba5b', '#3e9651')) },
+            (error) => { console.log(error); }
+        )
+
+        this.getLastJournalEntry().subscribe(
+            (data) => { this.genereateJournalEntryList(data); },
+            (error) => { console.log(error) }
+        )
+
     }
 
     public hideWelcome() {
@@ -108,12 +138,11 @@ export class Dashboard {
         localStorage.setItem('welcomeHidden', 'true');
     }
 
-    public lastTransactionsClicked(index: number) {
-        console.log(this.transactionList[index].url);
-        this.router.navigateByUrl(this.transactionList[index].url);
+    public widgetListItemClicked(url) {
+        this.router.navigateByUrl(url);
     }
 
-    private generateTransactionsArray(data: any) {
+    private generateTransactionsArray(data: any, mine?: boolean) {
         for (var i = 0; i < data.length; i++) {
   
             //Dummycheck ATM
@@ -137,45 +166,49 @@ export class Dashboard {
             var date = new Date(data[i].CreatedAt);
             data[i].time = moment(data[i].CreatedAt).fromNow();
         }
-        this.transactionList = data;
+        if (mine) {
+            this.myTransactionList = data;
+        } else {
+            this.transactionList = data;
+        }
+
+    }
+
+    private genereateJournalEntryList(data: any) {
+        
+        for (var i = 0; i < data.length; i++) {
+            data[i].time = moment(data[i].RegisteredDate).fromNow();
+            data[i].url = '/accounting/transquery/detailsByJournalEntryNumber/' + data[i].JournalEntryNumber;
+        }
+        this.journalEntryList = data;
     }
 
     //For invoiced chart
-    private invoicedChartData(data): IChartDataSet {
-        console.log(data);
-        var numberOfMonths = 4;
+    private invoicedChartData(data: any, label: string, bgColor: string, bdColor: string): IChartDataSet {
+        var numberOfMonths = 6;
         var currentMonth = new Date().getMonth();
         var myChartLabels = [];
         var myMonths = [];
         var myData = [];
 
-        while (myChartLabels.length !== numberOfMonths) {
-            myChartLabels.splice(0, 0, this.months[currentMonth]);
-            myMonths.splice(0,0,currentMonth + 1);
-            if (currentMonth === 0) {
-                currentMonth = 11;
+        var totalLabel = 0;
+        for (var i = 0; i < data.length; i++) {
+            if (data[i].sumTaxExclusiveAmount === null) {
+                myData.push(0);
             } else {
-                currentMonth--;
+                myData.push(data[i].sumTaxExclusiveAmount);
             }
+            totalLabel += myData[i];
         }
 
-        for (var i = 0; i < numberOfMonths; i++) {
-            if (data[0].monthInvoiceDate === myMonths[i]) {
-                myData.push(data[0].sumTaxExclusiveAmount);
-                data.splice(0, 1);
-            } else {
-                myData.push(0);
-            }
-        }
         return {
-            label: 'Fakturert',
-            labels: myChartLabels,
+            label: 'Total: ' + totalLabel,
+            labels: this.months,
             chartType: 'bar',
-            backgroundColor: '#7293cb',
-            borderColor: '#396bb1',
+            backgroundColor: bgColor,
+            borderColor: bdColor,
             data: myData
         }
-
     }
 
     private chartGenerator(elementID: string, data: any) {
@@ -206,7 +239,7 @@ export class Dashboard {
             .asGET()
             .usingBusinessDomain()
             .withEndPoint(
-                "workitems?action=statistics&model=AuditLog&select=entitytype,entityid,field,displayname,createdat,updatedat&filter=field eq 'updatedby' &join=auditlog.createdby eq user.globalidentity&top=10&orderby=id desc"
+            "workitems?action=statistics&model=AuditLog&select=entitytype,entityid,field,displayname,createdat,updatedat&filter=field eq 'updatedby' &join=auditlog.createdby eq user.globalidentity&top=10&orderby=id desc"
             )
             .send();
     }
@@ -217,9 +250,9 @@ export class Dashboard {
             .asGET()
             .usingBusinessDomain()
             .withEndPoint(
-                "workitems?action=statistics&model=AuditLog&select=entitytype,entityid,displayname,createdat,updatedat&filter=createdby eq '"
-                + this.user.GlobalIdentity
-                + "' &join=auditlog.createdby eq user.globalidentity&top=50&orderby=id desc"
+            "statistics?model=AuditLog&select=entitytype,field,entityid,displayname,createdat,updatedat&filter=createdby eq '"
+            + this.user.GlobalIdentity
+            + "' and ( field eq 'updatedby' )&join=auditlog.createdby eq user.globalidentity&top=60&orderby=id desc"
             )
             .send();
     }
@@ -233,11 +266,30 @@ export class Dashboard {
             .send();
     }
 
+    //Gets sum invoiced 4 months (Query needs improving)
     public getInvoicedData() {
         return this.http
             .asGET()
             .usingBusinessDomain()
-            .withEndPoint('workitems?action=statistics&model=CustomerInvoice&select=sum(TaxExclusiveAmount),month(InvoiceDate),year(InvoiceDate)&filter=month(invoicedate) ge 2 and year(invoicedate) eq 2016')
+            .withEndPoint('statistics?model=CustomerInvoice&select=sum(TaxExclusiveAmount),month(InvoiceDate),year(InvoiceDate)&filter=month(invoicedate) ge 1 and year(invoicedate) eq 2016&range=monthinvoicedate')
+            .send();
+    }
+
+    //Gets ordre sum for last 4 months (Query needs improving)
+    public getOrdreData() {
+        return this.http
+            .asGET()
+            .usingBusinessDomain()
+            .withEndPoint('statistics?model=CustomerOrder&select=sum(TaxExclusiveAmount),month(OrderDate),year(OrderDate)&range=monthorderdate ')
+            .send();
+    }
+
+    //Gets payroll data (Last 6 months?)
+    public getLastJournalEntry() {
+        return this.http
+            .asGET()
+            .usingBusinessDomain()
+            .withEndPoint('journalentrylines?skip=0&top=10&expand=VatType,Account&orderby=id desc')
             .send();
     }
 }
