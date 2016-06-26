@@ -107,6 +107,9 @@ export class UniAutocompleteInput {
         this.guid = 'autocomplete-' + performance.now();
     }
 
+
+    public 
+
     public ngOnChanges(changes) {
         if (changes['model']) {
             this.options = this.field.Options || {};
@@ -116,8 +119,7 @@ export class UniAutocompleteInput {
         // Perform initial lookup to get display value
         this.getInitialDisplayValue(this.control.value)
             .subscribe(result => {
-                const displayValue = _.get(result[0], this.field.Options.displayProperty);
-                this.control.updateValue(displayValue || '', {emitEvent: false});
+                this.control.updateValue(this.template(result[0]) || '', {emitEvent: false});
             });
 
         this.control.valueChanges
@@ -167,9 +169,13 @@ export class UniAutocompleteInput {
     }
 
     private getInitialDisplayValue(value): Observable<any> {
+        
+        /* KE 26.06.2016: Dette gir normalt ikke mening - å søke etter verdien som finnes initielt 
+        med samme søkemetode som når brukeren skriver inn (initielt har du bare ID'en, og den vil brukeren
+        aldri søke etter)
         if (this.options.search) {
             return this.options.search(value);
-        }
+        }*/
 
         if (!this.source) {
             return Observable.of([]);
@@ -227,7 +233,7 @@ export class UniAutocompleteInput {
             this.value = null;
         } else {
             let selectedItem = this.lookupResults[this.selectedIndex];
-            this.query = _.get(selectedItem, this.field.Options.displayProperty);
+            this.query = this.template(selectedItem);
             this.value = _.get(selectedItem, this.field.Options.valueProperty);
         }
 
