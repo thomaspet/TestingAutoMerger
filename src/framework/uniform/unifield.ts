@@ -146,7 +146,7 @@ export class UniField {
         }
     }
 
-    public addClass(name: string, value: any) {
+    public addClassXXX(name: string, value: any) {
         this.classes[name] = value;
     }
 
@@ -158,7 +158,7 @@ export class UniField {
             var asyncvalidators = ValidatorsComposer.composeAsyncValidators(this.field);
             var control = new Control(value, syncvalidators, asyncvalidators);
             this.controls.addControl(this.field.Property, control);
-            this.control = control;
+            this.control = control;                
         }
     }
 
@@ -178,6 +178,11 @@ export class UniField {
     }
     
     private buildClassString() {
+        if (this.field.Classes) {
+            return this.field.Classes;
+        }
+        return '';
+        /*
         var classes = [];
         var cls = this.classes;
         for (var cl in cls) {
@@ -194,6 +199,7 @@ export class UniField {
             }
         }
         return classes.join(' ');
+        */
     }
     private hasLineBreak() {
         return this.field.LineBreak;
