@@ -3,6 +3,7 @@ import {Observable} from 'rxjs/Observable';
 import 'rxjs/add/observable/forkJoin';
 import {Router} from '@angular/router-deprecated';
 import {UniTable, UniTableColumn, UniTableColumnType, UniTableConfig} from 'unitable-ng2/main';
+
 import {ProductService, VatTypeService, CustomerInvoiceItemService} from '../../../../services/services';
 import {CustomerInvoice, CustomerInvoiceItem, Product, VatType, StatusCodeCustomerInvoice} from '../../../../unientities';
 
@@ -17,8 +18,8 @@ declare var jQuery;
 export class InvoiceItemList implements OnInit {
     @Input() public invoice: CustomerInvoice;
     @ViewChild(UniTable) public table: UniTable;
-    @Output() public itemsUpdated = new EventEmitter<any>();
-    @Output() public itemsLoaded = new EventEmitter<any>();
+    @Output() public itemsUpdated: EventEmitter<any> = new EventEmitter<any>();
+    @Output() public itemsLoaded: EventEmitter<any> = new EventEmitter<any>();
 
     public invoiceItemTable: UniTableConfig;
 
@@ -140,7 +141,7 @@ export class InvoiceItemList implements OnInit {
         let editable = this.invoice.StatusCode === StatusCodeCustomerInvoice.Draft;
 
 
-        //Table
+        // Table
         this.invoiceItemTable = new UniTableConfig(editable)
             .setColumns([
                 productCol, itemTextCol, unitCol, numItemsCol,
@@ -159,7 +160,7 @@ export class InvoiceItemList implements OnInit {
                 PriceExVat: null,
                 Discount: null,
                 DiscountPercent: null,
-                Project: {ID:0}
+                Project: {ID: 0}
             })
             .setChangeCallback((event) => {
                 var newRow = event.rowModel;
@@ -188,7 +189,7 @@ export class InvoiceItemList implements OnInit {
 
     }
 
-    private rowChanged(event) {
+    public rowChanged(event) {
         console.log('row changed, calculate sums');
         var tableData = this.table.getTableData();
         this.itemsUpdated.emit(tableData);
