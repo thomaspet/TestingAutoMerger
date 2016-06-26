@@ -1,8 +1,5 @@
 uni-salary
     display: block
-    
-    .k-grid td
-        white-space: nowrap
 
     .splitview
         @include unigrid-flush(14)
@@ -70,24 +67,27 @@ section.salarytrans-filter
         margin: 0 0 .5rem
 
 .detail_header_info_tableForm
-    color: $uni-color-scale5
+    color: $uni-color-scale3
 
     label
         @include unigrid-flush(2)
         position: relative
         margin-left: 0
-        margin-right: 10rem
+        margin-right: 12rem
         min-height: 1.5rem
         font-weight: 400
 
     input[readonly]
-        color: $uni-color-scale5
+        color: $uni-color-scale3
         padding-left: 0
         position: absolute
         top: 0
         left: 100%
         width: 10rem
+        margin-right: 2rem
         font-weight: 300
+        background: transparent
+        border: none
 
 
 .detail_header_navigation
@@ -113,10 +113,11 @@ uni-salary .k-grid tbody td>.k-grid-delete
 
 uni-salary .detail_tables
     margin-left: -1rem
+    margin-top: 1rem
     width: calc(100% + 2rem)
 
     .maintable
-        font-size: .778rem
+        font-size: .9rem
         font-weight: 400
 
         .k-grid-content
@@ -137,7 +138,8 @@ uni-salary .detail_tables
     border-top: pxToRem(3) double $uni-color-scale9
     border-bottom: pxToRem(1) solid $uni-color-scale9
 
-    .k-grid
+    .k-grid,
+    table
         .k-grid-header tr,
         tr:nth-of-type(odd),
         tr:nth-of-type(even),
@@ -154,7 +156,8 @@ uni-salary .detail_tables
         .k-grid-toolbar
             display: none
 
-        .k-grid-header-wrap
+        .k-grid-header-wrap,
+        th, tr, thead
             border-bottom: none
 
         .k-grid-header th.k-header>.k-link
