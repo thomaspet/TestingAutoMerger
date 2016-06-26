@@ -41,7 +41,6 @@ export class SalaryTransactionEmployeeList implements OnInit {
     @Output() public nextEmployee: EventEmitter<any> = new EventEmitter<any>(true);
     @Output() public previousEmployee: EventEmitter<any> = new EventEmitter<any>(true);
     @ViewChildren(UniTable) public tables: QueryList<UniTable>;
-    @Output() public salarytransesAdded: EventEmitter<any> = new EventEmitter<any>();
 
     private busy: boolean;
     private salarytransChanged: any[] = [];
@@ -119,41 +118,36 @@ export class SalaryTransactionEmployeeList implements OnInit {
 
     public saveSalarytrans(done) {
         done('Lagrer lønnsposter');
-        let tableList: UniTable[] = this.tables.toArray();
-        let saveItems: any[] = tableList[0].getTableData().filter;
+        let saveItems: any[] = this.salarytransChanged;
 
         saveItems.forEach((salaryitem: SalaryTransaction) => {
-            if (salaryitem.Wagetype !== null) {
-                salaryitem.EmployeeID = this.employeeID;
-                salaryitem.EmployeeNumber = this.employeeID;
-                salaryitem.PayrollRunID = this.payrollRun.ID;
-                if (salaryitem.ID > 0) {
-                    this.salarytransService.Put(salaryitem.ID, salaryitem)
-                        .subscribe((response: any) => {
-                            done('Sist lagret: ');
-                            this.salarytransChanged = [];
-                            this.saveactions[0].disabled = true;
-                            this.salarytransesAdded.emit(false);
-                        },
-                        (err) => {
-                            done('Feil ved oppdatering av lønnspost', err);
-                            this.refreshSalaryTransTable();
-                        });
-                } else {
-                    this.salarytransService.Post(salaryitem)
-                        .subscribe((response: any) => {
-                            done('Sist lagret: ');
-                            this.salarytransChanged = [];
-                            this.saveactions[0].disabled = true;
-                            this.salarytransesAdded.emit(false);
-                        },
-                        (err) => {
-                            done('Feil ved lagring av lønnspost', err);
-                            this.refreshSalaryTransTable();
-                        });
-                }
+            salaryitem.EmployeeID = this.employeeID;
+            salaryitem.EmployeeNumber = this.employeeID;
+            salaryitem.PayrollRunID = this.payrollRun.ID;
+            if (salaryitem.ID > 0) {
+                this.salarytransService.Put(salaryitem.ID, salaryitem)
+                    .subscribe((response: any) => {
+                        done('Sist lagret: ');
+                        this.salarytransChanged = [];
+                        this.saveactions[0].disabled = true;
+                        this.refreshSalaryTransTable();
+                    },
+                    (err) => {
+                        alert(err._body);
+                        done('Feil ved oppdatering av lønnspost', err._body);
+                    });
             } else {
-                salaryitem = null;
+                this.salarytransService.Post(salaryitem)
+                    .subscribe((response: any) => {
+                        done('Sist lagret: ');
+                        this.salarytransChanged = [];
+                        this.saveactions[0].disabled = true;
+                        this.refreshSalaryTransTable();
+                    },
+                    (err) => {
+                        alert(err._body);
+                        done('Feil ved lagring av lønnspost', err._body);
+                    });
             }
 
         });
@@ -296,9 +290,16 @@ export class SalaryTransactionEmployeeList implements OnInit {
                 },
                 lookupFunction: (searchValue) => {
                     let matching: WageType[] = [];
+
                     this.wagetypes.forEach(wagetype => {
-                        if (wagetype.WageTypeName.toLowerCase().indexOf(searchValue) > -1) {
-                            matching.push(wagetype);
+                        if (isNaN(searchValue)) {
+                            if (wagetype.WageTypeName.toLowerCase().indexOf(searchValue) > -1) {
+                                matching.push(wagetype);
+                            }
+                        } else {
+                            if (wagetype.WageTypeId.toString().indexOf(searchValue) > -1) {
+                                matching.push(wagetype);
+                            }
                         }
                     });
                     return matching;
@@ -420,27 +421,24 @@ export class SalaryTransactionEmployeeList implements OnInit {
     }
 
     public rowChanged(event) {
-        // let row: SalaryTransaction = event.rowModel;
-        /*if (row.Wagetype !== null) {
-            if (this.salarytransChanged.length > 0) {
+        let row: any = event.rowModel;
+        console.log('row change: ', row);
+        if (row.Wagetype || row.Text || row.EmploymentID || row.FromDate || row.ToDate || row.Account || row.Amount || row.Rate) {
+            if (!row.ID && row._createguid) {
                 for (var i = 0; i < this.salarytransChanged.length; i++) {
                     var salaryItem = this.salarytransChanged[i];
-                    if (row.ID === salaryItem.ID) {
+                    if (row._createguid === salaryItem._createguid) {
                         this.salarytransChanged[i] = row;
                         break;
-                    } else {
-                        this.salarytransChanged.push(row);
                     }
                 }
             } else {
+                row['_createguid'] = this.salarytransService.getNewGuid();
                 this.salarytransChanged.push(row);
             }
         }
-        console.log('slaryTransChanged: ', this.salarytransChanged);
-        this.salarytransesAdded.emit(true);*/
-
-        let tableList = this.tables.toArray();
-        console.log('changed lines: ', tableList[0].getTableData().filter(x => !x.ID));
+        let tableList: UniTable[] = this.tables.toArray();
+        tableList[0].updateRow(row._originalIndex, row);
         this.saveactions[0].disabled = false;
     }
 }

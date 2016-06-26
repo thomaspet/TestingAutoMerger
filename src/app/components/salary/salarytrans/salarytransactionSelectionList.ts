@@ -43,7 +43,7 @@ export class SalaryTransactionSelectionList implements OnInit {
         });
         if (!update) {
 
-            var employeenumberCol = new UniTableColumn('EmployeeNumber', '#', UniTableColumnType.Number).setWidth('10%');
+            var employeenumberCol = new UniTableColumn('EmployeeNumber', '#', UniTableColumnType.Number).setWidth('2rem');
             var nameCol = new UniTableColumn('BusinessRelationInfo.Name', 'Navn', UniTableColumnType.Text);
             var lockedCol = new UniTableColumn('', '', UniTableColumnType.Custom)
                 .setCls('icon-column')
@@ -72,17 +72,6 @@ export class SalaryTransactionSelectionList implements OnInit {
         this.selectedEmployeeID = event.rowModel.ID;
     }
 
-    private getStandardBankAccountNumber(bankAccounts: any) {
-        var bAccount = '';
-        for (var i = 0; i < bankAccounts.length; i++) {
-            var bankAccount = bankAccounts[i];
-            if (bankAccount.Active === true) {
-                bAccount = bankAccount.AccountNumber;
-            }
-        }
-        return bAccount;
-    }
-
     public goToNextEmployee(id) {
         var index = _.findIndex(this.employeeList, x => x.ID === this.selectedEmployeeID);
         if (index + 1 < this.employeeList.length) {
@@ -102,10 +91,6 @@ export class SalaryTransactionSelectionList implements OnInit {
     public changeFilter(filter: string) {
         this.tableConfig(true, filter);
         this.selectedEmployeeID = 0;
-    }
-
-    public salarytransAdded(disableList) {
-        this.disableEmployeeList = disableList;
     }
 
     public saveRun(event: any) {
