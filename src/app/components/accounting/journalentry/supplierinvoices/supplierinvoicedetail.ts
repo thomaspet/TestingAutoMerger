@@ -158,7 +158,7 @@ export class SupplierInvoiceDetail implements OnInit {
         this.actions[0].disabled = this.supplierInvoice.StatusCode == StatusCodeSupplierInvoice.Journaled;                
         this.actions[1].disabled = this.supplierInvoice.StatusCode >= StatusCodeSupplierInvoice.Journaled;
         this.actions[2].disabled = this.supplierInvoice.StatusCode >= StatusCodeSupplierInvoice.Journaled;
-        this.actions[3].disabled = this.supplierInvoice.StatusCode == 10001 || this.supplierInvoice.StatusCode == StatusCodeSupplierInvoice.Payed; // TODO: missing Draft status in StatusCodeSupplierInvoice
+        this.actions[3].disabled = this.supplierInvoice.StatusCode == StatusCodeSupplierInvoice.Draft || this.supplierInvoice.StatusCode == StatusCodeSupplierInvoice.Payed; 
     }
 
     private save(runSmartBooking: boolean, done) {
@@ -406,7 +406,7 @@ export class SupplierInvoiceDetail implements OnInit {
     }
     
     private registerPayment(done) {
-        const title = `Register betaling${this.supplierInvoice.InvoiceNumber ? ', Faktura ' + this.supplierInvoice.InvoiceNumber : ''}${this.supplierInvoice.InvoiceRecieverName ? ', ' + this.supplierInvoice.InvoiceRecieverName : ''}`;
+        const title = `Register betaling${this.supplierInvoice.InvoiceNumber ? ', Faktura ' + this.supplierInvoice.InvoiceNumber : ''}${this.supplierInvoice.InvoiceReceiverName ? ', ' + this.supplierInvoice.InvoiceReceiverName : ''}`;
         const invoiceData: InvoicePaymentData = {
             Amount: this.supplierInvoice.TaxInclusiveAmount,
             PaymentDate: new Date()

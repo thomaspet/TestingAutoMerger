@@ -226,7 +226,7 @@ export class JournalEntrySimpleForm implements OnChanges {
             departement.Hidden = self.mode == JournalEntryMode.Payment;   
             departement.Options = {                  
                 source: self.departements,
-                template: (departement) => `${departement.Name}`,
+                template: (departement) => `${departement ? departement.Name : ''}`,
                 valueProperty: 'ID',
                 displayProperty: 'Name',
                 debounceTime: 500
@@ -243,7 +243,7 @@ export class JournalEntrySimpleForm implements OnChanges {
             project.Hidden = self.mode == JournalEntryMode.Payment;   
             project.Options = {                  
                 source: self.projects,
-                template: (project) => `${project.Name}`,
+                template: (project) => `${project ? project.Name : ''}`,
                 valueProperty: 'ID',
                 displayProperty: 'Name',
                 debounceTime: 500
@@ -313,10 +313,8 @@ export class JournalEntrySimpleForm implements OnChanges {
             this.accounts = this.dropdownData[3];
             
             // Add empty element to top of dropdown
-            var departement = new Departement(); departement.Name = '';            
-            var project = new Project(); project.Name = '';
-            this.departements.unshift(departement);
-            this.projects.unshift(project);
+            this.departements.unshift(null);
+            this.projects.unshift(null);
                           
             // Refresh sources 
             this.fields[3].Options.source = this.accounts;

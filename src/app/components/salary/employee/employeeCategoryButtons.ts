@@ -12,14 +12,14 @@ declare var jQuery;
         <section class="poster_tags">
 
             <ul class="poster_tags_list">
-                <li *ngFor="let category of selectedEmployee.EmployeeCategories">{{category.Name}} 
+                <li *ngFor="let category of selectedEmployee.EmployeeCategories">{{category.Name}}
                 <button class="remove" (click)="removeCategory(category)">Remove</button></li>
             </ul>
 
-            <button class="poster_tags_addBtn" (click)="addingTags = !addingTags" [ngClass]="{'-is-active': addingTags}">Legg til&hellip;</button>
+            <button class="poster_tags_addBtn" (click)="addingTags = !addingTags" [ngClass]="{'-is-active': addingTags}">Legg til kategori&hellip;</button>
             <div class="poster_tags_addDropdown" [ngClass]="{'-is-active': addingTags}">
 
-                <input type="text" placeholder="Søk kategorierier…" 
+                <input type="text" placeholder="Søk kategorierier…"
                 [(ngModel)]="newTag" (keyup)="presentResults(newTag)" autofocus/>
 
                 <ul (click)="addingTags = false; newTag = ''" *ngIf="newTag">
@@ -38,12 +38,12 @@ export class EmployeeCategoryButtons implements OnInit {
     private results: Array<EmployeeCategory> = [];
     @Input()
     private selectedEmployee: any;
-    
-    constructor(private employeeService: EmployeeService, 
+
+    constructor(private employeeService: EmployeeService,
                 private employeeCategoryService: EmployeeCategoryService) {
-                    
+
     }
-    
+
     private filterTags(tag: string) {
         let containsString = function(str: EmployeeCategory) {
             return str.Name.toLowerCase().indexOf(tag.toLowerCase()) >= 0;
@@ -55,7 +55,7 @@ export class EmployeeCategoryButtons implements OnInit {
     private presentResults(tag: string) {
         this.results = this.filterTags(tag).splice(0, 5);
     };
-    
+
     public ngOnInit() {
         Observable.forkJoin(
             this.employeeService.getEmployeeCategories(this.selectedEmployee.EmployeeNumber),
@@ -65,7 +65,7 @@ export class EmployeeCategoryButtons implements OnInit {
             let [empCategories, allCategories] = response;
             this.selectedEmployee.EmployeeCategories = empCategories ? empCategories : [];
             this.categories = allCategories;
-            
+
             // remove selected categories from available categories
             if (this.categories.length > 0) {
                 let arrLength = this.selectedEmployee.EmployeeCategories ? this.selectedEmployee.EmployeeCategories.length : 0;
@@ -81,13 +81,13 @@ export class EmployeeCategoryButtons implements OnInit {
             }
         });
     }
-    
+
     public addCategory(categoryName) {
         let category = new EmployeeCategory();
         category.Name = categoryName;
-        
+
         this.selectedEmployee.EmployeeCategories.push(category);
-        
+
         let indx = this.categories.map(function(e) {
             return e.Name;
         }).indexOf(categoryName);
@@ -96,21 +96,21 @@ export class EmployeeCategoryButtons implements OnInit {
         }
         return category;
     }
-    
+
     public addCategoryAndSave(categoryName) {
         let cat = this.addCategory(categoryName);
         this.saveCategory(cat);
     }
-    
+
     public removeCategory(removeCategory: EmployeeCategory) {
         this.selectedEmployee.EmployeeCategories.splice(this.selectedEmployee.EmployeeCategories.indexOf(removeCategory), 1);
         this.categories.push(removeCategory);
     }
-    
+
     public saveCategory(category) {
         this.employeeCategoryService.saveCategory(category)
         .subscribe(response => {
-            
+
         });
     }
 }

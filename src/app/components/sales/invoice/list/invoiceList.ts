@@ -10,6 +10,7 @@ import {InvoicePaymentData} from '../../../../models/sales/InvoicePaymentData';
 import {InvoiceSummary} from '../../../../models/accounting/InvoiceSummary';
 import {RegisterPaymentModal} from '../../../common/modals/registerPaymentModal';
 import {PreviewModal} from '../../../reports/modals/preview/previewModal';
+import {TabService} from '../../../layout/navbar/tabstrip/tabService';
 
 @Component({
     selector: 'invoice-list',
@@ -35,9 +36,11 @@ export class InvoiceList implements OnInit {
     constructor(private uniHttpService: UniHttp,
         private router: Router,
         private customerInvoiceService: CustomerInvoiceService,
-        private reportDefinitionService: ReportDefinitionService) {
+        private reportDefinitionService: ReportDefinitionService,
+        private tabService: TabService) {
 
         this.setupInvoiceTable();
+        this.tabService.addTab({ url: '/sales/invoice/list', name: 'Faktura', active: true, moduleID: 5 });
     }
 
     private log(err) {
@@ -145,7 +148,7 @@ export class InvoiceList implements OnInit {
             action: () => { }
         });
 
-        //Type er FAKTURA
+        // Type er FAKTURA
         contextMenuItems.push({
             label: 'Fakturer',
             action: (rowModel) => {
@@ -167,7 +170,7 @@ export class InvoiceList implements OnInit {
             }
         });
 
-        //Type er KREDITNOTA
+        // Type er KREDITNOTA
         contextMenuItems.push({
             label: 'Krediter kreditnota',
             action: (rowModel) => {
@@ -201,8 +204,8 @@ export class InvoiceList implements OnInit {
                 this.registerPaymentModal.openModal(rowModel.ID, title, invoiceData);
             },
 
-            //TODO: Benytt denne når _links fungerer
-            //disabled: (rowModel) => {
+            // TODO: Benytt denne når _links fungerer
+            // disabled: (rowModel) => {
             //    return !rowModel._links.transitions.pay;
             //    }
 
@@ -276,7 +279,7 @@ export class InvoiceList implements OnInit {
             .setContextMenu(contextMenuItems);
     }
 
-    private onRowSelected(item) {
+    public onRowSelected(item) {
         this.router.navigateByUrl(`/sales/invoice/details/${item.ID}`);
     }
 

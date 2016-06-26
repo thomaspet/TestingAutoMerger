@@ -1,9 +1,10 @@
 import {Component, ViewChild, Input, Output, EventEmitter} from '@angular/core';
-import {Control} from '@angular/common';
 import {Observable} from 'rxjs/Observable';
 import 'rxjs/add/observable/forkJoin';
-import {ComponentInstruction, RouteParams, Router} from '@angular/router-deprecated';
+import {Router} from '@angular/router-deprecated';
+
 import {UniTable, UniTableColumn, UniTableColumnType, UniTableConfig} from 'unitable-ng2/main';
+
 import {ProductService, VatTypeService, CustomerOrderItemService} from '../../../../services/services';
 import {CustomerOrder, CustomerOrderItem, Product, VatType} from '../../../../unientities';
 
@@ -16,16 +17,16 @@ declare var jQuery;
     providers: [ProductService, VatTypeService, CustomerOrderItemService]
 })
 export class OrderItemList {
-    @Input() order: CustomerOrder; 
+    @Input() public order: CustomerOrder; 
     @ViewChild(UniTable) public table: UniTable;
-    @Output() itemsUpdated = new EventEmitter<any>();
-    @Output() itemsLoaded = new EventEmitter<any>();
+    @Output() public itemsUpdated: EventEmitter<any> = new EventEmitter<any>();
+    @Output() public itemsLoaded: EventEmitter<any> = new EventEmitter<any>();
     
     public orderItemTable: UniTableConfig;
     
-    products: Product[];
-    vatTypes: VatType[];
-    items: CustomerOrderItem[];
+    public products: Product[];
+    public vatTypes: VatType[];
+    public items: CustomerOrderItem[];
     
     constructor(
         private router: Router, 
@@ -34,15 +35,15 @@ export class OrderItemList {
         private customerOrderItemService: CustomerOrderItemService) {                 
     }
     
-    ngOnInit() {
+    public ngOnInit() {
         this.setupOrderItemTable();
     }
     
-    ngOnChanges() {
+    public ngOnChanges() {
         this.setupOrderItemTable();        
     }
     
-    setupOrderItemTable() {
+    private setupOrderItemTable() {
         if (this.order) {
             this.items = this.order.Items;
                         
@@ -65,8 +66,9 @@ export class OrderItemList {
     
     private mapProductToInvoiceItem(rowModel) {
         let product = rowModel['Product'];
-        if (product === null) return;
-        
+        if (product === null) {
+            return;
+        }
         rowModel.ProductID = product.ID;
         rowModel.ItemText = product.Name;
         rowModel.Unit = product.Unit;
@@ -91,7 +93,7 @@ export class OrderItemList {
         rowModel.SumVat = rowModel.SumTotalIncVat - rowModel.SumTotalExVat;
     }
        
-    setupUniTable() {
+    private setupUniTable() {
         let productCol = new UniTableColumn('Product', 'Produkt', UniTableColumnType.Lookup)
             .setDisplayField('Product.PartName')
             .setEditorOptions({
@@ -133,15 +135,11 @@ export class OrderItemList {
         let sumVatCol = new UniTableColumn('SumVat', 'Mva', UniTableColumnType.Number, false);
         let sumTotalIncVatCol = new UniTableColumn('SumTotalIncVat', 'Sum ink. mva', UniTableColumnType.Number, false);
 
-        var statusCol = new UniTableColumn('StatusCode', 'Status', UniTableColumnType.Number).setWidth('10%');
+        var statusCol = new UniTableColumn('StatusCode', 'Status', UniTableColumnType.Number, false)
+            .setWidth('10%');
         statusCol.setTemplate((dataItem) => {
             return this.customerOrderItemService.getStatusText(dataItem.StatusCode); 
         });
-        //var smallScreenTemplateCol = new UniTableColumn('ID', 'Ordrelinjer', UniTableColumnType.Text)
-        //    .setShowOnLargeScreen(false).setEditable(false)
-        //    .setTemplate((rowModel) => {
-        //        return `<span>${rowModel.ItemText}</span>, <span>Antall: </span>${rowModel.NumberOfItems}, <span>Rabatt: </span>${rowModel.Discount}, <span>Sum ink. mva: </span>${rowModel.SumTotalIncVat}`;        
-        //    }); 
             
         // Setup table        
         this.orderItemTable = new UniTableConfig()   
@@ -149,7 +147,7 @@ export class OrderItemList {
                 productCol, itemTextCol, unitCol, numItemsCol,
                 exVatCol, discountPercentCol, discountCol, vatTypeCol,
                 sumTotalExVatCol, sumVatCol, sumTotalIncVatCol,
-                statusCol //,smallScreenTemplateCol
+                statusCol
             ])     
             .setMultiRowSelect(false)    
             .setDefaultRowData({
@@ -172,6 +170,12 @@ export class OrderItemList {
                 if (newRow.ID === 0) {
                     newRow._createguid = this.customerOrderItemService.getNewGuid();
                     newRow.Dimensions._createguid = this.customerOrderItemService.getNewGuid();
+
+
+                    // Default antall for ny rad
+                    if (newRow.NumberOfItems === null) {
+                        newRow.NumberOfItems = 1;
+                    }
                 }
 
                 if (event.field === 'Product') {
@@ -187,7 +191,7 @@ export class OrderItemList {
             
     }    
     
-    private rowChanged(event) {
+    public rowChanged(event) {
         console.log('row changed, calculate sums');
         var tableData = this.table.getTableData();
         this.itemsUpdated.emit(tableData);

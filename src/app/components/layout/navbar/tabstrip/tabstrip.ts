@@ -7,6 +7,7 @@ export interface IUniTab {
     url: string;
     name: string;
     active?: boolean;
+    moduleID?: number;
 }
 
 @Component({
@@ -16,10 +17,10 @@ export interface IUniTab {
 })
 export class UniTabStrip {
 
-    constructor(private router: Router, public tabService: TabService) {
+    constructor(private router: Router, private tabService: TabService) {
     }
 
-    activateTab(tab: IUniTab, index: number): void {
+    private activateTab(tab: IUniTab, index: number): void {
         //Removes active class on previous active
         this.tabService.currentActiveTab.active = false;
 
@@ -30,7 +31,7 @@ export class UniTabStrip {
         this.router.navigateByUrl(tab.url);
     }
 
-    closeTab(tab: IUniTab, index: number): void {
+    private closeTab(tab: IUniTab, index: number): void {
         var newTab = this.tabService.removeTab(tab, index);
         if (newTab.name !== this.tabService.currentActiveTab.name) {
             this.tabService.addTab(newTab);

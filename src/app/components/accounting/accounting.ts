@@ -25,7 +25,7 @@ const ACCOUNTING_ROUTES = [
     new AsyncRoute({
         path: '/vatsettings',
         name: 'VatSettings',
-        loader: () => ComponentProxy.LoadComponentAsync('VatSettings','app/components/settings/vatSettings/vatSettings')
+        loader: () => ComponentProxy.LoadComponentAsync('VatSettings','app/components/settings/vatsettings/vatsettings')
     })
 ];
 

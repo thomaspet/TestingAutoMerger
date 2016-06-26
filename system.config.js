@@ -6,27 +6,19 @@ var packages = {
     }
 };
 
-var barrels = [
-    // Angular specific barrels.
-    '@angular/core',
-    '@angular/common',
-    '@angular/compiler',
-    '@angular/http',
-    '@angular/router',
-    '@angular/router-deprecated',
-    '@angular/platform-browser',
-    '@angular/platform-browser-dynamic',
-];
-var cliSystemConfigPackages = {};
-barrels.forEach(function(barrelName) {
-    cliSystemConfigPackages[barrelName] = {
-        main: 'index'
-    };
-});
+var ngPackageNames = [
+    'common',
+    'compiler',
+    'core',
+    'http',
+    'platform-browser',
+    'platform-browser-dynamic',
+    'router',
+    'router-deprecated',
+    'upgrade'];
 
-// Apply the CLI SystemJS configuration.
-System.config({
-    packages: cliSystemConfigPackages,
+ngPackageNames.forEach(function (element) {
+    packages['@angular/' + element] = { main: element + '.umd.js', defaultExtension: 'js' };
 });
 
 // Apply the user's configuration.

@@ -21,7 +21,7 @@ export class EmployeeList {
     private employeeTableConfig: UniTableConfig;
     private employees$: Observable<Employee>;
 
-    constructor(private router: Router, private tabSer: TabService, private _employeeService: EmployeeService) {
+    constructor(private router: Router, private tabService: TabService, private _employeeService: EmployeeService) {
 
         this.employees$ = _employeeService.GetAll('orderby=EmployeeNumber ASC&filter=BusinessRelationID gt 0');
         
@@ -34,8 +34,8 @@ export class EmployeeList {
 
         this.employeeTableConfig = new UniTableConfig(false)
             .setColumns([idCol, nameCol, employmentDateCol]);
-        
-        this.tabSer.addTab({name: 'Ansatte', url: '/salary/employees'});
+
+        this.tabService.addTab({ name: 'Ansatte', url: '/salary/employees', moduleID: 12, active: true });
     }
 
     public rowSelected(event) {

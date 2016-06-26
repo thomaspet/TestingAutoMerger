@@ -8,7 +8,7 @@ import {Employee, Employment} from '../../../unientities';
 declare var _;
 
 @Component({
-    selector: 'uni-form-demo',
+    selector: 'uni-form-demo-2',
     directives: [UniForm, NgIf],
     providers: [EmployeeService],
     template: `
@@ -47,6 +47,7 @@ export class XFormDemo {
             numericTest.Label = 'Numeric Input test';
             numericTest.Property = 'NumericTestProperty';
             numericTest.ReadOnly = false;
+            numericTest.LineBreak = true;
             numericTest.Options = {
                 step: 1
             };
@@ -222,6 +223,20 @@ export class XFormDemo {
                 labelProperty: 'name', 
                 valueProperty: 'id'
             };
+
+            var buttonTest = new UniFieldLayout();
+            buttonTest.FieldSet = 0;
+            buttonTest.Section = 0;
+            buttonTest.Combo = 0;
+            buttonTest.FieldType = 1;
+            buttonTest.Label = 'Click here!';
+            buttonTest.ReadOnly = false;
+            buttonTest.Options = {
+                click: (event) => {
+                    alert('clicked!');
+                }
+            };
+
             self.fields = [
                 numericTest, 
                 maskedTest, 
@@ -235,7 +250,8 @@ export class XFormDemo {
                 selectTest,
                 radiogroupTest,  
                 dateTest,   
-                checkboxgroupTest,       
+                checkboxgroupTest,
+                buttonTest,
                 ...self.fields];
         });
         this.config = {

@@ -1,3 +1,6 @@
+uni-checkbox-input label, uni-radio-input label
+    width: 100%
+
 input[type=checkbox],
 input[type=radio]
     display: none
@@ -20,6 +23,7 @@ input[type=radio]
             top: 1.8rem
             left: 0
             border-radius: .2rem
+            background: #fff
 
         &.success:before
             border-color: $uni-color-Good
@@ -134,3 +138,18 @@ input[type=radio] + label
 
     &:after
         opacity: 0
+
+uni-checkboxgroup-input,
+uni-radiogroup-input
+    display: block
+
+    input[type=checkbox]+label,
+    input[type=radio]+label
+        padding-top: .2rem
+        padding-bottom: 1.3rem
+        padding-right: 2.5rem
+        margin-left: 0
+
+        &:before,
+        &:after
+            margin-top: -1.3rem
