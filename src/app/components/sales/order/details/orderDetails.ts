@@ -260,7 +260,7 @@ export class OrderDetails {
 
                 this.addressModal.openModal(value);
 
-                this.addressModal.Changed.subscribe(address => {
+                this.addressModal.Changed.subscribe((address) => {
                     this.order._ShippingAddress = address;
                     this.order = _.cloneDeep(this.order);
                     if (address._question) { self.saveAddressOnCustomer(address); }

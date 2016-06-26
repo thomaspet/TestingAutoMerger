@@ -3,9 +3,8 @@ import {Router, RouteParams, RouterLink} from '@angular/router-deprecated';
 import {Observable} from 'rxjs/Observable';
 import 'rxjs/add/observable/forkJoin';
 
-import {CustomerQuoteService, CustomerQuoteItemService, CustomerService} from '../../../../services/services';
+import {CustomerQuoteService, CustomerQuoteItemService, CustomerService, BusinessRelationService} from '../../../../services/services';
 import {ProjectService, DepartementService, AddressService, ReportDefinitionService} from '../../../../services/services';
-
 
 import {UniSave, IUniSaveAction} from '../../../../../framework/save/save';
 import {UniForm, UniFieldLayout} from '../../../../../framework/uniform';
@@ -25,12 +24,19 @@ import {TabService} from '../../../layout/navbar/tabstrip/tabService';
 declare var _;
 declare var moment;
 
+class CustomerQuoteExt extends CustomerQuote {
+    public _InvoiceAddress: Address;
+    public _InvoiceAddresses: Array<Address>;
+    public _ShippingAddress: Address;
+    public _ShippingAddresses: Array<Address>;
+}
+
 @Component({
     selector: 'quote-details',
     templateUrl: 'app/components/sales/quote/details/quoteDetails.html',
     directives: [RouterLink, QuoteItemList, AddressModal, UniForm, UniSave, PreviewModal],
     providers: [CustomerQuoteService, CustomerQuoteItemService, CustomerService,
-        ProjectService, DepartementService, AddressService, ReportDefinitionService]
+        ProjectService, DepartementService, AddressService, ReportDefinitionService, BusinessRelationService]
 })
 export class QuoteDetails {
     @Input() public quoteID: any;
@@ -41,11 +47,7 @@ export class QuoteDetails {
     public config: any = {};
     public fields: any[] = [];
 
-    private businessRelationInvoice: BusinessRelation = new BusinessRelation();
-    private businessRelationShipping: BusinessRelation = new BusinessRelation();
-    private lastCustomerInfo: BusinessRelation;
-
-    private quote: CustomerQuote;
+    private quote: CustomerQuoteExt;
     private statusText: string;
 
     private itemsSummaryData: TradeHeaderCalculationSummary;
@@ -64,16 +66,14 @@ export class QuoteDetails {
         private departementService: DepartementService,
         private projectService: ProjectService,
         private addressService: AddressService,
+        private businessRelationService: BusinessRelationService,
         private reportDefinitionService: ReportDefinitionService,
         private router: Router, private params: RouteParams,
         private tabService: TabService) {
 
         this.quoteID = params.get('id');
-        this.businessRelationInvoice.Addresses = [];
-        this.businessRelationShipping.Addresses = [];
         this.tabService.addTab({ url: '/sales/quote/details/' + this.quoteID, name: 'Tilbudsnr. ' + this.quoteID, active: true, moduleID: 3 });
     }
-
 
     private log(err) {
         alert(err._body);
@@ -139,8 +139,10 @@ export class QuoteDetails {
             .subscribe((data) => {
                 if (data) {
                     this.customerService.Get(this.quote.CustomerID, ['Info', 'Info.Addresses']).subscribe((customer: Customer) => {
+                        let previousAddresses = this.quote.Customer ? this.quote.Customer.Info.Addresses : null;
                         this.quote.Customer = customer;
-                        this.addAddresses();
+                        this.addressService.setAddresses(this.quote, previousAddresses);
+            
                         this.quote.CustomerName = customer.Info.Name;
 
                         if (customer.CreditDays !== null) {
@@ -189,7 +191,8 @@ export class QuoteDetails {
             this.customers.unshift(null);
 
             this.updateStatusText();
-            this.addAddresses();
+            this.addressService.setAddresses(this.quote);
+
             this.updateSaveActions();
             this.extendFormConfig();
         }, (err) => {
@@ -199,6 +202,8 @@ export class QuoteDetails {
     }
 
     private extendFormConfig() {
+        let self = this;
+
         var departement: UniFieldLayout = this.fields.find(x => x.Property === 'Dimensions.DepartementID');
         departement.Options = {
             source: this.dropdownData[0],
@@ -215,23 +220,26 @@ export class QuoteDetails {
             debounceTime: 200
         };
 
-        var invoiceaddress: UniFieldLayout = this.fields.find(x => x.Property === 'InvoiceAddress');
+        var invoiceaddress: UniFieldLayout = this.fields.find(x => x.Property === '_InvoiceAddress');
         invoiceaddress.Options = {
             entity: Address,
-            listProperty: 'Customer.Info.Addresses',
+            listProperty: '_InvoiceAddresses',
             displayValue: 'AddressLine1',
             linkProperty: 'ID',
-            foreignProperty: 'Customer.Info.InvoiceAddressID',
+            foreignProperty: '_InvoiceAddressID',
             editor: (value) => new Promise((resolve) => {
                 if (!value) {
                     value = new Address();
                     value.ID = 0;
                 }
 
-                this.addressModal.openModal(value);
+                this.addressModal.openModal(value, !!!this.quote.CustomerID);
 
-                this.addressModal.Changed.subscribe(modalval => {
-                    resolve(modalval);
+                this.addressModal.Changed.subscribe(address => {
+                    this.quote._InvoiceAddress = address;
+                    this.quote = _.cloneDeep(this.quote);
+                    if (address._question) { self.saveAddressOnCustomer(address); }
+                    resolve(address);
                 });
             }),
             display: (address: Address) => {
@@ -240,30 +248,13 @@ export class QuoteDetails {
             }
         };
 
-        // var invoiceaddress: UniFieldBuilder = this.formConfig.find('InvoiceAddress');
-        // invoiceaddress
-        //    .setKendoOptions({
-        //        dataTextField: 'AddressLine1',
-        //        dataValueField: 'ID',
-        //        enableSave: true
-        //    })
-        //    .setModel(this.businessRelationInvoice)
-        //    .setModelField('Addresses')
-        //    //  .setModelDefaultField('InvoiceAddressID')           
-        //    .setPlaceholder(this.EmptyAddress)
-        //    .setEditor(AddressModal);
-        // invoiceaddress.onSelect = (address: Address) => {
-        //    this.addressToInvoice(address);
-        //    this.businessRelationInvoice.Addresses[0] = address;
-        // };
-
-        var shippingaddress: UniFieldLayout = this.fields.find(x => x.Property === 'ShippingAddress');
+        var shippingaddress: UniFieldLayout = this.fields.find(x => x.Property === '_ShippingAddress');
         shippingaddress.Options = {
             entity: Address,
-            listProperty: 'Customer.Info.Addresses',
+            listProperty: '_ShippingAddresses',
             displayValue: 'AddressLine1',
             linkProperty: 'ID',
-            foreignProperty: 'Customer.Info.ShippingAddressID',
+            foreignProperty: 'ShippingAddressesID',
             editor: (value) => new Promise((resolve) => {
                 if (!value) {
                     value = new Address();
@@ -272,8 +263,11 @@ export class QuoteDetails {
 
                 this.addressModal.openModal(value);
 
-                this.addressModal.Changed.subscribe(modalval => {
-                    resolve(modalval);
+                this.addressModal.Changed.subscribe((address) => {
+                    this.quote._ShippingAddress = address;
+                    this.quote = _.cloneDeep(this.quote);
+                    if (address._question) { self.saveAddressOnCustomer(address); }
+                    resolve(address);
                 });
             }),
             display: (address: Address) => {
@@ -281,24 +275,6 @@ export class QuoteDetails {
                 return displayVal;
             }
         };
-
-        // var shippingaddress: UniFieldBuilder = this.formConfig.find('ShippingAddress');
-        // shippingaddress
-        //    .hasLineBreak(true)
-        //    .setKendoOptions({
-        //        dataTextField: 'AddressLine1',
-        //        dataValueField: 'ID',
-        //        enableSave: true
-        //    })
-        //    .setModel(this.businessRelationShipping)
-        //    .setModelField('Addresses')
-        //    //    .setModelDefaultField('ShippingAddressID')
-        //    .setPlaceholder(this.EmptyAddress)
-        //    .setEditor(AddressModal);
-        // shippingaddress.onSelect = (address: Address) => {
-        //    this.addressToShipping(address);
-        //    this.businessRelationShipping.Addresses[0] = address;
-        // };
 
         var customer: UniFieldLayout = this.fields.find(x => x.Property === 'CustomerID');
         customer.Options = {
@@ -308,6 +284,24 @@ export class QuoteDetails {
             debounceTime: 200
         };
     }
+
+    private saveAddressOnCustomer(address: Address) {
+        if (!address.ID || address.ID == 0) {
+            address['_createguid'] = this.addressService.getNewGuid();
+            console.log("== SAVE NEW ADDRESS ==", address);
+            this.quote.Customer.Info.Addresses.push(address);
+            this.businessRelationService.Put(this.quote.Customer.Info.ID, this.quote.Customer.Info).subscribe((res) => {
+                this.quote.Customer.Info = res;
+                this.addressService.setAddresses(this.quote);
+            });
+        } else {
+            console.log("== SAVE EXISTING ADDRESS ==", address.ID);
+            this.addressService.Put(address.ID, address).subscribe((res) => {
+                console.log("== ADDRESS SAVED ==", res);
+            });
+        }
+    }
+
 
     private updateSaveActions() {
         this.actions = [];
@@ -392,69 +386,6 @@ export class QuoteDetails {
         done('Slett tilbud avbrutt');
     }
 
-    private addAddresses() {
-        var invoiceaddresses = this.businessRelationInvoice.Addresses ? this.businessRelationInvoice.Addresses : [];
-        var shippingaddresses = this.businessRelationShipping.Addresses ? this.businessRelationShipping.Addresses : [];
-        var firstinvoiceaddress = null;
-        var firstshippingaddress = null;
-
-        // remove addresses from last customer
-        if (this.lastCustomerInfo) {
-            this.lastCustomerInfo.Addresses.forEach(a => {
-                invoiceaddresses.forEach((b, i) => {
-                    if (a.ID == b.ID) {
-                        delete invoiceaddresses[i];
-                        return;
-                    }
-                });
-                shippingaddresses.forEach((b, i) => {
-                    if (a.ID == b.ID) {
-                        delete shippingaddresses[i];
-                        return;
-                    }
-                });
-            });
-        }
-
-        // Add address from order if no addresses
-        if (invoiceaddresses.length == 0) {
-            var invoiceaddress = this.invoiceToAddress();
-            if (!this.isEmptyAddress(invoiceaddress)) {
-                firstinvoiceaddress = invoiceaddress;
-            }
-        } else {
-            firstinvoiceaddress = invoiceaddresses.shift();
-        }
-
-        if (shippingaddresses.length == 0) {
-            var shippingaddress = this.shippingToAddress();
-            if (!this.isEmptyAddress(shippingaddress)) {
-                firstshippingaddress = shippingaddress;
-            }
-        } else {
-            firstshippingaddress = shippingaddresses.shift();
-        }
-
-        // Add addresses from current customer
-        if (this.quote.Customer) {
-            this.businessRelationInvoice = _.cloneDeep(this.quote.Customer.Info);
-            this.businessRelationShipping = _.cloneDeep(this.quote.Customer.Info);
-            this.lastCustomerInfo = this.quote.Customer.Info;
-        }
-
-        if (!this.isEmptyAddress(firstinvoiceaddress)) {
-            this.businessRelationInvoice.Addresses.unshift(firstinvoiceaddress);
-        }
-
-        if (!this.isEmptyAddress(firstshippingaddress)) {
-            this.businessRelationShipping.Addresses.unshift(firstshippingaddress);
-        }
-
-        this.businessRelationInvoice.Addresses = this.businessRelationInvoice.Addresses.concat(invoiceaddresses);
-        this.businessRelationShipping.Addresses = this.businessRelationShipping.Addresses.concat(shippingaddresses);
-    }
-
-
     public recalcItemSums(quoteItems: any) {
         this.quote.Items = quoteItems;
 
@@ -520,6 +451,10 @@ export class QuoteDetails {
 
 
     private saveQuote(cb = null) {
+        // Transform addresses to flat
+        this.addressService.addressToInvoice(this.quote, this.quote._InvoiceAddress);
+        this.addressService.addressToShipping(this.quote, this.quote._ShippingAddress);
+
         this.quote.TaxInclusiveAmount = -1; // TODO in AppFramework, does not save main entity if just items have changed
 
         if (this.quote.DimensionsID === 0) {
@@ -531,6 +466,7 @@ export class QuoteDetails {
             .subscribe(
             (quote) => {
                 this.quote = quote;
+                this.addressService.setAddresses(this.quote);
                 this.updateStatusText();
                 this.updateSaveActions();
 
@@ -564,64 +500,6 @@ export class QuoteDetails {
         });
     }
 
-    private isEmptyAddress(address: Address): boolean {
-        if (address == null) {
-            return true;
-        }
-        return (address.AddressLine1 == null &&
-            address.AddressLine2 == null &&
-            address.AddressLine3 == null &&
-            address.PostalCode == null &&
-            address.City == null &&
-            address.Country == null &&
-            address.CountryCode == null);
-    }
-
-    private invoiceToAddress(): Address {
-        var a = new Address();
-        a.AddressLine1 = this.quote.InvoiceAddressLine1;
-        a.AddressLine2 = this.quote.InvoiceAddressLine2;
-        a.AddressLine3 = this.quote.ShippingAddressLine3;
-        a.PostalCode = this.quote.InvoicePostalCode;
-        a.City = this.quote.InvoiceCity;
-        a.Country = this.quote.InvoiceCountry;
-        a.CountryCode = this.quote.InvoiceCountryCode;
-
-        return a;
-    }
-
-    private shippingToAddress(): Address {
-        var a = new Address();
-        a.AddressLine1 = this.quote.ShippingAddressLine1;
-        a.AddressLine2 = this.quote.ShippingAddressLine2;
-        a.AddressLine3 = this.quote.ShippingAddressLine3;
-        a.PostalCode = this.quote.ShippingPostalCode;
-        a.City = this.quote.ShippingCity;
-        a.Country = this.quote.ShippingCountry;
-        a.CountryCode = this.quote.ShippingCountryCode;
-
-        return a;
-    }
-
-    public addressToInvoice(a: Address) {
-        this.quote.InvoiceAddressLine1 = a.AddressLine1;
-        this.quote.InvoiceAddressLine2 = a.AddressLine2;
-        this.quote.ShippingAddressLine3 = a.AddressLine3;
-        this.quote.InvoicePostalCode = a.PostalCode;
-        this.quote.InvoiceCity = a.City;
-        this.quote.InvoiceCountry = a.Country;
-        this.quote.InvoiceCountryCode = a.CountryCode;
-    }
-
-    public addressToShipping(a: Address) {
-        this.quote.ShippingAddressLine1 = a.AddressLine1;
-        this.quote.ShippingAddressLine2 = a.AddressLine2;
-        this.quote.ShippingAddressLine3 = a.AddressLine3;
-        this.quote.ShippingPostalCode = a.PostalCode;
-        this.quote.ShippingCity = a.City;
-        this.quote.ShippingCountry = a.Country;
-        this.quote.ShippingCountryCode = a.CountryCode;
-    }
     private getComponentLayout(): any {
         return {
             Name: 'CustomerQuote',
@@ -750,7 +628,7 @@ export class QuoteDetails {
                 {
                     ComponentLayoutID: 3,
                     EntityType: 'BusinessRelation',
-                    Property: 'InvoiceAddress',
+                    Property: '_InvoiceAddress',
                     Placement: 1,
                     Hidden: false,
                     FieldType: FieldType.MULTIVALUE,
@@ -778,7 +656,7 @@ export class QuoteDetails {
                 {
                     ComponentLayoutID: 3,
                     EntityType: 'BusinessRelation',
-                    Property: 'ShippingAddress',
+                    Property: '_ShippingAddress',
                     Placement: 1,
                     Hidden: false,
                     FieldType: FieldType.MULTIVALUE,
