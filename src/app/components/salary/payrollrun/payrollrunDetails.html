@@ -17,12 +17,16 @@
 
     </article>
 
-    <section class="poster_toolbar_extras">
-        <button type="button" (click)="runSettling()">Avregn</button>
-        <button type="button" (click)="resetSettling()">Nullstill</button>
-        <button type="button" (click)="showPaymentList()">Utbetalingsliste</button>
-        <control-modal></control-modal>
-        <postingsummary-modal></postingsummary-modal>
+    <section class="poster_toolbar_extras" *ngIf="payrollrun">
+        <section *ngIf="payrollrun.StatusCode < 1">
+            <control-modal></control-modal>
+            <button type="button" (click)="runSettling()">Avregn</button>
+        </section>
+        <section *ngIf="payrollrun.StatusCode === 1">
+            <button type="button" (click)="resetSettling()">Nullstill</button>
+            <postingsummary-modal></postingsummary-modal>
+        </section>
+        <button *ngIf="payrollrun.StatusCode >= 1 " type="button" (click)="showPaymentList()">Utbetalingsliste</button>
     </section>
 
 </header>

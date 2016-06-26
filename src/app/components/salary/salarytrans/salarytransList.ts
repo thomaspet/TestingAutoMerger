@@ -1,9 +1,9 @@
-import {Component, Input, ViewChildren, OnInit, EventEmitter, Output, ViewChild} from '@angular/core';
+import {Component, Input, ViewChildren, OnInit, EventEmitter, Output, ViewChild, QueryList} from '@angular/core';
 import {UniFormBuilder} from '../../../../framework/forms';
 import {UniComponentLoader} from '../../../../framework/core';
 import {Observable} from 'rxjs/Observable';
 import {UniHttp} from '../../../../framework/core/http/http';
-import {Employee, FieldType, AGAZone, WageType, PayrollRun, Employment} from '../../../unientities';
+import {Employee, FieldType, AGAZone, WageType, PayrollRun, Employment, SalaryTransaction} from '../../../unientities';
 import {EmployeeService, AgaZoneService, WageTypeService, SalaryTransactionService} from '../../../services/services';
 import {RootRouteParamsService} from '../../../services/rootRouteParams';
 import {UniSave, IUniSaveAction} from '../../../../framework/save/save';
@@ -32,7 +32,7 @@ export class SalaryTransactionEmployeeList implements OnInit {
     private agaZone: AGAZone;
     public form: UniFormBuilder = new UniFormBuilder();
     public formModel: any = {};
-    
+
     public config: any = {};
     public fields: any[] = [];
     @ViewChild(UniForm) public uniform: UniForm;
@@ -40,7 +40,7 @@ export class SalaryTransactionEmployeeList implements OnInit {
     @Input() private payrollRun: PayrollRun;
     @Output() public nextEmployee: EventEmitter<any> = new EventEmitter<any>(true);
     @Output() public previousEmployee: EventEmitter<any> = new EventEmitter<any>(true);
-    @ViewChildren(UniTable) public tables: any;
+    @ViewChildren(UniTable) public tables: QueryList<UniTable>;
     @Output() public salarytransesAdded: EventEmitter<any> = new EventEmitter<any>();
 
     private busy: boolean;
@@ -62,7 +62,7 @@ export class SalaryTransactionEmployeeList implements OnInit {
         private _uniHttpService: UniHttp,
         private _wageTypeService: WageTypeService,
         private salarytransService: SalaryTransactionService) {
-        
+
         this.config = {
             submitText: ''
         };
@@ -89,7 +89,7 @@ export class SalaryTransactionEmployeeList implements OnInit {
             this.wagetypes = wagetype;
             this.employee = employee;
             this.setUnitableSource();
-            
+
             setTimeout(() => {
                 this.getAgaAndShowView(false);
             }, 100);
@@ -100,12 +100,12 @@ export class SalaryTransactionEmployeeList implements OnInit {
         this.busy = true;
         if (this.tables && this.employeeID) {
             this.employeeService.get(this.employeeID, ['BusinessRelationInfo, SubEntity.BusinessRelationInfo'])
-            .subscribe((response: any) => {
-                this.employee = response;
-                this.setUnitableSource();
-                this.getAgaAndShowView(true);
+                .subscribe((response: any) => {
+                    this.employee = response;
+                    this.setUnitableSource();
+                    this.getAgaAndShowView(true);
 
-            }, (error: any) => console.log(error));
+                }, (error: any) => console.log(error));
         }
     }
 
@@ -119,52 +119,61 @@ export class SalaryTransactionEmployeeList implements OnInit {
 
     public saveSalarytrans(done) {
         done('Lagrer lønnsposter');
-        let saveItems: any[] = this.salarytransChanged;
+        let tableList: UniTable[] = this.tables.toArray();
+        let saveItems: any[] = tableList[0].getTableData().filter;
 
-        saveItems.forEach(salaryitem => {
-            salaryitem.EmployeeID = this.employeeID;
-            salaryitem.EmployeeNumber = this.employeeID;
-            salaryitem.PayrollRunID = this.payrollRun.ID;
-
-            if (salaryitem.ID > 0) {
-                this.salarytransService.Put(salaryitem.ID, salaryitem)
-                .subscribe((response: any) => {
-                    done('Sist lagret: ');
-                    this.salarytransChanged = [];
-                    this.saveactions[0].disabled = true;
-                    this.salarytransesAdded.emit(false);
-                },
-                (err) => {
-                    done('Feil ved oppdatering av lønnspost', err);
-                });
+        saveItems.forEach((salaryitem: SalaryTransaction) => {
+            if (salaryitem.Wagetype !== null) {
+                salaryitem.EmployeeID = this.employeeID;
+                salaryitem.EmployeeNumber = this.employeeID;
+                salaryitem.PayrollRunID = this.payrollRun.ID;
+                if (salaryitem.ID > 0) {
+                    this.salarytransService.Put(salaryitem.ID, salaryitem)
+                        .subscribe((response: any) => {
+                            done('Sist lagret: ');
+                            this.salarytransChanged = [];
+                            this.saveactions[0].disabled = true;
+                            this.salarytransesAdded.emit(false);
+                        },
+                        (err) => {
+                            done('Feil ved oppdatering av lønnspost', err);
+                            this.refreshSalaryTransTable();
+                        });
+                } else {
+                    this.salarytransService.Post(salaryitem)
+                        .subscribe((response: any) => {
+                            done('Sist lagret: ');
+                            this.salarytransChanged = [];
+                            this.saveactions[0].disabled = true;
+                            this.salarytransesAdded.emit(false);
+                        },
+                        (err) => {
+                            done('Feil ved lagring av lønnspost', err);
+                            this.refreshSalaryTransTable();
+                        });
+                }
             } else {
-                this.salarytransService.Post(salaryitem)
-                .subscribe((response: any) => {
-                    done('Sist lagret: ');
-                    this.salarytransChanged = [];
-                    this.saveactions[0].disabled = true;
-                    this.salarytransesAdded.emit(false);
-                },
-                (err) => {
-                    done('Feil ved lagring av lønnspost', err);
-                });
+                salaryitem = null;
             }
+
         });
         done('Lønnsposter lagret: ');
     }
 
     public ready(value) {
-        
+
     }
-    
+
     public change(value) {
-        
+
     }
 
     public isDirty(): boolean {
         return (this.salarytransChanged.length > 0);
     }
-
+    private refreshSalaryTransTable() {
+        this.salarytransItems$ = _.cloneDeep(this.salarytransItems$);
+    }
     private getAgaAndShowView(update: boolean) {
         if (this.employee.SubEntity) {
             this._agaZoneService
@@ -205,7 +214,7 @@ export class SalaryTransactionEmployeeList implements OnInit {
     private createHeadingForm() {
         this.formModel.employee = this.employee;
         this.formModel.aga = this.agaZone;
-        
+
         var percent = new UniFieldLayout();
         percent.Label = 'Prosenttrekk';
         percent.Property = 'employee.TaxPercentage';
@@ -230,7 +239,7 @@ export class SalaryTransactionEmployeeList implements OnInit {
         agaZone.Property = 'aga.ZoneName';
         agaZone.FieldType = FieldType.TEXT;
         agaZone.ReadOnly = true;
-        
+
         this.fields = [percent, subEntity, tableTax, agaZone];
     }
 
@@ -260,7 +269,7 @@ export class SalaryTransactionEmployeeList implements OnInit {
                 }
             });
         var accountCol = new UniTableColumn('Account', 'Konto', UniTableColumnType.Text);
-        var payoutCol = new UniTableColumn('Wagetype$Base_Payment', 'Utbetales', UniTableColumnType.Number)
+        var payoutCol = new UniTableColumn('Wagetype$Base_Payment', 'Utbetales', UniTableColumnType.Number, false)
             .setTemplate((dataItem) => {
                 if (dataItem.Wagetype$Base_Payment) {
                     return 'Ja';
@@ -268,7 +277,7 @@ export class SalaryTransactionEmployeeList implements OnInit {
                     return 'Nei';
                 }
             });
-        var transtypeCol = new UniTableColumn('IsRecurringPost', 'Fast/Variabel post', UniTableColumnType.Number)
+        var transtypeCol = new UniTableColumn('IsRecurringPost', 'Fast/Variabel post', UniTableColumnType.Number, false)
             .setTemplate((dataItem) => {
                 if (dataItem.IsRecurringPost) {
                     return 'Fast';
@@ -309,12 +318,12 @@ export class SalaryTransactionEmployeeList implements OnInit {
                 if (event.field === 'WageTypeNumber') {
                     this.mapWagetypeToTrans(row);
                 }
-                
+
                 if (event.field === 'Employment') {
 
                     this.mapEmploymentToTrans(row);
                 }
-                
+
                 if (event.field === 'Amount' || event.field === 'Rate') {
                     this.calcItem(row);
                 }
@@ -331,12 +340,12 @@ export class SalaryTransactionEmployeeList implements OnInit {
         var basevacationCol = new UniTableColumn('baseVacation', 'Grunnlag feriepenger', UniTableColumnType.Number);
 
         this.salarytransEmployeeTotalsTableConfig = new UniTableConfig()
-        .setColumns([
-            percentCol, taxtableCol, paidCol, agaCol, basevacationCol
-        ])
-        .setEditable(false)
-        .setPageable(false)
-        .setSearchable(false);
+            .setColumns([
+                percentCol, taxtableCol, paidCol, agaCol, basevacationCol
+            ])
+            .setEditable(false)
+            .setPageable(false)
+            .setSearchable(false);
     }
 
     private mapWagetypeToTrans(rowModel) {
@@ -356,7 +365,7 @@ export class SalaryTransactionEmployeeList implements OnInit {
         rowModel['Rate'] = wagetype.Rate;
         this.calcItem(rowModel);
     }
-    
+
     private mapEmploymentToTrans(rowModel) {
         let employment = rowModel['Employment'];
         if (!employment) {
@@ -364,7 +373,7 @@ export class SalaryTransactionEmployeeList implements OnInit {
         }
         rowModel['EmploymentID'] = employment.ID;
     }
-    
+
     private calcItem(rowModel) {
         let sum = rowModel['Amount'] * rowModel['Rate'];
         rowModel['Sum'] = sum;
@@ -382,9 +391,9 @@ export class SalaryTransactionEmployeeList implements OnInit {
             });
 
         this.employeeService.getTotals(this.payrollRun.ID, this.employeeID)
-        .subscribe((response) => {
-            this.employeeTotals = [response];
-        });
+            .subscribe((response) => {
+                this.employeeTotals = [response];
+            });
     }
 
     private getEmploymentJobName(employmentID: number) {
@@ -400,33 +409,38 @@ export class SalaryTransactionEmployeeList implements OnInit {
 
     private getWagetypeName(wagetypeNumber: number) {
         var wagetypeName = '';
-         
+
         this.wagetypes.forEach((wagetype: WageType) => {
             if (wagetype.WageTypeId === wagetypeNumber) {
                 wagetypeName = wagetype.WageTypeName;
             }
         });
-        
+
         return wagetypeName;
     }
 
-    private rowChanged(event) {
-        let row = event.rowModel;
-
-        if (this.salarytransChanged.length > 0) {
-            for (var i = 0; i < this.salarytransChanged.length; i++) {
-                var salaryItem = this.salarytransChanged[i];
-                if (row.ID === salaryItem.ID) {
-                    this.salarytransChanged[i] = row;
-                    break;
-                } else {
-                    this.salarytransChanged.push(row);
+    public rowChanged(event) {
+        // let row: SalaryTransaction = event.rowModel;
+        /*if (row.Wagetype !== null) {
+            if (this.salarytransChanged.length > 0) {
+                for (var i = 0; i < this.salarytransChanged.length; i++) {
+                    var salaryItem = this.salarytransChanged[i];
+                    if (row.ID === salaryItem.ID) {
+                        this.salarytransChanged[i] = row;
+                        break;
+                    } else {
+                        this.salarytransChanged.push(row);
+                    }
                 }
+            } else {
+                this.salarytransChanged.push(row);
             }
-        } else {
-            this.salarytransChanged.push(row);
         }
-        this.salarytransesAdded.emit(true);
+        console.log('slaryTransChanged: ', this.salarytransChanged);
+        this.salarytransesAdded.emit(true);*/
+
+        let tableList = this.tables.toArray();
+        console.log('changed lines: ', tableList[0].getTableData().filter(x => !x.ID));
         this.saveactions[0].disabled = false;
     }
 }
