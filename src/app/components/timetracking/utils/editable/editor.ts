@@ -1,4 +1,5 @@
 import {IJQItem, IPos, IRect, IEditEvents, IEditor } from './interfaces';
+import {debounce} from '../utils';
 declare var jQuery;
 
 const editorTemplate = `<input style='position:absolute; display:none' type='text'></input>`;
@@ -37,6 +38,7 @@ export class Editor implements IEditor {
             this.handlers.editKeydown = (event) => { this.onEditKeyDown(event); };
             this.inputBox.on('blur', this.handlers.editBlur);
             this.inputBox.on('keydown', this.handlers.editKeydown);
+            this.inputBox.on('input paste', debounce((evt) => { this.onEditTyping(evt); }, 250, false));
         }                
         return this.inputBox;         
     }    
@@ -109,6 +111,12 @@ export class Editor implements IEditor {
     public onEditKeyDown(event) {
         if (!(this.editEvents && this.onEditKeyDown)) { return; }
         this.editEvents.onEditKeydown(event);
+    }
+
+    private onEditTyping(event) {
+        if (!(this.editEvents && this.onEditTyping)) { return; }
+        var value = this.inputBox.val();
+        this.editEvents.onEditTyping(event, value, this.position);        
     }
 
     public close(cancel=true) {

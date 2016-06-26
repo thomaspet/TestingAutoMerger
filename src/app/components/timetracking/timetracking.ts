@@ -13,11 +13,11 @@ import {view as timeentryView} from './timeentry/timeentry';
 export var view = new View("timetracking", "Timer", "UniTimetracking");
 
 // Add subviews (meta)
+view.addSubView(timeentryView);
 view.addSubView(regTimeView);
 view.addSubView(workerView);
 view.addSubView(workTypeView);
 view.addSubView(workProfileView);
-view.addSubView(timeentryView);
 
 @Component({
     selector: 'uni-' + view.name,

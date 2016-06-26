@@ -103,6 +103,9 @@ export class Editable implements AfterViewInit, OnDestroy {
                 },
                 onEditKeydown: (event) => {
                     this.handleKeydown(event);
+                },
+                onEditTyping: (event, text:string, pos:IPos) => {
+                    this.handleEditTyping(event, text, pos);
                 }
             }
         }        
@@ -167,9 +170,13 @@ export class Editable implements AfterViewInit, OnDestroy {
         }        
     }
 
+    private handleEditTyping(event, text:string, pos:IPos) {
+        console.log("typing:" + text);
+    }
+
     private finalizeEdit(cancel = false) {
         if (!this.current.editor) { return true; }
-        if (!this.current.editor.hasChanges()) { console.log('no changes!'); return true; }
+        if (!this.current.editor.hasChanges()) { return true; }
         if (this.current.editor.finalizeEdit(cancel)) {
             return true;
         }
