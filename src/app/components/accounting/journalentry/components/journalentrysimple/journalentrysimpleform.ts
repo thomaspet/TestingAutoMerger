@@ -107,6 +107,7 @@ export class JournalEntrySimpleForm implements OnChanges {
             sameOrNewAlternative.Property = 'SameOrNew';
             sameOrNewAlternative.ReadOnly = false;
             sameOrNewAlternative.Hidden = self.mode == JournalEntryMode.Supplier; 
+            sameOrNewAlternative.Classes = 'small-field';
             sameOrNewAlternative.Options = {
                 source: self.journalalternatives,
                 template: (alternative) => `${alternative.Name}`,
@@ -143,10 +144,11 @@ export class JournalEntrySimpleForm implements OnChanges {
             debitAccount.Label = 'Debet';
             debitAccount.Property = 'DebitAccountID';
             debitAccount.ReadOnly = false;
+            debitAccount.Classes = 'large-field';
             debitAccount.Options = {                  
                 displayProperty: 'AccountName',
                 valueProperty: 'ID',
-                template: (account:Account) => `${account.AccountNumber} - ${account.AccountName}`,
+                template: (account:Account) => { if (account != null) { return `${account.AccountNumber} - ${account.AccountName}` } return '' },
                 minLength: 1,
                 debounceTime: 300,
                 search: (query:string) => self.accountService.GetAll(`filter=startswith(AccountNumber,'${query}') or contains(AccountName,'${query}')`, ['VatType'])           
@@ -168,6 +170,7 @@ export class JournalEntrySimpleForm implements OnChanges {
                 template: (vattype:VatType) =>  `${vattype.VatCode} (${ vattype.VatPercent }%)`,
                 debounceTime: 500
             };
+            
         
             var creditAccount = new UniFieldLayout();            
             creditAccount.FieldSet = 0;
@@ -177,10 +180,11 @@ export class JournalEntrySimpleForm implements OnChanges {
             creditAccount.Label = 'Kredit';
             creditAccount.Property = 'CreditAccountID';
             creditAccount.ReadOnly = false;
+            creditAccount.Classes = 'large-field';
             creditAccount.Options = {                  
                 displayProperty: 'AccountName',
                 valueProperty: 'ID',
-                template: (account:Account) => `${account.AccountNumber} - ${account.AccountName}`,
+                template: (account:Account) => { if (account != null) { return `${account.AccountNumber} - ${account.AccountName}` } return '' },
                 minLength: 1,
                 debounceTime: 300,
                 search: (query:string) => self.accountService.GetAll(`filter=startswith(AccountNumber,'${query}') or contains(AccountName,'${query}')`, ['VatType'])           
@@ -207,13 +211,15 @@ export class JournalEntrySimpleForm implements OnChanges {
             amount.FieldSet = 0;
             amount.Section = 0;
             amount.Combo = 0;
-            amount.FieldType = 6;
+            amount.FieldType = 10;
             amount.Label = 'Beløp';
             amount.Property = 'Amount';
             amount.ReadOnly = false;
             amount.Options = {
                 step: 1
             };
+            /*
+            KE 26.06.2016: Removed for now, dimensions are not supported before 30.06
                  
             var departement = new UniFieldLayout();            
             departement.FieldSet = 0;
@@ -248,7 +254,7 @@ export class JournalEntrySimpleForm implements OnChanges {
                 displayProperty: 'Name',
                 debounceTime: 500
             };
-            
+            */
             var description = new UniFieldLayout();
             description.FieldSet = 0;
             description.Section = 0;
@@ -257,10 +263,10 @@ export class JournalEntrySimpleForm implements OnChanges {
             description.Label = 'Beskrivelse av føring';
             description.Property = 'Description';
             description.ReadOnly = false;
-       
+            description.Classes = 'large-field';
             self.fields = [sameOrNewAlternative, finanicalDate, invoiceNumber,
                            debitAccount, debitVat, creditAccount, creditVat,
-                           amount, departement, project, description];
+                           amount, /*departement, project,*/ description];
          
         //}); 
                 
@@ -306,25 +312,27 @@ export class JournalEntrySimpleForm implements OnChanges {
             this.setupFields();
         }
         
-        if (changes['dropdownData'] != null && this.dropdownData) {
-            this.departements = this.dropdownData[0];
-            this.projects = this.dropdownData[1]
-            this.vattypes = this.dropdownData[2];
-            this.accounts = this.dropdownData[3];
-            
-            // Add empty element to top of dropdown
-            this.departements.unshift(null);
-            this.projects.unshift(null);
-                          
-            // Refresh sources 
-            this.fields[3].Options.source = this.accounts;
-            this.fields[4].Options.source = this.vattypes;
-            this.fields[5].Options.source = this.accounts;
-            this.fields[6].Options.source = this.vattypes;
-            this.fields[8].Options.source = this.departements;
-            this.fields[9].Options.source = this.projects;
-            this.fields = _.cloneDeep(this.fields);
-        }
+        setTimeout(() => {
+            if (changes['dropdownData'] != null && this.dropdownData) {
+                this.departements = this.dropdownData[0];
+                this.projects = this.dropdownData[1]
+                this.vattypes = this.dropdownData[2];
+                this.accounts = this.dropdownData[3];
+                
+                // Add empty element to top of dropdown
+                this.departements.unshift(null);
+                this.projects.unshift(null);
+                            
+                // Refresh sources 
+                this.fields[3].Options.source = this.accounts;
+                this.fields[4].Options.source = this.vattypes;
+                this.fields[5].Options.source = this.accounts;
+                this.fields[6].Options.source = this.vattypes;
+                //this.fields[8].Options.source = this.departements;
+                //this.fields[9].Options.source = this.projects;
+                this.fields = _.cloneDeep(this.fields);
+            }
+        });
         
         if (changes['journalEntryLine'] != null) {
             this.isEditMode = true;
@@ -337,7 +345,7 @@ export class JournalEntrySimpleForm implements OnChanges {
     public change(line) {
     }  
     
-    public ready(line) {
+    public ready(event) {
         var self = this;
         
         if (!this.disabled) {
@@ -354,7 +362,8 @@ export class JournalEntrySimpleForm implements OnChanges {
         });
         
         // DebitAccountID
-        self.form.Fields['DebitAccountID'].onTab.subscribe(() => {
+        let debitAccountField = self.form.Fields['DebitAccountID'];
+        debitAccountField.onTab.subscribe(() => {
            self.form.Fields['CreditAccountID'].focus()
         });
         
@@ -396,9 +405,9 @@ export class JournalEntrySimpleForm implements OnChanges {
         
         */
         
-        self.form.Fields['Amount'].onTab.subscribe(() => {
+        /*self.form.Fields['Amount'].onTab.subscribe(() => {
            self.form.Fields['Dimensions.DepartementID'].focus(); 
-        });
+        });*/
         
         /*
         self.form.Fields['Amount'].onEnter.subscribe(() => {

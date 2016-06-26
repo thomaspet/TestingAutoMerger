@@ -80,7 +80,7 @@ export class JournalEntrySimple implements OnInit, OnChanges {
             this.journalEntryLines = new Array<JournalEntryData>();
         }
     }
-
+/*
     private getDepartmentName(line: JournalEntryData): string {
         if (line && line.Dimensions && !line.Dimensions.DepartementID) { return ''; }
         if (this.dropdownData && line && line.Dimensions) {
@@ -93,7 +93,7 @@ export class JournalEntrySimple implements OnInit, OnChanges {
 
         return (line && line.Dimensions && line.Dimensions.DepartementID) ? line.Dimensions.DepartementID.toString() : '';
     }
-
+*/
     private getAccount(id: number): Account {
         if (this.dropdownData) {
             var dep = this.dropdownData[3].find((d) => d.ID == id);
@@ -115,7 +115,7 @@ export class JournalEntrySimple implements OnInit, OnChanges {
 
         return null;
     }
-
+/*
     private getProjectName(line: JournalEntryData): string {
         if (line && line.Dimensions && !line.Dimensions.ProjectID) { return ''; }
         if (this.dropdownData && line && line.Dimensions) {
@@ -127,7 +127,7 @@ export class JournalEntrySimple implements OnInit, OnChanges {
 
         return (line && line.Dimensions && line.Dimensions.ProjectID) ? line.Dimensions.ProjectID.toString() : '';
     }
-
+*/
     public postJournalEntryData() {
         this.journalEntryService.postJournalEntryData(this.journalEntryLines)
             .subscribe(
@@ -207,14 +207,16 @@ export class JournalEntrySimple implements OnInit, OnChanges {
     }
 
     private parseJournalEntryData(updatedLine: JournalEntryData): JournalEntryData {
-        var dimensions = new Dimensions();
+        /*var dimensions = new Dimensions();
         dimensions.DepartementID = updatedLine['Dimensions.DepartementID'];
         dimensions.ProjectID = updatedLine['Dimensions.ProjectID'];
         updatedLine.Dimensions = dimensions;
-
+        */
+        console.log('parseJournalEntryData: ', updatedLine);
         updatedLine.DebitAccount = this.getAccount(updatedLine['DebitAccountID']);
         updatedLine.CreditAccount = this.getAccount(updatedLine['CreditAccountID']);
         updatedLine.DebitVatType = this.getVatType(updatedLine['VatTypeID']);
+        updatedLine.Amount = Number(updatedLine.Amount);
         
         if (updatedLine['FinancialDate'] && typeof updatedLine['FinancialDate'] == 'string') {
             updatedLine.FinancialDate = new Date(updatedLine['FinancialDate'].toString());         
@@ -228,6 +230,7 @@ export class JournalEntrySimple implements OnInit, OnChanges {
     }
 
     private newLineCreated(journalEntryLine: any) {
+        console.log('newLineCreated: ', journalEntryLine);
         journalEntryLine = this.parseJournalEntryData(journalEntryLine);
 
         this.journalEntryLines.unshift(journalEntryLine);
