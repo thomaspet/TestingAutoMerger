@@ -93,3 +93,13 @@ input[type=search]
     background-size: 1rem
     box-sizing: content-box
     padding-right: 2rem
+
+textarea
+    @extend input
+    width: 100%
+    min-height: 5rem
+
+    &[readonly]
+        font-weight: 400
+        border: none
+        background: mix($uni-color-negative, $uni-color-scale9, 50%)

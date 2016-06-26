@@ -1,14 +1,10 @@
 .collapsable[hidden]
-    display: none !important
+    display: none
 
 .collapsable
+    @include clearfix
     width: 100%
     display: inline-block
-
-    &:before
-        content: ''
-        display: table
-        clear: both
 
     & > h4
         @include clearfix
