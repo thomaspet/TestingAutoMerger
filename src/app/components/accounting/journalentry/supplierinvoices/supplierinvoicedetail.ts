@@ -406,7 +406,7 @@ export class SupplierInvoiceDetail implements OnInit {
     }
     
     private registerPayment(done) {
-        const title = `Register betaling${this.supplierInvoice.InvoiceNumber ? ', Faktura ' + this.supplierInvoice.InvoiceNumber : ''}${this.supplierInvoice.InvoiceRecieverName ? ', ' + this.supplierInvoice.InvoiceRecieverName : ''}`;
+        const title = `Register betaling${this.supplierInvoice.InvoiceNumber ? ', Faktura ' + this.supplierInvoice.InvoiceNumber : ''}${this.supplierInvoice.InvoiceReceiverName ? ', ' + this.supplierInvoice.InvoiceReceiverName : ''}`;
         const invoiceData: InvoicePaymentData = {
             Amount: this.supplierInvoice.TaxInclusiveAmount,
             PaymentDate: new Date()
