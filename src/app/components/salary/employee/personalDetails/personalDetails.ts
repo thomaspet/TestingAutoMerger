@@ -190,6 +190,21 @@ export class PersonalDetails {
                 return displayVal;                  
             }  
         };
+
+        let taxRequestBtn: UniFieldLayout = this.findByProperty(this.fields, 'TaxRequestBtn');
+        taxRequestBtn.Options = {
+            click: (event) => {
+                this.openTaxCardRequestModal()
+            }
+        };
+
+        let getTaxCardBtn: UniFieldLayout = this.findByProperty(this.fields, 'GetTaxCardBtn');
+
+        getTaxCardBtn.Options = {
+            click: (event) => {
+                this.openReadTaxCardModal();
+            }
+        }
         
         this.fields = _.cloneDeep(this.fields);
     }

@@ -451,8 +451,52 @@ export class EmployeeService extends BizHttp<Employee> {
                     ComponentLayoutID: 1,
                      
                     EntityType: 'Employee',
-                    Property: 'NonTaxableAmount',
+                    Property: 'TaxRequestBtn'
                     Placement: 3,
+                    Hidden: false,
+                    FieldType: 1,
+                    ReadOnly: false,
+                    LookupField: false,
+                    Label: 'sende forespørsel om skattekort',
+                    Description: null,
+                    HelpText: null,
+                    FieldSet: 0,
+                    Section: 2,
+                    Placeholder: null,
+                    Options: null,
+                    LineBreak: null,
+                    Combo: null,
+                    Sectionheader: '',
+                    IsLookUp: false
+                },
+                {
+                    ComponentLayoutID: 1,
+                     
+                    EntityType: 'Employee',
+                    Property: 'GetTaxcardBtn'
+                    Placement: 4,
+                    Hidden: false,
+                    FieldType: 1,
+                    ReadOnly: false,
+                    LookupField: false,
+                    Label: 'hent skattekort',
+                    Description: null,
+                    HelpText: null,
+                    FieldSet: 0,
+                    Section: 2,
+                    Placeholder: null,
+                    Options: null,
+                    LineBreak: null,
+                    Combo: null,
+                    Sectionheader: '',
+                    IsLookUp: false
+                },
+                {
+                    ComponentLayoutID: 1,
+                     
+                    EntityType: 'Employee',
+                    Property: 'NonTaxableAmount',
+                    Placement: 5,
                     Hidden: false,
                     FieldType: FieldType.NUMERIC,
                     ReadOnly: false,
@@ -481,7 +525,7 @@ export class EmployeeService extends BizHttp<Employee> {
                      
                     EntityType: 'Employee',
                     Property: 'NotMainEmployer',
-                    Placement: 4,
+                    Placement: 6,
                     Hidden: false,
                     FieldType: 5,
                     ReadOnly: false,
@@ -504,7 +548,7 @@ export class EmployeeService extends BizHttp<Employee> {
                      
                     EntityType: 'Employee',
                     Property: 'MunicipalityNo',
-                    Placement: 5,
+                    Placement: 7,
                     Hidden: false,
                     FieldType: FieldType.TEXT,
                     ReadOnly: false,

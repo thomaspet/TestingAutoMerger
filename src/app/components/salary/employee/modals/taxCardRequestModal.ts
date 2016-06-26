@@ -60,7 +60,8 @@ export class TaxCardRequestModalContent {
                 ],
                 labelProperty: 'text',
                 valueProperty: 'id'
-            }
+            },
+            
         };
         var multipleChoice: any = {
             FieldSet: 0,
