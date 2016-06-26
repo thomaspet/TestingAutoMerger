@@ -71,12 +71,17 @@ input[type=radio]
             border-color: $uni-color-Bad
             background: -webkit-linear-gradient(bottom, $uni-color-Bad 0, lighten($uni-color-Bad, 10%) 100%)
 
-    &[disabled] + label
-        opacity: .5
+    &[disabled] + label,
+    &[readonly] + label
+        cursor-events: none
+
+        &:before
+            background: $uni-color-scale7
+            border-color: $uni-color-scale3
 
         &:hover:before,
         &:focus:before
-            background: transparent
+            background: $uni-color-scale7
 
     &[required] + label:before
         box-shadow: 0 0 0 1px $uni-color-negative, 0 0 0 2px $uni-color-scale9

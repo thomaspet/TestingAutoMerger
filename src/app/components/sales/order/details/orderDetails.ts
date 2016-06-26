@@ -45,8 +45,8 @@ export class OrderDetails {
     @ViewChild(AddressModal) public addressModal: AddressModal;
     @ViewChild(PreviewModal) private previewModal: PreviewModal;
 
-    private config: any = {};
-    private fields: any[] = [];
+    public config: any = {};
+    public fields: any[] = [];
 
     private order: CustomerOrderExt;
     private statusText: string;
@@ -82,7 +82,7 @@ export class OrderDetails {
         alert(err._body);
     }
 
-    private nextOrder() {
+    public nextOrder() {
         this.customerOrderService.next(this.order.ID)
             .subscribe((data) => {
                 if (data) {
@@ -96,7 +96,7 @@ export class OrderDetails {
             );
     }
 
-    private previousOrder() {
+    public previousOrder() {
         this.customerOrderService.previous(this.order.ID)
             .subscribe((data) => {
                 if (data) {
@@ -110,7 +110,7 @@ export class OrderDetails {
             );
     }
 
-    private addOrder() {
+    public addOrder() {
         this.customerOrderService.newCustomerOrder().then(order => {
             this.customerOrderService.Post(order)
                 .subscribe(
@@ -125,11 +125,11 @@ export class OrderDetails {
         });
     }
 
-    private isActive(instruction: any[]): boolean {
+    public isActive(instruction: any[]): boolean {
         return this.router.isRouteActive(this.router.generate(instruction));
     }
 
-    private change(value: CustomerOrder) { }
+    public change(value: CustomerOrder) { }
 
     public ready(event) {
         this.form.field('FreeTxt').addClass('max-width', true);
@@ -158,7 +158,7 @@ export class OrderDetails {
             });
     }
 
-    private ngOnInit() {
+    public ngOnInit() {
         this.getLayoutAndData();
 
     }
@@ -169,8 +169,8 @@ export class OrderDetails {
         Observable.forkJoin(
             this.departementService.GetAll(null),
             this.projectService.GetAll(null),
-            this.customerOrderService.Get(this.orderID, ['Dimensions', 'Items', 'Items.Product',
-                'Items.VatType', 'Customer', 'Customer.Info', 'Customer.Info.Addresses']),
+            this.customerOrderService.Get(this.orderID, ['Dimensions', 'Items', 'Items.Product', 'Items.VatType',
+                'Customer', 'Customer.Info', 'Customer.Info.Addresses']),
             this.customerService.GetAll(null, ['Info']),
             this.addressService.GetNewEntity(null, 'address')
         ).subscribe(response => {
@@ -327,7 +327,7 @@ export class OrderDetails {
             disabled: (this.order.StatusCode !== StatusCodeCustomerOrder.Draft)
         });
         this.actions.push({
-            label: 'Avslutt',
+            label: 'Avslutt ordre',
             action: (done) => this.saveOrderTransition(done, 'complete'),
             disabled: this.IsTransferToCompleteDisabled()
         });
@@ -409,7 +409,7 @@ export class OrderDetails {
 
     private saveAndTransferToInvoice(done: any) {
         this.oti.changed.subscribe(items => {
-            //Do not transfer to invoice if no items 
+            // Do not transfer to invoice if no items 
             if (items.length === 0) {
                 alert('Kan ikke overføre en ordre uten linjer');
                 return;
@@ -436,7 +436,7 @@ export class OrderDetails {
 
     private saveOrderTransition(done: any, transition: string) {
         this.saveOrder((order) => {
-            this.customerOrderService.Transition(this.order.ID, this.order, transition).subscribe((x) => {
+            this.customerOrderService.Transition(this.order.ID, this.order, transition).subscribe(() => {
                 console.log('== TRANSITION OK ' + transition + ' ==');
                 done('Lagret');
 

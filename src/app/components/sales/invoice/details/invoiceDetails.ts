@@ -45,7 +45,7 @@ export class InvoiceDetails implements OnInit {
     @ViewChild(RegisterPaymentModal) private registerPaymentModal: RegisterPaymentModal;
 
 
-    private config: any = {};
+    public config: any = {};
     private fields: any[] = [];
 
     private businessRelationInvoice: BusinessRelation = new BusinessRelation();
@@ -87,7 +87,7 @@ export class InvoiceDetails implements OnInit {
         alert(err._body);
     }
 
-    private nextInvoice() {
+    public nextInvoice() {
         this.customerInvoiceService.next(this.invoice.ID)
             .subscribe((data) => {
                 if (data) {
@@ -101,7 +101,7 @@ export class InvoiceDetails implements OnInit {
             );
     }
 
-    private previousInvoice() {
+    public previousInvoice() {
         this.customerInvoiceService.previous(this.invoice.ID)
             .subscribe((data) => {
                 if (data) {
@@ -115,7 +115,7 @@ export class InvoiceDetails implements OnInit {
             );
     }
 
-    private addInvoice() {
+    public addInvoice() {
         this.customerInvoiceService.newCustomerInvoice().then(invoice => {
             this.customerInvoiceService.Post(invoice)
                 .subscribe(
@@ -130,11 +130,11 @@ export class InvoiceDetails implements OnInit {
         });
     }
 
-    private isActive(instruction: any[]): boolean {
+    public isActive(instruction: any[]): boolean {
         return this.router.isRouteActive(this.router.generate(instruction));
     }
 
-    private change(value: CustomerInvoice) { }
+    public change(value: CustomerInvoice) { }
 
     public ready(event) {
         this.form.field('FreeTxt').addClass('max-width', true);
@@ -361,7 +361,7 @@ export class InvoiceDetails implements OnInit {
         });
 
         this.actions.push({
-            label: this.invoiceButtonText, //Fakturer eller Krediter
+            label: this.invoiceButtonText, // Fakturer eller Krediter
             action: (done) => this.saveInvoiceTransition(done, 'invoice'),
             disabled: this.IsinvoiceActionDisabled()
         });
@@ -447,7 +447,7 @@ export class InvoiceDetails implements OnInit {
         this.businessRelationShipping.Addresses = this.businessRelationShipping.Addresses.concat(shippingaddresses);
     }
 
-    private recalcItemSums(invoiceItems: any) {
+    public recalcItemSums(invoiceItems: any) {
         this.invoice.Items = invoiceItems;
 
         // do recalc after 2 second to avoid to much requests
@@ -587,7 +587,7 @@ export class InvoiceDetails implements OnInit {
         done('');
     }
 
-    //private saveInvoiceTransition(done: any, transition: string) {
+    // private saveInvoiceTransition(done: any, transition: string) {
     //    this.saveInvoice((invoice) => {
     //        this.customerInvoiceService.Transition(this.invoice.ID, this.invoice, transition).subscribe(() => {
     //            console.log('== TRANSITION OK ' + transition + ' ==');
@@ -607,7 +607,7 @@ export class InvoiceDetails implements OnInit {
     //            this.log(err);
     //        });
     //    }, transition);
-    //}
+    // }
 
     public onRegisteredPayment(modalData: any) {
 
@@ -664,7 +664,7 @@ export class InvoiceDetails implements OnInit {
         return a;
     }
 
-    private addressToInvoice(a: Address) {
+    public addressToInvoice(a: Address) {
         this.invoice.InvoiceAddressLine1 = a.AddressLine1;
         this.invoice.InvoiceAddressLine2 = a.AddressLine2;
         this.invoice.ShippingAddressLine3 = a.AddressLine3;
@@ -674,7 +674,7 @@ export class InvoiceDetails implements OnInit {
         this.invoice.InvoiceCountryCode = a.CountryCode;
     }
 
-    private addressToShipping(a: Address) {
+    public addressToShipping(a: Address) {
         this.invoice.ShippingAddressLine1 = a.AddressLine1;
         this.invoice.ShippingAddressLine2 = a.AddressLine2;
         this.invoice.ShippingAddressLine3 = a.AddressLine3;

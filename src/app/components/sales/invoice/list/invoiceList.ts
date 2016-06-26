@@ -40,7 +40,7 @@ export class InvoiceList implements OnInit {
         private tabService: TabService) {
 
         this.setupInvoiceTable();
-        this.tabService.addTab({ url: '/sales/invoice/list', name: 'Faktura', active: true, moduleID: 5 }); 
+        this.tabService.addTab({ url: '/sales/invoice/list', name: 'Faktura', active: true, moduleID: 5 });
     }
 
     private log(err) {
@@ -279,7 +279,7 @@ export class InvoiceList implements OnInit {
             .setContextMenu(contextMenuItems);
     }
 
-    private onRowSelected(item) {
+    public onRowSelected(item) {
         this.router.navigateByUrl(`/sales/invoice/details/${item.ID}`);
     }
 
