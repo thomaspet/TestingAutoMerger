@@ -32,6 +32,8 @@ export class Dashboard {
     public data;
     public user: any;
     public months: string[] = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+    private colors: string[] = ['#7293cb', '#e1974c', '#84ba5b', '#d35e60', '#808585'];
+    private myPaymentData = [];
 
     constructor(private tabService: TabService, private http: UniHttp, private router: Router) {
         this.tabService.addTab({ name: 'Dashboard', url: '/', active: true, moduleID: 0 });
@@ -42,95 +44,72 @@ export class Dashboard {
 
     public ngAfterViewInit() {
 
-        //INVOICED CHART
-        //var data: IChartDataSet = {
-        //    labels: ["March", "April", "May", "June"],
-        //    chartType: 'bar',
-        //    data: [125000, 154000, 235000, 500000],
-        //    label: 'Fakturert',
-        //    backgroundColor: '#7293cb',
-        //    borderColor: '#396bb1',
-        //}
-        //this.chartGenerator('invoicedChart', data)
-
-        //OPERATING PROFIT/LOSS CHART
-        var data: IChartDataSet = {
-            labels: ['2013', '2014', '2015', '2016'],
-            chartType: 'line',
-            label: 'Driftsresultat',
-            backgroundColor: '#7293cb',
-            borderColor: '#396bb1',
-            data: [2125000, 3154000, 6235000, 4000000]
-        }
-        this.chartGenerator('operating_chart', data);
-
         //ASSETS CHART
-        data = {
-            data: [250000, 350000, 200000, 500000, 410000],
-            labels: ['Kontanter og bankinnskudd', 'Kortsiktige fordringer', 'Anleggsmidler', 'Varelager', 'Andre midler'],
-            chartType: 'pie',
-            label: '',
-            backgroundColor: ['#7293cb', '#e1974c', '#84ba5b', '#d35e60', '#808585'],
-            borderColor: null
-        }
-        this.chartGenerator('assets_chart', data);
-
-        //PAYROLL CHART
-        data = {
-            data: [2560000, 2720000, 2528000, 1950000, 2400000],
-            labels: ['January', 'February', 'March', 'April', 'May'],
-            chartType: 'bar',
-            label: '',
-            backgroundColor: ['#7293cb', '#e1974c', '#84ba5b', '#d35e60', '#808585'],
-            borderColor: null
-        }
-        this.chartGenerator('payroll_chart', data);
-
-        //ORDRE CHART
-        //data = {
-        //    data: [32000, 36000, 29500, 40000],
-        //    labels: ['March', 'April', 'May', 'June'],
-        //    chartType: 'bar',
+        //var data: IChartDataSet = {
+        //    data: [250000, 350000, 200000, 500000, 410000],
+        //    labels: ['Kontanter og bankinnskudd', 'Kortsiktige fordringer', 'Anleggsmidler', 'Varelager', 'Andre midler'],
+        //    chartType: 'pie',
         //    label: '',
-        //    backgroundColor: ['#7293cb', '#e1974c', '#84ba5b', '#d35e60'],
+        //    backgroundColor: ['#7293cb', '#e1974c', '#84ba5b', '#d35e60', '#808585'],
         //    borderColor: null
         //}
-        //this.chartGenerator('ordre_chart', data)
+        //this.chartGenerator('assets_chart', data);
 
-        //this.getTransactions()
-        //    .subscribe(
-        //    data => this.generateTransactionsArray(data),
-        //    error => console.log(error)
-        //    );
+        //PAYROLL CHART
+        //var data: IChartDataSet = {
+        //    data: [2560000, 2720000, 2528000, 1950000, 2400000],
+        //    labels: ['January', 'February', 'March', 'April', 'May'],
+        //    chartType: 'bar',
+        //    label: '',
+        //    backgroundColor: ['#7293cb', '#e1974c', '#84ba5b', '#d35e60', '#808585'],
+        //    borderColor: null
+        //}
+        //this.chartGenerator('payroll_chart', data)
 
-        this.getInvoicedData()
-            .subscribe(
-            data => this.chartGenerator('invoicedChart', this.invoicedChartData(data[0].Data, 'Fakturert', '#7293cb', '#396bb1')),
+        this.getInvoicedData().subscribe(
+            data => this.chartGenerator('invoicedChart', this.twelveMonthChartData(data[0].Data, 'Fakturert', '#7293cb', '#396bb1', 'bar', 'sumTaxExclusiveAmount')),
             error => console.log(error)
-            )
+        )
+
+        this.getOrdreData().subscribe(
+            (data) => { this.chartGenerator('ordre_chart', this.twelveMonthChartData(data[0].Data, 'Ordre', '#84ba5b', '#3e9651', 'bar', 'sumTaxExclusiveAmount')) },
+            (error) => { console.log(error); }
+        )
+
+        this.getOperatingData().subscribe(
+            (data) => { this.chartGenerator('operating_chart', this.twelveMonthChartData(data[0].Data, 'Driftsresultater', '#9067a7', '#6b4c9a', 'line', 'sumamount', -1)) },
+            (error) => { console.log(error); }
+        )
+
+        this.getLastJournalEntry().subscribe(
+            (data) => { this.generateLastTenList(data, true); },
+            (error) => { console.log(error) }
+        )
 
         this.getMyUserInfo().subscribe(
             (data) => {
                 this.user = data;
                 this.getMyTransactions()
                     .subscribe(
-                    (data) => { console.log(data); },
+                    (data) => { this.generateLastTenList(data[0].Data, false, true) },
                     (error) => { console.log(error) }
                     )
             },
-            error => console.log(error) //Error handling
+            error => console.log(error)
         )
 
-        this.getOrdreData().subscribe(
-            (data) => { this.chartGenerator('ordre_chart', this.invoicedChartData(data[0].Data, 'Fakturert', '#84ba5b', '#3e9651')) },
+        this.getTransactions().subscribe(
+            (data) => { this.generateLastTenList(data[0].Data, false) },
+            (error) => { console.log(error) }
+        );
+
+        this.getAssets().subscribe(
+            (data) => { this.chartGenerator('assets_chart', this.assetsChartData(data[0].Data)) },
             (error) => { console.log(error); }
         )
 
-        this.getLastJournalEntry().subscribe(
-            (data) => { this.genereateJournalEntryList(data); },
-            (error) => { console.log(error) }
-        )
-
+        var myPayrollDummyData = [{ data: 26000 }, { data: 28000 }, { data: 30000 }, { data: 24500 }, { data: 27000 }, { data: 31000 }]
+        this.chartGenerator('payroll_chart', this.twelveMonthChartData(myPayrollDummyData, 'Lønn', '#e1974c', '#da7c30', 'bar', 'data'));
     }
 
     public hideWelcome() {
@@ -142,49 +121,8 @@ export class Dashboard {
         this.router.navigateByUrl(url);
     }
 
-    private generateTransactionsArray(data: any, mine?: boolean) {
-        for (var i = 0; i < data.length; i++) {
-  
-            //Dummycheck ATM
-            if (data[i].EntityType === 'CustomerQuote') {
-                data[i].url = '/sales/quote/details/' + data[i].EntityID;
-                data[i].module = 'tilbudnr ' + data[i].EntityID;
-            } else if (data[i].EntityType === 'Dimensions') {
-                data[i].url = '/sales/quote/details/' + data[i].EntityID;
-                data[i].module = 'tilbudnr ' + data[i].EntityID;
-            } else if (data[i].EntityType === 'PayrollRun') {
-                data[i].url = '/salary/payrollrun/' + data[i].EntityID;
-                data[i].module = 'lønnsavregning ' + data[i].EntityID;
-            } else if (data[i].EntityType === 'SalaryTransaction') {
-                data[i].url = '/salary/payrollrun/' + data[i].EntityID;
-                data[i].module = 'lønn ' + data[i].EntityID;
-            } else {
-                data[i].url = '/salary/quote/details/' + 1;
-                data[i].module = 'noe ' + data[i].EntityID;
-            }
-
-            var date = new Date(data[i].CreatedAt);
-            data[i].time = moment(data[i].CreatedAt).fromNow();
-        }
-        if (mine) {
-            this.myTransactionList = data;
-        } else {
-            this.transactionList = data;
-        }
-
-    }
-
-    private genereateJournalEntryList(data: any) {
-        
-        for (var i = 0; i < data.length; i++) {
-            data[i].time = moment(data[i].RegisteredDate).fromNow();
-            data[i].url = '/accounting/transquery/detailsByJournalEntryNumber/' + data[i].JournalEntryNumber;
-        }
-        this.journalEntryList = data;
-    }
-
-    //For invoiced chart
-    private invoicedChartData(data: any, label: string, bgColor: string, bdColor: string): IChartDataSet {
+    //For 12 month charts
+    private twelveMonthChartData(data: any, label: string, bgColor: string, bdColor: string, chartType: string, dataValue: string, multiplyValue: number = 1): IChartDataSet {
         var numberOfMonths = 6;
         var currentMonth = new Date().getMonth();
         var myChartLabels = [];
@@ -193,10 +131,10 @@ export class Dashboard {
 
         var totalLabel = 0;
         for (var i = 0; i < data.length; i++) {
-            if (data[i].sumTaxExclusiveAmount === null) {
+            if (data[i][dataValue] === null) {
                 myData.push(0);
             } else {
-                myData.push(data[i].sumTaxExclusiveAmount);
+                myData.push(data[i][dataValue] * multiplyValue);
             }
             totalLabel += myData[i];
         }
@@ -204,14 +142,74 @@ export class Dashboard {
         return {
             label: 'Total: ' + totalLabel,
             labels: this.months,
-            chartType: 'bar',
+            chartType: chartType,
             backgroundColor: bgColor,
             borderColor: bdColor,
             data: myData
         }
     }
 
-    private chartGenerator(elementID: string, data: any) {
+    //Data for dashboards lists
+    private generateLastTenList(data: any, isJournalEntry: boolean, myTransactions?: boolean) {
+        if (isJournalEntry) {
+            for (var i = 0; i < data.length; i++) {
+                var mydate = moment.utc(data[i].RegisteredDate).toDate();
+                data[i].time = moment(mydate).fromNow();
+                data[i].url = '/accounting/transquery/detailsByJournalEntryNumber/' + data[i].JournalEntryNumber;
+            }
+            this.journalEntryList = data;
+        } else {
+            for (var i = 0; i < data.length; i++) {
+                var mydate = moment.utc(data[i].CreatedAt).toDate();
+                data[i].time = moment(mydate).fromNow();
+                data[i].DisplayName = this.CapitalizeDisplayName(this.removeLastNameIfAny(data[i].DisplayName));
+                this.findModuleDisplayNameAndURL(data[i]);
+
+                if (i !== 0 && new Date(data[i].CreatedAt).getSeconds() - new Date(data[i - 1].CreatedAt).getSeconds() < 3 && data[i].EntityType === data[i - 1].EntityType) {
+                    data.splice(i, 1);
+                    i--;
+                }
+
+            }
+            if (data.length > 10) {
+                data.splice(9, data.length - 10);
+            }
+            if (myTransactions) {
+                this.myTransactionList = data;
+            } else {
+                this.transactionList = data;
+            }
+
+        }
+    }
+
+    //Constructs the data for the assets pie chart
+    private assetsChartData(data: any): IChartDataSet {
+        var myLabels = [];
+        var myData = [];
+        var myColors = [];
+        for (var i = 0; i < data.length; i++) {
+            myLabels.push(data[i].Name);
+            if (data[i].sumamount < 0) {
+                data[i].sumamount *= -1;
+                myLabels[i] = data[i].Name + ' (Negativt)';
+            }
+            myData.push(data[i].sumamount);
+            myColors.push(this.colors[i]);
+        }
+
+        return {
+            label: '',
+            labels: myLabels,
+            chartType: 'pie',
+            backgroundColor: myColors,
+            borderColor: null,
+            data: myData
+        }
+    }
+
+    //Generates a new Chart
+    private chartGenerator(elementID: string, data: IChartDataSet) {
         let myElement = document.getElementById(elementID);
         let myChart = new Chart(myElement, {
             type: data.chartType,
@@ -229,9 +227,88 @@ export class Dashboard {
         });
     }
 
-    /**
+    /***********************
+        HELP METHODS    
+    ************************/
+
+    //Adds better name and url to list items
+    private findModuleDisplayNameAndURL(data: any) {
+        switch (data.EntityType) {
+            case 'CustomerQuote':
+                data.module = 'Tilbud';
+                data.url = '/sales/quote/details/' + data.EntityID;
+                break;
+            case 'CustomerOrder':
+                data.module = 'Ordre';
+                data.url = '/sales/order/details/' + data.EntityID;
+                break;
+            case 'CustomerInvoice':
+                data.module = 'Faktura';
+                data.url = '/sales/invoice/details/' + data.EntityID;
+                break;
+            case 'JournalEntryLine':
+                data.module = 'JournalEntryLine';
+                /*NEED REAL URL*/
+                data.url = '/sales/customer/list';
+                break;
+            case 'SupplierInvoice':
+                data.module = 'Leverandørfaktura';
+                data.url = '/accounting/journalentry/supplierinvoices/' + data.EntityID;
+                break;
+            case 'NumberSeries':
+                data.module = 'Nummerserie';
+                /*NEED REAL URL*/
+                data.url = '/sales/customer/list';
+                break;
+            case 'AccountGroup':
+                data.module = 'Kontogruppe';
+                data.url = '/accounting/accountsettings';
+                break;
+            case 'Employee':
+                data.module = 'Ansatt';
+                data.url = '/salary/employees/' + data.EntityID;
+                break;
+            case 'Customer':
+                data.module = 'Kunde';
+                data.url = '/sales/customer/details/' + data.EntityID;
+                break;
+            case 'SalaryTransaction':
+                data.module = 'SalaryTransaction';
+                /*NEED REAL URL*/
+                data.url = '/sales/customer/list';
+                break;
+            case 'PayrollRun':
+                data.module = 'Lønnsavregning';
+                data.url = '/salary/payrollrun/' + data.EntityID;
+                break;
+            case 'Dimensions':
+                data.module = 'Dimensions';
+                /*NEED REAL URL*/
+                data.url = '/sales/customer/list';
+                break;
+            default:
+
+                
+        }
+    }
+
+    //Returns first name of user..
+    private removeLastNameIfAny(str: string) {
+        if (str.indexOf(' ') === -1) {
+            return str;
+        } else {
+            return str.substr(0, str.indexOf(' '));
+        }
+    }
+
+    //Capitalize first letter in every word in string (Stack Overflow solution)
+    private CapitalizeDisplayName(str: string) {
+        return str.replace(/\w\S*/g, function (txt) { return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase(); });
+    }
+
+    /********************************************************************
         SHOULD BE MOVED TO SERVICE, BUT VS WONT LET ME CREATE NEW FILES 
-    **/
+    *********************************************************************/
     
     //Gets 10 last transactions
     public getTransactions() {
@@ -239,7 +316,7 @@ export class Dashboard {
             .asGET()
             .usingBusinessDomain()
             .withEndPoint(
-            "workitems?action=statistics&model=AuditLog&select=entitytype,entityid,field,displayname,createdat,updatedat&filter=field eq 'updatedby' &join=auditlog.createdby eq user.globalidentity&top=10&orderby=id desc"
+            "statistics?model=AuditLog&select=entitytype,entityid,field,displayname,createdat,updatedat&filter=field eq 'updatedby' and ( not contains(entitytype,'item') ) &join=auditlog.createdby eq user.globalidentity&top=50&orderby=id desc"
             )
             .send();
     }
@@ -252,7 +329,7 @@ export class Dashboard {
             .withEndPoint(
             "statistics?model=AuditLog&select=entitytype,field,entityid,displayname,createdat,updatedat&filter=createdby eq '"
             + this.user.GlobalIdentity
-            + "' and ( field eq 'updatedby' )&join=auditlog.createdby eq user.globalidentity&top=60&orderby=id desc"
+            + "' and ( not contains(entitytype,'item') ) and ( field eq 'updatedby' )&join=auditlog.createdby eq user.globalidentity&top=60&orderby=id desc"
             )
             .send();
     }
@@ -266,7 +343,7 @@ export class Dashboard {
             .send();
     }
 
-    //Gets sum invoiced 4 months (Query needs improving)
+    //Gets sum invoiced current year (Query needs improving)
     public getInvoicedData() {
         return this.http
             .asGET()
@@ -275,7 +352,7 @@ export class Dashboard {
             .send();
     }
 
-    //Gets ordre sum for last 4 months (Query needs improving)
+    //Gets ordre sum current year (Query needs improving)
     public getOrdreData() {
         return this.http
             .asGET()
@@ -284,12 +361,39 @@ export class Dashboard {
             .send();
     }
 
-    //Gets payroll data (Last 6 months?)
+    //Gets 10 last journal entries
     public getLastJournalEntry() {
         return this.http
             .asGET()
             .usingBusinessDomain()
             .withEndPoint('journalentrylines?skip=0&top=10&expand=VatType,Account&orderby=id desc')
+            .send();
+    }
+
+    //Gets operating profis/loss data
+    public getOperatingData() {
+        return this.http
+            .asGET()
+            .usingBusinessDomain()
+            .withEndPoint('statistics?model=JournalEntryLine&select=month(financialdate),sum(amount)&join=journalentryline.accountid eq account.id&filter=account.accountnumber ge 3000&range=monthfinancialdate')
+            .send();
+    }
+
+    //Gets assets data
+    public getAssets() {
+        return this.http
+            .asGET()
+            .usingBusinessDomain()
+            .withEndPoint('statistics?model=journalentryline&select=sum(amount),name&filter=maingroupid eq 2&join=journalentryline.accountid eq account.id and account.accountgroupid eq accountgroup.id&top=50')
+            .send();
+    }
+
+    //Gets payment data
+    public getPaymentData(id: number) {
+        return this.http
+            .asGET()
+            .usingBusinessDomain()
+            .withEndPoint('payrollrun/' + id + '?action=paymentlist')
             .send();
     }
 }
