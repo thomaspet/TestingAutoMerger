@@ -60,7 +60,7 @@ export class CustomerQuoteService extends BizHttp<CustomerQuote> {
     } 
 
     public getStatusText = (statusCode: string) => {
-        var text = 'Udefinert';
+        var text = '';
         this.statusTypes.forEach((status) => {
             if (status.Code == statusCode) {
                 text = status.Text;

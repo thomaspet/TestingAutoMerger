@@ -75,7 +75,7 @@ export class AccountList {
             })
             .setFilterable(false);
 
-        let lockedCol = new UniTableColumn('', 'Synlig/låst',  UniTableColumnType.Text)
+        let lockedCol = new UniTableColumn('Visible', 'Synlig/låst',  UniTableColumnType.Text)
             .setFilterable(false)
             .setCls('icon-column')
             .setTemplate((rowModel: Account) => {

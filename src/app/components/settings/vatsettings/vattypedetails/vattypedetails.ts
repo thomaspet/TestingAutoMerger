@@ -12,7 +12,7 @@ import {VatTypeService, VatCodeGroupService, AccountService} from '../../../../s
 
 @Component({
     selector: 'vattype-details',
-    templateUrl: 'app/components/settings/vatSettings/vattypedetails/vattypedetails.html',
+    templateUrl: 'app/components/settings/vatsettings/vattypedetails/vattypedetails.html',
     directives: [UniForm],
     providers: [VatTypeService, AccountService, VatCodeGroupService]
 })
