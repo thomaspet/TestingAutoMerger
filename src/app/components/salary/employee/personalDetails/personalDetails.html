@@ -1,9 +1,10 @@
-<article class="application">
+<article class="application employee-personal-details">
     <tax-card-request-modal></tax-card-request-modal>
-    <button type="button" (click)="openTaxCardRequestModal()">Send forespørsel om skattekort</button>
     <read-tax-card-modal></read-tax-card-modal>
-    <button (click)="openReadTaxCardModal()">Hent skattekort</button>
-    <uni-form *ngIf="employee" [config]="config" [fields]="fields" [model]="employee" (onSubmit)="saveEmployeeManual($event)" (onChange)="change($event)" (onReady)="ready($event)"></uni-form>
+    <uni-form *ngIf="employee" [config]="config" [fields]="fields" [model]="employee" (onChange)="change($event)" (onReady)="ready($event)"></uni-form>
+    <email-modal></email-modal>
+    <phone-modal></phone-modal>
+    <address-modal></address-modal>
 </article>
 
 <uni-save [actions]="saveactions"></uni-save>

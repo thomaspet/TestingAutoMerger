@@ -3,7 +3,7 @@ import {Router} from '@angular/router-deprecated';
 import {UniForm} from '../../../../../framework/uniform';
 import {Observable} from 'rxjs/Observable';
 import 'rxjs/add/operator/merge';
-import {OperationType, Operator, ValidationLevel, Employee, Email, Phone, Address, BusinessRelation} from '../../../../unientities';
+import {OperationType, Operator, ValidationLevel, Employee, Email, Phone, Address} from '../../../../unientities';
 import {EmployeeService, PhoneService, EmailService, AddressService, AltinnService, SubEntityService} from '../../../../services/services';
 import {AddressModal} from '../../../sales/customer/modals/address/address';
 import {EmailModal} from '../../../sales/customer/modals/email/email';
@@ -16,11 +16,18 @@ declare var _;
 
 @Component({
     selector: 'employee-personal-details',
-    directives: [UniForm, UniSave, TaxCardRequestModal, AltinnLoginModal, ReadTaxCardModal],
+    directives: [UniForm, UniSave, TaxCardRequestModal, AltinnLoginModal, ReadTaxCardModal, PhoneModal, AddressModal, EmailModal],
     providers: [EmployeeService, PhoneService, EmailService, AddressService, AltinnService, SubEntityService],
     templateUrl: 'app/components/salary/employee/personalDetails/personalDetails.html'
 })
 export class PersonalDetails {
+
+    public expands: any = [
+        'BusinessRelationInfo.Addresses',
+        'BusinessRelationInfo.Emails',
+        'BusinessRelationInfo.Phones',
+        'BankAccounts',
+    ];
     
     public config: any = {};
     public fields: any[] = [];
@@ -29,13 +36,12 @@ export class PersonalDetails {
     @ViewChild(ReadTaxCardModal) public taxCardModal: ReadTaxCardModal;
     @ViewChild(TaxCardRequestModal) public taxCardRequestModal: TaxCardRequestModal;
 
+    @ViewChild(PhoneModal) public phoneModal: PhoneModal;
+    @ViewChild(EmailModal) public emailModal: EmailModal;
+    @ViewChild(AddressModal) public addressModal: AddressModal;
+
     private employee: Employee;
-    
-    private emptyPhone: Phone;
-    private emptyEmail: Email;
-    private emptyAddress: Address;
-    
-    private employeeID: any;
+    private employeeID: number;
     
     private saveactions: IUniSaveAction[] = [
         {
@@ -72,14 +78,11 @@ export class PersonalDetails {
     
     private getData() {
         Observable.forkJoin(
-            this.employeeService.get(this.employeeID),
-            this.employeeService.layout('EmployeePersonalDetailsForm'),
-            this.phoneService.GetNewEntity(),
-            this.emailService.GetNewEntity(),
-            this.addressService.GetNewEntity()
+            this.employeeService.get(this.employeeID, this.expands),
+            this.employeeService.layout('EmployeePersonalDetailsForm')
         ).subscribe(
             (response: any) => {
-                var [employee, layout, emptyPhone, emptyMail, emptyAddress] = response;
+                var [employee, layout] = response;
                 layout.Fields[0].Validators = [{
                     'EntityType': 'BusinessRelation',
                     'PropertyName': 'BusinessRelationInfo.Name',
@@ -92,9 +95,6 @@ export class PersonalDetails {
                     'Deleted': false
                 }];
                 this.employee = employee;
-                this.emptyPhone = emptyPhone;
-                this.emptyEmail = emptyMail;
-                this.emptyAddress = emptyAddress;
                 this.fields = layout.Fields;
                 this.config = {
                     submitText: ''
@@ -102,110 +102,198 @@ export class PersonalDetails {
                 
                 this.extendFormConfig();
             }
-            , (error: any) => console.error(error)
+            , (error: any) => {
+                console.error(error);
+                this.log(error);
+            }
         );
     }
+
     
     private extendFormConfig() {
+
+        let multiValuePhone: UniFieldLayout = this.findByProperty(this.fields, 'BusinessRelationInfo.DefaultPhone');
         
-        var multiValuePhone = new UniFieldLayout();
-        multiValuePhone.FieldSet = 0;
-        multiValuePhone.Section = 0;
-        multiValuePhone.Combo = 0;
-        multiValuePhone.FieldType = 14;
-        multiValuePhone.Label = 'Telefon';
-        multiValuePhone.Property = 'BusinessRelationInfo.Phones';
-        multiValuePhone.ReadOnly = false;
-        multiValuePhone.Placeholder = 'Legg til telefon';
         multiValuePhone.Options = {
             entity: Phone,
+            listProperty: 'BusinessRelationInfo.Phones',
             displayValue: 'Number',
-            linkProperty: 'BusinessRelationInfo.DefaultPhoneID',
-            foreignProperty: 'BusinessRelationInfo.DefaultPhone',
-            // editor: (value) => new Promise((resolve) => {
-            //     var x: BusinessRelation = new BusinessRelation();
-            //     x.Name = value;
-            //     resolve(x);
-            // })
-            editor: (PhoneModal)
+            linkProperty: 'ID',
+            foreignProperty: 'BusinessRelationInfo.DefaultPhoneID',
+            editor: (value) => new Promise((resolve) => {
+                if (!value) {
+                    value = new Phone();
+                    value.ID = 0;
+                }
+                                
+                this.phoneModal.openModal(value);
+                
+                this.phoneModal.Changed.subscribe(modalval => {
+                    resolve(modalval);    
+                }); 
+            }),
+            display: (phone: Phone) => {
+                let displayVal = '';
+                if (phone.Number) {
+                    displayVal = (phone.CountryCode && phone.Number.substr(0, 3) !== phone.CountryCode ? phone.CountryCode + ' ' : '') + phone.Number;
+                }
+                return displayVal;
+            }
         };
         
-        // var phones: any = this.fields.find('Phones');
-        // var phones: FieldLayout = this.find('Phones');
-        // phones.Options
-        // phones.Options = {
-        //     dataTextField: 'Number',
-        //     dataValueField: 'ID'
-        // }
-            // .setModel(this.employee.BusinessRelationInfo)
-            // .setModelField('Phones')
-            // .setModelDefaultField('DefaultPhoneID')
-            // .setPlaceholder(this.emptyPhone)
-            // .setEditor(PhoneModal)     
-            // .onSelect = (phone: Phone) => {
-            //     this.employee.BusinessRelationInfo.DefaultPhone = phone;
-            //     this.employee.BusinessRelationInfo.DefaultPhoneID = null;
-            // };
+        let multiValueEmail: UniFieldLayout = this.findByProperty(this.fields, 'BusinessRelationInfo.DefaultEmail');
+
+        multiValueEmail.Options = {
+            entity: Email,
+            listProperty: 'BusinessRelationInfo.Emails',
+            displayValue: 'EmailAddress',
+            linkProperty: 'ID',
+            foreignProperty: 'BusinessRelationInfo.DefaultEmailID',            
+            editor: (value) => new Promise((resolve) => {
+                if (!value) {
+                    value = new Email();
+                    value.ID = 0;
+                }
+                                
+                this.emailModal.openModal(value);
+                
+                this.emailModal.Changed.subscribe(modalval => {                                       
+                    resolve(modalval);    
+                });               
+            })
+        };
+
+        let multiValueAddress: UniFieldLayout = this.findByProperty(this.fields, 'BusinessRelationInfo.InvoiceAddress');
         
-        // var emails: any = this.fields.find('Emails');
-        // var emails: FieldLayout = this.find('Emails');
-        // emails
-        //     .setKendoOptions({
-        //         dataTextField: 'EmailAddress',
-        //         dataValueField: 'ID'
-        //     })
-        //     .setModel(this.employee.BusinessRelationInfo)
-        //     .setModelField('Emails')
-        //     .setModelDefaultField('DefaultEmailID')
-        //     .setPlaceholder(this.emptyEmail)
-        //     .setEditor(EmailModal)
-        //     .onSelect = (email: Email) => {
-        //         this.employee.BusinessRelationInfo.DefaultEmail = email;
-        //         this.employee.BusinessRelationInfo.DefaultEmailID = null;
-        //     };
-        
-        // // var address: any = this.fields.find('Addresses');
-        // var address: FieldLayout = this.find('Addresses');
-        // address
-        //     .setKendoOptions({
-        //         dataTextField: 'AddressLine1',
-        //         dataValueField: 'ID'
-        //     })
-        //     .setModel(this.employee.BusinessRelationInfo)
-        //     .setModelField('Addresses')
-        //     .setModelDefaultField('InvoiceAddressID') 
-        //     .setPlaceholder(this.emptyAddress)
-        //     .setEditor(AddressModal)     
-        //     .onSelect = (addressValue: Address) => {
-        //         this.employee.BusinessRelationInfo.InvoiceAddress = addressValue;
-        //         this.employee.BusinessRelationInfo.InvoiceAddressID = null;
-        //     };
-        
-        this.fields = [multiValuePhone, ...this.fields];
+        multiValueAddress.Options = {
+            entity: Address,
+            listProperty: 'BusinessRelationInfo.Addresses',
+            displayValue: 'AddressLine1',
+            linkProperty: 'ID',
+            foreignProperty: 'BusinessRelationInfo.InvoiceAddressID',            
+            editor: (value) => new Promise((resolve) => {
+                if (!value) {
+                    value = new Address();
+                    value.ID = 0;
+                }
+                                
+                this.addressModal.openModal(value);
+
+                this.addressModal.Changed.subscribe(modalval => {
+
+                    resolve(modalval);
+                });
+            }),
+            display: (address: Address) => {
+                                
+                let displayVal = (address.AddressLine1 ? address.AddressLine1 + ', ' : '') + (address.PostalCode || '') + ' ' + (address.City || '') + (address.CountryCode ? ', ' + address.CountryCode : '');
+                return displayVal;                  
+            }  
+        };
+
+        let taxRequestBtn: UniFieldLayout = this.findByProperty(this.fields, 'TaxRequestBtn');
+        taxRequestBtn.Options = {
+            click: (event) => {
+                this.openTaxCardRequestModal()
+            }
+        };
+
+        let getTaxCardBtn: UniFieldLayout = this.findByProperty(this.fields, 'GetTaxCardBtn');
+
+        getTaxCardBtn.Options = {
+            click: (event) => {
+                this.openReadTaxCardModal();
+            }
+        }
         
         this.fields = _.cloneDeep(this.fields);
     }
+
+    private findByProperty(fields, name) {
+        var field = fields.find((fld) => fld.Property === name);
+        return field; 
+    }
     
     public ready(value) {
-        console.log('form ready', value);
+        this.uniform.section(1).toggle();
+        this.uniform.section(2).toggle();
+        this.uniform.field('BusinessRelationInfo.Name').focus();
+        this.saveactions[0].disabled = true;
     }
     
     public change(value) {
-        console.log('uniform changed', value);
+        this.employee = _.cloneDeep(this.employee);
         this.saveactions[0].disabled = false;
     }
     
     private saveEmployee(done) {
+
+        if (this.employee.BankAccounts[0] && !this.employee.BankAccounts[0].ID) {
+            let bankAccount = this.employee.BankAccounts[0];
+            bankAccount['_createguid'] = this.employeeService.getNewGuid();
+        }
+
+        this.employee.BusinessRelationInfo.Emails.forEach(email => {
+            if (email.ID === 0) {
+                email['_createguid'] = this.employeeService.getNewGuid();
+            }
+        });
+
+        if (this.employee.BusinessRelationInfo.DefaultEmail) {
+            this.employee.BusinessRelationInfo.Emails = this.employee.BusinessRelationInfo.Emails.filter(x => x !== this.employee.BusinessRelationInfo.DefaultEmail);
+        }
+        
+        this.employee.BusinessRelationInfo.Phones.forEach(phone => {
+            if (phone.ID === 0) {
+                phone['_createguid'] = this.employeeService.getNewGuid();
+            }
+        });
+        
+        if (this.employee.BusinessRelationInfo.DefaultPhone) {
+            this.employee.BusinessRelationInfo.Phones = this.employee.BusinessRelationInfo.Phones.filter(x => x !== this.employee.BusinessRelationInfo.DefaultPhone);
+        }
+        
+        this.employee.BusinessRelationInfo.Addresses.forEach(address => {
+            if (address.ID === 0) {
+                address['_createguid'] = this.employeeService.getNewGuid();
+            }
+        });
+        
+        if (this.employee.BusinessRelationInfo.InvoiceAddress) {
+            this.employee.BusinessRelationInfo.Addresses = this.employee.BusinessRelationInfo.Addresses.filter(x => x !== this.employee.BusinessRelationInfo.InvoiceAddress);
+        }
+        
+        if (this.employee.BusinessRelationInfo.DefaultPhone === null && this.employee.BusinessRelationInfo.DefaultPhoneID === 0) {
+            this.employee.BusinessRelationInfo.DefaultPhoneID = null;
+        }
+        
+        if (this.employee.BusinessRelationInfo.DefaultEmail === null && this.employee.BusinessRelationInfo.DefaultEmailID === 0) {
+            this.employee.BusinessRelationInfo.DefaultEmailID = null;
+        }
+        
+        if (this.employee.BusinessRelationInfo.InvoiceAddress === null && this.employee.BusinessRelationInfo.InvoiceAddressID === 0) {
+            this.employee.BusinessRelationInfo.InvoiceAddressID = null;
+        }
+
         done('Lagrer persondetaljer');
         if (this.employee.ID > 0) {
             this.employeeService.Put(this.employee.ID, this.employee)
             .subscribe((response: Employee) => {
-                this.employee = response;
                 done('Sist lagret: ');
+                this.employeeService.get(this.employee.ID, this.expands).subscribe((emp: Employee) => {
+                    this.employee = emp;
+                },
+                (err) => {
+                    console.log('Feil ved lagring av ansatt', err);
+                    this.log(err);
+                });
+
                 this.router.navigateByUrl('/salary/employees/' + this.employee.ID);
             },
             (err) => {
+                done('Feil ved lagring', err);
                 console.log('Feil ved oppdatering av ansatt', err);
+                this.log(err);
             });
         } else {
             this.employeeService.Post(this.employee)
@@ -215,7 +303,9 @@ export class PersonalDetails {
                 this.router.navigateByUrl('/salary/employees/' + this.employee.ID);
             },
             (err) => {
-                console.log('Feil ved lagring', err);
+                done('Feil ved lagring', err);
+                console.log('Feil ved lagring av ansatt', err);
+                this.log(err);
             });
         }
     }
@@ -226,5 +316,9 @@ export class PersonalDetails {
 
     public openTaxCardRequestModal() {
         this.taxCardRequestModal.openModal();
+    }
+
+    public log(err) {
+        alert(err._body);
     }
 }
