@@ -13,7 +13,7 @@ declare var _; // lodash
     directives: [UniTable, AltinnLoginModal],
     providers: [AltinnReceiptService],
     pipes: [AsyncPipe],
-    templateUrl: 'app/components/salary/employee/modals/readtaxcardmodalcontent.html'
+    templateUrl: 'app/components/salary/employee/modals/readTaxCardModalContent.html'
 })
 export class ReadTaxCardModalContent {
     @Input()
@@ -35,18 +35,11 @@ export class ReadTaxCardModalContent {
             .setTemplate((rowModel) => {
                 return rowModel['HasBeenRegistered'] === true ? 'X' : '';
             });
-        let contextMenuItem = {
-            label: 'Hent og les inn',
-            action: (rowModel) => {
-                this.readTaxCard(rowModel['ReceiptID']);
-            }
-        };
 
         this.receiptTable = new UniTableConfig()
             .setColumns([
                 titleColumn, dateSendtColumn, receiptIDColumn, signatureColumn, isReadColumn
             ])
-            .setContextMenu([contextMenuItem], false)
             .setEditable(false)
             .setPageSize(10);
 
@@ -63,6 +56,11 @@ export class ReadTaxCardModalContent {
 
     public updateReceipts() {
         this.altinnReceipts$ = _.cloneDeep(this.altinnReceipts$);
+    }
+
+    public selectedRow(event) {
+        let altinnReceipt: AltinnReceipt = event.rowModel;
+        this.readTaxCard( altinnReceipt.ReceiptID);
     }
 }
 

@@ -80,10 +80,8 @@ export class Signup {
     
     private submitDetails() {
         this.working = true;
-        
-        let controls = this.detailsForm.controls;
-        
-        
+
+        let controls = this.detailsForm.controls;        
         let body = this.existingUser || {};
         
         body['Email'] = this.emailForm.controls['Email'].value;

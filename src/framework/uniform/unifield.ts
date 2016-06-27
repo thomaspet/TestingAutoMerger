@@ -10,9 +10,6 @@ declare var _; // lodash
 
 @Component({
     selector: 'uni-field',
-    host: {
-        '[class.-has-linebreak]': 'hasLineBreak()'
-    },
     template: `
         <label 
             [class.error]="hasError()" 
@@ -95,6 +92,8 @@ export class UniField {
     @Output()
     public onChange: EventEmitter<any> = new EventEmitter<any>(true);
 
+    public classes: (string | Function)[] = [];
+
     public messages: {};
 
     @ViewChild('selectedComponent')
@@ -134,6 +133,10 @@ export class UniField {
         }
     }
 
+    public addClass(name: string, value: any) {
+        this.classes[name] = value;
+    }
+
     public ngOnChanges(changes: { [propKey: string]: SimpleChange }) {
         if (changes['model']) {
             var value = _.get(this.model, this.field.Property);
@@ -142,7 +145,7 @@ export class UniField {
             var asyncvalidators = ValidatorsComposer.composeAsyncValidators(this.field);
             var control = new Control(value, syncvalidators, asyncvalidators);
             this.controls.addControl(this.field.Property, control);
-            this.control = control;                
+            this.control = control;
         }
     }
 
@@ -162,14 +165,22 @@ export class UniField {
     }
     
     private buildClassString() {
-        if (this.field.Classes) {
-            return this.field.Classes;
+        var classes = [];
+        var cls = this.classes;
+        for (var cl in cls) {
+            if (cls.hasOwnProperty(cl)) {
+                var value = undefined;
+                if (_.isFunction(cls[cl])) {
+                    value = (<Function>cls[cl])();
+                } else {
+                    value = cls[cl];
+                }
+                if (value === true) {
+                    classes.push(cl);
+                }
+            }
         }
-        return '';        
-    }
-    
-    private hasLineBreak() {
-        return this.field.LineBreak;
+        return classes.join(' ');
     }
 
     private isInput(type) {

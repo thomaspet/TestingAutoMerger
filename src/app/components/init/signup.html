@@ -6,10 +6,10 @@
             Epost
             <input type="email" ngControl="Email" placeholder="Epost" [disabled]="detailsForm || working">
         </label>
-        <button type="submit" class="c2a" *ngIf="!detailsForm" [attr.aria-busy]="working" [disabled]="!f.form.valid">Sjekk epost</button>
+        <button type="submit" class="c2a" *ngIf="!detailsForm" [attr.aria-busy]="working" [disabled]="!f.form.valid || working">Sjekk epost</button>
     </form>
     
-    <section *ngIf="detailsForm">
+    <section *ngIf="detailsForm && !success">
         <form *ngIf="!existingUser" [ngFormModel]="detailsForm" (ngSubmit)="submitDetails()" #f="ngForm">
             <label>
                 Firmanavn
@@ -40,7 +40,7 @@
                 <input type="checkbox" [(ngModel)]="isTest">
                 Inkluder testdata
             </label>
-            <button type="submit" class="c2a" [attr.aria-busy]="working" [disabled]="!f.form.valid || !passwordsMatching">Registrer</button>
+            <button type="submit" class="c2a" [attr.aria-busy]="working" [disabled]="!f.form.valid || !passwordsMatching || working">Registrer</button>
         </form>
         
         <form *ngIf="existingUser" [ngFormModel]="detailsForm" (ngSubmit)="submitDetails()" #f="ngForm">
@@ -53,7 +53,7 @@
                 <input type="checkbox" [(ngModel)]="isTest">
                 Inkluder testdata
             </label>
-            <button type="submit" class="c2a" [attr.aria-busy]="working" [disabled]="!f.form.valid">Legg til selskap</button>
+            <button type="submit" class="c2a" [attr.aria-busy]="working" [disabled]="!f.form.valid || working">Legg til selskap</button>
         </form>
     </section>
 
