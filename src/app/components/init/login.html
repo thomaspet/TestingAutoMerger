@@ -3,6 +3,7 @@
     
 	<section [hidden]="loginSuccess">
         <form (submit)="login($event)">
+            <small class="validation error" *ngIf="errorMessage.length">{{errorMessage}}</small>
             <label for="">
                 Brukernavn
                 <input type="text" [disabled]="working" [(ngModel)]="credentials.username" placeholder="Brukernavn">
@@ -15,11 +16,9 @@
             
             <button class="c2a" [attr.aria-busy]="working" [disabled]="working">Logg inn</button>
         </form>
-        
-        <p *ngIf="!loginSuccess" style="color: red">{{errorMessage}}</p>
-        
+                
         <p *ngIf="!loginSuccess">
-            Har du ikke en bruker? <a [routerLink]="['Signup']">Opprett</a><br>
+            <a [routerLink]="['Signup']">Registrer ny bruker</a><br>
             <a [routerLink]="['ResetPassword']">Glemt passord</a>
         </p>
     </section>

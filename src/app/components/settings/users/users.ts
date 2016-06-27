@@ -2,7 +2,6 @@
 import {NgFor, NgIf, ControlGroup, Control, Validators} from '@angular/common';
 import {UniHttp} from '../../../../framework/core/http/http';
 import {OrderByPipe} from '../../../../framework/pipes/orderByPipe';
-import {Observable} from "rxjs/Observable";
 import {FilterInactivePipe} from '../../../../framework/pipes/filterInactivePipe';
 import {UniTable, UniTableConfig, UniTableColumn, IContextMenuItem} from 'unitable-ng2/main';
 
@@ -22,8 +21,7 @@ export class Users {
     private tableConfig: UniTableConfig;
     
     // Misc
-    private isBusy: boolean = false;
-    private hideInactive: boolean = false; 
+    private busy: boolean = false;
 
     constructor(private http: UniHttp) {
         this.newUserForm = new ControlGroup({
@@ -32,7 +30,6 @@ export class Users {
         });
         
         this.errorMessage = '';
-        
         this.users = [];
         
         this.setupUserTable();
@@ -60,7 +57,7 @@ export class Users {
                     return (rowModel['StatusCode'] !== 110001)
                 }
             }
-        ]
+        ];
         
         this.tableConfig = new UniTableConfig(false, true, 25)
             .setColumns([nameCol, emailCol, statusCol])
@@ -71,19 +68,18 @@ export class Users {
         this.http
             .asGET()
             .usingBusinessDomain()
-            .withEndPoint("users")
+            .withEndPoint('users')
             .send()
             .subscribe(response => this.users = response);
     }
 
     private sendInvite(user?) {
+        this.errorMessage = '';
         let companyId = JSON.parse(localStorage.getItem('activeCompany')).id;
-        
         let newUser = user || this.newUserForm.value;
         
-        this.isBusy = true;
-        console.log('sending invite');
-        
+        this.busy = true;
+
         this.http.asPOST()
             .usingBusinessDomain()
             .withEndPoint('user-verifications')
@@ -95,12 +91,19 @@ export class Users {
             .send()
             .subscribe(
                 (data) => {
-                    this.isBusy = false;
+                    this.busy = false;
+                    
+                    // clear form
+                    this.newUserForm = new ControlGroup({
+                        DisplayName: new Control('', Validators.required),
+                        Email: new Control('', this.isInvalidEmail)
+                    });
+
                     this.refreshUsers();
                 },
                 (error) => {
-                    this.isBusy = false;                        
-                    this.errorMessage = 'Noe gikk galt med invitasjonen. Prøv igjen.';
+                    this.busy = false;                        
+                    this.errorMessage = 'Noe gikk galt med invitasjonen. Vennligst prøv igjen.';
                 }
             );
     }

@@ -10,10 +10,7 @@ import {Supplier, Email, Phone, Address} from '../../../../unientities';
 import {UniSave, IUniSaveAction} from '../../../../../framework/save/save';
 import {UniForm, UniFieldLayout} from '../../../../../framework/uniform';
 import {TabService} from '../../../layout/navbar/tabstrip/tabService';
-
-import {AddressModal} from '../../customer/modals/address/address';
-import {EmailModal} from '../../customer/modals/email/email';
-import {PhoneModal} from '../../customer/modals/phone/phone';
+import {AddressModal, EmailModal, PhoneModal} from '../../../common/modals/modals';
 
 declare var _; // lodash
 
@@ -73,6 +70,10 @@ export class SupplierDetails {
         this.supplierService.NextSupplier(this.supplier.ID)
             .subscribe((data) => {
                 this.router.navigateByUrl('/sales/supplier/details/' + data.ID);
+            },
+            (err) => {
+                console.log('Error getting next supplier: ', err);
+                alert('Ikke flere leverandører etter denne');
             });
     }
     
@@ -80,6 +81,10 @@ export class SupplierDetails {
         this.supplierService.PreviousSupplier(this.supplier.ID)
             .subscribe((data) => {
                 this.router.navigateByUrl('/sales/supplier/details/' + data.ID);
+            },
+            (err) => {
+                console.log('Error getting previous supplier: ', err);
+                alert('Ikke flere leverandører før denne');
             });        
     }
     
@@ -272,10 +277,15 @@ export class SupplierDetails {
             }),
             display: (address: Address) => {
                 let displayVal = '';
-                if (address.AddressLine1 !== null && address.AddressLine1 !== '') {
+                 if (address.AddressLine1 !== null && address.AddressLine1 !== '') {
                     displayVal += address.AddressLine1 + ', ';  
-                }                
-                displayVal += address.PostalCode + ' ' + address.City; 
+                }
+                if (address.PostalCode !== null && address.PostalCode !== '') {
+                    displayVal += address.PostalCode  + ' ';
+                }
+                if (address.City !== null && address.City !== '') {
+                    displayVal += address.City;
+                }
                 return displayVal;                                
             }         
         };
@@ -325,8 +335,13 @@ export class SupplierDetails {
                 let displayVal = '';
                 if (address.AddressLine1 !== null && address.AddressLine1 !== '') {
                     displayVal += address.AddressLine1 + ', ';  
-                }                
-                displayVal += address.PostalCode + ' ' + address.City; 
+                }
+                if (address.PostalCode !== null && address.PostalCode !== '') {
+                    displayVal += address.PostalCode  + ' ';
+                }
+                if (address.City !== null && address.City !== '') {
+                    displayVal += address.City;
+                }
                 return displayVal;                                
             }          
         };
@@ -689,7 +704,7 @@ export class SupplierDetails {
                     EntityType: 'Supplier',
                     Property: 'DefaultBankAccountID',
                     Placement: 4,
-                    Hidden: false,
+                    Hidden: true, // false, // TODO: > 30.6
                     FieldType: 3,
                     ReadOnly: false,
                     LookupField: false,
@@ -697,7 +712,7 @@ export class SupplierDetails {
                     Description: '',
                     HelpText: '',
                     FieldSet: 0,
-                    Section: 2,
+                    Section: 0, //2, // TODO: > 30.6
                     Sectionheader: 'Konto & bank',
                     Placeholder: null,
                     Options: null,

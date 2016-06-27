@@ -1,5 +1,5 @@
 import {
-    Component, EventEmitter, Input, Output, ViewChildren, QueryList, SimpleChange
+    Component, EventEmitter, Input, Output, HostBinding, ViewChildren, QueryList, SimpleChange
 } from '@angular/core';
 import {FORM_DIRECTIVES, FORM_PROVIDERS, ControlGroup, FormBuilder} from '@angular/common';
 import {FieldLayout} from '../../app/unientities';
@@ -18,10 +18,10 @@ declare var _; // lodash
     directives: [FORM_DIRECTIVES, UniField, UniCombo, UniFieldSet, UniSection],
     providers: [FORM_PROVIDERS],
     template: `
-        <form (submit)="submit($event)" [ngFormModel]="controls" [hidden]="Hidden">
+        <form (submit)="submit($event)" [ngFormModel]="controls">
             <template ngFor let-item [ngForOf]="groupedFields" let-i="index">
                 <uni-field 
-                    *ngIf="isField(item)"
+                    *ngIf="isField(item) && !item?.Hidden"
                     [controls]="controls"
                     [field]="item" 
                     [model]="model"
@@ -94,6 +94,8 @@ export class UniForm {
     private totalFields: number;
 
     private hidden: boolean = false;
+
+    @HostBinding('hidden')
     public get Hidden() { return this.hidden; }
 
     public set Hidden(value: boolean) {
