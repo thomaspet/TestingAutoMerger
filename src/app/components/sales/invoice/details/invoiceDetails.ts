@@ -136,10 +136,8 @@ export class InvoiceDetails implements OnInit {
 
     public change(value: CustomerInvoice) { }
 
-    public ready(event) {
-        this.form.field('FreeTxt').addClass('max-width', true);
+    public ready(event) {        
         this.setupSubscriptions(null);
-
 
         if (this.invoice.StatusCode === StatusCodeCustomerInvoice.Draft) {
             this.form.editMode();
@@ -1064,7 +1062,8 @@ export class InvoiceDetails implements OnInit {
                     UpdatedAt: null,
                     CreatedBy: null,
                     UpdatedBy: null,
-                    CustomFields: null
+                    CustomFields: null,
+                    Classes: 'max-width'
                 }
             ]
         };
