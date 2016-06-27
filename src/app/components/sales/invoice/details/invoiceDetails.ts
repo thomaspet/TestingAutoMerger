@@ -12,7 +12,7 @@ import {UniForm, UniFieldLayout} from '../../../../../framework/uniform';
 
 import {InvoiceItemList} from './invoiceItemList';
 
-import {CustomerInvoice, Customer, Dimensions, Address, BusinessRelation} from '../../../../unientities';
+import {CustomerInvoice, CustomerInvoiceItem, Customer, Dimensions, Address, BusinessRelation} from '../../../../unientities';
 import {StatusCodeCustomerInvoice, FieldType} from '../../../../unientities';
 
 import {AddressModal} from '../../customer/modals/address/address';
@@ -524,6 +524,27 @@ export class InvoiceDetails implements OnInit {
         }, 2000);
     }
 
+    private getValidInvoiceItems(invoiceItems: any) {
+        let items: CustomerInvoiceItem[] = [];
+        let showMessage: boolean = false;
+
+        for (let i = 0; i < invoiceItems.length; i++) {
+            let line: CustomerInvoiceItem  = invoiceItems[i];
+
+            if (line.ProductID !== null) {
+                items.push(line);
+            }
+            else {
+                showMessage = true;
+            }
+        }
+
+        if (showMessage){
+            alert('En eller flere av linjene inneholder produkter som ikke finnes i produktliste. Disse vil ikke bli lagret med faktura. Vennligst opprett produktene først');
+        }
+        return items;
+    }
+
     private saveInvoiceTransition(done: any, transition: string) {
         this.saveInvoice((invoice) => {
             this.customerInvoiceService.Transition(this.invoice.ID, this.invoice, transition).subscribe(() => {
@@ -563,23 +584,18 @@ export class InvoiceDetails implements OnInit {
             this.invoice.Dimensions['_createguid'] = this.customerInvoiceService.getNewGuid();
         }
 
+        //Save only lines with products from product list
+        this.invoice.Items = this.getValidInvoiceItems(this.invoice.Items);
+
         this.customerInvoiceService.Put(this.invoice.ID, this.invoice)
             .subscribe(
             (invoiceSaved: CustomerInvoice) => {
-                //Get invoice with expand
-
                 this.customerInvoiceService.Get(this.invoice.ID, this.expandOptions).subscribe(invoiceGet => {
                     this.invoice = invoiceGet;
                     this.updateStatusText();
                     this.updateSaveActions();
                     this.ready(null);
                 });
-
-
-                //this.supplierService.Get(this.supplier.ID, this.expandOptions).subscribe(data => {
-                //    this.invoice = data;
-                //    this.updateStatusText();
-                //    this.updateSaveActions();
 
                 if (cb) {
                     cb(invoiceSaved);

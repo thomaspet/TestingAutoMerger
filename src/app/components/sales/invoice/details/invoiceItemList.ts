@@ -177,14 +177,7 @@ export class InvoiceItemList implements OnInit {
                     }
                 }
                 if (event.field === 'Product') {
-                    if (this.mapProductToInvoiceItem(newRow) === null) {
-                        return null
-                    };
-                }
-
-                if (newRow.ProductID === null) {
-                    alert('Not possible to add a new product here. Please add the product in the product list');
-                    return null;
+                    this.mapProductToInvoiceItem(newRow) 
                 }
 
                 this.calculatePriceIncVat(newRow);
@@ -194,6 +187,7 @@ export class InvoiceItemList implements OnInit {
                 return newRow;
             });
 
+        this.invoiceItemTable.hasDeleteButton = true;
     }
 
     public rowChanged(event) {
