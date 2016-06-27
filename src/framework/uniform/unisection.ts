@@ -38,6 +38,7 @@ declare var _; // lodash
                         (onReady)="onReadyHandler($event)"
                         (onChange)="onChangeHandler($event)">                    
                     </uni-field-set>
+                    <uni-linebreak *ngIf="hasLineBreak(item)"></uni-linebreak>
                 </template>
             </div>
         </article>
