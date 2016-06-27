@@ -116,7 +116,6 @@ export class EmployeeService extends BizHttp<Employee> {
                     LineBreak: null,
                     Combo: null,
                     Sectionheader: '',
-                    hasLineBreak: false,
                      
                     Validations: [
                         {

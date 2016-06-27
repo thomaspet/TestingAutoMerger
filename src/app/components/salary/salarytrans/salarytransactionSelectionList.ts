@@ -1,4 +1,4 @@
-import {Component, ViewChild, OnInit, Input} from '@angular/core';
+import {Component, ViewChild, OnInit, Input, Output, EventEmitter} from '@angular/core';
 import {AsyncPipe} from '@angular/common';
 import {UniTable, UniTableConfig, UniTableColumnType, UniTableColumn} from 'unitable-ng2/main';
 import {SalaryTransactionEmployeeList} from './salarytransList';
@@ -22,10 +22,11 @@ export class SalaryTransactionSelectionList implements OnInit {
     private selectedEmployeeID: number;
     private employeeList: Employee[];
     @Input() private selectedPayrollRun: PayrollRun;
+    @Output() public changedPayrollRun: EventEmitter<any> = new EventEmitter<any>(true);
     private disableFilter: boolean;
     public employees$: Observable<Employee[]>;
     public busy: boolean;
-    @ViewChild(UniTable) private tables: UniTable;
+    @ViewChild(UniTable) private table: UniTable;
     private disableEmployeeList: boolean;
 
     constructor(private uniHttpService: UniHttp, private _employeeService: EmployeeService) {
@@ -37,9 +38,15 @@ export class SalaryTransactionSelectionList implements OnInit {
     }
 
     private tableConfig(update: boolean = false, filter = '') {
-        this.employees$ = this._employeeService.GetAll(filter ? 'filter=' + filter : '', ['BusinessRelationInfo', 'SubEntity.BusinessRelationInfo', 'BankAccounts']);
+        this.employees$ = this._employeeService.GetAll(filter ? 'filter=' + filter : '', ['BusinessRelationInfo', 'SubEntity.BusinessRelationInfo, BankAccounts']);
         this.employees$.subscribe((employees) => {
             this.employeeList = employees;
+            if (!update && this.employeeList) {
+                this.selectedEmployeeID = this.employeeList[0].ID;
+            }
+        }, (error: any) => {
+            this.log(error);
+            console.log(error);
         });
         if (!update) {
 
@@ -93,6 +100,14 @@ export class SalaryTransactionSelectionList implements OnInit {
         this.selectedEmployeeID = 0;
     }
 
+    public payrollRunChanged() {
+        this.changedPayrollRun.emit(true);
+    }
+
     public saveRun(event: any) {
+    }
+
+    public log(err) {
+        alert(err._body);
     }
 }

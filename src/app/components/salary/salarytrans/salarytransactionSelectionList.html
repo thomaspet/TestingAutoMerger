@@ -6,6 +6,11 @@
         <uni-table [config]="salarytransSelectionTableConfig" [resource]="employees$ | async" (rowSelected)="rowSelected($event)"></uni-table>
     </nav>
     <main class="splitview_detail">
-        <salary-transactions-employee *ngIf="selectedEmployeeID" [employeeID]="selectedEmployeeID" [payrollRun]="selectedPayrollRun" (nextEmployee)="goToNextEmployee($id)" (previousEmployee)="goToPreviousEmployee($id)"></salary-transactions-employee>
+        <salary-transactions-employee *ngIf="selectedEmployeeID" 
+            [employeeID]="selectedEmployeeID" 
+            [payrollRun]="selectedPayrollRun" 
+            (nextEmployee)="goToNextEmployee($id)" 
+            (previousEmployee)="goToPreviousEmployee($id)" 
+            (changedPayrollRun)="payrollRunChanged()"></salary-transactions-employee>
     </main>
 </section>
