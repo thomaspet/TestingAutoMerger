@@ -48,17 +48,15 @@ input,
         outline: none
         border-color: $uni-color-C2A
 
-    &[disabled]
+    &[disabled],
+    &[readonly]
         background-color: mix($uni-color-scale9, $uni-color-negative, 50%)
-        cursor: not-allowed
+        cursor: normal
+        border-radius: pxToRem(3)
+        border-right: pxToRem(1) solid $uni-color-scale7
 
     &[required]
         box-shadow: 0 0 0 pxToRem(1) $uni-color-negative, 0 0 0 pxToRem(2) $uni-color-scale9
-
-    &[readonly]
-        font-weight: 400
-        border: none
-        background-color: mix($uni-color-negative, $uni-color-scale9, 50%)
 
     &::-webkit-input-placeholder
         color: $uni-placeholder-text-color

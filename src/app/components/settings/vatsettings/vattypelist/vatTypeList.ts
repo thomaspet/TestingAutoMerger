@@ -7,7 +7,7 @@ import {UniTable, UniTableColumn, UniTableColumnType, UniTableConfig} from 'unit
 
 @Component({
     selector: 'vattype-list',
-    templateUrl: 'app/components/settings/vatsettings/vattypelist/vattypelist.html',
+    templateUrl: 'app/components/settings/vatsettings/vattypelist/vatTypeList.html',
     providers: [VatTypeService, VatCodeGroupService],
     directives: [UniTable]
 })
