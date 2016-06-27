@@ -108,7 +108,7 @@ export class TaxCardRequestModalContent {
         this.busy = true;
         this.uniform.Hidden = true;
         this.sendAltinnVisible = false;
-        this._altinnService.sendTaxRequestAction(option, empId).subscribe((response: AltinnReceipt) => { // TODO: remove orgnumber when we switch over from test altinn
+        this._altinnService.sendTaxRequestAction(option, empId).subscribe((response: AltinnReceipt) => {
             if (response.ErrorText) {
                 this.title = 'Feil angående Altinn forespørsel';
                 this.error = 'feilmelding fra altinn: ' + response.ErrorText;

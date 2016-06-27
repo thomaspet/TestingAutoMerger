@@ -63,16 +63,12 @@ export class EmploymentList implements OnInit {
     
     private setTableConfig() {
         this.busy = true;
-        let idCol = new UniTableColumn('ID', 'Nr', UniTableColumnType.Number).setWidth('5%');
-        let nameCol = new UniTableColumn('JobName', 'Stillingsnavn', UniTableColumnType.Text).setWidth('25%').setTemplate((rowModel) => {
-            let displayName = rowModel.JobName;
-            return rowModel.JobName.length > 15 ? rowModel.JobName.slice(0, 15) + '...' : rowModel.JobName;
-        });
-        let styrkCol = new UniTableColumn('JobCode', 'Stillingskode', UniTableColumnType.Text).setWidth('10%');
+        let idCol = new UniTableColumn('ID', 'Nr', UniTableColumnType.Number).setWidth('4rem');
+        let nameCol = new UniTableColumn('JobName', 'Stillingsnavn', UniTableColumnType.Text);
+        let styrkCol = new UniTableColumn('JobCode', 'Stillingskode', UniTableColumnType.Text);
         
         this.employmentListConfig = new UniTableConfig(false)
-        .setColumns([idCol, styrkCol, nameCol])
-        .setPageable(false);
+        .setColumns([idCol, styrkCol, nameCol]);
         
         this.busy = false;
     }

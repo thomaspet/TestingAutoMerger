@@ -82,7 +82,7 @@ export class EmploymentService extends BizHttp<Employment> {
                     LineBreak: null,
                     Combo: null,
                     Sectionheader: '',
-                }
+                },
                 {
                     ComponentLayoutID: 1,
                     EntityType: 'Employment',
@@ -136,7 +136,7 @@ export class EmploymentService extends BizHttp<Employment> {
                      Property: 'Standard',
                      Placement: 4,
                      Hidden: false,
-                     FieldType: 5
+                     FieldType: 5,
                      ReadOnly: false,
                      LookupField: false,
                      Label: 'Standard',

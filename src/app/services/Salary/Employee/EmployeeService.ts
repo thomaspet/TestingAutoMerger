@@ -76,7 +76,7 @@ export class EmployeeService extends BizHttp<Employee> {
     
     public getNext(id: number, expand: string[] = null) {
         if (expand) {
-            return super.GetAction(id, 'next', 'expand:' + this.expand.join(','));
+            return super.GetAction(id, 'next', 'expand:' + expand.join(','));
         } else {
             return super.GetAction(id, 'next', 'expand:' + this.defaultExpands.join(','));
         }
@@ -451,7 +451,7 @@ export class EmployeeService extends BizHttp<Employee> {
                     ComponentLayoutID: 1,
                      
                     EntityType: 'Employee',
-                    Property: 'TaxRequestBtn'
+                    Property: 'TaxRequestBtn',
                     Placement: 3,
                     Hidden: false,
                     FieldType: 1,
@@ -473,7 +473,7 @@ export class EmployeeService extends BizHttp<Employee> {
                     ComponentLayoutID: 1,
                      
                     EntityType: 'Employee',
-                    Property: 'GetTaxcardBtn'
+                    Property: 'GetTaxCardBtn',
                     Placement: 4,
                     Hidden: false,
                     FieldType: 1,
