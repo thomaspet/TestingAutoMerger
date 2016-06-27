@@ -61,7 +61,7 @@ export class JournalEntrySimple implements OnInit, OnChanges {
             this.departementService.GetAll(null),
             this.projectService.GetAll(null),
             this.vattypeService.GetAll(null),
-            this.accountService.GetAll(null)
+            this.accountService.GetAll(null, ['VatType'])
         ).subscribe(response => {
             this.dropdownData = response;
         });
@@ -211,10 +211,10 @@ export class JournalEntrySimple implements OnInit, OnChanges {
         dimensions.ProjectID = updatedLine['Dimensions.ProjectID'];
         updatedLine.Dimensions = dimensions;
         */
-        console.log('parseJournalEntryData: ', updatedLine);
         updatedLine.DebitAccount = this.getAccount(updatedLine['DebitAccountID']);
         updatedLine.CreditAccount = this.getAccount(updatedLine['CreditAccountID']);
-        updatedLine.DebitVatType = this.getVatType(updatedLine['VatTypeID']);
+        updatedLine.DebitVatType = this.getVatType(updatedLine['DebitVatTypeID']);
+        updatedLine.CreditVatType = this.getVatType(updatedLine['CreditVatTypeID']);
         
         updatedLine.Amount = Number(updatedLine.Amount.toString().replace(',', '.'));
         

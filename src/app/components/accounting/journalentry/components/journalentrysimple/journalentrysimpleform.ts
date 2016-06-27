@@ -150,9 +150,7 @@ export class JournalEntrySimpleForm implements OnChanges {
         } else {
             this.form.readMode();
         }
-        
-        console.log('ready!');
-             
+         
         this.form.field('FinancialDate').focus();
     }
         
@@ -292,11 +290,11 @@ export class JournalEntrySimpleForm implements OnChanges {
 
                                     if (line.Account.UsePostPost) {
                                         if (line.SubAccount) { 
-                                            this.journalEntryLine.CreditAccount = line.SubAccount;
                                             this.journalEntryLine.CreditAccountID = line.SubAccountID;
+                                            this.journalEntryLine.CreditAccount = line.SubAccount;
                                         } else {
-                                            this.journalEntryLine.CreditAccount = line.Account;
                                             this.journalEntryLine.CreditAccountID = line.AccountID;
+                                            this.journalEntryLine.CreditAccount = line.Account;
                                         }
                                         this.journalEntryLine.Amount = line.RestAmount;
 
@@ -313,8 +311,7 @@ export class JournalEntrySimpleForm implements OnChanges {
     }
     
     private onLeaveDebitAccount() {
-        this.form.field('FinancialDate').focus();
-        //this.form.field('CreditAccountID').focus();
+        this.form.field('CreditAccountID').focus();
     }
     
     private onLeaveCreditAccount() {        
@@ -398,16 +395,22 @@ export class JournalEntrySimpleForm implements OnChanges {
         debitAccount.Options = {                  
             displayProperty: 'AccountName',
             valueProperty: 'ID',
-            template: (account: Account) => { if (account) { return `${account.AccountNumber} - ${account.AccountName}`} return ''},
+            template: (account: Account) => account ? `${account.AccountNumber} - ${account.AccountName}` : '',
             minLength: 1,
             debounceTime: 300,
             search: (query: string) => this.accountService.GetAll(`filter=startswith(AccountNumber,'${query}') or contains(AccountName,'${query}')`, ['VatType']),
             events: {
-                select: (account: Account) => {
-                    if (account && account.VatType) {
-                        this.journalEntryLine.DebitVatType = account.VatType;
-                        this.journalEntryLine = _.deepClone(this.journalEntryLine);
-                    }
+                select: (model: JournalEntryData) => {
+                    let accountID = model.DebitAccountID;
+                    if (accountID) {
+                        let account = this.accounts.find(x => x.ID === accountID);
+                        
+                        if (account && account.VatType) {
+                            this.journalEntryLine.DebitVatTypeID = account.VatTypeID; 
+                            this.journalEntryLine.DebitVatType = account.VatType;
+                            this.journalEntryLine = _.cloneDeep(this.journalEntryLine);
+                        }
+                    }    
                 }, 
                 tab: (event) => {
                     this.onLeaveDebitAccount();                     
@@ -457,11 +460,17 @@ export class JournalEntrySimpleForm implements OnChanges {
             debounceTime: 300,
             search: (query: string) => this.accountService.GetAll(`filter=startswith(AccountNumber,'${query}') or contains(AccountName,'${query}')`, ['VatType']),
             events: {
-                select: (account: Account) => {
-                    if (account && account.VatType) {
-                        this.journalEntryLine.CreditVatType = account.VatType;
-                        this.journalEntryLine = _.deepClone(this.journalEntryLine);
-                    }
+                select: (model: JournalEntryData) => {
+                    let accountID = model.CreditAccountID;
+                    if (accountID) {
+                        let account = this.accounts.find(x => x.ID === accountID);
+                        
+                        if (account && account.VatType) {
+                            this.journalEntryLine.CreditVatTypeID = account.VatTypeID; 
+                            this.journalEntryLine.CreditVatType = account.VatType;
+                            this.journalEntryLine = _.cloneDeep(this.journalEntryLine);
+                        }
+                    }  
                 },
                 tab: (event) => {
                     this.onLeaveCreditAccount();                        
