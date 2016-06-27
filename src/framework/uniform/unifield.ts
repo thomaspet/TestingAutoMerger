@@ -165,22 +165,10 @@ export class UniField {
     }
     
     private buildClassString() {
-        var classes = [];
-        var cls = this.classes;
-        for (var cl in cls) {
-            if (cls.hasOwnProperty(cl)) {
-                var value = undefined;
-                if (_.isFunction(cls[cl])) {
-                    value = (<Function>cls[cl])();
-                } else {
-                    value = cls[cl];
-                }
-                if (value === true) {
-                    classes.push(cl);
-                }
-            }
+        if (this.field.Classes) {
+            return this.field.Classes;
         }
-        return classes.join(' ');
+        return '';        
     }
 
     private isInput(type) {
