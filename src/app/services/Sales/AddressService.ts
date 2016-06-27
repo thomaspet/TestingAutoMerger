@@ -121,30 +121,77 @@ export class AddressService extends BizHttp<Address> {
     }
 
     public setAddresses(entity: any, previousAddresses: Array<Address> = null) {
-        var invoiceaddresses = entity._InvoiceAddresses || [];
-        var shippingaddresses = entity._ShippingAddresses || [];
-        var firstinvoiceaddress = null;
-        var firstshippingaddress = null;
+        var invoiceaddresses = [];
+        var shippingaddresses = [];
+        //var firstinvoiceaddress = null;
+        //var firstshippingaddress = null;
 
+        // no adresses
+        console.log("== adrs ==", entity._InvoiceAddresses);
+
+        if (!entity._InvoiceAddresses) {
+            invoiceaddresses.push(this.invoiceToAddress(entity));
+            shippingaddresses.push(this.shippingToAddress(entity));
+            if (entity.Customer) {
+                entity.Customer.Info.Addresses.forEach(a => {
+                    invoiceaddresses.push(a);
+                    shippingaddresses.push(a);
+                });
+            }
+        } else {
+            console.log("== OLD ==", invoiceaddresses);
+            console.log("== OLD ONES ==", entity._InvoiceAddresses);
+            if (previousAddresses) {
+                previousAddresses.forEach(a => {
+                    entity._InvoiceAddresses.forEach((b, i) => {
+                        if (a.ID != b.ID) {
+                            invoiceaddresses.push(b);
+                        }
+                    });
+                    entity._ShippingAddresses.forEach((b, i) => {
+                        if (a.ID != b.ID) {
+                            shippingaddresses.push(b);
+                        }
+                    });
+                });
+
+                if (entity.Customer) {
+                    entity.Customer.Info.Addresses.forEach(a => {
+                        invoiceaddresses.push(a);
+                        shippingaddresses.push(a);
+                    });
+                }
+
+            }
+        }
+
+
+
+        // Add addresses from current customer
+
+        // ingen adresser fra før
+        // adresse fra entity + kundeadresser
+
+        // adresser fra før, fjerne tidligere adresser, legge til ny kunde sine adresser
+
+        /*
         // remove addresses from last customer
         if (previousAddresses) {
             previousAddresses.forEach(a => {
-                invoiceaddresses.forEach((b, i) => {
-                    if (a.ID == b.ID) {
-                        delete invoiceaddresses[i];
-                        return;
+                entity._InvoiceAddresses.forEach((b, i) => {
+                    if (a.ID != b.ID) {
+                        invoiceaddresses.push(_.cloneDeep(b));
                     }
                 });
-                shippingaddresses.forEach((b, i) => {
-                    if (a.ID == b.ID) {
-                        delete shippingaddresses[i];
-                        return;
+                entity._ShippingAddresses.forEach((b, i) => {
+                    if (a.ID != b.ID) {
+                        shippingaddresses.push(_.cloneDeep(b));
                     }
                 });
             });
         }
 
-        // Add address from order if no addresses
+        // Add address from entity if no addresses
         if (invoiceaddresses.length == 0) {
             var invoiceaddress = this.invoiceToAddress(entity);
             if (!this.isEmptyAddress(invoiceaddress)) {
@@ -173,15 +220,14 @@ export class AddressService extends BizHttp<Address> {
 
         // Add addresses from current customer
         if (entity.Customer) {
-            console.log("== BEFORE ==", invoiceaddresses);
+            entity.Customer.Info.Addresses.forEach(a => {
+                invoiceaddresses.push(a);
+                shippingaddresses.push(a);
+            });
+        }
+        */
 
-            invoiceaddresses = invoiceaddresses.concat(_.cloneDeep(entity.Customer.Info.Addresses));
-            shippingaddresses = shippingaddresses.concat(_.cloneDeep(entity.Customer.Info.Addresses));
-
-            console.log("== INVOICEADDRESSES IS NOW =", invoiceaddresses);
-        } 
-
-        entity._InvoiceAddresses = _.cloneDeep(invoiceaddresses);
-        entity._ShippingAddresses = _.cloneDeep(shippingaddresses);
+        entity._InvoiceAddresses = invoiceaddresses;
+        entity._ShippingAddresses = shippingaddresses;
    }
 }
