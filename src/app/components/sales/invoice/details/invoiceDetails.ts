@@ -3,7 +3,7 @@ import {Router, RouteParams, RouterLink} from '@angular/router-deprecated';
 import {Observable} from 'rxjs/Observable';
 import 'rxjs/add/observable/forkJoin';
 
-import {CustomerInvoiceService, CustomerInvoiceItemService, CustomerService} from '../../../../services/services';
+import {CustomerInvoiceService, CustomerInvoiceItemService, CustomerService, BusinessRelationService} from '../../../../services/services';
 import {ProjectService, DepartementService, AddressService, ReportDefinitionService} from '../../../../services/services';
 
 import {UniSave, IUniSaveAction} from '../../../../../framework/save/save';
@@ -15,7 +15,7 @@ import {InvoiceItemList} from './invoiceItemList';
 import {CustomerInvoice, CustomerInvoiceItem, Customer, Dimensions, Address, BusinessRelation} from '../../../../unientities';
 import {StatusCodeCustomerInvoice, FieldType} from '../../../../unientities';
 
-import {AddressModal} from '../../customer/modals/address/address';
+import {AddressModal} from '../../../common/modals/modals';
 import {TradeHeaderCalculationSummary} from '../../../../models/sales/TradeHeaderCalculationSummary';
 
 import {PreviewModal} from '../../../reports/modals/preview/previewModal';
@@ -27,12 +27,18 @@ import {RegisterPaymentModal} from '../../../common/modals/registerPaymentModal'
 declare var _;
 declare var moment;
 
+class CustomerInvoiceExt extends CustomerInvoice {
+    public _InvoiceAddress: Address;
+    public _InvoiceAddresses: Array<Address>;
+    public _ShippingAddress: Address;
+    public _ShippingAddresses: Array<Address>;
+}
 
 @Component({
     selector: 'invoice-details',
     templateUrl: 'app/components/sales/invoice/details/invoiceDetails.html',
     directives: [RouterLink, InvoiceItemList, AddressModal, UniForm, UniSave, PreviewModal, RegisterPaymentModal],
-    providers: [CustomerInvoiceService, CustomerInvoiceItemService, CustomerService, ProjectService, DepartementService, AddressService, ReportDefinitionService]
+    providers: [CustomerInvoiceService, CustomerInvoiceItemService, CustomerService, ProjectService, DepartementService, AddressService, ReportDefinitionService, BusinessRelationService]
 })
 export class InvoiceDetails implements OnInit {
 
@@ -48,11 +54,7 @@ export class InvoiceDetails implements OnInit {
     public config: any = {};
     private fields: any[] = [];
 
-    private businessRelationInvoice: BusinessRelation = new BusinessRelation();
-    private businessRelationShipping: BusinessRelation = new BusinessRelation();
-    private lastCustomerInfo: BusinessRelation;
-
-    private invoice: CustomerInvoice;
+    private invoice: CustomerInvoiceExt;
     private statusText: string;
 
     private itemsSummaryData: TradeHeaderCalculationSummary;
@@ -77,13 +79,12 @@ export class InvoiceDetails implements OnInit {
         private projectService: ProjectService,
         private addressService: AddressService,
         private reportDefinitionService: ReportDefinitionService,
+        private businessRelationService: BusinessRelationService,
 
         private router: Router, private params: RouteParams,
         private tabService: TabService) {
 
         this.invoiceID = params.get('id');
-        this.businessRelationInvoice.Addresses = [];
-        this.businessRelationShipping.Addresses = [];
         this.tabService.addTab({ url: '/sales/invoice/details/' + this.invoiceID, name: 'Fakturanr. ' + this.invoiceID, active: true, moduleID: 5 });
     }
 
@@ -162,9 +163,12 @@ export class InvoiceDetails implements OnInit {
             .subscribe((data) => {
                 if (data) {
                     this.customerService.Get(this.invoice.CustomerID, ['Info', 'Info.Addresses']).subscribe((customer: Customer) => {
+                        let previousAddresses = this.invoice.Customer ? this.invoice.Customer.Info.Addresses : null;
                         this.invoice.Customer = customer;
-                        this.addAddresses();
+                        this.addressService.setAddresses(this.invoice, previousAddresses);
+
                         this.invoice.CustomerName = customer.Info.Name;
+
                         if (customer.CreditDays !== null) {
                             this.invoice.CreditDays = customer.CreditDays;
                             this.invoice.PaymentDueDate = moment(this.invoice.InvoiceDate).startOf('day').add(Number(data.CreditDays), 'days').toDate();
@@ -227,7 +231,7 @@ export class InvoiceDetails implements OnInit {
                 this.creditButtonText = 'Fakturer kreditnota';
             }
             this.updateStatusText();
-            this.addAddresses();
+            this.addressService.setAddresses(this.invoice);
             this.updateSaveActions();
             this.extendFormConfig();
 
@@ -237,9 +241,9 @@ export class InvoiceDetails implements OnInit {
         });
     }
 
-
-
     private extendFormConfig() {
+        let self = this;
+
         // TODO Insert line breaks were needed 
 
 
@@ -260,15 +264,15 @@ export class InvoiceDetails implements OnInit {
             debounceTime: 200
         };
 
-        var invoiceaddress: UniFieldLayout = this.fields.find(x => x.Property === 'InvoiceAddress');
+        var invoiceaddress: UniFieldLayout = this.fields.find(x => x.Property === '_InvoiceAddress');
 
         // TODO:
         invoiceaddress.Options = {
             entity: Address,
-            listProperty: 'Customer.Info.Addresses',
+            listProperty: '_InvoiceAddresses',
             displayValue: 'AddressLine1',
             linkProperty: 'ID',
-            foreignProperty: 'Customer.Info.InvoiceAddressID',
+            foreignProperty: '_InvoiceAddressesID',
             editor: (value) => new Promise((resolve) => {
                 if (!value) {
                     value = new Address();
@@ -277,40 +281,25 @@ export class InvoiceDetails implements OnInit {
 
                 this.addressModal.openModal(value);
 
-                this.addressModal.Changed.subscribe(modalval => {
-                    resolve(modalval);
+                this.addressModal.Changed.subscribe((address) => {
+                    this.invoice._InvoiceAddress = address;
+                    this.invoice = _.cloneDeep(this.invoice);
+                    if (address._question) { self.saveAddressOnCustomer(address); }
+                    resolve(address);
                 });
             }),
             display: (address: Address) => {
-                let displayVal = address.AddressLine1 + ', ' + address.PostalCode + ' ' + address.City;
-                return displayVal;
+                return this.addressService.displayAddress(address);
             }
         };
 
-        // var invoiceaddress: UniFieldBuilder = this.formConfig.find('InvoiceAddress');
-        // invoiceaddress
-        //    .setKendoOptions({
-        //        dataTextField: 'AddressLine1',
-        //        dataValueField: 'ID',
-        //        enableSave: true
-        //    })
-        //    .setModel(this.businessRelationInvoice)
-        //    .setModelField('Addresses')
-        //    //  .setModelDefaultField('InvoiceAddressID')           
-        //    .setPlaceholder(this.emptyAddress)
-        //    .setEditor(AddressModal);
-        // invoiceaddress.onSelect = (address: Address) => {
-        //    this.addressToInvoice(address);
-        //    this.businessRelationInvoice.Addresses[0] = address;
-        // };
-
-        var shippingaddress: UniFieldLayout = this.fields.find(x => x.Property === 'ShippingAddress');
+        var shippingaddress: UniFieldLayout = this.fields.find(x => x.Property === '_ShippingAddress');
         shippingaddress.Options = {
             entity: Address,
-            listProperty: 'Customer.Info.Addresses',
+            listProperty: '_ShippingAddresses',
             displayValue: 'AddressLine1',
             linkProperty: 'ID',
-            foreignProperty: 'Customer.Info.ShippingAddressID',
+            foreignProperty: '_ShippingAddressesID',
             editor: (value) => new Promise((resolve) => {
                 if (!value) {
                     value = new Address();
@@ -319,32 +308,17 @@ export class InvoiceDetails implements OnInit {
 
                 this.addressModal.openModal(value);
 
-                this.addressModal.Changed.subscribe(modalval => {
-                    resolve(modalval);
+                this.addressModal.Changed.subscribe((address) => {
+                    this.invoice._ShippingAddress = address;
+                    this.invoice = _.cloneDeep(this.invoice);
+                    if (address._question) { self.saveAddressOnCustomer(address); }
+                    resolve(address);
                 });
             }),
             display: (address: Address) => {
-                let displayVal = address.AddressLine1 + ', ' + address.PostalCode + ' ' + address.City;
-                return displayVal;
+                return this.addressService.displayAddress(address);
             }
         };
-        // TK TODO: 
-        // var shippingaddress: UniFieldBuilder = this.formConfig.find('ShippingAddress');
-        // shippingaddress
-        //    .setKendoOptions({
-        //        dataTextField: 'AddressLine1',
-        //        dataValueField: 'ID',
-        //        enableSave: true
-        //    })
-        //    .setModel(this.businessRelationShipping)
-        //    .setModelField('Addresses')
-        //    //    .setModelDefaultField('ShippingAddressID')
-        //    .setPlaceholder(this.emptyAddress)
-        //    .setEditor(AddressModal);
-        // shippingaddress.onSelect = (address: Address) => {
-        //    this.addressToShipping(address);
-        //    this.businessRelationShipping.Addresses[0] = address;
-        // };
 
         var customer: UniFieldLayout = this.fields.find(x => x.Property === 'CustomerID');
         customer.Options = {
@@ -353,6 +327,20 @@ export class InvoiceDetails implements OnInit {
             displayProperty: 'Info.Name',
             debounceTime: 200
         };
+    }
+
+    private saveAddressOnCustomer(address: Address) {
+        if (!address.ID || address.ID == 0) {
+            address['_createguid'] = this.addressService.getNewGuid();
+            this.invoice.Customer.Info.Addresses.push(address);
+            this.businessRelationService.Put(this.invoice.Customer.Info.ID, this.invoice.Customer.Info).subscribe((res) => {
+                this.invoice.Customer.Info = res;
+                this.addressService.setAddresses(this.invoice);
+            });
+        } else {
+            this.addressService.Put(address.ID, address).subscribe((res) => {
+            });
+        }
     }
 
     private updateSaveActions() {
@@ -427,69 +415,6 @@ export class InvoiceDetails implements OnInit {
         return true;
     }
 
-
-    private addAddresses() {
-        var invoiceaddresses = this.businessRelationInvoice.Addresses ? this.businessRelationInvoice.Addresses : [];
-        var shippingaddresses = this.businessRelationShipping.Addresses ? this.businessRelationShipping.Addresses : [];
-        var firstinvoiceaddress = null;
-        var firstshippingaddress = null;
-
-        // remove addresses from last customer
-        if (this.lastCustomerInfo) {
-            this.lastCustomerInfo.Addresses.forEach(a => {
-                invoiceaddresses.forEach((b, i) => {
-                    if (a.ID == b.ID) {
-                        delete invoiceaddresses[i];
-                        return;
-                    }
-                });
-                shippingaddresses.forEach((b, i) => {
-                    if (a.ID == b.ID) {
-                        delete shippingaddresses[i];
-                        return;
-                    }
-                });
-            });
-        }
-
-        // Add address from order if no addresses
-        if (invoiceaddresses.length == 0) {
-            var invoiceaddress = this.invoiceToAddress();
-            if (!this.isEmptyAddress(invoiceaddress)) {
-                firstinvoiceaddress = invoiceaddress;
-            }
-        } else {
-            firstinvoiceaddress = invoiceaddresses.shift();
-        }
-
-        if (shippingaddresses.length == 0) {
-            var shippingaddress = this.shippingToAddress();
-            if (!this.isEmptyAddress(shippingaddress)) {
-                firstshippingaddress = shippingaddress;
-            }
-        } else {
-            firstshippingaddress = shippingaddresses.shift();
-        }
-
-        // Add addresses from current customer
-        if (this.invoice.Customer) {
-            this.businessRelationInvoice = _.cloneDeep(this.invoice.Customer.Info);
-            this.businessRelationShipping = _.cloneDeep(this.invoice.Customer.Info);
-            this.lastCustomerInfo = this.invoice.Customer.Info;
-        }
-
-        if (!this.isEmptyAddress(firstinvoiceaddress)) {
-            this.businessRelationInvoice.Addresses.unshift(firstinvoiceaddress);
-        }
-
-        if (!this.isEmptyAddress(firstshippingaddress)) {
-            this.businessRelationShipping.Addresses.unshift(firstshippingaddress);
-        }
-
-        this.businessRelationInvoice.Addresses = this.businessRelationInvoice.Addresses.concat(invoiceaddresses);
-        this.businessRelationShipping.Addresses = this.businessRelationShipping.Addresses.concat(shippingaddresses);
-    }
-
     public recalcItemSums(invoiceItems: any) {
         this.invoice.Items = invoiceItems;
 
@@ -529,7 +454,7 @@ export class InvoiceDetails implements OnInit {
         let showMessage: boolean = false;
 
         for (let i = 0; i < invoiceItems.length; i++) {
-            let line: CustomerInvoiceItem  = invoiceItems[i];
+            let line: CustomerInvoiceItem = invoiceItems[i];
 
             if (line.ProductID !== null) {
                 items.push(line);
@@ -539,7 +464,7 @@ export class InvoiceDetails implements OnInit {
             }
         }
 
-        if (showMessage){
+        if (showMessage) {
             alert('En eller flere av linjene inneholder produkter som ikke finnes i produktliste. Disse vil ikke bli lagret med faktura. Vennligst opprett produktene først');
         }
         return items;
@@ -573,6 +498,10 @@ export class InvoiceDetails implements OnInit {
     }
 
     private saveInvoice(cb = null, transition = '') {
+        // Transform addresses to flat
+        this.addressService.addressToInvoice(this.invoice, this.invoice._InvoiceAddress);
+        this.addressService.addressToShipping(this.invoice, this.invoice._ShippingAddress);
+
         this.invoice.TaxInclusiveAmount = -1; // TODO in AppFramework, does not save main entity if just items have changed
 
         if (transition == 'invoice' && this.invoice.DeliveryDate == null) {
@@ -592,6 +521,7 @@ export class InvoiceDetails implements OnInit {
             (invoiceSaved: CustomerInvoice) => {
                 this.customerInvoiceService.Get(this.invoice.ID, this.expandOptions).subscribe(invoiceGet => {
                     this.invoice = invoiceGet;
+                    this.addressService.setAddresses(this.invoice);
                     this.updateStatusText();
                     this.updateSaveActions();
                     this.ready(null);
@@ -673,9 +603,23 @@ export class InvoiceDetails implements OnInit {
     public onRegisteredPayment(modalData: any) {
 
         this.customerInvoiceService.ActionWithBody(modalData.id, modalData.invoice, 'payInvoice').subscribe((journalEntry) => {
-            // TODO: Decide what to do here. Popup message or navigate to journalentry ??
-            // this.router.navigateByUrl('/sales/invoice/details/' + invoice.ID);
             alert('Faktura er betalt. Bilagsnummer: ' + journalEntry.JournalEntryNumber);
+
+            this.customerInvoiceService.Get(this.invoice.ID, this.expandOptions).subscribe((data) => {
+                this.invoice = data;
+                this.updateStatusText();
+                this.updateSaveActions();
+                this.ready(null);
+            },
+                (err) => {
+                    //    console.log('Feil oppstod ved henting av faktura: Error:', err);
+                    //    this.log(err);
+                });
+
+            console.log('Fsdfsdf');
+            //}, (err) => {
+            //    console.log('Feil oppstod ved henting av faktura: Error:', err);
+            //    this.log(err);
 
         }, (err) => {
             console.log('Error registering payment: ', err);
@@ -683,66 +627,10 @@ export class InvoiceDetails implements OnInit {
         });
     }
 
+
     private deleteInvoice(done) {
         alert('Slett  - Under construction');
         done('Slett faktura avbrutt');
-    }
-
-    private isEmptyAddress(address: Address): boolean {
-        if (address == null) { return true; }
-        return (address.AddressLine1 == null &&
-            address.AddressLine2 == null &&
-            address.AddressLine3 == null &&
-            address.PostalCode == null &&
-            address.City == null &&
-            address.Country == null &&
-            address.CountryCode == null);
-    }
-
-    private invoiceToAddress(): Address {
-        var a = new Address();
-        a.AddressLine1 = this.invoice.InvoiceAddressLine1;
-        a.AddressLine2 = this.invoice.InvoiceAddressLine2;
-        a.AddressLine3 = this.invoice.ShippingAddressLine3;
-        a.PostalCode = this.invoice.InvoicePostalCode;
-        a.City = this.invoice.InvoiceCity;
-        a.Country = this.invoice.InvoiceCountry;
-        a.CountryCode = this.invoice.InvoiceCountryCode;
-
-        return a;
-    }
-
-    private shippingToAddress(): Address {
-        var a = new Address();
-        a.AddressLine1 = this.invoice.ShippingAddressLine1;
-        a.AddressLine2 = this.invoice.ShippingAddressLine2;
-        a.AddressLine3 = this.invoice.ShippingAddressLine3;
-        a.PostalCode = this.invoice.ShippingPostalCode;
-        a.City = this.invoice.ShippingCity;
-        a.Country = this.invoice.ShippingCountry;
-        a.CountryCode = this.invoice.ShippingCountryCode;
-
-        return a;
-    }
-
-    public addressToInvoice(a: Address) {
-        this.invoice.InvoiceAddressLine1 = a.AddressLine1;
-        this.invoice.InvoiceAddressLine2 = a.AddressLine2;
-        this.invoice.ShippingAddressLine3 = a.AddressLine3;
-        this.invoice.InvoicePostalCode = a.PostalCode;
-        this.invoice.InvoiceCity = a.City;
-        this.invoice.InvoiceCountry = a.Country;
-        this.invoice.InvoiceCountryCode = a.CountryCode;
-    }
-
-    public addressToShipping(a: Address) {
-        this.invoice.ShippingAddressLine1 = a.AddressLine1;
-        this.invoice.ShippingAddressLine2 = a.AddressLine2;
-        this.invoice.ShippingAddressLine3 = a.AddressLine3;
-        this.invoice.ShippingPostalCode = a.PostalCode;
-        this.invoice.ShippingCity = a.City;
-        this.invoice.ShippingCountry = a.Country;
-        this.invoice.ShippingCountryCode = a.CountryCode;
     }
 
     private getComponentLayout(): any {
@@ -873,8 +761,8 @@ export class InvoiceDetails implements OnInit {
                 },
                 {
                     ComponentLayoutID: 3,
-                    EntityType: 'BusinessRelation',
-                    Property: 'InvoiceAddress',
+                    EntityType: 'Address',
+                    Property: '_InvoiceAddress',
                     Placement: 1,
                     Hidden: false,
                     FieldType: FieldType.MULTIVALUE,
@@ -901,8 +789,8 @@ export class InvoiceDetails implements OnInit {
                 },
                 {
                     ComponentLayoutID: 3,
-                    EntityType: 'BusinessRelation',
-                    Property: 'ShippingAddress',
+                    EntityType: 'Address',
+                    Property: '_ShippingAddress',
                     Placement: 1,
                     Hidden: false,
                     FieldType: FieldType.MULTIVALUE,

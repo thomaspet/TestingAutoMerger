@@ -186,8 +186,6 @@ export class InvoiceItemList implements OnInit {
                 // Return the updated row to the table
                 return newRow;
             });
-
-        this.invoiceItemTable.hasDeleteButton = true;
     }
 
     public rowChanged(event) {

@@ -19,7 +19,7 @@ export class Signup {
     private working: boolean = false;
     private existingUser: Object;
     private success: boolean = false;    
-    private errorMessage: string;
+    private errorMessage: string = '';
 
 
     constructor(private _http: UniHttp, private _router: Router) {
@@ -79,6 +79,7 @@ export class Signup {
     }
     
     private submitDetails() {
+        this.errorMessage = '';
         this.working = true;
 
         let controls = this.detailsForm.controls;        
@@ -92,6 +93,7 @@ export class Signup {
             body['Name'] = controls['Name'].value;
             body['UserName'] = controls['UserName'].value;
             body['Password'] = controls['Password'].value;
+            body['Secret'] = 'uni2016';
         }
         
         this._http.asPOST()
@@ -108,8 +110,7 @@ export class Signup {
                 },
                 (error) => {
                     this.working = false;
-                    this.errorMessage = error.json().Message;
-                    console.log(error.json());
+                    this.errorMessage = 'Noe gikk galt under registrering. Vennligst sjekk detaljer og prøv igjen.';
                 }
             );
     }

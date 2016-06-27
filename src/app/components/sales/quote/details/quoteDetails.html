@@ -16,7 +16,6 @@
     <section class="poster_overview">        
         <uni-widget-poster [model]="quote">
             <section class="application">
-                widgetdata kommer her...
             </section>
         </uni-widget-poster>        
     </section> 
@@ -30,8 +29,7 @@
               (onChange)="change($event)"
               (onReady)="ready($event)">
     </uni-form>
-    <address-modal></address-modal>
-
+    <address-modal question="Lagre på kundekort?"></address-modal>
 
     <quote-item-list [quote]="quote" (itemsUpdated)="recalcItemSums($event)" (itemsLoaded)="recalcItemSums($event)"></quote-item-list>    
     <section class="quote-items-summary-placeholder" *ngIf="!itemsSummaryData" aria-busy>
