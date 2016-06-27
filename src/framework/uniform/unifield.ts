@@ -95,8 +95,6 @@ export class UniField {
     @Output()
     public onChange: EventEmitter<any> = new EventEmitter<any>(true);
 
-    public classesxx: (string | Function)[] = [];
-
     public messages: {};
 
     @ViewChild('selectedComponent')
