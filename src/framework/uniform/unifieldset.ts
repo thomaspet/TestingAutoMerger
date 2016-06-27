@@ -11,24 +11,24 @@ declare var _; // lodash
     template: `
         <fieldset [hidden]="Hidden">
             <legend *ngIf="config.legend">{{config.legend}}</legend>
-            <template ngFor let-field [ngForOf]="groupedFields" let-i="index">
+            <template ngFor let-item [ngForOf]="groupedFields" let-i="index">
                 <uni-combo-field
-                    *ngIf="isCombo(field)"
+                    *ngIf="isCombo(item)"
                     [controls]="controls"
-                    [field]="field" 
+                    [field]="item" 
                     [model]="model"
                     (onReady)="onReadyHandler($event)"
                     (onChange)="onChangeHandler($event)">
                 </uni-combo-field>
                 <uni-field
-                    *ngIf="isField(field)"
+                    *ngIf="isField(item)"
                     [controls]="controls"
                     [field]="field" 
                     [model]="model"
                     (onReady)="onReadyHandler($event)"
                     (onChange)="onChangeHandler($event)">
                 </uni-field>
-                <uni-linebreak *ngIf="hasLineBreak(item)"></uni-linebreak>
+                <uni-linebreak *ngIf="hasLineBreak(field)"></uni-linebreak>
             </template>
         </fieldset>
     `,
