@@ -112,11 +112,14 @@ label > .k-widget
 .k-combobox,
 .k-picker-wrap,
 .k-numeric-wrap
+    box-sizing: border-box
+
     // The input
     .k-input
         border-right: none
         border-radius: pxToRem(3) 0 0 pxToRem(3)
         min-height: 1.7rem
+        width: 100%
 
     // The button
     .k-select
@@ -126,6 +129,7 @@ label > .k-widget
         border: pxToRem(1) solid $uni-color-scale7
         border-left: 1px solid $uni-color-scale7
         line-height: 1.4rem
+        height: 1.7rem
 
         &:hover
             background: $uni-color-scale9

@@ -243,7 +243,8 @@ export class JournalEntryProfessional {
         this.journalEntryTable = new UniTableConfig(true, false, 100)
             .setColumns([
                 financialDateCol, debitAccountCol, debitVatTypeCol, creditAccountCol, creditVatTypeCol, amountCol,
-                projectCol, departmentCol, descriptionCol
+                //projectCol, departmentCol, // TODO: > 30.6
+                descriptionCol
             ])
             .setAutoAddNewRow(true)
             .setMultiRowSelect(false)
