@@ -177,7 +177,14 @@ export class InvoiceItemList implements OnInit {
                     }
                 }
                 if (event.field === 'Product') {
-                    this.mapProductToInvoiceItem(newRow);
+                    if (this.mapProductToInvoiceItem(newRow) === null) {
+                        return null
+                    };
+                }
+
+                if (newRow.ProductID === null) {
+                    alert('Not possible to add a new product here. Please add the product in the product list');
+                    return null;
                 }
 
                 this.calculatePriceIncVat(newRow);

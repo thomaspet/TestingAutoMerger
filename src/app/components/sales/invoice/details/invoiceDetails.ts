@@ -63,8 +63,12 @@ export class InvoiceDetails implements OnInit {
     private emptyAddress: Address;
     private invoiceReference: CustomerInvoice;
     private invoiceButtonText: string = 'Fakturer';
+    private creditButtonText: string = 'Krediter faktura';
     private recalcTimeout: any;
     private actions: IUniSaveAction[];
+
+    private expandOptions: Array<string> = ['Dimensions', 'Items', 'Items.Product', 'Items.VatType', 'Customer',
+        'Customer.Info', 'Customer.Info.Addresses', 'InvoiceReference'];
 
     constructor(private customerService: CustomerService,
         private customerInvoiceService: CustomerInvoiceService,
@@ -80,7 +84,7 @@ export class InvoiceDetails implements OnInit {
         this.invoiceID = params.get('id');
         this.businessRelationInvoice.Addresses = [];
         this.businessRelationShipping.Addresses = [];
-        this.tabService.addTab({ url: '/sales/invoice/details/' + this.invoiceID, name: 'Fakturanr. ' + this.invoiceID, active: true, moduleID: 5 }); 
+        this.tabService.addTab({ url: '/sales/invoice/details/' + this.invoiceID, name: 'Fakturanr. ' + this.invoiceID, active: true, moduleID: 5 });
     }
 
     private log(err) {
@@ -203,7 +207,7 @@ export class InvoiceDetails implements OnInit {
         Observable.forkJoin(
             this.departementService.GetAll(null),
             this.projectService.GetAll(null),
-            this.customerInvoiceService.Get(this.invoiceID, ['Dimensions', 'Items', 'Items.Product', 'Items.VatType', 'Customer', 'Customer.Info', 'Customer.Info.Addresses', 'InvoiceReference']),
+            this.customerInvoiceService.Get(this.invoiceID, this.expandOptions),
             this.customerService.GetAll(null, ['Info']),
             this.addressService.GetNewEntity(null, 'address')
         ).subscribe(response => {
@@ -220,6 +224,7 @@ export class InvoiceDetails implements OnInit {
 
             if (this.invoice.InvoiceType === 1) {
                 this.invoiceButtonText = 'Krediter';
+                this.creditButtonText = 'Fakturer kreditnota';
             }
             this.updateStatusText();
             this.addAddresses();
@@ -361,9 +366,15 @@ export class InvoiceDetails implements OnInit {
         });
 
         this.actions.push({
+            label: this.creditButtonText, //
+            action: (done) => this.CreditInvoice(done),
+            disabled: this.IsCreditActionDisabled()
+        });
+
+        this.actions.push({
             label: this.invoiceButtonText, // Fakturer eller Krediter
             action: (done) => this.saveInvoiceTransition(done, 'invoice'),
-            disabled: this.IsinvoiceActionDisabled()
+            disabled: this.IsInvoiceActionDisabled()
         });
 
         this.actions.push({
@@ -384,6 +395,38 @@ export class InvoiceDetails implements OnInit {
             disabled: true
         });
     }
+
+    private IsInvoiceActionDisabled() {
+        if ((this.invoice.TaxExclusiveAmount === 0) &&
+            ((this.itemsSummaryData == null) || (this.itemsSummaryData.SumTotalIncVat === 0))) {
+            return true;
+        }
+        if (this.invoice.StatusCode === StatusCodeCustomerInvoice.Draft) {
+            return false;
+        }
+        return true;
+    }
+    private IsCreditActionDisabled() {
+        if (this.invoice.InvoiceType === 1) {
+            return true; //TODO: fakturering av kreditnota er ikke implementert
+        }
+
+        if (this.invoice.StatusCode === StatusCodeCustomerInvoice.Invoiced ||
+            this.invoice.StatusCode === StatusCodeCustomerInvoice.PartlyPaid ||
+            this.invoice.StatusCode === StatusCodeCustomerInvoice.Paid) {
+            return false;
+        }
+        return true;
+    }
+
+    private IsPayActionDisabled() {
+        if (this.invoice.StatusCode === StatusCodeCustomerInvoice.Invoiced ||
+            this.invoice.StatusCode === StatusCodeCustomerInvoice.PartlyPaid) {
+            return false;
+        }
+        return true;
+    }
+
 
     private addAddresses() {
         var invoiceaddresses = this.businessRelationInvoice.Addresses ? this.businessRelationInvoice.Addresses : [];
@@ -487,13 +530,12 @@ export class InvoiceDetails implements OnInit {
                 console.log('== TRANSITION OK ' + transition + ' ==');
                 this.router.navigateByUrl('/sales/invoice/details/' + this.invoice.ID);
 
-                this.customerInvoiceService.Get(invoice.ID, ['Dimensions', 'Items', 'Items.Product', 'Items.VatType', 'Customer',
-                    'Customer.Info', 'Customer.Info.Addresses']).subscribe((data) => {
-                        this.invoice = data;
-                        this.updateStatusText();
-                        this.updateSaveActions();
-                        this.ready(null);
-                    });
+                this.customerInvoiceService.Get(invoice.ID, this.expandOptions).subscribe((data) => {
+                    this.invoice = data;
+                    this.updateStatusText();
+                    this.updateSaveActions();
+                    this.ready(null);
+                });
                 done('Fakturert');
             }, (err) => {
                 console.log('Feil oppstod ved ' + transition + ' transition', err);
@@ -523,13 +565,24 @@ export class InvoiceDetails implements OnInit {
 
         this.customerInvoiceService.Put(this.invoice.ID, this.invoice)
             .subscribe(
-            (invoice: CustomerInvoice) => {
-                this.invoice = invoice;
-                this.updateStatusText();
-                this.updateSaveActions();
+            (invoiceSaved: CustomerInvoice) => {
+                //Get invoice with expand
+
+                this.customerInvoiceService.Get(this.invoice.ID, this.expandOptions).subscribe(invoiceGet => {
+                    this.invoice = invoiceGet;
+                    this.updateStatusText();
+                    this.updateSaveActions();
+                    this.ready(null);
+                });
+
+
+                //this.supplierService.Get(this.supplier.ID, this.expandOptions).subscribe(data => {
+                //    this.invoice = data;
+                //    this.updateStatusText();
+                //    this.updateSaveActions();
 
                 if (cb) {
-                    cb(invoice);
+                    cb(invoiceSaved);
                 }
             },
             (err) => {
@@ -543,25 +596,6 @@ export class InvoiceDetails implements OnInit {
         this.statusText = this.customerInvoiceService.getStatusText(this.invoice.StatusCode, this.invoice.InvoiceType);
     }
 
-    private IsinvoiceActionDisabled() {
-        if ((this.invoice.TaxExclusiveAmount === 0) &&
-            ((this.itemsSummaryData == null) || (this.itemsSummaryData.SumTotalIncVat === 0))) {
-            return true;
-        }
-        if (this.invoice.StatusCode === StatusCodeCustomerInvoice.Draft) {
-            return false;
-        }
-        return true;
-    }
-    private IsPayActionDisabled() {
-        if (this.invoice.StatusCode === StatusCodeCustomerInvoice.Invoiced ||
-            this.invoice.StatusCode === StatusCodeCustomerInvoice.PartlyPaid) {
-            return false;
-        }
-        return true;
-    }
-
-
     private saveAndPrint(done) {
         this.saveInvoice((invoice) => {
             this.reportDefinitionService.getReportByName('Faktura Uten Giro').subscribe((report) => {
@@ -573,6 +607,17 @@ export class InvoiceDetails implements OnInit {
                 }
             });
         });
+    }
+
+    private CreditInvoice(done) {
+        this.customerInvoiceService.createCreditNoteFromInvoice(this.invoice.ID)
+            .subscribe((data) => {
+                this.router.navigateByUrl('/sales/invoice/details/' + data.ID);
+            },
+            (err) => {
+                console.log('Error creating credit note: ', err);
+                this.log(err);
+            });
     }
 
     private payInvoice(done) {
@@ -683,7 +728,7 @@ export class InvoiceDetails implements OnInit {
         this.invoice.ShippingCountry = a.Country;
         this.invoice.ShippingCountryCode = a.CountryCode;
     }
-    
+
     private getComponentLayout(): any {
 
         return {
