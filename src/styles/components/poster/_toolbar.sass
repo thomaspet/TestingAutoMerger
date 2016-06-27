@@ -29,9 +29,9 @@
         height: 2.1rem
         width: 2.1rem
         margin: 0 0 0 .5rem
-        border: .1rem solid lighten($uni-color-scale6, 10%)
         font-size: 0
-        background: no-repeat center
+        box-shadow: 0 pxToRem(1) pxToRem(1) $uni-color-scale7
+        background: mix($uni-color-negative, $uni-color-C2A, 80%) no-repeat center
         background-size: 1rem 1rem
         position: relative
         top: -.3rem
@@ -42,19 +42,19 @@
             border-color: $uni-color-C2A
 
     .previous
-        background-image: unicon-prev($uni-color-scale6)
+        background-image: unicon-prev($uni-color-scale3)
         &:hover
             background-image: unicon-prev($uni-color-C2A)
     .next
-        background-image: unicon-next($uni-color-scale6)
+        background-image: unicon-next($uni-color-scale3)
         &:hover
             background-image: unicon-next($uni-color-C2A)
     .new
-        background-image: unicon-new($uni-color-scale6)
+        background-image: unicon-new($uni-color-scale3)
         &:hover
             background-image: unicon-new($uni-color-C2A)
     .edit
-        background-image: unicon-edit($uni-color-scale6)
+        background-image: unicon-edit($uni-color-scale3)
         &:hover
             background-image: unicon-edit($uni-color-C2A)
 
