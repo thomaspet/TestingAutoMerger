@@ -35,7 +35,7 @@ export class NavbarSearch implements AfterViewInit {
 
     public ngAfterViewInit() {        
         Observable.fromEvent(document, 'keydown').subscribe((event: KeyboardEvent) => {
-            if (event.keyCode === 32 && event.ctrlKey) {
+            if (event.ctrlKey && (event.keyCode === 32 || event.keyCode === 36)) {
                 event.preventDefault();
                 this.renderer.invokeElementMethod(this.inputElement.nativeElement, 'focus', []);
             }
