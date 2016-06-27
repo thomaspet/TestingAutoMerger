@@ -1,8 +1,8 @@
-import {Component, ViewChildren, Type, Input, Output, QueryList, ViewChild, ComponentRef, EventEmitter} from '@angular/core';
-import {UniModal} from '../../../../../../framework/modals/modal';
-import {UniForm, UniFieldLayout} from '../../../../../../framework/uniform';
-import {FieldType, Address} from '../../../../../unientities';
-import {AddressService} from '../../../../../services/services';
+import {Component, ViewChildren, Type, Input, Output, QueryList, ViewChild, ComponentRef, EventEmitter, OnChanges, SimpleChange} from '@angular/core';
+import {UniModal} from '../../../../framework/modals/modal';
+import {UniForm, UniFieldLayout} from '../../../../framework/uniform';
+import {FieldType, Address} from '../../../unientities';
+import {AddressService} from '../../../services/services';
 
 // Reusable address form
 @Component({
@@ -13,8 +13,10 @@ import {AddressService} from '../../../../../services/services';
         </uni-form>
     `
 })
-export class AddressForm {
+export class AddressForm implements OnChanges {
     @Input() public model: Address;
+    @Input() public question: string;
+    @Input() public disableQuestion: boolean;
     @ViewChild(UniForm) public form: UniForm;
     
     private enableSave: boolean;
@@ -24,7 +26,14 @@ export class AddressForm {
     private fields: any[] = [];
        
     public ngOnInit() {
-        this.setupForm();      
+        this.setupForm();    
+        this.setupQuestionCheckbox();
+    }
+
+    public ngOnChanges(changes: {[propName: string]: SimpleChange}) {
+        if (changes['disableQuestion'] != null) {
+            this.setupForm(); 
+        }
     }
  
     private setupForm() {   
@@ -201,6 +210,17 @@ export class AddressForm {
             }
         ];
     }
+
+    private setupQuestionCheckbox() {
+        this.fields.push({
+            Property: '_question',
+            Hidden: (this.question || '').length == 0,
+            FieldType: 5,
+            Label: this.question,
+            ReadOnly: this.disableQuestion
+        });        
+    }
+
 }
 
 // address modal type
@@ -210,7 +230,7 @@ export class AddressForm {
     template: `
         <article class="modal-content address-modal">
             <h1 *ngIf="config.title">{{config.title}}</h1>
-            <address-form [model]="config.model"></address-form>
+            <address-form [model]="config.model" [question]="config.question" [disableQuestion]="config.disableQuestion"></address-form>
             <footer>
                 <button *ngFor="let action of config.actions; let i=index" (click)="action.method()" [ngClass]="action.class">
                     {{action.text}}
@@ -234,7 +254,8 @@ export class AddressModalType {
     providers: [AddressService]
 })
 export class AddressModal {
-    @Input() public address: Address;    
+    @Input() public address: Address;
+    @Input() public question: string;  
     @ViewChild(UniModal) public modal: UniModal;
     
     @Output() public Changed = new EventEmitter<Address>();
@@ -250,6 +271,8 @@ export class AddressModal {
         this.modalConfig = {
             title: 'Adresse',
             mode: null,
+            question: this.question,
+            disableQuestion: false,
          
             actions: [
                 {
@@ -273,8 +296,9 @@ export class AddressModal {
         };
     }
 
-    public openModal(address: Address) {  
-        this.modalConfig.model = address;    
+    public openModal(address: Address, disableQuestion: boolean = false) {  
+        this.modalConfig.model = address;
+        this.modalConfig.disableQuestion = disableQuestion;    
         this.modal.open();
     }
 }

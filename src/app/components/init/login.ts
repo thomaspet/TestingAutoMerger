@@ -25,6 +25,7 @@ export class Login {
 
     private login(event: Event) {
         event.preventDefault();
+        this.errorMessage = '';
         this.working = true;
         
         this._authService.authenticate(this.credentials)
