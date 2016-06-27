@@ -1,7 +1,8 @@
-import {Component, OnInit, Injector} from '@angular/core';
+import {Component, OnInit, ViewChild} from '@angular/core';
 import {Router} from '@angular/router-deprecated';
-import {UniTable, UniTableColumn, UniTableBuilder} from '../../../../../framework/uniTable';
-import {EmploymentService} from '../../../../services/services';
+import {UniTable, UniTableConfig, UniTableColumnType, UniTableColumn} from 'unitable-ng2/main';
+import {Observable} from 'rxjs/Observable';
+import {EmploymentService, EmployeeService} from '../../../../services/services';
 import {EmployeeDS} from '../../../../data/employee';
 import {Employee, Employment} from '../../../../unientities';
 import {EmployeeEmployment} from './employments';
@@ -11,7 +12,7 @@ import {RootRouteParamsService} from '../../../../services/rootRouteParams';
     selector: 'employment-list',
     templateUrl: 'app/components/salary/employee/employments/employmentList.html',
     directives: [UniTable, EmployeeEmployment],
-    providers: [EmploymentService]
+    providers: [EmploymentService, EmployeeService]
 })
 
 export class EmploymentList implements OnInit {
@@ -21,14 +22,18 @@ export class EmploymentList implements OnInit {
     private selectedEmployment: Employment;
     private busy: boolean;
     private showEmploymentList: boolean = false;
-    private employmentListConfig: any;
+    private employmentListConfig: UniTableConfig;
+    private employments$: Observable<Employment>;
+
+    @ViewChild(EmployeeEmployment) private employmentComponent: EmployeeEmployment;
     
-    constructor(private _employmentService: EmploymentService, private injector: Injector, private employeeDataSource: EmployeeDS, private router: Router, private rootRouteParams: RootRouteParamsService) {        
+    constructor(private _employmentService: EmploymentService, private employeeService: EmployeeService, private router: Router, private rootRouteParams: RootRouteParamsService) {        
         this.currentEmployeeID = +rootRouteParams.params.get('id');
     }
     
     public ngOnInit() {
-        this.employeeDataSource.get(this.currentEmployeeID)
+        this.refreshList();
+        this.employeeService.get(this.currentEmployeeID)
         .subscribe((response: any) => {
             this.currentEmployee = response;
             if (this.currentEmployee.Employments.length > 0) {
@@ -52,23 +57,35 @@ export class EmploymentList implements OnInit {
         },
         (err) => {
             console.log('error getting employee', err);
+            this.log(err);
         });
     }
     
     private setTableConfig() {
         this.busy = true;
-        var idCol = new UniTableColumn('ID', 'Nr', 'number').setWidth('4rem');
-        var nameCol = new UniTableColumn('JobName', 'Tittel', 'string');
-        var styrkCol = new UniTableColumn('JobCode', 'Stillingskode', 'string');
+        let idCol = new UniTableColumn('ID', 'Nr', UniTableColumnType.Number).setWidth('4rem');
+        let nameCol = new UniTableColumn('JobName', 'Stillingsnavn', UniTableColumnType.Text);
+        let styrkCol = new UniTableColumn('JobCode', 'Stillingskode', UniTableColumnType.Text);
         
-        this.employmentListConfig = new UniTableBuilder(this.currentEmployee.Employments, false)
-            .setSelectCallback((selected: Employment) => {
-            this.selectedEmployment = selected;
-        })
-        .setColumnMenuVisible(false)
-        .setPageable(false)
-        .addColumns(idCol, nameCol, styrkCol);
+        this.employmentListConfig = new UniTableConfig(false)
+        .setColumns([idCol, styrkCol, nameCol]);
         
         this.busy = false;
+    }
+
+    public addNewEmployment() {
+        this.employmentComponent.addNewEmployment();
+    }
+
+    public refreshList() {
+        this.employments$ = this._employmentService.GetAll('filter=EmployeeID eq ' + this.currentEmployeeID);
+    }
+
+    public rowSelected(event) {
+        this.selectedEmployment = event.rowModel;
+    }
+
+    public log(err) {
+        alert(err._body);
     }
 }
