@@ -179,7 +179,7 @@ export class ProductDetails {
             valueProperty: 'ID',
             displayProperty: 'VatCode',                        
             debounceTime: 200,
-            template: (vatType: VatType) => `${vatType.VatCode} (${ vatType.VatPercent }%)`
+            template: (vatType: VatType) => vatType ? `${vatType.VatCode} (${ vatType.VatPercent }%)` : ''
         };
         
         let accountField: UniFieldLayout = this.fields.find(x => x.Property === 'AccountID');       
@@ -188,7 +188,7 @@ export class ProductDetails {
             displayProperty: 'AccountNumber',
             valueProperty: 'ID',
             debounceTime: 200,
-            template: (account: Account) => `${account.AccountNumber} ${account.AccountName }`
+            template: (account: Account) => account ? `${account.AccountNumber} ${account.AccountName }` : ''
         };
         
         let typeField: UniFieldLayout = this.fields.find(x => x.Property === 'Type');       
@@ -201,8 +201,7 @@ export class ProductDetails {
         this.priceExVat =  this.fields.find(x => x.Property === 'PriceExVat');
         this.priceIncVat = this.fields.find(x => x.Property === 'PriceIncVat');
         this.vatTypeField = this.fields.find(x => x.Property === 'VatTypeID');         
-        this.calculateGrossPriceBasedOnNetPriceField = this.fields.find(x => x.Property === 'CalculateGrossPriceBasedOnNetPrice');
-       
+        this.calculateGrossPriceBasedOnNetPriceField = this.fields.find(x => x.Property === 'CalculateGrossPriceBasedOnNetPrice');       
     }
     
     private setupSubscriptions(event) {        
