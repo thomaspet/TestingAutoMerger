@@ -1,4 +1,4 @@
-import {Component, Input, Output, EventEmitter, ViewChildren, QueryList, SimpleChange, ChangeDetectionStrategy, ChangeDetectorRef} from '@angular/core';
+import {Component, Input, Output, HostBinding, EventEmitter, ViewChildren, QueryList, SimpleChange, ChangeDetectionStrategy, ChangeDetectorRef} from '@angular/core';
 import {FORM_DIRECTIVES, FORM_PROVIDERS, ControlGroup} from '@angular/common';
 import {UniFieldLayout} from './interfaces';
 import {UniField} from './unifield';
@@ -9,7 +9,7 @@ declare var _; // lodash
 @Component({
     selector: 'uni-field-set',
     template: `
-        <fieldset [hidden]="Hidden">
+        <fieldset>
             <legend *ngIf="config.legend">{{config.legend}}</legend>
             <template ngFor let-item [ngForOf]="groupedFields" let-i="index">
                 <uni-combo-field
@@ -67,6 +67,8 @@ export class UniFieldSet {
     public config: any;
 
     private hidden: boolean = false;
+
+    @HostBinding('hidden')
     public get Hidden() { return this.hidden; }
     
     public set Hidden(value: boolean) {

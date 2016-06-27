@@ -1,4 +1,4 @@
-import {Component, Input, Output, EventEmitter, QueryList, ViewChildren, ChangeDetectorRef, ChangeDetectionStrategy, SimpleChange} from '@angular/core';
+import {Component, Input, Output, HostBinding, EventEmitter, QueryList, ViewChildren, ChangeDetectorRef, ChangeDetectionStrategy, SimpleChange} from '@angular/core';
 import {FORM_DIRECTIVES, FORM_PROVIDERS, ControlGroup} from '@angular/common';
 import {UniFieldLayout} from './interfaces';
 import {UniField} from './unifield';
@@ -11,12 +11,12 @@ declare var _; // lodash
 @Component({
     selector: 'uni-section',
     template: `
-        <article class="collapsable" [ngClass]="{'-is-open':isOpen}" [hidden]="Hidden">
+        <article class="collapsable" [ngClass]="{'-is-open':isOpen}">
             <h4 *ngIf="config.legend" (click)="toggle()">{{config.legend}}</h4>
             <div class="collapsable-content">
                 <template ngFor let-item [ngForOf]="groupedFields" let-i="index">
                     <uni-field 
-                        *ngIf="isField(item)"
+                        *ngIf="isField(item) && !item?.Hidden"
                         [controls]="controls"
                         [field]="item" 
                         [model]="model"
@@ -83,6 +83,8 @@ export class UniSection {
     private readyFields: number;
 
     private hidden: boolean = false;
+
+    @HostBinding('hidden')
     public get Hidden() { return this.hidden; }
 
     public set Hidden(value: boolean) {
