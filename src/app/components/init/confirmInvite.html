@@ -1,24 +1,29 @@
 ﻿<article class="authentication-component">
     <img src="../../../assets/uni-logo.png" alt="Uni Economy logo">
-    <p style="color: red">{{errorMessage}}</p>
 
-    <form *ngIf="validInvite" [ngFormModel]="confirmInviteForm" (ngSubmit)="submitUser()" #f="ngForm">
+    <form [ngFormModel]="confirmInviteForm" (ngSubmit)="submitUser()" #f="ngForm">
+        <small *ngIf="errorMessage.length" class="validation error">{{errorMessage}}</small>
+
         <label>
             Brukernavn
-            <input type="text" ngControl="username">
+            <input type="text" ngControl="username" [disabled]="!validInvite">
         </label>
+
         <label>
             Passord
-            <input type="password" ngControl="password">
+            <input type="password" ngControl="password" [disabled]="!validInvite">
         </label>
+        
         <label>
             Bekreft passord
-            <input type="password" ngControl="confirmPassword">
+            <input type="password" ngControl="confirmPassword" [disabled]="!validInvite">
         </label>
-        <button type="submit" class="c2a" [attr.aria-busy]="working" 
-                                        [disabled]="!f.form.valid || !passwordsMatching">
+        <button type="submit" class="c2a" 
+                [attr.aria-busy]="busy" 
+                [disabled]="!f.form.valid || !passwordsMatching || busy || !validInvite">
             Opprett bruker
         </button>
+
         <p *ngIf="!f.form.valid">Passord må bestå av mellom 8 og 16 tegn.</p>
         <p *ngIf="!f.form.valid">Passord må inneholde 3 av 4 av: <br>
             Stor bokstav, liten bokstav, nummer, symbol.</p>

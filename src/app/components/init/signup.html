@@ -1,6 +1,9 @@
 <section class="authentication-component">
     <img src="../../../assets/uni-logo.png" alt="Uni Economy logo">
     
+    <small class="validation error" *ngIf="errorMessage.length">{{errorMessage}}</small>
+    <small class="validation good" *ngIf="success">Vi setter nå opp kontoen din. En epost blir automatisk sendt ut når alt er klart.</small>
+
     <form *ngIf="emailForm" [ngFormModel]="emailForm" (ngSubmit)="checkEmail()" #f="ngForm">
         <label>
             Epost
@@ -57,7 +60,5 @@
         </form>
     </section>
 
-    <p style="color: red">{{errorMessage}}</p>
-    <p *ngIf="!success">Har du allerede en konto? <a [routerLink]="['Login']">Logg inn</a></p>
-    <p *ngIf="success">Vi setter nå opp kontoen din. En epost blir automatisk sendt ut når alt er klart.</p>
+    <p><a [routerLink]="['Login']">Tilbake til innlogging</a></p>
 </section>
