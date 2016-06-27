@@ -1,39 +1,45 @@
 import {Component} from '@angular/core';
 import {Router} from '@angular/router-deprecated';
+import {AsyncPipe} from '@angular/common';
+import {UniTable, UniTableConfig, UniTableColumnType, UniTableColumn} from 'unitable-ng2/main';
 
-import {UniTable, UniTableBuilder, UniTableColumn} from '../../../../framework/uniTable';
+import {Observable} from 'rxjs/Observable';
+
 import {Employee} from '../../../unientities';
 
 import {TabService} from '../../layout/navbar/tabstrip/tabService';
+import {EmployeeService} from '../../../services/services';
 
 @Component({
     templateUrl: 'app/components/salary/employee/employeeList.html',
-    directives: [UniTable]
+    pipes: [AsyncPipe],
+    directives: [UniTable],
+    providers: [EmployeeService]
 })
 
 export class EmployeeList {
-    private employeeTableConfig: UniTableBuilder;
+    private employeeTableConfig: UniTableConfig;
+    private employees$: Observable<Employee>;
 
-    constructor(private router: Router, private tabService: TabService) {
+    constructor(private router: Router, private tabService: TabService, private _employeeService: EmployeeService) {
+
+        this.employees$ = _employeeService.GetAll('orderby=EmployeeNumber ASC&filter=BusinessRelationID gt 0');
         
-        var idCol = new UniTableColumn('EmployeeNumber', 'Ansattnummer', 'number').setWidth('15%');
+        var idCol = new UniTableColumn('EmployeeNumber', 'Ansattnummer', UniTableColumnType.Number).setWidth('15%');
 
-        var nameCol = new UniTableColumn('BusinessRelationInfo.Name', 'Navn', 'string');
+        var nameCol = new UniTableColumn('BusinessRelationInfo.Name', 'Navn', UniTableColumnType.Text);
 
-        var employmentDateCol = new UniTableColumn('EmploymentDate', 'Ansettelsesdato', 'date')
-            .setFormat('{0: dd.MM.yyyy}')
+        var employmentDateCol = new UniTableColumn('EmploymentDate', 'Ansettelsesdato', UniTableColumnType.Date)
             .setWidth('15%');
 
-        this.employeeTableConfig = new UniTableBuilder('employees', false)
-            .setExpand('BusinessRelationInfo')
-            .setFilter('BusinessRelationID gt 0')
-            .setSelectCallback((selectedEmployee: Employee) => {
-                router.navigate(['EmployeeDetails', {id: selectedEmployee.ID}]);
-                      // .then(result => console.log(result));
-            })
-            .addColumns(idCol, nameCol, employmentDateCol);
+        this.employeeTableConfig = new UniTableConfig(false)
+            .setColumns([idCol, nameCol, employmentDateCol]);
 
         this.tabService.addTab({ name: 'Ansatte', url: '/salary/employees', moduleID: 12, active: true });
+    }
+
+    public rowSelected(event) {
+        this.router.navigate(['EmployeeDetails', {id: event.rowModel.ID}]);
     }
     
     public newEmployee() {

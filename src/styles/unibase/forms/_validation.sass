@@ -1,0 +1,27 @@
+.validation
+    display: block
+    padding: .5rem
+    margin: .5rem 0
+    font-weight: 600
+    box-sizing: border-box
+    width: 100%
+    border-width: pxToRem(1)
+    border-style: solid
+    border-radius: pxToRem(3)
+    background-color: transparentize($uni-color-scale9, .5)
+
+    &.error
+        color: $uni-color-Bad
+        background-color: transparentize($uni-color-Bad, .9)
+
+    &.info
+        color: $uni-color-C2A
+        background-color: transparentize($uni-color-C2A, .9)
+
+    &.good
+        color: $uni-color-Good
+        background-color: transparentize($uni-color-Good, .9)
+
+    &.warn
+        color: $uni-color-Warn
+        background-color: transparentize($uni-color-Warn, .9)
