@@ -206,11 +206,7 @@ export class ProductDetails {
     }
     
     private setupSubscriptions(event) {        
-        
-        this.form.field('Description').addClass('max-width', true);
-        // clone product to force update of uniform to reflect class
-        this.product = _.cloneDeep(this.product);
-        
+       
         this.form.field('VatTypeID') 
                 .onChange              
                 .subscribe((data) => {
@@ -575,7 +571,8 @@ export class ProductDetails {
                     UpdatedAt: null,
                     CreatedBy: null,
                     UpdatedBy: null,
-                    CustomFields: null
+                    CustomFields: null,
+                    Classes: 'max-width'
                 }                
             ]
         };
