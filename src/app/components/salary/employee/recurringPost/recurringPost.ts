@@ -60,7 +60,10 @@ export class RecurringPost implements OnInit {
             .send({
                 filter: `EmployeeNumber eq ${this.employeeID} and IsRecurringPost eq true`
             });
-        });
+        }, (error: any) => {
+                console.error(error);
+                this.log(error);
+            });
     }
     
     public saveRecurringpost(done) {
@@ -77,6 +80,7 @@ export class RecurringPost implements OnInit {
                 },
                 (err) => {
                     done('Feil ved oppdatering av fast post', err);
+                    this.log(err);
                 });
             } else {
                 this.salarytransService.Post(recurringpost)
@@ -85,6 +89,7 @@ export class RecurringPost implements OnInit {
                 },
                 (err) => {
                     done('Feil ved lagring av fast post', err);
+                    this.log(err);
                 });
             }
         });
@@ -214,5 +219,8 @@ export class RecurringPost implements OnInit {
     private rowChanged(event) {
         this.recurringPosts = this.table.getTableData();
         this.saveactions[0].disabled = false;
+    }
+    public log(err) {
+        alert(err._body);
     }
 }

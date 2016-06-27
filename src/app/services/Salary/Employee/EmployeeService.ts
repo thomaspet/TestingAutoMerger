@@ -5,14 +5,12 @@ import { Observable } from 'rxjs/Observable';
 
 export class EmployeeService extends BizHttp<Employee> {
     
-    public defaultExpand: any = [
+    private defaultExpands: any = [
         'BusinessRelationInfo.Addresses',
         'BusinessRelationInfo.Emails',
         'BusinessRelationInfo.Phones',
-        'Employments.SubEntity.BusinessRelationInfo',
-        'BankAccounts',
-        'VacationRateEmployee',
-        'SubEntity'
+        'Employments',
+        'BankAccounts'
     ];
     public debounceTime: number = 500;
     public subEntities: Observable<any>;
@@ -20,6 +18,7 @@ export class EmployeeService extends BizHttp<Employee> {
     constructor(http: UniHttp) {
         super(http);
         this.relativeURL = Employee.RelativeUrl;
+        this.defaultExpand = ['BusinessRelationInfo'];
     }
     public getEmployeeCategories(employeenumber: number) {
         return this.http
@@ -35,12 +34,15 @@ export class EmployeeService extends BizHttp<Employee> {
     }
     public get(id: number| string, expand: string[] = null) {    
         if (id === 0) {
-            return this.GetNewEntity();
+            if (expand) {
+                return this.GetNewEntity(expand);
+            }
+            return this.GetNewEntity(this.defaultExpands);
         }else {
             if (expand) {
                 return this.Get(id, expand);
             }
-            return this.Get(id, this.defaultExpand);
+            return this.Get(id, this.defaultExpands);
         }
     }
 
@@ -72,12 +74,22 @@ export class EmployeeService extends BizHttp<Employee> {
             .send();
     }
     
-    public getNext(id: number) {
-        return super.GetAction(id, 'next', 'expand:' + this.defaultExpand.join(','));
+    public getNext(id: number, expand: string[] = null) {
+        if (expand) {
+            return super.GetAction(id, 'next', 'expand:' + expand.join(','));
+        } else {
+            return super.GetAction(id, 'next', 'expand:' + this.defaultExpands.join(','));
+        }
+        
     }
     
-    public getPrevious(id: number) {
-        return super.GetAction(id, 'previous', 'expand:' + this.defaultExpand.join(','));
+    public getPrevious(id: number, expand: string[] = null) {
+        if (expand) {
+            return super.GetAction(id, 'previous', 'expand:' + expand.join(','));
+        } else {
+            return super.GetAction(id, 'previous', 'expand:' + this.defaultExpands.join(','));
+        }
+        
     }
     
     public layout(layoutID: string) {
@@ -130,7 +142,9 @@ export class EmployeeService extends BizHttp<Employee> {
                     FieldSet: 0,
                     Section: 0,
                     Placeholder: null,
-                    Options: null,
+                    Options: {
+                        mask: '000000 00000'
+                    },
                     LineBreak: null,
                     Combo: null,
                     Sectionheader: '',
@@ -265,14 +279,10 @@ export class EmployeeService extends BizHttp<Employee> {
                     Sectionheader: '',
                     IsLookUp: false,
                     Options: {
-                        // source: this.subEntities,
-                        source: [
-                            { id: 1, name: 'Kvinne' },
-                            { id: 2, name: 'Mann' }
-                        ],
-                        template: (obj) => `${obj.id} - ${obj.name}`,
-                        dataValueField: 'ID',
-                        displayProperty: 'name'
+                        source: this.subEntities, 
+                        valueProperty: 'ID',
+                        displayProperty: 'BusinessRelationInfo.Name',
+                        debounceTime: 200
                     },
                     Validations: [
                         {
@@ -314,8 +324,8 @@ export class EmployeeService extends BizHttp<Employee> {
                 {
                     ComponentLayoutID: 1,
                      
-                    EntityType: 'BusinessRelationInfo',
-                    Property: 'Addresses',
+                    EntityType: 'BusinessRelation',
+                    Property: 'BusinessRelationInfo.InvoiceAddress',
                     Placement: 2,
                     Hidden: false,
                     FieldType: 14,
@@ -326,143 +336,19 @@ export class EmployeeService extends BizHttp<Employee> {
                     HelpText: null,
                     FieldSet: 0,
                     Section: 1,
-                    Placeholder: null,
+                    Placeholder: 'Legg til adresse',
                     Options: null,
                     LineBreak: null,
                     Combo: null,
                     Sectionheader: 'KONTAKTINFORMASJON',
                     IsLookUp: false,
-                    openByDefault: true,
-                    /*Validations: [
-                        {
-                            ErrorMessage: 'Required field',
-                            Level: 3,
-                            Operator: 7 // required
-                        }
-                    ]*/
+                    openByDefault: true
                 },
                 {
                     ComponentLayoutID: 1,
                      
-                    EntityType: 'Employee',
-                    Property: 'BusinessRelationInfo.Addresses[0].PostalCode',
-                    Placement: 1,
-                    Hidden: false,
-                    FieldType: FieldType.TEXT,
-                    ReadOnly: false,
-                    LookupField: false,
-                    Label: 'Postnummer',
-                    Description: null,
-                    HelpText: null,
-                    FieldSet: 0,
-                    Section: 1,
-                    Sectionheader: 'KONTAKTINFORMASJON',
-                    Placeholder: '',
-                    Options: null,
-                    LineBreak: null,
-                    IsLookUp: false,
-                    Validations: [
-                        {
-                            ErrorMessage: 'Required field',
-                            Level: 3,
-                            Operator: 7 // required
-                        }
-                    ]
-                },
-                {
-                    ComponentLayoutID: 1,
-                     
-                    EntityType: 'Employee',
-                    Property: 'BusinessRelationInfo.Addresses[0].City',
-                    Placement: 3,
-                    Hidden: false,
-                    FieldType: FieldType.TEXT,
-                    ReadOnly: false,
-                    LookupField: false,
-                    Label: 'Poststed',
-                    Description: null,
-                    HelpText: null,
-                    FieldSet: 0,
-                    Section: 1,
-                    Placeholder: null,
-                    Options: null,
-                    LineBreak: null,
-                    Combo: null,
-                    Sectionheader: '',
-                    IsLookUp: false,
-                    hasLineBreak: true,
-                    Validations: [
-                        {
-                            ErrorMessage: 'Required field',
-                            Level: 3,
-                            Operator: 7 // required
-                        }
-                    ]
-                },
-                {
-                    ComponentLayoutID: 1,
-                     
-                    EntityType: 'Employee',
-                    Property: 'BusinessRelationInfo.Addresses[0].CountryCode',
-                    Placement: 4,
-                    Hidden: false,
-                    FieldType: FieldType.TEXT,
-                    ReadOnly: false,
-                    LookupField: false,
-                    Label: 'Landskode (land)',
-                    Description: null,
-                    HelpText: null,
-                    FieldSet: 0,
-                    Section: 1,
-                    Placeholder: null,
-                    Options: null,
-                    LineBreak: null,
-                    Combo: null,
-                    Sectionheader: '',
-                    IsLookUp: false,
-                    Validations: [
-                        {
-                            ErrorMessage: 'Required field',
-                            Level: 3,
-                            Operator: 7 // required
-                        }
-                    ]
-                },
-                {
-                    ComponentLayoutID: 1,
-                     
-                    EntityType: 'Employee',
-                    Property: 'BusinessRelationInfo.Addresses[0].Country',
-                    Placement: 5,
-                    Hidden: false,
-                    FieldType: FieldType.TEXT,
-                    ReadOnly: false,
-                    LookupField: false,
-                    Label: 'Land',
-                    Description: null,
-                    HelpText: null,
-                    FieldSet: 0,
-                    Section: 1,
-                    Placeholder: null,
-                    Options: null,
-                    LineBreak: null,
-                    Combo: null,
-                    Sectionheader: '',
-                    IsLookUp: false,
-                    hasLineBreak: true,
-                    Validations: [
-                        {
-                            ErrorMessage: 'Required field',
-                            Level: 3,
-                            Operator: 7 // required
-                        }
-                    ]
-                },
-                {
-                    ComponentLayoutID: 1,
-                     
-                    EntityType: 'BusinessRelationInfo',
-                    Property: 'Emails',
+                    EntityType: 'BusinessRelation',
+                    Property: 'BusinessRelationInfo.DefaultEmail',
                     Placement: 6,
                     Hidden: false,
                     FieldType: 14,
@@ -473,54 +359,18 @@ export class EmployeeService extends BizHttp<Employee> {
                     HelpText: null,
                     FieldSet: 0,
                     Section: 1,
-                    Placeholder: null,
+                    Placeholder: 'Legg til e-post',
                     Options: null,
                     LineBreak: null,
                     Combo: null,
                     Sectionheader: '',
-                    IsLookUp: false,
-                    /*Validations: [
-                        {
-                            ErrorMessage: 'Required field',
-                            Level: 3,
-                            Operator: 7 // required
-                        }
-                    ]*/
+                    IsLookUp: false
                 },
                 {
                     ComponentLayoutID: 1,
                      
-                    EntityType: 'Employee',
-                    Property: 'BusinessRelationInfo.Phones[0].LandCode',
-                    Placement: 7,
-                    Hidden: false,
-                    FieldType: FieldType.TEXT,
-                    ReadOnly: false,
-                    LookupField: false,
-                    Label: 'Landskode (tlf)',
-                    Description: null,
-                    HelpText: null,
-                    FieldSet: 0,
-                    Section: 1,
-                    Placeholder: null,
-                    Options: null,
-                    LineBreak: null,
-                    Combo: null,
-                    Sectionheader: '',
-                    IsLookUp: false,
-                    Validations: [
-                        {
-                            ErrorMessage: 'Required field',
-                            Level: 3,
-                            Operator: 7 // required
-                        }
-                    ]
-                },
-                {
-                    ComponentLayoutID: 1,
-                     
-                    EntityType: 'BusinessRelationInfo',
-                    Property: 'Phones',
+                    EntityType: 'BusinessRelation',
+                    Property: 'BusinessRelationInfo.DefaultPhone',
                     Placement: 8,
                     Hidden: false,
                     FieldType: 14,
@@ -601,8 +451,52 @@ export class EmployeeService extends BizHttp<Employee> {
                     ComponentLayoutID: 1,
                      
                     EntityType: 'Employee',
-                    Property: 'NonTaxableAmount',
+                    Property: 'TaxRequestBtn',
                     Placement: 3,
+                    Hidden: false,
+                    FieldType: 1,
+                    ReadOnly: false,
+                    LookupField: false,
+                    Label: 'sende forespørsel om skattekort',
+                    Description: null,
+                    HelpText: null,
+                    FieldSet: 0,
+                    Section: 2,
+                    Placeholder: null,
+                    Options: null,
+                    LineBreak: null,
+                    Combo: null,
+                    Sectionheader: '',
+                    IsLookUp: false
+                },
+                {
+                    ComponentLayoutID: 1,
+                     
+                    EntityType: 'Employee',
+                    Property: 'GetTaxCardBtn',
+                    Placement: 4,
+                    Hidden: false,
+                    FieldType: 1,
+                    ReadOnly: false,
+                    LookupField: false,
+                    Label: 'hent skattekort',
+                    Description: null,
+                    HelpText: null,
+                    FieldSet: 0,
+                    Section: 2,
+                    Placeholder: null,
+                    Options: null,
+                    LineBreak: null,
+                    Combo: null,
+                    Sectionheader: '',
+                    IsLookUp: false
+                },
+                {
+                    ComponentLayoutID: 1,
+                     
+                    EntityType: 'Employee',
+                    Property: 'NonTaxableAmount',
+                    Placement: 5,
                     Hidden: false,
                     FieldType: FieldType.NUMERIC,
                     ReadOnly: false,
@@ -631,7 +525,7 @@ export class EmployeeService extends BizHttp<Employee> {
                      
                     EntityType: 'Employee',
                     Property: 'NotMainEmployer',
-                    Placement: 4,
+                    Placement: 6,
                     Hidden: false,
                     FieldType: 5,
                     ReadOnly: false,
@@ -654,7 +548,7 @@ export class EmployeeService extends BizHttp<Employee> {
                      
                     EntityType: 'Employee',
                     Property: 'MunicipalityNo',
-                    Placement: 5,
+                    Placement: 7,
                     Hidden: false,
                     FieldType: FieldType.TEXT,
                     ReadOnly: false,
