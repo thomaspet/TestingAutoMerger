@@ -134,6 +134,36 @@ export class JournalEntrySimpleForm implements OnChanges {
             invoiceNumber.Property = 'InvoiceNumber';
             invoiceNumber.ReadOnly = false;
             invoiceNumber.Hidden = self.mode != JournalEntryMode.Payment;
+            invoiceNumber.Options = {
+                events: {
+                    tab: (event) => {
+                        if (self.journalEntryLine.InvoiceNumber && self.journalEntryLine.InvoiceNumber !== '') {
+                            self.customerInvoiceService.getInvoiceByInvoiceNumber(self.journalEntryLine.InvoiceNumber)
+                                .subscribe((data) => {
+                                        if (data && data.length > 0) {
+                                            let invoice = data[0];
+                                            if (invoice && invoice.JournalEntry && invoice.JournalEntry.Lines) {
+                                                for (let i = 0; i < invoice.JournalEntry.Lines.length; i++) {
+                                                    let line = invoice.JournalEntry.Lines[i];
+
+                                                    if (line.Account.UsePostPost) {
+                                                        self.journalEntryLine.CreditAccount = line.Account;
+                                                        self.journalEntryLine.CreditAccountID = line.AccountID;
+                                                        self.journalEntryLine.Amount = line.RestAmount;
+
+                                                        self.journalEntryLine = _.cloneDeep(self.journalEntryLine);
+                                                        break;
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    },
+                                    (err) => console.log('Error retrieving information about invoice')
+                                );
+                        }
+                    }
+                }
+            };
      
             var debitAccount = new UniFieldLayout();            
             debitAccount.FieldSet = 0;
@@ -149,7 +179,12 @@ export class JournalEntrySimpleForm implements OnChanges {
                 template: (account:Account) => `${account.AccountNumber} - ${account.AccountName}`,
                 minLength: 1,
                 debounceTime: 300,
-                search: (query:string) => self.accountService.GetAll(`filter=startswith(AccountNumber,'${query}') or contains(AccountName,'${query}')`, ['VatType'])           
+                search: (query:string) => self.accountService.GetAll(`filter=startswith(AccountNumber,'${query}') or contains(AccountName,'${query}')`, ['VatType']),
+                events: {
+                    tab: (event)=>{
+                        self.form.field('CreditAccountID').focus();
+                    }
+                }
             };
 
             var debitVat = new UniFieldLayout();            
@@ -183,7 +218,17 @@ export class JournalEntrySimpleForm implements OnChanges {
                 template: (account:Account) => `${account.AccountNumber} - ${account.AccountName}`,
                 minLength: 1,
                 debounceTime: 300,
-                search: (query:string) => self.accountService.GetAll(`filter=startswith(AccountNumber,'${query}') or contains(AccountName,'${query}')`, ['VatType'])           
+                search: (query:string) => self.accountService.GetAll(`filter=startswith(AccountNumber,'${query}') or contains(AccountName,'${query}')`, ['VatType']),
+                events: {
+                    select: (account) => {
+                        if (account && account.VatType) {
+                            self.journalEntryLine.CreditVatType = account.VatType;
+                            self.journalEntryLine = _.deepClone(this.journalEntryLine);
+                        }
+
+                        self.form.field('Amount').focus();
+                    }
+                }
             };
             
             var creditVat = new UniFieldLayout();            
@@ -212,7 +257,12 @@ export class JournalEntrySimpleForm implements OnChanges {
             amount.Property = 'Amount';
             amount.ReadOnly = false;
             amount.Options = {
-                step: 1
+                step: 1,
+                events: {
+                    tab: (event) => {
+                        self.form.field('Dimensions.DepartementID').focus();
+                    }
+                }
             };
                  
             var departement = new UniFieldLayout();            
@@ -270,9 +320,9 @@ export class JournalEntrySimpleForm implements OnChanges {
     
     focusAfterFinancialDate() {
         if (this.mode != JournalEntryMode.Payment) {
-            this.form.Fields['DebitAccountID'].focus();
+            this.form.field('DebitAccountID').focus();
         } else {
-            this.form.Fields['InvoiceNumber'].focus();                            
+            this.form.field('InvoiceNumber').focus();
         }
     }
     
@@ -346,18 +396,13 @@ export class JournalEntrySimpleForm implements OnChanges {
             this.form.readMode();
         }
              
-        this.form.Fields['FinancialDate'].focus();
+        this.form.field('FinancialDate').focus();
       
         // FinancialDate changed
-        self.form.Fields['FinancialDate'].onChange.subscribe(() => {
+        self.form.field('FinancialDate').onChange.subscribe(() => {
             self.focusAfterFinancialDate();
         });
-        
-        // DebitAccountID
-        self.form.Fields['DebitAccountID'].onTab.subscribe(() => {
-           self.form.Fields['CreditAccountID'].focus()
-        });
-        
+
         /* TODO: onUnTab / onSelect / onEnter missing
         
         self.form.Fields['DebitAccountID'].onEnter.subscribe(() => {
@@ -396,10 +441,6 @@ export class JournalEntrySimpleForm implements OnChanges {
         
         */
         
-        self.form.Fields['Amount'].onTab.subscribe(() => {
-           self.form.Fields['Dimensions.DepartementID'].focus(); 
-        });
-        
         /*
         self.form.Fields['Amount'].onEnter.subscribe(() => {
            self.form.Fields['Dimensions.DepartementID'].focus(); 
@@ -417,34 +458,6 @@ export class JournalEntrySimpleForm implements OnChanges {
            self.form.Fields['Description'].focus(); 
         });
         */
-                
-        // Invoice tabbing
-        self.form.Fields['InvoiceNumber'].onTab.subscribe((data) => {    
-            if (self.journalEntryLine.InvoiceNumber && self.journalEntryLine.InvoiceNumber !== '') {
-                self.customerInvoiceService.getInvoiceByInvoiceNumber(self.journalEntryLine.InvoiceNumber)
-                    .subscribe((data) => {
-                            if (data && data.length > 0) {                                            
-                                let invoice = data[0];
-                                if (invoice && invoice.JournalEntry && invoice.JournalEntry.Lines) {
-                                    for (let i = 0; i < invoice.JournalEntry.Lines.length; i++) {
-                                        let line = invoice.JournalEntry.Lines[i];
-                                        
-                                        if (line.Account.UsePostPost) {                                        
-                                            self.journalEntryLine.CreditAccount = line.Account;
-                                            self.journalEntryLine.CreditAccountID = line.AccountID;
-                                            self.journalEntryLine.Amount = line.RestAmount;
-                                            
-                                            self.journalEntryLine = _.cloneDeep(self.journalEntryLine);                                                    
-                                            break;                                        
-                                        }
-                                    }    
-                                }
-                            }                                                                
-                        },
-                        (err) => console.log('Error retrieving information about invoice')
-                    );    
-            }          
-        });
     }
          
     addJournalEntry(event: any, journalEntryNumber: string = null) {  
@@ -514,6 +527,6 @@ export class JournalEntrySimpleForm implements OnChanges {
     }
     
     private setFocusOnDebit() {
-        this.form.Fields['DebitAccountID'].focus();
+        this.form.field('DebitAccountID').focus();
     }       
 } 
