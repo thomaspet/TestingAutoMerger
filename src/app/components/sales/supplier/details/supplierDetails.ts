@@ -73,6 +73,10 @@ export class SupplierDetails {
         this.supplierService.NextSupplier(this.supplier.ID)
             .subscribe((data) => {
                 this.router.navigateByUrl('/sales/supplier/details/' + data.ID);
+            },
+            (err) => {
+                console.log('Error getting next supplier: ', err);
+                alert('Ikke flere leverandører etter denne');
             });
     }
     
@@ -80,6 +84,10 @@ export class SupplierDetails {
         this.supplierService.PreviousSupplier(this.supplier.ID)
             .subscribe((data) => {
                 this.router.navigateByUrl('/sales/supplier/details/' + data.ID);
+            },
+            (err) => {
+                console.log('Error getting previous supplier: ', err);
+                alert('Ikke flere leverandører før denne');
             });        
     }
     

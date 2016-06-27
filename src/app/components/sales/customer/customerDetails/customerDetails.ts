@@ -75,14 +75,24 @@ export class CustomerDetails implements OnInit {
         this.customerService.NextCustomer(this.customer.ID)
             .subscribe((data) => {
                 this.router.navigateByUrl('/sales/customer/details/' + data.ID);
-            });
+            },
+            (err) => {
+                console.log('Error getting next customer: ', err);
+                alert('Ikke flere kunder etter denne');
+            }
+            );
     }
     
     public previousCustomer() {
         this.customerService.PreviousCustomer(this.customer.ID)
             .subscribe((data) => {
                 this.router.navigateByUrl('/sales/customer/details/' + data.ID);
-            });        
+            },
+            (err) => {
+                console.log('Error getting previous customer: ', err);
+                alert('Ikke flere kunder før denne');
+            }
+            );        
     }
     
     public addCustomer() {
@@ -484,7 +494,7 @@ export class CustomerDetails implements OnInit {
                 },
                 {
                     ComponentLayoutID: 3,
-                    EntityType: 'Supplier',
+                    EntityType: 'Customer',
                     Property: 'OrgNumber',
                     Placement: 1,
                     Hidden: false,
@@ -512,7 +522,7 @@ export class CustomerDetails implements OnInit {
                 },
                 {
                     ComponentLayoutID: 3,
-                    EntityType: 'Supplier',
+                    EntityType: 'Customer',
                     Property: 'Info.InvoiceAddress',
                     Placement: 1,
                     Hidden: false,
@@ -540,7 +550,7 @@ export class CustomerDetails implements OnInit {
                 },
                 {
                     ComponentLayoutID: 3,
-                    EntityType: 'Supplier',
+                    EntityType: 'Customer',
                     Property: 'Info.ShippingAddress',
                     Placement: 1,
                     Hidden: false,
@@ -568,7 +578,7 @@ export class CustomerDetails implements OnInit {
                 },
                 {
                     ComponentLayoutID: 3,
-                    EntityType: 'Supplier',
+                    EntityType: 'Customer',
                     Property: 'Info.DefaultEmail',
                     Placement: 1,
                     Hidden: false,
@@ -596,7 +606,7 @@ export class CustomerDetails implements OnInit {
                 },
                 {
                     ComponentLayoutID: 3,
-                    EntityType: 'Supplier',
+                    EntityType: 'Customer',
                     Property: 'Info.DefaultPhone',
                     Placement: 1,
                     Hidden: false,
@@ -624,7 +634,7 @@ export class CustomerDetails implements OnInit {
                 },
                 {
                     ComponentLayoutID: 3,
-                    EntityType: 'Supplier',
+                    EntityType: 'Customer',
                     Property: 'WebUrl',
                     Placement: 1,
                     Hidden: false,
@@ -709,7 +719,7 @@ export class CustomerDetails implements OnInit {
                 },
                 {
                     ComponentLayoutID: 3,
-                    EntityType: 'Supplier',
+                    EntityType: 'Customer',
                     Property: 'DefaultBankAccountID',
                     Placement: 4,
                     Hidden: true, // false, // TODO: > 30.6
