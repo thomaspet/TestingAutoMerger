@@ -1,13 +1,14 @@
+uni-section
+    flex-basis: 100%
+
 .collapsable[hidden]
     display: none
 
 .collapsable
-    @include clearfix
     width: 100%
-    display: inline-block
+    display: block
 
     & > h4
-        @include clearfix
         margin-top: 2.5rem
         margin-bottom: 1rem
         border-bottom: pxToRem(1) solid $uni-color-scale7
@@ -17,6 +18,8 @@
         font-weight: 400
         color: $uni-color-scale2
         cursor: pointer
+        width: 100%
+        display: block
 
     & > .collapsable-content
         display: none
@@ -27,7 +30,8 @@
             background-size: .5rem
 
         & > .collapsable-content
-            display: block
+            display: flex
+            flex-wrap: wrap
 
         .collapsable
             margin: 0 1rem

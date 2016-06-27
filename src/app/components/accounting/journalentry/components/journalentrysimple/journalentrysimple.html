@@ -23,7 +23,9 @@
                 <th class="medium_col">Dato</th>
                 <th>Kontoer</th>
                 <th>Beløp</th>
+                <!-- TODO > 30.6
                 <th>Fordeling</th>
+                -->
                 <th>Beskrivelse</th>
                 <th class="small_col"></th>
             </tr>
@@ -57,6 +59,7 @@
                     <td class="-isImportant">
                         {{line.Amount | number:'1.2-2'}}
                     </td>
+                    <!-- TODO: > 30.6
                     <td class="simpleTable_multiline">
                         <dl>
                             <dt>Avdeling</dt>
@@ -66,6 +69,7 @@
                             <dd>{{getProjectName(line)}}</dd>
                         </dl>
                     </td>
+                    -->
                     <td>{{line.Description}}</td>
                     <td class="simpleTable_actionMenu"></td>
                 </tr>

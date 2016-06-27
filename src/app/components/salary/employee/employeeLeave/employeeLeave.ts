@@ -62,7 +62,7 @@ export class EmployeeLeave implements OnInit {
                 .send({
                     filter: filter
                 });
-            });
+            }, (error) => this.log(error));
     }
     
     public buildFilter() {
@@ -154,14 +154,17 @@ export class EmployeeLeave implements OnInit {
                 },
                 (err) => {
                     done('Feil ved oppdatering av permisjon', err);
+                    this.log(err);
                 });
             } else {
                 this.employeeleaveService.Post(permisionItem)
                 .subscribe((response: EmployeeLeave) => {
                     done('Sist lagret: ');
+                    
                 },
                 (err) => {
                     done('Feil ved lagring av permisjon', err);
+                    this.log(err);
                 });
             }
         });
@@ -211,5 +214,9 @@ export class EmployeeLeave implements OnInit {
     private rowChanged(event) {
         this.permisionsChanged = this.table.getTableData();
         this.saveactions[0].disabled = false;
+    }
+
+    public log(err) {
+        alert(err._body);
     }
 }

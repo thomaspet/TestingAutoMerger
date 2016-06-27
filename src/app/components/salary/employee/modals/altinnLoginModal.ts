@@ -11,7 +11,7 @@ declare var _; // lodash
     selector: 'altinn-login-modal-content',
     directives: [UniForm],
     providers: [AltinnService, CompanySettingsService, IntegrationServerCaller, AltinnReceiptService],
-    templateUrl: 'app/components/salary/employee/modals/altinnloginmodalcontent.html'
+    templateUrl: 'app/components/salary/employee/modals/altinnLoginModalContent.html'
 })
 export class AltinnLoginModalContent {
     @Input()

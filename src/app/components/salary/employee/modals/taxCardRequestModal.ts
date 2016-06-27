@@ -11,7 +11,7 @@ declare var _;
     selector: 'tax-card-request-modal-content',
     directives: [UniForm, NgIf],
     providers: [AltinnService, EmployeeService],
-    templateUrl: 'app/components/salary/employee/modals/taxcardrequestmodalcontent.html'
+    templateUrl: 'app/components/salary/employee/modals/taxCardRequestModalContent.html'
 })
 export class TaxCardRequestModalContent {
     public title: string = '';
@@ -60,7 +60,8 @@ export class TaxCardRequestModalContent {
                 ],
                 labelProperty: 'text',
                 valueProperty: 'id'
-            }
+            },
+            
         };
         var multipleChoice: any = {
             FieldSet: 0,
@@ -107,7 +108,7 @@ export class TaxCardRequestModalContent {
         this.busy = true;
         this.uniform.Hidden = true;
         this.sendAltinnVisible = false;
-        this._altinnService.sendTaxRequestAction(option, empId).subscribe((response: AltinnReceipt) => { // TODO: remove orgnumber when we switch over from test altinn
+        this._altinnService.sendTaxRequestAction(option, empId).subscribe((response: AltinnReceipt) => {
             if (response.ErrorText) {
                 this.title = 'Feil angående Altinn forespørsel';
                 this.error = 'feilmelding fra altinn: ' + response.ErrorText;

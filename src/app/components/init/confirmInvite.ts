@@ -15,16 +15,10 @@ export class ConfirmInvite {
     private passwordsMatching: boolean = false;
     private errorMessage: string = '';
     private validInvite: boolean = false;
-    private isWorking: boolean = false;
+    private busy: boolean = false;
 
     private verificationCode: string;
 
-    private isError: boolean = false;
-    private working: boolean = false;
-    private formErrorMessage: string;
-    
-    
-    private verificationCodeErrorMessage: string = '';
 
     constructor(private uniHttp: UniHttp, private routeParams: RouteParams, private router: Router) {
         this.verificationCode = routeParams.get('guid');
@@ -51,7 +45,7 @@ export class ConfirmInvite {
         });
         
         if (this.verificationCode) {
-            //Gets the full user-verification object to see if it is valid
+            // Gets the full user-verification object to see if it is valid
             this.uniHttp.asGET()
                 .usingInitDomain()  
                 .withEndPoint('user-verification/' + this.verificationCode)
@@ -71,13 +65,12 @@ export class ConfirmInvite {
         }
     }
 
-    //Put to user-verification to confirm user
     private submitUser() {       
         const username = this.confirmInviteForm.controls['username'].value;
         const password = this.confirmInviteForm.controls['password'].value;
         
-        this.isWorking = true;     
-        
+        this.busy = true;     
+
         this.uniHttp.asPUT()
             .usingInitDomain()
             .withEndPoint('user-verification/' + this.verificationCode + '/')
@@ -86,12 +79,19 @@ export class ConfirmInvite {
             .send({action: 'confirm-invite'})
             .subscribe(
                 (data) => {
-                    this.isWorking = false;
+                    this.busy = false;
                     this.router.navigateByUrl('/login');
                 },
                 (error) => {
                     this.errorMessage = 'Noe gikk galt ved verifiseringen. Vennligst prøv igjen';
-                    this.isWorking = false;
+                    try {
+                        let modelState = JSON.parse(error.json().Message).modelState;
+                        if (modelState[''][0].length) {
+                            this.errorMessage = modelState[''][0]
+                        }
+                    } catch (e) {}
+                    
+                    this.busy = false;
                 }
             );
     }

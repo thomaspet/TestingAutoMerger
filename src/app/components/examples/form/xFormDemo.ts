@@ -49,7 +49,12 @@ export class XFormDemo {
             numericTest.ReadOnly = false;
             numericTest.LineBreak = true;
             numericTest.Options = {
-                step: 1
+                step: 1,
+                events: {
+                    tab: ((event) => {
+                        this.uniform.field('UrlProperty').focus();
+                    }).bind(this)
+                }
             };
             var maskedTest = new UniFieldLayout();
             maskedTest.FieldSet = 0;
@@ -298,12 +303,8 @@ export class XFormDemo {
             self.uniform.section(1).Hidden = false;
         }, 9000);
         setTimeout(() => {
-            self.uniform.Fields['Employments'].focus();
+            self.uniform.field('Employments').focus();
         }, 10000);
-        
-        self.uniform.Fields['NumericTestProperty'].onTab.subscribe((element) => {
-            self.uniform.Fields['UrlProperty'].focus();
-        });
     }
 
 public change(value) {
