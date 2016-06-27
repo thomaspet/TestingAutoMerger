@@ -1,6 +1,6 @@
 import {Component, Input, Output, EventEmitter, ViewChild, ChangeDetectorRef, SimpleChange, HostListener, ChangeDetectionStrategy} from '@angular/core';
 import {FORM_DIRECTIVES, FORM_PROVIDERS, ControlGroup, Control} from '@angular/common';
-import {UniFieldLayout} from './interfaces';
+import {UniFieldLayout, KeyCodes} from './interfaces';
 import {CONTROLS} from './controls/index';
 import {ShowError} from './showError';
 import {MessageComposer} from './composers/messageComposer';
@@ -94,16 +94,6 @@ export class UniField {
 
     @Output()
     public onChange: EventEmitter<any> = new EventEmitter<any>(true);
-
-    @Output()
-    public onTab: EventEmitter<UniField> = new EventEmitter<UniField>(true);
-
-    @HostListener('keydown', ['$event'])
-    public onTabHandler(event) {
-        if (event.which === 9) {
-            this.onTab.emit(this);
-        }
-    }
 
     public classes: (string | Function)[] = [];
 
@@ -208,6 +198,40 @@ export class UniField {
     private isInput(type) {
         const notInputs = [1, 5, 7];
         return notInputs.indexOf(type) === -1;
+    }
+
+    /**********
+     *
+     *  EVENT HANDLERS
+     *
+     * */
+    @HostListener('keydown', ['$event'])
+    public keyDownHandler(event: MouseEvent) {
+        const key: string = KeyCodes[event.which];
+        const ctrl: boolean = event.ctrlKey;
+        const shift: boolean = event.shiftKey;
+        var combination: string[] = [];
+        if (ctrl) {
+            combination.push("ctrl");
+        }
+        if (shift) {
+            combination.push("shift");
+        }
+        if (key) {
+            combination.push(key.toLowerCase());
+        }
+        if (combination.length > 0) {
+            var methodName = combination.join("_");
+            if (this.field.Options && this.field.Options.events) {
+                var method = this.field.Options.events[methodName];
+                if (method) {
+                    event.stopPropagation();
+                    event.preventDefault();
+                    method(event);
+                }
+            }
+        }
+        return;
     }
 }
 

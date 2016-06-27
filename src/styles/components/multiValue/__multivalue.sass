@@ -10,6 +10,9 @@
     border-top-right-radius: 0
     border-bottom-right-radius: 0
 
+    &[readonly],
+    &[disabled]
+      border-radius: pxToRem(3) 0 0 pxToRem(3)
 
   .uni-multivalue-moreBtn
     width: 1.7rem
