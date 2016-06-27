@@ -4,7 +4,7 @@ import {UniComponentLoader} from '../../../../framework/core';
 import {Observable} from 'rxjs/Observable';
 import {UniHttp} from '../../../../framework/core/http/http';
 import {Employee, FieldType, AGAZone, WageType, PayrollRun, Employment, SalaryTransaction} from '../../../unientities';
-import {EmployeeService, AgaZoneService, WageTypeService, SalaryTransactionService} from '../../../services/services';
+import {EmployeeService, AgaZoneService, WageTypeService, SalaryTransactionService, PayrollrunService} from '../../../services/services';
 import {RootRouteParamsService} from '../../../services/rootRouteParams';
 import {UniSave, IUniSaveAction} from '../../../../framework/save/save';
 import {AsyncPipe} from '@angular/common';
@@ -18,7 +18,7 @@ declare var _;
     selector: 'salary-transactions-employee',
     templateUrl: 'app/components/salary/salarytrans/salarytransList.html',
     directives: [UniTable, UniComponentLoader, UniSave, UniForm],
-    providers: [EmployeeService, AgaZoneService, WageTypeService, SalaryTransactionService],
+    providers: [EmployeeService, AgaZoneService, WageTypeService, SalaryTransactionService, PayrollrunService],
     pipes: [AsyncPipe]
 })
 
@@ -60,7 +60,8 @@ export class SalaryTransactionEmployeeList implements OnInit {
         private rootRouteParams: RootRouteParamsService,
         private _uniHttpService: UniHttp,
         private _wageTypeService: WageTypeService,
-        private salarytransService: SalaryTransactionService) {
+        private salarytransService: SalaryTransactionService,
+        private _payrollRunService: PayrollrunService) {
 
         this.config = {
             submitText: ''
@@ -118,40 +119,18 @@ export class SalaryTransactionEmployeeList implements OnInit {
 
     public saveSalarytrans(done) {
         done('Lagrer lønnsposter');
-        let saveItems: any[] = this.salarytransChanged;
+        this.payrollRun.transactions = this.salarytransChanged;
+        this._payrollRunService.Put(this.payrollRun.ID, this.payrollRun).subscribe((response) => {
+            this.salarytransChanged = [];
+            this.saveactions[0].disabled = true;
+            this.refreshSalaryTransTable();
+            done('Lønnsposter lagret: ');
+        },
+            (err) => {
+                alert(err._body);
+                done('Feil ved lagring av lønnspost', err);
+            });
 
-        saveItems.forEach((salaryitem: SalaryTransaction) => {
-            salaryitem.EmployeeID = this.employeeID;
-            salaryitem.EmployeeNumber = this.employeeID;
-            salaryitem.PayrollRunID = this.payrollRun.ID;
-            if (salaryitem.ID > 0) {
-                this.salarytransService.Put(salaryitem.ID, salaryitem)
-                    .subscribe((response: any) => {
-                        done('Sist lagret: ');
-                        this.salarytransChanged = [];
-                        this.saveactions[0].disabled = true;
-                        this.refreshSalaryTransTable();
-                    },
-                    (err) => {
-                        alert(err._body);
-                        done('Feil ved oppdatering av lønnspost', err._body);
-                    });
-            } else {
-                this.salarytransService.Post(salaryitem)
-                    .subscribe((response: any) => {
-                        done('Sist lagret: ');
-                        this.salarytransChanged = [];
-                        this.saveactions[0].disabled = true;
-                        this.refreshSalaryTransTable();
-                    },
-                    (err) => {
-                        alert(err._body);
-                        done('Feil ved lagring av lønnspost', err._body);
-                    });
-            }
-
-        });
-        done('Lønnsposter lagret: ');
     }
 
     public ready(value) {
@@ -433,6 +412,9 @@ export class SalaryTransactionEmployeeList implements OnInit {
                     }
                 }
             } else {
+                row.EmployeeID = this.employeeID;
+                row.EmployeeNumber = this.employeeID;
+                row.PayrollRunID = this.payrollRun.ID;
                 row['_createguid'] = this.salarytransService.getNewGuid();
                 this.salarytransChanged.push(row);
             }
