@@ -1,4 +1,5 @@
-import {Component, Input, Output, ViewChild, SimpleChange, EventEmitter, OnChanges} from '@angular/core';
+import {Component, Input, Output, ViewChild, SimpleChange, EventEmitter, OnChanges, ElementRef, Renderer} from '@angular/core';
+import {Control} from '@angular/common';
 import {Observable} from 'rxjs/Observable';
 
 import {FieldLayout, Departement, Project, VatType, VatCodeGroup, Account, JournalEntry, JournalEntryLine, JournalEntryLineDraft, Dimensions} from '../../../../../unientities';
@@ -34,7 +35,9 @@ export class JournalEntrySimpleForm implements OnChanges {
     @Output() public aborted: EventEmitter<any> = new EventEmitter<any>();    
     @Output() public updated: EventEmitter<any> = new EventEmitter<any>();
        
-    @ViewChild(UniForm) public form: UniForm; 
+    @ViewChild(UniForm) public form: UniForm;
+    @ViewChild('addButton') private addButton: ElementRef;
+    @ViewChild('updateButton') private updateButton: ElementRef;
     
     private config: any = {};
     private fields: any[] = [];
@@ -44,10 +47,10 @@ export class JournalEntrySimpleForm implements OnChanges {
     private vattypes: VatType[];
     private accounts: Account[];
     
-    private isLoaded: boolean;
-    private isEditMode: boolean;
-    private journalalternatives: Array<any> = [];
-    private journalalternativesindex: number = 0;
+    public isLoaded: boolean;
+    public isEditMode: boolean;
+    public journalalternatives: Array<any> = [];
+    public journalalternativesindex: number = 0;
     
     private SAME_OR_NEW_SAME: string = '0';
     private SAME_OR_NEW_NEW: string = '1';
@@ -57,7 +60,8 @@ export class JournalEntrySimpleForm implements OnChanges {
   
     constructor(private accountService: AccountService,
                 private journalEntryService: JournalEntryService,
-                private customerInvoiceService: CustomerInvoiceService) {   
+                private customerInvoiceService: CustomerInvoiceService,
+                private renderer: Renderer) {   
         this.isLoaded = false;
         this.isEditMode = false;
         this.departements = [];
@@ -74,256 +78,6 @@ export class JournalEntrySimpleForm implements OnChanges {
         
         this.setupFields();
         this.setupSameNewAlternatives();    
-    }
-    
-    private setupFields() {    
-        let self = this;
-        // this.journalEntryService.layout('JournalEntryLineForm').toPromise().then((layout: any) => {
-        //    self.fields = layout.Fields;
-            
-            let sameOrNewAlternative = new UniFieldLayout();
-            sameOrNewAlternative.FieldSet = 0;
-            sameOrNewAlternative.Section = 0;
-            sameOrNewAlternative.Combo = 0;
-            sameOrNewAlternative.FieldType = 3;
-            sameOrNewAlternative.Label = 'Bilagsnr';
-            sameOrNewAlternative.Property = 'SameOrNew';
-            sameOrNewAlternative.ReadOnly = false;
-            sameOrNewAlternative.Hidden = self.mode == JournalEntryMode.Supplier; 
-            sameOrNewAlternative.Classes = 'small-field';
-            sameOrNewAlternative.Options = {
-                source: self.journalalternatives,
-                template: (alternative) => `${alternative.Name}`,
-                valueProperty: 'ID',
-                displayProperty: 'Name',
-                debounceTime: 500,
-                index: self.journalalternativesindex,
-                events: {
-                    enter: (event) => {
-                        self.form.field('FinancialDate').focus();
-                    }
-                }
-            };          
-            
-            var finanicalDate = new UniFieldLayout();
-            finanicalDate.FieldSet = 0;
-            finanicalDate.Section = 0;
-            finanicalDate.Combo = 0;
-            finanicalDate.FieldType = 2;
-            finanicalDate.Label = 'Dato';
-            finanicalDate.Property = 'FinancialDate';
-            finanicalDate.ReadOnly = false;
-            finanicalDate.Options = {                
-                events: {
-                    enter: (event) => {
-                        if (this.mode === JournalEntryMode.Payment) {
-                            this.form.field('InvoiceNumber').focus();    
-                        } else {
-                            this.form.field('DebitAccountID').focus();
-                        }
-                    }
-                }
-            }
-                
-            var invoiceNumber = new UniFieldLayout();
-            invoiceNumber.FieldSet = 0;
-            invoiceNumber.Section = 0;
-            invoiceNumber.Combo = 0;
-            invoiceNumber.FieldType = 10;
-            invoiceNumber.Label = 'Fakturanr';
-            invoiceNumber.Property = 'InvoiceNumber';
-            invoiceNumber.ReadOnly = false;
-            invoiceNumber.Hidden = self.mode !== JournalEntryMode.Payment;
-            invoiceNumber.Options = {
-                events: {
-                    tab: (event) => {
-                        if (self.journalEntryLine.InvoiceNumber && self.journalEntryLine.InvoiceNumber !== '') {
-                            self.customerInvoiceService.getInvoiceByInvoiceNumber(self.journalEntryLine.InvoiceNumber)
-                                .subscribe((data) => {
-                                        if (data && data.length > 0) {
-                                            let invoice = data[0];
-                                            if (invoice && invoice.JournalEntry && invoice.JournalEntry.Lines) {
-                                                for (let i = 0; i < invoice.JournalEntry.Lines.length; i++) {
-                                                    let line = invoice.JournalEntry.Lines[i];
-
-                                                    if (line.Account.UsePostPost) {
-                                                        self.journalEntryLine.CreditAccount = line.Account;
-                                                        self.journalEntryLine.CreditAccountID = line.AccountID;
-                                                        self.journalEntryLine.Amount = line.RestAmount;
-
-                                                        self.journalEntryLine = _.cloneDeep(self.journalEntryLine);
-                                                        break;
-                                                    }
-                                                }
-                                            }
-                                        }
-                                    },
-                                    (err) => console.log('Error retrieving information about invoice')
-                                );
-                        }
-                    }
-                }
-            };
-     
-            var debitAccount = new UniFieldLayout();            
-            debitAccount.FieldSet = 0;
-            debitAccount.Section = 0;
-            debitAccount.Combo = 0;
-            debitAccount.FieldType = 0;
-            debitAccount.Label = 'Debet';
-            debitAccount.Property = 'DebitAccountID';
-            debitAccount.ReadOnly = false;
-            debitAccount.Classes = 'large-field';
-            debitAccount.Options = {                  
-                displayProperty: 'AccountName',
-                valueProperty: 'ID',
-                template: (account: Account) => { if (account) { return `${account.AccountNumber} - ${account.AccountName}`} return ''},
-                minLength: 1,
-                debounceTime: 300,
-                search: (query: string) => self.accountService.GetAll(`filter=startswith(AccountNumber,'${query}') or contains(AccountName,'${query}')`, ['VatType']),
-                events: {
-                    tab: (event) => {
-                        self.form.field('CreditAccountID').focus();
-                    }
-                }
-                
-            };
-
-            var debitVat = new UniFieldLayout();            
-            debitVat.FieldSet = 0;
-            debitVat.Section = 0;
-            debitVat.Combo = 0;
-            debitVat.FieldType = 3;
-            debitVat.Label = 'MVA';
-            debitVat.Property = 'DebitVatTypeID';
-            debitVat.ReadOnly = false;
-            debitVat.Hidden = self.mode === JournalEntryMode.Payment;   
-            debitVat.Options = {                  
-                source: self.vattypes,
-                displayProperty: 'VatCode',
-                valueProperty: 'ID',
-                template: (vattype: VatType) =>  `${vattype.VatCode} (${ vattype.VatPercent }%)`,
-                debounceTime: 500
-            };
-            
-        
-            var creditAccount = new UniFieldLayout();            
-            creditAccount.FieldSet = 0;
-            creditAccount.Section = 0;
-            creditAccount.Combo = 0;
-            creditAccount.FieldType = 0;
-            creditAccount.Label = 'Kredit';
-            creditAccount.Property = 'CreditAccountID';
-            creditAccount.ReadOnly = false;
-            creditAccount.Classes = 'large-field';
-            creditAccount.Options = {                  
-                displayProperty: 'AccountName',
-                valueProperty: 'ID',
-                template: (account: Account) => { if (account) { return `${account.AccountNumber} - ${account.AccountName}`} return ''},
-                minLength: 1,
-                debounceTime: 300,
-                search: (query: string) => self.accountService.GetAll(`filter=startswith(AccountNumber,'${query}') or contains(AccountName,'${query}')`, ['VatType']),
-                events: {
-                    select: (account) => {
-                        if (account && account.VatType) {
-                            self.journalEntryLine.CreditVatType = account.VatType;
-                            self.journalEntryLine = _.deepClone(this.journalEntryLine);
-                        }
-
-                        self.form.field('Amount').focus();
-                    }
-                }
-            };
-            
-            var creditVat = new UniFieldLayout();            
-            creditVat.FieldSet = 0;
-            creditVat.Section = 0;
-            creditVat.Combo = 0;
-            creditVat.FieldType = 3;
-            creditVat.Label = 'MVA';
-            creditVat.Property = 'CreditVatTypeID';
-            creditVat.ReadOnly = false;
-            creditVat.Hidden = self.mode === JournalEntryMode.Payment;   
-            creditVat.Options = {                  
-                source: self.vattypes,
-                displayProperty: 'VatCode',
-                valueProperty: 'ID',
-                template: (vattype: VatType) =>  `${vattype.VatCode} (${ vattype.VatPercent }%)`,
-                debounceTime: 500
-            };
-            
-            var amount = new UniFieldLayout();
-            amount.FieldSet = 0;
-            amount.Section = 0;
-            amount.Combo = 0;
-            amount.FieldType = 10;
-            amount.Label = 'Beløp';
-            amount.Property = 'Amount';
-            amount.ReadOnly = false;
-            amount.Options = null;
-            
-            /*
-            KE 26.06.2016: Removed for now, dimensions are not supported before 30.06
-                 
-            var departement = new UniFieldLayout();            
-            departement.FieldSet = 0;
-            departement.Section = 0;
-            departement.Combo = 0;
-            departement.FieldType = 3;
-            departement.Label = 'Avdeling';
-            departement.Property = 'Dimensions.DepartementID';
-            departement.ReadOnly = false;
-            departement.Hidden = self.mode == JournalEntryMode.Payment;   
-            departement.Options = {                  
-                source: self.departements,
-                template: (departement) => `${departement ? departement.Name : ''}`,
-                valueProperty: 'ID',
-                displayProperty: 'Name',
-                debounceTime: 500
-            };
-
-            var project = new UniFieldLayout();            
-            project.FieldSet = 0;
-            project.Section = 0;
-            project.Combo = 0;
-            project.FieldType = 3;
-            project.Label = 'Prosjekt';
-            project.Property = 'Dimensions.ProjectID';
-            project.ReadOnly = false;
-            project.Hidden = self.mode == JournalEntryMode.Payment;   
-            project.Options = {                  
-                source: self.projects,
-                template: (project) => `${project ? project.Name : ''}`,
-                valueProperty: 'ID',
-                displayProperty: 'Name',
-                debounceTime: 500
-            };
-            */
-            let description = new UniFieldLayout();
-            description.FieldSet = 0;
-            description.Section = 0;
-            description.Combo = 0;
-            description.FieldType = 10;
-            description.Label = 'Beskrivelse av føring';
-            description.Property = 'Description';
-            description.ReadOnly = false;
-            description.Classes = 'large-field';
-            self.fields = [sameOrNewAlternative, finanicalDate, invoiceNumber,
-                           debitAccount, debitVat, creditAccount, creditVat,
-                           amount, /*departement, project,*/ description];
-         
-        //}); 
-                
-        this.config = {
-        };
-    }
-    
-    private focusAfterFinancialDate() {
-        if (this.mode !== JournalEntryMode.Payment) {
-            this.form.field('DebitAccountID').focus();
-        } else {
-            this.form.field('InvoiceNumber').focus();
-        }
     }
     
     private setupSameNewAlternatives() {      
@@ -378,7 +132,7 @@ export class JournalEntrySimpleForm implements OnChanges {
             }
         });
         
-        if (changes['journalEntryLine'] !== null) {
+        if (changes['journalEntryLine']) {
             this.journalEntryLine = _.cloneDeep(this.journalEntryLine);
             this.isEditMode = true;
         }
@@ -391,73 +145,15 @@ export class JournalEntrySimpleForm implements OnChanges {
     }  
     
     public ready(event) {
-        var self = this;
-        
         if (!this.disabled) {
             this.form.editMode();
         } else {
             this.form.readMode();
         }
+        
+        console.log('ready!');
              
         this.form.field('FinancialDate').focus();
-      
-        // FinancialDate changed
-        self.form.field('FinancialDate').onChange.subscribe(() => {
-            self.focusAfterFinancialDate();
-        });
-        
-        /* TODO: onUnTab / onSelect / onEnter missing
-        
-        self.form.Fields['DebitAccountID'].onEnter.subscribe(() => {
-           self.form.Fields['CreditAccountID'].focus()           
-        });
-        
-        self.form.Fields['DebitAccountID'].onSelect.subscribe((account:Account) => {
-            if (account && account.VatType) {
-                self.journalEntryLine.DebitVatType = account.VatType;
-                self.journalEntryLine = _.deepClone(this.journalEntryLine);
-            }   
-    
-            self.form.Fields['CreditAccountID'].focus();
-        });
-        
-        self.form.Fields['DebitVatTypeID'].onEnter.subscribe(() => {
-            self.form.Fields['CreditAccountID'].focus();
-        });
-        
-        self.form.Fields['CreditAccountID'].onSelect.subscribe((account:Account) => {
-                if (account && account.VatType) {
-                    self.journalEntryLine.CreditVatType = account.VatType;   
-                    self.journalEntryLine = _.deepClone(this.journalEntryLine);
-                }
-                
-                self.form.Fields['Amount'].focus();
-        });
-
-        self.form.Fields['CreditAccountID'].onUnTab.subscribe(() => {
-            self.form.Fields['DebetAccountID'].focus();
-        });
-        
-        self.form.Fields['CreditVatTypeID'].onEnter.subscribe(() => {
-           self.form.Fields['Amount'].focus(); 
-        });
-               /*
-        self.form.Fields['Amount'].onEnter.subscribe(() => {
-           self.form.Fields['Dimensions.DepartementID'].focus(); 
-        });
-
-        self.form.Fields['Amount'].onUnTab.subscribe(() => {
-            self.form.Fields['CreditAccountID'].focus();
-        });
-        
-        self.form.Fields['Dimensions.DepartementID'].onEnter.subscribe(() => {
-            self.form.Fields['Dimensions.ProjectID'].focus();
-        });
-        
-        self.form.Fields['Dimensions.ProjectID'].onEnter.subscribe(() => {
-           self.form.Fields['Description'].focus(); 
-        });
-        */
     }
         
     private validateJournalEntryData(): string {        
@@ -566,5 +262,316 @@ export class JournalEntrySimpleForm implements OnChanges {
     
     private setFocusOnDebit() {
         this.form.field('DebitAccountID').focus();
-    }       
+    }  
+    
+    private onLeaveSameOrNew() {
+        this.form.field('FinancialDate').focus();
+    }
+    
+    private onLeaveFinancialDate() {
+        if (this.mode === JournalEntryMode.Payment) {
+            this.form.field('InvoiceNumber').focus();    
+        } else {
+            this.form.field('DebitAccountID').focus();
+        }
+    }
+    
+    private onLeaveInvoiceNumber() {
+        
+        this.form.field('DebitAccountID').focus();
+        
+        if (this.journalEntryLine.InvoiceNumber && this.journalEntryLine.InvoiceNumber !== '') {
+            this.customerInvoiceService.getInvoiceByInvoiceNumber(this.journalEntryLine.InvoiceNumber)
+                .subscribe((data) => {
+                        
+                        if (data && data.length > 0) {
+                            let invoice = data[0];
+                            if (invoice && invoice.JournalEntry && invoice.JournalEntry.Lines) {
+                                for (let i = 0; i < invoice.JournalEntry.Lines.length; i++) {
+                                    let line = invoice.JournalEntry.Lines[i];
+
+                                    if (line.Account.UsePostPost) {
+                                        if (line.SubAccount) { 
+                                            this.journalEntryLine.CreditAccount = line.SubAccount;
+                                            this.journalEntryLine.CreditAccountID = line.SubAccountID;
+                                        } else {
+                                            this.journalEntryLine.CreditAccount = line.Account;
+                                            this.journalEntryLine.CreditAccountID = line.AccountID;
+                                        }
+                                        this.journalEntryLine.Amount = line.RestAmount;
+
+                                        this.journalEntryLine = _.cloneDeep(this.journalEntryLine);
+                                        break;
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    (err) => console.log('Error retrieving information about invoice')
+                );
+        }
+    }
+    
+    private onLeaveDebitAccount() {
+        this.form.field('FinancialDate').focus();
+        //this.form.field('CreditAccountID').focus();
+    }
+    
+    private onLeaveCreditAccount() {        
+        this.form.field('Amount').focus();
+    }
+    
+    private setupFields() {    
+            
+        let sameOrNewAlternative = new UniFieldLayout();
+        sameOrNewAlternative.FieldSet = 0;
+        sameOrNewAlternative.Section = 0;
+        sameOrNewAlternative.Combo = 0;
+        sameOrNewAlternative.FieldType = 3;
+        sameOrNewAlternative.Label = 'Bilagsnr';
+        sameOrNewAlternative.Property = 'SameOrNew';
+        sameOrNewAlternative.ReadOnly = false;
+        sameOrNewAlternative.Hidden = this.mode == JournalEntryMode.Supplier; 
+        sameOrNewAlternative.Classes = 'small-field';
+        sameOrNewAlternative.Options = {
+            source: this.journalalternatives,
+            template: (alternative) => `${alternative.Name}`,
+            valueProperty: 'ID',
+            displayProperty: 'Name',
+            debounceTime: 500,
+            index: this.journalalternativesindex,
+            events: {                    
+                enter: (event) => {
+                    this.onLeaveSameOrNew();
+                }
+            }
+        };          
+        
+        var finanicalDate = new UniFieldLayout();
+        finanicalDate.FieldSet = 0;
+        finanicalDate.Section = 0;
+        finanicalDate.Combo = 0;
+        finanicalDate.FieldType = 2;
+        finanicalDate.Label = 'Dato';
+        finanicalDate.Property = 'FinancialDate';
+        finanicalDate.ReadOnly = false;
+        finanicalDate.Options = {                
+            events: {
+                tab: (event) => {
+                    this.onLeaveFinancialDate();                        
+                },
+                enter: (event) => {
+                    this.onLeaveFinancialDate();                        
+                }                    
+            }
+        }
+            
+        var invoiceNumber = new UniFieldLayout();
+        invoiceNumber.FieldSet = 0;
+        invoiceNumber.Section = 0;
+        invoiceNumber.Combo = 0;
+        invoiceNumber.FieldType = 10;
+        invoiceNumber.Label = 'Fakturanr';
+        invoiceNumber.Property = 'InvoiceNumber';
+        invoiceNumber.ReadOnly = false;
+        invoiceNumber.Hidden = this.mode !== JournalEntryMode.Payment;
+        invoiceNumber.Options = {
+            events: {
+                tab: (event) => {
+                    this.onLeaveInvoiceNumber();
+                },
+                enter: (event) => {
+                    this.onLeaveInvoiceNumber();
+                }
+            }
+        };
+    
+        var debitAccount = new UniFieldLayout();            
+        debitAccount.FieldSet = 0;
+        debitAccount.Section = 0;
+        debitAccount.Combo = 0;
+        debitAccount.FieldType = 0;
+        debitAccount.Label = 'Debet';
+        debitAccount.Property = 'DebitAccountID';
+        debitAccount.ReadOnly = false;
+        debitAccount.Classes = 'large-field';
+        debitAccount.Options = {                  
+            displayProperty: 'AccountName',
+            valueProperty: 'ID',
+            template: (account: Account) => { if (account) { return `${account.AccountNumber} - ${account.AccountName}`} return ''},
+            minLength: 1,
+            debounceTime: 300,
+            search: (query: string) => this.accountService.GetAll(`filter=startswith(AccountNumber,'${query}') or contains(AccountName,'${query}')`, ['VatType']),
+            events: {
+                select: (account: Account) => {
+                    if (account && account.VatType) {
+                        this.journalEntryLine.DebitVatType = account.VatType;
+                        this.journalEntryLine = _.deepClone(this.journalEntryLine);
+                    }
+                }, 
+                tab: (event) => {
+                    this.onLeaveDebitAccount();                     
+                },
+                enter: (event) => {
+                    this.onLeaveDebitAccount();                     
+                }
+            }                
+        };
+
+        var debitVat = new UniFieldLayout();            
+        debitVat.FieldSet = 0;
+        debitVat.Section = 0;
+        debitVat.Combo = 0;
+        debitVat.FieldType = 3;
+        debitVat.Label = 'MVA';
+        debitVat.Property = 'DebitVatTypeID';
+        debitVat.ReadOnly = false;
+        debitVat.Hidden = this.mode === JournalEntryMode.Payment;   
+        debitVat.Options = {                  
+            source: this.vattypes,
+            displayProperty: 'VatCode',
+            valueProperty: 'ID',
+            template: (vattype: VatType) =>  `${vattype.VatCode} (${ vattype.VatPercent }%)`,
+            debounceTime: 500,
+            events: {                                       
+                enter: (event) => {
+                        this.form.field('CreditAccountID').focus();           
+                }
+            } 
+        };
+    
+        var creditAccount = new UniFieldLayout();            
+        creditAccount.FieldSet = 0;
+        creditAccount.Section = 0;
+        creditAccount.Combo = 0;
+        creditAccount.FieldType = 0;
+        creditAccount.Label = 'Kredit';
+        creditAccount.Property = 'CreditAccountID';
+        creditAccount.ReadOnly = false;
+        creditAccount.Classes = 'large-field';
+        creditAccount.Options = {                  
+            displayProperty: 'AccountName',
+            valueProperty: 'ID',
+            template: (account: Account) => { if (account) { return `${account.AccountNumber} - ${account.AccountName}`} return ''},
+            minLength: 1,
+            debounceTime: 300,
+            search: (query: string) => this.accountService.GetAll(`filter=startswith(AccountNumber,'${query}') or contains(AccountName,'${query}')`, ['VatType']),
+            events: {
+                select: (account: Account) => {
+                    if (account && account.VatType) {
+                        this.journalEntryLine.CreditVatType = account.VatType;
+                        this.journalEntryLine = _.deepClone(this.journalEntryLine);
+                    }
+                },
+                tab: (event) => {
+                    this.onLeaveCreditAccount();                        
+                },
+                enter: (event) => {
+                    this.onLeaveCreditAccount();                        
+                }
+            }
+        };
+        
+        var creditVat = new UniFieldLayout();            
+        creditVat.FieldSet = 0;
+        creditVat.Section = 0;
+        creditVat.Combo = 0;
+        creditVat.FieldType = 3;
+        creditVat.Label = 'MVA';
+        creditVat.Property = 'CreditVatTypeID';
+        creditVat.ReadOnly = false;
+        creditVat.Hidden = this.mode === JournalEntryMode.Payment;   
+        creditVat.Options = {                  
+            source: this.vattypes,
+            displayProperty: 'VatCode',
+            valueProperty: 'ID',
+            template: (vattype: VatType) =>  `${vattype.VatCode} (${ vattype.VatPercent }%)`,
+            debounceTime: 500,
+            events: {                    
+                enter: (event) => {
+                    this.form.field('Amount').focus();                      
+                }
+            }
+        };
+        
+        var amount = new UniFieldLayout();
+        amount.FieldSet = 0;
+        amount.Section = 0;
+        amount.Combo = 0;
+        amount.FieldType = 10;
+        amount.Label = 'Beløp';
+        amount.Property = 'Amount';
+        amount.ReadOnly = false;
+        amount.Options = {
+            events: {                    
+                enter: (event) => {
+                    this.form.field('Description').focus();                      
+                }
+            }
+        };
+        
+        /*
+        KE 26.06.2016: Removed for now, dimensions are not supported before 30.06
+                
+        var departement = new UniFieldLayout();            
+        departement.FieldSet = 0;
+        departement.Section = 0;
+        departement.Combo = 0;
+        departement.FieldType = 3;
+        departement.Label = 'Avdeling';
+        departement.Property = 'Dimensions.DepartementID';
+        departement.ReadOnly = false;
+        departement.Hidden = self.mode == JournalEntryMode.Payment;   
+        departement.Options = {                  
+            source: self.departements,
+            template: (departement) => `${departement ? departement.Name : ''}`,
+            valueProperty: 'ID',
+            displayProperty: 'Name',
+            debounceTime: 500
+        };
+
+        var project = new UniFieldLayout();            
+        project.FieldSet = 0;
+        project.Section = 0;
+        project.Combo = 0;
+        project.FieldType = 3;
+        project.Label = 'Prosjekt';
+        project.Property = 'Dimensions.ProjectID';
+        project.ReadOnly = false;
+        project.Hidden = self.mode == JournalEntryMode.Payment;   
+        project.Options = {                  
+            source: self.projects,
+            template: (project) => `${project ? project.Name : ''}`,
+            valueProperty: 'ID',
+            displayProperty: 'Name',
+            debounceTime: 500
+        };
+        */
+        let description = new UniFieldLayout();
+        description.FieldSet = 0;
+        description.Section = 0;
+        description.Combo = 0;
+        description.FieldType = 10;
+        description.Label = 'Beskrivelse av føring';
+        description.Property = 'Description';
+        description.ReadOnly = false;
+        description.Classes = 'large-field';
+        description.Options = {
+            events: {                    
+                enter: (event) => {
+                    if (!this.isEditMode) {
+                        this.renderer.invokeElementMethod(this.addButton.nativeElement, 'focus', []);
+                    } else {
+                        this.renderer.invokeElementMethod(this.updateButton.nativeElement, 'focus', []);
+                    }                    
+                }
+            }
+        }
+        
+        this.fields = [sameOrNewAlternative, finanicalDate, invoiceNumber,
+                        debitAccount, debitVat, creditAccount, creditVat,
+                        amount, /*departement, project,*/ description];
+                
+        this.config = {};
+    }     
 } 
