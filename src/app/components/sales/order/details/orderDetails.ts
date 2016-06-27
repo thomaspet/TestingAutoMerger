@@ -897,7 +897,7 @@ export class OrderDetails {
                     EntityType: 'Project',
                     Property: 'Dimensions.ProjectID',
                     Placement: 4,
-                    Hidden: false,
+                    Hidden: true, //false, // TODO: > 30.6
                     FieldType: FieldType.DROPDOWN,
                     ReadOnly: false,
                     LookupField: false,
@@ -925,7 +925,7 @@ export class OrderDetails {
                     EntityType: 'Departement',
                     Property: 'Dimensions.DepartementID',
                     Placement: 4,
-                    Hidden: false,
+                    Hidden: true, //false, // TODO: > 30.6
                     FieldType: FieldType.DROPDOWN,
                     ReadOnly: false,
                     LookupField: false,

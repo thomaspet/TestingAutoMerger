@@ -223,7 +223,7 @@ export class JournalEntrySimpleForm implements OnChanges {
             departement.Label = 'Avdeling';
             departement.Property = 'Dimensions.DepartementID';
             departement.ReadOnly = false;
-            departement.Hidden = self.mode == JournalEntryMode.Payment;   
+            departement.Hidden = true, //self.mode == JournalEntryMode.Payment; // TODO: > 30.6 
             departement.Options = {                  
                 source: self.departements,
                 template: (departement) => `${departement ? departement.Name : ''}`,
@@ -240,7 +240,7 @@ export class JournalEntrySimpleForm implements OnChanges {
             project.Label = 'Prosjekt';
             project.Property = 'Dimensions.ProjectID';
             project.ReadOnly = false;
-            project.Hidden = self.mode == JournalEntryMode.Payment;   
+            project.Hidden = true, //self.mode == JournalEntryMode.Payment; // TODO: > 30.6  
             project.Options = {                  
                 source: self.projects,
                 template: (project) => `${project ? project.Name : ''}`,
