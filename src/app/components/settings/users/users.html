@@ -1,5 +1,6 @@
 ﻿<h3>Legg til bruker</h3>
-<form [ngFormModel]="newUserForm" (ngSubmit)="sendInvite()" #f="ngForm">
+<form class="invite_users_form" [ngFormModel]="newUserForm" (ngSubmit)="sendInvite()" #f="ngForm">
+    <small class="validation error" *ngIf="errorMessage.length">{{errorMessage}}</small>
     <label>
         Navn
         <input type="text" ngControl="DisplayName">
@@ -8,9 +9,8 @@
         Epost
         <input type="email" ngControl="Email">
     </label>
-    <button [disabled]="!f.form.valid" type="submit" class="c2a">Inviter</button>
+    <button [attr.aria-busy]="busy" [disabled]="!f.form.valid || busy" type="submit" class="c2a">Inviter</button>
 </form>
-<small>{{errorMessage}}</small>
 
 <h3>Brukere</h3>
 <uni-table [config]="tableConfig" [resource]="users"></uni-table>
