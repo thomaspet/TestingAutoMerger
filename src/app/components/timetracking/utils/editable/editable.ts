@@ -164,6 +164,14 @@ export class Editable implements AfterViewInit, OnDestroy {
     }
 
     private handleKeydown(event) {
+
+        if (this.checkDroplistNavigation(event)) return;
+
+        if (event.which === Keys.ESC) {
+            this.closeEditor(true);
+            return;
+        }
+
         var candidate = this.getMovement(this.current.active, event);
         if (candidate.length > 0) {
             if (!this.finalizeEdit()) { 
@@ -193,13 +201,13 @@ export class Editable implements AfterViewInit, OnDestroy {
             columnDefinition: this.getLayoutColumn(pos.col)
         }
         this.raiseEvent("onTypeSearch", details);
-        if (!details.ignore) {
+        if (!details.ignore) {            
             this.showTypeSearch(details);
         }
     }
 
     private showTypeSearch(details:ITypeSearch) {
-        this.dropList.setParentElement(this.jqRoot);
+        this.dropList.setParentElement(this.current.active);
         this.dropList.show(details);
     }
 
@@ -282,6 +290,31 @@ export class Editable implements AfterViewInit, OnDestroy {
         }
 
         return target;
+    }    
+
+    checkDroplistNavigation(event: JQueryInputEventObject): boolean {
+        if (!this.dropList.isOpen()) return false;
+        var key = event.which;
+        switch (key) {
+            case Keys.ESC:
+                this.dropList.hide();
+                return true;
+
+            case Keys.TAB:
+            case Keys.ENTER:
+                var rowIndex = this.dropList.getCurrentRowIndex();
+                if (rowIndex >= 0) {
+                    if (!event.shiftKey) {
+                        return this.dropList.raiseClickEvent(rowIndex);
+                    }
+                }
+                break;
+
+            case Keys.ARROW_DOWN:
+            case Keys.ARROW_UP:
+                return this.dropList.navigate(key);
+        }
+        return false;
     }    
     
 }

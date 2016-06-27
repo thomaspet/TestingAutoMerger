@@ -13,13 +13,13 @@ export class Lookupservice {
 
     public query<T>(route:string, searchString:string, matchCols:string, expand?:string, select?:string):Observable<T> {
         var cols = matchCols.split(',');
-        var params = "filter=";
+        var params = "?filter=";
         cols.forEach((value:string, index:number)=>{
-            params += (index>0 ? ',' : '') + 'startswith(' + value + ',\'' + searchString + '\')';
+            params += (index>0 ? ' or ' : '') + 'startswith(' + value + ',\'' + searchString + '\')';
         });
         if (expand) params += '&expand=' + expand;
         if (select) params += '&select=' + select;
-        return this.GET(route, params);
+        return this.GET(route + params);
     }
 
    // http helpers (less verbose?)

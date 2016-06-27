@@ -180,7 +180,10 @@ export class TimeEntry {
 
     onTypeSearch(details: ITypeSearch) {
         if (details.columnDefinition && details.columnDefinition.route) {
-            
+            details.ignore = false;
+            details.itemPropertyToSet = 'ID';
+            details.renderFunc = (item:any)=> item.ID + ' - ' + item.Name;
+            details.promise = this.lookup.query(details.columnDefinition.route, details.value, "ID,Name").toPromise();
         }
     }
 

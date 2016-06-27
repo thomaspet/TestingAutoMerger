@@ -55,7 +55,7 @@ export class DropList {
         return false;
     }
 
-    public setParentElement(el: JQuery) {
+    public setParentElement(el: any) {
         this.editorElement = el;
     }
 
@@ -127,6 +127,11 @@ export class DropList {
             offset.top += this.editorElement.outerHeight();
         }
         this.rootElement.offset(offset);
+        // Width ?
+        var cellWidth = this.editorElement.outerWidth();
+        if (this.rootElement.outerWidth()< cellWidth) {
+            this.rootElement.outerWidth(cellWidth);
+        }
     }
 
     private calcScroll(ref: JQuery): number {
@@ -142,7 +147,7 @@ export class DropList {
         if (details.promise && data === null) {
             details.promise.then((result: any) => {
                 if (details.position.col === this.parentColIndex) {
-                    this.show(details, result.data);
+                    this.show(details, result || []);
                 }
             });
         } else {

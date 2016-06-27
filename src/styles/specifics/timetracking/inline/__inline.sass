@@ -1,0 +1,26 @@
+.droplist
+    padding: 3px
+    border: 1px solid $uni-color-scale7
+    overflow-x: hidden
+    overflow-y: auto
+    background-color: white
+    position: absolute
+    max-height: 180px
+
+.droplist ul
+    margin: 0
+    padding: 0
+    list-style-type: none
+
+.droplist li
+    border-bottom: 1px solid $uni-color-scale9
+    padding: 2px 2px 0 2px
+    cursor: pointer
+
+.droplist li:last-child
+    border-bottom: 0
+
+.droplist li:hover, .dropselect 
+    background-color: darken(mix($uni-color-scale9, $navbarBackground, 60%), 15%)
+    color: white
+
