@@ -217,6 +217,7 @@ export class PersonalDetails {
     public ready(value) {
         this.uniform.section(1).toggle();
         this.uniform.section(2).toggle();
+        this.uniform.field('BusinessRelationInfo.Name').focus();
         this.saveactions[0].disabled = true;
     }
     
@@ -226,6 +227,11 @@ export class PersonalDetails {
     }
     
     private saveEmployee(done) {
+
+        if (this.employee.BankAccounts[0] && !this.employee.BankAccounts[0].ID) {
+            let bankAccount = this.employee.BankAccounts[0];
+            bankAccount['_createguid'] = this.employeeService.getNewGuid();
+        }
 
         this.employee.BusinessRelationInfo.Emails.forEach(email => {
             if (email.ID === 0) {
