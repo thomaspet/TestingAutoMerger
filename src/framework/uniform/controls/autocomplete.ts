@@ -168,6 +168,8 @@ export class UniAutocompleteInput {
             return Observable.of([]);
         }
 
+        
+
         if (Array.isArray(this.source)) {
             return Observable.of([(<any[]> this.source).find((item) => {
                 return _.get(item, this.field.Options.valueProperty) === value;
@@ -201,9 +203,14 @@ export class UniAutocompleteInput {
     }
 
     private confirmSelection() {
+        console.log('confirmSelection, this.control.value:', this.control.value);
         this.isExpanded = false;
         this.cd.markForCheck();
         this.focusPositionTop = 0;
+        
+        if (!this.control.dirty) {
+            return;
+        }
                 
         // Wait for response 
         // (allows us to still select result[0] when user tabs out before lookup is finished)
