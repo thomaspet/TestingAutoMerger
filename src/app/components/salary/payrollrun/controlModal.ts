@@ -15,7 +15,7 @@ declare var _; // lodash
     selector: 'control-modal-content',
     directives: [UniForm, UniTable],
     providers: [SalaryTransactionService, PayrollrunService, EmployeeService],
-    templateUrl: 'app/components/salary/payrollrun/controlmodalcontent.html'
+    templateUrl: 'app/components/salary/payrollrun/controlModalContent.html'
 })
 export class ControlModalContent {
     private busy: boolean;

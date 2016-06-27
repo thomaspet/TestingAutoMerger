@@ -52,6 +52,7 @@ declare var _; // lodash
                     (onReady)="onReadyHandler($event)"
                     (onChange)="onChangeHandler($event)">                        
                 </uni-section>
+                <uni-linebreak *ngIf="hasLineBreak(item)"></uni-linebreak>      
             </template>
             <button *ngIf="config.submitText" type="submit" [disabled]="!controls.valid">{{config.submitText}}</button>
         </form>
@@ -99,6 +100,10 @@ export class UniForm {
         this.hidden = value;
     }
 
+    public hasLineBreak(item: FieldLayout) {
+        return item.LineBreak;
+    }
+    
     constructor(private builder: FormBuilder) {
 
     }

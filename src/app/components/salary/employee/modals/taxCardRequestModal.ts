@@ -11,7 +11,7 @@ declare var _;
     selector: 'tax-card-request-modal-content',
     directives: [UniForm, NgIf],
     providers: [AltinnService, EmployeeService],
-    templateUrl: 'app/components/salary/employee/modals/taxcardrequestmodalcontent.html'
+    templateUrl: 'app/components/salary/employee/modals/taxCardRequestModalContent.html'
 })
 export class TaxCardRequestModalContent {
     public title: string = '';

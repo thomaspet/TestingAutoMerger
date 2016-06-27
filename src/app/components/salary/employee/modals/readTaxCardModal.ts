@@ -13,7 +13,7 @@ declare var _; // lodash
     directives: [UniTable, AltinnLoginModal],
     providers: [AltinnReceiptService],
     pipes: [AsyncPipe],
-    templateUrl: 'app/components/salary/employee/modals/readtaxcardmodalcontent.html'
+    templateUrl: 'app/components/salary/employee/modals/readTaxCardModalContent.html'
 })
 export class ReadTaxCardModalContent {
     @Input()
