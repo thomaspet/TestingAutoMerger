@@ -4,7 +4,7 @@ export interface IChangeEvent {
     row: number;
     cancel: boolean;
     updateCell: boolean;
-    columnDefiniton?: ICol;
+    columnDefinition?: ICol;
     lookupValue?:any;
 }
 
@@ -76,8 +76,19 @@ export interface IEditor {
     close(cancel:boolean);
     startEdit(value:any, cell:IJQItem, pos: IPos);
     setValue(value:any);
-    finalizeEdit(cancel:boolean):boolean;
+    finalizeEdit(cancel:boolean, value?:string):boolean;
     hasChanges():boolean;
+}
+
+export interface ITypeSearch {
+    value: string;
+    position: IPos;
+    ignore: boolean;
+    columnDefinition?: ICol;
+    promise?:Promise<any>;
+    renderFunc?: (item: any) => string;
+    itemPropertyToSet?: string;
+    rows?: Array<any>    
 }
 
 export var Keys = {

@@ -3,7 +3,7 @@ import {TabService} from '../../layout/navbar/tabstrip/tabService';
 import {View} from '../../../models/view/view';
 import {Worker, WorkRelation, WorkProfile, WorkItem} from '../../../unientities';
 import {WorkerService, ItemInterval} from '../../../services/timetracking/workerservice';
-import {Editable, IChangeEvent, IConfig, Column} from '../utils/editable/editable';
+import {Editable, IChangeEvent, IConfig, Column, ITypeSearch} from '../utils/editable/editable';
 import {parseTime, addTime, parseDate} from '../utils/utils';
 import {TimesheetService, TimeSheet, ValueItem} from '../../../services/timetracking/timesheetservice';
 import {IsoTimePipe, MinutesToHoursPipe} from '../utils/isotime';
@@ -74,20 +74,21 @@ export class TimeEntry {
             
     tableConfig: IConfig = {
         columns: [
-            new Column('Description'), 
+            new Column('Date','', 'date'),
             new Column('StartTime', '', 'time'),
             new Column('EndTime', '', 'time'),
-            new Column('Date','', 'date'),
             new Column('WorkTypeID','', 'int', 'worktypes'),
+            new Column('Description'), 
             new Column('Dimensions.ProjectID', '', 'int', 'projects'),
             new Column('CustomerOrderID', 'Ordre', 'int', 'orders')
             ],
         events: {
-            onChange: (event) => { return this.onChange(event); },
-            onInit: (instance:Editable) => {
-                this.editable = instance; 
-            }
-        }  
+                onChange: (event) => { return this.onChange(event); },
+                onInit: (instance:Editable) => {
+                    this.editable = instance; 
+                },
+                onTypeSearch: (details:ITypeSearch) => this.onTypeSearch(details)            
+            }  
     };
             
     constructor(private tabService: TabService, private service:WorkerService, private timesheetService:TimesheetService, private lookup:Lookupservice) {
@@ -158,10 +159,10 @@ export class TimeEntry {
     onChange(event: IChangeEvent ) {
 
         // lookup value?
-        if (event.columnDefiniton && event.columnDefiniton.route) {
+        if (event.columnDefinition && event.columnDefinition.route) {
             var p = new Promise((resolve, reject)=>{
                 
-                this.lookup.getSingle<any>(event.columnDefiniton.route, event.value).subscribe( (item:any) => {
+                this.lookup.getSingle<any>(event.columnDefinition.route, event.value).subscribe( (item:any) => {
                     event.lookupValue = item;
                     this.updateChange(event);
                     resolve(item);
@@ -177,9 +178,15 @@ export class TimeEntry {
 
     }
 
+    onTypeSearch(details: ITypeSearch) {
+        if (details.columnDefinition && details.columnDefinition.route) {
+            
+        }
+    }
+
     updateChange(event: IChangeEvent) {
         // Update value via timesheet
-        if (!this.timeSheet.setItemValue(new ValueItem(event.columnDefiniton.name, event.value, event.row, event.lookupValue))) {
+        if (!this.timeSheet.setItemValue(new ValueItem(event.columnDefinition.name, event.value, event.row, event.lookupValue))) {
             event.cancel = true;
             return;
         }

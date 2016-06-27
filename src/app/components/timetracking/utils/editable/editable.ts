@@ -1,5 +1,6 @@
 import {Directive, AfterViewInit, Input, ElementRef, OnDestroy, Output, EventEmitter} from '@angular/core';
-import {IJQItem, IPos, IEditor, Keys, IChangeEvent, ICol } from './interfaces';
+import {IJQItem, IPos, IEditor, Keys, IChangeEvent, ICol, ITypeSearch } from './interfaces';
+import {DropList} from './droplist';
 import {Editor} from './editor';
 declare var jQuery; /*: JQueryStatic;*/
 
@@ -8,11 +9,12 @@ export interface IConfig {
     events?: {
         onInit?(controller: Editable )
         onChange?(change:IChangeEvent);
-        onSelectionChange?(cell: IPos)
+        onSelectionChange?(cell: IPos),
+        onTypeSearch?(details:ITypeSearch)
     }
 }
 
-export {IChangeEvent, ICol, IPos, Column} from './interfaces';
+export {IChangeEvent, ICol, IPos, Column, ITypeSearch} from './interfaces';
 
 
 @Directive({
@@ -33,6 +35,7 @@ export class Editable implements AfterViewInit, OnDestroy {
         active: <IJQItem>undefined,
         editor: <IEditor>undefined
     }
+    private dropList = new DropList();
     
     constructor(el:ElementRef) {
         this.jqRoot = jQuery(el.nativeElement);
@@ -42,6 +45,10 @@ export class Editable implements AfterViewInit, OnDestroy {
         
         this.jqRoot.on('click', this.handlers.onClick);
         jQuery(window).on('resize', this.handlers.onResize );
+
+        this.dropList.onClick = (rowIndex: number, item: any, details: ITypeSearch) => {
+            this.finalizeEdit(false, item[details.itemPropertyToSet]);
+        }
     }
     
     public ngAfterViewInit() {
@@ -55,6 +62,7 @@ export class Editable implements AfterViewInit, OnDestroy {
         if (this.current.editor) {
             this.current.editor.destroy();
         }
+        this.dropList.destroy();
     }
 
     public closeEditor(cancel=true) {
@@ -78,6 +86,7 @@ export class Editable implements AfterViewInit, OnDestroy {
                 return;
             }
             this.finalizeEdit();
+            this.dropList.hide();
             this.current.active = el;
             this.focusCell(el);
         }
@@ -120,7 +129,7 @@ export class Editable implements AfterViewInit, OnDestroy {
                 row: pos.row, 
                 cancel: false,
                 updateCell: true,
-				columnDefiniton: this.config.columns ? this.config.columns[pos.col] : undefined
+				columnDefinition: this.config.columns ? this.config.columns[pos.col] : undefined
             };
             
             var async:Promise<any> = this.raiseEvent("onChange", eventDetails);
@@ -172,16 +181,40 @@ export class Editable implements AfterViewInit, OnDestroy {
 
     private handleEditTyping(event, text:string, pos:IPos) {
         console.log("typing:" + text);
+        this.onTypeSearch(text, pos);
     }
 
-    private finalizeEdit(cancel = false) {
+    private onTypeSearch(value: string, pos?: IPos) {
+        pos = pos || this.getCellPosition(this.current.active);
+        var details:ITypeSearch = {
+            value: value,
+            position: pos,
+            ignore: true,
+            columnDefinition: this.getLayoutColumn(pos.col)
+        }
+        this.raiseEvent("onTypeSearch", details);
+        if (!details.ignore) {
+            this.showTypeSearch(details);
+        }
+    }
+
+    private showTypeSearch(details:ITypeSearch) {
+        this.dropList.setParentElement(this.jqRoot);
+        this.dropList.show(details);
+    }
+
+    private finalizeEdit(cancel = false, useThisValue?:string ) {
         if (!this.current.editor) { return true; }
-        if (!this.current.editor.hasChanges()) { return true; }
-        if (this.current.editor.finalizeEdit(cancel)) {
+        this.dropList.hide();
+        if (useThisValue===undefined && (!this.current.editor.hasChanges())) { return true; }        
+        if (this.current.editor.finalizeEdit(cancel, useThisValue)) {
             return true;
         }
     }
 
+    private getLayoutColumn(colIndex:number):ICol {
+        return this.config.columns ? this.config.columns[colIndex] : undefined;
+    }
         
     private focusCell(cell:IJQItem) {
         if (!cell.attr('tabindex')) {

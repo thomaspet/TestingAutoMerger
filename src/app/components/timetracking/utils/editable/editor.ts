@@ -93,11 +93,11 @@ export class Editor implements IEditor {
         return changes;
     }
     
-    public finalizeEdit(cancel = false):boolean {
+    public finalizeEdit(cancel = false, valueOverride?:string):boolean {
         if (!(this.editEvents && this.editEvents.onEditChanged)) {
             return true;
         }
-        var txt = this.inputBox.val();
+        var txt = valueOverride !== undefined ? valueOverride : this.inputBox.val();
         if (txt !== this.originalValue) {
             if (this.editEvents.onEditChanged(txt, this.position)) {
                 this.originalValue = txt;
