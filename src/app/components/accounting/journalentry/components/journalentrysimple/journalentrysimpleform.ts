@@ -1,13 +1,12 @@
-import {Component, Input, Output, ViewChild, SimpleChange, EventEmitter, OnChanges} from "@angular/core";
-import {NgIf} from "@angular/common";
-import {Observable} from "rxjs/Observable";
+import {Component, Input, Output, ViewChild, SimpleChange, EventEmitter, OnChanges} from '@angular/core';
+import {Observable} from 'rxjs/Observable';
 
-import {FieldLayout, Departement, Project, VatType, VatCodeGroup, Account, JournalEntry, JournalEntryLine, JournalEntryLineDraft, Dimensions} from "../../../../../unientities";
-import {JournalEntryData} from "../../../../../models/models";
+import {FieldLayout, Departement, Project, VatType, VatCodeGroup, Account, JournalEntry, JournalEntryLine, JournalEntryLineDraft, Dimensions} from '../../../../../unientities';
+import {JournalEntryData} from '../../../../../models/models';
 
 import {UniForm, UniField, UniFieldLayout} from '../../../../../../framework/uniform';
-import {UniAutocompleteConfig} from "../../../../../../framework/controls/autocomplete/autocomplete";
-import {AccountService, JournalEntryService, CustomerInvoiceService} from "../../../../../services/services";
+import {UniAutocompleteConfig} from '../../../../../../framework/controls/autocomplete/autocomplete';
+import {AccountService, JournalEntryService, CustomerInvoiceService} from '../../../../../services/services';
 
 declare var _;
 declare var jQuery;
@@ -215,9 +214,7 @@ export class JournalEntrySimpleForm implements OnChanges {
             amount.Label = 'Beløp';
             amount.Property = 'Amount';
             amount.ReadOnly = false;
-            amount.Options = {
-                step: 1
-            };
+            amount.Options = null;
             /*
             KE 26.06.2016: Removed for now, dimensions are not supported before 30.06
                  
@@ -335,6 +332,7 @@ export class JournalEntrySimpleForm implements OnChanges {
         });
         
         if (changes['journalEntryLine'] != null) {
+            this.journalEntryLine = _.cloneDeep(this.journalEntryLine);
             this.isEditMode = true;
         }
     }
@@ -455,57 +453,95 @@ export class JournalEntrySimpleForm implements OnChanges {
             }          
         });
     }
-         
-    addJournalEntry(event: any, journalEntryNumber: string = null) {  
-        if (this.journalEntryLines.length == 0 && journalEntryNumber == null && this.mode != JournalEntryMode.Supplier) {
-            // New line fetch next journal entry number from server first
-            var journalentrytoday: JournalEntryData = new JournalEntryData();
-            journalentrytoday.FinancialDate = moment().toDate();
-            this.journalEntryService.getNextJournalEntryNumber(journalentrytoday).subscribe((next) => {
-                this.addJournalEntry(event, next);
-            });            
-        } else {
-            var oldData: JournalEntryData = _.cloneDeep(this.journalEntryLine);              
-            
-            if (this.mode != JournalEntryMode.Supplier) {
-                var numbers = this.journalEntryService.findJournalNumbersFromLines(this.journalEntryLines, journalEntryNumber);            
-                if (numbers) {
-                    // next or same journal number?
-                    if (oldData.SameOrNew === this.SAME_OR_NEW_NEW && this.mode != JournalEntryMode.Supplier) {
-                        oldData.JournalEntryNo = numbers.nextNumber;
-                    } else {
-                        oldData.JournalEntryNo = numbers.lastNumber;        
-                    }
-                }
-            }
-                 
-            var oldsameornew = oldData.SameOrNew;
-            oldData.SameOrNew = oldData.JournalEntryNo;        
-            this.created.emit(oldData);
-                    
-            this.journalEntryLine = new JournalEntryData(); 
-            this.journalEntryLine.FinancialDate = oldData.FinancialDate;
-            
-            if (this.mode == JournalEntryMode.Supplier) {
-                this.journalEntryLine.SameOrNew = this.SAME_OR_NEW_SAME;
-            } else {
-                this.journalEntryLine.SameOrNew = oldsameornew == this.SAME_OR_NEW_SAME ? this.SAME_OR_NEW_SAME : this.SAME_OR_NEW_NEW;
-            }
-            
-            this.setupSameNewAlternatives();
-            this.setFocusOnDebit();
-        }                
-    }
-    
-    editJournalEntry(event: any) {     
-        if (this.journalEntryLine.SameOrNew === this.SAME_OR_NEW_NEW) {
-            var numbers = this.journalEntryService.findJournalNumbersFromLines(this.journalEntryLines);
-            this.journalEntryLine.JournalEntryNo = numbers.nextNumber;
-        } else {
-            this.journalEntryLine.JournalEntryNo = this.journalEntryLine.SameOrNew;
+        
+    private validateJournalEntryData(): string {        
+        let validationResult: string = '';
+        
+        if (!this.journalEntryLine.FinancialDate) {
+            validationResult += 'Dato må registreres\n';
         }
         
-        this.updated.emit(this.journalEntryLine);
+        if (!this.journalEntryLine.CreditAccountID && !this.journalEntryLine.DebitAccountID) {
+            validationResult += 'Debetkonto, kreditkonto, eller begge må registreres\n';
+        }
+        
+        
+        if (!this.journalEntryLine.Amount || isNaN(this.journalEntryLine.Amount)) {
+            validationResult += 'Beløp må være et tall\n';
+        }
+        
+        return validationResult;
+    }
+         
+    private addJournalEntry(event: any, journalEntryNumber: string = null) {  
+        
+        setTimeout(() => { 
+            // simple validations before adding
+            let validationResult = this.validateJournalEntryData();
+            if (validationResult !== '') {
+                alert('Vennligst korriger følgende feil:\n\n' + validationResult);
+                return;
+            }
+            
+            if (this.journalEntryLines.length == 0 && journalEntryNumber == null && this.mode != JournalEntryMode.Supplier) {
+                // New line fetch next journal entry number from server first
+                var journalentrytoday: JournalEntryData = new JournalEntryData();
+                journalentrytoday.FinancialDate = moment().toDate();
+                this.journalEntryService.getNextJournalEntryNumber(journalentrytoday).subscribe((next) => {
+                    this.addJournalEntry(event, next);
+                });            
+            } else {
+                var oldData: JournalEntryData = _.cloneDeep(this.journalEntryLine);              
+                
+                if (this.mode != JournalEntryMode.Supplier) {
+                    var numbers = this.journalEntryService.findJournalNumbersFromLines(this.journalEntryLines, journalEntryNumber);            
+                    if (numbers) {
+                        // next or same journal number?
+                        if (oldData.SameOrNew === this.SAME_OR_NEW_NEW && this.mode != JournalEntryMode.Supplier) {
+                            oldData.JournalEntryNo = numbers.nextNumber;
+                        } else {
+                            oldData.JournalEntryNo = numbers.lastNumber;        
+                        }
+                    }
+                }
+                    
+                var oldsameornew = oldData.SameOrNew;
+                oldData.SameOrNew = oldData.JournalEntryNo;        
+                this.created.emit(oldData);
+                        
+                this.journalEntryLine = new JournalEntryData(); 
+                this.journalEntryLine.FinancialDate = oldData.FinancialDate;
+                
+                if (this.mode == JournalEntryMode.Supplier) {
+                    this.journalEntryLine.SameOrNew = this.SAME_OR_NEW_SAME;
+                } else {
+                    this.journalEntryLine.SameOrNew = oldsameornew == this.SAME_OR_NEW_SAME ? this.SAME_OR_NEW_SAME : this.SAME_OR_NEW_NEW;
+                }
+                
+                this.setupSameNewAlternatives();
+                this.setFocusOnDebit();
+            }  
+        });              
+    }
+    
+    editJournalEntry(event: any) {    
+        setTimeout(() => {
+            // simple validations before adding
+            let validationResult = this.validateJournalEntryData();
+            if (validationResult !== '') {
+                alert('Vennligst korriger følgende feil:\n\n' + validationResult);
+                return;
+            }
+             
+            if (this.journalEntryLine.SameOrNew === this.SAME_OR_NEW_NEW) {
+                var numbers = this.journalEntryService.findJournalNumbersFromLines(this.journalEntryLines);
+                this.journalEntryLine.JournalEntryNo = numbers.nextNumber;
+            } else {
+                this.journalEntryLine.JournalEntryNo = this.journalEntryLine.SameOrNew;
+            }
+            
+            this.updated.emit(this.journalEntryLine);
+        });
     }
         
     abortEditJournalEntry(event) {

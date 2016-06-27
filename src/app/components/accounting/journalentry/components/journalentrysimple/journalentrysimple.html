@@ -48,7 +48,7 @@
                     <td class="simpleTable_multiline">
                         <dl>
                             <dt>Debet</dt>
-                            <dd>{{line.DebitAccount ? line.DebitAccount.AccountNumber + " - " + line.DebitAccount.AccountName : ""}}</dd>
+                            <dd>{{line.DebitAccount ? line.DebitAccount.AccountNumber + " - " + line.DebitAccount.AccountName : ""}} {{ line.DebitVatType ? " - " + line.DebitVatType.VatCode : "" }}</dd>
 
                             <dt>Kredit</dt>
                             <dd>{{line.CreditAccount ? line.CreditAccount.AccountNumber + " - " + line.CreditAccount.AccountName : ""}}</dd>
