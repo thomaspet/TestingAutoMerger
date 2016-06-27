@@ -23,7 +23,7 @@ declare var _; // lodash
                 <uni-field
                     *ngIf="isField(item)"
                     [controls]="controls"
-                    [field]="field" 
+                    [field]="item" 
                     [model]="model"
                     (onReady)="onReadyHandler($event)"
                     (onChange)="onChangeHandler($event)">
