@@ -95,7 +95,7 @@ export class UniField {
     @Output()
     public onChange: EventEmitter<any> = new EventEmitter<any>(true);
 
-    public classes: (string | Function)[] = [];
+    public classesxx: (string | Function)[] = [];
 
     public messages: {};
 
@@ -136,10 +136,6 @@ export class UniField {
         }
     }
 
-    public addClassXXX(name: string, value: any) {
-        this.classes[name] = value;
-    }
-
     public ngOnChanges(changes: { [propKey: string]: SimpleChange }) {
         if (changes['model']) {
             var value = _.get(this.model, this.field.Property);
@@ -171,26 +167,9 @@ export class UniField {
         if (this.field.Classes) {
             return this.field.Classes;
         }
-        return '';
-        /*
-        var classes = [];
-        var cls = this.classes;
-        for (var cl in cls) {
-            if (cls.hasOwnProperty(cl)) {
-                var value = undefined;
-                if (_.isFunction(cls[cl])) {
-                    value = (<Function>cls[cl])();
-                } else {
-                    value = cls[cl];
-                }
-                if (value === true) {
-                    classes.push(cl);
-                }
-            }
-        }
-        return classes.join(' ');
-        */
+        return '';        
     }
+    
     private hasLineBreak() {
         return this.field.LineBreak;
     }
