@@ -79,6 +79,14 @@ export class PayrollrunDetails implements OnInit {
         return status.text;
     }
     
+    public canPost() : boolean {
+        if (this.payrollrun) {
+        if (this.payrollrun.StatusCode == 1) {
+        return true; }
+        }
+        return false; 
+    }
+
     public previousPayrollrun() {
         this.payrollrunService.getPrevious(this.payrollrunID)
         .subscribe((response) => {

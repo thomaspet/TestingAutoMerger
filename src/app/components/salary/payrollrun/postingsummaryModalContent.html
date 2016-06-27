@@ -3,13 +3,12 @@
 
     <header class="postingsummary_header" *ngIf="!showReceipt">
         <h4>Kontering til regnskap</h4>
-        <uni-form *ngIf="headerConfig" [config]="headerConfig"></uni-form>
+        <uni-form *ngIf="summary" [config]="headerConfig"></uni-form>
     </header>
 
-    <section *ngIf="!showReceipt">
-        <uni-table [config]="accountTableConfig"></uni-table>
-        <label>Kontrollsum totalt</label>
-        <uni-table [config]="debcredTableConfig"></uni-table>
+    <section *ngIf="!showReceipt">        
+        <uni-table *ngIf="summary" [resource]="summary.PostList" [config]="accountTableConfig"></uni-table>         
+        <label>Kontrollsum totalt: </label> {{getAccountingSum()}}
     </section>
 
     <section *ngIf="showReceipt">

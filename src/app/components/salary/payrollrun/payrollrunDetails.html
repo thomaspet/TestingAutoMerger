@@ -22,7 +22,7 @@
         <button type="button" (click)="resetSettling()">Nullstill</button>
         <button type="button" (click)="showPaymentList()">Utbetalingsliste</button>
         <control-modal></control-modal>
-        <postingsummary-modal></postingsummary-modal>
+        <postingsummary-modal *ngIf="canPost()"></postingsummary-modal>
     </section>
 
 </header>
