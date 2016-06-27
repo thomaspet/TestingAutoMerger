@@ -5,7 +5,7 @@ import {PostingsummaryModalContent} from './postingsummaryModalContent';
 
 @Component({
     selector: 'postingsummary-modal',
-    templateUrl: 'app/components/salary/payrollrun/postingsummarymodal.html',
+    templateUrl: 'app/components/salary/payrollrun/postingsummaryModal.html',
     directives: [UniModal]
 })
 export class PostingsummaryModal implements AfterViewInit {

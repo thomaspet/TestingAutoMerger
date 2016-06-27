@@ -19,7 +19,7 @@ import {UniElementFinder} from "../../../../framework/forms/shared/UniElementFin
 import {UniSectionBuilder} from "../../../../framework/forms/builders/uniSectionBuilder";
 import {UniTextInput} from "../../../../framework/controls/text/text";
 import {UNI_CONTROL_DIRECTIVES} from "../../../../framework/controls";
-import {PhoneModal} from "../../sales/customer/modals/phone/phone";
+import {PhoneModal} from "../../common/modals/modals";
 import {BusinessRelationService, PhoneService} from "../../../services/services";
 import {UniState} from "../../../../framework/core/UniState";
 import {Observable} from 'rxjs/Observable';

@@ -19,7 +19,6 @@
     <section class="poster_overview">
         <section class="application">        
             <uni-widget-poster [model]="customer" *ngIf="customer && customer.ID > 0">
-                ..future widgets..
             </uni-widget-poster>
         </section>
         <external-search [searchText]="searchText" (onSelect)="addSearchInfo($event)" *ngIf="customer && customer.ID == 0"></external-search>

@@ -11,7 +11,7 @@ import {Postingsummary} from '../../../models/models';
 
 @Component({
     selector: 'postingsummary-modal-content',
-    templateUrl: 'app/components/salary/payrollrun/postingsummarymodalcontent.html',
+    templateUrl: 'app/components/salary/payrollrun/postingsummaryModalContent.html',
     directives: [UniForm, UniTable]
 })
 export class PostingsummaryModalContent implements OnInit {

@@ -52,6 +52,7 @@ declare var _; // lodash
                     (onReady)="onReadyHandler($event)"
                     (onChange)="onChangeHandler($event)">                        
                 </uni-section>
+                <uni-linebreak *ngIf="hasLineBreak(item)"></uni-linebreak>      
             </template>
             <button *ngIf="config.submitText" type="submit" [disabled]="!controls.valid">{{config.submitText}}</button>
         </form>
@@ -86,16 +87,7 @@ export class UniForm {
     @ViewChildren(UniSection)
     public sectionElements: QueryList<UniSection>;
 
-    public get Fields(): { [propKey: string]: UniField } {
-        if (this._fields) {
-            return this._fields;
-        }
-        // set fields
-        return this._fields;
-    }
-
     private controls: ControlGroup;
-    private _fields: { [propKey: string]: UniField } = {};
     private groupedFields: any[];
 
     private readyFields: number;
@@ -108,6 +100,10 @@ export class UniForm {
         this.hidden = value;
     }
 
+    public hasLineBreak(item: FieldLayout) {
+        return item.LineBreak;
+    }
+    
     constructor(private builder: FormBuilder) {
 
     }
@@ -127,11 +123,6 @@ export class UniForm {
         let fieldsets = this.fieldsetElements.toArray();
         let fields = this.fieldElements.toArray();
         let all = [].concat(fields, fieldsets, sections);
-
-        // cache fields;
-        this.fields.forEach((field: UniFieldLayout) => {
-            this._fields[field.Property] = this.field(field.Property);
-        });
 
         this.totalFields = all.length;
         this.readyFields = 0;

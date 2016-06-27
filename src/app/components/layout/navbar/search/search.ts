@@ -1,69 +1,163 @@
-﻿import {Component, AfterViewInit, ElementRef} from "@angular/core";
-import {Router} from "@angular/router-deprecated";
-import {Observable} from "rxjs/Observable";
-import "rxjs/add/observable/fromEvent";
+﻿import {Component, AfterViewInit, ElementRef, ViewChild, Renderer} from '@angular/core';
+import {Control} from '@angular/common';
+import {Router} from '@angular/router-deprecated';
+import {UniHttp} from '../../../../../framework/core/http/http';
+import {HamburgerMenu} from '../hamburgerMenu/hamburgerMenu';
 
-declare var jQuery;
+import {Observable} from 'rxjs/Observable';
+import 'rxjs/add/observable/fromEvent';
+import 'rxjs/add/operator/debounceTime';
 
 @Component({
-    selector: "uni-navbar-search",
-    templateUrl: "app/components/layout/navbar/search/search.html",
+    selector: 'uni-navbar-search',
+    templateUrl: 'app/components/layout/navbar/search/search.html',
 })
 export class NavbarSearch implements AfterViewInit {
-    ctrlKeyHold: boolean;
-    autocompleteConfig: kendo.ui.AutoCompleteOptions;
-    autocompleteElement: any;
+    @ViewChild('searchInput')
+    private inputElement: ElementRef;
 
-    mockData = [
-        {id: "1", name: "Dashboard", url: "/"},
-        {id: "2", name: "Kitchensink", url: "/kitchensink"},
-        {id: "3", name: "LoginRoute", url: "/login"},
-        {id: "4", name: "UniFormDemo", url: "/uniformdemo"}
-    ];
+    @ViewChild('resultList')
+    private listElement: ElementRef;
 
-    constructor(private elementRef: ElementRef, public router: Router) {
-        this.autocompleteConfig = {
-            dataTextField: "name",
-            placeholder: "Søk etter tema eller funksjon",
-            highlightFirst: true,
-            dataSource: this.mockData,
-            select: (event: kendo.ui.AutoCompleteSelectEvent) => {
-                var item: any = event.item;
-                var dataItem = event.sender.dataItem(item.index());
-                this.onAutoCompleteSelected(dataItem);
-            },
-            change: (event: kendo.ui.AutoCompleteChangeEvent) => {
-                event.sender.value("");
+    private inputControl: Control = new Control('');
+    private searchResults: any[] = [];
+    private isExpanded: boolean = false;
+    private selectedIndex: number;
+    private focusPositionTop: number = 0;
+    private componentLookupSource: {componentName: string, componentUrl: string}[] = [];
+
+    constructor(private http: UniHttp, public router: Router, private renderer: Renderer) {
+        let componentSections = HamburgerMenu.getAvailableComponents();
+        componentSections.forEach((section) => {
+            this.componentLookupSource.push(...section.componentList);
+        });
+    }
+
+    public ngAfterViewInit() {        
+        Observable.fromEvent(document, 'keydown').subscribe((event: KeyboardEvent) => {
+            if (event.ctrlKey && (event.keyCode === 32 || event.keyCode === 36)) {
+                event.preventDefault();
+                this.renderer.invokeElementMethod(this.inputElement.nativeElement, 'focus', []);
             }
-        };
+        });
 
-        Observable.fromEvent(document, "keydown")
-            .subscribe((event: any) => {
-                if (event.keyCode === 17) {
-                    this.ctrlKeyHold = true;
-                }
-                if (event.keyCode === 32 && this.ctrlKeyHold) {
-                    event.preventDefault();
-                    jQuery(this.autocompleteElement).focus();
-                }
-            });
-
-        Observable.fromEvent(document, "keyup")
-            .subscribe((event: any) => {
-                if (event.keyCode === 17) {
-                    this.ctrlKeyHold = false;
-                }
-            });
-
+        this.inputControl.valueChanges.subscribe((inputValue) => {
+            this.isExpanded = false;
+            this.selectedIndex = 0;
+            let query = inputValue.toLowerCase();
+            
+            // TODO: This should be reworked after 30.6
+            if (query.indexOf('faktura ') === 0) {
+                this.invoiceLookup(query.slice(8));
+            } else {
+                this.componentLookup(query);
+            }
+        });
     }
 
-    onAutoCompleteSelected(value: any) {
-        this.router.navigateByUrl(value.url);
+    private onMouseover(index) {
+        if (index < this.selectedIndex) {
+            for (let i = index; i < this.selectedIndex; i++) {
+                this.focusPositionTop -= this.listElement.nativeElement.children[i].clientHeight; 
+            }
+        } else if (index > this.selectedIndex) {
+            for (let i = this.selectedIndex; i < index; i++) {
+                this.focusPositionTop += this.listElement.nativeElement.children[i].clientHeight;
+            }
+        }
+        
+        this.selectedIndex = index;
     }
 
-    ngAfterViewInit() {
-        var element = jQuery(this.elementRef.nativeElement).find("input").first();
-        this.autocompleteElement = element.kendoAutoComplete(this.autocompleteConfig).data("kendoAutoComplete");
+    private onKeyDown(event) {
+        var prevItem = undefined;
+        var currItem = undefined;
+        var overflow = 0;
+
+        switch (event.keyCode) {
+            case 13:
+                this.confirmSelection();
+            break;
+            case 27:
+                this.close();
+            break;
+            case 38:
+                if (this.selectedIndex !== 0) {
+                    this.selectedIndex--;
+
+                    currItem = this.listElement.nativeElement.children[this.selectedIndex];
+                    if (currItem) {
+                        this.focusPositionTop -= currItem.clientHeight;
+                        overflow = this.focusPositionTop - this.listElement.nativeElement.scrollTop;
+
+                        if (overflow < 0) {
+                            this.listElement.nativeElement.scrollTop += overflow;
+                        }
+                    }
+                }
+            break;
+            case 40:
+                if (this.selectedIndex !== (this.searchResults.length - 1)) {
+                    this.selectedIndex++;
+                }
+
+                prevItem = this.listElement.nativeElement.children[this.selectedIndex - 1];
+                currItem = this.listElement.nativeElement.children[this.selectedIndex];
+
+                overflow = (this.focusPositionTop + currItem.clientHeight)
+                           - (this.listElement.nativeElement.clientHeight + this.listElement.nativeElement.scrollTop);
+                        
+                if (overflow > 0) {
+                    this.listElement.nativeElement.scrollTop += overflow;
+                }
+            break;
+        }
+    }
+
+    private confirmSelection() {
+        const url = this.searchResults[this.selectedIndex].componentUrl;
+        this.close();
+        this.router.navigateByUrl(url);
+    }
+
+    private close() {
+        this.focusPositionTop = 0;
+        this.searchResults = [];
+        this.inputControl.updateValue('', {emitEvent: false});
+        this.isExpanded = false;
+        this.renderer.invokeElementMethod(this.inputElement.nativeElement, 'blur', []);        
+    }
+
+    private componentLookup(query: string) {
+        let results = [];
+
+        this.componentLookupSource.forEach((component) => {
+            if (component.componentName.toLocaleLowerCase().indexOf(query) === 0) {
+                results.push(component);
+            }
+        });
+
+        this.searchResults = results;
+        this.isExpanded = true;
+    }
+
+    private invoiceLookup(query: string) {
+        this.http.asGET()
+            .usingBusinessDomain()
+            .withEndPoint(`invoices?top=20&filter=contains(InvoiceNumber,'${query}') or contains(CustomerName,'${query}')`)
+            .send()
+            .subscribe((response) => {
+                let results = [];
+                response.forEach((invoice) => {
+                    results.push({
+                        componentName: invoice.InvoiceNumber + ' - ' + invoice.CustomerName,
+                        componentUrl: '/sales/invoice/details/' + invoice.ID
+                    });
+                });
+
+                this.searchResults = results;
+                this.isExpanded = true;
+            });
     }
 
 }

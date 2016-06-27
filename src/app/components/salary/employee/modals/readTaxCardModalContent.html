@@ -1,10 +1,10 @@
 <article class="modal-content">
     <h2>Hent skattekort</h2>
-    <p>Her ser du en oversikt over dine skattekortforespørsler. Trykk på knappen "Hent og les inn" for å lese inn skatteopplysninger fra Altinn. Du vil få opp påloggingsbildet for personlig pålogging mot Altinn</p>
+    <p>Her ser du en oversikt over dine skattekortforespørsler. Trykk på ønsket linje for å bruke den til å lese inn skatteopplysninger fra Altinn. Du vil få opp påloggingsbildet for personlig pålogging mot Altinn</p>
 
-    <uni-table [resource]="altinnReceipts$ | async" [config]="receiptTable"></uni-table>
+    <uni-table [resource]="altinnReceipts$ | async" [config]="receiptTable" (rowSelected)="selectedRow($event)"></uni-table>
     <altinn-login-modal (updatedReceipt)="updateReceipts()"></altinn-login-modal>
-        <footer>
-            <button *ngIf="config" (click)="config.cancel()">Avbryt</button>
-        </footer>
+    <footer>
+        <button *ngIf="config" (click)="config.cancel()">Avbryt</button>
+    </footer>
 </article>

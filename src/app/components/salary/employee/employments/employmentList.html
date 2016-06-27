@@ -1,8 +1,9 @@
 <section class="splitview">
     <nav class="splitview_list">
-        <uni-table *ngIf="showEmploymentList" [config]="employmentListConfig" [attr.aria-busy]="busy"></uni-table>
+        <uni-table [config]="employmentListConfig" [resource]="employments$ | async" (rowSelected)="rowSelected($event)"></uni-table>
+        <button (click)="addNewEmployment()">Nytt Arbeidsforhold</button>
     </nav>
     <main class="splitview_detail">
-        <employment-details *ngIf="selectedEmployment" [currentEmployment]="selectedEmployment" [currentEmployee]="currentEmployee"></employment-details>
+        <employment-details *ngIf="selectedEmployment" [currentEmployment]="selectedEmployment" [currentEmployee]="currentEmployee" (refreshList)="refreshList()"></employment-details>
     </main>
 </section>

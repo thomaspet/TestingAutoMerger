@@ -13,6 +13,7 @@ import 'rxjs/add/operator/filter';
 
 declare var _; // lodash
 
+
 export class UniAutocompleteConfig {
     public source: BizHttp<any>|any[];
     public valueKey: string;
@@ -83,9 +84,6 @@ export class UniAutocompleteInput {
     
     @Output()
     public onReady: EventEmitter<UniAutocompleteInput> = new EventEmitter<UniAutocompleteInput>(true);
-    
-    @Output()
-    public onChange: EventEmitter<any> = new EventEmitter<any>(true);
 
     // state vars
     private guid: string;
@@ -101,7 +99,7 @@ export class UniAutocompleteInput {
     private lookupResults: any[] = [];
     private isExpanded: boolean;
     private focusPositionTop: number = 0;
-    
+
     constructor(private renderer: Renderer, private cd: ChangeDetectorRef) {
         this.guid = 'autocomplete-' + performance.now();
     }
@@ -235,7 +233,9 @@ export class UniAutocompleteInput {
         if (this.lastValue !== this.value) {
             this.lastValue = this.value;
             _.set(this.model, this.field.Property, this.value);
-            this.onChange.emit(this.model);
+            if (this.field.Options && this.field.Options.events && this.field.Options.events.select) {
+                this.field.Options.events.select(this.model);
+            }
         }
     }
     

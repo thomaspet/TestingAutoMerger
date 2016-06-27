@@ -3,6 +3,7 @@ import {FORM_DIRECTIVES, FORM_PROVIDERS, ControlGroup} from '@angular/common';
 import {UniFieldLayout} from './interfaces';
 import {UniField} from './unifield';
 import {UniCombo} from './unicombo';
+import {FieldLayout} from "../../app/unientities";
 declare var _; // lodash
 
 @Component({
@@ -10,23 +11,24 @@ declare var _; // lodash
     template: `
         <fieldset [hidden]="Hidden">
             <legend *ngIf="config.legend">{{config.legend}}</legend>
-            <template ngFor let-field [ngForOf]="groupedFields" let-i="index">
+            <template ngFor let-item [ngForOf]="groupedFields" let-i="index">
                 <uni-combo-field
-                    *ngIf="isCombo(field)"
+                    *ngIf="isCombo(item)"
                     [controls]="controls"
-                    [field]="field" 
+                    [field]="item" 
                     [model]="model"
                     (onReady)="onReadyHandler($event)"
                     (onChange)="onChangeHandler($event)">
                 </uni-combo-field>
                 <uni-field
-                    *ngIf="isField(field)"
+                    *ngIf="isField(item)"
                     [controls]="controls"
                     [field]="field" 
                     [model]="model"
                     (onReady)="onReadyHandler($event)"
                     (onChange)="onChangeHandler($event)">
                 </uni-field>
+                <uni-linebreak *ngIf="hasLineBreak(field)"></uni-linebreak>
             </template>
         </fieldset>
     `,
@@ -161,7 +163,11 @@ export class UniFieldSet {
     private isCombo(field: UniFieldLayout): boolean {
         return _.isArray(field) && field[0].Combo > 0;
     }
-    
+
+    private hasLineBreak(item: FieldLayout) {
+        return item.LineBreak;
+    }
+
     private groupFields() {
         let group = [], combo = [];
         let lastCombo = 0;

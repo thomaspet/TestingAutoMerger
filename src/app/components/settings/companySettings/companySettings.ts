@@ -92,7 +92,7 @@ export class CompanySettings implements OnInit {
                     this.form.onReady.subscribe((event) => {
                         this.updateMunicipalityName();
                                                 
-                        this.form.Fields['OfficeMunicipalityNo']
+                        this.form.field('OfficeMunicipalityNo')
                             .onChange
                             .subscribe((value) => {
                                this.updateMunicipalityName(); 

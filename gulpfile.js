@@ -74,6 +74,11 @@ require('./gulp/watch');
  */
 require('./gulp/web-config');
 
+/**
+ *  zip dist folder
+ */
+require('./gulp/zip');
+
 var tasks = {
     prod: [
         'entities',

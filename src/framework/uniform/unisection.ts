@@ -4,6 +4,7 @@ import {UniFieldLayout} from './interfaces';
 import {UniField} from './unifield';
 import {UniCombo} from './unicombo';
 import {UniFieldSet} from './unifieldset';
+import {FieldLayout} from "../../app/unientities";
 
 declare var _; // lodash
 
@@ -38,6 +39,7 @@ declare var _; // lodash
                         (onReady)="onReadyHandler($event)"
                         (onChange)="onChangeHandler($event)">                    
                     </uni-field-set>
+                    <uni-linebreak *ngIf="hasLineBreak(item)"></uni-linebreak>
                 </template>
             </div>
         </article>
@@ -200,6 +202,10 @@ export class UniSection {
     }
     private isFieldSet(field: UniFieldLayout): boolean {
         return _.isArray(field) && field[0].FieldSet > 0;
+    }
+
+    private hasLineBreak(item: FieldLayout) {
+        return item.LineBreak;
     }
 
     private groupFields() {
