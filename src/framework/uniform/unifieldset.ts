@@ -3,6 +3,7 @@ import {FORM_DIRECTIVES, FORM_PROVIDERS, ControlGroup} from '@angular/common';
 import {UniFieldLayout} from './interfaces';
 import {UniField} from './unifield';
 import {UniCombo} from './unicombo';
+import {FieldLayout} from "../../app/unientities";
 declare var _; // lodash
 
 @Component({
@@ -27,6 +28,7 @@ declare var _; // lodash
                     (onReady)="onReadyHandler($event)"
                     (onChange)="onChangeHandler($event)">
                 </uni-field>
+                <uni-linebreak *ngIf="hasLineBreak(item)"></uni-linebreak>
             </template>
         </fieldset>
     `,
@@ -161,7 +163,11 @@ export class UniFieldSet {
     private isCombo(field: UniFieldLayout): boolean {
         return _.isArray(field) && field[0].Combo > 0;
     }
-    
+
+    private hasLineBreak(item: FieldLayout) {
+        return item.LineBreak;
+    }
+
     private groupFields() {
         let group = [], combo = [];
         let lastCombo = 0;

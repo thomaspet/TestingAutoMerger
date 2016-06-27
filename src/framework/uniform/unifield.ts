@@ -10,9 +10,6 @@ declare var _; // lodash
 
 @Component({
     selector: 'uni-field',
-    host: {
-        '[class.-has-linebreak]': 'hasLineBreak()'
-    },
     template: `
         <label 
             [class.error]="hasError()" 
@@ -184,9 +181,6 @@ export class UniField {
             }
         }
         return classes.join(' ');
-    }
-    private hasLineBreak() {
-        return this.field.LineBreak;
     }
 
     private isInput(type) {
