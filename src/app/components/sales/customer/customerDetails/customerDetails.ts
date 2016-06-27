@@ -231,6 +231,12 @@ export class CustomerDetails implements OnInit {
             debounceTime: 200
         };
 
+        // TODO: > 30.6
+        departement.Hidden = true;
+        project.Hidden = true;
+        departement.Section = 0;
+        project.Section = 0;
+
         // MultiValue
         var phones: UniFieldLayout = this.fields.find(x => x.Property === 'Info.DefaultPhone');
         
