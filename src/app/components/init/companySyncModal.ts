@@ -5,7 +5,8 @@ import {UniHttp} from '../../../framework/core/http/http';
 interface ISyncAction {
     label: string;
     request: () => Observable<any>;
-    busy?: boolean;
+    busy: boolean;
+    finished: boolean;
 }
 
 @Component({
@@ -16,7 +17,7 @@ interface ISyncAction {
                 <h2>Vent litt, mens vi gjør ting klart...</h2>
 
                 <ul class="progress-list">
-                    <li *ngFor="let action of actions" [attr.aria-busy]="action.busy">
+                    <li *ngFor="let action of actions" [ngClass]="{'finished': action.finished}" [attr.aria-busy]="action.busy">
                         {{action.label}}
                     </li>                    
                 </ul>
@@ -32,13 +33,26 @@ export class CompanySyncModal {
     constructor(private http: UniHttp) {
         this.actions = [
             {
+                label: 'Synkroniserer kontoplan',
+                request: () => {
+                    return this.http.asPUT()
+                        .usingBusinessDomain()
+                        .withEndPoint('accounts?action=synchronize-ns4102-as')
+                        .send();
+                },
+                busy: false,
+                finished: false                
+            },
+            {
                 label: 'Synkroniserer valuta',
                 request: () => {
                     return this.http.asGET()
                         .usingBusinessDomain()
                         .withEndPoint('currency?action=download-from-norgesbank')
                         .send();
-                }
+                },
+                busy: false,
+                finished: false
             },
             {
                 label: 'Synkroniserer mva',
@@ -47,17 +61,9 @@ export class CompanySyncModal {
                         .usingBusinessDomain()
                         .withEndPoint('vattypes?action=synchronize')
                         .send();
-                }
-            },
-            {
-                label: 'Synkroniserer kontoplan',
-                request: () => {
-                    return this.http.asPUT()
-                        .usingBusinessDomain()
-                        .withEndPoint('accounts?action=synchronize-ns4102-as')
-                        .send();
-                }
-                
+                },
+                busy: false,
+                finished: false
             }
         ];
     }
@@ -65,24 +71,38 @@ export class CompanySyncModal {
     public open() {
         this.completionCount = 0;
         this.isOpen = true;
-        this.actions.forEach((action) => {
+
+        // We need to run account sync first, as mva sync is depending on accounts being synced
+        this.actions[0].busy = true;
+        this.actions[0].request().subscribe(
+            (response) => {
+                this.onActionCompleted(this.actions[0]);
+                this.runActions(this.actions.slice(1));
+            },
+            (error) => {
+                this.onActionCompleted(this.actions[0]);
+                this.runActions(this.actions.slice(1));
+            });
+    }
+
+    private runActions(actions: ISyncAction[]) {        
+        actions.forEach((action) => {
             action.busy = true;
             action.request().subscribe(
                 (response) => {
-                    action.busy = false;
-                    this.completionCount++;
-                    this.closeIfFinished();
+                    this.onActionCompleted(action);
                 },
                 (error) => {
-                    // TODO: How do we handle errors here?
-                    action.busy = false;
-                    this.completionCount++;
-                    this.closeIfFinished();
+                    this.onActionCompleted(action);
                 });
         });
-    }
+    } 
 
-    private closeIfFinished() {
+    private onActionCompleted(action: ISyncAction) {
+        action.busy = false;
+        action.finished = true;
+        this.completionCount++;
+
         if (this.completionCount === this.actions.length) {
             setTimeout(() => {
                 this.isOpen = false;
