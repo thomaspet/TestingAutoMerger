@@ -329,16 +329,13 @@ export class InvoiceDetails implements OnInit {
     private saveAddressOnCustomer(address: Address) {
         if (!address.ID || address.ID == 0) {
             address['_createguid'] = this.addressService.getNewGuid();
-            console.log("== SAVE NEW ADDRESS ==", address);
             this.invoice.Customer.Info.Addresses.push(address);
             this.businessRelationService.Put(this.invoice.Customer.Info.ID, this.invoice.Customer.Info).subscribe((res) => {
                 this.invoice.Customer.Info = res;
                 this.addressService.setAddresses(this.invoice);
             });
         } else {
-            console.log("== SAVE EXISTING ADDRESS ==", address.ID);
             this.addressService.Put(address.ID, address).subscribe((res) => {
-                console.log("== ADDRESS SAVED ==", res);
             });
         }
     }

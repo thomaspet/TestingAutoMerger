@@ -123,110 +123,66 @@ export class AddressService extends BizHttp<Address> {
     public setAddresses(entity: any, previousAddresses: Array<Address> = null) {
         var invoiceaddresses = [];
         var shippingaddresses = [];
-        //var firstinvoiceaddress = null;
-        //var firstshippingaddress = null;
-
-        // no adresses
-        console.log("== adrs ==", entity._InvoiceAddresses);
-
+  
+        // invoice addresses
         if (!entity._InvoiceAddresses) {
             invoiceaddresses.push(this.invoiceToAddress(entity));
-            shippingaddresses.push(this.shippingToAddress(entity));
             if (entity.Customer) {
                 entity.Customer.Info.Addresses.forEach(a => {
                     invoiceaddresses.push(a);
-                    shippingaddresses.push(a);
                 });
             }
-        } else {
-            console.log("== OLD ==", invoiceaddresses);
-            console.log("== OLD ONES ==", entity._InvoiceAddresses);
+        } else { // have addresses
             if (previousAddresses) {
-                var deleted
                 previousAddresses.forEach(a => {
-                    entity._InvoiceAddresses.forEach((b, i) => {
+                    invoiceaddresses.forEach((b, i) => {
                         if (a.ID == b.ID) {
-                            invoiceaddresses.push(b);
+                            invoiceaddresses.splice(i, 1);
                         } 
                     });
-                    entity._ShippingAddresses.forEach((b, i) => {
-                        if (a.ID != b.ID) {
-                            shippingaddresses.push(b);
-                        }
-                    });
                 });
+
+                if (shippingaddresses.length == 0) {
+                    invoiceaddresses.unshift(this.invoiceToAddress(entity));
+                }
 
                 if (entity.Customer) {
                     entity.Customer.Info.Addresses.forEach(a => {
                         invoiceaddresses.push(a);
+                    });
+                }
+            }
+        }
+
+        // shipping addresses
+        if (!entity._ShippingAddresses) {
+            shippingaddresses.push(this.shippingToAddress(entity));
+            if (entity.Customer) {
+                entity.Customer.Info.Addresses.forEach(a => {
+                    shippingaddresses.push(a);
+                });
+            }
+        } else { // have addresses
+            if (previousAddresses) {
+                previousAddresses.forEach(a => {
+                    shippingaddresses.forEach((b, i) => {
+                        if (a.ID == b.ID) {
+                            shippingaddresses.splice(i, 1);
+                        }
+                    });
+                });
+
+                if (shippingaddresses.length == 0) {
+                    shippingaddresses.unshift(this.shippingToAddress(entity));
+                }
+
+                if (entity.Customer) {
+                    entity.Customer.Info.Addresses.forEach(a => {
                         shippingaddresses.push(a);
                     });
                 }
-
             }
         }
-
-
-
-        // Add addresses from current customer
-
-        // ingen adresser fra før
-        // adresse fra entity + kundeadresser
-
-        // adresser fra før, fjerne tidligere adresser, legge til ny kunde sine adresser
-
-        /*
-        // remove addresses from last customer
-        if (previousAddresses) {
-            previousAddresses.forEach(a => {
-                entity._InvoiceAddresses.forEach((b, i) => {
-                    if (a.ID != b.ID) {
-                        invoiceaddresses.push(_.cloneDeep(b));
-                    }
-                });
-                entity._ShippingAddresses.forEach((b, i) => {
-                    if (a.ID != b.ID) {
-                        shippingaddresses.push(_.cloneDeep(b));
-                    }
-                });
-            });
-        }
-
-        // Add address from entity if no addresses
-        if (invoiceaddresses.length == 0) {
-            var invoiceaddress = this.invoiceToAddress(entity);
-            if (!this.isEmptyAddress(invoiceaddress)) {
-                firstinvoiceaddress = invoiceaddress;
-            }
-        } else {
-            firstinvoiceaddress = invoiceaddresses.shift();
-        }
-
-        if (shippingaddresses.length == 0) {
-            var shippingaddress = this.shippingToAddress(entity);
-            if (!this.isEmptyAddress(shippingaddress)) {
-                firstshippingaddress = shippingaddress;
-            }
-        } else {
-            firstshippingaddress = shippingaddresses.shift();
-        }
-
-        if (!this.isEmptyAddress(firstinvoiceaddress)) {
-            invoiceaddresses.unshift(firstinvoiceaddress);
-        }
-
-        if (!this.isEmptyAddress(firstshippingaddress)) {
-            shippingaddresses.unshift(firstshippingaddress);
-        }
-
-        // Add addresses from current customer
-        if (entity.Customer) {
-            entity.Customer.Info.Addresses.forEach(a => {
-                invoiceaddresses.push(a);
-                shippingaddresses.push(a);
-            });
-        }
-        */
 
         entity._InvoiceAddresses = invoiceaddresses;
         entity._ShippingAddresses = shippingaddresses;
@@ -235,7 +191,11 @@ export class AddressService extends BizHttp<Address> {
    public displayAddress(address: Address) : string {
         let displayVal = '';
         if (address.AddressLine1 !== null && address.AddressLine1 !== '') {
-            displayVal += address.AddressLine1 + ', ';  
+            displayVal += address.AddressLine1;
+            if ((address.PostalCode !== null && address.PostalCode !== '') || 
+               (address.City !== null && address.City !== '')) {
+                displayVal += ', ';
+            } 
         }                
         if (address.PostalCode !== null && address.PostalCode !== '') {
             displayVal += address.PostalCode  + ' ';

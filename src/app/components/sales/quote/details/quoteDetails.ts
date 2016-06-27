@@ -286,16 +286,13 @@ export class QuoteDetails {
     private saveAddressOnCustomer(address: Address) {
         if (!address.ID || address.ID == 0) {
             address['_createguid'] = this.addressService.getNewGuid();
-            console.log("== SAVE NEW ADDRESS ==", address);
             this.quote.Customer.Info.Addresses.push(address);
             this.businessRelationService.Put(this.quote.Customer.Info.ID, this.quote.Customer.Info).subscribe((res) => {
                 this.quote.Customer.Info = res;
                 this.addressService.setAddresses(this.quote);
             });
         } else {
-            console.log("== SAVE EXISTING ADDRESS ==", address.ID);
             this.addressService.Put(address.ID, address).subscribe((res) => {
-                console.log("== ADDRESS SAVED ==", res);
             });
         }
     }

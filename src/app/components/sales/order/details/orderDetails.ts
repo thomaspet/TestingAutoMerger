@@ -282,16 +282,12 @@ export class OrderDetails {
     private saveAddressOnCustomer(address: Address) {
         if (!address.ID || address.ID == 0) {
             address['_createguid'] = this.addressService.getNewGuid();
-            console.log("== SAVE NEW ADDRESS ==", address);
             this.order.Customer.Info.Addresses.push(address);
             this.businessRelationService.Put(this.order.Customer.Info.ID, this.order.Customer.Info).subscribe((res) => {
                 this.order.Customer.Info = res;
-                this.addressService.setAddresses(this.order);
             });
         } else {
-            console.log("== SAVE EXISTING ADDRESS ==", address.ID);
             this.addressService.Put(address.ID, address).subscribe((res) => {
-                console.log("== ADDRESS SAVED ==", res);
             });
         }
     }
