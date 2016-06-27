@@ -405,7 +405,7 @@ export class SalaryTransactionEmployeeList implements OnInit {
             rowModel['Amount'] = 1;
         }
 
-        if (wagetype.Rate) {
+        if (!rowModel.Rate || wagetype.Rate) {
             rowModel['Rate'] = wagetype.Rate;
         }
 
