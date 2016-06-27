@@ -272,10 +272,15 @@ export class SupplierDetails {
             }),
             display: (address: Address) => {
                 let displayVal = '';
-                if (address.AddressLine1 !== null && address.AddressLine1 !== '') {
+                 if (address.AddressLine1 !== null && address.AddressLine1 !== '') {
                     displayVal += address.AddressLine1 + ', ';  
-                }                
-                displayVal += address.PostalCode + ' ' + address.City; 
+                }
+                if (address.PostalCode !== null && address.PostalCode !== '') {
+                    displayVal += address.PostalCode  + ' ';
+                }
+                if (address.City !== null && address.City !== '') {
+                    displayVal += address.City;
+                }
                 return displayVal;                                
             }         
         };
@@ -325,8 +330,13 @@ export class SupplierDetails {
                 let displayVal = '';
                 if (address.AddressLine1 !== null && address.AddressLine1 !== '') {
                     displayVal += address.AddressLine1 + ', ';  
-                }                
-                displayVal += address.PostalCode + ' ' + address.City; 
+                }
+                if (address.PostalCode !== null && address.PostalCode !== '') {
+                    displayVal += address.PostalCode  + ' ';
+                }
+                if (address.City !== null && address.City !== '') {
+                    displayVal += address.City;
+                }
                 return displayVal;                                
             }          
         };
@@ -689,7 +699,7 @@ export class SupplierDetails {
                     EntityType: 'Supplier',
                     Property: 'DefaultBankAccountID',
                     Placement: 4,
-                    Hidden: false,
+                    Hidden: true, // false, // TODO: > 30.6
                     FieldType: 3,
                     ReadOnly: false,
                     LookupField: false,
@@ -697,7 +707,7 @@ export class SupplierDetails {
                     Description: '',
                     HelpText: '',
                     FieldSet: 0,
-                    Section: 2,
+                    Section: 0, //2, // TODO: > 30.6
                     Sectionheader: 'Konto & bank',
                     Placeholder: null,
                     Options: null,
