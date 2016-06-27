@@ -632,7 +632,7 @@ export class SupplierDetails {
                     EntityType: 'Project',
                     Property: 'Dimensions.ProjectID',
                     Placement: 4,
-                    Hidden: false,
+                    Hidden: true, // false, // TODO: > 30.6
                     FieldType: 3,
                     ReadOnly: false,
                     LookupField: false,
@@ -640,7 +640,7 @@ export class SupplierDetails {
                     Description: '',
                     HelpText: '',
                     FieldSet: 0,
-                    Section: 1,
+                    Section: 0, //1, // TODO: > 30.6
                     Sectionheader: 'Dimensjoner',
                     Placeholder: null,
                     Options: null,
@@ -661,7 +661,7 @@ export class SupplierDetails {
                     EntityType: 'Departement',
                     Property: 'Dimensions.DepartementID',
                     Placement: 4,
-                    Hidden: false,
+                    Hidden: true, // false, // TODO: > 30.6
                     FieldType: 3,
                     ReadOnly: false,
                     LookupField: false,
@@ -669,7 +669,7 @@ export class SupplierDetails {
                     Description: '',
                     HelpText: '',
                     FieldSet: 0,
-                    Section: 1,
+                    Section: 0, //1, // TODO: > 30.6
                     Placeholder: null,
                     Options: null,
                     LineBreak: null,
