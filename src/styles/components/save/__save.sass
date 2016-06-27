@@ -4,10 +4,11 @@ uni-save
     left: 0
     bottom: 0
     right: 0
-    background: transparentize($uni-color-negative, .1)
+    background: transparentize(mix($uni-color-negative, $uni-color-Good, 70%), .1)
     -webkit-backdrop-filter: blur(.2rem)
     backdrop-filter: blur(.2rem)
     border-top: pxToRem(1) solid $uni-color-scale9
+    height: 3.5rem
 
     .uniSave
         @include unigrid-flush(14)
@@ -21,23 +22,25 @@ uni-save
 
     .comboButton,
     .singleButton
-        float: right
-        margin: 1rem 0
-        position: relative
+        @include unigrid-flush(14)
+        margin: 0 auto
+        bottom: 1.5rem
+        position: fixed
+        display: flex
+        justify-content: flex-end
 
         button
             @extend button.good
             margin: 0
+            height: 3.5rem
 
     button.comboButton_btn
         display: block
-        float: left
         border-top-right-radius: 0
         border-bottom-right-radius: 0
 
     button.comboButton_more
         display: block
-        float: left
         border-top-left-radius: 0
         border-bottom-left-radius: 0
         width: 2rem
@@ -60,7 +63,7 @@ uni-save
         position: absolute
         display: block
         background: $uni-color-negative
-        bottom: .7rem
+        bottom: 2.7rem
         right: 0
         border-radius: pxToRem(3)
         border: 1px solid $uni-color-scale8
