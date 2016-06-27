@@ -243,8 +243,7 @@ export class QuoteDetails {
                 });
             }),
             display: (address: Address) => {
-                let displayVal = address.AddressLine1 + ', ' + address.PostalCode + ' ' + address.City;
-                return displayVal;
+                return this.addressService.displayAddress(address);
             }
         };
 
@@ -271,8 +270,7 @@ export class QuoteDetails {
                 });
             }),
             display: (address: Address) => {
-                let displayVal = address.AddressLine1 + ', ' + address.PostalCode + ' ' + address.City;
-                return displayVal;
+                return this.addressService.displayAddress(address);
             }
         };
 

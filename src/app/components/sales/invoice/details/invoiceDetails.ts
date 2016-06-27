@@ -286,8 +286,7 @@ export class InvoiceDetails implements OnInit {
                 });
             }),
             display: (address: Address) => {
-                let displayVal = address.AddressLine1 + ', ' + address.PostalCode + ' ' + address.City;
-                return displayVal;
+                return this.addressService.displayAddress(address);
             }
         };
 
@@ -314,8 +313,7 @@ export class InvoiceDetails implements OnInit {
                  });
             }),
             display: (address: Address) => {
-                let displayVal = address.AddressLine1 + ', ' + address.PostalCode + ' ' + address.City;
-                return displayVal;
+                return this.addressService.displayAddress(address);
             }
         };
 

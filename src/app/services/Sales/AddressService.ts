@@ -142,11 +142,12 @@ export class AddressService extends BizHttp<Address> {
             console.log("== OLD ==", invoiceaddresses);
             console.log("== OLD ONES ==", entity._InvoiceAddresses);
             if (previousAddresses) {
+                var deleted
                 previousAddresses.forEach(a => {
                     entity._InvoiceAddresses.forEach((b, i) => {
-                        if (a.ID != b.ID) {
+                        if (a.ID == b.ID) {
                             invoiceaddresses.push(b);
-                        }
+                        } 
                     });
                     entity._ShippingAddresses.forEach((b, i) => {
                         if (a.ID != b.ID) {
@@ -229,5 +230,19 @@ export class AddressService extends BizHttp<Address> {
 
         entity._InvoiceAddresses = invoiceaddresses;
         entity._ShippingAddresses = shippingaddresses;
+   }
+
+   public displayAddress(address: Address) : string {
+        let displayVal = '';
+        if (address.AddressLine1 !== null && address.AddressLine1 !== '') {
+            displayVal += address.AddressLine1 + ', ';  
+        }                
+        if (address.PostalCode !== null && address.PostalCode !== '') {
+            displayVal += address.PostalCode  + ' ';
+        }
+        if (address.City !== null && address.City !== '') {
+            displayVal += address.City;
+        }
+        return displayVal;
    }
 }

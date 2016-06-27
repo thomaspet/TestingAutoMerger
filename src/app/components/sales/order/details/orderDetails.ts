@@ -239,9 +239,7 @@ export class OrderDetails {
                 });
             }),
             display: (address: Address) => {
-                if (address == null) { return ''; }
-                let displayVal = address.AddressLine1 + ', ' + address.PostalCode + ' ' + address.City;
-                return displayVal;
+                return this.addressService.displayAddress(address);
             }
         };
 
@@ -268,9 +266,7 @@ export class OrderDetails {
                 });
             }),
             display: (address: Address) => {
-                if (address == null) { return ''; }
-                let displayVal = address.AddressLine1 + ', ' + address.PostalCode + ' ' + address.City;
-                return displayVal;
+                return this.addressService.displayAddress(address);
             }
         };
 
