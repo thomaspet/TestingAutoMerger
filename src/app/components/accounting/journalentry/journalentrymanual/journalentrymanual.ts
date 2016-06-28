@@ -44,6 +44,12 @@ export class JournalEntryManual implements OnChanges, OnInit {
         }   
     }
 
+    public setJournalEntryData(lines: Array<JournalEntryData>) {
+        if (this.journalEntrySimple) {
+            this.journalEntrySimple.journalEntryLines = lines;
+        }
+    }
+
     public ngOnChanges(changes: { [propName: string]: SimpleChange }) {
         this.setupSubscriptions();
     }

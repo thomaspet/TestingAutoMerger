@@ -89,6 +89,9 @@ export class UniSave {
     }
 
     public onSave(action) {
+        // don't call save again if its still working on saving
+        if (this.busy) { return; }
+
         this.open = false;
         this.busy = true;
         this.status = undefined;
