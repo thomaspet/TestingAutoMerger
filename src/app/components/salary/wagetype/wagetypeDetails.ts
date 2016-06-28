@@ -2,6 +2,7 @@ import {Component, ViewChild} from '@angular/core';
 import {RouteParams, Router} from '@angular/router-deprecated';
 import {WageTypeService} from '../../../services/services';
 import {UniForm, UniFieldLayout} from '../../../../framework/uniForm';
+import {WidgetPoster} from '../../../../framework/widgetPoster/widgetPoster';
 import {WageType} from '../../../unientities';
 import {UniSave, IUniSaveAction} from '../../../../framework/save/save';
 import {Observable} from 'rxjs/Observable';
@@ -13,7 +14,7 @@ declare var _; // lodash
     selector: 'wagetype-details',
     templateUrl: 'app/components/salary/wagetype/wagetypeDetails.html',
     providers: [WageTypeService],
-    directives: [UniForm, UniSave]
+    directives: [UniForm, UniSave, WidgetPoster]
 })
 export class WagetypeDetail {
     private wageType: WageType;

@@ -1,5 +1,7 @@
 <header class="poster" *ngIf="wageType">
+
     <article class="poster_toolbar">
+
         <section>
             <h1 *ngIf="wagetypeID > 0">{{wageType.WageTypeName}}</h1>
             <p *ngIf="wagetypeID > 0">Lønnsartnr. {{wageType.WageTypeId}}</p>
@@ -17,7 +19,7 @@
 
     <!-- Widget poster -->
     <section class="poster_overview">
-        <uni-widget-poster [model]="wageType"></uni-widget-poster>
+        <uni-widget-poster [model]="wageType" *ngIf="wageType && wagetypeID > 0"></uni-widget-poster>
     </section>
 
 </header>
