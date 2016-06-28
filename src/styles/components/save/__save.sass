@@ -4,7 +4,7 @@ uni-save
     left: 0
     bottom: 0
     right: 0
-    background: transparentize(mix($uni-color-negative, $uni-color-Good, 70%), .1)
+    background: transparentize(mix($uni-color-negative, $uni-color-Good, 84%), .1)
     -webkit-backdrop-filter: blur(.2rem)
     backdrop-filter: blur(.2rem)
     border-top: pxToRem(1) solid $uni-color-scale9
@@ -29,14 +29,15 @@ uni-save
         display: flex
         justify-content: flex-end
 
-        button:first-of-type
+        button
             @extend button.good
             margin: 0
             height: 3.5rem
-            min-width: 10rem
             font-weight: 600
 
-    button.comboButton_btn
+    button.comboButton_btn,
+    .singleButton button
+        min-width: 10rem
         display: block
         border-top-right-radius: 0
         border-bottom-right-radius: 0
