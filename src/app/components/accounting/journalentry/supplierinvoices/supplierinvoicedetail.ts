@@ -128,6 +128,9 @@ export class SupplierInvoiceDetail implements OnInit {
             this.supplierInvoice = invoice;
             this.suppliers = suppliers;
             this.bankAccounts = bac;
+
+            // add blank to dropdown
+            this.suppliers.unshift(null);
  
             this.setActionsDisabled();
             this.setPreviewId();
@@ -160,7 +163,7 @@ export class SupplierInvoiceDetail implements OnInit {
 
         if (!!this.supplierInvoice.JournalEntryID) {
             let journalEntryData = this.journalEntryManual.getJournalEntryData();  
-            
+
             Observable.forkJoin(
                 this._journalEntryService.saveJournalEntryData(journalEntryData),
                 this._supplierInvoiceService.Put(this.supplierInvoice.ID, this.supplierInvoice)     
@@ -168,8 +171,14 @@ export class SupplierInvoiceDetail implements OnInit {
                 if (runSmartBooking) {
                     this.runSmartBooking(this.supplierInvoice, done);
                 } else {
+                    let lines = response[0];
+                    lines.forEach((line) => {
+                        line.FinancialDate = moment(line.FinancialDate).toDate();
+                    });
+        
+                    this.journalEntryManual.setJournalEntryData(lines);
+                    this.refreshFormData(this.supplierInvoice);
                     done('Lagret');
-                    this.router.navigateByUrl('/accounting/journalentry/supplierinvoices/details/' + this.supplierInvoice.ID);
                 }            
             }, (error) => {
                 this.setError(error);
@@ -213,7 +222,7 @@ export class SupplierInvoiceDetail implements OnInit {
             .subscribe((res) => {
                 this._supplierInvoiceService.Put(this.supplierInvoice.ID, this.supplierInvoice)
                     .subscribe((res) => {
-                        let sum = journalEntryData.map((line) => line.Amount).reduce((a, b) => a + b);
+                        let sum = journalEntryData.map((line) => line.Amount).reduce((a, b) => a + (b > 0 ? b : 0));
                         if (sum != this.supplierInvoice.TaxInclusiveAmount) {
                             this.setError({Message: 'Sum bilagsbeløp er ulik leverandørfakturabeløp'});
                             done('Bokføring feilet');
