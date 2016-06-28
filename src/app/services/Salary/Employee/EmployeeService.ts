@@ -1,6 +1,6 @@
 import {BizHttp} from '../../../../framework/core/http/BizHttp';
 import {UniHttp} from '../../../../framework/core/http/http';
-import {Employee, FieldType, Operator} from '../../../unientities';
+import {Employee, FieldType, Operator, SalaryTransaction} from '../../../unientities';
 import { Observable } from 'rxjs/Observable';
 
 export class EmployeeService extends BizHttp<Employee> {
@@ -116,7 +116,6 @@ export class EmployeeService extends BizHttp<Employee> {
                     LineBreak: null,
                     Combo: null,
                     Sectionheader: '',
-                    hasLineBreak: false,
                      
                     Validations: [
                         {

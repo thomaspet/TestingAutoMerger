@@ -14,7 +14,7 @@ const JOURNALENTRY_ROUTES = [
         useAsDefault: true,
         path: '/manual',
         name: 'Bilagsregistrering',
-        loader: () => ComponentProxy.LoadComponentAsync('JournalEntryManual', `${BASE_JOURNALENTRY}/journalentrymanual/journalentrymanual`)
+        loader: () => ComponentProxy.LoadComponentAsync('JournalEntries', `${BASE_JOURNALENTRY}/journalentries/journalentries`)
     }),
     new AsyncRoute({
         path: '/payments',
@@ -38,8 +38,7 @@ export class JournalEntry {
     private childRoutes: RouteDefinition[];
 
     constructor(public router: Router, private tabService: TabService) {
-        this.tabService.addTab({ name: 'Bilagsregistrering', url: '/accounting/journalentry/manual' });
-
+                
         // Remove last route
         this.childRoutes = JOURNALENTRY_ROUTES.slice(0, JOURNALENTRY_ROUTES.length - 0);
     }

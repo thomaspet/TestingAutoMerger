@@ -35,12 +35,20 @@ export class ReadTaxCardModalContent {
             .setTemplate((rowModel) => {
                 return rowModel['HasBeenRegistered'] === true ? 'X' : '';
             });
+        
+        let contextMenuItem = {
+            label: 'Hent og les inn',
+            action: (rowModel) => {
+                this.readTaxCard(rowModel['ReceiptID']);
+            }
+        };
 
         this.receiptTable = new UniTableConfig()
             .setColumns([
                 titleColumn, dateSendtColumn, receiptIDColumn, signatureColumn, isReadColumn
             ])
             .setEditable(false)
+            .setContextMenu([contextMenuItem])
             .setPageSize(10);
 
     }

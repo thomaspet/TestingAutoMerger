@@ -199,7 +199,7 @@ export class JournalEntryProfessional {
          
         let amountCol = new UniTableColumn('Amount', 'Beløp', UniTableColumnType.Number).setWidth("5%");        
         
-        let projectCol = new UniTableColumn('Dimensions.Project', 'Prosjekt', UniTableColumnType.Lookup)
+        /*let projectCol = new UniTableColumn('Dimensions.Project', 'Prosjekt', UniTableColumnType.Lookup)
             .setWidth("8%")
             .setTemplate((rowModel) => {
                 if (rowModel.Dimensions && rowModel.Dimensions.Project && rowModel.Dimensions.Project.Name) {
@@ -236,15 +236,14 @@ export class JournalEntryProfessional {
                    return Observable.from([this.departments.filter((dep) => dep.ID == searchValue || dep.Name.toLowerCase().indexOf(searchValue) >= 0)]);                          
                 }
             });
-        
+        */
         
         let descriptionCol = new UniTableColumn('Description', 'Beskrivelse', UniTableColumnType.Text);
                         
         this.journalEntryTable = new UniTableConfig(true, false, 100)
             .setColumns([
                 financialDateCol, debitAccountCol, debitVatTypeCol, creditAccountCol, creditVatTypeCol, amountCol,
-                //projectCol, departmentCol, // TODO: > 30.6
-                descriptionCol
+                /*projectCol, departmentCol,*/ descriptionCol
             ])
             .setAutoAddNewRow(true)
             .setMultiRowSelect(false)

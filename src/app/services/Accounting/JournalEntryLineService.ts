@@ -38,10 +38,10 @@ export class JournalEntryLineService extends BizHttp<JournalEntryLine> {
         { Code: '31003', Text: 'Merket' }
     ];
 
-    public getStatusText = (StatusCode: string) => {
+    public getStatusText = (statusCode: number) => {
         var text = '';
         this.StatusTypes.forEach((status) => {
-            if (status.Code == StatusCode) {
+            if (status.Code == statusCode) {
                 text = status.Text;
                 return;
             }

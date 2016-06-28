@@ -1,4 +1,4 @@
-import {Component, Input, Output, ElementRef, EventEmitter, ChangeDetectionStrategy, ChangeDetectorRef} from '@angular/core';
+import {Component, Input, Output, ElementRef, ViewChild, Renderer, EventEmitter, ChangeDetectionStrategy, ChangeDetectorRef} from '@angular/core';
 import {Control} from '@angular/common';
 import {UniFieldLayout} from '../interfaces';
 declare var _; // jquery and lodash
@@ -7,7 +7,7 @@ declare var _; // jquery and lodash
     selector: 'uni-text-input',
     changeDetection: ChangeDetectionStrategy.OnPush,
     template: `
-        <input
+        <input #input
             *ngIf="control"
             type="text"
             [ngFormControl]="control"
@@ -33,14 +33,15 @@ export class UniTextInput {
     @Output()
     public onChange: EventEmitter<any> = new EventEmitter<any>(true);
     
+    @ViewChild('input') private inputElement: ElementRef;
+    
     private lastControlValue: string;
     
-    constructor(public elementRef: ElementRef, private cd: ChangeDetectorRef) {
+    constructor(private cd: ChangeDetectorRef, private renderer: Renderer) {
     }
 
     public focus() {
-        this.elementRef.nativeElement.focus();
-        return this;
+        this.renderer.invokeElementMethod(this.inputElement.nativeElement, 'focus', []);        
     }
 
     public readMode() {
