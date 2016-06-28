@@ -13,7 +13,7 @@ import {ComponentProxy} from '../../../framework/core/componentProxy';
 
 import {Users} from './users/users';
 
-import {VatSettings} from './vatSettings/vatSettings';
+import {VatSettings} from './vatsettings/vatsettings';
 
 const CHILD_ROUTES = [
 

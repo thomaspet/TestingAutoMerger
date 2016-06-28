@@ -47,8 +47,14 @@ export class XFormDemo {
             numericTest.Label = 'Numeric Input test';
             numericTest.Property = 'NumericTestProperty';
             numericTest.ReadOnly = false;
+            numericTest.LineBreak = true;
             numericTest.Options = {
-                step: 1
+                step: 1,
+                events: {
+                    tab: ((event) => {
+                        this.uniform.field('UrlProperty').focus();
+                    }).bind(this)
+                }
             };
             var maskedTest = new UniFieldLayout();
             maskedTest.FieldSet = 0;
@@ -222,6 +228,20 @@ export class XFormDemo {
                 labelProperty: 'name', 
                 valueProperty: 'id'
             };
+
+            var buttonTest = new UniFieldLayout();
+            buttonTest.FieldSet = 0;
+            buttonTest.Section = 0;
+            buttonTest.Combo = 0;
+            buttonTest.FieldType = 1;
+            buttonTest.Label = 'Click here!';
+            buttonTest.ReadOnly = false;
+            buttonTest.Options = {
+                click: (event) => {
+                    alert('clicked!');
+                }
+            };
+
             self.fields = [
                 numericTest, 
                 maskedTest, 
@@ -235,7 +255,8 @@ export class XFormDemo {
                 selectTest,
                 radiogroupTest,  
                 dateTest,   
-                checkboxgroupTest,       
+                checkboxgroupTest,
+                buttonTest,
                 ...self.fields];
         });
         this.config = {
@@ -282,12 +303,8 @@ export class XFormDemo {
             self.uniform.section(1).Hidden = false;
         }, 9000);
         setTimeout(() => {
-            self.uniform.Fields['Employments'].focus();
+            self.uniform.field('Employments').focus();
         }, 10000);
-        
-        self.uniform.Fields['NumericTestProperty'].onTab.subscribe((element) => {
-            self.uniform.Fields['UrlProperty'].focus();
-        });
     }
 
 public change(value) {

@@ -15,7 +15,7 @@ declare var _; // lodash
     selector: 'control-modal-content',
     directives: [UniForm, UniTable],
     providers: [SalaryTransactionService, PayrollrunService, EmployeeService],
-    templateUrl: 'app/components/salary/payrollrun/controlmodalcontent.html'
+    templateUrl: 'app/components/salary/payrollrun/controlModalContent.html'
 })
 export class ControlModalContent {
     private busy: boolean;
@@ -173,7 +173,6 @@ export class ControlModalContent {
     selector: 'control-modal',
     directives: [UniModal],
     template: `
-        <button type="button" (click)="openModal()">Kontroller</button>
         <uni-modal [type]="type" [config]="modalConfig"></uni-modal>
     `
 })

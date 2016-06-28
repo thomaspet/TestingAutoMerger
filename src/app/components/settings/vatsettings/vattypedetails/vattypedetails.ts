@@ -12,7 +12,7 @@ import {VatTypeService, VatCodeGroupService, AccountService} from '../../../../s
 
 @Component({
     selector: 'vattype-details',
-    templateUrl: 'app/components/settings/vatSettings/vattypedetails/vattypedetails.html',
+    templateUrl: 'app/components/settings/vatsettings/vattypedetails/vattypedetails.html',
     directives: [UniForm],
     providers: [VatTypeService, AccountService, VatCodeGroupService]
 })
@@ -122,7 +122,7 @@ export class VatTypeDetails {
             displayProperty: 'AccountNumber',
             valueProperty: 'ID',
             debounceTime: 200,
-            template: (account: Account) => `${account.AccountNumber} ${account.AccountName }`
+            template: (account: Account) => account ? `${account.AccountNumber} ${account.AccountName }` : ''
         };
         
         let incomingAccountID: UniFieldLayout = this.fields.find(x => x.Property === 'IncomingAccountID');
@@ -131,7 +131,7 @@ export class VatTypeDetails {
             displayProperty: 'AccountNumber',
             valueProperty: 'ID',
             debounceTime: 200,
-            template: (account: Account) => `${account.AccountNumber} ${account.AccountName }`
+            template: (account: Account) => account ? `${account.AccountNumber} ${account.AccountName }` : ''
         };
     }
     

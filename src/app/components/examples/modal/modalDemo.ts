@@ -1,6 +1,6 @@
 import {Component, ViewChild, ViewChildren, Type, Input, QueryList} from "@angular/core";
 import {UniModal} from "../../../../framework/modals/modal";
-import {EmailModal,PhoneModal,AddressModal} from "../../sales/customer/modals/modals";
+import {EmailModal,PhoneModal,AddressModal} from "../../common/modals/modals";
 import {Email, Address, Phone} from '../../../unientities';
 
 @Component({

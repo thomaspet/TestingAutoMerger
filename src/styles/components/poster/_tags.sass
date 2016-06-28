@@ -31,6 +31,9 @@
         border: pxToRem(2) solid $uni-color-scale5
         cursor: default
 
+        &:last-of-type
+            margin-right: .7rem
+
     .remove
         display: inline-block
         font-size: 0
@@ -49,19 +52,8 @@
         background-size: .4rem
 
 .poster_tags_addBtn
-    display: inline-block
-    margin: 0
-    padding: 0 .5rem
-    color: $uni-color-scale5
-    font-size: .8rem
-    line-height: 1.12rem
-    font-weight: 400
-    background: none
-    box-shadow: none
-    border: pxToRem(2) solid $uni-color-scale8
-    border-radius: pxToRem(3)
-    text-shadow: none
-    height: auto
+    @extend button
+    margin-left: -.2rem
 
     &.-is-active
         display: none
@@ -82,6 +74,7 @@
         min-width: 10rem
         width: 100%
         animation: .3s ease-in-out foldoutTagSearch
+        margin-left: -.2rem
 
     ul
         list-style: none

@@ -1,8 +1,8 @@
-<article class="modal-content report-preview-modal">
+<article class="report-preview-modal tmpReportModal">
     <h1 *ngIf="config.title">{{config.title}}</h1>
     <div id="reportContainer" [innerHtml]="config.report">
     </div>
-    <footer>
+    <footer class="tmpReportFooter">
         <button *ngFor="let action of config.actions" (click)="action.method()">
             {{action.text}}
         </button>

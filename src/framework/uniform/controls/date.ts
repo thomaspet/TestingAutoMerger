@@ -1,4 +1,4 @@
-import {Component, Input, Output, ElementRef, EventEmitter, ChangeDetectionStrategy, ChangeDetectorRef} from '@angular/core';
+import {Component, Input, Output, ElementRef, ViewChild, EventEmitter, ChangeDetectionStrategy, ChangeDetectorRef, Renderer} from '@angular/core';
 import {Control} from '@angular/common';
 import {UniFieldLayout} from '../interfaces';
 import {autocompleteDate} from '../shared/autocompleteDate';
@@ -19,6 +19,7 @@ var parseFormats = [
     changeDetection: ChangeDetectionStrategy.OnPush,
     template: `
         <input
+            #input
             *ngIf="control"
             type="text"
             [ngFormControl]="control"
@@ -43,14 +44,17 @@ export class UniDateInput {
     @Output()
     public onChange: EventEmitter<any> = new EventEmitter<any>(true);
     
+    @ViewChild('input') private inputElement: ElementRef;
+    
     private lastControlValue: string;
     private datepicker: any;
-    constructor(public elementRef: ElementRef, private cd: ChangeDetectorRef) {
+    constructor(public elementRef: ElementRef, private cd: ChangeDetectorRef, private renderer: Renderer) {
     }
 
     public focus() {
-        this.elementRef.nativeElement.children[0].focus();
-        return this;
+        this.renderer.invokeElementMethod(this.inputElement.nativeElement, 'focus', []);  
+        //this.elementRef.nativeElement.children[0].focus();
+        //return this;
     }
 
     public readMode() {

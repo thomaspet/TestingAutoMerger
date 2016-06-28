@@ -1,5 +1,5 @@
 import {Component, ViewChild} from '@angular/core';
-import {VatTypeList} from './vattypeList/vatTypeList';
+import {VatTypeList} from './vattypelist/vatTypeList';
 import {VatTypeDetails} from './vattypedetails/vattypedetails';
 import {VatType} from '../../../unientities';
 import {TabService} from '../../layout/navbar/tabstrip/tabService';
@@ -7,7 +7,7 @@ import {UniSave, IUniSaveAction} from '../../../../framework/save/save';
 
 @Component({
     selector: 'vat-settings',
-    templateUrl: 'app/components/settings/vatSettings/vatSettings.html',
+    templateUrl: 'app/components/settings/vatsettings/vatsettings.html',
     directives: [VatTypeList, VatTypeDetails, UniSave]
 })
 export class VatSettings {
@@ -15,7 +15,7 @@ export class VatSettings {
     @ViewChild(VatTypeDetails) private vatTypeDetails: VatTypeDetails;
 
     constructor(private tabService: TabService) {
-        this.tabService.addTab({ name: 'MVA-instillinger', url: '/accounting/vatsettings', moduleID: 11, active: true })
+        this.tabService.addTab({ name: 'MVA-innstillinger', url: '/accounting/vatsettings', moduleID: 11, active: true })
     }
 
     private vatType: VatType;

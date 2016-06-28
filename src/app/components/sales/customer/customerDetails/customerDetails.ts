@@ -11,9 +11,7 @@ import {UniForm, UniField, UniFieldLayout} from '../../../../../framework/unifor
 
 import {ComponentLayout, Customer, Email, Phone, Address} from '../../../../unientities';
 
-import {AddressModal} from '../modals/address/address';
-import {EmailModal} from '../modals/email/email';
-import {PhoneModal} from '../modals/phone/phone';
+import {AddressModal, EmailModal, PhoneModal} from '../../../common/modals/modals';
 import {TabService} from "../../../layout/navbar/tabstrip/tabService";
 
 declare var _; // lodash
@@ -75,14 +73,24 @@ export class CustomerDetails implements OnInit {
         this.customerService.NextCustomer(this.customer.ID)
             .subscribe((data) => {
                 this.router.navigateByUrl('/sales/customer/details/' + data.ID);
-            });
+            },
+            (err) => {
+                console.log('Error getting next customer: ', err);
+                alert('Ikke flere kunder etter denne');
+            }
+            );
     }
     
     public previousCustomer() {
         this.customerService.PreviousCustomer(this.customer.ID)
             .subscribe((data) => {
                 this.router.navigateByUrl('/sales/customer/details/' + data.ID);
-            });        
+            },
+            (err) => {
+                console.log('Error getting previous customer: ', err);
+                alert('Ikke flere kunder før denne');
+            }
+            );        
     }
     
     public addCustomer() {
@@ -116,8 +124,8 @@ export class CustomerDetails implements OnInit {
 
     public getLayoutAndData() {
         
-        this.customerService.GetLayout('CustomerDetailsForm').subscribe((results: any) => {
-            var layout: ComponentLayout = results;
+        //this.customerService.GetLayout('CustomerDetailsForm').subscribe((results: any) => {
+            var layout: ComponentLayout = this.getComponentLayout(); // results
             this.fields = layout.Fields;            
                     
             Observable.forkJoin(
@@ -148,7 +156,7 @@ export class CustomerDetails implements OnInit {
                 console.log('Error retrieving data: ', err);
                 alert('En feil oppsto ved henting av data: ' + JSON.stringify(err));
             });         
-        });
+        //});
     }
          
     public addSearchInfo(selectedSearchInfo: SearchResultItem) {        
@@ -231,6 +239,12 @@ export class CustomerDetails implements OnInit {
             debounceTime: 200
         };
 
+        // TODO: > 30.6
+        departement.Hidden = true;
+        project.Hidden = true;
+        departement.Section = 0;
+        project.Section = 0;
+
         // MultiValue
         var phones: UniFieldLayout = this.fields.find(x => x.Property === 'Info.DefaultPhone');
         
@@ -275,12 +289,7 @@ export class CustomerDetails implements OnInit {
                 });               
             }),
             display: (address: Address) => {
-                let displayVal = '';
-                if (address.AddressLine1 !== null && address.AddressLine1 !== '') {
-                    displayVal += address.AddressLine1 + ', ';  
-                }                
-                displayVal += address.PostalCode + ' ' + address.City; 
-                return displayVal;                                
+                return this.addressService.displayAddress(address);                             
             }         
         };
         
@@ -326,12 +335,7 @@ export class CustomerDetails implements OnInit {
                 });               
             }),
             display: (address: Address) => {                
-                let displayVal = '';
-                if (address.AddressLine1 !== null && address.AddressLine1 !== '') {
-                    displayVal += address.AddressLine1 + ', ';  
-                }                
-                displayVal += address.PostalCode + ' ' + address.City; 
-                return displayVal;                 
+                return this.addressService.displayAddress(address);                
             }                        
         };
     }    
@@ -422,5 +426,305 @@ export class CustomerDetails implements OnInit {
                     }
                 );
         }
+    }
+
+    // TODO: remove later on when backend is fixed - Info.InvoiceAddress vs InvoiceAddress
+    private getComponentLayout(): any {
+        return {
+            Name: 'Customer',
+            BaseEntity: 'Customer',
+            StatusCode: 0,
+            Deleted: false,
+            CreatedAt: null,
+            UpdatedAt: null,
+            CreatedBy: null,
+            UpdatedBy: null,
+            ID: 1,
+            CustomFields: null,
+            Fields: [
+                {
+                    ComponentLayoutID: 3,
+                    EntityType: 'BusinessRelation',
+                    Property: 'Info.Name',
+                    Placement: 1,
+                    Hidden: false,
+                    FieldType: 10,
+                    ReadOnly: false,
+                    LookupField: false,
+                    Label: 'Navn',
+                    Description: '',
+                    HelpText: '',
+                    FieldSet: 0,
+                    Section: 0,
+                    Placeholder: null,
+                    Options: null,
+                    LineBreak: null,
+                    Combo: null,
+                    Legend: '',
+                    StatusCode: 0,
+                    ID: 2,
+                    Deleted: false,
+                    CreatedAt: null,
+                    UpdatedAt: null,
+                    CreatedBy: null,
+                    UpdatedBy: null,
+                    CustomFields: null 
+                },
+                {
+                    ComponentLayoutID: 3,
+                    EntityType: 'Customer',
+                    Property: 'OrgNumber',
+                    Placement: 1,
+                    Hidden: false,
+                    FieldType: 10,
+                    ReadOnly: false,
+                    LookupField: false,
+                    Label: 'Organisasjonsnummer',
+                    Description: '',
+                    HelpText: '',
+                    FieldSet: 0,
+                    Section: 0,
+                    Placeholder: null,
+                    Options: null,
+                    LineBreak: null,
+                    Combo: null,
+                    Legend: '',
+                    StatusCode: 0,
+                    ID: 3,
+                    Deleted: false,
+                    CreatedAt: null,
+                    UpdatedAt: null,
+                    CreatedBy: null,
+                    UpdatedBy: null,
+                    CustomFields: null 
+                },
+                {
+                    ComponentLayoutID: 3,
+                    EntityType: 'Customer',
+                    Property: 'Info.InvoiceAddress',
+                    Placement: 1,
+                    Hidden: false,
+                    FieldType: 14,
+                    ReadOnly: false,
+                    LookupField: false,
+                    Label: 'Fakturaadresse',
+                    Description: '',
+                    HelpText: '',
+                    FieldSet: 0,
+                    Section: 0,
+                    Placeholder: null,
+                    Options: null,
+                    LineBreak: null,
+                    Combo: null,
+                    Legend: '',
+                    StatusCode: 0,
+                    ID: 4,
+                    Deleted: false,
+                    CreatedAt: null,
+                    UpdatedAt: null,
+                    CreatedBy: null,
+                    UpdatedBy: null,
+                    CustomFields: null 
+                },
+                {
+                    ComponentLayoutID: 3,
+                    EntityType: 'Customer',
+                    Property: 'Info.ShippingAddress',
+                    Placement: 1,
+                    Hidden: false,
+                    FieldType: 14,
+                    ReadOnly: false,
+                    LookupField: false,
+                    Label: 'Leveringsadresse',
+                    Description: '',
+                    HelpText: '',
+                    FieldSet: 0,
+                    Section: 0,
+                    Placeholder: null,
+                    Options: null,
+                    LineBreak: null,
+                    Combo: null,
+                    Legend: '',
+                    StatusCode: 0,
+                    ID: 5,
+                    Deleted: false,
+                    CreatedAt: null,
+                    UpdatedAt: null,
+                    CreatedBy: null,
+                    UpdatedBy: null,
+                    CustomFields: null 
+                },
+                {
+                    ComponentLayoutID: 3,
+                    EntityType: 'Customer',
+                    Property: 'Info.DefaultEmail',
+                    Placement: 1,
+                    Hidden: false,
+                    FieldType: 14,
+                    ReadOnly: false,
+                    LookupField: false,
+                    Label: 'E-post adresser',
+                    Description: '',
+                    HelpText: '',
+                    FieldSet: 0,
+                    Section: 0,
+                    Placeholder: null,
+                    Options: null,
+                    LineBreak: null,
+                    Combo: null,
+                    Legend: '',
+                    StatusCode: 0,
+                    ID: 5,
+                    Deleted: false,
+                    CreatedAt: null,
+                    UpdatedAt: null,
+                    CreatedBy: null,
+                    UpdatedBy: null,
+                    CustomFields: null 
+                },
+                {
+                    ComponentLayoutID: 3,
+                    EntityType: 'Customer',
+                    Property: 'Info.DefaultPhone',
+                    Placement: 1,
+                    Hidden: false,
+                    FieldType: 14,
+                    ReadOnly: false,
+                    LookupField: false,
+                    Label: 'Telefonnumre',
+                    Description: '',
+                    HelpText: '',
+                    FieldSet: 0,
+                    Section: 0,
+                    Placeholder: null,
+                    Options: null,
+                    LineBreak: null,
+                    Combo: null,
+                    Legend: '',
+                    StatusCode: 0,
+                    ID: 6,
+                    Deleted: false,
+                    CreatedAt: null,
+                    UpdatedAt: null,
+                    CreatedBy: null,
+                    UpdatedBy: null,
+                    CustomFields: null 
+                },
+                {
+                    ComponentLayoutID: 3,
+                    EntityType: 'Customer',
+                    Property: 'WebUrl',
+                    Placement: 1,
+                    Hidden: false,
+                    FieldType: 15,
+                    ReadOnly: false,
+                    LookupField: false,
+                    Label: 'Webadresse',
+                    Description: '',
+                    HelpText: '',
+                    FieldSet: 0,
+                    Section: 0,
+                    Placeholder: null,
+                    Options: null,
+                    LineBreak: null,
+                    Combo: null,
+                    Legend: '',
+                    StatusCode: 0,
+                    ID: 7,
+                    Deleted: false,
+                    CreatedAt: null,
+                    UpdatedAt: null,
+                    CreatedBy: null,
+                    UpdatedBy: null,
+                    CustomFields: null 
+                },
+                {
+                    ComponentLayoutID: 3,
+                    EntityType: 'Project',
+                    Property: 'Dimensions.ProjectID',
+                    Placement: 4,
+                    Hidden: true, // false, // TODO: > 30.6
+                    FieldType: 3,
+                    ReadOnly: false,
+                    LookupField: false,
+                    Label: 'Prosjekt',
+                    Description: '',
+                    HelpText: '',
+                    FieldSet: 0,
+                    Section: 0, //1, // TODO: > 30.6
+                    Sectionheader: 'Dimensjoner',
+                    Placeholder: null,
+                    Options: null,
+                    LineBreak: null,
+                    Combo: null,
+                    Legend: 'Dimensjoner',
+                    StatusCode: 0,
+                    ID: 8,
+                    Deleted: false,
+                    CreatedAt: null,
+                    UpdatedAt: null,
+                    CreatedBy: null,
+                    UpdatedBy: null,
+                    CustomFields: null 
+                },
+                {
+                    ComponentLayoutID: 3,
+                    EntityType: 'Departement',
+                    Property: 'Dimensions.DepartementID',
+                    Placement: 4,
+                    Hidden: true, // false, // TODO: > 30.6
+                    FieldType: 3,
+                    ReadOnly: false,
+                    LookupField: false,
+                    Label: 'Avdeling',
+                    Description: '',
+                    HelpText: '',
+                    FieldSet: 0,
+                    Section: 0, //1, // TODO: > 30.6
+                    Placeholder: null,
+                    Options: null,
+                    LineBreak: null,
+                    Combo: null,
+                    Legend: '',
+                    StatusCode: 0,
+                    ID: 9,
+                    Deleted: false,
+                    CreatedAt: null,
+                    UpdatedAt: null,
+                    CreatedBy: null,
+                    UpdatedBy: null,
+                    CustomFields: null
+                },
+                {
+                    ComponentLayoutID: 3,
+                    EntityType: 'Customer',
+                    Property: 'DefaultBankAccountID',
+                    Placement: 4,
+                    Hidden: true, // false, // TODO: > 30.6
+                    FieldType: 3,
+                    ReadOnly: false,
+                    LookupField: false,
+                    Label: 'Bankkonto',
+                    Description: '',
+                    HelpText: '',
+                    FieldSet: 0,
+                    Section: 0, //2, // TODO: > 30.6
+                    Sectionheader: 'Konto & bank',
+                    Placeholder: null,
+                    Options: null,
+                    LineBreak: null,
+                    Combo: null,
+                    Legend: 'Konto & bank',
+                    StatusCode: 0,
+                    ID: 10,
+                    Deleted: false,
+                    CreatedAt: null,
+                    UpdatedAt: null,
+                    CreatedBy: null,
+                    UpdatedBy: null,
+                    CustomFields: null  
+                }
+            ]               
+        };   
     }
 }

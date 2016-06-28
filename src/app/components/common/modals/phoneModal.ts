@@ -1,8 +1,8 @@
 import {Component, ViewChildren, Type, Input, Output, QueryList, ViewChild, ComponentRef, EventEmitter} from '@angular/core';
-import {UniModal} from '../../../../../../framework/modals/modal';
-import {UniForm, UniFieldLayout} from '../../../../../../framework/uniform';
-import {Phone, PhoneTypeEnum} from '../../../../../unientities';
-import {PhoneService} from '../../../../../services/services';
+import {UniModal} from '../../../../framework/modals/modal';
+import {UniForm, UniFieldLayout} from '../../../../framework/uniform';
+import {Phone, PhoneTypeEnum} from '../../../unientities';
+import {PhoneService} from '../../../services/services';
 
 // Reusable address form
 @Component({
@@ -28,6 +28,34 @@ export class PhoneForm {
         // TODO get it from the API and move these to backend migrations
         // TODO: turn to 'ComponentLayout when the object respects the interface
        this.fields = [
+            {
+                ComponentLayoutID: 1,
+                EntityType: 'Phone',
+                Property: 'CountryCode',
+                Placement: 1,
+                Hidden: false,
+                FieldType: 10,
+                ReadOnly: false,
+                LookupField: false,
+                Label: 'Landskode',
+                Description: '',
+                HelpText: '',
+                FieldSet: 0,
+                Section: 0,
+                Placeholder: null,
+                Options: null,
+                LineBreak: null,
+                Combo: null,
+                Legend: '',
+                StatusCode: 0,
+                ID: 1,
+                Deleted: false,
+                CreatedAt: null,
+                UpdatedAt: null,
+                CreatedBy: null,
+                UpdatedBy: null,
+                CustomFields: null 
+            },
             {
                 ComponentLayoutID: 1,
                 EntityType: 'Phone',

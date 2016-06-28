@@ -1,0 +1,28 @@
+// Validation messages are added through a `small`-tag inside the label, after
+// the input. This helper mixin provide color variances for this.
+@mixin field-validation($color)
+    color: $color
+    background-color: transparentize($color, .9)
+    border: pxToRem(1) solid $color
+
+label
+    input,
+    textarea
+        width: 100%
+
+    small
+        border-radius: pxToRem(3)
+        padding: 0 .3rem
+        margin-top: .3rem
+        font-weight: 400
+        display: block
+        font-size: .8rem
+
+        &.error
+            @include field-validation($uni-color-Bad)
+
+        &.warn
+            @include field-validation($uni-color-Warn)
+
+        &.success
+            @include field-validation($uni-color-Good)

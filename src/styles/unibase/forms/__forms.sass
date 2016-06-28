@@ -1,103 +1,27 @@
-@import 'inputs'
+@import 'labels'
+@import 'textInputs'
 @import 'checkboxes'
 @import 'formSection'
+@import 'fieldset'
+@import 'comboField'
+@import 'linebreaks'
+@import 'select'
+@import 'validation'
 
-label.-has-linebreak, uni-checkbox-input.-has-linebreak label
-    float: none
-// For wrapped elements
+uni-form form
+    width: 100%
+    flex-basis: 100%
+    display: flex
+    flex-wrap: wrap
 
-label.-has-linebreak + *, uni-checkbox-input.-has-linebreak label + *
-    clear: left
-    display: block !important
-    &:after
-        content: '\00200B'
+    *
+        box-sizing: border-box
 
-fieldset
-    border-width: 0
-    background: transparentize($uni-color-scale9, .8)
-    border-radius: .3rem
-    padding: .5rem 0 1rem
-
-select
+uni-field
+    @include unigrid(4,2,2)
     display: block
-    width: 100%
+    padding-bottom: 1rem
+    margin-top: 0
 
-    &[readonly]
-        opacity: .6
-
-textarea
-    @extend input
-    width: 100%
-    min-height: 5rem
-
-    &[readonly]
-        font-weight: 400
-        border: none
-        background: mix($uni-color-negative, $uni-color-scale9, 50%)
-
-.collapsable[hidden]
-    display: none !important
-
-.collapsable
-    width: 100%
-    display: inline-block
-
-    &:before
-        content: ''
-        display: table
-        clear: both
-
-    & > h4
-        @include clearfix
-        margin-top: 2.5rem
-        margin-bottom: 1rem
-        border-bottom: pxToRem(1) solid $uni-color-scale7
-        padding-left: 1.5rem
-        background: unicon-plus($uni-color-scale2) no-repeat left .2rem bottom .4rem
-        background-size: .5rem
-        font-weight: 400
-        color: $uni-color-scale2
-        cursor: pointer
-
-    & > .collapsable-content
-        display: none
-
-    &.-is-open
-        & > h4
-            background: unicon-minus($uni-color-scale2) no-repeat left .2rem bottom .65rem
-            background-size: .5rem
-
-        & > .collapsable-content
-            display: block
-
-        .collapsable
-            margin: 0 1rem
-            width: calc(100% - 2rem)
-
-.validation
-    display: block
-    padding: .5rem
-    margin: .5rem 0
-    font-weight: 600
-    box-sizing: border-box
-    width: 100%
-    border-width: pxToRem(1)
-    border-style: solid
-    border-radius: pxToRem(3)
-    background-color: transparentize($uni-color-scale9, .5)
-
-    &.error
-        color: $uni-color-Bad
-        background-color: transparentize($uni-color-Bad, .9)
-
-    &.info
-        color: $uni-color-C2A
-        background-color: transparentize($uni-color-C2A, .9)
-
-    &.good
-        color: $uni-color-Good
-        background-color: transparentize($uni-color-Good, .9)
-
-    &.warn
-        color: $uni-color-Warn
-        background-color: transparentize($uni-color-Warn, .9)
+uni-button-input button
+    margin: 1rem 0

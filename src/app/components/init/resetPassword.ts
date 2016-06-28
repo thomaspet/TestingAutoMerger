@@ -13,7 +13,8 @@ export class ResetPassword {
     private code: string;
     private userid: string;
         
-    private working: boolean = false;
+    private busy: boolean = false;
+    private emailSent: boolean = false;
     private passwordChanged: boolean = false;
     private passwordsMatch: boolean = false;
     
@@ -58,7 +59,7 @@ export class ResetPassword {
     }
         
     private sendResetEmail() {
-        this.working = true;
+        this.busy = true;
         this.errorMessage = '';
         this.successMessage = '';
         
@@ -70,21 +71,22 @@ export class ResetPassword {
             .subscribe(
                 (response) => {
                     if (response.status === 200) {
-                        this.successMessage = 'Vennligst sjekk innboksen din.';
-                        this.working = false;
+                        this.successMessage = 'Vennligst sjekk epost innboksen din for videre instrukser';
+                        this.busy = false;
+                        this.emailSent = true;
                     }
                 },
                 (error) => {
                     if (error.status === 404) {
-                        this.errorMessage = 'Epost finnes ikke.';
+                        this.errorMessage = 'Vi klarte ikke finne en aktiv bruker. Er epost korrekt?';
                     }
-                    this.working = false;
+                    this.busy = false;
                 }
             );
     }
     
     private resetPassword() {
-        this.working = true;
+        this.busy = true;
         this.errorMessage = '';
         this.successMessage = '';   
         
@@ -101,10 +103,13 @@ export class ResetPassword {
                 (response) => {
                     if (response.status === 200) {
                         this.passwordChanged = true;
-                        this.working = false;
+                        this.busy = false;
                     }
                 },
-                error => this.errorMessage = 'Noe gikk galt.'
+                (error) => {
+                    this.busy = false;
+                    this.errorMessage = 'Noe gikk galt. Vennligst prøv igjen';
+                }
             );
                         
     }

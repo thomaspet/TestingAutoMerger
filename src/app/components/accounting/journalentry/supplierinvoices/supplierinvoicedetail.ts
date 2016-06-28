@@ -15,6 +15,7 @@ import {UniImage, UniImageSize} from '../../../../../framework/uniImage/uniImage
 import {UniSave, IUniSaveAction} from '../../../../../framework/save/save';
 import {InvoicePaymentData} from '../../../../models/sales/InvoicePaymentData';
 import {RegisterPaymentModal} from '../../../common/modals/registerPaymentModal';
+import {TabService} from '../../../layout/navbar/tabstrip/tabService';
 
 declare var moment;
 
@@ -74,11 +75,14 @@ export class SupplierInvoiceDetail implements OnInit {
         private _journalEntryService: JournalEntryService,
         private fileuploader: SupplierInvoiceFileUploader,
         private router: Router,
-        private _routeParams: RouteParams) {
+        private _routeParams: RouteParams,
+        private tabService: TabService) {
             
         this.invoiceId = _routeParams.get('id');
         this.previewId = 0;
         this.previewSize = UniImageSize.medium;
+        
+        this.tabService.addTab({ name: 'Leverandørfaktura', url: '/accounting/journalentry/supplierinvoices/details/' + this.invoiceId, moduleID: 7, active: true });
     }
 
     private setError(error) {
@@ -126,6 +130,9 @@ export class SupplierInvoiceDetail implements OnInit {
                 this.supplierInvoice = invoice;
                 this.suppliers = suppliers;
                 this.bankAccounts = bac;
+
+                // add blank to dropdown
+                this.suppliers.unshift(null);
                 
                 this.actions[1].disabled = true;
                 this.actions[2].disabled = true;
@@ -158,7 +165,7 @@ export class SupplierInvoiceDetail implements OnInit {
         this.actions[0].disabled = this.supplierInvoice.StatusCode == StatusCodeSupplierInvoice.Journaled;                
         this.actions[1].disabled = this.supplierInvoice.StatusCode >= StatusCodeSupplierInvoice.Journaled;
         this.actions[2].disabled = this.supplierInvoice.StatusCode >= StatusCodeSupplierInvoice.Journaled;
-        this.actions[3].disabled = this.supplierInvoice.StatusCode == 10001 || this.supplierInvoice.StatusCode == StatusCodeSupplierInvoice.Payed; // TODO: missing Draft status in StatusCodeSupplierInvoice
+        this.actions[3].disabled = this.supplierInvoice.StatusCode == StatusCodeSupplierInvoice.Draft || this.supplierInvoice.StatusCode == StatusCodeSupplierInvoice.Payed; 
     }
 
     private save(runSmartBooking: boolean, done) {
@@ -305,7 +312,7 @@ export class SupplierInvoiceDetail implements OnInit {
         supplierName.ReadOnly = false;
         supplierName.Options = {                  
             source: this.suppliers,
-            template: (data) => `${data.SupplierNumber} - ${data.Info.Name}`,
+            template: (data) => data ? `${data.SupplierNumber} - ${data.Info.Name}` : '',
             valueProperty: 'ID',
             displayProperty: 'Name',
             debounceTime: 500
@@ -406,7 +413,7 @@ export class SupplierInvoiceDetail implements OnInit {
     }
     
     private registerPayment(done) {
-        const title = `Register betaling${this.supplierInvoice.InvoiceNumber ? ', Faktura ' + this.supplierInvoice.InvoiceNumber : ''}${this.supplierInvoice.InvoiceRecieverName ? ', ' + this.supplierInvoice.InvoiceRecieverName : ''}`;
+        const title = `Register betaling${this.supplierInvoice.InvoiceNumber ? ', Faktura ' + this.supplierInvoice.InvoiceNumber : ''}${this.supplierInvoice.InvoiceReceiverName ? ', ' + this.supplierInvoice.InvoiceReceiverName : ''}`;
         const invoiceData: InvoicePaymentData = {
             Amount: this.supplierInvoice.TaxInclusiveAmount,
             PaymentDate: new Date()

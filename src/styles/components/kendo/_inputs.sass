@@ -1,7 +1,7 @@
 // Reset the inputs
 .k-widget .k-input,
 input.k-textbox
-    @extend %uni-input
+    @extend input[type=text]
 
 // We have a lot of places where we need to override borders.
 // Let's make a placeholder.
@@ -112,11 +112,14 @@ label > .k-widget
 .k-combobox,
 .k-picker-wrap,
 .k-numeric-wrap
+    box-sizing: border-box
+
     // The input
     .k-input
         border-right: none
         border-radius: pxToRem(3) 0 0 pxToRem(3)
         min-height: 1.7rem
+        width: 100%
 
     // The button
     .k-select
@@ -126,6 +129,7 @@ label > .k-widget
         border: pxToRem(1) solid $uni-color-scale7
         border-left: 1px solid $uni-color-scale7
         line-height: 1.4rem
+        height: 1.7rem
 
         &:hover
             background: $uni-color-scale9
@@ -138,20 +142,20 @@ label > .k-widget
 .k-numerictextbox .k-numeric-wrap .k-select
     min-height: 2rem
 
-input[type=email], textarea[type=email], [type=email].k-multiselect-wrap, 
+input[type=email], textarea[type=email], [type=email].k-multiselect-wrap,
 input[type=number], textarea[type=number], [type=number].k-multiselect-wrap,
-input[type=password], textarea[type=password], [type=password].k-multiselect-wrap, 
-input[type=search], textarea[type=search], [type=search].k-multiselect-wrap, 
-input[type=tel], textarea[type=tel], [type=tel].k-multiselect-wrap, 
-input[type=text], textarea[type=text], [type=text].k-multiselect-wrap, 
-input[type=url], textarea[type=url], [type=url].k-multiselect-wrap, 
-input[type=color], textarea[type=color], [type=color].k-multiselect-wrap, 
-input[type=date], textarea[type=date], [type=date].k-multiselect-wrap, 
-input[type=datetime], textarea[type=datetime], [type=datetime].k-multiselect-wrap, 
-input[type=datetime-local], textarea[type=datetime-local], [type=datetime-local].k-multiselect-wrap, 
-input[type=month], textarea[type=month], [type=month].k-multiselect-wrap, 
-input[type=time], textarea[type=time], [type=time].k-multiselect-wrap, 
-input[type=week], textarea[type=week], [type=week].k-multiselect-wrap, 
+input[type=password], textarea[type=password], [type=password].k-multiselect-wrap,
+input[type=search], textarea[type=search], [type=search].k-multiselect-wrap,
+input[type=tel], textarea[type=tel], [type=tel].k-multiselect-wrap,
+input[type=text], textarea[type=text], [type=text].k-multiselect-wrap,
+input[type=url], textarea[type=url], [type=url].k-multiselect-wrap,
+input[type=color], textarea[type=color], [type=color].k-multiselect-wrap,
+input[type=date], textarea[type=date], [type=date].k-multiselect-wrap,
+input[type=datetime], textarea[type=datetime], [type=datetime].k-multiselect-wrap,
+input[type=datetime-local], textarea[type=datetime-local], [type=datetime-local].k-multiselect-wrap,
+input[type=month], textarea[type=month], [type=month].k-multiselect-wrap,
+input[type=time], textarea[type=time], [type=time].k-multiselect-wrap,
+input[type=week], textarea[type=week], [type=week].k-multiselect-wrap,
 .k-widget .k-input,
 input.k-textbox,
 textarea.k-textbox,

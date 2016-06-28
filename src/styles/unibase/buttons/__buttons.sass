@@ -8,11 +8,11 @@ $all-buttons: assign-inputs($buttons-list)
         transform: rotate(360deg)
 
 @mixin uni-button($color)
-    color: contrasting($color)
-    background: linear-gradient(to top, $color, lighten($color, 10%))
-    box-shadow: inset 0 -.1rem 0 0 transparentize(darken($color, 5%), .35), 0 .05rem .1rem 0 transparentize($uni-color-positive, .5)
+    color: $uni-color-negative
+    background: $color
     text-shadow: 0 0 .15rem darken($color, 8%)
     font-weight: 400
+    box-shadow: 0 pxToRem(1) pxToRem(1) $uni-color-scale7
 
     // The below part doesn't really _need_ to repeat, so a DRYer solution would
     // be to place this outside the mixin, but this way we'll be able to call
@@ -31,15 +31,16 @@ $all-buttons: assign-inputs($buttons-list)
 
     &:hover,
     &:focus
-        background: linear-gradient(to bottom, $color, lighten($color, 1%))
+        background: darken($color, 5%)
         outline: none
 
     &:active
-        background: linear-gradient(to bottom, darken($color, 5%), $color)
+        background: darken($color, 5%)
+        transform: scale(.98)
 
     &[disabled],
     &[aria-disabled]
-        opacity: .5
+        lighten($color, 30%)
         cursor: not-allowed
 
         &:hover,
@@ -59,7 +60,7 @@ $all-buttons: assign-inputs($buttons-list)
         margin: 0 7px -1px -7px
 
     &.small
-        font-size: .8rem
+        font-size: .9rem
         line-height: 1.5em
         padding: .2rem 1rem
         font-weight: 400
@@ -75,7 +76,7 @@ $all-buttons: assign-inputs($buttons-list)
     border-radius: 5px
     border: 1px solid transparentize($color, .5)
     padding: 1px 16px
-    color: contrasting($background)
+    color: $uni-color-positive
     transition: .3s ease all
 
     &:hover,
@@ -90,7 +91,7 @@ $all-buttons: assign-inputs($buttons-list)
             border-color: transparentize($color, .5)
 
 #{$all-buttons}
-    @include uni-button($uni-color-scale9)
+    @include uni-button($uni-color-action)
 
     &.good
         @include uni-button($uni-color-Good)
@@ -118,3 +119,6 @@ $all-buttons: assign-inputs($buttons-list)
 
         &.c2a
             @include uni-secondary-button($uni-color-C2A)
+
+button[type=submit]
+    @extend button.c2a

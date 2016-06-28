@@ -11,7 +11,7 @@ declare var _; // lodash
 
 @Component({
     selector: 'wagetype-details',
-    templateUrl: 'app/components/salary/wagetype/wagetypedetails.html',
+    templateUrl: 'app/components/salary/wagetype/wagetypeDetails.html',
     providers: [WageTypeService],
     directives: [UniForm, UniSave]
 })

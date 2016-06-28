@@ -1,7 +1,7 @@
 <header class="quote_poster" *ngIf="quote">    
     <article class="poster_toolbar">
         <section>
-            <h1 *ngIf="quote">{{quote.Customer ? quote.Customer.Info.Name : quote.CustomerName}}</h1>            
+            <h1 *ngIf="quote">{{quote.Customer ? (quote.Customer.CustomerNumber + ' - ' + quote.Customer.Info.Name) : quote.CustomerName}}</h1>
             <p>Tilbudsnr. {{quote.QuoteNumber}} <span  *ngIf="!itemsSummaryData">. Netto kr {{quote.TaxExclusiveAmount}}</span> <span *ngIf="itemsSummaryData">. Netto kr {{itemsSummaryData.SumTotalExVat}}</span>. Status: {{ statusText }}</p>
             <p></p>
         </section>
@@ -16,16 +16,22 @@
     <section class="poster_overview">        
         <uni-widget-poster [model]="quote">
             <section class="application">
-                widgetdata kommer her...
             </section>
         </uni-widget-poster>        
     </section> 
 </header>
 
 <section class="quote-details application">
-    <uni-component-loader></uni-component-loader>
+    <uni-form *ngIf="quote"
+              [config]="config"
+              [fields]="fields"
+              [model]="quote"
+              (onChange)="change($event)"
+              (onReady)="ready($event)">
+    </uni-form>
+    <address-modal question="Lagre på kundekort?"></address-modal>
 
-    <quote-item-list [quote]="quote" (ItemsUpdated)="recalcItemSums($event)" (ItemsLoaded)="recalcItemSums($event)"></quote-item-list>    
+    <quote-item-list [quote]="quote" (itemsUpdated)="recalcItemSums($event)" (itemsLoaded)="recalcItemSums($event)"></quote-item-list>    
     <section class="quote-items-summary-placeholder" *ngIf="!itemsSummaryData" aria-busy>
         
     </section>
@@ -50,10 +56,7 @@
 <report-preview-modal></report-preview-modal>
 
 <footer class="full-footer">
-    <section class="application">
+    <section class="application" *ngIf="actions">
         <uni-save [actions]="actions"></uni-save>
-        <section class="auto_save_info">
-            {{ lastSavedInfo }}    
-        </section>
     </section>
 </footer>
