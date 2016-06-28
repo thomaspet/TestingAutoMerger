@@ -15,6 +15,7 @@ import {UniImage, UniImageSize} from '../../../../../framework/uniImage/uniImage
 import {UniSave, IUniSaveAction} from '../../../../../framework/save/save';
 import {InvoicePaymentData} from '../../../../models/sales/InvoicePaymentData';
 import {RegisterPaymentModal} from '../../../common/modals/registerPaymentModal';
+import {TabService} from '../../../layout/navbar/tabstrip/tabService';
 
 declare var moment;
 
@@ -74,11 +75,14 @@ export class SupplierInvoiceDetail implements OnInit {
         private _journalEntryService: JournalEntryService,
         private fileuploader: SupplierInvoiceFileUploader,
         private router: Router,
-        private _routeParams: RouteParams) {
+        private _routeParams: RouteParams,
+        private tabService: TabService) {
             
         this.invoiceId = _routeParams.get('id');
         this.previewId = 0;
         this.previewSize = UniImageSize.medium;
+        
+        this.tabService.addTab({ name: 'Leverandørfaktura', url: '/accounting/journalentry/supplierinvoices/details/' + this.invoiceId, moduleID: 7, active: true });
     }
 
     private setError(error) {

@@ -109,23 +109,27 @@ export class TransqueryDetails implements OnInit {
                             </a>`;
                     })
                     .setFilterOperator('contains'),
-                new UniTableColumn('Account.AccountName', 'Kontonavn')
+                new UniTableColumn('Account.AccountName', 'Kontonavn', UniTableColumnType.Text)
                     .setFilterOperator('contains'),
-                new UniTableColumn('FinancialDate', 'Regnskapsdato')
+                new UniTableColumn('FinancialDate', 'Regnskapsdato', UniTableColumnType.Date)
                     .setFilterOperator('contains')
-                    .setType(UniTableColumnType.Date)
                     .setFormat('DD.MM.YYYY'),
-                new UniTableColumn('RegisteredDate', 'Bokføringsdato')
+                new UniTableColumn('RegisteredDate', 'Bokføringsdato', UniTableColumnType.Date)
                     .setFilterOperator('contains')
-                    .setType(UniTableColumnType.Date)
                     .setFormat('DD.MM.YYYY'),
-                new UniTableColumn('Description', 'Beskrivelse')
+                new UniTableColumn('Description', 'Beskrivelse', UniTableColumnType.Text)
                     .setFilterOperator('contains'),
-                new UniTableColumn('VatType.VatCode', 'Mvakode')
-                    .setFilterOperator('contains'),
-                new UniTableColumn('Amount', 'Beløp')
-                    .setType(UniTableColumnType.Number)
-                    .setFilterOperator('contains')
+                new UniTableColumn('VatType.VatCode', 'Mvakode', UniTableColumnType.Text)                    
+                    .setFilterable(false),
+                new UniTableColumn('Amount', 'Beløp', UniTableColumnType.Number) 
+                    .setCls('column-align-right')                   
+                    .setFilterOperator('eq'),
+                new UniTableColumn('RestAmount', 'Restbeløp', UniTableColumnType.Number)
+                    .setCls('column-align-right')
+                    .setFilterOperator('eq'),
+                new UniTableColumn('StatusCode', 'Status', UniTableColumnType.Text)
+                    .setTemplate((line: JournalEntryLine) => this.journalEntryLineService.getStatusText(line.StatusCode))                    
+                    .setFilterable(false)
             ]);
     }
 }

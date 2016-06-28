@@ -30,7 +30,7 @@ export class AccountSettings {
     ];
     
     constructor(private tabService: TabService) {
-        this.tabService.addTab({ name: 'Kontoinstillinger', url: '/accounting/accountsettings', moduleID: 10, active: true });
+        this.tabService.addTab({ name: 'Kontoinnstillinger', url: '/accounting/accountsettings', moduleID: 10, active: true });
     }
 
     private changeAccount(accountID: number) {
