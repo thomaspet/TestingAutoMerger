@@ -23,17 +23,16 @@ declare var jQuery;
 })
 
 export class SalarytransFilterContent {
-    @Input('config')
-    config;
-    filters: any[] = [];
-    activeFieldFilters = [];
-    formConfig: UniFormBuilder;
+    @Input('config') public config: any;
+    private filters: any[] = [];
+    private activeFieldFilters: any = [];
+    private formConfig: UniFormBuilder;
     
     constructor() {
         this.buildFilterConfig();
     }
     
-    buildFilterConfig() {
+    private buildFilterConfig() {
         var formBuild = new UniFormBuilder();
         formBuild.hideSubmitButton();
         
@@ -55,21 +54,21 @@ export class SalarytransFilterContent {
                 this.activeFieldFilters.push(selectedItem);
                 this.filters.push(selectedItem);
             }
-        })
+        });
         
         formBuild.addUniElements(activeField);
         this.formConfig = formBuild;
     }
     
-    //Remove old filterparts
-    removeOldFilters() {
+    // Remove old filterparts
+    private removeOldFilters() {
         for (var j = 0; j < this.filters.length; j++) {
             var filter = this.filters[j];
-            //When more filterfields in uniform, just add for-loop-section here
+            // When more filterfields in uniform, just add for-loop-section here
             for (var i = 0; i < this.activeFieldFilters.length; i++) {
                 var activeFilter = this.activeFieldFilters[i];
-                if(activeFilter.name === filter.name) {
-                    this.filters.splice(j,1);
+                if (activeFilter.name === filter.name) {
+                    this.filters.splice(j, 1);
                 }
             }
         }
@@ -94,16 +93,14 @@ export class SalarytransFilterContent {
 })
 
 export class SalarytransFilter {
-    @Input()
-    private isDisabled;
-    @ViewChildren(UniModal)
-    modalElements: QueryList<UniModal>;
-    modals: UniModal[];
-    modalConfig: any = {};
-    filters: any[] = [];
-    type: Type = SalarytransFilterContent;
-    filterResultString: string;
-    @Output() filtStringChange = new EventEmitter<string>();
+    @Input() public isDisabled: boolean;
+    @ViewChildren(UniModal) private modalElements: QueryList<UniModal>;
+    private modals: UniModal[];
+    private modalConfig: any = {};
+    private filters: any[] = [];
+    public type: Type = SalarytransFilterContent;
+    private filterResultString: string;
+    @Output() private filtStringChange: EventEmitter<string> = new EventEmitter<string>();
     
     constructor() {
         var self = this;
@@ -129,36 +126,36 @@ export class SalarytransFilter {
         };
     }
     
-    removeFilter(filter) {
+    public removeFilter(filter) {
         for (var i = 0; i < this.filters.length; i++) {
-            if(filter.name === this.filters[i].name) {
-                this.filters.splice(i,1);
+            if (filter.name === this.filters[i].name) {
+                this.filters.splice(i, 1);
             }
         }
         this.updateFilterString();
     }
     
-    ngAfterViewInit() {
+    public ngAfterViewInit() {
         this.modals = this.modalElements.toArray();
     }
     
-    openModalFilter() {
+    public openModalFilter() {
         this.modals[0].open();
     }
     
-    //called when arriving from modal-component
-    createResultFilterString() {
+    // called when arriving from modal-component
+    private createResultFilterString() {
         this.filterResultString = '';
         this.filters.forEach((filter) => {
-            if(filter.filter !== '') {
+            if (filter.filter !== '') {
                 this.filterResultString += filter.filter + ' and ';
             }
         });
         this.sliceAndEmit();
     }
     
-    //called when part of filter is removed
-    updateFilterString() {
+    // called when part of filter is removed
+    private updateFilterString() {
         this.filterResultString = '';
         for (var i = 0; i < this.filters.length; i++) {
             var element = this.filters[i];
@@ -167,10 +164,10 @@ export class SalarytransFilter {
         this.sliceAndEmit();
     }
     
-    //Remove last 'and' from filter and fires event
-    sliceAndEmit() {
-        if(this.filterResultString !== '') {
-            this.filterResultString = this.filterResultString.slice(0,this.filterResultString.length -5);
+    // Remove last 'and' from filter and fires event
+    private sliceAndEmit() {
+        if (this.filterResultString !== '') {
+            this.filterResultString = this.filterResultString.slice(0, this.filterResultString.length - 5);
         }
         this.filtStringChange.emit(this.filterResultString);
     }

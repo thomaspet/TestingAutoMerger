@@ -14,5 +14,6 @@
     <uni-table [resource]="salarytransItems$ | async" [config]="salarytransEmployeeTableConfig" (rowChanged)="rowChanged($event)" class="maintable"></uni-table>
     <uni-table [resource]="employeeTotals" [config]="salarytransEmployeeTotalsTableConfig" class="summarytable"></uni-table>
 </section>
-
+<control-modal></control-modal>
+<postingsummary-modal></postingsummary-modal>
 <uni-save [actions]="saveactions"></uni-save>

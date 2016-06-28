@@ -9,7 +9,7 @@ import {Observable} from 'rxjs/Rx';
 import {RegisterPaymentModal} from '../../../common/modals/registerPaymentModal';
 import {InvoicePaymentData} from '../../../../models/sales/InvoicePaymentData';
 import {InvoiceSummary} from '../../../../models/accounting/InvoiceSummary';
-
+import {TabService} from '../../../layout/navbar/tabstrip/tabService';
 
 declare const moment;
 
@@ -34,8 +34,11 @@ export class SupplierInvoiceList implements OnInit {
     
     constructor(
         private supplierInvoiceService: SupplierInvoiceService,
-        private router: Router
-    ) {}
+        private router: Router,
+        private tabService: TabService
+    ) {
+        this.tabService.addTab({ name: 'Leverandørfaktura', url: '/accounting/journalentry/supplierinvoices/list', moduleID: 7, active: true });
+    }
     
     private setError(error) {
         console.log("== ERROR ==", error);
