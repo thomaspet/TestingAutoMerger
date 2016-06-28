@@ -128,7 +128,7 @@ export class SupplierInvoiceDetail implements OnInit {
             this.supplierInvoice = invoice;
             this.suppliers = suppliers;
             this.bankAccounts = bac;
-            
+ 
             this.setActionsDisabled();
             this.setPreviewId();
     
@@ -148,6 +148,12 @@ export class SupplierInvoiceDetail implements OnInit {
     private save(runSmartBooking: boolean, done) {
         if ((this.supplierInvoice.PaymentID || '').trim().length == 0 && (this.supplierInvoice.PaymentInformation || '').trim().length == 0) {
             this.setError({Message: 'KID eller melding må være fyllt ut.'});
+            done('Ikke lagret');
+            return;
+        }
+
+        if (!this.supplierInvoice.SupplierID) {
+            this.setError({Message: 'Leverandør må være fyllt ut.'});
             done('Ikke lagret');
             return;
         }

@@ -95,11 +95,8 @@ export class SupplierInvoiceService extends BizHttp<SupplierInvoice> {
     {       
         return new Promise(resolve => {
             this.GetNewEntity([], SupplierInvoice.EntityType).subscribe((invoice: SupplierInvoice) => {
-                invoice.PaymentInformation = 'test';
-                invoice.SupplierID = 1;
                 invoice.CreatedBy = '-';
                 invoice.CurrencyCode = 'NOK';
-                invoice.StatusCode = 0;
           
                 resolve(invoice);                
             });               
