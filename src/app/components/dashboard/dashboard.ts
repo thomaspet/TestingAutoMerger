@@ -1,8 +1,6 @@
 import {Component, Input, ElementRef} from '@angular/core';
 import {TabService} from '../layout/navbar/tabstrip/tabService';
-import {BizHttp} from '../../../framework/core/http/BizHttp';
 import {UniHttp} from '../../../framework/core/http/http';
-import {AuditLog} from '../../unientities';
 import {ROUTER_DIRECTIVES, Router} from "@angular/router-deprecated";
 
 declare var Chart;
@@ -26,15 +24,12 @@ export interface IChartDataSet {
 export class Dashboard {
 
     public welcomeHidden: boolean = localStorage.getItem('welcomeHidden');
-    public chartDataLoaded: boolean = localStorage.getItem('chartDataLoaded');
     public transactionList = [];
     public myTransactionList = [];
     public journalEntryList = [];
-    public data;
     public user: any;
     public months: string[] = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
     private colors: string[] = ['#7293cb', '#e1974c', '#84ba5b', '#d35e60', '#808585'];
-    private myPaymentData = [];
 
     constructor(private tabService: TabService, private http: UniHttp, private router: Router) {
         this.tabService.addTab({ name: 'Dashboard', url: '/', active: true, moduleID: 0 });
@@ -90,9 +85,6 @@ export class Dashboard {
             (data) => { this.chartGenerator('assets_chart', this.assetsChartData(data[0].Data)) },
             (error) => { console.log(error); }
         )
-
-        //var myPayrollDummyData = [{ data: 26000 }, { data: 28000 }, { data: 30000 }, { data: 24500 }, { data: 27000 }, { data: 31000 }]
-        //this.chartGenerator('payroll_chart', this.twelveMonthChartData(myPayrollDummyData, 'Lønn', '#e1974c', '#da7c30', 'bar', 'data'));
     }
 
     public hideWelcome() {
@@ -101,7 +93,6 @@ export class Dashboard {
     }
 
     public widgetListItemClicked(url) {
-        console.log(url);
         this.router.navigateByUrl(url);
     }
 
@@ -238,7 +229,7 @@ export class Dashboard {
                 data.url = '/';
                 break;
             case 'SupplierInvoice':
-                data.module = 'Leverandørfaktura';
+                data.module = 'Lev.faktura';
                 data.url = '/accounting/journalentry/supplierinvoices/' + data.EntityID;
                 break;
             case 'NumberSeries':
