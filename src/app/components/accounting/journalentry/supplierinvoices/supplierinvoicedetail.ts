@@ -114,44 +114,24 @@ export class SupplierInvoiceDetail implements OnInit {
         return this._supplierInvoiceService.getStatusText((this.supplierInvoice.StatusCode || '').toString());
     }
     private loadFormAndData() {
-        let id = this.invoiceId;
+        Observable.forkJoin(
+            this._supplierInvoiceService.Get(this.invoiceId, ['JournalEntry', 'Supplier.Info']),
+            this._supplierService.GetAll(null, ['Info']),
+            this._bankAccountService.GetAll(null)
+        ).subscribe((response: any) => {
+            let [invoice, suppliers, bac] = response;
+            this.supplierInvoice = invoice;
+            this.suppliers = suppliers;
+            this.bankAccounts = bac;
+            
+            console.log("== INVOICE READ ==", invoice);
 
-        if (id == 0) {
-            Observable.forkJoin(
-                this._supplierInvoiceService.GetNewEntity(),
-                this._supplierService.GetAll(null, ['Info']),
-                this._bankAccountService.GetAll(null)
-            ).subscribe((response: any) => {
-                let [invoice, suppliers, bac] = response;
-                this.supplierInvoice = invoice;
-                this.suppliers = suppliers;
-                this.bankAccounts = bac;
-                
-                this.actions[1].disabled = true;
-                this.actions[2].disabled = true;
-
-                this.buildForm();
-            }, (error) => {
-                this.setError(error);
-            });
-        } else {
-            Observable.forkJoin(
-                this._supplierInvoiceService.Get(id, ['JournalEntry', 'Supplier.Info']),
-                this._supplierService.GetAll(null, ['Info']),
-                this._bankAccountService.GetAll(null)
-            ).subscribe((response: any) => {
-                let [invoice, suppliers, bac] = response;
-                this.supplierInvoice = invoice;
-                this.suppliers = suppliers;
-                this.bankAccounts = bac;
-                
-                this.setActionsDisabled();
-        
-                this.buildForm();
-            }, (error) => {
-                this.setError(error);
-            });
-        }
+            this.setActionsDisabled();
+    
+            this.buildForm();
+        }, (error) => {
+            this.setError(error);
+        });
     }
     
     private setActionsDisabled() {
@@ -167,8 +147,43 @@ export class SupplierInvoiceDetail implements OnInit {
             done('Ikke lagret');
             return;
         }
+
+        console.log("== SAVING ==", !!this.supplierInvoice.JournalEntryID);
         
-        if (this.supplierInvoice.ID > 0) {            
+        if (!!this.supplierInvoice.JournalEntryID) {
+            console.log("== SAVE 1 ==");
+            let journalEntryData = this.journalEntryManual.getJournalEntryData();  
+            
+            Observable.forkJoin(
+                this._journalEntryService.saveJournalEntryData(journalEntryData),
+                this._supplierInvoiceService.Put(this.supplierInvoice.ID, this.supplierInvoice)     
+            ).subscribe((response: any) => {
+                if (runSmartBooking) {
+                    this.runSmartBooking(this.supplierInvoice, false, done);
+                } else {
+                    done('Lagret');
+                    this.router.navigateByUrl('/accounting/journalentry/supplierinvoices/details/' + this.supplierInvoice.ID);
+                }            
+            }, (error) => {
+                this.setError(error);
+                done('Lagring feilet');
+            });            
+        } else {
+            console.log("== SAVE 2 ==");
+            this._supplierInvoiceService.Put(this.supplierInvoice.ID, this.supplierInvoice)
+                .subscribe((result: SupplierInvoice) => {
+                    //always run smartbooking for new supplier invoices, ignore input parameter
+                    this.runSmartBooking(this.supplierInvoice, true, done);
+                },
+                (error) => {
+                    this.setError(error);
+                    done('Lagring feilet');
+                }
+            );           
+        }
+
+        /*
+        if (!this.supplierInvoice.JournalEntryID) {            
             let journalEntryData = this.journalEntryManual.getJournalEntryData();  
             
             Observable.forkJoin(
@@ -203,6 +218,7 @@ export class SupplierInvoiceDetail implements OnInit {
                 }
             );
         }
+        */
     };
 
     private saveSupplierInvoice(done) {
@@ -311,15 +327,6 @@ export class SupplierInvoiceDetail implements OnInit {
             debounceTime: 500
         };
 
-        var paymentDueDate = new UniFieldLayout();
-        paymentDueDate.FieldSet = 0;
-        paymentDueDate.Section = 0;
-        paymentDueDate.Combo = 0;
-        paymentDueDate.FieldType = 2;
-        paymentDueDate.Label = 'Forfallsdato';
-        paymentDueDate.Property = 'PaymentDueDate';
-        paymentDueDate.ReadOnly = false;
-   
         var invoiceDate = new UniFieldLayout();
         invoiceDate.FieldSet = 0;
         invoiceDate.Section = 0;
@@ -328,6 +335,15 @@ export class SupplierInvoiceDetail implements OnInit {
         invoiceDate.Label = 'Fakturadato';
         invoiceDate.Property = 'InvoiceDate';
         invoiceDate.ReadOnly = false;
+
+        var paymentDueDate = new UniFieldLayout();
+        paymentDueDate.FieldSet = 0;
+        paymentDueDate.Section = 0;
+        paymentDueDate.Combo = 0;
+        paymentDueDate.FieldType = 2;
+        paymentDueDate.Label = 'Forfallsdato';
+        paymentDueDate.Property = 'PaymentDueDate';
+        paymentDueDate.ReadOnly = false;
         
         var taxInclusiveAmount = new UniFieldLayout();
         taxInclusiveAmount.FieldSet = 0;
@@ -384,7 +400,7 @@ export class SupplierInvoiceDetail implements OnInit {
         paymentInformation.Property = 'PaymentInformation';
         paymentInformation.ReadOnly = false;
                   
-        self.fields = [supplierName, paymentDueDate, invoiceDate, taxInclusiveAmount, invoiceNumber, 
+        self.fields = [supplierName, invoiceDate, paymentDueDate, taxInclusiveAmount, invoiceNumber, 
                        bankAccount, paymentID, paymentInformation];
         
         this.config = {            

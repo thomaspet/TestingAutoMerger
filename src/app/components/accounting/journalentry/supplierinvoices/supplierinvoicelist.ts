@@ -64,7 +64,17 @@ export class SupplierInvoiceList implements OnInit {
     }
 
     public createInvoice() {
-        this.router.navigateByUrl('/accounting/journalentry/supplierinvoices/details/0');
+        this.supplierInvoiceService.newSupplierInvoice().then(invoice => {
+            this.supplierInvoiceService.Post(invoice)
+                .subscribe(
+                (supplierinvoice) => {
+                    this.router.navigateByUrl('/accounting/journalentry/supplierinvoices/details/' + supplierinvoice.ID);
+                },
+                (err) => {
+                    console.log('Error creating invoice: ', err);
+                }
+                );
+        });
     }
 
     public onRegisteredPayment(modalData: any) {

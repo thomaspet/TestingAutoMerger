@@ -4,12 +4,13 @@ import {UniHttp} from '../../../framework/core/http/http';
 import {InvoicePaymentData} from '../../models/sales/InvoicePaymentData';
 import {Observable} from 'rxjs/Observable';
 
+declare var moment;
+
 export class SupplierInvoiceService extends BizHttp<SupplierInvoice> {
 
     constructor(http: UniHttp) {
         super(http);
         
-        // TODO: should resolve this from configuration based on type (ISupplierInvoice)? Frank is working on something..
         this.relativeURL = SupplierInvoice.RelativeUrl;
         
         // set this property if you want a default sort order from the API
@@ -88,5 +89,20 @@ export class SupplierInvoiceService extends BizHttp<SupplierInvoice> {
             .usingBusinessDomain()            
             .withEndPoint(this.relativeURL + '?action=get-supplier-invoice-summary&odataFilter=' + odatafilter) 
             .send();
-    } 
+    }
+    
+    public newSupplierInvoice(): Promise<SupplierInvoice>
+    {       
+        return new Promise(resolve => {
+            this.GetNewEntity([], SupplierInvoice.EntityType).subscribe((invoice: SupplierInvoice) => {
+                invoice.PaymentInformation = 'test';
+                invoice.SupplierID = 1;
+                invoice.CreatedBy = '-';
+                invoice.CurrencyCode = 'NOK';
+                invoice.StatusCode = 0;
+          
+                resolve(invoice);                
+            });               
+        });
+    }   
 }

@@ -35,7 +35,7 @@
 ></register-payment-modal>
 
 <section class="supplier-invoice-detail-booking">
-    <journal-entry-manual [supplierInvoice]="supplierInvoice" [runAsSubComponent]="true" [disabled]="disabled" *ngIf="supplierInvoice && supplierInvoice.ID > 0"></journal-entry-manual>
+    <journal-entry-manual [supplierInvoice]="supplierInvoice" [runAsSubComponent]="true" [disabled]="disabled" *ngIf="supplierInvoice && supplierInvoice.JournalEntryID"></journal-entry-manual>
 </section>
 
 <section class="supplier-invoice-detail-document" *ngIf="supplierInvoice && supplierInvoice.ID > 0">
