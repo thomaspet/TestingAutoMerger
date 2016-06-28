@@ -50,9 +50,9 @@ export class NavbarSearch implements AfterViewInit {
             if (query.indexOf('faktura ') === 0) {
                 //this.invoiceLookup(query.slice(8));
                 this.TOFLookup(query.slice(8), 'invoice');
-            } else if (query.indexOf('ordre') === 0) {
+            } else if (query.indexOf('ordre ') === 0) {
                 this.TOFLookup(query.slice(6), 'order');
-            } else if (query.indexOf('tilbud') === 0) {
+            } else if (query.indexOf('tilbud ') === 0) {
                 this.TOFLookup(query.slice(7), 'quote');
             } else {
                 this.componentLookup(query);
@@ -70,7 +70,6 @@ export class NavbarSearch implements AfterViewInit {
                 this.focusPositionTop += this.listElement.nativeElement.children[i].clientHeight;
             }
         }
-        
         this.selectedIndex = index;
     }
 
@@ -123,7 +122,6 @@ export class NavbarSearch implements AfterViewInit {
         if (!this.searchResults[this.selectedIndex]) { return; }
         const url = this.searchResults[this.selectedIndex].componentUrl;
         this.close();
-
         this.router.navigateByUrl(url);
     }
 
@@ -146,7 +144,6 @@ export class NavbarSearch implements AfterViewInit {
                 results.push(component);
             }
         });
-
         this.searchResults = results;
         this.isExpanded = true;
     }
@@ -164,7 +161,6 @@ export class NavbarSearch implements AfterViewInit {
                         componentUrl: '/sales/invoice/details/' + invoice.ID
                     });
                 });
-
                 this.searchResults = results;
                 this.isExpanded = true;
             });
@@ -187,15 +183,11 @@ export class NavbarSearch implements AfterViewInit {
                             componentName: tof[tofString] + ' - ' + tof.CustomerName,
                             componentUrl: '/sales/' + module + '/details/' + tof.ID
                         });
-                        
-                        
                     });
-
                     this.searchResults = results;
                     this.isExpanded = true;
                 },
                 (error) => { }
             )
     }
-
 }
