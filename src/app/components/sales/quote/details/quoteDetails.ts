@@ -70,9 +70,7 @@ export class QuoteDetails {
         private reportDefinitionService: ReportDefinitionService,
         private router: Router, private params: RouteParams,
         private tabService: TabService) {
-
-        this.quoteID = params.get('id');
-        this.tabService.addTab({ url: '/sales/quote/details/' + this.quoteID, name: 'Tilbudsnr. ' + this.quoteID, active: true, moduleID: 3 });
+        this.quoteID = params.get('id');        
     }
 
     private log(err) {
@@ -191,13 +189,19 @@ export class QuoteDetails {
 
             this.updateStatusText();
             this.addressService.setAddresses(this.quote);
-
+            this.setTabTitle();
+            
             this.updateSaveActions();
             this.extendFormConfig();
         }, (err) => {
             console.log('Error retrieving data: ', err);
             alert('En feil oppsto ved henting av tilbuds-data: ' + JSON.stringify(err));
         });
+    }
+
+    private setTabTitle() {
+        let tabTitle = this.quote.QuoteNumber ? 'Tilbudsnr. ' + this.quote.QuoteNumber : 'Tilbud (kladd)'; 
+        this.tabService.addTab({ url: '/sales/quote/details/' + this.quote.ID, name: tabTitle, active: true, moduleID: 3 });
     }
 
     private extendFormConfig() {
@@ -463,6 +467,8 @@ export class QuoteDetails {
                 this.addressService.setAddresses(this.quote);
                 this.updateStatusText();
                 this.updateSaveActions();
+
+                this.setTabTitle();
 
                 if (cb) {
                     cb(quote);

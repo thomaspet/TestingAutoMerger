@@ -80,8 +80,7 @@ export class InvoiceDetails implements OnInit {
         private router: Router, private params: RouteParams,
         private tabService: TabService) {
 
-        this.invoiceID = params.get('id');
-        this.tabService.addTab({ url: '/sales/invoice/details/' + this.invoiceID, name: 'Fakturanr. ' + this.invoiceID, active: true, moduleID: 5 }); 
+        this.invoiceID = params.get('id'); 
     }
 
     private log(err) {
@@ -225,6 +224,7 @@ export class InvoiceDetails implements OnInit {
             }
             this.updateStatusText();
             this.addressService.setAddresses(this.invoice);
+            this.setTabTitle();
             this.updateSaveActions();
             this.extendFormConfig();
 
@@ -234,7 +234,10 @@ export class InvoiceDetails implements OnInit {
         });
     }
 
-
+    private setTabTitle() {
+        let tabTitle = this.invoice.InvoiceNumber ? 'Fakturanr. ' + this.invoice.InvoiceNumber : 'Faktura (kladd)'; 
+        this.tabService.addTab({ url: '/sales/invoice/details/' + this.invoice.ID, name: tabTitle, active: true, moduleID: 5 });
+    }
 
     private extendFormConfig() {
         let self = this;
@@ -418,6 +421,7 @@ export class InvoiceDetails implements OnInit {
                         this.invoice = data;
                         this.updateStatusText();
                         this.updateSaveActions();
+                        this.setTabTitle();
                         this.ready(null);
                     });
                 done('Fakturert');
@@ -458,7 +462,8 @@ export class InvoiceDetails implements OnInit {
                 this.addressService.setAddresses(this.invoice);
                 this.updateStatusText();
                 this.updateSaveActions();
-
+                this.setTabTitle();
+                
                 if (cb) {
                     cb(invoice);
                 }
