@@ -105,7 +105,7 @@ export class QuoteDetails {
             },
             (err) => {
                 console.log('Error getting previous quote: ', err);
-                alert('Ikke flere tilbud f�r denne');
+                alert('Ikke flere tilbud før denne');
             }
             );
     }
@@ -328,8 +328,8 @@ export class QuoteDetails {
             label: 'Lagre og overfør til ordre',
             action: (done) => this.saveQuoteTransition(done, 'toOrder'),
             disabled: this.IsTransferToOrderDisabled()
-
         });
+
         this.actions.push({
             label: 'Lagre og overfør til faktura',
             action: (done) => this.saveQuoteTransition(done, 'toInvoice'),
