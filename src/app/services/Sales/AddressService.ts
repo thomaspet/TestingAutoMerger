@@ -190,17 +190,17 @@ export class AddressService extends BizHttp<Address> {
 
    public displayAddress(address: Address) : string {
         let displayVal = '';
-        if (address.AddressLine1 !== null && address.AddressLine1 !== '') {
+        if (address.AddressLine1 && address.AddressLine1 !== '') {
             displayVal += address.AddressLine1;
-            if ((address.PostalCode !== null && address.PostalCode !== '') || 
-               (address.City !== null && address.City !== '')) {
+            if ((address.PostalCode && address.PostalCode !== '') || 
+               (address.City && address.City !== '')) {
                 displayVal += ', ';
             } 
         }                
-        if (address.PostalCode !== null && address.PostalCode !== '') {
+        if (address.PostalCode && address.PostalCode !== '') {
             displayVal += address.PostalCode  + ' ';
         }
-        if (address.City !== null && address.City !== '') {
+        if (address.City && address.City !== '') {
             displayVal += address.City;
         }
         return displayVal;

@@ -126,6 +126,9 @@ export class SupplierInvoiceDetail implements OnInit {
                 this.supplierInvoice = invoice;
                 this.suppliers = suppliers;
                 this.bankAccounts = bac;
+
+                // add blank to dropdown
+                this.suppliers.unshift(null);
                 
                 this.actions[1].disabled = true;
                 this.actions[2].disabled = true;
@@ -305,7 +308,7 @@ export class SupplierInvoiceDetail implements OnInit {
         supplierName.ReadOnly = false;
         supplierName.Options = {                  
             source: this.suppliers,
-            template: (data) => `${data.SupplierNumber} - ${data.Info.Name}`,
+            template: (data) => data ? `${data.SupplierNumber} - ${data.Info.Name}` : '',
             valueProperty: 'ID',
             displayProperty: 'Name',
             debounceTime: 500

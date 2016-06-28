@@ -15,41 +15,41 @@ uni-table td
     &.c2a
         @include unitable-validation-indicator($uni-color-C2A)
 
-    &[data-tooltip]
-        position: relative
-        overflow: visible
+[data-tooltip]
+    position: relative
+    overflow: visible
 
-        // The tooltip itself
-        &:hover:before
-            box-sizing: border-box
-            display: block
-            content: attr(data-tooltip)
-            background: transparentize($uni-color-positive, .1)
-            color: $uni-color-negative
-            position: absolute
-            bottom: calc(1.5rem + #{pxToRem(10)} + .75rem)
-            left: 0
-            width: 100%
-            border-radius: pxToRem(3)
-            padding: .2rem .5rem
-            white-space: normal
-            overflow: initial
-            font-size: .9rem
-            line-height: 120%
-            -webkit-backdrop-filter: blur(.2rem)
-            backdrop-filter: blur(.2rem)
+    // The tooltip itself
+    &:hover:before
+        box-sizing: border-box
+        display: block
+        content: attr(data-tooltip)
+        background: transparentize($uni-color-positive, .1)
+        color: $uni-color-negative
+        position: absolute84ba5b
+        bottom: calc(1.5rem + #{pxToRem(10)} + .75rem)
+        left: 0
+        width: 100%
+        border-radius: pxToRem(3)
+        padding: .2rem .5rem
+        white-space: normal
+        overflow: initial
+        font-size: .9rem
+        line-height: 120%
+        -webkit-backdrop-filter: blur(.2rem)
+        backdrop-filter: blur(.2rem)
 
-        // Arrow below
-        &:hover:after
-            content: ''
-            display: block
-            position: absolute
-            bottom: calc(1.5rem + #{pxToRem(10)})
-            left: 2rem
-            width: 0;
-            height: 0;
-            border-style: solid;
-            border-width: .75rem .75rem 0 .75rem;
-            border-color: transparentize($uni-color-positive, .1) transparent transparent transparent;
-            -webkit-backdrop-filter: blur(.2rem)
-            backdrop-filter: blur(.2rem)
+    // Arrow below
+    &:hover:after
+        content: ''
+        display: block
+        position: absolute
+        bottom: calc(1.5rem + #{pxToRem(10)})
+        left: 2rem
+        width: 0;
+        height: 0;
+        border-style: solid;
+        border-width: .75rem .75rem 0 .75rem;
+        border-color: transparentize($uni-color-positive, .1) transparent transparent transparent;
+        -webkit-backdrop-filter: blur(.2rem)
+        backdrop-filter: blur(.2rem)
