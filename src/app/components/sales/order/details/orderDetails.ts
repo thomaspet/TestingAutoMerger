@@ -10,8 +10,9 @@ import {UniSave, IUniSaveAction} from '../../../../../framework/save/save';
 import {UniForm, UniFieldLayout} from '../../../../../framework/uniform';
 
 import {OrderItemList} from './orderItemList';
+import {TradeItemHelper} from '../../salesHelper/tradeItemHelper';
 
-import {FieldType, CustomerOrder, Customer} from '../../../../unientities';
+import {FieldType, CustomerOrder, CustomerOrderItem, Customer} from '../../../../unientities';
 import {Dimensions, Address, BusinessRelation} from '../../../../unientities';
 import {StatusCodeCustomerOrder} from '../../../../unientities';
 import {AddressModal} from '../../../common/modals/modals';
@@ -61,6 +62,8 @@ export class OrderDetails {
 
     private actions: IUniSaveAction[];
 
+    private expandOptions: Array<string> = ['Dimensions', 'Items', 'Items.Product', 'Items.VatType',
+        'Customer', 'Customer.Info', 'Customer.Info.Addresses'];
 
     constructor(private customerService: CustomerService,
         private customerOrderService: CustomerOrderService,
@@ -130,7 +133,7 @@ export class OrderDetails {
 
     public change(value: CustomerOrder) { }
 
-    public ready(event) {        
+    public ready(event) {
         this.setupSubscriptions(null);
     }
 
@@ -143,7 +146,7 @@ export class OrderDetails {
                         let previousAddresses = this.order.Customer ? this.order.Customer.Info.Addresses : null;
                         this.order.Customer = customer;
                         this.addressService.setAddresses(this.order, previousAddresses);
-                
+
                         this.order.CustomerName = customer.Info.Name;
 
                         if (customer.CreditDays !== null) {
@@ -167,8 +170,7 @@ export class OrderDetails {
         Observable.forkJoin(
             this.departementService.GetAll(null),
             this.projectService.GetAll(null),
-            this.customerOrderService.Get(this.orderID, ['Dimensions', 'Items', 'Items.Product', 'Items.VatType',
-                'Customer', 'Customer.Info', 'Customer.Info.Addresses']),
+            this.customerOrderService.Get(this.orderID, this.expandOptions),
             this.customerService.GetAll(null, ['Info']),
             this.addressService.GetNewEntity(null, 'address')
         ).subscribe(response => {
@@ -229,7 +231,7 @@ export class OrderDetails {
             editor: (value) => new Promise((resolve) => {
                 if (!value) {
                     value = new Address();
-                    value.ID = 0;                   
+                    value.ID = 0;
                 }
 
                 this.addressModal.openModal(value, !!!this.order.CustomerID);
@@ -318,12 +320,12 @@ export class OrderDetails {
         });
         this.actions.push({
             label: 'Registrer',
-            action: (done) => this.saveOrderTransition(done, 'register'),
+            action: (done) => this.saveOrderTransition(done, 'register', 'Registrert'),
             disabled: (this.order.StatusCode !== StatusCodeCustomerOrder.Draft)
         });
         this.actions.push({
             label: 'Avslutt ordre',
-            action: (done) => this.saveOrderTransition(done, 'complete'),
+            action: (done) => this.saveOrderTransition(done, 'complete', 'Ordre avsluttet'),
             disabled: this.IsTransferToCompleteDisabled()
         });
 
@@ -429,20 +431,19 @@ export class OrderDetails {
         });
     }
 
-    private saveOrderTransition(done: any, transition: string) {
+    private saveOrderTransition(done: any, transition: string, doneText: string) {
         this.saveOrder((order) => {
             this.customerOrderService.Transition(this.order.ID, this.order, transition).subscribe(() => {
                 console.log('== TRANSITION OK ' + transition + ' ==');
-                done('Lagret');
+                done(doneText);
 
-                this.customerOrderService.Get(order.ID, ['Dimensions', 'Items', 'Items.Product',
-                    'Items.VatType', 'Customer', 'Customer.Info', 'Customer.Info.Addresses']).subscribe((data) => {
-                        this.order = data;
-                        this.updateStatusText();
-                        this.updateSaveActions();
-                        this.setTabTitle();
-                        this.ready(null);
-                    });
+                this.customerOrderService.Get(order.ID, this.expandOptions).subscribe((data) => {
+                    this.order = data;
+                    this.updateStatusText();
+                    this.updateSaveActions();
+                    this.setTabTitle();
+                    this.ready(null);
+                });
             }, (err) => {
                 console.log('Feil oppstod ved ' + transition + ' transition', err);
                 done('Feilet');
@@ -463,19 +464,25 @@ export class OrderDetails {
             this.order.Dimensions['_createguid'] = this.customerOrderService.getNewGuid();
         }
 
+        //Save only lines with products from product list
+        if (!TradeItemHelper.IsItemsValid(this.order.Items)) {
+            console.log('Linjer uten produkt. Lagring avbrutt.');
+//            done('Lagring feilet');
+            return;
+        }
+
         this.customerOrderService.Put(this.order.ID, this.order)
             .subscribe(
-            (order) => {
-                this.customerOrderService.Get(this.orderID, ['Dimensions', 'Items', 'Items.Product',
-                'Items.VatType', 'Customer', 'Customer.Info', 'Customer.Info.Addresses']).subscribe((order) => {
-                    this.order = order;
+            (orderSaved) => {
+                this.customerOrderService.Get(this.orderID, this.expandOptions).subscribe((orderGet) => {
+                    this.order = orderGet;
                     this.addressService.setAddresses(this.order);
                     this.updateStatusText();
                     this.updateSaveActions();
                     this.setTabTitle();
 
                     if (cb) {
-                        cb(order);
+                        cb(orderGet);
                     }
                 });
             },
