@@ -1,4 +1,4 @@
-import {Component, Input, SimpleChange, ViewChild} from '@angular/core';
+import {Component, Input, SimpleChange, ViewChild, OnInit, OnChanges} from '@angular/core';
 import {JournalEntrySimple} from '../components/journalentrysimple/journalentrysimple';
 import {JournalEntryProfessional} from '../components/journalentryprofessional/journalentryprofessional';
 import {SupplierInvoice} from '../../../../unientities';
@@ -13,25 +13,23 @@ import {JournalEntryMode} from '../components/journalentrysimple/journalentrysim
     directives: [JournalEntrySimple, JournalEntryProfessional],
     providers: [JournalEntryService]    
 })
-export class JournalEntryManual {    
-    @Input()
-    supplierInvoice : SupplierInvoice;
-    @Input() runAsSubComponent : boolean = false;
-    @Input()
-    mode : number = JournalEntryMode.Manual;
-    @ViewChild(JournalEntrySimple) private journalEntrySimple: JournalEntrySimple;
-    @ViewChild(JournalEntryProfessional) journalEntryProfessional: JournalEntryProfessional;
+export class JournalEntryManual implements OnChanges, OnInit {    
+    @Input() public supplierInvoice: SupplierInvoice;
+    @Input() public runAsSubComponent: boolean = false;
+    @Input() public mode: number = JournalEntryMode.Manual;
     @Input() public journalEntryMode: string;
-    @Input() 
-    disabled : boolean = false;
+    @Input() public disabled: boolean = false;
+    @ViewChild(JournalEntrySimple) private journalEntrySimple: JournalEntrySimple;
+    @ViewChild(JournalEntryProfessional) private journalEntryProfessional: JournalEntryProfessional;
+    
     private itemsSummaryData: JournalEntrySimpleCalculationSummary;
     public validationResult: any;
     
     constructor(private journalEntryService: JournalEntryService) {
     }
     
-    ngOnInit() {
-        this.journalEntryMode = "SIMPLE";
+    public ngOnInit() {
+        this.journalEntryMode = 'SIMPLE';
         
         if (this.supplierInvoice) {
             this.mode = JournalEntryMode.Supplier;
@@ -40,37 +38,31 @@ export class JournalEntryManual {
         this.setupSubscriptions();
     }
     
-    getJournalEntryData(): Array<JournalEntryData> {
+    public getJournalEntryData(): Array<JournalEntryData> {
         if (this.journalEntrySimple) {
             return this.journalEntrySimple.journalEntryLines;
         }   
     }
 
-    ngOnChanges(changes: { [propName: string]: SimpleChange }) {
+    public ngOnChanges(changes: { [propName: string]: SimpleChange }) {
         this.setupSubscriptions();
     }
     
-    ngAfterViewInit() {
-        
-    }
-    
-    setupSubscriptions() {
+    private setupSubscriptions() {
         setTimeout(() => {
-            if (this.journalEntryProfessional)
+            if (this.journalEntryProfessional) {
                 this.journalEntryProfessional.dataChanged.debounceTime(2000).subscribe((values) => this.onDataChanged(values));
+            }
             
-            if (this.journalEntrySimple)
-                this.journalEntrySimple.dataChanged.debounceTime(2000).subscribe((values) => this.onDataChanged(values));  
+            if (this.journalEntrySimple) {
+                this.journalEntrySimple.dataChanged.debounceTime(2000).subscribe((values) => this.onDataChanged(values));
+            }  
         });
     }
     
-    
-    
     private onDataChanged(data: JournalEntryData[]) {
-        //this.busy = true;
         if (data.length <= 0) {
             this.itemsSummaryData = null;
-            console.log('itemsSummaryData is set to null since no lines exist');
             return;
         }
 
@@ -91,8 +83,7 @@ export class JournalEntryManual {
     private calculateItemSums(data: JournalEntryData[]) {
         this.journalEntryService.calculateJournalEntrySummary(data)
                 .subscribe((data) => {
-                    this.itemsSummaryData = data;
-                    //this.busy = false;
+                    this.itemsSummaryData = data;                    
                 },
                 (err) => {
                     console.log('Error when recalculating journal entry summary:', err);
@@ -106,7 +97,6 @@ export class JournalEntryManual {
             .subscribe(
             result => {
                 this.validationResult = result;
-                //console.log('valideringsresultat:', result);
             },
             err => {
                 console.log('error int validateJournalEntryData:', err);
@@ -114,32 +104,35 @@ export class JournalEntryManual {
     }
     
     private postJournalEntryData(event) {
-        if (this.journalEntrySimple)
+        if (this.journalEntrySimple) {
             this.journalEntrySimple.postJournalEntryData();
-        else if (this.journalEntryProfessional)
+        } else if (this.journalEntryProfessional) {
             this.journalEntryProfessional.postJournalEntryData();
+        }
     }
     
     private addDummyJournalEntry(event) {
-        if (this.journalEntrySimple)
+        if (this.journalEntrySimple) {
             this.journalEntrySimple.addDummyJournalEntry();
-        else if (this.journalEntryProfessional)
+        } else if (this.journalEntryProfessional) {
             this.journalEntryProfessional.addDummyJournalEntry();
+        }
     }
     
     private removeJournalEntryData(event) {
-        if (this.journalEntrySimple)
+        if (this.journalEntrySimple) {
             this.journalEntrySimple.removeJournalEntryData();
-        else if (this.journalEntryProfessional)
+        } else if (this.journalEntryProfessional) {
             this.journalEntryProfessional.removeJournalEntryData();
+        }
     }
     
-    useSimpleMode() {
+    private useSimpleMode() {
         this.journalEntryMode = 'SIMPLE';
         this.setupSubscriptions();
     }
     
-    useProMode() {
+    private useProMode() {
         this.journalEntryMode = 'PROFFESIONAL';
         this.setupSubscriptions();
     }

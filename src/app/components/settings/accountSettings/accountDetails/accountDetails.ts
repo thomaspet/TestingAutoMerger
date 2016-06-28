@@ -81,7 +81,7 @@ export class AccountDetails {
             valueProperty: 'ID',
             displayProperty: 'VatCode',                        
             debounceTime: 200,
-            template: (vatType: VatType) => `${vatType.VatCode} (${ vatType.VatPercent }%)`
+            template: (vatType: VatType) => vatType ? `${vatType.VatCode} (${ vatType.VatPercent }%)` : ''
         };
         
     }

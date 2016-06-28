@@ -76,7 +76,7 @@ export class EmployeeEmployment {
             var autocompleteJobcode = this.findByProperty(this.fields, 'JobCode');
             autocompleteJobcode.Options = {
                 source: this.styrks,
-                template: (obj) => `${obj.styrk} - ${obj.tittel}`, 
+                template: (obj) => obj ? `${obj.styrk} - ${obj.tittel}` : '', 
                 displayProperty: 'styrk',
                 valueProperty: 'styrk',
                 debounceTime: 500,
