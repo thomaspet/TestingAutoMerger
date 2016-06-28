@@ -9,6 +9,7 @@ declare var _; // jquery and lodash
     template: `
         <button
             *ngIf="control"
+            [class]="field?.Options?.class"
             [disabled]="field?.ReadOnly"
             (click)="clickHandler($event)"
         >{{field.Label}}</button>
