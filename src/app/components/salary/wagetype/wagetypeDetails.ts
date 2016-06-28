@@ -68,6 +68,10 @@ export class WagetypeDetail {
                     submitText: ''
                 };
                 this.toggleAccountNumberBalanceHidden();
+            }, 
+            (err) => {
+                this.log(err);
+                console.log('Feil ved henting av lønnsart', err);
             }
             );
     }
@@ -152,6 +156,6 @@ export class WagetypeDetail {
         } else {
             alert(JSON.stringify(err));
         }
-        
+
     }
 }
