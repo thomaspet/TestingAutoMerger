@@ -26,7 +26,7 @@ $all-buttons: assign-inputs($buttons-list)
     padding: 0 1.5rem
     margin: .5rem 1rem
     cursor: pointer
-    height: 1.6667rem
+    min-height: 1.6667rem
     -webkit-appearance: none
 
     &:hover,
@@ -40,12 +40,12 @@ $all-buttons: assign-inputs($buttons-list)
 
     &[disabled],
     &[aria-disabled]
-        lighten($color, 30%)
+        background: lighten($color, 15%)
         cursor: not-allowed
 
         &:hover,
         &:focus
-            background: linear-gradient(to top, $color, lighten($color, 7%))
+            background: lighten($color, 7%)
 
     &[aria-busy]:not([aria-busy=false]):before
         display: inline-block
@@ -91,7 +91,7 @@ $all-buttons: assign-inputs($buttons-list)
             border-color: transparentize($color, .5)
 
 #{$all-buttons}
-    @include uni-button($uni-color-Warn)
+    @include uni-button($uni-color-action)
 
     &.good
         @include uni-button($uni-color-Good)
