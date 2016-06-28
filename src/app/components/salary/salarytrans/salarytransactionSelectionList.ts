@@ -1,11 +1,11 @@
-import {Component, ViewChild, OnInit, Input} from '@angular/core';
-import {UniTable, UniTableBuilder, UniTableColumn} from '../../../../framework/uniTable';
+import {Component, ViewChild, OnInit, Input, Output, EventEmitter} from '@angular/core';
+import {AsyncPipe} from '@angular/common';
+import {UniTable, UniTableConfig, UniTableColumnType, UniTableColumn} from 'unitable-ng2/main';
 import {SalaryTransactionEmployeeList} from './salarytransList';
 import {SalarytransFilter} from './salarytransFilter';
 import {UniHttp} from '../../../../framework/core/http/http';
 import {PayrollRun, Employee} from '../../../unientities';
 import {EmployeeService} from '../../../services/services';
-import {TabService} from '../../layout/navbar/tabstrip/tabService';
 import {Observable} from 'rxjs/Observable';
 declare var _;
 
@@ -13,116 +13,105 @@ declare var _;
     selector: 'salarytrans',
     templateUrl: 'app/components/salary/salarytrans/salarytransactionSelectionList.html',
     directives: [UniTable, SalaryTransactionEmployeeList, SalarytransFilter],
-    providers: [EmployeeService]
+    providers: [EmployeeService],
+    pipes: [AsyncPipe]
 })
 
 export class SalaryTransactionSelectionList implements OnInit {
-    private salarytransSelectionTableConfig: UniTableBuilder;
+    private salarytransSelectionTableConfig: UniTableConfig;
     private selectedEmployeeID: number;
+    private employeeList: Employee[];
     @Input() private selectedPayrollRun: PayrollRun;
+    @Output() public changedPayrollRun: EventEmitter<any> = new EventEmitter<any>(true);
     private disableFilter: boolean;
-    private bankaccountCol: UniTableColumn;
-    private taxcardCol: UniTableColumn;
-    private employeeList: Employee[] = [];
+    public employees$: Observable<Employee[]>;
     public busy: boolean;
-    @ViewChild(UniTable) private tables: UniTable;
+    @ViewChild(UniTable) private table: UniTable;
     private disableEmployeeList: boolean;
-    
-    constructor(private uniHttpService: UniHttp,
-                private tabSer: TabService,
-                private _employeeService: EmployeeService) {
+
+    constructor(private uniHttpService: UniHttp, private _employeeService: EmployeeService) {
     }
-    
+
     public ngOnInit() {
         this.selectedPayrollRun.StatusCode < 1 ? this.disableFilter = false : this.disableFilter = true;
         this.tableConfig();
     }
-    
+
     private tableConfig(update: boolean = false, filter = '') {
-        this.busy = true;
-        Observable.forkJoin(
-            this._employeeService.GetAll(filter ? 'filter=' + filter : '', ['BusinessRelationInfo', 'SubEntity.BusinessRelationInfo', 'BankAccounts'])
-            )
-            .subscribe((response: any) => {
-            let [emp] = response;
-            this.employeeList = emp;
-            
-            if (update) {
-                this.tables.refresh(this.employeeList);
-            } else {
-                
-                var employeenumberCol = new UniTableColumn('EmployeeNumber', '#', 'number').setWidth('10%');
-                var nameCol = new UniTableColumn('BusinessRelationInfo.Name', 'Navn', 'string');
-                var lockedCol = new UniTableColumn('', 'Synlig/låst', 'boolean')
-                    .setClass('icon-column')
-                    .setTemplate(
-                        "#if(TaxTable === null || !BankAccounts.some(x => x.Active === true)) {#<span class='missing-info' role='presentation'>Visible</span>#} " +
-                        "else {#<span role='presentation'></span>#}# "
-                    )
-                    .setWidth('2rem');
-                this.bankaccountCol = new UniTableColumn('BankAccounts', 'Bankkonto')
-                    .setHidden(true)
-                    .setTemplate((dataItem) => {
-                        return this.getStandardBankAccountNumber(dataItem.BankAccounts);
-                    });
-            
-                this.taxcardCol = new UniTableColumn('TaxTable', 'Skattekort', 'string').setHidden(true);
-                var subEntityCol = new UniTableColumn('SubEntity.BusinessRelationInfo.Name', 'Virksomhet', 'string');
-                this.salarytransSelectionTableConfig = new UniTableBuilder(this.employeeList, false)
-                    .setSelectCallback((selEmp) => {
-                        this.selectedEmployeeID = selEmp.ID;
-                    })
-                    .setColumnMenuVisible(false)
-                    .setFilterable(false)
-                    .setEditable(false)
-                    .addColumns(
-                        employeenumberCol,
-                        nameCol,
-                        this.bankaccountCol,
-                        this.taxcardCol,
-                        subEntityCol,
-                        lockedCol
-                    );
+        this.employees$ = this._employeeService.GetAll(filter ? 'filter=' + filter : '', ['BusinessRelationInfo', 'SubEntity.BusinessRelationInfo, BankAccounts']);
+        this.employees$.subscribe((employees) => {
+            this.employeeList = employees;
+            if (!update && this.employeeList) {
+                this.selectedEmployeeID = this.employeeList[0].ID;
             }
-            this.busy = false;
-            this.disableEmployeeList = false;
+        }, (error: any) => {
+            this.log(error);
+            console.log(error);
         });
-    }
-    
-    private getStandardBankAccountNumber(bankAccounts: any) {
-        var bAccount = '';
-        for (var i = 0; i < bankAccounts.length; i++) {
-            var bankAccount = bankAccounts[i];
-            if (bankAccount.Active === true) {
-                bAccount = bankAccount.AccountNumber;
-            }
+        if (!update) {
+
+            var employeenumberCol = new UniTableColumn('EmployeeNumber', '#', UniTableColumnType.Number).setWidth('2rem');
+            var nameCol = new UniTableColumn('BusinessRelationInfo.Name', 'Navn', UniTableColumnType.Text);
+            var lockedCol = new UniTableColumn('', '', UniTableColumnType.Custom)
+                .setCls('icon-column')
+                .setTemplate((rowModel: Employee) => {
+                    if (rowModel.TaxTable === null || !rowModel.BankAccounts.some(x => x.Active === true)) {
+                        return "{#<em class='missing-info' role='presentation'>Visible</em>#} ";
+                    } else {
+                        return "{#<em role='presentation'></em>#}# ";
+                    }
+                })
+                .setWidth('2rem');
+
+            var subEntityCol = new UniTableColumn('SubEntity.BusinessRelationInfo.Name', 'Virksomhet', UniTableColumnType.Text);
+            this.salarytransSelectionTableConfig = new UniTableConfig(false)
+                .setColumnMenuVisible(false)
+                .setColumns([
+                    employeenumberCol,
+                    nameCol,
+                    subEntityCol,
+                    lockedCol
+                ]);
         }
-        return bAccount;
+        this.disableEmployeeList = false;
     }
-    
+    public rowSelected(event) {
+        this.selectedEmployeeID = event.rowModel.ID;
+    }
+
     public goToNextEmployee(id) {
         var index = _.findIndex(this.employeeList, x => x.ID === this.selectedEmployeeID);
         if (index + 1 < this.employeeList.length) {
             this.selectedEmployeeID = this.employeeList[index + 1].ID;
+            this.employees$ = _.cloneDeep(this.employees$);
         }
     }
-    
+
     public goToPreviousEmployee(id) {
         var index = _.findIndex(this.employeeList, x => x.ID === this.selectedEmployeeID);
         if (index > 0) {
             this.selectedEmployeeID = this.employeeList[index - 1].ID;
+            this.employees$ = _.cloneDeep(this.employees$);
         }
     }
-    
+
     public changeFilter(filter: string) {
         this.tableConfig(true, filter);
         this.selectedEmployeeID = 0;
     }
 
-    public salarytransAdded(disableList) {
-        this.disableEmployeeList = disableList;
+    public payrollRunChanged() {
+        this.changedPayrollRun.emit(true);
     }
-    
+
     public saveRun(event: any) {
+    }
+
+    public log(err) {
+        if (err._body) {
+            alert(err._body);
+        } else {
+            alert(JSON.stringify(err));
+        }
     }
 }
