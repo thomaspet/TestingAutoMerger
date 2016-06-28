@@ -3,7 +3,9 @@ import {DomEvents} from './domevents';
 import {debounce} from '../utils';
 declare var jQuery;
 
-const editorTemplate = `<input style='position:absolute; display:none' type='text'></input>`;
+const editorTemplate = `<div style='position:absolute;display:none;white-space:nowrap' class="inline_editor">
+    <input type='text'></input><button class='editable_cellbutton'></button>
+    </div>`; 
 
 const cloneCss = ['padding', 'padding-top', 'padding-bottom', 'padding-left', 'padding-right',
 					  'text-align', 'font', 'font-size', 'font-family', 'font-weight', 'color'];
@@ -12,26 +14,32 @@ export class Editor implements IEditor {
     
     public editEvents: IEditEvents;
     
+    private rootElement:IJQItem;
     private inputBox:IJQItem;
+    private button:IJQItem;
     private position:IPos;
     private originalValue: any;
     private resetTyping = false;
-    
+    private showButton = false;
     private domEvents = new DomEvents();
         
     public destroy() {
-        if (this.inputBox) {
+        if (this.rootElement) {
             this.domEvents.Cleanup();
-            this.inputBox.remove();
+            this.rootElement.remove();            
+            this.rootElement = undefined;
             this.inputBox = undefined;
         }
     }
     
     public create(owner:IJQItem):IJQItem {
 
-        if (!this.inputBox) {
-            this.inputBox = <IJQItem>jQuery(editorTemplate);
-            owner.parent().append(this.inputBox);        
+        if (!this.rootElement) {
+            this.rootElement = <IJQItem>jQuery(editorTemplate); 
+            owner.parent().append(this.rootElement);        
+            this.inputBox = this.rootElement.find("input");
+            this.button = this.rootElement.find("button");
+            this.domEvents.Create(<any>this.button, 'click', (event) => this.onButtonClick(event) );
             this.domEvents.Create(<any>this.inputBox, 'keydown', (event)=> this.onEditKeyDown(event) );
             this.domEvents.Create(<any>this.inputBox, 'input paste', (evt)=>{
                 this.resetTyping = false;
@@ -42,15 +50,31 @@ export class Editor implements IEditor {
     }    
     
     public move(rect:IRect) {
-        if (!this.inputBox) return;
-        this.inputBox.offset({top: rect.top, left: rect.left});
-        if (rect.width) this.inputBox.outerWidth(rect.width);
-        if (rect.height) this.inputBox.outerHeight(rect.height);
+        var el = this.rootElement;
+        if (!el) return;
+        el.offset({top: rect.top, left: rect.left});
+        if (this.showButton) {
+            var btw = this.button.outerWidth();
+            if (btw < 24) { btw = 24; this.button.outerWidth(btw); }
+            this.inputBox.outerWidth(rect.width - btw);
+            this.inputBox.outerHeight(rect.height);
+            this.button.outerHeight(rect.height);
+            if (!this.button.is(":visible")) {
+                this.button.show();
+            }
+        } else {
+            this.inputBox.outerWidth(rect.width);
+            this.inputBox.outerHeight(rect.height);
+            if (this.button.is(":visible")) {
+                this.button.hide();
+            }
+        }
     }
     
-    public startEdit(value:any, cell: IJQItem, pos: IPos) {
+    public startEdit(value:any, cell: IJQItem, pos: IPos, showButton = false) {
         this.resetTyping = true;
-        if (!this.inputBox) {
+        this.showButton = showButton;
+        if (!this.rootElement) {
             this.create(cell.parent().parent().parent());
         }
         this.position = pos;
@@ -59,8 +83,8 @@ export class Editor implements IEditor {
         this.originalValue = value;
         this.inputBox.val(value);
         this.moveTo(cell);
-        if (!this.inputBox.is(":visible")) {
-            this.inputBox.show();
+        if (!this.rootElement.is(":visible")) {
+            this.rootElement.show();
             setTimeout(()=>this.moveTo(cell),10);
         }
         this.inputBox.select();
@@ -70,7 +94,7 @@ export class Editor implements IEditor {
         if (!this.inputBox) return;
         this.originalValue = value;
         this.inputBox.val(value);
-        if (this.inputBox.is(":visible")) {
+        if (this.rootElement.is(":visible")) {
             this.inputBox.select();
         }
     }
@@ -101,7 +125,6 @@ export class Editor implements IEditor {
         }
         var txt = valueOverride !== undefined ? valueOverride : this.inputBox.val();
         if (txt !== this.originalValue) {
-            //console.log("raising changeevent: " + txt);
             if (this.editEvents.onEditChanged(txt, this.position)) {
                 this.originalValue = txt;
             } else {
@@ -116,6 +139,12 @@ export class Editor implements IEditor {
         this.editEvents.onEditKeydown(event);
     }
 
+    private onButtonClick(event) {
+        this.resetTyping = true;
+        if (!this.editEvents) return;
+        this.editEvents.onEditTyping(event, '', this.position);
+    }
+
     private onEditTyping(event) {
         if (!(this.editEvents && this.onEditTyping)) { return; }
         if (this.resetTyping) { return; }
@@ -124,8 +153,8 @@ export class Editor implements IEditor {
     }
 
     public close(cancel=true) {
-        if (this.inputBox) {
-            this.inputBox.hide();
+        if (this.rootElement) {
+            this.rootElement.hide();
         }
     }
     

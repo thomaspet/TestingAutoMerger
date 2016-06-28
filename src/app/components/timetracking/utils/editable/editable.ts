@@ -103,7 +103,10 @@ export class Editable implements AfterViewInit, OnDestroy {
         }
         var txt = el.text();
         this.createEditorIfMissing();
-        this.current.editor.startEdit(txt, el, this.getCellPosition(el));
+        var pos = this.getCellPosition(el);
+        var col = this.getLayoutColumn(pos.col);
+        var showButton = col ? !!col.lookup : false;
+        this.current.editor.startEdit(txt, el, this.getCellPosition(el), showButton);
     }
 
     private loadTextIntoEditor() {        
@@ -146,7 +149,9 @@ export class Editable implements AfterViewInit, OnDestroy {
             if (target.closest(".droplist").length === 0) {
                 return fx();
             }
-            return;
+            if (target.closest('.editable_cellbutton').length === 0) {
+                return fx();
+            }
         } 
         // No target! (lets check delay and check if activeElement is our droplist)
         setTimeout(() => {
@@ -200,6 +205,14 @@ export class Editable implements AfterViewInit, OnDestroy {
         }        
     }
 
+    private IsLookupCell():boolean {
+        var pos = this.getCellPosition(this.current.active);
+        var col = this.getLayoutColumn(pos.col)
+        if (col) {
+            return !!col.lookup;
+        }        
+    }
+
     private handleKeydown(event) {
 
         if (this.checkDroplistNavigation(event)) return;
@@ -207,6 +220,17 @@ export class Editable implements AfterViewInit, OnDestroy {
         if (event.which === Keys.ESC) {
             this.closeEditor(true);
             return;
+        }
+
+        // F4 to open dropdown?
+        if (event.which === Keys.F4) {
+            if (this.IsLookupCell()) {
+                if (this.dropList.isOpen()) {
+                    this.dropList.hide();
+                    return;
+                }
+                this.onTypeSearch('');
+            }
         }
 
         var candidate = this.getMovement(this.current.active, event);
