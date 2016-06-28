@@ -401,7 +401,8 @@ export class JournalEntrySimpleForm implements OnChanges {
         debitAccount.Property = 'DebitAccountID';
         debitAccount.ReadOnly = false;
         debitAccount.Classes = 'large-field';
-        debitAccount.Options = {                  
+        debitAccount.Options = {
+            source: this.accounts,                  
             displayProperty: 'AccountName',
             valueProperty: 'ID',
             template: (account: Account) => account ? `${account.AccountNumber} - ${account.AccountName}` : '',
@@ -439,7 +440,8 @@ export class JournalEntrySimpleForm implements OnChanges {
         debitVat.Property = 'DebitVatTypeID';
         debitVat.ReadOnly = false;
         debitVat.Hidden = this.mode === JournalEntryMode.Payment;   
-        debitVat.Options = {                  
+        debitVat.Options = {  
+            source: this.vattypes,                 
             search: (searchValue: string) => Observable.from([this.vattypes.filter((vattype) => vattype.VatCode === searchValue || vattype.VatPercent.toString() === searchValue || vattype.Name.toLowerCase().indexOf(searchValue.toLowerCase()) >= 0)]),
             displayProperty: 'VatCode',
             valueProperty: 'ID',
@@ -461,7 +463,8 @@ export class JournalEntrySimpleForm implements OnChanges {
         creditAccount.Property = 'CreditAccountID';
         creditAccount.ReadOnly = false;
         creditAccount.Classes = 'large-field';
-        creditAccount.Options = {                  
+        creditAccount.Options = {
+            source: this.accounts,                  
             displayProperty: 'AccountName',
             valueProperty: 'ID',
             template: (account: Account) => { if (account) { return `${account.AccountNumber} - ${account.AccountName}`} return ''},
@@ -500,6 +503,7 @@ export class JournalEntrySimpleForm implements OnChanges {
         creditVat.ReadOnly = false;
         creditVat.Hidden = this.mode === JournalEntryMode.Payment;   
         creditVat.Options = {     
+            source: this.vattypes,
             search: (searchValue: string) => Observable.from([this.vattypes.filter((vattype) => vattype.VatCode === searchValue || vattype.VatPercent.toString() === searchValue || vattype.Name.toLowerCase().indexOf(searchValue.toLowerCase()) >= 0)]),
             displayProperty: 'VatCode',
             valueProperty: 'ID',
