@@ -40,12 +40,12 @@ $all-buttons: assign-inputs($buttons-list)
 
     &[disabled],
     &[aria-disabled]
-        lighten($color, 30%)
+        background: lighten($color, 15%)
         cursor: not-allowed
 
         &:hover,
         &:focus
-            background: linear-gradient(to top, $color, lighten($color, 7%))
+            background: lighten($color, 7%)
 
     &[aria-busy]:not([aria-busy=false]):before
         display: inline-block
