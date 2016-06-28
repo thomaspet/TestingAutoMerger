@@ -1,4 +1,4 @@
-import {Component, Input, Output, EventEmitter, ViewChild, ChangeDetectorRef, SimpleChange, HostListener, ChangeDetectionStrategy} from '@angular/core';
+import {Component, Input, Output, HostBinding, EventEmitter, ViewChild, ChangeDetectorRef, SimpleChange, HostListener, ChangeDetectionStrategy} from '@angular/core';
 import {FORM_DIRECTIVES, FORM_PROVIDERS, ControlGroup, Control} from '@angular/common';
 import {UniFieldLayout, KeyCodes} from './interfaces';
 import {CONTROLS} from './controls/index';
@@ -13,8 +13,7 @@ declare var _; // lodash
     template: `
         <label 
             [class.error]="hasError()" 
-            [class]="buildClassString()" 
-            [hidden]="Hidden">
+            [class]="buildClassString()">
             <span [hidden]="!isInput(field?.FieldType)">{{field?.Label}}</span>
 
             <uni-autocomplete-input #selectedComponent *ngIf="field?.FieldType === 0 && control" 
@@ -101,6 +100,7 @@ export class UniField {
 
     public get Component() { return this.component; }
 
+    @HostBinding('hidden')
     public get Hidden() { return this.field.Hidden; }
 
     public set Hidden(value: boolean) {
