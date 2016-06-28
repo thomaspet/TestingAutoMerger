@@ -107,7 +107,8 @@ export class SupplierInvoiceDetail implements OnInit {
             .Get(this.invoiceId, ['JournalEntry', 'Supplier.Info'])
             .subscribe((res) => {
                 this.supplierInvoice = res;
-                this.setActionsDisabled();          
+                this.setActionsDisabled();     
+                this.setPreviewId();     
             },
             (error) => {
                 this.setError(error);
@@ -118,47 +119,23 @@ export class SupplierInvoiceDetail implements OnInit {
         return this._supplierInvoiceService.getStatusText((this.supplierInvoice.StatusCode || '').toString());
     }
     private loadFormAndData() {
-        let id = this.invoiceId;
-
-        if (id == 0) {
-            Observable.forkJoin(
-                this._supplierInvoiceService.GetNewEntity(),
-                this._supplierService.GetAll(null, ['Info']),
-                this._bankAccountService.GetAll(null)
-            ).subscribe((response: any) => {
-                let [invoice, suppliers, bac] = response;
-                this.supplierInvoice = invoice;
-                this.suppliers = suppliers;
-                this.bankAccounts = bac;
-
-                // add blank to dropdown
-                this.suppliers.unshift(null);
-                
-                this.actions[1].disabled = true;
-                this.actions[2].disabled = true;
-
-                this.buildForm();
-            }, (error) => {
-                this.setError(error);
-            });
-        } else {
-            Observable.forkJoin(
-                this._supplierInvoiceService.Get(id, ['JournalEntry', 'Supplier.Info']),
-                this._supplierService.GetAll(null, ['Info']),
-                this._bankAccountService.GetAll(null)
-            ).subscribe((response: any) => {
-                let [invoice, suppliers, bac] = response;
-                this.supplierInvoice = invoice;
-                this.suppliers = suppliers;
-                this.bankAccounts = bac;
-                
-                this.setActionsDisabled();
-        
-                this.buildForm();
-            }, (error) => {
-                this.setError(error);
-            });
-        }
+        Observable.forkJoin(
+            this._supplierInvoiceService.Get(this.invoiceId, ['JournalEntry', 'Supplier.Info']),
+            this._supplierService.GetAll(null, ['Info']),
+            this._bankAccountService.GetAll(null)
+        ).subscribe((response: any) => {
+            let [invoice, suppliers, bac] = response;
+            this.supplierInvoice = invoice;
+            this.suppliers = suppliers;
+            this.bankAccounts = bac;
+ 
+            this.setActionsDisabled();
+            this.setPreviewId();
+    
+            this.buildForm();
+        }, (error) => {
+            this.setError(error);
+        });
     }
     
     private setActionsDisabled() {
@@ -174,8 +151,14 @@ export class SupplierInvoiceDetail implements OnInit {
             done('Ikke lagret');
             return;
         }
-        
-        if (this.supplierInvoice.ID > 0) {            
+
+        if (!this.supplierInvoice.SupplierID) {
+            this.setError({Message: 'Leverandør må være fyllt ut.'});
+            done('Ikke lagret');
+            return;
+        }
+
+        if (!!this.supplierInvoice.JournalEntryID) {
             let journalEntryData = this.journalEntryManual.getJournalEntryData();  
             
             Observable.forkJoin(
@@ -183,7 +166,7 @@ export class SupplierInvoiceDetail implements OnInit {
                 this._supplierInvoiceService.Put(this.supplierInvoice.ID, this.supplierInvoice)     
             ).subscribe((response: any) => {
                 if (runSmartBooking) {
-                    this.runSmartBooking(this.supplierInvoice, false, done);
+                    this.runSmartBooking(this.supplierInvoice, done);
                 } else {
                     done('Lagret');
                     this.router.navigateByUrl('/accounting/journalentry/supplierinvoices/details/' + this.supplierInvoice.ID);
@@ -191,24 +174,18 @@ export class SupplierInvoiceDetail implements OnInit {
             }, (error) => {
                 this.setError(error);
                 done('Lagring feilet');
-            });
+            });            
         } else {
-            // Following fields are required. For now hardcoded.
-            this.supplierInvoice.CreatedBy = '-';
-            this.supplierInvoice.CurrencyCode = 'NOK';
-
-            this._supplierInvoiceService.Post(this.supplierInvoice)
+            this._supplierInvoiceService.Put(this.supplierInvoice.ID, this.supplierInvoice)
                 .subscribe((result: SupplierInvoice) => {
-                    let newSupplierInvoice = result;
-                    
                     //always run smartbooking for new supplier invoices, ignore input parameter
-                    this.runSmartBooking(newSupplierInvoice, true, done);
+                    this.runSmartBooking(this.supplierInvoice, done);
                 },
                 (error) => {
                     this.setError(error);
                     done('Lagring feilet');
                 }
-            );
+            );           
         }
     };
 
@@ -266,7 +243,7 @@ export class SupplierInvoiceDetail implements OnInit {
         );
     }
 
-    private runSmartBooking(supplierInvoice: SupplierInvoice, redirectAfter: boolean, done) {
+    private runSmartBooking(supplierInvoice: SupplierInvoice, done) {
         
         if (supplierInvoice.ID == 0) {
             done('Smartbokføring kunne ikke kjøres');
@@ -277,13 +254,8 @@ export class SupplierInvoiceDetail implements OnInit {
         this._supplierInvoiceService.Action(supplierInvoice.ID, 'smartbooking')
             .subscribe(
                 (response: any) => {
-                    if (redirectAfter) {
-                        this.router.navigateByUrl('/accounting/journalentry/supplierinvoices/details/' + supplierInvoice.ID);        
-                    }
-                    else {
-                        done('Smartbokført');
-                        this.refreshFormData(supplierInvoice);
-                    }
+                    this.refreshFormData(supplierInvoice);
+                    done('Smartbokført');
                 },
                 (error) => {
                     this.setError(error);
@@ -292,8 +264,9 @@ export class SupplierInvoiceDetail implements OnInit {
             );
     }
 
-    private buildForm() {         
-        let self = this;         
+    private setPreviewId() {
+        let self = this;
+
         this.fileuploader.getSlots(this.supplierInvoice.ID).then((data) => {
             if (data && data.length) {
                 self.previewId = data[0].ID;
@@ -301,6 +274,10 @@ export class SupplierInvoiceDetail implements OnInit {
                 self.previewId = -1;
             }    
         });
+    }
+
+    private buildForm() {         
+        let self = this;         
         
         var supplierName = new UniFieldLayout();
         supplierName.FieldSet = 0;
@@ -318,15 +295,6 @@ export class SupplierInvoiceDetail implements OnInit {
             debounceTime: 500
         };
 
-        var paymentDueDate = new UniFieldLayout();
-        paymentDueDate.FieldSet = 0;
-        paymentDueDate.Section = 0;
-        paymentDueDate.Combo = 0;
-        paymentDueDate.FieldType = 2;
-        paymentDueDate.Label = 'Forfallsdato';
-        paymentDueDate.Property = 'PaymentDueDate';
-        paymentDueDate.ReadOnly = false;
-   
         var invoiceDate = new UniFieldLayout();
         invoiceDate.FieldSet = 0;
         invoiceDate.Section = 0;
@@ -335,6 +303,15 @@ export class SupplierInvoiceDetail implements OnInit {
         invoiceDate.Label = 'Fakturadato';
         invoiceDate.Property = 'InvoiceDate';
         invoiceDate.ReadOnly = false;
+
+        var paymentDueDate = new UniFieldLayout();
+        paymentDueDate.FieldSet = 0;
+        paymentDueDate.Section = 0;
+        paymentDueDate.Combo = 0;
+        paymentDueDate.FieldType = 2;
+        paymentDueDate.Label = 'Forfallsdato';
+        paymentDueDate.Property = 'PaymentDueDate';
+        paymentDueDate.ReadOnly = false;
         
         var taxInclusiveAmount = new UniFieldLayout();
         taxInclusiveAmount.FieldSet = 0;
@@ -391,7 +368,7 @@ export class SupplierInvoiceDetail implements OnInit {
         paymentInformation.Property = 'PaymentInformation';
         paymentInformation.ReadOnly = false;
                   
-        self.fields = [supplierName, paymentDueDate, invoiceDate, taxInclusiveAmount, invoiceNumber, 
+        self.fields = [supplierName, invoiceDate, paymentDueDate, taxInclusiveAmount, invoiceNumber, 
                        bankAccount, paymentID, paymentInformation];
         
         this.config = {            
