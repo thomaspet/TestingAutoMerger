@@ -23,9 +23,7 @@
                 <th class="medium_col">Dato</th>
                 <th>Kontoer</th>
                 <th>Beløp</th>
-                <!-- TODO > 30.6
-                <th>Fordeling</th>
-                -->
+                <!--<th>Fordeling</th>-->
                 <th>Beskrivelse</th>
                 <th class="small_col"></th>
             </tr>
@@ -50,26 +48,16 @@
                     <td class="simpleTable_multiline">
                         <dl>
                             <dt>Debet</dt>
-                            <dd>{{line.DebitAccount ? line.DebitAccount.AccountNumber + " - " + line.DebitAccount.AccountName : ""}}</dd>
+                            <dd>{{line.DebitAccount ? line.DebitAccount.AccountNumber + " - " + line.DebitAccount.AccountName : ""}} {{ line.DebitVatType ? " - mva: " + line.DebitVatType.VatCode + ': ' + line.DebitVatType.VatPercent + '%' : "" }}</dd>
 
                             <dt>Kredit</dt>
-                            <dd>{{line.CreditAccount ? line.CreditAccount.AccountNumber + " - " + line.CreditAccount.AccountName : ""}}</dd>
+                            <dd>{{line.CreditAccount ? line.CreditAccount.AccountNumber + " - " + line.CreditAccount.AccountName : ""}} {{ line.CreditVatType ? " - mva: " + line.CreditVatType.VatCode + ': ' + line.CreditVatType.VatPercent + '%' : "" }}</dd>                            
                         </dl>
                     </td>
                     <td class="-isImportant">
                         {{line.Amount | number:'1.2-2'}}
                     </td>
-                    <!-- TODO: > 30.6
-                    <td class="simpleTable_multiline">
-                        <dl>
-                            <dt>Avdeling</dt>
-                            <dd>{{getDepartmentName(line)}}</dd>
-
-                            <dt>Prosjekt</dt>
-                            <dd>{{getProjectName(line)}}</dd>
-                        </dl>
-                    </td>
-                    -->
+                   
                     <td>{{line.Description}}</td>
                     <td class="simpleTable_actionMenu"></td>
                 </tr>

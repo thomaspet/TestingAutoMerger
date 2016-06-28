@@ -3,7 +3,7 @@
         <div *ngIf="payrollrun">
             <h2 class="poster_toolbar_headline">{{payrollrun.Description}}
                 <p class="poster_toolbar_orgnr">
-                    Lønnsavregning nr. {{payrollrun.ID}}    Utbetalingsdato: {{payDate | date: "ddMMyy" }}    Status: {{payStatus}}
+                    Lønnsavregning nr. {{payrollrun.ID}},    Utbetalingsdato: {{payDate | date: "ddMMyy" }},    Status: {{payStatus}}
                 </p>
             </h2>
         </div>
@@ -17,21 +17,18 @@
 
     </article>
 
-    <section class="poster_toolbar_extras">
-        <button type="button" (click)="runSettling()">Avregn</button>
-        <button type="button" (click)="resetSettling()">Nullstill</button>
-        <button type="button" (click)="showPaymentList()">Utbetalingsliste</button>
+    <section class="poster_toolbar_extras" *ngIf="payrollrun">
         <control-modal></control-modal>
         <postingsummary-modal *ngIf="canPost()"></postingsummary-modal>
     </section>
 
 </header>
 <section class="application" [attr.aria-busy]="busy">
-    <uni-form *ngIf="payrollrun" [config]="config" [fields]="fields" [model]="payrollrun" (onChange)="change($event)" (onReady)="ready($event)"></uni-form>
+    <uni-form *ngIf="payrollrun" [config]="config" [fields]="fields" [model]="model" (onChange)="change($event)" (onReady)="ready($event)"></uni-form>
 </section>
 <section *ngIf="formIsReady">
     <section [attr.aria-busy]="busy">
-        <salarytrans *ngIf="!uniform.section(1).isOpen" [selectedPayrollRun]="payrollrun"></salarytrans>
+        <salarytrans *ngIf="!uniform.section(1).isOpen" [selectedPayrollRun]="payrollrun" (changedPayrollRun)="changedPayrollRun()"></salarytrans>
     </section>
 
     <uni-save *ngIf="uniform.section(1).isOpen" [actions]="saveactions"></uni-save>

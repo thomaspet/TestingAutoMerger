@@ -1,4 +1,4 @@
-import {Component, Input, Output, EventEmitter, ViewChild, ChangeDetectorRef, SimpleChange, HostListener, ChangeDetectionStrategy} from '@angular/core';
+import {Component, Input, Output, HostBinding, EventEmitter, ViewChild, ChangeDetectorRef, SimpleChange, HostListener, ChangeDetectionStrategy} from '@angular/core';
 import {FORM_DIRECTIVES, FORM_PROVIDERS, ControlGroup, Control} from '@angular/common';
 import {UniFieldLayout, KeyCodes} from './interfaces';
 import {CONTROLS} from './controls/index';
@@ -10,11 +10,10 @@ declare var _; // lodash
 
 @Component({
     selector: 'uni-field',
+    host: {'[class]': 'buildClassString()'},
     template: `
         <label 
-            [class.error]="hasError()" 
-            [class]="buildClassString()" 
-            [hidden]="Hidden">
+            [class.error]="hasError()">
             <span [hidden]="!isInput(field?.FieldType)">{{field?.Label}}</span>
 
             <uni-autocomplete-input #selectedComponent *ngIf="field?.FieldType === 0 && control" 
@@ -101,6 +100,7 @@ export class UniField {
 
     public get Component() { return this.component; }
 
+    @HostBinding('hidden')
     public get Hidden() { return this.field.Hidden; }
 
     public set Hidden(value: boolean) {
@@ -165,22 +165,10 @@ export class UniField {
     }
     
     private buildClassString() {
-        var classes = [];
-        var cls = this.classes;
-        for (var cl in cls) {
-            if (cls.hasOwnProperty(cl)) {
-                var value = undefined;
-                if (_.isFunction(cls[cl])) {
-                    value = (<Function>cls[cl])();
-                } else {
-                    value = cls[cl];
-                }
-                if (value === true) {
-                    classes.push(cl);
-                }
-            }
+        if (this.field.Classes) {
+            return this.field.Classes;
         }
-        return classes.join(' ');
+        return '';        
     }
 
     private isInput(type) {

@@ -1,13 +1,16 @@
-import {Component, Input, ViewChildren, OnInit, EventEmitter, Output, ViewChild} from '@angular/core';
+import {Component, Input, ViewChildren, OnInit, EventEmitter, Output, ViewChild, QueryList} from '@angular/core';
+import {Router} from '@angular/router-deprecated';
 import {UniFormBuilder} from '../../../../framework/forms';
 import {UniComponentLoader} from '../../../../framework/core';
 import {Observable} from 'rxjs/Observable';
 import {UniHttp} from '../../../../framework/core/http/http';
-import {Employee, FieldType, AGAZone, WageType, PayrollRun, Employment} from '../../../unientities';
-import {EmployeeService, AgaZoneService, WageTypeService, SalaryTransactionService} from '../../../services/services';
+import {Employee, FieldType, AGAZone, WageType, PayrollRun, Employment, SalaryTransaction} from '../../../unientities';
+import {EmployeeService, AgaZoneService, WageTypeService, SalaryTransactionService, PayrollrunService} from '../../../services/services';
 import {RootRouteParamsService} from '../../../services/rootRouteParams';
 import {UniSave, IUniSaveAction} from '../../../../framework/save/save';
 import {AsyncPipe} from '@angular/common';
+import {ControlModal} from '../payrollrun/controlModal';
+import {PostingsummaryModal} from '../payrollrun/postingsummaryModal';
 import {UniTable, UniTableColumnType, UniTableColumn, UniTableConfig} from 'unitable-ng2/main';
 import {UniForm} from '../../../../framework/uniform';
 import {UniFieldLayout} from '../../../../framework/uniform/index';
@@ -17,8 +20,8 @@ declare var _;
 @Component({
     selector: 'salary-transactions-employee',
     templateUrl: 'app/components/salary/salarytrans/salarytransList.html',
-    directives: [UniTable, UniComponentLoader, UniSave, UniForm],
-    providers: [EmployeeService, AgaZoneService, WageTypeService, SalaryTransactionService],
+    directives: [UniTable, UniComponentLoader, UniSave, UniForm, ControlModal, PostingsummaryModal],
+    providers: [EmployeeService, AgaZoneService, WageTypeService, SalaryTransactionService, PayrollrunService],
     pipes: [AsyncPipe]
 })
 
@@ -32,28 +35,34 @@ export class SalaryTransactionEmployeeList implements OnInit {
     private agaZone: AGAZone;
     public form: UniFormBuilder = new UniFormBuilder();
     public formModel: any = {};
-    
+
+
+    private employeeExpands: string[] = [
+        'BusinessRelationInfo',
+        'SubEntity.BusinessRelationInfo',
+        'Employments'
+    ];
+
     public config: any = {};
     public fields: any[] = [];
+
     @ViewChild(UniForm) public uniform: UniForm;
+    @ViewChild(ControlModal) private controllModal: ControlModal;
+    @ViewChild(PostingsummaryModal) private postingSummaryModal: PostingsummaryModal;
+
     @Input() private employeeID: number;
     @Input() private payrollRun: PayrollRun;
+
     @Output() public nextEmployee: EventEmitter<any> = new EventEmitter<any>(true);
     @Output() public previousEmployee: EventEmitter<any> = new EventEmitter<any>(true);
-    @ViewChildren(UniTable) public tables: any;
-    @Output() public salarytransesAdded: EventEmitter<any> = new EventEmitter<any>();
+    @Output() public changedPayrollRun: EventEmitter<any> = new EventEmitter<any>(true);
+
+    @ViewChildren(UniTable) public tables: QueryList<UniTable>;
 
     private busy: boolean;
     private salarytransChanged: any[] = [];
     private salarytransItems$: Observable<any>;
-    private saveactions: IUniSaveAction[] = [
-        {
-            label: 'Lagre lønnsposter',
-            action: this.saveSalarytrans.bind(this),
-            main: true,
-            disabled: true
-        }
-    ];
+    private saveactions: IUniSaveAction[] = [];
 
     constructor(
         public employeeService: EmployeeService,
@@ -61,8 +70,10 @@ export class SalaryTransactionEmployeeList implements OnInit {
         private rootRouteParams: RootRouteParamsService,
         private _uniHttpService: UniHttp,
         private _wageTypeService: WageTypeService,
-        private salarytransService: SalaryTransactionService) {
-        
+        private salarytransService: SalaryTransactionService,
+        private _payrollRunService: PayrollrunService,
+        private router: Router) {
+
         this.config = {
             submitText: ''
         };
@@ -77,36 +88,76 @@ export class SalaryTransactionEmployeeList implements OnInit {
         this.createTotalTableConfig();
 
         Observable.forkJoin(
-            this.employeeService.get(this.employeeID, ['BusinessRelationInfo, SubEntity.BusinessRelationInfo']),
-            this._wageTypeService.GetAll(''),
-            this._uniHttpService.asGET()
-                .usingBusinessDomain()
-                .withEndPoint('employments')
-                .send()
+            this.employeeService.get(this.employeeID, this.employeeExpands),
+            this._wageTypeService.GetAll('')
         ).subscribe((response: any) => {
             let [employee, wagetype, employment] = response;
             this.employments = employment;
             this.wagetypes = wagetype;
             this.employee = employee;
             this.setUnitableSource();
-            
+
             setTimeout(() => {
                 this.getAgaAndShowView(false);
             }, 100);
-        }, (error: any) => console.log(error));
+        }, (error: any) => {
+            this.log(error);
+            console.log(error);
+        });
+
+        this.refreshSaveActions();
     }
 
     public ngOnChanges() {
         this.busy = true;
+        this.refreshSaveActions();
         if (this.tables && this.employeeID) {
-            this.employeeService.get(this.employeeID, ['BusinessRelationInfo, SubEntity.BusinessRelationInfo'])
-            .subscribe((response: any) => {
-                this.employee = response;
-                this.setUnitableSource();
-                this.getAgaAndShowView(true);
+            this.employeeService.get(this.employeeID, this.employeeExpands)
+                .subscribe((response: any) => {
+                    this.employee = response;
+                    this.setUnitableSource();
+                    this.getAgaAndShowView(true);
 
-            }, (error: any) => console.log(error));
+                }, (error: any) => {
+                    this.log(error);
+                    console.log(error);
+                });
         }
+    }
+
+    private refreshSaveActions() {
+        this.saveactions = [
+            {
+                label: 'Lagre lønnsposter',
+                action: this.saveSalarytrans.bind(this),
+                main: true,
+                disabled: true
+            },
+            {
+                label: 'Kontroller',
+                action: this.openControlModal.bind(this),
+                main: false,
+                disabled: this.payrollRun.StatusCode > 0
+            },
+            {
+                label: 'Avregn',
+                action: this.runSettle.bind(this),
+                main: false,
+                disabled: this.payrollRun.StatusCode > 0
+            },
+            {
+                label: 'Utbetalingsliste',
+                action: this.showPayList.bind(this),
+                main: false,
+                disabled: this.payrollRun.StatusCode < 1
+            },
+            {
+                label: 'Bokfør',
+                action: this.openPostingSummaryModal.bind(this),
+                main: false,
+                disabled: this.payrollRun.StatusCode !== 1
+            }
+        ];
     }
 
     public getNext() {
@@ -119,52 +170,34 @@ export class SalaryTransactionEmployeeList implements OnInit {
 
     public saveSalarytrans(done) {
         done('Lagrer lønnsposter');
-        let saveItems: any[] = this.salarytransChanged;
+        this.payrollRun.transactions = this.salarytransChanged;
+        this._payrollRunService.Put(this.payrollRun.ID, this.payrollRun).subscribe((response) => {
+            this.salarytransChanged = [];
+            this.saveactions[0].disabled = true;
+            this.refreshSalaryTransTable();
+            done('Lønnsposter lagret: ');
+        },
+            (err) => {
+                this.log(err);
+                done('Feil ved lagring av lønnspost', err);
+            });
 
-        saveItems.forEach(salaryitem => {
-            salaryitem.EmployeeID = this.employeeID;
-            salaryitem.EmployeeNumber = this.employeeID;
-            salaryitem.PayrollRunID = this.payrollRun.ID;
-
-            if (salaryitem.ID > 0) {
-                this.salarytransService.Put(salaryitem.ID, salaryitem)
-                .subscribe((response: any) => {
-                    done('Sist lagret: ');
-                    this.salarytransChanged = [];
-                    this.saveactions[0].disabled = true;
-                    this.salarytransesAdded.emit(false);
-                },
-                (err) => {
-                    done('Feil ved oppdatering av lønnspost', err);
-                });
-            } else {
-                this.salarytransService.Post(salaryitem)
-                .subscribe((response: any) => {
-                    done('Sist lagret: ');
-                    this.salarytransChanged = [];
-                    this.saveactions[0].disabled = true;
-                    this.salarytransesAdded.emit(false);
-                },
-                (err) => {
-                    done('Feil ved lagring av lønnspost', err);
-                });
-            }
-        });
-        done('Lønnsposter lagret: ');
     }
 
     public ready(value) {
-        
+
     }
-    
+
     public change(value) {
-        
+
     }
 
     public isDirty(): boolean {
         return (this.salarytransChanged.length > 0);
     }
-
+    private refreshSalaryTransTable() {
+        this.salarytransItems$ = _.cloneDeep(this.salarytransItems$);
+    }
     private getAgaAndShowView(update: boolean) {
         if (this.employee.SubEntity) {
             this._agaZoneService
@@ -179,6 +212,9 @@ export class SalaryTransactionEmployeeList implements OnInit {
                         this.createHeadingForm();
                     }
                     this.busy = false;
+                }, (error: any) => {
+                    this.log(error);
+                    console.log(error);
                 });
         } else {
             this.agaZone = new AGAZone();
@@ -205,7 +241,7 @@ export class SalaryTransactionEmployeeList implements OnInit {
     private createHeadingForm() {
         this.formModel.employee = this.employee;
         this.formModel.aga = this.agaZone;
-        
+
         var percent = new UniFieldLayout();
         percent.Label = 'Prosenttrekk';
         percent.Property = 'employee.TaxPercentage';
@@ -217,6 +253,7 @@ export class SalaryTransactionEmployeeList implements OnInit {
         subEntity.Property = 'employee.SubEntity.BusinessRelationInfo.Name';
         subEntity.FieldType = FieldType.TEXT;
         subEntity.ReadOnly = true;
+        subEntity.LineBreak = true;
 
         var tableTax = new UniFieldLayout();
         tableTax.Label = 'Tabelltrekk';
@@ -229,7 +266,7 @@ export class SalaryTransactionEmployeeList implements OnInit {
         agaZone.Property = 'aga.ZoneName';
         agaZone.FieldType = FieldType.TEXT;
         agaZone.ReadOnly = true;
-        
+
         this.fields = [percent, subEntity, tableTax, agaZone];
     }
 
@@ -250,24 +287,30 @@ export class SalaryTransactionEmployeeList implements OnInit {
                 },
                 lookupFunction: (searchValue) => {
                     let matching: Employment[] = [];
-                    this.employments.forEach(employment => {
-                        if (employment.JobName.toLowerCase().indexOf(searchValue) > -1) {
-                            matching.push(employment);
-                        }
-                    });
+                    if (this.employee.Employments) {
+                        this.employee.Employments.forEach(employment => {
+                            if (employment.JobName.toLowerCase().indexOf(searchValue) > -1) {
+                                matching.push(employment);
+                            }
+                        });
+                    }
                     return matching;
                 }
             });
         var accountCol = new UniTableColumn('Account', 'Konto', UniTableColumnType.Text);
-        var payoutCol = new UniTableColumn('Wagetype$Base_Payment', 'Utbetales', UniTableColumnType.Number)
-            .setTemplate((dataItem) => {
-                if (dataItem.Wagetype$Base_Payment) {
+        var payoutCol = new UniTableColumn('Wagetype.Base_Payment', 'Utbetales', UniTableColumnType.Number, false)
+            .setTemplate((dataItem: SalaryTransaction) => {
+
+                if (!dataItem.Wagetype) {
+                    return;
+                }
+                if (dataItem.Wagetype.Base_Payment) {
                     return 'Ja';
                 } else {
                     return 'Nei';
                 }
             });
-        var transtypeCol = new UniTableColumn('IsRecurringPost', 'Fast/Variabel post', UniTableColumnType.Number)
+        var transtypeCol = new UniTableColumn('IsRecurringPost', 'Fast/Variabel post', UniTableColumnType.Number, false)
             .setTemplate((dataItem) => {
                 if (dataItem.IsRecurringPost) {
                     return 'Fast';
@@ -286,16 +329,23 @@ export class SalaryTransactionEmployeeList implements OnInit {
                 },
                 lookupFunction: (searchValue) => {
                     let matching: WageType[] = [];
+
                     this.wagetypes.forEach(wagetype => {
-                        if (wagetype.WageTypeName.toLowerCase().indexOf(searchValue) > -1) {
-                            matching.push(wagetype);
+                        if (isNaN(searchValue)) {
+                            if (wagetype.WageTypeName.toLowerCase().indexOf(searchValue) > -1) {
+                                matching.push(wagetype);
+                            }
+                        } else {
+                            if (wagetype.WageTypeId.toString().indexOf(searchValue) > -1) {
+                                matching.push(wagetype);
+                            }
                         }
                     });
                     return matching;
                 }
             });
 
-        this.salarytransEmployeeTableConfig = new UniTableConfig()
+        this.salarytransEmployeeTableConfig = new UniTableConfig(this.payrollRun.StatusCode < 1)
             .setColumns([
                 wageTypeCol, wagetypenameCol, employmentidCol,
                 fromdateCol, toDateCol, accountCol, amountCol, rateCol, sumCol,
@@ -308,12 +358,12 @@ export class SalaryTransactionEmployeeList implements OnInit {
                 if (event.field === 'WageTypeNumber') {
                     this.mapWagetypeToTrans(row);
                 }
-                
+
                 if (event.field === 'Employment') {
 
                     this.mapEmploymentToTrans(row);
                 }
-                
+
                 if (event.field === 'Amount' || event.field === 'Rate') {
                     this.calcItem(row);
                 }
@@ -330,12 +380,12 @@ export class SalaryTransactionEmployeeList implements OnInit {
         var basevacationCol = new UniTableColumn('baseVacation', 'Grunnlag feriepenger', UniTableColumnType.Number);
 
         this.salarytransEmployeeTotalsTableConfig = new UniTableConfig()
-        .setColumns([
-            percentCol, taxtableCol, paidCol, agaCol, basevacationCol
-        ])
-        .setEditable(false)
-        .setPageable(false)
-        .setSearchable(false);
+            .setColumns([
+                percentCol, taxtableCol, paidCol, agaCol, basevacationCol
+            ])
+            .setEditable(false)
+            .setPageable(false)
+            .setSearchable(false);
     }
 
     private mapWagetypeToTrans(rowModel) {
@@ -350,12 +400,22 @@ export class SalaryTransactionEmployeeList implements OnInit {
         rowModel['Account'] = wagetype.AccountNumber;
         rowModel['FromDate'] = this.payrollRun.FromDate;
         rowModel['ToDate'] = this.payrollRun.ToDate;
-        rowModel['Wagetype$Base_Payment'] = wagetype.Base_Payment;
-        rowModel['Amount'] = 1;
-        rowModel['Rate'] = wagetype.Rate;
+        rowModel['Wagetype.Base_Payment'] = wagetype.Base_Payment;
+        if (!rowModel.Amount) {
+            rowModel['Amount'] = 1;
+        }
+
+        if (!rowModel.Rate || wagetype.Rate) {
+            rowModel['Rate'] = wagetype.Rate;
+        }
+
+        if (this.employee.Employments && this.employee.Employments.length === 1) {
+            rowModel['Employment'] = this.employee.Employments[0];
+            rowModel['EmploymentID'] = this.employee.Employments[0].ID;
+        }
         this.calcItem(rowModel);
     }
-    
+
     private mapEmploymentToTrans(rowModel) {
         let employment = rowModel['Employment'];
         if (!employment) {
@@ -363,7 +423,7 @@ export class SalaryTransactionEmployeeList implements OnInit {
         }
         rowModel['EmploymentID'] = employment.ID;
     }
-    
+
     private calcItem(rowModel) {
         let sum = rowModel['Amount'] * rowModel['Rate'];
         rowModel['Sum'] = sum;
@@ -381,51 +441,101 @@ export class SalaryTransactionEmployeeList implements OnInit {
             });
 
         this.employeeService.getTotals(this.payrollRun.ID, this.employeeID)
-        .subscribe((response) => {
-            this.employeeTotals = [response];
-        });
+            .subscribe((response) => {
+                this.employeeTotals = [response];
+            }, (error: any) => {
+                this.log(error);
+                console.log(error);
+            });
     }
 
     private getEmploymentJobName(employmentID: number) {
         var jobName = '';
+        if (this.employee.Employments) {
+            this.employee.Employments.forEach((employment: Employment) => {
+                if (employment.ID === employmentID) {
+                    jobName = employment.JobName;
+                }
+            });
+        }
 
-        this.employments.forEach((employment: Employment) => {
-            if (employment.ID === employmentID) {
-                jobName = employment.JobName;
-            }
-        });
         return jobName;
     }
 
     private getWagetypeName(wagetypeNumber: number) {
         var wagetypeName = '';
-         
+
         this.wagetypes.forEach((wagetype: WageType) => {
             if (wagetype.WageTypeId === wagetypeNumber) {
                 wagetypeName = wagetype.WageTypeName;
             }
         });
-        
+
         return wagetypeName;
     }
 
-    private rowChanged(event) {
-        let row = event.rowModel;
-
-        if (this.salarytransChanged.length > 0) {
-            for (var i = 0; i < this.salarytransChanged.length; i++) {
-                var salaryItem = this.salarytransChanged[i];
-                if (row.ID === salaryItem.ID) {
-                    this.salarytransChanged[i] = row;
-                    break;
-                } else {
-                    this.salarytransChanged.push(row);
+    public rowChanged(event) {
+        let row: any = event.rowModel;
+        if (row.Wagetype || row.Text || row.EmploymentID || row.FromDate || row.ToDate || row.Account || row.Amount || row.Rate) {
+            if (!row.ID && row._createguid) {
+                for (var i = 0; i < this.salarytransChanged.length; i++) {
+                    var salaryItem = this.salarytransChanged[i];
+                    if (row._createguid === salaryItem._createguid) {
+                        this.salarytransChanged[i] = row;
+                        break;
+                    }
                 }
+            } else {
+                row.EmployeeID = this.employeeID;
+                row.EmployeeNumber = this.employeeID;
+                row.PayrollRunID = this.payrollRun.ID;
+                row['_createguid'] = this.salarytransService.getNewGuid();
+                this.salarytransChanged.push(row);
             }
-        } else {
-            this.salarytransChanged.push(row);
         }
-        this.salarytransesAdded.emit(true);
+        let tableList: UniTable[] = this.tables.toArray();
+        tableList[0].updateRow(row._originalIndex, row);
         this.saveactions[0].disabled = false;
+    }
+
+    public showPayList(done) {
+        this.router.navigateByUrl('/salary/paymentlist/' + this.payrollRun.ID);
+        done('');
+    }
+
+    public runSettle(done) {
+        done('kjører lønnsavregning: ');
+        this.busy = true;
+        this._payrollRunService.runSettling(this.payrollRun.ID)
+            .subscribe((bResponse: boolean) => {
+                if (bResponse === true) {
+                    this._payrollRunService.Get<PayrollRun>(this.payrollRun.ID)
+                        .subscribe((response) => {
+                            this.showPayList.bind(done);
+                            this.refreshSaveActions();
+                            done('Lønnsavregning avregnet: ');
+                            this.busy = false;
+                        });
+                }
+            });
+
+    }
+
+    public openPostingSummaryModal(done) {
+        this.postingSummaryModal.openModal();
+        done('');
+    }
+
+    public openControlModal(done) {
+        this.controllModal.openModal();
+        done('');
+    }
+
+    public log(err) {
+        if (err._body) {
+            alert(err._body);
+        } else {
+            alert(JSON.stringify(err));
+        }
     }
 }
