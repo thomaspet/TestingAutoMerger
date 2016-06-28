@@ -15,71 +15,71 @@
     </header>
 
     <!--INVOICED CHART-->
-    <figure class="dashboard_chart_card" style="margin-bottom: 16px">
+    <figure class="dashboard_chart_card">
         <h2>Fakturert pr måned - 2016</h2>
-        <canvas id="invoicedChart" style="height: 233px; max-height: 233px" class=""></canvas>
+        <canvas id="invoicedChart" class="chart_canvas"></canvas>
     </figure>
 
     <!--ORDRE CHART-->
-    <figure class="dashboard_chart_card" style="margin-bottom: 16px">
+    <figure class="dashboard_chart_card">
         <h2>Ordre pr måned - 2016</h2>
-        <canvas id="ordre_chart" style="height: 233px; max-height: 233px" class=""></canvas>
+        <canvas id="ordre_chart" class="chart_canvas"></canvas>
+    </figure>
+
+    <!--QUOTE CHART-->
+    <figure class="dashboard_chart_card">
+        <h2>Tilbud pr måned - 2016</h2>
+        <canvas id="quote_chart" class="chart_canvas"></canvas>
     </figure>
 
     <!--TRANSACTIONS LIST -->
-    <figure class="dashboard_chart_card" *ngIf="transactionList" style="margin-bottom: 16px">
+    <figure class="dashboard_chart_card">
         <h2>Siste transaksjoner</h2>
-        <ol class="dashboard_list recent">
-            <li *ngFor="let trans of transactionList; let i = index;" style="font-size:0.8rem">
+        <ol class="dashboard_list recent" *ngIf="transactionList">
+            <li *ngFor="let trans of transactionList; let i = index;" class="dashboard_lists">
                 <strong>{{trans.DisplayName}}</strong>
                 endret <!--Should be dynamic-->
-                <strong><a style="color:#7293cb; cursor: pointer;" (click)="widgetListItemClicked(trans.url)">{{trans.module}} {{trans.EntityID}}</a></strong>
-                <time style="float: right; margin: 0">{{trans.time}}</time>
+                <strong><a (click)="widgetListItemClicked(trans.url)">{{trans.module}} {{trans.EntityID}}</a></strong>
+                <time class="time_float">{{trans.time}}</time>
             </li> 
         </ol>
     </figure>
 
-    <!--OPERATING PROFIT/LOSS CHART-->
-    <figure class="dashboard_chart_card" style="margin-bottom: 16px">
-        <h2>Driftsresultater</h2>
-        <canvas id="operating_chart" style="height: 233px; max-height: 233px"  class=""></canvas>
-    </figure>
-
-    <!--PAYROLL CHART-->
-    <figure class="dashboard_chart_card" style="margin-bottom: 16px">
-        <h2>Utbetaling lønn per lønnsavregning</h2>
-        <canvas id="payroll_chart" style="height: 233px; max-height: 233px" class=""></canvas>
-    </figure>
-
-    <!--ASSETS CHART-->
-    <figure class="dashboard_chart_card" style="margin-bottom: 16px">
-        <h2>Eiendeler</h2>
-        <canvas id="assets_chart" style="height: 233px; max-height: 233px"  class=""></canvas>
-    </figure>
-
     <!--MY TRANSACTIONS LIST -->
-    <figure class="dashboard_chart_card" *ngIf="myTransactionList" style="margin-bottom: 16px">
+    <figure class="dashboard_chart_card" *ngIf="myTransactionList">
         <h2>Dine siste transaksjoner</h2>
         <ol class="dashboard_list recent">
-            <li *ngFor="let myTrans of myTransactionList; let i = index;" style="font-size:0.8rem">
+            <li *ngFor="let myTrans of myTransactionList; let i = index;" class="dashboard_lists">
                 <strong>Du</strong>
                 endret <!--Should be dynamic-->
-                <strong><a style="color:#7293cb; cursor: pointer;" (click)="widgetListItemClicked(myTrans.url)">{{myTrans.module}} {{myTrans.EntityID}}</a></strong>
-                <time style="float: right; margin: 0">{{myTrans.time}}</time>
+                <strong><a (click)="widgetListItemClicked(myTrans.url)">{{myTrans.module}} {{myTrans.EntityID}}</a></strong>
+                <time class="time_float">{{myTrans.time}}</time>
             </li>
         </ol>
+    </figure>
+
+    <!--OPERATING PROFIT/LOSS CHART-->
+    <figure class="dashboard_chart_card">
+        <h2>Driftsresultater</h2>
+        <canvas id="operating_chart" class="chart_canvas"></canvas>
     </figure>
 
     <!--JOURNAL ENTRY LIST -->
-    <figure class="dashboard_chart_card" style="margin-bottom: 16px">
+    <figure class="dashboard_chart_card">
         <h2>Siste bilag</h2>
         <ol class="dashboard_list recent" *ngIf="journalEntryList">
-            <li *ngFor="let entry of journalEntryList; let i = index;" style="font-size:0.8rem">
-                <strong><a style="color:#7293cb; cursor: pointer;" (click)="widgetListItemClicked(entry.url)">Bilag {{ entry.JournalEntryNumber}}</a></strong>
-                <time style="float: right; margin: 0">{{entry.time}}</time>
+            <li *ngFor="let entry of journalEntryList; let i = index;" class="dashboard_lists">
+                <strong><a (click)="widgetListItemClicked(entry.url)">Bilag {{ entry.JournalEntryNumber}}</a></strong>
+                <time class="time_float">{{entry.time}}</time>
             </li>
         </ol>
         <h4 *ngIf="!journalEntryList.length">Ingen bilag</h4>
+    </figure>
+
+    <!--ASSETS CHART-->
+    <figure class="dashboard_chart_card">
+        <h2>Eiendeler</h2>
+        <canvas id="assets_chart" class="chart_canvas"></canvas>
     </figure>
 
 </section>

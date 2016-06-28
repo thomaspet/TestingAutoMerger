@@ -1,9 +1,10 @@
-import {Component} from '@angular/core';
+import {Component, Input, ElementRef} from '@angular/core';
 import {TabService} from '../layout/navbar/tabstrip/tabService';
 import {BizHttp} from '../../../framework/core/http/BizHttp';
 import {UniHttp} from '../../../framework/core/http/http';
 import {AuditLog} from '../../unientities';
 import {ROUTER_DIRECTIVES, Router} from "@angular/router-deprecated";
+
 declare var Chart;
 declare var moment;
 
@@ -39,32 +40,9 @@ export class Dashboard {
         this.tabService.addTab({ name: 'Dashboard', url: '/', active: true, moduleID: 0 });
         Chart.defaults.global.maintainAspectRatio = false;
         this.welcomeHidden = false;
-
     }
 
     public ngAfterViewInit() {
-
-        //ASSETS CHART
-        //var data: IChartDataSet = {
-        //    data: [250000, 350000, 200000, 500000, 410000],
-        //    labels: ['Kontanter og bankinnskudd', 'Kortsiktige fordringer', 'Anleggsmidler', 'Varelager', 'Andre midler'],
-        //    chartType: 'pie',
-        //    label: '',
-        //    backgroundColor: ['#7293cb', '#e1974c', '#84ba5b', '#d35e60', '#808585'],
-        //    borderColor: null
-        //}
-        //this.chartGenerator('assets_chart', data);
-
-        //PAYROLL CHART
-        //var data: IChartDataSet = {
-        //    data: [2560000, 2720000, 2528000, 1950000, 2400000],
-        //    labels: ['January', 'February', 'March', 'April', 'May'],
-        //    chartType: 'bar',
-        //    label: '',
-        //    backgroundColor: ['#7293cb', '#e1974c', '#84ba5b', '#d35e60', '#808585'],
-        //    borderColor: null
-        //}
-        //this.chartGenerator('payroll_chart', data)
 
         this.getInvoicedData().subscribe(
             data => this.chartGenerator('invoicedChart', this.twelveMonthChartData(data[0].Data, 'Fakturert', '#7293cb', '#396bb1', 'bar', 'sumTaxExclusiveAmount')),
@@ -73,6 +51,11 @@ export class Dashboard {
 
         this.getOrdreData().subscribe(
             (data) => { this.chartGenerator('ordre_chart', this.twelveMonthChartData(data[0].Data, 'Ordre', '#84ba5b', '#3e9651', 'bar', 'sumTaxExclusiveAmount')) },
+            (error) => { console.log(error); }
+        )
+
+        this.getQuoteData().subscribe(
+            (data) => { this.chartGenerator('quote_chart', this.twelveMonthChartData(data[0].Data, 'Tilbud', '#e1974c', '#da7c30', 'bar', 'sumTaxExclusiveAmount')) },
             (error) => { console.log(error); }
         )
 
@@ -108,8 +91,8 @@ export class Dashboard {
             (error) => { console.log(error); }
         )
 
-        var myPayrollDummyData = [{ data: 26000 }, { data: 28000 }, { data: 30000 }, { data: 24500 }, { data: 27000 }, { data: 31000 }]
-        this.chartGenerator('payroll_chart', this.twelveMonthChartData(myPayrollDummyData, 'Lønn', '#e1974c', '#da7c30', 'bar', 'data'));
+        //var myPayrollDummyData = [{ data: 26000 }, { data: 28000 }, { data: 30000 }, { data: 24500 }, { data: 27000 }, { data: 31000 }]
+        //this.chartGenerator('payroll_chart', this.twelveMonthChartData(myPayrollDummyData, 'Lønn', '#e1974c', '#da7c30', 'bar', 'data'));
     }
 
     public hideWelcome() {
@@ -118,6 +101,7 @@ export class Dashboard {
     }
 
     public widgetListItemClicked(url) {
+        console.log(url);
         this.router.navigateByUrl(url);
     }
 
@@ -138,6 +122,8 @@ export class Dashboard {
             }
             totalLabel += myData[i];
         }
+        totalLabel = ~~totalLabel;
+        totalLabel = this.format(totalLabel);
 
         return {
             label: 'Total: ' + totalLabel,
@@ -231,7 +217,7 @@ export class Dashboard {
         HELP METHODS    
     ************************/
 
-    //Adds better name and url to list items
+    //Dummy temp switch that adds better name and url to list items
     private findModuleDisplayNameAndURL(data: any) {
         switch (data.EntityType) {
             case 'CustomerQuote':
@@ -249,7 +235,7 @@ export class Dashboard {
             case 'JournalEntryLine':
                 data.module = 'JournalEntryLine';
                 /*NEED REAL URL*/
-                data.url = '/sales/customer/list';
+                data.url = '/';
                 break;
             case 'SupplierInvoice':
                 data.module = 'Leverandørfaktura';
@@ -272,6 +258,10 @@ export class Dashboard {
                 data.module = 'Kunde';
                 data.url = '/sales/customer/details/' + data.EntityID;
                 break;
+            case 'Product':
+                data.module = 'Produkt';
+                data.url = '/products/details/' + data.EntityID;
+                break;
             case 'SalaryTransaction':
                 data.module = 'SalaryTransaction';
                 /*NEED REAL URL*/
@@ -280,6 +270,15 @@ export class Dashboard {
             case 'PayrollRun':
                 data.module = 'Lønnsavregning';
                 data.url = '/salary/payrollrun/' + data.EntityID;
+                break;
+            case 'Account':
+                data.module = 'Konto';
+                data.url = '/accounting/accountsettings';
+                break;
+            case 'Address':
+                data.module = 'Adresse';
+                /*NEED REAL URL*/
+                data.url = '/sales/customer/list';
                 break;
             case 'Dimensions':
                 data.module = 'Dimensions';
@@ -305,6 +304,14 @@ export class Dashboard {
     private CapitalizeDisplayName(str: string) {
         return str.replace(/\w\S*/g, function (txt) { return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase(); });
     }
+
+    //Formats number
+    private format(num) {
+        var n = num.toString(), p = n.indexOf('.');
+        return n.replace(/\d(?=(?:\d{3})+(?:\.|$))/g, function ($0, i) {
+            return p < 0 || i < p ? ($0 + ' ') : $0;
+    });
+}
 
     /********************************************************************
         SHOULD BE MOVED TO SERVICE, BUT VS WONT LET ME CREATE NEW FILES 
@@ -361,6 +368,15 @@ export class Dashboard {
             .send();
     }
 
+    //Gets quote sum current year (Query needs improving)
+    public getQuoteData() {
+        return this.http
+            .asGET()
+            .usingBusinessDomain()
+            .withEndPoint('statistics?model=CustomerQuote&select=sum(TaxExclusiveAmount),month(QuoteDate),year(QuoteDate)&range=monthquotedate ')
+            .send();
+    }
+
     //Gets 10 last journal entries
     public getLastJournalEntry() {
         return this.http
@@ -385,15 +401,6 @@ export class Dashboard {
             .asGET()
             .usingBusinessDomain()
             .withEndPoint('statistics?model=journalentryline&select=sum(amount),name&filter=maingroupid eq 2&join=journalentryline.accountid eq account.id and account.accountgroupid eq accountgroup.id&top=50')
-            .send();
-    }
-
-    //Gets payment data
-    public getPaymentData(id: number) {
-        return this.http
-            .asGET()
-            .usingBusinessDomain()
-            .withEndPoint('payrollrun/' + id + '?action=paymentlist')
             .send();
     }
 }
