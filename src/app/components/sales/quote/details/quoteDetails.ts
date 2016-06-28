@@ -11,7 +11,7 @@ import {UniForm, UniFieldLayout} from '../../../../../framework/uniform';
 
 import {QuoteItemList} from './quoteItemList';
 
-import {FieldType, CustomerQuote, Customer} from '../../../../unientities';
+import {FieldType, CustomerQuote, CustomerQuoteItem, Customer} from '../../../../unientities';
 import {Dimensions, Address, BusinessRelation} from '../../../../unientities';
 import {StatusCodeCustomerQuote} from '../../../../unientities';
 
@@ -59,6 +59,9 @@ export class QuoteDetails {
     private recalcTimeout: any;
 
     private actions: IUniSaveAction[];
+
+    private expandOptions: Array<string> = ['Dimensions', 'Items', 'Items.Product', 'Items.VatType',
+        'Customer', 'Customer.Info', 'Customer.Info.Addresses'];
 
     constructor(private customerService: CustomerService,
         private customerQuoteService: CustomerQuoteService,
@@ -175,8 +178,7 @@ export class QuoteDetails {
         Observable.forkJoin(
             this.departementService.GetAll(null),
             this.projectService.GetAll(null),
-            this.customerQuoteService.Get(this.quoteID, ['Dimensions', 'Items', 'Items.Product', 'Items.VatType',
-                'Customer', 'Customer.Info', 'Customer.Info.Addresses']),
+            this.customerQuoteService.Get(this.quoteID, this.expandOptions),
             this.customerService.GetAll(null, ['Info']),
             this.addressService.GetNewEntity(null, 'address')
         ).subscribe(response => {
@@ -414,6 +416,27 @@ export class QuoteDetails {
         }, 2000);
     }
 
+    private getValidQuoteItems(quoteItems: any) {
+        let items: CustomerQuoteItem[] = [];
+        let showMessage: boolean = false;
+
+        for (let i = 0; i < quoteItems.length; i++) {
+            let line: CustomerQuoteItem = quoteItems[i];
+
+            if (line.ProductID !== null) {
+                items.push(line);
+            }
+            else {
+                showMessage = true;
+            }
+        }
+
+        if (showMessage) {
+            alert('En eller flere av linjene inneholder produkter som ikke finnes i produktliste. Disse vil ikke bli lagret med tilbud. Vennligst opprett produktene først');
+        }
+        return items;
+    }
+
     private saveQuoteManual(done: any) {
         this.saveQuote((quote => {
             done('Lagret');
@@ -429,8 +452,7 @@ export class QuoteDetails {
                 console.log('== TRANSITION OK ' + transition + ' ==');
                 done(transition);
 
-                this.customerQuoteService.Get(quote.ID, ['Dimensions', 'Items', 'Items.Product', 'Items.VatType',
-                    'Customer', 'Customer.Info', 'Customer.Info.Addresses']).subscribe((data) => {
+                this.customerQuoteService.Get(quote.ID, this.expandOptions).subscribe((data) => {
                         this.quote = data;
                         this.updateStatusText();
                         this.updateSaveActions();
@@ -457,23 +479,29 @@ export class QuoteDetails {
             this.quote.Dimensions['_createguid'] = this.customerQuoteService.getNewGuid();
         }
 
+        //Save only lines with products from product list
+        this.quote.Items = this.getValidQuoteItems(this.quote.Items);
+
         this.customerQuoteService.Put(this.quote.ID, this.quote)
             .subscribe(
-            (quote) => {
-                this.quote = quote;
-                this.addressService.setAddresses(this.quote);
-                this.updateStatusText();
-                this.updateSaveActions();
+            (quoteSaved) => {
+                this.customerQuoteService.Get(this.quote.ID, this.expandOptions).subscribe(quoteGet => {
+                    this.quote = quoteGet;
+                    this.addressService.setAddresses(this.quote);
+                    this.updateStatusText();
+                    this.updateSaveActions();
+                    this.ready(null);
 
-                if (cb) {
-                    cb(quote);
-                }
+                    if (cb) {
+                        cb(quoteGet);
+                    }
+                });
             },
             (err) => {
                 console.log('Feil oppsto ved lagring', err);
                 this.log(err);
             }
-            );
+        );
     }
 
     private updateStatusText() {
