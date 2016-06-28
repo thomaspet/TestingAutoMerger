@@ -1,4 +1,5 @@
 import {IJQItem, IPos, IRect, IEditEvents, IEditor } from './interfaces';
+import {DomEvents} from './domevents';
 import {debounce} from '../utils';
 declare var jQuery;
 
@@ -14,16 +15,13 @@ export class Editor implements IEditor {
     private inputBox:IJQItem;
     private position:IPos;
     private originalValue: any;
+    private reset = false;
     
-    private handlers = {
-        editBlur: undefined,
-        editKeydown: undefined        
-    }
+    private domEvents = new DomEvents();
         
     public destroy() {
         if (this.inputBox) {
-            this.inputBox.off('blur', this.handlers.editBlur);
-            this.inputBox.off('keydown', this.handlers.editKeydown);
+            this.domEvents.Cleanup();
             this.inputBox.remove();
             this.inputBox = undefined;
         }
@@ -34,11 +32,8 @@ export class Editor implements IEditor {
         if (!this.inputBox) {
             this.inputBox = <IJQItem>jQuery(editorTemplate);
             owner.parent().append(this.inputBox);        
-            this.handlers.editBlur = (event) => { this.finalizeEdit(); };
-            this.handlers.editKeydown = (event) => { this.onEditKeyDown(event); };
-            this.inputBox.on('blur', this.handlers.editBlur);
-            this.inputBox.on('keydown', this.handlers.editKeydown);
-            this.inputBox.on('input paste', debounce((evt) => { this.onEditTyping(evt); }, 250, false));
+            this.domEvents.Create(<any>this.inputBox, 'keydown', (event)=> this.onEditKeyDown(event) );
+            this.domEvents.Create(<any>this.inputBox, 'input paste', debounce((evt) => { this.onEditTyping(evt); }, 250, false));            
         }                
         return this.inputBox;         
     }    
@@ -67,6 +62,7 @@ export class Editor implements IEditor {
     }
 
     public setValue(value:any) {
+        console.log("setValue(" + value + ")");
         if (!this.inputBox) return;
         this.originalValue = value;
         this.inputBox.val(value);
@@ -93,12 +89,14 @@ export class Editor implements IEditor {
         return changes;
     }
     
-    public finalizeEdit(cancel = false, valueOverride?:string):boolean {
+    public finalizeEdit(cancel = false, valueOverride?:string, src = "unknown"):boolean {
+        console.log("finalizeEdit (" + this.position.col + "," + this.position.row + ") from " + src + " value = " + valueOverride );
         if (!(this.editEvents && this.editEvents.onEditChanged)) {
             return true;
         }
         var txt = valueOverride !== undefined ? valueOverride : this.inputBox.val();
         if (txt !== this.originalValue) {
+            console.log("raising changeevent: " + txt);
             if (this.editEvents.onEditChanged(txt, this.position)) {
                 this.originalValue = txt;
             } else {
@@ -115,6 +113,10 @@ export class Editor implements IEditor {
 
     private onEditTyping(event) {
         if (!(this.editEvents && this.onEditTyping)) { return; }
+        if (this.reset) {
+            console.log("Skip debounced event since col has changed ");
+            return;
+        }
         var value = this.inputBox.val();
         this.editEvents.onEditTyping(event, value, this.position);        
     }

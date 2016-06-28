@@ -47,7 +47,8 @@ export class Editable implements AfterViewInit, OnDestroy {
         jQuery(window).on('resize', this.handlers.onResize );
 
         this.dropList.onClick = (rowIndex: number, item: any, details: ITypeSearch) => {
-            this.finalizeEdit(false, item[details.itemPropertyToSet]);
+            var value = item[details.itemPropertyToSet];
+            this.finalizeEdit(false, value);
         }
     }
     
@@ -95,7 +96,7 @@ export class Editable implements AfterViewInit, OnDestroy {
         this.current.editor.startEdit(txt, el, this.getCellPosition(el));
     }
 
-    private loadTextIntoEditor() {
+    private loadTextIntoEditor() {        
         if (this.current.active) {
             var txt = this.current.active.text();
             this.current.editor.setValue(txt);
@@ -105,7 +106,7 @@ export class Editable implements AfterViewInit, OnDestroy {
     private createEditorIfMissing() {
         if (!this.current.editor) {
             this.current.editor = new Editor();
-            this.current.editor.create(this.jqRoot);
+            var jqInput = this.current.editor.create(this.jqRoot);
             this.current.editor.editEvents = {
                 onEditChanged: (value:any, pos:IPos):boolean => {
                     return this.handleChange(value, pos);
@@ -114,11 +115,38 @@ export class Editable implements AfterViewInit, OnDestroy {
                     this.handleKeydown(event);
                 },
                 onEditTyping: (event, text:string, pos:IPos) => {
-                    this.handleEditTyping(event, text, pos);
+                    this.onTypeSearch(text, pos);
                 }
             }
+            jqInput.on('blur', (event)=>{
+                console.log("blur");
+                this.whenNoDroplist(null, ()=>{
+                    console.log("blur passed to finalize!");
+                    this.current.editor.finalizeEdit(false, undefined, 'blur');
+                }, 'blur');
+            });
         }        
     }
+
+    whenNoDroplist(target: JQuery, fx: () => void, source = "click") {
+
+        // If no droplist we just run (fx) and return;
+        if (!this.dropList.isOpen()) {
+            return fx();
+        }
+
+        // OnClick:
+        if (target) {
+            if (target.closest(".droplist").length === 0) {
+                return fx();
+            }
+            return;
+        } 
+        // No target! (lets check delay and check if activeElement is our droplist)
+        setTimeout(() => {
+            this.whenNoDroplist($(document.activeElement), fx, source);
+        });
+    }    
 
     private handleChange(value:any, pos:IPos):boolean {
         var p2 = this.getCellPosition(this.current.active);
@@ -137,8 +165,10 @@ export class Editable implements AfterViewInit, OnDestroy {
             if (async) {
                 var cell = this.current.active;
                 async.then((value:any)=>{
-                    this.loadTextIntoEditor();
-                    setTimeout(()=> { this.onResize(); });
+                    setTimeout(()=> { 
+                        this.onResize();
+                        this.loadTextIntoEditor(); 
+                    });
                 }, (reason)=>{
                     console.log("err:" + reason);
                     cell.css('background-color','#ffe0e0');
@@ -187,9 +217,11 @@ export class Editable implements AfterViewInit, OnDestroy {
         }        
     }
 
-    private handleEditTyping(event, text:string, pos:IPos) {
-        console.log("typing:" + text);
-        this.onTypeSearch(text, pos);
+    private currentPosition():IPos {
+        if (this.current && this.current.active) {
+            return this.getCellPosition(this.current.active);
+        }
+        return { col: -1, row: -1 };
     }
 
     private onTypeSearch(value: string, pos?: IPos) {
@@ -215,7 +247,7 @@ export class Editable implements AfterViewInit, OnDestroy {
         if (!this.current.editor) { return true; }
         this.dropList.hide();
         if (useThisValue===undefined && (!this.current.editor.hasChanges())) { return true; }        
-        if (this.current.editor.finalizeEdit(cancel, useThisValue)) {
+        if (this.current.editor.finalizeEdit(cancel, useThisValue, 'parentFinalize')) {
             return true;
         }
     }

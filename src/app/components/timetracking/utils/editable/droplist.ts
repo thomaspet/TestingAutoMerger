@@ -142,7 +142,7 @@ export class DropList {
     }
 
     public show(details: ITypeSearch, data: Array<any> = null) {
-        this.parentColIndex = details.position.col;            
+        this.parentColIndex = details.position.col;     
         this.details = details;
         if (details.promise && data === null) {
             details.promise.then((result: any) => {
@@ -168,17 +168,26 @@ export class DropList {
         }
     }
 
-    private buildContent(data: Array<any>, renderFunc: (item: any) => string): string {
+    private buildContent(data: Array<any>, renderFunc?: (item: any) => string): string {
         var txt = "", value = "";
         for (var i = 0; i < data.length; i++) {
-            if (renderFunc) {
-                value = renderFunc(data[i]);
-            } else {
-                value = data[i];
-            }
-            txt += "<li>" + value + "</li>";
+            data[i]._label = this.renderRow(data[i], renderFunc);
+            txt += "<li>" + data[i]._label + "</li>";
         }
         return txt;
+    }
+
+    private renderRow(item:any, renderFunc?: (item: any) => string): string {
+        if (renderFunc) {
+            return renderFunc(item);
+        }
+        if (typeof item === 'object') {
+            for (var key in item) {
+                if (item.hasOwnProperty(key)) {
+                    return item[key];
+                }
+            }
+        }
     }
 
     private ensureSelfElement(): boolean {
