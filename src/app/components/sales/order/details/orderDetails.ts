@@ -11,7 +11,7 @@ import {UniForm, UniFieldLayout} from '../../../../../framework/uniform';
 
 import {OrderItemList} from './orderItemList';
 
-import {FieldType, CustomerOrder, Customer} from '../../../../unientities';
+import {FieldType, CustomerOrder, CustomerOrderItem, Customer} from '../../../../unientities';
 import {Dimensions, Address, BusinessRelation} from '../../../../unientities';
 import {StatusCodeCustomerOrder} from '../../../../unientities';
 import {AddressModal} from '../../../common/modals/modals';
@@ -61,6 +61,8 @@ export class OrderDetails {
 
     private actions: IUniSaveAction[];
 
+    private expandOptions: Array<string> = ['Dimensions', 'Items', 'Items.Product', 'Items.VatType',
+        'Customer', 'Customer.Info', 'Customer.Info.Addresses'];
 
     constructor(private customerService: CustomerService,
         private customerOrderService: CustomerOrderService,
@@ -75,7 +77,7 @@ export class OrderDetails {
         private tabService: TabService) {
 
         this.orderID = params.get('id');
-        this.tabService.addTab({ url: '/sales/order/details/' + this.orderID, name: 'Ordrenr. ' + this.orderID, active: true, moduleID: 4 }); 
+        this.tabService.addTab({ url: '/sales/order/details/' + this.orderID, name: 'Ordrenr. ' + this.orderID, active: true, moduleID: 4 });
     }
 
     private log(err) {
@@ -145,7 +147,7 @@ export class OrderDetails {
                         let previousAddresses = this.order.Customer ? this.order.Customer.Info.Addresses : null;
                         this.order.Customer = customer;
                         this.addressService.setAddresses(this.order, previousAddresses);
-                
+
                         this.order.CustomerName = customer.Info.Name;
 
                         if (customer.CreditDays !== null) {
@@ -169,8 +171,7 @@ export class OrderDetails {
         Observable.forkJoin(
             this.departementService.GetAll(null),
             this.projectService.GetAll(null),
-            this.customerOrderService.Get(this.orderID, ['Dimensions', 'Items', 'Items.Product', 'Items.VatType',
-                'Customer', 'Customer.Info', 'Customer.Info.Addresses']),
+            this.customerOrderService.Get(this.orderID, this.expandOptions),
             this.customerService.GetAll(null, ['Info']),
             this.addressService.GetNewEntity(null, 'address')
         ).subscribe(response => {
@@ -226,7 +227,7 @@ export class OrderDetails {
             editor: (value) => new Promise((resolve) => {
                 if (!value) {
                     value = new Address();
-                    value.ID = 0;                   
+                    value.ID = 0;
                 }
 
                 this.addressModal.openModal(value, !!!this.order.CustomerID);
@@ -393,6 +394,27 @@ export class OrderDetails {
         }, 2000);
     }
 
+    private getValidOrderItems(orderItems: any) {
+        let items: CustomerOrderItem[] = [];
+        let showMessage: boolean = false;
+
+        for (let i = 0; i < orderItems.length; i++) {
+            let line: CustomerOrderItem = orderItems[i];
+
+            if (line.ProductID !== null) {
+                items.push(line);
+            }
+            else {
+                showMessage = true;
+            }
+        }
+
+        if (showMessage) {
+            alert('En eller flere av linjene inneholder produkter som ikke finnes i produktliste. Disse vil ikke bli lagret med ordre. Vennligst opprett produktene først');
+        }
+        return items;
+    }
+
     private saveOrderManual(done: any) {
         this.saveOrder((order) => {
             done('Lagret');
@@ -430,15 +452,14 @@ export class OrderDetails {
         this.saveOrder((order) => {
             this.customerOrderService.Transition(this.order.ID, this.order, transition).subscribe(() => {
                 console.log('== TRANSITION OK ' + transition + ' ==');
-                done('Lagret');
 
-                this.customerOrderService.Get(order.ID, ['Dimensions', 'Items', 'Items.Product',
-                    'Items.VatType', 'Customer', 'Customer.Info', 'Customer.Info.Addresses']).subscribe((data) => {
-                        this.order = data;
-                        this.updateStatusText();
-                        this.updateSaveActions();
-                        this.ready(null);
-                    });
+                this.customerOrderService.Get(order.ID, this.expandOptions).subscribe((data) => {
+                    this.order = data;
+                    this.updateStatusText();
+                    this.updateSaveActions();
+                    this.ready(null);
+                });
+                done('Lagret');
             }, (err) => {
                 console.log('Feil oppstod ved ' + transition + ' transition', err);
                 done('Feilet');
@@ -459,18 +480,20 @@ export class OrderDetails {
             this.order.Dimensions['_createguid'] = this.customerOrderService.getNewGuid();
         }
 
+        //Save only lines with products from product list
+        this.order.Items = this.getValidOrderItems(this.order.Items);
+
         this.customerOrderService.Put(this.order.ID, this.order)
             .subscribe(
-            (order) => {
-                this.customerOrderService.Get(this.orderID, ['Dimensions', 'Items', 'Items.Product',
-                'Items.VatType', 'Customer', 'Customer.Info', 'Customer.Info.Addresses']).subscribe((order) => {
-                    this.order = order;
+            (orderSaved) => {
+                this.customerOrderService.Get(this.orderID, this.expandOptions).subscribe((orderGet) => {
+                    this.order = orderGet;
                     this.addressService.setAddresses(this.order);
                     this.updateStatusText();
                     this.updateSaveActions();
 
                     if (cb) {
-                        cb(order);
+                        cb(orderGet);
                     }
                 });
             },

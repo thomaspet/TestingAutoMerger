@@ -69,8 +69,8 @@ export class InvoiceDetails implements OnInit {
     private recalcTimeout: any;
     private actions: IUniSaveAction[];
 
-    private expandOptions: Array<string> = ['Dimensions', 'Items', 'Items.Product', 'Items.VatType', 'Customer',
-        'Customer.Info', 'Customer.Info.Addresses', 'InvoiceReference'];
+    private expandOptions: Array<string> = ['Dimensions', 'Items', 'Items.Product', 'Items.VatType',
+        'Customer', 'Customer.Info', 'Customer.Info.Addresses', 'InvoiceReference'];
 
     constructor(private customerService: CustomerService,
         private customerInvoiceService: CustomerInvoiceService,
@@ -518,18 +518,18 @@ export class InvoiceDetails implements OnInit {
 
         this.customerInvoiceService.Put(this.invoice.ID, this.invoice)
             .subscribe(
-            (invoiceSaved: CustomerInvoice) => {
+            (invoiceSaved) => {
                 this.customerInvoiceService.Get(this.invoice.ID, this.expandOptions).subscribe(invoiceGet => {
                     this.invoice = invoiceGet;
                     this.addressService.setAddresses(this.invoice);
                     this.updateStatusText();
                     this.updateSaveActions();
                     this.ready(null);
-                });
 
-                if (cb) {
-                    cb(invoiceSaved);
-                }
+                    if (cb) {
+                        cb(invoiceGet);
+                    }
+                });
             },
             (err) => {
                 console.log('Feil oppsto ved lagring', err);
