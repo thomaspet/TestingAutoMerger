@@ -66,7 +66,7 @@ export class Editor implements IEditor {
     }
 
     public setValue(value:any) {
-        console.log("setValue(" + value + ")");
+        //console.log("setValue(" + value + ")");
         if (!this.inputBox) return;
         this.originalValue = value;
         this.inputBox.val(value);
@@ -94,13 +94,13 @@ export class Editor implements IEditor {
     }
     
     public finalizeEdit(cancel = false, valueOverride?:string, src = "unknown"):boolean {
-        console.log("finalizeEdit (" + this.position.col + "," + this.position.row + ") from " + src + " value = " + valueOverride );
+        //console.log("finalizeEdit (" + this.position.col + "," + this.position.row + ") from " + src + " value = " + valueOverride );
         if (!(this.editEvents && this.editEvents.onEditChanged)) {
             return true;
         }
         var txt = valueOverride !== undefined ? valueOverride : this.inputBox.val();
         if (txt !== this.originalValue) {
-            console.log("raising changeevent: " + txt);
+            //console.log("raising changeevent: " + txt);
             if (this.editEvents.onEditChanged(txt, this.position)) {
                 this.originalValue = txt;
             } else {
@@ -118,7 +118,7 @@ export class Editor implements IEditor {
     private onEditTyping(event) {
         if (!(this.editEvents && this.onEditTyping)) { return; }
         if (this.resetTyping) {
-            console.log("Skip debounced event since col has changed ");
+            //console.log("Skip debounced event since col has changed ");
             return;
         }
         var value = this.inputBox.val();

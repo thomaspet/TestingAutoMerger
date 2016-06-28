@@ -48,7 +48,9 @@ export class Editable implements AfterViewInit, OnDestroy {
 
         this.dropList.onClick = (rowIndex: number, item: any, details: ITypeSearch) => {
             var value = item[details.itemPropertyToSet];
-            this.finalizeEdit(false, value);
+            //this.finalizeEdit(false, value);
+            this.dropList.hide();
+            this.handleChange(value, this.currentPosition(), false);
         }
     }
     
@@ -119,9 +121,9 @@ export class Editable implements AfterViewInit, OnDestroy {
                 }
             }
             jqInput.on('blur', (event)=>{
-                console.log("blur");
+                //console.log("blur");
                 this.whenNoDroplist(null, ()=>{
-                    console.log("blur passed to finalize!");
+                    //console.log("blur passed to finalize!");
                     this.current.editor.finalizeEdit(false, undefined, 'blur');
                 }, 'blur');
             });
@@ -144,7 +146,7 @@ export class Editable implements AfterViewInit, OnDestroy {
         });
     }    
 
-    private handleChange(value:any, pos:IPos):boolean {
+    private handleChange(value:any, pos:IPos, userTypedValue = true):boolean {
         var p2 = this.getCellPosition(this.current.active);
         if (p2.col === pos.col && p2.row === pos.row) {
             var eventDetails: IChangeEvent = { 
@@ -153,6 +155,7 @@ export class Editable implements AfterViewInit, OnDestroy {
                 row: pos.row, 
                 cancel: false,
                 updateCell: true,
+                userTypedValue: userTypedValue,
 				columnDefinition: this.config.columns ? this.config.columns[pos.col] : undefined
             };
             
@@ -166,14 +169,14 @@ export class Editable implements AfterViewInit, OnDestroy {
                         this.loadTextIntoEditor(); 
                     });
                 }, (reason)=>{
-                    console.log("err:" + reason);
+                    //console.log("err:" + reason);
                     cell.css('background-color','#ffe0e0');
                 });
             }
             
             if (!eventDetails.cancel) {
                 if (eventDetails.updateCell) {
-                    console.info(`updating cell value with: ${eventDetails.value}`);
+                    //console.info(`updating cell value with: ${eventDetails.value}`);
                     this.current.active.text(eventDetails.value);
                     this.onChange.emit(eventDetails);
                 }

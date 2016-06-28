@@ -6,6 +6,7 @@ export interface IChangeEvent {
     updateCell: boolean;
     columnDefinition?: ICol;
     lookupValue?:any;
+    userTypedValue:boolean;
 }
 
 export interface ICol {
@@ -98,12 +99,6 @@ export var Keys = {
     HOME : 36, END : 35, INSERT : 45, DELETE : 46, PAGEUP : 33, PAGEDOWN : 34
 };
 
-export interface ILookupDetails {
-    route: string;
-    colToSave?: string;
-    searchColumns?: string;
-    filter?: string;
-}
 
 export class Column implements ICol {
     label:string;
@@ -115,4 +110,12 @@ export class Column implements ICol {
         this.typeName = typeName; 
         this.lookup = lookup;
     }
+}
+
+export interface ILookupDetails {
+    route: string;
+    colToSave?: string;
+    select?: string;
+    filter?: string;    
+    visualKey?: string;
 }

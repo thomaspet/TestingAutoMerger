@@ -80,7 +80,8 @@ export class TimeEntry {
             new Column('WorkTypeID','', 'int', { route:'worktypes' }),
             new Column('Description'), 
             new Column('Dimensions.ProjectID', '', 'int', { route:'projects'}),
-            new Column('CustomerOrderID', 'Ordre', 'int', { route:'orders', filter:'ordernumber gt 0', searchColumns: 'OrderNumber,CustomerName'})
+            new Column('CustomerOrderID', 'Ordre', 'int', 
+                { route:'orders', filter:'ordernumber gt 0', select: 'OrderNumber,CustomerName', visualKey: 'OrderNumber'})
             ],
         events: {
                 onChange: (event) => { return this.onChange(event); },
@@ -182,8 +183,8 @@ export class TimeEntry {
             let lookup = details.columnDefinition.lookup;
             details.ignore = false;
             details.itemPropertyToSet = lookup.colToSave || 'ID';
-            // setup searchcolumns
-            var searchCols = lookup.searchColumns || 'ID,Name'
+            // Build combo-template
+            var searchCols = lookup.select || 'ID,Name'
             var cols = searchCols.split(',');
             details.renderFunc = (item:any)=> { var ret = ''; for (var i=0;i<cols.length;i++) ret += (i>0 ? ' - ' : '') + item[cols[i]]; return ret; }
             details.promise = this.lookup.query(lookup.route, details.value, searchCols, undefined, searchCols, lookup.filter).toPromise();
@@ -191,6 +192,12 @@ export class TimeEntry {
     }
 
     updateChange(event: IChangeEvent) {
+        
+        // Did user just type a key value himself !?
+        if (event.userTypedValue && event.columnDefinition.lookup.visualKey) {
+            
+        }
+
         // Update value via timesheet
         if (!this.timeSheet.setItemValue(new ValueItem(event.columnDefinition.name, event.value, event.row, event.lookupValue))) {
             event.cancel = true;
