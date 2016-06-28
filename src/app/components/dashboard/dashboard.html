@@ -1,1 +1,85 @@
-<p>This is the dashboard</p>
+<section class="chart_section">
+
+    <!--WELCOME MESSAGE-->
+    <header class="dashboard_welcome" *ngIf="!welcomeHidden">
+
+        <h1>Velkommen til Uni&nbsp;Economy</h1>
+
+        <p>Uni Economy er morgendagens økonomisystem fra Uni Micro. Like enkelt å bruke som alltid, tilgjengelig overalt, sikkert, og fullstendig integrert i din arbeidsflyt.</p>
+        <p>Du prøver nå en meget tidlig versjon av systemet, og du vil trolig møte noen feil. <br>Ser du noe, si noe – gi veldig gjerne beskjed til en voksen (prosjektleder) når du ser bugs. 🐛</p>
+
+        <button (click)="hideWelcome()">
+            God kål!
+        </button>
+
+    </header>
+
+    <!--INVOICED CHART-->
+    <figure class="dashboard_chart_card">
+        <h2>Fakturert pr måned - 2016</h2>
+        <canvas id="invoicedChart" class="chart_canvas"></canvas>
+    </figure>
+
+    <!--ORDRE CHART-->
+    <figure class="dashboard_chart_card">
+        <h2>Ordre pr måned - 2016</h2>
+        <canvas id="ordre_chart" class="chart_canvas"></canvas>
+    </figure>
+
+    <!--QUOTE CHART-->
+    <figure class="dashboard_chart_card">
+        <h2>Tilbud pr måned - 2016</h2>
+        <canvas id="quote_chart" class="chart_canvas"></canvas>
+    </figure>
+
+    <!--TRANSACTIONS LIST -->
+    <figure class="dashboard_chart_card">
+        <h2>Siste transaksjoner</h2>
+        <ol class="dashboard_list recent" *ngIf="transactionList">
+            <li *ngFor="let trans of transactionList; let i = index;" class="dashboard_lists">
+                <strong>{{trans.DisplayName}}</strong>
+                endret <!--Should be dynamic-->
+                <strong><a (click)="widgetListItemClicked(trans.url)">{{trans.module}} {{trans.EntityID}}</a></strong>
+                <time class="time_float">{{trans.time}}</time>
+            </li> 
+        </ol>
+    </figure>
+
+    <!--MY TRANSACTIONS LIST -->
+    <figure class="dashboard_chart_card" *ngIf="myTransactionList">
+        <h2>Dine siste transaksjoner</h2>
+        <ol class="dashboard_list recent">
+            <li *ngFor="let myTrans of myTransactionList; let i = index;" class="dashboard_lists">
+                <strong>Du</strong>
+                endret <!--Should be dynamic-->
+                <strong><a (click)="widgetListItemClicked(myTrans.url)">{{myTrans.module}} {{myTrans.EntityID}}</a></strong>
+                <time class="time_float">{{myTrans.time}}</time>
+            </li>
+        </ol>
+    </figure>
+
+    <!--OPERATING PROFIT/LOSS CHART-->
+    <figure class="dashboard_chart_card">
+        <h2>Driftsresultater</h2>
+        <canvas id="operating_chart" class="chart_canvas"></canvas>
+    </figure>
+
+    <!--JOURNAL ENTRY LIST -->
+    <figure class="dashboard_chart_card">
+        <h2>Siste bilag</h2>
+        <ol class="dashboard_list recent" *ngIf="journalEntryList">
+            <li *ngFor="let entry of journalEntryList; let i = index;" class="dashboard_lists">
+                <strong><a (click)="widgetListItemClicked(entry.url)">Bilag {{ entry.JournalEntryNumber}}</a></strong>
+                <time class="time_float">{{entry.time}}</time>
+            </li>
+        </ol>
+        <h4 *ngIf="!journalEntryList.length">Ingen bilag</h4>
+    </figure>
+
+    <!--ASSETS CHART-->
+    <figure class="dashboard_chart_card">
+        <h2>Eiendeler</h2>
+        <canvas id="assets_chart" class="chart_canvas"></canvas>
+    </figure>
+
+</section>

@@ -15,7 +15,7 @@ export class VatSettings {
     @ViewChild(VatTypeDetails) private vatTypeDetails: VatTypeDetails;
 
     constructor(private tabService: TabService) {
-        this.tabService.addTab({ name: 'MVA-instillinger', url: '/accounting/vatsettings', moduleID: 11, active: true })
+        this.tabService.addTab({ name: 'MVA-innstillinger', url: '/accounting/vatsettings', moduleID: 11, active: true })
     }
 
     private vatType: VatType;
