@@ -1,14 +1,17 @@
-<header class="poster">
+<header class="poster" *ngIf="wageType">
     <article class="poster_toolbar">
-        <div *ngIf="wageType">
-            <h2 class="poster_toolbar_headline">{{wageType.WageTypeName}}</h2>
-        </div>
+        <section>
+            <h1 *ngIf="wagetypeID > 0">{{wageType.WageTypeName}}</h1>
+            <p *ngIf="wagetypeID > 0">Lønnsartnr. {{wageType.WageTypeId}}</p>
+            <h1 *ngIf="wagetypeID == 0">Ny lønnsart</h1>
+            <p *ngIf="wagetypeID == 0">&nbsp;</p>
+        </section>
 
-        <div class="poster_toolbar_tools">
+        <nav class="poster_toolbar_tools">
             <a (click)="previousWagetype()" class="previous">Forrige</a>
             <a (click)="nextWagetype()" class="next">Neste</a>
             <a href="#/salary/wagetypes/0" class="new">Ny lønnsart</a>
-        </div>
+        </nav>
 
     </article>
 
