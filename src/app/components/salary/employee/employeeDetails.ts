@@ -57,6 +57,7 @@ const CHILD_ROUTES = [
 
 @RouteConfig(CHILD_ROUTES)
 export class EmployeeDetails implements OnInit {
+    public busy: boolean;
     private employee: Employee;
     private url: string;
     private employeeID: number;
@@ -83,8 +84,10 @@ export class EmployeeDetails implements OnInit {
     public ngOnInit() {
         if (this.employeeID) {
             if (!this.isNextOrPrevious) {
+                this.busy = true;
                 this._employeeService.get(this.employeeID).subscribe((response: any) => {
                 this.employee = response;
+                this.busy = false;
                 }, error => console.log(error));
             }
             this.isNextOrPrevious = false;
@@ -96,22 +99,26 @@ export class EmployeeDetails implements OnInit {
     }
     
     public nextEmployee() {
+        this.busy = true;
         this._employeeService.getNext(this.employeeID).subscribe((response) => {
             if (response) {
                 this.employee = response;
                 this.isNextOrPrevious = true;
                 this._router.navigateByUrl(this.url + this.employee.ID);
             }
+            this.busy = false;
         });
     }
     
     public previousEmployee() {
+        this.busy = true;
         this._employeeService.getPrevious(this.employeeID).subscribe((response) => {
             if (response) {
                 this.employee = response;
                 this.isNextOrPrevious = true;
                 this._router.navigateByUrl(this.url + this.employee.ID);
             }
+            this.busy = false;
         });
     }
 

@@ -1,4 +1,4 @@
-<article class="application employee-personal-details">
+<article class="application employee-personal-details" [attr.aria-busy]="busy">
     <tax-card-request-modal></tax-card-request-modal>
     <read-tax-card-modal></read-tax-card-modal>
     <uni-form *ngIf="employee" [config]="config" [fields]="fields" [model]="employee" (onChange)="change($event)" (onReady)="ready($event)"></uni-form>
