@@ -108,6 +108,10 @@ export class SalaryTransactionSelectionList implements OnInit {
     }
 
     public log(err) {
-        alert(err._body);
+        if (err._body) {
+            alert(err._body);
+        } else {
+            alert(JSON.stringify(err));
+        }
     }
 }

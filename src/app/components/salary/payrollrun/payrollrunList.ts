@@ -57,11 +57,22 @@ export class PayrollrunList implements OnInit {
             this.routr.navigateByUrl('/salary/payrollrun/' + response.ID);
             this.busy = false;
         },
-        (err) => console.log('Error creating payrollrun: ', err));
+        (err) => {
+            this.log(err);
+            console.log('Error creating payrollrun: ', err)
+        });
     }
 
     public rowSelected(event) {
         this.routr.navigateByUrl('/salary/payrollrun/' + event.rowModel.ID);
+    }
+
+    public log(err) {
+        if (err._body) {
+            alert(err._body);
+        } else {
+            alert(JSON.stringify(err));
+        }
     }
     
 }
