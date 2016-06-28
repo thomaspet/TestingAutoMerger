@@ -16,9 +16,9 @@ export class IsoTimePipe implements PipeTransform {
 })
 export class MinutesToHoursPipe implements PipeTransform {
     public transform(value: any, format?:string) {
-        if (!value) return '';
+        if (!value) return '0 timer';
         var minutes = parseInt(value);
-        if (minutes===0) return;
+        if (minutes===0) return '0 timer';
         var ret = "";
         if (minutes>=60) {
             ret = Math.floor(minutes / 60) + ' timer';

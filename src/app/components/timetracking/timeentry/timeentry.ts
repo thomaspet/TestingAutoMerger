@@ -25,18 +25,6 @@ interface IFilter {
 @Component({
     selector: view.name,
     templateUrl: 'app/components/timetracking/timeentry/timeentry.html', 
-    styles: [`
-            .title { font-size: 14pt; padding: 1em 1em 1em 0; }
-            .title span { margin-right: 1em;}
-            .title select { display:inline-block; width: auto; padding-left: 7px; padding-right: 7px; }
-            .timeentriesTable { width: 100%; border-collapse: collapse } 
-            .timeentriesTable th { text-align:left; border-bottom: 1px solid #c0c0c0; } 
-            .timeentriesTable tr { height: 1.8em;}
-            .timeentriesTable td { padding: 4px 4px 1px 4px; border-bottom: 1px solid #d0d0d0; border-left: 1px solid #d0d0d0; }
-            .alternateRow { background-color: #e4e4e4;}
-            .subcontainer { margin-top: 1em;}
-            .busy { padding: 7px; color: green; font-size: 14pt; }
-            `],
     directives: [Editable, UniSave],
     providers: [WorkerService, TimesheetService, Lookupservice],
     pipes: [IsoTimePipe, MinutesToHoursPipe]
@@ -107,6 +95,13 @@ export class TimeEntry {
         this.editable.editRow(this.timeSheet.items.length);
     }
 
+    reset() {
+        if (this.hasUnsavedChanges()) {
+            if (confirm('Nullstille alle endringer uten å lagre ?')) {
+                this.loadItems();
+            }
+        }
+    }
 
     routerCanDeactivate(next: ComponentInstruction, prev: ComponentInstruction):any {
         return this.checkSave();
@@ -246,7 +241,8 @@ export class TimeEntry {
     }
     
     onFilterClick(filter: IFilter) {
-        this.checkSave().then(() => {
+        this.checkSave().then((success:boolean) => {
+            if (!success) return;
             this.filters.forEach((value:any) => value.isSelected = false);        
             filter.isSelected = true;
             this.currentFilter = filter;
@@ -258,16 +254,9 @@ export class TimeEntry {
     checkSave():Promise<boolean> {
         return new Promise((resolve, reject) => {
             if (this.hasUnsavedChanges()) {
-                if (confirm('Lagre endringer før du fortsetter?')) {
-                    this.save().then((success:boolean) => {
-                        if (success) {
-                            resolve(true);
-                        } else {
-                            reject();
-                        }
-                    });
-                    return;
-                }
+                var result = confirm('Fortsette uten å lagre ? Du vil miste alle endringer som du har lagt inn dersom du fortsetter !');
+                resolve(result);
+                return;
             } 
             resolve(true);
         });

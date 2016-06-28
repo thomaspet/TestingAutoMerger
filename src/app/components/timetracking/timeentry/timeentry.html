@@ -1,6 +1,6 @@
 <section class='application regtimecontainer'>
     
-    <header class="title">
+    <header class="regtimetitle">
         <span>Registrere timer for {{userName}}</span>
         <select *ngFor="let item of workRelations">
             <option>{{item.CompanyName}} : {{item.WorkPercentage}}% - {{item.Description}}</option>
@@ -24,12 +24,19 @@
         </ul>    
 
         <footer>
-            <h4>Totalsum: {{timeSheet.totals.Minutes | min2hours}} <button class="button" (click)="onAddNew()">Ny timeføring</button> </h4>
+            <table class='timeentry_toolbar'><tr>
+            <td>
+                <button class="secondary-button" (click)="onAddNew()">Ny timeføring</button>
+                <button *ngIf="hasUnsavedChanges()" class="good" (click)="save()">Lagre endringer</button>
+                <button *ngIf="hasUnsavedChanges()" class="bad" (click)="reset()">Avbryt</button>
+            </td> 
+            <td>Totalsum: {{timeSheet.totals.Minutes | min2hours}}</td>
+            </tr></table> 
         </footer>
 
     </aside>
     
-    <section [attr.aria-busy]="busy" class="subcontainer" >
+    <section [attr.aria-busy]="busy" >
         
         <aside class='busy' *ngIf='busy'>Vent litt... stiller klokker og spisser blyanter..</aside>
     
