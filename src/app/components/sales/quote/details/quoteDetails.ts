@@ -10,6 +10,8 @@ import {UniSave, IUniSaveAction} from '../../../../../framework/save/save';
 import {UniForm, UniFieldLayout} from '../../../../../framework/uniform';
 
 import {QuoteItemList} from './quoteItemList';
+import {TradeItemHelper} from '../../salesHelper/tradeItemHelper';
+
 
 import {FieldType, CustomerQuote, CustomerQuoteItem, Customer} from '../../../../unientities';
 import {Dimensions, Address, BusinessRelation} from '../../../../unientities';
@@ -304,7 +306,7 @@ export class QuoteDetails {
 
         this.actions.push({
             label: 'Lagre',
-            action: (done) => this.saveQuoteManual(done),
+            action: (done) => this.saveQuote(done),
             main: true,
             disabled: false
         });
@@ -415,36 +417,6 @@ export class QuoteDetails {
         }, 2000);
     }
 
-    private getValidQuoteItems(quoteItems: any) {
-        let items: CustomerQuoteItem[] = [];
-        let showMessage: boolean = false;
-
-        for (let i = 0; i < quoteItems.length; i++) {
-            let line: CustomerQuoteItem = quoteItems[i];
-
-            if (line.ProductID !== null) {
-                items.push(line);
-            }
-            else {
-                showMessage = true;
-            }
-        }
-
-        if (showMessage) {
-            alert('En eller flere av linjene inneholder produkter som ikke finnes i produktliste. Disse vil ikke bli lagret med tilbud. Vennligst opprett produktene først');
-        }
-        return items;
-    }
-
-    private saveQuoteManual(done: any) {
-        this.saveQuote((quote => {
-            done('Lagret');
-        }));
-
-        //this.saveQuote();
-        //done('Lagret');
-    }
-
     private saveQuoteTransition(done: any, transition: string, doneText: string) {
         this.saveQuote((quote) => {
             this.customerQuoteService.Transition(this.quote.ID, this.quote, transition).subscribe(() => {
@@ -466,7 +438,7 @@ export class QuoteDetails {
     }
 
 
-    private saveQuote(cb = null) {
+    private saveQuote(done: any) {
         // Transform addresses to flat
         this.addressService.addressToInvoice(this.quote, this.quote._InvoiceAddress);
         this.addressService.addressToShipping(this.quote, this.quote._ShippingAddress);
@@ -479,7 +451,11 @@ export class QuoteDetails {
         }
 
         //Save only lines with products from product list
-        this.quote.Items = this.getValidQuoteItems(this.quote.Items);
+        if (!TradeItemHelper.IsItemsValid(this.quote.Items)){
+            console.log('Linjer uten produkt. Lagring avbrutt.');
+            done('Lagring feilet');
+            return;
+        }
 
         this.customerQuoteService.Put(this.quote.ID, this.quote)
             .subscribe(
@@ -491,14 +467,13 @@ export class QuoteDetails {
                     this.updateSaveActions();
                     this.ready(null);
 
-                    if (cb) {
-                        cb(quoteGet);
-                    }
+                    done('Lagret tilbud');
                 });
             },
             (err) => {
                 console.log('Feil oppsto ved lagring', err);
                 this.log(err);
+                done('Lagring feilet');
             }
         );
     }
@@ -506,8 +481,6 @@ export class QuoteDetails {
     private updateStatusText() {
         this.statusText = this.customerQuoteService.getStatusText((this.quote.StatusCode || '').toString());
     }
-
-
 
     private saveAndPrint(done) {
         this.saveQuote((quote) => {

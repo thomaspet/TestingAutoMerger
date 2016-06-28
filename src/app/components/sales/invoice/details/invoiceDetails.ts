@@ -11,6 +11,7 @@ import {UniForm, UniFieldLayout} from '../../../../../framework/uniform';
 
 
 import {InvoiceItemList} from './invoiceItemList';
+import {TradeItemHelper} from '../../salesHelper/tradeItemHelper';
 
 import {CustomerInvoice, CustomerInvoiceItem, Customer, Dimensions, Address, BusinessRelation} from '../../../../unientities';
 import {StatusCodeCustomerInvoice, FieldType} from '../../../../unientities';
@@ -520,7 +521,11 @@ export class InvoiceDetails implements OnInit {
         }
 
         //Save only lines with products from product list
-        this.invoice.Items = this.getValidInvoiceItems(this.invoice.Items);
+        if (!TradeItemHelper.IsItemsValid(this.invoice.Items)) {
+            console.log('Linjer uten produkt. Lagring avbrutt.');
+            // done('Lagring feilet');
+            return;
+        }
 
         this.customerInvoiceService.Put(this.invoice.ID, this.invoice)
             .subscribe(

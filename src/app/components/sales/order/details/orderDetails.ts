@@ -10,6 +10,7 @@ import {UniSave, IUniSaveAction} from '../../../../../framework/save/save';
 import {UniForm, UniFieldLayout} from '../../../../../framework/uniform';
 
 import {OrderItemList} from './orderItemList';
+import {TradeItemHelper} from '../../salesHelper/tradeItemHelper';
 
 import {FieldType, CustomerOrder, CustomerOrderItem, Customer} from '../../../../unientities';
 import {Dimensions, Address, BusinessRelation} from '../../../../unientities';
@@ -133,7 +134,7 @@ export class OrderDetails {
 
     public change(value: CustomerOrder) { }
 
-    public ready(event) {        
+    public ready(event) {
         this.setupSubscriptions(null);
     }
 
@@ -393,27 +394,6 @@ export class OrderDetails {
         }, 2000);
     }
 
-    private getValidOrderItems(orderItems: any) {
-        let items: CustomerOrderItem[] = [];
-        let showMessage: boolean = false;
-
-        for (let i = 0; i < orderItems.length; i++) {
-            let line: CustomerOrderItem = orderItems[i];
-
-            if (line.ProductID !== null) {
-                items.push(line);
-            }
-            else {
-                showMessage = true;
-            }
-        }
-
-        if (showMessage) {
-            alert('En eller flere av linjene inneholder produkter som ikke finnes i produktliste. Disse vil ikke bli lagret med ordre. Vennligst opprett produktene først');
-        }
-        return items;
-    }
-
     private saveOrderManual(done: any) {
         this.saveOrder((order) => {
             done('Lagret');
@@ -480,7 +460,11 @@ export class OrderDetails {
         }
 
         //Save only lines with products from product list
-        this.order.Items = this.getValidOrderItems(this.order.Items);
+        if (!TradeItemHelper.IsItemsValid(this.order.Items)) {
+            console.log('Linjer uten produkt. Lagring avbrutt.');
+//            done('Lagring feilet');
+            return;
+        }
 
         this.customerOrderService.Put(this.order.ID, this.order)
             .subscribe(
