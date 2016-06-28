@@ -75,6 +75,14 @@ export class Editable implements AfterViewInit, OnDestroy {
         }
     }
 
+    public editRow(rowIndex:number) {
+        var tb: JQuery = this.jqRoot;
+        var cell = tb.find('tr:nth-child(' + rowIndex + ') td:first');
+        if (cell) {
+            this.startEdit({target: cell});
+        }        
+    }    
+
     private onResize() {
         if (!this.current.active) return;
         if (!this.current.editor) return;

@@ -103,6 +103,10 @@ export class TimeEntry {
 
     }
 
+    onAddNew() {
+        this.editable.editRow(this.timeSheet.items.length);
+    }
+
 
     routerCanDeactivate(next: ComponentInstruction, prev: ComponentInstruction):any {
         return this.checkSave();

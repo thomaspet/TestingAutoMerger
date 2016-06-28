@@ -129,7 +129,9 @@ export class DropList {
         this.rootElement.offset(offset);
         // Width ?
         var cellWidth = this.editorElement.outerWidth();
-        if (this.rootElement.outerWidth()< cellWidth) {
+        var w = this.rootElement.outerWidth();
+        if (cellWidth < 200) cellWidth = 200;
+        if (w < cellWidth) {
             this.rootElement.outerWidth(cellWidth);
         }
     }

@@ -22,6 +22,11 @@
                 <a (click)="onFilterClick(filter)" [ngClass]="{'router-link-active': filter.isSelected}" >{{filter.label}}</a> 
             </li>
         </ul>    
+
+        <footer>
+            <h4>Totalsum: {{timeSheet.totals.Minutes | min2hours}} <button class="button" (click)="onAddNew()">Ny timeføring</button> </h4>
+        </footer>
+
     </aside>
     
     <section [attr.aria-busy]="busy" class="subcontainer" >
@@ -53,10 +58,6 @@
             </tbody>
         </table>    
     </section>
-
-    <footer>
-        <h4>Totalsum: {{timeSheet.totals.Minutes | min2hours}}</h4>
-    </footer>
 
     <uni-save [actions]="actions"></uni-save>
 
