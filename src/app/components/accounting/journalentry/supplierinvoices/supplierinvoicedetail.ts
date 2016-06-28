@@ -107,7 +107,8 @@ export class SupplierInvoiceDetail implements OnInit {
             .Get(this.invoiceId, ['JournalEntry', 'Supplier.Info'])
             .subscribe((res) => {
                 this.supplierInvoice = res;
-                this.setActionsDisabled();          
+                this.setActionsDisabled();     
+                this.setPreviewId();     
             },
             (error) => {
                 this.setError(error);
@@ -128,9 +129,8 @@ export class SupplierInvoiceDetail implements OnInit {
             this.suppliers = suppliers;
             this.bankAccounts = bac;
             
-            console.log("== INVOICE READ ==", invoice);
-
             this.setActionsDisabled();
+            this.setPreviewId();
     
             this.buildForm();
         }, (error) => {
@@ -152,10 +152,7 @@ export class SupplierInvoiceDetail implements OnInit {
             return;
         }
 
-        console.log("== SAVING ==", !!this.supplierInvoice.JournalEntryID);
-        
         if (!!this.supplierInvoice.JournalEntryID) {
-            console.log("== SAVE 1 ==");
             let journalEntryData = this.journalEntryManual.getJournalEntryData();  
             
             Observable.forkJoin(
@@ -163,7 +160,7 @@ export class SupplierInvoiceDetail implements OnInit {
                 this._supplierInvoiceService.Put(this.supplierInvoice.ID, this.supplierInvoice)     
             ).subscribe((response: any) => {
                 if (runSmartBooking) {
-                    this.runSmartBooking(this.supplierInvoice, false, done);
+                    this.runSmartBooking(this.supplierInvoice, done);
                 } else {
                     done('Lagret');
                     this.router.navigateByUrl('/accounting/journalentry/supplierinvoices/details/' + this.supplierInvoice.ID);
@@ -173,11 +170,10 @@ export class SupplierInvoiceDetail implements OnInit {
                 done('Lagring feilet');
             });            
         } else {
-            console.log("== SAVE 2 ==");
             this._supplierInvoiceService.Put(this.supplierInvoice.ID, this.supplierInvoice)
                 .subscribe((result: SupplierInvoice) => {
                     //always run smartbooking for new supplier invoices, ignore input parameter
-                    this.runSmartBooking(this.supplierInvoice, true, done);
+                    this.runSmartBooking(this.supplierInvoice, done);
                 },
                 (error) => {
                     this.setError(error);
@@ -185,44 +181,6 @@ export class SupplierInvoiceDetail implements OnInit {
                 }
             );           
         }
-
-        /*
-        if (!this.supplierInvoice.JournalEntryID) {            
-            let journalEntryData = this.journalEntryManual.getJournalEntryData();  
-            
-            Observable.forkJoin(
-                this._journalEntryService.saveJournalEntryData(journalEntryData),
-                this._supplierInvoiceService.Put(this.supplierInvoice.ID, this.supplierInvoice)     
-            ).subscribe((response: any) => {
-                if (runSmartBooking) {
-                    this.runSmartBooking(this.supplierInvoice, false, done);
-                } else {
-                    done('Lagret');
-                    this.router.navigateByUrl('/accounting/journalentry/supplierinvoices/details/' + this.supplierInvoice.ID);
-                }            
-            }, (error) => {
-                this.setError(error);
-                done('Lagring feilet');
-            });
-        } else {
-            // Following fields are required. For now hardcoded.
-            this.supplierInvoice.CreatedBy = '-';
-            this.supplierInvoice.CurrencyCode = 'NOK';
-
-            this._supplierInvoiceService.Post(this.supplierInvoice)
-                .subscribe((result: SupplierInvoice) => {
-                    let newSupplierInvoice = result;
-                    
-                    //always run smartbooking for new supplier invoices, ignore input parameter
-                    this.runSmartBooking(newSupplierInvoice, true, done);
-                },
-                (error) => {
-                    this.setError(error);
-                    done('Lagring feilet');
-                }
-            );
-        }
-        */
     };
 
     private saveSupplierInvoice(done) {
@@ -279,7 +237,7 @@ export class SupplierInvoiceDetail implements OnInit {
         );
     }
 
-    private runSmartBooking(supplierInvoice: SupplierInvoice, redirectAfter: boolean, done) {
+    private runSmartBooking(supplierInvoice: SupplierInvoice, done) {
         
         if (supplierInvoice.ID == 0) {
             done('Smartbokføring kunne ikke kjøres');
@@ -290,13 +248,8 @@ export class SupplierInvoiceDetail implements OnInit {
         this._supplierInvoiceService.Action(supplierInvoice.ID, 'smartbooking')
             .subscribe(
                 (response: any) => {
-                    if (redirectAfter) {
-                        this.router.navigateByUrl('/accounting/journalentry/supplierinvoices/details/' + supplierInvoice.ID);        
-                    }
-                    else {
-                        done('Smartbokført');
-                        this.refreshFormData(supplierInvoice);
-                    }
+                    this.refreshFormData(supplierInvoice);
+                    done('Smartbokført');
                 },
                 (error) => {
                     this.setError(error);
@@ -305,8 +258,9 @@ export class SupplierInvoiceDetail implements OnInit {
             );
     }
 
-    private buildForm() {         
-        let self = this;         
+    private setPreviewId() {
+        let self = this;
+
         this.fileuploader.getSlots(this.supplierInvoice.ID).then((data) => {
             if (data && data.length) {
                 self.previewId = data[0].ID;
@@ -314,6 +268,10 @@ export class SupplierInvoiceDetail implements OnInit {
                 self.previewId = -1;
             }    
         });
+    }
+
+    private buildForm() {         
+        let self = this;         
         
         var supplierName = new UniFieldLayout();
         supplierName.FieldSet = 0;
