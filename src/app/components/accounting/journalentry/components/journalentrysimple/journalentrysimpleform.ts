@@ -35,9 +35,7 @@ export class JournalEntrySimpleForm implements OnChanges {
     @Output() public aborted: EventEmitter<any> = new EventEmitter<any>();    
     @Output() public updated: EventEmitter<any> = new EventEmitter<any>();
        
-    @ViewChild(UniForm) public form: UniForm;
-    @ViewChild('addButton') private addButton: ElementRef;
-    @ViewChild('updateButton') private updateButton: ElementRef;
+    @ViewChild(UniForm) public form: UniForm;    
     
     private config: any = {};
     private fields: any[] = [];
@@ -581,19 +579,81 @@ export class JournalEntrySimpleForm implements OnChanges {
         description.Options = {
             events: {                    
                 enter: (event) => {
-                    if (!this.isEditMode) {
-                        this.renderer.invokeElementMethod(this.addButton.nativeElement, 'focus', []);
+                    if (!this.isEditMode) {                        
+                        this.form.field('AddButton').focus();     
                     } else {
-                        this.renderer.invokeElementMethod(this.updateButton.nativeElement, 'focus', []);
+                        this.form.field('UpdateButton').focus();
                     }                    
                 }
             }
         }
         
+        var addButton = new UniFieldLayout();
+        addButton.FieldSet = 0;
+        addButton.Property = 'AddButton';
+        addButton.Section = 0;
+        addButton.Combo = 0;
+        addButton.FieldType = 1;
+        addButton.Label = 'Legg til';
+        addButton.ReadOnly = false;
+        addButton.Hidden = this.isEditMode;        
+        addButton.Options = {
+            class: 'good',
+            click: (event) => {
+                this.addJournalEntry(event);
+            }
+        };
+        
+        var updateButton = new UniFieldLayout();
+        updateButton.FieldSet = 0;
+        updateButton.Property = 'UpdateButton';
+        updateButton.Section = 0;
+        updateButton.Combo = 0;
+        updateButton.FieldType = 1;
+        updateButton.Label = 'Oppdater';
+        updateButton.ReadOnly = false;
+        updateButton.Hidden = !this.isEditMode;        
+        updateButton.Options = {            
+            class: 'good',
+            click: (event) => {
+                this.editJournalEntry(event);
+            }
+        };
+        
+        var emptyButton = new UniFieldLayout();
+        emptyButton.FieldSet = 0;
+        emptyButton.Property = 'EmptyButton';
+        emptyButton.Section = 0;
+        emptyButton.Combo = 0;
+        emptyButton.FieldType = 1;
+        emptyButton.Label = 'Tøm';
+        emptyButton.ReadOnly = false;
+        emptyButton.Hidden = this.isEditMode;        
+        emptyButton.Options = { 
+            click: (event) => {
+                this.emptyJournalEntry(event);
+            }
+        };
+        
+        var abortButton = new UniFieldLayout();
+        abortButton.FieldSet = 0;
+        abortButton.Property = 'AbortButton';
+        abortButton.Section = 0;
+        abortButton.Combo = 0;
+        abortButton.FieldType = 1;
+        abortButton.Label = 'Avbryt';
+        abortButton.ReadOnly = false;
+        abortButton.Hidden = !this.isEditMode;        
+        abortButton.Options = { 
+            click: (event) => {
+                this.abortEditJournalEntry(event);
+            }
+        };
+        
         this.fields = [sameOrNewAlternative, finanicalDate, invoiceNumber,
                         debitAccount, debitVat, creditAccount, creditVat,
-                        amount, /*departement, project,*/ description];
-                
+                        amount, /*departement, project,*/ description, addButton, updateButton, emptyButton, abortButton];
+                              
         this.config = {};
     }     
 } 

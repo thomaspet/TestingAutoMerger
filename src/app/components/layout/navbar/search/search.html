@@ -23,7 +23,8 @@
 				[attr.aria-selected]="selectedIndex === idx"
 				(mouseover)="onMouseover(idx)"
 				(click)="confirmSelection()"
-				*ngFor="let result of searchResults; let idx = index">
+				*ngFor="let result of searchResults; let idx = index"
+                style="cursor: pointer">
 				{{result.componentName}}
 			</li>
 
