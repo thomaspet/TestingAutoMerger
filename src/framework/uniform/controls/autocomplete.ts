@@ -113,8 +113,7 @@ export class UniAutocompleteInput {
         // Perform initial lookup to get display value
         this.getInitialDisplayValue(this.control.value)
             .subscribe(result => {
-                const displayValue = _.get(result[0], this.field.Options.displayProperty);
-                this.control.updateValue(displayValue || '', {emitEvent: false});
+                this.control.updateValue(this.template(result[0]) || '', {emitEvent: false});
             });
 
         this.control.valueChanges
@@ -164,10 +163,7 @@ export class UniAutocompleteInput {
     }
 
     private getInitialDisplayValue(value): Observable<any> {
-        if (this.options.search) {
-            return this.options.search(value);
-        }
-
+        
         if (!this.source) {
             return Observable.of([]);
         }
@@ -208,6 +204,10 @@ export class UniAutocompleteInput {
         this.isExpanded = false;
         this.cd.markForCheck();
         this.focusPositionTop = 0;
+        
+        if (!this.control.dirty) {
+            return;
+        }
                 
         // Wait for response 
         // (allows us to still select result[0] when user tabs out before lookup is finished)
@@ -224,7 +224,7 @@ export class UniAutocompleteInput {
             this.value = null;
         } else {
             let selectedItem = this.lookupResults[this.selectedIndex];
-            this.query = _.get(selectedItem, this.field.Options.displayProperty);
+            this.query = this.template(selectedItem);
             this.value = _.get(selectedItem, this.field.Options.valueProperty);
         }
 

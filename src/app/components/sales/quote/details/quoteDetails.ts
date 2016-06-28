@@ -131,8 +131,7 @@ export class QuoteDetails {
 
     public change(value: CustomerQuote) { }
 
-    public ready(event) {
-        this.form.field('FreeTxt').addClass('max-width', true);
+    public ready(event) {        
         this.setupSubscriptions(null);
     }
 
@@ -874,7 +873,8 @@ export class QuoteDetails {
                     UpdatedAt: null,
                     CreatedBy: null,
                     UpdatedBy: null,
-                    CustomFields: null
+                    CustomFields: null,
+                    Classes: 'max-width'
                 }
             ]
         };

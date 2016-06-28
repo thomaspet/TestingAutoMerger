@@ -3,12 +3,12 @@ import {JournalEntryManual} from '../journalentrymanual/journalentrymanual';
 import {TabService} from '../../../layout/navbar/tabstrip/tabService';
 
 @Component({
-    selector: 'payments',
-    templateUrl: 'app/components/accounting/journalentry/payments/payments.html',
+    selector: 'journalentries',
+    templateUrl: 'app/components/accounting/journalentry/journalentries/journalentries.html',
     directives: [JournalEntryManual],    
 })
-export class Payments {    
+export class JournalEntries {    
     constructor(private tabService: TabService) {
-        this.tabService.addTab({ name: 'Betalinger', url: '/accounting/journalentry/payments', moduleID: 7, active: true });
+        this.tabService.addTab({ name: 'Bilagsregistrering', url: '/accounting/journalentry/manual', moduleID: 7, active: true });
     }
 }

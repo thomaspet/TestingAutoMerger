@@ -5,7 +5,8 @@ export class UniFieldLayout extends FieldLayoutDto {
     public Validations: Array<any>;
     public AsyncValidators: any;
     public SyncValidators: any;
-
+    public Classes: string;
+    
     constructor() {
         super();
         this.SyncValidators = this.Validations;

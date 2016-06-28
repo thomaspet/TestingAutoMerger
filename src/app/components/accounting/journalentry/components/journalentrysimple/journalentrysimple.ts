@@ -19,9 +19,9 @@ declare var moment;
 })
 export class JournalEntrySimple implements OnInit, OnChanges {
     @Input() public supplierInvoice: SupplierInvoice;
-    @Input() public runAsSubComponent : boolean = false;
-    @Input() public mode : number = JournalEntryMode.Manual;
-    @Input() public disabled : boolean = false;
+    @Input() public runAsSubComponent: boolean = false;
+    @Input() public mode: number = JournalEntryMode.Manual;
+    @Input() public disabled: boolean = false;
     @Output() dataChanged: EventEmitter<JournalEntryData[]> = new EventEmitter<JournalEntryData[]>();
     @Output() dataLoaded: EventEmitter<JournalEntryData[]> = new EventEmitter<JournalEntryData[]>();
     
@@ -61,7 +61,7 @@ export class JournalEntrySimple implements OnInit, OnChanges {
             this.departementService.GetAll(null),
             this.projectService.GetAll(null),
             this.vattypeService.GetAll(null),
-            this.accountService.GetAll(null)
+            this.accountService.GetAll(null, ['VatType'])
         ).subscribe(response => {
             this.dropdownData = response;
         });
@@ -80,7 +80,7 @@ export class JournalEntrySimple implements OnInit, OnChanges {
             this.journalEntryLines = new Array<JournalEntryData>();
         }
     }
-
+/*
     private getDepartmentName(line: JournalEntryData): string {
         if (line && line.Dimensions && !line.Dimensions.DepartementID) { return ''; }
         if (this.dropdownData && line && line.Dimensions) {
@@ -93,7 +93,7 @@ export class JournalEntrySimple implements OnInit, OnChanges {
 
         return (line && line.Dimensions && line.Dimensions.DepartementID) ? line.Dimensions.DepartementID.toString() : '';
     }
-
+*/
     private getAccount(id: number): Account {
         if (this.dropdownData) {
             var dep = this.dropdownData[3].find((d) => d.ID == id);
@@ -115,7 +115,7 @@ export class JournalEntrySimple implements OnInit, OnChanges {
 
         return null;
     }
-
+/*
     private getProjectName(line: JournalEntryData): string {
         if (line && line.Dimensions && !line.Dimensions.ProjectID) { return ''; }
         if (this.dropdownData && line && line.Dimensions) {
@@ -127,7 +127,7 @@ export class JournalEntrySimple implements OnInit, OnChanges {
 
         return (line && line.Dimensions && line.Dimensions.ProjectID) ? line.Dimensions.ProjectID.toString() : '';
     }
-
+*/
     public postJournalEntryData() {
         this.journalEntryService.postJournalEntryData(this.journalEntryLines)
             .subscribe(
@@ -194,7 +194,6 @@ export class JournalEntrySimple implements OnInit, OnChanges {
         newline.JournalEntryNo = `${Math.round((this.journalEntryLines.length / 3) + 1)}-2016`;
         this.journalEntryLines.unshift(newline);
 
-        
         this.dataChanged.emit(this.journalEntryLines);
     }
 
@@ -207,14 +206,17 @@ export class JournalEntrySimple implements OnInit, OnChanges {
     }
 
     private parseJournalEntryData(updatedLine: JournalEntryData): JournalEntryData {
-        var dimensions = new Dimensions();
+        /*var dimensions = new Dimensions();
         dimensions.DepartementID = updatedLine['Dimensions.DepartementID'];
         dimensions.ProjectID = updatedLine['Dimensions.ProjectID'];
         updatedLine.Dimensions = dimensions;
-
+        */
         updatedLine.DebitAccount = this.getAccount(updatedLine['DebitAccountID']);
         updatedLine.CreditAccount = this.getAccount(updatedLine['CreditAccountID']);
-        updatedLine.DebitVatType = this.getVatType(updatedLine['VatTypeID']);
+        updatedLine.DebitVatType = this.getVatType(updatedLine['DebitVatTypeID']);
+        updatedLine.CreditVatType = this.getVatType(updatedLine['CreditVatTypeID']);
+        
+        updatedLine.Amount = Number(updatedLine.Amount.toString().replace(',', '.'));
         
         if (updatedLine['FinancialDate'] && typeof updatedLine['FinancialDate'] == 'string') {
             updatedLine.FinancialDate = new Date(updatedLine['FinancialDate'].toString());         
@@ -236,17 +238,17 @@ export class JournalEntrySimple implements OnInit, OnChanges {
     }
 
     private editViewUpdated(journalEntryLine: JournalEntryData) {
+        console.log('editViewUpdated');
         journalEntryLine = this.parseJournalEntryData(journalEntryLine);
 
         var currentRow = this.journalEntryLines.indexOf(this.selectedJournalEntryLine);
         this.journalEntryLines[currentRow] = journalEntryLine;
         this.selectedJournalEntryLine = null;
-
         
         this.dataChanged.emit(this.journalEntryLines);
     }
     
-    private getFinancialDateString(line : JournalEntryData) : string {
-        return line.FinancialDate != null && line.FinancialDate.toISOString() != '0001-01-01T00:00:00.000Z' ? line.FinancialDate.toLocaleDateString() : "";
+    private getFinancialDateString(line: JournalEntryData): string {
+        return line.FinancialDate !== null && line.FinancialDate.toISOString() !== '0001-01-01T00:00:00.000Z' ? line.FinancialDate.toLocaleDateString() : '';
     }
 }

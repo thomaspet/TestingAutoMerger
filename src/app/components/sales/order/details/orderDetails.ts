@@ -133,8 +133,7 @@ export class OrderDetails {
 
     public change(value: CustomerOrder) { }
 
-    public ready(event) {
-        this.form.field('FreeTxt').addClass('max-width', true);
+    public ready(event) {        
         this.setupSubscriptions(null);
     }
 
@@ -872,7 +871,8 @@ export class OrderDetails {
                     UpdatedAt: null,
                     CreatedBy: null,
                     UpdatedBy: null,
-                    CustomFields: null
+                    CustomFields: null,
+                    Classes: 'max-width'
                 }
             ]
         };
