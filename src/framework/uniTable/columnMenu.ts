@@ -9,7 +9,7 @@ interface IColumnVisibility {
 @Component({
     selector: 'uni-table-column-menu',
     template: `
-        <button class="column-menu-toggle" (click)="toggleMenu($event)">Column menu</button>
+        <button class="column-menu-toggle" (click)="toggleMenu($event)">Kolonnevelger</button>
         <ul class="column-menu-dropdown" *ngIf="open">
             <li *ngFor="let column of columnVisibility; let idx = index">
                 <label>

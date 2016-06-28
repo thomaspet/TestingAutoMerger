@@ -3,9 +3,14 @@
 </section>
 <section class="splitview">
     <nav class="splitview_list">
-        <uni-table *ngIf="!disableEmployeeList" [config]="salarytransSelectionTableConfig" [attr.aria-busy]="busy"></uni-table>
+        <uni-table [config]="salarytransSelectionTableConfig" [resource]="employees$ | async" (rowSelected)="rowSelected($event)"></uni-table>
     </nav>
     <main class="splitview_detail">
-        <salary-transactions-employee *ngIf="selectedEmployeeID" [employeeID]="selectedEmployeeID" [payrollRun]="selectedPayrollRun" (nextEmployee)="goToNextEmployee($id)" (previousEmployee)="goToPreviousEmployee($id)" (salarytransesAdded)="salarytransAdded($event)"></salary-transactions-employee>
+        <salary-transactions-employee *ngIf="selectedEmployeeID" 
+            [employeeID]="selectedEmployeeID" 
+            [payrollRun]="selectedPayrollRun" 
+            (nextEmployee)="goToNextEmployee($id)" 
+            (previousEmployee)="goToPreviousEmployee($id)" 
+            (changedPayrollRun)="payrollRunChanged()"></salary-transactions-employee>
     </main>
 </section>
