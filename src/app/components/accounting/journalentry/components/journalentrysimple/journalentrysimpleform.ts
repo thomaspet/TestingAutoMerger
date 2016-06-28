@@ -406,8 +406,8 @@ export class JournalEntrySimpleForm implements OnChanges {
             valueProperty: 'ID',
             template: (account: Account) => account ? `${account.AccountNumber} - ${account.AccountName}` : '',
             minLength: 1,
-            debounceTime: 300,
-            search: (query: string) => this.accountService.GetAll(`filter=startswith(AccountNumber,'${query}') or contains(AccountName,'${query}')`, ['VatType']),
+            debounceTime: 200,            
+            search: (searchValue: string) => Observable.from([this.accounts.filter((account) => account.AccountNumber.toString().startsWith(searchValue) || account.AccountName.toLowerCase().indexOf(searchValue.toLowerCase()) >= 0)]),
             events: {
                 select: (model: JournalEntryData) => {
                     let accountID = model.DebitAccountID;
@@ -434,17 +434,17 @@ export class JournalEntrySimpleForm implements OnChanges {
         debitVat.FieldSet = 0;
         debitVat.Section = 0;
         debitVat.Combo = 0;
-        debitVat.FieldType = 3;
+        debitVat.FieldType = 0;
         debitVat.Label = 'MVA';
         debitVat.Property = 'DebitVatTypeID';
         debitVat.ReadOnly = false;
         debitVat.Hidden = this.mode === JournalEntryMode.Payment;   
         debitVat.Options = {                  
-            source: this.vattypes,
+            search: (searchValue: string) => Observable.from([this.vattypes.filter((vattype) => vattype.VatCode === searchValue || vattype.VatPercent.toString() === searchValue || vattype.Name.toLowerCase().indexOf(searchValue.toLowerCase()) >= 0)]),
             displayProperty: 'VatCode',
             valueProperty: 'ID',
-            template: (vattype: VatType) =>  `${vattype.VatCode} (${ vattype.VatPercent }%)`,
-            debounceTime: 500,
+            template: (vattype: VatType) => vattype ? `${vattype.VatCode}, ${vattype.VatPercent}%, ${vattype.Name}` : '',
+            debounceTime: 100,
             events: {                                       
                 enter: (event) => {
                         this.form.field('CreditAccountID').focus();           
@@ -466,8 +466,8 @@ export class JournalEntrySimpleForm implements OnChanges {
             valueProperty: 'ID',
             template: (account: Account) => { if (account) { return `${account.AccountNumber} - ${account.AccountName}`} return ''},
             minLength: 1,
-            debounceTime: 300,
-            search: (query: string) => this.accountService.GetAll(`filter=startswith(AccountNumber,'${query}') or contains(AccountName,'${query}')`, ['VatType']),
+            debounceTime: 200,            
+            search: (searchValue: string) => Observable.from([this.accounts.filter((account) => account.AccountNumber.toString().startsWith(searchValue) || account.AccountName.toLowerCase().indexOf(searchValue.toLowerCase()) >= 0)]),
             events: {
                 select: (model: JournalEntryData) => {
                     let accountID = model.CreditAccountID;
@@ -494,17 +494,17 @@ export class JournalEntrySimpleForm implements OnChanges {
         creditVat.FieldSet = 0;
         creditVat.Section = 0;
         creditVat.Combo = 0;
-        creditVat.FieldType = 3;
+        creditVat.FieldType = 0;
         creditVat.Label = 'MVA';
         creditVat.Property = 'CreditVatTypeID';
         creditVat.ReadOnly = false;
         creditVat.Hidden = this.mode === JournalEntryMode.Payment;   
-        creditVat.Options = {                  
-            source: this.vattypes,
+        creditVat.Options = {     
+            search: (searchValue: string) => Observable.from([this.vattypes.filter((vattype) => vattype.VatCode === searchValue || vattype.VatPercent.toString() === searchValue || vattype.Name.toLowerCase().indexOf(searchValue.toLowerCase()) >= 0)]),
             displayProperty: 'VatCode',
             valueProperty: 'ID',
-            template: (vattype: VatType) =>  `${vattype.VatCode} (${ vattype.VatPercent }%)`,
-            debounceTime: 500,
+            template: (vattype: VatType) => vattype ? `${vattype.VatCode}, ${vattype.VatPercent}%, ${vattype.Name}` : '',
+            debounceTime: 100,
             events: {                    
                 enter: (event) => {
                     this.form.field('Amount').focus();                      
