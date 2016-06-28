@@ -276,17 +276,7 @@ export class SupplierDetails {
                 });               
             }),
             display: (address: Address) => {
-                let displayVal = '';
-                 if (address.AddressLine1 !== null && address.AddressLine1 !== '') {
-                    displayVal += address.AddressLine1 + ', ';  
-                }
-                if (address.PostalCode !== null && address.PostalCode !== '') {
-                    displayVal += address.PostalCode  + ' ';
-                }
-                if (address.City !== null && address.City !== '') {
-                    displayVal += address.City;
-                }
-                return displayVal;                                
+                return this.addressService.displayAddress(address);                              
             }         
         };
         
@@ -332,17 +322,7 @@ export class SupplierDetails {
                 });               
             }),
             display: (address: Address) => {
-                let displayVal = '';
-                if (address.AddressLine1 !== null && address.AddressLine1 !== '') {
-                    displayVal += address.AddressLine1 + ', ';  
-                }
-                if (address.PostalCode !== null && address.PostalCode !== '') {
-                    displayVal += address.PostalCode  + ' ';
-                }
-                if (address.City !== null && address.City !== '') {
-                    displayVal += address.City;
-                }
-                return displayVal;                                
+                return this.addressService.displayAddress(address);                               
             }          
         };
     }   
