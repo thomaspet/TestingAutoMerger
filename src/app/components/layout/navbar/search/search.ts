@@ -48,7 +48,12 @@ export class NavbarSearch implements AfterViewInit {
             
             // TODO: This should be reworked after 30.6
             if (query.indexOf('faktura ') === 0) {
-                this.invoiceLookup(query.slice(8));
+                //this.invoiceLookup(query.slice(8));
+                this.TOFLookup(query.slice(8), 'invoice');
+            } else if (query.indexOf('ordre') === 0) {
+                this.TOFLookup(query.slice(6), 'order');
+            } else if (query.indexOf('tilbud') === 0) {
+                this.TOFLookup(query.slice(7), 'quote');
             } else {
                 this.componentLookup(query);
             }
@@ -103,7 +108,7 @@ export class NavbarSearch implements AfterViewInit {
 
                 prevItem = this.listElement.nativeElement.children[this.selectedIndex - 1];
                 currItem = this.listElement.nativeElement.children[this.selectedIndex];
-
+                if (!currItem) { return; }
                 overflow = (this.focusPositionTop + currItem.clientHeight)
                            - (this.listElement.nativeElement.clientHeight + this.listElement.nativeElement.scrollTop);
                         
@@ -115,24 +120,29 @@ export class NavbarSearch implements AfterViewInit {
     }
 
     private confirmSelection() {
+        if (!this.searchResults[this.selectedIndex]) { return; }
         const url = this.searchResults[this.selectedIndex].componentUrl;
         this.close();
+
         this.router.navigateByUrl(url);
     }
 
     private close() {
-        this.focusPositionTop = 0;
-        this.searchResults = [];
-        this.inputControl.updateValue('', {emitEvent: false});
-        this.isExpanded = false;
-        this.renderer.invokeElementMethod(this.inputElement.nativeElement, 'blur', []);        
+        setTimeout(() => {
+            this.focusPositionTop = 0;
+            this.searchResults = [];
+            this.inputControl.updateValue('', { emitEvent: false });
+            this.isExpanded = false;
+            this.renderer.invokeElementMethod(this.inputElement.nativeElement, 'blur', []);
+        }, 120)
+                
     }
 
     private componentLookup(query: string) {
         let results = [];
 
         this.componentLookupSource.forEach((component) => {
-            if (component.componentName.toLocaleLowerCase().indexOf(query) === 0) {
+            if (component.componentName.toLocaleLowerCase().indexOf(query) !== -1) {
                 results.push(component);
             }
         });
@@ -158,6 +168,34 @@ export class NavbarSearch implements AfterViewInit {
                 this.searchResults = results;
                 this.isExpanded = true;
             });
+    }
+
+    private TOFLookup(query: string, module: string) {
+        var tofString = module.charAt(0).toUpperCase() + module.slice(1) + "Number";
+        this.http
+            .asGET()
+            .usingBusinessDomain()
+            .withEndPoint(module.toLowerCase() + `s?top=20&filter=contains(` + tofString + `,'${query}') or contains(CustomerName,'${query}')`)
+            .send()
+            .subscribe(
+                (response) => {
+                    let results = [];
+                    
+                    response.forEach((tof) => {
+                        if (tof[tofString] === null) { tof[tofString] = 'Kladd ' + tof.ID }
+                        results.push({
+                            componentName: tof[tofString] + ' - ' + tof.CustomerName,
+                            componentUrl: '/sales/' + module + '/details/' + tof.ID
+                        });
+                        
+                        
+                    });
+
+                    this.searchResults = results;
+                    this.isExpanded = true;
+                },
+                (error) => { }
+            )
     }
 
 }
