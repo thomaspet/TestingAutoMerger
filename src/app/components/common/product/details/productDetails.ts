@@ -41,8 +41,7 @@ export class ProductDetails {
     private calculateGrossPriceBasedOnNetPriceField: UniField;
            
     constructor(private productService: ProductService, private accountService: AccountService, private vatTypeService: VatTypeService, private router: Router, private params: RouteParams, private tabService: TabService) {                
-        this.productId = params.get('id');
-        this.tabService.addTab({ name: "Produktnr. " + this.productId, url: "/products/details/" + this.productId, active: true, moduleID: 6 });
+        this.productId = params.get('id');        
     }
     
     private isActive(instruction: any[]): boolean {
@@ -83,6 +82,8 @@ export class ProductDetails {
             this.accounts = response[1];
             this.vatTypes = response[2];
             
+            this.setTabTitle();
+            
             if (response.length > 3 && response[3] !== null) {                      
                 this.product.PartName = response[3].PartNameSuggestion;
             }  
@@ -93,10 +94,11 @@ export class ProductDetails {
         });       
     }
     
-    private change(product) {
-        
+    private setTabTitle() {
+        let tabTitle = this.product.PartName ? 'Produktnr. ' + this.product.PartName : 'Produkt (kladd)'; 
+        this.tabService.addTab({ url: '/products/details/' + this.product.ID, name: tabTitle, active: true, moduleID: 6 });
     }
-    
+        
     private ready(event) {
         this.setupSubscriptions(null);        
     }
@@ -109,6 +111,7 @@ export class ProductDetails {
                     (updatedValue) => {
                         completeEvent('Produkt lagret');                        
                         this.product = updatedValue;
+                        this.setTabTitle();
                     },
                     (err) => {
                         completeEvent('Feil oppsto ved lagring');

@@ -77,8 +77,7 @@ export class OrderDetails {
         private params: RouteParams,
         private tabService: TabService) {
 
-        this.orderID = params.get('id');
-        this.tabService.addTab({ url: '/sales/order/details/' + this.orderID, name: 'Ordrenr. ' + this.orderID, active: true, moduleID: 4 });
+        this.orderID = params.get('id');         
     }
 
     private log(err) {
@@ -187,7 +186,7 @@ export class OrderDetails {
 
             this.updateStatusText();
             this.addressService.setAddresses(this.order);
-
+            this.setTabTitle();
             this.updateSaveActions();
             this.extendFormConfig();
 
@@ -195,6 +194,11 @@ export class OrderDetails {
             console.log('Error retrieving data: ', err);
             alert('En feil oppsto ved henting av ordre-data: ' + JSON.stringify(err));
         });
+    }
+
+    private setTabTitle() {
+        let tabTitle = this.order.OrderNumber ? 'Ordrenr. ' + this.order.OrderNumber : 'Ordre (kladd)'; 
+        this.tabService.addTab({ url: '/sales/order/details/' + this.order.ID, name: tabTitle, active: true, moduleID: 4 });
     }
 
     private extendFormConfig() {
@@ -437,6 +441,7 @@ export class OrderDetails {
                     this.order = data;
                     this.updateStatusText();
                     this.updateSaveActions();
+                    this.setTabTitle();
                     this.ready(null);
                 });
             }, (err) => {
@@ -474,6 +479,7 @@ export class OrderDetails {
                     this.addressService.setAddresses(this.order);
                     this.updateStatusText();
                     this.updateSaveActions();
+                    this.setTabTitle();
 
                     if (cb) {
                         cb(orderGet);

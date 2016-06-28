@@ -76,8 +76,7 @@ export class QuoteDetails {
         private router: Router, private params: RouteParams,
         private tabService: TabService) {
 
-        this.quoteID = params.get('id');
-        this.tabService.addTab({ url: '/sales/quote/details/' + this.quoteID, name: 'Tilbudsnr. ' + this.quoteID, active: true, moduleID: 3 });
+        this.quoteID = params.get('id');        
     }
 
     private log(err) {
@@ -195,13 +194,19 @@ export class QuoteDetails {
 
             this.updateStatusText();
             this.addressService.setAddresses(this.quote);
-
+            this.setTabTitle();
+            
             this.updateSaveActions();
             this.extendFormConfig();
         }, (err) => {
             console.log('Error retrieving data: ', err);
             alert('En feil oppsto ved henting av tilbuds-data: ' + JSON.stringify(err));
         });
+    }
+
+    private setTabTitle() {
+        let tabTitle = this.quote.QuoteNumber ? 'Tilbudsnr. ' + this.quote.QuoteNumber : 'Tilbud (kladd)'; 
+        this.tabService.addTab({ url: '/sales/quote/details/' + this.quote.ID, name: tabTitle, active: true, moduleID: 3 });
     }
 
     private extendFormConfig() {
@@ -306,7 +311,7 @@ export class QuoteDetails {
 
         this.actions.push({
             label: 'Lagre',
-            action: (done) => this.saveQuote(done),
+            action: (done) => this.saveQuoteManual(done),
             main: true,
             disabled: false
         });
@@ -417,6 +422,12 @@ export class QuoteDetails {
         }, 2000);
     }
 
+    private saveQuoteManual(done: any) {
+        this.saveQuote((quote) => {
+            done('Lagret');
+        });
+    }
+
     private saveQuoteTransition(done: any, transition: string, doneText: string) {
         this.saveQuote((quote) => {
             this.customerQuoteService.Transition(this.quote.ID, this.quote, transition).subscribe(() => {
@@ -427,6 +438,7 @@ export class QuoteDetails {
                         this.quote = data;
                         this.updateStatusText();
                         this.updateSaveActions();
+                        this.setTabTitle();
                         this.ready(null);
                     });
             }, (err) => {
@@ -438,7 +450,7 @@ export class QuoteDetails {
     }
 
 
-    private saveQuote(done: any) {
+    private saveQuote(cb = null) {
         // Transform addresses to flat
         this.addressService.addressToInvoice(this.quote, this.quote._InvoiceAddress);
         this.addressService.addressToShipping(this.quote, this.quote._ShippingAddress);
@@ -453,7 +465,7 @@ export class QuoteDetails {
         //Save only lines with products from product list
         if (!TradeItemHelper.IsItemsValid(this.quote.Items)){
             console.log('Linjer uten produkt. Lagring avbrutt.');
-            done('Lagring feilet');
+            //done('Lagring feilet');
             return;
         }
 
@@ -465,15 +477,19 @@ export class QuoteDetails {
                     this.addressService.setAddresses(this.quote);
                     this.updateStatusText();
                     this.updateSaveActions();
+                    this.setTabTitle();
                     this.ready(null);
 
-                    done('Lagret tilbud');
+                    //done('Lagret tilbud');
+                    if (cb) {
+                        cb(quoteGet);
+                    }
                 });
             },
             (err) => {
                 console.log('Feil oppsto ved lagring', err);
                 this.log(err);
-                done('Lagring feilet');
+                //done('Lagring feilet');
             }
         );
     }
