@@ -227,21 +227,25 @@ export class ProductDetails {
                     }
                 });
 
-        this.form.field('PriceExVat')
-            .onChange
-            .subscribe((data) => {
-                if (!this.product.CalculateGrossPriceBasedOnNetPrice) {
-                    this.calculateAndUpdatePrice();
-                }
-            });
+        if (this.form.field('PriceExVat')) {
+            this.form.field('PriceExVat')
+                .onChange
+                .subscribe((data) => {
+                    if (!this.product.CalculateGrossPriceBasedOnNetPrice) {
+                        this.calculateAndUpdatePrice();
+                    }
+                });
+        }
 
-        this.form.field('PriceIncVat')
-            .onChange            
-            .subscribe((data) => {
-                if (this.product.CalculateGrossPriceBasedOnNetPrice) {
-                    this.calculateAndUpdatePrice();
-                }
-            });
+        if (this.form.field('PriceIncVat')) {
+            this.form.field('PriceIncVat')
+                .onChange            
+                .subscribe((data) => {
+                    if (this.product.CalculateGrossPriceBasedOnNetPrice) {
+                        this.calculateAndUpdatePrice();
+                    }
+                });
+        }
             
         this.form.field('CalculateGrossPriceBasedOnNetPrice')
             .onChange            
