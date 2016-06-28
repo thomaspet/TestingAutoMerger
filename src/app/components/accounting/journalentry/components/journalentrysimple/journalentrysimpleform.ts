@@ -105,7 +105,8 @@ export class JournalEntrySimpleForm implements OnChanges {
         this.fields = _.cloneDeep(this.fields);
     }
                 
-    public ngOnChanges(changes: {[propName: string]: SimpleChange}) {  
+    public ngOnChanges(changes: {[propName: string]: SimpleChange}) {
+        
         if (this.fields.length === 0) {
             this.setupFields();
         }
@@ -129,15 +130,19 @@ export class JournalEntrySimpleForm implements OnChanges {
                 //this.fields[8].Options.source = this.departements;
                 //this.fields[9].Options.source = this.projects;
                 this.fields = _.cloneDeep(this.fields);
+                
+                setTimeout(() => {
+                    this.form.field('FinancialDate').focus();
+                });
             }
         });
         
         if (changes['journalEntryLine']) {
             this.journalEntryLine = _.cloneDeep(this.journalEntryLine);
-            this.isEditMode = true;
-        }
+            this.isEditMode = true;            
+        }        
     }
-    
+        
     public submit(line) {
     }
       
@@ -150,8 +155,6 @@ export class JournalEntrySimpleForm implements OnChanges {
         } else {
             this.form.readMode();
         }
-         
-        this.form.field('FinancialDate').focus();
     }
         
     private validateJournalEntryData(): string {        
@@ -173,55 +176,57 @@ export class JournalEntrySimpleForm implements OnChanges {
         return validationResult;
     }
          
-    private addJournalEntry(event: any, journalEntryNumber: string = null) {  
+    private addJournalEntry(event: any, journalEntryNumber: string = null) {
         
-        setTimeout(() => { 
-            // simple validations before adding
-            let validationResult = this.validateJournalEntryData();
-            if (validationResult !== '') {
-                alert('Vennligst korriger følgende feil:\n\n' + validationResult);
-                return;
-            }
+        // simple validations before adding
+        let validationResult = this.validateJournalEntryData();
+        if (validationResult !== '') {
+            alert('Vennligst korriger følgende feil:\n\n' + validationResult);
+            return;
+        }
+        
+        if (this.journalEntryLines.length == 0 && journalEntryNumber == null && this.mode != JournalEntryMode.Supplier) {
+            // New line fetch next journal entry number from server first
+            var journalentrytoday: JournalEntryData = new JournalEntryData();
+            journalentrytoday.FinancialDate = moment().toDate();
+            this.journalEntryService.getNextJournalEntryNumber(journalentrytoday).subscribe((next) => {
+                this.addJournalEntry(event, next);
+            });            
+        } else {
+            var oldData: JournalEntryData = _.cloneDeep(this.journalEntryLine);              
             
-            if (this.journalEntryLines.length == 0 && journalEntryNumber == null && this.mode != JournalEntryMode.Supplier) {
-                // New line fetch next journal entry number from server first
-                var journalentrytoday: JournalEntryData = new JournalEntryData();
-                journalentrytoday.FinancialDate = moment().toDate();
-                this.journalEntryService.getNextJournalEntryNumber(journalentrytoday).subscribe((next) => {
-                    this.addJournalEntry(event, next);
-                });            
-            } else {
-                var oldData: JournalEntryData = _.cloneDeep(this.journalEntryLine);              
-                
-                if (this.mode != JournalEntryMode.Supplier) {
-                    var numbers = this.journalEntryService.findJournalNumbersFromLines(this.journalEntryLines, journalEntryNumber);            
-                    if (numbers) {
-                        // next or same journal number?
-                        if (oldData.SameOrNew === this.SAME_OR_NEW_NEW && this.mode != JournalEntryMode.Supplier) {
-                            oldData.JournalEntryNo = numbers.nextNumber;
-                        } else {
-                            oldData.JournalEntryNo = numbers.lastNumber;        
-                        }
+            if (this.mode != JournalEntryMode.Supplier) {
+                var numbers = this.journalEntryService.findJournalNumbersFromLines(this.journalEntryLines, journalEntryNumber);            
+                if (numbers) {
+                    // next or same journal number?
+                    if (oldData.SameOrNew === this.SAME_OR_NEW_NEW && this.mode != JournalEntryMode.Supplier) {
+                        oldData.JournalEntryNo = numbers.nextNumber;
+                    } else {
+                        oldData.JournalEntryNo = numbers.lastNumber;        
                     }
                 }
+            }
+                
+            var oldsameornew = oldData.SameOrNew;
+            oldData.SameOrNew = oldData.JournalEntryNo;        
+            this.created.emit(oldData);
                     
-                var oldsameornew = oldData.SameOrNew;
-                oldData.SameOrNew = oldData.JournalEntryNo;        
-                this.created.emit(oldData);
-                        
-                this.journalEntryLine = new JournalEntryData(); 
-                this.journalEntryLine.FinancialDate = oldData.FinancialDate;
-                
-                if (this.mode == JournalEntryMode.Supplier) {
-                    this.journalEntryLine.SameOrNew = this.SAME_OR_NEW_SAME;
-                } else {
-                    this.journalEntryLine.SameOrNew = oldsameornew == this.SAME_OR_NEW_SAME ? this.SAME_OR_NEW_SAME : this.SAME_OR_NEW_NEW;
-                }
-                
-                this.setupSameNewAlternatives();
-                this.setFocusOnDebit();
-            }  
-        });              
+            this.journalEntryLine = new JournalEntryData(); 
+            this.journalEntryLine.FinancialDate = oldData.FinancialDate;
+            
+            if (this.mode == JournalEntryMode.Supplier) {
+                this.journalEntryLine.SameOrNew = this.SAME_OR_NEW_SAME;
+            } else {
+                this.journalEntryLine.SameOrNew = oldsameornew == this.SAME_OR_NEW_SAME ? this.SAME_OR_NEW_SAME : this.SAME_OR_NEW_NEW;
+            }
+            
+            this.setupSameNewAlternatives();
+            
+            setTimeout(() => {
+                this.setFocusAfterFinancialDate();
+            });               
+        }  
+                  
     }
     
     private editJournalEntry(event: any) {    
@@ -254,8 +259,10 @@ export class JournalEntrySimpleForm implements OnChanges {
         this.journalEntryLine = new JournalEntryData();
         this.journalEntryLine.SameOrNew = oldData.SameOrNew;      
         this.journalEntryLine.FinancialDate = oldData.FinancialDate;
-
-        this.setFocusOnDebit();        
+        
+        setTimeout(() => {
+            this.setFocusOnDebit();
+        });        
     }
     
     private setFocusOnDebit() {
@@ -266,7 +273,7 @@ export class JournalEntrySimpleForm implements OnChanges {
         this.form.field('FinancialDate').focus();
     }
     
-    private onLeaveFinancialDate() {
+    private setFocusAfterFinancialDate() {
         if (this.mode === JournalEntryMode.Payment) {
             this.form.field('InvoiceNumber').focus();    
         } else {
@@ -331,8 +338,7 @@ export class JournalEntrySimpleForm implements OnChanges {
         sameOrNewAlternative.Label = 'Bilagsnr';
         sameOrNewAlternative.Property = 'SameOrNew';
         sameOrNewAlternative.ReadOnly = false;
-        sameOrNewAlternative.Hidden = this.mode == JournalEntryMode.Supplier; 
-        sameOrNewAlternative.Classes = 'small-field';
+        sameOrNewAlternative.Hidden = this.mode == JournalEntryMode.Supplier;
         sameOrNewAlternative.Options = {
             source: this.journalalternatives,
             template: (alternative) => `${alternative.Name}`,
@@ -358,10 +364,10 @@ export class JournalEntrySimpleForm implements OnChanges {
         finanicalDate.Options = {                
             events: {
                 tab: (event) => {
-                    this.onLeaveFinancialDate();                        
+                    this.setFocusAfterFinancialDate();                        
                 },
                 enter: (event) => {
-                    this.onLeaveFinancialDate();                        
+                    this.setFocusAfterFinancialDate();                        
                 }                    
             }
         }
