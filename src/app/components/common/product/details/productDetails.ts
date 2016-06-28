@@ -178,8 +178,9 @@ export class ProductDetails {
             source: this.vatTypes,
             valueProperty: 'ID',
             displayProperty: 'VatCode',                        
-            debounceTime: 200,
-            template: (vatType: VatType) => vatType ? `${vatType.VatCode} (${ vatType.VatPercent }%)` : ''
+            debounceTime: 100,            
+            search: (searchValue: string) => Observable.from([this.vatTypes.filter((vt) => vt.VatCode === searchValue || vt.VatPercent.toString() === searchValue || vt.Name.toLowerCase().indexOf(searchValue.toLowerCase()) >= 0)]),
+            template: (vt: VatType) => vt ? `${vt.VatCode}, ${vt.VatPercent}%, ${vt.Name}` : ''
         };
         
         let accountField: UniFieldLayout = this.fields.find(x => x.Property === 'AccountID');       
