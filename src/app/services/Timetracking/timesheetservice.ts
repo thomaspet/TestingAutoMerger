@@ -72,18 +72,28 @@ export class TimeSheet {
                 item.WorkTypeID = change.value.ID;
                 break;       
             case "WorkTypeID":
-                item.Worktype = change.lookupValue || item.Worktype;
+                item.Worktype = change.value ? change.lookupValue || item.Worktype : undefined;
                 break;
             case "Dimensions.ProjectID":
                 if (change.value) {
                     item.Dimensions = item.Dimensions || new Dimension();
                     Dimension.setProject(item.Dimensions, change.value);
                     item.Dimensions.Project = change.lookupValue || item.Dimensions.Project;
+                } else {
+                    if (item.Dimensions) {
+                        item.Dimensions.ProjectID = undefined;
+                        item.Dimensions.Project = undefined;
+                    }
                 }
                 ignore = true;
                 break;         
             case "CustomerOrderID":
-                item.CustomerOrder = change.lookupValue || item.CustomerOrder;
+                item.CustomerOrder = change.value ? change.lookupValue || item.CustomerOrder : undefined;
+                if (!change.value) {
+                    item.CustomerOrderID = undefined;
+                    ignore = true;
+                }
+                break;
         }
         if (!ignore) {
             item[change.name] = change.value;

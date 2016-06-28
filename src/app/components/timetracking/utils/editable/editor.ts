@@ -42,6 +42,7 @@ export class Editor implements IEditor {
     }    
     
     public move(rect:IRect) {
+        if (!this.inputBox) return;
         this.inputBox.offset({top: rect.top, left: rect.left});
         if (rect.width) this.inputBox.outerWidth(rect.width);
         if (rect.height) this.inputBox.outerHeight(rect.height);
@@ -66,7 +67,6 @@ export class Editor implements IEditor {
     }
 
     public setValue(value:any) {
-        //console.log("setValue(" + value + ")");
         if (!this.inputBox) return;
         this.originalValue = value;
         this.inputBox.val(value);
@@ -83,6 +83,7 @@ export class Editor implements IEditor {
     }
     
     public focus() {
+        if (!this.inputBox) return;        
         this.inputBox.focus();
     }
 
@@ -94,7 +95,7 @@ export class Editor implements IEditor {
     }
     
     public finalizeEdit(cancel = false, valueOverride?:string, src = "unknown"):boolean {
-        //console.log("finalizeEdit (" + this.position.col + "," + this.position.row + ") from " + src + " value = " + valueOverride );
+        if (!this.inputBox) return;
         if (!(this.editEvents && this.editEvents.onEditChanged)) {
             return true;
         }
@@ -117,10 +118,7 @@ export class Editor implements IEditor {
 
     private onEditTyping(event) {
         if (!(this.editEvents && this.onEditTyping)) { return; }
-        if (this.resetTyping) {
-            //console.log("Skip debounced event since col has changed ");
-            return;
-        }
+        if (this.resetTyping) { return; }
         var value = this.inputBox.val();
         this.editEvents.onEditTyping(event, value, this.position);        
     }

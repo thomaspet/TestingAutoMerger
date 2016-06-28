@@ -61,7 +61,7 @@ export class RegisterTime implements CanDeactivate {
         ];            
 
     constructor(private tabService: TabService, private workerService: WorkerService, private timesheetService: TimesheetService) {
-        this.tabService.addTab({ name: view.label, url: view.route, moduleID: 18, active: true });
+        this.tabService.addTab({ name: view.label, url: view.route, active: true });
         this.userName = workerService.user.name;
         this.tableConfig = this.createTableConfig();
         this.currentFilter = this.filters[0];

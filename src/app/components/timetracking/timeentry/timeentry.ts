@@ -93,7 +93,7 @@ export class TimeEntry {
     };
             
     constructor(private tabService: TabService, private service:WorkerService, private timesheetService:TimesheetService, private lookup:Lookupservice) {
-        this.tabService.addTab({ name: view.label, url: view.route });
+        this.tabService.addTab({ name: view.label, url: view.route, moduleID: 18 });
         this.userName = service.user.name;
         this.currentFilter = this.filters[0];
         this.initUser();
@@ -163,12 +163,23 @@ export class TimeEntry {
         
             var lookupDef = event.columnDefinition.lookup;
 
+            // Remove "label" from key-value ?
+            var key = event.columnDefinition.typeName === 'int' ? parseInt(event.value) : event.value;
+
+            // Blank value?
+            if (!key) {
+                console.log("value clear!")
+                event.value = key;
+                this.updateChange(event);
+                return;
+            }
+
             // Did user just type a "visual" key value himself (customernumber, ordernumber etc.) !?
             if (event.userTypedValue && lookupDef.visualKey) {                
                 var p = new Promise((resolve, reject)=> {
-                    let filter= `?filter=${lookupDef.visualKey} eq ${event.value}`;
+                    var filter= `?filter=${lookupDef.visualKey} eq ${key}`;
                     this.lookup.getSingle<any>(lookupDef.route, filter).subscribe((rows:any)=> {
-                        var item = (rows && rows.length>0) ? rows[0] : {};
+                        var item = (rows && rows.length > 0) ? rows[0] : {};
                         event.value = item[lookupDef.colToSave || 'ID'];
                         event.lookupValue = item;
                         this.updateChange(event);
@@ -183,7 +194,7 @@ export class TimeEntry {
 
             // Normal lookup value (by foreignKey) ?
             var p = new Promise((resolve, reject)=>{                
-                this.lookup.getSingle<any>(lookupDef.route, event.value).subscribe( (item:any) => {
+                this.lookup.getSingle<any>(lookupDef.route, key).subscribe( (item:any) => {
                     event.lookupValue = item;
                     this.updateChange(event);
                     resolve(item);
