@@ -15,7 +15,7 @@ export class Editor implements IEditor {
     private inputBox:IJQItem;
     private position:IPos;
     private originalValue: any;
-    private reset = false;
+    private resetTyping = false;
     
     private domEvents = new DomEvents();
         
@@ -33,7 +33,10 @@ export class Editor implements IEditor {
             this.inputBox = <IJQItem>jQuery(editorTemplate);
             owner.parent().append(this.inputBox);        
             this.domEvents.Create(<any>this.inputBox, 'keydown', (event)=> this.onEditKeyDown(event) );
-            this.domEvents.Create(<any>this.inputBox, 'input paste', debounce((evt) => { this.onEditTyping(evt); }, 250, false));            
+            this.domEvents.Create(<any>this.inputBox, 'input paste', (evt)=>{
+                this.resetTyping = false;
+                debounce((evt) => { this.onEditTyping(evt); }, 250, false).call(this);
+            });            
         }                
         return this.inputBox;         
     }    
@@ -45,6 +48,7 @@ export class Editor implements IEditor {
     }
     
     public startEdit(value:any, cell: IJQItem, pos: IPos) {
+        this.resetTyping = true;
         if (!this.inputBox) {
             this.create(cell.parent().parent().parent());
         }
@@ -113,7 +117,7 @@ export class Editor implements IEditor {
 
     private onEditTyping(event) {
         if (!(this.editEvents && this.onEditTyping)) { return; }
-        if (this.reset) {
+        if (this.resetTyping) {
             console.log("Skip debounced event since col has changed ");
             return;
         }

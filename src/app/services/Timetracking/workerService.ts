@@ -143,7 +143,7 @@ export class WorkerService extends BizHttp<Worker> {
         if (intervalFilter.length>0) {
             filter += " and ( " + intervalFilter + " )";
         }
-        return this.GET('workitems', { filter: filter, expand: 'WorkType,Dimensions,Dimensions.Project', orderBy: 'StartTime' });
+        return this.GET('workitems', { filter: filter, expand: 'WorkType,Dimensions,Dimensions.Project,CustomerOrder', orderBy: 'StartTime' });
     }
     
     getWorkItemById(id:number): Observable<WorkItem> {

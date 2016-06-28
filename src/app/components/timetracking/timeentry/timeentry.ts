@@ -77,10 +77,10 @@ export class TimeEntry {
             new Column('Date','', 'date'),
             new Column('StartTime', '', 'time'),
             new Column('EndTime', '', 'time'),
-            new Column('WorkTypeID','', 'int', 'worktypes'),
+            new Column('WorkTypeID','', 'int', { route:'worktypes' }),
             new Column('Description'), 
-            new Column('Dimensions.ProjectID', '', 'int', 'projects'),
-            new Column('CustomerOrderID', 'Ordre', 'int', 'orders')
+            new Column('Dimensions.ProjectID', '', 'int', { route:'projects'}),
+            new Column('CustomerOrderID', 'Ordre', 'int', { route:'orders', filter:'ordernumber gt 0', searchColumns: 'OrderNumber,CustomerName'})
             ],
         events: {
                 onChange: (event) => { return this.onChange(event); },
@@ -159,10 +159,9 @@ export class TimeEntry {
     onChange(event: IChangeEvent ) {
 
         // lookup value?
-        if (event.columnDefinition && event.columnDefinition.route) {
-            var p = new Promise((resolve, reject)=>{
-                
-                this.lookup.getSingle<any>(event.columnDefinition.route, event.value).subscribe( (item:any) => {
+        if (event.columnDefinition && event.columnDefinition.lookup) {
+            var p = new Promise((resolve, reject)=>{                
+                this.lookup.getSingle<any>(event.columnDefinition.lookup.route, event.value).subscribe( (item:any) => {
                     event.lookupValue = item;
                     this.updateChange(event);
                     resolve(item);
@@ -179,11 +178,15 @@ export class TimeEntry {
     }
 
     onTypeSearch(details: ITypeSearch) {
-        if (details.columnDefinition && details.columnDefinition.route) {
+        if (details.columnDefinition && details.columnDefinition.lookup) {
+            let lookup = details.columnDefinition.lookup;
             details.ignore = false;
-            details.itemPropertyToSet = 'ID';
-            details.renderFunc = (item:any)=> item.ID + ' - ' + item.Name;
-            details.promise = this.lookup.query(details.columnDefinition.route, details.value, "ID,Name").toPromise();
+            details.itemPropertyToSet = lookup.colToSave || 'ID';
+            // setup searchcolumns
+            var searchCols = lookup.searchColumns || 'ID,Name'
+            var cols = searchCols.split(',');
+            details.renderFunc = (item:any)=> { var ret = ''; for (var i=0;i<cols.length;i++) ret += (i>0 ? ' - ' : '') + item[cols[i]]; return ret; }
+            details.promise = this.lookup.query(lookup.route, details.value, searchCols, undefined, searchCols, lookup.filter).toPromise();
         }
     }
 

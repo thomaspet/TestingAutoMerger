@@ -82,6 +82,8 @@ export class TimeSheet {
                 }
                 ignore = true;
                 break;         
+            case "CustomerOrderID":
+                item.CustomerOrder = change.lookupValue || item.CustomerOrder;
         }
         if (!ignore) {
             item[change.name] = change.value;

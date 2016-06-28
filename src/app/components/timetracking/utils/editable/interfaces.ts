@@ -15,7 +15,7 @@ export interface ICol {
     width?: number;
     visible?: boolean;
     alignment?: string;
-    route?: string;
+    lookup?:ILookupDetails;
 }
 
 export interface IPos {
@@ -98,14 +98,21 @@ export var Keys = {
     HOME : 36, END : 35, INSERT : 45, DELETE : 46, PAGEUP : 33, PAGEDOWN : 34
 };
 
+export interface ILookupDetails {
+    route: string;
+    colToSave?: string;
+    searchColumns?: string;
+    filter?: string;
+}
+
 export class Column implements ICol {
     label:string;
     visible = true;
     typeName:string;
-    route:string;
-    constructor(public name:string, label = '', typeName = 'text', route?:string) {
+    lookup:ILookupDetails;
+    constructor(public name:string, label = '', typeName = 'text', lookup?:ILookupDetails) {
         this.label = label || name;
         this.typeName = typeName; 
-        this.route = route;
+        this.lookup = lookup;
     }
 }

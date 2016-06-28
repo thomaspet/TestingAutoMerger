@@ -129,13 +129,9 @@ export class Editable implements AfterViewInit, OnDestroy {
     }
 
     whenNoDroplist(target: JQuery, fx: () => void, source = "click") {
-
-        // If no droplist we just run (fx) and return;
         if (!this.dropList.isOpen()) {
             return fx();
         }
-
-        // OnClick:
         if (target) {
             if (target.closest(".droplist").length === 0) {
                 return fx();
