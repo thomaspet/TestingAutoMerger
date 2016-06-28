@@ -1,8 +1,7 @@
 import {Component, Input} from '@angular/core';
 import {UniHttp} from '../core/http/http';
 import {AuthService} from '../core/authService';
-
-declare var __moduleName: string;
+import {ImageUploader} from './imageUploader';
 
 export enum UniImageSize {
     small = 150,
@@ -10,14 +9,47 @@ export enum UniImageSize {
     large = 1200
 }
 
+export interface IUploadConfig {
+    entityType: string;
+    entityId: number; 
+    onSuccess: (imageId: number) => void;
+}
+
 @Component({
     selector: 'uni-image',
-    moduleId: __moduleName,
-    templateUrl: './uniImage.html'
+    template: `
+        <section *ngIf="pageCount > 1">
+            <button class="c2a" [disabled]="imageId === 0" (click)="prev()">prev</button>
+            <button class="c2a" (click)="next()">next</button>
+        </section>
+
+        <picture *ngIf="imgUrl.length">
+            <source [attr.srcset]="imgUrl2x" media="(-webkit-min-device-pixel-radio: 2), (min-resolution: 192dpi)">
+            <img [attr.src]="imgUrl" alt="">
+        </picture>
+
+        <section *ngIf="uploadConfig">
+            <label [ngClass]="{'has-image': imgUrl.length}">
+                <a>{{file?.name || 'Klikk her for å velge bilde'}}</a>
+                <input type="file" (change)="uploadFileChange($event)">
+                <button (click)="uploadFile()" [attr.aria-busy]="uploading" [disabled]="!file || uploading">Last opp</button>
+            </label>
+            
+        </section>
+    `,
+    providers: [ImageUploader]
 })
 export class UniImage {
-    @Input() imageId: number;
-    @Input() size: UniImageSize;
+    @Input() 
+    private imageId: number;
+    
+    @Input()
+    private size: UniImageSize;
+
+    @Input()
+    private uploadConfig: IUploadConfig;
+
+    private uploading: boolean = false;
 
     private pageCount: number = 1;
     private currentPage: number = 1;
@@ -25,7 +57,9 @@ export class UniImage {
     private imgUrl: string = '';
     private imgUrl2x: string = '';
 
-    constructor(private authService: AuthService, private http: UniHttp) {}
+    private file: File;
+
+    constructor(private authService: AuthService, private http: UniHttp, private imageUploader: ImageUploader) {}
 
     public ngOnChanges() {
         if (this.imageId) {
@@ -82,4 +116,23 @@ export class UniImage {
     }
 
     
+    private uploadFileChange(event) {
+        const files = event.srcElement.files;
+        if (files && files.length) {
+            this.file = files[0];
+        }
+        console.log(this.file);
+    }
+
+    private uploadFile() {
+        this.uploading = true;
+        
+        this.imageUploader.uploadImage(this.uploadConfig.entityType, this.uploadConfig.entityId, this.file)
+        .then(() => {
+            const slot = this.imageUploader.Slot;
+            this.uploadConfig.onSuccess(slot.ID);
+            this.uploading = false;
+        });
+    }
+
 }

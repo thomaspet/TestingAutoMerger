@@ -152,7 +152,6 @@ export class FileUploadService<T> {
                 r.setRequestHeader('Accept', '*/*');
                 r.setRequestHeader('ContentLength', self.file.size.toString());
                 r.onreadystatechange = () => {
-                    debugger;
                     if (r.readyState === 4 || r.status === 201) {
                         resolve(metadata);
                     }
