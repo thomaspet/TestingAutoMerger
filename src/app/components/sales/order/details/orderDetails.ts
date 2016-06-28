@@ -315,12 +315,12 @@ export class OrderDetails {
         });
         this.actions.push({
             label: 'Registrer',
-            action: (done) => this.saveOrderTransition(done, 'register'),
+            action: (done) => this.saveOrderTransition(done, 'register', 'Registrert'),
             disabled: (this.order.StatusCode !== StatusCodeCustomerOrder.Draft)
         });
         this.actions.push({
             label: 'Avslutt ordre',
-            action: (done) => this.saveOrderTransition(done, 'complete'),
+            action: (done) => this.saveOrderTransition(done, 'complete', 'Ordre avsluttet'),
             disabled: this.IsTransferToCompleteDisabled()
         });
 
@@ -447,10 +447,11 @@ export class OrderDetails {
         });
     }
 
-    private saveOrderTransition(done: any, transition: string) {
+    private saveOrderTransition(done: any, transition: string, doneText: string) {
         this.saveOrder((order) => {
             this.customerOrderService.Transition(this.order.ID, this.order, transition).subscribe(() => {
                 console.log('== TRANSITION OK ' + transition + ' ==');
+                done(doneText);
 
                 this.customerOrderService.Get(order.ID, this.expandOptions).subscribe((data) => {
                     this.order = data;
@@ -458,7 +459,6 @@ export class OrderDetails {
                     this.updateSaveActions();
                     this.ready(null);
                 });
-                done('Lagret');
             }, (err) => {
                 console.log('Feil oppstod ved ' + transition + ' transition', err);
                 done('Feilet');

@@ -317,7 +317,7 @@ export class QuoteDetails {
 
         this.actions.push({
             label: 'Registrer',
-            action: (done) => this.saveQuoteTransition(done, 'register'),
+            action: (done) => this.saveQuoteTransition(done, 'register', 'Registrert'),
             disabled: (this.quote.StatusCode !== StatusCodeCustomerQuote.Draft)
 
         });
@@ -326,19 +326,19 @@ export class QuoteDetails {
 
         this.actions.push({
             label: 'Lagre og overfør til ordre',
-            action: (done) => this.saveQuoteTransition(done, 'toOrder'),
+            action: (done) => this.saveQuoteTransition(done, 'toOrder', 'Overført til ordre'),
             disabled: this.IsTransferToOrderDisabled()
         });
 
         this.actions.push({
             label: 'Lagre og overfør til faktura',
-            action: (done) => this.saveQuoteTransition(done, 'toInvoice'),
+            action: (done) => this.saveQuoteTransition(done, 'toInvoice', 'Overført til faktura'),
             disabled: this.IsTransferToInvoiceDisabled()
 
         });
         this.actions.push({
             label: 'Avslutt tilbud',
-            action: (done) => this.saveQuoteTransition(done, 'complete'),
+            action: (done) => this.saveQuoteTransition(done, 'complete', 'Tilbud avsluttet'),
             disabled: this.IsTransferToCompleteDisabled()
 
         });
@@ -445,11 +445,11 @@ export class QuoteDetails {
         //done('Lagret');
     }
 
-    private saveQuoteTransition(done: any, transition: string) {
+    private saveQuoteTransition(done: any, transition: string, doneText: string) {
         this.saveQuote((quote) => {
             this.customerQuoteService.Transition(this.quote.ID, this.quote, transition).subscribe(() => {
                 console.log('== TRANSITION OK ' + transition + ' ==');
-                done(transition);
+                done(doneText);
 
                 this.customerQuoteService.Get(quote.ID, this.expandOptions).subscribe((data) => {
                         this.quote = data;

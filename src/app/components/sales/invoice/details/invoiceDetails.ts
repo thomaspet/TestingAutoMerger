@@ -359,7 +359,7 @@ export class InvoiceDetails implements OnInit {
 
         this.actions.push({
             label: this.invoiceButtonText, // Fakturer eller Krediter
-            action: (done) => this.saveInvoiceTransition(done, 'invoice'),
+            action: (done) => this.saveInvoiceTransition(done, 'invoice', this.getInvoiceDoneText()),
             disabled: this.IsInvoiceActionDisabled()
         });
 
@@ -411,6 +411,13 @@ export class InvoiceDetails implements OnInit {
             return false;
         }
         return true;
+    }
+
+    private getInvoiceDoneText() {
+        if (this.invoice.InvoiceType === 1) {
+            return 'Kreditnota kreditert'; 
+        }
+        return 'Faktura fakturert';
     }
 
     public recalcItemSums(invoiceItems: any) {
@@ -468,11 +475,12 @@ export class InvoiceDetails implements OnInit {
         return items;
     }
 
-    private saveInvoiceTransition(done: any, transition: string) {
+    private saveInvoiceTransition(done: any, transition: string, doneText: string) {
         this.saveInvoice((invoice) => {
             this.customerInvoiceService.Transition(this.invoice.ID, this.invoice, transition).subscribe(() => {
                 console.log('== TRANSITION OK ' + transition + ' ==');
                 this.router.navigateByUrl('/sales/invoice/details/' + this.invoice.ID);
+                done(doneText);
 
                 this.customerInvoiceService.Get(invoice.ID, this.expandOptions).subscribe((data) => {
                     this.invoice = data;
@@ -480,7 +488,7 @@ export class InvoiceDetails implements OnInit {
                     this.updateSaveActions();
                     this.ready(null);
                 });
-                done('Fakturert');
+
             }, (err) => {
                 console.log('Feil oppstod ved ' + transition + ' transition', err);
                 done('Feilet');
