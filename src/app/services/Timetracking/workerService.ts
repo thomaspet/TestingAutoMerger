@@ -6,6 +6,7 @@ import {Observable} from "rxjs/Rx";
 import {AuthService} from '../../../framework/core/authService';
 import {URLSearchParams} from '@angular/http'
 import {toIso, addTime} from '../../components/timetracking/utils/utils';
+import {AppConfig} from '../../../app/AppConfig';
 
 declare var moment;
 
@@ -68,6 +69,7 @@ export class WorkerService extends BizHttp<Worker> {
     }
     
     getCurrentUserId(): Promise<number> {
+        var localDebug = AppConfig.BASE_URL.indexOf('localhost')>0;
          return new Promise(resolve => {
             if (this.user.id) {
                 resolve(this.user.id);
@@ -79,7 +81,7 @@ export class WorkerService extends BizHttp<Worker> {
                 if (result.length>0) {
                     for (var i=0; i<result.length; i++) {
                         var item = result[i];
-                        if (item.GlobalIdentity === guid) {
+                        if (item.GlobalIdentity === guid || localDebug) {
                             this.user.id = item.ID;
                             this.user.email = item.Email;
                             resolve(item.ID);
@@ -141,7 +143,7 @@ export class WorkerService extends BizHttp<Worker> {
         if (intervalFilter.length>0) {
             filter += " and ( " + intervalFilter + " )";
         }
-        return this.GET('workitems', { filter: filter, expand: 'WorkType', orderBy: 'StartTime' });
+        return this.GET('workitems', { filter: filter, expand: 'WorkType,Dimensions,Dimensions.Project,CustomerOrder', orderBy: 'StartTime' });
     }
     
     getWorkItemById(id:number): Observable<WorkItem> {

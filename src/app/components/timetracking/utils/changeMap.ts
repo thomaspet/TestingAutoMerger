@@ -19,6 +19,7 @@ export class ChangeMap {
         if (ix>=0) {
             this.items[ix].value = value; // replace
         } else {
+            value._rowIndex = key;
             this.items.push({key:key, value: value }); // add
         }
     }

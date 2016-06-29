@@ -3,16 +3,31 @@
 @import 'payments'
 @import 'supplierInvoices'
 
-journal-entry > h1
+journal-entry > h2
     display: block
-    @include unigrid-flush(14)
+    width: calc(100% - 2rem) !important
+    margin: 0 auto
+
+journalentries > h2
+    display: block
+    width: calc(100% - 2rem) !important
+    margin: 0 auto
+
+payments > h2
+    display: block
+    width: calc(100% - 2rem) !important
     margin: 0 auto
 
 // Set general layout for the application view
 journal-entry-manual:not(.runassubcomponent)
     display: block
-    @include unigrid-flush(14)
+    width: calc(100% - 2rem) !important
     margin: 0 auto
+    
+journal-entry-manual.runassubcomponent
+    display: block
+    width: calc(100% - 2rem) !important
+    margin-left: 2rem
 
 .journalentrytempbox
     border: pxToRem(1) solid $uni-color-scale9

@@ -9,6 +9,7 @@ import {JournalEntryMode} from '../components/journalentrysimple/journalentrysim
 
 @Component({
     selector: 'journal-entry-manual',
+    host: {'[class.runassubcomponent]': 'runAsSubComponent'},
     templateUrl: 'app/components/accounting/journalentry/journalentrymanual/journalentrymanual.html',
     directives: [JournalEntrySimple, JournalEntryProfessional],
     providers: [JournalEntryService]    
