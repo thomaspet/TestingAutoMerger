@@ -442,7 +442,9 @@ export class SalaryTransactionEmployeeList implements OnInit {
 
         this.employeeService.getTotals(this.payrollRun.ID, this.employeeID)
             .subscribe((response) => {
-                this.employeeTotals = [response];
+                if (response) {
+                    this.employeeTotals = [response];
+                }
             }, (error: any) => {
                 this.log(error);
                 console.log(error);
