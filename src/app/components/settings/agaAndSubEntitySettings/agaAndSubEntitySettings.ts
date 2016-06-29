@@ -87,11 +87,8 @@ export class AgaAndSubEntitySettings implements OnInit {
                     filter += 'MunicipalityNo eq ' + element.MunicipalityNo + ' or ';
                 });
                 filter = filter.slice(0, filter.length - 3);
-                console.log('dataset: ', dataset);
-                console.log('yo');
                 this.municipalService.GetAll(filter).subscribe(
                     (response) => {
-                        console.log('hey');
                         this.subEntities = dataset[0];
                         this.agaZones = dataset[1];
                         this.agaRules = dataset[2];
@@ -289,7 +286,6 @@ export class AgaAndSubEntitySettings implements OnInit {
     public saveAgaAndSubEntities(done) {
         this.uniForm.sync();
         done('lagrer kontoer');
-        console.log('saving: ', this.companySalary[0]);
         this.companySalaryService.Put(this.companySalary[0].ID, this.companySalary[0]).subscribe((response: CompanySalary) => {
             this.companySalary[0] = response;
             done('Sist lagret: ');
