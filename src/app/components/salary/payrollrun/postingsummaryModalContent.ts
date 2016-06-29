@@ -49,9 +49,10 @@ export class PostingsummaryModalContent {
     }
     
     
-    public getAccountingSum(): number {
-        var ret: number = 0;
-        if (this.summary)                     {         
+    private getAccountingSum() : number
+    {
+        var ret : number = 0;
+        if (this.summary) {
             this.summary.PostList.forEach((val) => {
                 ret += val.Amount;
             } );            

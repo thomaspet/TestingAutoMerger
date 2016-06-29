@@ -1,5 +1,13 @@
-<section class="application">
-    <h1>Lønnsavregninger</h1>
-    <button (click)="createPayrollrun()" class="good salary-new">Ny ansatt</button>
-    <uni-table [resource]="payrollRuns$ | async" [config]="payrollrunListConfig" (rowSelected)="rowSelected($event)"></uni-table>
-</section>
+<article [attr.aria-busy]="busy">
+    <header class="poster">
+        <article class="poster_toolbar">
+            <h1 class="poster_toolbar_headline">Lønnsavregninger</h1>
+            <nav class="poster_toolbar_tools">
+                <a (click)="createPayrollrun()" class="new">Ny lønnsavregning</a>
+            </nav>
+        </article>
+    </header>
+    <section class="application">
+        <uni-table [resource]="payrollRuns$ | async" [config]="payrollrunListConfig" (rowSelected)="rowSelected($event)"></uni-table>
+    </section>
+</article>

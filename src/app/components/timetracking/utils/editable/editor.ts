@@ -90,9 +90,11 @@ export class Editor implements IEditor {
         this.inputBox.select();
     }
 
-    public setValue(value:any) {
+    public setValue(value:any, flagChange = false) {
         if (!this.inputBox) return;
-        this.originalValue = value;
+        if (!flagChange) {
+            this.originalValue = value;
+        }
         this.inputBox.val(value);
         if (this.rootElement.is(":visible")) {
             this.inputBox.select();
@@ -116,6 +118,11 @@ export class Editor implements IEditor {
         var txt = this.inputBox.val();
         var changes = txt !== this.originalValue;
         return changes;
+    }
+
+    public getValue():any {
+        if (!this.inputBox) return '';
+        return this.inputBox.val();
     }
     
     public finalizeEdit(cancel = false, valueOverride?:string, src = "unknown"):boolean {
