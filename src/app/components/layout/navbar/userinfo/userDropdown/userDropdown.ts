@@ -25,19 +25,14 @@ export class UniUserDropdown implements AfterViewInit {
         this.username = authService.jwtDecoded.unique_name;
         this.dropdownElements = [
             {
-                title: "Settings", action: () => {
-                this.navigate("/settings");
-            }
+                title: "Innstillinger", action: () => {
+                    this.navigate("/settings/user");
+                }
             },
             {
-                title: "Help", action: () => {
-                this.navigate("/");
-            }
-            },
-            {
-                title: "Log out", action: () => {
-                this.authService.logout();
-            }
+                title: "Logg ut", action: () => {
+                    this.authService.logout();
+                }
             },
         ];
         this.userDropdownActive = false;

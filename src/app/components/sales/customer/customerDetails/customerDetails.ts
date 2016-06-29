@@ -645,6 +645,46 @@ export class CustomerDetails implements OnInit {
                     CustomFields: null 
                 },
                 {
+                    Url: 'customers',
+                    Validations: [
+                        
+                    ],
+                    LookupEntityType: null,
+                    ValueList: null,
+                    ComponentLayoutID: 1,
+                    EntityType: 'Customer',
+                    Property: 'CreditDays',
+                    Placement: 1,
+                    Hidden: false,
+                    FieldType: 10,
+                    ReadOnly: false,
+                    LookupField: false,
+                    DisplayField: null,
+                    Width: null,
+                    Sectionheader: 'Betingelser',
+                    Alignment: 0,
+                    Label: 'Kredittdager',
+                    Description: null,
+                    HelpText: null,
+                    Placeholder: null,
+                    FieldSet: 0,
+                    Section: 1,
+                    Options: null,
+                    LineBreak: false,
+                    Combo: null,
+                    Legend: 'Betingelser',
+                    StatusCode: null,
+                    CustomValues: {
+                        
+                    },
+                    ID: 0,
+                    Deleted: false,
+                    CreatedAt: null,
+                    UpdatedAt: null,
+                    CreatedBy: null,
+                    UpdatedBy: null
+                },
+                {
                     ComponentLayoutID: 3,
                     EntityType: 'Project',
                     Property: 'Dimensions.ProjectID',

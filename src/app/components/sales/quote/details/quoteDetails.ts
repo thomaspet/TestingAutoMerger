@@ -10,8 +10,10 @@ import {UniSave, IUniSaveAction} from '../../../../../framework/save/save';
 import {UniForm, UniFieldLayout} from '../../../../../framework/uniform';
 
 import {QuoteItemList} from './quoteItemList';
+import {TradeItemHelper} from '../../salesHelper/tradeItemHelper';
 
-import {FieldType, CustomerQuote, Customer} from '../../../../unientities';
+
+import {FieldType, CustomerQuote, CustomerQuoteItem, Customer} from '../../../../unientities';
 import {Dimensions, Address, BusinessRelation} from '../../../../unientities';
 import {StatusCodeCustomerQuote} from '../../../../unientities';
 
@@ -29,6 +31,8 @@ class CustomerQuoteExt extends CustomerQuote {
     public _InvoiceAddresses: Array<Address>;
     public _ShippingAddress: Address;
     public _ShippingAddresses: Array<Address>;
+    public _InvoiceAddressID: number;
+    public _ShippingAddressID: number;    
 }
 
 @Component({
@@ -60,6 +64,9 @@ export class QuoteDetails {
 
     private actions: IUniSaveAction[];
 
+    private expandOptions: Array<string> = ['Dimensions', 'Items', 'Items.Product', 'Items.VatType',
+        'Customer', 'Customer.Info', 'Customer.Info.Addresses'];
+
     constructor(private customerService: CustomerService,
         private customerQuoteService: CustomerQuoteService,
         private customerQuoteItemService: CustomerQuoteItemService,
@@ -70,6 +77,7 @@ export class QuoteDetails {
         private reportDefinitionService: ReportDefinitionService,
         private router: Router, private params: RouteParams,
         private tabService: TabService) {
+
         this.quoteID = params.get('id');        
     }
 
@@ -100,7 +108,7 @@ export class QuoteDetails {
             },
             (err) => {
                 console.log('Error getting previous quote: ', err);
-                alert('Ikke flere tilbud f�r denne');
+                alert('Ikke flere tilbud før denne');
             }
             );
     }
@@ -135,7 +143,7 @@ export class QuoteDetails {
             .onChange
             .subscribe((data) => {
                 if (data) {
-                    this.customerService.Get(this.quote.CustomerID, ['Info', 'Info.Addresses']).subscribe((customer: Customer) => {
+                    this.customerService.Get(this.quote.CustomerID, ['Info', 'Info.Addresses', 'Info.InvoiceAddress', 'Info.ShippingAddress']).subscribe((customer: Customer) => {
                         let previousAddresses = this.quote.Customer ? this.quote.Customer.Info.Addresses : null;
                         this.quote.Customer = customer;
                         this.addressService.setAddresses(this.quote, previousAddresses);
@@ -172,8 +180,7 @@ export class QuoteDetails {
         Observable.forkJoin(
             this.departementService.GetAll(null),
             this.projectService.GetAll(null),
-            this.customerQuoteService.Get(this.quoteID, ['Dimensions', 'Items', 'Items.Product', 'Items.VatType',
-                'Customer', 'Customer.Info', 'Customer.Info.Addresses']),
+            this.customerQuoteService.Get(this.quoteID, this.expandOptions),
             this.customerService.GetAll(null, ['Info']),
             this.addressService.GetNewEntity(null, 'address')
         ).subscribe(response => {
@@ -256,7 +263,7 @@ export class QuoteDetails {
             listProperty: '_ShippingAddresses',
             displayValue: 'AddressLine1',
             linkProperty: 'ID',
-            foreignProperty: 'ShippingAddressesID',
+            foreignProperty: '_ShippingAddressID',
             editor: (value) => new Promise((resolve) => {
                 if (!value) {
                     value = new Address();
@@ -319,7 +326,7 @@ export class QuoteDetails {
 
         this.actions.push({
             label: 'Registrer',
-            action: (done) => this.saveQuoteTransition(done, 'register'),
+            action: (done) => this.saveQuoteTransition(done, 'register', 'Registrert'),
             disabled: (this.quote.StatusCode !== StatusCodeCustomerQuote.Draft)
 
         });
@@ -328,19 +335,19 @@ export class QuoteDetails {
 
         this.actions.push({
             label: 'Lagre og overfør til ordre',
-            action: (done) => this.saveQuoteTransition(done, 'toOrder'),
+            action: (done) => this.saveQuoteTransition(done, 'toOrder', 'Overført til ordre'),
             disabled: this.IsTransferToOrderDisabled()
-
         });
+
         this.actions.push({
             label: 'Lagre og overfør til faktura',
-            action: (done) => this.saveQuoteTransition(done, 'toInvoice'),
+            action: (done) => this.saveQuoteTransition(done, 'toInvoice', 'Overført til faktura'),
             disabled: this.IsTransferToInvoiceDisabled()
 
         });
         this.actions.push({
             label: 'Avslutt tilbud',
-            action: (done) => this.saveQuoteTransition(done, 'complete'),
+            action: (done) => this.saveQuoteTransition(done, 'complete', 'Tilbud avsluttet'),
             disabled: this.IsTransferToCompleteDisabled()
 
         });
@@ -418,25 +425,22 @@ export class QuoteDetails {
     }
 
     private saveQuoteManual(done: any) {
-        this.saveQuote((quote => {
+        this.saveQuote((quote) => {
             done('Lagret');
-        }));
-
-        //this.saveQuote();
-        //done('Lagret');
+        });
     }
 
-    private saveQuoteTransition(done: any, transition: string) {
+    private saveQuoteTransition(done: any, transition: string, doneText: string) {
         this.saveQuote((quote) => {
             this.customerQuoteService.Transition(this.quote.ID, this.quote, transition).subscribe(() => {
                 console.log('== TRANSITION OK ' + transition + ' ==');
-                done(transition);
+                done(doneText);
 
-                this.customerQuoteService.Get(quote.ID, ['Dimensions', 'Items', 'Items.Product', 'Items.VatType',
-                    'Customer', 'Customer.Info', 'Customer.Info.Addresses']).subscribe((data) => {
+                this.customerQuoteService.Get(quote.ID, this.expandOptions).subscribe((data) => {
                         this.quote = data;
                         this.updateStatusText();
                         this.updateSaveActions();
+                        this.setTabTitle();
                         this.ready(null);
                     });
             }, (err) => {
@@ -460,32 +464,41 @@ export class QuoteDetails {
             this.quote.Dimensions['_createguid'] = this.customerQuoteService.getNewGuid();
         }
 
+        //Save only lines with products from product list
+        if (!TradeItemHelper.IsItemsValid(this.quote.Items)){
+            console.log('Linjer uten produkt. Lagring avbrutt.');
+            //done('Lagring feilet');
+            return;
+        }
+
         this.customerQuoteService.Put(this.quote.ID, this.quote)
             .subscribe(
-            (quote) => {
-                this.quote = quote;
-                this.addressService.setAddresses(this.quote);
-                this.updateStatusText();
-                this.updateSaveActions();
+            (quoteSaved) => {
+                this.customerQuoteService.Get(this.quote.ID, this.expandOptions).subscribe(quoteGet => {
+                    this.quote = quoteGet;
+                    this.addressService.setAddresses(this.quote);
+                    this.updateStatusText();
+                    this.updateSaveActions();
+                    this.setTabTitle();
+                    this.ready(null);
 
-                this.setTabTitle();
-
-                if (cb) {
-                    cb(quote);
-                }
+                    //done('Lagret tilbud');
+                    if (cb) {
+                        cb(quoteGet);
+                    }
+                });
             },
             (err) => {
                 console.log('Feil oppsto ved lagring', err);
                 this.log(err);
+                //done('Lagring feilet');
             }
-            );
+        );
     }
 
     private updateStatusText() {
         this.statusText = this.customerQuoteService.getStatusText((this.quote.StatusCode || '').toString());
     }
-
-
 
     private saveAndPrint(done) {
         this.saveQuote((quote) => {

@@ -198,7 +198,9 @@ export class JournalEntrySimple implements OnInit, OnChanges {
     }
 
     private setSelectedJournalEntryLine(selectedLine: JournalEntryData) {
-        this.selectedJournalEntryLine = selectedLine;
+        if (!this.disabled) {
+            this.selectedJournalEntryLine = selectedLine;
+        }
     }
 
     private abortEdit() {
@@ -215,6 +217,8 @@ export class JournalEntrySimple implements OnInit, OnChanges {
         updatedLine.CreditAccount = this.getAccount(updatedLine['CreditAccountID']);
         updatedLine.DebitVatType = this.getVatType(updatedLine['DebitVatTypeID']);
         updatedLine.CreditVatType = this.getVatType(updatedLine['CreditVatTypeID']);
+        updatedLine.DebitAccountNumber = null;
+        updatedLine.CreditAccountNumber = null;
         
         updatedLine.Amount = Number(updatedLine.Amount.toString().replace(',', '.'));
         

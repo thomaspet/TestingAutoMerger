@@ -20,7 +20,7 @@ export class ImageDemo {
         // F.eks <uni-image [imageId]="4" [size]="150"></uni-image>
         // merk at dersom size settes rett i markup må den tilsvare verdien på et element i UniImageSize enum.
         // Size er forøvrig optional. Dersom denne ikke settes får man bildet i sin orginale oppløsning.
-        this.imageId = 4;
+        this.imageId = 11;
         this.imageSize = UniImageSize.small;
     }
 

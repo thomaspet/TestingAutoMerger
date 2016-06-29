@@ -1,14 +1,11 @@
-<header class="transquery_poster">    
-    <article class="poster_toolbar">
-        <section>
-            <h1 *ngIf="account">{{account.AccountNumber}} - {{account.AccountName}}</h1>
-            <p></p>       
-        </section>
-    </article>       
-</header>
-
 <section class="application">
-    <uni-component-loader></uni-component-loader>
+    <h1 *ngIf="account">Kontoforespørsel {{account.AccountNumber}} - {{account.AccountName}}</h1>
+    <h1 *ngIf="!account">Kontoforespørsel</h1>
+    
+    <uni-form [config]="config"
+              [fields]="fields"
+              [model]="searchParams">
+    </uni-form>
     <uni-table [resource]="periods$ | async" [config]="periodeTable"></uni-table>
-    <i *ngIf="!periods$">Ingen søkeresultat</i>
+    <i *ngIf="!periods$">Søk etter en konto over for å se rapporten</i>
 </section>
