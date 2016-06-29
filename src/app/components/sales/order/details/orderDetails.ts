@@ -239,10 +239,8 @@ export class OrderDetails {
                 this.addressModal.openModal(value, !!!this.order.CustomerID);
 
                 this.addressModal.Changed.subscribe(address => {
-                    this.order._InvoiceAddress = address;
-                    this.order = _.cloneDeep(this.order);
-                    if (address._question) { self.saveAddressOnCustomer(address); }
-                    resolve(address);
+                    if (address._question) { self.saveAddressOnCustomer(address, resolve); }
+                    else { resolve(address); }
                 });
             }),
             display: (address: Address) => {
@@ -266,10 +264,8 @@ export class OrderDetails {
                 this.addressModal.openModal(value);
 
                 this.addressModal.Changed.subscribe((address) => {
-                    this.order._ShippingAddress = address;
-                    this.order = _.cloneDeep(this.order);
-                    if (address._question) { self.saveAddressOnCustomer(address); }
-                    resolve(address);
+                    if (address._question) { self.saveAddressOnCustomer(address, resolve); }
+                    else { resolve(address); }
                 });
             }),
             display: (address: Address) => {
@@ -286,17 +282,22 @@ export class OrderDetails {
         };
     }
 
-    private saveAddressOnCustomer(address: Address) {
+    private saveAddressOnCustomer(address: Address, resolve: any) {
+        var idx = 0;
+
         if (!address.ID || address.ID == 0) {
             address['_createguid'] = this.addressService.getNewGuid();
             this.order.Customer.Info.Addresses.push(address);
-            this.businessRelationService.Put(this.order.Customer.Info.ID, this.order.Customer.Info).subscribe((res) => {
-                this.order.Customer.Info = res;
-            });
+            idx = this.order.Customer.Info.Addresses.length - 1;
         } else {
-            this.addressService.Put(address.ID, address).subscribe((res) => {
-            });
+            idx = this.order.Customer.Info.Addresses.findIndex((a) => a.ID === address.ID);
+            this.order.Customer.Info.Addresses[idx] = address;
         }
+
+        this.businessRelationService.Put(this.order.Customer.Info.ID, this.order.Customer.Info).subscribe((info) => {
+            this.order.Customer.Info = info;
+            resolve(info.Addresses[idx]);
+        });
     }
 
     private updateSaveActions() {

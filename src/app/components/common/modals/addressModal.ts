@@ -196,7 +196,7 @@ export class AddressForm implements OnChanges {
                 Section: 0,
                 Placeholder: null,
                 Options: null,
-                LineBreak: null,
+                LineBreak: true,
                 Combo: null,
                 Legend: '',
                 StatusCode: 0,

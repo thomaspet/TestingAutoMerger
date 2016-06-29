@@ -271,8 +271,6 @@ export class InvoiceDetails implements OnInit {
         };
 
         var invoiceaddress: UniFieldLayout = this.fields.find(x => x.Property === '_InvoiceAddress');
-
-        // TODO:
         invoiceaddress.Options = {
             entity: Address,
             listProperty: '_InvoiceAddresses',
@@ -288,10 +286,8 @@ export class InvoiceDetails implements OnInit {
                 this.addressModal.openModal(value);
 
                 this.addressModal.Changed.subscribe((address) => {
-                    this.invoice._InvoiceAddress = address;
-                    this.invoice = _.cloneDeep(this.invoice);
-                    if (address._question) { self.saveAddressOnCustomer(address); }
-                    resolve(address);
+                    if (address._question) { self.saveAddressOnCustomer(address, resolve); }
+                    else { resolve(address); }
                 });
             }),
             display: (address: Address) => {
@@ -315,10 +311,8 @@ export class InvoiceDetails implements OnInit {
                 this.addressModal.openModal(value);
 
                 this.addressModal.Changed.subscribe((address) => {
-                    this.invoice._ShippingAddress = address;
-                    this.invoice = _.cloneDeep(this.invoice);
-                    if (address._question) { self.saveAddressOnCustomer(address); }
-                    resolve(address);
+                    if (address._question) { self.saveAddressOnCustomer(address, resolve); }
+                    else { resolve(address); }
                 });
             }),
             display: (address: Address) => {
@@ -335,18 +329,22 @@ export class InvoiceDetails implements OnInit {
         };
     }
 
-    private saveAddressOnCustomer(address: Address) {
+    private saveAddressOnCustomer(address: Address, resolve: any) {
+        var idx = 0;
+
         if (!address.ID || address.ID == 0) {
             address['_createguid'] = this.addressService.getNewGuid();
             this.invoice.Customer.Info.Addresses.push(address);
-            this.businessRelationService.Put(this.invoice.Customer.Info.ID, this.invoice.Customer.Info).subscribe((res) => {
-                this.invoice.Customer.Info = res;
-                this.addressService.setAddresses(this.invoice);
-            });
+            idx = this.invoice.Customer.Info.Addresses.length - 1;
         } else {
-            this.addressService.Put(address.ID, address).subscribe((res) => {
-            });
+            idx = this.invoice.Customer.Info.Addresses.findIndex((a) => a.ID === address.ID);
+            this.invoice.Customer.Info.Addresses[idx] = address;
         }
+
+        this.businessRelationService.Put(this.invoice.Customer.Info.ID, this.invoice.Customer.Info).subscribe((info) => {
+            this.invoice.Customer.Info = info;
+            resolve(info.Addresses[idx]);
+        });
     }
 
     private updateSaveActions() {
