@@ -1,4 +1,4 @@
-﻿import {Component, OnInit} from '@angular/core';
+﻿import {Component, OnInit, ViewChild} from '@angular/core';
 import {RouteParams, ROUTER_DIRECTIVES} from '@angular/router-deprecated';
 import {Observable} from 'rxjs/Observable';
 import 'rxjs/add/observable/forkJoin';
@@ -56,6 +56,8 @@ export class AgaAndSubEntitySettings implements OnInit {
         }
     ];
 
+    @ViewChild(UniForm) private uniForm: UniForm;
+
     // TODO Use service instead of Http, Use interfaces!!
     constructor(private routeParams: RouteParams,
         private http: UniHttp,
@@ -63,7 +65,7 @@ export class AgaAndSubEntitySettings implements OnInit {
         private subentityService: SubEntityService,
         private municipalService: MunicipalService,
         private companySalaryService: CompanySalaryService
-        ) {
+    ) {
 
     }
 
@@ -86,24 +88,22 @@ export class AgaAndSubEntitySettings implements OnInit {
                 });
                 filter = filter.slice(0, filter.length - 3);
                 console.log('dataset: ', dataset);
-
+                console.log('yo');
                 this.municipalService.GetAll(filter).subscribe(
                     (response) => {
+                        console.log('hey');
                         this.subEntities = dataset[0];
                         this.agaZones = dataset[1];
                         this.agaRules = dataset[2];
                         this.companySalary = dataset[3];
                         this.municipals = response;
-                        console.log('companySalary: ', this.companySalary);
-                        if (!this.companySalary[0]) {
-                            this.companySalary[0] = new CompanySalary();
-                        }
                         this.buildForm();
+
                     },
-                    error => console.log(error)
+                    error => this.log('problemer med å hente kommuner', error)
                 );
             },
-            error => console.log(error)
+            error => this.log('fikk ikke hentet alt: ', error)
             );
     }
 
@@ -133,7 +133,7 @@ export class AgaAndSubEntitySettings implements OnInit {
             .setLabel('Avsatt aga av feriepenger')
             .setModel(this.companySalary[0])
             .setModelField('MainAccountAllocatedAGAVacation')
-            .setType(UNI_CONTROL_DIRECTIVES[FieldType.TEXT])
+            .setType(UNI_CONTROL_DIRECTIVES[FieldType.TEXT]);
 
         var mainAccountCostAgaVacation = new UniFieldBuilder();
         mainAccountCostAgaVacation
@@ -184,32 +184,28 @@ export class AgaAndSubEntitySettings implements OnInit {
                 .setType(UNI_CONTROL_DIRECTIVES[FieldType.TEXT]);
 
             var subEntityPostnr = new UniFieldBuilder();
-            subEntityPostnr.setLabel('Postnr/Sted')
+            subEntityPostnr.setLabel('Postnr')
                 .setModel(subEntity)
                 .setModelField('BusinessRelationInfo.InvoiceAddress.PostalCode')
                 .setType(UNI_CONTROL_DIRECTIVES[FieldType.TEXT]);
             var subEntityCity = new UniFieldBuilder();
             subEntityCity
                 .setModel(subEntity)
+                .setLabel('Sted')
                 .setModelField('BusinessRelationInfo.InvoiceAddress.City')
                 .setType(UNI_CONTROL_DIRECTIVES[FieldType.TEXT]);
-            var subEntityLocation = new UniComboFieldBuilder();
-            subEntityLocation.addUniElements(subEntityPostnr, subEntityCity);
 
             var subEntityMunicipalNumber = new UniFieldBuilder();
             subEntityMunicipalNumber.setModel(subEntity)
-                .setLabel('Kommunenr/Navn')
+                .setLabel('Kommunenr')
                 .setModelField('MunicipalityNo')
                 .setType(UNI_CONTROL_DIRECTIVES[FieldType.TEXT]);
 
             var subEntityMunicipalName = new UniFieldBuilder();
             subEntityMunicipalName.setModel(municipal)
+                .setLabel('Kommunenavn')
                 .setModelField('MunicipalityName')
                 .setType(UNI_CONTROL_DIRECTIVES[FieldType.TEXT]);
-
-            var subEntityMunicipality = new UniComboFieldBuilder();
-            subEntityMunicipality.addUniElements(subEntityMunicipalNumber, subEntityMunicipalName);
-
 
             var subEntityAgaZone = new UniFieldBuilder();
             subEntityAgaZone.setLabel('Sone')
@@ -236,12 +232,14 @@ export class AgaAndSubEntitySettings implements OnInit {
             subEntitySection.addUniElements(subEntityName,
                 subEntityOrgNumber,
                 subEntityAddress,
-                subEntityLocation,
-                subEntityMunicipality,
+                subEntityPostnr,
+                subEntityCity,
+                subEntityMunicipalNumber,
+                subEntityMunicipalName,
                 subEntityAgaZone,
                 subEntityAgaRule);
 
-            formBuilder.addUniElement(subEntitySection);
+            formBuilder.addUniElement(subEntitySection).hideSubmitButton();
         });
 
         // *********************  Instillinger lønn  ***************************/
@@ -289,19 +287,25 @@ export class AgaAndSubEntitySettings implements OnInit {
     }
 
     public saveAgaAndSubEntities(done) {
-        console.log('onSubmit called');
+        this.uniForm.sync();
         done('lagrer kontoer');
-        if (this.companySalary[0].ID) {
-            console.log('saving');
-            this.companySalaryService.Put(this.companySalary[0].ID, this.companySalary[0]).subscribe((response: CompanySalary) => {
-                this.companySalary[0] = response;
-                done('Sist lagret: ');
-            });
-        } else {
-            this.companySalaryService.Post(this.companySalary[0]).subscribe((response: CompanySalary) => {
-                done('Sist lagret: ');
-            });
+        console.log('saving: ', this.companySalary[0]);
+        this.companySalaryService.Put(this.companySalary[0].ID, this.companySalary[0]).subscribe((response: CompanySalary) => {
+            this.companySalary[0] = response;
+            done('Sist lagret: ');
+        }, error => this.log('Fikk ikke lagret companySalary: ', error));
+    }
+
+    public log(title: string, err) {
+        if (!title) {
+            title = '';
         }
+        if (err._body) {
+            alert(title + ' ' + err._body);
+        } else {
+            alert(title + ' ' + JSON.stringify(err));
+        }
+
     }
 
     //#endregion Test data
