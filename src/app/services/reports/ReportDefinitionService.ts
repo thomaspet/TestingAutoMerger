@@ -7,7 +7,7 @@ import {UniHttp} from '../../../framework/core/http/http';
 import {BizHttp} from '../../../framework/core/http/BizHttp';
 import {StimulsoftReportWrapper} from '../../../framework/wrappers/reporting/reportWrapper';
 import {ReportDefinition, ReportDefinitionParameter, ReportDefinitionDataSource} from '../../unientities';
-import {ReportDefinitionDataSourceService} from '../../services/services';
+import {ReportDefinitionDataSourceService} from '../services';
 
 export class ReportParameter extends ReportDefinitionParameter {
     public value: string;
