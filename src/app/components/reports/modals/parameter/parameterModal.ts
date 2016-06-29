@@ -1,5 +1,5 @@
 import {Component, ViewChild, Type, Input} from '@angular/core';
-import {NgIf, NgModel, NgFor, NgClass} from '@angular/common';
+import {NgIf, NgFor, NgClass} from '@angular/common';
 import {Http} from '@angular/http';
 
 import {UniModal} from '../../../../../framework/modals/modal';
@@ -11,7 +11,7 @@ import {PreviewModal} from '../preview/previewModal';
 
 @Component({
     selector: 'report-parameter-modal-type',
-    directives: [NgIf, NgModel, NgFor, NgClass, UniComponentLoader],
+    directives: [NgIf, NgFor, NgClass, UniComponentLoader],
     templateUrl: 'app/components/reports/modals/parameter/parameterModal.html'
 })
 export class ReportparameterModalType {
