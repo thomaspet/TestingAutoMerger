@@ -123,15 +123,12 @@ export class AddressService extends BizHttp<Address> {
     public setAddresses(entity: any, previousAddresses: Array<Address> = null) {
         var invoiceaddresses = [];
         var shippingaddresses = [];
-  
+        let invoiceAddress = this.invoiceToAddress(entity);
+        let shippingAddress = this.shippingToAddress(entity);
+
         // invoice addresses
         if (!entity._InvoiceAddresses) {
-            invoiceaddresses.push(this.invoiceToAddress(entity));
-            if (entity.Customer) {
-                entity.Customer.Info.Addresses.forEach(a => {
-                    invoiceaddresses.push(a);
-                });
-            }
+            invoiceaddresses.push(invoiceAddress);
         } else { // have addresses
             if (previousAddresses) {
                 previousAddresses.forEach(a => {
@@ -141,47 +138,46 @@ export class AddressService extends BizHttp<Address> {
                         } 
                     });
                 });
+            }
 
-                if (shippingaddresses.length == 0) {
-                    invoiceaddresses.unshift(this.invoiceToAddress(entity));
-                }
-
-                if (entity.Customer) {
-                    entity.Customer.Info.Addresses.forEach(a => {
-                        invoiceaddresses.push(a);
-                    });
-                }
+            if (!this.isEmptyAddress(invoiceAddress)) {
+                invoiceaddresses.unshift(invoiceAddress);
+            } else if (this.isEmptyAddress(entity._InvoiceAddress) && entity.Customer && entity.Customer.Info && entity.Customer.Info.InvoiceAddress) {
+                entity._InvoiceAddressID = entity.Customer.Info.InvoiceAddress.ID;
             }
         }
 
+        if (entity.Customer && entity.Customer.Info && entity.Customer.Info.Addresses) {
+            entity.Customer.Info.Addresses.forEach(a => {
+                invoiceaddresses.push(a);
+            });
+        }
+
         // shipping addresses
-        if (!entity._ShippingAddresses) {
-            shippingaddresses.push(this.shippingToAddress(entity));
-            if (entity.Customer) {
-                entity.Customer.Info.Addresses.forEach(a => {
-                    shippingaddresses.push(a);
-                });
-            }
+        if (!entity._ShippingAddresses) {            
+            shippingaddresses.push(shippingAddress);
         } else { // have addresses
             if (previousAddresses) {
                 previousAddresses.forEach(a => {
-                    shippingaddresses.forEach((b, i) => {
+                    invoiceaddresses.forEach((b, i) => {
                         if (a.ID == b.ID) {
-                            shippingaddresses.splice(i, 1);
-                        }
+                            invoiceaddresses.splice(i, 1);
+                        } 
                     });
                 });
-
-                if (shippingaddresses.length == 0) {
-                    shippingaddresses.unshift(this.shippingToAddress(entity));
-                }
-
-                if (entity.Customer) {
-                    entity.Customer.Info.Addresses.forEach(a => {
-                        shippingaddresses.push(a);
-                    });
-                }
             }
+
+            if (!this.isEmptyAddress(shippingAddress)) {
+                shippingaddresses.unshift(shippingAddress);
+            } else if (this.isEmptyAddress(entity._ShippingAddress) && entity.Customer && entity.Customer.Info && entity.Customer.Info.ShippingAddress) {
+                entity._ShippingAddressID = entity.Customer.Info.ShippingAddress.ID;
+            }
+        }
+
+        if (entity.Customer && entity.Customer.Info && entity.Customer.Info.Addresses) {
+            entity.Customer.Info.Addresses.forEach(a => {
+                shippingaddresses.push(a);
+            });
         }
 
         entity._InvoiceAddresses = invoiceaddresses;
