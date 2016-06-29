@@ -137,9 +137,20 @@ export class InvoiceList implements OnInit {
             label: 'Slett',
             action: (rowModel) => {
                 alert('Delete action - Under construction');
+
+                //TODO
+                //this.customerInvoiceService.Remove(rowModel.ID, rowModel)
+                //    .subscribe(() => {
+                //        alert('Successful')
+                //    },
+                //    (err) => {
+                //        console.log('An error occurred: ', err);
+                //        this.log(err);
+                //    }
+                //);
             },
             disabled: (rowModel) => {
-                return rowModel['Deleted'];
+                return true;
             }
         });
 

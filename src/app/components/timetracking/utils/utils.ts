@@ -11,6 +11,49 @@ export function safeInt(value: any) {
     return tmp;
 }
 
+//<summary>
+// example: setDeepValue(row, 'dimension.projectid', 123) 
+//</summary>
+export function setDeepValue(item:any, name:string, value:any) {
+	var parts = name.split('.');
+	if (parts.length===1) {
+		item[name] = value.ID ? value.ID : value;
+		return;
+	}
+	for (var i=0; i<parts.length; i++) {
+		var name = parts[i];
+		var sub = parts.join('.').substr(name.length + 1);
+		var subItem = item[name] || {};
+		if (!item[name]) {
+			item[name] = subItem;
+		}
+		setDeepValue(subItem, sub, value);
+	}
+}
+
+// Returns a function, that, as long as it continues to be invoked, will not
+// be triggered. The function will be called after it stops being called for
+// N milliseconds. If `immediate` is passed, trigger the function on the
+// leading edge, instead of the trailing.
+export function debounce(func: any, wait: number, immediate?: any) {
+	var timeout;
+	return function () {
+		var context = this, args = arguments;
+		var later = () => {
+			timeout = null;
+			if (!immediate) {
+				func.apply(context, args);
+			}
+		};
+		var callNow = immediate && !timeout;
+		clearTimeout(timeout);
+		timeout = setTimeout(later, wait);
+		if (callNow) {
+			func.apply(context, args);
+		}
+	};
+};
+
 export function parseDate(value:any, allowMacros = true): Date {
 	var d = 0;
 	var m = 0;

@@ -3,6 +3,7 @@
 
 .regtimetitle
     padding: 1rem 1rem 1rem 0
+    font-size: 1.2em
 
 .regtimetitle span
     margin-right: 1rem
@@ -16,6 +17,17 @@
 .regtimetabtip
     color: $uni-color-scale4
     margin-left: pxToRem(-15)
+
+.timeentry_toolbar button
+    margin-left: 0
+    margin-right: pxToRem(7)
+
+.timeentry_toolbar
+    width: 100%
+
+    tr > td:last-of-type
+        text-align: right
+        font-size: 1.2em
 
 .regtime_filters
     ul
@@ -55,3 +67,44 @@
             &.router-link-active
                 color: $navbarTextColor
                 background: darken(mix($uni-color-scale7, $navbarBackground, 60%), 15%)
+
+.timeentriesTable
+    width: 100%
+    border-collapse: collapse
+
+.timeentriesTable th
+    text-align: left
+    border-width: 0 pxToRem(1) pxToRem(1) 0
+    border-color: $uni-color-scale8
+    border-style: solid
+    padding-left: pxToRem(4)
+
+.timeentriesTable th:first-of-type
+    border-width: 0 pxToRem(1) pxToRem(1) 0
+
+.timeentriesTable th:last-of-type
+    border-right: 0
+
+.timeentriesTable tr
+    height: 1.8em
+
+.timeentriesTable tr:hover
+    background-color: lighten($uni-color-scale6, 32%)
+
+.timeentriesTable td
+    padding: pxToRem(4) pxToRem(4) pxToRem(1) pxToRem(4)
+    border-bottom: pxToRem(1) solid $uni-color-scale9
+    border-left: pxToRem(1) solid $uni-color-scale9
+
+.timeentriesTable td:first-of-type
+    border-left: 0
+
+.timeentriesTable td:last-of-type
+    border-right: 0
+
+.alternateRow
+    background-color: lighten(mix($uni-color-scale9, $navbarBackground, 50%), 26%)
+    
+.alternateRow td
+    border-color: $uni-color-scale8
+

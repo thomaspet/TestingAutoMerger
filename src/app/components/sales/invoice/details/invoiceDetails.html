@@ -22,7 +22,9 @@
     <!-- Widget poster -->
     <section class="poster_overview">
         <uni-widget-poster [model]="invoice">
-            <section class="application">
+            <section class="application" *ngIf="invoice">
+                <section>Restsum kr. {{invoice.RestAmount }}</section>
+                <section>Kreditert kr. {{invoice.CreditedAmount }}</section>
             </section>
         </uni-widget-poster>
     </section>

@@ -120,7 +120,7 @@ export class TransqueryDetails implements OnInit {
                 new UniTableColumn('Description', 'Beskrivelse', UniTableColumnType.Text)
                     .setFilterOperator('contains'),
                 new UniTableColumn('VatType.VatCode', 'Mvakode', UniTableColumnType.Text)                    
-                    .setFilterable(false),
+                    .setFilterOperator('eq'),
                 new UniTableColumn('Amount', 'Beløp', UniTableColumnType.Number) 
                     .setCls('column-align-right')                   
                     .setFilterOperator('eq'),
