@@ -5,12 +5,21 @@ export class ChangeMap {
     
     clear() {
         this.items.length = 0;
+        if (this.removables) this.removables.clear();
     }
     
-    remove(key:any) {
+    remove(key:any, adjustDownOtherKeys:boolean) {
         var ix = this.indexOf(key);
         if (ix>=0) {
             this.items.splice(ix, 1);
+            // adjust indexes ?
+            if (adjustDownOtherKeys) {
+                for (var i=0; i<this.items.length; i++) {
+                    if (this.items[i].key > key) {
+                        this.items[i].key--;
+                    }
+                }
+            } 
         }
     }
     
@@ -19,20 +28,14 @@ export class ChangeMap {
         if (ix>=0) {
             this.items[ix].value = value; // replace
         } else {
+            value._rowIndex = key;
             this.items.push({key:key, value: value }); // add
         }
     }
 
-    addRemove(key:any, value:any, adjustDownOtherKeys = false) {
+    addRemove(key:any, value:any) {
         this.removables = this.removables || new ChangeMap();
         this.removables.add(key, value);
-        if (adjustDownOtherKeys) {
-            for (var i=0; i<this.items.length; i++) {
-                if (this.items[i].key > key) {
-                    this.items[i].key--;
-                }
-            }
-        }        
     }
 
     getRemovables(): Array<any> {

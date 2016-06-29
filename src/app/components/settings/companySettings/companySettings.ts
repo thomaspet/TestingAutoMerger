@@ -6,6 +6,7 @@ import {UniSave, IUniSaveAction} from '../../../../framework/save/save';
 
 import {UniForm} from '../../../../framework/uniform';
 import {UniFieldLayout} from '../../../../framework/uniform/index';
+import {UniImage, IUploadConfig} from '../../../../framework/uniImage/uniImage';
 
 import {CompanyType, PeriodSeries, Currency, FieldType, AccountGroup, Account} from '../../../unientities';
 import {CompanySettingsService, CurrencyService, VatTypeService, AccountService, AccountGroupSetService, PeriodSeriesService, CompanyTypeService, MunicipalService} from '../../../services/services';
@@ -25,7 +26,7 @@ declare var _;
         CompanyTypeService,
         MunicipalService 
     ],
-    directives: [ROUTER_DIRECTIVES, UniForm, UniSave]
+    directives: [ROUTER_DIRECTIVES, UniForm, UniSave, UniImage]
 })
 
 export class CompanySettings implements OnInit {
@@ -39,6 +40,9 @@ export class CompanySettings implements OnInit {
     private accountGroupSets: Array<AccountGroup> = [];
     private accounts: Array<Account> = [];    
     
+    private showImageSection: boolean = true; // used in template
+    private imageUploadOptions: IUploadConfig;
+
     public config: any = {};
     public fields: any[] = [];
 
@@ -78,15 +82,22 @@ export class CompanySettings implements OnInit {
             this.accountService.GetAll(null),
             this.companySettingsService.Get(1, ['Address', 'Emails', 'Phones'])            
         ).subscribe(
-            (dataset) => {            
+            (dataset) => {
                 this.companyTypes = dataset[0];
                 this.currencies = dataset[1];
                 this.periodSeries = dataset[2];
                 this.accountGroupSets = dataset[3];
                 this.accounts = dataset[4];
                 this.company = dataset[5];
-        
+
                 this.extendFormConfig();
+                this.imageUploadOptions = {
+                    entityType: 'companysettings',
+                    entityId: 1,
+                    onSuccess: (imageId) => {
+                        this.company['LogoFileID'] = imageId;
+                    }
+                };
                  
                 setTimeout(() => {
                     this.form.onReady.subscribe((event) => {

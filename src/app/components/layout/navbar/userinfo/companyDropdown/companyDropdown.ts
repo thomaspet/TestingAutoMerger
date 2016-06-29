@@ -4,6 +4,7 @@ import {Observable} from 'rxjs/Observable';
 import {AuthService} from '../../../../../../framework/core/authService';
 import {UniHttp} from '../../../../../../framework/core/http/http';
 import {CompanySettingsService} from '../../../../../services/services';
+import {TabService} from '../../tabstrip/tabService'
 
 import 'rxjs/add/observable/fromEvent';
 declare var jQuery;
@@ -11,19 +12,24 @@ declare var jQuery;
 @Component({
     selector: 'uni-company-dropdown',
     templateUrl: 'app/components/layout/navbar/userinfo/companyDropdown/companyDropdown.html',
+    providers: [CompanySettingsService]
 })
 export class UniCompanyDropdown implements AfterViewInit, OnDestroy {
     private activeCompany: any;
     private clickSubscription: any;
     private companyDropdownActive: Boolean;
     private dropdownConfig: kendo.ui.DropDownListOptions;
+    private company: any;
 
     constructor(private _router: Router, 
                 private _authService: AuthService, 
                 private http: UniHttp,
-                private companySettingsService: CompanySettingsService) {
+                private companySettingsService: CompanySettingsService,
+                private tabService: TabService) {
+
         this.companyDropdownActive = false;
         this.activeCompany = JSON.parse(localStorage.getItem('activeCompany'));
+        this.loadCompanyData();
 
         this.dropdownConfig = {
             delay: 50,
@@ -43,9 +49,17 @@ export class UniCompanyDropdown implements AfterViewInit, OnDestroy {
             select: (event: kendo.ui.DropDownListSelectEvent) => {
                 var item: any = event.item;
                 var dataItem = event.sender.dataItem(item.index());
+                if (dataItem.Name === this.activeCompany.Name) { return; }
+                this.tabService.removeAllTabs();
                 this.companySelected(dataItem);
             }
         };
+    }
+
+    private loadCompanyData() {
+       this.companySettingsService.Get(1, ['Phones']).subscribe((company) => {
+            this.company = company;
+        });
     }
 
     public ngAfterViewInit() {
@@ -68,7 +82,7 @@ export class UniCompanyDropdown implements AfterViewInit, OnDestroy {
     private companySelected(selectedCompany): void {
         this.activeCompany = selectedCompany;
         this._authService.setActiveCompany(selectedCompany);
-        this._router.navigateByUrl('/');
+        this.loadCompanyData();
     }
 
     private goToCompanySettings() {

@@ -8,4 +8,12 @@ export class CompanySalaryService extends BizHttp<CompanySalary> {
         super(http);
         this.relativeURL = CompanySalary.RelativeUrl;
     }
+
+    public getCompanySalary() {
+        return this.http
+            .asGET()
+            .usingBusinessDomain()
+            .withEndPoint(this.relativeURL)
+            .send({top: 1});
+    }
 }

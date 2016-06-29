@@ -196,7 +196,7 @@ export class AddressForm implements OnChanges {
                 Section: 0,
                 Placeholder: null,
                 Options: null,
-                LineBreak: null,
+                LineBreak: true,
                 Combo: null,
                 Legend: '',
                 StatusCode: 0,
@@ -232,7 +232,7 @@ export class AddressForm implements OnChanges {
             <h1 *ngIf="config.title">{{config.title}}</h1>
             <address-form [model]="config.model" [question]="config.question" [disableQuestion]="config.disableQuestion"></address-form>
             <footer>
-                <button *ngFor="let action of config.actions; let i=index" (click)="action.method()" [ngClass]="action.class">
+                <button *ngFor="let action of config.actions; let i=index" (click)="action.method()" [ngClass]="action.class" type="button">
                     {{action.text}}
                 </button>
             </footer>
@@ -278,7 +278,7 @@ export class AddressModal {
                 {
                     text: 'Lagre adresse',
                     class: 'good',
-                    method: () => {                    
+                    method: () => {     
                         this.modal.close();
                         this.Changed.emit(this.modalConfig.model);                        
                         return false;

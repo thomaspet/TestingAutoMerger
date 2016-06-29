@@ -49,7 +49,7 @@ export class CustomerList {
         // Define columns to use in the table
         var numberCol = new UniTableColumn('CustomerNumber', 'Kundenr', UniTableColumnType.Text).setWidth('15%').setFilterOperator('contains');
         var nameCol = new UniTableColumn('Info.Name', 'Navn', UniTableColumnType.Text).setFilterOperator('contains');
-        var orgNoCol = new UniTableColumn('Orgnumber', 'Orgnr', UniTableColumnType.Text).setWidth('15%').setFilterOperator('contains');
+        var orgNoCol = new UniTableColumn('OrgNumber', 'Orgnr', UniTableColumnType.Text).setWidth('15%').setFilterOperator('contains');
          
         // Setup table
         this.customerTable = new UniTableConfig(false, true, 25)            

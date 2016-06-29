@@ -177,7 +177,7 @@ export class InvoiceItemList implements OnInit {
                     }
                 }
                 if (event.field === 'Product') {
-                    this.mapProductToInvoiceItem(newRow);
+                    this.mapProductToInvoiceItem(newRow) 
                 }
 
                 this.calculatePriceIncVat(newRow);
@@ -186,7 +186,6 @@ export class InvoiceItemList implements OnInit {
                 // Return the updated row to the table
                 return newRow;
             });
-
     }
 
     public rowChanged(event) {

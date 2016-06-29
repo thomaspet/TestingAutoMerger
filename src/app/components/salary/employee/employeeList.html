@@ -1,13 +1,5 @@
-<header class="poster">
-    <article class="poster_toolbar">
-        <div>
-            <h2 class="poster_toolbar_headline">Ansatte</h2>
-        </div>
-        <nav class="poster_toolbar_tools">
-            <a (click)="newEmployee()" class="new">Ny Ansatt</a>
-        </nav>
-    </article>
-</header>
 <section class="application">
+    <h1>Ansatte</h1>
+    <button (click)="newEmployee()" class="good salary-new">Ny ansatt</button>
     <uni-table [config]="employeeTableConfig" [resource]="employees$ | async" (rowSelected)="rowSelected($event)"></uni-table>
 </section>

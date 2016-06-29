@@ -115,6 +115,16 @@ export class JournalEntrySimple implements OnInit, OnChanges {
 
         return null;
     }
+    
+    private getDebitAccountText(line: JournalEntryData): string {
+        return (line.DebitAccount ? line.DebitAccount.AccountNumber + ' - ' + line.DebitAccount.AccountName : '') 
+        + (line.DebitVatType ? ' - mva: ' + line.DebitVatType.VatCode + ': ' + line.DebitVatType.VatPercent + '%' : '');
+    }
+    
+    private getCreditAccountText(line: JournalEntryData): string {
+        return (line.CreditAccount ? line.CreditAccount.AccountNumber + ' - ' + line.CreditAccount.AccountName : '') 
+        + (line.CreditVatType ? ' - mva: ' + line.CreditVatType.VatCode + ': ' + line.CreditVatType.VatPercent + '%' : '');  
+    }  
 /*
     private getProjectName(line: JournalEntryData): string {
         if (line && line.Dimensions && !line.Dimensions.ProjectID) { return ''; }
@@ -198,11 +208,20 @@ export class JournalEntrySimple implements OnInit, OnChanges {
     }
 
     private setSelectedJournalEntryLine(selectedLine: JournalEntryData) {
-        this.selectedJournalEntryLine = selectedLine;
+        if (!this.disabled) {
+            this.selectedJournalEntryLine = selectedLine;
+        }
     }
 
     private abortEdit() {
         this.selectedJournalEntryLine = null;
+    }
+
+    private deleteLine() {
+        var currentRow = this.journalEntryLines.indexOf(this.selectedJournalEntryLine);
+        this.journalEntryLines.splice(currentRow, 1);
+        this.selectedJournalEntryLine = null;
+        this.dataChanged.emit(this.journalEntryLines);
     }
 
     private parseJournalEntryData(updatedLine: JournalEntryData): JournalEntryData {
@@ -215,6 +234,8 @@ export class JournalEntrySimple implements OnInit, OnChanges {
         updatedLine.CreditAccount = this.getAccount(updatedLine['CreditAccountID']);
         updatedLine.DebitVatType = this.getVatType(updatedLine['DebitVatTypeID']);
         updatedLine.CreditVatType = this.getVatType(updatedLine['CreditVatTypeID']);
+        updatedLine.DebitAccountNumber = null;
+        updatedLine.CreditAccountNumber = null;
         
         updatedLine.Amount = Number(updatedLine.Amount.toString().replace(',', '.'));
         

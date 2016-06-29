@@ -1,11 +1,11 @@
 <header class="poster" [attr.aria-busy]="busy">
     <article class="poster_toolbar">
         <div *ngIf="payrollrun">
-            <h2 class="poster_toolbar_headline">{{payrollrun.Description}}
+            <h1 class="poster_toolbar_headline">{{payrollrun.Description}}
                 <p class="poster_toolbar_orgnr">
-                    Lønnsavregning nr. {{payrollrun.ID}},    Utbetalingsdato: {{payDate | date: "ddMMyy" }},    Status: {{payStatus}}
+                    Lønnsavregning nr. {{payrollrun.ID}}, Utbetalingsdato: {{payDate | date: "ddMMyy"}}, Status: {{payStatus}}
                 </p>
-            </h2>
+            </h1>
         </div>
 
         <nav class="poster_toolbar_tools">
@@ -19,7 +19,7 @@
 
     <section class="poster_toolbar_extras" *ngIf="payrollrun">
         <control-modal></control-modal>
-        <postingsummary-modal></postingsummary-modal>
+        <postingsummary-modal *ngIf="canPost()"></postingsummary-modal>
     </section>
 
 </header>
