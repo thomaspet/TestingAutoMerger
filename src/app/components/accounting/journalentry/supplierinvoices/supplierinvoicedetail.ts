@@ -193,14 +193,14 @@ export class SupplierInvoiceDetail implements OnInit {
 
 
     private save(runSmartBooking: boolean, done) {
-        if ((this.supplierInvoice.PaymentID || '').trim().length == 0 && (this.supplierInvoice.PaymentInformation || '').trim().length == 0) {
-            this.setError({ Message: 'KID eller melding må være fyllt ut.' });
+        if (!this.supplierInvoice.SupplierID) {
+            this.setError({Message: 'Leverandør må være fyllt ut.'});
             done('Ikke lagret');
             return;
         }
-
-        if (!this.supplierInvoice.SupplierID) {
-            this.setError({ Message: 'Leverandør må være fyllt ut.' });
+        
+        if ((this.supplierInvoice.PaymentID || '').trim().length == 0 && (this.supplierInvoice.PaymentInformation || '').trim().length == 0) {
+            this.setError({Message: 'KID eller melding må være fyllt ut.'});
             done('Ikke lagret');
             return;
         }
@@ -375,7 +375,7 @@ export class SupplierInvoiceDetail implements OnInit {
         taxInclusiveAmount.FieldSet = 0;
         taxInclusiveAmount.Section = 0;
         taxInclusiveAmount.Combo = 0;
-        taxInclusiveAmount.FieldType = 6;
+        taxInclusiveAmount.FieldType = 10;
         taxInclusiveAmount.Label = 'Beløp';
         taxInclusiveAmount.Property = 'TaxInclusiveAmount';
         taxInclusiveAmount.ReadOnly = false;

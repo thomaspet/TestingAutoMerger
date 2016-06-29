@@ -1,7 +1,7 @@
-<article [attr.aria-busy]="busy">
+
     <header class="poster">
         <article class="poster_toolbar">
-            <h2 class="poster_toolbar_headline">Lønnsavregninger</h2>
+            <h2>Lønnsavregninger</h2>
             <nav class="poster_toolbar_tools">
                 <a (click)="createPayrollrun()" class="new">Ny lønnsavregning</a>
             </nav>
@@ -10,4 +10,3 @@
     <section class="application">
         <uni-table [resource]="payrollRuns$ | async" [config]="payrollrunListConfig" (rowSelected)="rowSelected($event)"></uni-table>
     </section>
-</article>
