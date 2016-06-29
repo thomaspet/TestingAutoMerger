@@ -1,5 +1,4 @@
 import {Component, Input, OnInit, ViewChild} from '@angular/core';
-//import {UniTable, UniTableBuilder, UniTableColumn} from '../../../../framework/unitable';
 import {UniTable, UniTableColumn, UniTableColumnType, UniTableConfig} from 'unitable-ng2/main';
 import {UniForm, UniFormBuilder, UniFieldBuilder} from '../../../../framework/forms';
 import {FieldType} from '../../../../app/unientities';
@@ -68,11 +67,10 @@ export class PostingsummaryModalContent implements OnInit {
     private getAccountingSum() : number
     {
         var ret : number = 0;
-        if(this.summary)
-        {         
-            var c;   
-            for(c = 0; c < this.summary.PostList.length; ++c)
-                ret += this.summary.PostList[c].Amount;
+        if(this.summary)                     {         
+            this.summary.PostList.ForEach((val) => {
+                ret += val.Amount;
+            } );            
         }
         return ret;
     }
