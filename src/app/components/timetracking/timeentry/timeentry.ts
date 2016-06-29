@@ -264,7 +264,7 @@ export class TimeEntry {
 
             // Lookup column?
             if (details.columnDefinition.lookup) {
-                this.timeSheet.copyValueAbove (details.columnDefinition.name, details.position.row);
+                this.timeSheet.copyValueAbove(details.columnDefinition.name, details.position.row);
                 details.copyAbove = false;
             }
 

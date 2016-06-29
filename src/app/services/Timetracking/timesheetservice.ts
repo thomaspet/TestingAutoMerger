@@ -111,6 +111,7 @@ export class TimeSheet {
     }    
 
     public copyValueAbove(colName:string, rowIndex:number) {
+        if (rowIndex < 1) return;
         var src = this.items[rowIndex-1];
         var lookupIItem:any;
         var value = src.hasOwnProperty(colName) ? src[colName] : 0;
