@@ -5,6 +5,7 @@ export class ChangeMap {
     
     clear() {
         this.items.length = 0;
+        if (this.removables) this.removables.clear();
     }
     
     remove(key:any) {
