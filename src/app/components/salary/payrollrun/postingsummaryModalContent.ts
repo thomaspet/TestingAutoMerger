@@ -1,18 +1,16 @@
-import {Component, Input, OnInit, ViewChild} from '@angular/core';
+import {Component, Input} from '@angular/core';
 import {UniTable, UniTableColumn, UniTableColumnType, UniTableConfig} from 'unitable-ng2/main';
 import {FieldType} from '../../../../app/unientities';
 import {Router} from '@angular/router-deprecated';
 import {PayrollrunService} from '../../../../app/services/services';
 import {UNI_CONTROL_DIRECTIVES} from '../../../../framework/controls';
-import {Observable} from 'rxjs/Observable';
-import {Postingsummary} from '../../../models/models';
 
 @Component({
     selector: 'postingsummary-modal-content',
     templateUrl: 'app/components/salary/payrollrun/postingsummaryModalContent.html',
     directives: [UniTable]
 })
-export class PostingsummaryModalContent implements OnInit {    
+export class PostingsummaryModalContent {
     private busy: boolean;
     private showReceipt: boolean = false;    
     private accountTableConfig: UniTableConfig;    
@@ -27,7 +25,8 @@ export class PostingsummaryModalContent implements OnInit {
         
     }
     
-    public ngOnInit() {        
+    public openModal() {
+        this.busy = true;        
         this.createTableConfig();
 
         this.payrollService.getPostingsummary(this.config.payrollrunID)
@@ -49,10 +48,9 @@ export class PostingsummaryModalContent implements OnInit {
     }
     
     
-    private getAccountingSum() : number
-    {
-        var ret : number = 0;
-        if(this.summary)                     {         
+    public getAccountingSum(): number {
+        var ret: number = 0;
+        if (this.summary)                     {         
             this.summary.PostList.forEach((val) => {
                 ret += val.Amount;
             } );            
