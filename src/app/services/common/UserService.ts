@@ -1,0 +1,13 @@
+import {BizHttp} from '../../../framework/core/http/BizHttp';
+import {User} from '../../unientities';
+import {UniHttp} from '../../../framework/core/http/http';
+
+export class UserService extends BizHttp<User> {
+    
+    constructor(http: UniHttp) {        
+        super(http);
+        
+        this.relativeURL = User.RelativeUrl;       
+        this.DefaultOrderBy = null;
+    }       
+}

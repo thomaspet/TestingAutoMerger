@@ -8,6 +8,7 @@ import {WorkerService, ItemInterval} from '../../../services/timetracking/worker
 import {TimesheetService, TimeSheet, ValueItem} from '../../../services/timetracking/timesheetservice';
 import {UniSave, IUniSaveAction} from '../../../../framework/save/save';
 import {CanDeactivate, ComponentInstruction} from '@angular/router-deprecated';
+import {setDeepValue} from '../utils/utils';
 
 export var view = new View('regtime', 'Timeregistrering', 'RegisterTime');
 
@@ -60,7 +61,7 @@ export class RegisterTime implements CanDeactivate {
         ];            
 
     constructor(private tabService: TabService, private workerService: WorkerService, private timesheetService: TimesheetService) {
-        this.tabService.addTab({ name: view.label, url: view.route, moduleID: 18, active: true });
+        this.tabService.addTab({ name: view.label, url: view.route, active: true });
         this.userName = workerService.user.name;
         this.tableConfig = this.createTableConfig();
         this.currentFilter = this.filters[0];
@@ -155,6 +156,11 @@ export class RegisterTime implements CanDeactivate {
             { return (item.ID.toString() == txt || item.Name.toLowerCase().indexOf(lcaseText)>=0); } );
         return Observable.from([sublist]);
     }
+
+    filterDimensions(route:string, txt:string):Observable<any> {
+        var list = [{ID: 1, Name: 'Testproject'}, {ID:2, Name:'Economy project'}]
+        return Observable.from([list]);
+    }
     
     createTableConfig():UniTableConfig {        
         
@@ -163,7 +169,8 @@ export class RegisterTime implements CanDeactivate {
             this.createTimeColumn('StartTime', 'Fra kl.'),
             this.createTimeColumn('EndTime', 'Til kl.'),
             this.createLookupColumn('Worktype', 'Type arbeid', 'Worktype', (txt) => this.filterWorkTypes(txt)),                      
-            new UniTableColumn('Description', 'Beskrivelse', UniTableColumnType.Text, true).setWidth('40vw')
+            new UniTableColumn('Description', 'Beskrivelse', UniTableColumnType.Text, true).setWidth('40vw'),
+            this.createDimLookup('Dimensions.ProjectID', 'Prosjekt', (txt) => this.filterDimensions("projects", txt)),
         ];
 
         var ctx: Array<IContextMenuItem> = [];
@@ -190,10 +197,10 @@ export class RegisterTime implements CanDeactivate {
     onEditChange(event) {
         
         var newRow = event.rowModel;
-        var change = new ValueItem(event.field, newRow[event.field], event.originalIndex);        
+        var change = new ValueItem(event.field, newRow[event.field], event.originalIndex);
         if (this.timeSheet.setItemValue(change)) {             
             this.flagUnsavedChanged();
-            newRow[event.field] = change.value;
+            setDeepValue(newRow, event.field, change.value);
             return newRow; 
         }
  
@@ -237,6 +244,18 @@ export class RegisterTime implements CanDeactivate {
             .setEditorOptions({
                 itemTemplate: (item)=> {
                     return item[expandKey] + ' - ' + item[expandLabel];
+                },
+                lookupFunction: lookupFn
+            });
+        return col;
+    }
+
+    createDimLookup(name:string, label: string, lookupFn:any ): UniTableColumn {
+        var col = new UniTableColumn(name, label, UniTableColumnType.Lookup)
+            .setDisplayField(name)
+            .setEditorOptions({
+                itemTemplate: (item)=> {
+                    return item["ID"] + ' - ' + item["Description"];
                 },
                 lookupFunction: lookupFn
             });

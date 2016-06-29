@@ -2,7 +2,7 @@
     <article class="poster_toolbar">
         <span *ngIf="supplierInvoice != null && supplierInvoice.ID > 0">
             <h2 class="poster_toolbar_headline">
-                Leverandørfakturanr {{supplierInvoice.InvoiceNumber}}, {{supplierInvoice.Supplier.Info.Name}}                                    
+                {{supplierInvoice.InvoiceNumber ? 'Leverandørfakturanr ' + supplierInvoice.InvoiceNumber : ''}}{{supplierInvoice.InvoiceNumber && supplierInvoice.Supplier ? ', ' : ''}}{{supplierInvoice.Supplier ? supplierInvoice.Supplier.Info.Name :''}}                                    
             </h2>
             <p>
                 Status: {{getStatusText()}}<span *ngIf="supplierInvoice.JournalEntry != null">, bilagsnr: {{supplierInvoice.JournalEntry.JournalEntryNumber != null ? supplierInvoice.JournalEntry.JournalEntryNumber : 'Bilag ikke bokført' }}</span>
@@ -35,17 +35,19 @@
 ></register-payment-modal>
 
 <section class="supplier-invoice-detail-booking">
-    <journal-entry-manual [supplierInvoice]="supplierInvoice" [runAsSubComponent]="true" [disabled]="disabled" *ngIf="supplierInvoice && supplierInvoice.ID > 0"></journal-entry-manual>
+    <journal-entry-manual [supplierInvoice]="supplierInvoice" [runAsSubComponent]="true" [disabled]="disabled" *ngIf="supplierInvoice && supplierInvoice.JournalEntryID"></journal-entry-manual>
 </section>
 
 <section class="supplier-invoice-detail-document" *ngIf="supplierInvoice && supplierInvoice.ID > 0">
     <uni-image [imageId]="previewId" [size]="previewSize" *ngIf="previewId > 0"></uni-image>   
 
+    <p class="good validation" *ngIf="fileuploader.statusText">
+        <span>{{fileuploader.statusText}}</span>
+    </p>           
     <uni-document-uploader *ngIf="previewId == -1"
     [service]="fileuploader" 
     [entity]="supplierInvoice"
     (onFileUploaded)="onFileUploaded($event)"></uni-document-uploader>
-    <p class="error"><span>{{fileuploader.statusText}}</span></p>              
 </section>
 
 <footer class="full-footer">    

@@ -17,6 +17,11 @@ var jsFiles = [
     require.resolve('moment/locale/en-gb.js'),
     require.resolve('moment/locale/nb.js'),
 
+    // CHART.JS
+    // Dependant on Moment.js, which is why it sorts on its own,
+    // instead of under 3rd pty libs.
+    require.resolve('chart.js/dist/Chart.min.js'),
+
     // Unitable
     require.resolve('immutable/dist/immutable.min.js'),
 

@@ -76,14 +76,14 @@ export class AccountDetails {
         };
         
         let vattype: UniFieldLayout = this.fields.find(x => x.Property === 'VatTypeID');
-        vattype.Options = {
-            source: this.vattypes,
+        vattype.Options = {        
+            source: this.vattypes,    
             valueProperty: 'ID',
             displayProperty: 'VatCode',                        
             debounceTime: 200,
-            template: (vatType: VatType) => vatType ? `${vatType.VatCode} (${ vatType.VatPercent }%)` : ''
+            search: (searchValue: string) => Observable.from([this.vattypes.filter((vt) => vt.VatCode === searchValue || vt.VatPercent.toString() === searchValue || vt.Name.toLowerCase().indexOf(searchValue.toLowerCase()) >= 0)]),
+            template: (vt: VatType) => vt ? `${vt.VatCode}, ${vt.VatPercent}%, ${vt.Name}` : '' 
         };
-        
     }
     
     public getData() {

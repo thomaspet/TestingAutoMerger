@@ -10,10 +10,10 @@ declare var _; // lodash
 
 @Component({
     selector: 'uni-field',
+    host: {'[class]': 'buildClassString()'},
     template: `
         <label 
-            [class.error]="hasError()" 
-            [class]="buildClassString()">
+            [class.error]="hasError()">
             <span [hidden]="!isInput(field?.FieldType)">{{field?.Label}}</span>
 
             <uni-autocomplete-input #selectedComponent *ngIf="field?.FieldType === 0 && control" 

@@ -2,27 +2,32 @@ journal-entry-simple
     .simpleTable
         margin-top: 1rem
         margin-bottom: 1.5rem
-        border-spacing: 0px;
-        border-collapse: separate;
 
+    .small_col
+        width: 1.5rem
+        
+    .smallmedium_col
+        width: 4rem
+        
+    .medium_col
+        width: 7rem
+    
 .journalEntrySimple_form
     background-color: transparentize($uni-color-scale9, .5)
-    font-size: 0.8rem
-    min-height: 7rem
+    font-size: 0.8rem    
     width: 100%
-    display: inline-block
-
+    
     uni-field
-        width: auto
+        width: pxToRem(120)
         margin: 0
+        padding-bottom: 0
 
     label,
     fieldset    
-        width: pxToRem(120)
+        width: calc(100% - 1rem)
         float: left
         margin-left: 0.5rem
         margin-right: 0.5rem
-        min-height: 3rem
 
     .small-field
         width: pxToRem(60)
@@ -30,11 +35,8 @@ journal-entry-simple
     .large-field
         width: pxToRem(200)
 
-    .journalEntrySimple_form_buttons
-        float: left
-        width: auto
-
-    button
-        margin-top: 0rem
+    button        
+        white-space: nowrap
+        margin-top: 1.5rem
         margin-right: 0.3rem
         margin-left: 0.3rem

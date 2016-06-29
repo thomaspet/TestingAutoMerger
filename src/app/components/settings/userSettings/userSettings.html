@@ -1,1 +1,10 @@
 ﻿<h2>Brukerinnstillinger</h2>
+<article *ngIf="user">    
+    <uni-form class="userSettings"            
+            [config]="config" 
+            [fields]="fields" 
+            [model]="user">
+    </uni-form>
+</article>
+
+<uni-save [actions]="saveactions"></uni-save>

@@ -1,0 +1,61 @@
+uni-image
+    input[type=file]
+        display: none
+
+
+    section
+        box-sizing: border-box
+        cursor: pointer
+        background: #fff
+        border: 1px dotted $uni-color-scale8
+        border-radius: 3px
+        padding: 0 .5rem
+        height: 3rem
+
+        label
+            display: block
+            cursor: pointer
+            position: relative
+            
+            a
+                width: 60%
+                position: absolute
+                left: 0
+                line-height: 3rem
+                
+                white-space: nowrap
+                display: inline-block
+                overflow: hidden
+                text-overflow: ellipsis
+
+            button
+                display: inline-block
+                position: absolute
+                right: 0
+                top: .15rem
+                text-align: right
+                margin-right: 0
+
+    // label
+    //     cursor: pointer
+    //     text-decoration: underline
+    //     text-decoration-style: dotted
+        
+    //     button
+    //         float: right
+    //         margin-right: 0
+
+    //     &:not(.has-image)
+    //         display: block
+    //         height: 9rem
+    //         width: 15rem
+    //         background: mix($uni-color-scale9, $uni-color-negative, 50%)
+    //         border-radius: pxToRem(5)
+    //         border: dashed pxToRem(2) $uni-color-scale7
+    //         text-align: center
+    //         padding-top: 6rem
+    //         transition: all 300ms ease 
+
+    img
+        max-width: 100%
+        

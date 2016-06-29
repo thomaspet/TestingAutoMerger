@@ -153,17 +153,18 @@ export class QuoteList {
 
         // Define columns to use in the table        
         var quoteNumberCol = new UniTableColumn('QuoteNumber', 'Tilbudsnr', UniTableColumnType.Text)
+            .setFilterOperator('startswith')
             .setWidth('10%');
-        var customerNumberCol = new UniTableColumn('Customer.CustomerNumber', 'Kundenr', UniTableColumnType.Text).setWidth('10%');
-        var customerNameCol = new UniTableColumn('CustomerName', 'Kunde', UniTableColumnType.Text);
-        var quoteDateCol = new UniTableColumn('QuoteDate', 'Tilbudsdato', UniTableColumnType.Date).setWidth('10%');
-        var validUntilDateCol = new UniTableColumn('ValidUntilDate', 'Gyldighetsdato', UniTableColumnType.Date).setWidth('10%');
-        var taxInclusiveAmountCol = new UniTableColumn('TaxInclusiveAmount', 'Totalsum', UniTableColumnType.Number)
+        var customerNumberCol = new UniTableColumn('Customer.CustomerNumber', 'Kundenr', UniTableColumnType.Text).setWidth('10%').setFilterOperator('startswith');
+        var customerNameCol = new UniTableColumn('CustomerName', 'Kunde', UniTableColumnType.Text).setFilterOperator('contains');
+        var quoteDateCol = new UniTableColumn('QuoteDate', 'Tilbudsdato', UniTableColumnType.Date).setWidth('10%').setFilterable(false);
+        var validUntilDateCol = new UniTableColumn('ValidUntilDate', 'Gyldighetsdato', UniTableColumnType.Date).setWidth('10%').setFilterable(false);
+        var taxInclusiveAmountCol = new UniTableColumn('TaxInclusiveAmount', 'Totalsum', UniTableColumnType.Number).setFilterOperator('eq')
             .setWidth('10%')
             .setFormat('{0:n}')
             .setCls('column-align-right');
 
-        var statusCol = new UniTableColumn('StatusCode', 'Status', UniTableColumnType.Number).setWidth('15%');
+        var statusCol = new UniTableColumn('StatusCode', 'Status', UniTableColumnType.Number).setWidth('15%').setFilterable(false);
         statusCol.setTemplate((dataItem) => {
             return this.customerQuoteService.getStatusText(dataItem.StatusCode);
         });
@@ -171,6 +172,7 @@ export class QuoteList {
         // Setup table
         this.quoteTable = new UniTableConfig(false, true)
             .setPageSize(25)
+            .setSearchable(true)
             .setColumns([quoteNumberCol, customerNumberCol, customerNameCol, quoteDateCol, validUntilDateCol, taxInclusiveAmountCol, statusCol])
             .setContextMenu(contextMenuItems);
     }

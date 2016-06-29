@@ -11,8 +11,9 @@ import {UniForm, UniFieldLayout} from '../../../../../framework/uniform';
 
 
 import {InvoiceItemList} from './invoiceItemList';
+import {TradeItemHelper} from '../../salesHelper/tradeItemHelper';
 
-import {CustomerInvoice, Customer, Dimensions, Address, BusinessRelation} from '../../../../unientities';
+import {CustomerInvoice, CustomerInvoiceItem, Customer, Dimensions, Address, BusinessRelation} from '../../../../unientities';
 import {StatusCodeCustomerInvoice, FieldType} from '../../../../unientities';
 
 import {AddressModal} from '../../../common/modals/modals';
@@ -32,6 +33,8 @@ class CustomerInvoiceExt extends CustomerInvoice {
     public _InvoiceAddresses: Array<Address>;
     public _ShippingAddress: Address;
     public _ShippingAddresses: Array<Address>;
+    public _InvoiceAddressID: number;
+    public _ShippingAddressID: number;
 }
 
 @Component({
@@ -65,8 +68,12 @@ export class InvoiceDetails implements OnInit {
     private emptyAddress: Address;
     private invoiceReference: CustomerInvoice;
     private invoiceButtonText: string = 'Fakturer';
+    private creditButtonText: string = 'Krediter faktura';
     private recalcTimeout: any;
     private actions: IUniSaveAction[];
+
+    private expandOptions: Array<string> = ['Dimensions', 'Items', 'Items.Product', 'Items.VatType',
+        'Customer', 'Customer.Info', 'Customer.Info.Addresses', 'InvoiceReference'];
 
     constructor(private customerService: CustomerService,
         private customerInvoiceService: CustomerInvoiceService,
@@ -81,7 +88,6 @@ export class InvoiceDetails implements OnInit {
         private tabService: TabService) {
 
         this.invoiceID = params.get('id');
-        this.tabService.addTab({ url: '/sales/invoice/details/' + this.invoiceID, name: 'Fakturanr. ' + this.invoiceID, active: true, moduleID: 5 }); 
     }
 
     private log(err) {
@@ -137,7 +143,7 @@ export class InvoiceDetails implements OnInit {
 
     public change(value: CustomerInvoice) { }
 
-    public ready(event) {        
+    public ready(event) {
         this.setupSubscriptions(null);
 
         if (this.invoice.StatusCode === StatusCodeCustomerInvoice.Draft) {
@@ -156,13 +162,13 @@ export class InvoiceDetails implements OnInit {
             .onChange
             .subscribe((data) => {
                 if (data) {
-                    this.customerService.Get(this.invoice.CustomerID, ['Info', 'Info.Addresses']).subscribe((customer: Customer) => {
+                    this.customerService.Get(this.invoice.CustomerID, ['Info', 'Info.Addresses', 'Info.InvoiceAddress', 'Info.ShippingAddress']).subscribe((customer: Customer) => {
                         let previousAddresses = this.invoice.Customer ? this.invoice.Customer.Info.Addresses : null;
                         this.invoice.Customer = customer;
                         this.addressService.setAddresses(this.invoice, previousAddresses);
-                
+
                         this.invoice.CustomerName = customer.Info.Name;
-                        
+
                         if (customer.CreditDays !== null) {
                             this.invoice.CreditDays = customer.CreditDays;
                             this.invoice.PaymentDueDate = moment(this.invoice.InvoiceDate).startOf('day').add(Number(data.CreditDays), 'days').toDate();
@@ -205,7 +211,7 @@ export class InvoiceDetails implements OnInit {
         Observable.forkJoin(
             this.departementService.GetAll(null),
             this.projectService.GetAll(null),
-            this.customerInvoiceService.Get(this.invoiceID, ['Dimensions', 'Items', 'Items.Product', 'Items.VatType', 'Customer', 'Customer.Info', 'Customer.Info.Addresses', 'InvoiceReference']),
+            this.customerInvoiceService.Get(this.invoiceID, this.expandOptions),
             this.customerService.GetAll(null, ['Info']),
             this.addressService.GetNewEntity(null, 'address')
         ).subscribe(response => {
@@ -222,9 +228,11 @@ export class InvoiceDetails implements OnInit {
 
             if (this.invoice.InvoiceType === 1) {
                 this.invoiceButtonText = 'Krediter';
+                this.creditButtonText = 'Fakturer kreditnota';
             }
             this.updateStatusText();
             this.addressService.setAddresses(this.invoice);
+            this.setTabTitle();
             this.updateSaveActions();
             this.extendFormConfig();
 
@@ -234,7 +242,10 @@ export class InvoiceDetails implements OnInit {
         });
     }
 
-
+    private setTabTitle() {
+        let tabTitle = this.invoice.InvoiceNumber ? 'Fakturanr. ' + this.invoice.InvoiceNumber : 'Faktura (kladd)';
+        this.tabService.addTab({ url: '/sales/invoice/details/' + this.invoice.ID, name: tabTitle, active: true, moduleID: 5 });
+    }
 
     private extendFormConfig() {
         let self = this;
@@ -267,7 +278,7 @@ export class InvoiceDetails implements OnInit {
             listProperty: '_InvoiceAddresses',
             displayValue: 'AddressLine1',
             linkProperty: 'ID',
-            foreignProperty: '_InvoiceAddressesID',
+            foreignProperty: '_InvoiceAddressID',
             editor: (value) => new Promise((resolve) => {
                 if (!value) {
                     value = new Address();
@@ -294,7 +305,7 @@ export class InvoiceDetails implements OnInit {
             listProperty: '_ShippingAddresses',
             displayValue: 'AddressLine1',
             linkProperty: 'ID',
-            foreignProperty: '_ShippingAddressesID',
+            foreignProperty: '_ShippingAddressID',
             editor: (value) => new Promise((resolve) => {
                 if (!value) {
                     value = new Address();
@@ -308,7 +319,7 @@ export class InvoiceDetails implements OnInit {
                     this.invoice = _.cloneDeep(this.invoice);
                     if (address._question) { self.saveAddressOnCustomer(address); }
                     resolve(address);
-                 });
+                });
             }),
             display: (address: Address) => {
                 return this.addressService.displayAddress(address);
@@ -349,9 +360,15 @@ export class InvoiceDetails implements OnInit {
         });
 
         this.actions.push({
+            label: this.creditButtonText, //
+            action: (done) => this.CreditInvoice(done),
+            disabled: this.IsCreditActionDisabled()
+        });
+
+        this.actions.push({
             label: this.invoiceButtonText, // Fakturer eller Krediter
-            action: (done) => this.saveInvoiceTransition(done, 'invoice'),
-            disabled: this.IsinvoiceActionDisabled()
+            action: (done) => this.saveInvoiceTransition(done, 'invoice', this.getInvoiceDoneText()),
+            disabled: this.IsInvoiceActionDisabled()
         });
 
         this.actions.push({
@@ -371,6 +388,44 @@ export class InvoiceDetails implements OnInit {
             action: (done) => this.deleteInvoice(done),
             disabled: true
         });
+    }
+
+    private IsInvoiceActionDisabled() {
+        if ((this.invoice.TaxExclusiveAmount === 0) &&
+            ((this.itemsSummaryData == null) || (this.itemsSummaryData.SumTotalIncVat === 0))) {
+            return true;
+        }
+        if (this.invoice.StatusCode === StatusCodeCustomerInvoice.Draft) {
+            return false;
+        }
+        return true;
+    }
+    private IsCreditActionDisabled() {
+        if (this.invoice.InvoiceType === 1) {
+            return true; //TODO: fakturering av kreditnota er ikke implementert
+        }
+
+        if (this.invoice.StatusCode === StatusCodeCustomerInvoice.Invoiced ||
+            this.invoice.StatusCode === StatusCodeCustomerInvoice.PartlyPaid ||
+            this.invoice.StatusCode === StatusCodeCustomerInvoice.Paid) {
+            return false;
+        }
+        return true;
+    }
+
+    private IsPayActionDisabled() {
+        if (this.invoice.StatusCode === StatusCodeCustomerInvoice.Invoiced ||
+            this.invoice.StatusCode === StatusCodeCustomerInvoice.PartlyPaid) {
+            return false;
+        }
+        return true;
+    }
+
+    private getInvoiceDoneText() {
+        if (this.invoice.InvoiceType === 1) {
+            return 'Kreditnota kreditert';
+        }
+        return 'Faktura fakturert';
     }
 
     public recalcItemSums(invoiceItems: any) {
@@ -407,20 +462,42 @@ export class InvoiceDetails implements OnInit {
         }, 2000);
     }
 
-    private saveInvoiceTransition(done: any, transition: string) {
+    private getValidInvoiceItems(invoiceItems: any) {
+        let items: CustomerInvoiceItem[] = [];
+        let showMessage: boolean = false;
+
+        for (let i = 0; i < invoiceItems.length; i++) {
+            let line: CustomerInvoiceItem = invoiceItems[i];
+
+            if (line.ProductID !== null) {
+                items.push(line);
+            }
+            else {
+                showMessage = true;
+            }
+        }
+
+        if (showMessage) {
+            alert('En eller flere av linjene inneholder produkter som ikke finnes i produktliste. Disse vil ikke bli lagret med faktura. Vennligst opprett produktene først');
+        }
+        return items;
+    }
+
+    private saveInvoiceTransition(done: any, transition: string, doneText: string) {
         this.saveInvoice((invoice) => {
             this.customerInvoiceService.Transition(this.invoice.ID, this.invoice, transition).subscribe(() => {
                 console.log('== TRANSITION OK ' + transition + ' ==');
                 this.router.navigateByUrl('/sales/invoice/details/' + this.invoice.ID);
+                done(doneText);
 
-                this.customerInvoiceService.Get(invoice.ID, ['Dimensions', 'Items', 'Items.Product', 'Items.VatType', 'Customer',
-                    'Customer.Info', 'Customer.Info.Addresses']).subscribe((data) => {
-                        this.invoice = data;
-                        this.updateStatusText();
-                        this.updateSaveActions();
-                        this.ready(null);
-                    });
-                done('Fakturert');
+                this.customerInvoiceService.Get(invoice.ID, this.expandOptions).subscribe((data) => {
+                    this.invoice = data;
+                    this.updateStatusText();
+                    this.updateSaveActions();
+                    this.setTabTitle();
+                    this.ready(null);
+                });
+
             }, (err) => {
                 console.log('Feil oppstod ved ' + transition + ' transition', err);
                 done('Feilet');
@@ -451,17 +528,29 @@ export class InvoiceDetails implements OnInit {
             this.invoice.Dimensions['_createguid'] = this.customerInvoiceService.getNewGuid();
         }
 
+        //Save only lines with products from product list
+        if (!TradeItemHelper.IsItemsValid(this.invoice.Items)) {
+            console.log('Linjer uten produkt. Lagring avbrutt.');
+            // done('Lagring feilet');
+            return;
+        }
+
         this.customerInvoiceService.Put(this.invoice.ID, this.invoice)
             .subscribe(
-            (invoice) => {
-                this.invoice = invoice;
-                this.addressService.setAddresses(this.invoice);
-                this.updateStatusText();
-                this.updateSaveActions();
+            (invoiceSaved) => {
+                this.customerInvoiceService.Get(this.invoice.ID, this.expandOptions).subscribe(invoiceGet => {
+                    this.invoice = invoiceGet;
+                    this.addressService.setAddresses(this.invoice);
+                    this.updateStatusText();
+                    this.setTabTitle();
+                    this.updateSaveActions();
+                    this.ready(null);
+                    this.setTabTitle();
 
-                if (cb) {
-                    cb(invoice);
-                }
+                    if (cb) {
+                        cb(invoiceGet);
+                    }
+                });
             },
             (err) => {
                 console.log('Feil oppsto ved lagring', err);
@@ -474,25 +563,6 @@ export class InvoiceDetails implements OnInit {
         this.statusText = this.customerInvoiceService.getStatusText(this.invoice.StatusCode, this.invoice.InvoiceType);
     }
 
-    private IsinvoiceActionDisabled() {
-        if ((this.invoice.TaxExclusiveAmount === 0) &&
-            ((this.itemsSummaryData == null) || (this.itemsSummaryData.SumTotalIncVat === 0))) {
-            return true;
-        }
-        if (this.invoice.StatusCode === StatusCodeCustomerInvoice.Draft) {
-            return false;
-        }
-        return true;
-    }
-    private IsPayActionDisabled() {
-        if (this.invoice.StatusCode === StatusCodeCustomerInvoice.Invoiced ||
-            this.invoice.StatusCode === StatusCodeCustomerInvoice.PartlyPaid) {
-            return false;
-        }
-        return true;
-    }
-
-
     private saveAndPrint(done) {
         this.saveInvoice((invoice) => {
             this.reportDefinitionService.getReportByName('Faktura Uten Giro').subscribe((report) => {
@@ -504,6 +574,17 @@ export class InvoiceDetails implements OnInit {
                 }
             });
         });
+    }
+
+    private CreditInvoice(done) {
+        this.customerInvoiceService.createCreditNoteFromInvoice(this.invoice.ID)
+            .subscribe((data) => {
+                this.router.navigateByUrl('/sales/invoice/details/' + data.ID);
+            },
+            (err) => {
+                console.log('Error creating credit note: ', err);
+                this.log(err);
+            });
     }
 
     private payInvoice(done) {
@@ -543,9 +624,23 @@ export class InvoiceDetails implements OnInit {
     public onRegisteredPayment(modalData: any) {
 
         this.customerInvoiceService.ActionWithBody(modalData.id, modalData.invoice, 'payInvoice').subscribe((journalEntry) => {
-            // TODO: Decide what to do here. Popup message or navigate to journalentry ??
-            // this.router.navigateByUrl('/sales/invoice/details/' + invoice.ID);
             alert('Faktura er betalt. Bilagsnummer: ' + journalEntry.JournalEntryNumber);
+
+            this.customerInvoiceService.Get(this.invoice.ID, this.expandOptions).subscribe((data) => {
+                this.invoice = data;
+                this.updateStatusText();
+                this.updateSaveActions();
+                this.ready(null);
+            },
+                (err) => {
+                    //    console.log('Feil oppstod ved henting av faktura: Error:', err);
+                    //    this.log(err);
+                });
+
+            console.log('Fsdfsdf');
+            //}, (err) => {
+            //    console.log('Feil oppstod ved henting av faktura: Error:', err);
+            //    this.log(err);
 
         }, (err) => {
             console.log('Error registering payment: ', err);
@@ -553,11 +648,12 @@ export class InvoiceDetails implements OnInit {
         });
     }
 
+
     private deleteInvoice(done) {
         alert('Slett  - Under construction');
         done('Slett faktura avbrutt');
     }
-    
+
     private getComponentLayout(): any {
 
         return {

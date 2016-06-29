@@ -1,4 +1,4 @@
-import {Component, Input, Output, Renderer, ElementRef, EventEmitter, ChangeDetectionStrategy, ChangeDetectorRef} from '@angular/core';
+import {Component, ViewChild, Input, Output, Renderer, ElementRef, EventEmitter, ChangeDetectionStrategy, ChangeDetectorRef} from '@angular/core';
 import {Control} from '@angular/common';
 import {UniFieldLayout} from '../interfaces';
 declare var _; // jquery and lodash
@@ -7,8 +7,9 @@ declare var _; // jquery and lodash
     selector: 'uni-button-input',
     changeDetection: ChangeDetectionStrategy.OnPush,
     template: `
-        <button
+        <button #button
             *ngIf="control"
+            [class]="field?.Options?.class"
             [disabled]="field?.ReadOnly"
             (click)="clickHandler($event)"
         >{{field.Label}}</button>
@@ -30,15 +31,16 @@ export class UniButtonInput {
     @Output()
     public onChange: EventEmitter<any> = new EventEmitter<any>(true);
     
+    @ViewChild('button') private buttonElement: ElementRef;
+    
     private lastControlValue: string;
     
     constructor(public renderer: Renderer, public elementRef: ElementRef, private cd: ChangeDetectorRef) {
     }
 
     public focus() {
-        this.renderer.invokeElementMethod(this.elementRef.nativeElement, 'focus', []);
+        this.renderer.invokeElementMethod(this.buttonElement.nativeElement, 'focus', []);
         this.cd.markForCheck();
-        return this;
     }
 
     public readMode() {

@@ -37,7 +37,10 @@
             padding-left: pxToRem(3)
 
     .k-button
-        @include uni-button($uni-color-scale9)
+        @include uni-button($uni-color-action)
+
+        &.k-grid-add
+            @include uni-button($uni-color-Good)
 
     .k-button-icontext span.k-icon
         display: none
