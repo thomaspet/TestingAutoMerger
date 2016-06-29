@@ -13,6 +13,12 @@
         </button>
 
     </header>
+    <header class="dashboard_welcome" *ngIf="welcomeHidden">
+
+        <h1>{{current.CompanyName}}</h1>
+        <button (click)="refreshDash()">Refresh</button>
+
+    </header>
 
     <!--INVOICED CHART-->
     <figure class="dashboard_chart_card">

@@ -1,7 +1,7 @@
 import {Component, Input, ElementRef} from '@angular/core';
 import {TabService} from '../layout/navbar/tabstrip/tabService';
 import {UniHttp} from '../../../framework/core/http/http';
-import {ROUTER_DIRECTIVES, Router} from "@angular/router-deprecated";
+import {ROUTER_DIRECTIVES, Router, CanReuse, OnReuse} from "@angular/router-deprecated";
 
 declare var Chart;
 declare var moment;
@@ -21,13 +21,14 @@ export interface IChartDataSet {
     directives: [ROUTER_DIRECTIVES]
 })
 
-export class Dashboard {
+export class Dashboard implements CanReuse {
 
     public welcomeHidden: boolean = localStorage.getItem('welcomeHidden');
     public transactionList = [];
     public myTransactionList = [];
     public journalEntryList = [];
     public user: any;
+    public current: any;
     public months: string[] = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
     private colors: string[] = ['#7293cb', '#e1974c', '#84ba5b', '#d35e60', '#808585'];
 
@@ -35,7 +36,13 @@ export class Dashboard {
         this.tabService.addTab({ name: 'Dashboard', url: '/', active: true, moduleID: 0 });
         Chart.defaults.global.maintainAspectRatio = false;
         this.welcomeHidden = false;
+        this.current = JSON.parse(localStorage.getItem('companySettings'));
+        console.log('Hello');
     }
+
+    public routerCanReuse() {
+        return false;
+    } 
 
     public ngAfterViewInit() {
 
@@ -90,6 +97,10 @@ export class Dashboard {
     public hideWelcome() {
         this.welcomeHidden = true;
         localStorage.setItem('welcomeHidden', 'true');
+    }
+
+    public refreshDash() {
+        this.router.navigateByUrl('/');
     }
 
     public widgetListItemClicked(url) {
@@ -224,12 +235,12 @@ export class Dashboard {
                 data.url = '/sales/invoice/details/' + data.EntityID;
                 break;
             case 'JournalEntryLine':
-                data.module = 'JournalEntryLine';
+                data.module = 'Jour. line';
                 /*NEED REAL URL*/
                 data.url = '/';
                 break;
             case 'SupplierInvoice':
-                data.module = 'Lev.faktura';
+                data.module = 'Lev. faktura';
                 data.url = '/accounting/journalentry/supplierinvoices/' + data.EntityID;
                 break;
             case 'NumberSeries':
@@ -276,8 +287,17 @@ export class Dashboard {
                 /*NEED REAL URL*/
                 data.url = '/sales/customer/list';
                 break;
+            case 'File':
+                data.module = 'File';
+                /*NEED REAL URL*/
+                data.url = '/sales/customer/list';
+                break;
+            case 'CompanySettings':
+                data.module = 'Innstillinger';
+                data.url = '/settings/company';
+                break;
             default:
-
+                
                 
         }
     }
