@@ -26,7 +26,7 @@ export class ProductDetails {
     private fields: any[] = [];
     private product: Product;
 
-    private showImageComponent: boolean = true;
+    private showImageComponent: boolean = true;  // template variable
     private imageUploadConfig: IUploadConfig;
     
     private accounts: Account[];

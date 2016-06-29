@@ -121,7 +121,6 @@ export class UniImage {
         if (files && files.length) {
             this.file = files[0];
         }
-        console.log(this.file);
     }
 
     private uploadFile() {
