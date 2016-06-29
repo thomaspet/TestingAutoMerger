@@ -375,7 +375,7 @@ export class SupplierInvoiceDetail implements OnInit {
         taxInclusiveAmount.FieldSet = 0;
         taxInclusiveAmount.Section = 0;
         taxInclusiveAmount.Combo = 0;
-        taxInclusiveAmount.FieldType = 6;
+        taxInclusiveAmount.FieldType = 10;
         taxInclusiveAmount.Label = 'Beløp';
         taxInclusiveAmount.Property = 'TaxInclusiveAmount';
         taxInclusiveAmount.ReadOnly = false;
