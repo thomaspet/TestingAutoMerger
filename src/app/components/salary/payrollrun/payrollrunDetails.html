@@ -3,7 +3,7 @@
         <div *ngIf="payrollrun">
             <h2 class="poster_toolbar_headline">{{payrollrun.Description}}
                 <p class="poster_toolbar_orgnr">
-                    Lønnsavregning nr. {{payrollrun.ID}},    Utbetalingsdato: {{payDate | date: "ddMMyy" }},    Status: {{payStatus}}
+                    Lønnsavregning nr. {{payrollrun.ID}}, Utbetalingsdato: {{payDate | date: "ddMMyy"}}, Status: {{payStatus}}
                 </p>
             </h2>
         </div>

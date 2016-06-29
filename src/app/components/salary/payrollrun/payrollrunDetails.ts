@@ -24,11 +24,10 @@ export class PayrollrunDetails implements OnInit {
     public config: any = {};
     public fields: any[] = [];
     @ViewChild(UniForm) public uniform: UniForm;
-
     private payrollrun: PayrollRun;
     private model: { payrollrun: PayrollRun, statusCode: string } = { payrollrun: null, statusCode: null };
     private payrollrunID: number;
-    private payDate: Date;
+    private payDate: Date = null;
     private payStatus: string;
     @ViewChild(ControlModal) private controlModal: ControlModal;
     @ViewChild(PostingsummaryModal) private postingSummaryModal: PostingsummaryModal;
@@ -63,7 +62,6 @@ export class PayrollrunDetails implements OnInit {
                 this.model.statusCode = this.setStatus();
                 this.payrollrun = payrollrun;
                 this.payDate = new Date(this.payrollrun.PayDate.toString());
-
                 this.fields = layout.Fields;
 
                 this.config = {
