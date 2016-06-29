@@ -34,6 +34,7 @@ export class JournalEntrySimpleForm implements OnChanges {
     @Output() public created: EventEmitter<any> = new EventEmitter<any>();
     @Output() public aborted: EventEmitter<any> = new EventEmitter<any>();    
     @Output() public updated: EventEmitter<any> = new EventEmitter<any>();
+    @Output() public deleted: EventEmitter<any> = new EventEmitter<any>();
        
     @ViewChild(UniForm) public form: UniForm;    
     
@@ -249,6 +250,10 @@ export class JournalEntrySimpleForm implements OnChanges {
         
     private abortEditJournalEntry(event) {
         this.aborted.emit(null);
+    }
+
+    private deleteEditJournalEntry(event) {
+        this.deleted.emit(null);
     }
     
     private emptyJournalEntry(event) {
@@ -649,10 +654,27 @@ export class JournalEntrySimpleForm implements OnChanges {
                 this.abortEditJournalEntry(event);
             }
         };
+
+        var deleteButton = new UniFieldLayout();
+        deleteButton.FieldSet = 0;
+        deleteButton.Property = 'DeleteButton';
+        deleteButton.Section = 0;
+        deleteButton.Combo = 0;
+        deleteButton.FieldType = 1;
+        deleteButton.Label = 'Slett';
+        deleteButton.ReadOnly = false;
+        deleteButton.Hidden = !this.isEditMode;        
+        deleteButton.Options = {
+            class: 'error', 
+            click: (event) => {
+                this.deleteEditJournalEntry(event);
+            }
+        };
+        
         
         this.fields = [sameOrNewAlternative, finanicalDate, invoiceNumber,
                         debitAccount, debitVat, creditAccount, creditVat,
-                        amount, /*departement, project,*/ description, addButton, updateButton, emptyButton, abortButton];
+                        amount, /*departement, project,*/ description, addButton, updateButton, emptyButton, abortButton, deleteButton];
                               
         this.config = {};
     }     
