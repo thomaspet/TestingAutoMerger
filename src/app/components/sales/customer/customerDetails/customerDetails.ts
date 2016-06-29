@@ -31,6 +31,9 @@ export class CustomerDetails implements OnInit {
     
     private config: any = {};
     private fields: any[] = [];
+    private addressChanged: any;
+    private emailChanged: any;
+    private phoneChanged: any;
         
     public dropdownData: any;
     public customer: Customer;
@@ -267,7 +270,8 @@ export class CustomerDetails implements OnInit {
                                 
                 this.phoneModal.openModal(value);
                 
-                this.phoneModal.Changed.subscribe(modalval => {                                       
+                this.phoneChanged = this.phoneModal.Changed.subscribe(modalval => { 
+                    this.phoneChanged.unsubscribe();                                      
                     resolve(modalval);    
                 });               
             })
@@ -289,7 +293,8 @@ export class CustomerDetails implements OnInit {
                                 
                 this.addressModal.openModal(value);
                 
-                this.addressModal.Changed.subscribe(modalval => {                                       
+                this.addressChanged = this.addressModal.Changed.subscribe(modalval => {       
+                    this.addressChanged.unsubscribe();                                
                     resolve(modalval);    
                 });               
             }),
@@ -314,7 +319,8 @@ export class CustomerDetails implements OnInit {
                                 
                 this.emailModal.openModal(value);
                 
-                this.emailModal.Changed.subscribe(modalval => {                                       
+                this.emailChanged = this.emailModal.Changed.subscribe(modalval => {  
+                    this.emailChanged.unsubscribe();                                     
                     resolve(modalval);    
                 });               
             })
@@ -335,7 +341,8 @@ export class CustomerDetails implements OnInit {
                                 
                 this.addressModal.openModal(value);
                 
-                this.addressModal.Changed.subscribe(modalval => {                                       
+                this.addressChanged = this.addressModal.Changed.subscribe(modalval => {                                       
+                    this.addressChanged.unsubscribe();                                
                     resolve(modalval);    
                 });               
             }),

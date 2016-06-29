@@ -278,7 +278,7 @@ export class AddressModal {
                 {
                     text: 'Lagre adresse',
                     class: 'good',
-                    method: () => {                    
+                    method: () => {     
                         this.modal.close();
                         this.Changed.emit(this.modalConfig.model);                        
                         return false;

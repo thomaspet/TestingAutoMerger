@@ -61,6 +61,7 @@ export class QuoteDetails {
 
     private emptyAddress: Address;
     private recalcTimeout: any;
+    private addressChanged: any;
 
     private actions: IUniSaveAction[];
 
@@ -245,9 +246,9 @@ export class QuoteDetails {
 
                 this.addressModal.openModal(value, !!!this.quote.CustomerID);
 
-                this.addressModal.Changed.subscribe(address => {
+                this.addressChanged = this.addressModal.Changed.subscribe((address) => {
                     if (address._question) { self.saveAddressOnCustomer(address, resolve); }
-                    else { resolve(address); }
+                    else { this.addressChanged.unsubscribe(); resolve(address); }
                 });
             }),
             display: (address: Address) => {
@@ -269,10 +270,10 @@ export class QuoteDetails {
                 }
 
                 this.addressModal.openModal(value);
-
-                this.addressModal.Changed.subscribe((address) => {
+                
+                this.addressChanged = this.addressModal.Changed.subscribe((address) => {
                     if (address._question) { self.saveAddressOnCustomer(address, resolve); }
-                    else { resolve(address); }
+                    else { this.addressChanged.unsubscribe(); resolve(address); }
                 });
             }),
             display: (address: Address) => {
@@ -289,7 +290,7 @@ export class QuoteDetails {
         };
     }
 
-    private saveAddressOnCustomer(address: Address, resolve: any) {
+    private saveAddressOnCustomer(address: Address, resolve) {
         var idx = 0;
 
         if (!address.ID || address.ID == 0) {
@@ -300,10 +301,17 @@ export class QuoteDetails {
             idx = this.quote.Customer.Info.Addresses.findIndex((a) => a.ID === address.ID);
             this.quote.Customer.Info.Addresses[idx] = address;
         }
+        
+        // remove entries with equal _createguid
+        this.quote.Customer.Info.Addresses = _.uniq(this.quote.Customer.Info.Addresses, '_createguid');
 
+        // this.quote.Customer.Info.ID
         this.businessRelationService.Put(this.quote.Customer.Info.ID, this.quote.Customer.Info).subscribe((info) => {
             this.quote.Customer.Info = info;
+            this.addressChanged.unsubscribe();
             resolve(info.Addresses[idx]);
+        },(error) => {
+            this.addressChanged.unsubscribe();
         });
     }
 

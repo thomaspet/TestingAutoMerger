@@ -61,6 +61,7 @@ export class OrderDetails {
 
     private emptyAddress: Address;
     private recalcTimeout: any;
+    private addressChanged: any;
 
     private actions: IUniSaveAction[];
 
@@ -238,9 +239,9 @@ export class OrderDetails {
 
                 this.addressModal.openModal(value, !!!this.order.CustomerID);
 
-                this.addressModal.Changed.subscribe(address => {
+                this.addressChanged = this.addressModal.Changed.subscribe(address => {
                     if (address._question) { self.saveAddressOnCustomer(address, resolve); }
-                    else { resolve(address); }
+                    else { this.addressChanged.unsubscribe(); resolve(address); }
                 });
             }),
             display: (address: Address) => {
@@ -263,9 +264,9 @@ export class OrderDetails {
 
                 this.addressModal.openModal(value);
 
-                this.addressModal.Changed.subscribe((address) => {
+                this.addressChanged = this.addressModal.Changed.subscribe((address) => {
                     if (address._question) { self.saveAddressOnCustomer(address, resolve); }
-                    else { resolve(address); }
+                    else { this.addressChanged.unsubscribe(); resolve(address); }
                 });
             }),
             display: (address: Address) => {
@@ -282,7 +283,7 @@ export class OrderDetails {
         };
     }
 
-    private saveAddressOnCustomer(address: Address, resolve: any) {
+    private saveAddressOnCustomer(address: Address, resolve) {
         var idx = 0;
 
         if (!address.ID || address.ID == 0) {
@@ -293,12 +294,20 @@ export class OrderDetails {
             idx = this.order.Customer.Info.Addresses.findIndex((a) => a.ID === address.ID);
             this.order.Customer.Info.Addresses[idx] = address;
         }
+        
+        // remove entries with equal _createguid
+        this.order.Customer.Info.Addresses = _.uniq(this.order.Customer.Info.Addresses, '_createguid');
 
+        // this.quote.Customer.Info.ID
         this.businessRelationService.Put(this.order.Customer.Info.ID, this.order.Customer.Info).subscribe((info) => {
             this.order.Customer.Info = info;
+            this.addressChanged.unsubscribe();
             resolve(info.Addresses[idx]);
+        },(error) => {
+            this.addressChanged.unsubscribe();
         });
     }
+
 
     private updateSaveActions() {
         this.actions = [];

@@ -71,6 +71,7 @@ export class InvoiceDetails implements OnInit {
     private creditButtonText: string = 'Krediter faktura';
     private recalcTimeout: any;
     private actions: IUniSaveAction[];
+    private addressChanged: any;
 
     private expandOptions: Array<string> = ['Dimensions', 'Items', 'Items.Product', 'Items.VatType',
         'Customer', 'Customer.Info', 'Customer.Info.Addresses', 'InvoiceReference'];
@@ -285,9 +286,9 @@ export class InvoiceDetails implements OnInit {
 
                 this.addressModal.openModal(value);
 
-                this.addressModal.Changed.subscribe((address) => {
+                this.addressChanged = this.addressModal.Changed.subscribe((address) => {
                     if (address._question) { self.saveAddressOnCustomer(address, resolve); }
-                    else { resolve(address); }
+                    else { this.addressChanged.unsubscribe(); resolve(address); }
                 });
             }),
             display: (address: Address) => {
@@ -310,9 +311,9 @@ export class InvoiceDetails implements OnInit {
 
                 this.addressModal.openModal(value);
 
-                this.addressModal.Changed.subscribe((address) => {
+                this.addressChanged = this.addressModal.Changed.subscribe((address) => {
                     if (address._question) { self.saveAddressOnCustomer(address, resolve); }
-                    else { resolve(address); }
+                    else { this.addressChanged.unsubscribe(); resolve(address); }
                 });
             }),
             display: (address: Address) => {
@@ -329,7 +330,7 @@ export class InvoiceDetails implements OnInit {
         };
     }
 
-    private saveAddressOnCustomer(address: Address, resolve: any) {
+    private saveAddressOnCustomer(address: Address, resolve) {
         var idx = 0;
 
         if (!address.ID || address.ID == 0) {
@@ -340,10 +341,17 @@ export class InvoiceDetails implements OnInit {
             idx = this.invoice.Customer.Info.Addresses.findIndex((a) => a.ID === address.ID);
             this.invoice.Customer.Info.Addresses[idx] = address;
         }
+        
+        // remove entries with equal _createguid
+        this.invoice.Customer.Info.Addresses = _.uniq(this.invoice.Customer.Info.Addresses, '_createguid');
 
+        // this.quote.Customer.Info.ID
         this.businessRelationService.Put(this.invoice.Customer.Info.ID, this.invoice.Customer.Info).subscribe((info) => {
             this.invoice.Customer.Info = info;
+            this.addressChanged.unsubscribe();
             resolve(info.Addresses[idx]);
+        },(error) => {
+            this.addressChanged.unsubscribe();
         });
     }
 
