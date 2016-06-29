@@ -111,7 +111,6 @@ export class SupplierInvoiceDetail implements OnInit {
             // add blank to dropdown
             this.suppliers.unshift(null);
 
-            //this.setActionsDisabled();
             this.updateSaveActions();
             this.setPreviewId();
 
@@ -128,7 +127,7 @@ export class SupplierInvoiceDetail implements OnInit {
             label: 'Lagre',
             action: (done) => this.saveSupplierInvoice(done),
             main: true,
-            disabled: (this.supplierInvoice.StatusCode === StatusCodeSupplierInvoice.Journaled)
+            disabled: (this.supplierInvoice.StatusCode !== StatusCodeSupplierInvoice.Draft)
         });
 
         this.actions.push({
@@ -144,56 +143,51 @@ export class SupplierInvoiceDetail implements OnInit {
         });
 
         this.actions.push({
-            label: 'Send til betaling',
-            action: (done) => this.saveSupplierInvoiceTransition(done, 'sendForPayment', 'Sendt til betaling'),
-            disabled: this.IsSendForPaymentActionDisabled()
-        });
-
-        this.actions.push({
             label: 'Registrer betaling',
-            action: (done) => this.registerPayment(done),
+            action: (done) => this.payInvoice(done),
             disabled: this.IsRegisterPaymentActionDisabled()
         });
     }
 
-    //private setActionsDisabled() {
-    //    this.actions[0].disabled = this.supplierInvoice.StatusCode == StatusCodeSupplierInvoice.Journaled;
-    //    this.actions[1].disabled = this.supplierInvoice.StatusCode >= StatusCodeSupplierInvoice.Journaled;
-    //    this.actions[2].disabled = this.supplierInvoice.StatusCode >= StatusCodeSupplierInvoice.Journaled;
-    //    this.actions[3].disabled = this.supplierInvoice.StatusCode == StatusCodeSupplierInvoice.Draft || this.supplierInvoice.StatusCode == StatusCodeSupplierInvoice.Payed;
-    //}
-
     private IsJournalActionDisabled() {
-        if (this.supplierInvoice.StatusCode === StatusCodeSupplierInvoice.Draft ||
-            this.supplierInvoice.StatusCode === StatusCodeSupplierInvoice.Approved ||
-            this.supplierInvoice.StatusCode === StatusCodeSupplierInvoice.ToPayment) {
-            return false;
-        }
-        return true;
-    }
-    private IsSendForPaymentActionDisabled() {
-        if (this.supplierInvoice.StatusCode === StatusCodeSupplierInvoice.Draft ||
-            this.supplierInvoice.StatusCode === StatusCodeSupplierInvoice.Approved ||
-            this.supplierInvoice.StatusCode === StatusCodeSupplierInvoice.Journaled) {
+        if (this.supplierInvoice.StatusCode === StatusCodeSupplierInvoice.Draft){
             return false;
         }
         return true;
     }
     private IsRegisterPaymentActionDisabled() {
-        if (this.supplierInvoice.StatusCode === StatusCodeSupplierInvoice.ToPayment ||
-            this.supplierInvoice.StatusCode === StatusCodeSupplierInvoice.PartlyPayed) {
+        if (this.supplierInvoice.StatusCode === StatusCodeSupplierInvoice.Journaled ||
+            this.supplierInvoice.StatusCode === StatusCodeSupplierInvoice.ToPayment ||
+            this.supplierInvoice.StatusCode === StatusCodeSupplierInvoice.PartlyPayed){
             return false;
         }
         return true;
     }
 
     private saveSupplierInvoiceTransition(done: any, transition: string, doneText: string) {
-        //TODO: Bør kanskje lagre først?
         this._supplierInvoiceService.Transition(this.supplierInvoice.ID, this.supplierInvoice, transition).subscribe(() => {
             console.log('== TRANSITION OK ' + transition + ' ==');
             this.refreshFormData(this.supplierInvoice);
             done(doneText);
         });
+    }
+
+    private payInvoice(done: any) {
+        if (this.supplierInvoice.StatusCode === StatusCodeSupplierInvoice.Journaled) {
+            this._supplierInvoiceService.Transition(this.supplierInvoice.ID, this.supplierInvoice, 'sendForPayment').subscribe(() => {
+                console.log('== TRANSITION OK sendForPayment ==');
+                this.registerPayment(done)
+                done('Betalt');
+            },
+                (error) => {
+                    this.setError(error);
+                    done('Lagring feilet');
+                });
+        }
+        else {
+            this.registerPayment(done)
+            done('Betalt');
+        }
     }
 
 
@@ -455,14 +449,16 @@ export class SupplierInvoiceDetail implements OnInit {
             Amount: this.supplierInvoice.TaxInclusiveAmount,
             PaymentDate: new Date()
         };
-        this.registerPaymentModal.openModal(this.supplierInvoice.SupplierID, title, invoiceData);
+        this.registerPaymentModal.openModal(this.supplierInvoice.ID, title, invoiceData);
+        done(' ');
     }
 
     public onRegisteredPayment(modalData: any) {
-        this._supplierInvoiceService
-            .payinvoice(modalData.id, modalData.invoice)
-            .subscribe(() => alert('Invoice payment registered successfully'), (error) => {
-                this.setError(error);
-            });
+
+        this._supplierInvoiceService.ActionWithBody(modalData.id, modalData.invoice, 'payInvoice').subscribe((journalEntry) => {
+            this.refreshFormData(this.supplierInvoice);
+        }, (error) => {
+            this.setError(error);
+        });
     }
 }
