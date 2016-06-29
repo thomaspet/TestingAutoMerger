@@ -261,6 +261,13 @@ export class TimeEntry {
                     }
                     break;
             }
+
+            // Lookup column?
+            if (details.columnDefinition.lookup) {
+                this.timeSheet.copyValueAbove (details.columnDefinition.name, details.position.row);
+                details.copyAbove = false;
+            }
+
         }  
     }
 

@@ -69,6 +69,7 @@ export interface IEditor {
     setValue(value:any, flagChange?:boolean);
     finalizeEdit(cancel:boolean, value?:string, src?:string):boolean;
     hasChanges():boolean;
+    getValue():any;
 }
 
 export interface ITypeSearch {

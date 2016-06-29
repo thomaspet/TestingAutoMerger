@@ -119,6 +119,11 @@ export class Editor implements IEditor {
         var changes = txt !== this.originalValue;
         return changes;
     }
+
+    public getValue():any {
+        if (!this.inputBox) return '';
+        return this.inputBox.val();
+    }
     
     public finalizeEdit(cancel = false, valueOverride?:string, src = "unknown"):boolean {
         if (!this.inputBox) return;

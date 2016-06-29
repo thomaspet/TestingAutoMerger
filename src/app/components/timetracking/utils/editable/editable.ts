@@ -51,7 +51,6 @@ export class Editable implements AfterViewInit, OnDestroy {
 
         this.dropList.onClick = (rowIndex: number, item: any, details: ITypeSearch) => {
             var value = item[details.itemPropertyToSet];
-            //this.finalizeEdit(false, value);
             this.dropList.hide();
             this.handleChange(value, this.currentPosition(), false);
         }
@@ -223,6 +222,8 @@ export class Editable implements AfterViewInit, OnDestroy {
 
             if (this.config && this.config.events && this.config.events.onCopyCell) {
                 if (this.current.editor && (!this.current.editor.hasChanges())) {
+
+                    if (this.current.editor.getValue()) return; // only if cell is blank!
 
                     // Get position?
                     var pos = this.getCellPosition(this.current.active);

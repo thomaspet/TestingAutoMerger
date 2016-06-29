@@ -109,6 +109,26 @@ export class TimeSheet {
         this.changeMap.add(change.rowIndex, item);
         return true;
     }    
+
+    public copyValueAbove(colName:string, rowIndex:number) {
+        var src = this.items[rowIndex-1];
+        var lookupIItem:any;
+        var value = src.hasOwnProperty(colName) ? src[colName] : 0;
+        switch (colName) {
+            case 'CustomerOrderID':
+                lookupIItem = src.CustomerOrder;
+                break;
+            case 'WorkTypeID':
+                lookupIItem = src.Worktype;
+                break;
+            case 'Dimensions.ProjectID':
+                value = src.Dimensions ? src.Dimensions.ProjectID : value;
+                lookupIItem = src.Dimensions ? src.Dimensions.Project : undefined;
+                break;        
+        }
+        var item = new ValueItem(colName, value, rowIndex, lookupIItem);
+        this.setItemValue(item);
+    }
     
     public removeRow(index:number) {
         var item = this.getRowByIndex(index);
