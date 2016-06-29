@@ -49,6 +49,7 @@ export class PostingsummaryModal implements AfterViewInit {
     
     public openModal() {        
         this.modals[0].getContent().then((modalContent: PostingsummaryModalContent) => {
+            modalContent.openModal();
             this.modals[0].open();
         });
     }
