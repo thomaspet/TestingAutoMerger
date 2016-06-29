@@ -1,13 +1,5 @@
-<header class="poster">
-    <article class="poster_toolbar">
-        <div>
-            <h2 class="poster_toolbar_headline">Lønnsarter</h2>
-        </div>
-        <nav class="poster_toolbar_tools">
-            <a (click)="createWageType()" class="new">Ny lønnsart</a>
-        </nav>
-    </article>
-</header>
 <article class="application wagetype">
+    <h2>Lønnsarter</h2>
+    <button (click)="createWageType()" class="good salary-new">Ny ansatt</button>
     <uni-table [resource]="wageTypes$ | async" [config]="tableConfig" (rowSelected)="rowSelected($event)"></uni-table>
 </article>

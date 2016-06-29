@@ -50,10 +50,11 @@
                     <th>Beskrivelse</th>
                     <th>Prosjekt</th>
                     <th>Ordrenr.</th>
+                    <th> </th>
                 </tr>
             </thead>
             <tbody *ngIf="timeSheet.currentRelation">
-                <tr *ngFor="let item of timeSheet.items" [class.alternateRow]="item._alternate">
+                <tr *ngFor="let item of timeSheet.items; let i=index" [class.alternateRow]="item._alternate">
                     <td >{{item.Date | isotime:'DD.MM.YYYY'}}</td>
                     <td>{{item.StartTime | isotime:'HH:mm'}}</td>
                     <td>{{item.EndTime | isotime:'HH:mm'}}</td>
@@ -61,6 +62,7 @@
                     <td>{{item.Description}}</td>
                     <td>{{item.Dimensions ? item.Dimensions.Project ? item.Dimensions.Project.ID + ' - ' + item.Dimensions.Project.Name : item.Dimensions.ProjectID : ''}}</td>
                     <td>{{item.CustomerOrder ? item.CustomerOrder.OrderNumber + ' - ' + item.CustomerOrder.CustomerName : item.CustomerOrderID }}</td>
+                    <td class='timeSheet_actions'><button (click)="onRowActionClicked(i, item)"></button></td>
                 </tr>                            
             </tbody>
         </table>    

@@ -91,11 +91,15 @@ export class TabService {
         } else {
             //If closing the last open tab -> go to dashboard? Creates "bug" if dashboard is last tab
             if (this._tabs.length === 0) {
-                return { name: 'Dashboard', url: '/' };
+                return { name: 'Nøkkeltall', url: '/', moduleID: 0 };
             } else {
                 return this._tabs[this._tabs.length - 1];
             }
         }
+    }
+
+    public removeAllTabs() {
+        this._tabs = [];
     }
 
 }

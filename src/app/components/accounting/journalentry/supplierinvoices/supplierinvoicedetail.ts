@@ -7,6 +7,7 @@ import {SupplierInvoiceService, SupplierService, BankAccountService, JournalEntr
 
 import {UniForm, UniFieldLayout} from '../../../../../framework/uniform/index';
 import {UniComponentLoader} from '../../../../../framework/core/componentLoader';
+import {JournalEntryData} from '../../../..//models/models';
 import {FieldType, ComponentLayout, SupplierInvoice, Supplier, BankAccount, StatusCodeSupplierInvoice} from '../../../../unientities';
 import {JournalEntryManual} from '../journalentrymanual/journalentrymanual';
 import {UniDocumentUploader} from '../../../../../framework/documents/index';
@@ -41,32 +42,10 @@ export class SupplierInvoiceDetail implements OnInit {
     @ViewChild(UniForm) private form: UniForm;
     @ViewChild(RegisterPaymentModal) private registerPaymentModal: RegisterPaymentModal;
 
-    config: any = {};
-    fields: any[] = [];
+    public config: any = {};
+    public fields: any[] = [];
 
-    private actions: IUniSaveAction[] = [
-        {
-            label: 'Lagre',
-            action: (done) => this.saveSupplierInvoice(done),
-            main: true,
-            disabled: false
-        },
-        {
-            label: 'Bokfør',
-            action: (done) => this.saveAndBook(done),
-            disabled: true
-        },
-        {
-            label: 'Kjør smartbokføring på ny',
-            action: (done) => this.saveAndRunSmartBooking(done),
-            disabled: true
-        },
-        {
-            label: 'Registrer betaling',
-            action: (done) => this.registerPayment(done),
-            disabled: true
-        }
-    ];
+    private actions: IUniSaveAction[];
 
     constructor(
         private _supplierInvoiceService: SupplierInvoiceService,
@@ -77,12 +56,10 @@ export class SupplierInvoiceDetail implements OnInit {
         private router: Router,
         private _routeParams: RouteParams,
         private tabService: TabService) {
-            
+
         this.invoiceId = _routeParams.get('id');
         this.previewId = 0;
         this.previewSize = UniImageSize.medium;
-        
-        this.tabService.addTab({ name: 'Leverandørfaktura', url: '/accounting/journalentry/supplierinvoices/details/' + this.invoiceId, moduleID: 7, active: true });
     }
 
     private setError(error) {
@@ -92,29 +69,40 @@ export class SupplierInvoiceDetail implements OnInit {
             this.errors = messages.Messages ? messages.Messages : [messages];
             setInterval(() => {
                 this.errors = null;
-            }, 5000);            
+            }, 5000);
         }
     }
 
     public ngOnInit() {
         this.loadFormAndData();
     }
-    
+
     private refreshFormData(supplierInvoice: SupplierInvoice) {
         this.invoiceId = supplierInvoice.ID;
-        
+
         this._supplierInvoiceService
             .Get(this.invoiceId, ['JournalEntry', 'Supplier.Info'])
             .subscribe((res) => {
                 this.supplierInvoice = res;
-                this.setActionsDisabled();     
-                this.setPreviewId();     
+                //this.setActionsDisabled();
+                this.updateSaveActions();
+                this.setPreviewId();
+                this.setTabTitle();
+                // call ready to set readonly fields if needed
+                this.ready(null);
             },
             (error) => {
                 this.setError(error);
             }
-        );
+            );
     }
+    
+    private setTabTitle() {
+        let tabTitle = this.supplierInvoice.InvoiceNumber ? 'Leverandørfakturanr ' + this.supplierInvoice.InvoiceNumber : 'Leverandørfaktura (kladd)'; 
+        this.tabService.addTab({ url: '/accounting/journalentry/supplierinvoices/details/' + this.invoiceId, name: tabTitle, active: true, moduleID: 7 });        
+    }
+    
+    
     private getStatusText() {
         return this._supplierInvoiceService.getStatusText((this.supplierInvoice.StatusCode || '').toString());
     }
@@ -131,42 +119,107 @@ export class SupplierInvoiceDetail implements OnInit {
 
             // add blank to dropdown
             this.suppliers.unshift(null);
- 
-            this.setActionsDisabled();
+
+            this.updateSaveActions();
             this.setPreviewId();
-    
+            this.setTabTitle();
+
             this.buildForm();
         }, (error) => {
             this.setError(error);
         });
     }
-    
-    private setActionsDisabled() {
-        this.actions[0].disabled = this.supplierInvoice.StatusCode == StatusCodeSupplierInvoice.Journaled;                
-        this.actions[1].disabled = this.supplierInvoice.StatusCode >= StatusCodeSupplierInvoice.Journaled;
-        this.actions[2].disabled = this.supplierInvoice.StatusCode >= StatusCodeSupplierInvoice.Journaled;
-        this.actions[3].disabled = this.supplierInvoice.StatusCode == StatusCodeSupplierInvoice.Draft || this.supplierInvoice.StatusCode == StatusCodeSupplierInvoice.Payed; 
+
+    private updateSaveActions() {
+        this.actions = [];
+
+        this.actions.push({
+            label: 'Lagre',
+            action: (done) => this.saveSupplierInvoice(done),
+            main: true,
+            disabled: (this.supplierInvoice.StatusCode !== StatusCodeSupplierInvoice.Draft)
+        });
+
+        this.actions.push({
+            label: 'Bokfør',
+            action: (done) => this.saveAndBook(done),
+            disabled: this.IsJournalActionDisabled()
+        });
+
+        this.actions.push({
+            label: 'Kjør smartbokføring på ny',
+            action: (done) => this.saveAndRunSmartBooking(done),
+            disabled: (this.supplierInvoice.StatusCode !== StatusCodeSupplierInvoice.Draft)
+        });
+
+        this.actions.push({
+            label: 'Registrer betaling',
+            action: (done) => this.payInvoice(done),
+            disabled: this.IsRegisterPaymentActionDisabled()
+        });
     }
 
+    private IsJournalActionDisabled() {
+        if (this.supplierInvoice.StatusCode === StatusCodeSupplierInvoice.Draft){
+            return false;
+        }
+        return true;
+    }
+    private IsRegisterPaymentActionDisabled() {
+        if (this.supplierInvoice.StatusCode === StatusCodeSupplierInvoice.Journaled ||
+            this.supplierInvoice.StatusCode === StatusCodeSupplierInvoice.ToPayment ||
+            this.supplierInvoice.StatusCode === StatusCodeSupplierInvoice.PartlyPayed){
+            return false;
+        }
+        return true;
+    }
+
+    private saveSupplierInvoiceTransition(done: any, transition: string, doneText: string) {
+        this._supplierInvoiceService.Transition(this.supplierInvoice.ID, this.supplierInvoice, transition).subscribe(() => {
+            console.log('== TRANSITION OK ' + transition + ' ==');
+            this.refreshFormData(this.supplierInvoice);
+            done(doneText);
+        });
+    }
+
+    private payInvoice(done: any) {
+        if (this.supplierInvoice.StatusCode === StatusCodeSupplierInvoice.Journaled) {
+            this._supplierInvoiceService.Transition(this.supplierInvoice.ID, this.supplierInvoice, 'sendForPayment').subscribe(() => {
+                console.log('== TRANSITION OK sendForPayment ==');
+                this.registerPayment(done)
+                done('Betalt');
+            },
+                (error) => {
+                    this.setError(error);
+                    done('Lagring feilet');
+                });
+        }
+        else {
+            this.registerPayment(done)
+            done('Betalt');
+        }
+    }
+
+
     private save(runSmartBooking: boolean, done) {
+        if (!this.supplierInvoice.SupplierID) {
+            this.setError({Message: 'Leverandør må være fyllt ut.'});
+            done('Ikke lagret');
+            return;
+        }
+        
         if ((this.supplierInvoice.PaymentID || '').trim().length == 0 && (this.supplierInvoice.PaymentInformation || '').trim().length == 0) {
             this.setError({Message: 'KID eller melding må være fyllt ut.'});
             done('Ikke lagret');
             return;
         }
 
-        if (!this.supplierInvoice.SupplierID) {
-            this.setError({Message: 'Leverandør må være fyllt ut.'});
-            done('Ikke lagret');
-            return;
-        }
-
         if (!!this.supplierInvoice.JournalEntryID) {
-            let journalEntryData = this.journalEntryManual.getJournalEntryData();  
+            let journalEntryData = this.journalEntryManual.getJournalEntryData();
 
             Observable.forkJoin(
                 this._journalEntryService.saveJournalEntryData(journalEntryData),
-                this._supplierInvoiceService.Put(this.supplierInvoice.ID, this.supplierInvoice)     
+                this._supplierInvoiceService.Put(this.supplierInvoice.ID, this.supplierInvoice)
             ).subscribe((response: any) => {
                 if (runSmartBooking) {
                     this.runSmartBooking(this.supplierInvoice, done);
@@ -175,15 +228,15 @@ export class SupplierInvoiceDetail implements OnInit {
                     lines.forEach((line) => {
                         line.FinancialDate = moment(line.FinancialDate).toDate();
                     });
-        
+
                     this.journalEntryManual.setJournalEntryData(lines);
                     this.refreshFormData(this.supplierInvoice);
                     done('Lagret');
-                }            
+                }
             }, (error) => {
                 this.setError(error);
                 done('Lagring feilet');
-            });            
+            });
         } else {
             this._supplierInvoiceService.Put(this.supplierInvoice.ID, this.supplierInvoice)
                 .subscribe((result: SupplierInvoice) => {
@@ -194,7 +247,7 @@ export class SupplierInvoiceDetail implements OnInit {
                     this.setError(error);
                     done('Lagring feilet');
                 }
-            );           
+                );
         }
     };
 
@@ -205,73 +258,82 @@ export class SupplierInvoiceDetail implements OnInit {
     private saveAndRunSmartBooking(done) {
         this.save(true, done);
     }
-    
-    private saveAndBook(done) {        
-        //save and run transition to booking        
+
+    private saveAndBook(done) {
+        // save and run transition to booking        
         let journalEntryData = this.journalEntryManual.getJournalEntryData();
-        
+
         // set date today if date is default value / empty
         journalEntryData.forEach((line) => {
-            if (line.FinancialDate.toISOString() == '0001-01-01T00:00:00.000Z') {                
-                line.FinancialDate = new Date(); 
-            }           
+            if (!line.FinancialDate || line.FinancialDate.toISOString() == '0001-01-01T00:00:00.000Z') {
+                line.FinancialDate = new Date();
+            }
         });
-                
+
         this._journalEntryService
             .saveJournalEntryData(journalEntryData)
-            .subscribe((res) => {
+            .subscribe((newJournalEntryData: Array<JournalEntryData>) => {                
+                newJournalEntryData.forEach((line: JournalEntryData) => {
+                    line.FinancialDate = moment(line.FinancialDate).toDate();
+                });
+                this.journalEntryManual.setJournalEntryData(newJournalEntryData);
+                
                 this._supplierInvoiceService.Put(this.supplierInvoice.ID, this.supplierInvoice)
                     .subscribe((res) => {
-                        let sum = journalEntryData.map((line) => line.Amount).reduce((a, b) => {
-                            return (a > 0 ? a : 0) + (b > 0 ? b : 0)
-                        });
-                        if (sum != this.supplierInvoice.TaxInclusiveAmount) {
-                            this.setError({Message: 'Sum bilagsbeløp er ulik leverandørfakturabeløp'});
+                        let sum = newJournalEntryData
+                                    .filter(line => line.CreditAccountID != null)
+                                    .map((line) => line.Amount)
+                                    .reduce((a, b) => {
+                                        return (a > 0 ? a : 0) + (b > 0 ? b : 0)
+                                    });
+                                    
+                        if (sum !== this.supplierInvoice.TaxInclusiveAmount) {
+                            this.setError({ Message: 'Sum bilagsbeløp er ulik leverandørfakturabeløp' });
                             done('Bokføring feilet');
                         } else {
                             this._supplierInvoiceService.Transition(this.supplierInvoice.ID, this.supplierInvoice, 'journal')
-                                .subscribe((res) => {
-                                    done("Bokført");
-                                    this.refreshFormData(this.supplierInvoice);
+                                .subscribe((resBooking) => {
+                                    done('Bokført');
+                                    this.refreshFormData(this.supplierInvoice);                                    
                                 },
                                 (error) => {
                                     this.setError(error);
                                     done('Bokføring feilet');
                                 }
-                            );                            
+                                );
                         }
                     },
                     (error) => {
                         this.setError(error);
                         done('Lagring feilet');
                     }
-                )
-            }, 
-            (error) => { 
+                    )
+            },
+            (error) => {
                 this.setError(error);
                 done('Lagring feilet');
             }
-        );
+            );
     }
 
     private runSmartBooking(supplierInvoice: SupplierInvoice, done) {
-        
+
         if (supplierInvoice.ID == 0) {
             done('Smartbokføring kunne ikke kjøres');
             console.error('Smart booking can not be performed since SupplierInvoice.ID is null');
             return;
         }
-        
+
         this._supplierInvoiceService.Action(supplierInvoice.ID, 'smartbooking')
             .subscribe(
-                (response: any) => {
-                    this.refreshFormData(supplierInvoice);
-                    done('Smartbokført');
-                },
-                (error) => {
-                    this.setError(error);
-                    done('Feilet i smartbokføring');
-                }       
+            (response: any) => {
+                this.refreshFormData(supplierInvoice);
+                done('Smartbokført');
+            },
+            (error) => {
+                this.setError(error);
+                done('Feilet i smartbokføring');
+            }
             );
     }
 
@@ -283,13 +345,13 @@ export class SupplierInvoiceDetail implements OnInit {
                 self.previewId = data[0].ID;
             } else {
                 self.previewId = -1;
-            }    
+            }
         });
     }
 
-    private buildForm() {         
-        let self = this;         
-        
+    private buildForm() {
+        let self = this;
+
         var supplierName = new UniFieldLayout();
         supplierName.FieldSet = 0;
         supplierName.Section = 0;
@@ -298,7 +360,7 @@ export class SupplierInvoiceDetail implements OnInit {
         supplierName.Label = 'Leverandørnavn';
         supplierName.Property = 'SupplierID';
         supplierName.ReadOnly = false;
-        supplierName.Options = {                  
+        supplierName.Options = {
             source: this.suppliers,
             template: (data) => data ? `${data.SupplierNumber} - ${data.Info.Name}` : '',
             valueProperty: 'ID',
@@ -323,19 +385,19 @@ export class SupplierInvoiceDetail implements OnInit {
         paymentDueDate.Label = 'Forfallsdato';
         paymentDueDate.Property = 'PaymentDueDate';
         paymentDueDate.ReadOnly = false;
-        
+
         var taxInclusiveAmount = new UniFieldLayout();
         taxInclusiveAmount.FieldSet = 0;
         taxInclusiveAmount.Section = 0;
         taxInclusiveAmount.Combo = 0;
-        taxInclusiveAmount.FieldType = 6;
+        taxInclusiveAmount.FieldType = 10;
         taxInclusiveAmount.Label = 'Beløp';
         taxInclusiveAmount.Property = 'TaxInclusiveAmount';
         taxInclusiveAmount.ReadOnly = false;
         taxInclusiveAmount.Options = {
             step: 1
         };
-        
+
         var invoiceNumber = new UniFieldLayout();
         invoiceNumber.FieldSet = 0;
         invoiceNumber.Section = 0;
@@ -344,7 +406,7 @@ export class SupplierInvoiceDetail implements OnInit {
         invoiceNumber.Label = 'Fakturanr';
         invoiceNumber.Property = 'InvoiceNumber';
         invoiceNumber.ReadOnly = false;
-                
+
         var bankAccount = new UniFieldLayout();
         bankAccount.FieldSet = 0;
         bankAccount.Section = 0;
@@ -359,7 +421,7 @@ export class SupplierInvoiceDetail implements OnInit {
         //    displayProperty: 'AccountNumber',
         //    debounceTime: 500
         //};
-        
+
         var paymentID = new UniFieldLayout();
         paymentID.FieldSet = 0;
         paymentID.Section = 0;
@@ -369,7 +431,7 @@ export class SupplierInvoiceDetail implements OnInit {
         paymentID.Property = 'PaymentID';
         paymentID.ReadOnly = false;
         //paymentID.LineBreak = true; // TODO issue #724   
-      
+
         var paymentInformation = new UniFieldLayout();
         paymentInformation.FieldSet = 0;
         paymentInformation.Section = 0;
@@ -378,18 +440,18 @@ export class SupplierInvoiceDetail implements OnInit {
         paymentInformation.Label = 'Melding til bruker';
         paymentInformation.Property = 'PaymentInformation';
         paymentInformation.ReadOnly = false;
-                  
-        self.fields = [supplierName, invoiceDate, paymentDueDate, taxInclusiveAmount, invoiceNumber, 
-                       bankAccount, paymentID, paymentInformation];
-        
-        this.config = {            
+
+        self.fields = [supplierName, invoiceDate, paymentDueDate, taxInclusiveAmount, invoiceNumber,
+            bankAccount, paymentID, paymentInformation];
+
+        this.config = {
         };
     }
-    
+
     private onFileUploaded(slot) {
         this.previewId = slot.ID;
-    }    
-    
+    }
+
     private ready(event) {
         if (this.supplierInvoice.StatusCode < StatusCodeSupplierInvoice.Journaled) {
             this.form.editMode();
@@ -399,21 +461,23 @@ export class SupplierInvoiceDetail implements OnInit {
             this.disabled = true;
         }
     }
-    
+
     private registerPayment(done) {
         const title = `Register betaling${this.supplierInvoice.InvoiceNumber ? ', Faktura ' + this.supplierInvoice.InvoiceNumber : ''}${this.supplierInvoice.InvoiceReceiverName ? ', ' + this.supplierInvoice.InvoiceReceiverName : ''}`;
         const invoiceData: InvoicePaymentData = {
             Amount: this.supplierInvoice.TaxInclusiveAmount,
             PaymentDate: new Date()
         };
-        this.registerPaymentModal.openModal(this.supplierInvoice.SupplierID, title, invoiceData);
+        this.registerPaymentModal.openModal(this.supplierInvoice.ID, title, invoiceData);
+        done(' ');
     }
-    
+
     public onRegisteredPayment(modalData: any) {
-        this._supplierInvoiceService
-            .payinvoice(modalData.id, modalData.invoice)
-            .subscribe(() => alert('Invoice payment registered successfully'), (error) => {
-                this.setError(error);
-            });
+
+        this._supplierInvoiceService.ActionWithBody(modalData.id, modalData.invoice, 'payInvoice').subscribe((journalEntry) => {
+            this.refreshFormData(this.supplierInvoice);
+        }, (error) => {
+            this.setError(error);
+        });
     }
 }

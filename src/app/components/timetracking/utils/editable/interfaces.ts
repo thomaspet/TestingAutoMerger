@@ -9,16 +9,6 @@ export interface IChangeEvent {
     userTypedValue:boolean;
 }
 
-export interface ICol {
-    name: string;
-    label?: string;
-    typeName?: string;
-    width?: number;
-    visible?: boolean;
-    alignment?: string;
-    lookup?:ILookupDetails;
-}
-
 export interface IPos {
     col: number;
     row: number;
@@ -100,14 +90,34 @@ export var Keys = {
 };
 
 
+export enum ColumnType {
+    Text = 0,
+    Integer = 1,
+    Decimal = 2,
+    Date = 3,
+    Time = 4,
+    Action = 10,
+    Custom = 11
+}
+
+export interface ICol {
+    name: string;
+    label?: string;
+    columnType?: ColumnType;
+    width?: number;
+    visible?: boolean;
+    alignment?: string;
+    lookup?:ILookupDetails;
+}
+
 export class Column implements ICol {
     label:string;
     visible = true;
-    typeName:string;
+    columnType: ColumnType;
     lookup:ILookupDetails;
-    constructor(public name:string, label = '', typeName = 'text', lookup?:ILookupDetails) {
+    constructor(public name:string, label = '', colType = ColumnType.Text, lookup?:ILookupDetails) {
         this.label = label || name;
-        this.typeName = typeName; 
+        this.columnType = colType; 
         this.lookup = lookup;
     }
 }

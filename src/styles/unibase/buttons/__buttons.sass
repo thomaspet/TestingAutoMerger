@@ -9,7 +9,7 @@ $all-buttons: assign-inputs($buttons-list)
 
 @mixin uni-button($color)
     color: $uni-color-negative
-    background: $color
+    background-color: $color
     text-shadow: 0 0 .15rem darken($color, 8%)
     font-weight: 400
     box-shadow: 0 pxToRem(1) pxToRem(1) $uni-color-scale7
@@ -21,7 +21,6 @@ $all-buttons: assign-inputs($buttons-list)
     border: none
     box-sizing: border-box
     font-size: 1rem
-    line-height: 1.6667rem
     border-radius: .2rem
     padding: 0 1.5rem
     margin: .5rem 1rem
@@ -31,21 +30,22 @@ $all-buttons: assign-inputs($buttons-list)
 
     &:hover,
     &:focus
-        background: darken($color, 5%)
+        background-color: darken($color, 5%)
         outline: none
 
     &:active
-        background: darken($color, 5%)
+        background-color: darken($color, 5%)
         transform: scale(.98)
 
     &[disabled],
     &[aria-disabled]
-        background: lighten($color, 15%)
+        background-color: desaturate(mix($color, $uni-color-negative, 50%), 10%)
+        text-shadow: none
         cursor: not-allowed
 
         &:hover,
         &:focus
-            background: lighten($color, 7%)
+            background-color: desaturate(mix($color, $uni-color-negative, 80%), 10%)
 
     &[aria-busy]:not([aria-busy=false]):before
         display: inline-block
