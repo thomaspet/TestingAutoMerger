@@ -107,7 +107,7 @@ export class XFormDemo {
                     { id: 2, name: 'Frank' },
                     { id: 3, name: 'Anders' },
                 ],
-                template: (obj) => `${obj.id} - ${obj.name}`, 
+                template: (obj) => obj ? `${obj.id} - ${obj.name}` : '', 
                 displayProperty: 'name',
                 valueProperty: 'id',
                 debounceTime: 500,
