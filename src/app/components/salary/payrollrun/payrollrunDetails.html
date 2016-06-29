@@ -19,7 +19,7 @@
 
     <section class="poster_toolbar_extras" *ngIf="payrollrun">
         <control-modal></control-modal>
-        <postingsummary-modal></postingsummary-modal>
+        <postingsummary-modal *ngIf="canPost()"></postingsummary-modal>
     </section>
 
 </header>
