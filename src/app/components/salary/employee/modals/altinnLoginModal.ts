@@ -80,7 +80,7 @@ export class AltinnLoginModalContent {
         pinChoice.Label = 'Gyldige pinvalg';
         pinChoice.Options = {
             source: this._altinnService.loginTypes,
-            valueProperty: 'text',
+            valueProperty: 'ID',
             displayProperty: 'text',
             debounceTime: 500,
         };
