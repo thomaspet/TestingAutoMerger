@@ -1,8 +1,54 @@
+@keyframes placeholder
+    from
+        transform: scaleX(0)
+        opacity: 0
+    to
+        transform: scaleX(1)
+        opacity: 1
+
 .poster_tease
+    @include unigrid(14)
     display: flex
     height: 15rem
+    margin: 0 auto
 
 .poster_tease_widget
     flex-grow: 1
     width: 25%
     height: 100%
+    padding: 1rem
+    border-left: pxToRem(1) solid $uni-color-negative
+    box-sizing: border-box
+
+    &:first-of-type
+        border-left: none
+        display: flex
+        flex-direction: column
+        justify-content: space-around
+
+%posterPlaceholder
+    //border: .2rem solid transparentize($uni-color-C2A, .8)
+    background: transparentize($uni-color-C2A, .9)
+    animation: 1000ms ease placeholder
+
+%posterElemCenter
+    margin: 0 auto
+
+.widget_avatar
+    @extend %posterElemCenter
+    height: 4rem
+    width: 4rem
+    background: unicon-user(transparentize($uni-color-C2A, .8)) no-repeat center center
+    background-size: contain
+
+.widget_headline
+    @extend %posterPlaceholder
+    @extend %posterElemCenter
+    height: 1.8rem
+    width: 90%
+
+.widget_subhead
+    @extend %posterPlaceholder
+    @extend %posterElemCenter
+    height: 1.4rem
+    width: 50%

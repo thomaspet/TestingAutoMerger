@@ -10,9 +10,6 @@ export class WidgetPoster {
 
     public ngAfterViewInit() {
         let chartElem0 = document.getElementById('widgetGraph0');
-        let chartElem1 = document.getElementById('widgetGraph1');
-        let chartElem2 = document.getElementById('widgetGraph2');
-
         this.lineChartGenerator(chartElem0);
     }
 
@@ -22,7 +19,7 @@ export class WidgetPoster {
             type: 'line',
             data: {
                 datasets: [{
-                    data: this.generateRandomGraphData(6, 175000, 10000, 750),
+                    data: this.generateRandomGraphData(8, 175000, 10000, 750),
                     lineTension: 0,
                     backgroundColor: 'transparent',
                     borderColor: 'rgba(0,130,192,.1)'
