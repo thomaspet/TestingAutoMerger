@@ -90,9 +90,11 @@ export class Editor implements IEditor {
         this.inputBox.select();
     }
 
-    public setValue(value:any) {
+    public setValue(value:any, flagChange = false) {
         if (!this.inputBox) return;
-        this.originalValue = value;
+        if (!flagChange) {
+            this.originalValue = value;
+        }
         this.inputBox.val(value);
         if (this.rootElement.is(":visible")) {
             this.inputBox.select();

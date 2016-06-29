@@ -66,7 +66,7 @@ export interface IEditor {
     focus();
     close(cancel:boolean);
     startEdit(value:any, cell:IJQItem, pos: IPos, showButton?: boolean);
-    setValue(value:any);
+    setValue(value:any, flagChange?:boolean);
     finalizeEdit(cancel:boolean, value?:string, src?:string):boolean;
     hasChanges():boolean;
 }

@@ -4,6 +4,8 @@ import {DropList} from './droplist';
 import {Editor} from './editor';
 declare var jQuery; /*: JQueryStatic;*/
 
+export interface ICopyEventDetails { event:any; columnDefinition: ICol; position: IPos; copyAbove?: boolean; valueToSet?:any }
+
 export interface IConfig {
     columns?: Array<ICol>;
     events?: {
@@ -11,6 +13,7 @@ export interface IConfig {
         onChange?(change:IChangeEvent);
         onSelectionChange?(cell: IPos),
         onTypeSearch?(details:ITypeSearch)
+        onCopyCell?(details:ICopyEventDetails)
     }
 }
 
@@ -166,41 +169,38 @@ export class Editable implements AfterViewInit, OnDestroy {
     }    
 
     private handleChange(value:any, pos:IPos, userTypedValue = true):boolean {
-        var p2 = this.getCellPosition(this.current.active);
-        if (p2.col === pos.col && p2.row === pos.row) {
-            var eventDetails: IChangeEvent = { 
-                value: value, 
-                col: pos.col, 
-                row: pos.row, 
-                cancel: false,
-                updateCell: true,
-                userTypedValue: userTypedValue,
-				columnDefinition: this.config.columns ? this.config.columns[pos.col] : undefined
-            };
-            
-            var async:Promise<any> = this.raiseEvent("onChange", eventDetails);
 
-            if (async) {
-                var cell = this.current.active;
-                async.then((value:any)=>{
-                    setTimeout(()=> { 
-                        this.onResize();
-                        this.loadTextIntoEditor(); 
-                    });
-                }, (reason)=>{
-                    cell.css('background-color','#ffe0e0');
+        var eventDetails: IChangeEvent = { 
+            value: value, 
+            col: pos.col, 
+            row: pos.row, 
+            cancel: false,
+            updateCell: true,
+            userTypedValue: userTypedValue,
+            columnDefinition: this.config.columns ? this.config.columns[pos.col] : undefined
+        };
+        
+        var async:Promise<any> = this.raiseEvent("onChange", eventDetails);
+
+        if (async) {
+            var cell = this.current.active;
+            async.then((value:any)=>{
+                setTimeout(()=> { 
+                    this.onResize();
+                    this.loadTextIntoEditor(); 
                 });
-            }
-            
-            if (!eventDetails.cancel) {
-                if (eventDetails.updateCell) {
-                    this.current.active.text(eventDetails.value);
-                    this.onChange.emit(eventDetails);
-                }
-                return true;
-            }
+            }, (reason)=>{
+                cell.css('background-color','#ffe0e0');
+            });
         }
-        return false;
+        
+        if (!eventDetails.cancel) {
+            if (eventDetails.updateCell) {
+                this.current.active.text(eventDetails.value);
+                this.onChange.emit(eventDetails);
+            }
+            return true;
+        }
     }
 
     private raiseEvent(name:string, cargo:any):any {
@@ -215,6 +215,39 @@ export class Editable implements AfterViewInit, OnDestroy {
         if (col) {
             return !!col.lookup;
         }        
+    }
+
+    private CheckCopyCell(event:any, newTarget:any) {
+
+        if (event.which === Keys.ENTER) {
+
+            if (this.config && this.config.events && this.config.events.onCopyCell) {
+                if (this.current.editor && (!this.current.editor.hasChanges())) {
+
+                    // Get position?
+                    var pos = this.getCellPosition(this.current.active);
+
+                    // Raise event
+                    var colDef = this.getLayoutColumn(pos.col);
+                    var details:ICopyEventDetails = {
+                        event: event,
+                        columnDefinition: colDef,
+                        position: pos,
+                        copyAbove: false
+                    }
+                    this.raiseEvent('onCopyCell', details);
+                    if (details.copyAbove && pos.row>0) {
+                        var cellAbove = this.current.active.parent().prev().children().eq(pos.col);
+                        if (cellAbove && cellAbove.length>0) {
+                            details.valueToSet = cellAbove.text();
+                        }
+                    }
+                    if (details.valueToSet) {
+                        this.current.editor.setValue(details.valueToSet, true);
+                    }                    
+                }
+            }
+        }
     }
 
     private handleKeydown(event) {
@@ -238,6 +271,10 @@ export class Editable implements AfterViewInit, OnDestroy {
         }
 
         var candidate = this.getMovement(this.current.active, event);
+
+        // Enter plus no changes?
+        this.CheckCopyCell(event, candidate);
+
         if (candidate.length > 0) {
             if (!this.finalizeEdit()) { 
 				return; 
@@ -365,7 +402,8 @@ export class Editable implements AfterViewInit, OnDestroy {
         if (counter < 10) {
             if (this.isReadOnly(target) && (retryIfReadOnly || retryWithKey) ) {
                 event.which = retryWithKey || event.which;
-                return this.getMovement(target, event, counter++);
+                counter++;
+                return this.getMovement(target, event, counter);
             }
         } else {
             return [];
