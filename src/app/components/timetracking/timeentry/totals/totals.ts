@@ -65,6 +65,19 @@ export class RegtimeTotals {
                 }
             }
         }
+
+        // Make sums
+        cols.push(new Column("sum","Sum"));
+        for (var i=0; i<items.length;i++) {
+            let sum = 0;
+            for (var c=0; c<cols.length; c++) {
+                let col = cols[c];
+                let value = items[i][col.name];
+                sum += value ? parseInt(value) : 0; 
+            }
+            items[i].sum = sum;
+        }
+
         this.config = {
             columns: cols,
             items: items
