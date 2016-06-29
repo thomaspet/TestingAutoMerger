@@ -33,6 +33,7 @@ export class PostingsummaryModalContent {
         .subscribe((response: any) => {
             this.summary = response;            
             this.headerString = 'Konteringssammendrag ' + this.summary.PayrollRun.ID + ' ' + this.summary.PayrollRun.Description + ', utbetales ' + this.formatDate(new Date(this.summary.PayrollRun.PayDate.toString()));
+            this.busy = false;
         });
     }
     
