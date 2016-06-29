@@ -198,7 +198,9 @@ export class JournalEntrySimple implements OnInit, OnChanges {
     }
 
     private setSelectedJournalEntryLine(selectedLine: JournalEntryData) {
-        this.selectedJournalEntryLine = selectedLine;
+        if (!this.disabled) {
+            this.selectedJournalEntryLine = selectedLine;
+        }
     }
 
     private abortEdit() {
