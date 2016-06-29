@@ -1,5 +1,5 @@
 import {Directive, AfterViewInit, Input, ElementRef, OnDestroy, Output, EventEmitter} from '@angular/core';
-import {IJQItem, IPos, IEditor, Keys, IChangeEvent, ICol, ITypeSearch } from './interfaces';
+import {IJQItem, IPos, IEditor, Keys, IChangeEvent, ICol, ColumnType, ITypeSearch } from './interfaces';
 import {DropList} from './droplist';
 import {Editor} from './editor';
 declare var jQuery; /*: JQueryStatic;*/
@@ -14,7 +14,7 @@ export interface IConfig {
     }
 }
 
-export {IChangeEvent, ICol, IPos, Column, ITypeSearch} from './interfaces';
+export {IChangeEvent, ICol, IPos, Column, ColumnType, ITypeSearch} from './interfaces';
 
 
 @Directive({
@@ -99,13 +99,20 @@ export class Editable implements AfterViewInit, OnDestroy {
             }
             this.finalizeEdit();
             this.dropList.hide();
-            this.current.active = el;
-            this.focusCell(el);
         }
-        var txt = el.text();
-        this.createEditorIfMissing();
+
+        // detect type of cell
         var pos = this.getCellPosition(el);
         var col = this.getLayoutColumn(pos.col);
+        if (col && col.columnType === ColumnType.Action) {
+            return;
+        }
+
+        this.current.active = el;
+        this.focusCell(el);
+
+        var txt = el.text();
+        this.createEditorIfMissing();
         var showButton = col ? !!col.lookup : false;
         this.current.editor.startEdit(txt, el, this.getCellPosition(el), showButton);
     }
@@ -133,9 +140,7 @@ export class Editable implements AfterViewInit, OnDestroy {
                 }
             }
             jqInput.on('blur', (event)=>{
-                //console.log("blur");
                 this.whenNoDroplist(null, ()=>{
-                    //console.log("blur passed to finalize!");
                     this.current.editor.finalizeEdit(false, undefined, 'blur');
                 }, 'blur');
             });
@@ -183,14 +188,12 @@ export class Editable implements AfterViewInit, OnDestroy {
                         this.loadTextIntoEditor(); 
                     });
                 }, (reason)=>{
-                    //console.log("err:" + reason);
                     cell.css('background-color','#ffe0e0');
                 });
             }
             
             if (!eventDetails.cancel) {
                 if (eventDetails.updateCell) {
-                    //console.info(`updating cell value with: ${eventDetails.value}`);
                     this.current.active.text(eventDetails.value);
                     this.onChange.emit(eventDetails);
                 }
@@ -308,9 +311,11 @@ export class Editable implements AfterViewInit, OnDestroy {
         };        
     }
 
-    private getMovement(element:IJQItem, event):IJQItem | Array<any> {
+    private getMovement(element:IJQItem, event, counter = 0):IJQItem | Array<any> {
         var target:IJQItem;
         var keyCode = event.which;
+        var retryIfReadOnly = true;
+        var retryWithKey:number;
 
         switch (keyCode) {
             case Keys.ARROW_RIGHT:
@@ -341,6 +346,8 @@ export class Editable implements AfterViewInit, OnDestroy {
                 } else {
                     target = element.parent().find("td:nth-child(1)");
                 }
+                retryIfReadOnly = false;
+                retryWithKey = Keys.ARROW_RIGHT;
                 break;
             case Keys.END:
                 if (event.ctrlKey) {
@@ -348,13 +355,40 @@ export class Editable implements AfterViewInit, OnDestroy {
                 } else {
                     target = element.parent().children().last();
                 }
+                retryIfReadOnly = false;
+                retryWithKey = Keys.ARROW_LEFT;
                 break;
             default:
                 return [];
         }
 
+        if (counter < 10) {
+            if (this.isReadOnly(target) && (retryIfReadOnly || retryWithKey) ) {
+                event.which = retryWithKey || event.which;
+                return this.getMovement(target, event, counter++);
+            }
+        } else {
+            return [];
+        }
+
         return target;
     }    
+
+    isReadOnly(cell:IJQItem, colIndex?:number):boolean {
+        var pos:IPos;
+        var col = colIndex;
+        if (!cell) return false;        
+        if (colIndex===undefined) {
+            pos = this.getCellPosition(cell);
+            col = pos ? pos.col : -1;
+        }
+        if (col<0 || col === undefined) return true;
+        var colDef = this.getLayoutColumn(col);
+        if (colDef && colDef.columnType === ColumnType.Action) {
+            return true;
+        }
+        return false;        
+    }
 
     checkDroplistNavigation(event: JQueryInputEventObject): boolean {
         if (!this.dropList.isOpen()) return false;

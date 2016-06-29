@@ -3,7 +3,7 @@ import {TabService} from '../../layout/navbar/tabstrip/tabService';
 import {View} from '../../../models/view/view';
 import {Worker, WorkRelation, WorkProfile, WorkItem} from '../../../unientities';
 import {WorkerService, ItemInterval} from '../../../services/timetracking/workerservice';
-import {Editable, IChangeEvent, IConfig, Column, ITypeSearch} from '../utils/editable/editable';
+import {Editable, IChangeEvent, IConfig, Column, ColumnType, ITypeSearch} from '../utils/editable/editable';
 import {parseTime, addTime, parseDate} from '../utils/utils';
 import {TimesheetService, TimeSheet, ValueItem} from '../../../services/timetracking/timesheetservice';
 import {IsoTimePipe, MinutesToHoursPipe} from '../utils/isotime';
@@ -62,14 +62,15 @@ export class TimeEntry {
             
     tableConfig: IConfig = {
         columns: [
-            new Column('Date','', 'date'),
-            new Column('StartTime', '', 'time'),
-            new Column('EndTime', '', 'time'),
-            new Column('WorkTypeID','', 'int', { route:'worktypes' }),
+            new Column('Date','', ColumnType.Date),
+            new Column('StartTime', '', ColumnType.Time),
+            new Column('EndTime', '', ColumnType.Time),
+            new Column('WorkTypeID','', ColumnType.Integer, { route:'worktypes' }),
             new Column('Description'), 
-            new Column('Dimensions.ProjectID', '', 'int', { route:'projects'}),
-            new Column('CustomerOrderID', 'Ordre', 'int', 
-                { route:'orders', filter:'ordernumber gt 0', select: 'OrderNumber,CustomerName', visualKey: 'OrderNumber'})
+            new Column('Dimensions.ProjectID', '', ColumnType.Integer, { route:'projects'}),
+            new Column('CustomerOrderID', 'Ordre', ColumnType.Integer, 
+                { route:'orders', filter:'ordernumber gt 0', select: 'OrderNumber,CustomerName', visualKey: 'OrderNumber'}),
+            new Column('Actions', '', ColumnType.Action)
             ],
         events: {
                 onChange: (event) => { return this.onChange(event); },
@@ -170,11 +171,11 @@ export class TimeEntry {
             var lookupDef = event.columnDefinition.lookup;
 
             // Remove "label" from key-value ?
-            var key = event.columnDefinition.typeName === 'int' ? parseInt(event.value) : event.value;
+            var key = event.columnDefinition.columnType === ColumnType.Integer ? parseInt(event.value) : event.value;
 
             // Blank value?
             if (!key) {
-                console.log("value clear!")
+                //console.log("value clear!")
                 event.value = key;
                 this.updateChange(event);
                 return;
