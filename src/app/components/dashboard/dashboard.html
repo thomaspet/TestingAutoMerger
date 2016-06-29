@@ -13,10 +13,14 @@
         </button>
 
     </header>
-    <header class="dashboard_welcome" *ngIf="welcomeHidden">
-
-        <h1>{{current.CompanyName}}</h1>
-        <button (click)="refreshDash()">Refresh</button>
+    <header class="dashboard_company" *ngIf="welcomeHidden">
+        <section *ngIf="current">
+            <uni-image *ngIf="current.LogoFileID" [imageId]="current?.LogoFileID" class="header_logo"></uni-image>
+        </section>
+        <section *ngIf="current">
+            <h1 (click)="widgetListItemClicked('/settings/company')">{{current.CompanyName}}</h1>
+        </section>
+        <div style="clear: both"></div>
 
     </header>
 

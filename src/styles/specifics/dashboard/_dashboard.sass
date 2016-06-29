@@ -10,6 +10,20 @@
     border-radius: .1875rem
     padding: 1rem
 
+.dashboard_company
+    @include unigrid(16)
+    margin-top: 1rem
+    border-radius: .1875rem
+    padding: 1rem
+
+    section
+        float: left
+	        
+        &:last-of-type
+            margin-left: 1rem
+        
+        h1
+            cursor: pointer
 
 .dashboard_chart_card
     @include unigrid(4,2,2)
@@ -47,3 +61,8 @@
 .time_float
     float: right
     margin: 0
+
+.header_logo
+    img
+        width: auto
+        height: 80px
