@@ -1,20 +1,17 @@
-import {Component, Input, OnInit, ViewChild} from '@angular/core';
+import {Component, Input} from '@angular/core';
 import {UniTable, UniTableColumn, UniTableColumnType, UniTableConfig} from 'unitable-ng2/main';
 import {UniForm, UniFormBuilder, UniFieldBuilder} from '../../../../framework/forms';
 import {FieldType} from '../../../../app/unientities';
 import {Router} from '@angular/router-deprecated';
 import {PayrollrunService} from '../../../../app/services/services';
 import {UNI_CONTROL_DIRECTIVES} from '../../../../framework/controls';
-import {Observable} from 'rxjs/Observable';
-import {Postingsummary} from '../../../models/models';
 
 @Component({
     selector: 'postingsummary-modal-content',
     templateUrl: 'app/components/salary/payrollrun/postingsummaryModalContent.html',
     directives: [UniForm, UniTable]
 })
-export class PostingsummaryModalContent implements OnInit {
-    private postings$ : Observable<any>;
+export class PostingsummaryModalContent {
     private busy: boolean;
     private showReceipt: boolean = false;
     private headerConfig: UniFormBuilder = null;
@@ -28,13 +25,15 @@ export class PostingsummaryModalContent implements OnInit {
         
     }
     
-    public ngOnInit() {        
+    public openModal() {
+        this.busy = true;        
         this.createTableConfig();
 
         this.payrollService.getPostingsummary(this.config.payrollrunID)
         .subscribe((response: any) => {
             this.summary = response;            
-            this.createHeaderConfig();            
+            this.createHeaderConfig();
+            this.busy = false;            
         });
 
 
@@ -55,7 +54,7 @@ export class PostingsummaryModalContent implements OnInit {
             
             var companyName = this.buildField('Firmanavn', this.summary.SubEntity.BusinessRelationInfo, 'Name', FieldType.TEXT);
             var payrollinfo = this.buildField('Lønnsavregning', this.summary.PayrollRun, 'ID', FieldType.TEXT);
-            var orgnumber = this.buildField('Orgnr', this.summary.SubEntity, 'orgnumber', FieldType.TEXT);
+            var orgnumber = this.buildField('Orgnr', this.summary.SubEntity, 'OrgNumber', FieldType.TEXT);
             var payDate = this.buildField('Utbetalt', this.summary.PayrollRun, 'PayDate', FieldType.DATEPICKER);
             
             this.headerConfig = new UniFormBuilder();
@@ -63,10 +62,9 @@ export class PostingsummaryModalContent implements OnInit {
             this.headerConfig.readmode();        
     }
     
-    private getAccountingSum() : number
-    {
-        var ret : number = 0;
-        if(this.summary)                     {         
+    public getAccountingSum(): number {
+        var ret: number = 0;
+        if (this.summary)                     {         
             this.summary.PostList.forEach((val) => {
                 ret += val.Amount;
             } );            
