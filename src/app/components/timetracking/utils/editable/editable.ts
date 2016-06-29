@@ -73,6 +73,7 @@ export class Editable implements AfterViewInit, OnDestroy {
             this.current.editor.close(cancel);
             this.current.editor.destroy();
         }
+        this.dropList.hide();
     }
 
     public editRow(rowIndex:number) {

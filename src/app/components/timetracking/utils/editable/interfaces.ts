@@ -9,6 +9,15 @@ export interface IChangeEvent {
     userTypedValue:boolean;
 }
 
+export enum ColumnType {
+    Text = 0,
+    Integer = 1,
+    Decimal = 2,
+    Date = 3,
+    Action = 10,
+    Custom = 11
+}
+
 export interface ICol {
     name: string;
     label?: string;
