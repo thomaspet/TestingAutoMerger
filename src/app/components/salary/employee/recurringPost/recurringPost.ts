@@ -107,9 +107,16 @@ export class RecurringPost implements OnInit {
                 },
                 lookupFunction: (searchValue) => {
                     let matching: WageType[] = [];
+
                     this.wagetypes.forEach(wagetype => {
-                        if (wagetype.WageTypeName.toLowerCase().indexOf(searchValue) > -1) {
-                            matching.push(wagetype);
+                        if (isNaN(searchValue)) {
+                            if (wagetype.WageTypeName.toLowerCase().indexOf(searchValue) > -1) {
+                                matching.push(wagetype);
+                            }
+                        } else {
+                            if (wagetype.WageTypeId.toString().indexOf(searchValue) > -1) {
+                                matching.push(wagetype);
+                            }
                         }
                     });
                     return matching;
