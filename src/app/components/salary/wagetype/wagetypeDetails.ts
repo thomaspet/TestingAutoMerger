@@ -70,8 +70,7 @@ export class WagetypeDetail {
                 this.toggleAccountNumberBalanceHidden();
             }, 
             (err) => {
-                this.log(err);
-                console.log('Feil ved henting av lønnsart', err);
+                this.log('Feil ved henting av lønnsart', err);
             }
             );
     }
@@ -89,10 +88,6 @@ export class WagetypeDetail {
         }, 100);
     }
 
-    public ready(value) {
-        console.log('form ready');
-    }
-
     public change(value) {
         this.toggleAccountNumberBalanceHidden();
         this.saveactions[0].disabled = false;
@@ -108,8 +103,8 @@ export class WagetypeDetail {
                     this.router.navigateByUrl('/salary/wagetypes/' + this.wageType.ID);
                 },
                 (err) => {
-                    this.log(err);
-                    console.log('Feil ved oppdatering av lønnsart', err);
+                    this.log('Feil ved oppdatering av lønnsart', err);
+                    console.log(err);
                 });
         } else {
             this.wageService.Post(this.wageType)
@@ -119,8 +114,7 @@ export class WagetypeDetail {
                     this.router.navigateByUrl('/salary/wagetypes/' + this.wageType.ID);
                 },
                 (err) => {
-                    this.log(err);
-                    console.log('Feil ved lagring av lønnsart', err);
+                    this.log('Feil ved lagring av lønnsart', err);
                 });
         }
     }
@@ -150,11 +144,14 @@ export class WagetypeDetail {
             });
     }
 
-    public log(err) {
+    public log(title: string, err) {
+        if (!title) {
+            title = '';
+        }
         if (err._body) {
-            alert(err._body);
+            alert(title + ' ' + err._body);
         } else {
-            alert(JSON.stringify(err));
+            alert(title + ' ' + JSON.stringify(err));
         }
 
     }
