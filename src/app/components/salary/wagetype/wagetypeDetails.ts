@@ -71,7 +71,16 @@ export class WagetypeDetail {
                     valueProperty: 'AccountNumber',
                     displayProperty: 'AccountNumber',
                     debounceTime: 200,
-                    template: (obj) => `${obj.AccountNumber} - ${obj.AccountName}`
+                    template: (obj) => obj ? `${obj.AccountNumber} - ${obj.AccountName}` : ''
+                };
+
+                let accountNumberBalance: UniFieldLayout = this.findByProperty(this.fields, 'AccountNumber_balance');
+                accountNumberBalance.Options = {
+                    source: this.accounts,
+                    valueProperty: 'AccountNumber',
+                    displayProperty: 'AccountNumber',
+                    debounceTime: 200,
+                    template: (obj) => obj ? `${obj.AccountNumber} - ${obj.AccountName}` : ''
                 };
                 this.fields = _.cloneDeep(this.fields);
 

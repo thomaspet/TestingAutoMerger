@@ -380,7 +380,7 @@ export class WageTypeService extends BizHttp<WageType> {
                     Property: 'AccountNumber_balance',
                     Placement: 1,
                     Hidden: false,
-                    FieldType: FieldType.NUMERIC,
+                    FieldType: FieldType.AUTOCOMPLETE,
                     ReadOnly: false,
                     LookupField: false,
                     Label: 'Motkonto kredit',
