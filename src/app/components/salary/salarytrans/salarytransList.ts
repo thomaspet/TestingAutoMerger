@@ -321,7 +321,7 @@ export class SalaryTransactionEmployeeList implements OnInit {
 
         var wageTypeCol = new UniTableColumn('WageTypeNumber', 'Lønnsart', UniTableColumnType.Lookup)
             .setTemplate((dataItem) => {
-                return this.getWagetypeName(dataItem.WageTypeNumber);
+                return dataItem.WageTypeNumber;
             })
             .setEditorOptions({
                 itemTemplate: (selectedItem) => {
@@ -460,18 +460,6 @@ export class SalaryTransactionEmployeeList implements OnInit {
         }
 
         return jobName;
-    }
-
-    private getWagetypeName(wagetypeNumber: number) {
-        var wagetypeName = '';
-
-        this.wagetypes.forEach((wagetype: WageType) => {
-            if (wagetype.WageTypeId === wagetypeNumber) {
-                wagetypeName = wagetype.WageTypeName;
-            }
-        });
-
-        return wagetypeName;
     }
 
     public rowChanged(event) {

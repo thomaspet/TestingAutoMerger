@@ -67,8 +67,8 @@ export class PostingsummaryModalContent implements OnInit {
     private getAccountingSum() : number
     {
         var ret : number = 0;
-        if(this.summary)                     {         
-            this.summary.PostList.ForEach((val) => {
+        if (this.summary) {
+            this.summary.PostList.forEach((val) => {
                 ret += val.Amount;
             } );            
         }
