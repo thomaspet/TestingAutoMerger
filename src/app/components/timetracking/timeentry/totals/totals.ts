@@ -67,16 +67,20 @@ export class RegtimeTotals {
         }
 
         // Make sums
-        cols.push(new Column("sum","Sum"));
+        var lineSum:any = {};
         for (var i=0; i<items.length;i++) {
             let sum = 0;
             for (var c=0; c<cols.length; c++) {
                 let col = cols[c];
                 let value = items[i][col.name];
-                sum += value ? parseInt(value) : 0; 
+                let itemSum = value ? parseInt(value) : 0;
+                sum += itemSum;
+                lineSum[col.name] = (lineSum[col.name] || 0) + itemSum;  
             }
-            items[i].sum = sum;
+            items[i].sum = sum;            
         }
+        lineSum['businessrelation_name'] = 'Sum';
+        items.push(lineSum);
 
         this.config = {
             columns: cols,
