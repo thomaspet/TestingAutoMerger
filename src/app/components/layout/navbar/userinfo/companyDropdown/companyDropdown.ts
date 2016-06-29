@@ -83,6 +83,7 @@ export class UniCompanyDropdown implements AfterViewInit, OnDestroy {
         this.activeCompany = selectedCompany;
         this._authService.setActiveCompany(selectedCompany);
         this.loadCompanyData();
+        this._router.navigateByUrl('/');
     }
 
     private goToCompanySettings() {
