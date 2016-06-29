@@ -17,7 +17,7 @@ export class AltinnService extends BizHttp<Altinn> {
         { ID: '1083', text: 'Samisk' },
     ];
     public loginTypes: {ID: number, text: string}[] = [
-        { ID: 1 || null, text: 'AltinnPin'},
+        { ID: 1 || null || 0, text: 'AltinnPin'},
         { ID: 2, text: 'SMSPin'},
         { ID: 3, text: 'TaxPin'}
     ];
