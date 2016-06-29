@@ -61,6 +61,7 @@ export class QuoteDetails {
 
     private emptyAddress: Address;
     private recalcTimeout: any;
+    private addressChanged: any;
 
     private actions: IUniSaveAction[];
 
@@ -245,11 +246,9 @@ export class QuoteDetails {
 
                 this.addressModal.openModal(value, !!!this.quote.CustomerID);
 
-                this.addressModal.Changed.subscribe(address => {
-                    this.quote._InvoiceAddress = address;
-                    this.quote = _.cloneDeep(this.quote);
-                    if (address._question) { self.saveAddressOnCustomer(address); }
-                    resolve(address);
+                this.addressChanged = this.addressModal.Changed.subscribe((address) => {
+                    if (address._question) { self.saveAddressOnCustomer(address, resolve); }
+                    else { this.addressChanged.unsubscribe(); resolve(address); }
                 });
             }),
             display: (address: Address) => {
@@ -271,12 +270,10 @@ export class QuoteDetails {
                 }
 
                 this.addressModal.openModal(value);
-
-                this.addressModal.Changed.subscribe((address) => {
-                    this.quote._ShippingAddress = address;
-                    this.quote = _.cloneDeep(this.quote);
-                    if (address._question) { self.saveAddressOnCustomer(address); }
-                    resolve(address);
+                
+                this.addressChanged = this.addressModal.Changed.subscribe((address) => {
+                    if (address._question) { self.saveAddressOnCustomer(address, resolve); }
+                    else { this.addressChanged.unsubscribe(); resolve(address); }
                 });
             }),
             display: (address: Address) => {
@@ -293,18 +290,29 @@ export class QuoteDetails {
         };
     }
 
-    private saveAddressOnCustomer(address: Address) {
+    private saveAddressOnCustomer(address: Address, resolve) {
+        var idx = 0;
+
         if (!address.ID || address.ID == 0) {
             address['_createguid'] = this.addressService.getNewGuid();
             this.quote.Customer.Info.Addresses.push(address);
-            this.businessRelationService.Put(this.quote.Customer.Info.ID, this.quote.Customer.Info).subscribe((res) => {
-                this.quote.Customer.Info = res;
-                this.addressService.setAddresses(this.quote);
-            });
+            idx = this.quote.Customer.Info.Addresses.length - 1;
         } else {
-            this.addressService.Put(address.ID, address).subscribe((res) => {
-            });
+            idx = this.quote.Customer.Info.Addresses.findIndex((a) => a.ID === address.ID);
+            this.quote.Customer.Info.Addresses[idx] = address;
         }
+        
+        // remove entries with equal _createguid
+        this.quote.Customer.Info.Addresses = _.uniq(this.quote.Customer.Info.Addresses, '_createguid');
+
+        // this.quote.Customer.Info.ID
+        this.businessRelationService.Put(this.quote.Customer.Info.ID, this.quote.Customer.Info).subscribe((info) => {
+            this.quote.Customer.Info = info;
+            this.addressChanged.unsubscribe();
+            resolve(info.Addresses[idx]);
+        },(error) => {
+            this.addressChanged.unsubscribe();
+        });
     }
 
 
@@ -438,6 +446,7 @@ export class QuoteDetails {
 
                 this.customerQuoteService.Get(quote.ID, this.expandOptions).subscribe((data) => {
                         this.quote = data;
+                        this.addressService.setAddresses(this.quote);
                         this.updateStatusText();
                         this.updateSaveActions();
                         this.setTabTitle();
