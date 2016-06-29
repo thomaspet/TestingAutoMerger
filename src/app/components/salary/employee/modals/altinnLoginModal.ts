@@ -179,7 +179,7 @@ export class AltinnLoginModalContent {
                 username: '',
                 password: '',
                 pin: '',
-                preferredLogin: this._altinnService.loginTypes.find(x => x.ID === this.altinn.PreferredLogin).text,
+                preferredLogin: this._altinnService.loginTypes.find(x => x.ID === 0).text,
                 timeStamp: null
             };
             this.busy = false;
