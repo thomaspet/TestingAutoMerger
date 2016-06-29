@@ -28,8 +28,7 @@ export class PostingsummaryModalContent implements OnInit {
         
     }
     
-    public ngOnInit() {
-        console.log("ngOnInit");
+    public ngOnInit() {        
         this.createTableConfig();
 
         this.payrollService.getPostingsummary(this.config.payrollrunID)
@@ -68,7 +67,7 @@ export class PostingsummaryModalContent implements OnInit {
     {
         var ret : number = 0;
         if(this.summary)                     {         
-            this.summary.PostList.ForEach((val) => {
+            this.summary.PostList.forEach((val) => {
                 ret += val.Amount;
             } );            
         }

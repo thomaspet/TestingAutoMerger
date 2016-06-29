@@ -115,6 +115,16 @@ export class JournalEntrySimple implements OnInit, OnChanges {
 
         return null;
     }
+    
+    private getDebitAccountText(line: JournalEntryData): string {
+        return (line.DebitAccount ? line.DebitAccount.AccountNumber + ' - ' + line.DebitAccount.AccountName : '') 
+        + (line.DebitVatType ? ' - mva: ' + line.DebitVatType.VatCode + ': ' + line.DebitVatType.VatPercent + '%' : '');
+    }
+    
+    private getCreditAccountText(line: JournalEntryData): string {
+        return (line.CreditAccount ? line.CreditAccount.AccountNumber + ' - ' + line.CreditAccount.AccountName : '') 
+        + (line.CreditVatType ? ' - mva: ' + line.CreditVatType.VatCode + ': ' + line.CreditVatType.VatPercent + '%' : '');  
+    }  
 /*
     private getProjectName(line: JournalEntryData): string {
         if (line && line.Dimensions && !line.Dimensions.ProjectID) { return ''; }
