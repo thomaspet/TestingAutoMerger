@@ -12,6 +12,7 @@ declare var _; // jquery and lodash
             [class]="field?.Options?.class"
             [disabled]="field?.ReadOnly"
             (click)="clickHandler($event)"
+            type="button"
         >{{field.Label}}</button>
     `
 })

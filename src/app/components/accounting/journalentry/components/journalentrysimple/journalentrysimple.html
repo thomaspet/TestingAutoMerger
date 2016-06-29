@@ -68,6 +68,7 @@
                             [journalEntryLine]="selectedJournalEntryLine"
                             (updated)="editViewUpdated($event)"
                             (aborted)="abortEdit()"
+                            (deleted)="deleteLine()"
                             [journalEntryLines]="journalEntryLines"
                             [mode]="mode"
                             [disabled]="disabled">
