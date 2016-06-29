@@ -175,9 +175,8 @@ export class TimeEntry {
             // Remove "label" from key-value ?
             var key = event.columnDefinition.columnType === ColumnType.Integer ? parseInt(event.value) : event.value;
 
-            // Blank value?
+            // Blank value (clear current value) ?
             if (!key) {
-                //console.log("value clear!")
                 event.value = key;
                 this.updateChange(event);
                 return;
@@ -245,7 +244,7 @@ export class TimeEntry {
                         details.valueToSet = parseDate('*', true);
                     }
                     break;
-                    
+
                 case 'StartTime':
                     if (row > 0) {
                         let d1 = this.timeSheet.items[row].Date;
