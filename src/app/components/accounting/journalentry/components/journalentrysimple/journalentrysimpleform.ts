@@ -674,7 +674,7 @@ export class JournalEntrySimpleForm implements OnChanges {
         
         this.fields = [sameOrNewAlternative, finanicalDate, invoiceNumber,
                         debitAccount, debitVat, creditAccount, creditVat,
-                        amount, /*departement, project,*/ description, addButton, updateButton, emptyButton, abortButton, deleteButton];
+                        amount, /*departement, project,*/ description, addButton, updateButton, emptyButton, abortButton/*, deleteButton */];
                               
         this.config = {};
     }     
