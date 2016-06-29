@@ -4,7 +4,7 @@
         [dropdownData]="dropdownData"
         tabindex="0"
         (created)="newLineCreated($event)"
-        *ngIf="dropdownData !== null"
+        *ngIf="dropdownData !== null && !disabled"
         [journalEntryLines]="journalEntryLines"
         [mode]="mode"
         [disabled]="disabled">

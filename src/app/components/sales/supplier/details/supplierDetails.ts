@@ -62,8 +62,7 @@ export class SupplierDetails {
                 private tabService: TabService
                 ) {
                 
-        this.supplierID = params.get('id');
-        this.tabService.addTab({ url: '/sales/supplier/details/' + this.supplierID, name: 'Leverandørnr. ' + this.supplierID, active: true, moduleID: 2 });         
+        this.supplierID = params.get('id');                 
     }
     
     public nextSupplier() {
@@ -118,6 +117,11 @@ export class SupplierDetails {
         this.getLayoutAndData();          
     }
 
+    private setTabTitle() {
+        let tabTitle = this.supplier.SupplierNumber ? 'Leverandørnr. ' + this.supplier.SupplierNumber : 'Leverandør (kladd)'; 
+        this.tabService.addTab({ url: '/sales/supplier/details/' + this.supplier.ID, name: tabTitle, active: true, moduleID: 2 });
+    }
+
     private getLayoutAndData() {        
         this.fields = this.getComponentLayout().Fields;            
         
@@ -141,6 +145,7 @@ export class SupplierDetails {
             this.bankAccounts = response[5];
             this.emptyAddress = response[5];
          
+            this.setTabTitle();
             this.extendFormConfig();
                 
             setTimeout(() => {
@@ -391,6 +396,7 @@ export class SupplierDetails {
                         
                         this.supplierService.Get(this.supplier.ID, this.expandOptions).subscribe(supplier => {                          
                             this.supplier = supplier;
+                            this.setTabTitle();
                         });                        
                     },
                     (err) => { 
