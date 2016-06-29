@@ -9,7 +9,7 @@ import {ReportDefinitionService,Report,ReportParameter} from '../../../../servic
 import {DomSanitizationService} from '@angular/platform-browser';
 
 @Pipe({name: 'safehtml'})
-export class Safe {
+export class SafeHtml {
   constructor(private sanitizer:DomSanitizationService){}
 
   transform(html) {
@@ -21,7 +21,7 @@ export class Safe {
     selector: 'report-preview-modal-type',
     directives: [NgIf, NgFor, NgClass, UniComponentLoader],
     templateUrl: 'app/components/reports/modals/preview/previewModal.html',
-    pipes: [Safe]
+    pipes: [SafeHtml]
 })
 export class ReportPreviewModalType {
     @Input('config')
