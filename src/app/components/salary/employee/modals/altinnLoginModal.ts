@@ -1,7 +1,7 @@
 import {Component, Type, ViewChild, Input, Output, EventEmitter} from '@angular/core';
 import {UniModal} from '../../../../../framework/modals/modal';
 import {UniForm, UniFieldLayout} from '../../../../../framework/uniform';
-import {Altinn, FieldType, CompanySettings} from '../../../../../app/unientities';
+import {Altinn, FieldType, CompanySettings, TypeOfLogin} from '../../../../../app/unientities';
 import {AltinnService, CompanySettingsService, IntegrationServerCaller, AltinnReceiptService} from '../../../../../app/services/services';
 import {TaxCardReading} from '../../../../models/models';
 
@@ -179,7 +179,7 @@ export class AltinnLoginModalContent {
                 username: '',
                 password: '',
                 pin: '',
-                preferredLogin: this._altinnService.loginTypes.find(x => x.ID === this.altinn.PreferredLogin).text,
+                preferredLogin: 'AltinnPin',
                 timeStamp: null
             };
             this.busy = false;

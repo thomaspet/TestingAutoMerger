@@ -46,9 +46,9 @@ export class TimeSheet {
         return obs.map((result:{ original: WorkItem, saved: WorkItem})=>{
             if (result.saved) {
                 var item:any = result.original;
-                this.changeMap.remove(item._rowIndex);
+                this.changeMap.remove(item._rowIndex, true);
             } else {
-                this.changeMap.removables.remove(result.original.ID);
+                this.changeMap.removables.remove(result.original.ID, false);
             }            
             return result.saved;
         });
@@ -60,7 +60,7 @@ export class TimeSheet {
         var recalc = false;
         switch (change.name) {
             case "Date":
-                change.value = toIso(parseDate(change.value));
+                change.value = toIso(parseDate(change.value), true);
                 recalc = true;
                 break;
             case "EndTime":
@@ -109,11 +109,34 @@ export class TimeSheet {
         this.changeMap.add(change.rowIndex, item);
         return true;
     }    
+
+    public copyValueAbove(colName:string, rowIndex:number) {
+        if (rowIndex < 1) return;
+        var src = this.items[rowIndex-1];
+        var lookupIItem:any;
+        var value = src.hasOwnProperty(colName) ? src[colName] : 0;
+        switch (colName) {
+            case 'CustomerOrderID':
+                lookupIItem = src.CustomerOrder;
+                break;
+            case 'WorkTypeID':
+                lookupIItem = src.Worktype;
+                break;
+            case 'Dimensions.ProjectID':
+                value = src.Dimensions ? src.Dimensions.ProjectID : value;
+                lookupIItem = src.Dimensions ? src.Dimensions.Project : undefined;
+                break;        
+        }
+        var item = new ValueItem(colName, value, rowIndex, lookupIItem);
+        this.setItemValue(item);
+    }
     
     public removeRow(index:number) {
         var item = this.getRowByIndex(index);
         if (item.ID>0) {
-            this.changeMap.addRemove(item.ID, item, true);
+            this.changeMap.addRemove(item.ID, item);
+        } else {
+            this.changeMap.remove(index, true);
         }
         this.items.splice(index,1);
     }
