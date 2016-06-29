@@ -22,7 +22,9 @@ unitable-pagination
   button,
   button[disabled]:hover,
   button[disabled]:focus
-    background: $uni-color-scale9
+    background-color: $uni-color-negative
+    color: $uni-color-scale3
+    text-shadow: none
     box-shadow: none
     border: pxToRem(1) solid $uni-color-scale7
     height: 2rem
@@ -33,6 +35,11 @@ unitable-pagination
     background-size: .6rem .6rem
     font-size: 0
     width: 2rem
+
+    &:hover,
+    &:focus
+      border-color: $uni-color-C2A
+      background-color: $uni-color-scale8
 
   .pagination_prev
     background-image: unicon-prev-page($uni-color-scale7)
@@ -47,7 +54,8 @@ unitable-pagination
 
     &.-is-active
       border-color: $uni-color-C2A
-      background: $uni-color-negative
+      background: $uni-color-C2A
+      color: $uni-color-negative
 
   input[type=number]
   &::-webkit-inner-spin-button, &::-webkit-outer-spin-button
