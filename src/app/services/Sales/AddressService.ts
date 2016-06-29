@@ -142,7 +142,7 @@ export class AddressService extends BizHttp<Address> {
 
             if (!this.isEmptyAddress(invoiceAddress)) {
                 invoiceaddresses.unshift(invoiceAddress);
-            } else if (this.isEmptyAddress(entity._InvoiceAddress) && entity.Customer && entity.Customer.Info && entity.Customer.Info.InvoiceAddress) {
+            } else if (this.isEmptyAddress(invoiceAddress) && entity.Customer && entity.Customer.Info && entity.Customer.Info.InvoiceAddress) {
                 entity._InvoiceAddressID = entity.Customer.Info.InvoiceAddress.ID;
             }
         }
@@ -169,7 +169,7 @@ export class AddressService extends BizHttp<Address> {
 
             if (!this.isEmptyAddress(shippingAddress)) {
                 shippingaddresses.unshift(shippingAddress);
-            } else if (this.isEmptyAddress(entity._ShippingAddress) && entity.Customer && entity.Customer.Info && entity.Customer.Info.ShippingAddress) {
+            } else if (this.isEmptyAddress(shippingAddress) && entity.Customer && entity.Customer.Info && entity.Customer.Info.ShippingAddress) {
                 entity._ShippingAddressID = entity.Customer.Info.ShippingAddress.ID;
             }
         }
