@@ -1,7 +1,7 @@
 import {Component, OnInit, ViewChild} from '@angular/core';
 import {UniFormBuilder, UniForm, UniFormLayoutBuilder} from '../../../../framework/forms';
 import {AltinnService} from '../../../services/services';
-
+import {UniSave, IUniSaveAction} from '../../../../framework/save/save';
 import {Altinn} from '../../../unientities';
 import {Observable} from 'rxjs/Observable';
 import {IntegrationServerCaller} from '../../../services/common/IntegrationServerCaller';
@@ -11,11 +11,20 @@ import {IntegrationServerCaller} from '../../../services/common/IntegrationServe
     selector: 'altinn-settings',
     templateUrl: 'app/components/settings/altinnSettings/altinnSettings.html',
     providers: [AltinnService, IntegrationServerCaller],
-    directives: [UniForm]
+    directives: [UniForm, UniSave]
 })
 export class AltinnSettings implements OnInit {
     private formConfig: UniFormBuilder = null;
     private altinn: Altinn;
+
+    public saveactions: IUniSaveAction[] = [
+        {
+            label: 'Lagre altinn innstillinger',
+            action: this.saveAltinn.bind(this),
+            main: true,
+            disabled: false
+        }
+    ];
     
     @ViewChild(UniForm) private formInstance: UniForm;
     
@@ -33,15 +42,17 @@ export class AltinnSettings implements OnInit {
         this.loginErr = '';
         this.formInstance.sync();
         
-        if(this.altinn == undefined) this.altinn = new Altinn();
-        let Company = JSON.parse(localStorage.getItem('companySettings'));      
+        if (this.altinn == undefined) {
+             this.altinn = new Altinn();
+        }
+
+        let company = JSON.parse(localStorage.getItem('companySettings'));      
                 
         
-        this.integrate.checkSystemLogin(Company.OrganizationNumber, this.altinn.SystemID, this.altinn.SystemPw, this.altinn.Language).subscribe((response) => {            
-            if(response !== true){                
+        this.integrate.checkSystemLogin(company.OrganizationNumber, this.altinn.SystemID, this.altinn.SystemPw, this.altinn.Language).subscribe((response) => {            
+            if (response !== true){                
                 this.loginErr = 'Failed to log in with given credentials'; 
-            }
-            else{
+            } else {
                 this.loginErr = 'Login ok';
             }
          }, (err) => {
@@ -61,7 +72,6 @@ export class AltinnSettings implements OnInit {
                 } else {
                     this._altinnService.GetNewEntity().subscribe((newAltinn: Altinn) => {
                         this.altinn = new Altinn();
-                        //console.log('altinn: ' + JSON.stringify(this.altinn));
                         if (this.formConfig !== null) {
                             this.formConfig.setModel(this.altinn);
                         } else {
@@ -77,18 +87,33 @@ export class AltinnSettings implements OnInit {
         this.formConfig.hideSubmitButton();
     }
 
-    public saveAltinn(event) {
+    public saveAltinn(done) {
         this.formInstance.sync();
+        done('lagrer altinninnstillinger: ');
         if (this.altinn.ID) {
             this._altinnService.Put(this.altinn.ID, this.altinn).subscribe((response: Altinn) => {
                 this.altinn = response;
                 this.check();
-            }, error => console.log(error));
+                done('altinninnstillinger lagret: ');
+            }, error => this.log('problemer med å lagre Altinninnstillinger', error));
         } else {
             this._altinnService.Post(this.altinn).subscribe((response: Altinn) => {
                 this.altinn = response;
                 this.check();
-            }, error => console.log(error));
+                done('altinninnstillinger lagret: ');
+            }, error => this.log('problemer med å lagre Altinninnstillinger', error));
         }
+    }
+
+    public log(title: string, err) {
+        if (!title) {
+            title = '';
+        }
+        if (err._body) {
+            alert(title + ' ' + err._body);
+        } else {
+            alert(title + ' ' + JSON.stringify(err));
+        }
+
     }
 }
