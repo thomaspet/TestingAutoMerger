@@ -46,9 +46,9 @@ export class TimeSheet {
         return obs.map((result:{ original: WorkItem, saved: WorkItem})=>{
             if (result.saved) {
                 var item:any = result.original;
-                this.changeMap.remove(item._rowIndex);
+                this.changeMap.remove(item._rowIndex, true);
             } else {
-                this.changeMap.removables.remove(result.original.ID);
+                this.changeMap.removables.remove(result.original.ID, false);
             }            
             return result.saved;
         });
