@@ -1,5 +1,6 @@
 .regtimecontainer 
     margin-bottom: 4rem
+    margin-top: 0.6rem
 
 .regtimetitle
     padding: 1rem 1rem 1rem 0
@@ -46,6 +47,7 @@
 
         li a
             @extend %clickable
+            white-space: nowrap
             display: inline-block
             text-decoration: none
             font-weight: 400
@@ -75,10 +77,19 @@
 
 .timeentriesTable th
     text-align: left
+    text-overflow: ellipsis
+    overflow-x: hidden
+    white-space: nowrap
     border-width: 0 pxToRem(1) pxToRem(1) 0
     border-color: $uni-color-scale8
     border-style: solid
-    padding-left: pxToRem(4)
+    padding: pxToRem(3) pxToRem(4) 0 pxToRem(4)
+
+.timeentriesTable th.center
+    text-align: center
+
+.timeentriesTable th.right
+    text-align: right
 
 .timeentriesTable th:first-of-type
     border-width: 0 pxToRem(1) pxToRem(1) 0
@@ -86,16 +97,22 @@
 .timeentriesTable th:last-of-type
     border-right: 0
 
-.timeentriesTable tr
-    height: 1.8em
-
 .timeentriesTable tr:hover
     background-color: lighten($uni-color-scale6, 32%)
 
 .timeentriesTable td
-    padding: pxToRem(4) pxToRem(4) pxToRem(1) pxToRem(4)
+    padding: pxToRem(3) pxToRem(4) 0 pxToRem(4)
     border-bottom: pxToRem(1) solid $uni-color-scale9
     border-left: pxToRem(1) solid $uni-color-scale9
+    white-space: nowrap
+    text-overflow: ellipsis
+    overflow-x: hidden
+
+.timeentriesTable td.center
+    text-align: center
+
+.timeentriesTable td.right
+    text-align: right    
 
 .timeentriesTable td:first-of-type
     border-left: 0
@@ -120,8 +137,9 @@
     margin: 0 0 0 pxToRem(7)
     padding: 0 pxToRem(7) 0 pxToRem(7)
     background: lighten($uni-color-scale6, 34%) unicon-trash($uni-color-scale3) center center no-repeat
-    background-size: 0.8rem    
+    background-size: 0.9rem    
     box-shadow: none
+    height: 1em
 
 .timeentriesTable tr:hover td.timeSheet_actions button
     background: lighten($uni-color-scale6, 34%) unicon-trash(red) center center no-repeat

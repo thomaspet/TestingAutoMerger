@@ -10,65 +10,93 @@
     <aside class="horizontal_nav">
         <ul>
             <li *ngFor="let tab of tabs">
-                <a [ngClass]="{'router-link-active': tab.isSelected}" >{{tab.label}}</a>
+                <a (click)="onTabClick(tab)" [ngClass]="{'router-link-active': tab.isSelected}" >{{tab.label}}</a>
                 <span class='regtimetabtip' *ngIf="tab.counter">({{tab.counter}})</span>   
             </li>
         </ul>    
     </aside>
 
-    <aside class="regtime_filters">
-        <ul>
-            <li *ngFor="let filter of filters">
-                <a (click)="onFilterClick(filter)" [ngClass]="{'router-link-active': filter.isSelected}" >{{filter.label}}</a> 
-            </li>
-        </ul>    
+    <section class="regtime_tabs">
 
-        <footer>
-            <table class='timeentry_toolbar'><tr>
-            <td>
-                <button class="secondary-button" (click)="onAddNew()">Ny timeføring</button>
-                <button *ngIf="hasUnsavedChanges()" class="good" (click)="save()">Lagre endringer</button>
-                <button *ngIf="hasUnsavedChanges()" class="bad" (click)="reset()">Avbryt</button>
-            </td> 
-            <td>Totalsum: {{timeSheet.totals.Minutes | min2hours}}</td>
-            </tr></table> 
-        </footer>
+        <section [hidden]="!tabs[1].isSelected">
+            <regtimetotals></regtimetotals>
+        </section>
 
-    </aside>
-    
-    <section [attr.aria-busy]="busy" >
-        
-        <aside class='busy' *ngIf='busy'>Vent litt... stiller klokker og spisser blyanter..</aside>
-    
-        <table class='timeentriesTable' editable [config]="tableConfig" >
-            <thead>
-                <tr>
-                    <th>Dato</th>
-                    <th>Start</th>
-                    <th>Slutt</th>
-                    <th>Type arbeid</th>
-                    <th>Beskrivelse</th>
-                    <th>Prosjekt</th>
-                    <th>Ordrenr.</th>
-                    <th> </th>
-                </tr>
-            </thead>
-            <tbody *ngIf="timeSheet.currentRelation">
-                <tr *ngFor="let item of timeSheet.items; let i=index" [class.alternateRow]="item._alternate">
-                    <td >{{item.Date | isotime:'DD.MM.YYYY'}}</td>
-                    <td>{{item.StartTime | isotime:'HH:mm'}}</td>
-                    <td>{{item.EndTime | isotime:'HH:mm'}}</td>
-                    <td>{{item.Worktype ? item.Worktype.ID + ' - ' + item.Worktype.Name : ''}}</td>
-                    <td>{{item.Description}}</td>
-                    <td>{{item.Dimensions ? item.Dimensions.Project ? item.Dimensions.Project.ID + ' - ' + item.Dimensions.Project.Name : item.Dimensions.ProjectID : ''}}</td>
-                    <td>{{item.CustomerOrder ? item.CustomerOrder.OrderNumber + ' - ' + item.CustomerOrder.CustomerName : item.CustomerOrderID }}</td>
-                    <td class='timeSheet_actions'><button (click)="onRowActionClicked(i, item)"></button></td>
-                </tr>                            
-            </tbody>
-        </table>    
+        <section [hidden]="!tabs[2].isSelected">
+            <h3>Fleksitid</h3>
+        </section>
+
+        <section [hidden]="!tabs[3].isSelected">
+            <h3>Arbeidsgivere</h3>
+        </section>
+
+        <section [hidden]="!tabs[4].isSelected">
+            <h3>Ferie</h3>
+        </section>
+
+        <section [hidden]="!tabs[5].isSelected">
+            <h3>Fravær</h3>
+        </section>
+
+        <section [hidden]="!tabs[0].isSelected">
+
+            <aside class="regtime_filters">
+                <ul>
+                    <li *ngFor="let filter of filters">
+                        <a (click)="onFilterClick(filter)" [ngClass]="{'router-link-active': filter.isSelected}" >{{filter.label}}</a> 
+                    </li>
+                </ul>    
+
+                <footer>
+                    <table class='timeentry_toolbar'><tr>
+                    <td>
+                        <button class="secondary-button" (click)="onAddNew()">Ny timeføring</button>
+                        <button *ngIf="hasUnsavedChanges()" class="good" (click)="save()">Lagre endringer</button>
+                        <button *ngIf="hasUnsavedChanges()" class="bad" (click)="reset()">Avbryt</button>
+                    </td> 
+                    <td>Totalsum: {{timeSheet.totals.Minutes | min2hours}}</td>
+                    </tr></table> 
+                </footer>
+
+            </aside>
+            
+            <article [attr.aria-busy]="busy" >
+                
+                <aside class='busy' *ngIf='busy'>Vent litt... stiller klokker og spisser blyanter..</aside>
+            
+                <table class='timeentriesTable' editable [config]="tableConfig" >
+                    <thead>
+                        <tr>
+                            <th>Dato</th>
+                            <th>Start</th>
+                            <th>Slutt</th>
+                            <th>Type arbeid</th>
+                            <th>Beskrivelse</th>
+                            <th>Prosjekt</th>
+                            <th>Ordrenr.</th>
+                            <th> </th>
+                        </tr>
+                    </thead>
+                    <tbody *ngIf="timeSheet.currentRelation">
+                        <tr *ngFor="let item of timeSheet.items; let i=index" [class.alternateRow]="item._alternate">
+                            <td >{{item.Date | isotime:'DD.MM.YYYY'}}</td>
+                            <td>{{item.StartTime | isotime:'HH:mm'}}</td>
+                            <td>{{item.EndTime | isotime:'HH:mm'}}</td>
+                            <td>{{item.Worktype ? item.Worktype.ID + ' - ' + item.Worktype.Name : ''}}</td>
+                            <td>{{item.Description}}</td>
+                            <td>{{item.Dimensions ? item.Dimensions.Project ? item.Dimensions.Project.ID + ' - ' + item.Dimensions.Project.Name : item.Dimensions.ProjectID : ''}}</td>
+                            <td>{{item.CustomerOrder ? item.CustomerOrder.OrderNumber + ' - ' + item.CustomerOrder.CustomerName : item.CustomerOrderID }}</td>
+                            <td class='timeSheet_actions'><button (click)="onRowActionClicked(i, item)"></button></td>
+                        </tr>                            
+                    </tbody>
+                </table>    
+            </article>
+
+            <uni-save [actions]="actions"></uni-save>
+
+        </section>
+
     </section>
-
-    <uni-save [actions]="actions"></uni-save>
 
 </section>
 
