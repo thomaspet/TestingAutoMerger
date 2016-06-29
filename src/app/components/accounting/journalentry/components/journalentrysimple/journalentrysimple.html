@@ -19,10 +19,10 @@
 
         <thead>
             <tr>
-                <th>Bilagsnr</th>
+                <th class="smallmedium_col">Bilagsnr</th>
                 <th class="medium_col">Dato</th>
                 <th>Kontoer</th>
-                <th>Beløp</th>
+                <th class="medium_col">Beløp</th>
                 <!--<th>Fordeling</th>-->
                 <th>Beskrivelse</th>
                 <th class="small_col"></th>
@@ -48,10 +48,10 @@
                     <td class="simpleTable_multiline">
                         <dl>
                             <dt>Debet</dt>
-                            <dd>{{line.DebitAccount ? line.DebitAccount.AccountNumber + " - " + line.DebitAccount.AccountName : ""}} {{ line.DebitVatType ? " - mva: " + line.DebitVatType.VatCode + ': ' + line.DebitVatType.VatPercent + '%' : "" }}</dd>
+                            <dd [title]="getDebitAccountText(line)">{{ getDebitAccountText(line) }}</dd>
 
                             <dt>Kredit</dt>
-                            <dd>{{line.CreditAccount ? line.CreditAccount.AccountNumber + " - " + line.CreditAccount.AccountName : ""}} {{ line.CreditVatType ? " - mva: " + line.CreditVatType.VatCode + ': ' + line.CreditVatType.VatPercent + '%' : "" }}</dd>                            
+                            <dd [title]="getCreditAccountText(line)">{{ getCreditAccountText(line) }}</dd>                            
                         </dl>
                     </td>
                     <td class="-isImportant">
