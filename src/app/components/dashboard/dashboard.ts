@@ -1,7 +1,8 @@
 import {Component, Input, ElementRef} from '@angular/core';
 import {TabService} from '../layout/navbar/tabstrip/tabService';
 import {UniHttp} from '../../../framework/core/http/http';
-import {ROUTER_DIRECTIVES, Router} from "@angular/router-deprecated";
+import {ROUTER_DIRECTIVES, Router, CanReuse, OnReuse} from "@angular/router-deprecated";
+import {UniImage} from '../../../framework/uniImage/uniImage';
 
 declare var Chart;
 declare var moment;
@@ -18,24 +19,33 @@ export interface IChartDataSet {
 @Component({
     selector: 'uni-dashboard',
     templateUrl: 'app/components/dashboard/dashboard.html',
-    directives: [ROUTER_DIRECTIVES]
+    directives: [ROUTER_DIRECTIVES, UniImage]
 })
 
-export class Dashboard {
+export class Dashboard implements CanReuse {
 
     public welcomeHidden: boolean = localStorage.getItem('welcomeHidden');
     public transactionList = [];
     public myTransactionList = [];
     public journalEntryList = [];
     public user: any;
+    public current: any = {};
     public months: string[] = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
     private colors: string[] = ['#7293cb', '#e1974c', '#84ba5b', '#d35e60', '#808585'];
 
     constructor(private tabService: TabService, private http: UniHttp, private router: Router) {
-        this.tabService.addTab({ name: 'Dashboard', url: '/', active: true, moduleID: 0 });
+        this.tabService.addTab({ name: 'Nøkkeltall', url: '/', active: true, moduleID: 0 });
         Chart.defaults.global.maintainAspectRatio = false;
-        this.welcomeHidden = false;
+
+        this.getCompany().subscribe(
+            (data) => { this.current = data[0] },
+            (error) => { console.log(error); }
+        )
     }
+
+    public routerCanReuse() {
+        return false;
+    } 
 
     public ngAfterViewInit() {
 
@@ -43,7 +53,6 @@ export class Dashboard {
             data => this.chartGenerator('invoicedChart', this.twelveMonthChartData(data[0].Data, 'Fakturert', '#7293cb', '#396bb1', 'bar', 'sumTaxExclusiveAmount')),
             error => console.log(error)
         )
-
         this.getOrdreData().subscribe(
             (data) => { this.chartGenerator('ordre_chart', this.twelveMonthChartData(data[0].Data, 'Ordre', '#84ba5b', '#3e9651', 'bar', 'sumTaxExclusiveAmount')) },
             (error) => { console.log(error); }
@@ -224,12 +233,12 @@ export class Dashboard {
                 data.url = '/sales/invoice/details/' + data.EntityID;
                 break;
             case 'JournalEntryLine':
-                data.module = 'JournalEntryLine';
+                data.module = 'Jour. line';
                 /*NEED REAL URL*/
                 data.url = '/';
                 break;
             case 'SupplierInvoice':
-                data.module = 'Lev.faktura';
+                data.module = 'Lev. faktura';
                 data.url = '/accounting/journalentry/supplierinvoices/' + data.EntityID;
                 break;
             case 'NumberSeries':
@@ -276,8 +285,17 @@ export class Dashboard {
                 /*NEED REAL URL*/
                 data.url = '/sales/customer/list';
                 break;
+            case 'File':
+                data.module = 'File';
+                /*NEED REAL URL*/
+                data.url = '/sales/customer/list';
+                break;
+            case 'CompanySettings':
+                data.module = 'Innstillinger';
+                data.url = '/settings/company';
+                break;
             default:
-
+                
                 
         }
     }
@@ -382,7 +400,7 @@ export class Dashboard {
         return this.http
             .asGET()
             .usingBusinessDomain()
-            .withEndPoint('statistics?model=JournalEntryLine&select=month(financialdate),sum(amount)&join=journalentryline.accountid eq account.id&filter=account.accountnumber ge 3000&range=monthfinancialdate')
+            .withEndPoint("statistics?model=JournalEntryLine&select=month(financialdate),sum(amount)&join=journalentryline.accountid eq account.id&filter=account.accountnumber ge 3000 and account.accountnumber le 9999 &range=monthfinancialdate")
             .send();
     }
 
@@ -392,6 +410,14 @@ export class Dashboard {
             .asGET()
             .usingBusinessDomain()
             .withEndPoint('statistics?model=journalentryline&select=sum(amount),name&filter=maingroupid eq 2&join=journalentryline.accountid eq account.id and account.accountgroupid eq accountgroup.id&top=50')
+            .send();
+    }
+
+    public getCompany() {
+        return this.http
+            .asGET()
+            .usingBusinessDomain()
+            .withEndPoint('companysettings')
             .send();
     }
 }

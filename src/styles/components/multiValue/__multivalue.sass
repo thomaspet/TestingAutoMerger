@@ -59,7 +59,7 @@
       padding: .2rem .5rem
       border-bottom: pxToRem(1) solid $uni-color-scale9
       position: relative
-      
+
       &:last-of-type
         border-bottom: none
 
@@ -78,16 +78,15 @@
         margin: 0
         border: none
         box-shadow: none
-        background: none
-        background-size: 1rem
+        background: transparent unicon-edit($uni-color-scale6) no-repeat center
+        background-size: .9rem
 
         &:hover
-          background: transparent unicon-edit($uni-color-scale8) no-repeat center
-          background-size: .8rem
-                    
+          background-image: unicon-edit($uni-color-scale3)
+
       &.-is-main
         background-color: transparentize($uni-color-C2A, .5)
-                  
+
   .uni-multivalue-value
     height: 1.4rem
     width: calc(100% - 1.5rem)
@@ -115,13 +114,10 @@
     top: -.5rem
     right: 1rem
     padding: 0
-    background: transparent
+    background: transparent unicon-trash($uni-color-scale6) center no-repeat
+    background-size: .8rem
     border: none
     box-shadow: none
-
-  &:hover .uni-multivalue_edit_action-delete
-    background: transparent unicon-trash($uni-color-scale8) center no-repeat
-    background-size: .8rem
 
     &:hover,
     &:focus

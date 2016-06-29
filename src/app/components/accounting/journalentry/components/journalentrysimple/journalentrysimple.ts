@@ -217,6 +217,13 @@ export class JournalEntrySimple implements OnInit, OnChanges {
         this.selectedJournalEntryLine = null;
     }
 
+    private deleteLine() {
+        var currentRow = this.journalEntryLines.indexOf(this.selectedJournalEntryLine);
+        this.journalEntryLines.splice(currentRow, 1);
+        this.selectedJournalEntryLine = null;
+        this.dataChanged.emit(this.journalEntryLines);
+    }
+
     private parseJournalEntryData(updatedLine: JournalEntryData): JournalEntryData {
         /*var dimensions = new Dimensions();
         dimensions.DepartementID = updatedLine['Dimensions.DepartementID'];

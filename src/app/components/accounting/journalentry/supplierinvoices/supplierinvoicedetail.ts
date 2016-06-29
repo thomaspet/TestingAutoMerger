@@ -60,8 +60,6 @@ export class SupplierInvoiceDetail implements OnInit {
         this.invoiceId = _routeParams.get('id');
         this.previewId = 0;
         this.previewSize = UniImageSize.medium;
-
-        this.tabService.addTab({ name: 'Leverandørfaktura', url: '/accounting/journalentry/supplierinvoices/details/' + this.invoiceId, moduleID: 7, active: true });
     }
 
     private setError(error) {
@@ -89,12 +87,22 @@ export class SupplierInvoiceDetail implements OnInit {
                 //this.setActionsDisabled();
                 this.updateSaveActions();
                 this.setPreviewId();
+                this.setTabTitle();
+                // call ready to set readonly fields if needed
+                this.ready(null);
             },
             (error) => {
                 this.setError(error);
             }
             );
     }
+    
+    private setTabTitle() {
+        let tabTitle = this.supplierInvoice.InvoiceNumber ? 'Leverandørfakturanr ' + this.supplierInvoice.InvoiceNumber : 'Leverandørfaktura (kladd)'; 
+        this.tabService.addTab({ url: '/accounting/journalentry/supplierinvoices/details/' + this.invoiceId, name: tabTitle, active: true, moduleID: 7 });        
+    }
+    
+    
     private getStatusText() {
         return this._supplierInvoiceService.getStatusText((this.supplierInvoice.StatusCode || '').toString());
     }
@@ -114,6 +122,7 @@ export class SupplierInvoiceDetail implements OnInit {
 
             this.updateSaveActions();
             this.setPreviewId();
+            this.setTabTitle();
 
             this.buildForm();
         }, (error) => {
@@ -256,30 +265,36 @@ export class SupplierInvoiceDetail implements OnInit {
 
         // set date today if date is default value / empty
         journalEntryData.forEach((line) => {
-            if (line.FinancialDate.toISOString() == '0001-01-01T00:00:00.000Z') {
+            if (!line.FinancialDate || line.FinancialDate.toISOString() == '0001-01-01T00:00:00.000Z') {
                 line.FinancialDate = new Date();
             }
         });
 
         this._journalEntryService
             .saveJournalEntryData(journalEntryData)
-            .subscribe((res) => {
+            .subscribe((newJournalEntryData: Array<JournalEntryData>) => {                
+                newJournalEntryData.forEach((line: JournalEntryData) => {
+                    line.FinancialDate = moment(line.FinancialDate).toDate();
+                });
+                this.journalEntryManual.setJournalEntryData(newJournalEntryData);
+                
                 this._supplierInvoiceService.Put(this.supplierInvoice.ID, this.supplierInvoice)
-                    .subscribe((res: Array<JournalEntryData>) => {
-                        let sum = journalEntryData
+                    .subscribe((res) => {
+                        let sum = newJournalEntryData
                                     .filter(line => line.CreditAccountID != null)
                                     .map((line) => line.Amount)
                                     .reduce((a, b) => {
                                         return (a > 0 ? a : 0) + (b > 0 ? b : 0)
                                     });
+                                    
                         if (sum !== this.supplierInvoice.TaxInclusiveAmount) {
                             this.setError({ Message: 'Sum bilagsbeløp er ulik leverandørfakturabeløp' });
                             done('Bokføring feilet');
                         } else {
                             this._supplierInvoiceService.Transition(this.supplierInvoice.ID, this.supplierInvoice, 'journal')
-                                .subscribe((res) => {
+                                .subscribe((resBooking) => {
                                     done('Bokført');
-                                    this.refreshFormData(this.supplierInvoice);
+                                    this.refreshFormData(this.supplierInvoice);                                    
                                 },
                                 (error) => {
                                     this.setError(error);

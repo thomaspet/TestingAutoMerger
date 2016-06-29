@@ -10,9 +10,23 @@
     border-radius: .1875rem
     padding: 1rem
 
+.dashboard_company
+    @include unigrid(16)
+    margin-top: 1rem
+    border-radius: .1875rem
+    padding: 1rem
+
+    section
+        float: left
+	        
+        &:last-of-type
+            margin-left: 1rem
+        
+        h1
+            cursor: pointer
 
 .dashboard_chart_card
-    @include unigrid(4,2,2,1)
+    @include unigrid(4,2,2)
     box-shadow: 0 0 1rem rgba(161,170,188,.4)
     border-radius: .1875rem
     padding: 1rem
@@ -38,12 +52,17 @@
     max-height: 260px
 
 .dashboard_lists
-    font-size: 0.9rem
+    font-size: 0.75rem
 
     a
         color:#7293cb
-        cursor: pointer;
+        cursor: pointer
 
 .time_float
     float: right
     margin: 0
+
+.header_logo
+    img
+        width: auto
+        height: 80px

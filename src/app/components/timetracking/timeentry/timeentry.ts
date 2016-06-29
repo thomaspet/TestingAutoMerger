@@ -3,8 +3,8 @@ import {TabService} from '../../layout/navbar/tabstrip/tabService';
 import {View} from '../../../models/view/view';
 import {Worker, WorkRelation, WorkProfile, WorkItem} from '../../../unientities';
 import {WorkerService, ItemInterval} from '../../../services/timetracking/workerservice';
-import {Editable, IChangeEvent, IConfig, Column, ColumnType, ITypeSearch} from '../utils/editable/editable';
-import {parseTime, addTime, parseDate} from '../utils/utils';
+import {Editable, IChangeEvent, IConfig, Column, ColumnType, ITypeSearch, ICopyEventDetails} from '../utils/editable/editable';
+import {parseTime, addTime, parseDate, toIso} from '../utils/utils';
 import {TimesheetService, TimeSheet, ValueItem} from '../../../services/timetracking/timesheetservice';
 import {IsoTimePipe, MinutesToHoursPipe} from '../utils/isotime';
 import {UniSave, IUniSaveAction} from '../../../../framework/save/save';
@@ -77,7 +77,8 @@ export class TimeEntry {
                 onInit: (instance:Editable) => {
                     this.editable = instance; 
                 },
-                onTypeSearch: (details:ITypeSearch) => this.onTypeSearch(details)            
+                onTypeSearch: (details:ITypeSearch) => this.onTypeSearch(details),
+                onCopyCell: (details: ICopyEventDetails) => this.onCopyCell(details)
             }  
     };
             
@@ -137,6 +138,7 @@ export class TimeEntry {
     }
 
     save(done?:any) {
+        if (this.busy) return;
         return new Promise((resolve, reject) => {
             this.busy = true;
             var counter = 0;
@@ -173,9 +175,8 @@ export class TimeEntry {
             // Remove "label" from key-value ?
             var key = event.columnDefinition.columnType === ColumnType.Integer ? parseInt(event.value) : event.value;
 
-            // Blank value?
+            // Blank value (clear current value) ?
             if (!key) {
-                //console.log("value clear!")
                 event.value = key;
                 this.updateChange(event);
                 return;
@@ -203,6 +204,7 @@ export class TimeEntry {
             var p = new Promise((resolve, reject)=>{                
                 this.lookup.getSingle<any>(lookupDef.route, key).subscribe( (item:any) => {
                     event.lookupValue = item;
+                    event.value = key;
                     this.updateChange(event);
                     resolve(item);
                 }, (err)=>{
@@ -228,6 +230,45 @@ export class TimeEntry {
             details.renderFunc = (item:any)=> { var ret = ''; for (var i=0;i<cols.length;i++) ret += (i>0 ? ' - ' : '') + item[cols[i]]; return ret; }
             details.promise = this.lookup.query(lookup.route, details.value, searchCols, undefined, searchCols, lookup.filter).toPromise();
         }
+    }
+
+    onCopyCell(details: ICopyEventDetails) { 
+
+        details.copyAbove = true;
+
+        if (details.columnDefinition) {
+            var row = details.position.row;
+            switch (details.columnDefinition.name) {
+                case 'Date':
+                    if (row===0) {
+                        details.valueToSet = parseDate('*', true);
+                    }
+                    break;
+
+                case 'StartTime':
+                    if (row > 0) {
+                        let d1 = this.timeSheet.items[row].Date;
+                        let d2 = this.timeSheet.items[row-1].Date;
+                        if (d1 && d2) { 
+                            if (d1 === d2 && (this.timeSheet.items[row-1].EndTime) ) {
+                                details.valueToSet = moment(this.timeSheet.items[row-1].EndTime).format('HH:mm');
+                                details.copyAbove = false;
+                            }   
+                        }
+                    } else {
+                        details.valueToSet = '8';
+                        details.copyAbove = false; 
+                    }
+                    break;
+            }
+
+            // Lookup column?
+            if (details.columnDefinition.lookup) {
+                this.timeSheet.copyValueAbove(details.columnDefinition.name, details.position.row);
+                details.copyAbove = false;
+            }
+
+        }  
     }
 
     updateChange(event: IChangeEvent) {
