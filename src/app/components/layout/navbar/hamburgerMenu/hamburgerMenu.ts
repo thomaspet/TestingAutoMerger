@@ -27,8 +27,7 @@ export class HamburgerMenu {
                 componentListName: 'Nøkkeltall',
                 componentListHeader: 'Alt om deres økonomi',
                 componentList: [
-                    {componentName: 'Nøkkeltall', componentUrl: '/'},
-                    {componentName: 'Regnskap', componentUrl: '/accounting'}
+                    {componentName: 'Nøkkeltall', componentUrl: '/'}
                 ]
             },
             {
@@ -36,7 +35,6 @@ export class HamburgerMenu {
                 componentListHeader: 'Utgående salg',
                 componentList: [
                     {componentName: 'Kunder', componentUrl: '/sales'},
-                    {componentName: 'Leverandører', componentUrl: '/sales/supplier'},
                     {componentName: 'Tilbud', componentUrl: '/sales/quote'},
                     {componentName: 'Ordre', componentUrl: '/sales/order'},
                     {componentName: 'Faktura', componentUrl: '/sales/invoice'},
@@ -47,11 +45,12 @@ export class HamburgerMenu {
                 componentListName: 'Regnskap',
                 componentListHeader: 'Orden i bøkene',
                 componentList: [
-                    {componentName: 'Bilagsføring', componentUrl: '/accounting'},
+                    {componentName: 'Bilagsføring', componentUrl: '/accounting'},                    
                     {componentName: 'Forespørsel på konto', componentUrl: '/accounting/transquery'},
                     {componentName: 'Forespørsel på bilag', componentUrl: '/accounting/transquery/details'},
                     {componentName: 'Kontoinnstillinger', componentUrl: '/accounting/accountsettings'},
-                    {componentName: 'MVA innstillinger', componentUrl: '/accounting/vatsettings'},
+                    {componentName: 'MVA innstillinger', componentUrl: '/accounting/vatsettings'},                    
+                    {componentName: 'Leverandører', componentUrl: '/sales/supplier'}
                 ]
             },
             {
