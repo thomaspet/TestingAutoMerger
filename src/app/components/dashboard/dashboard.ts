@@ -36,7 +36,6 @@ export class Dashboard implements CanReuse {
     constructor(private tabService: TabService, private http: UniHttp, private router: Router) {
         this.tabService.addTab({ name: 'Nøkkeltall', url: '/', active: true, moduleID: 0 });
         Chart.defaults.global.maintainAspectRatio = false;
-        this.welcomeHidden = false;
 
         this.getCompany().subscribe(
             (data) => { this.current = data[0] },
