@@ -1,3 +1,25 @@
+
+
+<article class="poster_explainer"
+    *ngIf="posterExplain">
+
+    <p>
+        <button class="close" 
+        type="button"
+        (click)="posterExplain = !posterExplain">
+        Lukk</button>
+    </p>
+
+    <h1>Hva er dette?</h1>
+
+    <p>Her kommer "plakaten" for ting som kunder, ansatte, leverandører og så 
+        videre. Her vil du kunne få et raskt overblikk over nøkkeltall og status
+        knyttet til den enkelte entiteten.</p>
+
+    <p>Funksjonen er under utvikling.</p>
+
+</article>
+
 <section class="poster_tease">
 
     <article class="poster_tease_widget">
@@ -13,11 +35,17 @@
     </article>
 
     <article class="poster_tease_widget">
-        <canvas class="widget_graph" id="widgetGraph1"></canvas>
+        <h1 class="widget_randomNumber" role="presentation">{{randomNumber}}</h1>
     </article>
 
     <article class="poster_tease_widget">
-        <canvas class="widget_graph" id="widgetGraph2"></canvas>
+
+        <button type="button" 
+            class="poster_explain" 
+            (click)="posterExplain = !posterExplain">
+            Hva er dette?</button>
+        
+        <div class="widget_checkmark"></div>
     </article>
 
 </section>
