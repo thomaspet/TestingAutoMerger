@@ -71,6 +71,7 @@
 .timeentriesTable
     width: 100%
     border-collapse: collapse
+    cursor: pointer
 
 .timeentriesTable th
     text-align: left
@@ -108,3 +109,21 @@
 .alternateRow td
     border-color: $uni-color-scale8
 
+.timeentriesTable tr td.timeSheet_actions
+    width: pxToRem(15)
+
+.timeentriesTable tr:last-of-type td.timeSheet_actions button
+    visibility: hidden;
+
+.timeentriesTable tr td.timeSheet_actions button
+    width: 2rem
+    margin: 0 0 0 pxToRem(7)
+    padding: 0 pxToRem(7) 0 pxToRem(7)
+    background: lighten($uni-color-scale6, 34%) unicon-trash($uni-color-scale3) center center no-repeat
+    background-size: 0.8rem    
+    box-shadow: none
+
+.timeentriesTable tr:hover td.timeSheet_actions button
+    background: lighten($uni-color-scale6, 34%) unicon-trash(red) center center no-repeat
+    background-size: 0.8rem  
+    box-shadow: 0 pxToRem(1) pxToRem(1) $uni-color-scale7

@@ -232,7 +232,7 @@ export class AddressForm implements OnChanges {
             <h1 *ngIf="config.title">{{config.title}}</h1>
             <address-form [model]="config.model" [question]="config.question" [disableQuestion]="config.disableQuestion"></address-form>
             <footer>
-                <button *ngFor="let action of config.actions; let i=index" (click)="action.method()" [ngClass]="action.class">
+                <button *ngFor="let action of config.actions; let i=index" (click)="action.method()" [ngClass]="action.class" type="button">
                     {{action.text}}
                 </button>
             </footer>

@@ -31,6 +31,8 @@ class CustomerQuoteExt extends CustomerQuote {
     public _InvoiceAddresses: Array<Address>;
     public _ShippingAddress: Address;
     public _ShippingAddresses: Array<Address>;
+    public _InvoiceAddressID: number;
+    public _ShippingAddressID: number;    
 }
 
 @Component({
@@ -141,7 +143,7 @@ export class QuoteDetails {
             .onChange
             .subscribe((data) => {
                 if (data) {
-                    this.customerService.Get(this.quote.CustomerID, ['Info', 'Info.Addresses']).subscribe((customer: Customer) => {
+                    this.customerService.Get(this.quote.CustomerID, ['Info', 'Info.Addresses', 'Info.InvoiceAddress', 'Info.ShippingAddress']).subscribe((customer: Customer) => {
                         let previousAddresses = this.quote.Customer ? this.quote.Customer.Info.Addresses : null;
                         this.quote.Customer = customer;
                         this.addressService.setAddresses(this.quote, previousAddresses);
@@ -261,7 +263,7 @@ export class QuoteDetails {
             listProperty: '_ShippingAddresses',
             displayValue: 'AddressLine1',
             linkProperty: 'ID',
-            foreignProperty: 'ShippingAddressesID',
+            foreignProperty: '_ShippingAddressID',
             editor: (value) => new Promise((resolve) => {
                 if (!value) {
                     value = new Address();

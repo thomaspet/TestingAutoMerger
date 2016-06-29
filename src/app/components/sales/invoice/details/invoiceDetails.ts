@@ -33,6 +33,8 @@ class CustomerInvoiceExt extends CustomerInvoice {
     public _InvoiceAddresses: Array<Address>;
     public _ShippingAddress: Address;
     public _ShippingAddresses: Array<Address>;
+    public _InvoiceAddressID: number;
+    public _ShippingAddressID: number;
 }
 
 @Component({
@@ -160,7 +162,7 @@ export class InvoiceDetails implements OnInit {
             .onChange
             .subscribe((data) => {
                 if (data) {
-                    this.customerService.Get(this.invoice.CustomerID, ['Info', 'Info.Addresses']).subscribe((customer: Customer) => {
+                    this.customerService.Get(this.invoice.CustomerID, ['Info', 'Info.Addresses', 'Info.InvoiceAddress', 'Info.ShippingAddress']).subscribe((customer: Customer) => {
                         let previousAddresses = this.invoice.Customer ? this.invoice.Customer.Info.Addresses : null;
                         this.invoice.Customer = customer;
                         this.addressService.setAddresses(this.invoice, previousAddresses);
@@ -276,7 +278,7 @@ export class InvoiceDetails implements OnInit {
             listProperty: '_InvoiceAddresses',
             displayValue: 'AddressLine1',
             linkProperty: 'ID',
-            foreignProperty: '_InvoiceAddressesID',
+            foreignProperty: '_InvoiceAddressID',
             editor: (value) => new Promise((resolve) => {
                 if (!value) {
                     value = new Address();
@@ -303,7 +305,7 @@ export class InvoiceDetails implements OnInit {
             listProperty: '_ShippingAddresses',
             displayValue: 'AddressLine1',
             linkProperty: 'ID',
-            foreignProperty: '_ShippingAddressesID',
+            foreignProperty: '_ShippingAddressID',
             editor: (value) => new Promise((resolve) => {
                 if (!value) {
                     value = new Address();
