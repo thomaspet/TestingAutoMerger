@@ -39,12 +39,13 @@ $all-buttons: assign-inputs($buttons-list)
 
     &[disabled],
     &[aria-disabled]
-        background-color: lighten($color, 15%)
+        background-color: desaturate(mix($color, $uni-color-negative, 50%), 10%)
+        text-shadow: none
         cursor: not-allowed
 
         &:hover,
         &:focus
-            background-color: lighten($color, 7%)
+            background-color: desaturate(mix($color, $uni-color-negative, 80%), 10%)
 
     &[aria-busy]:not([aria-busy=false]):before
         display: inline-block
