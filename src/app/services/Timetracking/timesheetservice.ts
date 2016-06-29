@@ -113,7 +113,9 @@ export class TimeSheet {
     public removeRow(index:number) {
         var item = this.getRowByIndex(index);
         if (item.ID>0) {
-            this.changeMap.addRemove(item.ID, item, true);
+            this.changeMap.addRemove(item.ID, item);
+        } else {
+            this.changeMap.remove(index, true);
         }
         this.items.splice(index,1);
     }
