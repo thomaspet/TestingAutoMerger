@@ -1,14 +1,9 @@
 <article class="postingsummary" [attr.aria-busy]="busy">
-    <h3 *ngIf="postingsummary">Konteringssammendrag for lønnsavregning {{postingsummary.PayrollRun.ID}} - {{postingsummary.PayrollRun.Description}}</h3>
-
-    <header class="postingsummary_header" *ngIf="!showReceipt">
-        <h4>Kontering til regnskap</h4>
-        <uni-form *ngIf="summary" [config]="headerConfig"></uni-form>
-    </header>
+    <h3>{{headerString}}</h3>
 
     <section *ngIf="!showReceipt">        
         <uni-table *ngIf="summary" [resource]="summary.PostList" [config]="accountTableConfig"></uni-table>         
-        <label>Kontrollsum totalt: </label> {{getAccountingSum() | number:2 }}
+        <label>Kontrollsum totalt: </label> {{getAccountingSum() | number : '1.2-2' }}
     </section>
 
     <section *ngIf="showReceipt">
