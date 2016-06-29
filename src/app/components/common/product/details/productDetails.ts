@@ -8,6 +8,7 @@ import {ProductService, AccountService, VatTypeService} from '../../../../servic
 import {FieldType, FieldLayout, ComponentLayout, Product, Account, VatType} from '../../../../unientities';
 import {UniSave, IUniSaveAction} from '../../../../../framework/save/save';
 import {UniForm, UniField, UniFieldLayout} from '../../../../../framework/uniform';
+import {UniImage, IUploadConfig} from '../../../../../framework/uniImage/uniImage';
 import {TabService} from "../../../layout/navbar/tabstrip/tabService";
 
 declare var _; // lodash
@@ -15,7 +16,7 @@ declare var _; // lodash
 @Component({
     selector: 'product-details',
     templateUrl: 'app/components/common/product/details/productDetails.html',    
-    directives: [UniForm, UniSave],
+    directives: [UniForm, UniSave, UniImage],
     providers: [ProductService, AccountService, VatTypeService]
 })
 export class ProductDetails {            
@@ -26,6 +27,9 @@ export class ProductDetails {
     private fields: any[] = [];
     private product: Product;
     
+    private showImageComponent: boolean = true;  // template variable
+    private imageUploadConfig: IUploadConfig;
+
     private accounts: Account[];
     private vatTypes: VatType[];
    
@@ -91,7 +95,15 @@ export class ProductDetails {
             this.extendFormConfig();
             
             this.showHidePriceFields(this.product);          
-        });       
+        });
+
+        this.imageUploadConfig = {
+            entityType: 'Product',
+            entityId: this.productId,
+            onSuccess: (imageId) => {
+                this.product.ImageFileID = imageId;
+            }
+        };
     }
     
     private setTabTitle() {
@@ -229,22 +241,26 @@ export class ProductDetails {
                         }
                     }
                 });
+        
+        if (this.form.field('PriceExVat')) {
+            this.form.field('PriceExVat')
+                .onChange
+                .subscribe((data) => {
+                    if (!this.product.CalculateGrossPriceBasedOnNetPrice) {
+                        this.calculateAndUpdatePrice();
+                    }
+                });
+        }
 
-        this.form.field('PriceExVat')
-            .onChange
-            .subscribe((data) => {
-                if (!this.product.CalculateGrossPriceBasedOnNetPrice) {
-                    this.calculateAndUpdatePrice();
-                }
-            });
-
-        this.form.field('PriceIncVat')
-            .onChange            
-            .subscribe((data) => {
-                if (this.product.CalculateGrossPriceBasedOnNetPrice) {
-                    this.calculateAndUpdatePrice();
-                }
-            });
+        if (this.form.field('PriceIncVat')) {
+            this.form.field('PriceIncVat')
+                .onChange            
+                .subscribe((data) => {
+                    if (this.product.CalculateGrossPriceBasedOnNetPrice) {
+                        this.calculateAndUpdatePrice();
+                    }
+                });   
+        }
             
         this.form.field('CalculateGrossPriceBasedOnNetPrice')
             .onChange            

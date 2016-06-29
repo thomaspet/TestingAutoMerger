@@ -48,3 +48,4 @@ export * from './reports/ReportDefinitionDataSourceService';
 export * from './common/AltinnService';
 export * from './common/IntegrationServerCaller';
 export * from './common/AltinnReceiptService';
+export * from './common/UserService';

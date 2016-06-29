@@ -103,6 +103,13 @@ export class TimeEntry {
         }
     }
 
+    onRowActionClicked(rowIndex:number, item:any) {
+        this.editable.closeEditor();
+        this.timeSheet.removeRow(rowIndex);
+        this.flagUnsavedChanged();
+        
+    }
+
     routerCanDeactivate(next: ComponentInstruction, prev: ComponentInstruction):any {
         return this.checkSave();
     }

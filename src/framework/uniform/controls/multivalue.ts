@@ -47,7 +47,7 @@ declare var _; // lodash
                     </li>             
                 </template>
                 <li>
-                    <button class="uni-multivalue-addBtn" 
+                    <button class="uni-multivalue-addBtn" type="button" 
                             (click)="addValue($event)">
                                 Legg til&hellip;
                     </button>
