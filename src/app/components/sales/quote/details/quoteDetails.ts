@@ -438,6 +438,7 @@ export class QuoteDetails {
 
                 this.customerQuoteService.Get(quote.ID, this.expandOptions).subscribe((data) => {
                         this.quote = data;
+                        this.addressService.setAddresses(this.quote);
                         this.updateStatusText();
                         this.updateSaveActions();
                         this.setTabTitle();

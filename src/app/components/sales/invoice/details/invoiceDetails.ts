@@ -490,6 +490,7 @@ export class InvoiceDetails implements OnInit {
 
                 this.customerInvoiceService.Get(invoice.ID, this.expandOptions).subscribe((data) => {
                     this.invoice = data;
+                    this.addressService.setAddresses(this.invoice);
                     this.updateStatusText();
                     this.updateSaveActions();
                     this.setTabTitle();

@@ -442,6 +442,7 @@ export class OrderDetails {
 
                 this.customerOrderService.Get(order.ID, this.expandOptions).subscribe((data) => {
                     this.order = data;
+                    this.addressService.setAddresses(this.order);
                     this.updateStatusText();
                     this.updateSaveActions();
                     this.setTabTitle();
