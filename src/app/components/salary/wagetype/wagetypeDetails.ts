@@ -1,9 +1,9 @@
 import {Component, ViewChild} from '@angular/core';
 import {RouteParams, Router} from '@angular/router-deprecated';
-import {WageTypeService} from '../../../services/services';
+import {WageTypeService, AccountService} from '../../../services/services';
 import {UniForm, UniFieldLayout} from '../../../../framework/uniForm';
 import {WidgetPoster} from '../../../../framework/widgetPoster/widgetPoster';
-import {WageType} from '../../../unientities';
+import {WageType, Account} from '../../../unientities';
 import {UniSave, IUniSaveAction} from '../../../../framework/save/save';
 import {Observable} from 'rxjs/Observable';
 import {TabService} from '../../layout/navbar/tabstrip/tabService';
@@ -13,12 +13,13 @@ declare var _; // lodash
 @Component({
     selector: 'wagetype-details',
     templateUrl: 'app/components/salary/wagetype/wagetypeDetails.html',
-    providers: [WageTypeService],
+    providers: [WageTypeService, AccountService],
     directives: [UniForm, UniSave, WidgetPoster]
 })
 export class WagetypeDetail {
     private wageType: WageType;
     private wagetypeID: number;
+    private accounts: Account[];
     private saveactions: IUniSaveAction[] = [
         {
             label: 'Lagre lønnsart',
@@ -31,7 +32,7 @@ export class WagetypeDetail {
     public fields: any[] = [];
     @ViewChild(UniForm) public uniform: UniForm;
 
-    constructor(private routeparams: RouteParams, private router: Router, private wageService: WageTypeService, private tabService: TabService) {
+    constructor(private routeparams: RouteParams, private router: Router, private wageService: WageTypeService, private tabService: TabService, private accountService: AccountService) {
 
         this.config = {
             submitText: ''
@@ -43,11 +44,12 @@ export class WagetypeDetail {
     private getLayoutAndData() {
         Observable.forkJoin(
             this.wageService.getWageType(this.wagetypeID),
-            this.wageService.layout('WagetypeDetails')
+            this.wageService.layout('WagetypeDetails'),
+            this.accountService.GetAll(null)
         ).subscribe(
             (response: any) => {
-                let [wagetype, layout] = response;
-
+                let [wagetype, layout, accountList] = response;
+                this.accounts = accountList;
                 this.wageType = wagetype;
 
                 if (this.wageType.ID === 0) {
@@ -62,13 +64,22 @@ export class WagetypeDetail {
 
                 let wageTypeNumber: UniFieldLayout = this.findByProperty(this.fields, 'WageTypeId');
                 wageTypeNumber.ReadOnly = this.wagetypeID > 0;
+
+                let accountNumber: UniFieldLayout = this.findByProperty(this.fields, 'AccountNumber');
+                accountNumber.Options = {
+                    source: this.accounts,
+                    valueProperty: 'AccountNumber',
+                    displayProperty: 'AccountNumber',
+                    debounceTime: 200,
+                    template: (obj) => `${obj.AccountNumber} - ${obj.AccountName}`
+                };
                 this.fields = _.cloneDeep(this.fields);
 
                 this.config = {
                     submitText: ''
                 };
                 this.toggleAccountNumberBalanceHidden();
-            }, 
+            },
             (err) => {
                 this.log('Feil ved henting av lønnsart', err);
             }
