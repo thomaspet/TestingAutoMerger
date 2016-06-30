@@ -1,11 +1,14 @@
-<div style="white-space:nowrap" *ngFor="let reportCategory of reportCategories">
-    <h2 style="margin-top:2px;margin-bottom:2px">{{ reportCategory.name }}</h2>
-    <div *ngFor="let report of reportCategory.reports" style="margin-left:4px">
-        <a (click)="showModalReportParameters(report)">
-            <h4 style="margin-bottom:2px;">{{report.Name }}</h4>
-            <p style="color: rgb(187, 187, 187); font-size: 0.8em;white-space:normal">{{report.Description}}</p>
-        </a>
-    </div>
+<div>
+    <h1>Rapportoversikt</h1>
+    <figure class="dashboard_chart_card" *ngFor="let reportCategory of reportCategories">
+        <h2 style="margin-top:2px;margin-bottom:2px">{{ reportCategory.name }}</h2>
+        <div *ngFor="let report of reportCategory.reports" style="margin-left:4px">
+            <a (click)="showModalReportParameters(report)">
+                <h4 style="margin-bottom:2px;">{{report.Name }}</h4>
+                <p style="color: rgb(187, 187, 187); font-size: 0.8em;white-space:normal">{{report.Description}}</p>
+            </a>
+        </div>
+    </figure>
 </div>
 <report-parameter-modal></report-parameter-modal>
 <report-preview-modal></report-preview-modal>
