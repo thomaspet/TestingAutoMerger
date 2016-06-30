@@ -10,7 +10,39 @@ import 'rxjs/add/operator/debounceTime';
 
 @Component({
     selector: 'uni-navbar-search',
-    templateUrl: 'app/components/layout/navbar/search/search.html',
+    template: `
+        <nav class="navbar_search">
+            <div >
+                <input #searchInput
+                    class="search_input"
+                    type="search"
+                    placeholder="Søk etter tema eller funksjon"
+                    aria.autocomplete="inline"
+                    role="combobox"
+                    (blur)="close()"
+                    (keydown)="onKeyDown($event)"
+                    [ngFormControl]="inputControl"
+                />
+
+                <ul #resultList
+                    class="search_results"
+                    role="listbox"
+                    tabindex="-1"
+                    [attr.aria-expanded]="isExpanded">
+                    
+                    <li role="option"
+                        class="autocomplete_result"
+                        [attr.aria-selected]="selectedIndex === idx"
+                        (mouseover)="onMouseover(idx)"
+                        (click)="confirmSelection()"
+                        *ngFor="let result of searchResults; let idx = index"
+                        style="cursor: pointer">
+                        {{result.componentName}}
+                    </li>
+                </ul>
+            </div>
+        </nav>
+    `,
 })
 export class NavbarSearch implements AfterViewInit {
     @ViewChild('searchInput')
@@ -48,7 +80,6 @@ export class NavbarSearch implements AfterViewInit {
             
             // TODO: This should be reworked after 30.6
             if (query.indexOf('faktura ') === 0) {
-                //this.invoiceLookup(query.slice(8));
                 this.TOFLookup(query.slice(8), 'invoice');
             } else if (query.indexOf('ordre ') === 0) {
                 this.TOFLookup(query.slice(6), 'order');
@@ -132,7 +163,7 @@ export class NavbarSearch implements AfterViewInit {
             this.inputControl.updateValue('', { emitEvent: false });
             this.isExpanded = false;
             this.renderer.invokeElementMethod(this.inputElement.nativeElement, 'blur', []);
-        }, 120)
+        }, 120);
                 
     }
 
@@ -188,6 +219,6 @@ export class NavbarSearch implements AfterViewInit {
                     this.isExpanded = true;
                 },
                 (error) => { }
-            )
+            );
     }
 }

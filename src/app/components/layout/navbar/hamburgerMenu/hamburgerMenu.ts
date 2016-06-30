@@ -6,7 +6,21 @@ declare var jQuery;
 
 @Component({
     selector: 'uni-hamburger-menu',
-    templateUrl: 'app/components/layout/navbar/hamburgerMenu/hamburgerMenu.html',
+    template: `
+        <nav class="navbar_hamburger" [ngClass]="{'is-active': open}">
+            <ul class="navbar_menu">
+                <li *ngFor="let componentList of availableComponents; let i = index" class="listElement" [ngClass]="{true:'is-active', false:''}[i==0]">
+                    {{componentList.componentListName}}
+                    <ul>
+                        <h3>{{componentList.componentListHeader}}</h3>
+                        <li *ngFor="let component of componentList.componentList" (click)="navigate(component.componentUrl)">
+                            {{component.componentName}}
+                        </li>
+                    </ul>
+                </li>
+            </ul>
+        </nav>
+    `,
     directives: [ROUTER_DIRECTIVES, NgFor, NgClass],
     host: {
         '(click)': 'onClick($event)',
