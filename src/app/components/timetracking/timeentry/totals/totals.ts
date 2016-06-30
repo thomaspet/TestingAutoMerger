@@ -12,7 +12,7 @@ import {IFilter} from '../timeentry';
 })
 export class RegtimeTotals {
     private timesheet: TimeSheet;
-    private config: { columns: Array<ICol>; items: Array<any>; }
+    private config: { columns: Array<ICol>; items: Array<any>; sums:any }
     private filters: Array<IFilter> = [
         { name: 'today', label: 'I dag', interval: ItemInterval.today },
         { name: 'week', label: 'Denne uke', interval: ItemInterval.thisWeek},
@@ -77,22 +77,24 @@ export class RegtimeTotals {
                 sum += itemSum;
                 lineSum[col.name] = (lineSum[col.name] || 0) + itemSum;  
             }
+            lineSum.sum = (lineSum.sum || 0) + sum;
             items[i].sum = sum;            
         }
         lineSum['businessrelation_name'] = 'Sum';
-        items.push(lineSum);
 
         this.config = {
             columns: cols,
-            items: items
+            items: items,
+            sums: lineSum
         }
     }
 
     private queryTotals() {
         this.busy = true;
         var query = "model=workitem";
+        var filter = this.workerService.getIntervalFilter(this.currentFilter.interval);
         query += this.createArg('select', 'sum(minutes),name,businessrelation.name');
-        query += this.createArg('filter', this.workerService.getIntervalFilter(this.currentFilter.interval));
+        query += this.createArg('filter', 'deleted eq \'false\'' + (filter ? ' and ( ' +  filter + ' )' : ''));
         query += this.createArg('pivot', 'true');
         query += this.createArg('join', 'workitem.worktypeid eq worktype.id and workitem.workrelationid eq workrelation.id and workrelation.workerid eq worker.id and worker.businessrelationid eq businessrelation.id');
         query += this.createArg('orderby', '');

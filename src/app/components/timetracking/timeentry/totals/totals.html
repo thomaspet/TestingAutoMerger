@@ -19,6 +19,11 @@
                 <td class="right" *ngFor="let col of config.columns">{{item[col.name] | min2hours:'short' }}</td>
                 <td class="right sum">{{item.sum | min2hours:'short'}}</td>
             </tr>
+            <tr>
+                <td class="sum">Totalsum</td>
+                <td class="right sum" *ngFor="let col of config.columns">{{config.sums[col.name] | min2hours:'short' }}</td>
+                <td class="right sum">{{config.sums.sum | min2hours:'short'}}</td>
+            </tr>
         </tbody>
     </table>
 </section>
