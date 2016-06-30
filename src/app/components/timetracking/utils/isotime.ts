@@ -1,6 +1,12 @@
 import {Pipe, PipeTransform} from '@angular/core';
 declare var moment;
 
+interface ITime { 
+    hours:number;
+    minutes:number;
+    preSign:string; 
+}
+
 @Pipe({
   name: 'isotime'
 })
@@ -20,32 +26,38 @@ export class MinutesToHoursPipe implements PipeTransform {
         var parsed = this.parse(value);
         switch (format) {
             case 'short':
-                return this.shortFmt(parsed.hours, parsed.minutes);
+                return this.shortFmt(parsed);
             default:
-                return this.longFmt(parsed.hours, parsed.minutes);
+                return this.longFmt(parsed);
         }        
     }
 
-    private parse(value: any):{ hours:number, minutes:number } {
-        var defaultValue = { hours:0, minutes: 0 };
+    private parse(value: any):ITime {
+        var defaultValue = { hours:0, minutes: 0, preSign:'' };
         if (value===null) return defaultValue;
         if (!value) return defaultValue;
         var hours = 0;
         var minutes = parseInt(value);
+        var preSign = '';
+        if (minutes<0) {
+            minutes = -minutes;
+            preSign = '-';
+        }
         if (minutes===0) return defaultValue;
         if (minutes>=60) {
             hours = Math.floor(minutes / 60)
             minutes = minutes % 60;
         }
-        return { hours: hours, minutes: minutes };        
+        return { hours: hours, minutes: minutes, preSign: preSign };        
     }
 
-    private longFmt(hours:number, minutes:number): string {
-        return (hours > 0 ? hours + ' timer ' : '') + (minutes!==0 ? (hours>0 ? ' og ' : '') + minutes + ' minutter' : '');
+    private longFmt(time:ITime): string {
+        return time.preSign + (time.hours > 0 ? time.hours + ' timer ' : '') + (time.minutes!==0 ? (time.hours>0 ? ' og ' : '') + time.minutes + ' minutter' : '');
     }
 
-    private shortFmt(hours:number, minutes:number): string {
-        return hours + ' : ' + (minutes<10 ? '0' : '') + minutes;
+    private shortFmt(time:ITime): string {
+        if (time.hours===0 && time.minutes ===0) return '';
+        return time.preSign + time.hours + ' : ' + (time.minutes< 10 ? '0' : '') + time.minutes;
     }
 
 }

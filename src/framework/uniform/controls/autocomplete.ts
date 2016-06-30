@@ -85,6 +85,9 @@ export class UniAutocompleteInput {
     @Output()
     public onReady: EventEmitter<UniAutocompleteInput> = new EventEmitter<UniAutocompleteInput>(true);
 
+    @Output()
+    public onChange: EventEmitter<any> = new EventEmitter<any>(true);
+
     // state vars
     private guid: string;
     private options: any;
@@ -106,6 +109,7 @@ export class UniAutocompleteInput {
 
     public ngOnChanges(changes) {
         if (changes['model']) {
+            this.lastValue = null;
             this.options = this.field.Options || {};
             this.source = this.options.source;
         }
@@ -236,7 +240,11 @@ export class UniAutocompleteInput {
             if (this.field.Options && this.field.Options.events && this.field.Options.events.select) {
                 this.field.Options.events.select(this.model);
             }
+            
+            this.onChange.emit(this.model);
         }
+        
+        
     }
     
     private onMouseover(index) {

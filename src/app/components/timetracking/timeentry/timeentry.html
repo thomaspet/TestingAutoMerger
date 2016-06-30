@@ -19,33 +19,29 @@
     <section class="regtime_tabs">
 
         <section [hidden]="!tabs[1].isSelected">
+            <h2>Totaler</h2>
             <regtimetotals></regtimetotals>
         </section>
 
         <section [hidden]="!tabs[2].isSelected">
-            <h3>Fleksitid</h3>
+            <h2>Fleksitid</h2>
         </section>
 
         <section [hidden]="!tabs[3].isSelected">
-            <h3>Arbeidsgivere</h3>
+            <h2>Arbeidsgivere</h2>
         </section>
 
         <section [hidden]="!tabs[4].isSelected">
-            <h3>Ferie</h3>
+            <h2>Ferie</h2>
         </section>
 
         <section [hidden]="!tabs[5].isSelected">
-            <h3>Fravær</h3>
+            <h2>Fravær</h2>
         </section>
 
         <section [hidden]="!tabs[0].isSelected">
 
             <aside class="regtime_filters">
-                <ul>
-                    <li *ngFor="let filter of filters">
-                        <a (click)="onFilterClick(filter)" [ngClass]="{'router-link-active': filter.isSelected}" >{{filter.label}}</a> 
-                    </li>
-                </ul>    
 
                 <footer>
                     <table class='timeentry_toolbar'><tr>
@@ -58,6 +54,12 @@
                     </tr></table> 
                 </footer>
 
+                <ul>
+                    <li *ngFor="let filter of filters">
+                        <a (click)="onFilterClick(filter)" [ngClass]="{'router-link-active': filter.isSelected}" >{{filter.label}}</a> 
+                    </li>
+                </ul>    
+                
             </aside>
             
             <article [attr.aria-busy]="busy" >
