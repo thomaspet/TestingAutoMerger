@@ -378,7 +378,7 @@ export class SalaryTransactionEmployeeList implements OnInit {
         var percentCol = new UniTableColumn('percentTax', 'Prosenttrekk', UniTableColumnType.Number);
         var taxtableCol = new UniTableColumn('tableTax', 'Tabelltrekk', UniTableColumnType.Number);
         var paidCol = new UniTableColumn('netPayment', 'Utbetalt beløp', UniTableColumnType.Number);
-        var agaCol = new UniTableColumn('baseAGA', 'Beregnet AGA', UniTableColumnType.Number);
+        var agaCol = new UniTableColumn('calculatedAGA', 'Beregnet AGA', UniTableColumnType.Number);
         var basevacationCol = new UniTableColumn('baseVacation', 'Grunnlag feriepenger', UniTableColumnType.Number);
 
         this.salarytransEmployeeTotalsTableConfig = new UniTableConfig()
