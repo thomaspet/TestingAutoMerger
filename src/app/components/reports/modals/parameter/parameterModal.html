@@ -1,9 +1,15 @@
-<article class="modal-content report-parameter-modal">
+<article class="report-parameter-modal report_parameter_modal">
     <h1 class="modal-title" *ngIf="config.title">{{config.title}}</h1>
-    <div style="white-space:nowrap" *ngFor="let parameter of config.report.parameters">
-        <h4> {{ parameter.Label }} </h4>
-        <input type="text" [(ngModel)]="parameter.value" />
-    </div>
+    <table>
+        <tr style="white-space:nowrap" *ngFor="let parameter of config.report.parameters">
+            <td style="width:50%">
+                <h4> {{ parameter.Label }} </h4>
+            </td>
+            <td style="width:50%">
+                <input type="text" [(ngModel)]="parameter.value" />
+            </td>
+        </tr>
+    </table>
     <footer>
         <button *ngFor="let action of config.actions; let i=index" (click)="action.method()">
             {{action.text}}
