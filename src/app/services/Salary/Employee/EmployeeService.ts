@@ -54,16 +54,17 @@ export class EmployeeService extends BizHttp<Employee> {
             .send({expand: 'BusinessRelationInfo'});
     }
     
-    public getTotals(payrunID: number, employeeID: number = 0) {
+    public getTotals(payrunID: number, employeeID: number = 0) {        
         var params = '&payrun=' + payrunID;
         if (employeeID) {
-            params += '&employee=' + employeeID;
+            params += '&employee=' + employeeID;        
         }
+        
         return this.http
             .asGET()
             .usingBusinessDomain()
-            .withEndPoint('salarytrans')
-            .send({action: 'Sums' + params});
+            .withEndPoint('salarytrans?action=Sums' + params)
+            .send(); //{action: 'Sums' + params});
     }
 
     public getEmployeeLeave() {

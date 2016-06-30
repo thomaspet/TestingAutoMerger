@@ -431,7 +431,7 @@ export class SalaryTransactionEmployeeList implements OnInit {
 
     private setUnitableSource() {
         var filter = this.buildFilter();
-        console.log("setUniTablSrou");
+        
         this.salarytransItems$ = this._uniHttpService.asGET()
             .usingBusinessDomain()
             .withEndPoint('salarytrans')
@@ -439,11 +439,10 @@ export class SalaryTransactionEmployeeList implements OnInit {
                 filter: filter,
                 expand: '@Wagetype'
             });
-        console.log("setUniTablS"+this.payrollRun.ID+ this.employeeID);
+        
         this.employeeService.getTotals(this.payrollRun.ID, this.employeeID)
             .subscribe((response) => {
                 if (response) {
-                    console.log("totals: " + JSON.stringify(response))
                     this.employeeTotals = [response];
                 }
             }, (error: any) => {
