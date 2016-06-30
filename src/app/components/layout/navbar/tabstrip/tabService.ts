@@ -1,5 +1,5 @@
-import {Injectable} from "@angular/core";
-import {UniTabStrip, IUniTab} from "./tabStrip";
+import {Injectable} from '@angular/core';
+import {IUniTab} from './tabStrip';
 
 @Injectable()
 export class TabService {
@@ -8,7 +8,7 @@ export class TabService {
     public currentActiveIndex: number = 0;
 
     constructor() {
-        this._tabs = JSON.parse(localStorage.getItem("navbarTabs")) || [];
+        this._tabs = JSON.parse(localStorage.getItem('navbarTabs')) || [];
         this._tabs.forEach((tab, i) => {
             if (tab.active) {
                 this.currentActiveTab = tab;
@@ -50,7 +50,7 @@ export class TabService {
         if (moduleCheck.exists) {
             newTab.active = true;
             this._tabs[moduleCheck.index] = newTab;
-            localStorage.setItem("navbarTabs", JSON.stringify(this._tabs));
+            localStorage.setItem('navbarTabs', JSON.stringify(this._tabs));
             this.currentActiveIndex = moduleCheck.index;
             duplicate = true;
         }
@@ -58,7 +58,7 @@ export class TabService {
         if (!duplicate) {
             newTab.active = true;
             this._tabs.push(newTab);
-            localStorage.setItem("navbarTabs", JSON.stringify(this._tabs));
+            localStorage.setItem('navbarTabs', JSON.stringify(this._tabs));
             this.currentActiveIndex = this._tabs.length - 1;
         }
 
@@ -72,26 +72,26 @@ export class TabService {
         
     }
 
-    //Sets tab active based on name
+    // Sets tab active based on name
     public setTabActive(index: number) {
         this._tabs[index].active = true;
         this.currentActiveTab = this._tabs[index];
         this.currentActiveIndex = index;
     }
 
-    //Removes tab and returns the new tab to be activated
+    // Removes tab and returns the new tab to be activated
     public removeTab(tabToRemove: IUniTab, index: number): IUniTab {
         this._tabs.splice(index, 1);
-        localStorage.setItem("navbarTabs", JSON.stringify(this._tabs));
+        localStorage.setItem('navbarTabs', JSON.stringify(this._tabs));
         this.currentActiveIndex = this._tabs.length - 1;
 
-        //If the closed tab is not the active one
+        // If the closed tab is not the active one
         if (!tabToRemove.active) {
             return this.currentActiveTab;
         } else {
-            //If closing the last open tab -> go to dashboard? Creates "bug" if dashboard is last tab
+            // If closing the last open tab -> go to dashboard? Creates "bug" if dashboard is last tab
             if (this._tabs.length === 0) {
-                return { name: 'Nøkkeltall', url: '/', moduleID: 0 };
+                return { name: 'NÃ¸kkeltall', url: '/', moduleID: 0 };
             } else {
                 return this._tabs[this._tabs.length - 1];
             }
@@ -100,6 +100,7 @@ export class TabService {
 
     public removeAllTabs() {
         this._tabs = [];
+        localStorage.removeItem('navbarTabs');
     }
 
 }

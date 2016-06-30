@@ -156,11 +156,13 @@ export class AgaAndSubEntitySettings implements OnInit {
             var agaRuleName = '';
             if (agaZone) { agaZoneName = ', Sone ' + agaZone.ZoneName; }
             if (agaRule) { agaRuleName = ', ' + agaRule.sector; }
-            var subEntitySection = new UniSectionBuilder(subEntity.BusinessRelationInfo.Name +
-                ', ' + subEntity.OrgNumber +
-                ', ' + subEntity.MunicipalityNo + '-' + municipal.MunicipalityName +
-                agaZoneName +
-                agaRuleName);
+            console.log(subEntity.BusinessRelationInfo.Name);
+            var subEntitySection = new UniSectionBuilder(
+                (subEntity.BusinessRelationInfo.Name ? subEntity.BusinessRelationInfo.Name : '')
+                + (subEntity.OrgNumber && subEntity.OrgNumber !== '-' ? ', ' + subEntity.OrgNumber : '')
+                + (subEntity.MunicipalityNo !== null ? ', ' + subEntity.MunicipalityNo + '-' + municipal.MunicipalityName : '')
+                + (agaZoneName ? agaZoneName : '')
+                + (agaRuleName ? agaRuleName : ''));
 
             var subEntityName = new UniFieldBuilder();
             subEntityName.setLabel('Virksomhet navn')
@@ -285,6 +287,9 @@ export class AgaAndSubEntitySettings implements OnInit {
 
     public saveAgaAndSubEntities(done) {
         this.uniForm.sync();
+        if (!this.companySalary[0].PaymentInterval) {
+            this.companySalary[0].PaymentInterval = 1;
+        }
         done('lagrer kontoer');
         this.companySalaryService.Put(this.companySalary[0].ID, this.companySalary[0]).subscribe((response: CompanySalary) => {
             this.companySalary[0] = response;
