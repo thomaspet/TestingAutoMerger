@@ -1,5 +1,6 @@
 ﻿<h2>AGA og Virksomhetsinnstillinger</h2>
 <article *ngIf="companySalary != null && form != null">
-    <uni-form class="companySettings" (uniFormSubmit)='onSubmit($event)' [config]='form'></uni-form>
+    <uni-form class="companySettings" [config]='form'></uni-form>
 </article>
 <section class="error" *ngIf="error" style="background-color: #fbe4e1; color:#a90000; padding: 5px;"><strong>Ops!</strong> Noe gikk galt. Lukk innstillinger og prøv igjen</section>
+<uni-save [actions]="saveactions"></uni-save>

@@ -29,6 +29,9 @@ export class SupplierDetails {
     
     private config: any = {};
     private fields: any[] = [];
+    private addressChanged: any;
+    private phoneChanged: any;
+    private emailChanged: any;
         
     private dropdownData: any;
     private supplier: Supplier;    
@@ -254,7 +257,8 @@ export class SupplierDetails {
                                 
                 this.phoneModal.openModal(value);
                 
-                this.phoneModal.Changed.subscribe(modalval => {                                       
+                this.phoneChanged = this.phoneModal.Changed.subscribe(modalval => { 
+                    this.phoneChanged.unsubscribe();                                      
                     resolve(modalval);    
                 });               
             })
@@ -276,7 +280,8 @@ export class SupplierDetails {
                                 
                 this.addressModal.openModal(value);
                 
-                this.addressModal.Changed.subscribe(modalval => {                                       
+                this.addressChanged = this.addressModal.Changed.subscribe(modalval => {   
+                    this.addressChanged.unsubscribe();                                    
                     resolve(modalval);    
                 });               
             }),
@@ -301,7 +306,8 @@ export class SupplierDetails {
                                 
                 this.emailModal.openModal(value);
                 
-                this.emailModal.Changed.subscribe(modalval => {                                       
+                this.emailChanged = this.emailModal.Changed.subscribe(modalval => {  
+                    this.emailChanged.unsubscribe();                                     
                     resolve(modalval);    
                 });               
             })
@@ -322,7 +328,8 @@ export class SupplierDetails {
                                 
                 this.addressModal.openModal(value);
                 
-                this.addressModal.Changed.subscribe(modalval => {                                       
+                this.addressChanged = this.addressModal.Changed.subscribe(modalval => {       
+                    this.addressChanged.unsubscribe();                                
                     resolve(modalval);    
                 });               
             }),

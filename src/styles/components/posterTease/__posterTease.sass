@@ -1,2 +1,153 @@
-.posterTease
+@keyframes placeholder
+    from
+        transform: scaleX(0)
+        opacity: 0
+    to
+        transform: scaleX(1)
+        opacity: 1
+
+@keyframes rotateIn
+    from
+        transform: rotate(20deg)
+        opacity: 0
+    to
+        transform: rotate(45deg)
+        opacity: 1
+
+@keyframes fadeIn
+    from
+        opacity: 0
+    to
+        opacity: 1
+
+.poster_tease
+    @include unigrid(14)
     display: flex
+    height: 15rem
+    margin: 0 auto
+
+.poster_tease_widget
+    flex-grow: 1
+    width: 25%
+    height: 100%
+    padding: 1rem
+    border-left: pxToRem(1) solid $uni-color-negative
+    box-sizing: border-box
+
+    &:first-of-type
+        border-left: none
+        display: flex
+        flex-direction: column
+        justify-content: space-around
+
+    &:nth-of-type(2)
+        padding: 1rem 0 0 0
+
+    &:nth-of-type(3)
+        display: flex
+        flex-direction: column
+        align-content: center
+        justify-content: space-around
+
+    &:nth-of-type(4)
+        position: relative
+        display: flex
+        justify-content: space-around
+
+%posterPlaceholder
+    background: transparentize($uni-color-C2A, .9)
+    animation: 1000ms ease placeholder
+
+%posterElemCenter
+    margin: 0 auto
+
+.widget_avatar
+    @extend %posterElemCenter
+    height: 4rem
+    width: 4rem
+    background: unicon-user(transparentize($uni-color-C2A, .8)) no-repeat center center
+    background-size: contain
+
+.widget_headline
+    @extend %posterPlaceholder
+    @extend %posterElemCenter
+    height: 1.8rem
+    width: 90%
+
+.widget_subhead
+    @extend %posterPlaceholder
+    @extend %posterElemCenter
+    height: 1.4rem
+    width: 50%
+
+.widget_randomNumber
+    margin: 0
+    padding: 0
+    width: 100%
+    text-align: center
+    font-size: 7rem
+    font-weight: 700
+    color: transparentize($uni-color-C2A, .9)
+
+.poster_explain
+    background: none
+    position: absolute
+    right: 0
+    top: 0
+    margin: .5rem 0
+    text-shadow: none
+    box-shadow: none
+    border: pxToRem(2) solid transparentize($uni-color-C2A, .7)
+    color: transparentize($uni-color-C2A, .5)
+    transition: all ease 300ms
+
+    &:hover,
+    &:focus
+        background: $uni-color-negative
+        color: $uni-color-C2A
+        border-color: $uni-color-C2A
+
+.widget_checkmark
+    position: relative
+    transform: rotate(45deg)
+    top: -6rem
+    left: -4rem
+    animation: 1s ease-in rotateIn
+
+    &:before,
+    &:after
+        content: ''
+        display: block
+        position: absolute
+        background: #d1e0eb
+        border-radius: pxToRem(3)
+
+    &:before
+        height: 1rem
+        width: 5rem
+        top: 10rem
+        left: 3rem
+
+    &:after
+        width: 1rem
+        height: 8rem
+        top: 3rem
+        left: 7rem
+
+.poster_explainer
+    width: 100%
+    position: absolute
+    height: 15rem
+    background: transparentize(lighten($uni-color-scale9, 5%), .5)
+    z-index: 1
+
+    & > *:not(button)
+        @include unigrid-flush(14)
+        margin: 0 auto
+        padding: .5rem 1rem
+        position: relative
+
+    button.close
+        position: absolute
+        right: 0
+        z-index: 1
