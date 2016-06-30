@@ -1,20 +1,13 @@
+<aside class="horizontal_nav">
+    <ul>
+        <li *ngFor="let tab of tabs">
+            <a (click)="onTabClick(tab)" [ngClass]="{'router-link-active': tab.isSelected}" >{{tab.label}}</a>
+            <span class='regtimetabtip' *ngIf="tab.counter">({{tab.counter}})</span>   
+        </li>
+    </ul>    
+</aside>
+
 <section class='application regtimecontainer'>
-    
-    <header class="regtimetitle">
-        <span>Registrere timer for {{userName}}</span>
-        <select *ngFor="let item of workRelations">
-            <option>{{item.CompanyName}} : {{item.WorkPercentage}}% - {{item.Description}}</option>
-        </select>
-    </header>
-    
-    <aside class="horizontal_nav">
-        <ul>
-            <li *ngFor="let tab of tabs">
-                <a (click)="onTabClick(tab)" [ngClass]="{'router-link-active': tab.isSelected}" >{{tab.label}}</a>
-                <span class='regtimetabtip' *ngIf="tab.counter">({{tab.counter}})</span>   
-            </li>
-        </ul>    
-    </aside>
 
     <section class="regtime_tabs">
 
@@ -40,6 +33,13 @@
         </section>
 
         <section [hidden]="!tabs[0].isSelected">
+    
+            <header class="regtimetitle">
+                <span>Registrere timer for {{userName}}</span>
+                <select *ngFor="let item of workRelations">
+                    <option>{{item.CompanyName}} : {{item.WorkPercentage}}% - {{item.Description}}</option>
+                </select>
+            </header>            
 
             <aside class="regtime_filters">
 
