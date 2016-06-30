@@ -63,7 +63,18 @@ export class RegtimeTotals {
                 isSelected: false,
                 join: 'workitem.worktypeid eq worktype.id and workitem.customerorderid eq customerorder.id', 
                 filter: 'customerorder.ordernumber gt 0'  
+            },
+            { name: 'projects', label: 'Prosjekter (dine)', pivotColName: 'project.name', 
+                isSelected: false,
+                join: 'workitem.worktypeid eq worktype.id and workitem.dimensionsid eq dimensions.id and dimensions.projectid eq project.id', 
+                filter: 'projectid gt 0 and workrelationid eq ' + ts.currentRelation.ID  
+            },
+            { name: 'projects2', label: 'Prosjekter (alle)', pivotColName: 'project.name', 
+                isSelected: false,
+                join: 'workitem.worktypeid eq worktype.id and workitem.dimensionsid eq dimensions.id and dimensions.projectid eq project.id', 
+                filter: 'projectid gt 0'  
             }        
+            
         ];    
     }
 
