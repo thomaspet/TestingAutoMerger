@@ -1,8 +1,7 @@
-import {Component, Input} from '@angular/core';
+import {Component, Input, ViewChild, ElementRef} from '@angular/core';
 import {UniHttp} from '../core/http/http';
 import {AuthService} from '../core/authService';
-
-declare var __moduleName: string;
+import {ImageUploader} from './imageUploader';
 
 export enum UniImageSize {
     small = 150,
@@ -10,14 +9,52 @@ export enum UniImageSize {
     large = 1200
 }
 
+export interface IUploadConfig {
+    entityType: string;
+    entityId: number;
+    onSuccess: (imageId: number) => void;
+    isDisabled?: boolean;
+    disableMessage?: string;
+}
+
 @Component({
     selector: 'uni-image',
-    moduleId: __moduleName,
-    templateUrl: './uniImage.html'
+    template: `
+        <section *ngIf="pageCount > 1">
+            <button class="c2a" [disabled]="imageId === 0" (click)="prev()">prev</button>
+            <button class="c2a" (click)="next()">next</button>
+        </section>
+
+        <picture #imageContainer *ngIf="imgUrl.length" [attr.aria-busy]="loadingImage">
+            <source [attr.srcset]="imgUrl2x" media="(-webkit-min-device-pixel-radio: 2), (min-resolution: 192dpi)">
+            <img [attr.src]="imgUrl" alt="">
+        </picture>
+        <section *ngIf="uploadConfig && !uploadConfig.isDisabled">
+            <label [ngClass]="{'has-image': imgUrl.length}">
+                <a>{{file?.name || 'Klikk her for å velge bilde'}}</a>
+                <input type="file" (change)="uploadFileChange($event)">
+                <button (click)="uploadFile()" [attr.aria-busy]="uploading" [disabled]="!file || uploading">Last opp</button>
+            </label>
+        </section>
+        <p *ngIf="uploadConfig && uploadConfig.isDisabled">{{uploadConfig.disableMessage}}</p>
+    `,
+    providers: [ImageUploader]
 })
 export class UniImage {
-    @Input() imageId: number;
-    @Input() size: UniImageSize;
+    @ViewChild('imageContainer')
+    private imageContainer: ElementRef;
+
+    @Input() 
+    private imageId: number;
+    
+    @Input()
+    private size: UniImageSize;
+
+    @Input()
+    private uploadConfig: IUploadConfig;
+
+    private uploading: boolean = false;
+    private loadingImage: boolean = false;
 
     private pageCount: number = 1;
     private currentPage: number = 1;
@@ -25,12 +62,16 @@ export class UniImage {
     private imgUrl: string = '';
     private imgUrl2x: string = '';
 
-    constructor(private authService: AuthService, private http: UniHttp) {}
+    private file: File;
+
+    constructor(private authService: AuthService, private http: UniHttp, private imageUploader: ImageUploader) {}
 
     public ngOnChanges() {
         if (this.imageId) {
             this.updateImage();
         }
+
+        console.log(JSON.stringify(this.uploadConfig));
     }
 
     public ngAfterViewInit() {
@@ -54,6 +95,7 @@ export class UniImage {
     }
 
     private updateImage() {
+        this.loadingImage = true;
         const token = 'Bearer ' + this.authService.getToken();
         const companyKey = this.authService.getActiveCompany()['Key'];
 
@@ -69,6 +111,20 @@ export class UniImage {
         // Generate image urls
         this.imgUrl = this.buildImgUrl(token, companyKey, (this.size || undefined));
         this.imgUrl2x = this.buildImgUrl(token, companyKey, (this.size ? (this.size * 2) : undefined));
+
+        setTimeout(() => {
+            let img = this.imageContainer.nativeElement.querySelector('img');
+            if (img.complete) {
+                this.loadingImage = false;
+            } else {
+                img.addEventListener('load', () => {
+                    this.loadingImage = false;
+                });
+                img.addEventListener('error', () => {
+                    this.loadingImage = false;
+                });
+            }
+        });
     }
 
     private next() {
@@ -82,4 +138,24 @@ export class UniImage {
     }
 
     
+    private uploadFileChange(event) {
+        const files = event.srcElement.files;
+        if (files && files.length) {
+            this.file = files[0];
+        }
+    }
+
+    private uploadFile() {
+        this.uploading = true;
+        
+        this.imageUploader.uploadImage(this.uploadConfig.entityType, this.uploadConfig.entityId, this.file)
+        .then(() => {
+            const slot = this.imageUploader.Slot;
+            this.uploadConfig.onSuccess(slot.ID);
+            this.uploading = false;
+        });
+
+        this.file = undefined;
+    }
+
 }

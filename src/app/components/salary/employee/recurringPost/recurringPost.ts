@@ -99,7 +99,7 @@ export class RecurringPost implements OnInit {
     private buildTableConfig() {
         var wagetypeCol = new UniTableColumn('WageType', 'Lønnsart', UniTableColumnType.Lookup)
             .setTemplate((dataItem) => {
-                return this.getWagetypeName(dataItem.WageTypeNumber);
+                return dataItem.WageTypeNumber;
             })
             .setEditorOptions({
                 itemTemplate: (selectedItem) => {
@@ -107,9 +107,16 @@ export class RecurringPost implements OnInit {
                 },
                 lookupFunction: (searchValue) => {
                     let matching: WageType[] = [];
+
                     this.wagetypes.forEach(wagetype => {
-                        if (wagetype.WageTypeName.toLowerCase().indexOf(searchValue) > -1) {
-                            matching.push(wagetype);
+                        if (isNaN(searchValue)) {
+                            if (wagetype.WageTypeName.toLowerCase().indexOf(searchValue) > -1) {
+                                matching.push(wagetype);
+                            }
+                        } else {
+                            if (wagetype.WageTypeId.toString().indexOf(searchValue) > -1) {
+                                matching.push(wagetype);
+                            }
                         }
                     });
                     return matching;
@@ -172,7 +179,7 @@ export class RecurringPost implements OnInit {
         if (!wagetype) {
             return;
         }
-        rowModel['Text'] = wagetype.Description;
+        rowModel['Text'] = wagetype.WageTypeName;
         rowModel['Account'] = wagetype.AccountNumber;
         rowModel['WageTypeNumber'] = wagetype.WageTypeId;
         rowModel['Amount'] = 1;
@@ -202,18 +209,6 @@ export class RecurringPost implements OnInit {
             }
         });
         return jobName;
-    }
-    
-    private getWagetypeName(wagetypeNumber: number) {
-        var wagetypeName = '';
-         
-        this.wagetypes.forEach((wagetype: WageType) => {
-            if (wagetype.WageTypeId === wagetypeNumber) {
-                wagetypeName = wagetype.WageTypeName;
-            }
-        });
-        
-        return wagetypeName;
     }
     
     private rowChanged(event) {

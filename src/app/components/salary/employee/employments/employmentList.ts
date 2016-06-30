@@ -78,7 +78,6 @@ export class EmploymentList implements OnInit {
             newEmployment.JobCode = '';
             newEmployment.JobName = '';
             newEmployment.StartDate = new Date();
-            newEmployment.EndDate = new Date();
             newEmployment.LastSalaryChangeDate = new Date();
             newEmployment.LastWorkPercentChangeDate = new Date();
             newEmployment.SeniorityDate = new Date();

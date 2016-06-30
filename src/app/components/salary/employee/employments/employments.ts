@@ -67,19 +67,36 @@ export class EmployeeEmployment {
             this.log(err);
         });
     }
+
+    private updateTitle(styrk) {
+        if (styrk) {
+            let styrkObj = this.styrks.find(x => x.styrk === styrk);
+            this.currentEmployment.JobName = styrkObj.tittel;
+            this.currentEmployment = _.cloneDeep(this.currentEmployment);
+            this.uniform.field('WorkPercent').focus();
+        }
+    }
     
     private refreshDatafromModel() {
         this._employmentService.layout('EmploymentDetails')
         .subscribe((layout: any) => {
             this.fields = layout.Fields;
 
-            var autocompleteJobcode = this.findByProperty(this.fields, 'JobCode');
+            let autocompleteJobcode = this.findByProperty(this.fields, 'JobCode');
             autocompleteJobcode.Options = {
                 source: this.styrks,
                 template: (obj) => obj ? `${obj.styrk} - ${obj.tittel}` : '', 
                 displayProperty: 'styrk',
                 valueProperty: 'styrk',
                 debounceTime: 500,
+                events: {
+                    select: (model: Employment) => {
+                        this.updateTitle(model.JobCode);
+                    },
+                    enter: (model: Employment) => {
+                        this.updateTitle(model.JobCode);
+                    }
+                }
             };
 
             this.fields = _.cloneDeep(this.fields);
@@ -134,7 +151,6 @@ export class EmployeeEmployment {
             });
         }
     }
-    
 
     public log(err) {
         alert(err._body);

@@ -6,7 +6,21 @@ declare var jQuery;
 
 @Component({
     selector: 'uni-hamburger-menu',
-    templateUrl: 'app/components/layout/navbar/hamburgerMenu/hamburgerMenu.html',
+    template: `
+        <nav class="navbar_hamburger" [ngClass]="{'is-active': open}">
+            <ul class="navbar_menu">
+                <li *ngFor="let componentList of availableComponents; let i = index" class="listElement" [ngClass]="{true:'is-active', false:''}[i==0]">
+                    {{componentList.componentListName}}
+                    <ul>
+                        <h3>{{componentList.componentListHeader}}</h3>
+                        <li *ngFor="let component of componentList.componentList" (click)="navigate(component.componentUrl)">
+                            {{component.componentName}}
+                        </li>
+                    </ul>
+                </li>
+            </ul>
+        </nav>
+    `,
     directives: [ROUTER_DIRECTIVES, NgFor, NgClass],
     host: {
         '(click)': 'onClick($event)',
@@ -27,8 +41,7 @@ export class HamburgerMenu {
                 componentListName: 'Nøkkeltall',
                 componentListHeader: 'Alt om deres økonomi',
                 componentList: [
-                    {componentName: 'Nøkkeltall', componentUrl: '/'},
-                    {componentName: 'Regnskap', componentUrl: '/accounting'}
+                    {componentName: 'Nøkkeltall', componentUrl: '/'}
                 ]
             },
             {
@@ -36,7 +49,6 @@ export class HamburgerMenu {
                 componentListHeader: 'Utgående salg',
                 componentList: [
                     {componentName: 'Kunder', componentUrl: '/sales'},
-                    {componentName: 'Leverandører', componentUrl: '/sales/supplier'},
                     {componentName: 'Tilbud', componentUrl: '/sales/quote'},
                     {componentName: 'Ordre', componentUrl: '/sales/order'},
                     {componentName: 'Faktura', componentUrl: '/sales/invoice'},
@@ -47,11 +59,12 @@ export class HamburgerMenu {
                 componentListName: 'Regnskap',
                 componentListHeader: 'Orden i bøkene',
                 componentList: [
-                    {componentName: 'Bilagsføring', componentUrl: '/accounting'},
+                    {componentName: 'Bilagsføring', componentUrl: '/accounting'},                    
                     {componentName: 'Forespørsel på konto', componentUrl: '/accounting/transquery'},
                     {componentName: 'Forespørsel på bilag', componentUrl: '/accounting/transquery/details'},
                     {componentName: 'Kontoinnstillinger', componentUrl: '/accounting/accountsettings'},
-                    {componentName: 'MVA innstillinger', componentUrl: '/accounting/vatsettings'},
+                    {componentName: 'MVA innstillinger', componentUrl: '/accounting/vatsettings'},                    
+                    {componentName: 'Leverandører', componentUrl: '/sales/supplier'}
                 ]
             },
             {

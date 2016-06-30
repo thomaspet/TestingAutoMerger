@@ -29,6 +29,9 @@ export class SupplierDetails {
     
     private config: any = {};
     private fields: any[] = [];
+    private addressChanged: any;
+    private phoneChanged: any;
+    private emailChanged: any;
         
     private dropdownData: any;
     private supplier: Supplier;    
@@ -62,8 +65,7 @@ export class SupplierDetails {
                 private tabService: TabService
                 ) {
                 
-        this.supplierID = params.get('id');
-        this.tabService.addTab({ url: '/sales/supplier/details/' + this.supplierID, name: 'Leverandørnr. ' + this.supplierID, active: true, moduleID: 2 });         
+        this.supplierID = params.get('id');                 
     }
     
     public nextSupplier() {
@@ -118,6 +120,11 @@ export class SupplierDetails {
         this.getLayoutAndData();          
     }
 
+    private setTabTitle() {
+        let tabTitle = this.supplier.SupplierNumber ? 'Leverandørnr. ' + this.supplier.SupplierNumber : 'Leverandør (kladd)'; 
+        this.tabService.addTab({ url: '/sales/supplier/details/' + this.supplier.ID, name: tabTitle, active: true, moduleID: 2 });
+    }
+
     private getLayoutAndData() {        
         this.fields = this.getComponentLayout().Fields;            
         
@@ -141,6 +148,7 @@ export class SupplierDetails {
             this.bankAccounts = response[5];
             this.emptyAddress = response[5];
          
+            this.setTabTitle();
             this.extendFormConfig();
                 
             setTimeout(() => {
@@ -249,7 +257,8 @@ export class SupplierDetails {
                                 
                 this.phoneModal.openModal(value);
                 
-                this.phoneModal.Changed.subscribe(modalval => {                                       
+                this.phoneChanged = this.phoneModal.Changed.subscribe(modalval => { 
+                    this.phoneChanged.unsubscribe();                                      
                     resolve(modalval);    
                 });               
             })
@@ -271,7 +280,8 @@ export class SupplierDetails {
                                 
                 this.addressModal.openModal(value);
                 
-                this.addressModal.Changed.subscribe(modalval => {                                       
+                this.addressChanged = this.addressModal.Changed.subscribe(modalval => {   
+                    this.addressChanged.unsubscribe();                                    
                     resolve(modalval);    
                 });               
             }),
@@ -296,7 +306,8 @@ export class SupplierDetails {
                                 
                 this.emailModal.openModal(value);
                 
-                this.emailModal.Changed.subscribe(modalval => {                                       
+                this.emailChanged = this.emailModal.Changed.subscribe(modalval => {  
+                    this.emailChanged.unsubscribe();                                     
                     resolve(modalval);    
                 });               
             })
@@ -317,7 +328,8 @@ export class SupplierDetails {
                                 
                 this.addressModal.openModal(value);
                 
-                this.addressModal.Changed.subscribe(modalval => {                                       
+                this.addressChanged = this.addressModal.Changed.subscribe(modalval => {       
+                    this.addressChanged.unsubscribe();                                
                     resolve(modalval);    
                 });               
             }),
@@ -391,6 +403,7 @@ export class SupplierDetails {
                         
                         this.supplierService.Get(this.supplier.ID, this.expandOptions).subscribe(supplier => {                          
                             this.supplier = supplier;
+                            this.setTabTitle();
                         });                        
                     },
                     (err) => { 

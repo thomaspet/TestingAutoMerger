@@ -9,6 +9,7 @@ import {JournalEntryMode} from '../components/journalentrysimple/journalentrysim
 
 @Component({
     selector: 'journal-entry-manual',
+    host: {'[class.runassubcomponent]': 'runAsSubComponent'},
     templateUrl: 'app/components/accounting/journalentry/journalentrymanual/journalentrymanual.html',
     directives: [JournalEntrySimple, JournalEntryProfessional],
     providers: [JournalEntryService]    
@@ -42,6 +43,12 @@ export class JournalEntryManual implements OnChanges, OnInit {
         if (this.journalEntrySimple) {
             return this.journalEntrySimple.journalEntryLines;
         }   
+    }
+
+    public setJournalEntryData(lines: Array<JournalEntryData>) {
+        if (this.journalEntrySimple) {
+            this.journalEntrySimple.journalEntryLines = lines;
+        }
     }
 
     public ngOnChanges(changes: { [propName: string]: SimpleChange }) {

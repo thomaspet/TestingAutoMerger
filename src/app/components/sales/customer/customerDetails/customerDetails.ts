@@ -31,6 +31,9 @@ export class CustomerDetails implements OnInit {
     
     private config: any = {};
     private fields: any[] = [];
+    private addressChanged: any;
+    private emailChanged: any;
+    private phoneChanged: any;
         
     public dropdownData: any;
     public customer: Customer;
@@ -61,8 +64,7 @@ export class CustomerDetails implements OnInit {
                 private businessRealtionService: BusinessRelationService,
                 private tabService: TabService
                 ) {               
-        this.customerID = params.get('id');
-        this.tabService.addTab({ url: '/sales/customer/details/' + this.customerID, name: 'Kundenr. ' + this.customerID, active: true, moduleID: 1 });       
+        this.customerID = params.get('id');               
     }
     
     public log(err) {
@@ -121,6 +123,11 @@ export class CustomerDetails implements OnInit {
     public ngOnInit() {
         this.getLayoutAndData();          
     }
+    
+    private setTabTitle() {
+        let tabTitle = this.customer.CustomerNumber ? 'Kundenr. ' + this.customer.CustomerNumber : 'Kunde (kladd)'; 
+        this.tabService.addTab({ url: '/sales/customer/details/' + this.customer.ID, name: tabTitle, active: true, moduleID: 1 });
+    }
 
     public getLayoutAndData() {
         
@@ -146,6 +153,7 @@ export class CustomerDetails implements OnInit {
                 this.emptyEmail = response[4];
                 this.emptyAddress = response[5];
                 
+                this.setTabTitle();
                 this.extendFormConfig();
                 
                 setTimeout(() => {
@@ -262,7 +270,8 @@ export class CustomerDetails implements OnInit {
                                 
                 this.phoneModal.openModal(value);
                 
-                this.phoneModal.Changed.subscribe(modalval => {                                       
+                this.phoneChanged = this.phoneModal.Changed.subscribe(modalval => { 
+                    this.phoneChanged.unsubscribe();                                      
                     resolve(modalval);    
                 });               
             })
@@ -284,7 +293,8 @@ export class CustomerDetails implements OnInit {
                                 
                 this.addressModal.openModal(value);
                 
-                this.addressModal.Changed.subscribe(modalval => {                                       
+                this.addressChanged = this.addressModal.Changed.subscribe(modalval => {       
+                    this.addressChanged.unsubscribe();                                
                     resolve(modalval);    
                 });               
             }),
@@ -309,7 +319,8 @@ export class CustomerDetails implements OnInit {
                                 
                 this.emailModal.openModal(value);
                 
-                this.emailModal.Changed.subscribe(modalval => {                                       
+                this.emailChanged = this.emailModal.Changed.subscribe(modalval => {  
+                    this.emailChanged.unsubscribe();                                     
                     resolve(modalval);    
                 });               
             })
@@ -330,7 +341,8 @@ export class CustomerDetails implements OnInit {
                                 
                 this.addressModal.openModal(value);
                 
-                this.addressModal.Changed.subscribe(modalval => {                                       
+                this.addressChanged = this.addressModal.Changed.subscribe(modalval => {                                       
+                    this.addressChanged.unsubscribe();                                
                     resolve(modalval);    
                 });               
             }),
@@ -404,6 +416,7 @@ export class CustomerDetails implements OnInit {
                         completeEvent('Kunde lagret');
                         this.customerService.Get(this.customer.ID, this.expandOptions).subscribe(customer => {                          
                             this.customer = customer;
+                            this.setTabTitle();
                         });
                     },
                     (err) => {
@@ -637,6 +650,46 @@ export class CustomerDetails implements OnInit {
                     CreatedBy: null,
                     UpdatedBy: null,
                     CustomFields: null 
+                },
+                {
+                    Url: 'customers',
+                    Validations: [
+                        
+                    ],
+                    LookupEntityType: null,
+                    ValueList: null,
+                    ComponentLayoutID: 1,
+                    EntityType: 'Customer',
+                    Property: 'CreditDays',
+                    Placement: 1,
+                    Hidden: false,
+                    FieldType: 10,
+                    ReadOnly: false,
+                    LookupField: false,
+                    DisplayField: null,
+                    Width: null,
+                    Sectionheader: 'Betingelser',
+                    Alignment: 0,
+                    Label: 'Kredittdager',
+                    Description: null,
+                    HelpText: null,
+                    Placeholder: null,
+                    FieldSet: 0,
+                    Section: 1,
+                    Options: null,
+                    LineBreak: false,
+                    Combo: null,
+                    Legend: 'Betingelser',
+                    StatusCode: null,
+                    CustomValues: {
+                        
+                    },
+                    ID: 0,
+                    Deleted: false,
+                    CreatedAt: null,
+                    UpdatedAt: null,
+                    CreatedBy: null,
+                    UpdatedBy: null
                 },
                 {
                     ComponentLayoutID: 3,

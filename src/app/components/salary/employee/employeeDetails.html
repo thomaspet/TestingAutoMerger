@@ -1,13 +1,12 @@
 <article [attr.aria-busy]="busy">
     <header class="poster">
-
-        <article class="poster_toolbar">
-            <div *ngIf="employee.EmployeeNumber">
-                <h2 class="poster_toolbar_headline">{{employee.BusinessRelationInfo.Name}}
+    <article class="poster_toolbar">
+        <div *ngIf="employee.EmployeeNumber">
+            <h1 class="poster_toolbar_headline">{{employee.BusinessRelationInfo.Name}}
                 <p class="poster_toolbar_orgnr">Ansattnr. {{employee.EmployeeNumber}}</p>
-            </h2>
-                <employeecategory-buttons [selectedEmployee]="employee"></employeecategory-buttons>
-            </div>
+            </h1>
+            <employeecategory-buttons [selectedEmployee]="employee"></employeecategory-buttons>
+        </div>
 
             <nav class="poster_toolbar_tools">
                 <a (click)="previousEmployee()" class="previous">Forrige</a>

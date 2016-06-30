@@ -55,7 +55,7 @@ export class SalaryTransactionSelectionList implements OnInit {
             var lockedCol = new UniTableColumn('', '', UniTableColumnType.Custom)
                 .setCls('icon-column')
                 .setTemplate((rowModel: Employee) => {
-                    if (rowModel.TaxTable === null || !rowModel.BankAccounts.some(x => x.Active === true)) {
+                    if (rowModel.TaxTable === null || rowModel.TaxTable === '' || !rowModel.BankAccounts.some(x => x.Active === true)) {
                         return "{#<em class='missing-info' role='presentation'>Visible</em>#} ";
                     } else {
                         return "{#<em role='presentation'></em>#}# ";

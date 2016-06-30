@@ -1,0 +1,55 @@
+uni-image
+    picture[aria-busy=true]:before
+        content: ''
+        display: inline-block
+        height: 1rem
+        width: 1rem
+        margin-left: 0
+        margin-right: .5rem
+        position: relative
+        border-radius: 50%
+        border-top: .1rem solid $uni-color-scale7
+        border-right: .1rem solid transparent
+        animation: spinner 600ms linear infinite
+        -webkit-animation: spinner 600ms linear infinite
+        
+
+    input[type=file]
+        display: none
+
+    section
+        box-sizing: border-box
+        cursor: pointer
+        background: #fff
+        border: 1px dotted $uni-color-scale8
+        border-radius: 3px
+        padding: 0 .5rem
+        height: 3rem
+
+        label
+            display: block
+            cursor: pointer
+            position: relative
+            
+            a
+                width: 60%
+                position: absolute
+                left: 0
+                line-height: 3rem
+                
+                white-space: nowrap
+                display: inline-block
+                overflow: hidden
+                text-overflow: ellipsis
+
+            button
+                display: inline-block
+                position: absolute
+                right: 0
+                top: .15rem
+                text-align: right
+                margin-right: 0
+
+    img
+        max-width: 100%
+        

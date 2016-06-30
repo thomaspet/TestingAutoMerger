@@ -1,23 +1,33 @@
-import {Component, ViewChild, Type, Input} from '@angular/core';
-import {NgIf, NgModel, NgFor, NgClass} from '@angular/common';
+import {Component, ViewChild, Type, Input, Pipe} from '@angular/core';
+import {NgIf, NgFor, NgClass} from '@angular/common';
 import {Http} from '@angular/http';
 
 import {ReportDefinition} from '../../../../unientities';
 import {UniModal} from '../../../../../framework/modals/modal';
 import {UniComponentLoader} from '../../../../../framework/core/componentLoader';
 import {ReportDefinitionService,Report,ReportParameter} from '../../../../services/services';
+import {DomSanitizationService} from '@angular/platform-browser';
+
+@Pipe({name: 'safehtml'})
+export class SafeHtml {
+  constructor(private sanitizer:DomSanitizationService){}
+
+  transform(html) {
+    return this.sanitizer.bypassSecurityTrustHtml(html);
+  }
+}
 
 @Component({
     selector: 'report-preview-modal-type',
-    directives: [NgIf, NgModel, NgFor, NgClass, UniComponentLoader],
+    directives: [NgIf, NgFor, NgClass, UniComponentLoader],
     templateUrl: 'app/components/reports/modals/preview/previewModal.html',
+    pipes: [SafeHtml]
 })
 export class ReportPreviewModalType {
     @Input('config')
     private config;
     
     constructor() {
-        
     }
 }
 
@@ -41,6 +51,7 @@ export class PreviewModal {
     constructor(private reportDefinitionService: ReportDefinitionService,
                 private http: Http)
     {
+     
         this.modalConfig = {
             title: 'Forhåndsvisning',
             model: null,

@@ -8,6 +8,7 @@ import {ProductService, AccountService, VatTypeService} from '../../../../servic
 import {FieldType, FieldLayout, ComponentLayout, Product, Account, VatType} from '../../../../unientities';
 import {UniSave, IUniSaveAction} from '../../../../../framework/save/save';
 import {UniForm, UniField, UniFieldLayout} from '../../../../../framework/uniform';
+import {UniImage, IUploadConfig} from '../../../../../framework/uniImage/uniImage';
 import {TabService} from "../../../layout/navbar/tabstrip/tabService";
 
 declare var _; // lodash
@@ -15,7 +16,7 @@ declare var _; // lodash
 @Component({
     selector: 'product-details',
     templateUrl: 'app/components/common/product/details/productDetails.html',    
-    directives: [UniForm, UniSave],
+    directives: [UniForm, UniSave, UniImage],
     providers: [ProductService, AccountService, VatTypeService]
 })
 export class ProductDetails {            
@@ -26,6 +27,9 @@ export class ProductDetails {
     private fields: any[] = [];
     private product: Product;
     
+    private showImageComponent: boolean = true;  // template variable
+    private imageUploadConfig: IUploadConfig;
+
     private accounts: Account[];
     private vatTypes: VatType[];
    
@@ -41,8 +45,7 @@ export class ProductDetails {
     private calculateGrossPriceBasedOnNetPriceField: UniField;
            
     constructor(private productService: ProductService, private accountService: AccountService, private vatTypeService: VatTypeService, private router: Router, private params: RouteParams, private tabService: TabService) {                
-        this.productId = params.get('id');
-        this.tabService.addTab({ name: "Produktnr. " + this.productId, url: "/products/details/" + this.productId, active: true, moduleID: 6 });
+        this.productId = params.get('id');        
     }
     
     private isActive(instruction: any[]): boolean {
@@ -83,6 +86,8 @@ export class ProductDetails {
             this.accounts = response[1];
             this.vatTypes = response[2];
             
+            this.setTabTitle();
+            
             if (response.length > 3 && response[3] !== null) {                      
                 this.product.PartName = response[3].PartNameSuggestion;
             }  
@@ -90,13 +95,24 @@ export class ProductDetails {
             this.extendFormConfig();
             
             this.showHidePriceFields(this.product);          
-        });       
+        });
+
+        this.imageUploadConfig = {
+            entityType: 'Product',
+            entityId: this.productId,
+            onSuccess: (imageId) => {
+                this.product.ImageFileID = imageId;
+            },
+            isDisabled: (!this.productId || parseInt(this.productId) === 0),
+            disableMessage: 'Produkt må lagres før bilde kan lastes opp'
+        };
     }
     
-    private change(product) {
+    private setTabTitle() {
+        let tabTitle = this.product.PartName ? 'Produktnr. ' + this.product.PartName : 'Produkt (kladd)'; 
+        this.tabService.addTab({ url: '/products/details/' + this.product.ID, name: tabTitle, active: true, moduleID: 6 });
+    }
         
-    }
-    
     private ready(event) {
         this.setupSubscriptions(null);        
     }
@@ -109,6 +125,7 @@ export class ProductDetails {
                     (updatedValue) => {
                         completeEvent('Produkt lagret');                        
                         this.product = updatedValue;
+                        this.setTabTitle();
                     },
                     (err) => {
                         completeEvent('Feil oppsto ved lagring');
@@ -226,22 +243,26 @@ export class ProductDetails {
                         }
                     }
                 });
+        
+        if (this.form.field('PriceExVat')) {
+            this.form.field('PriceExVat')
+                .onChange
+                .subscribe((data) => {
+                    if (!this.product.CalculateGrossPriceBasedOnNetPrice) {
+                        this.calculateAndUpdatePrice();
+                    }
+                });
+        }
 
-        this.form.field('PriceExVat')
-            .onChange
-            .subscribe((data) => {
-                if (!this.product.CalculateGrossPriceBasedOnNetPrice) {
-                    this.calculateAndUpdatePrice();
-                }
-            });
-
-        this.form.field('PriceIncVat')
-            .onChange            
-            .subscribe((data) => {
-                if (this.product.CalculateGrossPriceBasedOnNetPrice) {
-                    this.calculateAndUpdatePrice();
-                }
-            });
+        if (this.form.field('PriceIncVat')) {
+            this.form.field('PriceIncVat')
+                .onChange            
+                .subscribe((data) => {
+                    if (this.product.CalculateGrossPriceBasedOnNetPrice) {
+                        this.calculateAndUpdatePrice();
+                    }
+                });   
+        }
             
         this.form.field('CalculateGrossPriceBasedOnNetPrice')
             .onChange            

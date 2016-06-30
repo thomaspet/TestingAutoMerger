@@ -6,6 +6,7 @@ import {Observable} from "rxjs/Rx";
 import {AuthService} from '../../../framework/core/authService';
 import {URLSearchParams} from '@angular/http'
 import {toIso, addTime} from '../../components/timetracking/utils/utils';
+import {AppConfig} from '../../../app/AppConfig';
 
 declare var moment;
 
@@ -68,6 +69,7 @@ export class WorkerService extends BizHttp<Worker> {
     }
     
     getCurrentUserId(): Promise<number> {
+        var localDebug = AppConfig.BASE_URL.indexOf('localhost')>0;
          return new Promise(resolve => {
             if (this.user.id) {
                 resolve(this.user.id);
@@ -79,7 +81,7 @@ export class WorkerService extends BizHttp<Worker> {
                 if (result.length>0) {
                     for (var i=0; i<result.length; i++) {
                         var item = result[i];
-                        if (item.GlobalIdentity === guid) {
+                        if (item.GlobalIdentity === guid || localDebug) {
                             this.user.id = item.ID;
                             this.user.email = item.Email;
                             resolve(item.ID);
@@ -116,32 +118,31 @@ export class WorkerService extends BizHttp<Worker> {
     getWorkProfiles(): Observable<WorkProfile[]> {
         return this.GET('workprofiles');
     }
+
+    getIntervalFilter(interval: ItemInterval):string {
+        switch (interval) {
+            case ItemInterval.today:
+                return "date eq '" + toIso(new Date()) + "'";
+            case ItemInterval.thisWeek:
+                return "date ge '" + toIso(moment().startOf("week").toDate()) + "' and date le '" + toIso(moment().endOf("week").toDate()) + "'";
+            case ItemInterval.thisMonth:
+                return "date ge '" + toIso(moment().startOf("month").toDate()) + "' and date le '" + toIso(moment().endOf("month").toDate()) + "'";
+            case ItemInterval.lastTwoMonths:
+                return "date ge '" + toIso(moment().add(-1,'month').startOf("month").toDate()) + "' and date le '" + toIso(moment().endOf("month").toDate()) + "'";
+            case ItemInterval.thisYear:
+                return "date ge '" + toIso(moment().startOf("year").toDate()) + "' and date le '" + toIso(moment().endOf("year").toDate()) + "'";
+            default: 
+                return '';
+        }        
+    }
     
     getWorkItems(workRelationID: number, interval: ItemInterval = ItemInterval.all): Observable<WorkItem[]> {
         var filter = 'WorkRelationID eq ' + workRelationID;
-        var intervalFilter = "";
-        switch (interval) {
-            case ItemInterval.today:
-                intervalFilter = "date eq '" + toIso(new Date()) + "'";
-                break;
-            case ItemInterval.thisWeek:
-                intervalFilter = "date ge '" + toIso(moment().startOf("week").toDate()) + "' and date le '" + toIso(moment().endOf("week").toDate()) + "'";
-                break;
-            case ItemInterval.thisMonth:
-                intervalFilter = "date ge '" + toIso(moment().startOf("month").toDate()) + "' and date le '" + toIso(moment().endOf("month").toDate()) + "'";
-                break;
-            case ItemInterval.lastTwoMonths:
-                intervalFilter = "date ge '" + toIso(moment().add(-1,'month').startOf("month").toDate()) + "' and date le '" + toIso(moment().endOf("month").toDate()) + "'";
-                break;
-            case ItemInterval.thisYear:
-                intervalFilter = "date ge '" + toIso(moment().startOf("year").toDate()) + "' and date le '" + toIso(moment().endOf("year").toDate()) + "'";
-                break;
-            
-        }
+        var intervalFilter = this.getIntervalFilter(interval);
         if (intervalFilter.length>0) {
             filter += " and ( " + intervalFilter + " )";
         }
-        return this.GET('workitems', { filter: filter, expand: 'WorkType', orderBy: 'StartTime' });
+        return this.GET('workitems', { filter: filter, expand: 'WorkType,Dimensions,Dimensions.Project,CustomerOrder', orderBy: 'StartTime' });
     }
     
     getWorkItemById(id:number): Observable<WorkItem> {
@@ -163,6 +164,11 @@ export class WorkerService extends BizHttp<Worker> {
         return this.GET('worktypes');
     }
     
+    getStatistics(query:string): Observable<any> {
+        //model=workitem&select=sum(minutes),name,businessrelation.name&filter=&pivot=true&join=workitem.worktypeid eq worktype.id and workitem.workrelationid eq workrelation.id and workrelation.workerid eq worker.id and worker.businessrelationid eq businessrelation.id&top=orderby=worktype.id
+        return this.GET('statistics?' + query);
+
+    }
    
     // http helpers (less verbose?)
     

@@ -1,59 +1,42 @@
-import {Component, Input, OnInit} from '@angular/core';
-import {UniTable, UniTableBuilder, UniTableColumn} from '../../../../framework/unitable';
-import {UniForm, UniFormBuilder, UniFieldBuilder} from '../../../../framework/forms';
+import {Component, Input} from '@angular/core';
+import {UniTable, UniTableColumn, UniTableColumnType, UniTableConfig} from 'unitable-ng2/main';
 import {FieldType} from '../../../../app/unientities';
 import {Router} from '@angular/router-deprecated';
 import {PayrollrunService} from '../../../../app/services/services';
 import {UNI_CONTROL_DIRECTIVES} from '../../../../framework/controls';
-import {Observable} from 'rxjs/Observable';
-import {Postingsummary} from '../../../models/models';
 
 @Component({
     selector: 'postingsummary-modal-content',
     templateUrl: 'app/components/salary/payrollrun/postingsummaryModalContent.html',
-    directives: [UniForm, UniTable]
+    directives: [UniTable]
 })
-export class PostingsummaryModalContent implements OnInit {
-    
+export class PostingsummaryModalContent {
     private busy: boolean;
-    private showReceipt: boolean = false;
-    private headerConfig: UniFormBuilder = null;
-    private accountTableConfig: any;
-    private debcredTableConfig: any;
-    @Input() private config: any;
-    private postingsummary: Postingsummary;
+    private showReceipt: boolean = false;    
+    private accountTableConfig: UniTableConfig;    
+    @Input() private config: any;    
+    private summary: any;    
     private journalNumber: string;
     private journalDate: Date;
+    private payDate : Date;
+    private headerString : string = 'Konteringssammendrag';
     
     constructor(private routr: Router, private payrollService: PayrollrunService) {
         
     }
     
-    public ngOnInit() {
-        this.getData()
-        .subscribe((response: Postingsummary) => {
-            this.setData(response);
-        }, (err) => {
-            console.log(err);
+    public openModal() {
+        this.busy = true;        
+        this.createTableConfig();
+
+        this.payrollService.getPostingsummary(this.config.payrollrunID)
+        .subscribe((response: any) => {
+            this.summary = response;            
+            this.headerString = 'Konteringssammendrag: ' + this.summary.PayrollRun.ID + ' - ' + this.summary.PayrollRun.Description + ', utbetales ' + this.formatDate(new Date(this.summary.PayrollRun.PayDate.toString()));
+            this.busy = false;
         });
     }
     
-    public getData() {
-        this.busy = true;
-        return Observable.forkJoin(
-            this.payrollService.getPostingsummary(this.config.payrollrunID)
-        );
-    }
-    
-    public setData(response: any) {
-        let [postsum] = response;
-        this.postingsummary = postsum;
-        
-        this.createHeaderConfig();
-        this.createTableConfig();
-        
-        this.busy = false;
-    }
     
     public postTransactions() {
         return this.payrollService.postTransactions(this.config.payrollrunID);
@@ -65,46 +48,29 @@ export class PostingsummaryModalContent implements OnInit {
         this.journalDate = successResponse[0].FinancialDate;
     }
     
-    private createHeaderConfig() {
-        if (this.postingsummary) {
-            var companyName = this.buildField('Firmanavn', this.postingsummary.SubEntity.BusinessRelationInfo, 'Name', FieldType.TEXT);
-            var payrollinfo = this.buildField('Lønnsavregning', this.postingsummary.PayrollRun, 'ID', FieldType.TEXT);
-            var orgnumber = this.buildField('Orgnr', this.postingsummary.SubEntity, 'orgnumber', FieldType.TEXT);
-            var payDate = this.buildField('Utbetalt', this.postingsummary.PayrollRun, 'PayDate', FieldType.DATEPICKER);
-            
-            this.headerConfig = new UniFormBuilder();
-            this.headerConfig.addUniElements(companyName, payrollinfo, orgnumber, payDate).hideSubmitButton();
-            this.headerConfig.readmode();
+    
+    public getAccountingSum(): number {
+        var ret: number = 0;
+        if (this.summary)                     {         
+            this.summary.PostList.forEach((val) => {
+                ret += val.Amount;
+            } );            
         }
+        return ret;
     }
-    
+
     private createTableConfig() {
-        var nameCol = new UniTableColumn('Name', 'Navn', 'string');
-        var accountCol = new UniTableColumn('Account', 'Konto', 'number');
-        var sumCol = new UniTableColumn('Sum', 'Sum', 'number');
-        this.accountTableConfig = new UniTableBuilder(this.postingsummary.PostList, false)
-            .addColumns(accountCol, nameCol, sumCol)
-            .setColumnMenuVisible(false)
-            .setPageable(false)
+        var nameCol = new UniTableColumn('Description', 'Navn', UniTableColumnType.Text);
+        var accountCol = new UniTableColumn('Account.AccountNumber', 'Konto', UniTableColumnType.Number);
+        var sumCol = new UniTableColumn('Amount', 'Sum', UniTableColumnType.Number);
+        this.accountTableConfig = new UniTableConfig(false, false)
+            .setColumns( [accountCol, nameCol, sumCol])
+            .setColumnMenuVisible(false)            
             .setSearchable(false);
-        
-        var debCol = new UniTableColumn('Debet', 'Debit', 'number');
-        var credCol = new UniTableColumn('Credit', 'Kredit', 'number');
-        var debcred: any[] = new Array();
-        var dc: {} = {Debet: this.postingsummary.Debet, Credit: this.postingsummary.Credit};
-        debcred.push(dc);
-        this.debcredTableConfig = new UniTableBuilder(debcred, false)
-            .setColumnMenuVisible(false)
-            .addColumns(debCol, credCol)
-            .setPageable(false)
-            .setSearchable(false);
+    }
+
+    private formatDate(dt : Date) : string {
+        return dt.getDate() + '.' + dt.getMonth() + 1  + '.' + dt.getFullYear();
     }
     
-    private buildField(label: string, model: any, modelfield: string, type: number, index = null) {
-        return new UniFieldBuilder()
-            .setLabel(label)
-            .setModel(model)
-            .setModelField(modelfield)
-            .setType(UNI_CONTROL_DIRECTIVES[type]);
-    }
 }

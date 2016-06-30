@@ -8,11 +8,22 @@ import {NavbarSearch} from './search/search';
 import {UniUserDropdown} from './userInfo/userDropdown/userDropdown';
 import {UniCompanyDropdown} from './userInfo/companyDropdown/companyDropdown';
 
-declare var jQuery;
 
 @Component({
     selector: 'uni-navbar',
-    templateUrl: 'app/components/layout/navbar/navbar.html',
+    template: `
+        <section class="navbar">
+            <div class="navbar_content">
+                <uni-hamburger-menu></uni-hamburger-menu>
+                <uni-tabstrip></uni-tabstrip>
+                <uni-navbar-search></uni-navbar-search>
+                <div class="navbar_userinfo">
+                    <uni-user-dropdown></uni-user-dropdown>
+                    <uni-company-dropdown></uni-company-dropdown>
+                </div>
+            </div>
+        </section>
+    `,
     directives: [
         ROUTER_DIRECTIVES,
         HamburgerMenu,

@@ -231,6 +231,7 @@ export class PersonalDetails {
 
         if (this.employee.BankAccounts[0] && !this.employee.BankAccounts[0].ID) {
             let bankAccount = this.employee.BankAccounts[0];
+            bankAccount.Active = true;
             bankAccount['_createguid'] = this.employeeService.getNewGuid();
         }
 

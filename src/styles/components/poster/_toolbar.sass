@@ -9,11 +9,15 @@
     min-height: 5.3rem
     justify-content: space-between
 
+    & p
+        @extend .poster_toolbar_descriptor
+
 .poster_toolbar_headline
     margin: 0
     order: 1
 
-.poster_toolbar_orgnr
+.poster_toolbar_orgnr,
+.poster_toolbar_descriptor
     display: block
     margin-top: -.4rem
     color: $uni-color-scale5
