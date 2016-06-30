@@ -156,8 +156,9 @@ export class AgaAndSubEntitySettings implements OnInit {
             var agaRuleName = '';
             if (agaZone) { agaZoneName = ', Sone ' + agaZone.ZoneName; }
             if (agaRule) { agaRuleName = ', ' + agaRule.sector; }
+            console.log(subEntity.BusinessRelationInfo.Name);
             var subEntitySection = new UniSectionBuilder(
-                + (subEntity.BusinessRelationInfo.Name ? subEntity.BusinessRelationInfo.Name : '')
+                (subEntity.BusinessRelationInfo.Name ? subEntity.BusinessRelationInfo.Name : '')
                 + (subEntity.OrgNumber && subEntity.OrgNumber !== '-' ? ', ' + subEntity.OrgNumber : '')
                 + (subEntity.MunicipalityNo !== null ? ', ' + subEntity.MunicipalityNo + '-' + municipal.MunicipalityName : '')
                 + (agaZoneName ? agaZoneName : '')
