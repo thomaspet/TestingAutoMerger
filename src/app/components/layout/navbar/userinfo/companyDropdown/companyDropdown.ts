@@ -4,7 +4,6 @@ import {Observable} from 'rxjs/Observable';
 import {AuthService} from '../../../../../../framework/core/authService';
 import {UniHttp} from '../../../../../../framework/core/http/http';
 import {CompanySettingsService} from '../../../../../services/services';
-import {TabService} from '../../tabstrip/tabService'
 
 import 'rxjs/add/observable/fromEvent';
 declare var jQuery;
@@ -24,8 +23,7 @@ export class UniCompanyDropdown implements AfterViewInit, OnDestroy {
     constructor(private _router: Router, 
                 private _authService: AuthService, 
                 private http: UniHttp,
-                private companySettingsService: CompanySettingsService,
-                private tabService: TabService) {
+                private companySettingsService: CompanySettingsService) {
 
         this.companyDropdownActive = false;
         this.activeCompany = JSON.parse(localStorage.getItem('activeCompany'));
@@ -50,7 +48,6 @@ export class UniCompanyDropdown implements AfterViewInit, OnDestroy {
                 var item: any = event.item;
                 var dataItem = event.sender.dataItem(item.index());
                 if (dataItem.Name === this.activeCompany.Name) { return; }
-                this.tabService.removeAllTabs();
                 this.companySelected(dataItem);
             }
         };
