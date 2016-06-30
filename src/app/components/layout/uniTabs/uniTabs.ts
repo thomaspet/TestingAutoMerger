@@ -3,9 +3,15 @@ import {RouteDefinition, ROUTER_DIRECTIVES} from '@angular/router-deprecated';
 
 @Component({
     selector: 'uni-tabs',
-    templateUrl: 'app/components/layout/uniTabs/uniTabs.html',
+    template: `
+        <ul>
+            <li *ngFor="let route of routes">
+                <a [routerLink]="['./' + route.name]">{{route.name}}</a>  <!-- TODO: i18n --> 
+            </li>
+        </ul>
+    `,
     directives: [ROUTER_DIRECTIVES]
 })
 export class UniTabs {
-    @Input() routes: RouteDefinition[];
+    @Input() public routes: RouteDefinition[];
 }

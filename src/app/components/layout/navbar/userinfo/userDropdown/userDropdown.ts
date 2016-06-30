@@ -1,6 +1,5 @@
-import {Component, AfterViewInit} from '@angular/core';
+import {Component, HostListener} from '@angular/core';
 import {Router} from '@angular/router-deprecated';
-import {Observable} from 'rxjs/Observable';
 import {AuthService} from '../../../../../../framework/core/authService';
 import 'rxjs/add/observable/fromEvent';
 
@@ -13,24 +12,34 @@ interface IUniUserDropdownItem {
 
 @Component({
     selector: 'uni-user-dropdown',
-    templateUrl: 'app/components/layout/navbar/userinfo/userDropdown/userDropdown.html'
+    template: `
+        <article class="navbar_userinfo_user">
+            <span class="navbar_userinfo_title" (click)="userDropdownActive = !userDropdownActive">{{username}}</span>
+
+            <ul class="navbar_userinfo_dropdown" [ngClass]="{'-is-active': userDropdownActive}">
+                <li *ngFor="let dropdownElement of dropdownElements">
+                    <a (click)="dropdownElement.action()">{{dropdownElement.title}}</a>
+                </li>
+            </ul>
+        </article>
+    `
 })
-export class UniUserDropdown implements AfterViewInit {
-    dropdownElements: Array<IUniUserDropdownItem>;
-    username: string;
-    clickSubscription: any;
-    userDropdownActive: Boolean;
+export class UniUserDropdown {
+    private dropdownElements: Array<IUniUserDropdownItem>;
+    private username: string;
+    private userDropdownActive: boolean;
 
     constructor(private router: Router, private authService: AuthService) {
         this.username = authService.jwtDecoded.unique_name;
         this.dropdownElements = [
             {
-                title: "Innstillinger", action: () => {
-                    this.navigate("/settings/user");
+                title: 'Innstillinger', action: () => {
+                    this.userDropdownActive = false;
+                    this.router.navigateByUrl('/settings/user');
                 }
             },
             {
-                title: "Logg ut", action: () => {
+                title: 'Logg ut', action: () => {
                     this.authService.logout();
                 }
             },
@@ -38,24 +47,13 @@ export class UniUserDropdown implements AfterViewInit {
         this.userDropdownActive = false;
     }
 
-    ngAfterViewInit() {
-        this.clickSubscription = Observable.fromEvent(document, "click")
-            .subscribe(
-                (event: any) => {
-                    // dismiss dropdown on click outside of it
-                    if (!jQuery(event.target).closest(".navbar_userinfo_user").length
-                        && !jQuery(event.target).closest(".navbar_userinfo_dropdown").length) {
-                        this.userDropdownActive = false;
-                    }
-                }
-            );
+    @HostListener('click', ['$event'])
+    private onClick(event) {
+        event.stopPropagation();
     }
 
-    navigate(url: string): void {
-        this.router.navigateByUrl(url);
-    }
-
-    ngOnDestroy() {
-        this.clickSubscription.unsubscribe();
-    }
+    @HostListener('document:click')
+    private offClick() {
+        this.userDropdownActive = false;
+    }    
 }
