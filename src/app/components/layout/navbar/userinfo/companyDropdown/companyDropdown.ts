@@ -18,8 +18,8 @@ declare var jQuery;
                     <dl>
                         <dt>Org.nr</dt>
                         <dd itemprop="taxID">{{company.OrganizationNumber || ''}}</dd>
-                        <dt *ngIf="company.Phones[0].Number">Telefon</dt>
-                        <dd itemprop="phone" *ngIf="company.Phones[0].Number"><a href="tel:{{company.Phones[0].Number}}">{{company.Phones[0].Number}}</a></dd>
+                        <dt *ngIf="company.Phones && company.Phones[0]?.Number">Telefon</dt>
+                        <dd itemprop="phone" *ngIf="company.Phones && company.Phones[0]?.Number"><a href="tel:{{company.Phones[0].Number}}">{{company.Phones[0].Number}}</a></dd>
                         <dt>Regnskapsår</dt>
                         <dd>2016</dd>
                     </dl>
