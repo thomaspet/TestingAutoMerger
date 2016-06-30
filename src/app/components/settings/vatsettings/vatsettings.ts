@@ -45,7 +45,7 @@ export class VatSettings {
                 this.vatType = vatType;
                 this.hasChanges = false;
             }
-        });
+        }, 100);
     }
     
     private vatTypeSaved(vatType: VatType) {
