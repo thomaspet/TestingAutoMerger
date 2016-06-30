@@ -116,6 +116,7 @@ export class SalaryTransactionEmployeeList implements OnInit {
                 .subscribe((response: any) => {
                     this.employee = response;
                     this.setUnitableSource();
+                    
                     this.getAgaAndShowView(true);
 
                 }, (error: any) => {
@@ -175,6 +176,7 @@ export class SalaryTransactionEmployeeList implements OnInit {
             this.salarytransChanged = [];
             this.saveactions[0].disabled = true;
             this.refreshSalaryTransTable();
+            this.setUnitableSource();
             done('Lønnsposter lagret: ');
         },
             (err) => {
@@ -376,7 +378,7 @@ export class SalaryTransactionEmployeeList implements OnInit {
         var percentCol = new UniTableColumn('percentTax', 'Prosenttrekk', UniTableColumnType.Number);
         var taxtableCol = new UniTableColumn('tableTax', 'Tabelltrekk', UniTableColumnType.Number);
         var paidCol = new UniTableColumn('netPayment', 'Utbetalt beløp', UniTableColumnType.Number);
-        var agaCol = new UniTableColumn('baseAGA', 'Beregnet AGA', UniTableColumnType.Number);
+        var agaCol = new UniTableColumn('calculatedAGA', 'Beregnet AGA', UniTableColumnType.Number);
         var basevacationCol = new UniTableColumn('baseVacation', 'Grunnlag feriepenger', UniTableColumnType.Number);
 
         this.salarytransEmployeeTotalsTableConfig = new UniTableConfig()
@@ -431,7 +433,7 @@ export class SalaryTransactionEmployeeList implements OnInit {
 
     private setUnitableSource() {
         var filter = this.buildFilter();
-
+        
         this.salarytransItems$ = this._uniHttpService.asGET()
             .usingBusinessDomain()
             .withEndPoint('salarytrans')
@@ -439,7 +441,7 @@ export class SalaryTransactionEmployeeList implements OnInit {
                 filter: filter,
                 expand: '@Wagetype'
             });
-
+        
         this.employeeService.getTotals(this.payrollRun.ID, this.employeeID)
             .subscribe((response) => {
                 if (response) {
