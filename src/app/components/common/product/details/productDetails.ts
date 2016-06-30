@@ -102,7 +102,9 @@ export class ProductDetails {
             entityId: this.productId,
             onSuccess: (imageId) => {
                 this.product.ImageFileID = imageId;
-            }
+            },
+            isDisabled: (!this.productId || parseInt(this.productId) === 0),
+            disableMessage: 'Produkt må lagres før bilde kan lastes opp'
         };
     }
     
