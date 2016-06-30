@@ -48,11 +48,7 @@ export class EmploymentList implements OnInit {
                 });
             } else {
                 // no employments, lets create an emtpy object to show
-                let newEmployment = new Employment();
-                newEmployment.Standard = true;
-                newEmployment.EmployeeNumber = this.currentEmployee.EmployeeNumber;
-                newEmployment.EmployeeID = this.currentEmployee.ID;
-                this.selectedEmployment = newEmployment;
+                this.addNewEmployment();
             }
         },
         (err) => {
@@ -74,7 +70,20 @@ export class EmploymentList implements OnInit {
     }
 
     public addNewEmployment() {
-        this.employmentComponent.addNewEmployment();
+        this._employmentService.GetNewEntity().subscribe((response: Employment) => {
+                    
+            var newEmployment = response;
+            newEmployment.EmployeeNumber = this.currentEmployee.EmployeeNumber;
+            newEmployment.EmployeeID = this.currentEmployee.ID;
+            newEmployment.JobCode = '';
+            newEmployment.JobName = '';
+            newEmployment.StartDate = new Date();
+            newEmployment.LastSalaryChangeDate = new Date();
+            newEmployment.LastWorkPercentChangeDate = new Date();
+            newEmployment.SeniorityDate = new Date();
+            
+            this.selectedEmployment = newEmployment;
+        });
     }
 
     public refreshList() {

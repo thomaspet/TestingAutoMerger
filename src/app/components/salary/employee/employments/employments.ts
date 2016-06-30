@@ -151,23 +151,6 @@ export class EmployeeEmployment {
             });
         }
     }
-    
-    public addNewEmployment() {
-        this._employmentService.GetNewEntity().subscribe((response: Employment) => {
-                    
-            var newEmployment = response;
-            newEmployment.EmployeeNumber = this.currentEmployee.EmployeeNumber;
-            newEmployment.EmployeeID = this.currentEmployee.ID;
-            newEmployment.JobCode = '';
-            newEmployment.JobName = '';
-            newEmployment.StartDate = new Date();
-            newEmployment.LastSalaryChangeDate = new Date();
-            newEmployment.LastWorkPercentChangeDate = new Date();
-            newEmployment.SeniorityDate = new Date();
-            
-            this.currentEmployment = newEmployment;
-        });
-    }
 
     public log(err) {
         alert(err._body);

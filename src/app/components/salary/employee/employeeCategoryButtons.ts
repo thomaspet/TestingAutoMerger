@@ -9,7 +9,7 @@ declare var jQuery;
     selector: 'employeecategory-buttons',
     providers: [EmployeeService, EmployeeCategoryService],
     template: `
-        <section class="poster_tags">
+        <section class="poster_tags" [attr.aria-busy]="busy">
 
             <ul class="poster_tags_list">
                 <li *ngFor="let category of selectedEmployee.EmployeeCategories">{{category.Name}}
@@ -23,8 +23,8 @@ declare var jQuery;
                 [(ngModel)]="newTag" (keyup)="presentResults(newTag)" autofocus/>
 
                 <ul (click)="addingTags = false; newTag = ''" *ngIf="newTag">
-                    <li *ngFor="let result of results" (click)="addCategory(result.Name)">{{result.Name}}</li>
-                    <li class="poster_tags_addNew" (click)="addCategoryAndSave(newTag)">
+                    <li *ngFor="let result of results" (click)="saveCategory(result)">{{result.Name}}</li>
+                    <li class="poster_tags_addNew" (click)="saveAndAddNewCategory(newTag)">
                     Legg til <strong>‘{{newTag}}’</strong>…</li>
                 </ul>
             </div>
@@ -34,6 +34,7 @@ declare var jQuery;
 })
 
 export class EmployeeCategoryButtons implements OnInit {
+    public busy: boolean;
     private categories: Array<EmployeeCategory>;
     private results: Array<EmployeeCategory> = [];
     @Input()
@@ -45,20 +46,21 @@ export class EmployeeCategoryButtons implements OnInit {
     }
 
     private filterTags(tag: string) {
-        let containsString = function(str: EmployeeCategory) {
+        let containsString = (str: EmployeeCategory) => {
             return str.Name.toLowerCase().indexOf(tag.toLowerCase()) >= 0;
         };
 
         return this.categories.filter(containsString);
     };
 
-    private presentResults(tag: string) {
+    public presentResults(tag: string) {
         this.results = this.filterTags(tag).splice(0, 5);
     };
 
     public ngOnInit() {
+        this.busy = true;
         Observable.forkJoin(
-            this.employeeService.getEmployeeCategories(this.selectedEmployee.EmployeeNumber),
+            this.employeeService.getEmployeeCategories(this.selectedEmployee.ID),
             this.employeeCategoryService.GetAll('')
         )
         .subscribe((response: any) => {
@@ -79,38 +81,42 @@ export class EmployeeCategoryButtons implements OnInit {
                     }
                 }
             }
+            this.busy = false;
         });
     }
 
-    public addCategory(categoryName) {
-        let category = new EmployeeCategory();
-        category.Name = categoryName;
+    
 
-        this.selectedEmployee.EmployeeCategories.push(category);
-
-        let indx = this.categories.map(function(e) {
-            return e.Name;
-        }).indexOf(categoryName);
-        if (indx > -1) {
-            this.categories.splice(indx, 1);
-        }
-        return category;
-    }
-
-    public addCategoryAndSave(categoryName) {
-        let cat = this.addCategory(categoryName);
+    public saveAndAddNewCategory(categoryName) {
+        
+        let cat = new EmployeeCategory();
+        cat.Name = categoryName;
         this.saveCategory(cat);
     }
 
     public removeCategory(removeCategory: EmployeeCategory) {
+        this.employeeService.deleteEmployeeCategory(this.selectedEmployee.ID, removeCategory.ID).subscribe();
         this.selectedEmployee.EmployeeCategories.splice(this.selectedEmployee.EmployeeCategories.indexOf(removeCategory), 1);
         this.categories.push(removeCategory);
     }
 
     public saveCategory(category) {
-        this.employeeCategoryService.saveCategory(category)
-        .subscribe(response => {
-
+        this.employeeService.saveEmployeeCategory(this.selectedEmployee.ID, category).subscribe((response: EmployeeCategory) => {
+            this.addCategory(response);
         });
+    }
+
+    public addCategory(category: EmployeeCategory) {
+
+        this.selectedEmployee.EmployeeCategories.push(category);
+
+        let indx = this.categories.map((e) => {
+            return e.Name;
+        }).indexOf(category.Name);
+        if (indx > -1) {
+            this.categories.splice(indx, 1);
+        }
+
+        return category;
     }
 }
