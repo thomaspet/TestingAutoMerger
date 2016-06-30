@@ -412,7 +412,7 @@ export class SupplierInvoiceDetail implements OnInit {
         bankAccount.Section = 0;
         bankAccount.Combo = 0;
         bankAccount.FieldType = 10;
-        bankAccount.Label = 'Lev. kontonummer';
+        bankAccount.Label = 'Bankkonto';
         bankAccount.Property = 'BankAccount';
         bankAccount.ReadOnly = false;
         //bankAccount.Options = {  // TODO: later on when using BankAccount                
@@ -437,7 +437,7 @@ export class SupplierInvoiceDetail implements OnInit {
         paymentInformation.Section = 0;
         paymentInformation.Combo = 0;
         paymentInformation.FieldType = 10;
-        paymentInformation.Label = 'Melding til bruker';
+        paymentInformation.Label = 'Melding til mottaker';
         paymentInformation.Property = 'PaymentInformation';
         paymentInformation.ReadOnly = false;
 
