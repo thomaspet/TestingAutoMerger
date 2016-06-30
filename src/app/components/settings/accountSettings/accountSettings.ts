@@ -48,7 +48,7 @@ export class AccountSettings {
                 this.accountID = accountID;
                 this.hasChanges = false;
             }
-        });
+        }, 100);
     }
     
     private change(account: Account) {
