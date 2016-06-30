@@ -1,4 +1,4 @@
-import {Component, Input} from '@angular/core';
+import {Component, Input, ViewChild, ElementRef} from '@angular/core';
 import {UniHttp} from '../core/http/http';
 import {AuthService} from '../core/authService';
 import {ImageUploader} from './imageUploader';
@@ -11,8 +11,10 @@ export enum UniImageSize {
 
 export interface IUploadConfig {
     entityType: string;
-    entityId: number; 
+    entityId: number;
     onSuccess: (imageId: number) => void;
+    isDisabled?: boolean;
+    disableMessage?: string;
 }
 
 @Component({
@@ -23,23 +25,25 @@ export interface IUploadConfig {
             <button class="c2a" (click)="next()">next</button>
         </section>
 
-        <picture *ngIf="imgUrl.length">
+        <picture #imageContainer *ngIf="imgUrl.length" [attr.aria-busy]="loadingImage">
             <source [attr.srcset]="imgUrl2x" media="(-webkit-min-device-pixel-radio: 2), (min-resolution: 192dpi)">
             <img [attr.src]="imgUrl" alt="">
         </picture>
-
-        <section *ngIf="uploadConfig">
+        <section *ngIf="uploadConfig && !uploadConfig.isDisabled">
             <label [ngClass]="{'has-image': imgUrl.length}">
                 <a>{{file?.name || 'Klikk her for å velge bilde'}}</a>
                 <input type="file" (change)="uploadFileChange($event)">
                 <button (click)="uploadFile()" [attr.aria-busy]="uploading" [disabled]="!file || uploading">Last opp</button>
             </label>
-            
         </section>
+        <p *ngIf="uploadConfig && uploadConfig.isDisabled">{{uploadConfig.disableMessage}}</p>
     `,
     providers: [ImageUploader]
 })
 export class UniImage {
+    @ViewChild('imageContainer')
+    private imageContainer: ElementRef;
+
     @Input() 
     private imageId: number;
     
@@ -50,6 +54,7 @@ export class UniImage {
     private uploadConfig: IUploadConfig;
 
     private uploading: boolean = false;
+    private loadingImage: boolean = false;
 
     private pageCount: number = 1;
     private currentPage: number = 1;
@@ -65,6 +70,8 @@ export class UniImage {
         if (this.imageId) {
             this.updateImage();
         }
+
+        console.log(JSON.stringify(this.uploadConfig));
     }
 
     public ngAfterViewInit() {
@@ -88,6 +95,7 @@ export class UniImage {
     }
 
     private updateImage() {
+        this.loadingImage = true;
         const token = 'Bearer ' + this.authService.getToken();
         const companyKey = this.authService.getActiveCompany()['Key'];
 
@@ -103,6 +111,20 @@ export class UniImage {
         // Generate image urls
         this.imgUrl = this.buildImgUrl(token, companyKey, (this.size || undefined));
         this.imgUrl2x = this.buildImgUrl(token, companyKey, (this.size ? (this.size * 2) : undefined));
+
+        setTimeout(() => {
+            let img = this.imageContainer.nativeElement.querySelector('img');
+            if (img.complete) {
+                this.loadingImage = false;
+            } else {
+                img.addEventListener('load', () => {
+                    this.loadingImage = false;
+                });
+                img.addEventListener('error', () => {
+                    this.loadingImage = false;
+                });
+            }
+        });
     }
 
     private next() {
@@ -132,6 +154,8 @@ export class UniImage {
             this.uploadConfig.onSuccess(slot.ID);
             this.uploading = false;
         });
+
+        this.file = undefined;
     }
 
 }
