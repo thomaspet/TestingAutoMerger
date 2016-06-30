@@ -116,6 +116,7 @@ export class SalaryTransactionEmployeeList implements OnInit {
                 .subscribe((response: any) => {
                     this.employee = response;
                     this.setUnitableSource();
+                    
                     this.getAgaAndShowView(true);
 
                 }, (error: any) => {
@@ -175,6 +176,7 @@ export class SalaryTransactionEmployeeList implements OnInit {
             this.salarytransChanged = [];
             this.saveactions[0].disabled = true;
             this.refreshSalaryTransTable();
+            this.setUnitableSource();
             done('Lønnsposter lagret: ');
         },
             (err) => {
