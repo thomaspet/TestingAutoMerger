@@ -12,7 +12,7 @@ export const AppConfig = ({
     
     
     // BASE_URL_INTEGRATION: 'http://localhost:17100/',
-    BASE_URL_INTEGRATION: 'http://devintegrations-unieconomy.azurewebsites.net/', 
+    BASE_URL_INTEGRATION: 'https://devintegrations-unieconomy.azurewebsites.net/', 
 
     API_DOMAINS: {
         INIT: '/api/init/',

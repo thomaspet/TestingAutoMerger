@@ -7,7 +7,7 @@ import {UniHttp} from '../../../framework/core/http/http';
 import {BizHttp} from '../../../framework/core/http/BizHttp';
 import {StimulsoftReportWrapper} from '../../../framework/wrappers/reporting/reportWrapper';
 import {ReportDefinition, ReportDefinitionParameter, ReportDefinitionDataSource} from '../../unientities';
-import {ReportDefinitionDataSourceService} from '../../services/services';
+import {ReportDefinitionDataSourceService} from '../services';
 
 export class ReportParameter extends ReportDefinitionParameter {
     public value: string;
@@ -32,7 +32,8 @@ export class ReportDefinitionService extends BizHttp<ReportDefinition>{
     
     constructor(
         private uniHttp: UniHttp,
-        @Inject(ReportDefinitionDataSourceService) private reportDefinitionDataSourceService: ReportDefinitionDataSourceService,
+        @Inject(ReportDefinitionDataSourceService)
+        private reportDefinitionDataSourceService: ReportDefinitionDataSourceService,
         private reportGenerator: StimulsoftReportWrapper) {
 
         super(uniHttp);

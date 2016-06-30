@@ -60,7 +60,7 @@ export class TimeSheet {
         var recalc = false;
         switch (change.name) {
             case "Date":
-                change.value = toIso(parseDate(change.value), true);
+                change.value = toIso(parseDate(change.value), true, true);
                 recalc = true;
                 break;
             case "EndTime":

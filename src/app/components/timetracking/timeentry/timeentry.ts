@@ -1,4 +1,4 @@
-import {Component, AfterViewInit} from "@angular/core";
+import {Component, AfterViewInit, ViewChild} from "@angular/core";
 import {TabService} from '../../layout/navbar/tabstrip/tabService';
 import {View} from '../../../models/view/view';
 import {Worker, WorkRelation, WorkProfile, WorkItem} from '../../../unientities';
@@ -10,22 +10,30 @@ import {IsoTimePipe, MinutesToHoursPipe} from '../utils/isotime';
 import {UniSave, IUniSaveAction} from '../../../../framework/save/save';
 import {CanDeactivate, ComponentInstruction} from '@angular/router-deprecated';
 import {Lookupservice} from '../utils/lookup';
+import {RegtimeTotals} from './totals/totals';
 
 declare var moment;
 
 export var view = new View('timeentry', 'Registrere timer', 'TimeEntry');
 
-interface IFilter {
+export interface IFilter {
     name: string;
     label: string;
     isSelected?: boolean;
     interval: ItemInterval;
 }
 
+interface ITab {
+    name: string;
+    label: string;
+    isSelected?: boolean;
+    activate?: (ts:TimeSheet, filter:IFilter) => void;
+}
+
 @Component({
     selector: view.name,
     templateUrl: 'app/components/timetracking/timeentry/timeentry.html', 
-    directives: [Editable, UniSave],
+    directives: [Editable, UniSave, RegtimeTotals],
     providers: [WorkerService, TimesheetService, Lookupservice],
     pipes: [IsoTimePipe, MinutesToHoursPipe]
 })
@@ -35,15 +43,17 @@ export class TimeEntry {
     userName = '';
     workRelations: Array<WorkRelation> = [];
     private timeSheet: TimeSheet = new TimeSheet();
-    private currentFilter: { name:string, interval: ItemInterval };
+    private currentFilter: IFilter;
     private editable: Editable;
+    
+    @ViewChild(RegtimeTotals) regtimeTotals:RegtimeTotals; 
 
     private actions: IUniSaveAction[] = [ 
             { label: 'Lagre endringer', action: (done)=>this.save(done), main: true, disabled: true }
         ];   
     
     tabs = [ { name: 'timeentry', label: 'Timer', isSelected: true },
-            { name: 'totals', label: 'Totaler' },
+            { name: 'totals', label: 'Totaler', activate: (ts:any, filter:any)=> this.regtimeTotals.activate(ts, filter) },
             { name: 'flex', label: 'Fleksitid', counter: 15 },
             { name: 'profiles', label: 'Arbeidsgivere', counter: 1 },
             { name: 'vacation', label: 'Ferie', counter: 22 },
@@ -89,8 +99,15 @@ export class TimeEntry {
         this.initUser();
     }
     
-    ngAfterViewInit() {
-
+    onTabClick(tab: ITab) {
+        if (tab.isSelected) return;
+        this.tabs.forEach((t:any)=>{
+            if (t.name!==tab.name) t.isSelected = false;
+        });
+        tab.isSelected = true;
+        if (tab.activate) {
+            tab.activate(this.timeSheet, this.currentFilter);
+        }
     }
 
     onAddNew() {

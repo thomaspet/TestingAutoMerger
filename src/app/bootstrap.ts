@@ -12,7 +12,7 @@ import {UniState} from '../framework/core/UniState';
 import {REPORT_PROVIDERS} from "./services/reports/index";
 import {IntegrationServerCaller} from './services/common/IntegrationServerCaller';
 import {AuthService} from './../framework/core/authService';
-import {AccountService, VatTypeService, CurrencyService} from './services/services';
+import {AccountService, VatTypeService, CurrencyService, CompanySettingsService} from './services/services';
 
 declare var window;
 if(window.ENV === 'production') {
@@ -36,5 +36,6 @@ bootstrap(App, [
     provide(AccountService, {useClass: AccountService}),
     provide(VatTypeService, {useClass: VatTypeService}),
     provide(CurrencyService, {useClass: CurrencyService}),
+    provide(CompanySettingsService, {useClass: CompanySettingsService}),
     provide(IntegrationServerCaller , { useClass: IntegrationServerCaller })
 ]);
