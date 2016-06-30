@@ -11,8 +11,10 @@ export enum UniImageSize {
 
 export interface IUploadConfig {
     entityType: string;
-    entityId: number; 
+    entityId: number;
     onSuccess: (imageId: number) => void;
+    isDisabled?: boolean;
+    disableMessage?: string;
 }
 
 @Component({
@@ -27,14 +29,14 @@ export interface IUploadConfig {
             <source [attr.srcset]="imgUrl2x" media="(-webkit-min-device-pixel-radio: 2), (min-resolution: 192dpi)">
             <img [attr.src]="imgUrl" alt="">
         </picture>
-        <section *ngIf="uploadConfig">
+        <section *ngIf="uploadConfig && !uploadConfig.isDisabled">
             <label [ngClass]="{'has-image': imgUrl.length}">
                 <a>{{file?.name || 'Klikk her for å velge bilde'}}</a>
                 <input type="file" (change)="uploadFileChange($event)">
                 <button (click)="uploadFile()" [attr.aria-busy]="uploading" [disabled]="!file || uploading">Last opp</button>
             </label>
-            
         </section>
+        <p *ngIf="uploadConfig && uploadConfig.isDisabled">{{uploadConfig.disableMessage}}</p>
     `,
     providers: [ImageUploader]
 })
@@ -68,6 +70,8 @@ export class UniImage {
         if (this.imageId) {
             this.updateImage();
         }
+
+        console.log(JSON.stringify(this.uploadConfig));
     }
 
     public ngAfterViewInit() {
