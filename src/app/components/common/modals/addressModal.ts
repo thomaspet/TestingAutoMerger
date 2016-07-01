@@ -196,7 +196,7 @@ export class AddressForm implements OnChanges {
                 Section: 0,
                 Placeholder: null,
                 Options: null,
-                LineBreak: null,
+                LineBreak: true,
                 Combo: null,
                 Legend: '',
                 StatusCode: 0,
@@ -278,7 +278,7 @@ export class AddressModal {
                 {
                     text: 'Lagre adresse',
                     class: 'good',
-                    method: () => {                    
+                    method: () => {     
                         this.modal.close();
                         this.Changed.emit(this.modalConfig.model);                        
                         return false;

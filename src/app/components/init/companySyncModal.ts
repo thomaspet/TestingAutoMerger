@@ -17,7 +17,7 @@ interface ISyncAction {
                 <h2>Vent litt, mens vi gjør ting klart...</h2>
 
                 <ul class="progress-list">
-                    <li *ngFor="let action of actions" [ngClass]="{'finished': action.finished}" [attr.aria-busy]="action.busy">
+                    <li *ngFor="let action of actions" class="progress-item" [ngClass]="{'finished': action.finished}" [attr.aria-busy]="action.busy">
                         {{action.label}}
                     </li>                    
                 </ul>

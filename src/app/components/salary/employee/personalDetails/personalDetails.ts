@@ -20,6 +20,7 @@ declare var _;
 })
 export class PersonalDetails {
 
+    public busy: boolean;
     public expands: any = [
         'BusinessRelationInfo.Addresses',
         'BusinessRelationInfo.Emails',
@@ -75,6 +76,7 @@ export class PersonalDetails {
     }
     
     private getData() {
+        this.busy = true;
         Observable.forkJoin(
             this.employeeService.get(this.employeeID, this.expands),
             this.employeeService.layout('EmployeePersonalDetailsForm')
@@ -99,6 +101,7 @@ export class PersonalDetails {
                 };
                 
                 this.extendFormConfig();
+                this.busy = false;
             }
             , (error: any) => {
                 console.error(error);
@@ -228,6 +231,7 @@ export class PersonalDetails {
 
         if (this.employee.BankAccounts[0] && !this.employee.BankAccounts[0].ID) {
             let bankAccount = this.employee.BankAccounts[0];
+            bankAccount.Active = true;
             bankAccount['_createguid'] = this.employeeService.getNewGuid();
         }
 

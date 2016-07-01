@@ -1,5 +1,7 @@
 import {Component} from "@angular/core";
-import {RouteConfig, RouteDefinition, ROUTER_DIRECTIVES} from "@angular/router-deprecated";
+import {RouteConfig, RouteDefinition, ROUTER_DIRECTIVES, AsyncRoute} from "@angular/router-deprecated";
+import {ComponentProxy} from '../../../framework/core/componentProxy';
+
 import {UniTabs} from "../layout/uniTabs/uniTabs";
 import {UniFormDemo} from "./form/formDemo";
 import {XFormDemo} from "./form/xFormDemo";
@@ -13,30 +15,59 @@ import {UniSaveDemo} from "./save/saveDemo";
 import {ImageDemo} from './image/imageDemo';
 
 const CHILD_ROUTES = [
-    {path: "/", redirectTo: ["./UniFormDemo"]},
-    {path: "/form", component: UniFormDemo , as: "UniFormDemo"},
-    {path: "/xform", component: XFormDemo , as: "XFormDemo"},
-    {path: "/table", component: UniTableDemo , as: "UniTableDemo"},
-    {path: "/tablenew", component: UniTableDemoNew, as: "UniTableDemoNew"},
-    {path: '/image', component: ImageDemo, as: 'ImageDemo'},
-    {path: "/treelist", component: UniTreelistDemo , as: "UniTreelistDemo"},
-    {path: "/modal", component: UniModalDemo  , as: "UniModalDemo"},
-    {path: "/modal-advanced", component: UniModalAdvancedDemo  , as: "UniModalAdvancedDemo"},
-    {path: "/documents", component: UniDocumentDemo  , as: "UniDocumentDemo"},
-    {path: "/save", component: UniSaveDemo  , as: "UniSaveDemo"},
+    new AsyncRoute({
+        path: '/form',
+        name: 'UniFormDemo',
+        loader: () => ComponentProxy.LoadComponentAsync('UniFromDemo', 'app/components/examples/form/formDemo')
+    }),
+    new AsyncRoute({
+        path: '/xform',
+        name: 'XFormDemo',
+        loader: () => ComponentProxy.LoadComponentAsync('XFormDemo', 'app/components/examples/form/xFormDemo')
+    }),
+    new AsyncRoute({
+        useAsDefault: true,
+        path: '/tablenew',
+        name: 'UniTableDemoNew',
+        loader: () => ComponentProxy.LoadComponentAsync('UniTableDemoNew', 'app/components/examples/table/tableDemoNew')
+    }),
+    new AsyncRoute({
+        path: '/image',
+        name: 'ImageDemo',
+        loader: () => ComponentProxy.LoadComponentAsync('ImageDemo', 'app/components/examples/image/imageDemo')
+    }),
+    new AsyncRoute({
+        path: '/modal',
+        name: 'UniModalDemo',
+        loader: () => ComponentProxy.LoadComponentAsync('UniModalDemo', 'app/components/examples/modal/modalDemo')
+    }),
+    new AsyncRoute({
+        path: '/modal-advanced',
+        name: 'UniModalAdvancedDemo',
+        loader: () => ComponentProxy.LoadComponentAsync('UniModalAdvancedDemo', 'app/components/examples/modal/advancedDemo')
+    }),
+    new AsyncRoute({
+        path: '/documents',
+        name: 'UniDocumentDemo',
+        loader: () => ComponentProxy.LoadComponentAsync('UniDocumentDemo', 'app/components/examples/documents/document')
+    }),
+    new AsyncRoute({
+        path: '/save',
+        name: 'UniSaveDemo',
+        loader: () => ComponentProxy.LoadComponentAsync('UniSaveDemo', 'app/components/examples/save/saveDemo')
+    }),
 ];
 
 @RouteConfig(CHILD_ROUTES)
 @Component({
-    selector: "uni-examples",
-    templateUrl: "app/components/examples/examples.html",
+    selector: 'uni-examples',
+    template: `
+        <h3>Demo of front-end components</h3>
+        <uni-tabs [routes]="childRoutes" class="horizontal_nav"></uni-tabs>
+        <router-outlet></router-outlet>
+    `,
     directives: [ROUTER_DIRECTIVES, UniTabs]
 })
 export class Examples {
-    childRoutes: RouteDefinition[];
-
-    constructor() {
-        this.childRoutes = CHILD_ROUTES.slice(1); // we dont want the redirect route to be included in the navbar 
-    }
-
+    private childRoutes: RouteDefinition[] = CHILD_ROUTES;
 }

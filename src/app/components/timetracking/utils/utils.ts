@@ -113,9 +113,11 @@ export function parseDate(value:any, allowMacros = true): Date {
 		
 }
 
-export function toIso(date:Date, includeTime = false):string {
+export function toIso(date:Date, includeTime = false, nullTime = false):string {
 	var value:string = moment(date).format();
 	if (includeTime) {
+		if (nullTime) 
+			return value.substr(0,10) + 'T00:00:00';		
 		return value.substr(0, value.length-6);
 	}
 	return value.substr(0,10);	

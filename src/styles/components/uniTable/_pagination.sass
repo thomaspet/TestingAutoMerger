@@ -13,11 +13,21 @@ unitable-pagination
     li
       display: block
       float: left
+      margin-left: .2rem
+
+      &:first-of-type
+        margin-left: 0
 
   ul, li, button
     margin: 0
     padding: 0
     display: block
+
+  button
+    &:hover,
+    &:focus
+      background-color: $uni-color-scale9
+
 
   button,
   button[disabled]:hover,
@@ -38,16 +48,32 @@ unitable-pagination
 
     &:hover,
     &:focus
-      border-color: $uni-color-C2A
-      background-color: $uni-color-scale8
+      background-color: $uni-color-scale9
+
+    &[disabled]
+      border-color: $uni-color-scale9
+      &:hover,
+      &:focus
+        border-color: $uni-color-scale9
+        background-color: $uni-color-negative
 
   .pagination_prev
-    background-image: unicon-prev-page($uni-color-scale7)
+    background-image: unicon-prev-page($uni-color-scale5)
     margin-right: .5rem
+    &:not([disabled]):hover,
+    &:not([disabled]):focus
+      background-image: unicon-prev-page($uni-color-positive)
+    &[disabled]
+      background-image: unicon-prev-page($uni-color-scale8)
 
   .pagination_next
-    background-image: unicon-next-page($uni-color-scale7)
-    margin-left: .5rem
+    background-image: unicon-next-page($uni-color-scale5)
+    margin-left: .3rem
+    &:not([disabled]):hover,
+    &:not([disabled]):focus
+      background-image: unicon-next-page($uni-color-positive)
+    &[disabled]
+      background-image: unicon-next-page($uni-color-scale8)
 
   .pagination_page
     padding: 0 .5rem

@@ -1,31 +1,39 @@
-import {Component, AfterViewInit} from "@angular/core";
+import {Component, AfterViewInit, ViewChild} from "@angular/core";
 import {TabService} from '../../layout/navbar/tabstrip/tabService';
 import {View} from '../../../models/view/view';
 import {Worker, WorkRelation, WorkProfile, WorkItem} from '../../../unientities';
 import {WorkerService, ItemInterval} from '../../../services/timetracking/workerservice';
-import {Editable, IChangeEvent, IConfig, Column, ColumnType, ITypeSearch} from '../utils/editable/editable';
-import {parseTime, addTime, parseDate} from '../utils/utils';
+import {Editable, IChangeEvent, IConfig, Column, ColumnType, ITypeSearch, ICopyEventDetails} from '../utils/editable/editable';
+import {parseTime, addTime, parseDate, toIso} from '../utils/utils';
 import {TimesheetService, TimeSheet, ValueItem} from '../../../services/timetracking/timesheetservice';
 import {IsoTimePipe, MinutesToHoursPipe} from '../utils/isotime';
 import {UniSave, IUniSaveAction} from '../../../../framework/save/save';
 import {CanDeactivate, ComponentInstruction} from '@angular/router-deprecated';
 import {Lookupservice} from '../utils/lookup';
+import {RegtimeTotals} from './totals/totals';
 
 declare var moment;
 
 export var view = new View('timeentry', 'Registrere timer', 'TimeEntry');
 
-interface IFilter {
+export interface IFilter {
     name: string;
     label: string;
     isSelected?: boolean;
     interval: ItemInterval;
 }
 
+interface ITab {
+    name: string;
+    label: string;
+    isSelected?: boolean;
+    activate?: (ts:TimeSheet, filter:IFilter) => void;
+}
+
 @Component({
     selector: view.name,
     templateUrl: 'app/components/timetracking/timeentry/timeentry.html', 
-    directives: [Editable, UniSave],
+    directives: [Editable, UniSave, RegtimeTotals],
     providers: [WorkerService, TimesheetService, Lookupservice],
     pipes: [IsoTimePipe, MinutesToHoursPipe]
 })
@@ -35,15 +43,17 @@ export class TimeEntry {
     userName = '';
     workRelations: Array<WorkRelation> = [];
     private timeSheet: TimeSheet = new TimeSheet();
-    private currentFilter: { name:string, interval: ItemInterval };
+    private currentFilter: IFilter;
     private editable: Editable;
+    
+    @ViewChild(RegtimeTotals) regtimeTotals:RegtimeTotals; 
 
     private actions: IUniSaveAction[] = [ 
             { label: 'Lagre endringer', action: (done)=>this.save(done), main: true, disabled: true }
         ];   
     
     tabs = [ { name: 'timeentry', label: 'Timer', isSelected: true },
-            { name: 'totals', label: 'Totaler' },
+            { name: 'totals', label: 'Totaler', activate: (ts:any, filter:any)=> this.regtimeTotals.activate(ts, filter) },
             { name: 'flex', label: 'Fleksitid', counter: 15 },
             { name: 'profiles', label: 'Arbeidsgivere', counter: 1 },
             { name: 'vacation', label: 'Ferie', counter: 22 },
@@ -77,7 +87,8 @@ export class TimeEntry {
                 onInit: (instance:Editable) => {
                     this.editable = instance; 
                 },
-                onTypeSearch: (details:ITypeSearch) => this.onTypeSearch(details)            
+                onTypeSearch: (details:ITypeSearch) => this.onTypeSearch(details),
+                onCopyCell: (details: ICopyEventDetails) => this.onCopyCell(details)
             }  
     };
             
@@ -88,8 +99,15 @@ export class TimeEntry {
         this.initUser();
     }
     
-    ngAfterViewInit() {
-
+    onTabClick(tab: ITab) {
+        if (tab.isSelected) return;
+        this.tabs.forEach((t:any)=>{
+            if (t.name!==tab.name) t.isSelected = false;
+        });
+        tab.isSelected = true;
+        if (tab.activate) {
+            tab.activate(this.timeSheet, this.currentFilter);
+        }
     }
 
     onAddNew() {
@@ -137,6 +155,7 @@ export class TimeEntry {
     }
 
     save(done?:any) {
+        if (this.busy) return;
         return new Promise((resolve, reject) => {
             this.busy = true;
             var counter = 0;
@@ -173,9 +192,8 @@ export class TimeEntry {
             // Remove "label" from key-value ?
             var key = event.columnDefinition.columnType === ColumnType.Integer ? parseInt(event.value) : event.value;
 
-            // Blank value?
+            // Blank value (clear current value) ?
             if (!key) {
-                //console.log("value clear!")
                 event.value = key;
                 this.updateChange(event);
                 return;
@@ -203,6 +221,7 @@ export class TimeEntry {
             var p = new Promise((resolve, reject)=>{                
                 this.lookup.getSingle<any>(lookupDef.route, key).subscribe( (item:any) => {
                     event.lookupValue = item;
+                    event.value = key;
                     this.updateChange(event);
                     resolve(item);
                 }, (err)=>{
@@ -228,6 +247,45 @@ export class TimeEntry {
             details.renderFunc = (item:any)=> { var ret = ''; for (var i=0;i<cols.length;i++) ret += (i>0 ? ' - ' : '') + item[cols[i]]; return ret; }
             details.promise = this.lookup.query(lookup.route, details.value, searchCols, undefined, searchCols, lookup.filter).toPromise();
         }
+    }
+
+    onCopyCell(details: ICopyEventDetails) { 
+
+        details.copyAbove = true;
+
+        if (details.columnDefinition) {
+            var row = details.position.row;
+            switch (details.columnDefinition.name) {
+                case 'Date':
+                    if (row===0) {
+                        details.valueToSet = parseDate('*', true);
+                    }
+                    break;
+
+                case 'StartTime':
+                    if (row > 0) {
+                        let d1 = this.timeSheet.items[row].Date;
+                        let d2 = this.timeSheet.items[row-1].Date;
+                        if (d1 && d2) { 
+                            if (d1 === d2 && (this.timeSheet.items[row-1].EndTime) ) {
+                                details.valueToSet = moment(this.timeSheet.items[row-1].EndTime).format('HH:mm');
+                                details.copyAbove = false;
+                            }   
+                        }
+                    } else {
+                        details.valueToSet = '8';
+                        details.copyAbove = false; 
+                    }
+                    break;
+            }
+
+            // Lookup column?
+            if (details.columnDefinition.lookup) {
+                this.timeSheet.copyValueAbove(details.columnDefinition.name, details.position.row);
+                details.copyAbove = false;
+            }
+
+        }  
     }
 
     updateChange(event: IChangeEvent) {

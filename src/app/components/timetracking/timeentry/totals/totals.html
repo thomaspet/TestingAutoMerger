@@ -1,0 +1,34 @@
+<aside class="regtime_filters">
+    <ul>
+        <li *ngFor="let src of sources">
+            <a (click)="onSourceClick(src)" [ngClass]="{'router-link-active': src.isSelected}" >{{src.label}}</a> 
+        </li>
+    </ul>       
+    <ul>
+        <li *ngFor="let filter of filters">
+            <a (click)="onFilterClick(filter)" [ngClass]="{'router-link-active': filter.isSelected}" >{{filter.label}}</a> 
+        </li>
+    </ul>    
+</aside>
+
+<section *ngIf="config" [attr.aria-busy]="busy">
+    <table class="timeentriesTable">
+        <thead><tr>
+            <th> </th>
+            <th class="right" *ngFor="let col of config.columns">{{col.label}}</th>
+            <th class="right">Sum</th>
+        </tr></thead>
+        <tbody>
+            <tr *ngFor="let item of config.items">
+                <td>{{item[currentSource.pivotResultColName]}}</td>
+                <td class="right" *ngFor="let col of config.columns">{{item[col.name] | min2hours:'short' }}</td>
+                <td class="right sum">{{item.sum | min2hours:'short'}}</td>
+            </tr>
+            <tr>
+                <td class="sum">Totalsum</td>
+                <td class="right sum" *ngFor="let col of config.columns">{{config.sums[col.name] | min2hours:'short' }}</td>
+                <td class="right sum">{{config.sums.sum | min2hours:'short'}}</td>
+            </tr>
+        </tbody>
+    </table>
+</section>

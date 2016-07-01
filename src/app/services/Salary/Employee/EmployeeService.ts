@@ -1,6 +1,6 @@
 import {BizHttp} from '../../../../framework/core/http/BizHttp';
 import {UniHttp} from '../../../../framework/core/http/http';
-import {Employee, FieldType, Operator, SalaryTransaction} from '../../../unientities';
+import {Employee, FieldType, Operator, SalaryTransaction, EmployeeCategory} from '../../../unientities';
 import { Observable } from 'rxjs/Observable';
 
 export class EmployeeService extends BizHttp<Employee> {
@@ -20,18 +20,45 @@ export class EmployeeService extends BizHttp<Employee> {
         this.relativeURL = Employee.RelativeUrl;
         this.defaultExpand = ['BusinessRelationInfo'];
     }
-    public getEmployeeCategories(employeenumber: number) {
+    public getEmployeeCategories(employeeID: number) {
         return this.http
             .asGET()
             .usingBusinessDomain()
-            // .withEndPoint('employeecategories')
             .withEndPoint(
                 this.relativeURL 
-                + '?action=get-employee-categories&EmployeeNumber=' 
-                + employeenumber)
+                + '/'
+                + employeeID
+                + '/category')
             .send();
             // .send({expand: '', filter: 'EmployeeNumber eq ' + id});
     }
+
+    public saveEmployeeCategory(employeeID: number, category: EmployeeCategory) {
+        return this.http
+            .asPOST()
+            .usingBusinessDomain()
+            .withBody(category)
+            .withEndPoint(
+                this.relativeURL 
+                + '/'
+                + employeeID
+                + '/category')
+            .send();
+    }
+
+    public deleteEmployeeCategory(employeeID: number, categoryID: number) {
+        return this.http
+            .asDELETE()
+            .usingBusinessDomain()
+            .withEndPoint(
+                this.relativeURL
+                + '/'
+                + employeeID
+                + '/category/'
+                + categoryID)
+            .send();
+    }
+
     public get(id: number| string, expand: string[] = null) {    
         if (id === 0) {
             if (expand) {
@@ -54,16 +81,17 @@ export class EmployeeService extends BizHttp<Employee> {
             .send({expand: 'BusinessRelationInfo'});
     }
     
-    public getTotals(payrunID: number, employeeID: number = 0) {
+    public getTotals(payrunID: number, employeeID: number = 0) {        
         var params = '&payrun=' + payrunID;
         if (employeeID) {
-            params += '&employee=' + employeeID;
+            params += '&employee=' + employeeID;        
         }
+        
         return this.http
             .asGET()
             .usingBusinessDomain()
-            .withEndPoint('salarytrans')
-            .send({action: 'Sums' + params});
+            .withEndPoint('salarytrans?action=Sums' + params)
+            .send(); //{action: 'Sums' + params});
     }
 
     public getEmployeeLeave() {
@@ -297,7 +325,7 @@ export class EmployeeService extends BizHttp<Employee> {
                     EntityType: 'Employee',
                     Property: '',
                     Placement: 7,
-                    Hidden: false,
+                    Hidden: true,
                     FieldType: FieldType.TEXT,
                     ReadOnly: false,
                     LookupField: false,

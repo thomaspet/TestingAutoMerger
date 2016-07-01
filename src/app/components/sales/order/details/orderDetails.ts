@@ -61,6 +61,7 @@ export class OrderDetails {
 
     private emptyAddress: Address;
     private recalcTimeout: any;
+    private addressChanged: any;
 
     private actions: IUniSaveAction[];
 
@@ -238,11 +239,9 @@ export class OrderDetails {
 
                 this.addressModal.openModal(value, !!!this.order.CustomerID);
 
-                this.addressModal.Changed.subscribe(address => {
-                    this.order._InvoiceAddress = address;
-                    this.order = _.cloneDeep(this.order);
-                    if (address._question) { self.saveAddressOnCustomer(address); }
-                    resolve(address);
+                this.addressChanged = this.addressModal.Changed.subscribe(address => {
+                    if (address._question) { self.saveAddressOnCustomer(address, resolve); }
+                    else { this.addressChanged.unsubscribe(); resolve(address); }
                 });
             }),
             display: (address: Address) => {
@@ -265,11 +264,9 @@ export class OrderDetails {
 
                 this.addressModal.openModal(value);
 
-                this.addressModal.Changed.subscribe((address) => {
-                    this.order._ShippingAddress = address;
-                    this.order = _.cloneDeep(this.order);
-                    if (address._question) { self.saveAddressOnCustomer(address); }
-                    resolve(address);
+                this.addressChanged = this.addressModal.Changed.subscribe((address) => {
+                    if (address._question) { self.saveAddressOnCustomer(address, resolve); }
+                    else { this.addressChanged.unsubscribe(); resolve(address); }
                 });
             }),
             display: (address: Address) => {
@@ -286,18 +283,31 @@ export class OrderDetails {
         };
     }
 
-    private saveAddressOnCustomer(address: Address) {
+    private saveAddressOnCustomer(address: Address, resolve) {
+        var idx = 0;
+
         if (!address.ID || address.ID == 0) {
             address['_createguid'] = this.addressService.getNewGuid();
             this.order.Customer.Info.Addresses.push(address);
-            this.businessRelationService.Put(this.order.Customer.Info.ID, this.order.Customer.Info).subscribe((res) => {
-                this.order.Customer.Info = res;
-            });
+            idx = this.order.Customer.Info.Addresses.length - 1;
         } else {
-            this.addressService.Put(address.ID, address).subscribe((res) => {
-            });
+            idx = this.order.Customer.Info.Addresses.findIndex((a) => a.ID === address.ID);
+            this.order.Customer.Info.Addresses[idx] = address;
         }
+        
+        // remove entries with equal _createguid
+        this.order.Customer.Info.Addresses = _.uniq(this.order.Customer.Info.Addresses, '_createguid');
+
+        // this.quote.Customer.Info.ID
+        this.businessRelationService.Put(this.order.Customer.Info.ID, this.order.Customer.Info).subscribe((info) => {
+            this.order.Customer.Info = info;
+            this.addressChanged.unsubscribe();
+            resolve(info.Addresses[idx]);
+        },(error) => {
+            this.addressChanged.unsubscribe();
+        });
     }
+
 
     private updateSaveActions() {
         this.actions = [];
@@ -441,6 +451,7 @@ export class OrderDetails {
 
                 this.customerOrderService.Get(order.ID, this.expandOptions).subscribe((data) => {
                     this.order = data;
+                    this.addressService.setAddresses(this.order);
                     this.updateStatusText();
                     this.updateSaveActions();
                     this.setTabTitle();

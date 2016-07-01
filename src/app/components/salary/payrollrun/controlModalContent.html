@@ -20,11 +20,11 @@
 
     <footer class="payrollControl_footer">
 
-        <button *ngFor="let action of config.actions; let i=index" (click)="action.method()">
+        <button *ngFor="let action of config.actions; let i=index" (click)="action.method()" class="good">
             {{action.text}}
         </button>
 
-        <button *ngIf="config.hasCancelButton" (click)="config.cancel()">Avbryt</button>
+        <button *ngIf="config.hasCancelButton" (click)="config.cancel()" class="bad">Avbryt</button>
 
     </footer>
 </article>
