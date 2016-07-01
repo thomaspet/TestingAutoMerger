@@ -259,7 +259,12 @@ export class InvoiceDetails implements OnInit {
     }
 
     private setTabTitle() {
-        let tabTitle = this.invoice.InvoiceNumber ? 'Fakturanr. ' + this.invoice.InvoiceNumber : 'Faktura (kladd)';
+        var tabTitle;
+        if (this.invoice.InvoiceType == 1) {
+            tabTitle = this.invoice.InvoiceNumber ? 'Kreditnotanr. ' + this.invoice.InvoiceNumber : 'Kreditnota (kladd)';
+        } else {
+            tabTitle = this.invoice.InvoiceNumber ? 'Fakturanr. ' + this.invoice.InvoiceNumber : 'Faktura (kladd)';
+        }
         this.tabService.addTab({ url: '/sales/invoice/details/' + this.invoice.ID, name: tabTitle, active: true, moduleID: 5 });
     }
 
