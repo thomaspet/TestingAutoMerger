@@ -110,6 +110,10 @@ export class NavbarSearch implements AfterViewInit {
         var overflow = 0;
 
         switch (event.keyCode) {
+            case 9:
+                event.preventDefault();
+                this.tabSelect();
+            break;
             case 13:
                 this.confirmSelection();
             break;
@@ -154,6 +158,16 @@ export class NavbarSearch implements AfterViewInit {
         const url = this.searchResults[this.selectedIndex].componentUrl;
         this.close();
         this.router.navigateByUrl(url);
+    }
+
+    private tabSelect() {
+        if (!this.searchResults[this.selectedIndex]) { return; }
+        const name = this.searchResults[this.selectedIndex].componentName;
+        const lower = name.toLowerCase();
+
+        if (['faktura', 'tilbud', 'ordre'].indexOf(name.toLowerCase()) >= 0) {
+            this.inputControl.updateValue(name + ' ', { emitEvent: true });
+        }
     }
 
     private close() {

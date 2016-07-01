@@ -1,8 +1,17 @@
-﻿import {Component, Host, ElementRef} from '@angular/core';
+﻿import {Component, Host, ElementRef, Pipe} from '@angular/core';
 import {ROUTER_DIRECTIVES, Router, AsyncRoute} from '@angular/router-deprecated';
 import {NgFor, NgClass} from '@angular/common';
 import {ROUTES} from '../../../../route.config';
 declare var jQuery;
+
+@Pipe({name: 'removehidden'})
+export class RemoveHidden {
+  constructor(){}
+
+  transform(componentList) {
+    return componentList.filter((x) => !(x.hidden || false));
+  }
+}
 
 @Component({
     selector: 'uni-hamburger-menu',
@@ -13,7 +22,7 @@ declare var jQuery;
                     {{componentList.componentListName}}
                     <ul>
                         <h3>{{componentList.componentListHeader}}</h3>
-                        <li *ngFor="let component of componentList.componentList" (click)="navigate(component.componentUrl)">
+                        <li *ngFor="let component of componentList.componentList | removehidden" (click)="navigate(component.componentUrl)">
                             {{component.componentName}}
                         </li>
                     </ul>
@@ -25,7 +34,8 @@ declare var jQuery;
     host: {
         '(click)': 'onClick($event)',
         '(document:click)': 'offClick()'
-    }
+    },
+    pipes: [RemoveHidden]
 })
 export class HamburgerMenu {
     private open: boolean = false;
@@ -41,7 +51,13 @@ export class HamburgerMenu {
                 componentListName: 'Nøkkeltall',
                 componentListHeader: 'Alt om deres økonomi',
                 componentList: [
-                    {componentName: 'Nøkkeltall', componentUrl: '/'}
+                    {componentName: 'Nøkkeltall', componentUrl: '/'},
+                    {componentName: 'Brukerinnstillinger', componentUrl: '/settings/user', hidden: true},
+                    {componentName: 'Firmainnstillinger', componentUrl: '/settings/company', hidden: true},
+                    {componentName: 'AGA innstillinger', componentUrl: '/settings/agaandsubentities', hidden: true},
+                    {componentName: 'Legg til bruker', componentUrl: '/settings/users', hidden: true},
+                    {componentName: 'Brukere og roller', componentUrl: '/settings/users', hidden: true},
+                    {componentName: 'Altinn', componentUrl: '/settings/altinn', hidden: true}
                 ]
             },
             {
@@ -59,7 +75,9 @@ export class HamburgerMenu {
                 componentListName: 'Regnskap',
                 componentListHeader: 'Orden i bøkene',
                 componentList: [
-                    {componentName: 'Bilagsføring', componentUrl: '/accounting'},                    
+                    {componentName: 'Bilagsføring', componentUrl: '/accounting'},  
+                    {componentName: 'Leverandørfaktura', componentUrl: '/accounting/journalentry/supplierinvoices/list', hidden: true},
+                    {componentName: 'Betaling', componentUrl: '/accounting/journalentry/payments', hidden: true}, 
                     {componentName: 'Forespørsel på konto', componentUrl: '/accounting/transquery'},
                     {componentName: 'Forespørsel på bilag', componentUrl: '/accounting/transquery/details'},
                     {componentName: 'Kontoinnstillinger', componentUrl: '/accounting/accountsettings'},
