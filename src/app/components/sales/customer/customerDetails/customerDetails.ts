@@ -224,8 +224,11 @@ export class CustomerDetails implements OnInit {
                 this.customer.Info.ShippingAddressID = 0;
                 
                 this.customer = _.cloneDeep(this.customer);
-            });
-            
+
+                setTimeout(() => {
+                   this.ready();                
+                });
+            });            
         } 
     }
     
