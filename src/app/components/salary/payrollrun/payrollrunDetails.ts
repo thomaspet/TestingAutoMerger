@@ -48,7 +48,6 @@ export class PayrollrunDetails implements OnInit {
         this._rootRouteParamsService.params = this.routeParams;
         this.tabSer.addTab({ name: 'Lønnsavregning ' + this.payrollrunID, url: 'salary/payrollrun/' + this.payrollrunID, moduleID: 14, active: true });
         this.payrollrunService.refreshPayrollRun$.subscribe((payrollrun: PayrollRun) => {
-                console.log('payrunRefreshed');
                 this.busy = true;
                 this.payrollrun = payrollrun;
                 this.payrollrunID = payrollrun.ID;
