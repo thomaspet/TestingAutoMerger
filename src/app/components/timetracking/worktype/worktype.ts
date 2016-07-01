@@ -1,38 +1,52 @@
-import {Component} from "@angular/core";
+import {Component, ViewChild} from "@angular/core";
 import {TabService} from '../../layout/navbar/tabstrip/tabService';
 import {View} from '../../../models/view/view';
 import {Worker} from '../../../unientities';
-import {UniTable, UniTableBuilder, UniTableColumn} from '../../../../framework/uniTable';
+import {UniTable, UniTableColumn, UniTableColumnType, UniTableConfig, IContextMenuItem} from 'unitable-ng2/main';
+import {WorkTypeSystemType} from '../utils/enumpipes';
+import {WorkerService} from '../../../services/timetracking/workerservice';
+import {Observable} from "rxjs/Rx";
 
 export var view = new View('worktype', 'Timearter', 'WorktypeListview');
 
 @Component({
     selector: view.name,
     templateUrl: 'app/components/timetracking/worktype/worktype.html',
-    directives: [UniTable]
+    directives: [UniTable],
+    pipes: [WorkTypeSystemType],
+    providers: [WorkerService]
 })
 export class WorktypeListview {    
     public view = view;
-    
-    private tableConfig: UniTableBuilder;
+    @ViewChild(UniTable) public table: UniTable;
+    private tableConfig: UniTableConfig;
 
-    constructor(private tabService: TabService) {
+    constructor(private tabService: TabService, private workerService:WorkerService) {
         this.tabService.addTab({ name: view.label, url: view.route, moduleID: 17, active: true });
         this.tableConfig = this.createTableConfig();
     }
     
-    createTableConfig():UniTableBuilder {
+    createTableConfig():UniTableConfig {
         
-        var c1 = new UniTableColumn('ID', 'Nr.', 'number').setWidth('10%');
-        var c2 = new UniTableColumn('Name', 'Navn', 'string').setWidth('40%');
-        var c3 = new UniTableColumn('Description', 'Beskrivelse', 'string');
+        var cols = [
+        	new UniTableColumn('ID', 'Nr.', UniTableColumnType.Number).setWidth('10%'),
+            new UniTableColumn('Name', 'Navn', UniTableColumnType.Text).setWidth('40%'),
+            new UniTableColumn('Description', 'Beskrivelse', UniTableColumnType.Text),
+            new UniTableColumn('SystemType', 'Type', UniTableColumnType.Number)
+        ];
+        cols[3].filterOperator = 'worktypesystemtype';
 
-        return new UniTableBuilder('worktypes', false)
-        .setToolbarOptions([])
-        .setSelectCallback((item)=>{ this.onSelect(item); } )
-        .setFilterable(false)
-        .setPageSize(25)
-        .addColumns(c1, c2, c3);
+        return new UniTableConfig(false, false)
+        .setSearchable(true)
+        .setColumns(cols)
+
+    }
+
+    tableResource():any {
+        if (this.workerService) {
+            return this.workerService.getWorkTypes();
+        }
+        return Observable.from([]);
     }
     
     onSelect(item) {
