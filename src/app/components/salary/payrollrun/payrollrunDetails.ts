@@ -25,7 +25,6 @@ export class PayrollrunDetails implements OnInit {
     public fields: any[] = [];
     @ViewChild(UniForm) public uniform: UniForm;
     private payrollrun: PayrollRun;
-    private model: { payrollrun: PayrollRun, statusCode: string } = { payrollrun: null, statusCode: null };
     private payrollrunID: number;
     private payDate: Date = null;
     private payStatus: string;
@@ -58,8 +57,6 @@ export class PayrollrunDetails implements OnInit {
                 this.payrollrunService.layout('payrollrunDetailsForm')
             ).subscribe((response: any) => {
                 var [payrollrun, layout] = response;
-                this.model.payrollrun = payrollrun;
-                this.model.statusCode = this.setStatus();
                 this.payrollrun = payrollrun;
                 this.payDate = new Date(this.payrollrun.PayDate.toString());
                 this.fields = layout.Fields;
@@ -87,8 +84,6 @@ export class PayrollrunDetails implements OnInit {
         if (this.payrollrunID) {
             this.payrollrunService.Get<PayrollRun>(this.payrollrunID).subscribe((response: any) => {
                 var [payrollrun] = response;
-                this.model.payrollrun = payrollrun;
-                this.model.statusCode = this.setStatus();
                 this.payrollrun = payrollrun;
                 this.payDate = new Date(this.payrollrun.PayDate.toString());
                 this.refreshSaveActions();
@@ -147,13 +142,13 @@ export class PayrollrunDetails implements OnInit {
     }
 
     private setStatus() {
-        var status = this.payrollrunService.getStatus(this.model.payrollrun);
+        var status = this.payrollrunService.getStatus(this.payrollrun);
         this.payStatus = status.text;
         return status.text;
     }
-    public canPost() : boolean {
+    public canPost(): boolean {
         if (this.payrollrun) {
-        if (this.payrollrun.StatusCode == 1) {
+        if (this.payrollrun.StatusCode === 1) {
         return true; }
         }
         return false; 
@@ -244,10 +239,10 @@ export class PayrollrunDetails implements OnInit {
         } else {
             this.isEditable = true;
             this.uniform.editMode();
-            var idField: UniFieldLayout = this.findByProperty(this.fields, 'payrollrun.ID');
+            var idField: UniFieldLayout = this.findByProperty(this.fields, 'ID');
             idField.ReadOnly = true;
         }
-        var recurringTransCheck: UniFieldLayout = this.findByProperty(this.fields, 'payrollrun.ExcludeRecurringPosts');
+        var recurringTransCheck: UniFieldLayout = this.findByProperty(this.fields, 'ExcludeRecurringPosts');
         var noNegativePayCheck: UniFieldLayout = this.findByProperty(this.fields, '1');
         if (this.isEditable) {
             recurringTransCheck.ReadOnly = false;
@@ -257,7 +252,7 @@ export class PayrollrunDetails implements OnInit {
             noNegativePayCheck.ReadOnly = true;
         }
 
-        var statusCode: UniFieldLayout = this.findByProperty(this.fields, 'statusCode');
+        var statusCode: UniFieldLayout = this.findByProperty(this.fields, 'StatusCode');
         this.setStatus();
         statusCode.ReadOnly = true;
         this.fields = _.cloneDeep(this.fields);

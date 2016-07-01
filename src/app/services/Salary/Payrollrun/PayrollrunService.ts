@@ -106,7 +106,7 @@ export class PayrollrunService extends BizHttp<PayrollRun> {
                 {
                     ComponentLayoutID: 1,
                     EntityType: 'payrollrun',
-                    Property: 'payrollrun.ID',
+                    Property: 'ID',
                     Placement: 0,
                     Hidden: false,
                     FieldType: FieldType.TEXT,
@@ -134,7 +134,7 @@ export class PayrollrunService extends BizHttp<PayrollRun> {
                 {
                     ComponentLayoutID: 1,
                     EntityType: 'payrollrun',
-                    Property: 'payrollrun.Description',
+                    Property: 'Description',
                     Placement: 0,
                     Hidden: false,
                     FieldType: FieldType.TEXT,
@@ -161,10 +161,10 @@ export class PayrollrunService extends BizHttp<PayrollRun> {
                 },
                 {
                     ComponentLayoutID: 1,
-                    EntityType: 'statusCode',
-                    Property: 'statusCode',
+                    EntityType: 'payrollrun',
+                    Property: 'StatusCode',
                     Placement: 1,
-                    Hidden: false,
+                    Hidden: true,
                     FieldType: FieldType.TEXT,
                     ReadOnly: true,
                     LookupField: false,
@@ -183,7 +183,7 @@ export class PayrollrunService extends BizHttp<PayrollRun> {
                 {
                     ComponentLayoutID: 1,
                     EntityType: 'payrollrun',
-                    Property: 'payrollrun.PayDate',
+                    Property: 'PayDate',
                     Placement: 3,
                     Hidden: false,
                     FieldType: FieldType.DATEPICKER,
@@ -216,7 +216,7 @@ export class PayrollrunService extends BizHttp<PayrollRun> {
                 {
                     ComponentLayoutID: 1,
                     EntityType: 'payrollrun',
-                    Property: 'payrollrun.FromDate',
+                    Property: 'FromDate',
                     Placement: 3,
                     Hidden: false,
                     FieldType: FieldType.DATEPICKER,
@@ -249,7 +249,7 @@ export class PayrollrunService extends BizHttp<PayrollRun> {
                 {
                     ComponentLayoutID: 1,
                     EntityType: 'payrollrun',
-                    Property: 'payrollrun.ToDate',
+                    Property: 'ToDate',
                     Placement: 3,
                     Hidden: false,
                     FieldType: FieldType.DATEPICKER,
@@ -363,7 +363,7 @@ export class PayrollrunService extends BizHttp<PayrollRun> {
                 {
                     ComponentLayoutID: 1,
                     EntityType: 'payrollrun',
-                    Property: 'payrollrun.ExcludeRecurringPosts',
+                    Property: 'ExcludeRecurringPosts',
                     Placement: 3,
                     Hidden: false,
                     FieldType: 5, // FieldType.CHECKBOX,
@@ -429,7 +429,7 @@ export class PayrollrunService extends BizHttp<PayrollRun> {
                 {
                     ComponentLayoutID: 1,
                     EntityType: 'payrollrun',
-                    Property: 'payrollrun.FreeText',
+                    Property: 'FreeText',
                     Placement: 3,
                     Hidden: false,
                     FieldType: FieldType.TEXT,
