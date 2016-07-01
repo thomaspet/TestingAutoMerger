@@ -20,7 +20,7 @@ declare var _; // lodash
 
             <ul class="uni-multivalue-values" [class.-is-active]="listIsVisible">
                 <template ngFor let-row [ngForOf]="rows" let-i = "index">
-                    <li [class.-is-main]="isSelected(row)">
+                    <li [attr.aria-selected]="isSelected(row)">
 
                         <div *ngIf="!row.mode">
                             <span class="uni-multivalue-value"
@@ -31,7 +31,7 @@ declare var _; // lodash
                                 (click)="remove(row, $event)">
                                 Delete
                             </button>
-                            <button class="setEditBtn"
+                            <button class="uni-multivalue_edit_action-edit"
                                 (click)="edit(row, $event)">
                                 Rediger {{showDisplayValue(row)}}
                             </button>
