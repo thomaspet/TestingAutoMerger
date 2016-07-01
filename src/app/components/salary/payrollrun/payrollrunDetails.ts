@@ -55,6 +55,9 @@ export class PayrollrunDetails implements OnInit {
                 this.payDate = new Date(this.payrollrun.PayDate.toString());
                 this.payStatus = this.payrollrunService.getStatus(this.payrollrun).text;
                 this.refreshSaveActions();
+                if (this.formIsReady) {
+                    this.setEditMode();
+                }
                 this.busy = false;
         });
     }
