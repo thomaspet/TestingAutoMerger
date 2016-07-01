@@ -48,6 +48,16 @@ export class PayrollrunDetails implements OnInit {
         this.payrollrunID = +this.routeParams.get('id');
         this._rootRouteParamsService.params = this.routeParams;
         this.tabSer.addTab({ name: 'Lønnsavregning ' + this.payrollrunID, url: 'salary/payrollrun/' + this.payrollrunID, moduleID: 14, active: true });
+        this.payrollrunService.refreshPayrollRun$.subscribe((payrollrun: PayrollRun) => {
+                console.log('payrunRefreshed');
+                this.busy = true;
+                this.payrollrun = payrollrun;
+                this.model.payrollrun = payrollrun;
+                this.model.statusCode = this.setStatus();
+                this.payDate = new Date(this.payrollrun.PayDate.toString());
+                this.refreshSaveActions();
+                this.busy = false;
+        });
     }
 
     public ngOnInit() {
@@ -58,16 +68,11 @@ export class PayrollrunDetails implements OnInit {
                 this.payrollrunService.layout('payrollrunDetailsForm')
             ).subscribe((response: any) => {
                 var [payrollrun, layout] = response;
-                this.model.payrollrun = payrollrun;
-                this.model.statusCode = this.setStatus();
-                this.payrollrun = payrollrun;
-                this.payDate = new Date(this.payrollrun.PayDate.toString());
+                this.payrollrunService.refreshPayrun(payrollrun);
                 this.fields = layout.Fields;
-
                 this.config = {
                     submitText: ''
                 };
-                this.refreshSaveActions();
                 this.busy = false;
             },
                 (err) => {
@@ -76,29 +81,6 @@ export class PayrollrunDetails implements OnInit {
                 });
         }
 
-    }
-
-    public changedPayrollRun() {
-        this.refreshData();
-    }
-
-    private refreshData() {
-        this.busy = true;
-        if (this.payrollrunID) {
-            this.payrollrunService.Get<PayrollRun>(this.payrollrunID).subscribe((response: any) => {
-                var [payrollrun] = response;
-                this.model.payrollrun = payrollrun;
-                this.model.statusCode = this.setStatus();
-                this.payrollrun = payrollrun;
-                this.payDate = new Date(this.payrollrun.PayDate.toString());
-                this.refreshSaveActions();
-                this.busy = false;
-            },
-                (err) => {
-                    this.log(err);
-                    console.log(err);
-                });
-        }
     }
 
     private refreshSaveActions() {
@@ -151,7 +133,7 @@ export class PayrollrunDetails implements OnInit {
         this.payStatus = status.text;
         return status.text;
     }
-    public canPost() : boolean {
+    public canPost(): boolean {
         if (this.payrollrun) {
         if (this.payrollrun.StatusCode == 1) {
         return true; }
@@ -261,6 +243,12 @@ export class PayrollrunDetails implements OnInit {
         this.setStatus();
         statusCode.ReadOnly = true;
         this.fields = _.cloneDeep(this.fields);
+    }
+
+    public salarytransReady(value) {
+        if (this.payrollrun) {
+            this.payrollrunService.refreshPayrun(_.cloneDeep(this.payrollrun));
+        }
     }
 
     public ready(value) {

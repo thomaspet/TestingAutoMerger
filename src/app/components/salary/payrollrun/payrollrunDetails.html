@@ -28,7 +28,7 @@
 </section>
 <section *ngIf="formIsReady">
     <section [attr.aria-busy]="busy">
-        <salarytrans *ngIf="!uniform.section(1).isOpen" [selectedPayrollRun]="payrollrun" (changedPayrollRun)="changedPayrollRun()"></salarytrans>
+        <salarytrans *ngIf="!uniform.section(1).isOpen" (salaryTransSelectionListReady)="salarytransReady($value)"></salarytrans>
     </section>
 
     <uni-save *ngIf="uniform.section(1).isOpen" [actions]="saveactions"></uni-save>

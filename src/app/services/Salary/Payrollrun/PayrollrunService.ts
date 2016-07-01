@@ -2,8 +2,13 @@ import {BizHttp} from '../../../../framework/core/http/BizHttp';
 import {UniHttp} from '../../../../framework/core/http/http';
 import {PayrollRun, FieldType} from '../../../unientities';
 import { Observable } from 'rxjs/Observable';
+import { Subject } from 'rxjs/Subject';
 
 export class PayrollrunService extends BizHttp<PayrollRun> {
+
+    private payrollRun: Subject<PayrollRun> = new Subject<PayrollRun>();
+
+    public refreshPayrollRun$: Observable<PayrollRun> = this.payrollRun.asObservable();
     
     public payStatusTable: any = [
         {ID: 0 || null, text: 'Opprettet'},
@@ -18,6 +23,10 @@ export class PayrollrunService extends BizHttp<PayrollRun> {
     constructor(http: UniHttp) {
         super(http);
         this.relativeURL = PayrollRun.RelativeUrl;
+    }
+
+    public refreshPayrun(payRun: PayrollRun) {
+        this.payrollRun.next(payRun);
     }
       
     public getStatus(payrollRun: PayrollRun) {
