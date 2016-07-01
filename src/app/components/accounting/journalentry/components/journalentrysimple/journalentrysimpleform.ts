@@ -26,62 +26,62 @@ export enum JournalEntryMode {
     providers: [AccountService, JournalEntryService, CustomerInvoiceService]
 })
 export class JournalEntrySimpleForm implements OnChanges {
-    @Input() public dropdownData: any;    
-    @Input() public journalEntryLine: JournalEntryData;       
-    @Input() public journalEntryLines: Array<JournalEntryData>;    
-    @Input() public mode: number = JournalEntryMode.Manual;    
-    @Input() public disabled: boolean = false;    
+    @Input() public dropdownData: any;
+    @Input() public journalEntryLine: JournalEntryData;
+    @Input() public journalEntryLines: Array<JournalEntryData>;
+    @Input() public mode: number = JournalEntryMode.Manual;
+    @Input() public disabled: boolean = false;
     @Output() public created: EventEmitter<any> = new EventEmitter<any>();
-    @Output() public aborted: EventEmitter<any> = new EventEmitter<any>();    
+    @Output() public aborted: EventEmitter<any> = new EventEmitter<any>();
     @Output() public updated: EventEmitter<any> = new EventEmitter<any>();
     @Output() public deleted: EventEmitter<any> = new EventEmitter<any>();
-       
-    @ViewChild(UniForm) public form: UniForm;    
-    
+
+    @ViewChild(UniForm) public form: UniForm;
+
     private config: any = {};
     private fields: any[] = [];
-   
+
     private departements: Departement[];
     private projects: Project[];
     private vattypes: VatType[];
     private accounts: Account[];
-    
+
     public isLoaded: boolean;
     public isEditMode: boolean;
     public journalalternatives: Array<any> = [];
     public journalalternativesindex: number = 0;
-    
+
     private SAME_OR_NEW_SAME: string = '0';
     private SAME_OR_NEW_NEW: string = '1';
-    
+
     private sameAlternative: any = {ID: this.SAME_OR_NEW_SAME, Name: 'Samme'};
     private newAlternative: any = {ID: this.SAME_OR_NEW_NEW, Name: 'Ny'}
-  
+
     constructor(private accountService: AccountService,
                 private journalEntryService: JournalEntryService,
                 private customerInvoiceService: CustomerInvoiceService,
-                private renderer: Renderer) {   
+                private renderer: Renderer) {
         this.isLoaded = false;
         this.isEditMode = false;
         this.departements = [];
-        this.projects = []; 
+        this.projects = [];
         this.vattypes = [];
         this.accounts = [];
         this.journalEntryLine = new JournalEntryData();
     }
-    
-    public ngOnInit() {    
-        if (!this.isEditMode) {           
+
+    public ngOnInit() {
+        if (!this.isEditMode) {
             this.journalEntryLine.SameOrNew = this.mode == JournalEntryMode.Supplier ? this.SAME_OR_NEW_SAME : this.SAME_OR_NEW_NEW;
         }
-        
+
         this.setupFields();
-        this.setupSameNewAlternatives();    
+        this.setupSameNewAlternatives();
     }
-    
-    private setupSameNewAlternatives() {      
+
+    private setupSameNewAlternatives() {
         this.journalalternatives = [];
-        
+
         // add list of possible numbers from start to end
         if (this.isEditMode && this.mode !== JournalEntryMode.Supplier && this.journalEntryLines.length > 0) {
             var range = this.journalEntryService.findJournalNumbersFromLines(this.journalEntryLines);
@@ -89,39 +89,39 @@ export class JournalEntrySimpleForm implements OnChanges {
             for(var i = 0; i <= (range.last - range.first); i++) {
                 var jn = `${i + range.first}-${range.year}`;
                 this.journalalternatives.push({ID: jn, Name: jn});
-                if ((i + range.first) === current) { this.journalalternativesindex = i; } 
+                if ((i + range.first) === current) { this.journalalternativesindex = i; }
             }
         } else {
             this.journalalternatives.push(this.sameAlternative);
             this.journalalternativesindex = 1;
         }
-        
+
         // new always last one
         this.journalalternatives.push(this.newAlternative);
-        
+
         // Update source
         this.fields[0].Options.source = this.journalalternatives;
         this.fields = _.cloneDeep(this.fields);
     }
-                
+
     public ngOnChanges(changes: {[propName: string]: SimpleChange}) {
-        
+
         if (this.fields.length === 0) {
             this.setupFields();
         }
-        
+
         setTimeout(() => {
             if (changes['dropdownData'] !== null && this.dropdownData) {
                 this.departements = this.dropdownData[0];
                 this.projects = this.dropdownData[1]
                 this.vattypes = this.dropdownData[2];
                 this.accounts = this.dropdownData[3];
-                
+
                 // Add empty element to top of dropdown
                 this.departements.unshift(null);
                 this.projects.unshift(null);
-                            
-                // Refresh sources 
+
+                // Refresh sources
                 this.fields[3].Options.source = this.accounts;
                 this.fields[4].Options.source = this.vattypes;
                 this.fields[5].Options.source = this.accounts;
@@ -129,25 +129,25 @@ export class JournalEntrySimpleForm implements OnChanges {
                 //this.fields[8].Options.source = this.departements;
                 //this.fields[9].Options.source = this.projects;
                 this.fields = _.cloneDeep(this.fields);
-                
+
                 setTimeout(() => {
                     this.form.field('FinancialDate').focus();
                 });
             }
         });
-        
+
         if (changes['journalEntryLine']) {
             this.journalEntryLine = _.cloneDeep(this.journalEntryLine);
-            this.isEditMode = true;            
-        }        
+            this.isEditMode = true;
+        }
     }
-        
+
     public submit(line) {
     }
-      
+
     public change(line) {
-    }  
-    
+    }
+
     public ready(event) {
         if (!this.disabled) {
             this.form.editMode();
@@ -155,80 +155,80 @@ export class JournalEntrySimpleForm implements OnChanges {
             this.form.readMode();
         }
     }
-        
-    private validateJournalEntryData(): string {        
+
+    private validateJournalEntryData(): string {
         let validationResult: string = '';
-        
+
         if (!this.journalEntryLine.FinancialDate) {
             validationResult += 'Dato må registreres\n';
         }
-        
+
         if (!this.journalEntryLine.CreditAccountID && !this.journalEntryLine.DebitAccountID) {
             validationResult += 'Debetkonto, kreditkonto, eller begge må registreres\n';
         }
-        
-        
+
+
         if (!this.journalEntryLine.Amount || isNaN(this.journalEntryLine.Amount)) {
             validationResult += 'Beløp må være et tall\n';
         }
-        
+
         return validationResult;
     }
-         
+
     private addJournalEntry(event: any, journalEntryNumber: string = null) {
-        
+
         // simple validations before adding
         let validationResult = this.validateJournalEntryData();
         if (validationResult !== '') {
             alert('Vennligst korriger følgende feil:\n\n' + validationResult);
             return;
         }
-        
+
         if (this.journalEntryLines.length == 0 && journalEntryNumber == null && this.mode != JournalEntryMode.Supplier) {
             // New line fetch next journal entry number from server first
             var journalentrytoday: JournalEntryData = new JournalEntryData();
             journalentrytoday.FinancialDate = moment().toDate();
             this.journalEntryService.getNextJournalEntryNumber(journalentrytoday).subscribe((next) => {
                 this.addJournalEntry(event, next);
-            });            
+            });
         } else {
-            var oldData: JournalEntryData = _.cloneDeep(this.journalEntryLine);              
-            
+            var oldData: JournalEntryData = _.cloneDeep(this.journalEntryLine);
+
             if (this.mode != JournalEntryMode.Supplier) {
-                var numbers = this.journalEntryService.findJournalNumbersFromLines(this.journalEntryLines, journalEntryNumber);            
+                var numbers = this.journalEntryService.findJournalNumbersFromLines(this.journalEntryLines, journalEntryNumber);
                 if (numbers) {
                     // next or same journal number?
                     if (oldData.SameOrNew === this.SAME_OR_NEW_NEW && this.mode != JournalEntryMode.Supplier) {
                         oldData.JournalEntryNo = numbers.nextNumber;
                     } else {
-                        oldData.JournalEntryNo = numbers.lastNumber;        
+                        oldData.JournalEntryNo = numbers.lastNumber;
                     }
                 }
             }
-                
+
             var oldsameornew = oldData.SameOrNew;
-            oldData.SameOrNew = oldData.JournalEntryNo;        
+            oldData.SameOrNew = oldData.JournalEntryNo;
             this.created.emit(oldData);
-                    
-            this.journalEntryLine = new JournalEntryData(); 
+
+            this.journalEntryLine = new JournalEntryData();
             this.journalEntryLine.FinancialDate = oldData.FinancialDate;
-            
+
             if (this.mode == JournalEntryMode.Supplier) {
                 this.journalEntryLine.SameOrNew = this.SAME_OR_NEW_SAME;
             } else {
                 this.journalEntryLine.SameOrNew = oldsameornew == this.SAME_OR_NEW_SAME ? this.SAME_OR_NEW_SAME : this.SAME_OR_NEW_NEW;
             }
-            
+
             this.setupSameNewAlternatives();
-            
+
             setTimeout(() => {
                 this.setFocusAfterFinancialDate();
-            });               
-        }  
-                  
+            });
+        }
+
     }
-    
-    private editJournalEntry(event: any) {    
+
+    private editJournalEntry(event: any) {
         setTimeout(() => {
             // simple validations before adding
             let validationResult = this.validateJournalEntryData();
@@ -236,18 +236,18 @@ export class JournalEntrySimpleForm implements OnChanges {
                 alert('Vennligst korriger følgende feil:\n\n' + validationResult);
                 return;
             }
-             
+
             if (this.journalEntryLine.SameOrNew === this.SAME_OR_NEW_NEW) {
                 var numbers = this.journalEntryService.findJournalNumbersFromLines(this.journalEntryLines);
                 this.journalEntryLine.JournalEntryNo = numbers.nextNumber;
             } else {
                 this.journalEntryLine.JournalEntryNo = this.journalEntryLine.SameOrNew;
             }
-            
+
             this.updated.emit(this.journalEntryLine);
         });
     }
-        
+
     private abortEditJournalEntry(event) {
         this.aborted.emit(null);
     }
@@ -255,43 +255,43 @@ export class JournalEntrySimpleForm implements OnChanges {
     private deleteEditJournalEntry(event) {
         this.deleted.emit(null);
     }
-    
+
     private emptyJournalEntry(event) {
-        var oldData: JournalEntryData = _.cloneDeep(this.journalEntryLine);              
-    
+        var oldData: JournalEntryData = _.cloneDeep(this.journalEntryLine);
+
         this.journalEntryLine = new JournalEntryData();
-        this.journalEntryLine.SameOrNew = oldData.SameOrNew;      
+        this.journalEntryLine.SameOrNew = oldData.SameOrNew;
         this.journalEntryLine.FinancialDate = oldData.FinancialDate;
-        
+
         setTimeout(() => {
             this.setFocusOnDebit();
-        });        
+        });
     }
-    
+
     private setFocusOnDebit() {
         this.form.field('DebitAccountID').focus();
-    }  
-    
+    }
+
     private onLeaveSameOrNew() {
         this.form.field('FinancialDate').focus();
     }
-    
+
     private setFocusAfterFinancialDate() {
         if (this.mode === JournalEntryMode.Payment) {
-            this.form.field('InvoiceNumber').focus();    
+            this.form.field('InvoiceNumber').focus();
         } else {
             this.form.field('DebitAccountID').focus();
         }
     }
-    
+
     private onLeaveInvoiceNumber() {
-        
+
         this.form.field('DebitAccountID').focus();
-        
+
         if (this.journalEntryLine.InvoiceNumber && this.journalEntryLine.InvoiceNumber !== '') {
             this.customerInvoiceService.getInvoiceByInvoiceNumber(this.journalEntryLine.InvoiceNumber)
                 .subscribe((data) => {
-                        
+
                         if (data && data.length > 0) {
                             let invoice = data[0];
                             if (invoice && invoice.JournalEntry && invoice.JournalEntry.Lines) {
@@ -301,16 +301,16 @@ export class JournalEntrySimpleForm implements OnChanges {
                                     if (line.Account.UsePostPost) {
                                         this.journalEntryLine.CustomerInvoiceID = invoice.ID;
                                         this.journalEntryLine.Amount = line.RestAmount;
-                                        
-                                       // KE 27062016: removed for now, but might be more correct to use subaccount later 
-                                       // if (line.SubAccount) { 
+
+                                       // KE 27062016: removed for now, but might be more correct to use subaccount later
+                                       // if (line.SubAccount) {
                                        //     this.journalEntryLine.CreditAccountID = line.SubAccountID;
                                        //     this.journalEntryLine.CreditAccount = line.SubAccount;
                                        // } else {
                                         this.journalEntryLine.CreditAccountID = line.AccountID;
                                         this.journalEntryLine.CreditAccount = line.Account;
                                        // }
-                                        
+
                                         this.journalEntryLine = _.cloneDeep(this.journalEntryLine);
                                         break;
                                     }
@@ -322,17 +322,17 @@ export class JournalEntrySimpleForm implements OnChanges {
                 );
         }
     }
-    
+
     private onLeaveDebitAccount() {
         this.form.field('CreditAccountID').focus();
     }
-    
-    private onLeaveCreditAccount() {        
+
+    private onLeaveCreditAccount() {
         this.form.field('Amount').focus();
     }
-    
-    private setupFields() {    
-            
+
+    private setupFields() {
+
         let sameOrNewAlternative = new UniFieldLayout();
         sameOrNewAlternative.FieldSet = 0;
         sameOrNewAlternative.Section = 0;
@@ -349,13 +349,13 @@ export class JournalEntrySimpleForm implements OnChanges {
             displayProperty: 'Name',
             debounceTime: 500,
             index: this.journalalternativesindex,
-            events: {                    
+            events: {
                 enter: (event) => {
                     this.onLeaveSameOrNew();
                 }
             }
-        };          
-        
+        };
+
         var finanicalDate = new UniFieldLayout();
         finanicalDate.FieldSet = 0;
         finanicalDate.Section = 0;
@@ -364,17 +364,17 @@ export class JournalEntrySimpleForm implements OnChanges {
         finanicalDate.Label = 'Dato';
         finanicalDate.Property = 'FinancialDate';
         finanicalDate.ReadOnly = false;
-        finanicalDate.Options = {                
+        finanicalDate.Options = {
             events: {
                 tab: (event) => {
-                    this.setFocusAfterFinancialDate();                        
+                    this.setFocusAfterFinancialDate();
                 },
                 enter: (event) => {
-                    this.setFocusAfterFinancialDate();                        
-                }                    
+                    this.setFocusAfterFinancialDate();
+                }
             }
         }
-            
+
         var invoiceNumber = new UniFieldLayout();
         invoiceNumber.FieldSet = 0;
         invoiceNumber.Section = 0;
@@ -394,8 +394,8 @@ export class JournalEntrySimpleForm implements OnChanges {
                 }
             }
         };
-    
-        var debitAccount = new UniFieldLayout();            
+
+        var debitAccount = new UniFieldLayout();
         debitAccount.FieldSet = 0;
         debitAccount.Section = 0;
         debitAccount.Combo = 0;
@@ -405,36 +405,36 @@ export class JournalEntrySimpleForm implements OnChanges {
         debitAccount.ReadOnly = false;
         debitAccount.Classes = 'large-field';
         debitAccount.Options = {
-            source: this.accounts,                  
+            source: this.accounts,
             displayProperty: 'AccountName',
             valueProperty: 'ID',
             template: (account: Account) => account ? `${account.AccountNumber} - ${account.AccountName}` : '',
             minLength: 1,
-            debounceTime: 200,            
+            debounceTime: 200,
             search: (searchValue: string) => Observable.from([this.accounts.filter((account) => account.AccountNumber.toString().startsWith(searchValue) || account.AccountName.toLowerCase().indexOf(searchValue.toLowerCase()) >= 0)]),
             events: {
                 select: (model: JournalEntryData) => {
                     let accountID = model.DebitAccountID;
                     if (accountID) {
                         let account = this.accounts.find(x => x.ID === accountID);
-                        
+
                         if (account && account.VatType) {
-                            this.journalEntryLine.DebitVatTypeID = account.VatTypeID; 
+                            this.journalEntryLine.DebitVatTypeID = account.VatTypeID;
                             this.journalEntryLine.DebitVatType = account.VatType;
                             this.journalEntryLine = _.cloneDeep(this.journalEntryLine);
                         }
-                    }    
-                }, 
+                    }
+                },
                 tab: (event) => {
-                    this.onLeaveDebitAccount();                     
+                    this.onLeaveDebitAccount();
                 },
                 enter: (event) => {
-                    this.onLeaveDebitAccount();                     
+                    this.onLeaveDebitAccount();
                 }
-            }                
+            }
         };
 
-        var debitVat = new UniFieldLayout();            
+        var debitVat = new UniFieldLayout();
         debitVat.FieldSet = 0;
         debitVat.Section = 0;
         debitVat.Combo = 0;
@@ -442,22 +442,22 @@ export class JournalEntrySimpleForm implements OnChanges {
         debitVat.Label = 'MVA';
         debitVat.Property = 'DebitVatTypeID';
         debitVat.ReadOnly = false;
-        debitVat.Hidden = this.mode === JournalEntryMode.Payment;   
-        debitVat.Options = {  
-            source: this.vattypes,                 
+        debitVat.Hidden = this.mode === JournalEntryMode.Payment;
+        debitVat.Options = {
+            source: this.vattypes,
             search: (searchValue: string) => Observable.from([this.vattypes.filter((vattype) => vattype.VatCode === searchValue || vattype.VatPercent.toString() === searchValue || vattype.Name.toLowerCase().indexOf(searchValue.toLowerCase()) >= 0)]),
             displayProperty: 'VatCode',
             valueProperty: 'ID',
-            template: (vattype: VatType) => vattype ? `${vattype.VatCode}, ${vattype.VatPercent}%, ${vattype.Name}` : '',
+            template: (vattype: VatType) => vattype ? `${vattype.VatCode}: ${vattype.VatPercent}% – ${vattype.Name}` : '',
             debounceTime: 100,
-            events: {                                       
+            events: {
                 enter: (event) => {
-                        this.form.field('CreditAccountID').focus();           
+                        this.form.field('CreditAccountID').focus();
                 }
-            } 
+            }
         };
-    
-        var creditAccount = new UniFieldLayout();            
+
+        var creditAccount = new UniFieldLayout();
         creditAccount.FieldSet = 0;
         creditAccount.Section = 0;
         creditAccount.Combo = 0;
@@ -467,36 +467,36 @@ export class JournalEntrySimpleForm implements OnChanges {
         creditAccount.ReadOnly = false;
         creditAccount.Classes = 'large-field';
         creditAccount.Options = {
-            source: this.accounts,                  
+            source: this.accounts,
             displayProperty: 'AccountName',
             valueProperty: 'ID',
             template: (account: Account) => { if (account) { return `${account.AccountNumber} - ${account.AccountName}`} return ''},
             minLength: 1,
-            debounceTime: 200,            
+            debounceTime: 200,
             search: (searchValue: string) => Observable.from([this.accounts.filter((account) => account.AccountNumber.toString().startsWith(searchValue) || account.AccountName.toLowerCase().indexOf(searchValue.toLowerCase()) >= 0)]),
             events: {
                 select: (model: JournalEntryData) => {
                     let accountID = model.CreditAccountID;
                     if (accountID) {
                         let account = this.accounts.find(x => x.ID === accountID);
-                        
+
                         if (account && account.VatType) {
-                            this.journalEntryLine.CreditVatTypeID = account.VatTypeID; 
+                            this.journalEntryLine.CreditVatTypeID = account.VatTypeID;
                             this.journalEntryLine.CreditVatType = account.VatType;
                             this.journalEntryLine = _.cloneDeep(this.journalEntryLine);
                         }
-                    }  
+                    }
                 },
                 tab: (event) => {
-                    this.onLeaveCreditAccount();                        
+                    this.onLeaveCreditAccount();
                 },
                 enter: (event) => {
-                    this.onLeaveCreditAccount();                        
+                    this.onLeaveCreditAccount();
                 }
             }
         };
-        
-        var creditVat = new UniFieldLayout();            
+
+        var creditVat = new UniFieldLayout();
         creditVat.FieldSet = 0;
         creditVat.Section = 0;
         creditVat.Combo = 0;
@@ -504,21 +504,21 @@ export class JournalEntrySimpleForm implements OnChanges {
         creditVat.Label = 'MVA';
         creditVat.Property = 'CreditVatTypeID';
         creditVat.ReadOnly = false;
-        creditVat.Hidden = this.mode === JournalEntryMode.Payment;   
-        creditVat.Options = {     
+        creditVat.Hidden = this.mode === JournalEntryMode.Payment;
+        creditVat.Options = {
             source: this.vattypes,
             search: (searchValue: string) => Observable.from([this.vattypes.filter((vattype) => vattype.VatCode === searchValue || vattype.VatPercent.toString() === searchValue || vattype.Name.toLowerCase().indexOf(searchValue.toLowerCase()) >= 0)]),
             displayProperty: 'VatCode',
             valueProperty: 'ID',
-            template: (vattype: VatType) => vattype ? `${vattype.VatCode}, ${vattype.VatPercent}%, ${vattype.Name}` : '',
+            template: (vattype: VatType) => vattype ? `${vattype.VatCode}: ${vattype.VatPercent}% – ${vattype.Name}` : '',
             debounceTime: 100,
-            events: {                    
+            events: {
                 enter: (event) => {
-                    this.form.field('Amount').focus();                      
+                    this.form.field('Amount').focus();
                 }
             }
         };
-        
+
         var amount = new UniFieldLayout();
         amount.FieldSet = 0;
         amount.Section = 0;
@@ -528,17 +528,17 @@ export class JournalEntrySimpleForm implements OnChanges {
         amount.Property = 'Amount';
         amount.ReadOnly = false;
         amount.Options = {
-            events: {                    
+            events: {
                 enter: (event) => {
-                    this.form.field('Description').focus();                      
+                    this.form.field('Description').focus();
                 }
             }
         };
-        
+
         /*
         KE 26.06.2016: Removed for now, dimensions are not supported before 30.06
-                
-        var departement = new UniFieldLayout();            
+
+        var departement = new UniFieldLayout();
         departement.FieldSet = 0;
         departement.Section = 0;
         departement.Combo = 0;
@@ -546,8 +546,8 @@ export class JournalEntrySimpleForm implements OnChanges {
         departement.Label = 'Avdeling';
         departement.Property = 'Dimensions.DepartementID';
         departement.ReadOnly = false;
-        departement.Hidden = self.mode == JournalEntryMode.Payment;   
-        departement.Options = {                  
+        departement.Hidden = self.mode == JournalEntryMode.Payment;
+        departement.Options = {
             source: self.departements,
             template: (departement) => `${departement ? departement.Name : ''}`,
             valueProperty: 'ID',
@@ -555,7 +555,7 @@ export class JournalEntrySimpleForm implements OnChanges {
             debounceTime: 500
         };
 
-        var project = new UniFieldLayout();            
+        var project = new UniFieldLayout();
         project.FieldSet = 0;
         project.Section = 0;
         project.Combo = 0;
@@ -563,8 +563,8 @@ export class JournalEntrySimpleForm implements OnChanges {
         project.Label = 'Prosjekt';
         project.Property = 'Dimensions.ProjectID';
         project.ReadOnly = false;
-        project.Hidden = self.mode == JournalEntryMode.Payment;   
-        project.Options = {                  
+        project.Hidden = self.mode == JournalEntryMode.Payment;
+        project.Options = {
             source: self.projects,
             template: (project) => `${project ? project.Name : ''}`,
             valueProperty: 'ID',
@@ -582,17 +582,17 @@ export class JournalEntrySimpleForm implements OnChanges {
         description.ReadOnly = false;
         description.Classes = 'large-field';
         description.Options = {
-            events: {                    
+            events: {
                 enter: (event) => {
-                    if (!this.isEditMode) {                        
-                        this.form.field('AddButton').focus();     
+                    if (!this.isEditMode) {
+                        this.form.field('AddButton').focus();
                     } else {
                         this.form.field('UpdateButton').focus();
-                    }                    
+                    }
                 }
             }
         }
-        
+
         var addButton = new UniFieldLayout();
         addButton.FieldSet = 0;
         addButton.Property = 'AddButton';
@@ -601,14 +601,14 @@ export class JournalEntrySimpleForm implements OnChanges {
         addButton.FieldType = 1;
         addButton.Label = 'Legg til';
         addButton.ReadOnly = false;
-        addButton.Hidden = this.isEditMode;        
+        addButton.Hidden = this.isEditMode;
         addButton.Options = {
             class: 'good',
             click: (event) => {
                 this.addJournalEntry(event);
             }
         };
-        
+
         var updateButton = new UniFieldLayout();
         updateButton.FieldSet = 0;
         updateButton.Property = 'UpdateButton';
@@ -617,14 +617,14 @@ export class JournalEntrySimpleForm implements OnChanges {
         updateButton.FieldType = 1;
         updateButton.Label = 'Oppdater';
         updateButton.ReadOnly = false;
-        updateButton.Hidden = !this.isEditMode;        
-        updateButton.Options = {            
+        updateButton.Hidden = !this.isEditMode;
+        updateButton.Options = {
             class: 'good',
             click: (event) => {
                 this.editJournalEntry(event);
             }
         };
-        
+
         var emptyButton = new UniFieldLayout();
         emptyButton.FieldSet = 0;
         emptyButton.Property = 'EmptyButton';
@@ -633,13 +633,13 @@ export class JournalEntrySimpleForm implements OnChanges {
         emptyButton.FieldType = 1;
         emptyButton.Label = 'Tøm';
         emptyButton.ReadOnly = false;
-        emptyButton.Hidden = this.isEditMode;        
-        emptyButton.Options = { 
+        emptyButton.Hidden = this.isEditMode;
+        emptyButton.Options = {
             click: (event) => {
                 this.emptyJournalEntry(event);
             }
         };
-        
+
         var abortButton = new UniFieldLayout();
         abortButton.FieldSet = 0;
         abortButton.Property = 'AbortButton';
@@ -648,8 +648,8 @@ export class JournalEntrySimpleForm implements OnChanges {
         abortButton.FieldType = 1;
         abortButton.Label = 'Avbryt';
         abortButton.ReadOnly = false;
-        abortButton.Hidden = !this.isEditMode;        
-        abortButton.Options = { 
+        abortButton.Hidden = !this.isEditMode;
+        abortButton.Options = {
             click: (event) => {
                 this.abortEditJournalEntry(event);
             }
@@ -663,19 +663,19 @@ export class JournalEntrySimpleForm implements OnChanges {
         deleteButton.FieldType = 1;
         deleteButton.Label = 'Slett';
         deleteButton.ReadOnly = false;
-        deleteButton.Hidden = !this.isEditMode;        
+        deleteButton.Hidden = !this.isEditMode;
         deleteButton.Options = {
-            class: 'error', 
+            class: 'error',
             click: (event) => {
                 this.deleteEditJournalEntry(event);
             }
         };
-        
-        
+
+
         this.fields = [sameOrNewAlternative, finanicalDate, invoiceNumber,
                         debitAccount, debitVat, creditAccount, creditVat,
                         amount, /*departement, project,*/ description, addButton, updateButton, emptyButton, abortButton/*, deleteButton */];
-                              
+
         this.config = {};
-    }     
-} 
+    }
+}
