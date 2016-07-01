@@ -16,6 +16,8 @@ export class ExternalSearch {
     lastClickedName: string;
     showAllResults: boolean;
     
+    MINIMUMHITS = 6;
+    
     private searchResult: any[];    
     private fullSearchResult: any[];
        
@@ -34,8 +36,7 @@ export class ExternalSearch {
     }   
     
     ngOnChanges(changes: {[propName: string]: SimpleChange}) {
-                
-        if (changes['searchText'] != null && this.lastClickedName != this.searchText && this.searchText !== '') {            
+        if (changes['searchText'] != null && this.lastClickedName != this.searchText && this.searchText !== '') {    
             this.businessRelationService
                     .search(this.searchText)
                     .subscribe(
@@ -47,7 +48,7 @@ export class ExternalSearch {
                                     this.searchResult = this.fullSearchResult;
                                 } else {
                                     //default display only first 6 searchresults
-                                    this.searchResult = this.fullSearchResult.slice(0, 6);
+                                    this.searchResult = this.fullSearchResult.slice(0, this.MINIMUMHITS);
                                 }
                             } else {
                                 this.searchResult = [];
@@ -61,6 +62,13 @@ export class ExternalSearch {
     
     doShowAllResults() {
         this.searchResult = this.fullSearchResult;
+        this.showAllResults = true;
+        return false;
+    }
+
+    doHideAllResults() {
+        this.searchResult = this.fullSearchResult.slice(0, this.MINIMUMHITS);
+        this.showAllResults = false;
         return false;
     }
     
@@ -68,6 +76,7 @@ export class ExternalSearch {
         this.lastClickedName = item.navn;
         
         this.onSelect.emit(item);
+        return false;
     }   
 }
 
