@@ -85,7 +85,7 @@ export class WagetypeDetail {
 
                 let incomeType: UniFieldLayout = this.findByProperty(this.fields, 'IncomeType');
                 incomeType.Options = {
-                    source: [ {text: 'Inntektstype1'}, {text: 'Inntektstype2'}, {text: 'Inntektstype3'}],
+                    source: [ {text: 'Lønn'}, {text: 'YtelseFraOffentlige'}, {text: 'PensjonEllerTrygd'}, {text: 'Næringsinntekt'}, {text: 'Fradrag'}, {text: 'Forskuddtrekk'}],
                     valueProperty: 'text',
                     displayProperty: 'text',
                     debounceTime: 200,
@@ -94,7 +94,7 @@ export class WagetypeDetail {
 
                 let benefit: UniFieldLayout = this.findByProperty(this.fields, 'Benefit');
                 benefit.Options = {
-                    source: [ {text: 'Fordel1'}, {text: 'Fordel2'}, {text: 'Fordel3'}],
+                    source: [ {text: 'Kontantytelse'}, {text: 'Naturalytelse'}, {text: 'Utgiftgodtgjoerelse'}],
                     valueProperty: 'text',
                     displayProperty: 'text',
                     debounceTime: 200,
@@ -103,7 +103,7 @@ export class WagetypeDetail {
 
                 let description: UniFieldLayout = this.findByProperty(this.fields, 'Description');
                 description.Options = {
-                    source: [ {text: 'Beskrivelse1'}, {text: 'Beskrivelse2'}, {text: 'Beskrivelse3'}],
+                    source: [ {text: 'Fastlønn'} ],
                     valueProperty: 'text',
                     displayProperty: 'text',
                     debounceTime: 200,
@@ -132,6 +132,9 @@ export class WagetypeDetail {
         setTimeout(() => {
             if (!this.uniform.section(1).isOpen) {
                 this.uniform.section(1).toggle();
+            }
+            if (!this.uniform.section(2).isOpen) {
+                this.uniform.section(2).toggle();
             }
         }, 100);
     }
