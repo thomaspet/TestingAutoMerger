@@ -251,7 +251,7 @@ export class InvoiceDetails implements OnInit {
     private extendFormConfig() {
         let self = this;
 
-        // TODO Insert line breaks were needed 
+        // TODO Insert line breaks were needed
 
 
         var departement: UniFieldLayout = this.fields.find(x => x.Property === 'Dimensions.DepartementID');
@@ -341,7 +341,7 @@ export class InvoiceDetails implements OnInit {
             idx = this.invoice.Customer.Info.Addresses.findIndex((a) => a.ID === address.ID);
             this.invoice.Customer.Info.Addresses[idx] = address;
         }
-        
+
         // remove entries with equal _createguid
         this.invoice.Customer.Info.Addresses = _.uniq(this.invoice.Customer.Info.Addresses, '_createguid');
 
@@ -1023,7 +1023,7 @@ export class InvoiceDetails implements OnInit {
                     FieldType: FieldType.TEXTAREA,
                     ReadOnly: false,
                     LookupField: false,
-                    Label: '',
+                    Label: 'Fritekst',
                     Description: '',
                     HelpText: '',
                     FieldSet: 0,
@@ -1042,7 +1042,7 @@ export class InvoiceDetails implements OnInit {
                     CreatedBy: null,
                     UpdatedBy: null,
                     CustomFields: null,
-                    Classes: 'max-width'
+                    Classes: 'max-width visuallyHideLabel'
                 }
             ]
         };
