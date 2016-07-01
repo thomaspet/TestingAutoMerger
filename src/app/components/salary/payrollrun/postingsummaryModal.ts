@@ -1,4 +1,4 @@
-import { Component, AfterViewInit, QueryList, ViewChildren, Type } from '@angular/core';
+import { Component, AfterViewInit, QueryList, ViewChildren, Type, Output, EventEmitter } from '@angular/core';
 import {UniModal} from '../../../../framework/modals/modal';
 import {RootRouteParamsService} from '../../../services/rootRouteParams';
 import {PostingsummaryModalContent} from './postingsummaryModalContent';
@@ -11,6 +11,7 @@ import {PostingsummaryModalContent} from './postingsummaryModalContent';
 export class PostingsummaryModal implements AfterViewInit {
     
     @ViewChildren(UniModal) private modalElements: QueryList<UniModal>;
+    @Output() public updatePayrollRun: EventEmitter<any> = new EventEmitter<any>(true);
     private modals: UniModal[];
     private modalConfig: any;
     private payrollrunID: number;
@@ -33,6 +34,7 @@ export class PostingsummaryModal implements AfterViewInit {
                     this.modals[0].getContent().then((content: PostingsummaryModalContent) => {
                         content.postTransactions().subscribe((success) => {
                             if (success) {
+                                this.updatePayrollRun.emit(true);
                                 content.showResponseReceipt(success);
                             }
                         });

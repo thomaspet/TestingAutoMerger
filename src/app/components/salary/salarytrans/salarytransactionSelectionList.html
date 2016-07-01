@@ -7,10 +7,9 @@
     </nav>
     <main class="splitview_detail">
         <salary-transactions-employee *ngIf="selectedEmployeeID" 
-            [employeeID]="selectedEmployeeID" 
-            [payrollRun]="selectedPayrollRun" 
+            [employeeID]="selectedEmployeeID"
             (nextEmployee)="goToNextEmployee($id)" 
             (previousEmployee)="goToPreviousEmployee($id)" 
-            (changedPayrollRun)="payrollRunChanged()"></salary-transactions-employee>
+            (salarytransListReady)="checkReady($value)"></salary-transactions-employee>
     </main>
 </section>

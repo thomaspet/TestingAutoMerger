@@ -1,4 +1,4 @@
-import {Component, Input, ViewChildren, OnInit, EventEmitter, Output, ViewChild, QueryList} from '@angular/core';
+import {Component, Input, ViewChildren, OnChanges, EventEmitter, Output, ViewChild, QueryList, AfterViewInit} from '@angular/core';
 import {Router} from '@angular/router-deprecated';
 import {UniFormBuilder} from '../../../../framework/forms';
 import {UniComponentLoader} from '../../../../framework/core';
@@ -21,15 +21,14 @@ declare var _;
     selector: 'salary-transactions-employee',
     templateUrl: 'app/components/salary/salarytrans/salarytransList.html',
     directives: [UniTable, UniComponentLoader, UniSave, UniForm, ControlModal, PostingsummaryModal],
-    providers: [EmployeeService, AgaZoneService, WageTypeService, SalaryTransactionService, PayrollrunService],
+    providers: [EmployeeService, AgaZoneService, WageTypeService, SalaryTransactionService],
     pipes: [AsyncPipe]
 })
 
-export class SalaryTransactionEmployeeList implements OnInit {
+export class SalaryTransactionEmployeeList implements OnChanges, AfterViewInit {
     private salarytransEmployeeTableConfig: any;
     private salarytransEmployeeTotalsTableConfig: any;
     private employeeTotals: any[] = [];
-    private employments: any[];
     private wagetypes: WageType[] = [];
     public employee: Employee;
     private agaZone: AGAZone;
@@ -51,11 +50,11 @@ export class SalaryTransactionEmployeeList implements OnInit {
     @ViewChild(PostingsummaryModal) private postingSummaryModal: PostingsummaryModal;
 
     @Input() private employeeID: number;
-    @Input() private payrollRun: PayrollRun;
+    private payrollRun: PayrollRun;
 
     @Output() public nextEmployee: EventEmitter<any> = new EventEmitter<any>(true);
     @Output() public previousEmployee: EventEmitter<any> = new EventEmitter<any>(true);
-    @Output() public changedPayrollRun: EventEmitter<any> = new EventEmitter<any>(true);
+    @Output() public salarytransListReady: EventEmitter<any> = new EventEmitter<any>(true);
 
     @ViewChildren(UniTable) public tables: QueryList<UniTable>;
 
@@ -73,6 +72,43 @@ export class SalaryTransactionEmployeeList implements OnInit {
         private salarytransService: SalaryTransactionService,
         private _payrollRunService: PayrollrunService,
         private router: Router) {
+        this.busy = true;
+
+        this.createTotalTableConfig();
+
+
+        this._wageTypeService.GetAll('').subscribe((wagetype: WageType[]) => {
+            this.wagetypes = wagetype;
+            if (this.payrollRun) {
+                this.createTableConfig();
+            }
+        }, (error: any) => {
+            this.log(error);
+            console.log(error);
+        });
+
+        this._payrollRunService.refreshPayrollRun$.subscribe((payrollRun: PayrollRun) => {
+            this.busy = true;
+            this.payrollRun = payrollRun;
+            if (this.tables && this.employeeID) {
+                this.employeeService.get(this.employeeID, this.employeeExpands)
+                    .subscribe((response: any) => {
+                        this.employee = response;
+                        this.setUnitableSource();
+                        this.refreshSaveActions();
+                        this.setUnitableSource();
+                        if (this.wagetypes) {
+                            this.createTableConfig();
+                        }
+                        this.getAgaAndShowView();
+                    }, (error: any) => {
+                        this.log(error);
+                        console.log(error);
+                    });
+            }
+
+
+        });
 
         this.config = {
             submitText: ''
@@ -82,48 +118,30 @@ export class SalaryTransactionEmployeeList implements OnInit {
         this.busy = true;
     }
 
-    public ngOnInit() {
-        this.busy = true;
-        this.createTableConfig();
-        this.createTotalTableConfig();
-
-        Observable.forkJoin(
-            this.employeeService.get(this.employeeID, this.employeeExpands),
-            this._wageTypeService.GetAll('')
-        ).subscribe((response: any) => {
-            let [employee, wagetype, employment] = response;
-            this.employments = employment;
-            this.wagetypes = wagetype;
-            this.employee = employee;
-            this.setUnitableSource();
-
-            setTimeout(() => {
-                this.getAgaAndShowView(false);
-            }, 100);
-        }, (error: any) => {
-            this.log(error);
-            console.log(error);
-        });
-
-        this.refreshSaveActions();
-    }
-
     public ngOnChanges() {
         this.busy = true;
-        this.refreshSaveActions();
         if (this.tables && this.employeeID) {
             this.employeeService.get(this.employeeID, this.employeeExpands)
                 .subscribe((response: any) => {
                     this.employee = response;
                     this.setUnitableSource();
-                    
-                    this.getAgaAndShowView(true);
+                    this.getAgaAndShowView();
 
                 }, (error: any) => {
                     this.log(error);
                     console.log(error);
                 });
         }
+    }
+
+    public ngAfterViewInit() {
+        this.salarytransListReady.emit(true);
+    }
+
+    public refreshPayrollRun(value) {
+        this._payrollRunService.Get(this.payrollRun.ID).subscribe((response: PayrollRun) => {
+            this._payrollRunService.refreshPayrun(response);
+        });
     }
 
     private refreshSaveActions() {
@@ -200,13 +218,13 @@ export class SalaryTransactionEmployeeList implements OnInit {
     private refreshSalaryTransTable() {
         this.salarytransItems$ = _.cloneDeep(this.salarytransItems$);
     }
-    private getAgaAndShowView(update: boolean) {
+    private getAgaAndShowView() {
         if (this.employee.SubEntity) {
             this._agaZoneService
                 .Get(this.employee.SubEntity.AgaZone)
                 .subscribe((agaResponse: AGAZone) => {
                     this.agaZone = agaResponse;
-                    if (update) {
+                    if (this.fields.length !== 0) {
                         this.formModel.aga = this.agaZone;
                         this.formModel.employee = this.employee;
                         this.fields = _.cloneDeep(this.fields);
@@ -220,7 +238,7 @@ export class SalaryTransactionEmployeeList implements OnInit {
                 });
         } else {
             this.agaZone = new AGAZone();
-            if (update) {
+            if (this.fields.length !== 0) {
                 this.formModel.aga = this.agaZone;
                 this.formModel.employee = this.employee;
                 this.fields = _.cloneDeep(this.fields);
@@ -433,7 +451,7 @@ export class SalaryTransactionEmployeeList implements OnInit {
 
     private setUnitableSource() {
         var filter = this.buildFilter();
-        
+
         this.salarytransItems$ = this._uniHttpService.asGET()
             .usingBusinessDomain()
             .withEndPoint('salarytrans')
@@ -441,7 +459,7 @@ export class SalaryTransactionEmployeeList implements OnInit {
                 filter: filter,
                 expand: '@Wagetype'
             });
-        
+
         this.employeeService.getTotals(this.payrollRun.ID, this.employeeID)
             .subscribe((response) => {
                 if (response) {
@@ -502,7 +520,8 @@ export class SalaryTransactionEmployeeList implements OnInit {
             .subscribe((bResponse: boolean) => {
                 if (bResponse === true) {
                     this._payrollRunService.Get<PayrollRun>(this.payrollRun.ID)
-                        .subscribe((response) => {
+                        .subscribe((response: PayrollRun) => {
+                            this._payrollRunService.refreshPayrun(response);
                             this.showPayList.bind(done);
                             this.refreshSaveActions();
                             done('Lønnsavregning avregnet: ');

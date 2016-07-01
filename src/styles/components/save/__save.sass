@@ -1,3 +1,28 @@
+%contextMenuItem
+    padding: .5rem 1rem
+    border-bottom: pxToRem(1) solid $uni-color-scale9
+    list-style: none
+    width: 15rem
+    cursor: pointer
+    overflow: hidden
+    white-space: nowrap
+    text-overflow: ellipsis
+
+    &:hover,
+    &:focus
+        background: $uni-color-C2A
+        color: $uni-color-negative
+
+    &[aria-disabled=true]
+        opacity: .5
+        cursor: default
+
+    &:last-of-type
+        border-bottom: none
+
+    &[aria-hidden=true]
+        display: none
+
 uni-save
     display: block
     position: fixed
@@ -81,26 +106,4 @@ uni-save
             display: none
 
         li
-            padding: .5rem 1rem
-            border-bottom: pxToRem(1) solid $uni-color-scale9
-            list-style: none
-            width: 15rem
-            cursor: pointer
-            overflow: hidden
-            white-space: nowrap
-            text-overflow: ellipsis
-
-            &:hover,
-            &:focus
-                background: $uni-color-C2A
-                color: $uni-color-negative
-
-            &[aria-disabled=true]
-                opacity: .5
-                cursor: default
-
-            &:last-of-type
-                border-bottom: none
-
-            &[aria-hidden=true]
-                display: none
+            @extend %contextMenuItem

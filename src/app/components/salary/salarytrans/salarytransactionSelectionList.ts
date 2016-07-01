@@ -1,11 +1,11 @@
-import {Component, ViewChild, OnInit, Input, Output, EventEmitter} from '@angular/core';
+import {Component, ViewChild, OnInit, Input, Output, EventEmitter, AfterViewInit} from '@angular/core';
 import {AsyncPipe} from '@angular/common';
 import {UniTable, UniTableConfig, UniTableColumnType, UniTableColumn} from 'unitable-ng2/main';
 import {SalaryTransactionEmployeeList} from './salarytransList';
 import {SalarytransFilter} from './salarytransFilter';
 import {UniHttp} from '../../../../framework/core/http/http';
 import {PayrollRun, Employee} from '../../../unientities';
-import {EmployeeService} from '../../../services/services';
+import {EmployeeService, PayrollrunService} from '../../../services/services';
 import {Observable} from 'rxjs/Observable';
 declare var _;
 
@@ -17,24 +17,38 @@ declare var _;
     pipes: [AsyncPipe]
 })
 
-export class SalaryTransactionSelectionList implements OnInit {
+export class SalaryTransactionSelectionList implements OnInit, AfterViewInit {
     private salarytransSelectionTableConfig: UniTableConfig;
     private selectedEmployeeID: number;
     private employeeList: Employee[];
-    @Input() private selectedPayrollRun: PayrollRun;
     @Output() public changedPayrollRun: EventEmitter<any> = new EventEmitter<any>(true);
     private disableFilter: boolean;
     public employees$: Observable<Employee[]>;
     public busy: boolean;
     @ViewChild(UniTable) private table: UniTable;
     private disableEmployeeList: boolean;
+    private allReady: boolean;
+    @Output() public salaryTransSelectionListReady: EventEmitter<any> = new EventEmitter<any>(true);
 
-    constructor(private uniHttpService: UniHttp, private _employeeService: EmployeeService) {
+    constructor(private uniHttpService: UniHttp, private _employeeService: EmployeeService, private _payrollRunService: PayrollrunService) {
+        this._payrollRunService.refreshPayrollRun$.subscribe((payrollRun: PayrollRun) => {
+            payrollRun.StatusCode < 1 ? this.disableFilter = false : this.disableFilter = true;
+        });
     }
 
     public ngOnInit() {
-        this.selectedPayrollRun.StatusCode < 1 ? this.disableFilter = false : this.disableFilter = true;
         this.tableConfig();
+    }
+
+    public ngAfterViewInit() {
+        this.checkReady(true);
+    }
+
+    public checkReady(value) {
+        if (this.allReady) {
+            this.salaryTransSelectionListReady.emit(true);
+        }
+        this.allReady = true;
     }
 
     private tableConfig(update: boolean = false, filter = '') {
@@ -75,6 +89,9 @@ export class SalaryTransactionSelectionList implements OnInit {
         }
         this.disableEmployeeList = false;
     }
+
+
+
     public rowSelected(event) {
         this.selectedEmployeeID = event.rowModel.ID;
     }
@@ -98,10 +115,6 @@ export class SalaryTransactionSelectionList implements OnInit {
     public changeFilter(filter: string) {
         this.tableConfig(true, filter);
         this.selectedEmployeeID = 0;
-    }
-
-    public payrollRunChanged() {
-        this.changedPayrollRun.emit(true);
     }
 
     public saveRun(event: any) {

@@ -1,0 +1,29 @@
+uni-table .contextMenu
+    position: relative
+
+    button
+        font-size: 0
+        text-color: transparent
+        width: 100%
+        position: absolute
+        top: 0
+        left: 0
+        bottom: 0
+        right: 0
+        background: transparent no-repeat center center
+        background-image: unicon-more($uni-color-scale5)
+        background-size: 1rem
+
+        &:hover,
+        &:focus
+            background-image: unicon-more($uni-color-scale1)
+
+
+unitable-contextmenu ul
+    background: $uni-color-negative
+    border-radius: pxToRem(3)
+    border: 1px solid $uni-color-scale8
+    box-shadow: 0 0 .6rem transparentize($uni-color-scale5, .7)
+
+    li
+        @extend %contextMenuItem
