@@ -11,51 +11,43 @@ account-settings
         min-width: 33%
 
 account-details
-    uni-form 
+    uni-form
         uni-field
             width: 90%
             float: left
 
 account-details
-    uni-checkbox-input        
+    uni-checkbox-input
         margin-top: 0px
-            
+
 account-details
     .small-combo-field
-        width: calc(90% - 5rem) !important         
-    
+        width: calc(90% - 5rem) !important
+
 account-details
-    uni-checkbox        
+    uni-checkbox
         label
-            min-height: 0px 
+            min-height: 0px
 
 .icon-column
-    font-size: 0
-    height: 0.9rem
+    span
+        @extend %hideText
+        height: 1.1rem
+        width: 1.1rem
+        padding: 0.6rem
+        margin-left: 0.4rem
+        background-size: 1rem 1rem
+        background-position: center center
+        background-repeat: no-repeat
 
-.is-locked:before
-    content: ''
-    display: inline-block
-    background: transparent unicon-lock($uni-color-positive) no-repeat
-    background-size: 0.6rem
-    padding: 0.6rem
-    margin-left: 0.4rem
+    .is-locked
+        background-image: unicon-lock($uni-color-positive)
 
-.is-visible:before
-    content: ''
-    display: inline-block
-    background: transparent unicon-visible($uni-color-positive) no-repeat
-    background-size: 0.6rem
-    padding: 0.6rem
-    margin-left: 0.4rem
+    .is-visible
+        background-image: unicon-visible($uni-color-positive)
 
-.is-hidden:before
-    content: ''
-    display: inline-block
-    background: transparent unicon-hidden($uni-color-positive) no-repeat
-    background-size: 0.6rem
-    padding: 0.6rem
-    margin-left: 0.4rem
+    .is-hidden
+        background-image: unicon-hidden($uni-color-positive)
 
 .accountList .menuDropDown
     float: right
