@@ -251,7 +251,6 @@ export class InvoiceDetails implements OnInit {
             this.customerInvoiceService.GetAll('filter=InvoiceReferenceID eq ' + this.invoice.ID)
                 .subscribe((data) => {
                     this.creditInvoiceArr = data;
-                    console.log('creditInvoiceArr.length:' + this.creditInvoiceArr.length);
                 }, (err) => {
                     console.log('Error retrieving data Credit Invoices: ', err);
                     alert('En feil oppsto ved henting av data: ' + JSON.stringify(err));
