@@ -82,17 +82,14 @@ export class InvoiceList implements OnInit {
 
     private setupInvoiceTable() {
         this.lookupFunction = (urlParams: URLSearchParams) => {
-            let params = urlParams;
+            urlParams = urlParams || new URLSearchParams();
+            urlParams.set('expand', 'Customer, InvoiceReference');
 
-            if (params === null) {
-                params = new URLSearchParams();
+            if (urlParams.get('orderby') === null) {
+                urlParams.set('orderby', 'PaymentDueDate');
             }
 
-            if (params.get('orderby') === null) {
-                params.set('orderby', 'PaymentDueDate');
-            }
-
-            return this.customerInvoiceService.GetAllByUrlSearchParams(params);
+            return this.customerInvoiceService.GetAllByUrlSearchParams(urlParams);
         };
 
         // Context menu
@@ -138,8 +135,8 @@ export class InvoiceList implements OnInit {
             action: (rowModel) => {
                 alert('Delete action - Under construction');
 
-                //TODO
-                //this.customerInvoiceService.Remove(rowModel.ID, rowModel)
+                // TODO
+                // this.customerInvoiceService.Remove(rowModel.ID, rowModel)
                 //    .subscribe(() => {
                 //        alert('Successful')
                 //    },
@@ -147,7 +144,7 @@ export class InvoiceList implements OnInit {
                 //        console.log('An error occurred: ', err);
                 //        this.log(err);
                 //    }
-                //);
+                // );
             },
             disabled: (rowModel) => {
                 return true;
@@ -249,15 +246,26 @@ export class InvoiceList implements OnInit {
         });
 
         // Define columns to use in the table
-        var invoiceNumberCol = new UniTableColumn('InvoiceNumber', 'Fakturanr', UniTableColumnType.Text).setWidth('10%').setFilterOperator('contains');
-        var customerNumberCol = new UniTableColumn('Customer.CustomerNumber', 'Kundenr', UniTableColumnType.Text).setWidth('10%').setFilterOperator('contains');
-        var customerNameCol = new UniTableColumn('CustomerName', 'Kundenavn', UniTableColumnType.Text).setFilterOperator('contains');
+        var invoiceNumberCol = new UniTableColumn('InvoiceNumber', 'Fakturanr', UniTableColumnType.Text)
+            // .setWidth('10%')
+            .setFilterOperator('contains');
 
-        var invoiceDateCol = new UniTableColumn('InvoiceDate', 'Fakturadato', UniTableColumnType.Date).setWidth('10%').setFilterOperator('eq');
-        var dueDateCol = new UniTableColumn('PaymentDueDate', 'Forfallsdato', UniTableColumnType.Date).setWidth('10%').setFilterOperator('eq');
+        var customerNumberCol = new UniTableColumn('Customer.CustomerNumber', 'Kundenr', UniTableColumnType.Text)
+            // .setWidth('10%')
+            .setFilterOperator('contains');
+
+        var customerNameCol = new UniTableColumn('CustomerName', 'Kundenavn', UniTableColumnType.Text)
+            .setWidth('15%')
+            .setFilterOperator('contains');
+
+        var invoiceDateCol = new UniTableColumn('InvoiceDate', 'Fakturadato', UniTableColumnType.Date)
+            .setWidth('8%').setFilterOperator('eq');
+
+        var dueDateCol = new UniTableColumn('PaymentDueDate', 'Forfallsdato', UniTableColumnType.Date)
+            .setWidth('8%').setFilterOperator('eq');
 
         var taxInclusiveAmountCol = new UniTableColumn('TaxInclusiveAmount', 'Totalsum', UniTableColumnType.Number)
-            .setWidth('10%')
+            .setWidth('8%')
             .setFilterOperator('eq')
             .setFormat('{0:n}')
             .setCls('column-align-right');
@@ -274,6 +282,17 @@ export class InvoiceList implements OnInit {
             .setFormat('{0:n}')
             .setCls('column-align-right');
 
+        const invoiceReferencesCol = new UniTableColumn('InvoiceReference', 'FakturaRef', UniTableColumnType.Number)
+            // .setFilterOperator('startswith')
+            .setWidth('6%')
+            .setTemplate(invoice => {
+                if (invoice.InvoiceReference && invoice.InvoiceReference.InvoiceNumber) {
+                    return `<a href="#/sales/invoice/details/${invoice.InvoiceReference.ID}">
+                                ${invoice.InvoiceReference.InvoiceNumber}
+                            </a>`;
+                }
+            });
+
         var statusCol = new UniTableColumn('StatusCode', 'Status', UniTableColumnType.Number)
             .setWidth('15%')
             .setFilterable(false)
@@ -286,7 +305,7 @@ export class InvoiceList implements OnInit {
             .setPageSize(25)
             .setSearchable(true)
             .setColumns([invoiceNumberCol, customerNumberCol, customerNameCol, invoiceDateCol, dueDateCol,
-                taxInclusiveAmountCol, restAmountCol, creditedAmountCol, statusCol])
+                taxInclusiveAmountCol, restAmountCol, creditedAmountCol, invoiceReferencesCol, statusCol])
             .setContextMenu(contextMenuItems);
     }
 
