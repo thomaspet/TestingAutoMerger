@@ -593,7 +593,7 @@ export class ProductDetails {
                     CreatedBy: null,
                     UpdatedBy: null,
                     CustomFields: null,
-                    Classes: 'max-width'
+                    Classes: 'max-width visuallyHideLabel'
                 }
             ]
         };
