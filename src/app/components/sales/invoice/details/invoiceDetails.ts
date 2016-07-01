@@ -637,7 +637,6 @@ export class InvoiceDetails implements OnInit {
                     //    this.log(err);
                 });
 
-            console.log('Fsdfsdf');
             //}, (err) => {
             //    console.log('Feil oppstod ved henting av faktura: Error:', err);
             //    this.log(err);

@@ -274,6 +274,13 @@ export class InvoiceList implements OnInit {
             .setFormat('{0:n}')
             .setCls('column-align-right');
 
+        //var invoiceReferencesCol = new UniTableColumn('InvoiceReference', 'Referanse', UniTableColumnType.Number)
+        //    .setWidth('15%')
+        //    .setFilterable(false)
+        //    .setTemplate((dataItem) => {
+        //        return this.getReferenceColText(dataItem.InvoiceReference);
+        //    });
+
         var statusCol = new UniTableColumn('StatusCode', 'Status', UniTableColumnType.Number)
             .setWidth('15%')
             .setFilterable(false)
@@ -289,6 +296,24 @@ export class InvoiceList implements OnInit {
                 taxInclusiveAmountCol, restAmountCol, creditedAmountCol, statusCol])
             .setContextMenu(contextMenuItems);
     }
+
+    private getReferenceColText = (invoiceReference: number) => {
+
+        //////////
+        //.setTemplate((invoice) => {
+        //    return `<a href="/#/sales/invoice/details/${invoice.InvoiceReference}/">
+        //                        ${invoice.InvoiceReference}
+        //                    </a>`;
+        //});
+
+        /////////
+        if (invoiceReference === null) {
+            return ' ';
+        }
+        return `<a href="/#/sales/invoice/details/${invoiceReference}/">
+                                ${invoiceReference}
+                            </a>`;
+    };
 
     public onRowSelected(item) {
         this.router.navigateByUrl(`/sales/invoice/details/${item.ID}`);
