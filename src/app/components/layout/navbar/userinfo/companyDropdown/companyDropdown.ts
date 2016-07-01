@@ -9,12 +9,12 @@ declare var jQuery;
 @Component({
     selector: 'uni-company-dropdown',
     template: `
-        <article class="navbar_userinfo_company" >    
+        <article class="navbar_userinfo_company" >
             <span class="navbar_userinfo_title" (click)="companyDropdownActive = !companyDropdownActive">{{activeCompany.Name}}</span>
 
             <section class="navbar_userinfo_dropdown" [ngClass]="{'-is-active': companyDropdownActive}">
                 <address class="companyinfo" itemtype="http://schema.org/Organization" *ngIf="company">
-                    <h4 itemprop="name"> {{activeCompany.Name}} </h4>
+                    <h3 itemprop="name"> {{activeCompany.Name}} </h3>
                     <dl>
                         <dt>Org.nr</dt>
                         <dd itemprop="taxID">{{company.OrganizationNumber || ''}}</dd>
@@ -43,8 +43,8 @@ export class UniCompanyDropdown implements AfterViewInit {
     private dropdownConfig: kendo.ui.DropDownListOptions;
     private company: any;
 
-    constructor(private _router: Router, 
-                private _authService: AuthService, 
+    constructor(private _router: Router,
+                private _authService: AuthService,
                 private http: UniHttp,
                 private companySettingsService: CompanySettingsService) {
 
