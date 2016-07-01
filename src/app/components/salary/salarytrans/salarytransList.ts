@@ -79,7 +79,9 @@ export class SalaryTransactionEmployeeList implements OnChanges, AfterViewInit {
 
         this._wageTypeService.GetAll('').subscribe((wagetype: WageType[]) => {
             this.wagetypes = wagetype;
-            this.createTableConfig();
+            if (this.payrollRun) {
+                this.createTableConfig();
+            }
         }, (error: any) => {
             this.log(error);
             console.log(error);
@@ -95,9 +97,10 @@ export class SalaryTransactionEmployeeList implements OnChanges, AfterViewInit {
                         this.setUnitableSource();
                         this.refreshSaveActions();
                         this.setUnitableSource();
+                        if (this.wagetypes) {
+                            this.createTableConfig();
+                        }
                         this.getAgaAndShowView();
-                        this.busy = false;
-
                     }, (error: any) => {
                         this.log(error);
                         console.log(error);
@@ -115,10 +118,6 @@ export class SalaryTransactionEmployeeList implements OnChanges, AfterViewInit {
         this.busy = true;
     }
 
-    public doSomeWork() {
-        console.log('Work got done');
-    }
-
     public ngOnChanges() {
         this.busy = true;
         if (this.tables && this.employeeID) {
@@ -126,7 +125,6 @@ export class SalaryTransactionEmployeeList implements OnChanges, AfterViewInit {
                 .subscribe((response: any) => {
                     this.employee = response;
                     this.setUnitableSource();
-
                     this.getAgaAndShowView();
 
                 }, (error: any) => {
@@ -226,7 +224,7 @@ export class SalaryTransactionEmployeeList implements OnChanges, AfterViewInit {
                 .Get(this.employee.SubEntity.AgaZone)
                 .subscribe((agaResponse: AGAZone) => {
                     this.agaZone = agaResponse;
-                    if (this.fields) {
+                    if (this.fields.length !== 0) {
                         this.formModel.aga = this.agaZone;
                         this.formModel.employee = this.employee;
                         this.fields = _.cloneDeep(this.fields);
@@ -240,7 +238,7 @@ export class SalaryTransactionEmployeeList implements OnChanges, AfterViewInit {
                 });
         } else {
             this.agaZone = new AGAZone();
-            if (this.fields) {
+            if (this.fields.length !== 0) {
                 this.formModel.aga = this.agaZone;
                 this.formModel.employee = this.employee;
                 this.fields = _.cloneDeep(this.fields);
