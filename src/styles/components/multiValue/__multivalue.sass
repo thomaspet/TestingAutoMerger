@@ -14,6 +14,9 @@
     &[disabled]
       border-radius: pxToRem(3) 0 0 pxToRem(3)
 
+    &.-has-editor
+      background: #fff
+
   .uni-multivalue-moreBtn
     width: 1.7rem
     margin: 0
@@ -45,7 +48,7 @@
     list-style: none
     width: 100%
     border: pxToRem(1) solid $uni-color-scale7
-    background-color: mix($uni-color-negative, $uni-color-scale9, 80%)
+    background-color: #fff
     margin-top: 1.68rem
     z-index: 99
     border-bottom-left-radius: pxToRem(3)
@@ -89,11 +92,12 @@
 
   .uni-multivalue-value
     height: 1.4rem
-    width: calc(100% - 1.5rem)
+    width: calc(100% - 3.5rem)
     display: inline-block
     overflow: hidden
     text-overflow: ellipsis
     margin-bottom: -.2rem
+    white-space: nowrap
 
   .uni-multivalue_edit
     display: flex
@@ -138,7 +142,7 @@
   .uni-multivalue-addBtn
     @extend button.good
     width: calc(100% + 1rem)
-    margin: -.2rem -.5rem -.15rem
+    margin: -.2rem -.5rem -1rem
     box-shadow: none
     border-radius: 0 0 pxToRem(3)
     height: 2rem

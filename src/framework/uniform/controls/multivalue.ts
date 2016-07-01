@@ -6,48 +6,56 @@ declare var _; // lodash
 @Component({
     selector: 'uni-multivalue-input',
     template: `
-        <section class="uni-multivalue-ng">
-            <input type="text" [(ngModel)]="currentValue" [readonly]="field?.ReadOnly" [disabled]="field?.Options?.editor" [placeholder]="field?.Placeholder || ''"  (click)="showDropdown($event)">
-            
+        <section class="uni-multivalue-ng"
+                [class.-has-values]="rows.length">
+
+            <input type="text"
+                    [(ngModel)]="currentValue"
+                    [class.-has-editor]="field?.Options?.editor"
+                    [readonly]="field?.Options?.editor || field?.ReadOnly"
+                    [placeholder]="field?.Placeholder || ''"
+                    (click)="showDropdown($event)">
+
             <button #openbtn class="uni-multivalue-moreBtn" (click)="showDropdown($event)">Ny</button>
- 
+
             <ul class="uni-multivalue-values" [class.-is-active]="listIsVisible">
                 <template ngFor let-row [ngForOf]="rows" let-i = "index">
                     <li [class.-is-main]="isSelected(row)">
-                        
+
                         <div *ngIf="!row.mode">
-                            <span class="uni-multivalue-value" 
+                            <span class="uni-multivalue-value"
                                   (click)="setAsDefault(row)">
                                   {{showDisplayValue(row)}}
                             </span>
-                            <button class="uni-multivalue_edit_action-delete" 
+                            <button class="uni-multivalue_edit_action-delete"
                                 (click)="remove(row, $event)">
                                 Delete
                             </button>
-                            <button class="setEditBtn" 
+                            <button class="setEditBtn"
                                 (click)="edit(row, $event)">
                                 Rediger {{showDisplayValue(row)}}
-                            </button>                    
+                            </button>
                         </div>
-                        
-                        <input *ngIf="row.mode === 1" 
+
+                        <input *ngIf="row.mode === 1"
                                 #input
-                                class="uni-multivalue_edit" 
-                                [(ngModel)]="tempValue" 
-                                (blur)="save(row, input.value, $event)" 
-                                (keyup)="save(row, input.value, $event)" 
-                                type="text" 
+                                class="uni-multivalue_edit"
+                                [(ngModel)]="tempValue"
+                                (blur)="save(row, input.value, $event)"
+                                (keyup)="save(row, input.value, $event)"
+                                type="text"
                         />
-                                
+
                         <p *ngIf="row.mode === 2" class="uni-multivalue_deleted">
-                            Slettet &lsquo;{{showDisplayValue(row)}}&rsquo;. 
+                            Slettet &lsquo;{{showDisplayValue(row)}}&rsquo;.
                             (<a (click)="putBack(row, $event)">Angre</a>)
                         </p>
-                                
-                    </li>             
+
+                    </li>
                 </template>
                 <li>
-                    <button class="uni-multivalue-addBtn" type="button" 
+                    <button class="uni-multivalue-addBtn"
+                            type="button"
                             (click)="addValue($event)">
                                 Legg til&hellip;
                     </button>
@@ -69,19 +77,19 @@ export class UniMultivalueInput {
 
     @Output()
     public onReady: EventEmitter<UniMultivalueInput> = new EventEmitter<UniMultivalueInput>(true);
-    
+
     @Output()
     public onChange: EventEmitter<any> = new EventEmitter<any>(true);
 
     @ViewChild('openbtn')
     private inputElement: ElementRef;
-   
+
     private listIsVisible: boolean = false;
     private currentValue: string = '';
     private tempValue: string;
     private rows: any[] = [];
     private defaultRow: any;
-    
+
     constructor(public renderer: Renderer, public el: ElementRef, private cd: ChangeDetectorRef) {
 
     }
@@ -104,7 +112,7 @@ export class UniMultivalueInput {
 
     public ngOnChanges() {
         this.field.Options = this.field.Options || {};
-        
+
         // update default option
         if (this.field.Options.foreignProperty) {
             if (this.field.Options.listProperty) {
@@ -112,18 +120,18 @@ export class UniMultivalueInput {
             } else {
                 this.rows = _.get(this.model, this.field.Property);
             }
-            
+
             var foreignValue = _.get(this.model, this.field.Options.foreignProperty);
-            
+
             if (this.rows) {
                 this.rows.forEach((row) => {
                     let id = _.get(row, this.field.Options.linkProperty);
                     if (id === foreignValue) {
                         this.setAsDefault(row);
-                    }    
+                    }
                 });
             }
-            
+
             if (this.field.Options.onChange) {
                 this.onChange.subscribe(value => this.field.Options.onChange(this.defaultRow));
             }
@@ -151,20 +159,20 @@ export class UniMultivalueInput {
             this.listIsVisible = !this.listIsVisible;
         }
     }
-    
+
     private isSelected(row) {
         return row === this.defaultRow;
     }
-    
+
     private setAsDefault(row) {
         this.listIsVisible = false;
-        
-        let oldProperty = _.get(this.model, this.field.Property);         
-        
+
+        let oldProperty = _.get(this.model, this.field.Property);
+
         _.set(this.model, this.field.Property, row);
-        this.defaultRow = row;        
+        this.defaultRow = row;
         this.currentValue = this.showDisplayValue(row);
-        
+
         if (!this.field.Options.foreignProperty) {
             return;
         }
@@ -175,20 +183,20 @@ export class UniMultivalueInput {
         if (fp === lp && oldProperty === row) {
             return; // no emit changes since it is not updated;
         }
-        
+
         _.set(this.model, foreignProperty, lp);
-        this.onChange.emit(this.model);        
-                
+        this.onChange.emit(this.model);
+
         this.cd.markForCheck();
     }
-    
+
     private showDisplayValue(row) {
         if (!this.field.Options.display) {
             return _.get(row, this.field.Options.displayValue);
         }
         return this.field.Options.display(row);
     }
-    
+
     private addValue() {
         var self = this;
         if (!this.field.Options.editor) {
@@ -199,9 +207,9 @@ export class UniMultivalueInput {
             _.set(this.model, this.field.Property, this.rows);
             this.currentValue = '';
             this.onChange.emit(this.model);
-        } else {            
+        } else {
             this.field.Options.editor(null).then(newEntity => {
-                self.rows = [].concat(self.rows, newEntity);                
+                self.rows = [].concat(self.rows, newEntity);
                 self.currentValue = '';
                 if (self.field.Options.listProperty) {
                     _.set(self.model, self.field.Options.listProperty, self.rows);
@@ -209,12 +217,12 @@ export class UniMultivalueInput {
                     _.set(self.model, self.field.Property, self.rows);
                 }
                 self.setAsDefault(newEntity);
-                
-                self.onChange.emit(self.model);                        
+
+                self.onChange.emit(self.model);
             });
         }
     }
-    
+
     private edit(row, $event) {
         var self = this;
         this.rows.forEach(x => x.mode = 0);
@@ -229,17 +237,17 @@ export class UniMultivalueInput {
                     editedEntity,
                     ...part2
                 ];
-                
+
                 if (self.field.Options.listProperty) {
                     _.set(self.model, self.field.Options.listProperty, self.rows);
                 } else {
                     _.set(self.model, self.field.Property, self.rows);
                 }
-                
+
                 self.onChange.emit(self.model);
-                self.listIsVisible = false;          
-                
-                this.cd.markForCheck();  
+                self.listIsVisible = false;
+
+                this.cd.markForCheck();
             });
         } else {
             this.tempValue = this.showDisplayValue(row);
@@ -250,7 +258,7 @@ export class UniMultivalueInput {
             this.listIsVisible = true;
         }
     }
-    
+
     private save(row, tempValue, $event) {
         if ($event.which === 27) {
             $event.preventDefault();
@@ -271,7 +279,7 @@ export class UniMultivalueInput {
             this.listIsVisible = true;
         }
     }
-    
+
     private remove(row, $event) {
         $event.preventDefault();
         row.mode = 2;
@@ -283,11 +291,11 @@ export class UniMultivalueInput {
                 this.onChange.emit(this.model);
                 this.cd.markForCheck();
                 this.listIsVisible = true;
-            }  
+            }
         }, 5000);
         this.listIsVisible = true;
     }
-    
+
     private putBack(row, $event) {
         $event.preventDefault();
         row.mode = 0;
