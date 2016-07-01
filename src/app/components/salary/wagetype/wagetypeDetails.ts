@@ -82,6 +82,34 @@ export class WagetypeDetail {
                     debounceTime: 200,
                     template: (obj) => obj ? `${obj.AccountNumber} - ${obj.AccountName}` : ''
                 };
+
+                let incomeType: UniFieldLayout = this.findByProperty(this.fields, 'IncomeType');
+                incomeType.Options = {
+                    source: [ {text: 'Inntektstype1'}, {text: 'Inntektstype2'}, {text: 'Inntektstype3'}],
+                    valueProperty: 'text',
+                    displayProperty: 'text',
+                    debounceTime: 200,
+                    template: (obj) => obj ? `${obj.text}` : ''
+                };
+
+                let benefit: UniFieldLayout = this.findByProperty(this.fields, 'Benefit');
+                benefit.Options = {
+                    source: [ {text: 'Fordel1'}, {text: 'Fordel2'}, {text: 'Fordel3'}],
+                    valueProperty: 'text',
+                    displayProperty: 'text',
+                    debounceTime: 200,
+                    template: (obj) => obj ? `${obj.text}` : ''
+                };
+
+                let description: UniFieldLayout = this.findByProperty(this.fields, 'Description');
+                description.Options = {
+                    source: [ {text: 'Beskrivelse1'}, {text: 'Beskrivelse2'}, {text: 'Beskrivelse3'}],
+                    valueProperty: 'text',
+                    displayProperty: 'text',
+                    debounceTime: 200,
+                    template: (obj) => obj ? `${obj.text}` : ''
+                }
+
                 this.fields = _.cloneDeep(this.fields);
 
                 this.config = {
