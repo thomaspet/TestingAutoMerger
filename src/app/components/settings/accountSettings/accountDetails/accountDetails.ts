@@ -22,32 +22,32 @@ export class AccountDetails {
     @Output() public accountSaved: EventEmitter<Account> = new EventEmitter<Account>();
     @Output() public onChange: EventEmitter<Account> = new EventEmitter<Account>();
     @ViewChild(UniForm) private form: UniForm;
-    
+
     private account: Account = null;
     private currencies: Array<any> = [];
     private vattypes: Array<any> = [];
     private config: any = {};
     private fields: any[] = [];
-    
+
     constructor(private accountService: AccountService, private currencyService: CurrencyService, private vatTypeService: VatTypeService) {
     }
-   
+
     public ngOnInit() {
         this.getLayoutAndData();
     }
 
-    private getLayoutAndData() {        
+    private getLayoutAndData() {
         this.fields = this.getComponentLayout().Fields;
-                    
+
         Observable.forkJoin(
             this.currencyService.GetAll(null),
-            this.vatTypeService.GetAll(null)   
+            this.vatTypeService.GetAll(null)
          ).subscribe(
                 (dataset) => {
                     this.currencies = dataset[0];
                     this.vattypes = dataset[1];
-                    
-                    this.extendFormConfig();                           
+
+                    this.extendFormConfig();
                 },
                 (error) => console.log(error)
             );
@@ -57,42 +57,42 @@ export class AccountDetails {
         if (changes['accountID'].currentValue === '0') {
             return;
         }
-        
-        this.getData();        
+
+        this.getData();
     }
-    
+
     private change(event) {
-        
+
     }
-    
+
     private extendFormConfig() {
-        
+
         let currency: UniFieldLayout = this.fields.find(x => x.Property === 'CurrencyID');
         currency.Options = {
             source: this.currencies,
             valueProperty: 'ID',
-            displayProperty: 'Code',                        
+            displayProperty: 'Code',
             debounceTime: 200
         };
-        
+
         let vattype: UniFieldLayout = this.fields.find(x => x.Property === 'VatTypeID');
-        vattype.Options = {        
-            source: this.vattypes,    
+        vattype.Options = {
+            source: this.vattypes,
             valueProperty: 'ID',
-            displayProperty: 'VatCode',                        
+            displayProperty: 'VatCode',
             debounceTime: 200,
             search: (searchValue: string) => Observable.from([this.vattypes.filter((vt) => vt.VatCode === searchValue || vt.VatPercent.toString() === searchValue || vt.Name.toLowerCase().indexOf(searchValue.toLowerCase()) >= 0)]),
-            template: (vt: VatType) => vt ? `${vt.VatCode}, ${vt.VatPercent}%, ${vt.Name}` : '' 
+            template: (vt: VatType) => vt ? `${vt.VatCode}: ${vt.VatPercent}% – ${vt.Name}` : ''
         };
     }
-    
+
     public getData() {
-        if (this.accountID) {                 
+        if (this.accountID) {
             this.accountService
-                .Get(this.accountID, ['Alias', 'Currency', 'AccountGroup', 'Dimensions', 'Dimensions.Project', 'Dimensions.Region', 'Dimensions.Responsible', 'Dimensions.Departement'])            
+                .Get(this.accountID, ['Alias', 'Currency', 'AccountGroup', 'Dimensions', 'Dimensions.Project', 'Dimensions.Region', 'Dimensions.Responsible', 'Dimensions.Departement'])
                 .subscribe(
                     (dataset) => {
-                        this.account = dataset;                    
+                        this.account = dataset;
                     },
                     (error) => {
                         console.log(error);
@@ -100,10 +100,10 @@ export class AccountDetails {
                 );
         }
     }
-    
-    
-    public saveAccount(completeEvent: any): void {         
-        if (this.account.ID > 0) {            
+
+
+    public saveAccount(completeEvent: any): void {
+        if (this.account.ID > 0) {
             this.accountService
                 .Put(this.account.ID, this.account)
                 .subscribe(
@@ -114,7 +114,7 @@ export class AccountDetails {
                     (err) => {
                         completeEvent('Feil ved lagring');
                         console.log('Save failed: ', err);
-                        alert('Feil ved lagring: ' + JSON.stringify(err));                        
+                        alert('Feil ved lagring: ' + JSON.stringify(err));
                     }
                 );
         } else {
@@ -127,13 +127,13 @@ export class AccountDetails {
                     },
                     (err) => {
                         completeEvent('Feil ved lagring');
-                        console.log('Save failed: ', err);     
-                        alert('Feil ved lagring: ' + JSON.stringify(err));                   
+                        console.log('Save failed: ', err);
+                        alert('Feil ved lagring: ' + JSON.stringify(err));
                     }
                 );
         }
     }
-    
+
     // TODO: change to 'ComponentLayout' when object respects the interface
     private getComponentLayout(): any {
         return {
@@ -174,7 +174,7 @@ export class AccountDetails {
                     UpdatedAt: null,
                     CreatedBy: null,
                     UpdatedBy: null,
-                    CustomFields: null 
+                    CustomFields: null
                 },
                 {
                     ComponentLayoutID: 3,
@@ -202,7 +202,7 @@ export class AccountDetails {
                     UpdatedAt: null,
                     CreatedBy: null,
                     UpdatedBy: null,
-                    CustomFields: null 
+                    CustomFields: null
                 },
                 {
                     ComponentLayoutID: 3,
@@ -230,7 +230,7 @@ export class AccountDetails {
                     UpdatedAt: null,
                     CreatedBy: null,
                     UpdatedBy: null,
-                    CustomFields: null 
+                    CustomFields: null
                 },
                 {
                     ComponentLayoutID: 3,
@@ -258,7 +258,7 @@ export class AccountDetails {
                     UpdatedAt: null,
                     CreatedBy: null,
                     UpdatedBy: null,
-                    CustomFields: null 
+                    CustomFields: null
                 },
                 {
                     ComponentLayoutID: 3,
@@ -286,7 +286,7 @@ export class AccountDetails {
                     UpdatedAt: null,
                     CreatedBy: null,
                     UpdatedBy: null,
-                    CustomFields: null 
+                    CustomFields: null
                 },
                 {
                     ComponentLayoutID: 3,
@@ -314,7 +314,7 @@ export class AccountDetails {
                     UpdatedAt: null,
                     CreatedBy: null,
                     UpdatedBy: null,
-                    CustomFields: null 
+                    CustomFields: null
                 },
                 {
                     ComponentLayoutID: 3,
@@ -342,7 +342,7 @@ export class AccountDetails {
                     UpdatedAt: null,
                     CreatedBy: null,
                     UpdatedBy: null,
-                    CustomFields: null 
+                    CustomFields: null
                 },
                 {
                     ComponentLayoutID: 3,
@@ -370,7 +370,7 @@ export class AccountDetails {
                     UpdatedAt: null,
                     CreatedBy: null,
                     UpdatedBy: null,
-                    CustomFields: null 
+                    CustomFields: null
                 },
                 {
                     ComponentLayoutID: 3,
@@ -398,7 +398,7 @@ export class AccountDetails {
                     UpdatedAt: null,
                     CreatedBy: null,
                     UpdatedBy: null,
-                    CustomFields: null 
+                    CustomFields: null
                 },
                 {
                     ComponentLayoutID: 3,
@@ -426,7 +426,7 @@ export class AccountDetails {
                     UpdatedAt: null,
                     CreatedBy: null,
                     UpdatedBy: null,
-                    CustomFields: null 
+                    CustomFields: null
                 },
                 {
                     ComponentLayoutID: 3,
@@ -454,9 +454,9 @@ export class AccountDetails {
                     UpdatedAt: null,
                     CreatedBy: null,
                     UpdatedBy: null,
-                    CustomFields: null 
+                    CustomFields: null
                 }
-            ]          
-        };   
+            ]
+        };
     }
 }
