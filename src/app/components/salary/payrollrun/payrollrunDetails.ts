@@ -25,7 +25,6 @@ export class PayrollrunDetails implements OnInit {
     public fields: any[] = [];
     @ViewChild(UniForm) public uniform: UniForm;
     private payrollrun: PayrollRun;
-    private model: { payrollrun: PayrollRun, statusCode: string } = { payrollrun: null, statusCode: null };
     private payrollrunID: number;
     private payDate: Date = null;
     private payStatus: string;
@@ -52,9 +51,9 @@ export class PayrollrunDetails implements OnInit {
                 console.log('payrunRefreshed');
                 this.busy = true;
                 this.payrollrun = payrollrun;
-                this.model.payrollrun = payrollrun;
-                this.model.statusCode = this.setStatus();
+                this.payrollrunID = payrollrun.ID;
                 this.payDate = new Date(this.payrollrun.PayDate.toString());
+                this.payStatus = this.payrollrunService.getStatus(this.payrollrun).text;
                 this.refreshSaveActions();
                 this.busy = false;
         });
@@ -69,6 +68,8 @@ export class PayrollrunDetails implements OnInit {
             ).subscribe((response: any) => {
                 var [payrollrun, layout] = response;
                 this.payrollrunService.refreshPayrun(payrollrun);
+                this.payrollrun = payrollrun;
+                this.payDate = new Date(this.payrollrun.PayDate.toString());
                 this.fields = layout.Fields;
                 this.config = {
                     submitText: ''
@@ -129,13 +130,13 @@ export class PayrollrunDetails implements OnInit {
     }
 
     private setStatus() {
-        var status = this.payrollrunService.getStatus(this.model.payrollrun);
+        var status = this.payrollrunService.getStatus(this.payrollrun);
         this.payStatus = status.text;
         return status.text;
     }
     public canPost(): boolean {
         if (this.payrollrun) {
-        if (this.payrollrun.StatusCode == 1) {
+        if (this.payrollrun.StatusCode === 1) {
         return true; }
         }
         return false; 
@@ -145,8 +146,7 @@ export class PayrollrunDetails implements OnInit {
         this.payrollrunService.getPrevious(this.payrollrunID)
             .subscribe((response) => {
                 if (response) {
-                    this.payrollrun = response;
-                    this.payrollrunID = this.payrollrun.ID;
+                    this.payrollrunService.refreshPayrun(response);
                     this.router.navigateByUrl('/salary/payrollrun/' + this.payrollrunID);
                 }
             },
@@ -159,8 +159,7 @@ export class PayrollrunDetails implements OnInit {
         this.payrollrunService.getNext(this.payrollrunID)
             .subscribe((response) => {
                 if (response) {
-                    this.payrollrun = response;
-                    this.payrollrunID = this.payrollrun.ID;
+                    this.payrollrunService.refreshPayrun(response);
                     this.router.navigateByUrl('/salary/payrollrun/' + this.payrollrunID);
                 }
             },
@@ -176,10 +175,9 @@ export class PayrollrunDetails implements OnInit {
                 if (bResponse === true) {
                     this.payrollrunService.Get<PayrollRun>(this.payrollrunID)
                         .subscribe((response) => {
-                            this.payrollrun = response;
+                            this.payrollrunService.refreshPayrun(response);
                             this.setEditMode();
                             this.showPaymentList();
-                            this.refreshSaveActions();
                             this.busy = false;
                         },
                         (err) => {
@@ -202,7 +200,7 @@ export class PayrollrunDetails implements OnInit {
                 if (bResponse === true) {
                     this.payrollrunService.Get<PayrollRun>(this.payrollrunID)
                         .subscribe((response) => {
-                            this.setEditMode();
+                            this.payrollrunService.refreshPayrun(response);
                         },
                         (err) => {
                             this.log(err);
@@ -226,10 +224,10 @@ export class PayrollrunDetails implements OnInit {
         } else {
             this.isEditable = true;
             this.uniform.editMode();
-            var idField: UniFieldLayout = this.findByProperty(this.fields, 'payrollrun.ID');
+            var idField: UniFieldLayout = this.findByProperty(this.fields, 'ID');
             idField.ReadOnly = true;
         }
-        var recurringTransCheck: UniFieldLayout = this.findByProperty(this.fields, 'payrollrun.ExcludeRecurringPosts');
+        var recurringTransCheck: UniFieldLayout = this.findByProperty(this.fields, 'ExcludeRecurringPosts');
         var noNegativePayCheck: UniFieldLayout = this.findByProperty(this.fields, '1');
         if (this.isEditable) {
             recurringTransCheck.ReadOnly = false;
@@ -238,10 +236,6 @@ export class PayrollrunDetails implements OnInit {
             recurringTransCheck.ReadOnly = true;
             noNegativePayCheck.ReadOnly = true;
         }
-
-        var statusCode: UniFieldLayout = this.findByProperty(this.fields, 'statusCode');
-        this.setStatus();
-        statusCode.ReadOnly = true;
         this.fields = _.cloneDeep(this.fields);
     }
 
