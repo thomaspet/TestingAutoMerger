@@ -1,4 +1,4 @@
-import {Component, Type, ViewChildren, QueryList, Input, AfterViewInit} from '@angular/core';
+import {Component, Type, ViewChildren, QueryList, Input, AfterViewInit, EventEmitter, Output} from '@angular/core';
 import {Router} from '@angular/router-deprecated';
 import {UniModal} from '../../../../framework/modals/modal';
 import {UniForm, UniFieldLayout} from '../../../../framework/uniform';
@@ -178,8 +178,8 @@ export class ControlModalContent {
 })
 export class ControlModal implements AfterViewInit {
     private payrollRunID: number;
-    @ViewChildren(UniModal)
-    private modalElements: QueryList<UniModal>;
+    @ViewChildren(UniModal) private modalElements: QueryList<UniModal>;
+    @Output() public updatePayrollRun: EventEmitter<any> = new EventEmitter<any>(true);
     private modals: UniModal[];
     private modalConfig: {hasCancelButton: boolean, cancel: any, actions: {text: string, method: any}[], payrollRunID: number};
     public type: Type = ControlModalContent;
@@ -204,6 +204,7 @@ export class ControlModal implements AfterViewInit {
                     this.modals[0].getContent().then((content: ControlModalContent) => {
                         content.runSettling().subscribe((success) => {
                             if (success) {
+                                this.updatePayrollRun.emit(true);
                                 content.showPaymentList();
                             }
                         });

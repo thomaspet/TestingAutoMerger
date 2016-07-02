@@ -82,6 +82,34 @@ export class WagetypeDetail {
                     debounceTime: 200,
                     template: (obj) => obj ? `${obj.AccountNumber} - ${obj.AccountName}` : ''
                 };
+
+                let incomeType: UniFieldLayout = this.findByProperty(this.fields, 'IncomeType');
+                incomeType.Options = {
+                    source: [ {text: 'Lønn'}, {text: 'YtelseFraOffentlige'}, {text: 'PensjonEllerTrygd'}, {text: 'Næringsinntekt'}, {text: 'Fradrag'}, {text: 'Forskuddtrekk'}],
+                    valueProperty: 'text',
+                    displayProperty: 'text',
+                    debounceTime: 200,
+                    template: (obj) => obj ? `${obj.text}` : ''
+                };
+
+                let benefit: UniFieldLayout = this.findByProperty(this.fields, 'Benefit');
+                benefit.Options = {
+                    source: [ {text: 'Kontantytelse'}, {text: 'Naturalytelse'}, {text: 'Utgiftgodtgjoerelse'}],
+                    valueProperty: 'text',
+                    displayProperty: 'text',
+                    debounceTime: 200,
+                    template: (obj) => obj ? `${obj.text}` : ''
+                };
+
+                let description: UniFieldLayout = this.findByProperty(this.fields, 'Description');
+                description.Options = {
+                    source: [ {text: 'Fastlønn'} ],
+                    valueProperty: 'text',
+                    displayProperty: 'text',
+                    debounceTime: 200,
+                    template: (obj) => obj ? `${obj.text}` : ''
+                }
+
                 this.fields = _.cloneDeep(this.fields);
 
                 this.config = {
@@ -104,6 +132,9 @@ export class WagetypeDetail {
         setTimeout(() => {
             if (!this.uniform.section(1).isOpen) {
                 this.uniform.section(1).toggle();
+            }
+            if (!this.uniform.section(2).isOpen) {
+                this.uniform.section(2).toggle();
             }
         }, 100);
     }

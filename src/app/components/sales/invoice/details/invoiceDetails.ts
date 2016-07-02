@@ -13,7 +13,7 @@ import {UniForm, UniFieldLayout} from '../../../../../framework/uniform';
 import {InvoiceItemList} from './invoiceItemList';
 import {TradeItemHelper} from '../../salesHelper/tradeItemHelper';
 
-import {CustomerInvoice, CustomerInvoiceItem, Customer, Dimensions, Address, BusinessRelation} from '../../../../unientities';
+import {CustomerInvoice, Customer, Dimensions, Address} from '../../../../unientities';
 import {StatusCodeCustomerInvoice, FieldType} from '../../../../unientities';
 
 import {AddressModal} from '../../../common/modals/modals';
@@ -72,6 +72,7 @@ export class InvoiceDetails implements OnInit {
     private recalcTimeout: any;
     private actions: IUniSaveAction[];
     private addressChanged: any;
+    private creditInvoiceArr: CustomerInvoice[];
 
     private expandOptions: Array<string> = ['Dimensions', 'Items', 'Items.Product', 'Items.VatType',
         'Customer', 'Customer.Info', 'Customer.Info.Addresses', 'InvoiceReference'];
@@ -235,6 +236,7 @@ export class InvoiceDetails implements OnInit {
             this.addressService.setAddresses(this.invoice);
             this.setTabTitle();
             this.updateSaveActions();
+            this.getCreditInvoices();
             this.extendFormConfig();
 
         }, (err) => {
@@ -243,8 +245,26 @@ export class InvoiceDetails implements OnInit {
         });
     }
 
+    private getCreditInvoices() {
+        // Get list of credit notes for an invoice
+        if (this.invoice.InvoiceType === 0 && this.invoice.CreditedAmount !== null && this.invoice.CreditedAmount !== 0) {
+            this.customerInvoiceService.GetAll('filter=InvoiceReferenceID eq ' + this.invoice.ID)
+                .subscribe((data) => {
+                    this.creditInvoiceArr = data;
+                }, (err) => {
+                    console.log('Error retrieving data Credit Invoices: ', err);
+                    alert('En feil oppsto ved henting av data: ' + JSON.stringify(err));
+                });
+        }
+    }
+
     private setTabTitle() {
-        let tabTitle = this.invoice.InvoiceNumber ? 'Fakturanr. ' + this.invoice.InvoiceNumber : 'Faktura (kladd)';
+        var tabTitle;
+        if (this.invoice.InvoiceType == 1) {
+            tabTitle = this.invoice.InvoiceNumber ? 'Kreditnotanr. ' + this.invoice.InvoiceNumber : 'Kreditnota (kladd)';
+        } else {
+            tabTitle = this.invoice.InvoiceNumber ? 'Fakturanr. ' + this.invoice.InvoiceNumber : 'Faktura (kladd)';
+        }
         this.tabService.addTab({ url: '/sales/invoice/details/' + this.invoice.ID, name: tabTitle, active: true, moduleID: 5 });
     }
 
@@ -287,8 +307,11 @@ export class InvoiceDetails implements OnInit {
                 this.addressModal.openModal(value);
 
                 this.addressChanged = this.addressModal.Changed.subscribe((address) => {
-                    if (address._question) { self.saveAddressOnCustomer(address, resolve); }
-                    else { this.addressChanged.unsubscribe(); resolve(address); }
+                    if (address._question) {
+                        self.saveAddressOnCustomer(address, resolve);
+                    } else {
+                        this.addressChanged.unsubscribe(); resolve(address);
+                    }
                 });
             }),
             display: (address: Address) => {
@@ -312,8 +335,11 @@ export class InvoiceDetails implements OnInit {
                 this.addressModal.openModal(value);
 
                 this.addressChanged = this.addressModal.Changed.subscribe((address) => {
-                    if (address._question) { self.saveAddressOnCustomer(address, resolve); }
-                    else { this.addressChanged.unsubscribe(); resolve(address); }
+                    if (address._question) {
+                        self.saveAddressOnCustomer(address, resolve);
+                    } else {
+                        this.addressChanged.unsubscribe(); resolve(address);
+                    }
                 });
             }),
             display: (address: Address) => {
@@ -350,7 +376,7 @@ export class InvoiceDetails implements OnInit {
             this.invoice.Customer.Info = info;
             this.addressChanged.unsubscribe();
             resolve(info.Addresses[idx]);
-        },(error) => {
+        }, (error) => {
             this.addressChanged.unsubscribe();
         });
     }
@@ -408,7 +434,7 @@ export class InvoiceDetails implements OnInit {
     }
     private IsCreditActionDisabled() {
         if (this.invoice.InvoiceType === 1) {
-            return true; //TODO: fakturering av kreditnota er ikke implementert
+            return true; // TODO: fakturering av kreditnota er ikke implementert
         }
 
         if (this.invoice.StatusCode === StatusCodeCustomerInvoice.Invoiced ||
@@ -468,27 +494,6 @@ export class InvoiceDetails implements OnInit {
         }, 2000);
     }
 
-    private getValidInvoiceItems(invoiceItems: any) {
-        let items: CustomerInvoiceItem[] = [];
-        let showMessage: boolean = false;
-
-        for (let i = 0; i < invoiceItems.length; i++) {
-            let line: CustomerInvoiceItem = invoiceItems[i];
-
-            if (line.ProductID !== null) {
-                items.push(line);
-            }
-            else {
-                showMessage = true;
-            }
-        }
-
-        if (showMessage) {
-            alert('En eller flere av linjene inneholder produkter som ikke finnes i produktliste. Disse vil ikke bli lagret med faktura. Vennligst opprett produktene først');
-        }
-        return items;
-    }
-
     private saveInvoiceTransition(done: any, transition: string, doneText: string) {
         this.saveInvoice((invoice) => {
             this.customerInvoiceService.Transition(this.invoice.ID, this.invoice, transition).subscribe(() => {
@@ -535,7 +540,7 @@ export class InvoiceDetails implements OnInit {
             this.invoice.Dimensions['_createguid'] = this.customerInvoiceService.getNewGuid();
         }
 
-        //Save only lines with products from product list
+        // Save only lines with products from product list
         if (!TradeItemHelper.IsItemsValid(this.invoice.Items)) {
             console.log('Linjer uten produkt. Lagring avbrutt.');
             // done('Lagring feilet');
@@ -644,8 +649,7 @@ export class InvoiceDetails implements OnInit {
                     //    this.log(err);
                 });
 
-            console.log('Fsdfsdf');
-            //}, (err) => {
+            // }, (err) => {
             //    console.log('Feil oppstod ved henting av faktura: Error:', err);
             //    this.log(err);
 
@@ -963,7 +967,7 @@ export class InvoiceDetails implements OnInit {
                     EntityType: 'Project',
                     Property: 'Dimensions.ProjectID',
                     Placement: 4,
-                    Hidden: true, //false, // TODO: > 30.6
+                    Hidden: true, // false, // TODO: > 30.6
                     FieldType: FieldType.DROPDOWN,
                     ReadOnly: false,
                     LookupField: false,
@@ -991,7 +995,7 @@ export class InvoiceDetails implements OnInit {
                     EntityType: 'Departement',
                     Property: 'Dimensions.DepartementID',
                     Placement: 4,
-                    Hidden: true, //false, // TODO: > 30.6
+                    Hidden: true, // false, // TODO: > 30.6
                     FieldType: FieldType.DROPDOWN,
                     ReadOnly: false,
                     LookupField: false,

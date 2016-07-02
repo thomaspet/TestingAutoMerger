@@ -18,28 +18,28 @@ export class AddressForm implements OnChanges {
     @Input() public question: string;
     @Input() public disableQuestion: boolean;
     @ViewChild(UniForm) public form: UniForm;
-    
+
     private enableSave: boolean;
     private save: boolean;
-    
+
     private config: any = {};
     private fields: any[] = [];
-       
+
     public ngOnInit() {
-        this.setupForm();    
+        this.setupForm();
         this.setupQuestionCheckbox();
     }
 
     public ngOnChanges(changes: {[propName: string]: SimpleChange}) {
         if (changes['disableQuestion'] != null) {
-            this.setupForm(); 
+            this.setupForm();
         }
     }
- 
-    private setupForm() {   
+
+    private setupForm() {
         // TODO get it from the API and move these to backend migrations
         // TODO: turn to 'ComponentLayout when the object respects the interface
-        this.fields = [            
+        this.fields = [
             {
                 ComponentLayoutID: 1,
                 EntityType: 'Address',
@@ -66,7 +66,7 @@ export class AddressForm implements OnChanges {
                 UpdatedAt: null,
                 CreatedBy: null,
                 UpdatedBy: null,
-                CustomFields: null 
+                CustomFields: null
             },
             {
                 ComponentLayoutID: 1,
@@ -94,7 +94,7 @@ export class AddressForm implements OnChanges {
                 UpdatedAt: null,
                 CreatedBy: null,
                 UpdatedBy: null,
-                CustomFields: null 
+                CustomFields: null
             },
             {
                 ComponentLayoutID: 1,
@@ -112,7 +112,7 @@ export class AddressForm implements OnChanges {
                 Section: 0,
                 Placeholder: null,
                 Options: null,
-                LineBreak: null,
+                LineBreak: true,
                 Combo: null,
                 Legend: '',
                 StatusCode: 0,
@@ -122,7 +122,7 @@ export class AddressForm implements OnChanges {
                 UpdatedAt: null,
                 CreatedBy: null,
                 UpdatedBy: null,
-                CustomFields: null 
+                CustomFields: null
             },
             {
                 ComponentLayoutID: 1,
@@ -150,7 +150,7 @@ export class AddressForm implements OnChanges {
                 UpdatedAt: null,
                 CreatedBy: null,
                 UpdatedBy: null,
-                CustomFields: null 
+                CustomFields: null
             },
             {
                 ComponentLayoutID: 1,
@@ -168,7 +168,7 @@ export class AddressForm implements OnChanges {
                 Section: 0,
                 Placeholder: null,
                 Options: null,
-                LineBreak: null,
+                LineBreak: true,
                 Combo: null,
                 Legend: '',
                 StatusCode: 0,
@@ -178,7 +178,7 @@ export class AddressForm implements OnChanges {
                 UpdatedAt: null,
                 CreatedBy: null,
                 UpdatedBy: null,
-                CustomFields: null 
+                CustomFields: null
             },
             {
                 ComponentLayoutID: 1,
@@ -206,7 +206,7 @@ export class AddressForm implements OnChanges {
                 UpdatedAt: null,
                 CreatedBy: null,
                 UpdatedBy: null,
-                CustomFields: null 
+                CustomFields: null
             }
         ];
     }
@@ -218,7 +218,7 @@ export class AddressForm implements OnChanges {
             FieldType: 5,
             Label: this.question,
             ReadOnly: this.disableQuestion
-        });        
+        });
     }
 
 }
@@ -241,7 +241,7 @@ export class AddressForm implements OnChanges {
 })
 export class AddressModalType {
     @Input() public config: any;
-    @ViewChild(AddressForm) public form: AddressForm;    
+    @ViewChild(AddressForm) public form: AddressForm;
 }
 
 // address modal
@@ -255,32 +255,32 @@ export class AddressModalType {
 })
 export class AddressModal {
     @Input() public address: Address;
-    @Input() public question: string;  
+    @Input() public question: string;
     @ViewChild(UniModal) public modal: UniModal;
-    
+
     @Output() public Changed = new EventEmitter<Address>();
     @Output() public Canceled = new EventEmitter<boolean>();
 
     private modalConfig: any = {};
     private type: Type = AddressModalType;
 
-    constructor(private addressService: AddressService) {        
+    constructor(private addressService: AddressService) {
     }
-    
-    public ngOnInit() {    
+
+    public ngOnInit() {
         this.modalConfig = {
             title: 'Adresse',
             mode: null,
             question: this.question,
             disableQuestion: false,
-         
+
             actions: [
                 {
                     text: 'Lagre adresse',
                     class: 'good',
-                    method: () => {     
+                    method: () => {
                         this.modal.close();
-                        this.Changed.emit(this.modalConfig.model);                        
+                        this.Changed.emit(this.modalConfig.model);
                         return false;
                     }
                 },
@@ -288,7 +288,7 @@ export class AddressModal {
                     text: 'Avbryt',
                     method: () => {
                         this.modal.close();
-                        this.Canceled.emit(true);                    
+                        this.Canceled.emit(true);
                         return false;
                     }
                 }
@@ -296,9 +296,9 @@ export class AddressModal {
         };
     }
 
-    public openModal(address: Address, disableQuestion: boolean = false) {  
+    public openModal(address: Address, disableQuestion: boolean = false) {
         this.modalConfig.model = address;
-        this.modalConfig.disableQuestion = disableQuestion;    
+        this.modalConfig.disableQuestion = disableQuestion;
         this.modal.open();
     }
 }

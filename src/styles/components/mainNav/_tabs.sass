@@ -43,8 +43,12 @@
 
             .close
                 border: pxToRem(1) solid mix($uni-color-C2A, $navbarBackground, 70%)
-                background-image: unicon-close($uni-color-negative), linear-gradient(to top, mix($uni-color-C2A, $navbarBackground, 50%) 0, mix($uni-color-C2A, $navbarBackground, 60%) 100%)
+                background-image: unicon-close($uni-color-negative)
                 opacity: .8
+
+                &:focus,
+                &:hover
+                    opacity: 1
 
         &:first-of-type
             border-left: none
@@ -63,20 +67,20 @@
             top: .1rem
             position: relative
             border-radius: pxToRem(3)
-            border: pxToRem(1) solid mix($uni-color-positive, $navbarBackground, 70%)
-            background-image: unicon-close($uni-color-negative), linear-gradient(to top, mix($uni-color-positive, $navbarBackground, 50%) 0, mix($uni-color-positive, $navbarBackground, 60%) 100%)
+            border: pxToRem(1) solid transparent
+            background-image: unicon-close($uni-color-negative)
+            background-color: mix($uni-color-positive, $uni-color-C2A, 25%)
             background-position: center center
             background-repeat: no-repeat
             background-size: .4rem, contain
-            opacity: .4
-            transition: all .3s ease
+
+            &:hover,
+            &:focus
+                border: pxToRem(1) solid $uni-color-C2A
 
         &:hover,
         &:focus
             background: darken($navbarBackground, 10%)
-
-            &:after
-                opacity: 1
 
     @include media(large, max-width)
         $btmNavColor1: mix($navbarBackground, $uni-color-scale1, 80%)

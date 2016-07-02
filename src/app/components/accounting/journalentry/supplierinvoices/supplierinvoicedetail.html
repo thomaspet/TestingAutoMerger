@@ -1,44 +1,54 @@
-<header class="poster">    
-    <article class="poster_toolbar">
-        <span *ngIf="supplierInvoice != null && supplierInvoice.ID > 0">
-            <h2 class="poster_toolbar_headline">
-                {{supplierInvoice.InvoiceNumber ? 'Leverandørfakturanr ' + supplierInvoice.InvoiceNumber : ''}}{{supplierInvoice.InvoiceNumber && supplierInvoice.Supplier ? ', ' : ''}}{{supplierInvoice.Supplier ? supplierInvoice.Supplier.Info.Name :''}}                                    
-            </h2>
-            <p>
-                Status: {{getStatusText()}}<span *ngIf="supplierInvoice.JournalEntry != null">, bilagsnr: {{supplierInvoice.JournalEntry.JournalEntryNumber != null ? supplierInvoice.JournalEntry.JournalEntryNumber : 'Bilag ikke bokført' }}</span>
-            </p>
-        </span>
-        <h2 class="poster_toolbar_headline" *ngIf="invoiceId == 0">
+<section class="supplier-invoice-detail">
+
+    <header>
+        <h1 class="poster_toolbar_headline" 
+            *ngIf="supplierInvoice != null && supplierInvoice.ID > 0">
+            {{supplierInvoice.InvoiceNumber ? 'Leverandørfakturanr ' + supplierInvoice.InvoiceNumber : ''}}{{supplierInvoice.InvoiceNumber && supplierInvoice.Supplier ? ', ' : ''}}{{supplierInvoice.Supplier ? supplierInvoice.Supplier.Info.Name :''}}                                    
+        </h1>
+        <p class="poster_toolbar_descriptor" 
+            *ngIf="supplierInvoice != null && supplierInvoice.ID > 0">
+            Status: {{getStatusText()}}<span *ngIf="supplierInvoice.JournalEntry != null">, bilagsnr: {{supplierInvoice.JournalEntry.JournalEntryNumber != null ? supplierInvoice.JournalEntry.JournalEntryNumber : 'Bilag ikke bokført' }}</span>
+        </p>
+
+        <h1 class="poster_toolbar_headline" 
+            *ngIf="invoiceId == 0">
             Ny leverandørfaktura
-            <p>Ny faktura med smartbokføring</p>            
-        </h2>
-    </article>    
-</header>
+        </h1>
+        <p class="poster_toolbar_descriptor" 
+            *ngIf="invoiceId == 0">
+            Ny faktura med smartbokføring
+        </p>            
 
-<article class="supplier-invoice-detail-form">    
-    <p class="error validation" *ngIf="errors && errors.length > 0">
-        <span *ngFor="let error of errors">
-                {{error.Message}}
-        </span>
-    </p>
+    </header>
 
-    <uni-form *ngIf='supplierInvoice'
-        [config]='config'
-        [fields]='fields'
-        [model]='supplierInvoice'
-        (onReady)="ready($event)">
-    </uni-form> 
-</article>
+    <article class="supplier-invoice-detail-form">    
+        
+        <p class="error validation" *ngIf="errors && errors.length > 0">
+            <span *ngFor="let error of errors">
+                    {{error.Message}}
+            </span>
+        </p>
 
-<register-payment-modal
-    (changed)="onRegisteredPayment($event)"
-></register-payment-modal>
+        <uni-form *ngIf='supplierInvoice'
+            [config]='config'
+            [fields]='fields'
+            [model]='supplierInvoice'
+            (onReady)="ready($event)">
+        </uni-form> 
 
-<section class="supplier-invoice-detail-booking">
-    <journal-entry-manual [supplierInvoice]="supplierInvoice" [runAsSubComponent]="true" [disabled]="disabled" *ngIf="supplierInvoice && supplierInvoice.JournalEntryID"></journal-entry-manual>
+    </article>
+
+    <register-payment-modal
+        (changed)="onRegisteredPayment($event)">
+    </register-payment-modal>
+
+    <article class="supplier-invoice-detail-booking">
+        <journal-entry-manual [supplierInvoice]="supplierInvoice" [runAsSubComponent]="true" [disabled]="disabled" *ngIf="supplierInvoice && supplierInvoice.JournalEntryID"></journal-entry-manual>
+    </article>
+
 </section>
 
-<section class="supplier-invoice-detail-document" *ngIf="supplierInvoice && supplierInvoice.ID > 0">
+<article class="supplier-invoice-detail-document" *ngIf="supplierInvoice && supplierInvoice.ID > 0">
     <uni-image [imageId]="previewId" [size]="previewSize" *ngIf="previewId > 0"></uni-image>   
 
     <p class="good validation" *ngIf="fileuploader.statusText">
@@ -48,9 +58,8 @@
     [service]="fileuploader" 
     [entity]="supplierInvoice"
     (onFileUploaded)="onFileUploaded($event)"></uni-document-uploader>
-</section>
+</article>
 
-<footer class="full-footer">    
-    <uni-save [actions]="actions" *ngIf="actions"></uni-save>
-</footer>
+
+<uni-save [actions]="actions" *ngIf="actions"></uni-save>
 

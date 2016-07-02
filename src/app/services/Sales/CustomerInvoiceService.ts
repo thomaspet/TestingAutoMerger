@@ -25,9 +25,9 @@ export class CustomerInvoiceService extends BizHttp<CustomerInvoice> {
 
     private statusTypesCredit: Array<any> = [
         { Code: StatusCodeCustomerInvoice.Draft, Text: 'Kladd(Kreditnota)' },
-        { Code: StatusCodeCustomerInvoice.Invoiced, Text: 'Kreditert' },
-        { Code: StatusCodeCustomerInvoice.PartlyPaid, Text: 'Delbetalt' },
-        { Code: StatusCodeCustomerInvoice.Paid, Text: 'Betalt' },
+        { Code: StatusCodeCustomerInvoice.Invoiced, Text: 'Fakturert(Kreditnota)' },
+        { Code: StatusCodeCustomerInvoice.PartlyPaid, Text: 'Delbetalt(Kreditnota)' },
+        { Code: StatusCodeCustomerInvoice.Paid, Text: 'Betalt(Kreditnota)' },
     ];
             
     public next(currentID: number): Observable<CustomerInvoice>

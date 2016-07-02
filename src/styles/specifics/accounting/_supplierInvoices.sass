@@ -1,46 +1,44 @@
-.supplier-invoice-table-amount 
-	text-align: right
+supplier-invoice-detail
+	display: flex
+	position: absolute
+	align-content: stretch
+	align-items: stretch
+	flex-wrap: wrap
+	height: calc(100vh - 5rem)
 
-.supplier-invoice-table-payment-overdue
-	color: red
+	// Adds a pseudo elem to represent the left gutter
+	&:before
+		content: ''
+		display: block
+		flex-grow: 0
+		height: pxToRem(1)
 
-.supplier-invoice-detail-form
-	@include unigrid(8, 5, 4, 1)
-	float: left
-	
-.supplier-invoice-detail-booking
-	@include unigrid(8, 5, 4, 1)
-	float: left
-	margin: 0
-	padding-bottom: 4rem
-	
-.supplier-invoice-detail-document
-	@include unigrid(8, 3, 4, 1)
-	position: fixed;
-	top: 7rem
-	right: 0
-	bottom: 1.5rem
-	padding-top: 0.5rem
-	background-color: transparentize($uni-color-scale9, .2)
+		// The gutter is 1/2 a unigrid-column...
+		@each $size in map-keys($unigrid-columns)
+			@include media($size)
+				&
+					width: (unigrid-colWidth($size) / 2)
 
-	uni-image
-		padding: 0.5rem
-		
-		img
-			width: calc(100% - 1rem)
+		// ...except on huge viewports, where it's a whole one
+		@include media(huge)
+			&
+				width: unigrid-colWidth(huge)
 
-	uni-document-uploader	
-		margin: 2rem
+		// ...and on mobile where it is gone
 
-	.validation
-		margin-left: 2rem
-		margin-right: 2rem
-		width: calc(100% - 4rem)
+    // Our main interface is 9cols, half or the whole wp
+	.supplier-invoice-detail
+		@include unigrid(9, 4, 4)
+		flex-grow: 0
+		margin-top: 2rem
+		overflow: auto
 
-supplier-invoice-detail	
-	.poster_toolbar
-		@include unigrid(16, 8, 4, 1)
+		.supplier-invoice-detail-form
+			margin-left: -1rem
 
-supplier-invoice-detail	
-	.poster_toolbar_headline
-		order: 0
+	.supplier-invoice-detail-document
+		flex-grow: 1
+		background: transparentize($uni-color-scale9, .5)
+		display: flex
+		justify-content: space-around
+		align-items: center
