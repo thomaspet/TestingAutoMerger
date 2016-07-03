@@ -6,7 +6,7 @@ import {WorkerService, ItemInterval} from '../../../services/timetracking/worker
 import {Editable, IChangeEvent, IConfig, Column, ColumnType, ITypeSearch, ICopyEventDetails} from '../utils/editable/editable';
 import {parseTime, addTime, parseDate, toIso} from '../utils/utils';
 import {TimesheetService, TimeSheet, ValueItem} from '../../../services/timetracking/timesheetservice';
-import {IsoTimePipe, MinutesToHoursPipe} from '../utils/isotime';
+import {IsoTimePipe, MinutesToHoursPipe} from '../utils/pipes';
 import {UniSave, IUniSaveAction} from '../../../../framework/save/save';
 import {CanDeactivate, ComponentInstruction} from '@angular/router-deprecated';
 import {Lookupservice} from '../utils/lookup';

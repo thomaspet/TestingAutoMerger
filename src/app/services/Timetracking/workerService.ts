@@ -160,12 +160,15 @@ export class WorkerService extends BizHttp<Worker> {
         return this.http.asDELETE().usingBusinessDomain().withEndPoint('workitems/' + id).send(undefined, true);
     }
     
-    getWorkTypes(): Observable<WorkType[]> {
-        return this.GET('worktypes');
+    getWorkTypes(params?: URLSearchParams, route = 'worktypes'): Observable<WorkType[]> {
+        return this.http
+            .usingBusinessDomain()
+            .asGET()            
+            .withEndPoint(route)
+            .send({}, true, params);        
     }
     
     getStatistics(query:string): Observable<any> {
-        //model=workitem&select=sum(minutes),name,businessrelation.name&filter=&pivot=true&join=workitem.worktypeid eq worktype.id and workitem.workrelationid eq workrelation.id and workrelation.workerid eq worker.id and worker.businessrelationid eq businessrelation.id&top=orderby=worktype.id
         return this.GET('statistics?' + query);
 
     }

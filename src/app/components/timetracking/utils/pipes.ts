@@ -61,3 +61,27 @@ export class MinutesToHoursPipe implements PipeTransform {
     }
 
 }
+
+
+@Pipe({
+  name: 'worktypesystemtype'
+})
+export class WorkTypeSystemTypePipe implements PipeTransform {
+    public transform(value: any, format:string) {
+        var ret = '';
+        switch (value) {
+            case 1:
+                return 'Timer';
+            case 10:
+                return 'Fri';
+            case 11:
+                return 'Fleksitid';
+            case 12:
+                return 'Overtid';
+            case 13:
+                return 'Ferie';
+            default:
+                return value || '';
+        }
+    }
+}

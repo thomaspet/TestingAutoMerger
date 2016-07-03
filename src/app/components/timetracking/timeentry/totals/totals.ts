@@ -1,7 +1,7 @@
 import {Component, AfterViewInit} from "@angular/core";
 import {TimeSheet, TimesheetService} from '../../../../services/timetracking/timesheetservice';
 import {WorkerService, ItemInterval} from '../../../../services/timetracking/workerservice';
-import {MinutesToHoursPipe} from '../../utils/isotime';
+import {MinutesToHoursPipe} from '../../utils/pipes';
 import {ICol, Column, ColumnType} from '../../utils/editable/interfaces';
 import {IFilter} from '../timeentry';
 
@@ -59,7 +59,7 @@ export class RegtimeTotals {
                 join: 'workitem.worktypeid eq worktype.id and workitem.customerorderid eq customerorder.id', 
                 filter: 'customerorder.ordernumber gt 0 and workrelationid eq ' + ts.currentRelation.ID  
             },
-            { name: 'orders2', label: 'Ordre (alle)', pivotColName: 'customerorder.customername', pivotResultColName:'CustomerName', 
+            { name: 'ordersAll', label: 'Ordre (alle)', pivotColName: 'customerorder.customername', pivotResultColName:'CustomerName', 
                 isSelected: false,
                 join: 'workitem.worktypeid eq worktype.id and workitem.customerorderid eq customerorder.id', 
                 filter: 'customerorder.ordernumber gt 0'  
@@ -69,7 +69,7 @@ export class RegtimeTotals {
                 join: 'workitem.worktypeid eq worktype.id and workitem.dimensionsid eq dimensions.id and dimensions.projectid eq project.id', 
                 filter: 'projectid gt 0 and workrelationid eq ' + ts.currentRelation.ID  
             },
-            { name: 'projects2', label: 'Prosjekter (alle)', pivotColName: 'project.name', 
+            { name: 'projectsAll', label: 'Prosjekter (alle)', pivotColName: 'project.name', 
                 isSelected: false,
                 join: 'workitem.worktypeid eq worktype.id and workitem.dimensionsid eq dimensions.id and dimensions.projectid eq project.id', 
                 filter: 'projectid gt 0'  

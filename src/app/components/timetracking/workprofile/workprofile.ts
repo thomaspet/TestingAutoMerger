@@ -3,13 +3,14 @@ import {TabService} from '../../layout/navbar/tabstrip/tabService';
 import {View} from '../../../models/view/view';
 import {Worker} from '../../../unientities';
 import {UniTable, UniTableBuilder, UniTableColumn} from '../../../../framework/uniTable';
+import {Editable, IChangeEvent, IConfig, Column, ColumnType, ITypeSearch, ICopyEventDetails} from '../utils/editable/editable';
 
 export var view = new View('workprofile', 'Stillingsmal', 'WorkprofileListview');
 
 @Component({
     selector: view.name,
     templateUrl: 'app/components/timetracking/workprofile/workprofile.html',
-    directives: [UniTable]
+    directives: [UniTable, Editable]
 })
 export class WorkprofileListview {    
     public view = view;
