@@ -58,7 +58,7 @@ export class RecurringPost implements OnInit {
             .usingBusinessDomain()
             .withEndPoint('salarytrans')
             .send({
-                filter: `EmployeeNumber eq ${this.employeeID} and IsRecurringPost eq true`
+                filter: `EmployeeNumber eq ${this.employeeID} and IsRecurringPost eq true and PayrollRunID eq 0`
             });
         }, (error: any) => {
                 console.error(error);
