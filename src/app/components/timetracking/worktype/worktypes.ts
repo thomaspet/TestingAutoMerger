@@ -28,6 +28,10 @@ export class WorktypeListview {
     public createNew() {
         this.router.navigateByUrl('/timetracking/worktype/0');
     }
+
+    public onRowSelected(event) {
+        this.router.navigateByUrl('/timetracking/worktype/' + event.rowModel.ID);
+    };    
     
     private createTableConfig() {
 

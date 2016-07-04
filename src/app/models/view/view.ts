@@ -16,7 +16,6 @@ export class View {
     }
     
     addSubView(view:View) {
-        debugger;
         view.filepath = this.filepath + '/' + (view.folder || view.name) + '/' + view.name;
         view.url = this.url + '/' + view.name;
         this.subViews.push(view);

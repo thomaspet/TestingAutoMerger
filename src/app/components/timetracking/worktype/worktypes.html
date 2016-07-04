@@ -1,8 +1,8 @@
 <section class='application'>
     <h2>{{view.label}}</h2>
-    <aside class='info'>
-        Timearter kategoriserer timeføringene, og påvirker videre behandling av dem.<br/>
-        Det er viktig å bruke timearter for å kunne beregne korrekt fleksitid.        
-    </aside> 
-    <uni-table [resource]="lookupFunction" [config]="tableConfig"></uni-table>
+    <button class="new-button" (click)="createNew()">Opprett ny</button>
+    <uni-table [resource]="lookupFunction"
+        [config]="tableConfig"
+        (rowSelected)="onRowSelected($event)">
+    </uni-table>
 </section>    

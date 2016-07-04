@@ -6,7 +6,6 @@ import {View} from "../../models/view/view";
 import {view as workerView} from './worker/worker';
 import {view as workTypeView} from './worktype/worktypes';
 import {view as workTypeDetailView} from './worktype/detail/worktype';
-
 import {view as workProfileView} from './workprofile/workprofile';
 import {view as regTimeView} from './regtime/regtime';
 import {view as timeentryView} from './timeentry/timeentry';

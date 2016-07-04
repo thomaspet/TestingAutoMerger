@@ -1,1 +1,10 @@
-<h2>Timeart<h2>
+<section class="application">
+    <h2>Timeart {{ID}}</h2>
+    <uni-form 
+              [config]="config"
+              [fields]="fields"
+              [model]="current"
+              (onChange)="change($event)"
+              (onReady)="ready($event)">
+    </uni-form>    
+</section>
