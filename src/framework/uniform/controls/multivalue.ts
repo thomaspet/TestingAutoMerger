@@ -1,12 +1,13 @@
 import {Component, Input, Output, ElementRef, EventEmitter, ChangeDetectorRef, ViewChild, Renderer, HostListener} from '@angular/core';
 import {Control} from '@angular/common';
 import {UniFieldLayout} from '../interfaces';
+import {ClickOutsideDirective} from '../../core/clickOutside';
 declare var _; // lodash
 
 @Component({
     selector: 'uni-multivalue-input',
     template: `
-        <section class="uni-multivalue-ng"
+        <section (clickOutside)="close()" class="uni-multivalue-ng"
                 [class.-has-values]="rows.length">
 
             <input type="text"
@@ -63,7 +64,8 @@ declare var _; // lodash
             </ul>
             <small *ngIf="successMessage" class="good">Lagret.</small>
         </section>
-    `
+    `,
+    directives: [ClickOutsideDirective]
 })
 export class UniMultivalueInput {
     @Input()
@@ -142,22 +144,14 @@ export class UniMultivalueInput {
         this.onReady.emit(this);
     }
 
-    @HostListener('click', ['$event'])
-    private onClick(event) {
-        event.stopPropagation();
-    }
-
-    @HostListener('document:click')
-    private offClick() {
-        this.listIsVisible = false;
-    }
-
     private showDropdown(event) {
-        event.preventDefault();
-        event.stopPropagation();
         if (document.activeElement === event.target) {
             this.listIsVisible = !this.listIsVisible;
         }
+    }
+
+    private close() {
+        this.listIsVisible = false;
     }
 
     private isSelected(row) {

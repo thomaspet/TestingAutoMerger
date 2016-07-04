@@ -1,5 +1,5 @@
 import {Component, Input, Output, EventEmitter} from '@angular/core';
-
+import {ClickOutsideDirective} from '../core/clickOutside';
 declare var moment;
 
 export interface IUniSaveAction {
@@ -12,7 +12,7 @@ export interface IUniSaveAction {
 @Component({
     selector: 'uni-save',
     template: `
-        <footer class="uniSave">
+        <footer (clickOutside)="close()" class="uniSave">
             <p *ngIf="status" class="uniSave-status">
                 {{status.message}}
                 <time [attr.datetime]="status.when">
@@ -52,10 +52,9 @@ export interface IUniSaveAction {
             </div>
         </footer>
     `,
+    directives: [ClickOutsideDirective],
     host: {
-        '(click)': 'onClick($event)',
-        '(document:click)': 'offClick()',
-        '(keydown.esc)': 'escapePressed()'
+        '(keydown.esc)': 'close()'
     }
 })
 export class UniSave {
@@ -65,18 +64,6 @@ export class UniSave {
     private open: boolean = false;
     private busy: boolean = false;
     private status: {message: string, when: Date};
-
-    private escapePressed() {
-        this.open = false;
-    }
-
-    private onClick(event) {
-        event.stopPropagation();
-    }
-    
-    private offClick() {
-        this.open = false;    
-    }
 
     private mainAction() {
         let _declaredMain = this.actions.filter(action => action.main);
@@ -110,5 +97,9 @@ export class UniSave {
     
     private fromNow() {
         return moment(this.status.when).fromNow();
+    }
+
+    private close() {
+        this.open = false;
     }
 }
