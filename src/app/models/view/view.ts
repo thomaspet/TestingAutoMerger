@@ -4,27 +4,30 @@ import {AsyncRoute} from '@angular/router-deprecated';
 export class View {
     public subViews: Array<View> = [];
     private routeName = '';
+    public filepath = '';
     public path = '';
-    public route = '';
+    public url = '';
     
-    constructor(public name:string, public label:string, public className:string ) {
+    constructor(public name:string, public label:string, public className:string, public isDetail = false, public folder = '' ) {
         this.routeName = this.name.substr(0,1).toUpperCase() + this.name.substr(1);
-        this.path = '/' + name;
-        this.route = this.path;
+        this.path = '/' + this.name + (this.isDetail ? '/:id' : '');
+        this.url = '/' + this.name;
+        this.filepath = '/' + (folder || name);
     }
     
     addSubView(view:View) {
-        view.path = this.path + '/' + view.name + '/' + view.name;
-        view.route = this.route + '/' + view.name;
+        debugger;
+        view.filepath = this.filepath + '/' + (view.folder || view.name) + '/' + view.name;
+        view.url = this.url + '/' + view.name;
         this.subViews.push(view);
     }
     
     getAsyncRoute(asDefault:boolean): AsyncRoute {
         return new AsyncRoute({
                 useAsDefault: asDefault,
-                path: '/' + this.name,
+                path: this.path,
                 name: this.routeName,
-                loader: () => ComponentProxy.LoadComponentAsync(this.className, './app/components' + this.path )
+                loader: () => ComponentProxy.LoadComponentAsync(this.className, './app/components' + this.filepath )
             });            
     }
     

@@ -1,31 +1,32 @@
-import {Component, ViewChild} from "@angular/core";
+import {Component} from "@angular/core";
 import {TabService} from '../../layout/navbar/tabstrip/tabService';
 import {View} from '../../../models/view/view';
 import {UniTable, UniTableColumn, UniTableColumnType, UniTableConfig, IContextMenuItem} from 'unitable-ng2/main';
 import {WorkerService} from '../../../services/timetracking/workerservice';
 import {WorkTypeSystemTypePipe} from '../utils/pipes';
-import {Http, URLSearchParams} from '@angular/http';
+import {Router} from '@angular/router-deprecated';
 
-export var view = new View('worktype', 'Timearter', 'WorktypeListview');
+export var view = new View('worktypes', 'Timearter', 'WorktypeListview', false, 'worktype');
 
-@Component({
+@Component({    
     selector: view.name,
-    templateUrl: 'app/components/timetracking/worktype/worktype.html',
+    templateUrl: 'app/components/timetracking/worktype/worktypes.html',
     directives: [UniTable],
     pipes: [WorkTypeSystemTypePipe],
     providers: [WorkerService]
 })
 export class WorktypeListview {    
     public view = view;
-
-    @ViewChild(UniTable) public table: UniTable;
-    
     private tableConfig: UniTableConfig;
     private lookupFunction: (urlParams: any) => any;
 
-    constructor(private tabService: TabService, private workerService:WorkerService, private http:Http) {
-        this.tabService.addTab({ name: view.label, url: view.route, moduleID: 17, active: true });
+    constructor(private tabService: TabService, private workerService:WorkerService, private router:Router) {
+        this.tabService.addTab({ name: view.label, url: view.url, moduleID: 17, active: true });
         this.createTableConfig();
+    }
+
+    public createNew() {
+        this.router.navigateByUrl('/timetracking/worktype/0');
     }
     
     private createTableConfig() {

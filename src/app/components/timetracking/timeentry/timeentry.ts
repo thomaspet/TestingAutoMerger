@@ -93,7 +93,7 @@ export class TimeEntry {
     };
             
     constructor(private tabService: TabService, private service:WorkerService, private timesheetService:TimesheetService, private lookup:Lookupservice) {
-        this.tabService.addTab({ name: view.label, url: view.route, moduleID: 18 });
+        this.tabService.addTab({ name: view.label, url: view.url, moduleID: 18 });
         this.userName = service.user.name;
         this.currentFilter = this.filters[0];
         this.initUser();
