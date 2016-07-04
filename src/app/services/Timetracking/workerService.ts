@@ -150,14 +150,11 @@ export class WorkerService extends BizHttp<Worker> {
     }
     
     saveWorkItem(item:WorkItem) : Observable<WorkItem> {
-        if (item.ID) {
-            return this.PUT('workitems/' + item.ID, undefined, item );
-        }
-        return this.POST('workitems', undefined, item );
+        return this.saveByID(item, 'workitems');
     }
 
     deleteWorkitem(id:number): Observable<WorkItem> {
-        return this.http.asDELETE().usingBusinessDomain().withEndPoint('workitems/' + id).send(undefined, true);
+        return this.deleteByID(id, 'workitems');
     }
     
     getWorkTypes(params?: URLSearchParams, route = 'worktypes'): Observable<WorkType[]> {
@@ -166,6 +163,22 @@ export class WorkerService extends BizHttp<Worker> {
             .asGET()            
             .withEndPoint(route)
             .send({}, true, params);        
+    }
+
+    saveByID<T>(item:T, baseRoute:string): Observable<T> {
+        var itemX:any = item;
+        if (itemX && itemX.ID) {
+            return this.PUT(baseRoute + '/' + itemX.ID, undefined, item );
+        }
+        return this.POST(baseRoute, undefined, item );            
+    }
+
+    deleteByID(id:any, baseRoute:string): Observable<any> {
+        return this.http.asDELETE().usingBusinessDomain().withEndPoint(baseRoute + '/' + id).send(undefined, true);
+    }
+
+    getByID<T>(id:number, baseRoute:string, expand?:string):Observable<T> {
+        return this.GET(baseRoute + '/' + id, { expand: expand});
     }
     
     getStatistics(query:string): Observable<any> {

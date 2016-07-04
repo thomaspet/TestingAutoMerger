@@ -7,6 +7,14 @@ interface ITime {
     preSign:string; 
 }
 
+export var SystemTypes = [
+    { id: 1, label: 'Timer' },
+    { id: 10, label: 'Fri' },
+    { id: 11, label: 'Fleksitid' },
+    { id: 12, label: 'Overtid' },
+    { id: 13, label: 'Ferie' }
+];
+
 @Pipe({
   name: 'isotime'
 })
@@ -68,20 +76,12 @@ export class MinutesToHoursPipe implements PipeTransform {
 })
 export class WorkTypeSystemTypePipe implements PipeTransform {
     public transform(value: any, format:string) {
-        var ret = '';
-        switch (value) {
-            case 1:
-                return 'Timer';
-            case 10:
-                return 'Fri';
-            case 11:
-                return 'Fleksitid';
-            case 12:
-                return 'Overtid';
-            case 13:
-                return 'Ferie';
-            default:
-                return value || '';
+        var iVal = parseInt(value);
+        for (var i=0;i<SystemTypes.length; i++) {
+            if (SystemTypes[i].id === iVal) {
+                return SystemTypes[i].label;
+            }
         }
+        return value || '';
     }
 }

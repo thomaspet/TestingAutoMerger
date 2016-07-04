@@ -1,10 +1,11 @@
 <section class="application">
-    <h2>Timeart {{ID}}</h2>
-    <uni-form 
+    <h2>{{title}}</h2>
+    <uni-form [attr.aria-busy]="busy" 
               [config]="config"
               [fields]="fields"
               [model]="current"
-              (onChange)="change($event)"
-              (onReady)="ready($event)">
-    </uni-form>    
+              (onChange)="onChange($event)"
+              (onReady)="onReady($event)">
+    </uni-form>
+    <uni-save [actions]="actions"></uni-save>
 </section>
