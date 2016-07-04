@@ -433,13 +433,11 @@ export class QuoteDetails {
     }
 
     private saveQuoteManual(done: any) {
-        this.saveQuote((quote) => {
-            done('Lagret');
-        });
+        this.saveQuote(done);
     }
 
     private saveQuoteTransition(done: any, transition: string, doneText: string) {
-        this.saveQuote((quote) => {
+        this.saveQuote(done, (quote) => {
             this.customerQuoteService.Transition(this.quote.ID, this.quote, transition).subscribe(() => {
                 console.log('== TRANSITION OK ' + transition + ' ==');
                 done(doneText);
@@ -460,8 +458,7 @@ export class QuoteDetails {
         });
     }
 
-
-    private saveQuote(cb = null) {
+    private saveQuote(done: any, next: any = null) {
         // Transform addresses to flat
         this.addressService.addressToInvoice(this.quote, this.quote._InvoiceAddress);
         this.addressService.addressToShipping(this.quote, this.quote._ShippingAddress);
@@ -476,7 +473,9 @@ export class QuoteDetails {
         //Save only lines with products from product list
         if (!TradeItemHelper.IsItemsValid(this.quote.Items)){
             console.log('Linjer uten produkt. Lagring avbrutt.');
-            //done('Lagring feilet');
+            if (done) {
+                done('Lagring feilet');
+            }
             return;
         }
 
@@ -491,16 +490,17 @@ export class QuoteDetails {
                     this.setTabTitle();
                     this.ready(null);
 
-                    //done('Lagret tilbud');
-                    if (cb) {
-                        cb(quoteGet);
-                    }
+                    if (next) {
+                        next(this.quote);
+                    } else {
+                        done('Tilbud lagret');
+                    }                    
                 });
             },
             (err) => {
                 console.log('Feil oppsto ved lagring', err);
                 this.log(err);
-                //done('Lagring feilet');
+                done('Lagring feilet');
             }
         );
     }
@@ -510,7 +510,7 @@ export class QuoteDetails {
     }
 
     private saveAndPrint(done) {
-        this.saveQuote((quote) => {
+        this.saveQuote(done, (quote) => {
             this.reportDefinitionService.getReportByName('Tilbud').subscribe((report) => {
                 if (report) {
                     this.previewModal.openWithId(report, quote.ID);

@@ -495,7 +495,7 @@ export class InvoiceDetails implements OnInit {
     }
 
     private saveInvoiceTransition(done: any, transition: string, doneText: string) {
-        this.saveInvoice((invoice) => {
+        this.saveInvoice(done, (invoice) => {
             this.customerInvoiceService.Transition(this.invoice.ID, this.invoice, transition).subscribe(() => {
                 console.log('== TRANSITION OK ' + transition + ' ==');
                 this.router.navigateByUrl('/sales/invoice/details/' + this.invoice.ID);
@@ -519,12 +519,10 @@ export class InvoiceDetails implements OnInit {
     }
 
     private saveInvoiceManual(done) {
-        this.saveInvoice((invoice => {
-            done('Lagret');
-        }));
+        this.saveInvoice(done);
     }
 
-    private saveInvoice(cb = null, transition = '') {
+    private saveInvoice(done: any, next: any = null, transition = '') {
         // Transform addresses to flat
         this.addressService.addressToInvoice(this.invoice, this.invoice._InvoiceAddress);
         this.addressService.addressToShipping(this.invoice, this.invoice._ShippingAddress);
@@ -542,8 +540,10 @@ export class InvoiceDetails implements OnInit {
 
         // Save only lines with products from product list
         if (!TradeItemHelper.IsItemsValid(this.invoice.Items)) {
-            console.log('Linjer uten produkt. Lagring avbrutt.');
-            // done('Lagring feilet');
+            console.log('Linjer uten produkt. Lagring avbrutt.');            
+            if (done) {
+                done('Lagring feilet')
+            }
             return;
         }
 
@@ -559,16 +559,19 @@ export class InvoiceDetails implements OnInit {
                     this.ready(null);
                     this.setTabTitle();
 
-                    if (cb) {
-                        cb(invoiceGet);
+                    if (next) {
+                        next(this.invoice);
+                    } else {
+                        done('Faktura lagret');
                     }
                 });
             },
             (err) => {
                 console.log('Feil oppsto ved lagring', err);
+                done('Feil oppsto ved lagring');
                 this.log(err);
             }
-            );
+        );
     }
 
     private updateStatusText() {
@@ -576,7 +579,7 @@ export class InvoiceDetails implements OnInit {
     }
 
     private saveAndPrint(done) {
-        this.saveInvoice((invoice) => {
+        this.saveInvoice(done, (invoice) => {
             this.reportDefinitionService.getReportByName('Faktura Uten Giro').subscribe((report) => {
                 if (report) {
                     this.previewModal.openWithId(report, invoice.ID);
