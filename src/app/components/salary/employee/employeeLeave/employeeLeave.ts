@@ -38,7 +38,7 @@ export class EmployeeLeave implements OnInit {
             label: 'Lagre permisjoner',
             action: this.saveLeave.bind(this),
             main: true,
-            disabled: true
+            disabled: false
         }
     ];
 
@@ -144,7 +144,9 @@ export class EmployeeLeave implements OnInit {
     }
 
     public saveLeave(done) {
+        this.saveactions[0].disabled = true;
         done('Lagrer permisjoner');
+        this.permisionsChanged = this.table.getTableData();
         this.permisionsChanged.forEach(permisionItem => {
 
             console.log('permisjonsItem', permisionItem);
@@ -153,20 +155,23 @@ export class EmployeeLeave implements OnInit {
                 this.employeeleaveService.Put(permisionItem.ID, permisionItem)
                     .subscribe((response: EmployeeLeave) => {
                         done('Sist lagret: ');
+                        this.saveactions[0].disabled = false;
                     },
                     (err) => {
                         done('Feil ved oppdatering av permisjon', err);
                         this.log(err);
+                        this.saveactions[0].disabled = false;
                     });
             } else {
                 this.employeeleaveService.Post(permisionItem)
                     .subscribe((response: EmployeeLeave) => {
                         done('Sist lagret: ');
-
+                        this.saveactions[0].disabled = false;
                     },
                     (err) => {
                         done('Feil ved lagring av permisjon', err);
                         this.log(err);
+                        this.saveactions[0].disabled = false;
                     });
             }
         });
@@ -211,11 +216,6 @@ export class EmployeeLeave implements OnInit {
         });
 
         return jobName;
-    }
-
-    private rowChanged(event) {
-        this.permisionsChanged = this.table.getTableData();
-        this.saveactions[0].disabled = false;
     }
 
     public log(err) {

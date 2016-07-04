@@ -286,6 +286,7 @@ export class AgaAndSubEntitySettings implements OnInit {
     }
 
     public saveAgaAndSubEntities(done) {
+        this.saveactions[0].disabled = true;
         this.uniForm.sync();
         if (!this.companySalary[0].PaymentInterval) {
             this.companySalary[0].PaymentInterval = 1;
@@ -294,7 +295,11 @@ export class AgaAndSubEntitySettings implements OnInit {
         this.companySalaryService.Put(this.companySalary[0].ID, this.companySalary[0]).subscribe((response: CompanySalary) => {
             this.companySalary[0] = response;
             done('Sist lagret: ');
-        }, error => this.log('Fikk ikke lagret companySalary: ', error));
+            this.saveactions[0].disabled = false;
+        }, error => {
+            this.log('Fikk ikke lagret companySalary: ', error);
+            this.saveactions[0].disabled = false;
+        });
     }
 
     public log(title: string, err) {
