@@ -598,6 +598,7 @@ export class InvoiceDetails implements OnInit {
             },
             (err) => {
                 console.log('Error creating credit note: ', err);
+                done('Feil ved kreditering');
                 this.log(err);
             });
     }
@@ -605,13 +606,40 @@ export class InvoiceDetails implements OnInit {
     private payInvoice(done) {
         const title = `Register betaling, Faktura ${this.invoice.InvoiceNumber || ''}, ${this.invoice.CustomerName || ''}`;
 
+        // Set up subscription to listen to when data has been registrerred and button clicked in modal window.        
+        // Only setup one subscription - this is done to avoid problems with multiple callbacks
+        if (this.registerPaymentModal.changed.observers.length === 0) {
+            this.registerPaymentModal.changed.subscribe((modalData: any) => {
+
+                this.customerInvoiceService.ActionWithBody(modalData.id, modalData.invoice, 'payInvoice').subscribe((journalEntry) => {
+                    alert('Faktura er betalt. Bilagsnummer: ' + journalEntry.JournalEntryNumber);
+
+                    this.customerInvoiceService.Get(this.invoice.ID, this.expandOptions).subscribe((data) => {
+                        this.invoice = data;
+                        this.addressService.setAddresses(this.invoice);
+                        this.updateStatusText();
+                        this.updateSaveActions();
+                        this.ready(null);
+                        
+                        done('Betaling registrert');
+                    },
+                    (err) => {
+                        done('Feilet ved registrering av betaling');                            
+                    });
+                }, (err) => {
+                    console.log('Error registering payment: ', err);
+                    done('Feilet ved registrering av betaling');
+                    this.log(err);
+                });
+            }); 
+        }
+
         const invoiceData: InvoicePaymentData = {
             Amount: this.invoice.RestAmount,
             PaymentDate: new Date()
         };
 
-        this.registerPaymentModal.openModal(this.invoice.ID, title, invoiceData);
-        done('');
+        this.registerPaymentModal.openModal(this.invoice.ID, title, invoiceData);        
     }
 
     // private saveInvoiceTransition(done: any, transition: string) {
@@ -635,33 +663,6 @@ export class InvoiceDetails implements OnInit {
     //        });
     //    }, transition);
     // }
-
-    public onRegisteredPayment(modalData: any) {
-
-        this.customerInvoiceService.ActionWithBody(modalData.id, modalData.invoice, 'payInvoice').subscribe((journalEntry) => {
-            alert('Faktura er betalt. Bilagsnummer: ' + journalEntry.JournalEntryNumber);
-
-            this.customerInvoiceService.Get(this.invoice.ID, this.expandOptions).subscribe((data) => {
-                this.invoice = data;
-                this.updateStatusText();
-                this.updateSaveActions();
-                this.ready(null);
-            },
-                (err) => {
-                    //    console.log('Feil oppstod ved henting av faktura: Error:', err);
-                    //    this.log(err);
-                });
-
-            // }, (err) => {
-            //    console.log('Feil oppstod ved henting av faktura: Error:', err);
-            //    this.log(err);
-
-        }, (err) => {
-            console.log('Error registering payment: ', err);
-            this.log(err);
-        });
-    }
-
 
     private deleteInvoice(done) {
         alert('Slett  - Under construction');
