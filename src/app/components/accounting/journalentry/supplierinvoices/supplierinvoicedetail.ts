@@ -200,6 +200,7 @@ export class SupplierInvoiceDetail implements OnInit {
         }
     }
 
+   
 
     private save(runSmartBooking: boolean, done) {
         if (!this.supplierInvoice.SupplierID) {
@@ -462,22 +463,46 @@ export class SupplierInvoiceDetail implements OnInit {
         }
     }
 
+    //private registerPayment(done) {
+    //    const title = `Register betaling${this.supplierInvoice.InvoiceNumber ? ', Faktura ' + this.supplierInvoice.InvoiceNumber : ''}${this.supplierInvoice.InvoiceReceiverName ? ', ' + this.supplierInvoice.InvoiceReceiverName : ''}`;
+    //    const invoiceData: InvoicePaymentData = {
+    //        Amount: this.supplierInvoice.TaxInclusiveAmount,
+    //        PaymentDate: new Date()
+    //    };
+    //    this.registerPaymentModal.openModal(this.supplierInvoice.ID, title, invoiceData);
+    //    done(' ');
+    //}
     private registerPayment(done) {
         const title = `Register betaling${this.supplierInvoice.InvoiceNumber ? ', Faktura ' + this.supplierInvoice.InvoiceNumber : ''}${this.supplierInvoice.InvoiceReceiverName ? ', ' + this.supplierInvoice.InvoiceReceiverName : ''}`;
+
+        // Set up subscription to listen to when data has been registrerred and button clicked in modal window.        
+        // Only setup one subscription - this is done to avoid problems with multiple callbacks
+        if (this.registerPaymentModal.changed.observers.length === 0) {
+            this.registerPaymentModal.changed.subscribe((modalData: any) => {
+                this._supplierInvoiceService.ActionWithBody(modalData.id, modalData.invoice, 'payInvoice').subscribe((journalEntry) => {
+                    this.refreshFormData(this.supplierInvoice);
+                    done('Betaling registrert');
+                }, (error) => {
+                    this.setError(error);
+                    done('Feilet ved registrering av betaling');
+                });
+            });
+        }
+
         const invoiceData: InvoicePaymentData = {
-            Amount: this.supplierInvoice.TaxInclusiveAmount,
+            Amount: this.supplierInvoice.RestAmount,
             PaymentDate: new Date()
         };
-        this.registerPaymentModal.openModal(this.supplierInvoice.ID, title, invoiceData);
-        done(' ');
+
+        this.registerPaymentModal.openModal(this.supplierInvoice.ID, title, invoiceData);        
     }
 
-    public onRegisteredPayment(modalData: any) {
+    //public onRegisteredPayment(modalData: any) {
 
-        this._supplierInvoiceService.ActionWithBody(modalData.id, modalData.invoice, 'payInvoice').subscribe((journalEntry) => {
-            this.refreshFormData(this.supplierInvoice);
-        }, (error) => {
-            this.setError(error);
-        });
-    }
+    //    this._supplierInvoiceService.ActionWithBody(modalData.id, modalData.invoice, 'payInvoice').subscribe((journalEntry) => {
+    //        this.refreshFormData(this.supplierInvoice);
+    //    }, (error) => {
+    //        this.setError(error);
+    //    });
+    //}
 }

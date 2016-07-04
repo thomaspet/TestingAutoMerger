@@ -88,7 +88,7 @@ export class SupplierInvoiceList implements OnInit {
     private registerPayment(supplierInvoice: SupplierInvoice) {
         const title = `Register betaling${supplierInvoice.InvoiceNumber ? ', Faktura ' + supplierInvoice.InvoiceNumber : ''}${supplierInvoice.InvoiceReceiverName ? ', ' + supplierInvoice.InvoiceReceiverName : ''}`;
         const invoiceData: InvoicePaymentData = {
-            Amount: supplierInvoice.TaxInclusiveAmount,
+            Amount: supplierInvoice.RestAmount,
             PaymentDate: new Date()
         };
         this.registerPaymentModal.openModal(supplierInvoice.ID, title, invoiceData);
