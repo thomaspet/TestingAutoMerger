@@ -1,7 +1,8 @@
-import {Component, AfterViewInit, HostListener} from '@angular/core';
+import {Component, AfterViewInit} from '@angular/core';
 import {Router} from '@angular/router-deprecated';
 import {AuthService} from '../../../../../../framework/core/authService';
 import {UniHttp} from '../../../../../../framework/core/http/http';
+import {ClickOutsideDirective} from '../../../../../../framework/core/clickOutside';
 import {CompanySettingsService} from '../../../../../services/services';
 
 declare var jQuery;
@@ -9,7 +10,7 @@ declare var jQuery;
 @Component({
     selector: 'uni-company-dropdown',
     template: `
-        <article class="navbar_userinfo_company" >
+        <article (clickOutside)="close()" class="navbar_userinfo_company" >
             <span class="navbar_userinfo_title" (click)="companyDropdownActive = !companyDropdownActive">{{activeCompany.Name}}</span>
 
             <section class="navbar_userinfo_dropdown" [ngClass]="{'-is-active': companyDropdownActive}">
@@ -35,6 +36,7 @@ declare var jQuery;
             </section>
         </article>
     `,
+    directives: [ClickOutsideDirective],
     providers: [CompanySettingsService]
 })
 export class UniCompanyDropdown implements AfterViewInit {
@@ -76,16 +78,6 @@ export class UniCompanyDropdown implements AfterViewInit {
         };
     }
 
-    @HostListener('click', ['$event'])
-    private onClick() {
-        event.stopPropagation();
-    }
-
-    @HostListener('document:click')
-    private offClick() {
-        this.companyDropdownActive = false;
-    }
-
     private loadCompanyData() {
        this.companySettingsService.Get(1, ['Phones']).subscribe((company) => {
             this.company = company;
@@ -108,6 +100,10 @@ export class UniCompanyDropdown implements AfterViewInit {
     private goToCompanySettings() {
         this.companyDropdownActive = false;
         this._router.navigateByUrl('/settings/company');
+    }
+
+    private close() {
+        this.companyDropdownActive = false;
     }
 
 }
