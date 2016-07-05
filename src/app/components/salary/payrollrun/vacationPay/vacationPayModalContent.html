@@ -1,12 +1,12 @@
-<article class="modal-content" [attr.aria.busy]="busy">
+<article class="modal-content vacationPay" [attr.aria.busy]="busy">
     <h1>Feriepenger - oppsett og utbetaling</h1>
     <uni-form [config]="config" [fields]="fields" [model]="vacationHeaderModel" (onChange)="change($event)" (onReady)="ready($event)"></uni-form>
     <uni-table [resource]="basicamounts" [config]="tableConfig"></uni-table>
     <h4>Overfører feriepengeposter til lønnsavregning nr {{config.payrollRunID}}</h4>
     <h4 style="text-align:right">Totalsum utbetales {{totalPayout}}</h4>
     <footer>
-        <a (click)="openVacationpaySettings()">Endre feriepengeinnstillinger</a>
-        <button (click)="createVacationPayments()">Generer poster</button>
-        <button *ngIf="config.hasCancelButton" (click)="config.cancel()">Avbryt</button>
+        <a class="vacationPay_settingsLink" (click)="openVacationpaySettings()">Endre feriepengeinnstillinger</a>
+        <button class="good" (click)="createVacationPayments()">Generer poster</button>
+        <button class="bad" *ngIf="config.hasCancelButton" (click)="config.cancel()">Avbryt</button>
     </footer>
 </article>
