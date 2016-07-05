@@ -1,4 +1,5 @@
 uni-toast-list
+    z-index: 999
     position: absolute
     top: 0
     right: 0
@@ -17,7 +18,8 @@ uni-toast-list
 uni-toast
     display: inline-block
     cursor: pointer
-    height: 3rem
+    height: auto
+    vertical-align: center
     line-height: 3rem
     width: 25rem
     margin: 0.25rem
@@ -26,10 +28,17 @@ uni-toast
     border-radius: 5px
     color: $uni-color-negative
 
+    &:hover
+        box-shadow: 0 0 1rem rgba(161,170,188,.6)
+    
+    &:focus
+        color: red
+
     &:before
         display: inline-block
         width: 1rem
-        margin: 0 .5rem 0 .5rem
+        height: 100%
+        margin: 0 .5rem 0 .25rem
 
     &.good
         background-color: transparentize($uni-color-Good, .1)
@@ -45,3 +54,16 @@ uni-toast
         background-color: transparentize($uni-color-Warn, .1)
         &:before
             content: '\26A0'
+
+    & small
+        display: block
+        line-height: 1rem
+        color: $uni-color-negative
+        margin: 0 0 1rem 2rem
+
+    & header
+        display: inline-block
+
+    & button
+        visibility: hidden
+        position: absolute
