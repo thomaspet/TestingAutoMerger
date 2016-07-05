@@ -298,7 +298,7 @@ export class SalaryTransactionEmployeeList implements OnChanges, AfterViewInit {
         var toDateCol = new UniTableColumn('ToDate', 'Til dato', UniTableColumnType.Date);
         var rateCol = new UniTableColumn('Rate', 'Sats', UniTableColumnType.Number);
         var amountCol = new UniTableColumn('Amount', 'Antall', UniTableColumnType.Number);
-        var sumCol = new UniTableColumn('Sum', 'Sum', UniTableColumnType.Number);
+        var sumCol = new UniTableColumn('Sum', 'Sum', UniTableColumnType.Number, false);
         var employmentidCol = new UniTableColumn('Employment', 'Arbeidsforhold', UniTableColumnType.Lookup)
             .setTemplate((dataItem) => {
                 return this.getEmploymentJobName(dataItem.EmploymentID);
@@ -368,6 +368,7 @@ export class SalaryTransactionEmployeeList implements OnChanges, AfterViewInit {
             });
 
         this.salarytransEmployeeTableConfig = new UniTableConfig(this.payrollRun.StatusCode < 1)
+            .setHasDeleteButton(true)
             .setColumns([
                 wageTypeCol, wagetypenameCol, employmentidCol,
                 fromdateCol, toDateCol, accountCol, amountCol, rateCol, sumCol,
@@ -391,6 +392,18 @@ export class SalaryTransactionEmployeeList implements OnChanges, AfterViewInit {
                 }
 
                 return row;
+            });
+    }
+
+    public deleteSalaryTransaction(event) {
+        let rowModel = event.rowModel;
+        rowModel.Deleted = true;
+        this.salarytransService.delete(rowModel.ID).subscribe(
+            (response) => {
+
+            }, 
+            err => {
+                this.log(err);
             });
     }
 

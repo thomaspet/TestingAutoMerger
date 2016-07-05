@@ -9,4 +9,12 @@ export class SalaryTransactionService extends BizHttp<SalaryTransaction> {
         this.relativeURL = SalaryTransaction.RelativeUrl;
     }
 
+    public delete(ID: number) {
+        return this.http
+            .asDELETE()
+            .usingBusinessDomain()
+            .withEndPoint('salarytrans/' + ID)
+            .send();
+    }
+
 }
