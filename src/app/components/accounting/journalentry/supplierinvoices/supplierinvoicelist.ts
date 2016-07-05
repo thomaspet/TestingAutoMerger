@@ -88,7 +88,7 @@ export class SupplierInvoiceList implements OnInit {
     private registerPayment(supplierInvoice: SupplierInvoice) {
         const title = `Register betaling${supplierInvoice.InvoiceNumber ? ', Faktura ' + supplierInvoice.InvoiceNumber : ''}${supplierInvoice.InvoiceReceiverName ? ', ' + supplierInvoice.InvoiceReceiverName : ''}`;
         const invoiceData: InvoicePaymentData = {
-            Amount: supplierInvoice.TaxInclusiveAmount,
+            Amount: supplierInvoice.RestAmount,
             PaymentDate: new Date()
         };
         this.registerPaymentModal.openModal(supplierInvoice.ID, title, invoiceData);
@@ -152,10 +152,11 @@ export class SupplierInvoiceList implements OnInit {
             .setCls('column-align-right')
             .setFormat('{0:n}');
 
-        const creditedAmountCol = new UniTableColumn('CreditedAmount', 'Kreditert', UniTableColumnType.Number)
-            .setFilterOperator('eq')
-            .setCls('column-align-right')
-            .setFormat('{0:n}');
+        //TODO: Skal denne vises?
+        //const creditedAmountCol = new UniTableColumn('CreditedAmount', 'Kreditert', UniTableColumnType.Number)
+        //    .setFilterOperator('eq')
+        //    .setCls('column-align-right')
+        //    .setFormat('{0:n}');
 
         return new UniTableConfig(false, true)
             .setColumns([
@@ -169,8 +170,7 @@ export class SupplierInvoiceList implements OnInit {
                 bankAccount,
                 paymentIdOrName,
                 taxInclusiveAmountCol,
-                restAmountCol,
-                creditedAmountCol
+                restAmountCol
             ])
             .setPageSize(15)
             .setSearchable(true)
