@@ -11,7 +11,7 @@ import {UniSave, IUniSaveAction} from '../../../../framework/save/save';
 import {AsyncPipe} from '@angular/common';
 import {ControlModal} from '../payrollrun/controlModal';
 import {PostingsummaryModal} from '../payrollrun/postingsummaryModal';
-import {UniTable, UniTableColumnType, UniTableColumn, UniTableConfig, IContextMenuItem} from 'unitable-ng2/main';
+import {UniTable, UniTableColumnType, UniTableColumn, UniTableConfig} from 'unitable-ng2/main';
 import {UniForm} from '../../../../framework/uniform';
 import {UniFieldLayout} from '../../../../framework/uniform/index';
 
