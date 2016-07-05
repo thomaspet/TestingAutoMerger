@@ -11,11 +11,12 @@ import {UniHttp} from '../framework/core/http/http';
 import {StaticRegisterService} from './services/staticregisterservice';
 import {LoginModal} from './components/init/loginModal';
 import {CompanySyncModal} from './components/init/companySyncModal';
+import {UniToastList} from '../framework/uniToast/toastList';
 
 @Component({
     selector: 'uni-app',
     templateUrl: './app/app.html',
-    directives: [ROUTER_DIRECTIVES, UniRouterOutlet, UniNavbar, LoginModal, CompanySyncModal],
+    directives: [ROUTER_DIRECTIVES, UniRouterOutlet, UniNavbar, LoginModal, CompanySyncModal, UniToastList],
     providers: [AuthService, TabService, UniHttp, StaticRegisterService]
 })
 @RouteConfig(ROUTES)
