@@ -11,7 +11,8 @@ export class PayrollrunService extends BizHttp<PayrollRun> {
     public refreshPayrollRun$: Observable<PayrollRun> = this.payrollRun.asObservable();
     
     public payStatusTable: any = [
-        {ID: 0 || null, text: 'Opprettet'},
+        {ID: null, text: 'Opprettet'},
+        {ID: 0, text: 'Opprettet'},
         {ID: 1, text: 'Avregnet'},
         {ID: 2, text: 'Godkjent'},
         {ID: 3, text: 'Sendt til utbetaling'},
@@ -29,8 +30,8 @@ export class PayrollrunService extends BizHttp<PayrollRun> {
         this.payrollRun.next(payRun);
     }
       
-    public getStatus(payrollRun: PayrollRun) {
-        return this.payStatusTable.find(x => x.ID == payrollRun.StatusCode);
+    public getStatus(payrollRun: PayrollRun) {        
+        return this.payStatusTable.find(x => x.ID === payrollRun.StatusCode); 
     }
     
     public getPrevious(ID: number) {
