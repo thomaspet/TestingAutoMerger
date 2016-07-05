@@ -41,7 +41,7 @@ export * from './accounting/accountgroupsetservice';
 export * from './common/subentityservice';
 export * from './shared/municipalsservice';
 export * from './salary/companysalary/companysalaryservice';
-export * from './salary/salarytransaction/salarytransactionservice'
+export * from './salary/salarytransaction/salarytransactionservice';
 export * from './reports/ReportDefinitionParameterService';
 export * from './reports/ReportDefinitionDataSourceService';
 export * from './reports/ReportDefinitionService';
@@ -49,3 +49,4 @@ export * from './common/AltinnService';
 export * from './common/IntegrationServerCaller';
 export * from './common/AltinnReceiptService';
 export * from './common/UserService';
+export * from './salary/basicamount/BasicAmountService';

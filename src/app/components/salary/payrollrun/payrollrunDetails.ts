@@ -7,6 +7,7 @@ import {SalaryTransactionSelectionList} from '../../salary/salarytrans/salarytra
 import {TabService} from '../../layout/navbar/tabstrip/tabService';
 import {ControlModal} from './controlModal';
 import {PostingsummaryModal} from './postingsummaryModal';
+import {VacationpayModal} from './vacationPay/VacationpayModal';
 import {RootRouteParamsService} from '../../../services/rootRouteParams';
 import {UniSave, IUniSaveAction} from '../../../../framework/save/save';
 import {UniForm, UniFieldLayout} from '../../../../framework/uniform';
@@ -17,7 +18,7 @@ declare var _;
     selector: 'payrollrun-details',
     templateUrl: 'app/components/salary/payrollrun/payrollrunDetails.html',
     providers: [PayrollrunService, provide(RootRouteParamsService, { useClass: RootRouteParamsService })],
-    directives: [SalaryTransactionSelectionList, ControlModal, PostingsummaryModal, UniSave, UniForm]
+    directives: [SalaryTransactionSelectionList, ControlModal, PostingsummaryModal, UniSave, UniForm, VacationpayModal]
 })
 
 export class PayrollrunDetails implements OnInit {
@@ -30,6 +31,7 @@ export class PayrollrunDetails implements OnInit {
     private payStatus: string;
     @ViewChild(ControlModal) private controlModal: ControlModal;
     @ViewChild(PostingsummaryModal) private postingSummaryModal: PostingsummaryModal;
+    @ViewChild(VacationpayModal) private vacationPayModal: VacationpayModal;
     private isEditable: boolean;
     private busy: boolean = false;
     private saveactions: IUniSaveAction[] = [
@@ -117,6 +119,12 @@ export class PayrollrunDetails implements OnInit {
                 action: this.openPostingSummaryModal.bind(this),
                 main: false,
                 disabled: this.payrollrun.StatusCode !== 1
+            },
+            {
+                label: 'Generer feriepenger',
+                action: this.openVacationPayModal.bind(this),
+                main: false,
+                disabled: this.payrollrun.StatusCode > 0
             }
         ];
     }
@@ -128,6 +136,11 @@ export class PayrollrunDetails implements OnInit {
 
     public openControlModal(done) {
         this.controlModal.openModal();
+        done('');
+    }
+
+    public openVacationPayModal(done) {
+        this.vacationPayModal.openModal();
         done('');
     }
 

@@ -11,6 +11,7 @@ import {UniSave, IUniSaveAction} from '../../../../framework/save/save';
 import {AsyncPipe} from '@angular/common';
 import {ControlModal} from '../payrollrun/controlModal';
 import {PostingsummaryModal} from '../payrollrun/postingsummaryModal';
+import {VacationpayModal} from '../payrollrun/vacationpay/vacationPayModal';
 import {UniTable, UniTableColumnType, UniTableColumn, UniTableConfig} from 'unitable-ng2/main';
 import {UniForm} from '../../../../framework/uniform';
 import {UniFieldLayout} from '../../../../framework/uniform/index';
@@ -20,7 +21,7 @@ declare var _;
 @Component({
     selector: 'salary-transactions-employee',
     templateUrl: 'app/components/salary/salarytrans/salarytransList.html',
-    directives: [UniTable, UniComponentLoader, UniSave, UniForm, ControlModal, PostingsummaryModal],
+    directives: [UniTable, UniComponentLoader, UniSave, UniForm, ControlModal, PostingsummaryModal, VacationpayModal],
     providers: [EmployeeService, AgaZoneService, WageTypeService, SalaryTransactionService],
     pipes: [AsyncPipe]
 })
@@ -48,6 +49,7 @@ export class SalaryTransactionEmployeeList implements OnChanges, AfterViewInit {
     @ViewChild(UniForm) public uniform: UniForm;
     @ViewChild(ControlModal) private controllModal: ControlModal;
     @ViewChild(PostingsummaryModal) private postingSummaryModal: PostingsummaryModal;
+    @ViewChild(VacationpayModal) private vacationPayModal: VacationpayModal;
 
     @Input() private employeeID: number;
     private payrollRun: PayrollRun;
@@ -175,6 +177,12 @@ export class SalaryTransactionEmployeeList implements OnChanges, AfterViewInit {
                 action: this.openPostingSummaryModal.bind(this),
                 main: false,
                 disabled: this.payrollRun.StatusCode !== 1
+            },
+            {
+                label: 'Generer feriepenger',
+                action: this.openVacationPayModal.bind(this),
+                main: false,
+                disabled: this.payrollRun.StatusCode > 0
             }
         ];
     }
@@ -539,6 +547,11 @@ export class SalaryTransactionEmployeeList implements OnChanges, AfterViewInit {
 
     public openControlModal(done) {
         this.controllModal.openModal();
+        done('');
+    }
+
+    public openVacationPayModal(done) {
+        this.vacationPayModal.openModal();
         done('');
     }
 
