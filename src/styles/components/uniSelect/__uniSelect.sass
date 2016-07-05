@@ -1,0 +1,16 @@
+.uniSelect
+    display: inline-block
+    position: relative
+
+.uniSelect_input[role=combobox][readonly]
+    background: #fff unicon-chevron-down($uni-color-scale5) center right .5rem no-repeat
+    background-size: auto .5rem
+    padding-right: 2rem
+    text-overflow: ellipsis
+    overflow: hidden
+
+.uniSelect_dropdown
+    @extend .uni-multivalue-values
+    box-sizing: border-box
+    margin-top: 0
+    min-width: pxToRem(150)

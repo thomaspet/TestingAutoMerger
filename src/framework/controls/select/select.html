@@ -1,0 +1,33 @@
+<article class="uniSelect"
+    (clickOutside)="close()">
+
+    <input type="text"
+        class="uniSelect_input"
+        role="combobox"
+        aria-autocomplete="none"
+        [attr.aria-owns]="guid"
+        [attr.aria-activedescendant]="activeDescendantID()"
+        tabindex="0"
+        (click)="toggle()"
+        [value]="chosenDisplayText()"
+        readonly />
+
+    <ul [id]="guid"
+        class="uniSelect_dropdown"
+        role="listbox"
+        [attr.aria-expanded]="expanded"
+        tabindex="-1">
+
+        <li [id]="guid + '-item-' + i"
+            class="uniSelect_dropdown_item"
+            *ngFor="let option of config.options; let i=index"
+            role="option"
+            [attr.aria-selected]="option === selected"
+            (click)="choose(option)"
+            tabindex="-1">
+            {{option.displayText}}
+        </li>
+
+    </ul>
+
+</article>
