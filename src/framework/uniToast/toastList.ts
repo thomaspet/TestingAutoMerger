@@ -7,7 +7,8 @@ import {ToastService} from './toastService';
     template: `
         <ol class=toast-list>
             <li *ngFor="let toast of toastService.toasts">
-                <uni-toast [toast]="toast"
+                <uni-toast role="alert"
+                           [toast]="toast"
                            (dismiss)="toastDismissed(toast)"
                            [ngClass]="{
                                'bad' : toast.type === 1,
