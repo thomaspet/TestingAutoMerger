@@ -1,6 +1,7 @@
-import {Component, HostListener} from '@angular/core';
+import {Component} from '@angular/core';
 import {Router} from '@angular/router-deprecated';
 import {AuthService} from '../../../../../../framework/core/authService';
+import {ClickOutsideDirective} from '../../../../../../framework/core/clickOutside';
 import 'rxjs/add/observable/fromEvent';
 
 declare var jQuery;
@@ -13,7 +14,7 @@ interface IUniUserDropdownItem {
 @Component({
     selector: 'uni-user-dropdown',
     template: `
-        <article class="navbar_userinfo_user">
+        <article (clickOutside)="close()" class="navbar_userinfo_user">
             <span class="navbar_userinfo_title" (click)="userDropdownActive = !userDropdownActive">{{username}}</span>
 
             <ul class="navbar_userinfo_dropdown" [ngClass]="{'-is-active': userDropdownActive}">
@@ -22,7 +23,8 @@ interface IUniUserDropdownItem {
                 </li>
             </ul>
         </article>
-    `
+    `,
+    directives: [ClickOutsideDirective]
 })
 export class UniUserDropdown {
     private dropdownElements: Array<IUniUserDropdownItem>;
@@ -47,13 +49,7 @@ export class UniUserDropdown {
         this.userDropdownActive = false;
     }
 
-    @HostListener('click', ['$event'])
-    private onClick(event) {
-        event.stopPropagation();
-    }
-
-    @HostListener('document:click')
-    private offClick() {
+    private close() {
         this.userDropdownActive = false;
-    }    
+    }
 }

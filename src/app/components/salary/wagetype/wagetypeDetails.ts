@@ -25,7 +25,7 @@ export class WagetypeDetail {
             label: 'Lagre lønnsart',
             action: this.saveWagetype.bind(this),
             main: true,
-            disabled: true
+            disabled: false
         }
     ];
     public config: any = {};
@@ -141,10 +141,10 @@ export class WagetypeDetail {
 
     public change(value) {
         this.toggleAccountNumberBalanceHidden();
-        this.saveactions[0].disabled = false;
     }
 
     public saveWagetype(done) {
+        this.saveactions[0].disabled = true;
         done('Lagrer lønnsart');
         if (this.wageType.ID > 0) {
             this.wageService.Put(this.wageType.ID, this.wageType)
@@ -152,10 +152,12 @@ export class WagetypeDetail {
                     this.wageType = wagetype;
                     done('Sist lagret: ');
                     this.router.navigateByUrl('/salary/wagetypes/' + this.wageType.ID);
+                    this.saveactions[0].disabled = false;
                 },
                 (err) => {
                     this.log('Feil ved oppdatering av lønnsart', err);
                     console.log(err);
+                    this.saveactions[0].disabled = false;
                 });
         } else {
             this.wageService.Post(this.wageType)
@@ -163,9 +165,11 @@ export class WagetypeDetail {
                     this.wageType = wagetype;
                     done('Sist lagret: ');
                     this.router.navigateByUrl('/salary/wagetypes/' + this.wageType.ID);
+                    this.saveactions[0].disabled = false;
                 },
                 (err) => {
                     this.log('Feil ved lagring av lønnsart', err);
+                    this.saveactions[0].disabled = false;
                 });
         }
     }

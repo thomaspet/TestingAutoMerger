@@ -1,24 +1,24 @@
-﻿import {Component, Host, ElementRef, Pipe} from '@angular/core';
+﻿import {Component, ElementRef, Pipe} from '@angular/core';
 import {ROUTER_DIRECTIVES, Router, AsyncRoute} from '@angular/router-deprecated';
 import {NgFor, NgClass} from '@angular/common';
 import {ROUTES} from '../../../../route.config';
-declare var jQuery;
+import {ClickOutsideDirective} from '../../../../../framework/core/clickOutside';
 
 @Pipe({name: 'removehidden'})
 export class RemoveHidden {
-  constructor(){}
-
-  transform(componentList) {
-    return componentList.filter((x) => !(x.hidden || false));
-  }
+    private transform(componentList) {
+        return componentList.filter((x) => !(x.hidden || false));
+    }
 }
 
 @Component({
     selector: 'uni-hamburger-menu',
     template: `
-        <nav class="navbar_hamburger" [ngClass]="{'is-active': open}">
+        <nav (click)="toggle($event)" (clickOutside)="close()" class="navbar_hamburger" [ngClass]="{'is-active': open}">
             <ul class="navbar_menu">
-                <li *ngFor="let componentList of availableComponents; let i = index" class="listElement" [ngClass]="{true:'is-active', false:''}[i==0]">
+                <li class="listElement" *ngFor="let componentList of availableComponents; let idx = index"
+                                        [ngClass]="{'is-active': idx === activeSection}"
+                                        (mouseover)="setSectionActive(idx)">
                     {{componentList.componentListName}}
                     <ul>
                         <h3>{{componentList.componentListHeader}}</h3>
@@ -30,11 +30,7 @@ export class RemoveHidden {
             </ul>
         </nav>
     `,
-    directives: [ROUTER_DIRECTIVES, NgFor, NgClass],
-    host: {
-        '(click)': 'onClick($event)',
-        '(document:click)': 'offClick()'
-    },
+    directives: [ClickOutsideDirective, ROUTER_DIRECTIVES, NgFor, NgClass],
     pipes: [RemoveHidden]
 })
 export class HamburgerMenu {
@@ -42,10 +38,9 @@ export class HamburgerMenu {
 
     public routes: AsyncRoute[] = ROUTES;
     public availableComponents: Array<any>;
+    private activeSection: number = 0;
 
     public static getAvailableComponents(): Array<any> {
-
-
         return [
             {
                 componentListName: 'Nøkkeltall',
@@ -118,21 +113,17 @@ export class HamburgerMenu {
         this.availableComponents = HamburgerMenu.getAvailableComponents();
     }
 
-    public ngAfterViewInit() {
-        jQuery('.listElement').mouseover(function() {
-            jQuery(this).addClass('is-active');
-            jQuery(this).siblings().removeClass('is-active');
-        });
+    private setSectionActive(index: number) {
+        this.activeSection = index;
     }
 
-    private onClick(event) {
-        event.stopPropagation();
+    private toggle(event) {
         if (event.target.tagName === 'NAV') {
             this.open = !this.open;
         }
     }
 
-    private offClick() {
+    private close() {
         this.open = false;
     }
 

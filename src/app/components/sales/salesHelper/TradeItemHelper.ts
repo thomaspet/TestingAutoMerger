@@ -2,7 +2,7 @@ import {TradeItem} from '../../../unientities';
 
 export class TradeItemHelper  {
 
-    static IsItemsValid(items: any) {
+    public static IsItemsValid(items: any) {
         let numberFailed: number = 0;
 
         for (let i = 0; i < items.length; i++) {
@@ -14,11 +14,9 @@ export class TradeItemHelper  {
         }
         if (numberFailed > 0) {
             let line: string = (numberFailed > 1) ? 'linjer' : 'linje'
-            alert('Det er ' + numberFailed + ' ' + line + ' du ikke har valgt produkt på. Velg produkt og forsøk å lagre på nytt');
+            alert('Det er ' + numberFailed + ' ' + line + ' du ikke har valgt produkt pÃ¥. Velg produkt og forsÃ¸k Ã¥ lagre pÃ¥ nytt');
             return false;
         }
         return true;
     }
-
-    
 }

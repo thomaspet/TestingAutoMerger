@@ -21,6 +21,17 @@
 
     </header>
 
+    <section class="poster_overview">
+        <uni-widget-poster [model]="supplierInvoice">
+            <section class="application" *ngIf="supplierInvoice">
+                <section>Restsum kr. {{supplierInvoice.RestAmount }}</section>
+                <section style="display:none">
+                    Kreditert kr. {{supplierInvoice.CreditedAmount }}
+                </section>
+            </section>
+        </uni-widget-poster>
+    </section>
+
     <article class="supplier-invoice-detail-form">    
         
         <p class="error validation" *ngIf="errors && errors.length > 0">
@@ -38,9 +49,7 @@
 
     </article>
 
-    <register-payment-modal
-        (changed)="onRegisteredPayment($event)">
-    </register-payment-modal>
+    <register-payment-modal></register-payment-modal>
 
     <article class="supplier-invoice-detail-booking">
         <journal-entry-manual [supplierInvoice]="supplierInvoice" [runAsSubComponent]="true" [disabled]="disabled" *ngIf="supplierInvoice && supplierInvoice.JournalEntryID"></journal-entry-manual>

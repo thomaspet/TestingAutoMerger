@@ -50,3 +50,4 @@ export * from './common/IntegrationServerCaller';
 export * from './common/AltinnReceiptService';
 export * from './common/UserService';
 export * from './salary/basicamount/BasicAmountService';
+export * from './common/guidService';

@@ -56,6 +56,11 @@ const CHILD_ROUTES = [
         name: 'UniSaveDemo',
         loader: () => ComponentProxy.LoadComponentAsync('UniSaveDemo', 'app/components/examples/save/saveDemo')
     }),
+    new AsyncRoute({
+        path: '/toast',
+        name: 'UniToastDemo',
+        loader: () => ComponentProxy.LoadComponentAsync('UniToastDemo', 'app/components/examples/toast/toastDemo')
+    })
 ];
 
 @RouteConfig(CHILD_ROUTES)

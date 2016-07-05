@@ -88,6 +88,7 @@ export class AltinnSettings implements OnInit {
     }
 
     public saveAltinn(done) {
+        this.saveactions[0].disabled = true;
         this.formInstance.sync();
         done('lagrer altinninnstillinger: ');
         if (this.altinn.ID) {
@@ -95,13 +96,21 @@ export class AltinnSettings implements OnInit {
                 this.altinn = response;
                 this.check();
                 done('altinninnstillinger lagret: ');
-            }, error => this.log('problemer med å lagre Altinninnstillinger', error));
+                this.saveactions[0].disabled = false;
+            }, error => {
+                this.log('problemer med å lagre Altinninnstillinger', error);
+                this.saveactions[0].disabled = false;
+            });
         } else {
             this._altinnService.Post(this.altinn).subscribe((response: Altinn) => {
                 this.altinn = response;
                 this.check();
                 done('altinninnstillinger lagret: ');
-            }, error => this.log('problemer med å lagre Altinninnstillinger', error));
+                this.saveactions[0].disabled = false;
+            }, error => {
+                this.log('problemer med å lagre Altinninnstillinger', error);
+                this.saveactions[0].disabled = false;
+            });
         }
     }
 

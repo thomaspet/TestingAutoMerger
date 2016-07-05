@@ -34,14 +34,7 @@ export class PayrollrunDetails implements OnInit {
     @ViewChild(VacationpayModal) private vacationPayModal: VacationpayModal;
     private isEditable: boolean;
     private busy: boolean = false;
-    private saveactions: IUniSaveAction[] = [
-        {
-            label: 'Lagre lønnsavregning',
-            action: this.savePayrollrun.bind(this),
-            main: true,
-            disabled: true
-        }
-    ];
+    private saveactions: IUniSaveAction[] = [];
 
     private formIsReady: boolean = false;
 
@@ -94,7 +87,7 @@ export class PayrollrunDetails implements OnInit {
                 label: 'Lagre lønnsavregning',
                 action: this.savePayrollrun.bind(this),
                 main: true,
-                disabled: true
+                disabled: this.payrollrun.StatusCode > 0
             },
             {
                 label: 'Kontroller',
@@ -271,33 +264,34 @@ export class PayrollrunDetails implements OnInit {
     }
 
     public change(value) {
-        this.saveactions[0].disabled = false;
+
     }
 
     public savePayrollrun(done) {
+        this.saveactions[0].disabled = true;
         done('Lagrer lønnsavregning');
         if (this.payrollrun.ID > 0) {
             this.payrollrunService.Put(this.payrollrun.ID, this.payrollrun)
                 .subscribe((response: PayrollRun) => {
-                    this.payrollrun = response;
+                    this.payrollrunService.refreshPayrun(response);
                     done('Sist lagret: ');
-                    this.router.navigateByUrl('/salary/payrollrun/' + this.payrollrun.ID);
-                    this.uniform.section(1).toggle();
                 },
                 (err) => {
                     this.log(err);
                     console.log('Feil ved oppdatering av lønnsavregning', err);
+                    this.refreshSaveActions();
                 });
         } else {
             this.payrollrunService.Post(this.payrollrun)
                 .subscribe((response: PayrollRun) => {
-                    this.payrollrun = response;
+                    this.payrollrunService.refreshPayrun(response);
                     done('Sist lagret: ');
                     this.router.navigateByUrl('/salary/payrollrun/' + this.payrollrun.ID);
                 },
                 (err) => {
                     this.log(err);
                     console.log('Feil ved lagring', err);
+                    this.refreshSaveActions();
                 });
         }
     }

@@ -303,7 +303,8 @@ export class OrderDetails {
             this.order.Customer.Info = info;
             this.addressChanged.unsubscribe();
             resolve(info.Addresses[idx]);
-        },(error) => {
+        },
+        (error) => {
             this.addressChanged.unsubscribe();
         });
     }
@@ -411,40 +412,44 @@ export class OrderDetails {
     }
 
     private saveOrderManual(done: any) {
-        this.saveOrder((order) => {
-            done('Lagret');
-        });
+        this.saveOrder(done);
     }
 
     private saveAndTransferToInvoice(done: any) {
-        this.oti.changed.subscribe(items => {
-            // Do not transfer to invoice if no items 
-            if (items.length === 0) {
-                alert('Kan ikke overføre en ordre uten linjer');
-                return;
-            }
+                
+        // Set up subscription to listen to when items has been selected and button clicked in modal window.        
+        // Only setup one subscription - this is done to avoid problems with multiple callbacks
+        if (this.oti.changed.observers.length === 0) {
+            this.oti.changed.subscribe(items => {
+                // Do not transfer to invoice if no items 
+                if (items.length === 0) {
+                    alert('Kan ikke overføre en ordre uten linjer');
+                    return;
+                }
 
-            var order: CustomerOrder = _.cloneDeep(this.order);
-            order.Items = items;
+                var order: CustomerOrder = _.cloneDeep(this.order);
+                order.Items = items;
 
-            this.customerOrderService.ActionWithBody(order.ID, order, 'transfer-to-invoice').subscribe((invoice) => {
-                this.router.navigateByUrl('/sales/invoice/details/' + invoice.ID);
-                done('Lagret og overført til faktura');
-            }, (err) => {
-                console.log('== TRANSFER-TO-INVOICE FAILED ==');
-                done('Feilet i overføring til faktura');
-                this.log(err);
+                this.customerOrderService.ActionWithBody(order.ID, order, 'transfer-to-invoice').subscribe((invoice) => {
+                    this.router.navigateByUrl('/sales/invoice/details/' + invoice.ID);
+                    done('Lagret og overført til faktura');
+                }, (err) => {
+                    console.log('== TRANSFER-TO-INVOICE FAILED ==');
+                    done('Feilet i overføring til faktura');
+                    this.log(err);
+                });
             });
-        });
-
-        this.saveOrder(order => {
+        }
+        
+        // save order and open modal to select what to transfer to invoice
+        this.saveOrder(done, order => {
             this.oti.openModal(this.order);
-            done('Lagret');
+            done('Ordre lagret');
         });
     }
 
     private saveOrderTransition(done: any, transition: string, doneText: string) {
-        this.saveOrder((order) => {
+        this.saveOrder(done, (order) => {
             this.customerOrderService.Transition(this.order.ID, this.order, transition).subscribe(() => {
                 console.log('== TRANSITION OK ' + transition + ' ==');
                 done(doneText);
@@ -465,7 +470,7 @@ export class OrderDetails {
         });
     }
 
-    private saveOrder(cb = null) {
+    private saveOrder(done: any, next: any = null) {    
         // Transform addresses to flat
         this.addressService.addressToInvoice(this.order, this.order._InvoiceAddress);
         this.addressService.addressToShipping(this.order, this.order._ShippingAddress);
@@ -479,8 +484,10 @@ export class OrderDetails {
 
         //Save only lines with products from product list
         if (!TradeItemHelper.IsItemsValid(this.order.Items)) {
-            console.log('Linjer uten produkt. Lagring avbrutt.');
-//            done('Lagring feilet');
+            console.log('Linjer uten produkt. Lagring avbrutt.');            
+            if (done) {
+                done('Lagring feilet')
+            }
             return;
         }
 
@@ -494,16 +501,19 @@ export class OrderDetails {
                     this.updateSaveActions();
                     this.setTabTitle();
 
-                    if (cb) {
-                        cb(orderGet);
-                    }
+                    if (next) {
+                        next(this.order);
+                    } else {
+                        done('Ordre lagret');
+                    }                    
                 });
             },
             (err) => {
                 console.log('Feil oppsto ved lagring', err);
+                done('Feil oppsto ved lagring');
                 this.log(err);
             }
-            );
+        );
     }
 
     private updateStatusText() {
@@ -511,7 +521,7 @@ export class OrderDetails {
     }
 
     private saveAndPrint(done) {
-        this.saveOrder((order) => {
+        this.saveOrder(done, (order) => {
             this.reportDefinitionService.getReportByName('Ordre').subscribe((report) => {
                 if (report) {
                     this.previewModal.openWithId(report, order.ID);

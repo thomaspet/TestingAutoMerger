@@ -152,7 +152,7 @@ export class SalaryTransactionEmployeeList implements OnChanges, AfterViewInit {
                 label: 'Lagre lønnsposter',
                 action: this.saveSalarytrans.bind(this),
                 main: true,
-                disabled: true
+                disabled: this.payrollRun.StatusCode > 0
             },
             {
                 label: 'Kontroller',
@@ -196,18 +196,20 @@ export class SalaryTransactionEmployeeList implements OnChanges, AfterViewInit {
     }
 
     public saveSalarytrans(done) {
+        this.saveactions[0].disabled = true;
         done('Lagrer lønnsposter');
         this.payrollRun.transactions = this.salarytransChanged;
         this._payrollRunService.Put(this.payrollRun.ID, this.payrollRun).subscribe((response) => {
             this.salarytransChanged = [];
-            this.saveactions[0].disabled = true;
             this.refreshSalaryTransTable();
             this.setUnitableSource();
+            this.refreshSaveActions();
             done('Lønnsposter lagret: ');
         },
             (err) => {
                 this.log(err);
                 done('Feil ved lagring av lønnspost', err);
+                this.saveactions[0].disabled = false;
             });
 
     }
@@ -518,7 +520,6 @@ export class SalaryTransactionEmployeeList implements OnChanges, AfterViewInit {
 
     public showPayList(done) {
         this.router.navigateByUrl('/salary/paymentlist/' + this.payrollRun.ID);
-        done('');
     }
 
     public runSettle(done) {
