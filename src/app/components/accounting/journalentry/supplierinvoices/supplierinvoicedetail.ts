@@ -463,15 +463,6 @@ export class SupplierInvoiceDetail implements OnInit {
         }
     }
 
-    //private registerPayment(done) {
-    //    const title = `Register betaling${this.supplierInvoice.InvoiceNumber ? ', Faktura ' + this.supplierInvoice.InvoiceNumber : ''}${this.supplierInvoice.InvoiceReceiverName ? ', ' + this.supplierInvoice.InvoiceReceiverName : ''}`;
-    //    const invoiceData: InvoicePaymentData = {
-    //        Amount: this.supplierInvoice.TaxInclusiveAmount,
-    //        PaymentDate: new Date()
-    //    };
-    //    this.registerPaymentModal.openModal(this.supplierInvoice.ID, title, invoiceData);
-    //    done(' ');
-    //}
     private registerPayment(done) {
         const title = `Register betaling${this.supplierInvoice.InvoiceNumber ? ', Faktura ' + this.supplierInvoice.InvoiceNumber : ''}${this.supplierInvoice.InvoiceReceiverName ? ', ' + this.supplierInvoice.InvoiceReceiverName : ''}`;
 
@@ -496,13 +487,4 @@ export class SupplierInvoiceDetail implements OnInit {
 
         this.registerPaymentModal.openModal(this.supplierInvoice.ID, title, invoiceData);        
     }
-
-    //public onRegisteredPayment(modalData: any) {
-
-    //    this._supplierInvoiceService.ActionWithBody(modalData.id, modalData.invoice, 'payInvoice').subscribe((journalEntry) => {
-    //        this.refreshFormData(this.supplierInvoice);
-    //    }, (error) => {
-    //        this.setError(error);
-    //    });
-    //}
 }

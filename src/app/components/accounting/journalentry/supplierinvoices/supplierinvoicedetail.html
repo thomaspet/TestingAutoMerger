@@ -25,7 +25,7 @@
         <uni-widget-poster [model]="supplierInvoice">
             <section class="application" *ngIf="supplierInvoice">
                 <section>Restsum kr. {{supplierInvoice.RestAmount }}</section>
-                <section>
+                <section style="display:none">
                     Kreditert kr. {{supplierInvoice.CreditedAmount }}
                 </section>
             </section>

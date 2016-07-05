@@ -152,10 +152,11 @@ export class SupplierInvoiceList implements OnInit {
             .setCls('column-align-right')
             .setFormat('{0:n}');
 
-        const creditedAmountCol = new UniTableColumn('CreditedAmount', 'Kreditert', UniTableColumnType.Number)
-            .setFilterOperator('eq')
-            .setCls('column-align-right')
-            .setFormat('{0:n}');
+        //TODO: Skal denne vises?
+        //const creditedAmountCol = new UniTableColumn('CreditedAmount', 'Kreditert', UniTableColumnType.Number)
+        //    .setFilterOperator('eq')
+        //    .setCls('column-align-right')
+        //    .setFormat('{0:n}');
 
         return new UniTableConfig(false, true)
             .setColumns([
@@ -169,8 +170,7 @@ export class SupplierInvoiceList implements OnInit {
                 bankAccount,
                 paymentIdOrName,
                 taxInclusiveAmountCol,
-                restAmountCol,
-                creditedAmountCol
+                restAmountCol
             ])
             .setPageSize(15)
             .setSearchable(true)
