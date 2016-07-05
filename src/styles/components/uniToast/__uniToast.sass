@@ -1,0 +1,47 @@
+uni-toast-list
+    position: absolute
+    top: 0
+    right: 0
+
+    & ol.toast-list 
+        margin: 0
+        padding: 0
+
+        & li
+            text-align: center
+            margin: 0
+            padding: 0
+            &:before
+                content: ' '
+        
+uni-toast
+    display: inline-block
+    cursor: pointer
+    height: 3rem
+    line-height: 3rem
+    width: 25rem
+    margin: 0.25rem
+    padding: 0 1rem
+    text-align: left
+    border-radius: 5px
+    color: $uni-color-negative
+
+    &:before
+        display: inline-block
+        width: 1rem
+        margin: 0 .5rem 0 .5rem
+
+    &.good
+        background-color: transparentize($uni-color-Good, .1)
+        &:before
+            content: '\2713'
+
+    &.bad
+        background-color: transparentize($uni-color-Bad, .1)
+        &:before
+            content: '\2A09'
+
+    &.warn
+        background-color: transparentize($uni-color-Warn, .1)
+        &:before
+            content: '\26A0'

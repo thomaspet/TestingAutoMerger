@@ -35,7 +35,7 @@ export class EmployeeEmployment {
             label: 'Lagre arbeidsforhold',
             action: this.saveEmployment.bind(this),
             main: true,
-            disabled: true
+            disabled: false
         }
     ];
 
@@ -105,7 +105,6 @@ export class EmployeeEmployment {
     }
     
     public ngOnChanges(valueChanges) {
-        this.busy = false;
         if (valueChanges.currentEmployment.previousValue.ID !== undefined) {
             if (this.currentEmployment) {
                 this.refreshDatafromModel();
@@ -126,6 +125,8 @@ export class EmployeeEmployment {
     }
     
     public saveEmployment(done) {
+        this.busy = true;
+        this.saveactions[0].disabled = true;
         done('Lagrer arbeidsforhold');
         if (this.currentEmployment.ID > 0) {
             this._employmentService.Put(this.currentEmployment.ID, this.currentEmployment)
@@ -133,10 +134,14 @@ export class EmployeeEmployment {
                 this.refreshList.emit(true);
                 this.currentEmployment = response;
                 done('Sist lagret: ');
+                this.saveactions[0].disabled = false;
+                this.busy = false;
             },
             (err) => {
                 console.log('Feil ved oppdatering av arbeidsforhold', err);
                 this.log(err);
+                this.saveactions[0].disabled = false;
+                this.busy = false;
             });
         } else {
             this._employmentService.Post(this.currentEmployment)
@@ -144,10 +149,14 @@ export class EmployeeEmployment {
                 this.currentEmployment = response;
                 this.refreshList.emit(true);
                 done('Sist lagret: ');
+                this.saveactions[0].disabled = false;
+                this.busy = false;
             },
             (err) => {
                 console.log('Feil oppsto ved lagring', err);
                 this.log(err);
+                this.saveactions[0].disabled = false;
+                this.busy = false;
             });
         }
     }

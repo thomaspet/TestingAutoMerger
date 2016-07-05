@@ -47,7 +47,7 @@ export class PersonalDetails {
             label: 'Lagre',
             action: this.saveEmployee.bind(this),
             main: true,
-            disabled: true
+            disabled: false
         }
     ];
     
@@ -219,16 +219,14 @@ export class PersonalDetails {
         this.uniform.section(1).toggle();
         this.uniform.section(2).toggle();
         this.uniform.field('BusinessRelationInfo.Name').focus();
-        this.saveactions[0].disabled = true;
     }
     
     public change(value) {
         this.employee = _.cloneDeep(this.employee);
-        this.saveactions[0].disabled = false;
     }
     
     private saveEmployee(done) {
-
+        this.saveactions[0].disabled = true;
         if (this.employee.BankAccounts[0] && !this.employee.BankAccounts[0].ID) {
             let bankAccount = this.employee.BankAccounts[0];
             bankAccount.Active = true;
@@ -284,10 +282,12 @@ export class PersonalDetails {
                 done('Sist lagret: ');
                 this.employeeService.get(this.employee.ID, this.expands).subscribe((emp: Employee) => {
                     this.employee = emp;
+                    this.saveactions[0].disabled = false;
                 },
                 (err) => {
                     console.log('Feil ved lagring av ansatt', err);
                     this.log(err);
+                    this.saveactions[0].disabled = false;
                 });
 
                 this.router.navigateByUrl('/salary/employees/' + this.employee.ID);
@@ -296,18 +296,21 @@ export class PersonalDetails {
                 done('Feil ved lagring', err);
                 console.log('Feil ved oppdatering av ansatt', err);
                 this.log(err);
+                this.saveactions[0].disabled = false;
             });
         } else {
             this.employeeService.Post(this.employee)
             .subscribe((response: Employee) => {
                 this.employee = response;
                 done('Sist lagret: ');
+                this.saveactions[0].disabled = false;
                 this.router.navigateByUrl('/salary/employees/' + this.employee.ID);
             },
             (err) => {
                 done('Feil ved lagring', err);
                 console.log('Feil ved lagring av ansatt', err);
                 this.log(err);
+                this.saveactions[0].disabled = false;
             });
         }
     }
