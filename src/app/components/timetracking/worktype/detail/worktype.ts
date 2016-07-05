@@ -2,14 +2,19 @@ import {Component} from "@angular/core";
 import {TabService} from '../../../layout/navbar/tabstrip/tabService';
 import {View} from '../../../../models/view/view';
 import {WorkerService} from '../../../../services/timetracking/workerservice';
-import {WorkTypeSystemTypePipe} from '../../utils/pipes';
+import {WorkTypeSystemTypePipe, SystemTypes} from '../../utils/pipes';
 import {RouteParams} from '@angular/router-deprecated';
 import {WorkType} from '../../../../unientities';
 import {UniSave, IUniSaveAction} from '../../../../../framework/save/save';
 import {UniForm, UniFieldLayout} from '../../../../../framework/uniform';
-import {SystemTypes} from '../../utils/pipes';
+import {createFormField} from '../../utils/utils';
 
 export var view = new View('worktype', 'Timeart', 'WorktypeDetailview', true, 'worktype/detail');
+
+enum IAction {
+    Save = 0,
+    Delete = 1
+}
 
 @Component({
     selector: view.name,
@@ -26,7 +31,7 @@ export class WorktypeDetailview {
     private fields: Array<any>;
     private config: any = {};
     private actions: IUniSaveAction[] = [ 
-        { label: 'Lagre endringer', action: (done)=>this.save(done), main: true, disabled: false },
+        { label: 'Lagre', action: (done)=>this.save(done), main: true, disabled: false },
         { label: 'Slett', action: (done)=>this.delete(done), main:false, disabled: true}
     ];     
 
@@ -54,7 +59,7 @@ export class WorktypeDetailview {
                 if (item) {
                     item.SystemType = item.SystemType || 1 // timer;
                     this.current = item;
-                    this.actions[1].disabled = false;
+                    this.enableAction(IAction.Delete);
                 }
                 if (updateTitle) {
                     this.updateTitle();
@@ -65,13 +70,16 @@ export class WorktypeDetailview {
             this.ID = 0;
             t.SystemType = 1 // timer;
             this.current = t;
-            this.actions[1].disabled = true;
+            this.enableAction(IAction.Delete, false);
             this.busy = false;
             if (updateTitle) {
                 this.updateTitle();
             }
-        }
-        
+        }        
+    }
+
+    private enableAction(actionID:IAction, enable = true) {
+        this.actions[actionID].disabled = !enable;
     }
 
     private updateTitle() {
@@ -85,6 +93,7 @@ export class WorktypeDetailview {
             this.current = item;
             this.ID = item.ID;
             this.updateTitle();
+            this.enableAction(IAction.Delete, true);
             done(this.title);
         }, (err)=>{
             var msg = this.showErrMsg(err._body || err.statusText, true);
@@ -107,23 +116,12 @@ export class WorktypeDetailview {
 
     private setupLayout() {
         this.fields = [
-            this.createField('Name', 'Navn'),
-            this.createField('SystemType', 'Type', 3, null, null, null, {
+            createFormField('Name', 'Navn'),
+            createFormField('SystemType', 'Type', 3, null, null, null, {
                 source: SystemTypes, valueProperty: 'id', displayProperty: 'label'
             }),
-            this.createField('Description', 'Kommentar', 16)
+            createFormField('Description', 'Kommentar', 16)
         ];
-    }
-
-    private createField(name:string, label:string, fieldType = 10, section = 0, sectionHeader?:string, fieldSet = 0, options?: any):any {
-        return { 
-            EntityType: 'WorkType', 
-            Property: name, Label: label,
-            FieldType: fieldType,
-            Section: section, SectionHeader: sectionHeader,
-            FieldSet: fieldSet,
-            Combo: 0, Options: options
-        }
     }
 
     showErrMsg(msg:string, lookForMsg = false):string {
