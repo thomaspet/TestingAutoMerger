@@ -14,6 +14,7 @@ import {IntegrationServerCaller} from './services/common/IntegrationServerCaller
 import {AuthService} from './../framework/core/authService';
 import {AccountService, VatTypeService, CurrencyService, CompanySettingsService} from './services/services';
 import {ToastService} from '../framework/uniToast/toastService';
+import {GuidService} from './services/services';
 
 declare var window;
 if (window.ENV === 'production') {
@@ -34,6 +35,7 @@ bootstrap(App, [
     provide(UniState, {useClass: UniState}),
     
     // Services
+    provide(GuidService, {useClass: GuidService}),
     provide(ToastService, {useClass: ToastService}),
     provide(AccountService, {useClass: AccountService}),
     provide(VatTypeService, {useClass: VatTypeService}),
