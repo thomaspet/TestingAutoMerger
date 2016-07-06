@@ -2,13 +2,14 @@ import {Component, Input, ViewChild} from '@angular/core';
 import {UniForm} from '../../../../../framework/uniform';
 import {UniFieldLayout} from '../../../../../framework/uniform/index';
 import { UniTable, UniTableConfig, UniTableColumnType, UniTableColumn} from 'unitable-ng2/main';
-import {CompanySalaryService} from '../../../../services/services';
-import {FieldType} from '../../../../unientities';
+import {CompanySalaryService, CompanyVacationRateService} from '../../../../services/services';
+import {FieldType, CompanyVacationRate} from '../../../../unientities';
+import {Observable} from 'rxjs/Observable';
 
 @Component({
     selector: 'vacationpay-setting-modal-content',
-    directives: [UniForm],
-    providers: [CompanySalaryService],
+    directives: [UniForm, UniTable],
+    providers: [CompanySalaryService, CompanyVacationRateService],
     templateUrl: 'app/components/salary/payrollrun/vacationpay/vacationpaysettingmodalcontent.html'
 })
 export class VacationpaySettingModalContent {
@@ -18,19 +19,33 @@ export class VacationpaySettingModalContent {
     @Input() private config: any;
     @ViewChild(UniForm) private uniform: UniForm;
     private formConfig: any = {};
+    private tableConfig: UniTableConfig;
+    private vacationRates: CompanyVacationRate[] = [];
 
-    constructor(private _companysalaryService: CompanySalaryService) {
+    constructor(private _companysalaryService: CompanySalaryService, private _companyvacationRateService: CompanyVacationRateService) {
         this.busy = true;
-        _companysalaryService.getCompanySalary()
-        .subscribe((response) => {
-            this.companysalaryModel = response[0];
+        Observable.forkJoin(
+            _companysalaryService.getCompanySalary()
+            , this._companyvacationRateService.GetAll('')
+        ).subscribe((response: any) => {
+            var [compsal, rates] = response;
+            this.companysalaryModel = compsal[0];
+            this.vacationRates = rates;
             this.formConfig = {
                 submitText: ''
             };
-            console.log('companysalary', this.companysalaryModel);
             this.setFormFields();
+            this.setTableConfig();
             this.busy = false;
         });
+    }
+
+    public ready(value) {
+
+    }
+
+    public change(value) {
+
     }
 
     public saveSettings() {
@@ -38,18 +53,42 @@ export class VacationpaySettingModalContent {
     }
 
     private setFormFields() {
-        console.log('form should be set here');
-
+        
+        var mainAccountCostVacation = new UniFieldLayout();
+        mainAccountCostVacation.Label = 'Kostnad feriepenger';
+        mainAccountCostVacation.Property = 'MainAccountCostVacation';
+        mainAccountCostVacation.FieldType = FieldType.TEXT;
+        
         var mainAccountAllocatedVacation = new UniFieldLayout();
-        mainAccountAllocatedVacation.Label = 'Balanse feriepenger';
+        mainAccountAllocatedVacation.Label = 'Avsatt feriepenger';
         mainAccountAllocatedVacation.Property = 'MainAccountAllocatedVacation';
         mainAccountAllocatedVacation.FieldType = FieldType.TEXT;
 
-        var mainAccountCostVacation = new UniFieldLayout();
-        mainAccountCostVacation.Label = 'Resultat feriepenger';
-        mainAccountCostVacation.Property = 'MainAccountCostVacation';
-        mainAccountCostVacation.FieldType = FieldType.TEXT;
+        var payInHoliday = new UniFieldLayout();
+        payInHoliday.Label = 'Fastlønn i feriemåned';
+        payInHoliday.Property = 'PaymentInterval';
+        payInHoliday.FieldType = FieldType.DROPDOWN;
+        payInHoliday.Options = {
+            source: [
+                {id: 1, name: '-4/26 av månedslønn'},
+                {id: 2, name: '-3/22 av månedslønn'},
+                {id: 3, name: '+1/26 av månedslønn'},
+                {id: 4, name: '-1/26 av månedslønn'}
+            ],
+            displayProperty: 'name',
+            valueProperty: 'id'
+        };
+        
+        this.fields = [mainAccountCostVacation, mainAccountAllocatedVacation, payInHoliday];
+    }
 
-        this.fields = [mainAccountAllocatedVacation, mainAccountCostVacation];
+    private setTableConfig() {
+        var rateCol = new UniTableColumn('Rate', 'Feriepengesats', UniTableColumnType.Number);
+        var rate60Col = new UniTableColumn('Rate60', 'Sats over 60', UniTableColumnType.Number);
+        var dateCol = new UniTableColumn('FromDate', 'Gjelder fra og med år', UniTableColumnType.Date);
+
+        this.tableConfig = new UniTableConfig(true)
+        .setColumns([rateCol, rate60Col, dateCol])
+        .setPageable(false);
     }
 }

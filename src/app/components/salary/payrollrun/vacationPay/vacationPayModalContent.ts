@@ -35,13 +35,11 @@ export class VacationpayModalContent {
     }
 
     public createVacationPayments() {
-        // this.busy = true;
         return this._salarytransService.createVacationPayments(this.config.payrollRunID);
     }
 
     public openVacationpaySettings() {
         this.vacationpaySettingModal.openModal();
-        console.log('settings to come.. stay tuned');
     }
 
     public change(value) {
