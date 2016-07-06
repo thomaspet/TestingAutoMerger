@@ -18,9 +18,11 @@ export class VacationpaySettingModalContent {
     private companysalaryModel: any = {};
     @Input() private config: any;
     @ViewChild(UniForm) private uniform: UniForm;
+    @ViewChild(UniTable) private table: UniTable;
     private formConfig: any = {};
     private tableConfig: UniTableConfig;
     private vacationRates: CompanyVacationRate[] = [];
+    private changedVacationRates: CompanyVacationRate[] = [];
 
     constructor(private _companysalaryService: CompanySalaryService, private _companyvacationRateService: CompanyVacationRateService) {
         this.busy = true;
@@ -48,12 +50,32 @@ export class VacationpaySettingModalContent {
 
     }
 
-    public saveSettings() {
+    public saveSettings(done) {
         console.log('settings saved');
+        this.changedVacationRates = this.table.getTableData();
+        this.changedVacationRates.forEach(vacationRate => {
+            if (vacationRate.ID > 0) {
+                this._companyvacationRateService.Put(vacationRate.ID, vacationRate)
+                .subscribe((response) => {
+                    done('Feriepengesats oppdatert: ');
+                },
+                (error) => {
+                    done('Feil ved oppdatering av feriepengepost: ', error);
+                });
+            } else {
+                this._companyvacationRateService.Post(vacationRate)
+                .subscribe((response) => {
+                    done('Feriepengesats lagret: ');
+                },
+                (error) => {
+                    done('Feil ved lagring av feriepengepost: ', error);
+                });
+            }
+        });
     }
 
     private setFormFields() {
-        
+
         var mainAccountCostVacation = new UniFieldLayout();
         mainAccountCostVacation.Label = 'Kostnad feriepenger';
         mainAccountCostVacation.Property = 'MainAccountCostVacation';

@@ -3,7 +3,7 @@
     <uni-form *ngIf="companysalaryModel" [config]="formConfig" [fields]="fields" [model]="companysalaryModel" (onChange)="change($event)" (onReady)="ready($event)"></uni-form>
     <uni-table *ngIf="companysalaryModel" [config]="tableConfig" [resource]="vacationRates"></uni-table>
     <footer>
-        <button class="good" (click)="saveSettings()">Lagre</button>
+        <button class="good" (click)="saveSettings($event)">Lagre</button>
         <button class="bad" *ngIf="config.hasCancelButton" (click)="config.cancel()">Avbryt</button>
     </footer>
 </article>
