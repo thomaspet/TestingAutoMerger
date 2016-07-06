@@ -65,6 +65,15 @@ export class UniSave {
     private busy: boolean = false;
     private status: {message: string, when: Date};
 
+    constructor () {
+        document.addEventListener('keydown', (e) => {
+            if (e.keyCode === 83 && (navigator.platform.match('Mac') ? e.metaKey : e.ctrlKey)) {
+                e.preventDefault();
+                this.mainAction();
+            }
+        }, false);
+    }
+
     private mainAction() {
         let _declaredMain = this.actions.filter(action => action.main);
 
@@ -84,7 +93,7 @@ export class UniSave {
         this.status = undefined;
         action.action(this.onSaveCompleted.bind(this));
     }
-    
+
     public onSaveCompleted(statusMessage?: string) {
         if (statusMessage.length) {
             this.status = {
@@ -94,7 +103,7 @@ export class UniSave {
         }
         this.busy = false;
     }
-    
+
     private fromNow() {
         return moment(this.status.when).fromNow();
     }
