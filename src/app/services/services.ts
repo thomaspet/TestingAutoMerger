@@ -49,3 +49,4 @@ export * from './common/AltinnService';
 export * from './common/IntegrationServerCaller';
 export * from './common/AltinnReceiptService';
 export * from './common/UserService';
+export * from './common/guidService';

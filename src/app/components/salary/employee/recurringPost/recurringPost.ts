@@ -33,7 +33,7 @@ export class RecurringPost implements OnInit {
             label: 'Lagre faste poster',
             action: this.saveRecurringpost.bind(this),
             main: true,
-            disabled: true
+            disabled: false
         }
     ];
     
@@ -58,7 +58,7 @@ export class RecurringPost implements OnInit {
             .usingBusinessDomain()
             .withEndPoint('salarytrans')
             .send({
-                filter: `EmployeeNumber eq ${this.employeeID} and IsRecurringPost eq true`
+                filter: `EmployeeNumber eq ${this.employeeID} and IsRecurringPost eq true and PayrollRunID eq 0`
             });
         }, (error: any) => {
                 console.error(error);
@@ -67,8 +67,11 @@ export class RecurringPost implements OnInit {
     }
     
     public saveRecurringpost(done) {
+        this.saveactions[0].disabled = true;
+        this.recurringPosts = this.table.getTableData();
         done('Lagrer faste poster');
         this.recurringPosts.forEach(recurringpost => {
+            this.saveactions[0].disabled = true;
             recurringpost.IsRecurringPost = true;
             recurringpost.EmployeeID = this.employeeID;
             recurringpost.EmployeeNumber = this.employeeID;
@@ -77,19 +80,23 @@ export class RecurringPost implements OnInit {
                 this.salarytransService.Put(recurringpost.ID, recurringpost)
                 .subscribe((response: SalaryTransaction) => {
                     done('Sist lagret: ');
+                    this.saveactions[0].disabled = false;
                 },
                 (err) => {
                     done('Feil ved oppdatering av fast post', err);
                     this.log(err);
+                    this.saveactions[0].disabled = false;
                 });
             } else {
                 this.salarytransService.Post(recurringpost)
                 .subscribe((response: SalaryTransaction) => {
                     done('Sist lagret: ');
+                    this.saveactions[0].disabled = false;
                 },
                 (err) => {
                     done('Feil ved lagring av fast post', err);
                     this.log(err);
+                    this.saveactions[0].disabled = false;
                 });
             }
         });
@@ -210,11 +217,7 @@ export class RecurringPost implements OnInit {
         });
         return jobName;
     }
-    
-    private rowChanged(event) {
-        this.recurringPosts = this.table.getTableData();
-        this.saveactions[0].disabled = false;
-    }
+
     public log(err) {
         alert(err._body);
     }

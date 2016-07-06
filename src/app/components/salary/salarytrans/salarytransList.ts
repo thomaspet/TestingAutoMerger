@@ -150,7 +150,7 @@ export class SalaryTransactionEmployeeList implements OnChanges, AfterViewInit {
                 label: 'Lagre lønnsposter',
                 action: this.saveSalarytrans.bind(this),
                 main: true,
-                disabled: true
+                disabled: this.payrollRun.StatusCode > 0
             },
             {
                 label: 'Kontroller',
@@ -188,18 +188,20 @@ export class SalaryTransactionEmployeeList implements OnChanges, AfterViewInit {
     }
 
     public saveSalarytrans(done) {
+        this.saveactions[0].disabled = true;
         done('Lagrer lønnsposter');
         this.payrollRun.transactions = this.salarytransChanged;
         this._payrollRunService.Put(this.payrollRun.ID, this.payrollRun).subscribe((response) => {
             this.salarytransChanged = [];
-            this.saveactions[0].disabled = true;
             this.refreshSalaryTransTable();
             this.setUnitableSource();
+            this.refreshSaveActions();
             done('Lønnsposter lagret: ');
         },
             (err) => {
                 this.log(err);
                 done('Feil ved lagring av lønnspost', err);
+                this.saveactions[0].disabled = false;
             });
 
     }
@@ -296,7 +298,7 @@ export class SalaryTransactionEmployeeList implements OnChanges, AfterViewInit {
         var toDateCol = new UniTableColumn('ToDate', 'Til dato', UniTableColumnType.Date);
         var rateCol = new UniTableColumn('Rate', 'Sats', UniTableColumnType.Number);
         var amountCol = new UniTableColumn('Amount', 'Antall', UniTableColumnType.Number);
-        var sumCol = new UniTableColumn('Sum', 'Sum', UniTableColumnType.Number);
+        var sumCol = new UniTableColumn('Sum', 'Sum', UniTableColumnType.Number, false);
         var employmentidCol = new UniTableColumn('Employment', 'Arbeidsforhold', UniTableColumnType.Lookup)
             .setTemplate((dataItem) => {
                 return this.getEmploymentJobName(dataItem.EmploymentID);
@@ -366,6 +368,7 @@ export class SalaryTransactionEmployeeList implements OnChanges, AfterViewInit {
             });
 
         this.salarytransEmployeeTableConfig = new UniTableConfig(this.payrollRun.StatusCode < 1)
+            .setHasDeleteButton(true)
             .setColumns([
                 wageTypeCol, wagetypenameCol, employmentidCol,
                 fromdateCol, toDateCol, accountCol, amountCol, rateCol, sumCol,
@@ -389,6 +392,18 @@ export class SalaryTransactionEmployeeList implements OnChanges, AfterViewInit {
                 }
 
                 return row;
+            });
+    }
+
+    public deleteSalaryTransaction(event) {
+        let rowModel = event.rowModel;
+        rowModel.Deleted = true;
+        this.salarytransService.delete(rowModel.ID).subscribe(
+            (response) => {
+
+            }, 
+            err => {
+                this.log(err);
             });
     }
 
@@ -510,7 +525,6 @@ export class SalaryTransactionEmployeeList implements OnChanges, AfterViewInit {
 
     public showPayList(done) {
         this.router.navigateByUrl('/salary/paymentlist/' + this.payrollRun.ID);
-        done('');
     }
 
     public runSettle(done) {
