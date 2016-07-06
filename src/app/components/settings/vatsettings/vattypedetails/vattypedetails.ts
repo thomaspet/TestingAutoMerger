@@ -20,7 +20,7 @@ import {UniTable, UniTableColumn, UniTableConfig, UniTableColumnType} from 'unit
 export class VatTypeDetails implements OnChanges {
     @Input() public vatType: VatType;
     @Output() public vatTypeSaved: EventEmitter<VatType> = new EventEmitter<VatType>();
-    @Output() public onChange: EventEmitter<VatType> = new EventEmitter<VatType>();
+    @Output() public change: EventEmitter<VatType> = new EventEmitter<VatType>();
     
     @ViewChild(UniForm) public form: UniForm;
     @ViewChild(UniTable) public unitable: UniTable;
@@ -47,8 +47,8 @@ export class VatTypeDetails implements OnChanges {
         this.deletedVatReportReferences = [];
     }
 
-    public change(event) {
-        this.onChange.emit(this.vatType);
+    public onChange(event) {
+        this.change.emit(this.vatType);
     }
 
     private getLayoutAndData() {        
