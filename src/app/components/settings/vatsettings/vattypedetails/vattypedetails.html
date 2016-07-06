@@ -4,7 +4,12 @@
         [fields]="fields" 
         [model]="vatType"                
         (onChange)="change($event)">
-    </uni-form> 
+    </uni-form>
+    <uni-table
+            [resource]="vatType.VatReportReferences"
+            [config]="uniTableConfig"
+            (rowDeleted)="onVatPostReferenceDelete($event.rowModel)"
+    ></uni-table>
 </div>
 <div *ngIf="!vatType">
     Velg en mvakode i listen til venstre for å se detaljer om mvakoden

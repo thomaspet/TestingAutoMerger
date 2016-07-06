@@ -1,44 +1,53 @@
-import {Component, Input, ViewChild, Output, EventEmitter, SimpleChange} from '@angular/core';
+import {Component, Input, ViewChild, Output, EventEmitter, OnChanges} from '@angular/core';
 
-import {Observable} from 'rxjs/Observable';
-import 'rxjs/add/observable/forkJoin';
+import {Observable} from 'rxjs/Rx';
 
-import {FieldType} from '../../../../unientities';
+import {FieldType, VatReportReference} from '../../../../unientities';
 import {UniForm, UniFieldLayout} from '../../../../../framework/uniform';
 
 import {VatType, VatCodeGroup, Account} from '../../../../unientities';
-import {VatTypeService, VatCodeGroupService, AccountService} from '../../../../services/services';
+import {VatTypeService, VatCodeGroupService, AccountService, VatPostService} from '../../../../services/services';
+
+import {UniTable, UniTableColumn, UniTableConfig, UniTableColumnType} from 'unitable-ng2/main';
 
 
 @Component({
     selector: 'vattype-details',
     templateUrl: 'app/components/settings/vatsettings/vattypedetails/vattypedetails.html',
-    directives: [UniForm],
-    providers: [VatTypeService, AccountService, VatCodeGroupService]
+    directives: [UniForm, UniTable],
+    providers: [VatTypeService, AccountService, VatCodeGroupService, VatPostService]
 })
-export class VatTypeDetails {
+export class VatTypeDetails implements OnChanges {
     @Input() public vatType: VatType;
     @Output() public vatTypeSaved: EventEmitter<VatType> = new EventEmitter<VatType>();
     @Output() public onChange: EventEmitter<VatType> = new EventEmitter<VatType>();
     
-    @ViewChild(UniForm) private form: UniForm;
+    @ViewChild(UniForm) public form: UniForm;
+    @ViewChild(UniTable) public unitable: UniTable;
 
-    private config: any = {};
-    private fields: any[] = [];   
+    public config: any = {};
+    private fields: any[] = [];
     private accounts: Account[];
     private vatcodegroups: VatCodeGroup[];
+    private uniTableConfig: UniTableConfig;
+    private deletedVatReportReferences: VatReportReference[] = [];
 
     constructor(private vatTypeService: VatTypeService,
                 private accountService: AccountService,
-                private vatCodeGroupService: VatCodeGroupService) {
-
+                private vatCodeGroupService: VatCodeGroupService,
+                private vatPostService: VatPostService) {
+        this.uniTableConfig = this.generateUniTableConfig();
     }
 
     public ngOnInit() {
         this.getLayoutAndData();
     }
 
-    private change(event) {
+    public ngOnChanges() {
+        this.deletedVatReportReferences = [];
+    }
+
+    public change(event) {
         this.onChange.emit(this.vatType);
     }
 
@@ -58,23 +67,9 @@ export class VatTypeDetails {
             (error) => console.log(error)
         );
     }
-
-/*
-    ngOnChanges(changes: {[propName: string]: SimpleChange}) {
-        if (this.VatType != null) {
-            this.model = this.VatType;            
-            var self = this;
-
-            //TODO: Remove timeout, needed for now to give angular time to set up form after this.model has been set
-            setTimeout(() => {
-                if (self.form != null)
-                    self.form.Model = self.model;
-            }, 500);
-        }
-    }
-*/
-
-    public saveVatType(completeEvent): void {        
+    
+    public saveVatType(completeEvent): void {
+        this.vatType.VatReportReferences = this.unitable.getTableData().concat(this.deletedVatReportReferences);
         if (this.vatType.ID > 0) {
             this.vatTypeService.Put(this.vatType.ID, this.vatType)
                 .subscribe(
@@ -134,7 +129,40 @@ export class VatTypeDetails {
             template: (account: Account) => account ? `${account.AccountNumber} ${account.AccountName }` : ''
         };
     }
+
+    private generateUniTableConfig(): UniTableConfig {
+        return new UniTableConfig(true, false)
+            .setColumnMenuVisible(false)
+            .setHasDeleteButton(true)
+            .setColumns([
+                new UniTableColumn('VatPost', 'Mvaoppgaveposter ', UniTableColumnType.Lookup)
+                    .setDisplayField('VatPost.Name')
+                    .setEditorOptions({
+                        lookupFunction: (searchValue) => {
+                            return this.vatPostService.GetAll(`filter=contains(Name,'${searchValue}')`);
+                        }
+                    })
+            ])
+            .setDefaultRowData({
+                VatPostID: null
+            })
+            .setChangeCallback((event) => {
+                var newRow = event.rowModel;
+
+                if (!newRow.ID) {
+                    newRow._createguid = this.vatTypeService.getNewGuid();
+                }
+
+                newRow.VatPostID = newRow.VatPost.ID;
+                newRow.VatTypeID = this.vatType.ID;
+                return newRow;
+            });
+    }
     
+    public onVatPostReferenceDelete(vatPostReference) {
+        vatPostReference.Deleted = true;
+        this.deletedVatReportReferences.push(vatPostReference);
+    }
     
     private getComponentLayout(): any {
         return {
