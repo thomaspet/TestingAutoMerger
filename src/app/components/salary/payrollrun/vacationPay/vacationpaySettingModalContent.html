@@ -1,0 +1,8 @@
+<article class="modal-content" [attr.aria-busy]="busy">
+    <h1> Innstillinger feriepenger</h1>
+    <uni-form *ngIf="companysalaryModel" [config]="formConfig" [fields]="fields" [model]="companysalaryModel" (onChange)="change($event)" (onReady)="ready($event)"></uni-form>
+    <footer>
+        <button class="good" (click)="saveSettings()">Lagre</button>
+        <button class="bad" *ngIf="config.hasCancelButton" (click)="config.cancel()">Avbryt</button>
+    </footer>
+</article>

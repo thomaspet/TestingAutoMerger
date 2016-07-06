@@ -1,13 +1,14 @@
-import { Component, Input } from '@angular/core';
+import { Component, Input, ViewChild } from '@angular/core';
 import { FieldType, BasicAmount } from '../../../../unientities';
 import { UniForm } from '../../../../../framework/uniform';
 import { UniFieldLayout } from '../../../../../framework/uniform/index';
-import {UniTable, UniTableConfig, UniTableColumnType, UniTableColumn} from 'unitable-ng2/main';
+import { UniTable, UniTableConfig, UniTableColumnType, UniTableColumn} from 'unitable-ng2/main';
 import { SalaryTransactionService, BasicAmountService } from '../../../../../app/services/services';
+import { VacationpaySettingModal} from './vacationPaySettingModal';
 
 @Component({
     selector: 'vacationpay-modal-content',
-    directives: [UniForm, UniTable],
+    directives: [UniForm, UniTable, VacationpaySettingModal],
     providers: [SalaryTransactionService, BasicAmountService],
     templateUrl: 'app/components/salary/payrollrun/vacationpay/vacationpaymodalcontent.html'
 })
@@ -19,6 +20,7 @@ export class VacationpayModalContent {
     private basicamounts: BasicAmount[] = [];
     private tableConfig: UniTableConfig;
     private totalPayout: number = 99503.68;
+    @ViewChild(VacationpaySettingModal) private vacationpaySettingModal: VacationpaySettingModal;
 
     constructor(private _salarytransService: SalaryTransactionService, _basicamountService: BasicAmountService) {
         this.busy = true;
@@ -28,15 +30,17 @@ export class VacationpayModalContent {
             this.setCurrentBasicAmount();
             this.createFormConfig();
             this.createTableConfig();
+            this.busy = false;
         });
     }
 
     public createVacationPayments() {
-        this.busy = true;
+        // this.busy = true;
         return this._salarytransService.createVacationPayments(this.config.payrollRunID);
     }
 
     public openVacationpaySettings() {
+        this.vacationpaySettingModal.openModal();
         console.log('settings to come.. stay tuned');
     }
 

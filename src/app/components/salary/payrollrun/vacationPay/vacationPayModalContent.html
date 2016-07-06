@@ -1,4 +1,4 @@
-<article class="modal-content vacationPay" [attr.aria.busy]="busy">
+<article class="modal-content vacationPay" [attr.aria-busy]="busy">
     <h1>Feriepenger - oppsett og utbetaling</h1>
     <uni-form [config]="config" [fields]="fields" [model]="vacationHeaderModel" (onChange)="change($event)" (onReady)="ready($event)"></uni-form>
     <uni-table [resource]="basicamounts" [config]="tableConfig"></uni-table>
@@ -9,4 +9,5 @@
         <button class="good" (click)="createVacationPayments()">Generer poster</button>
         <button class="bad" *ngIf="config.hasCancelButton" (click)="config.cancel()">Avbryt</button>
     </footer>
+    <vacationpay-setting-modal></vacationpay-setting-modal>
 </article>

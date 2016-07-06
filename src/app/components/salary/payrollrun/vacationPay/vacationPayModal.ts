@@ -10,7 +10,7 @@ import {RootRouteParamsService} from '../../../../services/rootRouteParams';
 })
 export class VacationpayModal implements AfterViewInit {
     @ViewChildren(UniModal) private modalElements: QueryList<UniModal>;
-    private modalConfig: {hasCancelButton: boolean, cancel: any, actions: {text: string, method: any}[], payrollRunID: number};
+    private modalConfig: {hasCancelButton: boolean, cancel: any, payrollRunID: number};
     private payrollRunID: number;
     private modals: UniModal[];
     @Output() public updatePayrollRun: EventEmitter<any> = new EventEmitter<any>(true);
