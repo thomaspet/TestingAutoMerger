@@ -150,22 +150,38 @@ export class WorkerService extends BizHttp<Worker> {
     }
     
     saveWorkItem(item:WorkItem) : Observable<WorkItem> {
-        if (item.ID) {
-            return this.PUT('workitems/' + item.ID, undefined, item );
-        }
-        return this.POST('workitems', undefined, item );
+        return this.saveByID(item, 'workitems');
     }
 
     deleteWorkitem(id:number): Observable<WorkItem> {
-        return this.http.asDELETE().usingBusinessDomain().withEndPoint('workitems/' + id).send(undefined, true);
+        return this.deleteByID(id, 'workitems');
     }
     
-    getWorkTypes(): Observable<WorkType[]> {
-        return this.GET('worktypes');
+    getWorkTypes(params?: URLSearchParams, route = 'worktypes'): Observable<WorkType[]> {
+        return this.http
+            .usingBusinessDomain()
+            .asGET()            
+            .withEndPoint(route)
+            .send({}, true, params);        
+    }
+
+    saveByID<T>(item:T, baseRoute:string): Observable<T> {
+        var itemX:any = item;
+        if (itemX && itemX.ID) {
+            return this.PUT(baseRoute + '/' + itemX.ID, undefined, item );
+        }
+        return this.POST(baseRoute, undefined, item );            
+    }
+
+    deleteByID(id:any, baseRoute:string): Observable<any> {
+        return this.http.asDELETE().usingBusinessDomain().withEndPoint(baseRoute + '/' + id).send(undefined, true);
+    }
+
+    getByID<T>(id:number, baseRoute:string, expand?:string):Observable<T> {
+        return this.GET(baseRoute + '/' + id, { expand: expand});
     }
     
     getStatistics(query:string): Observable<any> {
-        //model=workitem&select=sum(minutes),name,businessrelation.name&filter=&pivot=true&join=workitem.worktypeid eq worktype.id and workitem.workrelationid eq workrelation.id and workrelation.workerid eq worker.id and worker.businessrelationid eq businessrelation.id&top=orderby=worktype.id
         return this.GET('statistics?' + query);
 
     }

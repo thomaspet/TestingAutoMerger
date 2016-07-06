@@ -203,7 +203,7 @@ export class Editable implements AfterViewInit, OnDestroy {
     }
 
     private raiseEvent(name:string, cargo:any):any {
-        if (this.config.events.hasOwnProperty(name)) {
+        if (this.config && this.config.events && this.config.events.hasOwnProperty(name)) {
             return this.config.events[name](cargo);
         }        
     }
