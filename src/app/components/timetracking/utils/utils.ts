@@ -11,13 +11,14 @@ export function safeInt(value: any) {
     return tmp;
 }
 
-export function createFormField(name:string, label:string, fieldType = 10, section = 0, sectionHeader?:string, fieldSet = 0, options?: any):any {
+export function createFormField(name:string, label:string, fieldType = 10, section = 0, sectionHeader?:string, fieldSet = 0, options?: any, fullWidth = false):any {
 	return { 
 		Property: name, Label: label,
 		FieldType: fieldType,
-		Section: section, SectionHeader: sectionHeader,
+		Section: section, Sectionheader: sectionHeader,
 		FieldSet: fieldSet,
-		Combo: 0, Options: options
+		Combo: 0, Options: options,
+		Classes: fullWidth ? 'max-width visuallyHideLabel' : undefined
 	}
 }
 

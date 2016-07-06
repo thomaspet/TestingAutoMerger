@@ -29,7 +29,8 @@ var labels = {
     'error': 'En feil oppstod',
     'err_loading': 'Feil ved lasting',
     'err_save': 'Feil ved lagring',
-    'err_delete': 'Feil ved sletting'
+    'err_delete': 'Feil ved sletting',
+    'ask_delete': 'Ønsker du virkelig å slette aktuell post?'
 }
 
 @Component({
@@ -42,7 +43,9 @@ var labels = {
 export class WorktypeDetailview {
     @ViewChild(UniForm) form:UniForm;
     private busy = true;
+    private isDirty = false;
     private title:any;
+    private subTitle:any;
     private ID:number;
     private current: WorkType;
     private fields: Array<any>;
@@ -62,6 +65,24 @@ export class WorktypeDetailview {
     public ngOnInit() {
         this.setupLayout();        
     }
+
+    private setupLayout() {
+        this.fields = [
+            createFormField('Name', 'Navn'),
+            createFormField('SystemType', 'Type', 3, null, null, null, {
+                source: SystemTypes, valueProperty: 'id', displayProperty: 'label'
+            }),
+            createFormField('Description', '', 16, 1, 'Kommentar', null, null, true)
+        ];
+    }    
+
+    public onReady(event) {
+        this.loadCurrent(this.ID);
+        setTimeout(() => {
+            //this.form.section(1).Hidden = false;
+            this.form.section(1).toggle();            
+        }, 100);
+    }    
 
     public onShowList() {
          this.router.navigateByUrl('/timetracking/worktypes');
@@ -104,18 +125,19 @@ export class WorktypeDetailview {
     }
 
     public onChange() {
-
+        this.flagDirty();
     }
 
     public onCreateNew() {
-        this.loadCurrent(0, true);
+        this.loadCurrent(0);
     }
 
-    public onReady(event) {
-        this.loadCurrent(this.ID);
+    private flagDirty(dirty = true) {
+        this.isDirty = dirty;
+        this.enableAction(IAction.Save, true);
     }
 
-    private loadCurrent(id:number, updateTitle = false) {
+    private loadCurrent(id:number, updateTitle = true) {
         if (id) {
             this.busy = true;
             this.workerService.getByID(id, resource).subscribe((item:WorkType) =>{
@@ -128,6 +150,7 @@ export class WorktypeDetailview {
                 if (updateTitle) {
                     this.updateTitle();
                 }
+                this.flagDirty(false);
                 this.busy = false;                
             }, (err)=> {
                 this.showErrMsg(err._body || err.statusText, labels.err_loading, true);
@@ -140,8 +163,9 @@ export class WorktypeDetailview {
             this.current = t;
             this.enableAction(IAction.Delete, false);
             this.busy = false;
+            this.flagDirty(false);
             if (updateTitle) {
-                this.updateTitle();
+                this.updateTitle(labels.new);
             }
         }        
     }
@@ -150,9 +174,10 @@ export class WorktypeDetailview {
         this.actions[actionID].disabled = !enable;
     }
 
-    private updateTitle() {
-        this.title = this.ID ? view.label + ' ' + this.ID : labels.new;  
-        this.tabService.addTab({ name: this.title, url: view.url + '/' + this.ID, moduleID: 17, active: true });
+    private updateTitle(fallbackTitle?:string) {
+        this.title = this.ID && this.current ? this.current.Name : fallbackTitle || ''; 
+        this.subTitle = this.ID ? view.label + ' ' + this.ID : labels.new;  
+        this.tabService.addTab({ name: this.subTitle, url: view.url + '/' + this.ID, moduleID: 17, active: true });
     }
 
     private save(done) {
@@ -170,8 +195,13 @@ export class WorktypeDetailview {
         }, ()=> this.busy = false);
     }
 
+    private onDelete() {
+        this.delete(()=>{});
+    }
+
     private delete(done) {
         if (this.ID) {
+            if (!confirm(labels.ask_delete)) { done(); return; }
             this.workerService.deleteByID(this.ID, resource).subscribe((result)=>{
                 done(labels.deleted_ok);
                 this.postDeleteAction();
@@ -188,22 +218,12 @@ export class WorktypeDetailview {
         this.navigate('next').catch((id)=>{
             if (id===0) {
                 this.navigate('prev').catch((id)=> {
-                    this.loadCurrent(0, true);
+                    this.loadCurrent(0);
                 });
                 return;
             }
-            this.loadCurrent(0, true);
+            this.loadCurrent(0);
         });        
-    }
-
-    private setupLayout() {
-        this.fields = [
-            createFormField('Name', 'Navn'),
-            createFormField('SystemType', 'Type', 3, null, null, null, {
-                source: SystemTypes, valueProperty: 'id', displayProperty: 'label'
-            }),
-            createFormField('Description', 'Kommentar', 16)
-        ];
     }
 
     showErrMsg(msg:string, title?:string, lookForMsg = false):string {

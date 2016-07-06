@@ -61,13 +61,21 @@
         background-image: unicon-edit($uni-color-scale3)
         &:hover
             background-image: unicon-edit($uni-color-C2A)
+        &.-is-active
+            background-color: $uni-color-C2A
+            background-image: unicon-edit($uni-color-negative)
     .down
         background-image: unicon-down($uni-color-scale3)
         &:hover
             background-image: unicon-down($uni-color-C2A)
-        &.-is-active
-            background-color: $uni-color-C2A
-            background-image: unicon-down($uni-color-negative)
+    .trash
+        background-image: unicon-trash($uni-color-scale3)
+        &:hover
+            background-image: unicon-trash($uni-color-C2A)          
+    .close
+        background-image: unicon-close($uni-color-scale3)
+        &:hover
+            background-image: unicon-close($uni-color-C2A)                            
 
 .poster_toolbar_extras
     @include unigrid-flush(14)
