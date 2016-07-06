@@ -6,16 +6,23 @@ import {Router} from '@angular/router-deprecated';
 import {ToastService, ToastType} from '../../../../framework/uniToast/toastService';
 
 export interface IViewConfig {
+    labels?: {
+        single: string;
+        plural: string;
+        createNew: string;
+    }
     moduleID: number,
     detail: {
-        route: string;
+        route?: string;
         routeBackToList?: string;
     }
     tab: View;
     data: {
-        model?: string;
         route: string;
-        lookupFunction?: (any) => {}
+        model?: string;
+        lookupFunction?: (any) => {},
+        factory?: () => {}
+        check?: (item:any) => void
     };
     tableConfig?: UniTableConfig;
     formFields?: Array<any>;
@@ -45,10 +52,12 @@ export class GenericListView {
     }
 
     public createNew() {
+        debugger;
         this.router.navigateByUrl(this.viewconfig.detail.route + '0');
     }
 
     public onRowSelected(event) {
+        debugger;
         this.router.navigateByUrl(this.viewconfig.detail.route + event.rowModel.ID);
     };        
 

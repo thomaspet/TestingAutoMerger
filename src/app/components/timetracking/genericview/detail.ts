@@ -2,17 +2,12 @@ import {Component, ViewChild, Input} from "@angular/core";
 import {TabService} from '../../layout/navbar/tabstrip/tabService';
 import {View} from '../../../models/view/view';
 import {WorkerService} from '../../../services/timetracking/workerservice';
-import {WorkTypeSystemTypePipe, SystemTypes} from '../utils/pipes';
 import {Router, RouteParams, RouterLink} from '@angular/router-deprecated';
-import {WorkType} from '../../../unientities';
 import {UniSave, IUniSaveAction} from '../../../../framework/save/save';
 import {UniForm, UniFieldLayout} from '../../../../framework/uniform';
-import {createFormField} from '../utils/utils';
 import {ToastService, ToastType} from '../../../../framework/uniToast/toastService';
 import {URLSearchParams} from '@angular/http'
 import {IViewConfig} from './list';
-
-export var view = new View('worktype', 'Timeart', 'WorktypeDetailview', true, 'worktype/detail');
 
 enum IAction {
     Save = 0,
@@ -20,7 +15,6 @@ enum IAction {
 }
 
 var labels = {
-    'new': 'Ny timeart',
     'action_save': 'Lagre',
     'action_delete':'Slett',
     'deleted_ok': 'Sletting ok',
@@ -34,7 +28,6 @@ var labels = {
 @Component({
     selector: 'genericdetail',
     templateUrl: 'app/components/timetracking/genericview/detail.html',
-    pipes: [WorkTypeSystemTypePipe],
     providers: [WorkerService],
     directives: [UniForm, UniSave]
 })
@@ -46,9 +39,10 @@ export class GenericDetailview {
     private title:any;
     private subTitle:any;
     private ID:number;
-    private current: WorkType;
+    private current: any;
     private fields: Array<any>;
     private config: any = {};
+    
     private actions: IUniSaveAction[] = [ 
         { label: labels.action_save, action: (done)=>this.save(done), main: true, disabled: false },
         { label: labels.action_delete, action: (done)=>this.delete(done), main:false, disabled: true}
@@ -57,28 +51,20 @@ export class GenericDetailview {
     constructor(private workerService: WorkerService, 
         private params: RouteParams, private tabService: TabService,
         private toastService: ToastService, private router: Router) {
+            debugger;
             this.ID = parseInt(params.get('id'));
             this.updateTitle();        
     }
 
     public ngOnInit() {
+        debugger;
         if (this.viewconfig) {
             var tab = this.viewconfig.tab;
             this.tabService.addTab({ name: tab.label, url: tab.url, moduleID: this.viewconfig.moduleID, active: true });
             this.fields = this.viewconfig.formFields;
         }        
     }
-/*
-    private setupLayout() {
-        this.fields = [
-            createFormField('Name', 'Navn'),
-            createFormField('SystemType', 'Type', 3, null, null, null, {
-                source: SystemTypes, valueProperty: 'id', displayProperty: 'label'
-            }),
-            createFormField('Description', '', 16, 1, 'Kommentar', null, null, true)
-        ];
-    }    
-*/
+
     public onReady(event) {
         this.loadCurrent(this.ID);
     }    
@@ -143,7 +129,9 @@ export class GenericDetailview {
             this.workerService.getByID(id, this.viewconfig.data.route).subscribe((item:any) =>{
                 this.ID = item.ID;
                 if (item) {
-                    item.SystemType = item.SystemType || 1 // default type = 1. timer;
+                    if (this.viewconfig.data && this.viewconfig.data.check) {
+                        this.viewconfig.data.check(item);
+                    }
                     this.current = item;
                     this.enableAction(IAction.Delete);
                 }
@@ -157,15 +145,15 @@ export class GenericDetailview {
                 this.busy = false; 
             });
         } else {
-            let t = new WorkType();
-            this.ID = 0;
-            t.SystemType = 1 // default type = 1. timer;
-            this.current = t;
+            if (this.viewconfig.data && this.viewconfig.data.factory) {
+                this.current = this.viewconfig.data.factory();
+            }
+            this.ID = 0;            
             this.enableAction(IAction.Delete, false);
             this.busy = false;
             this.flagDirty(false);
             if (updateTitle) {
-                this.updateTitle(labels.new);
+                this.updateTitle(this.viewconfig.labels.createNew);
             }
         }        
     }
@@ -176,13 +164,13 @@ export class GenericDetailview {
 
     private updateTitle(fallbackTitle?:string) {
         this.title = this.ID && this.current ? this.current.Name : fallbackTitle || ''; 
-        this.subTitle = this.ID ? view.label + ' ' + this.ID : labels.new;  
-        this.tabService.addTab({ name: this.subTitle, url: view.url + '/' + this.ID, moduleID: 17, active: true });
+        this.subTitle = this.ID ? this.viewconfig.tab.label + ' ' + this.ID : this.viewconfig.labels.createNew;  
+        this.tabService.addTab({ name: this.subTitle, url: this.viewconfig.tab.url + '/' + this.ID, moduleID: this.viewconfig.moduleID, active: true });
     }
 
     private save(done) {
         this.busy = true;
-        this.workerService.saveByID(this.current, resource).subscribe((item)=>{
+        this.workerService.saveByID(this.current, this.viewconfig.data.route).subscribe((item)=>{
             this.current = item;
             this.ID = item.ID;
             this.updateTitle();
@@ -202,7 +190,7 @@ export class GenericDetailview {
     private delete(done) {
         if (this.ID) {
             if (!confirm(labels.ask_delete)) { done(); return; }
-            this.workerService.deleteByID(this.ID, resource).subscribe((result)=>{
+            this.workerService.deleteByID(this.ID, this.viewconfig.data.route).subscribe((result)=>{
                 done(labels.deleted_ok);
                 this.postDeleteAction();
             }, (err)=>{

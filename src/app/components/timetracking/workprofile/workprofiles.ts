@@ -24,7 +24,7 @@ export class WorkprofileListview {
     private createConfig(): IViewConfig {
         return {
             moduleID: 15,
-            detail: { route: '/timetracking/workprofiles/'},
+            detail: { route: '/timetracking/workprofile/'},
             tab: view,
             data: { 
                 route: 'workprofiles',
