@@ -69,12 +69,12 @@ export class UniSave {
         document.addEventListener('keydown', (e) => {
             if (e.keyCode === 83 && (navigator.platform.match('Mac') ? e.metaKey : e.ctrlKey)) {
                 e.preventDefault();
-                this.mainAction();
+                this.onSave(this.mainAction());
             }
         }, false);
     }
 
-    private mainAction() {
+    public mainAction() {
         let _declaredMain = this.actions.filter(action => action.main);
 
         if (_declaredMain.length) {
