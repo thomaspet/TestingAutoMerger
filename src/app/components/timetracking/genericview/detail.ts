@@ -1,15 +1,16 @@
-import {Component, ViewChild} from "@angular/core";
-import {TabService} from '../../../layout/navbar/tabstrip/tabService';
-import {View} from '../../../../models/view/view';
-import {WorkerService} from '../../../../services/timetracking/workerservice';
-import {WorkTypeSystemTypePipe, SystemTypes} from '../../utils/pipes';
+import {Component, ViewChild, Input} from "@angular/core";
+import {TabService} from '../../layout/navbar/tabstrip/tabService';
+import {View} from '../../../models/view/view';
+import {WorkerService} from '../../../services/timetracking/workerservice';
+import {WorkTypeSystemTypePipe, SystemTypes} from '../utils/pipes';
 import {Router, RouteParams, RouterLink} from '@angular/router-deprecated';
-import {WorkType} from '../../../../unientities';
-import {UniSave, IUniSaveAction} from '../../../../../framework/save/save';
-import {UniForm, UniFieldLayout} from '../../../../../framework/uniform';
-import {createFormField} from '../../utils/utils';
-import {ToastService, ToastType} from '../../../../../framework/uniToast/toastService';
+import {WorkType} from '../../../unientities';
+import {UniSave, IUniSaveAction} from '../../../../framework/save/save';
+import {UniForm, UniFieldLayout} from '../../../../framework/uniform';
+import {createFormField} from '../utils/utils';
+import {ToastService, ToastType} from '../../../../framework/uniToast/toastService';
 import {URLSearchParams} from '@angular/http'
+import {IViewConfig} from './list';
 
 export var view = new View('worktype', 'Timeart', 'WorktypeDetailview', true, 'worktype/detail');
 
@@ -17,9 +18,6 @@ enum IAction {
     Save = 0,
     Delete = 1
 }
-
-var resource = 'worktypes';
-var statResource = 'worktype';
 
 var labels = {
     'new': 'Ny timeart',
@@ -34,13 +32,14 @@ var labels = {
 }
 
 @Component({
-    selector: view.name,
-    templateUrl: 'app/components/timetracking/worktype/detail/worktype.html',
+    selector: 'genericdetail',
+    templateUrl: 'app/components/timetracking/genericview/detail.html',
     pipes: [WorkTypeSystemTypePipe],
     providers: [WorkerService],
     directives: [UniForm, UniSave]
 })
-export class WorktypeDetailview {
+export class GenericDetailview {
+    @Input() viewconfig: IViewConfig;
     @ViewChild(UniForm) form:UniForm;
     private busy = true;
     private isDirty = false;
@@ -63,9 +62,13 @@ export class WorktypeDetailview {
     }
 
     public ngOnInit() {
-        this.setupLayout();        
+        if (this.viewconfig) {
+            var tab = this.viewconfig.tab;
+            this.tabService.addTab({ name: tab.label, url: tab.url, moduleID: this.viewconfig.moduleID, active: true });
+            this.fields = this.viewconfig.formFields;
+        }        
     }
-
+/*
     private setupLayout() {
         this.fields = [
             createFormField('Name', 'Navn'),
@@ -75,16 +78,14 @@ export class WorktypeDetailview {
             createFormField('Description', '', 16, 1, 'Kommentar', null, null, true)
         ];
     }    
-
+*/
     public onReady(event) {
         this.loadCurrent(this.ID);
-        setTimeout(() => {
-            this.form.section(1).toggle();            
-        }, 10);
     }    
 
     public onShowList() {
-         this.router.navigateByUrl('/timetracking/worktypes');
+        if (this.viewconfig && this.viewconfig.detail && this.viewconfig.detail.routeBackToList)
+            this.router.navigateByUrl(this.viewconfig.detail.routeBackToList);
     }
 
     public onNavigate(direction = 'next')
@@ -96,7 +97,7 @@ export class WorktypeDetailview {
     private navigate(direction = 'next'):Promise<any>
     {        
     
-        var params = 'model=' + statResource;
+        var params = 'model=' + this.viewconfig.data.model;
         var resultFld = 'minid';
 
         if (direction==='next') {
@@ -139,7 +140,7 @@ export class WorktypeDetailview {
     private loadCurrent(id:number, updateTitle = true) {
         if (id) {
             this.busy = true;
-            this.workerService.getByID(id, resource).subscribe((item:WorkType) =>{
+            this.workerService.getByID(id, this.viewconfig.data.route).subscribe((item:any) =>{
                 this.ID = item.ID;
                 if (item) {
                     item.SystemType = item.SystemType || 1 // default type = 1. timer;

@@ -1,46 +1,42 @@
 import {Component} from "@angular/core";
 import {TabService} from '../../layout/navbar/tabstrip/tabService';
 import {View} from '../../../models/view/view';
-import {UniTable, UniTableColumn, UniTableColumnType, UniTableConfig, IContextMenuItem} from 'unitable-ng2/main';
+import {UniTable, UniTableColumn, UniTableColumnType, UniTableConfig} from 'unitable-ng2/main';
 import {WorkerService} from '../../../services/timetracking/workerservice';
 import {WorkTypeSystemTypePipe} from '../utils/pipes';
-import {Router} from '@angular/router-deprecated';
+import {GenericListView, IViewConfig} from '../genericview/list';
 
 export var view = new View('worktypes', 'Timearter', 'WorktypeListview', false, 'worktype');
 
 @Component({    
     selector: view.name,
-    templateUrl: 'app/components/timetracking/worktype/worktypes.html',
-    directives: [UniTable],
+    template: '<genericlist [viewconfig]="viewconfig"></genericlist>',
+    directives: [GenericListView],    
     pipes: [WorkTypeSystemTypePipe],
     providers: [WorkerService]
 })
 export class WorktypeListview {    
-    public view = view;
-    private tableConfig: UniTableConfig;
-    private lookupFunction: (urlParams: any) => any;
+    viewconfig: IViewConfig;
 
-    constructor(private tabService: TabService, private workerService:WorkerService, private router:Router) {
-        this.tabService.addTab({ name: view.label, url: view.url, moduleID: 17, active: true });
-        this.createTableConfig();
+    constructor(private tabService: TabService, private workerService: WorkerService) {
+        this.viewconfig = this.createConfig();
     }
 
-    public createNew() {
-        this.router.navigateByUrl('/timetracking/worktype/0');
-    }
-
-    public onRowSelected(event) {
-        this.router.navigateByUrl('/timetracking/worktype/' + event.rowModel.ID);
-    };    
-    
-    private createTableConfig() {
-
-        this.lookupFunction = (urlParams: any) => {
-            return this.workerService.getWorkTypes(urlParams);
+    private createConfig(): IViewConfig {
+        return {
+            moduleID: 17,
+            detail: { route: '/timetracking/worktype/'},
+            tab: view,
+            data: { 
+                route: 'worktypes',
+                lookupFunction: (urlParams: any) => { return this.workerService.getWorkTypes(urlParams); }
+            },
+            tableConfig: this.createTableConfig()
         };
-        
-        var systemTypePipe = new WorkTypeSystemTypePipe();
+    }
 
+    private createTableConfig():UniTableConfig {
+        var systemTypePipe = new WorkTypeSystemTypePipe();
         var cols = [
         	new UniTableColumn('ID', 'Nr.', UniTableColumnType.Number).setWidth('10%').setFilterOperator('startswith'),
             new UniTableColumn('Name', 'Navn', UniTableColumnType.Text).setWidth('40%').setFilterOperator('startswith'),
@@ -48,9 +44,9 @@ export class WorktypeListview {
                 .setTemplate((rowModel:any) => systemTypePipe.transform(rowModel.SystemType, '')  ).setWidth('20%'),
             new UniTableColumn('Description', 'Beskrivelse', UniTableColumnType.Text).setFilterOperator('startswith')
         ];
-
-
-        this.tableConfig = new UniTableConfig(false,true).setSearchable(true).setColumns(cols)
-
+        return new UniTableConfig(false,true).setSearchable(true).setColumns(cols)
     }
+
+
+
 }
