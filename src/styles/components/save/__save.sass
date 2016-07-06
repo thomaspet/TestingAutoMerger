@@ -23,6 +23,20 @@
     &[aria-hidden=true]
         display: none
 
+%contextMenu
+    position: absolute
+    display: block
+    background: $uni-color-negative
+    border-radius: pxToRem(3)
+    border: 1px solid $uni-color-scale8
+    box-shadow: 0 0 .6rem transparentize($uni-color-scale5, .7)
+
+    &:not([aria-expanded=true])
+        display: none
+
+    li
+        @extend %contextMenuItem
+
 uni-save
     display: block
     position: fixed
@@ -93,17 +107,6 @@ uni-save
             @extend button.good:hover
 
     .comboButton_moreList
-        position: absolute
-        display: block
-        background: $uni-color-negative
+        @extend %contextMenu
         bottom: 2.7rem
         right: 0
-        border-radius: pxToRem(3)
-        border: 1px solid $uni-color-scale8
-        box-shadow: 0 0 .6rem transparentize($uni-color-scale5, .7)
-
-        &:not([aria-expanded=true])
-            display: none
-
-        li
-            @extend %contextMenuItem

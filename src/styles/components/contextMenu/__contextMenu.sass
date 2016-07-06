@@ -1,0 +1,22 @@
+uni-context-menu
+    position: relative
+
+.contextmenu_button[type=button]
+    @extend %toolbarButton
+    background-image: unicon-more($uni-color-scale3)
+    &:hover,
+    &:focus
+        background-image: unicon-more($uni-color-C2A)
+    &[aria-pressed]:not([aria-pressed=false])
+        background-color: mix($uni-color-positive, $uni-color-C2A, 80%)
+        background-image: unicon-more($uni-color-negative)
+
+.contextmenu_menu
+    @extend %contextMenu
+    min-width: 11rem
+    top: 1.2rem
+    right: 0
+    z-index: 99
+
+.contextmenu_item
+    @extend %contextMenuItem
