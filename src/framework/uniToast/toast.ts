@@ -1,9 +1,16 @@
-import {Component, Input, Output, EventEmitter, HostListener, ChangeDetectionStrategy} from '@angular/core';
+import {Component, Input, Output, EventEmitter, ChangeDetectionStrategy} from '@angular/core';
 import {IToast} from './toastService';
 
 @Component({
     selector: 'uni-toast',
-    template: `{{toast.message}}`,
+    template: `
+        <header>{{toast.title}}</header>
+        <small *ngIf="toast.message.length">{{toast.message}}</small>
+        <button aria-label="Close" (click)="close()"></button>
+    `,
+    host: {
+        '(click)': 'close()'
+    },
     changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class UniToast {
@@ -13,19 +20,15 @@ export class UniToast {
     @Output()
     private dismiss: EventEmitter<any> = new EventEmitter();
 
-    @HostListener('click')
-    private onClick() {
-        this.dismiss.emit(null);
-    }
-
-    constructor() {}
-
     public ngAfterViewInit() {
         if (this.toast && this.toast.duration > 0) {
             setTimeout(() => {
-                this.dismiss.emit(null);
+                this.close();
             }, (this.toast.duration * 1000));
         }
     }
-    
+
+    private close() {
+        this.dismiss.emit(true);
+    }
 }

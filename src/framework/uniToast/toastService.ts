@@ -9,7 +9,8 @@ export enum ToastType {
 export interface IToast {
     id: number;
     type: ToastType;
-    message: string;
+    title: string;
+    message?: string;
     duration: number;
 }
 
@@ -18,12 +19,13 @@ export class ToastService {
     private nextId: number = 0;
     private toasts: IToast[] = [];
     
-    public addToast(message: string, type: ToastType = ToastType.bad, duration: number = 0) {
+    public addToast(title: string, type?: ToastType, duration?: number, message?: string) {
         this.toasts.push({
             id: this.nextId++,
-            type: type,
-            message: message,
-            duration: duration,
+            type: type || ToastType.bad,
+            title: title,
+            message: message || '',
+            duration: duration || 0,
         });
     }
 
