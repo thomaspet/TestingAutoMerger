@@ -6,7 +6,7 @@ import {ClickOutsideDirective} from '../../../../framework/core/clickOutside';
 @Component({
     selector: 'uni-context-menu',
     template: `
-    <span (clickOutside)="close()">
+    <span (clickOutside)="close()" *ngIf="actions && actions.length">
         <button type="button"
             class="contextmenu_button"
             [id]="guid + '-btn'"
