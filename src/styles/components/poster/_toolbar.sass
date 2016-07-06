@@ -61,10 +61,13 @@
         background-image: unicon-edit($uni-color-scale3)
         &:hover
             background-image: unicon-edit($uni-color-C2A)
-
+    .down
+        background-image: unicon-down($uni-color-scale3)
+        &:hover
+            background-image: unicon-down($uni-color-C2A)
         &.-is-active
             background-color: $uni-color-C2A
-            background-image: unicon-edit($uni-color-negative)
+            background-image: unicon-down($uni-color-negative)
 
 .poster_toolbar_extras
     @include unigrid-flush(14)

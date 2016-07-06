@@ -1,5 +1,23 @@
-<section class="application">
-    <h2>{{title}}</h2>
+<header *ngIf="current">    
+    <article class="poster_toolbar">
+        <section>
+            <h1 *ngIf="ID > 0">{{current.Name}}</h1>
+            <p *ngIf="ID > 0">Timeart nr. {{ID}}</p>
+            <h1 *ngIf="ID == 0">{{title}}</h1>
+            <p *ngIf="ID === 0">&nbsp;</p>
+        </section>
+            
+        <nav class="poster_toolbar_tools">
+            <a (click)="onShowList()"  class="down" alt="Tilbake til liste">Lukk</a>
+            <a (click)="onNavigate('prev')"  class="previous">Forrige</a>
+            <a (click)="onNavigate('next')"  class="next">Neste</a>
+            <a (click)="onCreateNew()"  class="new">Ny</a>
+        </nav>         
+    </article>       
+    
+</header>
+
+<section class="application" [attr.aria-busy]="busy" >
     <uni-form [attr.aria-busy]="busy" 
               [config]="config"
               [fields]="fields"
