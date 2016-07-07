@@ -2,14 +2,14 @@ import {Component, Input, ViewChild} from '@angular/core';
 import {UniForm} from '../../../../../framework/uniform';
 import {UniFieldLayout} from '../../../../../framework/uniform/index';
 import { UniTable, UniTableConfig, UniTableColumnType, UniTableColumn} from 'unitable-ng2/main';
-import {CompanySalaryService, CompanyVacationRateService} from '../../../../services/services';
-import {FieldType, CompanyVacationRate} from '../../../../unientities';
+import {CompanySalaryService, CompanyVacationRateService, AccountService} from '../../../../services/services';
+import {FieldType, CompanyVacationRate, Account} from '../../../../unientities';
 import {Observable} from 'rxjs/Observable';
 
 @Component({
     selector: 'vacationpay-setting-modal-content',
     directives: [UniForm, UniTable],
-    providers: [CompanySalaryService, CompanyVacationRateService],
+    providers: [CompanySalaryService, CompanyVacationRateService, AccountService],
     templateUrl: 'app/components/salary/payrollrun/vacationpay/vacationpaysettingmodalcontent.html'
 })
 export class VacationpaySettingModalContent {
@@ -17,14 +17,14 @@ export class VacationpaySettingModalContent {
     private fields: UniFieldLayout[] = [];
     private companysalaryModel: any = {};
     @Input() private config: any;
-    @ViewChild(UniForm) private uniform: UniForm;
     @ViewChild(UniTable) private table: UniTable;
     private formConfig: any = {};
     private tableConfig: UniTableConfig;
     private vacationRates: CompanyVacationRate[] = [];
     private changedVacationRates: CompanyVacationRate[] = [];
+    private infoText: string;
 
-    constructor(private _companysalaryService: CompanySalaryService, private _companyvacationRateService: CompanyVacationRateService) {
+    constructor(private _companysalaryService: CompanySalaryService, private _companyvacationRateService: CompanyVacationRateService, private _accountService: AccountService) {
         this.busy = true;
         Observable.forkJoin(
             _companysalaryService.getCompanySalary()
@@ -50,28 +50,40 @@ export class VacationpaySettingModalContent {
 
     }
 
-    public saveSettings(done) {
-        console.log('settings saved');
+    public saveSettings() {
+        // save uniform
+        if (this.companysalaryModel.ID > 0) {
+            this._companysalaryService.Put(this.companysalaryModel.ID, this.companysalaryModel)
+            .subscribe((formresponse) => {
+                this.done('Firmalønn oppdatert');
+            });
+        }
+        
+        // save unitable
         this.changedVacationRates = this.table.getTableData();
         this.changedVacationRates.forEach(vacationRate => {
             if (vacationRate.ID > 0) {
                 this._companyvacationRateService.Put(vacationRate.ID, vacationRate)
                 .subscribe((response) => {
-                    done('Feriepengesats oppdatert: ');
+                    this.done('Feriepengesats oppdatert');
                 },
                 (error) => {
-                    done('Feil ved oppdatering av feriepengepost: ', error);
+                    this.done('Feil ved oppdatering av feriepengepost: ' + error);
                 });
             } else {
                 this._companyvacationRateService.Post(vacationRate)
                 .subscribe((response) => {
-                    done('Feriepengesats lagret: ');
+                    this.done('Feriepengesats lagret: ');
                 },
                 (error) => {
-                    done('Feil ved lagring av feriepengepost: ', error);
+                    this.done('Feil ved lagring av feriepengepost: ' + error);
                 });
             }
         });
+    }
+
+    private done(infotext: string) {
+        this.infoText = infotext;
     }
 
     private setFormFields() {
@@ -79,16 +91,30 @@ export class VacationpaySettingModalContent {
         var mainAccountCostVacation = new UniFieldLayout();
         mainAccountCostVacation.Label = 'Kostnad feriepenger';
         mainAccountCostVacation.Property = 'MainAccountCostVacation';
-        mainAccountCostVacation.FieldType = FieldType.TEXT;
+        mainAccountCostVacation.FieldType = FieldType.AUTOCOMPLETE;
+        mainAccountCostVacation.Options = {
+            source: this._accountService,
+            search: (query: string) => this._accountService.GetAll(`filter=startswith(AccountNumber,'${query}') or contains(AccountName,'${query}')`),
+            displayProperty: 'AccountName',
+            valueProperty: 'AccountNumber',
+            template: (account: Account) => account ? `${account.AccountNumber} - ${account.AccountName}` : '',
+        };
         
         var mainAccountAllocatedVacation = new UniFieldLayout();
         mainAccountAllocatedVacation.Label = 'Avsatt feriepenger';
         mainAccountAllocatedVacation.Property = 'MainAccountAllocatedVacation';
-        mainAccountAllocatedVacation.FieldType = FieldType.TEXT;
+        mainAccountAllocatedVacation.FieldType = FieldType.AUTOCOMPLETE;
+        mainAccountAllocatedVacation.Options = {
+            source: this._accountService,
+            search: (query: string) => this._accountService.GetAll(`filter=startswith(AccountNumber,'${query}') or contains(AccountName,'${query}')`),
+            displayProperty: 'AccountName',
+            valueProperty: 'AccountNumber',
+            template: (account: Account) => account ? `${account.AccountNumber} - ${account.AccountName}` : '',
+        };
 
         var payInHoliday = new UniFieldLayout();
-        payInHoliday.Label = 'Fastlønn i feriemåned';
-        payInHoliday.Property = 'PaymentInterval';
+        payInHoliday.Label = 'Trekk i fastlønn i feriemåned';
+        payInHoliday.Property = 'PaymentInterval'; //WageDeductionDueToHoliday
         payInHoliday.FieldType = FieldType.DROPDOWN;
         payInHoliday.Options = {
             source: [
