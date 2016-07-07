@@ -4,26 +4,25 @@ import {UniForm, UniFieldLayout} from '../../../../framework/uniform';
 import {createFormField} from '../utils/utils';
 import {IViewConfig} from '../genericview/list';
 import {WorkProfile} from '../../../unientities';
+import {GenericDetailview} from '../genericview/detail';
 
-
-export var view = new View('workprofile', 'Stillingsmal', 'WorkprofileDetailview', true, 'workprofile');
+export var view = new View('workprofile', 'Stillingsmal', 'WorkprofileDetailview', true);
 
 @Component({
     selector: view.name,
     template: '<genericdetail [viewconfig]="viewconfig" ></genericdetail>',
-    directives: []
+    directives: [GenericDetailview]
 })
-export class WorktypeDetailview {
+export class WorkprofileDetailview {
     private viewconfig: IViewConfig;
     constructor() {
-        debugger;
         this.viewconfig = this.createLayout();
     }
 
     private createLayout(): IViewConfig {
 
         var layout: IViewConfig = {
-            moduleID: 13,
+            moduleID: 15,
             labels: { single: 'Mal', plural: 'Maler', createNew: 'Ny mal'},
             detail: { routeBackToList: '/timetracking/workprofiles'},
             tab: view,

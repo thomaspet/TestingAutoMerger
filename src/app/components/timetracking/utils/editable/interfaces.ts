@@ -48,6 +48,7 @@ export interface IEditEvents {
     onEditChanged(value:any, position:IPos):boolean;
     onEditKeydown(event:any);
     onEditTyping(event:any, text:string, position:IPos);
+    onEditBtnClick(event:any, text:string, position:IPos);
 }
 
 export interface IRect {

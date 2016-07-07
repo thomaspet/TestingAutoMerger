@@ -149,7 +149,7 @@ export class Editor implements IEditor {
     private onButtonClick(event) {
         this.resetTyping = true;
         if (!this.editEvents) return;
-        this.editEvents.onEditTyping(event, '', this.position);
+        this.editEvents.onEditBtnClick(event, this.getValue(), this.position);
     }
 
     private onEditTyping(event) {

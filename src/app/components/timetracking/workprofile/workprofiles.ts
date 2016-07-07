@@ -5,7 +5,7 @@ import {GenericListView, IViewConfig} from '../genericview/list';
 import {UniTableColumn, UniTableColumnType, UniTableConfig} from 'unitable-ng2/main';
 import {WorkerService} from '../../../services/timetracking/workerservice';
 
-export var view = new View('workprofiles', 'Stillingsmal', 'WorkprofileListview', false, 'workprofile');
+export var view = new View('workprofiles', 'Stillingsmaler', 'WorkprofileListview', false, 'workprofile');
 
 @Component({
     selector: view.name,

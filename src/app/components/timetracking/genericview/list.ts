@@ -52,12 +52,10 @@ export class GenericListView {
     }
 
     public createNew() {
-        debugger;
         this.router.navigateByUrl(this.viewconfig.detail.route + '0');
     }
 
     public onRowSelected(event) {
-        debugger;
         this.router.navigateByUrl(this.viewconfig.detail.route + event.rowModel.ID);
     };        
 

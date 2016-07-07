@@ -51,17 +51,15 @@ export class GenericDetailview {
     constructor(private workerService: WorkerService, 
         private params: RouteParams, private tabService: TabService,
         private toastService: ToastService, private router: Router) {
-            debugger;
             this.ID = parseInt(params.get('id'));
-            this.updateTitle();        
     }
 
     public ngOnInit() {
-        debugger;
         if (this.viewconfig) {
             var tab = this.viewconfig.tab;
             this.tabService.addTab({ name: tab.label, url: tab.url, moduleID: this.viewconfig.moduleID, active: true });
             this.fields = this.viewconfig.formFields;
+            this.updateTitle();        
         }        
     }
 
@@ -164,8 +162,10 @@ export class GenericDetailview {
 
     private updateTitle(fallbackTitle?:string) {
         this.title = this.ID && this.current ? this.current.Name : fallbackTitle || ''; 
-        this.subTitle = this.ID ? this.viewconfig.tab.label + ' ' + this.ID : this.viewconfig.labels.createNew;  
-        this.tabService.addTab({ name: this.subTitle, url: this.viewconfig.tab.url + '/' + this.ID, moduleID: this.viewconfig.moduleID, active: true });
+        if (this.viewconfig) {
+            this.subTitle = this.ID ? this.viewconfig.tab.label + ' ' + this.ID : this.viewconfig.labels.createNew;  
+            this.tabService.addTab({ name: this.subTitle, url: this.viewconfig.tab.url + '/' + this.ID, moduleID: this.viewconfig.moduleID, active: true });
+        }
     }
 
     private save(done) {

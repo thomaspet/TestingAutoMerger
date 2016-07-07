@@ -23,7 +23,6 @@ view.addSubView(regTimeView);
 view.addSubView(workerView);
 view.addSubView(workTypeView);
 view.addSubView(workTypeDetailView);
-debugger;
 view.addSubView(workProfileView);
 view.addSubView(workProfileDetailView);
 

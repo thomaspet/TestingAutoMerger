@@ -139,6 +139,13 @@ export class Editable implements AfterViewInit, OnDestroy {
                 },
                 onEditTyping: (event, text:string, pos:IPos) => {
                     this.onTypeSearch(text, pos);
+                },
+                onEditBtnClick: (event, text:string, pos:IPos) => {
+                    if (this.dropList.isOpen()) {
+                        this.dropList.hide();
+                    } else {
+                        this.onTypeSearch('', pos);
+                    }
                 }
             }
             jqInput.on('blur', (event)=>{
