@@ -53,7 +53,7 @@ export class VatSettings {
         this.hasChanges = false;
     }
     
-    private change(vatType: VatType) {
+    private onChange(vatType: VatType) {
         this.hasChanges = true;
     }
     
@@ -62,4 +62,3 @@ export class VatSettings {
     }
 }
 
-    

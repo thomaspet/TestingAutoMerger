@@ -45,7 +45,7 @@ export class VatTypeList {
                 params.set('orderby', 'VatCode');
             }
             
-            params.set('expand', 'VatCodeGroup,IncomingAccount,OutgoingAccount');
+            params.set('expand', 'VatCodeGroup,IncomingAccount,OutgoingAccount,VatReportReferences,VatReportReferences.VatPost');
             
             return this.vatTypeService.GetAllByUrlSearchParams(params);
         };
