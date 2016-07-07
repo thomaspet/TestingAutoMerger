@@ -13,7 +13,7 @@ export class EmployeeService extends BizHttp<Employee> {
         'BankAccounts'
     ];
     public debounceTime: number = 500;
-    public subEntities: Observable<any>;
+    public subEntities: any[];
     
     constructor(http: UniHttp) {
         super(http);
