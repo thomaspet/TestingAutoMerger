@@ -236,21 +236,7 @@ export class AgaAndSubEntitySettings implements OnInit {
             .setModelField('InterrimRemitAccount')
             .setType(UNI_CONTROL_DIRECTIVES[FieldType.TEXT]);
 
-        // var mainAccountAllocatedVacation = new UniFieldBuilder();
-        // mainAccountAllocatedVacation
-        //     .setLabel('Balanse feriepenger')
-        //     .setModel(this.companySalary[0])
-        //     .setModelField('MainAccountAllocatedVacation')
-        //     .setType(UNI_CONTROL_DIRECTIVES[FieldType.TEXT]);
-
-        // var mainAccountCostVacation = new UniFieldBuilder();
-        // mainAccountCostVacation
-        //     .setLabel('Resultat feriepenger')
-        //     .setModel(this.companySalary[0])
-        //     .setModelField('MainAccountCostVacation')
-        //     .setType(UNI_CONTROL_DIRECTIVES[FieldType.TEXT]);
-
-        salarySettings.addUniElements(interrimRemit); // , mainAccountAllocatedVacation, mainAccountCostVacation);
+        salarySettings.addUniElements(interrimRemit);
 
 
         formBuilder.addUniElements(salarySettings);
