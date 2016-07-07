@@ -6,7 +6,7 @@ import {View} from "../../models/view/view";
 import {view as workerView} from './worker/worker';
 
 import {view as workTypeView} from './worktype/worktypes';
-import {view as workTypeDetailView} from './worktype/detail/worktype';
+import {view as workTypeDetailView} from './worktype/worktype';
 
 import {view as workProfileView} from './workprofile/workprofiles';
 import {view as workProfileDetailView} from './workprofile/workprofile';
