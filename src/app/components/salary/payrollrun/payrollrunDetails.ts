@@ -12,7 +12,7 @@ import {RootRouteParamsService} from '../../../services/rootRouteParams';
 import {UniSave, IUniSaveAction} from '../../../../framework/save/save';
 import {UniForm, UniFieldLayout} from '../../../../framework/uniform';
 import {ContextMenu} from '../../common/contextMenu/contextMenu';
-import {IContextMenuItem} from 'unitable-ng2';
+import {IContextMenuItem} from 'unitable-ng2/main';
 
 declare var _;
 
@@ -47,7 +47,7 @@ export class PayrollrunDetails implements OnInit {
             {
                 label: 'Generer feriepenger',
                 action: () => {
-                    this.openVacationPayModal.bind(this);
+                    this.openVacationPayModal();
                 }
             },
             {
@@ -128,12 +128,6 @@ export class PayrollrunDetails implements OnInit {
                 action: this.openPostingSummaryModal.bind(this),
                 main: false,
                 disabled: this.payrollrun.StatusCode !== 1
-            },
-            {
-                label: 'Generer feriepenger',
-                action: this.openVacationPayModal.bind(this),
-                main: false,
-                disabled: this.payrollrun.StatusCode > 0
             }
         ];
     }
@@ -148,9 +142,8 @@ export class PayrollrunDetails implements OnInit {
         done('');
     }
 
-    public openVacationPayModal(done) {
+    public openVacationPayModal() {
         this.vacationPayModal.openModal();
-        done('');
     }
 
     private setStatus() {

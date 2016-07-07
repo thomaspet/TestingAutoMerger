@@ -7,8 +7,8 @@ export const AppConfig = ({
     BASE_URL_INIT: 'https://devapi-unieconomy.azurewebsites.net',
     
     // Swap between these BASE_URL's depending on whether you want to use local og remote backend
-    BASE_URL: 'http://localhost:29077',
-    // BASE_URL: 'https://devapi-unieconomy.azurewebsites.net',
+    // BASE_URL: 'http://localhost:29077',
+    BASE_URL: 'https://devapi-unieconomy.azurewebsites.net',
     
     
     // BASE_URL_INTEGRATION: 'http://localhost:17100/',
