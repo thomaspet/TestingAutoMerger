@@ -15,18 +15,24 @@ import {view as workProfileDetailView} from './workprofile/workprofile';
 import {view as regTimeView} from './regtime/regtime';
 import {view as timeentryView} from './timeentry/timeentry';
 
+import {view as projectView} from './project/projects';
+import {view as projectDetailView} from './project/project';
+
 // Main view (meta)
 export var view = new View("timetracking", "Timer", "UniTimetracking");
 
 // Add subviews (meta)
 view.addSubView(timeentryView);
 view.addSubView(regTimeView);
+
 view.addSubView(workerView);
 view.addSubView(workerDetailView);
 view.addSubView(workTypeView);
 view.addSubView(workTypeDetailView);
 view.addSubView(workProfileView);
 view.addSubView(workProfileDetailView);
+view.addSubView(projectView);
+view.addSubView(projectDetailView);
 
 @Component({
     selector: 'uni-' + view.name,

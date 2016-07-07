@@ -33,7 +33,7 @@ export class WorkerListview {
     private createTableConfig():UniTableConfig {
         var cols = [
         	new UniTableColumn('ID', 'Nr.', UniTableColumnType.Number).setWidth('10%').setFilterOperator('startswith'),
-            new UniTableColumn('Info.Name', 'Navn', UniTableColumnType.Text).setWidth('40%').setFilterOperator('startswith')
+            new UniTableColumn('Info.Name', 'Navn').setWidth('40%')
         ];
         return new UniTableConfig(false,true).setSearchable(true).setColumns(cols)
     }
