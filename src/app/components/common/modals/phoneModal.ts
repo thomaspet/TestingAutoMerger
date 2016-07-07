@@ -9,15 +9,22 @@ import {PhoneService} from '../../../services/services';
     selector: 'phone-form',
     directives: [UniForm],
     template: `
-        <uni-form *ngIf="config" [config]="config" [fields]="fields" [model]="model">
-        </uni-form>
+        <article class="modal-content phone-modal">
+            <h1 *ngIf="config.title">{{config.title}}</h1>
+            <uni-form [config]="formConfig" [fields]="fields" [model]="config.model"></uni-form>
+            <footer>
+                <button *ngFor="let action of config.actions; let i=index" (click)="action.method()" [ngClass]="action.class" type="button">
+                    {{action.text}}
+                </button>
+            </footer>
+        </article>    
     `
 })
 export class PhoneForm {
-    @Input() public model: Phone;
     @ViewChild(UniForm) public form: UniForm;
     private config: any = {};
     private fields: any[] = [];
+    public formConfig: any = {};
        
     public ngOnInit() {
         this.setupForm();
@@ -158,27 +165,6 @@ export class PhoneForm {
     }   
 }
 
-// phone modal type
-@Component({
-    selector: 'phone-modal-type',
-    directives: [PhoneForm],
-    template: `
-        <article class="modal-content phone-modal">
-            <h1 *ngIf="config.title">{{config.title}}</h1>
-            <phone-form [model]="config.model"></phone-form>
-            <footer>
-                <button *ngFor="let action of config.actions; let i=index" (click)="action.method()" [ngClass]="action.class" type="button">
-                    {{action.text}}
-                </button>
-            </footer>
-        </article>
-    `
-})
-export class PhoneModalType {
-    @Input() public config: any;
-    @ViewChild(PhoneForm) public form: PhoneForm;
-}
-
 // phone modal
 @Component({
     selector: 'phone-modal',
@@ -196,7 +182,7 @@ export class PhoneModal {
     @Output() public Canceled = new EventEmitter<boolean>();
     
     private modalConfig: any = {};
-    private type: Type = PhoneModalType;
+    private type: Type = PhoneForm;
 
     constructor(private phoneService: PhoneService) {
     }
@@ -204,14 +190,14 @@ export class PhoneModal {
     public ngOnInit() {
         this.modalConfig = {
             title: 'Telefonnummer',
-            model: null,
+            model: this.phone,
 
             actions: [
                 {
                     text: 'Lagre nummer',
                     class: 'good',
                      method: () => {                        
-                        this.modal.close();                                                
+                        this.modal.close();          
                         this.Changed.emit(this.modalConfig.model);
                         return false;
                     }                    
@@ -229,7 +215,7 @@ export class PhoneModal {
     }
     
     public openModal(phone: Phone) {  
-        this.modalConfig.model = phone;    
+        this.modalConfig.model = phone;
         this.modal.open();
     }
 }
