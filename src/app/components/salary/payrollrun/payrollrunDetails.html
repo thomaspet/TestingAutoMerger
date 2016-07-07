@@ -13,6 +13,7 @@
             <a (click)="previousPayrollrun()" class="previous">Forrige</a>
             <a (click)="nextPayrollrun()" class="next">Neste</a>
             <a (click)="createNewRun()" class="new">Ny lønnsavregning</a>
+            <uni-context-menu [actions]="contextMenuItems"></uni-context-menu>
         </nav>
 
     </article>
