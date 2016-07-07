@@ -1,23 +1,20 @@
 import {Component} from "@angular/core";
-import {TabService} from '../../layout/navbar/tabstrip/tabService';
 import {View} from '../../../models/view/view';
 import {GenericListView, IViewConfig} from '../genericview/list';
 import {UniTableColumn, UniTableColumnType, UniTableConfig} from 'unitable-ng2/main';
-import {WorkerService} from '../../../services/timetracking/workerservice';
 
 export var view = new View('workprofiles', 'Stillingsmaler', 'WorkprofileListview', false, 'workprofile');
 
 @Component({
     selector: view.name,
     template: '<genericlist [viewconfig]="viewconfig"></genericlist>',
-    directives: [GenericListView],
-    providers: [WorkerService]    
+    directives: [GenericListView] 
 })
 export class WorkprofileListview {    
 
     viewconfig: IViewConfig;
 
-    constructor(private tabService: TabService, private workerservice: WorkerService) {
+    constructor() {
         this.viewconfig = this.createConfig();
     }
 
@@ -28,7 +25,6 @@ export class WorkprofileListview {
             tab: view,
             data: { 
                 route: 'workprofiles',
-                lookupFunction: (urlParams: any) => { return this.workerservice.queryWithUrlParams(urlParams, 'workprofiles'); }
             },
             tableConfig: this.createTableConfig()
         };

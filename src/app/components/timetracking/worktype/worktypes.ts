@@ -2,7 +2,6 @@ import {Component} from "@angular/core";
 import {TabService} from '../../layout/navbar/tabstrip/tabService';
 import {View} from '../../../models/view/view';
 import {UniTable, UniTableColumn, UniTableColumnType, UniTableConfig} from 'unitable-ng2/main';
-import {WorkerService} from '../../../services/timetracking/workerservice';
 import {WorkTypeSystemTypePipe} from '../utils/pipes';
 import {GenericListView, IViewConfig} from '../genericview/list';
 
@@ -12,13 +11,12 @@ export var view = new View('worktypes', 'Timearter', 'WorktypeListview', false, 
     selector: view.name,
     template: '<genericlist [viewconfig]="viewconfig"></genericlist>',
     directives: [GenericListView],    
-    pipes: [WorkTypeSystemTypePipe],
-    providers: [WorkerService]
+    pipes: [WorkTypeSystemTypePipe]
 })
 export class WorktypeListview {    
     viewconfig: IViewConfig;
 
-    constructor(private tabService: TabService, private workerService: WorkerService) {
+    constructor(private tabService: TabService) {
         this.viewconfig = this.createConfig();
     }
 
@@ -28,8 +26,7 @@ export class WorktypeListview {
             detail: { route: '/timetracking/worktype/'},
             tab: view,
             data: { 
-                route: 'worktypes',
-                lookupFunction: (urlParams: any) => { return this.workerService.queryWithUrlParams(urlParams); }
+                route: 'worktypes'
             },
             tableConfig: this.createTableConfig()
         };

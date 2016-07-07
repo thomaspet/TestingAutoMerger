@@ -4,6 +4,7 @@ import {View} from '../../../models/view/view';
 import {UniTable, UniTableColumn, UniTableColumnType, UniTableConfig, IContextMenuItem} from 'unitable-ng2/main';
 import {Router} from '@angular/router-deprecated';
 import {ToastService, ToastType} from '../../../../framework/uniToast/toastService';
+import {WorkerService} from '../../../services/timetracking/workerservice';
 
 export interface IViewConfig {
     labels?: {
@@ -22,7 +23,6 @@ export interface IViewConfig {
         route: string;
         model?: string;
         expand?: string;
-        lookupFunction?: (any) => {},
         factory?: () => {}
         check?: (item:any) => void
     };
@@ -33,7 +33,8 @@ export interface IViewConfig {
 @Component({    
     selector: 'genericlist',
     templateUrl: 'app/components/timetracking/genericview/list.html',
-    directives: [UniTable]
+    directives: [UniTable],
+    providers: [WorkerService]
 })
 export class GenericListView {    
     @Input() viewconfig:IViewConfig;
@@ -41,13 +42,16 @@ export class GenericListView {
 
     private lookupFunction: (any) => {};
 
-    constructor(private tabService: TabService, private router:Router, private toastService:ToastService) {
+    constructor(private tabService: TabService, private router:Router, 
+        private toastService:ToastService, private workerService: WorkerService) {
     }
 
     ngOnInit() {
         if (this.viewconfig) {
             this.label = this.viewconfig.tab.label;
-            this.lookupFunction = this.viewconfig.data.lookupFunction;
+            this.lookupFunction = (urlParams) => {
+                return this.workerService.queryWithUrlParams(urlParams, this.viewconfig.data.route, this.viewconfig.data.expand);
+            };
             var tab = this.viewconfig.tab;
             this.tabService.addTab({ name: tab.label, url: tab.url, moduleID: this.viewconfig.moduleID, active: true });
         }
