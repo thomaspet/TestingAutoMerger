@@ -1,0 +1,35 @@
+<article class="uniSelect"
+    *ngIf="config && items"
+    (clickOutside)="close()">
+
+    <input type="text"
+        class="uniSelect_input"
+        role="combobox"
+        aria-autocomplete="none"
+        [attr.aria-owns]="guid"
+        [attr.aria-activedescendant]="activeDescendantId"
+        tabindex="0"
+        (click)="toggle()"
+        [value]="getDisplayValue(selectedItem)"
+        [placeholder]="config.placeholder || ''"
+        readonly />
+
+    <ul #itemDropdown [id]="guid" 
+        class="uniSelect_dropdown"
+        role="listbox"
+        [attr.aria-expanded]="expanded"
+        tabindex="-1">
+
+        <li *ngFor="let item of items; let idx = index"
+            [id]="guid + '-item-' + idx"
+            class="uniSelect_dropdown_item"
+            role="item"
+            [attr.aria-selected]="idx === focusedIndex"
+            (mouseover)="setFocusIndex(idx)"
+            (click)="confirmSelection()"
+            tabindex="-1">
+            {{getDisplayValue(item)}}
+        </li>
+
+    </ul>
+</article>

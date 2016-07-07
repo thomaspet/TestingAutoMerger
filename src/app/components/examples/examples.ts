@@ -60,6 +60,11 @@ const CHILD_ROUTES = [
         path: '/toast',
         name: 'UniToastDemo',
         loader: () => ComponentProxy.LoadComponentAsync('UniToastDemo', 'app/components/examples/toast/toastDemo')
+    }),
+    new AsyncRoute({
+        path: '/select',
+        name: 'UniSelectDemo',
+        loader: () => ComponentProxy.LoadComponentAsync('UniSelectDemo', 'app/components/examples/select/selectDemo')
     })
 ];
 
