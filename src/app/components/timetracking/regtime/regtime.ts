@@ -131,7 +131,7 @@ export class RegisterTime implements CanDeactivate {
             this.workRelations = this.timesheetService.workRelations;
         });
         
-        this.workerService.getWorkTypes().subscribe((result:Array<WorkType>)=>{
+        this.workerService.queryWithUrlParams().subscribe((result:Array<WorkType>)=>{
             this.worktypes = result;
         }, (err)=>{
             this.showErrMsg("errors in getworktypes!");

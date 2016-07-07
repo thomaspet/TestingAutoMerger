@@ -2,6 +2,33 @@ export {ChangeMap} from './changeMap';
 
 declare var moment;
 
+export enum ControlTypes {
+    AutocompleteInput = 0,
+    ButtonInput = 1,
+    DateInput = 2,
+    SelectInput = 3,
+    MaskedInput = 4,
+    CheckboxInput = 5,
+    NumericInput = 6,
+    RadioInput = 7, 
+    CheckboxgroupInput = 8,
+    RadiogroupInput = 9,
+    TextInput = 10,
+    EmailInput = 11,
+    PasswordInput = 12,
+    HyperlinkInput = 13, 
+    MultivalueInput = 14,
+    UrlInput = 15,
+    TextareaInput = 16   
+}
+
+export enum FieldSize {
+	Normal = 0,
+	Double = 1,
+	Quarter = 2,
+	Full = 3
+}
+
 export function safeInt(value: any) {
     if (value === undefined) { return 0; }
     var tmp = parseInt(value, 10);
@@ -11,15 +38,34 @@ export function safeInt(value: any) {
     return tmp;
 }
 
-export function createFormField(name:string, label:string, fieldType = 10, section = 0, sectionHeader?:string, fieldSet = 0, options?: any, fullWidth = false):any {
+export function createFormField(name:string, label:string, fieldType = ControlTypes.TextInput, size = FieldSize.Normal, hideLabel = false, section = 0, sectionHeader?:string, fieldSet = 0, options?: any):any {
 	return { 
 		Property: name, Label: label,
 		FieldType: fieldType,
 		Section: section, Sectionheader: sectionHeader,
 		FieldSet: fieldSet,
 		Combo: 0, Options: options,
-		Classes: fullWidth ? 'max-width visuallyHideLabel' : undefined
+		Classes: combineClasses(size, hideLabel)
 	}
+}
+
+function combineClasses(size = FieldSize.Normal, hideLabel = false) {
+	var classes = [];
+	switch (size) {
+		case FieldSize.Double:
+			classes.push('half-width');
+			break;
+		case FieldSize.Quarter:
+			classes.push('quarter-width');
+			break;
+		case FieldSize.Full:
+			classes.push('max-width');
+			break; 
+	}
+	if (hideLabel) {
+		classes.push('visuallyHideLabel');
+	}
+	return classes.length > 0 ? classes.join(' ') : undefined;
 }
 
 //<summary>
@@ -40,6 +86,25 @@ export function setDeepValue(item:any, name:string, value:any) {
 		}
 		setDeepValue(subItem, sub, value);
 	}
+}
+
+//<summary>
+// example: getDeepValue(row, 'dimension.projectid') 
+//</summary>
+export function getDeepValue(item:any, name: string) {
+	var parts = name.split('.');
+	if (parts.length===1) {
+		return item[name];
+	}
+	for (var i=0; i<parts.length; i++) {
+		var name = parts[i];
+		var sub = parts.join('.').substr(name.length + 1);
+		var subItem = item[name] || {};
+		if (!item[name]) {
+			item[name] = subItem;
+		}
+		return getDeepValue(subItem, sub);
+	}	
 }
 
 // Returns a function, that, as long as it continues to be invoked, will not

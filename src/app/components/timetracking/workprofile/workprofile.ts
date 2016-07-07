@@ -1,42 +1,48 @@
 import {Component} from "@angular/core";
-import {TabService} from '../../layout/navbar/tabstrip/tabService';
 import {View} from '../../../models/view/view';
-import {Worker} from '../../../unientities';
-import {UniTable, UniTableBuilder, UniTableColumn} from '../../../../framework/uniTable';
-import {Editable, IChangeEvent, IConfig, Column, ColumnType, ITypeSearch, ICopyEventDetails} from '../utils/editable/editable';
+import {UniForm, UniFieldLayout} from '../../../../framework/uniform';
+import {createFormField, FieldSize, ControlTypes} from '../utils/utils';
+import {IViewConfig} from '../genericview/list';
+import {WorkProfile} from '../../../unientities';
+import {GenericDetailview} from '../genericview/detail';
 
-export var view = new View('workprofile', 'Stillingsmal', 'WorkprofileListview');
+export var view = new View('workprofile', 'Stillingsmal', 'WorkprofileDetailview', true);
+
+const ControlTypeNumeric = 6;
+const ControlTypeCheck = 5;
 
 @Component({
     selector: view.name,
-    templateUrl: 'app/components/timetracking/workprofile/workprofile.html',
-    directives: [UniTable, Editable]
+    template: '<genericdetail [viewconfig]="viewconfig" ></genericdetail>',
+    directives: [GenericDetailview]
 })
-export class WorkprofileListview {    
-    public view = view;
-    
-    private tableConfig: UniTableBuilder;
+export class WorkprofileDetailview {
+    private viewconfig: IViewConfig;
+    constructor() {
+        this.viewconfig = this.createLayout();
+    }
 
-    constructor(private tabService: TabService) {
-        this.tabService.addTab({ name: view.label, url: view.url, moduleID: 15, active: true });
-        this.tableConfig = this.createTableConfig();
-    }
-    
-    createTableConfig():UniTableBuilder {
-        
-        var c1 = new UniTableColumn('ID', 'Nr.', 'number').setWidth('10%');
-        var c2 = new UniTableColumn('Name', 'Navn', 'string').setWidth('40%');
-        var c3 = new UniTableColumn('LunchIncluded', 'Inklusiv lunsj', 'string');
+    private createLayout(): IViewConfig {
 
-        return new UniTableBuilder('workprofiles', false)
-        .setToolbarOptions([])
-        .setSelectCallback((item)=>{ this.onSelect(item); } )
-        .setFilterable(false)
-        .setPageSize(25)
-        .addColumns(c1, c2, c3);
-    }
-    
-    onSelect(item) {
-        
-    }
+        var layout: IViewConfig = {
+            moduleID: 15,
+            labels: { single: 'Mal', plural: 'Maler', createNew: 'Ny mal'},
+            detail: { routeBackToList: '/timetracking/workprofiles'},
+            tab: view,
+            data: {
+                model: 'workprofile',
+                route: 'workprofiles',
+                factory: () => { return new WorkProfile(); },
+                check: (item) => { console.log('check item',item); }
+            },
+            formFields: [
+                createFormField('Name', 'Navn',  ControlTypes.TextInput, FieldSize.Double),
+                createFormField('MinutesPerWeek', 'Minutter pr. uke', ControlTypes.NumericInput, 0, false, 1, 'Innstillinger' ),
+                createFormField('LunchIncluded', 'Inkludert lunsj', ControlTypes.CheckboxInput, 0, false, 1)
+            ],
+        };
+
+        return layout;
+    }   
+
 }

@@ -38,7 +38,7 @@ interface ITab {
     pipes: [IsoTimePipe, MinutesToHoursPipe]
 })
 export class TimeEntry {    
-    view = view;
+    //view = view;
     busy = true;
     userName = '';
     workRelations: Array<WorkRelation> = [];

@@ -157,7 +157,8 @@ export class WorkerService extends BizHttp<Worker> {
         return this.deleteByID(id, 'workitems');
     }
     
-    getWorkTypes(params?: URLSearchParams, route = 'worktypes'): Observable<WorkType[]> {
+    queryWithUrlParams(params?: URLSearchParams, route = 'worktypes', expand?:string): Observable<WorkType[]> {
+        if (params && expand) params.append('expand', expand);
         return this.http
             .usingBusinessDomain()
             .asGET()            

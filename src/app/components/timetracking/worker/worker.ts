@@ -1,40 +1,41 @@
 import {Component} from "@angular/core";
-import {TabService} from '../../layout/navbar/tabstrip/tabService';
 import {View} from '../../../models/view/view';
+import {UniForm, UniFieldLayout} from '../../../../framework/uniform';
+import {createFormField, FieldSize, ControlTypes} from '../utils/utils';
+import {IViewConfig} from '../genericview/list';
 import {Worker} from '../../../unientities';
-import {UniTable, UniTableBuilder, UniTableColumn} from '../../../../framework/uniTable';
+import {GenericDetailview} from '../genericview/detail';
 
-export var view = new View('worker', 'Personer', 'WorkerListview');
+export var view = new View('worker', 'Person', 'WorkerDetailview', true);
 
 @Component({
     selector: view.name,
-    templateUrl: 'app/components/timetracking/worker/worker.html',
-    directives: [UniTable]
+    template: '<genericdetail [viewconfig]="viewconfig" ></genericdetail>',
+    directives: [GenericDetailview]
 })
-export class WorkerListview {    
-    public view = view;
-    
-    private tableConfig: UniTableBuilder;
+export class WorkerDetailview {
+    private viewconfig: IViewConfig;
+    constructor() {
+        this.viewconfig =  {
+            moduleID: 16,
+            labels: { single: 'Person', plural: 'Personer', createNew: 'Ny person'},
+            detail: { routeBackToList: '/timetracking/workers', nameProperty: 'Info.Name'},
+            tab: view,
+            data: {
+                model: 'worker',
+                expand: 'info',
+                route: 'workers',
+                factory: () => { 
+                        var item = new Worker();
+                        return item;
+                    },
+                check: (item) => { 
+                }
+            },
+            formFields: [
+                createFormField('Info.Name', 'Navn',  ControlTypes.TextInput, FieldSize.Double),
+            ]
+        };
+    }   
 
-    constructor(private tabService: TabService) {
-        this.tabService.addTab({ name: view.label, url: view.url, moduleID: 16, active: true });
-        this.tableConfig = this.createTableConfig();
-    }
-    
-    createTableConfig():UniTableBuilder {
-        
-        var c1 = new UniTableColumn('ID', 'Nr.', 'number').setWidth('10%');
-        var c2 = new UniTableColumn('Info.Name', 'Navn', 'string');
-
-        return new UniTableBuilder('workers?expand=Info', false)
-        .setToolbarOptions([])
-        .setSelectCallback((item)=>{ this.onSelect(item); } )
-        .setFilterable(false)
-        .setPageSize(25)
-        .addColumns(c1, c2);
-    }
-    
-    onSelect(item) {
-        
-    }
 }
