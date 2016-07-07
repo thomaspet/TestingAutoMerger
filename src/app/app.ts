@@ -33,6 +33,15 @@ export class App {
     
     constructor(private authService: AuthService, private http: UniHttp,
                 private staticRegisterService: StaticRegisterService) {
+
+        // prohibit dropping of files unless otherwise specified
+        document.addEventListener('dragover', function( event ) {
+              event.preventDefault();
+              event.dataTransfer.dropEffect = 'none';
+        }, false);
+        document.addEventListener('drop', function( event ) {
+            event.preventDefault();
+        }, false);            
         
         // Open login modal if authService requests re-authentication during runtime
         authService.requestAuthentication$.subscribe((event) => {
