@@ -71,6 +71,7 @@ export class PersonalDetails {
     private cacheLocAndGetData() {
         this.employeeService.getSubEntities().subscribe((response) => {
             this.employeeService.subEntities = response;
+            this.employeeService.subEntities.unshift([{ID: 0}]);
             this.getData();
         });
     }

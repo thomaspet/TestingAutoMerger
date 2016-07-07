@@ -24,7 +24,6 @@ declare var _; // lodash
 })
 
 export class AgaAndSubEntitySettings implements OnInit {
-    private id: any;
     private form: any;
     private subEntities: SubEntity[] = [];
     private agaZones: AGAZone[] = [];
@@ -144,7 +143,7 @@ export class AgaAndSubEntitySettings implements OnInit {
             var subEntitySection = new UniSectionBuilder(
                 (subEntity.BusinessRelationInfo.Name ? subEntity.BusinessRelationInfo.Name : '')
                 + (subEntity.OrgNumber && subEntity.OrgNumber !== '-' ? ', ' + subEntity.OrgNumber : '')
-                + (subEntity.MunicipalityNo !== null ? ', ' + subEntity.MunicipalityNo + '-' + municipal.MunicipalityName : '')
+                + (municipal ? ', ' + subEntity.MunicipalityNo + '-' + municipal.MunicipalityName : '')
                 + (agaZoneName ? agaZoneName : '')
                 + (agaRuleName ? agaRuleName : ''));
 

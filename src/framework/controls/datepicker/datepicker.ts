@@ -75,7 +75,7 @@ export class UniDatepicker implements AfterViewInit, OnDestroy {
             }
 
             if (date) {
-                control.updateValue(kendo.toString(date, 'yyyy-MM-ddTHH:mm:ss'), {});
+                control.updateValue(date.toDateString());
                 this.value(date);
                 
                 if (self.config.onSelect) {
