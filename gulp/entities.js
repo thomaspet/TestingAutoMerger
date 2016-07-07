@@ -3,6 +3,7 @@ var fs = require('fs');
 var request = require('request');
 
 var SERVER = process.env.SERVER_URL || 'https://devapi-unieconomy.azurewebsites.net';
+//var SERVER = 'http://localhost:29077';
 
 var URL = [
     SERVER,

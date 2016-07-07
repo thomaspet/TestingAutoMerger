@@ -53,3 +53,4 @@ export * from './common/UserService';
 export * from './salary/basicamount/BasicAmountService';
 export * from './common/guidService';
 export * from './salary/companysalary/CompanyVacationRateService';
+export * from './accounting/BankService';

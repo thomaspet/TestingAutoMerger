@@ -185,6 +185,7 @@ export class AddressService extends BizHttp<Address> {
    }
 
    public displayAddress(address: Address) : string {
+        if (address == null) { return ''; }
         let displayVal = '';
         if (address.AddressLine1 && address.AddressLine1 !== '') {
             displayVal += address.AddressLine1;
