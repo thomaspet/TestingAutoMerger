@@ -114,7 +114,7 @@ export class VacationpaySettingModalContent {
 
         var payInHoliday = new UniFieldLayout();
         payInHoliday.Label = 'Trekk i fastlønn i feriemåned';
-        payInHoliday.Property = 'PaymentInterval'; //WageDeductionDueToHoliday
+        payInHoliday.Property = 'WageDeductionDueToHoliday';
         payInHoliday.FieldType = FieldType.DROPDOWN;
         payInHoliday.Options = {
             source: [
@@ -127,7 +127,7 @@ export class VacationpaySettingModalContent {
             valueProperty: 'id'
         };
         
-        this.fields = [mainAccountCostVacation, mainAccountAllocatedVacation, payInHoliday];
+        this.fields = [payInHoliday, mainAccountCostVacation, mainAccountAllocatedVacation];
     }
 
     private setTableConfig() {
