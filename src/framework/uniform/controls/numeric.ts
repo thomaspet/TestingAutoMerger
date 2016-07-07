@@ -120,7 +120,7 @@ export class UniNumericInput {
         var isPoint = keycode === 190;
         var isMinus = keycode === 189 || keycode === 109;
         var arrows = [37, 38, 39, 40].indexOf(keycode) > -1;
-        var special = [8, 13, 27, 16, 17, 18, 35, 36, 33, 34, 45, 46].indexOf(keycode) > -1;
+        var special = [8, 9, 13, 27, 16, 17, 18, 35, 36, 33, 34, 45, 46].indexOf(keycode) > -1;
         if (
             !isKeyBoardNumber
             && !isNumericBoardNumber

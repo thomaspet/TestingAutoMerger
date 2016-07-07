@@ -1,0 +1,27 @@
+.vacationPay
+    footer button:last-of-type
+        margin-right: 0
+
+    uni-field
+        text-align: left
+
+    uni-field:first-of-type
+        flex-grow: 1
+
+    uni-radiogroup-input input[type=radio]+label
+        display: block
+        padding-bottom: 0
+
+    .vacationPay_settingsLink
+        @extend a:link
+        display: inline-block
+        float: left
+        margin-top: .5rem
+        cursor: pointer
+
+        &:hover,
+        &:focus
+            @extend a:hover
+
+        &:active
+            @extend a:active

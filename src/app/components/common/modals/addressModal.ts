@@ -9,8 +9,15 @@ import {AddressService} from '../../../services/services';
     selector: 'address-form',
     directives: [UniForm],
     template: `
-        <uni-form *ngIf="config" [config]="config" [fields]="fields" [model]="model">
-        </uni-form>
+        <article class="modal-content address-modal">
+            <h1 *ngIf="config.title">{{config.title}}</h1>
+            <uni-form *ngIf="config" [config]="formConfig" [fields]="fields" [model]="config.model"></uni-form>
+            <footer>
+                <button *ngFor="let action of config.actions; let i=index" (click)="action.method()" [ngClass]="action.class" type="button">
+                    {{action.text}}
+                </button>
+            </footer>
+        </article>    
     `
 })
 export class AddressForm implements OnChanges {
@@ -24,6 +31,7 @@ export class AddressForm implements OnChanges {
 
     private config: any = {};
     private fields: any[] = [];
+    private formConfig: any = {};
 
     public ngOnInit() {
         this.setupForm();
@@ -31,7 +39,7 @@ export class AddressForm implements OnChanges {
     }
 
     public ngOnChanges(changes: {[propName: string]: SimpleChange}) {
-        if (changes['disableQuestion'] != null) {
+        if (changes['config.disableQuestion'] != null) {
             this.setupForm();
         }
     }
@@ -214,34 +222,13 @@ export class AddressForm implements OnChanges {
     private setupQuestionCheckbox() {
         this.fields.push({
             Property: '_question',
-            Hidden: (this.question || '').length == 0,
+            Hidden: (this.config.question || '').length == 0,
             FieldType: 5,
-            Label: this.question,
-            ReadOnly: this.disableQuestion
+            Label: this.config.question,
+            ReadOnly: this.config.disableQuestion
         });
     }
 
-}
-
-// address modal type
-@Component({
-    selector: 'address-modal-type',
-    directives: [AddressForm],
-    template: `
-        <article class="modal-content address-modal">
-            <h1 *ngIf="config.title">{{config.title}}</h1>
-            <address-form [model]="config.model" [question]="config.question" [disableQuestion]="config.disableQuestion"></address-form>
-            <footer>
-                <button *ngFor="let action of config.actions; let i=index" (click)="action.method()" [ngClass]="action.class" type="button">
-                    {{action.text}}
-                </button>
-            </footer>
-        </article>
-    `
-})
-export class AddressModalType {
-    @Input() public config: any;
-    @ViewChild(AddressForm) public form: AddressForm;
 }
 
 // address modal
@@ -262,7 +249,7 @@ export class AddressModal {
     @Output() public Canceled = new EventEmitter<boolean>();
 
     private modalConfig: any = {};
-    private type: Type = AddressModalType;
+    private type: Type = AddressForm;
 
     constructor(private addressService: AddressService) {
     }

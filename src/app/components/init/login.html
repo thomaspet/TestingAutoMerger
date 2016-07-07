@@ -23,10 +23,8 @@
         </p>
     </section>
     
-    
-    
-    <span [hidden]="!loginSuccess" class="company_select">
-        <select style="display: none;"></select> <!-- kendo dropdownlist will compile here -->        
-    </span>  
-	
+    <uni-select [config]="selectConfig"
+                [items]="availableCompanies"
+                (valueChange)="onCompanySelected($event)">
+    </uni-select>	
 </article>

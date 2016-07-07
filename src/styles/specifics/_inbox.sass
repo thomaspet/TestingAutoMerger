@@ -56,7 +56,13 @@ body
 
 uni-form
   .max-width
-    width: 100%
+    @include unigrid-flush(16)
+
+  .half-width
+    @include unigrid-flush(8)
+
+  .quarter-width
+    @include unigrid-flush(4)
 
 .poster_toolbar
   h1

@@ -9,6 +9,13 @@ export class SalaryTransactionService extends BizHttp<SalaryTransaction> {
         this.relativeURL = SalaryTransaction.RelativeUrl;
     }
 
+    public createVacationPayments(ID: number) {
+        return this.http
+            .usingBusinessDomain()
+            .asPUT()
+            .withEndPoint(this.relativeURL + '/' + ID + '?action=createvacationpay')
+            .send();
+    }
     public delete(ID: number) {
         return this.http
             .asDELETE()

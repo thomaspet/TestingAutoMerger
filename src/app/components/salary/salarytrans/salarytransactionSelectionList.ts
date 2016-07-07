@@ -69,10 +69,14 @@ export class SalaryTransactionSelectionList implements OnInit, AfterViewInit {
             var lockedCol = new UniTableColumn('', '', UniTableColumnType.Custom)
                 .setCls('icon-column')
                 .setTemplate((rowModel: Employee) => {
-                    if (rowModel.TaxTable === null || rowModel.TaxTable === '' || !rowModel.BankAccounts.some(x => x.Active === true)) {
-                        return "{#<em class='missing-info' role='presentation'>Visible</em>#} ";
+                    if (rowModel.BankAccounts) {
+                        if (rowModel.TaxTable === null || rowModel.TaxTable === '' || !rowModel.BankAccounts.some(x => x.Active === true)) {
+                            return "{#<em class='missing-info' role='presentation'>Visible</em>#} ";
+                        } else {
+                            return "{#<em role='presentation'></em>#}# ";
+                        }
                     } else {
-                        return "{#<em role='presentation'></em>#}# ";
+                        return "{#<em class='missing-info' role='presentation'>Visible</em>#} ";
                     }
                 })
                 .setWidth('2rem');

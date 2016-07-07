@@ -1,4 +1,4 @@
-import {Component, Type, Output, ViewChild, ComponentRef, EventEmitter} from '@angular/core';
+import {Component, Type, Input, Output, ViewChild, ComponentRef, EventEmitter} from '@angular/core';
 import {NgIf, NgModel, NgFor, NgClass} from '@angular/common';
 import {UniModal} from '../../../../framework/modals/modal';
 import {UniComponentLoader} from '../../../../framework/core/componentLoader';
@@ -10,17 +10,20 @@ import {FieldLayout} from "../../../unientities";
     selector: 'register-payment-form',
     directives: [UniForm, NgIf],
     template: `
-        <uni-form 
-            [config]="config"
-            [fields]="fields"
-            [model]="model" 
-            
-            (onChange)="onSubmit($event)"
-            (onSubmit)="onSubmit($event)"
-        ></uni-form>
+        <article class='modal-content email-modal'>
+            <h1 *ngIf='config.title'>{{config.title}}</h1>
+            <uni-form [config]="formConfig" [fields]="fields" [model]="model" (onChange)="onSubmit($event)" (onSubmit)="onSubmit($event)"></uni-form>
+            <footer>
+                <button *ngFor='let action of config.actions; let i=index' (click)='action.method()' [ngClass]='action.class' type='button'>
+                    {{action.text}}
+                </button>
+            </footer>
+        </article>
     `
 })
 export class RegisterPaymentForm {
+    @Input()
+    public config: {};
 
     @ViewChild(UniForm)
     public form: UniForm;
@@ -31,7 +34,7 @@ export class RegisterPaymentForm {
     // TODO: Jorge: I have to use any to hide errors. Don't use any. Use FieldLayout, but respect interface
     public fields: any[];
     public model: InvoicePaymentData = new InvoicePaymentData();
-    public config: any;
+    public formConfig: any = {};
 
     public ngOnInit() {
         this.fields = [
@@ -92,8 +95,6 @@ export class RegisterPaymentForm {
                 CustomFields: null
             }
         ];
-
-        this.config = {};
     }
 
     public onSubmit(invoicePaymentData: InvoicePaymentData) {
@@ -106,8 +107,7 @@ export class RegisterPaymentForm {
     template: `
         <uni-modal [type]='type' [config]='modalConfig'></uni-modal>
     `,
-    directives: [UniModal],
-    providers: []
+    directives: [UniModal]
 })
 export class RegisterPaymentModal {
     @ViewChild(UniModal)
@@ -122,7 +122,7 @@ export class RegisterPaymentModal {
 
     private invoiceID: number;
 
-    public type: Type = RegisterPaymentModalType;
+    public type: Type = RegisterPaymentForm;
 
     constructor() {
         const self = this;
@@ -133,14 +133,12 @@ export class RegisterPaymentModal {
                     text: 'Registrer betaling',
                     class: 'good',
                     method: () => {
-                        self.modal.getContent().then((content: RegisterPaymentModalType) => {
-                            content.instance.then((form: RegisterPaymentForm) => {
-                                self.modal.close();
-                                // TODO: changed emitter emits any because emitted object is not InvoicePaymentData
-                                self.changed.emit({
-                                    id: self.invoiceID,
-                                    invoice: form.model
-                                });
+                        self.modal.getContent().then((form: RegisterPaymentForm) => {
+                            self.modal.close();
+                            // TODO: changed emitter emits any because emitted object is not InvoicePaymentData                            
+                            self.changed.emit({
+                                id: self.invoiceID,
+                                invoice: form.model
                             });
                         });
 
@@ -165,39 +163,9 @@ export class RegisterPaymentModal {
     public openModal(invoiceId: number, title: string, invoicePaymentData: InvoicePaymentData) {
         this.invoiceID = invoiceId;
         this.modalConfig.title = title;
-        this.modal.getContent().then((content: RegisterPaymentModalType) => {
-            content.instance.then((form: RegisterPaymentForm) => form.model = invoicePaymentData );
+        this.modal.getContent().then((form: RegisterPaymentForm) => {
+            form.model = invoicePaymentData;
         });
         this.modal.open();
-    }
-}
-
-@Component({
-    selector: 'register-payment-modal-type',
-    directives: [NgIf, NgModel, NgFor, NgClass, UniComponentLoader],
-    template: `
-        <article class='modal-content email-modal'>
-            <h1 *ngIf='config.title'>{{config.title}}</h1>
-            <uni-component-loader></uni-component-loader>
-            <footer>
-                <button *ngFor='let action of config.actions; let i=index' (click)='action.method()' [ngClass]='action.class' type='button'>
-                    {{action.text}}
-                </button>
-            </footer>
-        </article>
-    `
-})
-export class RegisterPaymentModalType {
-    @ViewChild(UniComponentLoader)
-    private ucl: UniComponentLoader;
-
-    public instance: Promise<RegisterPaymentForm>;
-
-    public ngAfterViewInit() {
-        this.ucl.load(RegisterPaymentForm).then((cmp: ComponentRef<any>) => {
-            this.instance = new Promise((resolve) => {
-                resolve(cmp.instance);
-            });
-        });
     }
 }

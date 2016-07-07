@@ -13,6 +13,7 @@
             <a (click)="previousPayrollrun()" class="previous">Forrige</a>
             <a (click)="nextPayrollrun()" class="next">Neste</a>
             <a (click)="createNewRun()" class="new">Ny lønnsavregning</a>
+            <uni-context-menu [actions]="contextMenuItems"></uni-context-menu>
         </nav>
 
     </article>
@@ -20,6 +21,7 @@
     <section class="poster_toolbar_extras" *ngIf="payrollrun">
         <control-modal></control-modal>
         <postingsummary-modal *ngIf="canPost()"></postingsummary-modal>
+        <vacationpay-modal></vacationpay-modal>
     </section>
 
 </header>

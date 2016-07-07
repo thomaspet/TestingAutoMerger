@@ -60,6 +60,7 @@ export class EmployeeEmployment {
     private cacheSubentitiesAndRefreshData() {
         this.employeeDS.getSubEntities().subscribe((response: any) => {
             this._employmentService.subEntities = response;
+            this._employmentService.subEntities.unshift([{ID: 0}]);
             this.refreshDatafromModel();
         },
         (err: any) => {

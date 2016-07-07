@@ -5,7 +5,7 @@ import { Observable } from 'rxjs/Observable';
 
 export class EmploymentService extends BizHttp<Employment> {
     
-    public subEntities: Observable<any>;
+    public subEntities: any[];
 
     private typeOfEmployment: {ID: number, Name: string}[] = [
         {ID: 0, Name: 'Ikke valgt'},

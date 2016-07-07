@@ -8,8 +8,9 @@ import {UniForm} from '../../../../framework/uniform';
 import {UniFieldLayout} from '../../../../framework/uniform/index';
 import {UniImage, IUploadConfig} from '../../../../framework/uniImage/uniImage';
 
-import {CompanyType, PeriodSeries, Currency, FieldType, AccountGroup, Account} from '../../../unientities';
-import {CompanySettingsService, CurrencyService, VatTypeService, AccountService, AccountGroupSetService, PeriodSeriesService, CompanyTypeService, MunicipalService} from '../../../services/services';
+import {CompanyType, PeriodSeries, Currency, FieldType, AccountGroup, Account, BankAccount} from '../../../unientities';
+import {CompanySettingsService, CurrencyService, VatTypeService, AccountService, AccountGroupSetService, PeriodSeriesService, CompanyTypeService, MunicipalService, BankAccountService} from '../../../services/services';
+import {BankAccountModal} from '../../common/modals/modals';
 
 declare var _;
 
@@ -24,14 +25,28 @@ declare var _;
         PeriodSeriesService,
         VatTypeService,
         CompanyTypeService,
-        MunicipalService 
+        MunicipalService,
+        BankAccountService
     ],
-    directives: [ROUTER_DIRECTIVES, UniForm, UniSave, UniImage]
+    directives: [ROUTER_DIRECTIVES, UniForm, UniSave, UniImage, BankAccountModal]
 })
 
 export class CompanySettings implements OnInit {
     @ViewChild(UniForm) public form: UniForm;
-        
+    @ViewChild(BankAccountModal) public bankAccountModal: BankAccountModal;
+
+    private defaultExpands: any = [
+        'Address', 
+        'Emails', 
+        'Phones', 
+        'BankAccounts', 
+        'BankAccounts.Bank',
+        'BankAccounts.Account', 
+        'CompanyBankAccount', 
+        'TaxBankAccount', 
+        'SalaryBankAccount'
+    ];
+
     private company: any;
     
     private companyTypes: Array<CompanyType> = [];
@@ -39,7 +54,8 @@ export class CompanySettings implements OnInit {
     private periodSeries: Array<PeriodSeries> = [];
     private accountGroupSets: Array<AccountGroup> = [];
     private accounts: Array<Account> = [];    
-    
+    private bankAccountChanged: any;
+
     private showImageSection: boolean = true; // used in template
     private imageUploadOptions: IUploadConfig;
 
@@ -64,7 +80,8 @@ export class CompanySettings implements OnInit {
                 private periodeSeriesService: PeriodSeriesService,
                 private companyTypeService: CompanyTypeService,
                 private vatTypeService: VatTypeService,
-                private municipalService: MunicipalService) {
+                private municipalService: MunicipalService,
+                private bankAccountService: BankAccountService) {
     }
     
     public ngOnInit() {
@@ -80,7 +97,7 @@ export class CompanySettings implements OnInit {
             this.periodeSeriesService.GetAll(null),
             this.accountGroupSetService.GetAll(null),
             this.accountService.GetAll(null),
-            this.companySettingsService.Get(1, ['Address', 'Emails', 'Phones'])            
+            this.companySettingsService.Get(1, this.defaultExpands)
         ).subscribe(
             (dataset) => {
                 this.companyTypes = dataset[0];
@@ -134,12 +151,35 @@ export class CompanySettings implements OnInit {
             this.company.Phones[0].ID = 0;
             this.company.Phones[0]._createguid = this.companySettingsService.getNewGuid();
         }
-        
+
+        if (this.company.BankAccounts) {
+            this.company.BankAccounts.forEach(bankaccount => {
+                if (bankaccount.ID === 0 && !bankaccount['_createguid']) {
+                    bankaccount['_createguid'] = this.bankAccountService.getNewGuid();
+                }
+            });
+        }
+
+        if (this.company.CompanyBankAccount) {
+            this.company.BankAccounts = this.company.BankAccounts.filter(x => x !== this.company.CompanyBankAccount);
+        }
+
+        if (this.company.TaxBankAccount) {
+            this.company.BankAccounts = this.company.BankAccounts.filter(x => x !== this.company.TaxBankAccount);
+        }
+
+        if (this.company.SalaryBankAccount) {
+            this.company.BankAccounts = this.company.BankAccounts.filter(x => x !== this.company.SalaryBankAccount);
+        }
+
         this.companySettingsService
             .Put(this.company.ID, this.company)
             .subscribe(
                 (response) => {
-                    complete('Innstillinger lagret');
+                    this.companySettingsService.Get(1, this.defaultExpands).subscribe(company => {
+                        this.company = company;
+                        complete('Innstillinger lagret');
+                    })
                 },
                 (error) => {                    
                     complete('Feil oppsto ved lagring');
@@ -219,9 +259,51 @@ export class CompanySettings implements OnInit {
             displayProperty: 'Name',                        
             debounceTime: 200
         };
+
+        let companyBankAccount: UniFieldLayout = this.fields.find(x => x.Property === 'CompanyBankAccount');
+        companyBankAccount.Options = this.getBankAccountOptions('CompanyBankAccountID', 'company');
+
+        let taxBankAccount: UniFieldLayout = this.fields.find(x => x.Property === 'TaxBankAccount');
+        taxBankAccount.Options = this.getBankAccountOptions('TaxBankAccountID', 'tax');
+
+        let salaryBankAccount: UniFieldLayout = this.fields.find(x => x.Property === 'SalaryBankAccount');
+        salaryBankAccount.Options = this.getBankAccountOptions('SalaryBankAccountID', 'salary');
+    }
+
+    private getBankAccountOptions(foreignProperty, bankAccountType) {
+       return {            
+            entity: BankAccount,
+            listProperty: 'BankAccounts',
+            displayValue: 'AccountNumber',
+            linkProperty: 'ID',
+            foreignProperty: foreignProperty,            
+            editor: (bankaccount: BankAccount) => new Promise((resolve) => {
+                if (!bankaccount) {
+                    bankaccount = new BankAccount();
+                    bankaccount['_createguid'] = this.bankAccountService.getNewGuid();
+                    bankaccount.BankAccountType = bankAccountType;
+                    bankaccount.CompanySettingsID = this.company.ID;
+                    bankaccount.ID = 0;
+                }
+                                
+                this.bankAccountModal.openModal(bankaccount);
+                
+                this.bankAccountChanged = this.bankAccountModal.Changed.subscribe((bankaccount) => { 
+                    this.bankAccountChanged.unsubscribe();                     
+
+                    // update BankAccounts list only active is updated directly
+                    this.company.BankAccounts.forEach((ba, i) => {
+                        if ((ba.ID && ba.ID == bankaccount.ID) || (ba['_createdguid'] && ba['_createguid'] == bankaccount._createguid)) {
+                            this.company.BankAccounts[i] = bankaccount;
+                        }
+                    });
+                     
+                    resolve(bankaccount);    
+                });               
+            })
+        };
     }
     
-
     private getFormLayout() {
 
         this.config = {};
@@ -740,6 +822,72 @@ export class CompanySettings implements OnInit {
                     Combo: null,
                     Sectionheader: 'Selskapsoppsett',
                     hasLineBreak: false,                     
+                    Validations: []
+                },
+                {
+                    ComponentLayoutID: 1,
+                    EntityType: 'CompanySettings',
+                    Property: 'CompanyBankAccount',
+                    Placement: 1,
+                    Hidden: false,
+                    FieldType: FieldType.MULTIVALUE,
+                    ReadOnly: false,
+                    LookupField: false,
+                    Label: 'Driftskonto',
+                    Description: '',
+                    HelpText: '',
+                    FieldSet: 0,
+                    Section: 2,
+                    Placeholder: null,
+                    Options: null,
+                    LineBreak: null,
+                    Combo: null,
+                    Sectionheader: 'Bankkontoer',
+                    hasLineBreak: false,
+                    Validations: []
+                },
+                {
+                    ComponentLayoutID: 1,
+                    EntityType: 'CompanySettings',
+                    Property: 'TaxBankAccount',
+                    Placement: 1,
+                    Hidden: false,
+                    FieldType: FieldType.MULTIVALUE,
+                    ReadOnly: false,
+                    LookupField: false,
+                    Label: 'Skattetrekkskonto',
+                    Description: '',
+                    HelpText: '',
+                    FieldSet: 0,
+                    Section: 2,
+                    Placeholder: null,
+                    Options: null,
+                    LineBreak: null,
+                    Combo: null,
+                    Sectionheader: 'Bankkontoer',
+                    hasLineBreak: false,
+                    Validations: []
+                },
+                {
+                    ComponentLayoutID: 1,
+                    EntityType: 'CompanySettings',
+                    Property: 'SalaryBankAccount',
+                    Placement: 1,
+                    Hidden: false,
+                    FieldType: FieldType.MULTIVALUE,
+                    ReadOnly: false,
+                    LookupField: false,
+                    Label: 'Lønnskonto',
+                    Description: '',
+                    HelpText: '',
+                    FieldSet: 0,
+                    Section: 2,
+                    Placeholder: null,
+                    Options: null,
+                    LineBreak: null,
+                    Combo: null,
+                    Sectionheader: 'Bankkontoer',
+                    hasLineBreak: false,
                     Validations: []
                 }
         ];

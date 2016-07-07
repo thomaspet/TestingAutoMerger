@@ -1,3 +1,24 @@
+%toolbarButton
+    display: inline-block
+    height: 2.1rem
+    width: 2.1rem
+    margin: 0 0 0 .5rem
+    font-size: 0
+    box-shadow: 0 pxToRem(1) pxToRem(1) $uni-color-scale7
+    background: mix($uni-color-negative, $uni-color-C2A, 80%) no-repeat center
+    background-size: 1rem 1rem
+    position: relative
+    top: -.3rem
+    border-radius: pxToRem(3)
+    padding: 0
+
+    &[type=button]
+        top: -0.05rem
+
+    &:hover,
+    &:focus
+        border-color: $uni-color-C2A
+
 .poster_toolbar
     @include unigrid-flush(14)
     @include clearfix
@@ -28,34 +49,24 @@
     text-align: right
     cursor: pointer
 
-    a
-        display: inline-block
-        height: 2.1rem
-        width: 2.1rem
-        margin: 0 0 0 .5rem
-        font-size: 0
-        box-shadow: 0 pxToRem(1) pxToRem(1) $uni-color-scale7
-        background: mix($uni-color-negative, $uni-color-C2A, 80%) no-repeat center
-        background-size: 1rem 1rem
-        position: relative
-        top: -.3rem
-        border-radius: pxToRem(3)
-
-        &:hover,
-        &:focus
-            border-color: $uni-color-C2A
+    a,
+    button
+        @extend %toolbarButton
 
     .previous
         background-image: unicon-prev($uni-color-scale3)
-        &:hover
+        &:hover,
+        &:focus
             background-image: unicon-prev($uni-color-C2A)
     .next
         background-image: unicon-next($uni-color-scale3)
-        &:hover
+        &:hover,
+        &:focus
             background-image: unicon-next($uni-color-C2A)
     .new
         background-image: unicon-new($uni-color-scale3)
-        &:hover
+        &:hover,
+        &:focus
             background-image: unicon-new($uni-color-C2A)
     .edit
         background-image: unicon-edit($uni-color-scale3)

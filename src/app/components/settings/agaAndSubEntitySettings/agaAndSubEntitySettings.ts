@@ -3,27 +3,11 @@ import {RouteParams, ROUTER_DIRECTIVES} from '@angular/router-deprecated';
 import {Observable} from 'rxjs/Observable';
 import 'rxjs/add/observable/forkJoin';
 import {UniSave, IUniSaveAction} from '../../../../framework/save/save';
-import {UniAutocompleteConfig} from '../../../../framework/controls/autocomplete/autocomplete';
-import {
-    UniFieldBuilder, UniFormBuilder, UniForm, UniSectionBuilder, UniComboFieldBuilder
-} from '../../../../framework/forms';
+import {UniFieldBuilder, UniFormBuilder, UniForm, UniSectionBuilder} from '../../../../framework/forms';
 import {UNI_CONTROL_DIRECTIVES} from '../../../../framework/controls';
-
 import {UniHttp} from '../../../../framework/core/http/http';
-import {
-    SubEntity,
-    AGAZone,
-    Municipal,
-    FieldType,
-    AGARate,
-    CompanySalary
-} from '../../../unientities';
-import {
-    AgaZoneService,
-    SubEntityService,
-    MunicipalService,
-    CompanySalaryService
-} from '../../../services/services';
+import {SubEntity, AGAZone, Municipal, FieldType, AGARate, CompanySalary} from '../../../unientities';
+import {AgaZoneService, SubEntityService, MunicipalService, CompanySalaryService} from '../../../services/services';
 
 declare var _; // lodash
 
@@ -40,7 +24,6 @@ declare var _; // lodash
 })
 
 export class AgaAndSubEntitySettings implements OnInit {
-    private id: any;
     private form: any;
     private subEntities: SubEntity[] = [];
     private agaZones: AGAZone[] = [];
@@ -156,11 +139,11 @@ export class AgaAndSubEntitySettings implements OnInit {
             var agaRuleName = '';
             if (agaZone) { agaZoneName = ', Sone ' + agaZone.ZoneName; }
             if (agaRule) { agaRuleName = ', ' + agaRule.sector; }
-            console.log(subEntity.BusinessRelationInfo.Name);
+            // console.log(subEntity.BusinessRelationInfo.Name);
             var subEntitySection = new UniSectionBuilder(
                 (subEntity.BusinessRelationInfo.Name ? subEntity.BusinessRelationInfo.Name : '')
                 + (subEntity.OrgNumber && subEntity.OrgNumber !== '-' ? ', ' + subEntity.OrgNumber : '')
-                + (subEntity.MunicipalityNo !== null ? ', ' + subEntity.MunicipalityNo + '-' + municipal.MunicipalityName : '')
+                + (municipal ? ', ' + subEntity.MunicipalityNo + '-' + municipal.MunicipalityName : '')
                 + (agaZoneName ? agaZoneName : '')
                 + (agaRuleName ? agaRuleName : ''));
 
@@ -252,21 +235,7 @@ export class AgaAndSubEntitySettings implements OnInit {
             .setModelField('InterrimRemitAccount')
             .setType(UNI_CONTROL_DIRECTIVES[FieldType.TEXT]);
 
-        var mainAccountAllocatedVacation = new UniFieldBuilder();
-        mainAccountAllocatedVacation
-            .setLabel('Balanse feriepenger')
-            .setModel(this.companySalary[0])
-            .setModelField('MainAccountAllocatedVacation')
-            .setType(UNI_CONTROL_DIRECTIVES[FieldType.TEXT]);
-
-        var mainAccountCostVacation = new UniFieldBuilder();
-        mainAccountCostVacation
-            .setLabel('Resultat feriepenger')
-            .setModel(this.companySalary[0])
-            .setModelField('MainAccountCostVacation')
-            .setType(UNI_CONTROL_DIRECTIVES[FieldType.TEXT]);
-
-        salarySettings.addUniElements(interrimRemit, mainAccountAllocatedVacation, mainAccountCostVacation);
+        salarySettings.addUniElements(interrimRemit);
 
 
         formBuilder.addUniElements(salarySettings);

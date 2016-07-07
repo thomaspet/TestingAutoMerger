@@ -7,9 +7,12 @@ import {SalaryTransactionSelectionList} from '../../salary/salarytrans/salarytra
 import {TabService} from '../../layout/navbar/tabstrip/tabService';
 import {ControlModal} from './controlModal';
 import {PostingsummaryModal} from './postingsummaryModal';
+import {VacationpayModal} from './vacationPay/VacationpayModal';
 import {RootRouteParamsService} from '../../../services/rootRouteParams';
 import {UniSave, IUniSaveAction} from '../../../../framework/save/save';
 import {UniForm, UniFieldLayout} from '../../../../framework/uniform';
+import {ContextMenu} from '../../common/contextMenu/contextMenu';
+import {IContextMenuItem} from 'unitable-ng2/main';
 
 declare var _;
 
@@ -17,7 +20,7 @@ declare var _;
     selector: 'payrollrun-details',
     templateUrl: 'app/components/salary/payrollrun/payrollrunDetails.html',
     providers: [PayrollrunService, provide(RootRouteParamsService, { useClass: RootRouteParamsService })],
-    directives: [SalaryTransactionSelectionList, ControlModal, PostingsummaryModal, UniSave, UniForm]
+    directives: [SalaryTransactionSelectionList, ControlModal, PostingsummaryModal, UniSave, UniForm, VacationpayModal, ContextMenu]
 })
 
 export class PayrollrunDetails implements OnInit {
@@ -30,15 +33,30 @@ export class PayrollrunDetails implements OnInit {
     private payStatus: string;
     @ViewChild(ControlModal) private controlModal: ControlModal;
     @ViewChild(PostingsummaryModal) private postingSummaryModal: PostingsummaryModal;
+    @ViewChild(VacationpayModal) private vacationPayModal: VacationpayModal;
     private isEditable: boolean;
     private busy: boolean = false;
     private saveactions: IUniSaveAction[] = [];
-
     private formIsReady: boolean = false;
+    private contextMenuItems: IContextMenuItem[];
 
     constructor(private routeParams: RouteParams, private payrollrunService: PayrollrunService, private router: Router, private tabSer: TabService, private _rootRouteParamsService: RootRouteParamsService) {
         this.payrollrunID = +this.routeParams.get('id');
         this._rootRouteParamsService.params = this.routeParams;
+        this.contextMenuItems = [
+            {
+                label: 'Generer feriepenger',
+                action: () => {
+                    this.openVacationPayModal();
+                }
+            },
+            {
+                label: 'Nullstill lønnsavregning',
+                action: () => {
+                    console.log('Nullstiller lønnsavregnin kommer snart');
+                }
+            }
+        ];
         this.tabSer.addTab({ name: 'Lønnsavregning ' + this.payrollrunID, url: 'salary/payrollrun/' + this.payrollrunID, moduleID: 14, active: true });
         this.payrollrunService.refreshPayrollRun$.subscribe((payrollrun: PayrollRun) => {
                 this.busy = true;
@@ -122,6 +140,10 @@ export class PayrollrunDetails implements OnInit {
     public openControlModal(done) {
         this.controlModal.openModal();
         done('');
+    }
+
+    public openVacationPayModal() {
+        this.vacationPayModal.openModal();
     }
 
     private setStatus() {
