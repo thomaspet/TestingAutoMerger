@@ -46,8 +46,7 @@ export interface IUniSaveAction {
                         (click)="onSave(action)"
                         role="menuitem"
                         [attr.aria-disabled]="action.disabled"
-                        [title]="action.label"
-                        [attr.aria-hidden]="action.main">{{action.label}}</li>
+                        [title]="action.label">{{action.label}}</li>
                 </ul>
             </div>
         </footer>
