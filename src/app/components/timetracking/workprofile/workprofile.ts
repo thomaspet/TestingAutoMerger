@@ -8,6 +8,9 @@ import {GenericDetailview} from '../genericview/detail';
 
 export var view = new View('workprofile', 'Stillingsmal', 'WorkprofileDetailview', true);
 
+const ControlTypeNumeric = 6;
+const ControlTypeCheck = 5;
+
 @Component({
     selector: view.name,
     template: '<genericdetail [viewconfig]="viewconfig" ></genericdetail>',
@@ -33,7 +36,9 @@ export class WorkprofileDetailview {
                 check: (item) => { console.log('check item',item); }
             },
             formFields: [
-                createFormField('Name', 'Navn')
+                createFormField('Name', 'Navn'),
+                createFormField('MinutesPerWeek', 'Minutter pr. uke', ControlTypeNumeric, 1, 'Innstillinger' ),
+                createFormField('LunchIncluded', 'Inkludert lunsj', ControlTypeCheck, 1)
             ],
         };
 

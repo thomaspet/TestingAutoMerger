@@ -2,6 +2,26 @@ export {ChangeMap} from './changeMap';
 
 declare var moment;
 
+export enum ControlTypes {
+    AutocompleteInput = 0,
+    ButtonInput = 1,
+    DateInput = 2,
+    SelectInput = 3,
+    MaskedInput = 4,
+    CheckboxInput = 5,
+    NumericInput = 6,
+    RadioInput = 7, 
+    CheckboxgroupInput = 8,
+    RadiogroupInput = 9,
+    TextInput = 10,
+    EmailInput = 11,
+    PasswordInput = 12,
+    HyperlinkInput = 13, 
+    MultivalueInput = 14,
+    UrlInput = 15,
+    TextareaInput = 16   
+}
+
 export function safeInt(value: any) {
     if (value === undefined) { return 0; }
     var tmp = parseInt(value, 10);
