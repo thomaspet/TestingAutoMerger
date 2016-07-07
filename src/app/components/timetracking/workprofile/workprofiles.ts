@@ -28,7 +28,7 @@ export class WorkprofileListview {
             tab: view,
             data: { 
                 route: 'workprofiles',
-                lookupFunction: (urlParams: any) => { return this.workerservice.getWorkTypes(urlParams, 'workprofiles'); }
+                lookupFunction: (urlParams: any) => { return this.workerservice.queryWithUrlParams(urlParams, 'workprofiles'); }
             },
             tableConfig: this.createTableConfig()
         };

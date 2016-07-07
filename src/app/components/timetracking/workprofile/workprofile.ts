@@ -1,7 +1,7 @@
 import {Component} from "@angular/core";
 import {View} from '../../../models/view/view';
 import {UniForm, UniFieldLayout} from '../../../../framework/uniform';
-import {createFormField} from '../utils/utils';
+import {createFormField, FieldSize, ControlTypes} from '../utils/utils';
 import {IViewConfig} from '../genericview/list';
 import {WorkProfile} from '../../../unientities';
 import {GenericDetailview} from '../genericview/detail';
@@ -36,9 +36,9 @@ export class WorkprofileDetailview {
                 check: (item) => { console.log('check item',item); }
             },
             formFields: [
-                createFormField('Name', 'Navn'),
-                createFormField('MinutesPerWeek', 'Minutter pr. uke', ControlTypeNumeric, 1, 'Innstillinger' ),
-                createFormField('LunchIncluded', 'Inkludert lunsj', ControlTypeCheck, 1)
+                createFormField('Name', 'Navn',  ControlTypes.TextInput, FieldSize.Double),
+                createFormField('MinutesPerWeek', 'Minutter pr. uke', ControlTypes.NumericInput, 0, false, 1, 'Innstillinger' ),
+                createFormField('LunchIncluded', 'Inkludert lunsj', ControlTypes.CheckboxInput, 0, false, 1)
             ],
         };
 

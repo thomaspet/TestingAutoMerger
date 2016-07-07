@@ -3,7 +3,8 @@ import {RouteConfig, ROUTER_DIRECTIVES} from "@angular/router-deprecated";
 import {UniRouterOutlet} from "../../uniRouterOutlet";
 
 import {View} from "../../models/view/view";
-import {view as workerView} from './worker/worker';
+import {view as workerView} from './worker/workers';
+import {view as workerDetailView} from './worker/worker';
 
 import {view as workTypeView} from './worktype/worktypes';
 import {view as workTypeDetailView} from './worktype/worktype';
@@ -21,6 +22,7 @@ export var view = new View("timetracking", "Timer", "UniTimetracking");
 view.addSubView(timeentryView);
 view.addSubView(regTimeView);
 view.addSubView(workerView);
+view.addSubView(workerDetailView);
 view.addSubView(workTypeView);
 view.addSubView(workTypeDetailView);
 view.addSubView(workProfileView);

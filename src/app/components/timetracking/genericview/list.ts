@@ -15,11 +15,13 @@ export interface IViewConfig {
     detail: {
         route?: string;
         routeBackToList?: string;
+        nameProperty?: string;
     }
     tab: View;
     data: {
         route: string;
         model?: string;
+        expand?: string;
         lookupFunction?: (any) => {},
         factory?: () => {}
         check?: (item:any) => void

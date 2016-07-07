@@ -1,7 +1,7 @@
 import {Component} from "@angular/core";
 import {View} from '../../../models/view/view';
 import {UniForm, UniFieldLayout} from '../../../../framework/uniform';
-import {createFormField} from '../utils/utils';
+import {createFormField, FieldSize, ControlTypes} from '../utils/utils';
 import {IViewConfig} from '../genericview/list';
 import {WorkType} from '../../../unientities';
 import {GenericDetailview} from '../genericview/detail';
@@ -42,11 +42,11 @@ export class WorktypeDetailview {
                 }
             },
             formFields: [
-                createFormField('Name', 'Navn'),
-                createFormField('SystemType', 'Type', 3, null, null, null, {
+                createFormField('Name', 'Navn',  ControlTypes.TextInput, FieldSize.Double),
+                createFormField('SystemType', 'Type', 3, FieldSize.Quarter, false, null, null, null, {
                     source: SystemTypes, valueProperty: 'id', displayProperty: 'label'
                 }),
-                createFormField('Description', '', 16, 1, 'Kommentar', null, null, true)
+                createFormField('Description', 'Kommentar', ControlTypes.TextareaInput, FieldSize.Full, true, 1, 'Kommentar')
             ],
         };
 
