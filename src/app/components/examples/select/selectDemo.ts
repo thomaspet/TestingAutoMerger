@@ -1,64 +1,74 @@
-import {Component} from '@angular/core';
-import { UniSelect } from '../../../../framework/controls/select/select';
+import {Component, ViewChild} from '@angular/core';
+import {AsyncPipe} from '@angular/common';
+import {UniSelect, ISelectConfig} from '../../../../framework/controls/select/select';
+import {UniHttp} from '../../../../framework/core/http/http';
+import {Observable} from 'rxjs/Observable';
 
 @Component({
     selector: 'select-demo',
     template: `
-    <label> Favorittdyr
-        <uni-select [config]="myFancySelect"></uni-select>
-    </label>`,
-    directives: [UniSelect]
+        <label>
+            Changes triggering a class function which logs result<br>
+            <uni-select [config]="selectConfig1" 
+                        [items]="products$ | async"
+                        [value]="initProduct"
+                        (valueChange)="onSelect($event)">
+            </uni-select>
+        </label>
+        <br><br>
+        <label>
+            Double data binding to a class variable<br>
+            <uni-select [config]="selectConfig2"
+                        [items]="vatTypes"
+                        [(value)]="currentVatType">
+            </uni-select>
+        </label>
+        Selected vattype: {{currentVatType?.Name}}
+    `,
+    directives: [UniSelect],
+    pipes: [AsyncPipe]
 })
 export class UniSelectDemo {
+    @ViewChild(UniSelect)
+    private select: UniSelect;
 
-    private myFancySelect: any = {
-        options: [
-            {
-                displayText: 'Kodiak',
-                version: 'Public Beta'
-            },
-            {
-                displayText: 'Cheetah',
-                version: '10.0'
-            },
-            {
-                displayText: 'Puma',
-                version: '10.1'
-            },
-            {
-                displayText: 'Jaguar',
-                version: '10.2'
-            },
-            {
-                displayText: 'Panther',
-                version: '10.3'
-            },
-            {
-                displayText: 'Tiger',
-                version: '10.4'
-            },
-            {
-                displayText: 'Leopard',
-                version: '10.5'
-            },
-            {
-                displayText: 'Snow Leopard',
-                version: '10.6'
-            },
-            {
-                displayText: 'Lion',
-                version: '10.7'
-            },
-            {
-                displayText: 'Mountain Lion',
-                version: '10.8'
-            },
-            {
-                displayText: 'Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.',
-                version: '10.8'
+    private initProduct: any; // for first demo select
+    private currentVatType: any; // for second demo select
+    private products$: Observable<any>;
+    private vatTypes: Observable<any>;
+    private selectConfig1: ISelectConfig;
+    private selectConfig2: ISelectConfig;
+
+    constructor(private uniHttp: UniHttp) {
+        this.initProduct = JSON.parse('{"PartName":"FELG-04","Name":null,"CostPrice":null,"ListPrice":null,"PriceIncVat":null,"PriceExVat":null,"AverageCost":null,"ImageFileID":null,"Description":null,"VariansParentID":0,"Type":0,"Unit":null,"DefaultProductCategoryID":0,"CalculateGrossPriceBasedOnNetPrice":false,"VatTypeID":null,"AccountID":null,"StatusCode":null,"ID":21,"Deleted":false,"CreatedAt":"2016-06-07T11:12:26.587","UpdatedAt":null,"CreatedBy":"5ee7a70d-147f-424c-bcdf-0668c0ae71f0","UpdatedBy":null,"CustomValues":{},"_links":{"actions":{"first":{"href":"/api/biz/products/21?action=first","method":"GET","label":"","description":""},"last":{"href":"/api/biz/products/21?action=last","method":"GET","label":"","description":""},"previous":{"href":"/api/biz/products/21?action=previous","method":"GET","label":"","description":""},"next":{"href":"/api/biz/products/21?action=next","method":"GET","label":"","description":""}},"relations":{"Self":{"href":"/api/biz/products/21","method":"GET","label":"","description":""},"ProductCategoryLinks":{"href":"/api/biz/productcategorylinks?filter=ProductID eq 21","method":"GET","label":"","description":""}},"transitions":{}}}');
+
+        // Using observable directly with async pipe in markup
+        this.products$ = this.uniHttp.asGET()
+            .usingBusinessDomain()
+            .withEndPoint('products')
+            .send();
+
+        // Subscribing to result and setting data variable
+        this.uniHttp.asGET()
+            .usingBusinessDomain()
+            .withEndPoint('vattypes')
+            .send()
+            .subscribe(response => this.vatTypes = response);
+
+
+        this.selectConfig1 = {
+            template: (item) => {
+                return (item.ID + ' - ' + item.PartName);
             }
-        ]
-    };
+        };
 
-    constructor() {}
+        this.selectConfig2 = {
+            displayField: 'VatCode'
+        };
+    }
+
+    private onSelect(event) {
+        console.log(event);
+    }
+
 }

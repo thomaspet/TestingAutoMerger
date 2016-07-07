@@ -1,127 +1,181 @@
-import {Component, Input, ElementRef} from '@angular/core';
-import { GuidService } from '../../../app/services/services';
-import { ClickOutsideDirective } from '../../../framework/core/clickOutside';
+import {Component, Input, Output, EventEmitter, ViewChild, ElementRef, HostListener} from '@angular/core';
+import {GuidService} from '../../../app/services/services';
+import {ClickOutsideDirective} from '../../../framework/core/clickOutside';
+
+export interface ISelectConfig {
+    displayField?: string;
+    template?: (item) => string;
+}
 
 @Component({
     selector: 'uni-select',
     templateUrl: 'framework/controls/select/select.html',
-    directives: [ ClickOutsideDirective ]
+    directives: [ClickOutsideDirective]
 })
 export class UniSelect {
+    @ViewChild('itemDropdown')
+    private itemDropdown: ElementRef;
 
-    @Input() public config: any;
+    @Input()
+    private items: any[];
+
+    @Input()
+    private config: ISelectConfig;
+
+    @Input()
+    public value: any;
+
+    @Output()
+    public valueChange: EventEmitter<any> = new EventEmitter<any>();
+    
     private guid: string;
-
-    // Is the menu expanded?
     private expanded: boolean = false;
-    public selected: any;
-    public chosen: any;
+    private focusPositionTop: number = 0;
 
-    constructor(gs: GuidService, el: ElementRef) {
+    private selectedItem: any;
+    private focusedIndex: any;
+    private activeDecentantId: string;
+
+    constructor(gs: GuidService) {
         // Set a guid for DOM elements, etc.
         this.guid = gs.guid();
-
-        document.addEventListener('keyup', (e: KeyboardEvent) => {
-            // Esc to close
-            if (e.keyCode === 27) {
-                this.close();
-            }
-        });
-
-        // Keyboard navigation
-        el.nativeElement.addEventListener('keyup', (event: KeyboardEvent) => {
-
-            if (event.keyCode === 38) {
-                // Arrow up
-                this.open();
-                this.moveSelection(-1);
-            } else if (event.keyCode === 40) {
-                // Arrow down
-                this.open();
-                this.moveSelection(1);
-            } else if (event.keyCode === 13 ||
-                        event.keyCode === 9) {
-                // Enter or tab
-                this.chosen = this.selected;
-                this.close();
-            }
-        });
-
     }
 
-    // Adding named fns for open, close and toggle, just to make the code more
-    // readable, as we get into keyboard navigation and the like.
+    public ngAfterViewInit() {
+        // Init values?
+        this.focusedIndex = this.focusedIndex || 0;
+    }
+
+    public ngOnChanges(changes) {
+        if (changes['value'] && this.value) {
+            this.selectedItem = this.value;
+        }
+    }
+
+    // Keyboard navigation
+    @HostListener('keypress', ['$event'])
+    private onKeypress(event) {
+        // Get index of first item matching the character pressed and set focus
+        const character = String.fromCharCode(event.which);
+        const focusIndex = this.items.findIndex((item) => {
+            try {
+                return item[this.config.displayField][0].toLowerCase() === character;
+            } catch (e) {}
+
+            return false;
+        });
+
+        if (focusIndex >= 0) {
+            this.setFocusIndex(focusIndex);
+        }        
+    } 
+
+    @HostListener('keydown', ['$event'])
+    private onKeydown(event) {
+        const key = event.which || event.keyCode || 0;
+        // Vars for calculating scroll on arrow keys
+        var prevItem = undefined;
+        var currItem = undefined;
+        var overflow = 0;
+        
+        // Tab or enter
+        if (key === 9 || key === 13) {
+            this.confirmSelection();
+            this.close();
+        // Escape
+        } else if (key === 27) {
+            this.close();
+        // Space
+        } else if (key === 32) {
+            if (this.expanded) {
+                this.confirmSelection();
+                this.close();
+            } else {
+                this.open();
+            }
+        // Arrow up
+        } else if (key === 38) {
+            event.preventDefault(); // avoid scrolling entire page
+            if (this.focusedIndex > 0) {
+                this.focusedIndex--;
+
+                currItem = this.itemDropdown.nativeElement.children[this.focusedIndex];
+                this.focusPositionTop -= currItem.offsetHeight;
+                overflow = this.focusPositionTop - this.itemDropdown.nativeElement.scrollTop;
+
+                if (overflow < 0) {
+                    this.itemDropdown.nativeElement.scrollTop += overflow;
+                }
+            }
+        // Arrow down
+        } else if (key === 40) {
+            event.preventDefault(); // avoid scrolling entire page
+            if (this.focusedIndex < (this.items.length - 1)) {
+                this.focusedIndex++;
+
+                prevItem = this.itemDropdown.nativeElement.children[this.focusedIndex - 1];
+                currItem = this.itemDropdown.nativeElement.children[this.focusedIndex];
+
+                if (prevItem && currItem) {
+                    this.focusPositionTop += prevItem.offsetHeight;
+
+                        
+                    overflow = (this.focusPositionTop + currItem.offsetHeight) - 
+                               (this.itemDropdown.nativeElement.offsetHeight + this.itemDropdown.nativeElement.scrollTop);
+                    
+
+                    if (overflow > 0) {
+                        this.itemDropdown.nativeElement.scrollTop += overflow;
+                    }
+                }
+            }
+        }
+    }
+
+    private getDisplayValue(item) {
+        if (!item || !this.config) {
+            return ' ';
+        }
+
+        if (this.config.displayField) {
+            return item[this.config.displayField];
+        } else if (this.config.template) {
+            return this.config.template(item);
+        } else {
+            return '';
+        }
+    }
+
+    private confirmSelection() {
+        this.selectedItem = this.items[this.focusedIndex];
+        this.valueChange.emit(this.selectedItem);
+        this.activeDecentantId = this.guid + '-item-' + this.focusedIndex;
+    }
+
+    private setFocusIndex(index) {
+        if (index < this.focusedIndex) {
+            for (let i = index; i < this.focusedIndex; i++) {
+                this.focusPositionTop -= this.itemDropdown.nativeElement.children[i].offsetHeight; 
+            }
+        } else if (index > this.focusedIndex) {
+            for (let i = this.focusedIndex; i < index; i++) {
+                this.focusPositionTop += this.itemDropdown.nativeElement.children[i].offsetHeight;
+            }
+        }
+
+        this.focusedIndex = index;
+    }
+
+
     public open() {
         this.expanded = true;
     }
 
     public close() {
-        // Wrapping this in a timeout, so the Angular loop catches it.
-        // (Feel free to find a better way to do this.)
-        window.setTimeout(() => {
-            this.expanded = false;
-        }, 100);
+        this.expanded = false;
     }
 
     private toggle() {
         this.expanded = !this.expanded;
     }
-
-    // Choosing an option from the list.
-    public choose(option) {
-        this.chosen = this.selected = option;
-        this.close();
-    }
-
-    // Returns the DOM ID for the currently chosen item.
-    private activeDescendantID(): any {
-        if (!this.chosen){
-            return false;
-        } else {
-            return this.guid + '-item-' + this.config.options.indexOf(this.chosen);
-        }
-    }
-
-    // Returns the displayText for the currently chosen item
-    private chosenDisplayText(): string {
-        if (!this.chosen){
-            return '';
-        } else {
-            return this.chosen.displayText;
-        }
-    }
-
-    // Keyboard navigation within list
-    private moveSelection(moveBy) {
-        // If we have no results to traverse, return out
-        if (!this.config.options) {
-            return;
-        }
-
-        // If we have no current selection
-        if (!this.selected && moveBy >= 0) {
-            // If we move down without a selection, start at the top
-            return this.selected = this.config.options[0];
-        } else if (!this.selected && moveBy < 0) {
-            // If we move up without a selection, start at the bottom
-            return this.selected = this.config.options[this.config.options.length - 1];
-        }
-
-        // If we have a selection already
-        let currentIndex = this.config.options.indexOf(this.selected);
-
-        if (currentIndex < 0 ||
-            currentIndex + moveBy >= this.config.options.length) {
-            // If the selected result is no longer a result, or if we wrap around,
-            // then we go to the first item
-            this.selected = this.config.options[0];
-        } else if (currentIndex + moveBy < 0) {
-            // Wrap around the other way
-            this.selected = this.config.options[this.config.options.length - 1];
-        } else {
-            this.selected = this.config.options[currentIndex + moveBy];
-        }
-    }
-
-
 }
