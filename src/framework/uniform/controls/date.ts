@@ -73,7 +73,7 @@ export class UniDateInput {
             let value = _.get(this.model, this.field.Property);
             let options = this.field.Options || {};
             if (value) {
-                this.control.updateValue(moment(value).format('DD.MM.YYYY'));    
+                this.control.updateValue(moment(new Date(value)).format('DD.MM.YYYY'));    
             }
         }
     }
@@ -90,19 +90,17 @@ export class UniDateInput {
         options.parseFormats = options.parseFormats || parseFormats;
 
         options.change = function () {
-
             var date = this.value();
 
-            if (options.autocomplete && (date === null || date === undefined)) {
-                var autocompleted = autocompleteDate(this.element.val());
-                if (autocompleted) {
-                    date = autocompleted;
+            if (!date && options.autocomplete) {
+                if ((this.element.val() && this.element.val().length) || options.autocompleteEmptyValue) {
+                    date = autocompleteDate(this.element.val()) || null;
                 }
             }
 
             if (date) {
                 this.value(date);
-                _.set(self.model, self.field.Property, date);
+                _.set(self.model, self.field.Property, date.toDateString());
                 self.onChange.emit(self.model);
             } else {
                 self.control.updateValue(null, {});

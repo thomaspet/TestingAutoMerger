@@ -9,8 +9,15 @@ import {EmailService} from '../../../services/services';
     selector: 'email-form',
     directives: [UniForm],
     template: `
-        <uni-form *ngIf="config" [config]="config" [fields]="fields" [model]="model">
-        </uni-form>
+        <article class="modal-content email-modal">
+           <h1 *ngIf="config.title">{{config.title}}</h1>
+           <uni-form [config]="formConfig" [fields]="fields" [model]="config.model"></uni-form>
+           <footer>
+                <button *ngFor="let action of config.actions; let i=index" (click)="action.method()" [ngClass]="action.class" type="button">
+                    {{action.text}}
+                </button>                
+            </footer>
+        </article>
     `
 })
 export class EmailForm {    
@@ -18,6 +25,7 @@ export class EmailForm {
     @ViewChild(UniForm) public form: UniForm;
     private config: any = {};
     private fields: any[] = [];
+    private formConfig: any = {};
        
     public ngOnInit() {
         this.setupForm();      
@@ -88,27 +96,6 @@ export class EmailForm {
 
 }
 
-// email modal type
-@Component({
-    selector: 'email-modal-type',
-    directives: [EmailForm],
-    template: `
-        <article class="modal-content email-modal">
-            <h1 *ngIf="config.title">{{config.title}}</h1>
-            <email-form [model]="config.model"></email-form>
-            <footer>
-                <button *ngFor="let action of config.actions; let i=index" (click)="action.method()" [ngClass]="action.class" type="button">
-                    {{action.text}}
-                </button>                
-            </footer>
-        </article>
-    `
-})
-export class EmailModalType {
-    @Input() public config: any;
-    @ViewChild(EmailForm) public form: EmailForm;    
-}
-
 // email modal
 @Component({
     selector: 'email-modal',
@@ -127,7 +114,7 @@ export class EmailModal {
 
     private modalConfig: any = {};    
 
-    private type: Type = EmailModalType;
+    private type: Type = EmailForm;
 
     constructor(private emailService: EmailService) {
     }
@@ -140,7 +127,7 @@ export class EmailModal {
                 {
                     text: 'Lagre epost',
                     class: 'good',
-                    method: () => {                        
+                    method: () => {               
                         this.modal.close();
                         this.Changed.emit(this.modalConfig.model);
                         return false;

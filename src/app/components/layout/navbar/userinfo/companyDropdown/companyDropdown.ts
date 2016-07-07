@@ -4,8 +4,8 @@ import {AuthService} from '../../../../../../framework/core/authService';
 import {UniHttp} from '../../../../../../framework/core/http/http';
 import {ClickOutsideDirective} from '../../../../../../framework/core/clickOutside';
 import {CompanySettingsService} from '../../../../../services/services';
-
-declare var jQuery;
+import {UniSelect, ISelectConfig} from '../../../../../../framework/controls/select/select';
+import {Observable} from 'rxjs/Observable';
 
 @Component({
     selector: 'uni-company-dropdown',
@@ -30,52 +30,44 @@ declare var jQuery;
                 <hr>
 
                 <label class="company_select"> Velg firma
-                    <select id="companySelect"></select> <!-- kendo dropdownlist will compile here -->
+                    <uni-select [config]="selectConfig" 
+                                [items]="availableCompanies"
+                                [value]="activeCompany"
+                                (valueChange)="companySelected($event)">
+                    </uni-select>
                 </label>
-
             </section>
         </article>
     `,
-    directives: [ClickOutsideDirective],
-    providers: [CompanySettingsService]
+    directives: [ClickOutsideDirective, UniSelect],
+    providers: [CompanySettingsService],
 })
-export class UniCompanyDropdown implements AfterViewInit {
+export class UniCompanyDropdown {
     private activeCompany: any;
     private companyDropdownActive: Boolean;
-    private dropdownConfig: kendo.ui.DropDownListOptions;
     private company: any;
+
+    private availableCompanies: Observable<any>;
+    private selectConfig: ISelectConfig;
 
     constructor(private _router: Router,
                 private _authService: AuthService,
                 private http: UniHttp,
                 private companySettingsService: CompanySettingsService) {
 
+        this.http.asGET()
+            .usingInitDomain()
+            .withEndPoint('companies')
+            .send()
+            .subscribe(response => this.availableCompanies = response);
+        
+        this.selectConfig = {
+            displayField: 'Name'  
+        };
+
         this.companyDropdownActive = false;
         this.activeCompany = JSON.parse(localStorage.getItem('activeCompany'));
         this.loadCompanyData();
-
-        this.dropdownConfig = {
-            delay: 50,
-            dataTextField: 'Name',
-            dataValueField: 'ID',
-            dataSource: {
-                transport: {
-                    read: (options) => {
-                        this.http.asGET()
-                            .usingInitDomain()
-                            .withEndPoint('companies')
-                            .send()
-                            .subscribe(response => options.success(response));
-                    }
-                }
-            },
-            select: (event: kendo.ui.DropDownListSelectEvent) => {
-                var item: any = event.item;
-                var dataItem = event.sender.dataItem(item.index());
-                if (dataItem.Name === this.activeCompany.Name) { return; }
-                this.companySelected(dataItem);
-            }
-        };
     }
 
     private loadCompanyData() {
@@ -84,13 +76,8 @@ export class UniCompanyDropdown implements AfterViewInit {
         });
     }
 
-    public ngAfterViewInit() {
-        var container = jQuery('#companySelect');
-        var dropdown = container.kendoDropDownList(this.dropdownConfig).data('kendoDropDownList');
-        dropdown.value(this.activeCompany.ID);
-    }
-
     private companySelected(selectedCompany): void {
+        this.close();
         this.activeCompany = selectedCompany;
         this._authService.setActiveCompany(selectedCompany);
         this.loadCompanyData();
@@ -105,5 +92,4 @@ export class UniCompanyDropdown implements AfterViewInit {
     private close() {
         this.companyDropdownActive = false;
     }
-
 }

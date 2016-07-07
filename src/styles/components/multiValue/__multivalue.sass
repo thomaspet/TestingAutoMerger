@@ -60,7 +60,8 @@
   border-bottom-right-radius: pxToRem(3)
   display: none
 
-  &.-is-active
+  &.-is-active,
+  &[aria-expanded]:not([aria-expanded=false])
     display: block
 
   li
