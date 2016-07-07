@@ -46,7 +46,8 @@ export class UniDocumentUploader {
             event.preventDefault();
             event.stopPropagation();
         });
-        $el.on('dragover dragenter', () => {
+        $el.on('dragover dragenter', (event) => {
+            event.originalEvent.dataTransfer.dropEffect = 'copy';
             $el.addClass('-is-dragover');
         });
         $el.on('dragleave dragend drop', () => {
