@@ -6,7 +6,7 @@ input[type=radio]
     display: none
 
     & + label
-        -webkit-user-select: none
+        user-select: none
         box-sizing: border-box
         padding: 1.5rem 0 0 1.8rem
         position: relative
@@ -58,7 +58,7 @@ input[type=radio]
 
         &:before
             border-color: $uni-color-C2A
-            background: -webkit-linear-gradient(bottom, $uni-color-C2A 0, lighten($uni-color-C2A, 10%) 100%)
+            background: linear-gradient(to top, $uni-color-C2A 0, lighten($uni-color-C2A, 10%) 100%)
 
         &:after
             opacity: 1
@@ -66,15 +66,15 @@ input[type=radio]
 
         &.success:before
             border-color: $uni-color-Good
-            background: -webkit-linear-gradient(bottom, $uni-color-Good 0, lighten($uni-color-Good, 10%) 100%)
+            background: linear-gradient(to top, $uni-color-Good 0, lighten($uni-color-Good, 10%) 100%)
 
         &.warning:before
             border-color: $uni-color-Warn
-            background: -webkit-linear-gradient(bottom, $uni-color-Warn 0, lighten($uni-color-Warn, 10%) 100%)
+            background: linear-gradient(to top, $uni-color-Warn 0, lighten($uni-color-Warn, 10%) 100%)
 
         &.error:before
             border-color: $uni-color-Bad
-            background: -webkit-linear-gradient(bottom, $uni-color-Bad 0, lighten($uni-color-Bad, 10%) 100%)
+            background: linear-gradient(to top, $uni-color-Bad 0, lighten($uni-color-Bad, 10%) 100%)
 
     &[disabled] + label,
     &[readonly] + label
