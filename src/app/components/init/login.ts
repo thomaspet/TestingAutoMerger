@@ -2,24 +2,32 @@ import {Component} from '@angular/core';
 import {Router, ROUTER_DIRECTIVES} from '@angular/router-deprecated';
 import {AuthService} from '../../../framework/core/authService';
 import {UniHttp} from '../../../framework/core/http/http';
-
+import {UniSelect, ISelectConfig} from '../../../framework/controls/select/select';
 declare var jQuery;
 
 @Component({
     selector: 'uni-login',
     templateUrl: 'app/components/init/login.html',
-    directives: [ROUTER_DIRECTIVES]
+    directives: [ROUTER_DIRECTIVES, UniSelect]
 })
 export class Login {
     private credentials: { username: string, password: string };
     private working: boolean;
     private loginSuccess: boolean  = false;
     private errorMessage: string = '';
+    
+    private availableCompanies: any[];
+    private selectConfig: ISelectConfig;
 
     constructor(private _authService: AuthService, private _router: Router, private http: UniHttp) {
         this.credentials = {
             username: '',
             password: ''
+        };
+
+        this.selectConfig = {
+            displayField: 'Name',
+            placeholder: 'Velg selskap'
         };
     }
 
@@ -35,7 +43,7 @@ export class Login {
                 },
                 (error) => {
                     this.working = false;
-                    this.errorMessage = 'Noe gikk galt. Vennligst sjekk brukernavn og passord, og prøv igjen.'; // TODO: This should come from backend (statusText)?
+                    this.errorMessage = 'Noe gikk galt. Vennligst sjekk brukernavn og passord, og prøv igjen.'; // TODO: Should this come from backend (statusText)?
                 }
             );        
     }
@@ -43,12 +51,6 @@ export class Login {
     private onAuthSuccess() {
         this.working = false;
         this.loginSuccess = true;
-        
-        // skip process of selecting a company if activeCompany exists in localStorage
-        if (this._authService.hasActiveCompany()) {
-            this.onCompanySelected();
-            return;
-        }
         
         this.http.asGET()
             .usingInitDomain()
@@ -63,49 +65,17 @@ export class Login {
                     return;
                 }
                 
-                const companies = response.json();
-                if (companies.length === 1) {
-                    this._authService.setActiveCompany(companies[0]);
-                    this.onCompanySelected();
-                } else {
-                    this.showCompanySelect(companies);    
+                this.availableCompanies = response.json();
+                if (this.availableCompanies.length === 1) {
+                    this.onCompanySelected(this.availableCompanies[0]);
                 }
             });
     }
-    
-    private showCompanySelect(companies) {
-        // setup and compile company dropdown        
-        var dropdownConfig = {
-            delay: 50,
-            dataTextField: 'Name',
-            dataValueField: 'ID',
-            optionLabel: {
-                Name: 'Velg et selskap',
-                ID: -1
-            },
-            dataSource: {
-                transport: {
-                    read: (options) => {
-                        options.success(companies);
-                    }
-                }
-            },
-            select: (event: kendo.ui.DropDownListSelectEvent) => {
-                var company = (event.sender.dataItem(<any>event.item));
-                if (company.ID >= 0) {
-                    this._authService.setActiveCompany(company);
-                    this.onCompanySelected();
-                }
-            },
-        };
 
-        var element = jQuery('.company_select > select').first().show();
-        element.kendoDropDownList(dropdownConfig);
-    }
-
-    private onCompanySelected() {
-        
-
+    private onCompanySelected(company) {
+        if (company) {
+            this._authService.setActiveCompany(company);
+        }
         this.navigate();
     }
 

@@ -5,6 +5,7 @@ import {ClickOutsideDirective} from '../../../framework/core/clickOutside';
 export interface ISelectConfig {
     displayField?: string;
     template?: (item) => string;
+    placeholder?: string;
 }
 
 @Component({
@@ -134,7 +135,7 @@ export class UniSelect {
 
     private getDisplayValue(item) {
         if (!item || !this.config) {
-            return ' ';
+            return '';
         }
 
         if (this.config.displayField) {

@@ -1,4 +1,5 @@
 <article class="uniSelect"
+    *ngIf="config && items"
     (clickOutside)="close()">
 
     <input type="text"
@@ -10,6 +11,7 @@
         tabindex="0"
         (click)="toggle()"
         [value]="getDisplayValue(selectedItem)"
+        [placeholder]="config.placeholder || ''"
         readonly />
 
     <ul #itemDropdown [id]="guid" 
