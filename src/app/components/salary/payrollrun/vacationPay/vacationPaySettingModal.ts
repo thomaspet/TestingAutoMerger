@@ -5,7 +5,7 @@ import {VacationpaySettingModalContent} from './vacationpaySettingModalContent';
 @Component({
     selector: 'vacationpay-setting-modal',
     directives: [UniModal],
-    templateUrl: 'app/components/salary/payrollrun/vacationpay/vacationpaysettingmodal.html'
+    templateUrl: 'app/components/salary/payrollrun/vacationpay/vacationPaySettingModal.html'
 })
 export class VacationpaySettingModal implements AfterViewInit {
     @ViewChildren(UniModal) private modalElements: QueryList<UniModal>;

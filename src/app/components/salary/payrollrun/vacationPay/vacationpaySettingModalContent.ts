@@ -10,7 +10,7 @@ import {Observable} from 'rxjs/Observable';
     selector: 'vacationpay-setting-modal-content',
     directives: [UniForm, UniTable],
     providers: [CompanySalaryService, CompanyVacationRateService, AccountService],
-    templateUrl: 'app/components/salary/payrollrun/vacationpay/vacationpaysettingmodalcontent.html'
+    templateUrl: 'app/components/salary/payrollrun/vacationpay/vacationpaySettingModalContent.html'
 })
 export class VacationpaySettingModalContent {
     private busy: boolean;
