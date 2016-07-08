@@ -6,7 +6,7 @@
     font-size: 0
     box-shadow: 0 pxToRem(1) pxToRem(1) $uni-color-scale7
     background: mix($uni-color-negative, $uni-color-C2A, 80%) no-repeat center
-    background-size: 1rem 1rem
+    background-size: 1rem auto
     position: relative
     top: -.3rem
     border-radius: pxToRem(3)
@@ -55,11 +55,13 @@
 
     .previous
         background-image: unicon-prev($uni-color-scale3)
+        background-size: auto 1rem
         &:hover,
         &:focus
             background-image: unicon-prev($uni-color-C2A)
     .next
         background-image: unicon-next($uni-color-scale3)
+        background-size: auto 1rem
         &:hover,
         &:focus
             background-image: unicon-next($uni-color-C2A)
@@ -82,11 +84,11 @@
     .trash
         background-image: unicon-trash($uni-color-scale3)
         &:hover
-            background-image: unicon-trash($uni-color-C2A)          
+            background-image: unicon-trash($uni-color-C2A)
     .close
         background-image: unicon-close($uni-color-scale3)
         &:hover
-            background-image: unicon-close($uni-color-C2A)                            
+            background-image: unicon-close($uni-color-C2A)
 
 .poster_toolbar_extras
     @include unigrid-flush(14)

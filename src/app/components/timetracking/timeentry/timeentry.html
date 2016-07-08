@@ -1,10 +1,12 @@
 <aside class="horizontal_nav">
     <ul>
         <li *ngFor="let tab of tabs">
-            <a (click)="onTabClick(tab)" [ngClass]="{'router-link-active': tab.isSelected}" >{{tab.label}}</a>
-            <span class='regtimetabtip' *ngIf="tab.counter">({{tab.counter}})</span>   
+            <a (click)="onTabClick(tab)" [ngClass]="{'router-link-active': tab.isSelected}">
+                {{tab.label}}
+                <span class='tab_counter' *ngIf="tab.counter">{{tab.counter}}</span>
+            </a>
         </li>
-    </ul>    
+    </ul>
 </aside>
 
 <section class='application regtimecontainer'>
@@ -33,13 +35,13 @@
         </section>
 
         <section [hidden]="!tabs[0].isSelected">
-    
+
             <header class="regtimetitle">
                 <span>Registrere timer for {{userName}}</span>
                 <select *ngFor="let item of workRelations">
                     <option>{{item.CompanyName}} : {{item.WorkPercentage}}% - {{item.Description}}</option>
                 </select>
-            </header>            
+            </header>
 
             <aside class="regtime_filters">
 
@@ -49,23 +51,23 @@
                         <button class="secondary-button" (click)="onAddNew()">Ny timeføring</button>
                         <button *ngIf="hasUnsavedChanges()" class="good" (click)="save()">Lagre endringer</button>
                         <button *ngIf="hasUnsavedChanges()" class="bad" (click)="reset()">Avbryt</button>
-                    </td> 
+                    </td>
                     <td>Totalsum: {{timeSheet.totals.Minutes | min2hours}}</td>
-                    </tr></table> 
+                    </tr></table>
                 </footer>
 
                 <ul>
                     <li *ngFor="let filter of filters">
-                        <a (click)="onFilterClick(filter)" [ngClass]="{'router-link-active': filter.isSelected}" >{{filter.label}}</a> 
+                        <a (click)="onFilterClick(filter)" [ngClass]="{'router-link-active': filter.isSelected}" >{{filter.label}}</a>
                     </li>
-                </ul>    
-                
+                </ul>
+
             </aside>
-            
+
             <article [attr.aria-busy]="busy" >
-                
+
                 <aside class='busy' *ngIf='busy'>Vent litt... stiller klokker og spisser blyanter..</aside>
-            
+
                 <table class='timeentriesTable' editable [config]="tableConfig" >
                     <thead>
                         <tr>
@@ -89,9 +91,9 @@
                             <td>{{item.Dimensions ? item.Dimensions.Project ? item.Dimensions.Project.ID + ' - ' + item.Dimensions.Project.Name : item.Dimensions.ProjectID : ''}}</td>
                             <td>{{item.CustomerOrder ? item.CustomerOrder.OrderNumber + ' - ' + item.CustomerOrder.CustomerName : item.CustomerOrderID }}</td>
                             <td class='timeSheet_actions'><button (click)="onRowActionClicked(i, item)"></button></td>
-                        </tr>                            
+                        </tr>
                     </tbody>
-                </table>    
+                </table>
             </article>
 
             <uni-save [actions]="actions"></uni-save>
