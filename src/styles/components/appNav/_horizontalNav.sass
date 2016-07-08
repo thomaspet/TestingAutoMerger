@@ -20,22 +20,24 @@
             border-right: .1rem solid transparentize($uni-color-negative, .5)
             height: 2rem
             box-sizing: border-box
-            line-height: 2rem
+            line-height: 1.9rem
 
             &:last-of-type
                 border-right: none
 
-            &.-is-active
-                background: darken(mix($uni-color-scale9, $navbarBackground, 60%), 15%)
-
             &:hover,
+            &.-is-active,
             &.router-link-active
                 background: darken(mix($uni-color-scale9, $navbarBackground, 60%), 15%)
 
-/*@include media(large, max-width)
-    .horizontal_nav ul
-        li a
-            display: none
-
-        li:first-of-type a
-            display: inline-block*/
+.tab_counter
+    display: inline-block
+    background: darken(mix($uni-color-scale9, $navbarBackground, 60%), 10%)
+    color: $uni-color-negative
+    height: 1.2rem
+    line-height: 1rem
+    font-size: .9rem
+    padding: .1rem .5rem
+    margin: 0 -.1rem 0 .1rem
+    border-radius: 99rem
+    top: -.2rem
