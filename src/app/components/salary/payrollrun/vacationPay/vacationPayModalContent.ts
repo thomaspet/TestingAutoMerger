@@ -65,8 +65,9 @@ export class VacationpayModalContent {
         this.basicamountBusy = true;
         this._payrollrunService.getVacationpayBasis(this.vacationBaseYear, this.config.payrollRunID)
         .subscribe((vpBasis) => {
-            this.vacationpayBasis = vpBasis.VacationPay;
-            this.vacationpayBasis[1].IsInCollection = false;
+            if (vpBasis) {
+                this.vacationpayBasis = vpBasis.VacationPay;
+            }
             this.updatetotalPay();
             this.basicamountBusy = false;
         });
@@ -75,9 +76,11 @@ export class VacationpayModalContent {
 
     private updatetotalPay() {
         this.totalPayout = 0;
-        this.vacationpayBasis.forEach(vacationpayLine => {
-            this.totalPayout += vacationpayLine.Withdrawal;
-        });
+        if (this.vacationpayBasis) {
+            this.vacationpayBasis.forEach(vacationpayLine => {
+                this.totalPayout += vacationpayLine.Withdrawal;
+            });
+        }
     }
 
     private setCurrentBasicAmountAndYear() {
@@ -156,11 +159,7 @@ export class VacationpayModalContent {
         .setPageable(false)
         .setMultiRowSelect(false)
         .setIsRowReadOnly((rowModel) => {
-            if (rowModel.IsInCollection) {
-                return false;
-            } else {
-                return true;
-            }
+            return !rowModel.IsInCollection;
         })
         .setChangeCallback((event) => {
             let row = event.rowModel;
