@@ -53,7 +53,21 @@ export class PayrollrunDetails implements OnInit {
             {
                 label: 'Nullstill lønnsavregning',
                 action: () => {
-                    console.log('Nullstiller lønnsavregnin kommer snart');
+                    this.busy = true;
+                    this.payrollrunService.resetSettling(this.payrollrunID).subscribe((response: boolean) => {
+                        if (response) {
+                            this.payrollrunService.Get(this.payrollrunID).subscribe((payrollRun: PayrollRun) => {
+                                this.payrollrunService.refreshPayrun(payrollRun);
+                            }, error => {
+                                this.log(error);
+                            });
+                        } else {
+                            this.busy = false;
+                        }
+                    }, error => {
+                        this.busy = false;
+                        this.log(error);
+                    });
                 }
             }
         ];
