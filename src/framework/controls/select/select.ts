@@ -1,4 +1,5 @@
-import {Component, Input, Output, EventEmitter, ViewChild, ElementRef, HostListener} from '@angular/core';
+import {Component, Input, Output, EventEmitter, ViewChild, ElementRef, HostListener, Renderer} from '@angular/core';
+import {Control} from '@angular/common';
 import {GuidService} from '../../../app/services/services';
 import {ClickOutsideDirective} from '../../../framework/core/clickOutside';
 
@@ -6,6 +7,7 @@ export interface ISelectConfig {
     displayField?: string;
     template?: (item) => string;
     placeholder?: string;
+    searchable?: boolean;
 }
 
 @Component({
@@ -14,6 +16,9 @@ export interface ISelectConfig {
     directives: [ClickOutsideDirective]
 })
 export class UniSelect {
+    @ViewChild('searchInput')
+    private inputElement: ElementRef;
+
     @ViewChild('itemDropdown')
     private itemDropdown: ElementRef;
 
@@ -33,41 +38,62 @@ export class UniSelect {
     private expanded: boolean = false;
     private focusPositionTop: number = 0;
 
+    private searchable: boolean = true;
+    private searchControl: Control = new Control('');
+    private filteredItems: any[];
+
     private selectedItem: any;
     private focusedIndex: any;
     private activeDecentantId: string;
 
-    constructor(gs: GuidService) {
+    constructor(gs: GuidService, private renderer: Renderer) {
         // Set a guid for DOM elements, etc.
         this.guid = gs.guid();
-    }
-
-    public ngAfterViewInit() {
-        // Init values?
-        this.focusedIndex = this.focusedIndex || 0;
     }
 
     public ngOnChanges(changes) {
         if (changes['value'] && this.value) {
             this.selectedItem = this.value;
         }
+
+        if (changes['config'] && this.config) {
+            this.searchable = (this.config.searchable || this.config.searchable === undefined);
+        }
+
+        if (changes['items'] && this.items) {
+            this.searchControl.updateValueAndValidity('');
+            this.filteredItems = this.items;
+        }
     }
 
-    // Keyboard navigation
+    public ngAfterViewInit() {
+        this.focusedIndex = this.focusedIndex || 0;
+
+        this.searchControl.valueChanges
+        .debounceTime(250)
+        .distinctUntilChanged()
+        .subscribe((value) => {
+            this.filterItems(value);
+        });
+    }
+
+    // Focus first item matching character pressed
     @HostListener('keypress', ['$event'])
     private onKeypress(event) {
-        // Get index of first item matching the character pressed and set focus
-        const character = String.fromCharCode(event.which);
-        const focusIndex = this.items.findIndex((item) => {
-            try {
-                return item[this.config.displayField][0].toLowerCase() === character;
-            } catch (e) {}
+        // If select is searchable we dont want this
+        if (!this.searchable) {
+            const character = String.fromCharCode(event.which);
+            const focusIndex = this.items.findIndex((item) => {
+                try {
+                    return item[this.config.displayField][0].toLowerCase() === character;
+                } catch (e) {}
 
-            return false;
-        });
+                return false;
+            });
 
-        if (focusIndex >= 0) {
-            this.setFocusIndex(focusIndex);
+            if (focusIndex >= 0) {
+                this.setFocusIndex(focusIndex);
+            }
         }        
     } 
 
@@ -133,12 +159,20 @@ export class UniSelect {
         }
     }
 
-    private getDisplayValue(item) {
+    private filterItems(filterString: string) {
+        this.filteredItems = this.items.filter((item) => {
+            return this.getDisplayValue(item).toLowerCase().indexOf(filterString.toLowerCase()) >= 0;
+        });
+    }
+
+    private getDisplayValue(item): string {
         if (!item || !this.config) {
             return '';
         }
 
-        if (this.config.displayField) {
+        if (typeof item === 'string') {
+            return item;
+        } else if (this.config.displayField) {
             return item[this.config.displayField];
         } else if (this.config.template) {
             return this.config.template(item);
@@ -170,6 +204,9 @@ export class UniSelect {
 
     public open() {
         this.expanded = true;
+        setTimeout(() => {
+            this.renderer.invokeElementMethod(this.inputElement.nativeElement, 'focus', []);
+        });
     }
 
     public close() {
@@ -178,5 +215,10 @@ export class UniSelect {
 
     private toggle() {
         this.expanded = !this.expanded;
+        if (this.expanded) {
+            setTimeout(() => {
+                this.renderer.invokeElementMethod(this.inputElement.nativeElement, 'focus', []);
+            });
+        }
     }
 }
