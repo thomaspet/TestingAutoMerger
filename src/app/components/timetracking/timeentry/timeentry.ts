@@ -38,7 +38,6 @@ interface ITab {
     pipes: [IsoTimePipe, MinutesToHoursPipe]
 })
 export class TimeEntry {    
-    //view = view;
     busy = true;
     userName = '';
     workRelations: Array<WorkRelation> = [];
@@ -83,11 +82,13 @@ export class TimeEntry {
             new Column('Actions', '', ColumnType.Action)
             ],
         events: {
-                onChange: (event) => { return this.onChange(event); },
+                onChange: (event) => { 
+                    return this.lookup.onEditableChange(event, (event)=> this.updateChange(event) ) || this.updateChange(event);
+                },
                 onInit: (instance:Editable) => {
                     this.editable = instance; 
                 },
-                onTypeSearch: (details:ITypeSearch) => this.onTypeSearch(details),
+                onTypeSearch: (details:ITypeSearch) => this.lookup.onTypeSearch(details),
                 onCopyCell: (details: ICopyEventDetails) => this.onCopyCell(details)
             }  
     };
@@ -181,72 +182,6 @@ export class TimeEntry {
        
     hasUnsavedChanges():boolean {
         return !this.actions[0].disabled;
-    }
-
-    onChange(event: IChangeEvent ) {
-        
-        if (event.columnDefinition && event.columnDefinition.lookup) {
-        
-            var lookupDef = event.columnDefinition.lookup;
-
-            // Remove "label" from key-value ?
-            var key = event.columnDefinition.columnType === ColumnType.Integer ? parseInt(event.value) : event.value;
-
-            // Blank value (clear current value) ?
-            if (!key) {
-                event.value = key;
-                this.updateChange(event);
-                return;
-            }
-
-            // Did user just type a "visual" key value himself (customernumber, ordernumber etc.) !?
-            if (event.userTypedValue && lookupDef.visualKey) {                
-                var p = new Promise((resolve, reject)=> {
-                    var filter= `?filter=${lookupDef.visualKey} eq ${key}`;
-                    this.lookup.getSingle<any>(lookupDef.route, filter).subscribe((rows:any)=> {
-                        var item = (rows && rows.length > 0) ? rows[0] : {};
-                        event.value = item[lookupDef.colToSave || 'ID'];
-                        event.lookupValue = item;
-                        this.updateChange(event);
-                        resolve(item);
-                    }, (err)=>{
-                        reject(err.statusText);
-                    });
-                });
-                event.updateCell = false;
-                return p;
-            }
-
-            // Normal lookup value (by foreignKey) ?
-            var p = new Promise((resolve, reject)=>{                
-                this.lookup.getSingle<any>(lookupDef.route, key).subscribe( (item:any) => {
-                    event.lookupValue = item;
-                    event.value = key;
-                    this.updateChange(event);
-                    resolve(item);
-                }, (err)=>{
-                    reject(err.statusText);
-                });
-            });
-            event.updateCell = false;
-            return p;
-        }
-
-        this.updateChange(event);
-
-    }
-
-    onTypeSearch(details: ITypeSearch) {
-        if (details.columnDefinition && details.columnDefinition.lookup) {
-            let lookup = details.columnDefinition.lookup;
-            details.ignore = false;
-            details.itemPropertyToSet = lookup.colToSave || 'ID';
-            // Build combo-template
-            var searchCols = lookup.select || 'ID,Name'
-            var cols = searchCols.split(',');
-            details.renderFunc = (item:any)=> { var ret = ''; for (var i=0;i<cols.length;i++) ret += (i>0 ? ' - ' : '') + item[cols[i]]; return ret; }
-            details.promise = this.lookup.query(lookup.route, details.value, searchCols, undefined, searchCols, lookup.filter).toPromise();
-        }
     }
 
     onCopyCell(details: ICopyEventDetails) { 
