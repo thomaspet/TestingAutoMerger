@@ -70,8 +70,6 @@ export class UniImage {
         if (this.imageId) {
             this.updateImage();
         }
-
-        console.log(JSON.stringify(this.uploadConfig));
     }
 
     public ngAfterViewInit() {

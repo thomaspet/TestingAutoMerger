@@ -20,7 +20,12 @@
         [attr.aria-expanded]="expanded"
         tabindex="-1">
 
-        <li *ngFor="let item of items; let idx = index"
+        <li class="select-search" *ngIf="searchable">
+            <input #searchInput type="search" placeholder="Filtrer elementer"
+                   [ngFormControl]="searchControl">
+        </li>
+
+        <li *ngFor="let item of filteredItems; let idx = index"
             [id]="guid + '-item-' + idx"
             class="uniSelect_dropdown_item"
             role="item"
@@ -30,6 +35,5 @@
             tabindex="-1">
             {{getDisplayValue(item)}}
         </li>
-
     </ul>
 </article>
