@@ -62,6 +62,7 @@ export class PayrollrunDetails implements OnInit {
                                 this.log(error);
                             });
                         } else {
+                            alert('fikk ikke nullstilt lønnsavregning');
                             this.busy = false;
                         }
                     }, error => {
@@ -160,11 +161,6 @@ export class PayrollrunDetails implements OnInit {
         this.vacationPayModal.openModal();
     }
 
-    private setStatus() {
-        var status = this.payrollrunService.getStatus(this.payrollrun);
-        this.payStatus = status.text;
-        return status.text;
-    }
     public canPost(): boolean {
         if (this.payrollrun) {
         if (this.payrollrun.StatusCode === 1) {
