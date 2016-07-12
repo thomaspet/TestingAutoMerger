@@ -234,7 +234,7 @@ export class TimeEntry {
     validate():boolean {
         var result:  { ok: boolean, message?: string, row?: number, fld?: string } = this.timeSheet.validate();
         if (!result.ok) {
-            this.toast.addToast('Feil', ToastType.bad, 1000, result.message );
+            this.toast.addToast('Feil', ToastType.bad, 5, result.message );
             if (result !== undefined && result.row >= 0) {
                 let iCol = this.tableConfig.columns.findIndex( (col)=>col.name === result.fld );
                 this.editable.editRow(result.row, iCol);
@@ -254,7 +254,7 @@ export class TimeEntry {
             event.userTypedValue = false;
             this.updateChange(event);        
         } else {
-            this.toast.addToast(event.columnDefinition.label, ToastType.bad, 600, `Ugyldig ${event.columnDefinition.label}: ${event.value}`);
+            this.toast.addToast(event.columnDefinition.label, ToastType.bad, 3, `Ugyldig ${event.columnDefinition.label}: ${event.value}`);
         }
     }
 
