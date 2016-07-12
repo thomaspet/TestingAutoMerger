@@ -3,7 +3,7 @@ import {TabService} from '../../layout/navbar/tabstrip/tabService';
 import {View} from '../../../models/view/view';
 import {Worker, WorkRelation, WorkProfile, WorkItem} from '../../../unientities';
 import {WorkerService, ItemInterval} from '../../../services/timetracking/workerservice';
-import {Editable, IChangeEvent, IConfig, Column, ColumnType, ITypeSearch, ICopyEventDetails} from '../utils/editable/editable';
+import {Editable, IChangeEvent, IConfig, Column, ColumnType, ITypeSearch, ICopyEventDetails, ILookupDetails} from '../utils/editable/editable';
 import {parseTime, addTime, parseDate, toIso} from '../utils/utils';
 import {TimesheetService, TimeSheet, ValueItem} from '../../../services/timetracking/timesheetservice';
 import {IsoTimePipe, MinutesToHoursPipe} from '../utils/pipes';
@@ -11,6 +11,7 @@ import {UniSave, IUniSaveAction} from '../../../../framework/save/save';
 import {CanDeactivate, ComponentInstruction} from '@angular/router-deprecated';
 import {Lookupservice} from '../utils/lookup';
 import {RegtimeTotals} from './totals/totals';
+import {ToastService, ToastType} from '../../../../framework/unitoast/toastservice';
 
 declare var moment;
 
@@ -38,7 +39,6 @@ interface ITab {
     pipes: [IsoTimePipe, MinutesToHoursPipe]
 })
 export class TimeEntry {    
-    //view = view;
     busy = true;
     userName = '';
     workRelations: Array<WorkRelation> = [];
@@ -75,24 +75,27 @@ export class TimeEntry {
             new Column('Date','', ColumnType.Date),
             new Column('StartTime', '', ColumnType.Time),
             new Column('EndTime', '', ColumnType.Time),
-            new Column('WorkTypeID','', ColumnType.Integer, { route:'worktypes' }),
+            new Column('WorkTypeID','Timeart', ColumnType.Integer, { route:'worktypes' }),
             new Column('Description'), 
-            new Column('Dimensions.ProjectID', '', ColumnType.Integer, { route:'projects'}),
+            new Column('Dimensions.ProjectID', 'Prosjekt', ColumnType.Integer, { route:'projects'}),
             new Column('CustomerOrderID', 'Ordre', ColumnType.Integer, 
                 { route:'orders', filter:'ordernumber gt 0', select: 'OrderNumber,CustomerName', visualKey: 'OrderNumber'}),
             new Column('Actions', '', ColumnType.Action)
             ],
         events: {
-                onChange: (event) => { return this.onChange(event); },
+                onChange: (event) => { 
+                    return this.lookup.checkAsyncLookup(event, (event)=> this.updateChange(event), (event)=> this.asyncValidationFailed(event) ) || this.updateChange(event);
+                },
                 onInit: (instance:Editable) => {
                     this.editable = instance; 
                 },
-                onTypeSearch: (details:ITypeSearch) => this.onTypeSearch(details),
+                onTypeSearch: (details:ITypeSearch) => this.lookup.onTypeSearch(details),
                 onCopyCell: (details: ICopyEventDetails) => this.onCopyCell(details)
             }  
     };
             
-    constructor(private tabService: TabService, private service:WorkerService, private timesheetService:TimesheetService, private lookup:Lookupservice) {
+    constructor(private tabService: TabService, private service:WorkerService, 
+            private timesheetService:TimesheetService, private lookup:Lookupservice, private toast:ToastService) {
         this.tabService.addTab({ name: view.label, url: view.url, moduleID: 18 });
         this.userName = service.user.name;
         this.currentFilter = this.filters[0];
@@ -111,7 +114,7 @@ export class TimeEntry {
     }
 
     onAddNew() {
-        this.editable.editRow(this.timeSheet.items.length);
+        this.editable.editRow(this.timeSheet.items.length-1);
     }
 
     reset() {
@@ -155,6 +158,12 @@ export class TimeEntry {
     }
 
     save(done?:any) {
+        
+        if (!this.validate()) { 
+            if (done) { done('Feil ved validering'); } 
+            return; 
+        }
+
         if (this.busy) return;
         return new Promise((resolve, reject) => {
             this.busy = true;
@@ -181,72 +190,6 @@ export class TimeEntry {
        
     hasUnsavedChanges():boolean {
         return !this.actions[0].disabled;
-    }
-
-    onChange(event: IChangeEvent ) {
-        
-        if (event.columnDefinition && event.columnDefinition.lookup) {
-        
-            var lookupDef = event.columnDefinition.lookup;
-
-            // Remove "label" from key-value ?
-            var key = event.columnDefinition.columnType === ColumnType.Integer ? parseInt(event.value) : event.value;
-
-            // Blank value (clear current value) ?
-            if (!key) {
-                event.value = key;
-                this.updateChange(event);
-                return;
-            }
-
-            // Did user just type a "visual" key value himself (customernumber, ordernumber etc.) !?
-            if (event.userTypedValue && lookupDef.visualKey) {                
-                var p = new Promise((resolve, reject)=> {
-                    var filter= `?filter=${lookupDef.visualKey} eq ${key}`;
-                    this.lookup.getSingle<any>(lookupDef.route, filter).subscribe((rows:any)=> {
-                        var item = (rows && rows.length > 0) ? rows[0] : {};
-                        event.value = item[lookupDef.colToSave || 'ID'];
-                        event.lookupValue = item;
-                        this.updateChange(event);
-                        resolve(item);
-                    }, (err)=>{
-                        reject(err.statusText);
-                    });
-                });
-                event.updateCell = false;
-                return p;
-            }
-
-            // Normal lookup value (by foreignKey) ?
-            var p = new Promise((resolve, reject)=>{                
-                this.lookup.getSingle<any>(lookupDef.route, key).subscribe( (item:any) => {
-                    event.lookupValue = item;
-                    event.value = key;
-                    this.updateChange(event);
-                    resolve(item);
-                }, (err)=>{
-                    reject(err.statusText);
-                });
-            });
-            event.updateCell = false;
-            return p;
-        }
-
-        this.updateChange(event);
-
-    }
-
-    onTypeSearch(details: ITypeSearch) {
-        if (details.columnDefinition && details.columnDefinition.lookup) {
-            let lookup = details.columnDefinition.lookup;
-            details.ignore = false;
-            details.itemPropertyToSet = lookup.colToSave || 'ID';
-            // Build combo-template
-            var searchCols = lookup.select || 'ID,Name'
-            var cols = searchCols.split(',');
-            details.renderFunc = (item:any)=> { var ret = ''; for (var i=0;i<cols.length;i++) ret += (i>0 ? ' - ' : '') + item[cols[i]]; return ret; }
-            details.promise = this.lookup.query(lookup.route, details.value, searchCols, undefined, searchCols, lookup.filter).toPromise();
-        }
     }
 
     onCopyCell(details: ICopyEventDetails) { 
@@ -286,6 +229,33 @@ export class TimeEntry {
             }
 
         }  
+    }
+
+    validate():boolean {
+        var result:  { ok: boolean, message?: string, row?: number, fld?: string } = this.timeSheet.validate();
+        if (!result.ok) {
+            this.toast.addToast('Feil', ToastType.bad, 1000, result.message );
+            if (result !== undefined && result.row >= 0) {
+                let iCol = this.tableConfig.columns.findIndex( (col)=>col.name === result.fld );
+                this.editable.editRow(result.row, iCol);
+            }
+            return false;
+        }
+        return true;
+    }
+
+    asyncValidationFailed(event: IChangeEvent) {
+        var droplistItems = this.editable.getDropListItems({ col: event.col, row: event.row});
+        if (droplistItems && droplistItems.length === 1 && event.columnDefinition) {
+            var lk: ILookupDetails = event.columnDefinition.lookup;
+            let item = droplistItems[0];
+            event.value = item[lk.colToSave|| 'ID'];
+            event.lookupValue = item;
+            event.userTypedValue = false;
+            this.updateChange(event);        
+        } else {
+            this.toast.addToast(event.columnDefinition.label, ToastType.bad, 600, `Ugyldig ${event.columnDefinition.label}: ${event.value}`);
+        }
     }
 
     updateChange(event: IChangeEvent) {

@@ -53,6 +53,24 @@ export class TimeSheet {
             return result.saved;
         });
     }
+
+    public validate(): { ok: boolean, message?: string, row?: number, fld?: string } {
+        var result = { ok: true, message:undefined, row: undefined, fld: undefined };
+        var item: WorkItem;
+        var list = this.changeMap.getKeys();
+        for (var i=0; i<list.length; i++) {
+            let rowIndex = list[i];
+            item = this.items[rowIndex];
+            if (!item.WorkTypeID) {
+                result.ok = false;
+                result.message = 'Du må fylle ut timeart på rad ' + (rowIndex+1);
+                result.fld = 'WorkTypeID';
+                result.row = rowIndex;
+                break;
+            }
+        }
+        return result;
+    }
     
     public setItemValue(change: ValueItem):boolean {
         var item:WorkItem = this.getRowByIndex(change.rowIndex);
