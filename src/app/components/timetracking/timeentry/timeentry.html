@@ -71,14 +71,15 @@
                 <table class='timeentriesTable' editable [config]="tableConfig" >
                     <thead>
                         <tr>
-                            <th>Dato</th>
-                            <th>Start</th>
-                            <th>Slutt</th>
-                            <th>Timeart</th>
-                            <th>Beskrivelse</th>
-                            <th>Prosjekt</th>
-                            <th>Ordrenr.</th>
-                            <th> </th>
+                            <th class='s2'>Dato</th>
+                            <th class='s1'>Start</th>
+                            <th class='s1'>Slutt</th>
+                            <th class='s3'>Timeart</th>
+                            <th class='s1'>Lunsj</th>
+                            <th class='s5'>Beskrivelse</th>
+                            <th class='s3'>Prosjekt</th>
+                            <th class='s3'>Ordrenr.</th>
+                            <th class='s1'> </th>
                         </tr>
                     </thead>
                     <tbody *ngIf="timeSheet.currentRelation">
@@ -87,6 +88,7 @@
                             <td>{{item.StartTime | isotime:'HH:mm'}}</td>
                             <td>{{item.EndTime | isotime:'HH:mm'}}</td>
                             <td>{{item.Worktype ? item.Worktype.ID + ' - ' + item.Worktype.Name : ''}}</td>
+                            <td>{{item.LunchInMinutes}}</td>
                             <td>{{item.Description}}</td>
                             <td>{{item.Dimensions ? item.Dimensions.Project ? item.Dimensions.Project.ID + ' - ' + item.Dimensions.Project.Name : item.Dimensions.ProjectID : ''}}</td>
                             <td>{{item.CustomerOrder ? item.CustomerOrder.OrderNumber + ' - ' + item.CustomerOrder.CustomerName : item.CustomerOrderID }}</td>

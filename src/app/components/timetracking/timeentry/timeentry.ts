@@ -76,6 +76,7 @@ export class TimeEntry {
             new Column('StartTime', '', ColumnType.Time),
             new Column('EndTime', '', ColumnType.Time),
             new Column('WorkTypeID','Timeart', ColumnType.Integer, { route:'worktypes' }),
+            new Column('LunchInMinutes','Lunsj', ColumnType.Integer),
             new Column('Description'), 
             new Column('Dimensions.ProjectID', 'Prosjekt', ColumnType.Integer, { route:'projects'}),
             new Column('CustomerOrderID', 'Ordre', ColumnType.Integer, 

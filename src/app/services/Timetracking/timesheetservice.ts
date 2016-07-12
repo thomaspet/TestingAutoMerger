@@ -2,7 +2,7 @@ import {Injectable, Inject, Component} from '@angular/core';
 import {WorkItem, Worker, WorkRelation, WorkProfile, Dimensions} from '../../unientities';
 import {WorkerService, ItemInterval} from './workerService';
 import {Observable, Observer} from "rxjs/Rx";
-import {parseTime, toIso, addTime, parseDate, ChangeMap} from '../../components/timetracking/utils/utils';
+import {parseTime, toIso, addTime, parseDate, ChangeMap, safeInt} from '../../components/timetracking/utils/utils';
 import {Dimension} from '../common/dimensionservice';
 declare var moment;
 
@@ -91,6 +91,10 @@ export class TimeSheet {
                 break;       
             case "WorkTypeID":
                 item.Worktype = change.value ? change.lookupValue || item.Worktype : undefined;
+                break;
+            case "LunchInMinutes":
+                change.value = safeInt(change.value);
+                recalc = true;
                 break;
             case "Dimensions.ProjectID":
                 if (change.value) {
@@ -191,7 +195,7 @@ export class TimeSheet {
                 prevDate = item.Date;
             }
             item._alternate = alternate;
-            minuteCount += item.Minutes || 0;
+            minuteCount += (item.Minutes || 0);
         }
         this.totals.Minutes = minuteCount;
     }
@@ -210,7 +214,7 @@ export class TimeSheet {
         if (item.StartTime && item.EndTime) {
             let st = moment(item.StartTime);
             let et = moment(item.EndTime);
-            minutes = et.diff(st,'minutes');
+            minutes = et.diff(st,'minutes') - (item.LunchInMinutes || 0);
         }
         return minutes || 0;
     }
