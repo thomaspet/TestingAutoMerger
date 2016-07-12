@@ -158,8 +158,13 @@ export class TimeEntry {
     }
 
     save(done?:any) {
+        
+        if (!this.validate()) { 
+            if (done) { done('Feil ved validering'); } 
+            return; 
+        }
+
         if (this.busy) return;
-        if (!this.validate()) return;
         return new Promise((resolve, reject) => {
             this.busy = true;
             var counter = 0;
