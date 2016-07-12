@@ -26,7 +26,7 @@ import {Observable} from 'rxjs/Observable';
         Selected vattype: {{currentVatType?.Name}}
     `,
     directives: [UniSelect],
-    pipes: [AsyncPipe]
+    pipes: [AsyncPipe],
 })
 export class UniSelectDemo {
     @ViewChild(UniSelect)
@@ -57,13 +57,18 @@ export class UniSelectDemo {
 
 
         this.selectConfig1 = {
-            template: (item) => {
-                return (item.ID + ' - ' + item.PartName);
-            }
+            displayField: 'PartName',
+            // searchable: false,
+            // template: (item) => {
+            //     return (item.ID + ' - ' + item.PartName);
+            // }
         };
 
         this.selectConfig2 = {
-            displayField: 'VatCode'
+            // displayField: 'VatCode'
+            template: (item) => {
+                return (item.VatCode + ' - ' + item.Name);
+            }
         };
     }
 

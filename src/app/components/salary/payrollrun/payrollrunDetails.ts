@@ -7,7 +7,7 @@ import {SalaryTransactionSelectionList} from '../../salary/salarytrans/salarytra
 import {TabService} from '../../layout/navbar/tabstrip/tabService';
 import {ControlModal} from './controlModal';
 import {PostingsummaryModal} from './postingsummaryModal';
-import {VacationpayModal} from './vacationPay/VacationpayModal';
+import {VacationpayModal} from './vacationpay/VacationpayModal';
 import {RootRouteParamsService} from '../../../services/rootRouteParams';
 import {UniSave, IUniSaveAction} from '../../../../framework/save/save';
 import {UniForm, UniFieldLayout} from '../../../../framework/uniform';

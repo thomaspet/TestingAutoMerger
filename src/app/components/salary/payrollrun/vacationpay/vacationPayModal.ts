@@ -5,7 +5,7 @@ import {RootRouteParamsService} from '../../../../services/rootRouteParams';
 
 @Component({
     selector: 'vacationpay-modal',
-    templateUrl: 'app/components/salary/payrollrun/vacationpay/vacationpaymodal.html',
+    templateUrl: 'app/components/salary/payrollrun/vacationpay/vacationPayModal.html',
     directives: [UniModal]
 })
 export class VacationpayModal implements AfterViewInit {

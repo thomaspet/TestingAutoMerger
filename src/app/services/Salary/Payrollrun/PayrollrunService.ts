@@ -97,6 +97,14 @@ export class PayrollrunService extends BizHttp<PayrollRun> {
             .withEndPoint(this.relativeURL + '/' + ID + '?action=book')
             .send();
     }
+
+    public getVacationpayBasis(year: number, payrun: number) {
+        return this.http
+            .asGET()
+            .usingBusinessDomain()
+            .withEndPoint(this.relativeURL + '/' + payrun + '?action=holiday-pay-list&year=' + year)
+            .send();
+    }
     
     public getEmptyPayrollrunDates() {
         var dates: Date[] = [];
