@@ -3,7 +3,7 @@ import {TabService} from '../../layout/navbar/tabstrip/tabService';
 import {View} from '../../../models/view/view';
 import {Worker, WorkRelation, WorkProfile, WorkItem} from '../../../unientities';
 import {WorkerService, ItemInterval} from '../../../services/timetracking/workerservice';
-import {Editable, IChangeEvent, IConfig, Column, ColumnType, ITypeSearch, ICopyEventDetails} from '../utils/editable/editable';
+import {Editable, IChangeEvent, IConfig, Column, ColumnType, ITypeSearch, ICopyEventDetails, ILookupDetails} from '../utils/editable/editable';
 import {parseTime, addTime, parseDate, toIso} from '../utils/utils';
 import {TimesheetService, TimeSheet, ValueItem} from '../../../services/timetracking/timesheetservice';
 import {IsoTimePipe, MinutesToHoursPipe} from '../utils/pipes';
@@ -75,9 +75,9 @@ export class TimeEntry {
             new Column('Date','', ColumnType.Date),
             new Column('StartTime', '', ColumnType.Time),
             new Column('EndTime', '', ColumnType.Time),
-            new Column('WorkTypeID','', ColumnType.Integer, { route:'worktypes' }),
+            new Column('WorkTypeID','Timeart', ColumnType.Integer, { route:'worktypes' }),
             new Column('Description'), 
-            new Column('Dimensions.ProjectID', '', ColumnType.Integer, { route:'projects'}),
+            new Column('Dimensions.ProjectID', 'Prosjekt', ColumnType.Integer, { route:'projects'}),
             new Column('CustomerOrderID', 'Ordre', ColumnType.Integer, 
                 { route:'orders', filter:'ordernumber gt 0', select: 'OrderNumber,CustomerName', visualKey: 'OrderNumber'}),
             new Column('Actions', '', ColumnType.Action)
@@ -114,7 +114,7 @@ export class TimeEntry {
     }
 
     onAddNew() {
-        this.editable.editRow(this.timeSheet.items.length);
+        this.editable.editRow(this.timeSheet.items.length-1);
     }
 
     reset() {
@@ -159,6 +159,7 @@ export class TimeEntry {
 
     save(done?:any) {
         if (this.busy) return;
+        if (!this.validate()) return;
         return new Promise((resolve, reject) => {
             this.busy = true;
             var counter = 0;
@@ -225,8 +226,31 @@ export class TimeEntry {
         }  
     }
 
+    validate():boolean {
+        var result:  { ok: boolean, message?: string, row?: number, fld?: string } = this.timeSheet.validate();
+        if (!result.ok) {
+            this.toast.addToast('Feil', ToastType.bad, 1000, result.message );
+            if (result !== undefined && result.row >= 0) {
+                let iCol = this.tableConfig.columns.findIndex( (col)=>col.name === result.fld );
+                this.editable.editRow(result.row, iCol);
+            }
+            return false;
+        }
+        return true;
+    }
+
     asyncValidationFailed(event: IChangeEvent) {
-        this.toast.addToast("Failed async validation on: " + event.value, ToastType.warn);
+        var droplistItems = this.editable.getDropListItems({ col: event.col, row: event.row});
+        if (droplistItems && droplistItems.length === 1 && event.columnDefinition) {
+            var lk: ILookupDetails = event.columnDefinition.lookup;
+            let item = droplistItems[0];
+            event.value = item[lk.colToSave|| 'ID'];
+            event.lookupValue = item;
+            event.userTypedValue = false;
+            this.updateChange(event);        
+        } else {
+            this.toast.addToast(event.columnDefinition.label, ToastType.bad, 600, `Ugyldig ${event.columnDefinition.label}: ${event.value}`);
+        }
     }
 
     updateChange(event: IChangeEvent) {

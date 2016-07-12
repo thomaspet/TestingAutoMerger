@@ -71,6 +71,14 @@ export class DropList {
         return this.isVisible;
     }
 
+    public getRows():Array<any> {
+        return this.items;
+    }
+
+    public getDetails():ITypeSearch {
+        return this.details;
+    }
+
     public showSelectedRow(rowIndex: number): boolean {
         if (this.items && this.items.length > rowIndex) {
             var current = this.getRowElement(this.rowIndex);

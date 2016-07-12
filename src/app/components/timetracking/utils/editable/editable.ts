@@ -17,7 +17,7 @@ export interface IConfig {
     }
 }
 
-export {IChangeEvent, ICol, IPos, Column, ColumnType, ITypeSearch} from './interfaces';
+export {IChangeEvent, ICol, IPos, Column, ColumnType, ITypeSearch, ILookupDetails} from './interfaces';
 
 
 @Directive({
@@ -55,6 +55,19 @@ export class Editable implements AfterViewInit, OnDestroy {
             this.handleChange(value, this.currentPosition(), false);
         }
     }
+
+    public getDropListItems(pos?:IPos): Array<any> {
+        var ts = this.dropList ? this.dropList.getDetails() : undefined;
+        if (ts) {
+            if (pos) {
+                if (ts.position.col === pos.col && ts.position.row === pos.row) {
+                    return this.dropList.getRows();
+                }
+            } else {
+                return this.dropList.getRows();
+            }
+        }
+    }
     
     public ngAfterViewInit() {
         this.raiseEvent("onInit", this);
@@ -78,9 +91,10 @@ export class Editable implements AfterViewInit, OnDestroy {
         this.dropList.hide();
     }
 
-    public editRow(rowIndex:number) {
+    public editRow(rowIndex:number, colIndex?:number) {
         var tb: JQuery = this.jqRoot;
-        var cell = tb.find('tr:nth-child(' + rowIndex + ') td:first');
+        var query = 'tr:nth-child(' + (rowIndex+1) + ') ' + (colIndex === undefined ? 'td:first' : 'td:nth(' + (colIndex) + ')') ;
+        var cell = tb.find(query);
         if (cell) {
             this.startEdit({target: cell});
         }        
