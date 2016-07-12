@@ -230,8 +230,6 @@ export class SalaryTransactionEmployeeList implements OnChanges, AfterViewInit {
                         this.formModel.aga = this.agaZone;
                         this.formModel.employee = this.employee;
                         this.fields = _.cloneDeep(this.fields);
-                    } else {
-                        this.createHeadingForm();
                     }
                     this.busy = false;
                 }, (error: any) => {
@@ -244,8 +242,6 @@ export class SalaryTransactionEmployeeList implements OnChanges, AfterViewInit {
                 this.formModel.aga = this.agaZone;
                 this.formModel.employee = this.employee;
                 this.fields = _.cloneDeep(this.fields);
-            } else {
-                this.createHeadingForm();
             }
             this.busy = false;
         }
@@ -258,38 +254,6 @@ export class SalaryTransactionEmployeeList implements OnChanges, AfterViewInit {
             return 'EmployeeNumber eq ' + this.employeeID
                 + ' and PayrollRunID eq ' + this.payrollRun.ID;
         }
-    }
-
-    private createHeadingForm() {
-        this.formModel.employee = this.employee;
-        this.formModel.aga = this.agaZone;
-
-        var percent = new UniFieldLayout();
-        percent.Label = 'Prosenttrekk';
-        percent.Property = 'employee.TaxPercentage';
-        percent.FieldType = FieldType.TEXT;
-        percent.ReadOnly = true;
-
-        var subEntity = new UniFieldLayout();
-        subEntity.Label = 'Virksomhet';
-        subEntity.Property = 'employee.SubEntity.BusinessRelationInfo.Name';
-        subEntity.FieldType = FieldType.TEXT;
-        subEntity.ReadOnly = true;
-        subEntity.LineBreak = true;
-
-        var tableTax = new UniFieldLayout();
-        tableTax.Label = 'Tabelltrekk';
-        tableTax.Property = 'employee.TaxTable';
-        tableTax.FieldType = FieldType.TEXT;
-        tableTax.ReadOnly = true;
-
-        var agaZone = new UniFieldLayout();
-        agaZone.Label = 'AGA-sone';
-        agaZone.Property = 'aga.ZoneName';
-        agaZone.FieldType = FieldType.TEXT;
-        agaZone.ReadOnly = true;
-
-        this.fields = [percent, subEntity, tableTax, agaZone];
     }
 
     private createTableConfig() {
@@ -401,7 +365,7 @@ export class SalaryTransactionEmployeeList implements OnChanges, AfterViewInit {
         this.salarytransService.delete(rowModel.ID).subscribe(
             (response) => {
 
-            }, 
+            },
             err => {
                 this.log(err);
             });
