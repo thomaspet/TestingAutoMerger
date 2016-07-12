@@ -44,7 +44,7 @@ export class BankAccountForm {
     public ngOnInit() {
         this.setupForm();
   
-        this.accountService.GetAll("filter=AccountNumber ge 2000").subscribe((accounts) => {
+        this.accountService.GetAll('filter=AccountNumber lt 2000').subscribe((accounts) => {
             this.accounts = accounts;
             this.extendForm();
        }); 
