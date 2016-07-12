@@ -2,6 +2,7 @@ import {UniHttp} from '../../../../framework/core/http/http';
 import {Injectable} from '@angular/core';
 import {Observable} from "rxjs/Rx";
 import {IChangeEvent, ColumnType, ITypeSearch} from './editable/editable';
+import {safeInt} from './utils';
 
 @Injectable()
 export class Lookupservice {
@@ -24,23 +25,50 @@ export class Lookupservice {
         return this.GET(route + params);
     }
 
+    private userInput(value:string): { iKey:number, key:any, label:string, isBlank:boolean } {
+        var result = {
+            iKey: 0, key:undefined, label: '', isBlank: true
+        };
+        // valid text input ?
+        if (value && typeof value === 'string' && value.length>0) {
+            let parts = value.split(' ');
+            if (parts.length === 1) {
+                result.iKey = safeInt(value);
+                result.key = value;
+            } else {
+                result.iKey = safeInt(parts[0]);
+                result.key = parts[0];
+                result.label = parts[1];
+            }
+        // number ?
+        } else if (typeof value === 'number') {
+            result.iKey = <any>value;
+        }
+        return result;
+    }
 
-    public onEditableChange(event:IChangeEvent, callBackSetValue: (e:IChangeEvent)=> void ):any {
+    public checkAsyncLookup(event:IChangeEvent, success: (e:IChangeEvent)=> void, failure?: (e:IChangeEvent) => void ):Promise<any> | void {
 
         // Handle lookups if user types, or user selects from a combo.
         // This is because there sometimes are visual referencekeys (ordernumber etc.), and sometimes there are actual foreignkeys
+        // returns a Promise if validation is delayed.
 
         if (event.columnDefinition && event.columnDefinition.lookup) {
         
             var lookupDef = event.columnDefinition.lookup;
 
-            // Remove "label" from key-value ?
-            var key = event.columnDefinition.columnType === ColumnType.Integer ? parseInt(event.value) : event.value;
+            // Remove "label" from key-value ?          
+            var validation = this.userInput(event.value);
+            var key = event.columnDefinition.columnType === ColumnType.Integer ? validation.iKey : validation.key;
 
-            // Blank value (clear current value) ?
+            // No key value (clear current value) ?
             if (!key) {
+                if (validation.key && failure) {
+                    failure(event);
+                    return;
+                }
                 event.value = key;
-                callBackSetValue(event);
+                success(event);
                 return;
             }
 
@@ -52,9 +80,10 @@ export class Lookupservice {
                         var item = (rows && rows.length > 0) ? rows[0] : {};
                         event.value = item[lookupDef.colToSave || 'ID'];
                         event.lookupValue = item;
-                        callBackSetValue(event);
+                        success(event);
                         resolve(item);
                     }, (err)=>{
+                        if (failure) failure(event);
                         reject(err.statusText);
                     });
                 });
@@ -67,9 +96,10 @@ export class Lookupservice {
                 this.getSingle<any>(lookupDef.route, key).subscribe( (item:any) => {
                     event.lookupValue = item;
                     event.value = key;
-                    callBackSetValue(event);
+                    success(event);
                     resolve(item);
                 }, (err)=>{
+                    if (failure) failure(event);                    
                     reject(err.statusText);
                 });
             });

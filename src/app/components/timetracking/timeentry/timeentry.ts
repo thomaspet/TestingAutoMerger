@@ -11,6 +11,7 @@ import {UniSave, IUniSaveAction} from '../../../../framework/save/save';
 import {CanDeactivate, ComponentInstruction} from '@angular/router-deprecated';
 import {Lookupservice} from '../utils/lookup';
 import {RegtimeTotals} from './totals/totals';
+import {ToastService, ToastType} from '../../../../framework/unitoast/toastservice';
 
 declare var moment;
 
@@ -83,7 +84,7 @@ export class TimeEntry {
             ],
         events: {
                 onChange: (event) => { 
-                    return this.lookup.onEditableChange(event, (event)=> this.updateChange(event) ) || this.updateChange(event);
+                    return this.lookup.checkAsyncLookup(event, (event)=> this.updateChange(event), (event)=> this.asyncValidationFailed(event) ) || this.updateChange(event);
                 },
                 onInit: (instance:Editable) => {
                     this.editable = instance; 
@@ -93,7 +94,8 @@ export class TimeEntry {
             }  
     };
             
-    constructor(private tabService: TabService, private service:WorkerService, private timesheetService:TimesheetService, private lookup:Lookupservice) {
+    constructor(private tabService: TabService, private service:WorkerService, 
+            private timesheetService:TimesheetService, private lookup:Lookupservice, private toast:ToastService) {
         this.tabService.addTab({ name: view.label, url: view.url, moduleID: 18 });
         this.userName = service.user.name;
         this.currentFilter = this.filters[0];
@@ -221,6 +223,10 @@ export class TimeEntry {
             }
 
         }  
+    }
+
+    asyncValidationFailed(event: IChangeEvent) {
+        this.toast.addToast("Failed async validation on: " + event.value, ToastType.warn);
     }
 
     updateChange(event: IChangeEvent) {
