@@ -33,7 +33,7 @@ export class TransqueryDetails implements OnInit {
 
     private getTableData(urlParams: URLSearchParams): Observable<JournalEntryLine[]> {
         urlParams = urlParams || new URLSearchParams();
-        urlParams.set('expand', 'VatType,Account');
+        urlParams.set('expand', 'VatType,Account,VatReport,VatReport.TerminPeriod');
         return this.journalEntryLineService.GetAllByUrlSearchParams(urlParams);
     }
 
@@ -90,10 +90,11 @@ export class TransqueryDetails implements OnInit {
     private generateUniTableConfig(unitableFilter: ITableFilter[]): UniTableConfig {
         return new UniTableConfig(false, false)
             .setPageable(true)
-            .setPageSize(15)
+            .setPageSize(20)
             .setColumnMenuVisible(false)
             .setSearchable(true)
             .setFilters(unitableFilter)
+            .setColumnMenuVisible(true)
             .setColumns([
                 new UniTableColumn('JournalEntryNumber', 'Bilagsnr')
                     .setTemplate((journalEntryLine) => {
@@ -124,12 +125,22 @@ export class TransqueryDetails implements OnInit {
                 new UniTableColumn('Amount', 'Beløp', UniTableColumnType.Number) 
                     .setCls('column-align-right')                   
                     .setFilterOperator('eq'),
+                new UniTableColumn('TaxBasisAmount', 'Grunnlag MVA', UniTableColumnType.Number)
+                    .setCls('column-align-right')
+                    .setFilterOperator('eq')
+                    .setVisible(false),
+                new UniTableColumn('VatReportID', 'MVA rapportert', UniTableColumnType.Text)
+                    .setTemplate((line: JournalEntryLine) => line.VatReport && line.VatReport.TerminPeriod ? line.VatReport.TerminPeriod.No + '-' + line.VatReport.TerminPeriod.AccountYear : '')                    
+                    .setFilterable(false)
+                    .setVisible(false),
                 new UniTableColumn('RestAmount', 'Restbeløp', UniTableColumnType.Number)
                     .setCls('column-align-right')
-                    .setFilterOperator('eq'),
+                    .setFilterOperator('eq')
+                    .setVisible(false),
                 new UniTableColumn('StatusCode', 'Status', UniTableColumnType.Text)
                     .setTemplate((line: JournalEntryLine) => this.journalEntryLineService.getStatusText(line.StatusCode))                    
                     .setFilterable(false)
+                    .setVisible(false)
             ]);
     }
 }
