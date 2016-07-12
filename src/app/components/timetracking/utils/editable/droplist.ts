@@ -123,6 +123,11 @@ export class DropList {
         this.rowIndex = -1;
     }
 
+    public clear() {
+        this.details = undefined;
+        if (this.items) this.items.length = 0;
+    }
+
     public moveNextToEditor() {
         var offset = this.editorElement.offset();
         var wh = $(window).height();

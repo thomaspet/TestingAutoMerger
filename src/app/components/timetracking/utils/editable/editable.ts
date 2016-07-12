@@ -326,6 +326,7 @@ export class Editable implements AfterViewInit, OnDestroy {
             ignore: true,
             columnDefinition: this.getLayoutColumn(pos.col)
         }
+        this.dropList.clear();
         this.raiseEvent("onTypeSearch", details);
         if (!details.ignore) {            
             this.showTypeSearch(details);
