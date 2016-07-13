@@ -132,6 +132,7 @@ export class TimeSheet {
             item.WorkRelationID = this.currentRelation.ID
         }
         if (recalc) {
+            this.ts.checkTimeOnItem(item);
             item.Minutes = this.calcMinutes(item);
             this.analyzeItems(this.items);
         }
@@ -312,8 +313,13 @@ export class TimesheetService {
     
     private preSaveWorkItem(item:any): boolean {
         
-        // ensure item.StartTime and item.EndTime has same date as item.Date
+        this.checkTimeOnItem(item);
+        return true;
+    }
+
+    public checkTimeOnItem(item:any) {
         if (item.Date) {
+            // ensure item.StartTime and item.EndTime has same date as item.Date
             var dt = moment(item.Date);
             if (item.StartTime) {
                 item.StartTime = toIso(moment(item.StartTime).year(dt.year()).month(dt.month()).date(dt.date()), true);
@@ -321,8 +327,7 @@ export class TimesheetService {
             if (item.EndTime) {
                 item.EndTime = toIso(moment(item.EndTime).year(dt.year()).month(dt.month()).date(dt.date()), true);
             }    
-        }
-        return true;
+        }        
     }
     
 }
