@@ -1,7 +1,7 @@
 ﻿<h2>Arbeidsgiveravgift(aga) og virksomhet</h2>
 <uni-form [attr.aria-busy]="busy" class="companySettings" [config]="formConfig" [fields]="fields" [model]="companySalary"></uni-form>
-<section class="error" *ngIf="error" style="background-color: #fbe4e1; color:#a90000; padding: 5px;"><strong>Ops!</strong> Noe gikk galt. Lukk innstillinger og prøv igjen</section>
-<section class="subEntityView" [ngClass]="{'-is-expanded':showSubEntities}">
+<section class="validation error" *ngIf="error"><strong>Ops!</strong> Noe gikk galt. Lukk innstillinger og prøv igjen</section>
+<section class="subEntityView collapsable" [ngClass]="{'-is-expanded':showSubEntities}">
     <h4 (click)="toggleShowSubEntities()">Virksomhet</h4>
     <sub-entity-list *ngIf="showSubEntities"></sub-entity-list>
 </section>
