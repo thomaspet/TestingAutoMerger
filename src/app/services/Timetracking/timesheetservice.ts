@@ -69,6 +69,7 @@ export class TimeSheet {
             let rowIndex = list[i];
             item = this.items[rowIndex];
             if (!item.WorkTypeID) {
+                debugger;
                 result.ok = false;
                 result.message = 'Du må fylle ut timeart på rad ' + (rowIndex+1);
                 result.fld = 'WorkTypeID';
@@ -131,6 +132,7 @@ export class TimeSheet {
             item.WorkRelationID = this.currentRelation.ID
         }
         if (recalc) {
+            this.ts.checkTimeOnItem(item);
             item.Minutes = this.calcMinutes(item);
             this.analyzeItems(this.items);
         }
@@ -164,10 +166,12 @@ export class TimeSheet {
         var item = this.getRowByIndex(index);
         if (item.ID>0) {
             this.changeMap.addRemove(item.ID, item);
+            this.changeMap.remove(index, true);
         } else {
             this.changeMap.remove(index, true);
         }
         this.items.splice(index,1);
+        this.analyzeItems(this.items);
     }
 
     public ensureRowCount(rows:number) {
@@ -310,8 +314,13 @@ export class TimesheetService {
     
     private preSaveWorkItem(item:any): boolean {
         
-        // ensure item.StartTime and item.EndTime has same date as item.Date
+        this.checkTimeOnItem(item);
+        return true;
+    }
+
+    public checkTimeOnItem(item:any) {
         if (item.Date) {
+            // ensure item.StartTime and item.EndTime has same date as item.Date
             var dt = moment(item.Date);
             if (item.StartTime) {
                 item.StartTime = toIso(moment(item.StartTime).year(dt.year()).month(dt.month()).date(dt.date()), true);
@@ -319,8 +328,7 @@ export class TimesheetService {
             if (item.EndTime) {
                 item.EndTime = toIso(moment(item.EndTime).year(dt.year()).month(dt.month()).date(dt.date()), true);
             }    
-        }
-        return true;
+        }        
     }
     
 }
