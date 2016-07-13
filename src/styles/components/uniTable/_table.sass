@@ -30,7 +30,7 @@ uni-table
         border-bottom: pxToRem(1) solid $uni-color-scale9
 
         &:nth-of-type(odd)
-            background: mix($uni-color-scale9, $uni-color-negative, 50%)
+            background: mix($uni-color-scale9, $uni-color-negative, 30%)
 
         &:hover
             background: mix($uni-color-C2A, $uni-color-negative, 15%)
@@ -43,6 +43,12 @@ uni-table
 
             td
                 border-left-color: mix($uni-color-negative, $uni-color-C2A, 20%)
+
+        &[aria-readonly]:not([aria-readonly=false])
+            $disabled-stripe1: mix($uni-color-scale9, $uni-color-negative, 60%)
+            $disabled-stripe2: mix($uni-color-scale9, $uni-color-negative, 30%)
+            background: repeating-linear-gradient(-45deg, $disabled-stripe1, $disabled-stripe1 1rem, $disabled-stripe2 1rem, $disabled-stripe2 2rem)
+            color: $uni-color-scale4
 
     th
         background: $uni-color-negative
