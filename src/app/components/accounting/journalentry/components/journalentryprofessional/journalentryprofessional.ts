@@ -279,7 +279,7 @@ export class JournalEntryProfessional {
             });
     }     
     
-    public postJournalEntryData() {
+    public postJournalEntryData(completeCallback) {
         console.log('NOT IMPLEMENTED - SHOULD BE REFACTORED TO USE JOURNAL-ENTRY-MANUAL');
     }
     

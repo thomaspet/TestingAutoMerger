@@ -47,12 +47,7 @@
     *ngIf="journalEntryMode == 'SIMPLE'">
 </journal-entry-simple>
 
-<footer class="full-footer" *ngIf="!runAsSubComponent">
-    <button class="good" (click)="postJournalEntryData($event)">Lagre og bokfør</button>
-    <button (click)="removeJournalEntryData($event)">Forkast</button>
-    <!--<button class="good" (click)="validateJournalEntryData($event)">Valider data</button>-->
-    <button (click)="addDummyJournalEntry($event)" style="display:none">Test</button>
-    <button (click)="useProMode()" *ngIf="journalEntryMode == 'SIMPLE'" style="display:none">Proffregistrering</button>
-    <button (click)="useSimpleMode()" *ngIf="journalEntryMode != 'SIMPLE'">Enkel registrering</button>
-</footer>
+<section class="application" *ngIf="!runAsSubComponent && saveactions">
+    <uni-save [actions]="saveactions"></uni-save>
+</section>
 
