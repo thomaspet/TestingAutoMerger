@@ -59,6 +59,7 @@ export class PayrollrunDetails implements OnInit {
                             this.payrollrunService.Get(this.payrollrunID).subscribe((payrollRun: PayrollRun) => {
                                 this.payrollrunService.refreshPayrun(payrollRun);
                             }, error => {
+                                this.busy = false;
                                 this.log(error);
                             });
                         } else {
