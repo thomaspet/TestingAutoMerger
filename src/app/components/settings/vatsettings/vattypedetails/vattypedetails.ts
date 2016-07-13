@@ -5,7 +5,7 @@ import {Observable} from 'rxjs/Rx';
 import {FieldType, VatReportReference} from '../../../../unientities';
 import {UniForm, UniFieldLayout} from '../../../../../framework/uniform';
 
-import {VatType, VatCodeGroup, Account} from '../../../../unientities';
+import {VatType, VatCodeGroup, Account, VatPost} from '../../../../unientities';
 import {VatTypeService, VatCodeGroupService, AccountService, VatPostService} from '../../../../services/services';
 
 import {UniTable, UniTableColumn, UniTableConfig, UniTableColumnType} from 'unitable-ng2/main';
@@ -75,8 +75,12 @@ export class VatTypeDetails implements OnChanges {
                 .subscribe(
                     data => {
                         completeEvent('Lagret');
-                        this.vatType = data;
-                        this.vatTypeSaved.emit(this.vatType);
+                        this.vatTypeService.Get(data.ID, ['VatCodeGroup', 'IncomingAccount', 'OutgoingAccount', 'VatReportReferences', 'VatReportReferences.VatPost', 'VatReportReferences.Account'])
+                            .subscribe(vatType => {
+                                this.vatType = vatType;
+                                this.vatTypeSaved.emit(this.vatType);        
+                            }
+                        );                            
                     },
                     error => {
                         completeEvent('Feil ved lagring');
@@ -135,16 +139,34 @@ export class VatTypeDetails implements OnChanges {
             .setColumnMenuVisible(false)
             .setHasDeleteButton(true)
             .setColumns([
-                new UniTableColumn('VatPost', 'Mvaoppgaveposter ', UniTableColumnType.Lookup)
-                    .setDisplayField('VatPost.Name')
+                new UniTableColumn('Account', 'Konto ', UniTableColumnType.Lookup)
+                    .setDisplayField('Account.AccountNumber')
+                    .setWidth('5rem')        
                     .setEditorOptions({
+                        itemTemplate: (account: Account) => {
+                            return account.AccountNumber + ' ' + account.AccountName;
+                        },                
                         lookupFunction: (searchValue) => {
-                            return this.vatPostService.GetAll(`filter=contains(Name,'${searchValue}')`);
+                            return this.accountService.GetAll(`filter=AccountNumber ge 2700 and AccountNumber lt 2800 and (contains(AccountNumber, '${searchValue}') or contains(AccountName, '${searchValue}'))`);
+                        }
+                    }),
+                new UniTableColumn('VatPost', 'Oppgavepost ', UniTableColumnType.Lookup)
+                    .setDisplayField('VatPost.Name')
+                    .setTemplate(rowModel => {
+                        return rowModel.VatPost ? rowModel.VatPost.No + ' ' + rowModel.VatPost.Name : ''; 
+                    })
+                    .setEditorOptions({
+                        itemTemplate: (vatPost: VatPost) => {
+                            return vatPost.No + ' ' + vatPost.Name;
+                        },
+                        lookupFunction: (searchValue) => {
+                            return this.vatPostService.GetAll(`filter=contains(No,'${searchValue}') or contains(Name,'${searchValue}')`);
                         }
                     })
             ])
             .setDefaultRowData({
-                VatPostID: null
+                VatPostID: null,
+                AccountID: null,
             })
             .setChangeCallback((event) => {
                 var newRow = event.rowModel;
@@ -153,8 +175,9 @@ export class VatTypeDetails implements OnChanges {
                     newRow._createguid = this.vatTypeService.getNewGuid();
                 }
 
-                newRow.VatPostID = newRow.VatPost.ID;
                 newRow.VatTypeID = this.vatType.ID;
+                newRow.VatPostID = newRow.VatPost ? newRow.VatPost.ID : null;
+                newRow.AccountID = newRow.Account ? newRow.Account.ID : null;
                 return newRow;
             });
     }
@@ -496,6 +519,34 @@ export class VatTypeDetails implements OnChanges {
                     ReadOnly: false,
                     LookupField: false,
                     Label: 'Synlig',
+                    Description: '',
+                    HelpText: '',
+                    FieldSet: 0,
+                    Section: 0,
+                    Placeholder: null,
+                    Options: null,
+                    LineBreak: null,
+                    Combo: null,
+                    Legend: '',
+                    StatusCode: 0,
+                    ID: 2,
+                    Deleted: false,
+                    CreatedAt: null,
+                    UpdatedAt: null,
+                    CreatedBy: null,
+                    UpdatedBy: null,
+                    CustomFields: null 
+                },                
+                {
+                    ComponentLayoutID: 3,
+                    EntityType: 'VatType',
+                    Property: 'ReversedTaxDutyVat',
+                    Placement: 1,
+                    Hidden: false,
+                    FieldType: 5,
+                    ReadOnly: false,
+                    LookupField: false,
+                    Label: 'Omvendt avgiftsplikt',
                     Description: '',
                     HelpText: '',
                     FieldSet: 0,

@@ -7,7 +7,7 @@
     height: 1.6667rem
 
 .autocomplete_results
-    @extend .k-popup.k-list-container
+    @extend .uni-multivalue-values
     display: block
     position: absolute
     width: 100%
@@ -17,10 +17,10 @@
     list-style: none
     margin-top: 1px
     z-index: 999
-    border: 0
+    border-color: red
 
     &[aria-expanded=false]
-        visibility: hidden
+        border-width: pxToRem(1)
 
 .autocomplete_result
     padding: .2rem 1rem

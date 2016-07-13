@@ -9,6 +9,8 @@ import {VatTypeService, AccountService, JournalEntryService, DepartementService,
 import {JournalEntryData} from '../../../../../models/models';
 import {JournalEntrySimpleForm,JournalEntryMode} from './journalentrysimpleform';
 
+import {ToastService, ToastType} from '../../../../../../framework/uniToast/toastService';
+
 declare var moment;
 
 @Component({
@@ -34,12 +36,9 @@ export class JournalEntrySimple implements OnInit, OnChanges {
         private projectService: ProjectService,
         private vattypeService: VatTypeService,
         private accountService: AccountService,
-        private router: Router) {
+        private router: Router, 
+        private toastService: ToastService) {
         this.journalEntryLines = new Array<JournalEntryData>();
-    }
-
-    private log(err) {
-        alert(err._body);
     }
 
     public ngOnInit() {
@@ -138,7 +137,7 @@ export class JournalEntrySimple implements OnInit, OnChanges {
         return (line && line.Dimensions && line.Dimensions.ProjectID) ? line.Dimensions.ProjectID.toString() : '';
     }
 */
-    public postJournalEntryData() {
+    public postJournalEntryData(completeCallback) {
         this.journalEntryService.postJournalEntryData(this.journalEntryLines)
             .subscribe(
             data => {
@@ -150,23 +149,27 @@ export class JournalEntrySimple implements OnInit, OnChanges {
                 var numbers = this.journalEntryService.findJournalNumbersFromLines(this.journalEntryLines);
                 if (firstJournalEntry.JournalEntryNo != numbers.firstNumber ||
                     lastJournalEntry.JournalEntryNo != numbers.lastNumber) {
-                    alert("Lagring var vellykket. Men merk at tildelt bilagsnummer er " + firstJournalEntry.JournalEntryNo + " - " + lastJournalEntry.JournalEntryNo);
+                    this.toastService.addToast('Lagring var vellykket, men merk at tildelt bilagsnummer er ' + firstJournalEntry.JournalEntryNo + ' - ' + lastJournalEntry.JournalEntryNo, ToastType.warn);
+                    
                 } else {
-                    alert('Lagring var vellykket');
+                    this.toastService.addToast('Lagring var vellykket!', ToastType.good, 10);                    
                 }
+                
+                completeCallback('Lagret og bokført');
 
-                //Empty list
+                // Empty list
                 this.journalEntryLines = new Array<JournalEntryData>();
                 
                 this.dataChanged.emit(this.journalEntryLines);
             },
             err => {
+                completeCallback('Lagring feilet');
+                this.toastService.addToast('Feil ved lagring!', ToastType.bad, null, JSON.stringify(err._body));                
                 console.log('error in postJournalEntryData: ', err);
-                this.log(err);
             });
     }
 
-    private findFirstJournalNumberFromLines(firstNumer: string = "") {
+    private findFirstJournalNumberFromLines(firstNumer: string = '') {
         var first, last, year;
 
         if (this.journalEntryLines && this.journalEntryLines.length) {
