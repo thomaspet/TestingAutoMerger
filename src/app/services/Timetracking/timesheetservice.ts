@@ -54,6 +54,13 @@ export class TimeSheet {
         });
     }
 
+    public hasPaidLunch():boolean {
+        if (this.currentRelation && this.currentRelation.WorkProfile) {
+            return !!this.currentRelation.WorkProfile.LunchIncluded;
+        }
+        return false;
+    }
+
     public validate(): { ok: boolean, message?: string, row?: number, fld?: string } {
         var result = { ok: true, message:undefined, row: undefined, fld: undefined };
         var item: WorkItem;
@@ -211,12 +218,33 @@ export class TimeSheet {
 
     private calcMinutes(item:WorkItem):number {
         var minutes = 0;
+        var lunch = item.LunchInMinutes || 0;
         if (item.StartTime && item.EndTime) {
             let st = moment(item.StartTime);
             let et = moment(item.EndTime);
-            minutes = et.diff(st,'minutes') - (item.LunchInMinutes || 0);
+            if (!this.hasPaidLunch()) {
+                if ((item.LunchInMinutes===undefined) && this.containsLunch(item)) {
+                    item.LunchInMinutes = 30;
+                    lunch = 30; 
+                }
+            }
+            minutes = et.diff(st,'minutes') - lunch;
         }
         return minutes || 0;
+    }
+
+    private containsLunch(item:WorkItem): boolean {
+        var st = moment(item.StartTime);
+        var et = moment(item.EndTime);
+        var sh = st.hours();
+        var sm = st.minutes();
+        var eh = et.hours();
+        var em = et.minutes();
+        // between 11:10 and 12:30 ?
+        if ( (sh<11 || (sh===11 && sm < 10) ) && (eh>12 || (eh === 12 && em > 30)) ) {
+            return true;
+        }
+        return false;
     }
     
 }
