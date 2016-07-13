@@ -11,6 +11,7 @@ import {UniSave, IUniSaveAction} from '../../../../framework/save/save';
 import {CanDeactivate, ComponentInstruction} from '@angular/router-deprecated';
 import {Lookupservice} from '../utils/lookup';
 import {RegtimeTotals} from './totals/totals';
+import {RegtimeTools} from './tools/tools';
 import {ToastService, ToastType} from '../../../../framework/unitoast/toastservice';
 
 declare var moment;
@@ -34,7 +35,7 @@ interface ITab {
 @Component({
     selector: view.name,
     templateUrl: 'app/components/timetracking/timeentry/timeentry.html', 
-    directives: [Editable, UniSave, RegtimeTotals],
+    directives: [Editable, UniSave, RegtimeTotals, RegtimeTools],
     providers: [WorkerService, TimesheetService, Lookupservice],
     pipes: [IsoTimePipe, MinutesToHoursPipe]
 })
@@ -46,18 +47,20 @@ export class TimeEntry {
     private currentFilter: IFilter;
     private editable: Editable;
     
-    @ViewChild(RegtimeTotals) regtimeTotals:RegtimeTotals; 
+    @ViewChild(RegtimeTotals) regtimeTotals:RegtimeTotals;
+    @ViewChild(RegtimeTools) regtimeTools:RegtimeTools;
 
     private actions: IUniSaveAction[] = [ 
             { label: 'Lagre endringer', action: (done)=>this.save(done), main: true, disabled: true }
         ];   
     
-    tabs = [ { name: 'timeentry', label: 'Timer', isSelected: true },
+    tabs = [ { name: 'timeentry', label: 'Registrering', isSelected: true },
+            { name: 'tools', label: 'Timeliste', activate: (ts:any, filter:any)=> this.regtimeTools.activate(ts, filter) },
             { name: 'totals', label: 'Totaler', activate: (ts:any, filter:any)=> this.regtimeTotals.activate(ts, filter) },
             { name: 'flex', label: 'Fleksitid', counter: 15 },
-            { name: 'profiles', label: 'Arbeidsgivere', counter: 1 },
-            { name: 'vacation', label: 'Ferie', counter: 22 },
-            { name: 'offtime', label: 'Fravær', counter: 4 },
+            //{ name: 'profiles', label: 'Arbeidsgivere', counter: 1 },
+            //{ name: 'vacation', label: 'Ferie', counter: 22 },
+            //{ name: 'offtime', label: 'Fravær', counter: 4 },
             ];
 
 
