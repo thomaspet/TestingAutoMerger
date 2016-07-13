@@ -55,9 +55,9 @@ export class TimeEntry {
         ];   
     
     tabs = [ { name: 'timeentry', label: 'Registrering', isSelected: true },
-            { name: 'totals', label: 'Totaler', activate: (ts:any, filter:any)=> this.regtimeTotals.activate(ts, filter) },
             { name: 'tools', label: 'Timeliste', activate: (ts:any, filter:any)=> this.regtimeTools.activate(ts, filter) },
-            //{ name: 'flex', label: 'Fleksitid', counter: 15 },
+            { name: 'totals', label: 'Totaler', activate: (ts:any, filter:any)=> this.regtimeTotals.activate(ts, filter) },
+            { name: 'flex', label: 'Fleksitid', counter: 15 },
             //{ name: 'profiles', label: 'Arbeidsgivere', counter: 1 },
             //{ name: 'vacation', label: 'Ferie', counter: 22 },
             //{ name: 'offtime', label: 'Fravær', counter: 4 },

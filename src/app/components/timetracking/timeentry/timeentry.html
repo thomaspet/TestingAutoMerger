@@ -14,14 +14,17 @@
     <section class="regtime_tabs">
 
         <section [hidden]="!tabs[1].isSelected">
-            <h2>Totaler</h2>
-            <regtimetotals></regtimetotals>
-        </section>
-
-        <section [hidden]="!tabs[2].isSelected">
             <regtimetools></regtimetools>
         </section>
 
+        <section [hidden]="!tabs[2].isSelected">
+            <regtimetotals></regtimetotals>
+        </section>
+
+        <section [hidden]="!tabs[3].isSelected">
+            <h2>Fleksitid</h2>
+        </section>
+        
         <!--
         <section [hidden]="!tabs[3].isSelected">
             <h2>Arbeidsgivere</h2>
