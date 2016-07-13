@@ -171,6 +171,7 @@ export class TimeSheet {
             this.changeMap.remove(index, true);
         }
         this.items.splice(index,1);
+        this.analyzeItems(this.items);
     }
 
     public ensureRowCount(rows:number) {
