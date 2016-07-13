@@ -4,17 +4,20 @@ import {WorkerService, ItemInterval} from '../../../../services/timetracking/wor
 import {MinutesToHoursPipe} from '../../utils/pipes';
 import {ICol, Column, ColumnType} from '../../utils/editable/interfaces';
 import {IFilter} from '../timeentry';
+import {IsoTimePipe} from '../../utils/pipes';
+import {safeInt} from '../../utils/utils';
 
 @Component({
     selector: 'regtimetools',
     templateUrl: 'app/components/timetracking/timeentry/tools/tools.html',
-    pipes: [MinutesToHoursPipe]
+    pipes: [MinutesToHoursPipe, IsoTimePipe]
 })
 export class RegtimeTools {
     private timesheet: TimeSheet;
     private config: {
         title: string, 
-        items: Array<any>
+        items: Array<any>,
+        sums: { minutes:number }
     }
     private filters: Array<IFilter> = [
         { name: 'today', label: 'I dag', interval: ItemInterval.today },
@@ -55,8 +58,17 @@ export class RegtimeTools {
     showData(items:Array<any>) {
         this.config = {
             title: items[0].Name,
-            items: items
+            items: items,
+            sums: this.sumItems(items)
         }
+    }
+
+    private sumItems(items:Array<any>) {
+        var sum = 0;
+        items.forEach(element => {
+            sum += safeInt(element.summinutes || 0);    
+        });
+        return { minutes: sum }
     }
 
     private queryTotals() {
@@ -64,7 +76,7 @@ export class RegtimeTools {
         var query = "model=workitem";
         var filter = this.workerService.getIntervalFilter(this.currentFilter.interval);
         query += this.createArg('select', 'workerid,businessrelation.name,workrelation.description,date,min(starttime),max(endtime),sum(minutes),sum(lunchinminutes)');
-        query += this.createArg('filter', 'deleted eq \'false\'' + (filter ? ' and ( ' +  filter + ' )' : ''));
+        query += this.createArg('filter', 'workrelationid eq ' + this.timesheet.currentRelation.ID + ' and deleted eq \'false\'' + (filter ? ' and ( ' +  filter + ' )' : ''));
         query += this.createArg('join', 'workitem.worktypeid eq worktype.id and workitem.workrelationid eq workrelation.id and workrelation.workerid eq worker.id and worker.businessrelationid eq businessrelation.id');
         this.workerService.getStatistics(query).subscribe((items:Array<any>)=>{
             this.busy = false;

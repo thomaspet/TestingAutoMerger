@@ -54,7 +54,7 @@ export class TimeEntry {
             { label: 'Lagre endringer', action: (done)=>this.save(done), main: true, disabled: true }
         ];   
     
-    tabs = [ { name: 'timeentry', label: 'Timer', isSelected: true },
+    tabs = [ { name: 'timeentry', label: 'Registrering', isSelected: true },
             { name: 'totals', label: 'Totaler', activate: (ts:any, filter:any)=> this.regtimeTotals.activate(ts, filter) },
             { name: 'tools', label: 'Timeliste', activate: (ts:any, filter:any)=> this.regtimeTools.activate(ts, filter) },
             //{ name: 'flex', label: 'Fleksitid', counter: 15 },

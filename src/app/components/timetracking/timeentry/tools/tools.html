@@ -1,6 +1,5 @@
 <h2>Timeliste</h2>
-
-<h4 *ngIf="config">{{title}}</h4>
+<h3 *ngIf="config">{{config.title}}</h3>
 
 <aside class="regtime_filters">
     <ul>
@@ -13,19 +12,26 @@
 <section *ngIf="config" [attr.aria-busy]="busy">
     <table class="timeentriesTable">
         <thead><tr>
-            <th>Dato</th>
-            <th>Start</th>
-            <th>Slutt</th>
-            <th>Timer</th>
+            <th class="s2">Ukedag</th>
+            <th class="s2">Dato</th>
+            <th class="s2 center">Start</th>
+            <th class="s2 center">Slutt</th>
+            <th class="s2 right">Timer</th>
             <th>Lunsj</th>
         </tr></thead>
         <tbody>
             <tr *ngFor="let item of config.items">
-                <td>{{item.Date}}</td>
-                <td>{{item.minstarttime}}</td>
-                <td>{{item.maxendtime}}</td>
+                <td>{{item.Date | isotime:'dddd'}}</td>
+                <td>{{item.Date | isotime:'DD.MM.YYYY'}}</td>
+                <td class="center">{{item.minstarttime | isotime:'HH:mm'}}</td>
+                <td class="center">{{item.maxendtime | isotime:'HH:mm'}}</td>
                 <td class="right">{{item.summinutes | min2hours:'short' }}</td>
-                <td class="right">{{item.sumlunchinminutes | min2hours:'short'}}</td>
+                <td>{{item.sumlunchinminutes | min2hours:'short'}}</td>
+            </tr>
+            <tr>
+                <td class="sum">Sum</td>
+                <td class="right sum" colspan="4">{{config.sums.minutes | min2hours }}</td>
+                <td></td>
             </tr>
         </tbody>
     </table>
