@@ -69,6 +69,7 @@ export class TimeSheet {
             let rowIndex = list[i];
             item = this.items[rowIndex];
             if (!item.WorkTypeID) {
+                debugger;
                 result.ok = false;
                 result.message = 'Du må fylle ut timeart på rad ' + (rowIndex+1);
                 result.fld = 'WorkTypeID';
@@ -164,6 +165,7 @@ export class TimeSheet {
         var item = this.getRowByIndex(index);
         if (item.ID>0) {
             this.changeMap.addRemove(item.ID, item);
+            this.changeMap.remove(index, true);
         } else {
             this.changeMap.remove(index, true);
         }
