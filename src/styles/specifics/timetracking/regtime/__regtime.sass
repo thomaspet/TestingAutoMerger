@@ -75,6 +75,7 @@
 
 .timeentriesTable
     width: 100%
+    table-layout: fixed
     border-collapse: collapse
     cursor: pointer
     margin-top: 1rem
@@ -88,6 +89,19 @@
     border-color: $uni-color-scale8
     border-style: solid
     padding: pxToRem(3) pxToRem(4) 0 pxToRem(4)
+
+
+.timeentriesTable th.s1
+    width: pxToRem(40)
+.timeentriesTable th.s2
+    width: pxToRem(90)
+.timeentriesTable th.s3
+    width: pxToRem(140)
+.timeentriesTable th.s4
+    width: 35%
+.timeentriesTable th.s5
+    width: 45%
+
 
 .timeentriesTable th.center
     text-align: center

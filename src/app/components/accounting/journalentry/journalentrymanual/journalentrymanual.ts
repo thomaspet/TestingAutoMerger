@@ -6,12 +6,13 @@ import {JournalEntryData} from '../../../../models/models';
 import {JournalEntrySimpleCalculationSummary} from '../../../../models/accounting/JournalEntrySimpleCalculationSummary';
 import {JournalEntryService} from '../../../../services/services';
 import {JournalEntryMode} from '../components/journalentrysimple/journalentrysimpleform';
+import {UniSave, IUniSaveAction} from '../../../../../framework/save/save';
 
 @Component({
     selector: 'journal-entry-manual',
     host: {'[class.runassubcomponent]': 'runAsSubComponent'},
     templateUrl: 'app/components/accounting/journalentry/journalentrymanual/journalentrymanual.html',
-    directives: [JournalEntrySimple, JournalEntryProfessional],
+    directives: [JournalEntrySimple, JournalEntryProfessional, UniSave],
     providers: [JournalEntryService]    
 })
 export class JournalEntryManual implements OnChanges, OnInit {    
@@ -25,6 +26,15 @@ export class JournalEntryManual implements OnChanges, OnInit {
     
     private itemsSummaryData: JournalEntrySimpleCalculationSummary;
     public validationResult: any;
+    
+    private saveactions: IUniSaveAction[] = [
+        {
+            label: 'Lagre og bokfør',
+            action: (completeEvent) => this.postJournalEntryData(completeEvent),
+            main: true,
+            disabled: false
+        }
+    ];
     
     constructor(private journalEntryService: JournalEntryService) {
     }
@@ -110,11 +120,11 @@ export class JournalEntryManual implements OnChanges, OnInit {
             });
     }
     
-    private postJournalEntryData(event) {
+    private postJournalEntryData(completeCallback) {
         if (this.journalEntrySimple) {
-            this.journalEntrySimple.postJournalEntryData();
+            this.journalEntrySimple.postJournalEntryData(completeCallback);
         } else if (this.journalEntryProfessional) {
-            this.journalEntryProfessional.postJournalEntryData();
+            this.journalEntryProfessional.postJournalEntryData(completeCallback);
         }
     }
     
