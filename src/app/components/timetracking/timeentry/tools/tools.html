@@ -1,7 +1,7 @@
 <h2>Timeliste</h2>
 <h3 *ngIf="config">{{config.title}}</h3>
 
-<aside class="regtime_filters">
+<aside class="regtime_filters no-print">
     <ul>
         <li *ngFor="let filter of filters">
             <a (click)="onFilterClick(filter)" [ngClass]="{'router-link-active': filter.isSelected}" >{{filter.label}}</a> 
@@ -17,7 +17,7 @@
             <th class="s2 center">Start</th>
             <th class="s2 center">Slutt</th>
             <th class="s2 right">Timer</th>
-            <th>Lunsj</th>
+            <th class="left">Lunsj</th>
         </tr></thead>
         <tbody>
             <tr *ngFor="let item of config.items">
@@ -26,7 +26,7 @@
                 <td class="center">{{item.minstarttime | isotime:'HH:mm'}}</td>
                 <td class="center">{{item.maxendtime | isotime:'HH:mm'}}</td>
                 <td class="right">{{item.summinutes | min2hours:'short' }}</td>
-                <td>{{item.sumlunchinminutes | min2hours:'short'}}</td>
+                <td class="left">{{item.sumlunchinminutes | min2hours:'short'}}</td>
             </tr>
             <tr>
                 <td class="sum">Sum</td>
