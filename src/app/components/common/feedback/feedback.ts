@@ -2,6 +2,7 @@ import {Component} from '@angular/core';
 import {Http, Headers} from '@angular/http';
 import {Control} from '@angular/common';
 import {AuthService} from '../../../../framework/core/authService';
+declare var APP_VERSION;
 
 @Component({
     selector: 'uni-feedback',
@@ -56,10 +57,11 @@ export class UniFeedback {
             Description: this.descriptionControl.value,
             Modules: modules,
             Metadata: {
-                AbsoluteUri: window.location.href
+                AbsoluteUri: window.location.href,
+                LocalTime: new Date(),
+                GitRev: APP_VERSION
             }
         };
-
         let setSuccessClass = () => {
             this.success = true;
             setTimeout(() => {
