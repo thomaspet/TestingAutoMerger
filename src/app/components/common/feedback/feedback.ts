@@ -73,7 +73,7 @@ export class UniFeedback {
 
         this.busy = true;
         this.http.post(
-            'http://devintegrations-unieconomy.azurewebsites.net/api/feedback',
+            'https://devintegrations-unieconomy.azurewebsites.net/api/feedback',
             JSON.stringify(body),
             {headers: this.headers}
         ).subscribe(
