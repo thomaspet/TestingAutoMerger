@@ -1,0 +1,32 @@
+uni-feedback
+    @include unigrid-flush(5, 2, 2, 1)
+    position: fixed
+    bottom: 0
+    left: 0
+    z-index: 999
+
+    .uniFeedback_toggle
+        
+
+    .uniFeedback_dropdown
+        background: #fff
+        box-shadow: 0 0 1rem rgba(161,170,188,.4)
+        display: none
+        padding: 1rem
+        margin-left: 1rem
+        border-radius: pxToRem(3)
+
+        &[aria-expanded]:not([aria-expanded=false])
+            display: block
+
+        form
+            width: 100%
+            
+            input
+                margin-bottom: 1rem
+
+            textarea
+                 box-sizing: border-box
+                    
+            button
+                margin-left: 0
