@@ -1,12 +1,14 @@
-<article [attr.aria-expanded]="expanded" class="uniFeedback_dropdown">
+<article [attr.aria-expanded]="expanded"
+    class="uniFeedback_dropdown"
+    [class.-is-successful]="success">
     <form (ngSubmit)="submit()">
         <small class="validation error" *ngIf="error">
             Noe gikk galt under sending. Vennligst prøv igjen.
         </small>
-        
+
         <label>
             Tittel
-            <input #title type="text" [ngFormControl]="titleControl" placeholder="Tittel" />
+            <input #title type="text" [ngFormControl]="titleControl" placeholder="Tittel" id="feedback_title" />
         </label>
 
         <label>
@@ -15,10 +17,10 @@
         </label>
 
         <button type="submit"
-                [attr.aria-busy]="busy" 
+                [attr.aria-busy]="busy"
                 [disabled]="!title.value.length || !description.value.length || busy">
             Send tilbakemelding
         </button>
     </form>
 </article>
-<button class="c2a uniFeedback_toggle" (click)="toggle()">Tilbakemelding</button>
+<button class="c2a uniFeedback_toggle" (click)="toggle()">Gi din tilbakemelding</button>

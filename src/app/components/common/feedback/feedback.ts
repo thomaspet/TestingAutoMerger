@@ -11,11 +11,12 @@ export class UniFeedback {
     private expanded: boolean = false;
     private busy: boolean = false;
     private error: boolean = false;
+    private success: boolean = false;
 
     private headers: Headers;
     private titleControl: Control;
     private descriptionControl: Control;
-    
+
     constructor(private http: Http, private authService: AuthService) {
         this.initForm();
         this.headers = new Headers();
@@ -31,6 +32,11 @@ export class UniFeedback {
 
     private toggle() {
         this.expanded = !this.expanded;
+
+        // Fixme: Dette fungerer ikke. :( You fix, Urrang?
+        if (this.expanded === true) {
+            document.getElementById('feedback_title').focus();
+        }
     }
 
     private submit() {
@@ -40,7 +46,7 @@ export class UniFeedback {
         } else {
             modules = window.location.hash.split('/').filter((item) => {
                 // skip # and id params
-                return (item !== '#' && isNaN(parseInt(item, 10))); 
+                return (item !== '#' && isNaN(parseInt(item, 10)));
             });
         }
 
@@ -53,40 +59,51 @@ export class UniFeedback {
             }
         };
 
+        let setSuccessClass = () => {
+            this.success = true;
+            setTimeout(() => {
+                this.success = false;
+                this.expanded = false;
+            }, 4000);
+        };
+
         this.busy = true;
-        this.http.post(
+        /*this.http.post(
             'http://devintegrations-unieconomy.azurewebsites.net/api/feedback',
             JSON.stringify(body),
             {headers: this.headers}
         ).subscribe(
             (success) => {
                 this.initForm();
-                this.expanded = false;
                 this.error = false;
                 this.busy = false;
-            }, 
+                setSuccessClass();
+            },
             (error) => {
                 this.error = true;
                 this.busy = false;
             }
         );
-
-        // For testing styles: 
+*/
+        // For testing styles:
         // - comment out http call above
         // - use success or error timeout block below
-        
+
         // Success
-        // setTimeout(() => {
-        //     this.initForm();
-        //     this.error = false;
-        //     this.busy = false;
-        //     this.expanded = false;
-        // }, 200);
+        setTimeout(() => {
+            this.initForm();
+            this.error = false;
+            this.busy = false;
+            setSuccessClass();
+        }, 200);
 
         // Error
         // setTimeout(() => {
         //     this.error = true;
         //     this.busy = false;
         // }, 200);
+
+
+
     }
 }
