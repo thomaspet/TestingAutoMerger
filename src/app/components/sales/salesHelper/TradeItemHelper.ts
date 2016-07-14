@@ -1,12 +1,10 @@
-import {TradeItem} from '../../../unientities';
-
 export class TradeItemHelper  {
 
     public static IsItemsValid(items: any) {
         let numberFailed: number = 0;
 
         for (let i = 0; i < items.length; i++) {
-            let line: TradeItem = items[i];
+            let line: any = items[i];
 
             if (line.ProductID === null) {
                 numberFailed++;
