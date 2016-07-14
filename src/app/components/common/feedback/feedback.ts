@@ -3,6 +3,7 @@ import {Http, Headers} from '@angular/http';
 import {Control} from '@angular/common';
 import {AuthService} from '../../../../framework/core/authService';
 declare var APP_VERSION;
+declare var moment;
 
 @Component({
     selector: 'uni-feedback',
@@ -58,8 +59,8 @@ export class UniFeedback {
             Modules: modules,
             Metadata: {
                 AbsoluteUri: window.location.href,
-                LocalTime: new Date(),
-                GitRev: APP_VERSION
+                LocalTime: moment(new Date()).format('DD.MM.YYYY HH:mm'),
+                GitRev: 'https://github.com/unimicro/AppFrontend/commit/' + APP_VERSION
             }
         };
         let setSuccessClass = () => {
