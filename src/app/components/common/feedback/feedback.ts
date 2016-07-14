@@ -33,9 +33,10 @@ export class UniFeedback {
     private toggle() {
         this.expanded = !this.expanded;
 
-        // Fixme: Dette fungerer ikke. :( You fix, Urrang?
-        if (this.expanded === true) {
-            document.getElementById('feedback_title').focus();
+        if (this.expanded) {
+            setTimeout(() => {
+                document.getElementById('feedback_title').focus();
+            });
         }
     }
 
@@ -68,7 +69,7 @@ export class UniFeedback {
         };
 
         this.busy = true;
-        /*this.http.post(
+        this.http.post(
             'http://devintegrations-unieconomy.azurewebsites.net/api/feedback',
             JSON.stringify(body),
             {headers: this.headers}
@@ -84,26 +85,5 @@ export class UniFeedback {
                 this.busy = false;
             }
         );
-*/
-        // For testing styles:
-        // - comment out http call above
-        // - use success or error timeout block below
-
-        // Success
-        setTimeout(() => {
-            this.initForm();
-            this.error = false;
-            this.busy = false;
-            setSuccessClass();
-        }, 200);
-
-        // Error
-        // setTimeout(() => {
-        //     this.error = true;
-        //     this.busy = false;
-        // }, 200);
-
-
-
     }
 }
