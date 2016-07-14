@@ -255,3 +255,62 @@ function dateSerial(day:number, month = 0, year = 0): Date {
 	var y = x.toDate();
 	return y;
 }
+
+export function exportToFile(text:string, fileName:string) {
+	var link:any = document.createElement("a");
+
+	var blob = new Blob(["\uFEFF" + text], { type: 'text/csv;charset=utf-8;' });
+
+	if (link.download !== undefined) { 
+		
+		var url = URL.createObjectURL(blob);            
+		link.setAttribute("href", url);
+		link.setAttribute("download", fileName);
+		link.style = "visibility:hidden";
+	}
+
+	if (navigator.msSaveBlob) { // IE 10+
+		link.addEventListener("click", function (event) {
+			navigator.msSaveBlob(blob, fileName);
+		}, false);
+	}
+
+	document.body.appendChild(link);
+	link.click();
+	document.body.removeChild(link);	
+}
+
+export function arrayToCsv(data:Array<any>, columnDelimiter = ';', lineDelimiter = '\r\n') {
+	var result, ctr, keys;
+
+	if (data == null || !data.length) {
+		return null;
+	}
+
+	keys = Object.keys(data[0]);
+
+	result = '';
+	keys.forEach((key:string) => {
+		result += (result.length>0 ? columnDelimiter : '') + '"' + key + '"';		
+	});
+	result += lineDelimiter;
+
+	data.forEach(function(item) {
+		var prop: string;
+		ctr = 0;
+		keys.forEach(function(key) {
+			if (ctr > 0) result += columnDelimiter;
+			prop = '' + item[key];
+			if (prop) {
+				if (prop.indexOf(columnDelimiter)>0) {
+					prop = prop.replace(new RegExp(columnDelimiter, "g"), ".");
+				}
+				result += '"' + prop + '"';
+			}
+			ctr++;
+		});
+		result += lineDelimiter;
+	});
+
+	return result;
+}

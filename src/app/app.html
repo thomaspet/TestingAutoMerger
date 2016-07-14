@@ -1,4 +1,4 @@
-<uni-navbar *ngIf="isAuthenticated"></uni-navbar>
+<uni-navbar class="no-print" *ngIf="isAuthenticated"></uni-navbar>
 
 <login-modal (authenticated)="onUserAuthenticated()"></login-modal>
 <company-sync-modal></company-sync-modal>
