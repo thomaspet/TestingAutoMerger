@@ -68,7 +68,7 @@ export class PayrollrunService extends BizHttp<PayrollRun> {
     
     public resetSettling(ID: number) {
         return this.http
-        .asDELETE()
+        .asPUT()
         .usingBusinessDomain()
         .withEndPoint(this.relativeURL + '/' + ID + '?action=resetrun')
         .send();

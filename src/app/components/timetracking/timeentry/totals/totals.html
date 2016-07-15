@@ -1,3 +1,4 @@
+<h2>Totaler</h2>
 <aside class="regtime_filters">
     <ul>
         <li *ngFor="let src of sources">
@@ -22,7 +23,7 @@
             <tr *ngFor="let item of config.items">
                 <td>{{item[currentSource.pivotResultColName]}}</td>
                 <td class="right" *ngFor="let col of config.columns">{{item[col.name] | min2hours:'short' }}</td>
-                <td class="right sum">{{item.sum | min2hours:'short'}}</td>
+                <td class="right sumright">{{item.sum | min2hours:'short'}}</td>
             </tr>
             <tr>
                 <td class="sum">Totalsum</td>

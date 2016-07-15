@@ -21,7 +21,6 @@ export class ChangeMap {
                 }
             } 
         }
-        console.log("keys (after remove): " + this.getKeys().join(','));
     }
     
     add(key:any, value:any) {
@@ -32,13 +31,11 @@ export class ChangeMap {
             value._rowIndex = key;
             this.items.push({key:key, value: value }); // add
         }
-        console.log("keys: " + this.getKeys().join(','));
     }
 
     addRemove(key:any, value:any) {
         this.removables = this.removables || new ChangeMap();
         this.removables.add(key, value);
-        console.log("keys (addRemove): " + this.getKeys().join(','));
     }
 
     getRemovables(): Array<any> {
