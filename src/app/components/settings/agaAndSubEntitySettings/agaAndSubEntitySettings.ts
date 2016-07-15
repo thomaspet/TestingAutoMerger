@@ -1,13 +1,12 @@
 ﻿import {Component, OnInit, ViewChild} from '@angular/core';
-import {RouteParams, ROUTER_DIRECTIVES} from '@angular/router-deprecated';
+import {ROUTER_DIRECTIVES} from '@angular/router-deprecated';
 import {Observable} from 'rxjs/Observable';
 import 'rxjs/add/observable/forkJoin';
 import {UniSave, IUniSaveAction} from '../../../../framework/save/save';
-import {UniFieldBuilder, UniFormBuilder, UniForm, UniSectionBuilder} from '../../../../framework/forms';
-import {UNI_CONTROL_DIRECTIVES} from '../../../../framework/controls';
-import {UniHttp} from '../../../../framework/core/http/http';
-import {SubEntity, AGAZone, Municipal, FieldType, AGARate, CompanySalary} from '../../../unientities';
-import {AgaZoneService, SubEntityService, MunicipalService, CompanySalaryService} from '../../../services/services';
+import {UniForm, UniFieldLayout} from '../../../../framework/uniform';
+import {SubEntityList} from './subEntityList';
+import {FieldType, CompanySalary, Account} from '../../../unientities';
+import {CompanySalaryService, AccountService} from '../../../services/services';
 
 declare var _; // lodash
 
@@ -15,21 +14,23 @@ declare var _; // lodash
     selector: 'aga-and-subentities-settings',
     templateUrl: 'app/components/settings/agaAndSubEntitySettings/agaAndSubEntitySettings.html',
     providers: [
-        AgaZoneService,
-        SubEntityService,
-        MunicipalService,
         CompanySalaryService,
+        AccountService
     ],
-    directives: [ROUTER_DIRECTIVES, UniForm, UniSave]
+    directives: [ROUTER_DIRECTIVES, UniForm, UniSave, SubEntityList]
 })
 
 export class AgaAndSubEntitySettings implements OnInit {
-    private form: any;
-    private subEntities: SubEntity[] = [];
-    private agaZones: AGAZone[] = [];
-    private agaRules: AGARate[] = [];
-    private municipals: Municipal[] = [];
-    private companySalary: CompanySalary[] = [];
+    @ViewChild(UniForm) public uniform: UniForm;
+    @ViewChild(SubEntityList) public subEntityList: SubEntityList;
+
+    public showSubEntities: boolean = true;
+
+    private fields: UniFieldLayout[] = [];
+    public formConfig: any = {};
+
+    private companySalary: CompanySalary;
+    private accounts: Account[] = [];
     public saveactions: IUniSaveAction[] = [
         {
             label: 'Lagre AGA og virksomheter',
@@ -39,15 +40,12 @@ export class AgaAndSubEntitySettings implements OnInit {
         }
     ];
 
-    @ViewChild(UniForm) private uniForm: UniForm;
+    public busy: boolean;
 
     // TODO Use service instead of Http, Use interfaces!!
-    constructor(private routeParams: RouteParams,
-        private http: UniHttp,
-        private agaZoneService: AgaZoneService,
-        private subentityService: SubEntityService,
-        private municipalService: MunicipalService,
-        private companySalaryService: CompanySalaryService
+    constructor(
+        private companySalaryService: CompanySalaryService,
+        private accountService: AccountService
     ) {
 
     }
@@ -57,218 +55,138 @@ export class AgaAndSubEntitySettings implements OnInit {
     }
 
     private getDataAndSetupForm() {
+        this.busy = true;
         Observable.forkJoin(
-            this.subentityService.GetAll(null, ['BusinessRelationInfo', 'BusinessRelationInfo.InvoiceAddress']),
-            this.agaZoneService.GetAll(null),
-            this.agaZoneService.getAgaRules(),
-            this.companySalaryService.getCompanySalary()
+            this.companySalaryService.getCompanySalary(),
+            this.accountService.GetAll('')
         ).subscribe(
-            (dataset) => {
-                let filter: string = '';
-
-                dataset[0].forEach((element) => {
-                    filter += 'MunicipalityNo eq ' + element.MunicipalityNo + ' or ';
-                });
-                filter = filter.slice(0, filter.length - 3);
-                this.municipalService.GetAll(filter).subscribe(
-                    (response) => {
-                        this.subEntities = dataset[0];
-                        this.agaZones = dataset[1];
-                        this.agaRules = dataset[2];
-                        this.companySalary = dataset[3];
-                        this.municipals = response;
-                        this.buildForm();
-
-                    },
-                    error => this.log('problemer med å hente kommuner', error)
-                );
+            (dataset: any) => {
+                let [companysalaries, accounts] = dataset;
+                this.companySalary = companysalaries[0];
+                this.accounts = accounts;
+                this.buildForm();
+                this.busy = false;
             },
-            error => this.log('fikk ikke hentet alt: ', error)
+            error => {
+                this.log('fikk ikke hentet kontoer: ', error);
+                this.busy = false;
+            }
             );
     }
 
     private buildForm() {
+        var mainAccountAlocatedAga = new UniFieldLayout();
 
-        var formBuilder = new UniFormBuilder();
-
-        // *********************  Virksomhet og aga  ***************************/
-        //var subEntitiesSection = new UniSectionBuilder('Virksomhet og arbeidsgiveravgift(aga)');
-
-        var mainAccountAlocatedAga = new UniFieldBuilder();
-        mainAccountAlocatedAga
-            .setLabel('Konto avsatt aga')
-            .setModel(this.companySalary[0])
-            .setModelField('MainAccountAllocatedAGA')
-            .setType(UNI_CONTROL_DIRECTIVES[FieldType.TEXT]);
-
-        var mainAccountCostAga = new UniFieldBuilder();
-        mainAccountCostAga
-            .setLabel('Konto kostnad aga')
-            .setModel(this.companySalary[0])
-            .setModelField('MainAccountCostAGA')
-            .setType(UNI_CONTROL_DIRECTIVES[FieldType.TEXT]);
-
-        var mainAccountAllocatedAgaVacation = new UniFieldBuilder();
-        mainAccountAllocatedAgaVacation
-            .setLabel('Avsatt aga av feriepenger')
-            .setModel(this.companySalary[0])
-            .setModelField('MainAccountAllocatedAGAVacation')
-            .setType(UNI_CONTROL_DIRECTIVES[FieldType.TEXT]);
-
-        var mainAccountCostAgaVacation = new UniFieldBuilder();
-        mainAccountCostAgaVacation
-            .setLabel('Kostnad aga feriepenger')
-            .setModel(this.companySalary[0])
-            .setModelField('MainAccountCostAGAVacation')
-            .setType(UNI_CONTROL_DIRECTIVES[FieldType.TEXT]);
-
-        var freeAmount = new UniFieldBuilder();
-        freeAmount
-            .setLabel('Fribeløp')
-            .setModel(this.companySalary[0])
-            .setModelField('FreeAmount')
-            .setType(UNI_CONTROL_DIRECTIVES[FieldType.TEXT]);
-
-        formBuilder.addUniElements(mainAccountAlocatedAga, mainAccountCostAga, mainAccountAllocatedAgaVacation, mainAccountCostAgaVacation, freeAmount);
-
-        this.subEntities.forEach(subEntity => {
-            var municipal = this.getMunicipality(subEntity.MunicipalityNo);
-            var agaZone: AGAZone = this.getAgaZone(subEntity.AgaZone);
-            var agaRule = _.find(this.agaRules, x => x.sectorID === subEntity.AgaRule);
-            var agaZoneName = '';
-            var agaRuleName = '';
-            if (agaZone) { agaZoneName = ', Sone ' + agaZone.ZoneName; }
-            if (agaRule) { agaRuleName = ', ' + agaRule.sector; }
-            // console.log(subEntity.BusinessRelationInfo.Name);
-            var subEntitySection = new UniSectionBuilder(
-                (subEntity.BusinessRelationInfo.Name ? subEntity.BusinessRelationInfo.Name : '')
-                + (subEntity.OrgNumber && subEntity.OrgNumber !== '-' ? ', ' + subEntity.OrgNumber : '')
-                + (municipal ? ', ' + subEntity.MunicipalityNo + '-' + municipal.MunicipalityName : '')
-                + (agaZoneName ? agaZoneName : '')
-                + (agaRuleName ? agaRuleName : ''));
-
-            var subEntityName = new UniFieldBuilder();
-            subEntityName.setLabel('Virksomhet navn')
-                .setModel(subEntity)
-                .setModelField('BusinessRelationInfo.Name')
-                .setType(UNI_CONTROL_DIRECTIVES[FieldType.TEXT]);
-
-            var subEntityOrgNumber = new UniFieldBuilder();
-            subEntityOrgNumber.setLabel('Orgnr for virksomheten')
-                .setModel(subEntity)
-                .setModelField('OrgNumber')
-                .setType(UNI_CONTROL_DIRECTIVES[FieldType.TEXT]);
-
-            var subEntityAddress = new UniFieldBuilder();
-            subEntityAddress.setLabel('Gateadr')
-                .setModel(subEntity)
-                .setModelField('BusinessRelationInfo.InvoiceAddress.AddressLine1')
-                .setType(UNI_CONTROL_DIRECTIVES[FieldType.TEXT]);
-
-            var subEntityPostnr = new UniFieldBuilder();
-            subEntityPostnr.setLabel('Postnr')
-                .setModel(subEntity)
-                .setModelField('BusinessRelationInfo.InvoiceAddress.PostalCode')
-                .setType(UNI_CONTROL_DIRECTIVES[FieldType.TEXT]);
-            var subEntityCity = new UniFieldBuilder();
-            subEntityCity
-                .setModel(subEntity)
-                .setLabel('Sted')
-                .setModelField('BusinessRelationInfo.InvoiceAddress.City')
-                .setType(UNI_CONTROL_DIRECTIVES[FieldType.TEXT]);
-
-            var subEntityMunicipalNumber = new UniFieldBuilder();
-            subEntityMunicipalNumber.setModel(subEntity)
-                .setLabel('Kommunenr')
-                .setModelField('MunicipalityNo')
-                .setType(UNI_CONTROL_DIRECTIVES[FieldType.TEXT]);
-
-            var subEntityMunicipalName = new UniFieldBuilder();
-            subEntityMunicipalName.setModel(municipal)
-                .setLabel('Kommunenavn')
-                .setModelField('MunicipalityName')
-                .setType(UNI_CONTROL_DIRECTIVES[FieldType.TEXT]);
-
-            var subEntityAgaZone = new UniFieldBuilder();
-            subEntityAgaZone.setLabel('Sone')
-                .setModel(subEntity)
-                .setModelField('AgaZone')
-                .setType(UNI_CONTROL_DIRECTIVES[FieldType.DROPDOWN])
-                .setKendoOptions({
-                    dataSource: this.agaZones,
-                    dataTextField: 'ZoneName',
-                    dataValueField: 'ID',
-                });
-
-            var subEntityAgaRule = new UniFieldBuilder();
-            subEntityAgaRule.setLabel('Beregningsregel AGA')
-                .setModel(subEntity)
-                .setModelField('AgaRule')
-                .setType(UNI_CONTROL_DIRECTIVES[FieldType.DROPDOWN])
-                .setKendoOptions({
-                    dataSource: this.agaRules,
-                    dataTextField: 'Sector',
-                    dataValueField: 'SectorID',
-                });
-
-            subEntitySection.addUniElements(subEntityName,
-                subEntityOrgNumber,
-                subEntityAddress,
-                subEntityPostnr,
-                subEntityCity,
-                subEntityMunicipalNumber,
-                subEntityMunicipalName,
-                subEntityAgaZone,
-                subEntityAgaRule);
-
-            formBuilder.addUniElement(subEntitySection).hideSubmitButton();
-        });
-
-        // *********************  Instillinger lønn  ***************************/
-
-        var salarySettings = new UniSectionBuilder('Innstillinger spesifikke for lønn');
-
-        var interrimRemit = new UniFieldBuilder();
-        interrimRemit
-            .setLabel('Mellomkonto remittering')
-            .setModel(this.companySalary[0])
-            .setModelField('InterrimRemitAccount')
-            .setType(UNI_CONTROL_DIRECTIVES[FieldType.TEXT]);
-
-        salarySettings.addUniElements(interrimRemit);
+        mainAccountAlocatedAga.Label = 'Konto avsatt aga';
+        mainAccountAlocatedAga.EntityType = 'CompanySalary';
+        mainAccountAlocatedAga.Property = 'MainAccountAllocatedAGA';
+        mainAccountAlocatedAga.FieldType = FieldType.AUTOCOMPLETE;
+        mainAccountAlocatedAga.Options = {
+            source: this.accounts,
+            valueProperty: 'AccountNumber',
+            displayProperty: 'AccountNumber',
+            debounceTime: 200,
+            template: (obj) => obj ? `${obj.AccountNumber} - ${obj.AccountName}` : ''
+        };
 
 
-        formBuilder.addUniElements(salarySettings);
+        var mainAccountCostAga = new UniFieldLayout();
 
-        this.form = formBuilder;
-    }
+        mainAccountCostAga.Label = 'Konto kostnad aga';
+        mainAccountCostAga.EntityType = 'CompanySalary';
+        mainAccountCostAga.Property = 'MainAccountCostAGA';
+        mainAccountCostAga.FieldType = FieldType.AUTOCOMPLETE;
+        mainAccountCostAga.Options = {
+            source: this.accounts,
+            valueProperty: 'AccountNumber',
+            displayProperty: 'AccountNumber',
+            debounceTime: 200,
+            template: (obj) => obj ? `${obj.AccountNumber} - ${obj.AccountName}` : ''
+        };
 
-    /********************************************************************/
-    /*********************  Form Builder    *******************/
+        var mainAccountAllocatedAgaVacation = new UniFieldLayout();
 
-    private getAgaZone(id: number) {
-        return _.find(this.agaZones, object => object.ID === id);
-    }
+        mainAccountAllocatedAgaVacation.EntityType = 'CompanySalary';
+        mainAccountAllocatedAgaVacation.Label = 'Avsatt aga av feriepenger';
+        mainAccountAllocatedAgaVacation.Property = 'MainAccountAllocatedAGAVacation';
+        mainAccountAllocatedAgaVacation.FieldType = FieldType.AUTOCOMPLETE;
+        mainAccountAllocatedAgaVacation.Options = {
+            source: this.accounts,
+            valueProperty: 'AccountNumber',
+            displayProperty: 'AccountNumber',
+            debounceTime: 200,
+            template: (obj) => obj ? `${obj.AccountNumber} - ${obj.AccountName}` : ''
+        };
 
-    private getMunicipality(municipalityNumber) {
-        return _.find(this.municipals, object => object.MunicipalityNo === municipalityNumber);
+        var mainAccountCostAgaVacation = new UniFieldLayout();
+
+        mainAccountCostAgaVacation.EntityType = 'CompanySalary';
+        mainAccountCostAgaVacation.Label = 'Kostnad aga feriepenger';
+        mainAccountCostAgaVacation.Property = 'MainAccountCostAGAVacation';
+        mainAccountCostAgaVacation.FieldType = FieldType.AUTOCOMPLETE;
+        mainAccountCostAgaVacation.Options = {
+            source: this.accounts,
+            valueProperty: 'AccountNumber',
+            displayProperty: 'AccountNumber',
+            debounceTime: 200,
+            template: (obj) => obj ? `${obj.AccountNumber} - ${obj.AccountName}` : ''
+        };
+
+        var freeAmount = new UniFieldLayout();
+
+        freeAmount.EntityType = 'CompanySalary';
+        freeAmount.Label = 'Fribeløp';
+        freeAmount.Property = 'FreeAmount';
+        freeAmount.FieldType = FieldType.TEXT;
+
+        var interrimRemit = new UniFieldLayout();
+
+        interrimRemit.EntityType = 'CompanySalary';
+        interrimRemit.Label = 'Mellomkonto remittering';
+        interrimRemit.Property = 'InterrimRemitAccount';
+        interrimRemit.FieldType = FieldType.AUTOCOMPLETE;
+        interrimRemit.Options = {
+            source: this.accounts,
+            valueProperty: 'AccountNumber',
+            displayProperty: 'AccountNumber',
+            debounceTime: 200,
+            template: (obj) => obj ? `${obj.AccountNumber} - ${obj.AccountName}` : ''
+        };
+
+        this.fields = [
+            mainAccountAlocatedAga,
+            mainAccountCostAga,
+            mainAccountAllocatedAgaVacation,
+            mainAccountCostAgaVacation,
+            freeAmount,
+            interrimRemit];
+
     }
 
     public saveAgaAndSubEntities(done) {
         this.saveactions[0].disabled = true;
-        this.uniForm.sync();
-        if (!this.companySalary[0].PaymentInterval) {
-            this.companySalary[0].PaymentInterval = 1;
+        if (!this.companySalary.PaymentInterval) {
+            this.companySalary.PaymentInterval = 1;
         }
-        done('lagrer kontoer');
-        this.companySalaryService.Put(this.companySalary[0].ID, this.companySalary[0]).subscribe((response: CompanySalary) => {
-            this.companySalary[0] = response;
+        let request = this.subEntityList ? 
+            Observable.forkJoin(this.companySalaryService.Put(this.companySalary.ID, this.companySalary), this.subEntityList.saveSubEntity()) : 
+            Observable.forkJoin(this.companySalaryService.Put(this.companySalary.ID, this.companySalary));
+        done('lagrer aga og virksomheter');
+        request.subscribe((response: any) => {
+            this.companySalary = response[0];
+            if (this.subEntityList) {
+                this.subEntityList.refreshList();
+            } 
             done('Sist lagret: ');
             this.saveactions[0].disabled = false;
         }, error => {
-            this.log('Fikk ikke lagret companySalary: ', error);
+            this.log('Fikk ikke lagret aga og virksomheter: ', error);
             this.saveactions[0].disabled = false;
         });
+    }
+
+    public toggleShowSubEntities() {
+        this.showSubEntities = !this.showSubEntities;
     }
 
     public log(title: string, err) {
