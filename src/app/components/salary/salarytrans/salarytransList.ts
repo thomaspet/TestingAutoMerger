@@ -362,18 +362,7 @@ export class SalaryTransactionEmployeeList implements OnChanges, AfterViewInit {
             });
     }
 
-    public deleteSalaryTransaction(event) {
-        let rowModel = event.rowModel;
-        rowModel.Deleted = true;
-        this.salarytransService.delete(rowModel.ID).subscribe(
-            (response) => {
-
-            },
-            err => {
-                this.log(err);
-            });
-    }
-
+    
     private createTotalTableConfig() {
         var percentCol = new UniTableColumn('percentTax', 'Prosenttrekk', UniTableColumnType.Number);
         var taxtableCol = new UniTableColumn('tableTax', 'Tabelltrekk', UniTableColumnType.Number);
