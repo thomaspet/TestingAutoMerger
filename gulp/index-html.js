@@ -31,7 +31,15 @@ gulp.task('index.html', ['ts2js', 'sass2css', 'vendors'], function() {
 function getGitRevision() {
     const GIT_HEAD_FILE = '.git/HEAD';
     try {
+
         const head = fs.readFileSync(GIT_HEAD_FILE).toString().trim();
+        const stats = fs.statSync(head);
+        
+        // In prod, .git/HEAD will contain the revision, not a file path
+        if (!stats || !stats.isFile()) {
+            return head;
+        }
+
         const headPath = head.split(' ')[1];
         const commit = fs.readFileSync('.git/' + headPath).toString().trim();
         return commit;    
