@@ -52,10 +52,12 @@ export class SubEntityList implements OnInit {
         let name = new UniTableColumn('BusinessRelationInfo.Name', 'Virksomhet', UniTableColumnType.Text);
         let orgnr = new UniTableColumn('OrgNumber', 'Orgnr', UniTableColumnType.Text);
         let municipal = new UniTableColumn('MunicipalityNo', 'Kommune', UniTableColumnType.Text).setTemplate((rowModel) => {
-            return this.municipalities.find(x => x.MunicipalityNo === rowModel['MunicipalityNo']).MunicipalityName;
+            let municipalObj = this.municipalities.find(x => x.MunicipalityNo === rowModel['MunicipalityNo']);
+            return municipalObj ? municipal.MunicipalityName : '';
         });
         let agaZone = new UniTableColumn('AgaZone', 'Sone', UniTableColumnType.Text).setTemplate((rowModel) => {
-            return this.agaZones.find(x => x.ID === rowModel['AgaZone']).ZoneName;
+            let agaZoneObj = this.agaZones.find(x => x.ID === rowModel['AgaZone']);
+            return agaZoneObj ? agaZoneObj.ZoneName : '';
         });
 
         this.subEntityListConfig = new UniTableConfig(false)

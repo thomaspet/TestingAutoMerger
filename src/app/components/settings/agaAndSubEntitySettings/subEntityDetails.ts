@@ -13,7 +13,7 @@ declare var _; // lodash
 })
 export class SubEntityDetails implements OnChanges {
     @Input() private currentSubEntity: SubEntity;
-    @Input() private municipalities: Municipal[] = [];
+    @Input() private municipalities: Municipal[];
     @ViewChild(UniForm) private form: UniForm;
     private model: { subEntity: SubEntity, municipalityName: string } = { subEntity: null, municipalityName: null };
     private agaZones: AGAZone[] = [];
