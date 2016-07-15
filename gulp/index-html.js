@@ -35,13 +35,10 @@ function getGitRevision() {
         
         // In prod, .git/HEAD will contain the revision, not a file path
         if (head.indexOf('/') >= 0) {
-            console.log('yes', head);
             const headPath = head.split(' ')[1];
             const commit = fs.readFileSync('.git/' + headPath).toString().trim();
-            console.log(commit);
             return commit;
         } else {
-            console.log('no', head);
             return head;
         }
         

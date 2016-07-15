@@ -13,7 +13,7 @@ export interface IUniSaveAction {
     selector: 'uni-save',
     template: `
         <footer (clickOutside)="close()" class="uniSave">
-            <p *ngIf="status" class="uniSave-status">
+            <p *ngIf="status" class="uniSave-status" role="status">
                 {{status.message}}
                 <time [attr.datetime]="status.when">
                     {{fromNow()}}
