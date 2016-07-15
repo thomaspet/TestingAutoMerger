@@ -209,7 +209,7 @@ export class TimeEntry {
                 list.push(row)
             }
         });
-        exportToFile(arrayToCsv(list), `TimerFor${this.userName}.csv`);
+        exportToFile(arrayToCsv(list), `Timeentries_${this.userName}.csv`);
         done("Fil eksportert");
     }
 
