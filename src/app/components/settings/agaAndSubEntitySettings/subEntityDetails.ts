@@ -14,6 +14,7 @@ declare var _; // lodash
 export class SubEntityDetails implements OnChanges {
     @Input() private currentSubEntity: SubEntity;
     @Input() private municipalities: Municipal[] = [];
+    @ViewChild(UniForm) private form: UniForm;
     private model: { subEntity: SubEntity, municipalityName: string } = { subEntity: null, municipalityName: null };
     private agaZones: AGAZone[] = [];
     private agaRules: AGASector[] = [];
@@ -21,6 +22,7 @@ export class SubEntityDetails implements OnChanges {
     public fields: UniFieldLayout[] = [];
     public config: any = {};
     public busy: boolean;
+    private formReady: boolean = false;
 
     constructor(
         private _subEntityService: SubEntityService,
@@ -43,7 +45,9 @@ export class SubEntityDetails implements OnChanges {
 
     public ngOnChanges() {
         this.model.subEntity = this.currentSubEntity;
-        this.updateFields();
+        if (this.formReady) {
+            this.updateFields();
+        }
         this.model = _.cloneDeep(this.model);
     }
 
@@ -70,7 +74,10 @@ export class SubEntityDetails implements OnChanges {
                 this.agaRules = response;
             });
 
+
             this.fields = _.cloneDeep(this.fields);
+
+
         });
     }
 
@@ -79,8 +86,8 @@ export class SubEntityDetails implements OnChanges {
         return field;
     }
 
-    private updateFields() {
-        
+    private updateMunicipality() {
+
         if (this.model.subEntity) {
             if (this.municipalities) {
                 let municipal = this.municipalities.find(x => x.MunicipalityNo === this.model.subEntity.MunicipalityNo);
@@ -89,15 +96,33 @@ export class SubEntityDetails implements OnChanges {
                     this.model = _.cloneDeep(this.model);
                 }
             }
+        }
+    }
+
+    private updatePostalCodes() {
+        if (this.model.subEntity) {
             if (this.postalCodes && this.model.subEntity.BusinessRelationInfo && this.model.subEntity.BusinessRelationInfo.InvoiceAddress) {
                 let postalCode = this.postalCodes.find(x => x.Code === this.model.subEntity.BusinessRelationInfo.InvoiceAddress.PostalCode);
                 this.model.subEntity.BusinessRelationInfo.InvoiceAddress.City = postalCode.City;
+                this.model = _.cloneDeep(this.model);
             }
         }
     }
 
-    public change() {
+    private updateFields() {
+        this.updateMunicipality();
+        this.updatePostalCodes();
+    }
+
+    public ready(event) {
+        this.formReady = true;
         this.updateFields();
+        this.form.field('subEntity.BusinessRelationInfo.InvoiceAddress.PostalCode').onChange.subscribe((value) => {
+            this.updatePostalCodes();
+        });
+        this.form.field('subEntity.MunicipalityNo').onChange.subscribe((value) => {
+            this.updateMunicipality();
+        });
     }
 
     public saveSubentities() {
