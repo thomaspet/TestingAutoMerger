@@ -31,20 +31,22 @@ gulp.task('index.html', ['ts2js', 'sass2css', 'vendors'], function() {
 function getGitRevision() {
     const GIT_HEAD_FILE = '.git/HEAD';
     try {
-
         const head = fs.readFileSync(GIT_HEAD_FILE).toString().trim();
-        const stats = fs.statSync(head);
         
         // In prod, .git/HEAD will contain the revision, not a file path
-        if (!stats || !stats.isFile()) {
+        if (head.indexOf('/') >= 0) {
+            console.log('yes', head);
+            const headPath = head.split(' ')[1];
+            const commit = fs.readFileSync('.git/' + headPath).toString().trim();
+            console.log(commit);
+            return commit;
+        } else {
+            console.log('no', head);
             return head;
         }
-
-        const headPath = head.split(' ')[1];
-        const commit = fs.readFileSync('.git/' + headPath).toString().trim();
-        return commit;    
+        
     } catch (e) {
-        console.log('WARNING: Gulp command needs to be run at root level for verioning to work');
+        console.log('WARNING: Something went wrong when checking git revision in gulp task index.html');
         return null;
     }
     
