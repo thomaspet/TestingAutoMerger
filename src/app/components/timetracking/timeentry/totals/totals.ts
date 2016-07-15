@@ -1,4 +1,4 @@
-import {Component, AfterViewInit} from "@angular/core";
+import {Component} from '@angular/core';
 import {TimeSheet, TimesheetService} from '../../../../services/timetracking/timesheetservice';
 import {WorkerService, ItemInterval} from '../../../../services/timetracking/workerservice';
 import {MinutesToHoursPipe} from '../../utils/pipes';
@@ -6,13 +6,13 @@ import {ICol, Column, ColumnType} from '../../utils/editable/interfaces';
 import {IFilter} from '../timeentry';
 
 interface IStatSource {
-    name:string;
-    pivotColName:string;
-    label:string;
-    join:string;
-    filter?:string;
-    isSelected?:boolean;
-    pivotResultColName?:string;
+    name: string;
+    pivotColName: string;
+    label: string;
+    join: string;
+    filter?: string;
+    isSelected?: boolean;
+    pivotResultColName?: string;
 }
 
 @Component({
@@ -22,7 +22,7 @@ interface IStatSource {
 })
 export class RegtimeTotals {
     private timesheet: TimeSheet;
-    private config: { columns: Array<ICol>; items: Array<any>; sums:any }
+    private config: { columns: Array<ICol>; items: Array<any>; sums: any };
     private filters: Array<IFilter> = [
         { name: 'today', label: 'I dag', interval: ItemInterval.today },
         { name: 'week', label: 'Denne uke', interval: ItemInterval.thisWeek},
@@ -33,13 +33,13 @@ export class RegtimeTotals {
     ];
     private currentFilter: IFilter;
     private currentSource: IStatSource;
-    private busy = true;
+    private busy: boolean = true;
 
     private sources: Array<IStatSource>;
 
-    constructor(private workerService:WorkerService, private timesheetService: TimesheetService) {  }
+    constructor(private workerService: WorkerService, private timesheetService: TimesheetService) {  }
 
-    public activate(ts:TimeSheet, filter?: IFilter) {
+    public activate(ts: TimeSheet, filter?: IFilter) {
         if (!this.timesheet) { 
             this.initSources(ts);
             this.currentFilter = this.filters[2]; 
@@ -49,17 +49,17 @@ export class RegtimeTotals {
         this.onFilterClick( this.currentFilter );
     } 
 
-    initSources(ts:TimeSheet) {
+    private initSources(ts: TimeSheet) {
         this.sources = [
             { name: 'workers', label: 'Personer', pivotColName: 'businessrelation.name', isSelected: false,
                 join: 'workitem.worktypeid eq worktype.id and workitem.workrelationid eq workrelation.id and workrelation.workerid eq worker.id and worker.businessrelationid eq businessrelation.id',            
             },
-            { name: 'orders', label: 'Ordre (dine)', pivotColName: 'customerorder.customername', pivotResultColName:'CustomerName', 
+            { name: 'orders', label: 'Ordre (dine)', pivotColName: 'customerorder.customername', pivotResultColName: 'CustomerName', 
                 isSelected: true,
                 join: 'workitem.worktypeid eq worktype.id and workitem.customerorderid eq customerorder.id', 
                 filter: 'customerorder.ordernumber gt 0 and workrelationid eq ' + ts.currentRelation.ID  
             },
-            { name: 'ordersAll', label: 'Ordre (alle)', pivotColName: 'customerorder.customername', pivotResultColName:'CustomerName', 
+            { name: 'ordersAll', label: 'Ordre (alle)', pivotColName: 'customerorder.customername', pivotResultColName: 'CustomerName', 
                 isSelected: false,
                 join: 'workitem.worktypeid eq worktype.id and workitem.customerorderid eq customerorder.id', 
                 filter: 'customerorder.ordernumber gt 0'  
@@ -78,28 +78,28 @@ export class RegtimeTotals {
         ];    
     }
 
-    onFilterClick(filter: IFilter) {
-        var f:IFilter;
-        this.filters.forEach((value:any) => {
+    private onFilterClick(filter: IFilter) {
+        var f: IFilter;
+        this.filters.forEach((value: any) => {
             if (value.name === filter.name) {
                 f = value;
                 f.isSelected = true;
             } else {
-                value.isSelected = false
+                value.isSelected = false;
             }
         });        
         this.currentFilter = f;
         this.queryTotals();
     }
     
-    onSourceClick(src: IStatSource) {
-        var f:IStatSource;
-        this.sources.forEach((value:any) => {
+    public onSourceClick(src: IStatSource) {
+        var f: IStatSource;
+        this.sources.forEach((value: any) => {
             if (value.name === src.name) {
                 f = value;
                 f.isSelected = true;
             } else {
-                value.isSelected = false
+                value.isSelected = false;
             }
         });        
         this.currentSource = f;
@@ -107,11 +107,11 @@ export class RegtimeTotals {
     }
 
 
-    showData(items:Array<any>) {
-        var cols:ICol[] = [];
+    private showData(items: Array<any>) {
+        var cols: ICol[] = [];
         
         // Extract keys (since it has been pivoted with values as columnnames)
-        if (items && items.length>0) {
+        if (items && items.length > 0) {
             for (var key in items[0]) {
                 if (items[0].hasOwnProperty(key)) {
                     let col = new Column(key, key, ColumnType.Integer);
@@ -127,10 +127,10 @@ export class RegtimeTotals {
         }
 
         // Make sums
-        var lineSum:any = {};
-        for (var i=0; i<items.length;i++) {
+        var lineSum: any = {};
+        for (var i = 0; i < items.length; i++) {
             let sum = 0;
-            for (var c=0; c<cols.length; c++) {
+            for (var c = 0; c < cols.length; c++) {
                 let col = cols[c];
                 let value = items[i][col.name];
                 let itemSum = value ? parseInt(value) : 0;
@@ -146,7 +146,7 @@ export class RegtimeTotals {
             columns: cols,
             items: items,
             sums: lineSum
-        }
+        };
     }
 
     private queryTotals() {
@@ -155,26 +155,26 @@ export class RegtimeTotals {
             src.pivotResultColName = src.pivotColName.replace('.', '_');
         }
         this.busy = true;
-        var query = "model=workitem";
+        var query = 'model=workitem';
         var filter = this.workerService.getIntervalFilter(this.currentFilter.interval);
         query += this.createArg('select', 'sum(minutes),name,' + src.pivotColName);
         query += this.createArg('filter', 'deleted eq \'false\'' + (filter ? ' and ( ' +  filter + ' )' : ''));
-        if (src.filter) query += ' and ( ' + src.filter + ' )';
+        if (src.filter) { query += ' and ( ' + src.filter + ' )'; }
         query += this.createArg('pivot', 'true');
         query += this.createArg('join', src.join);
-        this.workerService.getStatistics(query).subscribe((items:Array<any>)=>{
+        this.workerService.getStatistics(query).subscribe((items: Array<any>) => {
             this.busy = false;
-            if (items && items.length>0) {
+            if (items && items.length > 0) {
                 if (items[0].Success) {
                     this.showData(items[0].Data);
                 } else {
-                    this.showData([{'label':items[0].Message}]);
+                    this.showData([{'label': items[0].Message}]);
                 }
             } 
         });
     }
 
-    private createArg(name:string, value:string):string {
+    private createArg(name: string, value: string): string {
         return '&' + name + '=' + value;
     }
-}   
+}
