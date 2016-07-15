@@ -2,6 +2,8 @@ import {Component} from '@angular/core';
 import {Http, Headers} from '@angular/http';
 import {Control} from '@angular/common';
 import {AuthService} from '../../../../framework/core/authService';
+declare var APP_VERSION;
+declare var moment;
 
 @Component({
     selector: 'uni-feedback',
@@ -56,10 +58,11 @@ export class UniFeedback {
             Description: this.descriptionControl.value,
             Modules: modules,
             Metadata: {
-                AbsoluteUri: window.location.href
+                AbsoluteUri: window.location.href,
+                LocalTime: moment(new Date()).format('DD.MM.YYYY HH:mm'),
+                GitRev: 'https://github.com/unimicro/AppFrontend/commit/' + APP_VERSION
             }
         };
-
         let setSuccessClass = () => {
             this.success = true;
             setTimeout(() => {
@@ -70,7 +73,7 @@ export class UniFeedback {
 
         this.busy = true;
         this.http.post(
-            'http://devintegrations-unieconomy.azurewebsites.net/api/feedback',
+            'https://devintegrations-unieconomy.azurewebsites.net/api/feedback',
             JSON.stringify(body),
             {headers: this.headers}
         ).subscribe(

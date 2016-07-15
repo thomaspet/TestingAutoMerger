@@ -6,5 +6,5 @@
 
 <main>
     <uni-router-outlet></uni-router-outlet>
-    <uni-feedback></uni-feedback>
+    <uni-feedback *ngIf="isAuthenticated"></uni-feedback>
 </main>

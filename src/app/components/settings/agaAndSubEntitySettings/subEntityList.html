@@ -1,0 +1,9 @@
+<section class="splitview" [attr.aria-busy]="busy">
+    <nav class="splitview_list">
+        <uni-table [resource]="subEntities$ | async" [config]="subEntityListConfig" (rowSelected)="rowSelected($event)"></uni-table>
+        <button (click)="addNewSubEntity()">Ny virksomhet</button>
+    </nav>
+    <main class="splitview_detail">
+        <sub-entity-details [currentSubEntity]="currentSubEntity" [municipalities]="municipalities"></sub-entity-details>
+    </main>
+</section>
