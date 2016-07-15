@@ -18,6 +18,13 @@ uni-table .contextMenu
         &:focus
             background-image: unicon-more($uni-color-scale1)
 
+tr[aria-selected]:not([aria-selected=false]) .contextMenu button
+        background-image: unicon-more($uni-color-scale8)
+        background-size: 1rem
+
+        &:hover,
+        &:focus
+            background-image: unicon-more($uni-color-scale9)
 
 unitable-contextmenu ul
     background: $uni-color-negative

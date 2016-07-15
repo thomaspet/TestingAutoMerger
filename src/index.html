@@ -101,6 +101,7 @@
      ------------------------------------------------------------------------->
     <script src="vendors.bundle.js?v=<%= version %>"></script>
     <script src="app.bundle.js?v=<%= version %>"></script>
+    <script>APP_VERSION = "<%= gitRevision %>";</script>
     <script>
         window.ENV = '<%= environment %>';
         System.import('system.config.js').then(function() {

@@ -1,3 +1,7 @@
+@media print
+    .no-print, .no-print *
+        display: none !important
+
 .regtimecontainer 
     margin-bottom: 4rem
     margin-top: 0.6rem
@@ -75,6 +79,7 @@
 
 .timeentriesTable
     width: 100%
+    table-layout: fixed
     border-collapse: collapse
     cursor: pointer
     margin-top: 1rem
@@ -88,6 +93,22 @@
     border-color: $uni-color-scale8
     border-style: solid
     padding: pxToRem(3) pxToRem(4) 0 pxToRem(4)
+
+
+.timeentriesTable th.s1
+    width: pxToRem(40)
+.timeentriesTable th.s2
+    width: pxToRem(90)
+.timeentriesTable th.s3
+    width: pxToRem(140)
+.timeentriesTable th.s4
+    width: 35%
+.timeentriesTable th.s5
+    width: 45%
+
+.timeentriesTable th.left
+    text-align: left
+    padding-left: 2em;
 
 .timeentriesTable th.center
     text-align: center
@@ -113,10 +134,23 @@
     overflow-x: hidden
 
 .timeentriesTable td.sum
-    background-color: lighten(mix($uni-color-scale9, $navbarBackground, 50%), 24%)
+    background-color: lighten(mix($uni-color-scale9, $navbarBackground, 50%), 30%)
+    height: 2rem
+    border-top: 1px solid $uni-color-scale6 !important
+    font-weight: bold
+
+.timeentriesTable td.sumright
+    background-color: lighten(mix($uni-color-scale9, $navbarBackground, 50%), 30%)
+    font-weight: bold
+    border-left: 1px solid $uni-color-scale6
+
 
 .timeentriesTable th.sum
     background-color: lighten(mix($uni-color-scale9, $navbarBackground, 50%), 24%)
+
+.timeentriesTable td.left
+    text-align: left
+    padding-left: 2em;
 
 .timeentriesTable td.center
     text-align: center

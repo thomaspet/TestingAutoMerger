@@ -13,12 +13,14 @@ uni-salary
             .missing-info:before
                 content: ''
                 display: inline-block
-                background: transparent unicon-warning($uni-color-Bad) top .2rem center no-repeat
+                position: absolute
+                background: transparent unicon-warning($uni-color-Bad) top center no-repeat
                 background-size: 1rem
-                padding: 0.6rem
-                margin-right: 0.4rem
+                margin: .3rem .4rem 0 0
+                height: 1rem
+                width: 1rem
 
-            .k-state-selected .missing-info:before
+            [aria-selected]:not([aria-selected=false]) .missing-info:before
                 background-image: unicon-warning($uni-color-negative)
                 background-size: 1rem
 

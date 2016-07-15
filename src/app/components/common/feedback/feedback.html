@@ -1,0 +1,26 @@
+<article [attr.aria-expanded]="expanded"
+    class="uniFeedback_dropdown"
+    [class.-is-successful]="success">
+    <form (ngSubmit)="submit()">
+        <small class="validation error" *ngIf="error">
+            Noe gikk galt under sending. Vennligst prøv igjen.
+        </small>
+
+        <label>
+            Tittel
+            <input #title autocomplete="off" type="text" [ngFormControl]="titleControl" placeholder="Tittel" id="feedback_title" />
+        </label>
+
+        <label>
+            Beskrivelse
+            <textarea #description [ngFormControl]="descriptionControl" placeholder="Beskrivelse"></textarea>
+        </label>
+
+        <button type="submit"
+                [attr.aria-busy]="busy"
+                [disabled]="!title.value.length || !description.value.length || busy">
+            Send tilbakemelding
+        </button>
+    </form>
+</article>
+<button class="c2a uniFeedback_toggle" (click)="toggle()">Gi din tilbakemelding</button>

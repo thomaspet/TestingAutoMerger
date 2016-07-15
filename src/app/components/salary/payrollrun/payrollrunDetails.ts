@@ -38,7 +38,7 @@ export class PayrollrunDetails implements OnInit {
     private busy: boolean = false;
     private saveactions: IUniSaveAction[] = [];
     private formIsReady: boolean = false;
-    private contextMenuItems: IContextMenuItem[];
+    private contextMenuItems: IContextMenuItem[] = [];
 
     constructor(private routeParams: RouteParams, private payrollrunService: PayrollrunService, private router: Router, private tabSer: TabService, private _rootRouteParamsService: RootRouteParamsService) {
         this.payrollrunID = +this.routeParams.get('id');
@@ -53,7 +53,27 @@ export class PayrollrunDetails implements OnInit {
             {
                 label: 'Nullstill lønnsavregning',
                 action: () => {
-                    console.log('Nullstiller lønnsavregnin kommer snart');
+                    
+                    if ( this.payrollrun.StatusCode < 2 || confirm('Denne lønnsavregningen er bokført, er du sikker på at du vil nullstille?')) {
+                        this.busy = true;
+                        this.payrollrunService.resetSettling(this.payrollrunID).subscribe((response: boolean) => {
+                        if (response) {
+                            this.payrollrunService.Get(this.payrollrunID).subscribe((payrollRun: PayrollRun) => {
+                                this.payrollrunService.refreshPayrun(payrollRun);
+                            }, error => {
+                                this.busy = false;
+                                this.log(error);
+                            });
+                        } else {
+                            alert('fikk ikke nullstilt lønnsavregning');
+                            this.busy = false;
+                        }
+                    }, error => {
+                        this.busy = false;
+                        this.log(error);
+                    });
+                    }
+                    
                 }
             }
         ];
@@ -95,6 +115,10 @@ export class PayrollrunDetails implements OnInit {
                 });
         }
 
+    }
+
+    private refreshContextMenu() {
+        
     }
 
     private refreshSaveActions() {
@@ -146,11 +170,6 @@ export class PayrollrunDetails implements OnInit {
         this.vacationPayModal.openModal();
     }
 
-    private setStatus() {
-        var status = this.payrollrunService.getStatus(this.payrollrun);
-        this.payStatus = status.text;
-        return status.text;
-    }
     public canPost(): boolean {
         if (this.payrollrun) {
         if (this.payrollrun.StatusCode === 1) {

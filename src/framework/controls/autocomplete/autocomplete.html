@@ -20,14 +20,14 @@
         z-index="2000"
         [attr.aria-expanded]="isExpanded">
 
-    <li *ngFor="let result of results"
-        class="autocomplete_result"
-        role="option"
-        (mouseover)="selected = result"
-        (click)="choose(result)"
-        [attr.aria-selected]="selected === result">
-        {{template(result)}}
-    </li>
+        <li *ngFor="let result of results"
+            class="autocomplete_result"
+            role="option"
+            (mouseover)="selected = result"
+            (click)="choose(result)"
+            [attr.aria-selected]="selected === result">
+            {{template(result)}}
+        </li>
 
     </ul>
 </div>

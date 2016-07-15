@@ -4,13 +4,14 @@ import {View} from '../../../models/view/view';
 import {Worker, WorkRelation, WorkProfile, WorkItem} from '../../../unientities';
 import {WorkerService, ItemInterval} from '../../../services/timetracking/workerservice';
 import {Editable, IChangeEvent, IConfig, Column, ColumnType, ITypeSearch, ICopyEventDetails, ILookupDetails} from '../utils/editable/editable';
-import {parseTime, addTime, parseDate, toIso} from '../utils/utils';
+import {parseTime, addTime, parseDate, toIso, exportToFile, arrayToCsv} from '../utils/utils';
 import {TimesheetService, TimeSheet, ValueItem} from '../../../services/timetracking/timesheetservice';
 import {IsoTimePipe, MinutesToHoursPipe} from '../utils/pipes';
 import {UniSave, IUniSaveAction} from '../../../../framework/save/save';
 import {CanDeactivate, ComponentInstruction} from '@angular/router-deprecated';
 import {Lookupservice} from '../utils/lookup';
 import {RegtimeTotals} from './totals/totals';
+import {RegtimeTools} from './tools/tools';
 import {ToastService, ToastType} from '../../../../framework/unitoast/toastservice';
 
 declare var moment;
@@ -34,7 +35,7 @@ interface ITab {
 @Component({
     selector: view.name,
     templateUrl: 'app/components/timetracking/timeentry/timeentry.html', 
-    directives: [Editable, UniSave, RegtimeTotals],
+    directives: [Editable, UniSave, RegtimeTotals, RegtimeTools],
     providers: [WorkerService, TimesheetService, Lookupservice],
     pipes: [IsoTimePipe, MinutesToHoursPipe]
 })
@@ -46,18 +47,21 @@ export class TimeEntry {
     private currentFilter: IFilter;
     private editable: Editable;
     
-    @ViewChild(RegtimeTotals) regtimeTotals:RegtimeTotals; 
+    @ViewChild(RegtimeTotals) regtimeTotals:RegtimeTotals;
+    @ViewChild(RegtimeTools) regtimeTools:RegtimeTools;
 
     private actions: IUniSaveAction[] = [ 
-            { label: 'Lagre endringer', action: (done)=>this.save(done), main: true, disabled: true }
+            { label: 'Lagre endringer', action: (done)=>this.save(done), main: true, disabled: true },
+            { label: 'Eksporter', action: (done)=>this.export(done), main: false, disabled: false }
         ];   
     
-    tabs = [ { name: 'timeentry', label: 'Timer', isSelected: true },
+    tabs = [ { name: 'timeentry', label: 'Registrering', isSelected: true },
+            { name: 'tools', label: 'Timeliste', activate: (ts:any, filter:any)=> this.regtimeTools.activate(ts, filter) },
             { name: 'totals', label: 'Totaler', activate: (ts:any, filter:any)=> this.regtimeTotals.activate(ts, filter) },
-            { name: 'flex', label: 'Fleksitid', counter: 15 },
-            { name: 'profiles', label: 'Arbeidsgivere', counter: 1 },
-            { name: 'vacation', label: 'Ferie', counter: 22 },
-            { name: 'offtime', label: 'Fravær', counter: 4 },
+            //{ name: 'flex', label: 'Fleksitid', counter: 15 },
+            //{ name: 'profiles', label: 'Arbeidsgivere', counter: 1 },
+            //{ name: 'vacation', label: 'Ferie', counter: 22 },
+            //{ name: 'offtime', label: 'Fravær', counter: 4 },
             ];
 
 
@@ -76,6 +80,7 @@ export class TimeEntry {
             new Column('StartTime', '', ColumnType.Time),
             new Column('EndTime', '', ColumnType.Time),
             new Column('WorkTypeID','Timeart', ColumnType.Integer, { route:'worktypes' }),
+            new Column('LunchInMinutes','Lunsj', ColumnType.Integer),
             new Column('Description'), 
             new Column('Dimensions.ProjectID', 'Prosjekt', ColumnType.Integer, { route:'projects'}),
             new Column('CustomerOrderID', 'Ordre', ColumnType.Integer, 
@@ -182,6 +187,30 @@ export class TimeEntry {
                 resolve(true);
             });
         });
+    }
+
+    export(done?:(msg?:string)=>void) {
+        var ts = this.timeSheet;
+        var list = [];
+        var isoPipe = new IsoTimePipe();
+        ts.items.forEach((item:WorkItem) => {
+            if (item.Date && item.Minutes) {
+                var row = {  
+                    ID: item.ID,
+                    Date: isoPipe.transform(item.Date, undefined),
+                    StartTime: isoPipe.transform(item.StartTime, 'HH:mm'), 
+                    EndTime: isoPipe.transform(item.EndTime, 'HH:mm'), 
+                    WorkTypeID: item.WorkTypeID,
+                    WorkType: item.Worktype ? item.Worktype.Name : '',
+                    Minutes: item.Minutes,
+                    LunchInMinutes: item.LunchInMinutes || 0,
+                    Project: item.Dimensions && item.Dimensions.Project ? item.Dimensions.Project.Name : ''
+                    };
+                list.push(row)
+            }
+        });
+        exportToFile(arrayToCsv(list), `TimerFor${this.userName}.csv`);
+        done("Fil eksportert");
     }
 
     flagUnsavedChanged(reset = false) {

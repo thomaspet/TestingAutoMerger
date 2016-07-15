@@ -1,36 +1,45 @@
-uni-table-column-menu
+unitable-column-menu
+
+    .column-menu-toggle
+        @extend %hideText
+        background: transparent unicon-columns($uni-color-scale5) center center no-repeat
+        background-size: 1rem
+        height: 1.2rem
+        width: 1.2rem
+        float: right
+        box-shadow: none
+        border: pxToRem(2) solid $uni-color-scale8
+        margin: .5rem 0
+
+        &:hover,
+        &:focus
+            background-color: $uni-color-scale9
+
+        &:focus
+            border-color: $uni-color-C2A
 
     .column-menu-dropdown
-        position: absolute
-        z-index: 1
-
-        list-style: none
-        margin: 0
-        padding: 0
-        width: 15rem
-        border: pxToRem(1) solid darken($uni-color-scale9, 5%)
-        border-top: none
-
-        border-radius: pxToRem(5)
+        @extend %contextMenu
+        display: block !important // @FIXME: Remove after UniTable upgrade
+        right: 0
+        top: 1.5rem
 
         li
-            height: 2rem
-            margin-left: pxToRem(18)
-            background-color: white
+            @extend %contextMenuItem
+
+            &:last-of-type:hover
+                cursor: default
+                background: none
 
             label
-                display: block
-                padding: pxToRem(10)
-                cursor: pointer
-
-                & :hover
-                    background-color: #c41230
-                    color: white
+                position: relative
+                padding-left: 1rem
 
                 input[type=checkbox]
-                    display: inline-block
-                    width: auto
                     margin-right: .5rem
+                    position: absolute
+                    left: -.5rem
+                    width: auto
 
             button
                 maring: 2rem auto
