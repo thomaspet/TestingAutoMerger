@@ -1,7 +1,7 @@
 import {Component} from '@angular/core';
 import {View} from '../../../models/view/view';
 import {GenericListView, IViewConfig} from '../genericview/list';
-import {UniTable, UniTableColumn, UniTableColumnType, UniTableConfig} from 'unitable-ng2/main';
+import {UniTableColumn, UniTableColumnType, UniTableConfig} from 'unitable-ng2/main';
 
 export var view = new View('projects', 'Prosjekter', 'ProjectListview', false, 'project');
 
@@ -11,7 +11,7 @@ export var view = new View('projects', 'Prosjekter', 'ProjectListview', false, '
     directives: [GenericListView]    
 })
 export class ProjectListview {
-    viewconfig: IViewConfig;
+    public viewconfig: IViewConfig;
 
     constructor() {
         this.viewconfig = {
@@ -27,6 +27,6 @@ export class ProjectListview {
                     new UniTableColumn('Name', 'Navn').setWidth('40%'),
                     new UniTableColumn('ProjectLeadName', 'Prosjektleder')
                 ])
-        }
+        };
     }
 }

@@ -1,6 +1,5 @@
-import {Component} from "@angular/core";
+import {Component} from '@angular/core';
 import {View} from '../../../models/view/view';
-import {UniForm, UniFieldLayout} from '../../../../framework/uniform';
 import {createFormField, FieldSize, ControlTypes} from '../utils/utils';
 import {IViewConfig} from '../genericview/list';
 import {Worker} from '../../../unientities';

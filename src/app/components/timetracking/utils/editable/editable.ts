@@ -1,5 +1,5 @@
 import {Directive, AfterViewInit, Input, ElementRef, OnDestroy, EventEmitter} from '@angular/core';
-import {IJQItem, IPos, IEditor, Keys, IChangeEvent, ICol, ColumnType, ITypeSearch } from './interfaces';
+import {IJQItem, IPos, IEditor, KEYS, IChangeEvent, ICol, ColumnType, ITypeSearch } from './interfaces';
 import {DropList} from './droplist';
 import {Editor} from './editor';
 import {debounce} from '../utils';
@@ -252,7 +252,7 @@ export class Editable implements AfterViewInit, OnDestroy {
 
     private CheckCopyCell(event: any, newTarget: any) {
 
-        if (event.which === Keys.ENTER) {
+        if (event.which === KEYS.ENTER) {
 
             if (this.config && this.config.events && this.config.events.onCopyCell) {
                 if (this.current.editor && (!this.current.editor.hasChanges())) {
@@ -289,13 +289,13 @@ export class Editable implements AfterViewInit, OnDestroy {
 
         if (this.checkDroplistNavigation(event)) { return; }
 
-        if (event.which === Keys.ESC) {
+        if (event.which === KEYS.ESC) {
             this.closeEditor(true);
             return;
         }
 
         // F4 to open dropdown?
-        if (event.which === Keys.F4) {
+        if (event.which === KEYS.F4) {
             if (this.IsLookupCell()) {
                 if (this.dropList.isOpen()) {
                     this.dropList.hide();
@@ -394,7 +394,7 @@ export class Editable implements AfterViewInit, OnDestroy {
         var retryWithKey: number;
 
         switch (keyCode) {
-            case Keys.ARROW_RIGHT:
+            case KEYS.ARROW_RIGHT:
                 if (!this.current.allowFastNavigation) {
                     let info = caretPosition(event.target);
                     if (!info.isAtEnd) { return; }
@@ -402,7 +402,7 @@ export class Editable implements AfterViewInit, OnDestroy {
                 target = element.next('td');
                 break;
 
-            case Keys.ARROW_LEFT:
+            case KEYS.ARROW_LEFT:
                 if (!this.current.allowFastNavigation) {
                     let info = caretPosition(event.target);
                     if (!info.isAtStart) { return; }
@@ -410,14 +410,14 @@ export class Editable implements AfterViewInit, OnDestroy {
                 target = element.prev('td');
                 break;
 
-            case Keys.ARROW_UP:
+            case KEYS.ARROW_UP:
                 target = element.parent().prev().children().eq(element.index());
                 break;
-            case Keys.ARROW_DOWN:
+            case KEYS.ARROW_DOWN:
                 target = element.parent().next().children().eq(element.index());
                 break;
-            case Keys.TAB:
-            case Keys.ENTER:
+            case KEYS.TAB:
+            case KEYS.ENTER:
                 if (event.shiftKey) {
                     target = element.prev('td');
                     if (target.length === 0) { target = element.parent().prev().children().last(); }
@@ -426,7 +426,7 @@ export class Editable implements AfterViewInit, OnDestroy {
                     if (target.length === 0) { target = element.parent().next().children().eq(0); }
                 }
                 break;
-            case Keys.HOME:
+            case KEYS.HOME:
                 if (!this.current.allowFastNavigation) {
                     let info = caretPosition(event.target);
                     if (!info.isAtStart) { return; }
@@ -437,9 +437,9 @@ export class Editable implements AfterViewInit, OnDestroy {
                     target = element.parent().find('td:nth-child(1)');
                 }
                 retryIfReadOnly = false;
-                retryWithKey = Keys.ARROW_RIGHT;
+                retryWithKey = KEYS.ARROW_RIGHT;
                 break;
-            case Keys.END:
+            case KEYS.END:
                 if (!this.current.allowFastNavigation) {
                     let info = caretPosition(event.target);
                     if (!info.isAtEnd) { return; }
@@ -450,7 +450,7 @@ export class Editable implements AfterViewInit, OnDestroy {
                     target = element.parent().children().last();
                 }
                 retryIfReadOnly = false;
-                retryWithKey = Keys.ARROW_LEFT;
+                retryWithKey = KEYS.ARROW_LEFT;
                 break;
             default:
                 return [];
@@ -489,12 +489,12 @@ export class Editable implements AfterViewInit, OnDestroy {
         if (!this.dropList.isOpen()) { return false; }
         var key = event.which;
         switch (key) {
-            case Keys.ESC:
+            case KEYS.ESC:
                 this.dropList.hide();
                 return true;
 
-            case Keys.TAB:
-            case Keys.ENTER:
+            case KEYS.TAB:
+            case KEYS.ENTER:
                 var rowIndex = this.dropList.getCurrentRowIndex();
                 if (rowIndex >= 0) {
                     if (!event.shiftKey) {
@@ -503,8 +503,8 @@ export class Editable implements AfterViewInit, OnDestroy {
                 }
                 break;
 
-            case Keys.ARROW_DOWN:
-            case Keys.ARROW_UP:
+            case KEYS.ARROW_DOWN:
+            case KEYS.ARROW_UP:
                 return this.dropList.navigate(key);
         }
         return false;

@@ -109,7 +109,7 @@ export class TimeEntry {
     public onTabClick(tab: ITab) {
         if (tab.isSelected) { return; }
         this.tabs.forEach((t: any) => {
-            if (t.name !== tab.name) t.isSelected = false;
+            if (t.name !== tab.name) { t.isSelected = false; }
         });
         tab.isSelected = true;
         if (tab.activate) {
@@ -117,11 +117,11 @@ export class TimeEntry {
         }
     }
 
-    onAddNew() {
+    public onAddNew() {
         this.editable.editRow(this.timeSheet.items.length - 1);
     }
 
-    reset() {
+    public reset() {
         if (this.hasUnsavedChanges()) {
             if (confirm('Nullstille alle endringer uten å lagre ?')) {
                 this.loadItems();
@@ -129,18 +129,18 @@ export class TimeEntry {
         }
     }
 
-    onRowActionClicked(rowIndex: number, item: any) {
+    public onRowActionClicked(rowIndex: number, item: any) {
         this.editable.closeEditor();
         this.timeSheet.removeRow(rowIndex);
         this.flagUnsavedChanged();
         
     }
 
-    routerCanDeactivate(next: ComponentInstruction, prev: ComponentInstruction): any {
+    public routerCanDeactivate(next: ComponentInstruction, prev: ComponentInstruction): any {
         return this.checkSave();
     }
     
-    initUser() {
+    private initUser() {
         this.timesheetService.initUser().subscribe((ts: TimeSheet) => {
             this.workRelations = this.timesheetService.workRelations;
             this.timeSheet = ts;
@@ -148,10 +148,10 @@ export class TimeEntry {
         });
     }
     
-    loadItems() {
+    private loadItems() {
         if (this.timeSheet.currentRelation && this.timeSheet.currentRelation.ID) {
             this.timeSheet.loadItems(this.currentFilter.interval).subscribe((itemCount: number) => {
-                if (this.editable) this.editable.closeEditor();                
+                if (this.editable) { this.editable.closeEditor(); }                
                 this.timeSheet.ensureRowCount(itemCount + 1);
                 this.flagUnsavedChanged(true);
                 this.busy = false;
@@ -161,14 +161,14 @@ export class TimeEntry {
         }
     }
 
-    save(done?: any) {
+    private save(done?: any) {
         
         if (!this.validate()) { 
             if (done) { done('Feil ved validering'); } 
             return; 
         }
 
-        if (this.busy) return;
+        if (this.busy) { return; }
         return new Promise((resolve, reject) => {
             this.busy = true;
             var counter = 0;
@@ -188,7 +188,7 @@ export class TimeEntry {
         });
     }
 
-    export(done?: (msg?: string) => void) {
+    public export(done?: (msg?: string) => void) {
         var ts = this.timeSheet;
         var list = [];
         var isoPipe = new IsoTimePipe();
@@ -212,15 +212,15 @@ export class TimeEntry {
         done('Fil eksportert');
     }
 
-    flagUnsavedChanged(reset = false) {
+    private flagUnsavedChanged(reset = false) {
         this.actions[0].disabled = reset;
     }
        
-    hasUnsavedChanges(): boolean {
+    private hasUnsavedChanges(): boolean {
         return !this.actions[0].disabled;
     }
 
-    onCopyCell(details: ICopyEventDetails) { 
+    public onCopyCell(details: ICopyEventDetails) { 
 
         details.copyAbove = true;
 
@@ -259,7 +259,7 @@ export class TimeEntry {
         }  
     }
 
-    validate(): boolean {
+    private validate(): boolean {
         var result:  { ok: boolean, message?: string, row?: number, fld?: string } = this.timeSheet.validate();
         if (!result.ok) {
             this.toast.addToast('Feil', ToastType.bad, 5, result.message );
@@ -272,7 +272,7 @@ export class TimeEntry {
         return true;
     }
 
-    asyncValidationFailed(event: IChangeEvent) {
+    private asyncValidationFailed(event: IChangeEvent) {
         var droplistItems = this.editable.getDropListItems({ col: event.col, row: event.row});
         if (droplistItems && droplistItems.length === 1 && event.columnDefinition) {
             var lk: ILookupDetails = event.columnDefinition.lookup;
@@ -286,7 +286,7 @@ export class TimeEntry {
         }
     }
 
-    updateChange(event: IChangeEvent) {
+    private updateChange(event: IChangeEvent) {
 
         // Update value via timesheet
         if (!this.timeSheet.setItemValue(new ValueItem(event.columnDefinition.name, event.value, event.row, event.lookupValue))) {
@@ -297,16 +297,16 @@ export class TimeEntry {
         this.flagUnsavedChanged();
 
 		// Ensure a new row at bottom?
-		this.timeSheet.ensureRowCount(event.row + 2);
+        this.timeSheet.ensureRowCount(event.row + 2);
 		
 		// we use databinding instead
         event.updateCell = false;       
 		
     }
     
-    onFilterClick(filter: IFilter) {
+    public onFilterClick(filter: IFilter) {
         this.checkSave().then((success: boolean) => {
-            if (!success) return;
+            if (!success) { return; }
             this.filters.forEach((value: any) => value.isSelected = false);        
             filter.isSelected = true;
             this.currentFilter = filter;
@@ -315,7 +315,7 @@ export class TimeEntry {
         });
     }
 
-    checkSave(): Promise<boolean> {
+    private checkSave(): Promise<boolean> {
         return new Promise((resolve, reject) => {
             if (this.hasUnsavedChanges()) {
                 var result = confirm('Fortsette uten å lagre ? Du vil miste alle endringer som du har lagt inn dersom du fortsetter !');
@@ -326,7 +326,7 @@ export class TimeEntry {
         });
     }
 
-    showErrMsg(msg: string, lookForMsg = false): string {
+    private showErrMsg(msg: string, lookForMsg = false): string {
         var txt = msg;
         if (lookForMsg) {
             if (msg.indexOf('"Message":') > 0) {
