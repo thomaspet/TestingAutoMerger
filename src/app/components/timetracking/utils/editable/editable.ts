@@ -44,13 +44,13 @@ export class Editable implements AfterViewInit, OnDestroy {
     private dropList: DropList = new DropList();
     
     constructor(el: ElementRef) {
-        this.jqRoot = jQuery(el.nativeElement);
+        this.jqRoot = $(el.nativeElement);
         
         this.handlers.onClick = (event) => { this.startEdit(event); };
         this.handlers.onResize = (event) => { this.onResize(); };
         
         this.jqRoot.on('click', this.handlers.onClick);
-        jQuery(window).on('resize', this.handlers.onResize );
+        $(window).on('resize', this.handlers.onResize );
 
         this.dropList.onClick = (rowIndex: number, item: any, details: ITypeSearch) => {
             var value = item[details.itemPropertyToSet];
@@ -79,7 +79,7 @@ export class Editable implements AfterViewInit, OnDestroy {
     public ngOnDestroy() {
         // cleanup eventhandlers:
         this.jqRoot.off('click', this.handlers.onClick);
-        jQuery(window).off('resize', this.handlers.onResize);
+        $(window).off('resize', this.handlers.onResize);
         if (this.current.editor) {
             this.current.editor.destroy();
         }
@@ -113,7 +113,7 @@ export class Editable implements AfterViewInit, OnDestroy {
         var el = this.current.active;
 
         if (event && event.target) {
-            el = jQuery(event.target);
+            el = $(event.target);
             if (!el.is('td')) {
                 return;
             }
@@ -485,7 +485,7 @@ export class Editable implements AfterViewInit, OnDestroy {
         return false;        
     }
 
-    private checkDroplistNavigation(event: JQueryInputEventObject): boolean {
+    private checkDroplistNavigation(event: any): boolean {
         if (!this.dropList.isOpen()) { return false; }
         var key = event.which;
         switch (key) {
