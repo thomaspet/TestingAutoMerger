@@ -1,5 +1,6 @@
-import {ITypeSearch} from './interfaces';
+import {ITypeSearch, IJQItem} from './interfaces';
 import {DomEvents} from './domevents';
+declare var $;
 
 export enum DropListNavigation {
     UP = 38,
@@ -19,9 +20,9 @@ export class DropList {
     
     private details: ITypeSearch;
     private items: Array<any>;
-    private editorElement: JQuery;
-    private rootElement: JQuery;        
-    private itemsParent: JQuery;
+    private editorElement: IJQItem;
+    private rootElement: IJQItem;        
+    private itemsParent: IJQItem;
     private isVisible: boolean = false;
     private domEventHandlers: DomEvents = new DomEvents();
     private template: string = "<div class='droplist' tabindex='50' ></div>";
@@ -93,7 +94,7 @@ export class DropList {
         return false;
     }
 
-    private getRowElement(rowIndex: number): JQuery {
+    private getRowElement(rowIndex: number): IJQItem {
         if (this.itemsParent && rowIndex >= 0) {
             var listParent = this.itemsParent.children().eq(0);
             if (listParent && listParent.length) {
@@ -103,7 +104,7 @@ export class DropList {
         return undefined;
     }
 
-    private showSelectedStyleOnElement(el: JQuery, show = true) {
+    private showSelectedStyleOnElement(el: IJQItem, show = true) {
         if (el) {
             if (show) {
                 el.addClass('dropselect');
@@ -151,7 +152,7 @@ export class DropList {
         }
     }
 
-    private calcScroll(ref: JQuery): number {
+    private calcScroll(ref: IJQItem): number {
         if (ref.length === 0) { return 0; }
         var st = ref[0].scrollTop;
         if (st) { return st; }
@@ -232,7 +233,7 @@ export class DropList {
 
 }
 
-export function scrollToView(element: JQuery, parent: JQuery) {
+export function scrollToView(element: IJQItem, parent: IJQItem) {
     var li: any = element[0];
     // scroll UL to make li visible
     // li can be the li element or its id
