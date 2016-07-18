@@ -102,7 +102,7 @@ export class PayrollrunService extends BizHttp<PayrollRun> {
         return this.http
             .asGET()
             .usingBusinessDomain()
-            .withEndPoint(this.relativeURL + '/' + payrun + '?action=holiday-pay-list&year=' + year)
+            .withEndPoint(this.relativeURL + '/' + payrun + '?action=vacationpay-list&year=' + year)
             .send();
     }
     
