@@ -22,8 +22,7 @@ var options = {
 module.export = gulp.task('entities', function(done) {
 
     var callback = function(error, response, body) {
-        fs.writeFileSync('./src/app/unientities.ts', body);
-        done();
+        error ? done(error) : fs.writeFile('./src/app/unientities.ts', body, done);
     };
 
     request(options, callback);
