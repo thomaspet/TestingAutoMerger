@@ -27,8 +27,8 @@ export interface IJQItem {
     remove();
     attr(name: string, value?: any);
     focus();
-    outerHeight(value?: number): number;
-    outerWidth(value?: number): number;
+    outerHeight(value?: any): any;
+    outerWidth(value?: any): any;
     offset(ref?: any): any;
     select();
     parent(): IJQItem;
@@ -42,6 +42,10 @@ export interface IJQItem {
     parent(filter?: any): IJQItem;
     children(filter?: any): IJQItem;
     eq(filter: any): IJQItem;
+    addClass(c: any): IJQItem;
+    removeClass(c: any): IJQItem;
+    html(h: any): IJQItem;
+    closest(v: any): IJQItem;
 }
 
 export interface IEditEvents {

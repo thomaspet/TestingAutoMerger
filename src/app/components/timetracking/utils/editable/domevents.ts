@@ -1,8 +1,10 @@
+import {IJQItem} from './interfaces';
+
 class Event {
 
     private isActive: boolean = false;
 
-    constructor(public object: JQuery, public eventName: string, public handler: any) {
+    constructor(public object: IJQItem, public eventName: string, public handler: any) {
         this.isActive = true;
     }
 
@@ -22,12 +24,12 @@ export class DomEvents {
 
     private eventList: Array<Event> = [];
 
-    public Create(object: JQuery, eventName: string, handler: any) {
+    public Create(object: IJQItem, eventName: string, handler: any) {
         object.on(eventName, handler);
         this.eventList.push(new Event(object, eventName, handler));    
     }
 
-    public AddForCleanup(object: JQuery, eventName: string, handler: any) {
+    public AddForCleanup(object: IJQItem, eventName: string, handler: any) {
         this.eventList.push(new Event(object, eventName, handler));
     }
 

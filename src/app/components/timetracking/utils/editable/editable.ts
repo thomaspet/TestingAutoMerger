@@ -3,7 +3,7 @@ import {IJQItem, IPos, IEditor, KEYS, IChangeEvent, ICol, ColumnType, ITypeSearc
 import {DropList} from './droplist';
 import {Editor} from './editor';
 import {debounce} from '../utils';
-declare var jQuery; /*: JQueryStatic;*/
+declare var $;
 
 export interface ICopyEventDetails { event: any; columnDefinition: ICol; position: IPos; copyAbove?: boolean; valueToSet?: any; };
 
@@ -95,7 +95,7 @@ export class Editable implements AfterViewInit, OnDestroy {
     }
 
     public editRow(rowIndex: number, colIndex?: number) {
-        var tb: JQuery = this.jqRoot;
+        var tb: IJQItem = this.jqRoot;
         var query = 'tr:nth-child(' + (rowIndex + 1) + ') ' + (colIndex === undefined ? 'td:first' : 'td:nth(' + (colIndex) + ')') ;
         var cell = tb.find(query);
         if (cell) {
@@ -183,7 +183,7 @@ export class Editable implements AfterViewInit, OnDestroy {
         }        
     }
 
-    private whenNoDroplist(target: JQuery, fx: () => void, source = 'click') {
+    private whenNoDroplist(target: IJQItem, fx: () => void, source = 'click') {
         if (!this.dropList.isOpen()) {
             return fx();
         }
