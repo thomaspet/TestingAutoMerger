@@ -1,8 +1,7 @@
-import {Component, AfterViewInit} from "@angular/core";
+import {Component} from '@angular/core';
 import {TimeSheet, TimesheetService} from '../../../../services/timetracking/timesheetservice';
 import {WorkerService, ItemInterval} from '../../../../services/timetracking/workerservice';
 import {MinutesToHoursPipe} from '../../utils/pipes';
-import {ICol, Column, ColumnType} from '../../utils/editable/interfaces';
 import {IFilter} from '../timeentry';
 import {IsoTimePipe} from '../../utils/pipes';
 import {safeInt} from '../../utils/utils';
@@ -17,8 +16,8 @@ export class RegtimeTools {
     private config: {
         title: string, 
         items: Array<any>,
-        sums: { minutes:number }
-    }
+        sums: { minutes: number }
+    };
     private filters: Array<IFilter> = [
         { name: 'today', label: 'I dag', interval: ItemInterval.today },
         { name: 'week', label: 'Denne uke', interval: ItemInterval.thisWeek},
@@ -28,11 +27,11 @@ export class RegtimeTools {
         { name: 'all', label: 'Alt', interval: ItemInterval.all}
     ];
     private currentFilter: IFilter;
-    private busy = true;
+    private busy: boolean = true;
 
-    constructor(private workerService:WorkerService, private timesheetService: TimesheetService) {  }
+    constructor(private workerService: WorkerService, private timesheetService: TimesheetService) {  }
 
-    public activate(ts:TimeSheet, filter?: IFilter) {
+    public activate(ts: TimeSheet, filter?: IFilter) {
         if (!this.timesheet) { 
             this.currentFilter = this.filters[2]; 
         }
@@ -40,14 +39,14 @@ export class RegtimeTools {
         this.onFilterClick( this.currentFilter );
     } 
 
-    onFilterClick(filter: IFilter) {
-        var f:IFilter;
-        this.filters.forEach((value:any) => {
+    private onFilterClick(filter: IFilter) {
+        var f: IFilter;
+        this.filters.forEach((value: any) => {
             if (value.name === filter.name) {
                 f = value;
                 f.isSelected = true;
             } else {
-                value.isSelected = false
+                value.isSelected = false;
             }
         });        
         this.currentFilter = f;
@@ -55,43 +54,43 @@ export class RegtimeTools {
     }
     
 
-    showData(items:Array<any>) {
+    private showData(items: Array<any>) {
         this.config = {
             title: items[0].Name,
             items: items,
             sums: this.sumItems(items)
-        }
+        };
     }
 
-    private sumItems(items:Array<any>) {
+    private sumItems(items: Array<any>) {
         var sum = 0;
         items.forEach(element => {
             sum += safeInt(element.summinutes || 0);    
         });
-        return { minutes: sum }
+        return { minutes: sum };
     }
 
     private queryTotals() {
         this.busy = true;
-        var query = "model=workitem";
+        var query = 'model=workitem';
         var filter = this.workerService.getIntervalFilter(this.currentFilter.interval);
         query += this.createArg('select', 'workerid,businessrelation.name,workrelation.description,date,min(starttime),max(endtime),sum(minutes),sum(lunchinminutes)');
         query += this.createArg('filter', 'workrelationid eq ' + this.timesheet.currentRelation.ID + ' and deleted eq \'false\'' + (filter ? ' and ( ' +  filter + ' )' : ''));
         query += this.createArg('join', 'workitem.worktypeid eq worktype.id and workitem.workrelationid eq workrelation.id and workrelation.workerid eq worker.id and worker.businessrelationid eq businessrelation.id');
         query += this.createArg('orderby', 'date');
-        this.workerService.getStatistics(query).subscribe((items:Array<any>)=>{
+        this.workerService.getStatistics(query).subscribe((items: Array<any>) => {
             this.busy = false;
-            if (items && items.length>0) {
+            if (items && items.length > 0) {
                 if (items[0].Success) {
                     this.showData(items[0].Data);
                 } else {
-                    this.showData([{'label':items[0].Message}]);
+                    this.showData([{'label': items[0].Message}]);
                 }
             } 
         });
     }
 
-    private createArg(name:string, value:string):string {
+    private createArg(name: string, value: string): string {
         return '&' + name + '=' + value;
     }
 }   

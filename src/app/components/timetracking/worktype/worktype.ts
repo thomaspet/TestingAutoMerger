@@ -1,15 +1,14 @@
-import {Component} from "@angular/core";
+import {Component} from '@angular/core';
 import {View} from '../../../models/view/view';
-import {UniForm, UniFieldLayout} from '../../../../framework/uniform';
 import {createFormField, FieldSize, ControlTypes} from '../utils/utils';
 import {IViewConfig} from '../genericview/list';
 import {WorkType} from '../../../unientities';
 import {GenericDetailview} from '../genericview/detail';
-import {WorkTypeSystemTypePipe, SystemTypes} from '../utils/pipes';
+import {SYSTEMTYPES} from '../utils/pipes';
 
 export var view = new View('worktype', 'Timeart', 'WorktypeDetailview', true);
 
-var DefaultSystemType = 1; // 1 - Hours (default) 
+var defaultSystemType = 1; // 1 - Hours (default) 
 
 @Component({
     selector: view.name,
@@ -34,17 +33,17 @@ export class WorktypeDetailview {
                 route: 'worktypes',
                 factory: () => { 
                         var item = new WorkType();
-                        item.SystemType = DefaultSystemType;
+                        item.SystemType = defaultSystemType;
                         return item;
                     },
                 check: (item) => { 
-                    item.SystemType = item.SystemType || DefaultSystemType; 
+                    item.SystemType = item.SystemType || defaultSystemType; 
                 }
             },
             formFields: [
                 createFormField('Name', 'Navn',  ControlTypes.TextInput, FieldSize.Double),
                 createFormField('SystemType', 'Type', 3, FieldSize.Quarter, false, null, null, null, {
-                    source: SystemTypes, valueProperty: 'id', displayProperty: 'label'
+                    source: SYSTEMTYPES, valueProperty: 'id', displayProperty: 'label'
                 }),
                 createFormField('Description', 'Kommentar', ControlTypes.TextareaInput, FieldSize.Full, true, 1, 'Kommentar')
             ],

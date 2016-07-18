@@ -1,6 +1,6 @@
-import {Component} from "@angular/core";
+import {Component} from '@angular/core';
 import {View} from '../../../models/view/view';
-import {UniTable, UniTableColumn, UniTableColumnType, UniTableConfig} from 'unitable-ng2/main';
+import {UniTableColumn, UniTableColumnType, UniTableConfig} from 'unitable-ng2/main';
 import {GenericListView, IViewConfig} from '../genericview/list';
 
 export var view = new View('workers', 'Personer', 'WorkerListview', false, 'worker');
@@ -11,7 +11,7 @@ export var view = new View('workers', 'Personer', 'WorkerListview', false, 'work
     directives: [GenericListView]    
 })
 export class WorkerListview {    
-    viewconfig: IViewConfig;
+    public viewconfig: IViewConfig;
 
     constructor() {
         this.viewconfig = this.createConfig();
@@ -30,12 +30,12 @@ export class WorkerListview {
         };
     }
 
-    private createTableConfig():UniTableConfig {
+    private createTableConfig(): UniTableConfig {
         var cols = [
-        	new UniTableColumn('ID', 'Nr.', UniTableColumnType.Number).setWidth('10%').setFilterOperator('startswith'),
+            new UniTableColumn('ID', 'Nr.', UniTableColumnType.Number).setWidth('10%').setFilterOperator('startswith'),
             new UniTableColumn('Info.Name', 'Navn').setWidth('40%')
         ];
-        return new UniTableConfig(false,true).setSearchable(true).setColumns(cols)
+        return new UniTableConfig(false, true).setSearchable(true).setColumns(cols);
     }
 
 

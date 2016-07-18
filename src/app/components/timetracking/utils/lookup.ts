@@ -1,36 +1,36 @@
 import {UniHttp} from '../../../../framework/core/http/http';
 import {Injectable} from '@angular/core';
-import {Observable} from "rxjs/Rx";
+import {Observable} from 'rxjs/Rx';
 import {IChangeEvent, ColumnType, ITypeSearch} from './editable/editable';
 import {safeInt} from './utils';
 
 @Injectable()
 export class Lookupservice {
 
-    constructor(private http:UniHttp) {}
+    constructor(private http: UniHttp) {}
 
-    public getSingle<T>(route:string, id:any, expand = ""):Observable<T> {
-        return this.GET(route + "/" + id);
+    public getSingle<T>(route: string, id: any, expand = ''): Observable<T> {
+        return this.GET(route + '/' + id);
     }
 
-    public query<T>(route:string, searchString:string, matchCols:string, expand?:string, select?:string, filter?:string):Observable<T> {
+    public query<T>(route: string, searchString: string, matchCols: string, expand?: string, select?: string, filter?: string): Observable<T> {
         var cols = matchCols.split(',');
-        var params = "";
-        cols.forEach((value:string, index:number)=>{
-            params += (index>0 ? ' or ' : '') + 'startswith(' + value + ',\'' + searchString + '\')';
+        var params = '';
+        cols.forEach((value: string, index: number) => {
+            params += (index > 0 ? ' or ' : '') + 'startswith(' + value + ',\'' + searchString + '\')';
         });
-        params = "?filter=" + ( filter ? filter + " and ( " + params + " )" : params );  
-        if (expand) params += '&expand=' + expand;
-        if (select) params += '&select=' + select;
+        params = '?filter=' + ( filter ? filter + ' and ( ' + params + ' )' : params );  
+        if (expand) { params += '&expand=' + expand; }
+        if (select) { params += '&select=' + select; }
         return this.GET(route + params);
     }
 
-    private userInput(value:string): { iKey:number, key:any, label:string, isBlank:boolean } {
+    private userInput(value: string): { iKey: number, key: any, label: string, isBlank: boolean } {
         var result = {
-            iKey: 0, key:undefined, label: '', isBlank: true
+            iKey: 0, key: undefined, label: '', isBlank: true
         };
         // valid text input ?
-        if (value && typeof value === 'string' && value.length>0) {
+        if (value && typeof value === 'string' && value.length > 0) {
             let parts = value.split(' ');
             if (parts.length === 1) {
                 result.iKey = safeInt(value);
@@ -47,7 +47,7 @@ export class Lookupservice {
         return result;
     }
 
-    public checkAsyncLookup(event:IChangeEvent, success: (e:IChangeEvent)=> void, failure?: (e:IChangeEvent) => void ):Promise<any> | void {
+    public checkAsyncLookup(event: IChangeEvent, success: (e: IChangeEvent) => void, failure?: (e: IChangeEvent) => void ): Promise<any> | void {
 
         // Handle lookups if user types, or user selects from a combo.
         // This is because there sometimes are visual referencekeys (ordernumber etc.), and sometimes there are actual foreignkeys
@@ -72,18 +72,20 @@ export class Lookupservice {
                 return;
             }
 
+            var p: Promise<any>;
+
             // Did user just type a "visual" key value himself (customernumber, ordernumber etc.) !?
             if (event.userTypedValue && lookupDef.visualKey) {                
-                var p = new Promise((resolve, reject)=> {
-                    var filter= `?filter=${lookupDef.visualKey} eq ${key}`;
-                    this.getSingle<any>(lookupDef.route, filter).subscribe((rows:any)=> {
+                p = new Promise((resolve, reject) => {
+                    var filter = `?filter=${lookupDef.visualKey} eq ${key}`;
+                    this.getSingle<any>(lookupDef.route, filter).subscribe((rows: any) => {
                         var item = (rows && rows.length > 0) ? rows[0] : {};
                         event.value = item[lookupDef.colToSave || 'ID'];
                         event.lookupValue = item;
                         success(event);
                         resolve(item);
-                    }, (err)=>{
-                        if (failure) failure(event);
+                    }, (err) => {
+                        if (failure) { failure(event); }
                         reject(err.statusText);
                     });
                 });
@@ -92,14 +94,14 @@ export class Lookupservice {
             }
 
             // Normal lookup value (by foreignKey) ?
-            var p = new Promise((resolve, reject)=>{                
-                this.getSingle<any>(lookupDef.route, key).subscribe( (item:any) => {
+            p = new Promise((resolve, reject) => {                
+                this.getSingle<any>(lookupDef.route, key).subscribe( (item: any) => {
                     event.lookupValue = item;
                     event.value = key;
                     success(event);
                     resolve(item);
-                }, (err)=>{
-                    if (failure) failure(event);                    
+                }, (err) => {
+                    if (failure) { failure(event); }                    
                     reject(err.statusText);
                 });
             });
@@ -115,9 +117,9 @@ export class Lookupservice {
             details.ignore = false;
             details.itemPropertyToSet = lookup.colToSave || 'ID';
             // Build combo-template
-            var searchCols = lookup.select || 'ID,Name'
+            var searchCols = lookup.select || 'ID,Name';
             var cols = searchCols.split(',');
-            details.renderFunc = (item:any)=> { var ret = ''; for (var i=0;i<cols.length;i++) ret += (i>0 ? ' - ' : '') + item[cols[i]]; return ret; }
+            details.renderFunc = (item: any) => { var ret = ''; for (var i = 0; i < cols.length; i++) { ret += (i > 0 ? ' - ' : '') + item[cols[i]]; } return ret; };
             details.promise = this.query(lookup.route, details.value, searchCols, undefined, searchCols, lookup.filter).toPromise();
         }
     }    
@@ -125,7 +127,7 @@ export class Lookupservice {
 
    // http helpers (less verbose?)
     
-    private GET(route: string, params?:any ):Observable<any> {
+    private GET(route: string, params?: any ): Observable<any> {
         return this.http.asGET().usingBusinessDomain()
         .withEndPoint(route).send(params);
     }

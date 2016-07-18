@@ -1,8 +1,8 @@
-import {Component} from "@angular/core";
-import {RouteConfig, ROUTER_DIRECTIVES} from "@angular/router-deprecated";
-import {UniRouterOutlet} from "../../uniRouterOutlet";
+import {Component} from '@angular/core';
+import {RouteConfig, ROUTER_DIRECTIVES} from '@angular/router-deprecated';
+import {UniRouterOutlet} from '../../uniRouterOutlet';
 
-import {View} from "../../models/view/view";
+import {View} from '../../models/view/view';
 import {view as workerView} from './worker/workers';
 import {view as workerDetailView} from './worker/worker';
 
@@ -19,7 +19,7 @@ import {view as projectView} from './project/projects';
 import {view as projectDetailView} from './project/project';
 
 // Main view (meta)
-export var view = new View("timetracking", "Timer", "UniTimetracking");
+export var view = new View('timetracking', 'Timer', 'UniTimetracking');
 
 // Add subviews (meta)
 view.addSubView(timeentryView);
@@ -41,6 +41,5 @@ view.addSubView(projectDetailView);
 })
 @RouteConfig(view.getSubRoutes())
 export class UniTimetracking {
-    public view = view;
     constructor() {}
 }

@@ -1,6 +1,5 @@
-import {Component} from "@angular/core";
+import {Component} from '@angular/core';
 import {View} from '../../../models/view/view';
-import {UniForm, UniFieldLayout} from '../../../../framework/uniform';
 import {createFormField, FieldSize, ControlTypes} from '../utils/utils';
 import {IViewConfig} from '../genericview/list';
 import {Project} from '../../../unientities';
@@ -14,7 +13,7 @@ export var view = new View('project', 'Prosjekt', 'ProjectDetailview', true);
     directives: [GenericDetailview]
 })
 export class ProjectDetailview {
-    viewconfig: IViewConfig;
+    public viewconfig: IViewConfig;
 
     constructor() {
         this.viewconfig = {
@@ -37,6 +36,6 @@ export class ProjectDetailview {
                 createFormField('ProjectLeadName', 'Prosjektleder',  ControlTypes.TextInput, FieldSize.Quarter),
                 createFormField('Description', 'Kommentar', ControlTypes.TextareaInput, FieldSize.Full, true, 1, 'Kommentar')
             ]
-        }
+        };
     }
 }

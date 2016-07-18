@@ -22,11 +22,11 @@ export class DropList {
     private editorElement: JQuery;
     private rootElement: JQuery;        
     private itemsParent: JQuery;
-    private isVisible = false;
-    private domEventHandlers = new DomEvents();
-    private template = "<div class='droplist' tabindex='50' ></div>";
-    private rowIndex = -1;
-    private parentColIndex = -1;
+    private isVisible: boolean = false;
+    private domEventHandlers: DomEvents = new DomEvents();
+    private template: string = "<div class='droplist' tabindex='50' ></div>";
+    private rowIndex: number = -1;
+    private parentColIndex: number = -1;
 
     public onClick: (rowIndex: number, item: any, details: ITypeSearch) => void;
 
@@ -46,10 +46,10 @@ export class DropList {
     public navigate(direction: DropListNavigation): boolean {
         switch (direction) {
             case DropListNavigation.UP:
-                if (this.rowIndex <= 0) return true; // block up-key when on top
+                if (this.rowIndex <= 0) { return true; } // block up-key when on top
                 return this.showSelectedRow(this.rowIndex - 1);
             case DropListNavigation.DOWN:
-                if (this.rowIndex >= this.items.length - 1) return true; //block down-key when on bottom
+                if (this.rowIndex >= this.items.length - 1) { return true; } // block down-key when on bottom
                 return this.showSelectedRow(this.rowIndex + 1);
         }
         return false;
@@ -71,11 +71,11 @@ export class DropList {
         return this.isVisible;
     }
 
-    public getRows():Array<any> {
+    public getRows(): Array<any> {
         return this.items;
     }
 
-    public getDetails():ITypeSearch {
+    public getDetails(): ITypeSearch {
         return this.details;
     }
 
@@ -94,7 +94,7 @@ export class DropList {
     }
 
     private getRowElement(rowIndex: number): JQuery {
-        if (this.itemsParent && rowIndex>=0) {
+        if (this.itemsParent && rowIndex >= 0) {
             var listParent = this.itemsParent.children().eq(0);
             if (listParent && listParent.length) {
                 return listParent.children().eq(rowIndex);
@@ -106,10 +106,10 @@ export class DropList {
     private showSelectedStyleOnElement(el: JQuery, show = true) {
         if (el) {
             if (show) {
-                el.addClass("dropselect");
+                el.addClass('dropselect');
                 scrollToView(el, this.itemsParent);
             } else {
-                el.removeClass("dropselect");
+                el.removeClass('dropselect');
             }
         }
     }
@@ -125,7 +125,9 @@ export class DropList {
 
     public clear() {
         this.details = undefined;
-        if (this.items) this.items.length = 0;
+        if (this.items) { 
+            this.items.length = 0;
+        }
     }
 
     public moveNextToEditor() {
@@ -143,16 +145,16 @@ export class DropList {
         // Width ?
         var cellWidth = this.editorElement.outerWidth();
         var w = this.rootElement.outerWidth();
-        if (cellWidth < 200) cellWidth = 200;
+        if (cellWidth < 200) { cellWidth = 200; }
         if (w < cellWidth) {
             this.rootElement.outerWidth(cellWidth);
         }
     }
 
     private calcScroll(ref: JQuery): number {
-        if (ref.length === 0) return 0;
+        if (ref.length === 0) { return 0; }
         var st = ref[0].scrollTop;
-        if (st) return st;
+        if (st) { return st; }
         return this.calcScroll(ref.parent());
     }
 
@@ -169,7 +171,7 @@ export class DropList {
             if (this.ensureSelfElement()) {
                 var items = data || details.rows;
                 var txt = this.buildContent(items, details.renderFunc);
-                this.itemsParent.html("<ul>" + txt + "</ul>");
+                this.itemsParent.html('<ul>' + txt + '</ul>');
                 if (!this.isVisible) {
                     this.rootElement.show();
                     this.isVisible = true;
@@ -184,15 +186,15 @@ export class DropList {
     }
 
     private buildContent(data: Array<any>, renderFunc?: (item: any) => string): string {
-        var txt = "", value = "";
+        var txt = '';
         for (var i = 0; i < data.length; i++) {
             data[i]._label = this.renderRow(data[i], renderFunc);
-            txt += "<li>" + data[i]._label + "</li>";
+            txt += '<li>' + data[i]._label + '</li>';
         }
         return txt;
     }
 
-    private renderRow(item:any, renderFunc?: (item: any) => string): string {
+    private renderRow(item: any, renderFunc?: (item: any) => string): string {
         if (renderFunc) {
             return renderFunc(item);
         }
@@ -217,7 +219,7 @@ export class DropList {
         this.editorElement.parent().parent().append(this.rootElement);
         this.itemsParent = this.rootElement; 
 
-        this.domEventHandlers.Create(this.itemsParent, "click", (event) => {
+        this.domEventHandlers.Create(this.itemsParent, 'click', (event) => {
             if (this.onClick) {
                 var row = $(event.target).index();
                 this.raiseClickEvent(row);
@@ -231,10 +233,10 @@ export class DropList {
 }
 
 export function scrollToView(element: JQuery, parent: JQuery) {
-    var li:any = element[0];
+    var li: any = element[0];
     // scroll UL to make li visible
     // li can be the li element or its id
-    if (typeof li !== "object") {
+    if (typeof li !== 'object') {
         li = document.getElementById(li);
     }
     var ul = parent[0]; // li.parentNode;
