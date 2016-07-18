@@ -2,6 +2,7 @@ import {Directive, AfterViewInit, Input, ElementRef, OnDestroy, Output, EventEmi
 import {IJQItem, IPos, IEditor, Keys, IChangeEvent, ICol, ColumnType, ITypeSearch } from './interfaces';
 import {DropList} from './droplist';
 import {Editor} from './editor';
+import {debounce} from '../utils';
 declare var jQuery; /*: JQueryStatic;*/
 
 export interface ICopyEventDetails { event:any; columnDefinition: ICol; position: IPos; copyAbove?: boolean; valueToSet?:any }
@@ -36,7 +37,9 @@ export class Editable implements AfterViewInit, OnDestroy {
     }
     private current = {
         active: <IJQItem>undefined,
-        editor: <IEditor>undefined
+        editor: <IEditor>undefined,
+        allowFastNavigation: true,
+        navDebouncer: <()=>void>undefined
     }
     private dropList = new DropList();
     
@@ -108,6 +111,7 @@ export class Editable implements AfterViewInit, OnDestroy {
 
     private startEdit(event) {
         var el = this.current.active;
+
         if (event && event.target) {
             el = jQuery(event.target);
             if (!el.is("td")) {
@@ -117,7 +121,8 @@ export class Editable implements AfterViewInit, OnDestroy {
             this.dropList.hide();
         }
 
-        // detect type of cell
+        this.setupTimeoutForFastNavigation();
+
         var pos = this.getCellPosition(el);
         var col = this.getLayoutColumn(pos.col);
         if (col && col.columnType === ColumnType.Action) {
@@ -131,6 +136,14 @@ export class Editable implements AfterViewInit, OnDestroy {
         this.createEditorIfMissing();
         var showButton = col ? !!col.lookup : false;
         this.current.editor.startEdit(txt, el, this.getCellPosition(el), showButton);
+    }
+
+    private setupTimeoutForFastNavigation(ms = 250) {
+        this.current.allowFastNavigation = true;
+        if (!this.current.navDebouncer) {
+            this.current.navDebouncer = debounce(() => { this.current.allowFastNavigation = false; }, ms, false)            
+        }
+        this.current.navDebouncer.call(this);        
     }
 
     private loadTextIntoEditor() {        
@@ -297,7 +310,7 @@ export class Editable implements AfterViewInit, OnDestroy {
         // Enter plus no changes?
         this.CheckCopyCell(event, candidate);
 
-        if (candidate.length > 0) {
+        if (candidate && candidate.length && candidate.length > 0) {
             if (!this.finalizeEdit()) { 
 				return; 
 			}
@@ -379,11 +392,21 @@ export class Editable implements AfterViewInit, OnDestroy {
 
         switch (keyCode) {
             case Keys.ARROW_RIGHT:
+                if (!this.current.allowFastNavigation) {
+                    let info = caretPosition(event.target);
+                    if (!info.isAtEnd) return;
+                }
                 target = element.next('td');
                 break;
+
             case Keys.ARROW_LEFT:
+                if (!this.current.allowFastNavigation) {
+                    let info = caretPosition(event.target);
+                    if (!info.isAtStart) return;
+                }
                 target = element.prev('td');
                 break;
+
             case Keys.ARROW_UP:
                 target = element.parent().prev().children().eq(element.index());
                 break;
@@ -401,6 +424,10 @@ export class Editable implements AfterViewInit, OnDestroy {
                 }
                 break;
             case Keys.HOME:
+                if (!this.current.allowFastNavigation) {
+                    let info = caretPosition(event.target);
+                    if (!info.isAtStart) return;
+                }            
                 if (event.ctrlKey) {
                     target = element.parent().parent().children().first().children().eq(0);
                 } else {
@@ -410,6 +437,10 @@ export class Editable implements AfterViewInit, OnDestroy {
                 retryWithKey = Keys.ARROW_RIGHT;
                 break;
             case Keys.END:
+                if (!this.current.allowFastNavigation) {
+                    let info = caretPosition(event.target);
+                    if (!info.isAtEnd) return;
+                }            
                 if (event.ctrlKey) {
                     target = element.parent().parent().children().last().children().last();
                 } else {
@@ -476,4 +507,33 @@ export class Editable implements AfterViewInit, OnDestroy {
         return false;
     }    
     
+}
+
+// local module helper functions
+
+function caretPosition(input: any): { index: number; isAtStart: boolean; isAtEnd: boolean;} {
+    var hasSelection = false;
+    var caretDetails = {
+        index: -1,
+        isAtStart: false,
+        isAtEnd: false
+    }
+    var doc: any = document;
+    if (doc.selection) {
+        // IE
+        hasSelection = true;
+        input.focus();
+    }
+    if (input.selectionStart || input.selectionEnd) {
+        if (input.selectionEnd !== input.selectionStart) {
+            hasSelection = true;
+        }
+    }
+    var doc: any = document;
+    caretDetails.index = 'selectionStart' in input ? input.selectionStart : '' || Math.abs(doc.selection.createRange().moveStart('character', -input.value.length));
+    if (!hasSelection) {
+        caretDetails.isAtStart = caretDetails.index <= 0;
+        caretDetails.isAtEnd = caretDetails.index === input.value.length;
+    }
+    return caretDetails;
 }
