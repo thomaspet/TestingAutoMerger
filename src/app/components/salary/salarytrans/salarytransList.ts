@@ -249,9 +249,9 @@ export class SalaryTransactionEmployeeList implements OnChanges, AfterViewInit {
 
     private buildFilter() {
         if (this.payrollRun.ID === undefined) {
-            return 'EmployeeNumber eq ' + this.employeeID;
+            return 'EmployeeID eq ' + this.employeeID;
         } else {
-            return 'EmployeeNumber eq ' + this.employeeID
+            return 'EmployeeID eq ' + this.employeeID
                 + ' and PayrollRunID eq ' + this.payrollRun.ID;
         }
     }
@@ -476,7 +476,6 @@ export class SalaryTransactionEmployeeList implements OnChanges, AfterViewInit {
                 }
             } else {
                 row.EmployeeID = this.employeeID;
-                row.EmployeeNumber = this.employeeID;
                 row.PayrollRunID = this.payrollRun.ID;
                 row['_createguid'] = this.salarytransService.getNewGuid();
                 this.salarytransChanged.push(row);

@@ -1,3 +1,15 @@
+// Icon functions for returning SVG data-URIs for use as background-images.
+// To add new icons (after design team check-off):
+//   1. Optimize the SVG. (Strip the SVG for unnessecary tags, etc)
+//   2. Gecko hates self-closing <path>-tags, so explicitly close those.
+//   3. Trident and EdgeHTML needs the SVG URL-encoded. (With %20 for spaces)
+//   4. Trident and EdgeHTML also aren't huge fans of just declaring "utf8".
+//      Either omit the charset-declaration (which is totally ok!) or use the
+//      spec charset=utf-8 (with hyphen!).
+//   5. Replace the fill color with a string-interpolated outputRGB()-fn to
+//      get an URL-encoded version of the $fill-parameter
+//   6. Profit 💸
+
 @function outputRGB($color)
   $red: red($color)
   $green: green($color)
