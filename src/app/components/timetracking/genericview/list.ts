@@ -1,9 +1,9 @@
-import {Component, Input} from "@angular/core";
+import {Component, Input} from '@angular/core';
 import {TabService} from '../../layout/navbar/tabstrip/tabService';
 import {View} from '../../../models/view/view';
-import {UniTable, UniTableColumn, UniTableColumnType, UniTableConfig, IContextMenuItem} from 'unitable-ng2/main';
+import {UniTable, UniTableConfig} from 'unitable-ng2/main';
 import {Router} from '@angular/router-deprecated';
-import {ToastService, ToastType} from '../../../../framework/uniToast/toastService';
+import {ToastService} from '../../../../framework/uniToast/toastService';
 import {WorkerService} from '../../../services/timetracking/workerservice';
 
 export interface IViewConfig {
@@ -11,20 +11,20 @@ export interface IViewConfig {
         single: string;
         plural: string;
         createNew: string;
-    }
-    moduleID: number,
+    };
+    moduleID: number;
     detail: {
         route?: string;
         routeBackToList?: string;
         nameProperty?: string;
-    }
+    };
     tab: View;
     data: {
         route: string;
         model?: string;
         expand?: string;
         factory?: () => {}
-        check?: (item:any) => void
+        check?: (item: any) => void
     };
     tableConfig?: UniTableConfig;
     formFields?: Array<any>;
@@ -37,16 +37,15 @@ export interface IViewConfig {
     providers: [WorkerService]
 })
 export class GenericListView {    
-    @Input() viewconfig:IViewConfig;
-    label: string;
+    @Input() public viewconfig: IViewConfig;
+    public label: string;
 
-    private lookupFunction: (any) => {};
+    private lookupFunction: (value: any) => {};
 
-    constructor(private tabService: TabService, private router:Router, 
-        private toastService:ToastService, private workerService: WorkerService) {
+    constructor(private tabService: TabService, private router: Router, private toastService: ToastService, private workerService: WorkerService) {
     }
 
-    ngOnInit() {
+    public ngOnInit() {
         if (this.viewconfig) {
             this.label = this.viewconfig.tab.label;
             this.lookupFunction = (urlParams) => {

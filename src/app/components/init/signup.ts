@@ -28,6 +28,14 @@ export class Signup {
         });
     }
     
+    private usernameValidator(control) {
+        const valid = /^[a-z0-9]+$/i.test(control.value);
+        console.log('valid: ' + valid);
+        return valid ? null : { 
+            'validUsername': valid
+        };
+    }
+
     private checkEmail() {
         this.working = true;
         
@@ -38,6 +46,11 @@ export class Signup {
             Validators.required,
             Validators.minLength(8),
             Validators.maxLength(16)
+        ]);
+
+        let usernameValidators = Validators.compose([
+            Validators.required,
+            this.usernameValidator
         ]);
      
         this._http.asGET()
@@ -58,7 +71,7 @@ export class Signup {
                 (error) => {
                     this.detailsForm = new ControlGroup({
                         Name: new Control('', Validators.required),
-                        UserName: new Control('', Validators.required),
+                        UserName: new Control('', usernameValidators),
                         CompanyName: new Control('', Validators.required),
                         Password: new Control('', passwordValidators),
                         ConfirmPassword: new Control('', passwordValidators),
