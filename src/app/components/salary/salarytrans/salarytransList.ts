@@ -356,6 +356,9 @@ export class SalaryTransactionEmployeeList implements OnChanges, AfterViewInit {
                 }
 
                 return row;
+            })
+            .setIsRowReadOnly((rowModel: SalaryTransaction) => {                
+                return rowModel.IsRecurringPost;
             });
     }
 
