@@ -75,7 +75,7 @@ export class RegtimeTools {
         var query = 'model=workitem';
         var filter = this.workerService.getIntervalFilter(this.currentFilter.interval);
         query += this.createArg('select', 'workerid,businessrelation.name,workrelation.description,date,min(starttime),max(endtime),sum(minutes),sum(lunchinminutes)');
-        query += this.createArg('filter', 'workrelationid eq ' + this.timesheet.currentRelation.ID + ' and deleted eq \'false\'' + (filter ? ' and ( ' +  filter + ' )' : ''));
+        query += this.createArg('filter', 'systemtype lt 10 and workrelationid eq ' + this.timesheet.currentRelation.ID + ' and deleted eq \'false\'' + (filter ? ' and ( ' +  filter + ' )' : ''));
         query += this.createArg('join', 'workitem.worktypeid eq worktype.id and workitem.workrelationid eq workrelation.id and workrelation.workerid eq worker.id and worker.businessrelationid eq businessrelation.id');
         query += this.createArg('orderby', 'date');
         this.workerService.getStatistics(query).subscribe((items: Array<any>) => {
