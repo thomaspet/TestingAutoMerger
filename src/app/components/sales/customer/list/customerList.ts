@@ -1,6 +1,6 @@
 import {Component, ViewChild} from '@angular/core';
 import {UniTable, UniTableColumn, UniTableColumnType, UniTableConfig} from 'unitable-ng2/main';
-import {Router} from '@angular/router-deprecated';
+import {Router} from '@angular/router';
 import {UniHttp} from '../../../../../framework/core/http/http';
 import {URLSearchParams} from '@angular/http';
 import {CustomerService} from "../../../../services/services";

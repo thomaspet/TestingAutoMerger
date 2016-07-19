@@ -1,5 +1,5 @@
 import {Component, ViewChild} from '@angular/core';
-import {Router} from '@angular/router-deprecated';
+import {Router} from '@angular/router';
 import {UniForm} from '../../../../../framework/uniform';
 import {Observable} from 'rxjs/Observable';
 import 'rxjs/add/operator/merge';
@@ -59,7 +59,7 @@ export class PersonalDetails {
                 public addressService: AddressService,
                 public altinnService: AltinnService,
                 public subEntityService: SubEntityService) {
-        this.employeeID = +rootRouteParams.params.get('id');
+        this.employeeID = +rootRouteParams.params['id'];
         
         if (this.employeeService.subEntities) {
             this.getData();

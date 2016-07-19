@@ -1,11 +1,5 @@
-import {Component, provide, OnInit} from '@angular/core';
-import {
-    RouteConfig,
-    RouteDefinition,
-    RouteParams,
-    ROUTER_DIRECTIVES,
-    AsyncRoute,
-    Router} from '@angular/router-deprecated';
+import {Component, OnInit} from '@angular/core';
+import {ROUTER_DIRECTIVES, Router, ActivatedRoute} from '@angular/router';
 import {UniTabs} from '../../layout/uniTabs/uniTabs';
 import {WidgetPoster} from '../../../../framework/widgetPoster/widgetPoster';
 import {EmployeeCategoryButtons} from './employeeCategoryButtons';
@@ -13,51 +7,22 @@ import {EmployeeService} from '../../../services/services';
 import {Employee, BusinessRelation} from '../../../unientities';
 import {EmployeeDS} from '../../../data/employee';
 import {STYRKCodesDS} from '../../../data/styrkCodes';
-import {ComponentProxy} from '../../../../framework/core/componentProxy';
 import {RootRouteParamsService} from '../../../services/rootRouteParams';
 import {TabService} from '../../layout/navbar/tabstrip/tabService';
 import {ContextMenu} from '../../common/contextMenu/contextMenu';
 import {IContextMenuItem} from 'unitable-ng2/main';
 
-import 'rxjs/add/operator/map';
-
-const CHILD_ROUTES = [
-    new AsyncRoute({
-        useAsDefault: true,
-        path: '/personal-details',
-        name: 'Detaljer',
-        loader: () => ComponentProxy.LoadComponentAsync('PersonalDetails', 'app/components/salary/employee/personalDetails/personalDetails')
-    }),
-    new AsyncRoute({
-        path: '/employmentList',
-        name: 'Arbeidsforhold',
-        loader: () => ComponentProxy.LoadComponentAsync('EmploymentList', 'app/components/salary/employee/employments/employmentList')
-    }),
-    new AsyncRoute({
-        path: '/recurringpost',
-        name: 'Faste poster',
-        loader: () => ComponentProxy.LoadComponentAsync('RecurringPost', 'app/components/salary/employee/recurringPost/recurringPost')
-    }),
-    new AsyncRoute({
-        path: '/employeeleave',
-        name: 'Permisjon',
-        loader: () => ComponentProxy.LoadComponentAsync('EmployeeLeave', 'app/components/salary/employee/employeeLeave/employeeLeave')
-    })
-];
-
 @Component({
     selector: 'uni-employee-details',
     templateUrl: 'app/components/salary/employee/employeeDetails.html',
     providers: [
-            provide(EmployeeDS, {useClass: EmployeeDS}),
-            provide(STYRKCodesDS, {useClass: STYRKCodesDS}),
-            EmployeeService,
-            provide(RootRouteParamsService, {useClass: RootRouteParamsService})
-        ],
+        EmployeeDS,
+        STYRKCodesDS,
+        EmployeeService,
+        RootRouteParamsService
+    ],
     directives: [ROUTER_DIRECTIVES, WidgetPoster, UniTabs, EmployeeCategoryButtons, ContextMenu]
 })
-
-@RouteConfig(CHILD_ROUTES)
 export class EmployeeDetails implements OnInit {
     public busy: boolean;
     private employee: Employee;
@@ -65,23 +30,32 @@ export class EmployeeDetails implements OnInit {
     private employeeID: number;
     private isNextOrPrevious: boolean;
     private businessRelation: BusinessRelation;
-    private childRoutes: RouteDefinition[];
+    private childRoutes: any[];
     private contextMenuItems: IContextMenuItem[];
 
-    constructor(private routeParams: RouteParams,
+    constructor(private route: ActivatedRoute,
                 private rootRouteParams: RootRouteParamsService,
                 private _employeeService: EmployeeService,
                 private _router: Router,
                 private tabService: TabService) {
 
-        this.childRoutes = CHILD_ROUTES;
+        this.childRoutes = []; // TODO: ROUTES
         this.employee = new Employee();
         this.businessRelation = new BusinessRelation();
         this.employee.BusinessRelationInfo = this.businessRelation;
         this.url = '/salary/employees/';
-        this.employeeID = +this.routeParams.get('id');
-        this.rootRouteParams.params = this.routeParams;
-        this.tabService.addTab({ name: 'Ansattnr. ' + this.employeeID, url: '/salary/employees/' + this.employeeID, moduleID: 12, active: true });
+        this.route.params.subscribe(params => {
+            this.employeeID = +params['id'];
+            this.rootRouteParams.params = params;
+            this.tabService.addTab({ name: 'Ansattnr. ' + this.employeeID, url: '/salary/employees/' + this.employeeID, moduleID: 12, active: true });
+        });
+
+        this.childRoutes = [
+            {name: 'Detaljer', path: 'personal-details'},
+            {name: 'Arbeidsforhold', path: 'employment-list'},
+            {name: 'Faste poster', path: 'recurring-post'},
+            {name: 'Permisjon', path: 'employee-leave'}
+        ];
 
         this.contextMenuItems = [
             {

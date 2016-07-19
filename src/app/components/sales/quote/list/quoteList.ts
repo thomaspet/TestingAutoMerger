@@ -1,6 +1,6 @@
 import {Component, ViewChild} from '@angular/core';
 import {UniTable, UniTableColumn, UniTableColumnType, UniTableConfig, IContextMenuItem} from 'unitable-ng2/main';
-import {Router} from '@angular/router-deprecated';
+import {Router} from '@angular/router';
 import {URLSearchParams} from '@angular/http';
 
 import {CustomerQuoteService, ReportDefinitionService} from '../../../../services/services';
@@ -8,8 +8,6 @@ import {CustomerQuote} from '../../../../unientities';
 
 import {PreviewModal} from '../../../reports/modals/preview/previewModal';
 import {TabService} from '../../../layout/navbar/tabstrip/tabService';
-
-declare var jQuery;
 
 @Component({
     selector: 'quote-list',
@@ -43,7 +41,7 @@ export class QuoteList {
             this.customerQuoteService.Post(quote)
                 .subscribe(
                 (data) => {
-                    this.router.navigateByUrl('/sales/quote/details/' + data.ID);
+                    this.router.navigateByUrl('/sales/quotes/' + data.ID);
                 },
                 (err) => {
                     console.log('Error creating quote: ', err);
@@ -69,7 +67,7 @@ export class QuoteList {
         contextMenuItems.push({
             label: 'Rediger',
             action: (quote: CustomerQuote) => {
-                this.router.navigateByUrl(`/sales/quote/details/${quote.ID}`);
+                this.router.navigateByUrl(`/sales/quotes/${quote.ID}`);
             },
             disabled: (rowModel) => {
                 return false;
@@ -178,6 +176,6 @@ export class QuoteList {
     }
 
     public onRowSelected(event) {
-        this.router.navigateByUrl('/sales/quote/details/' + event.rowModel.ID);
+        this.router.navigateByUrl('/sales/quotes/' + event.rowModel.ID);
     };
 }

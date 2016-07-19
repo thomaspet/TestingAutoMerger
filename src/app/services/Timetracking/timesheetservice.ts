@@ -20,21 +20,21 @@ export class TimeSheet {
     };
 
     constructor(private ts?: TimesheetService) { }
-    
+
     public loadItems(interval?: ItemInterval): Observable<number> {
         this.changeMap.clear();
         var obs = this.ts.getWorkItems(this.currentRelation.ID, interval);
         return <Observable<number>>obs.flatMap((items: WorkItem[]) => {
             this.analyzeItems(items);
-            this.items = items; 
+            this.items = items;
             return Observable.of(items.length);
         });
     }
-    
+
     public unsavedItems(): Array<WorkItem> {
         return this.changeMap.getValues();
     }
-    
+
     public saveItems(unsavedOnly = true): Observable<WorkItem> {
         var toSave: Array<WorkItem>;
         if (unsavedOnly) {
@@ -50,11 +50,10 @@ export class TimeSheet {
                 this.changeMap.remove(item._rowIndex, true);
             } else {
                 this.changeMap.removables.remove(result.original.ID, false);
-            }            
+            }
             return result.saved;
         });
     }
-
     public hasPaidLunch(): boolean {
         if (this.currentRelation && this.currentRelation.WorkProfile) {
             return !!this.currentRelation.WorkProfile.LunchIncluded;
@@ -80,10 +79,10 @@ export class TimeSheet {
         }
         return result;
     }
-    
+
     public setItemValue(change: ValueItem): boolean {
         var item: WorkItem = this.getRowByIndex(change.rowIndex);
-        var ignore = false; 
+        var ignore = false;
         var recalc = false;
         switch (change.name) {
             case 'Date':
@@ -97,11 +96,12 @@ export class TimeSheet {
                 break;
             case 'Worktype':
                 item.WorkTypeID = change.value.ID;
-                break;       
+                break;
             case 'WorkTypeID':
                 item.Worktype = change.value ? change.lookupValue || item.Worktype : undefined;
                 break;
             case 'LunchInMinutes':
+            case "LunchInMinutes":
                 change.value = safeInt(change.value);
                 recalc = true;
                 break;
@@ -117,7 +117,7 @@ export class TimeSheet {
                     }
                 }
                 ignore = true;
-                break;         
+                break;
             case 'CustomerOrderID':
                 item.CustomerOrder = change.value ? change.lookupValue || item.CustomerOrder : undefined;
                 if (!change.value) {
@@ -140,7 +140,7 @@ export class TimeSheet {
 
         this.changeMap.add(change.rowIndex, item);
         return true;
-    }    
+    }
 
     public copyValueAbove(colName: string, rowIndex: number) {
         if (rowIndex < 1) {  return; }
@@ -157,12 +157,12 @@ export class TimeSheet {
             case 'Dimensions.ProjectID':
                 value = src.Dimensions ? src.Dimensions.ProjectID : value;
                 lookupIItem = src.Dimensions ? src.Dimensions.Project : undefined;
-                break;        
+                break;
         }
         var item = new ValueItem(colName, value, rowIndex, lookupIItem);
         this.setItemValue(item);
     }
-    
+
     public removeRow(index: number) {
         var item = this.getRowByIndex(index);
         if (item.ID > 0) {
@@ -231,7 +231,7 @@ export class TimeSheet {
             if (!this.hasPaidLunch()) {
                 if ((item.LunchInMinutes === undefined) && this.containsLunch(item)) {
                     item.LunchInMinutes = 30;
-                    lunch = 30; 
+                    lunch = 30;
                 }
             }
             minutes = et.diff(st, 'minutes') - lunch;
@@ -252,15 +252,15 @@ export class TimeSheet {
         }
         return false;
     }
-    
+
 }
 
 @Injectable()
 export class TimesheetService {
-    
+
     public workRelations: Array<WorkRelation>;
-    
-    constructor(private workerService: WorkerService) {} 
+
+    constructor(private workerService: WorkerService) {}
 
     public initUser(userid= 0): Observable<TimeSheet> {
         if (userid === 0) {
@@ -276,31 +276,31 @@ export class TimesheetService {
         }
     }
 
-    
+
     public newTimeSheet(workRelation: WorkRelation): TimeSheet {
         var ts = new TimeSheet(this);
         ts.currentRelation = workRelation;
         return ts;
     }
-    
+
     public getWorkItems(workRelationID: number, interval?: ItemInterval): Observable<WorkItem[]> {
         return this.workerService.getWorkItems(workRelationID, interval);
     }
-    
+
     public saveWorkItems(items: WorkItem[], deletables?: WorkItem[]): Observable<{ original: WorkItem, saved: WorkItem }> {
-        
+
         var obsSave = Observable.from(items).flatMap((item: WorkItem) => {
             var originalId = item.ID;
             item.ID = item.ID < 0 ? 0 : item.ID;
             this.preSaveWorkItem(item);
             return this.workerService.saveWorkItem(item).map((savedItem: WorkItem) => {
                 item.ID = originalId;
-                return { original: item, saved: savedItem }; 
+                return { original: item, saved: savedItem };
             });
         });
 
         if (deletables) {
-            let obsDel = Observable.from(deletables).flatMap( (item: WorkItem) => {                
+            let obsDel = Observable.from(deletables).flatMap( (item: WorkItem) => {
                 console.log('sending delete for ' + item.ID);
                 return this.workerService.deleteWorkitem(item.ID).map((event) => {
                     console.log('delete completed for ' + item.ID);
@@ -311,11 +311,11 @@ export class TimesheetService {
         }
 
         return obsSave;
-        
+
     }
-    
+
     private preSaveWorkItem(item: any): boolean {
-        
+
         this.checkTimeOnItem(item);
         return true;
     }
@@ -329,8 +329,8 @@ export class TimesheetService {
             }
             if (item.EndTime) {
                 item.EndTime = toIso(moment(item.EndTime).year(dt.year()).month(dt.month()).date(dt.date()), true);
-            }    
-        }        
+            }
+        }
     }
-    
+
 }

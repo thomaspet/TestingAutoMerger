@@ -1,6 +1,6 @@
 import {Component} from '@angular/core';
-import {AsyncRoute, ROUTER_DIRECTIVES} from '@angular/router-deprecated';
-import {ROUTES} from '../../../route.config';
+import {Route, ROUTER_DIRECTIVES} from '@angular/router';
+import {routes} from '../../../routes';
 
 import {HamburgerMenu} from './hamburgerMenu/hamburgerMenu';
 import {UniTabStrip} from './tabstrip/tabstrip';
@@ -34,5 +34,5 @@ import {UniCompanyDropdown} from './userInfo/companyDropdown/companyDropdown';
     ]
 })
 export class UniNavbar {
-    public routes: AsyncRoute[] = ROUTES;
+    public routes: any[] = routes;
 }

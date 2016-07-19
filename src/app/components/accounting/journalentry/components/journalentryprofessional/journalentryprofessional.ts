@@ -1,13 +1,9 @@
 import {Component, ViewChild, Input, Output, EventEmitter} from '@angular/core';
-import {Control} from '@angular/common';
 import {Observable} from 'rxjs/Observable';
 import {UniTable, UniTableColumn, UniTableColumnType, UniTableConfig} from 'unitable-ng2/main';
 import {UniHttp} from '../../../../../../framework/core/http/http';
-
-import {VatType, Account, Dimensions, Project, Departement, SupplierInvoice} from '../../../../../unientities';
+import {VatType, Project, Departement, SupplierInvoice} from '../../../../../unientities';
 import {VatTypeService, AccountService, JournalEntryService, DepartementService, ProjectService} from '../../../../../services/services';
-
-import {JournalEntrySimpleCalculationSummary} from '../../../../../models/accounting/JournalEntrySimpleCalculationSummary';
 import {JournalEntryData} from '../../../../../models/models';
 
 @Component({

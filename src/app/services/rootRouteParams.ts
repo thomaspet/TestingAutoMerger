@@ -1,12 +1,11 @@
 import {Injectable} from '@angular/core';
-import {RouteParams} from '@angular/router-deprecated';
 
 @Injectable()
 export class RootRouteParamsService {
     
-    private _params: RouteParams;
+    private _params: any;
     
-    public set params(params: RouteParams) {
+    public set params(params: any) {
         this._params = params;
     }
     

@@ -1,6 +1,6 @@
 import {Component} from '@angular/core';
 import {NgClass} from '@angular/common';
-import {ROUTER_DIRECTIVES, Router} from '@angular/router-deprecated';
+import {ROUTER_DIRECTIVES, Router} from '@angular/router';
 import {TabService} from './tabService';
 import {AuthService} from '../../../../../framework/core/authService';
 

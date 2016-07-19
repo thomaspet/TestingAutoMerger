@@ -1,5 +1,5 @@
 import {Component} from '@angular/core';
-import {Router} from '@angular/router-deprecated';
+import {Router} from '@angular/router';
 import {AsyncPipe} from '@angular/common';
 import {UniTable, UniTableConfig, UniTableColumnType, UniTableColumn} from 'unitable-ng2/main';
 
@@ -39,7 +39,7 @@ export class EmployeeList {
     }
 
     public rowSelected(event) {
-        this.router.navigate(['EmployeeDetails', {id: event.rowModel.ID}]);
+        this.router.navigate(['/salary/employees/', event.rowModel.ID]);
     }
     
     public newEmployee() {

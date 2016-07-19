@@ -1,7 +1,7 @@
 import {Component, ViewChild} from '@angular/core';
 import {UniTable, UniTableColumn, UniTableColumnType, UniTableConfig} from 'unitable-ng2/main';
 import {UniForm, UniFieldLayout} from '../../../../../framework/uniform';
-import {Router} from '@angular/router-deprecated';
+import {Router} from '@angular/router';
 import {AccountService, JournalEntryService} from '../../../../services/services';
 import {Account} from '../../../../unientities';
 import {Observable} from 'rxjs/Observable';

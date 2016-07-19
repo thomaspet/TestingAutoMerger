@@ -3,7 +3,7 @@ import {View} from '../../../models/view/view';
 import {UniTableColumn, UniTableColumnType, UniTableConfig} from 'unitable-ng2/main';
 import {GenericListView, IViewConfig} from '../genericview/list';
 
-export var view = new View('workers', 'Personer', 'WorkerListview', false, 'worker');
+export var view = new View('workers', 'Personer', 'WorkerListview', false, 'worker', WorkerListview);
 
 @Component({    
     selector: view.name,
@@ -20,7 +20,7 @@ export class WorkerListview {
     private createConfig(): IViewConfig {
         return {
             moduleID: 16,
-            detail: { route: '/timetracking/worker/'},
+            detail: { route: '/timetracking/workers/'},
             tab: view,
             data: { 
                 route: 'workers',

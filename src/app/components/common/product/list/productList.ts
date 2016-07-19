@@ -1,7 +1,7 @@
 import {Component} from '@angular/core';
 import {URLSearchParams} from '@angular/http';
 import {UniTable, UniTableColumn, UniTableColumnType, UniTableConfig} from 'unitable-ng2/main';
-import {Router} from '@angular/router-deprecated';
+import {Router} from '@angular/router';
 import {UniHttp} from '../../../../../framework/core/http/http';
 import {ProductService} from '../../../../services/services';
 import {TabService} from "../../../layout/navbar/tabstrip/tabService";
@@ -24,11 +24,11 @@ export class ProductList {
     }
     
     private createProduct() { 
-        this.router.navigateByUrl('/products/details/0');
+        this.router.navigateByUrl('/products/0');
     }
 
     private onRowSelected (event) {
-        this.router.navigateByUrl('/products/details/' + event.rowModel.ID);
+        this.router.navigateByUrl('/products/' + event.rowModel.ID);
     };
 
     private setupProductTable() {

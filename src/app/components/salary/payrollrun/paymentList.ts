@@ -1,9 +1,7 @@
 import {Component, OnInit} from '@angular/core';
-import {RouteParams} from '@angular/router-deprecated';
+import {ActivatedRoute} from '@angular/router';
 import {PayrollrunService} from '../../../services/services';
-// import {FieldType} from '../../../unientities';
 import {UniTable, UniTableBuilder, UniTableColumn} from '../../../../framework/uniTable';
-// import {UniForm} from '../../../../framework/forms';
 import {TabService} from '../../layout/navbar/tabstrip/tabService';
 
 @Component({
@@ -26,8 +24,10 @@ export class PaymentList implements OnInit {
     private paymentListEmp: UniTableBuilder;
     private withholding: UniTableBuilder;
     
-    constructor(private _routeParams: RouteParams, private _payrollrunService: PayrollrunService, private _tabService: TabService) {
-        this.payrollRunID = +_routeParams.get('id');
+    constructor(private _route: ActivatedRoute, private _payrollrunService: PayrollrunService, private _tabService: TabService) {
+        this._route.params.subscribe(params => {
+            this.payrollRunID = +params['id'];
+        });
         //Dummy moduleID, going to be removed!
         this._tabService.addTab({ name: 'Utbetalingsliste #' + this.payrollRunID, url: 'salary/paymentlist/' + this.payrollRunID, moduleID: 997, active: true });
     }

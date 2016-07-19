@@ -3,7 +3,7 @@ import {View} from '../../../models/view/view';
 import {GenericListView, IViewConfig} from '../genericview/list';
 import {UniTableColumn, UniTableColumnType, UniTableConfig} from 'unitable-ng2/main';
 
-export var view = new View('projects', 'Prosjekter', 'ProjectListview', false, 'project');
+export var view = new View('projects', 'Prosjekter', 'ProjectListview', false, 'project', ProjectListview);
 
 @Component({
     selector: view.name,
@@ -16,7 +16,7 @@ export class ProjectListview {
     constructor() {
         this.viewconfig = {
             moduleID: 101,
-            detail: { route: '/timetracking/project/'},
+            detail: { route: '/timetracking/projects/'},
             tab: view,
             data: {
                 route: 'projects'

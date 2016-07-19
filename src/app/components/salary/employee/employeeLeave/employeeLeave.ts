@@ -1,5 +1,4 @@
 import {Component, OnInit, ViewChild} from '@angular/core';
-import {RouteParams} from '@angular/router-deprecated';
 import {EmployeeDS} from '../../../../data/employee';
 import {Employment, Employee} from '../../../../unientities';
 import {RootRouteParamsService} from '../../../../services/rootRouteParams';
@@ -42,8 +41,13 @@ export class EmployeeLeave implements OnInit {
         }
     ];
 
-    constructor(private routeParams: RouteParams, public employeeDS: EmployeeDS, private rootRouteParams: RootRouteParamsService, private uniHttp: UniHttp, private employeeleaveService: EmployeeLeaveService) {
-        this.employeeID = +rootRouteParams.params.get('id');
+    constructor(
+        public employeeDS: EmployeeDS,
+        private rootRouteParams: RootRouteParamsService,
+        private uniHttp: UniHttp,
+        private employeeleaveService: EmployeeLeaveService
+    ) {
+        this.employeeID = +rootRouteParams.params['id'];
     }
 
     public ngOnInit() {

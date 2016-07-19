@@ -1,7 +1,7 @@
 import {Component, Input, ElementRef} from '@angular/core';
 import {TabService} from '../layout/navbar/tabstrip/tabService';
 import {UniHttp} from '../../../framework/core/http/http';
-import {ROUTER_DIRECTIVES, Router, CanReuse, OnReuse} from "@angular/router-deprecated";
+import {ROUTER_DIRECTIVES, Router} from "@angular/router";
 import {UniImage} from '../../../framework/uniImage/uniImage';
 
 declare var Chart;
@@ -22,7 +22,7 @@ export interface IChartDataSet {
     directives: [ROUTER_DIRECTIVES, UniImage]
 })
 
-export class Dashboard implements CanReuse {
+export class Dashboard {
 
     public welcomeHidden: boolean = localStorage.getItem('welcomeHidden');
     public transactionList = [];
@@ -43,35 +43,31 @@ export class Dashboard implements CanReuse {
         )
     }
 
-    public routerCanReuse() {
-        return false;
-    } 
-
     public ngAfterViewInit() {
 
         this.getInvoicedData().subscribe(
             data => this.chartGenerator('invoicedChart', this.twelveMonthChartData(data[0].Data, 'Fakturert', '#7293cb', '#396bb1', 'bar', 'sumTaxExclusiveAmount')),
             error => console.log(error)
-        )
+        );
         this.getOrdreData().subscribe(
             (data) => { this.chartGenerator('ordre_chart', this.twelveMonthChartData(data[0].Data, 'Ordre', '#84ba5b', '#3e9651', 'bar', 'sumTaxExclusiveAmount')) },
             (error) => { console.log(error); }
-        )
+        );
 
         this.getQuoteData().subscribe(
             (data) => { this.chartGenerator('quote_chart', this.twelveMonthChartData(data[0].Data, 'Tilbud', '#e1974c', '#da7c30', 'bar', 'sumTaxExclusiveAmount')) },
             (error) => { console.log(error); }
-        )
+        );
 
         this.getOperatingData().subscribe(
             (data) => { this.chartGenerator('operating_chart', this.twelveMonthChartData(data[0].Data, 'Driftsresultater', '#9067a7', '#6b4c9a', 'line', 'sumamount', -1)) },
             (error) => { console.log(error); }
-        )
+        );
 
         this.getLastJournalEntry().subscribe(
             (data) => { this.generateLastTenList(data, true); },
             (error) => { console.log(error) }
-        )
+        );
 
         this.getMyUserInfo().subscribe(
             (data) => {
@@ -83,7 +79,7 @@ export class Dashboard implements CanReuse {
                     )
             },
             error => console.log(error)
-        )
+        );
 
         this.getTransactions().subscribe(
             (data) => { this.generateLastTenList(data[0].Data, false) },
@@ -222,15 +218,15 @@ export class Dashboard implements CanReuse {
         switch (data.EntityType) {
             case 'CustomerQuote':
                 data.module = 'Tilbud';
-                data.url = '/sales/quote/details/' + data.EntityID;
+                data.url = '/sales/quotes/' + data.EntityID;
                 break;
             case 'CustomerOrder':
                 data.module = 'Ordre';
-                data.url = '/sales/order/details/' + data.EntityID;
+                data.url = '/sales/orders/' + data.EntityID;
                 break;
             case 'CustomerInvoice':
                 data.module = 'Faktura';
-                data.url = '/sales/invoice/details/' + data.EntityID;
+                data.url = '/sales/invoices/' + data.EntityID;
                 break;
             case 'JournalEntryLine':
                 data.module = 'Jour. line';
@@ -260,7 +256,7 @@ export class Dashboard implements CanReuse {
                 break;
             case 'Product':
                 data.module = 'Produkt';
-                data.url = '/products/details/' + data.EntityID;
+                data.url = '/products/' + data.EntityID;
                 break;
             case 'SalaryTransaction':
                 data.module = 'SalaryTransaction';

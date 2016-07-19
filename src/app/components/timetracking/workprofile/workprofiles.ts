@@ -3,7 +3,7 @@ import {View} from '../../../models/view/view';
 import {GenericListView, IViewConfig} from '../genericview/list';
 import {UniTableColumn, UniTableColumnType, UniTableConfig} from 'unitable-ng2/main';
 
-export var view = new View('workprofiles', 'Stillingsmaler', 'WorkprofileListview', false, 'workprofile');
+export var view = new View('workprofiles', 'Stillingsmaler', 'WorkprofileListview', false, 'workprofile', WorkprofileListview);
 
 @Component({
     selector: view.name,
@@ -21,7 +21,7 @@ export class WorkprofileListview {
     private createConfig(): IViewConfig {
         return {
             moduleID: 15,
-            detail: { route: '/timetracking/workprofile/'},
+            detail: { route: '/timetracking/workprofiles/'},
             tab: view,
             data: { 
                 route: 'workprofiles',
@@ -37,6 +37,5 @@ export class WorkprofileListview {
         ];
         return new UniTableConfig(false, true).setSearchable(true).setColumns(cols);
     }
-    
-    
+       
 }

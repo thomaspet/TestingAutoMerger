@@ -1,7 +1,6 @@
 ﻿import {Component, ViewChild} from "@angular/core";
 import {UserService} from '../../../services/services';
 import {UniForm} from '../../../../framework/uniform';
-import {UniFieldLayout} from '../../../../framework/uniform/index';
 import {FieldType} from '../../../unientities';
 import {AuthService} from '../../../../framework/core/authService';
 import {UniSave, IUniSaveAction} from '../../../../framework/save/save';

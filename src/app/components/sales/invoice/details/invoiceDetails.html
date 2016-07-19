@@ -10,7 +10,7 @@
                 . Status: {{ statusText }}
                 <span *ngIf="invoice.InvoiceType == 1 && invoice.InvoiceReference">
                     . Kreditering av
-                    <a href="#/sales/invoice/details/{{invoice.InvoiceReference.ID}}">
+                    <a href="#/sales/invoices/{{invoice.InvoiceReference.ID}}">
                         faktura nr. {{invoice.InvoiceReference.InvoiceNumber}}
                     </a>
                 </span>
@@ -33,7 +33,7 @@
                     Kreditert kr. {{invoice.CreditedAmount }}
                     <span *ngFor="let c of creditInvoiceArr; let i=index">
                         <span *ngIf="i > 0">,   </span>
-                        <a href="#/sales/invoice/details/{{c.ID}}">
+                        <a href="#/sales/invoices/{{c.ID}}">
                             Kreditnota nr. {{c.InvoiceNumber}}
                         </a>
                     </span>

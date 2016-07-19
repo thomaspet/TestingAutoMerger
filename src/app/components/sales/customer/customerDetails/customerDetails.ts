@@ -1,5 +1,5 @@
-import {Component, ComponentRef, Input, ViewChild, OnInit} from '@angular/core';
-import {Router, RouteParams, RouterLink} from '@angular/router-deprecated';
+import {Component, Input, ViewChild, OnInit} from '@angular/core';
+import {Router, ActivatedRoute, RouterLink} from '@angular/router';
 import {Observable} from 'rxjs/Observable';
 import 'rxjs/add/observable/forkJoin';
 
@@ -18,7 +18,7 @@ declare var _; // lodash
 
 @Component({
     selector: 'customer-details',
-    templateUrl: 'app/components/sales/customer/customerDetails/customerDetails.html',    
+    templateUrl: 'app/components/sales/customer/customerDetails/customerDetails.html',
     directives: [RouterLink, AddressModal, EmailModal, PhoneModal, UniForm, ExternalSearch, UniSave],
     providers: [DepartementService, ProjectService, CustomerService, PhoneService, AddressService, EmailService, BusinessRelationService]
 })
@@ -57,14 +57,14 @@ export class CustomerDetails implements OnInit {
                 private projectService: ProjectService,
                 private customerService: CustomerService,
                 private router: Router,
-                private params: RouteParams,
+                private route: ActivatedRoute,
                 private phoneService: PhoneService,
                 private emailService: EmailService,
                 private addressService: AddressService,
                 private businessRealtionService: BusinessRelationService,
                 private tabService: TabService
                 ) {               
-        this.customerID = params.get('id');               
+        this.route.params.subscribe(params => this.customerID = +params['id']);
     }
     
     public log(err) {
@@ -98,11 +98,7 @@ export class CustomerDetails implements OnInit {
     public addCustomer() {
         this.router.navigateByUrl('/sales/customer/details/0');
     }
-    
-    public isActive(instruction: any[]): boolean {
-        return this.router.isRouteActive(this.router.generate(instruction));
-    }
-          
+
     private change(model) {
         
     }

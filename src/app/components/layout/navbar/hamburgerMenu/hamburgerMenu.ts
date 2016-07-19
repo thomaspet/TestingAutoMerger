@@ -1,9 +1,8 @@
 ﻿import {Component, ElementRef, Pipe} from '@angular/core';
-import {ROUTER_DIRECTIVES, Router, AsyncRoute} from '@angular/router-deprecated';
+import {ROUTER_DIRECTIVES, Router, Route} from '@angular/router';
 import {NgFor, NgClass} from '@angular/common';
-import {ROUTES} from '../../../../route.config';
 import {ClickOutsideDirective} from '../../../../../framework/core/clickOutside';
-
+import {routes} from '../../../../routes';
 @Pipe({name: 'removehidden'})
 export class RemoveHidden {
     private transform(componentList) {
@@ -36,7 +35,7 @@ export class RemoveHidden {
 export class HamburgerMenu {
     private open: boolean = false;
 
-    public routes: AsyncRoute[] = ROUTES;
+    public routes: any[] = routes;
     public availableComponents: Array<any>;
     private activeSection: number = 0;
 
@@ -49,7 +48,7 @@ export class HamburgerMenu {
                     {componentName: 'Nøkkeltall', componentUrl: '/'},
                     {componentName: 'Brukerinnstillinger', componentUrl: '/settings/user', hidden: true},
                     {componentName: 'Firmainnstillinger', componentUrl: '/settings/company', hidden: true},
-                    {componentName: 'AGA innstillinger', componentUrl: '/settings/agaandsubentities', hidden: true},
+                    {componentName: 'AGA innstillinger', componentUrl: '/settings/aga-and-subentities', hidden: true},
                     {componentName: 'Legg til bruker', componentUrl: '/settings/users', hidden: true},
                     {componentName: 'Brukere og roller', componentUrl: '/settings/users', hidden: true},
                     {componentName: 'Altinn', componentUrl: '/settings/altinn', hidden: true}
@@ -60,9 +59,9 @@ export class HamburgerMenu {
                 componentListHeader: 'Utgående salg',
                 componentList: [
                     {componentName: 'Kunder', componentUrl: '/sales'},
-                    {componentName: 'Tilbud', componentUrl: '/sales/quote'},
-                    {componentName: 'Ordre', componentUrl: '/sales/order'},
-                    {componentName: 'Faktura', componentUrl: '/sales/invoice'},
+                    {componentName: 'Tilbud', componentUrl: '/sales/quotes'},
+                    {componentName: 'Ordre', componentUrl: '/sales/orders'},
+                    {componentName: 'Faktura', componentUrl: '/sales/invoices'},
                     {componentName: 'Produkter', componentUrl: '/products'}
                 ]
             },
@@ -71,14 +70,14 @@ export class HamburgerMenu {
                 componentListHeader: 'Orden i bøkene',
                 componentList: [
                     {componentName: 'Bilagsføring', componentUrl: '/accounting'},  
-                    {componentName: 'Leverandørfaktura', componentUrl: '/accounting/journalentry/supplierinvoices/list', hidden: true},
+                    {componentName: 'Leverandørfaktura', componentUrl: '/accounting/journalentry/supplierinvoices', hidden: true},
                     {componentName: 'Betaling', componentUrl: '/accounting/journalentry/payments', hidden: true}, 
                     {componentName: 'Forespørsel på konto', componentUrl: '/accounting/transquery'},
                     {componentName: 'Forespørsel på bilag', componentUrl: '/accounting/transquery/details'},
                     {componentName: 'Kontoinnstillinger', componentUrl: '/accounting/accountsettings'},
                     {componentName: 'MVA innstillinger', componentUrl: '/accounting/vatsettings'},
                     {componentName: 'MVA oppgave', componentUrl: '/accounting/vatreport'},                   
-                    {componentName: 'Leverandører', componentUrl: '/sales/supplier'}
+                    {componentName: 'Leverandører', componentUrl: '/sales/suppliers'}
                 ]
             },
             {

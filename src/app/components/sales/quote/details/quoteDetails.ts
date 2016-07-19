@@ -1,5 +1,5 @@
 import {Component, Input, ViewChild} from '@angular/core';
-import {Router, RouteParams, RouterLink} from '@angular/router-deprecated';
+import {Router, ActivatedRoute, RouterLink} from '@angular/router';
 import {Observable} from 'rxjs/Observable';
 import 'rxjs/add/observable/forkJoin';
 
@@ -76,10 +76,11 @@ export class QuoteDetails {
         private addressService: AddressService,
         private businessRelationService: BusinessRelationService,
         private reportDefinitionService: ReportDefinitionService,
-        private router: Router, private params: RouteParams,
+        private router: Router,
+        private route: ActivatedRoute,
         private tabService: TabService) {
 
-        this.quoteID = params.get('id');        
+        this.route.params.subscribe(params => this.quoteID = +params['id']);
     }
 
     private log(err) {
@@ -90,7 +91,7 @@ export class QuoteDetails {
         this.customerQuoteService.next(this.quote.ID)
             .subscribe((data) => {
                 if (data) {
-                    this.router.navigateByUrl('/sales/quote/details/' + data.ID);
+                    this.router.navigateByUrl('/sales/quotes/' + data.ID);
                 }
             },
             (err) => {
@@ -104,7 +105,7 @@ export class QuoteDetails {
         this.customerQuoteService.previous(this.quote.ID)
             .subscribe((data) => {
                 if (data) {
-                    this.router.navigateByUrl('/sales/quote/details/' + data.ID);
+                    this.router.navigateByUrl('/sales/quotes/' + data.ID);
                 }
             },
             (err) => {
@@ -119,7 +120,7 @@ export class QuoteDetails {
             this.customerQuoteService.Post(quote)
                 .subscribe(
                 (data) => {
-                    this.router.navigateByUrl('/sales/quote/details/' + data.ID);
+                    this.router.navigateByUrl('/sales/quotes/' + data.ID);
                 },
                 (err) => {
                     console.log('Error creating quote: ', err);
@@ -127,10 +128,6 @@ export class QuoteDetails {
                 }
                 );
         });
-    }
-
-    public isActive(instruction: any[]): boolean {
-        return this.router.isRouteActive(this.router.generate(instruction));
     }
 
     public change(value: CustomerQuote) { }
@@ -209,7 +206,7 @@ export class QuoteDetails {
 
     private setTabTitle() {
         let tabTitle = this.quote.QuoteNumber ? 'Tilbudsnr. ' + this.quote.QuoteNumber : 'Tilbud (kladd)'; 
-        this.tabService.addTab({ url: '/sales/quote/details/' + this.quote.ID, name: tabTitle, active: true, moduleID: 3 });
+        this.tabService.addTab({ url: '/sales/quotes/' + this.quote.ID, name: tabTitle, active: true, moduleID: 3 });
     }
 
     private extendFormConfig() {

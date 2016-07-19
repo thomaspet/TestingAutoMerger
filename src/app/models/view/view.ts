@@ -1,5 +1,5 @@
-import {ComponentProxy} from '../../../framework/core/componentProxy';
-import {AsyncRoute} from '@angular/router-deprecated';
+import {Route, RouterConfig} from '@angular/router';
+import {AuthGuard} from '../../AuthGuard';
 
 export class View {
     public subViews: Array<View> = [];
@@ -7,12 +7,14 @@ export class View {
     public filepath = '';
     public path = '';
     public url = '';
-    
-    constructor(public name:string, public label:string, public className:string, public isDetail = false, public folder = '' ) {
+    public component;
+
+    constructor(public name:string, public label:string, public className:string, public isDetail = false, public folder = '', component: any ) {
         this.routeName = this.name.substr(0,1).toUpperCase() + this.name.substr(1);
-        this.path = '/' + this.name + (this.isDetail ? '/:id' : '');
+        this.path = this.name + (this.isDetail ? '/:id' : '');
         this.url = '/' + this.name;
         this.filepath = '/' + (folder || name);
+        this.component = component;
     }
     
     addSubView(view:View) {
@@ -21,19 +23,30 @@ export class View {
         this.subViews.push(view);
     }
     
-    getAsyncRoute(asDefault:boolean): AsyncRoute {
-        return new AsyncRoute({
-                useAsDefault: asDefault,
+    getRoute(asDefault:boolean): Route {
+        return {
+                // useAsDefault: asDefault,
                 path: this.path,
-                name: this.routeName,
-                loader: () => ComponentProxy.LoadComponentAsync(this.className, './app/components' + this.filepath )
-            });            
+                // name: this.routeName,
+                component: this.component,
+                // canActivate: [AuthGuard]
+                // loader: () => ComponentProxy.LoadComponentAsync(this.className, './app/components' + this.filepath )
+            };
     }
     
-    getSubRoutes(): Array<AsyncRoute> {
-        var subroutes: Array<AsyncRoute> = [];
-        for (var i=0; i<this.subViews.length; i++) {
-            subroutes.push(this.subViews[i].getAsyncRoute(i===0));
+    getSubRoutes(): RouterConfig {
+        if (!this.subViews.length) {
+            return [];
+        }
+        let subroutes: RouterConfig = [
+            {
+                path: '',
+                pathMatch: 'full', //default
+                redirectTo: this.subViews[0].path
+            }
+        ];
+        for (let i=0; i<this.subViews.length; i++) {
+            subroutes.push(this.subViews[i].getRoute(i===0));
         }
         return subroutes;
        

@@ -1,7 +1,7 @@
-import {Component, ViewChildren, Type, Input, Output, QueryList, ViewChild, ComponentRef, EventEmitter, OnChanges, SimpleChange} from '@angular/core';
+import {Component, Type, Input, Output, ViewChild, EventEmitter, OnChanges, SimpleChange} from '@angular/core';
 import {UniModal} from '../../../../framework/modals/modal';
-import {UniForm, UniFieldLayout} from '../../../../framework/uniform';
-import {FieldType, Address} from '../../../unientities';
+import {UniForm} from '../../../../framework/uniform';
+import {Address} from '../../../unientities';
 import {AddressService} from '../../../services/services';
 
 // Reusable address form

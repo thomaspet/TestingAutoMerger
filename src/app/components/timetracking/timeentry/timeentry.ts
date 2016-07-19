@@ -16,7 +16,7 @@ import {ToastService, ToastType} from '../../../../framework/unitoast/toastservi
 
 declare var moment;
 
-export var view = new View('timeentry', 'Registrere timer', 'TimeEntry');
+export var view = new View('timeentry', 'Registrere timer', 'TimeEntry', false, '', TimeEntry);
 
 export interface IFilter {
     name: string;
@@ -34,27 +34,27 @@ interface ITab {
 
 @Component({
     selector: view.name,
-    templateUrl: 'app/components/timetracking/timeentry/timeentry.html', 
+    templateUrl: 'app/components/timetracking/timeentry/timeentry.html',
     directives: [Editable, UniSave, RegtimeTotals, RegtimeTools],
     providers: [WorkerService, TimesheetService, Lookupservice],
     pipes: [IsoTimePipe, MinutesToHoursPipe]
 })
-export class TimeEntry {    
+export class TimeEntry {
     public busy: boolean = true;
     public userName: string = '';
     public workRelations: Array<WorkRelation> = [];
     private timeSheet: TimeSheet = new TimeSheet();
     private currentFilter: IFilter;
     private editable: Editable;
-    
+
     @ViewChild(RegtimeTotals) private regtimeTotals: RegtimeTotals;
     @ViewChild(RegtimeTools) private regtimeTools: RegtimeTools;
 
-    private actions: IUniSaveAction[] = [ 
+    private actions: IUniSaveAction[] = [
             { label: 'Lagre endringer', action: (done) => this.save(done), main: true, disabled: true },
             { label: 'Eksporter', action: (done) => this.export(done), main: false, disabled: false }
-        ];   
-    
+        ];
+
     public tabs: Array<any> = [ { name: 'timeentry', label: 'Registrering', isSelected: true },
             { name: 'tools', label: 'Timeliste', activate: (ts: any, filter: any) => this.regtimeTools.activate(ts, filter) },
             { name: 'totals', label: 'Totaler', activate: (ts: any, filter: any) => this.regtimeTotals.activate(ts, filter) },
@@ -73,7 +73,7 @@ export class TimeEntry {
         { name: 'year', label: 'Dette år', interval: ItemInterval.thisYear},
         { name: 'all', label: 'Alt', interval: ItemInterval.all}
     ];
-            
+
     public tableConfig: IConfig = {
         columns: [
             new Column('Date', '', ColumnType.Date),
@@ -81,31 +81,31 @@ export class TimeEntry {
             new Column('EndTime', '', ColumnType.Time),
             new Column('WorkTypeID', 'Timeart', ColumnType.Integer, { route: 'worktypes' }),
             new Column('LunchInMinutes', 'Lunsj', ColumnType.Integer),
-            new Column('Description'), 
+            new Column('Description'),
             new Column('Dimensions.ProjectID', 'Prosjekt', ColumnType.Integer, { route: 'projects'}),
-            new Column('CustomerOrderID', 'Ordre', ColumnType.Integer, 
+            new Column('CustomerOrderID', 'Ordre', ColumnType.Integer,
                 { route: 'orders', filter: 'ordernumber gt 0', select: 'OrderNumber,CustomerName', visualKey: 'OrderNumber'}),
             new Column('Actions', '', ColumnType.Action)
             ],
         events: {
-                onChange: (event) => { 
+                onChange: (event) => {
                     return this.lookup.checkAsyncLookup(event, (e) => this.updateChange(e), (e) => this.asyncValidationFailed(e) ) || this.updateChange(event);
                 },
                 onInit: (instance: Editable) => {
-                    this.editable = instance; 
+                    this.editable = instance;
                 },
                 onTypeSearch: (details: ITypeSearch) => this.lookup.onTypeSearch(details),
                 onCopyCell: (details: ICopyEventDetails) => this.onCopyCell(details)
-            }  
+            }
     };
-            
+
     constructor(private tabService: TabService, private service: WorkerService, private timesheetService: TimesheetService, private lookup: Lookupservice, private toast: ToastService) {
         this.tabService.addTab({ name: view.label, url: view.url, moduleID: 18 });
         this.userName = service.user.name;
         this.currentFilter = this.filters[0];
         this.initUser();
     }
-    
+
     public onTabClick(tab: ITab) {
         if (tab.isSelected) { return; }
         this.tabs.forEach((t: any) => {
@@ -133,13 +133,13 @@ export class TimeEntry {
         this.editable.closeEditor();
         this.timeSheet.removeRow(rowIndex);
         this.flagUnsavedChanged();
-        
+
     }
 
     public routerCanDeactivate(next: ComponentInstruction, prev: ComponentInstruction): any {
         return this.checkSave();
     }
-    
+
     private initUser() {
         this.timesheetService.initUser().subscribe((ts: TimeSheet) => {
             this.workRelations = this.timesheetService.workRelations;
@@ -147,38 +147,38 @@ export class TimeEntry {
             this.loadItems();
         });
     }
-    
+
     private loadItems() {
         if (this.timeSheet.currentRelation && this.timeSheet.currentRelation.ID) {
             this.timeSheet.loadItems(this.currentFilter.interval).subscribe((itemCount: number) => {
-                if (this.editable) { this.editable.closeEditor(); }                
+                if (this.editable) { this.editable.closeEditor(); }
                 this.timeSheet.ensureRowCount(itemCount + 1);
                 this.flagUnsavedChanged(true);
                 this.busy = false;
-            });    
+            });
         } else {
             alert('Current worker/user has no workrelations!');
         }
     }
 
     private save(done?: any) {
-        
-        if (!this.validate()) { 
-            if (done) { done('Feil ved validering'); } 
-            return; 
+
+        if (!this.validate()) {
+            if (done) { done('Feil ved validering'); }
+            return;
         }
 
         if (this.busy) { return; }
         return new Promise((resolve, reject) => {
             this.busy = true;
             var counter = 0;
-            this.timeSheet.saveItems().subscribe((item: WorkItem) => {            
-                counter++;                
+            this.timeSheet.saveItems().subscribe((item: WorkItem) => {
+                counter++;
             }, (err) => {
                 var msg = this.showErrMsg(err._body || err.statusText, true);
                 if (done) { done('Feil ved lagring: ' + msg); }
                 this.busy = false;
-                resolve(false);                   
+                resolve(false);
             }, () => {
                 this.flagUnsavedChanged(true);
                 if (done) { done(counter + ' poster ble lagret.'); }
@@ -194,11 +194,11 @@ export class TimeEntry {
         var isoPipe = new IsoTimePipe();
         ts.items.forEach((item: WorkItem) => {
             if (item.Date && item.Minutes) {
-                var row = {  
+                var row = {
                     ID: item.ID,
                     Date: isoPipe.transform(item.Date, undefined),
-                    StartTime: isoPipe.transform(item.StartTime, 'HH:mm'), 
-                    EndTime: isoPipe.transform(item.EndTime, 'HH:mm'), 
+                    StartTime: isoPipe.transform(item.StartTime, 'HH:mm'),
+                    EndTime: isoPipe.transform(item.EndTime, 'HH:mm'),
                     WorkTypeID: item.WorkTypeID,
                     WorkType: item.Worktype ? item.Worktype.Name : '',
                     Minutes: item.Minutes,
@@ -215,12 +215,12 @@ export class TimeEntry {
     private flagUnsavedChanged(reset = false) {
         this.actions[0].disabled = reset;
     }
-       
+
     private hasUnsavedChanges(): boolean {
         return !this.actions[0].disabled;
     }
 
-    public onCopyCell(details: ICopyEventDetails) { 
+    public onCopyCell(details: ICopyEventDetails) {
 
         details.copyAbove = true;
 
@@ -237,15 +237,15 @@ export class TimeEntry {
                     if (row > 0) {
                         let d1 = this.timeSheet.items[row].Date;
                         let d2 = this.timeSheet.items[row - 1].Date;
-                        if (d1 && d2) { 
+                        if (d1 && d2) {
                             if (d1 === d2 && (this.timeSheet.items[row - 1].EndTime) ) {
                                 details.valueToSet = moment(this.timeSheet.items[row - 1].EndTime).format('HH:mm');
                                 details.copyAbove = false;
-                            }   
+                            }
                         }
                     } else {
                         details.valueToSet = '8';
-                        details.copyAbove = false; 
+                        details.copyAbove = false;
                     }
                     break;
             }
@@ -256,7 +256,7 @@ export class TimeEntry {
                 details.copyAbove = false;
             }
 
-        }  
+        }
     }
 
     private validate(): boolean {
@@ -280,7 +280,7 @@ export class TimeEntry {
             event.value = item[lk.colToSave || 'ID'];
             event.lookupValue = item;
             event.userTypedValue = false;
-            this.updateChange(event);        
+            this.updateChange(event);
         } else {
             this.toast.addToast(event.columnDefinition.label, ToastType.bad, 3, `Ugyldig ${event.columnDefinition.label}: ${event.value}`);
         }
@@ -298,16 +298,16 @@ export class TimeEntry {
 
 		// Ensure a new row at bottom?
         this.timeSheet.ensureRowCount(event.row + 2);
-		
+
 		// we use databinding instead
-        event.updateCell = false;       
-		
+        event.updateCell = false;
+
     }
-    
+
     public onFilterClick(filter: IFilter) {
         this.checkSave().then((success: boolean) => {
             if (!success) { return; }
-            this.filters.forEach((value: any) => value.isSelected = false);        
+            this.filters.forEach((value: any) => value.isSelected = false);
             filter.isSelected = true;
             this.currentFilter = filter;
             this.busy = true;
@@ -321,7 +321,7 @@ export class TimeEntry {
                 var result = confirm('Fortsette uten å lagre ? Du vil miste alle endringer som du har lagt inn dersom du fortsetter !');
                 resolve(result);
                 return;
-            } 
+            }
             resolve(true);
         });
     }
@@ -335,7 +335,6 @@ export class TimeEntry {
         }
         alert(txt);
         return txt;
-    } 
-    
-    
+    }
+
 }

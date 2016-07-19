@@ -1,5 +1,5 @@
 import {Component, Input, ViewChild} from '@angular/core';
-import {Router, RouteParams, RouterLink} from '@angular/router-deprecated';
+import {Router, ActivatedRoute} from '@angular/router';
 import {Observable} from 'rxjs/Observable';
 import 'rxjs/add/observable/forkJoin';
 
@@ -16,7 +16,7 @@ declare var _; // lodash
 
 @Component({
     selector: 'supplier-details',
-    templateUrl: 'app/components/sales/supplier/details/supplierDetails.html',    
+    templateUrl: 'app/components/sales/supplier/details/supplierDetails.html',
     directives: [ExternalSearch, AddressModal, EmailModal, PhoneModal, UniSave, UniForm],
     providers: [DepartementService, ProjectService, SupplierService, PhoneService, AddressService, EmailService, BankAccountService]
 })
@@ -57,7 +57,7 @@ export class SupplierDetails {
                 private projectService: ProjectService,
                 private supplierService: SupplierService,
                 private router: Router,
-                private params: RouteParams,
+                private route: ActivatedRoute,
                 private phoneService: PhoneService,
                 private emailService: EmailService,
                 private addressService: AddressService,
@@ -65,13 +65,13 @@ export class SupplierDetails {
                 private tabService: TabService
                 ) {
                 
-        this.supplierID = params.get('id');                 
+        this.route.params.subscribe(params => this.supplierID = +params['id']);                 
     }
     
     public nextSupplier() {
         this.supplierService.NextSupplier(this.supplier.ID)
             .subscribe((data) => {
-                this.router.navigateByUrl('/sales/supplier/details/' + data.ID);
+                this.router.navigateByUrl('/sales/suppliers/' + data.ID);
             },
             (err) => {
                 console.log('Error getting next supplier: ', err);
@@ -82,7 +82,7 @@ export class SupplierDetails {
     public previousSupplier() {
         this.supplierService.PreviousSupplier(this.supplier.ID)
             .subscribe((data) => {
-                this.router.navigateByUrl('/sales/supplier/details/' + data.ID);
+                this.router.navigateByUrl('/sales/suppliers/' + data.ID);
             },
             (err) => {
                 console.log('Error getting previous supplier: ', err);
@@ -91,11 +91,7 @@ export class SupplierDetails {
     }
     
     public addSupplier() {   
-        this.router.navigateByUrl('/sales/supplier/details/0');
-    }
-    
-    private isActive(instruction: any[]): boolean {
-        return this.router.isRouteActive(this.router.generate(instruction));
+        this.router.navigateByUrl('/sales/suppliers/0');
     }
     
     private change(model) {
@@ -122,7 +118,7 @@ export class SupplierDetails {
 
     private setTabTitle() {
         let tabTitle = this.supplier.SupplierNumber ? 'Leverandørnr. ' + this.supplier.SupplierNumber : 'Leverandør (kladd)'; 
-        this.tabService.addTab({ url: '/sales/supplier/details/' + this.supplier.ID, name: tabTitle, active: true, moduleID: 2 });
+        this.tabService.addTab({ url: '/sales/suppliers/' + this.supplier.ID, name: tabTitle, active: true, moduleID: 2 });
     }
 
     private getLayoutAndData() {        
@@ -419,7 +415,7 @@ export class SupplierDetails {
             this.supplierService.Post(this.supplier)
                 .subscribe(
                     (newSupplier) => {                        
-                        this.router.navigateByUrl('/sales/supplier/details/' + newSupplier.ID);
+                        this.router.navigateByUrl('/sales/suppliers/' + newSupplier.ID);
                     },
                     (err) => {
                         completeEvent('Feil ved lagring');

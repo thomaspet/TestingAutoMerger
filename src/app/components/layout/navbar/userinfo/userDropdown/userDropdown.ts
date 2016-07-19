@@ -1,5 +1,5 @@
 import {Component} from '@angular/core';
-import {Router} from '@angular/router-deprecated';
+import {Router} from '@angular/router';
 import {AuthService} from '../../../../../../framework/core/authService';
 import {ClickOutsideDirective} from '../../../../../../framework/core/clickOutside';
 import 'rxjs/add/observable/fromEvent';

@@ -1,5 +1,5 @@
 import {Component, Input, ViewChild} from '@angular/core';
-import {Router, RouteParams, RouterLink} from '@angular/router-deprecated';
+import {Router, ActivatedRoute, RouterLink} from '@angular/router';
 import {Observable} from 'rxjs/Observable';
 import 'rxjs/add/observable/forkJoin';
 
@@ -77,10 +77,10 @@ export class OrderDetails {
         private reportDefinitionService: ReportDefinitionService,
         private businessRelationService: BusinessRelationService,
         private router: Router,
-        private params: RouteParams,
+        private route: ActivatedRoute,
         private tabService: TabService) {
 
-        this.orderID = params.get('id');         
+        this.route.params.subscribe(params => this.orderID = +params['id']);         
     }
 
     private log(err) {
@@ -91,7 +91,7 @@ export class OrderDetails {
         this.customerOrderService.next(this.order.ID)
             .subscribe((data) => {
                 if (data) {
-                    this.router.navigateByUrl('/sales/order/details/' + data.ID);
+                    this.router.navigateByUrl('/sales/orders/' + data.ID);
                 }
             },
             (err) => {
@@ -105,7 +105,7 @@ export class OrderDetails {
         this.customerOrderService.previous(this.order.ID)
             .subscribe((data) => {
                 if (data) {
-                    this.router.navigateByUrl('/sales/order/details/' + data.ID);
+                    this.router.navigateByUrl('/sales/orders/' + data.ID);
                 }
             },
             (err) => {
@@ -120,7 +120,7 @@ export class OrderDetails {
             this.customerOrderService.Post(order)
                 .subscribe(
                 (data) => {
-                    this.router.navigateByUrl('/sales/order/details/' + data.ID);
+                    this.router.navigateByUrl('/sales/orders/' + data.ID);
                 },
                 (err) => {
                     console.log('Error creating order: ', err);
@@ -128,10 +128,6 @@ export class OrderDetails {
                 }
                 );
         });
-    }
-
-    public isActive(instruction: any[]): boolean {
-        return this.router.isRouteActive(this.router.generate(instruction));
     }
 
     public change(value: CustomerOrder) { }
@@ -201,7 +197,7 @@ export class OrderDetails {
 
     private setTabTitle() {
         let tabTitle = this.order.OrderNumber ? 'Ordrenr. ' + this.order.OrderNumber : 'Ordre (kladd)'; 
-        this.tabService.addTab({ url: '/sales/order/details/' + this.order.ID, name: tabTitle, active: true, moduleID: 4 });
+        this.tabService.addTab({ url: '/sales/orders/' + this.order.ID, name: tabTitle, active: true, moduleID: 4 });
     }
 
     private extendFormConfig() {
@@ -431,7 +427,7 @@ export class OrderDetails {
                 order.Items = items;
 
                 this.customerOrderService.ActionWithBody(order.ID, order, 'transfer-to-invoice').subscribe((invoice) => {
-                    this.router.navigateByUrl('/sales/invoice/details/' + invoice.ID);
+                    this.router.navigateByUrl('/sales/invoices/' + invoice.ID);
                     done('Lagret og overført til faktura');
                 }, (err) => {
                     console.log('== TRANSFER-TO-INVOICE FAILED ==');

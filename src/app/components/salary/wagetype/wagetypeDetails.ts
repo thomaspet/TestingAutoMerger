@@ -1,5 +1,5 @@
 import {Component, ViewChild} from '@angular/core';
-import {RouteParams, Router} from '@angular/router-deprecated';
+import {ActivatedRoute, Router} from '@angular/router';
 import {WageTypeService, AccountService} from '../../../services/services';
 import {UniForm, UniFieldLayout} from '../../../../framework/uniForm';
 import {WidgetPoster} from '../../../../framework/widgetPoster/widgetPoster';
@@ -32,13 +32,16 @@ export class WagetypeDetail {
     public fields: any[] = [];
     @ViewChild(UniForm) public uniform: UniForm;
 
-    constructor(private routeparams: RouteParams, private router: Router, private wageService: WageTypeService, private tabService: TabService, private accountService: AccountService) {
+    constructor(private route: ActivatedRoute, private router: Router, private wageService: WageTypeService, private tabService: TabService, private accountService: AccountService) {
 
         this.config = {
             submitText: ''
         };
-        this.wagetypeID = +this.routeparams.get('id');
-        this.getLayoutAndData();
+        this.route.params.subscribe(params => {
+            this.wagetypeID = +params['id'];
+            this.getLayoutAndData();
+        });
+
     }
 
     private getLayoutAndData() {

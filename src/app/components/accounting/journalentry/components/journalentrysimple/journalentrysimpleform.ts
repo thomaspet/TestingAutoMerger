@@ -1,16 +1,12 @@
-import {Component, Input, Output, ViewChild, SimpleChange, EventEmitter, OnChanges, ElementRef, Renderer} from '@angular/core';
-import {Control} from '@angular/common';
+import {Component, Input, Output, ViewChild, SimpleChange, EventEmitter, OnChanges, Renderer} from '@angular/core';
 import {Observable} from 'rxjs/Observable';
-
-import {FieldLayout, Departement, Project, VatType, VatCodeGroup, Account, JournalEntry, JournalEntryLine, JournalEntryLineDraft, Dimensions} from '../../../../../unientities';
+import {Departement, Project, VatType, Account} from '../../../../../unientities';
 import {JournalEntryData} from '../../../../../models/models';
 
-import {UniForm, UniField, UniFieldLayout} from '../../../../../../framework/uniform';
-import {UniAutocompleteConfig} from '../../../../../../framework/controls/autocomplete/autocomplete';
+import {UniForm, UniFieldLayout} from '../../../../../../framework/uniform';
 import {AccountService, JournalEntryService, CustomerInvoiceService} from '../../../../../services/services';
 
 declare var _;
-declare var jQuery;
 declare var moment;
 
 export enum JournalEntryMode {

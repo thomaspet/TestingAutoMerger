@@ -157,7 +157,7 @@ export class TaxCardRequestModal {
     private employeeID: number;
 
     constructor(private rootRouteParams: RootRouteParamsService) {
-        this.employeeID = +rootRouteParams.params.get('id');
+        this.employeeID = +rootRouteParams.params['id'];
         this.config = {
             hasCancelButton: true,
             cancel: () => {

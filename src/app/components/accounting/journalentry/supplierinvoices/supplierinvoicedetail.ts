@@ -1,14 +1,11 @@
 import {Component, Input, OnInit, ViewChild, ComponentRef} from '@angular/core';
-import {Router, RouteParams, RouterLink} from '@angular/router-deprecated';
-
+import {Router, ActivatedRoute, RouterLink} from '@angular/router';
 import {Observable} from 'rxjs/Observable';
-
 import {SupplierInvoiceService, SupplierService, BankAccountService, JournalEntryService} from '../../../../services/services';
-
 import {UniForm, UniFieldLayout} from '../../../../../framework/uniform/index';
 import {UniComponentLoader} from '../../../../../framework/core/componentLoader';
 import {JournalEntryData} from '../../../..//models/models';
-import {FieldType, ComponentLayout, SupplierInvoice, Supplier, BankAccount, StatusCodeSupplierInvoice} from '../../../../unientities';
+import {SupplierInvoice, Supplier, BankAccount, StatusCodeSupplierInvoice} from '../../../../unientities';
 import {JournalEntryManual} from '../journalentrymanual/journalentrymanual';
 import {UniDocumentUploader} from '../../../../../framework/documents/index';
 import {SupplierInvoiceFileUploader} from './supplierinvoiceuploader';
@@ -54,10 +51,12 @@ export class SupplierInvoiceDetail implements OnInit {
         private _journalEntryService: JournalEntryService,
         private fileuploader: SupplierInvoiceFileUploader,
         private router: Router,
-        private _routeParams: RouteParams,
+        private route: ActivatedRoute,
         private tabService: TabService) {
 
-        this.invoiceId = _routeParams.get('id');
+        route.params.subscribe(params => {
+            this.invoiceId = +params['id'];
+        });
         this.previewId = 0;
         this.previewSize = UniImageSize.medium;
     }
@@ -99,7 +98,7 @@ export class SupplierInvoiceDetail implements OnInit {
     
     private setTabTitle() {
         let tabTitle = this.supplierInvoice.InvoiceNumber ? 'Leverandørfakturanr ' + this.supplierInvoice.InvoiceNumber : 'Leverandørfaktura (kladd)'; 
-        this.tabService.addTab({ url: '/accounting/journalentry/supplierinvoices/details/' + this.invoiceId, name: tabTitle, active: true, moduleID: 7 });        
+        this.tabService.addTab({ url: '/accounting/journalentry/supplierinvoices/' + this.invoiceId, name: tabTitle, active: true, moduleID: 7 });        
     }
     
     
@@ -160,18 +159,12 @@ export class SupplierInvoiceDetail implements OnInit {
     }
 
     private IsJournalActionDisabled() {
-        if (this.supplierInvoice.StatusCode === StatusCodeSupplierInvoice.Draft){
-            return false;
-        }
-        return true;
+        return this.supplierInvoice.StatusCode !== StatusCodeSupplierInvoice.Draft;
     }
     private IsRegisterPaymentActionDisabled() {
-        if (this.supplierInvoice.StatusCode === StatusCodeSupplierInvoice.Journaled ||
-            this.supplierInvoice.StatusCode === StatusCodeSupplierInvoice.ToPayment ||
-            this.supplierInvoice.StatusCode === StatusCodeSupplierInvoice.PartlyPayed){
-            return false;
-        }
-        return true;
+        return !(this.supplierInvoice.StatusCode === StatusCodeSupplierInvoice.Journaled ||
+        this.supplierInvoice.StatusCode === StatusCodeSupplierInvoice.ToPayment ||
+        this.supplierInvoice.StatusCode === StatusCodeSupplierInvoice.PartlyPayed);
     }
 
     private saveSupplierInvoiceTransition(done: any, transition: string, doneText: string) {
@@ -186,7 +179,7 @@ export class SupplierInvoiceDetail implements OnInit {
         if (this.supplierInvoice.StatusCode === StatusCodeSupplierInvoice.Journaled) {
             this._supplierInvoiceService.Transition(this.supplierInvoice.ID, this.supplierInvoice, 'sendForPayment').subscribe(() => {
                 console.log('== TRANSITION OK sendForPayment ==');
-                this.registerPayment(done)
+                this.registerPayment(done);
                 done('Betalt');
             },
                 (error) => {
@@ -195,7 +188,7 @@ export class SupplierInvoiceDetail implements OnInit {
                 });
         }
         else {
-            this.registerPayment(done)
+            this.registerPayment(done);
             done('Betalt');
         }
     }

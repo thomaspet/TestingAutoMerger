@@ -1,5 +1,5 @@
 import {Injectable, Inject, Output, EventEmitter} from '@angular/core';
-import {Router} from '@angular/router-deprecated';
+import {Router} from '@angular/router';
 import {Http, Headers} from '@angular/http';
 import {Observable} from 'rxjs/Observable';
 import {AppConfig} from '../../app/AppConfig';
@@ -126,7 +126,7 @@ export class AuthService {
         this.activeCompany = undefined;
         this.authenticationStatus$.emit(false);
         
-        this.router.navigate(['Login']);
+        this.router.navigateByUrl('init/login');
     }
     
     /**

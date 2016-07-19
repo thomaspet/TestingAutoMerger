@@ -1,14 +1,10 @@
-import {Component, provide, Input, ViewChild, Output, EventEmitter, SimpleChange} from '@angular/core';
+import {Component, Input, ViewChild, Output, EventEmitter, SimpleChange} from '@angular/core';
 import {Observable} from 'rxjs/Observable';
 import 'rxjs/add/observable/forkJoin';
-
-import {FieldType} from '../../../../unientities';
 import {UniForm, UniFieldLayout} from '../../../../../framework/uniform';
-
 import {DimensionList} from '../dimensionList/dimensionList';
 import {AccountGroupList} from '../accountGroupList/accountGroupList';
-
-import {Account, Currency, VatType} from '../../../../unientities';
+import {Account, VatType} from '../../../../unientities';
 import {VatTypeService, CurrencyService, AccountService} from '../../../../services/services';
 
 @Component({

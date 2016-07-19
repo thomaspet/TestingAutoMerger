@@ -1,7 +1,7 @@
 import {Component, ViewChild, Input} from '@angular/core';
 import {TabService} from '../../layout/navbar/tabstrip/tabService';
 import {WorkerService} from '../../../services/timetracking/workerservice';
-import {Router, RouteParams} from '@angular/router-deprecated';
+import {Router, ActivatedRoute} from '@angular/router';
 import {UniSave, IUniSaveAction} from '../../../../framework/save/save';
 import {UniForm} from '../../../../framework/uniform';
 import {ToastService, ToastType} from '../../../../framework/uniToast/toastService';
@@ -47,8 +47,12 @@ export class GenericDetailview {
         { label: labels.action_delete, action: (done) => this.delete(done), main: false, disabled: true}
     ];     
 
-    constructor(private workerService: WorkerService, private params: RouteParams, private tabService: TabService, private toastService: ToastService, private router: Router) {
-            this.ID = parseInt(params.get('id'));
+    constructor(private workerService: WorkerService, 
+        		private route: ActivatedRoute, 
+				private tabService: TabService,
+        		private toastService: ToastService, 
+				private router: Router) {
+            this.route.params.subscribe(params => this.ID = +params['id']);
     }
 
     public ngOnInit() {

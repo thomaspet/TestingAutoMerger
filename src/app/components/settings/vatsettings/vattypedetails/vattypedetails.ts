@@ -13,7 +13,7 @@ import {UniTable, UniTableColumn, UniTableConfig, UniTableColumnType} from 'unit
 
 @Component({
     selector: 'vattype-details',
-    templateUrl: 'app/components/settings/vatsettings/vattypedetails/vattypedetails.html',
+    templateUrl: 'app/components/settings/vatsettings/vatttypedetails/vattypedetails.html',
     directives: [UniForm, UniTable],
     providers: [VatTypeService, AccountService, VatCodeGroupService, VatPostService]
 })

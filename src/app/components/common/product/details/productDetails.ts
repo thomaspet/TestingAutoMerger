@@ -1,11 +1,11 @@
-import {Component, ComponentRef, Input, Output, ViewChild, SimpleChange, EventEmitter} from '@angular/core';
-import {Router, RouteParams, RouterLink} from '@angular/router-deprecated';
+import {Component, Input, ViewChild} from '@angular/core';
+import {Router, ActivatedRoute} from '@angular/router';
 import {Observable} from 'rxjs/Observable';
 import 'rxjs/add/observable/forkJoin';
 
 import {ProductService, AccountService, VatTypeService} from '../../../../services/services';
 
-import {FieldType, FieldLayout, ComponentLayout, Product, Account, VatType} from '../../../../unientities';
+import {Product, Account, VatType} from '../../../../unientities';
 import {UniSave, IUniSaveAction} from '../../../../../framework/save/save';
 import {UniForm, UniField, UniFieldLayout} from '../../../../../framework/uniform';
 import {UniImage, IUploadConfig} from '../../../../../framework/uniImage/uniImage';
@@ -44,12 +44,11 @@ export class ProductDetails {
     private vatTypeField: UniField;
     private calculateGrossPriceBasedOnNetPriceField: UniField;
 
-    constructor(private productService: ProductService, private accountService: AccountService, private vatTypeService: VatTypeService, private router: Router, private params: RouteParams, private tabService: TabService) {
-        this.productId = params.get('id');
-    }
+    constructor(private productService: ProductService, private accountService: AccountService, private vatTypeService: VatTypeService, private router: Router, private route: ActivatedRoute, private tabService: TabService) {
+        this.route.params.subscribe(params => {
+            this.productId = +params['id'];
+        });
 
-    private isActive(instruction: any[]): boolean {
-        return this.router.isRouteActive(this.router.generate(instruction));
     }
 
     private saveactions: IUniSaveAction[] = [
@@ -110,7 +109,7 @@ export class ProductDetails {
 
     private setTabTitle() {
         let tabTitle = this.product.PartName ? 'Produktnr. ' + this.product.PartName : 'Produkt (kladd)';
-        this.tabService.addTab({ url: '/products/details/' + this.product.ID, name: tabTitle, active: true, moduleID: 6 });
+        this.tabService.addTab({ url: '/products/' + this.product.ID, name: tabTitle, active: true, moduleID: 6 });
     }
 
     private ready(event) {
@@ -137,7 +136,7 @@ export class ProductDetails {
                 .subscribe(
                     (newProduct) => {
                         console.log('Product created, redirect to new ID, ' + newProduct.ID);
-                        this.router.navigateByUrl('/products/details/' + newProduct.ID);
+                        this.router.navigateByUrl('/products/' + newProduct.ID);
                     },
                     (err) => {
                         completeEvent('Feil oppsto ved lagring');
@@ -170,7 +169,7 @@ export class ProductDetails {
         this.productService.previous(this.product.ID)
             .subscribe((data) => {
                 if (data) {
-                    this.router.navigateByUrl('/products/details/' + data.ID);
+                    this.router.navigateByUrl('/products/' + data.ID);
                 }
             });
     }
@@ -179,13 +178,13 @@ export class ProductDetails {
         this.productService.next(this.product.ID)
             .subscribe((data) => {
                 if (data) {
-                    this.router.navigateByUrl('/products/details/' + data.ID);
+                    this.router.navigateByUrl('/products/' + data.ID);
                 }
             });
     }
 
     private addProduct() {
-        this.router.navigateByUrl('/products/details/0');
+        this.router.navigateByUrl('/products/0');
     }
 
     private extendFormConfig() {

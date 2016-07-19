@@ -1,5 +1,4 @@
 ﻿import {Component, OnInit, ViewChild} from '@angular/core';
-import {ROUTER_DIRECTIVES} from '@angular/router-deprecated';
 import {Observable} from 'rxjs/Observable';
 import 'rxjs/add/observable/forkJoin';
 import {UniSave, IUniSaveAction} from '../../../../framework/save/save';
@@ -17,7 +16,7 @@ declare var _; // lodash
         CompanySalaryService,
         AccountService
     ],
-    directives: [ROUTER_DIRECTIVES, UniForm, UniSave, SubEntityList]
+    directives: [UniForm, UniSave, SubEntityList]
 })
 
 export class AgaAndSubEntitySettings implements OnInit {

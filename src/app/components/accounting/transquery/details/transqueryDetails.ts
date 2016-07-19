@@ -1,5 +1,5 @@
 import {Component, OnInit} from '@angular/core';
-import {RouteParams} from '@angular/router-deprecated';
+import {ActivatedRoute} from '@angular/router';
 import {UniTable, UniTableColumn, UniTableConfig, UniTableColumnType, ITableFilter} from 'unitable-ng2/main';
 import {TransqueryDetailsCalculationsSummary} from '../../../../models/accounting/TransqueryDetailsCalculationsSummary';
 import {JournalEntryLineService} from '../../../../services/Accounting/JournalEntryLineService';
@@ -20,15 +20,17 @@ export class TransqueryDetails implements OnInit {
     private uniTableConfig: UniTableConfig;
     private lookupFunction: (urlParams: URLSearchParams) => any;
 
-    constructor(private routeParams: RouteParams, private journalEntryLineService: JournalEntryLineService, private tabService: TabService) {
+    constructor(private route: ActivatedRoute, private journalEntryLineService: JournalEntryLineService, private tabService: TabService) {
         this.tabService.addTab({ 'name': 'Forespørsel Bilag', url: '/accounting/transquery/details', moduleID: 9, active: true });
     }
 
     public ngOnInit() {
-        const searchParameters = this.getSearchParameters(this.routeParams);
-        const unitableFilter = this.generateUnitableFilters(searchParameters);
-        this.uniTableConfig = this.generateUniTableConfig(unitableFilter);
-        this.lookupFunction = (urlParams: URLSearchParams) => this.getTableData(urlParams);
+        this.route.params.subscribe(params => {
+            const searchParameters = this.getSearchParameters(params);
+            const unitableFilter = this.generateUnitableFilters(searchParameters);
+            this.uniTableConfig = this.generateUniTableConfig(unitableFilter);
+            this.lookupFunction = (urlParams: URLSearchParams) => this.getTableData(urlParams);
+        });
     }
 
     private getTableData(urlParams: URLSearchParams): Observable<JournalEntryLine[]> {
@@ -39,12 +41,12 @@ export class TransqueryDetails implements OnInit {
 
     private getSearchParameters(routeParams): TransqueryDetailSearchParamters {
         const searchParams = new TransqueryDetailSearchParamters();
-        searchParams.accountNumber = Number(routeParams.get('accountNumber'));
-        searchParams.year = Number(routeParams.get('year'));
-        searchParams.period = Number(routeParams.get('period'));
-        searchParams.isIncomingBalance = routeParams.get('isIncomingBalance') === 'true';
-        searchParams.journalEntryNumber = routeParams.get('journalEntryNumber');
-        searchParams.accountID = routeParams.get('accountID');        
+        searchParams.accountNumber = +routeParams['accountNumber'];
+        searchParams.year = +routeParams['year'];
+        searchParams.period = +routeParams['period'];
+        searchParams.isIncomingBalance = routeParams['isIncomingBalance'] === 'true';
+        searchParams.journalEntryNumber = routeParams['journalEntryNumber'];
+        searchParams.accountID = routeParams['accountID'];
         return searchParams;
     }
 

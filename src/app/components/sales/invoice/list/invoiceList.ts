@@ -1,6 +1,6 @@
 import {Component, ViewChild, OnInit} from '@angular/core';
 import {UniTable, UniTableColumn, UniTableColumnType, UniTableConfig, IContextMenuItem} from 'unitable-ng2/main';
-import {Router} from '@angular/router-deprecated';
+import {Router} from '@angular/router';
 import {UniHttp} from '../../../../../framework/core/http/http';
 import {CustomerInvoiceService, ReportDefinitionService} from '../../../../services/services';
 import {StatusCodeCustomerInvoice, CustomerInvoice} from '../../../../unientities';
@@ -57,7 +57,7 @@ export class InvoiceList implements OnInit {
             this.customerInvoiceService.Post(invoice)
                 .subscribe(
                 (data) => {
-                    this.router.navigateByUrl('/sales/invoice/details/' + data.ID);
+                    this.router.navigateByUrl('/sales/invoices/' + data.ID);
                 },
                 (err) => {
                     console.log('Error creating invoice: ', err);
@@ -71,7 +71,7 @@ export class InvoiceList implements OnInit {
 
         this.customerInvoiceService.ActionWithBody(modalData.id, modalData.invoice, 'payInvoice').subscribe((journalEntry) => {
             // TODO: Decide what to do here. Popup message or navigate to journalentry ??
-            // this.router.navigateByUrl('/sales/invoice/details/' + invoice.ID);
+            // this.router.navigateByUrl('/sales/invoices/' + invoice.ID);
             alert('Faktura er betalt. Bilagsnummer: ' + journalEntry.JournalEntryNumber);
             this.table.refreshTableData();
         }, (err) => {
@@ -97,17 +97,17 @@ export class InvoiceList implements OnInit {
         contextMenuItems.push({
             label: 'Rediger',
             action: (rowModel) => {
-                this.router.navigateByUrl(`/sales/invoice/details/${rowModel.ID}`);
+                this.router.navigateByUrl(`/sales/invoices/${rowModel.ID}`);
             }
         });
 
-        // TODO Foreløpig kun tilgjengelig for type Faktura, ikke for Kreditnota
+        // TODO Forelï¿½pig kun tilgjengelig for type Faktura, ikke for Kreditnota
         contextMenuItems.push({
             label: 'Krediter',
             action: (rowModel) => {
                 this.customerInvoiceService.createCreditNoteFromInvoice(rowModel.ID)
                     .subscribe((data) => {
-                        this.router.navigateByUrl('/sales/invoice/details/' + data.ID);
+                        this.router.navigateByUrl('/sales/invoices/' + data.ID);
                     },
                     (err) => {
                         console.log('Error creating credit note: ', err);
@@ -212,7 +212,7 @@ export class InvoiceList implements OnInit {
                 this.registerPaymentModal.openModal(rowModel.ID, title, invoiceData);
             },
 
-            // TODO: Benytt denne når _links fungerer
+            // TODO: Benytt denne nï¿½r _links fungerer
             // disabled: (rowModel) => {
             //    return !rowModel._links.transitions.pay;
             //    }
@@ -287,7 +287,7 @@ export class InvoiceList implements OnInit {
             .setWidth('6%')
             .setTemplate(invoice => {
                 if (invoice.InvoiceReference && invoice.InvoiceReference.InvoiceNumber) {
-                    return `<a href="#/sales/invoice/details/${invoice.InvoiceReference.ID}">
+                    return `<a href="#/sales/invoices/${invoice.InvoiceReference.ID}">
                                 ${invoice.InvoiceReference.InvoiceNumber}
                             </a>`;
                 }
@@ -310,7 +310,7 @@ export class InvoiceList implements OnInit {
     }
 
     public onRowSelected(item) {
-        this.router.navigateByUrl(`/sales/invoice/details/${item.ID}`);
+        this.router.navigateByUrl(`/sales/invoices/${item.ID}`);
     }
 
     public onFiltersChange(filter: string) {

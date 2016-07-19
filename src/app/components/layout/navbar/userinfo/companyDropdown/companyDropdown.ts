@@ -1,5 +1,5 @@
-import {Component, AfterViewInit} from '@angular/core';
-import {Router} from '@angular/router-deprecated';
+import {Component} from '@angular/core';
+import {Router} from '@angular/router';
 import {AuthService} from '../../../../../../framework/core/authService';
 import {UniHttp} from '../../../../../../framework/core/http/http';
 import {ClickOutsideDirective} from '../../../../../../framework/core/clickOutside';

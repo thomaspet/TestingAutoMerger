@@ -1,12 +1,12 @@
 import {Component} from '@angular/core';
-import {RouteParams, ROUTER_DIRECTIVES} from '@angular/router-deprecated';
+import {ActivatedRoute, ROUTER_DIRECTIVES} from '@angular/router';
 import {Control, Validators, ControlGroup, FORM_DIRECTIVES} from '@angular/common';
-import {passwordValidator} from './authValidators';
-import {UniHttp} from '../../../framework/core/http/http';
+import {passwordValidator} from '../authValidators';
+import {UniHttp} from '../../../../framework/core/http/http';
 
 @Component({
     selector: 'uni-reset-password',
-    templateUrl: 'app/components/init/resetPassword.html',
+    templateUrl: 'app/components/init/resetPassword/resetPassword.html',
     directives: [FORM_DIRECTIVES, ROUTER_DIRECTIVES],
 })
 export class ResetPassword {
@@ -23,10 +23,12 @@ export class ResetPassword {
     private emailForm: ControlGroup;
     private passwordForm: ControlGroup;
     
-    constructor(routeParams: RouteParams, private uniHttp: UniHttp) {
-        this.code = routeParams.get('code');
-        this.userid = routeParams.get('userid');
-                
+    constructor(private route: ActivatedRoute, private uniHttp: UniHttp) {
+        this.route.params.subscribe(params => {
+            this.code = params['code'];
+            this.userid = params['userid'];       
+        });
+        
         var validator = Validators.compose([
             passwordValidator,
             Validators.required,

@@ -1,5 +1,5 @@
 import {Component, OnInit, ViewChild, provide} from '@angular/core';
-import {RouteParams, Router} from '@angular/router-deprecated';
+import {ActivatedRoute, Router} from '@angular/router';
 import {PayrollRun} from '../../../unientities';
 import {PayrollrunService} from '../../../services/services';
 import {Observable} from 'rxjs/Observable';
@@ -40,9 +40,12 @@ export class PayrollrunDetails implements OnInit {
     private formIsReady: boolean = false;
     private contextMenuItems: IContextMenuItem[] = [];
 
-    constructor(private routeParams: RouteParams, private payrollrunService: PayrollrunService, private router: Router, private tabSer: TabService, private _rootRouteParamsService: RootRouteParamsService) {
-        this.payrollrunID = +this.routeParams.get('id');
-        this._rootRouteParamsService.params = this.routeParams;
+    constructor(private route: ActivatedRoute, private payrollrunService: PayrollrunService, private router: Router, private tabSer: TabService, private _rootRouteParamsService: RootRouteParamsService) {
+        this.route.params.subscribe(params => {
+            this.payrollrunID = +params['id'];
+            this._rootRouteParamsService.params = params;
+
+        });
         this.contextMenuItems = [
             {
                 label: 'Generer feriepenger',

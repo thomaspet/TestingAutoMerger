@@ -1,6 +1,6 @@
 import {Component} from '@angular/core';
 import {URLSearchParams} from '@angular/http';
-import {Router} from '@angular/router-deprecated';
+import {Router} from '@angular/router';
 import {UniTable, UniTableColumn, UniTableColumnType, UniTableConfig} from 'unitable-ng2/main';
 import {SupplierService} from '../../../../services/services';
 import {TabService} from '../../../layout/navbar/tabstrip/tabService';
@@ -19,16 +19,16 @@ export class SupplierList {
     private lookupFunction: (urlParams: URLSearchParams) => any;
     
     constructor(private router: Router, private supplierService: SupplierService, private tabService: TabService) {
-        this.tabService.addTab({ name: "Leverandører", url: "/sales/supplier", active: true, moduleID: 2 });    
+        this.tabService.addTab({ name: "Leverandører", url: "/sales/suppliers", active: true, moduleID: 2 });    
         this.setupSupplierTable();
     }
     
     private createSupplier() {
-        this.router.navigateByUrl('/sales/supplier/details/0');
+        this.router.navigateByUrl('/sales/suppliers/0');
     }
 
     private onRowSelected (event) {
-        this.router.navigateByUrl('/sales/supplier/details/' + event.rowModel.ID);
+        this.router.navigateByUrl('/sales/suppliers/' + event.rowModel.ID);
     };
 
     private setupSupplierTable() {

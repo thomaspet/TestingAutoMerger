@@ -1,13 +1,12 @@
 import {Component} from '@angular/core';
-import {Router, ROUTER_DIRECTIVES} from '@angular/router-deprecated';
-import {AuthService} from '../../../framework/core/authService';
-import {UniHttp} from '../../../framework/core/http/http';
-import {UniSelect, ISelectConfig} from '../../../framework/controls/select/select';
-declare var jQuery;
+import {Router, ROUTER_DIRECTIVES} from '@angular/router';
+import {AuthService} from '../../../../framework/core/authService';
+import {UniHttp} from '../../../../framework/core/http/http';
+import {UniSelect, ISelectConfig} from '../../../../framework/controls/select/select';
 
 @Component({
     selector: 'uni-login',
-    templateUrl: 'app/components/init/login.html',
+    templateUrl: 'app/components/init/login/login.html',
     directives: [ROUTER_DIRECTIVES, UniSelect]
 })
 export class Login {
@@ -80,8 +79,8 @@ export class Login {
     }
 
     private navigate() {
-        var url = localStorage.getItem('lastNavigationAttempt') || '/';
+        const url = localStorage.getItem('lastNavigationAttempt') || '/';
         localStorage.removeItem('lastNavigationAttempt');
-        this._router.navigateByUrl(url);
+        this._router.navigate([url]);
     }
 }

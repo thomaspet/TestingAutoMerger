@@ -1,9 +1,7 @@
 import {Component, OnInit, ViewChild} from '@angular/core';
-import {Router} from '@angular/router-deprecated';
 import {UniTable, UniTableConfig, UniTableColumnType, UniTableColumn} from 'unitable-ng2/main';
 import {Observable} from 'rxjs/Observable';
 import {EmploymentService, EmployeeService} from '../../../../services/services';
-import {EmployeeDS} from '../../../../data/employee';
 import {Employee, Employment} from '../../../../unientities';
 import {EmployeeEmployment} from './employments';
 import {RootRouteParamsService} from '../../../../services/rootRouteParams';
@@ -27,8 +25,12 @@ export class EmploymentList implements OnInit {
 
     @ViewChild(EmployeeEmployment) private employmentComponent: EmployeeEmployment;
     
-    constructor(private _employmentService: EmploymentService, private employeeService: EmployeeService, private router: Router, private rootRouteParams: RootRouteParamsService) {        
-        this.currentEmployeeID = +rootRouteParams.params.get('id');
+    constructor(
+        private _employmentService: EmploymentService,
+        private employeeService: EmployeeService,
+        private rootRouteParams: RootRouteParamsService) {
+
+        this.currentEmployeeID = +rootRouteParams.params['id'];
     }
     
     public ngOnInit() {

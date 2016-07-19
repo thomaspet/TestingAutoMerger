@@ -1,10 +1,8 @@
-import {Component, Type, Input, Output, ViewChild, ComponentRef, EventEmitter} from '@angular/core';
-import {NgIf, NgModel, NgFor, NgClass} from '@angular/common';
+import {Component, Type, Input, Output, ViewChild, EventEmitter} from '@angular/core';
+import {NgIf} from '@angular/common';
 import {UniModal} from '../../../../framework/modals/modal';
-import {UniComponentLoader} from '../../../../framework/core/componentLoader';
 import {UniForm, } from '../../../../framework/uniForm';
 import {InvoicePaymentData} from '../../../models/sales/InvoicePaymentData';
-import {FieldLayout} from "../../../unientities";
 
 @Component({
     selector: 'register-payment-form',

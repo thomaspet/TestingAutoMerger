@@ -1,9 +1,6 @@
 import {Component, Input} from '@angular/core';
 import {UniTable, UniTableColumn, UniTableColumnType, UniTableConfig} from 'unitable-ng2/main';
-import {FieldType} from '../../../../app/unientities';
-import {Router} from '@angular/router-deprecated';
 import {PayrollrunService} from '../../../../app/services/services';
-import {UNI_CONTROL_DIRECTIVES} from '../../../../framework/controls';
 
 @Component({
     selector: 'postingsummary-modal-content',
@@ -21,7 +18,7 @@ export class PostingsummaryModalContent {
     private payDate : Date;
     private headerString : string = 'Konteringssammendrag';
     
-    constructor(private routr: Router, private payrollService: PayrollrunService) {
+    constructor(private payrollService: PayrollrunService) {
         
     }
     

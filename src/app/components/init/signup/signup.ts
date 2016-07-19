@@ -1,12 +1,12 @@
 import {Component} from '@angular/core';
-import {Router, ROUTER_DIRECTIVES} from '@angular/router-deprecated';
-import {UniHttp} from '../../../framework/core/http/http';
+import {ROUTER_DIRECTIVES} from '@angular/router';
 import {Control, Validators, ControlGroup, FORM_DIRECTIVES} from '@angular/common';
-import {passwordValidator} from './authValidators';
+import {UniHttp} from '../../../../framework/core/http/http';
+import {passwordValidator} from '../authValidators';
 
 @Component({
     selector: 'uni-signup',
-    templateUrl: 'app/components/init/signup.html',
+    templateUrl: 'app/components/init/signup/signup.html',
     directives: [ROUTER_DIRECTIVES, FORM_DIRECTIVES]
 })
 export class Signup {
@@ -22,7 +22,7 @@ export class Signup {
     private errorMessage: string = '';
 
 
-    constructor(private _http: UniHttp, private _router: Router) {
+    constructor(private _http: UniHttp) {
         this.emailForm = new ControlGroup({
             Email: new Control('', Validators.required)
         });

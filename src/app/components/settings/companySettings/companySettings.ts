@@ -1,5 +1,4 @@
 ﻿import {Component, OnInit, ViewChild} from '@angular/core';
-import {RouteParams, ROUTER_DIRECTIVES} from '@angular/router-deprecated';
 import {Observable} from 'rxjs/Observable';
 import 'rxjs/add/observable/forkJoin';
 import {UniSave, IUniSaveAction} from '../../../../framework/save/save';
@@ -28,7 +27,7 @@ declare var _;
         MunicipalService,
         BankAccountService
     ],
-    directives: [ROUTER_DIRECTIVES, UniForm, UniSave, UniImage, BankAccountModal]
+    directives: [UniForm, UniSave, UniImage, BankAccountModal]
 })
 
 export class CompanySettings implements OnInit {
@@ -72,8 +71,7 @@ export class CompanySettings implements OnInit {
     ];
     
     // TODO Use service instead of Http, Use interfaces!!
-    constructor(private routeParams: RouteParams,
-                private companySettingsService: CompanySettingsService, 
+    constructor(private companySettingsService: CompanySettingsService,
                 private accountService: AccountService,
                 private currencyService: CurrencyService,
                 private accountGroupSetService: AccountGroupSetService,

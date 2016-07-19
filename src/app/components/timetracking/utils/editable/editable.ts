@@ -31,9 +31,9 @@ export class Editable implements AfterViewInit, OnDestroy {
     public onChange: EventEmitter<any> = new EventEmitter();
     private jqRoot: any;
     private handlers: any = {
-        onClick: undefined,   
+        onClick: undefined,
         onResize: undefined,
-        editBlur: undefined      
+        editBlur: undefined
     };
     private current: any = {
         active: <IJQItem>undefined,
@@ -42,13 +42,13 @@ export class Editable implements AfterViewInit, OnDestroy {
         navDebouncer: <() => void>undefined
     };
     private dropList: DropList = new DropList();
-    
+
     constructor(el: ElementRef) {
         this.jqRoot = $(el.nativeElement);
-        
+
         this.handlers.onClick = (event) => { this.startEdit(event); };
         this.handlers.onResize = (event) => { this.onResize(); };
-        
+
         this.jqRoot.on('click', this.handlers.onClick);
         $(window).on('resize', this.handlers.onResize );
 
@@ -71,7 +71,7 @@ export class Editable implements AfterViewInit, OnDestroy {
             }
         }
     }
-    
+
     public ngAfterViewInit() {
         this.raiseEvent('onInit', this);
     }
@@ -100,8 +100,8 @@ export class Editable implements AfterViewInit, OnDestroy {
         var cell = tb.find(query);
         if (cell) {
             this.startEdit({target: cell});
-        }        
-    }    
+        }
+    }
 
     private onResize() {
         if (!this.current.active) { return; }
@@ -141,12 +141,12 @@ export class Editable implements AfterViewInit, OnDestroy {
     private setupTimeoutForFastNavigation(ms = 250) {
         this.current.allowFastNavigation = true;
         if (!this.current.navDebouncer) {
-            this.current.navDebouncer = debounce(() => { this.current.allowFastNavigation = false; }, ms, false);            
+            this.current.navDebouncer = debounce(() => { this.current.allowFastNavigation = false; }, ms, false);
         }
-        this.current.navDebouncer.call(this);        
+        this.current.navDebouncer.call(this);
     }
 
-    private loadTextIntoEditor() {        
+    private loadTextIntoEditor() {
         if (this.current.active) {
             var txt = this.current.active.text();
             this.current.editor.setValue(txt);
@@ -180,7 +180,7 @@ export class Editable implements AfterViewInit, OnDestroy {
                     this.current.editor.finalizeEdit(false, undefined, 'blur');
                 }, 'blur');
             });
-        }        
+        }
     }
 
     private whenNoDroplist(target: IJQItem, fx: () => void, source = 'click') {
@@ -194,39 +194,39 @@ export class Editable implements AfterViewInit, OnDestroy {
             if (target.closest('.editable_cellbutton').length === 0) {
                 return fx();
             }
-        } 
+        }
         // No target! (lets check delay and check if activeElement is our droplist)
         setTimeout(() => {
             this.whenNoDroplist($(document.activeElement), fx, source);
         });
-    }    
+    }
 
     private handleChange(value: any, pos: IPos, userTypedValue = true): boolean {
 
-        var eventDetails: IChangeEvent = { 
-            value: value, 
-            col: pos.col, 
-            row: pos.row, 
+        var eventDetails: IChangeEvent = {
+            value: value,
+            col: pos.col,
+            row: pos.row,
             cancel: false,
             updateCell: true,
             userTypedValue: userTypedValue,
             columnDefinition: this.config.columns ? this.config.columns[pos.col] : undefined
         };
-        
+
         var async: Promise<any> = this.raiseEvent('onChange', eventDetails);
 
         if (async) {
             var cell = this.current.active;
             async.then(() => {
-                setTimeout(() => { 
+                setTimeout(() => {
                     this.onResize();
-                    this.loadTextIntoEditor(); 
+                    this.loadTextIntoEditor();
                 });
             }, (reason) => {
                 cell.css('background-color', '#ffe0e0');
             });
         }
-        
+
         if (!eventDetails.cancel) {
             if (eventDetails.updateCell) {
                 this.current.active.text(eventDetails.value);
@@ -239,7 +239,7 @@ export class Editable implements AfterViewInit, OnDestroy {
     private raiseEvent(name: string, cargo: any): any {
         if (this.config && this.config.events && this.config.events.hasOwnProperty(name)) {
             return this.config.events[name](cargo);
-        }        
+        }
     }
 
     private IsLookupCell(): boolean {
@@ -247,7 +247,7 @@ export class Editable implements AfterViewInit, OnDestroy {
         var col = this.getLayoutColumn(pos.col);
         if (col) {
             return !!col.lookup;
-        }        
+        }
     }
 
     private CheckCopyCell(event: any, newTarget: any) {
@@ -279,7 +279,7 @@ export class Editable implements AfterViewInit, OnDestroy {
                     }
                     if (details.valueToSet) {
                         this.current.editor.setValue(details.valueToSet, true);
-                    }                    
+                    }
                 }
             }
         }
@@ -311,9 +311,9 @@ export class Editable implements AfterViewInit, OnDestroy {
         this.CheckCopyCell(event, candidate);
 
         if (candidate && candidate.length && candidate.length > 0) {
-            if (!this.finalizeEdit()) { 
-                return; 
-            } 
+            if (!this.finalizeEdit()) {
+                return;
+            }
 
             setTimeout(() => {
                 this.startEdit({ target: candidate[0] });
@@ -324,7 +324,7 @@ export class Editable implements AfterViewInit, OnDestroy {
                 event.stopPropagation();
             }
 
-        }        
+        }
     }
 
     private currentPosition(): IPos {
@@ -344,7 +344,7 @@ export class Editable implements AfterViewInit, OnDestroy {
         };
         this.dropList.clear();
         this.raiseEvent('onTypeSearch', details);
-        if (!details.ignore) {            
+        if (!details.ignore) {
             this.showTypeSearch(details);
         }
     }
@@ -357,7 +357,7 @@ export class Editable implements AfterViewInit, OnDestroy {
     private finalizeEdit(cancel = false, useThisValue?: string ) {
         if (!this.current.editor) { return true; }
         this.dropList.hide();
-        if (useThisValue === undefined && (!this.current.editor.hasChanges())) { return true; }        
+        if (useThisValue === undefined && (!this.current.editor.hasChanges())) { return true; }
         if (this.current.editor.finalizeEdit(cancel, useThisValue, 'parentFinalize')) {
             return true;
         }
@@ -366,11 +366,11 @@ export class Editable implements AfterViewInit, OnDestroy {
     private getLayoutColumn(colIndex: number): ICol {
         return this.config.columns ? this.config.columns[colIndex] : undefined;
     }
-        
+
     private focusCell(cell: IJQItem) {
         if (!cell.attr('tabindex')) {
             var ix = this.calcCellTabindex(cell);
-            cell.attr('tabindex', ix);                
+            cell.attr('tabindex', ix);
         }
         cell.focus();
     }
@@ -378,13 +378,13 @@ export class Editable implements AfterViewInit, OnDestroy {
     private calcCellTabindex(cell: IJQItem) {
         var pos = this.getCellPosition(cell);
         return ((pos.row * 50) + pos.col) + 1000;
-    }    
+    }
 
     private getCellPosition(cell: IJQItem): IPos {
         return {
             row: cell.parent().index(),
             col: cell.index()
-        };        
+        };
     }
 
     private getMovement(element: IJQItem, event, counter = 0): IJQItem | Array<any> {
@@ -430,7 +430,7 @@ export class Editable implements AfterViewInit, OnDestroy {
                 if (!this.current.allowFastNavigation) {
                     let info = caretPosition(event.target);
                     if (!info.isAtStart) { return; }
-                }            
+                }
                 if (event.ctrlKey) {
                     target = element.parent().parent().children().first().children().eq(0);
                 } else {
@@ -443,7 +443,7 @@ export class Editable implements AfterViewInit, OnDestroy {
                 if (!this.current.allowFastNavigation) {
                     let info = caretPosition(event.target);
                     if (!info.isAtEnd) { return; }
-                }            
+                }
                 if (event.ctrlKey) {
                     target = element.parent().parent().children().last().children().last();
                 } else {
@@ -467,12 +467,12 @@ export class Editable implements AfterViewInit, OnDestroy {
         }
 
         return target;
-    }    
+    }
 
     private isReadOnly(cell: IJQItem, colIndex?: number): boolean {
         var pos: IPos;
         var col = colIndex;
-        if (!cell) { return false; }        
+        if (!cell) { return false; }
         if (colIndex === undefined) {
             pos = this.getCellPosition(cell);
             col = pos ? pos.col : -1;
@@ -482,7 +482,7 @@ export class Editable implements AfterViewInit, OnDestroy {
         if (colDef && colDef.columnType === ColumnType.Action) {
             return true;
         }
-        return false;        
+        return false;
     }
 
     private checkDroplistNavigation(event: any): boolean {
@@ -508,8 +508,8 @@ export class Editable implements AfterViewInit, OnDestroy {
                 return this.dropList.navigate(key);
         }
         return false;
-    }    
-    
+    }
+
 }
 
 // local module helper functions

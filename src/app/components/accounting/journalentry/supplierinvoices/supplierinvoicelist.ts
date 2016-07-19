@@ -1,5 +1,5 @@
 import {Component, ViewChild, OnInit} from '@angular/core';
-import {Router} from '@angular/router-deprecated';
+import {Router} from '@angular/router';
 
 import {SupplierInvoiceService, AccountService, JournalEntryService} from '../../../../services/services';
 
@@ -42,7 +42,7 @@ export class SupplierInvoiceList implements OnInit {
         private router: Router,
         private tabService: TabService,
         private journalEntryService: JournalEntryService) {
-        this.tabService.addTab({ name: 'Leverandørfaktura', url: '/accounting/journalentry/supplierinvoices/list', moduleID: 7, active: true });
+        this.tabService.addTab({ name: 'Leverandørfaktura', url: '/accounting/journalentry/supplierinvoices', moduleID: 7, active: true });
     }
 
     private setError(error) {
@@ -68,7 +68,7 @@ export class SupplierInvoiceList implements OnInit {
     }
 
     public onLineClick(selectedItem) {
-        this.router.navigateByUrl('/accounting/journalentry/supplierinvoices/details/' + selectedItem.ID);
+        this.router.navigateByUrl('/accounting/journalentry/supplierinvoices/' + selectedItem.ID);
     }
 
     public createInvoice() {
@@ -76,7 +76,7 @@ export class SupplierInvoiceList implements OnInit {
             this.supplierInvoiceService.Post(invoice)
                 .subscribe(
                 (supplierinvoice) => {
-                    this.router.navigateByUrl('/accounting/journalentry/supplierinvoices/details/' + supplierinvoice.ID);
+                    this.router.navigateByUrl('/accounting/journalentry/supplierinvoices/' + supplierinvoice.ID);
                 },
                 (err) => {
                     console.log('Error creating invoice: ', err);
@@ -177,7 +177,7 @@ export class SupplierInvoiceList implements OnInit {
             .setContextMenu([
                 {
                     label: 'Rediger',
-                    action: supplierInvoice => this.router.navigateByUrl(`/accounting/journalentry/supplierinvoices/details/${supplierInvoice.ID}`)
+                    action: supplierInvoice => this.router.navigateByUrl(`/accounting/journalentry/supplierinvoices/${supplierInvoice.ID}`)
                 },
                 {
                     label: 'Bokfør',

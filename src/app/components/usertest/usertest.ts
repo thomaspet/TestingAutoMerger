@@ -5,12 +5,12 @@ import {Multival} from "../usertest/multivalue";
 import {UniTabs} from "../layout/uniTabs/uniTabs";
 import {PersonalDetails} from "../salary/employee/personalDetails/personalDetails";
 import {EmployeeEmployment} from "../salary/employee/employments/employments";
-import {RouteConfig, RouteDefinition, ROUTER_DIRECTIVES} from "@angular/router-deprecated";
+import {ROUTER_DIRECTIVES, RouterConfig} from "@angular/router";
 import {UniAutocomplete} from "../../../framework/controls/autocomplete/autocomplete";
 
 const CHILD_ROUTES = [
-    {path: "/", component: PersonalDetails, as: "Personopplysninger"},
-    {path: "/employment", component: EmployeeEmployment, as: "Stillinger"},
+    {path: "", component: PersonalDetails},
+    {path: "employment", component: EmployeeEmployment},
 ];
 
 @Component({
@@ -18,10 +18,6 @@ const CHILD_ROUTES = [
     templateUrl: "app/components/usertest/usertest.html",
     directives: [CORE_DIRECTIVES, Multival, ROUTER_DIRECTIVES, UniTabs, UniAutocomplete]
 })
-
-
-@RouteConfig(CHILD_ROUTES)
-
 export class Usertest {
 
     private phone = [
@@ -61,7 +57,7 @@ export class Usertest {
     }];
 
 
-    childRoutes: RouteDefinition[];
+    childRoutes: RouterConfig;
 
     constructor(private tabService: TabService) {
         this.tabService.addTab({name: "Usertest", url: "/usertest"});

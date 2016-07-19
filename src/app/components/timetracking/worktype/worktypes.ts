@@ -5,7 +5,7 @@ import {UniTableColumn, UniTableColumnType, UniTableConfig} from 'unitable-ng2/m
 import {WorkTypeSystemTypePipe} from '../utils/pipes';
 import {GenericListView, IViewConfig} from '../genericview/list';
 
-export var view = new View('worktypes', 'Timearter', 'WorktypeListview', false, 'worktype');
+export var view = new View('worktypes', 'Timearter', 'WorktypeListview', false, 'worktype', WorktypeListview);
 
 @Component({    
     selector: view.name,
@@ -23,7 +23,7 @@ export class WorktypeListview {
     private createConfig(): IViewConfig {
         return {
             moduleID: 17,
-            detail: { route: '/timetracking/worktype/'},
+            detail: { route: '/timetracking/worktypes/'},
             tab: view,
             data: { 
                 route: 'worktypes'

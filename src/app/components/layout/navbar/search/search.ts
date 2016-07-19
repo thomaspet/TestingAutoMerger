@@ -1,6 +1,6 @@
 ﻿import {Component, AfterViewInit, ElementRef, ViewChild, Renderer} from '@angular/core';
 import {Control} from '@angular/common';
-import {Router} from '@angular/router-deprecated';
+import {Router} from '@angular/router';
 import {UniHttp} from '../../../../../framework/core/http/http';
 import {HamburgerMenu} from '../hamburgerMenu/hamburgerMenu';
 

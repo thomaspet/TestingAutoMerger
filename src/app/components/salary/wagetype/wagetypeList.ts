@@ -1,6 +1,6 @@
 import {Component, OnInit} from '@angular/core';
 import {AsyncPipe} from '@angular/common';
-import {Router } from '@angular/router-deprecated';
+import {Router } from '@angular/router';
 
 import {UniTable, UniTableConfig, UniTableColumnType, UniTableColumn} from 'unitable-ng2/main';
 import {WageTypeService} from '../../../services/services';

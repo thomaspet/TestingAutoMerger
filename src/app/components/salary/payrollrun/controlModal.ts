@@ -1,5 +1,5 @@
 import {Component, Type, ViewChildren, QueryList, Input, AfterViewInit, EventEmitter, Output} from '@angular/core';
-import {Router} from '@angular/router-deprecated';
+import {Router} from '@angular/router';
 import {UniModal} from '../../../../framework/modals/modal';
 import {UniForm, UniFieldLayout} from '../../../../framework/uniform';
 import {UniTable, UniTableConfig, UniTableColumnType, UniTableColumn} from 'unitable-ng2/main';

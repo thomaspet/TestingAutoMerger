@@ -1,14 +1,9 @@
 import {Component, ComponentRef, ViewChild, ViewChildren, Input, Output, EventEmitter} from '@angular/core';
 import {UniHttp} from '../../../../../framework/core/http/http';
-import {Observable} from "rxjs/Observable";
 import {ExternalSearch} from '../../../common/externalSearch/externalSearch';
-import {ComponentInstruction, RouteParams, Router} from '@angular/router-deprecated';
-
-import {FieldType, FieldLayout, ComponentLayout, Customer, BusinessRelation} from "../../../../unientities";
-import {UNI_CONTROL_DIRECTIVES} from "../../../../../framework/controls";
+import {Router} from '@angular/router';
 import {UniFormBuilder} from "../../../../../framework/forms/builders/uniFormBuilder";
 import {UniFormLayoutBuilder} from "../../../../../framework/forms/builders/uniFormLayoutBuilder";
-import {UniSectionBuilder} from "../../../../../framework/forms";
 import {UniForm} from "../../../../../framework/forms/uniForm";
 import {UniFieldBuilder} from "../../../../../framework/forms/builders/uniFieldBuilder";
 import {UniComponentLoader} from "../../../../../framework/core/componentLoader";

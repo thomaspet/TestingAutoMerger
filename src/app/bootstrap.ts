@@ -1,20 +1,13 @@
 /// <reference path="../../typings/browser/ambient/es6-shim/es6-shim.d.ts"/>
 ///<reference path="../../node_modules/immutable/dist/immutable.d.ts"/>
 
-import {provide, enableProdMode} from '@angular/core';
+import {enableProdMode} from '@angular/core';
 import {HashLocationStrategy, LocationStrategy} from '@angular/common';
 import {bootstrap} from '@angular/platform-browser-dynamic';
-import {ROUTER_PROVIDERS} from '@angular/router-deprecated';
 import {HTTP_PROVIDERS} from '@angular/http';
+import {APP_ROUTES_PROVIDER} from './routes';
+import {APP_SERVICES} from './app.providers';
 import {App} from './app';
-import {UniHttp} from '../framework/core/http/http';
-import {UniState} from '../framework/core/UniState';
-import {REPORT_PROVIDERS} from './services/reports/index';
-import {IntegrationServerCaller} from './services/common/IntegrationServerCaller';
-import {AuthService} from './../framework/core/authService';
-import {AccountService, VatTypeService, CurrencyService, CompanySettingsService} from './services/services';
-import {ToastService} from '../framework/uniToast/toastService';
-import {GuidService} from './services/services';
 
 declare var window;
 if (window.ENV === 'production') {
@@ -22,24 +15,10 @@ if (window.ENV === 'production') {
 }
 
 bootstrap(App, [
-    // angular providers
-    ROUTER_PROVIDERS,
     HTTP_PROVIDERS,
-    provide(LocationStrategy, { useClass: HashLocationStrategy}),
-
-    // App providers
-    //
-    REPORT_PROVIDERS,
-    provide(AuthService, {useClass: AuthService}),
-    provide(UniHttp, {useClass: UniHttp}),
-    provide(UniState, {useClass: UniState}),
+    {provide: LocationStrategy, useClass: HashLocationStrategy},
+    APP_ROUTES_PROVIDER,
+    APP_SERVICES
     
-    // Services
-    provide(GuidService, {useClass: GuidService}),
-    provide(ToastService, {useClass: ToastService}),
-    provide(AccountService, {useClass: AccountService}),
-    provide(VatTypeService, {useClass: VatTypeService}),
-    provide(CurrencyService, {useClass: CurrencyService}),
-    provide(CompanySettingsService, {useClass: CompanySettingsService}),
-    provide(IntegrationServerCaller , { useClass: IntegrationServerCaller })
-]);
+])
+.catch(error => console.error(error));

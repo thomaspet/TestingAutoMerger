@@ -1,5 +1,5 @@
 import {Component, OnInit, ViewChild} from '@angular/core';
-import {Router} from '@angular/router-deprecated';
+import {Router} from '@angular/router';
 import {WageTypeService, EmploymentService, SalaryTransactionService} from '../../../../services/services';
 import {Observable} from 'rxjs/Observable';
 import {RootRouteParamsService} from '../../../../services/rootRouteParams';
@@ -38,7 +38,7 @@ export class RecurringPost implements OnInit {
     ];
     
     constructor(public rootRouteParams: RootRouteParamsService, public routr: Router, private wagetypeService: WageTypeService, private employmentService: EmploymentService, private uniHttp: UniHttp, private salarytransService: SalaryTransactionService) {
-        this.employeeID = +this.rootRouteParams.params.get('id');
+        this.employeeID = +this.rootRouteParams.params['id'];
         this.buildTableConfig();
     }
     

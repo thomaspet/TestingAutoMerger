@@ -1,6 +1,6 @@
 import {Component, ViewChild} from '@angular/core';
 import {UniTable, UniTableColumn, UniTableColumnType, UniTableConfig, IContextMenuItem} from 'unitable-ng2/main';
-import {Router} from '@angular/router-deprecated';
+import {Router} from '@angular/router';
 import {URLSearchParams} from '@angular/http';
 
 import {CustomerOrderService, ReportDefinitionService} from '../../../../services/services';
@@ -31,7 +31,7 @@ export class OrderList {
                 private reportDefinitionService: ReportDefinitionService,
                 private tabService: TabService) {
 
-        this.tabService.addTab({ name: 'Ordre', url: '/sales/order', moduleID: 4, active: true });
+        this.tabService.addTab({ name: 'Ordre', url: '/sales/orders', moduleID: 4, active: true });
         this.setupOrderTable();
     }
 
@@ -44,7 +44,7 @@ export class OrderList {
             this.customerOrderService.Post(order)
                 .subscribe(
                 (data) => {
-                    this.router.navigateByUrl('/sales/order/details/' + data.ID);
+                    this.router.navigateByUrl('/sales/orders/' + data.ID);
                 },
                 (err) => {
                     console.log('Error creating order: ', err);
@@ -71,7 +71,7 @@ export class OrderList {
         contextMenuItems.push({
             label: 'Rediger',
             action: (order: CustomerOrder) => {
-                this.router.navigateByUrl(`/sales/order/details/${order.ID}`);
+                this.router.navigateByUrl(`/sales/orders/${order.ID}`);
             },
             disabled: (rowModel) => {
                 return false;
@@ -85,15 +85,15 @@ export class OrderList {
 
         // TODO?
         // contextMenuItems.push({
-        //    label: 'Overfør til faktura',
+        //    label: 'Overfï¿½r til faktura',
         //    action: (order: CustomerOrder) => {
 
         //        //TODO?
         //        //this.customerOrderService.ActionWithBody(order.ID, order, 'transfer-to-invoice').subscribe((invoice) => {
         //        //    console.log('== order ACTION OK ==');
-        //        //    alert('Overført til Faktura OK');
+        //        //    alert('Overfï¿½rt til Faktura OK');
         //        //    //this.table.refreshTableData();
-        //        //    this.router.navigateByUrl('/sales/invoice/details/' + invoice.ID);
+        //        //    this.router.navigateByUrl('/sales/invoices/' + invoice.ID);
         //        //}, (err) => {
         //        //    console.log('== TRANSFER-TO-INVOICE FAILED ==');
         //        //    this.log(err);
@@ -167,6 +167,6 @@ export class OrderList {
     }
 
     public onRowSelected(event) {
-        this.router.navigateByUrl(`/sales/order/details/${event.rowModel.ID}`);
+        this.router.navigateByUrl(`/sales/orders/${event.rowModel.ID}`);
     }
 }

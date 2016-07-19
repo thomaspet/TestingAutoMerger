@@ -1,5 +1,5 @@
 import {Component, Input, ViewChild, OnInit} from '@angular/core';
-import {Router, RouteParams, RouterLink} from '@angular/router-deprecated';
+import {Router, ActivatedRoute, RouterLink} from '@angular/router';
 import {Observable} from 'rxjs/Observable';
 import 'rxjs/add/observable/forkJoin';
 
@@ -86,10 +86,11 @@ export class InvoiceDetails implements OnInit {
         private reportDefinitionService: ReportDefinitionService,
         private businessRelationService: BusinessRelationService,
 
-        private router: Router, private params: RouteParams,
+        private router: Router,
+        private route: ActivatedRoute,
         private tabService: TabService) {
 
-        this.invoiceID = params.get('id');
+        this.route.params.subscribe(params => this.invoiceID = +params['id']);
     }
 
     private log(err) {
@@ -100,7 +101,7 @@ export class InvoiceDetails implements OnInit {
         this.customerInvoiceService.next(this.invoice.ID)
             .subscribe((data) => {
                 if (data) {
-                    this.router.navigateByUrl('/sales/invoice/details/' + data.ID);
+                    this.router.navigateByUrl('/sales/invoices/' + data.ID);
                 }
             },
             (err) => {
@@ -114,7 +115,7 @@ export class InvoiceDetails implements OnInit {
         this.customerInvoiceService.previous(this.invoice.ID)
             .subscribe((data) => {
                 if (data) {
-                    this.router.navigateByUrl('/sales/invoice/details/' + data.ID);
+                    this.router.navigateByUrl('/sales/invoices/' + data.ID);
                 }
             },
             (err) => {
@@ -129,7 +130,7 @@ export class InvoiceDetails implements OnInit {
             this.customerInvoiceService.Post(invoice)
                 .subscribe(
                 (data) => {
-                    this.router.navigateByUrl('/sales/invoice/details/' + data.ID);
+                    this.router.navigateByUrl('/sales/invoices/' + data.ID);
                 },
                 (err) => {
                     console.log('Error creating invoice: ', err);
@@ -138,11 +139,7 @@ export class InvoiceDetails implements OnInit {
                 );
         });
     }
-
-    public isActive(instruction: any[]): boolean {
-        return this.router.isRouteActive(this.router.generate(instruction));
-    }
-
+    
     public change(value: CustomerInvoice) { }
 
     public ready(event) {
@@ -265,7 +262,7 @@ export class InvoiceDetails implements OnInit {
         } else {
             tabTitle = this.invoice.InvoiceNumber ? 'Fakturanr. ' + this.invoice.InvoiceNumber : 'Faktura (kladd)';
         }
-        this.tabService.addTab({ url: '/sales/invoice/details/' + this.invoice.ID, name: tabTitle, active: true, moduleID: 5 });
+        this.tabService.addTab({ url: '/sales/invoices/' + this.invoice.ID, name: tabTitle, active: true, moduleID: 5 });
     }
 
     private extendFormConfig() {
@@ -498,7 +495,7 @@ export class InvoiceDetails implements OnInit {
         this.saveInvoice(done, (invoice) => {
             this.customerInvoiceService.Transition(this.invoice.ID, this.invoice, transition).subscribe(() => {
                 console.log('== TRANSITION OK ' + transition + ' ==');
-                this.router.navigateByUrl('/sales/invoice/details/' + this.invoice.ID);
+                this.router.navigateByUrl('/sales/invoices/' + this.invoice.ID);
                 done(doneText);
 
                 this.customerInvoiceService.Get(invoice.ID, this.expandOptions).subscribe((data) => {
@@ -594,7 +591,7 @@ export class InvoiceDetails implements OnInit {
     private CreditInvoice(done) {
         this.customerInvoiceService.createCreditNoteFromInvoice(this.invoice.ID)
             .subscribe((data) => {
-                this.router.navigateByUrl('/sales/invoice/details/' + data.ID);
+                this.router.navigateByUrl('/sales/invoices/' + data.ID);
             },
             (err) => {
                 console.log('Error creating credit note: ', err);
@@ -646,7 +643,7 @@ export class InvoiceDetails implements OnInit {
     //    this.saveInvoice((invoice) => {
     //        this.customerInvoiceService.Transition(this.invoice.ID, this.invoice, transition).subscribe(() => {
     //            console.log('== TRANSITION OK ' + transition + ' ==');
-    //            this.router.navigateByUrl('/sales/invoice/details/' + this.invoice.ID);
+    //            this.router.navigateByUrl('/sales/invoices/' + this.invoice.ID);
 
     //            this.customerInvoiceService.Get(invoice.ID, ['Dimensions', 'Items', 'Items.Product', 'Items.VatType', 'Customer',
     //                'Customer.Info', 'Customer.Info.Addresses']).subscribe((data) => {

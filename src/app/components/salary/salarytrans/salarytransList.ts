@@ -1,5 +1,5 @@
 import {Component, Input, ViewChildren, OnChanges, EventEmitter, Output, ViewChild, QueryList, AfterViewInit} from '@angular/core';
-import {Router} from '@angular/router-deprecated';
+import {Router} from '@angular/router';
 import {UniFormBuilder} from '../../../../framework/forms';
 import {UniComponentLoader} from '../../../../framework/core';
 import {Observable} from 'rxjs/Observable';

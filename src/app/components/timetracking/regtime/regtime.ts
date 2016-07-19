@@ -10,7 +10,7 @@ import {UniSave, IUniSaveAction} from '../../../../framework/save/save';
 import {CanDeactivate, ComponentInstruction} from '@angular/router-deprecated';
 import {setDeepValue} from '../utils/utils';
 
-export var view = new View('regtime', 'Timeregistrering', 'RegisterTime');
+export var view = new View('regtime', 'Timeregistrering', 'RegisterTime', false, '', RegisterTime);
 
 declare var moment;
 

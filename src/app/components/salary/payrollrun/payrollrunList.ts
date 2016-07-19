@@ -1,6 +1,6 @@
 import {Component, OnInit} from '@angular/core';
 import {AsyncPipe} from '@angular/common';
-import {Router} from '@angular/router-deprecated';
+import {Router} from '@angular/router';
 import {UniTable, UniTableConfig, UniTableColumnType, UniTableColumn} from 'unitable-ng2/main';
 import {TabService} from '../../layout/navbar/tabstrip/tabService';
 import {PayrollRun} from '../../../unientities';
@@ -20,7 +20,7 @@ export class PayrollrunList implements OnInit {
     private payrollRuns$: Observable<PayrollRun>;
     public busy: boolean;
     
-    constructor(private routr: Router, private tabSer: TabService, private payrollService: PayrollrunService) {
+    constructor(private router: Router, private tabSer: TabService, private payrollService: PayrollrunService) {
         
     }
     
@@ -54,7 +54,7 @@ export class PayrollrunList implements OnInit {
         this.payrollService.Post(createdPayrollrun)
         .subscribe((response) => {
             
-            this.routr.navigateByUrl('/salary/payrollrun/' + response.ID);
+            this.router.navigateByUrl('/salary/payrollrun/' + response.ID);
             this.busy = false;
         },
         (err) => {
@@ -64,7 +64,7 @@ export class PayrollrunList implements OnInit {
     }
 
     public rowSelected(event) {
-        this.routr.navigateByUrl('/salary/payrollrun/' + event.rowModel.ID);
+        this.router.navigateByUrl('/salary/payrollrun/' + event.rowModel.ID);
     }
 
     public log(err) {

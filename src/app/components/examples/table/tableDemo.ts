@@ -1,9 +1,6 @@
 import {Component, ViewChildren} from '@angular/core';
 import {UniTable, UniTableBuilder, UniTableColumn} from '../../../../framework/uniTable';
-import {RouteParams} from '@angular/router-deprecated';
-
 import {UniHttp} from '../../../../framework/core/http/http';
-declare var jQuery;
 
 @Component({
     selector: 'uni-table-demo',
@@ -37,7 +34,7 @@ export class UniTableDemo {
     private demoTable2: UniTableBuilder;
     private demoTable3: UniTableBuilder;
 
-    constructor(private uniHttpService: UniHttp, params: RouteParams) {
+    constructor(private uniHttpService: UniHttp) {
         this.leaveTypes = [
             {ID: '0', Name: 'Ikke valgt'},
             {ID: '1', Name: 'Permisjon'},

@@ -1,5 +1,5 @@
 import {Injectable} from '@angular/core';
-import {Router} from '@angular/router-deprecated';
+import {Router} from '@angular/router';
 
 @Injectable()
 export class UniState {
@@ -10,10 +10,10 @@ export class UniState {
     };
 
     saveState(state:any) {
-        this.store[this.router.root.lastNavigationAttempt] = state;
+        this.store[this.router.url] = state;
     }
 
     getState() {
-        return this.store[this.router.root.lastNavigationAttempt];
+        return this.store[this.router.url];
     }
 }

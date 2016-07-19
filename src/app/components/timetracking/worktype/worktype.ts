@@ -6,7 +6,7 @@ import {WorkType} from '../../../unientities';
 import {GenericDetailview} from '../genericview/detail';
 import {SYSTEMTYPES} from '../utils/pipes';
 
-export var view = new View('worktype', 'Timeart', 'WorktypeDetailview', true);
+export var view = new View('worktype', 'Timeart', 'WorktypeDetailview', true, '', WorktypeDetailview);
 
 var defaultSystemType = 1; // 1 - Hours (default) 
 
