@@ -10,12 +10,21 @@
     overflow: hidden
 
 .uniSelect_dropdown
-    @extend .uni-multivalue-values
-    box-sizing: border-box
-    margin-top: 0
-    min-width: pxToRem(150)
+    position: absolute
+    width: 100%
     max-height: 20rem
-    overflow-y: auto
 
-.uniSelect_dropdown li.select-search
-    padding: .2rem .2rem
+    .uniSelect_search
+        background: #fff
+        padding: .2rem .2rem
+        border: pxToRem(1) solid $uni-color-scale7
+        border-bottom: pxToRem(1) solid $uni-color-scale9
+    
+    ul.uniSelect_dropdown_list
+        @extend .uni-multivalue-values
+        box-sizing: border-box
+        margin-top: 0
+        min-width: pxToRem(150)
+        max-height: 17rem
+        overflow-y: auto
+        border-top: none

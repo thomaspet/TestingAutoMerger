@@ -33,10 +33,9 @@ export class UniSelect {
 
     @Output()
     public valueChange: EventEmitter<any> = new EventEmitter<any>();
-    
+
     private guid: string;
     private expanded: boolean = false;
-    private focusPositionTop: number = 0;
 
     private searchable: boolean = true;
     private searchControl: Control = new Control('');
@@ -92,69 +91,7 @@ export class UniSelect {
             });
 
             if (focusIndex >= 0) {
-                this.setFocusIndex(focusIndex);
-            }
-        }        
-    } 
-
-    @HostListener('keydown', ['$event'])
-    private onKeydown(event) {
-        const key = event.which || event.keyCode || 0;
-        // Vars for calculating scroll on arrow keys
-        var prevItem = undefined;
-        var currItem = undefined;
-        var overflow = 0;
-        
-        // Tab or enter
-        if (key === 9 || key === 13) {
-            this.confirmSelection();
-            this.close();
-        // Escape
-        } else if (key === 27) {
-            this.close();
-        // Space
-        } else if (key === 32) {
-            if (this.expanded) {
-                this.confirmSelection();
-                this.close();
-            } else {
-                this.open();
-            }
-        // Arrow up
-        } else if (key === 38) {
-            event.preventDefault(); // avoid scrolling entire page
-            if (this.focusedIndex > 0) {
-                this.focusedIndex--;
-
-                currItem = this.itemDropdown.nativeElement.children[this.focusedIndex];
-                this.focusPositionTop -= currItem.offsetHeight;
-                overflow = this.focusPositionTop - this.itemDropdown.nativeElement.scrollTop;
-
-                if (overflow < 0) {
-                    this.itemDropdown.nativeElement.scrollTop += overflow;
-                }
-            }
-        // Arrow down
-        } else if (key === 40) {
-            event.preventDefault(); // avoid scrolling entire page
-            if (this.focusedIndex < (this.items.length - 1)) {
-                this.focusedIndex++;
-
-                prevItem = this.itemDropdown.nativeElement.children[this.focusedIndex - 1];
-                currItem = this.itemDropdown.nativeElement.children[this.focusedIndex];
-
-                if (prevItem && currItem) {
-                    this.focusPositionTop += prevItem.offsetHeight;
-
-                        
-                    overflow = (this.focusPositionTop + currItem.offsetHeight) - 
-                               (this.itemDropdown.nativeElement.offsetHeight + this.itemDropdown.nativeElement.scrollTop);
-                    
-
-                    if (overflow > 0) {
-                        this.itemDropdown.nativeElement.scrollTop += overflow;
-                    }
-                }
+                this.focusedIndex = focusIndex;
             }
         }
     }
@@ -187,21 +124,6 @@ export class UniSelect {
         this.activeDecentantId = this.guid + '-item-' + this.focusedIndex;
     }
 
-    private setFocusIndex(index) {
-        if (index < this.focusedIndex) {
-            for (let i = index; i < this.focusedIndex; i++) {
-                this.focusPositionTop -= this.itemDropdown.nativeElement.children[i].offsetHeight; 
-            }
-        } else if (index > this.focusedIndex) {
-            for (let i = this.focusedIndex; i < index; i++) {
-                this.focusPositionTop += this.itemDropdown.nativeElement.children[i].offsetHeight;
-            }
-        }
-
-        this.focusedIndex = index;
-    }
-
-
     public open() {
         this.expanded = true;
         setTimeout(() => {
@@ -219,6 +141,66 @@ export class UniSelect {
             setTimeout(() => {
                 this.renderer.invokeElementMethod(this.inputElement.nativeElement, 'focus', []);
             });
+        }
+    }
+
+    // Keyboard navigation
+    @HostListener('keydown', ['$event'])
+    private onKeyDown(event) {
+        const key = event.which || event.keyCode || 0;
+
+        // Tab or enter
+        if (key === 9 || key === 13) {
+            this.confirmSelection();
+            this.expanded = false;
+        // Escape
+        } else if (key === 27) {
+            this.expanded = false;
+        // Space
+        } else if (key === 32) {
+            if (this.expanded) {
+                this.confirmSelection();
+                this.expanded = false;
+            } else {
+                this.expanded = true;
+            }
+        // Arrow up
+        } else if (key === 38 && this.focusedIndex > 0) {
+            event.preventDefault();
+            this.focusedIndex--;
+            this.scrollToListItem();
+        // Arrow down
+        } else if (key === 40) {
+            event.preventDefault();
+            if (!this.expanded) {
+                this.expanded = true;
+            } else {
+                this.moveDown();
+            }
+        }
+    }
+
+    private moveDown() {
+        if (!this.focusedIndex && this.focusedIndex !== 0) {
+            this.focusedIndex = 0;
+            return;
+        }
+
+        if (this.focusedIndex < (this.filteredItems.length - 1)) {
+            this.focusedIndex++;
+            this.scrollToListItem();
+        }
+    }
+
+    private scrollToListItem() {
+        const list = this.itemDropdown.nativeElement;
+        const currItem = list.children[this.focusedIndex];
+        const bottom = list.scrollTop + (list.offsetHeight) - currItem.offsetHeight;
+
+        if (currItem.offsetTop <= list.scrollTop) {
+            list.scrollTop = currItem.offsetTop;
+        } else if (currItem.offsetTop >= bottom) {
+            list.scrollTop = currItem.offsetTop - (list.offsetHeight - currItem.offsetHeight);
         }
     }
 }
