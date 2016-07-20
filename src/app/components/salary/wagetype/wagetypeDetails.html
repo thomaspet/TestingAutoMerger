@@ -4,7 +4,7 @@
 
         <section>
             <h1 *ngIf="wagetypeID > 0">{{wageType.WageTypeName}}</h1>
-            <p *ngIf="wagetypeID > 0">Lønnsartnr. {{wageType.WageTypeId}}</p>
+            <p *ngIf="wagetypeID > 0">Lønnsartnr. {{wageType.WageTypeNumber}}</p>
             <h1 *ngIf="wagetypeID == 0">Ny lønnsart</h1>
             <p *ngIf="wagetypeID == 0">&nbsp;</p>
         </section>

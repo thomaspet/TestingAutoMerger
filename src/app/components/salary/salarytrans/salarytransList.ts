@@ -191,6 +191,9 @@ export class SalaryTransactionEmployeeList implements OnChanges, AfterViewInit {
         this.saveactions[0].disabled = true;
         done('Lagrer lønnsposter');
         this.payrollRun.transactions = this.salarytransChanged;
+        this.payrollRun.transactions.forEach((trans: SalaryTransaction) => {
+            trans.Wagetype = null;
+        });
         this._payrollRunService.Put(this.payrollRun.ID, this.payrollRun).subscribe((response) => {
             this.salarytransChanged = [];
             this.refreshSalaryTransTable();
@@ -298,6 +301,9 @@ export class SalaryTransactionEmployeeList implements OnChanges, AfterViewInit {
             });
         var transtypeCol = new UniTableColumn('IsRecurringPost', 'Fast/Variabel post', UniTableColumnType.Number, false)
             .setTemplate((dataItem) => {
+                if (!dataItem.IsRecurringPost === null) {
+                    return;
+                }
                 if (dataItem.IsRecurringPost) {
                     return 'Fast';
                 } else {
@@ -310,8 +316,8 @@ export class SalaryTransactionEmployeeList implements OnChanges, AfterViewInit {
                 return dataItem.WageTypeNumber;
             })
             .setEditorOptions({
-                itemTemplate: (selectedItem) => {
-                    return (selectedItem.WageTypeId + ' - ' + selectedItem.WageTypeName);
+                itemTemplate: (selectedItem: WageType) => {
+                    return (selectedItem.WageTypeNumber + ' - ' + selectedItem.WageTypeName);
                 },
                 lookupFunction: (searchValue) => {
                     let matching: WageType[] = [];
@@ -322,7 +328,7 @@ export class SalaryTransactionEmployeeList implements OnChanges, AfterViewInit {
                                 matching.push(wagetype);
                             }
                         } else {
-                            if (wagetype.WageTypeId.toString().indexOf(searchValue) > -1) {
+                            if (wagetype.WageTypeNumber.toString().indexOf(searchValue) > -1) {
                                 matching.push(wagetype);
                             }
                         }
@@ -395,8 +401,8 @@ export class SalaryTransactionEmployeeList implements OnChanges, AfterViewInit {
         if (!wagetype) {
             return;
         }
-        rowModel['WagetypeId'] = wagetype.ID;
-        rowModel['WageTypeNumber'] = wagetype.WageTypeId;
+        rowModel['WagetypeID'] = wagetype.ID;
+        rowModel['WageTypeNumber'] = wagetype.WageTypeNumber;
         rowModel['Wagetype'] = wagetype;
         rowModel['Text'] = wagetype.WageTypeName;
         rowModel['Account'] = wagetype.AccountNumber;

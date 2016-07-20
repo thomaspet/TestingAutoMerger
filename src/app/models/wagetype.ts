@@ -10,7 +10,7 @@ import {
 declare var _;
 
 export class WageTypeModel implements WageType {
-    WageTypeId: number = null;
+    WageTypeNumber: number = null;
 	SystemRequiredWageType: number = 0;
 	Base_EmploymentTax: boolean = false;
 	Base_Vacation: boolean = false;
@@ -24,7 +24,7 @@ export class WageTypeModel implements WageType {
 	Aga_nav: boolean = false;
 	Limit_type: LimitType = LimitType.None;
 	Limit_value: number = 0;
-	Limit_WageTypeID: number = 0;
+	Limit_WageTypeNumber: number = 0;
 	Limit_newRate: number = 0;
 	StandardWageTypeFor: StdWageType = StdWageType.None;
 	Base_div1: boolean = false;

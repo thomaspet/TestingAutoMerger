@@ -56,16 +56,16 @@ export class WagetypeDetail {
                 this.wageType = wagetype;
 
                 if (this.wageType.ID === 0) {
-                    this.wageType.WageTypeId = null;
+                    this.wageType.WageTypeNumber = null;
                     this.wageType.AccountNumber = null;
                     this.tabService.addTab({ name: 'Ny lønnsart', url: 'salary/wagetypes/' + this.wagetypeID, moduleID: 13, active: true });
                 } else {
-                    this.tabService.addTab({ name: 'Lønnsartnr. ' + this.wageType.WageTypeId, url: 'salary/wagetypes/' + this.wagetypeID, moduleID: 13, active: true });
+                    this.tabService.addTab({ name: 'Lønnsartnr. ' + this.wageType.WageTypeNumber, url: 'salary/wagetypes/' + this.wagetypeID, moduleID: 13, active: true });
                 }
 
                 this.fields = layout.Fields;
 
-                let wageTypeNumber: UniFieldLayout = this.findByProperty(this.fields, 'WageTypeId');
+                let wageTypeNumber: UniFieldLayout = this.findByProperty(this.fields, 'WageTypeNumber');
                 wageTypeNumber.ReadOnly = this.wagetypeID > 0;
 
                 let accountNumber: UniFieldLayout = this.findByProperty(this.fields, 'AccountNumber');

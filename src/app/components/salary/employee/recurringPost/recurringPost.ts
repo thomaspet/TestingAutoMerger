@@ -109,8 +109,8 @@ export class RecurringPost implements OnInit {
                 return dataItem.WageTypeNumber;
             })
             .setEditorOptions({
-                itemTemplate: (selectedItem) => {
-                    return (selectedItem.WageTypeId + ' - ' + selectedItem.WageTypeName);
+                itemTemplate: (selectedItem: WageType) => {
+                    return (selectedItem.WageTypeNumber + ' - ' + selectedItem.WageTypeName);
                 },
                 lookupFunction: (searchValue) => {
                     let matching: WageType[] = [];
@@ -121,7 +121,7 @@ export class RecurringPost implements OnInit {
                                 matching.push(wagetype);
                             }
                         } else {
-                            if (wagetype.WageTypeId.toString().indexOf(searchValue) > -1) {
+                            if (wagetype.WageTypeNumber.toString().indexOf(searchValue) > -1) {
                                 matching.push(wagetype);
                             }
                         }
@@ -188,7 +188,7 @@ export class RecurringPost implements OnInit {
         }
         rowModel['Text'] = wagetype.WageTypeName;
         rowModel['Account'] = wagetype.AccountNumber;
-        rowModel['WageTypeNumber'] = wagetype.WageTypeId;
+        rowModel['WageTypeNumber'] = wagetype.WageTypeNumber;
         rowModel['Amount'] = 1;
         rowModel['Rate'] = wagetype.Rate;
         this.calcItem(rowModel);

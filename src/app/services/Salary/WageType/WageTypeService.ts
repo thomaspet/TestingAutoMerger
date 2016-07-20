@@ -87,7 +87,7 @@ export class WageTypeService extends BizHttp<WageType> {
                 {
                     ComponentLayoutID: 1,
                     EntityType: 'wagetype',
-                    Property: 'WageTypeId',
+                    Property: 'WageTypeNumber',
                     Placement: 1,
                     Hidden: false,
                     FieldType: FieldType.NUMERIC,
