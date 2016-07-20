@@ -188,7 +188,7 @@ export class ControlModal implements AfterViewInit {
         
         
         if (!this.payrollRunID) {
-            this.payrollRunID = +rootRouteParams.params.get('id');
+            this.payrollRunID = +rootRouteParams.params['id'];
         }
         this.modalConfig = {
             hasCancelButton: true,

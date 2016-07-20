@@ -19,7 +19,7 @@ export class PostingsummaryModal implements AfterViewInit {
     
     constructor(private rootRouteParams: RootRouteParamsService) {
         if (!this.payrollrunID) {
-            this.payrollrunID = +rootRouteParams.params.get('id');
+            this.payrollrunID = +rootRouteParams.params['id'];
         }
         
         this.modalConfig = {
