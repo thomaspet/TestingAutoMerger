@@ -47,7 +47,12 @@ export class EmployeeDetails implements OnInit {
         this.route.params.subscribe(params => {
             this.employeeID = +params['id'];
             this.rootRouteParams.params = params;
-            this.tabService.addTab({ name: 'Ansattnr. ' + this.employeeID, url: '/salary/employees/' + this.employeeID, moduleID: 12, active: true });
+            if (this.employeeID) {
+                this.tabService.addTab({ name: 'Ansattnr. ' + this.employeeID, url: '/salary/employees/' + this.employeeID, moduleID: 12, active: true });
+            } else {
+                this.tabService.addTab({ name: 'Ny ansatt', url: '/salary/employees/' + this.employeeID, moduleID: 12, active: true });
+            }
+            
         });
 
         this.childRoutes = [
