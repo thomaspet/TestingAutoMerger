@@ -28,16 +28,21 @@ export class EmployeeDetails implements OnInit {
     private employee: Employee;
     private url: string;
     private employeeID: number;
-    private isNextOrPrevious: boolean;
     private businessRelation: BusinessRelation;
     private childRoutes: any[];
     private contextMenuItems: IContextMenuItem[];
 
-    constructor(private route: ActivatedRoute,
-                private rootRouteParams: RootRouteParamsService,
-                private _employeeService: EmployeeService,
-                private _router: Router,
-                private tabService: TabService) {
+    constructor(
+        private route: ActivatedRoute,
+        private rootRouteParams: RootRouteParamsService,
+        private _employeeService: EmployeeService,
+        private _router: Router,
+        private tabService: TabService) {
+
+        this._employeeService.employee$.subscribe((emp: Employee) => {
+            console.log(emp);
+            this.employee = emp;
+        });
 
         this.childRoutes = []; // TODO: ROUTES
         this.employee = new Employee();
@@ -52,14 +57,14 @@ export class EmployeeDetails implements OnInit {
             } else {
                 this.tabService.addTab({ name: 'Ny ansatt', url: '/salary/employees/' + this.employeeID, moduleID: 12, active: true });
             }
-            
+
         });
 
         this.childRoutes = [
-            {name: 'Detaljer', path: 'personal-details'},
-            {name: 'Arbeidsforhold', path: 'employment-list'},
-            {name: 'Faste poster', path: 'recurring-post'},
-            {name: 'Permisjon', path: 'employee-leave'}
+            { name: 'Detaljer', path: 'personal-details' },
+            { name: 'Arbeidsforhold', path: 'employment-list' },
+            { name: 'Faste poster', path: 'recurring-post' },
+            { name: 'Permisjon', path: 'employee-leave' }
         ];
 
         this.contextMenuItems = [
@@ -86,29 +91,23 @@ export class EmployeeDetails implements OnInit {
     }
 
     public ngOnInit() {
-        if (this.employeeID) {
-            if (!this.isNextOrPrevious) {
-                this.busy = true;
-                this._employeeService.get(this.employeeID).subscribe((response: any) => {
-                this.employee = response;
-                this.busy = false;
-                }, error => console.log(error));
-            }
-            this.isNextOrPrevious = false;
-        }else {
-            this.businessRelation.Name = 'Ny Ansatt';
-            this.employee.BusinessRelationInfo = this.businessRelation;
-            this.employee.EmployeeNumber = 0;
-        }
     }
 
     public nextEmployee() {
         this.busy = true;
-        this._employeeService.getNext(this.employeeID).subscribe((response) => {
+        this._employeeService.getNext(this.employeeID).subscribe((response: Employee) => {
             if (response) {
-                this.employee = response;
-                this.isNextOrPrevious = true;
-                this._router.navigateByUrl(this.url + this.employee.ID);
+                console.log(response);
+                if (!response.BusinessRelationInfo) {
+                    this._employeeService.get(response.ID).subscribe((emp) => {
+                        this._employeeService.refreshEmployee(emp);
+                        this._router.navigateByUrl(this.url + emp.ID);
+                    });
+                } else {
+                    this._employeeService.refreshEmployee(response);
+                    this._router.navigateByUrl(this.url + response.ID);
+                }
+
             }
             this.busy = false;
         });
@@ -118,9 +117,17 @@ export class EmployeeDetails implements OnInit {
         this.busy = true;
         this._employeeService.getPrevious(this.employeeID).subscribe((response) => {
             if (response) {
-                this.employee = response;
-                this.isNextOrPrevious = true;
-                this._router.navigateByUrl(this.url + this.employee.ID);
+                console.log(response);
+                if (!response.BusinessRelationInfo) {
+                    this._employeeService.get(response.ID).subscribe((emp) => {
+                        this._employeeService.refreshEmployee(emp);
+                        this._router.navigateByUrl(this.url + emp.ID);
+                    });
+                } else {
+                    this._employeeService.refreshEmployee(response);
+                    this._router.navigateByUrl(this.url + response.ID);
+                }
+
             }
             this.busy = false;
         });
