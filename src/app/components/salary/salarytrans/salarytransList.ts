@@ -340,6 +340,7 @@ export class SalaryTransactionEmployeeList implements OnChanges, AfterViewInit {
         this.salarytransEmployeeTableConfig = new UniTableConfig(this.payrollRun.StatusCode < 1)
             .setDeleteButton({
                 deleteHandler: (rowModel: SalaryTransaction) => {
+                    if(isNaN(rowModel.ID)){ return true; }                    
                     if(!rowModel.IsRecurringPost) {                        
                         return this.salarytransService.delete(rowModel.ID);                        
                     }      
