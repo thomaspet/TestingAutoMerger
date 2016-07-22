@@ -13,17 +13,5 @@ export const routes = [
     {
         path: 'details',
         component: TransqueryDetails
-    },
-    {
-        path: 'detailsByAccountNumber/:accountNumber/year/:year/period/:period/isIncomingBalance/:isIncomingBalance',
-        component: TransqueryDetails
-    },
-    {
-        path: 'detailsByJournalEntryNumber/:journalEntryNumber',
-        component: TransqueryDetails
-    },
-    {
-        path: 'detailsByAccountID/:accountID',
-        component: TransqueryDetails
     }
 ];

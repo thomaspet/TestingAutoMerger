@@ -63,11 +63,11 @@ export class TransqueryList {
         let periodeCol = new UniTableColumn('PeriodName', 'Periode').setWidth('60%');
         let lastYearCol = new UniTableColumn('PeriodSumYear1', `Regnskapsår ${year - 1}`)
             .setTemplate((period) => {
-                return `<a href='/#/accounting/transquery/detailsByAccountNumber/${this.account.AccountNumber}/year/${year - 1}/period/${period.PeriodNo}/isIncomingBalance/${this.isIncomingBalance}'>${period.PeriodSumYear1}</a>`;
+                return `<a href='/accounting/transquery/details;accountNumber=${this.account.AccountNumber};year=${year - 1};period=${period.PeriodNo};isIncomingBalance=${this.isIncomingBalance}'>${period.PeriodSumYear1}</a>`;
             });
         let thisYearCol = new UniTableColumn('PeriodSumYear2', `Regnskapsår ${year}`)            
             .setTemplate((period) => {
-                return `<a href='/#/accounting/transquery/detailsByAccountNumber/${this.account.AccountNumber}/year/${year}/period/${period.PeriodNo}/isIncomingBalance/${this.isIncomingBalance}'>${period.PeriodSumYear2}</a>`;
+                return `<a href='/accounting/transquery/details;accountNumber=${this.account.AccountNumber};year=${year    };period=${period.PeriodNo};isIncomingBalance=${this.isIncomingBalance}'>${period.PeriodSumYear2}</a>`;
             });
         
         // Setup table
