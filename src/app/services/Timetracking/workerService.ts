@@ -163,7 +163,7 @@ export class WorkerService extends BizHttp<Worker> {
             .usingBusinessDomain()
             .asGET()            
             .withEndPoint(route)
-            .send({}, true, params);        
+            .send({}, params);
     }
 
     public saveByID<T>(item: T, baseRoute: string): Observable<T> {
@@ -175,7 +175,8 @@ export class WorkerService extends BizHttp<Worker> {
     }
 
     public deleteByID(id: any, baseRoute: string): Observable<any> {
-        return this.http.asDELETE().usingBusinessDomain().withEndPoint(baseRoute + '/' + id).send(undefined, true);
+        return this.http.asDELETE().usingBusinessDomain().withEndPoint(baseRoute + '/' + id).send(undefined)
+            .map(response => response.json());
     }
 
     public getByID<T>(id: number, baseRoute: string, expand?: string): Observable<T> {
@@ -191,24 +192,29 @@ export class WorkerService extends BizHttp<Worker> {
     
     private GET(route: string, params?: any ): Observable<any> {
         return this.http.asGET().usingBusinessDomain()
-        .withEndPoint(route).send(params);
+        .withEndPoint(route).send(params)
+        .map(response => response.json());
     }
     private POST(route: string, params?: any, body?: any ): Observable<any> {
         if (body) {
             return this.http.asPOST().usingBusinessDomain().withBody(body)
-            .withEndPoint(route).send(params);            
+            .withEndPoint(route).send(params)
+            .map(response => response.json());
         } else {
             return this.http.asPOST().usingBusinessDomain()
-            .withEndPoint(route).send(params);
+            .withEndPoint(route).send(params)
+            .map(response => response.json());
         }        
     }
     private PUT(route: string, params?: any, body?: any ): Observable<any> {
         if (body) {
             return this.http.asPUT().usingBusinessDomain().withBody(body)
-            .withEndPoint(route).send(params);            
+            .withEndPoint(route).send(params)
+            .map(response => response.json());
         } else {
             return this.http.asPUT().usingBusinessDomain()
-            .withEndPoint(route).send(params);
+            .withEndPoint(route).send(params)
+            .map(response => response.json());
         }        
     }      
     

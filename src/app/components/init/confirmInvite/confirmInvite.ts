@@ -51,6 +51,7 @@ export class ConfirmInvite {
                     .usingInitDomain()
                     .withEndPoint('user-verification/' + this.verificationCode)
                     .send()
+                    .map(response => response.json())
                     .subscribe(
                         (response) => {
                             if (response.StatusCode === 0 && response.ExpirationDate && Date.parse(response.ExpirationDate) > Date.now()) {
@@ -79,6 +80,7 @@ export class ConfirmInvite {
             .withHeader('Content-Type', 'application/json')
             .withBody({UserName: username, Password: password})
             .send({action: 'confirm-invite'})
+            .map(response => response.json())
             .subscribe(
                 (data) => {
                     this.busy = false;

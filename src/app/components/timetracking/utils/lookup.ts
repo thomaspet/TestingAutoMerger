@@ -129,7 +129,8 @@ export class Lookupservice {
     
     private GET(route: string, params?: any ): Observable<any> {
         return this.http.asGET().usingBusinessDomain()
-        .withEndPoint(route).send(params);
+        .withEndPoint(route).send(params)
+        .map(response => response.json());
     }
  
 

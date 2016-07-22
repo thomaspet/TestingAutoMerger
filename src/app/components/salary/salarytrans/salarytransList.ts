@@ -448,7 +448,8 @@ export class SalaryTransactionEmployeeList implements OnChanges, AfterViewInit {
             .send({
                 filter: filter,
                 expand: '@Wagetype'
-            });
+            })
+            .map(response => response.json());
 
         this.employeeService.getTotals(this.payrollRun.ID, this.employeeID)
             .subscribe((response) => {

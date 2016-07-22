@@ -52,7 +52,8 @@ export class WageTypeService extends BizHttp<WageType> {
             .asGET()
             .usingBusinessDomain()
             .withEndPoint('subentities')
-            .send();
+            .send()
+            .map(response => response.json());
     }
 
     public getTypes() {
@@ -60,7 +61,8 @@ export class WageTypeService extends BizHttp<WageType> {
             .usingBusinessDomain()
             .asGET()
             .withEndPoint('wagetypes')
-            .send();
+            .send()
+            .map(response => response.json());
     }
     
     public getWageType(id): Observable<any> {

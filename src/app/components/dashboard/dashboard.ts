@@ -330,7 +330,8 @@ export class Dashboard {
             .withEndPoint(
             "statistics?model=AuditLog&select=entitytype,entityid,field,displayname,createdat,updatedat&filter=field eq 'updatedby' and ( not contains(entitytype,'item') ) &join=auditlog.createdby eq user.globalidentity&top=50&orderby=id desc"
             )
-            .send();
+            .send()
+            .map(response => response.json());
     }
 
     //Gets 10 last transactions of current logged in user (Currently error, donno y)
@@ -343,7 +344,8 @@ export class Dashboard {
             + this.user.GlobalIdentity
             + "' and ( not contains(entitytype,'item') ) and ( field eq 'updatedby' )&join=auditlog.createdby eq user.globalidentity&top=60&orderby=id desc"
             )
-            .send();
+            .send()
+            .map(response => response.json());
     }
 
     //Gets user info objcet
@@ -352,7 +354,8 @@ export class Dashboard {
             .asGET()
             .usingBusinessDomain()
             .withEndPoint('users?action=current-session')
-            .send();
+            .send()
+            .map(response => response.json());
     }
 
     //Gets sum invoiced current year (Query needs improving)
@@ -361,7 +364,8 @@ export class Dashboard {
             .asGET()
             .usingBusinessDomain()
             .withEndPoint('statistics?model=CustomerInvoice&select=sum(TaxExclusiveAmount),month(InvoiceDate),year(InvoiceDate)&filter=month(invoicedate) ge 1 and year(invoicedate) eq 2016&range=monthinvoicedate')
-            .send();
+            .send()
+            .map(response => response.json());
     }
 
     //Gets ordre sum current year (Query needs improving)
@@ -370,7 +374,8 @@ export class Dashboard {
             .asGET()
             .usingBusinessDomain()
             .withEndPoint('statistics?model=CustomerOrder&select=sum(TaxExclusiveAmount),month(OrderDate),year(OrderDate)&range=monthorderdate ')
-            .send();
+            .send()
+            .map(response => response.json());
     }
 
     //Gets quote sum current year (Query needs improving)
@@ -379,7 +384,8 @@ export class Dashboard {
             .asGET()
             .usingBusinessDomain()
             .withEndPoint('statistics?model=CustomerQuote&select=sum(TaxExclusiveAmount),month(QuoteDate),year(QuoteDate)&range=monthquotedate ')
-            .send();
+            .send()
+            .map(response => response.json());
     }
 
     //Gets 10 last journal entries
@@ -388,7 +394,8 @@ export class Dashboard {
             .asGET()
             .usingBusinessDomain()
             .withEndPoint('journalentrylines?skip=0&top=10&expand=VatType,Account&orderby=id desc')
-            .send();
+            .send()
+            .map(response => response.json());
     }
 
     //Gets operating profis/loss data
@@ -397,7 +404,8 @@ export class Dashboard {
             .asGET()
             .usingBusinessDomain()
             .withEndPoint("statistics?model=JournalEntryLine&select=month(financialdate),sum(amount)&join=journalentryline.accountid eq account.id&filter=account.accountnumber ge 3000 and account.accountnumber le 9999 &range=monthfinancialdate")
-            .send();
+            .send()
+            .map(response => response.json());
     }
 
     //Gets assets data
@@ -406,7 +414,8 @@ export class Dashboard {
             .asGET()
             .usingBusinessDomain()
             .withEndPoint('statistics?model=journalentryline&select=sum(amount),name&filter=maingroupid eq 2&join=journalentryline.accountid eq account.id and account.accountgroupid eq accountgroup.id&top=50')
-            .send();
+            .send()
+            .map(response => response.json());
     }
 
     public getCompany() {
@@ -414,6 +423,7 @@ export class Dashboard {
             .asGET()
             .usingBusinessDomain()
             .withEndPoint('companysettings')
-            .send();
+            .send()
+            .map(response => response.json());
     }
 }

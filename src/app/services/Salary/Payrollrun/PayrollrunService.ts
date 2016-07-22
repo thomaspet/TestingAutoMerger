@@ -39,7 +39,8 @@ export class PayrollrunService extends BizHttp<PayrollRun> {
             .usingBusinessDomain()
             .asGET()
             .withEndPoint(this.relativeURL + '/' + ID + '?action=previous&RunID=' + ID)
-            .send();
+            .send()
+            .map(response => response.json());
     }
     
     public getNext(ID: number) {
@@ -47,7 +48,8 @@ export class PayrollrunService extends BizHttp<PayrollRun> {
             .usingBusinessDomain()
             .asGET()
             .withEndPoint(this.relativeURL + '/' + ID + '?action=next&RunID=' + ID)
-            .send();
+            .send()
+            .map(response => response.json());
     }
     
     public runSettling(ID: number) {
@@ -55,7 +57,8 @@ export class PayrollrunService extends BizHttp<PayrollRun> {
             .asPUT()
             .usingBusinessDomain()
             .withEndPoint(this.relativeURL + '/' + ID + '?action=calculate')
-            .send();
+            .send()
+            .map(response => response.json());
     }
     
     public controlPayroll(ID) {
@@ -63,7 +66,8 @@ export class PayrollrunService extends BizHttp<PayrollRun> {
             .asPUT()
             .usingBusinessDomain()
             .withEndPoint(this.relativeURL + '/' + ID + '?action=control')
-            .send();
+            .send()
+            .map(response => response.json());
     }
     
     public resetSettling(ID: number) {
@@ -71,7 +75,8 @@ export class PayrollrunService extends BizHttp<PayrollRun> {
         .asPUT()
         .usingBusinessDomain()
         .withEndPoint(this.relativeURL + '/' + ID + '?action=resetrun')
-        .send();
+        .send()
+        .map(response => response.json());
     }
     
     public getPaymentList(ID: number) {
@@ -79,7 +84,8 @@ export class PayrollrunService extends BizHttp<PayrollRun> {
             .usingBusinessDomain()
             .asGET()
             .withEndPoint(this.relativeURL + '/' + ID)
-            .send({action: 'paymentlist'});
+            .send({action: 'paymentlist'})
+            .map(response => response.json());
     }
     
     public getPostingsummary(ID: number) {
@@ -87,7 +93,8 @@ export class PayrollrunService extends BizHttp<PayrollRun> {
             .asGET()
             .usingBusinessDomain()
             .withEndPoint(this.relativeURL + '/' + ID + '?action=postingsummary')
-            .send();
+            .send()
+            .map(response => response.json());
     }
     
     public postTransactions(ID: number) {
@@ -95,7 +102,8 @@ export class PayrollrunService extends BizHttp<PayrollRun> {
             .asPUT()
             .usingBusinessDomain()
             .withEndPoint(this.relativeURL + '/' + ID + '?action=book')
-            .send();
+            .send()
+            .map(response => response.json());
     }
 
     public getVacationpayBasis(year: number, payrun: number) {
@@ -103,7 +111,8 @@ export class PayrollrunService extends BizHttp<PayrollRun> {
             .asGET()
             .usingBusinessDomain()
             .withEndPoint(this.relativeURL + '/' + payrun + '?action=vacationpay-list&year=' + year)
-            .send();
+            .send()
+            .map(response => response.json());
     }
     
     public getEmptyPayrollrunDates() {

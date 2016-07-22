@@ -13,7 +13,8 @@ export class STYRKCodesDS {
             .usingBusinessDomain()
             .asGET()
             .withEndPoint("STYRK/")
-            .send();
+            .send()
+            .map(response => response.json());
     }
 
 }

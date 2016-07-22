@@ -56,7 +56,8 @@ export class CustomerQuoteService extends BizHttp<CustomerQuote> {
             .usingBusinessDomain()
             .withBody(quoteItems)
             .withEndPoint(this.relativeURL + '?action=calculate-quote-summary')
-            .send();
+            .send()
+            .map(response => response.json());
     } 
 
     public getStatusText = (statusCode: string) => {

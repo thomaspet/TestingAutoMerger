@@ -198,6 +198,7 @@ export class NavbarSearch implements AfterViewInit {
             .usingBusinessDomain()
             .withEndPoint(`invoices?top=20&filter=contains(InvoiceNumber,'${query}') or contains(CustomerName,'${query}')`)
             .send()
+            .map(response => response.json())
             .subscribe((response) => {
                 let results = [];
                 response.forEach((invoice) => {
@@ -218,6 +219,7 @@ export class NavbarSearch implements AfterViewInit {
             .usingBusinessDomain()
             .withEndPoint(module.toLowerCase() + `s?top=20&filter=contains(` + tofString + `,'${query}') or contains(CustomerName,'${query}')`)
             .send()
+            .map(response => response.json())
             .subscribe(
                 (response) => {
                     let results = [];

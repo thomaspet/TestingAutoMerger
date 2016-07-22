@@ -103,6 +103,7 @@ export class ReportDefinitionService extends BizHttp<ReportDefinition>{
                 .asGET()
                 .withEndPoint(url)
                 .send()
+                .map(response => response.json())
             );
         }
         

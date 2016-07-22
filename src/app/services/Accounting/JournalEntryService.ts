@@ -26,7 +26,8 @@ export class JournalEntryService extends BizHttp<JournalEntry> {
             .withBody(journalentry)
             .usingBusinessDomain()             
             .withEndPoint(this.relativeURL + '?action=nextjournalentrynumber')
-            .send();
+            .send()
+            .map(response => response.json());
     }
 
     getJournalEntryPeriodData(accountID: number): Observable<any> {
@@ -34,7 +35,8 @@ export class JournalEntryService extends BizHttp<JournalEntry> {
             .asGET()
             .usingBusinessDomain()             
             .withEndPoint(this.relativeURL + `?action=get-journal-entry-period-data&accountID=${accountID}`)
-            .send();
+            .send()
+            .map(response => response.json());
     }
     
     postJournalEntryData(journalDataEntries: Array<JournalEntryData>): Observable<any> {        
@@ -43,7 +45,8 @@ export class JournalEntryService extends BizHttp<JournalEntry> {
             .usingBusinessDomain()
             .withBody(journalDataEntries)
             .withEndPoint(this.relativeURL + '?action=post-journal-entry-data')
-            .send();
+            .send()
+            .map(response => response.json());
     }  
     
     saveJournalEntryData(journalDataEntries: Array<JournalEntryData>): Observable<any> {        
@@ -52,7 +55,8 @@ export class JournalEntryService extends BizHttp<JournalEntry> {
             .usingBusinessDomain()
             .withBody(journalDataEntries)
             .withEndPoint(this.relativeURL + '?action=save-journal-entry-data')
-            .send();
+            .send()
+            .map(response => response.json());
     }  
     
     validateJournalEntryData(journalDataEntries: Array<JournalEntryData>): Observable<any> {        
@@ -61,7 +65,8 @@ export class JournalEntryService extends BizHttp<JournalEntry> {
             .usingBusinessDomain()
             .withBody(journalDataEntries)
             .withEndPoint(this.relativeURL + '?action=validate-journal-entry-data')
-            .send();
+            .send()
+            .map(response => response.json());
     }    
     
     getJournalEntryDataBySupplierInvoiceID(supplierInvoiceID: number): Observable<any> {
@@ -69,7 +74,8 @@ export class JournalEntryService extends BizHttp<JournalEntry> {
             .asGET()
             .usingBusinessDomain()             
             .withEndPoint(this.relativeURL + '?action=get-journal-entry-data&supplierInvoiceID=' + supplierInvoiceID)
-            .send(); 
+            .send()
+            .map(response => response.json());
     }
     
     calculateJournalEntrySummary(journalDataEntries: Array<JournalEntryData>): Observable<any> {
@@ -78,7 +84,8 @@ export class JournalEntryService extends BizHttp<JournalEntry> {
             .usingBusinessDomain()
             .withBody(journalDataEntries)
             .withEndPoint(this.relativeURL + '?action=calculate-journal-entry-summary')
-            .send();
+            .send()
+            .map(response => response.json());
     }       
     
     getAggregatedData() : Observable<any> {

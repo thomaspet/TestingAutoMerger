@@ -156,7 +156,7 @@ export class UniHttp {
         return this.http.request(new Request(options)).map((response: any) => response.json());
     }
 
-    public send(request: IUniHttpRequest = {}, withoutJsonMap: boolean = false, searchParams: URLSearchParams = null): Observable<any> {
+    public send(request: IUniHttpRequest = {}, searchParams: URLSearchParams = null): Observable<any> {
         let token = this.authService.getToken();
         let activeCompany = this.authService.getActiveCompany();
 
@@ -217,14 +217,7 @@ export class UniHttp {
                     return Observable.throw(err);                
             }
         }))
-        .switchMap(
-            (response) => {
-                if (withoutJsonMap) {
-                    return Observable.from([response]);
-                } else {
-                    return Observable.from([response.json()]);
-                }
-            });
+        .switchMap(response => Observable.of(response));
     }
 
     public multipleRequests(requests: IUniHttpRequest[]) {

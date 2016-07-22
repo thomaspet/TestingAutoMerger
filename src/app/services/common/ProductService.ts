@@ -19,7 +19,8 @@ export class ProductService extends BizHttp<Product> {
             .asPOST()
             .withBody(product)
             .withEndPoint(this.relativeURL + '?action=calculateprice')
-            .send();     
+            .send()
+            .map(response => response.json());
     }
     
     public getNewPartname(): Observable<string> {

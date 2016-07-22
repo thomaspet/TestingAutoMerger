@@ -103,7 +103,8 @@ export class UniTableDemoNew {
         //     .send({
         //         top: 100,
         //         expand: 'Product.VatType'
-        //     });
+        //     })
+        //     .map(response => response.json());
         this.uniHttp.asGET()
             .usingBusinessDomain()
             .withEndPoint('quoteitems')
@@ -111,6 +112,7 @@ export class UniTableDemoNew {
                 top: 100,
                 expand: 'Product.VatType'
             })
+            .map(response => response.json())
             .subscribe(response => this.quoteItems = response);
         
         // Context menu
@@ -152,7 +154,8 @@ export class UniTableDemoNew {
                         .send({
                             expand: 'VatType',
                             filter: `contains(PartName,'${searchValue}') or contains(Name,'${searchValue}')`
-                        });
+                        })
+                        .map(response => response.json());
                 }
             });
             
@@ -193,7 +196,8 @@ export class UniTableDemoNew {
                         .withEndPoint('vattypes')
                         .send({
                             filter: `contains(VatCode,'${searchValue}') or contains(VatPercent,'${searchValue}')`
-                        });
+                        })
+                        .map(response => response.json());
                 }
             });
         
@@ -251,7 +255,8 @@ export class UniTableDemoNew {
         this.employments$ = this.uniHttp.asGET()
             .usingBusinessDomain()
             .withEndPoint('employments')
-            .send({top: 10});
+            .send({top: 10})
+            .map(response => response.json());
             
         let jobNameCol = new UniTableColumn('JobName', 'Job name');
         let startDateCol = new UniTableColumn('StartDate', 'Start date', UniTableColumnType.Date);
@@ -370,7 +375,8 @@ export class UniTableDemoNew {
                         .send({
                             expand: 'VatType',
                             filter: `contains(PartName,'${searchValue}') or contains(Name,'${searchValue}')`
-                        });
+                        })
+                        .map(response => response.json());
                 }  
             }        
         });

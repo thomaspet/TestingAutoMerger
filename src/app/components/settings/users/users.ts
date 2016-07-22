@@ -70,6 +70,7 @@ export class Users {
             .usingBusinessDomain()
             .withEndPoint('users')
             .send()
+            .map(response => response.json())
             .subscribe(response => this.users = response);
     }
 
@@ -89,6 +90,7 @@ export class Users {
                 CompanyId: companyId
             })
             .send()
+            .map(response => response.json())
             .subscribe(
                 (data) => {
                     this.busy = false;
@@ -115,6 +117,7 @@ export class Users {
                 .usingBusinessDomain()
                 .withEndPoint('users/' + user.ID)
                 .send({action: 'activate'})
+                .map(response => response.json())
                 .subscribe(response => this.refreshUsers());
         }
         // If user has not responded to invite
@@ -129,6 +132,7 @@ export class Users {
             .usingBusinessDomain()
             .withEndPoint('users/' + user.ID)
             .send({ action: 'inactivate' })
+            .map(response => response.json())
             .subscribe(response => this.refreshUsers());
     }
     

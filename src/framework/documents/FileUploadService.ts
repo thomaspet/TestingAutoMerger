@@ -48,6 +48,7 @@ export class FileUploadService<T> {
             .usingBusinessDomain()
             .withEndPoint(`files/${this.entityType}/${entityId}`)
             .send()
+            .map(response => response.json())
             .toPromise()
             .then(response => {
                 self.slots = response;
@@ -64,6 +65,7 @@ export class FileUploadService<T> {
             .usingBusinessDomain()
             .withEndPoint(`files/${this.entityType}/${entityId}/${slot.ID}`)
             .send()
+            .map(response => response.json())
             .toPromise()
             .then((response) => {
                 return self.removeSlot(slot);
@@ -78,6 +80,7 @@ export class FileUploadService<T> {
             .usingBusinessDomain()
             .withEndPoint(`files/${this.entityType}/${entityId}/${slotId}?action=download`)
             .send()
+            .map(response => response.json())
             .toPromise();
     }
 
@@ -134,6 +137,7 @@ export class FileUploadService<T> {
             .withEndPoint(`files/${this.entityType}/${this.entityID}`)
             .withBody(metadata)
             .send()
+            .map(response => response.json())
             .toPromise()
             .catch(error => this.statusText = error);
     }
@@ -171,6 +175,7 @@ export class FileUploadService<T> {
             .usingBusinessDomain()
             .withEndPoint(`files/${this.entityType}/${this.entityID}/${this.slot.ID}?action=finalize`)
             .send()
+            .map(response => response.json())
             .toPromise()
             .catch(error => this.statusText = error);
     }

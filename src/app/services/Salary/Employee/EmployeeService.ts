@@ -29,7 +29,8 @@ export class EmployeeService extends BizHttp<Employee> {
                 + '/'
                 + employeeID
                 + '/category')
-            .send();
+            .send()
+            .map(response => response.json());
             // .send({expand: '', filter: 'EmployeeNumber eq ' + id});
     }
 
@@ -43,7 +44,8 @@ export class EmployeeService extends BizHttp<Employee> {
                 + '/'
                 + employeeID
                 + '/category')
-            .send();
+            .send()
+            .map(response => response.json());
     }
 
     public deleteEmployeeCategory(employeeID: number, categoryID: number) {
@@ -56,7 +58,8 @@ export class EmployeeService extends BizHttp<Employee> {
                 + employeeID
                 + '/category/'
                 + categoryID)
-            .send();
+            .send()
+            .map(response => response.json());
     }
 
     public get(id: number| string, expand: string[] = null) {    
@@ -78,7 +81,8 @@ export class EmployeeService extends BizHttp<Employee> {
             .asGET()
             .usingBusinessDomain()
             .withEndPoint('subentities')
-            .send({expand: 'BusinessRelationInfo'});
+            .send({expand: 'BusinessRelationInfo'})
+            .map(response => response.json());
     }
     
     public getTotals(payrunID: number, employeeID: number = 0) {        
@@ -91,7 +95,8 @@ export class EmployeeService extends BizHttp<Employee> {
             .asGET()
             .usingBusinessDomain()
             .withEndPoint('salarytrans?action=Sums' + params)
-            .send(); //{action: 'Sums' + params});
+            .send()
+            .map(response => response.json()); //{action: 'Sums' + params});
     }
 
     public getEmployeeLeave() {
@@ -99,7 +104,8 @@ export class EmployeeService extends BizHttp<Employee> {
             .asGET()
             .usingBusinessDomain()
             .withEndPoint('EmployeeLeave')
-            .send();
+            .send()
+            .map(response => response.json());
     }
     
     public getNext(id: number, expand: string[] = null) {

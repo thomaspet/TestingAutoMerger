@@ -54,7 +54,7 @@ export class Login {
         this.http.asGET()
             .usingInitDomain()
             .withEndPoint('companies')
-            .send({}, true)
+            .send()
             .subscribe(response => {
                 this.working = false;
                 

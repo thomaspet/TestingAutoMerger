@@ -58,7 +58,8 @@ export class CustomerInvoiceService extends BizHttp<CustomerInvoice> {
             .usingBusinessDomain()
             .withBody(invoiceItems)
             .withEndPoint(this.relativeURL + '?action=calculate-invoice-summary') 
-            .send();
+            .send()
+            .map(response => response.json());
     } 
 
     public getInvoiceByInvoiceNumber(invoiceNumber: string): Observable<any> {        
@@ -70,7 +71,8 @@ export class CustomerInvoiceService extends BizHttp<CustomerInvoice> {
             .asGET()
             .usingBusinessDomain()            
             .withEndPoint(this.relativeURL + '?action=get-customer-invoice-summary&odataFilter=' + odatafilter) 
-            .send();
+            .send()
+            .map(response => response.json());
     } 
 
     public createCreditNoteFromInvoice(currentInvoiceID: number): Observable<any> {

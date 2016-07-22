@@ -46,13 +46,15 @@ export class UniSelectDemo {
         this.products$ = this.uniHttp.asGET()
             .usingBusinessDomain()
             .withEndPoint('products')
-            .send();
+            .send()
+            .map(response => response.json());
 
         // Subscribing to result and setting data variable
         this.uniHttp.asGET()
             .usingBusinessDomain()
             .withEndPoint('vattypes')
             .send()
+            .map(response => response.json())
             .subscribe(response => this.vatTypes = response);
 
 
