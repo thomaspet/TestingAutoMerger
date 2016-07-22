@@ -332,7 +332,9 @@ export class SalaryTransactionEmployeeList implements OnChanges, AfterViewInit {
             });
 
         this.salarytransEmployeeTableConfig = new UniTableConfig(this.payrollRun.StatusCode < 1)
-            .setHasDeleteButton(true)
+            .setDeleteButton({
+                deleteHandler: (rowModel) => this.salarytransService.delete(rowModel.ID)
+            })
             .setColumns([
                 wageTypeCol, wagetypenameCol, employmentidCol,
                 fromdateCol, toDateCol, accountCol, amountCol, rateCol, sumCol,
@@ -357,7 +359,7 @@ export class SalaryTransactionEmployeeList implements OnChanges, AfterViewInit {
 
                 return row;
             })
-            .setIsRowReadOnly((rowModel: SalaryTransaction) => {                
+            .setIsRowReadOnly((rowModel: SalaryTransaction) => {
                 return rowModel.IsRecurringPost;
             });
     }
