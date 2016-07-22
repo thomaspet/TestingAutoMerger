@@ -117,7 +117,7 @@ export class TransqueryDetails implements OnInit {
                 new UniTableColumn('FinancialDate', 'Regnskapsdato', UniTableColumnType.Date)
                     .setFilterOperator('contains')
                     .setFormat('DD.MM.YYYY'),
-                new UniTableColumn('RegisteredDate', 'Bokføringsdato', UniTableColumnType.Date)
+                new UniTableColumn('VatDate', 'MVA-dato', UniTableColumnType.Date)
                     .setFilterOperator('contains')
                     .setFormat('DD.MM.YYYY'),
                 new UniTableColumn('Description', 'Beskrivelse', UniTableColumnType.Text)
