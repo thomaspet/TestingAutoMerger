@@ -55,7 +55,8 @@ export class SupplierInvoiceService extends BizHttp<SupplierInvoice> {
             .asPOST()
             .usingBusinessDomain()
             .withEndPoint(`${this.relativeURL}/${supplierInvoiceId}?action=assign`)
-            .send();
+            .send()
+            .map(response => response.json());
     }
 
     public journal(supplierInvoiceId: number) {
@@ -63,7 +64,8 @@ export class SupplierInvoiceService extends BizHttp<SupplierInvoice> {
             .asPOST()
             .usingBusinessDomain()
             .withEndPoint(`${this.relativeURL}/${supplierInvoiceId}?action=journal`)
-            .send();
+            .send()
+            .map(response => response.json());
     }
 
     public sendForPayment(supplierInvoiceId: number) {
@@ -71,7 +73,8 @@ export class SupplierInvoiceService extends BizHttp<SupplierInvoice> {
             .asPOST()
             .usingBusinessDomain()
             .withEndPoint(`${this.relativeURL}/${supplierInvoiceId}`)
-            .send();
+            .send()
+            .map(response => response.json());
     }
 
     public payinvoice(supplierInvoiceId: number, supplierInvoiceData: InvoicePaymentData) {
@@ -80,7 +83,8 @@ export class SupplierInvoiceService extends BizHttp<SupplierInvoice> {
             .withBody(supplierInvoiceData)
             .usingBusinessDomain()
             .withEndPoint(`${this.relativeURL}/${supplierInvoiceId}?action=payInvoice`)
-            .send();
+            .send()
+            .map(response => response.json());
     }
     
     public getInvoiceSummary(odatafilter: string): Observable<any> {        
@@ -88,7 +92,8 @@ export class SupplierInvoiceService extends BizHttp<SupplierInvoice> {
             .asGET()
             .usingBusinessDomain()            
             .withEndPoint(this.relativeURL + '?action=get-supplier-invoice-summary&odataFilter=' + odatafilter) 
-            .send();
+            .send()
+            .map(response => response.json());
     }
     
     public newSupplierInvoice(): Promise<SupplierInvoice>

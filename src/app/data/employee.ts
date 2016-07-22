@@ -26,7 +26,8 @@ export class EmployeeDS {
             .asGET()
             .usingBusinessDomain()
             .withEndPoint('employees/' + id)
-            .send({expand: this.expandedProperties});
+            .send({expand: this.expandedProperties})
+            .map(response => response.json());
     }
 
     public getSubEntities() {
@@ -34,7 +35,8 @@ export class EmployeeDS {
             .asGET()
             .usingBusinessDomain()
             .withEndPoint('subentities')
-            .send({expand: 'BusinessRelationInfo'});
+            .send({expand: 'BusinessRelationInfo'})
+            .map(response => response.json());
     }
     
     public getTotals(ansattID:number) {
@@ -42,7 +44,8 @@ export class EmployeeDS {
             .asGET()
             .usingBusinessDomain()
             .withEndPoint('salarytrans')
-            .send({filter: 'EmployeeNumber eq ' + ansattID});
+            .send({filter: 'EmployeeNumber eq ' + ansattID})
+            .map(response => response.json());
     }
 
     public getEmployeeLeave() {
@@ -50,6 +53,7 @@ export class EmployeeDS {
             .asGET()
             .usingBusinessDomain()
             .withEndPoint('EmployeeLeave')
-            .send();
+            .send()
+            .map(response => response.json());
     }
 }

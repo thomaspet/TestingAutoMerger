@@ -45,6 +45,7 @@ export class UniTableDemo {
             .usingBusinessDomain()
             .withEndPoint('employments')
             .send()
+            .map(response => response.json())
             .subscribe((response) => {
                 this.employments = response;
                 this.setupDemoTable1();

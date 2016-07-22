@@ -17,10 +17,13 @@
     list-style: none
     margin-top: 1px
     z-index: 999
-    border-color: red
+    border-width: 0
+
+    &[aria-expanded=true]
+        border-width: pxToRem(1)
 
     &[aria-expanded=false]
-        border-width: pxToRem(1)
+        display: none
 
 .autocomplete_result
     padding: .2rem 1rem

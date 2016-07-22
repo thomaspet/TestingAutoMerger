@@ -56,6 +56,7 @@ export class App {
                 .usingBusinessDomain()
                 .withEndPoint('companysettings?action=exists')
                 .send()
+                .map(response => response.json())
                 .subscribe((isActive: boolean) => {
                     // TODO: Switch to !isActive after testing!
                     if (!isActive) {
@@ -82,6 +83,7 @@ export class App {
             .usingBusinessDomain()
             .withEndPoint('companysettings')
             .send()
+            .map(response => response.json())
             .subscribe(response => localStorage.setItem('companySettings', JSON.stringify(response[0])));
     }
 

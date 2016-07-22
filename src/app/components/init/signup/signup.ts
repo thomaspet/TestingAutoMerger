@@ -57,6 +57,7 @@ export class Signup {
             .usingInitDomain()
             .withEndPoint('users?email=' + uriEncoded)
             .send()
+            .map(response => response.json())
             .subscribe(
                 (response) => {                                        
                     if (response['UserName'] && response['FullName']) {                        
@@ -113,7 +114,7 @@ export class Signup {
             .usingInitDomain()
             .withEndPoint('sign-up')
             .withBody(body)
-            .send({}, true)
+            .send()
             .subscribe(
                 (response) => {
                     if (response.status === 200) {

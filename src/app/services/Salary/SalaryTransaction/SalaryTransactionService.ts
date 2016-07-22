@@ -14,14 +14,16 @@ export class SalaryTransactionService extends BizHttp<SalaryTransaction> {
             .usingBusinessDomain()
             .asPUT()
             .withEndPoint(this.relativeURL + '/' + ID + '?action=createvacationpay')
-            .send();
+            .send()
+            .map(response => response.json());
     }
     public delete(ID: number) {
         return this.http
             .asDELETE()
             .usingBusinessDomain()
             .withEndPoint('salarytrans/' + ID)
-            .send();
+            .send()
+            .map(response => response.json());
     }
 
 }

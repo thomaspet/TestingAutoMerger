@@ -241,7 +241,7 @@ export class UniTable implements AfterViewInit, OnChanges, OnDestroy {
                     .asGET()
                     .usingBusinessDomain()
                     .withEndPoint(this.config.resource.toString())
-                    .send(requestOptions, true)
+                    .send(requestOptions)
                     .subscribe(
                         (response) => {
                             this.totalRows = response.headers.get('count');
@@ -260,6 +260,7 @@ export class UniTable implements AfterViewInit, OnChanges, OnDestroy {
                     .withBody(data)
                     .withEndPoint(this.config.resource + '/' + options.data.ID)
                     .send()
+                    .map(response => response.json())
                     .subscribe(
                         (response) => options.success(this.flattenObject(response)),
                         (error) => options.error(error)
@@ -273,6 +274,7 @@ export class UniTable implements AfterViewInit, OnChanges, OnDestroy {
                     .withEndPoint(this.config.resource.toString())
                     .withBody(this.unflattenData(options.data))
                     .send()
+                    .map(response => response.json())
                     .subscribe(
                         (response) => options.success(this.flattenObject(response)),
                         (error) => options.error(error)
@@ -285,6 +287,7 @@ export class UniTable implements AfterViewInit, OnChanges, OnDestroy {
                     .usingBusinessDomain()
                     .withEndPoint(this.config.resource + '/' + options.data.ID)
                     .send()
+                    .map(response => response.json())
                     .subscribe(
                         (response) => options.success(response),
                         (error) => options.error(error)

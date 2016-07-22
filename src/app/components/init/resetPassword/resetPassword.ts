@@ -69,7 +69,7 @@ export class ResetPassword {
             .usingInitDomain()
             .withEndPoint('forgot-password')
             .withBody({'email': this.emailForm.controls['email'].value})
-            .send({}, true)           
+            .send()
             .subscribe(
                 (response) => {
                     if (response.status === 200) {
@@ -100,7 +100,7 @@ export class ResetPassword {
                 resetpasswordcode: decodeURIComponent(this.code),
                 userid: decodeURIComponent(this.userid)
             })
-            .send({}, true)
+            .send()
             .subscribe(
                 (response) => {
                     if (response.status === 200) {

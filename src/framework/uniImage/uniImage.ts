@@ -102,6 +102,7 @@ export class UniImage {
             .usingBusinessDomain()
             .withEndPoint('files/' + this.imageId)
             .send()
+            .map(response => response.json())
             .subscribe((response) => {
                 this.pageCount = response['PageCount'] || 1;
             });

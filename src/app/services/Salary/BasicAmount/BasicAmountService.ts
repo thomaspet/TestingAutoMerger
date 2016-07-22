@@ -13,6 +13,7 @@ export class BasicAmountService extends BizHttp<BasicAmount> {
             .asGET()
             .usingBusinessDomain()
             .withEndPoint('basicamounts')
-            .send();
+            .send()
+            .map(response => response.json());
     }
 }

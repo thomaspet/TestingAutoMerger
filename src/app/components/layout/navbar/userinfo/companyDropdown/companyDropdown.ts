@@ -59,6 +59,7 @@ export class UniCompanyDropdown {
             .usingInitDomain()
             .withEndPoint('companies')
             .send()
+            .map(response => response.json())
             .subscribe(response => this.availableCompanies = response);
         
         this.selectConfig = {

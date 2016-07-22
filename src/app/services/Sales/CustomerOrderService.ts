@@ -43,7 +43,8 @@ export class CustomerOrderService extends BizHttp<CustomerOrder> {
             .usingBusinessDomain()
             .withBody(orderItems)
             .withEndPoint(this.relativeURL + '?action=calculate-order-summary') 
-            .send();
+            .send()
+            .map(response => response.json());
     } 
 
     // TODO: To be retrieved from database schema shared.Status instead?

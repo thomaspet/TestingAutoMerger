@@ -45,7 +45,8 @@ export class BizHttp<T> {
             .withEndPoint(this.relativeURL + '/' + ID)
             .send({
                 expand: expandStr
-            });
+            })
+            .map(response => response.json());
     }
 
     public GetAllByUrlSearchParams<T>(params: URLSearchParams): Observable<any> {
@@ -68,7 +69,7 @@ export class BizHttp<T> {
             .usingBusinessDomain()
             .asGET()            
             .withEndPoint(this.relativeURL)
-            .send({}, true, params);        
+            .send({}, params);
     }
 
     public GetAll<T>(query: string, expand?: string[]): Observable<any> {
@@ -93,7 +94,8 @@ export class BizHttp<T> {
             .withEndPoint(this.relativeURL + (query ? '?' + query : ''))
             .send({
                 expand: expandStr
-            });
+            })
+            .map(response => response.json());
     }
 
     public Post<T>(entity: T): Observable<any> {
@@ -102,7 +104,8 @@ export class BizHttp<T> {
             .asPOST()
             .withBody(entity)
             .withEndPoint(this.relativeURL)
-            .send();
+            .send()
+            .map(response => response.json());
     }
 
     public Put<T>(ID: number, entity: T): Observable<any> {
@@ -111,7 +114,8 @@ export class BizHttp<T> {
             .asPUT()
             .withBody(entity)
             .withEndPoint(this.relativeURL + '/' + ID)
-            .send();
+            .send()
+            .map(response => response.json());
     }
 
     public Remove<T>(ID: number, entity: T): Observable<any> {
@@ -121,7 +125,8 @@ export class BizHttp<T> {
             .usingBusinessDomain()
             .asDELETE()
             .withEndPoint(this.relativeURL + '/' + ID)
-            .send();
+            .send()
+            .map(response => response.json());
     }
 
     public Transition<T>(ID: number, entity: T, transitionName: string): Observable<any> {
@@ -130,7 +135,8 @@ export class BizHttp<T> {
             .asPOST()
             .withBody(entity)
             .withEndPoint(this.relativeURL + '/' + ID + '?action=' + transitionName)
-            .send();
+            .send()
+            .map(response => response.json());
     }
      
     public Action<T>(ID: number, actionName: string, parameters: string = null, method: number = RequestMethod.Put): Observable<any> {
@@ -138,7 +144,8 @@ export class BizHttp<T> {
             .usingBusinessDomain()
             .as(method)
             .withEndPoint(this.relativeURL + '/' + (ID === null ? '' : ID) + '?action=' + actionName + (parameters === null ? '' : '&' + parameters))
-            .send();
+            .send()
+            .map(response => response.json());
     }
     
     public ActionWithBody<T>(ID: number, entity: T, actionName: string, method: number = RequestMethod.Put): Observable<any> {
@@ -147,7 +154,8 @@ export class BizHttp<T> {
             .as(method)
             .withBody(entity)
             .withEndPoint(this.relativeURL + '/' + ID + '?action=' + actionName)
-            .send();
+            .send()
+            .map(response => response.json());
     }
 
     public GetAction<T>(ID: number, actionName: string, parameters: string = null) {
@@ -181,7 +189,8 @@ export class BizHttp<T> {
             .withEndPoint(relativeUrlSingular + '/new')
             .send({
                 expand: expandStr
-            });
+            })
+            .map(response => response.json());
     }
 
     public GetLayout(ID: string) {
@@ -190,7 +199,8 @@ export class BizHttp<T> {
             .usingMetadataDomain()
             .asGET()
             .withEndPoint(endPoint)
-            .send();
+            .send()
+            .map(response => response.json());
     }
 
     public GetLayoutAndEntity(LayoutID: string, EntityID: number) {

@@ -22,7 +22,8 @@ export class IntegrationServerCaller {
             'lang': lang,
             'orgno': orgno}).
             asGET().
-            send({baseUrl: AppConfig.BASE_URL_INTEGRATION, apiDomain: AppConfig.INTEGRATION_DOMAINS.ALTINN, endPoint: '/testsystem'});
+            send({baseUrl: AppConfig.BASE_URL_INTEGRATION, apiDomain: AppConfig.INTEGRATION_DOMAINS.ALTINN, endPoint: '/testsystem'})
+            .map(response => response.json());
     }
     
     public getAltinnCorrespondence(altinn: Altinn, orgno: string, receiptID: number) {
@@ -40,7 +41,8 @@ export class IntegrationServerCaller {
                        'pin': altinnLogin.pin
                    })
                    .asGET()
-                   .send({baseUrl: AppConfig.BASE_URL_INTEGRATION, apiDomain: AppConfig.INTEGRATION_DOMAINS.ALTINN, endPoint: 'receipt/' + receiptID + '/correspondence'});
+                   .send({baseUrl: AppConfig.BASE_URL_INTEGRATION, apiDomain: AppConfig.INTEGRATION_DOMAINS.ALTINN, endPoint: 'receipt/' + receiptID + '/correspondence'})
+                   .map(response => response.json());
     }
     
 }

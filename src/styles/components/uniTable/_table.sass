@@ -138,3 +138,21 @@ unitable-contextmenu
             padding: 5px 10px
             min-width: 5rem
             cursor: pointer
+
+.unitable-delete-btn
+    margin: 0
+    padding: 0
+
+    background: transparent no-repeat center center
+    background-size: 0.8rem
+    background-image: unicon-trash($uni-color-scale7)
+
+    &:hover, &:focus
+        background-image: unicon-trash($uni-color-Bad)
+
+    button
+        min-width: 100%
+        min-height: 100%
+        background: transparent
+        &:hover, &:focus
+            background: transparent

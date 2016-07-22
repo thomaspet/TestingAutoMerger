@@ -65,7 +65,8 @@ export class EmployeeLeave implements OnInit {
                         .withEndPoint('employeeleave')
                         .send({
                             filter: filter
-                        });
+                        })
+                        .map(res => res.json());
 
             }, (error) => this.log(error));
     }

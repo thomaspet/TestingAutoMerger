@@ -15,6 +15,7 @@ export class StaticRegisterService extends BizHttp<StaticRegister> {
         .usingBusinessDomain()
         .withEndPoint('staticregister')
         .send()
+        .map(response => response.json())
         .subscribe((response) => {
             response.forEach(entity => {
                 var localstorageStamp = localStorage.getItem(entity.Registry + 'Stamp');
@@ -31,6 +32,7 @@ export class StaticRegisterService extends BizHttp<StaticRegister> {
         .usingBusinessDomain()
         .withEndPoint(entity.Registry)
         .send()
+        .map(response => response.json())
         .subscribe((response) => {
             localStorage.setItem(entity.Registry + 'Data', JSON.stringify(response));
             localStorage.setItem(entity.Registry + 'Stamp', entity.stamp);

@@ -38,7 +38,8 @@ export class CompanySyncModal {
                     return this.http.asPUT()
                         .usingBusinessDomain()
                         .withEndPoint('accounts?action=synchronize-ns4102-as')
-                        .send();
+                        .send()
+                        .map(response => response.json());
                 },
                 busy: false,
                 finished: false                
@@ -49,7 +50,8 @@ export class CompanySyncModal {
                     return this.http.asGET()
                         .usingBusinessDomain()
                         .withEndPoint('currency?action=download-from-norgesbank')
-                        .send();
+                        .send()
+                        .map(response => response.json());
                 },
                 busy: false,
                 finished: false
@@ -60,7 +62,8 @@ export class CompanySyncModal {
                     return this.http.asPUT()
                         .usingBusinessDomain()
                         .withEndPoint('vattypes?action=synchronize')
-                        .send();
+                        .send()
+                        .map(response => response.json());
                 },
                 busy: false,
                 finished: false
