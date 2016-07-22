@@ -23,7 +23,7 @@ declare var _;
     directives: [SalaryTransactionSelectionList, ControlModal, PostingsummaryModal, UniSave, UniForm, VacationpayModal, ContextMenu]
 })
 
-export class PayrollrunDetails implements OnInit {
+export class PayrollrunDetails {
     public config: any = {};
     public fields: any[] = [];
     @ViewChild(UniForm) public uniform: UniForm;
@@ -44,7 +44,8 @@ export class PayrollrunDetails implements OnInit {
         this.route.params.subscribe(params => {
             this.payrollrunID = +params['id'];
             this._rootRouteParamsService.params = params;
-
+            this.tabSer.addTab({ name: 'Lønnsavregning ' + this.payrollrunID, url: 'salary/payrollrun/' + this.payrollrunID, moduleID: 14, active: true });
+            this.getPayrollRun();
         });
         this.contextMenuItems = [
             {
@@ -80,7 +81,7 @@ export class PayrollrunDetails implements OnInit {
                 }
             }
         ];
-        this.tabSer.addTab({ name: 'Lønnsavregning ' + this.payrollrunID, url: 'salary/payrollrun/' + this.payrollrunID, moduleID: 14, active: true });
+        
         this.payrollrunService.refreshPayrollRun$.subscribe((payrollrun: PayrollRun) => {
                 this.busy = true;
                 this.payrollrun = payrollrun;
@@ -95,7 +96,7 @@ export class PayrollrunDetails implements OnInit {
         });
     }
 
-    public ngOnInit() {
+    private getPayrollRun() {
         this.busy = true;
         if (this.payrollrunID) {
             Observable.forkJoin(
@@ -276,6 +277,15 @@ export class PayrollrunDetails implements OnInit {
             noNegativePayCheck.ReadOnly = true;
         }
         this.fields = _.cloneDeep(this.fields);
+        
+        if (!this.payrollrun.Description) {
+            setTimeout(() => {
+                if (!this.uniform.section(1).isOpen) {
+                    this.uniform.section(1).toggle();
+                }
+            }, 100);
+        }
+
     }
 
     public salarytransReady(value) {
@@ -287,11 +297,6 @@ export class PayrollrunDetails implements OnInit {
     public ready(value) {
         this.setEditMode();
         this.formIsReady = true;
-        if (!this.payrollrun.Description) {
-            setTimeout(() => {
-                this.uniform.section(1).toggle();
-            }, 100);
-        }
     }
 
     public change(value) {
@@ -328,6 +333,7 @@ export class PayrollrunDetails implements OnInit {
     }
 
     public createNewRun() {
+        this.busy = true;
         var createdPayrollrun = new PayrollRun();
         var dates: Date[] = this.payrollrunService.getEmptyPayrollrunDates();
         createdPayrollrun.FromDate = dates[0];

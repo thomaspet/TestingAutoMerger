@@ -1,7 +1,7 @@
 import {Component, Injector, Input, Output, EventEmitter, ViewChild} from '@angular/core';
 import {EmployeeDS} from '../../../../data/employee';
 import {EmploymentService, StaticRegisterService} from '../../../../services/services';
-import {FieldType, STYRKCode, Employee, Employment, FieldLayout} from '../../../../unientities';
+import {STYRKCode, Employment} from '../../../../unientities';
 import {UniSave, IUniSaveAction} from '../../../../../framework/save/save';
 import {UniForm} from '../../../../../framework/uniform';
 import {UniFieldLayout} from '../../../../../framework/uniform/index';
@@ -24,7 +24,6 @@ export class EmployeeEmployment {
     @ViewChild(UniForm) public uniform: UniForm;
 
     @Input() private currentEmployment: Employment;
-    @Input() private currentEmployee: Employee;
 
     @Output() private refreshList: EventEmitter<any> = new EventEmitter<any>(true);
 
@@ -161,7 +160,7 @@ export class EmployeeEmployment {
             });
         }
     }
-
+    
     public log(err) {
         alert(err._body);
     }
