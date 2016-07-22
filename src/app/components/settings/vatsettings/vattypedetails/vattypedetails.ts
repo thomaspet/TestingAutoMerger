@@ -13,7 +13,7 @@ import {UniTable, UniTableColumn, UniTableConfig, UniTableColumnType} from 'unit
 
 @Component({
     selector: 'vattype-details',
-    templateUrl: 'app/components/settings/vatsettings/vatttypedetails/vattypedetails.html',
+    templateUrl: 'app/components/settings/vatsettings/vattypedetails/vattypedetails.html',
     directives: [UniForm, UniTable],
     providers: [VatTypeService, AccountService, VatCodeGroupService, VatPostService]
 })
@@ -21,7 +21,7 @@ export class VatTypeDetails implements OnChanges {
     @Input() public vatType: VatType;
     @Output() public vatTypeSaved: EventEmitter<VatType> = new EventEmitter<VatType>();
     @Output() public change: EventEmitter<VatType> = new EventEmitter<VatType>();
-    
+
     @ViewChild(UniForm) public form: UniForm;
     @ViewChild(UniTable) public unitable: UniTable;
 
@@ -51,9 +51,9 @@ export class VatTypeDetails implements OnChanges {
         this.change.emit(this.vatType);
     }
 
-    private getLayoutAndData() {        
+    private getLayoutAndData() {
         this.fields = this.getComponentLayout().Fields;
-                    
+
         Observable.forkJoin(
             this.accountService.GetAll(null),
             this.vatCodeGroupService.GetAll(null)
@@ -62,12 +62,12 @@ export class VatTypeDetails implements OnChanges {
                 this.accounts = response[0];
                 this.vatcodegroups = response[1];
 
-                this.extendFormConfig();                           
+                this.extendFormConfig();
             },
             (error) => console.log(error)
         );
     }
-    
+
     public saveVatType(completeEvent): void {
         this.vatType.VatReportReferences = this.unitable.getTableData().concat(this.deletedVatReportReferences);
         if (this.vatType.ID > 0) {
@@ -78,9 +78,9 @@ export class VatTypeDetails implements OnChanges {
                         this.vatTypeService.Get(data.ID, ['VatCodeGroup', 'IncomingAccount', 'OutgoingAccount', 'VatReportReferences', 'VatReportReferences.VatPost', 'VatReportReferences.Account'])
                             .subscribe(vatType => {
                                 this.vatType = vatType;
-                                this.vatTypeSaved.emit(this.vatType);        
+                                this.vatTypeSaved.emit(this.vatType);
                             }
-                        );                            
+                        );
                     },
                     error => {
                         completeEvent('Feil ved lagring');
@@ -111,10 +111,10 @@ export class VatTypeDetails implements OnChanges {
         vattype.Options =  {
             source: this.vatcodegroups,
             valueProperty: 'ID',
-            displayProperty: 'Name',                        
+            displayProperty: 'Name',
             debounceTime: 200
         };
-        
+
         let outgoingAccountID: UniFieldLayout = this.fields.find(x => x.Property === 'OutgoingAccountID');
         outgoingAccountID.Options =  {
             source: this.accounts,
@@ -123,7 +123,7 @@ export class VatTypeDetails implements OnChanges {
             debounceTime: 200,
             template: (account: Account) => account ? `${account.AccountNumber} ${account.AccountName }` : ''
         };
-        
+
         let incomingAccountID: UniFieldLayout = this.fields.find(x => x.Property === 'IncomingAccountID');
         incomingAccountID.Options =  {
             source: this.accounts,
@@ -137,15 +137,15 @@ export class VatTypeDetails implements OnChanges {
     private generateUniTableConfig(): UniTableConfig {
         return new UniTableConfig(true, false)
             .setColumnMenuVisible(false)
-            .setHasDeleteButton(true)
+            .setDeleteButton(true)
             .setColumns([
                 new UniTableColumn('Account', 'Konto ', UniTableColumnType.Lookup)
                     .setDisplayField('Account.AccountNumber')
-                    .setWidth('5rem')        
+                    .setWidth('5rem')
                     .setEditorOptions({
                         itemTemplate: (account: Account) => {
                             return account.AccountNumber + ' ' + account.AccountName;
-                        },                
+                        },
                         lookupFunction: (searchValue) => {
                             return this.accountService.GetAll(`filter=AccountNumber ge 2700 and AccountNumber lt 2800 and (contains(AccountNumber, '${searchValue}') or contains(AccountName, '${searchValue}'))`);
                         }
@@ -153,7 +153,7 @@ export class VatTypeDetails implements OnChanges {
                 new UniTableColumn('VatPost', 'Oppgavepost ', UniTableColumnType.Lookup)
                     .setDisplayField('VatPost.Name')
                     .setTemplate(rowModel => {
-                        return rowModel.VatPost ? rowModel.VatPost.No + ' ' + rowModel.VatPost.Name : ''; 
+                        return rowModel.VatPost ? rowModel.VatPost.No + ' ' + rowModel.VatPost.Name : '';
                     })
                     .setEditorOptions({
                         itemTemplate: (vatPost: VatPost) => {
@@ -181,12 +181,12 @@ export class VatTypeDetails implements OnChanges {
                 return newRow;
             });
     }
-    
+
     public onVatPostReferenceDelete(vatPostReference) {
         vatPostReference.Deleted = true;
         this.deletedVatReportReferences.push(vatPostReference);
     }
-    
+
     private getComponentLayout(): any {
         return {
             Name: 'VatTypeDetails',
@@ -227,8 +227,8 @@ export class VatTypeDetails implements OnChanges {
                     UpdatedAt: null,
                     CreatedBy: null,
                     UpdatedBy: null,
-                    CustomFields: null  
-                },            
+                    CustomFields: null
+                },
                 {
                     ComponentLayoutID: 3,
                     EntityType: 'VatType',
@@ -255,7 +255,7 @@ export class VatTypeDetails implements OnChanges {
                     UpdatedAt: null,
                     CreatedBy: null,
                     UpdatedBy: null,
-                    CustomFields: null 
+                    CustomFields: null
                 },
                 {
                     ComponentLayoutID: 3,
@@ -283,7 +283,7 @@ export class VatTypeDetails implements OnChanges {
                     UpdatedAt: null,
                     CreatedBy: null,
                     UpdatedBy: null,
-                    CustomFields: null 
+                    CustomFields: null
                 },
                 {
                     ComponentLayoutID: 3,
@@ -311,7 +311,7 @@ export class VatTypeDetails implements OnChanges {
                     UpdatedAt: null,
                     CreatedBy: null,
                     UpdatedBy: null,
-                    CustomFields: null 
+                    CustomFields: null
                 },
                 {
                     ComponentLayoutID: 3,
@@ -339,7 +339,7 @@ export class VatTypeDetails implements OnChanges {
                     UpdatedAt: null,
                     CreatedBy: null,
                     UpdatedBy: null,
-                    CustomFields: null 
+                    CustomFields: null
                 },
                 {
                     ComponentLayoutID: 3,
@@ -367,7 +367,7 @@ export class VatTypeDetails implements OnChanges {
                     UpdatedAt: null,
                     CreatedBy: null,
                     UpdatedBy: null,
-                    CustomFields: null 
+                    CustomFields: null
                 },
                 {
                     ComponentLayoutID: 3,
@@ -395,7 +395,7 @@ export class VatTypeDetails implements OnChanges {
                     UpdatedAt: null,
                     CreatedBy: null,
                     UpdatedBy: null,
-                    CustomFields: null 
+                    CustomFields: null
                 },
                 {
                     ComponentLayoutID: 1,
@@ -423,7 +423,7 @@ export class VatTypeDetails implements OnChanges {
                     UpdatedAt: null,
                     CreatedBy: null,
                     UpdatedBy: null,
-                    CustomFields: null 
+                    CustomFields: null
                 },
                 {
                     ComponentLayoutID: 1,
@@ -451,8 +451,8 @@ export class VatTypeDetails implements OnChanges {
                     UpdatedAt: null,
                     CreatedBy: null,
                     UpdatedBy: null,
-                    CustomFields: null 
-                },                
+                    CustomFields: null
+                },
                 {
                     ComponentLayoutID: 3,
                     EntityType: 'VatType',
@@ -479,8 +479,8 @@ export class VatTypeDetails implements OnChanges {
                     UpdatedAt: null,
                     CreatedBy: null,
                     UpdatedBy: null,
-                    CustomFields: null 
-                },                
+                    CustomFields: null
+                },
                 {
                     ComponentLayoutID: 3,
                     EntityType: 'VatType',
@@ -507,8 +507,8 @@ export class VatTypeDetails implements OnChanges {
                     UpdatedAt: null,
                     CreatedBy: null,
                     UpdatedBy: null,
-                    CustomFields: null 
-                },                
+                    CustomFields: null
+                },
                 {
                     ComponentLayoutID: 3,
                     EntityType: 'VatType',
@@ -535,8 +535,8 @@ export class VatTypeDetails implements OnChanges {
                     UpdatedAt: null,
                     CreatedBy: null,
                     UpdatedBy: null,
-                    CustomFields: null 
-                },                
+                    CustomFields: null
+                },
                 {
                     ComponentLayoutID: 3,
                     EntityType: 'VatType',
@@ -563,7 +563,7 @@ export class VatTypeDetails implements OnChanges {
                     UpdatedAt: null,
                     CreatedBy: null,
                     UpdatedBy: null,
-                    CustomFields: null 
+                    CustomFields: null
                 }
             ]
         };
