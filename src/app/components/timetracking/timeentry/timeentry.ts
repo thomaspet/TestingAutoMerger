@@ -203,6 +203,7 @@ export class TimeEntry {
                     WorkType: item.Worktype ? item.Worktype.Name : '',
                     Minutes: item.Minutes,
                     LunchInMinutes: item.LunchInMinutes || 0,
+                    Description: item.Description || '',
                     Project: item.Dimensions && item.Dimensions.Project ? item.Dimensions.Project.Name : ''
                     };
                 list.push(row);
