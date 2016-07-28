@@ -2,11 +2,10 @@ import {JournalEntry} from './journalentry/journalentry';
 import {Transquery} from './transquery/transquery';
 import {AccountSettings} from '../settings/accountSettings/accountSettings';
 import {VatSettings} from '../settings/vatsettings/vatsettings';
-import {VatReport} from './vatreport/vatreport';
+import {VatReportView} from './vatreport/vatreportview';
 
 import {routes as JournalEntryRoutes} from './journalentry/journalentryRoutes';
 import {routes as TransqueryRoutes} from './transquery/transqueryRoutes';
-import {routes as VatReportRoutes} from './vatreport/vatreportRoutes';
 
 export const routes = [
     {
@@ -34,7 +33,6 @@ export const routes = [
     },
     {
         path: 'vatreport',
-        component: VatReport,
-        children: VatReportRoutes
+        component: VatReportView
     }
 ];

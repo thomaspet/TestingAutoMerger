@@ -76,7 +76,7 @@ export class HamburgerMenu {
                     {componentName: 'Forespørsel på bilag', componentUrl: '/accounting/transquery/details'},
                     {componentName: 'Kontoinnstillinger', componentUrl: '/accounting/accountsettings'},
                     {componentName: 'MVA innstillinger', componentUrl: '/accounting/vatsettings'},
-                    {componentName: 'MVA oppgave', componentUrl: '/accounting/vatreport'},                   
+                    {componentName: 'MVA oppgave', componentUrl: '/accounting/vatreport'},
                     {componentName: 'Leverandører', componentUrl: '/sales/suppliers'}
                 ]
             },

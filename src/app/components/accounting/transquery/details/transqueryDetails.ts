@@ -3,7 +3,6 @@ import {ActivatedRoute} from '@angular/router';
 import {UniTable, UniTableColumn, UniTableConfig, UniTableColumnType, ITableFilter} from 'unitable-ng2/main';
 import {TransqueryDetailsCalculationsSummary} from '../../../../models/accounting/TransqueryDetailsCalculationsSummary';
 import {JournalEntryLineService} from '../../../../services/Accounting/JournalEntryLineService';
-import {TransqueryDetailSearchParamters} from './TransqueryDetailSearchParamters';
 import {URLSearchParams} from '@angular/http';
 import {Observable} from 'rxjs/Rx';
 import {JournalEntryLine} from '../../../../unientities';
@@ -26,8 +25,7 @@ export class TransqueryDetails implements OnInit {
 
     public ngOnInit() {
         this.route.params.subscribe(params => {
-            const searchParameters = this.getSearchParameters(params);
-            const unitableFilter = this.generateUnitableFilters(searchParameters);
+            const unitableFilter = this.generateUnitableFilters(params);
             this.uniTableConfig = this.generateUniTableConfig(unitableFilter);
             this.lookupFunction = (urlParams: URLSearchParams) => this.getTableData(urlParams);
         });
@@ -37,17 +35,6 @@ export class TransqueryDetails implements OnInit {
         urlParams = urlParams || new URLSearchParams();
         urlParams.set('expand', 'VatType,Account,VatReport,VatReport.TerminPeriod');
         return this.journalEntryLineService.GetAllByUrlSearchParams(urlParams);
-    }
-
-    private getSearchParameters(routeParams): TransqueryDetailSearchParamters {
-        const searchParams = new TransqueryDetailSearchParamters();
-        searchParams.accountNumber = +routeParams['accountNumber'];
-        searchParams.year = +routeParams['year'];
-        searchParams.period = +routeParams['period'];
-        searchParams.isIncomingBalance = routeParams['isIncomingBalance'] === 'true';
-        searchParams.journalEntryNumber = routeParams['journalEntryNumber'];
-        searchParams.accountID = routeParams['accountID'];
-        return searchParams;
     }
 
     public onFiltersChange(filter: string) {
@@ -60,16 +47,21 @@ export class TransqueryDetails implements OnInit {
         }
     }
 
-    private generateUnitableFilters(searchParameters: TransqueryDetailSearchParamters): ITableFilter[] {
+    private generateUnitableFilters(routeParams: any): ITableFilter[] {
         const filter: ITableFilter[] = [];
-        if (searchParameters.accountNumber) {
-            const accountYear = `01.01.${searchParameters.year}`;
-            const nextAccountYear = `01.01.${searchParameters.year + 1}`;
-            filter.push({field: 'Account.AccountNumber', operator: 'eq', value: searchParameters.accountNumber});
-            if (searchParameters.period === 0) {
+        if (
+            routeParams['Account_AccountNumber']
+            && routeParams['year']
+            && routeParams['period']
+            && routeParams['isIncomingBalance']
+        ) {
+            const accountYear = `01.01.${routeParams['year']}`;
+            const nextAccountYear = `01.01.${routeParams['year'] + 1}`;
+            filter.push({field: 'Account.AccountNumber', operator: 'eq', value: routeParams['Account_AccountNumber']});
+            if (+routeParams['period'] === 0) {
                 filter.push({field: 'FinancialDate', operator: 'lt', value: accountYear});
-            } else if (searchParameters.period === 13) {
-                if (searchParameters.isIncomingBalance) {
+            } else if (+routeParams['period'] === 13) {
+                if (routeParams['isIncomingBalance'] === 'true') {
                     filter.push({field: 'FinancialDate', operator: 'lt', value: nextAccountYear});
                 } else {
                     filter.push({field: 'FinancialDate', operator: 'ge', value: accountYear});
@@ -77,14 +69,34 @@ export class TransqueryDetails implements OnInit {
                 }
             } else {
                 const periodDates = this.journalEntryLineService
-                    .periodNumberToPeriodDates(searchParameters.period, searchParameters.year);
+                    .periodNumberToPeriodDates(routeParams['period'], routeParams['year']);
                 filter.push({field: 'FinancialDate', operator: 'ge', value: periodDates.firstDayOfPeriod});
                 filter.push({field: 'FinancialDate', operator: 'le', value: periodDates.lastDayOfPeriod});
             }
-        } else if (searchParameters.journalEntryNumber) {
-            filter.push({field: 'JournalEntryNumber', operator: 'eq', value: searchParameters.journalEntryNumber});
-        } else if (searchParameters.accountID) {
-            filter.push({field: 'Account.ID', operator: 'eq', value: searchParameters.accountID});       
+        } else if (
+            routeParams['vatCode']
+            && routeParams['vatFromDate']
+            && routeParams['vatToDate']
+        ) {
+            filter.push({field: 'VatType.VatCode', operator: 'eq', value: routeParams['vatCode']});
+            filter.push({field: 'VatDate', operator: 'ge', value: routeParams['vatFromDate']});
+            filter.push({field: 'VatDate', operator: 'le', value: routeParams['vatToDate']});
+        } else if (
+            routeParams['vatCodes']
+            && routeParams['vatFromDate']
+            && routeParams['vatToDate']
+        ) {
+            filter.push({field: 'VatType.VatCode', operator: 'eq', value: routeParams['vatCodes']});
+            filter.push({field: 'VatDate', operator: 'ge', value: routeParams['vatFromDate']});
+            filter.push({field: 'VatDate', operator: 'le', value: routeParams['vatToDate']});
+        } else {
+            for (const field of Object.keys(routeParams)) {
+                filter.push({
+                    field: field.replace('_', '.'),
+                    operator: 'eq',
+                    value: routeParams[field]
+                });
+            }
         }
         return filter;
     }
@@ -107,7 +119,7 @@ export class TransqueryDetails implements OnInit {
                     .setFilterOperator('contains'),
                 new UniTableColumn('Account.AccountNumber', 'Kontonr')
                     .setTemplate((journalEntryLine) => {
-                        return `<a href="/accounting/transquery/details;accountID=${journalEntryLine.AccountID}">
+                        return `<a href="/accounting/transquery/details;Account_AccountNumber=${journalEntryLine.Account.AccountNumber}">
                                 ${journalEntryLine.Account.AccountNumber}
                             </a>`;
                     })
@@ -122,17 +134,17 @@ export class TransqueryDetails implements OnInit {
                     .setFormat('DD.MM.YYYY'),
                 new UniTableColumn('Description', 'Beskrivelse', UniTableColumnType.Text)
                     .setFilterOperator('contains'),
-                new UniTableColumn('VatType.VatCode', 'Mvakode', UniTableColumnType.Text)                    
+                new UniTableColumn('VatType.VatCode', 'Mvakode', UniTableColumnType.Text)
                     .setFilterOperator('eq'),
-                new UniTableColumn('Amount', 'Beløp', UniTableColumnType.Number) 
-                    .setCls('column-align-right')                   
+                new UniTableColumn('Amount', 'Beløp', UniTableColumnType.Number)
+                    .setCls('column-align-right')
                     .setFilterOperator('eq'),
                 new UniTableColumn('TaxBasisAmount', 'Grunnlag MVA', UniTableColumnType.Number)
                     .setCls('column-align-right')
                     .setFilterOperator('eq')
                     .setVisible(false),
                 new UniTableColumn('VatReportID', 'MVA rapportert', UniTableColumnType.Text)
-                    .setTemplate((line: JournalEntryLine) => line.VatReport && line.VatReport.TerminPeriod ? line.VatReport.TerminPeriod.No + '-' + line.VatReport.TerminPeriod.AccountYear : '')                    
+                    .setTemplate((line: JournalEntryLine) => line.VatReport && line.VatReport.TerminPeriod ? line.VatReport.TerminPeriod.No + '-' + line.VatReport.TerminPeriod.AccountYear : '')
                     .setFilterable(false)
                     .setVisible(false),
                 new UniTableColumn('RestAmount', 'Restbeløp', UniTableColumnType.Number)
@@ -140,7 +152,7 @@ export class TransqueryDetails implements OnInit {
                     .setFilterOperator('eq')
                     .setVisible(false),
                 new UniTableColumn('StatusCode', 'Status', UniTableColumnType.Text)
-                    .setTemplate((line: JournalEntryLine) => this.journalEntryLineService.getStatusText(line.StatusCode))                    
+                    .setTemplate((line: JournalEntryLine) => this.journalEntryLineService.getStatusText(line.StatusCode))
                     .setFilterable(false)
                     .setVisible(false)
             ]);

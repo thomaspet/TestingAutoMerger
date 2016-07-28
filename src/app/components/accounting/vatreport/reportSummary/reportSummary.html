@@ -1,0 +1,37 @@
+<section class="application">
+    <table>
+        <thead>
+            <tr>
+                <th class="textColumnHeader">Avgiftsposter</th>
+                <th class="symbolColumnHeader"></th>
+                <th class="currencyColumnHeader">Grunnlag</th>
+                <th class="symbolColumnHeader"></th>
+                <th class="currencyColumnHeader">Avgift</th>
+            </tr>
+        </thead>
+        <tbody *ngFor="let postGroup of postGroups">
+            <tr>
+                 <td class="subHeading">{{postGroup.No}} {{postGroup.Name}}</td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+            </tr>
+            <tr *ngFor="let post of postGroup.Posts">
+                <td class="post"><span class="postNumber">Post {{post.VatPostNo}}</span>{{post.VatPostName}}</td>
+                <td class="symbol">{{post.SumTaxBasisAmount * -1 >= 0 ? '+' : '-'}}</td>
+                <td class="currency" *ngIf="period">
+                    <a href="/accounting/transquery/details;vatCode={{vatReportSummaryPerPostToVatCode(post)}};vatFromDate={{period.FromDate}};vatToDate={{period.ToDate}}">
+                        {{absolute(post.SumTaxBasisAmount) | unicurrency:2}}
+                    </a>
+                </td>
+                <td class="symbol">{{post.SumVatAmount * -1 >= 0 ? '+' : '-'}}</td>
+                <td class="currency" *ngIf="period">
+                    <a href="/accounting/transquery/details;vatCode={{vatReportSummaryPerPostToVatCode(post)}};vatFromDate={{period.FromDate}};vatToDate={{period.ToDate}}">
+                        {{absolute(post.SumVatAmount) | unicurrency:2}}
+                    </a>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</section>
