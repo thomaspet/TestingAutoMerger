@@ -156,3 +156,44 @@ unitable-contextmenu
         background: transparent
         &:hover, &:focus
             background: transparent
+
+unitable-autocomplete
+    .uniAutocomplete
+        display: inline-block
+        position: absolute
+
+        input.uniAutocomplete_input
+            position: relative
+            z-index: 999
+            text-overflow: ellipsis
+            overflow: hidden
+
+unitable-select
+    .uniSelect
+        display: inline-block
+        position: absolute
+
+        input.uniSelect_input
+            position: relative
+            z-index: 999
+            background: #fff unicon-chevron-down($uni-color-scale5) center right .5rem no-repeat
+            background-size: auto .5rem
+            padding-right: 2rem
+            text-overflow: ellipsis
+            overflow: hidden
+            cursor: pointer
+
+
+.uniTable_dropdown_list
+    position: absolute
+    @extend .uni-multivalue-values
+    box-sizing: border-box
+    margin-top: 0
+    min-width: pxToRem(300)
+    max-height: 17rem
+    overflow-y: auto
+
+    visibility: hidden
+
+    &[aria-expanded]:not([aria-expanded=false])
+        visibility: visible
