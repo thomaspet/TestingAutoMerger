@@ -47,11 +47,7 @@ export class GenericDetailview {
         { label: labels.action_delete, action: (done) => this.delete(done), main: false, disabled: true}
     ];     
 
-    constructor(private workerService: WorkerService, 
-        		private route: ActivatedRoute, 
-				private tabService: TabService,
-        		private toastService: ToastService, 
-				private router: Router) {
+    constructor(private workerService: WorkerService, private route: ActivatedRoute, private tabService: TabService, private toastService: ToastService, private router: Router) {
             this.route.params.subscribe(params => this.ID = +params['id']);
     }
 
@@ -71,6 +67,10 @@ export class GenericDetailview {
             this.form.section(1).toggle();
         }
     }    
+
+    public onDelete() {
+        this.delete();
+    }
 
     public onShowList() {
         if (this.viewconfig && this.viewconfig.detail && this.viewconfig.detail.routeBackToList) {
@@ -188,11 +188,11 @@ export class GenericDetailview {
         }, () => this.busy = false);
     }
 
-    private delete(done) {
+    private delete(done?) {
         if (this.ID) {
-            if (!confirm(labels.ask_delete)) { done(); return; }
+            if (!confirm(labels.ask_delete)) { if (done) { done(); } return; }
             this.workerService.deleteByID(this.ID, this.viewconfig.data.route).subscribe((result) => {
-                done(labels.deleted_ok);
+                if (done) { done(labels.deleted_ok); }
                 this.postDeleteAction();
             }, (err) => {
                 var msg = this.showErrMsg(err._body || err.statusText, labels.err_delete, true);
