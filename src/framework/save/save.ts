@@ -53,7 +53,8 @@ export interface IUniSaveAction {
     `,
     directives: [ClickOutsideDirective],
     host: {
-        '(keydown.esc)': 'close()'
+        '(keydown.esc)': 'close()',
+        '(document:keydown)': 'checkForSaveKey($event)'
     }
 })
 export class UniSave {
@@ -64,15 +65,6 @@ export class UniSave {
     private busy: boolean = false;
     private status: {message: string, when: Date};
 
-    constructor () {
-        document.addEventListener('keydown', (e) => {
-            if (e.keyCode === 83 && (navigator.platform.match('Mac') ? e.metaKey : e.ctrlKey)) {
-                e.preventDefault();
-                this.onSave(this.mainAction());
-            }
-        }, false);
-    }
-
     public mainAction() {
         let _declaredMain = this.actions.filter(action => action.main);
 
@@ -80,6 +72,25 @@ export class UniSave {
             return _declaredMain[0];
         } else {
             return this.actions[0];
+        }
+    }
+
+    private checkForSaveKey(event) {
+        const key = event.which || event.keyCode;
+
+        if (key === 83 && (navigator.platform.match('Mac') ? event.metaKey : event.ctrlKey)) {
+            event.preventDefault();
+            const activeElement: any = document.activeElement;
+
+            if (activeElement && activeElement.blur) {
+                activeElement.blur();
+            }
+
+            this.onSave(this.mainAction());
+
+            if (activeElement && activeElement.focus) {
+                activeElement.focus();
+            }
         }
     }
 
