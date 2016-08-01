@@ -21,7 +21,8 @@ var labels = {
     'err_loading': 'Feil ved lasting',
     'err_save': 'Feil ved lagring',
     'err_delete': 'Feil ved sletting',
-    'ask_delete': 'Ønsker du virkelig å slette aktuell post?'
+    'ask_delete': 'Ønsker du virkelig å slette aktuell post?',
+    'msg_saved': 'Lagret'
 };
 
 @Component({
@@ -169,23 +170,34 @@ export class GenericDetailview {
             var nameProp = this.viewconfig.detail.nameProperty || 'Name';
             this.title = this.ID && this.current ? getDeepValue(this.current, nameProp) : fallbackTitle || ''; 
             this.subTitle = this.ID ? this.viewconfig.tab.label + ' ' + this.ID : this.viewconfig.labels.createNew;  
-            this.tabService.addTab({ name: this.subTitle, url: this.viewconfig.tab.url + '/' + this.ID, moduleID: this.viewconfig.moduleID, active: true });
+            this.tabService.addTab({ name: this.title, url: this.viewconfig.tab.url + '/' + this.ID, moduleID: this.viewconfig.moduleID, active: true });
         }
     }
 
     private save(done) {
         this.busy = true;
+        this.ensureEditCompleted();
         this.workerService.saveByID(this.current, this.viewconfig.data.route).subscribe((item) => {
             this.current = item;
             this.ID = item.ID;
             this.updateTitle();
             this.enableAction(IAction.Delete, true);
-            done(this.title);
+            done(labels.msg_saved);
         }, (err) => {
             this.busy = false;
             var msg = this.showErrMsg(err._body || err.statusText, labels.err_save, true);
             if (done) { done(labels.err_save + ':' + msg); }
         }, () => this.busy = false);
+    }
+
+    private ensureEditCompleted() {
+        var el: any = document.activeElement;        
+        if (el && el.blur) {
+            el.blur();
+            if (el.focus) {
+                el.focus();
+            }
+        }
     }
 
     private delete(done?) {
