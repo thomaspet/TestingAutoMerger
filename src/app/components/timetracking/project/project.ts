@@ -5,7 +5,7 @@ import {IViewConfig} from '../genericview/list';
 import {Project} from '../../../unientities';
 import {GenericDetailview} from '../genericview/detail';
 
-export var view = new View('project', 'Prosjekt', 'ProjectDetailview', true, '', ProjectDetailview);
+export var view = new View('projects', 'Prosjekt', 'ProjectDetailview', true, '', ProjectDetailview);
 
 @Component({
     selector: view.name,

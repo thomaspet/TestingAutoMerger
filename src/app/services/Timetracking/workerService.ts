@@ -175,8 +175,7 @@ export class WorkerService extends BizHttp<Worker> {
     }
 
     public deleteByID(id: any, baseRoute: string): Observable<any> {
-        return this.http.asDELETE().usingBusinessDomain().withEndPoint(baseRoute + '/' + id).send(undefined)
-            .map(response => response.json());
+        return this.http.asDELETE().usingBusinessDomain().withEndPoint(baseRoute + '/' + id).send(undefined);
     }
 
     public getByID<T>(id: number, baseRoute: string, expand?: string): Observable<T> {

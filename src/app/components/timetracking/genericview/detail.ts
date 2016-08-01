@@ -21,7 +21,8 @@ var labels = {
     'err_loading': 'Feil ved lasting',
     'err_save': 'Feil ved lagring',
     'err_delete': 'Feil ved sletting',
-    'ask_delete': 'Ønsker du virkelig å slette aktuell post?'
+    'ask_delete': 'Ønsker du virkelig å slette aktuell post?',
+    'msg_saved': 'Lagret'
 };
 
 @Component({
@@ -47,18 +48,12 @@ export class GenericDetailview {
         { label: labels.action_delete, action: (done) => this.delete(done), main: false, disabled: true}
     ];     
 
-    constructor(private workerService: WorkerService, 
-        		private route: ActivatedRoute, 
-				private tabService: TabService,
-        		private toastService: ToastService, 
-				private router: Router) {
+    constructor(private workerService: WorkerService, private route: ActivatedRoute, private tabService: TabService, private toastService: ToastService, private router: Router) {
             this.route.params.subscribe(params => this.ID = +params['id']);
     }
 
     public ngOnInit() {
         if (this.viewconfig) {
-            var tab = this.viewconfig.tab;
-            this.tabService.addTab({ name: tab.label, url: tab.url, moduleID: this.viewconfig.moduleID, active: true });
             this.fields = this.viewconfig.formFields;
             this.updateTitle();        
         }        
@@ -71,6 +66,10 @@ export class GenericDetailview {
             this.form.section(1).toggle();
         }
     }    
+
+    public onDelete() {
+        this.delete();
+    }
 
     public onShowList() {
         if (this.viewconfig && this.viewconfig.detail && this.viewconfig.detail.routeBackToList) {
@@ -175,12 +174,13 @@ export class GenericDetailview {
 
     private save(done) {
         this.busy = true;
+        this.ensureEditCompleted();
         this.workerService.saveByID(this.current, this.viewconfig.data.route).subscribe((item) => {
             this.current = item;
             this.ID = item.ID;
             this.updateTitle();
             this.enableAction(IAction.Delete, true);
-            done(this.title);
+            done(labels.msg_saved);
         }, (err) => {
             this.busy = false;
             var msg = this.showErrMsg(err._body || err.statusText, labels.err_save, true);
@@ -188,11 +188,21 @@ export class GenericDetailview {
         }, () => this.busy = false);
     }
 
-    private delete(done) {
+    private ensureEditCompleted() {
+        var el: any = document.activeElement;        
+        if (el && el.blur) {
+            el.blur();
+            if (el.focus) {
+                el.focus();
+            }
+        }
+    }
+
+    private delete(done?) {
         if (this.ID) {
-            if (!confirm(labels.ask_delete)) { done(); return; }
+            if (!confirm(labels.ask_delete)) { if (done) { done(); } return; }
             this.workerService.deleteByID(this.ID, this.viewconfig.data.route).subscribe((result) => {
-                done(labels.deleted_ok);
+                if (done) { done(labels.deleted_ok); }
                 this.postDeleteAction();
             }, (err) => {
                 var msg = this.showErrMsg(err._body || err.statusText, labels.err_delete, true);
