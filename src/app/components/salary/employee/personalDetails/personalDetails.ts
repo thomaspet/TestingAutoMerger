@@ -51,7 +51,8 @@ export class PersonalDetails {
         }
     ];
 
-    constructor(public rootRouteParams: RootRouteParamsService,
+    constructor(
+        public rootRouteParams: RootRouteParamsService,
         public employeeService: EmployeeService,
         public router: Router,
         public phoneService: PhoneService,
@@ -296,6 +297,7 @@ export class PersonalDetails {
                     done('Sist lagret: ');
                     this.employeeService.get(this.employee.ID, this.expands).subscribe((emp: Employee) => {
                         this.employee = emp;
+                        this.employeeService.refreshEmployee(emp);
                         this.saveactions[0].disabled = false;
                     },
                         (err) => {
@@ -316,6 +318,7 @@ export class PersonalDetails {
             this.employeeService.Post(this.employee)
                 .subscribe((response: Employee) => {
                     this.employee = response;
+                    this.employeeService.refreshEmployee(response);
                     done('Sist lagret: ');
                     this.saveactions[0].disabled = false;
                     this.router.navigateByUrl('/salary/employees/' + this.employee.ID);

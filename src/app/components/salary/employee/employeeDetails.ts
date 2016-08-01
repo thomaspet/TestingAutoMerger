@@ -40,7 +40,6 @@ export class EmployeeDetails implements OnInit {
         private tabService: TabService) {
 
         this._employeeService.employee$.subscribe((emp: Employee) => {
-            console.log(emp);
             this.employee = emp;
         });
 
@@ -97,7 +96,6 @@ export class EmployeeDetails implements OnInit {
         this.busy = true;
         this._employeeService.getNext(this.employeeID).subscribe((response: Employee) => {
             if (response) {
-                console.log(response);
                 if (!response.BusinessRelationInfo) {
                     this._employeeService.get(response.ID).subscribe((emp) => {
                         this._employeeService.refreshEmployee(emp);
@@ -117,7 +115,6 @@ export class EmployeeDetails implements OnInit {
         this.busy = true;
         this._employeeService.getPrevious(this.employeeID).subscribe((response) => {
             if (response) {
-                console.log(response);
                 if (!response.BusinessRelationInfo) {
                     this._employeeService.get(response.ID).subscribe((emp) => {
                         this._employeeService.refreshEmployee(emp);
