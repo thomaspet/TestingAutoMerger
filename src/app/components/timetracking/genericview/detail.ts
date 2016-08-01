@@ -54,8 +54,6 @@ export class GenericDetailview {
 
     public ngOnInit() {
         if (this.viewconfig) {
-            var tab = this.viewconfig.tab;
-            this.tabService.addTab({ name: tab.label, url: tab.url, moduleID: this.viewconfig.moduleID, active: true });
             this.fields = this.viewconfig.formFields;
             this.updateTitle();        
         }        
@@ -170,7 +168,7 @@ export class GenericDetailview {
             var nameProp = this.viewconfig.detail.nameProperty || 'Name';
             this.title = this.ID && this.current ? getDeepValue(this.current, nameProp) : fallbackTitle || ''; 
             this.subTitle = this.ID ? this.viewconfig.tab.label + ' ' + this.ID : this.viewconfig.labels.createNew;  
-            this.tabService.addTab({ name: this.title, url: this.viewconfig.tab.url + '/' + this.ID, moduleID: this.viewconfig.moduleID, active: true });
+            this.tabService.addTab({ name: this.subTitle, url: this.viewconfig.tab.url + '/' + this.ID, moduleID: this.viewconfig.moduleID, active: true });
         }
     }
 
