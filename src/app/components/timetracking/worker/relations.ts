@@ -1,6 +1,7 @@
 import {Component, Input} from '@angular/core';
 import {WorkerService} from '../../../services/timetracking/workerservice';
 import {WorkRelation} from '../../../unientities';
+import {Router} from '@angular/router';
 
 @Component({
     selector: 'workrelations',
@@ -19,13 +20,19 @@ export class View {
     
     private initialized: boolean = false;
 
-    constructor(private workerService: WorkerService) {
+    constructor(private workerService: WorkerService, private router: Router) {
 
     }
 
     public ngOnInit() {
         this.initialized = true;
         this.loadList();
+    }
+
+    public onItemClicked(item: WorkRelation) {
+        if (item && item.ID) {
+            this.router.navigateByUrl('/timetracking/workrelations/' + item.ID);
+        }
     }
 
     private loadList() {
