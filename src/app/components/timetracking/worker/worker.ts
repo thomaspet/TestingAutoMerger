@@ -4,22 +4,26 @@ import {createFormField, FieldSize, ControlTypes} from '../utils/utils';
 import {IViewConfig} from '../genericview/list';
 import {Worker} from '../../../unientities';
 import {GenericDetailview} from '../genericview/detail';
+import {View as RelationsSubView} from './relations';
 
 export var view = new View('workers', 'Person', 'WorkerDetailview', true, '', WorkerDetailview);
 
 @Component({
     selector: view.name,
-    template: '<genericdetail [viewconfig]="viewconfig" (itemChanged)="onItemChanged($event)" ></genericdetail>',
-    directives: [GenericDetailview]
+    template: `<genericdetail [viewconfig]="viewconfig" (itemChanged)="onItemChanged($event)" ></genericdetail>
+        <workrelations [workerid]="currentId">
+    `,
+    directives: [GenericDetailview, RelationsSubView]
 })
 export class WorkerDetailview {
     private viewconfig: IViewConfig;
+    private currentId: number = 0;
     constructor() {
         this.viewconfig =  this.createFormConfig();
     }   
 
     public onItemChanged(item: Worker) {
-        console.log('New worker: ' + (item ? item.ID : 'New/empty') );
+        this.currentId = item.ID;
     }
 
     private createFormConfig(): IViewConfig {

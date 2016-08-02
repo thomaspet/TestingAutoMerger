@@ -1,0 +1,15 @@
+<section class="application">
+    <article class="collapsable" [ngClass]="{'-is-open': !collapseView}">
+        <h4 (click)="collapseView = !collapseView">Arbeidsforhold</h4>
+        <div class="collapsable-content">
+            <table class="timeentriesTable">
+                <thead><tr><th>Beskrivelse</th></tr></thead>
+                <tbody>
+                    <tr *ngFor="let item of items">
+                        <td>{{item.Description}}</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </article>
+</section>
