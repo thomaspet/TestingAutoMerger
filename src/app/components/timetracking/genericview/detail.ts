@@ -1,4 +1,4 @@
-import {Component, ViewChild, Input} from '@angular/core';
+import {Component, ViewChild, Input, Output, EventEmitter} from '@angular/core';
 import {TabService} from '../../layout/navbar/tabstrip/tabService';
 import {WorkerService} from '../../../services/timetracking/workerservice';
 import {Router, ActivatedRoute} from '@angular/router';
@@ -33,6 +33,7 @@ var labels = {
 })
 export class GenericDetailview {
     @Input() public viewconfig: IViewConfig;
+    @Output() public itemChanged: EventEmitter<any> = new EventEmitter();
     @ViewChild(UniForm) public form: UniForm;
     public busy: boolean = true;
     public isDirty: boolean = false;
@@ -135,10 +136,11 @@ export class GenericDetailview {
                     }
                     this.current = item;
                     this.enableAction(IAction.Delete);
+                    this.itemChanged.emit(this.current);
                 }
                 if (updateTitle) {
                     this.updateTitle();
-                }
+                }                
                 this.flagDirty(false);
                 this.busy = false;                
             }, (err) => {
@@ -146,16 +148,18 @@ export class GenericDetailview {
                 this.busy = false; 
             });
         } else {
+            this.ID = 0;            
             if (this.viewconfig.data && this.viewconfig.data.factory) {
                 this.current = this.viewconfig.data.factory();
+                this.current.ID = this.ID;
             }
-            this.ID = 0;            
             this.enableAction(IAction.Delete, false);
             this.busy = false;
             this.flagDirty(false);
             if (updateTitle) {
                 this.updateTitle(this.viewconfig.labels.createNew);
             }
+            this.itemChanged.emit(this.current);
         }        
     }
 
@@ -180,6 +184,7 @@ export class GenericDetailview {
             this.ID = item.ID;
             this.updateTitle();
             this.enableAction(IAction.Delete, true);
+            this.itemChanged.emit(this.current);
             done(labels.msg_saved);
         }, (err) => {
             this.busy = false;

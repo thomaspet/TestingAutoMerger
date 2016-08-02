@@ -9,13 +9,21 @@ export var view = new View('workers', 'Person', 'WorkerDetailview', true, '', Wo
 
 @Component({
     selector: view.name,
-    template: '<genericdetail [viewconfig]="viewconfig" ></genericdetail>',
+    template: '<genericdetail [viewconfig]="viewconfig" (itemChanged)="onItemChanged($event)" ></genericdetail>',
     directives: [GenericDetailview]
 })
 export class WorkerDetailview {
     private viewconfig: IViewConfig;
     constructor() {
-        this.viewconfig =  {
+        this.viewconfig =  this.createFormConfig();
+    }   
+
+    public onItemChanged(item: Worker) {
+        console.log('New worker: ' + (item ? item.ID : 'New/empty') );
+    }
+
+    private createFormConfig(): IViewConfig {
+        return {
             moduleID: 16,
             labels: { single: 'Person', plural: 'Personer', createNew: 'Ny person'},
             detail: { routeBackToList: '/timetracking/workers', nameProperty: 'Info.Name'},
@@ -34,7 +42,7 @@ export class WorkerDetailview {
             formFields: [
                 createFormField('Info.Name', 'Navn',  ControlTypes.TextInput, FieldSize.Double),
             ]
-        };
-    }   
+        };        
+    }
 
 }
