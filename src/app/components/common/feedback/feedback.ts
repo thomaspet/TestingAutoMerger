@@ -2,8 +2,8 @@ import {Component} from '@angular/core';
 import {Http, Headers} from '@angular/http';
 import {Control} from '@angular/common';
 import {AuthService} from '../../../../framework/core/authService';
+import moment from 'moment';
 declare var APP_VERSION;
-declare var moment;
 
 @Component({
     selector: 'uni-feedback',

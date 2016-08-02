@@ -1,6 +1,6 @@
 import {Component, Input, Output, EventEmitter} from '@angular/core';
 import {ClickOutsideDirective} from '../core/clickOutside';
-declare var moment;
+import moment from 'moment';
 
 export interface IUniSaveAction {
     label: string;
