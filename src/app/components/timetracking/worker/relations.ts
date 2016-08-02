@@ -15,6 +15,7 @@ export class View {
     public currentId: number = 0;
     public collapseView: boolean = false;
     public items: Array<WorkRelation> = [];
+    public busy: boolean = false;
     
     private initialized: boolean = false;
 
@@ -30,7 +31,11 @@ export class View {
     private loadList() {
         if (!this.initialized) { return; }
         if (this.currentId) {
-            this.workerService.getWorkRelations(this.currentId).subscribe( items => this.items = items );
+            this.busy = true;
+            this.workerService.getWorkRelations(this.currentId).subscribe( (items) => {
+                this.items = items;
+                this.busy = false; 
+            });
         } else {
             this.items.length = 0;
         }
