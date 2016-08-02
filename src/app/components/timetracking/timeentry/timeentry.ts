@@ -16,7 +16,7 @@ import {ToastService, ToastType} from '../../../../framework/unitoast/toastservi
 
 declare var moment;
 
-export var view = new View('timeentry', 'Registrere timer', 'TimeEntry', false, '', TimeEntry);
+export var view = new View('timeentry', 'Timer', 'TimeEntry', false, '', TimeEntry);
 
 export interface IFilter {
     name: string;

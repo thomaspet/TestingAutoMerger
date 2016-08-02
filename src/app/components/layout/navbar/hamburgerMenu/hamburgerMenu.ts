@@ -96,8 +96,8 @@ export class HamburgerMenu {
                     {componentName: 'Stillingsmaler', componentUrl: '/timetracking/workprofiles'},                    
                     {componentName: 'Personer', componentUrl: '/timetracking/workers'},
                     {componentName: 'Timearter', componentUrl: '/timetracking/worktypes'},                    
-                    {componentName: 'Prosjekt', componentUrl: '/timetracking/projects'},
-                    {componentName: 'Registrere timer', componentUrl: '/timetracking'}
+                    {componentName: 'Timeregistrering', componentUrl: '/timetracking'},
+                    {componentName: 'Prosjekt', componentUrl: '/timetracking/projects'}
                 ]
             },            
             {

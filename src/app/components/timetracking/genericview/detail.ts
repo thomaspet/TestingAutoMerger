@@ -6,7 +6,7 @@ import {UniSave, IUniSaveAction} from '../../../../framework/save/save';
 import {UniForm} from '../../../../framework/uniform';
 import {ToastService, ToastType} from '../../../../framework/uniToast/toastService';
 import {IViewConfig} from './list';
-import {getDeepValue} from '../utils/utils';
+import {getDeepValue, trimLength} from '../utils/utils';
 
 enum IAction {
     Save = 0,
@@ -56,7 +56,6 @@ export class GenericDetailview {
     public ngOnInit() {
         if (this.viewconfig) {
             this.fields = this.viewconfig.formFields;
-            this.updateTitle();        
         }        
     }
 
@@ -171,8 +170,9 @@ export class GenericDetailview {
         if (this.viewconfig) {
             var nameProp = this.viewconfig.detail.nameProperty || 'Name';
             this.title = this.ID && this.current ? getDeepValue(this.current, nameProp) : fallbackTitle || ''; 
-            this.subTitle = this.ID ? this.viewconfig.tab.label + ' ' + this.ID : this.viewconfig.labels.createNew;  
-            this.tabService.addTab({ name: this.subTitle, url: this.viewconfig.tab.url + '/' + this.ID, moduleID: this.viewconfig.moduleID, active: true });
+            this.subTitle = this.ID ? this.viewconfig.tab.label + ' ' + this.ID : this.viewconfig.labels.createNew;
+            var tabTitle = trimLength(this.title, 12);  
+            this.tabService.addTab({ name: tabTitle, url: this.viewconfig.tab.url + '/' + this.ID, moduleID: this.viewconfig.moduleID, active: true });
         }
     }
 
