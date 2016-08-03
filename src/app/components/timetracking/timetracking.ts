@@ -1,5 +1,5 @@
-import {Component} from "@angular/core";
-import {ROUTER_DIRECTIVES} from "@angular/router";
+import {Component} from '@angular/core';
+import {ROUTER_DIRECTIVES} from '@angular/router';
 
 import {View} from '../../models/view/view';
 import {view as workerView} from './worker/workers';
