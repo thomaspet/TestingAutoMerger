@@ -1,27 +1,41 @@
 <section class="application">
     <article class="collapsable" [ngClass]="{'-is-open': !collapseView}">
-        <h4 (click)="collapseView = !collapseView">Arbeidsforhold</h4>
+        <h4 (click)="collapseView = !collapseView">Oppsett for timeføring</h4>
         <div class="collapsable-content" [attr.aria-busy]="busy">
-            <table class="timeentriesTable">
-                <thead><tr>
-                    <th>Arbeidsgiver</th>
-                    <th>Beskrivelse</th>
-                    <th>Stillingsprosent</th>
-                    <th class="center">Aktiv</th>
-                    <th>Stillingsmal</th>
-                </tr></thead>
-                <tbody>
-                    <tr *ngFor="let item of items" (click)="onItemClicked(item)" >
-                        <td>{{item.CompanyName}}</td>
-                        <td>{{item.Description}}</td>
-                        <td>{{item.WorkPercentage}}</td>
-                        <td class="center">
-                            <input class="visiblecheckbox" type="checkbox" [checked]="item.IsActive" disabled >
-                        </td>
-                        <td>{{item.WorkProfile.Name}}</td>
-                    </tr>
-                </tbody>
-            </table>
+
+            <section class="splitview">
+                <nav class="splitview_list">          
+
+                    <table class="timeentriesTable">
+                        <thead><tr>
+                            <th>Arbeidsgiver</th>
+                            <th>Stillingsprosent</th>
+                            <th class="center">Aktiv</th>
+                        </tr></thead>
+                        <tbody>
+                            <tr *ngFor="let item of items" (click)="onItemClicked(item)" >
+                                <td>{{item.CompanyName}}</td>
+                                <td>{{item.WorkPercentage}}</td>
+                                <td class="center">
+                                    <input class="visiblecheckbox" type="checkbox" [checked]="item.IsActive" disabled >
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </nav>
+
+                <main class="splitview_detail">
+                    <uni-form 
+                            [config]="formConfig"
+                            [fields]="layout.formFields"
+                            [model]="currentRelation"
+                            (onChange)="onChange($event)"
+                            (onReady)="onReady($event)">
+                    </uni-form>                    
+                </main>
+                
+            </section>
+
         </div>
     </article>
 </section>

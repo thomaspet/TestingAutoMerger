@@ -25,6 +25,11 @@ var labels = {
     'msg_saved': 'Lagret'
 };
 
+export interface IAfterSaveInfo {
+    entity: any;
+    promise: Promise<any>;
+}
+
 @Component({
     selector: 'genericdetail',
     templateUrl: 'app/components/timetracking/genericview/detail.html',
@@ -34,6 +39,7 @@ var labels = {
 export class GenericDetailview {
     @Input() public viewconfig: IViewConfig;
     @Output() public itemChanged: EventEmitter<any> = new EventEmitter();
+    @Output() public afterSave: EventEmitter<IAfterSaveInfo> = new EventEmitter<IAfterSaveInfo>();
     @ViewChild(UniForm) public form: UniForm;
     public busy: boolean = true;
     public isDirty: boolean = false;
@@ -98,7 +104,7 @@ export class GenericDetailview {
             this.workerService.getStatistics(params).subscribe((items) => {
                 if (items && items.length > 0 && items[0].Data && items[0].Data.length > 0) {
                     var key = items[0].Data[0][resultFld];
-                    if (key) {                        
+                    if (key) {                
                         this.loadCurrent(key);
                         resolve(true);
                         return;
@@ -119,7 +125,7 @@ export class GenericDetailview {
         this.loadCurrent(0);
     }
 
-    private flagDirty(dirty = true) {
+    public flagDirty(dirty = true) {
         this.isDirty = dirty;
         this.enableAction(IAction.Save, true);
     }
@@ -184,9 +190,10 @@ export class GenericDetailview {
             this.current = item;
             this.ID = item.ID;
             this.updateTitle();
-            this.enableAction(IAction.Delete, true);
+            this.afterSave.emit({ entity: item, promise: undefined });
             this.itemChanged.emit(this.current);
             done(labels.msg_saved);
+            this.enableAction(IAction.Delete, true);
         }, (err) => {
             this.busy = false;
             var msg = this.showErrMsg(err._body || err.statusText, labels.err_save, true);
