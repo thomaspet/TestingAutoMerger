@@ -284,6 +284,14 @@ export class TimesheetService {
         }
     }
 
+    public initWorker(workerId: number): Observable<TimeSheet> {
+        return this.workerService.getRelationsForWorker(workerId).flatMap((list: WorkRelation[]) => {
+               var first = list[0];
+               var ts = this.newTimeSheet(first);
+               this.workRelations = list;
+               return Observable.of(ts);            
+        });
+    }
 
     public newTimeSheet(workRelation: WorkRelation): TimeSheet {
         var ts = new TimeSheet(this);

@@ -9,7 +9,9 @@
                     <button class="secondary-button" (click)="onAddNew()">Nytt oppsett</button>
                     <button [hidden]="!(currentRelation && currentRelation.ID)" class="bad" (click)="onDelete()">Slett</button>
                 </td>
-                <td></td>
+                <td>
+                    <button [hidden]="!(currentRelation && currentRelation.ID)" class="good" (click)="onRegisterHours()">Rediger timer</button>
+                </td>
             </tr></table>            
             
 

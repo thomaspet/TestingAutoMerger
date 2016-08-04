@@ -6,11 +6,7 @@ import {UniForm} from '../../../../framework/uniform';
 import {createFormField, FieldSize, ControlTypes} from '../utils/utils';
 import {ChangeMap} from '../utils/changeMap';
 import {Observable} from 'rxjs/Rx';
-
-export interface IResult {
-    success: boolean;
-    msg?: string;   
-}
+import {IResult} from '../genericview/detail';
 
 @Component({
     selector: 'workrelations',
@@ -73,6 +69,12 @@ export class View {
         item.IsActive = true;
         this.items.push(item);
         this.onItemClicked(item);
+        this.changeMap.add(this.items.indexOf(item), this.currentRelation);
+        this.onValueChange.emit(this.currentRelation);
+    }
+
+    public onRegisterHours() {
+        this.router.navigateByUrl('/timetracking?workerId=' + this.currentId + '&workRelationId=' + this.currentRelation.ID );
     }
 
     public onDelete() {
@@ -88,7 +90,7 @@ export class View {
                 this.onItemClicked(this.items[ix]);
             } else {
                 if (this.items.length === 0) {
-                    this.onAddNew();
+                    this.currentRelation = this.layout.data.factory();
                 } else {
                     this.onItemClicked(this.items[this.items.length - 1]);
                 }
@@ -105,7 +107,8 @@ export class View {
             result.subscribe( results => {
                 resolve({ success: true });
             }, err => {
-                reject({ success: false, msg: JSON.stringify(err) });
+                // debugger;
+                reject({ success: false, msg: err._body });
             });
         });
     }
