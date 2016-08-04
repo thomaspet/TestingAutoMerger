@@ -37,7 +37,6 @@ export class WorkerDetailview {
     }
 
     public afterWorkerSaved(info: IAfterSaveInfo) {
-        debugger;
         if (this.hasRelationChanges) {
             info.promise = this.relationsView.saveChanges(info.entity.ID);
         }
