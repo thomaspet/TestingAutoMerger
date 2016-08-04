@@ -4,6 +4,8 @@ import {WorkRelation} from '../../../unientities';
 import {Router} from '@angular/router';
 import {UniForm} from '../../../../framework/uniform';
 import {createFormField, FieldSize, ControlTypes} from '../utils/utils';
+import {ChangeMap} from '../utils/changeMap';
+import {Observable} from 'rxjs/Rx';
 
 export interface IResult {
     success: boolean;
@@ -34,6 +36,8 @@ export class View {
     public currentId: number = 0;
     public currentRelation: WorkRelation = new WorkRelation();
 
+    private changeMap: ChangeMap = new ChangeMap();
+
     constructor(private workerService: WorkerService, private router: Router) {
         this.layout = this.createLayout();
     }
@@ -48,22 +52,101 @@ export class View {
 
     public onChange(event: any) {
         this.onValueChange.emit(this.currentRelation);
+        var ix = this.items.indexOf(this.currentRelation);
+        this.changeMap.add(ix, this.currentRelation);
     }
 
     public onItemClicked(item: WorkRelation) {
+        this.flagSelected(item);
         this.currentRelation = item;
+    }
+
+    private flagSelected(item: any) {
+        item._isSelected = true;
+        (<any>this.currentRelation)._isSelected = false;
+    }
+
+    public onAddNew() {
+        var item: WorkRelation = this.layout.data.factory();
+        item.WorkPercentage = 100;
+        item.CompanyName = this.workerService.user.company;
+        item.IsActive = true;
+        this.items.push(item);
+        this.onItemClicked(item);
+    }
+
+    public onDelete() {
+        var rel = this.currentRelation;
+        if (rel && rel.ID) {
+            this.changeMap.addRemove(rel.ID, rel);
+            this.onValueChange.emit(rel);
+        }
+        if (rel) {
+            var ix = this.items.indexOf(rel);
+            this.items.splice(ix, 1);
+            if (this.items.length > ix + 1) {
+                this.onItemClicked(this.items[ix]);
+            } else {
+                if (this.items.length === 0) {
+                    this.onAddNew();
+                } else {
+                    this.onItemClicked(this.items[this.items.length - 1]);
+                }
+            }
+        }
     }
 
     public saveChanges(parentID: number): Promise<IResult> {
         return new Promise((resolve, reject) => {
-            this.currentRelation.WorkerID = parentID;
-            this.workerService.saveByID<WorkRelation>(this.currentRelation, this.layout.data.route ).subscribe((item: WorkRelation) => {
-                this.currentRelation = item; 
+            var result = this.save(parentID);
+            if (result === null) { 
+                resolve({success: true});
+            }
+            result.subscribe( results => {
                 resolve({ success: true });
-            }, (err) => {
+            }, err => {
                 reject({ success: false, msg: JSON.stringify(err) });
             });
         });
+    }
+
+    private save(parentID: number): Observable<any> {
+        
+        var items = this.changeMap.getValues();
+        if (items.length > 0) {
+            items.forEach( item => item.WorkerID = parentID );
+        }
+
+        var removables = this.changeMap.getRemovables();
+        if (items.length === 0 && removables.length === 0) {
+            return null;
+        }
+
+        var obs = this.saveAndDelete('workrelations', items, removables);
+        return Observable.forkJoin(obs);
+    }
+
+    private saveAndDelete(route: string, items: Array<any>, deletables?: any[]): Observable<any> {
+
+        var obsSave = Observable.from(items).flatMap((item: any) => {
+            item.ID = item.ID < 0 ? 0 : item.ID;
+            return this.workerService.saveByID<any>(item, route).map((savedItem: WorkRelation) => {
+                this.changeMap.remove(item._rowIndex, true);
+                item.ID = savedItem.ID;
+            });
+        });
+
+        if (deletables) {
+            let obsDel = Observable.from(deletables).flatMap( (item: any) => {
+                return this.workerService.deleteByID(item.ID, route).map((event) => {
+                    this.changeMap.removables.remove(item.ID, false);
+                });
+            });
+            return items.length > 0 ? Observable.merge(obsSave, obsDel) : obsDel;
+        }
+
+        return obsSave;
+
     }
 
     private loadList() {
@@ -91,7 +174,7 @@ export class View {
                 factory: () => { return new WorkRelation(); }
             },
             formFields: [
-                createFormField('WorkPercentage', 'Stillingsprosent',  ControlTypes.NumericInput),
+                createFormField('WorkPercentage', 'Prosent',  ControlTypes.NumericInput),
                 createFormField('WorkProfileID', 'Stillingsmal', ControlTypes.SelectInput, FieldSize.Double, false, 0, undefined, undefined, this.getComboOptions()),                
                 createFormField('CompanyName', 'Firmanavn',  ControlTypes.TextInput),
                 createFormField('Description', 'Beskrivelse',  ControlTypes.TextInput, FieldSize.Double),

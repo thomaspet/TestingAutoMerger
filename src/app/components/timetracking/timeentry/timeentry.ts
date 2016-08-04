@@ -4,7 +4,7 @@ import {View} from '../../../models/view/view';
 import {WorkRelation, WorkItem} from '../../../unientities';
 import {WorkerService, ItemInterval} from '../../../services/timetracking/workerservice';
 import {Editable, IChangeEvent, IConfig, Column, ColumnType, ITypeSearch, ICopyEventDetails, ILookupDetails} from '../utils/editable/editable';
-import {parseDate, exportToFile, arrayToCsv} from '../utils/utils';
+import {parseDate, exportToFile, arrayToCsv, safeInt} from '../utils/utils';
 import {TimesheetService, TimeSheet, ValueItem} from '../../../services/timetracking/timesheetservice';
 import {IsoTimePipe, MinutesToHoursPipe} from '../utils/pipes';
 import {UniSave, IUniSaveAction} from '../../../../framework/save/save';
@@ -104,6 +104,16 @@ export class TimeEntry {
         this.userName = service.user.name;
         this.currentFilter = this.filters[0];
         this.initUser();
+    }
+
+    public onWorkrelationChange(event: any) {
+        var id = (event && event.target ? safeInt(event.target.value) : 0);
+        this.checkSave().then( (value) => {
+            if (value && id) { 
+                this.timeSheet.currentRelationId = id;
+                this.loadItems();
+            }
+        });
     }
 
     public onTabClick(tab: ITab) {

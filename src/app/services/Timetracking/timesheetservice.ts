@@ -21,6 +21,14 @@ export class TimeSheet {
 
     constructor(private ts?: TimesheetService) { }
 
+    public set currentRelationId(value: number) {
+        this.ts.workRelations.forEach(element => {
+            if (element.ID === value) {
+                this.currentRelation = element;
+            }
+        });
+    }
+
     public loadItems(interval?: ItemInterval): Observable<number> {
         this.changeMap.clear();
         var obs = this.ts.getWorkItems(this.currentRelation.ID, interval);
@@ -54,6 +62,7 @@ export class TimeSheet {
             return result.saved;
         });
     }
+    
     public hasPaidLunch(): boolean {
         if (this.currentRelation && this.currentRelation.WorkProfile) {
             return !!this.currentRelation.WorkProfile.LunchIncluded;
@@ -101,7 +110,6 @@ export class TimeSheet {
                 item.Worktype = change.value ? change.lookupValue || item.Worktype : undefined;
                 break;
             case 'LunchInMinutes':
-            case "LunchInMinutes":
                 change.value = safeInt(change.value);
                 recalc = true;
                 break;
@@ -301,9 +309,7 @@ export class TimesheetService {
 
         if (deletables) {
             let obsDel = Observable.from(deletables).flatMap( (item: WorkItem) => {
-                console.log('sending delete for ' + item.ID);
                 return this.workerService.deleteWorkitem(item.ID).map((event) => {
-                    console.log('delete completed for ' + item.ID);
                     return { original: item, saved: null };
                 });
             });
