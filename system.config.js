@@ -1,7 +1,3 @@
-var map = {
-    'moment': '/dist/moment',
-}
-
 /** User packages configuration. */
 var packages = {
     'unitable-ng2': {
@@ -9,7 +5,7 @@ var packages = {
         defaultExtension: 'js'
     },
     'moment': {
-        main: 'moment',
+        main: 'min/moment.min',
         defaultExtension: 'js'
     }
 };
@@ -31,7 +27,6 @@ ngPackageNames.forEach(function (element) {
 
 // Apply the user's configuration.
 System.config({
-    // map: map,
     packages: packages
 });
 

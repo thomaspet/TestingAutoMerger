@@ -12,8 +12,7 @@ gulp.task('dependencies', function() {
             './node_modules/unitable-ng2/**/*.html',
 
             // Moment
-            './node_modules/moment/moment.js',
-            './node_modules/moment/locale/en-gb.js',
+            './node_modules/moment/min/moment.min.js',
             './node_modules/moment/locale/nb.js'
         ], {
             base: './node_modules'
