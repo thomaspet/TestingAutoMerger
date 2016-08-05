@@ -80,10 +80,9 @@ export class PreviewModal {
     
     public openWithId(report: Report, id: number) {
         var idparam = new ReportParameter();
-        idparam.Name = "Id";
+        idparam.Name = 'Id';
         idparam.value = id.toString();
         report.parameters = [idparam];
-
         this.open(report);
     }
 
