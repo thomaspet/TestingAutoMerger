@@ -34,10 +34,10 @@ import moment from 'moment';
 })
 export class UniCalendar {
     @Input()
-    private value: Date;
+    private date: Date;
 
     @Output()
-    private valueChange: EventEmitter<Date> = new EventEmitter<Date>();
+    private dateChange: EventEmitter<Date> = new EventEmitter<Date>();
 
     private weekdays: string[];
 
@@ -50,7 +50,7 @@ export class UniCalendar {
     }
 
     public ngOnChanges() {
-        this.selectedDate = moment(this.value);
+        this.selectedDate = moment(this.date);
         this.generateCalendarPage(this.selectedDate);
     }
 
@@ -66,7 +66,7 @@ export class UniCalendar {
 
         // If first day is not monday, add days from previous month until we fill the week
         if (firstDayOfMonth !== 0) {
-            const numDaysLastMonth = moment(date).subtract(1, 'month').endOf('month').date();
+            const numDaysLastMonth = date.clone().subtract(1, 'month').endOf('month').date();
             for (let i = 0; i < (firstDayOfMonth - 1); i++) {
                 days.unshift({day: (numDaysLastMonth - i), month: (date.month() - 1)});
             }
@@ -90,9 +90,7 @@ export class UniCalendar {
     private dateSelected(date) {
         this.selectedDate.month(date.month);
         this.selectedDate.date(date.day);
-
-        // TODO: backend timezone issue will probably be back?
-        this.valueChange.emit(this.selectedDate.toDate());
+        this.dateChange.emit(this.selectedDate.toDate());
     }
 
     private prevMonth() {

@@ -1,4 +1,4 @@
-import {Component, Input, Output, ElementRef, ViewChild, EventEmitter, ChangeDetectionStrategy, ChangeDetectorRef, Renderer} from '@angular/core';
+import {Component, Input, Output, ElementRef, ViewChild, EventEmitter} from '@angular/core';
 import {Control} from '@angular/common';
 import {UniFieldLayout} from '../../interfaces';
 import {autocompleteDate} from '../../shared/autocompleteDate';
@@ -26,13 +26,12 @@ declare var _;
             >Kalender</button>
 
             <uni-calendar [attr.aria-expanded]="calendarOpen"
-                          [value]="selectedDate"
-                          (valueChange)="dateSelected($event)">
+                          [date]="selectedDate"
+                          (dateChange)="dateSelected($event)">
             </uni-calendar>
         </section>
     `,
-    directives: [ClickOutsideDirective, UniCalendar],
-    changeDetection: ChangeDetectionStrategy.OnPush
+    directives: [ClickOutsideDirective, UniCalendar]
 })
 export class UniDateInput {
     @ViewChild('input')
@@ -53,15 +52,13 @@ export class UniDateInput {
     @Output()
     public onChange: EventEmitter<any> = new EventEmitter<any>();
 
-    private selectedDate: Date;
     private calendarOpen: boolean;
-
-    constructor(private cd: ChangeDetectorRef, private renderer: Renderer) {
-        this.calendarOpen = false;
-    }
+    private selectedDate: Date;
+    private options: any;
 
     public ngOnChanges(changes) {
         if (this.control && this.field) {
+            this.options = this.field.Options || {};
             let value = _.get(this.model, this.field.Property);
 
             if (value) {
@@ -69,7 +66,6 @@ export class UniDateInput {
                 this.control.updateValue(moment(this.selectedDate).format('L'));
             }
         }
-
     }
 
     public ngAfterViewInit() {
@@ -82,19 +78,17 @@ export class UniDateInput {
 
     public readMode() {
         this.field.ReadOnly = true;
-        this.cd.markForCheck();
     }
 
     public editMode() {
         this.field.ReadOnly = false;
-        this.cd.markForCheck();
     }
 
     private inputChange() {
         const value = this.control.value;
         let date;
 
-        if ((value && value.length) || this.field.Options.autocompleteEmptyValue) {
+        if ((value && value.length) || this.options.autocompleteEmptyValue) {
             date = autocompleteDate(value) || null;
         }
 
@@ -102,16 +96,18 @@ export class UniDateInput {
     }
 
     private dateSelected(date) {
-        // REVISIT: toDateString is a temporary fix for backend timezone issues and should be changed!
-        _.set(this.model, this.field.Property, date.toDateString());
-        this.onChange.emit(this.model);
         this.selectedDate = date;
 
         if (date) {
             this.control.updateValue(moment(date).format('L'));
+            // REVISIT: toDateString is a temporary fix for backend timezone issues and should be changed!
+            date = date.toDateString();
         } else {
             this.control.updateValue('');
         }
+
+        _.set(this.model, this.field.Property, date);
+        this.onChange.emit(this.model);
     }
 
     private hideCalendar() {
