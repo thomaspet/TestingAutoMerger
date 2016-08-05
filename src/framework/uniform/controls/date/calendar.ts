@@ -40,10 +40,8 @@ export class UniCalendar {
     private dateChange: EventEmitter<Date> = new EventEmitter<Date>();
 
     private weekdays: string[];
-
-    // state vars
     private selectedDate: moment.Moment;
-    private calendarWeeks: any[] = []; // todo: typing..
+    private calendarWeeks: any[] = [];
 
     constructor() {
         this.weekdays = moment.weekdaysMin(true);
@@ -54,10 +52,9 @@ export class UniCalendar {
         this.generateCalendarPage(this.selectedDate);
     }
 
-    // TODO: Make locale aware
     private generateCalendarPage(date: moment.Moment) {
         const daysInMonth = date.daysInMonth();
-        const firstDayOfMonth = date.startOf('month').isoWeekday();
+        const firstDayOfMonth = date.startOf('month').weekday();
         let days = [];
 
         for (let i = 1; i <= daysInMonth; i++) {
@@ -67,7 +64,7 @@ export class UniCalendar {
         // If first day is not monday, add days from previous month until we fill the week
         if (firstDayOfMonth !== 0) {
             const numDaysLastMonth = date.clone().subtract(1, 'month').endOf('month').date();
-            for (let i = 0; i < (firstDayOfMonth - 1); i++) {
+            for (let i = 0; i < firstDayOfMonth; i++) {
                 days.unshift({day: (numDaysLastMonth - i), month: (date.month() - 1)});
             }
         }
