@@ -3,7 +3,7 @@ import {View} from '../../../models/view/view';
 import {UniTableColumn, UniTableColumnType, UniTableConfig} from 'unitable-ng2/main';
 import {GenericListView, IViewConfig} from '../genericview/list';
 
-export var view = new View('workers', 'Timeførere', 'WorkerListview', false, 'worker', WorkerListview);
+export var view = new View('workers', 'Personer', 'WorkerListview', false, 'worker', WorkerListview);
 
 @Component({    
     selector: view.name,

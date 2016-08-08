@@ -43,8 +43,8 @@
 
             <header class="regtimetitle">
                 <span>Registrere timer for {{userName}}</span>
-                <select *ngFor="let item of workRelations">
-                    <option>{{item.CompanyName}} : {{item.WorkPercentage}}% - {{item.Description}}</option>
+                <select (change)="onWorkrelationChange($event)">
+                    <option *ngFor="let item of workRelations" [value]="item.ID" >{{item.CompanyName}} : {{item.WorkPercentage}}% - {{item.Description}}</option>
                 </select>
             </header>
 

@@ -97,7 +97,6 @@ export class ReportDefinitionService extends BizHttp<ReportDefinition>{
         for (const ds of this.report.dataSources) {
             let url: string = ds.DataSourceUrl;   
             url = url.replace(AppConfig.API_DOMAINS.BUSINESS, '');      
-            
             observableBatch.push(
                 this.http
                 .asGET()
@@ -114,8 +113,7 @@ export class ReportDefinitionService extends BizHttp<ReportDefinition>{
     
     private onDataFetched(data: any) {
         let dataSources = {};
-            
-        let i = 0;
+
         for (let i = 0; i < data.length; i++) {
             let name = this.report.dataSources[i].Name;
             dataSources[name] = data[i];            
@@ -133,7 +131,6 @@ export class ReportDefinitionService extends BizHttp<ReportDefinition>{
         for (const parameter of this.report.parameters) {
             for (const datasSource of this.report.dataSources) {
                 const searchString = '{' + parameter.Name + '}';
-                
                 datasSource.DataSourceUrl = datasSource.DataSourceUrl.replace(new RegExp(searchString, 'g'), parameter.value);
             }
         }

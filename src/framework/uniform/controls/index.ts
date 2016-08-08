@@ -7,7 +7,7 @@ export * from './url';
 export * from './hyperlink';
 export * from './select';
 export * from './masked';
-export * from './date';
+export * from './date/date';
 export * from './autocomplete';
 export * from './multivalue';
 export * from './radiogroup';
@@ -25,7 +25,7 @@ import {UniUrlInput}  from './url';
 import {UniHyperlinkInput}  from './hyperlink';
 import {UniSelectInput}  from './select';
 import {UniMaskedInput}  from './masked';
-import {UniDateInput}  from './date';
+import {UniDateInput}  from './date/date';
 import {UniAutocompleteInput}  from './autocomplete';
 import {UniMultivalueInput}  from './multivalue';
 import {UniRadiogroupInput}  from './radiogroup';
@@ -42,16 +42,16 @@ export var CONTROLS = [
     UniMaskedInput, // 4 - masked
     UniCheckboxInput, // 5 - checkbox
     UniNumericInput, // 6 - numeric
-    UniRadioInput, // 7 - radio 
+    UniRadioInput, // 7 - radio
     UniCheckboxgroupInput, // 8 - checkbox group
     UniRadiogroupInput, // 9 - radio group
     UniTextInput, // 10 - text
     UniEmailInput, // 11 - email
     UniPasswordInput, // 12 - password
-    UniHyperlinkInput, // 13 - link 
+    UniHyperlinkInput, // 13 - link
     UniMultivalueInput, // 14 - multivalue
     UniUrlInput, // 15 - url
-    UniTextareaInput, // 16 - textarea            
+    UniTextareaInput, // 16 - textarea
 ];
 
 export enum CONTROLS_ENUM {

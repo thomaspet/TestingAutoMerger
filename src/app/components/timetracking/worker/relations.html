@@ -1,7 +1,19 @@
 <section class="application">
     <article class="collapsable" [ngClass]="{'-is-open': !collapseView}">
-        <h4 (click)="collapseView = !collapseView">Oppsett for timeføring</h4>
+        <h4 (click)="collapseView = !collapseView">Timeføring</h4>
         <div class="collapsable-content" [attr.aria-busy]="busy">
+
+
+            <table class='timeentry_toolbar'><tr>
+                <td>
+                    <button class="secondary-button" (click)="onAddNew()">Nytt oppsett</button>
+                    <button [hidden]="!(currentRelation && currentRelation.ID)" class="bad" (click)="onDelete()">Slett</button>
+                </td>
+                <td>
+                    <button [hidden]="!(currentRelation && currentRelation.ID)" class="good" (click)="onRegisterHours()">Rediger timer</button>
+                </td>
+            </tr></table>            
+            
 
             <section class="splitview">
                 <nav class="splitview_list">          
@@ -9,11 +21,11 @@
                     <table class="timeentriesTable">
                         <thead><tr>
                             <th>Arbeidsgiver</th>
-                            <th>Stillingsprosent</th>
+                            <th>Prosent</th>
                             <th class="center">Aktiv</th>
                         </tr></thead>
                         <tbody>
-                            <tr *ngFor="let item of items" (click)="onItemClicked(item)" >
+                            <tr *ngFor="let item of items" (click)="onItemClicked(item)" [class.alternateRow]="item._isSelected" >
                                 <td>{{item.CompanyName}}</td>
                                 <td>{{item.WorkPercentage}}</td>
                                 <td class="center">
