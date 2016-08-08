@@ -3,6 +3,10 @@ var packages = {
     'unitable-ng2': {
         main: 'main',
         defaultExtension: 'js'
+    },
+    'moment': {
+        main: 'min/moment.min',
+        defaultExtension: 'js'
     }
 };
 

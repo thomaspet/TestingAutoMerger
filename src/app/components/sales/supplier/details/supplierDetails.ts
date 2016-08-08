@@ -416,6 +416,9 @@ export class SupplierDetails {
                 .subscribe(
                     (newSupplier) => {                        
                         this.router.navigateByUrl('/sales/suppliers/' + newSupplier.ID);
+                        this.supplier = newSupplier;
+                        this.setTabTitle();
+                        completeEvent('Ny leverandør lagret');
                     },
                     (err) => {
                         completeEvent('Feil ved lagring');
