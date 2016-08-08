@@ -10,9 +10,9 @@
   },
   "dependencies": {
     "@angular/common": "2.0.0-rc.4",
-    "@angular/forms": "0.2.0",
     "@angular/compiler": "2.0.0-rc.4",
     "@angular/core": "2.0.0-rc.4",
+    "@angular/forms": "0.2.0",
     "@angular/http": "2.0.0-rc.4",
     "@angular/platform-browser": "2.0.0-rc.4",
     "@angular/platform-browser-dynamic": "2.0.0-rc.4",
@@ -27,6 +27,7 @@
     "jquery": "^2.1.4",
     "jwt-decode": "^1.4.0",
     "lodash": "^4.5.1",
+    "map-stream": "0.0.6",
     "moment": "^2.13.0",
     "promise-polyfill": "^2.1.0",
     "reflect-metadata": "^0.1.3",

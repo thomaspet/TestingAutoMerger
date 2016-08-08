@@ -105,7 +105,7 @@ export class RecurringPost implements OnInit {
     }
     
     private buildTableConfig() {
-        var wagetypeCol = new UniTableColumn('WageType', 'Lønnsart', UniTableColumnType.Lookup)
+        var wagetypeCol = new UniTableColumn('_Wagetype', 'Lønnsart', UniTableColumnType.Lookup)
             .setTemplate((dataItem) => {
                 return dataItem.WageTypeNumber;
             })
@@ -133,7 +133,7 @@ export class RecurringPost implements OnInit {
             
         var descriptionCol = new UniTableColumn('Text', 'Beskrivelse', UniTableColumnType.Text);
         
-        var employmentIDCol = new UniTableColumn('Employment', 'Arbeidsforhold', UniTableColumnType.Lookup)
+        var employmentIDCol = new UniTableColumn('_Employment', 'Arbeidsforhold', UniTableColumnType.Lookup)
             .setTemplate((dataItem) => {
                 return this.getEmploymentJobName(dataItem.EmploymentID);
             })
@@ -166,11 +166,11 @@ export class RecurringPost implements OnInit {
         .setChangeCallback((event) => {
             let row = event.rowModel;
             
-            if (event.field === 'WageType') {
+            if (event.field === '_Wagetype') {
                 this.mapWagetypeToRecurrinpost(row);
             }
             
-            if (event.field === 'Employment') {
+            if (event.field === '_Employment') {
                 this.mapEmploymentToRecurringpost(row);
             }
             
@@ -183,7 +183,7 @@ export class RecurringPost implements OnInit {
     }
     
     private mapWagetypeToRecurrinpost(rowModel) {
-        let wagetype = rowModel['WageType'];
+        let wagetype = rowModel['_Wagetype'];
         if (!wagetype) {
             return;
         }
@@ -196,7 +196,7 @@ export class RecurringPost implements OnInit {
     }
     
     private mapEmploymentToRecurringpost(rowModel) {
-        let employment = rowModel['Employment'];
+        let employment = rowModel['_Employment'];
         if (!employment) {
             return;
         }
