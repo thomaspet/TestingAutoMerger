@@ -48,8 +48,10 @@ export class ReadTaxCardModalContent {
                 titleColumn, dateSendtColumn, receiptIDColumn, signatureColumn, isReadColumn
             ])
             .setEditable(false)
-            .setContextMenu([contextMenuItem])
-            .setPageSize(10);
+            .setContextMenu([contextMenuItem], false)
+            .setPageSize(10)
+            .setFilters([{field: 'Form', operator: 'eq', value: 'RF-1211'}]);
+
 
     }
 
@@ -58,8 +60,7 @@ export class ReadTaxCardModalContent {
     }
 
     public openModal() {
-        this.altinnReceipts$ = this._altinnReceiptService.GetAll('orderBy=ID DESC');
-        this.altinnReceipts$ = _.cloneDeep(this.altinnReceipts$);
+        this.altinnReceipts$ = this._altinnReceiptService.GetAll('ID DESC');
     }
 
     public updateReceipts() {
