@@ -25,9 +25,15 @@ var labels = {
     'msg_saved': 'Lagret'
 };
 
+
+export interface IResult {
+    success: boolean;
+    msg?: string;   
+}
+
 export interface IAfterSaveInfo {
     entity: any;
-    promise: Promise<any>;
+    promise: Promise<IResult>;
 }
 
 @Component({
@@ -190,10 +196,24 @@ export class GenericDetailview {
             this.current = item;
             this.ID = item.ID;
             this.updateTitle();
-            this.afterSave.emit({ entity: item, promise: undefined });
-            this.itemChanged.emit(this.current);
-            done(labels.msg_saved);
-            this.enableAction(IAction.Delete, true);
+            
+            var details: IAfterSaveInfo = { entity: item, promise: undefined };
+            this.afterSave.emit(details);
+
+            var postActions = () => {
+                this.itemChanged.emit(this.current);
+                done(labels.msg_saved);
+                this.enableAction(IAction.Delete, true);
+            };
+
+            if (details.promise) {
+                details.promise.then((result: IResult) => postActions()).catch((result: IResult) => {
+                    done(this.showErrMsg(result.msg, 'Feil ved lagring', true));
+                });
+            } else {
+                postActions();
+            }
+
         }, (err) => {
             this.busy = false;
             var msg = this.showErrMsg(err._body || err.statusText, labels.err_save, true);

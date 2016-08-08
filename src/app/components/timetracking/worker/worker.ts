@@ -6,7 +6,7 @@ import {Worker, WorkRelation} from '../../../unientities';
 import {GenericDetailview, IAfterSaveInfo} from '../genericview/detail';
 import {View as RelationsSubView} from './relations';
 
-export var view = new View('workers', 'Timefører', 'WorkerDetailview', true, '', WorkerDetailview);
+export var view = new View('workers', 'Person', 'WorkerDetailview', true, '', WorkerDetailview);
 
 @Component({
     selector: view.name,
@@ -37,7 +37,6 @@ export class WorkerDetailview {
     }
 
     public afterWorkerSaved(info: IAfterSaveInfo) {
-        debugger;
         if (this.hasRelationChanges) {
             info.promise = this.relationsView.saveChanges(info.entity.ID);
         }
@@ -46,7 +45,7 @@ export class WorkerDetailview {
     private createFormConfig(): IViewConfig {
         return {
             moduleID: 16,
-            labels: { single: 'Timefører', plural: 'Timeførere', createNew: 'Ny timefører'},
+            labels: { single: view.label, plural: 'Personer', createNew: 'Ny person'},
             detail: { routeBackToList: '/timetracking/workers', nameProperty: 'Info.Name'},
             tab: view,
             data: {
