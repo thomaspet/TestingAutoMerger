@@ -313,3 +313,10 @@ export function arrayToCsv(data: Array<any>, columnDelimiter = ';', lineDelimite
 
     return result;
 }
+
+export function trimLength(value: string, maxLength: number, addEllipsis: boolean = true): string {
+    if (value && value.length > maxLength) {
+        return value.substr(0, maxLength).trim() + (addEllipsis ? '..' : '');
+    }
+    return value;
+}

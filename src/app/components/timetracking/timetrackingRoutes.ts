@@ -61,5 +61,4 @@ export const routes: Route[] = [
         path: 'regtime',
         component: RegisterTime
     }
-
 ];

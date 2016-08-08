@@ -1,10 +1,10 @@
 import {Component, ViewChild} from '@angular/core';
 import {TabService} from '../../layout/navbar/tabstrip/tabService';
 import {View} from '../../../models/view/view';
-import {WorkRelation, WorkItem} from '../../../unientities';
+import {WorkRelation, WorkItem, Worker} from '../../../unientities';
 import {WorkerService, ItemInterval} from '../../../services/timetracking/workerservice';
 import {Editable, IChangeEvent, IConfig, Column, ColumnType, ITypeSearch, ICopyEventDetails, ILookupDetails} from '../utils/editable/editable';
-import {parseDate, exportToFile, arrayToCsv} from '../utils/utils';
+import {parseDate, exportToFile, arrayToCsv, safeInt} from '../utils/utils';
 import {TimesheetService, TimeSheet, ValueItem} from '../../../services/timetracking/timesheetservice';
 import {IsoTimePipe, MinutesToHoursPipe} from '../utils/pipes';
 import {UniSave, IUniSaveAction} from '../../../../framework/save/save';
@@ -13,10 +13,11 @@ import {Lookupservice} from '../utils/lookup';
 import {RegtimeTotals} from './totals/totals';
 import {RegtimeTools} from './tools/tools';
 import {ToastService, ToastType} from '../../../../framework/unitoast/toastservice';
+import {Router} from '@angular/router';
 
 declare var moment;
 
-export var view = new View('timeentry', 'Registrere timer', 'TimeEntry', false, '', TimeEntry);
+export var view = new View('timeentry', 'Timer', 'TimeEntry', false, '', TimeEntry);
 
 export interface IFilter {
     name: string;
@@ -99,11 +100,43 @@ export class TimeEntry {
             }
     };
 
-    constructor(private tabService: TabService, private service: WorkerService, private timesheetService: TimesheetService, private lookup: Lookupservice, private toast: ToastService) {
+    constructor(private tabService: TabService, private service: WorkerService, 
+                private timesheetService: TimesheetService, private lookup: Lookupservice, 
+                private toast: ToastService, private router: Router) {
+        
         this.tabService.addTab({ name: view.label, url: view.url, moduleID: 18 });
-        this.userName = service.user.name;
+
+        router.routerState.queryParams.first().subscribe((item: { workerId; workRelationId; }) => {
+            if (item.workerId) {
+                console.info('workerId:' + item.workerId + ', workRelationId:' + item.workRelationId);
+                this.init(item.workerId);
+            } else {
+                this.init();
+            }
+        });
+
+    }
+
+    private init(workerId?: number) {
+        if (workerId) {
+            this.service.getByID(workerId, 'workers', 'Info').subscribe( (worker: Worker) => {
+                this.userName = worker.Info.Name;
+            });
+        } else {
+            this.userName = this.service.user.name;            
+        }
         this.currentFilter = this.filters[0];
-        this.initUser();
+        this.initWorker(workerId);
+    }
+
+    public onWorkrelationChange(event: any) {
+        var id = (event && event.target ? safeInt(event.target.value) : 0);
+        this.checkSave().then( (value) => {
+            if (value && id) { 
+                this.timeSheet.currentRelationId = id;
+                this.loadItems();
+            }
+        });
     }
 
     public onTabClick(tab: ITab) {
@@ -140,8 +173,9 @@ export class TimeEntry {
         return this.checkSave();
     }
 
-    private initUser() {
-        this.timesheetService.initUser().subscribe((ts: TimeSheet) => {
+    private initWorker(workerid?: number) {
+        var obs = workerid ? this.timesheetService.initWorker(workerid) : this.timesheetService.initUser();
+        obs.subscribe((ts: TimeSheet) => {
             this.workRelations = this.timesheetService.workRelations;
             this.timeSheet = ts;
             this.loadItems();
