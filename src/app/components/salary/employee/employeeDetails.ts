@@ -12,6 +12,7 @@ import {TabService} from '../../layout/navbar/tabstrip/tabService';
 import {ContextMenu} from '../../common/contextMenu/contextMenu';
 import {IContextMenuItem} from 'unitable-ng2/main';
 
+
 @Component({
     selector: 'uni-employee-details',
     templateUrl: 'app/components/salary/employee/employeeDetails.html',
@@ -52,9 +53,9 @@ export class EmployeeDetails implements OnInit {
             this.employeeID = +params['id'];
             this.rootRouteParams.params = params;
             if (this.employeeID) {
-                this.tabService.addTab({ name: 'Ansattnr. ' + this.employeeID, url: '/salary/employees/' + this.employeeID, moduleID: 12, active: true });
+                this.tabService.addTab({ name: 'Ansattnr. ' + this.employeeID, url: this.url + this.employeeID, moduleID: 12, active: true });
             } else {
-                this.tabService.addTab({ name: 'Ny ansatt', url: '/salary/employees/' + this.employeeID, moduleID: 12, active: true });
+                this.tabService.addTab({ name: 'Ny ansatt', url: this.url + this.employeeID, moduleID: 12, active: true });
             }
 
         });
@@ -100,10 +101,12 @@ export class EmployeeDetails implements OnInit {
                     this._employeeService.get(response.ID).subscribe((emp) => {
                         this._employeeService.refreshEmployee(emp);
                         this._router.navigateByUrl(this.url + emp.ID);
+                        console.log('url: ', this._router.url);
                     });
                 } else {
                     this._employeeService.refreshEmployee(response);
                     this._router.navigateByUrl(this.url + response.ID);
+                    console.log('url: ', this._router.url);
                 }
 
             }

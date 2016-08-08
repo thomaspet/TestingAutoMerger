@@ -1,7 +1,8 @@
-import {Component, ViewChild} from '@angular/core';
+import {Component, ViewChild, OnDestroy} from '@angular/core';
 import {Router} from '@angular/router';
 import {UniForm} from '../../../../../framework/uniform';
 import {Observable} from 'rxjs/Observable';
+import {Subscription} from 'rxjs/Subscription';
 import 'rxjs/add/operator/merge';
 import {OperationType, Operator, ValidationLevel, Employee, Email, Phone, Address} from '../../../../unientities';
 import {EmployeeService, PhoneService, EmailService, AddressService, AltinnService, SubEntityService} from '../../../../services/services';
@@ -18,7 +19,7 @@ declare var _;
     providers: [PhoneService, EmailService, AddressService, AltinnService, SubEntityService],
     templateUrl: 'app/components/salary/employee/personalDetails/personalDetails.html'
 })
-export class PersonalDetails {
+export class PersonalDetails implements OnDestroy{
 
     public busy: boolean;
     public expands: any = [
@@ -30,6 +31,7 @@ export class PersonalDetails {
 
     public config: any = {};
     public fields: any[] = [];
+    private subscription: Subscription;
     @ViewChild(UniForm) public uniform: UniForm;
 
     @ViewChild(ReadTaxCardModal) public taxCardModal: ReadTaxCardModal;
@@ -64,7 +66,7 @@ export class PersonalDetails {
 
         this.employeeService.routeEnding = 'personal-details';
 
-        this.employeeService.employee$.subscribe((emp) => {
+        this.subscription = this.employeeService.employee$.subscribe((emp) => {
             this.employee = emp;
         });
 
@@ -73,6 +75,10 @@ export class PersonalDetails {
         } else {
             this.cacheLocAndGetData();
         }
+    }
+
+    public ngOnDestroy() {
+        this.subscription.unsubscribe();
     }
 
     private cacheLocAndGetData() {
