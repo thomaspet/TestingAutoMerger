@@ -47,7 +47,7 @@ require('./gulp/system-config');
 /**
  * copy unitable to dist folder
  */
-require('./gulp/unitable');
+require('./gulp/dependencies');
 
 /**
  * copy stimulsoft to dist folder
@@ -84,7 +84,7 @@ var tasks = {
         'entities',
         'index.html',
         'angular2',
-        'unitable',
+        'dependencies',
         'stimulsoft',
         'templates',
         'assets',
@@ -94,7 +94,7 @@ var tasks = {
     dev: [
         'index.html.dev',
         'angular2',
-        'unitable',
+        'dependencies',
         'stimulsoft',
         'templates',
         'assets',

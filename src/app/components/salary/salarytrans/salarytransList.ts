@@ -263,7 +263,7 @@ export class SalaryTransactionEmployeeList implements OnChanges, AfterViewInit {
         var rateCol = new UniTableColumn('Rate', 'Sats', UniTableColumnType.Number);
         var amountCol = new UniTableColumn('Amount', 'Antall', UniTableColumnType.Number);
         var sumCol = new UniTableColumn('Sum', 'Sum', UniTableColumnType.Number, false);
-        var employmentidCol = new UniTableColumn('Employment', 'Arbeidsforhold', UniTableColumnType.Lookup)
+        var employmentidCol = new UniTableColumn('_Employment', 'Arbeidsforhold', UniTableColumnType.Lookup)
             .setTemplate((dataItem) => {
                 return this.getEmploymentJobName(dataItem.EmploymentID);
             })
@@ -284,7 +284,7 @@ export class SalaryTransactionEmployeeList implements OnChanges, AfterViewInit {
                 }
             });
         var accountCol = new UniTableColumn('Account', 'Konto', UniTableColumnType.Text);
-        var payoutCol = new UniTableColumn('Wagetype.Base_Payment', 'Utbetales', UniTableColumnType.Number, false)
+        var payoutCol = new UniTableColumn('_BasePayment', 'Utbetales', UniTableColumnType.Number, false)
             .setTemplate((dataItem: SalaryTransaction) => {
 
                 if (!dataItem.Wagetype) {
@@ -337,8 +337,8 @@ export class SalaryTransactionEmployeeList implements OnChanges, AfterViewInit {
         this.salarytransEmployeeTableConfig = new UniTableConfig(this.payrollRun.StatusCode < 1)
             .setDeleteButton({
                 deleteHandler: (rowModel: SalaryTransaction) => {
-                    if(isNaN(rowModel.ID)){ return true; }                    
-                    if(!rowModel.IsRecurringPost) {                        
+                    if (isNaN(rowModel.ID)) { return true; }                    
+                    if (!rowModel.IsRecurringPost) {                        
                         return this.salarytransService.delete(rowModel.ID);                        
                     }      
                     return false;              
@@ -357,7 +357,7 @@ export class SalaryTransactionEmployeeList implements OnChanges, AfterViewInit {
                     this.mapWagetypeToTrans(row);
                 }
 
-                if (event.field === 'Employment') {
+                if (event.field === '_Employment') {
 
                     this.mapEmploymentToTrans(row);
                 }
@@ -406,14 +406,14 @@ export class SalaryTransactionEmployeeList implements OnChanges, AfterViewInit {
         if (!wagetype) {
             return;
         }
-        rowModel['WagetypeID'] = wagetype.ID;
+        rowModel['WageTypeID'] = wagetype.ID;
         rowModel['WageTypeNumber'] = wagetype.WageTypeNumber;
         rowModel['Wagetype'] = wagetype;
         rowModel['Text'] = wagetype.WageTypeName;
         rowModel['Account'] = wagetype.AccountNumber;
         rowModel['FromDate'] = this.payrollRun.FromDate;
         rowModel['ToDate'] = this.payrollRun.ToDate;
-        rowModel['Wagetype.Base_Payment'] = wagetype.Base_Payment;
+        rowModel['_BasePayment'] = wagetype.Base_Payment;
         if (!rowModel.Amount) {
             rowModel['Amount'] = 1;
         }
@@ -423,14 +423,14 @@ export class SalaryTransactionEmployeeList implements OnChanges, AfterViewInit {
         }
 
         if (this.employee.Employments && this.employee.Employments.length === 1) {
-            rowModel['Employment'] = this.employee.Employments[0];
+            rowModel['_Employment'] = this.employee.Employments[0];
             rowModel['EmploymentID'] = this.employee.Employments[0].ID;
         }
         this.calcItem(rowModel);
     }
 
     private mapEmploymentToTrans(rowModel) {
-        let employment = rowModel['Employment'];
+        let employment = rowModel['_Employment'];
         if (!employment) {
             return;
         }
@@ -479,25 +479,30 @@ export class SalaryTransactionEmployeeList implements OnChanges, AfterViewInit {
     }
 
     public rowChanged(event) {
+        let updated: boolean = false;
         let row: any = event.rowModel;
-        if (row.Wagetype || row.Text || row.EmploymentID || row.FromDate || row.ToDate || row.Account || row.Amount || row.Rate) {
-            if (!row.ID && row._createguid) {
+
+        if (row.Wagetype || row.Text || row._Employment || row.FromDate || row.ToDate || row.Account || row.Amount || row.Rate) {
+            row['EmployeeID'] = this.employeeID;
+            row['PayrollRunID'] = this.payrollRun.ID;
+            row['_createguid'] = this.salarytransService.getNewGuid();
+
+            if (this.salarytransChanged.length > 0) {
                 for (var i = 0; i < this.salarytransChanged.length; i++) {
                     var salaryItem = this.salarytransChanged[i];
-                    if (row._createguid === salaryItem._createguid) {
+                    if (row._originalIndex === salaryItem._originalIndex) {
                         this.salarytransChanged[i] = row;
+                        updated = true;
                         break;
                     }
                 }
+                if (!updated) {
+                    this.salarytransChanged.push(row);
+                }
             } else {
-                row.EmployeeID = this.employeeID;
-                row.PayrollRunID = this.payrollRun.ID;
-                row['_createguid'] = this.salarytransService.getNewGuid();
                 this.salarytransChanged.push(row);
             }
         }
-        let tableList: UniTable[] = this.tables.toArray();
-        tableList[0].updateRow(row._originalIndex, row);
         this.saveactions[0].disabled = false;
     }
 

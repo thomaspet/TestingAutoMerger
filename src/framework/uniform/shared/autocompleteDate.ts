@@ -38,6 +38,11 @@ export function autocompleteDate(inputValue: string): Date {
             month = parseInt(input.slice(2, 4), 10) - 1;
             year = parseInt(date.getFullYear().toString().substr(0, 2) + input.slice(4), 10);
             break;
+        case 8:
+            day = parseInt(input.slice(0, 2), 10);
+            month = parseInt(input.slice(2, 4), 10) - 1;
+            year = parseInt(input.slice(4), 10);
+            break;
         default:
             return null;
     }
