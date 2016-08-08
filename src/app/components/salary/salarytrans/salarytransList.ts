@@ -187,7 +187,6 @@ export class SalaryTransactionEmployeeList implements OnChanges, AfterViewInit {
     public saveSalarytrans(done) {
         this.saveactions[0].disabled = true;
         done('Lagrer lønnsposter');
-        console.log('lønnsposter som skal lagres', this.salarytransChanged);
         this.payrollRun.transactions = this.salarytransChanged;
         this.payrollRun.transactions.forEach((trans: SalaryTransaction) => {
             trans.Wagetype = null;
@@ -285,7 +284,7 @@ export class SalaryTransactionEmployeeList implements OnChanges, AfterViewInit {
                 }
             });
         var accountCol = new UniTableColumn('Account', 'Konto', UniTableColumnType.Text);
-        var payoutCol = new UniTableColumn('Wagetype.Base_Payment', 'Utbetales', UniTableColumnType.Number, false)
+        var payoutCol = new UniTableColumn('_BasePayment', 'Utbetales', UniTableColumnType.Number, false)
             .setTemplate((dataItem: SalaryTransaction) => {
 
                 if (!dataItem.Wagetype) {
@@ -348,7 +347,7 @@ export class SalaryTransactionEmployeeList implements OnChanges, AfterViewInit {
             .setColumns([
                 wageTypeCol, wagetypenameCol, employmentidCol,
                 fromdateCol, toDateCol, accountCol, amountCol, rateCol, sumCol,
-                transtypeCol // , payoutCol
+                transtypeCol, payoutCol
             ])
             .setPageable(false)
             .setChangeCallback((event) => {
@@ -414,7 +413,7 @@ export class SalaryTransactionEmployeeList implements OnChanges, AfterViewInit {
         rowModel['Account'] = wagetype.AccountNumber;
         rowModel['FromDate'] = this.payrollRun.FromDate;
         rowModel['ToDate'] = this.payrollRun.ToDate;
-        // rowModel['Wagetype.Base_Payment'] = wagetype.Base_Payment;
+        rowModel['_BasePayment'] = wagetype.Base_Payment;
         if (!rowModel.Amount) {
             rowModel['Amount'] = 1;
         }
@@ -480,30 +479,30 @@ export class SalaryTransactionEmployeeList implements OnChanges, AfterViewInit {
     }
 
     public rowChanged(event) {
+        let updated: boolean = false;
         let row: any = event.rowModel;
-        let tmp = row;
-        if (row.WageType || row.Text || row._Employment || row.FromDate || row.ToDate || row.Account || row.Amount || row.Rate) {
-            console.log('row', tmp);
-            if (row._createguid !== undefined) {
-                console.log('vi har ein guid', row._createguid);
+
+        if (row.Wagetype || row.Text || row._Employment || row.FromDate || row.ToDate || row.Account || row.Amount || row.Rate) {
+            row['EmployeeID'] = this.employeeID;
+            row['PayrollRunID'] = this.payrollRun.ID;
+            row['_createguid'] = this.salarytransService.getNewGuid();
+
+            if (this.salarytransChanged.length > 0) {
                 for (var i = 0; i < this.salarytransChanged.length; i++) {
                     var salaryItem = this.salarytransChanged[i];
-                    if (row._createguid === salaryItem._createguid) {
+                    if (row._originalIndex === salaryItem._originalIndex) {
                         this.salarytransChanged[i] = row;
+                        updated = true;
                         break;
                     }
                 }
+                if (!updated) {
+                    this.salarytransChanged.push(row);
+                }
             } else {
-                console.log('row i else', tmp);
-                row.EmployeeID = this.employeeID;
-                row.PayrollRunID = this.payrollRun.ID;
-                row['_createguid'] = this.salarytransService.getNewGuid();
                 this.salarytransChanged.push(row);
             }
         }
-        console.log('endrede linjer', this.salarytransChanged);
-        let tableList: UniTable[] = this.tables.toArray();
-        tableList[0].updateRow(row._originalIndex, row);
         this.saveactions[0].disabled = false;
     }
 
