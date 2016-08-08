@@ -59,7 +59,7 @@ export class UniSelectInput {
             } else if (this.field.Options.source.constructor === Array) {
                 this.items = this.field.Options.source;
             } else if (this.field.Options.source.subscribe) {
-                this.field.Options.souce.subscribe(items => this.items = items);
+                this.field.Options.source.subscribe(items => this.items = items);
             } else if (typeof this.field.Options.source === 'string') {
                 // TODO: manage lookup url;
             }

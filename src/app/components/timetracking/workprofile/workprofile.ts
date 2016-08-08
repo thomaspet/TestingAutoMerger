@@ -5,7 +5,7 @@ import {IViewConfig} from '../genericview/list';
 import {WorkProfile} from '../../../unientities';
 import {GenericDetailview} from '../genericview/detail';
 
-export var view = new View('workprofile', 'Stillingsmal', 'WorkprofileDetailview', true, '', WorkprofileDetailview);
+export var view = new View('workprofiles', 'Stillingsmal', 'WorkprofileDetailview', true, '', WorkprofileDetailview);
 
 @Component({
     selector: view.name,

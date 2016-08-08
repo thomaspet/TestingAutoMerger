@@ -1,4 +1,4 @@
-import {Component, ViewChild, Input} from '@angular/core';
+import {Component, ViewChild, Input, Output, EventEmitter} from '@angular/core';
 import {TabService} from '../../layout/navbar/tabstrip/tabService';
 import {WorkerService} from '../../../services/timetracking/workerservice';
 import {Router, ActivatedRoute} from '@angular/router';
@@ -6,7 +6,7 @@ import {UniSave, IUniSaveAction} from '../../../../framework/save/save';
 import {UniForm} from '../../../../framework/uniform';
 import {ToastService, ToastType} from '../../../../framework/uniToast/toastService';
 import {IViewConfig} from './list';
-import {getDeepValue} from '../utils/utils';
+import {getDeepValue, trimLength} from '../utils/utils';
 
 enum IAction {
     Save = 0,
@@ -21,8 +21,20 @@ var labels = {
     'err_loading': 'Feil ved lasting',
     'err_save': 'Feil ved lagring',
     'err_delete': 'Feil ved sletting',
-    'ask_delete': 'Ønsker du virkelig å slette aktuell post?'
+    'ask_delete': 'Ønsker du virkelig å slette aktuell post?',
+    'msg_saved': 'Lagret'
 };
+
+
+export interface IResult {
+    success: boolean;
+    msg?: string;   
+}
+
+export interface IAfterSaveInfo {
+    entity: any;
+    promise: Promise<IResult>;
+}
 
 @Component({
     selector: 'genericdetail',
@@ -32,6 +44,8 @@ var labels = {
 })
 export class GenericDetailview {
     @Input() public viewconfig: IViewConfig;
+    @Output() public itemChanged: EventEmitter<any> = new EventEmitter();
+    @Output() public afterSave: EventEmitter<IAfterSaveInfo> = new EventEmitter<IAfterSaveInfo>();
     @ViewChild(UniForm) public form: UniForm;
     public busy: boolean = true;
     public isDirty: boolean = false;
@@ -47,20 +61,13 @@ export class GenericDetailview {
         { label: labels.action_delete, action: (done) => this.delete(done), main: false, disabled: true}
     ];     
 
-    constructor(private workerService: WorkerService, 
-        		private route: ActivatedRoute, 
-				private tabService: TabService,
-        		private toastService: ToastService, 
-				private router: Router) {
-            this.route.params.subscribe(params => this.ID = +params['id']);
+    constructor(private workerService: WorkerService, private route: ActivatedRoute, private tabService: TabService, private toastService: ToastService, private router: Router) {
+        this.route.params.subscribe(params => this.ID = +params['id']);
     }
 
     public ngOnInit() {
         if (this.viewconfig) {
-            var tab = this.viewconfig.tab;
-            this.tabService.addTab({ name: tab.label, url: tab.url, moduleID: this.viewconfig.moduleID, active: true });
             this.fields = this.viewconfig.formFields;
-            this.updateTitle();        
         }        
     }
 
@@ -71,6 +78,10 @@ export class GenericDetailview {
             this.form.section(1).toggle();
         }
     }    
+
+    public onDelete() {
+        this.delete();
+    }
 
     public onShowList() {
         if (this.viewconfig && this.viewconfig.detail && this.viewconfig.detail.routeBackToList) {
@@ -99,7 +110,7 @@ export class GenericDetailview {
             this.workerService.getStatistics(params).subscribe((items) => {
                 if (items && items.length > 0 && items[0].Data && items[0].Data.length > 0) {
                     var key = items[0].Data[0][resultFld];
-                    if (key) {                        
+                    if (key) {                
                         this.loadCurrent(key);
                         resolve(true);
                         return;
@@ -120,7 +131,7 @@ export class GenericDetailview {
         this.loadCurrent(0);
     }
 
-    private flagDirty(dirty = true) {
+    public flagDirty(dirty = true) {
         this.isDirty = dirty;
         this.enableAction(IAction.Save, true);
     }
@@ -136,10 +147,11 @@ export class GenericDetailview {
                     }
                     this.current = item;
                     this.enableAction(IAction.Delete);
+                    this.itemChanged.emit(this.current);
                 }
                 if (updateTitle) {
                     this.updateTitle();
-                }
+                }                
                 this.flagDirty(false);
                 this.busy = false;                
             }, (err) => {
@@ -147,16 +159,18 @@ export class GenericDetailview {
                 this.busy = false; 
             });
         } else {
+            this.ID = 0;            
             if (this.viewconfig.data && this.viewconfig.data.factory) {
                 this.current = this.viewconfig.data.factory();
+                this.current.ID = this.ID;
             }
-            this.ID = 0;            
             this.enableAction(IAction.Delete, false);
             this.busy = false;
             this.flagDirty(false);
             if (updateTitle) {
                 this.updateTitle(this.viewconfig.labels.createNew);
             }
+            this.itemChanged.emit(this.current);
         }        
     }
 
@@ -168,19 +182,38 @@ export class GenericDetailview {
         if (this.viewconfig) {
             var nameProp = this.viewconfig.detail.nameProperty || 'Name';
             this.title = this.ID && this.current ? getDeepValue(this.current, nameProp) : fallbackTitle || ''; 
-            this.subTitle = this.ID ? this.viewconfig.tab.label + ' ' + this.ID : this.viewconfig.labels.createNew;  
-            this.tabService.addTab({ name: this.subTitle, url: this.viewconfig.tab.url + '/' + this.ID, moduleID: this.viewconfig.moduleID, active: true });
+            this.subTitle = this.ID ? this.viewconfig.tab.label + ' ' + this.ID : this.viewconfig.labels.createNew;
+            var tabTitle = trimLength(this.title, 12);
+            var url = this.viewconfig.tab.url + '/' + this.ID;  
+            this.tabService.addTab({ name: tabTitle, url: url, moduleID: this.viewconfig.moduleID, active: true });
         }
     }
 
     private save(done) {
         this.busy = true;
+        this.ensureEditCompleted();
         this.workerService.saveByID(this.current, this.viewconfig.data.route).subscribe((item) => {
             this.current = item;
             this.ID = item.ID;
             this.updateTitle();
-            this.enableAction(IAction.Delete, true);
-            done(this.title);
+            
+            var details: IAfterSaveInfo = { entity: item, promise: undefined };
+            this.afterSave.emit(details);
+
+            var postActions = () => {
+                this.itemChanged.emit(this.current);
+                done(labels.msg_saved);
+                this.enableAction(IAction.Delete, true);
+            };
+
+            if (details.promise) {
+                details.promise.then((result: IResult) => postActions()).catch((result: IResult) => {
+                    done(this.showErrMsg(result.msg, 'Feil ved lagring', true));
+                });
+            } else {
+                postActions();
+            }
+
         }, (err) => {
             this.busy = false;
             var msg = this.showErrMsg(err._body || err.statusText, labels.err_save, true);
@@ -188,11 +221,21 @@ export class GenericDetailview {
         }, () => this.busy = false);
     }
 
-    private delete(done) {
+    private ensureEditCompleted() {
+        var el: any = document.activeElement;        
+        if (el && el.blur) {
+            el.blur();
+            if (el.focus) {
+                el.focus();
+            }
+        }
+    }
+
+    private delete(done?) {
         if (this.ID) {
-            if (!confirm(labels.ask_delete)) { done(); return; }
+            if (!confirm(labels.ask_delete)) { if (done) { done(); } return; }
             this.workerService.deleteByID(this.ID, this.viewconfig.data.route).subscribe((result) => {
-                done(labels.deleted_ok);
+                if (done) { done(labels.deleted_ok); }
                 this.postDeleteAction();
             }, (err) => {
                 var msg = this.showErrMsg(err._body || err.statusText, labels.err_delete, true);

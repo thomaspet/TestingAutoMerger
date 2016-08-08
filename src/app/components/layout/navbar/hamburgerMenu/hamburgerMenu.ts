@@ -76,7 +76,7 @@ export class HamburgerMenu {
                     {componentName: 'Forespørsel på bilag', componentUrl: '/accounting/transquery/details'},
                     {componentName: 'Kontoinnstillinger', componentUrl: '/accounting/accountsettings'},
                     {componentName: 'MVA innstillinger', componentUrl: '/accounting/vatsettings'},
-                    {componentName: 'MVA oppgave', componentUrl: '/accounting/vatreport'},                   
+                    {componentName: 'MVA oppgave', componentUrl: '/accounting/vatreport'},
                     {componentName: 'Leverandører', componentUrl: '/sales/suppliers'}
                 ]
             },
@@ -93,11 +93,11 @@ export class HamburgerMenu {
                 componentListName: 'Timer',
                 componentListHeader: 'Timer',
                 componentList: [
-                    {componentName: 'Stillingsmaler', componentUrl: '/timetracking/workprofiles'},                    
-                    {componentName: 'Personer', componentUrl: '/timetracking/workers'},
-                    {componentName: 'Timearter', componentUrl: '/timetracking/worktypes'},                    
-                    {componentName: 'Prosjekt', componentUrl: '/timetracking/projects'},
-                    {componentName: 'Registrere timer', componentUrl: '/timetracking'}
+                    {componentName: 'Stillingsmal', componentUrl: '/timetracking/workprofiles'},                    
+                    {componentName: 'Timefører', componentUrl: '/timetracking/workers'},
+                    {componentName: 'Timeart', componentUrl: '/timetracking/worktypes'},                    
+                    {componentName: 'Timer', componentUrl: '/timetracking'},
+                    {componentName: 'Prosjekt', componentUrl: '/timetracking/projects'}
                 ]
             },            
             {

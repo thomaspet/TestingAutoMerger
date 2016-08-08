@@ -29,7 +29,7 @@ export class WagetypeList implements OnInit {
 
         this.wageTypes$ = this._wageTypeService.GetAll('WageTypeId ASC');
 
-        let idCol = new UniTableColumn('WageTypeId', 'Nr', UniTableColumnType.Number);
+        let idCol = new UniTableColumn('WageTypeNumber', 'Nr', UniTableColumnType.Number);
         idCol.setWidth('10rem');
 
         var nameCol = new UniTableColumn('WageTypeName', 'Navn', UniTableColumnType.Text);

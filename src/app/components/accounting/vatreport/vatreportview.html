@@ -1,0 +1,103 @@
+<section class="application" [attr.aria-busy]="isBusy">
+    <header class="vatreportheader">
+        <div class="periodNavigation">
+            <button type="button" (click)="onBackPeriod()">◀</button>
+            <button type="button" (click)="onForwardPeriod()">▶</button>
+        </div>
+        <p class="title">
+            <period class="period">Merverdioppgave, periode {{currentVatReport?.TerminPeriod?.No}}</period>
+            <time datetime="">{{currentVatReport?.TerminPeriod | periodDateFormat}}</time>
+        </p>
+        <section class="container">
+            <div class="box left">
+                <p class="unit">
+                    <span class="heading">Org.nr</span>
+                    {{companySettings?.OrganizationNumber}}
+                </p>
+                <p class="unit">
+                    <span class="heading">Navn</span>
+                    {{companySettings?.CompanyName}}
+                </p>
+                <p class="unit">
+                    <span class="heading">Kontonr. for tilbakebetaling</span>
+                    {{companySettings?.CompanyBankAccount?.AccountNumber}}
+                </p>
+            </div>
+            <div class="box right">
+                <ul class="statuslist">
+                    <li [className]="isControlledWithoutWarnings() ? 'success' : 'warn'">
+                        {{ isControlledWithoutWarnings() ? 'Automatisk kontroll ok' : 'Automatisk kontroll har advarsler' }}
+                    </li>
+                    <li [className]="isExecuted ? 'success' : ''">
+                        {{ isExecuted ? 'Kjørt ok' : 'Ikke kjørt' }}
+                    </li>
+                    <li [className]="isSendt ? 'success' : ''">
+                        {{ isSendt ? 'Sendt inn ok' : 'Ikke sendt inn' }}
+                    </li>
+                </ul>
+            </div>
+            <div class="box center">
+                <table>
+                    <tr>
+                        <th></th><th class="datacolumn">Grunnlag</th><th class="datacolumn">Avgift</th>
+                    </tr>
+                    <tr *ngFor="let summaryItem of vatReportSummary">
+                        <td>{{summaryItem.VatCodeGroupName}}</td>
+                        <td class="currency">
+                            <a href="/accounting/transquery/details;vatCodes={{vatReportSummaryToVatCodes(summaryItem)}};vatFromDate={{currentVatReport?.TerminPeriod.FromDate}};vatToDate={{currentVatReport?.TerminPeriod.ToDate}}">
+                                {{summaryItem.SumTaxBasisAmount * -1 | unicurrency:2}}
+                            </a>
+                        </td>
+                        <td class="currency">
+                            <a href="/accounting/transquery/details;vatCodes={{vatReportSummaryToVatCodes(summaryItem)}};vatFromDate={{currentVatReport?.TerminPeriod.FromDate}};vatToDate={{currentVatReport?.TerminPeriod.ToDate}}">
+                                {{summaryItem.SumVatAmount * -1 | unicurrency:2}}
+                            </a>
+                        </td>
+                    </tr>
+                </table>
+            </div>
+            <div class="horizontal_nav">
+                <ul>
+                    <li><a (click)="showControll = true" [class.active]="showControll">Kontroll</a></li>
+                    <li><a (click)="showControll = false" [class.active]="!showControll">Oppgave</a></li>
+                </ul>
+            </div>
+        </section>
+    </header>
+
+
+    <vatreport-checklist-view
+            *ngIf="showControll"
+            [attr.aria-busy]="!reportMessages"
+            [vatReportMessages]="reportMessages"
+    ></vatreport-checklist-view>
+    <vat-summary-per-post
+            *ngIf="!showControll"
+            [attr.aria-busy]="!reportSummaryPerPost"
+            [reportSummaryPerPost]="reportSummaryPerPost"
+            [period]="currentVatReport?.TerminPeriod"
+            [vatTypes]="vatTypes"
+    ></vat-summary-per-post>
+
+    <footer class="full-footer">
+        <section class="application">
+            <uni-save [actions]="saveActions"></uni-save>
+        </section>
+    </footer>
+
+    <div class="comment commentToSend">
+        <label>Kommenter til Altinn</label>
+        <textarea
+                [ngFormControl]="externalComment"
+                [ngModel]="currentVatReport.Comment"
+                [disabled]="currentVatReport?.ID == 0"></textarea>
+    </div>
+
+    <div class="comment internalComment">
+        <label>Intern kommentar</label>
+        <textarea
+                [ngFormControl]="internalComment"
+                [ngModel]="currentVatReport.InternalComment"
+                [disabled]="currentVatReport?.ID == 0"></textarea>
+    </div>
+</section>

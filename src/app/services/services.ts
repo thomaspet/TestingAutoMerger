@@ -4,6 +4,7 @@ export * from './accounting/vattypeservice';
 export * from './accounting/vatcodegroupservice';
 export * from './accounting/vatcodedeductionservice';
 export * from './accounting/vatpostservice';
+export * from './accounting/vatreportservice';
 export * from './accounting/journalentryservice';
 export * from './accounting/journalentrylineservice';
 export * from './accounting/journalentrylinedraftservice';

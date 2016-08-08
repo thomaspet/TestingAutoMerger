@@ -4,16 +4,14 @@ import {UniFormBuilder} from '../../../../framework/forms';
 import {UniComponentLoader} from '../../../../framework/core';
 import {Observable} from 'rxjs/Observable';
 import {UniHttp} from '../../../../framework/core/http/http';
-import {Employee, FieldType, AGAZone, WageType, PayrollRun, Employment, SalaryTransaction} from '../../../unientities';
+import {Employee, AGAZone, WageType, PayrollRun, Employment, SalaryTransaction} from '../../../unientities';
 import {EmployeeService, AgaZoneService, WageTypeService, SalaryTransactionService, PayrollrunService} from '../../../services/services';
-import {RootRouteParamsService} from '../../../services/rootRouteParams';
 import {UniSave, IUniSaveAction} from '../../../../framework/save/save';
 import {AsyncPipe} from '@angular/common';
 import {ControlModal} from '../payrollrun/controlModal';
 import {PostingsummaryModal} from '../payrollrun/postingsummaryModal';
 import {UniTable, UniTableColumnType, UniTableColumn, UniTableConfig} from 'unitable-ng2/main';
 import {UniForm} from '../../../../framework/uniform';
-import {UniFieldLayout} from '../../../../framework/uniform/index';
 
 declare var _;
 
@@ -66,7 +64,6 @@ export class SalaryTransactionEmployeeList implements OnChanges, AfterViewInit {
     constructor(
         public employeeService: EmployeeService,
         private _agaZoneService: AgaZoneService,
-        private rootRouteParams: RootRouteParamsService,
         private _uniHttpService: UniHttp,
         private _wageTypeService: WageTypeService,
         private salarytransService: SalaryTransactionService,
@@ -339,7 +336,13 @@ export class SalaryTransactionEmployeeList implements OnChanges, AfterViewInit {
 
         this.salarytransEmployeeTableConfig = new UniTableConfig(this.payrollRun.StatusCode < 1)
             .setDeleteButton({
-                deleteHandler: (rowModel) => this.salarytransService.delete(rowModel.ID)
+                deleteHandler: (rowModel: SalaryTransaction) => {
+                    if(isNaN(rowModel.ID)){ return true; }                    
+                    if(!rowModel.IsRecurringPost) {                        
+                        return this.salarytransService.delete(rowModel.ID);                        
+                    }      
+                    return false;              
+                }                
             })
             .setColumns([
                 wageTypeCol, wagetypenameCol, employmentidCol,
