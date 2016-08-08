@@ -5,7 +5,7 @@ var packages = {
         defaultExtension: 'js'
     },
     'moment': {
-        main: 'min/moment.min',
+        main: 'moment',
         defaultExtension: 'js'
     }
 };

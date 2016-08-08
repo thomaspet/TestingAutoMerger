@@ -2,6 +2,12 @@ var gulp = require('gulp');
 var plugins = require('gulp-load-plugins')({
     lazy: true
 });
+var map = require('map-stream');
+
+function removeMomentMinificationPath(file, cb) {
+    file.path = file.path.replace(/min[\\/]moment\.min\.js/, 'moment.js');
+    cb(null, file);
+}
 
 gulp.task('dependencies', function() {
     return gulp.src([
@@ -17,5 +23,6 @@ gulp.task('dependencies', function() {
         ], {
             base: './node_modules'
         })
+        .pipe(map(removeMomentMinificationPath))
         .pipe(gulp.dest('./dist/'));
 });
