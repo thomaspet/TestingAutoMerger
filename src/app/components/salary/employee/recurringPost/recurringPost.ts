@@ -1,6 +1,6 @@
 import {Component, OnInit, ViewChild} from '@angular/core';
 import {Router} from '@angular/router';
-import {WageTypeService, EmploymentService, SalaryTransactionService} from '../../../../services/services';
+import {WageTypeService, EmployeeService, SalaryTransactionService} from '../../../../services/services';
 import {Observable} from 'rxjs/Observable';
 import {RootRouteParamsService} from '../../../../services/rootRouteParams';
 import {UniSave, IUniSaveAction} from '../../../../../framework/save/save';
@@ -15,7 +15,7 @@ declare var _;
     selector: 'reccuringpost-list',
     templateUrl: 'app/components/salary/employee/recurringPost/recurringPost.html',
     directives: [UniTable, UniSave],
-    providers: [WageTypeService, EmploymentService, SalaryTransactionService],
+    providers: [WageTypeService, SalaryTransactionService],
     pipes: [AsyncPipe]
 })
 
@@ -37,7 +37,7 @@ export class RecurringPost implements OnInit {
         }
     ];
     
-    constructor(public rootRouteParams: RootRouteParamsService, public routr: Router, private wagetypeService: WageTypeService, private employmentService: EmploymentService, private uniHttp: UniHttp, private salarytransService: SalaryTransactionService) {
+    constructor(public rootRouteParams: RootRouteParamsService, public routr: Router, private wagetypeService: WageTypeService, private employeeService: EmployeeService, private uniHttp: UniHttp, private salarytransService: SalaryTransactionService) {
         this.employeeID = +this.rootRouteParams.params['id'];
         this.buildTableConfig();
     }
@@ -47,12 +47,13 @@ export class RecurringPost implements OnInit {
         
         Observable.forkJoin(
             this.wagetypeService.GetAll(''),
-            this.employmentService.GetAll('filter=EmployeeID eq ' + this.employeeID)
+            this.employeeService.Get(this.employeeID, ['Employments', 'BusinessRelationInfo'])
         )
         .subscribe((response: any) => {
-            let [wagetypes, employments] = response;
+            let [wagetypes, employee] = response;
             this.wagetypes = wagetypes;
-            this.employments = employments;
+            this.employments = employee.Employments;
+            this.employeeService.refreshEmployee(employee);
             
             this.recurringItems$ = this.uniHttp.asGET()
             .usingBusinessDomain()
