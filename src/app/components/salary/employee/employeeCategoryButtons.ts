@@ -1,4 +1,4 @@
-import {Component, Input, OnInit} from '@angular/core';
+import {Component, Input, OnInit, OnChanges} from '@angular/core';
 import {EmployeeCategory} from '../../../unientities';
 import {EmployeeService, EmployeeCategoryService} from '../../../services/services';
 import {Observable} from 'rxjs/Observable';
@@ -33,7 +33,7 @@ declare var jQuery;
     `
 })
 
-export class EmployeeCategoryButtons implements OnInit {
+export class EmployeeCategoryButtons implements OnInit, OnChanges{
     public busy: boolean;
     private categories: Array<EmployeeCategory>;
     private results: Array<EmployeeCategory> = [];
@@ -58,6 +58,14 @@ export class EmployeeCategoryButtons implements OnInit {
     };
 
     public ngOnInit() {
+        this.refreshCategories();
+    }
+
+    public ngOnChanges() {
+        this.refreshCategories();
+    }
+
+    private refreshCategories() {
         this.busy = true;
         Observable.forkJoin(
             this.employeeService.getEmployeeCategories(this.selectedEmployee.ID),
@@ -84,7 +92,6 @@ export class EmployeeCategoryButtons implements OnInit {
             this.busy = false;
         });
     }
-
     
 
     public saveAndAddNewCategory(categoryName) {

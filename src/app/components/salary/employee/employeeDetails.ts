@@ -101,12 +101,10 @@ export class EmployeeDetails implements OnInit {
                     this._employeeService.get(response.ID).subscribe((emp) => {
                         this._employeeService.refreshEmployee(emp);
                         this._router.navigateByUrl(this.url + emp.ID);
-                        console.log('url: ', this._router.url);
                     });
                 } else {
                     this._employeeService.refreshEmployee(response);
                     this._router.navigateByUrl(this.url + response.ID);
-                    console.log('url: ', this._router.url);
                 }
 
             }
