@@ -20,7 +20,8 @@ declare var _;
                 [readonly]="field?.ReadOnly"
                 [placeholder]="field?.Options?.placeholder || ''"
             />
-            <button class="uni-datepicker-calendarBtn"
+            <button type="button"
+                    class="uni-datepicker-calendarBtn"
                     (click)="calendarOpen = !calendarOpen"
                     [disabled]="field?.ReadOnly"
             >Kalender</button>
