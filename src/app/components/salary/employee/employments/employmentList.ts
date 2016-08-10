@@ -10,7 +10,7 @@ import {RootRouteParamsService} from '../../../../services/rootRouteParams';
     selector: 'employment-list',
     templateUrl: 'app/components/salary/employee/employments/employmentList.html',
     directives: [UniTable, EmployeeEmployment],
-    providers: [EmploymentService, EmployeeService]
+    providers: [EmploymentService]
 })
 
 export class EmploymentList implements OnInit {
@@ -38,6 +38,7 @@ export class EmploymentList implements OnInit {
         this.employeeService.get(this.currentEmployeeID)
         .subscribe((response: any) => {
             this.currentEmployee = response;
+            this.employeeService.refreshEmployee(response);
             if (this.currentEmployee.Employments.length > 0) {
                 if (this.currentEmployee.Employments.length > 1) {
                     this.showEmploymentList = true;

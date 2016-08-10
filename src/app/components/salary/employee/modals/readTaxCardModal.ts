@@ -60,7 +60,7 @@ export class ReadTaxCardModalContent {
     }
 
     public openModal() {
-        this.altinnReceipts$ = this._altinnReceiptService.GetAll('ID DESC');
+        this.altinnReceipts$ = this._altinnReceiptService.GetAll('orderby=ID DESC&filter=Form eq \'RF-1211\'');
     }
 
     public updateReceipts() {

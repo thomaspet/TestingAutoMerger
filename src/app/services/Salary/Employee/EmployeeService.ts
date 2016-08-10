@@ -2,8 +2,15 @@ import {BizHttp} from '../../../../framework/core/http/BizHttp';
 import {UniHttp} from '../../../../framework/core/http/http';
 import {Employee, FieldType, Operator, SalaryTransaction, EmployeeCategory} from '../../../unientities';
 import { Observable } from 'rxjs/Observable';
+import { Subject } from 'rxjs/Subject';
 
 export class EmployeeService extends BizHttp<Employee> {
+
+    private employee: Subject<Employee> = new Subject<Employee>();
+
+    public employee$: Observable<Employee> = this.employee.asObservable();
+
+    public routeEnding: string = '';
     
     private defaultExpands: any = [
         'BusinessRelationInfo.Addresses',
@@ -20,6 +27,15 @@ export class EmployeeService extends BizHttp<Employee> {
         this.relativeURL = Employee.RelativeUrl;
         this.defaultExpand = ['BusinessRelationInfo'];
     }
+
+    public refreshEmployee(employee: Employee) {
+        this.employee.next(employee);
+    }
+
+    public getLatest() {
+        this.employee.publishLast();
+    }
+
     public getEmployeeCategories(employeeID: number) {
         return this.http
             .asGET()
