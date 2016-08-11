@@ -134,7 +134,7 @@ export class PersonalDetails implements OnDestroy{
             listProperty: 'BusinessRelationInfo.Phones',
             displayValue: 'Number',
             linkProperty: 'ID',
-            foreignProperty: 'BusinessRelationInfo.DefaultPhoneID',
+            storeResultInProperty: 'BusinessRelationInfo.DefaultPhoneID',
             editor: (value) => new Promise((resolve) => {
                 if (!value) {
                     value = new Phone();
@@ -163,7 +163,7 @@ export class PersonalDetails implements OnDestroy{
             listProperty: 'BusinessRelationInfo.Emails',
             displayValue: 'EmailAddress',
             linkProperty: 'ID',
-            foreignProperty: 'BusinessRelationInfo.DefaultEmailID',
+            storeResultInProperty: 'BusinessRelationInfo.DefaultEmailID',
             editor: (value) => new Promise((resolve) => {
                 if (!value) {
                     value = new Email();
@@ -185,7 +185,7 @@ export class PersonalDetails implements OnDestroy{
             listProperty: 'BusinessRelationInfo.Addresses',
             displayValue: 'AddressLine1',
             linkProperty: 'ID',
-            foreignProperty: 'BusinessRelationInfo.InvoiceAddressID',
+            storeResultInProperty: 'BusinessRelationInfo.InvoiceAddressID',
             editor: (value) => new Promise((resolve) => {
                 if (!value) {
                     value = new Address();
