@@ -80,7 +80,7 @@ export class XFormDemo {
                 entity: Employment,
                 displayValue: 'JobName',
                 linkProperty: 'ID',
-                foreignProperty: 'DefaultJobTest',
+                storeResultInProperty: 'DefaultJobTest',
                 editor: (value) => new Promise((resolve) => {
                     if(_.isObject(value) && value.hasOwnProperty('JobName')) {
                         resolve(value);
