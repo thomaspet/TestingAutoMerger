@@ -260,7 +260,7 @@ export class CustomerDetails implements OnInit {
             listProperty: 'Info.Phones',
             displayValue: 'Number',
             linkProperty: 'ID',
-            foreignProperty: 'Info.DefaultPhoneID',
+            storeResultInProperty: 'Info.DefaultPhoneID',
             editor: (value) => new Promise((resolve) => {
                 if (!value) {
                     value = new Phone();
@@ -283,7 +283,7 @@ export class CustomerDetails implements OnInit {
             listProperty: 'Info.Addresses',
             displayValue: 'AddressLine1',
             linkProperty: 'ID',
-            foreignProperty: 'Info.InvoiceAddressID',
+            storeResultInProperty: 'Info.InvoiceAddressID',
             editor: (value) => new Promise((resolve) => {
                 if (!value) {
                     value = new Address();
@@ -309,7 +309,7 @@ export class CustomerDetails implements OnInit {
             listProperty: 'Info.Emails',
             displayValue: 'EmailAddress',
             linkProperty: 'ID',
-            foreignProperty: 'Info.DefaultEmailID',            
+            storeResultInProperty: 'Info.DefaultEmailID',
             editor: (value) => new Promise((resolve) => {
                 if (!value) {
                     value = new Email();
@@ -331,7 +331,7 @@ export class CustomerDetails implements OnInit {
             listProperty: 'Info.Addresses',
             displayValue: 'AddressLine1',
             linkProperty: 'ID',            
-            foreignProperty: 'Info.ShippingAddressID',
+            storeResultInProperty: 'Info.ShippingAddressID',
             editor: (value) => new Promise((resolve) => {
                 if (!value) {
                     value = new Address();
