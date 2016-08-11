@@ -149,6 +149,8 @@ export class UniTableDemoNew {
         });
 
         // Columns
+        let dateTestCol = new UniTableColumn('_Date', 'Dato', UniTableColumnType.Date);
+
         let productCol = new UniTableColumn('Product', 'Produkt', UniTableColumnType.Lookup)
             .setDisplayField('Product.PartName')
             .setEditorOptions({
@@ -225,7 +227,7 @@ export class UniTableDemoNew {
         let sumTotalIncVatCol = new UniTableColumn('SumTotalIncVat', 'Sum ink. mva', UniTableColumnType.Number, false);
 
         this.demoTable1 = new UniTableConfig()
-            .setColumns([
+            .setColumns([ dateTestCol,
                 productCol, itemTextCol, unitCol, numItemsCol,
                 exVatCol, discountPercentCol, discountCol, vatTypeCol,
                 sumTotalExVatCol, sumVatCol, sumTotalIncVatCol
@@ -309,7 +311,12 @@ export class UniTableDemoNew {
         };
 
         this.employmentLookup = (urlParams: URLSearchParams) => {
-            return this.http.get('http://devapi.unieconomy.no/api/biz/employments', {search: urlParams});
+            console.log('lookup');
+            return this.uniHttp.asGET()
+                .usingBusinessDomain()
+                .withEndPoint('employments')
+                .send({}, urlParams);
+            // return this.http.get('https://devapi.unieconomy.no/api/biz/employments', {search: urlParams});
         };
 
         let jobCodeCol = new UniTableColumn('JobCode', 'Job code')

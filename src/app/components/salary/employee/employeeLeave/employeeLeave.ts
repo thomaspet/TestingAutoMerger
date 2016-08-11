@@ -1,5 +1,4 @@
 import {Component, OnInit, ViewChild} from '@angular/core';
-import {EmployeeDS} from '../../../../data/employee';
 import {Employment, Employee} from '../../../../unientities';
 import {RootRouteParamsService} from '../../../../services/rootRouteParams';
 import {UniTable, UniTableConfig, UniTableColumnType, UniTableColumn} from 'unitable-ng2/main';
@@ -7,7 +6,7 @@ import {UniSave, IUniSaveAction} from '../../../../../framework/save/save';
 import {AsyncPipe} from '@angular/common';
 import {UniHttp} from '../../../../../framework/core/http/http';
 import {Observable} from 'rxjs/Observable';
-import {EmployeeLeaveService} from '../../../../services/services';
+import {EmployeeLeaveService, EmployeeService} from '../../../../services/services';
 
 @Component({
     selector: 'employee-permision',
@@ -42,7 +41,7 @@ export class EmployeeLeave implements OnInit {
     ];
 
     constructor(
-        public employeeDS: EmployeeDS,
+        public employeeService: EmployeeService,
         private rootRouteParams: RootRouteParamsService,
         private uniHttp: UniHttp,
         private employeeleaveService: EmployeeLeaveService
@@ -53,10 +52,11 @@ export class EmployeeLeave implements OnInit {
     public ngOnInit() {
         this.buildTableConfig();
 
-        this.employeeDS
+        this.employeeService
             .get(this.employeeID)
             .subscribe((response: any) => {
                 this.currentEmployee = response;
+                this.employeeService.refreshEmployee(response);
                 this.employments = this.currentEmployee.Employments;
 
                 let filter = this.buildFilter();
