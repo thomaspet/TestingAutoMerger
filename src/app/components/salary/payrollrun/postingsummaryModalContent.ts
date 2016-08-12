@@ -1,6 +1,7 @@
 import {Component, Input} from '@angular/core';
 import {UniTable, UniTableColumn, UniTableColumnType, UniTableConfig} from 'unitable-ng2/main';
 import {PayrollrunService} from '../../../../app/services/services';
+import moment from 'moment';
 
 @Component({
     selector: 'postingsummary-modal-content',
@@ -15,8 +16,7 @@ export class PostingsummaryModalContent {
     private summary: any;    
     private journalNumber: string;
     private journalDate: Date;
-    private payDate : Date;
-    private headerString : string = 'Konteringssammendrag';
+    private headerString: string = 'Konteringssammendrag';
     
     constructor(private payrollService: PayrollrunService) {
         
@@ -28,8 +28,8 @@ export class PostingsummaryModalContent {
 
         this.payrollService.getPostingsummary(this.config.payrollrunID)
         .subscribe((response: any) => {
-            this.summary = response;            
-            this.headerString = 'Konteringssammendrag: ' + this.summary.PayrollRun.ID + ' - ' + this.summary.PayrollRun.Description + ', utbetales ' + this.formatDate(new Date(this.summary.PayrollRun.PayDate.toString()));
+            this.summary = response;         
+            this.headerString = 'Konteringssammendrag: ' + this.summary.PayrollRun.ID + ' - ' + this.summary.PayrollRun.Description + ', utbetales ' + moment(this.summary.PayrollRun.PayDate.toString()).format('DD.MM.YYYY');
             this.busy = false;
         });
     }
@@ -64,10 +64,6 @@ export class PostingsummaryModalContent {
             .setColumns( [accountCol, nameCol, sumCol])
             .setColumnMenuVisible(false)            
             .setSearchable(false);
-    }
-
-    private formatDate(dt : Date) : string {
-        return dt.getDate() + '.' + dt.getMonth() + 1  + '.' + dt.getFullYear();
     }
     
 }

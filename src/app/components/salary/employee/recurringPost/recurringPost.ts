@@ -8,6 +8,7 @@ import {UniTable, UniTableColumn, UniTableColumnType, UniTableConfig} from 'unit
 import {Employment, SalaryTransaction, WageType} from '../../../../unientities';
 import {AsyncPipe} from '@angular/common';
 import {UniHttp} from '../../../../../framework/core/http/http';
+import moment from 'moment';
 
 declare var _;
 
@@ -77,6 +78,8 @@ export class RecurringPost implements OnInit {
             recurringpost.IsRecurringPost = true;
             recurringpost.EmployeeID = this.employeeID;
             recurringpost.EmployeeNumber = this.employeeID;
+
+            
             
             if (recurringpost.ID > 0) {
                 this.salarytransService.Put(recurringpost.ID, recurringpost)
@@ -90,6 +93,9 @@ export class RecurringPost implements OnInit {
                     this.saveactions[0].disabled = false;
                 });
             } else {
+                recurringpost.recurringPostValidFrom.setHours(12);
+                recurringpost.recurringPostValidTo.setHours(12);
+                
                 this.salarytransService.Post(recurringpost)
                 .subscribe((response: SalaryTransaction) => {
                     done('Sist lagret: ');

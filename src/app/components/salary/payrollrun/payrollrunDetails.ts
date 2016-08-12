@@ -57,42 +57,42 @@ export class PayrollrunDetails {
             {
                 label: 'Nullstill lønnsavregning',
                 action: () => {
-                    
-                    if ( this.payrollrun.StatusCode < 2 || confirm('Denne lønnsavregningen er bokført, er du sikker på at du vil nullstille?')) {
+
+                    if (this.payrollrun.StatusCode < 2 || confirm('Denne lønnsavregningen er bokført, er du sikker på at du vil nullstille?')) {
                         this.busy = true;
                         this.payrollrunService.resetSettling(this.payrollrunID).subscribe((response: boolean) => {
-                        if (response) {
-                            this.payrollrunService.Get(this.payrollrunID).subscribe((payrollRun: PayrollRun) => {
-                                this.payrollrunService.refreshPayrun(payrollRun);
-                            }, error => {
+                            if (response) {
+                                this.payrollrunService.Get(this.payrollrunID).subscribe((payrollRun: PayrollRun) => {
+                                    this.payrollrunService.refreshPayrun(payrollRun);
+                                }, error => {
+                                    this.busy = false;
+                                    this.log(error);
+                                });
+                            } else {
+                                alert('fikk ikke nullstilt lønnsavregning');
                                 this.busy = false;
-                                this.log(error);
-                            });
-                        } else {
-                            alert('fikk ikke nullstilt lønnsavregning');
+                            }
+                        }, error => {
                             this.busy = false;
-                        }
-                    }, error => {
-                        this.busy = false;
-                        this.log(error);
-                    });
+                            this.log(error);
+                        });
                     }
-                    
+
                 }
             }
         ];
-        
+
         this.payrollrunService.refreshPayrollRun$.subscribe((payrollrun: PayrollRun) => {
-                this.busy = true;
-                this.payrollrun = payrollrun;
-                this.payrollrunID = payrollrun.ID;
-                this.payDate = new Date(this.payrollrun.PayDate.toString());
-                this.payStatus = this.payrollrunService.getStatus(this.payrollrun).text;
-                this.refreshSaveActions();
-                if (this.formIsReady) {
-                    this.setEditMode();
-                }
-                this.busy = false;
+            this.busy = true;
+            this.payrollrun = payrollrun;
+            this.payrollrunID = payrollrun.ID;
+            this.payDate = new Date(this.payrollrun.PayDate.toString());
+            this.payStatus = this.payrollrunService.getStatus(this.payrollrun).text;
+            this.refreshSaveActions();
+            if (this.formIsReady) {
+                this.setEditMode();
+            }
+            this.busy = false;
         });
     }
 
@@ -114,15 +114,11 @@ export class PayrollrunDetails {
                 this.busy = false;
             },
                 (err) => {
-                    this.log(err); 
+                    this.log(err);
                     console.log(err);
                 });
         }
 
-    }
-
-    private refreshContextMenu() {
-        
     }
 
     private refreshSaveActions() {
@@ -176,10 +172,11 @@ export class PayrollrunDetails {
 
     public canPost(): boolean {
         if (this.payrollrun) {
-        if (this.payrollrun.StatusCode === 1) {
-        return true; }
+            if (this.payrollrun.StatusCode === 1) {
+                return true;
+            }
         }
-        return false; 
+        return false;
     }
 
     public previousPayrollrun() {
@@ -277,7 +274,7 @@ export class PayrollrunDetails {
             noNegativePayCheck.ReadOnly = true;
         }
         this.fields = _.cloneDeep(this.fields);
-        
+
         if (!this.payrollrun.Description) {
             setTimeout(() => {
                 if (!this.uniform.section(1).isOpen) {
@@ -306,6 +303,8 @@ export class PayrollrunDetails {
     public savePayrollrun(done) {
         this.saveactions[0].disabled = true;
         done('Lagrer lønnsavregning');
+
+
         if (this.payrollrun.ID > 0) {
             this.payrollrunService.Put(this.payrollrun.ID, this.payrollrun)
                 .subscribe((response: PayrollRun) => {
@@ -336,9 +335,15 @@ export class PayrollrunDetails {
         this.busy = true;
         var createdPayrollrun = new PayrollRun();
         var dates: Date[] = this.payrollrunService.getEmptyPayrollrunDates();
+
         createdPayrollrun.FromDate = dates[0];
         createdPayrollrun.ToDate = dates[1];
         createdPayrollrun.PayDate = dates[2];
+
+        createdPayrollrun.FromDate.setHours(12);
+        createdPayrollrun.ToDate.setHours(12);
+        createdPayrollrun.PayDate.setHours(12);
+
         this.payrollrunService.Post(createdPayrollrun)
             .subscribe((response) => {
                 this.router.navigateByUrl('/salary/payrollrun/' + response.ID);
