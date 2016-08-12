@@ -480,9 +480,18 @@ export class SalaryTransactionEmployeeList implements OnChanges, AfterViewInit {
 
     public rowChanged(event) {
         let updated: boolean = false;
-        let row: any = event.rowModel;
+        let row: SalaryTransaction = event.rowModel;
 
-        if (row.Wagetype || row.Text || row._Employment || row.FromDate || row.ToDate || row.Account || row.Amount || row.Rate) {
+        if (row.FromDate) {
+            row.FromDate = new Date(row.FromDate.toString());
+            row.FromDate.setHours(12);
+        }
+        if (row.ToDate) {
+            row.ToDate = new Date(row.ToDate.toString());
+            row.ToDate.setHours(12);
+        }
+
+        if (row.Wagetype || row.Text || row['_Employment'] || row.FromDate || row.ToDate || row.Account || row.Amount || row.Rate) {
             row['EmployeeID'] = this.employeeID;
             row['PayrollRunID'] = this.payrollRun.ID;
             row['_createguid'] = this.salarytransService.getNewGuid();
@@ -490,7 +499,7 @@ export class SalaryTransactionEmployeeList implements OnChanges, AfterViewInit {
             if (this.salarytransChanged.length > 0) {
                 for (var i = 0; i < this.salarytransChanged.length; i++) {
                     var salaryItem = this.salarytransChanged[i];
-                    if (row._originalIndex === salaryItem._originalIndex) {
+                    if (row['_originalIndex'] === salaryItem._originalIndex) {
                         this.salarytransChanged[i] = row;
                         updated = true;
                         break;

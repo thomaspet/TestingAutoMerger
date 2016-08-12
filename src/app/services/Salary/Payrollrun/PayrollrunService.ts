@@ -480,18 +480,21 @@ export class PayrollrunService extends BizHttp<PayrollRun> {
     private getFirstDayOfNextMonth() {
         var date = new Date();
         var firstDay = new Date(date.getFullYear(), date.getMonth() + 1, 1);
+        console.log('fromdate: ', firstDay);
         return firstDay;
     }
     
     private getLastDayOfNextMonth() {
         var date = new Date();
         var lastDay = new Date(date.getFullYear(), date.getMonth() + 2, 0);
+        console.log('todate: ', lastDay);
         return lastDay;
     }
     
     private getPaydateOfNextMonth() {
         var date = new Date();
         var firstDay = new Date(date.getFullYear(), date.getMonth() + 1, 15);
+        console.log('paydate: ', firstDay);
         return firstDay;
     } 
 }

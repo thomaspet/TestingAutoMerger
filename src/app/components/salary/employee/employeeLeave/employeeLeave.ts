@@ -152,9 +152,7 @@ export class EmployeeLeave implements OnInit {
         this.saveactions[0].disabled = true;
         done('Lagrer permisjoner');
         this.permisionsChanged = this.table.getTableData();
-        this.permisionsChanged.forEach(permisionItem => {
-
-            console.log('permisjonsItem', permisionItem);
+        this.permisionsChanged.forEach((permisionItem) => {
 
             if (permisionItem.ID > 0) {
                 this.employeeleaveService.Put(permisionItem.ID, permisionItem)
@@ -168,6 +166,8 @@ export class EmployeeLeave implements OnInit {
                         this.saveactions[0].disabled = false;
                     });
             } else {
+                permisionItem.FromDate.setHours(12);
+                permisionItem.ToDate.setHours(12);
                 this.employeeleaveService.Post(permisionItem)
                     .subscribe((response: EmployeeLeave) => {
                         done('Sist lagret: ');
