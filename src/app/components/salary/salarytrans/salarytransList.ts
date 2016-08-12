@@ -333,13 +333,13 @@ export class SalaryTransactionEmployeeList implements OnChanges, AfterViewInit {
                     return matching;
                 }
             });
-
         this.salarytransEmployeeTableConfig = new UniTableConfig(this.payrollRun.StatusCode < 1)
             .setDeleteButton({
                 deleteHandler: (rowModel: SalaryTransaction) => {
                     if (isNaN(rowModel.ID)) { return true; }                    
-                    if (!rowModel.IsRecurringPost) {                        
-                        return this.salarytransService.delete(rowModel.ID);                        
+                    if (!rowModel.IsRecurringPost) {
+                        this.tables.first.removeRow(rowModel['_originalIndex']);
+                        return this.salarytransService.delete(rowModel.ID);
                     }      
                     return false;              
                 }                
@@ -370,18 +370,6 @@ export class SalaryTransactionEmployeeList implements OnChanges, AfterViewInit {
             })
             .setIsRowReadOnly((rowModel: SalaryTransaction) => {
                 return rowModel.IsRecurringPost;
-            });
-    }
-
-    public deleteSalaryTransaction(event) {
-        let rowModel = event.rowModel;
-        rowModel.Deleted = true;
-        this.salarytransService.delete(rowModel.ID).subscribe(
-            (response) => {
-
-            },
-            err => {
-                this.log(err);
             });
     }
 

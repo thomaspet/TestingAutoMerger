@@ -116,14 +116,14 @@ export class UniMultivalueInput {
         this.field.Options = this.field.Options || {};
 
         // update default option
-        if (this.field.Options.foreignProperty) {
+        if (this.field.Options.storeResultInProperty) {
             if (this.field.Options.listProperty) {
                 this.rows = _.get(this.model, this.field.Options.listProperty);
             } else {
                 this.rows = _.get(this.model, this.field.Property);
             }
 
-            var foreignValue = _.get(this.model, this.field.Options.foreignProperty);
+            var foreignValue = _.get(this.model, this.field.Options.storeResultInProperty);
 
             if (this.rows) {
                 this.rows.forEach((row) => {
@@ -167,18 +167,18 @@ export class UniMultivalueInput {
         this.defaultRow = row;
         this.currentValue = this.showDisplayValue(row);
 
-        if (!this.field.Options.foreignProperty) {
+        if (!this.field.Options.storeResultInProperty) {
             return;
         }
-        var foreignProperty = this.field.Options.foreignProperty;
+        var storeResultInProperty = this.field.Options.storeResultInProperty;
         var linkProperty = this.field.Options.linkProperty;
-        var fp = _.get(this.model, foreignProperty);
+        var fp = _.get(this.model, storeResultInProperty);
         var lp = _.get(row, linkProperty);
         if (fp === lp && oldProperty === row) {
             return; // no emit changes since it is not updated;
         }
 
-        _.set(this.model, foreignProperty, lp);
+        _.set(this.model, storeResultInProperty, lp);
         this.onChange.emit(this.model);
 
         this.cd.markForCheck();

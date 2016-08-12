@@ -268,13 +268,13 @@ export class CompanySettings implements OnInit {
         salaryBankAccount.Options = this.getBankAccountOptions('SalaryBankAccountID', 'salary');
     }
 
-    private getBankAccountOptions(foreignProperty, bankAccountType) {
+    private getBankAccountOptions(storeResultInProperty, bankAccountType) {
        return {            
             entity: BankAccount,
             listProperty: 'BankAccounts',
             displayValue: 'AccountNumber',
             linkProperty: 'ID',
-            foreignProperty: foreignProperty,            
+            storeResultInProperty: storeResultInProperty,
             editor: (bankaccount: BankAccount) => new Promise((resolve) => {
                 if (!bankaccount) {
                     bankaccount = new BankAccount();

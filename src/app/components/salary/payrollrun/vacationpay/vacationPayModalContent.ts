@@ -85,14 +85,15 @@ export class VacationpayModalContent {
 
     private setCurrentBasicAmountAndYear() {
         switch (this.vacationHeaderModel.VacationpayYear) {
+            // When clientyear available, remove these hardcode years
             case 1:
-                this.vacationBaseYear = 2014;
-                break;
-            case 2:
                 this.vacationBaseYear = 2015;
                 break;
+            case 2:
+                this.vacationBaseYear = 2016;
+                break;
             case 3:
-                this.vacationBaseYear = 2013;
+                this.vacationBaseYear = 2014;
                 break;
             default:
                 break;

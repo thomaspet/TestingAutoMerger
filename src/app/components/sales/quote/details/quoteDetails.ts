@@ -234,7 +234,7 @@ export class QuoteDetails {
             listProperty: '_InvoiceAddresses',
             displayValue: 'AddressLine1',
             linkProperty: 'ID',
-            foreignProperty: '_InvoiceAddressID',
+            storeResultInProperty: '_InvoiceAddressID',
             editor: (value) => new Promise((resolve) => {
                 if (!value) {
                     value = new Address();
@@ -259,7 +259,7 @@ export class QuoteDetails {
             listProperty: '_ShippingAddresses',
             displayValue: 'AddressLine1',
             linkProperty: 'ID',
-            foreignProperty: '_ShippingAddressID',
+            storeResultInProperty: '_ShippingAddressID',
             editor: (value) => new Promise((resolve) => {
                 if (!value) {
                     value = new Address();
