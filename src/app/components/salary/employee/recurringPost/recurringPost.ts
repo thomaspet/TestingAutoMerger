@@ -159,7 +159,7 @@ export class RecurringPost implements OnInit {
                 }
             });
             
-        var fromdateCol = new UniTableColumn('recurringPostValidFrom', 'Fra dato', UniTableColumnType.Date)
+        var fromdateCol = new UniTableColumn('recurringPostValidFrom', 'Fra dato', UniTableColumnType.Date);
         var todateCol = new UniTableColumn('recurringPostValidTo', 'Til dato', UniTableColumnType.Date);
         var amountCol = new UniTableColumn('Amount', 'Antall', UniTableColumnType.Number);
         var rateCol = new UniTableColumn('Rate', 'Sats', UniTableColumnType.Number);

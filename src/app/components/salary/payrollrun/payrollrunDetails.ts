@@ -121,10 +121,6 @@ export class PayrollrunDetails {
 
     }
 
-    private refreshContextMenu() {
-
-    }
-
     private refreshSaveActions() {
         this.saveactions = [
             {
@@ -323,7 +319,6 @@ export class PayrollrunDetails {
         } else {
             this.payrollrunService.Post(this.payrollrun)
                 .subscribe((response: PayrollRun) => {
-                    console.log('saved run: ', response);
                     this.payrollrunService.refreshPayrun(response);
                     done('Sist lagret: ');
                     this.router.navigateByUrl('/salary/payrollrun/' + this.payrollrun.ID);
