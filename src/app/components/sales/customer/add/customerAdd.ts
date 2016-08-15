@@ -2,11 +2,8 @@ import {Component, ComponentRef, ViewChild, ViewChildren, Input, Output, EventEm
 import {UniHttp} from '../../../../../framework/core/http/http';
 import {ExternalSearch} from '../../../common/externalSearch/externalSearch';
 import {Router} from '@angular/router';
-import {UniFormBuilder} from "../../../../../framework/forms/builders/uniFormBuilder";
-import {UniFormLayoutBuilder} from "../../../../../framework/forms/builders/uniFormLayoutBuilder";
-import {UniForm} from "../../../../../framework/forms/uniForm";
-import {UniFieldBuilder} from "../../../../../framework/forms/builders/uniFieldBuilder";
-import {UniComponentLoader} from "../../../../../framework/core/componentLoader";
+import {UniForm, UniFieldLayout} from '../../../../../framework/uniform/index';
+import {UniComponentLoader} from '../../../../../framework/core/componentLoader';
 
 @Component({
     selector: 'customer-add',
@@ -19,7 +16,8 @@ export class CustomerAdd {
                    
     @ViewChild(UniComponentLoader)
     UniCmpLoader: UniComponentLoader;    
-    FormConfig: UniFormBuilder;
+
+    FormConfig: UniFieldLayout[];
     formInstance: UniForm;
    
     private customer: any; 
@@ -29,15 +27,13 @@ export class CustomerAdd {
     }    
     
     ngOnInit() {
-        this.searchText = "";
-        this.customer = {Name: ""};
+        this.searchText = '';
+        this.customer = {Name: ''};
     }   
     
     ngAfterViewInit() {        
         // TODO get it from the API and move these to backend migrations   
-        var view = this.setupFormConfig();           
-        this.FormConfig = new UniFormLayoutBuilder().build(view, this.customer);
-        this.FormConfig.hideSubmitButton();        
+        this.FormConfig = this.setupFormConfig().Fields;
         this.extendFormConfig();
         this.loadForm();   
     }   
@@ -46,37 +42,38 @@ export class CustomerAdd {
         this.customer.Name = searchResultItem.navn;
         this.customer.Orgnumber = searchResultItem.orgnr;
         this.customer.Address1 = searchResultItem.forretningsadr;
-        //forradrpostnr
+        // forradrpostnr
         this.customer.City = searchResultItem.forradrpoststed;
         this.customer.Phone = searchResultItem.tlf;
-        //this.customer.Email = searchResultItem.Email;
+        // this.customer.Email = searchResultItem.Email;
         this.customer.Web = searchResultItem.web;
         
-        this.formInstance.Model = this.customer;
+        this.formInstance.model = this.customer;
     }
     
     createCustomer() {        
-        //TODO: send request for å opprette kunde + evt adresse, telefon og epost
+        // TODO: send request for å opprette kunde + evt adresse, telefon og epost
         
-        //redirect to detail for new customer
+        // redirect to detail for new customer
         this.router.navigateByUrl('/customer/details/1'); // + newCustomer.ID);
     }
     
     extendFormConfig() {
-        var orgnumber: UniFieldBuilder = this.FormConfig.find('Orgnumber');
-        orgnumber.setKendoOptions({
+        var orgnumber: UniFieldLayout = this.FormConfig[1];
+        orgnumber.Options = {
             mask: '000 000 000',
             promptChar: '_'
-        });                
+        };
     }    
        
     loadForm() {       
         var self = this;
-        return this.UniCmpLoader.load(UniForm).then((cmp: ComponentRef<any>) => {
-           cmp.instance.config = self.FormConfig;
+        return this.UniCmpLoader.load(UniForm).then((cmp: ComponentRef<UniForm>) => {
+           cmp.instance.fields = self.FormConfig;
            setTimeout(() => {
                 self.formInstance = cmp.instance;
-                self.formInstance.controls["Name"]
+                self.formInstance.field('Name')
+                    .control
                     .valueChanges
                     .debounceTime(300)
                     .distinctUntilChanged()
@@ -89,8 +86,8 @@ export class CustomerAdd {
     // TODO: update to 'ComponentLayout' respecting the interface
     setupFormConfig(): any {
         return {
-            Name: "Customer",
-            BaseEntity: "Customer",
+            Name: 'Customer',
+            BaseEntity: 'Customer',
             StatusCode: 0,
             Deleted: false,
             CreatedAt: null,
@@ -102,23 +99,23 @@ export class CustomerAdd {
             Fields: [                
                 {
                     ComponentLayoutID: 3,
-                    EntityType: "Customer",
-                    Property: "Name",
+                    EntityType: 'Customer',
+                    Property: 'Name',
                     Placement: 1,
                     Hidden: false,
                     FieldType: 10,
                     ReadOnly: false,
                     LookupField: false,
-                    Label: "Navn",
-                    Description: "",
-                    HelpText: "",
+                    Label: 'Navn',
+                    Description: '',
+                    HelpText: '',
                     FieldSet: 0,
                     Section: 0,
                     Placeholder: null,
                     Options: null,
                     LineBreak: null,
                     Combo: null,
-                    Legend: "",
+                    Legend: '',
                     StatusCode: 0,
                     ID: 2,
                     Deleted: false,
@@ -130,23 +127,23 @@ export class CustomerAdd {
                 },
                 {
                     ComponentLayoutID: 3,
-                    EntityType: "Customer",
-                    Property: "Orgnumber",
+                    EntityType: 'Customer',
+                    Property: 'Orgnumber',
                     Placement: 1,
                     Hidden: false,
                     FieldType: 10,
                     ReadOnly: false,
                     LookupField: false,
-                    Label: "Organisasjonsnummer",
-                    Description: "",
-                    HelpText: "",
+                    Label: 'Organisasjonsnummer',
+                    Description: '',
+                    HelpText: '',
                     FieldSet: 0,
                     Section: 0,
                     Placeholder: null,
                     Options: null,
                     LineBreak: null,
                     Combo: null,
-                    Legend: "",
+                    Legend: '',
                     StatusCode: 0,
                     ID: 3,
                     Deleted: false,
@@ -158,23 +155,23 @@ export class CustomerAdd {
                 },
                 {
                     ComponentLayoutID: 3,
-                    EntityType: "Customer",
-                    Property: "Address",
+                    EntityType: 'Customer',
+                    Property: 'Address',
                     Placement: 1,
                     Hidden: false,
                     FieldType: 10,
                     ReadOnly: false,
                     LookupField: false,
-                    Label: "Adresselinje 1",
-                    Description: "",
-                    HelpText: "",
+                    Label: 'Adresselinje 1',
+                    Description: '',
+                    HelpText: '',
                     FieldSet: 0,
                     Section: 0,
                     Placeholder: null,
                     Options: null,
                     LineBreak: null,
                     Combo: null,
-                    Legend: "",
+                    Legend: '',
                     StatusCode: 0,
                     ID: 4,
                     Deleted: false,
@@ -186,23 +183,23 @@ export class CustomerAdd {
                 },
                 {
                     ComponentLayoutID: 3,
-                    EntityType: "Customer",
-                    Property: "Address2",
+                    EntityType: 'Customer',
+                    Property: 'Address2',
                     Placement: 1,
                     Hidden: false,
                     FieldType: 10,
                     ReadOnly: false,
                     LookupField: false,
-                    Label: "Adresselinje 2",
-                    Description: "",
-                    HelpText: "",
+                    Label: 'Adresselinje 2',
+                    Description: '',
+                    HelpText: '',
                     FieldSet: 0,
                     Section: 0,
                     Placeholder: null,
                     Options: null,
                     LineBreak: null,
                     Combo: null,
-                    Legend: "",
+                    Legend: '',
                     StatusCode: 0,
                     ID: 5,
                     Deleted: false,
@@ -214,23 +211,23 @@ export class CustomerAdd {
                 },
                 {
                     ComponentLayoutID: 3,
-                    EntityType: "Customer",
-                    Property: "City",
+                    EntityType: 'Customer',
+                    Property: 'City',
                     Placement: 1,
                     Hidden: false,
                     FieldType: 10,
                     ReadOnly: false,
                     LookupField: false,
-                    Label: "Poststed",
-                    Description: "",
-                    HelpText: "",
+                    Label: 'Poststed',
+                    Description: '',
+                    HelpText: '',
                     FieldSet: 0,
                     Section: 0,
                     Placeholder: null,
                     Options: null,
                     LineBreak: null,
                     Combo: null,
-                    Legend: "",
+                    Legend: '',
                     StatusCode: 0,
                     ID: 5,
                     Deleted: false,
@@ -242,23 +239,23 @@ export class CustomerAdd {
                 },
                 {
                     ComponentLayoutID: 3,
-                    EntityType: "Customer",
-                    Property: "Email",
+                    EntityType: 'Customer',
+                    Property: 'Email',
                     Placement: 1,
                     Hidden: false,
                     FieldType: 10,
                     ReadOnly: false,
                     LookupField: false,
-                    Label: "E-post adresse",
-                    Description: "",
-                    HelpText: "",
+                    Label: 'E-post adresse',
+                    Description: '',
+                    HelpText: '',
                     FieldSet: 0,
                     Section: 0,
                     Placeholder: null,
                     Options: null,
                     LineBreak: null,
                     Combo: null,
-                    Legend: "",
+                    Legend: '',
                     StatusCode: 0,
                     ID: 5,
                     Deleted: false,
@@ -270,23 +267,23 @@ export class CustomerAdd {
                 },
                 {
                     ComponentLayoutID: 3,
-                    EntityType: "Customer",
-                    Property: "Phone",
+                    EntityType: 'Customer',
+                    Property: 'Phone',
                     Placement: 1,
                     Hidden: false,
                     FieldType: 10,
                     ReadOnly: false,
                     LookupField: false,
-                    Label: "Telefonnummer",
-                    Description: "",
-                    HelpText: "",
+                    Label: 'Telefonnummer',
+                    Description: '',
+                    HelpText: '',
                     FieldSet: 0,
                     Section: 0,
                     Placeholder: null,
                     Options: null,
                     LineBreak: null,
                     Combo: null,
-                    Legend: "",
+                    Legend: '',
                     StatusCode: 0,
                     ID: 6,
                     Deleted: false,
@@ -298,23 +295,23 @@ export class CustomerAdd {
                 },
                 {
                     ComponentLayoutID: 3,
-                    EntityType: "Customer",
-                    Property: "WebUrl",
+                    EntityType: 'Customer',
+                    Property: 'WebUrl',
                     Placement: 1,
                     Hidden: false,
                     FieldType: 10,
                     ReadOnly: false,
                     LookupField: false,
-                    Label: "Web",
-                    Description: "",
-                    HelpText: "",
+                    Label: 'Web',
+                    Description: '',
+                    HelpText: '',
                     FieldSet: 0,
                     Section: 0,
                     Placeholder: null,
                     Options: null,
                     LineBreak: null,
                     Combo: null,
-                    Legend: "",
+                    Legend: '',
                     StatusCode: 0,
                     ID: 6,
                     Deleted: false,

@@ -1,5 +1,5 @@
 import {Component, OnInit, OnDestroy} from '@angular/core';
-import {Control} from '@angular/common';
+import {FormControl, REACTIVE_FORM_DIRECTIVES} from '@angular/forms';
 import {ROUTER_DIRECTIVES} from '@angular/router';
 import {TabService} from '../../layout/navbar/tabstrip/tabService';
 import {UniTabs} from '../../layout/uniTabs/uniTabs';
@@ -24,7 +24,7 @@ declare const moment;
     selector: 'vat-report-view',
     templateUrl: 'app/components/accounting/vatreport/vatreportview.html',
     providers: [CompanySettingsService, VatReportService],
-    directives: [ROUTER_DIRECTIVES, UniTabs, UniSave, VatSummaryPerPost, CheckListVat],
+    directives: [REACTIVE_FORM_DIRECTIVES, ROUTER_DIRECTIVES, UniTabs, UniSave, VatSummaryPerPost, CheckListVat],
     pipes: [PeriodDateFormatPipe, UniCurrencyPipe]
 })
 export class VatReportView implements OnInit, OnDestroy {
@@ -41,8 +41,8 @@ export class VatReportView implements OnInit, OnDestroy {
             disabled: false
         }
     ];
-    public internalComment: Control = new Control();
-    public externalComment: Control = new Control();
+    public internalComment: FormControl = new FormControl();
+    public externalComment: FormControl = new FormControl();
     public companySettings: CompanySettings;
     public vatReportSummary: VatReportSummary[];
     public reportSummaryPerPost: VatReportSummaryPerPost[];

@@ -1,7 +1,7 @@
 ﻿import {Component, Input, DynamicComponentLoader, ViewContainerRef, OnInit} from "@angular/core";
 import {Http, Headers} from "@angular/http";
-import {UniTable} from "../uniTable";
-import {UniForm} from "../forms/uniForm";
+import {UniTable} from "unitable-ng2/main";
+import {UniForm} from "../uniform/index";
 import {TREE_LIST_TYPE} from "./treeList";
 
 @Component({

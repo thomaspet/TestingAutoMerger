@@ -16,7 +16,6 @@ export class Examples {
 
     constructor() {
         this.childRoutes = [
-            {name: 'UniFormDemo', path: 'form'},
             {name: 'XFormDemo', path: 'xform'},
             {name: 'Table demo', path: 'tablenew'},
             {name: 'Image demo', path: 'image'},

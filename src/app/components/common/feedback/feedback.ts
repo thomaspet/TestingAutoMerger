@@ -1,6 +1,6 @@
 import {Component} from '@angular/core';
 import {Http, Headers} from '@angular/http';
-import {Control} from '@angular/common';
+import {FormControl, REACTIVE_FORM_DIRECTIVES} from '@angular/forms';
 import {AuthService} from '../../../../framework/core/authService';
 import moment from 'moment';
 declare var APP_VERSION;
@@ -8,6 +8,7 @@ declare var APP_VERSION;
 @Component({
     selector: 'uni-feedback',
     templateUrl: 'app/components/common/feedback/feedback.html',
+    directives: [REACTIVE_FORM_DIRECTIVES]
 })
 export class UniFeedback {
     private expanded: boolean = false;
@@ -16,8 +17,8 @@ export class UniFeedback {
     private success: boolean = false;
 
     private headers: Headers;
-    private titleControl: Control;
-    private descriptionControl: Control;
+    private titleControl: FormControl;
+    private descriptionControl: FormControl;
 
     constructor(private http: Http, private authService: AuthService) {
         this.initForm();
@@ -28,8 +29,8 @@ export class UniFeedback {
     }
 
     private initForm() {
-        this.titleControl = new Control('');
-        this.descriptionControl = new Control('');
+        this.titleControl = new FormControl('');
+        this.descriptionControl = new FormControl('');
     }
 
     private toggle() {

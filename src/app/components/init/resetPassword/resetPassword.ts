@@ -1,13 +1,13 @@
 import {Component} from '@angular/core';
 import {ActivatedRoute, ROUTER_DIRECTIVES} from '@angular/router';
-import {Control, Validators, ControlGroup, FORM_DIRECTIVES} from '@angular/common';
+import {FormControl, REACTIVE_FORM_DIRECTIVES, FormGroup, Validators} from '@angular/forms';
 import {passwordValidator} from '../authValidators';
 import {UniHttp} from '../../../../framework/core/http/http';
 
 @Component({
     selector: 'uni-reset-password',
     templateUrl: 'app/components/init/resetPassword/resetPassword.html',
-    directives: [FORM_DIRECTIVES, ROUTER_DIRECTIVES],
+    directives: [REACTIVE_FORM_DIRECTIVES, ROUTER_DIRECTIVES],
 })
 export class ResetPassword {
     private code: string;
@@ -20,8 +20,8 @@ export class ResetPassword {
     
     private successMessage: string = '';
     private errorMessage: string = '';
-    private emailForm: ControlGroup;
-    private passwordForm: ControlGroup;
+    private emailForm: FormGroup;
+    private passwordForm: FormGroup;
     
     constructor(private route: ActivatedRoute, private uniHttp: UniHttp) {
         this.route.params.subscribe(params => {
@@ -36,12 +36,12 @@ export class ResetPassword {
             Validators.maxLength(16)
         ]);
                 
-        this.emailForm = new ControlGroup({
-            email: new Control('', Validators.required)
+        this.emailForm = new FormGroup({
+            email: new FormControl('', Validators.required)
         });
     
-        let passwordCtrl = new Control('', validator);
-        let confirmPasswordCtrl = new Control('', validator);
+        let passwordCtrl = new FormControl('', validator);
+        let confirmPasswordCtrl = new FormControl('', validator);
         
         // TODO: This should be handled through a validator!
         passwordCtrl.valueChanges.subscribe((value) => {
@@ -53,7 +53,7 @@ export class ResetPassword {
             console.log(this.passwordsMatch);
         });
         
-        this.passwordForm = new ControlGroup({
+        this.passwordForm = new FormGroup({
             password: passwordCtrl,
             confirmPassword: confirmPasswordCtrl
         });        

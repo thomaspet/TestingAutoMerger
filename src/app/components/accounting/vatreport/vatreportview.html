@@ -88,7 +88,7 @@
     <div class="comment commentToSend">
         <label>Kommenter til Altinn</label>
         <textarea
-                [ngFormControl]="externalComment"
+                [formControl]="externalComment"
                 [ngModel]="currentVatReport.Comment"
                 [disabled]="currentVatReport?.ID == 0"></textarea>
     </div>
@@ -96,7 +96,7 @@
     <div class="comment internalComment">
         <label>Intern kommentar</label>
         <textarea
-                [ngFormControl]="internalComment"
+                [formControl]="internalComment"
                 [ngModel]="currentVatReport.InternalComment"
                 [disabled]="currentVatReport?.ID == 0"></textarea>
     </div>

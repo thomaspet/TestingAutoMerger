@@ -1,5 +1,5 @@
 import {Component, Input, Output, ElementRef, ViewChild, EventEmitter, ChangeDetectionStrategy, ChangeDetectorRef, Renderer} from '@angular/core';
-import {Control} from '@angular/common';
+import {FormControl} from '@angular/forms';
 import {UniFieldLayout} from '../interfaces';
 import {autocompleteDate} from '../shared/autocompleteDate';
 import {Observable} from 'rxjs/Rx';
@@ -22,7 +22,7 @@ var parseFormats = [
             #input
             *ngIf="control"
             type="text"
-            [ngFormControl]="control"
+            [formControl]="control"
             [readonly]="field?.ReadOnly"
             [placeholder]="field?.Options?.placeholder || ''"
         />
@@ -36,7 +36,7 @@ export class UniDateInput {
     public model: any;
 
     @Input()
-    public control: Control;
+    public control: FormControl;
 
     @Output()
     public onReady: EventEmitter<UniDateInput> = new EventEmitter<UniDateInput>(true);

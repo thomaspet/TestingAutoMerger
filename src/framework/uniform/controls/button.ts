@@ -1,5 +1,5 @@
 import {Component, ViewChild, Input, Output, Renderer, ElementRef, EventEmitter, ChangeDetectionStrategy, ChangeDetectorRef} from '@angular/core';
-import {Control} from '@angular/common';
+import {FormControl} from '@angular/forms';
 import {UniFieldLayout} from '../interfaces';
 declare var _; // jquery and lodash
 
@@ -24,7 +24,7 @@ export class UniButtonInput {
     public model: any;
 
     @Input()
-    public control: Control;
+    public control: FormControl;
 
     @Output()
     public onReady: EventEmitter<UniButtonInput> = new EventEmitter<UniButtonInput>(true);

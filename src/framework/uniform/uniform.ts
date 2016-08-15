@@ -1,7 +1,8 @@
 import {
     Component, EventEmitter, Input, Output, HostBinding, ViewChildren, QueryList, SimpleChange
 } from '@angular/core';
-import {FORM_DIRECTIVES, FORM_PROVIDERS, ControlGroup, FormBuilder} from '@angular/common';
+import {FormGroup, FormBuilder} from '@angular/forms';
+import {REACTIVE_FORM_DIRECTIVES} from '@angular/forms';
 import {FieldLayout} from '../../app/unientities';
 import {UniFieldLayout} from './interfaces';
 import {UniField} from './unifield';
@@ -15,10 +16,9 @@ declare var _; // lodash
  */
 @Component({
     selector: 'uni-form',
-    directives: [FORM_DIRECTIVES, UniField, UniCombo, UniFieldSet, UniSection],
-    providers: [FORM_PROVIDERS],
+    directives: [REACTIVE_FORM_DIRECTIVES, UniField, UniCombo, UniFieldSet, UniSection],
     template: `
-        <form (submit)="submit($event)" [ngFormModel]="controls">
+        <form (submit)="submit($event)" [formGroup]="controls">
             <template ngFor let-item [ngForOf]="groupedFields" let-i="index">
                 <uni-field 
                     *ngIf="isField(item) && !item?.Hidden"
@@ -87,7 +87,7 @@ export class UniForm {
     @ViewChildren(UniSection)
     public sectionElements: QueryList<UniSection>;
 
-    private controls: ControlGroup;
+    private controls: FormGroup;
     private groupedFields: any[];
 
     private readyFields: number;

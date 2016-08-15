@@ -1,11 +1,10 @@
 import {Component, OnInit, ViewChild} from '@angular/core';
-import {UniFormBuilder, UniForm, UniFormLayoutBuilder} from '../../../../framework/forms';
 import {AltinnService} from '../../../services/services';
 import {UniSave, IUniSaveAction} from '../../../../framework/save/save';
 import {Altinn} from '../../../unientities';
 import {Observable} from 'rxjs/Observable';
 import {IntegrationServerCaller} from '../../../services/common/IntegrationServerCaller';
-
+import {UniForm, UniFieldLayout} from '../../../../framework/uniform/index'
 
 @Component({
     selector: 'altinn-settings',
@@ -14,7 +13,7 @@ import {IntegrationServerCaller} from '../../../services/common/IntegrationServe
     directives: [UniForm, UniSave]
 })
 export class AltinnSettings implements OnInit {
-    private formConfig: UniFormBuilder = null;
+    private formConfig: UniFieldLayout[] = [];
     private altinn: Altinn;
 
     public saveactions: IUniSaveAction[] = [
@@ -25,8 +24,6 @@ export class AltinnSettings implements OnInit {
             disabled: false
         }
     ];
-    
-    @ViewChild(UniForm) private formInstance: UniForm;
     
     public loginErr: string;
 
@@ -40,8 +37,6 @@ export class AltinnSettings implements OnInit {
 
     public check()  {
         this.loginErr = '';
-        this.formInstance.sync();
-        
         if (this.altinn == undefined) {
              this.altinn = new Altinn();
         }
@@ -68,28 +63,18 @@ export class AltinnSettings implements OnInit {
                 let [altinn, layout] = response;
                 if (altinn.length !== 0) {
                     this.altinn = altinn[0];
-                    this.setFormConfig(layout);
+                    this.formConfig = layout.Fields;
                 } else {
                     this._altinnService.GetNewEntity().subscribe((newAltinn: Altinn) => {
                         this.altinn = new Altinn();
-                        if (this.formConfig !== null) {
-                            this.formConfig.setModel(this.altinn);
-                        } else {
-                            this.setFormConfig(layout);
-                        }
+                        this.formConfig = layout.Fields;
                     });
                 }
             });
     }
 
-    private setFormConfig(layout) {
-        this.formConfig = new UniFormLayoutBuilder().build(layout, this.altinn);
-        this.formConfig.hideSubmitButton();
-    }
-
     public saveAltinn(done) {
         this.saveactions[0].disabled = true;
-        this.formInstance.sync();
         done('lagrer altinninnstillinger: ');
         if (this.altinn.ID) {
             this._altinnService.Put(this.altinn.ID, this.altinn).subscribe((response: Altinn) => {

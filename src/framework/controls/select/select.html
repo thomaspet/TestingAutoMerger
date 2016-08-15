@@ -19,7 +19,8 @@
             <input #searchInput
                    type="search"
                    [placeholder]="config?.searchPlaceholder || 'Filtrer elementer'"
-                   [ngFormControl]="searchControl" />
+                   [formControl]="searchControl"
+            />
         </section>
 
         <ul #itemDropdown

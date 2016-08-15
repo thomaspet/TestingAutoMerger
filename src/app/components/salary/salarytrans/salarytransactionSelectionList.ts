@@ -13,7 +13,7 @@ declare var _;
     selector: 'salarytrans',
     templateUrl: 'app/components/salary/salarytrans/salarytransactionSelectionList.html',
     directives: [UniTable, SalaryTransactionEmployeeList, SalarytransFilter],
-    providers: [EmployeeService],
+    providers: [EmployeeService, PayrollrunService],
     pipes: [AsyncPipe]
 })
 

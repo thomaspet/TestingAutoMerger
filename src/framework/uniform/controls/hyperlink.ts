@@ -1,5 +1,5 @@
 import {Component, Input, Output, EventEmitter, ChangeDetectionStrategy} from '@angular/core';
-import {Control} from '@angular/common';
+import {FormControl} from '@angular/forms';
 import {UniFieldLayout} from '../interfaces';
 declare var _; // jquery and lodash
 
@@ -19,7 +19,7 @@ export class UniHyperlinkInput {
     public model: any;
 
     @Input()
-    public control: Control;
+    public control: FormControl;
 
     @Output()
     public onReady: EventEmitter<UniHyperlinkInput> = new EventEmitter<UniHyperlinkInput>(true);

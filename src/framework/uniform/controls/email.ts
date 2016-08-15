@@ -1,16 +1,17 @@
 import {Component, Input, Output, ElementRef, EventEmitter, ChangeDetectionStrategy, ChangeDetectorRef} from '@angular/core';
-import {Control} from '@angular/common';
+import {FormControl, REACTIVE_FORM_DIRECTIVES} from '@angular/forms';
 import {UniFieldLayout} from '../interfaces';
 declare var _; // lodash
 
 @Component({
     selector: 'uni-email-input',
+    directives: [REACTIVE_FORM_DIRECTIVES],
     changeDetection: ChangeDetectionStrategy.OnPush,
     template: `
         <input
             *ngIf="control"
             type="email"
-            [ngFormControl]="control"
+            [formControl]="control"
             [readonly]="field?.ReadOnly"
             [placeholder]="field?.Options?.placeholder ||''"
             (blur)="blurHandler()"
@@ -25,7 +26,7 @@ export class UniEmailInput {
     public model: any;
 
     @Input()
-    public control: Control;
+    public control: FormControl;
 
     @Output()
     public onReady: EventEmitter<UniEmailInput> = new EventEmitter<UniEmailInput>(true);

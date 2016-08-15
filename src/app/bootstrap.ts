@@ -4,8 +4,8 @@
 import {enableProdMode} from '@angular/core';
 import {HashLocationStrategy, LocationStrategy} from '@angular/common';
 import {bootstrap} from '@angular/platform-browser-dynamic';
+import { disableDeprecatedForms, provideForms } from '@angular/forms';
 import {HTTP_PROVIDERS} from '@angular/http';
-import {provideForms} from '@angular/forms';
 import {APP_ROUTES_PROVIDER} from './routes';
 import {APP_SERVICES} from './app.providers';
 import {App} from './app';
@@ -23,6 +23,8 @@ if (window.ENV === 'production') {
 }
 
 bootstrap(App, [
+    disableDeprecatedForms(),
+    provideForms(),
     HTTP_PROVIDERS,
     {provide: LocationStrategy, useClass: HashLocationStrategy},
     provideForms(),

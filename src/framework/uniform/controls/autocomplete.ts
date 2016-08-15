@@ -1,5 +1,5 @@
 import {Component, Input, Output, EventEmitter, ViewChild, ElementRef, ChangeDetectorRef, ChangeDetectionStrategy, Renderer} from '@angular/core';
-import {Control} from '@angular/common';
+import {FormControl, REACTIVE_FORM_DIRECTIVES} from '@angular/forms';
 import {Observable} from 'rxjs/Observable';
 
 import {BizHttp} from '../../core/http/BizHttp';
@@ -31,11 +31,12 @@ export class UniAutocompleteConfig {
 
 @Component({
     selector: 'uni-autocomplete-input',
+    directives: [REACTIVE_FORM_DIRECTIVES],
     template: `
         <div class="autocomplete">
             <input #query
                 *ngIf="control"
-                [ngFormControl]="control"
+                [formControl]="control"
                 [readonly]="field?.ReadOnly"
                 [placeholder]="field?.Placeholder || ''"
                 
@@ -80,7 +81,7 @@ export class UniAutocompleteInput {
     private model: any;
 
     @Input()
-    private control: Control;
+    private control: FormControl;
     
     @Output()
     public onReady: EventEmitter<UniAutocompleteInput> = new EventEmitter<UniAutocompleteInput>(true);

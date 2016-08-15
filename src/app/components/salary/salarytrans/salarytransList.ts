@@ -1,6 +1,5 @@
 import {Component, Input, ViewChildren, OnChanges, EventEmitter, Output, ViewChild, QueryList, AfterViewInit} from '@angular/core';
 import {Router} from '@angular/router';
-import {UniFormBuilder} from '../../../../framework/forms';
 import {UniComponentLoader} from '../../../../framework/core';
 import {Observable} from 'rxjs/Observable';
 import {UniHttp} from '../../../../framework/core/http/http';
@@ -30,7 +29,6 @@ export class SalaryTransactionEmployeeList implements OnChanges, AfterViewInit {
     private wagetypes: WageType[] = [];
     public employee: Employee;
     private agaZone: AGAZone;
-    public form: UniFormBuilder = new UniFormBuilder();
     public formModel: any = {};
 
 
@@ -48,6 +46,7 @@ export class SalaryTransactionEmployeeList implements OnChanges, AfterViewInit {
     @ViewChild(PostingsummaryModal) private postingSummaryModal: PostingsummaryModal;
 
     @Input() private employeeID: number;
+
     private payrollRun: PayrollRun;
 
     @Output() public nextEmployee: EventEmitter<any> = new EventEmitter<any>(true);
