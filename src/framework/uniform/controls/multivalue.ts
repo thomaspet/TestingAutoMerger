@@ -23,7 +23,7 @@ declare var _; // lodash
                 <template ngFor let-row [ngForOf]="rows" let-i = "index">
                     <li [attr.aria-selected]="isSelected(row)">
 
-                        <div *ngIf="!row.mode">
+                        <div *ngIf="!row._mode">
                             <span class="uni-multivalue-value"
                                   (click)="setAsDefault(row)">
                                   {{showDisplayValue(row)}}
@@ -38,7 +38,7 @@ declare var _; // lodash
                             </button>
                         </div>
 
-                        <input *ngIf="row.mode === 1"
+                        <input *ngIf="row._mode === 1"
                                 #input
                                 class="uni-multivalue_edit"
                                 [(ngModel)]="tempValue"
@@ -47,7 +47,7 @@ declare var _; // lodash
                                 type="text"
                         />
 
-                        <p *ngIf="row.mode === 2" class="uni-multivalue_deleted">
+                        <p *ngIf="row._mode === 2" class="uni-multivalue_deleted">
                             Slettet &lsquo;{{showDisplayValue(row)}}&rsquo;.
                             (<a (click)="putBack(row, $event)">Angre</a>)
                         </p>
@@ -219,7 +219,7 @@ export class UniMultivalueInput {
 
     private edit(row, $event) {
         var self = this;
-        this.rows.forEach(x => x.mode = 0);
+        this.rows.forEach(x => x._mode = 0);
         $event.preventDefault();
         if (this.field.Options.editor) {
             this.field.Options.editor(row).then(editedEntity => {
@@ -245,7 +245,7 @@ export class UniMultivalueInput {
             });
         } else {
             this.tempValue = this.showDisplayValue(row);
-            row.mode = 1;
+            row._mode = 1;
             setTimeout(() => {
                 this.renderer.invokeElementMethod($event.path[2].children[0], 'focus', [])
             }, 200);
@@ -256,7 +256,7 @@ export class UniMultivalueInput {
     private save(row, tempValue, $event) {
         if ($event.which === 27) {
             $event.preventDefault();
-            row.mode = 0;
+            row._mode = 0;
             this.listIsVisible = true;
             return;
         }
@@ -269,16 +269,16 @@ export class UniMultivalueInput {
             _.set(row, this.field.Options.displayValue, tempValue);
             _.set(this.model, this.field.Property, this.rows);
             this.onChange.emit(this.model);
-            row.mode = 0;
+            row._mode = 0;
             this.listIsVisible = true;
         }
     }
 
     private remove(row, $event) {
         $event.preventDefault();
-        row.mode = 2;
+        row._mode = 2;
         setTimeout(() => {
-            if (row.mode === 2) {
+            if (row._mode === 2) {
                 var index = this.rows.indexOf(row);
                 this.rows = this.rows.slice(0, index).concat(this.rows.slice(index + 1));
                 _.set(this.model, this.field.Property, this.rows);
@@ -292,7 +292,7 @@ export class UniMultivalueInput {
 
     private putBack(row, $event) {
         $event.preventDefault();
-        row.mode = 0;
+        row._mode = 0;
         this.listIsVisible = true;
     }
 }

@@ -170,6 +170,8 @@ export class CompanySettings implements OnInit {
             this.company.BankAccounts = this.company.BankAccounts.filter(x => x !== this.company.SalaryBankAccount);
         }
 
+        delete this.company.MunicipalityName;
+
         this.companySettingsService
             .Put(this.company.ID, this.company)
             .subscribe(
