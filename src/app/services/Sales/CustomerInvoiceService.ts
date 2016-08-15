@@ -44,7 +44,6 @@ export class CustomerInvoiceService extends BizHttp<CustomerInvoice> {
     {       
         return new Promise(resolve => {
             this.GetNewEntity([], CustomerInvoice.EntityType).subscribe(invoice => {
-                invoice.CreatedDate = moment().toDate();
                 invoice.InvoiceDate = moment().toDate();
 
                 resolve(invoice);                

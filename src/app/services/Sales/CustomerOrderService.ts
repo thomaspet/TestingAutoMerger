@@ -29,7 +29,6 @@ export class CustomerOrderService extends BizHttp<CustomerOrder> {
     {       
         return new Promise(resolve => {
             this.GetNewEntity([], CustomerOrder.EntityType).subscribe(order => {
-                order.CreatedDate = moment().toDate();
                 order.OrderDate = moment().toDate();
                    
                 resolve(order);                
