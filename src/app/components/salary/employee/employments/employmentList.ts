@@ -1,4 +1,4 @@
-import {Component, OnInit, ViewChild} from '@angular/core';
+import {Component, OnInit} from '@angular/core';
 import {UniTable, UniTableConfig, UniTableColumnType, UniTableColumn} from 'unitable-ng2/main';
 import {Observable} from 'rxjs/Observable';
 import {EmploymentService, EmployeeService} from '../../../../services/services';
@@ -19,12 +19,9 @@ export class EmploymentList implements OnInit {
     private currentEmployeeID: number;
     private selectedEmployment: Employment;
     private busy: boolean;
-    private showEmploymentList: boolean = false;
     private employmentListConfig: UniTableConfig;
     private employments$: Observable<Employment>;
 
-    @ViewChild(EmployeeEmployment) private employmentComponent: EmployeeEmployment;
-    
     constructor(
         private _employmentService: EmploymentService,
         private employeeService: EmployeeService,
@@ -35,29 +32,6 @@ export class EmploymentList implements OnInit {
     
     public ngOnInit() {
         this.refreshList();
-        this.employeeService.get(this.currentEmployeeID)
-        .subscribe((response: any) => {
-            this.currentEmployee = response;
-            this.employeeService.refreshEmployee(response);
-            if (this.currentEmployee.Employments.length > 0) {
-                if (this.currentEmployee.Employments.length > 1) {
-                    this.showEmploymentList = true;
-                    this.setTableConfig();
-                }
-                this.currentEmployee.Employments.forEach(employment => {
-                    if (employment.Standard === true) {
-                        this.selectedEmployment = employment;
-                    }
-                });
-            } else {
-                // no employments, lets create an emtpy object to show
-                this.addNewEmployment();
-            }
-        },
-        (err) => {
-            console.log('error getting employee', err);
-            this.log(err);
-        });
     }
     
     private setTableConfig() {
@@ -91,6 +65,29 @@ export class EmploymentList implements OnInit {
 
     public refreshList() {
         this.employments$ = this._employmentService.GetAll('filter=EmployeeID eq ' + this.currentEmployeeID);
+        
+        this.employeeService.get(this.currentEmployeeID)
+        .subscribe((response: any) => {
+            this.currentEmployee = response;
+            this.employeeService.refreshEmployee(response);
+            if (this.currentEmployee.Employments.length > 0) {
+                if (this.currentEmployee.Employments.length > 1) {
+                    this.setTableConfig();
+                }
+                this.currentEmployee.Employments.forEach(employment => {
+                    if (employment.Standard === true) {
+                        this.selectedEmployment = employment;
+                    }
+                });
+            } else {
+                // no employments, lets create an emtpy object to show
+                this.addNewEmployment();
+            }
+        },
+        (err) => {
+            console.log('error getting employee', err);
+            this.log(err);
+        });
     }
 
     public rowSelected(event) {
