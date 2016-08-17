@@ -17,6 +17,7 @@ import {VatTypeService} from '../../../services/Accounting/VatTypeService';
 import {ToastService, ToastType} from '../../../../framework/uniToast/toastService';
 import {VatSummaryPerPost} from './reportSummary/reportSummary';
 import {CheckListVat} from './checkList/checkList';
+import {ReceiptVat} from './receipt/receipt';
 
 declare const moment;
 
@@ -24,7 +25,7 @@ declare const moment;
     selector: 'vat-report-view',
     templateUrl: 'app/components/accounting/vatreport/vatreportview.html',
     providers: [CompanySettingsService, VatReportService],
-    directives: [REACTIVE_FORM_DIRECTIVES, ROUTER_DIRECTIVES, UniTabs, UniSave, VatSummaryPerPost, CheckListVat],
+    directives: [REACTIVE_FORM_DIRECTIVES, ROUTER_DIRECTIVES, UniTabs, UniSave, VatSummaryPerPost, CheckListVat, ReceiptVat],
     pipes: [PeriodDateFormatPipe, UniCurrencyPipe]
 })
 export class VatReportView implements OnInit, OnDestroy {
@@ -52,7 +53,7 @@ export class VatReportView implements OnInit, OnDestroy {
     public isExecuted: boolean;
     public isSendt: boolean;
     public isBusy: boolean = true;
-    public showControll: boolean = false;
+    public showView: string = '';
     private subs: Subscription[] = [];
 
     constructor(

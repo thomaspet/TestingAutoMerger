@@ -1,0 +1,19 @@
+<section class="application">
+    <table>
+        <tr>
+            <td>Betalingsfrist</td><td>{{vatReport?.PaymentDueDate | unidateformat}}</td>
+        </tr>
+        <tr>
+            <td>Betale til</td><td>{{vatReport?.PaymentToDescription}}</td>
+        </tr>
+        <tr>
+            <td>KID</td><td>{{vatReport?.PaymentID}}</td>
+        </tr>
+        <tr>
+            <td>Sum</td><td>{{vatReport?.TotalAmount | unicurrency}}</td>
+        </tr>
+        <tr>
+            <td>Til konto</td><td>{{vatReport?.BankAccountNumberTarget | uniaccountnumber}}</td>
+        </tr>
+    </table>
+</section>
