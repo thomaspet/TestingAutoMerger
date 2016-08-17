@@ -1,4 +1,4 @@
-import {provideRouter} from '@angular/router';
+import {RouterModule} from '@angular/router';
 
 import {Dashboard} from './components/dashboard/dashboard';
 import {UniInit} from './components/init/init';
@@ -107,4 +107,4 @@ export const routes = ([
     },
 ]);
 
-export const APP_ROUTES_PROVIDER = [provideRouter(<any> routes)];
+export const APP_ROUTES = RouterModule.forRoot(routes);

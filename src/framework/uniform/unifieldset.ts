@@ -15,7 +15,7 @@ declare var _; // lodash
                 <uni-combo-field
                     *ngIf="isCombo(item)"
                     [controls]="controls"
-                    [field]="item" 
+                    [fields]="item"
                     [model]="model"
                     (onReady)="onReadyHandler($event)"
                     (onChange)="onChangeHandler($event)">

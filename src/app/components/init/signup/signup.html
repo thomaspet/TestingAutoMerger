@@ -4,39 +4,39 @@
     <small class="validation error" *ngIf="errorMessage.length">{{errorMessage}}</small>
     <small class="validation good" *ngIf="success">Vi setter nå opp kontoen din. En epost blir automatisk sendt ut når alt er klart.</small>
 
-    <form *ngIf="emailForm" [ngFormModel]="emailForm" (ngSubmit)="checkEmail()" #f="ngForm">
+    <form *ngIf="emailForm" [formGroup]="emailForm" (ngSubmit)="checkEmail()" #f="ngForm">
         <label>
             Epost
-            <input type="email" ngControl="Email" placeholder="Epost" [disabled]="detailsForm || working">
+            <input type="email" formControlName="Email" placeholder="Epost" [disabled]="detailsForm || working">
         </label>
         <button type="submit" class="c2a" *ngIf="!detailsForm" [attr.aria-busy]="working" [disabled]="!f.form.valid || working">Sjekk epost</button>
     </form>
     
     <section *ngIf="detailsForm && !success">
-        <form *ngIf="!existingUser" [ngFormModel]="detailsForm" (ngSubmit)="submitDetails()" #f="ngForm">
+        <form *ngIf="!existingUser" [formGroup]="detailsForm" (ngSubmit)="submitDetails()" #f="ngForm">
             <label>
                 Firmanavn
-                <input type="text" ngControl="CompanyName" placeholder="Firmanavn">
+                <input type="text" formControlName="CompanyName" placeholder="Firmanavn">
             </label>
             
             <label>
                 Fullt navn
-                <input type="text" ngControl="Name" placeholder="Fullt navn">
+                <input type="text" formControlName="Name" placeholder="Fullt navn">
             </label>
 
             <label>
                 Brukernavn
-                <input type="text" ngControl="UserName" placeholder="Brukernavn">
+                <input type="text" formControlName="UserName" placeholder="Brukernavn">
             </label>
 
             <label>
                 Passord
-                <input type="password" ngControl="Password" placeholder="Passord">
+                <input type="password" formControlName="Password" placeholder="Passord">
             </label>
 
             <label>
                 Bekreft passord
-                <input type="password" ngControl="ConfirmPassword" placeholder="Bekreft passord">
+                <input type="password" formControlName="ConfirmPassword" placeholder="Bekreft passord">
             </label>
             
             <label>
@@ -46,10 +46,10 @@
             <button type="submit" class="c2a" [attr.aria-busy]="working" [disabled]="!f.form.valid || !passwordsMatching || working">Registrer</button>
         </form>
         
-        <form *ngIf="existingUser" [ngFormModel]="detailsForm" (ngSubmit)="submitDetails()" #f="ngForm">
+        <form *ngIf="existingUser" [formGroup]="detailsForm" (ngSubmit)="submitDetails()" #f="ngForm">
             <label>
                 Firmanavn
-                <input type="text" ngControl="CompanyName" placeholder="Firmanavn">
+                <input type="text" formControlName="CompanyName" placeholder="Firmanavn">
             </label>
             
             <label>

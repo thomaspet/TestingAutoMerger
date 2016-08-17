@@ -12,7 +12,7 @@ declare var _;
 @Component({
     selector: 'salarytrans',
     templateUrl: 'app/components/salary/salarytrans/salarytransactionSelectionList.html',
-    directives: [UniTable, SalaryTransactionEmployeeList, SalarytransFilter],
+    directives: [SalaryTransactionEmployeeList, SalarytransFilter],
     providers: [EmployeeService, PayrollrunService],
     pipes: [AsyncPipe]
 })
