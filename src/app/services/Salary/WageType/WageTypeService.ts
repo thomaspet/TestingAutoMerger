@@ -431,7 +431,7 @@ export class WageTypeService extends BizHttp<WageType> {
                     Property: 'Benefit',
                     Placement: 1,
                     Hidden: false,
-                    FieldType: FieldType.AUTOCOMPLETE,
+                    FieldType: 3, // FieldType.AUTOCOMPLETE,
                     ReadOnly: false,
                     LookupField: false,
                     Label: 'Fordel',
