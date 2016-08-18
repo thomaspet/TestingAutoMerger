@@ -8,11 +8,11 @@ declare var jQuery;
 enum directions { LEFT, RIGHT, UP, DOWN };
 
 @Component({
-    selector: 'uni-table',
+    selector: 'uni-table-old',
     templateUrl: 'framework/uniTable/uniTable.html',
     directives: [UniTableColumnMenu]
 })
-export class UniTable implements AfterViewInit, OnChanges, OnDestroy {
+export class UniTableOld implements AfterViewInit, OnChanges, OnDestroy {
     @Input()
     private config: UniTableBuilder;
 

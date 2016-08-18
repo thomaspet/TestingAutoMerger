@@ -17,6 +17,7 @@ declare var _; // lodash
 @Component({
     selector: 'uni-form',
     directives: [REACTIVE_FORM_DIRECTIVES, UniField, UniCombo, UniFieldSet, UniSection],
+    providers: [FormBuilder],
     template: `
         <form (submit)="submit($event)" [formGroup]="controls">
             <template ngFor let-item [ngForOf]="groupedFields" let-i="index">

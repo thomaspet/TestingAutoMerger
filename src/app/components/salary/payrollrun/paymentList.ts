@@ -1,13 +1,13 @@
 import {Component, OnInit} from '@angular/core';
 import {ActivatedRoute} from '@angular/router';
 import {PayrollrunService} from '../../../services/services';
-import {UniTable, UniTableBuilder, UniTableColumn} from '../../../../framework/uniTable';
+import {UniTableOld, UniTableBuilder, UniTableColumn} from '../../../../framework/uniTable';
 import {TabService} from '../../layout/navbar/tabstrip/tabService';
 
 @Component({
     selector: 'payrollrun-paymentlist',
     templateUrl: 'app/components/salary/payrollrun/paymentList.html',
-    directives: [UniTable],
+    directives: [UniTableOld],
     providers: [PayrollrunService]
 })
 

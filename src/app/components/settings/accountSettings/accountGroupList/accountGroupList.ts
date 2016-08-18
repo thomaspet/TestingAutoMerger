@@ -1,10 +1,10 @@
 import {Component, Input, OnInit} from "@angular/core";
-import {UniTable, UniTableBuilder, UniTableColumn} from "../../../../../framework/uniTable";
+import {UniTableOld, UniTableBuilder, UniTableColumn} from "../../../../../framework/uniTable";
 
 @Component({
     selector: "account-group-list",
     templateUrl: "app/components/settings/accountSettings/accountGroupList/accountGroupList.html",
-    directives: [UniTable]
+    directives: [UniTableOld]
 })
 export class AccountGroupList implements OnInit {
     @Input()
