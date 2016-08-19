@@ -221,13 +221,12 @@ export class WagetypeDetail {
                             this.descriptionDatasource.push({text: descriptionParent.beskrivelse});
                         }
 
-                        if (!this.tilleggsinformasjonDatasource.find(x => x.text === descriptionParent.tilleggsinformasjon)) {
-                            this.tilleggsinformasjonDatasource.push({text: descriptionParent.tilleggsinformasjon});
-                        }
+                        this.addTilleggsInformasjon(descriptionParent);
                     }
                 });
                 console.log('Fordel', this.benefitDatasource);
                 console.log('Beskrivelse', this.descriptionDatasource);
+                console.log('Tilleggsopplysninger', this.tilleggsinformasjonDatasource);
 
                 let benefit: UniFieldLayout = this.findByProperty(this.fields, 'Benefit');
                 benefit.Options = {
@@ -246,12 +245,31 @@ export class WagetypeDetail {
                 tilleggsinfo.Options = {
                     source: this.tilleggsinformasjonDatasource,
                     valueProperty: 'text',
-                    displayProperty: 'text'
+                    displayProperty: 'text',
+                    template: (obj) => obj ? `${obj.text} - ${obj.value}` : '',
                 };
 
                 this.fields = _.cloneDeep(this.fields);
             }
         });
+    }
+
+    private addTilleggsInformasjon(tillegg) {
+        let tilleggsinfo: {} = tillegg.tilleggsinformasjon;
+        if (tilleggsinfo !== null) {
+            for (var key in tilleggsinfo) {
+                if (key) {
+                    var obj = tilleggsinfo[key];
+                    for (var prop in obj) {
+                        if (obj.hasOwnProperty(prop)) {
+                            if (!this.tilleggsinformasjonDatasource.find(x => x.text === prop)) {
+                                this.tilleggsinformasjonDatasource.push({text: prop, value: obj[prop]});
+                            }
+                        }
+                    }
+                }
+            }
+        }
     }
 
     private toggleAccountNumberBalanceHidden() {
