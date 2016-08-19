@@ -5,6 +5,7 @@ import 'rxjs/add/observable/forkJoin';
 
 import {CustomerInvoiceService, CustomerInvoiceItemService, CustomerService, BusinessRelationService} from '../../../../services/services';
 import {ProjectService, DepartementService, AddressService, ReportDefinitionService} from '../../../../services/services';
+import {CompanySettingsService} from '../../../../services/common/CompanySettingsService';
 
 import {UniSave, IUniSaveAction} from '../../../../../framework/save/save';
 import {UniForm, UniFieldLayout} from '../../../../../framework/uniform';
@@ -14,7 +15,7 @@ import {InvoiceItemList} from './invoiceItemList';
 import {TradeItemHelper} from '../../salesHelper/tradeItemHelper';
 
 import {CustomerInvoice, Customer, Dimensions, Address} from '../../../../unientities';
-import {StatusCodeCustomerInvoice, FieldType} from '../../../../unientities';
+import {StatusCodeCustomerInvoice, FieldType, CompanySettings} from '../../../../unientities';
 
 import {AddressModal} from '../../../common/modals/modals';
 import {TradeHeaderCalculationSummary} from '../../../../models/sales/TradeHeaderCalculationSummary';
@@ -41,7 +42,8 @@ class CustomerInvoiceExt extends CustomerInvoice {
     selector: 'invoice-details',
     templateUrl: 'app/components/sales/invoice/details/invoiceDetails.html',
     directives: [RouterLink, InvoiceItemList, AddressModal, UniForm, UniSave, PreviewModal, RegisterPaymentModal],
-    providers: [CustomerInvoiceService, CustomerInvoiceItemService, CustomerService, ProjectService, DepartementService, AddressService, ReportDefinitionService, BusinessRelationService]
+    providers: [CustomerInvoiceService, CustomerInvoiceItemService, CustomerService, CompanySettingsService,
+        ProjectService, DepartementService, AddressService, ReportDefinitionService, BusinessRelationService]
 })
 export class InvoiceDetails implements OnInit {
 
@@ -72,6 +74,7 @@ export class InvoiceDetails implements OnInit {
     private recalcTimeout: any;
     private actions: IUniSaveAction[];
     private addressChanged: any;
+    private companySettings: CompanySettings;
     private creditInvoiceArr: CustomerInvoice[];
 
     private expandOptions: Array<string> = ['Dimensions', 'Items', 'Items.Product', 'Items.VatType',
@@ -85,6 +88,7 @@ export class InvoiceDetails implements OnInit {
         private addressService: AddressService,
         private reportDefinitionService: ReportDefinitionService,
         private businessRelationService: BusinessRelationService,
+        private companySettingsService: CompanySettingsService,
 
         private router: Router,
         private route: ActivatedRoute,
@@ -170,8 +174,11 @@ export class InvoiceDetails implements OnInit {
 
                         if (customer.CreditDays !== null) {
                             this.invoice.CreditDays = customer.CreditDays;
-                            this.invoice.PaymentDueDate = moment(this.invoice.InvoiceDate).startOf('day').add(Number(data.CreditDays), 'days').toDate();
                         }
+                        else {
+                            this.invoice.CreditDays = this.companySettings.CustomerCreditDays;
+                        }
+                        this.invoice.PaymentDueDate = moment(this.invoice.InvoiceDate).startOf('day').add(Number(data.CreditDays), 'days').toDate();
 
                         this.invoice = _.cloneDeep(this.invoice);
                     });
@@ -201,6 +208,13 @@ export class InvoiceDetails implements OnInit {
     }
 
     public ngOnInit() {
+        this.companySettingsService.Get(1)
+            .subscribe(settings => this.companySettings = settings,
+            err => {
+                console.log('Error retrieving company settings data: ', err);
+                alert('En feil oppsto ved henting av firmainnstillinger: ' + JSON.stringify(err));
+            });
+
         this.getLayoutAndData();
     }
 

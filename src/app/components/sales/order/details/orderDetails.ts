@@ -5,6 +5,7 @@ import 'rxjs/add/observable/forkJoin';
 
 import {CustomerOrderService, CustomerOrderItemService, CustomerService, BusinessRelationService} from '../../../../services/services';
 import {ProjectService, DepartementService, AddressService, ReportDefinitionService} from '../../../../services/services';
+import {CompanySettingsService} from '../../../../services/common/CompanySettingsService';
 
 import {UniSave, IUniSaveAction} from '../../../../../framework/save/save';
 import {UniForm, UniFieldLayout} from '../../../../../framework/uniform';
@@ -14,7 +15,7 @@ import {TradeItemHelper} from '../../salesHelper/tradeItemHelper';
 
 import {FieldType, CustomerOrder, CustomerOrderItem, Customer} from '../../../../unientities';
 import {Dimensions, Address, BusinessRelation} from '../../../../unientities';
-import {StatusCodeCustomerOrder} from '../../../../unientities';
+import {StatusCodeCustomerOrder, CompanySettings} from '../../../../unientities';
 import {AddressModal} from '../../../common/modals/modals';
 import {OrderToInvoiceModal} from '../modals/ordertoinvoice';
 
@@ -37,7 +38,7 @@ class CustomerOrderExt extends CustomerOrder {
     selector: 'order-details',
     templateUrl: 'app/components/sales/order/details/orderDetails.html',
     directives: [RouterLink, OrderItemList, AddressModal, UniForm, OrderToInvoiceModal, UniSave, PreviewModal],
-    providers: [CustomerOrderService, CustomerOrderItemService, CustomerService, BusinessRelationService,
+    providers: [CustomerOrderService, CustomerOrderItemService, CustomerService, BusinessRelationService, CompanySettingsService,
         ProjectService, DepartementService, AddressService, ReportDefinitionService]
 })
 export class OrderDetails {
@@ -63,6 +64,8 @@ export class OrderDetails {
     private recalcTimeout: any;
     private addressChanged: any;
 
+    private companySettings: CompanySettings;
+
     private actions: IUniSaveAction[];
 
     private expandOptions: Array<string> = ['Dimensions', 'Items', 'Items.Product', 'Items.VatType',
@@ -76,6 +79,7 @@ export class OrderDetails {
         private addressService: AddressService,
         private reportDefinitionService: ReportDefinitionService,
         private businessRelationService: BusinessRelationService,
+        private companySettingsService: CompanySettingsService,
         private router: Router,
         private route: ActivatedRoute,
         private tabService: TabService) {
@@ -151,6 +155,9 @@ export class OrderDetails {
                         if (customer.CreditDays !== null) {
                             this.order.CreditDays = customer.CreditDays;
                         }
+                        else {
+                            this.order.CreditDays = this.companySettings.CustomerCreditDays;
+                        }
 
                         this.order = _.cloneDeep(this.order);
                     });
@@ -159,6 +166,13 @@ export class OrderDetails {
     }
 
     public ngOnInit() {
+        this.companySettingsService.Get(1)
+            .subscribe(settings => this.companySettings = settings,
+            err => {
+                console.log('Error retrieving company settings data: ', err);
+                alert('En feil oppsto ved henting av firmainnstillinger: ' + JSON.stringify(err));
+            });
+
         this.getLayoutAndData();
 
     }

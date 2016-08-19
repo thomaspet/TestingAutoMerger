@@ -5,6 +5,7 @@ import 'rxjs/add/observable/forkJoin';
 
 import {CustomerQuoteService, CustomerQuoteItemService, CustomerService, BusinessRelationService} from '../../../../services/services';
 import {ProjectService, DepartementService, AddressService, ReportDefinitionService} from '../../../../services/services';
+import {CompanySettingsService} from '../../../../services/common/CompanySettingsService';
 
 import {UniSave, IUniSaveAction} from '../../../../../framework/save/save';
 import {UniForm, UniFieldLayout} from '../../../../../framework/uniform';
@@ -15,7 +16,7 @@ import {TradeItemHelper} from '../../salesHelper/tradeItemHelper';
 
 import {FieldType, CustomerQuote, CustomerQuoteItem, Customer} from '../../../../unientities';
 import {Dimensions, Address, BusinessRelation} from '../../../../unientities';
-import {StatusCodeCustomerQuote} from '../../../../unientities';
+import {StatusCodeCustomerQuote, CompanySettings} from '../../../../unientities';
 
 import {AddressModal} from '../../../common/modals/modals';
 import {TradeHeaderCalculationSummary} from '../../../../models/sales/TradeHeaderCalculationSummary';
@@ -39,7 +40,7 @@ class CustomerQuoteExt extends CustomerQuote {
     selector: 'quote-details',
     templateUrl: 'app/components/sales/quote/details/quoteDetails.html',
     directives: [RouterLink, QuoteItemList, AddressModal, UniForm, UniSave, PreviewModal],
-    providers: [CustomerQuoteService, CustomerQuoteItemService, CustomerService,
+    providers: [CustomerQuoteService, CustomerQuoteItemService, CustomerService, CompanySettingsService, 
         ProjectService, DepartementService, AddressService, ReportDefinitionService, BusinessRelationService]
 })
 export class QuoteDetails {
@@ -63,6 +64,8 @@ export class QuoteDetails {
     private recalcTimeout: any;
     private addressChanged: any;
 
+    private companySettings: CompanySettings;
+
     private actions: IUniSaveAction[];
 
     private expandOptions: Array<string> = ['Dimensions', 'Items', 'Items.Product', 'Items.VatType',
@@ -76,6 +79,8 @@ export class QuoteDetails {
         private addressService: AddressService,
         private businessRelationService: BusinessRelationService,
         private reportDefinitionService: ReportDefinitionService,
+        private companySettingsService: CompanySettingsService,
+
         private router: Router,
         private route: ActivatedRoute,
         private tabService: TabService) {
@@ -151,6 +156,9 @@ export class QuoteDetails {
                         if (customer.CreditDays !== null) {
                             this.quote.CreditDays = customer.CreditDays;
                         }
+                        else {
+                            this.quote.CreditDays = this.companySettings.CustomerCreditDays;
+                        }
 
                         this.quote = _.cloneDeep(this.quote);
                     });
@@ -169,6 +177,13 @@ export class QuoteDetails {
     }
 
     public ngOnInit() {
+        this.companySettingsService.Get(1)
+            .subscribe(settings => this.companySettings = settings,
+            err => {
+                console.log('Error retrieving company settings data: ', err);
+                alert('En feil oppsto ved henting av firmainnstillinger: ' + JSON.stringify(err));
+            });
+
         this.getLayoutAndData();
     }
 
