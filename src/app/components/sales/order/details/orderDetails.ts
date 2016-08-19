@@ -5,6 +5,7 @@ import 'rxjs/add/observable/forkJoin';
 
 import {CustomerOrderService, CustomerOrderItemService, CustomerService, BusinessRelationService} from '../../../../services/services';
 import {ProjectService, DepartementService, AddressService, ReportDefinitionService} from '../../../../services/services';
+import {CompanySettingsService} from '../../../../services/common/CompanySettingsService';
 
 import {UniSave, IUniSaveAction} from '../../../../../framework/save/save';
 import {UniForm, UniFieldLayout} from '../../../../../framework/uniform';
@@ -14,13 +15,15 @@ import {TradeItemHelper} from '../../salesHelper/tradeItemHelper';
 
 import {FieldType, CustomerOrder, CustomerOrderItem, Customer} from '../../../../unientities';
 import {Dimensions, Address, BusinessRelation} from '../../../../unientities';
-import {StatusCodeCustomerOrder} from '../../../../unientities';
+import {StatusCodeCustomerOrder, CompanySettings} from '../../../../unientities';
 import {AddressModal} from '../../../common/modals/modals';
 import {OrderToInvoiceModal} from '../modals/ordertoinvoice';
 
 import {TradeHeaderCalculationSummary} from '../../../../models/sales/TradeHeaderCalculationSummary';
 import {PreviewModal} from '../../../reports/modals/preview/previewModal';
 import {TabService} from '../../../layout/navbar/tabstrip/tabService';
+
+import {ToastService, ToastType} from '../../../../../framework/uniToast/toastService';
 
 declare var _;
 
@@ -37,7 +40,7 @@ class CustomerOrderExt extends CustomerOrder {
     selector: 'order-details',
     templateUrl: 'app/components/sales/order/details/orderDetails.html',
     directives: [RouterLink, OrderItemList, AddressModal, UniForm, OrderToInvoiceModal, UniSave, PreviewModal],
-    providers: [CustomerOrderService, CustomerOrderItemService, CustomerService, BusinessRelationService,
+    providers: [CustomerOrderService, CustomerOrderItemService, CustomerService, BusinessRelationService, CompanySettingsService,
         ProjectService, DepartementService, AddressService, ReportDefinitionService]
 })
 export class OrderDetails {
@@ -63,6 +66,8 @@ export class OrderDetails {
     private recalcTimeout: any;
     private addressChanged: any;
 
+    private companySettings: CompanySettings;
+
     private actions: IUniSaveAction[];
 
     private expandOptions: Array<string> = ['Dimensions', 'Items', 'Items.Product', 'Items.VatType',
@@ -76,6 +81,9 @@ export class OrderDetails {
         private addressService: AddressService,
         private reportDefinitionService: ReportDefinitionService,
         private businessRelationService: BusinessRelationService,
+        private companySettingsService: CompanySettingsService,
+        private toastService: ToastService,
+
         private router: Router,
         private route: ActivatedRoute,
         private tabService: TabService) {
@@ -84,7 +92,7 @@ export class OrderDetails {
     }
 
     private log(err) {
-        alert(err._body);
+        this.toastService.addToast(err._body, ToastType.bad);
     }
 
     public nextOrder() {
@@ -96,7 +104,7 @@ export class OrderDetails {
             },
             (err) => {
                 console.log('Error getting next order: ', err);
-                alert('Ikke flere ordre etter denne');
+                this.toastService.addToast('Ikke flere ordre etter denne', ToastType.warn, 5);
             }
             );
     }
@@ -110,7 +118,7 @@ export class OrderDetails {
             },
             (err) => {
                 console.log('Error getting previous order: ', err);
-                alert('Ikke flere ordre før denne');
+                this.toastService.addToast('Ikke flere ordre før denne', ToastType.warn, 5);
             }
             );
     }
@@ -151,6 +159,9 @@ export class OrderDetails {
                         if (customer.CreditDays !== null) {
                             this.order.CreditDays = customer.CreditDays;
                         }
+                        else {
+                            this.order.CreditDays = this.companySettings.CustomerCreditDays;
+                        }
 
                         this.order = _.cloneDeep(this.order);
                     });
@@ -159,8 +170,13 @@ export class OrderDetails {
     }
 
     public ngOnInit() {
+        this.companySettingsService.Get(1)
+            .subscribe(settings => this.companySettings = settings,
+            err => {
+                console.log('Error retrieving company settings data: ', err);
+                this.toastService.addToast('En feil oppsto ved henting av firmainnstillinger: ' + JSON.stringify(err), ToastType.bad);
+            });
         this.getLayoutAndData();
-
     }
 
     private getLayoutAndData() {
@@ -191,7 +207,7 @@ export class OrderDetails {
 
         }, (err) => {
             console.log('Error retrieving data: ', err);
-            alert('En feil oppsto ved henting av ordre-data: ' + JSON.stringify(err));
+            this.toastService.addToast('En feil oppsto ved henting av data: ' + JSON.stringify(err), ToastType.bad);
         });
     }
 
@@ -370,7 +386,7 @@ export class OrderDetails {
     }
 
     private deleteOrder(done) {
-        alert('Slett  - Under construction');
+        this.toastService.addToast('Slett  - Under construction', ToastType.warn, 5);
         done('Slett ordre avbrutt');
     }
 
@@ -419,7 +435,7 @@ export class OrderDetails {
             this.oti.changed.subscribe(items => {
                 // Do not transfer to invoice if no items 
                 if (items.length === 0) {
-                    alert('Kan ikke overføre en ordre uten linjer');
+                    this.toastService.addToast('Kan ikke overføre en ordre uten linjer', ToastType.warn, 5);
                     return;
                 }
 

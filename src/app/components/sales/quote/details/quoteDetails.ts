@@ -5,6 +5,7 @@ import 'rxjs/add/observable/forkJoin';
 
 import {CustomerQuoteService, CustomerQuoteItemService, CustomerService, BusinessRelationService} from '../../../../services/services';
 import {ProjectService, DepartementService, AddressService, ReportDefinitionService} from '../../../../services/services';
+import {CompanySettingsService} from '../../../../services/common/CompanySettingsService';
 
 import {UniSave, IUniSaveAction} from '../../../../../framework/save/save';
 import {UniForm, UniFieldLayout} from '../../../../../framework/uniform';
@@ -15,13 +16,15 @@ import {TradeItemHelper} from '../../salesHelper/tradeItemHelper';
 
 import {FieldType, CustomerQuote, CustomerQuoteItem, Customer} from '../../../../unientities';
 import {Dimensions, Address, BusinessRelation} from '../../../../unientities';
-import {StatusCodeCustomerQuote} from '../../../../unientities';
+import {StatusCodeCustomerQuote, CompanySettings} from '../../../../unientities';
 
 import {AddressModal} from '../../../common/modals/modals';
 import {TradeHeaderCalculationSummary} from '../../../../models/sales/TradeHeaderCalculationSummary';
 
 import {PreviewModal} from '../../../reports/modals/preview/previewModal';
 import {TabService} from '../../../layout/navbar/tabstrip/tabService';
+
+import {ToastService, ToastType} from '../../../../../framework/uniToast/toastService';
 
 declare var _;
 declare var moment;
@@ -39,7 +42,7 @@ class CustomerQuoteExt extends CustomerQuote {
     selector: 'quote-details',
     templateUrl: 'app/components/sales/quote/details/quoteDetails.html',
     directives: [RouterLink, QuoteItemList, AddressModal, UniForm, UniSave, PreviewModal],
-    providers: [CustomerQuoteService, CustomerQuoteItemService, CustomerService,
+    providers: [CustomerQuoteService, CustomerQuoteItemService, CustomerService, CompanySettingsService, 
         ProjectService, DepartementService, AddressService, ReportDefinitionService, BusinessRelationService]
 })
 export class QuoteDetails {
@@ -63,6 +66,8 @@ export class QuoteDetails {
     private recalcTimeout: any;
     private addressChanged: any;
 
+    private companySettings: CompanySettings;
+
     private actions: IUniSaveAction[];
 
     private expandOptions: Array<string> = ['Dimensions', 'Items', 'Items.Product', 'Items.VatType',
@@ -76,6 +81,9 @@ export class QuoteDetails {
         private addressService: AddressService,
         private businessRelationService: BusinessRelationService,
         private reportDefinitionService: ReportDefinitionService,
+        private companySettingsService: CompanySettingsService,
+        private toastService: ToastService,
+
         private router: Router,
         private route: ActivatedRoute,
         private tabService: TabService) {
@@ -84,7 +92,7 @@ export class QuoteDetails {
     }
 
     private log(err) {
-        alert(err._body);
+        this.toastService.addToast(err._body, ToastType.bad);
     }
 
     public nextQuote() {
@@ -96,7 +104,7 @@ export class QuoteDetails {
             },
             (err) => {
                 console.log('Error getting next quote: ', err);
-                alert('Ikke flere tilbud etter denne');
+                this.toastService.addToast('Ikke flere tilbud etter denne', ToastType.warn, 5);
             }
             );
     }
@@ -110,7 +118,7 @@ export class QuoteDetails {
             },
             (err) => {
                 console.log('Error getting previous quote: ', err);
-                alert('Ikke flere tilbud før denne');
+                this.toastService.addToast('Ikke flere tilbud før denne', ToastType.warn, 5);
             }
             );
     }
@@ -151,6 +159,9 @@ export class QuoteDetails {
                         if (customer.CreditDays !== null) {
                             this.quote.CreditDays = customer.CreditDays;
                         }
+                        else {
+                            this.quote.CreditDays = this.companySettings.CustomerCreditDays;
+                        }
 
                         this.quote = _.cloneDeep(this.quote);
                     });
@@ -169,6 +180,13 @@ export class QuoteDetails {
     }
 
     public ngOnInit() {
+        this.companySettingsService.Get(1)
+            .subscribe(settings => this.companySettings = settings,
+            err => {
+                console.log('Error retrieving company settings data: ', err);
+                this.toastService.addToast('En feil oppsto ved henting av firmainnstillinger: ' + JSON.stringify(err), ToastType.bad);
+            });
+
         this.getLayoutAndData();
     }
 
@@ -200,7 +218,7 @@ export class QuoteDetails {
             this.extendFormConfig();
         }, (err) => {
             console.log('Error retrieving data: ', err);
-            alert('En feil oppsto ved henting av tilbuds-data: ' + JSON.stringify(err));
+            this.toastService.addToast('En feil oppsto ved henting av data: ' + JSON.stringify(err), ToastType.bad);
         });
     }
 
@@ -392,7 +410,7 @@ export class QuoteDetails {
     }
 
     private deleteQuote(done) {
-        alert('Slett  - Under construction');
+        this.toastService.addToast('Slett  - Under construction', ToastType.warn, 5);
         done('Slett tilbud avbrutt');
     }
 
