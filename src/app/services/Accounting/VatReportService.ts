@@ -51,7 +51,7 @@ export class VatReportService extends BizHttp<VatReport> {
         return this.http
             .asPOST()
             .usingBusinessDomain()
-            .withEndPoint(this.relativeURL + `/${vatReportId}?action=send`)
+            .withEndPoint(this.relativeURL + `/${vatReportId}?action=report`)
             .send()
             .map(response => response.json());
     }
