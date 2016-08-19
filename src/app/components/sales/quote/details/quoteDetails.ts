@@ -88,7 +88,10 @@ export class QuoteDetails {
         private route: ActivatedRoute,
         private tabService: TabService) {
 
-        this.route.params.subscribe(params => this.quoteID = +params['id']);
+        this.route.params.subscribe(params => {
+            this.quoteID = +params['id'];
+            this.setup();
+        });
     }
 
     private log(err) {
@@ -179,7 +182,7 @@ export class QuoteDetails {
             });
     }
 
-    public ngOnInit() {
+    private setup() {
         this.companySettingsService.Get(1)
             .subscribe(settings => this.companySettings = settings,
             err => {
@@ -187,10 +190,6 @@ export class QuoteDetails {
                 this.toastService.addToast('En feil oppsto ved henting av firmainnstillinger: ' + JSON.stringify(err), ToastType.bad);
             });
 
-        this.getLayoutAndData();
-    }
-
-    private getLayoutAndData() {
         this.fields = this.getComponentLayout().Fields;
 
         Observable.forkJoin(

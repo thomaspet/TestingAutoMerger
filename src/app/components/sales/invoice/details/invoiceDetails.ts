@@ -1,4 +1,4 @@
-import {Component, Input, ViewChild, OnInit} from '@angular/core';
+import {Component, Input, ViewChild} from '@angular/core';
 import {Router, ActivatedRoute, RouterLink} from '@angular/router';
 import {Observable} from 'rxjs/Observable';
 import 'rxjs/add/observable/forkJoin';
@@ -47,7 +47,7 @@ class CustomerInvoiceExt extends CustomerInvoice {
     providers: [CustomerInvoiceService, CustomerInvoiceItemService, CustomerService, CompanySettingsService,
         ProjectService, DepartementService, AddressService, ReportDefinitionService, BusinessRelationService]
 })
-export class InvoiceDetails implements OnInit {
+export class InvoiceDetails {
 
     @Input() public invoiceID: any;
     @ViewChild(UniForm) public form: UniForm;
@@ -97,7 +97,10 @@ export class InvoiceDetails implements OnInit {
         private route: ActivatedRoute,
         private tabService: TabService) {
 
-        this.route.params.subscribe(params => this.invoiceID = +params['id']);
+        this.route.params.subscribe(params => {
+            this.invoiceID = +params['id'];
+            this.setup();
+        });
     }
 
     private log(err) {
@@ -210,7 +213,7 @@ export class InvoiceDetails implements OnInit {
             });
     }
 
-    public ngOnInit() {
+    private setup() {
         this.companySettingsService.Get(1)
             .subscribe(settings => this.companySettings = settings,
             err => {
@@ -218,10 +221,6 @@ export class InvoiceDetails implements OnInit {
                 this.toastService.addToast('En feil oppsto ved henting av firmainnstillinger: ' + JSON.stringify(err), ToastType.bad);
             });
 
-        this.getLayoutAndData();
-    }
-
-    private getLayoutAndData() {
         this.fields = this.getComponentLayout().Fields;
 
         Observable.forkJoin(

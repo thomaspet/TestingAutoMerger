@@ -88,7 +88,10 @@ export class OrderDetails {
         private route: ActivatedRoute,
         private tabService: TabService) {
 
-        this.route.params.subscribe(params => this.orderID = +params['id']);         
+        this.route.params.subscribe(params => {
+            this.orderID = +params['id'];
+            this.setup();
+        });
     }
 
     private log(err) {
@@ -169,17 +172,13 @@ export class OrderDetails {
             });
     }
 
-    public ngOnInit() {
+    private setup() {
         this.companySettingsService.Get(1)
             .subscribe(settings => this.companySettings = settings,
             err => {
                 console.log('Error retrieving company settings data: ', err);
                 this.toastService.addToast('En feil oppsto ved henting av firmainnstillinger: ' + JSON.stringify(err), ToastType.bad);
             });
-        this.getLayoutAndData();
-    }
-
-    private getLayoutAndData() {
         this.fields = this.getComponentLayout().Fields;
 
         Observable.forkJoin(

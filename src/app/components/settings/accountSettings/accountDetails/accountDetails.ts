@@ -1,4 +1,4 @@
-import {Component, Input, ViewChild, Output, EventEmitter, SimpleChange} from '@angular/core';
+import {Component, Input, ViewChild, Output, EventEmitter, SimpleChange, OnInit} from '@angular/core';
 import {Observable} from 'rxjs/Observable';
 import 'rxjs/add/observable/forkJoin';
 import {UniForm, UniFieldLayout} from '../../../../../framework/uniform';
@@ -13,7 +13,7 @@ import {VatTypeService, CurrencyService, AccountService} from '../../../../servi
     directives: [DimensionList, AccountGroupList, UniForm],
     providers: [AccountService, CurrencyService, VatTypeService]
 })
-export class AccountDetails {
+export class AccountDetails implements OnInit {
     @Input() public accountID: number;
     @Output() public accountSaved: EventEmitter<Account> = new EventEmitter<Account>();
     @Output() public onChange: EventEmitter<Account> = new EventEmitter<Account>();
@@ -29,10 +29,10 @@ export class AccountDetails {
     }
 
     public ngOnInit() {
-        this.getLayoutAndData();
+        this.setup();
     }
 
-    private getLayoutAndData() {
+    private setup() {
         this.fields = this.getComponentLayout().Fields;
 
         Observable.forkJoin(

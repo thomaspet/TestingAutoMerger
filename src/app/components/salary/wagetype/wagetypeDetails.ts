@@ -39,12 +39,12 @@ export class WagetypeDetail {
         };
         this.route.params.subscribe(params => {
             this.wagetypeID = +params['id'];
-            this.getLayoutAndData();
+            this.setup();
         });
 
     }
 
-    private getLayoutAndData() {
+    private setup() {
         Observable.forkJoin(
             this.wageService.getWageType(this.wagetypeID),
             this.wageService.layout('WagetypeDetails'),
