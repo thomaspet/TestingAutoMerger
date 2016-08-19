@@ -7,6 +7,7 @@ import {WageType, Account, Inntekt} from '../../../unientities';
 import {UniSave, IUniSaveAction} from '../../../../framework/save/save';
 import {Observable} from 'rxjs/Observable';
 import {TabService} from '../../layout/navbar/tabstrip/tabService';
+import {UniTable, UniTableConfig, UniTableColumnType, UniTableColumn} from 'unitable-ng2/main';
 
 declare var _; // lodash
 
@@ -14,7 +15,7 @@ declare var _; // lodash
     selector: 'wagetype-details',
     templateUrl: 'app/components/salary/wagetype/wagetypeDetails.html',
     providers: [WageTypeService, AccountService, InntektService],
-    directives: [UniForm, UniSave, WidgetPoster]
+    directives: [UniForm, UniSave, WidgetPoster, UniTable]
 })
 export class WagetypeDetail {
     private wageType: WageType;
@@ -33,6 +34,8 @@ export class WagetypeDetail {
     private descriptionDatasource: any[] = [];
     private tilleggsinformasjonDatasource: any[] = [];
 
+    private tilleggspakkeConfig: UniTableConfig;
+
     public config: any = {};
     public fields: any[] = [];
     @ViewChild(UniForm) public uniform: UniForm;
@@ -46,7 +49,6 @@ export class WagetypeDetail {
             this.wagetypeID = +params['id'];
             this.getLayoutAndData();
         });
-
     }
 
     private getLayoutAndData() {
@@ -110,7 +112,7 @@ export class WagetypeDetail {
                             this.setupFordelAndDescription(model.IncomeType);
                         },
                         enter: (model) => {
-                            console.log(self.wageType.IncomeType)
+                            console.log(self.wageType.IncomeType);
                             console.log('valgt type', model);
                             this.setupFordelAndDescription(model.IncomeType);
                         }
@@ -119,7 +121,7 @@ export class WagetypeDetail {
 
                 let benefit: UniFieldLayout = this.findByProperty(this.fields, 'Benefit');
                 benefit.Options = {
-                    source: this.benefitDatasource, // [ {text: 'Kontantytelse'}, {text: 'Naturalytelse'}, {text: 'Utgiftgodtgjoerelse'}],
+                    source: this.benefitDatasource,
                     valueProperty: 'text',
                     displayProperty: 'text',
                     debounceTime: 200,
@@ -136,7 +138,7 @@ export class WagetypeDetail {
 
                 let description: UniFieldLayout = this.findByProperty(this.fields, 'Description');
                 description.Options = {
-                    source: this.descriptionDatasource, // [ {text: 'Fastlønn'} ],
+                    source: this.descriptionDatasource,
                     valueProperty: 'text',
                     displayProperty: 'text',
                     debounceTime: 200,
@@ -157,6 +159,9 @@ export class WagetypeDetail {
                     submitText: ''
                 };
                 this.toggleAccountNumberBalanceHidden();
+
+                this.setupTilleggspakkeConfig();
+
             },
             (err) => {
                 this.log('Feil ved henting av lønnsart', err);
@@ -176,8 +181,8 @@ export class WagetypeDetail {
         console.log('selectedType', selectedType);
         console.log('wagetype', this.wageType);
         if (!selectedType) {
-            // selectedType = this.wageType.IncomeType;
-            selectedType = this.incomeTypeDatasource[2].text;
+            selectedType = this.wageType.IncomeType;
+            // selectedType = this.incomeTypeDatasource[2].text;
         }
         console.log('selectedType', selectedType);
         this.inntektService.getSalaryValidValue(selectedType)
@@ -187,71 +192,75 @@ export class WagetypeDetail {
                 
                 this.benefitDatasource = [];
                 this.descriptionDatasource = [];
+                this.tilleggsinformasjonDatasource = [];
 
                 types.forEach(tp => {
                     if (!this.benefitDatasource.find(x => x.text === tp.fordel)) {
                         this.benefitDatasource.push({text: tp.fordel});
                     }
-                    let descriptionParent: any;
+                    let incometypeChild: any;
                     switch (selectedType.toLowerCase()) {
                         case 'lønn':
-                            descriptionParent = tp.loennsinntekt;
+                            incometypeChild = tp.loennsinntekt;
                             break;
                         case 'ytelsefraoffentlige':
-                            descriptionParent = tp.ytelseFraOffentlige;
+                            incometypeChild = tp.ytelseFraOffentlige;
                             break;
                         case 'pensjonellertrygd':
-                            descriptionParent = tp.pensjonEllerTrygd;
+                            incometypeChild = tp.pensjonEllerTrygd;
                             break;
                         case 'næringsinntekt':
-                            descriptionParent = tp.naeringsinntekt;
+                            incometypeChild = tp.naeringsinntekt;
                             break;
                         case 'fradrag':
-                            descriptionParent = tp.fradrag;
+                            incometypeChild = tp.fradrag;
                             break;
                         case 'forskuddstrekk':
-                            descriptionParent = tp.forskuddstrekk;
+                            incometypeChild = tp.forskuddstrekk;
                             break;
 
                         default:
                             break;
                     }
-                    if (descriptionParent) {
-                        if (!this.descriptionDatasource.find(x => x.text === descriptionParent.beskrivelse)) {
-                            this.descriptionDatasource.push({text: descriptionParent.beskrivelse});
+                    if (incometypeChild) {
+                        if (!this.descriptionDatasource.find(x => x.text === incometypeChild.beskrivelse)) {
+                            this.descriptionDatasource.push({text: incometypeChild.beskrivelse});
                         }
 
-                        this.addTilleggsInformasjon(descriptionParent);
+                        this.addTilleggsInformasjon(incometypeChild);
                     }
                 });
                 console.log('Fordel', this.benefitDatasource);
                 console.log('Beskrivelse', this.descriptionDatasource);
                 console.log('Tilleggsopplysninger', this.tilleggsinformasjonDatasource);
 
-                let benefit: UniFieldLayout = this.findByProperty(this.fields, 'Benefit');
-                benefit.Options = {
-                    source: this.benefitDatasource,
-                    valueProperty: 'text',
-                    displayProperty: 'text'
-                };
-                let description: UniFieldLayout = this.findByProperty(this.fields, 'Description');
-                description.Options = {
-                    source: this.descriptionDatasource,
-                    valueProperty: 'text',
-                    displayProperty: 'text'
-                };
-                console.log('fields', this.fields);
-                let tilleggsinfo: UniFieldLayout = this.findByProperty(this.fields, 'WageTypeSupplement.Name');
-                tilleggsinfo.Options = {
-                    source: this.tilleggsinformasjonDatasource,
-                    valueProperty: 'text',
-                    displayProperty: 'text',
-                    template: (obj) => obj ? `${obj.text} - ${obj.value}` : '',
-                };
-
-                this.fields = _.cloneDeep(this.fields);
+                this.updateFields();
             }
         });
+    }
+
+    private updateFields() {
+        let benefit: UniFieldLayout = this.findByProperty(this.fields, 'Benefit');
+        benefit.Options = {
+            source: this.benefitDatasource,
+            valueProperty: 'text',
+            displayProperty: 'text'
+        };
+        
+        let description: UniFieldLayout = this.findByProperty(this.fields, 'Description');
+        description.Options = {
+            source: this.descriptionDatasource,
+            valueProperty: 'text',
+            displayProperty: 'text'
+        };
+
+        let tilleggsinfo: UniFieldLayout = this.findByProperty(this.fields, 'WageTypeSupplement.Name');
+        tilleggsinfo.Options = {
+            source: this.tilleggsinformasjonDatasource,
+            template: (obj) => obj ? `${obj.Name}: ${obj.SuggestedValue}` : '',
+        };
+
+        this.fields = _.cloneDeep(this.fields);
     }
 
     private addTilleggsInformasjon(tillegg) {
@@ -262,8 +271,8 @@ export class WagetypeDetail {
                     var obj = tilleggsinfo[key];
                     for (var prop in obj) {
                         if (obj.hasOwnProperty(prop)) {
-                            if (!this.tilleggsinformasjonDatasource.find(x => x.text === prop)) {
-                                this.tilleggsinformasjonDatasource.push({text: prop, value: obj[prop]});
+                            if (!this.tilleggsinformasjonDatasource.find(x => x.Name === prop)) {
+                                this.tilleggsinformasjonDatasource.push({Name: prop, SuggestedValue: obj[prop]});
                             }
                         }
                     }
@@ -286,6 +295,14 @@ export class WagetypeDetail {
                 this.uniform.section(2).toggle();
             }
         }, 100);
+    }
+
+    private setupTilleggspakkeConfig() {
+        let tilleggsopplysning = new UniTableColumn('Name', 'Tilleggsopplysning', UniTableColumnType.Text);
+        let suggestedValue = new UniTableColumn('SuggestedValue', 'Fast verdi', UniTableColumnType.Text);
+
+        this.tilleggspakkeConfig = new UniTableConfig(true)
+        .setColumns([tilleggsopplysning, suggestedValue]);
     }
 
     public change(value) {

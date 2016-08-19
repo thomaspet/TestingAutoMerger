@@ -424,6 +424,7 @@ export class WageTypeService extends BizHttp<WageType> {
                     Combo: null,
                     Sectionheader: 'A meldingsinformasjon',
                     hasLineBreak: false,
+                    openByDefault: true,
                 },
                 {
                     ComponentLayoutID: 1,
