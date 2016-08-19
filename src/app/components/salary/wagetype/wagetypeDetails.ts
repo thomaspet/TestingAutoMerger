@@ -96,6 +96,7 @@ export class WagetypeDetail {
                     template: (obj) => obj ? `${obj.AccountNumber} - ${obj.AccountName}` : ''
                 };
 
+                let self = this;
                 let incomeType: UniFieldLayout = this.findByProperty(this.fields, 'IncomeType');
                 incomeType.Options = {
                     source: this.incomeTypeDatasource,
@@ -106,11 +107,12 @@ export class WagetypeDetail {
                     events: {
                         select: (model) => {
                             console.log('valgt type (model)', model);
-                            this.setupFordelAndDescription(model.text);
+                            this.setupFordelAndDescription(model.IncomeType);
                         },
                         enter: (model) => {
+                            console.log(self.wageType.IncomeType)
                             console.log('valgt type', model);
-                            this.setupFordelAndDescription(model.text);
+                            this.setupFordelAndDescription(model.IncomeType);
                         }
                     }
                 };

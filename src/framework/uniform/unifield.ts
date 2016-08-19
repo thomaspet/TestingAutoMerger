@@ -202,7 +202,7 @@ export class UniField {
                 if (method) {
                     event.stopPropagation();
                     event.preventDefault();
-                    method(event);
+                    method(this.model);
                 }
             }
         }
