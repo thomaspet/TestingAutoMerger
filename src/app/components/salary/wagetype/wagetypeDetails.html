@@ -25,6 +25,10 @@
 
 <section class="application wagetype">
     <uni-form [config]="config" [fields]="fields" [model]="wageType" (onSubmit)="saveWagetype($event)" (onChange)="change($event)"></uni-form>
+    <p>
+        Valgte tilleggsopplysninger
+    </p>
+    <uni-table [config]="tilleggspakkeConfig" [resource]="tilleggspakker"></uni-table>
 </section>
 
 <uni-save [actions]="saveactions"></uni-save>

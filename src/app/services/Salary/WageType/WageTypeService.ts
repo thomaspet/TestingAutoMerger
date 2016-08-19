@@ -431,7 +431,7 @@ export class WageTypeService extends BizHttp<WageType> {
                     Property: 'Benefit',
                     Placement: 1,
                     Hidden: false,
-                    FieldType: 3, // FieldType.AUTOCOMPLETE,
+                    FieldType: FieldType.AUTOCOMPLETE,
                     ReadOnly: false,
                     LookupField: false,
                     Label: 'Fordel',
@@ -466,7 +466,42 @@ export class WageTypeService extends BizHttp<WageType> {
                     Combo: null,
                     Sectionheader: '',
                     hasLineBreak: false,
-                } 
+                },
+                {
+                    Property: 'Help',
+                    FieldType: 13,
+                    ReadOnly: false,
+                    LookupField: false,
+                    Label: 'For hjelp',
+                    HelpText: 'For hjelp til å fylle ut type, fordel, og beskrivelse',
+                    FieldSet: 0,
+                    Section: 2,
+                    Options: {
+                        description: 'Ameldingshjelpen'
+                    },
+                    Combo: 0
+                },
+                {
+                    ComponentLayoutID: 1,
+                    EntityType: 'WageTypeSupplement',
+                    Property: 'WageTypeSupplement.Name',
+                    Placement: 1,
+                    Hidden: false,
+                    FieldType: 3, // FieldType.AUTOCOMPLETE,
+                    ReadOnly: false,
+                    LookupField: false,
+                    Label: 'Tilleggsopplysninger',
+                    Description: null,
+                    HelpText: null,
+                    FieldSet: 0,
+                    Section: 2,
+                    Placeholder: null,
+                    Options: null,
+                    LineBreak: null,
+                    Combo: null,
+                    Sectionheader: '',
+                    hasLineBreak: false,
+                }
                 
                 
 

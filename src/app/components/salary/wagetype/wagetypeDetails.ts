@@ -28,27 +28,10 @@ export class WagetypeDetail {
             disabled: false
         }
     ];
-    // private typeBenefitDescriptionCombinations: any[] = [
-    //     // {incometype: '1', benefit: '1', description: '1'},
-    //     // {incometype: '2', benefit: '1', description: '2'},
-    //     // {incometype: '3', benefit: '1', description: '3'},
-    //     // {incometype: '4', benefit: '1', description: '1'},
-    //     // {incometype: '5', benefit: '1', description: '2'},
-    //     // {incometype: '1', benefit: '2', description: '3'},
-    //     // {incometype: '2', benefit: '2', description: '1'},
-    //     // {incometype: '3', benefit: '2', description: '2'},
-    //     // {incometype: '4', benefit: '2', description: '3'},
-    //     // {incometype: '5', benefit: '2', description: '1'},
-    //     // {incometype: '1', benefit: '3', description: '2'},
-    //     // {incometype: '2', benefit: '3', description: '3'},
-    //     // {incometype: '3', benefit: '3', description: '1'},
-    //     // {incometype: '4', benefit: '3', description: '2'},
-    //     // {incometype: '5', benefit: '3', description: '3'},
-    // ];
-    // {text: 'Lønn'}, {text: 'YtelseFraOffentlige'}, {text: 'PensjonEllerTrygd'}, {text: 'NæringsInntekt'}, {text: 'Fradrag'}
     private incomeTypeDatasource: any[] = [];
     private benefitDatasource: any[] = [];
     private descriptionDatasource: any[] = [];
+    private tilleggsinformasjonDatasource: any[] = [];
 
     public config: any = {};
     public fields: any[] = [];
@@ -71,16 +54,13 @@ export class WagetypeDetail {
             this.wageService.getWageType(this.wagetypeID),
             this.wageService.layout('WagetypeDetails'),
             this.accountService.GetAll(null),
-            // this.inntektService.getSalaryValidValue(),
             this.inntektService.getSalaryValidValueTypes()
         ).subscribe(
             (response: any) => {
                 let [wagetype, layout, accountList, validvaluesTypes] = response;
                 this.accounts = accountList;
                 this.wageType = wagetype;
-                // this.typeBenefitDescriptionCombinations = validvalues;
                 this.setupTypes(validvaluesTypes);
-                // this.incomeTypeDatasource = this.benefitDatasource = validvaluesTypes;
 
                 console.log('benefit datasource', this.benefitDatasource);
                 console.log('typer', this.incomeTypeDatasource);
@@ -118,7 +98,7 @@ export class WagetypeDetail {
 
                 let incomeType: UniFieldLayout = this.findByProperty(this.fields, 'IncomeType');
                 incomeType.Options = {
-                    source: this.incomeTypeDatasource, // [ {text: 'Lønn'}, {text: 'YtelseFraOffentlige'}, {text: 'PensjonEllerTrygd'}, {text: 'Næringsinntekt'}, {text: 'Fradrag'}, {text: 'Forskuddtrekk'}],
+                    source: this.incomeTypeDatasource,
                     valueProperty: 'text',
                     displayProperty: 'text',
                     debounceTime: 200,
@@ -194,9 +174,10 @@ export class WagetypeDetail {
         console.log('selectedType', selectedType);
         console.log('wagetype', this.wageType);
         if (!selectedType) {
-            selectedType = this.wageType.IncomeType;
-            selectedType = this.incomeTypeDatasource[3].text;
+            // selectedType = this.wageType.IncomeType;
+            selectedType = this.incomeTypeDatasource[2].text;
         }
+        console.log('selectedType', selectedType);
         this.inntektService.getSalaryValidValue(selectedType)
         .subscribe(response => {
             types = response;
@@ -204,16 +185,42 @@ export class WagetypeDetail {
                 
                 this.benefitDatasource = [];
                 this.descriptionDatasource = [];
-                this.benefitDatasource.push({text: ''});
-                this.descriptionDatasource.push({text: ''});
 
                 types.forEach(tp => {
                     if (!this.benefitDatasource.find(x => x.text === tp.fordel)) {
                         this.benefitDatasource.push({text: tp.fordel});
                     }
-                    if (tp.beskrivelse) {
-                        if (!this.descriptionDatasource.find(x => x.text === tp.beskrivelse)) {
-                            this.descriptionDatasource.push({text: tp.beskrivelse});
+                    let descriptionParent: any;
+                    switch (selectedType.toLowerCase()) {
+                        case 'lønn':
+                            descriptionParent = tp.loennsinntekt;
+                            break;
+                        case 'ytelsefraoffentlige':
+                            descriptionParent = tp.ytelseFraOffentlige;
+                            break;
+                        case 'pensjonellertrygd':
+                            descriptionParent = tp.pensjonEllerTrygd;
+                            break;
+                        case 'næringsinntekt':
+                            descriptionParent = tp.naeringsinntekt;
+                            break;
+                        case 'fradrag':
+                            descriptionParent = tp.fradrag;
+                            break;
+                        case 'forskuddstrekk':
+                            descriptionParent = tp.forskuddstrekk;
+                            break;
+
+                        default:
+                            break;
+                    }
+                    if (descriptionParent) {
+                        if (!this.descriptionDatasource.find(x => x.text === descriptionParent.beskrivelse)) {
+                            this.descriptionDatasource.push({text: descriptionParent.beskrivelse});
+                        }
+
+                        if (!this.tilleggsinformasjonDatasource.find(x => x.text === descriptionParent.tilleggsinformasjon)) {
+                            this.tilleggsinformasjonDatasource.push({text: descriptionParent.tilleggsinformasjon});
                         }
                     }
                 });
@@ -232,77 +239,18 @@ export class WagetypeDetail {
                     valueProperty: 'text',
                     displayProperty: 'text'
                 };
+                console.log('fields', this.fields);
+                let tilleggsinfo: UniFieldLayout = this.findByProperty(this.fields, 'WageTypeSupplement.Name');
+                tilleggsinfo.Options = {
+                    source: this.tilleggsinformasjonDatasource,
+                    valueProperty: 'text',
+                    displayProperty: 'text'
+                };
 
                 this.fields = _.cloneDeep(this.fields);
             }
         });
     }
-
-    // private updateBenefitAndDescriptionDatasource() {
-    //     console.log('oppdater datakilder - fra type');
-        
-    //     let incomeTypeField = this.findByProperty(this.fields, 'IncomeType');
-    //     console.log('incomeType ved findproperty', incomeTypeField);
-    //     console.log('incometype ved wageType object', this.wageType);
-
-    //     let combinations: any[] = this.typeBenefitDescriptionCombinations.filter(x => x.incometype === 'Lønn'); // this.wageType.IncomeType);
-    //     console.log('combinations', combinations);
-        
-    //     this.benefitDatasource = [];
-    //     this.descriptionDatasource = [];
-
-    //     combinations.forEach(combination => {
-    //         console.log('combination', combination);
-    //         this.benefitDatasource.push(combination.benefit);
-    //         this.descriptionDatasource.push(combination.description);
-    //     });
-    // }
-
-    // private updateTypeAndDescriptionDatasource() {
-    //     console.log('oppdater datakilder - fra fordel');
-
-    //     let benefitField = this.findByProperty(this.fields, 'Benefit');
-    //     console.log('benefit ved findproperty', benefitField);
-    //     console.log('benefit ved wageType object', this.wageType);
-
-    //     let combinations: any[] = this.typeBenefitDescriptionCombinations.filter(x => x.benefit === '1'); // this.wageType.Benefit);
-    //     console.log('combinations', combinations);
-        
-    //     this.incomeTypeDatasource = [];
-    //     this.descriptionDatasource = [];
-        
-    //     combinations.forEach(combination => {
-    //         console.log('combination', combination);
-    //         this.incomeTypeDatasource.push(combination.incometype);
-    //         this.descriptionDatasource.push(combination.description);
-    //     });
-    // }
-
-    // private updateTypeAndBenefitDatasource() {
-    //     console.log('oppdater datakilder - fra beskrivelse');
-
-    //     let descriptionField = this.findByProperty(this.fields, 'Description');
-    //     console.log('description ved findproperty', descriptionField);
-    //     console.log('description ved wageType object', this.wageType);
-    //     console.log('typeBenefitDescriptionCombinations', this.typeBenefitDescriptionCombinations);
-
-    //     let combinations: any[] = this.typeBenefitDescriptionCombinations.filter(x => x.description === '1'); // this.wageType.Description);
-    //     console.log('combinations', combinations);
-    //     console.log('incometypedatasource', this.incomeTypeDatasource);
-        
-    //     this.incomeTypeDatasource = [];
-    //     this.benefitDatasource = [];
-
-    //     console.log('incometypedatasource bør være blank', this.incomeTypeDatasource);
-        
-    //     combinations.forEach(combination => {
-    //         console.log('combination', combination);
-    //         this.incomeTypeDatasource.push(combination.incometype);
-    //         this.benefitDatasource.push(combination.benefit);
-    //     });
-
-    //     console.log('incometypedatasource bør ha fått nye verdier', this.incomeTypeDatasource);
-    // }
 
     private toggleAccountNumberBalanceHidden() {
         let accountNumberBalance: UniFieldLayout = this.findByProperty(this.fields, 'AccountNumber_balance');
