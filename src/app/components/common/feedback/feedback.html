@@ -8,12 +8,12 @@
 
         <label>
             Tittel
-            <input #title autocomplete="off" type="text" [ngFormControl]="titleControl" placeholder="Tittel" id="feedback_title" />
+            <input #title autocomplete="off" type="text" [formControl]="titleControl" placeholder="Tittel" id="feedback_title" />
         </label>
 
         <label>
             Beskrivelse
-            <textarea #description [ngFormControl]="descriptionControl" placeholder="Beskrivelse"></textarea>
+            <textarea #description [formControl]="descriptionControl" placeholder="Beskrivelse"></textarea>
         </label>
 
         <button type="submit"

@@ -20,6 +20,7 @@ var ngPackageNames = [
     'platform-browser-dynamic',
     'router',
     'router-deprecated',
+    'forms',
     'upgrade'];
 
 ngPackageNames.forEach(function (element) {

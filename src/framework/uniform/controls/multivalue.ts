@@ -1,5 +1,5 @@
 import {Component, Input, Output, ElementRef, EventEmitter, ChangeDetectorRef, ViewChild, Renderer, HostListener} from '@angular/core';
-import {Control} from '@angular/common';
+import {FormControl} from '@angular/forms';
 import {UniFieldLayout} from '../interfaces';
 import {ClickOutsideDirective} from '../../core/clickOutside';
 declare var _; // lodash
@@ -75,7 +75,7 @@ export class UniMultivalueInput {
     public model: any;
 
     @Input()
-    public control: Control;
+    public control: FormControl;
 
     @Output()
     public onReady: EventEmitter<UniMultivalueInput> = new EventEmitter<UniMultivalueInput>(true);

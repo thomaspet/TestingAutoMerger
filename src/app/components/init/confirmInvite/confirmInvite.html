@@ -1,22 +1,22 @@
 ﻿<article class="authentication-component">
     <img src="../../../assets/uni-logo.png" alt="Uni Economy logo">
 
-    <form [ngFormModel]="confirmInviteForm" (ngSubmit)="submitUser()" #f="ngForm">
+    <form [formGroup]="confirmInviteForm" (ngSubmit)="submitUser()" #f="ngForm">
         <small *ngIf="errorMessage.length" class="validation error">{{errorMessage}}</small>
 
         <label>
             Brukernavn
-            <input type="text" ngControl="username" [disabled]="!validInvite">
+            <input type="text" formControlName="username" [disabled]="!validInvite">
         </label>
 
         <label>
             Passord
-            <input type="password" ngControl="password" [disabled]="!validInvite">
+            <input type="password" formControlName="password" [disabled]="!validInvite">
         </label>
         
         <label>
             Bekreft passord
-            <input type="password" ngControl="confirmPassword" [disabled]="!validInvite">
+            <input type="password" formControlName="confirmPassword" [disabled]="!validInvite">
         </label>
         <button type="submit" class="c2a" 
                 [attr.aria-busy]="busy" 

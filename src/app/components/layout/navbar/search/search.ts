@@ -1,5 +1,5 @@
 ﻿import {Component, AfterViewInit, ElementRef, ViewChild, Renderer} from '@angular/core';
-import {Control} from '@angular/common';
+import {FormControl, REACTIVE_FORM_DIRECTIVES} from '@angular/forms';
 import {Router} from '@angular/router';
 import {UniHttp} from '../../../../../framework/core/http/http';
 import {HamburgerMenu} from '../hamburgerMenu/hamburgerMenu';
@@ -10,6 +10,7 @@ import 'rxjs/add/operator/debounceTime';
 
 @Component({
     selector: 'uni-navbar-search',
+    directives: [REACTIVE_FORM_DIRECTIVES],
     template: `
         <nav class="navbar_search">
             <div >
@@ -21,7 +22,7 @@ import 'rxjs/add/operator/debounceTime';
                     role="combobox"
                     (blur)="close()"
                     (keydown)="onKeyDown($event)"
-                    [ngFormControl]="inputControl"
+                    [formControl]="inputControl"
                 />
 
                 <ul #resultList
@@ -51,7 +52,7 @@ export class NavbarSearch implements AfterViewInit {
     @ViewChild('resultList')
     private listElement: ElementRef;
 
-    private inputControl: Control = new Control('');
+    private inputControl: FormControl = new FormControl('');
     private searchResults: any[] = [];
     private isExpanded: boolean = false;
     private selectedIndex: number;

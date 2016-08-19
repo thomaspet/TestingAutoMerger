@@ -1,4 +1,4 @@
-import {provideRouter} from '@angular/router';
+import {RouterModule} from '@angular/router';
 
 import {Dashboard} from './components/dashboard/dashboard';
 import {UniInit} from './components/init/init';
@@ -10,7 +10,6 @@ import {ProductList} from './components/common/product/list/productList';
 import {ProductDetails} from './components/common/product/details/productDetails';
 import {UniTimetracking} from './components/timetracking/timetracking';
 import {UniReports} from './components/reports/reports';
-import {Usertest} from './components/usertest/usertest';
 import {Examples} from './components/examples/examples';
 
 import {routes as InitRoutes} from './components/init/initRoutes';
@@ -92,13 +91,6 @@ export const routes = ([
     },
 
     /// ROUTES FOR TESTING POURPOSES
-
-    {
-        path: 'usertest',
-        component: Usertest,
-        canActivate: [AuthGuard]
-    },
-
     {
         path: 'examples',
         component: Examples,
@@ -115,4 +107,4 @@ export const routes = ([
     },
 ]);
 
-export const APP_ROUTES_PROVIDER = [provideRouter(<any> routes)];
+export const APP_ROUTES = RouterModule.forRoot(routes);

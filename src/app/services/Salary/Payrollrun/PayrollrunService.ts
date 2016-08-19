@@ -27,7 +27,7 @@ export class PayrollrunService extends BizHttp<PayrollRun> {
     }
 
     public refreshPayrun(payRun: PayrollRun) {
-        this.payrollRun.next(payRun);
+        return this.payrollRun.next(payRun);
     }
       
     public getStatus(payrollRun: PayrollRun) {        

@@ -1,5 +1,5 @@
 import {Component, Input, Output, ElementRef, ViewChild, EventEmitter} from '@angular/core';
-import {Control} from '@angular/common';
+import {FormControl, REACTIVE_FORM_DIRECTIVES} from '@angular/forms';
 import {UniFieldLayout} from '../../interfaces';
 import {autocompleteDate} from '../../shared/autocompleteDate';
 import {UniCalendar} from './calendar';
@@ -16,7 +16,7 @@ declare var _;
                 *ngIf="control"
                 type="text"
                 (change)="inputChange()"
-                [ngFormControl]="control"
+                [formControl]="control"
                 [readonly]="field?.ReadOnly"
                 [placeholder]="field?.Options?.placeholder || ''"
             />
@@ -32,7 +32,7 @@ declare var _;
             </uni-calendar>
         </section>
     `,
-    directives: [ClickOutsideDirective, UniCalendar]
+    directives: [ClickOutsideDirective, UniCalendar, REACTIVE_FORM_DIRECTIVES]
 })
 export class UniDateInput {
     @ViewChild('input')
@@ -45,7 +45,7 @@ export class UniDateInput {
     public model: any;
 
     @Input()
-    public control: Control;
+    public control: FormControl;
 
     @Output()
     public onReady: EventEmitter<UniDateInput> = new EventEmitter<UniDateInput>();

@@ -58,8 +58,15 @@
             </div>
             <div class="horizontal_nav">
                 <ul>
-                    <li><a (click)="showControll = true" [class.active]="showControll">Kontroll</a></li>
-                    <li><a (click)="showControll = false" [class.active]="!showControll">Oppgave</a></li>
+                    <li>
+                        <a (click)="showView = 'control'" [class.active]="showView == 'control'">Kontroll</a>
+                    </li>
+                    <li>
+                        <a (click)="showView = ''" [class.active]="showView == ''">Oppgave</a>
+                    </li>
+                    <li *ngIf="currentVatReport?.PaymentID">
+                        <a (click)="showView = 'receipt'" [class.active]="showView == 'receipt'">Altinn, kvittering/tilbakemelding</a>
+                    </li>
                 </ul>
             </div>
         </section>
@@ -67,17 +74,21 @@
 
 
     <vatreport-checklist-view
-            *ngIf="showControll"
+            *ngIf="showView == 'control'"
             [attr.aria-busy]="!reportMessages"
             [vatReportMessages]="reportMessages"
     ></vatreport-checklist-view>
     <vat-summary-per-post
-            *ngIf="!showControll"
+            *ngIf="showView == ''"
             [attr.aria-busy]="!reportSummaryPerPost"
             [reportSummaryPerPost]="reportSummaryPerPost"
             [period]="currentVatReport?.TerminPeriod"
             [vatTypes]="vatTypes"
     ></vat-summary-per-post>
+    <vatreport-receipt-view
+            *ngIf="showView == 'receipt'"
+            [vatReport]="currentVatReport"
+    ></vatreport-receipt-view>
 
     <footer class="full-footer">
         <section class="application">
@@ -88,7 +99,7 @@
     <div class="comment commentToSend">
         <label>Kommenter til Altinn</label>
         <textarea
-                [ngFormControl]="externalComment"
+                [formControl]="externalComment"
                 [ngModel]="currentVatReport.Comment"
                 [disabled]="currentVatReport?.ID == 0"></textarea>
     </div>
@@ -96,7 +107,7 @@
     <div class="comment internalComment">
         <label>Intern kommentar</label>
         <textarea
-                [ngFormControl]="internalComment"
+                [formControl]="internalComment"
                 [ngModel]="currentVatReport.InternalComment"
                 [disabled]="currentVatReport?.ID == 0"></textarea>
     </div>

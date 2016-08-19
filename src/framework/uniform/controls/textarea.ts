@@ -1,16 +1,17 @@
 import {Component, Input, Output, ElementRef, EventEmitter, ChangeDetectionStrategy, ChangeDetectorRef} from '@angular/core';
-import {Control} from '@angular/common';
+import {FormControl, REACTIVE_FORM_DIRECTIVES} from '@angular/forms';
 import {UniFieldLayout} from '../interfaces';
 
 declare var _; // lodash
 
 @Component({
     selector: 'uni-textarea-input',
+    directives: [REACTIVE_FORM_DIRECTIVES],
     changeDetection: ChangeDetectionStrategy.OnPush,
     template: `
         <textarea
             *ngIf="control"
-            [ngFormControl]="control"
+            [formControl]="control"
             [readonly]="field?.ReadOnly"
             [cols]="field?.Options?.cols || 100"
             [rows]="field?.Options?.rows || 10"
@@ -27,7 +28,7 @@ export class UniTextareaInput {
     public model: any;
 
     @Input()
-    public control: Control;
+    public control: FormControl;
 
     @Output()
     public onReady: EventEmitter<UniTextareaInput> = new EventEmitter<UniTextareaInput>(true);

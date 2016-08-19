@@ -1,56 +1,65 @@
-import {Component, ViewChild, ViewChildren, Type, Input, QueryList, ComponentRef} from "@angular/core";
-import {NgIf, NgModel, NgFor} from "@angular/common";
-import {UniModal} from "../../../../framework/modals/modal";
-import {UniComponentLoader} from "../../../../framework/core/componentLoader";
-import {UniForm} from "../../../../framework/forms/uniForm";
-import {UniFormBuilder} from "../../../../framework/forms/builders/uniFormBuilder";
-import {UniFieldBuilder} from "../../../../framework/forms/builders/uniFieldBuilder";
-import {UNI_CONTROL_DIRECTIVES} from "../../../../framework/controls";
-import {FieldType} from "../../../unientities";
+import {Component, ViewChild, ViewChildren, Type, Input, QueryList, ComponentRef} from '@angular/core';
+import {NgIf, NgModel, NgFor} from '@angular/common';
+import {UniModal} from '../../../../framework/modals/modal';
+import {UniComponentLoader} from '../../../../framework/core/componentLoader';
+import {UniForm} from '../../../../framework/uniform/index';
+import {FieldType} from '../../../unientities';
+import {UniFieldLayout} from "../../../../framework/uniform/interfaces";
 
 @Component({
     selector: 'reusable-component',
     directives: [UniForm],
     template: `
-        <uni-form [config]="config">
-        </uni-form>
+        <uni-form
+            [config]='config'
+            [fields]='fields'
+            [model]='model'
+        ></uni-form>
     `
 })
 export class ReusableComponent {
-    config: UniFormBuilder;
-
     @ViewChild(UniForm)
     form: UniForm;
 
+    model: any = {};
+
+    config: any =  {};
+
+    fields: UniFieldLayout[] = [];
+
     ngOnInit() {
-        this.config = new UniFormBuilder();
-        this.config.hideSubmitButton();
 
-        var field1 = new UniFieldBuilder();
-        field1
-            .setLabel("First Name")
-            .setType(UNI_CONTROL_DIRECTIVES[FieldType.TEXT])
-            .setModelField("FirstName");
+        var firstName = new UniFieldLayout();
+        firstName.FieldSet = 0;
+        firstName.Section = 0;
+        firstName.Combo = 0;
+        firstName.FieldType = 10;
+        firstName.Label = 'First Name';
+        firstName.Property = 'FirstName';
+        firstName.ReadOnly = false;
 
-        var field2 = new UniFieldBuilder();
-        field2
-            .setLabel("Last Name")
-            .setType(UNI_CONTROL_DIRECTIVES[FieldType.TEXT])
-            .setModelField("LastName");
+        var lastName = new UniFieldLayout();
+        lastName.FieldSet = 0;
+        lastName.Section = 0;
+        lastName.Combo = 0;
+        lastName.FieldType = 10;
+        lastName.Label = 'Last Name';
+        lastName.Property = 'LastName';
+        lastName.ReadOnly = false;
 
-        this.config.addUniElements(field1, field2);
+        this.fields = [firstName, lastName];
     }
 }
 
 @Component({
-    selector: "uni-modal-test",
+    selector: 'uni-modal-test',
     directives: [NgIf, NgModel, NgFor, UniComponentLoader],
     template: `
-        <article class="modal-content">
-            <h1 *ngIf="config.title">{{config.title}}</h1>
+        <article class='modal-content'>
+            <h1 *ngIf='config.title'>{{config.title}}</h1>
             <uni-component-loader></uni-component-loader>
             <footer>
-                <button *ngFor="let action of config.actions; let i=index" (click)="action.method()">
+                <button *ngFor='let action of config.actions; let i=index' (click)='action.method()'>
                     {{action.text}}
                 </button>
             </footer>
@@ -75,11 +84,11 @@ export class UniModalTest {
 }
 
 @Component({
-    selector: "uni-modal-demo",
+    selector: 'uni-modal-demo',
     template: `
-        <button (click)="openModal()">Open</button>
+        <button (click)='openModal()'>Open</button>
         {{valueFromModal}}
-        <uni-modal [type]="type" [config]="modalConfig"></uni-modal>
+        <uni-modal [type]='type' [config]='modalConfig'></uni-modal>
     `,
     directives: [UniModal]
 })
@@ -88,29 +97,30 @@ export class UniModalAdvancedDemo {
     modal: UniModal;
     modalConfig: any = {};
 
-    valueFromModal: string = "";
+    valueFromModal: string = '';
     type: Type = UniModalTest;
 
     constructor() {
         var self = this;
         this.modalConfig = {
-            title: "Modal 1",
-            value: "Initial value",
+            title: 'Modal 1',
+            value: 'Initial value',
             actions: [
                 {
-                    text: "Accept",
+                    text: 'Accept',
                     method: () => {
-                        self.modal.getContent().then((content: UniModalTest)=> {
-                            content.instance.then((rc: ReusableComponent)=> {
-                                console.log(rc.form.form);
-                                console.log(rc.form.form.value.FirstName+" "+rc.form.form.value.LastName);
-                                alert(rc.form.form.value.FirstName+" "+rc.form.form.value.LastName);
+                        self.modal.getContent().then((content: UniModalTest) => {
+                            content.instance.then((rc: ReusableComponent) => {
+                                const firstName = rc.model.FirstName;
+                                const lastName = rc.model.LastName;
+                                console.log(firstName, lastName);
+                                alert(`${firstName} ${lastName}`);
                             });
                         });
                     }
                 },
                 {
-                    text: "Cancel",
+                    text: 'Cancel',
                     method: () => {
                         self.modal.getContent().then(() => {
                             self.modal.close();

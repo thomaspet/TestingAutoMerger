@@ -1,10 +1,10 @@
-import {CORE_DIRECTIVES, FORM_DIRECTIVES} from '@angular/common';
+import {CORE_DIRECTIVES} from '@angular/common';
 import {Component, Input, Output, EventEmitter} from '@angular/core';
 import {FileUploadService} from './FileUploadService';
 
 @Component({
     selector: 'uni-document-list',
-    directives: [CORE_DIRECTIVES, FORM_DIRECTIVES],
+    directives: [CORE_DIRECTIVES],
     template: `
         <ul *ngIf="service.Slots">
             <li *ngFor="let slot of service.Slots">

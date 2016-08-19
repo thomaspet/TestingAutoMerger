@@ -16,7 +16,6 @@
 
             <button class="c2a" [attr.aria-busy]="working" [disabled]="working">Logg inn</button>
         </form>
-
         <p *ngIf="!loginSuccess">
             <a [routerLink]="['../signup']">Registrer ny bruker</a><br>
             <a [routerLink]="['../reset-password']">Glemt passord</a>

@@ -1,10 +1,11 @@
-import {Component, Input, ViewChild, OnInit} from '@angular/core';
+import {Component, Input, ViewChild} from '@angular/core';
 import {Router, ActivatedRoute, RouterLink} from '@angular/router';
 import {Observable} from 'rxjs/Observable';
 import 'rxjs/add/observable/forkJoin';
 
 import {CustomerInvoiceService, CustomerInvoiceItemService, CustomerService, BusinessRelationService} from '../../../../services/services';
 import {ProjectService, DepartementService, AddressService, ReportDefinitionService} from '../../../../services/services';
+import {CompanySettingsService} from '../../../../services/common/CompanySettingsService';
 
 import {UniSave, IUniSaveAction} from '../../../../../framework/save/save';
 import {UniForm, UniFieldLayout} from '../../../../../framework/uniform';
@@ -14,7 +15,7 @@ import {InvoiceItemList} from './invoiceItemList';
 import {TradeItemHelper} from '../../salesHelper/tradeItemHelper';
 
 import {CustomerInvoice, Customer, Dimensions, Address} from '../../../../unientities';
-import {StatusCodeCustomerInvoice, FieldType} from '../../../../unientities';
+import {StatusCodeCustomerInvoice, FieldType, CompanySettings} from '../../../../unientities';
 
 import {AddressModal} from '../../../common/modals/modals';
 import {TradeHeaderCalculationSummary} from '../../../../models/sales/TradeHeaderCalculationSummary';
@@ -24,6 +25,8 @@ import {TabService} from '../../../layout/navbar/tabstrip/tabService';
 
 import {InvoicePaymentData} from '../../../../models/sales/InvoicePaymentData';
 import {RegisterPaymentModal} from '../../../common/modals/registerPaymentModal';
+
+import {ToastService, ToastType} from '../../../../../framework/uniToast/toastService';
 
 declare var _;
 declare var moment;
@@ -41,9 +44,10 @@ class CustomerInvoiceExt extends CustomerInvoice {
     selector: 'invoice-details',
     templateUrl: 'app/components/sales/invoice/details/invoiceDetails.html',
     directives: [RouterLink, InvoiceItemList, AddressModal, UniForm, UniSave, PreviewModal, RegisterPaymentModal],
-    providers: [CustomerInvoiceService, CustomerInvoiceItemService, CustomerService, ProjectService, DepartementService, AddressService, ReportDefinitionService, BusinessRelationService]
+    providers: [CustomerInvoiceService, CustomerInvoiceItemService, CustomerService, CompanySettingsService,
+        ProjectService, DepartementService, AddressService, ReportDefinitionService, BusinessRelationService]
 })
-export class InvoiceDetails implements OnInit {
+export class InvoiceDetails {
 
     @Input() public invoiceID: any;
     @ViewChild(UniForm) public form: UniForm;
@@ -72,6 +76,7 @@ export class InvoiceDetails implements OnInit {
     private recalcTimeout: any;
     private actions: IUniSaveAction[];
     private addressChanged: any;
+    private companySettings: CompanySettings;
     private creditInvoiceArr: CustomerInvoice[];
 
     private expandOptions: Array<string> = ['Dimensions', 'Items', 'Items.Product', 'Items.VatType',
@@ -85,16 +90,21 @@ export class InvoiceDetails implements OnInit {
         private addressService: AddressService,
         private reportDefinitionService: ReportDefinitionService,
         private businessRelationService: BusinessRelationService,
+        private companySettingsService: CompanySettingsService,
+        private toastService: ToastService,
 
         private router: Router,
         private route: ActivatedRoute,
         private tabService: TabService) {
 
-        this.route.params.subscribe(params => this.invoiceID = +params['id']);
+        this.route.params.subscribe(params => {
+            this.invoiceID = +params['id'];
+            this.setup();
+        });
     }
 
     private log(err) {
-        alert(err._body);
+        this.toastService.addToast(err._body, ToastType.bad);
     }
 
     public nextInvoice() {
@@ -106,7 +116,7 @@ export class InvoiceDetails implements OnInit {
             },
             (err) => {
                 console.log('Error getting next invoice: ', err);
-                alert('Ikke flere faktura etter denne');
+                this.toastService.addToast('Ikke flere faktura etter denne', ToastType.warn, 5);
             }
             );
     }
@@ -120,7 +130,7 @@ export class InvoiceDetails implements OnInit {
             },
             (err) => {
                 console.log('Error getting previous invoice: ', err);
-                alert('Ikke flere faktura før denne');
+                this.toastService.addToast('Ikke flere faktura før denne', ToastType.warn, 5);
             }
             );
     }
@@ -170,8 +180,11 @@ export class InvoiceDetails implements OnInit {
 
                         if (customer.CreditDays !== null) {
                             this.invoice.CreditDays = customer.CreditDays;
-                            this.invoice.PaymentDueDate = moment(this.invoice.InvoiceDate).startOf('day').add(Number(data.CreditDays), 'days').toDate();
                         }
+                        else {
+                            this.invoice.CreditDays = this.companySettings.CustomerCreditDays;
+                        }
+                        this.invoice.PaymentDueDate = moment(this.invoice.InvoiceDate).startOf('day').add(Number(data.CreditDays), 'days').toDate();
 
                         this.invoice = _.cloneDeep(this.invoice);
                     });
@@ -200,11 +213,14 @@ export class InvoiceDetails implements OnInit {
             });
     }
 
-    public ngOnInit() {
-        this.getLayoutAndData();
-    }
+    private setup() {
+        this.companySettingsService.Get(1)
+            .subscribe(settings => this.companySettings = settings,
+            err => {
+                console.log('Error retrieving company settings data: ', err);
+                this.toastService.addToast('En feil oppsto ved henting av firmainnstillinger: ' + JSON.stringify(err), ToastType.bad);
+            });
 
-    private getLayoutAndData() {
         this.fields = this.getComponentLayout().Fields;
 
         Observable.forkJoin(
@@ -238,7 +254,7 @@ export class InvoiceDetails implements OnInit {
 
         }, (err) => {
             console.log('Error retrieving data: ', err);
-            alert('En feil oppsto ved henting av data: ' + JSON.stringify(err));
+            this.toastService.addToast('En feil oppsto ved henting av data: ' + JSON.stringify(err), ToastType.bad);
         });
     }
 
@@ -250,7 +266,7 @@ export class InvoiceDetails implements OnInit {
                     this.creditInvoiceArr = data;
                 }, (err) => {
                     console.log('Error retrieving data Credit Invoices: ', err);
-                    alert('En feil oppsto ved henting av data: ' + JSON.stringify(err));
+                    this.toastService.addToast('En feil oppsto ved henting av data: ' + JSON.stringify(err), ToastType.bad);
                 });
         }
     }
@@ -609,7 +625,7 @@ export class InvoiceDetails implements OnInit {
             this.registerPaymentModal.changed.subscribe((modalData: any) => {
 
                 this.customerInvoiceService.ActionWithBody(modalData.id, modalData.invoice, 'payInvoice').subscribe((journalEntry) => {
-                    alert('Faktura er betalt. Bilagsnummer: ' + journalEntry.JournalEntryNumber);
+                    this.toastService.addToast('Faktura er betalt. Bilagsnummer: ' + journalEntry.JournalEntryNumber, ToastType.good, 5);
 
                     this.customerInvoiceService.Get(this.invoice.ID, this.expandOptions).subscribe((data) => {
                         this.invoice = data;
@@ -662,7 +678,7 @@ export class InvoiceDetails implements OnInit {
     // }
 
     private deleteInvoice(done) {
-        alert('Slett  - Under construction');
+        this.toastService.addToast('Slett  - Under construction', ToastType.warn, 5);
         done('Slett faktura avbrutt');
     }
 

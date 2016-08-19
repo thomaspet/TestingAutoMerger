@@ -1,4 +1,4 @@
-import {autocompleteDate} from '../controls/datepicker/autocompleteDate';
+import {autocompleteDate} from '../uniform/shared/autocompleteDate';
 
 declare var jQuery;
 

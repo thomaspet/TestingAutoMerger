@@ -1,5 +1,5 @@
 import {Component, Input, Output, HostBinding, EventEmitter, ViewChild, ChangeDetectorRef, SimpleChange, HostListener, ChangeDetectionStrategy} from '@angular/core';
-import {FORM_DIRECTIVES, FORM_PROVIDERS, ControlGroup, Control} from '@angular/common';
+import {REACTIVE_FORM_DIRECTIVES, FormGroup, FormControl, ValidatorFn} from '@angular/forms';
 import {UniFieldLayout, KeyCodes} from './interfaces';
 import {CONTROLS} from './controls/index';
 import {ShowError} from './showError';
@@ -72,12 +72,11 @@ declare var _; // lodash
         </label>
     `,
     changeDetection: ChangeDetectionStrategy.OnPush,
-    directives: [FORM_DIRECTIVES, CONTROLS, ShowError],
-    providers: [FORM_PROVIDERS],
+    directives: [REACTIVE_FORM_DIRECTIVES, CONTROLS, ShowError],
 })
 export class UniField {    
     @Input()
-    public controls: ControlGroup;
+    public controls: FormGroup;
 
     @Input()
     public field: UniFieldLayout;
@@ -108,7 +107,7 @@ export class UniField {
         this.ref.markForCheck();
     }
 
-    public control: Control;
+    public control: FormControl;
 
 
     constructor(private ref: ChangeDetectorRef) { }
@@ -141,9 +140,9 @@ export class UniField {
         if (changes['model']) {
             var value = _.get(this.model, this.field.Property);
             this.messages = MessageComposer.composeMessages(this.field);
-            var syncvalidators = ValidatorsComposer.composeSyncValidators(this.field);
-            var asyncvalidators = ValidatorsComposer.composeAsyncValidators(this.field);
-            var control = new Control(value, syncvalidators, asyncvalidators);
+            var syncvalidators: ValidatorFn = ValidatorsComposer.composeSyncValidators(this.field);
+            var asyncvalidators: ValidatorFn = ValidatorsComposer.composeAsyncValidators(this.field);
+            var control = new FormControl(value, syncvalidators, asyncvalidators);
             this.controls.addControl(this.field.Property, control);
             this.control = control;
         }

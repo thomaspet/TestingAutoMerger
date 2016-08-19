@@ -1,7 +1,7 @@
 import {Component, Injector, Input, Output, EventEmitter, ViewChild} from '@angular/core';
 import {EmployeeDS} from '../../../../data/employee';
 import {EmploymentService, StaticRegisterService} from '../../../../services/services';
-import {STYRKCode, Employment} from '../../../../unientities';
+import {STYRKCode, Employment, Employee} from '../../../../unientities';
 import {UniSave, IUniSaveAction} from '../../../../../framework/save/save';
 import {UniForm} from '../../../../../framework/uniform';
 import {UniFieldLayout} from '../../../../../framework/uniform/index';
@@ -24,7 +24,7 @@ export class EmployeeEmployment {
     @ViewChild(UniForm) public uniform: UniForm;
 
     @Input() private currentEmployment: Employment;
-
+    @Input() private currentEmployee: Employee;
     @Output() private refreshList: EventEmitter<any> = new EventEmitter<any>(true);
 
     private busy: boolean;
@@ -32,7 +32,7 @@ export class EmployeeEmployment {
     private saveactions: IUniSaveAction[] = [
         {
             label: 'Lagre arbeidsforhold',
-            action: this.saveEmployment.bind(this),
+            action: this.setStandardAndSaveEmployment.bind(this),
             main: true,
             disabled: false
         }
@@ -122,6 +122,21 @@ export class EmployeeEmployment {
     private findByProperty(fields, name) {
         var field = fields.find((fld) => fld.Property === name);
         return field; 
+    }
+
+    private setStandardAndSaveEmployment(done) {
+        let stdPresent: boolean = false;
+        if (this.currentEmployee.Employments.length > 0) {
+            this.currentEmployee.Employments.forEach(employment => {
+                if (employment.Standard === true) {
+                    stdPresent = true;
+                }
+            });
+        }
+        if (!stdPresent) {
+            this.currentEmployment.Standard = true;
+        }
+        this.saveEmployment(done);
     }
     
     public saveEmployment(done) {
