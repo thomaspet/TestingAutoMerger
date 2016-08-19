@@ -23,6 +23,8 @@ import {TradeHeaderCalculationSummary} from '../../../../models/sales/TradeHeade
 import {PreviewModal} from '../../../reports/modals/preview/previewModal';
 import {TabService} from '../../../layout/navbar/tabstrip/tabService';
 
+import {ToastService, ToastType} from '../../../../../framework/uniToast/toastService';
+
 declare var _;
 
 class CustomerOrderExt extends CustomerOrder {
@@ -80,6 +82,8 @@ export class OrderDetails {
         private reportDefinitionService: ReportDefinitionService,
         private businessRelationService: BusinessRelationService,
         private companySettingsService: CompanySettingsService,
+        private toastService: ToastService,
+
         private router: Router,
         private route: ActivatedRoute,
         private tabService: TabService) {
@@ -88,7 +92,7 @@ export class OrderDetails {
     }
 
     private log(err) {
-        alert(err._body);
+        this.toastService.addToast(err._body, ToastType.bad);
     }
 
     public nextOrder() {
@@ -100,7 +104,7 @@ export class OrderDetails {
             },
             (err) => {
                 console.log('Error getting next order: ', err);
-                alert('Ikke flere ordre etter denne');
+                this.toastService.addToast('Ikke flere ordre etter denne', ToastType.warn, 5);
             }
             );
     }
@@ -114,7 +118,7 @@ export class OrderDetails {
             },
             (err) => {
                 console.log('Error getting previous order: ', err);
-                alert('Ikke flere ordre før denne');
+                this.toastService.addToast('Ikke flere ordre før denne', ToastType.warn, 5);
             }
             );
     }
@@ -170,11 +174,9 @@ export class OrderDetails {
             .subscribe(settings => this.companySettings = settings,
             err => {
                 console.log('Error retrieving company settings data: ', err);
-                alert('En feil oppsto ved henting av firmainnstillinger: ' + JSON.stringify(err));
+                this.toastService.addToast('En feil oppsto ved henting av firmainnstillinger: ' + JSON.stringify(err), ToastType.bad);
             });
-
         this.getLayoutAndData();
-
     }
 
     private getLayoutAndData() {
@@ -205,7 +207,7 @@ export class OrderDetails {
 
         }, (err) => {
             console.log('Error retrieving data: ', err);
-            alert('En feil oppsto ved henting av ordre-data: ' + JSON.stringify(err));
+            this.toastService.addToast('En feil oppsto ved henting av data: ' + JSON.stringify(err), ToastType.bad);
         });
     }
 
@@ -384,7 +386,7 @@ export class OrderDetails {
     }
 
     private deleteOrder(done) {
-        alert('Slett  - Under construction');
+        this.toastService.addToast('Slett  - Under construction', ToastType.warn, 5);
         done('Slett ordre avbrutt');
     }
 
@@ -433,7 +435,7 @@ export class OrderDetails {
             this.oti.changed.subscribe(items => {
                 // Do not transfer to invoice if no items 
                 if (items.length === 0) {
-                    alert('Kan ikke overføre en ordre uten linjer');
+                    this.toastService.addToast('Kan ikke overføre en ordre uten linjer', ToastType.warn, 5);
                     return;
                 }
 

@@ -24,6 +24,8 @@ import {TradeHeaderCalculationSummary} from '../../../../models/sales/TradeHeade
 import {PreviewModal} from '../../../reports/modals/preview/previewModal';
 import {TabService} from '../../../layout/navbar/tabstrip/tabService';
 
+import {ToastService, ToastType} from '../../../../../framework/uniToast/toastService';
+
 declare var _;
 declare var moment;
 
@@ -80,6 +82,7 @@ export class QuoteDetails {
         private businessRelationService: BusinessRelationService,
         private reportDefinitionService: ReportDefinitionService,
         private companySettingsService: CompanySettingsService,
+        private toastService: ToastService,
 
         private router: Router,
         private route: ActivatedRoute,
@@ -89,7 +92,7 @@ export class QuoteDetails {
     }
 
     private log(err) {
-        alert(err._body);
+        this.toastService.addToast(err._body, ToastType.bad);
     }
 
     public nextQuote() {
@@ -101,7 +104,7 @@ export class QuoteDetails {
             },
             (err) => {
                 console.log('Error getting next quote: ', err);
-                alert('Ikke flere tilbud etter denne');
+                this.toastService.addToast('Ikke flere tilbud etter denne', ToastType.warn, 5);
             }
             );
     }
@@ -115,7 +118,7 @@ export class QuoteDetails {
             },
             (err) => {
                 console.log('Error getting previous quote: ', err);
-                alert('Ikke flere tilbud før denne');
+                this.toastService.addToast('Ikke flere tilbud før denne', ToastType.warn, 5);
             }
             );
     }
@@ -181,7 +184,7 @@ export class QuoteDetails {
             .subscribe(settings => this.companySettings = settings,
             err => {
                 console.log('Error retrieving company settings data: ', err);
-                alert('En feil oppsto ved henting av firmainnstillinger: ' + JSON.stringify(err));
+                this.toastService.addToast('En feil oppsto ved henting av firmainnstillinger: ' + JSON.stringify(err), ToastType.bad);
             });
 
         this.getLayoutAndData();
@@ -215,7 +218,7 @@ export class QuoteDetails {
             this.extendFormConfig();
         }, (err) => {
             console.log('Error retrieving data: ', err);
-            alert('En feil oppsto ved henting av tilbuds-data: ' + JSON.stringify(err));
+            this.toastService.addToast('En feil oppsto ved henting av data: ' + JSON.stringify(err), ToastType.bad);
         });
     }
 
@@ -407,7 +410,7 @@ export class QuoteDetails {
     }
 
     private deleteQuote(done) {
-        alert('Slett  - Under construction');
+        this.toastService.addToast('Slett  - Under construction', ToastType.warn, 5);
         done('Slett tilbud avbrutt');
     }
 

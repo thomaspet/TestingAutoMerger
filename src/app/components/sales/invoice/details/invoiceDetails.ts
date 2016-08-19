@@ -26,6 +26,8 @@ import {TabService} from '../../../layout/navbar/tabstrip/tabService';
 import {InvoicePaymentData} from '../../../../models/sales/InvoicePaymentData';
 import {RegisterPaymentModal} from '../../../common/modals/registerPaymentModal';
 
+import {ToastService, ToastType} from '../../../../../framework/uniToast/toastService';
+
 declare var _;
 declare var moment;
 
@@ -89,6 +91,7 @@ export class InvoiceDetails implements OnInit {
         private reportDefinitionService: ReportDefinitionService,
         private businessRelationService: BusinessRelationService,
         private companySettingsService: CompanySettingsService,
+        private toastService: ToastService,
 
         private router: Router,
         private route: ActivatedRoute,
@@ -98,7 +101,7 @@ export class InvoiceDetails implements OnInit {
     }
 
     private log(err) {
-        alert(err._body);
+        this.toastService.addToast(err._body, ToastType.bad);
     }
 
     public nextInvoice() {
@@ -110,7 +113,7 @@ export class InvoiceDetails implements OnInit {
             },
             (err) => {
                 console.log('Error getting next invoice: ', err);
-                alert('Ikke flere faktura etter denne');
+                this.toastService.addToast('Ikke flere faktura etter denne', ToastType.warn, 5);
             }
             );
     }
@@ -124,7 +127,7 @@ export class InvoiceDetails implements OnInit {
             },
             (err) => {
                 console.log('Error getting previous invoice: ', err);
-                alert('Ikke flere faktura før denne');
+                this.toastService.addToast('Ikke flere faktura før denne', ToastType.warn, 5);
             }
             );
     }
@@ -212,7 +215,7 @@ export class InvoiceDetails implements OnInit {
             .subscribe(settings => this.companySettings = settings,
             err => {
                 console.log('Error retrieving company settings data: ', err);
-                alert('En feil oppsto ved henting av firmainnstillinger: ' + JSON.stringify(err));
+                this.toastService.addToast('En feil oppsto ved henting av firmainnstillinger: ' + JSON.stringify(err), ToastType.bad);
             });
 
         this.getLayoutAndData();
@@ -252,7 +255,7 @@ export class InvoiceDetails implements OnInit {
 
         }, (err) => {
             console.log('Error retrieving data: ', err);
-            alert('En feil oppsto ved henting av data: ' + JSON.stringify(err));
+            this.toastService.addToast('En feil oppsto ved henting av data: ' + JSON.stringify(err), ToastType.bad);
         });
     }
 
@@ -264,7 +267,7 @@ export class InvoiceDetails implements OnInit {
                     this.creditInvoiceArr = data;
                 }, (err) => {
                     console.log('Error retrieving data Credit Invoices: ', err);
-                    alert('En feil oppsto ved henting av data: ' + JSON.stringify(err));
+                    this.toastService.addToast('En feil oppsto ved henting av data: ' + JSON.stringify(err), ToastType.bad);
                 });
         }
     }
@@ -623,7 +626,7 @@ export class InvoiceDetails implements OnInit {
             this.registerPaymentModal.changed.subscribe((modalData: any) => {
 
                 this.customerInvoiceService.ActionWithBody(modalData.id, modalData.invoice, 'payInvoice').subscribe((journalEntry) => {
-                    alert('Faktura er betalt. Bilagsnummer: ' + journalEntry.JournalEntryNumber);
+                    this.toastService.addToast('Faktura er betalt. Bilagsnummer: ' + journalEntry.JournalEntryNumber, ToastType.good, 5);
 
                     this.customerInvoiceService.Get(this.invoice.ID, this.expandOptions).subscribe((data) => {
                         this.invoice = data;
@@ -676,7 +679,7 @@ export class InvoiceDetails implements OnInit {
     // }
 
     private deleteInvoice(done) {
-        alert('Slett  - Under construction');
+        this.toastService.addToast('Slett  - Under construction', ToastType.warn, 5);
         done('Slett faktura avbrutt');
     }
 
