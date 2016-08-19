@@ -24,11 +24,8 @@ import {UniFeedback} from './components/common/feedback/feedback';
 export class App {
     private isAuthenticated: boolean = false;
 
-    @ViewChild(LoginModal)
-    private loginModal: LoginModal;
-
-    @ViewChild(CompanySyncModal)
-    private companySyncModal: CompanySyncModal;
+    @ViewChild(LoginModal) private loginModal: LoginModal;
+    @ViewChild(CompanySyncModal) private companySyncModal: CompanySyncModal;
 
     constructor(private authService: AuthService,
                 private http: UniHttp,
