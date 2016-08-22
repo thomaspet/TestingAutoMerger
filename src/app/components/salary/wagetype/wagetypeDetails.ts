@@ -32,6 +32,8 @@ export class WagetypeDetail {
     private incomeTypeDatasource: any[] = [];
     private benefitDatasource: any[] = [];
     private descriptionDatasource: any[] = [];
+    private packagesForSelectedType: any[] = [];
+    private packages: any[] = [];
     private tilleggsinformasjonDatasource: any[] = [];
 
     private tilleggspakkeConfig: UniTableConfig;
@@ -109,12 +111,12 @@ export class WagetypeDetail {
                     events: {
                         select: (model) => {
                             console.log('valgt type (model)', model);
-                            this.setupFordelAndDescription(model.IncomeType);
+                            this.setupIncomeType(model.IncomeType);
                         },
                         enter: (model) => {
                             console.log(self.wageType.IncomeType);
                             console.log('valgt type', model);
-                            this.setupFordelAndDescription(model.IncomeType);
+                            this.setupIncomeType(model.IncomeType);
                         }
                     }
                 };
@@ -126,14 +128,14 @@ export class WagetypeDetail {
                     displayProperty: 'text',
                     debounceTime: 200,
                     template: (obj) => obj ? `${obj.text}` : '',
-                    // events: {
-                    //     select: (model) => {
-                    //         this.updateTypeAndDescriptionDatasource();
-                    //     },
-                    //     enter: (model) => {
-                    //         this.updateTypeAndDescriptionDatasource();
-                    //     }
-                    // }
+                    events: {
+                        select: (model) => {
+                            this.setupFilteredTilleggsPakker('fordel');
+                        },
+                        enter: (model) => {
+                            this.setupFilteredTilleggsPakker('fordel');
+                        }
+                    }
                 };
 
                 let description: UniFieldLayout = this.findByProperty(this.fields, 'Description');
@@ -143,14 +145,31 @@ export class WagetypeDetail {
                     displayProperty: 'text',
                     debounceTime: 200,
                     template: (obj) => obj ? `${obj.text}` : '',
-                    // events: {
-                    //     select: (model) => {
-                    //         this.updateTypeAndBenefitDatasource();
-                    //     },
-                    //     enter: (model) => {
-                    //         this.updateTypeAndBenefitDatasource();
-                    //     }
-                    // }
+                    events: {
+                        select: (model) => {
+                            this.setupFilteredTilleggsPakker('beskrivelse');
+                        },
+                        enter: (model) => {
+                            this.setupFilteredTilleggsPakker('beskrivelse');
+                        }
+                    }
+                };
+
+                let tilleggsinfo: UniFieldLayout = this.findByProperty(this.fields, '_OldLTCode');
+                tilleggsinfo.Options = {
+                    source: this.packages,
+                    valueProperty: 'gmlcode',
+                    displayProperty: 'gmlcode',
+                    debounceTime: 200,
+                    template: (obj) => obj ? `${obj.gmlcode}` : '',
+                    events: {
+                        select: (model) => {
+                            this.showTilleggsPakker(model);
+                        },
+                        enter: (model) => {
+                            this.showTilleggsPakker(model);
+                        }
+                    }
                 };
 
                 this.fields = _.cloneDeep(this.fields);
@@ -176,109 +195,236 @@ export class WagetypeDetail {
         console.log('incometypes', this.incomeTypeDatasource);
     }
 
-    private setupFordelAndDescription(selectedType: string) {
-        let types: any[] = [];
-        console.log('selectedType', selectedType);
-        console.log('wagetype', this.wageType);
+    private setupIncomeType(selectedType: string) {
         if (!selectedType) {
             selectedType = this.wageType.IncomeType;
-            // selectedType = this.incomeTypeDatasource[2].text;
         }
         console.log('selectedType', selectedType);
         this.inntektService.getSalaryValidValue(selectedType)
         .subscribe(response => {
-            types = response;
-            if (types) {
-                
-                this.benefitDatasource = [];
-                this.descriptionDatasource = [];
-                this.tilleggsinformasjonDatasource = [];
-
-                types.forEach(tp => {
-                    if (!this.benefitDatasource.find(x => x.text === tp.fordel)) {
-                        this.benefitDatasource.push({text: tp.fordel});
-                    }
-                    let incometypeChild: any;
-                    switch (selectedType.toLowerCase()) {
-                        case 'lønn':
-                            incometypeChild = tp.loennsinntekt;
-                            break;
-                        case 'ytelsefraoffentlige':
-                            incometypeChild = tp.ytelseFraOffentlige;
-                            break;
-                        case 'pensjonellertrygd':
-                            incometypeChild = tp.pensjonEllerTrygd;
-                            break;
-                        case 'næringsinntekt':
-                            incometypeChild = tp.naeringsinntekt;
-                            break;
-                        case 'fradrag':
-                            incometypeChild = tp.fradrag;
-                            break;
-                        case 'forskuddstrekk':
-                            incometypeChild = tp.forskuddstrekk;
-                            break;
-
-                        default:
-                            break;
-                    }
-                    if (incometypeChild) {
-                        if (!this.descriptionDatasource.find(x => x.text === incometypeChild.beskrivelse)) {
-                            this.descriptionDatasource.push({text: incometypeChild.beskrivelse});
-                        }
-
-                        this.addTilleggsInformasjon(incometypeChild);
-                    }
-                });
-                console.log('Fordel', this.benefitDatasource);
-                console.log('Beskrivelse', this.descriptionDatasource);
-                console.log('Tilleggsopplysninger', this.tilleggsinformasjonDatasource);
-
-                this.updateFields();
+            this.packagesForSelectedType = response;
+            console.log('Alle data tilgjengelig for valgt type', response);
+            if (this.packagesForSelectedType) {
+                this.setupFordelAndDescription(selectedType);
             }
         });
     }
 
-    private updateFields() {
-        let benefit: UniFieldLayout = this.findByProperty(this.fields, 'Benefit');
-        benefit.Options = {
-            source: this.benefitDatasource,
-            valueProperty: 'text',
-            displayProperty: 'text'
-        };
+    private setupFordelAndDescription(selectedType: string) {
+        this.benefitDatasource = [];
+        this.descriptionDatasource = [];
+
+        this.packagesForSelectedType.forEach(tp => {
+            if (!this.benefitDatasource.find(x => x.text === tp.fordel)) {
+                this.benefitDatasource.push({text: tp.fordel});
+            }
+            let incometypeChild: any = this.getIncometypeChildObject(tp, selectedType);
+            
+            if (incometypeChild) {
+                if (!this.descriptionDatasource.find(x => x.text === incometypeChild.beskrivelse)) {
+                    this.descriptionDatasource.push({text: incometypeChild.beskrivelse});
+                }
+                // let additions: any[] = this.addTilleggsInformasjon(incometypeChild);
+                // if (additions.length > 0) {
+                //     this.packages.push({OldLTCode: tp.gmlcode, Additions: additions});
+                // }
+            }
+        });
+        console.log('Fordel', this.benefitDatasource);
+        console.log('Beskrivelse', this.descriptionDatasource);
+
+        this.updateFieldBenefitAndDescription();
+    }
+
+    private getIncometypeChildObject(tp: any, selType: string = '') {
+        let selectedType: string;
+        if (selType) {
+            selectedType = selType;
+        } else {
+            selectedType  = this.wageType.IncomeType; 
+        }
+        let incometypeChild: any;
+
+        switch (selectedType.toLowerCase()) {
+            case 'lønn':
+                incometypeChild = tp.loennsinntekt;
+                break;
+            case 'ytelsefraoffentlige':
+                incometypeChild = tp.ytelseFraOffentlige;
+                break;
+            case 'pensjonellertrygd':
+                incometypeChild = tp.pensjonEllerTrygd;
+                break;
+            case 'næringsinntekt':
+                incometypeChild = tp.naeringsinntekt;
+                break;
+            case 'fradrag':
+                incometypeChild = tp.fradrag;
+                break;
+            case 'forskuddstrekk':
+                incometypeChild = tp.forskuddstrekk;
+                break;
+
+            default:
+                break;
+        }
+        return incometypeChild;
+    }
+
+    private setupTilleggsPakker() {
+        let selectedType: string = this.wageType.IncomeType;
+
+        console.log('Alle tilgjengelige pakker i setuptilleggspakker()', this.packagesForSelectedType);
         
-        let description: UniFieldLayout = this.findByProperty(this.fields, 'Description');
-        description.Options = {
-            source: this.descriptionDatasource,
-            valueProperty: 'text',
-            displayProperty: 'text'
-        };
+        this.packagesForSelectedType.forEach(tp => {
+            console.log('filtrert kilde, objekt som skal sjekkes', tp);
+            let incometypeChild: any = this.getIncometypeChildObject(tp, selectedType);
+            
+            if (incometypeChild) {
+                let additions: any[] = this.addTilleggsInformasjon(incometypeChild);
+                if (additions.length > 0) {
+                    this.packages.push({gmlcode: tp.gmlcode, additions: additions});
+                }
+            }
+        });
 
-        let tilleggsinfo: UniFieldLayout = this.findByProperty(this.fields, 'WageTypeSupplement.Name');
-        tilleggsinfo.Options = {
-            source: this.tilleggsinformasjonDatasource,
-            template: (obj) => obj ? `${obj.Name}: ${obj.SuggestedValue}` : '',
-        };
+        this.updateFieldOldLTCode();
+    }
 
-        this.fields = _.cloneDeep(this.fields);
+    private setupFilteredTilleggsPakker(fromCombo: string) {
+        let filtered: any[] = [];
+        let tmp: any[] = [];
+        let selectedType: string = this.wageType.IncomeType;
+
+        console.log('fromCombo', fromCombo);
+        console.log('antall pakker FØR filtrering', this.packagesForSelectedType.length);
+        switch (fromCombo) {
+            case 'fordel':
+                this.packagesForSelectedType.forEach(tp => {
+                    if (this.wageType.Benefit !== '' && this.benefitDatasource.length > 0) {
+                        if (!filtered.find(x => x.fordel === tp.fordel)) {
+                            filtered.push(tp);
+                        }
+                    }
+                });
+                break;
+            case 'beskrivelse':
+                this.packagesForSelectedType.forEach(tp => {
+                    if (this.wageType.Description !== '' && this.descriptionDatasource.length > 0) {
+                        let incometypeChild: any = this.getIncometypeChildObject(tp, selectedType);
+                        if (incometypeChild) {
+                            if (!tmp.find(x => x.text === incometypeChild.beskrivelse)) {
+                                filtered.push(tp);
+                                tmp.push({text: incometypeChild.beskrivelse});
+                            }
+                        }
+                    }
+                });
+                break;
+
+            default:
+                break;
+        }
+        
+        this.packagesForSelectedType = filtered;
+        console.log('antall pakker ETTER filtrering', this.packagesForSelectedType.length);
+        this.setupTilleggsPakker();
     }
 
     private addTilleggsInformasjon(tillegg) {
-        let tilleggsinfo: {} = tillegg.tilleggsinformasjon;
-        if (tilleggsinfo !== null) {
-            for (var key in tilleggsinfo) {
-                if (key) {
-                    var obj = tilleggsinfo[key];
-                    for (var prop in obj) {
-                        if (obj.hasOwnProperty(prop)) {
-                            if (!this.tilleggsinformasjonDatasource.find(x => x.Name === prop)) {
-                                this.tilleggsinformasjonDatasource.push({Name: prop, SuggestedValue: obj[prop]});
+        // console.log('tillegg vi skal sette opp pakker på');
+        let infoObjects: any[] = [tillegg.tilleggsinformasjon, tillegg.spesifikasjon];
+        let additions: any[] = [];
+        infoObjects.forEach(infoObject => {
+            if (infoObject !== null) {
+                for (var key in infoObject) {
+                    // console.log('key', key);
+                    if (key) {
+                        var obj = infoObject[key];
+                        // console.log('obj', obj);
+                        for (var prop in obj) {
+                            if (obj.hasOwnProperty(prop)) {
+                                // if (!this.tilleggsinformasjonDatasource.find(x => x.Name === prop)) {
+                                //     this.tilleggsinformasjonDatasource.push({Name: prop, SuggestedValue: obj[prop]});
+                                // }
+                                additions.push({Name: prop, SuggestedValue: obj[prop]});
                             }
                         }
                     }
                 }
             }
-        }
+        });
+        return additions;
+    }
+
+    private updateFieldBenefitAndDescription() {
+        let benefit: UniFieldLayout = this.findByProperty(this.fields, 'Benefit');
+        benefit.Options = {
+            source: this.benefitDatasource,
+            valueProperty: 'text',
+            displayProperty: 'text',
+            debounceTime: 200,
+            template: (obj) => obj ? `${obj.text}` : '',
+            events: {
+                select: (model) => {
+                    this.setupFilteredTilleggsPakker('fordel');
+                },
+                enter: (model) => {
+                    this.setupFilteredTilleggsPakker('fordel');
+                }
+            }
+        };
+
+        let description: UniFieldLayout = this.findByProperty(this.fields, 'Description');
+        description.Options = {
+            source: this.descriptionDatasource,
+            valueProperty: 'text',
+            displayProperty: 'text',
+            debounceTime: 200,
+            template: (obj) => obj ? `${obj.text}` : '',
+            events: {
+                select: (model) => {
+                    this.setupFilteredTilleggsPakker('beskrivelse');
+                },
+                enter: (model) => {
+                    this.setupFilteredTilleggsPakker('beskrivelse');
+                }
+            }
+        };
+
+        this.fields = _.cloneDeep(this.fields);
+    }
+
+    private updateFieldOldLTCode() {
+        let tilleggsinfo: UniFieldLayout = this.findByProperty(this.fields, '_OldLTCode');
+        tilleggsinfo.Options = {
+            source: this.packages,
+            valueProperty: 'gmlcode',
+            displayProperty: 'gmlcode',
+            debounceTime: 200,
+            template: (obj) => obj ? `${obj.gmlcode}` : '',
+            events: {
+                select: (model) => {
+                    this.showTilleggsPakker(model);
+                },
+                enter: (model) => {
+                    this.showTilleggsPakker(model);
+                }
+            }
+        };
+
+        this.fields = _.cloneDeep(this.fields);
+    }
+
+    private showTilleggsPakker(model: any) {
+        console.log('Valgt pakke som skal vises', model);
+        let selectedPackage: any = this.packages.find(x => x.gmlcode === model._OldLTCode);
+        console.log('selected package', selectedPackage);
+        
+        this.tilleggsinformasjonDatasource = [];
+        selectedPackage.additions.forEach(addition => {
+            this.tilleggsinformasjonDatasource.push(addition);
+        });
     }
 
     private toggleAccountNumberBalanceHidden() {
