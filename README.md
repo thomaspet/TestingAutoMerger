@@ -2,84 +2,75 @@
 # App Frontend
 Uni Economy Angular2 version
 
-# Resources
- - http://angular.io
- - http://github.com/angular/angular
- - https://github.com/timjacobi/angular2-education
- - https://github.com/angular-class/awesome-angular2
- - Ng-book
- - Gitter
- - Stackoverflow
- - Youtube
- - http://www.telerik.com/forums
-
-
 # Getting Started
 
-1. Fork and clone this repo
+1. Clone this repo
 
-1. `npm install`
+2. Install libraries `npm install` or `npm i`
 
-1. Run the TypeScript compiler and watch for changes `npm start`
+3. Update entities `gulp entities`
 
-1. Open 2nd terminal and launch the app in the browser `npm run serve`
+4. Deploy app and watch for changes `npm run start`
 
-## Notes
+5. Open a server that syncs with dist folder: `npm run serve`
 
-- Add redirectTo and/or otherwise routes
-- Fix http as it evolves
-- Manual typings fix for Pipes https://github.com/angular/angular/issues/4279
-- Replace mocks with http when ready
+# Name issues
 
-## From Scratch
+Follow this pattern when you are creating a new issue branch:
 
+`<issue_type>/<developer_name>/<issue_description>_<#issue_number>`
 
-1. Create empty `package.json`
+where:
 
-	```bash
-	npm init -y
-	```
+- **issue_type**: type of the issue
+    - fix: if it is a bug
+    - feature: if is a user story
+    - refactor: if you didn't add or fix anything
 
-1. Install npm packages
+- **developer_name**: initials of developer
+    example:    Jorge Ferrando Ferrando => jff
+                Sveinung Faresveit => sf
 
-	```bash
-	npm install --save --save-exact angular2 systemjs
-  npm install --save-dev typescript tsd live-server
-	```
+- **issue_description**: the name of the issue without spaces:
+    example: add user form => add_user_form
 
-1. Make a source folder
+- **#issue_number**: the number of the issue
 
-	```bash
-	mkdir -p src/app
-	```
+A complete issue will be like this:
+    example: feature/jff/add_user_form_#123
 
-1. Create a `tsconfig.json` file, in an editor
+# Write the commit message:
+While you are developing you can write as much as commits you want. But after finish coding, in the rebase process you
+should write a very clear commit like this one:
 
-	```json
-	{
-		"compilerOptions": {
-			"target": "ES5",
-			"module": "commonjs",
-			"sourceMap": true,
-			"emitDecoratorMetadata": true,
-			"experimentalDecorators": true,
-			"removeComments": false,
-			"noImplicitAny": true
-		}
-	}
-	```
+```
+feat(uniform): add new custom field element
 
-1. Create `app.ts` and enter
+the new custom field element allows developers
+to add fields that have a custom editor.
 
-	```javascript
-	import {bootstrap, Component} from 'angular2/angular2';
+closes: #123
+```
 
-	@Component({
-		selector: 'app',
-		template: '<h1>My First Angular 2 App</h1>'
-	})
-	class AppComponent { }
+# Code review
 
-	bootstrap(AppComponent);
-	```
-	
+- Checkout the branch and run it. It shouldn't throw any error
+- Test the functionality added
+- Review the code:
+    - tslint should be fine
+    - check code conventions and clean code
+
+# Create the pull-request
+
+- Go to github and create a pull-request of the branch
+- attach the label `codereview` to the issue and the pull-request
+- assign a reviewer to the issue
+
+# Merge with develop (Rebase)
+
+Do not merge the pull request to develop directly, instead use rebase.
+
+You can see how to do git rebase in this wiki article:
+[How to do a git rebase](https://github.com/unimicro/AppFrontend/wiki/How-to-do-a-git-rebase)
+
+After finish the git rebase the pull-request will close itself alone.
