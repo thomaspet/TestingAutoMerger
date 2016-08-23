@@ -29,7 +29,7 @@
         <p>
             Valgte tilleggsopplysninger
         </p>
-        <uni-table [config]="tilleggspakkeConfig" [resource]="tilleggsinformasjonDatasource"></uni-table>
+        <uni-table *ngIf="tilleggsinformasjonDatasource" [config]="tilleggspakkeConfig" [resource]="tilleggsinformasjonDatasource"></uni-table>
     </section>
 </section>
 

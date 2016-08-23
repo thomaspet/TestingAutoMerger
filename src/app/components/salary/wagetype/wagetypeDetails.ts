@@ -18,6 +18,7 @@ declare var _; // lodash
     directives: [UniForm, UniSave, WidgetPoster, UniTable]
 })
 export class WagetypeDetail {
+    private aMeldingHelp: string = 'http://veiledning-amelding.smartlearn.no/Veiledn_Generell/index.html#!Documents/lnnsinntekterrapportering.htm';
     private wageType: WageType;
     private wagetypeID: number;
     private accounts: Account[];
@@ -32,6 +33,7 @@ export class WagetypeDetail {
     private incomeTypeDatasource: any[] = [];
     private benefitDatasource: any[] = [];
     private descriptionDatasource: any[] = [];
+    private packagesForSelectedTypeFiltered: any[] = [];
     private packagesForSelectedType: any[] = [];
     private packages: any[] = [];
     private tilleggsinformasjonDatasource: any[] = [];
@@ -65,9 +67,11 @@ export class WagetypeDetail {
                 this.accounts = accountList;
                 this.wageType = wagetype;
                 this.setupTypes(validvaluesTypes);
+                console.log('lønnsart', this.wageType);
+                this.wageType['_AMeldingHelp'] = this.aMeldingHelp;
 
-                console.log('benefit datasource', this.benefitDatasource);
-                console.log('typer', this.incomeTypeDatasource);
+                // console.log('benefit datasource', this.benefitDatasource);
+                // console.log('typer', this.incomeTypeDatasource);
                 
                 if (this.wageType.ID === 0) {
                     this.wageType.WageTypeNumber = null;
@@ -100,7 +104,6 @@ export class WagetypeDetail {
                     template: (obj) => obj ? `${obj.AccountNumber} - ${obj.AccountName}` : ''
                 };
 
-                let self = this;
                 let incomeType: UniFieldLayout = this.findByProperty(this.fields, 'IncomeType');
                 incomeType.Options = {
                     source: this.incomeTypeDatasource,
@@ -112,12 +115,13 @@ export class WagetypeDetail {
                         select: (model) => {
                             console.log('valgt type (model)', model);
                             this.setupIncomeType(model.IncomeType);
-                        },
-                        enter: (model) => {
-                            console.log(self.wageType.IncomeType);
-                            console.log('valgt type', model);
-                            this.setupIncomeType(model.IncomeType);
                         }
+                        // ,
+                        // enter: (model) => {
+                        //     console.log(self.wageType.IncomeType);
+                        //     console.log('valgt type', model);
+                        //     this.setupIncomeType(model.IncomeType);
+                        // }
                     }
                 };
 
@@ -130,9 +134,7 @@ export class WagetypeDetail {
                     template: (obj) => obj ? `${obj.text}` : '',
                     events: {
                         select: (model) => {
-                            this.setupFilteredTilleggsPakker('fordel');
-                        },
-                        enter: (model) => {
+                            this.setupDescriptionDataSourceFiltered();
                             this.setupFilteredTilleggsPakker('fordel');
                         }
                     }
@@ -148,9 +150,6 @@ export class WagetypeDetail {
                     events: {
                         select: (model) => {
                             this.setupFilteredTilleggsPakker('beskrivelse');
-                        },
-                        enter: (model) => {
-                            this.setupFilteredTilleggsPakker('beskrivelse');
                         }
                     }
                 };
@@ -164,9 +163,6 @@ export class WagetypeDetail {
                     template: (obj) => obj ? `${obj.gmlcode}` : '',
                     events: {
                         select: (model) => {
-                            this.showTilleggsPakker(model);
-                        },
-                        enter: (model) => {
                             this.showTilleggsPakker(model);
                         }
                     }
@@ -192,18 +188,15 @@ export class WagetypeDetail {
         types.forEach(tp => {
             this.incomeTypeDatasource.push({text: tp});
         });
-        console.log('incometypes', this.incomeTypeDatasource);
     }
 
     private setupIncomeType(selectedType: string) {
         if (!selectedType) {
             selectedType = this.wageType.IncomeType;
         }
-        console.log('selectedType', selectedType);
         this.inntektService.getSalaryValidValue(selectedType)
         .subscribe(response => {
-            this.packagesForSelectedType = response;
-            console.log('Alle data tilgjengelig for valgt type', response);
+            this.packagesForSelectedType = this.packagesForSelectedTypeFiltered = response;
             if (this.packagesForSelectedType) {
                 this.setupFordelAndDescription(selectedType);
             }
@@ -222,17 +215,23 @@ export class WagetypeDetail {
             
             if (incometypeChild) {
                 if (!this.descriptionDatasource.find(x => x.text === incometypeChild.beskrivelse)) {
-                    this.descriptionDatasource.push({text: incometypeChild.beskrivelse});
+                    this.descriptionDatasource.push({text: incometypeChild.beskrivelse, fordel: tp.fordel});
                 }
-                // let additions: any[] = this.addTilleggsInformasjon(incometypeChild);
-                // if (additions.length > 0) {
-                //     this.packages.push({OldLTCode: tp.gmlcode, Additions: additions});
-                // }
             }
         });
-        console.log('Fordel', this.benefitDatasource);
-        console.log('Beskrivelse', this.descriptionDatasource);
 
+        this.updateFieldBenefitAndDescription();
+    }
+
+    private setupDescriptionDataSourceFiltered() {
+        let selectedFordel: string = this.wageType.Benefit;
+        let tmp: any[] = [];
+        this.descriptionDatasource.forEach(dp => {
+            if (dp.fordel === selectedFordel) {
+                tmp.push(dp);
+            }
+        });
+        this.descriptionDatasource = tmp;
         this.updateFieldBenefitAndDescription();
     }
 
@@ -274,10 +273,10 @@ export class WagetypeDetail {
     private setupTilleggsPakker() {
         let selectedType: string = this.wageType.IncomeType;
 
-        console.log('Alle tilgjengelige pakker i setuptilleggspakker()', this.packagesForSelectedType);
-        
-        this.packagesForSelectedType.forEach(tp => {
-            console.log('filtrert kilde, objekt som skal sjekkes', tp);
+        this.packages = [];
+        this.tilleggsinformasjonDatasource = [];
+
+        this.packagesForSelectedTypeFiltered.forEach(tp => {
             let incometypeChild: any = this.getIncometypeChildObject(tp, selectedType);
             
             if (incometypeChild) {
@@ -293,67 +292,94 @@ export class WagetypeDetail {
 
     private setupFilteredTilleggsPakker(fromCombo: string) {
         let filtered: any[] = [];
-        let tmp: any[] = [];
         let selectedType: string = this.wageType.IncomeType;
+        let selectedFordel: string = this.wageType.Benefit;
+        let selectedDescription: string = this.wageType.Description;
 
         console.log('fromCombo', fromCombo);
-        console.log('antall pakker FØR filtrering', this.packagesForSelectedType.length);
+        console.log('antall pakker FØR filtrering', this.packagesForSelectedTypeFiltered.length);
         switch (fromCombo) {
             case 'fordel':
-                this.packagesForSelectedType.forEach(tp => {
-                    if (this.wageType.Benefit !== '' && this.benefitDatasource.length > 0) {
-                        if (!filtered.find(x => x.fordel === tp.fordel)) {
+                if (selectedFordel !== '' && this.benefitDatasource.length > 0) {
+                    this.packagesForSelectedTypeFiltered.forEach(tp => {
+                        if (tp.fordel === selectedFordel) {
                             filtered.push(tp);
                         }
-                    }
-                });
+                    });
+                }
+                this.packagesForSelectedTypeFiltered = filtered;
+                console.log('antall pakker ETTER filtrering', this.packagesForSelectedTypeFiltered.length);
                 break;
             case 'beskrivelse':
-                this.packagesForSelectedType.forEach(tp => {
+                console.log('filtered', this.packagesForSelectedTypeFiltered);
+
+                this.packagesForSelectedTypeFiltered.forEach(tp => {
                     if (this.wageType.Description !== '' && this.descriptionDatasource.length > 0) {
                         let incometypeChild: any = this.getIncometypeChildObject(tp, selectedType);
                         if (incometypeChild) {
-                            if (!tmp.find(x => x.text === incometypeChild.beskrivelse)) {
+                            if (selectedDescription === incometypeChild.beskrivelse) {
                                 filtered.push(tp);
-                                tmp.push({text: incometypeChild.beskrivelse});
                             }
                         }
                     }
                 });
+                this.packagesForSelectedTypeFiltered = filtered;
+                console.log('antall pakker ETTER filtrering', this.packagesForSelectedTypeFiltered.length);
+                this.setupTilleggsPakker();
                 break;
 
             default:
                 break;
         }
         
-        this.packagesForSelectedType = filtered;
-        console.log('antall pakker ETTER filtrering', this.packagesForSelectedType.length);
-        this.setupTilleggsPakker();
+        
     }
 
     private addTilleggsInformasjon(tillegg) {
-        // console.log('tillegg vi skal sette opp pakker på');
-        let infoObjects: any[] = [tillegg.tilleggsinformasjon, tillegg.spesifikasjon];
+        let tilleggsObj: any = tillegg.tilleggsinformasjon;
+        let spesiObj: any = tillegg.spesifikasjon;
         let additions: any[] = [];
-        infoObjects.forEach(infoObject => {
-            if (infoObject !== null) {
-                for (var key in infoObject) {
-                    // console.log('key', key);
-                    if (key) {
-                        var obj = infoObject[key];
-                        // console.log('obj', obj);
+        console.log('tillegg', tillegg);
+        if (tilleggsObj !== null) {
+            for (var key in tilleggsObj) {
+                if (key !== null) {
+                    console.log('heile objektet', tilleggsObj);
+                    console.log('key', key);
+                    var obj = tilleggsObj[key];
+                    if (typeof obj === 'object') {
+                        console.log('obj', obj);
                         for (var prop in obj) {
                             if (obj.hasOwnProperty(prop)) {
-                                // if (!this.tilleggsinformasjonDatasource.find(x => x.Name === prop)) {
-                                //     this.tilleggsinformasjonDatasource.push({Name: prop, SuggestedValue: obj[prop]});
-                                // }
+                                console.log('tillegg prop', prop);
+                                console.log('tillegg prop value', obj[prop]);
                                 additions.push({Name: prop, SuggestedValue: obj[prop]});
+                            }
+                        }
+                    } else {
+                        if (key !== null) {
+                            for (var prp in tilleggsObj) {
+                                if (tilleggsObj.hasOwnProperty(prp)) {
+                                    console.log('tillegg prop', prp);
+                                    console.log('tillegg prop value', tilleggsObj[prp]);
+                                    additions.push({Name: prop, SuggestedValue: tilleggsObj[prp]});
+                                }
                             }
                         }
                     }
                 }
             }
-        });
+        }
+
+        if (spesiObj !== null) {
+            for (var props in spesiObj) {
+                if (spesiObj.hasOwnProperty(props)) {
+                    console.log('props', props);
+                    console.log('props value', spesiObj[props]);
+                    additions.push({Name: props, SuggestedValue: spesiObj[props]});
+                }
+            }
+        }
+
         return additions;
     }
 
@@ -367,11 +393,13 @@ export class WagetypeDetail {
             template: (obj) => obj ? `${obj.text}` : '',
             events: {
                 select: (model) => {
-                    this.setupFilteredTilleggsPakker('fordel');
-                },
-                enter: (model) => {
+                    this.setupDescriptionDataSourceFiltered();
                     this.setupFilteredTilleggsPakker('fordel');
                 }
+                // ,
+                // enter: (model) => {
+                //     this.setupFilteredTilleggsPakker('fordel');
+                // }
             }
         };
 
@@ -385,10 +413,11 @@ export class WagetypeDetail {
             events: {
                 select: (model) => {
                     this.setupFilteredTilleggsPakker('beskrivelse');
-                },
-                enter: (model) => {
-                    this.setupFilteredTilleggsPakker('beskrivelse');
                 }
+                // ,
+                // enter: (model) => {
+                //     this.setupFilteredTilleggsPakker('beskrivelse');
+                // }
             }
         };
 
@@ -406,10 +435,11 @@ export class WagetypeDetail {
             events: {
                 select: (model) => {
                     this.showTilleggsPakker(model);
-                },
-                enter: (model) => {
-                    this.showTilleggsPakker(model);
                 }
+                // ,
+                // enter: (model) => {
+                //     this.showTilleggsPakker(model);
+                // }
             }
         };
 
@@ -420,7 +450,7 @@ export class WagetypeDetail {
         console.log('Valgt pakke som skal vises', model);
         let selectedPackage: any = this.packages.find(x => x.gmlcode === model._OldLTCode);
         console.log('selected package', selectedPackage);
-        
+
         this.tilleggsinformasjonDatasource = [];
         selectedPackage.additions.forEach(addition => {
             this.tilleggsinformasjonDatasource.push(addition);
@@ -433,14 +463,14 @@ export class WagetypeDetail {
             accountNumberBalance.Hidden = this.wageType.Base_Payment;
             this.fields = _.cloneDeep(this.fields);
         }
-        setTimeout(() => {
-            if (!this.uniform.section(1).isOpen) {
-                this.uniform.section(1).toggle();
-            }
-            if (!this.uniform.section(2).isOpen) {
-                this.uniform.section(2).toggle();
-            }
-        }, 100);
+        // setTimeout(() => {
+        //     if (!this.uniform.section(1).isOpen) {
+        //         this.uniform.section(1).toggle();
+        //     }
+        //     if (!this.uniform.section(2).isOpen) {
+        //         this.uniform.section(2).toggle();
+        //     }
+        // }, 100);
     }
 
     private setupTilleggspakkeConfig() {

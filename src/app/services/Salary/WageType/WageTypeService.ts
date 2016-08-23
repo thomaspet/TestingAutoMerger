@@ -190,6 +190,7 @@ export class WageTypeService extends BizHttp<WageType> {
                     Combo: null,
                     Sectionheader: 'Innstillinger lønnsart',
                     hasLineBreak: false,
+                    openByDefault: true
                     // Validations: [
                     //     {
                     //         ErrorMessage: 'Required field',
@@ -422,7 +423,7 @@ export class WageTypeService extends BizHttp<WageType> {
                     Options: null,
                     LineBreak: null,
                     Combo: null,
-                    Sectionheader: 'A meldingsinformasjon',
+                    Sectionheader: 'A-meldingsinformasjon',
                     hasLineBreak: false,
                     openByDefault: true,
                 },
@@ -469,16 +470,16 @@ export class WageTypeService extends BizHttp<WageType> {
                     hasLineBreak: false,
                 },
                 {
-                    Property: 'Help',
+                    Property: '_AMeldingHelp',
                     FieldType: 13,
                     ReadOnly: false,
                     LookupField: false,
-                    Label: 'For hjelp',
-                    HelpText: 'For hjelp til å fylle ut type, fordel, og beskrivelse',
+                    Label: 'Hjelp',
+                    HelpText: 'Hjelp til a-ordningen',
                     FieldSet: 0,
                     Section: 2,
                     Options: {
-                        description: 'Ameldingshjelpen'
+                        description: 'Veiledning a-ordningen'
                     },
                     Combo: 0
                 },
