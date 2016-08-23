@@ -4,6 +4,6 @@
         <button (click)="addNewSubEntity()">Ny virksomhet</button>
     </nav>
     <main class="splitview_detail">
-        <sub-entity-details [currentSubEntity]="currentSubEntity" [municipalities]="municipalities"></sub-entity-details>
+        <sub-entity-details [currentSubEntity]="currentSubEntity" [municipalities]="municipalities" (refreshList)="refreshList()"></sub-entity-details>
     </main>
 </section>

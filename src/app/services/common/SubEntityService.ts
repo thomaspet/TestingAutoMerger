@@ -124,7 +124,7 @@ export class SubEntityService extends BizHttp<SubEntity> {
                     Property: 'subEntity.BusinessRelationInfo.InvoiceAddress.PostalCode',
                     Placement: 1,
                     Hidden: false,
-                    FieldType: CONTROLS_ENUM.TEXT,
+                    FieldType: CONTROLS_ENUM.AUTOCOMPLETE,
                     ReadOnly: false,
                     LookupField: false,
                     Label: 'Postnr',
@@ -140,30 +140,10 @@ export class SubEntityService extends BizHttp<SubEntity> {
                 },
                 {
                     ComponentLayoutID: 1,
-                    EntityType: 'BusinessRelation',
-                    Property: 'subEntity.BusinessRelationInfo.InvoiceAddress.City',
-                    Placement: 1,
-                    Hidden: false,
-                    FieldType: CONTROLS_ENUM.TEXT,
-                    ReadOnly: false,
-                    LookupField: false,
-                    Label: 'Poststed',
-                    Description: null,
-                    HelpText: null,
-                    FieldSet: 0,
-                    Section: 0,
-                    Placeholder: null,
-                    Options: null,
-                    LineBreak: true,
-                    Combo: null,
-                    Sectionheader: ''
-                },
-                {
-                    ComponentLayoutID: 1,
                     Property: 'subEntity.MunicipalityNo',
                     Placement: 1,
                     Hidden: false,
-                    FieldType: CONTROLS_ENUM.TEXT,
+                    FieldType: CONTROLS_ENUM.AUTOCOMPLETE,
                     ReadOnly: false,
                     LookupField: false,
                     Label: 'Kommunenr',
@@ -176,26 +156,7 @@ export class SubEntityService extends BizHttp<SubEntity> {
                     LineBreak: null,
                     Combo: null,
                     Sectionheader: ''
-                },
-                {
-                    ComponentLayoutID: 1,
-                    Property: 'municipalityName',
-                    Placement: 1,
-                    Hidden: false,
-                    FieldType: CONTROLS_ENUM.TEXT,
-                    ReadOnly: false,
-                    LookupField: false,
-                    Label: 'Kommunenavn',
-                    Description: null,
-                    HelpText: null,
-                    FieldSet: 0,
-                    Section: 0,
-                    Placeholder: null,
-                    Options: null,
-                    LineBreak: null,
-                    Combo: null,
-                    Sectionheader: ''
-                },
+                }
             ]
         }]);
     }       
