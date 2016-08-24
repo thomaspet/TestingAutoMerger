@@ -69,46 +69,36 @@ export class RecurringPost implements OnInit {
             });
     }
 
+    private refreshData() {
+        this.recurringItems$ = _.cloneDeep(this.recurringItems$);
+    }
+    
     public saveRecurringpost(done) {
         this.saveactions[0].disabled = true;
         this.recurringPosts = this.table.getTableData();
         done('Lagrer faste poster');
+        let saving: Observable<any>[] = [];
         this.recurringPosts.forEach(recurringpost => {
             this.saveactions[0].disabled = true;
             recurringpost.IsRecurringPost = true;
             recurringpost.EmployeeID = this.employeeID;
             recurringpost.EmployeeNumber = this.employeeID;
-
-
-
             if (recurringpost.ID > 0) {
-                this.salarytransService.Put(recurringpost.ID, recurringpost)
-                    .subscribe((response: SalaryTransaction) => {
-                        done('Sist lagret: ');
-                        this.saveactions[0].disabled = false;
-                    },
-                    (err) => {
-                        done('Feil ved oppdatering av fast post', err);
-                        this.log(err);
-                        this.saveactions[0].disabled = false;
-                    });
+                saving.push(this.salarytransService.Put(recurringpost.ID, recurringpost));
             } else {
-                recurringpost.recurringPostValidFrom.setHours(12);
-                recurringpost.recurringPostValidTo.setHours(12);
-
-                this.salarytransService.Post(recurringpost)
-                    .subscribe((response: SalaryTransaction) => {
-                        done('Sist lagret: ');
-                        this.saveactions[0].disabled = false;
-                    },
-                    (err) => {
-                        done('Feil ved lagring av fast post', err);
-                        this.log(err);
-                        this.saveactions[0].disabled = false;
-                    });
+                saving.push(this.salarytransService.Post(recurringpost));
             }
         });
-        done('Faste poster lagret: ');
+        Observable.forkJoin(saving).subscribe((response: SalaryTransaction[]) => {
+            done('Sist lagret: ');
+            this.saveactions[0].disabled = false;
+            this.refreshData();
+        },
+            (err) => {
+                done('Feil ved oppdatering av fast post', err);
+                this.log(err);
+                this.saveactions[0].disabled = false;
+            });
     }
 
     private buildTableConfig() {
@@ -190,6 +180,20 @@ export class RecurringPost implements OnInit {
 
                 if (event.field === 'Amount' || event.field === 'Rate') {
                     this.calcItem(row);
+                }
+
+                if (event.field === 'recurringPostValidFrom') {
+                    if (row.recurringPostValidFrom) {
+                        row.recurringPostValidFrom = new Date(row.recurringPostValidFrom.toString());
+                        row.recurringPostValidFrom.setHours(12);
+                    }
+                }
+
+                if (event.field === 'recurringPostValidTo') {
+                    if (row.recurringPostValidTo) {
+                        row.recurringPostValidTo = new Date(row.recurringPostValidTo.toString());
+                        row.recurringPostValidTo.setHours(12);
+                    }
                 }
 
                 return row;

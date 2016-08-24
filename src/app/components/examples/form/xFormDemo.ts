@@ -81,16 +81,17 @@ export class XFormDemo {
                 displayValue: 'JobName',
                 linkProperty: 'ID',
                 storeResultInProperty: 'DefaultJobTest',
-                editor: (value) => new Promise((resolve) => {
-                    if(_.isObject(value) && value.hasOwnProperty('JobName')) {
-                        resolve(value);
-                    } else {
-                        var x: Employment = new Employment();
-                        x.ID = _.toSafeInteger(performance.now());
-                        x.JobName = 'New Job';
-                        resolve(x);
-                    }
-                })
+                //editor: (value) => new Promise((resolve) => {
+                //    if(_.isObject(value) && value.hasOwnProperty('JobName')) {
+                //        value.JobName = 'Edited JobName';
+                //        resolve(value);
+                //    } else {
+                //        var x: Employment = new Employment();
+                //        x.ID = _.toSafeInteger(performance.now());
+                //        x.JobName = 'New Job';
+                //        resolve(x);
+                //    }
+                //})
             };
             var autocompleteTest = new UniFieldLayout();
             autocompleteTest.FieldSet = 0;
