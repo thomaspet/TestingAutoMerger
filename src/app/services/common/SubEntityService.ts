@@ -24,7 +24,7 @@ export class SubEntityService extends BizHttp<SubEntity> {
                 {
                     ComponentLayoutID: 1,
                     EntityType: 'BusinessRelation',
-                    Property: 'subEntity.BusinessRelationInfo.Name',
+                    Property: 'BusinessRelationInfo.Name',
                     Placement: 1,
                     Hidden: false,
                     FieldType: CONTROLS_ENUM.TEXT,
@@ -43,7 +43,7 @@ export class SubEntityService extends BizHttp<SubEntity> {
                 },
                 {
                     ComponentLayoutID: 1,
-                    Property: 'subEntity.OrgNumber',
+                    Property: 'OrgNumber',
                     Placement: 1,
                     Hidden: false,
                     FieldType: CONTROLS_ENUM.TEXT,
@@ -62,7 +62,7 @@ export class SubEntityService extends BizHttp<SubEntity> {
                 },
                 {
                     ComponentLayoutID: 1,
-                    Property: 'subEntity.AgaZone',
+                    Property: 'AgaZone',
                     Placement: 1,
                     Hidden: false,
                     FieldType: CONTROLS_ENUM.SELECT,
@@ -81,7 +81,7 @@ export class SubEntityService extends BizHttp<SubEntity> {
                 },
                 {
                     ComponentLayoutID: 1,
-                    Property: 'subEntity.AgaRule',
+                    Property: 'AgaRule',
                     Placement: 1,
                     Hidden: false,
                     FieldType: CONTROLS_ENUM.SELECT,
@@ -101,7 +101,7 @@ export class SubEntityService extends BizHttp<SubEntity> {
                 {
                     ComponentLayoutID: 1,
                     EntityType: 'BusinessRelation',
-                    Property: 'subEntity.BusinessRelationInfo.InvoiceAddress.AddressLine1',
+                    Property: 'BusinessRelationInfo.InvoiceAddress.AddressLine1',
                     Placement: 1,
                     Hidden: false,
                     FieldType: CONTROLS_ENUM.TEXT,
@@ -121,7 +121,7 @@ export class SubEntityService extends BizHttp<SubEntity> {
                 {
                     ComponentLayoutID: 1,
                     EntityType: 'BusinessRelation',
-                    Property: 'subEntity.BusinessRelationInfo.InvoiceAddress.PostalCode',
+                    Property: 'BusinessRelationInfo.InvoiceAddress.PostalCode',
                     Placement: 1,
                     Hidden: false,
                     FieldType: CONTROLS_ENUM.AUTOCOMPLETE,
@@ -140,7 +140,7 @@ export class SubEntityService extends BizHttp<SubEntity> {
                 },
                 {
                     ComponentLayoutID: 1,
-                    Property: 'subEntity.MunicipalityNo',
+                    Property: 'MunicipalityNo',
                     Placement: 1,
                     Hidden: false,
                     FieldType: CONTROLS_ENUM.AUTOCOMPLETE,
