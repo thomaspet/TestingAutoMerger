@@ -27,14 +27,15 @@ export class StimulsoftReportWrapper {
         {
             const report = this.generateReport(template, reportData);
             
-            if (report) {
+            if (report) {            
                 // Create a text writer objects.
                 const textWriter = new Stimulsoft.System.IO.TextWriter();
                 const htmlTextWriter = new Stimulsoft.Report.Export.StiHtmlTextWriter(textWriter);
 
                 // Export HTML using text writer.
                 const settings = new Stimulsoft.Report.Export.StiHtmlExportSettings();
-                const service = new Stimulsoft.Report.Export.StiHtmlExportService();
+                const service = new Stimulsoft.Report.Export.StiHtmlExportService();           
+                settings.htmlType = Stimulsoft.Report.StiHtmlType.Html5;
 
                 service.exportTo(report, htmlTextWriter, settings);
 
