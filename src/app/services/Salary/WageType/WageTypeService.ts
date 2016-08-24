@@ -38,9 +38,11 @@ let stdWageType: Array<any> = [
     {ID: StdWageType.HolidayPayLastYear, Name: 'Feriepenger forrige år'},
 ];
 
-
-
 export class WageTypeService extends BizHttp<WageType> {
+
+    private defaultExpands: any = [
+        'SupplementaryInformations'
+    ];
 
     constructor(http: UniHttp) {
         super(http);
@@ -65,11 +67,17 @@ export class WageTypeService extends BizHttp<WageType> {
             .map(response => response.json());
     }
     
-    public getWageType(id): Observable<any> {
+    public getWageType(id: number | string, expand: string[] = null): Observable<any> {
         if (id === 0) {
-            return this.GetNewEntity();
+            if (expand) {
+                return this.GetNewEntity(expand);
+            }
+            return this.GetNewEntity(this.defaultExpands);
         } else {
-            return this.Get(id);
+            if (expand) {
+                return this.Get(id, expand);
+            }
+            return this.Get(id, this.defaultExpands);
         }
     }
     
