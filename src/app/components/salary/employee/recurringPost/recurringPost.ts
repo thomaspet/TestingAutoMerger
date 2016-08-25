@@ -159,7 +159,6 @@ export class RecurringPost implements OnInit {
             .setDeleteButton({
                 deleteHandler: (rowModel: SalaryTransaction) => {
                     if (isNaN(rowModel.ID)) { return true; }
-                    this.table.removeRow(rowModel['_originalIndex']);
                     return this.salarytransService.delete(rowModel.ID);
                 }
             })

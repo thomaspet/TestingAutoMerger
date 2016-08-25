@@ -337,7 +337,6 @@ export class SalaryTransactionEmployeeList implements OnChanges, AfterViewInit {
                 deleteHandler: (rowModel: SalaryTransaction) => {
                     if (isNaN(rowModel.ID)) { return true; }                    
                     if (!rowModel.IsRecurringPost) {
-                        this.tables.first.removeRow(rowModel['_originalIndex']);
                         return this.salarytransService.delete(rowModel.ID);
                     }      
                     return false;              
