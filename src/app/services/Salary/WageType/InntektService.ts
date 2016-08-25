@@ -11,10 +11,13 @@ export class InntektService extends BizHttp<Inntekt> {
 
     public getSalaryValidValue(type: string = '') {
         let url = this.relativeURL;
+        if (url === '') {
+            url = 'salaryvalidvalues';
+        }
         if (type) {
             url = url + '?type=' + type; 
         }
-
+        console.log('url', url);
         return this.http
             .asGET()
             .usingBusinessDomain()

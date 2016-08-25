@@ -61,7 +61,6 @@ export class WagetypeDetail {
             this.packagesForSelectedTypeFiltered = [];
             // this.supplementaryInformations = [];
             this.setup();
-
         });
     }
 
@@ -206,6 +205,7 @@ export class WagetypeDetail {
         }
         this.inntektService.getSalaryValidValue(selectedType)
         .subscribe(response => {
+            console.log('pakker for type', response);
             this.packagesForSelectedType = this.packagesForSelectedTypeFiltered = response;
             if (this.packagesForSelectedType) {
                 this.setupFordelAndDescription(selectedType);
