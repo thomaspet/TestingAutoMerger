@@ -60,12 +60,12 @@ export class WagetypeDetail {
             this.packagesForSelectedType = [];
             this.packagesForSelectedTypeFiltered = [];
             // this.supplementaryInformations = [];
+            this.setup();
 
-            this.getLayoutAndData();
         });
     }
 
-    private getLayoutAndData() {
+    private setup() {
         Observable.forkJoin(
             this.wageService.getWageType(this.wagetypeID),
             this.wageService.layout('WagetypeDetails'),

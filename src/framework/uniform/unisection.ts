@@ -26,7 +26,7 @@ declare var _; // lodash
                     <uni-combo-field 
                         *ngIf="isCombo(item)"
                         [controls]="controls"
-                        [field]="item" 
+                        [fields]="item"
                         [model]="model"
                         (onReady)="onReadyHandler($event)"
                         (onChange)="onChangeHandler($event)">
@@ -45,7 +45,7 @@ declare var _; // lodash
         </article>
     `,
     changeDetection: ChangeDetectionStrategy.OnPush,
-    directives: [REACTIVE_FORM_DIRECTIVES, UniField, UniCombo, UniFieldSet]
+    directives: [REACTIVE_FORM_DIRECTIVES, UniFieldSet, UniCombo, UniField]
 })
 export class UniSection {
     @Input()

@@ -298,14 +298,13 @@ export class JournalEntrySimpleForm implements OnChanges {
                                         this.journalEntryLine.CustomerInvoiceID = invoice.ID;
                                         this.journalEntryLine.Amount = line.RestAmount;
 
-                                       // KE 27062016: removed for now, but might be more correct to use subaccount later
-                                       // if (line.SubAccount) {
-                                       //     this.journalEntryLine.CreditAccountID = line.SubAccountID;
-                                       //     this.journalEntryLine.CreditAccount = line.SubAccount;
-                                       // } else {
-                                        this.journalEntryLine.CreditAccountID = line.AccountID;
-                                        this.journalEntryLine.CreditAccount = line.Account;
-                                       // }
+                                        if (line.SubAccount) {
+                                            this.journalEntryLine.CreditAccountID = line.SubAccountID;
+                                            this.journalEntryLine.CreditAccount = line.SubAccount;
+                                        } else {
+                                            this.journalEntryLine.CreditAccountID = line.AccountID;
+                                            this.journalEntryLine.CreditAccount = line.Account;
+                                        }
 
                                         this.journalEntryLine = _.cloneDeep(this.journalEntryLine);
                                         break;

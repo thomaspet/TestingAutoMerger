@@ -1,4 +1,4 @@
-import {autocompleteDate} from '../uniform/controls/date/date';
+import {autocompleteDate} from '../uniform/shared/autocompleteDate';
 
 declare var jQuery;
 

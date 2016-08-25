@@ -65,7 +65,10 @@ export class SupplierDetails {
                 private tabService: TabService
                 ) {
                 
-        this.route.params.subscribe(params => this.supplierID = +params['id']);                 
+        this.route.params.subscribe(params => {
+            this.supplierID = +params['id'];
+            this.setup();
+        });
     }
     
     public nextSupplier() {
@@ -110,18 +113,13 @@ export class SupplierDetails {
                         });     
         }
     }
-          
-    
-    public ngOnInit() {
-        this.getLayoutAndData();          
-    }
 
     private setTabTitle() {
         let tabTitle = this.supplier.SupplierNumber ? 'Leverandørnr. ' + this.supplier.SupplierNumber : 'Leverandør (kladd)'; 
         this.tabService.addTab({ url: '/sales/suppliers/' + this.supplier.ID, name: tabTitle, active: true, moduleID: 2 });
     }
 
-    private getLayoutAndData() {        
+    private setup() {
         this.fields = this.getComponentLayout().Fields;            
         
         Observable.forkJoin(

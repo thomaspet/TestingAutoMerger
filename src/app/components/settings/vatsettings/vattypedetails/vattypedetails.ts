@@ -1,4 +1,4 @@
-import {Component, Input, ViewChild, Output, EventEmitter, OnChanges} from '@angular/core';
+import {Component, Input, ViewChild, Output, EventEmitter, OnChanges, OnInit} from '@angular/core';
 
 import {Observable} from 'rxjs/Rx';
 
@@ -17,7 +17,7 @@ import {UniTable, UniTableColumn, UniTableConfig, UniTableColumnType} from 'unit
     directives: [UniForm, UniTable],
     providers: [VatTypeService, AccountService, VatCodeGroupService, VatPostService]
 })
-export class VatTypeDetails implements OnChanges {
+export class VatTypeDetails implements OnChanges, OnInit {
     @Input() public vatType: VatType;
     @Output() public vatTypeSaved: EventEmitter<VatType> = new EventEmitter<VatType>();
     @Output() public change: EventEmitter<VatType> = new EventEmitter<VatType>();
@@ -40,7 +40,7 @@ export class VatTypeDetails implements OnChanges {
     }
 
     public ngOnInit() {
-        this.getLayoutAndData();
+        this.setup();
     }
 
     public ngOnChanges() {
@@ -51,7 +51,7 @@ export class VatTypeDetails implements OnChanges {
         this.change.emit(this.vatType);
     }
 
-    private getLayoutAndData() {
+    private setup() {
         this.fields = this.getComponentLayout().Fields;
 
         Observable.forkJoin(

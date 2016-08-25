@@ -12,7 +12,7 @@ gulp.task('ts2js', function() {
         .pipe(plugins.plumber())
         .pipe(plugins.typescript(tsproject))
         .pipe(plugins.concat('app.bundle.js'))
-        .pipe(plugins.uglify())
+        // .pipe(plugins.uglify())
         .pipe(gulp.dest(DIST));
 });
 
