@@ -88,3 +88,18 @@ uni-document-demo
 
 button.good.salary-new
   margin-left: 0
+
+// Manual testing of half-size fields
+// Unless you know why it's here, just ignore it and pretend you never saw it.
+body:active .employee-personal-details form
+  & > uni-field:nth-of-type(2),
+  & > uni-field:nth-of-type(3),
+  & > uni-section:nth-of-type(2) uni-field:nth-of-type(1),
+  & > uni-section:nth-of-type(2) uni-field:nth-of-type(2),
+  & > uni-section:nth-of-type(2) uni-field:nth-of-type(4),
+  & > uni-section:nth-of-type(2) uni-field:nth-of-type(5),
+  & > uni-section:nth-of-type(2) uni-field:nth-of-type(6),
+    width: calc(12.5% - 2rem)
+
+  & > uni-section:nth-of-type(3)
+    display: none
