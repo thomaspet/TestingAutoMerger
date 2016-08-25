@@ -72,8 +72,7 @@ export class RecurringPost implements OnInit {
     private refreshData() {
         this.recurringItems$ = _.cloneDeep(this.recurringItems$);
     }
-
-
+    
     public saveRecurringpost(done) {
         this.saveactions[0].disabled = true;
         this.recurringPosts = this.table.getTableData();
@@ -84,7 +83,6 @@ export class RecurringPost implements OnInit {
             recurringpost.IsRecurringPost = true;
             recurringpost.EmployeeID = this.employeeID;
             recurringpost.EmployeeNumber = this.employeeID;
-
             if (recurringpost.ID > 0) {
                 saving.push(this.salarytransService.Put(recurringpost.ID, recurringpost));
             } else {
@@ -158,6 +156,12 @@ export class RecurringPost implements OnInit {
         var sumCol = new UniTableColumn('Sum', 'Sum', UniTableColumnType.Number);
 
         this.recurringpostListConfig = new UniTableConfig()
+            .setDeleteButton({
+                deleteHandler: (rowModel: SalaryTransaction) => {
+                    if (isNaN(rowModel.ID)) { return true; }
+                    return this.salarytransService.delete(rowModel.ID);
+                }
+            })
             .setColumns([
                 wagetypeCol, descriptionCol, employmentIDCol, fromdateCol, todateCol,
                 amountCol, rateCol, sumCol
@@ -190,6 +194,7 @@ export class RecurringPost implements OnInit {
                         row.recurringPostValidTo.setHours(12);
                     }
                 }
+
                 return row;
             });
     }

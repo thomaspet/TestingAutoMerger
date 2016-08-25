@@ -19,7 +19,7 @@ declare var _;
     providers: [PhoneService, EmailService, AddressService, AltinnService, SubEntityService],
     templateUrl: 'app/components/salary/employee/personalDetails/personalDetails.html'
 })
-export class PersonalDetails implements OnDestroy{
+export class PersonalDetails implements OnDestroy {
 
     public busy: boolean;
     public expands: any = [
@@ -219,7 +219,7 @@ export class PersonalDetails implements OnDestroy{
             click: (event) => {
                 this.openReadTaxCardModal();
             }
-        }
+        };
 
         this.fields = _.cloneDeep(this.fields);
     }
@@ -227,6 +227,34 @@ export class PersonalDetails implements OnDestroy{
     private findByProperty(fields, name) {
         var field = fields.find((fld) => fld.Property === name);
         return field;
+    }
+
+    private updateInfoFromSSN() {
+
+        if (this.employee.SocialSecurityNumber.length === 11) {
+            
+            let day: number = +this.employee.SocialSecurityNumber.substring(0, 2);
+            let month: number = +this.employee.SocialSecurityNumber.substring(2, 4);
+            let year: number = +this.employee.SocialSecurityNumber.substring(4, 6);
+            let controlNumbers: number = +this.employee.SocialSecurityNumber.substring(6, 9);
+
+            let yearToday = +new Date().getFullYear().toString().substring(2, 4);
+
+            if (year < yearToday) {
+                let fullYear: string = new Date().getFullYear().toString().substring(0, 2) + (year < 10 ? '0' + year.toString() : year.toString());
+                year = +fullYear;
+            }
+
+            if (year && month && day) {
+                if (month > 0) {
+                    month -= 1;
+                }
+                this.employee.BirthDate = new Date(year, month, day, 12);
+            }
+
+            this.employee.Sex = (controlNumbers % 2) + 1;
+        }
+
     }
 
     public ready(value) {
@@ -240,6 +268,9 @@ export class PersonalDetails implements OnDestroy{
         }, 100);
 
         this.uniform.field('BusinessRelationInfo.Name').focus();
+        this.uniform.field('SocialSecurityNumber').onChange.subscribe(() => {
+            this.updateInfoFromSSN();
+        });
     }
 
     public change(value) {
