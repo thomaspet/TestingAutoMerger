@@ -22,8 +22,7 @@ export class SalaryTransactionService extends BizHttp<SalaryTransaction> {
             .asDELETE()
             .usingBusinessDomain()
             .withEndPoint('salarytrans/' + ID)
-            .send()
-            .map(response => response.json());
+            .send();
     }
 
 }
