@@ -105,7 +105,7 @@ export class UniSave {
     }
 
     public onSaveCompleted(statusMessage?: string) {
-        if (statusMessage.length) {
+        if (statusMessage && statusMessage.length) {
             this.status = {
                 message: statusMessage,
                 when: new Date()
