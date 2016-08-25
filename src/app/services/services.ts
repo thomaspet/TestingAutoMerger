@@ -56,4 +56,4 @@ export * from './salary/basicamount/BasicAmountService';
 export * from './common/guidService';
 export * from './salary/companysalary/CompanyVacationRateService';
 export * from './accounting/BankService';
-export * from './salary/wagetype/inntektservice';
+export * from './salary/wagetype/InntektService';

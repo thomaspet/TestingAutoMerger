@@ -403,11 +403,13 @@ export class WagetypeDetail {
         this.wageType.SupplementaryInformations = [];
         this.showSupplementaryInformations = false;
 
+        let supInfo: Array<any> = [];
         selectedPackage.additions.forEach(addition => {
-            // this.supplementaryInformations.push(addition);
-            this.wageType.SupplementaryInformations.push(addition);
-        });
-        console.log('supplementaryinformations', this.wageType.SupplementaryInformations);
+            supInfo.push(addition);
+        });        
+        
+        this.wageType.SupplementaryInformations = JSON.parse(JSON.stringify(supInfo));
+        
         if (this.wageType.SupplementaryInformations.length > 0) {
             this.showSupplementaryInformations = true;
         }
