@@ -1,39 +1,53 @@
+.tmpReportModal,
+.tmpReportFooter
+    width: 75vw
+    min-width: 55rem
+
 .tmpReportModal
     background: $uni-color-negative
     box-shadow: 0 0 2rem transparentize($uni-color-positive, .9)
-    padding: 2rem
+    padding: 1rem
     box-sizing: border-box
     border-radius: pxToRem(5)
     max-height: 90vh
     overflow: auto
+    height: 90vh
+    margin: 0
+    margin-bottom: 2rem
+    overflow: auto
 
     @media(small)
-        width: 95cw
+        width: 95vw
 
     h1
         @extend h2
+        max-width: pxToRem(827)
+        margin: 0 auto
 
     footer
         text-align: right
-        
-
-    width: 840px
-    height: 90vh
-    margin: 0vh 0vw
-    overflow: auto
     
     p:last-of-type
         margin-bottom: 3rem
-    
+
+    #reportContainer
+        display: flex
+        flex-direction: column
+        align-items: center
+
+        svg
+            background: #fff
+
 .tmpReportFooter
     background: $uni-color-negative
 
     // For browsers who doesn't support position:sticky:
     position: absolute
-    height: 50px
-    bottom: 5vh // == position from bottom of the modal
-    width: 	790px
-    
+    height: pxToRem(50)
+    bottom: 2vh // == position from bottom of the modal
+    box-shadow: 0 0 2rem transparentize($uni-color-positive, .9)
+    margin-left: -1rem
+
     @supports (position: sticky)
         position: sticky
         bottom: 0
