@@ -59,7 +59,6 @@ export class WagetypeDetail {
             this.packages = [];
             this.packagesForSelectedType = [];
             this.packagesForSelectedTypeFiltered = [];
-            // this.supplementaryInformations = [];
             this.setup();
         });
     }
@@ -76,8 +75,12 @@ export class WagetypeDetail {
                 this.accounts = accountList;
                 this.wageType = wagetype;
                 this.fields = layout.Fields;
-                // this.supplementaryInformations = this.wageType.SupplementaryInformations;
-                console.log('Lønnsart', this.wageType);
+
+                if (this.wageType.SupplementaryInformations.length > 0) {
+                    this.showSupplementaryInformations = true;
+                } else {
+                    this.showSupplementaryInformations = false;
+                }
 
                 this.setupTypes(validvaluesTypes);
                 this.wageType['_AMeldingHelp'] = this.aMeldingHelp;
@@ -205,7 +208,6 @@ export class WagetypeDetail {
         }
         this.inntektService.getSalaryValidValue(selectedType)
         .subscribe(response => {
-            console.log('pakker for type', response);
             this.packagesForSelectedType = this.packagesForSelectedTypeFiltered = response;
             if (this.packagesForSelectedType) {
                 this.setupFordelAndDescription(selectedType);
@@ -293,8 +295,6 @@ export class WagetypeDetail {
     private setupTilleggsPakker() {
         let selectedType: string = this.wageType.IncomeType;
         this.packages = [];
-        // this.supplementaryInformations = [];
-
 
         // Ta bort alle objekter som har 'skatteOgAvgiftsregel' som noe annet enn null
         this.updateForSkatteOgAvgiftregel();
@@ -389,7 +389,7 @@ export class WagetypeDetail {
                     wtSupp.SuggestedValue = spesiObj[props];
                     wtSupp.WageTypeID = this.wagetypeID;
                     wtSupp['_createguid'] = this.wageService.getNewGuid();
-                    additions.push();
+                    additions.push(wtSupp);
                 }
             }
         }
@@ -399,7 +399,6 @@ export class WagetypeDetail {
 
     private showTilleggsPakker(model: any) {
         let selectedPackage: any = this.packages.find(x => x.gmlcode === model._OldLTCode);
-        // this.supplementaryInformations = [];
         this.wageType.SupplementaryInformations = [];
         this.showSupplementaryInformations = false;
 

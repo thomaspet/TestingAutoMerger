@@ -17,7 +17,7 @@ export class InntektService extends BizHttp<Inntekt> {
         if (type) {
             url = url + '?type=' + type; 
         }
-        console.log('url', url);
+        
         return this.http
             .asGET()
             .usingBusinessDomain()
