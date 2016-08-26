@@ -40,7 +40,7 @@
             </label>
             
             <label>
-                <input type="checkbox" [(ngModel)]="isTest">
+                <input type="checkbox" [(ngModel)]="isTest" [ngModelOptions]="{standalone: true}">
                 Inkluder testdata
             </label>
             <button type="submit" class="c2a" [attr.aria-busy]="working" [disabled]="!f.form.valid || !passwordsMatching || working">Registrer</button>
@@ -53,7 +53,7 @@
             </label>
             
             <label>
-                <input type="checkbox" [(ngModel)]="isTest">
+                <input type="checkbox" [(ngModel)]="isTest" [ngModelOptions]="{standalone: true}">
                 Inkluder testdata
             </label>
             <button type="submit" class="c2a" [attr.aria-busy]="working" [disabled]="!f.form.valid || working">Legg til selskap</button>
