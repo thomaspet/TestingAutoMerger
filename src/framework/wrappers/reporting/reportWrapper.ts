@@ -18,6 +18,9 @@ export class StimulsoftReportWrapper {
         const backup = Promise;
         System.import('stimulsoft.reports.js').then(function() {
             Promise = backup;
+
+            // add font
+            Stimulsoft.Base.StiFontCollection.addOpentypeFontFile("assets/SourceSansPro-Regular.otf", "Source Sans Pro");
         });
     }
             
