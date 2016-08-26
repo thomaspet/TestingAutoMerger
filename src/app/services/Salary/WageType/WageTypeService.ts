@@ -38,9 +38,11 @@ let stdWageType: Array<any> = [
     {ID: StdWageType.HolidayPayLastYear, Name: 'Feriepenger forrige år'},
 ];
 
-
-
 export class WageTypeService extends BizHttp<WageType> {
+
+    private defaultExpands: any = [
+        'SupplementaryInformations'
+    ];
 
     constructor(http: UniHttp) {
         super(http);
@@ -65,11 +67,17 @@ export class WageTypeService extends BizHttp<WageType> {
             .map(response => response.json());
     }
     
-    public getWageType(id): Observable<any> {
+    public getWageType(id: number | string, expand: string[] = null): Observable<any> {
         if (id === 0) {
-            return this.GetNewEntity();
+            if (expand) {
+                return this.GetNewEntity(expand);
+            }
+            return this.GetNewEntity(this.defaultExpands);
         } else {
-            return this.Get(id);
+            if (expand) {
+                return this.Get(id, expand);
+            }
+            return this.Get(id, this.defaultExpands);
         }
     }
     
@@ -190,6 +198,7 @@ export class WageTypeService extends BizHttp<WageType> {
                     Combo: null,
                     Sectionheader: 'Innstillinger lønnsart',
                     hasLineBreak: false,
+                    openByDefault: true
                     // Validations: [
                     //     {
                     //         ErrorMessage: 'Required field',
@@ -422,8 +431,9 @@ export class WageTypeService extends BizHttp<WageType> {
                     Options: null,
                     LineBreak: null,
                     Combo: null,
-                    Sectionheader: 'A meldingsinformasjon',
+                    Sectionheader: 'A-meldingsinformasjon',
                     hasLineBreak: false,
+                    openByDefault: true,
                 },
                 {
                     ComponentLayoutID: 1,
@@ -466,7 +476,42 @@ export class WageTypeService extends BizHttp<WageType> {
                     Combo: null,
                     Sectionheader: '',
                     hasLineBreak: false,
-                } 
+                },
+                {
+                    Property: '_AMeldingHelp',
+                    FieldType: 13,
+                    ReadOnly: false,
+                    LookupField: false,
+                    Label: 'Hjelp',
+                    HelpText: 'Hjelp til a-ordningen',
+                    FieldSet: 0,
+                    Section: 2,
+                    Options: {
+                        description: 'Veiledning a-ordningen'
+                    },
+                    Combo: 0
+                },
+                {
+                    ComponentLayoutID: 1,
+                    EntityType: 'packages',
+                    Property: '_OldLTCode',
+                    Placement: 1,
+                    Hidden: false,
+                    FieldType: FieldType.AUTOCOMPLETE,
+                    ReadOnly: false,
+                    LookupField: false,
+                    Label: 'Gammel LT-kode',
+                    Description: null,
+                    HelpText: null,
+                    FieldSet: 0,
+                    Section: 2,
+                    Placeholder: null,
+                    Options: null,
+                    LineBreak: null,
+                    Combo: null,
+                    Sectionheader: '',
+                    hasLineBreak: false,
+                }
                 
                 
 

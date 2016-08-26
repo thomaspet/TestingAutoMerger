@@ -25,6 +25,12 @@
 
 <section class="application wagetype">
     <uni-form [config]="config" [fields]="fields" [model]="wageType" (onSubmit)="saveWagetype($event)" (onChange)="change($event)"></uni-form>
+    <section *ngIf="showSupplementaryInformations">
+        <p>
+            Valgte tilleggsopplysninger
+        </p>
+        <uni-table *ngIf="wageType.SupplementaryInformations" [config]="tilleggspakkeConfig" [resource]="wageType.SupplementaryInformations"></uni-table>
+    </section>
 </section>
 
 <uni-save [actions]="saveactions"></uni-save>
