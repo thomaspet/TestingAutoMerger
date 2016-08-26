@@ -411,7 +411,9 @@ export class EmploymentService extends BizHttp<Employment> {
                     FieldSet: 0,
                     Section: 1,
                     Placeholder: null,
-                    Options: null,
+                    Options: {
+                        decimals: 1
+                    },
                     LineBreak: null,
                     Combo: null,
                     Sectionheader: 'A-meldingsinformasjon',
