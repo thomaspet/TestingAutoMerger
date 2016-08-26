@@ -38,7 +38,7 @@ export class VatReportView implements OnInit, OnDestroy {
         },
         {
             label: 'Send inn',
-            action: (done) => this.runVatReportAndSend(done),
+            action: (done) => this.sendVatReport(done),
             disabled: false
         }
     ];
@@ -109,7 +109,7 @@ export class VatReportView implements OnInit, OnDestroy {
 
     private setVatreport(vatReport: VatReport) {
         this.currentVatReport = vatReport;
-        this.isSendt = vatReport.StatusCode === StatusCodeVatReport.Reported;
+        this.isSendt = vatReport.StatusCode === StatusCodeVatReport.Submitted;
         this.isExecuted = vatReport.StatusCode === StatusCodeVatReport.Executed || this.isSendt;
 
         this.vatReportSummary = null;
@@ -170,11 +170,15 @@ export class VatReportView implements OnInit, OnDestroy {
             );
     }
 
-    public runVatReportAndSend(done) {
+    public sendVatReport(done) {
         this.vatReportService.sendReport(this.currentVatReport.ID)
-            .subscribe(vatReport => {
-                    this.setVatreport(vatReport);
-                    done();
+            .subscribe(() => {
+                    this.vatReportService.Get(this.currentVatReport.ID, ['TerminPeriod'])
+                        .subscribe(vatreport => {
+                                this.setVatreport(vatreport);
+                                done();
+                            },
+                            err => this.onError(err));
                 },
                 err => this.onError(err)
             );
