@@ -40,6 +40,7 @@ export class WagetypeDetail {
 
     private tilleggspakkeConfig: UniTableConfig;
     private showSupplementaryInformations: boolean = false;
+    private showBenefitAndDescriptionAsReadonly: boolean = true;
 
     public config: any = {};
     public fields: any[] = [];
@@ -80,6 +81,14 @@ export class WagetypeDetail {
                     this.showSupplementaryInformations = true;
                 } else {
                     this.showSupplementaryInformations = false;
+                }
+
+                if (this.wageType.Benefit !== '') {
+                    this.benefitDatasource.push({text: this.wageType.Benefit});
+                }
+
+                if (this.wageType.Description !== '') {
+                    this.descriptionDatasource.push({text: this.wageType.Description});
                 }
 
                 this.setupTypes(validvaluesTypes);
@@ -143,6 +152,7 @@ export class WagetypeDetail {
                     this.wageType.Benefit = '';
                     this.wageType.Description = '';
                     this.setupIncomeType(model.IncomeType);
+                    this.showBenefitAndDescriptionAsReadonly = false;
                 }
             }
         };
@@ -161,7 +171,7 @@ export class WagetypeDetail {
                 }
             }
         };
-        benefit.ReadOnly = this.benefitDatasource.length <= 0;
+        benefit.ReadOnly = this.showBenefitAndDescriptionAsReadonly;
 
         let description: UniFieldLayout = this.findByProperty(this.fields, 'Description');
         description.Options = {
@@ -176,7 +186,7 @@ export class WagetypeDetail {
                 }
             }
         };
-        description.ReadOnly = this.descriptionDatasource.length <= 0;
+        description.ReadOnly = this.showBenefitAndDescriptionAsReadonly;
 
         let tilleggsinfo: UniFieldLayout = this.findByProperty(this.fields, '_OldLTCode');
         tilleggsinfo.Options = {
@@ -420,7 +430,9 @@ export class WagetypeDetail {
         let suggestedValue = new UniTableColumn('SuggestedValue', 'Fast verdi', UniTableColumnType.Text);
 
         this.tilleggspakkeConfig = new UniTableConfig(true)
-        .setColumns([tilleggsopplysning, suggestedValue]);
+        .setColumns([tilleggsopplysning, suggestedValue])
+        .setAutoAddNewRow(false)
+        .setPageable(false);
     }
 
     public change(value) {
