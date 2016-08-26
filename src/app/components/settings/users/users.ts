@@ -1,5 +1,5 @@
 ﻿import {Component} from '@angular/core';
-import {NgFor, NgIf, ControlGroup, Control, Validators} from '@angular/common';
+import {FormControl, FormGroup, Validators} from '@angular/forms';
 import {UniHttp} from '../../../../framework/core/http/http';
 import {OrderByPipe} from '../../../../framework/pipes/orderByPipe';
 import {FilterInactivePipe} from '../../../../framework/pipes/filterInactivePipe';
@@ -9,11 +9,11 @@ import {UniTable, UniTableConfig, UniTableColumn, IContextMenuItem} from 'unitab
     selector: 'uni-users',
     pipes: [OrderByPipe, FilterInactivePipe],
     templateUrl: 'app/components/settings/users/users.html',
-    directives: [NgFor, NgIf, UniTable]
+    directives: [UniTable]
 })
 export class Users {
     // New user Form 
-    private newUserForm: ControlGroup;
+    private newUserForm: FormGroup;
     private errorMessage: string;
     
     // Users table
@@ -24,9 +24,9 @@ export class Users {
     private busy: boolean = false;
 
     constructor(private http: UniHttp) {
-        this.newUserForm = new ControlGroup({
-            DisplayName: new Control('', Validators.required),
-            Email: new Control('', this.isInvalidEmail)
+        this.newUserForm = new FormGroup({
+            DisplayName: new FormControl('', Validators.required),
+            Email: new FormControl('', this.isInvalidEmail)
         });
         
         this.errorMessage = '';
@@ -96,9 +96,9 @@ export class Users {
                     this.busy = false;
                     
                     // clear form
-                    this.newUserForm = new ControlGroup({
-                        DisplayName: new Control('', Validators.required),
-                        Email: new Control('', this.isInvalidEmail)
+                    this.newUserForm = new FormGroup({
+                        DisplayName: new FormControl('', Validators.required),
+                        Email: new FormControl('', this.isInvalidEmail)
                     });
 
                     this.refreshUsers();
@@ -145,7 +145,7 @@ export class Users {
         }
     }
     
-    private isInvalidEmail(control: Control) {
+    private isInvalidEmail(control: FormControl) {
         let testResult = /^[-a-z0-9~!$%^&*_=+}{\'?]+(\.[-a-z0-9~!$%^&*_=+}{\'?]+)*@([a-z0-9_][-a-z0-9_]*(\.[-a-z0-9_]+)*\.(aero|arpa|biz|com|coop|edu|gov|info|int|mil|museum|name|net|org|pro|travel|mobi|[a-z][a-z])|([0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}))(:[0-9]{1,5})?$/i.test(control.value);
         
         if (!testResult) {
