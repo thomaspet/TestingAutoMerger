@@ -75,6 +75,7 @@ export class AltinnSettings implements OnInit {
 
     public saveAltinn(done) {
         this.saveactions[0].disabled = true;
+        this.altinn.Language = this.altinn.Language || '1044'; // Code 1044 == bokmål
         done('lagrer altinninnstillinger: ');
         if (this.altinn.ID) {
             this._altinnService.Put(this.altinn.ID, this.altinn).subscribe((response: Altinn) => {
