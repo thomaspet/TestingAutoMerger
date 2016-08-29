@@ -13,10 +13,11 @@ declare var moment;
 export enum ItemInterval {
     all = 0,
     today = 1,
-    thisWeek = 2,
-    thisMonth = 3,
-    lastTwoMonths = 4,
-    thisYear = 5
+    yesterday = 2,
+    thisWeek = 3,
+    thisMonth = 4,
+    lastTwoMonths = 5,
+    thisYear = 6
 }
 
 @Injectable()
@@ -123,6 +124,8 @@ export class WorkerService extends BizHttp<Worker> {
         switch (interval) {
             case ItemInterval.today:
                 return "date eq '" + toIso(new Date()) + "'";
+            case ItemInterval.yesterday:
+                return "date eq '" + toIso(this.getLastWorkDay()) + "'";
             case ItemInterval.thisWeek:
                 return "date ge '" + toIso(moment().startOf('week').toDate()) + "' and date le '" + toIso(moment().endOf('week').toDate()) + "'";
             case ItemInterval.thisMonth:
@@ -134,6 +137,18 @@ export class WorkerService extends BizHttp<Worker> {
             default: 
                 return '';
         }        
+    }
+
+    public getLastWorkDay(): Date {
+        var dt = moment();
+        debugger;
+        var dayNumber = new Date().getDay();
+        if (dayNumber === 1) {
+            dt.add('days', -3);
+        } else {
+            dt.add('days', -1);            
+        }
+        return dt.toDate();
     }
     
     public getWorkItems(workRelationID: number, interval: ItemInterval = ItemInterval.all): Observable<WorkItem[]> {
