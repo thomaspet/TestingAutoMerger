@@ -36,7 +36,7 @@ export class RegtimeTotals {
     public activate(ts: TimeSheet, filter?: IFilter) {
         if (!this.timesheet) { 
             this.initSources(ts);
-            this.currentFilter = this.filters[2]; 
+            this.currentFilter = this.filters[3]; 
             this.currentSource = this.sources[1];
         }
         this.timesheet = ts;

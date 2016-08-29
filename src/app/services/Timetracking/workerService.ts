@@ -160,7 +160,6 @@ export class WorkerService extends BizHttp<Worker> {
 
     private getLastWorkDay(): Date {
         var dt = moment();
-        debugger;
         var dayNumber = new Date().getDay();
         if (dayNumber === 1) {
             dt.add('days', -3);
