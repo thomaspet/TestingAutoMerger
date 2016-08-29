@@ -1,4 +1,4 @@
-import {Component, Input, ViewChild, OnInit} from '@angular/core';
+import {Component, Input, ViewChild} from '@angular/core';
 import {Router, ActivatedRoute, RouterLink} from '@angular/router';
 import {Observable} from 'rxjs/Observable';
 import 'rxjs/add/observable/forkJoin';
@@ -22,7 +22,7 @@ declare var _; // lodash
     directives: [RouterLink, AddressModal, EmailModal, PhoneModal, UniForm, ExternalSearch, UniSave],
     providers: [DepartementService, ProjectService, CustomerService, PhoneService, AddressService, EmailService, BusinessRelationService]
 })
-export class CustomerDetails implements OnInit {            
+export class CustomerDetails {
     @Input() public customerID: any;                  
     @ViewChild(UniForm) public form: UniForm; 
     @ViewChild(EmailModal) public emailModal: EmailModal;
@@ -64,7 +64,10 @@ export class CustomerDetails implements OnInit {
                 private businessRealtionService: BusinessRelationService,
                 private tabService: TabService
                 ) {               
-        this.route.params.subscribe(params => this.customerID = +params['id']);
+        this.route.params.subscribe(params => {
+            this.customerID = +params['id'];
+            this.setup();
+        });
     }
     
     public log(err) {
@@ -115,17 +118,13 @@ export class CustomerDetails implements OnInit {
                         });     
         }
     }
-          
-    public ngOnInit() {
-        this.getLayoutAndData();          
-    }
     
     private setTabTitle() {
         let tabTitle = this.customer.CustomerNumber ? 'Kundenr. ' + this.customer.CustomerNumber : 'Kunde (kladd)'; 
         this.tabService.addTab({ url: '/sales/customer/details/' + this.customer.ID, name: tabTitle, active: true, moduleID: 1 });
     }
 
-    public getLayoutAndData() {
+    public setup() {
         
         //this.customerService.GetLayout('CustomerDetailsForm').subscribe((results: any) => {
             var layout: ComponentLayout = this.getComponentLayout(); // results
@@ -260,7 +259,7 @@ export class CustomerDetails implements OnInit {
             listProperty: 'Info.Phones',
             displayValue: 'Number',
             linkProperty: 'ID',
-            foreignProperty: 'Info.DefaultPhoneID',
+            storeResultInProperty: 'Info.DefaultPhoneID',
             editor: (value) => new Promise((resolve) => {
                 if (!value) {
                     value = new Phone();
@@ -283,7 +282,7 @@ export class CustomerDetails implements OnInit {
             listProperty: 'Info.Addresses',
             displayValue: 'AddressLine1',
             linkProperty: 'ID',
-            foreignProperty: 'Info.InvoiceAddressID',
+            storeResultInProperty: 'Info.InvoiceAddressID',
             editor: (value) => new Promise((resolve) => {
                 if (!value) {
                     value = new Address();
@@ -309,7 +308,7 @@ export class CustomerDetails implements OnInit {
             listProperty: 'Info.Emails',
             displayValue: 'EmailAddress',
             linkProperty: 'ID',
-            foreignProperty: 'Info.DefaultEmailID',            
+            storeResultInProperty: 'Info.DefaultEmailID',
             editor: (value) => new Promise((resolve) => {
                 if (!value) {
                     value = new Email();
@@ -331,7 +330,7 @@ export class CustomerDetails implements OnInit {
             listProperty: 'Info.Addresses',
             displayValue: 'AddressLine1',
             linkProperty: 'ID',            
-            foreignProperty: 'Info.ShippingAddressID',
+            storeResultInProperty: 'Info.ShippingAddressID',
             editor: (value) => new Promise((resolve) => {
                 if (!value) {
                     value = new Address();

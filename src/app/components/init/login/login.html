@@ -1,30 +1,29 @@
 <article class="authentication-component">
 	<img src="../../../assets/uni-logo.png" alt="Uni Economy logo">
-    
+
 	<section [hidden]="loginSuccess">
         <form (submit)="login($event)">
             <small class="validation error" *ngIf="errorMessage.length">{{errorMessage}}</small>
-            <label for="">
+            <label>
                 Brukernavn
-                <input type="text" [disabled]="working" [(ngModel)]="credentials.username" placeholder="Brukernavn">
+                <input type="text" [disabled]="working" [formControl]="usernameControl" placeholder="Brukernavn">
             </label>
 
-            <label for="">
+            <label>
                 Passord
-                <input type="password" [disabled]="working" [(ngModel)]="credentials.password" placeholder="Passord">
+                <input type="password" [disabled]="working" [formControl]="passwordControl" placeholder="Passord">
             </label>
-            
+
             <button class="c2a" [attr.aria-busy]="working" [disabled]="working">Logg inn</button>
         </form>
-                
         <p *ngIf="!loginSuccess">
             <a [routerLink]="['../signup']">Registrer ny bruker</a><br>
             <a [routerLink]="['../reset-password']">Glemt passord</a>
         </p>
     </section>
-    
+
     <uni-select [config]="selectConfig"
                 [items]="availableCompanies"
                 (valueChange)="onCompanySelected($event)">
-    </uni-select>	
+    </uni-select>
 </article>

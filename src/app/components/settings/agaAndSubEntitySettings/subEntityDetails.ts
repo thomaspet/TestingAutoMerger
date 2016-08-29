@@ -1,8 +1,7 @@
-import {Component, Input, Output, ViewChild, OnChanges} from '@angular/core';
+import {Component, Input, ViewChild, OnChanges, EventEmitter} from '@angular/core';
 import {SubEntityService, StaticRegisterService, AgaZoneService} from '../../../services/services';
 import {SubEntity, AGAZone, PostalCode, Municipal, AGASector} from '../../../unientities';
 import {UniForm, UniFieldLayout} from '../../../../framework/uniform';
-import {CONTROLS_ENUM} from '../../../../framework/uniform/controls/index';
 import {Observable} from 'rxjs/Observable';
 
 declare var _; // lodash
@@ -15,13 +14,14 @@ export class SubEntityDetails implements OnChanges {
     @Input() private currentSubEntity: SubEntity;
     @Input() private municipalities: Municipal[];
     @ViewChild(UniForm) private form: UniForm;
-    private model: { subEntity: SubEntity, municipalityName: string } = { subEntity: null, municipalityName: null };
+    private model: SubEntity = null;
     private agaZones: AGAZone[] = [];
     private agaRules: AGASector[] = [];
     private postalCodes: PostalCode[] = [];
     public fields: UniFieldLayout[] = [];
     public config: any = {};
     public busy: boolean;
+    public refreshList: EventEmitter<any> = new EventEmitter<any>(true);
     private formReady: boolean = false;
 
     constructor(
@@ -44,7 +44,7 @@ export class SubEntityDetails implements OnChanges {
     }
 
     public ngOnChanges() {
-        this.model.subEntity = this.currentSubEntity;
+        this.model = this.currentSubEntity;
         if (this.formReady) {
             this.updateFields();
         }
@@ -54,8 +54,11 @@ export class SubEntityDetails implements OnChanges {
     private createForm() {
         this._subEntityService.getLayout('subEntities').subscribe((layout: any) => {
             this.fields = layout.Fields;
-            let agaZoneField: UniFieldLayout = this.findByProperty(this.fields, 'subEntity.AgaZone');
-            let agaRuleField: UniFieldLayout = this.findByProperty(this.fields, 'subEntity.AgaRule');
+            let agaZoneField: UniFieldLayout = this.findByProperty(this.fields, 'AgaZone');
+            let agaRuleField: UniFieldLayout = this.findByProperty(this.fields, 'AgaRule');
+            let postalCode: UniFieldLayout = this.findByProperty(this.fields, 'BusinessRelationInfo.InvoiceAddress.PostalCode');
+            let municipality: UniFieldLayout = this.findByProperty(this.fields, 'MunicipalityNo');
+
             agaZoneField.Options = {
                 source: this.agaZones,
                 valueProperty: 'ID',
@@ -68,6 +71,22 @@ export class SubEntityDetails implements OnChanges {
                 valueProperty: 'SectorID',
                 displayProperty: 'Sector',
                 debounceTime: 500,
+            };
+
+            postalCode.Options = {
+                source: this.postalCodes,
+                valueProperty: 'Code',
+                displayProperty: 'Code',
+                debounceTime: 200,
+                template: (obj: PostalCode) => obj ? `${obj.Code} - ${obj.City.slice(0, 1).toUpperCase() + obj.City.slice(1).toLowerCase()}` : ''
+            };
+
+            municipality.Options = {
+                source: this.municipalities,
+                valueProperty: 'MunicipalityNo',
+                displayProperty: 'MunicipalityNo',
+                debounceTime: 200,
+                template: (obj: Municipal) => obj ? `${obj.MunicipalityNo} - ${obj.MunicipalityName.slice(0, 1).toUpperCase() + obj.MunicipalityName.slice(1).toLowerCase()}` : ''
             };
 
             this._agaZoneService.getAgaRules().subscribe((response: AGASector[]) => {
@@ -86,48 +105,35 @@ export class SubEntityDetails implements OnChanges {
         return field;
     }
 
-    private updateMunicipality() {
-
-        if (this.model.subEntity) {
-            if (this.municipalities) {
-                let municipal = this.municipalities.find(x => x.MunicipalityNo === this.model.subEntity.MunicipalityNo);
-                if (municipal) {
-                    this.model.municipalityName = municipal.MunicipalityName;
-                    this.model = _.cloneDeep(this.model);
-                }
-            }
-        }
-    }
-
     private updatePostalCodes() {
-        if (this.model.subEntity) {
-            if (this.postalCodes && this.model.subEntity.BusinessRelationInfo && this.model.subEntity.BusinessRelationInfo.InvoiceAddress) {
-                let postalCode = this.postalCodes.find(x => x.Code === this.model.subEntity.BusinessRelationInfo.InvoiceAddress.PostalCode);
-                this.model.subEntity.BusinessRelationInfo.InvoiceAddress.City = postalCode.City;
+        if (this.model) {
+            if (this.postalCodes && this.model.BusinessRelationInfo && this.model.BusinessRelationInfo.InvoiceAddress) {
+                let postalCode = this.postalCodes.find(x => x.Code === this.model.BusinessRelationInfo.InvoiceAddress.PostalCode);
+                this.model.BusinessRelationInfo.InvoiceAddress.City = postalCode.City;
                 this.model = _.cloneDeep(this.model);
             }
         }
     }
 
     private updateFields() {
-        this.updateMunicipality();
         this.updatePostalCodes();
     }
 
     public ready(event) {
         this.formReady = true;
         this.updateFields();
-        this.form.field('subEntity.BusinessRelationInfo.InvoiceAddress.PostalCode').onChange.subscribe((value) => {
+        this.form.field('BusinessRelationInfo.InvoiceAddress.PostalCode').onChange.subscribe((value) => {
             this.updatePostalCodes();
         });
-        this.form.field('subEntity.MunicipalityNo').onChange.subscribe((value) => {
-            this.updateMunicipality();
+
+        this.form.field('MunicipalityNo').onChange.subscribe((value) => {
+            this.refreshList.emit(true);
         });
     }
 
     public saveSubentities() {
         return this.currentSubEntity.ID ?
-            this._subEntityService.Put(this.model.subEntity.ID, this.model.subEntity) :
-            this._subEntityService.Post(this.model.subEntity);
+            this._subEntityService.Put(this.model.ID, this.model) :
+            this._subEntityService.Post(this.model);
     }
 }

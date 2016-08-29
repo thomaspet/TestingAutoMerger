@@ -1,17 +1,19 @@
 import {Component, Type, ViewChildren, QueryList, Input, Output, EventEmitter} from '@angular/core';
 import {UniModal} from '../../../../framework/modals/modal';
-import {UniForm, UniFormBuilder, UniFieldBuilder} from '../../../../framework/forms';
-import {UNI_CONTROL_DIRECTIVES} from '../../../../framework/controls';
-import {FieldType} from '../../../../app/unientities';
+import {ISelectConfig} from '../../../../framework/controls/select/select';
+import {UniSelect} from '../../../../framework/controls/select/select';
 declare var jQuery;
 
 @Component({
     selector: 'salarytrans-filter-content',
-    directives: [UniForm],
+    directives: [UniSelect],
     template: `
         <article class="modal-content">
             <h1 *ngIf="config.title">{{config.title}}</h1>
-            <uni-form [config]="formConfig"></uni-form>
+            <uni-select [config]="selectFilterConfig"
+                [items]="items"
+                (valueChange)="onSelectFilter($event)">
+            </uni-select>
             <footer>
                 <button *ngFor="let action of config.actions; let i=index" (click)="action.method()">
                     {{action.text}}
@@ -24,42 +26,32 @@ declare var jQuery;
 
 export class SalarytransFilterContent {
     @Input('config') public config: any;
+
     private filters: any[] = [];
     private activeFieldFilters: any = [];
-    private formConfig: UniFormBuilder;
-    
+    private selectFilterConfig: ISelectConfig;
+    private items: any[];
+
     constructor() {
-        this.buildFilterConfig();
+        this.selectFilterConfig = {
+            displayField: 'name',
+            placeholder: 'Velg filter'
+        };
+        this.items = [
+            {name: 'Alle', filter: ''},
+            {name: 'Ikke aktiv', filter: 'Active eq 0'},
+            {name: 'Aktiv', filter: 'Active eq 1'}
+        ];
     }
-    
-    private buildFilterConfig() {
-        var formBuild = new UniFormBuilder();
-        formBuild.hideSubmitButton();
-        
-        var activeField = new UniFieldBuilder()
-        .setLabel('Aktiv')
-        .setType(UNI_CONTROL_DIRECTIVES[FieldType.DROPDOWN])
-        .setKendoOptions({
-            dataSource: [
-                {name: 'Alle', filter: ''},
-                {name: 'Ikke aktiv', filter: 'Active eq 0'},
-                {name: 'Aktiv', filter: 'Active eq 1'}
-            ],
-            dataValueField: 'filter', // blir egentlig ikke brukt, vi setter verdien i select event istedenfor
-            dataTextField: 'name',
-            select: (event: kendo.ui.DropDownListSelectEvent) => {
-                var selectedItem = event.sender.dataItem(jQuery(event.item).index());
-                this.removeOldFilters();
-                this.activeFieldFilters = [];
-                this.activeFieldFilters.push(selectedItem);
-                this.filters.push(selectedItem);
-            }
-        });
-        
-        formBuild.addUniElements(activeField);
-        this.formConfig = formBuild;
+
+    private onSelectFilter(filter) {
+        var selectedItem = filter;
+        this.removeOldFilters();
+        this.activeFieldFilters = [];
+        this.activeFieldFilters.push(selectedItem);
+        this.filters.push(selectedItem);
     }
-    
+
     // Remove old filterparts
     private removeOldFilters() {
         for (var j = 0; j < this.filters.length; j++) {

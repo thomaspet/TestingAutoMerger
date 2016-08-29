@@ -41,7 +41,6 @@ export class CustomerQuoteService extends BizHttp<CustomerQuote> {
     {       
         return new Promise(resolve => {
             this.GetNewEntity([], CustomerQuote.EntityType).subscribe(quote => {
-                quote.CreatedDate = moment().toDate();
                 quote.QuoteDate = moment().toDate();
                 quote.ValidUntilDate = moment().add(1, 'month').toDate();
                 

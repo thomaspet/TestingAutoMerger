@@ -1,17 +1,18 @@
 import {Component, Input, Output, ElementRef, EventEmitter, ChangeDetectionStrategy, ChangeDetectorRef} from '@angular/core';
-import {Control} from '@angular/common';
+import {FormControl, REACTIVE_FORM_DIRECTIVES} from '@angular/forms';
 import {UniFieldLayout} from '../interfaces';
 
 declare var _, accounting; // jquery and lodash
 
 @Component({
     selector: 'uni-numeric-input',
+    directives: [REACTIVE_FORM_DIRECTIVES],
     changeDetection: ChangeDetectionStrategy.OnPush,
     template: `
         <input
             *ngIf="control"
             type="text"
-            [ngFormControl]="control"
+            [formControl]="control"
             [readonly]="field?.ReadOnly"
             [placeholder]="field?.Options?.placeholder || ''"
             
@@ -30,7 +31,7 @@ export class UniNumericInput {
     public model: any;
 
     @Input()
-    public control: Control;
+    public control: FormControl;
 
     @Output()
     public onReady: EventEmitter<UniNumericInput> = new EventEmitter<UniNumericInput>(true);

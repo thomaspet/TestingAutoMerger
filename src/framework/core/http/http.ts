@@ -148,7 +148,8 @@ export class UniHttp {
         var options: any = {
             method: this.method,
             url: url,
-            headers: this.headers
+            headers: this.headers,
+            body: ''
         };
         if (this.body) {
             options.body = (this.body instanceof FormData) ? this.body : JSON.stringify(this.body);
@@ -180,7 +181,8 @@ export class UniHttp {
         var options: any = {
             method: method,
             url: url,
-            headers: this.headers
+            headers: this.headers,
+            body: ''
         };
 
         if (body) {

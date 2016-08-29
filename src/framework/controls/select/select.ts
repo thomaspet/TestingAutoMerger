@@ -1,5 +1,5 @@
 import {Component, Input, Output, EventEmitter, ViewChild, ElementRef, HostListener, Renderer} from '@angular/core';
-import {Control} from '@angular/common';
+import {FormControl, FormControlDirective} from '@angular/forms';
 import {GuidService} from '../../../app/services/services';
 import {ClickOutsideDirective} from '../../../framework/core/clickOutside';
 
@@ -13,7 +13,7 @@ export interface ISelectConfig {
 @Component({
     selector: 'uni-select',
     templateUrl: 'framework/controls/select/select.html',
-    directives: [ClickOutsideDirective]
+    directives: [ClickOutsideDirective, FormControlDirective]
 })
 export class UniSelect {
     @ViewChild('searchInput')
@@ -38,11 +38,11 @@ export class UniSelect {
     private expanded: boolean = false;
 
     private searchable: boolean = true;
-    private searchControl: Control = new Control('');
+    private searchControl: FormControl = new FormControl('');
     private filteredItems: any[];
 
     private selectedItem: any;
-    private focusedIndex: any;
+    private focusedIndex: any = 0;
     private activeDecentantId: string;
 
     constructor(gs: GuidService, private renderer: Renderer) {

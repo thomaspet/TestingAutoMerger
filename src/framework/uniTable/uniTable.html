@@ -2,11 +2,5 @@
 	<input type="search" *ngIf="config && config.searchable" [(ngModel)]="filterString" (keyup)="filterTable()" >
 </nav>
 
-<uni-table-column-menu *ngIf="config && config.columnMenuVisible" 
-                       [columns]="config.columns"
-                       [tableName]="config.name"
-                       (columnVisibilityChange)="setColumnVisibility($event)">
-</uni-table-column-menu>
-
 <!-- Kendo grid is compiled here -->
 <table></table>

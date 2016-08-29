@@ -1,15 +1,15 @@
 <article [attr.aria-busy]="busy">
     <header class="poster">
-    <article class="poster_toolbar">
-        <div *ngIf="employee.EmployeeNumber">
-            <h1 class="poster_toolbar_headline">{{employee.BusinessRelationInfo.Name}}
-                <p class="poster_toolbar_orgnr">Ansattnr. {{employee.EmployeeNumber}}</p>
-            </h1>
-            <employeecategory-buttons [selectedEmployee]="employee"></employeecategory-buttons>
-        </div>
+        <article class="poster_toolbar">
+            <section>
+                <h1 class="poster_toolbar_headline">{{employee.BusinessRelationInfo.Name ? employee.BusinessRelationInfo.Name : "Ny ansatt"}}
+                    <p class="poster_toolbar_orgnr">Ansattnr. {{employee.EmployeeNumber ? employee.EmployeeNumber : 0}} </p>
+                </h1>
+                <employeecategory-buttons *ngIf="employee.ID" [selectedEmployee]="employee"></employeecategory-buttons>
+            </section>
 
             <nav class="poster_toolbar_tools">
-                <uni-context-menu [actions]="contextMenuItems"></uni-context-menu>
+                <!--<uni-context-menu [actions]="contextMenuItems"></uni-context-menu>-->
                 <button type="button" (click)="previousEmployee()" class="previous">Forrige</button>
                 <button type="button" (click)="nextEmployee()" class="next">Neste</button>
                 <a href="/salary/employees/0" class="new">Ny ansatt</a>

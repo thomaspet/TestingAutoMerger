@@ -1,17 +1,17 @@
 import {Component} from '@angular/core';
 import {ROUTER_DIRECTIVES} from '@angular/router';
-import {Control, Validators, ControlGroup, FORM_DIRECTIVES} from '@angular/common';
+import {FormControl, Validators, FormGroup, REACTIVE_FORM_DIRECTIVES} from '@angular/forms';
 import {UniHttp} from '../../../../framework/core/http/http';
 import {passwordValidator} from '../authValidators';
 
 @Component({
     selector: 'uni-signup',
     templateUrl: 'app/components/init/signup/signup.html',
-    directives: [ROUTER_DIRECTIVES, FORM_DIRECTIVES]
+    directives: [ROUTER_DIRECTIVES, REACTIVE_FORM_DIRECTIVES]
 })
 export class Signup {
-    private emailForm: ControlGroup = undefined;
-    private detailsForm: ControlGroup = undefined;
+    private emailForm: FormGroup = undefined;
+    private detailsForm: FormGroup = undefined;
     private isTest: boolean = false;
     
     private passwordsMatching: boolean = false;
@@ -23,8 +23,8 @@ export class Signup {
 
 
     constructor(private _http: UniHttp) {
-        this.emailForm = new ControlGroup({
-            Email: new Control('', Validators.required)
+        this.emailForm = new FormGroup({
+            Email: new FormControl('', Validators.required)
         });
     }
     
@@ -61,8 +61,8 @@ export class Signup {
             .subscribe(
                 (response) => {                                        
                     if (response['UserName'] && response['FullName']) {                        
-                        this.detailsForm = new ControlGroup({
-                            CompanyName: new Control('', Validators.required)
+                        this.detailsForm = new FormGroup({
+                            CompanyName: new FormControl('', Validators.required)
                         });
                         
                         this.existingUser = response;
@@ -70,12 +70,12 @@ export class Signup {
                     }
                 }, 
                 (error) => {
-                    this.detailsForm = new ControlGroup({
-                        Name: new Control('', Validators.required),
-                        UserName: new Control('', usernameValidators),
-                        CompanyName: new Control('', Validators.required),
-                        Password: new Control('', passwordValidators),
-                        ConfirmPassword: new Control('', passwordValidators),
+                    this.detailsForm = new FormGroup({
+                        Name: new FormControl('', Validators.required),
+                        UserName: new FormControl('', usernameValidators),
+                        CompanyName: new FormControl('', Validators.required),
+                        Password: new FormControl('', passwordValidators),
+                        ConfirmPassword: new FormControl('', passwordValidators),
                     });
                     
                     this.detailsForm.controls['Password'].valueChanges.subscribe((value) => {

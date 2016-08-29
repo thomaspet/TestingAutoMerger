@@ -15,10 +15,12 @@ var ngPackageNames = [
     'compiler',
     'core',
     'http',
+    'forms',
     'platform-browser',
     'platform-browser-dynamic',
     'router',
     'router-deprecated',
+    'forms',
     'upgrade'];
 
 ngPackageNames.forEach(function (element) {

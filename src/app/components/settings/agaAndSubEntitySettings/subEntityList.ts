@@ -53,7 +53,7 @@ export class SubEntityList implements OnInit {
         let orgnr = new UniTableColumn('OrgNumber', 'Orgnr', UniTableColumnType.Text);
         let municipal = new UniTableColumn('MunicipalityNo', 'Kommune', UniTableColumnType.Text).setTemplate((rowModel) => {
             let municipalObj = this.municipalities.find(x => x.MunicipalityNo === rowModel['MunicipalityNo']);
-            return municipalObj ? municipal.MunicipalityName : '';
+            return municipalObj ? municipalObj.MunicipalityName : '';
         });
         let agaZone = new UniTableColumn('AgaZone', 'Sone', UniTableColumnType.Text).setTemplate((rowModel) => {
             let agaZoneObj = this.agaZones.find(x => x.ID === rowModel['AgaZone']);

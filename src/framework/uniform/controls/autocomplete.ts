@@ -1,5 +1,5 @@
 import {Component, Input, Output, EventEmitter, ViewChild, ElementRef, ChangeDetectorRef, ChangeDetectionStrategy, Renderer} from '@angular/core';
-import {Control} from '@angular/common';
+import {FormControl, REACTIVE_FORM_DIRECTIVES} from '@angular/forms';
 import {Observable} from 'rxjs/Observable';
 
 import {BizHttp} from '../../core/http/BizHttp';
@@ -31,11 +31,12 @@ export class UniAutocompleteConfig {
 
 @Component({
     selector: 'uni-autocomplete-input',
+    directives: [REACTIVE_FORM_DIRECTIVES],
     template: `
         <div class="autocomplete">
             <input #query
                 *ngIf="control"
-                [ngFormControl]="control"
+                [formControl]="control"
                 [readonly]="field?.ReadOnly"
                 [placeholder]="field?.Placeholder || ''"
                 
@@ -54,7 +55,7 @@ export class UniAutocompleteConfig {
                 [id]="'results-' + guid"
                 role="listbox"
                 tabindex="-1"
-                [attr.aria-expanded]="isExpanded">
+                [attr.aria-expanded]="isExpanded && hasFocus()">
 
                 <li *ngFor="let item of lookupResults; let idx = index"
                     class="autocomplete_result"
@@ -80,7 +81,7 @@ export class UniAutocompleteInput {
     private model: any;
 
     @Input()
-    private control: Control;
+    private control: FormControl;
     
     @Output()
     public onReady: EventEmitter<UniAutocompleteInput> = new EventEmitter<UniAutocompleteInput>(true);
@@ -131,7 +132,7 @@ export class UniAutocompleteInput {
                 return this.search(input);
             })
             .subscribe((items: any[]) => {
-                this.selectedIndex = 0;
+                this.selectedIndex = -1;
                 this.lookupResults = items;
                 this.isExpanded = true;
                 this.busy = false;
@@ -148,6 +149,10 @@ export class UniAutocompleteInput {
         this.renderer.invokeElementMethod(this.inputElement.nativeElement, 'focus', []);
     }
 
+    public blur() {
+        this.renderer.invokeElementMethod(this.inputElement.nativeElement, 'blur', []);
+    }
+
     public readMode() {
         this.field.ReadOnly = true;
         this.cd.markForCheck();
@@ -156,6 +161,10 @@ export class UniAutocompleteInput {
     public editMode() {
         this.field.ReadOnly = false;
         this.cd.markForCheck();
+    }
+
+    private hasFocus() {
+        return document.activeElement === this.inputElement.nativeElement;
     }
 
     private template(obj: any) {
@@ -223,16 +232,19 @@ export class UniAutocompleteInput {
             return;
         }
 
-        if (!this.control.value || !this.lookupResults.length) {
+        if (this.selectedIndex === -1 && this.control.value === '') {
             this.query = '';
             this.value = null;
         } else {
+            if (this.control.value !== '' && this.selectedIndex === -1) {
+                this.selectedIndex = 0;
+            }
             let selectedItem = this.lookupResults[this.selectedIndex];
             this.query = this.template(selectedItem);
             this.value = _.get(selectedItem, this.field.Options.valueProperty);
         }
 
-        this.control.updateValue(this.query, {emitEvent: false});
+        this.control.setValue(this.query);
 
         if (this.lastValue !== this.value) {
             this.lastValue = this.value;
@@ -253,6 +265,9 @@ export class UniAutocompleteInput {
                 this.focusPositionTop -= this.list.nativeElement.children[i].clientHeight; 
             }
         } else if (index > this.selectedIndex) {
+            if (this.selectedIndex === -1) {
+                this.selectedIndex = 0;
+            }
             for (let i = this.selectedIndex; i < index; i++) {
                 this.focusPositionTop += this.list.nativeElement.children[i].clientHeight;
             }
@@ -275,14 +290,17 @@ export class UniAutocompleteInput {
                 this.confirmSelection();
             break;
             case 27:
-                this.control.updateValue(this.query, {emitEvent: false});
+                let selectedItem = this.lookupResults[this.selectedIndex];
+                this.query = this.template(selectedItem);
+                this.value = _.get(selectedItem, this.field.Options.valueProperty);
+                this.control.setValue(this.query);
                 this.isExpanded = false;
+                this.blur();
                 this.cd.markForCheck();
             break;
             case 38:
                 if (this.selectedIndex !== 0) {
                     this.selectedIndex--;
-                    
                     currItem = this.list.nativeElement.children[this.selectedIndex];
                     if (currItem) {
                         this.focusPositionTop -= currItem.clientHeight;

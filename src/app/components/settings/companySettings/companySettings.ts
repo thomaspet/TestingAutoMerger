@@ -7,8 +7,9 @@ import {UniForm} from '../../../../framework/uniform';
 import {UniFieldLayout} from '../../../../framework/uniform/index';
 import {UniImage, IUploadConfig} from '../../../../framework/uniImage/uniImage';
 
-import {CompanyType, PeriodSeries, Currency, FieldType, AccountGroup, Account, BankAccount} from '../../../unientities';
-import {CompanySettingsService, CurrencyService, VatTypeService, AccountService, AccountGroupSetService, PeriodSeriesService, CompanyTypeService, MunicipalService, BankAccountService} from '../../../services/services';
+import {CompanyType, VatReportType, PeriodSeries, Currency, FieldType, AccountGroup, Account, BankAccount} from '../../../unientities';
+import {CompanySettingsService, CurrencyService, VatTypeService, AccountService, AccountGroupSetService, PeriodSeriesService} from '../../../services/services';
+import {CompanyTypeService, VatReportTypeService, MunicipalService, BankAccountService} from '../../../services/services';
 import {BankAccountModal} from '../../common/modals/modals';
 
 declare var _;
@@ -24,6 +25,7 @@ declare var _;
         PeriodSeriesService,
         VatTypeService,
         CompanyTypeService,
+        VatReportTypeService,
         MunicipalService,
         BankAccountService
     ],
@@ -49,6 +51,7 @@ export class CompanySettings implements OnInit {
     private company: any;
     
     private companyTypes: Array<CompanyType> = [];
+    private vatReportTypes: Array<VatReportType> = [];
     private currencies: Array<Currency> = [];
     private periodSeries: Array<PeriodSeries> = [];
     private accountGroupSets: Array<AccountGroup> = [];
@@ -77,6 +80,7 @@ export class CompanySettings implements OnInit {
                 private accountGroupSetService: AccountGroupSetService,
                 private periodeSeriesService: PeriodSeriesService,
                 private companyTypeService: CompanyTypeService,
+                private vatReportTypeService: VatReportTypeService,
                 private vatTypeService: VatTypeService,
                 private municipalService: MunicipalService,
                 private bankAccountService: BankAccountService) {
@@ -91,6 +95,7 @@ export class CompanySettings implements OnInit {
         
         Observable.forkJoin(
             this.companyTypeService.GetAll(null),
+            this.vatReportTypeService.GetAll(null),
             this.currencyService.GetAll(null),
             this.periodeSeriesService.GetAll(null),
             this.accountGroupSetService.GetAll(null),
@@ -99,11 +104,12 @@ export class CompanySettings implements OnInit {
         ).subscribe(
             (dataset) => {
                 this.companyTypes = dataset[0];
-                this.currencies = dataset[1];
-                this.periodSeries = dataset[2];
-                this.accountGroupSets = dataset[3];
-                this.accounts = dataset[4];
-                this.company = dataset[5];
+                this.vatReportTypes = dataset[1];
+                this.currencies = dataset[2];
+                this.periodSeries = dataset[3];
+                this.accountGroupSets = dataset[4];
+                this.accounts = dataset[5];
+                this.company = dataset[6];
 
                 this.extendFormConfig();
                 this.imageUploadOptions = {
@@ -170,6 +176,8 @@ export class CompanySettings implements OnInit {
             this.company.BankAccounts = this.company.BankAccounts.filter(x => x !== this.company.SalaryBankAccount);
         }
 
+        delete this.company.MunicipalityName;
+
         this.companySettingsService
             .Put(this.company.ID, this.company)
             .subscribe(
@@ -212,6 +220,15 @@ export class CompanySettings implements OnInit {
             source: this.companyTypes,
             valueProperty: 'ID',
             displayProperty: 'FullName',                        
+            debounceTime: 200
+        };
+
+        this.vatReportTypes.unshift(null);
+        let vatReportTypeID: UniFieldLayout = this.fields.find(x => x.Property === 'VatReportTypeID');
+        vatReportTypeID.Options = {
+            source: this.vatReportTypes,
+            valueProperty: 'ID',
+            displayProperty: 'Name',
             debounceTime: 200
         };
         
@@ -268,13 +285,13 @@ export class CompanySettings implements OnInit {
         salaryBankAccount.Options = this.getBankAccountOptions('SalaryBankAccountID', 'salary');
     }
 
-    private getBankAccountOptions(foreignProperty, bankAccountType) {
+    private getBankAccountOptions(storeResultInProperty, bankAccountType) {
        return {            
             entity: BankAccount,
             listProperty: 'BankAccounts',
             displayValue: 'AccountNumber',
             linkProperty: 'ID',
-            foreignProperty: foreignProperty,            
+            storeResultInProperty: storeResultInProperty,
             editor: (bankaccount: BankAccount) => new Promise((resolve) => {
                 if (!bankaccount) {
                     bankaccount = new BankAccount();
@@ -667,6 +684,28 @@ export class CompanySettings implements OnInit {
                     Sectionheader: 'Selskapsoppsett',
                     hasLineBreak: false,                     
                     Validations: []                    
+                },
+                {
+                    ComponentLayoutID: 1,
+                    EntityType: 'CompanySettings',
+                    Property: 'VatReportTypeID',
+                    Placement: 1,
+                    Hidden: false,
+                    FieldType: FieldType.DROPDOWN,
+                    ReadOnly: false,
+                    LookupField: false,
+                    Label: 'Mva skjema',
+                    Description: null,
+                    HelpText: null,
+                    FieldSet: 0,
+                    Section: 1,
+                    Placeholder: null,
+                    Options: null,
+                    LineBreak: null,
+                    Combo: null,
+                    Sectionheader: 'Selskapsoppsett',
+                    hasLineBreak: false,
+                    Validations: []
                 },
                 {
                     ComponentLayoutID: 1,

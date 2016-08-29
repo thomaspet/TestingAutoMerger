@@ -68,6 +68,7 @@
     padding: .2rem .5rem
     border-bottom: pxToRem(1) solid $uni-color-scale9
     position: relative
+    min-height: 2rem
 
     &:last-of-type
       border-bottom: none
@@ -107,14 +108,13 @@
   white-space: nowrap
 
 // INLINE EDITOR
-.uni-multivalue_edit
-  display: flex
-  width: calc(100% + 1rem)
-
-.uni-multivalue_edit_value
-  padding: .2rem .5rem
-  margin: -.2rem 0 -.2rem -.5rem
-  height: 1.9rem
+input[type=text].uni-multivalue_edit
+  display: inline-block
+  width: calc(100% + 4.5rem)
+  border-radius: pxToRem(3) pxToRem(3) pxToRem(3) pxToRem(3)
+  padding: .1rem .2rem
+  margin: -.1rem 0 0 -.2rem
+  height: 1.8rem
   width: calc(100%)
 
 // THE ADD BUTTON
@@ -144,7 +144,7 @@
   &:focus
     background-color: transparent
 
-// EDIT PUTTON
+// EDIT BUTTON
 .uni-multivalue_edit_action-edit
   right: .5rem
   background-image: unicon-edit($uni-color-scale6)

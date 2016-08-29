@@ -234,6 +234,11 @@ export class BankAccountModal {
                     class: 'good',
                     method: () => {               
                         this.modal.close();
+                        
+                        if (this.modalConfig.model.Account) {
+                            this.modalConfig.model.Account = null;
+                        }
+                        
                         this.Changed.emit(this.modalConfig.model);
                         return false;
                     }

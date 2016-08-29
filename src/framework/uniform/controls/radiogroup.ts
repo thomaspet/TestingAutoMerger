@@ -1,5 +1,5 @@
 import {Component, Input, Output, ElementRef, EventEmitter, ChangeDetectionStrategy, ChangeDetectorRef} from '@angular/core';
-import {Control} from '@angular/common';
+import {FormControl} from '@angular/forms';
 import {UniFieldLayout} from '../interfaces';
 declare var _; // jquery and lodash
 
@@ -29,7 +29,7 @@ export class UniRadiogroupInput {
     public model: any;
 
     @Input()
-    public control: Control;
+    public control: FormControl;
 
     @Output()
     public onReady: EventEmitter<UniRadiogroupInput> = new EventEmitter<UniRadiogroupInput>(true);

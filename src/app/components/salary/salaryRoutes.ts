@@ -15,10 +15,6 @@ export const routes = [
         redirectTo: 'employees'
     },
     {
-        path: 'salarytrans',
-        component: SalaryTransactionSelectionList
-    },
-    {
         path: 'wagetypes/:id',
         component: WagetypeDetail
     },

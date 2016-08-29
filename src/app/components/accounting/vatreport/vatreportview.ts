@@ -1,5 +1,5 @@
 import {Component, OnInit, OnDestroy} from '@angular/core';
-import {Control} from '@angular/common';
+import {FormControl, REACTIVE_FORM_DIRECTIVES} from '@angular/forms';
 import {ROUTER_DIRECTIVES} from '@angular/router';
 import {TabService} from '../../layout/navbar/tabstrip/tabService';
 import {UniTabs} from '../../layout/uniTabs/uniTabs';
@@ -17,6 +17,7 @@ import {VatTypeService} from '../../../services/Accounting/VatTypeService';
 import {ToastService, ToastType} from '../../../../framework/uniToast/toastService';
 import {VatSummaryPerPost} from './reportSummary/reportSummary';
 import {CheckListVat} from './checkList/checkList';
+import {ReceiptVat} from './receipt/receipt';
 
 declare const moment;
 
@@ -24,7 +25,7 @@ declare const moment;
     selector: 'vat-report-view',
     templateUrl: 'app/components/accounting/vatreport/vatreportview.html',
     providers: [CompanySettingsService, VatReportService],
-    directives: [ROUTER_DIRECTIVES, UniTabs, UniSave, VatSummaryPerPost, CheckListVat],
+    directives: [REACTIVE_FORM_DIRECTIVES, ROUTER_DIRECTIVES, UniTabs, UniSave, VatSummaryPerPost, CheckListVat, ReceiptVat],
     pipes: [PeriodDateFormatPipe, UniCurrencyPipe]
 })
 export class VatReportView implements OnInit, OnDestroy {
@@ -37,12 +38,12 @@ export class VatReportView implements OnInit, OnDestroy {
         },
         {
             label: 'Send inn',
-            action: (done) => this.runVatReportAndSend(done),
+            action: (done) => this.sendVatReport(done),
             disabled: false
         }
     ];
-    public internalComment: Control = new Control();
-    public externalComment: Control = new Control();
+    public internalComment: FormControl = new FormControl();
+    public externalComment: FormControl = new FormControl();
     public companySettings: CompanySettings;
     public vatReportSummary: VatReportSummary[];
     public reportSummaryPerPost: VatReportSummaryPerPost[];
@@ -52,7 +53,7 @@ export class VatReportView implements OnInit, OnDestroy {
     public isExecuted: boolean;
     public isSendt: boolean;
     public isBusy: boolean = true;
-    public showControll: boolean = false;
+    public showView: string = '';
     private subs: Subscription[] = [];
 
     constructor(
@@ -108,7 +109,7 @@ export class VatReportView implements OnInit, OnDestroy {
 
     private setVatreport(vatReport: VatReport) {
         this.currentVatReport = vatReport;
-        this.isSendt = vatReport.StatusCode === StatusCodeVatReport.Reported;
+        this.isSendt = vatReport.StatusCode === StatusCodeVatReport.Submitted;
         this.isExecuted = vatReport.StatusCode === StatusCodeVatReport.Executed || this.isSendt;
 
         this.vatReportSummary = null;
@@ -169,11 +170,15 @@ export class VatReportView implements OnInit, OnDestroy {
             );
     }
 
-    public runVatReportAndSend(done) {
+    public sendVatReport(done) {
         this.vatReportService.sendReport(this.currentVatReport.ID)
-            .subscribe(vatReport => {
-                    this.setVatreport(vatReport);
-                    done();
+            .subscribe(() => {
+                    this.vatReportService.Get(this.currentVatReport.ID, ['TerminPeriod'])
+                        .subscribe(vatreport => {
+                                this.setVatreport(vatreport);
+                                done();
+                            },
+                            err => this.onError(err));
                 },
                 err => this.onError(err)
             );

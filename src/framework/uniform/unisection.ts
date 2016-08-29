@@ -1,5 +1,5 @@
 import {Component, Input, Output, HostBinding, EventEmitter, QueryList, ViewChildren, ChangeDetectorRef, ChangeDetectionStrategy, SimpleChange} from '@angular/core';
-import {FORM_DIRECTIVES, FORM_PROVIDERS, ControlGroup} from '@angular/common';
+import {REACTIVE_FORM_DIRECTIVES, FormGroup} from '@angular/forms';
 import {UniFieldLayout} from './interfaces';
 import {UniField} from './unifield';
 import {UniCombo} from './unicombo';
@@ -26,7 +26,7 @@ declare var _; // lodash
                     <uni-combo-field 
                         *ngIf="isCombo(item)"
                         [controls]="controls"
-                        [field]="item" 
+                        [fields]="item"
                         [model]="model"
                         (onReady)="onReadyHandler($event)"
                         (onChange)="onChangeHandler($event)">
@@ -45,15 +45,14 @@ declare var _; // lodash
         </article>
     `,
     changeDetection: ChangeDetectionStrategy.OnPush,
-    directives: [FORM_DIRECTIVES, UniField, UniCombo, UniFieldSet],
-    providers: [FORM_PROVIDERS]
+    directives: [REACTIVE_FORM_DIRECTIVES, UniFieldSet, UniCombo, UniField]
 })
 export class UniSection {
     @Input()
     public fields: UniFieldLayout[];
 
     @Input()
-    public controls: ControlGroup;
+    public controls: FormGroup;
 
     @Input()
     public model: any;

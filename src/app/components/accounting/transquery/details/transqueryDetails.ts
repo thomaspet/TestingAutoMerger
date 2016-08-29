@@ -112,14 +112,14 @@ export class TransqueryDetails implements OnInit {
             .setColumns([
                 new UniTableColumn('JournalEntryNumber', 'Bilagsnr')
                     .setTemplate((journalEntryLine) => {
-                        return `<a href="/accounting/transquery/details;journalEntryNumber=${journalEntryLine.JournalEntryNumber}">
+                        return `<a href="/#/accounting/transquery/details;journalEntryNumber=${journalEntryLine.JournalEntryNumber}">
                                 ${journalEntryLine.JournalEntryNumber}
                             </a>`;
                     })
                     .setFilterOperator('contains'),
                 new UniTableColumn('Account.AccountNumber', 'Kontonr')
                     .setTemplate((journalEntryLine) => {
-                        return `<a href="/accounting/transquery/details;Account_AccountNumber=${journalEntryLine.Account.AccountNumber}">
+                        return `<a href="/#/accounting/transquery/details;Account_AccountNumber=${journalEntryLine.Account.AccountNumber}">
                                 ${journalEntryLine.Account.AccountNumber}
                             </a>`;
                     })

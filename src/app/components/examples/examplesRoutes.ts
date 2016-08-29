@@ -1,4 +1,3 @@
-import {UniFormDemo} from './form/formDemo';
 import {XFormDemo} from './form/xFormDemo';
 import {UniTableDemoNew} from './table/tableDemoNew';
 import {ImageDemo} from './image/imageDemo';
@@ -13,10 +12,6 @@ export const routes = [
         path: '',
         pathMatch: 'full',
         redirectTo: 'xform'
-    },
-    {
-        path: 'form',
-        component: UniFormDemo
     },
     {
         path: 'xform',
