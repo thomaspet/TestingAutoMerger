@@ -1,42 +1,24 @@
 vat-report-view
-    .vatreportheader
-        display: inline-block
-    
-        .title
-            padding: 0 4rem
+    .poster_widgets
 
-            .period
-                display: block
-                font-size: 1.2rem
+        dl
+            padding: 1rem 0
+        dt
+            @extend strong
+        dd
+            margin: 0 0 .5rem 0
 
-            time
-                font-size: .9rem
+        .tablewidget
+            @include unigrid(8)
 
-        .unit
-            margin-bottom: 0
+    table
+        margin-top: 1rem
 
-            .heading
-                font-weight: 600
-                display: block
+        .datacolumn
+            padding-left: 1.5rem
 
-        .container
-            background-color: $uni-color-scale9
-            border: .1rem solid $uni-color-scale7            
-
-        .box
-            padding-left: 2rem
-            margin-bottom: 1rem
-            width: calc(33% - 2rem)
-            float: left
-       
-        table
-            margin-top: 1rem
-
-            .datacolumn
-                padding-left: 1.5rem
-
-            .currency
-                text-align: right
+        .currency
+            text-align: right
 
 
     .statuslist
@@ -80,7 +62,6 @@ vat-report-view
                 width: .3rem
                 left: .4rem
                 top: .5rem
-
 
     .comment
         width: 35%

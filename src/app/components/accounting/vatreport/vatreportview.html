@@ -1,34 +1,32 @@
-<header> 
+<header class="poster">
     <article class="poster_toolbar">
         <section>
             <h1>Merverdioppgave, periode {{currentVatReport?.TerminPeriod?.No}}</h1>
             <p>
                {{currentVatReport?.TerminPeriod | periodDateFormat}}
-            </p>            
+            </p>
         </section>
         <nav class="poster_toolbar_tools">
             <a (click)="onBackPeriod()" class="previous">Forrige</a>
-            <a (click)="onForwardPeriod()" class="next">Neste</a>            
+            <a (click)="onForwardPeriod()" class="next">Neste</a>
         </nav>
     </article>
-    
+
     <section class="poster_overview vatreportheader">
-        <section class="application">
-            <div class="box">
-                <p class="unit">
-                    <span class="heading">Org.nr</span>
-                    {{companySettings?.OrganizationNumber}}
-                </p>
-                <p class="unit">
-                    <span class="heading">Navn</span>
-                    {{companySettings?.CompanyName}}
-                </p>
-                <p class="unit">
-                    <span class="heading">Kontonr. for tilbakebetaling</span>
-                    {{companySettings?.CompanyBankAccount?.AccountNumber}}
-                </p>
-            </div>            
-            <div class="box">
+
+        <div class="poster_widgets">
+            <dl class="poster_widget">
+                <dt>Org.nr</dt>
+                <dd>{{companySettings?.OrganizationNumber}}</dd>
+
+                <dt>Navn</dt>
+                <dd>{{companySettings?.CompanyName}}</dd>
+
+                <dt>Kontonr. for tilbakebetaling</dt>
+                <dd>{{companySettings?.CompanyBankAccount?.AccountNumber}}</dd>
+            </dl>
+
+            <article class="poster_widget tablewidget">
                 <table>
                     <tr>
                         <th></th><th class="datacolumn">Grunnlag</th><th class="datacolumn">Avgift</th>
@@ -47,8 +45,9 @@
                         </td>
                     </tr>
                 </table>
-            </div>
-            <div class="box">
+            </article>
+
+            <article class="poster_widget">
                 <ul class="statuslist">
                     <li [className]="isControlledWithoutWarnings() ? 'success' : 'warn'">
                         {{ isControlledWithoutWarnings() ? 'Automatisk kontroll ok' : 'Automatisk kontroll har advarsler' }}
@@ -60,8 +59,11 @@
                         {{ isSendt ? 'Sendt inn ok' : 'Ikke sendt inn' }}
                     </li>
                 </ul>
-            </div>            
-        </section>
+            </article>
+
+        </div>
+
+
     </section>
     <div class="horizontal_nav">
         <ul>
