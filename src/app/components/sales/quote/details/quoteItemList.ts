@@ -64,6 +64,16 @@ export class QuoteItemList implements OnInit{
          }   
     }
     
+    private mapVatTypeToQuoteItem(rowModel) {
+        let vatType = rowModel['VatType'];
+        
+        if (vatType === null) {
+            rowModel.VatTypeID = null;
+        } else {
+            rowModel.VatTypeID = vatType.ID;    
+        }
+    }
+    
     private mapProductToQuoteItem(rowModel) {
         let product = rowModel['Product'];
         if (product === null) {
@@ -172,6 +182,10 @@ export class QuoteItemList implements OnInit{
                 
                 if (event.field === 'Product') {
                     this.mapProductToQuoteItem(newRow);
+                }
+                
+                if (event.field === 'VatType') {
+                    this.mapVatTypeToQuoteItem(newRow);
                 }
                 
                 this.calculatePriceIncVat(newRow);

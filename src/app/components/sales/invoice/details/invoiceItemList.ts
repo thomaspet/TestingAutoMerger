@@ -64,6 +64,16 @@ export class InvoiceItemList implements OnInit {
         }
     }
 
+    private mapVatTypeToQuoteItem(rowModel) {
+        let vatType = rowModel['VatType'];
+        
+        if (vatType === null) {
+            rowModel.VatTypeID = null;
+        } else {
+            rowModel.VatTypeID = vatType.ID;    
+        }
+    }
+    
     private mapProductToInvoiceItem(rowModel) {
         let product = rowModel['Product'];
         if (product === null) {
@@ -176,8 +186,13 @@ export class InvoiceItemList implements OnInit {
                         newRow.NumberOfItems = 1;
                     }
                 }
+                
                 if (event.field === 'Product') {
                     this.mapProductToInvoiceItem(newRow) 
+                }
+                
+                if (event.field === 'VatType') {
+                    this.mapVatTypeToQuoteItem(newRow);
                 }
 
                 this.calculatePriceIncVat(newRow);
