@@ -1,74 +1,24 @@
 vat-report-view
-    .vatreportheader
-        .title
-            padding: 0 4rem
+    .poster_widgets
 
-            .period
-                display: block
-                font-size: 1.2rem
+        dl
+            padding: 1rem 0
+        dt
+            @extend strong
+        dd
+            margin: 0 0 .5rem 0
 
-            time
-                font-size: .9rem
+        .tablewidget
+            @include unigrid(8)
 
-        .periodNavigation
-            float: right
-            margin-right: 5rem
-            button
-                width: 2.5rem
-                height: 2.5rem
-                padding: 0
-                text-align: center
-                line-height: 2.5rem
-                border-radius: .4rem
-                font-size: 1.7rem
-                margin: .3rem
-                background-color: $uni-color-scale9
-                border: .1rem solid $uni-color-scale6
-                color: black
+    table
+        margin-top: 1rem
 
-        .unit
-            margin-bottom: 0
+        .datacolumn
+            padding-left: 1.5rem
 
-            .heading
-                font-weight: 600
-                display: block
-
-        .container
-            background-color: $uni-color-scale9
-            border: .1rem solid $uni-color-scale7
-            margin: 0 2rem
-
-        .box
-            padding-left: 2rem
-            margin-bottom: 1rem
-
-        .left
-            float: left
-
-        .right
-            float: right
-
-        .center
-            width: 25%
-            margin: 0 auto
-
-        .horizontal_nav ul
-            border-top: .15rem solid $uni-color-scale7
-            background-color: $uni-color-negative
-            a
-                color: black
-
-                &.active, &:hover
-                    background-color: $uni-color-scale8
-
-        table
-            margin-top: 1rem
-
-            .datacolumn
-                padding-left: 1.5rem
-
-            .currency
-                text-align: right
+        .currency
+            text-align: right
 
 
     .statuslist
@@ -112,7 +62,6 @@ vat-report-view
                 width: .3rem
                 left: .4rem
                 top: .5rem
-
 
     .comment
         width: 35%

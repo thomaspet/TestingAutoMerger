@@ -1,42 +1,32 @@
-<section class="application" [attr.aria-busy]="isBusy">
-    <header class="vatreportheader">
-        <div class="periodNavigation">
-            <button type="button" (click)="onBackPeriod()">◀</button>
-            <button type="button" (click)="onForwardPeriod()">▶</button>
-        </div>
-        <p class="title">
-            <period class="period">Merverdioppgave, periode {{currentVatReport?.TerminPeriod?.No}}</period>
-            <time datetime="">{{currentVatReport?.TerminPeriod | periodDateFormat}}</time>
-        </p>
-        <section class="container">
-            <div class="box left">
-                <p class="unit">
-                    <span class="heading">Org.nr</span>
-                    {{companySettings?.OrganizationNumber}}
-                </p>
-                <p class="unit">
-                    <span class="heading">Navn</span>
-                    {{companySettings?.CompanyName}}
-                </p>
-                <p class="unit">
-                    <span class="heading">Kontonr. for tilbakebetaling</span>
-                    {{companySettings?.CompanyBankAccount?.AccountNumber}}
-                </p>
-            </div>
-            <div class="box right">
-                <ul class="statuslist">
-                    <li [className]="isControlledWithoutWarnings() ? 'success' : 'warn'">
-                        {{ isControlledWithoutWarnings() ? 'Automatisk kontroll ok' : 'Automatisk kontroll har advarsler' }}
-                    </li>
-                    <li [className]="isExecuted ? 'success' : ''">
-                        {{ isExecuted ? 'Kjørt ok' : 'Ikke kjørt' }}
-                    </li>
-                    <li [className]="isSendt ? 'success' : ''">
-                        {{ isSendt ? 'Sendt inn ok' : 'Ikke sendt inn' }}
-                    </li>
-                </ul>
-            </div>
-            <div class="box center">
+<header class="poster">
+    <article class="poster_toolbar">
+        <section>
+            <h1>Merverdioppgave, periode {{currentVatReport?.TerminPeriod?.No}}</h1>
+            <p>
+               {{currentVatReport?.TerminPeriod | periodDateFormat}}
+            </p>
+        </section>
+        <nav class="poster_toolbar_tools">
+            <a (click)="onBackPeriod()" class="previous">Forrige</a>
+            <a (click)="onForwardPeriod()" class="next">Neste</a>
+        </nav>
+    </article>
+
+    <section class="poster_overview vatreportheader">
+
+        <div class="poster_widgets">
+            <dl class="poster_widget">
+                <dt>Org.nr</dt>
+                <dd>{{companySettings?.OrganizationNumber}}</dd>
+
+                <dt>Navn</dt>
+                <dd>{{companySettings?.CompanyName}}</dd>
+
+                <dt>Kontonr. for tilbakebetaling</dt>
+                <dd>{{companySettings?.CompanyBankAccount?.AccountNumber}}</dd>
+            </dl>
+
+            <article class="poster_widget tablewidget">
                 <table>
                     <tr>
                         <th></th><th class="datacolumn">Grunnlag</th><th class="datacolumn">Avgift</th>
@@ -55,23 +45,44 @@
                         </td>
                     </tr>
                 </table>
-            </div>
-            <div class="horizontal_nav">
-                <ul>
-                    <li>
-                        <a (click)="showView = 'control'" [class.active]="showView == 'control'">Kontroll</a>
+            </article>
+
+            <article class="poster_widget">
+                <ul class="statuslist">
+                    <li [className]="isControlledWithoutWarnings() ? 'success' : 'warn'">
+                        {{ isControlledWithoutWarnings() ? 'Automatisk kontroll ok' : 'Automatisk kontroll har advarsler' }}
                     </li>
-                    <li>
-                        <a (click)="showView = ''" [class.active]="showView == ''">Oppgave</a>
+                    <li [className]="isExecuted ? 'success' : ''">
+                        {{ isExecuted ? 'Kjørt ok' : 'Ikke kjørt' }}
                     </li>
-                    <li *ngIf="currentVatReport?.PaymentID">
-                        <a (click)="showView = 'receipt'" [class.active]="showView == 'receipt'">Altinn, kvittering/tilbakemelding</a>
+                    <li [className]="isSendt ? 'success' : ''">
+                        {{ isSendt ? 'Sendt inn ok' : 'Ikke sendt inn' }}
                     </li>
                 </ul>
-            </div>
-        </section>
-    </header>
+            </article>
 
+        </div>
+
+
+    </section>
+    <div class="horizontal_nav">
+        <ul>
+            <li>
+                <a (click)="showView = 'control'" [class.router-link-active]="showView == 'control'">Kontroll</a>
+            </li>
+            <li>
+                <a (click)="showView = ''" [class.router-link-active]="showView == ''">Oppgave</a>
+            </li>
+            <li *ngIf="currentVatReport?.PaymentID">
+                <a (click)="showView = 'receipt'" [class.router-link-active]="showView == 'receipt'">Altinn, kvittering/tilbakemelding</a>
+            </li>
+        </ul>
+    </div>
+</header>
+
+
+
+<section class="application" [attr.aria-busy]="isBusy">
 
     <vatreport-checklist-view
             *ngIf="showView == 'control'"
