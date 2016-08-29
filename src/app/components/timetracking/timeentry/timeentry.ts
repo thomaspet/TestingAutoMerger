@@ -4,7 +4,7 @@ import {View} from '../../../models/view/view';
 import {WorkRelation, WorkItem, Worker} from '../../../unientities';
 import {WorkerService, ItemInterval} from '../../../services/timetracking/workerservice';
 import {Editable, IChangeEvent, IConfig, Column, ColumnType, ITypeSearch, ICopyEventDetails, ILookupDetails} from '../utils/editable/editable';
-import {parseDate, exportToFile, arrayToCsv, safeInt} from '../utils/utils';
+import {parseDate, exportToFile, arrayToCsv, safeInt, capitalizeFirstLetter} from '../utils/utils';
 import {TimesheetService, TimeSheet, ValueItem} from '../../../services/timetracking/timesheetservice';
 import {IsoTimePipe, MinutesToHoursPipe} from '../utils/pipes';
 import {UniSave, IUniSaveAction} from '../../../../framework/save/save';
@@ -68,6 +68,7 @@ export class TimeEntry {
 
     public filters: Array<IFilter> = [
         { name: 'today', label: 'I dag', isSelected: true, interval: ItemInterval.today },
+        { name: 'yesterday', label: 'I går', isSelected: false, interval: ItemInterval.yesterday },
         { name: 'week', label: 'Denne uke', interval: ItemInterval.thisWeek},
         { name: 'month', label: 'Denne måned', interval: ItemInterval.thisMonth},
         { name: 'months', label: 'Siste 2 måneder', interval: ItemInterval.lastTwoMonths},
@@ -114,6 +115,8 @@ export class TimeEntry {
                 this.init();
             }
         });
+
+        this.filters[1].label = capitalizeFirstLetter(moment(service.getLastWorkDay()).format('dddd'));
 
     }
 
@@ -353,7 +356,7 @@ export class TimeEntry {
     private checkSave(): Promise<boolean> {
         return new Promise((resolve, reject) => {
             if (this.hasUnsavedChanges()) {
-                var result = confirm('Fortsette uten å lagre ? Du vil miste alle endringer som du har lagt inn dersom du fortsetter !');
+                var result = confirm('Fortsette uten å lagre? Du vil miste alle endringer som du har lagt inn dersom du fortsetter !');
                 resolve(result);
                 return;
             }

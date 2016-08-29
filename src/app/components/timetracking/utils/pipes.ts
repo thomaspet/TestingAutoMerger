@@ -9,10 +9,12 @@ interface ITime {
 
 export var SYSTEMTYPES = [
     { id: 1, label: 'Timer' },
-    { id: 10, label: 'Fri' },
+    { id: 9, label: 'Fri (med lønn)' },
+    { id: 10, label: 'Fri (uten lønn)' },
     { id: 11, label: 'Fleksitid' },
     { id: 12, label: 'Overtid' },
-    { id: 13, label: 'Ferie' }
+    { id: 13, label: 'Ferie' },
+    { id: 20, label: 'Sykdom' }
 ];
 
 @Pipe({
