@@ -5,7 +5,7 @@ import {UniHttp} from '../../../framework/core/http/http';
 import {Observable} from 'rxjs/Rx';
 import {AuthService} from '../../../framework/core/authService';
 import {URLSearchParams} from '@angular/http';
-import {toIso} from '../../components/timetracking/utils/utils';
+import {toIso, capitalizeFirstLetter} from '../../components/timetracking/utils/utils';
 import {AppConfig} from '../../../app/AppConfig';
 
 declare var moment;
@@ -18,6 +18,13 @@ export enum ItemInterval {
     thisMonth = 4,
     lastTwoMonths = 5,
     thisYear = 6
+}
+
+export interface IFilter {
+    name: string;
+    label: string;
+    isSelected?: boolean;
+    interval: ItemInterval;
 }
 
 @Injectable()
@@ -139,7 +146,19 @@ export class WorkerService extends BizHttp<Worker> {
         }        
     }
 
-    public getLastWorkDay(): Date {
+    public getIntervalItems(): Array<IFilter> {
+        return [
+            { name: 'today', label: 'I dag', isSelected: true, interval: ItemInterval.today },
+            { name: 'yesterday', label: this.getLastWorkDayName(), isSelected: false, interval: ItemInterval.yesterday },
+            { name: 'week', label: 'Denne uke', interval: ItemInterval.thisWeek},
+            { name: 'month', label: 'Denne måned', interval: ItemInterval.thisMonth},
+            { name: 'months', label: 'Siste 2 måneder', interval: ItemInterval.lastTwoMonths},
+            { name: 'year', label: 'Dette år', interval: ItemInterval.thisYear},
+            { name: 'all', label: 'Alt', interval: ItemInterval.all}
+        ];        
+    }
+
+    private getLastWorkDay(): Date {
         var dt = moment();
         debugger;
         var dayNumber = new Date().getDay();
@@ -149,6 +168,10 @@ export class WorkerService extends BizHttp<Worker> {
             dt.add('days', -1);            
         }
         return dt.toDate();
+    }
+
+    private getLastWorkDayName(): string {
+        return capitalizeFirstLetter(moment(this.getLastWorkDay()).format('dddd'));
     }
     
     public getWorkItems(workRelationID: number, interval: ItemInterval = ItemInterval.all): Observable<WorkItem[]> {

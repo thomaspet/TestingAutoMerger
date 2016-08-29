@@ -1,8 +1,7 @@
 import {Component} from '@angular/core';
 import {TimeSheet, TimesheetService} from '../../../../services/timetracking/timesheetservice';
-import {WorkerService, ItemInterval} from '../../../../services/timetracking/workerservice';
+import {WorkerService, IFilter} from '../../../../services/timetracking/workerservice';
 import {MinutesToHoursPipe} from '../../utils/pipes';
-import {IFilter} from '../timeentry';
 import {IsoTimePipe} from '../../utils/pipes';
 import {safeInt} from '../../utils/utils';
 
@@ -18,18 +17,13 @@ export class RegtimeTools {
         items: Array<any>,
         sums: { minutes: number }
     };
-    private filters: Array<IFilter> = [
-        { name: 'today', label: 'I dag', interval: ItemInterval.today },
-        { name: 'week', label: 'Denne uke', interval: ItemInterval.thisWeek},
-        { name: 'month', label: 'Denne måned', interval: ItemInterval.thisMonth },
-        { name: 'months', label: 'Siste 2 måneder', interval: ItemInterval.lastTwoMonths},
-        { name: 'year', label: 'Dette år', interval: ItemInterval.thisYear},
-        { name: 'all', label: 'Alt', interval: ItemInterval.all}
-    ];
+    private filters: Array<IFilter>;
     private currentFilter: IFilter;
     private busy: boolean = true;
 
-    constructor(private workerService: WorkerService, private timesheetService: TimesheetService) {  }
+    constructor(private workerService: WorkerService, private timesheetService: TimesheetService) {  
+        this.filters = workerService.getIntervalItems();
+    }
 
     public activate(ts: TimeSheet, filter?: IFilter) {
         if (!this.timesheet) { 

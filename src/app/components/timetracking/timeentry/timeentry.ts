@@ -2,9 +2,9 @@ import {Component, ViewChild} from '@angular/core';
 import {TabService} from '../../layout/navbar/tabstrip/tabService';
 import {View} from '../../../models/view/view';
 import {WorkRelation, WorkItem, Worker} from '../../../unientities';
-import {WorkerService, ItemInterval} from '../../../services/timetracking/workerservice';
+import {WorkerService, IFilter} from '../../../services/timetracking/workerservice';
 import {Editable, IChangeEvent, IConfig, Column, ColumnType, ITypeSearch, ICopyEventDetails, ILookupDetails} from '../utils/editable/editable';
-import {parseDate, exportToFile, arrayToCsv, safeInt, capitalizeFirstLetter} from '../utils/utils';
+import {parseDate, exportToFile, arrayToCsv, safeInt} from '../utils/utils';
 import {TimesheetService, TimeSheet, ValueItem} from '../../../services/timetracking/timesheetservice';
 import {IsoTimePipe, MinutesToHoursPipe} from '../utils/pipes';
 import {UniSave, IUniSaveAction} from '../../../../framework/save/save';
@@ -18,13 +18,6 @@ import {Router} from '@angular/router';
 declare var moment;
 
 export var view = new View('timeentry', 'Timer', 'TimeEntry', false, '', TimeEntry);
-
-export interface IFilter {
-    name: string;
-    label: string;
-    isSelected?: boolean;
-    interval: ItemInterval;
-}
 
 interface ITab {
     name: string;
@@ -66,15 +59,7 @@ export class TimeEntry {
             ];
 
 
-    public filters: Array<IFilter> = [
-        { name: 'today', label: 'I dag', isSelected: true, interval: ItemInterval.today },
-        { name: 'yesterday', label: 'I går', isSelected: false, interval: ItemInterval.yesterday },
-        { name: 'week', label: 'Denne uke', interval: ItemInterval.thisWeek},
-        { name: 'month', label: 'Denne måned', interval: ItemInterval.thisMonth},
-        { name: 'months', label: 'Siste 2 måneder', interval: ItemInterval.lastTwoMonths},
-        { name: 'year', label: 'Dette år', interval: ItemInterval.thisYear},
-        { name: 'all', label: 'Alt', interval: ItemInterval.all}
-    ];
+    public filters: Array<IFilter>;
 
     public tableConfig: IConfig = {
         columns: [
@@ -104,7 +89,9 @@ export class TimeEntry {
     constructor(private tabService: TabService, private service: WorkerService, 
                 private timesheetService: TimesheetService, private lookup: Lookupservice, 
                 private toast: ToastService, private router: Router) {
-        
+
+        this.filters = service.getIntervalItems();
+
         this.tabService.addTab({ name: view.label, url: view.url, moduleID: 18 });
 
         router.routerState.queryParams.first().subscribe((item: { workerId; workRelationId; }) => {
@@ -115,8 +102,6 @@ export class TimeEntry {
                 this.init();
             }
         });
-
-        this.filters[1].label = capitalizeFirstLetter(moment(service.getLastWorkDay()).format('dddd'));
 
     }
 
