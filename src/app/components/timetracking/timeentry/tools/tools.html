@@ -18,7 +18,8 @@
             <th class="s2 center">Slutt</th>
             <th class="s2 right">Timer</th>
             <th class="s1 right">Lunsj</th>
-            <th class="left">Fri/ferie o.l</th>
+            <th class="s2 right" *ngFor="let col of sumColumns">{{col.label}}</th>
+            <th class="left">Sum</th>
         </tr></thead>
         <tbody>
             <tr *ngFor="let item of config.items">
@@ -28,13 +29,15 @@
                 <td class="center">{{item.maxendtime | isotime:'HH:mm'}}</td>
                 <td class="right">{{item.summinutes | min2hours:'short' }}</td>
                 <td class="right">{{item.sumlunchinminutes | min2hours:'short'}}</td>
-                <td class="left">{{item.OffTime | min2hours:'short'}}</td>
+                <td class="right" *ngFor="let col of sumColumns">{{item[col.name] | min2hours:'short' }}</td>
+                <td class="left">{{item.total | min2hours:'short' }}</td>
             </tr>
             <tr>
                 <td class="sum">Sum</td>
-                <td class="right sum" colspan="4">{{config.sums.minutes | min2hours }}</td>
+                <td class="right sum" colspan="4">{{config.sumWork | min2hours }}</td>
                 <td></td>
-                <td class="sum">{{config.sums.OffTime | min2hours }}</td>
+                <td *ngFor="let col of sumColumns" class="right sum">{{col.sum | min2hours:'short' }}</td>
+                <td class="left sum">{{config.sumTotal | min2hours }}</td>
             </tr>
         </tbody>
     </table>

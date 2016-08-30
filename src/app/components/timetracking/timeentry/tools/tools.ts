@@ -12,14 +12,21 @@ import {safeInt} from '../../utils/utils';
 })
 export class RegtimeTools {
     private timesheet: TimeSheet;
-    private config: {
+    public config: {
         title: string, 
         items: Array<any>,
-        sums: { minutes: number }
+        sumWork: number,
+        sumTotal: number
     };
-    private filters: Array<IFilter>;
-    private currentFilter: IFilter;
-    private busy: boolean = true;
+    public filters: Array<IFilter>;
+    public currentFilter: IFilter;
+    public busy: boolean = true;
+
+    public sumColumns: any = [
+        { types: [10, 11], name: 'Timeoff', label: 'Fri', sum: 0 },
+        { types: [13], name: 'Vacation', label: 'Ferie', sum: 0 },
+        { types: [20], name: 'Sickleave', label: 'Sykdom', sum: 0 }
+    ];
 
     constructor(private workerService: WorkerService, private timesheetService: TimesheetService) {  
         this.filters = workerService.getIntervalItems();
@@ -49,45 +56,82 @@ export class RegtimeTools {
     
 
     private showData(items: Array<any>) {
-        var compactedList = this.extractSystemTypes(items);
+        var compactedList = this.filterItems(items);
+        var sums = this.sumItems(items);
         this.config = {
             title: compactedList[0].Name,
             items: compactedList,
-            sums: this.sumItems(compactedList)
+            sumWork: sums.sumWork,
+            sumTotal: sums.sumTotal
         };
     }
 
-    private extractSystemTypes(items: Array<any>): Array<any> {
-        var item: any;
-        var systemType: number = 0;
-        var isHours = false;
+    private filterItems(items: Array<any>): Array<any> {
         for (var i = items.length - 1; i >= 0; i--) {
-            item = items[i];
-            systemType = parseInt(item.SystemType);
-            isHours = (systemType <= 10 || systemType === 12);
-            item.OffTime = item.OffTime || 0;
-            if (!isHours) {
-                if (i > 0 && item.Date === items[i - 1].Date) {
-                    items[i - 1].OffTime = parseInt( items[i - 1].OffTime || 0 ) + parseInt( item.summinutes );
-                    items.splice(i, 1);
-                } else {
-                    item.OffTime = parseInt( item.summinutes );
-                    item.summinutes = 0;
-                    item.sumlunchinminutes = 0;
-                }
-            }
+            this.filterItem(items, i);
         }
         return items;
     }
 
-    private sumItems(items: Array<any>) {
-        var sum = 0;
-        var sum2 = 0;
+    private filterItem(items: Array<any>, index: number) {
+        var item = items[index];
+        var systemType = safeInt(item.SystemType);
+        var isHours = (systemType < 10 || systemType === 12);
+        item.OffTime = item.OffTime || 0;
+        if (!isHours) {
+            let canMerge = index > 0 && item.Date === items[index - 1].Date;        
+            if (canMerge) {
+                this.mergeItem(item, items[index - 1]);      
+                items.splice(index, 1);
+            } else {
+                this.mergeItem(item);
+            }
+        }        
+    }
+
+    private mergeItem(item: any, target: any = undefined) {
+        if (target) {
+            this.createMergeSumsOnItem(item, target);
+            if ( target.maxendtime < item.maxendtime ) {
+                target.maxendtime = item.maxendtime;
+            }
+            if ( target.minstarttime > item.minstarttime ) {
+                target.minstarttime = item.minstarttime;
+            }
+        } else {
+            this.createMergeSumsOnItem(item, item);
+            item.summinutes = 0;
+            item.sumlunchinminutes = 0;            
+        }                
+    }
+
+    private createMergeSumsOnItem(item: any, target: any) {
+        var sysType = safeInt( item.SystemType );
+        var minutes = safeInt( item.summinutes );        
+        this.sumColumns.forEach((sum) => {
+            if (sum.types.indexOf(sysType) >= 0) {
+                target[sum.name] = safeInt( (target[sum.name] || 0) ) + minutes;
+            }
+        });        
+    }
+
+    private sumItems(items: Array<any>): { sumWork: number, sumTotal: number } {
+        var sum = { sumWork: 0, sumTotal: 0 };
+        this.sumColumns.forEach((col) => { col.sum = 0; });
         items.forEach(element => {
-            sum += safeInt(element.summinutes || 0);
-            sum2 += element.OffTime;    
+            let itemSum = safeInt(element.summinutes || 0);
+            sum.sumWork += itemSum;
+            element.total = itemSum;
+            this.sumColumns.forEach((col) => {
+                if (element[col.name]) {                    
+                    col.sum += safeInt(element[col.name]);
+                    element.total += safeInt(element[col.name]);
+                } 
+            });
+
+            sum.sumTotal += element.total;
         });
-        return { minutes: sum, OffTime: sum2 };
+        return sum;
     }
 
     private queryTotals() {

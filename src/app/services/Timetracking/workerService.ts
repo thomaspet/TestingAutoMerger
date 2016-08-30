@@ -162,9 +162,9 @@ export class WorkerService extends BizHttp<Worker> {
         var dt = moment();
         var dayNumber = new Date().getDay();
         if (dayNumber === 1) {
-            dt.add('days', -3);
+            dt.add(-3, 'days');
         } else {
-            dt.add('days', -1);            
+            dt.add(-1, 'days');            
         }
         return dt.toDate();
     }
