@@ -1,5 +1,5 @@
 import { Component, Input, ViewChild } from '@angular/core';
-import { FieldType, BasicAmount } from '../../../../unientities';
+import { FieldType, BasicAmount, VacationPayInfo, VacationPayLine } from '../../../../unientities';
 import { UniForm } from '../../../../../framework/uniform';
 import { UniFieldLayout } from '../../../../../framework/uniform/index';
 import { UniTable, UniTableConfig, UniTableColumnType, UniTableColumn} from 'unitable-ng2/main';
@@ -11,11 +11,11 @@ declare var _;
 @Component({
     selector: 'vacationpay-modal-content',
     directives: [UniForm, UniTable, VacationpaySettingModal],
-    providers: [SalaryTransactionService, BasicAmountService, PayrollrunService],
+    providers: [SalaryTransactionService, BasicAmountService],
     templateUrl: 'app/components/salary/payrollrun/vacationpay/vacationPayModalContent.html'
 })
 export class VacationpayModalContent {
-    @Input() private config: {hasCancelButton: boolean, cancel: any, actions: {text: string, method: any}[], payrollRunID: number};
+    @Input() private config: {hasCancelButton: boolean, cancel: any, payrollRunID: number};
     private busy: boolean;
     private basicamountBusy: boolean;
     private vacationHeaderModel: any = {};
@@ -24,12 +24,17 @@ export class VacationpayModalContent {
     private tableConfig: UniTableConfig;
     private totalPayout: number;
     @ViewChild(VacationpaySettingModal) private vacationpaySettingModal: VacationpaySettingModal;
+    @ViewChild(UniTable) private table: UniTable;
     private vacationpayBasis: any;
     private vacationBaseYear: number;
 
     constructor(private _salarytransService: SalaryTransactionService, private _basicamountService: BasicAmountService, private _payrollrunService: PayrollrunService) {
+        
+    }
+
+    public load() {
         this.busy = true;
-        _basicamountService.getBasicAmounts()
+        this._basicamountService.getBasicAmounts()
             .subscribe((response: any) => {
             this.basicamounts = response;
 
@@ -45,8 +50,32 @@ export class VacationpayModalContent {
         });
     }
 
+    public updateConfig(newConfig: {hasCancelButton: boolean, cancel: any, payrollRunID: number}) {
+        this.config = newConfig;
+    }
+
     public createVacationPayments() {
-        return this._salarytransService.createVacationPayments(this.config.payrollRunID);
+        this.busy = true;
+        let vacationPayInfoList: VacationPayInfo[] = [];
+        let selectedVacationPayLines = this.table.getSelectedRows();
+        selectedVacationPayLines.forEach((vacationPay: VacationPayLine) => {
+            let vacationPayInfo: VacationPayInfo = {
+                EmployeeID: vacationPay.Employee.ID,
+                Withdrawal: vacationPay.Withdrawal, 
+                ManualVacationPayBase: vacationPay.ManualVacationPayBase
+            };
+
+            vacationPayInfoList.push(vacationPayInfo);
+        });
+
+        this._payrollrunService.createVacationPay(this.vacationBaseYear, this.config.payrollRunID, vacationPayInfoList).subscribe((response) => {
+            this.busy = false;
+            this._payrollrunService.refreshPayrunID(this.config.payrollRunID);
+            this.config.cancel();
+        }, error => {
+            this.busy = false;
+            alert(error._body);
+        });
     }
 
     public openVacationpaySettings() {
@@ -159,6 +188,7 @@ export class VacationpayModalContent {
         .setColumns([nrCol, nameCol, systemGrunnlagCol, manuellGrunnlagCol, rateCol, vacationPayCol, earlierPayCol, payoutCol])
         .setPageable(false)
         .setMultiRowSelect(true)
+        .setAutoAddNewRow(false)
         .setIsRowReadOnly((rowModel) => {
             return !rowModel.IsInCollection;
         })

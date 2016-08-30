@@ -1,6 +1,6 @@
 import {BizHttp} from '../../../../framework/core/http/BizHttp';
 import {UniHttp} from '../../../../framework/core/http/http';
-import {PayrollRun, FieldType} from '../../../unientities';
+import {PayrollRun, FieldType, VacationPayInfo} from '../../../unientities';
 import { Observable } from 'rxjs/Observable';
 import { Subject } from 'rxjs/Subject';
 
@@ -28,6 +28,12 @@ export class PayrollrunService extends BizHttp<PayrollRun> {
 
     public refreshPayrun(payRun: PayrollRun) {
         return this.payrollRun.next(payRun);
+    }
+
+    public refreshPayrunID(ID: number) {
+        this.Get(ID).subscribe((payRun: PayrollRun) => {
+            this.payrollRun.next(payRun);
+        });
     }
       
     public getStatus(payrollRun: PayrollRun) {        
@@ -113,6 +119,15 @@ export class PayrollrunService extends BizHttp<PayrollRun> {
             .withEndPoint(this.relativeURL + '/' + payrun + '?action=vacationpay-list&year=' + year)
             .send()
             .map(response => response.json());
+    }
+
+    public createVacationPay(year: number, payrun: number, payList: VacationPayInfo[]) {
+        return this.http
+            .asPUT()
+            .usingBusinessDomain()
+            .withEndPoint(this.relativeURL + '/' + payrun + '?action=vacationpay-from-vacationpayinfo-list&year=' + year)
+            .withBody(payList)
+            .send();
     }
     
     public getEmptyPayrollrunDates() {

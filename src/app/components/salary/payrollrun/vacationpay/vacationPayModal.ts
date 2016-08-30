@@ -1,17 +1,18 @@
-import { Component, ViewChildren, QueryList, Output, EventEmitter, AfterViewInit, Type } from '@angular/core';
+import { Component, ViewChild, Output, EventEmitter, Type } from '@angular/core';
 import { UniModal } from '../../../../../framework/modals/modal';
 import { VacationpayModalContent } from './vacationPayModalContent';
 import {ActivatedRoute} from '@angular/router';
+declare var _;
 
 @Component({
     selector: 'vacationpay-modal',
     templateUrl: 'app/components/salary/payrollrun/vacationpay/vacationPayModal.html',
     directives: [UniModal]
 })
-export class VacationpayModal implements AfterViewInit {
-    @ViewChildren(UniModal) private modalElements: QueryList<UniModal>;
+export class VacationpayModal {
+    @ViewChild(UniModal) private modal: UniModal;
     private modalConfig: { hasCancelButton: boolean, cancel: any, payrollRunID: number };
-    private modals: UniModal[];
+    
     @Output() public updatePayrollRun: EventEmitter<any> = new EventEmitter<any>(true);
     public type: Type = VacationpayModalContent;
 
@@ -20,21 +21,23 @@ export class VacationpayModal implements AfterViewInit {
             this.modalConfig = {
                 hasCancelButton: true,
                 cancel: () => {
-                    this.modals[0].close();
+                    this.modal.close();
                 },
                 payrollRunID: +params['id']
             };
+            if (this.modal) {
+                this.modal.getContent().then((component: VacationpayModalContent) => {
+                component.updateConfig(this.modalConfig);
+            });
+            }
         });
 
     }
 
-    public ngAfterViewInit() {
-        this.modals = this.modalElements.toArray();
-    }
-
     public openModal() {
-        this.modals[0].getContent().then((component: VacationpayModalContent) => {
-            this.modals[0].open();
+        this.modal.getContent().then((component: VacationpayModalContent) => {
+            this.modal.open();
+            component.load();
         }, (error) => console.log('error: ' + error));
     }
 }

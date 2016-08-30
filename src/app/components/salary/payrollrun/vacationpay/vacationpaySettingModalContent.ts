@@ -1,10 +1,11 @@
 import {Component, Input, ViewChild} from '@angular/core';
 import {UniForm} from '../../../../../framework/uniform';
 import {UniFieldLayout} from '../../../../../framework/uniform/index';
-import { UniTable, UniTableConfig, UniTableColumnType, UniTableColumn} from 'unitable-ng2/main';
+import {UniTable, UniTableConfig, UniTableColumnType, UniTableColumn} from 'unitable-ng2/main';
 import {CompanySalaryService, CompanyVacationRateService, AccountService} from '../../../../services/services';
 import {FieldType, CompanyVacationRate, Account} from '../../../../unientities';
 import {Observable} from 'rxjs/Observable';
+import moment from 'moment';
 
 @Component({
     selector: 'vacationpay-setting-modal-content',
@@ -16,7 +17,7 @@ export class VacationpaySettingModalContent {
     private busy: boolean;
     private fields: UniFieldLayout[] = [];
     private companysalaryModel: any = {};
-    @Input() private config: any;
+    @Input() public config: any;
     @ViewChild(UniTable) private table: UniTable;
     private formConfig: any = {};
     private tableConfig: UniTableConfig;
@@ -25,9 +26,13 @@ export class VacationpaySettingModalContent {
     private infoText: string;
 
     constructor(private _companysalaryService: CompanySalaryService, private _companyvacationRateService: CompanyVacationRateService, private _accountService: AccountService) {
+        
+    }
+
+    public loadData() {
         this.busy = true;
         Observable.forkJoin(
-            _companysalaryService.getCompanySalary()
+            this._companysalaryService.getCompanySalary()
             , this._companyvacationRateService.GetAll('')
         ).subscribe((response: any) => {
             var [compsal, rates] = response;
@@ -133,10 +138,21 @@ export class VacationpaySettingModalContent {
     private setTableConfig() {
         var rateCol = new UniTableColumn('Rate', 'Feriepengesats', UniTableColumnType.Number);
         var rate60Col = new UniTableColumn('Rate60', 'Sats over 60', UniTableColumnType.Number);
-        var dateCol = new UniTableColumn('FromDate', 'Gjelder fra og med år', UniTableColumnType.Date);
+        var dateCol = new UniTableColumn('FromDate', 'Gjelder fra og med år', UniTableColumnType.Number)
+            .setTemplate((rowModel) => {
+                return rowModel.FromDate ? moment(rowModel.FromDate).format('YYYY') : '';
+            });
 
         this.tableConfig = new UniTableConfig(true)
         .setColumns([rateCol, rate60Col, dateCol])
-        .setPageable(false);
+        .setPageable(this.vacationRates.length > 10)
+        .setChangeCallback((event) => {
+            let row = event.rowModel;
+            if (event.field === 'FromDate') {
+                let newDate = new Date(row.FromDate, 0, 1, 12);
+                row.FromDate = newDate;
+                return row;
+            }
+        });
     }
 }
