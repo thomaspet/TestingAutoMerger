@@ -1,13 +1,13 @@
 import {BizHttp} from '../../../framework/core/http/BizHttp';
-import {VatReportType} from '../../unientities';
+import {VatReportForm} from '../../unientities';
 import {UniHttp} from '../../../framework/core/http/http';
 
-export class VatReportTypeService extends BizHttp<VatReportType> {
+export class VatReportFormService extends BizHttp<VatReportForm> {
     
     constructor(http: UniHttp) {        
         super(http);
         
-        this.relativeURL = VatReportType.RelativeUrl;
+        this.relativeURL = VatReportForm.RelativeUrl;
         this.DefaultOrderBy = null;
     }       
 }

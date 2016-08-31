@@ -7,9 +7,9 @@ import {UniForm} from '../../../../framework/uniform';
 import {UniFieldLayout} from '../../../../framework/uniform/index';
 import {UniImage, IUploadConfig} from '../../../../framework/uniImage/uniImage';
 
-import {CompanyType, VatReportType, PeriodSeries, Currency, FieldType, AccountGroup, Account, BankAccount} from '../../../unientities';
+import {CompanyType, VatReportForm, PeriodSeries, Currency, FieldType, AccountGroup, Account, BankAccount} from '../../../unientities';
 import {CompanySettingsService, CurrencyService, VatTypeService, AccountService, AccountGroupSetService, PeriodSeriesService} from '../../../services/services';
-import {CompanyTypeService, VatReportTypeService, MunicipalService, BankAccountService} from '../../../services/services';
+import {CompanyTypeService, VatReportFormService, MunicipalService, BankAccountService} from '../../../services/services';
 import {BankAccountModal} from '../../common/modals/modals';
 
 declare var _;
@@ -25,7 +25,7 @@ declare var _;
         PeriodSeriesService,
         VatTypeService,
         CompanyTypeService,
-        VatReportTypeService,
+        VatReportFormService,
         MunicipalService,
         BankAccountService
     ],
@@ -51,7 +51,7 @@ export class CompanySettings implements OnInit {
     private company: any;
     
     private companyTypes: Array<CompanyType> = [];
-    private vatReportTypes: Array<VatReportType> = [];
+    private vatReportForms: Array<VatReportForm> = [];
     private currencies: Array<Currency> = [];
     private periodSeries: Array<PeriodSeries> = [];
     private accountGroupSets: Array<AccountGroup> = [];
@@ -80,7 +80,7 @@ export class CompanySettings implements OnInit {
                 private accountGroupSetService: AccountGroupSetService,
                 private periodeSeriesService: PeriodSeriesService,
                 private companyTypeService: CompanyTypeService,
-                private vatReportTypeService: VatReportTypeService,
+                private vatReportFormService: VatReportFormService,
                 private vatTypeService: VatTypeService,
                 private municipalService: MunicipalService,
                 private bankAccountService: BankAccountService) {
@@ -95,7 +95,7 @@ export class CompanySettings implements OnInit {
         
         Observable.forkJoin(
             this.companyTypeService.GetAll(null),
-            this.vatReportTypeService.GetAll(null),
+            this.vatReportFormService.GetAll(null),
             this.currencyService.GetAll(null),
             this.periodeSeriesService.GetAll(null),
             this.accountGroupSetService.GetAll(null),
@@ -104,7 +104,7 @@ export class CompanySettings implements OnInit {
         ).subscribe(
             (dataset) => {
                 this.companyTypes = dataset[0];
-                this.vatReportTypes = dataset[1];
+                this.vatReportForms = dataset[1];
                 this.currencies = dataset[2];
                 this.periodSeries = dataset[3];
                 this.accountGroupSets = dataset[4];
@@ -223,10 +223,10 @@ export class CompanySettings implements OnInit {
             debounceTime: 200
         };
 
-        this.vatReportTypes.unshift(null);
-        let vatReportTypeID: UniFieldLayout = this.fields.find(x => x.Property === 'VatReportTypeID');
-        vatReportTypeID.Options = {
-            source: this.vatReportTypes,
+        this.vatReportForms.unshift(null);
+        let vatReportFormID: UniFieldLayout = this.fields.find(x => x.Property === 'VatReportFormID');
+        vatReportFormID.Options = {
+            source: this.vatReportForms,
             valueProperty: 'ID',
             displayProperty: 'Name',
             debounceTime: 200
@@ -688,7 +688,7 @@ export class CompanySettings implements OnInit {
                 {
                     ComponentLayoutID: 1,
                     EntityType: 'CompanySettings',
-                    Property: 'VatReportTypeID',
+                    Property: 'VatReportFormID',
                     Placement: 1,
                     Hidden: false,
                     FieldType: FieldType.DROPDOWN,
