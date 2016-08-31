@@ -38,7 +38,7 @@ export * from './sales/emailservice';
 export * from './salary/payrollrun/payrollrunservice';
 export * from './common/companysettingsservice';
 export * from './common/companytypeservice';
-export * from './common/VatReportTypeService';
+export * from './common/VatReportFormService';
 export * from './accounting/periodseriesservice';
 export * from './accounting/accountgroupsetservice';
 export * from './common/subentityservice';
