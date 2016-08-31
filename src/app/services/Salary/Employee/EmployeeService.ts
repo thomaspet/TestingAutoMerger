@@ -620,126 +620,126 @@ export class EmployeeService extends BizHttp<Employee> {
                             Operator: 7 // required
                         }
                     ]
-                },
-                {
-                    ComponentLayoutID: 1,
-                     
-                    EntityType: 'Employee',
-                    Property: 'InternationalID',
-                    Placement: 1,
-                    Hidden: false,
-                    FieldType: FieldType.TEXT,
-                    ReadOnly: false,
-                    LookupField: false,
-                    Label: 'Nummer',
-                    Description: null,
-                    HelpText: null,
-                    FieldSet: 1,
-                    Section: 3,
-                    Placeholder: null,
-                    Options: null,
-                    LineBreak: null,
-                    Combo: null,
-                    Legend: 'Internasjonal ID/Bank',
-                    Sectionheader: 'INTERNASJONAL',
-                    IsLookUp: false,
-                    Validations: [
-                        {
-                            ErrorMessage: 'Required field',
-                            Level: 3,
-                            Operator: 7 // required
-                        }
-                    ]
-                },
-                {
-                    ComponentLayoutID: 1,
-                    EntityType: 'Employee',
-                    Property: 'InternasjonalIDType',
-                    Placement: 2,
-                    Hidden: false,
-                    FieldType: FieldType.TEXT,
-                    ReadOnly: false,
-                    LookupField: false,
-                    Label: 'Type',
-                    Description: null,
-                    HelpText: null,
-                    FieldSet: 1,
-                    Section: 3,
-                    Placeholder: null,
-                    Options: null,
-                    LineBreak: null,
-                    Sectionheader: null,
-                    Legend: null,
-                    IsLookUp: false,
-                     
-                    Validations: [
-                        {
-                            ErrorMessage: 'Required field',
-                            Level: 3,
-                            Operator: 7 // required
-                        }
-                    ]
-                },
-                {
-                    ComponentLayoutID: 1,
-                    EntityType: 'Employee',
-                    Property: 'InternasjonalIDCountry',
-                    Placement: 3,
-                    Hidden: false,
-                    FieldType: FieldType.TEXT,
-                    ReadOnly: false,
-                    LookupField: false,
-                    Label: 'Utstedelsesland',
-                    Description: null,
-                    HelpText: null,
-                    FieldSet: 1,
-                    Section: 3,
-                    Placeholder: null,
-                    Options: null,
-                    LineBreak: null,
-                    Sectionheader: null,
-                    Legend: null,
-                    IsLookUp: false,
-                     
-                    Validations: [
-                        {
-                            ErrorMessage: 'Required field',
-                            Level: 3,
-                            Operator: 7 // required
-                        }
-                    ]
-                },
-                {
-                    ComponentLayoutID: 1,
-                    EntityType: 'Employee',
-                    Property: 'TaxTable',
-                    Placement: 1,
-                    Hidden: false,
-                    FieldType: FieldType.TEXT,
-                    ReadOnly: false,
-                    LookupField: false,
-                    Label: 'IBAN/Kontonr.',
-                    Description: null,
-                    HelpText: null,
-                    FieldSet: 2,
-                    Section: 3,
-                    Placeholder: null,
-                    Options: null,
-                    LineBreak: null,
-                    Combo: null,
-                    Sectionheader: null,
-                    Legend: 'Internasjonal bankkonto',
-                    IsLookUp: false,
-                    openByDefault: true,
-                     
-                    Validations: [
-                        {
-                            ErrorMessage: 'Required field',
-                            Level: 3,
-                            Operator: 7 // required
-                        }
-                    ]
                 }
+                // ,{
+                //     ComponentLayoutID: 1,
+                     
+                //     EntityType: 'Employee',
+                //     Property: 'InternationalID',
+                //     Placement: 1,
+                //     Hidden: false,
+                //     FieldType: FieldType.TEXT,
+                //     ReadOnly: false,
+                //     LookupField: false,
+                //     Label: 'Nummer',
+                //     Description: null,
+                //     HelpText: null,
+                //     FieldSet: 1,
+                //     Section: 3,
+                //     Placeholder: null,
+                //     Options: null,
+                //     LineBreak: null,
+                //     Combo: null,
+                //     Legend: 'Internasjonal ID/Bank',
+                //     Sectionheader: 'INTERNASJONAL',
+                //     IsLookUp: false,
+                //     Validations: [
+                //         {
+                //             ErrorMessage: 'Required field',
+                //             Level: 3,
+                //             Operator: 7 // required
+                //         }
+                //     ]
+                // },
+                // {
+                //     ComponentLayoutID: 1,
+                //     EntityType: 'Employee',
+                //     Property: 'InternasjonalIDType',
+                //     Placement: 2,
+                //     Hidden: false,
+                //     FieldType: FieldType.TEXT,
+                //     ReadOnly: false,
+                //     LookupField: false,
+                //     Label: 'Type',
+                //     Description: null,
+                //     HelpText: null,
+                //     FieldSet: 1,
+                //     Section: 3,
+                //     Placeholder: null,
+                //     Options: null,
+                //     LineBreak: null,
+                //     Sectionheader: null,
+                //     Legend: null,
+                //     IsLookUp: false,
+                     
+                //     Validations: [
+                //         {
+                //             ErrorMessage: 'Required field',
+                //             Level: 3,
+                //             Operator: 7 // required
+                //         }
+                //     ]
+                // },
+                // {
+                //     ComponentLayoutID: 1,
+                //     EntityType: 'Employee',
+                //     Property: 'InternasjonalIDCountry',
+                //     Placement: 3,
+                //     Hidden: false,
+                //     FieldType: FieldType.TEXT,
+                //     ReadOnly: false,
+                //     LookupField: false,
+                //     Label: 'Utstedelsesland',
+                //     Description: null,
+                //     HelpText: null,
+                //     FieldSet: 1,
+                //     Section: 3,
+                //     Placeholder: null,
+                //     Options: null,
+                //     LineBreak: null,
+                //     Sectionheader: null,
+                //     Legend: null,
+                //     IsLookUp: false,
+                     
+                //     Validations: [
+                //         {
+                //             ErrorMessage: 'Required field',
+                //             Level: 3,
+                //             Operator: 7 // required
+                //         }
+                //     ]
+                // },
+                // {
+                //     ComponentLayoutID: 1,
+                //     EntityType: 'Employee',
+                //     Property: 'TaxTable',
+                //     Placement: 1,
+                //     Hidden: false,
+                //     FieldType: FieldType.TEXT,
+                //     ReadOnly: false,
+                //     LookupField: false,
+                //     Label: 'IBAN/Kontonr.',
+                //     Description: null,
+                //     HelpText: null,
+                //     FieldSet: 2,
+                //     Section: 3,
+                //     Placeholder: null,
+                //     Options: null,
+                //     LineBreak: null,
+                //     Combo: null,
+                //     Sectionheader: null,
+                //     Legend: 'Internasjonal bankkonto',
+                //     IsLookUp: false,
+                //     openByDefault: true,
+                     
+                //     Validations: [
+                //         {
+                //             ErrorMessage: 'Required field',
+                //             Level: 3,
+                //             Operator: 7 // required
+                //         }
+                //     ]
+                // }
 
                 /* 
                  Add fields for
