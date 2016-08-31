@@ -4,7 +4,7 @@ import {UniModal} from '../../../../../framework/modals/modal';
 import {UniTable, UniTableConfig, UniTableColumnType, UniTableColumn} from 'unitable-ng2/main';
 import {Observable} from 'rxjs/Observable';
 import {AltinnReceipt} from '../../../../../app/unientities';
-import {AltinnReceiptService} from '../../../../../app/services/services';
+import {AltinnReceiptService, EmployeeService} from '../../../../../app/services/services';
 import {AltinnLoginModal} from './altinnLoginModal';
 
 declare var _; // lodash
@@ -25,7 +25,12 @@ export class ReadTaxCardModalContent {
     private receiptTable: UniTableConfig;
 
     private altinnReceipts$: Observable<AltinnReceipt>;
-    constructor(private _altinnReceiptService: AltinnReceiptService) {
+    private employeeID: number;
+    constructor(private _altinnReceiptService: AltinnReceiptService, private _employeeService: EmployeeService) {
+
+        _employeeService.employee$.subscribe((emp) => {
+            this.employeeID = emp.ID;
+        })
         
         let titleColumn = new UniTableColumn('Form', 'Tittel', UniTableColumnType.Text);
         let dateSendtColumn = new UniTableColumn('TimeStamp', 'Dato sendt', UniTableColumnType.Date);
@@ -65,6 +70,9 @@ export class ReadTaxCardModalContent {
 
     public updateReceipts() {
         this.altinnReceipts$ = _.cloneDeep(this.altinnReceipts$);
+        if (this.employeeID) {
+            this._employeeService.refreshEmployeeID(this.employeeID);
+        }
     }
 
     public selectedRow(event) {

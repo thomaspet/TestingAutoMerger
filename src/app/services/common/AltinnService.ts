@@ -34,7 +34,7 @@ export class AltinnService extends BizHttp<Altinn> {
     }
     
     public readTaxCard(taxCardReading: TaxCardReading) {
-        return this.http.usingBusinessDomain().withEndPoint('taxcardreader').asPOST().withBody(taxCardReading).send();
+        return this.http.usingBusinessDomain().withEndPoint('employees/?action=read-tax-cards').asPUT().withBody(taxCardReading).send();
     }
 
 

@@ -1,7 +1,7 @@
 import {Component, Type, ViewChild, Input, Output, EventEmitter} from '@angular/core';
 import {UniModal} from '../../../../../framework/modals/modal';
 import {UniForm, UniFieldLayout} from '../../../../../framework/uniform';
-import {Altinn, FieldType, CompanySettings, TypeOfLogin} from '../../../../../app/unientities';
+import {Altinn, FieldType, CompanySettings, TypeOfLogin, AltinnCorrespondanceReader} from '../../../../../app/unientities';
 import {AltinnService, CompanySettingsService, IntegrationServerCaller, AltinnReceiptService} from '../../../../../app/services/services';
 import {TaxCardReading} from '../../../../models/models';
 
@@ -146,17 +146,15 @@ export class AltinnLoginModalContent {
                     this.busy = false;
                 } else if (response.correspondence) {
 
-                    let taxCardReading: TaxCardReading = new TaxCardReading();
+                    let taxCardReading: AltinnCorrespondanceReader = new AltinnCorrespondanceReader();
                     taxCardReading.UserID = this.model.username;
                     taxCardReading.UserPassword = this.model.password;
                     taxCardReading.PreferredLogin = this.model.preferredLogin;
                     taxCardReading.Pin = this.model.pin;
                     taxCardReading.ReceiptID = this.receiptID;
 
-                    this._altinnService.readTaxCard(taxCardReading).subscribe((taxResponse: TaxCardReading) => {
-                        taxCardReading = taxResponse;
-                        
-                        this.altinnMessage = taxCardReading.ResponseMessage;
+                    this._altinnService.readTaxCard(taxCardReading).subscribe((responseMessage) => {
+                        this.altinnMessage = responseMessage['_body'];
                         this.atLogin = false;
                         this.closeBtnLabel = 'OK';
                         this.busy = false;

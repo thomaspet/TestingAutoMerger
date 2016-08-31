@@ -32,6 +32,12 @@ export class EmployeeService extends BizHttp<Employee> {
         this.employee.next(employee);
     }
 
+    public refreshEmployeeID(id: number) {
+        this.Get(id, this.defaultExpands).subscribe((emp: Employee) => {
+            this.employee.next(emp);
+        });
+    }
+
     public getLatest() {
         this.employee.publishLast();
     }
