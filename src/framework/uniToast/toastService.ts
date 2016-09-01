@@ -19,13 +19,13 @@ export class ToastService {
     private nextId: number = 0;
     private toasts: IToast[] = [];
     
-    public addToast(title: string, type?: ToastType, duration?: number, message?: string) {
+    public addToast(title: string, type?: ToastType, durationInSeconds?: number, message?: string) {
         this.toasts.push({
             id: this.nextId++,
             type: type || ToastType.bad,
             title: title,
             message: message || '',
-            duration: duration || 0,
+            duration: durationInSeconds || 0,
         });
     }
 
