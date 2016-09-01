@@ -135,6 +135,7 @@ export class ProductDetails {
             this.productService.Post(this.product)
                 .subscribe(
                     (newProduct) => {
+                        completeEvent('Produkt lagret');
                         console.log('Product created, redirect to new ID, ' + newProduct.ID);
                         this.router.navigateByUrl('/products/' + newProduct.ID);
                     },
