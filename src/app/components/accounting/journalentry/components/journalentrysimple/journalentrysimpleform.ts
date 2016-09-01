@@ -12,7 +12,8 @@ declare var moment;
 export enum JournalEntryMode {
     Manual,
     Supplier,
-    Payment
+    Payment,
+    JournalEntryView
 }
 
 @Component({

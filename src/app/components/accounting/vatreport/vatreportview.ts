@@ -18,6 +18,8 @@ import {ToastService, ToastType} from '../../../../framework/uniToast/toastServi
 import {VatSummaryPerPost} from './reportSummary/reportSummary';
 import {CheckListVat} from './checkList/checkList';
 import {ReceiptVat} from './receipt/receipt';
+import {VatReportJournalEntry} from './journalEntry/vatReportJournalEntry';
+
 
 declare const moment;
 
@@ -25,7 +27,7 @@ declare const moment;
     selector: 'vat-report-view',
     templateUrl: 'app/components/accounting/vatreport/vatreportview.html',
     providers: [CompanySettingsService, VatReportService],
-    directives: [REACTIVE_FORM_DIRECTIVES, ROUTER_DIRECTIVES, UniTabs, UniSave, VatSummaryPerPost, CheckListVat, ReceiptVat],
+    directives: [REACTIVE_FORM_DIRECTIVES, ROUTER_DIRECTIVES, UniTabs, UniSave, VatSummaryPerPost, CheckListVat, ReceiptVat, VatReportJournalEntry],
     pipes: [PeriodDateFormatPipe, UniCurrencyPipe]
 })
 export class VatReportView implements OnInit, OnDestroy {
@@ -39,6 +41,11 @@ export class VatReportView implements OnInit, OnDestroy {
         {
             label: 'Send inn',
             action: (done) => this.sendVatReport(done),
+            disabled: false
+        },
+        {
+            label: 'Godkjenn manuelt',
+            action: (done) => this.approveManually(done),
             disabled: false
         }
     ];
@@ -54,6 +61,7 @@ export class VatReportView implements OnInit, OnDestroy {
     public isSendt: boolean;
     public isBusy: boolean = true;
     public showView: string = '';
+    private statusText: string;
     private subs: Subscription[] = [];
 
     constructor(
@@ -131,7 +139,12 @@ export class VatReportView implements OnInit, OnDestroy {
             .subscribe(
                 data => this.reportMessages = data,
                 err => this.onError(err)
-            );
+        );
+        this.updateStatusText();
+    }
+
+    private updateStatusText() {
+        this.statusText = this.vatReportService.getStatusText(this.currentVatReport.StatusCode);
     }
 
     public onBackPeriod() {
@@ -181,6 +194,26 @@ export class VatReportView implements OnInit, OnDestroy {
                             err => this.onError(err));
                 },
                 err => this.onError(err)
+            );
+    }
+
+    public approveManually(done) {
+        this.vatReportService.Transition(this.currentVatReport.ID, this.currentVatReport, 'approve')
+            .subscribe(() => {
+                this.vatReportService.Get(this.currentVatReport.ID, ['TerminPeriod'])
+                    .subscribe(vatreport => {
+                        this.setVatreport(vatreport);
+                        done('Godkjent');
+                    },
+                    err => {
+                        done('Feilet å hente vatreport');
+                        this.onError(err)
+                    });
+            },
+            err => {
+                done('Godkjenning feilet');
+                this.onError(err)
+            }
             );
     }
 

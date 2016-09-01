@@ -77,6 +77,15 @@ export class JournalEntryService extends BizHttp<JournalEntry> {
             .send()
             .map(response => response.json());
     }
+
+    getJournalEntryDataByJournalEntryID(journalEntryID: number): Observable<any> {
+        return this.http
+            .asGET()
+            .usingBusinessDomain()
+            .withEndPoint(this.relativeURL + '?action=get-journal-entry-data&journalEntryID=' + journalEntryID)
+            .send()
+            .map(response => response.json());
+    }
     
     calculateJournalEntrySummary(journalDataEntries: Array<JournalEntryData>): Observable<any> {
         return this.http

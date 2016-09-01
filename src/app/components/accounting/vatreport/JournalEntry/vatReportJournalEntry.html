@@ -1,0 +1,9 @@
+<section class="application">
+    <article class="supplier-invoice-detail-booking">
+        <journal-entry-manual [journalEntryID]="vatReport.JournalEntryID"
+                              [runAsSubComponent]="true"
+                              [disabled]="disabled"
+                              *ngIf="vatReport && vatReport.JournalEntryID">
+        </journal-entry-manual>
+    </article>
+</section>

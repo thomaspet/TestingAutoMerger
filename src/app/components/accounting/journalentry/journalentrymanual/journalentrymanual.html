@@ -1,20 +1,19 @@
 <p *ngIf="validationResult && validationResult.Messages.length > 0">
     <strong class="journalEntry_validation validation error"
-        *ngFor="let message of validationResult.Messages"
-        [ngClass]="{
+            *ngFor="let message of validationResult.Messages"
+            [ngClass]="{
             simplemode: journalEntryMode === 'SIMPLE',
             promode: journalEntryMode != 'SIMPLE',
             runassubcomponent: runAsSubComponent
         }">
-            {{message.Message}}
+        {{message.Message}}
     </strong>
 </p>
 
-<journal-entry-professional
-    (dataLoaded)="onDataLoaded($event)"
-    [runAsSubComponent]="runAsSubComponent"
-    [disabled]="disabled"
-    *ngIf="journalEntryMode == 'PROFFESIONAL'">
+<journal-entry-professional (dataLoaded)="onDataLoaded($event)"
+                            [runAsSubComponent]="runAsSubComponent"
+                            [disabled]="disabled"
+                            *ngIf="journalEntryMode == 'PROFFESIONAL'">
 </journal-entry-professional>
 
 <dl class="summary journalEntry_summary"
@@ -38,13 +37,13 @@
 
 </dl>
 
-<journal-entry-simple
-    [supplierInvoice]="supplierInvoice"
-    [runAsSubComponent]="runAsSubComponent"
-    [mode]="mode"
-    [disabled]="disabled"
-    (dataLoaded)="onDataLoaded($event)"
-    *ngIf="journalEntryMode == 'SIMPLE'">
+<journal-entry-simple [supplierInvoice]="supplierInvoice"
+                      [journalEntryID]="journalEntryID"
+                      [runAsSubComponent]="runAsSubComponent"
+                      [mode]="mode"
+                      [disabled]="disabled"
+                      (dataLoaded)="onDataLoaded($event)"
+                      *ngIf="journalEntryMode == 'SIMPLE'">
 </journal-entry-simple>
 
 <section class="application" *ngIf="!runAsSubComponent && saveactions">

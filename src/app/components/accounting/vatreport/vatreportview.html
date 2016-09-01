@@ -1,12 +1,12 @@
 <header class="poster">
     <article class="poster_toolbar">
         <section>
-            <h1>Merverdioppgave, periode {{currentVatReport?.TerminPeriod?.No}}</h1>
+            <h1>Merverdioppgave, periode {{currentVatReport?.TerminPeriod?.No}} <span> , Status: {{ statusText }} </span></h1>
             <p>
                {{currentVatReport?.TerminPeriod | periodDateFormat}}
             </p>
         </section>
-        <nav class="poster_toolbar_tools">
+        <nav class="poster_toolbar_tools"> 
             <a (click)="onBackPeriod()" class="previous">Forrige</a>
             <a (click)="onForwardPeriod()" class="next">Neste</a>
         </nav>
@@ -29,7 +29,9 @@
             <article class="poster_widget tablewidget">
                 <table>
                     <tr>
-                        <th></th><th class="datacolumn">Grunnlag</th><th class="datacolumn">Avgift</th>
+                        <th></th>
+                        <th class="datacolumn">Grunnlag</th>
+                        <th class="datacolumn">Avgift</th>
                     </tr>
                     <tr *ngFor="let summaryItem of vatReportSummary">
                         <td>{{summaryItem.VatCodeGroupName}}</td>
@@ -76,6 +78,10 @@
             <li *ngIf="currentVatReport?.PaymentID">
                 <a (click)="showView = 'receipt'" [class.router-link-active]="showView == 'receipt'">Altinn, kvittering/tilbakemelding</a>
             </li>
+            <li *ngIf="currentVatReport?.JournalEntryID">
+                <a (click)="showView = 'journal'" [class.router-link-active]="showView == 'journal'">Oppgjørsbilag</a>
+            </li>
+
         </ul>
     </div>
 </header>
@@ -84,23 +90,19 @@
 
 <section class="application" [attr.aria-busy]="isBusy">
 
-    <vatreport-checklist-view
-            *ngIf="showView == 'control'"
-            [attr.aria-busy]="!reportMessages"
-            [vatReportMessages]="reportMessages"
-    ></vatreport-checklist-view>
-    <vat-summary-per-post
-            *ngIf="showView == ''"
-            [attr.aria-busy]="!reportSummaryPerPost"
-            [reportSummaryPerPost]="reportSummaryPerPost"
-            [period]="currentVatReport?.TerminPeriod"
-            [vatTypes]="vatTypes"
-    ></vat-summary-per-post>
-    <vatreport-receipt-view
-            *ngIf="showView == 'receipt'"
-            [vatReport]="currentVatReport"
-    ></vatreport-receipt-view>
-
+    <vatreport-checklist-view *ngIf="showView == 'control'"
+                              [attr.aria-busy]="!reportMessages"
+                              [vatReportMessages]="reportMessages"></vatreport-checklist-view>
+    <vat-summary-per-post *ngIf="showView == ''"
+                          [attr.aria-busy]="!reportSummaryPerPost"
+                          [reportSummaryPerPost]="reportSummaryPerPost"
+                          [period]="currentVatReport?.TerminPeriod"
+                          [vatTypes]="vatTypes"></vat-summary-per-post>
+    <vatreport-receipt-view *ngIf="showView == 'receipt'"
+                            [vatReport]="currentVatReport"></vatreport-receipt-view>
+    <vatreport-journal-entry *ngIf="showView == 'journal'"
+                             [vatReport]="currentVatReport">
+    </vatreport-journal-entry>
     <footer class="full-footer">
         <section class="application">
             <uni-save [actions]="saveActions"></uni-save>
@@ -109,17 +111,15 @@
 
     <div class="comment commentToSend">
         <label>Kommenter til Altinn</label>
-        <textarea
-                [formControl]="externalComment"
-                [ngModel]="currentVatReport.Comment"
-                [disabled]="currentVatReport?.ID == 0"></textarea>
+        <textarea [formControl]="externalComment"
+                  [ngModel]="currentVatReport.Comment"
+                  [disabled]="currentVatReport?.ID == 0"></textarea>
     </div>
 
     <div class="comment internalComment">
         <label>Intern kommentar</label>
-        <textarea
-                [formControl]="internalComment"
-                [ngModel]="currentVatReport.InternalComment"
-                [disabled]="currentVatReport?.ID == 0"></textarea>
+        <textarea [formControl]="internalComment"
+                  [ngModel]="currentVatReport.InternalComment"
+                  [disabled]="currentVatReport?.ID == 0"></textarea>
     </div>
 </section>

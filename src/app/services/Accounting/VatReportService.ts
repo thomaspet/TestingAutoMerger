@@ -1,5 +1,5 @@
-import {BizHttp} from '../../../framework/core/http/BizHttp';
-import {VatReport, VatReportMessage, VatReportSummaryPerPost, VatReportSummary} from '../../unientities';
+﻿import {BizHttp} from '../../../framework/core/http/BizHttp';
+import {VatReport, VatReportMessage, VatReportSummaryPerPost, VatReportSummary, StatusCodeVatReport} from '../../unientities';
 import {UniHttp} from '../../../framework/core/http/http';
 import {Observable} from 'rxjs/Rx';
 
@@ -84,4 +84,23 @@ export class VatReportService extends BizHttp<VatReport> {
             .send()
             .map(response => response.json());
     }
+
+    private statusTypes: Array<any> = [
+        { Code: StatusCodeVatReport.Executed, Text: 'Kjørt' },
+        { Code: StatusCodeVatReport.Submitted, Text: 'Innsendt' },
+        { Code: StatusCodeVatReport.Rejected, Text: 'Avvist' },
+        { Code: StatusCodeVatReport.Approved, Text: 'Godkjent' },
+    ];
+
+    public getStatusText = (statusCode: number) => {
+        var text = '';
+        this.statusTypes.forEach((status) => {
+            if (status.Code == statusCode) {
+                text = status.Text;
+                return;
+            }
+        });
+        return text;
+    };    
+
 }

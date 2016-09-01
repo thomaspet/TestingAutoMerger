@@ -1,7 +1,7 @@
 import {Component, Input, SimpleChange, ViewChild, OnInit, OnChanges} from '@angular/core';
 import {JournalEntrySimple} from '../components/journalentrysimple/journalentrysimple';
 import {JournalEntryProfessional} from '../components/journalentryprofessional/journalentryprofessional';
-import {SupplierInvoice} from '../../../../unientities';
+import {SupplierInvoice, JournalEntry} from '../../../../unientities';
 import {JournalEntryData} from '../../../../models/models';
 import {JournalEntrySimpleCalculationSummary} from '../../../../models/accounting/JournalEntrySimpleCalculationSummary';
 import {JournalEntryService} from '../../../../services/services';
@@ -10,23 +10,24 @@ import {UniSave, IUniSaveAction} from '../../../../../framework/save/save';
 
 @Component({
     selector: 'journal-entry-manual',
-    host: {'[class.runassubcomponent]': 'runAsSubComponent'},
+    host: { '[class.runassubcomponent]': 'runAsSubComponent' },
     templateUrl: 'app/components/accounting/journalentry/journalentrymanual/journalentrymanual.html',
     directives: [JournalEntrySimple, JournalEntryProfessional, UniSave],
-    providers: [JournalEntryService]    
+    providers: [JournalEntryService]
 })
-export class JournalEntryManual implements OnChanges, OnInit {    
+export class JournalEntryManual implements OnChanges, OnInit {
     @Input() public supplierInvoice: SupplierInvoice;
+    @Input() public journalEntryID: number = 0;
     @Input() public runAsSubComponent: boolean = false;
     @Input() public mode: number = JournalEntryMode.Manual;
     @Input() public journalEntryMode: string;
     @Input() public disabled: boolean = false;
     @ViewChild(JournalEntrySimple) private journalEntrySimple: JournalEntrySimple;
     @ViewChild(JournalEntryProfessional) private journalEntryProfessional: JournalEntryProfessional;
-    
+
     private itemsSummaryData: JournalEntrySimpleCalculationSummary;
     public validationResult: any;
-    
+
     private saveactions: IUniSaveAction[] = [
         {
             label: 'Lagre og bokfør',
@@ -35,24 +36,26 @@ export class JournalEntryManual implements OnChanges, OnInit {
             disabled: false
         }
     ];
-    
+
     constructor(private journalEntryService: JournalEntryService) {
     }
-    
+
     public ngOnInit() {
         this.journalEntryMode = 'SIMPLE';
-        
+
         if (this.supplierInvoice) {
             this.mode = JournalEntryMode.Supplier;
+        } else if (this.journalEntryID > 0) {
+            this.mode = JournalEntryMode.JournalEntryView;
         }
-        
+
         this.setupSubscriptions();
     }
-    
+
     public getJournalEntryData(): Array<JournalEntryData> {
         if (this.journalEntrySimple) {
             return this.journalEntrySimple.journalEntryLines;
-        }   
+        }
     }
 
     public setJournalEntryData(lines: Array<JournalEntryData>) {
@@ -64,19 +67,19 @@ export class JournalEntryManual implements OnChanges, OnInit {
     public ngOnChanges(changes: { [propName: string]: SimpleChange }) {
         this.setupSubscriptions();
     }
-    
+
     private setupSubscriptions() {
         setTimeout(() => {
             if (this.journalEntryProfessional) {
                 this.journalEntryProfessional.dataChanged.debounceTime(2000).subscribe((values) => this.onDataChanged(values));
             }
-            
+
             if (this.journalEntrySimple) {
                 this.journalEntrySimple.dataChanged.debounceTime(2000).subscribe((values) => this.onDataChanged(values));
-            }  
+            }
         });
     }
-    
+
     private onDataChanged(data: JournalEntryData[]) {
         if (data.length <= 0) {
             this.itemsSummaryData = null;
@@ -89,26 +92,26 @@ export class JournalEntryManual implements OnChanges, OnInit {
             });
 
             this.validateJournalEntryData(data);
-            this.calculateItemSums(data);            
+            this.calculateItemSums(data);
         });
     }
-    
+
     private onDataLoaded(data: JournalEntryData[]) {
         this.calculateItemSums(data);
     }
-    
+
     private calculateItemSums(data: JournalEntryData[]) {
         this.journalEntryService.calculateJournalEntrySummary(data)
-                .subscribe((data) => {
-                    this.itemsSummaryData = data;                    
-                },
-                (err) => {
-                    console.log('Error when recalculating journal entry summary:', err);
-                    
-                }
+            .subscribe((data) => {
+                this.itemsSummaryData = data;
+            },
+            (err) => {
+                console.log('Error when recalculating journal entry summary:', err);
+
+            }
             );
     }
-    
+
     private validateJournalEntryData(data: JournalEntryData[]) {
         this.journalEntryService.validateJournalEntryData(data)
             .subscribe(
@@ -119,7 +122,7 @@ export class JournalEntryManual implements OnChanges, OnInit {
                 console.log('error int validateJournalEntryData:', err);
             });
     }
-    
+
     private postJournalEntryData(completeCallback) {
         if (this.journalEntrySimple) {
             this.journalEntrySimple.postJournalEntryData(completeCallback);
@@ -127,7 +130,7 @@ export class JournalEntryManual implements OnChanges, OnInit {
             this.journalEntryProfessional.postJournalEntryData(completeCallback);
         }
     }
-    
+
     private addDummyJournalEntry(event) {
         if (this.journalEntrySimple) {
             this.journalEntrySimple.addDummyJournalEntry();
@@ -135,7 +138,7 @@ export class JournalEntryManual implements OnChanges, OnInit {
             this.journalEntryProfessional.addDummyJournalEntry();
         }
     }
-    
+
     private removeJournalEntryData(event) {
         if (this.journalEntrySimple) {
             this.journalEntrySimple.removeJournalEntryData();
@@ -143,12 +146,12 @@ export class JournalEntryManual implements OnChanges, OnInit {
             this.journalEntryProfessional.removeJournalEntryData();
         }
     }
-    
+
     private useSimpleMode() {
         this.journalEntryMode = 'SIMPLE';
         this.setupSubscriptions();
     }
-    
+
     private useProMode() {
         this.journalEntryMode = 'PROFFESIONAL';
         this.setupSubscriptions();

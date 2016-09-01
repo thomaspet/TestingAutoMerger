@@ -3,11 +3,11 @@ import {Router} from '@angular/router';
 import {Observable} from 'rxjs/Observable';
 import 'rxjs/add/observable/forkJoin';
 
-import {VatType, Account, SupplierInvoice} from '../../../../../unientities';
+import {VatType, Account, SupplierInvoice, JournalEntry} from '../../../../../unientities';
 import {VatTypeService, AccountService, JournalEntryService, DepartementService, ProjectService} from '../../../../../services/services';
 
 import {JournalEntryData} from '../../../../../models/models';
-import {JournalEntrySimpleForm,JournalEntryMode} from './journalentrysimpleform';
+import {JournalEntrySimpleForm, JournalEntryMode} from './journalentrysimpleform';
 
 import {ToastService, ToastType} from '../../../../../../framework/uniToast/toastService';
 
@@ -21,12 +21,13 @@ declare var moment;
 })
 export class JournalEntrySimple implements OnInit, OnChanges {
     @Input() public supplierInvoice: SupplierInvoice;
+    @Input() public journalEntryID: number = 0;
     @Input() public runAsSubComponent: boolean = false;
     @Input() public mode: number = JournalEntryMode.Manual;
     @Input() public disabled: boolean = false;
     @Output() dataChanged: EventEmitter<JournalEntryData[]> = new EventEmitter<JournalEntryData[]>();
     @Output() dataLoaded: EventEmitter<JournalEntryData[]> = new EventEmitter<JournalEntryData[]>();
-    
+
     public selectedJournalEntryLine: JournalEntryData;
     public journalEntryLines: Array<JournalEntryData>;
     public dropdownData: any;
@@ -36,7 +37,7 @@ export class JournalEntrySimple implements OnInit, OnChanges {
         private projectService: ProjectService,
         private vattypeService: VatTypeService,
         private accountService: AccountService,
-        private router: Router, 
+        private router: Router,
         private toastService: ToastService) {
         this.journalEntryLines = new Array<JournalEntryData>();
     }
@@ -45,13 +46,23 @@ export class JournalEntrySimple implements OnInit, OnChanges {
         if (this.supplierInvoice) {
             this.journalEntryService.getJournalEntryDataBySupplierInvoiceID(this.supplierInvoice.ID)
                 .subscribe(data => {
-                    for(var line in data) {
-                       data[line].FinancialDate = new Date(data[line].FinancialDate);
+                    for (var line in data) {
+                        data[line].FinancialDate = new Date(data[line].FinancialDate);
                     }
                     this.journalEntryLines = data;
-                    this.dataLoaded.emit(data);   
+                    this.dataLoaded.emit(data);
                 });
-        } else {
+        } else if (this.journalEntryID > 0) {
+            this.journalEntryService.getJournalEntryDataByJournalEntryID(this.journalEntryID)
+                .subscribe(data => {
+                    for (var line in data) {
+                        data[line].FinancialDate = new Date(data[line].FinancialDate);
+                    }
+                    this.journalEntryLines = data;
+                    this.dataLoaded.emit(data);
+                });
+        }
+        else {
             this.journalEntryLines = new Array<JournalEntryData>();
             this.dataLoaded.emit(this.journalEntryLines);
         }
@@ -70,29 +81,39 @@ export class JournalEntrySimple implements OnInit, OnChanges {
         if (this.supplierInvoice) {
             this.journalEntryService.getJournalEntryDataBySupplierInvoiceID(this.supplierInvoice.ID)
                 .subscribe(data => {
-                    for(var line in data) {
-                       data[line].FinancialDate = new Date(data[line].FinancialDate);
+                    for (var line in data) {
+                        data[line].FinancialDate = new Date(data[line].FinancialDate);
                     }
                     this.journalEntryLines = data;
                 });
-        } else {
+        }
+        else if (this.journalEntryID > 0) {
+            this.journalEntryService.getJournalEntryDataByJournalEntryID(this.journalEntryID)
+                .subscribe(data => {
+                    for (var line in data) {
+                        data[line].FinancialDate = new Date(data[line].FinancialDate);
+                    }
+                    this.journalEntryLines = data;
+                });
+        }
+        else {
             this.journalEntryLines = new Array<JournalEntryData>();
         }
     }
-/*
-    private getDepartmentName(line: JournalEntryData): string {
-        if (line && line.Dimensions && !line.Dimensions.DepartementID) { return ''; }
-        if (this.dropdownData && line && line.Dimensions) {
-
-            var dep = this.dropdownData[0].find((d) => d.ID == line.Dimensions.DepartementID);
-            if (dep != null) {
-                return line.Dimensions.DepartementID + ' - ' + dep.Name;
+    /*
+        private getDepartmentName(line: JournalEntryData): string {
+            if (line && line.Dimensions && !line.Dimensions.DepartementID) { return ''; }
+            if (this.dropdownData && line && line.Dimensions) {
+    
+                var dep = this.dropdownData[0].find((d) => d.ID == line.Dimensions.DepartementID);
+                if (dep != null) {
+                    return line.Dimensions.DepartementID + ' - ' + dep.Name;
+                }
             }
+    
+            return (line && line.Dimensions && line.Dimensions.DepartementID) ? line.Dimensions.DepartementID.toString() : '';
         }
-
-        return (line && line.Dimensions && line.Dimensions.DepartementID) ? line.Dimensions.DepartementID.toString() : '';
-    }
-*/
+    */
     private getAccount(id: number): Account {
         if (this.dropdownData) {
             var dep = this.dropdownData[3].find((d) => d.ID == id);
@@ -114,29 +135,29 @@ export class JournalEntrySimple implements OnInit, OnChanges {
 
         return null;
     }
-    
-    private getDebitAccountText(line: JournalEntryData): string {
-        return (line.DebitAccount ? line.DebitAccount.AccountNumber + ' - ' + line.DebitAccount.AccountName : '') 
-        + (line.DebitVatType ? ' - mva: ' + line.DebitVatType.VatCode + ': ' + line.DebitVatType.VatPercent + '%' : '');
-    }
-    
-    private getCreditAccountText(line: JournalEntryData): string {
-        return (line.CreditAccount ? line.CreditAccount.AccountNumber + ' - ' + line.CreditAccount.AccountName : '') 
-        + (line.CreditVatType ? ' - mva: ' + line.CreditVatType.VatCode + ': ' + line.CreditVatType.VatPercent + '%' : '');  
-    }  
-/*
-    private getProjectName(line: JournalEntryData): string {
-        if (line && line.Dimensions && !line.Dimensions.ProjectID) { return ''; }
-        if (this.dropdownData && line && line.Dimensions) {
-            var project = this.dropdownData[1].find((d) => d.ID == line.Dimensions.ProjectID);
-            if (project != null) {
-                return line.Dimensions.ProjectID + ' - ' + project.Name;
-            }
-        }
 
-        return (line && line.Dimensions && line.Dimensions.ProjectID) ? line.Dimensions.ProjectID.toString() : '';
+    private getDebitAccountText(line: JournalEntryData): string {
+        return (line.DebitAccount ? line.DebitAccount.AccountNumber + ' - ' + line.DebitAccount.AccountName : '')
+            + (line.DebitVatType ? ' - mva: ' + line.DebitVatType.VatCode + ': ' + line.DebitVatType.VatPercent + '%' : '');
     }
-*/
+
+    private getCreditAccountText(line: JournalEntryData): string {
+        return (line.CreditAccount ? line.CreditAccount.AccountNumber + ' - ' + line.CreditAccount.AccountName : '')
+            + (line.CreditVatType ? ' - mva: ' + line.CreditVatType.VatCode + ': ' + line.CreditVatType.VatPercent + '%' : '');
+    }
+    /*
+        private getProjectName(line: JournalEntryData): string {
+            if (line && line.Dimensions && !line.Dimensions.ProjectID) { return ''; }
+            if (this.dropdownData && line && line.Dimensions) {
+                var project = this.dropdownData[1].find((d) => d.ID == line.Dimensions.ProjectID);
+                if (project != null) {
+                    return line.Dimensions.ProjectID + ' - ' + project.Name;
+                }
+            }
+    
+            return (line && line.Dimensions && line.Dimensions.ProjectID) ? line.Dimensions.ProjectID.toString() : '';
+        }
+    */
     public postJournalEntryData(completeCallback) {
         this.journalEntryService.postJournalEntryData(this.journalEntryLines)
             .subscribe(
@@ -150,21 +171,21 @@ export class JournalEntrySimple implements OnInit, OnChanges {
                 if (firstJournalEntry.JournalEntryNo != numbers.firstNumber ||
                     lastJournalEntry.JournalEntryNo != numbers.lastNumber) {
                     this.toastService.addToast('Lagring var vellykket, men merk at tildelt bilagsnummer er ' + firstJournalEntry.JournalEntryNo + ' - ' + lastJournalEntry.JournalEntryNo, ToastType.warn);
-                    
+
                 } else {
-                    this.toastService.addToast('Lagring var vellykket!', ToastType.good, 10);                    
+                    this.toastService.addToast('Lagring var vellykket!', ToastType.good, 10);
                 }
-                
+
                 completeCallback('Lagret og bokført');
 
                 // Empty list
                 this.journalEntryLines = new Array<JournalEntryData>();
-                
+
                 this.dataChanged.emit(this.journalEntryLines);
             },
             err => {
                 completeCallback('Lagring feilet');
-                this.toastService.addToast('Feil ved lagring!', ToastType.bad, null, JSON.stringify(err._body));                
+                this.toastService.addToast('Feil ved lagring!', ToastType.bad, null, JSON.stringify(err._body));
                 console.log('error in postJournalEntryData: ', err);
             });
     }
@@ -239,17 +260,20 @@ export class JournalEntrySimple implements OnInit, OnChanges {
         updatedLine.CreditVatType = this.getVatType(updatedLine['CreditVatTypeID']);
         updatedLine.DebitAccountNumber = null;
         updatedLine.CreditAccountNumber = null;
-        
+
         updatedLine.Amount = Number(updatedLine.Amount.toString().replace(',', '.'));
-        
+
         if (updatedLine['FinancialDate'] && typeof updatedLine['FinancialDate'] == 'string') {
-            updatedLine.FinancialDate = new Date(updatedLine['FinancialDate'].toString());         
+            updatedLine.FinancialDate = new Date(updatedLine['FinancialDate'].toString());
         }
-        
+
         if (this.supplierInvoice) {
             updatedLine.JournalEntryID = this.supplierInvoice.JournalEntryID;
         }
-        
+        else if (this.journalEntryID > 0) {
+            updatedLine.JournalEntryID = this.journalEntryID;
+        }
+
         return updatedLine;
     }
 
@@ -268,10 +292,10 @@ export class JournalEntrySimple implements OnInit, OnChanges {
         var currentRow = this.journalEntryLines.indexOf(this.selectedJournalEntryLine);
         this.journalEntryLines[currentRow] = journalEntryLine;
         this.selectedJournalEntryLine = null;
-        
+
         this.dataChanged.emit(this.journalEntryLines);
     }
-    
+
     private getFinancialDateString(line: JournalEntryData): string {
         return line.FinancialDate !== null && line.FinancialDate.toISOString() !== '0001-01-01T00:00:00.000Z' ? line.FinancialDate.toLocaleDateString() : '';
     }
