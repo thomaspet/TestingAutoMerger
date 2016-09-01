@@ -85,7 +85,7 @@ export class AltinnAuthenticationDataModalContent {
         username.Combo = 0;
         username.FieldType = FieldType.TEXT;
         username.Hidden = false;
-        username.Property = 'username';
+        username.Property = 'userID';
         username.ReadOnly = false;
         username.Placeholder = null;
         username.Label = 'BrukerID altinn';
