@@ -7,6 +7,7 @@ import {UniDocumentDemo} from './documents/document';
 import {UniSaveDemo} from './save/saveDemo';
 import {UniToastDemo} from './toast/toastDemo';
 import {UniSelectDemo} from './select/selectDemo';
+import {UniDynamicDemo} from './dynamic/index';
 export const routes = [
     {
         path: '',
@@ -48,5 +49,9 @@ export const routes = [
     {
         path: 'select',
         component: UniSelectDemo
+    },
+    {
+        path: 'dynamic',
+        component: UniDynamicDemo
     }
 ];

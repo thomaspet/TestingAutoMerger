@@ -3,7 +3,7 @@ import {ROUTER_DIRECTIVES} from '@angular/router';
 import {UniTabs, IUniTabsRoute} from '../../layout/uniTabs/uniTabs';
 @Component({
     selector: 'journal-entry',
-    templateUrl: `app/components/accounting/journalentry/journalentry.html`,
+    templateUrl: 'app/components/accounting/journalentry/journalentry.html',
     directives: [ROUTER_DIRECTIVES, UniTabs]
 })
 export class JournalEntry {

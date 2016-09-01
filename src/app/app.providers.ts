@@ -8,7 +8,6 @@ import {UniState} from '../framework/core/UniState';
 import {AuthService} from './../framework/core/authService';
 import {AuthGuard} from './AuthGuard';
 import {REPORT_PROVIDERS} from './services/reports/index';
-
 export const APP_SERVICES = [
     // Services
     AuthGuard,
