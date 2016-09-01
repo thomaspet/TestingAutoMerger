@@ -11,7 +11,8 @@ declare var _;
     selector: 'tax-card-request-modal-content',
     directives: [UniForm, NgIf],
     providers: [AltinnService, EmployeeService],
-    templateUrl: 'app/components/salary/employee/modals/taxCardRequestModalContent.html'
+    templateUrl: 'app/components/salary/employee/modals/taxCardRequestModalContent.html',
+    host: {'(document:keydown)': 'checkForEnterSubmit($event)'}
 })
 export class TaxCardRequestModalContent {
     public title: string = '';
@@ -38,6 +39,12 @@ export class TaxCardRequestModalContent {
 
     }
 
+    public checkForEnterSubmit(event) {
+        if (event.keyCode === 13) {
+            this.submit();
+        }
+    }
+
     private initialize() {
         this.busy = true;
         this.sendAltinnVisible = true;
@@ -61,7 +68,7 @@ export class TaxCardRequestModalContent {
                 labelProperty: 'text',
                 valueProperty: 'id'
             },
-            
+
         };
         var multipleChoice: any = {
             FieldSet: 0,
@@ -110,8 +117,8 @@ export class TaxCardRequestModalContent {
         this.sendAltinnVisible = false;
         this._altinnService.sendTaxRequestAction(option, empId).subscribe((response: AltinnReceipt) => {
             if (response.ErrorText) {
-                this.title = 'Feil angående Altinn forespørsel';
-                this.error = 'feilmelding fra altinn: ' + response.ErrorText;
+                this.title = 'Feil angående Altinn-forespørsel';
+                this.error = 'Feilmelding fra altinn: ' + response.ErrorText;
             } else {
                 this.title = 'Skatteforespørsel er sendt';
             }
@@ -122,7 +129,7 @@ export class TaxCardRequestModalContent {
     }
 
     public ready(value) {
-        
+
     }
 
     public change(value) {

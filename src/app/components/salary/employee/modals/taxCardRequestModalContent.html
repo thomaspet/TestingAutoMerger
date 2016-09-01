@@ -1,10 +1,22 @@
-<article class="modal-content" [attr.aria-busy]="busy">
+<article class="modal-content taxCardRequestModal" [attr.aria-busy]="busy">
     <h1>{{title}}</h1>
 
-    <uni-form *ngIf="model" [config]="formConfig" [fields]="fields" [model]="model" (onChange)="change($event)" (onReady)="ready($event)"></uni-form>
-    <p>{{error}}</p>
+    <p *ngIf="!error">Du kan sende en forespørsel til Altinn om skattekort for én eller flere ansatte. <br>
+    Når forespørselen er behandlet, kan du hente skattekortet eller skattekortene ved å klikke "Hent skattekort" fra ansattkortet.</p>
+
+    <uni-form *ngIf="model"
+        [config]="formConfig"
+        [fields]="fields"
+        [model]="model"
+        (onChange)="change($event)"
+        (onReady)="ready($event)"></uni-form>
+
+    <p *ngIf="error"
+        role="alert"
+        class="error">{{error}}</p>
+
     <footer>
-        <button *ngIf="sendAltinnVisible" (click)="submit()">Send altinn</button>
+        <button class="c2a" *ngIf="sendAltinnVisible" (click)="submit()">Send forespørsel til Altinn</button>
         <button *ngIf="config.hasCancelButton" (click)="config.cancel()">{{exitButton}}</button>
     </footer>
 </article>
