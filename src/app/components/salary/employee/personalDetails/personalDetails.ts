@@ -5,7 +5,7 @@ import {Observable} from 'rxjs/Observable';
 import {Subscription} from 'rxjs/Subscription';
 import 'rxjs/add/operator/merge';
 import {OperationType, Operator, ValidationLevel, Employee, Email, Phone, Address} from '../../../../unientities';
-import {EmployeeService, PhoneService, EmailService, AddressService, AltinnService, SubEntityService} from '../../../../services/services';
+import {EmployeeService, PhoneService, EmailService, AddressService, AltinnIntegrationService, SubEntityService} from '../../../../services/services';
 import {AddressModal, EmailModal, PhoneModal} from '../../../common/modals/modals';
 import {RootRouteParamsService} from '../../../../services/rootRouteParams';
 import {TaxCardRequestModal, AltinnLoginModal, ReadTaxCardModal} from '../employeeModals';
@@ -16,7 +16,7 @@ declare var _;
 @Component({
     selector: 'employee-personal-details',
     directives: [UniForm, UniSave, TaxCardRequestModal, AltinnLoginModal, ReadTaxCardModal, PhoneModal, AddressModal, EmailModal],
-    providers: [PhoneService, EmailService, AddressService, AltinnService, SubEntityService],
+    providers: [PhoneService, EmailService, AddressService, AltinnIntegrationService, SubEntityService],
     templateUrl: 'app/components/salary/employee/personalDetails/personalDetails.html'
 })
 export class PersonalDetails implements OnDestroy {
@@ -60,7 +60,7 @@ export class PersonalDetails implements OnDestroy {
         public phoneService: PhoneService,
         public emailService: EmailService,
         public addressService: AddressService,
-        public altinnService: AltinnService,
+        public altinnService: AltinnIntegrationService,
         public subEntityService: SubEntityService) {
         this.employeeID = +rootRouteParams.params['id'];
 

@@ -1,19 +1,26 @@
 <section class="application">
-    <table>
+    <button
+        *ngIf="!vatReport?.PaymentID"
+        type="button"
+        (click)="checkForReceipt()">
+        Hent kvittering fra Altinn
+    </button>
+    <altinn-authentication-data-modal></altinn-authentication-data-modal>
+    <table *ngIf="vatReport?.PaymentID">
         <tr>
-            <td>Betalingsfrist</td><td>{{vatReport?.PaymentDueDate | unidateformat}}</td>
+            <th>Betalingsfrist</th><td>{{vatReport?.PaymentDueDate | unidateformat}}</td>
         </tr>
         <tr>
-            <td>Betale til</td><td>{{vatReport?.PaymentToDescription}}</td>
+            <th>Betale til</th><td>{{vatReport?.PaymentToDescription}}</td>
         </tr>
         <tr>
-            <td>KID</td><td>{{vatReport?.PaymentID}}</td>
+            <th>KID</th><td>{{vatReport?.PaymentID}}</td>
         </tr>
         <tr>
-            <td>Sum</td><td>{{vatReport?.TotalAmount | unicurrency}}</td>
+            <th>Sum</th><td>{{vatReport?.TotalAmount | unicurrency}}</td>
         </tr>
         <tr>
-            <td>Til konto</td><td>{{vatReport?.BankAccountNumberTarget | uniaccountnumber}}</td>
+            <th>Til konto</th><td>{{vatReport?.BankAccountNumberTarget | uniaccountnumber}}</td>
         </tr>
     </table>
 </section>

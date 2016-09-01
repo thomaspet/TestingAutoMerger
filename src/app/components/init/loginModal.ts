@@ -41,7 +41,7 @@ export class LoginModal {
     private usernameControl: FormControl = new FormControl('', Validators.required);
     private passwordControl: FormControl = new FormControl('', Validators.required);
 
-    // private username: string = '';
+    // private userID: string = '';
     // private password: string = '';
 
     constructor(private authService: AuthService) {}

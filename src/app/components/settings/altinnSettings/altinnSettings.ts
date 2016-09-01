@@ -1,5 +1,5 @@
 import {Component, OnInit, ViewChild} from '@angular/core';
-import {AltinnService} from '../../../services/services';
+import {AltinnIntegrationService} from '../../../services/services';
 import {UniSave, IUniSaveAction} from '../../../../framework/save/save';
 import {Altinn} from '../../../unientities';
 import {Observable} from 'rxjs/Observable';
@@ -9,7 +9,7 @@ import {UniForm, UniFieldLayout} from '../../../../framework/uniform/index'
 @Component({
     selector: 'altinn-settings',
     templateUrl: 'app/components/settings/altinnSettings/altinnSettings.html',
-    providers: [AltinnService, IntegrationServerCaller],
+    providers: [AltinnIntegrationService, IntegrationServerCaller],
     directives: [UniForm, UniSave]
 })
 export class AltinnSettings implements OnInit {
@@ -27,7 +27,7 @@ export class AltinnSettings implements OnInit {
     
     public loginErr: string;
 
-    constructor(private _altinnService: AltinnService, private integrate: IntegrationServerCaller) {
+    constructor(private _altinnService: AltinnIntegrationService, private integrate: IntegrationServerCaller) {
            this.loginErr = '';
     }
 
@@ -44,7 +44,7 @@ export class AltinnSettings implements OnInit {
         let company = JSON.parse(localStorage.getItem('companySettings'));      
                 
         
-        this.integrate.checkSystemLogin(company.OrganizationNumber, this.altinn.SystemID, this.altinn.SystemPw, this.altinn.Language).subscribe((response) => {            
+        this.integrate.checkSystemLogin(company.OrganizationNumber, this.altinn.SystemID, this.altinn.SystemPw, this.altinn.Language).subscribe((response) => {
             if (response !== true){                
                 this.loginErr = 'Failed to log in with given credentials'; 
             } else {

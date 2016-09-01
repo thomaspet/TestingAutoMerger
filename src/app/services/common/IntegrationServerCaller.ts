@@ -26,7 +26,7 @@ export class IntegrationServerCaller {
             .map(response => response.json());
     }
     
-    public getAltinnCorrespondence(altinn: Altinn, orgno: string, receiptID: number) {
+    public getAltinnCorrespondence(altinn: Altinn, orgno: string, receiptID: number): Observable<any> {
         var altinnLogin: {username: string, password: string, pin: string, preferredLogin: string, timeStamp: string} = JSON.parse(localStorage.getItem('AltinnUserData'));
         return this.http
                    .withNewHeaders()

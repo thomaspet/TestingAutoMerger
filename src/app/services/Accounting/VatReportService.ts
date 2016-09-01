@@ -1,7 +1,15 @@
 ﻿import {BizHttp} from '../../../framework/core/http/BizHttp';
-import {VatReport, VatReportMessage, VatReportSummaryPerPost, VatReportSummary, StatusCodeVatReport} from '../../unientities';
+import {
+    VatReport,
+    VatReportMessage,
+    VatReportSummaryPerPost,
+    VatReportSummary,
+    AltinnGetVatReportDataFromAltinnResult,
+    StatusCodeVatReport
+} from '../../unientities';
 import {UniHttp} from '../../../framework/core/http/http';
 import {Observable} from 'rxjs/Rx';
+import {AltinnAuthenticationData} from '../../models/AltinnAuthenticationData';
 
 export class VatReportService extends BizHttp<VatReport> {
 
@@ -81,6 +89,22 @@ export class VatReportService extends BizHttp<VatReport> {
             .usingBusinessDomain()
             .withEndPoint(
                 this.relativeURL + `/${vatReportID}?action=control-vatreport&periodID=${periodID}`)
+            .send()
+            .map(response => response.json());
+    }
+
+    public tryToReadAndUpdateVatReportData(vatReportID: number, authenticationData: AltinnAuthenticationData): Observable<AltinnGetVatReportDataFromAltinnResult> {
+        const headers = {
+            'x-altinn-userid': authenticationData.userID,
+            'x-altinn-password': authenticationData.password,
+            'x-altinn-pinmethod': authenticationData.preferredLogin,
+            'x-altinn-pin': authenticationData.pin
+        };
+        return this.http
+            .asPOST()
+            .usingBusinessDomain()
+            .withHeaders(headers)
+            .withEndPoint(`${this.relativeURL}?action=read-and-update-altinn-vatreport-data&vatReportID=${vatReportID}`)
             .send()
             .map(response => response.json());
     }

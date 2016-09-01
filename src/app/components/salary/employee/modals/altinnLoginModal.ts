@@ -2,7 +2,7 @@ import {Component, Type, ViewChild, Input, Output, EventEmitter} from '@angular/
 import {UniModal} from '../../../../../framework/modals/modal';
 import {UniForm, UniFieldLayout} from '../../../../../framework/uniform';
 import {Altinn, FieldType, CompanySettings, TypeOfLogin, AltinnCorrespondanceReader} from '../../../../../app/unientities';
-import {AltinnService, CompanySettingsService, IntegrationServerCaller, AltinnReceiptService} from '../../../../../app/services/services';
+import {AltinnIntegrationService, CompanySettingsService, IntegrationServerCaller, AltinnReceiptService} from '../../../../../app/services/services';
 import {TaxCardReading} from '../../../../models/models';
 
 declare var _; // lodash
@@ -10,7 +10,7 @@ declare var _; // lodash
 @Component({
     selector: 'altinn-login-modal-content',
     directives: [UniForm],
-    providers: [AltinnService, CompanySettingsService, IntegrationServerCaller, AltinnReceiptService],
+    providers: [AltinnIntegrationService, CompanySettingsService, IntegrationServerCaller, AltinnReceiptService],
     templateUrl: 'app/components/salary/employee/modals/altinnLoginModalContent.html'
 })
 export class AltinnLoginModalContent {
@@ -22,7 +22,7 @@ export class AltinnLoginModalContent {
 
     private receiptID: number;
 
-    public model: { username: string, password: string, pin: string, preferredLogin: string, timeStamp: Date };
+    public model: { userID: string, password: string, pin: string, preferredLogin: string, timeStamp: Date };
 
     public atLogin: boolean = true;
     public busy: boolean = true;
@@ -32,7 +32,7 @@ export class AltinnLoginModalContent {
     public fields: any[] = [];
     public formConfig: any = {};
 
-    constructor(private _altinnService: AltinnService, private _companySettingsService: CompanySettingsService, private _inserver: IntegrationServerCaller, private _altinnReceiptService: AltinnReceiptService) {
+    constructor(private _altinnService: AltinnIntegrationService, private _companySettingsService: CompanySettingsService, private _inserver: IntegrationServerCaller, private _altinnReceiptService: AltinnReceiptService) {
 
         this.companySettings = JSON.parse(localStorage.getItem('companySettings'));
 
@@ -50,7 +50,7 @@ export class AltinnLoginModalContent {
         username.Combo = 0;
         username.FieldType = FieldType.TEXT;
         username.Hidden = false;
-        username.Property = 'username';
+        username.Property = 'userID';
         username.ReadOnly = false;
         username.Placeholder = null;
         username.Label = 'BrukerID altinn';
@@ -147,7 +147,7 @@ export class AltinnLoginModalContent {
                 } else if (response.correspondence) {
 
                     let taxCardReading: AltinnCorrespondanceReader = new AltinnCorrespondanceReader();
-                    taxCardReading.UserID = this.model.username;
+                    taxCardReading.UserID = this.model.userID;
                     taxCardReading.UserPassword = this.model.password;
                     taxCardReading.PreferredLogin = this.model.preferredLogin;
                     taxCardReading.Pin = this.model.pin;
@@ -174,7 +174,7 @@ export class AltinnLoginModalContent {
             });
         } else {
             this.model = {
-                username: '',
+                userID: '',
                 password: '',
                 pin: '',
                 preferredLogin: 'AltinnPin',
@@ -203,7 +203,7 @@ export class AltinnLoginModalContent {
 @Component({
     selector: 'altinn-login-modal',
     directives: [UniModal],
-    providers: [AltinnService, CompanySettingsService],
+    providers: [AltinnIntegrationService, CompanySettingsService],
     template: `
         <uni-modal [type]="type" [config]="config"></uni-modal>
     `
@@ -218,7 +218,7 @@ export class AltinnLoginModal {
     @ViewChild(UniModal)
     private modal: UniModal;
 
-    constructor(private _altinnService: AltinnService, private _companySettingsService: CompanySettingsService) {
+    constructor(private _altinnService: AltinnIntegrationService, private _companySettingsService: CompanySettingsService) {
         this.config = {
             cancel: () => {
                 this.modal.getContent().then((component: AltinnLoginModalContent) => {

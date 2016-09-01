@@ -3,14 +3,14 @@ import {NgIf} from '@angular/common';
 import {UniModal} from '../../../../../framework/modals/modal';
 import {UniForm} from '../../../../../framework/uniform';
 import {FieldLayout, AltinnReceipt} from '../../../../../app/unientities';
-import {AltinnService, EmployeeService} from '../../../../../app/services/services';
+import {AltinnIntegrationService, EmployeeService} from '../../../../../app/services/services';
 import {RootRouteParamsService} from '../../../../services/rootRouteParams';
 
 declare var _;
 @Component({
     selector: 'tax-card-request-modal-content',
     directives: [UniForm, NgIf],
-    providers: [AltinnService, EmployeeService],
+    providers: [AltinnIntegrationService, EmployeeService],
     templateUrl: 'app/components/salary/employee/modals/taxCardRequestModalContent.html',
     host: {'(document:keydown)': 'checkForEnterSubmit($event)'}
 })
@@ -32,7 +32,7 @@ export class TaxCardRequestModalContent {
     public uniform: UniForm;
 
     constructor(
-        private _altinnService: AltinnService,
+        private _altinnService: AltinnIntegrationService,
         private _employeeService: EmployeeService
     ) {
         this.initialize();

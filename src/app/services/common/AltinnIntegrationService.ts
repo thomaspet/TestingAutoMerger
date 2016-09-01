@@ -8,7 +8,7 @@ import {Injectable} from '@angular/core';
 import {TaxCardReading} from '../../models/models';
 
 // @Injectable()
-export class AltinnService extends BizHttp<Altinn> {
+export class AltinnIntegrationService extends BizHttp<Altinn> {
 
     public languages: any = [
         { ID: '1044' || null, text: 'Norsk(bokmål)' },

@@ -85,9 +85,10 @@ export class VatReportView implements OnInit, OnDestroy {
         this.subs.push(
             this.externalComment
                 .valueChanges
-                .filter(change => !!change && !!this.currentVatReport)
+                .filter(change => !!this.currentVatReport)
                 .filter(change => this.currentVatReport.Comment !== change)
                 .map(change => this.currentVatReport.Comment = change)
+                .distinctUntilChanged()
                 .debounceTime(400)
                 .subscribe(
                     change => this
@@ -100,9 +101,10 @@ export class VatReportView implements OnInit, OnDestroy {
         this.subs.push(
             this.internalComment
                 .valueChanges
-                .filter(change => !!change && !!this.currentVatReport)
+                .filter(change => !!this.currentVatReport)
                 .filter(change => this.currentVatReport.InternalComment !== change)
                 .map(change => this.currentVatReport.InternalComment = change)
+                .distinctUntilChanged()
                 .debounceTime(400)
                 .subscribe(
                     change => this
@@ -116,6 +118,7 @@ export class VatReportView implements OnInit, OnDestroy {
     }
 
     private setVatreport(vatReport: VatReport) {
+        this.showView = '';
         this.currentVatReport = vatReport;
         this.isSendt = vatReport.StatusCode === StatusCodeVatReport.Submitted;
         this.isExecuted = vatReport.StatusCode === StatusCodeVatReport.Executed || this.isSendt;
@@ -179,7 +182,7 @@ export class VatReportView implements OnInit, OnDestroy {
                     this.setVatreport(vatReport);
                     done();
                 },
-                err => this.onError(err)
+                err => this.onError(err, done)
             );
     }
 
@@ -191,9 +194,10 @@ export class VatReportView implements OnInit, OnDestroy {
                                 this.setVatreport(vatreport);
                                 done();
                             },
-                            err => this.onError(err));
+                            err => this.onError(err, done)
+                        );
                 },
-                err => this.onError(err)
+                err => this.onError(err, done)
             );
     }
 
@@ -240,8 +244,11 @@ export class VatReportView implements OnInit, OnDestroy {
         return <Observable<T>> source.finally(() => this.isBusy = false);
     }
 
-    private onError(error: Error) {
+    private onError(error: Error, optionalDoneHandler?: (error) => void) {
         this.toastService.addToast('Error', ToastType.bad, 0, 'Det skjedde en feil, forsøk igjen senere');
+        if (optionalDoneHandler) {
+            optionalDoneHandler('Det skjedde en feil, forsøk igjen senere');
+        }
         console.log('Error in the vat report view:', error);
     }
 
