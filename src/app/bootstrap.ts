@@ -7,6 +7,7 @@ import { BrowserModule } from '@angular/platform-browser';
 import { platformBrowserDynamic } from '@angular/platform-browser-dynamic';
 import { FormsModule } from '@angular/forms';
 import { HttpModule } from '@angular/http';
+import { COMPILER_PROVIDERS } from '@angular/compiler';
 import { APP_ROUTES } from './routes';
 import { APP_SERVICES } from './app.providers';
 import { App } from './app';
@@ -33,6 +34,7 @@ if (window.ENV === 'production') {
     declarations: [App],
     bootstrap: [App],
     providers: [
+        COMPILER_PROVIDERS,
         APP_SERVICES,
         {provide: LocationStrategy, useClass: HashLocationStrategy},
     ]

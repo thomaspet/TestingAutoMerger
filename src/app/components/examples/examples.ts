@@ -25,6 +25,7 @@ export class Examples {
             {name: 'Save', path: 'save'},
             {name: 'Toast', path: 'toast'},
             {name: 'Select', path: 'select'},
+            {name: 'Dynamic', path: 'dynamic'},
         ];
     }
 }
