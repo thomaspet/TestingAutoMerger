@@ -17,7 +17,7 @@ import {AddressService} from '../../../services/services';
                     {{action.text}}
                 </button>
             </footer>
-        </article>    
+        </article>
     `
 })
 export class AddressForm implements OnChanges {
@@ -85,7 +85,7 @@ export class AddressForm implements OnChanges {
                 FieldType: 10,
                 ReadOnly: false,
                 LookupField: false,
-                Label: 'Adresse2',
+                Label: 'Adresselinje to',
                 Description: '',
                 HelpText: '',
                 FieldSet: 0,
@@ -113,7 +113,7 @@ export class AddressForm implements OnChanges {
                 FieldType: 10,
                 ReadOnly: false,
                 LookupField: false,
-                Label: 'Adresse3',
+                Label: 'Adresselinje tre',
                 Description: '',
                 HelpText: '',
                 FieldSet: 0,
@@ -141,7 +141,7 @@ export class AddressForm implements OnChanges {
                 FieldType: 10,
                 ReadOnly: false,
                 LookupField: false,
-                Label: 'Postnr',
+                Label: 'Postnr.',
                 Description: '',
                 HelpText: '',
                 FieldSet: 0,

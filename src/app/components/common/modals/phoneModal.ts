@@ -17,7 +17,7 @@ import {PhoneService} from '../../../services/services';
                     {{action.text}}
                 </button>
             </footer>
-        </article>    
+        </article>
     `
 })
 export class PhoneForm {
@@ -25,13 +25,13 @@ export class PhoneForm {
     private config: any = {};
     private fields: any[] = [];
     public formConfig: any = {};
-       
+
     public ngOnInit() {
         this.setupForm();
         this.extendFormConfig();
     }
-               
-    private setupForm() {   
+
+    private setupForm() {
         // TODO get it from the API and move these to backend migrations
         // TODO: turn to 'ComponentLayout when the object respects the interface
        this.fields = [
@@ -61,7 +61,7 @@ export class PhoneForm {
                 UpdatedAt: null,
                 CreatedBy: null,
                 UpdatedBy: null,
-                CustomFields: null 
+                CustomFields: null
             },
             {
                 ComponentLayoutID: 1,
@@ -72,7 +72,7 @@ export class PhoneForm {
                 FieldType: 10,
                 ReadOnly: false,
                 LookupField: false,
-                Label: 'Telefonnr',
+                Label: 'Telefonnr.',
                 Description: '',
                 HelpText: '',
                 FieldSet: 0,
@@ -89,7 +89,7 @@ export class PhoneForm {
                 UpdatedAt: null,
                 CreatedBy: null,
                 UpdatedBy: null,
-                CustomFields: null 
+                CustomFields: null
             },
             {
                 ComponentLayoutID: 1,
@@ -117,7 +117,7 @@ export class PhoneForm {
                 UpdatedAt: null,
                 CreatedBy: null,
                 UpdatedBy: null,
-                CustomFields: null 
+                CustomFields: null
             },
             {
                 ComponentLayoutID: 1,
@@ -145,14 +145,14 @@ export class PhoneForm {
                 UpdatedAt: null,
                 CreatedBy: null,
                 UpdatedBy: null,
-                CustomFields: null 
-            }  
+                CustomFields: null
+            }
         ];
     }
 
     private extendFormConfig() {
         var typeField: UniFieldLayout = this.fields.find(x => x.Property === 'Type');
-           
+
         typeField.Options = {
             source:  [
                 {ID: 150101, Name: 'Telefon'},
@@ -161,8 +161,8 @@ export class PhoneForm {
             ],
             valueProperty: 'ID',
             displayProperty: 'Name'
-        };         
-    }   
+        };
+    }
 }
 
 // phone modal
@@ -175,18 +175,18 @@ export class PhoneForm {
     providers: [PhoneService]
 })
 export class PhoneModal {
-    @Input() public phone: Phone;    
+    @Input() public phone: Phone;
     @ViewChild(UniModal) public modal: UniModal;
-    
+
     @Output() public Changed = new EventEmitter<Phone>();
     @Output() public Canceled = new EventEmitter<boolean>();
-    
+
     private modalConfig: any = {};
     private type: Type = PhoneForm;
 
     constructor(private phoneService: PhoneService) {
     }
-    
+
     public ngOnInit() {
         this.modalConfig = {
             title: 'Telefonnummer',
@@ -196,11 +196,11 @@ export class PhoneModal {
                 {
                     text: 'Lagre nummer',
                     class: 'good',
-                     method: () => {                        
-                        this.modal.close();          
+                     method: () => {
+                        this.modal.close();
                         this.Changed.emit(this.modalConfig.model);
                         return false;
-                    }                    
+                    }
                 },
                 {
                     text: 'Avbryt',
@@ -213,8 +213,8 @@ export class PhoneModal {
             ]
         };
     }
-    
-    public openModal(phone: Phone) {  
+
+    public openModal(phone: Phone) {
         this.modalConfig.model = phone;
         this.modal.open();
     }
