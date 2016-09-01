@@ -38,8 +38,8 @@ uni-table
         &:hover
             background: mix($uni-color-C2A, $uni-color-negative, 15%)
 
-        &[aria-selected]:not([aria-selected=false]),
-        &:focus
+        &[aria-selected]:not([aria-selected=false]):not([aria-readonly=true]),
+        &:focus:not([aria-readonly=true])
             background: $uni-color-C2A
             color: $uni-color-negative
             outline: none
