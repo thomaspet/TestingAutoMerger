@@ -70,11 +70,22 @@ export class SalaryTransactionSelectionList implements OnInit, AfterViewInit {
                 .setCls('icon-column')
                 .setTemplate((rowModel: Employee) => {
                     if (rowModel.BankAccounts) {
+                        let error = '';
+                        let taxError = !rowModel.TaxTable && !rowModel.TaxPercentage;
+                        let accountError = !rowModel.BankAccounts || !rowModel.BankAccounts.some(x => x.Active === true);
                         if (rowModel.TaxTable === null || rowModel.TaxTable === '' || !rowModel.BankAccounts.some(x => x.Active === true)) {
-                            return "{#<em class='missing-info' role='presentation'>Visible</em>#} ";
+                            if (accountError && taxError) {
+                                error = 'Skatteinfo og kontonummer mangler.';
+                            } else if (accountError) {
+                                error = 'Kontonummer mangler';
+                            } else if (taxError) {
+                                error = 'Skatteinfo mangler';
+                            }
+                            return '{#<em class="missing-info" href="/#/salary/employees/' + rowModel.ID + '" title="' + error + '" role="presentation">' + error + '</em>#}';
                         } else {
                             return "{#<em role='presentation'></em>#}# ";
                         }
+
                     } else {
                         return "{#<em class='missing-info' role='presentation'>Visible</em>#} ";
                     }

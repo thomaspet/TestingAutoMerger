@@ -30,12 +30,14 @@ export class SalaryTransactionEmployeeList implements OnChanges, AfterViewInit {
     public employee: Employee;
     private agaZone: AGAZone;
     public formModel: any = {};
+    public errorMessage: string = '';
 
 
     private employeeExpands: string[] = [
         'BusinessRelationInfo',
         'SubEntity.BusinessRelationInfo',
-        'Employments'
+        'Employments',
+        'BankAccounts'
     ];
 
     public config: any = {};
@@ -335,12 +337,12 @@ export class SalaryTransactionEmployeeList implements OnChanges, AfterViewInit {
         this.salarytransEmployeeTableConfig = new UniTableConfig(this.payrollRun.StatusCode < 1)
             .setDeleteButton({
                 deleteHandler: (rowModel: SalaryTransaction) => {
-                    if (isNaN(rowModel.ID)) { return true; }                    
+                    if (isNaN(rowModel.ID)) { return true; }
                     if (!rowModel.IsRecurringPost) {
                         return this.salarytransService.delete(rowModel.ID);
-                    }      
-                    return false;              
-                }                
+                    }
+                    return false;
+                }
             })
             .setColumns([
                 wageTypeCol, wagetypenameCol, employmentidCol,
@@ -375,7 +377,7 @@ export class SalaryTransactionEmployeeList implements OnChanges, AfterViewInit {
         var percentCol = new UniTableColumn('percentTax', 'Prosenttrekk', UniTableColumnType.Number);
         var taxtableCol = new UniTableColumn('tableTax', 'Tabelltrekk', UniTableColumnType.Number);
         var paidCol = new UniTableColumn('netPayment', 'Utbetalt beløp', UniTableColumnType.Number);
-        var agaCol = new UniTableColumn('calculatedAGA', 'Beregnet AGA', UniTableColumnType.Number);
+        var agaCol = new UniTableColumn('calculatedAGA', 'Beregnet aga', UniTableColumnType.Number);
         var basevacationCol = new UniTableColumn('baseVacation', 'Grunnlag feriepenger', UniTableColumnType.Number);
 
         this.salarytransEmployeeTotalsTableConfig = new UniTableConfig()
@@ -532,6 +534,26 @@ export class SalaryTransactionEmployeeList implements OnChanges, AfterViewInit {
     public openControlModal(done) {
         this.controllModal.openModal();
         done('');
+    }
+
+    public noActiveBankAccounts(): boolean {
+        return !this.employee.BankAccounts.some(x => x.Active === true);
+    }
+
+    public generateErrorMessage(): string {
+        let error = `Gå til <a href="/#/salary/employees/${this.employee.ID}"> ansattkortet for ${this.employee.BusinessRelationInfo.Name}</a> for å legge inn `;
+        let noBankAccounts = !this.employee.BankAccounts || this.noActiveBankAccounts;
+        let noTax = !this.employee.TaxTable && !this.employee.TaxPercentage;
+
+        if (noBankAccounts && noTax) {
+            error = 'Skatteinfo og kontonummer mangler. ' + error + 'skatteinfo og kontonummer.';
+        } else if (noBankAccounts) {
+            error = 'Kontonummer mangler. ' + error + 'kontonummer.';
+        } else if (noTax) {
+            error = 'Skatteinfo mangler. ' + error + 'skatteinfo.';
+        }
+
+        return error;
     }
 
     public log(err) {

@@ -60,7 +60,7 @@ export class RecurringPost implements OnInit {
                     .usingBusinessDomain()
                     .withEndPoint('salarytrans')
                     .send({
-                        filter: `EmployeeNumber eq ${this.employeeID} and IsRecurringPost eq true and PayrollRunID eq 0`
+                        filter: `EmployeeID eq ${this.employeeID} and IsRecurringPost eq true and PayrollRunID eq 0`
                     })
                     .map(response => response.json());
             }, (error: any) => {

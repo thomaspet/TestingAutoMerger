@@ -48,7 +48,7 @@ export class HamburgerMenu {
                     {componentName: 'Nøkkeltall', componentUrl: '/'},
                     {componentName: 'Brukerinnstillinger', componentUrl: '/settings/user', hidden: true},
                     {componentName: 'Firmainnstillinger', componentUrl: '/settings/company', hidden: true},
-                    {componentName: 'AGA innstillinger', componentUrl: '/settings/aga-and-subentities', hidden: true},
+                    {componentName: 'Aga-innstillinger', componentUrl: '/settings/aga-and-subentities', hidden: true},
                     {componentName: 'Legg til bruker', componentUrl: '/settings/users', hidden: true},
                     {componentName: 'Brukere og roller', componentUrl: '/settings/users', hidden: true},
                     {componentName: 'Altinn', componentUrl: '/settings/altinn', hidden: true}
@@ -69,9 +69,9 @@ export class HamburgerMenu {
                 componentListName: 'Regnskap',
                 componentListHeader: 'Orden i bøkene',
                 componentList: [
-                    {componentName: 'Bilagsføring', componentUrl: '/accounting'},  
+                    {componentName: 'Bilagsføring', componentUrl: '/accounting'},
                     {componentName: 'Leverandørfaktura', componentUrl: '/accounting/journalentry/supplierinvoices', hidden: true},
-                    {componentName: 'Betaling', componentUrl: '/accounting/journalentry/payments', hidden: true}, 
+                    {componentName: 'Betaling', componentUrl: '/accounting/journalentry/payments', hidden: true},
                     {componentName: 'Forespørsel på konto', componentUrl: '/accounting/transquery'},
                     {componentName: 'Forespørsel på bilag', componentUrl: '/accounting/transquery/details'},
                     {componentName: 'Kontoinnstillinger', componentUrl: '/accounting/accountsettings'},
@@ -93,13 +93,13 @@ export class HamburgerMenu {
                 componentListName: 'Timer',
                 componentListHeader: 'Timer',
                 componentList: [
-                    {componentName: 'Stillingsmal', componentUrl: '/timetracking/workprofiles'},                    
+                    {componentName: 'Stillingsmal', componentUrl: '/timetracking/workprofiles'},
                     {componentName: 'Personer', componentUrl: '/timetracking/workers'},
-                    {componentName: 'Timearter', componentUrl: '/timetracking/worktypes'},                    
+                    {componentName: 'Timearter', componentUrl: '/timetracking/worktypes'},
                     {componentName: 'Timer', componentUrl: '/timetracking'},
                     {componentName: 'Prosjekt', componentUrl: '/timetracking/projects'}
                 ]
-            },            
+            },
             {
                 componentListName: 'Rapporter',
                 componentListHeader: 'Oversikt på papir',
