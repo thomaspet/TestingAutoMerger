@@ -134,13 +134,16 @@
     overflow-x: hidden
 
 .timeentriesTable td.sum
-    background-color: lighten(mix($uni-color-scale9, $navbarBackground, 50%), 30%)
     height: 2rem
-    border-top: 1px solid $uni-color-scale6 !important
+    border-top: 1px solid #000 !important
     font-weight: bold
 
+tr.sum td
+    border-bottom: 2px solid lighten($uni-color-scale6, 20%) !important
+    font-weight: bold
+    padding-bottom: 0.4em
+
 .timeentriesTable td.sumright
-    background-color: lighten(mix($uni-color-scale9, $navbarBackground, 50%), 30%)
     font-weight: bold
     border-left: 1px solid $uni-color-scale6
 

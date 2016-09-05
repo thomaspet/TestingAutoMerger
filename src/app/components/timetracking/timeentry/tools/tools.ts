@@ -5,6 +5,8 @@ import {MinutesToHoursPipe} from '../../utils/pipes';
 import {IsoTimePipe} from '../../utils/pipes';
 import {safeInt} from '../../utils/utils';
 
+declare var moment;
+
 @Component({
     selector: 'regtimetools',
     templateUrl: 'app/components/timetracking/timeentry/tools/tools.html',
@@ -59,8 +61,8 @@ export class RegtimeTools {
         var compactedList = this.filterItems(items);
         var sums = this.sumItems(items);
         this.config = {
-            title: compactedList[0].Name,
-            items: compactedList,
+            title: ( compactedList && compactedList.length > 0 ) ? compactedList[0].Name : '',
+            items: sums.report,
             sumWork: sums.sumWork,
             sumTotal: sums.sumTotal
         };
@@ -115,23 +117,42 @@ export class RegtimeTools {
         });        
     }
 
-    private sumItems(items: Array<any>): { sumWork: number, sumTotal: number } {
-        var sum = { sumWork: 0, sumTotal: 0 };
+    private sumItems(items: Array<any>): { sumWork: number, sumTotal: number, report: Array<any> } {
+        var prevWeek = 0;
+        var totals = { sumWork: 0, sumTotal: 0, report: [] };
         this.sumColumns.forEach((col) => { col.sum = 0; });
-        items.forEach(element => {
+
+        var week: { weekNumber: number, label: string, total: number, summinutes: number };
+
+        for (var i = 0; i < items.length; i++) {            
+            let element = items[i];
             let itemSum = safeInt(element.summinutes || 0);
-            sum.sumWork += itemSum;
+            let weekNumber = moment(element.Date).isoWeek();
+            if ( (i === 0) || weekNumber !== prevWeek) {
+                if (week) {
+                    totals.report.push(week);
+                }
+                week = { weekNumber: weekNumber, label: 'Uke ' + weekNumber, total: 0, summinutes: 0 };
+            } 
+            totals.sumWork += itemSum;
+            week.summinutes += itemSum;
             element.total = itemSum;
             this.sumColumns.forEach((col) => {
                 if (element[col.name]) {                    
                     col.sum += safeInt(element[col.name]);
                     element.total += safeInt(element[col.name]);
+                    week[col.name] = ( week[col.name] || 0 ) + safeInt(element[col.name]);
                 } 
             });
-
-            sum.sumTotal += element.total;
-        });
-        return sum;
+            totals.sumTotal += element.total;
+            week.total += element.total;
+            prevWeek = weekNumber;
+            totals.report.push(element);
+        }
+        if (week) {
+            totals.report.push(week);
+        }
+        return totals;
     }
 
     private queryTotals() {
