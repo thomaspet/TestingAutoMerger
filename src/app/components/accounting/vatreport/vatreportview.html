@@ -60,11 +60,11 @@
                     <li [className]="isControlledWithoutWarnings() ? 'success' : 'warn'">
                         {{ isControlledWithoutWarnings() ? 'Automatisk kontroll ok' : 'Automatisk kontroll har advarsler' }}
                     </li>
-                    <li [className]="isExecuted ? 'success' : ''">
-                        {{ isExecuted ? 'Kjørt ok' : 'Ikke kjørt' }}
+                    <li [className]="isExecuted() ? 'success' : ''">
+                        {{ isExecuted() ? 'Kjørt ok' : 'Ikke kjørt' }}
                     </li>
-                    <li [className]="isSendt ? 'success' : ''">
-                        {{ isSendt ? 'Sendt inn ok' : 'Ikke sendt inn' }}
+                    <li [className]="isSent() ? 'success' : ''">
+                        {{ isSent() ? 'Sendt inn ok' : 'Ikke sendt inn' }}
                     </li>
                 </ul>
             </article>
@@ -81,7 +81,7 @@
             <li>
                 <a (click)="showView = ''" [class.router-link-active]="showView == ''">Oppgave</a>
             </li>
-            <li *ngIf="isSendt">
+            <li *ngIf="isSent()">
                 <a (click)="showView = 'receipt'" [class.router-link-active]="showView == 'receipt'">Altinn, kvittering/tilbakemelding</a>
             </li>
             <li *ngIf="currentVatReport?.JournalEntryID">

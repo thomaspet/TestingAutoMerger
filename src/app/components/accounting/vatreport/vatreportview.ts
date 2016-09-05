@@ -44,8 +44,6 @@ export class VatReportView implements OnInit, OnDestroy {
     public reportMessages: VatReportMessage[];
     public currentVatReport: VatReport = new VatReport();
     public vatTypes: VatType[] = [];
-    public isExecuted: boolean;
-    public isSendt: boolean;
     public isBusy: boolean = true;
     public showView: string = '';
     private actions: IUniSaveAction[];
@@ -141,8 +139,6 @@ export class VatReportView implements OnInit, OnDestroy {
     private setVatreport(vatReport: VatReport) {
         this.showView = '';
         this.currentVatReport = vatReport;
-        this.isSendt = vatReport.StatusCode === StatusCodeVatReport.Submitted;
-        this.isExecuted = vatReport.StatusCode === StatusCodeVatReport.Executed || this.isSendt;
 
         this.vatReportSummary = null;
         this.vatReportService.getVatReportSummary(vatReport.ID, vatReport.TerminPeriodID)
@@ -262,6 +258,40 @@ export class VatReportView implements OnInit, OnDestroy {
                 this.onError(err);
             }
             );
+    }
+
+    public isExecuted(): boolean {
+        return !!this.currentVatReport
+            && (
+                this.currentVatReport.StatusCode === StatusCodeVatReport.Executed
+                || this.isSent() || this.isRejected()
+            );
+    }
+
+    public isRejected(): boolean {
+        return !!this.currentVatReport
+            && this.currentVatReport.StatusCode === StatusCodeVatReport.Rejected;
+    }
+
+    public isSent(): boolean {
+        return !!this.currentVatReport
+            && (
+                this.currentVatReport.StatusCode === StatusCodeVatReport.Submitted
+                || this.isApproved()
+            );
+    }
+
+    public isApproved(): boolean {
+        return !!this.currentVatReport
+            && (
+                this.currentVatReport.StatusCode === StatusCodeVatReport.Approved
+                || this.isAdjusted()
+            );
+    }
+
+    public isAdjusted(): boolean {
+        return !!this.currentVatReport
+            && this.currentVatReport.StatusCode === StatusCodeVatReport.Adjusted;
     }
 
     private createCorrectiveVatReport(done) {
