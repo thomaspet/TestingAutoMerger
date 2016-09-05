@@ -125,7 +125,7 @@
         <label>Kommenter til Altinn</label>
         <textarea [formControl]="externalComment"
                   [ngModel]="currentVatReport.Comment"
-                  [disabled]="currentVatReport?.ID == 0"></textarea>
+                  [disabled]="currentVatReport?.ID == 0 || isSent()"></textarea>
     </div>
 
     <div class="comment internalComment">
