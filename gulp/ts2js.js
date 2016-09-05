@@ -21,9 +21,9 @@ gulp.task('ts2js.dev', function() {
 
 gulp.task('ts2js', function() {
     return gulp.src('src/**/*.ts')
+        .pipe(plugins.inlineNg2Template({ base: '/src' }))
         .pipe(plugins.plumber())
         .pipe(plugins.typescript(tsproject))
-        .pipe(plugins.inlineNg2Template({ base: '/src' }))
         .pipe(plugins.concat('app.bundle.js'))
         // .pipe(plugins.uglify())
         .pipe(gulp.dest(DIST));
