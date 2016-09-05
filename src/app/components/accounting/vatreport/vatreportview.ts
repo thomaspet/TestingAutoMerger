@@ -7,7 +7,7 @@ import {UniSave, IUniSaveAction} from '../../../../framework/save/save';
 import {CompanySettingsService} from '../../../services/common/CompanySettingsService';
 import {
     CompanySettings, VatReport, VatReportSummary, ValidationLevel, StatusCodeVatReport, VatType, VatReportMessage,
-    VatReportSummaryPerPost
+    VatReportSummaryPerPost, VatReportNotReportedJournalEntryData
 } from '../../../unientities';
 import {VatReportService} from '../../../services/Accounting/VatReportService';
 import {Observable, Subscription} from 'rxjs/Rx';
@@ -187,18 +187,29 @@ export class VatReportView implements OnInit, OnDestroy {
     }
 
     public sendVatReport(done) {
-        this.vatReportService.sendReport(this.currentVatReport.ID)
-            .subscribe(() => {
-                    this.vatReportService.Get(this.currentVatReport.ID, ['TerminPeriod'])
-                        .subscribe(vatreport => {
-                                this.setVatreport(vatreport);
-                                done();
+        this.vatReportService.getNotReportedJournalEntryData(this.currentVatReport.TerminPeriodID)
+            .subscribe((data: VatReportNotReportedJournalEntryData) => {                
+                if ((data.SumVatAmount === 0 && data.SumTaxBasisAmount === 0)
+                || ((data.SumVatAmount > 0 || data.SumTaxBasisAmount > 0) 
+                     && confirm (`Det er ført bilag i perioden som ikke er med i noen MVA meldinger. Dette gjelder ${data.NumberOfJournalEntryLines} bilag (totalt kr. ${data.SumVatAmount} i MVA).` +
+                     '\n\nTrykk avbryt og kjør rapporten på ny hvis du vil ha med disse bilagene'))) {                    
+                    this.vatReportService.sendReport(this.currentVatReport.ID)
+                        .subscribe(() => {
+                                this.vatReportService.Get(this.currentVatReport.ID, ['TerminPeriod'])
+                                    .subscribe(vatreport => {
+                                            this.setVatreport(vatreport);
+                                            done();
+                                        },
+                                        err => this.onError(err, done)
+                                    );
                             },
                             err => this.onError(err, done)
                         );
-                },
-                err => this.onError(err, done)
-            );
+                } else {
+                    done();
+                }
+            });
+        
     }
 
     public approveManually(done) {

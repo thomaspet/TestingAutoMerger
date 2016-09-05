@@ -5,7 +5,8 @@ import {
     VatReportSummaryPerPost,
     VatReportSummary,
     AltinnGetVatReportDataFromAltinnResult,
-    StatusCodeVatReport
+    StatusCodeVatReport,
+    VatReportNotReportedJournalEntryData
 } from '../../unientities';
 import {UniHttp} from '../../../framework/core/http/http';
 import {Observable} from 'rxjs/Rx';
@@ -89,6 +90,16 @@ export class VatReportService extends BizHttp<VatReport> {
             .usingBusinessDomain()
             .withEndPoint(
                 this.relativeURL + `/${vatReportID}?action=control-vatreport&periodID=${periodID}`)
+            .send()
+            .map(response => response.json());
+    }
+    
+    public getNotReportedJournalEntryData(periodID: number): Observable<VatReportNotReportedJournalEntryData> {
+        return this.http
+            .asGET()
+            .usingBusinessDomain()
+            .withEndPoint(
+                this.relativeURL + `?action=get-not-reported-journalentry-data&periodID=${periodID}`)
             .send()
             .map(response => response.json());
     }
