@@ -27,10 +27,10 @@ export class UniHttp {
     private method: number;
     private body: any;
     private endPoint: string;
-    
+
     private lastReAuthentication: Date;
     private reAuthenticated$: EventEmitter<any> = new EventEmitter();
-    
+
     constructor(public http: Http, private authService: AuthService) {
         var headers = AppConfig.DEFAULT_HEADERS;
         this.headers = new Headers();
@@ -93,7 +93,7 @@ export class UniHttp {
         this.baseUrl = AppConfig.BASE_URL_INIT;
         return this;
     }
-    
+
     public usingEmptyDomain() {
         this.apiDomain = "";
         return this;
@@ -138,7 +138,7 @@ export class UniHttp {
         this.body = body;
         return this;
     }
-    
+
     public withEndPoint(endPoint: string) {
         this.endPoint = endPoint;
         return this;
@@ -154,6 +154,9 @@ export class UniHttp {
         if (this.body) {
             options.body = (this.body instanceof FormData) ? this.body : JSON.stringify(this.body);
         }
+
+        this.method = undefined;
+        this.body = undefined;
         return this.http.request(new Request(options)).map((response: any) => response.json());
     }
 
@@ -168,27 +171,33 @@ export class UniHttp {
         if (activeCompany) {
             this.headers.set('CompanyKey', activeCompany.Key);
         }
-        
+
         this.headers.set('Accept', 'application/json');
 
-        var baseurl = request.baseUrl || this.baseUrl,
-            apidomain = request.apiDomain || this.apiDomain,
-            endpoint = request.endPoint || this.endPoint,
-            method = request.method || this.method,
-            body = request.body || this.body;
+        const baseurl = request.baseUrl || this.baseUrl;
+        const apidomain = request.apiDomain || this.apiDomain;
+        const endpoint = request.endPoint || this.endPoint;
 
-        var url = baseurl + apidomain + endpoint;
+        const url = baseurl + apidomain + endpoint;
+        this.baseUrl = AppConfig.BASE_URL;
+        this.apiDomain = AppConfig.API_DOMAINS.BUSINESS;
+        this.endPoint = undefined;
+
         var options: any = {
-            method: method,
+            method: request.method || this.method,
             url: url,
             headers: this.headers,
             body: ''
         };
 
+        const body = request.body || this.body || {};
         if (body) {
             options.body = (body instanceof FormData) ? body : JSON.stringify(body);
         }
-        
+
+        this.method = undefined;
+        this.body = undefined;
+
         if (searchParams) {
             options.search = searchParams;
         } else if (request) {
@@ -198,10 +207,10 @@ export class UniHttp {
         return this.http.request(new Request(options))
         .retryWhen(errors => errors.switchMap(err => {
             if (err.status === 401) {
-                if (!this.authService.isAuthenticated() 
-                    || !this.authService.lastTokenUpdate 
+                if (!this.authService.isAuthenticated()
+                    || !this.authService.lastTokenUpdate
                     || (new Date().getMinutes() - this.authService.lastTokenUpdate.getMinutes()) > 1) {
-                    
+
                     this.lastReAuthentication = new Date();
                     this.authService.requestAuthentication$.emit({
                         onAuthenticated: (newToken) => {
@@ -209,14 +218,14 @@ export class UniHttp {
                             this.reAuthenticated$.emit(true);
                         }
                     });
-                
+
                     return this.reAuthenticated$;
                 } else {
                     return Observable.timer(500);
                 }
-                    
+
             } else {
-                    return Observable.throw(err);                
+                    return Observable.throw(err);
             }
         }))
         .switchMap(response => Observable.of(response));
