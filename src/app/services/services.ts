@@ -57,4 +57,6 @@ export * from './common/guidService';
 export * from './salary/companysalary/CompanyVacationRateService';
 export * from './accounting/BankService';
 export * from './salary/wagetype/InntektService';
+export * from './accounting/periodservice';
+
 export * from './common/AltinnAuthenticationService';

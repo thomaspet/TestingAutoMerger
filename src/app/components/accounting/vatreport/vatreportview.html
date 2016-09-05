@@ -1,12 +1,18 @@
 <header class="poster">
     <article class="poster_toolbar">
         <section>
-            <h1>Merverdioppgave, periode {{currentVatReport?.TerminPeriod?.No}} <span> , Status: {{ statusText }} </span></h1>
+            <h1>Termin {{currentVatReport?.TerminPeriod?.No}} , {{currentVatReport?.Title}}</h1>
             <p>
-               {{currentVatReport?.TerminPeriod | periodDateFormat}}
+                {{currentVatReport?.TerminPeriod | periodDateFormat}} <span> , Status: {{ statusText }} </span>
             </p>
+                <span *ngFor="let c of vatReportsInPeriod; let i=index">
+                    <span *ngIf="i > 0">,   </span>
+                    <a href="#/accounting/vatreports/{{c.ID}}">
+                       {{c.Title}}
+                    </a>
+                </span>
         </section>
-        <nav class="poster_toolbar_tools"> 
+        <nav class="poster_toolbar_tools">
             <a (click)="onBackPeriod()" class="previous">Forrige</a>
             <a (click)="onForwardPeriod()" class="next">Neste</a>
         </nav>
@@ -86,7 +92,7 @@
     </div>
 </header>
 
-
+<create-corrected-vatreport-modal></create-corrected-vatreport-modal>
 
 <section class="application" [attr.aria-busy]="isBusy">
 
@@ -108,8 +114,8 @@
                              [vatReport]="currentVatReport">
     </vatreport-journal-entry>
     <footer class="full-footer">
-        <section class="application">
-            <uni-save [actions]="saveActions"></uni-save>
+        <section class="application" *ngIf="actions">
+            <uni-save [actions]="actions"></uni-save>
         </section>
     </footer>
 
@@ -127,3 +133,6 @@
                   [disabled]="currentVatReport?.ID == 0"></textarea>
     </div>
 </section>
+
+
+

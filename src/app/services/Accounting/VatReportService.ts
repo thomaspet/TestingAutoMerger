@@ -104,6 +104,24 @@ export class VatReportService extends BizHttp<VatReport> {
             .map(response => response.json());
     }
 
+    public createAdjustedVatReport(vatReportId: number, periodId: number): Observable<VatReport> {
+        return this.http
+            .asPOST()
+            .usingBusinessDomain()
+            .withEndPoint(this.relativeURL + `/?action=create-adjusted-vatreport&periodId=${periodId}`)
+            .send()
+            .map(response => response.json());
+    }
+
+    public createAdditionalVatReport(vatReportId: number, periodId: number): Observable<VatReport> {
+        return this.http
+            .asPOST()
+            .usingBusinessDomain()
+            .withEndPoint(this.relativeURL + `/?action=create-additional-vatreport&periodId=${periodId}`)
+            .send()
+            .map(response => response.json());
+    }
+
     public tryToReadAndUpdateVatReportData(vatReportID: number, authenticationData: AltinnAuthenticationData): Observable<AltinnGetVatReportDataFromAltinnResult> {
         const headers = {
             'x-altinn-userid': authenticationData.userID,
@@ -125,6 +143,7 @@ export class VatReportService extends BizHttp<VatReport> {
         { Code: StatusCodeVatReport.Submitted, Text: 'Innsendt' },
         { Code: StatusCodeVatReport.Rejected, Text: 'Avvist' },
         { Code: StatusCodeVatReport.Approved, Text: 'Godkjent' },
+        { Code: StatusCodeVatReport.Adjusted, Text: 'Korrigert' }
     ];
 
     public getStatusText = (statusCode: number) => {
