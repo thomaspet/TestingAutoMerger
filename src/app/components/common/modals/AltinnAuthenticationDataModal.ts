@@ -20,10 +20,10 @@ enum LoginState {
 <article class="modal-content" [attr.aria-busy]="busy">
     <h1>{{atLogin ? "Personlig pålogging Altinn" : "Resultat"}}</h1>
     <p [innerHTML]="userMessage"></p>
-    <div *ngIf="formState == LOGIN_STATE_ENUM.UsernameAndPasswordAndPinType"> 
-        <uni-form 
-            [config]="{}" 
-            [fields]="usernameAndPasswordFormFields" 
+    <div *ngIf="formState == LOGIN_STATE_ENUM.UsernameAndPasswordAndPinType">
+        <uni-form
+            [config]="{}"
+            [fields]="usernameAndPasswordFormFields"
             [model]="userLoginData"
         ></uni-form>
         <footer>
@@ -32,9 +32,9 @@ enum LoginState {
         </footer>
     </div>
     <div *ngIf="formState == LOGIN_STATE_ENUM.Pin">
-        <uni-form 
-            [config]="{}" 
-            [fields]="pinFormFields" 
+        <uni-form
+            [config]="{}"
+            [fields]="pinFormFields"
             [model]="userLoginData"
         ></uni-form>
         <footer>
@@ -70,7 +70,7 @@ export class AltinnAuthenticationDataModalContent {
         new EventEmitter<AltinnAuthenticationData>();
     private onError: (err: string) => void = (err) => {
         this.busy = false;
-        console.log('An error occured in the altinn login modal:', err);
+        console.log('An error occured in the Altinn login modal:', err);
     };
 
     constructor(
@@ -88,7 +88,7 @@ export class AltinnAuthenticationDataModalContent {
         username.Property = 'userID';
         username.ReadOnly = false;
         username.Placeholder = null;
-        username.Label = 'BrukerID altinn';
+        username.Label = 'BrukerID Altinn';
         username.LineBreak = true;
 
         var password: UniFieldLayout = new UniFieldLayout();
@@ -100,7 +100,7 @@ export class AltinnAuthenticationDataModalContent {
         password.Property = 'password';
         password.ReadOnly = false;
         password.Placeholder = null;
-        password.Label = 'Passord BrukerID altinn';
+        password.Label = 'Passord BrukerID Altinn';
         password.LineBreak = true;
 
         var pinChoice: UniFieldLayout = new UniFieldLayout();
@@ -172,7 +172,7 @@ export class AltinnAuthenticationDataModalContent {
                             'ERROR',
                             ToastType.bad,
                             null,
-                            'Got an error back from altinn, it might be bad ID/password or altinn crashed, nobody knows'
+                            'Got an error back from Altinn, it might be bad ID/password or Altinn crashed, nobody knows'
                         );
                         this.onError(error);
                     });

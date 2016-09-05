@@ -22,17 +22,17 @@ export class AltinnIntegrationService extends BizHttp<Altinn> {
         { ID: 3, text: 'TaxPin'}
     ];
     private inServer: IntegrationServerCaller;
-    
+
     constructor(http: UniHttp, private subEntityService: SubEntityService, private integrate: IntegrationServerCaller) {
         super(http);
         this.relativeURL = Altinn.RelativeUrl;
         this.inServer = integrate;
     }
-    
+
     public sendTaxRequestAction(option: string, empId: number = 0): Observable<AltinnReceipt> {
         return this.PostAction(1, 'sendtaxrequest', 'option=' + option + '&empId=' + empId);
     }
-    
+
     public readTaxCard(taxCardReading: TaxCardReading) {
         return this.http.usingBusinessDomain().withEndPoint('employees/?action=read-tax-cards').asPUT().withBody(taxCardReading).send();
     }
@@ -63,7 +63,7 @@ export class AltinnIntegrationService extends BizHttp<Altinn> {
                     LookupField: false,
                     Label: 'ID fra Altinn',
                     Description: 'Description',
-                    HelpText: 'Tall, Id fås av altinn ved oppsett av datasystem (minst 6 tegn)',
+                    HelpText: 'Tall, Id fås av Altinn ved oppsett av datasystem (minst 6 tegn)',
                     FieldSet: 0,
                     Section: 0,
                     Placeholder: null,
@@ -92,7 +92,7 @@ export class AltinnIntegrationService extends BizHttp<Altinn> {
                     LookupField: false,
                     Label: 'Passord',
                     Description: '',
-                    HelpText: 'Samme passord som ble satt opp i altinn ved oppsett datasystem',
+                    HelpText: 'Samme passord som ble satt opp i Altinn ved oppsett datasystem',
                     FieldSet: 0,
                     Section: 0,
                     Placeholder: null,
@@ -121,7 +121,7 @@ export class AltinnIntegrationService extends BizHttp<Altinn> {
                     LookupField: false,
                     Label: 'Foretrukket språk',
                     Description: '',
-                    HelpText: 'Her kan en velge det foretrukne språket for dette firmaet for altinn(nynorsk, bokmål, samisk, engelsk)',
+                    HelpText: 'Her kan en velge det foretrukne språket for dette firmaet for Altinn (nynorsk, bokmål, samisk, engelsk)',
                     FieldSet: 0,
                     Section: 0,
                     Placeholder: null,
@@ -142,7 +142,7 @@ export class AltinnIntegrationService extends BizHttp<Altinn> {
                         dataValueField: 'ID'
                     },
                     hasLineBreak: true
-                }                
+                }
             ]
         }]);
     }

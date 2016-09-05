@@ -9,14 +9,14 @@ import {UniTabs} from '../layout/uniTabs/uniTabs';
     directives: [ROUTER_DIRECTIVES, UniTabs]
 })
 export class Settings {
-    
+
     private childRoutes: any[];
 
     constructor(private tabService: TabService) {
         this.tabService.addTab({ name: 'Settings', url: '/settings/company', moduleID: 20, active: true });
         this.childRoutes = [
             {name: 'Firmainnstillinger', path: 'company'},
-            {name: 'AGA og virksomheter', path: 'aga-and-subentities'},
+            {name: 'Aga og virksomheter', path: 'aga-and-subentities'},
             {name: 'Brukerinnstillinger', path: 'user'},
             {name: 'Brukere og roller', path: 'users'},
             {name: 'Altinn', path: 'altinn'},

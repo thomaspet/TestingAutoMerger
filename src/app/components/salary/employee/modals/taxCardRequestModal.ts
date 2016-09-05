@@ -118,7 +118,7 @@ export class TaxCardRequestModalContent {
         this._altinnService.sendTaxRequestAction(option, empId).subscribe((response: AltinnReceipt) => {
             if (response.ErrorText) {
                 this.title = 'Feil angående Altinn-forespørsel';
-                this.error = 'Feilmelding fra altinn: ' + response.ErrorText;
+                this.error = 'Feilmelding fra Altinn: ' + response.ErrorText;
             } else {
                 this.title = 'Skatteforespørsel er sendt';
             }

@@ -37,7 +37,7 @@ export class ReceiptVat {
                 'Altinn kommentar påkrevd',
                 ToastType.warn,
                 0,
-                'Du må skrive en kommentar til altinn om hvorfor det er negative poster før de vil godta innsending av MVA-meldingen'
+                'Du må skrive en kommentar til Altinn om hvorfor det er negative poster før de vil godta innsending av MVA-meldingen'
             );
         } else {
 
@@ -57,7 +57,7 @@ export class ReceiptVat {
                                         'Info',
                                         ToastType.warn,
                                         7,
-                                        'MVA meldingen ble avvist av altinn'
+                                        'MVA meldingen ble avvist av Altinn'
                                     );
                                 } else {
                                     this.vatReportService.Get(this.vatReport.ID, ['TerminPeriod'])

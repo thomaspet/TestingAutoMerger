@@ -53,7 +53,7 @@ export class AltinnLoginModalContent {
         username.Property = 'userID';
         username.ReadOnly = false;
         username.Placeholder = null;
-        username.Label = 'BrukerID altinn';
+        username.Label = 'BrukerID Altinn';
         username.LineBreak = true;
 
         var password: UniFieldLayout = new UniFieldLayout();
@@ -65,7 +65,7 @@ export class AltinnLoginModalContent {
         password.Property = 'password';
         password.ReadOnly = false;
         password.Placeholder = null;
-        password.Label = 'Passord BrukerID altinn';
+        password.Label = 'Passord BrukerID Altinn';
         password.LineBreak = true;
 
         var pinChoice: UniFieldLayout = new UniFieldLayout();

@@ -32,7 +32,7 @@ export class AgaAndSubEntitySettings implements OnInit {
     private accounts: Account[] = [];
     public saveactions: IUniSaveAction[] = [
         {
-            label: 'Lagre AGA og virksomheter',
+            label: 'Lagre aga og virksomheter',
             action: this.saveAgaAndSubEntities.bind(this),
             main: true,
             disabled: false
@@ -167,15 +167,15 @@ export class AgaAndSubEntitySettings implements OnInit {
         if (!this.companySalary.PaymentInterval) {
             this.companySalary.PaymentInterval = 1;
         }
-        let request = this.subEntityList ? 
-            Observable.forkJoin(this.companySalaryService.Put(this.companySalary.ID, this.companySalary), this.subEntityList.saveSubEntity()) : 
+        let request = this.subEntityList ?
+            Observable.forkJoin(this.companySalaryService.Put(this.companySalary.ID, this.companySalary), this.subEntityList.saveSubEntity()) :
             Observable.forkJoin(this.companySalaryService.Put(this.companySalary.ID, this.companySalary));
-        done('lagrer aga og virksomheter');
+        done('Lagret innstillinger for aga og virksomheter');
         request.subscribe((response: any) => {
             this.companySalary = response[0];
             if (this.subEntityList) {
                 this.subEntityList.refreshList();
-            } 
+            }
             done('Sist lagret: ');
             this.saveactions[0].disabled = false;
         }, error => {
