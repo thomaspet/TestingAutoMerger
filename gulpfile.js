@@ -35,6 +35,11 @@ require('./gulp/sass2css');
 require('./gulp/index-html');
 
 /**
+ * copies apidoc.html file
+ */
+require('./gulp/apidoc-html');
+
+/**
  * copy angular files to dist folder
  */
 require('./gulp/angular2');
@@ -83,6 +88,7 @@ var tasks = {
     prod: [
         'entities',
         'index.html',
+        'apidoc.html',
         'angular2',
         'dependencies',
         'stimulsoft',
@@ -93,6 +99,7 @@ var tasks = {
     ],
     dev: [
         'index.html.dev',
+        'apidoc.html',
         'angular2',
         'dependencies',
         'stimulsoft',
