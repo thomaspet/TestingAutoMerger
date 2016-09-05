@@ -237,28 +237,40 @@ export class VatReportView implements OnInit, OnDestroy {
     }
 
     public sendVatReport(done) {
-        this.vatReportService.getNotReportedJournalEntryData(this.currentVatReport.TerminPeriodID)
-            .subscribe((data: VatReportNotReportedJournalEntryData) => {
-                if ((data.SumVatAmount === 0 && data.SumTaxBasisAmount === 0)
-                    || ((data.SumVatAmount > 0 || data.SumTaxBasisAmount > 0)
-                        && confirm(`Det er ført bilag i perioden som ikke er med i noen MVA meldinger. Dette gjelder ${data.NumberOfJournalEntryLines} bilag (totalt kr. ${data.SumVatAmount} i MVA).` +
+
+        if (!this.isAltinnCommentSet(this.currentVatReport) && this.isAltinnCommentRequired(this.reportSummaryPerPost)) {
+
+            this.toastService.addToast(
+                'Altinn kommentar påkrevd',
+                ToastType.bad,
+                0,
+                'Du må skrive en kommentar til altinn om hvorfor det er negative poster før de vil godta innsending av MVA-meldingen'
+            );
+            done('En forutsetning ble ikke møtt, se feilmelding oppe til høyre');
+        } else {
+            this.vatReportService.getNotReportedJournalEntryData(this.currentVatReport.TerminPeriodID)
+                .subscribe((data: VatReportNotReportedJournalEntryData) => {
+                    if ((data.SumVatAmount === 0 && data.SumTaxBasisAmount === 0)
+                        || ((data.SumVatAmount > 0 || data.SumTaxBasisAmount > 0)
+                        && confirm (`Det er ført bilag i perioden som ikke er med i noen MVA meldinger. Dette gjelder ${data.NumberOfJournalEntryLines} bilag (totalt kr. ${data.SumVatAmount} i MVA).` +
                             '\n\nTrykk avbryt og kjør rapporten på ny hvis du vil ha med disse bilagene'))) {
-                    this.vatReportService.sendReport(this.currentVatReport.ID)
-                        .subscribe(() => {
-                            this.vatReportService.Get(this.currentVatReport.ID, ['TerminPeriod'])
-                                .subscribe(vatreport => {
-                                    this.setVatreport(vatreport);
-                                    done();
+                        this.vatReportService.sendReport(this.currentVatReport.ID)
+                            .subscribe(() => {
+                                    this.vatReportService.Get(this.currentVatReport.ID, ['TerminPeriod'])
+                                        .subscribe(vatreport => {
+                                                this.setVatreport(vatreport);
+                                                done();
+                                            },
+                                            err => this.onError(err, done)
+                                        );
                                 },
                                 err => this.onError(err, done)
-                                );
-                        },
-                        err => this.onError(err, done)
-                        );
-                } else {
-                    done();
-                }
-            });
+                            );
+                    } else {
+                        done();
+                    }
+                });
+        }
 
     }
 
@@ -339,6 +351,14 @@ export class VatReportView implements OnInit, OnDestroy {
             this.reportMessages
                 .every(message => message.Level !== ValidationLevel.Info);
         }
+    }
+
+    private isAltinnCommentRequired(reportSummaryPerPost: VatReportSummaryPerPost[]): boolean {
+        return reportSummaryPerPost.some(summary => summary.SumVatAmount < 0);
+    }
+
+    private isAltinnCommentSet(vatReport: VatReport) {
+        return vatReport && vatReport.Comment && vatReport.Comment.length > 0;
     }
 
     public vatReportSummaryToVatCodes(vatReportSummary: VatReportSummary): string[] {

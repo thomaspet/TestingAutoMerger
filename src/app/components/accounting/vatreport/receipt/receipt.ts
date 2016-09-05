@@ -31,55 +31,36 @@ export class ReceiptVat {
     ) {}
 
     public checkForReceipt() {
-        if (!this.isAltinnCommentSet(this.vatReport) && this.isAltinnCommentRequired(this.reportSummaryPerPost)) {
-
-            this.toastService.addToast(
-                'Altinn kommentar påkrevd',
-                ToastType.warn,
-                0,
-                'Du må skrive en kommentar til Altinn om hvorfor det er negative poster før de vil godta innsending av MVA-meldingen'
+        this.altinnAuthenticationDataModal.getUserAltinnAuthorizationData()
+            .then(authData =>
+                this.vatReportService.tryToReadAndUpdateVatReportData(this.vatReport.ID, authData)
+                    .subscribe(response => {
+                            if (response.Status === AltinnGetVatReportDataFromAltinnStatus.WaitingForAltinnResponse) {
+                                this.toastService.addToast(
+                                    'Info',
+                                    ToastType.warn,
+                                    7,
+                                    'Du må signere MVA meldingen i Altinn før du kan hente kvitteringen'
+                                );
+                            } else if (response.Status === AltinnGetVatReportDataFromAltinnStatus.RejectedByAltinn) {
+                                this.toastService.addToast(
+                                    'Info',
+                                    ToastType.warn,
+                                    7,
+                                    'MVA meldingen ble avvist av Altinn'
+                                );
+                            } else {
+                                this.vatReportService.Get(this.vatReport.ID, ['TerminPeriod'])
+                                    .subscribe(updatedVatReport => {
+                                            this.vatReport = updatedVatReport;
+                                            this.vatreportDidChange.emit(updatedVatReport);
+                                        },
+                                        this.onError
+                                    );
+                            }
+                        },
+                        this.onError
+                    )
             );
-        } else {
-
-            this.altinnAuthenticationDataModal.getUserAltinnAuthorizationData()
-                .then(authData =>
-                    this.vatReportService.tryToReadAndUpdateVatReportData(this.vatReport.ID, authData)
-                        .subscribe(response => {
-                                if (response.Status === AltinnGetVatReportDataFromAltinnStatus.WaitingForAltinnResponse) {
-                                    this.toastService.addToast(
-                                        'Info',
-                                        ToastType.warn,
-                                        7,
-                                        'Du må signere MVA meldingen i Altinn før du kan hente kvitteringen'
-                                    );
-                                } else if (response.Status === AltinnGetVatReportDataFromAltinnStatus.RejectedByAltinn) {
-                                    this.toastService.addToast(
-                                        'Info',
-                                        ToastType.warn,
-                                        7,
-                                        'MVA meldingen ble avvist av Altinn'
-                                    );
-                                } else {
-                                    this.vatReportService.Get(this.vatReport.ID, ['TerminPeriod'])
-                                        .subscribe(updatedVatReport => {
-                                                this.vatReport = updatedVatReport;
-                                                this.vatreportDidChange.emit(updatedVatReport);
-                                            },
-                                            this.onError
-                                        );
-                                }
-                            },
-                            this.onError
-                        )
-                );
-        }
-    }
-
-    private isAltinnCommentRequired(reportSummaryPerPost: VatReportSummaryPerPost[]): boolean {
-        return reportSummaryPerPost.some(summary => summary.SumVatAmount < 0);
-    }
-
-    private isAltinnCommentSet(vatReport: VatReport) {
-        return vatReport && vatReport.Comment && vatReport.Comment.length > 0;
     }
 }
