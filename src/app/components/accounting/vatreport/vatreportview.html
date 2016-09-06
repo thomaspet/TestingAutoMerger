@@ -42,12 +42,12 @@
                     <tr *ngFor="let summaryItem of vatReportSummary">
                         <td>{{summaryItem.VatCodeGroupName}}</td>
                         <td class="currency">
-                            <a href="/accounting/transquery/details;vatCodes={{vatReportSummaryToVatCodes(summaryItem)}};vatFromDate={{currentVatReport?.TerminPeriod.FromDate}};vatToDate={{currentVatReport?.TerminPeriod.ToDate}}">
+                            <a *ngIf="summaryItem.HasTaxBasis" href="#/accounting/transquery/details;vatCodes={{vatReportSummaryToVatCodes(summaryItem)}};vatFromDate={{currentVatReport?.TerminPeriod.FromDate}};vatToDate={{currentVatReport?.TerminPeriod.ToDate}}">
                                 {{summaryItem.SumTaxBasisAmount * -1 | unicurrency:2}}
                             </a>
                         </td>
                         <td class="currency">
-                            <a href="/accounting/transquery/details;vatCodes={{vatReportSummaryToVatCodes(summaryItem)}};vatFromDate={{currentVatReport?.TerminPeriod.FromDate}};vatToDate={{currentVatReport?.TerminPeriod.ToDate}}">
+                            <a *ngIf="summaryItem.HasTaxAmount" href="#/accounting/transquery/details;vatCodes={{vatReportSummaryToVatCodes(summaryItem)}};vatFromDate={{currentVatReport?.TerminPeriod.FromDate}};vatToDate={{currentVatReport?.TerminPeriod.ToDate}}">
                                 {{summaryItem.SumVatAmount * -1 | unicurrency:2}}
                             </a>
                         </td>

@@ -333,11 +333,18 @@ export class VatReportView implements OnInit, OnDestroy {
         return <Observable<T>>source.finally(() => this.isBusy = false);
     }
 
-    private onError(error: Error, optionalDoneHandler?: (error) => void) {
-        this.toastService.addToast('Error', ToastType.bad, 0, 'Det skjedde en feil, forsøk igjen senere');
+    private onError(error, optionalDoneHandler?: (error) => void) {
+        let errorMsg =  'Det skjedde en feil';
+        let errorBody = error.json();
+        if (errorBody && errorBody.Message) {
+            errorMsg += ': ' + errorBody.Message;
+        }
+        this.toastService.addToast('Error', ToastType.bad, 0, errorMsg);
+        
         if (optionalDoneHandler) {
             optionalDoneHandler('Det skjedde en feil, forsøk igjen senere');
         }
+        
         console.log('Error in the vat report view:', error);
     }
 

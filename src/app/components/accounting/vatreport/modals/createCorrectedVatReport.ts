@@ -16,7 +16,7 @@ declare const moment;
     directives: [UniForm, NgIf],
     providers: [VatReportService],
     template: `
-        <article class='modal-content'>
+        <article class='modal-content' *ngIf="config">
             <h1>{{title}}</h1>
             <uni-form [config]="formConfig" [fields]="fields" [model]="model" (onSubmit)="onSubmit($event)"></uni-form>
             <p>{{error}}</p>
