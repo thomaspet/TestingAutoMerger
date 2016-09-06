@@ -155,7 +155,7 @@ export class AltinnAuthenticationDataModalContent {
                 const authData: AltinnAuthRequest = new AltinnAuthRequest();
                 authData.UserID = this.userLoginData.userID;
                 authData.UserPassword = this.userLoginData.password;
-                authData.PreferredLogin = this.userLoginData.preferredLogin;
+                authData.PreferredLogin = this.userLoginData.preferredLogin || this.altinnAuthService.loginTypes[0].text;
                 this.busy = true;
                 this.altinnAuthService
                     .getPinMessage(authData)
