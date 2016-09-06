@@ -114,7 +114,7 @@ export class EmployeeService extends BizHttp<Employee> {
         }
         
         return this.http
-            .asGET()
+            .asPUT()
             .usingBusinessDomain()
             .withEndPoint('salarytrans?action=Sums' + params)
             .send()

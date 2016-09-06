@@ -17,6 +17,6 @@
 
     <footer>
         <button class="c2a" *ngIf="sendAltinnVisible" (click)="submit()">Send forespørsel til Altinn</button>
-        <button *ngIf="config.hasCancelButton" (click)="config.cancel()">{{exitButton}}</button>
+        <button *ngIf="config && config.hasCancelButton" (click)="config.cancel()">{{exitButton}}</button>
     </footer>
 </article>

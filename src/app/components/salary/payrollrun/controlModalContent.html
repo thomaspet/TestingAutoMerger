@@ -18,7 +18,7 @@
         </li>
     </ol>
 
-    <footer class="payrollControl_footer">
+    <footer class="payrollControl_footer" *ngIf="config">
 
         <button *ngFor="let action of config.actions; let i=index" (click)="action.method()" class="good">
             {{action.text}}
