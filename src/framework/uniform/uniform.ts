@@ -92,7 +92,6 @@ export class UniForm {
     private groupedFields: any[];
 
     private readyFields: number;
-    private totalFields: number;
 
     private hidden: boolean = false;
 
@@ -122,20 +121,23 @@ export class UniForm {
     }
 
     public ngAfterViewInit() {
-        let sections = this.sectionElements.toArray();
-        let fieldsets = this.fieldsetElements.toArray();
-        let fields = this.fieldElements.toArray();
-        let all = [].concat(fields, fieldsets, sections);
-
-        this.totalFields = all.length;
         this.readyFields = 0;
     }
 
     public onReadyHandler(item: UniField | UniCombo | UniFieldSet | UniSection) {
         this.readyFields++;
-        if (this.readyFields === this.totalFields) {
+        if (this.readyFields === this.countElements()) {
             this.onReady.emit(this);
         }
+    }
+
+    public countElements() {
+        let sections = this.sectionElements.toArray();
+        let fieldsets = this.fieldsetElements.toArray();
+        let fields = this.fieldElements.toArray();
+        let all = [].concat(fields, fieldsets, sections);
+
+        return all.length;
     }
 
     public onChangeHandler(model: any) {

@@ -78,7 +78,6 @@ export class UniSection {
     private groupedFields: any;
     private config: any = {};
 
-    private totalFields: number;
     private readyFields: number;
 
     private hidden: boolean = false;
@@ -110,19 +109,23 @@ export class UniSection {
     }
 
     public ngAfterViewInit() {
-        let fieldsets = this.fieldsetElements.toArray();
-        let fields = this.fieldElements.toArray();
-        let combos = this.comboElements.toArray();
-        let all = [].concat(fields, combos, fieldsets);
-        this.totalFields = all.length;
         this.readyFields = 0;
     }
 
-    public onReadyHandler(item: UniField | UniFieldSet) {
+    public onReadyHandler(item: UniField | UniCombo | UniFieldSet | UniSection) {
         this.readyFields++;
-        if (this.readyFields === this.totalFields) {
+        if (this.readyFields === this.countElements()) {
             this.onReady.emit(this);
         }
+    }
+
+    public countElements() {
+        let combos = this.comboElements.toArray();
+        let fieldsets = this.fieldsetElements.toArray();
+        let fields = this.fieldElements.toArray();
+        let all = [].concat(fields, fieldsets, combos);
+
+        return all.length;
     }
 
     public onChangeHandler(model: any) {

@@ -76,7 +76,6 @@ export class UniFieldSet {
     } 
 
     private readyFields: number;
-    private totalFields: number;
     
     constructor(private cd: ChangeDetectorRef) { 
         this.readyFields = 0;
@@ -97,17 +96,22 @@ export class UniFieldSet {
     }
 
     public ngAfterViewInit() {
-        let fields = this.fieldElements.toArray();
-        let combos = this.comboElements.toArray();
-        this.totalFields = [].concat(fields, combos).length;
         this.readyFields = 0;
     }
 
-    public onReadyHandler(field: UniField) {
+    public onReadyHandler(item: UniField | UniCombo | UniFieldSet) {
         this.readyFields++;
-        if (this.readyFields === this.totalFields) {
+        if (this.readyFields === this.countElements()) {
             this.onReady.emit(this);
         }
+    }
+
+    public countElements() {
+        let fields = this.fieldElements.toArray();
+        let combos = this.comboElements.toArray();
+        let all = [].concat(fields, combos);
+
+        return all.length;
     }
     
     public onChangeHandler(model: any) {

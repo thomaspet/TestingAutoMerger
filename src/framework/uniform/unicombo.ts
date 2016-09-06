@@ -70,15 +70,21 @@ export class UniCombo {
     }
 
     public ngAfterViewInit() {
-        this.totalFields = this.fieldElements.toArray().length;
         this.readyFields = 0;
     }
 
-    public onReadyHandler(field: UniField) {
+    public onReadyHandler(item: UniField) {
         this.readyFields++;
-        if (this.readyFields === this.totalFields) {
+        if (this.readyFields === this.countElements()) {
             this.onReady.emit(this);
         }
+    }
+
+    public countElements() {
+        let fields = this.fieldElements.toArray();
+        let all = [].concat(fields);
+
+        return all.length;
     }
     
     public onChangeHandler(model: any) {
