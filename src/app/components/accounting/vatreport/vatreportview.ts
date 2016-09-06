@@ -354,7 +354,10 @@ export class VatReportView implements OnInit, OnDestroy {
     }
 
     private isAltinnCommentRequired(reportSummaryPerPost: VatReportSummaryPerPost[]): boolean {
-        return reportSummaryPerPost.some(summary => summary.SumVatAmount < 0);
+        return reportSummaryPerPost.some(summary =>
+            (summary.VatPostReportAsNegativeAmount && summary.SumVatAmount > 0)
+            || summary.SumVatAmount < 0
+        );
     }
 
     private isAltinnCommentSet(vatReport: VatReport) {
