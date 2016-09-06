@@ -20,6 +20,9 @@ import {CheckListVat} from './checkList/checkList';
 import {ReceiptVat} from './receipt/receipt';
 import {VatReportJournalEntry} from './journalEntry/vatReportJournalEntry';
 import {CreateCorrectedVatReportModal} from './modals/createCorrectedVatReport';
+import {HistoricVatReportModal} from './modals/historicVatReports';
+import {ContextMenu} from '../../common/contextMenu/contextMenu';
+import {IContextMenuItem} from 'unitable-ng2/main';
 
 
 declare const moment;
@@ -29,11 +32,12 @@ declare const moment;
     templateUrl: 'app/components/accounting/vatreport/vatreportview.html',
     providers: [CompanySettingsService, VatReportService],
     directives: [REACTIVE_FORM_DIRECTIVES, ROUTER_DIRECTIVES, UniTabs, UniSave,
-        VatSummaryPerPost, CheckListVat, ReceiptVat, VatReportJournalEntry, CreateCorrectedVatReportModal],
+        VatSummaryPerPost, CheckListVat, ReceiptVat, VatReportJournalEntry, CreateCorrectedVatReportModal, HistoricVatReportModal, ContextMenu],
     pipes: [PeriodDateFormatPipe, UniCurrencyPipe]
 })
 export class VatReportView implements OnInit, OnDestroy {
     @ViewChild(CreateCorrectedVatReportModal) private createCorrectedVatReportModal: CreateCorrectedVatReportModal;
+    @ViewChild(HistoricVatReportModal) private historicVatReportModal: HistoricVatReportModal;
 
 
     public internalComment: FormControl = new FormControl();
@@ -50,7 +54,8 @@ export class VatReportView implements OnInit, OnDestroy {
     private statusText: string;
     private subs: Subscription[] = [];
     private vatReportsInPeriod: VatReport[];
-
+    private contextMenuItems: IContextMenuItem[] = [];
+    
 
     constructor(
         private tabService: TabService,
@@ -59,7 +64,16 @@ export class VatReportView implements OnInit, OnDestroy {
         private vatTypeService: VatTypeService,
         private toastService: ToastService
     ) {
-        this.tabService.addTab({ name: 'MVA oppgave', url: '/accounting/vatreport' });
+        this.tabService.addTab({ name: 'MVA melding', url: '/accounting/vatreport' });
+        
+        this.contextMenuItems = [
+            {
+                label: 'Vis tidligere MVA meldinger', 
+                action: () => {
+                    this.showList();
+                }
+            }
+        ]; 
     }
 
     public ngOnInit() {
@@ -202,6 +216,14 @@ export class VatReportView implements OnInit, OnDestroy {
                     this.onError(error);
                 }
             });
+    }
+
+    private showList() {
+        this.historicVatReportModal.openModal(); 
+    }
+    
+    public historicVatReportSelected(vatReport: VatReport) {
+        this.setVatreport(vatReport);
     }
 
     public runVatReport(done) {

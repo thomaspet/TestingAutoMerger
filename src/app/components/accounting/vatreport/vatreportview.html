@@ -1,9 +1,9 @@
 <header class="poster">
     <article class="poster_toolbar">
         <section>
-            <h1>Termin {{currentVatReport?.TerminPeriod?.No}} , {{currentVatReport?.Title}}</h1>
+            <h1>Termin {{currentVatReport?.TerminPeriod?.No}}</h1>
             <p>
-                {{currentVatReport?.TerminPeriod | periodDateFormat}} <span> , Status: {{ statusText }} </span>
+                {{currentVatReport?.Title}}, {{currentVatReport?.TerminPeriod | periodDateFormat}} <span> , Status: {{ statusText }} </span>
             </p>
                 <span *ngFor="let c of vatReportsInPeriod; let i=index">
                     <span *ngIf="i > 0">,   </span>
@@ -15,6 +15,7 @@
         <nav class="poster_toolbar_tools">
             <a (click)="onBackPeriod()" class="previous">Forrige</a>
             <a (click)="onForwardPeriod()" class="next">Neste</a>
+            <uni-context-menu [actions]="contextMenuItems"></uni-context-menu>
         </nav>
     </article>
 
@@ -22,7 +23,7 @@
 
         <div class="poster_widgets">
             <dl class="poster_widget">
-                <dt>Org.nr</dt>
+                <dt>Org.nraaa</dt>
                 <dd>{{companySettings?.OrganizationNumber}}</dd>
 
                 <dt>Navn</dt>
@@ -79,7 +80,7 @@
                 <a (click)="showView = 'control'" [class.router-link-active]="showView == 'control'">Kontroll</a>
             </li>
             <li>
-                <a (click)="showView = ''" [class.router-link-active]="showView == ''">Oppgave</a>
+                <a (click)="showView = ''" [class.router-link-active]="showView == ''">MVA-melding</a>
             </li>
             <li *ngIf="isSent()">
                 <a (click)="showView = 'receipt'" [class.router-link-active]="showView == 'receipt'">Altinn, kvittering/tilbakemelding</a>
@@ -93,6 +94,7 @@
 </header>
 
 <create-corrected-vatreport-modal></create-corrected-vatreport-modal>
+<historic-vatreport-modal (vatReportSelected)="historicVatReportSelected($event)"></historic-vatreport-modal>
 
 <section class="application" [attr.aria-busy]="isBusy">
 
