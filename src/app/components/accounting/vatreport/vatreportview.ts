@@ -90,14 +90,14 @@ export class VatReportView implements OnInit, OnDestroy {
                 .filter(change => !!this.currentVatReport)
                 .filter(change => this.currentVatReport.Comment !== change)
                 .map(change => this.currentVatReport.Comment = change)
-                .distinctUntilChanged()
                 .debounceTime(400)
-                .subscribe(
-                change => this
-                    .vatReportService
-                    .Put(this.currentVatReport.ID, this.currentVatReport)
-                    .subscribe(vatReport => this.currentVatReport = vatReport, err => this.onError(err))
+                .distinctUntilChanged()
+                .switchMap(
+                    change => this
+                        .vatReportService
+                        .Put(this.currentVatReport.ID, this.currentVatReport)
                 )
+                .subscribe(null, err => this.onError(err))
         );
 
         this.subs.push(
@@ -106,14 +106,14 @@ export class VatReportView implements OnInit, OnDestroy {
                 .filter(change => !!this.currentVatReport)
                 .filter(change => this.currentVatReport.InternalComment !== change)
                 .map(change => this.currentVatReport.InternalComment = change)
-                .distinctUntilChanged()
                 .debounceTime(400)
-                .subscribe(
-                change => this
-                    .vatReportService
-                    .Put(this.currentVatReport.ID, this.currentVatReport)
-                    .subscribe(vatReport => this.currentVatReport = vatReport, err => this.onError(err))
+                .distinctUntilChanged()
+                .switchMap(
+                    change => this
+                        .vatReportService
+                        .Put(this.currentVatReport.ID, this.currentVatReport)
                 )
+                .subscribe(null, err => this.onError(err))
         );
 
         this.vatTypeService.GetVatTypesWithVatReportReferencesAndVatCodeGroup().subscribe(vatTypes => this.vatTypes = vatTypes, err => this.onError(err));
