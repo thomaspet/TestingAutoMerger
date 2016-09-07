@@ -3,14 +3,13 @@ import {Observable} from 'rxjs/Observable';
 import 'rxjs/add/observable/forkJoin';
 import {UniForm, UniFieldLayout} from '../../../../../framework/uniform';
 import {DimensionList} from '../dimensionList/dimensionList';
-import {AccountGroupList} from '../accountGroupList/accountGroupList';
 import {Account, VatType} from '../../../../unientities';
 import {VatTypeService, CurrencyService, AccountService} from '../../../../services/services';
 
 @Component({
     selector: 'account-details',
     templateUrl: 'app/components/settings/accountSettings/accountDetails/accountDetails.html',
-    directives: [DimensionList, AccountGroupList, UniForm],
+    directives: [DimensionList, UniForm],
     providers: [AccountService, CurrencyService, VatTypeService]
 })
 export class AccountDetails implements OnInit {
