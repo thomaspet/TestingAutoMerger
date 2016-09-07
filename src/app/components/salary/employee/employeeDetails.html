@@ -1,9 +1,28 @@
 <article [attr.aria-busy]="busy">
     <header class="poster">
+
+        <ol role="navigation"
+            class="breadcrumbs">
+
+            <li>
+                <a href="/#/" class="home">Dashboard</a>
+            </li>
+            <li>
+                <a href="/#/salary">Lønn</a></li>
+            <li>
+                <a href="/#/salary/employees">Ansatte</a>
+            </li>
+            <li>
+                {{employee.BusinessRelationInfo.Name ? employee.BusinessRelationInfo.Name : "Ny ansatt"}}
+            </li>
+
+        </ol>
+
         <article class="poster_toolbar">
+
             <section>
                 <h1 class="poster_toolbar_headline">{{employee.BusinessRelationInfo.Name ? employee.BusinessRelationInfo.Name : "Ny ansatt"}}
-                    <p class="poster_toolbar_orgnr">Ansattnr. {{employee.EmployeeNumber ? employee.EmployeeNumber : 0}} </p>
+                    <p class="poster_toolbar_orgnr" *ngIf="employee.EmployeeNumber">Ansattnr. {{employee.EmployeeNumber}} </p>
                 </h1>
                 <employeecategory-buttons *ngIf="employee.ID" [selectedEmployee]="employee"></employeecategory-buttons>
             </section>
