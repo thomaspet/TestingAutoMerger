@@ -1,3 +1,4 @@
+/// <reference path="../../../../typings/systemjs/systemjs.d.ts" />
 import {Injectable} from '@angular/core';
 
 declare var Stimulsoft;
@@ -8,11 +9,11 @@ export class StimulsoftReportWrapper {
     constructor() {
         /**
          * load stimulsoft
-         * 
-         * Zone.js overwrites native promise 
+         *
+         * Zone.js overwrites native promise
          * and Stimulsoft also does
-         * 
-         * so we need to restore Zone.js promise 
+         *
+         * so we need to restore Zone.js promise
          * to allow angular2 working properly
          */
         const backup = Promise;
@@ -23,21 +24,21 @@ export class StimulsoftReportWrapper {
             Stimulsoft.Base.StiFontCollection.addOpentypeFontFile("assets/SourceSansPro-Regular.otf", "Source Sans Pro");
         });
     }
-            
+
     public showReport(template: string, reportData: Object, caller : any)
     {
         if (template && reportData && caller)
         {
             const report = this.generateReport(template, reportData);
-            
-            if (report) {            
+
+            if (report) {
                 // Create a text writer objects.
                 const textWriter = new Stimulsoft.System.IO.TextWriter();
                 const htmlTextWriter = new Stimulsoft.Report.Export.StiHtmlTextWriter(textWriter);
 
                 // Export HTML using text writer.
                 const settings = new Stimulsoft.Report.Export.StiHtmlExportSettings();
-                const service = new Stimulsoft.Report.Export.StiHtmlExportService();           
+                const service = new Stimulsoft.Report.Export.StiHtmlExportService();
                 settings.htmlType = Stimulsoft.Report.StiHtmlType.Html5;
 
                 service.exportTo(report, htmlTextWriter, settings);
@@ -49,10 +50,10 @@ export class StimulsoftReportWrapper {
     }
 
     public printReport(template: string, reportData: Object, showPreview: boolean) {
-        
+
         if (template && reportData) {
             const report = this.generateReport(template, reportData);
-            
+
             if (report) {
                 const settings = new Stimulsoft.Report.Export.StiPdfExportSettings();
                 // Create an PDF service instance.
@@ -69,7 +70,7 @@ export class StimulsoftReportWrapper {
                 const fileName = (report.reportAlias === null || report.reportAlias.length == 0)  ? report.reportName : report.reportAlias;
                 // Save data to file
                 const obj: any = Object;
-                
+
                 obj.saveAs(data, fileName + '.pdf', 'application/pdf');
             }
         }
@@ -83,11 +84,11 @@ export class StimulsoftReportWrapper {
 
         // remove connections specified in the template file
         report.dictionary.databases.clear();
-        
-        const dataSet = new Stimulsoft.System.Data.DataSet('Data');    
+
+        const dataSet = new Stimulsoft.System.Data.DataSet('Data');
         dataSet.readJson(reportData);
         report.regData('Data', 'Data', dataSet);
-              
+
         // render
         report.render();
         return report;
