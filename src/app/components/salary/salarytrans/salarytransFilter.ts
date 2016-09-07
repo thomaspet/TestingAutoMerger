@@ -8,7 +8,7 @@ declare var jQuery;
     selector: 'salarytrans-filter-content',
     directives: [UniSelect],
     template: `
-        <article class="modal-content">
+        <article class="modal-content" *ngIf="config">
             <h1 *ngIf="config.title">{{config.title}}</h1>
             <uni-select [config]="selectFilterConfig"
                 [items]="items"

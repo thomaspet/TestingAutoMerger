@@ -15,7 +15,7 @@ declare var _;
     templateUrl: 'app/components/salary/payrollrun/vacationpay/vacationPayModalContent.html'
 })
 export class VacationpayModalContent {
-    @Input() private config: {hasCancelButton: boolean, cancel: any, payrollRunID: number};
+    @Input('config') private config: {hasCancelButton: boolean, cancel: any, payrollRunID: number};
     private busy: boolean;
     private basicamountBusy: boolean;
     private vacationHeaderModel: any = {};
