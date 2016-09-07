@@ -8,7 +8,7 @@ import {InvoicePaymentData} from '../../../models/sales/InvoicePaymentData';
     selector: 'register-payment-form',
     directives: [UniForm, NgIf],
     template: `
-        <article class='modal-content email-modal'>
+        <article class='modal-content email-modal' *ngIf="config">
             <h1 *ngIf='config.title'>{{config.title}}</h1>
             <uni-form [config]="formConfig" [fields]="fields" [model]="model" (onChange)="onSubmit($event)" (onSubmit)="onSubmit($event)"></uni-form>
             <footer>

@@ -59,7 +59,7 @@ export class OrderToInvoiceTable {
     selector: 'order-to-invoice-modal-type',
     directives: [OrderToInvoiceTable],
     template: `
-        <article class="modal-content address-modal">
+        <article class="modal-content address-modal" *ngIf="config">
             <h1 *ngIf="config.title">{{config.title}}</h1>
 
             <order-to-invoice-table [order]="config.model"> </order-to-invoice-table>
