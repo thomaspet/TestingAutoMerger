@@ -1,4 +1,4 @@
-<article class="report-parameter-modal report_parameter_modal">
+<article class="report-parameter-modal report_parameter_modal" *ngIf="config">
     <h1 class="modal-title" *ngIf="config.title">{{config.title}}</h1>
     <table>
         <tr style="white-space:nowrap" *ngFor="let parameter of config.report.parameters">
