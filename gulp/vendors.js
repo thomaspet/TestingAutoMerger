@@ -30,10 +30,8 @@ var jsFiles = [
     require.resolve('zone.js/dist/zone.js'),
     require.resolve('reflect-metadata/Reflect.js'),
 
-    require.resolve('systemjs/dist/system-polyfills.js'),
     require.resolve('systemjs/dist/system.src.js'),
-    require.resolve('es6-shim/es6-shim.js'),
-
+    
     require.resolve('rxjs/bundles/Rx.min.js')
 ];
 
