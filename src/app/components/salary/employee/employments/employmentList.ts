@@ -1,10 +1,10 @@
 import {Component, OnInit} from '@angular/core';
+import {ActivatedRoute} from '@angular/router';
 import {UniTable, UniTableConfig, UniTableColumnType, UniTableColumn} from 'unitable-ng2/main';
 import {Observable} from 'rxjs/Observable';
 import {EmploymentService, EmployeeService} from '../../../../services/services';
 import {Employee, Employment} from '../../../../unientities';
 import {EmployeeEmployment} from './employments';
-import {RootRouteParamsService} from '../../../../services/rootRouteParams';
 
 @Component({
     selector: 'employment-list',
@@ -25,13 +25,16 @@ export class EmploymentList implements OnInit {
     constructor(
         private _employmentService: EmploymentService,
         private employeeService: EmployeeService,
-        private rootRouteParams: RootRouteParamsService) {
+        private route: ActivatedRoute) {
 
-        this.currentEmployeeID = +rootRouteParams.params['id'];
+        
     }
     
     public ngOnInit() {
-        this.refreshList();
+        this.route.parent.params.subscribe( params => {
+            this.currentEmployeeID = +params['id'];
+            this.refreshList();
+        });
     }
     
     private setTableConfig() {

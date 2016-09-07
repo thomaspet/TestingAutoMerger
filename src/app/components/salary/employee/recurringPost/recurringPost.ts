@@ -1,14 +1,12 @@
 import {Component, OnInit, ViewChild} from '@angular/core';
-import {Router} from '@angular/router';
+import {Router, ActivatedRoute} from '@angular/router';
 import {WageTypeService, EmployeeService, SalaryTransactionService} from '../../../../services/services';
 import {Observable} from 'rxjs/Observable';
-import {RootRouteParamsService} from '../../../../services/rootRouteParams';
 import {UniSave, IUniSaveAction} from '../../../../../framework/save/save';
 import {UniTable, UniTableColumn, UniTableColumnType, UniTableConfig} from 'unitable-ng2/main';
 import {Employment, SalaryTransaction, WageType} from '../../../../unientities';
 import {AsyncPipe} from '@angular/common';
 import {UniHttp} from '../../../../../framework/core/http/http';
-import moment from 'moment';
 
 declare var _;
 
@@ -38,9 +36,13 @@ export class RecurringPost implements OnInit {
         }
     ];
 
-    constructor(public rootRouteParams: RootRouteParamsService, public routr: Router, private wagetypeService: WageTypeService, private employeeService: EmployeeService, private uniHttp: UniHttp, private salarytransService: SalaryTransactionService) {
-        this.employeeID = +this.rootRouteParams.params['id'];
-        this.buildTableConfig();
+    constructor(public route: ActivatedRoute, public routr: Router, private wagetypeService: WageTypeService, private employeeService: EmployeeService, private uniHttp: UniHttp, private salarytransService: SalaryTransactionService) {
+        
+        this.route.parent.params.subscribe( params => {
+            this.employeeID = +params['id'];
+            this.buildTableConfig();
+        });
+        
     }
 
     public ngOnInit() {

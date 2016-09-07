@@ -9,8 +9,6 @@ export class EmployeeService extends BizHttp<Employee> {
     private employee: Subject<Employee> = new Subject<Employee>();
 
     public employee$: Observable<Employee> = this.employee.asObservable();
-
-    public routeEnding: string = '';
     
     private defaultExpands: any = [
         'BusinessRelationInfo.Addresses',
@@ -36,10 +34,6 @@ export class EmployeeService extends BizHttp<Employee> {
         this.Get(id, this.defaultExpands).subscribe((emp: Employee) => {
             this.employee.next(emp);
         });
-    }
-
-    public getLatest() {
-        this.employee.publishLast();
     }
 
     public getEmployeeCategories(employeeID: number) {

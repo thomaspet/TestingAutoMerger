@@ -1,4 +1,4 @@
-import {Component, OnInit} from '@angular/core';
+import {Component} from '@angular/core';
 import {ROUTER_DIRECTIVES, Router, ActivatedRoute} from '@angular/router';
 import {UniTabs} from '../../layout/uniTabs/uniTabs';
 import {WidgetPoster} from '../../../../framework/widgetPoster/widgetPoster';
@@ -24,7 +24,7 @@ import {IContextMenuItem} from 'unitable-ng2/main';
     ],
     directives: [ROUTER_DIRECTIVES, WidgetPoster, UniTabs, EmployeeCategoryButtons, ContextMenu]
 })
-export class EmployeeDetails implements OnInit {
+export class EmployeeDetails {
     public busy: boolean;
     private employee: Employee;
     private url: string;
@@ -50,7 +50,11 @@ export class EmployeeDetails implements OnInit {
         this.employee.BusinessRelationInfo = this.businessRelation;
         this.url = '/salary/employees/';
         this.route.params.subscribe(params => {
+            console.log('new emp id: ', params);
             this.employeeID = +params['id'];
+            this._employeeService.get(this.employeeID).subscribe(emp => {
+                this._employeeService.refreshEmployee(emp);
+            });
             this.rootRouteParams.params = params;
             if (this.employeeID) {
                 this.tabService.addTab({ name: 'Ansattnr. ' + this.employeeID, url: this.url + this.employeeID, moduleID: 12, active: true });
@@ -88,9 +92,6 @@ export class EmployeeDetails implements OnInit {
             }
         ];
 
-    }
-
-    public ngOnInit() {
     }
 
     public nextEmployee() {

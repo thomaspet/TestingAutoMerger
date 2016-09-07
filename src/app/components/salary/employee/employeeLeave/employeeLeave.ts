@@ -1,6 +1,6 @@
 import {Component, OnInit, ViewChild} from '@angular/core';
+import {ActivatedRoute} from '@angular/router';
 import {Employment, Employee} from '../../../../unientities';
-import {RootRouteParamsService} from '../../../../services/rootRouteParams';
 import {UniTable, UniTableConfig, UniTableColumnType, UniTableColumn} from 'unitable-ng2/main';
 import {UniSave, IUniSaveAction} from '../../../../../framework/save/save';
 import {AsyncPipe} from '@angular/common';
@@ -42,25 +42,26 @@ export class EmployeeLeave implements OnInit {
 
     constructor(
         public employeeService: EmployeeService,
-        private rootRouteParams: RootRouteParamsService,
+        private route: ActivatedRoute,
         private uniHttp: UniHttp,
         private employeeleaveService: EmployeeLeaveService
     ) {
-        this.employeeID = +rootRouteParams.params['id'];
     }
 
     public ngOnInit() {
-        this.buildTableConfig();
+        this.route.parent.params.subscribe(params => {
+            this.employeeID = +params['id'];
+            this.buildTableConfig();
 
-        this.employeeService
-            .get(this.employeeID)
-            .subscribe((response: any) => {
-                this.currentEmployee = response;
-                this.employeeService.refreshEmployee(response);
-                this.employments = this.currentEmployee.Employments;
+            this.employeeService
+                .get(this.employeeID)
+                .subscribe((response: any) => {
+                    this.currentEmployee = response;
+                    this.employeeService.refreshEmployee(response);
+                    this.employments = this.currentEmployee.Employments;
 
-                let filter = this.buildFilter();
-                this.permisions$ = this.uniHttp.asGET()
+                    let filter = this.buildFilter();
+                    this.permisions$ = this.uniHttp.asGET()
                         .usingBusinessDomain()
                         .withEndPoint('employeeleave')
                         .send({
@@ -68,7 +69,9 @@ export class EmployeeLeave implements OnInit {
                         })
                         .map(res => res.json());
 
-            }, (error) => this.log(error));
+                }, (error) => this.log(error));
+        });
+
     }
 
     public buildFilter() {

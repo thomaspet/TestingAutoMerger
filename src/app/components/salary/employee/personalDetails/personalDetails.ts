@@ -1,5 +1,5 @@
-import {Component, ViewChild, OnDestroy} from '@angular/core';
-import {Router} from '@angular/router';
+import {Component, ViewChild, OnDestroy, OnInit} from '@angular/core';
+import {Router, ActivatedRoute} from '@angular/router';
 import {UniForm} from '../../../../../framework/uniform';
 import {Observable} from 'rxjs/Observable';
 import {Subscription} from 'rxjs/Subscription';
@@ -7,7 +7,6 @@ import 'rxjs/add/operator/merge';
 import {OperationType, Operator, ValidationLevel, Employee, Email, Phone, Address} from '../../../../unientities';
 import {EmployeeService, PhoneService, EmailService, AddressService, AltinnIntegrationService, SubEntityService} from '../../../../services/services';
 import {AddressModal, EmailModal, PhoneModal} from '../../../common/modals/modals';
-import {RootRouteParamsService} from '../../../../services/rootRouteParams';
 import {TaxCardRequestModal, AltinnLoginModal, ReadTaxCardModal} from '../employeeModals';
 import {UniSave, IUniSaveAction} from '../../../../../framework/save/save';
 import {UniFieldLayout} from '../../../../../framework/uniform/index';
@@ -19,7 +18,7 @@ declare var _;
     providers: [PhoneService, EmailService, AddressService, AltinnIntegrationService, SubEntityService],
     templateUrl: 'app/components/salary/employee/personalDetails/personalDetails.html'
 })
-export class PersonalDetails implements OnDestroy {
+export class PersonalDetails implements OnDestroy, OnInit {
 
     public busy: boolean;
     public expands: any = [
@@ -54,49 +53,52 @@ export class PersonalDetails implements OnDestroy {
     ];
 
     constructor(
-        public rootRouteParams: RootRouteParamsService,
         public employeeService: EmployeeService,
+        public route: ActivatedRoute,
         public router: Router,
         public phoneService: PhoneService,
         public emailService: EmailService,
         public addressService: AddressService,
         public altinnService: AltinnIntegrationService,
         public subEntityService: SubEntityService) {
-        this.employeeID = +rootRouteParams.params['id'];
+            this.setupForm();
+    }
 
-        this.employeeService.routeEnding = 'personal-details';
+    public ngOnInit() {
+        this.route.parent.params.subscribe(params => {
+            this.employeeID = +params['id'];
+            this.getData();
+        });
 
         this.subscription = this.employeeService.employee$.subscribe((emp) => {
             this.employee = emp;
+            console.log('new emp: ', this.employee);
         });
-
-        if (this.employeeService.subEntities) {
-            this.getData();
-        } else {
-            this.cacheLocAndGetData();
-        }
     }
 
     public ngOnDestroy() {
         this.subscription.unsubscribe();
     }
 
-    private cacheLocAndGetData() {
+    private setupForm() {
+        if (this.employeeService.subEntities) {
+            this.getLayout();
+        } else {
+            this.cacheLocAndGetLayout();
+        }
+    }
+
+    private cacheLocAndGetLayout() {
         this.employeeService.getSubEntities().subscribe((response) => {
             this.employeeService.subEntities = response;
             this.employeeService.subEntities.unshift([{ ID: 0 }]);
-            this.getData();
+            this.getLayout();
         });
     }
 
-    private getData() {
-        this.busy = true;
-        Observable.forkJoin(
-            this.employeeService.get(this.employeeID, this.expands),
-            this.employeeService.layout('EmployeePersonalDetailsForm')
-        ).subscribe(
-            (response: any) => {
-                var [employee, layout] = response;
+    private getLayout() {
+        this.employeeService.layout('EmployeePersonalDetailsForm').subscribe(
+            (layout: any) => {
                 layout.Fields[0].Validators = [{
                     'EntityType': 'BusinessRelation',
                     'PropertyName': 'BusinessRelationInfo.Name',
@@ -108,20 +110,35 @@ export class PersonalDetails implements OnDestroy {
                     'ID': 1,
                     'Deleted': false
                 }];
-                this.employeeService.refreshEmployee(employee);
                 this.fields = layout.Fields;
                 this.config = {
                     submitText: ''
                 };
 
                 this.extendFormConfig();
+            }
+            , (error: any) => {
+                console.error(error);
+                this.log(error);
+            }
+        );
+    }
+
+
+
+    private getData() {
+        this.busy = true;
+
+        this.employeeService.get(this.employeeID, this.expands).subscribe(
+            (employee: any) => {
+                this.employeeService.refreshEmployee(employee);
                 this.busy = false;
             }
             , (error: any) => {
                 console.error(error);
                 this.log(error);
             }
-            );
+        );
     }
 
 
@@ -209,7 +226,7 @@ export class PersonalDetails implements OnDestroy {
         let taxRequestBtn: UniFieldLayout = this.findByProperty(this.fields, 'TaxRequestBtn');
         taxRequestBtn.Options = {
             click: (event) => {
-                this.openTaxCardRequestModal()
+                this.openTaxCardRequestModal();
             }
         };
 
@@ -230,9 +247,9 @@ export class PersonalDetails implements OnDestroy {
     }
 
     private updateInfoFromSSN() {
-
+        console.log('update ssn');
         if (this.employee.SocialSecurityNumber.length === 11) {
-            
+
             let day: number = +this.employee.SocialSecurityNumber.substring(0, 2);
             let month: number = +this.employee.SocialSecurityNumber.substring(2, 4);
             let year: number = +this.employee.SocialSecurityNumber.substring(4, 6);
@@ -265,12 +282,12 @@ export class PersonalDetails implements OnDestroy {
             if (!this.uniform.section(2).isOpen) {
                 this.uniform.section(2).toggle();
             }
-        }, 100);
 
-        this.uniform.field('BusinessRelationInfo.Name').focus();
-        this.uniform.field('SocialSecurityNumber').onChange.subscribe(() => {
-            this.updateInfoFromSSN();
-        });
+            this.uniform.field('BusinessRelationInfo.Name').focus();
+            this.uniform.field('SocialSecurityNumber').onChange.subscribe(() => {
+                this.updateInfoFromSSN();
+            });
+        }, 100);
     }
 
     public change(value) {
@@ -332,18 +349,8 @@ export class PersonalDetails implements OnDestroy {
             this.employeeService.Put(this.employee.ID, this.employee)
                 .subscribe((response: Employee) => {
                     done('Sist lagret: ');
-                    this.employeeService.get(this.employee.ID, this.expands).subscribe((emp: Employee) => {
-                        this.employee = emp;
-                        this.employeeService.refreshEmployee(emp);
-                        this.saveactions[0].disabled = false;
-                    },
-                        (err) => {
-                            console.log('Feil ved lagring av ansatt', err);
-                            this.log(err);
-                            this.saveactions[0].disabled = false;
-                        });
-
-                    this.router.navigateByUrl('/salary/employees/' + this.employee.ID);
+                    this.employeeService.refreshEmployee(response);
+                    this.saveactions[0].disabled = false;
                 },
                 (err) => {
                     done('Feil ved lagring', err);
@@ -354,11 +361,10 @@ export class PersonalDetails implements OnDestroy {
         } else {
             this.employeeService.Post(this.employee)
                 .subscribe((response: Employee) => {
-                    this.employee = response;
-                    this.employeeService.refreshEmployee(response);
+                    console.log('post response: ', response);
                     done('Sist lagret: ');
                     this.saveactions[0].disabled = false;
-                    this.router.navigateByUrl('/salary/employees/' + this.employee.ID);
+                    this.router.navigateByUrl('/salary/employees/' + response.ID);
                 },
                 (err) => {
                     done('Feil ved lagring', err);
