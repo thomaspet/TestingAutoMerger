@@ -44,7 +44,9 @@ export class WagetypeDetail {
 
     public config: any = {};
     public fields: any[] = [];
-    @ViewChild(UniForm) public uniform: UniForm;
+
+    @ViewChild(UniForm)
+    public uniform: UniForm;
 
     constructor(private route: ActivatedRoute, private router: Router, private wageService: WageTypeService, private tabService: TabService, private accountService: AccountService, private inntektService: InntektService) {
 

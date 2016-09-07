@@ -50,6 +50,7 @@ declare var _; // lodash
                     [controls]="controls"
                     [fields]="item" 
                     [model]="model"
+                    [formConfig]="config"
                     (onReady)="onReadyHandler($event)"
                     (onChange)="onChangeHandler($event)">                        
                 </uni-section>

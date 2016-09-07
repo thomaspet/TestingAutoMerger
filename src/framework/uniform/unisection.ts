@@ -56,6 +56,8 @@ export class UniSection {
 
     @Input()
     public model: any;
+    @Input()
+    public formConfig: any;
 
     @Output()
     public onReady: EventEmitter<UniSection> = new EventEmitter<UniSection>(true);
@@ -94,6 +96,7 @@ export class UniSection {
 
     public toggle() {
         this.isOpen = !this.isOpen;
+        this.formConfig.sections[this.sectionId].isOpen = this.isOpen;
         this.cd.markForCheck();
     }
 
@@ -102,6 +105,16 @@ export class UniSection {
             if (this.fields && this.fields.length > 0) {
                 this.sectionId = this.fields[0].Section;
                 this.config.legend = this.fields[0].Sectionheader;
+
+                if (!this.formConfig.sections) {
+                    this.formConfig.sections = {};
+                }
+                if (!this.formConfig.sections[this.sectionId]) {
+                    this.formConfig.sections[this.sectionId] = {
+                        isOpen: false
+                    };
+                }
+                this.isOpen = this.formConfig.sections[this.sectionId].isOpen;
 
             }
             this.groupedFields = this.groupFields();
