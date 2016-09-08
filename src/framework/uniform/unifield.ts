@@ -187,10 +187,10 @@ export class UniField {
         const shift: boolean = event.shiftKey;
         var combination: string[] = [];
         if (ctrl) {
-            combination.push("ctrl");
+            combination.push('ctrl');
         }
         if (shift) {
-            combination.push("shift");
+            combination.push('shift');
         }
         if (key) {
             combination.push(key.toLowerCase());

@@ -171,13 +171,6 @@ export class UniSection {
         this.cd.markForCheck();
     }
 
-    public section(sectionId?: number) {
-        let fieldset: UniFieldSet[] = this.fieldsetElements.filter((fs: UniFieldSet) => {
-            return fs.sectionId === sectionId;
-        });
-        return fieldset.length > 0 ? fieldset[0] : undefined;
-    }
-
     public field(property: string) {
         // look into top lever fields
         var item: UniField[] = this.fieldElements.filter((cmp: UniField) => {

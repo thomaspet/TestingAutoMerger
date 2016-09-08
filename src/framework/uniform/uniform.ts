@@ -83,6 +83,9 @@ export class UniForm {
     @ViewChildren(UniField)
     public fieldElements: QueryList<UniField>;
 
+    @ViewChildren(UniCombo)
+    public comboElements: QueryList<UniCombo>;
+
     @ViewChildren(UniFieldSet)
     public fieldsetElements: QueryList<UniFieldSet>;
 
@@ -135,8 +138,9 @@ export class UniForm {
     public countElements() {
         let sections = this.sectionElements.toArray();
         let fieldsets = this.fieldsetElements.toArray();
+        let combos = this.comboElements.toArray();
         let fields = this.fieldElements.toArray();
-        let all = [].concat(fields, fieldsets, sections);
+        let all = [].concat(fields, combos, fieldsets, sections);
 
         return all.length;
     }
@@ -159,11 +163,13 @@ export class UniForm {
 
     public readMode() {
         this.fieldElements.forEach((f) => f.readMode());
+        this.comboElements.forEach((c) => c.readMode());
         this.fieldsetElements.forEach((fs) => fs.readMode());
         this.sectionElements.forEach((s) => s.readMode());
     }
     public editMode() {
         this.fieldElements.forEach((f) => f.editMode());
+        this.comboElements.forEach((c) => c.editMode());
         this.fieldsetElements.forEach((fs) => fs.editMode());
         this.sectionElements.forEach((s) => s.editMode());
     }
@@ -194,6 +200,40 @@ export class UniForm {
                 });
                 if (fieldset.length > 0) {
                     return fieldset[0];
+                }
+            }
+            return;
+        }
+    }
+
+    public combo(comboId: number, fieldsetId?: number, sectionId?: number) {
+        if (!sectionId && !fieldsetId) {
+            let item: UniCombo[] = this.comboElements.filter((combo: UniCombo) => {
+                return combo.comboId === comboId;
+            });
+            if (item.length > 0) {
+                return item[0];
+            }
+            return;
+        } else if (fieldsetId) {
+            var fieldset: UniFieldSet = this.fieldset(fieldsetId, sectionId);
+            if (fieldset) {
+                let combo: UniCombo[] = fieldset.comboElements.filter((cb: UniCombo) => {
+                    return cb.fieldsetId === fieldsetId;
+                });
+                if (combo.length > 0) {
+                    return fieldset[0];
+                }
+            }
+            return;
+        } else if (sectionId) {
+            var section: UniSection = this.section(sectionId);
+            if (section) {
+                let combo: UniCombo[] = section.comboElements.filter((cb: UniCombo) => {
+                    return cb.fieldsetId === fieldsetId;
+                });
+                if (combo.length > 0) {
+                    return combo[0];
                 }
             }
             return;

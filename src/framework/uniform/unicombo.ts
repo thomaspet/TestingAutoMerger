@@ -39,6 +39,7 @@ export class UniCombo {
     @ViewChildren(UniField)
     public fieldElements: QueryList<UniField>;
 
+    public comboId: number;
     public fieldsetId: number;
     public sectionId: number;
     public config: any;
@@ -65,6 +66,7 @@ export class UniCombo {
                 this.fieldsetId = this.fields[0].FieldSet;
                 this.config = {};
                 this.config.legend = this.fields[0].Legend;
+                this.comboId = this.fields[0].Combo;
             }
         }
     }
