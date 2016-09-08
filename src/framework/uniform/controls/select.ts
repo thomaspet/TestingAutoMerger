@@ -1,11 +1,13 @@
 import {Component, Input, Output, ElementRef, EventEmitter, ChangeDetectionStrategy, ChangeDetectorRef} from '@angular/core';
 import {FormControl} from '@angular/forms';
 import {UniFieldLayout} from '../interfaces';
+import {UniSelect, ISelectConfig} from './select/select';
 declare var _; // jquery and lodash
 
 @Component({
     selector: 'uni-select-input',
     changeDetection: ChangeDetectionStrategy.OnPush,
+    directives: [UniSelect],
     template: `
         <select [disabled]="field?.ReadOnly" (change)="onChangeHandler($event)">
             <option *ngFor="let item of items" [value]="value(item)" [selected]="selected(item)">

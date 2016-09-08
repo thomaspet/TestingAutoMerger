@@ -1,7 +1,6 @@
 import {Component, Type, ViewChildren, QueryList, Input, Output, EventEmitter} from '@angular/core';
 import {UniModal} from '../../../../framework/modals/modal';
-import {ISelectConfig} from '../../../../framework/controls/select/select';
-import {UniSelect} from '../../../../framework/controls/select/select';
+import {ISelectConfig, UniSelect} from '../../../../framework/uniform/controls/select/select';
 declare var jQuery;
 
 @Component({

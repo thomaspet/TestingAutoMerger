@@ -3,7 +3,7 @@ import {FormControl, Validators, REACTIVE_FORM_DIRECTIVES} from '@angular/forms'
 import {Router, ROUTER_DIRECTIVES} from '@angular/router';
 import {AuthService} from '../../../../framework/core/authService';
 import {UniHttp} from '../../../../framework/core/http/http';
-import {UniSelect, ISelectConfig} from '../../../../framework/controls/select/select';
+import {UniSelect, ISelectConfig} from '../../../../framework/uniform/controls/select/select';
 
 @Component({
     selector: 'uni-login',
