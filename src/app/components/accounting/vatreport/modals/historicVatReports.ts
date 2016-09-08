@@ -116,7 +116,10 @@ export class HistoricVatReportModal {
 
     public openModal() {
         if (this.modal) {            
-            this.modal.open();
+            this.modal.open();            
+            this.modal.getContent().then((cmp: HistoricVatReportTable) => {                
+                cmp.unitable.refreshTableData()
+            });
         }
     }
 }
