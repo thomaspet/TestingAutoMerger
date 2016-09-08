@@ -1,0 +1,47 @@
+.breadcrumbs
+    @include unigrid-flush(14)
+    margin: .5rem auto 0
+    padding: 0 1rem
+    list-style: none
+
+    li
+        display: inline-block
+        color: $uni-color-scale2
+
+        &:before
+            display: none
+            content: ''
+
+        &:not(:last-child):after
+            content: '›'
+            display: inline-block
+            padding: 0 .3rem
+            color: $uni-color-scale6
+
+        a:link.home
+            @extend %hideText
+            display: inline-block
+            height: 1rem
+            width: 1rem
+            background: unicon-home($uni-color-scale4) center center no-repeat
+            background-size: 1rem
+            position: relative
+            top: .2rem
+            border-bottom-color: transparent
+
+            &:hover,
+            &:focus
+                background-image: unicon-home($uni-color-C2A)
+                border-bottom-color: transparent
+
+
+        a:link,
+        a:visited
+            text-decoration: none
+            color: $uni-color-scale5
+            border-bottom: pxToRem(1) solid $uni-color-scale9
+
+        a:hover,
+        a:focus
+            color: $uni-color-C2A
+            border-bottom-color: $uni-color-C2A

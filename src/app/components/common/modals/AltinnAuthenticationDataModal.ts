@@ -55,7 +55,7 @@ export class AltinnAuthenticationDataModalContent {
 
     // Done so that angular template can access the enum
     public LOGIN_STATE_ENUM: any = LoginState;
-    public userLoginData: AltinnAuthenticationData;
+    public userLoginData: AltinnAuthenticationData = new AltinnAuthenticationData();
 
     public busy: boolean = true;
     public userMessage: string;
@@ -150,12 +150,14 @@ export class AltinnAuthenticationDataModalContent {
     public getAltinnAuthenticationData(): Promise<AltinnAuthenticationData> {
         this.busy = false;
         this.formState = LoginState.UsernameAndPasswordAndPinType;
+        this.userLoginData.preferredLogin =
+            this.userLoginData.preferredLogin || this.altinnAuthService.loginTypes[0].text;
         this.userSubmittedUsernameAndPasswordAndPinType
             .subscribe(() => {
                 const authData: AltinnAuthRequest = new AltinnAuthRequest();
                 authData.UserID = this.userLoginData.userID;
                 authData.UserPassword = this.userLoginData.password;
-                authData.PreferredLogin = this.userLoginData.preferredLogin || this.altinnAuthService.loginTypes[0].text;
+                authData.PreferredLogin = this.userLoginData.preferredLogin;
                 this.busy = true;
                 this.altinnAuthService
                     .getPinMessage(authData)

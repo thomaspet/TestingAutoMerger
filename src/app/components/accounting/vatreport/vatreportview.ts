@@ -117,7 +117,6 @@ export class VatReportView implements OnInit, OnDestroy {
         );
 
         this.vatTypeService.GetVatTypesWithVatReportReferencesAndVatCodeGroup().subscribe(vatTypes => this.vatTypes = vatTypes, err => this.onError(err));
-        this.updateSaveActions();
     }
 
     private updateSaveActions() {
@@ -127,27 +126,55 @@ export class VatReportView implements OnInit, OnDestroy {
         this.actions.push({
             label: 'Kjør',
             action: (done) => this.runVatReport(done),
-            disabled: false,
+            disabled: this.IsExecuteActionDisabled(), 
             main: true
         });
 
         this.actions.push({
             label: 'Send inn',
             action: (done) => this.sendVatReport(done),
-            disabled: false
+            disabled: this.IsSendActionDisabled()
         });
 
         this.actions.push({
             label: 'Godkjenn manuelt',
             action: (done) => this.approveManually(done),
-            disabled: false
+            disabled: this.IsApproveActionDisabled()
         });
 
         this.actions.push({
             label: 'Opprett endringsmelding ',
             action: (done) => this.createCorrectiveVatReport(done),
-            disabled: false
+            disabled: this.IsCreateCorrectionMessageAcionDisabled()
         });
+    }
+
+    private IsExecuteActionDisabled() {
+        if (this.currentVatReport.StatusCode === null ||
+            this.currentVatReport.StatusCode === 0 ||
+            this.currentVatReport.StatusCode === StatusCodeVatReport.Executed ||
+            this.currentVatReport.StatusCode === StatusCodeVatReport.Rejected) {
+            return false;
+        }
+        return true;
+    }
+    private IsSendActionDisabled() {
+        if (this.currentVatReport.StatusCode === StatusCodeVatReport.Executed) {
+            return false;
+        }
+        return true;
+    }
+    private IsApproveActionDisabled() {
+        if (this.currentVatReport.StatusCode === StatusCodeVatReport.Submitted) {
+            return false;
+        }
+        return true;
+    }
+    private IsCreateCorrectionMessageAcionDisabled() {
+        if (this.currentVatReport.StatusCode === StatusCodeVatReport.Approved) {
+            return false;
+        }
+        return true;
     }
 
     private setVatreport(vatReport: VatReport) {
@@ -176,6 +203,7 @@ export class VatReportView implements OnInit, OnDestroy {
             );
         this.updateStatusText();
         this.getVatReportsInPeriod();
+        this.updateSaveActions();
     }
 
     private getVatReportsInPeriod() {
@@ -334,10 +362,21 @@ export class VatReportView implements OnInit, OnDestroy {
         // Only setup one subscription - this is done to avoid problems with multiple callbacks
         if (this.createCorrectedVatReportModal.changed.observers.length === 0) {
             this.createCorrectedVatReportModal.changed.subscribe((modalData: any) => {
+                console.log('createCorrectiveVatReport tilbakemelding. Id=' + modalData.id);
+                // Load the newly created report
+                if (modalData.id > 0)
+                {
+                    this.vatReportService.Get(modalData.id, ['TerminPeriod'])
+                        .subscribe(vatreport => {
+                            this.setVatreport(vatreport);
+                        },
+                        err => {
+                            this.onError(err);
+                        });
+                }
 
-                console.log('createCorrectiveVatReport tilbakemelding: ' + modalData);
+                
                 done('mva endringsmelding registrert');
-                // TODO: Load the newly created report
             });
         }
 
@@ -395,5 +434,17 @@ export class VatReportView implements OnInit, OnDestroy {
 
     public ngOnDestroy() {
         this.subs.forEach(sub => sub.unsubscribe());
+    }
+
+    public ShowVatReport(id: number) {
+        console.log('ShowVatReport id:', id);
+        this.vatReportService.Get(id, ['TerminPeriod'])
+            .subscribe(vatreport => {
+                this.setVatreport(vatreport);
+            },
+            err => {
+                this.onError(err);
+            });
+
     }
 }
