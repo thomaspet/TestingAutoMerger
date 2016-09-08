@@ -5,9 +5,14 @@ import {ClickOutsideDirective} from '../../../../framework/core/clickOutside';
 
 export interface ISelectConfig {
     displayField?: string;
+    valueField?: string;
     template?: (item) => string;
     placeholder?: string;
     searchable?: boolean;
+
+    // compatibility with uniform config names
+    valueProperty?: string;
+    displayProperty?: string;
 }
 
 @Component({

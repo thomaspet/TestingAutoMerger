@@ -9,11 +9,12 @@ declare var _; // jquery and lodash
     changeDetection: ChangeDetectionStrategy.OnPush,
     directives: [UniSelect],
     template: `
-        <select [disabled]="field?.ReadOnly" (change)="onChangeHandler($event)">
-            <option *ngFor="let item of items" [value]="value(item)" [selected]="selected(item)">
-                {{template(item)}}
-            </option>
-        </select>
+        <uni-select
+            [config]="field?.Options"
+            [items]="items"
+            [value]="selectedItem"
+            (valueChange)="onChangeHandler($event)">
+        </uni-select>
     `
 })
 export class UniSelectInput {
@@ -54,6 +55,10 @@ export class UniSelectInput {
 
     public ngOnChanges(changes) {
         if (changes['field']) {
+            if (this.field.Options) {
+                this.field.Options.valueField = this.field.Options.valueProperty;
+                this.field.Options.displayField = this.field.Options.displayProperty;
+            }
             if (!this.field.Options) {
                 this.items = [];  
             } else if (!this.field.Options.source) {
@@ -72,23 +77,13 @@ export class UniSelectInput {
         this.onReady.emit(this);
     }
 
-    private onChangeHandler($event) {
-        _.set(this.model, this.field.Property, $event.target.value);
-        this.onChange.emit(this.model);
-    }
-
-    private selected(item) {
-        return this.value(item) === _.get(this.model, this.field.Property);
-    }
-
-    private template(item) {
-        if (this.field.Options.template) {
-            return this.field.Options.template(item);
+    private onChangeHandler(item) {
+        let value;
+        if (this.field.Options.valueProperty) {
+            value = _.get(item, this.field.Options.valueProperty);
         }
-        return _.get(item, this.field.Options.displayProperty);
-    }
 
-    private value(item) {
-        return _.get(item, this.field.Options.valueProperty);
+        _.set(this.model, this.field.Property, value ? value : item);
+        this.onChange.emit(this.model);
     }
 }
