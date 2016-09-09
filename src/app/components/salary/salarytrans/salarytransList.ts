@@ -74,10 +74,9 @@ export class SalaryTransactionEmployeeList implements OnChanges, AfterViewInit {
 
         this.createTotalTableConfig();
 
-
         this._wageTypeService.GetAll('').subscribe((wagetype: WageType[]) => {
             this.wagetypes = wagetype;
-            if (this.payrollRun) {
+            if (this.payrollRun && this.employee) {
                 this.createTableConfig();
             }
         }, (error: any) => {
@@ -264,26 +263,26 @@ export class SalaryTransactionEmployeeList implements OnChanges, AfterViewInit {
         var rateCol = new UniTableColumn('Rate', 'Sats', UniTableColumnType.Number);
         var amountCol = new UniTableColumn('Amount', 'Antall', UniTableColumnType.Number);
         var sumCol = new UniTableColumn('Sum', 'Sum', UniTableColumnType.Number, false);
-        var employmentidCol = new UniTableColumn('_Employment', 'Arbeidsforhold', UniTableColumnType.Lookup)
+        var employmentidCol = new UniTableColumn('_Employment', 'Arbeidsforhold', UniTableColumnType.Select)
             .setTemplate((dataItem) => {
-                return this.getEmploymentJobName(dataItem.EmploymentID);
+
+                if (!dataItem['_Employment'] && !dataItem['EmploymentID']) {
+                    return '';
+                }
+
+                let employment = dataItem['_Employment'] || this.getEmploymentFromEmployee(dataItem.EmploymentID); 
+
+                dataItem['_Employment'] = employment;
+
+                return employment ? employment.ID + ' - ' + employment.JobName : '';
             })
             .setEditorOptions({
-                itemTemplate: (selectedItem) => {
-                    return (selectedItem.ID + ' - ' + selectedItem.JobName);
-                },
-                lookupFunction: (searchValue) => {
-                    let matching: Employment[] = [];
-                    if (this.employee.Employments) {
-                        this.employee.Employments.forEach(employment => {
-                            if (employment.JobName.toLowerCase().indexOf(searchValue) > -1) {
-                                matching.push(employment);
-                            }
-                        });
-                    }
-                    return matching;
+                resource: this.employee.Employments,
+                itemTemplate: (item) => {
+                    return item ? item.ID + ' - ' + item.JobName : '';
                 }
             });
+
         var accountCol = new UniTableColumn('Account', 'Konto', UniTableColumnType.Text);
         var payoutCol = new UniTableColumn('_BasePayment', 'Utbetales', UniTableColumnType.Number, false)
             .setTemplate((dataItem: SalaryTransaction) => {
@@ -309,31 +308,20 @@ export class SalaryTransactionEmployeeList implements OnChanges, AfterViewInit {
                 }
             });
 
-        var wageTypeCol = new UniTableColumn('WageTypeNumber', 'Lønnsart', UniTableColumnType.Lookup)
+        var wageTypeCol = new UniTableColumn('Wagetype', 'Lønnsart', UniTableColumnType.Select)
             .setTemplate((dataItem) => {
-                return dataItem.WageTypeNumber;
+
+                let wagetype: WageType = dataItem['Wagetype']; 
+
+                return wagetype ? wagetype.WageTypeNumber.toString() : '';
             })
             .setEditorOptions({
-                itemTemplate: (selectedItem: WageType) => {
-                    return (selectedItem.WageTypeNumber + ' - ' + selectedItem.WageTypeName);
-                },
-                lookupFunction: (searchValue) => {
-                    let matching: WageType[] = [];
-
-                    this.wagetypes.forEach(wagetype => {
-                        if (isNaN(searchValue)) {
-                            if (wagetype.WageTypeName.toLowerCase().indexOf(searchValue) > -1) {
-                                matching.push(wagetype);
-                            }
-                        } else {
-                            if (wagetype.WageTypeNumber.toString().indexOf(searchValue) > -1) {
-                                matching.push(wagetype);
-                            }
-                        }
-                    });
-                    return matching;
+                resource: this.wagetypes,
+                itemTemplate: (item: WageType) => {
+                    return item ? item.WageTypeNumber + ' - ' + item.WageTypeName : '';
                 }
             });
+            
         this.salarytransEmployeeTableConfig = new UniTableConfig(this.payrollRun.StatusCode < 1)
             .setDeleteButton({
                 deleteHandler: (rowModel: SalaryTransaction) => {
@@ -353,7 +341,7 @@ export class SalaryTransactionEmployeeList implements OnChanges, AfterViewInit {
             .setChangeCallback((event) => {
                 let row = event.rowModel;
 
-                if (event.field === 'WageTypeNumber') {
+                if (event.field === 'Wagetype') {
                     this.mapWagetypeToTrans(row);
                 }
 
@@ -374,6 +362,7 @@ export class SalaryTransactionEmployeeList implements OnChanges, AfterViewInit {
     }
 
     private createTotalTableConfig() {
+
         var percentCol = new UniTableColumn('percentTax', 'Prosenttrekk', UniTableColumnType.Number);
         var taxtableCol = new UniTableColumn('tableTax', 'Tabelltrekk', UniTableColumnType.Number);
         var paidCol = new UniTableColumn('netPayment', 'Utbetalt beløp', UniTableColumnType.Number);
@@ -390,7 +379,7 @@ export class SalaryTransactionEmployeeList implements OnChanges, AfterViewInit {
     }
 
     private mapWagetypeToTrans(rowModel) {
-        let wagetype: WageType = rowModel['WageTypeNumber'];
+        let wagetype: WageType = rowModel['Wagetype'];
         if (!wagetype) {
             return;
         }
@@ -453,17 +442,12 @@ export class SalaryTransactionEmployeeList implements OnChanges, AfterViewInit {
             });
     }
 
-    private getEmploymentJobName(employmentID: number) {
-        var jobName = '';
-        if (this.employee.Employments) {
-            this.employee.Employments.forEach((employment: Employment) => {
-                if (employment.ID === employmentID) {
-                    jobName = employment.JobName;
-                }
-            });
+    private getEmploymentFromEmployee(employmentID: number) {
+        if (this.employee.Employments && employmentID) {
+            return this.employee.Employments.find(x => x.ID === employmentID);
         }
 
-        return jobName;
+        return null;
     }
 
     public rowChanged(event) {
