@@ -3,13 +3,31 @@
     <figure class="report_group_card" *ngFor="let reportCategory of reportCategories">
         <h2>{{ reportCategory.name }}</h2>
         <div *ngFor="let report of reportCategory.reports" style="margin-left:4px">
-            <a (click)="showModalReportParameters(report)">
-                <h4 class="report_name">{{report.Name }}</h4>
-                <p>{{report.Description}}</p>
-            </a>
+            <div [ngSwitch]="report.ID">
+                <a
+                        *ngSwitchCase="12"
+                        (click)="showBalanceListModalReportParameters(report)">
+                    <h4 class="report_name">{{report.Name }}</h4>
+                    <p>{{report.Description}}</p>
+                </a>
+                <a
+                        *ngSwitchCase="13"
+                        (click)="showBalanceListModalReportParameters(report)">
+                    <h4 class="report_name">{{report.Name }}</h4>
+                    <p>{{report.Description}}</p>
+                </a>
+                <a
+                        *ngSwitchDefault
+                        (click)="showModalReportParameters(report)">
+                    <h4 class="report_name">{{report.Name }}</h4>
+                    <p>{{report.Description}}</p>
+                </a>
+            </div>
         </div>
     </figure>
 </div>
 <report-parameter-modal></report-parameter-modal>
 <report-preview-modal></report-preview-modal>
+<balance-report-filter-modal></balance-report-filter-modal>
 <router-outlet></router-outlet>
+
