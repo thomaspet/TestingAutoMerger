@@ -1,17 +1,17 @@
 ﻿import {Component} from '@angular/core';
 import {Router, ActivatedRoute} from '@angular/router';
-import {NgIf, NgClass, ControlGroup, Control, Validators} from '@angular/common';
+import {FormControl, Validators, FormGroup, REACTIVE_FORM_DIRECTIVES} from '@angular/forms';
 import {UniHttp} from '../../../../framework/core/http/http';
 import {passwordValidator} from '../authValidators';
 
 @Component({
     selector: 'uni-confirm-invite',
     templateUrl: 'app/components/init/confirmInvite/confirmInvite.html',
-    directives: [NgIf, NgClass]
+    directives: [REACTIVE_FORM_DIRECTIVES]
 })
 
-export class ConfirmInvite {    
-    private confirmInviteForm: ControlGroup;
+export class ConfirmInvite {
+    private confirmInviteForm: FormGroup;
     private passwordsMatching: boolean = false;
     private errorMessage: string = '';
     private validInvite: boolean = false;
@@ -31,10 +31,10 @@ export class ConfirmInvite {
                 Validators.maxLength(16)
             ]);
 
-            this.confirmInviteForm = new ControlGroup({
-                username: new Control('', Validators.required),
-                password: new Control('', passwordValidators),
-                confirmPassword: new Control('', passwordValidators)
+            this.confirmInviteForm = new FormGroup({
+                username: new FormControl('', Validators.required),
+                password: new FormControl('', passwordValidators),
+                confirmPassword: new FormControl('', passwordValidators)
             });
 
             this.confirmInviteForm.controls['password'].valueChanges.subscribe((value) => {
@@ -68,11 +68,11 @@ export class ConfirmInvite {
         });
     }
 
-    private submitUser() {       
+    private submitUser() {
         const username = this.confirmInviteForm.controls['username'].value;
         const password = this.confirmInviteForm.controls['password'].value;
-        
-        this.busy = true;     
+
+        this.busy = true;
 
         this.uniHttp.asPUT()
             .usingInitDomain()
@@ -94,7 +94,7 @@ export class ConfirmInvite {
                             this.errorMessage = modelState[''][0]
                         }
                     } catch (e) {}
-                    
+
                     this.busy = false;
                 }
             );
