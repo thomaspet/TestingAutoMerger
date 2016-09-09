@@ -1,9 +1,9 @@
 <header class="poster">
     <article class="poster_toolbar">
         <section>
-            <h1>Termin {{currentVatReport?.TerminPeriod?.No}}</h1>
+            <h1><b>Termin {{currentVatReport?.TerminPeriod?.No}}</b></h1>
             <p>
-                {{currentVatReport?.Title}}, {{currentVatReport?.TerminPeriod | periodDateFormat}} <span> , Status: {{ statusText }} </span>
+                <b>{{currentVatReport?.Title}}</b>, {{currentVatReport?.TerminPeriod | periodDateFormat}} <span> , Status: {{ statusText }} </span>
             </p>
             <span *ngFor="let c of vatReportsInPeriod; let i=index">
                 <span *ngIf="i > 0">,   </span>
@@ -66,10 +66,13 @@
                         {{ isControlledWithoutWarnings() ? 'Automatisk kontroll ok' : 'Automatisk kontroll har advarsler' }}
                     </li>
                     <li [className]="isExecuted() ? 'success' : ''">
-                        {{ isExecuted() ? 'Kjørt ok' : 'Ikke kjørt' }}
+                        {{ isExecuted() ? 'Kjørt' : 'Ikke kjørt' }}
                     </li>
                     <li [className]="isSent() ? 'success' : ''">
-                        {{ isSent() ? 'Sendt inn ok' : 'Ikke sendt inn' }}
+                        {{ isSent() ? 'Sendt inn' : 'Ikke sendt inn' }}
+                    </li>
+                    <li [className]="isApproved() ? 'success' : ''">
+                        {{ isSent() ? 'Godkjent' : 'Ikke godkjent' }}
                     </li>
                 </ul>
             </article>
@@ -110,7 +113,7 @@
                           [reportSummaryPerPost]="reportSummaryPerPost"
                           [period]="currentVatReport?.TerminPeriod"
                           [vatTypes]="vatTypes"
-                          [isHistoricData]="isHistoricData">     
+                          [isHistoricData]="isHistoricData">
     </vat-summary-per-post>
     <vatreport-receipt-view *ngIf="showView == 'receipt'"
                             [vatReport]="currentVatReport"
